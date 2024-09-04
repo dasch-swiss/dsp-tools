@@ -113,18 +113,3 @@ class LinkValueRDF(ValueRDF):
         g.add((bn, VAL_ONTO.hasValue, self.object_value))
         g.add((res_iri, self.prop_name, bn))
         return g
-
-
-@dataclass
-class ValidationProblem:
-    resource_iri: Any
-    property_iri: Any
-    violation_value: ValidationProblemValue
-    message: str
-
-
-@dataclass
-class ValidationProblemValue:
-    rdf_types: list[Any]
-    hasValue: list[Any]
-    hasListName: list[Any]

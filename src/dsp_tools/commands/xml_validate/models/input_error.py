@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from dataclasses import dataclass
+from typing import Any
 from typing import Protocol
 
 INDENT = "    "
@@ -16,7 +17,8 @@ class AllErrors:
     def get_msg(self) -> str:
         coll = self._make_collection()
         msg = [x.get_msg() for x in coll]
-        return GRAND_SEPARATOR.join(msg)
+        title_msg = "During the validation of the data the following problems were found:\n\n"
+        return title_msg + GRAND_SEPARATOR.join(msg)
 
     def _make_collection(self) -> list[ResourceErrorCollection]:
         d = defaultdict(list)
@@ -73,64 +75,17 @@ class MaxCardinalityViolation:
         return self.prop_name
 
 
-#######################
-# ObjectClassConstraint / ObjectDatatypeConstraint Violations
-
-
 @dataclass
-class PropTypeMismatch:
+class ListViolation:
     res_id: str
     prop_name: str
-    prop_type_used: str
-    prop_type_expected: str
-
-    def get_msg(self) -> str:
-        return (
-            f"The following property does not have the same type in the ontology and the data:\n"
-            f"{INDENT}Property: {self.prop_name}\n"
-            f"{INDENT}Type used in data: {self.prop_type_used}\n"
-            f"{INDENT}Type expected according to the ontology: {self.prop_type_expected}"
-        )
-
-    def sort_value(self) -> str:
-        return self.prop_name
-
-
-@dataclass
-class LinkTargetMismatch:
-    res_id: str
-    prop_name: str
-    target_id: str
-    target_class_used: str
-    target_class_expected: str
-
-    def get_msg(self) -> str:
-        return (
-            f"The following link property specifies a different resource type in object position:\n"
-            f"{INDENT}Property: {self.prop_name}\n"
-            f"{INDENT}Target resource ID: {self.target_id}\n"
-            f"{INDENT}Target class of resource: {self.target_class_used}\n"
-            f"{INDENT}Target class expected according to the ontology: {self.target_class_expected}"
-        )
-
-    def sort_value(self) -> str:
-        return self.prop_name
-
-
-#######################
-# List Violation
-
-
-@dataclass
-class ListNodeNotFound:
-    res_id: str
-    prop_name: str
+    msg: str
     list_name: str
     node_name: str
 
     def get_msg(self) -> str:
         return (
-            f"The following list node was not found on the server:\n"
+            f"{self.msg}\n"
             f"{INDENT}Property: {self.prop_name}\n"
             f"{INDENT}List node used: {self.node_name}\n"
             f"{INDENT}List name in data: {self.list_name}"
@@ -140,8 +95,18 @@ class ListNodeNotFound:
         return self.prop_name
 
 
-#######################
-# Miscellaneous Errors
+@dataclass
+class GenericContentViolation:
+    res_id: str
+    prop_name: str
+    content: str
+    msg: str
+
+    def get_msg(self) -> str:
+        return f"{self.msg}\n" f"{INDENT}Property: {self.prop_name}\n" f"{INDENT}Content: {self.content}"
+
+    def sort_value(self) -> str:
+        return self.prop_name
 
 
 @dataclass
@@ -160,3 +125,18 @@ class DuplicateContent:
 
     def sort_value(self) -> str:
         return self.prop_name
+
+
+@dataclass
+class ValidationProblem:
+    resource_iri: Any
+    property_iri: Any
+    violation_value: ValidationProblemValue
+    message: str
+
+
+@dataclass
+class ValidationProblemValue:
+    rdf_types: list[Any]
+    hasValue: Any
+    hasListName: list[Any]

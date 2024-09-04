@@ -6,11 +6,14 @@ from rdflib import Graph
 from rdflib import Namespace
 from rdflib import URIRef
 
-from dsp_tools.commands.xml_validate.models.data_rdf import ValidationProblem
-from dsp_tools.commands.xml_validate.models.data_rdf import ValidationProblemValue
 from dsp_tools.commands.xml_validate.models.input_error import AllErrors
 from dsp_tools.commands.xml_validate.models.input_error import DuplicateContent
+from dsp_tools.commands.xml_validate.models.input_error import GenericContentViolation
 from dsp_tools.commands.xml_validate.models.input_error import InputProblem
+from dsp_tools.commands.xml_validate.models.input_error import ListViolation
+from dsp_tools.commands.xml_validate.models.input_error import MaxCardinalityViolation
+from dsp_tools.commands.xml_validate.models.input_error import ValidationProblem
+from dsp_tools.commands.xml_validate.models.input_error import ValidationProblemValue
 from dsp_tools.models.exceptions import InputError
 
 VAL_ONTO = Namespace("http://api.knora.org/validation-onto#")
@@ -22,16 +25,18 @@ def parse_ttl_file(ttl_path: str) -> Graph:
     return onto
 
 
-def reformat_validation_graph(validation_graph: Graph) -> AllErrors:
-    problems = _reformat_property_violations(validation_graph)
-    problems.extend(_reformat_cardinality_violations(validation_graph))
+def reformat_validation_graph(
+    #     validation_graph: Graph
+) -> AllErrors:
+    problems = _reformat_property_violations()
+    problems.extend(_reformat_cardinality_violations())
     if problems:
         er = AllErrors(errors=problems)
         msg = er.get_msg()
         raise InputError(msg)
 
 
-def _separate_nodes_with_details_and_without(g: Graph) -> list[BNode]:
+def _separate_nodes_with_details_and_without(g: Graph) -> tuple[list[BNode], list[BNode]]:
     individual_validation_results = list(g.subjects(RDF.type, SH.ValidationResult))
 
     def check(bn: BNode) -> list[BNode]:
@@ -83,33 +88,85 @@ def _reformat_one_sparql_violation(g: Graph, bn: BNode) -> DuplicateContent:
 
 
 def _reformat_card_violations(g: Graph, nodes: list[BNode]) -> list[InputProblem]:
-    pass
+    return [_reformat_one_card_violation(g, x) for x in nodes]
 
 
 def _reformat_one_card_violation(g: Graph, bn: BNode) -> InputProblem:
-    pass
+    res_iri = next(g.objects(bn, SH.focusNode))
+    res_id = _reformat_res_id(res_iri)
+    prop_iri = next(g.objects(bn, SH.resultPath))
+    prop = _reformat_prop_iri(prop_iri)
+    violation_type = str(next(g.objects(bn, SH.sourceConstraintComponent)))
+    match violation_type:
+        case "http://www.w3.org/ns/shacl#MaxCountConstraintComponent":
+            return MaxCardinalityViolation(res_id=res_id, prop_name=prop)
+        case _:
+            raise NotImplementedError
 
 
-def _reformat_property_violations(validaton_graph: Graph) -> list[InputProblem]:
-    validaton_graph = parse_ttl_file("testdata/xml-validate/validation-results/prop-violations.ttl")
+def _reformat_property_violations(
+    # validaton_graph: Graph
+) -> list[InputProblem]:
+    validation_graph = parse_ttl_file("testdata/xml-validate/validation-results/prop-violations.ttl")
+    validation_nodes, _ = _separate_nodes_with_details_and_without(validation_graph)
+    extracted = [_extract_one_validation_result(x, validation_graph) for x in validation_nodes]
+    return _reformat_property_validation_results(extracted)
 
 
-def reformat_one_validation_result(validation_bn: BNode, validation_graph: Graph) -> ValidationProblem:
-    problem_resource = next(validation_graph.objects(validation_bn, SH.focusNode))
-    problem_prop = next(validation_graph.objects(validation_bn, SH.resultPath))
+def _extract_one_validation_result(validation_bn: BNode, validation_graph: Graph) -> ValidationProblem:
+    res_iri = next(validation_graph.objects(validation_bn, SH.focusNode))
+    prop_iri = next(validation_graph.objects(validation_bn, SH.resultPath))
     detail_bn = next(validation_graph.objects(validation_bn, SH.detail))
     violation_message = str(next(validation_graph.objects(detail_bn, SH.resultMessage)))
     value_bn = next(validation_graph.objects(validation_bn, SH.value))
-    val_types = list(validation_graph.objects(value_bn, RDF.type))
-    has_values = list(validation_graph.objects(value_bn, VAL_ONTO.hasValue))
+    has_values = next(validation_graph.objects(value_bn, VAL_ONTO.hasValue))
     list_name = list(validation_graph.objects(value_bn, VAL_ONTO.hasListName))
+    val_types = list(validation_graph.objects(value_bn, RDF.type))
     problem_value = ValidationProblemValue(rdf_types=val_types, hasValue=has_values, hasListName=list_name)
     return ValidationProblem(
-        resource_iri=problem_resource,
-        property_iri=problem_prop,
+        resource_iri=res_iri,
+        property_iri=prop_iri,
         violation_value=problem_value,
         message=str(violation_message),
     )
 
 
-_reformat_cardinality_violations()
+def _reformat_property_validation_results(violations: list[ValidationProblem]) -> list[InputProblem]:
+    return [_reformat_one_property_violation(x) for x in violations]
+
+
+def _reformat_one_property_violation(violation: ValidationProblem) -> InputProblem:
+    val_types = [str(x) for x in violation.violation_value.rdf_types]
+    if "http://api.knora.org/validation-onto#ListValue" in val_types:
+        return _reformat_list_violation(violation)
+    elif "http://api.knora.org/validation-onto#LinkValue" in val_types:
+        return _reformat_link_violation(violation)
+    else:
+        return _reformat_other_violation(violation)
+
+
+def _reformat_list_violation(violation: ValidationProblem) -> InputProblem:
+    res_id = _reformat_res_id(violation.resource_iri)
+    prop = _reformat_prop_iri(violation.property_iri)
+    return ListViolation(
+        res_id=res_id,
+        prop_name=prop,
+        msg=violation.message,
+        list_name=str(violation.violation_value.hasListName[0]),
+        node_name=str(violation.violation_value.hasValue),
+    )
+
+
+def _reformat_link_violation(violation: ValidationProblem) -> InputProblem:
+    res_id = _reformat_res_id(violation.resource_iri)
+    prop = _reformat_prop_iri(violation.property_iri)
+    val = _reformat_res_id(violation.violation_value.hasValue)
+    return GenericContentViolation(res_id=res_id, prop_name=prop, content=val, msg=violation.message)
+
+
+def _reformat_other_violation(violation: ValidationProblem) -> InputProblem:
+    res_id = _reformat_res_id(violation.resource_iri)
+    prop = _reformat_prop_iri(violation.property_iri)
+    return GenericContentViolation(
+        res_id=res_id, prop_name=prop, content=str(violation.violation_value.hasValue), msg=violation.message
+    )

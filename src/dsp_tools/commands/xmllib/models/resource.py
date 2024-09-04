@@ -68,6 +68,26 @@ class Resource:
         return prop_
 
     ###################
+    # BooleanValue
+    ###################
+
+    ###################
+    # ColorValue
+    ###################
+
+    ###################
+    # DateValue
+    ###################
+
+    ###################
+    # DecimalValue
+    ###################
+
+    ###################
+    # GeonameValue
+    ###################
+
+    ###################
     # IntValue
     ###################
 
@@ -90,6 +110,34 @@ class Resource:
         if not pd.isna(value):
             self.values.append(IntValue(value=value, prop_name=prop_name, permissions=permissions, comment=comments))
         return self
+
+    ###################
+    # LinkValue
+    ###################
+
+    def add_link(
+        self, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None
+    ) -> Resource:
+        self.values.append(LinkValue(value=value, prop_name=prop_name, permissions=permissions, comment=comments))
+        return self
+
+    def add_links(
+        self, prop_name: str, values: list[str], permissions: str | None = None, comments: str | None = None
+    ) -> Resource:
+        for v in values:
+            self.values.append(LinkValue(value=v, prop_name=prop_name, permissions=permissions, comment=comments))
+        return self
+
+    def add_link_optional(
+        self, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None
+    ) -> Resource:
+        if not pd.isna(value):
+            self.values.append(LinkValue(value=value, prop_name=prop_name, permissions=permissions, comment=comments))
+        return self
+
+    ###################
+    # ListValue
+    ###################
 
     ###################
     # TextValue: SimpleText
@@ -116,28 +164,16 @@ class Resource:
         return self
 
     ###################
-    # LinkValue
+    # TextValue: Richtext
     ###################
 
-    def add_link(
-        self, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None
-    ) -> Resource:
-        self.values.append(LinkValue(value=value, prop_name=prop_name, permissions=permissions, comment=comments))
-        return self
+    ###################
+    # TimeValue
+    ###################
 
-    def add_links(
-        self, prop_name: str, values: list[str], permissions: str | None = None, comments: str | None = None
-    ) -> Resource:
-        for v in values:
-            self.values.append(LinkValue(value=v, prop_name=prop_name, permissions=permissions, comment=comments))
-        return self
-
-    def add_link_optional(
-        self, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None
-    ) -> Resource:
-        if not pd.isna(value):
-            self.values.append(LinkValue(value=value, prop_name=prop_name, permissions=permissions, comment=comments))
-        return self
+    ###################
+    # UriValue
+    ###################
 
     ###################
     # AbstractFileValue

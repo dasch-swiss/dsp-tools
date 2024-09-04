@@ -33,15 +33,100 @@ class Value(Protocol):
 
 
 @dataclass
-class SimpleText(Value):
-    value: str
+class BooleanValue(Value):
+    value: Any
+    prop_name: str
+    permissions: str | None
+    comment: str | None
+
+    def serialise(self) -> etree._Element:
+        raise NotImplementedError
+
+    def make_prop(self) -> etree._Element:
+        raise NotImplementedError
+
+    def make_element(self) -> etree._Element:
+        raise NotImplementedError
+
+
+@dataclass
+class ColorValue(Value):
+    value: Any
+    prop_name: str
+    permissions: str | None
+    comment: str | None
+
+    def serialise(self) -> etree._Element:
+        raise NotImplementedError
+
+    def make_prop(self) -> etree._Element:
+        raise NotImplementedError
+
+    def make_element(self) -> etree._Element:
+        raise NotImplementedError
+
+
+@dataclass
+class DateValue(Value):
+    value: Any
+    prop_name: str
+    permissions: str | None
+    comment: str | None
+
+    def serialise(self) -> etree._Element:
+        raise NotImplementedError
+
+    def make_prop(self) -> etree._Element:
+        raise NotImplementedError
+
+    def make_element(self) -> etree._Element:
+        raise NotImplementedError
+
+
+@dataclass
+class DecimalValue(Value):
+    value: Any
+    prop_name: str
+    permissions: str | None
+    comment: str | None
+
+    def serialise(self) -> etree._Element:
+        raise NotImplementedError
+
+    def make_prop(self) -> etree._Element:
+        raise NotImplementedError
+
+    def make_element(self) -> etree._Element:
+        raise NotImplementedError
+
+
+@dataclass
+class GeonameValue(Value):
+    value: Any
+    prop_name: str
+    permissions: str | None
+    comment: str | None
+
+    def serialise(self) -> etree._Element:
+        raise NotImplementedError
+
+    def make_prop(self) -> etree._Element:
+        raise NotImplementedError
+
+    def make_element(self) -> etree._Element:
+        raise NotImplementedError
+
+
+@dataclass
+class IntValue(Value):
+    value: int | str
     prop_name: str
     permissions: str | None = "prop-default"
     comment: str | None = None
 
     def __post_init__(self) -> None:
-        if not is_string(self.value):
-            _warn_type_mismatch(expected_type="string", value=self.value, prop_name=self.prop_name)
+        if not is_integer(self.value):
+            _warn_type_mismatch(expected_type="integer", value=self.value, prop_name=self.prop_name)
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()
@@ -49,16 +134,16 @@ class SimpleText(Value):
         return ele
 
     def make_prop(self) -> etree._Element:
-        return etree.Element(f"{DASCH_SCHEMA}text-prop", name=self.prop_name, nsmap=XML_NAMESPACE_MAP)
+        return etree.Element(f"{DASCH_SCHEMA}integer-prop", name=self.prop_name, nsmap=XML_NAMESPACE_MAP)
 
     def make_element(self) -> etree._Element:
-        attribs = {"encoding": "utf8"}
+        attribs = {}
         if self.permissions:
             attribs["permissions"] = self.permissions
         if self.comment:
             attribs["comment"] = self.comment
-        ele = etree.Element(f"{DASCH_SCHEMA}text", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
-        ele.text = self.value
+        ele = etree.Element(f"{DASCH_SCHEMA}integer", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
+        ele.text = str(self.value)
         return ele
 
 
@@ -93,15 +178,32 @@ class LinkValue(Value):
 
 
 @dataclass
-class IntValue(Value):
-    value: int | str
+class ListValue(Value):
+    value: Any
+    prop_name: str
+    permissions: str | None
+    comment: str | None
+
+    def serialise(self) -> etree._Element:
+        raise NotImplementedError
+
+    def make_prop(self) -> etree._Element:
+        raise NotImplementedError
+
+    def make_element(self) -> etree._Element:
+        raise NotImplementedError
+
+
+@dataclass
+class SimpleText(Value):
+    value: str
     prop_name: str
     permissions: str | None = "prop-default"
     comment: str | None = None
 
     def __post_init__(self) -> None:
-        if not is_integer(self.value):
-            _warn_type_mismatch(expected_type="integer", value=self.value, prop_name=self.prop_name)
+        if not is_string(self.value):
+            _warn_type_mismatch(expected_type="string", value=self.value, prop_name=self.prop_name)
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()
@@ -109,17 +211,68 @@ class IntValue(Value):
         return ele
 
     def make_prop(self) -> etree._Element:
-        return etree.Element(f"{DASCH_SCHEMA}integer-prop", name=self.prop_name, nsmap=XML_NAMESPACE_MAP)
+        return etree.Element(f"{DASCH_SCHEMA}text-prop", name=self.prop_name, nsmap=XML_NAMESPACE_MAP)
 
     def make_element(self) -> etree._Element:
-        attribs = {}
+        attribs = {"encoding": "utf8"}
         if self.permissions:
             attribs["permissions"] = self.permissions
         if self.comment:
             attribs["comment"] = self.comment
-        ele = etree.Element(f"{DASCH_SCHEMA}integer", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
-        ele.text = str(self.value)
+        ele = etree.Element(f"{DASCH_SCHEMA}text", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
+        ele.text = self.value
         return ele
+
+
+@dataclass
+class Richtext(Value):
+    value: Any
+    prop_name: str
+    permissions: str | None
+    comment: str | None
+
+    def serialise(self) -> etree._Element:
+        raise NotImplementedError
+
+    def make_prop(self) -> etree._Element:
+        raise NotImplementedError
+
+    def make_element(self) -> etree._Element:
+        raise NotImplementedError
+
+
+@dataclass
+class TimeValue(Value):
+    value: Any
+    prop_name: str
+    permissions: str | None
+    comment: str | None
+
+    def serialise(self) -> etree._Element:
+        raise NotImplementedError
+
+    def make_prop(self) -> etree._Element:
+        raise NotImplementedError
+
+    def make_element(self) -> etree._Element:
+        raise NotImplementedError
+
+
+@dataclass
+class UriValue(Value):
+    value: Any
+    prop_name: str
+    permissions: str | None
+    comment: str | None
+
+    def serialise(self) -> etree._Element:
+        raise NotImplementedError
+
+    def make_prop(self) -> etree._Element:
+        raise NotImplementedError
+
+    def make_element(self) -> etree._Element:
+        raise NotImplementedError
 
 
 def _warn_type_mismatch(expected_type: str, value: Any, prop_name: str) -> None:

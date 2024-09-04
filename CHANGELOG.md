@@ -1,5 +1,18 @@
 # Changelog
 
+## [9.0.1](https://github.com/dasch-swiss/dsp-tools/compare/v9.0.0...v9.0.1) (2024-09-04)
+
+
+### Bug Fixes
+
+* bump stack to 2024.08.02 ([#1149](https://github.com/dasch-swiss/dsp-tools/issues/1149)) ([9190dbf](https://github.com/dasch-swiss/dsp-tools/commit/9190dbf3d0b5f077e309790ea80a0b52adf01b10))
+
+
+### Maintenance
+
+* Fix releasing to PyPI (DEV-3972) ([#1151](https://github.com/dasch-swiss/dsp-tools/issues/1151)) ([b1ba08b](https://github.com/dasch-swiss/dsp-tools/commit/b1ba08b0e072f54dc8a2ca11c48e7e281dc61720))
+* Fix tests not being executed on release-please branch ([#1152](https://github.com/dasch-swiss/dsp-tools/issues/1152)) ([325006b](https://github.com/dasch-swiss/dsp-tools/commit/325006b5b1df77fc82c3d6d5cd169ad0bc601168))
+
 ## [9.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v8.5.0...v9.0.0) (2024-09-03)
 
 

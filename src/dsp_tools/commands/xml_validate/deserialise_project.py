@@ -17,7 +17,7 @@ from dsp_tools.commands.xml_validate.models.project_deserialised import SimpleTe
 
 def deserialise_project() -> ProjectDeserialised:
     """Deserializes an ontology."""
-    onto = _get_project_ontology()
+    onto = _get_project_ontology()["@graph"]
     deserialised_lists = _get_deserialised_lists()
     resources = _deserialise_resources(onto)
     props = _deserialise_properties(onto, deserialised_lists)
@@ -57,9 +57,9 @@ def _process_child_nodes(node: dict[str, Any]) -> list[str]:
     return children
 
 
-def _deserialise_resources(onto: list[dict[str, Any]]) -> list[ResourceClass]:
+def _deserialise_resources(onto: list[dict[str, Any]]) -> dict[str, ResourceClass]:
     only_res = _extract_resources(onto)
-    return [_deserialise_one_resource(x) for x in only_res]
+    return {(res := _deserialise_one_resource(x)).cls_id: res for x in only_res}
 
 
 def _extract_resources(onto: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -68,7 +68,8 @@ def _extract_resources(onto: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 def _deserialise_one_resource(res: dict[str, Any]) -> ResourceClass:
     cards = _deserialise_restrictions(res["rdfs:subClassOf"])
-    return ResourceClass(cls_id=res["@id"], restrictions=cards)
+    mandatory_props = {x.onProperty for x in cards.values() if isinstance(x, CardinalityOne)}
+    return ResourceClass(cls_id=res["@id"], restrictions=cards, mandatory_props=mandatory_props)
 
 
 def _deserialise_restrictions(sub_class_bns: list[dict[str, Any]]) -> dict[str, Cardinality]:
@@ -83,7 +84,7 @@ def _deserialise_restrictions(sub_class_bns: list[dict[str, Any]]) -> dict[str, 
     return {x.onProperty: x for x in all_cards}
 
 
-def _deserialise_properties(onto: list[dict[str, Any]], list_lookup: ListDeserialised) -> list[Property]:
+def _deserialise_properties(onto: list[dict[str, Any]], list_lookup: ListDeserialised) -> dict[str, Property]:
     all_props = _extract_all_onto_properties(onto)
     deserialised_props: list[Property] = []
 
@@ -97,7 +98,8 @@ def _deserialise_properties(onto: list[dict[str, Any]], list_lookup: ListDeseria
     for prop in all_props:
         if des := _deserialise_other_property(prop):
             deserialised_props.append(des)
-    return deserialised_props
+
+    return {x.prop_name: x for x in deserialised_props}
 
 
 def _extract_all_onto_properties(onto: list[dict[str, Any]]) -> list[dict[str, Any]]:

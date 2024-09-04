@@ -11,7 +11,7 @@ GRAND_SEPARATOR = "\n\n----------------------------\n\n"
 
 @dataclass
 class AllProblems:
-    problems: list[InputProblems]
+    problems: list[InputProblem]
 
     def get_msg(self) -> str:
         coll = self._make_collection()
@@ -30,7 +30,7 @@ class AllProblems:
 
 
 @dataclass
-class InputProblems(Protocol):
+class InputProblem(Protocol):
     res_id: str
 
     def get_msg(self) -> str:
@@ -43,7 +43,7 @@ class InputProblems(Protocol):
 @dataclass
 class ResourceProblemCollection:
     res_id: str
-    problems: list[InputProblems]
+    problems: list[InputProblem]
 
     def get_msg(self) -> str:
         msg = [f"The resource with the ID '{self.res_id}' has the following problem(s):"]
@@ -103,7 +103,7 @@ class LinkTargetMismatch:
     prop_name: str
     target_id: str
     target_class_used: str
-    target_class_expected: str
+    target_class_expected: set[str]
 
     def get_msg(self) -> str:
         return (
@@ -111,7 +111,7 @@ class LinkTargetMismatch:
             f"{INDENT}Property: {self.prop_name}\n"
             f"{INDENT}Target resource ID: {self.target_id}\n"
             f"{INDENT}Target class of resource: {self.target_class_used}\n"
-            f"{INDENT}Target class expected according to the ontology: {self.target_class_expected}"
+            f"{INDENT}Target class expected according to the ontology one of: {', '.join(self.target_class_expected)}"
         )
 
     def sort_value(self) -> str:

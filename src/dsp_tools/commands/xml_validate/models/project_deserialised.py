@@ -13,14 +13,23 @@ class ListDeserialised:
 
 @dataclass
 class ProjectDeserialised:
-    resources: list[ResourceClass]
-    properties: list[Property]
+    resources: dict[str, ResourceClass]
+    properties: dict[str, Property]
+
+    def get_link_prop_lookup(self) -> dict[str, set[str]]:
+        link_props = [x for x in self.properties.values() if isinstance(x, LinkValueProperty)]
+        return {x.prop_name: x.objectType for x in link_props}
+
+    def get_list_prop_lookup(self) -> dict[str, ListValueProperty]:
+        list_props = [x for x in self.properties.values() if isinstance(x, ListValueProperty)]
+        return {x.prop_name: x for x in list_props}
 
 
 @dataclass
 class ResourceClass:
     cls_id: str
     restrictions: dict[str, Cardinality]
+    mandatory_props: set[str]
 
 
 @dataclass

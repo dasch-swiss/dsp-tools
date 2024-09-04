@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import Counter
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any
@@ -18,6 +19,9 @@ class DataDeserialised:
             res_d[r.res_class].append(r)
         return res_d
 
+    def get_resource_and_types(self) -> dict[str, str]:
+        return {x.res_id: x.res_class for x in self.resources}
+
 
 @dataclass
 class ResourceData:
@@ -30,7 +34,11 @@ class ResourceData:
         card_d = defaultdict(list)
         for v in self.values:
             card_d[v.prop_name].append(1)
-        return [PropForResourceCardinality(res_id=self.res_id, prop_name=k, num_used=len(v)) for k, v in card_d.items()]
+        return [PropForResourceCardinality(prop_name=k, num_used=len(v)) for k, v in card_d.items()]
+
+    def get_duplicate_content(self) -> list[tuple[str, Any]]:
+        prop_vals = Counter(x.get_prop_value() for x in self.values)
+        return [t for t, count in prop_vals.items() if count > 1]
 
 
 @dataclass
@@ -41,6 +49,9 @@ class ValueData(Protocol):
 
     def type(self) -> str:
         raise NotImplementedError
+
+    def get_prop_value(self) -> tuple[str, Any]:
+        return self.prop_name, self.prop_value
 
 
 @dataclass
@@ -86,6 +97,5 @@ class LinkValueData(ValueData):
 
 @dataclass
 class PropForResourceCardinality:
-    res_id: str
     prop_name: str
     num_used: int

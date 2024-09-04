@@ -11,7 +11,6 @@ from dsp_tools.commands.xml_validate.models.data_deserialised import ResourceDat
 from dsp_tools.commands.xml_validate.models.data_deserialised import SimpleTextData
 from dsp_tools.commands.xml_validate.models.data_deserialised import ValueData
 from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
-from dsp_tools.utils.xml_validation import validate_xml
 
 
 def parse_file(file: Path) -> DataDeserialised:
@@ -22,7 +21,6 @@ def parse_file(file: Path) -> DataDeserialised:
 
 def _parse_file_validate_with_schema(file: Path) -> etree._Element:
     root = parse_and_clean_xml_file(file)
-    validate_xml(root)
     return root
 
 

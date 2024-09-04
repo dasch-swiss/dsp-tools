@@ -6,34 +6,35 @@ from rdflib import Graph
 from rdflib import Namespace
 from rdflib import URIRef
 
-from dsp_tools.commands.xml_validate.models.input_error import AllErrors
 from dsp_tools.commands.xml_validate.models.input_error import DuplicateContent
 from dsp_tools.commands.xml_validate.models.input_error import GenericContentViolation
 from dsp_tools.commands.xml_validate.models.input_error import InputProblem
 from dsp_tools.commands.xml_validate.models.input_error import ListViolation
 from dsp_tools.commands.xml_validate.models.input_error import MaxCardinalityViolation
+from dsp_tools.commands.xml_validate.models.input_error import ValidationGraphs
 from dsp_tools.commands.xml_validate.models.input_error import ValidationProblem
 from dsp_tools.commands.xml_validate.models.input_error import ValidationProblemValue
-from dsp_tools.models.exceptions import InputError
 
 VAL_ONTO = Namespace("http://api.knora.org/validation-onto#")
 
 
-def parse_ttl_file(ttl_path: str) -> Graph:
-    onto = Graph()
-    onto.parse(ttl_path)
-    return onto
+def reformat_validation_graph(validation_graph: ValidationGraphs) -> list[InputProblem]:
+    """
+    Reformats the validation result from a RDF graph into class instances
+    that are used to communicate the problems with the user.
 
+    Args:
+        validation_graph: Contains the possible two validation errors
 
-def reformat_validation_graph(
-    #     validation_graph: Graph
-) -> AllErrors:
-    problems = _reformat_property_violations()
-    problems.extend(_reformat_cardinality_violations())
-    if problems:
-        er = AllErrors(errors=problems)
-        msg = er.get_msg()
-        raise InputError(msg)
+    Returns:
+        List of individual problems
+    """
+    problems: list[InputProblem] = []
+    if validation_graph.property_violations:
+        problems.extend(_reformat_property_violations(validation_graph.property_violations))
+    if validation_graph.cardinality_violations:
+        problems.extend(_reformat_cardinality_violations(validation_graph.cardinality_violations))
+    return problems
 
 
 def _separate_nodes_with_details_and_without(g: Graph) -> tuple[list[BNode], list[BNode]]:
@@ -56,10 +57,7 @@ def _reformat_prop_iri(prop: URIRef) -> str:
     return f'{onto}:{str(prop).split("#")[-1]}'
 
 
-def _reformat_cardinality_violations(
-    # validation_graph: Graph
-) -> list[InputProblem]:
-    validation_graph = parse_ttl_file("testdata/xml-validate/validation-results/card-violations.ttl")
+def _reformat_cardinality_violations(validation_graph: Graph) -> list[InputProblem]:
     sparql_violation_bns, card_violation_bns = _separate_cardinality_violation_types(validation_graph)
     problems: list[InputProblem] = _reformat_sparql_violations(validation_graph, sparql_violation_bns)
     problems.extend(_reformat_card_violations(validation_graph, card_violation_bns))
@@ -96,18 +94,15 @@ def _reformat_one_card_violation(g: Graph, bn: BNode) -> InputProblem:
     res_id = _reformat_res_id(res_iri)
     prop_iri = next(g.objects(bn, SH.resultPath))
     prop = _reformat_prop_iri(prop_iri)
-    violation_type = str(next(g.objects(bn, SH.sourceConstraintComponent)))
+    violation_type = next(g.objects(bn, SH.sourceConstraintComponent))
     match violation_type:
-        case "http://www.w3.org/ns/shacl#MaxCountConstraintComponent":
+        case SH.MaxCountConstraintComponent:
             return MaxCardinalityViolation(res_id=res_id, prop_name=prop)
         case _:
             raise NotImplementedError
 
 
-def _reformat_property_violations(
-    # validaton_graph: Graph
-) -> list[InputProblem]:
-    validation_graph = parse_ttl_file("testdata/xml-validate/validation-results/prop-violations.ttl")
+def _reformat_property_violations(validation_graph: Graph) -> list[InputProblem]:
     validation_nodes, _ = _separate_nodes_with_details_and_without(validation_graph)
     extracted = [_extract_one_validation_result(x, validation_graph) for x in validation_nodes]
     return _reformat_property_validation_results(extracted)

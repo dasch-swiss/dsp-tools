@@ -24,13 +24,15 @@ def validate_all(data: Graph) -> None:
     print("*" * 20, "Validate Cardinalities", "*" * 20)
     card_shapes = parse_ttl_file("testdata/xml-validate/cardinality-shapes.ttl")
     card_data = onto + data
-    _, _, txt = validate_graph_no_inference(card_data, card_shapes)
+    _, g, txt = validate_graph_no_inference(card_data, card_shapes)
+    # g.serialize("testdata/xml-validate/validation-results/card-violations.ttl")
     print(txt)
 
     print("*" * 20, "Validate Values", "*" * 20)
     prop_shapes = parse_ttl_file("testdata/xml-validate/property-shapes.ttl")
     prop_data = onto + data + val_onto
-    _, _, txt = validate_graph_rdfs_inference(prop_data, prop_shapes)
+    _, g, txt = validate_graph_rdfs_inference(prop_data, prop_shapes)
+    # g.serialize("testdata/xml-validate/validation-results/prop-violations.ttl")
     print(txt)
 
 

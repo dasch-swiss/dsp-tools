@@ -11,7 +11,7 @@ GRAND_SEPARATOR = "\n\n----------------------------\n\n"
 
 @dataclass
 class AllErrors:
-    errors: list[InputError]
+    errors: list[InputProblem]
 
     def get_msg(self) -> str:
         coll = self._make_collection()
@@ -29,7 +29,7 @@ class AllErrors:
 
 
 @dataclass
-class InputError(Protocol):
+class InputProblem(Protocol):
     res_id: str
 
     def get_msg(self) -> str:
@@ -42,7 +42,7 @@ class InputError(Protocol):
 @dataclass
 class ResourceErrorCollection:
     res_id: str
-    errors: list[InputError]
+    errors: list[InputProblem]
 
     def get_msg(self) -> str:
         msg = [f"The resource with the ID '{self.res_id}' has the following problem(s):"]

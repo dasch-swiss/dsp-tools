@@ -7,32 +7,21 @@
 [] a sh:ValidationReport ;
     sh:conforms false ;
     sh:result [ a sh:ValidationResult ;
-            sh:focusNode <http://validation-9999/data/max-card-violation> ;
-            sh:resultMessage "Cardinality: 'onto:hasSimpleText' -> exactly 1" ;
-            sh:resultPath onto:hasSimpleText ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:MaxCountConstraintComponent ;
-            sh:sourceShape [ a sh:PropertyShape ;
-                    sh:maxCount 1 ;
-                    sh:message "Cardinality: 'onto:hasSimpleText' -> exactly 1" ;
-                    sh:minCount 1 ;
-                    sh:path onto:hasSimpleText ;
-                    sh:severity sh:Violation ] ],
-        [ a sh:ValidationResult ;
             sh:detail [ a sh:ValidationResult ;
                     sh:focusNode <http://validation-9999/data/identical-value> ;
                     sh:resultMessage "A resource may not have the same property and value more than one time." ;
+                    sh:resultPath onto:hasSimpleText ;
                     sh:resultSeverity sh:Violation ;
                     sh:sourceConstraint [ a sh:SPARQLConstraint ;
                             sh:message "A resource may not have the same property and value more than one time." ;
                             sh:select """
                     PREFIX val-onto: <http://api.knora.org/validation-onto#>
-                    SELECT $this ?value WHERE {
-                      $this ?someProperty ?valueClass .
+                    SELECT $this ?path ?value WHERE {
+                      $this ?path ?valueClass .
 
                       ?valueClass val-onto:hasValue ?value .
                     }
-                    GROUP BY $this ?someProperty ?value
+                    GROUP BY $this ?path ?value
                     HAVING (COUNT(?value) > 1)
                 """ ] ;
                     sh:sourceConstraintComponent sh:SPARQLConstraintComponent ;
@@ -43,5 +32,17 @@
             sh:resultSeverity sh:Violation ;
             sh:sourceConstraintComponent sh:NodeConstraintComponent ;
             sh:sourceShape onto-shapes:NormalClass_NodeShape ;
-            sh:value <http://validation-9999/data/identical-value> ] .
+            sh:value <http://validation-9999/data/identical-value> ],
+        [ a sh:ValidationResult ;
+            sh:focusNode <http://validation-9999/data/max-card-violation> ;
+            sh:resultMessage "Cardinality: 'onto:hasSimpleText' -> exactly 1" ;
+            sh:resultPath onto:hasSimpleText ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:MaxCountConstraintComponent ;
+            sh:sourceShape [ a sh:PropertyShape ;
+                    sh:maxCount 1 ;
+                    sh:message "Cardinality: 'onto:hasSimpleText' -> exactly 1" ;
+                    sh:minCount 1 ;
+                    sh:path onto:hasSimpleText ;
+                    sh:severity sh:Violation ] ] .
 

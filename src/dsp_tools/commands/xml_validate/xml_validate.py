@@ -28,6 +28,7 @@ def xml_validate(xml_filepath: Path) -> bool:
     if problems := _find_all_problems(data, onto):
         msg = AllProblems(problems).get_msg()
         raise InputError(msg)
+    print("Data validation was successful. No errors found.")
     return True
 
 
@@ -41,7 +42,7 @@ def _find_all_problems(data: DataDeserialised, onto: ProjectDeserialised) -> lis
 
 
 def _check_for_duplicate_values(data: DataDeserialised) -> list[InputProblem]:
-    problems = []
+    problems: list[InputProblem] = []
     for r in data.resources:
         if duplicates := r.get_duplicate_content():
             for dup in duplicates:
@@ -50,7 +51,7 @@ def _check_for_duplicate_values(data: DataDeserialised) -> list[InputProblem]:
 
 
 def _check_cardinalities(data: DataDeserialised, onto: ProjectDeserialised) -> list[InputProblem]:
-    problems = []
+    problems: list[InputProblem] = []
     for res in data.resources:
         problems.extend(_check_cardinality_one_resource(res, onto.resources[res.res_class]))
     return problems

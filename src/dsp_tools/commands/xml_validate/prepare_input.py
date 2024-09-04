@@ -27,39 +27,39 @@ def _parse_file_validate_with_schema(file: Path) -> etree._Element:
 def _transform_into_project_deserialised(root: etree._Element) -> DataDeserialised:
     shortcode = root.attrib["shortcode"]
     default_ontology = root.attrib["default-ontology"]
-    resources = [_deserialise_one_resource(x) for x in root.iterdescendants(tag="resource")]
+    resources = [_deserialise_one_resource(x, default_ontology) for x in root.iterdescendants(tag="resource")]
     return DataDeserialised(shortcode=shortcode, default_onto=default_ontology, resources=resources)
 
 
-def _deserialise_one_resource(resource: etree._Element) -> ResourceData:
+def _deserialise_one_resource(resource: etree._Element, default_ontology: str) -> ResourceData:
     res_id = resource.attrib["id"]
     values: list[ValueData] = []
     for val in resource.iterchildren():
-        values.extend(_deserialise_one_property(val, res_id))
+        values.extend(_deserialise_one_property(val, res_id, default_ontology))
     return ResourceData(
         res_id=res_id,
-        res_class=resource.attrib["restype"],
+        res_class=f'{default_ontology}{resource.attrib["restype"]}',
         label=resource.attrib["label"],
         values=values,
     )
 
 
-def _deserialise_one_property(prop_ele: etree._Element, res_id: str) -> list[ValueData]:
+def _deserialise_one_property(prop_ele: etree._Element, res_id: str, default_ontology: str) -> list[ValueData]:
     match prop_ele.tag:
         case "text-prop":
-            return _deserialise_text_prop(prop_ele, res_id)
+            return _deserialise_text_prop(prop_ele, res_id, default_ontology)
         case "list-prop":
-            return _deserialise_list_prop(prop_ele, res_id)
+            return _deserialise_list_prop(prop_ele, res_id, default_ontology)
         case "resptr-prop":
-            return _deserialise_resptr_prop(prop_ele, res_id)
+            return _deserialise_resptr_prop(prop_ele, res_id, default_ontology)
         case "integer-prop":
-            return _deserialise_int_prop(prop_ele, res_id)
+            return _deserialise_int_prop(prop_ele, res_id, default_ontology)
         case _:
             return []
 
 
-def _deserialise_text_prop(prop: etree._Element, res_id: str) -> list[ValueData]:
-    prop_name = prop.attrib["name"]
+def _deserialise_text_prop(prop: etree._Element, res_id: str, default_ontology: str) -> list[ValueData]:
+    prop_name = f'{default_ontology}{prop.attrib["name"]}'
     all_vals: list[ValueData] = []
     for child in prop.iterchildren():
         val = cast(str, child.text)
@@ -71,8 +71,8 @@ def _deserialise_text_prop(prop: etree._Element, res_id: str) -> list[ValueData]
     return all_vals
 
 
-def _deserialise_list_prop(prop: etree._Element, res_id: str) -> list[ValueData]:
-    prop_name = prop.attrib["name"]
+def _deserialise_list_prop(prop: etree._Element, res_id: str, default_ontology: str) -> list[ValueData]:
+    prop_name = f'{default_ontology}{prop.attrib["name"]}'
     list_name = prop.attrib["list"]
     all_vals: list[ValueData] = []
     for val in prop.iterchildren():
@@ -88,8 +88,8 @@ def _deserialise_list_prop(prop: etree._Element, res_id: str) -> list[ValueData]
     return all_vals
 
 
-def _deserialise_resptr_prop(prop: etree._Element, res_id: str) -> list[ValueData]:
-    prop_name = prop.attrib["name"]
+def _deserialise_resptr_prop(prop: etree._Element, res_id: str, default_ontology: str) -> list[ValueData]:
+    prop_name = f'{default_ontology}{prop.attrib["name"]}'
     all_links: list[ValueData] = []
     for val in prop.iterchildren():
         txt = cast(str, val.text)
@@ -97,8 +97,8 @@ def _deserialise_resptr_prop(prop: etree._Element, res_id: str) -> list[ValueDat
     return all_links
 
 
-def _deserialise_int_prop(prop: etree._Element, res_id: str) -> list[ValueData]:
-    prop_name = prop.attrib["name"]
+def _deserialise_int_prop(prop: etree._Element, res_id: str, default_ontology: str) -> list[ValueData]:
+    prop_name = f'{default_ontology}{prop.attrib["name"]}'
     all_links: list[ValueData] = []
     for val in prop.iterchildren():
         txt = cast(str, val.text)

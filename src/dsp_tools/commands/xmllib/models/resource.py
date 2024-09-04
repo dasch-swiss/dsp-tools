@@ -9,9 +9,9 @@ from typing import Any
 import pandas as pd
 from lxml import etree
 
-from dsp_tools.commands.xmllib.models.values import AbstractFileValue
-from dsp_tools.commands.xmllib.models.values import FileValue
-from dsp_tools.commands.xmllib.models.values import IIIFUri
+from dsp_tools.commands.xmllib.models.file_values import AbstractFileValue
+from dsp_tools.commands.xmllib.models.file_values import FileValue
+from dsp_tools.commands.xmllib.models.file_values import IIIFUri
 from dsp_tools.commands.xmllib.models.values import IntValue
 from dsp_tools.commands.xmllib.models.values import LinkValue
 from dsp_tools.commands.xmllib.models.values import SimpleText

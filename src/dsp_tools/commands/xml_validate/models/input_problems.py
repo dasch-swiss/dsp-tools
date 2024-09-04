@@ -125,6 +125,9 @@ class DuplicateContent:
             f"{INDENT}Content: {self.content}"
         )
 
+    def sort_value(self) -> str:
+        return self.res_id
+
 
 @dataclass
 class ValidationGraphs:

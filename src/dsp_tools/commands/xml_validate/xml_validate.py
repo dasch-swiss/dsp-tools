@@ -4,8 +4,8 @@ from pyshacl import validate
 from rdflib import Graph
 
 from dsp_tools.commands.xml_validate.deserialise_project import create_project_rdf
-from dsp_tools.commands.xml_validate.models.input_error import AllErrors
-from dsp_tools.commands.xml_validate.models.input_error import ValidationGraphs
+from dsp_tools.commands.xml_validate.models.input_problems import AllProblems
+from dsp_tools.commands.xml_validate.models.input_problems import ValidationGraphs
 from dsp_tools.commands.xml_validate.prepare_input import parse_file
 from dsp_tools.commands.xml_validate.reformat_validaton_result import reformat_validation_graph
 from dsp_tools.models.exceptions import InputError
@@ -20,7 +20,7 @@ def xml_validate(file_path: Path) -> bool:
         print("Data validation was successful. No errors found.")
         return True
     problems = reformat_validation_graph(validation_result)
-    er = AllErrors(errors=problems)
+    er = AllProblems(problems)
     msg = er.get_msg()
     raise InputError(msg)
 
@@ -60,3 +60,6 @@ def _validate_graph_rdfs_inference(data: Graph, shapes: Graph) -> Graph | None:
     if conforms:
         return None
     return results_graph
+
+
+xml_validate(Path("testdata/xml-validate/data/invalid-data.xml"))

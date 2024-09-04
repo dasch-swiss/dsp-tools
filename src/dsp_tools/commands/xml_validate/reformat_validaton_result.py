@@ -5,14 +5,14 @@ from rdflib import Graph
 from rdflib import Namespace
 from rdflib import URIRef
 
-from dsp_tools.commands.xml_validate.models.input_error import DuplicateContent
-from dsp_tools.commands.xml_validate.models.input_error import GenericContentViolation
-from dsp_tools.commands.xml_validate.models.input_error import InputProblem
-from dsp_tools.commands.xml_validate.models.input_error import ListViolation
-from dsp_tools.commands.xml_validate.models.input_error import MaxCardinalityViolation
-from dsp_tools.commands.xml_validate.models.input_error import ValidationGraphs
-from dsp_tools.commands.xml_validate.models.input_error import ValidationProblem
-from dsp_tools.commands.xml_validate.models.input_error import ValidationProblemValue
+from dsp_tools.commands.xml_validate.models.input_problems import DuplicateContent
+from dsp_tools.commands.xml_validate.models.input_problems import GenericContentViolation
+from dsp_tools.commands.xml_validate.models.input_problems import InputProblem
+from dsp_tools.commands.xml_validate.models.input_problems import ListViolation
+from dsp_tools.commands.xml_validate.models.input_problems import MaxCardinalityViolation
+from dsp_tools.commands.xml_validate.models.input_problems import ValidationGraphs
+from dsp_tools.commands.xml_validate.models.input_problems import ValidationProblem
+from dsp_tools.commands.xml_validate.models.input_problems import ValidationProblemValue
 
 VAL_ONTO = Namespace("http://api.knora.org/validation-onto#")
 

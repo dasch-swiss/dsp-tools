@@ -60,6 +60,3 @@ def _validate_graph_rdfs_inference(data: Graph, shapes: Graph) -> Graph | None:
     if conforms:
         return None
     return results_graph
-
-
-xml_validate(Path("testdata/xml-validate/data/invalid-data.xml"))

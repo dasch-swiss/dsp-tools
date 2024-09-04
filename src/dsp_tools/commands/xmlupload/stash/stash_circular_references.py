@@ -120,7 +120,7 @@ def identify_circular_references(root: etree._Element) -> tuple[dict[str, list[s
     Identifies problematic resource-references inside an XML tree.
     A reference is problematic if it creates a circle (circular references).
     The XML tree is modified in-place:
-    A reference UUID is added to each XML element that contains a link (<resptr> or <text>).
+    A reference UUID is added to each XML element that contains a link (`<resptr>` or `<text>`).
 
     Args:
         root: the root element of the parsed XML document

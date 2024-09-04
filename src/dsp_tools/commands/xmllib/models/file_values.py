@@ -8,7 +8,7 @@ from typing import Protocol
 
 from lxml import etree
 
-from dsp_tools.commands.xmllib import is_string
+from dsp_tools.commands.xmllib.value_checkers import is_string
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.utils.uri_util import is_iiif_uri
 
@@ -49,7 +49,7 @@ class FileValue(AbstractFileValue):
 
 @dataclass
 class IIIFUri(AbstractFileValue):
-    value: str | Path
+    value: str
     permissions: str | None = "prop-default"
     comment: str | None = None
 

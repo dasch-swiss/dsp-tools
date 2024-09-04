@@ -2,6 +2,7 @@
 
 
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
 
@@ -29,12 +30,12 @@ def _make_books() -> list[xmllib.Resource]:
     books = []
     for _, row in df.iterrows():
         filename = files[row["id"]]
-        one_book = _make_one_book(row, filename)
+        one_book = _make_one_book(row, str(filename))
         books.append(one_book)
     return books
 
 
-def _make_one_book(row: pd.Series, filename: str) -> xmllib.Resource:
+def _make_one_book(row: pd.Series[Any], filename: str) -> xmllib.Resource:
     titles = row["hasTitle"].split("||")
     titles = [x.strip() for x in titles]
     return (
@@ -56,7 +57,7 @@ def _make_chapters() -> list[xmllib.Resource]:
     return chapters
 
 
-def _make_one_chapter(row: pd.Series) -> xmllib.Resource:
+def _make_one_chapter(row: pd.Series[Any]) -> xmllib.Resource:
     return (
         xmllib.Resource(res_id=row["id"], restype=":Chapter", label=row["label"])
         .add_simple_text(prop_name=":hasTitle", value=row["hasTitle"])

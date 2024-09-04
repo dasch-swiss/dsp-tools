@@ -106,7 +106,7 @@ class Resource:
     ) -> Resource:
         for v in values:
             self.values.append(SimpleText(value=v, prop_name=prop_name, permissions=permissions, comment=comments))
-            return self
+        return self
 
     def add_simple_text_optional(
         self, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None

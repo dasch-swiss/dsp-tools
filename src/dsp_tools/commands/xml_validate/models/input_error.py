@@ -10,26 +10,26 @@ GRAND_SEPARATOR = "\n\n----------------------------\n\n"
 
 
 @dataclass
-class AllErrors:
-    errors: list[InputError]
+class AllProblems:
+    problems: list[InputProblems]
 
     def get_msg(self) -> str:
         coll = self._make_collection()
         msg = [x.get_msg() for x in coll]
         return GRAND_SEPARATOR.join(msg)
 
-    def _make_collection(self) -> list[ResourceErrorCollection]:
+    def _make_collection(self) -> list[ResourceProblemCollection]:
         d = defaultdict(list)
-        for e in self.errors:
+        for e in self.problems:
             d[e.res_id].append(e)
         collection_list = []
         for k, v in d.items():
-            collection_list.append(ResourceErrorCollection(k, v))
+            collection_list.append(ResourceProblemCollection(k, v))
         return sorted(collection_list, key=lambda x: x.res_id)
 
 
 @dataclass
-class InputError(Protocol):
+class InputProblems(Protocol):
     res_id: str
 
     def get_msg(self) -> str:
@@ -40,14 +40,14 @@ class InputError(Protocol):
 
 
 @dataclass
-class ResourceErrorCollection:
+class ResourceProblemCollection:
     res_id: str
-    errors: list[InputError]
+    problems: list[InputProblems]
 
     def get_msg(self) -> str:
         msg = [f"The resource with the ID '{self.res_id}' has the following problem(s):"]
-        sorted_errors = sorted(self.errors, key=lambda x: x.sort_value())
-        msg.extend([x.get_msg() for x in sorted_errors])
+        sorted_problems = sorted(self.problems, key=lambda x: x.sort_value())
+        msg.extend([x.get_msg() for x in sorted_problems])
         return MEDIUM_SEPARATOR.join(msg)
 
     def sort_value(self) -> str:
@@ -141,7 +141,7 @@ class ListNodeNotFound:
 
 
 #######################
-# Miscellaneous Errors
+# Miscellaneous Problems
 
 
 @dataclass

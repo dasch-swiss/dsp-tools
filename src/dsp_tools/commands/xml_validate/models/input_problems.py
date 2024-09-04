@@ -7,9 +7,6 @@ from typing import Protocol
 
 from rdflib import Graph
 
-
-from typing import Protocol
-
 INDENT = "    "
 MEDIUM_SEPARATOR = "\n\n"
 GRAND_SEPARATOR = "\n\n----------------------------\n\n"
@@ -17,7 +14,7 @@ GRAND_SEPARATOR = "\n\n----------------------------\n\n"
 
 @dataclass
 class AllProblems:
-    problems: list[InputProblems]
+    problems: list[InputProblem]
 
     def get_msg(self) -> str:
         coll = self._make_collection()
@@ -49,7 +46,7 @@ class InputProblem(Protocol):
 @dataclass
 class ResourceProblemCollection:
     res_id: str
-    problems: list[InputProblems]
+    problems: list[InputProblem]
 
     def get_msg(self) -> str:
         msg = [f"The resource with the ID '{self.res_id}' has the following problem(s):"]
@@ -110,10 +107,8 @@ class GenericContentViolation:
     def get_msg(self) -> str:
         return f"{self.msg}\n" f"{INDENT}Property: {self.prop_name}\n" f"{INDENT}Content: {self.content}"
 
-
     def sort_value(self) -> str:
         return self.prop_name
-
 
 
 @dataclass
@@ -128,7 +123,7 @@ class DuplicateContent:
             f"Please remove all but one.\n"
             f"{INDENT}Property: {self.prop_name}\n"
             f"{INDENT}Content: {self.content}"
-
+        )
 
 
 @dataclass

@@ -5,6 +5,7 @@ from dsp_tools.commands.xml_validate.models.data_deserialised import DataDeseria
 from dsp_tools.commands.xml_validate.models.data_deserialised import LinkValueData
 from dsp_tools.commands.xml_validate.models.data_deserialised import ListValueData
 from dsp_tools.commands.xml_validate.models.data_deserialised import ResourceData
+from dsp_tools.commands.xml_validate.models.input_problems import AllProblems
 from dsp_tools.commands.xml_validate.models.input_problems import DuplicateContent
 from dsp_tools.commands.xml_validate.models.input_problems import InputProblem
 from dsp_tools.commands.xml_validate.models.input_problems import LinkTargetMismatch
@@ -16,14 +17,17 @@ from dsp_tools.commands.xml_validate.models.project_deserialised import Cardinal
 from dsp_tools.commands.xml_validate.models.project_deserialised import ProjectDeserialised
 from dsp_tools.commands.xml_validate.models.project_deserialised import ResourceClass
 from dsp_tools.commands.xml_validate.prepare_input import parse_file
+from dsp_tools.models.exceptions import InputError
 
 
 def xml_validate(xml_filepath: Path) -> bool:
     """Validates an XML file without uploading data."""
     # This function assumes that all classes and properties used exist in the ontology.
-
     data = parse_file(xml_filepath)
     onto = deserialise_project()
+    if problems := _find_all_problems(data, onto):
+        msg = AllProblems(problems).get_msg()
+        raise InputError(msg)
     return True
 
 

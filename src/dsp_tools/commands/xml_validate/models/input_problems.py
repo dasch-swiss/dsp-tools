@@ -7,28 +7,31 @@ from typing import Protocol
 
 from rdflib import Graph
 
+
+from typing import Protocol
+
 INDENT = "    "
 MEDIUM_SEPARATOR = "\n\n"
 GRAND_SEPARATOR = "\n\n----------------------------\n\n"
 
 
 @dataclass
-class AllErrors:
-    errors: list[InputProblem]
+class AllProblems:
+    problems: list[InputProblems]
 
     def get_msg(self) -> str:
         coll = self._make_collection()
         msg = [x.get_msg() for x in coll]
-        title_msg = "During the validation of the data the following problems were found:\n\n"
+        title_msg = f"During the validation of the data {len(self.problems)} were found:\n\n"
         return title_msg + GRAND_SEPARATOR.join(msg)
 
-    def _make_collection(self) -> list[ResourceErrorCollection]:
+    def _make_collection(self) -> list[ResourceProblemCollection]:
         d = defaultdict(list)
-        for e in self.errors:
+        for e in self.problems:
             d[e.res_id].append(e)
         collection_list = []
         for k, v in d.items():
-            collection_list.append(ResourceErrorCollection(k, v))
+            collection_list.append(ResourceProblemCollection(k, v))
         return sorted(collection_list, key=lambda x: x.res_id)
 
 
@@ -44,14 +47,14 @@ class InputProblem(Protocol):
 
 
 @dataclass
-class ResourceErrorCollection:
+class ResourceProblemCollection:
     res_id: str
-    errors: list[InputProblem]
+    problems: list[InputProblems]
 
     def get_msg(self) -> str:
         msg = [f"The resource with the ID '{self.res_id}' has the following problem(s):"]
-        sorted_errors = sorted(self.errors, key=lambda x: x.sort_value())
-        msg.extend([x.get_msg() for x in sorted_errors])
+        sorted_problems = sorted(self.problems, key=lambda x: x.sort_value())
+        msg.extend([x.get_msg() for x in sorted_problems])
         return MEDIUM_SEPARATOR.join(msg)
 
     def sort_value(self) -> str:
@@ -107,8 +110,10 @@ class GenericContentViolation:
     def get_msg(self) -> str:
         return f"{self.msg}\n" f"{INDENT}Property: {self.prop_name}\n" f"{INDENT}Content: {self.content}"
 
+
     def sort_value(self) -> str:
         return self.prop_name
+
 
 
 @dataclass
@@ -123,10 +128,7 @@ class DuplicateContent:
             f"Please remove all but one.\n"
             f"{INDENT}Property: {self.prop_name}\n"
             f"{INDENT}Content: {self.content}"
-        )
 
-    def sort_value(self) -> str:
-        return self.prop_name
 
 
 @dataclass

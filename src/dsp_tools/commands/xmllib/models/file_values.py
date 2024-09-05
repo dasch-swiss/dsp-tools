@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import warnings
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 from typing import Protocol
@@ -16,7 +15,6 @@ XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.o
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 
 
-@dataclass
 class AbstractFileValue(Protocol):
     value: str | Path
     permissions: str | None
@@ -26,15 +24,20 @@ class AbstractFileValue(Protocol):
         raise NotImplementedError
 
 
-@dataclass
 class FileValue(AbstractFileValue):
     value: str | Path
     permissions: str | None = "prop-default"
     comment: str | None = None
 
-    def __post_init__(self) -> None:
+    def __init__(
+        self, filename: str, permissions: str | None = None, comments: str | None = None, res_id: str | None = None
+    ) -> None:
+        self.value = filename
+        self.permissions = permissions
+        self.comment = comments
+
         if not is_string(self.value):
-            _warn_type_mismatch(expected_type="file name", value=self.value)
+            _warn_type_mismatch(expected_type="file name", value=self.value, res_id=res_id)
 
     def serialise(self) -> etree._Element:
         attribs = {}
@@ -47,15 +50,20 @@ class FileValue(AbstractFileValue):
         return ele
 
 
-@dataclass
 class IIIFUri(AbstractFileValue):
     value: str
     permissions: str | None = "prop-default"
     comment: str | None = None
 
-    def __post_init__(self) -> None:
+    def __init__(
+        self, iiif_uri: str, permissions: str | None = None, comments: str | None = None, res_id: str | None = None
+    ) -> None:
+        self.value = iiif_uri
+        self.permissions = permissions
+        self.comment = comments
+
         if not is_iiif_uri(self.value):
-            _warn_type_mismatch(expected_type="IIIF-URI", value=self.value)
+            _warn_type_mismatch(expected_type="IIIF-URI", value=self.value, res_id=res_id)
 
     def serialise(self) -> etree._Element:
         attribs = {}
@@ -68,7 +76,7 @@ class IIIFUri(AbstractFileValue):
         return ele
 
 
-def _warn_type_mismatch(expected_type: str, value: Any) -> None:
+def _warn_type_mismatch(expected_type: str, value: Any, res_id: str) -> None:
     """Emits a warning if a values is not in the expected format."""
-    msg = f"The following value is not a valid {expected_type}.\n    Value: {value}"
+    msg = f"The Resource '{res_id}' has an invalid {expected_type}. The expected value is {value}."
     warnings.warn(DspToolsUserWarning(msg))

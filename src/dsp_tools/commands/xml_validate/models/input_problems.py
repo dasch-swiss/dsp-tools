@@ -108,7 +108,9 @@ class GenericContentViolation:
     def get_msg(self) -> str:
         return (
             f"{self.msg}\n"
-            f"{INDENT}Property: {self.prop_name}\n{INDENT}Value Type: {self.value_type}\n{INDENT}Content: {self.content}"
+            f"{INDENT}Property: {self.prop_name}\n"
+            f"{INDENT}Value Type: {self.value_type}\n"
+            f"{INDENT}Content: {self.content}"
         )
 
     def sort_value(self) -> str:

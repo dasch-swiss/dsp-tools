@@ -1,4 +1,3 @@
-
 from rdflib import RDF
 from rdflib import RDFS
 from rdflib import SH
@@ -44,7 +43,7 @@ def reformat_validation_graph(validation_graph: ValidationGraphs) -> list[InputP
 
 
 def _check_expected_constraint_components(g: Graph) -> None:
-    # In the future this would not raise an error but be part of the error message
+    # In the future, this would not raise an error but be part of the error message
     # with the instruction to contact support.
     # The validation graph would be saved for further analysis.
     known_components = {
@@ -89,11 +88,10 @@ def _reformat_sparql_constraint_component(g: Graph) -> list[DuplicateContent]:
 
 
 def _reformat_one_sparql_constraint_component(g: Graph, bn: BNode) -> DuplicateContent:
-    detail_bn = list(g.triples((bn, None, None)))
     problem_resource = str(next(g.objects(bn, SH.focusNode)))
-    prop_iri = str(next(g.objects(detail_bn, SH.resultPath)))
+    prop_iri = str(next(g.objects(bn, SH.resultPath)))
     prop = _reformat_prop_iri(prop_iri)
-    content = str(next(g.objects(detail_bn, SH.value)))
+    content = str(next(g.objects(bn, SH.value)))
     return DuplicateContent(res_id=problem_resource, prop_name=prop, content=content)
 
 
@@ -137,7 +135,7 @@ def _reformat_in_constraint_component(g: Graph, node_bn: BNode, detail_bn: BNode
         res_id=generic_info.res_id,
         prop_name=generic_info.prop_name,
         msg=generic_info.message,
-        list_name=str(value_info.hasListName),
+        list_name=str(value_info.hasListName[0]),
         node_name=value_info.hasValue,
     )
 
@@ -156,7 +154,7 @@ def _get_value_info(g: Graph, node_bn: BNode) -> ValueInfo:
     list_val = list(g.objects(val_bn, VAL_ONTO.hasListName))
     rdf_types = list(g.objects(val_bn, RDF.type))
     onto_type = _get_specific_type(rdf_types)
-    return ValueInfo(rdf_type=str(onto_type), hasValue=str(val), hasListName=list_val)
+    return ValueInfo(rdf_type=onto_type, hasValue=str(val), hasListName=list_val)
 
 
 def _reformat_prop_iri(prop: str) -> str:

@@ -53,12 +53,10 @@ def _check_expected_constraint_components(g: Graph) -> None:
         SH.NodeConstraintComponent,
         SH.SPARQLConstraintComponent,
     }
-    unknown_components = set()
-    for _, _, component in g.triples((None, SH.sourceConstraintComponent, None)):
-        if component not in known_components:
-            unknown_components.add(str(component))
-    if unknown_components:
-        raise BaseError(f"Unknown constraint component: {', '.join(unknown_components)}")
+    components_in_graph = {component for _, _, component in g.triples((None, SH.sourceConstraintComponent, None))}
+    if diff := components_in_graph - known_components:
+        diff = [str(x) for x in diff]
+        raise BaseError(f"Unknown constraint component: {', '.join(diff)}")
 
 
 def _reformat_cardinality_constraint_component(g: Graph) -> list[InputProblem]:

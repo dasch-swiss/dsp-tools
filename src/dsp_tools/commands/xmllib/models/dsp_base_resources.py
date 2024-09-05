@@ -5,9 +5,12 @@ from typing import Any
 
 from lxml import etree
 
+XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
+DASCH_SCHEMA = "{https://dasch.swiss/schema}"
+
 
 @dataclass
-class DSPAnnotation:
+class AnnotationResource:
     res_id: str
     label: str
     comments: list[str]
@@ -19,7 +22,7 @@ class DSPAnnotation:
 
 
 @dataclass
-class DSPRegion:
+class RegionResource:
     res_id: str
     label: str
     color: str
@@ -33,7 +36,7 @@ class DSPRegion:
 
 
 @dataclass
-class DSPLink:
+class LinkResource:
     res_id: str
     label: str
     link_to: list[str]
@@ -45,7 +48,7 @@ class DSPLink:
 
 
 @dataclass
-class DSPVideoSegment:
+class VideoSegmentResource:
     res_id: str
     label: str
     segment_of: str
@@ -63,7 +66,7 @@ class DSPVideoSegment:
 
 
 @dataclass
-class DSPAudioSegment:
+class AudioSegmentResource:
     res_id: str
     label: str
     segment_of: str

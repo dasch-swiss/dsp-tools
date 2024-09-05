@@ -157,8 +157,6 @@ def is_string(value: Any) -> bool:
     value = str(value)
     if len(value) == 0:
         return False
-    if regex.search(r"^(none|<NA>|-|n/a)$", value, flags=regex.IGNORECASE):
-        return False
     return bool(regex.search(r"[\p{L}\d_!?]", value, flags=regex.UNICODE))
 
 

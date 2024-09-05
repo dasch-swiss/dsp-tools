@@ -49,10 +49,13 @@ class IntValue:
         pass
 
 
-def _warn_type_mismatch(expected_type: str, value: Any, prop_name: str, res_id: str) -> None:
+def _warn_type_mismatch(expected_type: str, value: Any, prop_name: str, res_id: str | None) -> None:
     """Emits a warning if a values is not in the expected format."""
-    msg = (
-        f"The resource '{res_id}' with the value '{value}' and the property {prop_name}, is invalid. "
-        f"The expected type is {expected_type}."
-    )
+    if res_id:
+        msg = (
+            f"The resource '{res_id}' with the value '{value}' and the property {prop_name}, is invalid. "
+            f"The expected type is {expected_type}."
+        )
+    else:
+        msg = f"The value '{value}' with the property {prop_name}, is invalid. The expected type is {expected_type}"
     warnings.warn(DspToolsUserWarning(msg))

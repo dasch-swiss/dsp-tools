@@ -10,7 +10,7 @@
                 a sh:ValidationResult ;
                 sh:detail [
                             a sh:ValidationResult ;
-                            sh:focusNode <http://validation-9999/data/identical-value> ;
+                            sh:focusNode <identical-value> ;
                             sh:resultMessage "A resource may not have the same property and value more than one time." ;
                             sh:resultPath onto:hasSimpleText ;
                             sh:resultSeverity sh:Violation ;
@@ -25,32 +25,33 @@
                             }
                             GROUP BY $this ?path ?value
                             HAVING (COUNT(?value) > 1)
-                        """ ] ;
-                sh:sourceConstraintComponent sh:SPARQLConstraintComponent ;
-                sh:sourceShape val-shapes:UniqueValuesShape ;
-                sh:value "These two values are identical."
-              ] ;
-                sh:focusNode <http://validation-9999/data/identical-value> ;
-                sh:resultMessage "Value does not conform to Shape val-shapes:UniqueValuesShape. See details for more information." ;
-                sh:resultSeverity sh:Violation ;
-                sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-                sh:sourceShape onto-shapes:NormalClass_NodeShape ;
-                sh:value <http://validation-9999/data/identical-value>
-          ],
-          [
-            a sh:ValidationResult ;
-            sh:focusNode <http://validation-9999/data/max-card-violation> ;
-            sh:resultMessage "Cardinality: 'onto:hasSimpleText' -> exactly 1" ;
-            sh:resultPath onto:hasSimpleText ;
+                            """
+                                        ] ;
+                            sh:sourceConstraintComponent sh:SPARQLConstraintComponent ;
+                            sh:sourceShape val-shapes:UniqueValuesShape ;
+                            sh:value "These two values are identical."
+                            ] ;
+            sh:focusNode <identical-value> ;
+            sh:resultMessage "Value does not conform to Shape val-shapes:UniqueValuesShape. See details for more information." ;
             sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:MaxCountConstraintComponent ;
-            sh:sourceShape [
-                              a sh:PropertyShape ;
-                              sh:maxCount 1 ;
-                              sh:message "Cardinality: 'onto:hasSimpleText' -> exactly 1" ;
-                              sh:minCount 1 ;
-                              sh:path onto:hasSimpleText ;
-                              sh:severity sh:Violation
-                           ]
-          ] .
+            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+            sh:sourceShape onto-shapes:NormalClass_NodeShape ;
+            sh:value <identical-value>
+        ],
+        [
+          a sh:ValidationResult ;
+          sh:focusNode <max-card-violation> ;
+          sh:resultMessage "Cardinality: 'onto:hasSimpleText' -> exactly 1" ;
+          sh:resultPath onto:hasSimpleText ;
+          sh:resultSeverity sh:Violation ;
+          sh:sourceConstraintComponent sh:MaxCountConstraintComponent ;
+          sh:sourceShape [
+                            a sh:PropertyShape ;
+                            sh:maxCount 1 ;
+                            sh:message "Cardinality: 'onto:hasSimpleText' -> exactly 1" ;
+                            sh:minCount 1 ;
+                            sh:path onto:hasSimpleText ;
+                            sh:severity sh:Violation
+                         ]
+        ] .
 

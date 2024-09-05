@@ -78,5 +78,5 @@ class IIIFUri(AbstractFileValue):
 
 def _warn_type_mismatch(expected_type: str, value: Any, res_id: str) -> None:
     """Emits a warning if a values is not in the expected format."""
-    msg = f"The Resource '{res_id}' has an invalid {expected_type}. The expected value is {value}."
+    msg = f"The Resource '{res_id}' has an invalid {expected_type}. The actual value is {value}."
     warnings.warn(DspToolsUserWarning(msg))

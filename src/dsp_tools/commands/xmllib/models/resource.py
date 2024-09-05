@@ -326,7 +326,7 @@ class Resource:
                 f"'{self.file_value.value}'.\n"
                 f"The new file with the name: '{filename}' cannot be added."
             )
-        self.file_value = FileValue(value=filename, permissions=permissions, comment=comments)
+        self.file_value = FileValue(filename=filename, permissions=permissions, comments=comments, res_id=self.res_id)
         return self
 
     def add_iiif_uri(self, iiif_uri: str, permissions: str | None = None, comments: str | None = None) -> Resource:
@@ -336,5 +336,5 @@ class Resource:
                 f"'{self.file_value.value}'.\n"
                 f"The new file with the name: '{iiif_uri}' cannot be added."
             )
-        self.file_value = IIIFUri(value=iiif_uri, permissions=permissions, comment=comments)
+        self.file_value = IIIFUri(iiif_uri=iiif_uri, permissions=permissions, comments=comments, res_id=self.res_id)
         return self

@@ -27,24 +27,79 @@ def is_bool(value: Any) -> bool:
     return False
 
 
-def is_string(value: Any) -> bool:
+def is_color(value: Any) -> bool:
     """
-    Checks if a value is a string.
+    Checks if a value is a color value.
 
     Args:
         value: value to check
 
     Returns:
-        True if it is a string
+        True if it conforms
     """
-    if pd.isna(value):
-        return False
-    value = str(value)
-    if len(value) == 0:
-        return False
-    if regex.search(r"^(none|<NA>|-|n/a)$", value, flags=regex.IGNORECASE):
-        return False
-    return bool(regex.search(r"[\p{L}\d_!?]", value, flags=regex.UNICODE))
+
+    return bool(regex.search(r"^#[0-9a-f]{6}$", str(value).strip(), flags=regex.IGNORECASE))
+
+
+def is_date(value: Any) -> bool:
+    """
+    Checks if a value is a color value.
+
+    Args:
+        value: value to check
+
+    Returns:
+        True if it conforms
+    """
+
+    calendar = r"GREGORIAN|JULIAN|ISLAMIC"
+    era = r"CE|BCE|BC|AD"
+    year = r"\d{1,4}"
+    month = r"\d{1,2}"
+    day = r"\d{1,2}"
+    full_date_pattern = rf"""
+    ^
+    (?:({calendar}):)?                         # optional calendar
+    (?:({era}):)?                              # optional era
+    ({year}(?:-{month})?(?:-{day})?)         # date
+    (?::({era}))?                              # optional era
+    (?::({year}(?:-{month})?(?:-{day})?))?   # optional date
+    $
+    """
+    return bool(regex.search(full_date_pattern, str(value)))
+
+
+def is_geoname(value: Any) -> bool:
+    """
+    Checks if a value is a color value.
+
+    Args:
+        value: value to check
+
+    Returns:
+        True if it conforms
+    """
+    return is_integer(value)
+
+
+def is_decimal(value: Any) -> bool:
+    """
+    Checks if a value is a float.
+    A valid integer is if it is a string, which can be converted into an integer,
+    or a value of the type int.
+
+    Args:
+        value: value to check
+
+    Returns:
+        True if conforms to the above-mentioned criteria.
+    """
+    if isinstance(value, str):
+        if regex.search(r"^\d+(\.\d+)?$", value):
+            return True
+    elif isinstance(value, int) or isinstance(value, float):
+        return True
+    return False
 
 
 def is_integer(value: Any) -> bool:
@@ -67,24 +122,58 @@ def is_integer(value: Any) -> bool:
     return False
 
 
-def is_float(value: Any) -> bool:
+def is_list(node: Any, listname: Any) -> bool:
     """
-    Checks if a value is a float.
-    A valid integer is if it is a string, which can be converted into an integer,
-    or a value of the type int.
+    Checks if a value is valid.
+
+    Args:
+        node: value to check
+        listname: name of the list
+
+    Returns:
+        True if it is not empty
+    """
+    if any([pd.isna(node), pd.isna(listname)]):
+        return False
+    if len(str(node)) == 0:
+        return False
+    if len(str(listname)) == 0:
+        return False
+    return True
+
+
+def is_string(value: Any) -> bool:
+    """
+    Checks if a value is a string.
 
     Args:
         value: value to check
 
     Returns:
-        True if conforms to the above-mentioned criteria.
+        True if it is a string
     """
-    if isinstance(value, str):
-        if regex.search(r"^\d+(\.\d+)?$", value):
-            return True
-    elif isinstance(value, int) or isinstance(value, float):
-        return True
-    return False
+    if pd.isna(value):
+        return False
+    value = str(value)
+    if len(value) == 0:
+        return False
+    if regex.search(r"^(none|<NA>|-|n/a)$", value, flags=regex.IGNORECASE):
+        return False
+    return bool(regex.search(r"[\p{L}\d_!?]", value, flags=regex.UNICODE))
+
+
+def is_timestamp(value: Any) -> bool:
+    """
+    Checks if a value is a color value.
+
+    Args:
+        value: value to check
+
+    Returns:
+        True if it conforms
+    """
+    validation_regex = r"^\d{4}-[0-1]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(.\d{1,12})?(Z|[+-][0-1]\d:[0-5]\d)$"
+    return bool(regex.search(validation_regex, str(value)))
 
 
 def is_uri(s: str) -> bool:

@@ -72,17 +72,17 @@ class Resource:
     ###################
 
     def add_bool(
-        self, prop_name: str, value: Any, permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, value: Any, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         pass
 
     def add_bools(
-        self, prop_name: str, values: list[Any], permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, values: list[Any], permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         pass
 
     def add_bool_optional(
-        self, prop_name: str, value: Any, permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, value: Any, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         pass
 
@@ -91,17 +91,17 @@ class Resource:
     ###################
 
     def add_color(
-        self, prop_name: str, value: int, permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, value: int, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         pass
 
     def add_colors(
-        self, prop_name: str, values: list[int], permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, values: list[int], permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         pass
 
     def add_color_optional(
-        self, prop_name: str, value: int, permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, value: int, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         pass
 
@@ -110,17 +110,17 @@ class Resource:
     ###################
 
     def add_date(
-        self, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, value: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         pass
 
     def add_dates(
-        self, prop_name: str, values: list[str], permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, values: list[str], permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         pass
 
     def add_date_optional(
-        self, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, value: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         pass
 
@@ -129,17 +129,17 @@ class Resource:
     ###################
 
     def add_decimal(
-        self, prop_name: str, value: float, permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, value: float, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         pass
 
     def add_decimals(
-        self, prop_name: str, values: list[float], permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, values: list[float], permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         pass
 
     def add_decimal_optional(
-        self, prop_name: str, value: float, permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, value: float, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         pass
 
@@ -148,17 +148,17 @@ class Resource:
     ###################
 
     def add_geoname(
-        self, prop_name: str, value: int | str, permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, value: int | str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         pass
 
     def add_geonames(
-        self, prop_name: str, values: list[int | str], permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, values: list[int | str], permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         pass
 
     def add_geoname_optional(
-        self, prop_name: str, value: int | str, permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, value: int | str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         pass
 
@@ -167,23 +167,23 @@ class Resource:
     ###################
 
     def add_integer(
-        self, prop_name: str, value: int | str, permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, value: int | str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
-        self.values.append(IntValue(value=value, prop_name=prop_name, permissions=permissions, comment=comments))
+        self.values.append(IntValue(value=value, prop_name=prop_name, permissions=permissions, comment=comment))
         return self
 
     def add_integers(
-        self, prop_name: str, values: list[int | str], permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, values: list[int | str], permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         for v in values:
-            self.values.append(IntValue(value=v, prop_name=prop_name, permissions=permissions, comment=comments))
+            self.values.append(IntValue(value=v, prop_name=prop_name, permissions=permissions, comment=comment))
         return self
 
     def add_integer_optional(
-        self, prop_name: Any, value: int | str, permissions: str | None = None, comments: str | None = None
+        self, prop_name: Any, value: int | str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         if not pd.isna(value):
-            self.values.append(IntValue(value=value, prop_name=prop_name, permissions=permissions, comment=comments))
+            self.values.append(IntValue(value=value, prop_name=prop_name, permissions=permissions, comment=comment))
         return self
 
     ###################
@@ -191,23 +191,23 @@ class Resource:
     ###################
 
     def add_link(
-        self, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, value: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
-        self.values.append(LinkValue(value=value, prop_name=prop_name, permissions=permissions, comment=comments))
+        self.values.append(LinkValue(value=value, prop_name=prop_name, permissions=permissions, comment=comment))
         return self
 
     def add_links(
-        self, prop_name: str, values: list[str], permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, values: list[str], permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         for v in values:
-            self.values.append(LinkValue(value=v, prop_name=prop_name, permissions=permissions, comment=comments))
+            self.values.append(LinkValue(value=v, prop_name=prop_name, permissions=permissions, comment=comment))
         return self
 
     def add_link_optional(
-        self, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, value: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         if not pd.isna(value):
-            self.values.append(LinkValue(value=value, prop_name=prop_name, permissions=permissions, comment=comments))
+            self.values.append(LinkValue(value=value, prop_name=prop_name, permissions=permissions, comment=comment))
         return self
 
     ###################
@@ -215,7 +215,7 @@ class Resource:
     ###################
 
     def add_list(
-        self, prop_name: str, value: Any, listname: Any, permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, value: Any, listname: Any, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         pass
 
@@ -225,12 +225,12 @@ class Resource:
         values: list[Any],
         listname: Any,
         permissions: str | None = None,
-        comments: str | None = None,
+        comment: str | None = None,
     ) -> Resource:
         pass
 
     def add_list_optional(
-        self, prop_name: str, value: Any, listname: Any, permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, value: Any, listname: Any, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         pass
 
@@ -239,23 +239,23 @@ class Resource:
     ###################
 
     def add_simple_text(
-        self, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, value: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
-        self.values.append(SimpleText(value=value, prop_name=prop_name, permissions=permissions, comment=comments))
+        self.values.append(SimpleText(value=value, prop_name=prop_name, permissions=permissions, comment=comment))
         return self
 
     def add_simple_texts(
-        self, prop_name: str, values: list[str], permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, values: list[str], permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         for v in values:
-            self.values.append(SimpleText(value=v, prop_name=prop_name, permissions=permissions, comment=comments))
+            self.values.append(SimpleText(value=v, prop_name=prop_name, permissions=permissions, comment=comment))
         return self
 
     def add_simple_text_optional(
-        self, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, value: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         if not pd.isna(value):
-            self.values.append(SimpleText(value=value, prop_name=prop_name, permissions=permissions, comment=comments))
+            self.values.append(SimpleText(value=value, prop_name=prop_name, permissions=permissions, comment=comment))
         return self
 
     ###################
@@ -263,17 +263,17 @@ class Resource:
     ###################
 
     def add_richtext(
-        self, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, value: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         pass
 
     def add_richtexts(
-        self, prop_name: str, values: list[str], permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, values: list[str], permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         pass
 
     def add_richtext_optional(
-        self, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, value: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         pass
 
@@ -282,17 +282,17 @@ class Resource:
     ###################
 
     def add_time(
-        self, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, value: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         pass
 
     def add_times(
-        self, prop_name: str, values: list[str], permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, values: list[str], permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         pass
 
     def add_time_optional(
-        self, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, value: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         pass
 
@@ -301,17 +301,17 @@ class Resource:
     ###################
 
     def add_uri(
-        self, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, value: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         pass
 
     def add_uris(
-        self, prop_name: str, values: list[str], permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, values: list[str], permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         pass
 
     def add_uri_optional(
-        self, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, value: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         pass
 
@@ -319,22 +319,22 @@ class Resource:
     # AbstractFileValue
     ###################
 
-    def add_file(self, filename: str, permissions: str | None = None, comments: str | None = None) -> Resource:
+    def add_file(self, filename: str, permissions: str | None = None, comment: str | None = None) -> Resource:
         if self.file_value:
             raise InputError(
                 f"The resource with the ID '{self.res_id}' already contains a file with the name: "
                 f"'{self.file_value.value}'.\n"
                 f"The new file with the name: '{filename}' cannot be added."
             )
-        self.file_value = FileValue(filename=filename, permissions=permissions, comments=comments, res_id=self.res_id)
+        self.file_value = FileValue(filename=filename, permissions=permissions, comment=comment, res_id=self.res_id)
         return self
 
-    def add_iiif_uri(self, iiif_uri: str, permissions: str | None = None, comments: str | None = None) -> Resource:
+    def add_iiif_uri(self, iiif_uri: str, permissions: str | None = None, comment: str | None = None) -> Resource:
         if self.file_value:
             raise InputError(
                 f"The resource with the ID '{self.res_id}' already contains a file with the name: "
                 f"'{self.file_value.value}'.\n"
                 f"The new file with the name: '{iiif_uri}' cannot be added."
             )
-        self.file_value = IIIFUri(iiif_uri=iiif_uri, permissions=permissions, comments=comments, res_id=self.res_id)
+        self.file_value = IIIFUri(iiif_uri=iiif_uri, permissions=permissions, comment=comment, res_id=self.res_id)
         return self

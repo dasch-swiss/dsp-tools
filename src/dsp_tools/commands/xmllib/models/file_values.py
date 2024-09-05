@@ -30,11 +30,11 @@ class FileValue(AbstractFileValue):
     comment: str | None = None
 
     def __init__(
-        self, filename: str, permissions: str | None = None, comments: str | None = None, res_id: str | None = None
+        self, filename: str, permissions: str | None = None, comment: str | None = None, res_id: str | None = None
     ) -> None:
         self.value = filename
         self.permissions = permissions
-        self.comment = comments
+        self.comments = comment
 
         if not is_string(self.value):
             _warn_type_mismatch(expected_type="file name", value=self.value, res_id=res_id)
@@ -43,8 +43,8 @@ class FileValue(AbstractFileValue):
         attribs = {}
         if self.permissions:
             attribs["permissions"] = self.permissions
-        if self.comment:
-            attribs["comment"] = self.comment
+        if self.comments:
+            attribs["comment"] = self.comments
         ele = etree.Element(f"{DASCH_SCHEMA}bitstream", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
         ele.text = str(self.value)
         return ele
@@ -56,11 +56,11 @@ class IIIFUri(AbstractFileValue):
     comment: str | None = None
 
     def __init__(
-        self, iiif_uri: str, permissions: str | None = None, comments: str | None = None, res_id: str | None = None
+        self, iiif_uri: str, permissions: str | None = None, comment: str | None = None, res_id: str | None = None
     ) -> None:
         self.value = iiif_uri
         self.permissions = permissions
-        self.comment = comments
+        self.comments = comment
 
         if not is_iiif_uri(self.value):
             _warn_type_mismatch(expected_type="IIIF-URI", value=self.value, res_id=res_id)
@@ -69,8 +69,8 @@ class IIIFUri(AbstractFileValue):
         attribs = {}
         if self.permissions:
             attribs["permissions"] = self.permissions
-        if self.comment:
-            attribs["comment"] = self.comment
+        if self.comments:
+            attribs["comment"] = self.comments
         ele = etree.Element(f"{DASCH_SCHEMA}iiif-uri", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
         ele.text = str(self.value)
         return ele

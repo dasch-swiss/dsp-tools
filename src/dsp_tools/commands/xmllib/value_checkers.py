@@ -61,9 +61,9 @@ def is_date(value: Any) -> bool:
     ^
     (?:({calendar}):)?                         # optional calendar
     (?:({era}):)?                              # optional era
-    ({year}(?:-{month})?(?:-{day})?)         # date
+    ({year}(?:-{month})?(?:-{day})?)           # date
     (?::({era}))?                              # optional era
-    (?::({year}(?:-{month})?(?:-{day})?))?   # optional date
+    (?::({year}(?:-{month})?(?:-{day})?))?     # optional date
     $
     """
     return bool(regex.search(full_date_pattern, str(value)))

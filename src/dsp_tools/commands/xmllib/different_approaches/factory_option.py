@@ -25,9 +25,9 @@ class IntValueFactory:
         self,
         value: int | str,
         prop_name: str,
+        res_id: str,
         permissions: str | None = "prop-default",
         comment: str | None = None,
-        res_id: str | None = None,
     ) -> IntValue:
         if not is_integer(value):
             _warn_type_mismatch(expected_type="integer", value=value, prop_name=prop_name, res_id=res_id)
@@ -37,12 +37,12 @@ class IntValueFactory:
         self,
         values: list[int | str],
         prop_name: str,
+        res_id: str,
         permissions: str | None = "prop-default",
         comment: str | None = None,
-        res_id: str | None = None,
     ) -> list[IntValue]:
         return [
-            self.create(value=x, prop_name=prop_name, permissions=permissions, comment=comment, res_id=res_id)
+            self.create(value=x, prop_name=prop_name, res_id=res_id, permissions=permissions, comment=comment)
             for x in values
         ]
 
@@ -50,13 +50,13 @@ class IntValueFactory:
         self,
         value: int | str,
         prop_name: str,
+        res_id: str,
         permissions: str | None = "prop-default",
         comment: str | None = None,
-        res_id: str | None = None,
     ) -> IntValue | None:
         if not pd.isna(value):
             return self.create(
-                value=value, prop_name=prop_name, permissions=permissions, comment=comment, res_id=res_id
+                value=value, prop_name=prop_name, res_id=res_id, permissions=permissions, comment=comment
             )
         return None
 

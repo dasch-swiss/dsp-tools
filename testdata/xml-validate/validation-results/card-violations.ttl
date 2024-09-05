@@ -26,10 +26,10 @@
                             GROUP BY $this ?path ?value
                             HAVING (COUNT(?value) > 1)
                         """ ] ;
-                    sh:sourceConstraintComponent sh:SPARQLConstraintComponent ;
-                    sh:sourceShape val-shapes:UniqueValuesShape ;
-                    sh:value "These two values are identical."
-                          ] ;
+                sh:sourceConstraintComponent sh:SPARQLConstraintComponent ;
+                sh:sourceShape val-shapes:UniqueValuesShape ;
+                sh:value "These two values are identical."
+              ] ;
                 sh:focusNode <http://validation-9999/data/identical-value> ;
                 sh:resultMessage "Value does not conform to Shape val-shapes:UniqueValuesShape. See details for more information." ;
                 sh:resultSeverity sh:Violation ;

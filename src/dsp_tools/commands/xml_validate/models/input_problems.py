@@ -102,10 +102,14 @@ class GenericContentViolation:
     res_id: str
     prop_name: str
     content: str
+    value_type: str
     msg: str
 
     def get_msg(self) -> str:
-        return f"{self.msg}\n" f"{INDENT}Property: {self.prop_name}\n" f"{INDENT}Content: {self.content}"
+        return (
+            f"{self.msg}\n"
+            f"{INDENT}Property: {self.prop_name}\n{INDENT}Value Type: {self.value_type}\n{INDENT}Content: {self.content}"
+        )
 
     def sort_value(self) -> str:
         return self.prop_name
@@ -132,19 +136,18 @@ class DuplicateContent:
 @dataclass
 class ValidationGraphs:
     cardinality_violations: Graph | None
-    property_violations: Graph | None
+    node_violations: Graph | None
 
 
 @dataclass
-class ValidationProblem:
+class NodeInfo:
     res_id: str
-    property_iri: Any
-    violation_value: ValidationProblemValue
+    prop_name: str
     message: str
 
 
 @dataclass
-class ValidationProblemValue:
-    rdf_types: list[Any]
+class ValueInfo:
+    rdf_type: str
     hasValue: str
     hasListName: list[Any]

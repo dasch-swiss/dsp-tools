@@ -28,7 +28,7 @@
                 sh:sourceShape onto-shapes:hasSimpleText_PropShape ;
                 sh:value _:n27fe2b5e4c414949a0eab428f2a5190db7
         ],
-        [ 
+        [
             a sh:ValidationResult ;
             sh:detail [
                         a sh:ValidationResult ;

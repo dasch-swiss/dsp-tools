@@ -45,7 +45,7 @@ def _validate_graph(data: Graph) -> ValidationGraphs | None:
 
     if not card_graph and not prop_graph:
         return None
-    return ValidationGraphs(cardinality_violations=card_graph, property_violations=prop_graph)
+    return ValidationGraphs(cardinality_violations=card_graph, node_violations=prop_graph)
 
 
 def _validate_graph_no_inference(data: Graph, shapes: Graph) -> Graph | None:

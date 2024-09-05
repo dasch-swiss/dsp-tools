@@ -6,6 +6,27 @@ import pandas as pd
 import regex
 
 
+def is_bool(value: Any) -> bool:
+    """
+    Checks if a value is a bool or can be converted into a bool.
+
+    Args:
+        value: value to check
+
+    Returns:
+        True if it conforms
+    """
+    if isinstance(value, bool):
+        return True
+    if isinstance(value, str):
+        value = value.lower()
+    if value in (False, "false", "0", 0, 0.0, "no"):
+        return True
+    elif value in (True, "true", "1", 1, 1.0, "yes"):
+        return True
+    return False
+
+
 def is_string(value: Any) -> bool:
     """
     Checks if a value is a string.

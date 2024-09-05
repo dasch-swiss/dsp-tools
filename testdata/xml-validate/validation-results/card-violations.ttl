@@ -31,12 +31,12 @@
                             sh:sourceShape val-shapes:UniqueValuesShape ;
                             sh:value "These two values are identical."
                             ] ;
-            sh:focusNode <identical-value> ;
-            sh:resultMessage "Value does not conform to Shape val-shapes:UniqueValuesShape. See details for more information." ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-            sh:sourceShape onto-shapes:NormalClass_NodeShape ;
-            sh:value <identical-value>
+                sh:focusNode <identical-value> ;
+                sh:resultMessage "Value does not conform to Shape val-shapes:UniqueValuesShape. See details for more information." ;
+                sh:resultSeverity sh:Violation ;
+                sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+                sh:sourceShape onto-shapes:NormalClass_NodeShape ;
+                sh:value <identical-value>
         ],
         [
           a sh:ValidationResult ;

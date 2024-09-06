@@ -4,7 +4,6 @@ import warnings
 from dataclasses import dataclass
 from typing import Any
 
-import pandas as pd
 from lxml import etree
 
 from dsp_tools.commands.xmllib.value_checkers import is_integer
@@ -45,20 +44,6 @@ class IntValueFactory:
             self.create(value=x, prop_name=prop_name, res_id=res_id, permissions=permissions, comment=comment)
             for x in values
         ]
-
-    def create_optional(
-        self,
-        value: int | str,
-        prop_name: str,
-        res_id: str,
-        permissions: str | None = "prop-default",
-        comment: str | None = None,
-    ) -> IntValue | None:
-        if not pd.isna(value):
-            return self.create(
-                value=value, prop_name=prop_name, res_id=res_id, permissions=permissions, comment=comment
-            )
-        return None
 
 
 @dataclass

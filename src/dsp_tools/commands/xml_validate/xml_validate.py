@@ -72,6 +72,7 @@ def _check_cardinality_one_resource(res: ResourceData, resource_class: ResourceC
             case _:
                 raise NotImplementedError
     # Min cardinality violations are not checked here
+    # With SHACL this is automatically implemented, we just don't have an example
     return card_problems
 
 

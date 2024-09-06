@@ -112,7 +112,6 @@ val-shapes:IntValue_NodeShape
 # SimpleText Shape
 ########################################
 
-
 val-shapes:SimpleText_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
@@ -134,16 +133,8 @@ val-shapes:SimpleText_NodeShape
 
 
 ########################################
-# THE FOLLOWING MUST BE AT LEAST PARTIALLY CONSTRUCTED IN CODE
-# BECAUSE THE PROJECT ONTOLOGY IS RELEVANT
-########################################
-
-
-########################################
 # ListValue Shape
 ########################################
-
-# The property shapes are individual to each ontology.
 
 val-shapes:ListValue_ClassShape
   a           sh:NodeShape ;
@@ -156,8 +147,6 @@ val-shapes:ListValue_ClassShape
 ########################################
 # LinkValue Shape
 ########################################
-
-# The property shapes are individual to each ontology.
 
 val-shapes:LinkValue_ClassShape
   a           sh:NodeShape ;

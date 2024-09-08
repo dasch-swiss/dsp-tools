@@ -2046,13 +2046,13 @@ tests = ["pytest", "pytest-cov"]
 
 [[package]]
 name = "testcontainers"
-version = "4.8.1"
+version = "4.7.2"
 description = "Python library for throwaway instances of anything that can run in a Docker container"
 optional = false
 python-versions = "<4.0,>=3.9"
 files = [
-    {file = "testcontainers-4.8.1-py3-none-any.whl", hash = "sha256:d8ae43e8fe34060fcd5c3f494e0b7652b7774beabe94568a2283d0881e94d489"},
-    {file = "testcontainers-4.8.1.tar.gz", hash = "sha256:5ded4820b7227ad526857eb3caaafcabce1bbac05d22ad194849b136ffae3cb0"},
+    {file = "testcontainers-4.7.2-py3-none-any.whl", hash = "sha256:23b13cf8078f615a08c75197f227796d90c46df92d2b282ae7c39b1fc1a9c9ed"},
+    {file = "testcontainers-4.7.2.tar.gz", hash = "sha256:9976b1cdcdeb9feeae6a477073e7c8b02cd40ea44f1daa34b5da6d2c918dff0d"},
 ]
 
 [package.dependencies]
@@ -2063,13 +2063,11 @@ wrapt = "*"
 
 [package.extras]
 arangodb = ["python-arango (>=7.8,<8.0)"]
-aws = ["boto3", "httpx"]
 azurite = ["azure-storage-blob (>=12.19,<13.0)"]
 chroma = ["chromadb-client"]
 clickhouse = ["clickhouse-driver"]
 cosmosdb = ["azure-cosmos"]
-db2 = ["ibm_db_sa", "sqlalchemy"]
-generic = ["httpx", "redis"]
+generic = ["httpx"]
 google = ["google-cloud-datastore (>=2)", "google-cloud-pubsub (>=2)"]
 influxdb = ["influxdb", "influxdb-client"]
 k3s = ["kubernetes", "pyyaml"]
@@ -2089,7 +2087,6 @@ qdrant = ["qdrant-client"]
 rabbitmq = ["pika"]
 redis = ["redis"]
 registry = ["bcrypt"]
-scylla = ["cassandra-driver (==3.29.1)"]
 selenium = ["selenium"]
 sftp = ["cryptography"]
 test-module-import = ["httpx"]
@@ -2582,4 +2579,4 @@ dev = ["doc8", "flake8", "flake8-import-order", "rstcheck[sphinx]", "sphinx"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "e63989a77912f2c36090970b10558dce5e441a0bea4440f0db839361e7ab36df"
+content-hash = "80e5e06125dca453a1cd5042a55dd50103af086cd9b08e7fbe6571d85905873a"

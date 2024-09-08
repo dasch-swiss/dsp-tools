@@ -10,7 +10,6 @@ repos:
       - id: ruff
         args:
           - --ignore=A002  # builtin-argument-shadowing
-          - --ignore=ARG001  # unused function argument
           - --ignore=D101  # undocumented-public-class
           - --ignore=D102  # undocumented-public-method
           - --ignore=F841  # unused-variable

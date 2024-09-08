@@ -228,13 +228,13 @@ def test_check_all_classes_and_properties_in_onto_problem() -> None:
         "The ontologies for your project on the server are:\n"
         "    - test\n"
         "    - knora-api"
-        "\n\n---------------------------------------\n\n"
+        "\n\n"
         "The following resource(s) have an invalid resource type:\n\n"
         "    Resource Type: 'knora'\n"
         "    Problem: 'Invalid Class Type'\n"
         "    Resource ID(s):\n"
         "    - idA"
-        "\n\n---------------------------------------\n\n"
+        "\n\n"
     )
     res_msg = _check_all_classes_and_properties_in_onto(classes, properties, onto_lookup)
     assert res_msg == expected_msg
@@ -414,8 +414,9 @@ class TestGetEncodingOneProperty:
             </text-prop>
             """
         )
-        res_info = _get_prop_and_encoding_from_one_property("id", test_prop)
+        res_info = _get_prop_and_encoding_from_one_property("id", ":resType", test_prop)
         assert res_info.resource_id == "id"
+        assert res_info.res_type == ":resType"
         assert res_info.property_name == ":hasRichtext"
         assert res_info.encoding == "xml"
 
@@ -428,8 +429,9 @@ class TestGetEncodingOneProperty:
             </text-prop>
             """
         )
-        res_info = _get_prop_and_encoding_from_one_property("id", test_prop)
+        res_info = _get_prop_and_encoding_from_one_property("id", ":resType", test_prop)
         assert res_info.resource_id == "id"
+        assert res_info.res_type == ":resType"
         assert res_info.property_name == ":hasRichtext"
         assert res_info.encoding == "utf8"
 
@@ -441,8 +443,9 @@ class TestGetEncodingOneProperty:
             </text-prop>
             """
         )
-        res_info = _get_prop_and_encoding_from_one_property("id", test_prop)
+        res_info = _get_prop_and_encoding_from_one_property("id", ":resType", test_prop)
         assert res_info.resource_id == "id"
+        assert res_info.res_type == ":resType"
         assert res_info.property_name == ":hasRichtext"
         assert res_info.encoding == "utf8"
 
@@ -519,22 +522,22 @@ def test_get_all_ids_and_props_and_encodings_from_root_with_text() -> None:
 
 class TestCheckCorrectnessOneProp:
     def test_utf_simple_correct(self) -> None:
-        test_val = TextValueData("id", ":prop", "utf8")
+        test_val = TextValueData("id", ":restype", ":prop", "utf8")
         test_lookup = PropertyTextValueTypes(set(), {":prop"})
         assert _check_correctness_of_one_prop(test_val, test_lookup) is True
 
     def test_utf_simple_wrong(self) -> None:
-        test_val = TextValueData("id", ":prop", "utf8")
+        test_val = TextValueData("id", ":restype", ":prop", "utf8")
         test_lookup = PropertyTextValueTypes({":prop"}, set())
         assert _check_correctness_of_one_prop(test_val, test_lookup) is False
 
     def test_xml_correct(self) -> None:
-        test_val = TextValueData("id", ":prop", "xml")
+        test_val = TextValueData("id", ":restype", ":prop", "xml")
         test_lookup = PropertyTextValueTypes({":prop"}, set())
         assert _check_correctness_of_one_prop(test_val, test_lookup) is True
 
     def test_xml_wrong(self) -> None:
-        test_val = TextValueData("id", ":prop", "xml")
+        test_val = TextValueData("id", ":restype", ":prop", "xml")
         test_lookup = PropertyTextValueTypes(set(), set())
         assert _check_correctness_of_one_prop(test_val, test_lookup) is False
 
@@ -623,11 +626,11 @@ def test_analyse_all_text_value_encodings_are_correct_problems() -> None:
         "\nSome text encodings used in the XML data file are not conform with the gui_element "
         "specified in the JSON ontology.\n"
         "Please consult the ontology regarding the assigned gui_elements."
-        "\n\n---------------------------------------\n\n"
-        "Resource ID: 'resC'\n"
+        "\n\n"
+        "Resource ID: 'resC' | Resource Type: ':TestThing2'\n"
         "    - Property Name: ':hasRichtext' -> Encoding Used: 'utf8'"
-        "\n----------------------------\n"
-        "Resource ID: 'test_thing_1'\n"
+        "\n\n"
+        "Resource ID: 'test_thing_1' | Resource Type: ':TestThing'\n"
         "    - Property Name: ':hasText' -> Encoding Used: 'xml'"
     )
     res_msg = _check_correctness_all_text_value_encodings(test_ele, test_lookup)

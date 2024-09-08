@@ -22,10 +22,10 @@ class InconsistentTextValueEncodings:
     This class implements the `Problem` protocol
     for resources and properties that contain invalid encodings.
 
-    An invalid encoding would be a <text-prop> element, that contains
-    <text encoding="utf8">
+    An invalid encoding would be a `<text-prop>` element, that contains
+    `<text encoding="utf8">`
     and
-    <text encoding="xml">
+    `<text encoding="xml">`
     """
 
     problematic_resources: list[TextValueData]

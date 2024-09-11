@@ -51,13 +51,13 @@ class Resource:
             warnings.warn(DspToolsUserWarning(msg))
 
     def serialise(self) -> etree._Element:
-        res_ele = self._make_resource_ele()
+        res_ele = self._serialise_resource_element()
         if self.file_value:
             res_ele.append(self.file_value.serialise())
         res_ele.extend(self._serialise_values())
         return res_ele
 
-    def _make_resource_ele(self) -> etree._Element:
+    def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "restype": self.restype, "id": self.res_id}
         if self.permissions:
             attribs["permissions"] = self.permissions

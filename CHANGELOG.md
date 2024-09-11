@@ -1,5 +1,14 @@
 # Changelog
 
+## [9.0.2](https://github.com/dasch-swiss/dsp-tools/compare/v9.0.1...v9.0.2) (2024-09-04)
+
+
+### Maintenance
+
+* Add comment to CI so that this does not get broken again ([#1156](https://github.com/dasch-swiss/dsp-tools/issues/1156)) ([7e3c2ec](https://github.com/dasch-swiss/dsp-tools/commit/7e3c2ec5e2a346570e2b1d29e8d517a34feb4118))
+* Attempt to fix release issues by bringing back the GH_TOKEN ([#1153](https://github.com/dasch-swiss/dsp-tools/issues/1153)) ([0853e25](https://github.com/dasch-swiss/dsp-tools/commit/0853e2547007bb2301d20e696b98512aedf6e03f))
+* Fix release issues by using DASCHBOT PAT ([#1154](https://github.com/dasch-swiss/dsp-tools/issues/1154)) ([4684c91](https://github.com/dasch-swiss/dsp-tools/commit/4684c91509e8968b9738d4a231c40fd97d14e5cf))
+
 ## [9.0.1](https://github.com/dasch-swiss/dsp-tools/compare/v9.0.0...v9.0.1) (2024-09-04)
 
 

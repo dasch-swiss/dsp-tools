@@ -100,19 +100,19 @@ class Resource:
     ###################
 
     def add_color(
-        self, value: int, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self, value: int | str, prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         self.values.append(ColorValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
     def add_colors(
-        self, values: list[int], prop_name: str, permissions: str | None = None, comment: str | None = None
+        self, values: list[int | str], prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         self.values.extend([ColorValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
     def add_color_optional(
-        self, value: int, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self, value: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         if not pd.isna(value):
             ColorValue(value, prop_name, permissions, comment, self.res_id)
@@ -135,7 +135,7 @@ class Resource:
         return self
 
     def add_date_optional(
-        self, value: str, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self, value: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         if not pd.isna(value):
             self.values.append(DateValue(value, prop_name, permissions, comment, self.res_id))
@@ -146,19 +146,19 @@ class Resource:
     ###################
 
     def add_decimal(
-        self, value: float, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self, value: float | str, prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         self.values.append(DecimalValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
     def add_decimals(
-        self, values: list[float], prop_name: str, permissions: str | None = None, comment: str | None = None
+        self, values: list[float | str], prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         self.values.extend([DecimalValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
     def add_decimal_optional(
-        self, value: float, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self, value: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         if not pd.isna(value):
             self.values.append(DecimalValue(value, prop_name, permissions, comment, self.res_id))
@@ -224,7 +224,7 @@ class Resource:
         return self
 
     def add_link_optional(
-        self, value: str, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self, value: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         if not pd.isna(value):
             self.values.append(LinkValue(value, prop_name, permissions, comment, self.res_id))
@@ -271,7 +271,7 @@ class Resource:
         return self
 
     def add_simple_text_optional(
-        self, value: str, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self, value: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         if not pd.isna(value):
             self.values.append(SimpleText(value, prop_name, permissions, comment, self.res_id))
@@ -292,7 +292,7 @@ class Resource:
         pass
 
     def add_richtext_optional(
-        self, value: str, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self, value: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         pass
 
@@ -311,7 +311,7 @@ class Resource:
         pass
 
     def add_time_optional(
-        self, value: str, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self, value: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         pass
 
@@ -330,7 +330,7 @@ class Resource:
         pass
 
     def add_uri_optional(
-        self, value: str, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self, value: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         pass
 

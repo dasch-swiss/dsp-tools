@@ -21,6 +21,7 @@ class Value(Protocol):
     prop_name: str
     permissions: str | None
     comment: str | None
+    resource_id: str | None
 
     def serialise(self) -> etree._Element:
         raise NotImplementedError
@@ -33,11 +34,12 @@ class Value(Protocol):
 
 
 @dataclass
-class BooleanValue(Value):
+class BooleanValue:
     value: Any
     prop_name: str
-    permissions: str | None
-    comment: str | None
+    permissions: str | None = "prop-default"
+    comment: str | None = None
+    resource_id: str | None = None
 
     def serialise(self) -> etree._Element:
         raise NotImplementedError
@@ -50,11 +52,12 @@ class BooleanValue(Value):
 
 
 @dataclass
-class ColorValue(Value):
+class ColorValue:
     value: Any
     prop_name: str
-    permissions: str | None
-    comment: str | None
+    permissions: str | None = "prop-default"
+    comment: str | None = None
+    resource_id: str | None = None
 
     def serialise(self) -> etree._Element:
         raise NotImplementedError
@@ -67,11 +70,12 @@ class ColorValue(Value):
 
 
 @dataclass
-class DateValue(Value):
+class DateValue:
     value: Any
     prop_name: str
-    permissions: str | None
-    comment: str | None
+    permissions: str | None = "prop-default"
+    comment: str | None = None
+    resource_id: str | None = None
 
     def serialise(self) -> etree._Element:
         raise NotImplementedError
@@ -84,11 +88,12 @@ class DateValue(Value):
 
 
 @dataclass
-class DecimalValue(Value):
+class DecimalValue:
     value: Any
     prop_name: str
-    permissions: str | None
-    comment: str | None
+    permissions: str | None = "prop-default"
+    comment: str | None = None
+    resource_id: str | None = None
 
     def serialise(self) -> etree._Element:
         raise NotImplementedError
@@ -101,11 +106,12 @@ class DecimalValue(Value):
 
 
 @dataclass
-class GeonameValue(Value):
+class GeonameValue:
     value: Any
     prop_name: str
-    permissions: str | None
-    comment: str | None
+    permissions: str | None = "prop-default"
+    comment: str | None = None
+    resource_id: str | None = None
 
     def serialise(self) -> etree._Element:
         raise NotImplementedError
@@ -118,11 +124,12 @@ class GeonameValue(Value):
 
 
 @dataclass
-class IntValue(Value):
+class IntValue:
     value: int | str
     prop_name: str
     permissions: str | None = "prop-default"
     comment: str | None = None
+    resource_id: str | None = None
 
     def __post_init__(self) -> None:
         if not is_integer(self.value):
@@ -148,11 +155,12 @@ class IntValue(Value):
 
 
 @dataclass
-class LinkValue(Value):
+class LinkValue:
     value: str
     prop_name: str
     permissions: str | None = "prop-default"
     comment: str | None = None
+    resource_id: str | None = None
 
     def __post_init__(self) -> None:
         if not is_string(self.value):
@@ -178,11 +186,13 @@ class LinkValue(Value):
 
 
 @dataclass
-class ListValue(Value):
+class ListValue:
     value: Any
+    list_name: Any
     prop_name: str
-    permissions: str | None
-    comment: str | None
+    permissions: str | None = "prop-default"
+    comment: str | None = None
+    resource_id: str | None = None
 
     def serialise(self) -> etree._Element:
         raise NotImplementedError
@@ -195,11 +205,12 @@ class ListValue(Value):
 
 
 @dataclass
-class SimpleText(Value):
+class SimpleText:
     value: str
     prop_name: str
     permissions: str | None = "prop-default"
     comment: str | None = None
+    resource_id: str | None = None
 
     def __post_init__(self) -> None:
         if not is_string(self.value):
@@ -225,11 +236,12 @@ class SimpleText(Value):
 
 
 @dataclass
-class Richtext(Value):
+class Richtext:
     value: Any
     prop_name: str
-    permissions: str | None
-    comment: str | None
+    permissions: str | None = "prop-default"
+    comment: str | None = None
+    resource_id: str | None = None
 
     def serialise(self) -> etree._Element:
         raise NotImplementedError
@@ -242,11 +254,12 @@ class Richtext(Value):
 
 
 @dataclass
-class TimeValue(Value):
+class TimeValue:
     value: Any
     prop_name: str
-    permissions: str | None
-    comment: str | None
+    permissions: str | None = "prop-default"
+    comment: str | None = None
+    resource_id: str | None = None
 
     def serialise(self) -> etree._Element:
         raise NotImplementedError
@@ -259,11 +272,12 @@ class TimeValue(Value):
 
 
 @dataclass
-class UriValue(Value):
+class UriValue:
     value: Any
     prop_name: str
-    permissions: str | None
-    comment: str | None
+    permissions: str | None = "prop-default"
+    comment: str | None = None
+    resource_id: str | None = None
 
     def serialise(self) -> etree._Element:
         raise NotImplementedError
@@ -275,7 +289,9 @@ class UriValue(Value):
         raise NotImplementedError
 
 
-def _warn_type_mismatch(expected_type: str, value: Any, prop_name: str) -> None:
+def _warn_type_mismatch(expected_type: str, value: Any, prop_name: str, res_id: str | None) -> None:
     """Emits a warning if a values is not in the expected format."""
-    msg = f"The following value is not a valid {expected_type}.\n    Value: {value} | Property: {prop_name}"
+    msg = f"At the following location a '{expected_type}' does not conform to the expected format.\n"
+    msg += f"Resource: {res_id} | " if res_id else ""
+    msg += f"Value: {value} | Property: {prop_name}"
     warnings.warn(DspToolsUserWarning(msg))

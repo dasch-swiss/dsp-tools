@@ -121,7 +121,7 @@ def _add_start_stack(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     subparser.add_argument(
         "--latest",
         action="store_true",
-        help="use the latest dev version of DSP-API, from the main branch of the GitHub repository",
+        help="use the latest dev version of DSP-API/DSP-APP, from the main branch of the GitHub repository",
     )
     subparser.add_argument(
         "--with-test-data",

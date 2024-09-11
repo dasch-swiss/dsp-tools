@@ -6,6 +6,8 @@ from typing import Any
 
 from lxml import etree
 
+from dsp_tools.commands.xmllib.models.values import LinkValue
+from dsp_tools.commands.xmllib.models.values import SimpleText
 from dsp_tools.commands.xmllib.value_checkers import is_string
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 
@@ -26,13 +28,26 @@ class AnnotationResource:
         _check_and_warn_strings(self.res_id, self.label, "Label")
 
     def serialise(self) -> etree._Element:
-        raise NotImplementedError
+        res_ele = self._serialise_resource_element()
+        res_ele.append(self._serialise_annotation_of())
+        res_ele.append(self._serialise_comments())
+        return res_ele
 
     def _serialise_resource_element(self) -> etree._Element:
-        raise NotImplementedError
+        attribs = {"label": self.label, "id": self.res_id}
+        if self.permissions:
+            attribs["permissions"] = self.permissions
+        return etree.Element(f"{DASCH_SCHEMA}annotation", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
 
-    def _serialise_values(self) -> etree._Element:
-        raise NotImplementedError
+    def _serialise_comments(self) -> etree._Element:
+        cmts = [SimpleText(value=x, prop_name="hasComment", resource_id=self.res_id) for x in self.comments]
+        cmt_prop = cmts[0].make_prop()
+        for cmt in cmts:
+            cmt_prop.append(cmt.make_element())
+        return cmt_prop
+
+    def _serialise_annotation_of(self) -> etree._Element:
+        return LinkValue(value=self.annotation_of, prop_name="isAnnotationOf", resource_id=self.res_id).serialise()
 
 
 @dataclass

@@ -7,8 +7,16 @@ from typing import Protocol
 
 from lxml import etree
 
+from dsp_tools.commands.xmllib.value_checkers import is_bool
+from dsp_tools.commands.xmllib.value_checkers import is_color
+from dsp_tools.commands.xmllib.value_checkers import is_date
+from dsp_tools.commands.xmllib.value_checkers import is_decimal
+from dsp_tools.commands.xmllib.value_checkers import is_geoname
 from dsp_tools.commands.xmllib.value_checkers import is_integer
+from dsp_tools.commands.xmllib.value_checkers import is_list
 from dsp_tools.commands.xmllib.value_checkers import is_string
+from dsp_tools.commands.xmllib.value_checkers import is_timestamp
+from dsp_tools.commands.xmllib.value_checkers import is_uri
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
@@ -41,6 +49,12 @@ class BooleanValue:
     comment: str | None = None
     resource_id: str | None = None
 
+    def __post_init__(self) -> None:
+        if not is_bool(self.value):
+            _warn_type_mismatch(
+                expected_type="bool", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
+            )
+
     def serialise(self) -> etree._Element:
         raise NotImplementedError
 
@@ -58,6 +72,12 @@ class ColorValue:
     permissions: str | None = "prop-default"
     comment: str | None = None
     resource_id: str | None = None
+
+    def __post_init__(self) -> None:
+        if not is_color(self.value):
+            _warn_type_mismatch(
+                expected_type="color", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
+            )
 
     def serialise(self) -> etree._Element:
         raise NotImplementedError
@@ -77,6 +97,12 @@ class DateValue:
     comment: str | None = None
     resource_id: str | None = None
 
+    def __post_init__(self) -> None:
+        if not is_date(self.value):
+            _warn_type_mismatch(
+                expected_type="date", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
+            )
+
     def serialise(self) -> etree._Element:
         raise NotImplementedError
 
@@ -95,6 +121,12 @@ class DecimalValue:
     comment: str | None = None
     resource_id: str | None = None
 
+    def __post_init__(self) -> None:
+        if not is_decimal(self.value):
+            _warn_type_mismatch(
+                expected_type="decimal", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
+            )
+
     def serialise(self) -> etree._Element:
         raise NotImplementedError
 
@@ -112,6 +144,12 @@ class GeonameValue:
     permissions: str | None = "prop-default"
     comment: str | None = None
     resource_id: str | None = None
+
+    def __post_init__(self) -> None:
+        if not is_geoname(self.value):
+            _warn_type_mismatch(
+                expected_type="geoname", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
+            )
 
     def serialise(self) -> etree._Element:
         raise NotImplementedError
@@ -194,6 +232,12 @@ class ListValue:
     comment: str | None = None
     resource_id: str | None = None
 
+    def __post_init__(self) -> None:
+        if not is_list(self.value, self.list_name):
+            _warn_type_mismatch(
+                expected_type="list", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
+            )
+
     def serialise(self) -> etree._Element:
         raise NotImplementedError
 
@@ -243,6 +287,12 @@ class Richtext:
     comment: str | None = None
     resource_id: str | None = None
 
+    def __post_init__(self) -> None:
+        if not is_string(self.value):
+            _warn_type_mismatch(
+                expected_type="string", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
+            )
+
     def serialise(self) -> etree._Element:
         raise NotImplementedError
 
@@ -261,6 +311,12 @@ class TimeValue:
     comment: str | None = None
     resource_id: str | None = None
 
+    def __post_init__(self) -> None:
+        if not is_timestamp(self.value):
+            _warn_type_mismatch(
+                expected_type="timestamp", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
+            )
+
     def serialise(self) -> etree._Element:
         raise NotImplementedError
 
@@ -278,6 +334,12 @@ class UriValue:
     permissions: str | None = "prop-default"
     comment: str | None = None
     resource_id: str | None = None
+
+    def __post_init__(self) -> None:
+        if not is_uri(self.value):
+            _warn_type_mismatch(
+                expected_type="uri", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
+            )
 
     def serialise(self) -> etree._Element:
         raise NotImplementedError

@@ -205,27 +205,60 @@ def _serialise_has_comment(comments: list[str], res_id: str) -> etree._Element:
 
 
 def _validate_segment(segment: AudioSegmentResource | VideoSegmentResource) -> None:
-    _check_and_warn_strings(segment.res_id, segment.res_id, "Resource ID")
-    _check_and_warn_strings(segment.res_id, segment.label, "Label")
-    _check_and_warn_strings(segment.res_id, segment.segment_of, "isSegmentOf")
+    problems = []
+    if not is_string(segment.res_id):
+        problems.append(f"Field: Resource ID | Value: {segment.res_id}")
+    if not is_string(segment.label):
+        problems.append(f"Field: label | Value: {segment.label}")
+    if not is_string(segment.segment_of):
+        problems.append(f"Field: segment_of | Value: {segment.segment_of}")
     if segment.title:
-        _check_and_warn_strings(segment.res_id, segment.segment_of, "isSegmentOf")
-    for c in segment.comment:
-        _check_and_warn_strings(segment.res_id, c, "comment")
-    for c in segment.description:
-        _check_and_warn_strings(segment.res_id, c, "description")
-    for c in segment.keywords:
-        _check_and_warn_strings(segment.res_id, c, "keywords")
-    for c in segment.relates_to:
-        _check_and_warn_strings(segment.res_id, c, "relates_to")
-    seg_bounds_msg = ""
-    if not is_decimal(segment.segment_start) or not is_integer(segment.segment_start):
-        seg_bounds_msg += f"\nSegment start: {segment.segment_start}"
-    if not is_decimal(segment.segment_end) or not is_integer(segment.segment_end):
-        seg_bounds_msg += f"\nSegment end: {segment.segment_start}"
-    if seg_bounds_msg:
-        msg = (
-            f"The segment bounds should be valid integers or decimals. The resource with the ID: "
-            f"'{segment.res_id}' has the following invalid value(s){seg_bounds_msg}"
-        )
+        if not is_string(segment.title):
+            problems.append(f"Field: title | Value: {segment.title}")
+    if fails := [x for x in segment.comment if not is_string(x)]:
+        problems.extend([f"Field: comment | Value: {x}" for x in fails])
+    if fails := [x for x in segment.description if not is_string(x)]:
+        problems.extend([f"Field: description | Value: {x}" for x in fails])
+    if fails := [x for x in segment.keywords if not is_string(x)]:
+        problems.extend([f"Field: keywords | Value: {x}" for x in fails])
+    if fails := [x for x in segment.relates_to if not is_string(x)]:
+        problems.extend([f"Field: relates_to | Value: {x}" for x in fails])
+    problems.extend(_validate_segment_bounds(segment.segment_start, segment.segment_end))
+    if problems:
+        msg = f"The resource with the ID '{segment.res_id}' has the following problem(s):{'\n- '.join(problems)}"
         warnings.warn(DspToolsUserWarning(msg))
+
+
+def _validate_segment_bounds(segment_start: Any, segment_end: Any) -> list[str]:
+    seg_bounds_msg = []
+    if not is_decimal(segment_start) or not is_integer(segment_start):
+        seg_bounds_msg.append(f"Segment start should be an integer or float: {segment_start}")
+    if not is_decimal(segment_end) or not is_integer(segment_end):
+        seg_bounds_msg.append(f"Invalid segment end should be an integer or float: {segment_start}")
+    return seg_bounds_msg
+
+
+def _serialise_segment_children(segment: AudioSegmentResource | VideoSegmentResource) -> list[etree._Element]:
+    eles = []
+    segment_of = etree.Element(f"{DASCH_SCHEMA}isSegmentOf", nsmap=XML_NAMESPACE_MAP)
+    segment_of.text = segment.segment_of
+    eles.append(segment_of)
+    eles.append(
+        etree.Element(
+            f"{DASCH_SCHEMA}hasSegmentBounds",
+            attrib={"start": segment.segment_start, "end": segment.segment_end},
+            nsmap=XML_NAMESPACE_MAP,
+        )
+    )
+    if segment.title:
+        title = etree.Element(f"{DASCH_SCHEMA}hasTitle", nsmap=XML_NAMESPACE_MAP)
+        title.text = segment.title
+        eles.append(title)
+    if segment.comment:
+        pass
+    if segment.description:
+        pass
+    if segment.keywords:
+        pass
+    if segment.relates_to:
+        pass

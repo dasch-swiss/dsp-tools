@@ -15,7 +15,7 @@ def is_bool(value: Any) -> bool:
     Returns:
         True if it conforms
     """
-    value = str(value).lower()
+    value = str(value).lower().strip()
     if value in ("false", "0", "0.0", "no"):
         return True
     elif value in ("true", "1", "1.0", "yes"):

@@ -52,7 +52,17 @@ def test_is_date_correct(val: str) -> None:
     assert is_date(val)
 
 
-@pytest.mark.parametrize("val", ["OTHER:BC:2000:BC:1000", "GREGORIAN:other:2000:other:1000"])
+@pytest.mark.parametrize(
+    "val",
+    [
+        "OTHER:BC:2000:BC:1000",
+        "GREGORIAN:other:2000:other:1000",
+        "GREGORIAN::CE:0476-09-04:CE:0476-09-04",
+        "GREGORIAN:CE:0476-09-04:CE::0476-09-04",
+        "GREGORIAN:CE:0476-09-04::CE:0476-09-04",
+        "GREGORIAN:CE::0476-09-04:CE:0476-09-04",
+    ],
+)
 def test_is_date_wrong(val: Any) -> None:
     assert not is_date(val)
 
@@ -105,7 +115,7 @@ def test_is_string_correct(val: Any) -> None:
     assert is_string(val)
 
 
-@pytest.mark.parametrize("val", [None, pd.NA, "", " ", "\n"])
+@pytest.mark.parametrize("val", [None, pd.NA, "", " ", "\t \n"])
 def test_is_string_wrong(val: Any) -> None:
     assert not is_string(val)
 

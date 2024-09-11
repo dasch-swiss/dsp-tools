@@ -91,7 +91,7 @@ class ColorValue:
 
 @dataclass
 class DateValue:
-    value: Any
+    value: str
     prop_name: str
     permissions: str | None = "prop-default"
     comment: str | None = None
@@ -171,7 +171,9 @@ class IntValue:
 
     def __post_init__(self) -> None:
         if not is_integer(self.value):
-            _warn_type_mismatch(expected_type="integer", value=self.value, prop_name=self.prop_name)
+            _warn_type_mismatch(
+                expected_type="integer", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
+            )
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()
@@ -202,7 +204,9 @@ class LinkValue:
 
     def __post_init__(self) -> None:
         if not is_string(self.value):
-            _warn_type_mismatch(expected_type="string", value=self.value, prop_name=self.prop_name)
+            _warn_type_mismatch(
+                expected_type="string", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
+            )
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()
@@ -258,7 +262,9 @@ class SimpleText:
 
     def __post_init__(self) -> None:
         if not is_string(self.value):
-            _warn_type_mismatch(expected_type="string", value=self.value, prop_name=self.prop_name)
+            _warn_type_mismatch(
+                expected_type="string", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
+            )
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()
@@ -281,7 +287,7 @@ class SimpleText:
 
 @dataclass
 class Richtext:
-    value: Any
+    value: str
     prop_name: str
     permissions: str | None = "prop-default"
     comment: str | None = None
@@ -305,7 +311,7 @@ class Richtext:
 
 @dataclass
 class TimeValue:
-    value: Any
+    value: str
     prop_name: str
     permissions: str | None = "prop-default"
     comment: str | None = None
@@ -329,7 +335,7 @@ class TimeValue:
 
 @dataclass
 class UriValue:
-    value: Any
+    value: str
     prop_name: str
     permissions: str | None = "prop-default"
     comment: str | None = None

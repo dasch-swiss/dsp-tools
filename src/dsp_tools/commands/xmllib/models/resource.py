@@ -38,7 +38,7 @@ class Resource:
     res_id: str
     restype: str
     label: str
-    values: list[Value] = field(default_factory=list)
+    values: list[Value | ListValue] = field(default_factory=list)
     permissions: str = "res-default"
     file_value: AbstractFileValue | None = None
 
@@ -70,7 +70,7 @@ class Resource:
         return [self._combine_values(prop_values) for prop_values in grouped.values()]
 
     @staticmethod
-    def _combine_values(prop_values: list[Value]) -> etree._Element:
+    def _combine_values(prop_values: list[Value | ListValue]) -> etree._Element:
         prop_ = prop_values[0].make_prop()
         prop_eles = [x.make_element() for x in prop_values]
         prop_.extend(prop_eles)
@@ -81,19 +81,19 @@ class Resource:
     ###################
 
     def add_bool(
-        self, value: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self, value: bool, prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         self.values.append(BooleanValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
     def add_bools(
-        self, values: list[Any], prop_name: str, permissions: str | None = None, comment: str | None = None
+        self, values: list[bool], prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         self.values.extend([BooleanValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
     def add_bool_optional(
-        self, value: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self, value: bool, prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         if not pd.isna(value):
             self.values.append(BooleanValue(value, prop_name, permissions, comment, self.res_id))
@@ -181,12 +181,15 @@ class Resource:
     def add_geonames(
         self, values: list[int | str], prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
-        pass
+        self.values.extend([GeonameValue(v, prop_name, permissions, comment, self.res_id) for v in values])
+        return self
 
     def add_geoname_optional(
         self, value: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
-        pass
+        if not pd.isna(value):
+            self.values.append(GeonameValue(value, prop_name, permissions, comment, self.res_id))
+        return self
 
     ###################
     # IntValue
@@ -345,6 +348,7 @@ class Resource:
         self, values: list[str], prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         self.values.extend([UriValue(v, prop_name, permissions, comment, self.res_id) for v in values])
+        return self
 
     def add_uri_optional(
         self, value: Any, prop_name: str, permissions: str | None = None, comment: str | None = None

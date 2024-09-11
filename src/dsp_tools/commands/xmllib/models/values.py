@@ -16,9 +16,9 @@ from dsp_tools.commands.xmllib.value_checkers import is_integer
 from dsp_tools.commands.xmllib.value_checkers import is_list
 from dsp_tools.commands.xmllib.value_checkers import is_string
 from dsp_tools.commands.xmllib.value_checkers import is_timestamp
-from dsp_tools.commands.xmllib.value_checkers import is_uri
 from dsp_tools.commands.xmllib.value_converters import convert_to_bool
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
+from dsp_tools.utils.uri_util import is_uri
 
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"

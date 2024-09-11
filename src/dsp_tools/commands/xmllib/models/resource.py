@@ -189,21 +189,35 @@ class Resource:
     def add_integer(
         self, prop_name: str, value: int | str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
-        self.values.append(IntValue(value=value, prop_name=prop_name, permissions=permissions, comment=comment))
+        self.values.append(
+            IntValue(
+                value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+            )
+        )
         return self
 
     def add_integers(
         self, prop_name: str, values: list[int | str], permissions: str | None = None, comment: str | None = None
     ) -> Resource:
-        for v in values:
-            self.values.append(IntValue(value=v, prop_name=prop_name, permissions=permissions, comment=comment))
+        self.values.extend(
+            [
+                IntValue(
+                    value=v, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+                )
+                for v in values
+            ]
+        )
         return self
 
     def add_integer_optional(
         self, prop_name: Any, value: int | str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         if not pd.isna(value):
-            self.values.append(IntValue(value=value, prop_name=prop_name, permissions=permissions, comment=comment))
+            self.values.append(
+                IntValue(
+                    value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+                )
+            )
         return self
 
     ###################
@@ -213,21 +227,35 @@ class Resource:
     def add_link(
         self, prop_name: str, value: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
-        self.values.append(LinkValue(value=value, prop_name=prop_name, permissions=permissions, comment=comment))
+        self.values.append(
+            LinkValue(
+                value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+            )
+        )
         return self
 
     def add_links(
         self, prop_name: str, values: list[str], permissions: str | None = None, comment: str | None = None
     ) -> Resource:
-        for v in values:
-            self.values.append(LinkValue(value=v, prop_name=prop_name, permissions=permissions, comment=comment))
+        self.values.extend(
+            [
+                LinkValue(
+                    value=v, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+                )
+                for v in values
+            ]
+        )
         return self
 
     def add_link_optional(
         self, prop_name: str, value: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         if not pd.isna(value):
-            self.values.append(LinkValue(value=value, prop_name=prop_name, permissions=permissions, comment=comment))
+            self.values.append(
+                LinkValue(
+                    value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+                )
+            )
         return self
 
     ###################
@@ -261,21 +289,35 @@ class Resource:
     def add_simple_text(
         self, prop_name: str, value: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
-        self.values.append(SimpleText(value=value, prop_name=prop_name, permissions=permissions, comment=comment))
+        self.values.append(
+            SimpleText(
+                value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+            )
+        )
         return self
 
     def add_simple_texts(
         self, prop_name: str, values: list[str], permissions: str | None = None, comment: str | None = None
     ) -> Resource:
-        for v in values:
-            self.values.append(SimpleText(value=v, prop_name=prop_name, permissions=permissions, comment=comment))
+        self.values.extend(
+            [
+                SimpleText(
+                    value=v, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+                )
+                for v in values
+            ]
+        )
         return self
 
     def add_simple_text_optional(
         self, prop_name: str, value: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         if not pd.isna(value):
-            self.values.append(SimpleText(value=value, prop_name=prop_name, permissions=permissions, comment=comment))
+            self.values.append(
+                SimpleText(
+                    value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+                )
+            )
         return self
 
     ###################

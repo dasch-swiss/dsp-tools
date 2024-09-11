@@ -16,4 +16,4 @@ def convert_to_bool(value: Any) -> str:
         return "false"
     elif str_val in ("true", "1", "1.0", "yes"):
         return "true"
-    return str_val
+    return str(value)

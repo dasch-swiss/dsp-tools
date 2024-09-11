@@ -16,13 +16,10 @@ def is_bool(value: Any) -> bool:
     Returns:
         True if it conforms
     """
-    if isinstance(value, bool):
+    value = str(value).lower()
+    if value in ("false", "0", "0.0", "no"):
         return True
-    if isinstance(value, str):
-        value = value.lower()
-    if value in (False, "false", "0", 0, 0.0, "no"):
-        return True
-    elif value in (True, "true", "1", 1, 1.0, "yes"):
+    elif value in ("true", "1", "1.0", "yes"):
         return True
     return False
 

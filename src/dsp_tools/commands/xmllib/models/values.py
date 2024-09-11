@@ -17,6 +17,7 @@ from dsp_tools.commands.xmllib.value_checkers import is_list
 from dsp_tools.commands.xmllib.value_checkers import is_string
 from dsp_tools.commands.xmllib.value_checkers import is_timestamp
 from dsp_tools.commands.xmllib.value_checkers import is_uri
+from dsp_tools.commands.xmllib.value_converters import convert_to_bool
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
@@ -54,15 +55,25 @@ class BooleanValue:
             _warn_type_mismatch(
                 expected_type="bool", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
+        self.value = convert_to_bool(self.value)
 
     def serialise(self) -> etree._Element:
-        raise NotImplementedError
+        ele = self.make_prop()
+        ele.append(self.make_element())
+        return ele
 
     def make_prop(self) -> etree._Element:
-        raise NotImplementedError
+        return etree.Element(f"{DASCH_SCHEMA}boolean-prop", name=self.prop_name, nsmap=XML_NAMESPACE_MAP)
 
     def make_element(self) -> etree._Element:
-        raise NotImplementedError
+        attribs = {}
+        if self.permissions:
+            attribs["permissions"] = self.permissions
+        if self.comment:
+            attribs["comment"] = self.comment
+        ele = etree.Element(f"{DASCH_SCHEMA}boolean", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
+        ele.text = str(self.value)
+        return ele
 
 
 @dataclass
@@ -80,13 +91,22 @@ class ColorValue:
             )
 
     def serialise(self) -> etree._Element:
-        raise NotImplementedError
+        ele = self.make_prop()
+        ele.append(self.make_element())
+        return ele
 
     def make_prop(self) -> etree._Element:
-        raise NotImplementedError
+        return etree.Element(f"{DASCH_SCHEMA}color-prop", name=self.prop_name, nsmap=XML_NAMESPACE_MAP)
 
     def make_element(self) -> etree._Element:
-        raise NotImplementedError
+        attribs = {}
+        if self.permissions:
+            attribs["permissions"] = self.permissions
+        if self.comment:
+            attribs["comment"] = self.comment
+        ele = etree.Element(f"{DASCH_SCHEMA}color", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
+        ele.text = str(self.value)
+        return ele
 
 
 @dataclass
@@ -104,13 +124,22 @@ class DateValue:
             )
 
     def serialise(self) -> etree._Element:
-        raise NotImplementedError
+        ele = self.make_prop()
+        ele.append(self.make_element())
+        return ele
 
     def make_prop(self) -> etree._Element:
-        raise NotImplementedError
+        return etree.Element(f"{DASCH_SCHEMA}date-prop", name=self.prop_name, nsmap=XML_NAMESPACE_MAP)
 
     def make_element(self) -> etree._Element:
-        raise NotImplementedError
+        attribs = {}
+        if self.permissions:
+            attribs["permissions"] = self.permissions
+        if self.comment:
+            attribs["comment"] = self.comment
+        ele = etree.Element(f"{DASCH_SCHEMA}date", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
+        ele.text = str(self.value)
+        return ele
 
 
 @dataclass
@@ -128,13 +157,22 @@ class DecimalValue:
             )
 
     def serialise(self) -> etree._Element:
-        raise NotImplementedError
+        ele = self.make_prop()
+        ele.append(self.make_element())
+        return ele
 
     def make_prop(self) -> etree._Element:
-        raise NotImplementedError
+        return etree.Element(f"{DASCH_SCHEMA}decimal-prop", name=self.prop_name, nsmap=XML_NAMESPACE_MAP)
 
     def make_element(self) -> etree._Element:
-        raise NotImplementedError
+        attribs = {}
+        if self.permissions:
+            attribs["permissions"] = self.permissions
+        if self.comment:
+            attribs["comment"] = self.comment
+        ele = etree.Element(f"{DASCH_SCHEMA}decimal", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
+        ele.text = str(self.value)
+        return ele
 
 
 @dataclass
@@ -152,13 +190,22 @@ class GeonameValue:
             )
 
     def serialise(self) -> etree._Element:
-        raise NotImplementedError
+        ele = self.make_prop()
+        ele.append(self.make_element())
+        return ele
 
     def make_prop(self) -> etree._Element:
-        raise NotImplementedError
+        return etree.Element(f"{DASCH_SCHEMA}geoname-prop", name=self.prop_name, nsmap=XML_NAMESPACE_MAP)
 
     def make_element(self) -> etree._Element:
-        raise NotImplementedError
+        attribs = {}
+        if self.permissions:
+            attribs["permissions"] = self.permissions
+        if self.comment:
+            attribs["comment"] = self.comment
+        ele = etree.Element(f"{DASCH_SCHEMA}geoname", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
+        ele.text = str(self.value)
+        return ele
 
 
 @dataclass
@@ -243,13 +290,24 @@ class ListValue:
             )
 
     def serialise(self) -> etree._Element:
-        raise NotImplementedError
+        ele = self.make_prop()
+        ele.append(self.make_element())
+        return ele
 
     def make_prop(self) -> etree._Element:
-        raise NotImplementedError
+        return etree.Element(
+            f"{DASCH_SCHEMA}list-prop", name=self.prop_name, list=self.list_name, nsmap=XML_NAMESPACE_MAP
+        )
 
     def make_element(self) -> etree._Element:
-        raise NotImplementedError
+        attribs = {}
+        if self.permissions:
+            attribs["permissions"] = self.permissions
+        if self.comment:
+            attribs["comment"] = self.comment
+        ele = etree.Element(f"{DASCH_SCHEMA}list", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
+        ele.text = self.value
+        return ele
 
 
 @dataclass
@@ -300,13 +358,22 @@ class Richtext:
             )
 
     def serialise(self) -> etree._Element:
-        raise NotImplementedError
+        ele = self.make_prop()
+        ele.append(self.make_element())
+        return ele
 
     def make_prop(self) -> etree._Element:
-        raise NotImplementedError
+        return etree.Element(f"{DASCH_SCHEMA}text-prop", name=self.prop_name, nsmap=XML_NAMESPACE_MAP)
 
     def make_element(self) -> etree._Element:
-        raise NotImplementedError
+        attribs = {"encoding": "xml"}
+        if self.permissions:
+            attribs["permissions"] = self.permissions
+        if self.comment:
+            attribs["comment"] = self.comment
+        ele = etree.Element(f"{DASCH_SCHEMA}text", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
+        ele.text = self.value
+        return ele
 
 
 @dataclass
@@ -324,13 +391,22 @@ class TimeValue:
             )
 
     def serialise(self) -> etree._Element:
-        raise NotImplementedError
+        ele = self.make_prop()
+        ele.append(self.make_element())
+        return ele
 
     def make_prop(self) -> etree._Element:
-        raise NotImplementedError
+        return etree.Element(f"{DASCH_SCHEMA}time-prop", name=self.prop_name, nsmap=XML_NAMESPACE_MAP)
 
     def make_element(self) -> etree._Element:
-        raise NotImplementedError
+        attribs = {}
+        if self.permissions:
+            attribs["permissions"] = self.permissions
+        if self.comment:
+            attribs["comment"] = self.comment
+        ele = etree.Element(f"{DASCH_SCHEMA}time", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
+        ele.text = self.value
+        return ele
 
 
 @dataclass
@@ -348,13 +424,22 @@ class UriValue:
             )
 
     def serialise(self) -> etree._Element:
-        raise NotImplementedError
+        ele = self.make_prop()
+        ele.append(self.make_element())
+        return ele
 
     def make_prop(self) -> etree._Element:
-        raise NotImplementedError
+        return etree.Element(f"{DASCH_SCHEMA}uri-prop", name=self.prop_name, nsmap=XML_NAMESPACE_MAP)
 
     def make_element(self) -> etree._Element:
-        raise NotImplementedError
+        attribs = {}
+        if self.permissions:
+            attribs["permissions"] = self.permissions
+        if self.comment:
+            attribs["comment"] = self.comment
+        ele = etree.Element(f"{DASCH_SCHEMA}uri", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
+        ele.text = self.value
+        return ele
 
 
 def _warn_type_mismatch(expected_type: str, value: Any, prop_name: str, res_id: str | None) -> None:

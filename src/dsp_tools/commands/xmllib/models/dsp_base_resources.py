@@ -143,13 +143,15 @@ class VideoSegmentResource:
         _validate_segment(self)
 
     def serialise(self) -> etree._Element:
-        raise NotImplementedError
+        res_ele = self._serialise_resource_element()
+        res_ele.extend(_serialise_segment_children(self))
+        return res_ele
 
     def _serialise_resource_element(self) -> etree._Element:
-        raise NotImplementedError
-
-    def _serialise_values(self) -> etree._Element:
-        raise NotImplementedError
+        attribs = {"label": self.label, "id": self.res_id}
+        if self.permissions:
+            attribs["permissions"] = self.permissions
+        return etree.Element(f"{DASCH_SCHEMA}video-segment", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
 
 
 @dataclass
@@ -160,23 +162,25 @@ class AudioSegmentResource:
     segment_start: float
     segment_end: float
     title: str | None = None
-    comment: list[str] | None = None
-    description: list[str] | None = None
-    keywords: list[str] | None = None
-    relates_to: list[str] | None = None
+    comment: list[str] = field(default_factory=list)
+    description: list[str] = field(default_factory=list)
+    keywords: list[str] = field(default_factory=list)
+    relates_to: list[str] = field(default_factory=list)
     permissions: str = "res-default"
 
     def __post_init__(self) -> None:
         _validate_segment(self)
 
     def serialise(self) -> etree._Element:
-        raise NotImplementedError
+        res_ele = self._serialise_resource_element()
+        res_ele.extend(_serialise_segment_children(self))
+        return res_ele
 
     def _serialise_resource_element(self) -> etree._Element:
-        raise NotImplementedError
-
-    def _serialise_values(self) -> etree._Element:
-        raise NotImplementedError
+        attribs = {"label": self.label, "id": self.res_id}
+        if self.permissions:
+            attribs["permissions"] = self.permissions
+        return etree.Element(f"{DASCH_SCHEMA}audio-segment", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
 
 
 def _check_and_warn_strings(res_id: str, string_to_check: str, field_name: str) -> None:
@@ -239,11 +243,11 @@ def _validate_segment_bounds(segment_start: Any, segment_end: Any) -> list[str]:
 
 
 def _serialise_segment_children(segment: AudioSegmentResource | VideoSegmentResource) -> list[etree._Element]:
-    eles = []
+    segment_elements = []
     segment_of = etree.Element(f"{DASCH_SCHEMA}isSegmentOf", nsmap=XML_NAMESPACE_MAP)
     segment_of.text = segment.segment_of
-    eles.append(segment_of)
-    eles.append(
+    segment_elements.append(segment_of)
+    segment_elements.append(
         etree.Element(
             f"{DASCH_SCHEMA}hasSegmentBounds",
             attrib={"start": segment.segment_start, "end": segment.segment_end},
@@ -251,14 +255,15 @@ def _serialise_segment_children(segment: AudioSegmentResource | VideoSegmentReso
         )
     )
     if segment.title:
-        title = etree.Element(f"{DASCH_SCHEMA}hasTitle", nsmap=XML_NAMESPACE_MAP)
-        title.text = segment.title
-        eles.append(title)
-    if segment.comment:
-        pass
-    if segment.description:
-        pass
-    if segment.keywords:
-        pass
-    if segment.relates_to:
-        pass
+        segment_elements.append(_make_element_with_text("hasTitle", segment.title))
+    segment_elements.extend([_make_element_with_text("hasComment", x) for x in segment.comment])
+    segment_elements.extend([_make_element_with_text("hasDescription", x) for x in segment.description])
+    segment_elements.extend([_make_element_with_text("hasKeyword", x) for x in segment.keywords])
+    segment_elements.extend([_make_element_with_text("relatesTo", x) for x in segment.relates_to])
+    return segment_elements
+
+
+def _make_element_with_text(tag_name: str, text_content: str) -> etree._Element:
+    ele = etree.Element(f"{DASCH_SCHEMA}{tag_name}", nsmap=XML_NAMESPACE_MAP)
+    ele.text = text_content
+    return ele

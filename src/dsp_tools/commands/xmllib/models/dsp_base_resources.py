@@ -10,8 +10,8 @@ from lxml import etree
 from dsp_tools.commands.xmllib.models.values import ColorValue
 from dsp_tools.commands.xmllib.models.values import LinkValue
 from dsp_tools.commands.xmllib.models.values import SimpleText
+from dsp_tools.commands.xmllib.value_checkers import find_geometry_problem
 from dsp_tools.commands.xmllib.value_checkers import is_decimal
-from dsp_tools.commands.xmllib.value_checkers import is_geometry
 from dsp_tools.commands.xmllib.value_checkers import is_integer
 from dsp_tools.commands.xmllib.value_checkers import is_string
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
@@ -61,7 +61,7 @@ class RegionResource:
     def __post_init__(self) -> None:
         _check_and_warn_strings(self.res_id, self.res_id, "Resource ID")
         _check_and_warn_strings(self.res_id, self.label, "Label")
-        if fail_msg := is_geometry(self.geometry):
+        if fail_msg := find_geometry_problem(self.geometry):
             msg = f"The geometry of the resource with the ID '{self.res_id}' failed validation.\n" + fail_msg
             warnings.warn(DspToolsUserWarning(msg))
 

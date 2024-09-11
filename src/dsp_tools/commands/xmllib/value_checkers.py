@@ -124,9 +124,9 @@ def is_list(node: Any, listname: Any) -> bool:
     """
     if any([pd.isna(node), pd.isna(listname)]):
         return False
-    if len(str(node)) == 0:
+    if len(str(node).strip()) == 0:
         return False
-    if len(str(listname)) == 0:
+    if len(str(listname).strip()) == 0:
         return False
     return True
 
@@ -143,15 +143,15 @@ def is_string(value: Any) -> bool:
     """
     if pd.isna(value):
         return False
-    value = str(value)
+    value = str(value).strip()
     if len(value) == 0:
         return False
-    return bool(regex.search(r"[\p{L}\d_!?]", value, flags=regex.UNICODE))
+    return bool(regex.search(r"\S", value, flags=regex.UNICODE))
 
 
 def is_timestamp(value: Any) -> bool:
     """
-    Checks if a value is a color value.
+    Checks if a value is a valid timestamp.
 
     Args:
         value: value to check
@@ -163,7 +163,7 @@ def is_timestamp(value: Any) -> bool:
     return bool(regex.search(validation_regex, str(value)))
 
 
-def is_geometry(value: Any) -> str:
+def find_geometry_problem(value: Any) -> str:
     """
     Validates if a value is a valid geometry object.
 

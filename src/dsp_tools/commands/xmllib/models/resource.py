@@ -81,19 +81,19 @@ class Resource:
     #######################
 
     def add_bool(
-        self, value: bool, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self, value: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         self.values.append(BooleanValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
     def add_bools(
-        self, values: list[bool], prop_name: str, permissions: str | None = None, comment: str | None = None
+        self, values: list[Any], prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         self.values.extend([BooleanValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
     def add_bool_optional(
-        self, value: bool, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self, value: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         if not pd.isna(value):
             self.values.append(BooleanValue(value, prop_name, permissions, comment, self.res_id))
@@ -119,7 +119,7 @@ class Resource:
         self, value: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         if not pd.isna(value):
-            ColorValue(value, prop_name, permissions, comment, self.res_id)
+            self.values.append(ColorValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
     #######################

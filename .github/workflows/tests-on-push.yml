@@ -7,6 +7,7 @@ on:
   push:
     branches-ignore:
       - refs/heads/main
+  pull_request:
 
 env:
   DSP_TOOLS_TESTING: true

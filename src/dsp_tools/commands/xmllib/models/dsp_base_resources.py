@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import warnings
 from dataclasses import dataclass
+from dataclasses import field
 from typing import Any
 
 from lxml import etree
@@ -9,7 +10,9 @@ from lxml import etree
 from dsp_tools.commands.xmllib.models.values import ColorValue
 from dsp_tools.commands.xmllib.models.values import LinkValue
 from dsp_tools.commands.xmllib.models.values import SimpleText
+from dsp_tools.commands.xmllib.value_checkers import is_decimal
 from dsp_tools.commands.xmllib.value_checkers import is_geometry
+from dsp_tools.commands.xmllib.value_checkers import is_integer
 from dsp_tools.commands.xmllib.value_checkers import is_string
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 
@@ -130,15 +133,14 @@ class VideoSegmentResource:
     segment_start: float
     segment_end: float
     title: str | None = None
-    comment: list[str] | None = None
-    description: list[str] | None = None
-    keywords: list[str] | None = None
-    relates_to: list[str] | None = None
+    comment: list[str] = field(default_factory=list)
+    description: list[str] = field(default_factory=list)
+    keywords: list[str] = field(default_factory=list)
+    relates_to: list[str] = field(default_factory=list)
     permissions: str = "res-default"
 
     def __post_init__(self) -> None:
-        _check_and_warn_strings(self.res_id, self.res_id, "Resource ID")
-        _check_and_warn_strings(self.res_id, self.label, "Label")
+        _validate_segment(self)
 
     def serialise(self) -> etree._Element:
         raise NotImplementedError
@@ -165,8 +167,7 @@ class AudioSegmentResource:
     permissions: str = "res-default"
 
     def __post_init__(self) -> None:
-        _check_and_warn_strings(self.res_id, self.res_id, "Resource ID")
-        _check_and_warn_strings(self.res_id, self.label, "Label")
+        _validate_segment(self)
 
     def serialise(self) -> etree._Element:
         raise NotImplementedError
@@ -201,3 +202,30 @@ def _serialise_has_comment(comments: list[str], res_id: str) -> etree._Element:
     for cmt in cmts:
         cmt_prop.append(cmt.make_element())
     return cmt_prop
+
+
+def _validate_segment(segment: AudioSegmentResource | VideoSegmentResource) -> None:
+    _check_and_warn_strings(segment.res_id, segment.res_id, "Resource ID")
+    _check_and_warn_strings(segment.res_id, segment.label, "Label")
+    _check_and_warn_strings(segment.res_id, segment.segment_of, "isSegmentOf")
+    if segment.title:
+        _check_and_warn_strings(segment.res_id, segment.segment_of, "isSegmentOf")
+    for c in segment.comment:
+        _check_and_warn_strings(segment.res_id, c, "comment")
+    for c in segment.description:
+        _check_and_warn_strings(segment.res_id, c, "description")
+    for c in segment.keywords:
+        _check_and_warn_strings(segment.res_id, c, "keywords")
+    for c in segment.relates_to:
+        _check_and_warn_strings(segment.res_id, c, "relates_to")
+    seg_bounds_msg = ""
+    if not is_decimal(segment.segment_start) or not is_integer(segment.segment_start):
+        seg_bounds_msg += f"\nSegment start: {segment.segment_start}"
+    if not is_decimal(segment.segment_end) or not is_integer(segment.segment_end):
+        seg_bounds_msg += f"\nSegment end: {segment.segment_start}"
+    if seg_bounds_msg:
+        msg = (
+            f"The segment bounds should be valid integers or decimals. The resource with the ID: "
+            f"'{segment.res_id}' has the following invalid value(s){seg_bounds_msg}"
+        )
+        warnings.warn(DspToolsUserWarning(msg))

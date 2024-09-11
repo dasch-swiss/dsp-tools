@@ -100,7 +100,7 @@ def test_is_list_wrong(node_val: Any, list_val: Any) -> None:
     assert not is_list(node_val, list_val)
 
 
-@pytest.mark.parametrize("val", ["a", "None", "-", "1", "\n1"])
+@pytest.mark.parametrize("val", ["a", "None", "-", "1", "\n1", "עִבְרִית", "اَلْعَرَبِيَّةُ"])
 def test_is_string_correct(val: Any) -> None:
     assert is_string(val)
 

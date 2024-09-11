@@ -76,9 +76,9 @@ class Resource:
         prop_.extend(prop_eles)
         return prop_
 
-    ###################
+    #######################
     # BooleanValue
-    ###################
+    #######################
 
     def add_bool(
         self, value: bool, prop_name: str, permissions: str | None = None, comment: str | None = None
@@ -99,9 +99,9 @@ class Resource:
             self.values.append(BooleanValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    ###################
+    #######################
     # ColorValue
-    ###################
+    #######################
 
     def add_color(
         self, value: int | str, prop_name: str, permissions: str | None = None, comment: str | None = None
@@ -122,9 +122,9 @@ class Resource:
             ColorValue(value, prop_name, permissions, comment, self.res_id)
         return self
 
-    ###################
+    #######################
     # DateValue
-    ###################
+    #######################
 
     def add_date(
         self, value: str, prop_name: str, permissions: str | None = None, comment: str | None = None
@@ -145,9 +145,9 @@ class Resource:
             self.values.append(DateValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    ###################
+    #######################
     # DecimalValue
-    ###################
+    #######################
 
     def add_decimal(
         self, value: float | str, prop_name: str, permissions: str | None = None, comment: str | None = None
@@ -168,9 +168,9 @@ class Resource:
             self.values.append(DecimalValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    ###################
+    #######################
     # GeonameValue
-    ###################
+    #######################
 
     def add_geoname(
         self, value: int | str, prop_name: str, permissions: str | None = None, comment: str | None = None
@@ -191,9 +191,9 @@ class Resource:
             self.values.append(GeonameValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    ###################
+    #######################
     # IntValue
-    ###################
+    #######################
 
     def add_integer(
         self, value: int | str, prop_name: str, permissions: str | None = None, comment: str | None = None
@@ -214,9 +214,9 @@ class Resource:
             self.values.append(IntValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    ###################
+    #######################
     # LinkValue
-    ###################
+    #######################
 
     def add_link(
         self, value: str, prop_name: str, permissions: str | None = None, comment: str | None = None
@@ -237,9 +237,9 @@ class Resource:
             self.values.append(LinkValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    ###################
+    #######################
     # ListValue
-    ###################
+    #######################
 
     def add_list(
         self, value: Any, list_name: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
@@ -265,9 +265,9 @@ class Resource:
             self.values.append(ListValue(value, list_name, prop_name, permissions, comment, self.res_id))
         return self
 
-    ###################
+    #######################
     # TextValue: SimpleText
-    ###################
+    #######################
 
     def add_simple_text(
         self, value: str, prop_name: str, permissions: str | None = None, comment: str | None = None
@@ -288,9 +288,9 @@ class Resource:
             self.values.append(SimpleText(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    ###################
+    #######################
     # TextValue: Richtext
-    ###################
+    #######################
 
     def add_richtext(
         self, value: str, prop_name: str, permissions: str | None = None, comment: str | None = None
@@ -311,9 +311,9 @@ class Resource:
             self.values.append(Richtext(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    ###################
+    #######################
     # TimeValue
-    ###################
+    #######################
 
     def add_time(
         self, value: str, prop_name: str, permissions: str | None = None, comment: str | None = None
@@ -334,9 +334,9 @@ class Resource:
             self.values.append(TimeValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    ###################
+    #######################
     # UriValue
-    ###################
+    #######################
 
     def add_uri(
         self, value: str, prop_name: str, permissions: str | None = None, comment: str | None = None
@@ -357,9 +357,9 @@ class Resource:
             self.values.append(UriValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    ###################
+    #######################
     # AbstractFileValue
-    ###################
+    #######################
 
     def add_file(self, filename: str, permissions: str | None = None, comment: str | None = None) -> Resource:
         if self.file_value:

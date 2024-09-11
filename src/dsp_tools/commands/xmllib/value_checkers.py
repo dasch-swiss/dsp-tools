@@ -48,20 +48,13 @@ def is_date(value: Any) -> bool:
         True if it conforms
     """
 
-    calendar = r"GREGORIAN|JULIAN|ISLAMIC"
-    era = r"CE|BCE|BC|AD"
-    year = r"\d{1,4}"
-    month = r"\d{1,2}"
-    day = r"\d{1,2}"
-    full_date_pattern = rf"""
-    ^
-    (?:({calendar}):)?                         # optional calendar
-    (?:({era}):)?                              # optional era
-    ({year}(?:-{month})?(?:-{day})?)           # date
-    (?::({era}))?                              # optional era
-    (?::({year}(?:-{month})?(?:-{day})?))?     # optional date
-    $
-    """
+    optional_calendar = r"((GREGORIAN|JULIAN|ISLAMIC):)?"
+    first_era = r"((CE|BCE|BC|AD):)?"
+    second_era = r"(:(CE|BCE|BC|AD))?"
+    date = r"\d{1,4}(?:-\d{1,2})?(?:-\d{1,2})?"
+    mandatory_date = rf"({date})"
+    optional_date = rf"(:{date})?"
+    full_date_pattern = rf"^{optional_calendar}{first_era}{mandatory_date}{second_era}{optional_date}$"
     return bool(regex.search(full_date_pattern, str(value)))
 
 

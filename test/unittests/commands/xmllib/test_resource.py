@@ -1,6 +1,9 @@
 import pandas as pd
 import pytest
+import regex
 
+from dsp_tools.commands.xmllib.models.file_values import FileValue
+from dsp_tools.commands.xmllib.models.file_values import IIIFUri
 from dsp_tools.commands.xmllib.models.resource import Resource
 from dsp_tools.commands.xmllib.models.values import BooleanValue
 from dsp_tools.commands.xmllib.models.values import ColorValue
@@ -14,6 +17,7 @@ from dsp_tools.commands.xmllib.models.values import Richtext
 from dsp_tools.commands.xmllib.models.values import SimpleText
 from dsp_tools.commands.xmllib.models.values import TimeValue
 from dsp_tools.commands.xmllib.models.values import UriValue
+from dsp_tools.models.exceptions import InputError
 
 
 class TestAddValues:
@@ -223,7 +227,31 @@ class TestAddValues:
 
 
 class TestAddFiles:
-    pass
+    def test_add_file(self) -> None:
+        res = Resource("", "", "").add_file("")
+        assert isinstance(res.file_value, FileValue)
+
+    def test_add_file_raising(self) -> None:
+        res = Resource("id", "", "").add_file("existing filename")
+        msg = regex.escape(
+            "The resource with the ID 'id' already contains a file with the name: 'existing filename'.\n"
+            "The new file with the name: 'new filename' cannot be added."
+        )
+        with pytest.raises(InputError, match=msg):
+            res.add_file("new filename")
+
+    def test_add_iiif_uri(self) -> None:
+        res = Resource("", "", "").add_iiif_uri("")
+        assert isinstance(res.file_value, IIIFUri)
+
+    def test_add_iiif_uri_raising(self) -> None:
+        res = Resource("id", "", "").add_file("existing IIIF")
+        msg = regex.escape(
+            "The resource with the ID 'id' already contains a file with the name: 'existing IIIF'.\n"
+            "The new file with the name: 'new IIIF' cannot be added."
+        )
+        with pytest.raises(InputError, match=msg):
+            res.add_iiif_uri("new IIIF")
 
 
 if __name__ == "__main__":

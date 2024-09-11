@@ -14,6 +14,10 @@ from dsp_tools.commands.xmllib import ColorValue
 from dsp_tools.commands.xmllib import DateValue
 from dsp_tools.commands.xmllib import DecimalValue
 from dsp_tools.commands.xmllib import GeonameValue
+from dsp_tools.commands.xmllib import ListValue
+from dsp_tools.commands.xmllib import Richtext
+from dsp_tools.commands.xmllib import TimeValue
+from dsp_tools.commands.xmllib import UriValue
 from dsp_tools.commands.xmllib.models.file_values import AbstractFileValue
 from dsp_tools.commands.xmllib.models.file_values import FileValue
 from dsp_tools.commands.xmllib.models.file_values import IIIFUri
@@ -235,24 +239,28 @@ class Resource:
     ###################
 
     def add_list(
-        self, value: Any, listname: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self, value: Any, list_name: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
-        pass
+        self.values.append(ListValue(value, list_name, prop_name, permissions, comment, self.res_id))
+        return self
 
     def add_lists(
         self,
         values: list[Any],
-        listname: Any,
+        list_name: Any,
         prop_name: str,
         permissions: str | None = None,
         comment: str | None = None,
     ) -> Resource:
-        pass
+        self.values.extend([ListValue(v, list_name, prop_name, permissions, comment, self.res_id) for v in values])
+        return self
 
     def add_list_optional(
-        self, value: Any, listname: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self, value: Any, list_name: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
-        pass
+        if not pd.isna(value):
+            self.values.append(ListValue(value, list_name, prop_name, permissions, comment, self.res_id))
+        return self
 
     ###################
     # TextValue: SimpleText
@@ -284,17 +292,21 @@ class Resource:
     def add_richtext(
         self, value: str, prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
-        pass
+        self.values.append(Richtext(value, prop_name, permissions, comment, self.res_id))
+        return self
 
     def add_richtexts(
         self, values: list[str], prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
-        pass
+        self.values.extend([Richtext(v, prop_name, permissions, comment, self.res_id) for v in values])
+        return self
 
     def add_richtext_optional(
         self, value: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
-        pass
+        if not pd.isna(value):
+            self.values.append(Richtext(value, prop_name, permissions, comment, self.res_id))
+        return self
 
     ###################
     # TimeValue
@@ -303,17 +315,21 @@ class Resource:
     def add_time(
         self, value: str, prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
-        pass
+        self.values.append(TimeValue(value, prop_name, permissions, comment, self.res_id))
+        return self
 
     def add_times(
         self, values: list[str], prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
-        pass
+        self.values.extend([TimeValue(v, prop_name, permissions, comment, self.res_id) for v in values])
+        return self
 
     def add_time_optional(
         self, value: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
-        pass
+        if not pd.isna(value):
+            self.values.append(TimeValue(value, prop_name, permissions, comment, self.res_id))
+        return self
 
     ###################
     # UriValue
@@ -322,17 +338,20 @@ class Resource:
     def add_uri(
         self, value: str, prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
-        pass
+        self.values.append(UriValue(value, prop_name, permissions, comment, self.res_id))
+        return self
 
     def add_uris(
         self, values: list[str], prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
-        pass
+        self.values.extend([UriValue(v, prop_name, permissions, comment, self.res_id) for v in values])
 
     def add_uri_optional(
         self, value: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
-        pass
+        if not pd.isna(value):
+            self.values.append(UriValue(value, prop_name, permissions, comment, self.res_id))
+        return self
 
     ###################
     # AbstractFileValue

@@ -9,6 +9,7 @@ from typing import Any
 import pandas as pd
 from lxml import etree
 
+from dsp_tools.commands.xmllib import BooleanValue
 from dsp_tools.commands.xmllib.models.file_values import AbstractFileValue
 from dsp_tools.commands.xmllib.models.file_values import FileValue
 from dsp_tools.commands.xmllib.models.file_values import IIIFUri
@@ -74,17 +75,36 @@ class Resource:
     def add_bool(
         self, prop_name: str, value: Any, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
-        pass
+        self.values.append(
+            BooleanValue(
+                value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+            )
+        )
+        return self
 
     def add_bools(
         self, prop_name: str, values: list[Any], permissions: str | None = None, comment: str | None = None
     ) -> Resource:
-        pass
+        self.values.extend(
+            [
+                BooleanValue(
+                    value=v, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+                )
+                for v in values
+            ]
+        )
+        return self
 
     def add_bool_optional(
         self, prop_name: str, value: Any, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
-        pass
+        if not pd.isna(value):
+            self.values.append(
+                BooleanValue(
+                    value=value, prop_name=prop_name, permissions=permissions, comment=comment, resource_id=self.res_id
+                )
+            )
+        return self
 
     ###################
     # ColorValue

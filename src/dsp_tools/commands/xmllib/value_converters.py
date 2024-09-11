@@ -1,15 +1,16 @@
 from typing import Any
 
 
-def convert_to_bool(value: Any) -> str:
+def convert_to_bool_string(value: Any) -> str:
     """
-    Turns a value into a bool
+    Turns a value into a bool string, suitable for an XML.
 
     Args:
-        value: value to check
+        value: value to transform
 
     Returns:
-        True if it conforms
+        'true' or 'false' if it is a known value,
+        else it returns the original value as a string.
     """
     str_val = str(value).lower().strip()
     if str_val in ("false", "0", "0.0", "no"):

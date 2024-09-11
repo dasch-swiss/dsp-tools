@@ -16,7 +16,7 @@ from dsp_tools.commands.xmllib.value_checkers import is_integer
 from dsp_tools.commands.xmllib.value_checkers import is_list
 from dsp_tools.commands.xmllib.value_checkers import is_string
 from dsp_tools.commands.xmllib.value_checkers import is_timestamp
-from dsp_tools.commands.xmllib.value_converters import convert_to_bool
+from dsp_tools.commands.xmllib.value_converters import convert_to_bool_string
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.utils.uri_util import is_uri
 
@@ -55,7 +55,7 @@ class BooleanValue:
             _warn_type_mismatch(
                 expected_type="bool", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
-        self.value = convert_to_bool(self.value)
+        self.value = convert_to_bool_string(self.value)
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()

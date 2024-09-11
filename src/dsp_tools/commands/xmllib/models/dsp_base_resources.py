@@ -6,8 +6,10 @@ from typing import Any
 
 from lxml import etree
 
+from dsp_tools.commands.xmllib.models.values import ColorValue
 from dsp_tools.commands.xmllib.models.values import LinkValue
 from dsp_tools.commands.xmllib.models.values import SimpleText
+from dsp_tools.commands.xmllib.value_checkers import is_geometry
 from dsp_tools.commands.xmllib.value_checkers import is_string
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 
@@ -30,7 +32,7 @@ class AnnotationResource:
     def serialise(self) -> etree._Element:
         res_ele = self._serialise_resource_element()
         res_ele.append(self._serialise_annotation_of())
-        res_ele.append(self._serialise_comments())
+        res_ele.append(_serialise_has_comment(self.comments, self.res_id))
         return res_ele
 
     def _serialise_resource_element(self) -> etree._Element:
@@ -38,13 +40,6 @@ class AnnotationResource:
         if self.permissions:
             attribs["permissions"] = self.permissions
         return etree.Element(f"{DASCH_SCHEMA}annotation", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
-
-    def _serialise_comments(self) -> etree._Element:
-        cmts = [SimpleText(value=x, prop_name="hasComment", resource_id=self.res_id) for x in self.comments]
-        cmt_prop = cmts[0].make_prop()
-        for cmt in cmts:
-            cmt_prop.append(cmt.make_element())
-        return cmt_prop
 
     def _serialise_annotation_of(self) -> etree._Element:
         return LinkValue(value=self.annotation_of, prop_name="isAnnotationOf", resource_id=self.res_id).serialise()
@@ -63,15 +58,36 @@ class RegionResource:
     def __post_init__(self) -> None:
         _check_and_warn_strings(self.res_id, self.res_id, "Resource ID")
         _check_and_warn_strings(self.res_id, self.label, "Label")
+        if fail_msg := is_geometry(self.geometry):
+            msg = f"The geometry of the resource with the ID '{self.res_id}' failed validation.\n" + fail_msg
+            warnings.warn(DspToolsUserWarning(msg))
 
     def serialise(self) -> etree._Element:
-        raise NotImplementedError
+        res_ele = self._serialise_resource_element()
+        res_ele.append(self._serialise_geometry())
+        res_ele.extend(self._serialise_values())
+        if self.comments:
+            res_ele.append(_serialise_has_comment(self.comments, self.res_id))
+        return res_ele
 
     def _serialise_resource_element(self) -> etree._Element:
-        raise NotImplementedError
+        attribs = {"label": self.label, "id": self.res_id}
+        if self.permissions:
+            attribs["permissions"] = self.permissions
+        return etree.Element(f"{DASCH_SCHEMA}region", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
 
-    def _serialise_values(self) -> etree._Element:
-        raise NotImplementedError
+    def _serialise_values(self) -> list[etree._Element]:
+        return [
+            ColorValue(value=self.color, prop_name="hasColor", resource_id=self.res_id).serialise(),
+            LinkValue(value=self.region_of, prop_name="isRegionOf", resource_id=self.res_id).serialise(),
+        ]
+
+    def _serialise_geometry(self) -> etree._Element:
+        geo_prop = etree.Element(f"{DASCH_SCHEMA}geometry-prop", name="hasGeometry", nsmap=XML_NAMESPACE_MAP)
+        ele = etree.Element(f"{DASCH_SCHEMA}geometry", nsmap=XML_NAMESPACE_MAP)
+        ele.text = str(self.geometry)
+        geo_prop.append(ele)
+        return geo_prop
 
 
 @dataclass
@@ -87,13 +103,23 @@ class LinkResource:
         _check_and_warn_strings(self.res_id, self.label, "Label")
 
     def serialise(self) -> etree._Element:
-        raise NotImplementedError
+        res_ele = self._serialise_resource_element()
+        res_ele.append(_serialise_has_comment(self.comments, self.res_id))
+        res_ele.append(self._serialise_links())
+        return res_ele
 
     def _serialise_resource_element(self) -> etree._Element:
-        raise NotImplementedError
+        attribs = {"label": self.label, "id": self.res_id}
+        if self.permissions:
+            attribs["permissions"] = self.permissions
+        return etree.Element(f"{DASCH_SCHEMA}link", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
 
-    def _serialise_values(self) -> etree._Element:
-        raise NotImplementedError
+    def _serialise_links(self) -> etree._Element:
+        vals = [LinkValue(value=x, prop_name="hasLinkTo", resource_id=self.res_id) for x in self.link_to]
+        prop_ele = vals[0].make_prop()
+        for v in vals:
+            prop_ele.append(v.make_element())
+        return prop_ele
 
 
 @dataclass
@@ -167,3 +193,11 @@ def _warn_type_mismatch(expected_type: str, value: Any, field_name: str, res_id:
     msg += f"Resource: {res_id} | " if res_id else ""
     msg += f"Value: {value} | Field: {field_name}"
     warnings.warn(DspToolsUserWarning(msg))
+
+
+def _serialise_has_comment(comments: list[str], res_id: str) -> etree._Element:
+    cmts = [SimpleText(value=x, prop_name="hasComment", resource_id=res_id) for x in comments]
+    cmt_prop = cmts[0].make_prop()
+    for cmt in cmts:
+        cmt_prop.append(cmt.make_element())
+    return cmt_prop

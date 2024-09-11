@@ -1,3 +1,4 @@
+import json
 from typing import Any
 
 import pandas as pd
@@ -231,3 +232,26 @@ def is_iiif_uri(uri: str) -> bool:
     # format -> jpg | tif | png | gif | jp2 | pdf | webp
     quality_format_re = r"^(colou?r|gr[ae]y|bitonal|default|native)(\.(jpg|tif|png|jp2|gif|pdf|webp))?$"
     return bool(regex.search(quality_format_re, quality_format_seg))
+
+
+def is_geometry(value: Any) -> str:
+    """
+    Validates if a value is a valid geometry object.
+
+    Args:
+        value: geometry object
+
+    Returns:
+        string with the validation message if it fails
+    """
+    msg = ""
+    try:
+        value_as_dict = json.loads(str(value))
+        if value_as_dict["type"] not in ["rectangle", "circle", "polygon"]:
+            msg += "\nThe 'type' of the JSON geometry object must be 'rectangle', 'circle', or 'polygon'."
+
+        if not isinstance(value_as_dict["points"], list):
+            msg += "\nThe 'points' of the JSON geometry object must be a list of points."
+    except (json.JSONDecodeError, TypeError, IndexError, KeyError, AssertionError):
+        msg += f"\n'{value}' is not a valid JSON geometry object."
+    return msg

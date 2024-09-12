@@ -32,6 +32,7 @@ To get started quickly, without reading the details, just execute these commands
 - `source .venv/bin/activate`
 - `pre-commit install`
 - `npm install -g markdown-link-validator`
+- `brew install just`
 
 The remainder of this README explains these commands in more detail.
 
@@ -159,12 +160,12 @@ so that every pull request is checked for code style violations.
 
 Your code can be checked for style violations locally before they are committed:
 
-- `poetry exec mypy`
-- `poetry exec ruff-check`
-- `poetry exec ruff-format-check`
-- `poetry exec darglint`
-- `poetry exec check-links`
-- `poetry exec markdownlint`
+- `just mypy`
+- `just ruff-check`
+- `just ruff-format-check`
+- `just darglint`
+- `just check-links`
+- `just markdownlint`
 - `yamllint .`
 
 In addition, there are [pre-commit hooks](#pre-commit-hooks) 

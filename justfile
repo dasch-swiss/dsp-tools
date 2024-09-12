@@ -1,16 +1,14 @@
-RUFF_CHECK := "ruff check . --ignore=A002,D101,D102,PLR0913,PLR2004"
-
 # List all recipes
 default:
     @just --list
 
 # Run the ruff linter to detect bad Python coding habits
-ruff-check:
-    {{ RUFF_CHECK }}
+ruff-check *FLAGS:
+    ruff check . --ignore=A002,D101,D102,PLR0913,PLR2004 {{FLAGS}}
 
 # Run the ruff linter, with an output format suitable for GitHub runners
 ruff-check-github:
-    {{ RUFF_CHECK }} --output-format=github
+    just ruff-check --output-format=github
 
 # Check the formatting of the Python files
 ruff-format-check:
@@ -40,20 +38,20 @@ markdownlint:
     --ignore CHANGELOG.md "**/*.md"
 
 # Run the unit tests
-unittests:
-    pytest test/unittests/
+unittests *FLAGS:
+    pytest test/unittests/ {{FLAGS}}
 
 # Run the integration tests
-integration-tests:
-    pytest test/integration/
+integration-tests *FLAGS:
+    pytest test/integration/ {{FLAGS}}
 
 # Run the end-to-end tests (with testcontainers)
-e2e-tests:
-    pytest test/e2e/
+e2e-tests *FLAGS:
+    pytest test/e2e/ {{FLAGS}}
 
 # Run the legacy end-to-end tests (needs a running stack)
-legacy-e2e-tests:
-    pytest test/legacy_e2e/
+legacy-e2e-tests *FLAGS:
+    pytest test/legacy_e2e/ {{FLAGS}}
 
 # Calculate the post-release number and write it into pyproject.toml (used for dev-releases)
 bump-version:

@@ -1,7 +1,6 @@
 import warnings
 
 import pytest
-import regex
 from lxml import etree
 
 from dsp_tools.commands.xmllib.models.values import BooleanValue
@@ -22,17 +21,20 @@ from dsp_tools.models.custom_warnings import DspToolsUserWarning
 class TestBooleanValue:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            BooleanValue("", ":booleanProp", resource_id="res_id")
+            BooleanValue("False", ":booleanProp", resource_id="res_id")
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
-        expected = regex.escape("expected")
-        with pytest.warns(DspToolsUserWarning, match=expected):
-            BooleanValue("", ":booleanProp", resource_id="res_id")
+        with pytest.warns(DspToolsUserWarning):
+            BooleanValue("other", ":booleanProp", resource_id="res_id")
 
     def test_serialise(self) -> None:
-        v = BooleanValue("", ":booleanProp", resource_id="res_id")
-        expected = ""
+        v = BooleanValue("0", ":booleanProp", resource_id="res_id")
+        expected = (
+            b'<boolean-prop xmlns="https://dasch.swiss/schema" '
+            b'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name=":booleanProp">'
+            b'<boolean permissions="prop-default">false</boolean></boolean-prop>'
+        )
         res_str = etree.tostring(v.serialise())
         assert res_str == expected
 
@@ -40,17 +42,20 @@ class TestBooleanValue:
 class TestColorValue:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            ColorValue("", ":colorProp", resource_id="res_id")
+            ColorValue("#FFFFFF", ":colorProp", resource_id="res_id")
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
-        expected = regex.escape("expected")
-        with pytest.warns(DspToolsUserWarning, match=expected):
-            ColorValue("", ":colorProp", resource_id="res_id")
+        with pytest.warns(DspToolsUserWarning):
+            ColorValue("invalidColor", ":colorProp", resource_id="res_id")
 
     def test_serialise(self) -> None:
-        v = ColorValue("", ":colorProp", resource_id="res_id")
-        expected = ""
+        v = ColorValue("#000000", ":colorProp", resource_id="res_id")
+        expected = (
+            b'<color-prop xmlns="https://dasch.swiss/schema" '
+            b'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name=":colorProp">'
+            b'<color permissions="prop-default">#000000</color></color-prop>'
+        )
         res_str = etree.tostring(v.serialise())
         assert res_str == expected
 
@@ -58,17 +63,20 @@ class TestColorValue:
 class TestDateValue:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            DateValue("", ":dateProp", resource_id="res_id")
+            DateValue("2023-01-01", ":dateProp", resource_id="res_id")
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
-        expected = regex.escape("expected")
-        with pytest.warns(DspToolsUserWarning, match=expected):
-            DateValue("", ":dateProp", resource_id="res_id")
+        with pytest.warns(DspToolsUserWarning):
+            DateValue("invalidDate", ":dateProp", resource_id="res_id")
 
     def test_serialise(self) -> None:
-        v = DateValue("", ":dateProp", resource_id="res_id")
-        expected = ""
+        v = DateValue("2023-01-01", ":dateProp", resource_id="res_id")
+        expected = (
+            b'<date-prop xmlns="https://dasch.swiss/schema" '
+            b'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name=":dateProp">'
+            b'<date permissions="prop-default">2023-01-01</date></date-prop>'
+        )
         res_str = etree.tostring(v.serialise())
         assert res_str == expected
 
@@ -76,17 +84,20 @@ class TestDateValue:
 class TestDecimalValue:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            DecimalValue("", ":decimalProp", resource_id="res_id")
+            DecimalValue("3.14", ":decimalProp", resource_id="res_id")
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
-        expected = regex.escape("expected")
-        with pytest.warns(DspToolsUserWarning, match=expected):
-            DecimalValue("", ":decimalProp", resource_id="res_id")
+        with pytest.warns(DspToolsUserWarning):
+            DecimalValue("invalidDecimal", ":decimalProp", resource_id="res_id")
 
     def test_serialise(self) -> None:
-        v = DecimalValue("", ":decimalProp", resource_id="res_id")
-        expected = ""
+        v = DecimalValue("3.14", ":decimalProp", resource_id="res_id")
+        expected = (
+            b'<decimal-prop xmlns="https://dasch.swiss/schema" '
+            b'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name=":decimalProp">'
+            b'<decimal permissions="prop-default">3.14</decimal></decimal-prop>'
+        )
         res_str = etree.tostring(v.serialise())
         assert res_str == expected
 
@@ -94,17 +105,20 @@ class TestDecimalValue:
 class TestGeonameValue:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            GeonameValue("", ":geonameProp", resource_id="res_id")
+            GeonameValue("00099", ":geonameProp", resource_id="res_id")
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
-        expected = regex.escape("expected")
-        with pytest.warns(DspToolsUserWarning, match=expected):
-            GeonameValue("", ":geonameProp", resource_id="res_id")
+        with pytest.warns(DspToolsUserWarning):
+            GeonameValue("invalidGeoname", ":geonameProp", resource_id="res_id")
 
     def test_serialise(self) -> None:
-        v = GeonameValue("", ":geonameProp", resource_id="res_id")
-        expected = ""
+        v = GeonameValue("99", ":geonameProp", resource_id="res_id")
+        expected = (
+            b'<geoname-prop xmlns="https://dasch.swiss/schema" '
+            b'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name=":geonameProp">'
+            b'<geoname permissions="prop-default">99</geoname></geoname-prop>'
+        )
         res_str = etree.tostring(v.serialise())
         assert res_str == expected
 
@@ -112,17 +126,20 @@ class TestGeonameValue:
 class TestIntValue:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            IntValue("", ":intProp", resource_id="res_id")
+            IntValue("42", ":intProp", resource_id="res_id")
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
-        expected = regex.escape("expected")
-        with pytest.warns(DspToolsUserWarning, match=expected):
-            IntValue("", ":intProp", resource_id="res_id")
+        with pytest.warns(DspToolsUserWarning):
+            IntValue("invalidInt", ":intProp", resource_id="res_id")
 
     def test_serialise(self) -> None:
-        v = IntValue("", ":intProp", resource_id="res_id")
-        expected = ""
+        v = IntValue("42", ":intProp", resource_id="res_id")
+        expected = (
+            b'<integer-prop xmlns="https://dasch.swiss/schema" '
+            b'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name=":intProp">'
+            b'<integer permissions="prop-default">42</integer></integer-prop>'
+        )
         res_str = etree.tostring(v.serialise())
         assert res_str == expected
 
@@ -130,17 +147,20 @@ class TestIntValue:
 class TestLinkValue:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            LinkValue("", ":linkProp", resource_id="res_id")
+            LinkValue("link", ":linkProp", resource_id="res_id")
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
-        expected = regex.escape("expected")
-        with pytest.warns(DspToolsUserWarning, match=expected):
-            LinkValue("", ":linkProp", resource_id="res_id")
+        with pytest.warns(DspToolsUserWarning):
+            LinkValue(None, ":linkProp", resource_id="res_id")
 
     def test_serialise(self) -> None:
-        v = LinkValue("", ":linkProp", resource_id="res_id")
-        expected = ""
+        v = LinkValue("res_link", ":linkProp", resource_id="res_id")
+        expected = (
+            b'<resptr-prop xmlns="https://dasch.swiss/schema" '
+            b'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name=":linkProp">'
+            b'<resptr permissions="prop-default">res_link</resptr></resptr-prop>'
+        )
         res_str = etree.tostring(v.serialise())
         assert res_str == expected
 
@@ -148,17 +168,24 @@ class TestLinkValue:
 class TestListValue:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            ListValue("", ":listProp", resource_id="res_id")
+            ListValue("item1", "listName", ":listProp", resource_id="res_id")
         assert len(caught_warnings) == 0
 
-    def test_warns(self) -> None:
-        expected = regex.escape("expected")
-        with pytest.warns(DspToolsUserWarning, match=expected):
-            ListValue("", ":listProp", resource_id="res_id")
+    def test_warns_false_node(self) -> None:
+        with pytest.warns(DspToolsUserWarning):
+            ListValue(None, "list", ":listProp", resource_id="res_id")
+
+    def test_warns_false_list(self) -> None:
+        with pytest.warns(DspToolsUserWarning):
+            ListValue("Node", None, ":listProp", resource_id="res_id")
 
     def test_serialise(self) -> None:
-        v = ListValue("", ":listProp", resource_id="res_id")
-        expected = ""
+        v = ListValue("item1", "listName", ":listProp", resource_id="res_id")
+        expected = (
+            b'<list-prop xmlns="https://dasch.swiss/schema" '
+            b'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name=":listProp" list="listName">'
+            b'<list permissions="prop-default">item1</list></list-prop>'
+        )
         res_str = etree.tostring(v.serialise())
         assert res_str == expected
 
@@ -166,17 +193,20 @@ class TestListValue:
 class TestRichtext:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            Richtext("", ":richtextProp", resource_id="res_id")
+            Richtext("<p>Hello World</p>", ":richtextProp", resource_id="res_id")
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
-        expected = regex.escape("expected")
-        with pytest.warns(DspToolsUserWarning, match=expected):
-            Richtext("", ":richtextProp", resource_id="res_id")
+        with pytest.warns(DspToolsUserWarning):
+            Richtext(None, ":richtextProp", resource_id="res_id")
 
     def test_serialise(self) -> None:
-        v = Richtext("", ":richtextProp", resource_id="res_id")
-        expected = ""
+        v = Richtext("<p>Hello World</p>", ":richtextProp", resource_id="res_id")
+        expected = (
+            b'<text-prop xmlns="https://dasch.swiss/schema" '
+            b'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name=":richtextProp">'
+            b'<text encoding="xml" permissions="prop-default">&lt;p&gt;Hello World&lt;/p&gt;</text></text-prop>'
+        )
         res_str = etree.tostring(v.serialise())
         assert res_str == expected
 
@@ -184,17 +214,20 @@ class TestRichtext:
 class TestSimpleText:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            SimpleText("", ":simpleTextProp", resource_id="res_id")
+            SimpleText("Hello World", ":simpleTextProp", resource_id="res_id")
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
-        expected = regex.escape("expected")
-        with pytest.warns(DspToolsUserWarning, match=expected):
-            SimpleText("", ":simpleTextProp", resource_id="res_id")
+        with pytest.warns(DspToolsUserWarning):
+            SimpleText(None, ":simpleTextProp", resource_id="res_id")
 
     def test_serialise(self) -> None:
-        v = SimpleText("", ":simpleTextProp", resource_id="res_id")
-        expected = ""
+        v = SimpleText("Hello World", ":simpleTextProp", resource_id="res_id")
+        expected = (
+            b'<text-prop xmlns="https://dasch.swiss/schema" '
+            b'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name=":simpleTextProp">'
+            b'<text encoding="utf8" permissions="prop-default">Hello World</text></text-prop>'
+        )
         res_str = etree.tostring(v.serialise())
         assert res_str == expected
 
@@ -202,17 +235,20 @@ class TestSimpleText:
 class TestTimeValue:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            TimeValue("", ":timeProp", resource_id="res_id")
+            TimeValue("2009-10-10T12:00:00-05:00", ":timeProp", resource_id="res_id")
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
-        expected = regex.escape("expected")
-        with pytest.warns(DspToolsUserWarning, match=expected):
-            TimeValue("", ":timeProp", resource_id="res_id")
+        with pytest.warns(DspToolsUserWarning):
+            TimeValue("invalidTime", ":timeProp", resource_id="res_id")
 
     def test_serialise(self) -> None:
-        v = TimeValue("", ":timeProp", resource_id="res_id")
-        expected = ""
+        v = TimeValue("2009-10-10T12:00:00-05:00", ":timeProp", resource_id="res_id")
+        expected = (
+            b'<time-prop xmlns="https://dasch.swiss/schema" '
+            b'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name=":timeProp">'
+            b'<time permissions="prop-default">2009-10-10T12:00:00-05:00</time></time-prop>'
+        )
         res_str = etree.tostring(v.serialise())
         assert res_str == expected
 
@@ -220,17 +256,20 @@ class TestTimeValue:
 class TestUriValue:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            UriValue("", ":uriProp", resource_id="res_id")
+            UriValue("https://example.com", ":uriProp", resource_id="res_id")
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
-        expected = regex.escape("expected")
-        with pytest.warns(DspToolsUserWarning, match=expected):
-            UriValue("", ":uriProp", resource_id="res_id")
+        with pytest.warns(DspToolsUserWarning):
+            UriValue("invalidUri", ":uriProp", resource_id="res_id")
 
     def test_serialise(self) -> None:
-        v = UriValue("", ":uriProp", resource_id="res_id")
-        expected = ""
+        v = UriValue("https://example.com", ":uriProp", resource_id="res_id")
+        expected = (
+            b'<uri-prop xmlns="https://dasch.swiss/schema" '
+            b'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name=":uriProp">'
+            b'<uri permissions="prop-default">https://example.com</uri></uri-prop>'
+        )
         res_str = etree.tostring(v.serialise())
         assert res_str == expected
 

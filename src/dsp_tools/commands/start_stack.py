@@ -286,17 +286,7 @@ class StackHandler:
         (Fuseki is already running at this point.)
         """
         if self.__stack_configuration.latest_dev_version:
-            override_file = importlib.resources.files("dsp_tools").joinpath(
-                "resources/start-stack/docker-compose.override.yml"
-            )
-            override_content = yaml.safe_load(override_file.read_bytes())
-            dockerhub_latest_tags = [x["image"] for x in override_content["services"].values()]
-            for tag in dockerhub_latest_tags:
-                subprocess.run(
-                    f"docker pull {tag}".split(),
-                    cwd=self.__docker_path_of_user,
-                    check=True,
-                )
+            subprocess.run("docker compose pull".split(), cwd=self.__docker_path_of_user, check=True)
         subprocess.run("docker compose up -d".split(), cwd=self.__docker_path_of_user, check=True)
 
     def _wait_for_api(self) -> None:

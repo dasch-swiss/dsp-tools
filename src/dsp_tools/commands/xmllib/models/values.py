@@ -24,7 +24,6 @@ XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.o
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 
 
-@dataclass
 class Value(Protocol):
     value: Any
     prop_name: str

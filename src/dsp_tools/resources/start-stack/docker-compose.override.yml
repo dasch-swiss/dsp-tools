@@ -2,12 +2,12 @@
 
 services:
   api:
-    image: daschswiss/knora-api:latest
+    image: daschswiss/knora-api
   sipi:
-    image: daschswiss/knora-sipi:latest
+    image: daschswiss/knora-sipi
   app:
-    image: daschswiss/dsp-app:latest
+    image: daschswiss/dsp-app
   db:
-    image: daschswiss/apache-jena-fuseki:latest
+    image: daschswiss/apache-jena-fuseki
   ingest:
-    image: daschswiss/dsp-ingest:latest
+    image: daschswiss/dsp-ingest

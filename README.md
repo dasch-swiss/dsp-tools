@@ -27,10 +27,8 @@ More details can be found in the [developers' documentation](https://docs.dasch.
 
 To get started quickly, without reading the details, just execute these commands.
 
-- `curl -sSL https://install.python-poetry.org | python3 -`
-- `poetry self add poetry-exec-plugin`
-- `poetry install`
-- `poetry shell`
+- `curl -LsSf https://astral.sh/uv/install.sh | sh`
+- `uv sync`
 - `pre-commit install`
 - `npm install -g markdown-link-validator`
 

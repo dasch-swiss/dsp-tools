@@ -152,7 +152,7 @@ class TestLinkValue:
 
     def test_warns(self) -> None:
         with pytest.warns(DspToolsUserWarning):
-            LinkValue(None, ":linkProp", resource_id="res_id")
+            LinkValue(None, ":linkProp", resource_id="res_id")  # type: ignore[arg-type]
 
     def test_serialise(self) -> None:
         v = LinkValue("res_link", ":linkProp", resource_id="res_id")
@@ -198,7 +198,7 @@ class TestRichtext:
 
     def test_warns(self) -> None:
         with pytest.warns(DspToolsUserWarning):
-            Richtext(None, ":richtextProp", resource_id="res_id")
+            Richtext(None, ":richtextProp", resource_id="res_id")  # type: ignore[arg-type]
 
     def test_serialise(self) -> None:
         v = Richtext("<p>Hello World</p>", ":richtextProp", resource_id="res_id")
@@ -219,7 +219,7 @@ class TestSimpleText:
 
     def test_warns(self) -> None:
         with pytest.warns(DspToolsUserWarning):
-            SimpleText(None, ":simpleTextProp", resource_id="res_id")
+            SimpleText(None, ":simpleTextProp", resource_id="res_id")  # type: ignore[arg-type]
 
     def test_serialise(self) -> None:
         v = SimpleText("Hello World", ":simpleTextProp", resource_id="res_id")

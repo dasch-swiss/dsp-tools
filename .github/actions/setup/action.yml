@@ -15,8 +15,6 @@ runs:
       uses: actions/setup-python@v5
       with:
         python-version-file: "pyproject.toml"
-        # attempt to restore dependencies from cache (if successful, the following `poetry install` will be a no-op)
-        cache: poetry
     - name: Install Python dependencies
       run: uv sync --all-extras --dev
       shell: bash

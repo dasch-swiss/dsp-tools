@@ -25,6 +25,7 @@ dependencies = [
     "pandas[excel]>=2.2.2",
     # pandas: "excel" is an extra that contains xlrd that is necessary for reading old .xls Excel files
     "pyld>=2.0.4",
+    "pyyaml>=6.0.2",
     "rdflib>=7.0.0",
     "regex>=2024.9.11",
     "requests>=2.32.3",
@@ -65,7 +66,6 @@ dev-dependencies = [
     "pytest-cov>=5.0.0",
     "pytest-unordered>=0.6.1",
     "pytest==8.0.2",
-    "pyyaml>=6.0.2",
     # pytest: don't upgrade until https://github.com/pytest-dev/pytest/issues/12044 is fixed
     "requests-mock>=1.12.1",
     "ruff>=0.6.4",

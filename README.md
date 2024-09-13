@@ -28,7 +28,7 @@ More details can be found in the [developers' documentation](https://docs.dasch.
 To get started quickly, without reading the details, just execute these commands.
 
 - `curl -LsSf https://astral.sh/uv/install.sh | sh`
-- `uv sync`
+- `uv sync --all-extras --dev`
 - `source .venv/bin/activate`
 - `pre-commit install`
 - `npm install -g markdown-link-validator`
@@ -47,7 +47,7 @@ Check out the respective section in the
 If you want to work on the code of DSP-TOOLS, you first have to do the following:
 
 - Install uv with `curl -LsSf https://astral.sh/uv/install.sh | sh` 
-- Execute `uv sync`, which will: 
+- Execute `uv sync --all-extras --dev`, which will: 
     - Install an appropriate Python version, if it doesn't find one on your machine.
     - Create a virtual environment in the folder `.venv` (if there isn't already one).
     - Install all dependencies (dev and non-dev) from `uv.lock`. 

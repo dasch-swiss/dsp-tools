@@ -35,9 +35,7 @@ jobs:
           curl -sSL https://install.python-poetry.org | python3 -
           poetry install
       - name: build wheel
-        run: |
-          rm -rf dist/ build/
-          poetry build
+        run: uv build .
       - name: publish new version to PyPI
         run: poetry publish
 

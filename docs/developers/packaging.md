@@ -8,14 +8,15 @@ There are a number of tasks necessary to develop and distribute a Python package
 and a number of tools to assist with these processes. 
 The [Python Packaging User Guide](https://packaging.python.org/en/latest/key_projects/) lists the following, among others:
 
-| Task                   | uv  | poetry | Hatch | pipenv | venv | build | setuptools | flit | twine |
-| ---------------------- | --- | ------ | ----- | ------ | ---- | ----- | ---------- | ---- | ----- |
-| Install Python         | X   |        | X     |        |      |       |            |      |       |
-| Dependency management  | X   | X      |       | X      |      |       |            |      |       |
-| Virtual environment    | X   | X      | X     | X      | X    |       |            |      |       |
-| Build frontend         | X   | X      | X     |        |      | X     |            |      |       |
-| Build backend          |     | X      | X     |        |      |       | X          | X    |       |
-| Publishing to pypi.org |     | X      | X     |        |      |       |            | X    | X     |
+| Task                   | uv  | poetry | Hatch | pdm | pipenv | venv | build | setuptools | flit | twine |
+| ---------------------- | --- | ------ | ----- | --- | ------ | ---- | ----- | ---------- | ---- | ----- |
+| Installable w/o Python | X   |        | X     |     |        |      |       |            |      |       |
+| Install Python         | X   |        | X     | X   |        |      |       |            |      |       |
+| Dependency management  | X   | X      |       | X   | X      |      |       |            |      |       |
+| Virtual environment    | X   | X      | X     | X   | X      | X    |       |            |      |       |
+| Build frontend         | X   | X      | X     | X   |        |      | X     |            |      |       |
+| Build backend          |     | X      | X     | X   |        |      |       | X          | X    |       |
+| Publishing to pypi.org |     | X      | X     | X   |        |      |       |            | X    | X     |
 
 DSP-TOOLS uses [uv](https://docs.astral.sh/uv/) for most of these tasks. 
 

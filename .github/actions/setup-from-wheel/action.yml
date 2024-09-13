@@ -12,7 +12,7 @@ runs:
     - name: Build wheel
       run: |
         echo ########### STEP: BUILD WHEEL ###########
-        uv build . -v
+        uv build .
       shell: bash
     - name: Install wheel globally
       run: |

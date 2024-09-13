@@ -12,12 +12,12 @@ runs:
     - name: Build wheel
       run: |
         echo ########### STEP: BUILD WHEEL ###########
-        uv build . -vv
+        uv build . -v
       shell: bash
     - name: Install wheel globally
       run: |
         echo ########### STEP: INSTALL WHEEL GLOBALLY ###########
-        find dist -type f -name "*.whl" -exec uv pip install {} \;
+        find dist -type f -name "*.whl" -exec uv pip install --system {} \;
       shell: bash
     - name: check the wheel for correctness, in dedicated venv
       run: |

@@ -46,7 +46,7 @@ dsp-tools = "dsp_tools.cli.entry_point:main"  # definition of the CLI entry poin
 
 
 [build-system]
-# Tells “frontend” build tools (like pip, build, or poetry) what “backend” build tool to use (e.g. setuptools, poetry).
+# Tells “frontend” build tools (like pip, build, or uv) what “backend” build tool to use (e.g. setuptools, hatchling).
 # The "backend" doesn't need to be installed. It will be installed by the "frontend" in a temporary, isolated
 # environment for use during the build process.
 requires = ["hatchling"]

@@ -80,12 +80,13 @@ legacy-e2e-tests *FLAGS:
 [no-exit-message]
 bump-version:
     # get current version, append ".postN" (N=no. of commits since last release), write back into pyproject.toml
-    version=$(git describe --tags --abbrev=0)
-    commit_cnt=$(git rev-list --count main ^$version)
-    commit_cnt=$((commit_cnt - 1))                        # N in ".postN" is zero-based
-    if [ $commit_cnt -eq -1 ]; then exit 0; fi
-    new_version=$(poetry version -s).post$commit_cnt      # pyproject.toml contains clean numbers, .postN isn't commited
-    poetry version $new_version                           # write back into pyproject.toml
+    yq --version || brew install yq
+    LATEST_TAG=$(git describe --tags --abbrev=0)          # get the latest release tag from git history (e.g. "v9.0.2")
+    COMMIT_CNT=$(git rev-list --count main ^$LATEST_TAG)  # get the number of commits since the last release (e.g. "5")
+    if [ $COMMIT_CNT -eq 0 ]; then exit 0; fi
+    COMMIT_CNT=$((COMMIT_CNT - 1))                        # 5 -> 4 (N in ".postN" is zero-based)
+    NEW_VERSION=${LATEST_TAG:1}.post$COMMIT_CNT           # "9.0.2.post4" (no leading v in pyproject.toml)
+    yq -i '.project.version = "$NEW_VERSION"' pyproject.toml  # write back into pyproject.toml
 
 
 # Remove artifact files

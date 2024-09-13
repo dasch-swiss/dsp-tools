@@ -138,9 +138,9 @@ jobs:
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v4
-      - name: Install uv, build & install wheel
+      - name: Install python, pytest, uv, build & install wheel
         uses: ./.github/actions/setup-from-wheel
       - name: distribution tests
-        run: uvx --isolated --with pytest-unordered -- pytest --noconftest test/distribution/
+        run: python -m pytest --noconftest test/distribution/
         # Reason for the --noconftest flag: 
         # test/conftest.py configures logging, but loguru should not be installed for the distribution tests

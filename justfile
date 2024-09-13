@@ -4,19 +4,19 @@ default:
 
 # Run the ruff linter to detect bad Python coding habits
 ruff-check *FLAGS:
-    ruff check . --ignore=A002,D101,D102,PLR0913,PLR2004 {{FLAGS}}
+    uv run ruff check . --ignore=A002,D101,D102,PLR0913,PLR2004 {{FLAGS}}
 
 # Run the ruff linter, with an output format suitable for GitHub runners
 ruff-check-github:
-    just ruff-check --output-format=github
+    uv run just ruff-check --output-format=github
 
 # Check the formatting of the Python files
 ruff-format-check:
-    ruff format --check .
+    uv run ruff format --check .
 
 # Check the type annotations in Python files for correctness
 mypy:
-    mypy .
+    uv run mypy .
 
 # Check completeness and correctness of python docstrings
 darglint:
@@ -39,19 +39,19 @@ markdownlint:
 
 # Run the unit tests
 unittests *FLAGS:
-    pytest test/unittests/ {{FLAGS}}
+    uv run pytest test/unittests/ {{FLAGS}}
 
 # Run the integration tests
 integration-tests *FLAGS:
-    pytest test/integration/ {{FLAGS}}
+    uv run pytest test/integration/ {{FLAGS}}
 
 # Run the end-to-end tests (with testcontainers)
 e2e-tests *FLAGS:
-    pytest test/e2e/ {{FLAGS}}
+    uv run pytest test/e2e/ {{FLAGS}}
 
 # Run the legacy end-to-end tests (needs a running stack)
 legacy-e2e-tests *FLAGS:
-    pytest test/legacy_e2e/ {{FLAGS}}
+    uv run pytest test/legacy_e2e/ {{FLAGS}}
 
 # Calculate the post-release number and write it into pyproject.toml (used for dev-releases)
 bump-version:

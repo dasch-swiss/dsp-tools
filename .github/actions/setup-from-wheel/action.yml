@@ -31,5 +31,5 @@ runs:
     - name: Install pytest globally
       run: |
         echo ########### STEP: INSTALL PYTEST GLOBALLY ###########
-        pip install pytest pytest-unordered
+        uv pip install --system pytest pytest-unordered
       shell: bash

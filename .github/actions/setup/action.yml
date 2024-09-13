@@ -14,7 +14,7 @@ runs:
     - name: Install Python
       uses: actions/setup-python@v5
       with:
-        python-version: 3.12
+        python-version-file: "pyproject.toml"
         # attempt to restore dependencies from cache (if successful, the following `poetry install` will be a no-op)
         cache: poetry
     - name: Install Python dependencies

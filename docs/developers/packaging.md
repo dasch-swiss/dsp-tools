@@ -8,7 +8,7 @@ There are a number of tasks necessary to develop and distribute a Python package
 and a number of tools to assist with these processes. 
 The [Python Packaging User Guide](https://packaging.python.org/en/latest/key_projects/) lists the following, among others:
 
-| Task                   | uv  | poetry | Hatch | pdm | pipenv | venv | build | setuptools | flit | twine |
+| Requirement            | uv  | poetry | Hatch | pdm | pipenv | venv | build | setuptools | flit | twine |
 | ---------------------- | --- | ------ | ----- | --- | ------ | ---- | ----- | ---------- | ---- | ----- |
 | Installable w/o Python | X   |        | X     |     |        |      |       |            |      |       |
 | Install Python         | X   |        | X     | X   |        |      |       |            |      |       |
@@ -27,6 +27,23 @@ uv needs 3 config files:
 - `.python-version`: tells uv which Python version to use when creating the project's virtual environment
 
 
+## Is the tool dependent on a certain Python interpreter?
+
+Many tools are written in Python and can only be installed by a Python interpreter. 
+But unfortunately, Python can be installed in various ways, 
+so that Python installations can live in many different places. 
+And these locations are sometimes unstable. 
+
+A concrete problem that often arises: 
+When a Homebrew-installed Python is used to install the tool, 
+a `brew upgrade` might break the tool.
+
+Additionally, problems might arise if the tool is used to create a venv 
+with a Python version higher than the Python that was used to install the tool. 
+
+UV avoids all these problems: it is a static binary that doesn't depend on a Python installation.
+
+
 ## Dependency Management
 
 The classic way to manage the dependencies was to write the required packages by hand into a `requirements.txt` and 
@@ -42,12 +59,12 @@ uv is one of the few tools that cleanly distinguishes
 
 - dependencies necessary to run the application, 
 - dependencies necessary for development, and 
-- sub-dependencies, i.e. dependencies of your dependencies. 
+- transitive dependencies, i.e. dependencies of your dependencies. 
 
 It is also one of the few tools that makes the distinction between 
 
 - the manifest file, i.e. a human-friendly list of (mostly unpinned) direct dependencies and 
-- the lock file, i.e. a machine-friendly definition of exact (pinned) versions of all dependencies.  
+- the lock file, i.e. a machine-friendly definition of exact (pinned) versions of all dependencies.
 
 
 ## Packaging 

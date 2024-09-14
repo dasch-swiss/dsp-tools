@@ -86,7 +86,7 @@ bump-version:
     COMMIT_CNT=$((COMMIT_CNT - 1))                        # e.g. 5 -> 4 (N in ".postN" is zero-based)
     NEW_VERSION=${LATEST_TAG:1}.post$COMMIT_CNT           # e.g. "9.0.2.post4" (no leading v in pyproject.toml)
     OLD_TOML_LINE_RGX="version ?= ?\"${LATEST_TAG:1}\""   # e.g. 'version ?= ?"9.0.2"'
-    sed -E -i "" "s/$OLD_TOML_LINE_RGX/version = \"$NEW_VERSION\"/g" pyproject.toml  # write back into pyproject.toml
+    sed -E -i "" "1,20s/$OLD_TOML_LINE_RGX/version = \"$NEW_VERSION\"/g" pyproject.toml  # write back into pyproject.toml
 
 
 # Remove artifact files

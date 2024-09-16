@@ -102,6 +102,8 @@ def _reformat_one_node_constraint_component(g: Graph, bn: BNode) -> InputProblem
             return _reformat_class_constraint_component(g, bn, detail_bn)
         case SH.InConstraintComponent:
             return _reformat_in_constraint_component(g, bn, detail_bn)
+        case _:
+            pass
 
 
 def _reformat_class_constraint_component(g: Graph, node_bn: BNode, detail_bn: BNode) -> GenericContentViolation:

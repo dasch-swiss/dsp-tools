@@ -44,7 +44,7 @@ def _check_expected_constraint_components(g: Graph) -> None:
         SH.NodeConstraintComponent,
         SH.SPARQLConstraintComponent,
     }
-    components_in_graph = {component for _, _, component in g.triples((None, SH.sourceConstraintComponent, None))}
+    components_in_graph = {component for component in g.objects(predicate=SH.sourceConstraintComponent)}
     if diff := components_in_graph - known_components:
         diff = [str(x) for x in diff]
         raise BaseError(f"Unknown constraint component: {', '.join(diff)}")

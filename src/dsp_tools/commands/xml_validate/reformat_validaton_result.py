@@ -1,10 +1,8 @@
 from rdflib import RDF
-from rdflib import RDFS
 from rdflib import SH
 from rdflib import BNode
 from rdflib import Graph
 from rdflib import Namespace
-from rdflib import URIRef
 
 from dsp_tools.commands.xml_validate.models.input_problems import DuplicateContent
 from dsp_tools.commands.xml_validate.models.input_problems import GenericContentViolation
@@ -142,21 +140,10 @@ def _get_value_info(g: Graph, node_bn: BNode) -> ValueInfo:
     val_bn = next(g.objects(node_bn, SH.value))
     val = next(g.objects(val_bn, VAL_ONTO.hasValue))
     list_val = list(g.objects(val_bn, VAL_ONTO.hasListName))
-    rdf_types = list(g.objects(val_bn, RDF.type))
-    onto_type = _get_specific_type(rdf_types)
-    return ValueInfo(rdf_type=onto_type, hasValue=str(val), hasListName=list_val)
+    rdf_type = next(g.objects(val_bn, RDF.type))
+    return ValueInfo(rdf_type=str(rdf_type), hasValue=str(val), hasListName=list_val)
 
 
 def _reformat_prop_iri(prop: str) -> str:
     onto = str(prop).split("/")[-2]
     return f'{onto}:{str(prop).split("#")[-1]}'
-
-
-def _get_specific_type(rdf_types: list[URIRef]) -> str:
-    for ele in rdf_types:
-        if ele == RDFS.Resource:
-            pass
-        elif ele == VAL_ONTO.Value:
-            pass
-        else:
-            return str(ele).split("#")[-1]

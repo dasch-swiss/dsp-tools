@@ -30,7 +30,7 @@
     </resource>
 
 
-    <!-- This should be a list prop. -->
+    <!-- This should be a text prop. -->
     <resource label="Property Type Mismatch" restype=":NormalClass" id="property-type-mismatch">
         <integer-prop name=":hasSimpleText">
             <integer>1</integer>

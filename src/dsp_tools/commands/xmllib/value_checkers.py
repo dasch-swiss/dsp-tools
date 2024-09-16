@@ -104,8 +104,7 @@ def is_integer(value: Any) -> bool:
         True if conforms to the above-mentioned criteria.
     """
     if isinstance(value, str):
-        if regex.search(r"^\d+$", value):
-            return True
+        return bool(regex.search(r"^\d+$", value))
     elif isinstance(value, int):
         return True
     return False

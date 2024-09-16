@@ -14,7 +14,6 @@ env:
 
 jobs:
   publish-dev-release-to-pypi:
-    if: startsWith(github.event.head_commit.message, 'fix') || startsWith(github.event.head_commit.message, 'feat')
     runs-on: ubuntu-latest
     steps:
       - name: Check out repo

@@ -5,8 +5,6 @@ from dataclasses import dataclass
 from typing import Any
 from typing import Protocol
 
-from rdflib import Graph
-
 INDENT = "    "
 MEDIUM_SEPARATOR = "\n\n"
 GRAND_SEPARATOR = "\n\n----------------------------\n\n"
@@ -133,12 +131,6 @@ class DuplicateContent:
 
     def sort_value(self) -> str:
         return self.res_id
-
-
-@dataclass
-class ValidationGraphs:
-    cardinality_violations: Graph | None
-    node_violations: Graph | None
 
 
 @dataclass

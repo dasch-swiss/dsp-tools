@@ -10,14 +10,13 @@ from dsp_tools.commands.xml_validate.models.input_problems import InputProblem
 from dsp_tools.commands.xml_validate.models.input_problems import ListViolation
 from dsp_tools.commands.xml_validate.models.input_problems import MaxCardinalityViolation
 from dsp_tools.commands.xml_validate.models.input_problems import NodeInfo
-from dsp_tools.commands.xml_validate.models.input_problems import ValidationGraphs
 from dsp_tools.commands.xml_validate.models.input_problems import ValueInfo
 from dsp_tools.models.exceptions import BaseError
 
 VAL_ONTO = Namespace("http://api.knora.org/validation-onto#")
 
 
-def reformat_validation_graph(g: ValidationGraphs) -> list[InputProblem]:
+def reformat_validation_graph(g: Graph) -> list[InputProblem]:
     """
     Reformats the validation result from a RDF graph into class instances
     that are used to communicate the problems with the user.

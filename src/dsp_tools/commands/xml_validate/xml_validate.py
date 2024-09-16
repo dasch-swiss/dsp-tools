@@ -5,7 +5,6 @@ from rdflib import Graph
 
 from dsp_tools.commands.xml_validate.deserialise_project import create_project_rdf
 from dsp_tools.commands.xml_validate.models.input_problems import AllProblems
-from dsp_tools.commands.xml_validate.models.input_problems import ValidationGraphs
 from dsp_tools.commands.xml_validate.prepare_input import parse_file
 from dsp_tools.commands.xml_validate.reformat_validaton_result import reformat_validation_graph
 from dsp_tools.models.exceptions import InputError
@@ -31,7 +30,7 @@ def _parse_ttl_file(ttl_path: str) -> Graph:
     return g
 
 
-def _validate_graph(data: Graph) -> ValidationGraphs | None:
+def _validate_graph(data: Graph) -> Graph | None:
     onto = _parse_ttl_file("testdata/xml-validate/onto.ttl")
     val_onto = _parse_ttl_file("testdata/xml-validate/validation-onto.ttl")
     onto_shapes = _parse_ttl_file("testdata/xml-validate/onto-shapes.ttl")

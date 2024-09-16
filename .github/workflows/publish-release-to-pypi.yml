@@ -27,13 +27,3 @@ jobs:
         run: uv build .
       - name: publish new version to PyPI
         run: uvx twine upload --repository-url=https://test.pypi.org/legacy/ dist/*
-
-  notification:
-    name: Google chat notification about release and published version
-    needs: [publish-release-to-pypi]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Send notification to google chat room "DSP releases"
-        uses: lakto/google-chat-action@main
-        with:
-          url: ${{ secrets.GOOGLE_CHAT_DSP_RELEASES_WEBHOOK_URL }}

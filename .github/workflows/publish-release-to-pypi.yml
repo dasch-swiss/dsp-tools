@@ -26,4 +26,4 @@ jobs:
       - name: build wheel
         run: uv build .
       - name: publish new version to PyPI
-        run: uvx twine upload --repository-url=https://test.pypi.org/legacy/ dist/*
+        run: uvx twine upload --verbose --repository-url=https://test.pypi.org/legacy/ dist/*

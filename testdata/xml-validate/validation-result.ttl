@@ -1,0 +1,113 @@
+@prefix onto: <http://0.0.0.0:3333/ontology/9999/onto/v2#> .
+@prefix onto-shapes: <http://validation-9999/onto-shapes#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix val-onto: <http://api.knora.org/validation-onto#> .
+@prefix val-shapes: <http://api.knora.org/validation-shapes#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+[] a sh:ValidationReport ;
+    sh:conforms false ;
+    sh:result [ a sh:ValidationResult ;
+            sh:detail [ a sh:ValidationResult ;
+                    sh:focusNode <identical-value> ;
+                    sh:resultMessage "A resource may not have the same property and value more than one time." ;
+                    sh:resultPath onto:hasSimpleText ;
+                    sh:resultSeverity sh:Violation ;
+                    sh:sourceConstraint [ a sh:SPARQLConstraint ;
+                            sh:message "A resource may not have the same property and value more than one time." ;
+                            sh:select """
+                    PREFIX val-onto: <http://api.knora.org/validation-onto#>
+                    SELECT $this ?path ?value WHERE {
+                      $this ?path ?valueClass .
+
+                      ?valueClass val-onto:hasValue ?value .
+                    }
+                    GROUP BY $this ?path ?value
+                    HAVING (COUNT(?value) > 1)
+                """ ] ;
+                    sh:sourceConstraintComponent sh:SPARQLConstraintComponent ;
+                    sh:sourceShape val-shapes:UniqueValuesShape ;
+                    sh:value "These two values are identical." ] ;
+            sh:focusNode <identical-value> ;
+            sh:resultMessage "Value does not conform to Shape val-shapes:UniqueValuesShape. See details for more information." ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+            sh:sourceShape onto-shapes:NormalClass_NodeShape ;
+            sh:value <identical-value> ],
+        [ a sh:ValidationResult ;
+            sh:detail [ a sh:ValidationResult ;
+                    sh:focusNode _:N57950e4dac1c417084e771cc26bdada8 ;
+                    sh:resultMessage "Object must be a of type 'SimpleText'." ;
+                    sh:resultSeverity sh:Violation ;
+                    sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+                    sh:sourceShape val-shapes:SimpleText_ClassShape ;
+                    sh:value _:N57950e4dac1c417084e771cc26bdada8 ] ;
+            sh:focusNode <property-type-mismatch> ;
+            sh:resultMessage "Value does not conform to every Shape in ('val-shapes:SimpleText_ClassShape', 'val-shapes:SimpleText_NodeShape'). See details for more information." ;
+            sh:resultPath onto:hasSimpleText ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+            sh:sourceShape onto-shapes:hasSimpleText_PropShape ;
+            sh:value _:N57950e4dac1c417084e771cc26bdada8 ],
+        [ a sh:ValidationResult ;
+            sh:focusNode <max-card-violation> ;
+            sh:resultMessage "Cardinality: 'onto:hasSimpleText' -> exactly 1" ;
+            sh:resultPath onto:hasSimpleText ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:MaxCountConstraintComponent ;
+            sh:sourceShape [ a sh:PropertyShape ;
+                    sh:maxCount 1 ;
+                    sh:message "Cardinality: 'onto:hasSimpleText' -> exactly 1" ;
+                    sh:minCount 1 ;
+                    sh:path onto:hasSimpleText ;
+                    sh:severity sh:Violation ] ],
+        [ a sh:ValidationResult ;
+            sh:detail [ a sh:ValidationResult ;
+                    sh:focusNode _:Nd980b0e2eef141909d8ce6f9fdea1f13 ;
+                    sh:resultMessage "Unknown list node for list 'onlyList'." ;
+                    sh:resultPath val-onto:hasValue ;
+                    sh:resultSeverity sh:Violation ;
+                    sh:sourceConstraintComponent sh:InConstraintComponent ;
+                    sh:sourceShape [ a sh:PropertyShape ;
+                            sh:in ( "n1" "n1.1" "n1.1.1" ) ;
+                            sh:message "Unknown list node for list 'onlyList'." ;
+                            sh:path val-onto:hasValue ] ;
+                    sh:value "nonExisting" ] ;
+            sh:focusNode <non-existing-list-node> ;
+            sh:resultMessage "Value does not conform to every Shape in ('onto-shapes:onlyList_NodeShape', 'val-shapes:ListValue_ClassShape'). See details for more information." ;
+            sh:resultPath onto:listProp ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+            sh:sourceShape onto-shapes:listProp_PropShape ;
+            sh:value _:Nd980b0e2eef141909d8ce6f9fdea1f13 ],
+        [ a sh:ValidationResult ;
+            sh:detail [ a sh:ValidationResult ;
+                    sh:focusNode _:N69375d12214f452dac95b11bfdffa2dc ;
+                    sh:resultMessage "Target must be of type 'onto:CardOneResource' or a subclass of it." ;
+                    sh:resultPath val-onto:hasValue ;
+                    sh:resultSeverity sh:Violation ;
+                    sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+                    sh:sourceShape [ a sh:PropertyShape ;
+                            sh:class onto:CardOneResource ;
+                            sh:message "Target must be of type 'onto:CardOneResource' or a subclass of it." ;
+                            sh:path val-onto:hasValue ] ;
+                    sh:value <link-value-target-wrong> ] ;
+            sh:focusNode <link-value-wrong> ;
+            sh:resultMessage "Value does not conform to every Shape in ('onto-shapes:linkProp_NodeShape', 'val-shapes:LinkValue_ClassShape'). See details for more information." ;
+            sh:resultPath onto:linkProp ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+            sh:sourceShape onto-shapes:linkProp_PropShape ;
+            sh:value _:N69375d12214f452dac95b11bfdffa2dc ] .
+
+_:N69375d12214f452dac95b11bfdffa2dc a val-onto:LinkValue ;
+    val-onto:hasValue <link-value-target-wrong> .
+
+_:Nd980b0e2eef141909d8ce6f9fdea1f13 a val-onto:ListValue ;
+    val-onto:hasListName "onlyList" ;
+    val-onto:hasValue "nonExisting" .
+
+_:N57950e4dac1c417084e771cc26bdada8 a val-onto:IntValue ;
+    val-onto:hasValue "1" .
+

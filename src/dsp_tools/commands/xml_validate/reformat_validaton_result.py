@@ -19,25 +19,19 @@ from dsp_tools.models.exceptions import BaseError
 VAL_ONTO = Namespace("http://api.knora.org/validation-onto#")
 
 
-def reformat_validation_graph(validation_graph: ValidationGraphs) -> list[InputProblem]:
+def reformat_validation_graph(g: ValidationGraphs) -> list[InputProblem]:
     """
     Reformats the validation result from a RDF graph into class instances
     that are used to communicate the problems with the user.
 
     Args:
-        validation_graph: Contains the possible two validation errors
+        g: Contains the possible two validation errors
 
     Returns:
         List of individual problems
     """
-    problems: list[InputProblem] = []
-    g = Graph()
-    if validation_graph.node_violations:
-        g = validation_graph.node_violations
-        problems.extend(_reformat_node_constraint_component(validation_graph.node_violations))
-    if validation_graph.cardinality_violations:
-        g += validation_graph.cardinality_violations
-        problems.extend(_reformat_cardinality_constraint_component(validation_graph.cardinality_violations))
+    problems: list[InputProblem] = _reformat_cardinality_constraint_component(g)
+    problems.extend(_reformat_node_constraint_component(g))
     _check_expected_constraint_components(g)
     return problems
 
@@ -93,9 +87,9 @@ def _reformat_one_sparql_constraint_component(g: Graph, bn: BNode) -> DuplicateC
     return DuplicateContent(res_id=problem_resource, prop_name=prop, content=content)
 
 
-def _reformat_node_constraint_component(g: Graph):
+def _reformat_node_constraint_component(g: Graph) -> list[InputProblem]:
     nodes_bns = g.subjects(SH.sourceConstraintComponent, SH.NodeConstraintComponent)
-    return [_reformat_one_node_constraint_component(g, bn) for bn in nodes_bns]
+    return [ref for bn in nodes_bns if (ref := _reformat_one_node_constraint_component(g, bn))]
 
 
 def _reformat_one_node_constraint_component(g: Graph, bn: BNode) -> InputProblem:
@@ -110,8 +104,6 @@ def _reformat_one_node_constraint_component(g: Graph, bn: BNode) -> InputProblem
             return _reformat_class_constraint_component(g, bn, detail_bn)
         case SH.InConstraintComponent:
             return _reformat_in_constraint_component(g, bn, detail_bn)
-        case _:
-            raise NotImplementedError
 
 
 def _reformat_class_constraint_component(g: Graph, node_bn: BNode, detail_bn: BNode) -> GenericContentViolation:

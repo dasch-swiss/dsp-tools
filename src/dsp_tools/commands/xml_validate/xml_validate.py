@@ -34,29 +34,16 @@ def _parse_ttl_file(ttl_path: str) -> Graph:
 def _validate_graph(data: Graph) -> ValidationGraphs | None:
     onto = _parse_ttl_file("testdata/xml-validate/onto.ttl")
     val_onto = _parse_ttl_file("testdata/xml-validate/validation-onto.ttl")
+    onto_shapes = _parse_ttl_file("testdata/xml-validate/onto-shapes.ttl")
 
-    card_data = onto + data
-    card_shapes = _parse_ttl_file("testdata/xml-validate/cardinality-shapes.ttl")
-    card_graph = _validate_graph_no_inference(card_data, card_shapes)
+    data = onto + data
+    shapes = onto + onto_shapes + val_onto
 
-    prop_shapes = _parse_ttl_file("testdata/xml-validate/property-shapes.ttl")
-    prop_data = onto + data + val_onto
-    prop_graph = _validate_graph_rdfs_inference(prop_data, prop_shapes)
-
-    if not card_graph and not prop_graph:
-        return None
-    return ValidationGraphs(cardinality_violations=card_graph, node_violations=prop_graph)
+    return _validate_graph_no_inference(data, shapes)
 
 
 def _validate_graph_no_inference(data: Graph, shapes: Graph) -> Graph | None:
     conforms, results_graph, _ = validate(data_graph=data, shacl_graph=shapes)
-    if conforms:
-        return None
-    return results_graph
-
-
-def _validate_graph_rdfs_inference(data: Graph, shapes: Graph) -> Graph | None:
-    conforms, results_graph, _ = validate(data_graph=data, shacl_graph=shapes, inference="rdfs")
     if conforms:
         return None
     return results_graph

@@ -107,27 +107,21 @@ def _add_stop_stack(subparsers: _SubParsersAction[ArgumentParser]) -> None:
 
 
 def _add_start_stack(subparsers: _SubParsersAction[ArgumentParser]) -> None:
+    latest_text = (
+        "instead of the latest deployed version, "
+        "use the latest development version (from the `main` branch) "
+        "of the backend components (api, sipi, fuseki, ingest)"
+    )
+    max_file_size_text = "max. multimedia file size allowed for ingest, in MB (default: 2000, max: 100'000)"
+    no_prune_text = "don't execute 'docker system prune' (and don't ask)"
+    with_test_data_text = "initialise the database with built-in test data"
     subparser = subparsers.add_parser(name="start-stack", help="Run a local instance of DSP-API and DSP-APP")
     subparser.set_defaults(action="start-stack")
-    subparser.add_argument(
-        "--max_file_size",
-        type=int,
-        help="max. multimedia file size allowed for ingest, in MB (default: 2000, max: 100'000)",
-    )
+    subparser.add_argument("--max_file_size", type=int, help=max_file_size_text)
     subparser.add_argument("--prune", action="store_true", help="execute 'docker system prune' without asking")
-    subparser.add_argument(
-        "--no-prune", action="store_true", help="don't execute 'docker system prune' (and don't ask)"
-    )
-    subparser.add_argument(
-        "--latest",
-        action="store_true",
-        help="use the latest dev version of DSP-API/DSP-APP, from the main branch of the GitHub repository",
-    )
-    subparser.add_argument(
-        "--with-test-data",
-        action="store_true",
-        help="initialise the database with built-in test data",
-    )
+    subparser.add_argument("--no-prune", action="store_true", help=no_prune_text)
+    subparser.add_argument("--latest", action="store_true", help=latest_text)
+    subparser.add_argument("--with-test-data", action="store_true", help=with_test_data_text)
 
 
 def _add_id2iri(subparsers: _SubParsersAction[ArgumentParser]) -> None:

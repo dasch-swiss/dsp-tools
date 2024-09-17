@@ -538,7 +538,8 @@ The following options are available:
 - `--max_file_size=int` (optional, default: `2000`): max. multimedia file size allowed, in MB (max: 100'000)
 - `--latest` (optional): 
   instead of the latest deployed version,
-  use the latest development version of DSP-API/DSP-APP (from the `main` branch)
+  use the latest development version (from the `main` branch)
+  of the backend components (api, sipi, fuseki, ingest)
 - `--prune` (optional): execute `docker system prune` without asking
 - `--no-prune` (optional): don't execute `docker system prune` (and don't ask)
 - `--with-test-data` (optional): start the stack with some test data

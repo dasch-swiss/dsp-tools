@@ -246,7 +246,7 @@
             ],
             "object": "TextValue",
             "labels": {
-              "de": "In-built Comment"
+              "en": "In-built Comment"
             },
             "gui_element": "Richtext"
           },
@@ -256,7 +256,9 @@
               "hasLinkTo"
             ],
             "object": ":ClassWithEverything",
-            "labels": "Test In-built hasLinkTo",
+            "labels": {
+              "en": "Test In-built hasLinkTo"
+            },
             "gui_element": "Searchbox"
           },
           {
@@ -298,12 +300,12 @@
             "name": "ClassWithEverything",
             "super": "Resource",
             "labels": {
-              "en": "Superclass Resource"
+              "en": "Resource with every property"
             },
             "cardinalities": [
               {
                 "propname": ":testBoolean",
-                "cardinality": "0-n",
+                "cardinality": "0-1",
                 "gui_order": 0
               },
               {
@@ -312,94 +314,89 @@
                 "gui_order": 1
               },
               {
-                "propname": ":testSuperDate",
+                "propname": ":testSubDate1",
                 "cardinality": "0-n",
                 "gui_order": 2
               },
               {
-                "propname": ":testSubDate1",
+                "propname": ":testSubDate2",
                 "cardinality": "0-n",
                 "gui_order": 3
               },
               {
-                "propname": ":testSubDate2",
+                "propname": ":testDecimalSimpleText",
                 "cardinality": "0-n",
                 "gui_order": 4
               },
               {
-                "propname": ":testDecimalSimpleText",
+                "propname": ":testDecimalSpinbox",
                 "cardinality": "0-n",
                 "gui_order": 5
               },
               {
-                "propname": ":testDecimalSpinbox",
+                "propname": ":testGeoname",
                 "cardinality": "0-n",
                 "gui_order": 6
               },
               {
-                "propname": ":testGeoname",
+                "propname": ":testIntegerSimpleText",
                 "cardinality": "0-n",
                 "gui_order": 7
               },
               {
-                "propname": ":testIntegerSimpleText",
+                "propname": ":testIntegerSpinbox",
                 "cardinality": "0-n",
                 "gui_order": 8
               },
               {
-                "propname": ":testIntegerSpinbox",
+                "propname": ":testListProp",
                 "cardinality": "0-n",
                 "gui_order": 9
               },
               {
-                "propname": ":testListProp",
+                "propname": ":testSimpleText",
                 "cardinality": "0-n",
                 "gui_order": 10
               },
               {
-                "propname": ":testSimpleText",
+                "propname": ":testTextarea",
                 "cardinality": "0-n",
                 "gui_order": 11
               },
               {
-                "propname": ":testTextarea",
+                "propname": ":testRichtext",
                 "cardinality": "0-n",
                 "gui_order": 12
               },
               {
-                "propname": ":testRichtext",
+                "propname": ":testTimeValue",
                 "cardinality": "0-n",
                 "gui_order": 13
               },
               {
-                "propname": ":testTimeValue",
+                "propname": ":testUriValue",
                 "cardinality": "0-n",
                 "gui_order": 14
               },
               {
-                "propname": ":testUriValue",
+                "propname": ":testHasComment",
                 "cardinality": "0-n",
                 "gui_order": 15
               },
               {
-                "propname": ":testHasComment",
+                "propname": ":testHasLinkTo",
                 "cardinality": "0-n",
                 "gui_order": 16
               },
               {
-                "propname": ":testHasLinkTo",
+                "propname": ":testHasRepresentation",
                 "cardinality": "0-n",
                 "gui_order": 17
               },
               {
-                "propname": ":testHasRepresentation",
-                "cardinality": "0-n",
-                "gui_order": 18
-              },
-              {
                 "propname": ":testIsPartOf",
                 "cardinality": "0-n",
-                "gui_order": 19
+                "gui_order": 18
               }
             ]
           },

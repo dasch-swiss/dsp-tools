@@ -333,18 +333,26 @@ api-shapes:UriValue_NodeShape
 # DSP BUILT IN RESOURCES
 #########################################
 
-
-# knora-api:Annotation
-
-
-# knora-api:Region
+###########################
+# Annotation
+###########################
 
 
-# knora-api:LinkObj
+###########################
+# Region
+###########################
 
 
-# knora-api:VideoSegment
+###########################
+# LinkObj
+###########################
 
 
-# knora-api:AudioSegment
+###########################
+# VideoSegment
+###########################
 
+
+###########################
+# AudioSegment
+###########################

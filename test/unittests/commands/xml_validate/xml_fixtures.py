@@ -5,7 +5,7 @@ from lxml import etree
 @pytest.fixture
 def boolean_value_corr() -> etree._Element:
     return etree.fromstring("""
-        <boolean-prop name=":hasBoolean">
+        <boolean-prop name=":testBoolean">
             <boolean permissions="prop-default">true</boolean>
         </boolean-prop>
     """)
@@ -14,7 +14,7 @@ def boolean_value_corr() -> etree._Element:
 @pytest.fixture
 def boolean_value_wrong() -> etree._Element:
     return etree.fromstring("""
-        <boolean-prop name=":hasBoolean">
+        <boolean-prop name=":testBoolean">
             <boolean permissions="prop-default">other</boolean>
         </boolean-prop>
     """)
@@ -23,7 +23,7 @@ def boolean_value_wrong() -> etree._Element:
 @pytest.fixture
 def color_value_corr() -> etree._Element:
     return etree.fromstring("""
-        <color-prop name=":hasColor">
+        <color-prop name=":testColor">
             <color permissions="prop-default">#00ff00</color>
         </color-prop>
         """)
@@ -32,7 +32,7 @@ def color_value_corr() -> etree._Element:
 @pytest.fixture
 def color_value_wrong() -> etree._Element:
     return etree.fromstring("""
-        <color-prop name=":hasColor">
+        <color-prop name=":testColor">
             <color permissions="prop-default">other</color>
         </color-prop>
         """)
@@ -41,7 +41,7 @@ def color_value_wrong() -> etree._Element:
 @pytest.fixture
 def date_value_corr() -> etree._Element:
     return etree.fromstring("""
-        <date-prop name=":hasDate">
+        <date-prop name=":testSubDate1">
             <date>JULIAN:BCE:0700:BCE:0600</date>
         </date-prop>
         """)
@@ -50,7 +50,7 @@ def date_value_corr() -> etree._Element:
 @pytest.fixture
 def date_value_wrong() -> etree._Element:
     return etree.fromstring("""
-        <date-prop name=":hasDate">
+        <date-prop name=":testSubDate1">
             <date>other</date>
         </date-prop>
         """)
@@ -59,7 +59,7 @@ def date_value_wrong() -> etree._Element:
 @pytest.fixture
 def decimal_value_corr() -> etree._Element:
     return etree.fromstring("""
-        <decimal-prop name=":hasDecimal">
+        <decimal-prop name=":testDecimalSimpleText">
             <decimal>2.71</decimal>
         </decimal-prop>
     """)
@@ -68,7 +68,7 @@ def decimal_value_corr() -> etree._Element:
 @pytest.fixture
 def decimal_value_wrong() -> etree._Element:
     return etree.fromstring("""
-        <decimal-prop name=":hasDecimal">
+        <decimal-prop name=":testDecimalSpinbox">
             <decimal>other</decimal>
         </decimal-prop>
         """)
@@ -106,7 +106,7 @@ def geometry_value_wrong() -> etree._Element:
 @pytest.fixture
 def geoname_value_corr() -> etree._Element:
     return etree.fromstring("""
-        <geoname-prop name=":hasGeoname">
+        <geoname-prop name=":testGeoname">
             <geoname>5416656</geoname>
         </geoname-prop>
     """)
@@ -115,7 +115,7 @@ def geoname_value_corr() -> etree._Element:
 @pytest.fixture
 def geoname_value_wrong() -> etree._Element:
     return etree.fromstring("""
-        <geoname-prop name=":hasGeoname">
+        <geoname-prop name=":testGeoname">
             <geoname>other</geoname>
         </geoname-prop>
     """)
@@ -124,7 +124,7 @@ def geoname_value_wrong() -> etree._Element:
 @pytest.fixture
 def list_value_corr() -> etree._Element:
     return etree.fromstring("""
-        <list-prop list="onlyList" name=":hasListItem">
+        <list-prop list="onlyList" name=":testListProp">
             <list>n1</list>
         </list-prop>
     """)
@@ -133,7 +133,7 @@ def list_value_corr() -> etree._Element:
 @pytest.fixture
 def list_value_wrong_node() -> etree._Element:
     return etree.fromstring("""
-        <list-prop list="onlyList" name=":hasListItem">
+        <list-prop list="onlyList" name=":testListProp">
             <list>other</list>
         </list-prop>
     """)
@@ -142,7 +142,7 @@ def list_value_wrong_node() -> etree._Element:
 @pytest.fixture
 def list_value_wrong_list() -> etree._Element:
     return etree.fromstring("""
-        <list-prop list="other" name=":hasListItem">
+        <list-prop list="other" name=":testListProp">
             <list>n1</list>
         </list-prop>
     """)
@@ -151,7 +151,7 @@ def list_value_wrong_list() -> etree._Element:
 @pytest.fixture
 def integer_value_corr() -> etree._Element:
     return etree.fromstring("""
-        <integer-prop name="knora-api:seqnum">
+        <integer-prop name=":testIntegerSimpleText">
             <integer permissions="prop-default">1</integer>
         </integer-prop>
     """)
@@ -160,7 +160,7 @@ def integer_value_corr() -> etree._Element:
 @pytest.fixture
 def integer_value_wrong() -> etree._Element:
     return etree.fromstring("""
-        <integer-prop name="knora-api:seqnum">
+        <integer-prop name=":testIntegerSpinbox">
             <integer permissions="prop-default">other</integer>
         </integer-prop>
     """)
@@ -169,7 +169,7 @@ def integer_value_wrong() -> etree._Element:
 @pytest.fixture
 def resptr_value_corr() -> etree._Element:
     return etree.fromstring("""
-        <resptr-prop name="isPartOf">
+        <resptr-prop name=":testHasLinkTo">
             <resptr permissions="prop-default">resource-id</resptr>
         </resptr-prop>
     """)
@@ -178,7 +178,7 @@ def resptr_value_corr() -> etree._Element:
 @pytest.fixture
 def resptr_value_wrong() -> etree._Element:
     return etree.fromstring("""
-        <resptr-prop name="isPartOf">
+        <resptr-prop name=":testHasLinkTo">
             <resptr permissions="prop-default"></resptr>
         </resptr-prop>
     """)
@@ -187,7 +187,7 @@ def resptr_value_wrong() -> etree._Element:
 @pytest.fixture
 def text_richtext_value_corr() -> etree._Element:
     return etree.fromstring("""
-            <text-prop name="">
+            <text-prop name=":testRichtext">
             <text encoding="xml">Text</text>
         </text-prop>
     """)
@@ -196,7 +196,7 @@ def text_richtext_value_corr() -> etree._Element:
 @pytest.fixture
 def text_richtext_value_wrong() -> etree._Element:
     return etree.fromstring("""
-        <text-prop name="">
+        <text-prop name=":testRichtext">
             <text encoding="xml"></text>
         </text-prop>
     """)
@@ -205,7 +205,7 @@ def text_richtext_value_wrong() -> etree._Element:
 @pytest.fixture
 def text_simpletext_value_corr() -> etree._Element:
     return etree.fromstring("""
-        <text-prop name="">
+        <text-prop name=":testTextarea">
             <text encoding="utf8">Text</text>
         </text-prop>
     """)
@@ -214,7 +214,7 @@ def text_simpletext_value_corr() -> etree._Element:
 @pytest.fixture
 def text_simpletext_value_wrong() -> etree._Element:
     return etree.fromstring("""
-        <text-prop name="">
+        <text-prop name=":testSimpleText">
             <text encoding="utf8"></text>
         </text-prop>
     """)
@@ -223,7 +223,7 @@ def text_simpletext_value_wrong() -> etree._Element:
 @pytest.fixture
 def time_value_corr() -> etree._Element:
     return etree.fromstring("""
-        <time-prop name=":hasTime">
+        <time-prop name=":testTimeValue">
             <time permissions="prop-default">2019-10-23T13:45:12.01-14:00</time>
         </time-prop>
     """)
@@ -232,7 +232,7 @@ def time_value_corr() -> etree._Element:
 @pytest.fixture
 def time_value_wrong() -> etree._Element:
     return etree.fromstring("""
-        <time-prop name=":hasTime">
+        <time-prop name=":testTimeValue">
             <time permissions="prop-default">other</time>
         </time-prop>
     """)
@@ -241,7 +241,7 @@ def time_value_wrong() -> etree._Element:
 @pytest.fixture
 def uri_value_corr() -> etree._Element:
     return etree.fromstring("""
-        <uri-prop name=":hasUri">
+        <uri-prop name=":testUriValue">
             <uri permissions="prop-default">https://dasch.swiss</uri>
         </uri-prop>
     """)
@@ -250,7 +250,7 @@ def uri_value_corr() -> etree._Element:
 @pytest.fixture
 def uri_value_wrong() -> etree._Element:
     return etree.fromstring("""
-        <uri-prop name=":hasUri">
+        <uri-prop name=":testUriValue">
             <uri permissions="prop-default">other</uri>
         </uri-prop>
     """)

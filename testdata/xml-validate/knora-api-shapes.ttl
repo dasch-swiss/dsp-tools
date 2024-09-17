@@ -61,30 +61,29 @@
 #########################
 
 
-#ArchiveRepresentation: A resource representing an archive file (e.g. ZIP)
-#knora-api:ArchiveFileValue -> knora-api:hasArchiveFileValue
+# ArchiveRepresentation: A resource representing an archive file (e.g. ZIP)
+# knora-api:ArchiveFileValue -> knora-api:hasArchiveFileValue
 
 
-#AudioRepresentation: A resource representing an audio file
-#knora-api:AudioFileValue -> knora-api:hasAudioFileValue
+# AudioRepresentation: A resource representing an audio file
+# knora-api:AudioFileValue -> knora-api:hasAudioFileValue
 
 
-#DocumentRepresentation: A resource representing an opaque document (e.g. a PDF)
-#knora-api:DocumentFileValue -> knora-api:hasDocumentFileValue
+# DocumentRepresentation: A resource representing an opaque document (e.g. a PDF)
+# knora-api:DocumentFileValue -> knora-api:hasDocumentFileValue
 
 
-#MovingImageRepresentation: A resource representing a video
-#knora-api:MovingImageFileValue -> knora-api:hasMovingImageFileValue
+# MovingImageRepresentation: A resource representing a video
+# knora-api:MovingImageFileValue -> knora-api:hasMovingImageFileValue
 
 
-#StillImageRepresentation: A resource representing an image
+# StillImageRepresentation: A resource representing an image
 # knora-api:StillImageExternalFileValue -> knora-api:fileValueHasExternalUrl
-#knora-api:StillImageFileValue -> knora-api:hasStillImageFileValue
+# knora-api:StillImageFileValue -> knora-api:hasStillImageFileValue
 
 
-#TextRepresentation: A resource representing a text
-#knora-api:TextFileValue -> knora-api:hasTextFileValue
-
+# TextRepresentation: A resource representing a text
+# knora-api:TextFileValue -> knora-api:hasTextFileValue
 
 
 #########################
@@ -92,4 +91,17 @@
 #########################
 
 
+# knora-api:Annotation
+
+
+# knora-api:Region
+
+
+# knora-api:LinkObj
+
+
+# knora-api:VideoSegment
+
+
+# knora-api:AudioSegment
 

@@ -3,3 +3,9 @@
 services:
   api:
     image: daschswiss/knora-api:latest
+  sipi:
+    image: daschswiss/knora-sipi:latest
+  db:
+    image: daschswiss/apache-jena-fuseki:latest
+  ingest:
+    image: daschswiss/dsp-ingest:latest

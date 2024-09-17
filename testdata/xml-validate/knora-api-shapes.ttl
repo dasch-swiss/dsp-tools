@@ -13,28 +13,101 @@
 # USER FACING VALUES
 #########################
 
+##############
+# BooleanValue
+##############
 
 # knora-api:BooleanValue -> knora-api:booleanValueAsBoolean
+api-shapes:BooleanValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "Object must be a of type 'BooleanValue'." ;
+  sh:class    knora-api:BooleanValue ;
+  sh:severity sh:Violation .
 
+
+##############
+# ColorValue
+##############
 
 # knora-api:ColorValue -> knora-api:colorValueAsColor
+api-shapes:ColorValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "Object must be a of type 'ColorValue'." ;
+  sh:class    knora-api:ColorValue ;
+  sh:severity sh:Violation .
 
+
+##############
+# DateValue
+##############
 
 # knora-api:DateValue -> complicated
 # (should we do the regex?)
+api-shapes:DateValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "Object must be a of type 'DateValue'." ;
+  sh:class    knora-api:DateValue ;
+  sh:severity sh:Violation .
 
+
+##############
+# DecimalValue
+##############
 
 # knora-api:DecimalValue -> knora-api:decimalValueAsDecimal
+api-shapes:DecimalValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "Object must be a of type 'DecimalValue'." ;
+  sh:class    knora-api:DecimalValue ;
+  sh:severity sh:Violation .
 
+
+##############
+# GeomValue
+##############
 
 # knora-api:GeomValue -> knora-api:geometryValueAsGeometry
+api-shapes:GeomValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "Object must be a of type 'GeomValue'." ;
+  sh:class    knora-api:GeomValue ;
+  sh:severity sh:Violation .
 
+
+##############
+# GeonameValue
+##############
 
 # knora-api:GeonameValue -> knora-api:geonameValueAsGeonameCode
+api-shapes:GeonameValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "Object must be a of type 'GeonameValue'." ;
+  sh:class    knora-api:GeonameValue ;
+  sh:severity sh:Violation .
 
+
+##############
+# IntValue
+##############
 
 # knora-api:IntValue -> knora-api:intValueAsInt
+api-shapes:IntValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "Object must be a of type 'IntValue'." ;
+  sh:class    knora-api:IntValue ;
+  sh:severity sh:Violation .
 
+
+##############
+# LinkValue
+##############
 
 # knora-api:LinkValue -> knora-api:linkValueHasTargetIri
 api-shapes:LinkValue_ClassShape
@@ -45,6 +118,10 @@ api-shapes:LinkValue_ClassShape
   sh:severity sh:Violation .
 
 
+##############
+# ListValue
+##############
+
 # knora-api:ListValue -> knora-api:listValueAsListNode
 # -> if we do not check the list name itself we cannot say if the problem is whether the node does not exist or the list itself
 api-shapes:ListValue_ClassShape
@@ -54,9 +131,10 @@ api-shapes:ListValue_ClassShape
   sh:class    knora-api:ListValue ;
   sh:severity sh:Violation .
 
-#############
+
+##############
 # TextValue
-#############
+##############
 
 # knora-api:TextValue -> knora-api:valueAsString
 api-shapes:SimpleTextValue_ClassShape
@@ -73,11 +151,9 @@ api-shapes:SimpleTextValue_NodeShape
                 a            sh:PropertyShape ;
                 sh:path      knora-api:valueAsString ;
                 sh:minLength 1 ;
-                sh:datatype  xsd:string ;
                 sh:message   "Value must be a valid non-empty string." ;
               ] ;
   sh:severity sh:Violation .
-
 
 
 # knora-api:TextValue -> knora-api:textValueAsXml
@@ -95,16 +171,35 @@ api-shapes:FormattedTextValue_NodeShape
                 a            sh:PropertyShape ;
                 sh:path      knora-api:textValueAsXml ;
                 sh:minLength 1 ;
-                sh:datatype  xsd:string ;
                 sh:message   "Value must be a valid non-empty string." ;
               ] ;
   sh:severity sh:Violation .
 
 
-# knora-api:TimeValue -> knora-api:timeValueAsTimeStamp
+##############
+# TimeValue
+##############
 
+# knora-api:TimeValue -> knora-api:timeValueAsTimeStamp
+api-shapes:TimeValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "Object must be a of type 'TimeValue'." ;
+  sh:class    knora-api:TimeValue ;
+  sh:severity sh:Violation .
+
+
+##############
+# UriValue
+##############
 
 # knora-api:UriValue -> knora-api:uriValueAsUri
+api-shapes:UriValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "Object must be a of type 'UriValue'." ;
+  sh:class    knora-api:UriValue ;
+  sh:severity sh:Violation .
 
 
 #########################

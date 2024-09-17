@@ -328,9 +328,10 @@ api-shapes:UriValue_NodeShape
 # knora-api:TextFileValue -> knora-api:hasTextFileValue
 
 
-#########################
+
+#########################################
 # DSP BUILT IN RESOURCES
-#########################
+#########################################
 
 
 # knora-api:Annotation

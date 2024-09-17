@@ -24,8 +24,8 @@ api-shapes:BooleanValue_NodeShape
   sh:property [
                 a          sh:PropertyShape ;
                 sh:path    knora-api:booleanValueAsBoolean ;
-                sh:in      ( "false" "true" ) ;
-                sh:message "The value must be either 'false' or 'true'." ;
+                sh:in      ( "true" "false" ) ;
+                sh:message "The value must be either 'true' or 'false'." ;
               ] ;
   sh:severity sh:Violation .
 
@@ -204,7 +204,6 @@ api-shapes:SimpleTextValue_ClassShape
   sh:message  "Object must be a of type 'TextValue' without formatting." ;
   sh:severity sh:Violation .
 
-
 api-shapes:SimpleTextValue_NodeShape
   a           sh:NodeShape ;
   sh:name     "Validates content of string." ;
@@ -224,7 +223,6 @@ api-shapes:FormattedTextValue_ClassShape
   sh:name     "Validates the class type" ;
   sh:message  "Object must be a of type 'TextValue' with formatting." ;
   sh:severity sh:Violation .
-
 
 api-shapes:FormattedTextValue_NodeShape
   a           sh:NodeShape ;

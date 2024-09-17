@@ -457,11 +457,11 @@
             "cardinalities": [
               {
                 "propname": "isPartOf",
-                "cardinality": "1"
+                "cardinality": "0-1"
               },
               {
                 "propname": "seqnum",
-                "cardinality": "1"
+                "cardinality": "0-1"
               }
             ]
           }

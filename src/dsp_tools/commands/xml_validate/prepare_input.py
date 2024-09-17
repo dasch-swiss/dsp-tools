@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import cast
 
 from lxml import etree
 
@@ -39,31 +38,58 @@ def _deserialise_one_resource(resource: etree._Element) -> ResourceData:
     )
 
 
-def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueData]:
+def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueData]:  # noqa: PLR0912 (too-many-branches)
     match prop_ele.tag:
-        case "text-prop":
-            return _deserialise_text_prop(prop_ele)
+        case "boolean-prop":
+            pass
+        case "color-prop":
+            pass
+        case "date-prop":
+            pass
+        case "decimal-prop":
+            pass
+        case "geometry-prop":
+            pass
+        case "geoname-prop":
+            pass
         case "list-prop":
             return _deserialise_list_prop(prop_ele)
-        case "resptr-prop":
-            return _deserialise_resptr_prop(prop_ele)
         case "integer-prop":
             return _deserialise_int_prop(prop_ele)
+        case "resptr-prop":
+            return _deserialise_resptr_prop(prop_ele)
+        case "text-prop":
+            return _deserialise_text_prop(prop_ele)
+        case "time-prop":
+            pass
+        case "uri-prop":
+            pass
         case _:
             return []
 
 
-def _deserialise_text_prop(prop: etree._Element) -> list[ValueData]:
-    prop_name = prop.attrib["name"]
-    all_vals: list[ValueData] = []
-    for child in prop.iterchildren():
-        val = cast(str, child.text)
-        match child.attrib["encoding"]:
-            case "utf8":
-                all_vals.append(SimpleTextData(prop_name=prop_name, prop_value=val))
-            case _:
-                pass
-    return all_vals
+def _deserialise_boolean_prop(prop: etree._Element) -> list[ValueData]:
+    raise NotImplementedError
+
+
+def _deserialise_color_prop(prop: etree._Element) -> list[ValueData]:
+    raise NotImplementedError
+
+
+def _deserialise_date_prop(prop: etree._Element) -> list[ValueData]:
+    raise NotImplementedError
+
+
+def _deserialise_decimal_prop(prop: etree._Element) -> list[ValueData]:
+    raise NotImplementedError
+
+
+def _deserialise_geometry_prop(prop: etree._Element) -> list[ValueData]:
+    raise NotImplementedError
+
+
+def _deserialise_geoname_prop(prop: etree._Element) -> list[ValueData]:
+    raise NotImplementedError
 
 
 def _deserialise_list_prop(prop: etree._Element) -> list[ValueData]:
@@ -71,7 +97,7 @@ def _deserialise_list_prop(prop: etree._Element) -> list[ValueData]:
     list_name = prop.attrib["list"]
     all_vals: list[ValueData] = []
     for val in prop.iterchildren():
-        txt = cast(str, val.text)
+        txt = val.text if not None else ""
         all_vals.append(
             ListValueData(
                 prop_name=prop_name,
@@ -82,11 +108,25 @@ def _deserialise_list_prop(prop: etree._Element) -> list[ValueData]:
     return all_vals
 
 
+def _deserialise_int_prop(prop: etree._Element) -> list[ValueData]:
+    prop_name = prop.attrib["name"]
+    all_links: list[ValueData] = []
+    for val in prop.iterchildren():
+        txt = val.text if not None else ""
+        all_links.append(
+            IntValueData(
+                prop_name=prop_name,
+                prop_value=txt,
+            )
+        )
+    return all_links
+
+
 def _deserialise_resptr_prop(prop: etree._Element) -> list[ValueData]:
     prop_name = prop.attrib["name"]
     all_links: list[ValueData] = []
     for val in prop.iterchildren():
-        txt = cast(str, val.text)
+        txt = val.text if not None else ""
         all_links.append(
             LinkValueData(
                 prop_name=prop_name,
@@ -96,15 +136,22 @@ def _deserialise_resptr_prop(prop: etree._Element) -> list[ValueData]:
     return all_links
 
 
-def _deserialise_int_prop(prop: etree._Element) -> list[ValueData]:
+def _deserialise_text_prop(prop: etree._Element) -> list[ValueData]:
     prop_name = prop.attrib["name"]
-    all_links: list[ValueData] = []
+    all_vals: list[ValueData] = []
     for val in prop.iterchildren():
-        txt = cast(str, val.text)
-        all_links.append(
-            IntValueData(
-                prop_name=prop_name,
-                prop_value=txt,
-            )
-        )
-    return all_links
+        txt = val.text if not None else ""
+        match val.attrib["encoding"]:
+            case "utf8":
+                all_vals.append(SimpleTextData(prop_name=prop_name, prop_value=txt))
+            case "xml":
+                raise NotImplementedError
+    return all_vals
+
+
+def _deserialise_time_prop(prop: etree._Element) -> list[ValueData]:
+    raise NotImplementedError
+
+
+def _deserialise_uri_prop(prop: etree._Element) -> list[ValueData]:
+    raise NotImplementedError

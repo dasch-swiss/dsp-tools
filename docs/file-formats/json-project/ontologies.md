@@ -670,7 +670,9 @@ Example:
     "hasLinkTo"
   ],
   "object": ":Thing",
-  "labels": "Another thing",
+  "labels": {
+    "en": "Another thing"
+  },
   "gui_element": "Searchbox"
 }
 ```
@@ -750,7 +752,7 @@ Example:
         "super": ["seqnum"],
         "object": "IntValue",
         "labels": {"en": "has page number"},
-        "gui_element": "Spinbox"
+        "gui_element": "SimpleText"
     }
 ],
 "resources": [

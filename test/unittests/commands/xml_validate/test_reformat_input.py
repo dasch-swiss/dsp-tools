@@ -18,6 +18,7 @@ from dsp_tools.commands.xml_validate.reformat_input import _deserialise_boolean_
 from dsp_tools.commands.xml_validate.reformat_input import _deserialise_color_prop
 from dsp_tools.commands.xml_validate.reformat_input import _deserialise_date_prop
 from dsp_tools.commands.xml_validate.reformat_input import _deserialise_decimal_prop
+from dsp_tools.commands.xml_validate.reformat_input import _deserialise_geometry_prop
 from dsp_tools.commands.xml_validate.reformat_input import _deserialise_geoname_prop
 from dsp_tools.commands.xml_validate.reformat_input import _deserialise_int_prop
 from dsp_tools.commands.xml_validate.reformat_input import _deserialise_list_prop
@@ -84,8 +85,8 @@ class TestDecimalValue:
 
 
 class TestGeomValue:
-    def test_corr(self, geoname_value_corr: etree._Element) -> None:
-        res = _deserialise_geoname_prop(geoname_value_corr)
+    def test_corr(self, geometry_value_corr: etree._Element) -> None:
+        res = _deserialise_geometry_prop(geometry_value_corr())
         assert isinstance(res, GeomValueData)
         assert res.prop_name == "hasGeometry"
         assert len(res.prop_value) > 1

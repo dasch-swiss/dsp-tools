@@ -5,7 +5,6 @@ from dsp_tools.commands.xml_validate.models.data_deserialised import BooleanValu
 from dsp_tools.commands.xml_validate.models.data_deserialised import ColorValueData
 from dsp_tools.commands.xml_validate.models.data_deserialised import DateValueData
 from dsp_tools.commands.xml_validate.models.data_deserialised import DecimalValueData
-from dsp_tools.commands.xml_validate.models.data_deserialised import GeomValueData
 from dsp_tools.commands.xml_validate.models.data_deserialised import GeonameValueData
 from dsp_tools.commands.xml_validate.models.data_deserialised import IntValueData
 from dsp_tools.commands.xml_validate.models.data_deserialised import LinkValueData
@@ -19,7 +18,6 @@ from dsp_tools.commands.xml_validate.reformat_input import _deserialise_boolean_
 from dsp_tools.commands.xml_validate.reformat_input import _deserialise_color_prop
 from dsp_tools.commands.xml_validate.reformat_input import _deserialise_date_prop
 from dsp_tools.commands.xml_validate.reformat_input import _deserialise_decimal_prop
-from dsp_tools.commands.xml_validate.reformat_input import _deserialise_geometry_prop
 from dsp_tools.commands.xml_validate.reformat_input import _deserialise_geoname_prop
 from dsp_tools.commands.xml_validate.reformat_input import _deserialise_int_prop
 from dsp_tools.commands.xml_validate.reformat_input import _deserialise_list_prop
@@ -118,16 +116,6 @@ class TestDecimalValue:
         assert res[0].prop_name == ":testDecimalSimpleText"
         assert res[0].prop_value == "1.0"
         assert res[1].prop_value == "2.0"
-
-
-class TestGeomValue:
-    def test_corr(self, geometry_value_corr: etree._Element) -> None:
-        res_list = _deserialise_geometry_prop(geometry_value_corr)
-        assert len(res_list) == 1
-        res = res_list[0]
-        assert isinstance(res, GeomValueData)
-        assert res.prop_name == "hasGeometry"
-        assert len(res.prop_value) > 1
 
 
 class TestGeonameValue:

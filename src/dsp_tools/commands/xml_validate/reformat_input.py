@@ -5,7 +5,6 @@ from dsp_tools.commands.xml_validate.models.data_deserialised import ColorValueD
 from dsp_tools.commands.xml_validate.models.data_deserialised import DataDeserialised
 from dsp_tools.commands.xml_validate.models.data_deserialised import DateValueData
 from dsp_tools.commands.xml_validate.models.data_deserialised import DecimalValueData
-from dsp_tools.commands.xml_validate.models.data_deserialised import GeomValueData
 from dsp_tools.commands.xml_validate.models.data_deserialised import GeonameValueData
 from dsp_tools.commands.xml_validate.models.data_deserialised import IntValueData
 from dsp_tools.commands.xml_validate.models.data_deserialised import LinkValueData
@@ -70,7 +69,7 @@ def _deserialise_one_resource(resource: etree._Element) -> ResourceData:
     )
 
 
-def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueData]:  # noqa: PLR0912,PLR0911 (too-many-branches, return statements)
+def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueData]:  # noqa: PLR0911 (too-many-branches, return statements)
     match prop_ele.tag:
         case "boolean-prop":
             return _deserialise_boolean_prop(prop_ele)
@@ -80,8 +79,6 @@ def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueData]:  # n
             return _deserialise_date_prop(prop_ele)
         case "decimal-prop":
             return _deserialise_decimal_prop(prop_ele)
-        case "geometry-prop":
-            return _deserialise_geometry_prop(prop_ele)
         case "geoname-prop":
             return _deserialise_geoname_prop(prop_ele)
         case "list-prop":
@@ -133,15 +130,6 @@ def _deserialise_decimal_prop(prop: etree._Element) -> list[ValueData]:
     for val in prop.iterchildren():
         txt = val.text if val.text is not None else ""
         all_vals.append(DecimalValueData(prop_name=prop_name, prop_value=txt))
-    return all_vals
-
-
-def _deserialise_geometry_prop(prop: etree._Element) -> list[ValueData]:
-    prop_name = prop.attrib["name"]
-    all_vals: list[ValueData] = []
-    for val in prop.iterchildren():
-        txt = val.text if val.text is not None else ""
-        all_vals.append(GeomValueData(prop_name=prop_name, prop_value=txt))
     return all_vals
 
 

@@ -81,7 +81,7 @@ def _deserialise_boolean_prop(prop: etree._Element) -> list[ValueData]:
     prop_name = prop.attrib["name"]
     all_vals: list[ValueData] = []
     for val in prop.iterchildren():
-        txt = val.text if not None else ""
+        txt = val.text if val.text is not None else ""
         all_vals.append(BooleanValueData(prop_name=prop_name, prop_value=txt))
     return all_vals
 
@@ -90,7 +90,7 @@ def _deserialise_color_prop(prop: etree._Element) -> list[ValueData]:
     prop_name = prop.attrib["name"]
     all_vals: list[ValueData] = []
     for val in prop.iterchildren():
-        txt = val.text if not None else ""
+        txt = val.text if val.text is not None else ""
         all_vals.append(ColorValueData(prop_name=prop_name, prop_value=txt))
     return all_vals
 
@@ -99,7 +99,7 @@ def _deserialise_date_prop(prop: etree._Element) -> list[ValueData]:
     prop_name = prop.attrib["name"]
     all_vals: list[ValueData] = []
     for val in prop.iterchildren():
-        txt = val.text if not None else ""
+        txt = val.text if val.text is not None else ""
         all_vals.append(DateValueData(prop_name=prop_name, prop_value=txt))
     return all_vals
 
@@ -108,7 +108,7 @@ def _deserialise_decimal_prop(prop: etree._Element) -> list[ValueData]:
     prop_name = prop.attrib["name"]
     all_vals: list[ValueData] = []
     for val in prop.iterchildren():
-        txt = val.text if not None else ""
+        txt = val.text if val.text is not None else ""
         all_vals.append(DecimalValueData(prop_name=prop_name, prop_value=txt))
     return all_vals
 
@@ -117,7 +117,7 @@ def _deserialise_geometry_prop(prop: etree._Element) -> list[ValueData]:
     prop_name = prop.attrib["name"]
     all_vals: list[ValueData] = []
     for val in prop.iterchildren():
-        txt = val.text if not None else ""
+        txt = val.text if val.text is not None else ""
         all_vals.append(GeomValueData(prop_name=prop_name, prop_value=txt))
     return all_vals
 
@@ -126,7 +126,7 @@ def _deserialise_geoname_prop(prop: etree._Element) -> list[ValueData]:
     prop_name = prop.attrib["name"]
     all_vals: list[ValueData] = []
     for val in prop.iterchildren():
-        txt = val.text if not None else ""
+        txt = val.text if val.text is not None else ""
         all_vals.append(GeonameValueData(prop_name=prop_name, prop_value=txt))
     return all_vals
 
@@ -136,7 +136,7 @@ def _deserialise_list_prop(prop: etree._Element) -> list[ValueData]:
     list_name = prop.attrib["list"]
     all_vals: list[ValueData] = []
     for val in prop.iterchildren():
-        txt = val.text if not None else ""
+        txt = val.text if val.text is not None else ""
         all_vals.append(ListValueData(prop_name=prop_name, prop_value=txt, list_name=list_name))
     return all_vals
 
@@ -145,7 +145,7 @@ def _deserialise_int_prop(prop: etree._Element) -> list[ValueData]:
     prop_name = prop.attrib["name"]
     all_vals: list[ValueData] = []
     for val in prop.iterchildren():
-        txt = val.text if not None else ""
+        txt = val.text if val.text is not None else ""
         all_vals.append(IntValueData(prop_name=prop_name, prop_value=txt))
     return all_vals
 
@@ -154,7 +154,7 @@ def _deserialise_resptr_prop(prop: etree._Element) -> list[ValueData]:
     prop_name = prop.attrib["name"]
     all_vals: list[ValueData] = []
     for val in prop.iterchildren():
-        txt = val.text if not None else ""
+        txt = val.text if val.text is not None else ""
         all_vals.append(LinkValueData(prop_name=prop_name, prop_value=txt))
     return all_vals
 
@@ -163,7 +163,7 @@ def _deserialise_text_prop(prop: etree._Element) -> list[ValueData]:
     prop_name = prop.attrib["name"]
     all_vals: list[ValueData] = []
     for val in prop.iterchildren():
-        txt = val.text if not None else ""
+        txt = val.text if val.text is not None else ""
         match val.attrib["encoding"]:
             case "utf8":
                 all_vals.append(SimpleTextData(prop_name=prop_name, prop_value=txt))
@@ -176,7 +176,7 @@ def _deserialise_time_prop(prop: etree._Element) -> list[ValueData]:
     prop_name = prop.attrib["name"]
     all_vals: list[ValueData] = []
     for val in prop.iterchildren():
-        txt = val.text if not None else ""
+        txt = val.text if val.text is not None else ""
         all_vals.append(TimeValueData(prop_name=prop_name, prop_value=txt))
     return all_vals
 
@@ -185,6 +185,6 @@ def _deserialise_uri_prop(prop: etree._Element) -> list[ValueData]:
     prop_name = prop.attrib["name"]
     all_vals: list[ValueData] = []
     for val in prop.iterchildren():
-        txt = val.text if not None else ""
+        txt = val.text if val.text is not None else ""
         all_vals.append(UriValueData(prop_name=prop_name, prop_value=txt))
     return all_vals

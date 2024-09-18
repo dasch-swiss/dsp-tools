@@ -152,8 +152,10 @@ class TestListValue:
         res = _deserialise_list_prop(list_value_corr_several)
         assert len(res) == 2
         assert all([isinstance(x, ListValueData) for x in res])
-        assert res[0].prop_name == ":testListProp"
-        assert res[0].list_name == "onlyList"
+        one = res[0]
+        assert isinstance(one, ListValueData)
+        assert one.prop_name == ":testListProp"
+        assert one.list_name == "onlyList"
         assert res[0].prop_value == "n1"
         assert res[1].prop_value == "n2"
 
@@ -174,6 +176,14 @@ class TestSimpleTextValue:
         assert res[0].prop_name == ":testSimpleText"
         assert res[0].prop_value == "Text 1"
         assert res[1].prop_value == "Text 2"
+
+    def test_wrong(self, text_simpletext_value_wrong: etree._Element) -> None:
+        res_list = _deserialise_text_prop(text_simpletext_value_wrong)
+        assert len(res_list) == 1
+        res = res_list[0]
+        assert isinstance(res, SimpleTextData)
+        assert res.prop_name == ":testSimpleText"
+        assert res.prop_value == ""
 
 
 class TestRichtextValue:

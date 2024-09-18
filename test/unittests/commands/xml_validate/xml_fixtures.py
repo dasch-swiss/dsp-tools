@@ -280,7 +280,7 @@ def resptr_value_wrong() -> etree._Element:
 @pytest.fixture
 def text_richtext_value_corr() -> etree._Element:
     return etree.fromstring("""
-            <text-prop name=":testRichtext">
+        <text-prop name=":testRichtext">
             <text encoding="xml">Text</text>
         </text-prop>
     """)
@@ -289,7 +289,7 @@ def text_richtext_value_corr() -> etree._Element:
 @pytest.fixture
 def text_richtext_value_corr_several() -> etree._Element:
     return etree.fromstring("""
-            <text-prop name=":testRichtext">
+        <text-prop name=":testRichtext">
             <text encoding="xml">Text 1</text>
             <text encoding="xml">Text 2</text>
         </text-prop>

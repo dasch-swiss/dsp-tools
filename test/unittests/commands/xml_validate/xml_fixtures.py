@@ -43,7 +43,6 @@ def root_resource_region() -> etree._Element:
                     {
                     "status": "active",
                     "type": "polygon",
-                    "lineColor": "#ff1100",
                     "lineWidth": 5,
                     "points": [{"x": 0.4, "y": 0.6},
                     {"x": 0.5, "y": 0.9},

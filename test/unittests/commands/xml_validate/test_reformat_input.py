@@ -14,6 +14,7 @@ from dsp_tools.commands.xml_validate.models.data_deserialised import RichtextDat
 from dsp_tools.commands.xml_validate.models.data_deserialised import SimpleTextData
 from dsp_tools.commands.xml_validate.models.data_deserialised import TimeValueData
 from dsp_tools.commands.xml_validate.models.data_deserialised import UriValueData
+from dsp_tools.commands.xml_validate.reformat_input import _deserialise_all_resources
 from dsp_tools.commands.xml_validate.reformat_input import _deserialise_boolean_prop
 from dsp_tools.commands.xml_validate.reformat_input import _deserialise_color_prop
 from dsp_tools.commands.xml_validate.reformat_input import _deserialise_date_prop
@@ -37,12 +38,22 @@ class TestResource:
         assert res.label == "lbl"
         assert len(res.values) == 0
 
-    def test_with_props(self, resource_with_props: etree._Element) -> None:
-        res = _deserialise_one_resource(resource_with_props)
+    def test_with_props(self, root_resource_with_props: etree._Element) -> None:
+        res_list = _deserialise_all_resources(root_resource_with_props)
+        assert len(res_list) == 1
+        res = res_list[0]
         assert res.res_id == "one"
         assert res.res_class == ":ClassWithEverything"
         assert res.label == "lbl"
         assert len(res.values) == 3
+
+    def test_region(self, root_resource_region: etree._Element) -> None:
+        res_list = _deserialise_all_resources(root_resource_region)
+        assert len(res_list) == 1
+        res = res_list[0]
+        assert res.res_id == "region_1"
+        assert res.label == "Region"
+        assert len(res.values) == 0
 
 
 class TestBooleanValue:

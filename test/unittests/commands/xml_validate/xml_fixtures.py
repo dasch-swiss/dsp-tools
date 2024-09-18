@@ -11,17 +11,54 @@ def resource_empty() -> etree._Element:
 
 
 @pytest.fixture
-def resource_with_props() -> etree._Element:
+def root_resource_with_props() -> etree._Element:
     return etree.fromstring("""
-    <resource label="lbl" restype=":ClassWithEverything" id="one">
-        <boolean-prop name=":testBoolean">
-            <boolean>true</boolean>
-        </boolean-prop>
-        <color-prop name=":testColor">
-            <color>#00ff00</color>
-            <color>#00ff11</color>
-        </color-prop>
-    </resource>
+    <knora>
+        <resource label="lbl" restype=":ClassWithEverything" id="one">
+            <boolean-prop name=":testBoolean">
+                <boolean>true</boolean>
+            </boolean-prop>
+            <color-prop name=":testColor">
+                <color>#00ff00</color>
+                <color>#00ff11</color>
+            </color-prop>
+        </resource>
+    </knora>
+    """)
+
+
+@pytest.fixture
+def root_resource_region() -> etree._Element:
+    return etree.fromstring("""
+    <knora>
+        <region restype="Region" label="Region" id="region_1">
+            <color-prop name="hasColor">
+                <color permissions="prop-restricted">#5d1f1e</color>
+            </color-prop>
+            <resptr-prop name="isRegionOf">
+                <resptr permissions="prop-default">image_thing_0</resptr>
+            </resptr-prop>
+            <geometry-prop name="hasGeometry">
+                <geometry permissions="prop-default">
+                    {
+                    "status": "active",
+                    "type": "polygon",
+                    "lineColor": "#ff1100",
+                    "lineWidth": 5,
+                    "points": [{"x": 0.4, "y": 0.6},
+                    {"x": 0.5, "y": 0.9},
+                    {"x": 0.8, "y": 0.9},
+                    {"x": 0.7, "y": 0.6}]
+                    }
+                </geometry>
+            </geometry-prop>
+            <text-prop name="hasComment">
+                <text encoding="xml" permissions="prop-default">
+                    This is a polygon-formed region of interest of an image. It is also displayed as Annotation.
+                </text>
+            </text-prop>
+        </region>
+    </knora>
     """)
 
 

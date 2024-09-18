@@ -31,8 +31,30 @@ def transform_into_project_deserialised(root: etree._Element) -> DataDeserialise
     """
     shortcode = root.attrib["shortcode"]
     default_ontology = root.attrib["default-ontology"]
-    resources = [_deserialise_one_resource(x) for x in root.iterdescendants(tag="resource")]
+    resources = _deserialise_all_resources(root)
     return DataDeserialised(shortcode=shortcode, default_onto=default_ontology, resources=resources)
+
+
+def _deserialise_all_resources(root: etree._Element) -> list[ResourceData]:
+    all_res = []
+    for res in root.iterchildren():
+        match res.tag:
+            case "resource":
+                all_res.append(_deserialise_one_resource(res))
+            case "annotation" | "region" | "link" | "video-segment" | "audio-segment":
+                all_res.append(_deserialise_dsp_base_resource(res))
+            case _:
+                pass
+    return all_res
+
+
+def _deserialise_dsp_base_resource(resource: etree._Element) -> ResourceData:
+    return ResourceData(
+        res_id=resource.attrib["id"],
+        res_class=resource.attrib["restype"],
+        label=resource.attrib["label"],
+        values=[],
+    )
 
 
 def _deserialise_one_resource(resource: etree._Element) -> ResourceData:

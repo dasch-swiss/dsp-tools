@@ -10,7 +10,7 @@ def test_transform_into_project_deserialised(data_xml: etree._Element) -> None:
     assert isinstance(res, DataDeserialised)
     assert res.shortcode == "9999"
     assert res.default_onto == "onto"
-    assert len(res.resources) == 13
+    assert len(res.resources) == 14
 
 
 if __name__ == "__main__":

@@ -3,6 +3,29 @@ from lxml import etree
 
 
 @pytest.fixture
+def resource_empty() -> etree._Element:
+    return etree.fromstring("""
+    <resource label="lbl" restype=":ClassWithEverything" id="one">
+    </resource>
+    """)
+
+
+@pytest.fixture
+def resource_with_props() -> etree._Element:
+    return etree.fromstring("""
+    <resource label="lbl" restype=":ClassWithEverything" id="one">
+        <boolean-prop name=":testBoolean">
+            <boolean>true</boolean>
+        </boolean-prop>
+        <color-prop name=":testColor">
+            <color>#00ff00</color>
+            <color>#00ff11</color>
+        </color-prop>
+    </resource>
+    """)
+
+
+@pytest.fixture
 def boolean_value_corr() -> etree._Element:
     return etree.fromstring("""
         <boolean-prop name=":testBoolean">

@@ -22,10 +22,27 @@ from dsp_tools.commands.xml_validate.reformat_input import _deserialise_geometry
 from dsp_tools.commands.xml_validate.reformat_input import _deserialise_geoname_prop
 from dsp_tools.commands.xml_validate.reformat_input import _deserialise_int_prop
 from dsp_tools.commands.xml_validate.reformat_input import _deserialise_list_prop
+from dsp_tools.commands.xml_validate.reformat_input import _deserialise_one_resource
 from dsp_tools.commands.xml_validate.reformat_input import _deserialise_resptr_prop
 from dsp_tools.commands.xml_validate.reformat_input import _deserialise_text_prop
 from dsp_tools.commands.xml_validate.reformat_input import _deserialise_time_prop
 from dsp_tools.commands.xml_validate.reformat_input import _deserialise_uri_prop
+
+
+class TestResource:
+    def test_empty(self, resource_empty: etree._Element) -> None:
+        res = _deserialise_one_resource(resource_empty)
+        assert res.res_id == "one"
+        assert res.res_class == ":ClassWithEverything"
+        assert res.label == "lbl"
+        assert len(res.values) == 0
+
+    def test_with_props(self, resource_with_props: etree._Element) -> None:
+        res = _deserialise_one_resource(resource_with_props)
+        assert res.res_id == "one"
+        assert res.res_class == ":ClassWithEverything"
+        assert res.label == "lbl"
+        assert len(res.values) == 3
 
 
 class TestBooleanValue:

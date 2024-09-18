@@ -137,7 +137,7 @@ def geometry_value_wrong() -> etree._Element:
 def geoname_value_corr() -> etree._Element:
     return etree.fromstring("""
         <geoname-prop name=":testGeoname">
-            <geoname>5416656</geoname>
+            <geoname>1111111</geoname>
         </geoname-prop>
     """)
 
@@ -158,43 +158,6 @@ def geoname_value_wrong() -> etree._Element:
         <geoname-prop name=":testGeoname">
             <geoname>other</geoname>
         </geoname-prop>
-    """)
-
-
-@pytest.fixture
-def list_value_corr() -> etree._Element:
-    return etree.fromstring("""
-        <list-prop list="onlyList" name=":testListProp">
-            <list>n1</list>
-        </list-prop>
-    """)
-
-
-@pytest.fixture
-def list_value_corr_several() -> etree._Element:
-    return etree.fromstring("""
-        <list-prop list="onlyList" name=":testListProp">
-            <list>n1</list>
-            <list>n1.1</list>
-        </list-prop>
-    """)
-
-
-@pytest.fixture
-def list_value_wrong_node() -> etree._Element:
-    return etree.fromstring("""
-        <list-prop list="onlyList" name=":testListProp">
-            <list>other</list>
-        </list-prop>
-    """)
-
-
-@pytest.fixture
-def list_value_wrong_list() -> etree._Element:
-    return etree.fromstring("""
-        <list-prop list="other" name=":testListProp">
-            <list>n1</list>
-        </list-prop>
     """)
 
 
@@ -223,6 +186,43 @@ def integer_value_wrong() -> etree._Element:
         <integer-prop name=":testIntegerSpinbox">
             <integer>other</integer>
         </integer-prop>
+    """)
+
+
+@pytest.fixture
+def list_value_corr() -> etree._Element:
+    return etree.fromstring("""
+        <list-prop list="onlyList" name=":testListProp">
+            <list>n1</list>
+        </list-prop>
+    """)
+
+
+@pytest.fixture
+def list_value_corr_several() -> etree._Element:
+    return etree.fromstring("""
+        <list-prop list="onlyList" name=":testListProp">
+            <list>n1</list>
+            <list>n2</list>
+        </list-prop>
+    """)
+
+
+@pytest.fixture
+def list_value_wrong_node() -> etree._Element:
+    return etree.fromstring("""
+        <list-prop list="onlyList" name=":testListProp">
+            <list>other</list>
+        </list-prop>
+    """)
+
+
+@pytest.fixture
+def list_value_wrong_list() -> etree._Element:
+    return etree.fromstring("""
+        <list-prop list="other" name=":testListProp">
+            <list>n1</list>
+        </list-prop>
     """)
 
 
@@ -294,7 +294,7 @@ def text_simpletext_value_corr() -> etree._Element:
 @pytest.fixture
 def text_simpletext_value_corr_several() -> etree._Element:
     return etree.fromstring("""
-        <text-prop name=":testTextarea">
+        <text-prop name=":testSimpleText">
             <text encoding="utf8">Text 1</text>
             <text encoding="utf8">Text 2</text>
         </text-prop>
@@ -352,7 +352,7 @@ def uri_value_corr_several() -> etree._Element:
     return etree.fromstring("""
         <uri-prop name=":testUriValue">
             <uri>https://dasch.swiss</uri>
-            <uri>https://app.dasch.swiss/</uri>
+            <uri>https://app.dasch.swiss</uri>
         </uri-prop>
     """)
 

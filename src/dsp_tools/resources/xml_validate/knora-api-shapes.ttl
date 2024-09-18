@@ -228,7 +228,7 @@ api-shapes:ListValue_ClassShape
   sh:class    knora-api:ListValue ;
   sh:severity sh:Violation .
 
-# The NodeShape with knora-api:listValueAsListNode is project ontology specific.
+# The NodeShape with knora-api:valueAsString is project ontology specific.
 
 
 ##############

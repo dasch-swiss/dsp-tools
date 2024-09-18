@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from lxml import etree
 
 from dsp_tools.commands.xml_validate.models.data_deserialised import BooleanValueData
@@ -18,16 +16,19 @@ from dsp_tools.commands.xml_validate.models.data_deserialised import SimpleTextD
 from dsp_tools.commands.xml_validate.models.data_deserialised import TimeValueData
 from dsp_tools.commands.xml_validate.models.data_deserialised import UriValueData
 from dsp_tools.commands.xml_validate.models.data_deserialised import ValueData
-from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
 
 
-def parse_file(file: Path) -> DataDeserialised:
-    """Returns an object which follows the structure of the XML closely"""
-    root = parse_and_clean_xml_file(file)
-    return _transform_into_project_deserialised(root)
+def transform_into_project_deserialised(root: etree._Element) -> DataDeserialised:
+    """
+    Takes the root of an XML
+    Extracts the metadata of the project and transforms all its resources.
 
+    Args:
+        root: root of an xml with qnames and comments removed
 
-def _transform_into_project_deserialised(root: etree._Element) -> DataDeserialised:
+    Returns:
+        Class instance with the information reformatted
+    """
     shortcode = root.attrib["shortcode"]
     default_ontology = root.attrib["default-ontology"]
     resources = [_deserialise_one_resource(x) for x in root.iterdescendants(tag="resource")]

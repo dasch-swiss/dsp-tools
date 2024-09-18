@@ -10,12 +10,31 @@
 
 api-shapes:RDFS_label
   a              sh:PropertyShape ;
-  sh:targetClass knora-api:Resource ;
-  sh:name        "'rdfs:label'" ;
+  sh:name        "Validates that the label is not empty." ;
   sh:message     "The label of a resource must be a non-empty string." ;
+  sh:targetClass knora-api:Resource ;
   sh:path        rdfs:label ;
   sh:pattern     "\\S+" ;
   sh:severity    sh:Violation .
+
+
+api-shapes:UniqueValuesShape
+  a           sh:NodeShape ;
+  sh:name     "Checks that one resources does not have two identical values with the same property." ;
+  sh:sparql   [
+                a          sh:SPARQLConstraint ;
+                sh:message "A resource may not have the same property and value more than one time." ;
+                sh:select  """
+                    PREFIX knora-api: <http://api.knora.org/ontology/knora-api/v2#>
+                    SELECT $this ?path ?value WHERE {
+                      $this ?path ?valueClass .
+                      ?valueClass knora-api:valueHas*|knora-api:valueAsString ?value .
+                    }
+                    GROUP BY $this ?path ?value
+                    HAVING (COUNT(?value) > 1)
+                """ ;
+              ] ;
+  sh:severity sh:Violation .
 
 
 #########################################
@@ -35,6 +54,7 @@ api-shapes:BooleanValue_ClassShape
 
 api-shapes:BooleanValue_NodeShape
   a           sh:NodeShape ;
+  sh:name     "Validates the content of the value" ;
   sh:property [
                 a          sh:PropertyShape ;
                 sh:path    knora-api:booleanValueAsBoolean ;
@@ -57,6 +77,7 @@ api-shapes:ColorValue_ClassShape
 
 api-shapes:ColorValue_NodeShape
   a           sh:NodeShape ;
+  sh:name     "Validates the content of the value" ;
   sh:property [
                 a          sh:PropertyShape ;
                 sh:path    knora-api:colorValueAsColor ;
@@ -79,11 +100,12 @@ api-shapes:DateValue_ClassShape
 
 api-shapes:DateValue_NodeShape
   a           sh:NodeShape ;
+  sh:name     "Validates the content of the value" ;
   sh:property [
                 a          sh:PropertyShape ;
                 sh:path    knora-api:valueAsString ;
                 sh:pattern "^((GREGORIAN|JULIAN|ISLAMIC):)?((CE|BCE|BC|AD):)?(\\d{1,4}(?:-\\d{1,2})?(?:-\\d{1,2})?)(:(CE|BCE|BC|AD))?(:\\d{1,4}(?:-\\d{1,2})?(?:-\\d{1,2})?)?$" ;
-                sh:message "" ;
+                sh:message "The value must be a valid date according to the DSP specification." ;
               ] ;
   sh:severity sh:Violation .
 
@@ -101,6 +123,7 @@ api-shapes:DecimalValue_ClassShape
 
 api-shapes:DecimalValue_NodeShape
   a           sh:NodeShape ;
+  sh:name     "Validates the content of the value" ;
   sh:property [
                 a          sh:PropertyShape ;
                 sh:path    knora-api:decimalValueAsDecimal ;
@@ -123,6 +146,7 @@ api-shapes:GeomValue_ClassShape
 
 api-shapes:GeomValue_NodeShape
   a           sh:NodeShape ;
+  sh:name     "Validates the content of the value" ;
   sh:property [
                 a            sh:PropertyShape ;
                 sh:path      knora-api:geometryValueAsGeometry ;
@@ -145,6 +169,7 @@ api-shapes:GeonameValue_ClassShape
 
 api-shapes:GeonameValue_NodeShape
   a           sh:NodeShape ;
+  sh:name     "Validates the content of the value" ;
   sh:property [
                 a          sh:PropertyShape ;
                 sh:path    knora-api:geonameValueAsGeonameCode ;
@@ -167,7 +192,7 @@ api-shapes:IntValue_ClassShape
 
 api-shapes:IntValue_NodeShape
   a           sh:NodeShape ;
-  sh:name     "Validates that it is a valid integer in string form." ;
+  sh:name     "Validates the content of the value" ;
   sh:property [
                 a          sh:PropertyShape ;
                 sh:path    knora-api:intValueAsInt ;
@@ -216,11 +241,12 @@ api-shapes:SimpleTextValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
   sh:message  "Object must be a of type 'TextValue' without formatting." ;
+  sh:class    knora-api:TextValue ;
   sh:severity sh:Violation .
 
 api-shapes:SimpleTextValue_NodeShape
   a           sh:NodeShape ;
-  sh:name     "Validates content of string." ;
+  sh:name     "Validates the content of the value" ;
   sh:property [
                 a          sh:PropertyShape ;
                 sh:path    knora-api:valueAsString ;
@@ -240,7 +266,7 @@ api-shapes:FormattedTextValue_ClassShape
 
 api-shapes:FormattedTextValue_NodeShape
   a           sh:NodeShape ;
-  sh:name     "Validates content of string." ;
+  sh:name     "Validates the content of the value" ;
   sh:property [
                 a          sh:PropertyShape ;
                 sh:path    knora-api:textValueAsXml ;
@@ -263,6 +289,7 @@ api-shapes:TimeValue_ClassShape
 
 api-shapes:TimeValue_NodeShape
   a           sh:NodeShape ;
+  sh:name     "Validates the content of the value" ;
   sh:property [
                 a          sh:PropertyShape ;
                 sh:path    knora-api:timeValueAsTimeStamp ;
@@ -284,6 +311,7 @@ api-shapes:UriValue_ClassShape
 
 api-shapes:UriValue_NodeShape
   a           sh:NodeShape ;
+  sh:name     "Validates the content of the value" ;
   sh:property [
                 a          sh:PropertyShape ;
                 sh:path    knora-api:uriValueAsUri ;

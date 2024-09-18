@@ -38,20 +38,20 @@ def _deserialise_one_resource(resource: etree._Element) -> ResourceData:
     )
 
 
-def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueData]:  # noqa: PLR0912 (too-many-branches)
+def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueData]:  # noqa: PLR0912,PLR0911 (too-many-branches, return statements)
     match prop_ele.tag:
         case "boolean-prop":
-            pass
+            return _deserialise_boolean_prop(prop_ele)
         case "color-prop":
-            pass
+            return _deserialise_color_prop(prop_ele)
         case "date-prop":
-            pass
+            return _deserialise_date_prop(prop_ele)
         case "decimal-prop":
-            pass
+            return _deserialise_decimal_prop(prop_ele)
         case "geometry-prop":
-            pass
+            return _deserialise_geometry_prop(prop_ele)
         case "geoname-prop":
-            pass
+            return _deserialise_geoname_prop(prop_ele)
         case "list-prop":
             return _deserialise_list_prop(prop_ele)
         case "integer-prop":
@@ -61,9 +61,9 @@ def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueData]:  # n
         case "text-prop":
             return _deserialise_text_prop(prop_ele)
         case "time-prop":
-            pass
+            return _deserialise_time_prop(prop_ele)
         case "uri-prop":
-            pass
+            return _deserialise_uri_prop(prop_ele)
         case _:
             return []
 

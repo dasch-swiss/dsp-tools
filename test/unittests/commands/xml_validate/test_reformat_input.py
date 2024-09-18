@@ -30,7 +30,9 @@ from dsp_tools.commands.xml_validate.reformat_input import _deserialise_uri_prop
 
 class TestBooleanValue:
     def test_corr(self, boolean_value_corr: etree._Element) -> None:
-        res = _deserialise_boolean_prop(boolean_value_corr)
+        res_list = _deserialise_boolean_prop(boolean_value_corr)
+        assert len(res_list) == 1
+        res = res_list[0]
         assert isinstance(res, BooleanValueData)
         assert res.prop_name == ":testBoolean"
         assert res.prop_value == "true"
@@ -38,7 +40,9 @@ class TestBooleanValue:
 
 class TestColorValue:
     def test_corr(self, color_value_corr: etree._Element) -> None:
-        res = _deserialise_color_prop(color_value_corr)
+        res_list = _deserialise_color_prop(color_value_corr)
+        assert len(res_list) == 1
+        res = res_list[0]
         assert isinstance(res, ColorValueData)
         assert res.prop_name == ":testColor"
         assert res.prop_value == "#00ff00"
@@ -54,7 +58,9 @@ class TestColorValue:
 
 class TestDateValue:
     def test_corr(self, date_value_corr: etree._Element) -> None:
-        res = _deserialise_date_prop(date_value_corr)
+        res_list = _deserialise_date_prop(date_value_corr)
+        assert len(res_list) == 1
+        res = res_list[0]
         assert isinstance(res, DateValueData)
         assert res.prop_name == ":testSubDate1"
         assert res.prop_value == "JULIAN:BCE:0700:BCE:0600"
@@ -70,7 +76,9 @@ class TestDateValue:
 
 class TestDecimalValue:
     def test_corr(self, decimal_value_corr: etree._Element) -> None:
-        res = _deserialise_decimal_prop(decimal_value_corr)
+        res_list = _deserialise_decimal_prop(decimal_value_corr)
+        assert len(res_list) == 1
+        res = res_list[0]
         assert isinstance(res, DecimalValueData)
         assert res.prop_name == ":testDecimalSimpleText"
         assert res.prop_value == "2.71"
@@ -86,7 +94,9 @@ class TestDecimalValue:
 
 class TestGeomValue:
     def test_corr(self, geometry_value_corr: etree._Element) -> None:
-        res = _deserialise_geometry_prop(geometry_value_corr())
+        res_list = _deserialise_geometry_prop(geometry_value_corr)
+        assert len(res_list) == 1
+        res = res_list[0]
         assert isinstance(res, GeomValueData)
         assert res.prop_name == "hasGeometry"
         assert len(res.prop_value) > 1
@@ -94,7 +104,9 @@ class TestGeomValue:
 
 class TestGeonameValue:
     def test_corr(self, geoname_value_corr: etree._Element) -> None:
-        res = _deserialise_geoname_prop(geoname_value_corr)
+        res_list = _deserialise_geoname_prop(geoname_value_corr)
+        assert len(res_list) == 1
+        res = res_list[0]
         assert isinstance(res, GeonameValueData)
         assert res.prop_name == ":testGeoname"
         assert res.prop_value == "1111111"
@@ -109,14 +121,16 @@ class TestGeonameValue:
 
 
 class TestIntValue:
-    def test_corr(self, int_value_corr: etree._Element) -> None:
-        res = _deserialise_int_prop(int_value_corr)
+    def test_corr(self, integer_value_corr: etree._Element) -> None:
+        res_list = _deserialise_int_prop(integer_value_corr)
+        assert len(res_list) == 1
+        res = res_list[0]
         assert isinstance(res, IntValueData)
         assert res.prop_name == ":testIntegerSimpleText"
         assert res.prop_value == "1"
 
-    def test_several(self, int_value_corr_several: etree._Element) -> None:
-        res = _deserialise_int_prop(int_value_corr_several)
+    def test_several(self, integer_value_corr_several: etree._Element) -> None:
+        res = _deserialise_int_prop(integer_value_corr_several)
         assert len(res) == 2
         assert all([isinstance(x, IntValueData) for x in res])
         assert res[0].prop_name == ":testIntegerSimpleText"
@@ -126,7 +140,9 @@ class TestIntValue:
 
 class TestListValue:
     def test_corr(self, list_value_corr: etree._Element) -> None:
-        res = _deserialise_list_prop(list_value_corr)
+        res_list = _deserialise_list_prop(list_value_corr)
+        assert len(res_list) == 1
+        res = res_list[0]
         assert isinstance(res, ListValueData)
         assert res.prop_name == ":testListProp"
         assert res.list_name == "onlyList"
@@ -144,7 +160,9 @@ class TestListValue:
 
 class TestSimpleTextValue:
     def test_corr(self, text_simpletext_value_corr: etree._Element) -> None:
-        res = _deserialise_text_prop(text_simpletext_value_corr)
+        res_list = _deserialise_text_prop(text_simpletext_value_corr)
+        assert len(res_list) == 1
+        res = res_list[0]
         assert isinstance(res, SimpleTextData)
         assert res.prop_name == ":testTextarea"
         assert res.prop_value == "Text"
@@ -160,7 +178,9 @@ class TestSimpleTextValue:
 
 class TestRichtextValue:
     def test_corr(self, text_richtext_value_corr: etree._Element) -> None:
-        res = _deserialise_text_prop(text_richtext_value_corr)
+        res_list = _deserialise_text_prop(text_richtext_value_corr)
+        assert len(res_list) == 1
+        res = res_list[0]
         assert isinstance(res, RichtextData)
         assert res.prop_name == ":testRichtext"
         assert res.prop_value == "Text"
@@ -176,7 +196,9 @@ class TestRichtextValue:
 
 class TestTimeValue:
     def test_corr(self, time_value_corr: etree._Element) -> None:
-        res = _deserialise_time_prop(time_value_corr)
+        res_list = _deserialise_time_prop(time_value_corr)
+        assert len(res_list) == 1
+        res = res_list[0]
         assert isinstance(res, TimeValueData)
         assert res.prop_name == ":testTimeValue"
         assert res.prop_value == "2019-10-23T13:45:12.01-14:00"
@@ -185,14 +207,16 @@ class TestTimeValue:
         res = _deserialise_time_prop(time_value_corr_several)
         assert len(res) == 2
         assert all([isinstance(x, TimeValueData) for x in res])
-        assert res[0].prop_name == ":testTime"
+        assert res[0].prop_name == ":testTimeValue"
         assert res[0].prop_value == "2019-10-23T13:45:12.01-14:00"
         assert res[1].prop_value == "2019-10-23T13:45:12.01-08:00"
 
 
 class TestUriValue:
     def test_corr(self, uri_value_corr: etree._Element) -> None:
-        res = _deserialise_uri_prop(uri_value_corr)
+        res_list = _deserialise_uri_prop(uri_value_corr)
+        assert len(res_list) == 1
+        res = res_list[0]
         assert isinstance(res, UriValueData)
         assert res.prop_name == ":testUriValue"
         assert res.prop_value == "https://dasch.swiss"
@@ -208,7 +232,9 @@ class TestUriValue:
 
 class TestLinkValue:
     def test_corr(self, resptr_value_corr: etree._Element) -> None:
-        res = _deserialise_resptr_prop(resptr_value_corr)
+        res_list = _deserialise_resptr_prop(resptr_value_corr)
+        assert len(res_list) == 1
+        res = res_list[0]
         assert isinstance(res, LinkValueData)
         assert res.prop_name == ":testHasLinkTo"
         assert res.prop_value == "id_1"

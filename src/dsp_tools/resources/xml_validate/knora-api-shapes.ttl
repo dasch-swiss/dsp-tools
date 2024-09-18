@@ -134,29 +134,6 @@ api-shapes:DecimalValue_NodeShape
 
 
 ##############
-# GeomValue
-##############
-
-api-shapes:GeomValue_ClassShape
-  a           sh:NodeShape ;
-  sh:name     "Validates the class type" ;
-  sh:message  "Object must be a of type 'GeomValue'." ;
-  sh:class    knora-api:GeomValue ;
-  sh:severity sh:Violation .
-
-api-shapes:GeomValue_NodeShape
-  a           sh:NodeShape ;
-  sh:name     "Validates the content of the value" ;
-  sh:property [
-                a            sh:PropertyShape ;
-                sh:path      knora-api:geometryValueAsGeometry ;
-                sh:minLength 1 ;
-                sh:message   "Value must be a valid GeomValue." ;
-              ] ;
-  sh:severity sh:Violation .
-
-
-##############
 # GeonameValue
 ##############
 

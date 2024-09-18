@@ -50,6 +50,12 @@ class DecimalValueData(ValueData):
 
 
 @dataclass
+class GeomValueData(ValueData):
+    prop_name: str
+    prop_value: str
+
+
+@dataclass
 class GeonameValueData(ValueData):
     prop_name: str
     prop_value: str

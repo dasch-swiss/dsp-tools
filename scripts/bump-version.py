@@ -18,7 +18,7 @@ def main() -> None:
     # get the latest release tag from git history (e.g. "v9.0.2")
     latest_tag = _make_sys_call("git describe --tags --abbrev=0")
     # get the number of commits since the last release (e.g. "5")
-    commit_count_str = _make_sys_call(f"git rev-list --count main {latest_tag}")
+    commit_count_str = _make_sys_call(f"git rev-list --count main ^{latest_tag}")
     # if this CI run was triggered by a release, do nothing
     if commit_count_str == "0":
         sys.exit(0)

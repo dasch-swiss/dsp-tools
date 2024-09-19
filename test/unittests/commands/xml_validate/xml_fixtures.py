@@ -5,7 +5,7 @@ from lxml import etree
 @pytest.fixture
 def resource_empty() -> etree._Element:
     return etree.fromstring("""
-    <resource label="lbl" restype=":ClassWithEverything" id="one">
+    <resource label="lbl" restype="http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything" id="one">
     </resource>
     """)
 
@@ -14,11 +14,11 @@ def resource_empty() -> etree._Element:
 def root_resource_with_props() -> etree._Element:
     return etree.fromstring("""
     <knora>
-        <resource label="lbl" restype=":ClassWithEverything" id="one">
-            <boolean-prop name=":testBoolean">
+        <resource label="lbl" restype="http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything" id="one">
+            <boolean-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean">
                 <boolean>true</boolean>
             </boolean-prop>
-            <color-prop name=":testColor">
+            <color-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testColor">
                 <color>#00ff00</color>
                 <color>#00ff11</color>
             </color-prop>
@@ -31,15 +31,15 @@ def root_resource_with_props() -> etree._Element:
 def root_resource_region() -> etree._Element:
     return etree.fromstring("""
     <knora>
-        <region restype="Region" label="Region" id="region_1">
-            <color-prop name="hasColor">
-                <color permissions="prop-restricted">#5d1f1e</color>
+        <region restype="http://api.knora.org/ontology/knora-api/v2#Region" label="Region" id="region_1">
+            <color-prop name="http://api.knora.org/ontology/knora-api/v2#hasColor">
+                <color>#5d1f1e</color>
             </color-prop>
-            <resptr-prop name="isRegionOf">
-                <resptr permissions="prop-default">image_thing_0</resptr>
+            <resptr-prop name="http://api.knora.org/ontology/knora-api/v2#isRegionOf">
+                <resptr>image_thing_0</resptr>
             </resptr-prop>
-            <geometry-prop name="hasGeometry">
-                <geometry permissions="prop-default">
+            <geometry-prop name="http://api.knora.org/ontology/knora-api/v2#hasGeometry">
+                <geometry>
                     {
                     "status": "active",
                     "type": "polygon",
@@ -51,8 +51,8 @@ def root_resource_region() -> etree._Element:
                     }
                 </geometry>
             </geometry-prop>
-            <text-prop name="hasComment">
-                <text encoding="xml" permissions="prop-default">
+            <text-prop name="http://api.knora.org/ontology/knora-api/v2#hasComment">
+                <text encoding="xml">
                     This is a polygon-formed region of interest of an image. It is also displayed as Annotation.
                 </text>
             </text-prop>
@@ -64,7 +64,7 @@ def root_resource_region() -> etree._Element:
 @pytest.fixture
 def boolean_value_corr() -> etree._Element:
     return etree.fromstring("""
-        <boolean-prop name=":testBoolean">
+        <boolean-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean">
             <boolean>true</boolean>
         </boolean-prop>
     """)
@@ -73,7 +73,7 @@ def boolean_value_corr() -> etree._Element:
 @pytest.fixture
 def boolean_value_wrong() -> etree._Element:
     return etree.fromstring("""
-        <boolean-prop name=":testBoolean">
+        <boolean-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean">
             <boolean>other</boolean>
         </boolean-prop>
     """)
@@ -82,7 +82,7 @@ def boolean_value_wrong() -> etree._Element:
 @pytest.fixture
 def color_value_corr() -> etree._Element:
     return etree.fromstring("""
-        <color-prop name=":testColor">
+        <color-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testColor">
             <color>#00ff00</color>
         </color-prop>
         """)
@@ -91,7 +91,7 @@ def color_value_corr() -> etree._Element:
 @pytest.fixture
 def color_value_corr_several() -> etree._Element:
     return etree.fromstring("""
-        <color-prop name=":testColor">
+        <color-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testColor">
             <color>#00ff00</color>
             <color>#00ff11</color>
         </color-prop>
@@ -101,7 +101,7 @@ def color_value_corr_several() -> etree._Element:
 @pytest.fixture
 def color_value_wrong() -> etree._Element:
     return etree.fromstring("""
-        <color-prop name=":testColor">
+        <color-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testColor">
             <color>other</color>
         </color-prop>
         """)
@@ -110,7 +110,7 @@ def color_value_wrong() -> etree._Element:
 @pytest.fixture
 def date_value_corr() -> etree._Element:
     return etree.fromstring("""
-        <date-prop name=":testSubDate1">
+        <date-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate1">
             <date>JULIAN:BCE:0700:BCE:0600</date>
         </date-prop>
         """)
@@ -119,7 +119,7 @@ def date_value_corr() -> etree._Element:
 @pytest.fixture
 def date_value_corr_several() -> etree._Element:
     return etree.fromstring("""
-        <date-prop name=":testSubDate1">
+        <date-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate1">
             <date>JULIAN:BCE:0700:BCE:0600</date>
             <date>ISLAMIC:BCE:0700:BCE:0600</date>
         </date-prop>
@@ -129,7 +129,7 @@ def date_value_corr_several() -> etree._Element:
 @pytest.fixture
 def date_value_wrong() -> etree._Element:
     return etree.fromstring("""
-        <date-prop name=":testSubDate1">
+        <date-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate1">
             <date>other</date>
         </date-prop>
         """)
@@ -138,7 +138,7 @@ def date_value_wrong() -> etree._Element:
 @pytest.fixture
 def decimal_value_corr() -> etree._Element:
     return etree.fromstring("""
-        <decimal-prop name=":testDecimalSimpleText">
+        <decimal-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testDecimalSimpleText">
             <decimal>2.71</decimal>
         </decimal-prop>
     """)
@@ -147,7 +147,7 @@ def decimal_value_corr() -> etree._Element:
 @pytest.fixture
 def decimal_value_corr_several() -> etree._Element:
     return etree.fromstring("""
-        <decimal-prop name=":testDecimalSimpleText">
+        <decimal-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testDecimalSimpleText">
             <decimal>1.0</decimal>
             <decimal>2.0</decimal>
         </decimal-prop>
@@ -157,7 +157,7 @@ def decimal_value_corr_several() -> etree._Element:
 @pytest.fixture
 def decimal_value_wrong() -> etree._Element:
     return etree.fromstring("""
-        <decimal-prop name=":testDecimalSpinbox">
+        <decimal-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testDecimalSpinbox">
             <decimal>other</decimal>
         </decimal-prop>
         """)
@@ -195,7 +195,7 @@ def geometry_value_wrong() -> etree._Element:
 @pytest.fixture
 def geoname_value_corr() -> etree._Element:
     return etree.fromstring("""
-        <geoname-prop name=":testGeoname">
+        <geoname-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testGeoname">
             <geoname>1111111</geoname>
         </geoname-prop>
     """)
@@ -204,7 +204,7 @@ def geoname_value_corr() -> etree._Element:
 @pytest.fixture
 def geoname_value_corr_several() -> etree._Element:
     return etree.fromstring("""
-        <geoname-prop name=":testGeoname">
+        <geoname-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testGeoname">
             <geoname>1111111</geoname>
             <geoname>2222222</geoname>
         </geoname-prop>
@@ -214,7 +214,7 @@ def geoname_value_corr_several() -> etree._Element:
 @pytest.fixture
 def geoname_value_wrong() -> etree._Element:
     return etree.fromstring("""
-        <geoname-prop name=":testGeoname">
+        <geoname-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testGeoname">
             <geoname>other</geoname>
         </geoname-prop>
     """)
@@ -223,7 +223,7 @@ def geoname_value_wrong() -> etree._Element:
 @pytest.fixture
 def integer_value_corr() -> etree._Element:
     return etree.fromstring("""
-        <integer-prop name=":testIntegerSimpleText">
+        <integer-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testIntegerSimpleText">
             <integer>1</integer>
         </integer-prop>
     """)
@@ -232,7 +232,7 @@ def integer_value_corr() -> etree._Element:
 @pytest.fixture
 def integer_value_corr_several() -> etree._Element:
     return etree.fromstring("""
-        <integer-prop name=":testIntegerSimpleText">
+        <integer-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testIntegerSimpleText">
             <integer>1</integer>
             <integer>2</integer>
         </integer-prop>
@@ -242,7 +242,7 @@ def integer_value_corr_several() -> etree._Element:
 @pytest.fixture
 def integer_value_wrong() -> etree._Element:
     return etree.fromstring("""
-        <integer-prop name=":testIntegerSpinbox">
+        <integer-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testIntegerSpinbox">
             <integer>other</integer>
         </integer-prop>
     """)
@@ -251,7 +251,7 @@ def integer_value_wrong() -> etree._Element:
 @pytest.fixture
 def list_value_corr() -> etree._Element:
     return etree.fromstring("""
-        <list-prop list="onlyList" name=":testListProp">
+        <list-prop list="onlyList" name="http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp">
             <list>n1</list>
         </list-prop>
     """)
@@ -260,7 +260,7 @@ def list_value_corr() -> etree._Element:
 @pytest.fixture
 def list_value_corr_several() -> etree._Element:
     return etree.fromstring("""
-        <list-prop list="onlyList" name=":testListProp">
+        <list-prop list="onlyList" name="http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp">
             <list>n1</list>
             <list>n2</list>
         </list-prop>
@@ -270,7 +270,7 @@ def list_value_corr_several() -> etree._Element:
 @pytest.fixture
 def list_value_wrong_node() -> etree._Element:
     return etree.fromstring("""
-        <list-prop list="onlyList" name=":testListProp">
+        <list-prop list="onlyList" name="http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp">
             <list>other</list>
         </list-prop>
     """)
@@ -279,7 +279,7 @@ def list_value_wrong_node() -> etree._Element:
 @pytest.fixture
 def list_value_wrong_list() -> etree._Element:
     return etree.fromstring("""
-        <list-prop list="other" name=":testListProp">
+        <list-prop list="other" name="http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp">
             <list>n1</list>
         </list-prop>
     """)
@@ -288,7 +288,7 @@ def list_value_wrong_list() -> etree._Element:
 @pytest.fixture
 def resptr_value_corr() -> etree._Element:
     return etree.fromstring("""
-        <resptr-prop name=":testHasLinkTo">
+        <resptr-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo">
             <resptr>id_1</resptr>
         </resptr-prop>
     """)
@@ -297,7 +297,7 @@ def resptr_value_corr() -> etree._Element:
 @pytest.fixture
 def resptr_value_corr_several() -> etree._Element:
     return etree.fromstring("""
-        <resptr-prop name=":testHasLinkTo">
+        <resptr-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo">
             <resptr>id_1</resptr>
             <resptr>id_2</resptr>
         </resptr-prop>
@@ -307,7 +307,7 @@ def resptr_value_corr_several() -> etree._Element:
 @pytest.fixture
 def resptr_value_wrong() -> etree._Element:
     return etree.fromstring("""
-        <resptr-prop name=":testHasLinkTo">
+        <resptr-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo">
             <resptr></resptr>
         </resptr-prop>
     """)
@@ -316,7 +316,7 @@ def resptr_value_wrong() -> etree._Element:
 @pytest.fixture
 def text_richtext_value_corr() -> etree._Element:
     return etree.fromstring("""
-        <text-prop name=":testRichtext">
+        <text-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testRichtext">
             <text encoding="xml">Text</text>
         </text-prop>
     """)
@@ -325,7 +325,7 @@ def text_richtext_value_corr() -> etree._Element:
 @pytest.fixture
 def text_richtext_value_corr_several() -> etree._Element:
     return etree.fromstring("""
-        <text-prop name=":testRichtext">
+        <text-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testRichtext">
             <text encoding="xml">Text 1</text>
             <text encoding="xml">Text 2</text>
         </text-prop>
@@ -335,7 +335,7 @@ def text_richtext_value_corr_several() -> etree._Element:
 @pytest.fixture
 def text_richtext_value_wrong() -> etree._Element:
     return etree.fromstring("""
-        <text-prop name=":testRichtext">
+        <text-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testRichtext">
             <text encoding="xml"></text>
         </text-prop>
     """)
@@ -344,7 +344,7 @@ def text_richtext_value_wrong() -> etree._Element:
 @pytest.fixture
 def text_simpletext_value_corr() -> etree._Element:
     return etree.fromstring("""
-        <text-prop name=":testTextarea">
+        <text-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testTextarea">
             <text encoding="utf8">Text</text>
         </text-prop>
     """)
@@ -353,7 +353,7 @@ def text_simpletext_value_corr() -> etree._Element:
 @pytest.fixture
 def text_simpletext_value_corr_several() -> etree._Element:
     return etree.fromstring("""
-        <text-prop name=":testSimpleText">
+        <text-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testSimpleText">
             <text encoding="utf8">Text 1</text>
             <text encoding="utf8">Text 2</text>
         </text-prop>
@@ -363,7 +363,7 @@ def text_simpletext_value_corr_several() -> etree._Element:
 @pytest.fixture
 def text_simpletext_value_wrong() -> etree._Element:
     return etree.fromstring("""
-        <text-prop name=":testSimpleText">
+        <text-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testSimpleText">
             <text encoding="utf8"></text>
         </text-prop>
     """)
@@ -372,7 +372,7 @@ def text_simpletext_value_wrong() -> etree._Element:
 @pytest.fixture
 def time_value_corr() -> etree._Element:
     return etree.fromstring("""
-        <time-prop name=":testTimeValue">
+        <time-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testTimeValue">
             <time>2019-10-23T13:45:12.01-14:00</time>
         </time-prop>
     """)
@@ -381,7 +381,7 @@ def time_value_corr() -> etree._Element:
 @pytest.fixture
 def time_value_corr_several() -> etree._Element:
     return etree.fromstring("""
-        <time-prop name=":testTimeValue">
+        <time-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testTimeValue">
             <time>2019-10-23T13:45:12.01-14:00</time>
             <time>2019-10-23T13:45:12.01-08:00</time>
         </time-prop>
@@ -391,7 +391,7 @@ def time_value_corr_several() -> etree._Element:
 @pytest.fixture
 def time_value_wrong() -> etree._Element:
     return etree.fromstring("""
-        <time-prop name=":testTimeValue">
+        <time-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testTimeValue">
             <time>other</time>
         </time-prop>
     """)
@@ -400,7 +400,7 @@ def time_value_wrong() -> etree._Element:
 @pytest.fixture
 def uri_value_corr() -> etree._Element:
     return etree.fromstring("""
-        <uri-prop name=":testUriValue">
+        <uri-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testUriValue">
             <uri>https://dasch.swiss</uri>
         </uri-prop>
     """)
@@ -409,7 +409,7 @@ def uri_value_corr() -> etree._Element:
 @pytest.fixture
 def uri_value_corr_several() -> etree._Element:
     return etree.fromstring("""
-        <uri-prop name=":testUriValue">
+        <uri-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testUriValue">
             <uri>https://dasch.swiss</uri>
             <uri>https://app.dasch.swiss</uri>
         </uri-prop>
@@ -419,7 +419,7 @@ def uri_value_corr_several() -> etree._Element:
 @pytest.fixture
 def uri_value_wrong() -> etree._Element:
     return etree.fromstring("""
-        <uri-prop name=":testUriValue">
+        <uri-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testUriValue">
             <uri>other</uri>
         </uri-prop>
     """)

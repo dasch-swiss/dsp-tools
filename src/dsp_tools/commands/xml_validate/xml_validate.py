@@ -12,16 +12,16 @@ from dsp_tools.utils.xml_validation import validate_xml
 
 def _deserialise_file(file: Path, ontology_name: str) -> DataDeserialised:
     """Returns an object which follows the structure of the XML closely"""
-    root = _parse_and_clean_file(file)
-    root = _replace_namespaces(root, ontology_name)
+    root = _parse_and_clean_file(file, ontology_name)
     return transform_into_project_deserialised(root)
 
 
-def _parse_and_clean_file(file: Path) -> etree._Element:
+def _parse_and_clean_file(file: Path, ontology_name: str) -> etree._Element:
     root = parse_xml_file(file)
     root = remove_comments_from_element_tree(root)
     validate_xml(root)
-    return remove_qnames_and_transform_special_tags(root)
+    root = remove_qnames_and_transform_special_tags(root)
+    return _replace_namespaces(root, ontology_name)
 
 
 def _replace_namespaces(root: etree._Element, ontology_namespace: str) -> etree._Element:

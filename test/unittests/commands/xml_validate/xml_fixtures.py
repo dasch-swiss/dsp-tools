@@ -71,15 +71,6 @@ def boolean_value_corr() -> etree._Element:
 
 
 @pytest.fixture
-def boolean_value_wrong() -> etree._Element:
-    return etree.fromstring("""
-        <boolean-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean">
-            <boolean>other</boolean>
-        </boolean-prop>
-    """)
-
-
-@pytest.fixture
 def color_value_corr() -> etree._Element:
     return etree.fromstring("""
         <color-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testColor">
@@ -94,15 +85,6 @@ def color_value_corr_several() -> etree._Element:
         <color-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testColor">
             <color>#00ff00</color>
             <color>#00ff11</color>
-        </color-prop>
-        """)
-
-
-@pytest.fixture
-def color_value_wrong() -> etree._Element:
-    return etree.fromstring("""
-        <color-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testColor">
-            <color>other</color>
         </color-prop>
         """)
 
@@ -127,15 +109,6 @@ def date_value_corr_several() -> etree._Element:
 
 
 @pytest.fixture
-def date_value_wrong() -> etree._Element:
-    return etree.fromstring("""
-        <date-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate1">
-            <date>other</date>
-        </date-prop>
-        """)
-
-
-@pytest.fixture
 def decimal_value_corr() -> etree._Element:
     return etree.fromstring("""
         <decimal-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testDecimalSimpleText">
@@ -152,15 +125,6 @@ def decimal_value_corr_several() -> etree._Element:
             <decimal>2.0</decimal>
         </decimal-prop>
     """)
-
-
-@pytest.fixture
-def decimal_value_wrong() -> etree._Element:
-    return etree.fromstring("""
-        <decimal-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testDecimalSpinbox">
-            <decimal>other</decimal>
-        </decimal-prop>
-        """)
 
 
 @pytest.fixture
@@ -212,15 +176,6 @@ def geoname_value_corr_several() -> etree._Element:
 
 
 @pytest.fixture
-def geoname_value_wrong() -> etree._Element:
-    return etree.fromstring("""
-        <geoname-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testGeoname">
-            <geoname>other</geoname>
-        </geoname-prop>
-    """)
-
-
-@pytest.fixture
 def integer_value_corr() -> etree._Element:
     return etree.fromstring("""
         <integer-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testIntegerSimpleText">
@@ -235,15 +190,6 @@ def integer_value_corr_several() -> etree._Element:
         <integer-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testIntegerSimpleText">
             <integer>1</integer>
             <integer>2</integer>
-        </integer-prop>
-    """)
-
-
-@pytest.fixture
-def integer_value_wrong() -> etree._Element:
-    return etree.fromstring("""
-        <integer-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testIntegerSpinbox">
-            <integer>other</integer>
         </integer-prop>
     """)
 
@@ -389,15 +335,6 @@ def time_value_corr_several() -> etree._Element:
 
 
 @pytest.fixture
-def time_value_wrong() -> etree._Element:
-    return etree.fromstring("""
-        <time-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testTimeValue">
-            <time>other</time>
-        </time-prop>
-    """)
-
-
-@pytest.fixture
 def uri_value_corr() -> etree._Element:
     return etree.fromstring("""
         <uri-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testUriValue">
@@ -420,6 +357,6 @@ def uri_value_corr_several() -> etree._Element:
 def uri_value_wrong() -> etree._Element:
     return etree.fromstring("""
         <uri-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testUriValue">
-            <uri>other</uri>
+            <uri>oth er</uri>
         </uri-prop>
     """)

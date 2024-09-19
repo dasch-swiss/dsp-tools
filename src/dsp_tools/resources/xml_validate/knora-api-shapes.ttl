@@ -234,7 +234,6 @@ api-shapes:SimpleTextValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
   sh:message  "Object must be a of type 'TextValue' without formatting." ;
-  sh:class    knora-api:TextValue ;
   sh:severity sh:Violation .
 
 api-shapes:SimpleTextValue_NodeShape

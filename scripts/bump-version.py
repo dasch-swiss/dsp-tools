@@ -25,10 +25,10 @@ def main() -> None:
     # write new version into pyproject.toml
     pyproject_pth = Path("pyproject.toml")
     pyproject = tomlkit.parse(pyproject_pth.read_text(encoding="utf-8"))
-    if pyproject["project"]["version"] != latest_tag[1:]:
-        msg = f"Version in pyproject.toml is '{pyproject["project"]["version"]}', but expected {latest_tag[1:]}"
+    if pyproject["project"]["version"] != latest_tag[1:]:  # type: ignore[index]
+        msg = f"Version in pyproject.toml is '{pyproject["project"]["version"]}', but expected {latest_tag[1:]}"  # type: ignore[index]
         raise ValueError(msg)
-    pyproject["project"]["version"] = new_version
+    pyproject["project"]["version"] = new_version  # type: ignore[index]
     pyproject_pth.write_text(tomlkit.dumps(pyproject), encoding="utf-8")
 
 

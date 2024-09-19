@@ -38,7 +38,7 @@ class Resource:
     res_id: str
     restype: str
     label: str
-    values: list[Value | ListValue] = field(default_factory=list)
+    values: list[Value] = field(default_factory=list)
     permissions: str = "res-default"
     file_value: AbstractFileValue | None = None
 
@@ -70,7 +70,7 @@ class Resource:
         return [self._combine_values(prop_values) for prop_values in grouped.values()]
 
     @staticmethod
-    def _combine_values(prop_values: list[Value | ListValue]) -> etree._Element:
+    def _combine_values(prop_values: list[Value]) -> etree._Element:
         prop_ = prop_values[0].make_prop()
         prop_eles = [x.make_element() for x in prop_values]
         prop_.extend(prop_eles)

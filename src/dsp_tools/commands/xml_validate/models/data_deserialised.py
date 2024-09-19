@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Protocol
 
 
 @dataclass
@@ -20,51 +19,33 @@ class ResourceData:
 
 
 @dataclass
-class ValueData(Protocol):
+class ValueData:
     prop_name: str
     prop_value: str
 
 
 @dataclass
-class BooleanValueData(ValueData):
-    prop_name: str
-    prop_value: str
+class BooleanValueData(ValueData): ...
 
 
 @dataclass
-class ColorValueData(ValueData):
-    prop_name: str
-    prop_value: str
+class ColorValueData(ValueData): ...
 
 
 @dataclass
-class DateValueData(ValueData):
-    prop_name: str
-    prop_value: str
+class DateValueData(ValueData): ...
 
 
 @dataclass
-class DecimalValueData(ValueData):
-    prop_name: str
-    prop_value: str
+class DecimalValueData(ValueData): ...
 
 
 @dataclass
-class GeomValueData(ValueData):
-    prop_name: str
-    prop_value: str
+class GeonameValueData(ValueData): ...
 
 
 @dataclass
-class GeonameValueData(ValueData):
-    prop_name: str
-    prop_value: str
-
-
-@dataclass
-class IntValueData(ValueData):
-    prop_name: str
-    prop_value: str
+class IntValueData(ValueData): ...
 
 
 @dataclass
@@ -75,30 +56,20 @@ class ListValueData(ValueData):
 
 
 @dataclass
-class SimpleTextData(ValueData):
-    prop_name: str
-    prop_value: str
+class SimpleTextData(ValueData): ...
 
 
 @dataclass
-class RichtextData(ValueData):
-    prop_name: str
-    prop_value: str
+class RichtextData(ValueData): ...
 
 
 @dataclass
-class TimeValueData(ValueData):
-    prop_name: str
-    prop_value: str
+class TimeValueData(ValueData): ...
 
 
 @dataclass
-class UriValueData(ValueData):
-    prop_name: str
-    prop_value: str
+class UriValueData(ValueData): ...
 
 
 @dataclass
-class LinkValueData(ValueData):
-    prop_name: str
-    prop_value: str
+class LinkValueData(ValueData): ...

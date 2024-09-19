@@ -287,7 +287,7 @@ api-shapes:TimeValue_NodeShape
                 a           sh:PropertyShape ;
                 sh:path     knora-api:timeValueAsTimeStamp ;
                 sh:datatype xsd:dateTimeStamp ;
-                sh:message  "Value must be a valid xsd:TimeStamp." ;
+                sh:message  "Value must be a valid xsd:dateTimeStamp." ;
               ] ;
   sh:severity sh:Violation .
 

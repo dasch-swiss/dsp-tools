@@ -468,7 +468,6 @@ A geometry value is defined as a JSON object. It contains the following data:
 - `status`: "active" or "deleted"
 - `type`: "circle", "rectangle" or "polygon" (only the rectangle can be displayed in DSP-APP. The others can be 
   looked at in another frontend, e.g. in TANGOH.)
-- `lineColor`: web-color
 - `lineWidth`: integer number (in pixels)
 - `points`: array of coordinate objects of the form `{"x": decimal, "y": decimal}`
 - `radius`: coordinate object of the form `{"x": decimal, "y": decimal}`
@@ -489,7 +488,6 @@ Example:
         {
             "status": "active",
             "type": "rectangle",
-            "lineColor": "#ff1100",
             "lineWidth": 5,
             "points": [
                 {"x":0.1,"y":0.7},
@@ -501,7 +499,6 @@ Example:
         {
             "status": "active",
             "type": "circle",
-            "lineColor": "#ff1100",
             "lineWidth": 5,
             "points": [{"x":0.5,"y":0.3}],
             "radius": {"x":0.1,"y":0.1}     // vector (0.1, 0.1)
@@ -511,7 +508,6 @@ Example:
         {
             "status": "active",
             "type": "polygon",
-            "lineColor": "#ff1100",
             "lineWidth": 5,
             "points": [{"x": 0.4, "y": 0.6},
                        {"x": 0.5, "y": 0.9},
@@ -931,7 +927,6 @@ Example:
             {
                 "status": "active",
                 "type": "rectangle",
-                "lineColor": "#ff1100",
                 "lineWidth": 5,
                 "points": [
                     {"x":0.1,"y":0.7},

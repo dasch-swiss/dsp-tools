@@ -98,7 +98,7 @@
             <color permissions="prop-restricted">#5d1f1e</color>
         </color-prop>
         <geometry-prop name="hasGeometry">
-            <geometry permissions="prop-restricted">{"type": "rectangle", "lineColor": "#ff3333", "lineWidth": 2, "points": [{"x": 0.08, "y": 0.16}, {"x": 0.73, "y": 0.72}], "original_index": 0}</geometry>
+            <geometry permissions="prop-restricted">{"type": "rectangle", "lineWidth": 2, "points": [{"x": 0.08, "y": 0.16}, {"x": 0.73, "y": 0.72}], "original_index": 0}</geometry>
         </geometry-prop>
         <resptr-prop name="isRegionOf">
             <resptr permissions="prop-restricted">img_obj_6</resptr>

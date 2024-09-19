@@ -396,7 +396,6 @@
                 {
                     "status": "active",
                     "type": "polygon",
-                    "lineColor": "#ff1100",
                     "lineWidth": 5,
                     "points": [{"x": 0.4, "y": 0.6},
                                {"x": 0.5, "y": 0.9},
@@ -783,7 +782,6 @@
                 {
                     "status": "active",
                     "type": "rectangle",
-                    "lineColor": "#ff1100",
                     "lineWidth": 5,
                     "points": [
                         {"x":0.1,"y":0.7},
@@ -813,7 +811,6 @@
                 {
                     "status": "active",
                     "type": "circle",
-                    "lineColor": "#ff1100",
                     "lineWidth": 5,
                     "points": [{"x":0.5,"y":0.3}],
                     "radius": {"x":0.1,"y":0.1}

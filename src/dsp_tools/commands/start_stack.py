@@ -94,15 +94,8 @@ class StackHandler:
             return f"{url_prefix_base}/main/"
 
         config_file = importlib.resources.files("dsp_tools").joinpath("resources/start-stack/start-stack-config.yml")
-        if not config_file.is_file():
-            return f"{url_prefix_base}/main/"
-
-        with config_file.open("r", encoding="utf-8") as f:
-            try:
-                start_stack_config = yaml.safe_load(f)
-            except yaml.YAMLError:
-                start_stack_config = {}
-        commit_of_used_api_version = start_stack_config.get("DSP-API commit", "main")
+        start_stack_config = yaml.safe_load(config_file.read_bytes())
+        commit_of_used_api_version = start_stack_config["DSP-API commit"]
 
         return f"{url_prefix_base}/{commit_of_used_api_version}/"
 
@@ -293,11 +286,7 @@ class StackHandler:
         (Fuseki is already running at this point.)
         """
         if self.__stack_configuration.latest_dev_version:
-            subprocess.run(
-                "docker pull daschswiss/knora-api:latest".split(),
-                cwd=self.__docker_path_of_user,
-                check=True,
-            )
+            subprocess.run("docker compose pull".split(), cwd=self.__docker_path_of_user, check=True)
         subprocess.run("docker compose up -d".split(), cwd=self.__docker_path_of_user, check=True)
 
     def _wait_for_api(self) -> None:

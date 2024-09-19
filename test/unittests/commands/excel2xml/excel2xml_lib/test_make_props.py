@@ -190,9 +190,9 @@ class TestPropsGeneral(unittest.TestCase):
         prop = "geometry"
         method = excel2xml.make_geometry_prop
         different_values = [
-            '{"type": "rectangle", "lineColor": "#ff3333", "lineWidth": 2, '
+            '{"type": "rectangle", "lineWidth": 2, '
             '"points": [{"x": 0.08, "y": 0.16}, {"x": 0.73, "y": 0.72}], "original_index": 0}',
-            '{"type": "rectangle", "lineColor": "#000000", "lineWidth": 1, '
+            '{"type": "rectangle", "lineWidth": 1, '
             '"points": [{"x": 0.10, "y": 0.10}, {"x": 0.10, "y": 0.10}], "original_index": 1}',
         ]
         invalid_values = ["100", 100, [0], '{"type": "polygon"}']

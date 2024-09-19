@@ -10,7 +10,7 @@ def _make_sys_call(call: str) -> str:
         return subprocess.run(call.split(), capture_output=True, check=True, encoding="utf-8").stdout.removesuffix("\n")
     except subprocess.CalledProcessError as e:
         print(f"Returncode: {e.returncode} | Stdout: {e.stdout} | Stderr: {e.stderr}")
-        sys.exit(1)
+        raise e from None
 
 
 def main() -> None:

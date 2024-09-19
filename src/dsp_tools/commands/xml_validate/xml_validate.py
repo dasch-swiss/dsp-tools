@@ -4,20 +4,24 @@ from lxml import etree
 
 from dsp_tools.commands.xml_validate.models.data_deserialised import DataDeserialised
 from dsp_tools.commands.xml_validate.reformat_input import transform_into_project_deserialised
-from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
+from dsp_tools.utils.xml_utils import parse_xml_file
+from dsp_tools.utils.xml_utils import remove_comments_from_element_tree
+from dsp_tools.utils.xml_utils import remove_qnames_and_transform_special_tags
 from dsp_tools.utils.xml_validation import validate_xml
 
 
 def _deserialise_file(file: Path, ontology_name: str) -> DataDeserialised:
     """Returns an object which follows the structure of the XML closely"""
-    root = _parse_and_clean_file(file, ontology_name)
+    root = _parse_and_clean_file(file)
+    root = _replace_namespaces(root, ontology_name)
     return transform_into_project_deserialised(root)
 
 
-def _parse_and_clean_file(file: Path, ontology_name: str) -> etree._Element:
-    root = parse_and_clean_xml_file(file)
+def _parse_and_clean_file(file: Path) -> etree._Element:
+    root = parse_xml_file(file)
+    root = remove_comments_from_element_tree(root)
     validate_xml(root)
-    return _replace_namespaces(root, ontology_name)
+    return remove_qnames_and_transform_special_tags(root)
 
 
 def _replace_namespaces(root: etree._Element, ontology_namespace: str) -> etree._Element:

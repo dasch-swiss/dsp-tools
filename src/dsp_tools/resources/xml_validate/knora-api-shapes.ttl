@@ -39,6 +39,7 @@ api-shapes:UniqueValuesShape_ValueHas
               ] ;
   sh:severity sh:Violation .
 
+
 api-shapes:UniqueValuesShape_ValueString
   a           sh:NodeShape ;
   sh:name     "Checks that one resources does not have two identical values with the same property." ;
@@ -56,6 +57,7 @@ api-shapes:UniqueValuesShape_ValueString
                 """ ;
               ] ;
   sh:severity sh:Violation .
+
 
 #########################################
 # USER FACING VALUES

@@ -142,8 +142,6 @@ pip install dist/some_name.whl
 
 Upload package:
 
-# TODO
-
 ```bash
 uvx twine upload dist/*
 ```

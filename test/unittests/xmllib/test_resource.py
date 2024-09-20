@@ -235,7 +235,7 @@ class TestAddFiles:
         res = Resource("id", "", "").add_file("existing filename")
         msg = regex.escape(
             "The resource with the ID 'id' already contains a file with the name: 'existing filename'.\n"
-            "The new file with the name: 'new filename' cannot be added."
+            "The new file with the name 'new filename' cannot be added."
         )
         with pytest.raises(InputError, match=msg):
             res.add_file("new filename")
@@ -248,7 +248,7 @@ class TestAddFiles:
         res = Resource("id", "", "").add_file("existing IIIF")
         msg = regex.escape(
             "The resource with the ID 'id' already contains a file with the name: 'existing IIIF'.\n"
-            "The new file with the name: 'new IIIF' cannot be added."
+            "The new file with the name 'new IIIF' cannot be added."
         )
         with pytest.raises(InputError, match=msg):
             res.add_iiif_uri("new IIIF")

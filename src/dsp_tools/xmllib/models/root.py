@@ -8,7 +8,7 @@ from lxml import etree
 
 from dsp_tools.commands.excel2xml import append_permissions
 from dsp_tools.commands.excel2xml import write_xml
-from dsp_tools.commands.xmllib.models.resource import Resource
+from dsp_tools.xmllib.models.resource import Resource
 
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"

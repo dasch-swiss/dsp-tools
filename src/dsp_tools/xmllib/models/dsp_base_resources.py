@@ -7,14 +7,14 @@ from typing import Any
 
 from lxml import etree
 
-from dsp_tools.commands.xmllib.models.values import ColorValue
-from dsp_tools.commands.xmllib.models.values import LinkValue
-from dsp_tools.commands.xmllib.models.values import Richtext
-from dsp_tools.commands.xmllib.value_checkers import find_geometry_problem
-from dsp_tools.commands.xmllib.value_checkers import is_decimal
-from dsp_tools.commands.xmllib.value_checkers import is_integer
-from dsp_tools.commands.xmllib.value_checkers import is_string_like
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
+from dsp_tools.xmllib.models.values import ColorValue
+from dsp_tools.xmllib.models.values import LinkValue
+from dsp_tools.xmllib.models.values import Richtext
+from dsp_tools.xmllib.value_checkers import find_geometry_problem
+from dsp_tools.xmllib.value_checkers import is_decimal
+from dsp_tools.xmllib.value_checkers import is_integer
+from dsp_tools.xmllib.value_checkers import is_string_like
 
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"

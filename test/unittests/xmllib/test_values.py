@@ -3,19 +3,19 @@ import warnings
 import pytest
 from lxml import etree
 
-from dsp_tools.commands.xmllib.models.values import BooleanValue
-from dsp_tools.commands.xmllib.models.values import ColorValue
-from dsp_tools.commands.xmllib.models.values import DateValue
-from dsp_tools.commands.xmllib.models.values import DecimalValue
-from dsp_tools.commands.xmllib.models.values import GeonameValue
-from dsp_tools.commands.xmllib.models.values import IntValue
-from dsp_tools.commands.xmllib.models.values import LinkValue
-from dsp_tools.commands.xmllib.models.values import ListValue
-from dsp_tools.commands.xmllib.models.values import Richtext
-from dsp_tools.commands.xmllib.models.values import SimpleText
-from dsp_tools.commands.xmllib.models.values import TimeValue
-from dsp_tools.commands.xmllib.models.values import UriValue
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
+from dsp_tools.xmllib.models.values import BooleanValue
+from dsp_tools.xmllib.models.values import ColorValue
+from dsp_tools.xmllib.models.values import DateValue
+from dsp_tools.xmllib.models.values import DecimalValue
+from dsp_tools.xmllib.models.values import GeonameValue
+from dsp_tools.xmllib.models.values import IntValue
+from dsp_tools.xmllib.models.values import LinkValue
+from dsp_tools.xmllib.models.values import ListValue
+from dsp_tools.xmllib.models.values import Richtext
+from dsp_tools.xmllib.models.values import SimpleText
+from dsp_tools.xmllib.models.values import TimeValue
+from dsp_tools.xmllib.models.values import UriValue
 
 
 class TestBooleanValue:

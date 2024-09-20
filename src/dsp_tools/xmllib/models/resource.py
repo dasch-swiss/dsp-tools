@@ -9,25 +9,25 @@ from typing import Any
 import pandas as pd
 from lxml import etree
 
-from dsp_tools.commands.xmllib.models.file_values import AbstractFileValue
-from dsp_tools.commands.xmllib.models.file_values import FileValue
-from dsp_tools.commands.xmllib.models.file_values import IIIFUri
-from dsp_tools.commands.xmllib.models.values import BooleanValue
-from dsp_tools.commands.xmllib.models.values import ColorValue
-from dsp_tools.commands.xmllib.models.values import DateValue
-from dsp_tools.commands.xmllib.models.values import DecimalValue
-from dsp_tools.commands.xmllib.models.values import GeonameValue
-from dsp_tools.commands.xmllib.models.values import IntValue
-from dsp_tools.commands.xmllib.models.values import LinkValue
-from dsp_tools.commands.xmllib.models.values import ListValue
-from dsp_tools.commands.xmllib.models.values import Richtext
-from dsp_tools.commands.xmllib.models.values import SimpleText
-from dsp_tools.commands.xmllib.models.values import TimeValue
-from dsp_tools.commands.xmllib.models.values import UriValue
-from dsp_tools.commands.xmllib.models.values import Value
-from dsp_tools.commands.xmllib.value_checkers import is_string_like
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.xmllib.models.file_values import AbstractFileValue
+from dsp_tools.xmllib.models.file_values import FileValue
+from dsp_tools.xmllib.models.file_values import IIIFUri
+from dsp_tools.xmllib.models.values import BooleanValue
+from dsp_tools.xmllib.models.values import ColorValue
+from dsp_tools.xmllib.models.values import DateValue
+from dsp_tools.xmllib.models.values import DecimalValue
+from dsp_tools.xmllib.models.values import GeonameValue
+from dsp_tools.xmllib.models.values import IntValue
+from dsp_tools.xmllib.models.values import LinkValue
+from dsp_tools.xmllib.models.values import ListValue
+from dsp_tools.xmllib.models.values import Richtext
+from dsp_tools.xmllib.models.values import SimpleText
+from dsp_tools.xmllib.models.values import TimeValue
+from dsp_tools.xmllib.models.values import UriValue
+from dsp_tools.xmllib.models.values import Value
+from dsp_tools.xmllib.value_checkers import is_string_like
 
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"

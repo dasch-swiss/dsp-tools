@@ -3,15 +3,15 @@ from typing import Any
 import pandas as pd
 import pytest
 
-from dsp_tools.commands.xmllib.value_checkers import find_geometry_problem
-from dsp_tools.commands.xmllib.value_checkers import is_bool_like
-from dsp_tools.commands.xmllib.value_checkers import is_color
-from dsp_tools.commands.xmllib.value_checkers import is_date
-from dsp_tools.commands.xmllib.value_checkers import is_decimal
-from dsp_tools.commands.xmllib.value_checkers import is_geoname
-from dsp_tools.commands.xmllib.value_checkers import is_integer
-from dsp_tools.commands.xmllib.value_checkers import is_string_like
-from dsp_tools.commands.xmllib.value_checkers import is_timestamp
+from dsp_tools.xmllib.value_checkers import find_geometry_problem
+from dsp_tools.xmllib.value_checkers import is_bool_like
+from dsp_tools.xmllib.value_checkers import is_color
+from dsp_tools.xmllib.value_checkers import is_date
+from dsp_tools.xmllib.value_checkers import is_decimal
+from dsp_tools.xmllib.value_checkers import is_geoname
+from dsp_tools.xmllib.value_checkers import is_integer
+from dsp_tools.xmllib.value_checkers import is_string_like
+from dsp_tools.xmllib.value_checkers import is_timestamp
 
 
 @pytest.mark.parametrize("val", ["false", "0", "0.0", "no", "true", "1", "1.0", "yes", False, True])

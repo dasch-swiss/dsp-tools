@@ -3,7 +3,7 @@ from typing import Any
 import pandas as pd
 import pytest
 
-from dsp_tools.commands.xmllib.value_converters import convert_to_bool_string
+from dsp_tools.xmllib.value_converters import convert_to_bool_string
 
 
 @pytest.mark.parametrize("val", ["false", "0  ", "  0.0", "NO", False])

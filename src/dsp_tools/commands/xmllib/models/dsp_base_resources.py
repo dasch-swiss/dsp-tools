@@ -193,7 +193,7 @@ def _check_and_warn_strings(res_id: str, string_to_check: str, field_name: str) 
 
 def _warn_type_mismatch(expected_type: str, value: Any, field_name: str, res_id: str | None) -> None:
     """Emits a warning if a values is not in the expected format."""
-    msg = f"At the following location a wrong data type was provided.\n"
+    msg = "At the following location a wrong data type was provided.\n"
     msg += f"Resource: {res_id} | " if res_id else ""
     msg += f"Field: {field_name} | Value: {value} | Expected type: {expected_type}"
     warnings.warn(DspToolsUserWarning(msg))

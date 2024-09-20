@@ -17,9 +17,9 @@ def main() -> None:
 
 
 def _calculate_new_version(latest_tag: str) -> str:
-    # _check_if_on_main_branch()
+    _check_if_on_main_branch()
     # no. of commits since last release (e.g. "5")
-    commit_count_str = _make_sys_call(f"git rev-list --count HEAD ^{latest_tag}")
+    commit_count_str = _make_sys_call(f"git rev-list --count main ^{latest_tag}")
     # if this CI run was triggered by a release, do nothing
     if commit_count_str == "0":
         sys.exit(0)

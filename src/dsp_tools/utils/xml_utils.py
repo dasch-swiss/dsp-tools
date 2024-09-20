@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+from copy import deepcopy
 from pathlib import Path
 
 from loguru import logger
@@ -64,6 +65,22 @@ def remove_qnames_and_transform_special_tags(input_tree: etree._Element) -> etre
             elem.attrib["restype"] = "AudioSegment"
             elem.tag = "resource"
     return input_tree
+
+
+def transform_into_qnames(root: etree._Element) -> etree._Element:
+    """
+    This function removes the namespace URIs from the elements' names
+
+    Args:
+        root: unclean tree
+
+    Returns:
+        cleaned tree
+    """
+    tree = deepcopy(root)
+    for elem in tree.iter():
+        elem.tag = etree.QName(elem).localname
+    return tree
 
 
 def remove_comments_from_element_tree(input_tree: etree._Element) -> etree._Element:

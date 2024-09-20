@@ -106,26 +106,6 @@ def is_integer(value: Any) -> bool:
     return isinstance(value, int)
 
 
-def is_list(node: Any, listname: Any) -> bool:
-    """
-    Checks if a value is valid.
-
-    Args:
-        node: value to check
-        listname: name of the list
-
-    Returns:
-        True if it is not empty
-    """
-    if pd.isna(node) or pd.isna(listname):
-        return False
-    if len(str(node).strip()) == 0:
-        return False
-    if len(str(listname).strip()) == 0:
-        return False
-    return True
-
-
 def is_string_like(value: Any) -> bool:
     """
     Checks if a value is a string.

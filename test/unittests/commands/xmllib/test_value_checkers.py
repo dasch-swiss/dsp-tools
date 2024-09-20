@@ -10,7 +10,6 @@ from dsp_tools.commands.xmllib.value_checkers import is_date
 from dsp_tools.commands.xmllib.value_checkers import is_decimal
 from dsp_tools.commands.xmllib.value_checkers import is_geoname
 from dsp_tools.commands.xmllib.value_checkers import is_integer
-from dsp_tools.commands.xmllib.value_checkers import is_list
 from dsp_tools.commands.xmllib.value_checkers import is_string_like
 from dsp_tools.commands.xmllib.value_checkers import is_timestamp
 
@@ -95,19 +94,6 @@ def test_is_integer_correct(val: Any) -> None:
 @pytest.mark.parametrize("val", [1.2, "1.2", "wdasd"])
 def test_is_integer_wrong(val: Any) -> None:
     assert not is_integer(val)
-
-
-@pytest.mark.parametrize(("node_val", "list_val"), [(1, 2), ("1", "2"), ("whatever", "else"), ("None", "other")])
-def test_is_list_correct(node_val: Any, list_val: Any) -> None:
-    assert is_list(node_val, list_val)
-
-
-@pytest.mark.parametrize(
-    ("node_val", "list_val"),
-    [(pd.NA, "other"), ("other", pd.NA), (pd.NA, pd.NA), ("other", None), ("", "else"), (" ", "else")],
-)
-def test_is_list_wrong(node_val: Any, list_val: Any) -> None:
-    assert not is_list(node_val, list_val)
 
 
 @pytest.mark.parametrize("val", ["a", "None", "-", "1", "\n1", "עִבְרִית", "اَلْعَرَبِيَّةُ"])

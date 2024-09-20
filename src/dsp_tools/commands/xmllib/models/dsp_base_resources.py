@@ -185,7 +185,7 @@ class AudioSegmentResource:
 def _check_and_warn_strings(res_id: str, string_to_check: str, field_name: str) -> None:
     if not is_string_like(str(string_to_check)):
         msg = (
-            f"The resource with the ID: '{res_id}' has an invalid string at the following location:\n"
+            f"The resource with the ID '{res_id}' has an invalid string at the following location:\n"
             f"Field: {field_name} | Value: {string_to_check}"
         )
         warnings.warn(DspToolsUserWarning(msg))
@@ -193,9 +193,9 @@ def _check_and_warn_strings(res_id: str, string_to_check: str, field_name: str) 
 
 def _warn_type_mismatch(expected_type: str, value: Any, field_name: str, res_id: str | None) -> None:
     """Emits a warning if a values is not in the expected format."""
-    msg = f"At the following location a '{expected_type}' does not conform to the expected format.\n"
+    msg = f"At the following location a wrong data type was provided.\n"
     msg += f"Resource: {res_id} | " if res_id else ""
-    msg += f"Value: {value} | Field: {field_name}"
+    msg += f"Field: {field_name} | Value: {value} | Expected type: {expected_type}"
     warnings.warn(DspToolsUserWarning(msg))
 
 
@@ -234,9 +234,9 @@ def _validate_segment(segment: AudioSegmentResource | VideoSegmentResource) -> N
 def _validate_segment_bounds(segment_start: Any, segment_end: Any) -> list[str]:
     seg_bounds_msg = []
     if not is_decimal(segment_start) or not is_integer(segment_start):
-        seg_bounds_msg.append(f"Segment start should be an integer or float: {segment_start}")
+        seg_bounds_msg.append(f"Segment start should be an integer or float, but it is: {segment_start}")
     if not is_decimal(segment_end) or not is_integer(segment_end):
-        seg_bounds_msg.append(f"Invalid segment end should be an integer or float: {segment_start}")
+        seg_bounds_msg.append(f"Segment end should be an integer or float, but it is: {segment_start}")
     return seg_bounds_msg
 
 

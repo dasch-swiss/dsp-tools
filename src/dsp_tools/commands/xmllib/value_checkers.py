@@ -39,7 +39,7 @@ def is_color(value: Any) -> bool:
 
 def is_date(value: Any) -> bool:
     """
-    Checks if a value is a color value.
+    Checks if a value is a date value.
 
     Args:
         value: value to check
@@ -62,7 +62,7 @@ def is_date(value: Any) -> bool:
 
 def is_geoname(value: Any) -> bool:
     """
-    Checks if a value is a color value.
+    Checks if a value is a geoname value.
 
     Args:
         value: value to check
@@ -75,9 +75,7 @@ def is_geoname(value: Any) -> bool:
 
 def is_decimal(value: Any) -> bool:
     """
-    Checks if a value is a float.
-    A valid integer is if it is a string, which can be converted into an integer,
-    or a value of the type int.
+    Checks if a value is a float, an integer, or a string which can be converted into a float.
 
     Args:
         value: value to check
@@ -95,9 +93,7 @@ def is_decimal(value: Any) -> bool:
 
 def is_integer(value: Any) -> bool:
     """
-    Checks if a value is an integer.
-    A valid integer is if it is a string, which can be converted into an integer,
-    or a value of the type int.
+    Checks if a value is an integer or a string which can be converted into an integer.
 
     Args:
         value: value to check
@@ -121,7 +117,7 @@ def is_list(node: Any, listname: Any) -> bool:
     Returns:
         True if it is not empty
     """
-    if any([pd.isna(node), pd.isna(listname)]):
+    if pd.isna(node) or pd.isna(listname):
         return False
     if len(str(node).strip()) == 0:
         return False

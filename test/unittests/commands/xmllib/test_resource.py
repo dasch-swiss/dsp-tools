@@ -158,19 +158,19 @@ class TestAddValues:
         assert isinstance(res.values[0], ListValue)
 
     def test_add_simple_text(self) -> None:
-        res = Resource("", "", "").add_simple_text("", "")
+        res = Resource("", "", "").add_simpletext("", "")
         assert len(res.values) == 1
         assert isinstance(res.values[0], SimpleText)
 
     def test_add_simple_texts(self) -> None:
-        res = Resource("", "", "").add_simple_texts(["", ""], "")
+        res = Resource("", "", "").add_simpletexts(["", ""], "")
         assert len(res.values) == 2
         assert all([isinstance(x, SimpleText) for x in res.values])
 
     def test_add_simple_text_optional(self) -> None:
-        res = Resource("", "", "").add_simple_text_optional(None, "")
+        res = Resource("", "", "").add_simpletext_optional(None, "")
         assert not res.values
-        res = res.add_simple_text_optional("", "")
+        res = res.add_simpletext_optional("", "")
         assert len(res.values) == 1
         assert isinstance(res.values[0], SimpleText)
 

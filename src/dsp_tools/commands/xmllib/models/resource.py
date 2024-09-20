@@ -32,6 +32,8 @@ from dsp_tools.models.exceptions import InputError
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 
+LIST_SEPARATOR = "\n    -"
+
 
 @dataclass
 class Resource:
@@ -43,12 +45,19 @@ class Resource:
     file_value: AbstractFileValue | None = None
 
     def __post_init__(self) -> None:
+        msg = []
         if not is_string(str(self.label)):
-            msg = (
-                f"The label of a resource should be a string.\n"
-                f"The label '{self.label}' of the resource with the ID {self.res_id} is not a string."
+            msg.append(f"Label '{self.label}'")
+        if not is_string(str(self.res_id)):
+            msg.append(f"Resource ID '{self.res_id}'")
+        if not is_string(str(self.restype)):
+            msg.append(f"Resource Type '{self.restype}'")
+        if msg:
+            out_msg = (
+                f"The Resource with the ID '{self.res_id}' should have strings in the following field(s), "
+                f"the input is not a valid string.:{LIST_SEPARATOR}{LIST_SEPARATOR.join(msg)}"
             )
-            warnings.warn(DspToolsUserWarning(msg))
+            warnings.warn(DspToolsUserWarning(out_msg))
 
     def serialise(self) -> etree._Element:
         res_ele = self._serialise_resource_element()
@@ -69,8 +78,7 @@ class Resource:
             grouped[val.prop_name].append(val)
         return [self._combine_values(prop_values) for prop_values in grouped.values()]
 
-    @staticmethod
-    def _combine_values(prop_values: list[Value]) -> etree._Element:
+    def _combine_values(self, prop_values: list[Value]) -> etree._Element:
         prop_ = prop_values[0].make_prop()
         prop_eles = [x.make_element() for x in prop_values]
         prop_.extend(prop_eles)
@@ -269,19 +277,19 @@ class Resource:
     # TextValue: SimpleText
     #######################
 
-    def add_simple_text(
+    def add_simpletext(
         self, value: str, prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         self.values.append(SimpleText(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    def add_simple_texts(
+    def add_simpletexts(
         self, values: list[str], prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         self.values.extend([SimpleText(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
-    def add_simple_text_optional(
+    def add_simpletext_optional(
         self, value: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         if not pd.isna(value):

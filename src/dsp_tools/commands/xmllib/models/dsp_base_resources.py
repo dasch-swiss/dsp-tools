@@ -9,7 +9,7 @@ from lxml import etree
 
 from dsp_tools.commands.xmllib.models.values import ColorValue
 from dsp_tools.commands.xmllib.models.values import LinkValue
-from dsp_tools.commands.xmllib.models.values import SimpleText
+from dsp_tools.commands.xmllib.models.values import Richtext
 from dsp_tools.commands.xmllib.value_checkers import find_geometry_problem
 from dsp_tools.commands.xmllib.value_checkers import is_decimal
 from dsp_tools.commands.xmllib.value_checkers import is_integer
@@ -120,8 +120,7 @@ class LinkResource:
     def _serialise_links(self) -> etree._Element:
         vals = [LinkValue(value=x, prop_name="hasLinkTo", resource_id=self.res_id) for x in self.link_to]
         prop_ele = vals[0].make_prop()
-        for v in vals:
-            prop_ele.append(v.make_element())
+        prop_ele.extend([v.make_element() for v in vals])
         return prop_ele
 
 
@@ -201,10 +200,9 @@ def _warn_type_mismatch(expected_type: str, value: Any, field_name: str, res_id:
 
 
 def _serialise_has_comment(comments: list[str], res_id: str) -> etree._Element:
-    cmts = [SimpleText(value=x, prop_name="hasComment", resource_id=res_id) for x in comments]
+    cmts = [Richtext(value=x, prop_name="hasComment", resource_id=res_id) for x in comments]
     cmt_prop = cmts[0].make_prop()
-    for cmt in cmts:
-        cmt_prop.append(cmt.make_element())
+    cmt_prop.extend([cmt.make_element() for cmt in cmts])
     return cmt_prop
 
 

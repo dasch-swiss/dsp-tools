@@ -33,7 +33,7 @@ class FileValue(AbstractFileValue):
     resource_id: str | None = None
 
     def __post_init__(self) -> None:
-        if not is_string(self.value):
+        if not is_string(str(self.value)):
             _warn_type_mismatch(expected_type="file name", value=self.value, res_id=self.resource_id)
 
     def serialise(self) -> etree._Element:

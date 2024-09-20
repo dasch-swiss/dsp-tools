@@ -48,13 +48,15 @@ def is_date(value: Any) -> bool:
         True if it conforms
     """
 
-    optional_calendar = r"((GREGORIAN|JULIAN|ISLAMIC):)?"
-    first_era = r"((CE|BCE|BC|AD):)?"
-    second_era = r"(:(CE|BCE|BC|AD))?"
-    date = r"\d{1,4}(?:-\d{1,2})?(?:-\d{1,2})?"
-    mandatory_date = rf"({date})"
-    optional_date = rf"(:{date})?"
-    full_date_pattern = rf"^{optional_calendar}{first_era}{mandatory_date}{second_era}{optional_date}$"
+    calendar_optional = r"((GREGORIAN|JULIAN|ISLAMIC):)?"
+    first_era_optional = r"((CE|BCE|BC|AD):)?"
+    second_area_optional = r"(:(CE|BCE|BC|AD))?"
+    date = r"\d{1,4}(?:-\d{1,2}){0,2}"
+    date_mandatory = rf"({date})"
+    date_optional = rf"(:{date})?"
+    full_date_pattern = (
+        rf"^{calendar_optional}{first_era_optional}{date_mandatory}{second_area_optional}{date_optional}$"
+    )
     return bool(regex.search(full_date_pattern, str(value)))
 
 
@@ -105,9 +107,7 @@ def is_integer(value: Any) -> bool:
     """
     if isinstance(value, str):
         return bool(regex.search(r"^\d+$", value))
-    elif isinstance(value, int):
-        return True
-    return False
+    return isinstance(value, int)
 
 
 def is_list(node: Any, listname: Any) -> bool:

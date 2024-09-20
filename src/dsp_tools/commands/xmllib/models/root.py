@@ -18,7 +18,7 @@ DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 class XMLRoot:
     shortcode: str
     default_ontology: str
-    resource_collection: list[Resource] = field(default_factory=list)
+    resources: list[Resource] = field(default_factory=list)
 
     def make_root(self) -> etree._Element:
         schema_url = (
@@ -36,14 +36,18 @@ class XMLRoot:
             nsmap=XML_NAMESPACE_MAP,
         )
 
+    def add_resource(self, resource: Resource) -> XMLRoot:
+        self.resources.append(resource)
+        return self
+
     def add_resources(self, resources: list[Resource]) -> XMLRoot:
-        self.resource_collection.extend(resources)
+        self.resources.extend(resources)
         return self
 
     def serialise(self) -> etree._Element:
         root = self.make_root()
         root = append_permissions(root)
-        serialised_resources = [x.serialise() for x in self.resource_collection]
+        serialised_resources = [x.serialise() for x in self.resources]
         root.extend(serialised_resources)
         return root
 

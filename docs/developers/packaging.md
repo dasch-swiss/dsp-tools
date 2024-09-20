@@ -145,5 +145,5 @@ Upload package:
 # TODO
 
 ```bash
-uvx twine ...
+uvx twine upload dist/*
 ```

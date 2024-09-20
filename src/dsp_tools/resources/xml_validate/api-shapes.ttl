@@ -1,0 +1,411 @@
+@prefix sh:         <http://www.w3.org/ns/shacl#> .
+@prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:        <http://www.w3.org/2002/07/owl#> .
+@prefix knora-api:  <http://api.knora.org/ontology/knora-api/v2#> .
+
+@prefix api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#> .
+
+#########################################
+# GENERAL SHAPES
+#########################################
+
+api-shapes:RDFS_label
+  a              sh:PropertyShape ;
+  sh:name        "Validates that the label is not empty." ;
+  sh:message     "The label of a resource must be a non-empty string." ;
+  sh:targetClass knora-api:Resource ;
+  sh:path        rdfs:label ;
+  sh:pattern     "\\S+" ;
+  sh:severity    sh:Violation .
+
+
+api-shapes:UniqueValuesShape_ValueHas
+  a           sh:NodeShape ;
+  sh:name     "Checks that one resources does not have two identical values with the same property." ;
+  sh:sparql   [
+                a          sh:SPARQLConstraint ;
+                sh:message "A resource may not have the same property and value more than one time." ;
+                sh:select  """
+                    PREFIX knora-api: <http://api.knora.org/ontology/knora-api/v2#>
+                    SELECT $this ?path ?value WHERE {
+                      $this ?path ?valueClass .
+                      ?prop rdfs:subPropertyOf* knora-api:valueHas .
+                      ?valueClass ?prop ?value .
+                    }
+                    GROUP BY $this ?path ?value
+                    HAVING (COUNT(?value) > 1)
+                """ ;
+              ] ;
+  sh:severity sh:Violation .
+
+
+api-shapes:UniqueValuesShape_ValueString
+  a           sh:NodeShape ;
+  sh:name     "Checks that one resources does not have two identical values with the same property." ;
+  sh:sparql   [
+                a          sh:SPARQLConstraint ;
+                sh:message "A resource may not have the same property and value more than one time." ;
+                sh:select  """
+                    PREFIX knora-api: <http://api.knora.org/ontology/knora-api/v2#>
+                    SELECT $this ?path ?value WHERE {
+                      $this ?path ?valueClass .
+                      ?valueClass knora-api:valueAsString ?value .
+                    }
+                    GROUP BY $this ?path ?value
+                    HAVING (COUNT(?value) > 1)
+                """ ;
+              ] ;
+  sh:severity sh:Violation .
+
+
+#########################################
+# USER FACING VALUES
+#########################################
+
+##############
+# BooleanValue
+##############
+
+api-shapes:BooleanValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "Object must be a of type 'BooleanValue'." ;
+  sh:class    knora-api:BooleanValue ;
+  sh:severity sh:Violation .
+
+api-shapes:BooleanValue_NodeShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the content of the value" ;
+  sh:property [
+                a           sh:PropertyShape ;
+                sh:path     knora-api:booleanValueAsBoolean ;
+                sh:datatype xsd:boolean ;
+                sh:message  "The value must be either 'true' or 'false'." ;
+              ] ;
+  sh:severity sh:Violation .
+
+
+##############
+# ColorValue
+##############
+
+api-shapes:ColorValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "Object must be a of type 'ColorValue'." ;
+  sh:class    knora-api:ColorValue ;
+  sh:severity sh:Violation .
+
+api-shapes:ColorValue_NodeShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the content of the value" ;
+  sh:property [
+                a          sh:PropertyShape ;
+                sh:path    knora-api:colorValueAsColor ;
+                sh:pattern "^#[0-9a-f]{6}$" ;
+                sh:message "Value must start with a '#' and end with the characters 0-9 and/or a-f." ;
+              ] ;
+  sh:severity sh:Violation .
+
+
+##############
+# DateValue
+##############
+
+api-shapes:DateValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "Object must be a of type 'DateValue'." ;
+  sh:class    knora-api:DateValue ;
+  sh:severity sh:Violation .
+
+api-shapes:DateValue_NodeShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the content of the value" ;
+  sh:property [
+                a          sh:PropertyShape ;
+                sh:path    knora-api:valueAsString ;
+                sh:pattern "^((GREGORIAN|JULIAN|ISLAMIC):)?((CE|BCE|BC|AD):)?(\\d{1,4}(?:-\\d{1,2})?(?:-\\d{1,2})?)(:(CE|BCE|BC|AD))?(:\\d{1,4}(?:-\\d{1,2})?(?:-\\d{1,2})?)?$" ;
+                sh:message "The value must be a valid date according to the DSP specification." ;
+              ] ;
+  sh:severity sh:Violation .
+
+
+##############
+# DecimalValue
+##############
+
+api-shapes:DecimalValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "Object must be a of type 'DecimalValue'." ;
+  sh:class    knora-api:DecimalValue ;
+  sh:severity sh:Violation .
+
+api-shapes:DecimalValue_NodeShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the content of the value" ;
+  sh:property [
+                a           sh:PropertyShape ;
+                sh:path     knora-api:decimalValueAsDecimal ;
+                sh:datatype xsd:decimal ;
+                sh:message  "Value must be a valid decimal (floating point with a '.' as separator)." ;
+              ] ;
+  sh:severity sh:Violation .
+
+
+##############
+# GeonameValue
+##############
+
+api-shapes:GeonameValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "Object must be a of type 'GeonameValue'." ;
+  sh:class    knora-api:GeonameValue ;
+  sh:severity sh:Violation .
+
+api-shapes:GeonameValue_NodeShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the content of the value" ;
+  sh:property [
+                a          sh:PropertyShape ;
+                sh:path    knora-api:geonameValueAsGeonameCode ;
+                sh:pattern "^\\d+$" ;
+                sh:message "The GeonameValue must be a valid integer." ;
+              ] ;
+  sh:severity sh:Violation .
+
+
+##############
+# IntValue
+##############
+
+api-shapes:IntValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "Object must be a of type 'IntValue'." ;
+  sh:class    knora-api:IntValue ;
+  sh:severity sh:Violation .
+
+api-shapes:IntValue_NodeShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the content of the value" ;
+  sh:property [
+                a           sh:PropertyShape ;
+                sh:path     knora-api:intValueAsInt ;
+                sh:datatype xsd:integer ;
+                sh:message  "Value must be a valid integer." ;
+              ] ;
+  sh:severity sh:Violation .
+
+
+##############
+# LinkValue
+##############
+
+api-shapes:LinkValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "Object must be a of type 'LinkValue'." ;
+  sh:class    knora-api:LinkValue ;
+  sh:severity sh:Violation .
+
+
+api-shapes:linkValueHasTargetID
+  a            owl:ObjectProperty ;
+  rdfs:label   "Property for the internal ID of the LinkValue target." ;
+  rdfs:comment "This is to be used for validation only." .
+
+
+##############
+# ListValue
+##############
+
+# -> if we do not check the list name itself we cannot say if the problem is whether the node does not exist or the list itself
+api-shapes:ListValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "Object must be a of type 'ListValue'." ;
+  sh:class    knora-api:ListValue ;
+  sh:severity sh:Violation .
+
+
+api-shapes:listNameAsString
+  a            owl:DatatypeProperty ;
+  rdfs:label   "Property for the 'name' of a list." ;
+  rdfs:comment "This is to be used for validation only." .
+
+
+api-shapes:listNodeAsString
+  a            owl:DatatypeProperty ;
+  rdfs:label   "Property for the 'name' of a list node." ;
+  rdfs:comment "This is to be used for validation only." .
+
+
+##############
+# TextValue
+##############
+
+###
+# SimpleTextValue
+api-shapes:SimpleTextValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "Object must be a of type 'TextValue' without formatting." ;
+  sh:severity sh:Violation .
+
+api-shapes:SimpleTextValue_NodeShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the content of the value" ;
+  sh:property [
+                a          sh:PropertyShape ;
+                sh:path    knora-api:valueAsString ;
+                sh:pattern "\\S+" ;
+                sh:message "Value must be a valid non-empty string." ;
+              ] ;
+  sh:severity sh:Violation .
+
+
+###
+# FormattedTextValue
+api-shapes:FormattedTextValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "Object must be a of type 'TextValue' with formatting." ;
+  sh:severity sh:Violation .
+
+api-shapes:FormattedTextValue_NodeShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the content of the value" ;
+  sh:property [
+                a          sh:PropertyShape ;
+                sh:path    knora-api:textValueAsXml ;
+                sh:pattern "\\S+" ;
+                sh:message "Value must be a valid non-empty string." ;
+              ] ;
+  sh:severity sh:Violation .
+
+
+##############
+# TimeValue
+##############
+
+api-shapes:TimeValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "Object must be a of type 'TimeValue'." ;
+  sh:class    knora-api:TimeValue ;
+  sh:severity sh:Violation .
+
+api-shapes:TimeValue_NodeShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the content of the value" ;
+  sh:property [
+                a           sh:PropertyShape ;
+                sh:path     knora-api:timeValueAsTimeStamp ;
+                sh:datatype xsd:dateTimeStamp ;
+                sh:message  "Value must be a valid xsd:dateTimeStamp." ;
+              ] ;
+  sh:severity sh:Violation .
+
+##############
+# UriValue
+##############
+
+api-shapes:UriValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "Object must be a of type 'UriValue'." ;
+  sh:class    knora-api:UriValue ;
+  sh:severity sh:Violation .
+
+api-shapes:UriValue_NodeShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the content of the value" ;
+  sh:property [
+                a           sh:PropertyShape ;
+                sh:path     knora-api:uriValueAsUri ;
+                sh:datatype xsd:anyURI ;
+                sh:message  "The value must be a valid URI." ;
+              ] ;
+  sh:severity sh:Violation .
+
+
+#########################################
+# RESOURCES WITH FILES
+#########################################
+
+###########################
+# ArchiveRepresentation
+###########################
+
+# knora-api:ArchiveFileValue -> knora-api:hasArchiveFileValue
+
+
+###########################
+# AudioRepresentation
+###########################
+
+# knora-api:AudioFileValue -> knora-api:hasAudioFileValue
+
+
+###########################
+# DocumentRepresentation
+###########################
+
+# knora-api:DocumentFileValue -> knora-api:hasDocumentFileValue
+
+
+###########################
+# MovingImageRepresentation
+###########################
+
+# knora-api:MovingImageFileValue -> knora-api:hasMovingImageFileValue
+
+
+###########################
+# StillImageRepresentation
+###########################
+
+# knora-api:StillImageExternalFileValue -> knora-api:fileValueHasExternalUrl
+
+
+# knora-api:StillImageFileValue -> knora-api:hasStillImageFileValue
+
+
+###########################
+# TextRepresentation
+###########################
+
+# knora-api:TextFileValue -> knora-api:hasTextFileValue
+
+
+#########################################
+# DSP BUILT IN RESOURCES
+#########################################
+
+###########################
+# Annotation
+###########################
+
+
+###########################
+# Region
+###########################
+
+
+###########################
+# LinkObj
+###########################
+
+
+###########################
+# VideoSegment
+###########################
+
+
+###########################
+# AudioSegment
+###########################

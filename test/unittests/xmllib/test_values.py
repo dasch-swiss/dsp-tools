@@ -31,7 +31,8 @@ class TestBooleanValue:
     def test_serialise(self) -> None:
         v = BooleanValue("0", ":booleanProp", resource_id="res_id")
         expected = (
-            b'<boolean-prop xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b"<boolean-prop "
+            b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'name=":booleanProp">'
             b'<boolean permissions="prop-default">false</boolean>'
             b"</boolean-prop>"
@@ -53,7 +54,8 @@ class TestColorValue:
     def test_serialise(self) -> None:
         v = ColorValue("#000000", ":colorProp", resource_id="res_id")
         expected = (
-            b'<color-prop xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b"<color-prop "
+            b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'name=":colorProp">'
             b'<color permissions="prop-default">#000000</color>'
             b"</color-prop>"
@@ -75,7 +77,8 @@ class TestDateValue:
     def test_serialise(self) -> None:
         v = DateValue("2023-01-01", ":dateProp", resource_id="res_id")
         expected = (
-            b'<date-prop xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b"<date-prop "
+            b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'name=":dateProp">'
             b'<date permissions="prop-default">2023-01-01</date>'
             b"</date-prop>"
@@ -97,7 +100,8 @@ class TestDecimalValue:
     def test_serialise(self) -> None:
         v = DecimalValue("3.14", ":decimalProp", resource_id="res_id")
         expected = (
-            b'<decimal-prop xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b"<decimal-prop "
+            b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'name=":decimalProp">'
             b'<decimal permissions="prop-default">3.14</decimal>'
             b"</decimal-prop>"
@@ -119,7 +123,8 @@ class TestGeonameValue:
     def test_serialise(self) -> None:
         v = GeonameValue("99", ":geonameProp", resource_id="res_id")
         expected = (
-            b'<geoname-prop xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b"<geoname-prop "
+            b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'name=":geonameProp">'
             b'<geoname permissions="prop-default">99</geoname>'
             b"</geoname-prop>"
@@ -141,7 +146,8 @@ class TestIntValue:
     def test_serialise(self) -> None:
         v = IntValue("42", ":intProp", resource_id="res_id")
         expected = (
-            b'<integer-prop xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b"<integer-prop "
+            b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'name=":intProp">'
             b'<integer permissions="prop-default">42</integer>'
             b"</integer-prop>"
@@ -163,7 +169,8 @@ class TestLinkValue:
     def test_serialise(self) -> None:
         v = LinkValue("res_link", ":linkProp", resource_id="res_id")
         expected = (
-            b'<resptr-prop xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b"<resptr-prop "
+            b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'name=":linkProp">'
             b'<resptr permissions="prop-default">res_link</resptr>'
             b"</resptr-prop>"
@@ -189,7 +196,8 @@ class TestListValue:
     def test_serialise(self) -> None:
         v = ListValue("item1", "listName", ":listProp", resource_id="res_id")
         expected = (
-            b'<list-prop xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b"<list-prop "
+            b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'name=":listProp" list="listName">'
             b'<list permissions="prop-default">item1</list>'
             b"</list-prop>"
@@ -211,7 +219,8 @@ class TestRichtext:
     def test_serialise(self) -> None:
         v = Richtext("<p>Hello World</p>", ":richtextProp", resource_id="res_id")
         expected = (
-            b'<text-prop xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b"<text-prop "
+            b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'name=":richtextProp">'
             b'<text encoding="xml" permissions="prop-default">&lt;p&gt;Hello World&lt;/p&gt;</text>'
             b"</text-prop>"
@@ -233,7 +242,8 @@ class TestSimpleText:
     def test_serialise(self) -> None:
         v = SimpleText("Hello World", ":simpleTextProp", resource_id="res_id")
         expected = (
-            b'<text-prop xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b"<text-prop "
+            b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'name=":simpleTextProp">'
             b'<text encoding="utf8" permissions="prop-default">Hello World</text>'
             b"</text-prop>"
@@ -255,7 +265,8 @@ class TestTimeValue:
     def test_serialise(self) -> None:
         v = TimeValue("2009-10-10T12:00:00-05:00", ":timeProp", resource_id="res_id")
         expected = (
-            b'<time-prop xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b"<time-prop "
+            b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'name=":timeProp">'
             b'<time permissions="prop-default">2009-10-10T12:00:00-05:00</time>'
             b"</time-prop>"
@@ -277,7 +288,8 @@ class TestUriValue:
     def test_serialise(self) -> None:
         v = UriValue("https://example.com", ":uriProp", resource_id="res_id")
         expected = (
-            b'<uri-prop xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b"<uri-prop "
+            b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'name=":uriProp">'
             b'<uri permissions="prop-default">https://example.com</uri>'
             b"</uri-prop>"

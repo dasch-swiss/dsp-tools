@@ -62,6 +62,7 @@ There are two files defining the dependencies:
 - `uv.lock` enables deterministic installations, by exactly pinning the versions of all (sub-)dependencies. 
 
 If you want to install a new package, install it with `uv add package`.
+If your new package is only used in test code, use `uv add --dev package` instead.
 
 This
 

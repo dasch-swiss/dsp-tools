@@ -2,7 +2,7 @@ from pathlib import Path
 
 from lxml import etree
 
-from dsp_tools.commands.xml_validate.models.data_rdf import DataDeserialised
+from dsp_tools.commands.xml_validate.models.data_rdf import DataRDF
 from dsp_tools.commands.xml_validate.reformat_input import transform_into_data_deserialised
 from dsp_tools.utils.xml_utils import parse_xml_file
 from dsp_tools.utils.xml_utils import remove_comments_from_element_tree
@@ -10,7 +10,7 @@ from dsp_tools.utils.xml_utils import remove_qnames_and_transform_special_tags
 from dsp_tools.utils.xml_validation import validate_xml
 
 
-def _deserialise_file(file: Path, ontology_name: str) -> DataDeserialised:
+def _deserialise_file(file: Path, ontology_name: str) -> DataRDF:
     """Returns an object which follows the structure of the XML closely"""
     root = _parse_and_clean_file(file, ontology_name)
     return transform_into_data_deserialised(root)

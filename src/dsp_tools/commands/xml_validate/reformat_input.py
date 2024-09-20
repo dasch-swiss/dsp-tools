@@ -8,7 +8,7 @@ from rdflib import URIRef
 
 from dsp_tools.commands.xml_validate.models.data_rdf import BooleanValueRDF
 from dsp_tools.commands.xml_validate.models.data_rdf import ColorValueRDF
-from dsp_tools.commands.xml_validate.models.data_rdf import DataDeserialised
+from dsp_tools.commands.xml_validate.models.data_rdf import DataRDF
 from dsp_tools.commands.xml_validate.models.data_rdf import DateValueRDF
 from dsp_tools.commands.xml_validate.models.data_rdf import DecimalValueRDF
 from dsp_tools.commands.xml_validate.models.data_rdf import GeonameValueRDF
@@ -23,7 +23,7 @@ from dsp_tools.commands.xml_validate.models.data_rdf import UriValueRDF
 from dsp_tools.commands.xml_validate.models.data_rdf import ValueRDF
 
 
-def transform_into_data_deserialised(root: etree._Element) -> DataDeserialised:
+def transform_into_data_deserialised(root: etree._Element) -> DataRDF:
     """
     Takes the root of an XML
     Extracts the metadata of the project and transforms all its resources.
@@ -37,7 +37,7 @@ def transform_into_data_deserialised(root: etree._Element) -> DataDeserialised:
     shortcode = root.attrib["shortcode"]
     default_ontology = root.attrib["default-ontology"]
     resources = _deserialise_all_resources(root)
-    return DataDeserialised(shortcode=shortcode, default_onto=default_ontology, resources=resources)
+    return DataRDF(shortcode=shortcode, default_onto=default_ontology, resources=resources)
 
 
 def _deserialise_all_resources(root: etree._Element) -> list[ResourceRDF]:

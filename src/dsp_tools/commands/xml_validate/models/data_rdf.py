@@ -15,7 +15,7 @@ API_SHAPES = Namespace("http://api.knora.org/ontology/knora-api/shapes/v2#")
 
 
 @dataclass
-class DataDeserialised:
+class DataRDF:
     shortcode: str
     default_onto: str
     resources: list[ResourceRDF]

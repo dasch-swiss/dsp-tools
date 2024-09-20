@@ -2,7 +2,7 @@ from pathlib import Path
 
 from lxml import etree
 
-from dsp_tools.commands.xml_validate.models.data_deserialised import DataDeserialised
+from dsp_tools.commands.xml_validate.models.data_rdf import DataDeserialised
 from dsp_tools.commands.xml_validate.reformat_input import transform_into_project_deserialised
 from dsp_tools.utils.xml_utils import parse_xml_file
 from dsp_tools.utils.xml_utils import remove_comments_from_element_tree

@@ -29,8 +29,8 @@ class AnnotationResource:
     permissions: str = "res-default"
 
     def __post_init__(self) -> None:
-        _check_and_warn_strings(self.res_id, self.res_id, "Resource ID")
-        _check_and_warn_strings(self.res_id, self.label, "Label")
+        _check_strings(self.res_id, self.res_id, "Resource ID")
+        _check_strings(self.res_id, self.label, "Label")
 
     def serialise(self) -> etree._Element:
         res_ele = self._serialise_resource_element()
@@ -59,8 +59,8 @@ class RegionResource:
     permissions: str = "res-default"
 
     def __post_init__(self) -> None:
-        _check_and_warn_strings(self.res_id, self.res_id, "Resource ID")
-        _check_and_warn_strings(self.res_id, self.label, "Label")
+        _check_strings(self.res_id, self.res_id, "Resource ID")
+        _check_strings(self.res_id, self.label, "Label")
         if fail_msg := find_geometry_problem(self.geometry):
             msg = f"The geometry of the resource with the ID '{self.res_id}' failed validation.\n" + fail_msg
             warnings.warn(DspToolsUserWarning(msg))
@@ -102,8 +102,8 @@ class LinkResource:
     permissions: str = "res-default"
 
     def __post_init__(self) -> None:
-        _check_and_warn_strings(self.res_id, self.res_id, "Resource ID")
-        _check_and_warn_strings(self.res_id, self.label, "Label")
+        _check_strings(self.res_id, self.res_id, "Resource ID")
+        _check_strings(self.res_id, self.label, "Label")
 
     def serialise(self) -> etree._Element:
         res_ele = self._serialise_resource_element()
@@ -182,21 +182,13 @@ class AudioSegmentResource:
         return etree.Element(f"{DASCH_SCHEMA}audio-segment", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
 
 
-def _check_and_warn_strings(res_id: str, string_to_check: str, field_name: str) -> None:
-    if not is_string_like(str(string_to_check)):
+def _check_strings(res_id: str, string_to_check: str, field_name: str) -> None:
+    if not is_string_like(string_to_check):
         msg = (
             f"The resource with the ID '{res_id}' has an invalid string at the following location:\n"
             f"Field: {field_name} | Value: {string_to_check}"
         )
         warnings.warn(DspToolsUserWarning(msg))
-
-
-def _warn_type_mismatch(expected_type: str, value: Any, field_name: str, res_id: str | None) -> None:
-    """Emits a warning if a values is not in the expected format."""
-    msg = "At the following location a wrong data type was provided.\n"
-    msg += f"Resource: {res_id} | " if res_id else ""
-    msg += f"Field: {field_name} | Value: {value} | Expected type: {expected_type}"
-    warnings.warn(DspToolsUserWarning(msg))
 
 
 def _serialise_has_comment(comments: list[str], res_id: str) -> etree._Element:
@@ -214,9 +206,8 @@ def _validate_segment(segment: AudioSegmentResource | VideoSegmentResource) -> N
         problems.append(f"Field: label | Value: {segment.label}")
     if not is_string_like(segment.segment_of):
         problems.append(f"Field: segment_of | Value: {segment.segment_of}")
-    if segment.title:
-        if not is_string_like(segment.title):
-            problems.append(f"Field: title | Value: {segment.title}")
+    if segment.title and not is_string_like(segment.title):
+        problems.append(f"Field: title | Value: {segment.title}")
     if fails := [x for x in segment.comment if not is_string_like(x)]:
         problems.extend([f"Field: comment | Value: {x}" for x in fails])
     if fails := [x for x in segment.description if not is_string_like(x)]:

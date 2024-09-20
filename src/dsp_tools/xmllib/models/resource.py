@@ -216,7 +216,7 @@ class Resource:
         return self
 
     def add_integer_optional(
-        self, value: Any, prop_name: Any, permissions: str | None = None, comment: str | None = None
+        self, value: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
     ) -> Resource:
         if not pd.isna(value):
             self.values.append(IntValue(value, prop_name, permissions, comment, self.res_id))
@@ -374,7 +374,7 @@ class Resource:
             raise InputError(
                 f"The resource with the ID '{self.res_id}' already contains a file with the name: "
                 f"'{self.file_value.value}'.\n"
-                f"The new file with the name: '{filename}' cannot be added."
+                f"The new file with the name '{filename}' cannot be added."
             )
         self.file_value = FileValue(filename, permissions, comment, self.res_id)
         return self
@@ -384,7 +384,7 @@ class Resource:
             raise InputError(
                 f"The resource with the ID '{self.res_id}' already contains a file with the name: "
                 f"'{self.file_value.value}'.\n"
-                f"The new file with the name: '{iiif_uri}' cannot be added."
+                f"The new file with the name '{iiif_uri}' cannot be added."
             )
         self.file_value = IIIFUri(iiif_uri, permissions, comment, self.res_id)
         return self

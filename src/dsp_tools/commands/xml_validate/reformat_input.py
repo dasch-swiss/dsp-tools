@@ -102,7 +102,9 @@ def _deserialise_one_property(prop_ele: etree._Element) -> Sequence[ValueRDF]:  
             return []
 
 
-def _deserialise_into_xsd_string(prop: etree._Element, func: Callable[[str, str], ValueRDF]) -> Sequence[ValueRDF]:
+def _deserialise_into_xsd_string(
+    prop: etree._Element, func: Callable[[URIRef, Literal], ValueRDF]
+) -> Sequence[ValueRDF]:
     prop_name = URIRef(prop.attrib["name"])
     all_vals: list[ValueRDF] = []
     for val in prop.iterchildren():
@@ -111,7 +113,7 @@ def _deserialise_into_xsd_string(prop: etree._Element, func: Callable[[str, str]
     return all_vals
 
 
-def _deserialise_into_xsd_int(prop: etree._Element, func: Callable[[str, str], ValueRDF]) -> Sequence[ValueRDF]:
+def _deserialise_into_xsd_int(prop: etree._Element, func: Callable[[URIRef, Literal], ValueRDF]) -> Sequence[ValueRDF]:
     prop_name = URIRef(prop.attrib["name"])
     all_vals: list[ValueRDF] = []
     for val in prop.iterchildren():

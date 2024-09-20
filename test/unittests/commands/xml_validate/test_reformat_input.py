@@ -118,7 +118,7 @@ class TestGeonameValue:
         res = res_list[0]
         assert isinstance(res, GeonameValueRDF)
         assert res.prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testGeoname")
-        assert res.object_value == Literal("1111111")
+        assert res.object_value == Literal("1111111", datatype=XSD.integer)
 
     def test_several(self, geoname_value_corr_several: etree._Element) -> None:
         res = _deserialise_one_property(geoname_value_corr_several)
@@ -220,15 +220,15 @@ class TestTimeValue:
         res = res_list[0]
         assert isinstance(res, TimeValueRDF)
         assert res.prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testTimeValue")
-        assert res.object_value == Literal("2019-10-23T13:45:12.01-14:00", XSD.dateTimeStamp)
+        assert res.object_value == Literal("2019-10-23T13:45:12.01-14:00", datatype=XSD.dateTimeStamp)
 
     def test_several(self, time_value_corr_several: etree._Element) -> None:
         res = _deserialise_one_property(time_value_corr_several)
         assert len(res) == 2
         assert all([isinstance(x, TimeValueRDF) for x in res])
         assert res[0].prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testTimeValue")
-        assert res[0].object_value == Literal("2019-10-23T13:45:12.01-14:00", XSD.dateTimeStamp)
-        assert res[1].object_value == Literal("2019-10-23T13:45:12.01-08:00", XSD.dateTimeStamp)
+        assert res[0].object_value == Literal("2019-10-23T13:45:12.01-14:00", datatype=XSD.dateTimeStamp)
+        assert res[1].object_value == Literal("2019-10-23T13:45:12.01-08:00", datatype=XSD.dateTimeStamp)
 
 
 class TestUriValue:
@@ -246,7 +246,7 @@ class TestUriValue:
         assert all([isinstance(x, UriValueRDF) for x in res])
         assert res[0].prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testUriValue")
         assert res[0].object_value == Literal("https://dasch.swiss", datatype=XSD.anyURI)
-        assert res[1].object_value == Literal("https://app.dasch.swiss", XSD.anyURI)
+        assert res[1].object_value == Literal("https://app.dasch.swiss", datatype=XSD.anyURI)
 
 
 class TestLinkValue:

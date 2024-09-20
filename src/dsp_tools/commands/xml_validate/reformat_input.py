@@ -55,22 +55,21 @@ def _deserialise_all_resources(root: etree._Element) -> list[ResourceRDF]:
 
 def _deserialise_dsp_base_resource(resource: etree._Element) -> ResourceRDF:
     return ResourceRDF(
-        res_id=resource.attrib["id"],
-        res_class=resource.attrib["restype"],
-        label=resource.attrib["label"],
+        res_id=URIRef(resource.attrib["id"]),
+        res_class=URIRef(resource.attrib["restype"]),
+        label=Literal(resource.attrib["label"], datatype=XSD.string),
         values=[],
     )
 
 
 def _deserialise_one_resource(resource: etree._Element) -> ResourceRDF:
-    res_id = resource.attrib["id"]
     values: list[ValueRDF] = []
     for val in resource.iterchildren():
         values.extend(_deserialise_one_property(val))
     return ResourceRDF(
-        res_id=res_id,
-        res_class=resource.attrib["restype"],
-        label=resource.attrib["label"],
+        res_id=URIRef(resource.attrib["id"]),
+        res_class=URIRef(resource.attrib["restype"]),
+        label=Literal(resource.attrib["label"], datatype=XSD.string),
         values=values,
     )
 
@@ -78,13 +77,13 @@ def _deserialise_one_resource(resource: etree._Element) -> ResourceRDF:
 def _deserialise_one_property(prop_ele: etree._Element) -> Sequence[ValueRDF]:  # noqa: PLR0911 (too-many-branches, return statements)
     match prop_ele.tag:
         case "boolean-prop":
-            return _deserialise_bool_prop(prop_ele, BooleanValueRDF)
+            return _deserialise_bool_prop(prop_ele)
         case "color-prop":
             return _deserialise_into_xsd_string(prop_ele, ColorValueRDF)
         case "date-prop":
             return _deserialise_into_xsd_string(prop_ele, DateValueRDF)
         case "decimal-prop":
-            return _deserialise_decimal_prop(prop_ele, DecimalValueRDF)
+            return _deserialise_decimal_prop(prop_ele)
         case "geoname-prop":
             return _deserialise_into_xsd_int(prop_ele, GeonameValueRDF)
         case "list-prop":
@@ -92,13 +91,13 @@ def _deserialise_one_property(prop_ele: etree._Element) -> Sequence[ValueRDF]:  
         case "integer-prop":
             return _deserialise_into_xsd_int(prop_ele, IntValueRDF)
         case "resptr-prop":
-            return _deserialise_link_prop(prop_ele, LinkValueRDF)
+            return _deserialise_link_prop(prop_ele)
         case "text-prop":
             return _deserialise_text_prop(prop_ele)
         case "time-prop":
-            return _deserialise_time_prop(prop_ele, TimeValueRDF)
+            return _deserialise_time_prop(prop_ele)
         case "uri-prop":
-            return _deserialise_uri_prop(prop_ele, UriValueRDF)
+            return _deserialise_uri_prop(prop_ele)
         case _:
             return []
 
@@ -108,7 +107,7 @@ def _deserialise_into_xsd_string(prop: etree._Element, func: Callable[[str, str]
     all_vals: list[ValueRDF] = []
     for val in prop.iterchildren():
         txt = val.text if val.text is not None else ""
-        all_vals.append(func(prop_name, Literal(txt, XSD.string)))
+        all_vals.append(func(prop_name, Literal(txt, datatype=XSD.string)))
     return all_vals
 
 
@@ -117,7 +116,7 @@ def _deserialise_into_xsd_int(prop: etree._Element, func: Callable[[str, str], V
     all_vals: list[ValueRDF] = []
     for val in prop.iterchildren():
         txt = Literal(val.text, datatype=XSD.integer) if val.text is not None else Literal("", datatype=XSD.string)
-        all_vals.append(func(prop_name, Literal(txt, XSD.string)))
+        all_vals.append(func(prop_name, txt))
     return all_vals
 
 
@@ -126,7 +125,6 @@ def _deserialise_bool_prop(prop: etree._Element) -> Sequence[BooleanValueRDF]:
     all_vals: list[BooleanValueRDF] = []
     for val in prop.iterchildren():
         txt = Literal(val.text, datatype=XSD.boolean) if val.text is not None else Literal("", datatype=XSD.string)
-
         all_vals.append(BooleanValueRDF(prop_name=prop_name, object_value=txt))
     return all_vals
 

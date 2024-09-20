@@ -33,7 +33,7 @@ def _check_if_on_main_branch() -> None:
     if _make_sys_call("git rev-parse --abbrev-ref HEAD") != "main":
         msg = (
             "The 'git rev-list' command will only work as expected on the main branch. "
-            "If this workflow is intentionally run on a branch other than the 'main', "
+            "If this workflow is intentionally run on a branch other than 'main', "
             "run 'git rev-list' with 'HEAD' instead of 'main'. "
             "This should only be done for testing purposes. In production, this will yield an unintended commit count."
         )
@@ -56,7 +56,7 @@ def _make_sys_call(call: str) -> str:
     except subprocess.CalledProcessError as e:
         print(f"ERROR: Call: {call} | Returncode: {e.returncode} | Stdout: {e.stdout} | Stderr: {e.stderr}")
         sys.exit(1)
-    print(f"Call: {call} | Stdout: {res}")
+    print(f"INFO: Call: {call} | Stdout: {res}")
     return res
 
 

@@ -25,7 +25,7 @@ from dsp_tools.commands.xmllib.models.values import SimpleText
 from dsp_tools.commands.xmllib.models.values import TimeValue
 from dsp_tools.commands.xmllib.models.values import UriValue
 from dsp_tools.commands.xmllib.models.values import Value
-from dsp_tools.commands.xmllib.value_checkers import is_string
+from dsp_tools.commands.xmllib.value_checkers import is_string_like
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
 
@@ -46,11 +46,11 @@ class Resource:
 
     def __post_init__(self) -> None:
         msg = []
-        if not is_string(str(self.label)):
+        if not is_string_like(str(self.label)):
             msg.append(f"Label '{self.label}'")
-        if not is_string(str(self.res_id)):
+        if not is_string_like(str(self.res_id)):
             msg.append(f"Resource ID '{self.res_id}'")
-        if not is_string(str(self.restype)):
+        if not is_string_like(str(self.restype)):
             msg.append(f"Resource Type '{self.restype}'")
         if msg:
             out_msg = (

@@ -4,25 +4,25 @@ import pandas as pd
 import pytest
 
 from dsp_tools.commands.xmllib.value_checkers import find_geometry_problem
-from dsp_tools.commands.xmllib.value_checkers import is_bool
+from dsp_tools.commands.xmllib.value_checkers import is_bool_like
 from dsp_tools.commands.xmllib.value_checkers import is_color
 from dsp_tools.commands.xmllib.value_checkers import is_date
 from dsp_tools.commands.xmllib.value_checkers import is_decimal
 from dsp_tools.commands.xmllib.value_checkers import is_geoname
 from dsp_tools.commands.xmllib.value_checkers import is_integer
 from dsp_tools.commands.xmllib.value_checkers import is_list
-from dsp_tools.commands.xmllib.value_checkers import is_string
+from dsp_tools.commands.xmllib.value_checkers import is_string_like
 from dsp_tools.commands.xmllib.value_checkers import is_timestamp
 
 
 @pytest.mark.parametrize("val", ["false", "0", "0.0", "no", "true", "1", "1.0", "yes", False, True])
 def test_is_bool_correct(val: Any) -> None:
-    assert is_bool(val)
+    assert is_bool_like(val)
 
 
 @pytest.mark.parametrize("val", ["none", "asdfioh", None, pd.NA])
 def test_is_bool_wrong(val: Any) -> None:
-    assert not is_bool(val)
+    assert not is_bool_like(val)
 
 
 @pytest.mark.parametrize("val", ["#234567", "#abcdef", "#123abc"])
@@ -112,12 +112,12 @@ def test_is_list_wrong(node_val: Any, list_val: Any) -> None:
 
 @pytest.mark.parametrize("val", ["a", "None", "-", "1", "\n1", "עִבְרִית", "اَلْعَرَبِيَّةُ"])
 def test_is_string_correct(val: Any) -> None:
-    assert is_string(val)
+    assert is_string_like(val)
 
 
 @pytest.mark.parametrize("val", [None, pd.NA, "", " ", "\t \n"])
 def test_is_string_wrong(val: Any) -> None:
-    assert not is_string(val)
+    assert not is_string_like(val)
 
 
 @pytest.mark.parametrize(

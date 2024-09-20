@@ -13,7 +13,7 @@ from dsp_tools.commands.xmllib.models.values import Richtext
 from dsp_tools.commands.xmllib.value_checkers import find_geometry_problem
 from dsp_tools.commands.xmllib.value_checkers import is_decimal
 from dsp_tools.commands.xmllib.value_checkers import is_integer
-from dsp_tools.commands.xmllib.value_checkers import is_string
+from dsp_tools.commands.xmllib.value_checkers import is_string_like
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
@@ -183,7 +183,7 @@ class AudioSegmentResource:
 
 
 def _check_and_warn_strings(res_id: str, string_to_check: str, field_name: str) -> None:
-    if not is_string(str(string_to_check)):
+    if not is_string_like(str(string_to_check)):
         msg = (
             f"The resource with the ID: '{res_id}' has an invalid string at the following location:\n"
             f"Field: {field_name} | Value: {string_to_check}"
@@ -208,22 +208,22 @@ def _serialise_has_comment(comments: list[str], res_id: str) -> etree._Element:
 
 def _validate_segment(segment: AudioSegmentResource | VideoSegmentResource) -> None:
     problems = []
-    if not is_string(segment.res_id):
+    if not is_string_like(segment.res_id):
         problems.append(f"Field: Resource ID | Value: {segment.res_id}")
-    if not is_string(segment.label):
+    if not is_string_like(segment.label):
         problems.append(f"Field: label | Value: {segment.label}")
-    if not is_string(segment.segment_of):
+    if not is_string_like(segment.segment_of):
         problems.append(f"Field: segment_of | Value: {segment.segment_of}")
     if segment.title:
-        if not is_string(segment.title):
+        if not is_string_like(segment.title):
             problems.append(f"Field: title | Value: {segment.title}")
-    if fails := [x for x in segment.comment if not is_string(x)]:
+    if fails := [x for x in segment.comment if not is_string_like(x)]:
         problems.extend([f"Field: comment | Value: {x}" for x in fails])
-    if fails := [x for x in segment.description if not is_string(x)]:
+    if fails := [x for x in segment.description if not is_string_like(x)]:
         problems.extend([f"Field: description | Value: {x}" for x in fails])
-    if fails := [x for x in segment.keywords if not is_string(x)]:
+    if fails := [x for x in segment.keywords if not is_string_like(x)]:
         problems.extend([f"Field: keywords | Value: {x}" for x in fails])
-    if fails := [x for x in segment.relates_to if not is_string(x)]:
+    if fails := [x for x in segment.relates_to if not is_string_like(x)]:
         problems.extend([f"Field: relates_to | Value: {x}" for x in fails])
     problems.extend(_validate_segment_bounds(segment.segment_start, segment.segment_end))
     if problems:

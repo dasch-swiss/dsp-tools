@@ -7,14 +7,14 @@ from typing import Protocol
 
 from lxml import etree
 
-from dsp_tools.commands.xmllib.value_checkers import is_bool
+from dsp_tools.commands.xmllib.value_checkers import is_bool_like
 from dsp_tools.commands.xmllib.value_checkers import is_color
 from dsp_tools.commands.xmllib.value_checkers import is_date
 from dsp_tools.commands.xmllib.value_checkers import is_decimal
 from dsp_tools.commands.xmllib.value_checkers import is_geoname
 from dsp_tools.commands.xmllib.value_checkers import is_integer
 from dsp_tools.commands.xmllib.value_checkers import is_list
-from dsp_tools.commands.xmllib.value_checkers import is_string
+from dsp_tools.commands.xmllib.value_checkers import is_string_like
 from dsp_tools.commands.xmllib.value_checkers import is_timestamp
 from dsp_tools.commands.xmllib.value_converters import convert_to_bool_string
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
@@ -50,7 +50,7 @@ class BooleanValue:
     resource_id: str | None = None
 
     def __post_init__(self) -> None:
-        if not is_bool(self.value):
+        if not is_bool_like(self.value):
             _warn_type_mismatch(
                 expected_type="bool", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
@@ -237,7 +237,7 @@ class LinkValue:
     resource_id: str | None = None
 
     def __post_init__(self) -> None:
-        if not is_string(self.value):
+        if not is_string_like(self.value):
             _warn_type_mismatch(
                 expected_type="string", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
@@ -302,7 +302,7 @@ class SimpleText:
     resource_id: str | None = None
 
     def __post_init__(self) -> None:
-        if not is_string(self.value):
+        if not is_string_like(self.value):
             _warn_type_mismatch(
                 expected_type="string", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
@@ -335,7 +335,7 @@ class Richtext:
     resource_id: str | None = None
 
     def __post_init__(self) -> None:
-        if not is_string(self.value):
+        if not is_string_like(self.value):
             _warn_type_mismatch(
                 expected_type="string", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )

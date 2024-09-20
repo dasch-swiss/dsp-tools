@@ -5,7 +5,7 @@ import pandas as pd
 import regex
 
 
-def is_bool(value: Any) -> bool:
+def is_bool_like(value: Any) -> bool:
     """
     Checks if a value is a bool or can be converted into a bool.
 
@@ -130,7 +130,7 @@ def is_list(node: Any, listname: Any) -> bool:
     return True
 
 
-def is_string(value: Any) -> bool:
+def is_string_like(value: Any) -> bool:
     """
     Checks if a value is a string.
 

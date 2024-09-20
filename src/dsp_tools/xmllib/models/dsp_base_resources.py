@@ -29,8 +29,8 @@ class AnnotationResource:
     permissions: str = "res-default"
 
     def __post_init__(self) -> None:
-        _check_strings(self.res_id, self.res_id, "Resource ID")
-        _check_strings(self.res_id, self.label, "Label")
+        _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
+        _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
 
     def serialise(self) -> etree._Element:
         res_ele = self._serialise_resource_element()
@@ -59,8 +59,8 @@ class RegionResource:
     permissions: str = "res-default"
 
     def __post_init__(self) -> None:
-        _check_strings(self.res_id, self.res_id, "Resource ID")
-        _check_strings(self.res_id, self.label, "Label")
+        _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
+        _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
         if fail_msg := find_geometry_problem(self.geometry):
             msg = f"The geometry of the resource with the ID '{self.res_id}' failed validation.\n" + fail_msg
             warnings.warn(DspToolsUserWarning(msg))
@@ -102,8 +102,8 @@ class LinkResource:
     permissions: str = "res-default"
 
     def __post_init__(self) -> None:
-        _check_strings(self.res_id, self.res_id, "Resource ID")
-        _check_strings(self.res_id, self.label, "Label")
+        _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
+        _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
 
     def serialise(self) -> etree._Element:
         res_ele = self._serialise_resource_element()
@@ -182,7 +182,7 @@ class AudioSegmentResource:
         return etree.Element(f"{DASCH_SCHEMA}audio-segment", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
 
 
-def _check_strings(res_id: str, string_to_check: str, field_name: str) -> None:
+def _check_strings(string_to_check: str, res_id: str, field_name: str) -> None:
     if not is_string_like(string_to_check):
         msg = (
             f"The resource with the ID '{res_id}' has an invalid string at the following location:\n"

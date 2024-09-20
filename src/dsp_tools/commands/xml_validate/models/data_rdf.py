@@ -131,6 +131,19 @@ class IntValueRDF(ValueRDF):
 
 
 @dataclass
+class LinkValueRDF(ValueRDF):
+    object_value: URIRef
+
+    def make_graph(self, res_iri: URIRef) -> Graph:
+        g = Graph()
+        bn = BNode()
+        g.add((bn, RDF.type, KNORA_API.LinkValue))
+        g.add((bn, API_SHAPES.linkValueHasTargetID, self.object_value))
+        g.add((res_iri, self.prop_name, bn))
+        return g
+
+
+@dataclass
 class ListValueRDF(ValueRDF):
     prop_name: URIRef
     object_value: Literal
@@ -194,18 +207,5 @@ class UriValueRDF(ValueRDF):
         bn = BNode()
         g.add((bn, RDF.type, KNORA_API.UriValue))
         g.add((bn, KNORA_API.uriValueAsUri, self.object_value))
-        g.add((res_iri, self.prop_name, bn))
-        return g
-
-
-@dataclass
-class LinkValueRDF(ValueRDF):
-    object_value: URIRef
-
-    def make_graph(self, res_iri: URIRef) -> Graph:
-        g = Graph()
-        bn = BNode()
-        g.add((bn, RDF.type, KNORA_API.LinkValue))
-        g.add((bn, API_SHAPES.linkValueHasTargetID, self.object_value))
         g.add((res_iri, self.prop_name, bn))
         return g

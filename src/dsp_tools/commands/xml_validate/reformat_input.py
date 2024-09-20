@@ -23,7 +23,7 @@ from dsp_tools.commands.xml_validate.models.data_rdf import UriValueRDF
 from dsp_tools.commands.xml_validate.models.data_rdf import ValueRDF
 
 
-def transform_into_project_deserialised(root: etree._Element) -> DataDeserialised:
+def transform_into_data_deserialised(root: etree._Element) -> DataDeserialised:
     """
     Takes the root of an XML
     Extracts the metadata of the project and transforms all its resources.

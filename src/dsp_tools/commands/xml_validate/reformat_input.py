@@ -26,7 +26,7 @@ from dsp_tools.commands.xml_validate.models.data_rdf import ValueRDF
 def to_data_rdf(root: etree._Element) -> DataRDF:
     """
     Takes the root of an XML
-    Extracts the metadata of the project and transforms all its resources.
+    Extracts the data of the project and transforms all its resources.
 
     Args:
         root: root of an xml with qnames and comments removed

@@ -31,9 +31,10 @@ class TestBooleanValue:
     def test_serialise(self) -> None:
         v = BooleanValue("0", ":booleanProp", resource_id="res_id")
         expected = (
-            b'<boolean-prop xmlns="https://dasch.swiss/schema" '
-            b'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name=":booleanProp">'
-            b'<boolean permissions="prop-default">false</boolean></boolean-prop>'
+            b'<boolean-prop xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'name=":booleanProp">'
+            b'<boolean permissions="prop-default">false</boolean>'
+            b"</boolean-prop>"
         )
         res_str = etree.tostring(v.serialise())
         assert res_str == expected
@@ -52,9 +53,10 @@ class TestColorValue:
     def test_serialise(self) -> None:
         v = ColorValue("#000000", ":colorProp", resource_id="res_id")
         expected = (
-            b'<color-prop xmlns="https://dasch.swiss/schema" '
-            b'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name=":colorProp">'
-            b'<color permissions="prop-default">#000000</color></color-prop>'
+            b'<color-prop xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'name=":colorProp">'
+            b'<color permissions="prop-default">#000000</color>'
+            b"</color-prop>"
         )
         res_str = etree.tostring(v.serialise())
         assert res_str == expected
@@ -73,9 +75,10 @@ class TestDateValue:
     def test_serialise(self) -> None:
         v = DateValue("2023-01-01", ":dateProp", resource_id="res_id")
         expected = (
-            b'<date-prop xmlns="https://dasch.swiss/schema" '
-            b'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name=":dateProp">'
-            b'<date permissions="prop-default">2023-01-01</date></date-prop>'
+            b'<date-prop xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'name=":dateProp">'
+            b'<date permissions="prop-default">2023-01-01</date>'
+            b"</date-prop>"
         )
         res_str = etree.tostring(v.serialise())
         assert res_str == expected
@@ -94,9 +97,10 @@ class TestDecimalValue:
     def test_serialise(self) -> None:
         v = DecimalValue("3.14", ":decimalProp", resource_id="res_id")
         expected = (
-            b'<decimal-prop xmlns="https://dasch.swiss/schema" '
-            b'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name=":decimalProp">'
-            b'<decimal permissions="prop-default">3.14</decimal></decimal-prop>'
+            b'<decimal-prop xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'name=":decimalProp">'
+            b'<decimal permissions="prop-default">3.14</decimal>'
+            b"</decimal-prop>"
         )
         res_str = etree.tostring(v.serialise())
         assert res_str == expected
@@ -115,9 +119,10 @@ class TestGeonameValue:
     def test_serialise(self) -> None:
         v = GeonameValue("99", ":geonameProp", resource_id="res_id")
         expected = (
-            b'<geoname-prop xmlns="https://dasch.swiss/schema" '
-            b'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name=":geonameProp">'
-            b'<geoname permissions="prop-default">99</geoname></geoname-prop>'
+            b'<geoname-prop xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'name=":geonameProp">'
+            b'<geoname permissions="prop-default">99</geoname>'
+            b"</geoname-prop>"
         )
         res_str = etree.tostring(v.serialise())
         assert res_str == expected
@@ -136,9 +141,10 @@ class TestIntValue:
     def test_serialise(self) -> None:
         v = IntValue("42", ":intProp", resource_id="res_id")
         expected = (
-            b'<integer-prop xmlns="https://dasch.swiss/schema" '
-            b'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name=":intProp">'
-            b'<integer permissions="prop-default">42</integer></integer-prop>'
+            b'<integer-prop xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'name=":intProp">'
+            b'<integer permissions="prop-default">42</integer>'
+            b"</integer-prop>"
         )
         res_str = etree.tostring(v.serialise())
         assert res_str == expected
@@ -157,9 +163,10 @@ class TestLinkValue:
     def test_serialise(self) -> None:
         v = LinkValue("res_link", ":linkProp", resource_id="res_id")
         expected = (
-            b'<resptr-prop xmlns="https://dasch.swiss/schema" '
-            b'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name=":linkProp">'
-            b'<resptr permissions="prop-default">res_link</resptr></resptr-prop>'
+            b'<resptr-prop xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'name=":linkProp">'
+            b'<resptr permissions="prop-default">res_link</resptr>'
+            b"</resptr-prop>"
         )
         res_str = etree.tostring(v.serialise())
         assert res_str == expected
@@ -182,9 +189,10 @@ class TestListValue:
     def test_serialise(self) -> None:
         v = ListValue("item1", "listName", ":listProp", resource_id="res_id")
         expected = (
-            b'<list-prop xmlns="https://dasch.swiss/schema" '
-            b'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name=":listProp" list="listName">'
-            b'<list permissions="prop-default">item1</list></list-prop>'
+            b'<list-prop xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'name=":listProp" list="listName">'
+            b'<list permissions="prop-default">item1</list>'
+            b"</list-prop>"
         )
         res_str = etree.tostring(v.serialise())
         assert res_str == expected
@@ -203,9 +211,10 @@ class TestRichtext:
     def test_serialise(self) -> None:
         v = Richtext("<p>Hello World</p>", ":richtextProp", resource_id="res_id")
         expected = (
-            b'<text-prop xmlns="https://dasch.swiss/schema" '
-            b'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name=":richtextProp">'
-            b'<text encoding="xml" permissions="prop-default">&lt;p&gt;Hello World&lt;/p&gt;</text></text-prop>'
+            b'<text-prop xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'name=":richtextProp">'
+            b'<text encoding="xml" permissions="prop-default">&lt;p&gt;Hello World&lt;/p&gt;</text>'
+            b"</text-prop>"
         )
         res_str = etree.tostring(v.serialise())
         assert res_str == expected
@@ -224,9 +233,10 @@ class TestSimpleText:
     def test_serialise(self) -> None:
         v = SimpleText("Hello World", ":simpleTextProp", resource_id="res_id")
         expected = (
-            b'<text-prop xmlns="https://dasch.swiss/schema" '
-            b'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name=":simpleTextProp">'
-            b'<text encoding="utf8" permissions="prop-default">Hello World</text></text-prop>'
+            b'<text-prop xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'name=":simpleTextProp">'
+            b'<text encoding="utf8" permissions="prop-default">Hello World</text>'
+            b"</text-prop>"
         )
         res_str = etree.tostring(v.serialise())
         assert res_str == expected
@@ -245,9 +255,10 @@ class TestTimeValue:
     def test_serialise(self) -> None:
         v = TimeValue("2009-10-10T12:00:00-05:00", ":timeProp", resource_id="res_id")
         expected = (
-            b'<time-prop xmlns="https://dasch.swiss/schema" '
-            b'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name=":timeProp">'
-            b'<time permissions="prop-default">2009-10-10T12:00:00-05:00</time></time-prop>'
+            b'<time-prop xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'name=":timeProp">'
+            b'<time permissions="prop-default">2009-10-10T12:00:00-05:00</time>'
+            b"</time-prop>"
         )
         res_str = etree.tostring(v.serialise())
         assert res_str == expected
@@ -266,9 +277,10 @@ class TestUriValue:
     def test_serialise(self) -> None:
         v = UriValue("https://example.com", ":uriProp", resource_id="res_id")
         expected = (
-            b'<uri-prop xmlns="https://dasch.swiss/schema" '
-            b'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name=":uriProp">'
-            b'<uri permissions="prop-default">https://example.com</uri></uri-prop>'
+            b'<uri-prop xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'name=":uriProp">'
+            b'<uri permissions="prop-default">https://example.com</uri>'
+            b"</uri-prop>"
         )
         res_str = etree.tostring(v.serialise())
         assert res_str == expected

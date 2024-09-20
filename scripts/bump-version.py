@@ -52,10 +52,12 @@ def _write_new_version_into_pyproject_toml(old_version: str, new_version: str) -
 
 def _make_sys_call(call: str) -> str:
     try:
-        return subprocess.run(call.split(), capture_output=True, check=True, encoding="utf-8").stdout.removesuffix("\n")
+        res = subprocess.run(call.split(), capture_output=True, check=True, encoding="utf-8").stdout.removesuffix("\n")
     except subprocess.CalledProcessError as e:
-        print(f"Call: {call} | Returncode: {e.returncode} | Stdout: {e.stdout} | Stderr: {e.stderr}")
+        print(f"ERROR: Call: {call} | Returncode: {e.returncode} | Stdout: {e.stdout} | Stderr: {e.stderr}")
         sys.exit(1)
+    print(f"Call: {call} | Stdout: {res}")
+    return res
 
 
 if __name__ == "__main__":

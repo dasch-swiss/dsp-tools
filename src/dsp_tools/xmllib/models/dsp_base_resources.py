@@ -118,8 +118,8 @@ class LinkResource:
         return etree.Element(f"{DASCH_SCHEMA}link", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
 
     def _serialise_links(self) -> etree._Element:
+        prop_ele = etree.Element(f"{DASCH_SCHEMA}resptr-prop", name="hasLinkTo", nsmap=XML_NAMESPACE_MAP)
         vals = [LinkValue(value=x, prop_name="hasLinkTo", resource_id=self.res_id) for x in self.link_to]
-        prop_ele = vals[0].make_prop()
         prop_ele.extend([v.make_element() for v in vals])
         return prop_ele
 

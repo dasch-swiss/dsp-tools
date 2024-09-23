@@ -35,7 +35,8 @@ def parse_and_clean_xml_file(input_file: Path) -> etree._Element:
 
 def transform_special_tags_make_localname(input_tree: etree._Element) -> etree._Element:
     """
-    Transforms the special tags `<annotation>`, `<region>`, `<link>`, `<video-segment>`, `<audio-segment>`
+    This function removes the namespace URIs from the elements' names
+    and transforms the special tags `<annotation>`, `<region>`, `<link>`, `<video-segment>`, `<audio-segment>`
     to their technically correct form
     `<resource restype="Annotation">`, `<resource restype="Region">`, `<resource restype="LinkObj">`,
     `<resource restype="VideoSegment">`, `<resource restype="AudioSegment">`.

@@ -44,6 +44,11 @@ class XMLRoot:
         self.resources.extend(resources)
         return self
 
+    def add_resource_optional(self, resource: Resource | None) -> XMLRoot:
+        if resource:
+            self.resources.append(resource)
+        return self
+
     def serialise(self) -> etree._Element:
         root = self.make_root()
         root = append_permissions(root)

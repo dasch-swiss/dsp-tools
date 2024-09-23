@@ -4,6 +4,7 @@ from typing import Sequence
 from lxml import etree
 from rdflib import XSD
 from rdflib import Literal
+from rdflib import Namespace
 from rdflib import URIRef
 
 from dsp_tools.commands.xml_validate.models.data_rdf import BooleanValueRDF
@@ -21,6 +22,8 @@ from dsp_tools.commands.xml_validate.models.data_rdf import SimpleTextRDF
 from dsp_tools.commands.xml_validate.models.data_rdf import TimeValueRDF
 from dsp_tools.commands.xml_validate.models.data_rdf import UriValueRDF
 from dsp_tools.commands.xml_validate.models.data_rdf import ValueRDF
+
+KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
 
 
 def to_data_rdf(root: etree._Element) -> DataRDF:
@@ -42,21 +45,28 @@ def to_data_rdf(root: etree._Element) -> DataRDF:
 
 def _deserialise_all_resources(root: etree._Element) -> list[ResourceRDF]:
     all_res = []
+    restype_mapper = {
+        "annotation": KNORA_API.Annotation,
+        "region": KNORA_API.Region,
+        "link": KNORA_API.LinkObj,
+        "video-segment": KNORA_API.VideoSegment,
+        "audio-segment": KNORA_API.AudioSegment,
+    }
     for res in root.iterchildren():
         match res.tag:
             case "resource":
                 all_res.append(_deserialise_one_resource(res))
             case "annotation" | "region" | "link" | "video-segment" | "audio-segment":
-                all_res.append(_deserialise_dsp_base_resource(res))
+                all_res.append(_deserialise_dsp_base_resource(res, restype_mapper[res.tag]))
             case _:
                 pass
     return all_res
 
 
-def _deserialise_dsp_base_resource(resource: etree._Element) -> ResourceRDF:
+def _deserialise_dsp_base_resource(resource: etree._Element, res_type: URIRef) -> ResourceRDF:
     return ResourceRDF(
         res_id=URIRef(resource.attrib["id"]),
-        res_class=URIRef(resource.attrib["restype"]),
+        res_class=res_type,
         label=Literal(resource.attrib["label"], datatype=XSD.string),
         values=[],
     )

@@ -9,7 +9,7 @@ from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.iri_util import is_resource_iri
 from dsp_tools.utils.xml_utils import parse_xml_file
 from dsp_tools.utils.xml_utils import remove_comments_from_element_tree
-from dsp_tools.utils.xml_utils import remove_qnames_and_transform_special_tags
+from dsp_tools.utils.xml_utils import transform_special_tags_make_localname
 from dsp_tools.utils.xml_validation import validate_xml
 
 
@@ -26,7 +26,7 @@ def validate_and_parse(input_file: Path) -> tuple[etree._Element, str, str]:
     root = remove_comments_from_element_tree(root)
 
     validate_xml(root)
-    root = remove_qnames_and_transform_special_tags(root)
+    root = transform_special_tags_make_localname(root)
     _check_if_link_targets_exist(root)
     shortcode = root.attrib["shortcode"]
     default_ontology = root.attrib["default-ontology"]

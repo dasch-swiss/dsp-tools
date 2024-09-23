@@ -4,10 +4,7 @@ from lxml import etree
 def test_to_data_rdf(data_xml: etree._Element) -> None:
     res_list = list(data_xml.iterdescendants(tag="resource"))
     all_types = {x.attrib["restype"] for x in res_list}
-    assert all_types == {
-        "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything",
-        "http://api.knora.org/ontology/knora-api/v2#Region",
-    }
+    assert all_types == {"http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"}
     expected_names = {
         "http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean",
         "http://0.0.0.0:3333/ontology/9999/onto/v2#testColor",

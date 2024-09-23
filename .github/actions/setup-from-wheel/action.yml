@@ -1,41 +1,35 @@
 ---
 
-name: Setup - Install python & poetry, build & install wheel, install pytest
+name: Setup - Install python, pytest, uv, build & install wheel
+description: Simulate an end-user installation of DSP-TOOLS. Specifically for the distribution tests.
 runs:
   using: "composite"
   steps:
     - name: Install python
       uses: actions/setup-python@v5
       with:
-        python-version: 3.12
-    - name: Install poetry
-      run: |
-        echo ########### STEP: INSTALL POETRY ###########
-        curl -sSL https://install.python-poetry.org | python3 -
-      shell: bash
+        python-version-file: "pyproject.toml"
+    - name: Install uv
+      uses: astral-sh/setup-uv@v2
+      with:
+        enable-cache: true
     - name: Build wheel
       run: |
         echo ########### STEP: BUILD WHEEL ###########
-        poetry build -vv
-      shell: bash
-    - name: Install wheel globally
-      run: |
-        echo ########### STEP: INSTALL WHEEL GLOBALLY ###########
-        find dist -type f -name "*.whl" -exec pip3 install {} \;
-      shell: bash
-    - name: install check-wheel-contents in dedicated venv
-      run: |
-        echo ########### STEP: INSTALL CHECK-WHEEL-CONTENTS IN DEDICATED VENV ###########
-        python3 -m venv .dist-test-venv
-        .dist-test-venv/bin/pip install check-wheel-contents
+        uv build .
       shell: bash
     - name: check the wheel for correctness, in dedicated venv
       run: |
         echo ########### STEP: CHECK WHEEL IN DEDICATED VENV ###########
-        .dist-test-venv/bin/check-wheel-contents dist/
+        uvx check-wheel-contents dist/
+      shell: bash
+    - name: Install wheel globally
+      run: |
+        echo ########### STEP: INSTALL WHEEL GLOBALLY ###########
+        find dist -type f -name "*.whl" -exec uv pip install --system {} \;
       shell: bash
     - name: Install pytest globally
       run: |
         echo ########### STEP: INSTALL PYTEST GLOBALLY ###########
-        pip install pytest pytest-unordered
+        uv pip install --system pytest pytest-unordered
       shell: bash

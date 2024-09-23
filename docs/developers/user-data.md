@@ -26,7 +26,7 @@ Accessing non-Python files (aka resources, aka data files)
 in the code needs special attention.
 
 Firstly, the build tool must be told to include this folder/files in the distribution.
-In our case, this happens in `[tool.poetry] > include` in the `pyproject.toml` file.
+In our case, this is automatically done by hatchling.
 
 Secondly, when accessing the files on the customer's machine, 
 the files inside `site-packages` should be read-only 

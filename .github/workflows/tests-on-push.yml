@@ -17,16 +17,16 @@ jobs:
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v4
-      - name: Install poetry, python, and dependencies
+      - name: Install uv, just, python, and dependencies
         uses: ./.github/actions/setup
       - name: build docs
-        run: poetry run mkdocs build --strict
+        run: uv run mkdocs build --strict
       - name: check external links in docs
         run: |
           npm install -g markdown-link-validator
-          poetry exec check-links
+          just check-links
       - name: markdownlint
-        run: poetry exec markdownlint
+        run: just markdownlint
 
 
   lint:
@@ -34,16 +34,16 @@ jobs:
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v4
-      - name: Install poetry, python, and dependencies
+      - name: Install uv, just, python, and dependencies
         uses: ./.github/actions/setup
       - name: Linting with ruff
-        run: poetry exec ruff-check-github
+        run: just ruff-check-github
       - name: Check formatting with ruff
-        run: poetry exec ruff-format-check
+        run: just ruff-format-check
       - name: Linting with mypy
-        run: poetry exec mypy
+        run: just mypy
       - name: Linting with darglint
-        run: poetry exec darglint
+        run: just darglint
 
 
   yamllint:
@@ -62,10 +62,10 @@ jobs:
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v4
-      - name: Install poetry, python, and dependencies
+      - name: Install uv, just, python, and dependencies
         uses: ./.github/actions/setup
       - name: unittests
-        run: poetry exec unittests -- --cov=dsp_tools --cov-report xml
+        run: just unittests --cov=dsp_tools --cov-report xml
       - name: upload coverage report to codecov.io
         uses: codecov/codecov-action@v4
         with:
@@ -78,10 +78,10 @@ jobs:
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v4
-      - name: Install poetry, python, and dependencies
+      - name: Install uv, just, python, and dependencies
         uses: ./.github/actions/setup
       - name: integration-tests
-        run: poetry exec integration-tests -- --cov=dsp_tools --cov-report xml
+        run: just integration-tests --cov=dsp_tools --cov-report xml
       - name: upload coverage report to codecov.io
         uses: codecov/codecov-action@v4
         with:
@@ -95,20 +95,20 @@ jobs:
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v4
-      - name: Install poetry, python, and dependencies
+      - name: Install uv, just, python, and dependencies
         uses: ./.github/actions/setup
       - name: benchmarking
-        run: poetry run pytest -s test/benchmarking/
+        run: uv run pytest -s test/benchmarking/
 
   e2e-tests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v4
-      - name: Install poetry, python, and dependencies
+      - name: Install uv, just, python, and dependencies
         uses: ./.github/actions/setup
       - name: e2e-tests
-        run: poetry exec e2e-tests
+        run: just e2e-tests
 
 
   legacy-e2e-tests:
@@ -116,14 +116,14 @@ jobs:
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v4
-      - name: Install poetry, python, and dependencies
+      - name: Install uv, just, python, and dependencies
         uses: ./.github/actions/setup
       - name: start stack
-        run: poetry run dsp-tools start-stack --no-prune --with-test-data
+        run: uv run dsp-tools start-stack --no-prune --with-test-data
       - name: legacy e2e tests
-        run: poetry exec legacy-e2e-tests
+        run: just legacy-e2e-tests
       - name: stop stack  # see if this command can run (it isn't tested anywhere else)
-        run: poetry run dsp-tools stop-stack
+        run: uv run dsp-tools stop-stack
       - name: make logging file available
         uses: actions/upload-artifact@v4
         if: always()
@@ -138,9 +138,9 @@ jobs:
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v4
-      - name: Install python & poetry, build & install wheel, install pytest
+      - name: Install python, pytest, uv, build & install wheel
         uses: ./.github/actions/setup-from-wheel
       - name: distribution tests
-        run: pytest --noconftest test/distribution/
+        run: python -m pytest --noconftest test/distribution/
         # Reason for the --noconftest flag: 
         # test/conftest.py configures logging, but loguru should not be installed for the distribution tests

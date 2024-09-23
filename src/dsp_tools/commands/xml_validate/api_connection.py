@@ -18,19 +18,10 @@ class Authentication:
     api_url: str
     user_email: str
     password: str
-    bearer_tkn: str
+    bearer_tkn: str | None = None
 
-    def get_tkn(self) -> None:
-        try:
-            response = requests.post(
-                url=f"{self.api_url}/v2/authentication",
-                data={"email": self.user_email, "password": self.password},
-                timeout=10,
-            )
-        except BadCredentialsError:
-            msg = f"Username and/or password are not valid on server '{self.api_url}'"
-            logger.exception(msg)
-            raise UserError(msg) from None
+    def get_bearer_token(self) -> str:
+        response = self._request_token()
         if not response.ok:
             msg = f"Non-ok response code: {response.status_code}\nOriginal Message: {response.text}"
             logger.exception(msg)
@@ -39,9 +30,22 @@ class Authentication:
         if not json_response.get("token"):
             msg = "Unable to retrieve a token from the server with the provided credentials."
             logger.exception(msg)
-            raise UserError(msg)
-        tkn = json_response["token"]
-        self.bearer_tkn = f"Bearer {tkn}"
+            raise InternalError(msg)
+        tkn = f"Bearer {json_response["token"]}"
+        self.bearer_tkn = tkn
+        return tkn
+
+    def _request_token(self) -> Response:
+        try:
+            return requests.post(
+                url=f"{self.api_url}/v2/authentication",
+                data={"email": self.user_email, "password": self.password},
+                timeout=10,
+            )
+        except BadCredentialsError:
+            msg = f"Username and/or password are not valid on server '{self.api_url}'"
+            logger.exception(msg)
+            raise UserError(msg) from None
 
 
 @dataclass

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+from copy import deepcopy
 from pathlib import Path
 
 from loguru import logger
@@ -29,10 +30,10 @@ def parse_and_clean_xml_file(input_file: Path) -> etree._Element:
     """
     root = parse_xml_file(input_file)
     root = remove_comments_from_element_tree(root)
-    return remove_qnames_and_transform_special_tags(root)
+    return transform_special_tags_make_localname(root)
 
 
-def remove_qnames_and_transform_special_tags(input_tree: etree._Element) -> etree._Element:
+def transform_special_tags_make_localname(input_tree: etree._Element) -> etree._Element:
     """
     This function removes the namespace URIs from the elements' names
     and transforms the special tags `<annotation>`, `<region>`, `<link>`, `<video-segment>`, `<audio-segment>`
@@ -46,8 +47,13 @@ def remove_qnames_and_transform_special_tags(input_tree: etree._Element) -> etre
     Returns:
         cleaned tree
     """
-    for elem in input_tree.iter():
-        elem.tag = etree.QName(elem).localname
+    tree = transform_into_localnames(input_tree)
+    return _transform_special_tags(tree)
+
+
+def _transform_special_tags(tree: etree._Element) -> etree._Element:
+    tree = deepcopy(tree)
+    for elem in tree.iter():
         if elem.tag == "annotation":
             elem.attrib["restype"] = "Annotation"
             elem.tag = "resource"
@@ -63,7 +69,23 @@ def remove_qnames_and_transform_special_tags(input_tree: etree._Element) -> etre
         elif elem.tag == "audio-segment":
             elem.attrib["restype"] = "AudioSegment"
             elem.tag = "resource"
-    return input_tree
+    return tree
+
+
+def transform_into_localnames(root: etree._Element) -> etree._Element:
+    """
+    This function removes the namespace URIs from the elements' names
+
+    Args:
+        root: unclean tree
+
+    Returns:
+        cleaned tree
+    """
+    tree = deepcopy(root)
+    for elem in tree.iter():
+        elem.tag = etree.QName(elem).localname
+    return tree
 
 
 def remove_comments_from_element_tree(input_tree: etree._Element) -> etree._Element:

@@ -5,6 +5,7 @@ import pytest
 
 from dsp_tools.commands.xml_validate.api_connection import Authentication
 from dsp_tools.commands.xml_validate.api_connection import OntologyConnection
+from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import InternalError
 from dsp_tools.models.exceptions import UserError
 
@@ -24,6 +25,14 @@ class TestAuthentication:
             expected_tkn = "Bearer token"
             assert auth.get_bearer_token() == expected_tkn
             assert auth.bearer_tkn == expected_tkn
+
+    def test_bad_credentials(self) -> None:
+        auth = Authentication("http://example.com", "email@test.ch", "pw1234")
+        mock_response = Mock()
+        mock_response.status_code = 401
+        with patch.object(auth, "_request_token", return_value=mock_response):
+            with pytest.raises(BadCredentialsError):
+                auth.get_bearer_token()
 
     def test_non_ok_code(self) -> None:
         auth = Authentication("http://example.com", "email@test.ch", "pw1234")

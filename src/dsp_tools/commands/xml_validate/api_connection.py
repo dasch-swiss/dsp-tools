@@ -12,6 +12,8 @@ from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import InternalError
 from dsp_tools.models.exceptions import UserError
 
+STATUS_UNAUTHORIZED = 401
+
 
 @dataclass
 class Authentication:
@@ -22,6 +24,10 @@ class Authentication:
 
     def get_bearer_token(self) -> str:
         response = self._request_token()
+        if response.status_code == STATUS_UNAUTHORIZED:
+            msg = f"Username and/or password are not valid on server '{self.api_url}'"
+            logger.exception(msg)
+            raise BadCredentialsError(msg)
         if not response.ok:
             msg = f"Non-ok response code: {response.status_code}\nOriginal Message: {response.text}"
             logger.exception(msg)
@@ -42,10 +48,12 @@ class Authentication:
                 data={"email": self.user_email, "password": self.password},
                 timeout=10,
             )
-        except BadCredentialsError:
-            msg = f"Username and/or password are not valid on server '{self.api_url}'"
-            logger.exception(msg)
-            raise UserError(msg) from None
+        except (TimeoutError, ReadTimeout) as err:
+            logger.exception(err)
+            raise InternalError("TimeoutError occurred. See logs for details.") from None
+        except (ConnectionError, RequestException) as err:
+            logger.exception(err)
+            raise InternalError("ConnectionError occurred. See logs for details.") from None
 
 
 @dataclass

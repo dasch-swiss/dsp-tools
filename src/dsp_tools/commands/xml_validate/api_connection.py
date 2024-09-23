@@ -6,8 +6,10 @@ from requests import Response
 import requests
 from typing import cast, Any
 from dataclasses import dataclass
+
+from dsp_tools.commands.xml_validate.models.data_rdf import IntValueRDF
 from dsp_tools.models.exceptions import BadCredentialsError
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import BaseError, InternalError
 from dsp_tools.models.exceptions import InvalidInputError
 from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.models.exceptions import PermanentTimeOutError
@@ -29,14 +31,18 @@ class Authentication:
                 timeout=10,
             )
         except BadCredentialsError:
-            raise UserError(f"Username and/or password are not valid on server '{self.api_url}'") from None
-        except PermanentConnectionError as e:
-            raise UserError(e.message) from None
+            msg = f"Username and/or password are not valid on server '{self.api_url}'"
+            logger.exception(msg)
+            raise UserError(msg) from None
         if not response.ok:
-            raise UserError(f"Non-ok response code: {response.status_code}\nOriginal Message: {response.text}")
+            msg = f"Non-ok response code: {response.status_code}\nOriginal Message: {response.text}"
+            logger.exception(msg)
+            raise UserError(msg)
         json_response = cast(dict[str, Any], response.json())
         if not json_response.get("token"):
-            raise UserError("Unable to retrieve a token from the server with the provided credentials.")
+            msg = "Unable to retrieve a token from the server with the provided credentials."
+            logger.exception(msg)
+            raise UserError(msg)
         tkn = json_response["token"]
         self.bearer_tkn = f"Bearer {tkn}"
 
@@ -46,8 +52,19 @@ class OntologyConnection:
     api_url: str
     shortcode: str
 
-    def get(self, url: str, headers):
-        pass
+    def get(self, url: str, token: str, headers: dict[str, Any]) -> dict[str, Any]:
+        headers["Authorization"] = token
+        try:
+            response = requests.request("POST", url, headers=headers)
+        except (TimeoutError, ReadTimeout) as err:
+            logger.exception(err)
+            raise InternalError("TimeoutError occurred. See logs for details.") from None
+        except (ConnectionError, RequestException) as err:
+            logger.exception(err)
+            raise InternalError("ConnectionError occurred. See logs for details.") from None
+        if not response.ok:
+            msg = ""
+
 
     def get_ontologies(self, token: str) -> dict[str, Any]:
         pass

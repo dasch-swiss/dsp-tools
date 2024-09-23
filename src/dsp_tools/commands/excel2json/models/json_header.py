@@ -76,6 +76,10 @@ class Project:
 class Descriptions:
     descriptions: dict[str, str]
 
+    def __post__init(self) -> None:
+        for k, v in self.descriptions.items():
+            self.descriptions[k] = v.replace("\n", "<br/>")
+
     def to_dict(self) -> dict[str, str]:
         return self.descriptions
 

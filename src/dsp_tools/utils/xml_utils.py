@@ -30,11 +30,10 @@ def parse_and_clean_xml_file(input_file: Path) -> etree._Element:
     """
     root = parse_xml_file(input_file)
     root = remove_comments_from_element_tree(root)
-    root = transform_into_localnames(root)
-    return transform_special_tags(root)
+    return transform_special_tags_make_localname(root)
 
 
-def transform_special_tags(input_tree: etree._Element) -> etree._Element:
+def transform_special_tags_make_localname(input_tree: etree._Element) -> etree._Element:
     """
     Transforms the special tags `<annotation>`, `<region>`, `<link>`, `<video-segment>`, `<audio-segment>`
     to their technically correct form
@@ -47,7 +46,12 @@ def transform_special_tags(input_tree: etree._Element) -> etree._Element:
     Returns:
         cleaned tree
     """
-    tree = deepcopy(input_tree)
+    tree = transform_into_localnames(input_tree)
+    return _transform_special_tags(tree)
+
+
+def _transform_special_tags(tree: etree._Element) -> etree._Element:
+    tree = deepcopy(tree)
     for elem in tree.iter():
         if elem.tag == "annotation":
             elem.attrib["restype"] = "Annotation"

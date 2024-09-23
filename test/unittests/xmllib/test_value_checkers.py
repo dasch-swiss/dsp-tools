@@ -96,7 +96,7 @@ def test_is_integer_wrong(val: Any) -> None:
     assert not is_integer(val)
 
 
-@pytest.mark.parametrize("val", ["a", "None", "-", "1", "\n1", "עִבְרִית", "اَلْعَرَبِيَّةُ"])
+@pytest.mark.parametrize("val", ["a", "None", "-", "1", "\n1", "עִבְרִית", "اَلْعَرَبِيَّةُ", "hello world"])
 def test_is_string_correct(val: Any) -> None:
     assert is_string_like(val)
 

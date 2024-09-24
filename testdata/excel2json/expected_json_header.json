@@ -12,9 +12,9 @@
     "shortname": "daschland",
     "longname": "Alice in DaSCHland",
     "descriptions": {
-      "en": "Alice in DaSCHland. \nTestdata",
-      "fr": "Alice au Pays de DaSCH. \nDonnées test",
-      "de": "Alice im DaSCHland. \nTestdaten"
+      "en": "Alice in DaSCHland. <br/>Testdata",
+      "fr": "Alice au Pays de DaSCH. <br/>Données test",
+      "de": "Alice im DaSCHland. <br/>Testdaten"
     },
     "keywords": [
       "Alice",

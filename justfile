@@ -47,7 +47,7 @@ check-links:
 [no-exit-message]
 markdownlint:
     docker run \
-    -v $PWD:/workdir ghcr.io/igorshubovych/markdownlint-cli:latest \
+    -v $PWD:/workdir ghcr.io/igorshubovych/markdownlint-cli:v0.42.0 \
     --config .markdownlint.yml \
     --ignore CHANGELOG.md "**/*.md"
 

@@ -1,4 +1,7 @@
 from rdflib import RDF
+from rdflib import RDFS
+from rdflib import XSD
+from rdflib import Literal
 from rdflib import Namespace
 from rdflib import URIRef
 
@@ -22,15 +25,13 @@ ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
 
 
 class TestResource:
-    def test_with_value(self, rdf_resource_with_props: ResourceRDF) -> None:
-        g = rdf_resource_with_props.make_graph()
-        assert len(g) == 5
+    def test_with_value(self, rdf_resource: ResourceRDF) -> None:
+        g = rdf_resource.make_graph()
+        assert len(g) == 2
         out_res_id = next(g.subjects(RDF.type, ONTO.ClassWithEverything))
-        bn_type = next(g.subjects(RDF.type, KNORA_API.BooleanValue))
-        bn_prop = next(g.subjects(KNORA_API.booleanValueAsBoolean))
-        assert bn_type == bn_prop
-        res_id = next(g.subjects(ONTO.testBoolean, bn_type))
-        assert res_id == out_res_id
+        assert out_res_id == rdf_resource.res_iri
+        lbl = next(g.objects(out_res_id, RDFS.label))
+        assert lbl == Literal("lbl", datatype=XSD.string)
 
 
 class TestBooleanValue:

@@ -47,19 +47,20 @@ def _deserialise_all_resources(root: etree._Element) -> list[AbstractResource]:
     all_res: list[AbstractResource] = []
     for res in root.iterchildren():
         res_id = res.attrib["id"]
+        lbl = res.attrib["label"]
         match res.tag:
             case "resource":
                 all_res.append(_deserialise_one_resource(res))
             case "annotation":
-                all_res.append(AnnotationDeserialised(res_id))
+                all_res.append(AnnotationDeserialised(res_id, lbl))
             case "region":
-                all_res.append(RegionDeserialised(res_id))
+                all_res.append(RegionDeserialised(res_id, lbl))
             case "link":
-                all_res.append(LinkObjDeserialised(res_id))
+                all_res.append(LinkObjDeserialised(res_id, lbl))
             case "video-segment":
-                all_res.append(VideoSegmentDeserialised(res_id))
+                all_res.append(VideoSegmentDeserialised(res_id, lbl))
             case "audio-segment":
-                all_res.append(AudioSegmentDeserialised(res_id))
+                all_res.append(AudioSegmentDeserialised(res_id, lbl))
             case _:
                 pass
     return all_res

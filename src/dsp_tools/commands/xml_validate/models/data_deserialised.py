@@ -12,40 +12,35 @@ class ProjectDataDeserialised:
 
 
 @dataclass
-class AbstractResource(ABC): ...
+class AbstractResource(ABC):
+    res_id: str
+    label: str
 
 
 @dataclass
 class ResourceDeserialised(AbstractResource):
-    res_id: str
     res_class: str
-    label: str
     values: list[ValueDeserialised]
 
 
 @dataclass
-class AnnotationDeserialised(AbstractResource):
-    res_id: str
+class AnnotationDeserialised(AbstractResource): ...
 
 
 @dataclass
-class RegionDeserialised(AbstractResource):
-    res_id: str
+class RegionDeserialised(AbstractResource): ...
 
 
 @dataclass
-class LinkObjDeserialised(AbstractResource):
-    res_id: str
+class LinkObjDeserialised(AbstractResource): ...
 
 
 @dataclass
-class VideoSegmentDeserialised(AbstractResource):
-    res_id: str
+class VideoSegmentDeserialised(AbstractResource): ...
 
 
 @dataclass
-class AudioSegmentDeserialised(AbstractResource):
-    res_id: str
+class AudioSegmentDeserialised(AbstractResource): ...
 
 
 @dataclass

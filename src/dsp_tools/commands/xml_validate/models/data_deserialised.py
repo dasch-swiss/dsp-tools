@@ -4,14 +4,18 @@ from dataclasses import dataclass
 
 
 @dataclass
-class ProjectData:
+class ProjectDataDeserialised:
     shortcode: str
     default_onto: str
-    resources: list[ResourceDeserialised]
+    resources: list[AbstractResource]
 
 
 @dataclass
-class ResourceDeserialised:
+class AbstractResource: ...
+
+
+@dataclass
+class ResourceDeserialised(AbstractResource):
     res_id: str
     res_class: str
     label: str
@@ -19,34 +23,34 @@ class ResourceDeserialised:
 
 
 @dataclass
-class AnnotationDeserialised:
+class AnnotationDeserialised(AbstractResource):
     res_id: str
 
 
 @dataclass
-class RegionDeserialised:
+class RegionDeserialised(AbstractResource):
     res_id: str
 
 
 @dataclass
-class LinkObjDeserialised:
+class LinkObjDeserialised(AbstractResource):
     res_id: str
 
 
 @dataclass
-class VideoSegmentDeserialised:
+class VideoSegmentDeserialised(AbstractResource):
     res_id: str
 
 
 @dataclass
-class AudioSegmentDeserialised:
+class AudioSegmentDeserialised(AbstractResource):
     res_id: str
 
 
 @dataclass
 class ValueDeserialised:
     prop_name: str
-    object_value: str
+    object_value: str | None
 
 
 @dataclass

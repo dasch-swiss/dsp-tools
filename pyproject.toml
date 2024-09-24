@@ -68,7 +68,7 @@ dev-dependencies = [
     "pytest==8.0.2",
     # pytest: don't upgrade until https://github.com/pytest-dev/pytest/issues/12044 is fixed
     "requests-mock>=1.12.1",
-    "ruff>=0.6.4",
+    "ruff>=0.6.7",
     "testcontainers==4.7.2",
     # testcontainers: don't upgrade until https://github.com/dasch-swiss/dsp-tools/pull/1122#discussion_r1723055599 is fixed
     "tomlkit>=0.13.2",

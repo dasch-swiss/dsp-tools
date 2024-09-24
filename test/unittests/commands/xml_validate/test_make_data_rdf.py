@@ -15,15 +15,14 @@ from dsp_tools.commands.xml_validate.models.data_rdf import ListValueRDF
 from dsp_tools.commands.xml_validate.models.data_rdf import RichtextRDF
 from dsp_tools.commands.xml_validate.models.data_rdf import SimpleTextRDF
 from dsp_tools.commands.xml_validate.models.data_rdf import TimeValueRDF
-from dsp_tools.commands.xml_validate.models.data_rdf import UriValueRDF
-from dsp_tools.commands.xml_validate.reformat_input import _deserialise_all_resources
-from dsp_tools.commands.xml_validate.reformat_input import _deserialise_one_property
-from dsp_tools.commands.xml_validate.reformat_input import _deserialise_one_resource
+from dsp_tools.commands.xml_validate.models.data_rdf import UriValueRDF, ResourceRDF
+from dsp_tools.commands.xml_validate.make_data_rdf import _transform_one_resource
+from dsp_tools.commands.xml_validate.make_data_rdf import _transform_one_value
 
 
 class TestResource:
-    def test_empty(self, resource_empty: etree._Element) -> None:
-        res = _deserialise_one_resource(resource_empty)
+    def test_empty(self, rdf_resource: ResourceRDF) -> None:
+        res = _transform_one_resource(rdf_resource)
         assert res.res_id == URIRef("one")
         assert res.res_class == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything")
         assert res.label == Literal("lbl", datatype=XSD.string)
@@ -49,7 +48,7 @@ class TestResource:
 
 class TestBooleanValue:
     def test_corr(self, boolean_value_corr: etree._Element) -> None:
-        res_list = _deserialise_one_property(boolean_value_corr)
+        res_list = _transform_one_value(boolean_value_corr)
         assert len(res_list) == 1
         res = res_list[0]
         assert isinstance(res, BooleanValueRDF)
@@ -59,7 +58,7 @@ class TestBooleanValue:
 
 class TestColorValue:
     def test_corr(self, color_value_corr: etree._Element) -> None:
-        res_list = _deserialise_one_property(color_value_corr)
+        res_list = _transform_one_value(color_value_corr)
         assert len(res_list) == 1
         res = res_list[0]
         assert isinstance(res, ColorValueRDF)
@@ -67,7 +66,7 @@ class TestColorValue:
         assert res.object_value == Literal("#00ff00", datatype=XSD.string)
 
     def test_several(self, color_value_corr_several: etree._Element) -> None:
-        res = _deserialise_one_property(color_value_corr_several)
+        res = _transform_one_value(color_value_corr_several)
         assert len(res) == 2
         assert all([isinstance(x, ColorValueRDF) for x in res])
         assert res[0].prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testColor")
@@ -77,7 +76,7 @@ class TestColorValue:
 
 class TestDateValue:
     def test_corr(self, date_value_corr: etree._Element) -> None:
-        res_list = _deserialise_one_property(date_value_corr)
+        res_list = _transform_one_value(date_value_corr)
         assert len(res_list) == 1
         res = res_list[0]
         assert isinstance(res, DateValueRDF)
@@ -85,7 +84,7 @@ class TestDateValue:
         assert res.object_value == Literal("JULIAN:BCE:0700:BCE:0600", datatype=XSD.string)
 
     def test_several(self, date_value_corr_several: etree._Element) -> None:
-        res = _deserialise_one_property(date_value_corr_several)
+        res = _transform_one_value(date_value_corr_several)
         assert len(res) == 2
         assert all([isinstance(x, DateValueRDF) for x in res])
         assert res[0].prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate1")
@@ -95,7 +94,7 @@ class TestDateValue:
 
 class TestDecimalValue:
     def test_corr(self, decimal_value_corr: etree._Element) -> None:
-        res_list = _deserialise_one_property(decimal_value_corr)
+        res_list = _transform_one_value(decimal_value_corr)
         assert len(res_list) == 1
         res = res_list[0]
         assert isinstance(res, DecimalValueRDF)
@@ -103,7 +102,7 @@ class TestDecimalValue:
         assert res.object_value == Literal("2.71", datatype=XSD.decimal)
 
     def test_several(self, decimal_value_corr_several: etree._Element) -> None:
-        res = _deserialise_one_property(decimal_value_corr_several)
+        res = _transform_one_value(decimal_value_corr_several)
         assert len(res) == 2
         assert all([isinstance(x, DecimalValueRDF) for x in res])
         assert res[0].prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testDecimalSimpleText")
@@ -113,7 +112,7 @@ class TestDecimalValue:
 
 class TestGeonameValue:
     def test_corr(self, geoname_value_corr: etree._Element) -> None:
-        res_list = _deserialise_one_property(geoname_value_corr)
+        res_list = _transform_one_value(geoname_value_corr)
         assert len(res_list) == 1
         res = res_list[0]
         assert isinstance(res, GeonameValueRDF)
@@ -121,7 +120,7 @@ class TestGeonameValue:
         assert res.object_value == Literal("1111111", datatype=XSD.integer)
 
     def test_several(self, geoname_value_corr_several: etree._Element) -> None:
-        res = _deserialise_one_property(geoname_value_corr_several)
+        res = _transform_one_value(geoname_value_corr_several)
         assert len(res) == 2
         assert all([isinstance(x, GeonameValueRDF) for x in res])
         assert res[0].prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testGeoname")
@@ -131,7 +130,7 @@ class TestGeonameValue:
 
 class TestIntValue:
     def test_corr(self, integer_value_corr: etree._Element) -> None:
-        res_list = _deserialise_one_property(integer_value_corr)
+        res_list = _transform_one_value(integer_value_corr)
         assert len(res_list) == 1
         res = res_list[0]
         assert isinstance(res, IntValueRDF)
@@ -139,7 +138,7 @@ class TestIntValue:
         assert res.object_value == Literal("1", datatype=XSD.integer)
 
     def test_several(self, integer_value_corr_several: etree._Element) -> None:
-        res = _deserialise_one_property(integer_value_corr_several)
+        res = _transform_one_value(integer_value_corr_several)
         assert len(res) == 2
         assert all([isinstance(x, IntValueRDF) for x in res])
         assert res[0].prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testIntegerSimpleText")
@@ -149,7 +148,7 @@ class TestIntValue:
 
 class TestListValue:
     def test_corr(self, list_value_corr: etree._Element) -> None:
-        res_list = _deserialise_one_property(list_value_corr)
+        res_list = _transform_one_value(list_value_corr)
         assert len(res_list) == 1
         res = res_list[0]
         assert isinstance(res, ListValueRDF)
@@ -158,7 +157,7 @@ class TestListValue:
         assert res.object_value == Literal("n1", datatype=XSD.string)
 
     def test_several(self, list_value_corr_several: etree._Element) -> None:
-        res = _deserialise_one_property(list_value_corr_several)
+        res = _transform_one_value(list_value_corr_several)
         assert len(res) == 2
         assert all([isinstance(x, ListValueRDF) for x in res])
         one = res[0]
@@ -171,7 +170,7 @@ class TestListValue:
 
 class TestSimpleTextValue:
     def test_corr(self, text_simpletext_value_corr: etree._Element) -> None:
-        res_list = _deserialise_one_property(text_simpletext_value_corr)
+        res_list = _transform_one_value(text_simpletext_value_corr)
         assert len(res_list) == 1
         res = res_list[0]
         assert isinstance(res, SimpleTextRDF)
@@ -179,7 +178,7 @@ class TestSimpleTextValue:
         assert res.object_value == Literal("Text", datatype=XSD.string)
 
     def test_several(self, text_simpletext_value_corr_several: etree._Element) -> None:
-        res = _deserialise_one_property(text_simpletext_value_corr_several)
+        res = _transform_one_value(text_simpletext_value_corr_several)
         assert len(res) == 2
         assert all([isinstance(x, SimpleTextRDF) for x in res])
         assert res[0].prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testSimpleText")
@@ -187,7 +186,7 @@ class TestSimpleTextValue:
         assert res[1].object_value == Literal("Text 2", datatype=XSD.string)
 
     def test_wrong(self, text_simpletext_value_wrong: etree._Element) -> None:
-        res_list = _deserialise_one_property(text_simpletext_value_wrong)
+        res_list = _transform_one_value(text_simpletext_value_wrong)
         assert len(res_list) == 1
         res = res_list[0]
         assert isinstance(res, SimpleTextRDF)
@@ -197,7 +196,7 @@ class TestSimpleTextValue:
 
 class TestRichtextValue:
     def test_corr(self, text_richtext_value_corr: etree._Element) -> None:
-        res_list = _deserialise_one_property(text_richtext_value_corr)
+        res_list = _transform_one_value(text_richtext_value_corr)
         assert len(res_list) == 1
         res = res_list[0]
         assert isinstance(res, RichtextRDF)
@@ -205,7 +204,7 @@ class TestRichtextValue:
         assert res.object_value == Literal("Text", datatype=XSD.string)
 
     def test_several(self, text_richtext_value_corr_several: etree._Element) -> None:
-        res = _deserialise_one_property(text_richtext_value_corr_several)
+        res = _transform_one_value(text_richtext_value_corr_several)
         assert len(res) == 2
         assert all([isinstance(x, RichtextRDF) for x in res])
         assert res[0].prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testRichtext")
@@ -215,7 +214,7 @@ class TestRichtextValue:
 
 class TestTimeValue:
     def test_corr(self, time_value_corr: etree._Element) -> None:
-        res_list = _deserialise_one_property(time_value_corr)
+        res_list = _transform_one_value(time_value_corr)
         assert len(res_list) == 1
         res = res_list[0]
         assert isinstance(res, TimeValueRDF)
@@ -223,7 +222,7 @@ class TestTimeValue:
         assert res.object_value == Literal("2019-10-23T13:45:12.01-14:00", datatype=XSD.dateTimeStamp)
 
     def test_several(self, time_value_corr_several: etree._Element) -> None:
-        res = _deserialise_one_property(time_value_corr_several)
+        res = _transform_one_value(time_value_corr_several)
         assert len(res) == 2
         assert all([isinstance(x, TimeValueRDF) for x in res])
         assert res[0].prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testTimeValue")
@@ -233,7 +232,7 @@ class TestTimeValue:
 
 class TestUriValue:
     def test_corr(self, uri_value_corr: etree._Element) -> None:
-        res_list = _deserialise_one_property(uri_value_corr)
+        res_list = _transform_one_value(uri_value_corr)
         assert len(res_list) == 1
         res = res_list[0]
         assert isinstance(res, UriValueRDF)
@@ -241,7 +240,7 @@ class TestUriValue:
         assert res.object_value == Literal("https://dasch.swiss", datatype=XSD.anyURI)
 
     def test_several(self, uri_value_corr_several: etree._Element) -> None:
-        res = _deserialise_one_property(uri_value_corr_several)
+        res = _transform_one_value(uri_value_corr_several)
         assert len(res) == 2
         assert all([isinstance(x, UriValueRDF) for x in res])
         assert res[0].prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testUriValue")
@@ -251,7 +250,7 @@ class TestUriValue:
 
 class TestLinkValue:
     def test_corr(self, resptr_value_corr: etree._Element) -> None:
-        res_list = _deserialise_one_property(resptr_value_corr)
+        res_list = _transform_one_value(resptr_value_corr)
         assert len(res_list) == 1
         res = res_list[0]
         assert isinstance(res, LinkValueRDF)
@@ -259,7 +258,7 @@ class TestLinkValue:
         assert res.object_value == URIRef("id_1")
 
     def test_several(self, resptr_value_corr_several: etree._Element) -> None:
-        res = _deserialise_one_property(resptr_value_corr_several)
+        res = _transform_one_value(resptr_value_corr_several)
         assert len(res) == 2
         assert all([isinstance(x, LinkValueRDF) for x in res])
         assert res[0].prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo")

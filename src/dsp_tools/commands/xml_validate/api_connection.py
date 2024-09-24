@@ -11,8 +11,6 @@ from requests import Response
 from dsp_tools.models.exceptions import InternalError
 from dsp_tools.models.exceptions import UserError
 
-STATUS_UNAUTHORIZED = 401
-
 
 @dataclass
 class OntologyConnection:

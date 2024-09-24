@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from abc import ABC
 from dataclasses import dataclass
 
 
@@ -11,7 +12,7 @@ class ProjectDataDeserialised:
 
 
 @dataclass
-class AbstractResource: ...
+class AbstractResource(ABC): ...
 
 
 @dataclass

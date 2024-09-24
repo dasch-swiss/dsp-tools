@@ -33,7 +33,7 @@ class OntologyConnection:
             UserError: If a non-200 response was given
         """
         try:
-            response = requests.request("POST", url, headers=headers, timeout=100)
+            response = requests.get(url, headers=headers, timeout=100)
         except (TimeoutError, ReadTimeout) as err:
             logger.exception(err)
             raise InternalError("TimeoutError occurred. See logs for details.") from None

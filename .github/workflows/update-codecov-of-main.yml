@@ -13,10 +13,10 @@ jobs:
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v4
-      - name: Install poetry, python, and dependencies
+      - name: Install uv, just, python, and dependencies
         uses: ./.github/actions/setup
       - name: unittests
-        run: poetry exec unittests -- --cov=dsp_tools --cov-report xml
+        run: just unittests --cov=dsp_tools --cov-report xml
       - name: upload coverage report to codecov.io
         uses: codecov/codecov-action@v4
         with:
@@ -29,10 +29,10 @@ jobs:
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v4
-      - name: Install poetry, python, and dependencies
+      - name: Install uv, just, python, and dependencies
         uses: ./.github/actions/setup
       - name: integration-tests
-        run: poetry exec integration-tests -- --cov=dsp_tools --cov-report xml
+        run: just integration-tests --cov=dsp_tools --cov-report xml
       - name: upload coverage report to codecov.io
         uses: codecov/codecov-action@v4
         with:

@@ -1,11 +1,9 @@
 [![](https://img.shields.io/pypi/v/dsp-tools.svg)](https://pypi.org/project/dsp-tools/) 
 [![](https://img.shields.io/pypi/l/dsp-tools.svg)](https://pypi.org/project/dsp-tools/) 
-[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)
-  ](https://github.com/astral-sh/ruff) 
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff) 
 [![](https://img.shields.io/badge/mypy-blue)](https://github.com/python/mypy) 
 [![](https://img.shields.io/badge/markdownlint-darkgreen)](https://github.com/igorshubovych/markdownlint-cli) 
-[![](https://img.shields.io/badge/markdown%20link%20validator-darkgreen)
-  ](https://www.npmjs.com/package/markdown-link-validator) 
+[![](https://img.shields.io/badge/markdown%20link%20validator-darkgreen)](https://www.npmjs.com/package/markdown-link-validator) 
 
 # DSP-TOOLS Documentation
 

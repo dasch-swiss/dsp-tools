@@ -36,7 +36,7 @@ class TestResource:
 class TestBooleanValue:
     def test_make_graph_corr(self, rdf_boolean_value_corr: BooleanValueRDF) -> None:
         in_id = URIRef("id")
-        g = rdf_boolean_value_corr.make_graph(in_id)
+        g = rdf_boolean_value_corr.make_graph()
         assert len(g) == 3
         bn_type = next(g.subjects(RDF.type, KNORA_API.BooleanValue))
         bn_prop = next(g.subjects(KNORA_API.booleanValueAsBoolean))
@@ -48,7 +48,7 @@ class TestBooleanValue:
 class TestColorValue:
     def test_make_graph_corr(self, rdf_color_value_corr: ColorValueRDF) -> None:
         in_id = URIRef("id")
-        g = rdf_color_value_corr.make_graph(in_id)
+        g = rdf_color_value_corr.make_graph()
         assert len(g) == 3
         bn_type = next(g.subjects(RDF.type, KNORA_API.ColorValue))
         bn_prop = next(g.subjects(KNORA_API.colorValueAsColor))
@@ -60,7 +60,7 @@ class TestColorValue:
 class TestDateValueRDF:
     def test_make_graph_corr(self, rdf_date_value_corr: DateValueRDF) -> None:
         in_id = URIRef("id")
-        g = rdf_date_value_corr.make_graph(in_id)
+        g = rdf_date_value_corr.make_graph()
         assert len(g) == 3
         bn_type = next(g.subjects(RDF.type, KNORA_API.DateValue))
         bn_prop = next(g.subjects(KNORA_API.valueAsString))
@@ -72,7 +72,7 @@ class TestDateValueRDF:
 class TestDecimalValue:
     def test_make_graph_corr(self, rdf_decimal_value_corr: DecimalValueRDF) -> None:
         in_id = URIRef("id")
-        g = rdf_decimal_value_corr.make_graph(in_id)
+        g = rdf_decimal_value_corr.make_graph()
         assert len(g) == 3
         bn_type = next(g.subjects(RDF.type, KNORA_API.DecimalValue))
         bn_prop = next(g.subjects(KNORA_API.decimalValueAsDecimal))
@@ -84,7 +84,7 @@ class TestDecimalValue:
 class TestGeonameValue:
     def test_make_graph_corr(self, rdf_geoname_value_corr: GeonameValueRDF) -> None:
         in_id = URIRef("id")
-        g = rdf_geoname_value_corr.make_graph(in_id)
+        g = rdf_geoname_value_corr.make_graph()
         assert len(g) == 3
         bn_type = next(g.subjects(RDF.type, KNORA_API.GeonameValue))
         bn_prop = next(g.subjects(KNORA_API.geonameValueAsGeonameCode))
@@ -96,7 +96,7 @@ class TestGeonameValue:
 class TestIntValue:
     def test_make_graph_corr(self, rdf_integer_value_corr: IntValueRDF) -> None:
         in_id = URIRef("id")
-        g = rdf_integer_value_corr.make_graph(in_id)
+        g = rdf_integer_value_corr.make_graph()
         assert len(g) == 3
         bn_type = next(g.subjects(RDF.type, KNORA_API.IntValue))
         bn_prop = next(g.subjects(KNORA_API.intValueAsInt))
@@ -108,7 +108,7 @@ class TestIntValue:
 class TestLinkValue:
     def test_make_graph_corr(self, rdf_link_value_corr: LinkValueRDF) -> None:
         in_id = URIRef("id")
-        g = rdf_link_value_corr.make_graph(in_id)
+        g = rdf_link_value_corr.make_graph()
         assert len(g) == 3
         bn_type = next(g.subjects(RDF.type, KNORA_API.LinkValue))
         bn_prop = next(g.subjects(API_SHAPES.linkValueHasTargetID))
@@ -120,7 +120,7 @@ class TestLinkValue:
 class TestListValue:
     def test_make_graph_corr(self, rdf_list_value_corr: ListValueRDF) -> None:
         in_id = URIRef("id")
-        g = rdf_list_value_corr.make_graph(in_id)
+        g = rdf_list_value_corr.make_graph()
         assert len(g) == 4
         bn_type = next(g.subjects(RDF.type, KNORA_API.ListValue))
         bn_prop = next(g.subjects(API_SHAPES.listNodeAsString))
@@ -132,7 +132,7 @@ class TestListValue:
 class TestRichtext:
     def test_make_graph_corr(self, rdf_text_richtext_value_corr: RichtextRDF) -> None:
         in_id = URIRef("id")
-        g = rdf_text_richtext_value_corr.make_graph(in_id)
+        g = rdf_text_richtext_value_corr.make_graph()
         assert len(g) == 3
         bn_type = next(g.subjects(RDF.type, KNORA_API.TextValue))
         bn_prop = next(g.subjects(KNORA_API.textValueAsXml))
@@ -144,7 +144,7 @@ class TestRichtext:
 class TestSimpleText:
     def test_make_graph_corr(self, rdf_text_simpletext_value_corr: SimpleTextRDF) -> None:
         in_id = URIRef("id")
-        g = rdf_text_simpletext_value_corr.make_graph(in_id)
+        g = rdf_text_simpletext_value_corr.make_graph()
         assert len(g) == 3
         bn_type = next(g.subjects(RDF.type, KNORA_API.TextValue))
         bn_prop = next(g.subjects(KNORA_API.valueAsString))
@@ -156,7 +156,7 @@ class TestSimpleText:
 class TestTimeValue:
     def test_make_graph_corr(self, rdf_time_value_corr: TimeValueRDF) -> None:
         in_id = URIRef("id")
-        g = rdf_time_value_corr.make_graph(in_id)
+        g = rdf_time_value_corr.make_graph()
         assert len(g) == 3
         bn_type = next(g.subjects(RDF.type, KNORA_API.TimeValue))
         bn_prop = next(g.subjects(KNORA_API.timeValueAsTimeStamp))
@@ -168,7 +168,7 @@ class TestTimeValue:
 class TestUriValue:
     def test_make_graph_corr(self, rdf_uri_value_corr: UriValueRDF) -> None:
         in_id = URIRef("id")
-        g = rdf_uri_value_corr.make_graph(in_id)
+        g = rdf_uri_value_corr.make_graph()
         assert len(g) == 3
         bn_type = next(g.subjects(RDF.type, KNORA_API.UriValue))
         bn_prop = next(g.subjects(KNORA_API.uriValueAsUri))

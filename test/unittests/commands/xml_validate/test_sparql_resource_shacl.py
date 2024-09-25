@@ -65,7 +65,7 @@ def one_res_one_prop() -> Graph:
 
 def test_construct_resource_class_nodeshape(onto_graph: Graph) -> None:
     result = construct_resource_class_node_shape(onto_graph)
-    num_triples = 30
+    num_triples = 36
     assert len(result) == num_triples
     shape_iri = next(result.subjects(SH.targetClass, ONTO.ClassInheritedCardinality))
     assert shape_iri == ONTO.ClassInheritedCardinality_Shape
@@ -77,6 +77,8 @@ def test_construct_resource_class_nodeshape(onto_graph: Graph) -> None:
     assert shape_iri == ONTO.ClassWithEverything_Shape
     shape_iri = next(result.subjects(SH.targetClass, ONTO.TestStillImageRepresentation))
     assert shape_iri == ONTO.TestStillImageRepresentation_Shape
+    shape_iri = next(result.subjects(SH.targetClass, ONTO.ClassInheritedCardinalityOverwriting))
+    assert shape_iri == ONTO.ClassInheritedCardinalityOverwriting_Shape
 
 
 def test_construct_resource_nodeshape_one_res(one_res_one_prop: Graph) -> None:

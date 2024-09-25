@@ -101,7 +101,7 @@ def _transform_one_value(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:  
         RichtextDeserialised: RichtextRDF,
     }
     match val:
-        case ColorValueDeserialised() | DateValueRDF() | SimpleTextDeserialised() | RichtextDeserialised():
+        case ColorValueDeserialised() | DateValueDeserialised() | SimpleTextDeserialised() | RichtextDeserialised():
             return _transform_into_xsd_string(val, res_iri, func_mapper[type(val)])
         case GeonameValueDeserialised() | IntValueDeserialised():
             return _transform_into_xsd_integer(val, res_iri, func_mapper[type(val)])
@@ -112,7 +112,7 @@ def _transform_one_value(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:  
         case LinkValueDeserialised():
             return _transform_link_prop(val, res_iri)
         case ListValueDeserialised():
-            return _transform_link_prop(val, res_iri)
+            return _transform_list_prop(val, res_iri)
         case TimeValueDeserialised():
             return _transform_time_prop(val, res_iri)
         case UriValueDeserialised():
@@ -162,13 +162,12 @@ def _transform_link_prop(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
     return LinkValueRDF(URIRef(val.prop_name), URIRef(content), res_iri)
 
 
-def _transform_list_prop(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
-    list_name = val.object_value if val.object_value is not None else ""
+def _transform_list_prop(val: ListValueDeserialised, res_iri: URIRef) -> ValueRDF:
     node_name = val.object_value if val.object_value is not None else ""
     return ListValueRDF(
         prop_name=URIRef(val.prop_name),
         object_value=Literal(node_name, datatype=XSD.string),
-        list_name=Literal(list_name, datatype=XSD.string),
+        list_name=Literal(val.list_name, datatype=XSD.string),
         res_iri=res_iri,
     )
 

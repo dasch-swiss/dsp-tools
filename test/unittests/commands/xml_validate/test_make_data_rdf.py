@@ -109,7 +109,7 @@ class TestDecimalValue:
         assert isinstance(val, DecimalValueRDF)
         assert val.res_iri == URIRef("id")
         assert val.prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testDecimalSimpleText")
-        assert val.object_value == Literal("2.71", datatype=XSD.decimal)
+        assert val.object_value == Literal("1.2", datatype=XSD.decimal)
 
     def test_none(self, decimal_value_deserialised_none: DecimalValueDeserialised) -> None:
         val = _transform_one_value(decimal_value_deserialised_none, URIRef("id"))
@@ -125,7 +125,7 @@ class TestGeonameValue:
         assert isinstance(val, GeonameValueRDF)
         assert val.res_iri == URIRef("id")
         assert val.prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testGeoname")
-        assert val.object_value == Literal("1111111", datatype=XSD.integer)
+        assert val.object_value == Literal("1241345", datatype=XSD.integer)
 
     def test_none(self, geoname_value_deserialised_none: GeonameValueDeserialised) -> None:
         val = _transform_one_value(geoname_value_deserialised_none, URIRef("id"))
@@ -157,14 +157,14 @@ class TestLinkValue:
         assert isinstance(val, LinkValueRDF)
         assert val.res_iri == URIRef("id")
         assert val.prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo")
-        assert val.object_value == URIRef("id_1")
+        assert val.object_value == URIRef("link-id")
 
     def test_none(self, link_value_deserialised_none: LinkValueDeserialised) -> None:
         val = _transform_one_value(link_value_deserialised_none, URIRef("id"))
         assert isinstance(val, LinkValueRDF)
         assert val.res_iri == URIRef("id")
         assert val.prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo")
-        assert val.object_value == Literal("", datatype=XSD.string)
+        assert val.object_value == URIRef("")
 
 
 class TestListValue:
@@ -207,7 +207,7 @@ class TestRichtextValue:
         assert isinstance(val, RichtextRDF)
         assert val.res_iri == URIRef("id")
         assert val.prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testRichtext")
-        assert val.object_value == Literal("Text", datatype=XSD.string)
+        assert val.object_value == Literal("rich text", datatype=XSD.string)
 
     def test_none(self, richtext_deserialised_none: RichtextDeserialised) -> None:
         val = _transform_one_value(richtext_deserialised_none, URIRef("id"))

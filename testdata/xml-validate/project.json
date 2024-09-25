@@ -409,7 +409,7 @@
             "cardinalities": [
               {
                 "propname": ":testBoolean",
-                "cardinality": "1",
+                "cardinality": "0-1",
                 "gui_order": 0
               }
             ]
@@ -420,6 +420,20 @@
             "labels": {
               "en": "Subclass Resource"
             }
+          },
+          {
+            "name": "ClassInheritedCardinalityOverwriting",
+            "super": ":CardOneResource",
+            "labels": {
+              "en": "Subclass Resource that overwrites inherited cardinality"
+            },
+            "cardinalities": [
+              {
+                "propname": ":testBoolean",
+                "cardinality": "1",
+                "gui_order": 0
+              }
+            ]
           },
           {
             "name": "ClassMixedCard",

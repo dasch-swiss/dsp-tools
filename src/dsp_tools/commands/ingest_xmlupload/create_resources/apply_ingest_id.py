@@ -56,13 +56,14 @@ def replace_filepath_with_internal_filename(
     for elem in new_tree.iter():
         if not etree.QName(elem).localname.endswith("bitstream") or not elem.text:
             continue
-        img_path = Path(elem.text)
-        img_path = img_path.relative_to(Path.cwd()) if img_path.is_absolute() else img_path
-        img_path_str = str(img_path)
+        img_path_str = elem.text
         if img_path_str not in orig_path_2_asset_id:
-            img_path_str = str(img_path.with_suffix(img_path.suffix.lower()))
-        if img_path_str not in orig_path_2_asset_id:
-            img_path_str = str(img_path.with_suffix(img_path.suffix.upper()))
+            img_path = Path(elem.text)
+            img_path_str = str(img_path.relative_to(Path.cwd()) if img_path.is_absolute() else img_path)
+            if img_path_str not in orig_path_2_asset_id:
+                img_path_str = str(img_path.with_suffix(img_path.suffix.lower()))
+            if img_path_str not in orig_path_2_asset_id:
+                img_path_str = str(img_path.with_suffix(img_path.suffix.upper()))
 
         if img_path_str in orig_path_2_asset_id:
             elem.text = orig_path_2_asset_id[img_path_str]

@@ -84,10 +84,11 @@ def test_construct_resource_nodeshape_one_res(one_res_one_prop: Graph) -> None:
     subjects = {iri for x in result.triples((None, None, None)) if not isinstance(iri := x[0], BNode)}
     assert len(subjects) == 1
     subject_iri = subjects.pop()
+    assert subject_iri == ONTO.CardOneResource_Shape
     node_triples = list(result.triples((subject_iri, None, None)))
     num_triples = 4
     assert len(node_triples) == num_triples
-    assert next(result.subjects(RDF.type, SH.NodeShape)) == ONTO.CardOneResource_Shape
+    assert next(result.subjects(RDF.type, SH.NodeShape)) == subject_iri
     assert next(result.subjects(SH.property, API_SHAPES.RDFS_label)) == subject_iri
     assert next(result.subjects(SH.ignoredProperties)) == subject_iri
 

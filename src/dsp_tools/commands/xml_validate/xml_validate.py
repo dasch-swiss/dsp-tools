@@ -37,16 +37,13 @@ def _parse_and_clean_file(file: Path, api_url: str) -> etree._Element:
     root = remove_comments_from_element_tree(root)
     validate_xml(root)
     root = transform_into_localnames(root)
-    shortcode = root.attrib["shortcode"]
-    default_ontology = root.attrib["default-ontology"]
-    namespace = f"{api_url}/ontology/{shortcode}/{default_ontology}/v2#"
-    return _replace_namespaces(root, namespace)
+    return _replace_namespaces(root, api_url)
 
 
-def _replace_namespaces(root: etree._Element, ontology_namespace: str) -> etree._Element:
+def _replace_namespaces(root: etree._Element, api_url: str) -> etree._Element:
     with open("src/dsp_tools/resources/xml_validate/replace_namespace.xslt", "rb") as xslt_file:
         xslt_data = xslt_file.read()
     xslt_root = etree.XML(xslt_data)
     transform = etree.XSLT(xslt_root)
-    replacement_value = etree.XSLT.strparam(ontology_namespace)
+    replacement_value = etree.XSLT.strparam(api_url)
     return transform(root, replacementValue=replacement_value).getroot()

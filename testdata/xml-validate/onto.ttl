@@ -7,8 +7,8 @@
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2> a owl:Ontology ;
     rdfs:label "Ontology" ;
-    knora-api:attachedToProject <http://rdfh.ch/projects/wEEzy7VaSKW9rUuNHKnEkg> ;
-    knora-api:lastModificationDate "2024-09-25T11:39:10.948655759Z"^^xsd:dateTimeStamp .
+    knora-api:attachedToProject <http://rdfh.ch/projects/u_ZcghJRTbSnpfVoAxjg7A> ;
+    knora-api:lastModificationDate "2024-09-25T13:42:38.292574840Z"^^xsd:dateTimeStamp .
 
 onto:ClassInheritedCardinality a owl:Class ;
     rdfs:label "Subclass Resource" ;
@@ -16,6 +16,84 @@ onto:ClassInheritedCardinality a owl:Class ;
     knora-api:isResourceClass true ;
     rdfs:subClassOf [ a owl:Restriction ;
             knora-api:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty rdfs:label ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty knora-api:versionDate ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty knora-api:versionArkUrl ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty knora-api:userHasPermission ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty knora-api:lastModificationDate ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty knora-api:isDeleted ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty knora-api:arkUrl ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty knora-api:attachedToProject ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty knora-api:attachedToUser ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty knora-api:creationDate ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty knora-api:deleteComment ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty knora-api:deleteDate ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty knora-api:deletedBy ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty knora-api:hasIncomingLinkValue ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty knora-api:hasPermissions ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty knora-api:hasStandoffLinkTo ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty knora-api:hasStandoffLinkToValue ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            salsah-gui:guiOrder 0 ;
+            owl:maxCardinality 1 ;
+            owl:onProperty onto:testBoolean ],
+        onto:CardOneResource .
+
+onto:ClassInheritedCardinalityOverwriting a owl:Class ;
+    rdfs:label "Subclass Resource that overwrites inherited cardinality" ;
+    knora-api:canBeInstantiated true ;
+    knora-api:isResourceClass true ;
+    rdfs:subClassOf [ a owl:Restriction ;
             salsah-gui:guiOrder 0 ;
             owl:cardinality 1 ;
             owl:onProperty onto:testBoolean ],
@@ -182,84 +260,6 @@ onto:testSeqnum a owl:ObjectProperty ;
     knora-api:objectType knora-api:IntValue ;
     salsah-gui:guiElement salsah-gui:SimpleText ;
     rdfs:subPropertyOf knora-api:seqnum .
-
-onto:CardOneResource a owl:Class ;
-    rdfs:label "Resource with One Cardinality" ;
-    knora-api:canBeInstantiated true ;
-    knora-api:isResourceClass true ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            knora-api:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty rdfs:label ],
-        [ a owl:Restriction ;
-            knora-api:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty knora-api:versionDate ],
-        [ a owl:Restriction ;
-            knora-api:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty knora-api:versionArkUrl ],
-        [ a owl:Restriction ;
-            knora-api:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty knora-api:userHasPermission ],
-        [ a owl:Restriction ;
-            knora-api:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty knora-api:lastModificationDate ],
-        [ a owl:Restriction ;
-            knora-api:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty knora-api:isDeleted ],
-        [ a owl:Restriction ;
-            knora-api:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty knora-api:arkUrl ],
-        [ a owl:Restriction ;
-            knora-api:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty knora-api:attachedToProject ],
-        [ a owl:Restriction ;
-            knora-api:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty knora-api:attachedToUser ],
-        [ a owl:Restriction ;
-            knora-api:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty knora-api:creationDate ],
-        [ a owl:Restriction ;
-            knora-api:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty knora-api:deleteComment ],
-        [ a owl:Restriction ;
-            knora-api:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty knora-api:deleteDate ],
-        [ a owl:Restriction ;
-            knora-api:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty knora-api:deletedBy ],
-        [ a owl:Restriction ;
-            knora-api:isInherited true ;
-            owl:minCardinality 0 ;
-            owl:onProperty knora-api:hasIncomingLinkValue ],
-        [ a owl:Restriction ;
-            knora-api:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty knora-api:hasPermissions ],
-        [ a owl:Restriction ;
-            knora-api:isInherited true ;
-            owl:minCardinality 0 ;
-            owl:onProperty knora-api:hasStandoffLinkTo ],
-        [ a owl:Restriction ;
-            knora-api:isInherited true ;
-            owl:minCardinality 0 ;
-            owl:onProperty knora-api:hasStandoffLinkToValue ],
-        [ a owl:Restriction ;
-            salsah-gui:guiOrder 0 ;
-            owl:cardinality 1 ;
-            owl:onProperty onto:testBoolean ],
-        knora-api:Resource .
 
 onto:ClassWithEverything a owl:Class ;
     rdfs:label "Resource with every property" ;
@@ -613,7 +613,7 @@ onto:testListProp a owl:ObjectProperty ;
     knora-api:isEditable true ;
     knora-api:isResourceProperty true ;
     knora-api:objectType knora-api:ListValue ;
-    salsah-gui:guiAttribute "hlist=<http://rdfh.ch/lists/9999/tUCPEQblSFSQRHHG9equDg>" ;
+    salsah-gui:guiAttribute "hlist=<http://rdfh.ch/lists/9999/uYXxypeKRXqRXql4AA4jlA>" ;
     salsah-gui:guiElement salsah-gui:List ;
     rdfs:subPropertyOf knora-api:hasValue .
 
@@ -674,6 +674,84 @@ onto:testUriValue a owl:ObjectProperty ;
     knora-api:objectType knora-api:UriValue ;
     salsah-gui:guiElement salsah-gui:SimpleText ;
     rdfs:subPropertyOf knora-api:hasValue .
+
+onto:CardOneResource a owl:Class ;
+    rdfs:label "Resource with One Cardinality" ;
+    knora-api:canBeInstantiated true ;
+    knora-api:isResourceClass true ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            salsah-gui:guiOrder 0 ;
+            owl:maxCardinality 1 ;
+            owl:onProperty onto:testBoolean ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty rdfs:label ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty knora-api:versionDate ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty knora-api:versionArkUrl ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty knora-api:userHasPermission ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty knora-api:lastModificationDate ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty knora-api:isDeleted ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty knora-api:arkUrl ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty knora-api:attachedToProject ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty knora-api:attachedToUser ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty knora-api:creationDate ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty knora-api:deleteComment ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty knora-api:deleteDate ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty knora-api:deletedBy ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty knora-api:hasIncomingLinkValue ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty knora-api:hasPermissions ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty knora-api:hasStandoffLinkTo ],
+        [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty knora-api:hasStandoffLinkToValue ],
+        knora-api:Resource .
 
 onto:testDecimalSimpleText a owl:ObjectProperty ;
     rdfs:label "Test Decimal" ;

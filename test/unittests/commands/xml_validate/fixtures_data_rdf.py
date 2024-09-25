@@ -25,33 +25,8 @@ KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
 @pytest.fixture
 def rdf_resource() -> ResourceRDF:
     return ResourceRDF(
-        res_iri=URIRef("id"),
-        res_class=ONTO.ClassWithEverything,
-        label=Literal("lbl", datatype=XSD.string),
-
-
-
-@pytest.fixture
-def rdf_resource_empty() -> ResourceRDF:
-    return ResourceRDF(
-        res_id=URIRef("id"),
-        res_class=ONTO.ClassWithEverything,
-        label=Literal("lbl", datatype=XSD.string),
+        res_iri=URIRef("id"), res_class=ONTO.ClassWithEverything, label=Literal("lbl", datatype=XSD.string)
     )
-
-
-@pytest.fixture
-def rdf_resource_with_props() -> ResourceRDF:
-    return ResourceRDF(
-        res_id=URIRef("id"),
-        res_class=ONTO.ClassWithEverything,
-        label=Literal("lbl", datatype=XSD.string),
-    )
-
-
-@pytest.fixture
-def rdf_root_resource_region() -> ResourceRDF:
-    return ResourceRDF(res_iri=URIRef("id"), res_class=KNORA_API.Region, label=Literal("lbl", datatype=XSD.string))
 
 
 @pytest.fixture
@@ -67,6 +42,7 @@ def rdf_boolean_value_empty() -> BooleanValueRDF:
 @pytest.fixture
 def rdf_color_value_corr() -> ColorValueRDF:
     return ColorValueRDF(ONTO.testColor, Literal("00ff00", datatype=XSD.string), URIRef("id"))
+
 
 @pytest.fixture
 def rdf_date_value_corr() -> DateValueRDF:

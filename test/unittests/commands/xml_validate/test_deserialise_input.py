@@ -30,7 +30,7 @@ class TestResource:
         assert len(res.values) == 0
 
     def test_with_props(self, root_resource_with_props: etree._Element) -> None:
-        res_list = _deserialise_all_resources(root_resource_with_props)
+        res_list = _deserialise_all_resources(root_resource_with_props).resources
         assert len(res_list) == 1
         res = res_list[0]
         assert isinstance(res, ResourceDeserialised)
@@ -40,7 +40,7 @@ class TestResource:
         assert len(res.values) == 3
 
     def test_region(self, root_resource_region: etree._Element) -> None:
-        res_list = _deserialise_all_resources(root_resource_region)
+        res_list = _deserialise_all_resources(root_resource_region).resources
         assert len(res_list) == 1
         res = res_list[0]
         assert isinstance(res, RegionDeserialised)

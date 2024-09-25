@@ -5,9 +5,19 @@ from dataclasses import dataclass
 
 
 @dataclass
-class ProjectDataDeserialised:
+class ProjectDeserialised:
+    info: ProjectInformation
+    data: DataDeserialised
+
+
+@dataclass
+class ProjectInformation:
     shortcode: str
     default_onto: str
+
+
+@dataclass
+class DataDeserialised:
     resources: list[AbstractResource]
 
 

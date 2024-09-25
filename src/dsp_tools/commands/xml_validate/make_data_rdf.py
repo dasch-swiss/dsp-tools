@@ -10,6 +10,7 @@ from dsp_tools.commands.xml_validate.models.data_deserialised import AnnotationD
 from dsp_tools.commands.xml_validate.models.data_deserialised import AudioSegmentDeserialised
 from dsp_tools.commands.xml_validate.models.data_deserialised import BooleanValueDeserialised
 from dsp_tools.commands.xml_validate.models.data_deserialised import ColorValueDeserialised
+from dsp_tools.commands.xml_validate.models.data_deserialised import DataDeserialised
 from dsp_tools.commands.xml_validate.models.data_deserialised import DateValueDeserialised
 from dsp_tools.commands.xml_validate.models.data_deserialised import DecimalValueDeserialised
 from dsp_tools.commands.xml_validate.models.data_deserialised import GeonameValueDeserialised
@@ -17,7 +18,6 @@ from dsp_tools.commands.xml_validate.models.data_deserialised import IntValueDes
 from dsp_tools.commands.xml_validate.models.data_deserialised import LinkObjDeserialised
 from dsp_tools.commands.xml_validate.models.data_deserialised import LinkValueDeserialised
 from dsp_tools.commands.xml_validate.models.data_deserialised import ListValueDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import ProjectDataDeserialised
 from dsp_tools.commands.xml_validate.models.data_deserialised import RegionDeserialised
 from dsp_tools.commands.xml_validate.models.data_deserialised import ResourceDeserialised
 from dsp_tools.commands.xml_validate.models.data_deserialised import RichtextDeserialised
@@ -47,7 +47,7 @@ from dsp_tools.models.exceptions import InternalError
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
 
 
-def make_data_rdf(data_deserialised: ProjectDataDeserialised) -> DataRDF:
+def make_data_rdf(data_deserialised: DataDeserialised) -> DataRDF:
     """
     Transforms the deserialised data into instances that can produce a RDF graph.
 

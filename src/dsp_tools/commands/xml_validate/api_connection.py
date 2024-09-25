@@ -17,7 +17,7 @@ class OntologyConnection:
     api_url: str
     shortcode: str
 
-    def get(self, url: str, headers: dict[str, Any] | None = None) -> Response:
+    def _get(self, url: str, headers: dict[str, Any] | None = None) -> Response:
         """
         Sends a get request to the designated url
 
@@ -58,15 +58,18 @@ class OntologyConnection:
 
     def _get_ontology_iris(self) -> list[str]:
         endpoint = f"{self.api_url}/admin/projects/shortcode/{self.shortcode}"
-        response = self.get(endpoint)
+        response = self._get(endpoint)
         response_json = cast(dict[str, Any], response.json())
-        if not (ontos := response_json.get("project").get("ontologies")):
-            msg = f"The response from the API does not contain any ontologies.\nAPI response:{response}"
+        msg = f"The response from the API does not contain any ontologies.\nAPI response:{response.text}"
+        if not (proj := response_json.get("project")):
+            logger.exception(msg)
+            raise UserError(msg)
+        if not (ontos := proj.get("ontologies")):
             logger.exception(msg)
             raise UserError(msg)
         output = cast(list[str], ontos)
         return output
 
     def _get_one_ontology(self, ontology_iri: str) -> str:
-        response = self.get(ontology_iri, {"Accept": "text/turtle"})
+        response = self._get(ontology_iri, headers={"Accept": "text/turtle"})
         return response.text

@@ -39,4 +39,6 @@ def _construct_resource_nodeshape(onto_graph: Graph) -> Graph:
         BIND(IRI(CONCAT(str(?class), "_Shape")) AS ?shapesIRI)
     }
     """
-    return onto_graph.query(query_s).graph
+    if results_graph := onto_graph.query(query_s).graph:
+        return results_graph
+    return Graph()

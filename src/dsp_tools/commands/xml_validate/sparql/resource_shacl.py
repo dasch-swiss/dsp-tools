@@ -29,7 +29,8 @@ def _construct_resource_nodeshape(onto_graph: Graph) -> Graph:
         ?shapesIRI a sh:NodeShape ;
                 sh:targetClass ?class ;
                 sh:property api-shapes:RDFS_label ;
-                sh:ignoredProperties ( rdf:type ) .
+                sh:ignoredProperties ( rdf:type ) ;
+                sh:closed true .
 
     } WHERE {
 

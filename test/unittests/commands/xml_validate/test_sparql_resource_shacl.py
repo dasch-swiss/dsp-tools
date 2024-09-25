@@ -3,6 +3,7 @@ from rdflib import RDF
 from rdflib import SH
 from rdflib import BNode
 from rdflib import Graph
+from rdflib import Literal
 from rdflib import Namespace
 
 from dsp_tools.commands.xml_validate.sparql.resource_shacl import _construct_resource_nodeshape
@@ -65,7 +66,7 @@ def one_res_one_prop() -> Graph:
 
 def test_construct_resource_class_nodeshape(onto_graph: Graph) -> None:
     result = construct_resource_class_node_shape(onto_graph)
-    num_triples = 36
+    num_triples = 42
     assert len(result) == num_triples
     shape_iri = next(result.subjects(SH.targetClass, ONTO.ClassInheritedCardinality))
     assert shape_iri == ONTO.ClassInheritedCardinality_Shape
@@ -88,11 +89,12 @@ def test_construct_resource_nodeshape_one_res(one_res_one_prop: Graph) -> None:
     subject_iri = subjects.pop()
     assert subject_iri == ONTO.CardOneResource_Shape
     node_triples = list(result.triples((subject_iri, None, None)))
-    num_triples = 4
+    num_triples = 5
     assert len(node_triples) == num_triples
     assert next(result.subjects(RDF.type, SH.NodeShape)) == subject_iri
     assert next(result.subjects(SH.property, API_SHAPES.RDFS_label)) == subject_iri
     assert next(result.subjects(SH.ignoredProperties)) == subject_iri
+    assert next(result.objects(subject_iri, SH.closed)) == Literal(True)
 
 
 if __name__ == "__main__":

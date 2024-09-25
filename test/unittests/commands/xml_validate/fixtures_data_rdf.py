@@ -28,6 +28,24 @@ def rdf_resource() -> ResourceRDF:
         res_iri=URIRef("id"),
         res_class=ONTO.ClassWithEverything,
         label=Literal("lbl", datatype=XSD.string),
+
+
+
+@pytest.fixture
+def rdf_resource_empty() -> ResourceRDF:
+    return ResourceRDF(
+        res_id=URIRef("id"),
+        res_class=ONTO.ClassWithEverything,
+        label=Literal("lbl", datatype=XSD.string),
+    )
+
+
+@pytest.fixture
+def rdf_resource_with_props() -> ResourceRDF:
+    return ResourceRDF(
+        res_id=URIRef("id"),
+        res_class=ONTO.ClassWithEverything,
+        label=Literal("lbl", datatype=XSD.string),
     )
 
 
@@ -49,7 +67,6 @@ def rdf_boolean_value_empty() -> BooleanValueRDF:
 @pytest.fixture
 def rdf_color_value_corr() -> ColorValueRDF:
     return ColorValueRDF(ONTO.testColor, Literal("00ff00", datatype=XSD.string), URIRef("id"))
-
 
 @pytest.fixture
 def rdf_date_value_corr() -> DateValueRDF:

@@ -33,7 +33,9 @@ class OntologyConnection:
             UserError: If a non-200 response was given
         """
         try:
+            logger.debug(f"REQUEST: GET to {url}, timeout: 100, headers: {headers}")
             response = requests.get(url, headers=headers, timeout=100)
+            logger.debug(f"RESPONSE: {response.status_code}")
         except (TimeoutError, ReadTimeout) as err:
             logger.exception(err)
             raise InternalError("TimeoutError occurred. See logs for details.") from None

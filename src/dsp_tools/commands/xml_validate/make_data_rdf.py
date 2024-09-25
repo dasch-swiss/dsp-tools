@@ -108,15 +108,15 @@ def _transform_one_value(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:  
         case BooleanValueDeserialised():
             return _transform_into_bool(val, res_iri)
         case DecimalValueDeserialised():
-            return _transform_decimal_prop(val, res_iri)
+            return _transform_decimal_value(val, res_iri)
         case LinkValueDeserialised():
-            return _transform_link_prop(val, res_iri)
+            return _transform_link_value(val, res_iri)
         case ListValueDeserialised():
-            return _transform_list_prop(val, res_iri)
+            return _transform_list_value(val, res_iri)
         case TimeValueDeserialised():
-            return _transform_time_prop(val, res_iri)
+            return _transform_time_value(val, res_iri)
         case UriValueDeserialised():
-            return _transform_uri_prop(val, res_iri)
+            return _transform_uri_value(val, res_iri)
         case _:
             raise InternalError(f"Unknown Value Type: {type(val)}")
 
@@ -148,7 +148,7 @@ def _transform_into_bool(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
     return BooleanValueRDF(URIRef(val.prop_name), content, res_iri)
 
 
-def _transform_decimal_prop(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
+def _transform_decimal_value(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
     content = (
         Literal(val.object_value, datatype=XSD.decimal)
         if val.object_value is not None
@@ -157,12 +157,12 @@ def _transform_decimal_prop(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF
     return DecimalValueRDF(URIRef(val.prop_name), content, res_iri)
 
 
-def _transform_link_prop(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
+def _transform_link_value(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
     content = val.object_value if val.object_value is not None else ""
     return LinkValueRDF(URIRef(val.prop_name), URIRef(content), res_iri)
 
 
-def _transform_list_prop(val: ListValueDeserialised, res_iri: URIRef) -> ValueRDF:
+def _transform_list_value(val: ListValueDeserialised, res_iri: URIRef) -> ValueRDF:
     node_name = val.object_value if val.object_value is not None else ""
     return ListValueRDF(
         prop_name=URIRef(val.prop_name),
@@ -172,7 +172,7 @@ def _transform_list_prop(val: ListValueDeserialised, res_iri: URIRef) -> ValueRD
     )
 
 
-def _transform_time_prop(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
+def _transform_time_value(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
     content = (
         Literal(val.object_value, datatype=XSD.dateTimeStamp)
         if val.object_value is not None
@@ -181,7 +181,7 @@ def _transform_time_prop(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
     return TimeValueRDF(URIRef(val.prop_name), content, res_iri)
 
 
-def _transform_uri_prop(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
+def _transform_uri_value(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
     content = (
         Literal(val.object_value, datatype=XSD.anyURI)
         if val.object_value is not None

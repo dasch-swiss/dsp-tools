@@ -255,9 +255,20 @@
             "super": [
               "hasLinkTo"
             ],
-            "object": ":ClassWithEverything",
+            "object": "Resource",
             "labels": {
               "en": "Test In-built hasLinkTo"
+            },
+            "gui_element": "Searchbox"
+          },
+          {
+            "name": "testHasLinkToCardOneResource",
+            "super": [
+              "hasLinkTo"
+            ],
+            "object": ":CardOneResource",
+            "labels": {
+              "en": "Super-class"
             },
             "gui_element": "Searchbox"
           },
@@ -389,14 +400,19 @@
                 "gui_order": 16
               },
               {
-                "propname": ":testHasRepresentation",
+                "propname": ":testHasLinkToCardOneResource",
                 "cardinality": "0-n",
                 "gui_order": 17
               },
               {
-                "propname": ":testIsPartOf",
+                "propname": ":testHasRepresentation",
                 "cardinality": "0-n",
                 "gui_order": 18
+              },
+              {
+                "propname": ":testIsPartOf",
+                "cardinality": "0-n",
+                "gui_order": 19
               }
             ]
           },

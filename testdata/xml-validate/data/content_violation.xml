@@ -1,0 +1,57 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="9999"
+       default-ontology="onto">
+
+    <resource label="Decimal" restype=":ClassWithEverything" id="id_4">
+        <decimal-prop name=":testDecimalSimpleText">
+            <decimal>1</decimal>
+        </decimal-prop>
+    </resource>
+
+    <resource label="Geoname" restype=":ClassWithEverything" id="id_5">
+        <geoname-prop name=":testGeoname">
+            <geoname>ab</geoname>
+        </geoname-prop>
+    </resource>
+
+    <resource label="List" restype=":ClassWithEverything" id="id_7">
+        <list-prop list="onlyList" name=":testListProp">
+            <list>n1</list>
+        </list-prop>
+    </resource>
+
+    <resource label="Link Prop" restype=":ClassWithEverything" id="id_8">
+        <resptr-prop name=":testHasLinkTo">
+            <resptr>id_1</resptr>
+        </resptr-prop>
+    </resource>
+
+    <resource label="Richtext" restype=":ClassWithEverything" id="id_9">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">Text</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Simpletext" restype=":ClassWithEverything" id="id_10">
+        <text-prop name=":testTextarea">
+            <text encoding="utf8">Text</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Time" restype=":ClassWithEverything" id="id_11">
+        <time-prop name=":testTimeValue">
+            <time>2019-10-23T13:45:12.01-14:00</time>
+        </time-prop>
+    </resource>
+
+    <resource label="Uri" restype=":ClassWithEverything" id="id_12">
+        <uri-prop name=":testUriValue">
+            <uri>https://dasch.swiss</uri>
+        </uri-prop>
+    </resource>
+
+</knora>

@@ -8,9 +8,21 @@
 
     <resource label="Empty" restype=":ClassWithEverything" id="id_0"/>
 
-    <resource label="Bool" restype=":ClassWithEverything" id="id_1">
+    <resource label="Bool True" restype=":ClassWithEverything" id="id_1">
         <boolean-prop name=":testBoolean">
             <boolean>true</boolean>
+        </boolean-prop>
+    </resource>
+
+    <resource label="Bool One" restype=":ClassWithEverything" id="id_1.1">
+        <boolean-prop name=":testBoolean">
+            <boolean>1</boolean>
+        </boolean-prop>
+    </resource>
+
+    <resource label="Bool Zero" restype=":ClassWithEverything" id="id_1.2">
+        <boolean-prop name=":testBoolean">
+            <boolean>0</boolean>
         </boolean-prop>
     </resource>
 
@@ -79,32 +91,5 @@
             <uri>https://dasch.swiss</uri>
         </uri-prop>
     </resource>
-
-    <region label="Region" id="region_1">
-        <color-prop name="hasColor">
-            <color permissions="prop-restricted">#5d1f1e</color>
-        </color-prop>
-        <resptr-prop name="isRegionOf">
-            <resptr permissions="prop-default">image_thing_0</resptr>
-        </resptr-prop>
-        <geometry-prop name="hasGeometry">
-            <geometry permissions="prop-default">
-                {
-                "status": "active",
-                "type": "polygon",
-                "lineWidth": 5,
-                "points": [{"x": 0.4, "y": 0.6},
-                {"x": 0.5, "y": 0.9},
-                {"x": 0.8, "y": 0.9},
-                {"x": 0.7, "y": 0.6}]
-                }
-            </geometry>
-        </geometry-prop>
-        <text-prop name="hasComment">
-            <text encoding="xml" permissions="prop-default">
-                This is a polygon-formed region of interest of an image. It is also displayed as Annotation.
-            </text>
-        </text-prop>
-    </region>
 
 </knora>

@@ -6,6 +6,10 @@ from rdflib import Graph
 from rdflib import Literal
 from rdflib import Namespace
 
+from dsp_tools.commands.xml_validate.sparql.resource_shacl import _construct_0_1_cardinality
+from dsp_tools.commands.xml_validate.sparql.resource_shacl import _construct_0_n_cardinality
+from dsp_tools.commands.xml_validate.sparql.resource_shacl import _construct_1_cardinality
+from dsp_tools.commands.xml_validate.sparql.resource_shacl import _construct_1_n_cardinality
 from dsp_tools.commands.xml_validate.sparql.resource_shacl import _construct_resource_nodeshape
 from dsp_tools.commands.xml_validate.sparql.resource_shacl import construct_resource_class_node_shape
 
@@ -196,6 +200,78 @@ def test_construct_resource_nodeshape_one_res(one_res_one_prop: Graph) -> None:
 def test_construct_resource_nodeshape_no_res(one_prop: Graph) -> None:
     result = _construct_resource_nodeshape(one_prop)
     assert len(result) == 0
+
+
+class Test1:
+    def test_good(self, card_1: Graph) -> None:
+        result = _construct_1_cardinality(card_1)
+        assert len(result) == 7
+
+    def test_empty_0_1(self, card_0_1: Graph) -> None:
+        result = _construct_1_cardinality(card_0_1)
+        assert len(result) == 0
+
+    def test_empty_1_n(self, card_1_n: Graph) -> None:
+        result = _construct_1_cardinality(card_1_n)
+        assert len(result) == 0
+
+    def test_empty_0_n(self, card_0_n: Graph) -> None:
+        result = _construct_1_cardinality(card_0_n)
+        assert len(result) == 0
+
+
+class Test01:
+    def test_good(self, card_0_1: Graph) -> None:
+        result = _construct_0_1_cardinality(card_0_1)
+        assert len(result) == 0
+
+    def test_empty_1(self, card_1: Graph) -> None:
+        result = _construct_0_1_cardinality(card_1)
+        assert len(result) == 0
+
+    def test_empty_1_n(self, card_1_n: Graph) -> None:
+        result = _construct_0_1_cardinality(card_1_n)
+        assert len(result) == 0
+
+    def test_empty_0_n(self, card_0_n: Graph) -> None:
+        result = _construct_0_1_cardinality(card_0_n)
+        assert len(result) == 0
+
+
+class Test1N:
+    def test_good(self, card_1_n: Graph) -> None:
+        result = _construct_1_n_cardinality(card_1_n)
+        assert len(result) == 0
+
+    def test_empty_1(self, card_1: Graph) -> None:
+        result = _construct_1_n_cardinality(card_1)
+        assert len(result) == 0
+
+    def test_empty_1_n(self, card_0_1: Graph) -> None:
+        result = _construct_1_n_cardinality(card_0_1)
+        assert len(result) == 0
+
+    def test_empty_0_n(self, card_0_n: Graph) -> None:
+        result = _construct_1_n_cardinality(card_0_n)
+        assert len(result) == 0
+
+
+class Test0N:
+    def test_good(self, card_0_n: Graph) -> None:
+        result = _construct_0_n_cardinality(card_0_n)
+        assert len(result) == 0
+
+    def test_empty_1_n(self, card_1_n: Graph) -> None:
+        result = _construct_0_n_cardinality(card_1_n)
+        assert len(result) == 0
+
+    def test_empty_1(self, card_1: Graph) -> None:
+        result = _construct_0_n_cardinality(card_1)
+        assert len(result) == 0
+
+    def test_empty_0_1(self, card_0_1: Graph) -> None:
+        result = _construct_0_n_cardinality(card_0_1)
+        assert len(result) == 0
 
 
 if __name__ == "__main__":

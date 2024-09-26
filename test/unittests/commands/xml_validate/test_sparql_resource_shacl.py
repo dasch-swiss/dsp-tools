@@ -82,6 +82,84 @@ def one_prop() -> Graph:
     return g
 
 
+@pytest.fixture
+def card_1() -> Graph:
+    ttl = (
+        PREFIXES
+        + """
+    onto:ClassMixedCard a owl:Class ;
+        rdfs:subClassOf [ 
+                a owl:Restriction ;
+                salsah-gui:guiOrder 0 ;
+                owl:cardinality 1 ;
+                owl:onProperty onto:testBoolean
+                         ] .
+    """
+    )
+    g = Graph()
+    g.parse(data=ttl, format="ttl")
+    return g
+
+
+@pytest.fixture
+def card_0_1() -> Graph:
+    ttl = (
+        PREFIXES
+        + """
+    onto:ClassMixedCard a owl:Class ;
+        rdfs:subClassOf [ 
+                a owl:Restriction ;
+                salsah-gui:guiOrder 1 ;
+                owl:maxCardinality 1 ;
+                owl:onProperty onto:testDecimalSimpleText
+                         ] .
+
+    """
+    )
+    g = Graph()
+    g.parse(data=ttl, format="ttl")
+    return g
+
+
+@pytest.fixture
+def card_1_n() -> Graph:
+    ttl = (
+        PREFIXES
+        + """
+    onto:ClassMixedCard a owl:Class ;
+        rdfs:subClassOf [ 
+                a owl:Restriction ;
+                salsah-gui:guiOrder 2 ;
+                owl:minCardinality 1 ;
+                owl:onProperty onto:testGeoname
+                         ] .
+
+    """
+    )
+    g = Graph()
+    g.parse(data=ttl, format="ttl")
+    return g
+
+
+@pytest.fixture
+def card_0_n() -> Graph:
+    ttl = (
+        PREFIXES
+        + """
+    onto:ClassMixedCard a owl:Class ;
+        rdfs:subClassOf [ 
+                a owl:Restriction ;
+                salsah-gui:guiOrder 3 ;
+                owl:minCardinality 0 ;
+                owl:onProperty onto:testSimpleText
+                         ] .
+    """
+    )
+    g = Graph()
+    g.parse(data=ttl, format="ttl")
+    return g
+
+
 def test_construct_resource_class_nodeshape(onto_graph: Graph) -> None:
     result = construct_resource_class_node_shape(onto_graph)
     num_triples = 42

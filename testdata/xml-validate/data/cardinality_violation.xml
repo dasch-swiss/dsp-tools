@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="9999"
+       default-ontology="onto">
+
+
+    <resource label="Bool Card 1" restype=":ClassInheritedCardinalityOverwriting" id="id_1"/>
+
+    <resource label="Decimal Card 0-1" restype=":ClassWithEverything" id="id_2">
+        <boolean-prop name=":testBoolean">
+            <boolean>true</boolean>
+        </boolean-prop>
+        <decimal-prop name=":testDecimalSimpleText">
+            <decimal>2.71</decimal>
+            <decimal>2.00</decimal>
+        </decimal-prop>
+        <integer-prop name=":testIntegerSimpleText">
+            <integer>1</integer>
+        </integer-prop>
+    </resource>
+
+    <resource label="Int Card 1-n" restype=":ClassWithEverything" id="id_3">
+        <boolean-prop name=":testBoolean">
+            <boolean>true</boolean>
+        </boolean-prop>
+    </resource>
+
+</knora>

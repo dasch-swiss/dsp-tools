@@ -25,24 +25,27 @@ def _get_project_ontos(onto_con: OntologyConnection) -> Graph:
     return g
 
 
-def _get_data_info_from_file(file: Path, namespace: str) -> tuple[ProjectInformation, DataRDF]:
-    cleaned_root = _parse_and_clean_file(file, namespace)
+def _get_data_info_from_file(file: Path, api_url: str) -> tuple[ProjectInformation, DataRDF]:
+    cleaned_root = _parse_and_clean_file(file, api_url)
     deserialised: ProjectDeserialised = deserialise_xml(cleaned_root)
     rdf_data: DataRDF = make_data_rdf(deserialised.data)
     return deserialised.info, rdf_data
 
 
-def _parse_and_clean_file(file: Path, namespace: str) -> etree._Element:
+def _parse_and_clean_file(file: Path, api_url: str) -> etree._Element:
     root = parse_xml_file(file)
     root = remove_comments_from_element_tree(root)
     validate_xml(root)
     root = transform_into_localnames(root)
-    return _replace_namespaces(root, namespace)
+    return _replace_namespaces(root, api_url)
 
 
-def _replace_namespaces(root: etree._Element, namespace: str) -> etree._Element:
+def _replace_namespaces(root: etree._Element, api_url: str) -> etree._Element:
     with open("src/dsp_tools/resources/xml_validate/replace_namespace.xslt", "rb") as xslt_file:
         xslt_data = xslt_file.read()
+    shortcode = root.attrib["shortcode"]
+    default_ontology = root.attrib["default-ontology"]
+    namespace = f"{api_url}/ontology/{shortcode}/{default_ontology}/v2#"
     xslt_root = etree.XML(xslt_data)
     transform = etree.XSLT(xslt_root)
     replacement_value = etree.XSLT.strparam(namespace)

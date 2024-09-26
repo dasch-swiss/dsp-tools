@@ -63,6 +63,20 @@ class TestBooleanValue:
         assert val.prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean")
         assert val.object_value == Literal("false", datatype=XSD.boolean)
 
+    def test_one(self, boolean_value_deserialised_one: BooleanValueDeserialised) -> None:
+        val = _transform_one_value(boolean_value_deserialised_one, URIRef("id"))
+        assert isinstance(val, BooleanValueRDF)
+        assert val.res_iri == URIRef("id")
+        assert val.prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean")
+        assert val.object_value == Literal("true", datatype=XSD.boolean)
+
+    def test_zero(self, boolean_value_deserialised_zero: BooleanValueDeserialised) -> None:
+        val = _transform_one_value(boolean_value_deserialised_zero, URIRef("id"))
+        assert isinstance(val, BooleanValueRDF)
+        assert val.res_iri == URIRef("id")
+        assert val.prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean")
+        assert val.object_value == Literal("false", datatype=XSD.boolean)
+
     def test_none(self, boolean_value_deserialised_none: BooleanValueDeserialised) -> None:
         val = _transform_one_value(boolean_value_deserialised_none, URIRef("id"))
         assert isinstance(val, BooleanValueRDF)

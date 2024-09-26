@@ -140,11 +140,13 @@ def _transform_into_xsd_integer(
 
 
 def _transform_into_bool(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
-    content = (
-        Literal(val.object_value, datatype=XSD.boolean)
-        if val.object_value is not None
-        else Literal("", datatype=XSD.string)
-    )
+    match val.object_value:
+        case "1" | "true":
+            content = Literal(True, datatype=XSD.boolean)
+        case "0" | "false":
+            content = Literal(False, datatype=XSD.boolean)
+        case _:
+            content = Literal("", datatype=XSD.string)
     return BooleanValueRDF(URIRef(val.prop_name), content, res_iri)
 
 

@@ -40,6 +40,16 @@ def boolean_value_deserialised_corr() -> BooleanValueDeserialised:
 
 
 @pytest.fixture
+def boolean_value_deserialised_zero() -> BooleanValueDeserialised:
+    return BooleanValueDeserialised("http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean", "0")
+
+
+@pytest.fixture
+def boolean_value_deserialised_one() -> BooleanValueDeserialised:
+    return BooleanValueDeserialised("http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean", "1")
+
+
+@pytest.fixture
 def boolean_value_deserialised_none() -> BooleanValueDeserialised:
     return BooleanValueDeserialised("http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean", None)
 

@@ -120,7 +120,6 @@ def card_0_1() -> Graph:
                 owl:maxCardinality 1 ;
                 owl:onProperty onto:testDecimalSimpleText
                          ] .
-
     """
     )
     g = Graph()
@@ -141,7 +140,6 @@ def card_1_n() -> Graph:
                 owl:minCardinality 1 ;
                 owl:onProperty onto:testGeoname
                          ] .
-
     """
     )
     g = Graph()

@@ -238,6 +238,9 @@
             <uri permissions="prop-restricted">https://geohack.toolforge.org/geohack.php?pagename=Adige&amp;params=45_8_59_N_12_19_13_E_type:river</uri>
             <uri permissions="prop-restricted">https://www.digitale-sammlungen.de/de/view/bsb00055375?page=,1</uri>
             <uri permissions="prop-restricted">https://digiliblt.uniupo.it/xtf/view?docId=dlt000521/dlt000521.xml;query=De%20taxone;brand=default</uri>
+            <uri permissions="prop-restricted">https://books.google.ch/books?id=B0AVAAAAQAAJ&amp;printsec=frontcover&amp;hl=de&amp;source=gbs_ge_summary_r&amp;cad=0#v=onepage&amp;q&amp;f=false</uri>
+            <uri permissions="prop-restricted">https://www.google.com/maps/place/Necropolis+of+Cannicella/@42.7150588$12.1174224$15z/data=!4m12!1m6!3m5!1s0x0:0xab5f4587e69858d9!2sNecropolis+of+Cannicella!8m2!3d42.7149!4d12.1170832!3m4!1s0x0:0xab5f4587e69858d9!8m2!3d42.7149!4d12.1170832</uri>
+            <uri permissions="prop-restricted">https://geohack.toolforge.org/geohack.php?pagename=Castel_Gandolfo&amp;language=de&amp;params=41.746388888889_N_12.650833333333_E_dim:10000_region:IT-RM_type:city(8869)</uri>
         </uri-prop>
         <date-prop name=":hasDate">
             <date>JULIAN:BCE:0700:BCE:0600</date>

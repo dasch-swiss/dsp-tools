@@ -92,6 +92,7 @@ def card_1() -> Graph:
         PREFIXES
         + """
     onto:ClassMixedCard a owl:Class ;
+        knora-api:isResourceClass true ;
         rdfs:subClassOf [ 
                 a owl:Restriction ;
                 salsah-gui:guiOrder 0 ;
@@ -111,6 +112,7 @@ def card_0_1() -> Graph:
         PREFIXES
         + """
     onto:ClassMixedCard a owl:Class ;
+        knora-api:isResourceClass true ;
         rdfs:subClassOf [ 
                 a owl:Restriction ;
                 salsah-gui:guiOrder 1 ;
@@ -131,6 +133,7 @@ def card_1_n() -> Graph:
         PREFIXES
         + """
     onto:ClassMixedCard a owl:Class ;
+        knora-api:isResourceClass true ;
         rdfs:subClassOf [ 
                 a owl:Restriction ;
                 salsah-gui:guiOrder 2 ;
@@ -151,6 +154,7 @@ def card_0_n() -> Graph:
         PREFIXES
         + """
     onto:ClassMixedCard a owl:Class ;
+        knora-api:isResourceClass true ;
         rdfs:subClassOf [ 
                 a owl:Restriction ;
                 salsah-gui:guiOrder 3 ;
@@ -206,6 +210,13 @@ class Test1:
     def test_good(self, card_1: Graph) -> None:
         result = _construct_1_cardinality(card_1)
         assert len(result) == 7
+        bn = next(result.subjects(RDF.type, SH.PropertyShape))
+        shape_iri = next(result.subjects(SH.property, bn))
+        assert shape_iri == ONTO.ClassMixedCard_Shape
+        assert str(next(result.objects(bn, SH.minCount))) == "1"
+        assert str(next(result.objects(bn, SH.maxCount))) == "1"
+        assert next(result.objects(bn, SH.severity)) == SH.Violation
+        assert str(next(result.objects(bn, SH.message))) == "Cardinality: 1"
 
     def test_empty_0_1(self, card_0_1: Graph) -> None:
         result = _construct_1_cardinality(card_0_1)
@@ -224,6 +235,9 @@ class Test01:
     def test_good(self, card_0_1: Graph) -> None:
         result = _construct_0_1_cardinality(card_0_1)
         assert len(result) == 0
+        bn = next(result.subjects(RDF.type, SH.PropertyShape))
+        shape_iri = next(result.subjects(SH.property, bn))
+        assert shape_iri == ONTO.ClassMixedCard_Shape
 
     def test_empty_1(self, card_1: Graph) -> None:
         result = _construct_0_1_cardinality(card_1)
@@ -242,6 +256,9 @@ class Test1N:
     def test_good(self, card_1_n: Graph) -> None:
         result = _construct_1_n_cardinality(card_1_n)
         assert len(result) == 0
+        bn = next(result.subjects(RDF.type, SH.PropertyShape))
+        shape_iri = next(result.subjects(SH.property, bn))
+        assert shape_iri == ONTO.ClassMixedCard_Shape
 
     def test_empty_1(self, card_1: Graph) -> None:
         result = _construct_1_n_cardinality(card_1)
@@ -260,6 +277,9 @@ class Test0N:
     def test_good(self, card_0_n: Graph) -> None:
         result = _construct_0_n_cardinality(card_0_n)
         assert len(result) == 0
+        bn = next(result.subjects(RDF.type, SH.PropertyShape))
+        shape_iri = next(result.subjects(SH.property, bn))
+        assert shape_iri == ONTO.ClassMixedCard_Shape
 
     def test_empty_1_n(self, card_1_n: Graph) -> None:
         result = _construct_0_n_cardinality(card_1_n)

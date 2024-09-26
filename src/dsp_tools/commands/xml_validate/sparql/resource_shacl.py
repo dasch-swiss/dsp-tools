@@ -91,7 +91,6 @@ def _construct_0_1_cardinality(onto_graph: Graph) -> Graph:
     PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
 
 
-    }
     """
     if results_graph := onto_graph.query(query_s).graph:
         return results_graph
@@ -108,7 +107,6 @@ def _construct_1_n_cardinality(onto_graph: Graph) -> Graph:
     PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
 
 
-    }
     """
     if results_graph := onto_graph.query(query_s).graph:
         return results_graph
@@ -125,7 +123,6 @@ def _construct_0_n_cardinality(onto_graph: Graph) -> Graph:
     PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
 
 
-    }
     """
     if results_graph := onto_graph.query(query_s).graph:
         return results_graph

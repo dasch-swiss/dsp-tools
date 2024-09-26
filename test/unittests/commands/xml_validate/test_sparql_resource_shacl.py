@@ -56,7 +56,25 @@ def one_res_one_prop() -> Graph:
         knora-api:objectType knora-api:BooleanValue ;
         salsah-gui:guiElement salsah-gui:Checkbox ;
         rdfs:subPropertyOf knora-api:hasValue .
+    """
+    )
+    g = Graph()
+    g.parse(data=ttl, format="ttl")
+    return g
 
+
+@pytest.fixture
+def one_prop() -> Graph:
+    ttl = (
+        PREFIXES
+        + """
+    onto:testBoolean a owl:ObjectProperty ;
+        rdfs:label "Test Boolean" ;
+        knora-api:isEditable true ;
+        knora-api:isResourceProperty true ;
+        knora-api:objectType knora-api:BooleanValue ;
+        salsah-gui:guiElement salsah-gui:Checkbox ;
+        rdfs:subPropertyOf knora-api:hasValue .
     """
     )
     g = Graph()
@@ -95,6 +113,11 @@ def test_construct_resource_nodeshape_one_res(one_res_one_prop: Graph) -> None:
     assert next(result.subjects(SH.property, API_SHAPES.RDFS_label)) == subject_iri
     assert next(result.subjects(SH.ignoredProperties)) == subject_iri
     assert next(result.objects(subject_iri, SH.closed)) == Literal(True)
+
+
+def test_construct_resource_nodeshape_no_res(one_prop: Graph) -> None:
+    result = _construct_resource_nodeshape(one_prop)
+    assert len(result) == 0
 
 
 if __name__ == "__main__":

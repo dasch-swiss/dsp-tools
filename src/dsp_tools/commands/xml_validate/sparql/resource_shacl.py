@@ -57,8 +57,8 @@ def _construct_1_cardinality(onto_graph: Graph) -> Graph:
       ?shapesIRI sh:property [
           a sh:PropertyShape ;
           sh:path ?propRestriction ;
-          sh:minCount ?cardinality ;
-          sh:maxCount ?cardinality ;
+          sh:minCount 1 ;
+          sh:maxCount 1 ;
           sh:severity sh:Violation ;
           sh:message "Cardinality: 1" ;
       ] .
@@ -71,7 +71,7 @@ def _construct_1_cardinality(onto_graph: Graph) -> Graph:
       ?restriction a owl:Restriction ;
           owl:onProperty ?propRestriction ;
           salsah-gui:guiOrder ?order ;
-          owl:cardinality ?cardinality .
+          owl:cardinality 1 .
     
       BIND(IRI(CONCAT(str(?class), "_Shape")) AS ?shapesIRI)
     }
@@ -90,7 +90,29 @@ def _construct_0_1_cardinality(onto_graph: Graph) -> Graph:
     PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
     PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
 
-
+    CONSTRUCT {
+    
+      ?shapesIRI sh:property [
+          a sh:PropertyShape ;
+          sh:path ?propRestriction ;
+          sh:minCount 0 ;
+          sh:maxCount 1 ;
+          sh:severity sh:Violation ;
+          sh:message "Cardinality: 0-1" ;
+      ] .
+    
+    } WHERE {
+    
+      ?class a owl:Class ;
+          knora-api:isResourceClass true ;
+          rdfs:subClassOf ?restriction .
+      ?restriction a owl:Restriction ;
+          owl:onProperty ?propRestriction ;
+          salsah-gui:guiOrder ?order ;
+          owl:maxCardinality 1 .
+    
+      BIND(IRI(CONCAT(str(?class), "_Shape")) AS ?shapesIRI)
+    }
     """
     if results_graph := onto_graph.query(query_s).graph:
         return results_graph
@@ -106,7 +128,28 @@ def _construct_1_n_cardinality(onto_graph: Graph) -> Graph:
     PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
     PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
 
-
+    CONSTRUCT {
+    
+      ?shapesIRI sh:property [
+          a sh:PropertyShape ;
+          sh:path ?propRestriction ;
+          sh:minCount 1 ;
+          sh:severity sh:Violation ;
+          sh:message "Cardinality: 1-n" ;
+      ] .
+    
+    } WHERE {
+    
+      ?class a owl:Class ;
+          knora-api:isResourceClass true ;
+          rdfs:subClassOf ?restriction .
+      ?restriction a owl:Restriction ;
+          owl:onProperty ?propRestriction ;
+          salsah-gui:guiOrder ?order ;
+          owl:minCardinality 1 .
+    
+      BIND(IRI(CONCAT(str(?class), "_Shape")) AS ?shapesIRI)
+    }
     """
     if results_graph := onto_graph.query(query_s).graph:
         return results_graph
@@ -122,7 +165,28 @@ def _construct_0_n_cardinality(onto_graph: Graph) -> Graph:
     PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
     PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
 
-
+    CONSTRUCT {
+    
+      ?shapesIRI sh:property [
+          a sh:PropertyShape ;
+          sh:path ?propRestriction ;
+          sh:minCount 0 ;
+          sh:severity sh:Violation ;
+          sh:message "Cardinality: 0-n" ;
+      ] .
+    
+    } WHERE {
+    
+      ?class a owl:Class ;
+          knora-api:isResourceClass true ;
+          rdfs:subClassOf ?restriction .
+      ?restriction a owl:Restriction ;
+          owl:onProperty ?propRestriction ;
+          salsah-gui:guiOrder ?order ;
+          owl:minCardinality 0 .
+    
+      BIND(IRI(CONCAT(str(?class), "_Shape")) AS ?shapesIRI)
+    }
     """
     if results_graph := onto_graph.query(query_s).graph:
         return results_graph

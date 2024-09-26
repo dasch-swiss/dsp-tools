@@ -215,6 +215,7 @@ class Test1:
         assert shape_iri == ONTO.ClassMixedCard_Shape
         assert str(next(result.objects(bn, SH.minCount))) == "1"
         assert str(next(result.objects(bn, SH.maxCount))) == "1"
+        assert next(result.objects(bn, SH.path)) == ONTO.testBoolean
         assert next(result.objects(bn, SH.severity)) == SH.Violation
         assert str(next(result.objects(bn, SH.message))) == "Cardinality: 1"
 
@@ -234,10 +235,15 @@ class Test1:
 class Test01:
     def test_good(self, card_0_1: Graph) -> None:
         result = _construct_0_1_cardinality(card_0_1)
-        assert len(result) == 0
+        assert len(result) == 7
         bn = next(result.subjects(RDF.type, SH.PropertyShape))
         shape_iri = next(result.subjects(SH.property, bn))
         assert shape_iri == ONTO.ClassMixedCard_Shape
+        assert str(next(result.objects(bn, SH.minCount))) == "0"
+        assert str(next(result.objects(bn, SH.maxCount))) == "1"
+        assert next(result.objects(bn, SH.path)) == ONTO.testDecimalSimpleText
+        assert next(result.objects(bn, SH.severity)) == SH.Violation
+        assert str(next(result.objects(bn, SH.message))) == "Cardinality: 0-1"
 
     def test_empty_1(self, card_1: Graph) -> None:
         result = _construct_0_1_cardinality(card_1)
@@ -255,10 +261,14 @@ class Test01:
 class Test1N:
     def test_good(self, card_1_n: Graph) -> None:
         result = _construct_1_n_cardinality(card_1_n)
-        assert len(result) == 0
+        assert len(result) == 6
         bn = next(result.subjects(RDF.type, SH.PropertyShape))
         shape_iri = next(result.subjects(SH.property, bn))
         assert shape_iri == ONTO.ClassMixedCard_Shape
+        assert str(next(result.objects(bn, SH.minCount))) == "1"
+        assert next(result.objects(bn, SH.path)) == ONTO.testGeoname
+        assert next(result.objects(bn, SH.severity)) == SH.Violation
+        assert str(next(result.objects(bn, SH.message))) == "Cardinality: 1-n"
 
     def test_empty_1(self, card_1: Graph) -> None:
         result = _construct_1_n_cardinality(card_1)
@@ -276,10 +286,14 @@ class Test1N:
 class Test0N:
     def test_good(self, card_0_n: Graph) -> None:
         result = _construct_0_n_cardinality(card_0_n)
-        assert len(result) == 0
+        assert len(result) == 6
         bn = next(result.subjects(RDF.type, SH.PropertyShape))
         shape_iri = next(result.subjects(SH.property, bn))
         assert shape_iri == ONTO.ClassMixedCard_Shape
+        assert str(next(result.objects(bn, SH.minCount))) == "0"
+        assert next(result.objects(bn, SH.path)) == ONTO.testSimpleText
+        assert next(result.objects(bn, SH.severity)) == SH.Violation
+        assert str(next(result.objects(bn, SH.message))) == "Cardinality: 0-n"
 
     def test_empty_1_n(self, card_1_n: Graph) -> None:
         result = _construct_0_n_cardinality(card_1_n)

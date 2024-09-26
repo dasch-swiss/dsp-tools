@@ -7,14 +7,19 @@
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2> a owl:Ontology ;
     rdfs:label "Ontology" ;
-    knora-api:attachedToProject <http://rdfh.ch/projects/u_ZcghJRTbSnpfVoAxjg7A> ;
-    knora-api:lastModificationDate "2024-09-25T13:42:38.292574840Z"^^xsd:dateTimeStamp .
+    knora-api:attachedToProject <http://rdfh.ch/projects/rNN220PrSS2F1c1VFQPYGg> ;
+    knora-api:lastModificationDate "2024-09-26T09:20:13.127055051Z"^^xsd:dateTimeStamp .
 
 onto:ClassInheritedCardinality a owl:Class ;
     rdfs:label "Subclass Resource" ;
     knora-api:canBeInstantiated true ;
     knora-api:isResourceClass true ;
     rdfs:subClassOf [ a owl:Restriction ;
+            knora-api:isInherited true ;
+            salsah-gui:guiOrder 0 ;
+            owl:maxCardinality 1 ;
+            owl:onProperty onto:testBoolean ],
+        [ a owl:Restriction ;
             knora-api:isInherited true ;
             owl:cardinality 1 ;
             owl:onProperty rdfs:label ],
@@ -82,11 +87,6 @@ onto:ClassInheritedCardinality a owl:Class ;
             knora-api:isInherited true ;
             owl:minCardinality 0 ;
             owl:onProperty knora-api:hasStandoffLinkToValue ],
-        [ a owl:Restriction ;
-            knora-api:isInherited true ;
-            salsah-gui:guiOrder 0 ;
-            owl:maxCardinality 1 ;
-            owl:onProperty onto:testBoolean ],
         onto:CardOneResource .
 
 onto:ClassInheritedCardinalityOverwriting a owl:Class ;
@@ -168,10 +168,14 @@ onto:ClassInheritedCardinalityOverwriting a owl:Class ;
         onto:CardOneResource .
 
 onto:ClassMixedCard a owl:Class ;
-    rdfs:label "Resource with One Cardinality" ;
+    rdfs:label "Resource with all cardinality options" ;
     knora-api:canBeInstantiated true ;
     knora-api:isResourceClass true ;
     rdfs:subClassOf [ a owl:Restriction ;
+            salsah-gui:guiOrder 3 ;
+            owl:minCardinality 0 ;
+            owl:onProperty onto:testDecimalSpinbox ],
+        [ a owl:Restriction ;
             salsah-gui:guiOrder 2 ;
             owl:minCardinality 1 ;
             owl:onProperty onto:testIntegerSimpleText ],
@@ -518,16 +522,6 @@ onto:testColor a owl:ObjectProperty ;
     salsah-gui:guiElement salsah-gui:Colorpicker ;
     rdfs:subPropertyOf knora-api:hasColor .
 
-onto:testDecimalSpinbox a owl:ObjectProperty ;
-    rdfs:label "Test Decimal" ;
-    knora-api:isEditable true ;
-    knora-api:isResourceProperty true ;
-    knora-api:objectType knora-api:DecimalValue ;
-    salsah-gui:guiAttribute "max=10.0",
-        "min=0.0" ;
-    salsah-gui:guiElement salsah-gui:Spinbox ;
-    rdfs:subPropertyOf knora-api:hasValue .
-
 onto:testGeoname a owl:ObjectProperty ;
     rdfs:label "Test Geoname" ;
     knora-api:isEditable true ;
@@ -613,7 +607,7 @@ onto:testListProp a owl:ObjectProperty ;
     knora-api:isEditable true ;
     knora-api:isResourceProperty true ;
     knora-api:objectType knora-api:ListValue ;
-    salsah-gui:guiAttribute "hlist=<http://rdfh.ch/lists/9999/uYXxypeKRXqRXql4AA4jlA>" ;
+    salsah-gui:guiAttribute "hlist=<http://rdfh.ch/lists/9999/zaJLZm6rT0-bcw6SVAzW0A>" ;
     salsah-gui:guiElement salsah-gui:List ;
     rdfs:subPropertyOf knora-api:hasValue .
 
@@ -759,6 +753,16 @@ onto:testDecimalSimpleText a owl:ObjectProperty ;
     knora-api:isResourceProperty true ;
     knora-api:objectType knora-api:DecimalValue ;
     salsah-gui:guiElement salsah-gui:SimpleText ;
+    rdfs:subPropertyOf knora-api:hasValue .
+
+onto:testDecimalSpinbox a owl:ObjectProperty ;
+    rdfs:label "Test Decimal" ;
+    knora-api:isEditable true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType knora-api:DecimalValue ;
+    salsah-gui:guiAttribute "max=10.0",
+        "min=0.0" ;
+    salsah-gui:guiElement salsah-gui:Spinbox ;
     rdfs:subPropertyOf knora-api:hasValue .
 
 onto:testIntegerSimpleText a owl:ObjectProperty ;

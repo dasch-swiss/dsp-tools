@@ -439,7 +439,7 @@
             "name": "ClassMixedCard",
             "super": "Resource",
             "labels": {
-              "en": "Resource with One Cardinality"
+              "en": "Resource with all cardinality options"
             },
             "cardinalities": [
               {
@@ -456,6 +456,11 @@
                 "propname": ":testIntegerSimpleText",
                 "cardinality": "1-n",
                 "gui_order": 2
+              },
+              {
+                "propname": ":testDecimalSpinbox",
+                "cardinality": "0-n",
+                "gui_order": 3
               }
             ]
           },

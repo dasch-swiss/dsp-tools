@@ -49,14 +49,10 @@
     </resource>
 
     <!-- Link target is not the range class -->
-    <resource label="Card 1" restype=":ClassInheritedCardinalityOverwriting" id="link_target">
-        <boolean-prop name=":testBoolean">
-            <boolean>true</boolean>
-        </boolean-prop>
-    </resource>
+    <resource label="Link Prop" restype=":ClassWithEverything" id="id_9_target"/>
     <resource label="Link Prop" restype=":ClassWithEverything" id="id_9">
-        <resptr-prop name=":testHasLinkTo">
-            <resptr>link_target</resptr>
+        <resptr-prop name=":testHasLinkToCardOneResource">
+            <resptr>id_9_target</resptr>
         </resptr-prop>
     </resource>
 

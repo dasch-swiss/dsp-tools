@@ -68,6 +68,14 @@
         </resptr-prop>
     </resource>
 
+    <resource label="Link Target" restype=":ClassInheritedCardinality" id="id_8.1"/>
+
+    <resource label="Link Prop" restype=":ClassWithEverything" id="id_8.2">
+        <resptr-prop name=":testHasLinkToCardOneResource">
+            <resptr>id_8.1</resptr>
+        </resptr-prop>
+    </resource>
+
     <resource label="Richtext" restype=":ClassWithEverything" id="id_9">
         <text-prop name=":testRichtext">
             <text encoding="xml">Text</text>

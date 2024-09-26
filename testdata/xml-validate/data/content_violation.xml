@@ -48,17 +48,37 @@
         </resptr-prop>
     </resource>
 
+    <!-- Link target is not the range class -->
+    <resource label="Card 1" restype=":ClassInheritedCardinalityOverwriting" id="link_target">
+        <boolean-prop name=":testBoolean">
+            <boolean>true</boolean>
+        </boolean-prop>
+    </resource>
+    <resource label="Link Prop" restype=":ClassWithEverything" id="id_9">
+        <resptr-prop name=":testHasLinkTo">
+            <resptr>link_target</resptr>
+        </resptr-prop>
+    </resource>
+
     <!-- Text may not be empty -->
-    <resource label="Richtext" restype=":ClassWithEverything" id="id_9">
+    <resource label="Richtext" restype=":ClassWithEverything" id="id_10">
         <text-prop name=":testRichtext">
             <text encoding="xml"></text>
         </text-prop>
     </resource>
 
     <!-- Text may not be empty -->
-    <resource label="Simpletext" restype=":ClassWithEverything" id="id_10">
+    <resource label="Simpletext" restype=":ClassWithEverything" id="id_11">
         <text-prop name=":testTextarea">
             <text encoding="utf8"></text>
+        </text-prop>
+    </resource>
+
+    <!-- Value of the same property may not be identical -->
+    <resource label="Duplicate Value" restype=":ClassWithEverything" id="id_12">
+        <text-prop name=":testTextarea">
+            <text encoding="utf8">Text</text>
+            <text encoding="utf8">Text</text>
         </text-prop>
     </resource>
 

@@ -182,9 +182,6 @@ def _construct_0_n_cardinality(onto_graph: Graph) -> Graph:
       ?shapesIRI sh:property [
           a sh:PropertyShape ;
           sh:path ?propRestriction ;
-          sh:minCount 0 ;
-          sh:severity sh:Violation ;
-          sh:message "Cardinality: 0-n" ;
       ] .
     
     } WHERE {

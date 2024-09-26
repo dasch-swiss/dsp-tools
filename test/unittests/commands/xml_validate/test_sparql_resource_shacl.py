@@ -169,7 +169,7 @@ def card_0_n() -> Graph:
 
 def test_construct_resource_class_nodeshape(onto_graph: Graph) -> None:
     result = construct_resource_class_node_shape(onto_graph)
-    num_triples = 222
+    num_triples = 156
     assert len(result) == num_triples
     shape_iri = next(result.subjects(SH.targetClass, ONTO.ClassInheritedCardinality))
     assert shape_iri == ONTO.ClassInheritedCardinality_Shape
@@ -285,14 +285,11 @@ class Test1N:
 class Test0N:
     def test_good(self, card_0_n: Graph) -> None:
         result = _construct_0_n_cardinality(card_0_n)
-        assert len(result) == 6
+        assert len(result) == 3
         bn = next(result.subjects(RDF.type, SH.PropertyShape))
         shape_iri = next(result.subjects(SH.property, bn))
         assert shape_iri == ONTO.ClassMixedCard_Shape
-        assert str(next(result.objects(bn, SH.minCount))) == "0"
         assert next(result.objects(bn, SH.path)) == ONTO.testSimpleText
-        assert next(result.objects(bn, SH.severity)) == SH.Violation
-        assert str(next(result.objects(bn, SH.message))) == "Cardinality: 0-n"
 
     def test_empty_1_n(self, card_1_n: Graph) -> None:
         result = _construct_0_n_cardinality(card_1_n)

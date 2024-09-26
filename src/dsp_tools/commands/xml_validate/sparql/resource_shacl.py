@@ -11,7 +11,10 @@ def construct_resource_class_node_shape(onto: Graph) -> Graph:
     Returns:
         Graph with the resource class node shapes
     """
-    return _construct_resource_nodeshape(onto)
+    g = Graph()
+    g += _construct_resource_nodeshape(onto)
+    g += _construct_all_cardinalities(onto)
+    return g
 
 
 def _construct_resource_nodeshape(onto_graph: Graph) -> Graph:
@@ -41,6 +44,15 @@ def _construct_resource_nodeshape(onto_graph: Graph) -> Graph:
     if results_graph := onto_graph.query(query_s).graph:
         return results_graph
     return Graph()
+
+
+def _construct_all_cardinalities(onto_graph: Graph) -> Graph:
+    g = Graph()
+    g += _construct_1_cardinality(onto_graph)
+    g += _construct_0_1_cardinality(onto_graph)
+    g += _construct_1_n_cardinality(onto_graph)
+    g += _construct_0_n_cardinality(onto_graph)
+    return g
 
 
 def _construct_1_cardinality(onto_graph: Graph) -> Graph:

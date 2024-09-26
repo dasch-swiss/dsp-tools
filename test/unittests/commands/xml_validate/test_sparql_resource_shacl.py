@@ -10,6 +10,7 @@ from dsp_tools.commands.xml_validate.sparql.resource_shacl import _construct_0_1
 from dsp_tools.commands.xml_validate.sparql.resource_shacl import _construct_0_n_cardinality
 from dsp_tools.commands.xml_validate.sparql.resource_shacl import _construct_1_cardinality
 from dsp_tools.commands.xml_validate.sparql.resource_shacl import _construct_1_n_cardinality
+from dsp_tools.commands.xml_validate.sparql.resource_shacl import _construct_all_cardinalities
 from dsp_tools.commands.xml_validate.sparql.resource_shacl import _construct_resource_nodeshape
 from dsp_tools.commands.xml_validate.sparql.resource_shacl import construct_resource_class_node_shape
 
@@ -170,7 +171,7 @@ def card_0_n() -> Graph:
 
 def test_construct_resource_class_nodeshape(onto_graph: Graph) -> None:
     result = construct_resource_class_node_shape(onto_graph)
-    num_triples = 42
+    num_triples = 222
     assert len(result) == num_triples
     shape_iri = next(result.subjects(SH.targetClass, ONTO.ClassInheritedCardinality))
     assert shape_iri == ONTO.ClassInheritedCardinality_Shape
@@ -306,6 +307,19 @@ class Test0N:
     def test_empty_0_1(self, card_0_1: Graph) -> None:
         result = _construct_0_n_cardinality(card_0_1)
         assert len(result) == 0
+
+
+def test_construct_all_cardinalities(one_res_one_prop: Graph) -> None:
+    result = _construct_all_cardinalities(one_res_one_prop)
+    assert len(result) == 7
+    bn = next(result.subjects(RDF.type, SH.PropertyShape))
+    shape_iri = next(result.subjects(SH.property, bn))
+    assert shape_iri == ONTO.CardOneResource_Shape
+    assert str(next(result.objects(bn, SH.minCount))) == "1"
+    assert str(next(result.objects(bn, SH.maxCount))) == "1"
+    assert next(result.objects(bn, SH.path)) == ONTO.testBoolean
+    assert next(result.objects(bn, SH.severity)) == SH.Violation
+    assert str(next(result.objects(bn, SH.message))) == "Cardinality: 1"
 
 
 if __name__ == "__main__":

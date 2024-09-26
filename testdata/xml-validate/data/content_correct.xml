@@ -46,7 +46,7 @@
 
     <resource label="Geoname" restype=":ClassWithEverything" id="id_5">
         <geoname-prop name=":testGeoname">
-            <geoname>abdc1111111</geoname>
+            <geoname>1111111</geoname>
         </geoname-prop>
     </resource>
 

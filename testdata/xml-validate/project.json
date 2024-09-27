@@ -469,12 +469,12 @@
                 "gui_order": 1
               },
               {
-                "propname": ":testIntegerSimpleText",
+                "propname": ":testGeoname",
                 "cardinality": "1-n",
                 "gui_order": 2
               },
               {
-                "propname": ":testDecimalSpinbox",
+                "propname": ":testSimpleText",
                 "cardinality": "0-n",
                 "gui_order": 3
               }

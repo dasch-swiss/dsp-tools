@@ -65,9 +65,7 @@ class TestWarnings:
             "At least one value per property is required, but resource 'person_0', property ':hasName' "
             "(Excel row 3) doesn't contain any values."
         )
-        expected_validation = regex.escape(
-            "Line 28: Element 'text-prop': Missing child element(s). Expected is ( text )."
-        )
+        expected_validation = regex.escape("Element 'text-prop': Missing child element(s). Expected is ( text ).")
         _, catched_warnings = excel2xml_cli.excel2xml(file, "1234", "excel2xml-invalid")
         assert len(catched_warnings) == 2
         message_missing_prop = catched_warnings[0].message.args[0]  # type:ignore[union-attr]
@@ -87,7 +85,7 @@ class TestWarnings:
         file = f"{INVALID_EXCEL_DIRECTORY}/missing-resource-label.xlsx"
         expected_msg_missing = "Missing label for resource 'person_0' (Excel row 2)"
         expected_xml_validation = regex.escape(
-            "Line 27: Element 'resource', attribute 'label': [facet 'minLength'] The value '' has a length of '0'"
+            "Element 'resource', attribute 'label': [facet 'minLength'] The value '' has a length of '0'"
         )
         _, catched_warnings = excel2xml_cli.excel2xml(file, "1234", "excel2xml-invalid")
         assert len(catched_warnings) == 2
@@ -100,8 +98,7 @@ class TestWarnings:
         file = f"{INVALID_EXCEL_DIRECTORY}/missing-resource-permissions.xlsx"
         expected_msg = "Missing permissions for resource 'person_0' (Excel row 2)"
         expected_xml_validation = regex.escape(
-            "Line 27: Element 'resource', attribute 'permissions': "
-            "'' is not a valid value of the atomic type 'xs:NCName'."
+            "Element 'resource', attribute 'permissions': " "'' is not a valid value of the atomic type 'xs:NCName'."
         )
         _, catched_warnings = excel2xml_cli.excel2xml(file, "1234", "excel2xml-invalid")
         assert len(catched_warnings) == 2
@@ -126,8 +123,7 @@ class TestWarnings:
             " An attempt to deduce them from the resource permissions failed."
         )
         expected_xml_validation = regex.escape(
-            "Line 28: Element 'bitstream', attribute 'permissions': "
-            "'' is not a valid value of the atomic type 'xs:NCName'."
+            "Element 'bitstream', attribute 'permissions': " "'' is not a valid value of the atomic type 'xs:NCName'."
         )
         _, catched_warnings = excel2xml_cli.excel2xml(file, "1234", "excel2xml-invalid")
         assert len(catched_warnings) == 2
@@ -146,9 +142,7 @@ class TestWarnings:
             "At least one value per property is required, "
             "but resource 'person_0', property ':hasName' (Excel row 3) doesn't contain any values."
         )
-        expected_xml_validation = regex.escape(
-            "Line 28: Element 'text-prop': Missing child element(s). Expected is ( text )."
-        )
+        expected_xml_validation = regex.escape("Element 'text-prop': Missing child element(s). Expected is ( text ).")
         _, catched_warnings = excel2xml_cli.excel2xml(file, "1234", "excel2xml-invalid")
         assert len(catched_warnings) == 3
         msg_missing_label = catched_warnings[0].message.args[0]  # type:ignore[union-attr]

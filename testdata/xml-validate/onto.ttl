@@ -7,8 +7,8 @@
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2> a owl:Ontology ;
     rdfs:label "Ontology" ;
-    knora-api:attachedToProject <http://rdfh.ch/projects/rNN220PrSS2F1c1VFQPYGg> ;
-    knora-api:lastModificationDate "2024-09-26T09:20:13.127055051Z"^^xsd:dateTimeStamp .
+    knora-api:attachedToProject <http://rdfh.ch/projects/HYv1PsS0Su-ZcqHPVkHAIQ> ;
+    knora-api:lastModificationDate "2024-09-26T09:33:48.960571846Z"^^xsd:dateTimeStamp .
 
 onto:ClassInheritedCardinality a owl:Class ;
     rdfs:label "Subclass Resource" ;
@@ -174,11 +174,11 @@ onto:ClassMixedCard a owl:Class ;
     rdfs:subClassOf [ a owl:Restriction ;
             salsah-gui:guiOrder 3 ;
             owl:minCardinality 0 ;
-            owl:onProperty onto:testDecimalSpinbox ],
+            owl:onProperty onto:testSimpleText ],
         [ a owl:Restriction ;
             salsah-gui:guiOrder 2 ;
             owl:minCardinality 1 ;
-            owl:onProperty onto:testIntegerSimpleText ],
+            owl:onProperty onto:testGeoname ],
         [ a owl:Restriction ;
             salsah-gui:guiOrder 1 ;
             owl:maxCardinality 1 ;
@@ -522,12 +522,14 @@ onto:testColor a owl:ObjectProperty ;
     salsah-gui:guiElement salsah-gui:Colorpicker ;
     rdfs:subPropertyOf knora-api:hasColor .
 
-onto:testGeoname a owl:ObjectProperty ;
-    rdfs:label "Test Geoname" ;
+onto:testDecimalSpinbox a owl:ObjectProperty ;
+    rdfs:label "Test Decimal" ;
     knora-api:isEditable true ;
     knora-api:isResourceProperty true ;
-    knora-api:objectType knora-api:GeonameValue ;
-    salsah-gui:guiElement salsah-gui:Geonames ;
+    knora-api:objectType knora-api:DecimalValue ;
+    salsah-gui:guiAttribute "max=10.0",
+        "min=0.0" ;
+    salsah-gui:guiElement salsah-gui:Spinbox ;
     rdfs:subPropertyOf knora-api:hasValue .
 
 onto:testHasComment a owl:ObjectProperty ;
@@ -574,6 +576,14 @@ onto:testHasRepresentationValue a owl:ObjectProperty ;
     salsah-gui:guiElement salsah-gui:Searchbox ;
     rdfs:subPropertyOf knora-api:hasRepresentationValue .
 
+onto:testIntegerSimpleText a owl:ObjectProperty ;
+    rdfs:label "Test Integer" ;
+    knora-api:isEditable true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType knora-api:IntValue ;
+    salsah-gui:guiElement salsah-gui:SimpleText ;
+    rdfs:subPropertyOf knora-api:hasValue .
+
 onto:testIntegerSpinbox a owl:ObjectProperty ;
     rdfs:label "Test Integer" ;
     knora-api:isEditable true ;
@@ -607,7 +617,7 @@ onto:testListProp a owl:ObjectProperty ;
     knora-api:isEditable true ;
     knora-api:isResourceProperty true ;
     knora-api:objectType knora-api:ListValue ;
-    salsah-gui:guiAttribute "hlist=<http://rdfh.ch/lists/9999/zaJLZm6rT0-bcw6SVAzW0A>" ;
+    salsah-gui:guiAttribute "hlist=<http://rdfh.ch/lists/9999/y5QYgs2cQP-FdABCX7ae6A>" ;
     salsah-gui:guiElement salsah-gui:List ;
     rdfs:subPropertyOf knora-api:hasValue .
 
@@ -617,14 +627,6 @@ onto:testRichtext a owl:ObjectProperty ;
     knora-api:isResourceProperty true ;
     knora-api:objectType knora-api:TextValue ;
     salsah-gui:guiElement salsah-gui:Richtext ;
-    rdfs:subPropertyOf knora-api:hasValue .
-
-onto:testSimpleText a owl:ObjectProperty ;
-    rdfs:label "Test SimpleText" ;
-    knora-api:isEditable true ;
-    knora-api:isResourceProperty true ;
-    knora-api:objectType knora-api:TextValue ;
-    salsah-gui:guiElement salsah-gui:SimpleText ;
     rdfs:subPropertyOf knora-api:hasValue .
 
 onto:testSubDate1 a owl:ObjectProperty ;
@@ -755,21 +757,19 @@ onto:testDecimalSimpleText a owl:ObjectProperty ;
     salsah-gui:guiElement salsah-gui:SimpleText ;
     rdfs:subPropertyOf knora-api:hasValue .
 
-onto:testDecimalSpinbox a owl:ObjectProperty ;
-    rdfs:label "Test Decimal" ;
+onto:testGeoname a owl:ObjectProperty ;
+    rdfs:label "Test Geoname" ;
     knora-api:isEditable true ;
     knora-api:isResourceProperty true ;
-    knora-api:objectType knora-api:DecimalValue ;
-    salsah-gui:guiAttribute "max=10.0",
-        "min=0.0" ;
-    salsah-gui:guiElement salsah-gui:Spinbox ;
+    knora-api:objectType knora-api:GeonameValue ;
+    salsah-gui:guiElement salsah-gui:Geonames ;
     rdfs:subPropertyOf knora-api:hasValue .
 
-onto:testIntegerSimpleText a owl:ObjectProperty ;
-    rdfs:label "Test Integer" ;
+onto:testSimpleText a owl:ObjectProperty ;
+    rdfs:label "Test SimpleText" ;
     knora-api:isEditable true ;
     knora-api:isResourceProperty true ;
-    knora-api:objectType knora-api:IntValue ;
+    knora-api:objectType knora-api:TextValue ;
     salsah-gui:guiElement salsah-gui:SimpleText ;
     rdfs:subPropertyOf knora-api:hasValue .
 

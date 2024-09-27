@@ -6,6 +6,11 @@ from rdflib import Graph
 from rdflib import Literal
 from rdflib import Namespace
 
+from dsp_tools.commands.xml_validate.sparql.resource_shacl import _construct_0_1_cardinality
+from dsp_tools.commands.xml_validate.sparql.resource_shacl import _construct_0_n_cardinality
+from dsp_tools.commands.xml_validate.sparql.resource_shacl import _construct_1_cardinality
+from dsp_tools.commands.xml_validate.sparql.resource_shacl import _construct_1_n_cardinality
+from dsp_tools.commands.xml_validate.sparql.resource_shacl import _construct_all_cardinalities
 from dsp_tools.commands.xml_validate.sparql.resource_shacl import _construct_resource_nodeshape
 from dsp_tools.commands.xml_validate.sparql.resource_shacl import construct_resource_class_node_shape
 
@@ -82,9 +87,89 @@ def one_prop() -> Graph:
     return g
 
 
+@pytest.fixture
+def card_1() -> Graph:
+    ttl = (
+        PREFIXES
+        + """
+    onto:ClassMixedCard a owl:Class ;
+        knora-api:isResourceClass true ;
+        rdfs:subClassOf [ 
+                a owl:Restriction ;
+                salsah-gui:guiOrder 0 ;
+                owl:cardinality 1 ;
+                owl:onProperty onto:testBoolean
+                         ] .
+    """
+    )
+    g = Graph()
+    g.parse(data=ttl, format="ttl")
+    return g
+
+
+@pytest.fixture
+def card_0_1() -> Graph:
+    ttl = (
+        PREFIXES
+        + """
+    onto:ClassMixedCard a owl:Class ;
+        knora-api:isResourceClass true ;
+        rdfs:subClassOf [ 
+                a owl:Restriction ;
+                salsah-gui:guiOrder 1 ;
+                owl:maxCardinality 1 ;
+                owl:onProperty onto:testDecimalSimpleText
+                         ] .
+    """
+    )
+    g = Graph()
+    g.parse(data=ttl, format="ttl")
+    return g
+
+
+@pytest.fixture
+def card_1_n() -> Graph:
+    ttl = (
+        PREFIXES
+        + """
+    onto:ClassMixedCard a owl:Class ;
+        knora-api:isResourceClass true ;
+        rdfs:subClassOf [ 
+                a owl:Restriction ;
+                salsah-gui:guiOrder 2 ;
+                owl:minCardinality 1 ;
+                owl:onProperty onto:testGeoname
+                         ] .
+    """
+    )
+    g = Graph()
+    g.parse(data=ttl, format="ttl")
+    return g
+
+
+@pytest.fixture
+def card_0_n() -> Graph:
+    ttl = (
+        PREFIXES
+        + """
+    onto:ClassMixedCard a owl:Class ;
+        knora-api:isResourceClass true ;
+        rdfs:subClassOf [ 
+                a owl:Restriction ;
+                salsah-gui:guiOrder 3 ;
+                owl:minCardinality 0 ;
+                owl:onProperty onto:testSimpleText
+                         ] .
+    """
+    )
+    g = Graph()
+    g.parse(data=ttl, format="ttl")
+    return g
+
+
 def test_construct_resource_class_nodeshape(onto_graph: Graph) -> None:
     result = construct_resource_class_node_shape(onto_graph)
-    num_triples = 42
+    num_triples = 156
     assert len(result) == num_triples
     shape_iri = next(result.subjects(SH.targetClass, ONTO.ClassInheritedCardinality))
     assert shape_iri == ONTO.ClassInheritedCardinality_Shape
@@ -118,6 +203,118 @@ def test_construct_resource_nodeshape_one_res(one_res_one_prop: Graph) -> None:
 def test_construct_resource_nodeshape_no_res(one_prop: Graph) -> None:
     result = _construct_resource_nodeshape(one_prop)
     assert len(result) == 0
+
+
+class Test1:
+    def test_good(self, card_1: Graph) -> None:
+        result = _construct_1_cardinality(card_1)
+        assert len(result) == 7
+        bn = next(result.subjects(RDF.type, SH.PropertyShape))
+        shape_iri = next(result.subjects(SH.property, bn))
+        assert shape_iri == ONTO.ClassMixedCard_Shape
+        assert str(next(result.objects(bn, SH.minCount))) == "1"
+        assert str(next(result.objects(bn, SH.maxCount))) == "1"
+        assert next(result.objects(bn, SH.path)) == ONTO.testBoolean
+        assert next(result.objects(bn, SH.severity)) == SH.Violation
+        assert str(next(result.objects(bn, SH.message))) == "Cardinality: 1"
+
+    def test_empty_0_1(self, card_0_1: Graph) -> None:
+        result = _construct_1_cardinality(card_0_1)
+        assert len(result) == 0
+
+    def test_empty_1_n(self, card_1_n: Graph) -> None:
+        result = _construct_1_cardinality(card_1_n)
+        assert len(result) == 0
+
+    def test_empty_0_n(self, card_0_n: Graph) -> None:
+        result = _construct_1_cardinality(card_0_n)
+        assert len(result) == 0
+
+
+class Test01:
+    def test_good(self, card_0_1: Graph) -> None:
+        result = _construct_0_1_cardinality(card_0_1)
+        assert len(result) == 7
+        bn = next(result.subjects(RDF.type, SH.PropertyShape))
+        shape_iri = next(result.subjects(SH.property, bn))
+        assert shape_iri == ONTO.ClassMixedCard_Shape
+        assert str(next(result.objects(bn, SH.minCount))) == "0"
+        assert str(next(result.objects(bn, SH.maxCount))) == "1"
+        assert next(result.objects(bn, SH.path)) == ONTO.testDecimalSimpleText
+        assert next(result.objects(bn, SH.severity)) == SH.Violation
+        assert str(next(result.objects(bn, SH.message))) == "Cardinality: 0-1"
+
+    def test_empty_1(self, card_1: Graph) -> None:
+        result = _construct_0_1_cardinality(card_1)
+        assert len(result) == 0
+
+    def test_empty_1_n(self, card_1_n: Graph) -> None:
+        result = _construct_0_1_cardinality(card_1_n)
+        assert len(result) == 0
+
+    def test_empty_0_n(self, card_0_n: Graph) -> None:
+        result = _construct_0_1_cardinality(card_0_n)
+        assert len(result) == 0
+
+
+class Test1N:
+    def test_good(self, card_1_n: Graph) -> None:
+        result = _construct_1_n_cardinality(card_1_n)
+        assert len(result) == 6
+        bn = next(result.subjects(RDF.type, SH.PropertyShape))
+        shape_iri = next(result.subjects(SH.property, bn))
+        assert shape_iri == ONTO.ClassMixedCard_Shape
+        assert str(next(result.objects(bn, SH.minCount))) == "1"
+        assert next(result.objects(bn, SH.path)) == ONTO.testGeoname
+        assert next(result.objects(bn, SH.severity)) == SH.Violation
+        assert str(next(result.objects(bn, SH.message))) == "Cardinality: 1-n"
+
+    def test_empty_1(self, card_1: Graph) -> None:
+        result = _construct_1_n_cardinality(card_1)
+        assert len(result) == 0
+
+    def test_empty_1_n(self, card_0_1: Graph) -> None:
+        result = _construct_1_n_cardinality(card_0_1)
+        assert len(result) == 0
+
+    def test_empty_0_n(self, card_0_n: Graph) -> None:
+        result = _construct_1_n_cardinality(card_0_n)
+        assert len(result) == 0
+
+
+class Test0N:
+    def test_good(self, card_0_n: Graph) -> None:
+        result = _construct_0_n_cardinality(card_0_n)
+        assert len(result) == 3
+        bn = next(result.subjects(RDF.type, SH.PropertyShape))
+        shape_iri = next(result.subjects(SH.property, bn))
+        assert shape_iri == ONTO.ClassMixedCard_Shape
+        assert next(result.objects(bn, SH.path)) == ONTO.testSimpleText
+
+    def test_empty_1_n(self, card_1_n: Graph) -> None:
+        result = _construct_0_n_cardinality(card_1_n)
+        assert len(result) == 0
+
+    def test_empty_1(self, card_1: Graph) -> None:
+        result = _construct_0_n_cardinality(card_1)
+        assert len(result) == 0
+
+    def test_empty_0_1(self, card_0_1: Graph) -> None:
+        result = _construct_0_n_cardinality(card_0_1)
+        assert len(result) == 0
+
+
+def test_construct_all_cardinalities(one_res_one_prop: Graph) -> None:
+    result = _construct_all_cardinalities(one_res_one_prop)
+    assert len(result) == 7
+    bn = next(result.subjects(RDF.type, SH.PropertyShape))
+    shape_iri = next(result.subjects(SH.property, bn))
+    assert shape_iri == ONTO.CardOneResource_Shape
+    assert str(next(result.objects(bn, SH.minCount))) == "1"
+    assert str(next(result.objects(bn, SH.maxCount))) == "1"
+    assert next(result.objects(bn, SH.path)) == ONTO.testBoolean
+    assert next(result.objects(bn, SH.severity)) == SH.Violation
+    assert str(next(result.objects(bn, SH.message))) == "Cardinality: 1"
 
 
 if __name__ == "__main__":

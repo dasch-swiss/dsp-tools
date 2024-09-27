@@ -6,21 +6,9 @@
        shortcode="0100"
        default-ontology="minimal">
 
-    <permissions id="res-default">
-        <allow group="UnknownUser">RV</allow>
-        <allow group="KnownUser">V</allow>
-        <allow group="ProjectMember">M</allow>
-        <allow group="ProjectAdmin">D</allow>
-        <allow group="Creator">CR</allow>
-        <allow group="SystemAdmin">CR</allow>
-    </permissions>
-    <permissions id="prop-default">
-        <allow group="SystemAdmin">CR</allow>
-    </permissions>
-
-    <resource label="res_0" restype=":MinimalResource" id="res_0" permissions="res-default">
+    <resource label="res_0" restype=":MinimalResource" id="res_0">
         <text-prop name=":hasText">
-            <text encoding="utf8" permissions="prop-default">Hello!</text>
+            <text encoding="utf8">Hello!</text>
         </text-prop>
     </resource>
 

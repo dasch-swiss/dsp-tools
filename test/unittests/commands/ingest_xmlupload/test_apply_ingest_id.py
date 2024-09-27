@@ -8,8 +8,8 @@ class TestReplaceBitstreamPaths:
     def test_all_good(self) -> None:
         xml = """
         <knora>
-            <resource label="Fluffy Image" restype=":Image2D" id="Fluffy1" permissions="res-default">
-                <bitstream permissions="prop-default">images/Fluffy.jpg</bitstream>
+            <resource label="Fluffy Image" restype=":Image2D" id="Fluffy1" permissions="open">
+                <bitstream permissions="open">images/Fluffy.jpg</bitstream>
             </resource>
         </knora>
         """
@@ -20,14 +20,14 @@ class TestReplaceBitstreamPaths:
         assert not ingest_info.unused_mediafiles
         res_bitstream = res_root[0][0]
         assert res_bitstream.text == "fluffy_id"
-        assert res_bitstream.attrib["permissions"] == "prop-default"
+        assert res_bitstream.attrib["permissions"] == "open"
         assert res_bitstream.tag == "bitstream"
 
     def test_extra_paths(self) -> None:
         xml = """
         <knora>
-            <resource label="Fluffy Image" restype=":Image2D" id="Fluffy1" permissions="res-default">
-                <bitstream permissions="prop-default">images/Fluffy.jpg</bitstream>
+            <resource label="Fluffy Image" restype=":Image2D" id="Fluffy1" permissions="open">
+                <bitstream permissions="open">images/Fluffy.jpg</bitstream>
             </resource>
         </knora>
         """
@@ -38,14 +38,14 @@ class TestReplaceBitstreamPaths:
         assert ingest_info.unused_mediafiles == ["extra_media"]
         res_bitstream = res_root[0][0]
         assert res_bitstream.text == "fluffy_id"
-        assert res_bitstream.attrib["permissions"] == "prop-default"
+        assert res_bitstream.attrib["permissions"] == "open"
         assert res_bitstream.tag == "bitstream"
 
     def test_missing_paths(self) -> None:
         xml = """
         <knora>
-            <resource label="Fluffy Image" restype=":Image2D" id="Fluffy1" permissions="res-default">
-                <bitstream permissions="prop-default">images/Fluffy.jpg</bitstream>
+            <resource label="Fluffy Image" restype=":Image2D" id="Fluffy1" permissions="open">
+                <bitstream permissions="open">images/Fluffy.jpg</bitstream>
             </resource>
         </knora>
         """
@@ -56,7 +56,7 @@ class TestReplaceBitstreamPaths:
         assert ingest_info.unused_mediafiles == ["extra_media"]
         res_bitstream = res_root[0][0]
         assert res_bitstream.text == "images/Fluffy.jpg"
-        assert res_bitstream.attrib["permissions"] == "prop-default"
+        assert res_bitstream.attrib["permissions"] == "open"
         assert res_bitstream.tag == "bitstream"
 
 

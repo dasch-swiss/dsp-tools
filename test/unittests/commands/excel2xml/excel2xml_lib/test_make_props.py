@@ -55,19 +55,19 @@ class TestPropsGeneral(unittest.TestCase):
             testcases.extend(
                 [
                     (
-                        f'<{prop}-prop name=":test"><{prop} permissions="prop-default">{val}</{prop}></{prop}-prop>',
+                        f'<{prop}-prop name=":test"><{prop} permissions="open">{val}</{prop}></{prop}-prop>',
                         dict(name=":test", value=val),
                     ),
                     (
-                        f'<{prop}-prop name=":test"><{prop} permissions="prop-restricted">{val}</{prop}></{prop}-prop>',
-                        dict(name=":test", value=excel2xml.PropertyElement(val, permissions="prop-restricted")),
+                        f'<{prop}-prop name=":test"><{prop} permissions="restricted">{val}</{prop}></{prop}-prop>',
+                        dict(name=":test", value=excel2xml.PropertyElement(val, permissions="restricted")),
                     ),
                     (
-                        f'<{prop}-prop name=":test"><{prop} permissions="prop-restricted" comment="comment">{val}'
+                        f'<{prop}-prop name=":test"><{prop} permissions="restricted" comment="comment">{val}'
                         f"</{prop}></{prop}-prop>",
                         dict(
                             name=":test",
-                            value=excel2xml.PropertyElement(val, permissions="prop-restricted", comment="comment"),
+                            value=excel2xml.PropertyElement(val, permissions="restricted", comment="comment"),
                         ),
                     ),
                 ]
@@ -77,17 +77,17 @@ class TestPropsGeneral(unittest.TestCase):
             [
                 (
                     f'<{prop}-prop name=":test">'
-                    f'<{prop} permissions="prop-default">{identical_values[0]}</{prop}>'
-                    f'<{prop} permissions="prop-default">{identical_values[1]}</{prop}>'
-                    f'<{prop} permissions="prop-default">{identical_values[2]}</{prop}>'
+                    f'<{prop} permissions="open">{identical_values[0]}</{prop}>'
+                    f'<{prop} permissions="open">{identical_values[1]}</{prop}>'
+                    f'<{prop} permissions="open">{identical_values[2]}</{prop}>'
                     f"</{prop}-prop>",
                     dict(name=":test", value=identical_values),
                 ),
                 (
                     f'<{prop}-prop name=":test">'
-                    f'<{prop} permissions="prop-default">{different_values[0 % maximum]}</{prop}>'
-                    f'<{prop} permissions="prop-default">{different_values[1 % maximum]}</{prop}>'
-                    f'<{prop} permissions="prop-default">{different_values[2 % maximum]}</{prop}>'
+                    f'<{prop} permissions="open">{different_values[0 % maximum]}</{prop}>'
+                    f'<{prop} permissions="open">{different_values[1 % maximum]}</{prop}>'
+                    f'<{prop} permissions="open">{different_values[2 % maximum]}</{prop}>'
                     f"</{prop}-prop>",
                     dict(
                         name=":test",
@@ -100,21 +100,21 @@ class TestPropsGeneral(unittest.TestCase):
                 ),
                 (
                     f'<{prop}-prop name=":test">'
-                    f'<{prop} permissions="prop-restricted" comment="comment1">{different_values[3 % maximum]}</{prop}>'
-                    f'<{prop} permissions="prop-default" comment="comment2">{different_values[4 % maximum]}</{prop}>'
-                    f'<{prop} permissions="prop-restricted" comment="comment3">{different_values[5 % maximum]}</{prop}>'
+                    f'<{prop} permissions="restricted" comment="comment1">{different_values[3 % maximum]}</{prop}>'
+                    f'<{prop} permissions="open" comment="comment2">{different_values[4 % maximum]}</{prop}>'
+                    f'<{prop} permissions="restricted" comment="comment3">{different_values[5 % maximum]}</{prop}>'
                     f"</{prop}-prop>",
                     dict(
                         name=":test",
                         value=[
                             excel2xml.PropertyElement(
-                                different_values[3 % maximum], permissions="prop-restricted", comment="comment1"
+                                different_values[3 % maximum], permissions="restricted", comment="comment1"
                             ),
                             excel2xml.PropertyElement(
-                                different_values[4 % maximum], permissions="prop-default", comment="comment2"
+                                different_values[4 % maximum], permissions="open", comment="comment2"
                             ),
                             excel2xml.PropertyElement(
-                                different_values[5 % maximum], permissions="prop-restricted", comment="comment3"
+                                different_values[5 % maximum], permissions="restricted", comment="comment3"
                             ),
                         ],
                     ),
@@ -308,12 +308,8 @@ class TestPropsGeneral(unittest.TestCase):
             ["True", "false"],
         ]
 
-        true_xml_expected = (
-            '<boolean-prop name=":test"><boolean permissions="prop-default">true</boolean></boolean-prop>'
-        )
-        false_xml_expected = (
-            '<boolean-prop name=":test"><boolean permissions="prop-default">false</boolean></boolean-prop>'
-        )
+        true_xml_expected = '<boolean-prop name=":test"><boolean permissions="open">true</boolean></boolean-prop>'
+        false_xml_expected = '<boolean-prop name=":test"><boolean permissions="open">false</boolean></boolean-prop>'
 
         for true_value in true_values:
             true_xml = etree.tostring(excel2xml.make_boolean_prop(":test", true_value), encoding="unicode")
@@ -442,19 +438,19 @@ class TestBitstreamProp:
     def test_make_bitstream_prop_from_string(self) -> None:
         res = excel2xml.make_bitstream_prop("foo/bar/baz.txt")
         assert res.tag.endswith("bitstream")
-        assert res.attrib["permissions"] == "prop-default"
+        assert res.attrib["permissions"] == "open"
         assert res.text == "foo/bar/baz.txt"
 
     def test_make_bitstream_prop_from_path(self) -> None:
         res = excel2xml.make_bitstream_prop(Path("foo/bar/baz.txt"))
         assert res.tag.endswith("bitstream")
-        assert res.attrib["permissions"] == "prop-default"
+        assert res.attrib["permissions"] == "open"
         assert res.text == "foo/bar/baz.txt"
 
     def test_make_bitstream_prop_custom_permissions(self) -> None:
-        res = excel2xml.make_bitstream_prop("foo/bar/baz.txt", "prop-restricted")
+        res = excel2xml.make_bitstream_prop("foo/bar/baz.txt", "restricted")
         assert res.tag.endswith("bitstream")
-        assert res.attrib["permissions"] == "prop-restricted"
+        assert res.attrib["permissions"] == "restricted"
         assert res.text == "foo/bar/baz.txt"
 
     def test_make_bitstream_prop_valid_file(self) -> None:
@@ -465,14 +461,14 @@ class TestBitstreamProp:
             except UserWarning as e:
                 raise AssertionError from e
         assert res.tag.endswith("bitstream")
-        assert res.attrib["permissions"] == "prop-default"
+        assert res.attrib["permissions"] == "open"
         assert res.text == "testdata/bitstreams/test.jpg"
 
     def test_make_bitstream_prop_invalid_file(self) -> None:
         with pytest.warns(DspToolsUserWarning, match=".*Failed validation in bitstream tag.*"):
             res = excel2xml.make_bitstream_prop("foo/bar/baz.txt", check=True)
         assert res.tag.endswith("bitstream")
-        assert res.attrib["permissions"] == "prop-default"
+        assert res.attrib["permissions"] == "open"
         assert res.text == "foo/bar/baz.txt"
 
 
@@ -484,14 +480,14 @@ class Test_isSegmentOf_and_relatesTo_Prop:
     def test_defaults(self, tag: str, func: Callable[..., etree._Element]) -> None:
         res = func("target_id")
         assert res.tag.endswith(tag)
-        assert res.attrib["permissions"] == "prop-default"
+        assert res.attrib["permissions"] == "open"
         assert "comment" not in res.attrib
         assert res.text == "target_id"
 
     def test_custom_params(self, tag: str, func: Callable[..., etree._Element]) -> None:
-        res = func("target_id", "prop-restricted", "my comment")
+        res = func("target_id", "restricted", "my comment")
         assert res.tag.endswith(tag)
-        assert res.attrib["permissions"] == "prop-restricted"
+        assert res.attrib["permissions"] == "restricted"
         assert res.attrib["comment"] == "my comment"
         assert res.text == "target_id"
 
@@ -499,7 +495,7 @@ class Test_isSegmentOf_and_relatesTo_Prop:
         with pytest.warns(DspToolsUserWarning):
             res = func("<NA>")
         assert res.tag.endswith(tag)
-        assert res.attrib["permissions"] == "prop-default"
+        assert res.attrib["permissions"] == "open"
         assert "comment" not in res.attrib
         assert res.text == "<NA>"
 
@@ -508,16 +504,16 @@ class Test_hasSegmentBounds_Prop:
     def test_defaults(self) -> None:
         res = excel2xml.make_hasSegmentBounds_prop(100, 200)
         assert res.tag.endswith("hasSegmentBounds")
-        assert res.attrib["permissions"] == "prop-default"
+        assert res.attrib["permissions"] == "open"
         assert "comment" not in res.attrib
         assert res.attrib["segment_start"] == "100"
         assert res.attrib["segment_end"] == "200"
         assert res.text is None
 
     def test_custom_params(self) -> None:
-        res = excel2xml.make_hasSegmentBounds_prop(10, 20, "prop-restricted", "my comment")
+        res = excel2xml.make_hasSegmentBounds_prop(10, 20, "restricted", "my comment")
         assert res.tag.endswith("hasSegmentBounds")
-        assert res.attrib["permissions"] == "prop-restricted"
+        assert res.attrib["permissions"] == "restricted"
         assert res.attrib["comment"] == "my comment"
         assert res.attrib["segment_start"] == "10"
         assert res.attrib["segment_end"] == "20"
@@ -526,7 +522,7 @@ class Test_hasSegmentBounds_Prop:
     def test_floats(self) -> None:
         res = excel2xml.make_hasSegmentBounds_prop(1.2, 3.4)
         assert res.tag.endswith("hasSegmentBounds")
-        assert res.attrib["permissions"] == "prop-default"
+        assert res.attrib["permissions"] == "open"
         assert "comment" not in res.attrib
         assert res.attrib["segment_start"] == "1.2"
         assert res.attrib["segment_end"] == "3.4"
@@ -535,7 +531,7 @@ class Test_hasSegmentBounds_Prop:
     def test_nums_as_strings(self) -> None:
         res = excel2xml.make_hasSegmentBounds_prop("1.2", "3")  # type: ignore[arg-type]
         assert res.tag.endswith("hasSegmentBounds")
-        assert res.attrib["permissions"] == "prop-default"
+        assert res.attrib["permissions"] == "open"
         assert "comment" not in res.attrib
         assert res.attrib["segment_start"] == "1.2"
         assert res.attrib["segment_end"] == "3.0"  # silent conversion to float is okay, since the db stores it that way
@@ -545,7 +541,7 @@ class Test_hasSegmentBounds_Prop:
         with pytest.warns(DspToolsUserWarning, match="must be less than"):
             res = excel2xml.make_hasSegmentBounds_prop(5, 3)
         assert res.tag.endswith("hasSegmentBounds")
-        assert res.attrib["permissions"] == "prop-default"
+        assert res.attrib["permissions"] == "open"
         assert "comment" not in res.attrib
         assert res.attrib["segment_start"] == "5"
         assert res.attrib["segment_end"] == "3"
@@ -555,7 +551,7 @@ class Test_hasSegmentBounds_Prop:
         with pytest.warns(DspToolsUserWarning, match="must be integers or floats"):
             res = excel2xml.make_hasSegmentBounds_prop(segment_start="foo", segment_end=2)  # type: ignore[arg-type]
         assert res.tag.endswith("hasSegmentBounds")
-        assert res.attrib["permissions"] == "prop-default"
+        assert res.attrib["permissions"] == "open"
         assert "comment" not in res.attrib
         assert res.attrib["segment_start"] == "foo"
         assert res.attrib["segment_end"] == "2"
@@ -570,14 +566,14 @@ class Test_hasTitle_hasKeyword:
     def test_defaults(self, tag: str, func: Callable[..., etree._Element]) -> None:
         res = func("my text ...")
         assert res.tag.endswith(tag)
-        assert res.attrib["permissions"] == "prop-default"
+        assert res.attrib["permissions"] == "open"
         assert "comment" not in res.attrib
         assert res.text == "my text ..."
 
     def test_custom_params(self, tag: str, func: Callable[..., etree._Element]) -> None:
-        res = func("my text ...", "prop-restricted", "my comment")
+        res = func("my text ...", "restricted", "my comment")
         assert res.tag.endswith(tag)
-        assert res.attrib["permissions"] == "prop-restricted"
+        assert res.attrib["permissions"] == "restricted"
         assert res.attrib["comment"] == "my comment"
         assert res.text == "my text ..."
 
@@ -585,7 +581,7 @@ class Test_hasTitle_hasKeyword:
         with pytest.warns(DspToolsUserWarning):
             res = func("<NA>")
         assert res.tag.endswith(tag)
-        assert res.attrib["permissions"] == "prop-default"
+        assert res.attrib["permissions"] == "open"
         assert "comment" not in res.attrib
         assert res.text == "<NA>"
 
@@ -598,14 +594,14 @@ class Test_hasComment_hasDescription:
     def test_defaults(self, tag: str, func: Callable[..., etree._Element]) -> None:
         res = func("my text ...")
         assert res.tag.endswith(tag)
-        assert res.attrib["permissions"] == "prop-default"
+        assert res.attrib["permissions"] == "open"
         assert "comment" not in res.attrib
         assert res.text == "my text ..."
 
     def test_custom_params(self, tag: str, func: Callable[..., etree._Element]) -> None:
-        res = func("my text ...", "prop-restricted", "my comment")
+        res = func("my text ...", "restricted", "my comment")
         assert res.tag.endswith(tag)
-        assert res.attrib["permissions"] == "prop-restricted"
+        assert res.attrib["permissions"] == "restricted"
         assert res.attrib["comment"] == "my comment"
         assert res.text == "my text ..."
 
@@ -613,7 +609,7 @@ class Test_hasComment_hasDescription:
         with pytest.warns(DspToolsUserWarning):
             res = func("<NA>")
         assert res.tag.endswith(tag)
-        assert res.attrib["permissions"] == "prop-default"
+        assert res.attrib["permissions"] == "open"
         assert "comment" not in res.attrib
         assert res.text == "<NA>"
 
@@ -621,7 +617,7 @@ class Test_hasComment_hasDescription:
         text = "<p>my <strong>bold <em>and italiziced</em></strong> text ...</p>"
         res = func(text)
         assert res.tag.endswith(tag)
-        assert res.attrib["permissions"] == "prop-default"
+        assert res.attrib["permissions"] == "open"
         assert "comment" not in res.attrib
         serialized_text = regex.sub(rf"<ns0:{tag} .+?>|</ns0:{tag}>", "", etree.tostring(res, encoding="unicode"))
         assert serialized_text == text

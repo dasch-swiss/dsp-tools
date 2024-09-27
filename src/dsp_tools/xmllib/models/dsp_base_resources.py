@@ -26,7 +26,7 @@ class AnnotationResource:
     label: str
     comments: list[str]
     annotation_of: str
-    permissions: str = "res-default"
+    permissions: str = "open"
 
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
@@ -56,7 +56,7 @@ class RegionResource:
     region_of: str
     geometry: dict[str, Any]
     comments: list[str]
-    permissions: str = "res-default"
+    permissions: str = "open"
 
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
@@ -99,7 +99,7 @@ class LinkResource:
     label: str
     link_to: list[str]
     comments: list[str]
-    permissions: str = "res-default"
+    permissions: str = "open"
 
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
@@ -136,7 +136,7 @@ class VideoSegmentResource:
     description: list[str] = field(default_factory=list)
     keywords: list[str] = field(default_factory=list)
     relates_to: list[str] = field(default_factory=list)
-    permissions: str = "res-default"
+    permissions: str = "open"
 
     def __post_init__(self) -> None:
         _validate_segment(self)
@@ -165,7 +165,7 @@ class AudioSegmentResource:
     description: list[str] = field(default_factory=list)
     keywords: list[str] = field(default_factory=list)
     relates_to: list[str] = field(default_factory=list)
-    permissions: str = "res-default"
+    permissions: str = "open"
 
     def __post_init__(self) -> None:
         _validate_segment(self)

@@ -41,7 +41,7 @@ class Resource:
     restype: str
     label: str
     values: list[Value] = field(default_factory=list)
-    permissions: str = "res-default"
+    permissions: str = "open"
     file_value: AbstractFileValue | None = None
 
     def __post_init__(self) -> None:

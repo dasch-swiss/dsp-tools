@@ -15,7 +15,7 @@ def test_save_upload_state(tmp_path: Path) -> None:
     resource_str = """
     <resource label="Annotation to TestthingOhnePermissions" id="annotation_1" restype="foo:bar">
         <text-prop name="hasComment">
-            <text encoding="xml" permissions="prop-default">This is an annotation to TestthingOhnePermissions.</text>
+            <text encoding="xml" permissions="open">This is an annotation to TestthingOhnePermissions.</text>
         </text-prop>
     </resource>
     """

@@ -130,6 +130,16 @@ So, in the following example,
 the bitstreams don't inherit the permissions from their resource:
 
 ```xml
+<permissions id="open">
+  <allow group="ProjectAdmin">CR</allow>
+  <allow group="ProjectMember">D</allow>
+  <allow group="KnownUser">V</allow>
+  <allow group="UnknownUser">V</allow>
+</permissions>
+<permissions id="restricted">
+  <allow group="ProjectAdmin">CR</allow>
+  <allow group="ProjectMember">D</allow>
+</permissions>
 <resource ...>
     <bitstream permissions="open">images/EURUS015a.jpg</bitstream>
 </resource>
@@ -141,11 +151,12 @@ the bitstreams don't inherit the permissions from their resource:
 </resource>
 ```
 
-To take as example `KnownUser`, i.e. a logged-in user who is not member of the project:
+So if you upload this data, and then log in as `KnownUser`, i.e. a logged-in user who is not member of the project, 
+you will see the following:
 
-- With `permissions="open"`, he has `V` rights on the image: Normal view.  #TODO THIS DOESNT MAKE SENSE.
-- With `permissions="restricted"`, he has `RV` rights on the image: Blurred image.
-- With a blank `<bitstream>` tag, he has no rights on the image: No view possible. Only users from `ProjectAdmin` 
+- With `permissions="open"`, you have `V` rights on the image: Normal view.
+- With `permissions="restricted"`, you have `RV` rights on the image: Blurred image.
+- With a blank `<bitstream>` tag, you have no rights on the image: No view possible. Only users from `ProjectMember` 
   upwards are able to look at the image.
 
 

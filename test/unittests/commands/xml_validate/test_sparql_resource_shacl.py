@@ -169,7 +169,7 @@ def card_0_n() -> Graph:
 
 def test_construct_resource_class_nodeshape(onto_graph: Graph) -> None:
     result = construct_resource_class_node_shape(onto_graph)
-    num_triples = 156
+    num_triples = 162
     assert len(result) == num_triples
     shape_iri = next(result.subjects(SH.targetClass, ONTO.ClassInheritedCardinality))
     assert shape_iri == ONTO.ClassInheritedCardinality_Shape

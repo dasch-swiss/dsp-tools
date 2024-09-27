@@ -117,6 +117,7 @@ class TestWarnings:
 
     def test_missing_bitstream_permission(self) -> None:
         file = f"{INVALID_EXCEL_DIRECTORY}/no-bitstream-permissions.xlsx"
+        expected_res_perm_missing = "Missing permissions for resource 'test_thing_1' (Excel row 2)"
         expected_msg_missing = (
             "Missing file permissions for file 'testdata/bitstreams/test.jpg' "
             "(Resource ID 'test_thing_1', Excel row 2)."
@@ -126,11 +127,10 @@ class TestWarnings:
             "Element 'bitstream', attribute 'permissions': " "'' is not a valid value of the atomic type 'xs:NCName'."
         )
         _, catched_warnings = excel2xml_cli.excel2xml(file, "1234", "excel2xml-invalid")
-        assert len(catched_warnings) == 2
-        msg_missing_label = catched_warnings[0].message.args[0]  # type:ignore[union-attr]
-        assert msg_missing_label == expected_msg_missing
-        msg_validation = catched_warnings[1].message.args[0]  # type:ignore[union-attr]
-        assert regex.search(expected_xml_validation, msg_validation)
+        assert len(catched_warnings) == 3
+        assert catched_warnings[0].message.args[0] == expected_res_perm_missing  # type:ignore[union-attr]
+        assert catched_warnings[1].message.args[0] == expected_msg_missing  # type:ignore[union-attr]
+        assert regex.search(expected_xml_validation, catched_warnings[2].message.args[0])  # type:ignore[union-attr]
 
     def test_invalid_prop_val(self) -> None:
         file = f"{INVALID_EXCEL_DIRECTORY}/single-invalid-value-for-property.xlsx"

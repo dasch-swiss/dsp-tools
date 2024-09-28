@@ -35,9 +35,7 @@ def onto_graph() -> Graph:
 
 @pytest.fixture
 def one_res_one_prop() -> Graph:
-    ttl = (
-        PREFIXES
-        + """
+    ttl = f"""{PREFIXES}
     onto:CardOneResource a owl:Class ;
     rdfs:label "Resource with One Cardinality" ;
     knora-api:canBeInstantiated true ;
@@ -62,7 +60,6 @@ def one_res_one_prop() -> Graph:
         salsah-gui:guiElement salsah-gui:Checkbox ;
         rdfs:subPropertyOf knora-api:hasValue .
     """
-    )
     g = Graph()
     g.parse(data=ttl, format="ttl")
     return g
@@ -70,9 +67,7 @@ def one_res_one_prop() -> Graph:
 
 @pytest.fixture
 def one_prop() -> Graph:
-    ttl = (
-        PREFIXES
-        + """
+    ttl = f"""{PREFIXES}
     onto:testBoolean a owl:ObjectProperty ;
         rdfs:label "Test Boolean" ;
         knora-api:isEditable true ;
@@ -81,7 +76,6 @@ def one_prop() -> Graph:
         salsah-gui:guiElement salsah-gui:Checkbox ;
         rdfs:subPropertyOf knora-api:hasValue .
     """
-    )
     g = Graph()
     g.parse(data=ttl, format="ttl")
     return g
@@ -89,9 +83,7 @@ def one_prop() -> Graph:
 
 @pytest.fixture
 def card_1() -> Graph:
-    ttl = (
-        PREFIXES
-        + """
+    ttl = f"""{PREFIXES}
     onto:ClassMixedCard a owl:Class ;
         knora-api:isResourceClass true ;
         rdfs:subClassOf [ 
@@ -101,7 +93,6 @@ def card_1() -> Graph:
                 owl:onProperty onto:testBoolean
                          ] .
     """
-    )
     g = Graph()
     g.parse(data=ttl, format="ttl")
     return g
@@ -109,9 +100,7 @@ def card_1() -> Graph:
 
 @pytest.fixture
 def card_0_1() -> Graph:
-    ttl = (
-        PREFIXES
-        + """
+    ttl = f"""{PREFIXES}
     onto:ClassMixedCard a owl:Class ;
         knora-api:isResourceClass true ;
         rdfs:subClassOf [ 
@@ -121,7 +110,6 @@ def card_0_1() -> Graph:
                 owl:onProperty onto:testDecimalSimpleText
                          ] .
     """
-    )
     g = Graph()
     g.parse(data=ttl, format="ttl")
     return g
@@ -129,9 +117,7 @@ def card_0_1() -> Graph:
 
 @pytest.fixture
 def card_1_n() -> Graph:
-    ttl = (
-        PREFIXES
-        + """
+    ttl = f"""{PREFIXES}
     onto:ClassMixedCard a owl:Class ;
         knora-api:isResourceClass true ;
         rdfs:subClassOf [ 
@@ -141,7 +127,6 @@ def card_1_n() -> Graph:
                 owl:onProperty onto:testGeoname
                          ] .
     """
-    )
     g = Graph()
     g.parse(data=ttl, format="ttl")
     return g
@@ -149,9 +134,7 @@ def card_1_n() -> Graph:
 
 @pytest.fixture
 def card_0_n() -> Graph:
-    ttl = (
-        PREFIXES
-        + """
+    ttl = f"""{PREFIXES}
     onto:ClassMixedCard a owl:Class ;
         knora-api:isResourceClass true ;
         rdfs:subClassOf [ 
@@ -161,7 +144,6 @@ def card_0_n() -> Graph:
                 owl:onProperty onto:testSimpleText
                          ] .
     """
-    )
     g = Graph()
     g.parse(data=ttl, format="ttl")
     return g

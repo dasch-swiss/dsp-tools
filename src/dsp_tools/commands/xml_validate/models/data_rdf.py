@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from abc import ABC
 from dataclasses import dataclass
+from uuid import uuid4
 
 from rdflib import RDF
 from rdflib import RDFS
-from rdflib import BNode
 from rdflib import Graph
 from rdflib import Literal
 from rdflib import Namespace
@@ -13,6 +13,7 @@ from rdflib import URIRef
 
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
 API_SHAPES = Namespace("http://api.knora.org/ontology/knora-api/shapes/v2#")
+DATA = Namespace("http://data/")
 
 
 @dataclass
@@ -60,7 +61,7 @@ class BooleanValueRDF(ValueRDF):
 
     def make_graph(self) -> Graph:
         g = Graph()
-        bn = BNode()
+        bn = DATA[str(uuid4())]
         g.add((bn, RDF.type, KNORA_API.BooleanValue))
         g.add((bn, KNORA_API.booleanValueAsBoolean, self.object_value))
         g.add((self.res_iri, self.prop_name, bn))
@@ -73,7 +74,7 @@ class ColorValueRDF(ValueRDF):
 
     def make_graph(self) -> Graph:
         g = Graph()
-        bn = BNode()
+        bn = DATA[str(uuid4())]
         g.add((bn, RDF.type, KNORA_API.ColorValue))
         g.add((bn, KNORA_API.colorValueAsColor, self.object_value))
         g.add((self.res_iri, self.prop_name, bn))
@@ -86,7 +87,7 @@ class DateValueRDF(ValueRDF):
 
     def make_graph(self) -> Graph:
         g = Graph()
-        bn = BNode()
+        bn = DATA[str(uuid4())]
         g.add((bn, RDF.type, KNORA_API.DateValue))
         g.add((bn, KNORA_API.valueAsString, self.object_value))
         g.add((self.res_iri, self.prop_name, bn))
@@ -99,7 +100,7 @@ class DecimalValueRDF(ValueRDF):
 
     def make_graph(self) -> Graph:
         g = Graph()
-        bn = BNode()
+        bn = DATA[str(uuid4())]
         g.add((bn, RDF.type, KNORA_API.DecimalValue))
         g.add((bn, KNORA_API.decimalValueAsDecimal, self.object_value))
         g.add((self.res_iri, self.prop_name, bn))
@@ -112,7 +113,7 @@ class GeonameValueRDF(ValueRDF):
 
     def make_graph(self) -> Graph:
         g = Graph()
-        bn = BNode()
+        bn = DATA[str(uuid4())]
         g.add((bn, RDF.type, KNORA_API.GeonameValue))
         g.add((bn, KNORA_API.geonameValueAsGeonameCode, self.object_value))
         g.add((self.res_iri, self.prop_name, bn))
@@ -125,7 +126,7 @@ class IntValueRDF(ValueRDF):
 
     def make_graph(self) -> Graph:
         g = Graph()
-        bn = BNode()
+        bn = DATA[str(uuid4())]
         g.add((bn, RDF.type, KNORA_API.IntValue))
         g.add((bn, KNORA_API.intValueAsInt, self.object_value))
         g.add((self.res_iri, self.prop_name, bn))
@@ -138,7 +139,7 @@ class LinkValueRDF(ValueRDF):
 
     def make_graph(self) -> Graph:
         g = Graph()
-        bn = BNode()
+        bn = DATA[str(uuid4())]
         g.add((bn, RDF.type, KNORA_API.LinkValue))
         g.add((bn, API_SHAPES.linkValueHasTargetID, self.object_value))
         g.add((self.res_iri, self.prop_name, bn))
@@ -153,7 +154,7 @@ class ListValueRDF(ValueRDF):
 
     def make_graph(self) -> Graph:
         g = Graph()
-        bn = BNode()
+        bn = DATA[str(uuid4())]
         g.add((bn, RDF.type, KNORA_API.ListValue))
         g.add((bn, API_SHAPES.listNodeAsString, self.object_value))
         g.add((bn, API_SHAPES.listNameAsString, self.list_name))
@@ -167,7 +168,7 @@ class SimpleTextRDF(ValueRDF):
 
     def make_graph(self) -> Graph:
         g = Graph()
-        bn = BNode()
+        bn = DATA[str(uuid4())]
         g.add((bn, RDF.type, KNORA_API.TextValue))
         g.add((bn, KNORA_API.valueAsString, self.object_value))
         g.add((self.res_iri, self.prop_name, bn))
@@ -180,7 +181,7 @@ class RichtextRDF(ValueRDF):
 
     def make_graph(self) -> Graph:
         g = Graph()
-        bn = BNode()
+        bn = DATA[str(uuid4())]
         g.add((bn, RDF.type, KNORA_API.TextValue))
         g.add((bn, KNORA_API.textValueAsXml, self.object_value))
         g.add((self.res_iri, self.prop_name, bn))
@@ -193,7 +194,7 @@ class TimeValueRDF(ValueRDF):
 
     def make_graph(self) -> Graph:
         g = Graph()
-        bn = BNode()
+        bn = DATA[str(uuid4())]
         g.add((bn, RDF.type, KNORA_API.TimeValue))
         g.add((bn, KNORA_API.timeValueAsTimeStamp, self.object_value))
         g.add((self.res_iri, self.prop_name, bn))
@@ -206,7 +207,7 @@ class UriValueRDF(ValueRDF):
 
     def make_graph(self) -> Graph:
         g = Graph()
-        bn = BNode()
+        bn = DATA[str(uuid4())]
         g.add((bn, RDF.type, KNORA_API.UriValue))
         g.add((bn, KNORA_API.uriValueAsUri, self.object_value))
         g.add((self.res_iri, self.prop_name, bn))

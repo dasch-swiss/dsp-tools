@@ -45,6 +45,10 @@ class AnnotationResource:
         self.comments.append(comment)
         return self
 
+    def add_comments(self, comments: list[str]) -> AnnotationResource:
+        self.comments.extend(comments)
+        return self
+
     def serialise(self) -> etree._Element:
         res_ele = self._serialise_resource_element()
         res_ele.append(self._serialise_annotation_of())
@@ -89,6 +93,10 @@ class RegionResource:
 
     def add_comment(self, comment: str) -> RegionResource:
         self.comments.append(comment)
+        return self
+
+    def add_comments(self, comments: list[str]) -> RegionResource:
+        self.comments.extend(comments)
         return self
 
     def serialise(self) -> etree._Element:
@@ -144,6 +152,10 @@ class LinkResource:
         self.comments.append(comment)
         return self
 
+    def add_comments(self, comments: list[str]) -> LinkResource:
+        self.comments.extend(comments)
+        return self
+
     def serialise(self) -> etree._Element:
         res_ele = self._serialise_resource_element()
         res_ele.append(_serialise_has_comment(self.comments, self.res_id))
@@ -193,6 +205,10 @@ class VideoSegmentResource:
         self.comments.append(comment)
         return self
 
+    def add_comments(self, comments: list[str]) -> VideoSegmentResource:
+        self.comments.extend(comments)
+        return self
+
     def serialise(self) -> etree._Element:
         res_ele = self._serialise_resource_element()
         res_ele.extend(_serialise_segment_children(self))
@@ -233,6 +249,10 @@ class AudioSegmentResource:
 
     def add_comment(self, comment: str) -> AudioSegmentResource:
         self.comments.append(comment)
+        return self
+
+    def add_comments(self, comments: list[str]) -> AudioSegmentResource:
+        self.comments.extend(comments)
         return self
 
     def serialise(self) -> etree._Element:

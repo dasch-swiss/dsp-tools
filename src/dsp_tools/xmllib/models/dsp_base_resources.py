@@ -12,6 +12,7 @@ from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import LinkValue
 from dsp_tools.xmllib.models.values import Richtext
 from dsp_tools.xmllib.value_checkers import find_geometry_problem
+from dsp_tools.xmllib.value_checkers import is_color
 from dsp_tools.xmllib.value_checkers import is_decimal
 from dsp_tools.xmllib.value_checkers import is_integer
 from dsp_tools.xmllib.value_checkers import is_string_like
@@ -31,15 +32,7 @@ class AnnotationResource:
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
         _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
-        match self.comments:
-            case list():
-                pass
-            case set():
-                self.comments = list(self.comments)
-            case int() | str() | float():
-                self.comments = [self.comments]
-            case _:
-                _warn_invalid_comments(self.comments, self.res_id)
+        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
 
     def add_comment(self, comment: str) -> AnnotationResource:
         self.comments.append(comment)
@@ -78,18 +71,16 @@ class RegionResource:
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
         _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
+        if not is_color(self.color):
+            msg = (
+                f"The color value '{self.color}' for the resource with the ID: '{self.res_id}' failed validation. "
+                f"Please consult the documentation for details."
+            )
+            warnings.warn(DspToolsUserWarning(msg))
         if fail_msg := find_geometry_problem(self.geometry):
             msg = f"The geometry of the resource with the ID '{self.res_id}' failed validation.\n" + fail_msg
             warnings.warn(DspToolsUserWarning(msg))
-        match self.comments:
-            case list():
-                pass
-            case set():
-                self.comments = list(self.comments)
-            case int() | str() | float():
-                self.comments = [self.comments]
-            case _:
-                _warn_invalid_comments(self.comments, self.res_id)
+        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
 
     def add_comment(self, comment: str) -> RegionResource:
         self.comments.append(comment)
@@ -138,15 +129,8 @@ class LinkResource:
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
         _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
-        match self.comments:
-            case list():
-                pass
-            case set():
-                self.comments = list(self.comments)
-            case int() | str() | float():
-                self.comments = [self.comments]
-            case _:
-                _warn_invalid_comments(self.comments, self.res_id)
+        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
+        self.link_to = _transform_unexpected_input(self.link_to, "link_to", self.res_id)
 
     def add_comment(self, comment: str) -> LinkResource:
         self.comments.append(comment)
@@ -190,16 +174,11 @@ class VideoSegmentResource:
     permissions: str = "res-default"
 
     def __post_init__(self) -> None:
+        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
+        self.descriptions = _transform_unexpected_input(self.descriptions, "descriptions", self.res_id)
+        self.keywords = _transform_unexpected_input(self.keywords, "keywords", self.res_id)
+        self.relates_to = _transform_unexpected_input(self.relates_to, "relates_to", self.res_id)
         _validate_segment(self)
-        match self.comments:
-            case list():
-                pass
-            case set():
-                self.comments = list(self.comments)
-            case int() | str() | float():
-                self.comments = [self.comments]
-            case _:
-                _warn_invalid_comments(self.comments, self.res_id)
 
     def add_title(self, title: str) -> VideoSegmentResource:
         if self.title:
@@ -266,16 +245,11 @@ class AudioSegmentResource:
     permissions: str = "res-default"
 
     def __post_init__(self) -> None:
+        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
+        self.descriptions = _transform_unexpected_input(self.descriptions, "descriptions", self.res_id)
+        self.keywords = _transform_unexpected_input(self.keywords, "keywords", self.res_id)
+        self.relates_to = _transform_unexpected_input(self.relates_to, "relates_to", self.res_id)
         _validate_segment(self)
-        match self.comments:
-            case list():
-                pass
-            case set():
-                self.comments = list(self.comments)
-            case int() | str() | float():
-                self.comments = [self.comments]
-            case _:
-                _warn_invalid_comments(self.comments, self.res_id)
 
     def add_title(self, title: str) -> AudioSegmentResource:
         if self.title:
@@ -403,10 +377,23 @@ def _make_element_with_text(tag_name: str, text_content: str) -> etree._Element:
     return ele
 
 
-def _warn_invalid_comments(value: Any, res_id: str | None) -> None:
+def _transform_unexpected_input(value: Any, prop_name: str, res_id: str) -> list[str]:
+    match value:
+        case list():
+            return value
+        case set() | tuple():
+            return list(value)
+        case str():
+            return [value]
+        case _:
+            _warn_unexpected_value(value, prop_name, res_id)
+            return [str(value)]
+
+
+def _warn_unexpected_value(value: Any, prop_name: str, res_id: str | None) -> None:
     msg = (
-        f"The resource: {res_id} should have a list of strings for the field 'comments'. "
-        f"Your input: '{value}' is of type {type(value)}"
+        f"The resource: {res_id} should have a list of strings for the field '{prop_name}'. "
+        f"Your input: '{value}' is of type {type(value)}."
     )
     warnings.warn(DspToolsUserWarning(msg))
 

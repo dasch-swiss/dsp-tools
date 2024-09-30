@@ -24,8 +24,8 @@ DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 class AnnotationResource:
     res_id: str
     label: str
-    comments: list[str]
     annotation_of: str
+    comments: list[str]
     permissions: str = "res-default"
 
     def __post_init__(self) -> None:
@@ -42,10 +42,10 @@ class AnnotationResource:
                 _warn_invalid_comments(self.comments, self.res_id)
 
     def new(
-        self, res_id: str, label: str, comments: list[str], annotation_of: str, permissions: str = "res-default"
+        self, res_id: str, label: str, annotation_of: str, comments: list[str], permissions: str = "res-default"
     ) -> AnnotationResource:
         return AnnotationResource(
-            res_id=res_id, label=label, comments=comments, annotation_of=annotation_of, permissions=permissions
+            res_id=res_id, label=label, annotation_of=annotation_of, comments=comments, permissions=permissions
         )
 
     def add_comment(self, comment: str) -> AnnotationResource:
@@ -97,6 +97,26 @@ class RegionResource:
                 self.comments = [self.comments]
             case _:
                 _warn_invalid_comments(self.comments, self.res_id)
+
+    def new(
+        self,
+        res_id: str,
+        label: str,
+        color: str,
+        region_of: str,
+        geometry: dict[str, Any],
+        comments: list[str],
+        permissions: str = "res-default",
+    ) -> RegionResource:
+        return RegionResource(
+            res_id=res_id,
+            label=label,
+            color=color,
+            region_of=region_of,
+            geometry=geometry,
+            comments=comments,
+            permissions=permissions,
+        )
 
     def add_comment(self, comment: str) -> RegionResource:
         self.comments.append(comment)
@@ -155,6 +175,11 @@ class LinkResource:
             case _:
                 _warn_invalid_comments(self.comments, self.res_id)
 
+    def new(
+        self, res_id: str, label: str, link_to: list[str], comments: list[str], permissions: str = "res-default"
+    ) -> LinkResource:
+        return LinkResource(res_id=res_id, label=label, link_to=link_to, comments=comments, permissions=permissions)
+
     def add_comment(self, comment: str) -> LinkResource:
         self.comments.append(comment)
         return self
@@ -207,6 +232,24 @@ class VideoSegmentResource:
                 self.comments = [self.comments]
             case _:
                 _warn_invalid_comments(self.comments, self.res_id)
+
+    def new(
+        self,
+        res_id: str,
+        label: str,
+        segment_of: str,
+        segment_start: float,
+        segment_end: float,
+        title: str | None = None,
+    ) -> VideoSegmentResource:
+        return VideoSegmentResource(
+            res_id=res_id,
+            label=label,
+            segment_of=segment_of,
+            segment_start=segment_start,
+            segment_end=segment_end,
+            title=title,
+        )
 
     def add_title(self, title: str) -> VideoSegmentResource:
         if self.title:
@@ -283,6 +326,24 @@ class AudioSegmentResource:
                 self.comments = [self.comments]
             case _:
                 _warn_invalid_comments(self.comments, self.res_id)
+
+    def new(
+        self,
+        res_id: str,
+        label: str,
+        segment_of: str,
+        segment_start: float,
+        segment_end: float,
+        title: str | None = None,
+    ) -> AudioSegmentResource:
+        return AudioSegmentResource(
+            res_id=res_id,
+            label=label,
+            segment_of=segment_of,
+            segment_start=segment_start,
+            segment_end=segment_end,
+            title=title,
+        )
 
     def add_title(self, title: str) -> AudioSegmentResource:
         if self.title:

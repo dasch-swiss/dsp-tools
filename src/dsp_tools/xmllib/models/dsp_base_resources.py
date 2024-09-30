@@ -31,6 +31,19 @@ class AnnotationResource:
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
         _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
+        match self.comments:
+            case list():
+                pass
+            case set():
+                self.comments = list(self.comments)
+            case int() | str() | float():
+                self.comments = [self.comments]
+            case _:
+                _warn_invalid_comments(self.comments, self.res_id)
+
+    def add_comment(self, comment: str) -> AnnotationResource:
+        self.comments.append(comment)
+        return self
 
     def serialise(self) -> etree._Element:
         res_ele = self._serialise_resource_element()
@@ -64,6 +77,19 @@ class RegionResource:
         if fail_msg := find_geometry_problem(self.geometry):
             msg = f"The geometry of the resource with the ID '{self.res_id}' failed validation.\n" + fail_msg
             warnings.warn(DspToolsUserWarning(msg))
+        match self.comments:
+            case list():
+                pass
+            case set():
+                self.comments = list(self.comments)
+            case int() | str() | float():
+                self.comments = [self.comments]
+            case _:
+                _warn_invalid_comments(self.comments, self.res_id)
+
+    def add_comment(self, comment: str) -> RegionResource:
+        self.comments.append(comment)
+        return self
 
     def serialise(self) -> etree._Element:
         res_ele = self._serialise_resource_element()
@@ -104,6 +130,19 @@ class LinkResource:
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
         _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
+        match self.comments:
+            case list():
+                pass
+            case set():
+                self.comments = list(self.comments)
+            case int() | str() | float():
+                self.comments = [self.comments]
+            case _:
+                _warn_invalid_comments(self.comments, self.res_id)
+
+    def add_comment(self, comment: str) -> LinkResource:
+        self.comments.append(comment)
+        return self
 
     def serialise(self) -> etree._Element:
         res_ele = self._serialise_resource_element()
@@ -132,14 +171,27 @@ class VideoSegmentResource:
     segment_start: float
     segment_end: float
     title: str | None = None
-    comment: list[str] = field(default_factory=list)
-    description: list[str] = field(default_factory=list)
+    comments: list[str] = field(default_factory=list)
+    descriptions: list[str] = field(default_factory=list)
     keywords: list[str] = field(default_factory=list)
     relates_to: list[str] = field(default_factory=list)
     permissions: str = "res-default"
 
     def __post_init__(self) -> None:
         _validate_segment(self)
+        match self.comments:
+            case list():
+                pass
+            case set():
+                self.comments = list(self.comments)
+            case int() | str() | float():
+                self.comments = [self.comments]
+            case _:
+                _warn_invalid_comments(self.comments, self.res_id)
+
+    def add_comment(self, comment: str) -> VideoSegmentResource:
+        self.comments.append(comment)
+        return self
 
     def serialise(self) -> etree._Element:
         res_ele = self._serialise_resource_element()
@@ -161,7 +213,7 @@ class AudioSegmentResource:
     segment_start: float
     segment_end: float
     title: str | None = None
-    comment: list[str] = field(default_factory=list)
+    comments: list[str] = field(default_factory=list)
     description: list[str] = field(default_factory=list)
     keywords: list[str] = field(default_factory=list)
     relates_to: list[str] = field(default_factory=list)
@@ -169,6 +221,19 @@ class AudioSegmentResource:
 
     def __post_init__(self) -> None:
         _validate_segment(self)
+        match self.comments:
+            case list():
+                pass
+            case set():
+                self.comments = list(self.comments)
+            case int() | str() | float():
+                self.comments = [self.comments]
+            case _:
+                _warn_invalid_comments(self.comments, self.res_id)
+
+    def add_comment(self, comment: str) -> AudioSegmentResource:
+        self.comments.append(comment)
+        return self
 
     def serialise(self) -> etree._Element:
         res_ele = self._serialise_resource_element()
@@ -208,9 +273,9 @@ def _validate_segment(segment: AudioSegmentResource | VideoSegmentResource) -> N
         problems.append(f"Field: segment_of | Value: {segment.segment_of}")
     if segment.title and not is_string_like(segment.title):
         problems.append(f"Field: title | Value: {segment.title}")
-    if fails := [x for x in segment.comment if not is_string_like(x)]:
+    if fails := [x for x in segment.comments if not is_string_like(x)]:
         problems.extend([f"Field: comment | Value: {x}" for x in fails])
-    if fails := [x for x in segment.description if not is_string_like(x)]:
+    if fails := [x for x in segment.descriptions if not is_string_like(x)]:
         problems.extend([f"Field: description | Value: {x}" for x in fails])
     if fails := [x for x in segment.keywords if not is_string_like(x)]:
         problems.extend([f"Field: keywords | Value: {x}" for x in fails])
@@ -245,8 +310,8 @@ def _serialise_segment_children(segment: AudioSegmentResource | VideoSegmentReso
     )
     if segment.title:
         segment_elements.append(_make_element_with_text("hasTitle", segment.title))
-    segment_elements.extend([_make_element_with_text("hasComment", x) for x in segment.comment])
-    segment_elements.extend([_make_element_with_text("hasDescription", x) for x in segment.description])
+    segment_elements.extend([_make_element_with_text("hasComment", x) for x in segment.comments])
+    segment_elements.extend([_make_element_with_text("hasDescription", x) for x in segment.descriptions])
     segment_elements.extend([_make_element_with_text("hasKeyword", x) for x in segment.keywords])
     segment_elements.extend([_make_element_with_text("relatesTo", x) for x in segment.relates_to])
     return segment_elements
@@ -256,3 +321,12 @@ def _make_element_with_text(tag_name: str, text_content: str) -> etree._Element:
     ele = etree.Element(f"{DASCH_SCHEMA}{tag_name}", nsmap=XML_NAMESPACE_MAP)
     ele.text = text_content
     return ele
+
+
+def _warn_invalid_comments(value: Any, res_id: str | None) -> None:
+    """Emits a warning if a values is not in the expected format."""
+    msg = (
+        f"The resource: {res_id} should have a list of strings for the field 'comments'. "
+        f"Your input: '{value}' is of type {type(value)}"
+    )
+    warnings.warn(DspToolsUserWarning(msg))

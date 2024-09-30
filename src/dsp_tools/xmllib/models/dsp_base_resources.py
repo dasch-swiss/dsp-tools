@@ -12,12 +12,12 @@ from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import LinkValue
 from dsp_tools.xmllib.models.values import Richtext
 from dsp_tools.xmllib.value_checkers import find_geometry_problem
-from dsp_tools.xmllib.value_checkers import is_decimal
-from dsp_tools.xmllib.value_checkers import is_integer
 from dsp_tools.xmllib.value_checkers import is_string_like
 
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
+
+LIST_SEPARATOR = "\n    -"
 
 
 @dataclass
@@ -208,12 +208,38 @@ class LinkResource:
 
 
 @dataclass
+class SegmentBounds:
+    segment_start: float | int
+    segment_end: float | int
+    res_id: str
+
+    def __post_init__(self) -> None:
+        msg = []
+        match self.segment_start:
+            case float() | int():
+                pass
+            case _:
+                msg.append(f"Segment Start: {type(self.segment_start)}")
+        match self.segment_end:
+            case float() | int():
+                pass
+            case _:
+                msg.append(f"Segment End: {type(self.segment_start)}")
+        if msg:
+            title = (
+                f"The resource with the ID: '{self.res_id}' expects a float or integer for segment bounds. "
+                f"The following places have an unexpected type:"
+            )
+            wrng = f"{title}{LIST_SEPARATOR}{LIST_SEPARATOR.join(msg)}"
+            warnings.warn(DspToolsUserWarning(wrng))
+
+
+@dataclass
 class VideoSegmentResource:
     res_id: str
     label: str
     segment_of: str
-    segment_start: float
-    segment_end: float
+    segment_bounds: SegmentBounds
     title: str | None = None
     comments: list[str] = field(default_factory=list)
     descriptions: list[str] = field(default_factory=list)
@@ -241,14 +267,15 @@ class VideoSegmentResource:
         segment_start: float,
         segment_end: float,
         title: str | None = None,
+        permissions: str = "res-default",
     ) -> VideoSegmentResource:
         return VideoSegmentResource(
             res_id=res_id,
             label=label,
             segment_of=segment_of,
-            segment_start=segment_start,
-            segment_end=segment_end,
+            segment_bounds=SegmentBounds(segment_start, segment_end, res_id),
             title=title,
+            permissions=permissions,
         )
 
     def add_title(self, title: str) -> VideoSegmentResource:
@@ -306,8 +333,7 @@ class AudioSegmentResource:
     res_id: str
     label: str
     segment_of: str
-    segment_start: float
-    segment_end: float
+    segment_bounds: SegmentBounds
     title: str | None = None
     comments: list[str] = field(default_factory=list)
     descriptions: list[str] = field(default_factory=list)
@@ -335,14 +361,15 @@ class AudioSegmentResource:
         segment_start: float,
         segment_end: float,
         title: str | None = None,
+        permissions: str = "res-default",
     ) -> AudioSegmentResource:
         return AudioSegmentResource(
             res_id=res_id,
             label=label,
             segment_of=segment_of,
-            segment_start=segment_start,
-            segment_end=segment_end,
+            segment_bounds=SegmentBounds(segment_start, segment_end, res_id),
             title=title,
+            permissions=permissions,
         )
 
     def add_title(self, title: str) -> AudioSegmentResource:
@@ -429,19 +456,9 @@ def _validate_segment(segment: AudioSegmentResource | VideoSegmentResource) -> N
         problems.extend([f"Field: keywords | Value: {x}" for x in fails])
     if fails := [x for x in segment.relates_to if not is_string_like(x)]:
         problems.extend([f"Field: relates_to | Value: {x}" for x in fails])
-    problems.extend(_validate_segment_bounds(segment.segment_start, segment.segment_end))
     if problems:
         msg = f"The resource with the ID '{segment.res_id}' has the following problem(s):{'\n- '.join(problems)}"
         warnings.warn(DspToolsUserWarning(msg))
-
-
-def _validate_segment_bounds(segment_start: Any, segment_end: Any) -> list[str]:
-    seg_bounds_msg = []
-    if not is_decimal(segment_start) or not is_integer(segment_start):
-        seg_bounds_msg.append(f"Segment start should be an integer or float, but it is: {segment_start}")
-    if not is_decimal(segment_end) or not is_integer(segment_end):
-        seg_bounds_msg.append(f"Segment end should be an integer or float, but it is: {segment_start}")
-    return seg_bounds_msg
 
 
 def _serialise_segment_children(segment: AudioSegmentResource | VideoSegmentResource) -> list[etree._Element]:
@@ -452,7 +469,7 @@ def _serialise_segment_children(segment: AudioSegmentResource | VideoSegmentReso
     segment_elements.append(
         etree.Element(
             f"{DASCH_SCHEMA}hasSegmentBounds",
-            attrib={"start": str(segment.segment_start), "end": str(segment.segment_end)},
+            attrib={"start": str(segment.segment_bounds.segment_start), "end": str(segment.segment_bounds.segment_end)},
             nsmap=XML_NAMESPACE_MAP,
         )
     )

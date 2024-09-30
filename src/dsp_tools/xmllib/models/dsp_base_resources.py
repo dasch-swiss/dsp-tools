@@ -209,6 +209,30 @@ class VideoSegmentResource:
         self.comments.extend(comments)
         return self
 
+    def add_description(self, description: str) -> VideoSegmentResource:
+        self.descriptions.append(description)
+        return self
+
+    def add_descriptions(self, descriptions: list[str]) -> VideoSegmentResource:
+        self.descriptions.extend(descriptions)
+        return self
+
+    def add_keyword(self, keywords: str) -> VideoSegmentResource:
+        self.keywords.append(keywords)
+        return self
+
+    def add_keywords(self, keywords: list[str]) -> VideoSegmentResource:
+        self.keywords.extend(keywords)
+        return self
+
+    def add_relates_to(self, relates_to: str) -> VideoSegmentResource:
+        self.relates_to.append(relates_to)
+        return self
+
+    def add_relates_to_multiple(self, relates_to: list[str]) -> VideoSegmentResource:
+        self.relates_to.extend(relates_to)
+        return self
+
     def serialise(self) -> etree._Element:
         res_ele = self._serialise_resource_element()
         res_ele.extend(_serialise_segment_children(self))
@@ -230,7 +254,7 @@ class AudioSegmentResource:
     segment_end: float
     title: str | None = None
     comments: list[str] = field(default_factory=list)
-    description: list[str] = field(default_factory=list)
+    descriptions: list[str] = field(default_factory=list)
     keywords: list[str] = field(default_factory=list)
     relates_to: list[str] = field(default_factory=list)
     permissions: str = "res-default"
@@ -253,6 +277,30 @@ class AudioSegmentResource:
 
     def add_comments(self, comments: list[str]) -> AudioSegmentResource:
         self.comments.extend(comments)
+        return self
+
+    def add_description(self, description: str) -> AudioSegmentResource:
+        self.descriptions.append(description)
+        return self
+
+    def add_descriptions(self, descriptions: list[str]) -> AudioSegmentResource:
+        self.descriptions.extend(descriptions)
+        return self
+
+    def add_keyword(self, keywords: str) -> AudioSegmentResource:
+        self.keywords.append(keywords)
+        return self
+
+    def add_keywords(self, keywords: list[str]) -> AudioSegmentResource:
+        self.keywords.extend(keywords)
+        return self
+
+    def add_relates_to(self, relates_to: str) -> AudioSegmentResource:
+        self.relates_to.append(relates_to)
+        return self
+
+    def add_relates_to_multiple(self, relates_to: list[str]) -> AudioSegmentResource:
+        self.relates_to.extend(relates_to)
         return self
 
     def serialise(self) -> etree._Element:

@@ -41,6 +41,13 @@ class AnnotationResource:
             case _:
                 _warn_invalid_comments(self.comments, self.res_id)
 
+    def new(
+        self, res_id: str, label: str, comments: list[str], annotation_of: str, permissions: str = "res-default"
+    ) -> AnnotationResource:
+        return AnnotationResource(
+            res_id=res_id, label=label, comments=comments, annotation_of=annotation_of, permissions=permissions
+        )
+
     def add_comment(self, comment: str) -> AnnotationResource:
         self.comments.append(comment)
         return self

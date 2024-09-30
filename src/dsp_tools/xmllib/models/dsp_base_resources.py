@@ -214,7 +214,7 @@ class SegmentBounds:
     res_id: str
 
     def __post_init__(self) -> None:
-        msg = []
+        msg: list[str] = []
         match self.segment_start:
             case float() | int():
                 pass

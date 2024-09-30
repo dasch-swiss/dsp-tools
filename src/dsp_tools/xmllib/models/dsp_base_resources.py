@@ -219,12 +219,12 @@ class SegmentBounds:
             case float() | int():
                 pass
             case _:
-                msg.append(f"Segment Start: {type(self.segment_start)}")
+                msg.append(f"Segment Start Value: {self.segment_start} | Type: {type(self.segment_start)}")
         match self.segment_end:
             case float() | int():
                 pass
             case _:
-                msg.append(f"Segment End: {type(self.segment_start)}")
+                msg.append(f"Segment End Value: {self.segment_end} | Type: {type(self.segment_start)}")
         if msg:
             title = (
                 f"The resource with the ID: '{self.res_id}' expects a float or integer for segment bounds. "

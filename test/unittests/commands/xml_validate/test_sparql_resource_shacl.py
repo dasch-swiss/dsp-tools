@@ -35,9 +35,7 @@ def onto_graph() -> Graph:
 
 @pytest.fixture
 def one_res_one_prop() -> Graph:
-    ttl = (
-        PREFIXES
-        + """
+    ttl = f"""{PREFIXES}
     onto:CardOneResource a owl:Class ;
     rdfs:label "Resource with One Cardinality" ;
     knora-api:canBeInstantiated true ;
@@ -62,7 +60,6 @@ def one_res_one_prop() -> Graph:
         salsah-gui:guiElement salsah-gui:Checkbox ;
         rdfs:subPropertyOf knora-api:hasValue .
     """
-    )
     g = Graph()
     g.parse(data=ttl, format="ttl")
     return g
@@ -70,9 +67,7 @@ def one_res_one_prop() -> Graph:
 
 @pytest.fixture
 def one_prop() -> Graph:
-    ttl = (
-        PREFIXES
-        + """
+    ttl = f"""{PREFIXES}
     onto:testBoolean a owl:ObjectProperty ;
         rdfs:label "Test Boolean" ;
         knora-api:isEditable true ;
@@ -81,7 +76,6 @@ def one_prop() -> Graph:
         salsah-gui:guiElement salsah-gui:Checkbox ;
         rdfs:subPropertyOf knora-api:hasValue .
     """
-    )
     g = Graph()
     g.parse(data=ttl, format="ttl")
     return g
@@ -89,9 +83,7 @@ def one_prop() -> Graph:
 
 @pytest.fixture
 def card_1() -> Graph:
-    ttl = (
-        PREFIXES
-        + """
+    ttl = f"""{PREFIXES}
     onto:ClassMixedCard a owl:Class ;
         knora-api:isResourceClass true ;
         rdfs:subClassOf [ 
@@ -101,7 +93,6 @@ def card_1() -> Graph:
                 owl:onProperty onto:testBoolean
                          ] .
     """
-    )
     g = Graph()
     g.parse(data=ttl, format="ttl")
     return g
@@ -109,9 +100,7 @@ def card_1() -> Graph:
 
 @pytest.fixture
 def card_0_1() -> Graph:
-    ttl = (
-        PREFIXES
-        + """
+    ttl = f"""{PREFIXES}
     onto:ClassMixedCard a owl:Class ;
         knora-api:isResourceClass true ;
         rdfs:subClassOf [ 
@@ -121,7 +110,6 @@ def card_0_1() -> Graph:
                 owl:onProperty onto:testDecimalSimpleText
                          ] .
     """
-    )
     g = Graph()
     g.parse(data=ttl, format="ttl")
     return g
@@ -129,9 +117,7 @@ def card_0_1() -> Graph:
 
 @pytest.fixture
 def card_1_n() -> Graph:
-    ttl = (
-        PREFIXES
-        + """
+    ttl = f"""{PREFIXES}
     onto:ClassMixedCard a owl:Class ;
         knora-api:isResourceClass true ;
         rdfs:subClassOf [ 
@@ -141,7 +127,6 @@ def card_1_n() -> Graph:
                 owl:onProperty onto:testGeoname
                          ] .
     """
-    )
     g = Graph()
     g.parse(data=ttl, format="ttl")
     return g
@@ -149,9 +134,7 @@ def card_1_n() -> Graph:
 
 @pytest.fixture
 def card_0_n() -> Graph:
-    ttl = (
-        PREFIXES
-        + """
+    ttl = f"""{PREFIXES}
     onto:ClassMixedCard a owl:Class ;
         knora-api:isResourceClass true ;
         rdfs:subClassOf [ 
@@ -161,16 +144,46 @@ def card_0_n() -> Graph:
                 owl:onProperty onto:testSimpleText
                          ] .
     """
-    )
     g = Graph()
     g.parse(data=ttl, format="ttl")
     return g
 
 
+class TestCheckTripleNumbersOnto:
+    def test_nodeshape(self, onto_graph: Graph) -> None:
+        result = _construct_resource_nodeshape(onto_graph)
+        number_of_resource_classes = 6
+        triples_collection_ignored_props = 2 * number_of_resource_classes
+        triples_cls_nodeshape = 5 * number_of_resource_classes
+        assert len(result) == triples_cls_nodeshape + triples_collection_ignored_props
+
+    def test_cardinality_1(self, onto_graph: Graph) -> None:
+        result = _construct_1_cardinality(onto_graph)
+        number_of_occurrences_in_onto = 2
+        triples_card_1 = 7 * number_of_occurrences_in_onto
+        assert len(result) == triples_card_1
+
+    def test_cardinality_0_1(self, onto_graph: Graph) -> None:
+        result = _construct_0_1_cardinality(onto_graph)
+        number_of_occurrences_in_onto = 4
+        triples_card_0_1 = 7 * number_of_occurrences_in_onto
+        assert len(result) == triples_card_0_1
+
+    def test_cardinality_0_n(self, onto_graph: Graph) -> None:
+        result = _construct_0_n_cardinality(onto_graph)
+        number_of_occurrences_in_onto = 24
+        triples_card_0_n = 3 * number_of_occurrences_in_onto
+        assert len(result) == triples_card_0_n
+
+    def test_cardinality_1_n(self, onto_graph: Graph) -> None:
+        result = _construct_1_n_cardinality(onto_graph)
+        number_of_occurrences_in_onto = 1
+        triples_card_1_n = 6 * number_of_occurrences_in_onto
+        assert len(result) == triples_card_1_n
+
+
 def test_construct_resource_class_nodeshape(onto_graph: Graph) -> None:
     result = construct_resource_class_node_shape(onto_graph)
-    num_triples = 156
-    assert len(result) == num_triples
     shape_iri = next(result.subjects(SH.targetClass, ONTO.ClassInheritedCardinality))
     assert shape_iri == ONTO.ClassInheritedCardinality_Shape
     shape_iri = next(result.subjects(SH.targetClass, ONTO.ClassMixedCard))

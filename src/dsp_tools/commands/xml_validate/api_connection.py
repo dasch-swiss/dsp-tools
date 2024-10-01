@@ -91,12 +91,14 @@ class ShaclValidator:
         and expects a response containing a single text/turtle body which is loaded into an rdflib Graph.
 
         Args:
-            url (str): The URL to which the request is sent.
             data_ttl (str): The turtle content for the data.ttl file (as a string).
             shacl_ttl (str): The turtle content for the shacl.ttl file (as a string).
 
         Returns:
             Graph: The rdflib Graph object loaded with the response turtle data.
+
+        Raises:
+            InternalError: in case of a non-ok response
         """
         files = {
             "data.ttl": ("data.ttl", data_ttl, "text/turtle"),
@@ -105,7 +107,9 @@ class ShaclValidator:
         request_url = f"{self.dsp_api_url}/shacl/validate"
         response = requests.post(request_url, files=files, timeout=10)
         if not response.ok:
-            raise Exception(f"Failed to send request. Status code: {response.status_code}")
+            raise InternalError(
+                f"Failed to send request. Status code: {response.status_code}, " f"Original Message:\n{response.text}"
+            )
         graph = Graph()
         graph.parse(data=response.text, format="turtle")
         return graph

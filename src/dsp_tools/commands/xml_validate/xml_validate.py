@@ -16,15 +16,17 @@ from dsp_tools.utils.xml_utils import remove_comments_from_element_tree
 from dsp_tools.utils.xml_utils import transform_into_localnames
 from dsp_tools.utils.xml_validation import validate_xml
 
+LIST_SEPARATOR = "\n    - "
 
-def xml_validate(filepath: Path, api_url: str, shortcode: str) -> None:
+
+def xml_validate(filepath: Path, shortcode: str, api_url: str) -> None:
     """
     Takes a file and project information and validates it against the ontologies on the server.
 
     Args:
         filepath: path to the xml data file
-        api_url: url of the api host
         shortcode: shortcode of the project
+        api_url: url of the api host
     """
     onto_con = OntologyConnection(api_url, shortcode)
     data_rdf = _get_data_info_from_file(filepath, api_url)
@@ -34,8 +36,10 @@ def xml_validate(filepath: Path, api_url: str, shortcode: str) -> None:
     val = ShaclValidator(api_url)
     shape_str = shapes.serialize(format="ttl")
     data_str = data_graph.serialize(format="ttl")
+    what_is_validated = ["The following information of your data is being validated:", "Cardinalities"]
+    print(LIST_SEPARATOR.join(what_is_validated))
     result = val.validate(data_str, shape_str)
-    conforms = next(result.objects(SH.conforms))
+    conforms = next(result.objects(None, SH.conforms))
     if bool(conforms):
         print("Validation passed!")
     else:

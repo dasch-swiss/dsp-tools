@@ -12,6 +12,7 @@ from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import LinkValue
 from dsp_tools.xmllib.models.values import Richtext
 from dsp_tools.xmllib.value_checkers import find_geometry_problem
+from dsp_tools.xmllib.value_checkers import is_decimal
 from dsp_tools.xmllib.value_checkers import is_string_like
 
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
@@ -209,22 +210,16 @@ class LinkResource:
 
 @dataclass
 class SegmentBounds:
-    segment_start: float | int
-    segment_end: float | int
+    segment_start: float | int | str
+    segment_end: float | int | str
     res_id: str
 
     def __post_init__(self) -> None:
         msg: list[str] = []
-        match self.segment_start:
-            case float() | int():
-                pass
-            case _:
-                msg.append(f"Segment Start Value: {self.segment_start} | Type: {type(self.segment_start)}")
-        match self.segment_end:
-            case float() | int():
-                pass
-            case _:
-                msg.append(f"Segment End Value: {self.segment_end} | Type: {type(self.segment_start)}")
+        if not is_decimal(self.segment_start):
+            msg.append(f"Segment Start Value: {self.segment_start} | Type: {type(self.segment_start)}")
+        if not is_decimal(self.segment_end):
+            msg.append(f"Segment End Value: {self.segment_end} | Type: {type(self.segment_start)}")
         if msg:
             title = (
                 f"The resource with the ID: '{self.res_id}' expects a float or integer for segment bounds. "

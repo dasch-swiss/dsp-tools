@@ -45,6 +45,7 @@ from dsp_tools.commands.xml_validate.models.data_rdf import ValueRDF
 from dsp_tools.models.exceptions import InternalError
 
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
+DATA = Namespace("http://data/")
 
 
 def make_data_rdf(data_deserialised: DataDeserialised) -> DataRDF:
@@ -78,12 +79,12 @@ def _transform_one_dsp_resource(res: AbstractResource) -> RDFTriples:
         AudioSegmentDeserialised: KNORA_API.AudioSegment,
     }
     return ResourceRDF(
-        res_iri=URIRef(res.res_id), res_class=res_type_mapper[type(res)], label=Literal(res.label, datatype=XSD.string)
+        res_iri=DATA[res.res_id], res_class=res_type_mapper[type(res)], label=Literal(res.label, datatype=XSD.string)
     )
 
 
 def _transform_one_project_resource(res: ResourceDeserialised) -> list[RDFTriples]:
-    res_iri = URIRef(res.res_id)
+    res_iri = DATA[res.res_id]
     all_triples: list[RDFTriples] = [
         ResourceRDF(res_iri=res_iri, res_class=URIRef(res.res_class), label=Literal(res.label, datatype=XSD.string))
     ]
@@ -161,7 +162,7 @@ def _transform_decimal_value(val: ValueDeserialised, res_iri: URIRef) -> ValueRD
 
 def _transform_link_value(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
     content = val.object_value if val.object_value is not None else ""
-    return LinkValueRDF(URIRef(val.prop_name), URIRef(content), res_iri)
+    return LinkValueRDF(URIRef(val.prop_name), DATA[content], res_iri)
 
 
 def _transform_list_value(val: ListValueDeserialised, res_iri: URIRef) -> ValueRDF:

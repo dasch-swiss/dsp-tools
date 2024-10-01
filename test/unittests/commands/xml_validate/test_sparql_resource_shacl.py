@@ -153,8 +153,8 @@ class TestCheckTripleNumbersOnto:
     def test_nodeshape(self, onto_graph: Graph) -> None:
         result = _construct_resource_nodeshape(onto_graph)
         number_of_resource_classes = 6
-        triples_collection_ignored_props = 2 * number_of_resource_classes
-        triples_cls_nodeshape = 5 * number_of_resource_classes
+        triples_collection_ignored_props = 4 * number_of_resource_classes
+        triples_cls_nodeshape = 4 * number_of_resource_classes
         assert len(result) == triples_cls_nodeshape + triples_collection_ignored_props
 
     def test_cardinality_1(self, onto_graph: Graph) -> None:
@@ -205,10 +205,9 @@ def test_construct_resource_nodeshape_one_res(one_res_one_prop: Graph) -> None:
     subject_iri = subjects.pop()
     assert subject_iri == ONTO.CardOneResource_Shape
     node_triples = list(result.triples((subject_iri, None, None)))
-    num_triples = 5
+    num_triples = 4
     assert len(node_triples) == num_triples
     assert next(result.subjects(RDF.type, SH.NodeShape)) == subject_iri
-    assert next(result.subjects(SH.property, API_SHAPES.RDFS_label)) == subject_iri
     assert next(result.subjects(SH.ignoredProperties)) == subject_iri
     assert next(result.objects(subject_iri, SH.closed)) == Literal(True)
 
@@ -229,7 +228,7 @@ class Test1:
         assert str(next(result.objects(bn, SH.maxCount))) == "1"
         assert next(result.objects(bn, SH.path)) == ONTO.testBoolean
         assert next(result.objects(bn, SH.severity)) == SH.Violation
-        assert str(next(result.objects(bn, SH.message))) == "Cardinality: 1"
+        assert str(next(result.objects(bn, SH.message))) == "1"
 
     def test_empty_0_1(self, card_0_1: Graph) -> None:
         result = _construct_1_cardinality(card_0_1)
@@ -255,7 +254,7 @@ class Test01:
         assert str(next(result.objects(bn, SH.maxCount))) == "1"
         assert next(result.objects(bn, SH.path)) == ONTO.testDecimalSimpleText
         assert next(result.objects(bn, SH.severity)) == SH.Violation
-        assert str(next(result.objects(bn, SH.message))) == "Cardinality: 0-1"
+        assert str(next(result.objects(bn, SH.message))) == "0-1"
 
     def test_empty_1(self, card_1: Graph) -> None:
         result = _construct_0_1_cardinality(card_1)
@@ -280,7 +279,7 @@ class Test1N:
         assert str(next(result.objects(bn, SH.minCount))) == "1"
         assert next(result.objects(bn, SH.path)) == ONTO.testGeoname
         assert next(result.objects(bn, SH.severity)) == SH.Violation
-        assert str(next(result.objects(bn, SH.message))) == "Cardinality: 1-n"
+        assert str(next(result.objects(bn, SH.message))) == "1-n"
 
     def test_empty_1(self, card_1: Graph) -> None:
         result = _construct_1_n_cardinality(card_1)
@@ -327,7 +326,7 @@ def test_construct_all_cardinalities(one_res_one_prop: Graph) -> None:
     assert str(next(result.objects(bn, SH.maxCount))) == "1"
     assert next(result.objects(bn, SH.path)) == ONTO.testBoolean
     assert next(result.objects(bn, SH.severity)) == SH.Violation
-    assert str(next(result.objects(bn, SH.message))) == "Cardinality: 1"
+    assert str(next(result.objects(bn, SH.message))) == "1"
 
 
 if __name__ == "__main__":

@@ -20,21 +20,17 @@
         </boolean-prop>
     </resource>
 
-    <resource label="Card Mixed" restype=":ClassInheritedCardinalityOverwriting" id="id_3">
+    <resource label="Card Mixed" restype=":ClassMixedCard" id="id_3">
         <boolean-prop name=":testBoolean">
             <boolean>true</boolean>
         </boolean-prop>
         <decimal-prop name=":testDecimalSimpleText">
             <decimal>2.71</decimal>
         </decimal-prop>
-        <integer-prop name=":testIntegerSimpleText">
-            <integer>1</integer>
-            <integer>2</integer>
-        </integer-prop>
-        <decimal-prop name=":testDecimalSpinbox">
-            <decimal>2.71</decimal>
-            <decimal>2.00</decimal>
-        </decimal-prop>
+        <geoname-prop name=":testGeoname">
+            <geoname>1111111</geoname>
+            <geoname>2222222</geoname>
+        </geoname-prop>
     </resource>
 
 </knora>

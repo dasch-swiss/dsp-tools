@@ -24,13 +24,13 @@ def _construct_resource_nodeshape(onto_graph: Graph) -> Graph:
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
     PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
 
     CONSTRUCT {
 
         ?shapesIRI a sh:NodeShape ;
                 sh:targetClass ?class ;
-                sh:property api-shapes:RDFS_label ;
-                sh:ignoredProperties ( rdf:type ) ;
+                sh:ignoredProperties ( rdf:type rdfs:label ) ;
                 sh:closed true .
 
     } WHERE {
@@ -72,7 +72,7 @@ def _construct_1_cardinality(onto_graph: Graph) -> Graph:
           sh:minCount 1 ;
           sh:maxCount 1 ;
           sh:severity sh:Violation ;
-          sh:message "Cardinality: 1" ;
+          sh:message "1" ;
       ] .
     
     } WHERE {
@@ -110,7 +110,7 @@ def _construct_0_1_cardinality(onto_graph: Graph) -> Graph:
           sh:minCount 0 ;
           sh:maxCount 1 ;
           sh:severity sh:Violation ;
-          sh:message "Cardinality: 0-1" ;
+          sh:message "0-1" ;
       ] .
     
     } WHERE {
@@ -147,7 +147,7 @@ def _construct_1_n_cardinality(onto_graph: Graph) -> Graph:
           sh:path ?propRestriction ;
           sh:minCount 1 ;
           sh:severity sh:Violation ;
-          sh:message "Cardinality: 1-n" ;
+          sh:message "1-n" ;
       ] .
     
     } WHERE {

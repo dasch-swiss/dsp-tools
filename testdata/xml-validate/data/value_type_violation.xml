@@ -6,6 +6,8 @@
        shortcode="9999"
        default-ontology="onto">
 
+    <!-- 12 Violations -->
+
     <!--
         In this file, the property type does not match with the ontology.
         The content is valid (eg. a boolean is a valid boolean)

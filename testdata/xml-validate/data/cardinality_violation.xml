@@ -6,18 +6,20 @@
        shortcode="9999"
        default-ontology="onto">
 
+    <!-- 4 Violations -->
+
     <!-- 'testBoolean' cardinality 1 -->
-    <resource label="Bool Card 1" restype=":ClassInheritedCardinalityOverwriting" id="id_1"/>
+    <resource label="Bool Card 1" restype=":ClassInheritedCardinalityOverwriting" id="id_card_one"/>
 
     <!-- This class does not have a cardinality for the property -->
-    <resource label="Int card does not exist" restype=":CardOneResource" id="id_2">
+    <resource label="Int card does not exist" restype=":CardOneResource" id="id_closed_constraint">
         <integer-prop name=":testIntegerSimpleText">
             <integer>1</integer>
         </integer-prop>
     </resource>
 
     <!-- 'testDecimalSimpleText' max cardinality 1 -->
-    <resource label="Decimal Card 0-1" restype=":ClassWithEverything" id="id_3">
+    <resource label="Decimal Card 0-1" restype=":ClassMixedCard" id="id_max_card">
         <boolean-prop name=":testBoolean">
             <boolean>true</boolean>
         </boolean-prop>
@@ -25,13 +27,13 @@
             <decimal>2.71</decimal>
             <decimal>2.00</decimal>
         </decimal-prop>
-        <integer-prop name=":testIntegerSimpleText">
-            <integer>1</integer>
-        </integer-prop>
+        <geoname-prop name=":testGeoname">
+            <geoname>111111</geoname>
+        </geoname-prop>
     </resource>
 
-    <!-- 'testIntegerSimpleText' cardinality 1-n -->
-    <resource label="Int Card 1-n" restype=":ClassWithEverything" id="id_4">
+    <!-- 'testGeoname' cardinality 1-n -->
+    <resource label="Geoname Card 1-n" restype=":ClassMixedCard" id="id_min_card">
         <boolean-prop name=":testBoolean">
             <boolean>true</boolean>
         </boolean-prop>

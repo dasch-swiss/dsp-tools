@@ -106,7 +106,7 @@ class ShaclValidator:
         }
         timeout = 10
         request_url = f"{self.dsp_api_url}/shacl/validate"
-        logger.debug(f"REQUEST: GET to {request_url}, timeout: {timeout}")
+        logger.debug(f"REQUEST: POST to {request_url}, timeout: {timeout}")
         response = requests.post(request_url, files=files, timeout=timeout)
         if not response.ok:
             msg = f"Failed to send request. Status code: {response.status_code}, Original Message:\n{response.text}"

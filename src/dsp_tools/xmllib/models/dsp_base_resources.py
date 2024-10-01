@@ -42,14 +42,11 @@ class AnnotationResource:
         return self
 
     def serialise(self) -> etree._Element:
-        self._check_for_and_convert_unexpected_input()
+        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
         res_ele = self._serialise_resource_element()
         res_ele.append(self._serialise_annotation_of())
         res_ele.append(_serialise_has_comment(self.comments, self.res_id))
         return res_ele
-
-    def _check_for_and_convert_unexpected_input(self) -> None:
-        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}
@@ -93,16 +90,13 @@ class RegionResource:
         return self
 
     def serialise(self) -> etree._Element:
-        self._check_for_and_convert_unexpected_input()
+        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
         res_ele = self._serialise_resource_element()
         res_ele.append(self._serialise_geometry())
         res_ele.extend(self._serialise_values())
         if self.comments:
             res_ele.append(_serialise_has_comment(self.comments, self.res_id))
         return res_ele
-
-    def _check_for_and_convert_unexpected_input(self) -> None:
-        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}

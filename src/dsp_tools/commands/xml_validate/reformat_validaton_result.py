@@ -1,83 +1,82 @@
-from typing import Callable
-
+from rdflib import RDF
 from rdflib import SH
 from rdflib import Graph
-from rdflib import URIRef
 from rdflib.term import Node
 
 from dsp_tools.commands.xml_validate.models.input_problems import AllProblems
-from dsp_tools.commands.xml_validate.models.input_problems import GeneralInfo
 from dsp_tools.commands.xml_validate.models.input_problems import InputProblem
 from dsp_tools.commands.xml_validate.models.input_problems import MaxCardinalityViolation
 from dsp_tools.commands.xml_validate.models.input_problems import MinCardinalityViolation
 from dsp_tools.commands.xml_validate.models.input_problems import NonExistentCardinalityViolation
+from dsp_tools.commands.xml_validate.models.input_problems import UnexpectedComponent
 from dsp_tools.commands.xml_validate.models.input_problems import UnexpectedResults
+from dsp_tools.commands.xml_validate.models.input_problems import ValidationResult
 
 
-def reformat_validation_graph(g: Graph) -> AllProblems:
+def reformat_validation_graph(results_graph: Graph, data_graph: Graph) -> AllProblems:
     """
     Reformats the validation result from an RDF graph into class instances
     that are used to communicate the problems with the user.
 
     Args:
-        g: Contains the possible two validation errors
+        results_graph: Contains the possible validation errors
+        data_graph: Graph with the data
 
     Returns:
-        List of individual problems
+        All Problems
     """
-    problems: list[InputProblem] = _reformat_cardinality_violations(g)
-    unexpected = _check_for_unexpected_constraint_components(g)
-    return AllProblems(problems, unexpected)
+    reformatted_results = _reformat_result_graph(results_graph, data_graph)
+    input_problems, unexpected_components = _transform_violations_into_input_problems(reformatted_results)
+    unexpected = UnexpectedResults(unexpected_components, results_graph) if unexpected_components else None
+    return AllProblems(input_problems, unexpected)
 
 
-def _check_for_unexpected_constraint_components(g: Graph) -> None | UnexpectedResults:
-    known_components = {
-        SH.MaxCountConstraintComponent,
-        SH.MinCountConstraintComponent,
-        SH.ClosedConstraintComponent,
-    }
-    components_in_graph = set(g.objects(predicate=SH.sourceConstraintComponent))
-    if diff := components_in_graph - known_components:
-        diff_names = [str(x) for x in diff]
-        msg = (
-            f"Unknown constraint component: {', '.join(diff_names)}. "
-            f"Please contact the dsp-tools developer team with this information."
-        )
-        return UnexpectedResults(msg, g)
-    return None
+def _reformat_result_graph(results_graph: Graph, data_graph: Graph) -> list[ValidationResult]:
+    violations = results_graph.subjects(RDF.type, SH.ValidationResult)
+    return [_extract_one_violation(x, results_graph, data_graph) for x in violations]
 
 
-def _reformat_cardinality_violations(g: Graph) -> list[InputProblem]:
-    problems: list[InputProblem] = _get_general_violation(g, SH.MaxCountConstraintComponent, MaxCardinalityViolation)
-    problems.extend(_get_general_violation(g, SH.MinCountConstraintComponent, MinCardinalityViolation))
-    non_existing = g.subjects(SH.sourceConstraintComponent, SH.ClosedConstraintComponent)
-    for bn in non_existing:
-        general_info = _get_general_info(g, bn)
-        problems.append(NonExistentCardinalityViolation(general_info.subject_id, general_info.prop_name))
-    return problems
+def _extract_one_violation(bn: Node, results_graph: Graph, data_graph: Graph) -> ValidationResult:
+    focus_nd = next(results_graph.objects(bn, SH.focusNode))
+    res_type = next(data_graph.objects(focus_nd, RDF.type))
+    path = next(results_graph.objects(bn, SH.resultPath))
+    component = next(results_graph.objects(bn, SH.sourceConstraintComponent))
+    msg = str(next(results_graph.objects(bn, SH.resultMessage)))
+    return ValidationResult(
+        source_constraint_component=component, res_iri=focus_nd, res_class=res_type, property=path, results_message=msg
+    )
 
 
-def _get_general_violation(
-    g: Graph, constraint_component: URIRef, func: Callable[[str, str, str], InputProblem]
-) -> list[InputProblem]:
-    problems: list[InputProblem] = []
-    constraints = g.subjects(SH.sourceConstraintComponent, constraint_component)
-    for bn in constraints:
-        general_info = _get_general_info(g, bn)
-        problems.append(func(general_info.subject_id, general_info.prop_name, general_info.results_message))
-    return problems
+def _transform_violations_into_input_problems(
+    violations: list[ValidationResult],
+) -> tuple[list[InputProblem], list[UnexpectedComponent]]:
+    input_problems: list[InputProblem] = []
+    unexpected_components: list[UnexpectedComponent] = []
+    for violation in violations:
+        problem = _reformat_one_violation(violation)
+        if isinstance(problem, UnexpectedComponent):
+            unexpected_components.append(problem)
+        else:
+            input_problems.append(problem)
+    return input_problems, unexpected_components
 
 
-def _get_general_info(g: Graph, validation_node: Node) -> GeneralInfo:
-    subject = next(g.objects(validation_node, SH.focusNode))
-    res_id = _reformat_data_iri(str(subject))
-    property_name = next(g.objects(validation_node, SH.resultPath))
-    prop_str = _reformat_prop_iri(str(property_name))
-    msg = str(next(g.objects(validation_node, SH.resultMessage)))
-    return GeneralInfo(res_id, prop_str, msg)
+def _reformat_one_violation(violation: ValidationResult) -> InputProblem | UnexpectedComponent:
+    subject_id = _reformat_data_iri(str(violation.res_iri))
+    prop_name = _reformat_onto_iri(str(violation.property))
+    res_type = _reformat_onto_iri(str(violation.res_class))
+    match violation.source_constraint_component:
+        case SH.MaxCountConstraintComponent:
+            return MaxCardinalityViolation(subject_id, res_type, prop_name, violation.results_message)
+        case SH.MinCountConstraintComponent:
+            return MinCardinalityViolation(subject_id, res_type, prop_name, violation.results_message)
+        case SH.ClosedConstraintComponent:
+            return NonExistentCardinalityViolation(subject_id, res_type, prop_name)
+        case _:
+            return UnexpectedComponent(str(violation.source_constraint_component))
 
 
-def _reformat_prop_iri(prop: str) -> str:
+def _reformat_onto_iri(prop: str) -> str:
     onto = prop.split("/")[-2]
     return f'{onto}:{prop.split("#")[-1]}'
 

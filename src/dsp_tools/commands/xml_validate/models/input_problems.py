@@ -1,26 +1,34 @@
 from __future__ import annotations
 
+from abc import ABC
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Protocol
 
 from rdflib import Graph
+from rdflib.term import Node
 
 INDENT = "\n    "
-MEDIUM_SEPARATOR = "\n\n"
-GRAND_SEPARATOR = "\n\n----------------------------\n\n"
+GRAND_SEPARATOR = "\n----------------------------\n"
 
 
 @dataclass
-class GeneralInfo:
-    subject_id: str
-    prop_name: str
+class ValidationResult:
+    source_constraint_component: Node
+    res_iri: Node
+    res_class: Node
+    property: Node
     results_message: str
+    value: str | None = None
+
+
+@dataclass
+class UnexpectedComponent:
+    component_type: str
 
 
 @dataclass
 class UnexpectedResults:
-    msg: str
+    components: list[UnexpectedComponent]
     validation_result: Graph
 
 
@@ -46,8 +54,10 @@ class AllProblems:
 
 
 @dataclass
-class InputProblem(Protocol):
+class InputProblem(ABC):
     res_id: str
+    res_type: str
+    prop_name: str
 
     def get_msg(self) -> str:
         raise NotImplementedError
@@ -65,7 +75,7 @@ class ResourceProblemCollection:
         msg = [f"The resource with the ID '{self.res_id}' has the following problem(s):"]
         sorted_problems = sorted(self.problems, key=lambda x: x.sort_value())
         msg.extend([x.get_msg() for x in sorted_problems])
-        return MEDIUM_SEPARATOR.join(msg)
+        return "\n".join(msg)
 
     def sort_value(self) -> str:
         return self.res_id
@@ -77,8 +87,6 @@ class ResourceProblemCollection:
 
 @dataclass
 class MaxCardinalityViolation(InputProblem):
-    res_id: str
-    prop_name: str
     expected_cardinality: str
 
     def get_msg(self) -> str:
@@ -93,8 +101,6 @@ class MaxCardinalityViolation(InputProblem):
 
 @dataclass
 class MinCardinalityViolation(InputProblem):
-    res_id: str
-    prop_name: str
     expected_cardinality: str
 
     def get_msg(self) -> str:
@@ -109,9 +115,6 @@ class MinCardinalityViolation(InputProblem):
 
 @dataclass
 class NonExistentCardinalityViolation(InputProblem):
-    res_id: str
-    prop_name: str
-
     def get_msg(self) -> str:
         return f"The resource class does not have a cardinality for this property:{INDENT}Property: {self.prop_name}"
 

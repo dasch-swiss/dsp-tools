@@ -31,19 +31,24 @@ def xml_validate(filepath: Path, shortcode: str, api_url: str) -> None:
     onto_con = OntologyConnection(api_url, shortcode)
     data_rdf = _get_data_info_from_file(filepath, api_url)
     ontologies = _get_project_ontos(onto_con)
-    shapes = construct_shapes_graph(ontologies)
     data_graph = data_rdf.make_graph() + ontologies
     val = ShaclValidator(api_url)
-    shape_str = shapes.serialize(format="ttl")
-    data_str = data_graph.serialize(format="ttl")
-    what_is_validated = ["The following information of your data is being validated:", "Cardinalities"]
-    print(LIST_SEPARATOR.join(what_is_validated))
-    result = val.validate(data_str, shape_str)
-    conforms = next(result.objects(None, SH.conforms))
+    conforms, result = _validate(val, ontologies, data_graph)
     if bool(conforms):
         print("Validation passed!")
     else:
         print("Validation errors found!")
+
+
+def _validate(validator: ShaclValidator, onto_graph: Graph, data_graph: Graph) -> tuple[bool, Graph]:
+    what_is_validated = ["The following information of your data is being validated:", "Cardinalities"]
+    print(LIST_SEPARATOR.join(what_is_validated))
+    shapes = construct_shapes_graph(onto_graph)
+    shape_str = shapes.serialize(format="ttl")
+    data_str = data_graph.serialize(format="ttl")
+    results = validator.validate(data_str, shape_str)
+    conforms = bool(next(results.objects(None, SH.conforms)))
+    return conforms, results
 
 
 def _get_project_ontos(onto_con: OntologyConnection) -> Graph:

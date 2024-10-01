@@ -1,5 +1,48 @@
 # Changelog
 
+## [9.1.0](https://github.com/dasch-swiss/dsp-tools/compare/v9.0.2...v9.1.0) (2024-10-01)
+
+
+### Enhancements
+
+* **validate:** reformat input XML data (DEV-4124) ([#1164](https://github.com/dasch-swiss/dsp-tools/issues/1164)) ([45af782](https://github.com/dasch-swiss/dsp-tools/commit/45af782b15c9d0703daf6ee0e76066331632b95c))
+* **validate:** Write SHACL Shapes Turtle File (api-shapes) (DEV-4120) ([#1163](https://github.com/dasch-swiss/dsp-tools/issues/1163)) ([afb2a21](https://github.com/dasch-swiss/dsp-tools/commit/afb2a21e3ada980600fb118a69013372bbd9f412))
+* **xmllib:** new functionality (RDU-38) ([#1129](https://github.com/dasch-swiss/dsp-tools/issues/1129)) ([1dc09f8](https://github.com/dasch-swiss/dsp-tools/commit/1dc09f8b2342f67830110a887688da5acafd17fa))
+* **xmlvalidate:** add cardinalitiy restrictions to resource (DEV-4121) ([#1178](https://github.com/dasch-swiss/dsp-tools/issues/1178)) ([d2536c7](https://github.com/dasch-swiss/dsp-tools/commit/d2536c73d86306e7554ffe242ee3ed72b238db31))
+* **xmlvalidate:** get ontologies from API (DEV-4150) ([#1171](https://github.com/dasch-swiss/dsp-tools/issues/1171)) ([2e599bd](https://github.com/dasch-swiss/dsp-tools/commit/2e599bd81506ca04f9bc70ff1acb19eec023ca69))
+* **xmlvalidate:** SPARQL create resource SHACL (DEV-4123) ([#1174](https://github.com/dasch-swiss/dsp-tools/issues/1174)) ([ff550b3](https://github.com/dasch-swiss/dsp-tools/commit/ff550b3b8ddd274c35d9e722618b260e8c8cd109))
+
+
+### Bug Fixes
+
+* **excel2json:** write newlines correctly into the "description" field of the JSON file (RDU-45) ([#1170](https://github.com/dasch-swiss/dsp-tools/issues/1170)) ([889d11f](https://github.com/dasch-swiss/dsp-tools/commit/889d11f86e0b447606419d017d347ee04b567c24))
+* **ingest-xmlupload:** only convert absolute path from mapping CSV to relative path if necessary ([#1176](https://github.com/dasch-swiss/dsp-tools/issues/1176)) ([72ee250](https://github.com/dasch-swiss/dsp-tools/commit/72ee2506d19e58d1818db3eabf17e1941155cd9f))
+* progress bar recovers after resizing the Terminal window (DEV-4110) ([#1161](https://github.com/dasch-swiss/dsp-tools/issues/1161)) ([7b4cc12](https://github.com/dasch-swiss/dsp-tools/commit/7b4cc12f668cacad3d57fd94671265f6efaa1d2b))
+* **start-stack:** `--latest` flag ships latest versions of all backend components, instead of only API (DEV-4100) ([#1159](https://github.com/dasch-swiss/dsp-tools/issues/1159)) ([6bbec2c](https://github.com/dasch-swiss/dsp-tools/commit/6bbec2c18f269e427185d0806df094d3d0fee557))
+* **xmlupload:** allow more URLs ([#1177](https://github.com/dasch-swiss/dsp-tools/issues/1177)) ([f9aa882](https://github.com/dasch-swiss/dsp-tools/commit/f9aa882675f72a4438e50e49a7e012b82c43495c))
+* **xmlupload:** increase timeout for file uploads to 10 min ([#1169](https://github.com/dasch-swiss/dsp-tools/issues/1169)) ([a5766ee](https://github.com/dasch-swiss/dsp-tools/commit/a5766ee7a779d839b0137cf3da64c166a688cc2b))
+* **xmlupload:** subpar output of onto consistency check (DEV-3727) ([#1143](https://github.com/dasch-swiss/dsp-tools/issues/1143)) ([edb58a9](https://github.com/dasch-swiss/dsp-tools/commit/edb58a9d74db5acbd1e62a05633840281c9ff452))
+
+
+### Maintenance
+
+* bump ruff ([#1172](https://github.com/dasch-swiss/dsp-tools/issues/1172)) ([e65c753](https://github.com/dasch-swiss/dsp-tools/commit/e65c75315da8039fa9533ca3b79e3a4802768cd8))
+* bump stack to 2024.09.01 ([#1183](https://github.com/dasch-swiss/dsp-tools/issues/1183)) ([28a9f1c](https://github.com/dasch-swiss/dsp-tools/commit/28a9f1c431f4b0ff2ca6799c511aca1b243bd486))
+* **deps-dev:** bump the all-dependencies group across 1 directory with 9 updates ([#1148](https://github.com/dasch-swiss/dsp-tools/issues/1148)) ([07910b6](https://github.com/dasch-swiss/dsp-tools/commit/07910b67d2b86b87babe3bcefef3ee36984882b5))
+* migrate from poetry to uv (DEV-4040) ([#1160](https://github.com/dasch-swiss/dsp-tools/issues/1160)) ([6845b1a](https://github.com/dasch-swiss/dsp-tools/commit/6845b1a9489d0d77bf6fd49710414d644bd4646c))
+* Revert "chore: Fix tests not being executed on release-please branch" ([#1158](https://github.com/dasch-swiss/dsp-tools/issues/1158)) ([3af3d91](https://github.com/dasch-swiss/dsp-tools/commit/3af3d9166078e77b3e873e51caf3ee38f0978504))
+* **xmllib:** make dsp built-in resources interface consistent (DEV-4186) ([#1182](https://github.com/dasch-swiss/dsp-tools/issues/1182)) ([1f10fb3](https://github.com/dasch-swiss/dsp-tools/commit/1f10fb3f5aefe6c7b152c51c447846faf1d24661))
+* **xmlupload:** remove lineColor key from geometry value JSON object (DEV-4132) ([#1166](https://github.com/dasch-swiss/dsp-tools/issues/1166)) ([8169cce](https://github.com/dasch-swiss/dsp-tools/commit/8169cce79f92f8131639115fe5ac06e0ce50bcee))
+* **xmlvalidate:** change qname transformation ([#1168](https://github.com/dasch-swiss/dsp-tools/issues/1168)) ([9efe030](https://github.com/dasch-swiss/dsp-tools/commit/9efe0305c2a084c4950b76285c966df84286ba9d))
+* **xmlvalidate:** change structure of XML deserialisation (DEV-4125) ([#1173](https://github.com/dasch-swiss/dsp-tools/issues/1173)) ([50a35e3](https://github.com/dasch-swiss/dsp-tools/commit/50a35e36b06d0a7818ac27cdd91aad59c2286369))
+* **xmlvalidate:** rename test fixtures files ([#1175](https://github.com/dasch-swiss/dsp-tools/issues/1175)) ([b023c6d](https://github.com/dasch-swiss/dsp-tools/commit/b023c6d346e4a019520b729a251a41577a7d4c3d))
+* **xmlvalidate:** replace value BN with IRI (DEV-4187) ([#1181](https://github.com/dasch-swiss/dsp-tools/issues/1181)) ([1a34288](https://github.com/dasch-swiss/dsp-tools/commit/1a3428861f7818054469c6c28ad61c7d42c3704a))
+
+
+### Documentation
+
+* fix syntax mistakes in ontology.md ([#1162](https://github.com/dasch-swiss/dsp-tools/issues/1162)) ([dba4770](https://github.com/dasch-swiss/dsp-tools/commit/dba477078c3435e02764fdc91cb8def899bfde48))
+
 ## [9.0.2](https://github.com/dasch-swiss/dsp-tools/compare/v9.0.1...v9.0.2) (2024-09-04)
 
 

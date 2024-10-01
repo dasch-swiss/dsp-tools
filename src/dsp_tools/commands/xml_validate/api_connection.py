@@ -104,12 +104,14 @@ class ShaclValidator:
             "data.ttl": ("data.ttl", data_ttl, "text/turtle"),
             "shacl.ttl": ("shacl.ttl", shacl_ttl, "text/turtle"),
         }
+        timeout = 10
         request_url = f"{self.dsp_api_url}/shacl/validate"
-        response = requests.post(request_url, files=files, timeout=10)
+        logger.debug(f"REQUEST: GET to {request_url}, timeout: {timeout}")
+        response = requests.post(request_url, files=files, timeout=timeout)
         if not response.ok:
-            raise InternalError(
-                f"Failed to send request. Status code: {response.status_code}, " f"Original Message:\n{response.text}"
-            )
+            msg = f"Failed to send request. Status code: {response.status_code}, Original Message:\n{response.text}"
+            logger.error(msg)
+            raise InternalError(msg)
         graph = Graph()
         graph.parse(data=response.text, format="turtle")
         return graph

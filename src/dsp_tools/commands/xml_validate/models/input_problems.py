@@ -54,6 +54,24 @@ class AllProblems:
 
 
 @dataclass
+class ResourceProblemCollection:
+    res_id: str
+    problems: list[InputProblem]
+
+    def get_msg(self) -> str:
+        msg = [
+            f"Resource ID: {self.res_id} | Resource Type: {self.problems[0].res_type} "
+            f"has {len(self.problems)} problem(s)."
+        ]
+        sorted_problems = sorted(self.problems, key=lambda x: x.sort_value())
+        msg.extend([x.get_msg() for x in sorted_problems])
+        return "\n".join(msg)
+
+    def sort_value(self) -> str:
+        return self.res_id
+
+
+@dataclass
 class InputProblem(ABC):
     res_id: str
     res_type: str
@@ -64,21 +82,6 @@ class InputProblem(ABC):
 
     def sort_value(self) -> str:
         raise NotImplementedError
-
-
-@dataclass
-class ResourceProblemCollection:
-    res_id: str
-    problems: list[InputProblem]
-
-    def get_msg(self) -> str:
-        msg = [f"The resource with the ID '{self.res_id}' has the following problem(s):"]
-        sorted_problems = sorted(self.problems, key=lambda x: x.sort_value())
-        msg.extend([x.get_msg() for x in sorted_problems])
-        return "\n".join(msg)
-
-    def sort_value(self) -> str:
-        return self.res_id
 
 
 #######################
@@ -116,7 +119,7 @@ class MinCardinalityViolation(InputProblem):
 @dataclass
 class NonExistentCardinalityViolation(InputProblem):
     def get_msg(self) -> str:
-        return f"The resource class does not have a cardinality for this property:{INDENT}Property: {self.prop_name}"
+        return f"The resource class does not have a cardinality for the property {self.prop_name}"
 
     def sort_value(self) -> str:
         return self.prop_name

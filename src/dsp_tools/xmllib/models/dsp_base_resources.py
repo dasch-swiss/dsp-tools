@@ -32,7 +32,6 @@ class AnnotationResource:
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
         _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
-        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
 
     def add_comment(self, comment: str) -> AnnotationResource:
         self.comments.append(comment)
@@ -43,10 +42,14 @@ class AnnotationResource:
         return self
 
     def serialise(self) -> etree._Element:
+        self._check_for_and_convert_unexpected_input()
         res_ele = self._serialise_resource_element()
         res_ele.append(self._serialise_annotation_of())
         res_ele.append(_serialise_has_comment(self.comments, self.res_id))
         return res_ele
+
+    def _check_for_and_convert_unexpected_input(self) -> None:
+        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}
@@ -80,7 +83,6 @@ class RegionResource:
         if fail_msg := find_geometry_problem(self.geometry):
             msg = f"The geometry of the resource with the ID '{self.res_id}' failed validation.\n" + fail_msg
             warnings.warn(DspToolsUserWarning(msg))
-        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
 
     def add_comment(self, comment: str) -> RegionResource:
         self.comments.append(comment)
@@ -91,12 +93,16 @@ class RegionResource:
         return self
 
     def serialise(self) -> etree._Element:
+        self._check_for_and_convert_unexpected_input()
         res_ele = self._serialise_resource_element()
         res_ele.append(self._serialise_geometry())
         res_ele.extend(self._serialise_values())
         if self.comments:
             res_ele.append(_serialise_has_comment(self.comments, self.res_id))
         return res_ele
+
+    def _check_for_and_convert_unexpected_input(self) -> None:
+        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}
@@ -126,12 +132,6 @@ class LinkResource:
     comments: list[str]
     permissions: str = "res-default"
 
-    def __post_init__(self) -> None:
-        _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
-        _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
-        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
-        self.link_to = _transform_unexpected_input(self.link_to, "link_to", self.res_id)
-
     def add_comment(self, comment: str) -> LinkResource:
         self.comments.append(comment)
         return self
@@ -141,10 +141,17 @@ class LinkResource:
         return self
 
     def serialise(self) -> etree._Element:
+        self._check_for_and_convert_unexpected_input()
         res_ele = self._serialise_resource_element()
         res_ele.append(_serialise_has_comment(self.comments, self.res_id))
         res_ele.append(self._serialise_links())
         return res_ele
+
+    def _check_for_and_convert_unexpected_input(self) -> None:
+        _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
+        _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
+        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
+        self.link_to = _transform_unexpected_input(self.link_to, "link_to", self.res_id)
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}
@@ -172,13 +179,6 @@ class VideoSegmentResource:
     keywords: list[str] = field(default_factory=list)
     relates_to: list[str] = field(default_factory=list)
     permissions: str = "res-default"
-
-    def __post_init__(self) -> None:
-        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
-        self.descriptions = _transform_unexpected_input(self.descriptions, "descriptions", self.res_id)
-        self.keywords = _transform_unexpected_input(self.keywords, "keywords", self.res_id)
-        self.relates_to = _transform_unexpected_input(self.relates_to, "relates_to", self.res_id)
-        _validate_segment(self)
 
     def add_title(self, title: str) -> VideoSegmentResource:
         if self.title:
@@ -219,9 +219,17 @@ class VideoSegmentResource:
         return self
 
     def serialise(self) -> etree._Element:
+        self._check_for_and_convert_unexpected_input()
         res_ele = self._serialise_resource_element()
         res_ele.extend(_serialise_segment_children(self))
         return res_ele
+
+    def _check_for_and_convert_unexpected_input(self) -> None:
+        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
+        self.descriptions = _transform_unexpected_input(self.descriptions, "descriptions", self.res_id)
+        self.keywords = _transform_unexpected_input(self.keywords, "keywords", self.res_id)
+        self.relates_to = _transform_unexpected_input(self.relates_to, "relates_to", self.res_id)
+        _validate_segment(self)
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}
@@ -243,13 +251,6 @@ class AudioSegmentResource:
     keywords: list[str] = field(default_factory=list)
     relates_to: list[str] = field(default_factory=list)
     permissions: str = "res-default"
-
-    def __post_init__(self) -> None:
-        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
-        self.descriptions = _transform_unexpected_input(self.descriptions, "descriptions", self.res_id)
-        self.keywords = _transform_unexpected_input(self.keywords, "keywords", self.res_id)
-        self.relates_to = _transform_unexpected_input(self.relates_to, "relates_to", self.res_id)
-        _validate_segment(self)
 
     def add_title(self, title: str) -> AudioSegmentResource:
         if self.title:
@@ -290,9 +291,17 @@ class AudioSegmentResource:
         return self
 
     def serialise(self) -> etree._Element:
+        self._check_for_and_convert_unexpected_input()
         res_ele = self._serialise_resource_element()
         res_ele.extend(_serialise_segment_children(self))
         return res_ele
+
+    def _check_for_and_convert_unexpected_input(self) -> None:
+        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
+        self.descriptions = _transform_unexpected_input(self.descriptions, "descriptions", self.res_id)
+        self.keywords = _transform_unexpected_input(self.keywords, "keywords", self.res_id)
+        self.relates_to = _transform_unexpected_input(self.relates_to, "relates_to", self.res_id)
+        _validate_segment(self)
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}

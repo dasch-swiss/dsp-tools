@@ -12,6 +12,7 @@ from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import LinkValue
 from dsp_tools.xmllib.models.values import Richtext
 from dsp_tools.xmllib.value_checkers import find_geometry_problem
+from dsp_tools.xmllib.value_checkers import is_color
 from dsp_tools.xmllib.value_checkers import is_decimal
 from dsp_tools.xmllib.value_checkers import is_string_like
 
@@ -32,15 +33,6 @@ class AnnotationResource:
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
         _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
-        match self.comments:
-            case list():
-                pass
-            case set():
-                self.comments = list(self.comments)
-            case int() | str() | float():
-                self.comments = [self.comments]
-            case _:
-                _warn_invalid_comments(self.comments, self.res_id)
 
     def new(
         self, res_id: str, label: str, annotation_of: str, comments: list[str], permissions: str = "res-default"
@@ -62,6 +54,7 @@ class AnnotationResource:
         return self
 
     def serialise(self) -> etree._Element:
+        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
         res_ele = self._serialise_resource_element()
         res_ele.append(self._serialise_annotation_of())
         res_ele.append(_serialise_has_comment(self.comments, self.res_id))
@@ -90,18 +83,15 @@ class RegionResource:
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
         _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
+        if not is_color(self.color):
+            msg = (
+                f"The color value '{self.color}' for the resource with the ID: '{self.res_id}' failed validation. "
+                f"Please consult the documentation for details."
+            )
+            warnings.warn(DspToolsUserWarning(msg))
         if fail_msg := find_geometry_problem(self.geometry):
             msg = f"The geometry of the resource with the ID '{self.res_id}' failed validation.\n" + fail_msg
             warnings.warn(DspToolsUserWarning(msg))
-        match self.comments:
-            case list():
-                pass
-            case set():
-                self.comments = list(self.comments)
-            case int() | str() | float():
-                self.comments = [self.comments]
-            case _:
-                _warn_invalid_comments(self.comments, self.res_id)
 
     def new(
         self,
@@ -132,6 +122,7 @@ class RegionResource:
         return self
 
     def serialise(self) -> etree._Element:
+        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
         res_ele = self._serialise_resource_element()
         res_ele.append(self._serialise_geometry())
         res_ele.extend(self._serialise_values())
@@ -167,19 +158,6 @@ class LinkResource:
     comments: list[str]
     permissions: str = "res-default"
 
-    def __post_init__(self) -> None:
-        _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
-        _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
-        match self.comments:
-            case list():
-                pass
-            case set():
-                self.comments = list(self.comments)
-            case int() | str() | float():
-                self.comments = [self.comments]
-            case _:
-                _warn_invalid_comments(self.comments, self.res_id)
-
     def new(
         self, res_id: str, label: str, link_to: list[str], comments: list[str], permissions: str = "res-default"
     ) -> LinkResource:
@@ -190,7 +168,6 @@ class LinkResource:
             comments=comments,
             permissions=permissions,
         )
-
     def add_comment(self, comment: str) -> LinkResource:
         self.comments.append(comment)
         return self
@@ -200,10 +177,17 @@ class LinkResource:
         return self
 
     def serialise(self) -> etree._Element:
+        self._check_for_and_convert_unexpected_input()
         res_ele = self._serialise_resource_element()
         res_ele.append(_serialise_has_comment(self.comments, self.res_id))
         res_ele.append(self._serialise_links())
         return res_ele
+
+    def _check_for_and_convert_unexpected_input(self) -> None:
+        _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
+        _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
+        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
+        self.link_to = _transform_unexpected_input(self.link_to, "link_to", self.res_id)
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}
@@ -252,17 +236,6 @@ class VideoSegmentResource:
     relates_to: list[str] = field(default_factory=list)
     permissions: str = "res-default"
 
-    def __post_init__(self) -> None:
-        _validate_segment(self)
-        match self.comments:
-            case list():
-                pass
-            case set():
-                self.comments = list(self.comments)
-            case int() | str() | float():
-                self.comments = [self.comments]
-            case _:
-                _warn_invalid_comments(self.comments, self.res_id)
 
     def new(
         self,
@@ -322,9 +295,17 @@ class VideoSegmentResource:
         return self
 
     def serialise(self) -> etree._Element:
+        self._check_for_and_convert_unexpected_input()
         res_ele = self._serialise_resource_element()
         res_ele.extend(_serialise_segment_children(self))
         return res_ele
+
+    def _check_for_and_convert_unexpected_input(self) -> None:
+        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
+        self.descriptions = _transform_unexpected_input(self.descriptions, "descriptions", self.res_id)
+        self.keywords = _transform_unexpected_input(self.keywords, "keywords", self.res_id)
+        self.relates_to = _transform_unexpected_input(self.relates_to, "relates_to", self.res_id)
+        _validate_segment(self)
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}
@@ -346,17 +327,6 @@ class AudioSegmentResource:
     relates_to: list[str] = field(default_factory=list)
     permissions: str = "res-default"
 
-    def __post_init__(self) -> None:
-        _validate_segment(self)
-        match self.comments:
-            case list():
-                pass
-            case set():
-                self.comments = list(self.comments)
-            case int() | str() | float():
-                self.comments = [self.comments]
-            case _:
-                _warn_invalid_comments(self.comments, self.res_id)
 
     def new(
         self,
@@ -416,9 +386,17 @@ class AudioSegmentResource:
         return self
 
     def serialise(self) -> etree._Element:
+        self._check_for_and_convert_unexpected_input()
         res_ele = self._serialise_resource_element()
         res_ele.extend(_serialise_segment_children(self))
         return res_ele
+
+    def _check_for_and_convert_unexpected_input(self) -> None:
+        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
+        self.descriptions = _transform_unexpected_input(self.descriptions, "descriptions", self.res_id)
+        self.keywords = _transform_unexpected_input(self.keywords, "keywords", self.res_id)
+        self.relates_to = _transform_unexpected_input(self.relates_to, "relates_to", self.res_id)
+        _validate_segment(self)
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}
@@ -493,10 +471,23 @@ def _make_element_with_text(tag_name: str, text_content: str) -> etree._Element:
     return ele
 
 
-def _warn_invalid_comments(value: Any, res_id: str | None) -> None:
+def _transform_unexpected_input(value: Any, prop_name: str, res_id: str) -> list[str]:
+    match value:
+        case list():
+            return value
+        case set() | tuple():
+            return list(value)
+        case str():
+            return [value]
+        case _:
+            _warn_unexpected_value(value, prop_name, res_id)
+            return [str(value)]
+
+
+def _warn_unexpected_value(value: Any, prop_name: str, res_id: str | None) -> None:
     msg = (
-        f"The resource: {res_id} should have a list of strings for the field 'comments'. "
-        f"Your input: '{value}' is of type {type(value)}"
+        f"The resource: {res_id} should have a list of strings for the field '{prop_name}'. "
+        f"Your input: '{value}' is of type {type(value)}."
     )
     warnings.warn(DspToolsUserWarning(msg))
 

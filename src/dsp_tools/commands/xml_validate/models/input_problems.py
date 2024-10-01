@@ -4,14 +4,30 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import Protocol
 
+from rdflib import Graph
+
 INDENT = "\n    "
 MEDIUM_SEPARATOR = "\n\n"
 GRAND_SEPARATOR = "\n\n----------------------------\n\n"
 
 
 @dataclass
+class GeneralInfo:
+    subject_id: str
+    prop_name: str
+    results_message: str
+
+
+@dataclass
+class UnexpectedResults:
+    msg: str
+    validation_result: Graph
+
+
+@dataclass
 class AllProblems:
     problems: list[InputProblem]
+    unexpected_results: UnexpectedResults | None
 
     def get_msg(self) -> str:
         coll = self._make_collection()
@@ -60,7 +76,7 @@ class ResourceProblemCollection:
 
 
 @dataclass
-class MaxCardinalityViolation:
+class MaxCardinalityViolation(InputProblem):
     res_id: str
     prop_name: str
     expected_cardinality: str
@@ -76,7 +92,7 @@ class MaxCardinalityViolation:
 
 
 @dataclass
-class MinCardinalityViolation:
+class MinCardinalityViolation(InputProblem):
     res_id: str
     prop_name: str
     expected_cardinality: str
@@ -92,7 +108,7 @@ class MinCardinalityViolation:
 
 
 @dataclass
-class NonExistentCardinalityViolation:
+class NonExistentCardinalityViolation(InputProblem):
     res_id: str
     prop_name: str
 

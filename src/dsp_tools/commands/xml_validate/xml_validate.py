@@ -34,7 +34,7 @@ def xml_validate(filepath: Path, shortcode: str, api_url: str) -> None:
     data_graph = data_rdf.make_graph() + ontologies
     val = ShaclValidator(api_url)
     conforms, result = _validate(val, ontologies, data_graph)
-    if bool(conforms):
+    if conforms:
         print("Validation passed!")
     else:
         print("Validation errors found!")

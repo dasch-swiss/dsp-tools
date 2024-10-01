@@ -4,6 +4,7 @@ from typing import cast
 
 import requests
 from loguru import logger
+from rdflib import Graph
 from requests import ReadTimeout
 from requests import RequestException
 from requests import Response
@@ -76,3 +77,34 @@ class OntologyConnection:
     def _get_one_ontology(self, ontology_iri: str) -> str:
         response = self._get(ontology_iri, headers={"Accept": "text/turtle"})
         return response.text
+
+
+@dataclass
+class ShaclValidator:
+    """Client to validate RDF data against a given SHACL shape."""
+
+    dsp_api_url: str
+
+    def validate(self, data_ttl: str, shacl_ttl: str) -> Graph:
+        """
+        Sends a multipart/form-data request with two turtle files (data.ttl and shacl.ttl) to the given URL
+        and expects a response containing a single text/turtle body which is loaded into an rdflib Graph.
+
+        Args:
+            url (str): The URL to which the request is sent.
+            data_ttl (str): The turtle content for the data.ttl file (as a string).
+            shacl_ttl (str): The turtle content for the shacl.ttl file (as a string).
+
+        Returns:
+            Graph: The rdflib Graph object loaded with the response turtle data.
+        """
+        files = {
+            "data.ttl": ("data.ttl", data_ttl, "text/turtle"),
+            "shacl.ttl": ("shacl.ttl", shacl_ttl, "text/turtle"),
+        }
+        response = requests.post(self.dsp_api_url, files=files, timeout=10)
+        if not response.ok:
+            raise Exception(f"Failed to send request. Status code: {response.status_code}")
+        graph = Graph()
+        graph.parse(data=response.text, format="turtle")
+        return graph

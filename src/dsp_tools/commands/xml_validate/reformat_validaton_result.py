@@ -43,7 +43,11 @@ def _extract_one_violation(bn: Node, results_graph: Graph, data_graph: Graph) ->
     component = next(results_graph.objects(bn, SH.sourceConstraintComponent))
     msg = str(next(results_graph.objects(bn, SH.resultMessage)))
     return ValidationResult(
-        source_constraint_component=component, res_iri=focus_nd, res_class=res_type, property=path, results_message=msg
+        source_constraint_component=component,
+        res_iri=focus_nd,
+        res_class=res_type,
+        property=path,
+        results_message=msg,
     )
 
 

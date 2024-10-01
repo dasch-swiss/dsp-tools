@@ -168,6 +168,7 @@ class LinkResource:
             comments=comments,
             permissions=permissions,
         )
+
     def add_comment(self, comment: str) -> LinkResource:
         self.comments.append(comment)
         return self
@@ -235,7 +236,6 @@ class VideoSegmentResource:
     keywords: list[str] = field(default_factory=list)
     relates_to: list[str] = field(default_factory=list)
     permissions: str = "res-default"
-
 
     def new(
         self,
@@ -326,7 +326,6 @@ class AudioSegmentResource:
     keywords: list[str] = field(default_factory=list)
     relates_to: list[str] = field(default_factory=list)
     permissions: str = "res-default"
-
 
     def new(
         self,

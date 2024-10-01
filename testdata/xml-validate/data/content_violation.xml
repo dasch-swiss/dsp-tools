@@ -6,6 +6,8 @@
        shortcode="9999"
        default-ontology="onto">
 
+    <!-- 10 Violations -->
+
     <!-- This is an integer -->
     <resource label="Decimal" restype=":ClassWithEverything" id="id_4">
         <decimal-prop name=":testDecimalSimpleText">

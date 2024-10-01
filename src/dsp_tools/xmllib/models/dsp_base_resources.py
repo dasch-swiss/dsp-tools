@@ -46,7 +46,11 @@ class AnnotationResource:
         self, res_id: str, label: str, annotation_of: str, comments: list[str], permissions: str = "res-default"
     ) -> AnnotationResource:
         return AnnotationResource(
-            res_id=res_id, label=label, annotation_of=annotation_of, comments=comments, permissions=permissions
+            res_id=res_id,
+            label=label,
+            annotation_of=annotation_of,
+            comments=comments,
+            permissions=permissions,
         )
 
     def add_comment(self, comment: str) -> AnnotationResource:
@@ -179,7 +183,13 @@ class LinkResource:
     def new(
         self, res_id: str, label: str, link_to: list[str], comments: list[str], permissions: str = "res-default"
     ) -> LinkResource:
-        return LinkResource(res_id=res_id, label=label, link_to=link_to, comments=comments, permissions=permissions)
+        return LinkResource(
+            res_id=res_id,
+            label=label,
+            link_to=link_to,
+            comments=comments,
+            permissions=permissions,
+        )
 
     def add_comment(self, comment: str) -> LinkResource:
         self.comments.append(comment)

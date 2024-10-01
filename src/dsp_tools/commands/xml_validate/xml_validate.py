@@ -17,7 +17,7 @@ from dsp_tools.utils.xml_utils import transform_into_localnames
 from dsp_tools.utils.xml_validation import validate_xml
 
 
-def xml_validate(filepath: str | Path, api_url: str, shortcode: str) -> None:
+def xml_validate(filepath: Path, api_url: str, shortcode: str) -> None:
     """
     Takes a file and project information and validates it against the ontologies on the server.
 

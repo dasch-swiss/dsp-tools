@@ -153,8 +153,8 @@ class TestCheckTripleNumbersOnto:
     def test_nodeshape(self, onto_graph: Graph) -> None:
         result = _construct_resource_nodeshape(onto_graph)
         number_of_resource_classes = 6
-        triples_collection_ignored_props = 2 * number_of_resource_classes
-        triples_cls_nodeshape = 5 * number_of_resource_classes
+        triples_collection_ignored_props = 4 * number_of_resource_classes
+        triples_cls_nodeshape = 4 * number_of_resource_classes
         assert len(result) == triples_cls_nodeshape + triples_collection_ignored_props
 
     def test_cardinality_1(self, onto_graph: Graph) -> None:
@@ -205,10 +205,9 @@ def test_construct_resource_nodeshape_one_res(one_res_one_prop: Graph) -> None:
     subject_iri = subjects.pop()
     assert subject_iri == ONTO.CardOneResource_Shape
     node_triples = list(result.triples((subject_iri, None, None)))
-    num_triples = 5
+    num_triples = 4
     assert len(node_triples) == num_triples
     assert next(result.subjects(RDF.type, SH.NodeShape)) == subject_iri
-    assert next(result.subjects(SH.property, API_SHAPES.RDFS_label)) == subject_iri
     assert next(result.subjects(SH.ignoredProperties)) == subject_iri
     assert next(result.objects(subject_iri, SH.closed)) == Literal(True)
 

@@ -14,7 +14,7 @@ from dsp_tools.models.exceptions import InputError
 from dsp_tools.xmllib.models.file_values import AbstractFileValue
 from dsp_tools.xmllib.models.file_values import FileValue
 from dsp_tools.xmllib.models.file_values import IIIFUri
-from dsp_tools.xmllib.models.value_converter_enums import NewlineReplacementTags
+from dsp_tools.xmllib.models.user_enums import NewlineReplacementTags
 from dsp_tools.xmllib.models.values import BooleanValue
 from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import DateValue

@@ -1,7 +1,7 @@
 from typing import Any
 
 from dsp_tools.models.exceptions import InputError
-from dsp_tools.xmllib.models.value_converter_enums import NewlineReplacementTags
+from dsp_tools.xmllib.models.user_enums import NewlineReplacementTags
 
 
 def convert_to_bool_string(value: Any) -> str:

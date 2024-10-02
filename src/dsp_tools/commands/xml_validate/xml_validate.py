@@ -11,6 +11,7 @@ from dsp_tools.commands.xml_validate.deserialise_input import deserialise_xml
 from dsp_tools.commands.xml_validate.make_data_rdf import make_data_rdf
 from dsp_tools.commands.xml_validate.models.data_deserialised import ProjectDeserialised
 from dsp_tools.commands.xml_validate.models.data_rdf import DataRDF
+from dsp_tools.commands.xml_validate.reformat_validaton_result import reformat_validation_graph
 from dsp_tools.commands.xml_validate.sparql.construct_shapes import construct_shapes_graph
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.utils.xml_utils import parse_xml_file
@@ -41,9 +42,11 @@ def xml_validate(filepath: Path, api_url: str, dev_route: bool) -> bool:  # noqa
     val = ShaclValidator(api_url)
     conforms, result = _validate(val, ontologies, data_graph)
     if conforms:
-        print("Validation passed!")
+        print("\n\nValidation passed!")
     else:
-        print("Validation errors found!")
+        reformatted = reformat_validation_graph(result, data_graph)
+        msg = reformatted.communicate_with_the_user(Path.cwd())
+        print(msg)
     return True
 
 

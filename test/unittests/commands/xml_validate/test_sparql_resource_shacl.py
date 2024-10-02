@@ -153,7 +153,8 @@ class TestCheckTripleNumbersOnto:
     def test_nodeshape(self, onto_graph: Graph) -> None:
         result = _construct_resource_nodeshape(onto_graph)
         number_of_resource_classes = 6
-        triples_collection_ignored_props = 4 * number_of_resource_classes
+        number_of_ignored_properties = 5
+        triples_collection_ignored_props = 2 * number_of_ignored_properties * number_of_resource_classes
         triples_cls_nodeshape = 4 * number_of_resource_classes
         assert len(result) == triples_cls_nodeshape + triples_collection_ignored_props
 

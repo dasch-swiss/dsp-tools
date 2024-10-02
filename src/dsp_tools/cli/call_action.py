@@ -25,6 +25,7 @@ from dsp_tools.commands.rosetta import upload_rosetta
 from dsp_tools.commands.start_stack import StackConfiguration
 from dsp_tools.commands.start_stack import StackHandler
 from dsp_tools.commands.template import generate_template_repo
+from dsp_tools.commands.xml_validate.xml_validate import xml_validate
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.utils.xml_validation import validate_xml_file
@@ -50,6 +51,8 @@ def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912 (t
             result = _call_create(args)
         case "xmlupload":
             result = _call_xmlupload(args)
+        case "xml-validate":
+            result = _call_xml_validate(args)
         case "resume-xmlupload":
             result = _call_resume_xmlupload(args)
         case "excel2json":
@@ -206,6 +209,10 @@ def _call_xmlupload(args: argparse.Namespace) -> bool:
             imgdir=args.imgdir,
             config=UploadConfig(interrupt_after=interrupt_after, skip_iiif_validation=args.no_iiif_uri_validation),
         )
+
+
+def _call_xml_validate(args: argparse.Namespace) -> bool:
+    return xml_validate(filepath=Path(args.xmlfile), api_url=args.server, dev_route=args.dev)
 
 
 def _call_resume_xmlupload(args: argparse.Namespace) -> bool:

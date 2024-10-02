@@ -46,6 +46,8 @@ def make_parser(
 
     _add_xmlupload(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
 
+    _add_xml_validate(subparsers, default_dsp_api_url)
+
     _add_resume_xmlupload(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
 
     _add_upload_files(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
@@ -288,6 +290,19 @@ def _add_xmlupload(
     subparser.add_argument("--interrupt-after", type=int, default=-1, help="interrupt after this number of resources")
     subparser.add_argument("xmlfile", help="path to the XML file containing the data")
     subparser.add_argument("--no-iiif-uri-validation", action="store_true", help="skip the IIIF URI validation")
+
+
+def _add_xml_validate(
+    subparsers: _SubParsersAction[ArgumentParser],
+    default_dsp_api_url: str,
+) -> None:
+    subparser = subparsers.add_parser(name="xml-validate", help="Validate the data with the data model.")
+    subparser.set_defaults(action="xml-validate")
+    subparser.add_argument("xmlfile", help="path to the XML file containing the data")
+    subparser.add_argument(
+        "-s", "--server", default=default_dsp_api_url, help="URL of the DSP server where DSP-TOOLS sends the data to"
+    )
+    subparser.add_argument("--dev", action="store_true", help="Validate with experimental features.")
 
 
 def _add_resume_xmlupload(

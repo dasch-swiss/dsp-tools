@@ -30,7 +30,7 @@ def _construct_resource_nodeshape(onto_graph: Graph) -> Graph:
 
         ?shapesIRI a sh:NodeShape ;
                 sh:targetClass ?class ;
-                sh:ignoredProperties ( rdf:type rdfs:label ) ;
+                sh:ignoredProperties ( rdf:type rdfs:label knora-api:hasComment knora-api:isPartOf knora-api:seqnum ) ;
                 sh:closed true .
 
     } WHERE {

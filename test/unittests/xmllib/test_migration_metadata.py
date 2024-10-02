@@ -1,27 +1,31 @@
 import warnings
+from warnings import WarningMessage
 
 import pytest
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
-from dsp_tools.xmllib.models.shared import MigrationMetadata
+from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
 
 
 def test_migration_metadata_creation_date_good() -> None:
     with warnings.catch_warnings(record=True) as caught_warnings:
         MigrationMetadata("2019-01-09T15:45:54.502951Z", None, None, "id")
-        assert len(caught_warnings) == 0
+        assert len(caught_warnings) == 1
+        assert isinstance(caught_warnings[0], WarningMessage)
 
 
 def test_migration_metadata_iri_good() -> None:
     with warnings.catch_warnings(record=True) as caught_warnings:
         MigrationMetadata(None, "http://rdfh.ch/4123/TqAnYQzrSzC2ctT06OJMYB", None, "id")
-        assert len(caught_warnings) == 0
+        assert len(caught_warnings) == 1
+        assert isinstance(caught_warnings[0], WarningMessage)
 
 
 def test_migration_metadata_ark_good() -> None:
     with warnings.catch_warnings(record=True) as caught_warnings:
         MigrationMetadata(None, None, "ark:/72163/4123-43xc6ivb931-a.2022829", "id")
-        assert len(caught_warnings) == 0
+        assert len(caught_warnings) == 1
+        assert isinstance(caught_warnings[0], WarningMessage)
 
 
 def test_migration_metadata_creation_date_warns() -> None:

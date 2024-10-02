@@ -1,6 +1,8 @@
 import warnings
 from dataclasses import dataclass
 
+from typing_extensions import deprecated
+
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.xmllib.value_checkers import is_dsp_ark
 from dsp_tools.xmllib.value_checkers import is_dsp_iri
@@ -16,6 +18,7 @@ class MigrationMetadata:
     ark: str | None
     res_id: str
 
+    @deprecated("This is for salsah migration only and will be deleted in future releases.")
     def __post_init__(self) -> None:
         msg_list = []
         if self.creation_date and not is_timestamp(self.creation_date):

@@ -139,6 +139,22 @@ def test_xmlupload_interrupt_after(xmlupload: Mock) -> None:
     )
 
 
+@patch("dsp_tools.cli.call_action.xml_validate")
+def test_xml_validate_default(xml_validate: Mock) -> None:
+    file = "filename.xml"
+    args = f"xml-validate {file}".split()
+    entry_point.run(args)
+    xml_validate.assert_called_once_with(filepath=Path(file), api_url="http://0.0.0.0:3333")
+
+
+@patch("dsp_tools.cli.call_action.xml_validate")
+def test_xml_validate_other_server(xml_validate: Mock) -> None:
+    file = "filename.xml"
+    args = f"xml-validate {file} -s https://api.dasch.swiss".split()
+    entry_point.run(args)
+    xml_validate.assert_called_once_with(filepath=Path(file), api_url="https://api.dasch.swiss")
+
+
 @patch("dsp_tools.cli.call_action.resume_xmlupload")
 def test_resume_xmlupload_default(resume_xmlupload: Mock) -> None:
     args = "resume-xmlupload".split()

@@ -6,7 +6,7 @@ from dsp_tools.xmllib.value_checkers import is_dsp_ark
 from dsp_tools.xmllib.value_checkers import is_dsp_iri
 from dsp_tools.xmllib.value_checkers import is_timestamp
 
-LIST_SEPARATOR = "\n    -"
+LIST_SEPARATOR = "\n    - "
 
 
 @dataclass

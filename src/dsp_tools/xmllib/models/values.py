@@ -45,7 +45,7 @@ class Value(ABC):
 class BooleanValue(Value):
     value: Any
     prop_name: str
-    permissions: Permissions | None = Permissions.open
+    permissions: Permissions | None = None
     comment: str | None = None
     resource_id: str | None = None
 
@@ -77,7 +77,7 @@ class BooleanValue(Value):
 class ColorValue(Value):
     value: Any
     prop_name: str
-    permissions: Permissions | None = Permissions.open
+    permissions: Permissions | None = None
     comment: str | None = None
     resource_id: str | None = None
 
@@ -108,7 +108,7 @@ class ColorValue(Value):
 class DateValue(Value):
     value: str
     prop_name: str
-    permissions: Permissions | None = Permissions.open
+    permissions: Permissions | None = None
     comment: str | None = None
     resource_id: str | None = None
 
@@ -139,7 +139,7 @@ class DateValue(Value):
 class DecimalValue(Value):
     value: Any
     prop_name: str
-    permissions: Permissions | None = Permissions.open
+    permissions: Permissions | None = None
     comment: str | None = None
     resource_id: str | None = None
 
@@ -170,7 +170,7 @@ class DecimalValue(Value):
 class GeonameValue(Value):
     value: Any
     prop_name: str
-    permissions: Permissions | None = Permissions.open
+    permissions: Permissions | None = None
     comment: str | None = None
     resource_id: str | None = None
 
@@ -201,7 +201,7 @@ class GeonameValue(Value):
 class IntValue(Value):
     value: int | str
     prop_name: str
-    permissions: Permissions | None = Permissions.open
+    permissions: Permissions | None = None
     comment: str | None = None
     resource_id: str | None = None
 
@@ -232,7 +232,7 @@ class IntValue(Value):
 class LinkValue(Value):
     value: str
     prop_name: str
-    permissions: Permissions | None = Permissions.open
+    permissions: Permissions | None = None
     comment: str | None = None
     resource_id: str | None = None
 
@@ -264,7 +264,7 @@ class ListValue(Value):
     value: Any
     list_name: Any
     prop_name: str
-    permissions: Permissions | None = Permissions.open
+    permissions: Permissions | None = None
     comment: str | None = None
     resource_id: str | None = None
 
@@ -297,7 +297,7 @@ class ListValue(Value):
 class SimpleText(Value):
     value: str
     prop_name: str
-    permissions: Permissions | None = Permissions.open
+    permissions: Permissions | None = None
     comment: str | None = None
     resource_id: str | None = None
 
@@ -330,7 +330,7 @@ class SimpleText(Value):
 class Richtext(Value):
     value: str
     prop_name: str
-    permissions: Permissions | None = Permissions.open
+    permissions: Permissions | None = None
     comment: str | None = None
     resource_id: str | None = None
 
@@ -363,7 +363,7 @@ class Richtext(Value):
 class TimeValue(Value):
     value: str
     prop_name: str
-    permissions: Permissions | None = Permissions.open
+    permissions: Permissions | None = None
     comment: str | None = None
     resource_id: str | None = None
 
@@ -394,7 +394,7 @@ class TimeValue(Value):
 class UriValue(Value):
     value: str
     prop_name: str
-    permissions: Permissions | None = Permissions.open
+    permissions: Permissions | None = None
     comment: str | None = None
     resource_id: str | None = None
 

@@ -42,7 +42,7 @@ class Resource:
     restype: str
     label: str
     values: list[Value] = field(default_factory=list)
-    permissions: Permissions = Permissions.open
+    permissions: Permissions | None = None
     file_value: AbstractFileValue | None = None
 
     def __post_init__(self) -> None:
@@ -60,7 +60,9 @@ class Resource:
             )
             warnings.warn(DspToolsUserWarning(out_msg))
 
-    def new(self, res_id: str, restype: str, label: str, permissions: Permissions = Permissions.open) -> Resource:
+    def new(
+        self, res_id: str, restype: str, label: str, permissions: Permissions | None = Permissions.open
+    ) -> Resource:
         return Resource(
             res_id=res_id,
             restype=restype,
@@ -98,19 +100,23 @@ class Resource:
     #######################
 
     def add_bool(
-        self, value: Any, prop_name: str, permissions: Permissions | None = None, comment: str | None = None
+        self, value: Any, prop_name: str, permissions: Permissions | None = Permissions.open, comment: str | None = None
     ) -> Resource:
         self.values.append(BooleanValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
     def add_bools(
-        self, values: list[Any], prop_name: str, permissions: Permissions | None = None, comment: str | None = None
+        self,
+        values: list[Any],
+        prop_name: str,
+        permissions: Permissions | None = Permissions.open,
+        comment: str | None = None,
     ) -> Resource:
         self.values.extend([BooleanValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
     def add_bool_optional(
-        self, value: Any, prop_name: str, permissions: Permissions | None = None, comment: str | None = None
+        self, value: Any, prop_name: str, permissions: Permissions | None = Permissions.open, comment: str | None = None
     ) -> Resource:
         if not pd.isna(value):
             self.values.append(BooleanValue(value, prop_name, permissions, comment, self.res_id))
@@ -121,7 +127,11 @@ class Resource:
     #######################
 
     def add_color(
-        self, value: int | str, prop_name: str, permissions: Permissions | None = None, comment: str | None = None
+        self,
+        value: int | str,
+        prop_name: str,
+        permissions: Permissions | None = Permissions.open,
+        comment: str | None = None,
     ) -> Resource:
         self.values.append(ColorValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -130,14 +140,14 @@ class Resource:
         self,
         values: list[int | str],
         prop_name: str,
-        permissions: Permissions | None = None,
+        permissions: Permissions | None = Permissions.open,
         comment: str | None = None,
     ) -> Resource:
         self.values.extend([ColorValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
     def add_color_optional(
-        self, value: Any, prop_name: str, permissions: Permissions | None = None, comment: str | None = None
+        self, value: Any, prop_name: str, permissions: Permissions | None = Permissions.open, comment: str | None = None
     ) -> Resource:
         if not pd.isna(value):
             self.values.append(ColorValue(value, prop_name, permissions, comment, self.res_id))
@@ -148,19 +158,23 @@ class Resource:
     #######################
 
     def add_date(
-        self, value: str, prop_name: str, permissions: Permissions | None = None, comment: str | None = None
+        self, value: str, prop_name: str, permissions: Permissions | None = Permissions.open, comment: str | None = None
     ) -> Resource:
         self.values.append(DateValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
     def add_dates(
-        self, values: list[str], prop_name: str, permissions: Permissions | None = None, comment: str | None = None
+        self,
+        values: list[str],
+        prop_name: str,
+        permissions: Permissions | None = Permissions.open,
+        comment: str | None = None,
     ) -> Resource:
         self.values.extend([DateValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
     def add_date_optional(
-        self, value: Any, prop_name: str, permissions: Permissions | None = None, comment: str | None = None
+        self, value: Any, prop_name: str, permissions: Permissions | None = Permissions.open, comment: str | None = None
     ) -> Resource:
         if not pd.isna(value):
             self.values.append(DateValue(value, prop_name, permissions, comment, self.res_id))
@@ -171,7 +185,11 @@ class Resource:
     #######################
 
     def add_decimal(
-        self, value: float | str, prop_name: str, permissions: Permissions | None = None, comment: str | None = None
+        self,
+        value: float | str,
+        prop_name: str,
+        permissions: Permissions | None = Permissions.open,
+        comment: str | None = None,
     ) -> Resource:
         self.values.append(DecimalValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -180,14 +198,14 @@ class Resource:
         self,
         values: list[float | str],
         prop_name: str,
-        permissions: Permissions | None = None,
+        permissions: Permissions | None = Permissions.open,
         comment: str | None = None,
     ) -> Resource:
         self.values.extend([DecimalValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
     def add_decimal_optional(
-        self, value: Any, prop_name: str, permissions: Permissions | None = None, comment: str | None = None
+        self, value: Any, prop_name: str, permissions: Permissions | None = Permissions.open, comment: str | None = None
     ) -> Resource:
         if not pd.isna(value):
             self.values.append(DecimalValue(value, prop_name, permissions, comment, self.res_id))
@@ -198,7 +216,11 @@ class Resource:
     #######################
 
     def add_geoname(
-        self, value: int | str, prop_name: str, permissions: Permissions | None = None, comment: str | None = None
+        self,
+        value: int | str,
+        prop_name: str,
+        permissions: Permissions | None = Permissions.open,
+        comment: str | None = None,
     ) -> Resource:
         self.values.append(GeonameValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -207,14 +229,14 @@ class Resource:
         self,
         values: list[int | str],
         prop_name: str,
-        permissions: Permissions | None = None,
+        permissions: Permissions | None = Permissions.open,
         comment: str | None = None,
     ) -> Resource:
         self.values.extend([GeonameValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
     def add_geoname_optional(
-        self, value: Any, prop_name: str, permissions: Permissions | None = None, comment: str | None = None
+        self, value: Any, prop_name: str, permissions: Permissions | None = Permissions.open, comment: str | None = None
     ) -> Resource:
         if not pd.isna(value):
             self.values.append(GeonameValue(value, prop_name, permissions, comment, self.res_id))
@@ -225,7 +247,11 @@ class Resource:
     #######################
 
     def add_integer(
-        self, value: int | str, prop_name: str, permissions: Permissions | None = None, comment: str | None = None
+        self,
+        value: int | str,
+        prop_name: str,
+        permissions: Permissions | None = Permissions.open,
+        comment: str | None = None,
     ) -> Resource:
         self.values.append(IntValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -234,14 +260,14 @@ class Resource:
         self,
         values: list[int | str],
         prop_name: str,
-        permissions: Permissions | None = None,
+        permissions: Permissions | None = Permissions.open,
         comment: str | None = None,
     ) -> Resource:
         self.values.extend([IntValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
     def add_integer_optional(
-        self, value: Any, prop_name: str, permissions: Permissions | None = None, comment: str | None = None
+        self, value: Any, prop_name: str, permissions: Permissions | None = Permissions.open, comment: str | None = None
     ) -> Resource:
         if not pd.isna(value):
             self.values.append(IntValue(value, prop_name, permissions, comment, self.res_id))
@@ -252,19 +278,23 @@ class Resource:
     #######################
 
     def add_link(
-        self, value: str, prop_name: str, permissions: Permissions | None = None, comment: str | None = None
+        self, value: str, prop_name: str, permissions: Permissions | None = Permissions.open, comment: str | None = None
     ) -> Resource:
         self.values.append(LinkValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
     def add_links(
-        self, values: list[str], prop_name: str, permissions: Permissions | None = None, comment: str | None = None
+        self,
+        values: list[str],
+        prop_name: str,
+        permissions: Permissions | None = Permissions.open,
+        comment: str | None = None,
     ) -> Resource:
         self.values.extend([LinkValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
     def add_link_optional(
-        self, value: Any, prop_name: str, permissions: Permissions | None = None, comment: str | None = None
+        self, value: Any, prop_name: str, permissions: Permissions | None = Permissions.open, comment: str | None = None
     ) -> Resource:
         if not pd.isna(value):
             self.values.append(LinkValue(value, prop_name, permissions, comment, self.res_id))
@@ -279,7 +309,7 @@ class Resource:
         value: Any,
         list_name: Any,
         prop_name: str,
-        permissions: Permissions | None = None,
+        permissions: Permissions | None = Permissions.open,
         comment: str | None = None,
     ) -> Resource:
         self.values.append(ListValue(value, list_name, prop_name, permissions, comment, self.res_id))
@@ -290,7 +320,7 @@ class Resource:
         values: list[Any],
         list_name: Any,
         prop_name: str,
-        permissions: Permissions | None = None,
+        permissions: Permissions | None = Permissions.open,
         comment: str | None = None,
     ) -> Resource:
         self.values.extend([ListValue(v, list_name, prop_name, permissions, comment, self.res_id) for v in values])
@@ -301,7 +331,7 @@ class Resource:
         value: Any,
         list_name: Any,
         prop_name: str,
-        permissions: Permissions | None = None,
+        permissions: Permissions | None = Permissions.open,
         comment: str | None = None,
     ) -> Resource:
         if not pd.isna(value):
@@ -313,19 +343,23 @@ class Resource:
     #######################
 
     def add_simpletext(
-        self, value: str, prop_name: str, permissions: Permissions | None = None, comment: str | None = None
+        self, value: str, prop_name: str, permissions: Permissions | None = Permissions.open, comment: str | None = None
     ) -> Resource:
         self.values.append(SimpleText(value, prop_name, permissions, comment, self.res_id))
         return self
 
     def add_simpletexts(
-        self, values: list[str], prop_name: str, permissions: Permissions | None = None, comment: str | None = None
+        self,
+        values: list[str],
+        prop_name: str,
+        permissions: Permissions | None = Permissions.open,
+        comment: str | None = None,
     ) -> Resource:
         self.values.extend([SimpleText(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
     def add_simpletext_optional(
-        self, value: Any, prop_name: str, permissions: Permissions | None = None, comment: str | None = None
+        self, value: Any, prop_name: str, permissions: Permissions | None = Permissions.open, comment: str | None = None
     ) -> Resource:
         if not pd.isna(value):
             self.values.append(SimpleText(value, prop_name, permissions, comment, self.res_id))
@@ -336,19 +370,23 @@ class Resource:
     #######################
 
     def add_richtext(
-        self, value: str, prop_name: str, permissions: Permissions | None = None, comment: str | None = None
+        self, value: str, prop_name: str, permissions: Permissions | None = Permissions.open, comment: str | None = None
     ) -> Resource:
         self.values.append(Richtext(value, prop_name, permissions, comment, self.res_id))
         return self
 
     def add_richtexts(
-        self, values: list[str], prop_name: str, permissions: Permissions | None = None, comment: str | None = None
+        self,
+        values: list[str],
+        prop_name: str,
+        permissions: Permissions | None = Permissions.open,
+        comment: str | None = None,
     ) -> Resource:
         self.values.extend([Richtext(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
     def add_richtext_optional(
-        self, value: Any, prop_name: str, permissions: Permissions | None = None, comment: str | None = None
+        self, value: Any, prop_name: str, permissions: Permissions | None = Permissions.open, comment: str | None = None
     ) -> Resource:
         if not pd.isna(value):
             self.values.append(Richtext(value, prop_name, permissions, comment, self.res_id))
@@ -359,19 +397,23 @@ class Resource:
     #######################
 
     def add_time(
-        self, value: str, prop_name: str, permissions: Permissions | None = None, comment: str | None = None
+        self, value: str, prop_name: str, permissions: Permissions | None = Permissions.open, comment: str | None = None
     ) -> Resource:
         self.values.append(TimeValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
     def add_times(
-        self, values: list[str], prop_name: str, permissions: Permissions | None = None, comment: str | None = None
+        self,
+        values: list[str],
+        prop_name: str,
+        permissions: Permissions | None = Permissions.open,
+        comment: str | None = None,
     ) -> Resource:
         self.values.extend([TimeValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
     def add_time_optional(
-        self, value: Any, prop_name: str, permissions: Permissions | None = None, comment: str | None = None
+        self, value: Any, prop_name: str, permissions: Permissions | None = Permissions.open, comment: str | None = None
     ) -> Resource:
         if not pd.isna(value):
             self.values.append(TimeValue(value, prop_name, permissions, comment, self.res_id))
@@ -382,19 +424,23 @@ class Resource:
     #######################
 
     def add_uri(
-        self, value: str, prop_name: str, permissions: Permissions | None = None, comment: str | None = None
+        self, value: str, prop_name: str, permissions: Permissions | None = Permissions.open, comment: str | None = None
     ) -> Resource:
         self.values.append(UriValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
     def add_uris(
-        self, values: list[str], prop_name: str, permissions: Permissions | None = None, comment: str | None = None
+        self,
+        values: list[str],
+        prop_name: str,
+        permissions: Permissions | None = Permissions.open,
+        comment: str | None = None,
     ) -> Resource:
         self.values.extend([UriValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
     def add_uri_optional(
-        self, value: Any, prop_name: str, permissions: Permissions | None = None, comment: str | None = None
+        self, value: Any, prop_name: str, permissions: Permissions | None = Permissions.open, comment: str | None = None
     ) -> Resource:
         if not pd.isna(value):
             self.values.append(UriValue(value, prop_name, permissions, comment, self.res_id))
@@ -404,7 +450,9 @@ class Resource:
     # AbstractFileValue
     #######################
 
-    def add_file(self, filename: str, permissions: Permissions | None = None, comment: str | None = None) -> Resource:
+    def add_file(
+        self, filename: str, permissions: Permissions | None = Permissions.open, comment: str | None = None
+    ) -> Resource:
         if self.file_value:
             raise InputError(
                 f"The resource with the ID '{self.res_id}' already contains a file with the name: "
@@ -415,7 +463,7 @@ class Resource:
         return self
 
     def add_iiif_uri(
-        self, iiif_uri: str, permissions: Permissions | None = None, comment: str | None = None
+        self, iiif_uri: str, permissions: Permissions | None = Permissions.open, comment: str | None = None
     ) -> Resource:
         if self.file_value:
             raise InputError(

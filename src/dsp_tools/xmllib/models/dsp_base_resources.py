@@ -29,8 +29,7 @@ class AnnotationResource:
     label: str
     annotation_of: str
     comments: list[str]
-
-    permissions: Permissions = Permissions.open
+    permissions: Permissions | None = None
 
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
@@ -85,8 +84,7 @@ class RegionResource:
     region_of: str
     geometry: dict[str, Any]
     comments: list[str]
-
-    permissions: Permissions = Permissions.open
+    permissions: Permissions | None = None
 
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
@@ -164,8 +162,7 @@ class LinkResource:
     label: str
     link_to: list[str]
     comments: list[str]
-
-    permissions: Permissions = Permissions.open
+    permissions: Permissions | None = None
 
     def new(
         self,
@@ -249,8 +246,7 @@ class VideoSegmentResource:
     descriptions: list[str] = field(default_factory=list)
     keywords: list[str] = field(default_factory=list)
     relates_to: list[str] = field(default_factory=list)
-
-    permissions: Permissions = Permissions.open
+    permissions: Permissions | None = None
 
     def new(
         self,
@@ -340,8 +336,7 @@ class AudioSegmentResource:
     descriptions: list[str] = field(default_factory=list)
     keywords: list[str] = field(default_factory=list)
     relates_to: list[str] = field(default_factory=list)
-
-    permissions: Permissions = Permissions.open
+    permissions: Permissions | None = None
 
     def new(
         self,

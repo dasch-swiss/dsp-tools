@@ -10,11 +10,11 @@ from pathlib import Path
 from rdflib import Graph
 from rdflib.term import Node
 
-from dsp_tools.commands.xml_validate.xml_validate import LIST_SEPARATOR
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 
+LIST_SEPARATOR = "\n    - "
 INDENT = "\n    "
-GRAND_SEPARATOR = "\n----------------------------\n"
+GRAND_SEPARATOR = "\n\n----------------------------\n"
 
 
 @dataclass
@@ -63,7 +63,7 @@ class AllProblems:
     def get_msg(self) -> str:
         coll = self._make_collection()
         msg = [x.get_msg() for x in coll]
-        title_msg = f"During the validation of the data {len(self.problems)} errors were found:\n\n"
+        title_msg = f"\nDuring the validation of the data {len(self.problems)} errors were found:\n\n"
         return title_msg + GRAND_SEPARATOR.join(msg)
 
     def _make_collection(self) -> list[ResourceProblemCollection]:
@@ -82,10 +82,7 @@ class ResourceProblemCollection:
     problems: list[InputProblem]
 
     def get_msg(self) -> str:
-        msg = [
-            f"Resource ID: {self.res_id} | Resource Type: {self.problems[0].res_type} "
-            f"has {len(self.problems)} problem(s)."
-        ]
+        msg = [f"Resource ID: {self.res_id} | Resource Type: {self.problems[0].res_type}"]
         sorted_problems = sorted(self.problems, key=lambda x: x.sort_value())
         msg.extend([x.get_msg() for x in sorted_problems])
         return "\n".join(msg)
@@ -142,7 +139,7 @@ class MinCardinalityViolation(InputProblem):
 @dataclass
 class NonExistentCardinalityViolation(InputProblem):
     def get_msg(self) -> str:
-        return f"The resource class does not have a cardinality for the property {self.prop_name}"
+        return f"The resource class does not have a cardinality for{INDENT}Property: {self.prop_name}"
 
     def sort_value(self) -> str:
         return self.prop_name

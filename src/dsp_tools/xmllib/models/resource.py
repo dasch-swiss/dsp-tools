@@ -318,7 +318,7 @@ class Resource:
         prop_name: str,
         permissions: str | None = None,
         comment: str | None = None,
-        newline_replacement: NewlineReplacementTags = NewlineReplacementTags.newline,
+        newline_replacement: NewlineReplacementTags = NewlineReplacementTags.NEWLINE,
     ) -> Resource:
         value = replace_newlines_with_tags(str(value), newline_replacement)
         self.values.append(Richtext(value, prop_name, permissions, comment, self.res_id))
@@ -330,7 +330,7 @@ class Resource:
         prop_name: str,
         permissions: str | None = None,
         comment: str | None = None,
-        newline_replacement: NewlineReplacementTags = NewlineReplacementTags.newline,
+        newline_replacement: NewlineReplacementTags = NewlineReplacementTags.NEWLINE,
     ) -> Resource:
         values = [replace_newlines_with_tags(str(x), newline_replacement) for x in values]
         self.values.extend([Richtext(v, prop_name, permissions, comment, self.res_id) for v in values])
@@ -342,7 +342,7 @@ class Resource:
         prop_name: str,
         permissions: str | None = None,
         comment: str | None = None,
-        newline_replacement: NewlineReplacementTags = NewlineReplacementTags.newline,
+        newline_replacement: NewlineReplacementTags = NewlineReplacementTags.NEWLINE,
     ) -> Resource:
         if not pd.isna(value):
             value = replace_newlines_with_tags(str(value), newline_replacement)

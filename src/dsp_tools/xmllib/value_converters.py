@@ -39,11 +39,11 @@ def replace_newlines_with_tags(text: str, converter_option: NewlineReplacementTa
         InputError: If an invalid conversion option is given
     """
     match converter_option:
-        case NewlineReplacementTags.none:
+        case NewlineReplacementTags.NONE:
             return text
-        case NewlineReplacementTags.newline:
+        case NewlineReplacementTags.NEWLINE:
             return replace_newlines_with_br_tags(text)
-        case NewlineReplacementTags.paragraph:
+        case NewlineReplacementTags.PARAGRAPH:
             return replace_newlines_with_paragraph_tags(text)
         case _:
             raise InputError(f"The conversion option for the text does not exist: {converter_option}.")

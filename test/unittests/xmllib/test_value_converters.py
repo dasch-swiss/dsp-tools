@@ -25,19 +25,19 @@ def test_convert_to_bool_failure(val: Any) -> None:
 
 def test_replace_newlines_with_tags_none() -> None:
     text = "Start\nMiddle\n\nFinal"
-    result = replace_newlines_with_tags(text, NewlineReplacementTags.none)
+    result = replace_newlines_with_tags(text, NewlineReplacementTags.NONE)
     assert result == text
 
 
 def test_replace_newlines_with_tags_newline() -> None:
     text = "Start\nMiddle\n\nFinal"
-    result = replace_newlines_with_tags(text, NewlineReplacementTags.newline)
+    result = replace_newlines_with_tags(text, NewlineReplacementTags.NEWLINE)
     assert result == "Start<br/>Middle<br/><br/>Final"
 
 
 def test_replace_newlines_with_tags_paragraph() -> None:
     text = "Start\nMiddle\n\nFinal"
-    result = replace_newlines_with_tags(text, NewlineReplacementTags.paragraph)
+    result = replace_newlines_with_tags(text, NewlineReplacementTags.PARAGRAPH)
     assert result == "<p>Start</p><p>Middle</p><p>Final</p>"
 
 

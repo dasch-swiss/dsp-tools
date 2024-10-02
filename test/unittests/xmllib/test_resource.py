@@ -182,7 +182,7 @@ class TestAddValues:
         assert res.values[0].value == "A<br/>B"
 
     def test_add_richtext_no_replace(self) -> None:
-        res = Resource("", "", "").add_richtext("A\nB", "", newline_replacement=NewlineReplacementTags.none)
+        res = Resource("", "", "").add_richtext("A\nB", "", newline_replacement=NewlineReplacementTags.NONE)
         assert len(res.values) == 1
         assert isinstance(res.values[0], Richtext)
         assert res.values[0].value == "A\nB"

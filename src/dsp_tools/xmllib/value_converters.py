@@ -34,6 +34,9 @@ def replace_newlines_with_tags(text: str, converter_option: NewlineReplacementTa
 
     Returns:
         string with replaced values
+
+    Raises:
+        If an invalid conversion option is given
     """
     match converter_option:
         case NewlineReplacementTags.none:
@@ -47,12 +50,28 @@ def replace_newlines_with_tags(text: str, converter_option: NewlineReplacementTa
 
 
 def replace_newlines_with_paragraph_tags(text: str) -> str:
-    """Replaces '\n' with <p>text</p>"""
+    """
+    Replaces '\n' with <p>text</p>
+
+    Args:
+        text: string
+
+    Returns:
+        formatted string
+    """
     splt = [x for x in text.split("\n") if x != ""]
     formatted = [f"<p>{x}</p>" for x in splt]
     return "".join(formatted)
 
 
 def replace_newlines_with_br_tags(text: str) -> str:
-    """Replaces '\n' with <br/>"""
+    """
+    Replaces '\n' with <br/>
+
+    Args:
+        text: string
+
+    Returns:
+        formatted string
+    """
     return text.replace("\n", "<br/>")

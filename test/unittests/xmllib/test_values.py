@@ -22,15 +22,15 @@ from dsp_tools.xmllib.models.values import UriValue
 class TestBooleanValue:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            BooleanValue("False", ":booleanProp", resource_id="res_id", permissions=Permissions.open)
+            BooleanValue("False", ":booleanProp", resource_id="res_id", permissions=Permissions.OPEN)
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
         with pytest.warns(DspToolsUserWarning):
-            BooleanValue("other", ":booleanProp", resource_id="res_id", permissions=Permissions.open)
+            BooleanValue("other", ":booleanProp", resource_id="res_id", permissions=Permissions.OPEN)
 
     def test_serialise(self) -> None:
-        v = BooleanValue("0", ":booleanProp", resource_id="res_id", permissions=Permissions.open)
+        v = BooleanValue("0", ":booleanProp", resource_id="res_id", permissions=Permissions.OPEN)
         expected = (
             b"<boolean-prop "
             b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
@@ -45,15 +45,15 @@ class TestBooleanValue:
 class TestColorValue:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            ColorValue("#FFFFFF", ":colorProp", resource_id="res_id", permissions=Permissions.open)
+            ColorValue("#FFFFFF", ":colorProp", resource_id="res_id", permissions=Permissions.OPEN)
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
         with pytest.warns(DspToolsUserWarning):
-            ColorValue("invalidColor", ":colorProp", resource_id="res_id", permissions=Permissions.open)
+            ColorValue("invalidColor", ":colorProp", resource_id="res_id", permissions=Permissions.OPEN)
 
     def test_serialise(self) -> None:
-        v = ColorValue("#000000", ":colorProp", resource_id="res_id", permissions=Permissions.open)
+        v = ColorValue("#000000", ":colorProp", resource_id="res_id", permissions=Permissions.OPEN)
         expected = (
             b"<color-prop "
             b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
@@ -68,15 +68,15 @@ class TestColorValue:
 class TestDateValue:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            DateValue("2023-01-01", ":dateProp", resource_id="res_id", permissions=Permissions.open)
+            DateValue("2023-01-01", ":dateProp", resource_id="res_id", permissions=Permissions.OPEN)
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
         with pytest.warns(DspToolsUserWarning):
-            DateValue("invalidDate", ":dateProp", resource_id="res_id", permissions=Permissions.open)
+            DateValue("invalidDate", ":dateProp", resource_id="res_id", permissions=Permissions.OPEN)
 
     def test_serialise(self) -> None:
-        v = DateValue("2023-01-01", ":dateProp", resource_id="res_id", permissions=Permissions.open)
+        v = DateValue("2023-01-01", ":dateProp", resource_id="res_id", permissions=Permissions.OPEN)
         expected = (
             b"<date-prop "
             b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
@@ -91,15 +91,15 @@ class TestDateValue:
 class TestDecimalValue:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            DecimalValue("3.14", ":decimalProp", resource_id="res_id", permissions=Permissions.open)
+            DecimalValue("3.14", ":decimalProp", resource_id="res_id", permissions=Permissions.OPEN)
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
         with pytest.warns(DspToolsUserWarning):
-            DecimalValue("invalidDecimal", ":decimalProp", resource_id="res_id", permissions=Permissions.open)
+            DecimalValue("invalidDecimal", ":decimalProp", resource_id="res_id", permissions=Permissions.OPEN)
 
     def test_serialise(self) -> None:
-        v = DecimalValue("3.14", ":decimalProp", resource_id="res_id", permissions=Permissions.open)
+        v = DecimalValue("3.14", ":decimalProp", resource_id="res_id", permissions=Permissions.OPEN)
         expected = (
             b"<decimal-prop "
             b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
@@ -114,15 +114,15 @@ class TestDecimalValue:
 class TestGeonameValue:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            GeonameValue("00099", ":geonameProp", resource_id="res_id", permissions=Permissions.open)
+            GeonameValue("00099", ":geonameProp", resource_id="res_id", permissions=Permissions.OPEN)
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
         with pytest.warns(DspToolsUserWarning):
-            GeonameValue("invalidGeoname", ":geonameProp", resource_id="res_id", permissions=Permissions.open)
+            GeonameValue("invalidGeoname", ":geonameProp", resource_id="res_id", permissions=Permissions.OPEN)
 
     def test_serialise(self) -> None:
-        v = GeonameValue("99", ":geonameProp", resource_id="res_id", permissions=Permissions.open)
+        v = GeonameValue("99", ":geonameProp", resource_id="res_id", permissions=Permissions.OPEN)
         expected = (
             b"<geoname-prop "
             b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
@@ -137,15 +137,15 @@ class TestGeonameValue:
 class TestIntValue:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            IntValue("42", ":intProp", resource_id="res_id", permissions=Permissions.open)
+            IntValue("42", ":intProp", resource_id="res_id", permissions=Permissions.OPEN)
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
         with pytest.warns(DspToolsUserWarning):
-            IntValue("invalidInt", ":intProp", resource_id="res_id", permissions=Permissions.open)
+            IntValue("invalidInt", ":intProp", resource_id="res_id", permissions=Permissions.OPEN)
 
     def test_serialise(self) -> None:
-        v = IntValue("42", ":intProp", resource_id="res_id", permissions=Permissions.open)
+        v = IntValue("42", ":intProp", resource_id="res_id", permissions=Permissions.OPEN)
         expected = (
             b"<integer-prop "
             b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
@@ -160,15 +160,15 @@ class TestIntValue:
 class TestLinkValue:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            LinkValue("link", ":linkProp", resource_id="res_id", permissions=Permissions.open)
+            LinkValue("link", ":linkProp", resource_id="res_id", permissions=Permissions.OPEN)
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
         with pytest.warns(DspToolsUserWarning):
-            LinkValue(None, ":linkProp", resource_id="res_id", permissions=Permissions.open)  # type: ignore[arg-type]
+            LinkValue(None, ":linkProp", resource_id="res_id", permissions=Permissions.OPEN)  # type: ignore[arg-type]
 
     def test_serialise(self) -> None:
-        v = LinkValue("res_link", ":linkProp", resource_id="res_id", permissions=Permissions.open)
+        v = LinkValue("res_link", ":linkProp", resource_id="res_id", permissions=Permissions.OPEN)
         expected = (
             b"<resptr-prop "
             b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
@@ -183,19 +183,19 @@ class TestLinkValue:
 class TestListValue:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            ListValue("item1", "listName", ":listProp", resource_id="res_id", permissions=Permissions.open)
+            ListValue("item1", "listName", ":listProp", resource_id="res_id", permissions=Permissions.OPEN)
         assert len(caught_warnings) == 0
 
     def test_warns_false_node(self) -> None:
         with pytest.warns(DspToolsUserWarning):
-            ListValue(None, "list", ":listProp", resource_id="res_id", permissions=Permissions.open)
+            ListValue(None, "list", ":listProp", resource_id="res_id", permissions=Permissions.OPEN)
 
     def test_warns_false_list(self) -> None:
         with pytest.warns(DspToolsUserWarning):
-            ListValue("Node", None, ":listProp", resource_id="res_id", permissions=Permissions.open)
+            ListValue("Node", None, ":listProp", resource_id="res_id", permissions=Permissions.OPEN)
 
     def test_serialise(self) -> None:
-        v = ListValue("item1", "listName", ":listProp", resource_id="res_id", permissions=Permissions.open)
+        v = ListValue("item1", "listName", ":listProp", resource_id="res_id", permissions=Permissions.OPEN)
         expected = (
             b"<list-prop "
             b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
@@ -210,15 +210,15 @@ class TestListValue:
 class TestRichtext:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            Richtext("<p>Hello World</p>", ":richtextProp", resource_id="res_id", permissions=Permissions.open)
+            Richtext("<p>Hello World</p>", ":richtextProp", resource_id="res_id", permissions=Permissions.OPEN)
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
         with pytest.warns(DspToolsUserWarning):
-            Richtext(None, ":richtextProp", resource_id="res_id", permissions=Permissions.open)  # type: ignore[arg-type]
+            Richtext(None, ":richtextProp", resource_id="res_id", permissions=Permissions.OPEN)  # type: ignore[arg-type]
 
     def test_serialise(self) -> None:
-        v = Richtext("<p>Hello World</p>", ":richtextProp", resource_id="res_id", permissions=Permissions.open)
+        v = Richtext("<p>Hello World</p>", ":richtextProp", resource_id="res_id", permissions=Permissions.OPEN)
         expected = (
             b"<text-prop "
             b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
@@ -233,15 +233,15 @@ class TestRichtext:
 class TestSimpleText:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            SimpleText("Hello World", ":simpleTextProp", resource_id="res_id", permissions=Permissions.open)
+            SimpleText("Hello World", ":simpleTextProp", resource_id="res_id", permissions=Permissions.OPEN)
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
         with pytest.warns(DspToolsUserWarning):
-            SimpleText(None, ":simpleTextProp", resource_id="res_id", permissions=Permissions.open)  # type: ignore[arg-type]
+            SimpleText(None, ":simpleTextProp", resource_id="res_id", permissions=Permissions.OPEN)  # type: ignore[arg-type]
 
     def test_serialise(self) -> None:
-        v = SimpleText("Hello World", ":simpleTextProp", resource_id="res_id", permissions=Permissions.open)
+        v = SimpleText("Hello World", ":simpleTextProp", resource_id="res_id", permissions=Permissions.OPEN)
         expected = (
             b"<text-prop "
             b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
@@ -256,15 +256,15 @@ class TestSimpleText:
 class TestTimeValue:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            TimeValue("2009-10-10T12:00:00-05:00", ":timeProp", resource_id="res_id", permissions=Permissions.open)
+            TimeValue("2009-10-10T12:00:00-05:00", ":timeProp", resource_id="res_id", permissions=Permissions.OPEN)
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
         with pytest.warns(DspToolsUserWarning):
-            TimeValue("invalidTime", ":timeProp", resource_id="res_id", permissions=Permissions.open)
+            TimeValue("invalidTime", ":timeProp", resource_id="res_id", permissions=Permissions.OPEN)
 
     def test_serialise(self) -> None:
-        v = TimeValue("2009-10-10T12:00:00-05:00", ":timeProp", resource_id="res_id", permissions=Permissions.open)
+        v = TimeValue("2009-10-10T12:00:00-05:00", ":timeProp", resource_id="res_id", permissions=Permissions.OPEN)
         expected = (
             b"<time-prop "
             b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
@@ -279,15 +279,15 @@ class TestTimeValue:
 class TestUriValue:
     def test_good(self) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            UriValue("https://example.com", ":uriProp", resource_id="res_id", permissions=Permissions.open)
+            UriValue("https://example.com", ":uriProp", resource_id="res_id", permissions=Permissions.OPEN)
         assert len(caught_warnings) == 0
 
     def test_warns(self) -> None:
         with pytest.warns(DspToolsUserWarning):
-            UriValue("invalidUri", ":uriProp", resource_id="res_id", permissions=Permissions.open)
+            UriValue("invalidUri", ":uriProp", resource_id="res_id", permissions=Permissions.OPEN)
 
     def test_serialise(self) -> None:
-        v = UriValue("https://example.com", ":uriProp", resource_id="res_id", permissions=Permissions.open)
+        v = UriValue("https://example.com", ":uriProp", resource_id="res_id", permissions=Permissions.OPEN)
         expected = (
             b"<uri-prop "
             b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '

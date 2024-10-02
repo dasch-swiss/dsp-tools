@@ -2,6 +2,6 @@ from enum import Enum
 
 
 class Permissions(Enum):
-    open = "open"
-    restricted = "restricted"
-    restricted_view = "restricted-view"
+    OPEN = "open"
+    RESTRICTED = "restricted"
+    RESTRICTED_VIEW = "restricted-view"

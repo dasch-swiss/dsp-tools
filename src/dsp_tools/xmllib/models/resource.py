@@ -59,6 +59,14 @@ class Resource:
             )
             warnings.warn(DspToolsUserWarning(out_msg))
 
+    def new(self, res_id: str, restype: str, label: str, permissions: str = "res-default") -> Resource:
+        return Resource(
+            res_id=res_id,
+            restype=restype,
+            label=label,
+            permissions=permissions,
+        )
+
     def serialise(self) -> etree._Element:
         res_ele = self._serialise_resource_element()
         if self.file_value:

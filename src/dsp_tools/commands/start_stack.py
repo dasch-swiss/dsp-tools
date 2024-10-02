@@ -94,18 +94,10 @@ class StackHandler:
 
         if self.__stack_configuration.latest_dev_version:
             return f"{url_prefix_base}/main/"
-        elif self.__stack_configuration.api_version_for_validate:
-            config_file = importlib.resources.files("dsp_tools").joinpath(
-                "resources/start-stack/start-stack-validation-config.yml"
-            )
-        else:
-            config_file = importlib.resources.files("dsp_tools").joinpath(
-                "resources/start-stack/start-stack-config.yml"
-            )
 
+        config_file = importlib.resources.files("dsp_tools").joinpath("resources/start-stack/start-stack-config.yml")
         start_stack_config = yaml.safe_load(config_file.read_bytes())
         commit_of_used_api_version = start_stack_config["DSP-API commit"]
-
         return f"{url_prefix_base}/{commit_of_used_api_version}/"
 
     def _copy_resources_to_home_dir(self) -> None:

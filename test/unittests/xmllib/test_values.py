@@ -34,7 +34,7 @@ class TestBooleanValue:
             b"<boolean-prop "
             b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'name=":booleanProp">'
-            b'<boolean permissions="prop-default">false</boolean>'
+            b'<boolean permissions="open">false</boolean>'
             b"</boolean-prop>"
         )
         res_str = etree.tostring(v.serialise())
@@ -57,7 +57,7 @@ class TestColorValue:
             b"<color-prop "
             b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'name=":colorProp">'
-            b'<color permissions="prop-default">#000000</color>'
+            b'<color permissions="open">#000000</color>'
             b"</color-prop>"
         )
         res_str = etree.tostring(v.serialise())
@@ -80,7 +80,7 @@ class TestDateValue:
             b"<date-prop "
             b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'name=":dateProp">'
-            b'<date permissions="prop-default">2023-01-01</date>'
+            b'<date permissions="open">2023-01-01</date>'
             b"</date-prop>"
         )
         res_str = etree.tostring(v.serialise())
@@ -103,7 +103,7 @@ class TestDecimalValue:
             b"<decimal-prop "
             b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'name=":decimalProp">'
-            b'<decimal permissions="prop-default">3.14</decimal>'
+            b'<decimal permissions="open">3.14</decimal>'
             b"</decimal-prop>"
         )
         res_str = etree.tostring(v.serialise())
@@ -126,7 +126,7 @@ class TestGeonameValue:
             b"<geoname-prop "
             b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'name=":geonameProp">'
-            b'<geoname permissions="prop-default">99</geoname>'
+            b'<geoname permissions="open">99</geoname>'
             b"</geoname-prop>"
         )
         res_str = etree.tostring(v.serialise())
@@ -149,7 +149,7 @@ class TestIntValue:
             b"<integer-prop "
             b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'name=":intProp">'
-            b'<integer permissions="prop-default">42</integer>'
+            b'<integer permissions="open">42</integer>'
             b"</integer-prop>"
         )
         res_str = etree.tostring(v.serialise())
@@ -172,7 +172,7 @@ class TestLinkValue:
             b"<resptr-prop "
             b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'name=":linkProp">'
-            b'<resptr permissions="prop-default">res_link</resptr>'
+            b'<resptr permissions="open">res_link</resptr>'
             b"</resptr-prop>"
         )
         res_str = etree.tostring(v.serialise())
@@ -199,7 +199,7 @@ class TestListValue:
             b"<list-prop "
             b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'name=":listProp" list="listName">'
-            b'<list permissions="prop-default">item1</list>'
+            b'<list permissions="open">item1</list>'
             b"</list-prop>"
         )
         res_str = etree.tostring(v.serialise())
@@ -222,7 +222,7 @@ class TestRichtext:
             b"<text-prop "
             b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'name=":richtextProp">'
-            b'<text encoding="xml" permissions="prop-default">&lt;p&gt;Hello World&lt;/p&gt;</text>'
+            b'<text encoding="xml" permissions="open">&lt;p&gt;Hello World&lt;/p&gt;</text>'
             b"</text-prop>"
         )
         res_str = etree.tostring(v.serialise())
@@ -245,7 +245,7 @@ class TestSimpleText:
             b"<text-prop "
             b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'name=":simpleTextProp">'
-            b'<text encoding="utf8" permissions="prop-default">Hello World</text>'
+            b'<text encoding="utf8" permissions="open">Hello World</text>'
             b"</text-prop>"
         )
         res_str = etree.tostring(v.serialise())
@@ -268,7 +268,7 @@ class TestTimeValue:
             b"<time-prop "
             b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'name=":timeProp">'
-            b'<time permissions="prop-default">2009-10-10T12:00:00-05:00</time>'
+            b'<time permissions="open">2009-10-10T12:00:00-05:00</time>'
             b"</time-prop>"
         )
         res_str = etree.tostring(v.serialise())
@@ -291,7 +291,7 @@ class TestUriValue:
             b"<uri-prop "
             b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'name=":uriProp">'
-            b'<uri permissions="prop-default">https://example.com</uri>'
+            b'<uri permissions="open">https://example.com</uri>'
             b"</uri-prop>"
         )
         res_str = etree.tostring(v.serialise())

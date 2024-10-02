@@ -336,7 +336,7 @@ class Resource:
 
     def add_richtext_optional(
         self,
-        value: str,
+        value: Any,
         prop_name: str,
         permissions: str | None = None,
         comment: str | None = None,

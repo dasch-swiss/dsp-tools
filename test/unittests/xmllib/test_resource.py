@@ -175,9 +175,16 @@ class TestAddValues:
         assert isinstance(res.values[0], SimpleText)
 
     def test_add_richtext(self) -> None:
-        res = Resource("", "", "").add_richtext("", "")
+        res = Resource("", "", "").add_richtext("A\nB", "")
         assert len(res.values) == 1
         assert isinstance(res.values[0], Richtext)
+        assert res.values[0].value == "A<br/>B"
+
+    def test_add_richtext_no_replace(self) -> None:
+        res = Resource("", "", "").add_richtext("A\nB", "", replace_newline=False)
+        assert len(res.values) == 1
+        assert isinstance(res.values[0], Richtext)
+        assert res.values[0].value == "A\nB"
 
     def test_add_richtexts(self) -> None:
         res = Resource("", "", "").add_richtexts(["", ""], "")

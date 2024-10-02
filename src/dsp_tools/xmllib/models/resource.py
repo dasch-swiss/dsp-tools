@@ -301,21 +301,42 @@ class Resource:
     #######################
 
     def add_richtext(
-        self, value: str, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self,
+        value: str,
+        prop_name: str,
+        permissions: str | None = None,
+        comment: str | None = None,
+        replace_newline: bool = True,
     ) -> Resource:
+        if replace_newline:
+            value = str(value).replace("\n", "<br/>")
         self.values.append(Richtext(value, prop_name, permissions, comment, self.res_id))
         return self
 
     def add_richtexts(
-        self, values: list[str], prop_name: str, permissions: str | None = None, comment: str | None = None
+        self,
+        values: list[str],
+        prop_name: str,
+        permissions: str | None = None,
+        comment: str | None = None,
+        replace_newline: bool = True,
     ) -> Resource:
+        if replace_newline:
+            values = [str(x).replace("\n", "<br/>") for x in values]
         self.values.extend([Richtext(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
     def add_richtext_optional(
-        self, value: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self,
+        value: str,
+        prop_name: str,
+        permissions: str | None = None,
+        comment: str | None = None,
+        replace_newline: bool = True,
     ) -> Resource:
         if not pd.isna(value):
+            if replace_newline:
+                value = str(value).replace("\n", "<br/>")
             self.values.append(Richtext(value, prop_name, permissions, comment, self.res_id))
         return self
 

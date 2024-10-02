@@ -1,11 +1,17 @@
 from __future__ import annotations
 
+import warnings
 from abc import ABC
 from collections import defaultdict
 from dataclasses import dataclass
+from datetime import datetime
+from pathlib import Path
 
 from rdflib import Graph
 from rdflib.term import Node
+
+from dsp_tools.commands.xml_validate.xml_validate import LIST_SEPARATOR
+from dsp_tools.models.custom_warnings import DspToolsUserWarning
 
 INDENT = "\n    "
 GRAND_SEPARATOR = "\n----------------------------\n"
@@ -31,11 +37,28 @@ class UnexpectedResults:
     components: list[UnexpectedComponent]
     validation_result: Graph
 
+    def save_inform_user(self, cwdr: Path) -> None:
+        save_path = cwdr / f"validation_result_{datetime.now()!s}.ttl"
+        components = sorted(x.component_type for x in self.components)
+        msg = (
+            f"Unexpected violations were found in the validation results:"
+            f"{LIST_SEPARATOR}{LIST_SEPARATOR.join(components)}\n"
+            f"The validation report was saved here: {save_path}\n"
+            f"Please contact the dsp-tools development team with this information."
+        )
+        self.validation_result.serialize(save_path)
+        warnings.warn(DspToolsUserWarning(msg))
+
 
 @dataclass
 class AllProblems:
     problems: list[InputProblem]
     unexpected_results: UnexpectedResults | None
+
+    def communicate_with_the_user(self, cwdr: Path) -> str:
+        if self.unexpected_results:
+            self.unexpected_results.save_inform_user(cwdr)
+        return self.get_msg()
 
     def get_msg(self) -> str:
         coll = self._make_collection()

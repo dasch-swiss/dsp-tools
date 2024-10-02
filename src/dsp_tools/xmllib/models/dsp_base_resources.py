@@ -8,6 +8,8 @@ from typing import Any
 from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
+from dsp_tools.models.exceptions import InputError
+from dsp_tools.xmllib.models.shared import MigrationMetadata
 from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import LinkValue
 from dsp_tools.xmllib.models.values import Richtext
@@ -29,6 +31,7 @@ class AnnotationResource:
     annotation_of: str
     comments: list[str]
     permissions: str = "res-default"
+    migration_metadata: MigrationMetadata | None = None
 
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
@@ -51,6 +54,17 @@ class AnnotationResource:
 
     def add_comments(self, comments: list[str]) -> AnnotationResource:
         self.comments.extend(comments)
+        return self
+
+    def add_migration_metadata(
+        self, creation_date: str | None, iri: str | None = None, ark: str | None = None
+    ) -> AnnotationResource:
+        if self.migration_metadata:
+            raise InputError(
+                f"The resource with the ID '{self.res_id}' already contains migration metadata, "
+                f"no new data can be added."
+            )
+        self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark)
         return self
 
     def serialise(self) -> etree._Element:
@@ -79,6 +93,7 @@ class RegionResource:
     geometry: dict[str, Any]
     comments: list[str]
     permissions: str = "res-default"
+    migration_metadata: MigrationMetadata | None = None
 
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
@@ -121,6 +136,17 @@ class RegionResource:
         self.comments.extend(comments)
         return self
 
+    def add_migration_metadata(
+        self, creation_date: str | None, iri: str | None = None, ark: str | None = None
+    ) -> RegionResource:
+        if self.migration_metadata:
+            raise InputError(
+                f"The resource with the ID '{self.res_id}' already contains migration metadata, "
+                f"no new data can be added."
+            )
+        self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark)
+        return self
+
     def serialise(self) -> etree._Element:
         self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
         res_ele = self._serialise_resource_element()
@@ -157,6 +183,7 @@ class LinkResource:
     link_to: list[str]
     comments: list[str]
     permissions: str = "res-default"
+    migration_metadata: MigrationMetadata | None = None
 
     def new(
         self, res_id: str, label: str, link_to: list[str], comments: list[str], permissions: str = "res-default"
@@ -175,6 +202,17 @@ class LinkResource:
 
     def add_comments(self, comments: list[str]) -> LinkResource:
         self.comments.extend(comments)
+        return self
+
+    def add_migration_metadata(
+        self, creation_date: str | None, iri: str | None = None, ark: str | None = None
+    ) -> LinkResource:
+        if self.migration_metadata:
+            raise InputError(
+                f"The resource with the ID '{self.res_id}' already contains migration metadata, "
+                f"no new data can be added."
+            )
+        self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark)
         return self
 
     def serialise(self) -> etree._Element:
@@ -236,6 +274,7 @@ class VideoSegmentResource:
     keywords: list[str] = field(default_factory=list)
     relates_to: list[str] = field(default_factory=list)
     permissions: str = "res-default"
+    migration_metadata: MigrationMetadata | None = None
 
     def new(
         self,
@@ -294,6 +333,17 @@ class VideoSegmentResource:
         self.relates_to.extend(relates_to)
         return self
 
+    def add_migration_metadata(
+        self, creation_date: str | None, iri: str | None = None, ark: str | None = None
+    ) -> VideoSegmentResource:
+        if self.migration_metadata:
+            raise InputError(
+                f"The resource with the ID '{self.res_id}' already contains migration metadata, "
+                f"no new data can be added."
+            )
+        self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark)
+        return self
+
     def serialise(self) -> etree._Element:
         self._check_for_and_convert_unexpected_input()
         res_ele = self._serialise_resource_element()
@@ -326,6 +376,7 @@ class AudioSegmentResource:
     keywords: list[str] = field(default_factory=list)
     relates_to: list[str] = field(default_factory=list)
     permissions: str = "res-default"
+    migration_metadata: MigrationMetadata | None = None
 
     def new(
         self,
@@ -382,6 +433,17 @@ class AudioSegmentResource:
 
     def add_relates_to_multiple(self, relates_to: list[str]) -> AudioSegmentResource:
         self.relates_to.extend(relates_to)
+        return self
+
+    def add_migration_metadata(
+        self, creation_date: str | None, iri: str | None = None, ark: str | None = None
+    ) -> AudioSegmentResource:
+        if self.migration_metadata:
+            raise InputError(
+                f"The resource with the ID '{self.res_id}' already contains migration metadata, "
+                f"no new data can be added."
+            )
+        self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark)
         return self
 
     def serialise(self) -> etree._Element:

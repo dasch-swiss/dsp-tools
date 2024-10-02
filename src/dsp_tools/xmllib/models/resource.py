@@ -332,7 +332,7 @@ class Resource:
         comment: str | None = None,
         newline_replacement: NewlineReplacementTags = NewlineReplacementTags.NEWLINE,
     ) -> Resource:
-        values = [replace_newlines_with_tags(str(x), newline_replacement) for x in values]
+        values = [replace_newlines_with_tags(str(v), newline_replacement) for v in values]
         self.values.extend([Richtext(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 

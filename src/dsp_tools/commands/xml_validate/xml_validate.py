@@ -28,6 +28,9 @@ def xml_validate(filepath: Path, api_url: str) -> bool:
     Args:
         filepath: path to the xml data file
         api_url: url of the api host
+
+    Returns:
+        true unless it crashed
     """
     _inform_about_experimental_feature()
     data_rdf, shortcode = _get_data_info_from_file(filepath, api_url)

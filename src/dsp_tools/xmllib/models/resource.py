@@ -33,7 +33,7 @@ from dsp_tools.xmllib.value_checkers import is_string_like
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 
-LIST_SEPARATOR = "\n    -"
+LIST_SEPARATOR = "\n    - "
 
 
 @dataclass

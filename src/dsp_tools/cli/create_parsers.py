@@ -302,6 +302,7 @@ def _add_xml_validate(
     subparser.add_argument(
         "-s", "--server", default=default_dsp_api_url, help="URL of the DSP server where DSP-TOOLS sends the data to"
     )
+    subparser.add_argument("--dev", action="store_true", help="Validate with experimental features.")
 
 
 def _add_resume_xmlupload(

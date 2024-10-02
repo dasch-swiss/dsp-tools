@@ -21,13 +21,14 @@ from dsp_tools.utils.xml_validation import validate_xml
 LIST_SEPARATOR = "\n    - "
 
 
-def xml_validate(filepath: Path, api_url: str) -> bool:
+def xml_validate(filepath: Path, api_url: str, dev_route: bool) -> bool:  # noqa: ARG001 (unused argument)
     """
     Takes a file and project information and validates it against the ontologies on the server.
 
     Args:
         filepath: path to the xml data file
         api_url: url of the api host
+        dev_route: if this flag is set features that are still in development will be used
 
     Returns:
         true unless it crashed

@@ -1,6 +1,5 @@
 from typing import Any
 
-from dsp_tools.models.exceptions import InputError
 from dsp_tools.xmllib.models.user_enums import NewlineReplacementTags
 
 
@@ -45,8 +44,6 @@ def replace_newlines_with_tags(text: str, converter_option: NewlineReplacementTa
             return replace_newlines_with_br_tags(text)
         case NewlineReplacementTags.PARAGRAPH:
             return replace_newlines_with_paragraph_tags(text)
-        case _:
-            raise InputError(f"The conversion option for the text does not exist: {converter_option}.")
 
 
 def replace_newlines_with_paragraph_tags(text: str) -> str:

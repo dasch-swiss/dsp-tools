@@ -26,6 +26,7 @@ class StackConfiguration:
         enforce_docker_system_prune: if True, prune Docker without asking the user
         suppress_docker_system_prune: if True, don't prune Docker (and don't ask)
         latest_dev_version: if True, start DSP-API from repo's main branch, instead of the latest deployed version
+        api_version_for_validate: if True a fixed API version is taken that has the features necessary for xml-validate
     """
 
     max_file_size: Optional[int] = None
@@ -33,6 +34,7 @@ class StackConfiguration:
     suppress_docker_system_prune: bool = False
     latest_dev_version: bool = False
     upload_test_data: bool = False
+    api_version_for_validate: bool = False
 
     def __post_init__(self) -> None:
         """
@@ -116,6 +118,8 @@ class StackHandler:
             shutil.copy(file_path, self.__docker_path_of_user / file.name)
         if not self.__stack_configuration.latest_dev_version:
             Path(self.__docker_path_of_user / "docker-compose.override.yml").unlink()
+        if not self.__stack_configuration.api_version_for_validate:
+            Path(self.__docker_path_of_user / "docker-compose-validation.override.yml").unlink()
 
     def _get_sipi_docker_config_lua(self) -> None:
         """

@@ -14,6 +14,7 @@ from dsp_tools.models.exceptions import InputError
 from dsp_tools.xmllib.models.file_values import AbstractFileValue
 from dsp_tools.xmllib.models.file_values import FileValue
 from dsp_tools.xmllib.models.file_values import IIIFUri
+from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
 from dsp_tools.xmllib.models.values import BooleanValue
 from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import DateValue
@@ -32,7 +33,7 @@ from dsp_tools.xmllib.value_checkers import is_string_like
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 
-LIST_SEPARATOR = "\n    -"
+LIST_SEPARATOR = "\n    - "
 
 
 @dataclass
@@ -43,6 +44,7 @@ class Resource:
     values: list[Value] = field(default_factory=list)
     permissions: str = "res-default"
     file_value: AbstractFileValue | None = None
+    migration_metadata: MigrationMetadata | None = None
 
     def __post_init__(self) -> None:
         msg = []
@@ -395,4 +397,19 @@ class Resource:
                 f"The new file with the name '{iiif_uri}' cannot be added."
             )
         self.file_value = IIIFUri(iiif_uri, permissions, comment, self.res_id)
+        return self
+
+    #######################
+    # Migration Metadata
+    #######################
+
+    def add_migration_metadata(
+        self, creation_date: str | None, iri: str | None = None, ark: str | None = None
+    ) -> Resource:
+        if self.migration_metadata:
+            raise InputError(
+                f"The resource with the ID '{self.res_id}' already contains migration metadata, "
+                f"no new data can be added."
+            )
+        self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
         return self

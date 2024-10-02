@@ -8,6 +8,8 @@ from dsp_tools.xmllib.value_checkers import is_bool_like
 from dsp_tools.xmllib.value_checkers import is_color
 from dsp_tools.xmllib.value_checkers import is_date
 from dsp_tools.xmllib.value_checkers import is_decimal
+from dsp_tools.xmllib.value_checkers import is_dsp_ark
+from dsp_tools.xmllib.value_checkers import is_dsp_iri
 from dsp_tools.xmllib.value_checkers import is_geoname
 from dsp_tools.xmllib.value_checkers import is_integer
 from dsp_tools.xmllib.value_checkers import is_string_like
@@ -155,6 +157,26 @@ def test_is_geometry_correct(val: Any) -> None:
 @pytest.mark.parametrize("val", ["100", 100, [0], '{"type": "polygon"}'])
 def test_is_geometry_wrong(val: Any) -> None:
     assert find_geometry_problem(val)
+
+
+@pytest.mark.parametrize("val", ["http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA"])
+def test_is_dsp_iri_correct(val: Any) -> None:
+    assert is_dsp_iri(val)
+
+
+@pytest.mark.parametrize("val", ["http://www.example.org/prefix1/", "ark:/72163/4123-43xc6ivb931-a.2022829"])
+def test_is_dsp_iri_wrong(val: Any) -> None:
+    assert not is_dsp_iri(val)
+
+
+@pytest.mark.parametrize("val", ["ark:/72163/4123-43xc6ivb931-a.2022829"])
+def test_is_dsp_ark_correct(val: Any) -> None:
+    assert is_dsp_ark(val)
+
+
+@pytest.mark.parametrize("val", ["http://www.example.org/prefix1/", "http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA"])
+def test_is_dsp_ark_wrong(val: Any) -> None:
+    assert not is_dsp_ark(val)
 
 
 if __name__ == "__main__":

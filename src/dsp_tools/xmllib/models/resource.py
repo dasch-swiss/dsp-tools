@@ -15,7 +15,7 @@ from dsp_tools.xmllib.models.file_values import AbstractFileValue
 from dsp_tools.xmllib.models.file_values import FileValue
 from dsp_tools.xmllib.models.file_values import IIIFUri
 from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
-from dsp_tools.xmllib.models.user_enums import NewlineReplacementTags
+from dsp_tools.xmllib.models.user_enums import NewlineReplacement
 from dsp_tools.xmllib.models.values import BooleanValue
 from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import DateValue
@@ -318,7 +318,7 @@ class Resource:
         prop_name: str,
         permissions: str | None = None,
         comment: str | None = None,
-        newline_replacement: NewlineReplacementTags = NewlineReplacementTags.NEWLINE,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> Resource:
         value = replace_newlines_with_tags(str(value), newline_replacement)
         self.values.append(Richtext(value, prop_name, permissions, comment, self.res_id))
@@ -330,7 +330,7 @@ class Resource:
         prop_name: str,
         permissions: str | None = None,
         comment: str | None = None,
-        newline_replacement: NewlineReplacementTags = NewlineReplacementTags.NEWLINE,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> Resource:
         values = [replace_newlines_with_tags(str(v), newline_replacement) for v in values]
         self.values.extend([Richtext(v, prop_name, permissions, comment, self.res_id) for v in values])
@@ -342,7 +342,7 @@ class Resource:
         prop_name: str,
         permissions: str | None = None,
         comment: str | None = None,
-        newline_replacement: NewlineReplacementTags = NewlineReplacementTags.NEWLINE,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> Resource:
         if not pd.isna(value):
             value = replace_newlines_with_tags(str(value), newline_replacement)

@@ -2,7 +2,7 @@ from enum import Enum
 from enum import auto
 
 
-class NewlineReplacementTags(Enum):
+class NewlineReplacement(Enum):
     NONE = auto()
     PARAGRAPH = auto()
-    NEWLINE = auto()
+    LINEBREAK = auto()

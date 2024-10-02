@@ -3,7 +3,7 @@ from typing import Any
 import pandas as pd
 import pytest
 
-from dsp_tools.xmllib.models.user_enums import NewlineReplacementTags
+from dsp_tools.xmllib.models.user_enums import NewlineReplacement
 from dsp_tools.xmllib.value_converters import convert_to_bool_string
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
@@ -25,19 +25,19 @@ def test_convert_to_bool_failure(val: Any) -> None:
 
 def test_replace_newlines_with_tags_none() -> None:
     text = "Start\nMiddle\n\nFinal"
-    result = replace_newlines_with_tags(text, NewlineReplacementTags.NONE)
+    result = replace_newlines_with_tags(text, NewlineReplacement.NONE)
     assert result == text
 
 
 def test_replace_newlines_with_tags_newline() -> None:
     text = "Start\nMiddle\n\nFinal"
-    result = replace_newlines_with_tags(text, NewlineReplacementTags.NEWLINE)
+    result = replace_newlines_with_tags(text, NewlineReplacement.LINEBREAK)
     assert result == "Start<br/>Middle<br/><br/>Final"
 
 
 def test_replace_newlines_with_tags_paragraph() -> None:
     text = "Start\nMiddle\n\nFinal"
-    result = replace_newlines_with_tags(text, NewlineReplacementTags.PARAGRAPH)
+    result = replace_newlines_with_tags(text, NewlineReplacement.PARAGRAPH)
     assert result == "<p>Start</p><p>Middle</p><p>Final</p>"
 
 

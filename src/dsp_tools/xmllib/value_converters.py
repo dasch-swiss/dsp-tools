@@ -1,6 +1,6 @@
 from typing import Any
 
-from dsp_tools.xmllib.models.user_enums import NewlineReplacementTags
+from dsp_tools.xmllib.models.user_enums import NewlineReplacement
 
 
 def convert_to_bool_string(value: Any) -> str:
@@ -22,7 +22,7 @@ def convert_to_bool_string(value: Any) -> str:
     return str(value)
 
 
-def replace_newlines_with_tags(text: str, converter_option: NewlineReplacementTags) -> str:
+def replace_newlines_with_tags(text: str, converter_option: NewlineReplacement) -> str:
     """
     Converts the newlines in a string to XML tags.
     The type of tags is specified through the converter_option enum.
@@ -38,11 +38,11 @@ def replace_newlines_with_tags(text: str, converter_option: NewlineReplacementTa
         InputError: If an invalid conversion option is given
     """
     match converter_option:
-        case NewlineReplacementTags.NONE:
+        case NewlineReplacement.NONE:
             return text
-        case NewlineReplacementTags.NEWLINE:
+        case NewlineReplacement.LINEBREAK:
             return replace_newlines_with_br_tags(text)
-        case NewlineReplacementTags.PARAGRAPH:
+        case NewlineReplacement.PARAGRAPH:
             return replace_newlines_with_paragraph_tags(text)
 
 

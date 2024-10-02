@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import StrEnum
 
 from lxml import etree
 
@@ -6,7 +6,7 @@ XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.o
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 
 
-class PermissionTypes(Enum):
+class PermissionTypes(StrEnum):
     RV = "RV"
     V = "V"
     D = "D"
@@ -50,5 +50,5 @@ class XMLPermissions:
 
     def _get_one_allow(self, group: str, tag_text: PermissionTypes) -> etree._Element:
         ele = etree.Element(f"{DASCH_SCHEMA}allow", attrib={"group": group}, nsmap=XML_NAMESPACE_MAP)
-        ele.text = tag_text.value
+        ele.text = str(tag_text)
         return ele

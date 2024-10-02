@@ -126,7 +126,7 @@ class StackHandler:
         if not self.__stack_configuration.latest_dev_version:
             Path(self.__docker_path_of_user / "docker-compose.override.yml").unlink()
         if not self.__stack_configuration.api_version_for_validate:
-            Path(self.__docker_path_of_user / "docker-compose-validation.override.yml").unlink()
+            Path(self.__docker_path_of_user / "docker-compose-validation.yml").unlink()
 
     def _get_sipi_docker_config_lua(self) -> None:
         """
@@ -296,11 +296,15 @@ class StackHandler:
         Start the other Docker containers that are not running yet.
         (Fuseki is already running at this point.)
         """
+        compose_str = "docker compose -f docker-compose.yml"
         if self.__stack_configuration.latest_dev_version:
             subprocess.run("docker compose pull".split(), cwd=self.__docker_path_of_user, check=True)
+            compose_str += " -f docker-compose.override.yml"
         elif self.__stack_configuration.api_version_for_validate:
             subprocess.run("docker compose pull".split(), cwd=self.__docker_path_of_user, check=True)
-        subprocess.run("docker compose up -d".split(), cwd=self.__docker_path_of_user, check=True)
+            compose_str += " -f docker-compose-validation.yml"
+        compose_str += " up"
+        subprocess.run(compose_str.split(), cwd=self.__docker_path_of_user, check=True)
 
     def _wait_for_api(self) -> None:
         """

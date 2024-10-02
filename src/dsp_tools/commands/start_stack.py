@@ -94,8 +94,15 @@ class StackHandler:
 
         if self.__stack_configuration.latest_dev_version:
             return f"{url_prefix_base}/main/"
+        elif self.__stack_configuration.api_version_for_validate:
+            config_file = importlib.resources.files("dsp_tools").joinpath(
+                "resources/start-stack/start-stack-validation-config.yml"
+            )
+        else:
+            config_file = importlib.resources.files("dsp_tools").joinpath(
+                "resources/start-stack/start-stack-config.yml"
+            )
 
-        config_file = importlib.resources.files("dsp_tools").joinpath("resources/start-stack/start-stack-config.yml")
         start_stack_config = yaml.safe_load(config_file.read_bytes())
         commit_of_used_api_version = start_stack_config["DSP-API commit"]
 
@@ -290,6 +297,8 @@ class StackHandler:
         (Fuseki is already running at this point.)
         """
         if self.__stack_configuration.latest_dev_version:
+            subprocess.run("docker compose pull".split(), cwd=self.__docker_path_of_user, check=True)
+        elif self.__stack_configuration.api_version_for_validate:
             subprocess.run("docker compose pull".split(), cwd=self.__docker_path_of_user, check=True)
         subprocess.run("docker compose up -d".split(), cwd=self.__docker_path_of_user, check=True)
 

@@ -65,7 +65,6 @@ class XMLRoot:
         Write the finished XML to a file.
 
         Args:
-            root: etree Element with the entire XML document
             filepath: where to save the file
 
         Warning:

@@ -411,5 +411,5 @@ class Resource:
                 f"The resource with the ID '{self.res_id}' already contains migration metadata, "
                 f"no new data can be added."
             )
-        self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark)
+        self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
         return self

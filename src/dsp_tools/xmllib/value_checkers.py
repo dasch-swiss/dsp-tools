@@ -159,3 +159,13 @@ def find_geometry_problem(value: Any) -> str:
     except (json.JSONDecodeError, TypeError, IndexError, KeyError, AssertionError):
         msg += f"\n'{value}' is not a valid JSON geometry object."
     return msg
+
+
+def is_dsp_iri(value: Any) -> bool:
+    """Checks if a value is a valid internal dsp IRI"""
+    return bool(regex.search(r"^http://rdfh\.ch/\d{4}/", str(value)))
+
+
+def is_dsp_ark(value: Any) -> bool:
+    """Checks if a value is a valid ARK"""
+    return bool(regex.search(r"^ark:/", str(value)))

@@ -29,12 +29,12 @@ def test_migration_metadata_creation_date_warns() -> None:
         MigrationMetadata("2019-01-054.502951Z", None, None, "id")
 
 
-def test_migration_metadata_iri_good_warns() -> None:
+def test_migration_metadata_iri_warns() -> None:
     with pytest.warns(DspToolsUserWarning):
         MigrationMetadata(None, "http:123/TqAnYQzrSzC2ctT06OJMYB", None, "id")
 
 
-def test_migration_metadata_ark_good_warns() -> None:
+def test_migration_metadata_ark_warns() -> None:
     with pytest.warns(DspToolsUserWarning):
         MigrationMetadata(None, None, "163/4123-43xc6ivb931-a.2022829", "id")
 

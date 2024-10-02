@@ -14,7 +14,7 @@ LOCAL_API = "http://0.0.0.0:3333"
 
 @pytest.fixture
 def data_cardinality_violation() -> Graph:
-    data = _get_data_info_from_file(Path("testdata/xml-validate/data/cardinality_violation.xml"), LOCAL_API)
+    data, _ = _get_data_info_from_file(Path("testdata/xml-validate/data/cardinality_violation.xml"), LOCAL_API)
     return data.make_graph()
 
 

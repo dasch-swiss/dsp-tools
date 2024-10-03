@@ -11,18 +11,35 @@ def construct_property_shapes(onto: Graph) -> Graph:
     Returns:
         Graph with the property shapes
     """
-    return _construct_property_type_shape(onto)
+    g = Graph()
+    g += _construct_property_type_shape_based_on_object_type(onto)
+    g += _construct_property_type_shape_based_on_gui_element(onto)
+    return g + _add_property_shapes_to_class_shapes(onto)
 
 
-def _construct_property_type_shape(onto: Graph) -> Graph:
-    property_type_mapper = {}
+def _add_property_shapes_to_class_shapes(onto: Graph) -> Graph:
+    pass
+
+
+def _construct_property_type_shape_based_on_object_type(onto: Graph) -> Graph:
+    property_type_mapper = {
+        "knora-api:BooleanValue": "api-shapes:BooleanValue_ClassShape",
+        "knora-api:ColorValue": "api-shapes:ColorValue_ClassShape",
+        "knora-api:DateValue": "api-shapes:DateValue_ClassShape",
+        "knora-api:DecimalValue": "api-shapes:DecimalValue_ClassShape",
+        "knora-api:GeonameValue": "api-shapes:GeonameValue_ClassShape",
+        "knora-api:IntValue": "api-shapes:IntValue_ClassShape",
+        "knora-api:ListValue": "api-shapes:ListValue_ClassShape",
+        "knora-api:TimeValue": "api-shapes:TimeValue_ClassShape",
+        "knora-api:UriValue": "api-shapes:UriValue_ClassShape",
+    }
     g = Graph()
     for object_type, shacl_shape in property_type_mapper.items():
-        g += _construct_one_property_type_shape(onto, object_type, shacl_shape)
+        g += _construct_one_property_type_shape_based_on_object_type(onto, object_type, shacl_shape)
     return g
 
 
-def _construct_one_property_type_shape(onto: Graph, object_type: str, shacl_shape: str) -> Graph:
+def _construct_one_property_type_shape_based_on_object_type(onto: Graph, object_type: str, shacl_shape: str) -> Graph:
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -47,3 +64,20 @@ def _construct_one_property_type_shape(onto: Graph, object_type: str, shacl_shap
     if results_graph := onto.query(query_s).graph:
         return results_graph
     return Graph()
+
+
+def _construct_property_type_shape_based_on_gui_element(onto: Graph) -> Graph:
+    property_type_mapper = {
+        "salsah-gui:SimpleText": "api-shapes:SimpleTextValue_ClassShape",
+        "salsah-gui:Textarea": "api-shapes:SimpleTextValue_ClassShape",
+        "salsah-gui:Richtext": "api-shapes:FormattedTextValue_ClassShape",
+        "salsah-gui:Searchbox": "api-shapes:LinkValue_ClassShape",
+    }
+    g = Graph()
+    for object_type, shacl_shape in property_type_mapper.items():
+        g += _construct_one_property_type_shape_gui_element(onto, object_type, shacl_shape)
+    return g
+
+
+def _construct_one_property_type_shape_gui_element(onto: Graph, object_type: str, shacl_shape: str) -> Graph:
+    pass

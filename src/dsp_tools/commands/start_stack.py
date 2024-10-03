@@ -293,7 +293,6 @@ class StackHandler:
             subprocess.run("docker compose pull".split(), cwd=self.__docker_path_of_user, check=True)
             compose_str += " -f docker-compose.override.yml"
         elif self.__stack_configuration.api_version_for_validate:
-            subprocess.run("docker compose pull".split(), cwd=self.__docker_path_of_user, check=True)
             compose_str += " -f docker-compose-validation.yml"
         compose_str += " up -d"
         subprocess.run(compose_str.split(), cwd=self.__docker_path_of_user, check=True)

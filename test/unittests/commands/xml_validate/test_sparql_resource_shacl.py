@@ -231,6 +231,18 @@ class Test1:
         assert next(result.objects(bn, SH.severity)) == SH.Violation
         assert str(next(result.objects(bn, SH.message))) == "1"
 
+    def test_good_link_value(self, link_prop_card_1: Graph) -> None:
+        result = _construct_1_cardinality(link_prop_card_1)
+        assert len(result) == 7
+        bn = next(result.subjects(RDF.type, SH.PropertyShape))
+        shape_iri = next(result.subjects(SH.property, bn))
+        assert shape_iri == ONTO.ClassMixedCard_Shape
+        assert str(next(result.objects(bn, SH.minCount))) == "1"
+        assert str(next(result.objects(bn, SH.maxCount))) == "1"
+        assert next(result.objects(bn, SH.path)) == ONTO.testHasLinkToCardOneResource
+        assert next(result.objects(bn, SH.severity)) == SH.Violation
+        assert str(next(result.objects(bn, SH.message))) == "1"
+
     def test_empty_0_1(self, card_0_1: Graph) -> None:
         result = _construct_1_cardinality(card_0_1)
         assert len(result) == 0
@@ -254,6 +266,18 @@ class Test01:
         assert str(next(result.objects(bn, SH.minCount))) == "0"
         assert str(next(result.objects(bn, SH.maxCount))) == "1"
         assert next(result.objects(bn, SH.path)) == ONTO.testDecimalSimpleText
+        assert next(result.objects(bn, SH.severity)) == SH.Violation
+        assert str(next(result.objects(bn, SH.message))) == "0-1"
+
+    def test_good_link_value(self, link_prop_card_01: Graph) -> None:
+        result = _construct_0_1_cardinality(link_prop_card_01)
+        assert len(result) == 7
+        bn = next(result.subjects(RDF.type, SH.PropertyShape))
+        shape_iri = next(result.subjects(SH.property, bn))
+        assert shape_iri == ONTO.ClassMixedCard_Shape
+        assert str(next(result.objects(bn, SH.minCount))) == "0"
+        assert str(next(result.objects(bn, SH.maxCount))) == "1"
+        assert next(result.objects(bn, SH.path)) == ONTO.testHasLinkToCardOneResource
         assert next(result.objects(bn, SH.severity)) == SH.Violation
         assert str(next(result.objects(bn, SH.message))) == "0-1"
 

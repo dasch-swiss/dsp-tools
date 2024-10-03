@@ -34,9 +34,9 @@
 
     <!-- 'testGeoname' cardinality 1-n -->
     <resource label="Geoname Card 1-n" restype=":ClassMixedCard" id="id_min_card">
-        <boolean-prop name=":testBoolean">
-            <boolean>true</boolean>
-        </boolean-prop>
+        <resptr-prop name=":testHasLinkToCardOneResource">
+            <resptr>id_closed_constraint</resptr>
+        </resptr-prop>
     </resource>
 
 </knora>

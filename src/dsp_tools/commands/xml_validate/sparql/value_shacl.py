@@ -79,5 +79,28 @@ def _construct_property_type_shape_based_on_gui_element(onto: Graph) -> Graph:
     return g
 
 
-def _construct_one_property_type_shape_gui_element(onto: Graph, object_type: str, shacl_shape: str) -> Graph:
-    pass
+def _construct_one_property_type_shape_gui_element(onto: Graph, gui_element: str, shacl_shape: str) -> Graph:
+    query_s = """
+    PREFIX owl: <http://www.w3.org/2002/07/owl#> 
+    PREFIX sh: <http://www.w3.org/ns/shacl#>
+    PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
+    PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
+    PREFIX salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#>
+
+    CONSTRUCT {
+
+        ?shapesIRI a sh:PropertyShape ;
+                   sh:path ?prop ;
+                   sh:node %(shacl_shape)s .
+
+    } WHERE {
+
+        ?prop a owl:ObjectProperty ;
+                salsah-gui:guiElement %(gui_element)s .
+
+        BIND(IRI(CONCAT(str(?prop), "_PropShape")) AS ?shapesIRI)
+    }
+    """ % {"gui_element": gui_element, "shacl_shape": shacl_shape}  # noqa: UP031 (printf-string-formatting)
+    if results_graph := onto.query(query_s).graph:
+        return results_graph
+    return Graph()

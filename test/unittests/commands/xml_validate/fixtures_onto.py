@@ -51,7 +51,7 @@ def one_res_one_prop() -> Graph:
 
 
 @pytest.fixture
-def one_prop() -> Graph:
+def one_bool_prop() -> Graph:
     ttl = f"""{PREFIXES}
     onto:testBoolean a owl:ObjectProperty ;
         rdfs:label "Test Boolean" ;
@@ -59,6 +59,22 @@ def one_prop() -> Graph:
         knora-api:isResourceProperty true ;
         knora-api:objectType knora-api:BooleanValue ;
         salsah-gui:guiElement salsah-gui:Checkbox ;
+        rdfs:subPropertyOf knora-api:hasValue .
+    """
+    g = Graph()
+    g.parse(data=ttl, format="ttl")
+    return g
+
+
+@pytest.fixture
+def one_richtext_prop() -> Graph:
+    ttl = f"""{PREFIXES}
+    onto:testRichtext a owl:ObjectProperty ;
+        rdfs:label "Test Richtext" ;
+        knora-api:isEditable true ;
+        knora-api:isResourceProperty true ;
+        knora-api:objectType knora-api:TextValue ;
+        salsah-gui:guiElement salsah-gui:Richtext ;
         rdfs:subPropertyOf knora-api:hasValue .
     """
     g = Graph()

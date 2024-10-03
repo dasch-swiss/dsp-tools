@@ -82,8 +82,8 @@ def test_construct_resource_nodeshape_one_res(one_res_one_prop: Graph) -> None:
     assert next(result.objects(subject_iri, SH.closed)) == Literal(True)
 
 
-def test_construct_resource_nodeshape_no_res(one_prop: Graph) -> None:
-    result = _construct_resource_nodeshape(one_prop)
+def test_construct_resource_nodeshape_no_res(one_bool_prop: Graph) -> None:
+    result = _construct_resource_nodeshape(one_bool_prop)
     assert len(result) == 0
 
 

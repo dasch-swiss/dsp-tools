@@ -4,6 +4,7 @@ from pathlib import Path
 from lxml import etree
 from rdflib import SH
 from rdflib import Graph
+from termcolor import cprint
 
 from dsp_tools.commands.xml_validate.api_connection import OntologyConnection
 from dsp_tools.commands.xml_validate.api_connection import ShaclValidator
@@ -43,10 +44,11 @@ def xml_validate(filepath: Path, api_url: str, dev_route: bool) -> bool:  # noqa
     val = ShaclValidator(api_url)
     report = _validate(val, ontologies, data_graph)
     if report.conforms:
-        print("\n\nValidation passed!")
+        cprint("\n   Validation passed!   ", color="green", attrs=["bold", "reverse"])
     else:
         reformatted = reformat_validation_graph(report.validation_graph, data_graph)
         problem_msg = reformatted.get_msg()
+        cprint("\n   Validation errors found!   ", color="light_red", attrs=["bold", "reverse"])
         print(problem_msg)
         if reformatted.unexpected_results:
             reformatted.unexpected_results.save_inform_user(

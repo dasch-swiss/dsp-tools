@@ -23,10 +23,10 @@
         <boolean-prop name=":testBoolean">
             <boolean>true</boolean>
         </boolean-prop>
-        <decimal-prop name=":testDecimalSimpleText">
-            <decimal>2.71</decimal>
-            <decimal>2.00</decimal>
-        </decimal-prop>
+        <resptr-prop name=":testHasLinkToCardOneResource">
+            <resptr>id_closed_constraint</resptr>
+            <resptr>id_card_one</resptr>
+        </resptr-prop>
         <geoname-prop name=":testGeoname">
             <geoname>111111</geoname>
         </geoname-prop>

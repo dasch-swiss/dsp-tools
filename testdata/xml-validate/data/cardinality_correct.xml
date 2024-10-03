@@ -27,9 +27,9 @@
         <boolean-prop name=":testBoolean">
             <boolean>true</boolean>
         </boolean-prop>
-        <decimal-prop name=":testDecimalSimpleText">
-            <decimal>2.71</decimal>
-        </decimal-prop>
+        <resptr-prop name=":testHasLinkToCardOneResource">
+            <resptr>id_2</resptr>
+        </resptr-prop>
         <geoname-prop name=":testGeoname">
             <geoname>1111111</geoname>
             <geoname>2222222</geoname>

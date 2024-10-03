@@ -1,5 +1,6 @@
 from typing import Any
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -78,22 +79,22 @@ def test_is_geoname_wrong(val: Any) -> None:
     assert not is_geoname(val)
 
 
-@pytest.mark.parametrize("val", [1.2, "1.432", 1, "1"])
+@pytest.mark.parametrize("val", [1.2, "1.432", 1, "1", -1.1, "1e-1", "1e2"])
 def test_is_decimal_correct(val: Any) -> None:
     assert is_decimal(val)
 
 
-@pytest.mark.parametrize("val", ["asf"])
+@pytest.mark.parametrize("val", ["asf", np.nan, pd.NA, True, False])
 def test_is_decimal_wrong(val: Any) -> None:
     assert not is_decimal(val)
 
 
-@pytest.mark.parametrize("val", [1, "1"])
+@pytest.mark.parametrize("val", [1, "1", -1])
 def test_is_integer_correct(val: Any) -> None:
     assert is_integer(val)
 
 
-@pytest.mark.parametrize("val", [1.2, "1.2", "wdasd"])
+@pytest.mark.parametrize("val", [1.2, "1.2", "wdasd", True, False, "1e2"])
 def test_is_integer_wrong(val: Any) -> None:
     assert not is_integer(val)
 

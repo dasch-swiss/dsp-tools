@@ -69,7 +69,7 @@ def test_is_date_wrong(val: Any) -> None:
     assert not is_date(val)
 
 
-@pytest.mark.parametrize("val", ["1", 23412])
+@pytest.mark.parametrize("val", ["00001", 23412])
 def test_is_geoname_correct(val: Any) -> None:
     assert is_geoname(val)
 

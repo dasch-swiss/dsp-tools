@@ -1,0 +1,5 @@
+---
+
+services:
+  api:
+    image: daschswiss/knora-api:v30.19.0-14-g49b8259

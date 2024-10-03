@@ -23,7 +23,13 @@
         </boolean-prop>
     </resource>
 
-    <resource label="Card Mixed" restype=":ClassMixedCard" id="id_3">
+    <resource label="Card 1" restype=":ClassInheritedCardinality" id="id_3">
+        <text-prop name=":testSimpleText">
+            <text encoding="utf8">Text</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Card Mixed" restype=":ClassMixedCard" id="id_4">
         <boolean-prop name=":testBoolean">
             <boolean>true</boolean>
         </boolean-prop>

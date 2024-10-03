@@ -8,9 +8,9 @@ from dsp_tools.commands.xml_validate.models.input_problems import InputProblem
 from dsp_tools.commands.xml_validate.models.input_problems import MaxCardinalityViolation
 from dsp_tools.commands.xml_validate.models.input_problems import MinCardinalityViolation
 from dsp_tools.commands.xml_validate.models.input_problems import NonExistentCardinalityViolation
-from dsp_tools.commands.xml_validate.models.input_problems import UnexpectedComponent
 from dsp_tools.commands.xml_validate.models.input_problems import UnexpectedResults
-from dsp_tools.commands.xml_validate.models.input_problems import ValidationResult
+from dsp_tools.commands.xml_validate.models.validation import UnexpectedComponent
+from dsp_tools.commands.xml_validate.models.validation import ValidationResult
 
 
 def reformat_validation_graph(results_graph: Graph, data_graph: Graph) -> AllProblems:
@@ -27,7 +27,7 @@ def reformat_validation_graph(results_graph: Graph, data_graph: Graph) -> AllPro
     """
     reformatted_results = _reformat_result_graph(results_graph, data_graph)
     input_problems, unexpected_components = _transform_violations_into_input_problems(reformatted_results)
-    unexpected = UnexpectedResults(unexpected_components, results_graph) if unexpected_components else None
+    unexpected = UnexpectedResults(unexpected_components) if unexpected_components else None
     return AllProblems(input_problems, unexpected)
 
 

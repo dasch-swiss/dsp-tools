@@ -8,8 +8,8 @@ from datetime import datetime
 from pathlib import Path
 
 from rdflib import Graph
-from rdflib.term import Node
 
+from dsp_tools.commands.xml_validate.models.validation import UnexpectedComponent
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 
 LIST_SEPARATOR = "\n    - "
@@ -18,35 +18,25 @@ GRAND_SEPARATOR = "\n\n----------------------------\n"
 
 
 @dataclass
-class ValidationResult:
-    source_constraint_component: Node
-    res_iri: Node
-    res_class: Node
-    property: Node
-    results_message: str
-    value: str | None = None
-
-
-@dataclass
-class UnexpectedComponent:
-    component_type: str
-
-
-@dataclass
 class UnexpectedResults:
     components: list[UnexpectedComponent]
-    validation_result: Graph
 
-    def save_inform_user(self, cwdr: Path) -> None:
-        save_path = cwdr / f"validation_result_{datetime.now()!s}.ttl"
+    def save_inform_user(self, results_graph: Graph, shacl: Graph, data: Graph) -> None:
+        cwdr = Path.cwd()
+        prefix = f"{datetime.now()!s}"
         components = sorted(x.component_type for x in self.components)
         msg = (
             f"Unexpected violations were found in the validation results:"
             f"{LIST_SEPARATOR}{LIST_SEPARATOR.join(components)}\n"
-            f"The validation report was saved here: {save_path}\n"
-            f"Please contact the dsp-tools development team with this information."
+            f"Please contact the development team with the files starting with the timestamp '{prefix}' "
+            f"in the directory '{cwdr}'."
         )
-        self.validation_result.serialize(save_path)
+        save_path = cwdr / f"{prefix}validation_result.ttl"
+        results_graph.serialize(save_path)
+        shacl_p = cwdr / f"{prefix}shacl.ttl"
+        shacl.serialize(shacl_p)
+        data_p = cwdr / f"{prefix}data.ttl"
+        data.serialize(data_p)
         warnings.warn(DspToolsUserWarning(msg))
 
 
@@ -54,11 +44,6 @@ class UnexpectedResults:
 class AllProblems:
     problems: list[InputProblem]
     unexpected_results: UnexpectedResults | None
-
-    def communicate_with_the_user(self, cwdr: Path) -> str:
-        if self.unexpected_results:
-            self.unexpected_results.save_inform_user(cwdr)
-        return self.get_msg()
 
     def get_msg(self) -> str:
         coll = self._make_collection()
@@ -87,6 +72,20 @@ class ResourceProblemCollection:
         msg.extend([x.get_msg() for x in sorted_problems])
         return "\n".join(msg)
 
+    def _msg_for_properties(self) -> str:
+        grouped = self._make_collection()
+        out_list = []
+        for prop_name, problem in grouped.items():
+            problem_list = [x.get_msg() for x in problem]
+            out_list.append(f"{prop_name}{LIST_SEPARATOR}{LIST_SEPARATOR.join(problem_list)}")
+        return "\n".join(out_list)
+
+    def _make_collection(self) -> dict[str, list[InputProblem]]:
+        grouped_dict = defaultdict(list)
+        for problem in self.problems:
+            grouped_dict[problem.sort_value()].append(problem)
+        return grouped_dict
+
     def sort_value(self) -> str:
         return self.res_id
 
@@ -113,10 +112,7 @@ class MaxCardinalityViolation(InputProblem):
     expected_cardinality: str
 
     def get_msg(self) -> str:
-        return (
-            f"Maximum Cardinality Violation:"
-            f"{INDENT}Property: {self.prop_name} | Expected Cardinality: {self.expected_cardinality}"
-        )
+        return f"Maximum Cardinality Violation | Expected Cardinality: {self.expected_cardinality}"
 
     def sort_value(self) -> str:
         return self.prop_name
@@ -127,10 +123,7 @@ class MinCardinalityViolation(InputProblem):
     expected_cardinality: str
 
     def get_msg(self) -> str:
-        return (
-            f"Minimum Cardinality Violation:"
-            f"{INDENT}Property: {self.prop_name} | Expected Cardinality: {self.expected_cardinality}"
-        )
+        return f"Minimum Cardinality Violation | Expected Cardinality: {self.expected_cardinality}"
 
     def sort_value(self) -> str:
         return self.prop_name
@@ -139,7 +132,7 @@ class MinCardinalityViolation(InputProblem):
 @dataclass
 class NonExistentCardinalityViolation(InputProblem):
     def get_msg(self) -> str:
-        return f"The resource class does not have a cardinality for{INDENT}Property: {self.prop_name}"
+        return "The resource class does not have a cardinality for this property."
 
     def sort_value(self) -> str:
         return self.prop_name

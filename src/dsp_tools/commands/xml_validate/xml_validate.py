@@ -11,6 +11,7 @@ from dsp_tools.commands.xml_validate.deserialise_input import deserialise_xml
 from dsp_tools.commands.xml_validate.make_data_rdf import make_data_rdf
 from dsp_tools.commands.xml_validate.models.data_deserialised import ProjectDeserialised
 from dsp_tools.commands.xml_validate.models.data_rdf import DataRDF
+from dsp_tools.commands.xml_validate.models.validation import ValidationReport
 from dsp_tools.commands.xml_validate.reformat_validaton_result import reformat_validation_graph
 from dsp_tools.commands.xml_validate.sparql.construct_shapes import construct_shapes_graph
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
@@ -40,13 +41,19 @@ def xml_validate(filepath: Path, api_url: str, dev_route: bool) -> bool:  # noqa
     ontologies = _get_project_ontos(onto_con)
     data_graph = data_rdf.make_graph() + ontologies
     val = ShaclValidator(api_url)
-    conforms, result = _validate(val, ontologies, data_graph)
-    if conforms:
+    report = _validate(val, ontologies, data_graph)
+    if report.conforms:
         print("\n\nValidation passed!")
     else:
-        reformatted = reformat_validation_graph(result, data_graph)
-        msg = reformatted.communicate_with_the_user(Path.cwd())
-        print(msg)
+        reformatted = reformat_validation_graph(report.validation_graph, data_graph)
+        problem_msg = reformatted.get_msg()
+        print(problem_msg)
+        if reformatted.unexpected_results:
+            reformatted.unexpected_results.save_inform_user(
+                results_graph=report.validation_graph,
+                shacl=report.shacl_graph,
+                data=data_graph,
+            )
     return True
 
 
@@ -59,13 +66,20 @@ def _inform_about_experimental_feature() -> None:
     warnings.warn(DspToolsUserWarning(LIST_SEPARATOR.join(what_is_validated)))
 
 
-def _validate(validator: ShaclValidator, onto_graph: Graph, data_graph: Graph) -> tuple[bool, Graph]:
+def _validate(validator: ShaclValidator, onto_graph: Graph, data_graph: Graph) -> ValidationReport:
     shapes = construct_shapes_graph(onto_graph)
     shape_str = shapes.serialize(format="ttl")
     data_str = data_graph.serialize(format="ttl")
     results = validator.validate(data_str, shape_str)
     conforms = bool(next(results.objects(None, SH.conforms)))
-    return conforms, results
+    if conforms:
+        return ValidationReport(conforms=conforms)
+    return ValidationReport(
+        conforms=conforms,
+        validation_graph=results,
+        shacl_graph=shapes,
+        data_graph=data_graph,
+    )
 
 
 def _get_project_ontos(onto_con: OntologyConnection) -> Graph:

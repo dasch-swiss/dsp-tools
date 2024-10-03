@@ -51,16 +51,16 @@ def _construct_one_property_type_shape_based_on_object_type(onto: Graph, object_
         
         ?shapesIRI a sh:PropertyShape ;
                    sh:path ?prop ;
-                   sh:node api-shapes:BooleanValue_ClassShape .
+                   sh:node %(shacl_shape)s .
     
     } WHERE {
       
         ?prop a owl:ObjectProperty ;
-                knora-api:objectType knora-api:BooleanValue .
+                knora-api:objectType %(object_type)s .
       
         BIND(IRI(CONCAT(str(?prop), "_PropShape")) AS ?shapesIRI)
     }
-    """
+    """ % {"object_type": object_type, "shacl_shape": shacl_shape}  # noqa: UP031 (printf-string-formatting)
     if results_graph := onto.query(query_s).graph:
         return results_graph
     return Graph()

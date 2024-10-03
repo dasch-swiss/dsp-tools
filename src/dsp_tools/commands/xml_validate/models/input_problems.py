@@ -67,18 +67,17 @@ class ResourceProblemCollection:
     problems: list[InputProblem]
 
     def get_msg(self) -> str:
-        msg = [f"Resource ID: {self.res_id} | Resource Type: {self.problems[0].res_type}"]
-        sorted_problems = sorted(self.problems, key=lambda x: x.sort_value())
-        msg.extend([x.get_msg() for x in sorted_problems])
-        return "\n".join(msg)
+        prop_msg = self._msg_for_properties()
+        return f"Resource ID: {self.res_id} | Resource Type: {self.problems[0].res_type}\n{prop_msg}"
 
     def _msg_for_properties(self) -> str:
         grouped = self._make_collection()
         out_list = []
         for prop_name, problem in grouped.items():
             problem_list = [x.get_msg() for x in problem]
-            out_list.append(f"{prop_name}{LIST_SEPARATOR}{LIST_SEPARATOR.join(problem_list)}")
-        return "\n".join(out_list)
+            out_list.append((prop_name, f"{prop_name}{LIST_SEPARATOR}{LIST_SEPARATOR.join(problem_list)}"))
+        sorted_list = sorted(out_list, key=lambda x: x[0])
+        return "\n".join([x[1] for x in sorted_list])
 
     def _make_collection(self) -> dict[str, list[InputProblem]]:
         grouped_dict = defaultdict(list)

@@ -36,7 +36,8 @@ def _construct_resource_nodeshape(onto_graph: Graph) -> Graph:
     } WHERE {
 
         ?class a owl:Class ;
-               knora-api:isResourceClass true .
+               knora-api:isResourceClass true ;
+               knora-api:canBeInstantiated true .
 
         BIND(IRI(CONCAT(str(?class), "_Shape")) AS ?shapesIRI)
     }
@@ -79,6 +80,7 @@ def _construct_1_cardinality(onto_graph: Graph) -> Graph:
     
       ?class a owl:Class ;
           knora-api:isResourceClass true ;
+          knora-api:canBeInstantiated true ;
           rdfs:subClassOf ?restriction .
       ?restriction a owl:Restriction ;
           owl:onProperty ?propRestriction ;
@@ -118,6 +120,7 @@ def _construct_0_1_cardinality(onto_graph: Graph) -> Graph:
     
       ?class a owl:Class ;
           knora-api:isResourceClass true ;
+          knora-api:canBeInstantiated true ;
           rdfs:subClassOf ?restriction .
       ?restriction a owl:Restriction ;
           owl:onProperty ?propRestriction ;
@@ -156,6 +159,7 @@ def _construct_1_n_cardinality(onto_graph: Graph) -> Graph:
     
       ?class a owl:Class ;
           knora-api:isResourceClass true ;
+          knora-api:canBeInstantiated true ;
           rdfs:subClassOf ?restriction .
       ?restriction a owl:Restriction ;
           owl:onProperty ?propRestriction ;
@@ -191,6 +195,7 @@ def _construct_0_n_cardinality(onto_graph: Graph) -> Graph:
     
       ?class a owl:Class ;
           knora-api:isResourceClass true ;
+          knora-api:canBeInstantiated true ;
           rdfs:subClassOf ?restriction .
       ?restriction a owl:Restriction ;
           owl:onProperty ?propRestriction ;

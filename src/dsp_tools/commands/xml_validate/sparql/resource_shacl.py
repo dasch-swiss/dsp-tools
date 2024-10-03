@@ -161,6 +161,7 @@ def _construct_1_n_cardinality(onto_graph: Graph) -> Graph:
           owl:onProperty ?propRestriction ;
           salsah-gui:guiOrder ?order ;
           owl:minCardinality 1 .
+      FILTER NOT EXISTS { ?propRestriction rdfs:subPropertyOf knora-api:hasLinkToValue }
     
       BIND(IRI(CONCAT(str(?class), "_Shape")) AS ?shapesIRI)
     }
@@ -195,6 +196,7 @@ def _construct_0_n_cardinality(onto_graph: Graph) -> Graph:
           owl:onProperty ?propRestriction ;
           salsah-gui:guiOrder ?order ;
           owl:minCardinality 0 .
+      FILTER NOT EXISTS { ?propRestriction rdfs:subPropertyOf knora-api:hasLinkToValue }
     
       BIND(IRI(CONCAT(str(?class), "_Shape")) AS ?shapesIRI)
     }

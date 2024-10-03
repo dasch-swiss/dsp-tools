@@ -9,9 +9,9 @@ from rdflib.term import Node
 @dataclass
 class ValidationReport:
     conforms: bool
-    validation_graph: Graph | None = None
-    shacl_graph: Graph | None = None
-    data_graph: Graph | None = None
+    validation_graph: Graph
+    shacl_graph: Graph
+    data_graph: Graph
 
 
 @dataclass

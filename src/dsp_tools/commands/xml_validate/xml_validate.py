@@ -72,8 +72,6 @@ def _validate(validator: ShaclValidator, onto_graph: Graph, data_graph: Graph) -
     data_str = data_graph.serialize(format="ttl")
     results = validator.validate(data_str, shape_str)
     conforms = bool(next(results.objects(None, SH.conforms)))
-    if conforms:
-        return ValidationReport(conforms=conforms)
     return ValidationReport(
         conforms=conforms,
         validation_graph=results,

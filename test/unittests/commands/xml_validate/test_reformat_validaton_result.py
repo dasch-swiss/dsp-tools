@@ -7,8 +7,8 @@ from rdflib import Namespace
 from dsp_tools.commands.xml_validate.models.input_problems import MaxCardinalityViolation
 from dsp_tools.commands.xml_validate.models.input_problems import MinCardinalityViolation
 from dsp_tools.commands.xml_validate.models.input_problems import NonExistentCardinalityViolation
-from dsp_tools.commands.xml_validate.models.input_problems import UnexpectedComponent
-from dsp_tools.commands.xml_validate.models.input_problems import ValidationResult
+from dsp_tools.commands.xml_validate.models.validation import UnexpectedComponent
+from dsp_tools.commands.xml_validate.models.validation import ValidationResult
 from dsp_tools.commands.xml_validate.reformat_validaton_result import _extract_one_violation
 from dsp_tools.commands.xml_validate.reformat_validaton_result import _reformat_one_violation
 

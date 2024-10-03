@@ -86,4 +86,4 @@ def _reformat_onto_iri(prop: str) -> str:
 
 
 def _reformat_data_iri(iri: str) -> str:
-    return iri.lstrip("http://data/")
+    return iri.replace("http://data/", "")

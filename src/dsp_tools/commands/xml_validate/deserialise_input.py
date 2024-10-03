@@ -1,5 +1,6 @@
 from typing import Callable
 from typing import Sequence
+from typing import cast
 
 from lxml import etree
 
@@ -50,7 +51,7 @@ def _deserialise_all_resources(root: etree._Element) -> DataDeserialised:
     all_res: list[AbstractResource] = []
     for res in root.iterchildren():
         res_id = res.attrib["id"]
-        lbl = res.attrib.get("label") if res.attrib.get("label") else ""
+        lbl = cast(str, res.attrib.get("label"))
         match res.tag:
             case "resource":
                 all_res.append(_deserialise_one_resource(res))

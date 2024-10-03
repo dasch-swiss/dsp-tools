@@ -26,6 +26,7 @@ class StackConfiguration:
         enforce_docker_system_prune: if True, prune Docker without asking the user
         suppress_docker_system_prune: if True, don't prune Docker (and don't ask)
         latest_dev_version: if True, start DSP-API from repo's main branch, instead of the latest deployed version
+        api_version_for_validate: if True a fixed API version is taken that has the features necessary for xml-validate
     """
 
     max_file_size: Optional[int] = None
@@ -33,6 +34,7 @@ class StackConfiguration:
     suppress_docker_system_prune: bool = False
     latest_dev_version: bool = False
     upload_test_data: bool = False
+    api_version_for_validate: bool = False
 
     def __post_init__(self) -> None:
         """
@@ -96,7 +98,6 @@ class StackHandler:
         config_file = importlib.resources.files("dsp_tools").joinpath("resources/start-stack/start-stack-config.yml")
         start_stack_config = yaml.safe_load(config_file.read_bytes())
         commit_of_used_api_version = start_stack_config["DSP-API commit"]
-
         return f"{url_prefix_base}/{commit_of_used_api_version}/"
 
     def _copy_resources_to_home_dir(self) -> None:
@@ -116,6 +117,8 @@ class StackHandler:
             shutil.copy(file_path, self.__docker_path_of_user / file.name)
         if not self.__stack_configuration.latest_dev_version:
             Path(self.__docker_path_of_user / "docker-compose.override.yml").unlink()
+        if not self.__stack_configuration.api_version_for_validate:
+            Path(self.__docker_path_of_user / "docker-compose-validation.yml").unlink()
 
     def _get_sipi_docker_config_lua(self) -> None:
         """
@@ -285,9 +288,14 @@ class StackHandler:
         Start the other Docker containers that are not running yet.
         (Fuseki is already running at this point.)
         """
+        compose_str = "docker compose -f docker-compose.yml"
         if self.__stack_configuration.latest_dev_version:
             subprocess.run("docker compose pull".split(), cwd=self.__docker_path_of_user, check=True)
-        subprocess.run("docker compose up -d".split(), cwd=self.__docker_path_of_user, check=True)
+            compose_str += " -f docker-compose.override.yml"
+        elif self.__stack_configuration.api_version_for_validate:
+            compose_str += " -f docker-compose-validation.yml"
+        compose_str += " up -d"
+        subprocess.run(compose_str.split(), cwd=self.__docker_path_of_user, check=True)
 
     def _wait_for_api(self) -> None:
         """

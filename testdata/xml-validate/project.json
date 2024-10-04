@@ -435,7 +435,14 @@
             "super": ":CardOneResource",
             "labels": {
               "en": "Subclass Resource"
-            }
+            },
+            "cardinalities": [
+              {
+                "propname": ":testSimpleText",
+                "cardinality": "0-n",
+                "gui_order": 0
+              }
+            ]
           },
           {
             "name": "ClassInheritedCardinalityOverwriting",
@@ -460,12 +467,12 @@
             "cardinalities": [
               {
                 "propname": ":testBoolean",
-                "cardinality": "1",
+                "cardinality": "0-1",
                 "gui_order": 0
               },
               {
-                "propname": ":testDecimalSimpleText",
-                "cardinality": "0-1",
+                "propname": ":testHasLinkToCardOneResource",
+                "cardinality": "1",
                 "gui_order": 1
               },
               {

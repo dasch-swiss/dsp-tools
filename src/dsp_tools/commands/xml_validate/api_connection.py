@@ -50,6 +50,11 @@ class OntologyConnection:
             raise UserError(msg)
         return response
 
+    def get_knora_api(self) -> str:
+        url = f"{self.api_url}/ontology/knora-api/v2#"
+        onto = self._get(url, headers={"Accept": "text/turtle"})
+        return onto.text
+
     def get_ontologies(self) -> list[str]:
         """
         Returns a list of project ontologies as a string in turtle format.

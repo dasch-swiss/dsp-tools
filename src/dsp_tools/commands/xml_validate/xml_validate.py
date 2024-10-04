@@ -1,4 +1,5 @@
 import warnings
+from copy import deepcopy
 from pathlib import Path
 
 from lxml import etree
@@ -39,10 +40,11 @@ def xml_validate(filepath: Path, api_url: str, dev_route: bool) -> bool:  # noqa
     _inform_about_experimental_feature()
     data_rdf, shortcode = _get_data_info_from_file(filepath, api_url)
     onto_con = OntologyConnection(api_url, shortcode)
-    ontologies = _get_project_ontos(onto_con)
-    data_graph = data_rdf.make_graph() + ontologies
+    ontologies, shapes = _get_shacl(onto_con)
+    data_graph = data_rdf.make_graph()
+    # data_graph += ontologies
     val = ShaclValidator(api_url)
-    report = _validate(val, ontologies, data_graph)
+    report = _validate(val, shapes, data_graph)
     if report.conforms:
         cprint("\n   Validation passed!   ", color="green", attrs=["bold", "reverse"])
     else:
@@ -68,28 +70,38 @@ def _inform_about_experimental_feature() -> None:
     warnings.warn(DspToolsUserWarning(LIST_SEPARATOR.join(what_is_validated)))
 
 
-def _validate(validator: ShaclValidator, onto_graph: Graph, data_graph: Graph) -> ValidationReport:
-    shapes = construct_shapes_graph(onto_graph)
-    shape_str = shapes.serialize(format="ttl")
+def _validate(validator: ShaclValidator, shapes_graph: Graph, data_graph: Graph) -> ValidationReport:
+    shape_str = shapes_graph.serialize(format="ttl")
     data_str = data_graph.serialize(format="ttl")
     results = validator.validate(data_str, shape_str)
     conforms = bool(next(results.objects(None, SH.conforms)))
     return ValidationReport(
         conforms=conforms,
         validation_graph=results,
-        shacl_graph=shapes,
+        shacl_graph=shapes_graph,
         data_graph=data_graph,
     )
 
 
+def _get_shacl(onto_con: OntologyConnection) -> tuple[Graph, Graph]:
+    ontologies = _get_project_ontos(onto_con)
+    knora_ttl = onto_con.get_knora_api()
+    kag = Graph()
+    kag.parse(data=knora_ttl, format="ttl")
+    onto_for_construction = deepcopy(ontologies) + kag
+    shapes = construct_shapes_graph(onto_for_construction)
+    shapes += ontologies
+    return ontologies, shapes
+
+
 def _get_project_ontos(onto_con: OntologyConnection) -> Graph:
     all_ontos = onto_con.get_ontologies()
-    g = Graph()
+    onto_g = Graph()
     for onto in all_ontos:
         og = Graph()
         og.parse(data=onto, format="ttl")
-        g += og
-    return g
+        onto_g += og
+    return onto_g
 
 
 def _get_data_info_from_file(file: Path, api_url: str) -> tuple[DataRDF, str]:

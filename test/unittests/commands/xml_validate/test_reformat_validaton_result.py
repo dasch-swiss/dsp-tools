@@ -57,7 +57,7 @@ def data_class_constraint_component() -> Graph:
 
 @pytest.fixture
 def class_constraint_component() -> Graph:
-    gstr = f"""{VALIDATION_PREFIXES}
+    gstr = f'''{VALIDATION_PREFIXES}
     [] a sh:ValidationReport ;
     sh:result _:bn1 .
 
@@ -67,8 +67,8 @@ def class_constraint_component() -> Graph:
             a sh:ValidationResult ;
             sh:detail _:bn1 ;
             sh:focusNode <http://data/id_2> ;
-            sh:resultMessage "Value does not have shape
-                 <http://api.knora.org/ontology/knora-api/shapes/v2#ColorValue_ClassShape>" ;
+            sh:resultMessage """Value does not have shape
+                 <http://api.knora.org/ontology/knora-api/shapes/v2#ColorValue_ClassShape>""" ;
             sh:resultPath onto:testColor ;
             sh:resultSeverity sh:Violation ;
             sh:sourceConstraintComponent sh:NodeConstraintComponent ;
@@ -83,7 +83,7 @@ def class_constraint_component() -> Graph:
     sh:sourceConstraintComponent sh:ClassConstraintComponent ;
     sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#ColorValue_ClassShape> ;
     sh:value <http://data/7a65dc11-de6d-4a6c-85ed-72cf346c153e> .
-    """
+    '''
     g = Graph()
     g.parse(data=gstr, format="ttl")
     return g

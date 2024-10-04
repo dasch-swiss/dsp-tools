@@ -90,7 +90,9 @@ def _get_shacl(onto_con: OntologyConnection) -> tuple[Graph, Graph]:
     kag.parse(data=knora_ttl, format="ttl")
     onto_for_construction = deepcopy(ontologies) + kag
     shapes = construct_shapes_graph(onto_for_construction)
-    shapes += ontologies
+    api_shapes = Graph()
+    api_shapes.parse("src/dsp_tools/resources/xml_validate/api-shapes.ttl")
+    shapes += ontologies + api_shapes
     return ontologies, shapes
 
 

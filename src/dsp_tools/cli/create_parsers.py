@@ -304,6 +304,9 @@ def _add_xml_validate(
         "-s", "--server", default=default_dsp_api_url, help="URL of the DSP server where DSP-TOOLS sends the data to"
     )
     subparser.add_argument("--dev", action="store_true", help="Validate with experimental features.")
+    subparser.add_argument(
+        "--save-graph", action="store_true", help="Save the data, onto and shacl graph as ttl files."
+    )
 
 
 def _add_resume_xmlupload(

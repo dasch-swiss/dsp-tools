@@ -144,7 +144,9 @@ def test_xml_validate_default(xml_validate: Mock) -> None:
     file = "filename.xml"
     args = f"xml-validate {file}".split()
     entry_point.run(args)
-    xml_validate.assert_called_once_with(filepath=Path(file), api_url="http://0.0.0.0:3333", dev_route=False)
+    xml_validate.assert_called_once_with(
+        filepath=Path(file), api_url="http://0.0.0.0:3333", dev_route=False, save_graph=False
+    )
 
 
 @patch("dsp_tools.cli.call_action.xml_validate")
@@ -152,7 +154,19 @@ def test_xml_validate_dev(xml_validate: Mock) -> None:
     file = "filename.xml"
     args = f"xml-validate {file} --dev".split()
     entry_point.run(args)
-    xml_validate.assert_called_once_with(filepath=Path(file), api_url="http://0.0.0.0:3333", dev_route=True)
+    xml_validate.assert_called_once_with(
+        filepath=Path(file), api_url="http://0.0.0.0:3333", dev_route=True, save_graph=False
+    )
+
+
+@patch("dsp_tools.cli.call_action.xml_validate")
+def test_xml_validate_save_graph(xml_validate: Mock) -> None:
+    file = "filename.xml"
+    args = f"xml-validate {file} --save-graph".split()
+    entry_point.run(args)
+    xml_validate.assert_called_once_with(
+        filepath=Path(file), api_url="http://0.0.0.0:3333", dev_route=False, save_graph=True
+    )
 
 
 @patch("dsp_tools.cli.call_action.xml_validate")

@@ -25,7 +25,7 @@ from dsp_tools.utils.xml_validation import validate_xml
 LIST_SEPARATOR = "\n    - "
 
 
-def xml_validate(filepath: Path, api_url: str, dev_route: bool) -> bool:  # noqa: ARG001 (unused argument)
+def xml_validate(filepath: Path, api_url: str, dev_route: bool, save_graph: bool) -> bool:  # noqa: ARG001,D417 (unused argument)
     """
     Takes a file and project information and validates it against the ontologies on the server.
 

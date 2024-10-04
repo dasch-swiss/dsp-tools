@@ -14,7 +14,6 @@ from dsp_tools.commands.xml_validate.models.validation import UnexpectedComponen
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 
 LIST_SEPARATOR = "\n    - "
-INDENT = "\n    "
 GRAND_SEPARATOR = "\n\n----------------------------\n"
 
 
@@ -24,7 +23,7 @@ class UnexpectedResults:
 
     def save_inform_user(self, results_graph: Graph, shacl: Graph, data: Graph) -> None:
         cwdr = Path.cwd()
-        prefix = f"{datetime.now()!s}"
+        prefix = f"{datetime.now()!s}_"
         components = sorted(x.component_type for x in self.components)
         msg = (
             f"Unexpected violations were found in the validation results:"

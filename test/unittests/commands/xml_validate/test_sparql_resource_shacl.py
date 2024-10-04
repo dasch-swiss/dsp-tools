@@ -176,7 +176,7 @@ class TestCheckTripleNumbersOnto:
 
     def test_cardinality_0_n(self, onto_graph: Graph) -> None:
         result = _construct_0_n_cardinality(onto_graph)
-        number_of_occurrences_in_onto = 20
+        number_of_occurrences_in_onto = 21  # Inheritance included
         triples_card_0_n = 3 * number_of_occurrences_in_onto
         assert len(result) == triples_card_0_n
 

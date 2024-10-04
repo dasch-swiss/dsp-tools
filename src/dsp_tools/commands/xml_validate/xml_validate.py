@@ -77,7 +77,7 @@ def _save_graph(filepath: Path, onto: Graph, shacl: Graph, data: Graph) -> None:
     parent_directory = filepath.parent
     new_directory = parent_directory / "graphs"
     new_directory.mkdir(exist_ok=True)
-    cprint(f"\n  Saving graphs to {new_directory} ", color="light_blue", attrs=["bold", "reverse"])
+    cprint(f"\n   Saving graphs to {new_directory}   ", color="light_blue", attrs=["bold", "reverse"])
     generic_filepath = new_directory / filepath.stem
     onto.serialize(f"{generic_filepath}_ONTO.ttl")
     shacl.serialize(f"{generic_filepath}_SHACL.ttl")

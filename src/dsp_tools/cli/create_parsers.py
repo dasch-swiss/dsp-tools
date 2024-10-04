@@ -305,7 +305,7 @@ def _add_xml_validate(
     )
     subparser.add_argument("--dev", action="store_true", help="Validate with experimental features.")
     subparser.add_argument(
-        "--save-graph", action="store_true", help="Save the data, onto and shacl graph as ttl files."
+        "--save-graphs", action="store_true", help="Save the data, onto and shacl graph as ttl files."
     )
 
 

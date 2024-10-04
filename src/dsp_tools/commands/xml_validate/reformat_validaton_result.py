@@ -32,6 +32,11 @@ def reformat_validation_graph(results_graph: Graph, data_graph: Graph) -> AllPro
     return AllProblems(input_problems, unexpected)
 
 
+def _reformat_result_graph(results_graph: Graph, data_graph: Graph) -> list[ValidationResult]:
+    results_types = _separate_different_results(results_graph)
+    return [_extract_one_violation(x, results_graph, data_graph) for x in results_types.cardinality_components]
+
+
 def _separate_different_results(results_graph: Graph) -> ValidationResultTypes:
     violations = set(results_graph.subjects(RDF.type, SH.ValidationResult))
     nodes_constraints = set(results_graph.subjects(SH.sourceConstraintComponent, SH.NodeConstraintComponent))
@@ -42,11 +47,6 @@ def _separate_different_results(results_graph: Graph) -> ValidationResultTypes:
         detail_bns=class_constraints,
         cardinality_components=other_violations,
     )
-
-
-def _reformat_result_graph(results_graph: Graph, data_graph: Graph) -> list[ValidationResult]:
-    violations = results_graph.subjects(RDF.type, SH.ValidationResult)
-    return [_extract_one_violation(x, results_graph, data_graph) for x in violations]
 
 
 def _extract_one_violation(bn: Node, results_graph: Graph, data_graph: Graph) -> ValidationResult:

@@ -18,7 +18,36 @@ def construct_property_shapes(onto: Graph) -> Graph:
 
 
 def _add_property_shapes_to_class_shapes(onto: Graph) -> Graph:
-    pass
+    query_s = """
+    PREFIX owl: <http://www.w3.org/2002/07/owl#> 
+    PREFIX sh: <http://www.w3.org/ns/shacl#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#> 
+    PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
+    PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
+
+    CONSTRUCT {
+
+      ?classShapeIRI sh:property ?propShapesIRI .
+
+    } WHERE {
+
+      ?class a owl:Class ;
+          knora-api:isResourceClass true ;
+          knora-api:canBeInstantiated true ;
+          rdfs:subClassOf ?restriction .
+      ?restriction a owl:Restriction ;
+          owl:onProperty ?propRestriction ;
+          salsah-gui:guiOrder ?order .
+      FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
+
+      BIND(IRI(CONCAT(str(?class), "_Shape")) AS ?classShapeIRI)
+      BIND(IRI(CONCAT(str(?propRestriction), "_PropShape")) AS ?propShapesIRI)
+    }
+    """
+    if results_graph := onto.query(query_s).graph:
+        return results_graph
+    return Graph()
 
 
 def _construct_property_type_shape_based_on_object_type(onto: Graph) -> Graph:

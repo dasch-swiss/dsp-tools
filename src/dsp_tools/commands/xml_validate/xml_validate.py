@@ -48,6 +48,10 @@ def xml_validate(filepath: Path, api_url: str, dev_route: bool, save_graphs: boo
     # data_graph += ontologies
     val = ShaclValidator(api_url)
     report = _validate(val, shapes, data_graph)
+    if save_graphs:
+        new_directory = filepath.parent / "graphs"
+        generic_filepath = new_directory / filepath.stem
+        report.validation_graph.serialize(f"{generic_filepath}_VALIDATION_REPORT.ttl")
     if report.conforms:
         cprint("\n   Validation passed!   ", color="green", attrs=["bold", "reverse"])
     else:

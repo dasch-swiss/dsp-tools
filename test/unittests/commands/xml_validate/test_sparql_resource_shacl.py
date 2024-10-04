@@ -86,6 +86,7 @@ def card_1() -> Graph:
     ttl = f"""{PREFIXES}
     onto:ClassMixedCard a owl:Class ;
         knora-api:isResourceClass true ;
+        knora-api:canBeInstantiated true ;
         rdfs:subClassOf [ 
                 a owl:Restriction ;
                 salsah-gui:guiOrder 0 ;
@@ -103,6 +104,7 @@ def card_0_1() -> Graph:
     ttl = f"""{PREFIXES}
     onto:ClassMixedCard a owl:Class ;
         knora-api:isResourceClass true ;
+        knora-api:canBeInstantiated true ;
         rdfs:subClassOf [ 
                 a owl:Restriction ;
                 salsah-gui:guiOrder 1 ;
@@ -120,6 +122,7 @@ def card_1_n() -> Graph:
     ttl = f"""{PREFIXES}
     onto:ClassMixedCard a owl:Class ;
         knora-api:isResourceClass true ;
+        knora-api:canBeInstantiated true ;
         rdfs:subClassOf [ 
                 a owl:Restriction ;
                 salsah-gui:guiOrder 2 ;
@@ -137,6 +140,7 @@ def card_0_n() -> Graph:
     ttl = f"""{PREFIXES}
     onto:ClassMixedCard a owl:Class ;
         knora-api:isResourceClass true ;
+        knora-api:canBeInstantiated true ;
         rdfs:subClassOf [ 
                 a owl:Restriction ;
                 salsah-gui:guiOrder 3 ;

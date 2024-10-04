@@ -113,15 +113,33 @@ def _reformat_one_violation(violation: ValidationResult) -> InputProblem | Unexp
     res_type = _reformat_onto_iri(str(violation.res_class))
     match violation.source_constraint_component:
         case SH.MaxCountConstraintComponent:
-            return MaxCardinalityViolation(subject_id, res_type, prop_name, violation.results_message)
+            return MaxCardinalityViolation(
+                res_id=subject_id,
+                res_type=res_type,
+                prop_name=prop_name,
+                expected_cardinality=violation.results_message,
+            )
         case SH.MinCountConstraintComponent:
-            return MinCardinalityViolation(subject_id, res_type, prop_name, violation.results_message)
+            return MinCardinalityViolation(
+                res_id=subject_id,
+                res_type=res_type,
+                prop_name=prop_name,
+                expected_cardinality=violation.results_message,
+            )
         case SH.ClosedConstraintComponent:
-            return NonExistentCardinalityViolation(subject_id, res_type, prop_name)
+            return NonExistentCardinalityViolation(
+                res_id=subject_id,
+                res_type=res_type,
+                prop_name=prop_name,
+            )
         case SH.NodeConstraintComponent:
             actual_type = _reformat_onto_iri(str(violation.value_type)).replace("knora-api:", "")
             return ValueTypeViolation(
-                subject_id, res_type, prop_name, actual_type=actual_type, expected_type=violation.results_message
+                res_id=subject_id,
+                res_type=res_type,
+                prop_name=prop_name,
+                actual_type=actual_type,
+                expected_type=violation.results_message,
             )
         case _:
             return UnexpectedComponent(str(violation.source_constraint_component))

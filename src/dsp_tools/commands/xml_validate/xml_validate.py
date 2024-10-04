@@ -45,7 +45,7 @@ def xml_validate(filepath: Path, api_url: str, dev_route: bool, save_graphs: boo
     data_graph = data_rdf.make_graph()
     generic_filepath = Path()
     if save_graphs:
-        generic_filepath = _save_graph(filepath, ontologies, shapes, data_graph)
+        generic_filepath = _save_graphs(filepath, ontologies, shapes, data_graph)
     # data_graph += ontologies
     val = ShaclValidator(api_url)
     report = _validate(val, shapes, data_graph)
@@ -76,7 +76,7 @@ def _inform_about_experimental_feature() -> None:
     warnings.warn(DspToolsUserWarning(LIST_SEPARATOR.join(what_is_validated)))
 
 
-def _save_graph(filepath: Path, onto: Graph, shacl: Graph, data: Graph) -> Path:
+def _save_graphs(filepath: Path, onto: Graph, shacl: Graph, data: Graph) -> Path:
     parent_directory = filepath.parent
     new_directory = parent_directory / "graphs"
     new_directory.mkdir(exist_ok=True)

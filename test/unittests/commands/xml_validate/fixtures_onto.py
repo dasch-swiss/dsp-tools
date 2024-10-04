@@ -1,6 +1,5 @@
 import pytest
 from rdflib import Graph
-
 from rdflib import Namespace
 
 ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
@@ -115,7 +114,13 @@ def card_0_1() -> Graph:
                 owl:maxCardinality 1 ;
                 owl:onProperty onto:testDecimalSimpleText
                          ] .
+    """
+    g = Graph()
+    g.parse(data=ttl, format="ttl")
+    return g
 
+
+@pytest.fixture
 def link_prop_card_1() -> Graph:
     ttl = f"""{PREFIXES}
     onto:ClassMixedCard a owl:Class ;
@@ -185,7 +190,13 @@ def card_0_n() -> Graph:
                 owl:minCardinality 0 ;
                 owl:onProperty onto:testSimpleText
                          ] .
+    """
+    g = Graph()
+    g.parse(data=ttl, format="ttl")
+    return g
 
+
+@pytest.fixture
 def link_prop_card_01() -> Graph:
     ttl = f"""{PREFIXES}
     onto:ClassMixedCard a owl:Class ;

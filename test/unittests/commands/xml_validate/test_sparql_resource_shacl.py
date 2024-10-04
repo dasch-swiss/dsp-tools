@@ -154,7 +154,6 @@ def card_0_n() -> Graph:
     return g
 
 
-
 class TestCheckTripleNumbersOnto:
     def test_nodeshape(self, onto_graph: Graph) -> None:
         result = _construct_resource_nodeshape(onto_graph)

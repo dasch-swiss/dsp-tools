@@ -36,7 +36,8 @@ def _construct_resource_nodeshape(onto_graph: Graph) -> Graph:
     } WHERE {
 
         ?class a owl:Class ;
-               knora-api:isResourceClass true .
+               knora-api:isResourceClass true ;
+               knora-api:canBeInstantiated true .
 
         BIND(IRI(CONCAT(str(?class), "_Shape")) AS ?shapesIRI)
     }
@@ -79,11 +80,13 @@ def _construct_1_cardinality(onto_graph: Graph) -> Graph:
     
       ?class a owl:Class ;
           knora-api:isResourceClass true ;
+          knora-api:canBeInstantiated true ;
           rdfs:subClassOf ?restriction .
       ?restriction a owl:Restriction ;
           owl:onProperty ?propRestriction ;
           salsah-gui:guiOrder ?order ;
           owl:cardinality 1 .
+      FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
     
       BIND(IRI(CONCAT(str(?class), "_Shape")) AS ?shapesIRI)
     }
@@ -117,11 +120,13 @@ def _construct_0_1_cardinality(onto_graph: Graph) -> Graph:
     
       ?class a owl:Class ;
           knora-api:isResourceClass true ;
+          knora-api:canBeInstantiated true ;
           rdfs:subClassOf ?restriction .
       ?restriction a owl:Restriction ;
           owl:onProperty ?propRestriction ;
           salsah-gui:guiOrder ?order ;
           owl:maxCardinality 1 .
+      FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
     
       BIND(IRI(CONCAT(str(?class), "_Shape")) AS ?shapesIRI)
     }
@@ -154,11 +159,13 @@ def _construct_1_n_cardinality(onto_graph: Graph) -> Graph:
     
       ?class a owl:Class ;
           knora-api:isResourceClass true ;
+          knora-api:canBeInstantiated true ;
           rdfs:subClassOf ?restriction .
       ?restriction a owl:Restriction ;
           owl:onProperty ?propRestriction ;
           salsah-gui:guiOrder ?order ;
           owl:minCardinality 1 .
+      FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
     
       BIND(IRI(CONCAT(str(?class), "_Shape")) AS ?shapesIRI)
     }
@@ -188,11 +195,13 @@ def _construct_0_n_cardinality(onto_graph: Graph) -> Graph:
     
       ?class a owl:Class ;
           knora-api:isResourceClass true ;
+          knora-api:canBeInstantiated true ;
           rdfs:subClassOf ?restriction .
       ?restriction a owl:Restriction ;
           owl:onProperty ?propRestriction ;
           salsah-gui:guiOrder ?order ;
           owl:minCardinality 0 .
+      FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
     
       BIND(IRI(CONCAT(str(?class), "_Shape")) AS ?shapesIRI)
     }

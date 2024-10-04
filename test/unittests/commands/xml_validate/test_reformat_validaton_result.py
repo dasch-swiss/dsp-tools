@@ -7,9 +7,11 @@ from rdflib import Namespace
 from dsp_tools.commands.xml_validate.models.input_problems import MaxCardinalityViolation
 from dsp_tools.commands.xml_validate.models.input_problems import MinCardinalityViolation
 from dsp_tools.commands.xml_validate.models.input_problems import NonExistentCardinalityViolation
+from dsp_tools.commands.xml_validate.models.input_problems import ValueTypeViolation
 from dsp_tools.commands.xml_validate.models.validation import UnexpectedComponent
 from dsp_tools.commands.xml_validate.models.validation import ValidationResult
 from dsp_tools.commands.xml_validate.reformat_validaton_result import _extract_one_cardinality_violation
+from dsp_tools.commands.xml_validate.reformat_validaton_result import _extract_one_node_constraint_violation
 from dsp_tools.commands.xml_validate.reformat_validaton_result import _reformat_one_violation
 from dsp_tools.commands.xml_validate.reformat_validaton_result import _separate_different_results
 
@@ -21,6 +23,7 @@ VALIDATION_PREFIXES = """
 
 ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
 DATA = Namespace("http://data/")
+KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
 
 
 @pytest.fixture
@@ -49,7 +52,10 @@ def data_min_count_violation() -> Graph:
 
 @pytest.fixture
 def data_class_constraint_component() -> Graph:
-    gstr = "<http://data/id_2> a <http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything> ."
+    gstr = """
+    <http://data/id_2> a <http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything> .
+    <http://data/value-iri> a <http://api.knora.org/ontology/knora-api/v2#TextValue> .
+    """
     g = Graph()
     g.parse(data=gstr, format="ttl")
     return g
@@ -73,16 +79,16 @@ def class_constraint_component() -> Graph:
             sh:resultSeverity sh:Violation ;
             sh:sourceConstraintComponent sh:NodeConstraintComponent ;
             sh:sourceShape onto:testColor_PropShape ;
-            sh:value <http://data/7a65dc11-de6d-4a6c-85ed-72cf346c153e> 
+            sh:value <http://data/value-iri> 
             ] .
     
     _:bn1 a sh:ValidationResult ;
-    sh:focusNode <http://data/7a65dc11-de6d-4a6c-85ed-72cf346c153e> ;
+    sh:focusNode <http://data/value-iri> ;
     sh:resultMessage "ColorValue" ;
     sh:resultSeverity sh:Violation ;
     sh:sourceConstraintComponent sh:ClassConstraintComponent ;
     sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#ColorValue_ClassShape> ;
-    sh:value <http://data/7a65dc11-de6d-4a6c-85ed-72cf346c153e> .
+    sh:value <http://data/value-iri> .
     '''
     g = Graph()
     g.parse(data=gstr, format="ttl")
@@ -123,6 +129,18 @@ def violation_closed() -> ValidationResult:
 
 
 @pytest.fixture
+def violation_value_type() -> ValidationResult:
+    return ValidationResult(
+        source_constraint_component=SH.NodeConstraintComponent,
+        res_iri=DATA.id_2,
+        res_class=ONTO.ClassWithEverything,
+        property=ONTO.testColor,
+        results_message="ColorValue",
+        value_type=KNORA_API.TextValue,
+    )
+
+
+@pytest.fixture
 def violation_unknown() -> ValidationResult:
     return ValidationResult(
         source_constraint_component=SH.UniqueLangConstraintComponent,
@@ -139,6 +157,19 @@ def test_separate_different_results(class_constraint_component: Graph, min_count
     assert len(result.node_constraint_component) == 1
     assert len(result.detail_bns) == 1
     assert len(result.cardinality_components) == 1
+
+
+def test_extract_one_node_constraint_violation(
+    class_constraint_component: Graph, data_class_constraint_component: Graph
+) -> None:
+    bn = next(class_constraint_component.subjects(SH.sourceConstraintComponent, SH.NodeConstraintComponent))
+    result = _extract_one_node_constraint_violation(bn, class_constraint_component, data_class_constraint_component)
+    assert result.source_constraint_component == SH.NodeConstraintComponent
+    assert result.res_iri == DATA.id_2
+    assert result.res_class == ONTO.ClassWithEverything
+    assert result.property == ONTO.testColor
+    assert result.results_message == "ColorValue"
+    assert result.value_type == KNORA_API.TextValue
 
 
 def test_extract_one_violation(min_count_violation: Graph, data_min_count_violation: Graph) -> None:
@@ -174,6 +205,15 @@ class TestReformatViolation:
         assert result.res_id == "id_closed_constraint"
         assert result.res_type == "onto:CardOneResource"
         assert result.prop_name == "onto:testIntegerSimpleText"
+
+    def test_value_type(self, violation_value_type: ValidationResult) -> None:
+        result = _reformat_one_violation(violation_value_type)
+        assert isinstance(result, ValueTypeViolation)
+        assert result.res_id == "id_2"
+        assert result.res_type == "onto:ClassWithEverything"
+        assert result.prop_name == "onto:testColor"
+        assert result.actual_type == "TextValue"
+        assert result.expected_type == "ColorValue"
 
     def test_unknown(self, violation_unknown: ValidationResult) -> None:
         result = _reformat_one_violation(violation_unknown)

@@ -759,20 +759,11 @@
         <text-prop name=":hasTextChild1">
             <text encoding="utf8">Some text</text>
         </text-prop>
-        <text-prop name=":hasSimpleText">
-            <text encoding="utf8">Inherited cardinality</text>
-        </text-prop>
     </resource>
 
-    <resource label="TestThing2Child2" 
-              restype=":TestThing2Child2" 
+    <resource label="TestThing2Child2"
+              restype=":TestThing2Child2"
               id="TestThing2Child2">
-        <text-prop name=":hasSimpleText">
-            <text encoding="utf8">Inerited Cardinality</text>
-        </text-prop>
-        <text-prop name=":hasTextChild1">
-            <text encoding="utf8">Inerited Cardinality</text>
-        </text-prop>
         <text-prop name=":hasTextChild2">
             <text encoding="utf8">Some text</text>
         </text-prop>

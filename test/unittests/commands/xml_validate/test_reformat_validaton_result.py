@@ -11,6 +11,7 @@ from dsp_tools.commands.xml_validate.models.validation import UnexpectedComponen
 from dsp_tools.commands.xml_validate.models.validation import ValidationResult
 from dsp_tools.commands.xml_validate.reformat_validaton_result import _extract_one_violation
 from dsp_tools.commands.xml_validate.reformat_validaton_result import _reformat_one_violation
+from dsp_tools.commands.xml_validate.reformat_validaton_result import _separate_different_results
 
 VALIDATION_PREFIXES = """
     @prefix onto: <http://0.0.0.0:3333/ontology/9999/onto/v2#> .
@@ -39,8 +40,50 @@ def min_count_violation() -> Graph:
 
 
 @pytest.fixture
-def data() -> Graph:
+def data_min_count_violation() -> Graph:
     gstr = "<http://data/id_min_card> a <http://0.0.0.0:3333/ontology/9999/onto/v2#ClassMixedCard> ."
+    g = Graph()
+    g.parse(data=gstr, format="ttl")
+    return g
+
+
+@pytest.fixture
+def data_class_constraint_component() -> Graph:
+    gstr = "<http://data/id_2> a <http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything> ."
+    g = Graph()
+    g.parse(data=gstr, format="ttl")
+    return g
+
+
+@pytest.fixture
+def class_constraint_component() -> Graph:
+    gstr = f"""{VALIDATION_PREFIXES}
+    [] a sh:ValidationReport ;
+    sh:result _:bn1 .
+
+    [] a sh:ValidationReport ;
+    sh:conforms false ;
+    sh:result [ 
+            a sh:ValidationResult ;
+            sh:detail _:bn1 ;
+            sh:focusNode <http://data/id_2> ;
+            sh:resultMessage "Value does not have shape
+                 <http://api.knora.org/ontology/knora-api/shapes/v2#ColorValue_ClassShape>" ;
+            sh:resultPath onto:testColor ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+            sh:sourceShape onto:testColor_PropShape ;
+            sh:value <http://data/7a65dc11-de6d-4a6c-85ed-72cf346c153e> 
+            ] .
+    
+    _:bn1 a sh:ValidationResult ;
+    sh:focusNode <http://data/7a65dc11-de6d-4a6c-85ed-72cf346c153e> ;
+    sh:resultMessage "Object must be a of type 'ColorValue'." ;
+    sh:resultSeverity sh:Violation ;
+    sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+    sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#ColorValue_ClassShape> ;
+    sh:value <http://data/7a65dc11-de6d-4a6c-85ed-72cf346c153e> .
+    """
     g = Graph()
     g.parse(data=gstr, format="ttl")
     return g
@@ -90,9 +133,17 @@ def violation_unknown() -> ValidationResult:
     )
 
 
-def test_extract_one_violation(min_count_violation: Graph, data: Graph) -> None:
+def test_separate_different_results(class_constraint_component: Graph, min_count_violation: Graph) -> None:
+    test_g = class_constraint_component + min_count_violation
+    result = _separate_different_results(test_g)
+    assert len(result.node_constraint_component) == 1
+    assert len(result.detail_bns) == 1
+    assert len(result.cardinality_components) == 1
+
+
+def test_extract_one_violation(min_count_violation: Graph, data_min_count_violation: Graph) -> None:
     bn = next(min_count_violation.subjects(RDF.type, SH.ValidationResult))
-    result = _extract_one_violation(bn, min_count_violation, data)
+    result = _extract_one_violation(bn, min_count_violation, data_min_count_violation)
     assert result.source_constraint_component == SH.MinCountConstraintComponent
     assert result.res_iri == DATA.id_min_card
     assert result.res_class == ONTO.ClassMixedCard

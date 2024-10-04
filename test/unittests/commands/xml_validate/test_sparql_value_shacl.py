@@ -4,6 +4,7 @@ from rdflib import SH
 from rdflib import Graph
 from rdflib import Namespace
 
+from dsp_tools.commands.xml_validate.sparql.value_shacl import _add_property_shapes_to_class_shapes
 from dsp_tools.commands.xml_validate.sparql.value_shacl import _construct_one_property_type_shape_based_on_object_type
 from dsp_tools.commands.xml_validate.sparql.value_shacl import _construct_one_property_type_shape_gui_element
 
@@ -29,6 +30,12 @@ def test_construct_one_property_type_shape_gui_element(one_richtext_prop: Graph)
     assert next(res.objects(ONTO.testRichtext_PropShape, SH.path)) == ONTO.testRichtext
     assert next(res.objects(ONTO.testRichtext_PropShape, RDF.type)) == SH.PropertyShape
     assert next(res.objects(ONTO.testRichtext_PropShape, SH.node)) == API_SHAPES.FormattedTextValue_ClassShape
+
+
+def test_add_property_shapes_to_class_shapes(card_1: Graph) -> None:
+    res = _add_property_shapes_to_class_shapes(card_1)
+    assert len(res) == 1
+    assert next(res.objects(ONTO.ClassMixedCard_Shape, SH.property)) == ONTO.testBoolean_PropShape
 
 
 if __name__ == "__main__":

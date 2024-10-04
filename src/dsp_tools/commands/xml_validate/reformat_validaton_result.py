@@ -11,6 +11,7 @@ from dsp_tools.commands.xml_validate.models.input_problems import NonExistentCar
 from dsp_tools.commands.xml_validate.models.input_problems import UnexpectedResults
 from dsp_tools.commands.xml_validate.models.validation import UnexpectedComponent
 from dsp_tools.commands.xml_validate.models.validation import ValidationResult
+from dsp_tools.commands.xml_validate.models.validation import ValidationResultTypes
 
 
 def reformat_validation_graph(results_graph: Graph, data_graph: Graph) -> AllProblems:
@@ -29,6 +30,18 @@ def reformat_validation_graph(results_graph: Graph, data_graph: Graph) -> AllPro
     input_problems, unexpected_components = _transform_violations_into_input_problems(reformatted_results)
     unexpected = UnexpectedResults(unexpected_components) if unexpected_components else None
     return AllProblems(input_problems, unexpected)
+
+
+def _separate_different_results(results_graph: Graph) -> ValidationResultTypes:
+    violations = set(results_graph.subjects(RDF.type, SH.ValidationResult))
+    nodes_constraints = set(results_graph.subjects(SH.sourceConstraintComponent, SH.NodeConstraintComponent))
+    class_constraints = set(results_graph.subjects(SH.sourceConstraintComponent, SH.ClassConstraintComponent))
+    other_violations = violations - nodes_constraints - class_constraints
+    return ValidationResultTypes(
+        node_constraint_component=nodes_constraints,
+        detail_bns=class_constraints,
+        cardinality_components=other_violations,
+    )
 
 
 def _reformat_result_graph(results_graph: Graph, data_graph: Graph) -> list[ValidationResult]:

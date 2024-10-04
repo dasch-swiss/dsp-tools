@@ -753,16 +753,16 @@
         </resptr-prop>
     </link>
 
-    <resource label="TestThing2Child1"
-              restype=":TestThing2Child1"
+    <resource label="TestThing2Child1" 
+              restype=":TestThing2Child1" 
               id="TestThing2Child1">
         <text-prop name=":hasTextChild1">
             <text encoding="utf8">Some text</text>
         </text-prop>
     </resource>
 
-    <resource label="TestThing2Child2"
-              restype=":TestThing2Child2"
+    <resource label="TestThing2Child2" 
+              restype=":TestThing2Child2" 
               id="TestThing2Child2">
         <text-prop name=":hasTextChild2">
             <text encoding="utf8">Some text</text>

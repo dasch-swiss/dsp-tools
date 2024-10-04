@@ -25,7 +25,7 @@ from dsp_tools.utils.xml_validation import validate_xml
 LIST_SEPARATOR = "\n    - "
 
 
-def xml_validate(filepath: Path, api_url: str, dev_route: bool, save_graph: bool) -> bool:  # noqa: ARG001,D417 (unused argument)
+def xml_validate(filepath: Path, api_url: str, dev_route: bool, save_graph: bool) -> bool:  # noqa: ARG001 (unused argument)
     """
     Takes a file and project information and validates it against the ontologies on the server.
 
@@ -33,6 +33,7 @@ def xml_validate(filepath: Path, api_url: str, dev_route: bool, save_graph: bool
         filepath: path to the xml data file
         api_url: url of the api host
         dev_route: if this flag is set features that are still in development will be used
+        save_graph: if this flag is set, all the graphs will be saved in a folder
 
     Returns:
         true unless it crashed
@@ -43,6 +44,8 @@ def xml_validate(filepath: Path, api_url: str, dev_route: bool, save_graph: bool
     ontologies, shapes = _get_shacl(onto_con)
     data_graph = data_rdf.make_graph()
     # data_graph += ontologies
+    if save_graph:
+        _save_graph(filepath, ontologies, shapes, data_graph)
     val = ShaclValidator(api_url)
     report = _validate(val, shapes, data_graph)
     if report.conforms:
@@ -68,6 +71,18 @@ def _inform_about_experimental_feature() -> None:
         "Cardinalities",
     ]
     warnings.warn(DspToolsUserWarning(LIST_SEPARATOR.join(what_is_validated)))
+
+
+def _save_graph(filepath: Path, onto: Graph, shacl: Graph, data: Graph) -> None:
+    parent_directory = filepath.parent
+    new_directory = parent_directory / "graphs"
+    new_directory.mkdir(exist_ok=True)
+    generic_filepath = new_directory / filepath.stem
+    onto.serialize(f"{generic_filepath}_ONTO.ttl")
+    shacl.serialize(f"{generic_filepath}_SHACL.ttl")
+    data.serialize(f"{generic_filepath}_DATA.ttl")
+    onto_data = onto + data
+    onto_data.serialize(f"{generic_filepath}_ONTO_DATA.ttl")
 
 
 def _validate(validator: ShaclValidator, shapes_graph: Graph, data_graph: Graph) -> ValidationReport:

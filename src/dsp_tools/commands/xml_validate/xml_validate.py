@@ -43,14 +43,13 @@ def xml_validate(filepath: Path, api_url: str, dev_route: bool, save_graphs: boo
     onto_con = OntologyConnection(api_url, shortcode)
     ontologies, shapes = _get_shacl(onto_con)
     data_graph = data_rdf.make_graph()
+    generic_filepath = Path()
     if save_graphs:
-        _save_graph(filepath, ontologies, shapes, data_graph)
+        generic_filepath = _save_graph(filepath, ontologies, shapes, data_graph)
     # data_graph += ontologies
     val = ShaclValidator(api_url)
     report = _validate(val, shapes, data_graph)
     if save_graphs:
-        new_directory = filepath.parent / "graphs"
-        generic_filepath = new_directory / filepath.stem
         report.validation_graph.serialize(f"{generic_filepath}_VALIDATION_REPORT.ttl")
     if report.conforms:
         cprint("\n   Validation passed!   ", color="green", attrs=["bold", "reverse"])
@@ -77,7 +76,7 @@ def _inform_about_experimental_feature() -> None:
     warnings.warn(DspToolsUserWarning(LIST_SEPARATOR.join(what_is_validated)))
 
 
-def _save_graph(filepath: Path, onto: Graph, shacl: Graph, data: Graph) -> None:
+def _save_graph(filepath: Path, onto: Graph, shacl: Graph, data: Graph) -> Path:
     parent_directory = filepath.parent
     new_directory = parent_directory / "graphs"
     new_directory.mkdir(exist_ok=True)
@@ -88,6 +87,7 @@ def _save_graph(filepath: Path, onto: Graph, shacl: Graph, data: Graph) -> None:
     data.serialize(f"{generic_filepath}_DATA.ttl")
     onto_data = onto + data
     onto_data.serialize(f"{generic_filepath}_ONTO_DATA.ttl")
+    return generic_filepath
 
 
 def _validate(validator: ShaclValidator, shapes_graph: Graph, data_graph: Graph) -> ValidationReport:

@@ -174,7 +174,9 @@ def test_xml_validate_other_server(xml_validate: Mock) -> None:
     file = "filename.xml"
     args = f"xml-validate {file} -s https://api.dasch.swiss".split()
     entry_point.run(args)
-    xml_validate.assert_called_once_with(filepath=Path(file), api_url="https://api.dasch.swiss", dev_route=False)
+    xml_validate.assert_called_once_with(
+        filepath=Path(file), api_url="https://api.dasch.swiss", dev_route=False, save_graphs=False
+    )
 
 
 @patch("dsp_tools.cli.call_action.resume_xmlupload")

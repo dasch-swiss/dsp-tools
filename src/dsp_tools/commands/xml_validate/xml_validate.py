@@ -43,9 +43,9 @@ def xml_validate(filepath: Path, api_url: str, dev_route: bool, save_graphs: boo
     onto_con = OntologyConnection(api_url, shortcode)
     ontologies, shapes = _get_shacl(onto_con)
     data_graph = data_rdf.make_graph()
-    # data_graph += ontologies
     if save_graphs:
         _save_graph(filepath, ontologies, shapes, data_graph)
+    # data_graph += ontologies
     val = ShaclValidator(api_url)
     report = _validate(val, shapes, data_graph)
     if report.conforms:

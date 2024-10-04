@@ -34,3 +34,4 @@ class ValidationResult:
     property: Node
     results_message: str
     value: str | None = None
+    value_type: Node | None = None

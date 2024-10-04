@@ -9,6 +9,7 @@ from dsp_tools.commands.xml_validate.models.input_problems import MaxCardinality
 from dsp_tools.commands.xml_validate.models.input_problems import MinCardinalityViolation
 from dsp_tools.commands.xml_validate.models.input_problems import NonExistentCardinalityViolation
 from dsp_tools.commands.xml_validate.models.input_problems import UnexpectedResults
+from dsp_tools.commands.xml_validate.models.input_problems import ValueTypeViolation
 from dsp_tools.commands.xml_validate.models.validation import UnexpectedComponent
 from dsp_tools.commands.xml_validate.models.validation import ValidationResult
 from dsp_tools.commands.xml_validate.models.validation import ValidationResultTypes
@@ -34,7 +35,16 @@ def reformat_validation_graph(results_graph: Graph, data_graph: Graph) -> AllPro
 
 def _reformat_result_graph(results_graph: Graph, data_graph: Graph) -> list[ValidationResult]:
     results_types = _separate_different_results(results_graph)
-    return [_extract_one_violation(x, results_graph, data_graph) for x in results_types.cardinality_components]
+    validation_results = [
+        _extract_one_cardinality_violation(x, results_graph, data_graph) for x in results_types.cardinality_components
+    ]
+    validation_results.extend(
+        [
+            _extract_one_node_constraint_violation(bn, results_graph, data_graph)
+            for bn in results_types.node_constraint_component
+        ]
+    )
+    return validation_results
 
 
 def _separate_different_results(results_graph: Graph) -> ValidationResultTypes:
@@ -49,7 +59,7 @@ def _separate_different_results(results_graph: Graph) -> ValidationResultTypes:
     )
 
 
-def _extract_one_violation(bn: Node, results_graph: Graph, data_graph: Graph) -> ValidationResult:
+def _extract_one_cardinality_violation(bn: Node, results_graph: Graph, data_graph: Graph) -> ValidationResult:
     focus_nd = next(results_graph.objects(bn, SH.focusNode))
     res_type = next(data_graph.objects(focus_nd, RDF.type))
     path = next(results_graph.objects(bn, SH.resultPath))
@@ -61,6 +71,25 @@ def _extract_one_violation(bn: Node, results_graph: Graph, data_graph: Graph) ->
         res_class=res_type,
         property=path,
         results_message=msg,
+    )
+
+
+def _extract_one_node_constraint_violation(bn: Node, results_graph: Graph, data_graph: Graph) -> ValidationResult:
+    focus_nd = next(results_graph.objects(bn, SH.focusNode))
+    res_type = next(data_graph.objects(focus_nd, RDF.type))
+    path = next(results_graph.objects(bn, SH.resultPath))
+    value_iri = next(results_graph.objects(bn, SH.value))
+    value_type = next(data_graph.objects(value_iri, RDF.type))
+    component = next(results_graph.objects(bn, SH.sourceConstraintComponent))
+    detail_bn = next(results_graph.objects(bn, SH.detail))
+    msg = str(next(results_graph.objects(detail_bn, SH.resultMessage)))
+    return ValidationResult(
+        source_constraint_component=component,
+        res_iri=focus_nd,
+        res_class=res_type,
+        property=path,
+        results_message=msg,
+        value_type=value_type,
     )
 
 
@@ -89,6 +118,11 @@ def _reformat_one_violation(violation: ValidationResult) -> InputProblem | Unexp
             return MinCardinalityViolation(subject_id, res_type, prop_name, violation.results_message)
         case SH.ClosedConstraintComponent:
             return NonExistentCardinalityViolation(subject_id, res_type, prop_name)
+        case SH.NodeConstraintComponent:
+            actual_type = _reformat_onto_iri(str(violation.value_type)).replace("knora-api:", "")
+            return ValueTypeViolation(
+                subject_id, res_type, prop_name, actual_type=actual_type, expected_type=violation.results_message
+            )
         case _:
             return UnexpectedComponent(str(violation.source_constraint_component))
 

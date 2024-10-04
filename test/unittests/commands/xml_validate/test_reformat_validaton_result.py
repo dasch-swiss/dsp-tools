@@ -9,7 +9,7 @@ from dsp_tools.commands.xml_validate.models.input_problems import MinCardinality
 from dsp_tools.commands.xml_validate.models.input_problems import NonExistentCardinalityViolation
 from dsp_tools.commands.xml_validate.models.validation import UnexpectedComponent
 from dsp_tools.commands.xml_validate.models.validation import ValidationResult
-from dsp_tools.commands.xml_validate.reformat_validaton_result import _extract_one_violation
+from dsp_tools.commands.xml_validate.reformat_validaton_result import _extract_one_cardinality_violation
 from dsp_tools.commands.xml_validate.reformat_validaton_result import _reformat_one_violation
 from dsp_tools.commands.xml_validate.reformat_validaton_result import _separate_different_results
 
@@ -78,7 +78,7 @@ def class_constraint_component() -> Graph:
     
     _:bn1 a sh:ValidationResult ;
     sh:focusNode <http://data/7a65dc11-de6d-4a6c-85ed-72cf346c153e> ;
-    sh:resultMessage "Object must be a of type 'ColorValue'." ;
+    sh:resultMessage "ColorValue" ;
     sh:resultSeverity sh:Violation ;
     sh:sourceConstraintComponent sh:ClassConstraintComponent ;
     sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#ColorValue_ClassShape> ;
@@ -143,7 +143,7 @@ def test_separate_different_results(class_constraint_component: Graph, min_count
 
 def test_extract_one_violation(min_count_violation: Graph, data_min_count_violation: Graph) -> None:
     bn = next(min_count_violation.subjects(RDF.type, SH.ValidationResult))
-    result = _extract_one_violation(bn, min_count_violation, data_min_count_violation)
+    result = _extract_one_cardinality_violation(bn, min_count_violation, data_min_count_violation)
     assert result.source_constraint_component == SH.MinCountConstraintComponent
     assert result.res_iri == DATA.id_min_card
     assert result.res_class == ONTO.ClassMixedCard

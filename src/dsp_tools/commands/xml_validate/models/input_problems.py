@@ -135,3 +135,19 @@ class NonExistentCardinalityViolation(InputProblem):
 
     def sort_value(self) -> str:
         return self.prop_name
+
+
+#######################
+# Value Type Violation
+
+
+@dataclass
+class ValueTypeViolation(InputProblem):
+    actual_type: str
+    expected_type: str
+
+    def get_msg(self) -> str:
+        return f"Value Type Mismatch, Actual Type: {self.actual_type} | Expected Type: {self.expected_type}"
+
+    def sort_value(self) -> str:
+        return self.prop_name

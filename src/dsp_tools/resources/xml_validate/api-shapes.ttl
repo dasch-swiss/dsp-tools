@@ -32,7 +32,7 @@
 api-shapes:BooleanValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
-  sh:message  "Object must be a of type 'BooleanValue'." ;
+  sh:message  "BooleanValue" ;
   sh:class    knora-api:BooleanValue ;
   sh:severity sh:Violation .
 
@@ -44,7 +44,7 @@ api-shapes:BooleanValue_ClassShape
 api-shapes:ColorValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
-  sh:message  "Object must be a of type 'ColorValue'." ;
+  sh:message  "ColorValue" ;
   sh:class    knora-api:ColorValue ;
   sh:severity sh:Violation .
 
@@ -56,7 +56,7 @@ api-shapes:ColorValue_ClassShape
 api-shapes:DateValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
-  sh:message  "Object must be a of type 'DateValue'." ;
+  sh:message  "DateValue" ;
   sh:class    knora-api:DateValue ;
   sh:severity sh:Violation .
 
@@ -68,7 +68,7 @@ api-shapes:DateValue_ClassShape
 api-shapes:DecimalValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
-  sh:message  "Object must be a of type 'DecimalValue'." ;
+  sh:message  "DecimalValue" ;
   sh:class    knora-api:DecimalValue ;
   sh:severity sh:Violation .
 
@@ -80,7 +80,7 @@ api-shapes:DecimalValue_ClassShape
 api-shapes:GeonameValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
-  sh:message  "Object must be a of type 'GeonameValue'." ;
+  sh:message  "GeonameValue" ;
   sh:class    knora-api:GeonameValue ;
   sh:severity sh:Violation .
 
@@ -92,7 +92,7 @@ api-shapes:GeonameValue_ClassShape
 api-shapes:IntValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
-  sh:message  "Object must be a of type 'IntValue'." ;
+  sh:message  "IntValue" ;
   sh:class    knora-api:IntValue ;
   sh:severity sh:Violation .
 
@@ -104,7 +104,7 @@ api-shapes:IntValue_ClassShape
 api-shapes:LinkValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
-  sh:message  "Object must be a of type 'LinkValue'." ;
+  sh:message  "LinkValue" ;
   sh:class    knora-api:LinkValue ;
   sh:severity sh:Violation .
 
@@ -116,7 +116,7 @@ api-shapes:LinkValue_ClassShape
 api-shapes:ListValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
-  sh:message  "Object must be a of type 'ListValue'." ;
+  sh:message  "ListValue" ;
   sh:class    knora-api:ListValue ;
   sh:severity sh:Violation .
 
@@ -130,7 +130,7 @@ api-shapes:ListValue_ClassShape
 api-shapes:SimpleTextValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
-  sh:message  "Object must be a of type 'TextValue' without formatting." ;
+  sh:message  "TextValue without formatting." ;
   sh:severity sh:Violation .
 
 
@@ -139,7 +139,7 @@ api-shapes:SimpleTextValue_ClassShape
 api-shapes:FormattedTextValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
-  sh:message  "Object must be a of type 'TextValue' with formatting." ;
+  sh:message  "TextValue with formatting." ;
   sh:severity sh:Violation .
 
 
@@ -150,7 +150,7 @@ api-shapes:FormattedTextValue_ClassShape
 api-shapes:TimeValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
-  sh:message  "Object must be a of type 'TimeValue'." ;
+  sh:message  "TimeValue" ;
   sh:class    knora-api:TimeValue ;
   sh:severity sh:Violation .
 
@@ -162,7 +162,7 @@ api-shapes:TimeValue_ClassShape
 api-shapes:UriValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
-  sh:message  "Object must be a of type 'UriValue'." ;
+  sh:message  "UriValue" ;
   sh:class    knora-api:UriValue ;
   sh:severity sh:Violation .
 

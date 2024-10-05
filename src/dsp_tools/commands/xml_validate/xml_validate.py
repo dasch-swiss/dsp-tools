@@ -55,7 +55,7 @@ def xml_validate(filepath: Path, api_url: str, dev_route: bool, save_graphs: boo
         cprint("\n   Validation passed!   ", color="green", attrs=["bold", "reverse"])
     else:
         reformatted = reformat_validation_graph(report.validation_graph, data_graph)
-        problem_msg = reformatted.get_msg()
+        problem_msg = reformatted.get_msg(filepath)
         cprint("\n   Validation errors found!   ", color="light_red", attrs=["bold", "reverse"])
         print(problem_msg)
         if reformatted.unexpected_results:

@@ -200,8 +200,18 @@ class ValueTypeViolation(InputProblem):
     actual_type: str
     expected_type: str
 
+    @property
+    def problem(self) -> str:
+        return "Value Type Mismatch"
+
     def get_msg(self) -> str:
-        return f"Value Type Mismatch, Actual Type: {self.actual_type} | Expected Type: {self.expected_type}"
+        return f"{self.problem}, Actual Type: {self.actual_type} | Expected Type: {self.expected_type}"
+
+    def to_dict(self) -> dict[str, str]:
+        problm_dict = self._base_dict()
+        problm_dict["Expected"] = self.expected_type
+        problm_dict["Actual"] = self.actual_type
+        return problm_dict
 
     def sort_value(self) -> str:
         return self.prop_name

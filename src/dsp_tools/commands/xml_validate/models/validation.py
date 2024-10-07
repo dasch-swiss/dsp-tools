@@ -7,6 +7,13 @@ from rdflib.term import Node
 
 
 @dataclass
+class ValidationResultTypes:
+    node_constraint_component: set[Node]
+    detail_bns: set[Node]
+    cardinality_components: set[Node]
+
+
+@dataclass
 class ValidationReport:
     conforms: bool
     validation_graph: Graph
@@ -27,3 +34,4 @@ class ValidationResult:
     property: Node
     results_message: str
     value: str | None = None
+    value_type: Node | None = None

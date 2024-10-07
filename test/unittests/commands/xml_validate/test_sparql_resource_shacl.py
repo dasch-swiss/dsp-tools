@@ -16,6 +16,7 @@ from dsp_tools.commands.xml_validate.sparql.resource_shacl import construct_reso
 
 ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
 API_SHAPES = Namespace("http://api.knora.org/ontology/knora-api/shapes/v2#")
+
 PREFIXES = """
 @prefix knora-api: <http://api.knora.org/ontology/knora-api/v2#> .
 @prefix onto: <http://0.0.0.0:3333/ontology/9999/onto/v2#> .
@@ -24,133 +25,6 @@ PREFIXES = """
 @prefix salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 """
-
-
-@pytest.fixture
-def onto_graph() -> Graph:
-    g = Graph()
-    g.parse("testdata/xml-validate/onto.ttl")
-    return g
-
-
-@pytest.fixture
-def one_res_one_prop() -> Graph:
-    ttl = f"""{PREFIXES}
-    onto:CardOneResource a owl:Class ;
-    rdfs:label "Resource with One Cardinality" ;
-    knora-api:canBeInstantiated true ;
-    knora-api:isResourceClass true ;
-    rdfs:subClassOf 
-        knora-api:Resource ,
-        [ a owl:Restriction ;
-            knora-api:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty knora-api:versionDate ],
-        [ a owl:Restriction ;
-            knora-api:isInherited true ;
-            salsah-gui:guiOrder 0 ;
-            owl:cardinality 1 ;
-            owl:onProperty onto:testBoolean ] .
-    
-    onto:testBoolean a owl:ObjectProperty ;
-        rdfs:label "Test Boolean" ;
-        knora-api:isEditable true ;
-        knora-api:isResourceProperty true ;
-        knora-api:objectType knora-api:BooleanValue ;
-        salsah-gui:guiElement salsah-gui:Checkbox ;
-        rdfs:subPropertyOf knora-api:hasValue .
-    """
-    g = Graph()
-    g.parse(data=ttl, format="ttl")
-    return g
-
-
-@pytest.fixture
-def one_prop() -> Graph:
-    ttl = f"""{PREFIXES}
-    onto:testBoolean a owl:ObjectProperty ;
-        rdfs:label "Test Boolean" ;
-        knora-api:isEditable true ;
-        knora-api:isResourceProperty true ;
-        knora-api:objectType knora-api:BooleanValue ;
-        salsah-gui:guiElement salsah-gui:Checkbox ;
-        rdfs:subPropertyOf knora-api:hasValue .
-    """
-    g = Graph()
-    g.parse(data=ttl, format="ttl")
-    return g
-
-
-@pytest.fixture
-def card_1() -> Graph:
-    ttl = f"""{PREFIXES}
-    onto:ClassMixedCard a owl:Class ;
-        knora-api:isResourceClass true ;
-        knora-api:canBeInstantiated true ;
-        rdfs:subClassOf [ 
-                a owl:Restriction ;
-                salsah-gui:guiOrder 0 ;
-                owl:cardinality 1 ;
-                owl:onProperty onto:testBoolean
-                         ] .
-    """
-    g = Graph()
-    g.parse(data=ttl, format="ttl")
-    return g
-
-
-@pytest.fixture
-def card_0_1() -> Graph:
-    ttl = f"""{PREFIXES}
-    onto:ClassMixedCard a owl:Class ;
-        knora-api:isResourceClass true ;
-        knora-api:canBeInstantiated true ;
-        rdfs:subClassOf [ 
-                a owl:Restriction ;
-                salsah-gui:guiOrder 1 ;
-                owl:maxCardinality 1 ;
-                owl:onProperty onto:testDecimalSimpleText
-                         ] .
-    """
-    g = Graph()
-    g.parse(data=ttl, format="ttl")
-    return g
-
-
-@pytest.fixture
-def card_1_n() -> Graph:
-    ttl = f"""{PREFIXES}
-    onto:ClassMixedCard a owl:Class ;
-        knora-api:isResourceClass true ;
-        knora-api:canBeInstantiated true ;
-        rdfs:subClassOf [ 
-                a owl:Restriction ;
-                salsah-gui:guiOrder 2 ;
-                owl:minCardinality 1 ;
-                owl:onProperty onto:testGeoname
-                         ] .
-    """
-    g = Graph()
-    g.parse(data=ttl, format="ttl")
-    return g
-
-
-@pytest.fixture
-def card_0_n() -> Graph:
-    ttl = f"""{PREFIXES}
-    onto:ClassMixedCard a owl:Class ;
-        knora-api:isResourceClass true ;
-        knora-api:canBeInstantiated true ;
-        rdfs:subClassOf [ 
-                a owl:Restriction ;
-                salsah-gui:guiOrder 3 ;
-                owl:minCardinality 0 ;
-                owl:onProperty onto:testSimpleText
-                         ] .
-    """
-    g = Graph()
-    g.parse(data=ttl, format="ttl")
-    return g
 
 
 class TestCheckTripleNumbersOnto:
@@ -217,8 +91,8 @@ def test_construct_resource_nodeshape_one_res(one_res_one_prop: Graph) -> None:
     assert next(result.objects(subject_iri, SH.closed)) == Literal(True)
 
 
-def test_construct_resource_nodeshape_no_res(one_prop: Graph) -> None:
-    result = _construct_resource_nodeshape(one_prop)
+def test_construct_resource_nodeshape_no_res(one_bool_prop: Graph) -> None:
+    result = _construct_resource_nodeshape(one_bool_prop)
     assert len(result) == 0
 
 

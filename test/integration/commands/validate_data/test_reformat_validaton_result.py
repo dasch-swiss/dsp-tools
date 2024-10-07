@@ -7,7 +7,7 @@ from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalit
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_validation_graph
-from dsp_tools.commands.validate_data.xml_validate import _get_data_info_from_file
+from dsp_tools.commands.validate_data.validate_data import _get_data_info_from_file
 
 LOCAL_API = "http://0.0.0.0:3333"
 

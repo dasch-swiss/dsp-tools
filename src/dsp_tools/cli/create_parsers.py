@@ -297,8 +297,8 @@ def _add_xml_validate(
     subparsers: _SubParsersAction[ArgumentParser],
     default_dsp_api_url: str,
 ) -> None:
-    subparser = subparsers.add_parser(name="xml-validate", help="Validate the data with the data model.")
-    subparser.set_defaults(action="xml-validate")
+    subparser = subparsers.add_parser(name="validate-data", help="Validate the data with the data model.")
+    subparser.set_defaults(action="validate-data")
     subparser.add_argument("xmlfile", help="path to the XML file containing the data")
     subparser.add_argument(
         "-s", "--server", default=default_dsp_api_url, help="URL of the DSP server where DSP-TOOLS sends the data to"

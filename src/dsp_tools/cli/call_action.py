@@ -51,7 +51,7 @@ def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912 (t
             result = _call_create(args)
         case "xmlupload":
             result = _call_xmlupload(args)
-        case "xml-validate":
+        case "validate-data":
             result = _call_xml_validate(args)
         case "resume-xmlupload":
             result = _call_resume_xmlupload(args)

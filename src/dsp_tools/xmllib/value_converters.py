@@ -48,7 +48,7 @@ def replace_newlines_with_tags(text: str, converter_option: NewlineReplacement) 
 
 def replace_newlines_with_paragraph_tags(text: str) -> str:
     """
-    Replaces '\n' with <p>text</p>
+    Replaces '\\n' with `<p>text</p>`
 
     Args:
         text: string to be formatted
@@ -63,7 +63,7 @@ def replace_newlines_with_paragraph_tags(text: str) -> str:
 
 def replace_newlines_with_br_tags(text: str) -> str:
     """
-    Replaces '\n' with <br/>
+    Replaces '\\n' with `<br/>`
 
     Args:
         text: string to be formatted

@@ -6,6 +6,7 @@ from dsp_tools.models.exceptions import InputError
 from dsp_tools.xmllib.models.file_values import FileValue
 from dsp_tools.xmllib.models.file_values import IIIFUri
 from dsp_tools.xmllib.models.resource import Resource
+from dsp_tools.xmllib.models.user_enums import NewlineReplacement
 from dsp_tools.xmllib.models.values import BooleanValue
 from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import DateValue
@@ -175,9 +176,16 @@ class TestAddValues:
         assert isinstance(res.values[0], SimpleText)
 
     def test_add_richtext(self) -> None:
-        res = Resource("", "", "").add_richtext("", "")
+        res = Resource("", "", "").add_richtext("A\nB", "")
         assert len(res.values) == 1
         assert isinstance(res.values[0], Richtext)
+        assert res.values[0].value == "A<br/>B"
+
+    def test_add_richtext_no_replace(self) -> None:
+        res = Resource("", "", "").add_richtext("A\nB", "", newline_replacement=NewlineReplacement.NONE)
+        assert len(res.values) == 1
+        assert isinstance(res.values[0], Richtext)
+        assert res.values[0].value == "A\nB"
 
     def test_add_richtexts(self) -> None:
         res = Resource("", "", "").add_richtexts(["", ""], "")

@@ -15,6 +15,7 @@ from dsp_tools.xmllib.models.file_values import AbstractFileValue
 from dsp_tools.xmllib.models.file_values import FileValue
 from dsp_tools.xmllib.models.file_values import IIIFUri
 from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
+from dsp_tools.xmllib.models.user_enums import NewlineReplacement
 from dsp_tools.xmllib.models.values import BooleanValue
 from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import DateValue
@@ -29,6 +30,7 @@ from dsp_tools.xmllib.models.values import TimeValue
 from dsp_tools.xmllib.models.values import UriValue
 from dsp_tools.xmllib.models.values import Value
 from dsp_tools.xmllib.value_checkers import is_string_like
+from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
@@ -311,21 +313,39 @@ class Resource:
     #######################
 
     def add_richtext(
-        self, value: str, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self,
+        value: str,
+        prop_name: str,
+        permissions: str | None = None,
+        comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> Resource:
+        value = replace_newlines_with_tags(str(value), newline_replacement)
         self.values.append(Richtext(value, prop_name, permissions, comment, self.res_id))
         return self
 
     def add_richtexts(
-        self, values: list[str], prop_name: str, permissions: str | None = None, comment: str | None = None
+        self,
+        values: list[str],
+        prop_name: str,
+        permissions: str | None = None,
+        comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> Resource:
+        values = [replace_newlines_with_tags(str(v), newline_replacement) for v in values]
         self.values.extend([Richtext(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
     def add_richtext_optional(
-        self, value: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self,
+        value: Any,
+        prop_name: str,
+        permissions: str | None = None,
+        comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> Resource:
         if not pd.isna(value):
+            value = replace_newlines_with_tags(str(value), newline_replacement)
             self.values.append(Richtext(value, prop_name, permissions, comment, self.res_id))
         return self
 

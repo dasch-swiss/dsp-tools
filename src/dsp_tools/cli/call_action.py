@@ -107,6 +107,7 @@ def _call_start_stack(args: argparse.Namespace) -> bool:
             suppress_docker_system_prune=args.no_prune,
             latest_dev_version=args.latest,
             upload_test_data=args.with_test_data,
+            api_version_for_validate=args.validation,
         )
     )
     return stack_handler.start_stack()
@@ -211,7 +212,9 @@ def _call_xmlupload(args: argparse.Namespace) -> bool:
 
 
 def _call_xml_validate(args: argparse.Namespace) -> bool:
-    return xml_validate(filepath=Path(args.xmlfile), api_url=args.server, dev_route=args.dev)
+    return xml_validate(
+        filepath=Path(args.xmlfile), api_url=args.server, dev_route=args.dev, save_graphs=args.save_graphs
+    )
 
 
 def _call_resume_xmlupload(args: argparse.Namespace) -> bool:

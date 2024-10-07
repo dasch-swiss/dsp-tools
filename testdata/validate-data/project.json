@@ -3,9 +3,9 @@
   "project": {
     "shortcode": "9999",
     "shortname": "test",
-    "longname": "Test project for data-validate",
+    "longname": "Test project for validate-data",
     "descriptions": {
-      "en": "Test project for data-validate"
+      "en": "Test project for validate-data"
     },
     "keywords": [
       "validate"

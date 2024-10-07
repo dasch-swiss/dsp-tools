@@ -144,7 +144,9 @@ def test_xml_validate_default(xml_validate: Mock) -> None:
     file = "filename.xml"
     args = f"xml-validate {file}".split()
     entry_point.run(args)
-    xml_validate.assert_called_once_with(filepath=Path(file), api_url="http://0.0.0.0:3333", dev_route=False)
+    xml_validate.assert_called_once_with(
+        filepath=Path(file), api_url="http://0.0.0.0:3333", dev_route=False, save_graphs=False
+    )
 
 
 @patch("dsp_tools.cli.call_action.xml_validate")
@@ -152,7 +154,19 @@ def test_xml_validate_dev(xml_validate: Mock) -> None:
     file = "filename.xml"
     args = f"xml-validate {file} --dev".split()
     entry_point.run(args)
-    xml_validate.assert_called_once_with(filepath=Path(file), api_url="http://0.0.0.0:3333", dev_route=True)
+    xml_validate.assert_called_once_with(
+        filepath=Path(file), api_url="http://0.0.0.0:3333", dev_route=True, save_graphs=False
+    )
+
+
+@patch("dsp_tools.cli.call_action.xml_validate")
+def test_xml_validate_save_graph(xml_validate: Mock) -> None:
+    file = "filename.xml"
+    args = f"xml-validate {file} --save-graphs".split()
+    entry_point.run(args)
+    xml_validate.assert_called_once_with(
+        filepath=Path(file), api_url="http://0.0.0.0:3333", dev_route=False, save_graphs=True
+    )
 
 
 @patch("dsp_tools.cli.call_action.xml_validate")
@@ -160,7 +174,9 @@ def test_xml_validate_other_server(xml_validate: Mock) -> None:
     file = "filename.xml"
     args = f"xml-validate {file} -s https://api.dasch.swiss".split()
     entry_point.run(args)
-    xml_validate.assert_called_once_with(filepath=Path(file), api_url="https://api.dasch.swiss", dev_route=False)
+    xml_validate.assert_called_once_with(
+        filepath=Path(file), api_url="https://api.dasch.swiss", dev_route=False, save_graphs=False
+    )
 
 
 @patch("dsp_tools.cli.call_action.resume_xmlupload")
@@ -425,6 +441,25 @@ def test_start_stack_default(mock_init: Mock, start_stack: Mock) -> None:
             suppress_docker_system_prune=False,
             latest_dev_version=False,
             upload_test_data=False,
+            api_version_for_validate=False,
+        )
+    )
+    start_stack.assert_called_once()
+
+
+@patch("dsp_tools.commands.start_stack.StackHandler.start_stack")
+@patch("dsp_tools.commands.start_stack.StackHandler.__init__", return_value=None)
+def test_start_stack_validation(mock_init: Mock, start_stack: Mock) -> None:
+    args = "start-stack --validation".split()
+    entry_point.run(args)
+    mock_init.assert_called_once_with(
+        StackConfiguration(
+            max_file_size=None,
+            enforce_docker_system_prune=False,
+            suppress_docker_system_prune=False,
+            latest_dev_version=False,
+            upload_test_data=False,
+            api_version_for_validate=True,
         )
     )
     start_stack.assert_called_once()

@@ -51,7 +51,7 @@ services:
   db:
     # on the verge of every deployment (fortnightly), update the "image" value from the "db" value of
     # https://github.com/dasch-swiss/ops-deploy/blob/main/roles/dsp-deploy/files/RELEASE.json
-    image: daschswiss/apache-jena-fuseki:5.1.0
+    image: daschswiss/apache-jena-fuseki:5.0.0-3
     ports:
       - "3030:3030"
     environment:

@@ -8,9 +8,11 @@ from dsp_tools.commands.xml_validate.models.input_problems import InputProblem
 from dsp_tools.commands.xml_validate.models.input_problems import MaxCardinalityViolation
 from dsp_tools.commands.xml_validate.models.input_problems import MinCardinalityViolation
 from dsp_tools.commands.xml_validate.models.input_problems import NonExistentCardinalityViolation
-from dsp_tools.commands.xml_validate.models.input_problems import UnexpectedComponent
 from dsp_tools.commands.xml_validate.models.input_problems import UnexpectedResults
-from dsp_tools.commands.xml_validate.models.input_problems import ValidationResult
+from dsp_tools.commands.xml_validate.models.input_problems import ValueTypeViolation
+from dsp_tools.commands.xml_validate.models.validation import UnexpectedComponent
+from dsp_tools.commands.xml_validate.models.validation import ValidationResult
+from dsp_tools.commands.xml_validate.models.validation import ValidationResultTypes
 
 
 def reformat_validation_graph(results_graph: Graph, data_graph: Graph) -> AllProblems:
@@ -27,16 +29,37 @@ def reformat_validation_graph(results_graph: Graph, data_graph: Graph) -> AllPro
     """
     reformatted_results = _reformat_result_graph(results_graph, data_graph)
     input_problems, unexpected_components = _transform_violations_into_input_problems(reformatted_results)
-    unexpected = UnexpectedResults(unexpected_components, results_graph) if unexpected_components else None
+    unexpected = UnexpectedResults(unexpected_components) if unexpected_components else None
     return AllProblems(input_problems, unexpected)
 
 
 def _reformat_result_graph(results_graph: Graph, data_graph: Graph) -> list[ValidationResult]:
-    violations = results_graph.subjects(RDF.type, SH.ValidationResult)
-    return [_extract_one_violation(x, results_graph, data_graph) for x in violations]
+    results_types = _separate_different_results(results_graph)
+    validation_results = [
+        _extract_one_cardinality_violation(x, results_graph, data_graph) for x in results_types.cardinality_components
+    ]
+    validation_results.extend(
+        [
+            _extract_one_node_constraint_violation(bn, results_graph, data_graph)
+            for bn in results_types.node_constraint_component
+        ]
+    )
+    return validation_results
 
 
-def _extract_one_violation(bn: Node, results_graph: Graph, data_graph: Graph) -> ValidationResult:
+def _separate_different_results(results_graph: Graph) -> ValidationResultTypes:
+    violations = set(results_graph.subjects(RDF.type, SH.ValidationResult))
+    nodes_constraints = set(results_graph.subjects(SH.sourceConstraintComponent, SH.NodeConstraintComponent))
+    class_constraints = set(results_graph.subjects(SH.sourceConstraintComponent, SH.ClassConstraintComponent))
+    other_violations = violations - nodes_constraints - class_constraints
+    return ValidationResultTypes(
+        node_constraint_component=nodes_constraints,
+        detail_bns=class_constraints,
+        cardinality_components=other_violations,
+    )
+
+
+def _extract_one_cardinality_violation(bn: Node, results_graph: Graph, data_graph: Graph) -> ValidationResult:
     focus_nd = next(results_graph.objects(bn, SH.focusNode))
     res_type = next(data_graph.objects(focus_nd, RDF.type))
     path = next(results_graph.objects(bn, SH.resultPath))
@@ -48,6 +71,25 @@ def _extract_one_violation(bn: Node, results_graph: Graph, data_graph: Graph) ->
         res_class=res_type,
         property=path,
         results_message=msg,
+    )
+
+
+def _extract_one_node_constraint_violation(bn: Node, results_graph: Graph, data_graph: Graph) -> ValidationResult:
+    focus_nd = next(results_graph.objects(bn, SH.focusNode))
+    res_type = next(data_graph.objects(focus_nd, RDF.type))
+    path = next(results_graph.objects(bn, SH.resultPath))
+    value_iri = next(results_graph.objects(bn, SH.value))
+    value_type = next(data_graph.objects(value_iri, RDF.type))
+    component = next(results_graph.objects(bn, SH.sourceConstraintComponent))
+    detail_bn = next(results_graph.objects(bn, SH.detail))
+    msg = str(next(results_graph.objects(detail_bn, SH.resultMessage)))
+    return ValidationResult(
+        source_constraint_component=component,
+        res_iri=focus_nd,
+        res_class=res_type,
+        property=path,
+        results_message=msg,
+        value_type=value_type,
     )
 
 
@@ -71,11 +113,34 @@ def _reformat_one_violation(violation: ValidationResult) -> InputProblem | Unexp
     res_type = _reformat_onto_iri(str(violation.res_class))
     match violation.source_constraint_component:
         case SH.MaxCountConstraintComponent:
-            return MaxCardinalityViolation(subject_id, res_type, prop_name, violation.results_message)
+            return MaxCardinalityViolation(
+                res_id=subject_id,
+                res_type=res_type,
+                prop_name=prop_name,
+                expected_cardinality=violation.results_message,
+            )
         case SH.MinCountConstraintComponent:
-            return MinCardinalityViolation(subject_id, res_type, prop_name, violation.results_message)
+            return MinCardinalityViolation(
+                res_id=subject_id,
+                res_type=res_type,
+                prop_name=prop_name,
+                expected_cardinality=violation.results_message,
+            )
         case SH.ClosedConstraintComponent:
-            return NonExistentCardinalityViolation(subject_id, res_type, prop_name)
+            return NonExistentCardinalityViolation(
+                res_id=subject_id,
+                res_type=res_type,
+                prop_name=prop_name,
+            )
+        case SH.NodeConstraintComponent:
+            actual_type = _reformat_onto_iri(str(violation.value_type)).replace("knora-api:", "")
+            return ValueTypeViolation(
+                res_id=subject_id,
+                res_type=res_type,
+                prop_name=prop_name,
+                actual_type=actual_type,
+                expected_type=violation.results_message,
+            )
         case _:
             return UnexpectedComponent(str(violation.source_constraint_component))
 
@@ -86,4 +151,4 @@ def _reformat_onto_iri(prop: str) -> str:
 
 
 def _reformat_data_iri(iri: str) -> str:
-    return iri.lstrip("http://data/")
+    return iri.replace("http://data/", "")

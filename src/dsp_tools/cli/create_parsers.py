@@ -124,6 +124,7 @@ def _add_start_stack(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     subparser.add_argument("--no-prune", action="store_true", help=no_prune_text)
     subparser.add_argument("--latest", action="store_true", help=latest_text)
     subparser.add_argument("--with-test-data", action="store_true", help=with_test_data_text)
+    subparser.add_argument("--validation", action="store_true")
 
 
 def _add_id2iri(subparsers: _SubParsersAction[ArgumentParser]) -> None:
@@ -303,6 +304,9 @@ def _add_xml_validate(
         "-s", "--server", default=default_dsp_api_url, help="URL of the DSP server where DSP-TOOLS sends the data to"
     )
     subparser.add_argument("--dev", action="store_true", help="Validate with experimental features.")
+    subparser.add_argument(
+        "--save-graphs", action="store_true", help="Save the data, onto and shacl graph as ttl files."
+    )
 
 
 def _add_resume_xmlupload(

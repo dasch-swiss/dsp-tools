@@ -3,25 +3,25 @@ from pathlib import Path
 import pytest
 from rdflib import Graph
 
-from dsp_tools.commands.xml_validate.models.input_problems import MaxCardinalityViolation
-from dsp_tools.commands.xml_validate.models.input_problems import MinCardinalityViolation
-from dsp_tools.commands.xml_validate.models.input_problems import NonExistentCardinalityViolation
-from dsp_tools.commands.xml_validate.reformat_validaton_result import reformat_validation_graph
-from dsp_tools.commands.xml_validate.xml_validate import _get_data_info_from_file
+from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityViolation
+from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityViolation
+from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
+from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_validation_graph
+from dsp_tools.commands.validate_data.validate_data import _get_data_info_from_file
 
 LOCAL_API = "http://0.0.0.0:3333"
 
 
 @pytest.fixture
 def data_cardinality_violation() -> Graph:
-    data, _ = _get_data_info_from_file(Path("testdata/xml-validate/data/cardinality_violation.xml"), LOCAL_API)
+    data, _ = _get_data_info_from_file(Path("testdata/data-validate/data/cardinality_violation.xml"), LOCAL_API)
     return data.make_graph()
 
 
 @pytest.fixture
 def result_cardinality_violation() -> Graph:
     g = Graph()
-    g.parse("testdata/xml-validate/validation_results/cardinality_violation_result.ttl")
+    g.parse("testdata/data-validate/validation_results/cardinality_violation_result.ttl")
     return g
 
 

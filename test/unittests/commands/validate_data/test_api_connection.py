@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 import pytest
 
-from dsp_tools.commands.xml_validate.api_connection import OntologyConnection
+from dsp_tools.commands.validate_data.api_connection import OntologyConnection
 from dsp_tools.models.exceptions import UserError
 
 

@@ -3,16 +3,16 @@ from rdflib import SH
 from rdflib import Graph
 from rdflib.term import Node
 
-from dsp_tools.commands.xml_validate.models.input_problems import AllProblems
-from dsp_tools.commands.xml_validate.models.input_problems import InputProblem
-from dsp_tools.commands.xml_validate.models.input_problems import MaxCardinalityViolation
-from dsp_tools.commands.xml_validate.models.input_problems import MinCardinalityViolation
-from dsp_tools.commands.xml_validate.models.input_problems import NonExistentCardinalityViolation
-from dsp_tools.commands.xml_validate.models.input_problems import UnexpectedResults
-from dsp_tools.commands.xml_validate.models.input_problems import ValueTypeViolation
-from dsp_tools.commands.xml_validate.models.validation import UnexpectedComponent
-from dsp_tools.commands.xml_validate.models.validation import ValidationResult
-from dsp_tools.commands.xml_validate.models.validation import ValidationResultTypes
+from dsp_tools.commands.validate_data.models.input_problems import AllProblems
+from dsp_tools.commands.validate_data.models.input_problems import InputProblem
+from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityViolation
+from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityViolation
+from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
+from dsp_tools.commands.validate_data.models.input_problems import UnexpectedResults
+from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
+from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
+from dsp_tools.commands.validate_data.models.validation import ValidationResult
+from dsp_tools.commands.validate_data.models.validation import ValidationResultTypes
 
 
 def reformat_validation_graph(results_graph: Graph, data_graph: Graph) -> AllProblems:

@@ -1,23 +1,23 @@
 import pytest
 from lxml import etree
 
-from dsp_tools.commands.xml_validate.deserialise_input import _deserialise_all_resources
-from dsp_tools.commands.xml_validate.deserialise_input import _deserialise_one_property
-from dsp_tools.commands.xml_validate.deserialise_input import _deserialise_one_resource
-from dsp_tools.commands.xml_validate.models.data_deserialised import BooleanValueDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import ColorValueDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import DateValueDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import DecimalValueDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import GeonameValueDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import IntValueDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import LinkValueDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import ListValueDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import RegionDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import ResourceDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import RichtextDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import SimpleTextDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import TimeValueDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import UriValueDeserialised
+from dsp_tools.commands.validate_data.deserialise_input import _deserialise_all_resources
+from dsp_tools.commands.validate_data.deserialise_input import _deserialise_one_property
+from dsp_tools.commands.validate_data.deserialise_input import _deserialise_one_resource
+from dsp_tools.commands.validate_data.models.data_deserialised import BooleanValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import ColorValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import DateValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import DecimalValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import GeonameValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import IntValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import LinkValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import ListValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import RegionDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import RichtextDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import SimpleTextDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import TimeValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDeserialised
 
 
 class TestResource:

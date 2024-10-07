@@ -127,21 +127,36 @@ api-shapes:ListValue_ClassShape
 
 ###
 # SimpleTextValue
+
+# TODO: perhaps with nodekind?
 api-shapes:SimpleTextValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
-  sh:message  "TextValue without formatting." ;
+  sh:property [
+                sh:message  "TextValue without formatting." ;
+                sh:path     knora-api:valueAsString ;
+                sh:datatype xsd:string ;
+                sh:minCount 1 ;
+                sh:maxCount 1 ;
+              ] ;
   sh:severity sh:Violation .
 
+
+api-shapes:valueAsString_SimpleObject a sh:PropertyShape ;
+              sh:name "Object: 'knora-api:valueAsString'" ;
+              sh:message "TextValue without formatting." ;
+              sh:path knora-api:valueAsString ;
+              sh:datatype xsd:string ;
+              sh:severity sh:Violation .
 
 ###
 # FormattedTextValue
-api-shapes:FormattedTextValue_ClassShape
-  a           sh:NodeShape ;
-  sh:name     "Validates the class type" ;
-  sh:message  "TextValue with formatting." ;
-  sh:severity sh:Violation .
-
+api-shapes:FormattedTextValue_ClassShape a sh:NodeShape ;
+              sh:name "Validates the class type" ;
+              sh:message "TextValue with formatting." ;
+              sh:targetSubjectsOf knora-api:textValueAsXml ;
+              sh:class knora-api:TextValue ;
+              sh:severity sh:Violation .
 
 ##############
 # TimeValue

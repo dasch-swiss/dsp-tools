@@ -10,7 +10,7 @@ from pathlib import Path
 import pandas as pd
 from rdflib import Graph
 
-from dsp_tools.commands.xml_validate.models.validation import UnexpectedComponent
+from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 
 LIST_SEPARATOR = "\n    - "

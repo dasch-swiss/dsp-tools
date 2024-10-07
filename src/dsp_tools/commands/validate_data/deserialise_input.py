@@ -4,29 +4,29 @@ from typing import cast
 
 from lxml import etree
 
-from dsp_tools.commands.xml_validate.models.data_deserialised import AbstractResource
-from dsp_tools.commands.xml_validate.models.data_deserialised import AnnotationDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import AudioSegmentDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import BooleanValueDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import ColorValueDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import DataDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import DateValueDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import DecimalValueDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import GeonameValueDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import IntValueDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import LinkObjDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import LinkValueDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import ListValueDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import ProjectDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import ProjectInformation
-from dsp_tools.commands.xml_validate.models.data_deserialised import RegionDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import ResourceDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import RichtextDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import SimpleTextDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import TimeValueDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import UriValueDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import ValueDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import VideoSegmentDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import AbstractResource
+from dsp_tools.commands.validate_data.models.data_deserialised import AnnotationDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import AudioSegmentDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import BooleanValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import ColorValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import DataDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import DateValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import DecimalValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import GeonameValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import IntValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import LinkObjDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import LinkValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import ListValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import ProjectDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import ProjectInformation
+from dsp_tools.commands.validate_data.models.data_deserialised import RegionDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import RichtextDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import SimpleTextDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import TimeValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import ValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import VideoSegmentDeserialised
 
 
 def deserialise_xml(root: etree._Element) -> ProjectDeserialised:

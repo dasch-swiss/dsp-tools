@@ -4,16 +4,16 @@ from rdflib import SH
 from rdflib import Graph
 from rdflib import Namespace
 
-from dsp_tools.commands.xml_validate.models.input_problems import MaxCardinalityViolation
-from dsp_tools.commands.xml_validate.models.input_problems import MinCardinalityViolation
-from dsp_tools.commands.xml_validate.models.input_problems import NonExistentCardinalityViolation
-from dsp_tools.commands.xml_validate.models.input_problems import ValueTypeViolation
-from dsp_tools.commands.xml_validate.models.validation import UnexpectedComponent
-from dsp_tools.commands.xml_validate.models.validation import ValidationResult
-from dsp_tools.commands.xml_validate.reformat_validaton_result import _extract_one_cardinality_violation
-from dsp_tools.commands.xml_validate.reformat_validaton_result import _extract_one_node_constraint_violation
-from dsp_tools.commands.xml_validate.reformat_validaton_result import _reformat_one_violation
-from dsp_tools.commands.xml_validate.reformat_validaton_result import _separate_different_results
+from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityViolation
+from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityViolation
+from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
+from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
+from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
+from dsp_tools.commands.validate_data.models.validation import ValidationResult
+from dsp_tools.commands.validate_data.reformat_validaton_result import _extract_one_cardinality_violation
+from dsp_tools.commands.validate_data.reformat_validaton_result import _extract_one_node_constraint_violation
+from dsp_tools.commands.validate_data.reformat_validaton_result import _reformat_one_violation
+from dsp_tools.commands.validate_data.reformat_validaton_result import _separate_different_results
 
 VALIDATION_PREFIXES = """
     @prefix onto: <http://0.0.0.0:3333/ontology/9999/onto/v2#> .

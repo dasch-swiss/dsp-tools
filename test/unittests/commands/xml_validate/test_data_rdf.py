@@ -5,19 +5,19 @@ from rdflib import Literal
 from rdflib import Namespace
 from rdflib import URIRef
 
-from dsp_tools.commands.xml_validate.models.data_rdf import BooleanValueRDF
-from dsp_tools.commands.xml_validate.models.data_rdf import ColorValueRDF
-from dsp_tools.commands.xml_validate.models.data_rdf import DateValueRDF
-from dsp_tools.commands.xml_validate.models.data_rdf import DecimalValueRDF
-from dsp_tools.commands.xml_validate.models.data_rdf import GeonameValueRDF
-from dsp_tools.commands.xml_validate.models.data_rdf import IntValueRDF
-from dsp_tools.commands.xml_validate.models.data_rdf import LinkValueRDF
-from dsp_tools.commands.xml_validate.models.data_rdf import ListValueRDF
-from dsp_tools.commands.xml_validate.models.data_rdf import ResourceRDF
-from dsp_tools.commands.xml_validate.models.data_rdf import RichtextRDF
-from dsp_tools.commands.xml_validate.models.data_rdf import SimpleTextRDF
-from dsp_tools.commands.xml_validate.models.data_rdf import TimeValueRDF
-from dsp_tools.commands.xml_validate.models.data_rdf import UriValueRDF
+from dsp_tools.commands.validate_data.models.data_rdf import BooleanValueRDF
+from dsp_tools.commands.validate_data.models.data_rdf import ColorValueRDF
+from dsp_tools.commands.validate_data.models.data_rdf import DateValueRDF
+from dsp_tools.commands.validate_data.models.data_rdf import DecimalValueRDF
+from dsp_tools.commands.validate_data.models.data_rdf import GeonameValueRDF
+from dsp_tools.commands.validate_data.models.data_rdf import IntValueRDF
+from dsp_tools.commands.validate_data.models.data_rdf import LinkValueRDF
+from dsp_tools.commands.validate_data.models.data_rdf import ListValueRDF
+from dsp_tools.commands.validate_data.models.data_rdf import ResourceRDF
+from dsp_tools.commands.validate_data.models.data_rdf import RichtextRDF
+from dsp_tools.commands.validate_data.models.data_rdf import SimpleTextRDF
+from dsp_tools.commands.validate_data.models.data_rdf import TimeValueRDF
+from dsp_tools.commands.validate_data.models.data_rdf import UriValueRDF
 
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
 API_SHAPES = Namespace("http://api.knora.org/ontology/knora-api/shapes/v2#")

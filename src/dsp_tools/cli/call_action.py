@@ -25,7 +25,7 @@ from dsp_tools.commands.rosetta import upload_rosetta
 from dsp_tools.commands.start_stack import StackConfiguration
 from dsp_tools.commands.start_stack import StackHandler
 from dsp_tools.commands.template import generate_template_repo
-from dsp_tools.commands.xml_validate.xml_validate import xml_validate
+from dsp_tools.commands.validate_data.xml_validate import xml_validate
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.utils.xml_validation import validate_xml_file

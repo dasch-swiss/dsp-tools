@@ -4,9 +4,9 @@ from rdflib import SH
 from rdflib import Graph
 from rdflib import Namespace
 
-from dsp_tools.commands.xml_validate.sparql.value_shacl import _add_property_shapes_to_class_shapes
-from dsp_tools.commands.xml_validate.sparql.value_shacl import _construct_one_property_type_shape_based_on_object_type
-from dsp_tools.commands.xml_validate.sparql.value_shacl import _construct_one_property_type_shape_gui_element
+from dsp_tools.commands.validate_data.sparql.value_shacl import _add_property_shapes_to_class_shapes
+from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_property_type_shape_based_on_object_type
+from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_property_type_shape_gui_element
 
 ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
 API_SHAPES = Namespace("http://api.knora.org/ontology/knora-api/shapes/v2#")

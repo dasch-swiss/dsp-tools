@@ -18,7 +18,7 @@ PREFIXES = """
 @pytest.fixture
 def onto_graph() -> Graph:
     g = Graph()
-    g.parse("testdata/data-validate/onto.ttl")
+    g.parse("testdata/validate-data/onto.ttl")
     return g
 
 

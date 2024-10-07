@@ -1,0 +1,370 @@
+@prefix ns1: <http://api.knora.org/ontology/knora-api/v2#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix tosh: <http://topbraid.org/tosh#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+[] a sh:ValidationReport ;
+    sh:conforms false ;
+    sh:result [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:valueCreationDate ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:intervalValueHasStart ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:dateValueHasEndEra ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:pageCount ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:dateValueHasStartEra ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:textValueHasLanguage ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:linkValueHasTargetIri ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:geometryValueAsGeometry ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:valueHasUUID ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:dateValueHasStartYear ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:dateValueHasEndDay ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:stillImageFileValueHasIIIFBaseUrl ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:dateValueHasStartDay ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:objectType ;
+            sh:resultMessage "Value must be an instance of rdfs:Class" ;
+            sh:resultPath rdf:type ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Resource-type ;
+            sh:value rdf:Property ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:textValueHasMapping ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:uriValueAsUri ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:textValueHasStandoff ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:timeValueAsTimeStamp ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:dateValueHasStartMonth ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:stillImageFileValueHasDimY ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:fileValueAsUrl ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:dateValueHasCalendar ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:decimalValueAsDecimal ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:geonameValueAsGeonameCode ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:dateValueHasEndMonth ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:stillImageFileValueHasExternalUrl ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:linkValueHasSourceIri ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:subjectType ;
+            sh:resultMessage "Value must be an instance of rdfs:Class" ;
+            sh:resultPath rdf:type ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Resource-type ;
+            sh:value rdf:Property ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:valueHasComment ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:textValueAsXml ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:intervalValueHasEnd ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:listValueAsListNode ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:fileValueHasFilename ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:colorValueAsColor ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:textValueHasMaxStandoffStartIndex ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdfs:Class" ;
+            sh:resultPath rdf:type ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Resource-type ;
+            sh:value rdf:Property ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:booleanValueAsBoolean ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:dateValueHasEndYear ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:textValueHasMarkup ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:stillImageFileValueHasDimX ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:intValueAsInt ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:linkValueHasTarget ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:linkValueHasSource ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:externalUrl ],
+        [ a sh:ValidationResult ;
+            sh:focusNode ns1:valueHas ;
+            sh:resultMessage "Value must be an instance of rdf:Property" ;
+            sh:resultPath [ sh:inversePath rdfs:subPropertyOf ] ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+            sh:sourceShape tosh:Property-subPropertyOf-inverse ;
+            sh:value ns1:textValueAsHtml ] .
+

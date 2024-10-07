@@ -1,0 +1,912 @@
+@prefix ns1: <http://api.knora.org/ontology/knora-api/v2#> .
+@prefix ns2: <http://0.0.0.0:3333/ontology/9999/onto/v2#> .
+@prefix ns21: <http://api.knora.org/ontology/salsah-gui/v2#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://0.0.0.0:3333/ontology/9999/onto/v2> a owl:Ontology ;
+    rdfs:label "Ontology" ;
+    ns1:attachedToProject <http://rdfh.ch/projects/6kcng1-_QHec4188XvuqFg> ;
+    ns1:lastModificationDate "2024-10-07T05:52:12.605255679Z"^^xsd:dateTimeStamp .
+
+ns2:ClassInheritedCardinality a owl:Class ;
+    rdfs:label "Subclass Resource" ;
+    ns1:canBeInstantiated true ;
+    ns1:isResourceClass true ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:attachedToProject ],
+        [ a owl:Restriction ;
+            ns21:guiOrder 0 ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns2:testSimpleText ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deleteDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:versionDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:userHasPermission ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:lastModificationDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasStandoffLinkToValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:isDeleted ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:versionArkUrl ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            ns21:guiOrder 0 ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns2:testBoolean ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:attachedToUser ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:arkUrl ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasIncomingLinkValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deletedBy ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:hasPermissions ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deleteComment ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:creationDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty rdfs:label ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasStandoffLinkTo ],
+        ns2:CardOneResource .
+
+ns2:ClassInheritedCardinalityOverwriting a owl:Class ;
+    rdfs:label "Subclass Resource that overwrites inherited cardinality" ;
+    ns1:canBeInstantiated true ;
+    ns1:isResourceClass true ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:userHasPermission ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty rdfs:label ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:versionDate ],
+        [ a owl:Restriction ;
+            ns21:guiOrder 0 ;
+            owl:cardinality 1 ;
+            owl:onProperty ns2:testBoolean ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:creationDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:attachedToProject ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deleteComment ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:lastModificationDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:isDeleted ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deletedBy ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:hasPermissions ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:arkUrl ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasIncomingLinkValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:versionArkUrl ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasStandoffLinkTo ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:attachedToUser ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deleteDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasStandoffLinkToValue ],
+        ns2:CardOneResource .
+
+ns2:ClassMixedCard a owl:Class ;
+    rdfs:label "Resource with all cardinality options" ;
+    ns1:canBeInstantiated true ;
+    ns1:isResourceClass true ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasStandoffLinkToValue ],
+        [ a owl:Restriction ;
+            ns21:guiOrder 3 ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns2:testSimpleText ],
+        [ a owl:Restriction ;
+            ns21:guiOrder 0 ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns2:testBoolean ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:userHasPermission ],
+        [ a owl:Restriction ;
+            ns21:guiOrder 1 ;
+            owl:cardinality 1 ;
+            owl:onProperty ns2:testHasLinkToCardOneResource ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty rdfs:label ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deleteDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasIncomingLinkValue ],
+        [ a owl:Restriction ;
+            ns21:guiOrder 1 ;
+            owl:cardinality 1 ;
+            owl:onProperty ns2:testHasLinkToCardOneResourceValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:arkUrl ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:versionDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasStandoffLinkTo ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:versionArkUrl ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:hasPermissions ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deletedBy ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:attachedToProject ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:creationDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:lastModificationDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:isDeleted ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deleteComment ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:attachedToUser ],
+        [ a owl:Restriction ;
+            ns21:guiOrder 2 ;
+            owl:minCardinality 1 ;
+            owl:onProperty ns2:testGeoname ],
+        ns1:Resource .
+
+ns2:testSeqnum a owl:ObjectProperty ;
+    rdfs:label "Test Seqnum" ;
+    ns1:isEditable true ;
+    ns1:isResourceProperty true ;
+    ns1:objectType ns1:IntValue ;
+    ns21:guiElement ns21:SimpleText ;
+    rdfs:subPropertyOf ns1:seqnum .
+
+<http://data/id_0> a ns2:ClassWithEverything ;
+    rdfs:label "Empty"^^xsd:string .
+
+<http://data/id_1> a ns2:ClassWithEverything ;
+    rdfs:label "Bool"^^xsd:string ;
+    ns2:testBoolean <http://data/ac234be2-eacd-4839-98f9-0661f3afc927> .
+
+<http://data/id_10> a ns2:ClassWithEverything ;
+    rdfs:label "Simpletext"^^xsd:string ;
+    ns2:testTextarea <http://data/7f898d47-e0d9-457b-b132-6c7f30a3cef8> .
+
+<http://data/id_11> a ns2:ClassWithEverything ;
+    rdfs:label "Time"^^xsd:string ;
+    ns2:testTimeValue <http://data/2675a967-e2dc-47ef-92fc-7ae67df8d3d7> .
+
+<http://data/id_12> a ns2:ClassWithEverything ;
+    rdfs:label "Uri"^^xsd:string ;
+    ns2:testUriValue <http://data/ce1f2403-7ec5-4808-95c2-4000e2163bde> .
+
+<http://data/id_2> a ns2:ClassWithEverything ;
+    rdfs:label "Color"^^xsd:string ;
+    ns2:testColor <http://data/31c6f5fb-8ac8-46ed-83d9-59babcb3e779> .
+
+<http://data/id_3> a ns2:ClassWithEverything ;
+    rdfs:label "Date"^^xsd:string ;
+    ns2:testSubDate1 <http://data/4a0bf9bf-44d2-4fbb-8b54-991bdc016513> .
+
+<http://data/id_4> a ns2:ClassWithEverything ;
+    rdfs:label "Decimal"^^xsd:string ;
+    ns2:testDecimalSimpleText <http://data/ac745071-5449-4af5-ae82-f866b5570905> .
+
+<http://data/id_5> a ns2:ClassWithEverything ;
+    rdfs:label "Geoname"^^xsd:string ;
+    ns2:testGeoname <http://data/fe53b499-07be-498d-8388-e8d1d268029f> .
+
+<http://data/id_6> a ns2:ClassWithEverything ;
+    rdfs:label "Integer"^^xsd:string ;
+    ns2:testIntegerSimpleText <http://data/46a09789-86cf-489c-a809-1bd68b3f267f> .
+
+<http://data/id_7> a ns2:ClassWithEverything ;
+    rdfs:label "List"^^xsd:string ;
+    ns2:testListProp <http://data/9f77c8ef-f132-4670-9481-dee417ee221d> .
+
+<http://data/id_8> a ns2:ClassWithEverything ;
+    rdfs:label "Link Prop"^^xsd:string ;
+    ns2:testHasLinkTo <http://data/13035289-3ad4-4089-97ef-a44e444cbc2c> .
+
+<http://data/id_9> a ns2:ClassWithEverything ;
+    rdfs:label "Richtext"^^xsd:string ;
+    ns2:testRichtext <http://data/7466051c-4a3a-4596-88cc-32691e8a53ae> .
+
+ns2:TestStillImageRepresentation a owl:Class ;
+    rdfs:label "Page using 'isPartOf' and 'seqnum' directly" ;
+    ns1:canBeInstantiated true ;
+    ns1:isResourceClass true ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:versionDate ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:isPartOfValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasStandoffLinkToValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty rdfs:label ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasStandoffLinkTo ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:hasPermissions ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:arkUrl ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasIncomingLinkValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:attachedToProject ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:attachedToUser ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:creationDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deleteComment ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deleteDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:hasStillImageFileValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:lastModificationDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:versionArkUrl ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:seqnum ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:userHasPermission ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:isPartOf ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deletedBy ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:isDeleted ],
+        ns1:StillImageRepresentation .
+
+ns2:testColor a owl:ObjectProperty ;
+    rdfs:label "Test Color" ;
+    ns1:isEditable true ;
+    ns1:isResourceProperty true ;
+    ns1:objectType ns1:ColorValue ;
+    ns21:guiElement ns21:Colorpicker ;
+    rdfs:subPropertyOf ns1:hasColor .
+
+ns2:testDecimalSimpleText a owl:ObjectProperty ;
+    rdfs:label "Test Decimal" ;
+    ns1:isEditable true ;
+    ns1:isResourceProperty true ;
+    ns1:objectType ns1:DecimalValue ;
+    ns21:guiElement ns21:SimpleText ;
+    rdfs:subPropertyOf ns1:hasValue .
+
+ns2:testDecimalSpinbox a owl:ObjectProperty ;
+    rdfs:label "Test Decimal" ;
+    ns1:isEditable true ;
+    ns1:isResourceProperty true ;
+    ns1:objectType ns1:DecimalValue ;
+    ns21:guiAttribute "max=10.0",
+        "min=0.0" ;
+    ns21:guiElement ns21:Spinbox ;
+    rdfs:subPropertyOf ns1:hasValue .
+
+ns2:testHasComment a owl:ObjectProperty ;
+    rdfs:label "In-built Comment" ;
+    ns1:isEditable true ;
+    ns1:isResourceProperty true ;
+    ns1:objectType ns1:TextValue ;
+    ns21:guiElement ns21:Richtext ;
+    rdfs:subPropertyOf ns1:hasComment .
+
+ns2:testHasLinkTo a owl:ObjectProperty ;
+    rdfs:label "Test In-built hasLinkTo" ;
+    ns1:isEditable true ;
+    ns1:isLinkProperty true ;
+    ns1:isResourceProperty true ;
+    ns1:objectType ns1:Resource ;
+    ns21:guiElement ns21:Searchbox ;
+    rdfs:subPropertyOf ns1:hasLinkTo .
+
+ns2:testHasLinkToValue a owl:ObjectProperty ;
+    rdfs:label "Test In-built hasLinkTo" ;
+    ns1:isEditable true ;
+    ns1:isLinkValueProperty true ;
+    ns1:isResourceProperty true ;
+    ns1:objectType ns1:LinkValue ;
+    ns21:guiElement ns21:Searchbox ;
+    rdfs:subPropertyOf ns1:hasLinkToValue .
+
+ns2:testHasRepresentation a owl:ObjectProperty ;
+    rdfs:label "Represented by" ;
+    ns1:isEditable true ;
+    ns1:isLinkProperty true ;
+    ns1:isResourceProperty true ;
+    ns1:objectType ns1:Representation ;
+    ns21:guiElement ns21:Searchbox ;
+    rdfs:subPropertyOf ns1:hasRepresentation .
+
+ns2:testHasRepresentationValue a owl:ObjectProperty ;
+    rdfs:label "Represented by" ;
+    ns1:isEditable true ;
+    ns1:isLinkValueProperty true ;
+    ns1:isResourceProperty true ;
+    ns1:objectType ns1:LinkValue ;
+    ns21:guiElement ns21:Searchbox ;
+    rdfs:subPropertyOf ns1:hasRepresentationValue .
+
+ns2:testIntegerSimpleText a owl:ObjectProperty ;
+    rdfs:label "Test Integer" ;
+    ns1:isEditable true ;
+    ns1:isResourceProperty true ;
+    ns1:objectType ns1:IntValue ;
+    ns21:guiElement ns21:SimpleText ;
+    rdfs:subPropertyOf ns1:hasValue .
+
+ns2:testIntegerSpinbox a owl:ObjectProperty ;
+    rdfs:label "Test Integer" ;
+    ns1:isEditable true ;
+    ns1:isResourceProperty true ;
+    ns1:objectType ns1:IntValue ;
+    ns21:guiAttribute "max=10.0",
+        "min=0.0" ;
+    ns21:guiElement ns21:Spinbox ;
+    rdfs:subPropertyOf ns1:hasValue .
+
+ns2:testIsPartOf a owl:ObjectProperty ;
+    rdfs:label "is part of" ;
+    ns1:isEditable true ;
+    ns1:isLinkProperty true ;
+    ns1:isResourceProperty true ;
+    ns1:objectType ns2:TestStillImageRepresentation ;
+    ns21:guiElement ns21:Searchbox ;
+    rdfs:subPropertyOf ns1:isPartOf .
+
+ns2:testIsPartOfValue a owl:ObjectProperty ;
+    rdfs:label "is part of" ;
+    ns1:isEditable true ;
+    ns1:isLinkValueProperty true ;
+    ns1:isResourceProperty true ;
+    ns1:objectType ns1:LinkValue ;
+    ns21:guiElement ns21:Searchbox ;
+    rdfs:subPropertyOf ns1:isPartOfValue .
+
+ns2:testListProp a owl:ObjectProperty ;
+    rdfs:label "Test List" ;
+    ns1:isEditable true ;
+    ns1:isResourceProperty true ;
+    ns1:objectType ns1:ListValue ;
+    ns21:guiAttribute "hlist=<http://rdfh.ch/lists/9999/ZhPQZzZxQLe8p8_kxeFzUw>" ;
+    ns21:guiElement ns21:List ;
+    rdfs:subPropertyOf ns1:hasValue .
+
+ns2:testRichtext a owl:ObjectProperty ;
+    rdfs:label "Test Richtext" ;
+    ns1:isEditable true ;
+    ns1:isResourceProperty true ;
+    ns1:objectType ns1:TextValue ;
+    ns21:guiElement ns21:Richtext ;
+    rdfs:subPropertyOf ns1:hasValue .
+
+ns2:testSubDate1 a owl:ObjectProperty ;
+    rdfs:label "Sub Property Date 1" ;
+    ns1:isEditable true ;
+    ns1:isResourceProperty true ;
+    ns1:objectType ns1:DateValue ;
+    ns21:guiElement ns21:Date ;
+    rdfs:subPropertyOf ns2:testSuperDate,
+        ns1:hasValue .
+
+ns2:testSubDate2 a owl:ObjectProperty ;
+    rdfs:label "Sub Property Date 2" ;
+    ns1:isEditable true ;
+    ns1:isResourceProperty true ;
+    ns1:objectType ns1:DateValue ;
+    ns21:guiElement ns21:Date ;
+    rdfs:subPropertyOf ns2:testSuperDate,
+        ns1:hasValue .
+
+ns2:testTextarea a owl:ObjectProperty ;
+    rdfs:label "Test Textarea" ;
+    ns1:isEditable true ;
+    ns1:isResourceProperty true ;
+    ns1:objectType ns1:TextValue ;
+    ns21:guiElement ns21:Textarea ;
+    rdfs:subPropertyOf ns1:hasValue .
+
+ns2:testTimeValue a owl:ObjectProperty ;
+    rdfs:label "Test Time" ;
+    ns1:isEditable true ;
+    ns1:isResourceProperty true ;
+    ns1:objectType ns1:TimeValue ;
+    ns21:guiElement ns21:TimeStamp ;
+    rdfs:subPropertyOf ns1:hasValue .
+
+ns2:testUriValue a owl:ObjectProperty ;
+    rdfs:label "Test URI" ;
+    ns1:isEditable true ;
+    ns1:isResourceProperty true ;
+    ns1:objectType ns1:UriValue ;
+    ns21:guiElement ns21:SimpleText ;
+    rdfs:subPropertyOf ns1:hasValue .
+
+<http://data/13035289-3ad4-4089-97ef-a44e444cbc2c> a ns1:TextValue ;
+    ns1:valueAsString "id_1"^^xsd:string .
+
+<http://data/2675a967-e2dc-47ef-92fc-7ae67df8d3d7> a ns1:TextValue ;
+    ns1:valueAsString "2019-10-23T13:45:12.01-14:00"^^xsd:string .
+
+<http://data/31c6f5fb-8ac8-46ed-83d9-59babcb3e779> a ns1:TextValue ;
+    ns1:valueAsString "#00ff00"^^xsd:string .
+
+<http://data/46a09789-86cf-489c-a809-1bd68b3f267f> a ns1:TextValue ;
+    ns1:valueAsString "1"^^xsd:string .
+
+<http://data/4a0bf9bf-44d2-4fbb-8b54-991bdc016513> a ns1:TextValue ;
+    ns1:valueAsString "JULIAN:BCE:0700:BCE:0600"^^xsd:string .
+
+<http://data/7466051c-4a3a-4596-88cc-32691e8a53ae> a ns1:TextValue ;
+    ns1:valueAsString "Text"^^xsd:string .
+
+<http://data/7f898d47-e0d9-457b-b132-6c7f30a3cef8> a ns1:TextValue ;
+    ns1:textValueAsXml "Text"^^xsd:string .
+
+<http://data/9f77c8ef-f132-4670-9481-dee417ee221d> a ns1:TextValue ;
+    ns1:valueAsString "n1"^^xsd:string .
+
+<http://data/ac234be2-eacd-4839-98f9-0661f3afc927> a ns1:TextValue ;
+    ns1:valueAsString "true"^^xsd:string .
+
+<http://data/ac745071-5449-4af5-ae82-f866b5570905> a ns1:TextValue ;
+    ns1:valueAsString "2.71"^^xsd:string .
+
+<http://data/ce1f2403-7ec5-4808-95c2-4000e2163bde> a ns1:TextValue ;
+    ns1:valueAsString "https://dasch.swiss"^^xsd:string .
+
+<http://data/fe53b499-07be-498d-8388-e8d1d268029f> a ns1:TextValue ;
+    ns1:valueAsString "1111111"^^xsd:string .
+
+ns2:testGeoname a owl:ObjectProperty ;
+    rdfs:label "Test Geoname" ;
+    ns1:isEditable true ;
+    ns1:isResourceProperty true ;
+    ns1:objectType ns1:GeonameValue ;
+    ns21:guiElement ns21:Geonames ;
+    rdfs:subPropertyOf ns1:hasValue .
+
+ns2:testHasLinkToCardOneResource a owl:ObjectProperty ;
+    rdfs:label "Super-class" ;
+    ns1:isEditable true ;
+    ns1:isLinkProperty true ;
+    ns1:isResourceProperty true ;
+    ns1:objectType ns2:CardOneResource ;
+    ns21:guiElement ns21:Searchbox ;
+    rdfs:subPropertyOf ns1:hasLinkTo .
+
+ns2:testHasLinkToCardOneResourceValue a owl:ObjectProperty ;
+    rdfs:label "Super-class" ;
+    ns1:isEditable true ;
+    ns1:isLinkValueProperty true ;
+    ns1:isResourceProperty true ;
+    ns1:objectType ns1:LinkValue ;
+    ns21:guiElement ns21:Searchbox ;
+    rdfs:subPropertyOf ns1:hasLinkToValue .
+
+ns2:testSuperDate a owl:ObjectProperty ;
+    rdfs:label "Super Property Date" ;
+    ns1:isEditable true ;
+    ns1:isResourceProperty true ;
+    ns1:objectType ns1:DateValue ;
+    ns21:guiElement ns21:Date ;
+    rdfs:subPropertyOf ns1:hasValue .
+
+ns2:CardOneResource a owl:Class ;
+    rdfs:label "Resource with One Cardinality" ;
+    ns1:canBeInstantiated true ;
+    ns1:isResourceClass true ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deleteComment ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:versionDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:versionArkUrl ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:arkUrl ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:creationDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deletedBy ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:attachedToProject ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:attachedToUser ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:isDeleted ],
+        [ a owl:Restriction ;
+            ns21:guiOrder 0 ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns2:testBoolean ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty rdfs:label ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasStandoffLinkTo ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deleteDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:lastModificationDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:userHasPermission ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:hasPermissions ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasIncomingLinkValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasStandoffLinkToValue ],
+        ns1:Resource .
+
+ns2:testSimpleText a owl:ObjectProperty ;
+    rdfs:label "Test SimpleText" ;
+    ns1:isEditable true ;
+    ns1:isResourceProperty true ;
+    ns1:objectType ns1:TextValue ;
+    ns21:guiElement ns21:SimpleText ;
+    rdfs:subPropertyOf ns1:hasValue .
+
+ns2:testBoolean a owl:ObjectProperty ;
+    rdfs:label "Test Boolean" ;
+    ns1:isEditable true ;
+    ns1:isResourceProperty true ;
+    ns1:objectType ns1:BooleanValue ;
+    ns21:guiElement ns21:Checkbox ;
+    rdfs:subPropertyOf ns1:hasValue .
+
+ns2:ClassWithEverything a owl:Class ;
+    rdfs:label "Resource with every property" ;
+    ns1:canBeInstantiated true ;
+    ns1:isResourceClass true ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            ns21:guiOrder 13 ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns2:testTimeValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deleteDate ],
+        [ a owl:Restriction ;
+            ns21:guiOrder 2 ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns2:testSubDate1 ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:userHasPermission ],
+        [ a owl:Restriction ;
+            ns21:guiOrder 16 ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns2:testHasLinkToValue ],
+        [ a owl:Restriction ;
+            ns21:guiOrder 6 ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns2:testGeoname ],
+        [ a owl:Restriction ;
+            ns21:guiOrder 0 ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns2:testBoolean ],
+        [ a owl:Restriction ;
+            ns21:guiOrder 17 ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns2:testHasLinkToCardOneResourceValue ],
+        [ a owl:Restriction ;
+            ns21:guiOrder 11 ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns2:testTextarea ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:attachedToProject ],
+        [ a owl:Restriction ;
+            ns21:guiOrder 17 ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns2:testHasLinkToCardOneResource ],
+        [ a owl:Restriction ;
+            ns21:guiOrder 16 ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns2:testHasLinkTo ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:versionArkUrl ],
+        [ a owl:Restriction ;
+            ns21:guiOrder 15 ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns2:testHasComment ],
+        [ a owl:Restriction ;
+            ns21:guiOrder 10 ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns2:testSimpleText ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:hasPermissions ],
+        [ a owl:Restriction ;
+            ns21:guiOrder 14 ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns2:testUriValue ],
+        [ a owl:Restriction ;
+            ns21:guiOrder 1 ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns2:testColor ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty rdfs:label ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasIncomingLinkValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasStandoffLinkToValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:attachedToUser ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deletedBy ],
+        [ a owl:Restriction ;
+            ns21:guiOrder 12 ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns2:testRichtext ],
+        [ a owl:Restriction ;
+            ns21:guiOrder 3 ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns2:testSubDate2 ],
+        [ a owl:Restriction ;
+            ns21:guiOrder 7 ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns2:testIntegerSimpleText ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasStandoffLinkTo ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:creationDate ],
+        [ a owl:Restriction ;
+            ns21:guiOrder 18 ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns2:testHasRepresentationValue ],
+        [ a owl:Restriction ;
+            ns21:guiOrder 18 ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns2:testHasRepresentation ],
+        [ a owl:Restriction ;
+            ns21:guiOrder 8 ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns2:testIntegerSpinbox ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deleteComment ],
+        [ a owl:Restriction ;
+            ns21:guiOrder 19 ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns2:testIsPartOf ],
+        [ a owl:Restriction ;
+            ns21:guiOrder 5 ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns2:testDecimalSpinbox ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:lastModificationDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:versionDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:isDeleted ],
+        [ a owl:Restriction ;
+            ns21:guiOrder 4 ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns2:testDecimalSimpleText ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:arkUrl ],
+        [ a owl:Restriction ;
+            ns21:guiOrder 19 ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns2:testIsPartOfValue ],
+        [ a owl:Restriction ;
+            ns21:guiOrder 9 ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns2:testListProp ],
+        ns1:Resource .
+

@@ -1,0 +1,92 @@
+@prefix ns1: <http://api.knora.org/ontology/knora-api/v2#> .
+@prefix ns2: <http://0.0.0.0:3333/ontology/9999/onto/v2#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://data/id_0> a ns2:ClassWithEverything ;
+    rdfs:label "Empty"^^xsd:string .
+
+<http://data/id_1> a ns2:ClassWithEverything ;
+    rdfs:label "Bool"^^xsd:string ;
+    ns2:testBoolean <http://data/ac234be2-eacd-4839-98f9-0661f3afc927> .
+
+<http://data/id_10> a ns2:ClassWithEverything ;
+    rdfs:label "Simpletext"^^xsd:string ;
+    ns2:testTextarea <http://data/7f898d47-e0d9-457b-b132-6c7f30a3cef8> .
+
+<http://data/id_11> a ns2:ClassWithEverything ;
+    rdfs:label "Time"^^xsd:string ;
+    ns2:testTimeValue <http://data/2675a967-e2dc-47ef-92fc-7ae67df8d3d7> .
+
+<http://data/id_12> a ns2:ClassWithEverything ;
+    rdfs:label "Uri"^^xsd:string ;
+    ns2:testUriValue <http://data/ce1f2403-7ec5-4808-95c2-4000e2163bde> .
+
+<http://data/id_2> a ns2:ClassWithEverything ;
+    rdfs:label "Color"^^xsd:string ;
+    ns2:testColor <http://data/31c6f5fb-8ac8-46ed-83d9-59babcb3e779> .
+
+<http://data/id_3> a ns2:ClassWithEverything ;
+    rdfs:label "Date"^^xsd:string ;
+    ns2:testSubDate1 <http://data/4a0bf9bf-44d2-4fbb-8b54-991bdc016513> .
+
+<http://data/id_4> a ns2:ClassWithEverything ;
+    rdfs:label "Decimal"^^xsd:string ;
+    ns2:testDecimalSimpleText <http://data/ac745071-5449-4af5-ae82-f866b5570905> .
+
+<http://data/id_5> a ns2:ClassWithEverything ;
+    rdfs:label "Geoname"^^xsd:string ;
+    ns2:testGeoname <http://data/fe53b499-07be-498d-8388-e8d1d268029f> .
+
+<http://data/id_6> a ns2:ClassWithEverything ;
+    rdfs:label "Integer"^^xsd:string ;
+    ns2:testIntegerSimpleText <http://data/46a09789-86cf-489c-a809-1bd68b3f267f> .
+
+<http://data/id_7> a ns2:ClassWithEverything ;
+    rdfs:label "List"^^xsd:string ;
+    ns2:testListProp <http://data/9f77c8ef-f132-4670-9481-dee417ee221d> .
+
+<http://data/id_8> a ns2:ClassWithEverything ;
+    rdfs:label "Link Prop"^^xsd:string ;
+    ns2:testHasLinkTo <http://data/13035289-3ad4-4089-97ef-a44e444cbc2c> .
+
+<http://data/id_9> a ns2:ClassWithEverything ;
+    rdfs:label "Richtext"^^xsd:string ;
+    ns2:testRichtext <http://data/7466051c-4a3a-4596-88cc-32691e8a53ae> .
+
+<http://data/13035289-3ad4-4089-97ef-a44e444cbc2c> a ns1:TextValue ;
+    ns1:valueAsString "id_1"^^xsd:string .
+
+<http://data/2675a967-e2dc-47ef-92fc-7ae67df8d3d7> a ns1:TextValue ;
+    ns1:valueAsString "2019-10-23T13:45:12.01-14:00"^^xsd:string .
+
+<http://data/31c6f5fb-8ac8-46ed-83d9-59babcb3e779> a ns1:TextValue ;
+    ns1:valueAsString "#00ff00"^^xsd:string .
+
+<http://data/46a09789-86cf-489c-a809-1bd68b3f267f> a ns1:TextValue ;
+    ns1:valueAsString "1"^^xsd:string .
+
+<http://data/4a0bf9bf-44d2-4fbb-8b54-991bdc016513> a ns1:TextValue ;
+    ns1:valueAsString "JULIAN:BCE:0700:BCE:0600"^^xsd:string .
+
+<http://data/7466051c-4a3a-4596-88cc-32691e8a53ae> a ns1:TextValue ;
+    ns1:valueAsString "Text"^^xsd:string .
+
+<http://data/7f898d47-e0d9-457b-b132-6c7f30a3cef8> a ns1:TextValue ;
+    ns1:textValueAsXml "Text"^^xsd:string .
+
+<http://data/9f77c8ef-f132-4670-9481-dee417ee221d> a ns1:TextValue ;
+    ns1:valueAsString "n1"^^xsd:string .
+
+<http://data/ac234be2-eacd-4839-98f9-0661f3afc927> a ns1:TextValue ;
+    ns1:valueAsString "true"^^xsd:string .
+
+<http://data/ac745071-5449-4af5-ae82-f866b5570905> a ns1:TextValue ;
+    ns1:valueAsString "2.71"^^xsd:string .
+
+<http://data/ce1f2403-7ec5-4808-95c2-4000e2163bde> a ns1:TextValue ;
+    ns1:valueAsString "https://dasch.swiss"^^xsd:string .
+
+<http://data/fe53b499-07be-498d-8388-e8d1d268029f> a ns1:TextValue ;
+    ns1:valueAsString "1111111"^^xsd:string .
+

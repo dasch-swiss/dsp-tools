@@ -46,7 +46,7 @@ def make_parser(
 
     _add_xmlupload(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
 
-    _add_xml_validate(subparsers, default_dsp_api_url)
+    _add_validate_data(subparsers, default_dsp_api_url)
 
     _add_resume_xmlupload(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
 
@@ -293,7 +293,7 @@ def _add_xmlupload(
     subparser.add_argument("--no-iiif-uri-validation", action="store_true", help="skip the IIIF URI validation")
 
 
-def _add_xml_validate(
+def _add_validate_data(
     subparsers: _SubParsersAction[ArgumentParser],
     default_dsp_api_url: str,
 ) -> None:

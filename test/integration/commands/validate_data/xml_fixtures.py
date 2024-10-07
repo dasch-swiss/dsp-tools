@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from lxml import etree
 
-from dsp_tools.commands.validate_data.xml_validate import _parse_and_clean_file
+from dsp_tools.commands.validate_data.validate_data import _parse_and_clean_file
 
 
 @pytest.fixture

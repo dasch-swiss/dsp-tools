@@ -8,8 +8,6 @@ class Permissions(Enum):
     RESTRICTED_VIEW = "restricted-view"
 
 
-
-
 class NewlineReplacement(Enum):
     NONE = auto()
     PARAGRAPH = auto()

@@ -51,19 +51,14 @@ def _add_property_shapes_to_class_shapes(onto: Graph) -> Graph:
 
 
 def _construct_property_type_shape_based_on_object_type(onto: Graph) -> Graph:
-    property_type_mapper = {
-        "knora-api:BooleanValue": "api-shapes:BooleanValue_ClassShape",
-        "knora-api:ColorValue": "api-shapes:ColorValue_ClassShape",
-        "knora-api:DateValue": "api-shapes:DateValue_ClassShape",
-        "knora-api:DecimalValue": "api-shapes:DecimalValue_ClassShape",
-        "knora-api:GeonameValue": "api-shapes:GeonameValue_ClassShape",
-        "knora-api:IntValue": "api-shapes:IntValue_ClassShape",
-        "knora-api:ListValue": "api-shapes:ListValue_ClassShape",
-        "knora-api:TimeValue": "api-shapes:TimeValue_ClassShape",
-        "knora-api:UriValue": "api-shapes:UriValue_ClassShape",
-    }
+    def as_object_type_and_shacl_shape(property_type: str) -> tuple[str, str]:
+        return "knora-api:" + property_type + "Value", "api-shapes:" + property_type + "Value_ClassShape"
+
+    property_types = {"Boolean", "Color", "Date", "Decimal", "Geoname", "Int", "List", "Time", "Uri"}
+
     g = Graph()
-    for object_type, shacl_shape in property_type_mapper.items():
+    for t in property_types:
+        object_type, shacl_shape = as_object_type_and_shacl_shape(t)
         g += _construct_one_property_type_shape_based_on_object_type(onto, object_type, shacl_shape)
     return g
 

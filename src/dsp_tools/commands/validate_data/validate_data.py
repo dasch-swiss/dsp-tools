@@ -134,7 +134,7 @@ def _validate(validator: ShaclValidator, rdf_graphs: RDFGraphs) -> ValidationRep
     content_shacl = rdf_graphs.get_content_shacl_str()
     content_data = rdf_graphs.get_content_data_str()
     content_results = validator.validate(content_data, content_shacl)
-    content_conforms = bool(next(card_results.objects(None, SH.conforms)))
+    content_conforms = bool(next(content_results.objects(None, SH.conforms)))
 
     conforms: bool
     card_report: Graph | None

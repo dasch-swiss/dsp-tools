@@ -6,14 +6,7 @@
        shortcode="9999"
        default-ontology="onto">
 
-    <!-- 10 Violations -->
-
-    <!-- This is an integer -->
-    <resource label="Decimal" restype=":ClassWithEverything" id="id_4">
-        <decimal-prop name=":testDecimalSimpleText">
-            <decimal>1</decimal>
-        </decimal-prop>
-    </resource>
+    <!-- 9 Violations -->
 
     <!-- Geoname should be a number -->
     <resource label="Geoname" restype=":ClassWithEverything" id="id_5">

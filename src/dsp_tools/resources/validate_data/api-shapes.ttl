@@ -89,7 +89,16 @@ api-shapes:GeonameValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
   sh:message  "GeonameValue" ;
+  sh:property api-shapes:geonameValueAsGeonameCode_Shape ;
   sh:class    knora-api:GeonameValue ;
+  sh:severity sh:Violation .
+
+api-shapes:geonameValueAsGeonameCode_Shape
+  a           sh:PropertyShape ;
+  sh:message  "The value must be a valid geoname code." ;
+  sh:path     knora-api:geonameValueAsGeonameCode ;
+  sh:pattern  "^\\d+$" ;
+  sh:datatype xsd:string ;
   sh:severity sh:Violation .
 
 

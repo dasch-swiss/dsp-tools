@@ -30,25 +30,25 @@ def reformat_validation_graph(report: ValidationReport) -> AllProblems:
     reformatted_results: list[InputProblem] = []
     unexpected_components: list[UnexpectedComponent] = []
     if report.cardinality_validation:
-        reformatted, unexpected = _get_input_error_cardinality(report.cardinality_validation, report.data_graph)
+        reformatted, unexpected = _get_cardinality_input_errors(report.cardinality_validation, report.data_graph)
         reformatted_results.extend(reformatted)
         unexpected_components.extend(unexpected)
     if report.content_validation:
-        reformatted, unexpected = _get_input_error_content(report.content_validation, report.data_graph)
+        reformatted, unexpected = _get_content_input_errors(report.content_validation, report.data_graph)
         reformatted_results.extend(reformatted)
         unexpected_components.extend(unexpected)
     unexpected_found = UnexpectedResults(unexpected_components) if unexpected_components else None
     return AllProblems(reformatted_results, unexpected_found)
 
 
-def _get_input_error_cardinality(
+def _get_cardinality_input_errors(
     results_graph: Graph, data_graph: Graph
 ) -> tuple[list[InputProblem], list[UnexpectedComponent]]:
-    validation_results = _extract_cardinality_validation_results(results_graph, data_graph)
+    validation_results = _query_for_cardinality_validation_results(results_graph, data_graph)
     input_problems: list[InputProblem] = []
     unexpected_components: list[UnexpectedComponent] = []
     for violation in validation_results:
-        problem = _reformat_one_cardinality_violation(violation)
+        problem = _reformat_one_cardinality_validation_result(violation)
         if isinstance(problem, UnexpectedComponent):
             unexpected_components.append(problem)
         else:
@@ -56,14 +56,14 @@ def _get_input_error_cardinality(
     return input_problems, unexpected_components
 
 
-def _extract_cardinality_validation_results(
+def _query_for_cardinality_validation_results(
     results_graph: Graph, data_graph: Graph
 ) -> list[CardinalityValidationResult]:
     violations = results_graph.subjects(RDF.type, SH.ValidationResult)
-    return [_extract_one_cardinality_validation_result(x, results_graph, data_graph) for x in violations]
+    return [_query_for_one_cardinality_validation_result(x, results_graph, data_graph) for x in violations]
 
 
-def _extract_one_cardinality_validation_result(
+def _query_for_one_cardinality_validation_result(
     bn: Node, results_graph: Graph, data_graph: Graph
 ) -> CardinalityValidationResult:
     focus_nd = next(results_graph.objects(bn, SH.focusNode))
@@ -80,7 +80,9 @@ def _extract_one_cardinality_validation_result(
     )
 
 
-def _reformat_one_cardinality_violation(violation: CardinalityValidationResult) -> InputProblem | UnexpectedComponent:
+def _reformat_one_cardinality_validation_result(
+    violation: CardinalityValidationResult,
+) -> InputProblem | UnexpectedComponent:
     subject_id = _reformat_data_iri(str(violation.res_iri))
     prop_name = _reformat_onto_iri(str(violation.property))
     res_type = _reformat_onto_iri(str(violation.res_class))
@@ -109,15 +111,15 @@ def _reformat_one_cardinality_violation(violation: CardinalityValidationResult) 
             return UnexpectedComponent(str(violation.source_constraint_component))
 
 
-def _get_input_error_content(
+def _get_content_input_errors(
     results_graph: Graph, data_graph: Graph
 ) -> tuple[list[InputProblem], list[UnexpectedComponent]]:
-    violations = _extract_content_validation_results(results_graph, data_graph)
+    violations = _query_for_content_validation_results(results_graph, data_graph)
 
     input_problems: list[InputProblem] = []
     unexpected_components: list[UnexpectedComponent] = []
     for violation in violations:
-        problem = _reformat_one_content_violation(violation)
+        problem = _reformat_one_content_validation_result(violation)
         if isinstance(problem, UnexpectedComponent):
             unexpected_components.append(problem)
         else:
@@ -125,12 +127,12 @@ def _get_input_error_content(
     return input_problems, unexpected_components
 
 
-def _extract_content_validation_results(results_graph: Graph, data_graph: Graph) -> list[ContentValidationResult]:
+def _query_for_content_validation_results(results_graph: Graph, data_graph: Graph) -> list[ContentValidationResult]:
     main_results = list(results_graph.subjects(SH.sourceConstraintComponent, SH.NodeConstraintComponent))
-    return [_extract_one_content_validation_result(x, results_graph, data_graph) for x in main_results]
+    return [_query_for_one_content_validation_result(x, results_graph, data_graph) for x in main_results]
 
 
-def _extract_one_content_validation_result(
+def _query_for_one_content_validation_result(
     bn: Node, results_graph: Graph, data_graph: Graph
 ) -> ContentValidationResult:
     focus_nd = next(results_graph.objects(bn, SH.focusNode))
@@ -151,22 +153,22 @@ def _extract_one_content_validation_result(
     )
 
 
-def _reformat_one_content_violation(violation: ContentValidationResult) -> InputProblem | UnexpectedComponent:
-    subject_id = _reformat_data_iri(str(violation.res_iri))
-    prop_name = _reformat_onto_iri(str(violation.property))
-    res_type = _reformat_onto_iri(str(violation.res_class))
-    match violation.source_constraint_component:
+def _reformat_one_content_validation_result(val_result: ContentValidationResult) -> InputProblem | UnexpectedComponent:
+    subject_id = _reformat_data_iri(str(val_result.res_iri))
+    prop_name = _reformat_onto_iri(str(val_result.property))
+    res_type = _reformat_onto_iri(str(val_result.res_class))
+    match val_result.source_constraint_component:
         case SH.NodeConstraintComponent:
-            actual_type = _reformat_onto_iri(str(violation.value_type)).replace("knora-api:", "")
+            actual_type = _reformat_onto_iri(str(val_result.value_type)).replace("knora-api:", "")
             return ValueTypeViolation(
                 res_id=subject_id,
                 res_type=res_type,
                 prop_name=prop_name,
                 actual_type=actual_type,
-                expected_type=violation.results_message,
+                expected_type=val_result.results_message,
             )
         case _:
-            return UnexpectedComponent(str(violation.source_constraint_component))
+            return UnexpectedComponent(str(val_result.source_constraint_component))
 
 
 def _reformat_onto_iri(prop: str) -> str:

@@ -152,8 +152,8 @@ def _validate(validator: ShaclValidator, rdf_graphs: RDFGraphs) -> ValidationRep
         conforms=conforms,
         content_validation=content_report,
         cardinality_validation=card_report,
-        shacl_graphs= rdf_graphs.cardinality_shapes + rdf_graphs.content_shapes,
-        data_graph=rdf_graphs.data
+        shacl_graphs=rdf_graphs.cardinality_shapes + rdf_graphs.content_shapes,
+        data_graph=rdf_graphs.data,
     )
 
 

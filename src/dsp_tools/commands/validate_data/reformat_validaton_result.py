@@ -11,9 +11,9 @@ from dsp_tools.commands.validate_data.models.input_problems import NonExistentCa
 from dsp_tools.commands.validate_data.models.input_problems import UnexpectedResults
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
+from dsp_tools.commands.validate_data.models.validation import ValidationReport
 from dsp_tools.commands.validate_data.models.validation import ValidationResult
 from dsp_tools.commands.validate_data.models.validation import ValidationResultTypes
-from dsp_tools.commands.validate_data.models.validation import ValidationReport
 
 
 def reformat_validation_graph(report: ValidationReport) -> AllProblems:
@@ -46,7 +46,10 @@ def reformat_validation_graph(report: ValidationReport) -> AllProblems:
 def _reformat_cardinality_graph(results_graph: Graph) -> tuple[list[InputProblem], list[UnexpectedComponent]]:
     pass
 
-def _reformat_content_graph(results_graph: Graph, data_graph: Graph) -> tuple[list[InputProblem], list[UnexpectedComponent]]:
+
+def _reformat_content_graph(
+    results_graph: Graph, data_graph: Graph
+) -> tuple[list[InputProblem], list[UnexpectedComponent]]:
     pass
 
 

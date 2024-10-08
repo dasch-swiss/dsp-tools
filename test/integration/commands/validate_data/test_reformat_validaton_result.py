@@ -6,6 +6,7 @@ from rdflib import Graph
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
+from dsp_tools.commands.validate_data.models.validation import ValidationReports
 from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.validate_data import _get_data_info_from_file
 
@@ -26,7 +27,15 @@ def result_cardinality_violation() -> Graph:
 
 
 def test_reformat_validation_graph(result_cardinality_violation: Graph, data_cardinality_violation: Graph) -> None:
-    result = reformat_validation_graph(result_cardinality_violation, data_cardinality_violation)
+    val_rep = ValidationReports(
+        conforms=False,
+        content_validation=None,
+        cardinality_validation=result_cardinality_violation,
+        shacl_graphs=Graph(),
+        data_graph=data_cardinality_violation,
+    )
+
+    result = reformat_validation_graph(val_rep)
     assert not result.unexpected_results
     assert len(result.problems) == 4
     sorted_problems = sorted(result.problems, key=lambda x: x.sort_value())

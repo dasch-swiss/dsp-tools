@@ -29,7 +29,8 @@ def _add_property_shapes_to_class_shapes(onto: Graph) -> Graph:
 
     CONSTRUCT {
 
-      ?classShapeIRI sh:property ?propShapesIRI .
+      ?classShapeIRI sh:property ?propShapesIRI ;
+                     sh:targetClass ?class .
 
     } WHERE {
 

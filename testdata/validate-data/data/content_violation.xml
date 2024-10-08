@@ -6,7 +6,7 @@
        shortcode="9999"
        default-ontology="onto">
 
-    <!-- 9 Violations -->
+    <!-- 10 Violations -->
 
     <!-- Geoname should be a number -->
     <resource label="Geoname is not a number" restype=":ClassWithEverything" id="id_5">
@@ -65,7 +65,7 @@
         </text-prop>
     </resource>
 
-        <!-- Text may not only consist of whitespace characters -->
+    <!-- Text may not only consist of whitespace characters -->
     <resource label="Only newline and spaces" restype=":ClassWithEverything" id="id_11.2">
         <text-prop name=":testTextarea">
             <text encoding="utf8">
@@ -75,7 +75,7 @@
     </resource>
 
 
-    <!-- Value of the same property may not be identical -->
+    <!-- The value of the same property may not be identical -->
     <resource label="Duplicate Value" restype=":ClassWithEverything" id="id_12">
         <text-prop name=":testTextarea">
             <text encoding="utf8">Text</text>

@@ -131,10 +131,10 @@ api-shapes:ListValue_ClassShape
 api-shapes:SimpleTextValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
-  sh:property api-shapes:valueAsString_PropShape ;
+  sh:property api-shapes:SimpleTextValue_PropShape ;
   sh:severity sh:Violation .
 
-api-shapes:valueAsString_PropShape
+api-shapes:SimpleTextValue_PropShape
   a           sh:PropertyShape ;
   sh:message  "TextValue without formatting" ;
   sh:path     knora-api:valueAsString ;
@@ -148,11 +148,11 @@ api-shapes:valueAsString_PropShape
 api-shapes:FormattedTextValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
-  sh:property api-shapes:textValueAsXml_PropShape ;
+  sh:property api-shapes:FormattedTextValue_PropShape ;
   sh:severity sh:Violation .
 
 
-api-shapes:textValueAsXml_PropShape
+api-shapes:FormattedTextValue_PropShape
   a           sh:PropertyShape ;
   sh:message  "TextValue with formatting" ;
   sh:path     knora-api:textValueAsXml ;

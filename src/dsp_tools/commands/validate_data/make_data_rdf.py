@@ -102,9 +102,15 @@ def _transform_one_value(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:  
         RichtextDeserialised: RichtextRDF,
     }
     match val:
-        case ColorValueDeserialised() | DateValueDeserialised() | SimpleTextDeserialised() | RichtextDeserialised():
+        case (
+            ColorValueDeserialised()
+            | DateValueDeserialised()
+            | GeonameValueDeserialised()
+            | SimpleTextDeserialised()
+            | RichtextDeserialised()
+        ):
             return _transform_into_xsd_string(val, res_iri, func_mapper[type(val)])
-        case GeonameValueDeserialised() | IntValueDeserialised():
+        case IntValueDeserialised():
             return _transform_into_xsd_integer(val, res_iri, func_mapper[type(val)])
         case BooleanValueDeserialised():
             return _transform_into_bool(val, res_iri)

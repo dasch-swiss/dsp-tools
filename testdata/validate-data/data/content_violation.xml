@@ -9,35 +9,35 @@
     <!-- 9 Violations -->
 
     <!-- Geoname should be a number -->
-    <resource label="Geoname" restype=":ClassWithEverything" id="id_5">
+    <resource label="Geoname is not a number" restype=":ClassWithEverything" id="id_5">
         <geoname-prop name=":testGeoname">
             <geoname>ab</geoname>
         </geoname-prop>
     </resource>
 
     <!-- attribute 'list' may not be empty -->
-    <resource label="List" restype=":ClassWithEverything" id="id_7">
+    <resource label="List attribute is empty" restype=":ClassWithEverything" id="id_7">
         <list-prop list="" name=":testListProp">
             <list>n1</list>
         </list-prop>
     </resource>
 
     <!-- node does not exist -->
-    <resource label="List" restype=":ClassWithEverything" id="id_7.1">
+    <resource label="List node does not exist" restype=":ClassWithEverything" id="id_7.1">
         <list-prop list="onlyList" name=":testListProp">
             <list>other</list>
         </list-prop>
     </resource>
 
     <!-- list does not exist -->
-    <resource label="List" restype=":ClassWithEverything" id="id_7.2">
+    <resource label="List name does not exist" restype=":ClassWithEverything" id="id_7.2">
         <list-prop list="other" name=":testListProp">
             <list>n1</list>
         </list-prop>
     </resource>
 
     <!-- Link does not exist -->
-    <resource label="Link Prop" restype=":ClassWithEverything" id="id_8">
+    <resource label="Target does not exist" restype=":ClassWithEverything" id="id_8">
         <resptr-prop name=":testHasLinkTo">
             <resptr>other</resptr>
         </resptr-prop>
@@ -45,25 +45,35 @@
 
     <!-- Link target is not the range class -->
     <resource label="Link Prop" restype=":ClassWithEverything" id="id_9_target"/>
-    <resource label="Link Prop" restype=":ClassWithEverything" id="id_9">
+    <resource label="Target not the right class" restype=":ClassWithEverything" id="id_9">
         <resptr-prop name=":testHasLinkToCardOneResource">
             <resptr>id_9_target</resptr>
         </resptr-prop>
     </resource>
 
     <!-- Text may not be empty -->
-    <resource label="Richtext" restype=":ClassWithEverything" id="id_10">
+    <resource label="No Content" restype=":ClassWithEverything" id="id_10">
         <text-prop name=":testRichtext">
             <text encoding="xml"></text>
         </text-prop>
     </resource>
 
     <!-- Text may not be empty -->
-    <resource label="Simpletext" restype=":ClassWithEverything" id="id_11">
+    <resource label="No Content" restype=":ClassWithEverything" id="id_11.1">
         <text-prop name=":testTextarea">
             <text encoding="utf8"></text>
         </text-prop>
     </resource>
+
+        <!-- Text may not only consist of whitespace characters -->
+    <resource label="Only newline and spaces" restype=":ClassWithEverything" id="id_11.2">
+        <text-prop name=":testTextarea">
+            <text encoding="utf8">
+
+            </text>
+        </text-prop>
+    </resource>
+
 
     <!-- Value of the same property may not be identical -->
     <resource label="Duplicate Value" restype=":ClassWithEverything" id="id_12">

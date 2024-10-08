@@ -13,10 +13,10 @@ from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViol
 from dsp_tools.commands.validate_data.models.validation import CardinalityValidationResult
 from dsp_tools.commands.validate_data.models.validation import ContentValidationResult
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
-from dsp_tools.commands.validate_data.models.validation import ValidationReport
+from dsp_tools.commands.validate_data.models.validation import ValidationReports
 
 
-def reformat_validation_graph(report: ValidationReport) -> AllProblems:
+def reformat_validation_graph(report: ValidationReports) -> AllProblems:
     """
     Reformats the validation result from an RDF graph into class instances
     that are used to communicate the problems with the user.

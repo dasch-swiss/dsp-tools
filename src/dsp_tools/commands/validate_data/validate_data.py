@@ -14,7 +14,7 @@ from dsp_tools.commands.validate_data.make_data_rdf import make_data_rdf
 from dsp_tools.commands.validate_data.models.data_deserialised import ProjectDeserialised
 from dsp_tools.commands.validate_data.models.data_rdf import DataRDF
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
-from dsp_tools.commands.validate_data.models.validation import ValidationReport
+from dsp_tools.commands.validate_data.models.validation import ValidationReports
 from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import construct_cardinality_node_shapes
 from dsp_tools.commands.validate_data.sparql.content_shacl import construct_content_shapes_graph
@@ -125,7 +125,7 @@ def _save_graphs(filepath: Path, rdf_graphs: RDFGraphs) -> Path:
     return generic_filepath
 
 
-def _validate(validator: ShaclValidator, rdf_graphs: RDFGraphs) -> ValidationReport:
+def _validate(validator: ShaclValidator, rdf_graphs: RDFGraphs) -> ValidationReports:
     card_shacl = rdf_graphs.get_cardinality_shacl_str()
     card_data = rdf_graphs.get_cardinality_data_str()
     card_results = validator.validate(card_data, card_shacl)
@@ -156,7 +156,7 @@ def _validate(validator: ShaclValidator, rdf_graphs: RDFGraphs) -> ValidationRep
             conforms = True
             card_report = None
             content_report = None
-    return ValidationReport(
+    return ValidationReports(
         conforms=conforms,
         content_validation=content_report,
         cardinality_validation=card_report,

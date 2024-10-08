@@ -28,19 +28,12 @@ class RDFGraphs:
 
 
 @dataclass
-class ValidationReport:
+class ValidationReports:
     conforms: bool
     content_validation: Graph | None
     cardinality_validation: Graph | None
     shacl_graphs: Graph
     data_graph: Graph
-
-
-@dataclass
-class ValidationResultTypes:
-    node_constraint_component: set[Node]
-    detail_bns: set[Node]
-    cardinality_components: set[Node]
 
 
 @dataclass

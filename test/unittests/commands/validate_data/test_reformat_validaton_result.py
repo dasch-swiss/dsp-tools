@@ -139,7 +139,7 @@ def violation_value_type() -> ContentValidationResult:
         results_message="ColorValue",
         value_type=KNORA_API.TextValue,
         detail_bn_component=SH.ClassConstraintComponent,
-        value=[],
+        value=None,
     )
 
 
@@ -152,7 +152,7 @@ def violation_unknown_content() -> ContentValidationResult:
         property=ONTO.testIntegerSimpleText,
         results_message="This is a constraint that is not checked in the data and should never appear.",
         detail_bn_component=SH.AndConstraintComponent,
-        value=[],
+        value=None,
     )
 
 

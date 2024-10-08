@@ -144,7 +144,9 @@ def _query_for_one_content_validation_result(
     component = next(results_graph.objects(bn, SH.sourceConstraintComponent))
     detail_bn = next(results_graph.objects(bn, SH.detail))
     detail_component = next(results_graph.objects(detail_bn, SH.sourceConstraintComponent))
-    node_value = list(results_graph.objects(detail_bn, SH.value))
+    val = None
+    if node_value := list(results_graph.objects(detail_bn, SH.value)):
+        val = str(node_value[0])
     msg = str(next(results_graph.objects(detail_bn, SH.resultMessage)))
     return ContentValidationResult(
         source_constraint_component=component,
@@ -154,7 +156,7 @@ def _query_for_one_content_validation_result(
         results_message=msg,
         detail_bn_component=detail_component,
         value_type=value_type,
-        value=node_value,
+        value=val,
     )
 
 
@@ -169,7 +171,7 @@ def _reformat_one_content_validation_result(val_result: ContentValidationResult)
                 res_type=res_type,
                 prop_name=prop_name,
                 expected_format=val_result.results_message,
-                actual_content=str(val_result.value[0]),
+                actual_content=val_result.value,
             )
         case SH.ClassConstraintComponent | SH.MinCountConstraintComponent:
             actual_type = _reformat_onto_iri(str(val_result.value_type)).replace("knora-api:", "")

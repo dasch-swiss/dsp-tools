@@ -3,7 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from rdflib import Graph
-from rdflib import Literal
 from rdflib.term import Node
 
 
@@ -59,5 +58,5 @@ class ContentValidationResult:
     property: Node
     results_message: str
     detail_bn_component: Node
-    value: list[Node | Literal]
+    value: str | None
     value_type: Node | None = None

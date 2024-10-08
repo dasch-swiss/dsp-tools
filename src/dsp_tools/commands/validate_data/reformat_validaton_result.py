@@ -126,8 +126,8 @@ def _get_input_error_content(
 
 
 def _extract_content_validation_results(results_graph: Graph, data_graph: Graph) -> list[ContentValidationResult]:
-    violations = results_graph.subjects(RDF.type, SH.ValidationResult)
-    return [_extract_one_content_validation_result(x, results_graph, data_graph) for x in violations]
+    main_results = list(results_graph.subjects(SH.sourceConstraintComponent, SH.NodeConstraintComponent))
+    return [_extract_one_content_validation_result(x, results_graph, data_graph) for x in main_results]
 
 
 def _extract_one_content_validation_result(

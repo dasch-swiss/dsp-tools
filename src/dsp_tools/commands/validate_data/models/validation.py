@@ -49,7 +49,16 @@ class UnexpectedComponent:
 
 
 @dataclass
-class ValidationResult:
+class CardinalityValidationResult:
+    source_constraint_component: Node
+    res_iri: Node
+    res_class: Node
+    property: Node
+    results_message: str
+
+
+@dataclass
+class ContentValidationResult:
     source_constraint_component: Node
     res_iri: Node
     res_class: Node

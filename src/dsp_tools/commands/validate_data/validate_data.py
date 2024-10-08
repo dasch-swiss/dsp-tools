@@ -63,9 +63,9 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
         print(problem_msg)
         if reformatted.unexpected_results:
             reformatted.unexpected_results.save_inform_user(
-                results_graph=report.validation_graph,
-                shacl=report.shacl_graph,
-                data=data_graph,
+                results_graph=report.content_validation + report.cardinality_validation,
+                shacl=report.shacl_graphs,
+                data=rdf_graphs.data,
             )
     return True
 

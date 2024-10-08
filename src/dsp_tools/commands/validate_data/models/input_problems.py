@@ -24,7 +24,8 @@ class UnexpectedResults:
     def save_inform_user(self, results_graph: Graph, shacl: Graph, data: Graph) -> None:
         cwdr = Path.cwd()
         prefix = f"{datetime.now()!s}_"
-        components = sorted(x.component_type for x in self.components)
+        unique_components = list(set(x.component_type for x in self.components))
+        components = sorted(unique_components)
         msg = (
             f"Unexpected violations were found in the validation results:"
             f"{LIST_SEPARATOR}{LIST_SEPARATOR.join(components)}\n"

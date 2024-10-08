@@ -144,6 +144,7 @@ api-shapes:valueAsString_PropShape
 
 ###
 # FormattedTextValue
+
 api-shapes:FormattedTextValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;

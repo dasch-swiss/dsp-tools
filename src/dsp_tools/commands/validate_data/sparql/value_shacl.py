@@ -13,7 +13,8 @@ def construct_property_shapes(onto: Graph) -> Graph:
     """
     g = Graph()
     g += _construct_property_type_shape_based_on_object_type(onto)
-    g += _construct_property_type_shape_based_on_gui_element(onto)
+    g += _construct_link_value_shape(onto)
+    g += _construct_property_type_text_value(onto)
     return g + _add_property_shapes_to_class_shapes(onto)
 
 
@@ -90,20 +91,46 @@ def _construct_one_property_type_shape_based_on_object_type(onto: Graph, object_
     return Graph()
 
 
-def _construct_property_type_shape_based_on_gui_element(onto: Graph) -> Graph:
+def _construct_link_value_shape(onto: Graph) -> Graph:
+    query_s = """
+    PREFIX owl: <http://www.w3.org/2002/07/owl#> 
+    PREFIX sh: <http://www.w3.org/ns/shacl#>
+    PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
+    PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
+    PREFIX salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#>
+
+    CONSTRUCT {
+
+        ?shapesIRI a sh:PropertyShape ;
+                   sh:path ?prop ;
+                   sh:node api-shapes:LinkValue_ClassShape .
+
+    } WHERE {
+
+        ?prop a owl:ObjectProperty ;
+                salsah-gui:guiElement salsah-gui:Searchbox .
+
+        BIND(IRI(CONCAT(str(?prop), "_PropShape")) AS ?shapesIRI)
+    }
+    """
+    if results_graph := onto.query(query_s).graph:
+        return results_graph
+    return Graph()
+
+
+def _construct_property_type_text_value(onto: Graph) -> Graph:
     property_type_mapper = {
         "salsah-gui:SimpleText": "api-shapes:SimpleTextValue_ClassShape",
         "salsah-gui:Textarea": "api-shapes:SimpleTextValue_ClassShape",
         "salsah-gui:Richtext": "api-shapes:FormattedTextValue_ClassShape",
-        "salsah-gui:Searchbox": "api-shapes:LinkValue_ClassShape",
     }
     g = Graph()
     for object_type, shacl_shape in property_type_mapper.items():
-        g += _construct_one_property_type_shape_gui_element(onto, object_type, shacl_shape)
+        g += _construct_one_property_type_text_value(onto, object_type, shacl_shape)
     return g
 
 
-def _construct_one_property_type_shape_gui_element(onto: Graph, gui_element: str, shacl_shape: str) -> Graph:
+def _construct_one_property_type_text_value(onto: Graph, gui_element: str, shacl_shape: str) -> Graph:
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -120,6 +147,7 @@ def _construct_one_property_type_shape_gui_element(onto: Graph, gui_element: str
     } WHERE {
 
         ?prop a owl:ObjectProperty ;
+                knora-api:objectType knora-api:TextValue ;
                 salsah-gui:guiElement %(gui_element)s .
 
         BIND(IRI(CONCAT(str(?prop), "_PropShape")) AS ?shapesIRI)

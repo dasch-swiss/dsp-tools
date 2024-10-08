@@ -71,6 +71,23 @@ def one_prop() -> Graph:
 
 
 @pytest.fixture
+def link_prop() -> Graph:
+    ttl = f"""{PREFIXES}
+    onto:testHasLinkTo a owl:ObjectProperty ;
+        rdfs:label "Test In-built hasLinkTo" ;
+        knora-api:isEditable true ;
+        knora-api:isLinkProperty true ;
+        knora-api:isResourceProperty true ;
+        knora-api:objectType knora-api:Resource ;
+        salsah-gui:guiElement salsah-gui:Searchbox ;
+        rdfs:subPropertyOf knora-api:hasLinkTo .
+    """
+    g = Graph()
+    g.parse(data=ttl, format="ttl")
+    return g
+
+
+@pytest.fixture
 def card_1() -> Graph:
     ttl = f"""{PREFIXES}
     onto:ClassMixedCard a owl:Class ;

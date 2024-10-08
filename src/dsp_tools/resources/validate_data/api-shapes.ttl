@@ -156,9 +156,8 @@ api-shapes:SimpleTextValue_PropShape
 api-shapes:FormattedTextValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
-  sh:property api-shapes:FormattedTextValue_PropShape ;
+  sh:property api-shapes:FormattedTextValue_PropShape, api-shapes:textValueAsXml_Shape ;
   sh:severity sh:Violation .
-
 
 api-shapes:FormattedTextValue_PropShape
   a           sh:PropertyShape ;
@@ -167,6 +166,14 @@ api-shapes:FormattedTextValue_PropShape
   sh:datatype xsd:string ;
   sh:minCount 1 ;
   sh:maxCount 1 .
+
+api-shapes:textValueAsXml_Shape
+  a           sh:PropertyShape ;
+  sh:message  "The value must be a non-empty string." ;
+  sh:path     knora-api:textValueAsXml ;
+  sh:pattern  "\\s*\\S+\\s*" ;
+  sh:datatype xsd:string ;
+  sh:severity sh:Violation .
 
 
 ##############

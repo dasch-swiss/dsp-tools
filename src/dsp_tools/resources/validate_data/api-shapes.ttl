@@ -11,7 +11,13 @@
 #########################################
 
 
-api-shapes:valueAsString_Shape .
+api-shapes:valueAsString_Shape
+  a           sh:PropertyShape ;
+  sh:message  "The value must be a non-empty string." ;
+  sh:path     knora-api:valueAsString ;
+  sh:pattern  "\\s*\\S+\\s*" ;
+  sh:datatype xsd:string ;
+  sh:severity sh:Violation .
 
 ########################
 # UNIQUE VALUE SHAPE
@@ -133,14 +139,13 @@ api-shapes:ListValue_ClassShape
 api-shapes:SimpleTextValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
-  sh:property api-shapes:SimpleTextValue_PropShape ;
+  sh:property api-shapes:SimpleTextValue_PropShape, api-shapes:valueAsString_Shape ;
   sh:severity sh:Violation .
 
 api-shapes:SimpleTextValue_PropShape
   a           sh:PropertyShape ;
   sh:message  "TextValue without formatting" ;
   sh:path     knora-api:valueAsString ;
-  sh:pattern  "\\s*\\S+\\s*" ;
   sh:datatype xsd:string ;
   sh:minCount 1 ;
   sh:maxCount 1 .

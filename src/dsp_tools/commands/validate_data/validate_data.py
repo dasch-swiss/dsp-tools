@@ -62,8 +62,13 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
         cprint("\n   Validation errors found!   ", color="light_red", attrs=["bold", "reverse"])
         print(problem_msg)
         if reformatted.unexpected_results:
+            report_graphs = Graph()
+            if report.content_validation:
+                report_graphs += report.content_validation
+            if report.cardinality_validation:
+                report_graphs += report.cardinality_validation
             reformatted.unexpected_results.save_inform_user(
-                results_graph=report.content_validation + report.cardinality_validation,
+                results_graph=report_graphs,
                 shacl=report.shacl_graphs,
                 data=rdf_graphs.data,
             )
@@ -131,6 +136,9 @@ def _validate(validator: ShaclValidator, rdf_graphs: RDFGraphs) -> ValidationRep
     content_results = validator.validate(content_data, content_shacl)
     content_conforms = bool(next(card_results.objects(None, SH.conforms)))
 
+    conforms: bool
+    card_report: Graph | None
+    content_report: Graph | None
     match card_conforms, content_conforms:
         case False, False:
             conforms = False

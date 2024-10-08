@@ -30,16 +30,15 @@ def reformat_validation_graph(report: ValidationReport) -> AllProblems:
     reformatted_results: list[InputProblem] = []
     unexpected_components: list[UnexpectedComponent] = []
     if report.cardinality_validation:
-        reformatted, unexpected = _get_input_error_cardinality(report.cardinality_validation)
+        reformatted, unexpected = _get_input_error_cardinality(report.cardinality_validation, report.data_graph)
         reformatted_results.extend(reformatted)
         unexpected_components.extend(unexpected)
     if report.content_validation:
         reformatted, unexpected = _get_input_error_content(report.content_validation, report.data_graph)
         reformatted_results.extend(reformatted)
         unexpected_components.extend(unexpected)
-
-    unexpected = UnexpectedResults(unexpected_components) if unexpected_components else None
-    return AllProblems(reformatted_results, unexpected)
+    unexpected_found = UnexpectedResults(unexpected_components) if unexpected_components else None
+    return AllProblems(reformatted_results, unexpected_found)
 
 
 def _get_input_error_cardinality(
@@ -61,10 +60,10 @@ def _extract_cardinality_validation_results(
     results_graph: Graph, data_graph: Graph
 ) -> list[CardinalityValidationResult]:
     violations = results_graph.subjects(RDF.type, SH.ValidationResult)
-    return [_extract_cardinality_one_validation_result(x, results_graph, data_graph) for x in violations]
+    return [_extract_one_cardinality_validation_result(x, results_graph, data_graph) for x in violations]
 
 
-def _extract_cardinality_one_validation_result(
+def _extract_one_cardinality_validation_result(
     bn: Node, results_graph: Graph, data_graph: Graph
 ) -> CardinalityValidationResult:
     focus_nd = next(results_graph.objects(bn, SH.focusNode))
@@ -128,10 +127,12 @@ def _get_input_error_content(
 
 def _extract_content_validation_results(results_graph: Graph, data_graph: Graph) -> list[ContentValidationResult]:
     violations = results_graph.subjects(RDF.type, SH.ValidationResult)
-    return [_extract_content_constraint_violation(x, results_graph, data_graph) for x in violations]
+    return [_extract_one_content_validation_result(x, results_graph, data_graph) for x in violations]
 
 
-def _extract_content_constraint_violation(bn: Node, results_graph: Graph, data_graph: Graph) -> ContentValidationResult:
+def _extract_one_content_validation_result(
+    bn: Node, results_graph: Graph, data_graph: Graph
+) -> ContentValidationResult:
     focus_nd = next(results_graph.objects(bn, SH.focusNode))
     res_type = next(data_graph.objects(focus_nd, RDF.type))
     path = next(results_graph.objects(bn, SH.resultPath))

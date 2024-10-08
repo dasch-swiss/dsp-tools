@@ -11,6 +11,8 @@
 #########################################
 
 
+api-shapes:valueAsString_Shape .
+
 ########################
 # UNIQUE VALUE SHAPE
 ########################
@@ -138,6 +140,7 @@ api-shapes:valueAsString_PropShape
   a           sh:PropertyShape ;
   sh:message  "TextValue without formatting" ;
   sh:path     knora-api:valueAsString ;
+  sh:pattern  "\\s*\\S+\\s*" ;
   sh:datatype xsd:string ;
   sh:minCount 1 ;
   sh:maxCount 1 .

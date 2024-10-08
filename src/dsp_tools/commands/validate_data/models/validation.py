@@ -13,25 +13,26 @@ class RDFGraphs:
     cardinality_shapes: Graph
     content_shapes: Graph
 
-    def cardinality_data_str(self) -> str:
+    def get_cardinality_data_str(self) -> str:
         return self.data.serialize(format="ttl")
 
-    def cardinality_shacl_str(self) -> str:
+    def get_cardinality_shacl_str(self) -> str:
         return self.cardinality_shapes.serialize(format="ttl")
 
-    def content_data_str(self) -> str:
+    def get_content_data_str(self) -> str:
         g = self.data + self.ontos
         return g.serialize(format="ttl")
 
-    def content_shacl_str(self) -> str:
+    def get_content_shacl_str(self) -> str:
         return self.content_shapes.serialize(format="ttl")
 
 
 @dataclass
 class ValidationReport:
     conforms: bool
-    validation_graph: Graph
-    shacl_graph: Graph
+    content_validation: Graph | None
+    cardinality_validation: Graph | None
+    shacl_graphs: Graph
     data_graph: Graph
 
 

@@ -50,11 +50,14 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
     val = ShaclValidator(api_url)
     report = _validate(val, rdf_graphs)
     if save_graphs:
-        report.validation_graph.serialize(f"{generic_filepath}_VALIDATION_REPORT.ttl")
+        if report.content_validation:
+            report.content_validation.serialize(f"{generic_filepath}_VALIDATION_REPORT_CONTENT.ttl")
+        if report.cardinality_validation:
+            report.cardinality_validation.serialize(f"{generic_filepath}_VALIDATION_REPORT_CARD.ttl")
     if report.conforms:
         cprint("\n   Validation passed!   ", color="green", attrs=["bold", "reverse"])
     else:
-        reformatted = reformat_validation_graph(report.validation_graph, data_graph)
+        reformatted = reformat_validation_graph(report)
         problem_msg = reformatted.get_msg(filepath)
         cprint("\n   Validation errors found!   ", color="light_red", attrs=["bold", "reverse"])
         print(problem_msg)
@@ -118,17 +121,39 @@ def _save_graphs(filepath: Path, rdf_graphs: RDFGraphs) -> Path:
 
 
 def _validate(validator: ShaclValidator, rdf_graphs: RDFGraphs) -> ValidationReport:
-    card_str = rdf_graphs.cardinality_shapes.serialize(format="ttl")
+    card_shacl = rdf_graphs.get_cardinality_shacl_str()
+    card_data = rdf_graphs.get_cardinality_data_str()
+    card_results = validator.validate(card_data, card_shacl)
+    card_conforms = bool(next(card_results.objects(None, SH.conforms)))
 
-    shape_str = shapes_graph.serialize(format="ttl")
-    data_str = data_graph.serialize(format="ttl")
-    results = validator.validate(data_str, shape_str)
-    conforms = bool(next(results.objects(None, SH.conforms)))
+    content_shacl = rdf_graphs.get_content_shacl_str()
+    content_data = rdf_graphs.get_content_data_str()
+    content_results = validator.validate(content_data, content_shacl)
+    content_conforms = bool(next(card_results.objects(None, SH.conforms)))
+
+    match card_conforms, content_conforms:
+        case False, False:
+            conforms = False
+            card_report = card_results
+            content_report = content_results
+        case False, True:
+            conforms = False
+            card_report = card_results
+            content_report = None
+        case True, False:
+            conforms = False
+            card_report = None
+            content_report = content_results
+        case _, _:
+            conforms = True
+            card_report = None
+            content_report = None
     return ValidationReport(
         conforms=conforms,
-        validation_graph=results,
-        shacl_graph=shapes_graph,
-        data_graph=data_graph,
+        content_validation=content_report,
+        cardinality_validation=card_report,
+        shacl_graphs= rdf_graphs.cardinality_shapes + rdf_graphs.content_shapes,
+        data_graph=rdf_graphs.data
     )
 
 

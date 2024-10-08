@@ -13,9 +13,10 @@ from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViol
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.models.validation import ValidationResult
 from dsp_tools.commands.validate_data.models.validation import ValidationResultTypes
+from dsp_tools.commands.validate_data.models.validation import ValidationReport
 
 
-def reformat_validation_graph(results_graph: Graph, data_graph: Graph) -> AllProblems:
+def reformat_validation_graph(report: ValidationReport) -> AllProblems:
     """
     Reformats the validation result from an RDF graph into class instances
     that are used to communicate the problems with the user.
@@ -27,10 +28,26 @@ def reformat_validation_graph(results_graph: Graph, data_graph: Graph) -> AllPro
     Returns:
         All Problems
     """
-    reformatted_results = _reformat_result_graph(results_graph, data_graph)
-    input_problems, unexpected_components = _transform_violations_into_input_problems(reformatted_results)
+    reformatted_results: list[InputProblem] = []
+    unexpected_components: list[UnexpectedComponent] = []
+    if report.cardinality_validation:
+        reformatted, unexpected = _reformat_cardinality_graph(report.cardinality_validation)
+        reformatted_results.extend(reformatted)
+        unexpected_components.extend(unexpected)
+    if report.content_validation:
+        reformatted, unexpected = _reformat_content_graph(report.content_validation, report.data_graph)
+        reformatted_results.extend(reformatted)
+        unexpected_components.extend(unexpected)
+
     unexpected = UnexpectedResults(unexpected_components) if unexpected_components else None
-    return AllProblems(input_problems, unexpected)
+    return AllProblems(reformatted_results, unexpected)
+
+
+def _reformat_cardinality_graph(results_graph: Graph) -> tuple[list[InputProblem], list[UnexpectedComponent]]:
+    pass
+
+def _reformat_content_graph(results_graph: Graph, data_graph: Graph) -> tuple[list[InputProblem], list[UnexpectedComponent]]:
+    pass
 
 
 def _reformat_result_graph(results_graph: Graph, data_graph: Graph) -> list[ValidationResult]:

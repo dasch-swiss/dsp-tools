@@ -11,14 +11,6 @@
 #########################################
 
 
-api-shapes:valueAsString_Shape
-  a           sh:PropertyShape ;
-  sh:message  "The value must be a non-empty string." ;
-  sh:path     knora-api:valueAsString ;
-  sh:pattern  "\\s*\\S+\\s*" ;
-  sh:datatype xsd:string ;
-  sh:severity sh:Violation .
-
 ########################
 # UNIQUE VALUE SHAPE
 ########################
@@ -95,7 +87,7 @@ api-shapes:GeonameValue_ClassShape
 
 api-shapes:geonameValueAsGeonameCode_Shape
   a           sh:PropertyShape ;
-  sh:message  "The value must be a valid geoname code." ;
+  sh:message  "The value must be a valid geoname code" ;
   sh:path     knora-api:geonameValueAsGeonameCode ;
   sh:pattern  "^\\d+$" ;
   sh:datatype xsd:string ;
@@ -159,6 +151,15 @@ api-shapes:SimpleTextValue_PropShape
   sh:minCount 1 ;
   sh:maxCount 1 .
 
+api-shapes:valueAsString_Shape
+  a           sh:PropertyShape ;
+  sh:message  "The value must be a non-empty string" ;
+  sh:path     knora-api:valueAsString ;
+  sh:pattern  "\\s*\\S+\\s*" ;
+  sh:datatype xsd:string ;
+  sh:severity sh:Violation .
+
+
 ###
 # FormattedTextValue
 
@@ -178,7 +179,7 @@ api-shapes:FormattedTextValue_PropShape
 
 api-shapes:textValueAsXml_Shape
   a           sh:PropertyShape ;
-  sh:message  "The value must be a non-empty string." ;
+  sh:message  "The value must be a non-empty string" ;
   sh:path     knora-api:textValueAsXml ;
   sh:pattern  "\\s*\\S+\\s*" ;
   sh:datatype xsd:string ;

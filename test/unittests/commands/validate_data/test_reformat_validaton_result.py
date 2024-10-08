@@ -138,6 +138,8 @@ def violation_value_type() -> ContentValidationResult:
         property=ONTO.testColor,
         results_message="ColorValue",
         value_type=KNORA_API.TextValue,
+        detail_bn_component=SH.ClassConstraintComponent,
+        value=[],
     )
 
 
@@ -149,6 +151,8 @@ def violation_unknown_content() -> ContentValidationResult:
         res_class=ONTO.ClassMixedCard,
         property=ONTO.testIntegerSimpleText,
         results_message="This is a constraint that is not checked in the data and should never appear.",
+        detail_bn_component=SH.ClassConstraintComponent,
+        value=[],
     )
 
 

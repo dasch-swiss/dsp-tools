@@ -1,7 +1,7 @@
 from rdflib import Graph
 
 
-def construct_resource_class_node_shape(onto: Graph) -> Graph:
+def construct_cardinality_node_shapes(onto: Graph) -> Graph:
     """
     Returns the sh:NodeShapes for the resource classes in the ontology.
 

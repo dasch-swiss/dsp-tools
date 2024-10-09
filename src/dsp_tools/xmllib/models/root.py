@@ -1,13 +1,16 @@
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
 
 from lxml import etree
 
-from dsp_tools.commands.excel2xml import append_permissions
-from dsp_tools.commands.excel2xml import write_xml
+from dsp_tools.models.custom_warnings import DspToolsUserWarning
+from dsp_tools.models.exceptions import BaseError
+from dsp_tools.utils.xml_validation import validate_xml_file
+from dsp_tools.xmllib.models.permissions import XMLPermissions
 from dsp_tools.xmllib.models.resource import Resource
 
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
@@ -51,11 +54,39 @@ class XMLRoot:
 
     def serialise(self) -> etree._Element:
         root = self.make_root()
-        root = append_permissions(root)
+        permissions = XMLPermissions().serialise()
+        root.extend(permissions)
         serialised_resources = [x.serialise() for x in self.resources]
         root.extend(serialised_resources)
         return root
 
     def write_file(self, filepath: str | Path) -> None:
+        """
+        Write the finished XML to a file.
+
+        Args:
+            filepath: where to save the file
+
+        Warning:
+            if the XML is not valid, according to the schema
+        """
         root = self.serialise()
-        write_xml(root, filepath)
+        etree.indent(root, space="    ")
+        xml_string = etree.tostring(
+            root,
+            encoding="unicode",
+            pretty_print=True,
+            doctype='<?xml version="1.0" encoding="UTF-8"?>',
+        )
+        xml_string = xml_string.replace(r"\'", "'")
+        with open(filepath, "w", encoding="utf-8") as f:
+            f.write(xml_string)
+        try:
+            validate_xml_file(input_file=filepath)
+            print(f"The XML file was successfully saved to {filepath}")
+        except BaseError as err:
+            msg = (
+                f"The XML file was successfully saved to {filepath}, "
+                f"but the following Schema validation error(s) occurred: {err.message}"
+            )
+            warnings.warn(DspToolsUserWarning(msg))

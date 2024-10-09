@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 from rdflib import Graph
 
+from dsp_tools.commands.validate_data.models.input_problems import ContentRegexViolation
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
@@ -89,17 +90,17 @@ def test_reformat_value_type_violation(result_value_type_violation: Graph, data_
     result = reformat_validation_graph(val_rep)
     assert not result.unexpected_results
     assert len(result.problems) == 12
-    sorted_problems = sorted(result.problems, key=lambda x: x.sort_value())
+    sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
     expected_info_tuples = [
         ("id_bool", "BooleanValue", "onto:testBoolean"),
         ("id_color", "ColorValue", "onto:testColor"),
+        ("id_date", "DateValue", "onto:testSubDate1"),
         ("id_decimal", "DecimalValue", "onto:testDecimalSimpleText"),
         ("id_geoname", "GeonameValue", "onto:testGeoname"),
-        ("id_link", "LinkValue", "onto:testHasLinkTo"),
         ("id_integer", "IntValue", "onto:testIntegerSimpleText"),
+        ("id_link", "LinkValue", "onto:testHasLinkTo"),
         ("id_list", "ListValue", "onto:testListProp"),
         ("id_richtext", "TextValue with formatting", "onto:testRichtext"),
-        ("id_date", "DateValue", "onto:testSubDate1"),
         ("id_simpletext", "TextValue without formatting", "onto:testTextarea"),
         ("id_time", "TimeValue", "onto:testTimeValue"),
         ("id_uri", "UriValue", "onto:testUriValue"),
@@ -109,6 +110,31 @@ def test_reformat_value_type_violation(result_value_type_violation: Graph, data_
         assert one_result.res_id == expected_info[0]
         assert one_result.expected_type == expected_info[1]
         assert one_result.prop_name == expected_info[2]
+
+
+def test_reformat_content_violation(result_content_violation: Graph, data_content_violation: Graph) -> None:
+    val_rep = ValidationReports(
+        conforms=False,
+        content_validation=result_content_violation,
+        cardinality_validation=None,
+        shacl_graphs=Graph(),
+        data_graph=data_content_violation,
+    )
+    result = reformat_validation_graph(val_rep)
+    assert not result.unexpected_results
+    assert len(result.problems) == 4
+    sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
+    expected_info_tuples = [
+        ("empty_text_rich", "onto:testRichtext", "The value must be a non-empty string"),
+        ("empty_text_simple", "onto:testTextarea", "The value must be a non-empty string"),
+        ("geoname_not_number", "onto:testGeoname", "The value must be a valid geoname code"),
+        ("text_only_whitespace_simple", "onto:testTextarea", "The value must be a non-empty string"),
+    ]
+    for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
+        assert isinstance(one_result, ContentRegexViolation)
+        assert one_result.res_id == expected_info[0]
+        assert one_result.prop_name == expected_info[1]
+        assert one_result.expected_format == expected_info[2]
 
 
 if __name__ == "__main__":

@@ -43,11 +43,11 @@ def test_reformat_validation_graph(result_cardinality_violation: Graph, data_car
     assert isinstance(val_one, MinCardinalityViolation)
     assert val_one.res_id == "id_card_one"
     val_one = sorted_problems[1]
-    assert isinstance(val_one, MaxCardinalityViolation)
-    assert val_one.res_id == "id_max_card"
-    val_one = sorted_problems[2]
     assert isinstance(val_one, MinCardinalityViolation)
     assert val_one.res_id == "id_min_card"
+    val_one = sorted_problems[2]
+    assert isinstance(val_one, MaxCardinalityViolation)
+    assert val_one.res_id == "id_max_card"
     val_one = sorted_problems[3]
     assert isinstance(val_one, NonExistentCardinalityViolation)
     assert val_one.res_id == "id_closed_constraint"

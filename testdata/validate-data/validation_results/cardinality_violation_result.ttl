@@ -1,36 +1,37 @@
-@prefix ns3: <http://0.0.0.0:3333/ontology/9999/onto/v2#> .
+@prefix ns1: <http://0.0.0.0:3333/ontology/9999/onto/v2#> .
+@prefix ns11: <http://datashapes.org/dash#> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 [] a sh:ValidationReport ;
     sh:conforms false ;
     sh:result [ a sh:ValidationResult ;
-            sh:focusNode <http://data/id_min_card> ;
-            sh:resultMessage "1-n" ;
-            sh:resultPath ns3:testGeoname ;
+            sh:focusNode <http://data/id_closed_constraint> ;
+            sh:resultMessage "Property ns1:testIntegerSimpleText is not among those permitted for any of the types" ;
+            sh:resultPath ns1:testIntegerSimpleText ;
             sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:MinCountConstraintComponent ;
-            sh:sourceShape [ ] ],
+            sh:sourceConstraintComponent ns11:ClosedByTypesConstraintComponent ;
+            sh:sourceShape ns1:CardOneResource ;
+            sh:value <http://data/57eb342b-6968-4e61-a794-9d0f219edc8f> ],
         [ a sh:ValidationResult ;
             sh:focusNode <http://data/id_max_card> ;
-            sh:resultMessage "0-1" ;
-            sh:resultPath ns3:testDecimalSimpleText ;
+            sh:resultMessage "1" ;
+            sh:resultPath ns1:testHasLinkToCardOneResource ;
             sh:resultSeverity sh:Violation ;
             sh:sourceConstraintComponent sh:MaxCountConstraintComponent ;
             sh:sourceShape [ ] ],
         [ a sh:ValidationResult ;
-            sh:focusNode <http://data/id_card_one> ;
-            sh:resultMessage "1" ;
-            sh:resultPath ns3:testBoolean ;
+            sh:focusNode <http://data/id_min_card> ;
+            sh:resultMessage "1-n" ;
+            sh:resultPath ns1:testGeoname ;
             sh:resultSeverity sh:Violation ;
             sh:sourceConstraintComponent sh:MinCountConstraintComponent ;
             sh:sourceShape [ ] ],
         [ a sh:ValidationResult ;
-            sh:focusNode <http://data/id_closed_constraint> ;
-            sh:resultMessage "Predicate ns3:testIntegerSimpleText is not allowed (closed shape)" ;
-            sh:resultPath ns3:testIntegerSimpleText ;
+            sh:focusNode <http://data/id_card_one> ;
+            sh:resultMessage "1" ;
+            sh:resultPath ns1:testBoolean ;
             sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:ClosedConstraintComponent ;
-            sh:sourceShape ns3:CardOneResource_Shape ;
-            sh:value <http://data/8d38b168-56ed-4e63-b425-c5103e6841c3> ] .
+            sh:sourceConstraintComponent sh:MinCountConstraintComponent ;
+            sh:sourceShape [ ] ] .
 

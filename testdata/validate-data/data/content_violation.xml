@@ -76,7 +76,7 @@
 
 
     <!-- The value of the same property may not be identical -->
-    <resource label="Duplicate Value" restype=":ClassWithEverything" id="d">
+    <resource label="Duplicate Value" restype=":ClassWithEverything" id="identical_values">
         <text-prop name=":testTextarea">
             <text encoding="utf8">Text</text>
             <text encoding="utf8">Text</text>

@@ -20,6 +20,12 @@
 # RDFS:LABEL SHAPE
 ########################
 
+api-shapes:rdfsLabel_Shape
+  a           sh:PropertyShape ;
+  sh:maxCount 1 ;
+  sh:path     rdfs:label ;
+  sh:severity sh:Violation .
+
 
 ########################
 # USER FACING VALUES

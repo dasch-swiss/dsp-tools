@@ -25,21 +25,20 @@ def _construct_resource_nodeshape(onto_graph: Graph) -> Graph:
     PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
     PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+    PREFIX dash: <http://datashapes.org/dash#>
 
     CONSTRUCT {
 
-        ?shapesIRI a sh:NodeShape ;
-                sh:targetClass ?class ;
-                sh:ignoredProperties ( rdf:type rdfs:label knora-api:hasComment knora-api:isPartOf knora-api:seqnum ) ;
-                sh:closed true .
+        ?class a sh:NodeShape ;
+                sh:property api-shapes:rdfsLabel_Shape ;
+                dash:closedByTypes true .
 
     } WHERE {
 
         ?class a owl:Class ;
                knora-api:isResourceClass true ;
                knora-api:canBeInstantiated true .
-
-        BIND(IRI(CONCAT(str(?class), "_Shape")) AS ?shapesIRI)
+               
     }
     """
     if results_graph := onto_graph.query(query_s).graph:
@@ -64,10 +63,11 @@ def _construct_1_cardinality(onto_graph: Graph) -> Graph:
     PREFIX salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#> 
     PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
     PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
+    PREFIX dash: <http://datashapes.org/dash#>
     
     CONSTRUCT {
     
-      ?shapesIRI sh:property [
+      ?class sh:property [
           a sh:PropertyShape ;
           sh:path ?propRestriction ;
           sh:minCount 1 ;
@@ -88,7 +88,6 @@ def _construct_1_cardinality(onto_graph: Graph) -> Graph:
           owl:cardinality 1 .
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
     
-      BIND(IRI(CONCAT(str(?class), "_Shape")) AS ?shapesIRI)
     }
     """
     if results_graph := onto_graph.query(query_s).graph:
@@ -104,10 +103,11 @@ def _construct_0_1_cardinality(onto_graph: Graph) -> Graph:
     PREFIX salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#> 
     PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
     PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
+    PREFIX dash: <http://datashapes.org/dash#>
 
     CONSTRUCT {
     
-      ?shapesIRI sh:property [
+      ?class sh:property [
           a sh:PropertyShape ;
           sh:path ?propRestriction ;
           sh:minCount 0 ;
@@ -128,7 +128,6 @@ def _construct_0_1_cardinality(onto_graph: Graph) -> Graph:
           owl:maxCardinality 1 .
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
     
-      BIND(IRI(CONCAT(str(?class), "_Shape")) AS ?shapesIRI)
     }
     """
     if results_graph := onto_graph.query(query_s).graph:
@@ -144,10 +143,11 @@ def _construct_1_n_cardinality(onto_graph: Graph) -> Graph:
     PREFIX salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#> 
     PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
     PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
+    PREFIX dash: <http://datashapes.org/dash#>
 
     CONSTRUCT {
     
-      ?shapesIRI sh:property [
+      ?class sh:property [
           a sh:PropertyShape ;
           sh:path ?propRestriction ;
           sh:minCount 1 ;
@@ -167,7 +167,6 @@ def _construct_1_n_cardinality(onto_graph: Graph) -> Graph:
           owl:minCardinality 1 .
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
     
-      BIND(IRI(CONCAT(str(?class), "_Shape")) AS ?shapesIRI)
     }
     """
     if results_graph := onto_graph.query(query_s).graph:
@@ -183,10 +182,11 @@ def _construct_0_n_cardinality(onto_graph: Graph) -> Graph:
     PREFIX salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#> 
     PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
     PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
+    PREFIX dash: <http://datashapes.org/dash#>
 
     CONSTRUCT {
     
-      ?shapesIRI sh:property [
+      ?class sh:property [
           a sh:PropertyShape ;
           sh:path ?propRestriction ;
       ] .
@@ -203,7 +203,6 @@ def _construct_0_n_cardinality(onto_graph: Graph) -> Graph:
           owl:minCardinality 0 .
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
     
-      BIND(IRI(CONCAT(str(?class), "_Shape")) AS ?shapesIRI)
     }
     """
     if results_graph := onto_graph.query(query_s).graph:

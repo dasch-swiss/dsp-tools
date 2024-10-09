@@ -95,6 +95,7 @@ def _create_graphs(onto_con: OntologyConnection, data_rdf: DataRDF) -> RDFGraphs
     api_shapes = Graph()
     api_shapes.parse("src/dsp_tools/resources/validate_data/api-shapes.ttl")
     content_shapes += api_shapes
+    card_shapes += api_shapes
     return RDFGraphs(
         data=data_rdf.make_graph(), ontos=ontologies, cardinality_shapes=card_shapes, content_shapes=content_shapes
     )

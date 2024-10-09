@@ -186,11 +186,8 @@ def _append_bitstream_to_resource(
     """
     file_permissions = row.get("file permissions")
     if not check_notna(file_permissions):
-        resource_permissions = row.get("permissions")
-        if resource_permissions == "res-default":
-            file_permissions = "prop-default"
-        elif resource_permissions == "res-restricted":
-            file_permissions = "prop-restricted"
+        if resource_permissions := row.get("permissions"):
+            file_permissions = resource_permissions
         else:
             file_permissions = ""
             warnings.warn(

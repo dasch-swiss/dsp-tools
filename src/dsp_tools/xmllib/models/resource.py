@@ -44,7 +44,7 @@ class Resource:
     restype: str
     label: str
     values: list[Value] = field(default_factory=list)
-    permissions: str = "res-default"
+    permissions: str = "open"
     file_value: AbstractFileValue | None = None
     migration_metadata: MigrationMetadata | None = None
 

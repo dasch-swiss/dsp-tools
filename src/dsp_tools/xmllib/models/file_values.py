@@ -28,7 +28,7 @@ class AbstractFileValue(Protocol):
 @dataclass
 class FileValue(AbstractFileValue):
     value: str | Path
-    permissions: str | None = "prop-default"
+    permissions: str | None = "open"
     comment: str | None = None
     resource_id: str | None = None
 
@@ -50,7 +50,7 @@ class FileValue(AbstractFileValue):
 @dataclass
 class IIIFUri(AbstractFileValue):
     value: str
-    permissions: str | None = "prop-default"
+    permissions: str | None = "open"
     comment: str | None = None
     resource_id: str | None = None
 

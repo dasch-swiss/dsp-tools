@@ -76,8 +76,8 @@ class Test_XMLProperty:
             XMLProperty._get_values_from_normal_props(etree.fromstring(string), "uri")
 
     def test_get_value_from_knora_base_prop_with_all_attributes(self) -> None:
-        string = """<isSegmentOf permissions="prop-default" comment="cmt">video_thing_1</isSegmentOf>"""
-        expected = XMLValue("video_thing_1", permissions="prop-default", comment="cmt")
+        string = """<isSegmentOf permissions="open" comment="cmt">video_thing_1</isSegmentOf>"""
+        expected = XMLValue("video_thing_1", permissions="open", comment="cmt")
         res = XMLProperty._get_value_from_knora_base_prop(etree.fromstring(string))
         assert res == expected
 
@@ -114,8 +114,8 @@ class Test_XMLProperty:
 class Test_XMLValue:
     def test_from_node_integer_value(self) -> None:
         # test content, and these attributes: comments, permissions, and linkUUID (if existing)
-        node = etree.fromstring("""<integer permissions="prop-default" comment="cmt" linkUUID="foo">99</integer>""")
-        expected = XMLValue(value="99", comment="cmt", permissions="prop-default", link_uuid="foo")
+        node = etree.fromstring("""<integer permissions="open" comment="cmt" linkUUID="foo">99</integer>""")
+        expected = XMLValue(value="99", comment="cmt", permissions="open", link_uuid="foo")
         res = XMLValue.from_node(node, "integer")
         assert res == expected
 
@@ -157,7 +157,7 @@ class Test_XMLValue:
 
 def test_cleanup_unformatted_text() -> None:
     """Test the removal of whitespaces and line breaks in utf8-encoded text values"""
-    orig = """<text permissions="prop-default" encoding="utf8" linkUUID="foo">
+    orig = """<text permissions="open" encoding="utf8" linkUUID="foo">
 
             Poem
             with 1 line break:
@@ -186,7 +186,7 @@ def test_cleanup_unformatted_text() -> None:
 
 
 def test_extract_formatted_text_from_node() -> None:
-    orig = """<text permissions="prop-default" encoding="xml" linkUUID="foo">
+    orig = """<text permissions="open" encoding="xml" linkUUID="foo">
             This is <em>italicized and <strong>bold</strong></em> text!
         </text>"""
     expected = "This is <em>italicized and <strong>bold</strong></em> text!"

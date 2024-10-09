@@ -101,19 +101,19 @@ def test_find_all_text_props_with_multiple_encodings_good() -> None:
 def test_get_all_ids_prop_encoding_from_root_no_text() -> None:
     test_ele = etree.fromstring(
         """<knora>
-                <resource label="resA" restype=":TestThing1" id="resA" permissions="res-default">
+                <resource label="resA" restype=":TestThing1" id="resA" permissions="open">
                     <resptr-prop name=":hasResource1">
-                        <resptr permissions="prop-default">resB</resptr>
+                        <resptr permissions="open">resB</resptr>
                     </resptr-prop>
                 </resource>
-                <resource label="resB" restype=":TestThing2" id="resB" permissions="res-default">
+                <resource label="resB" restype=":TestThing2" id="resB" permissions="open">
                 </resource>
-                <resource label="resC" restype=":TestThing2" id="resC" permissions="res-default">
+                <resource label="resC" restype=":TestThing2" id="resC" permissions="open">
                     <resptr-prop name=":hasResource2">
-                        <resptr permissions="prop-default">resB</resptr>
+                        <resptr permissions="open">resB</resptr>
                     </resptr-prop>
                     <resptr-prop name=":hasResource3">
-                        <resptr permissions="prop-default">resA</resptr>
+                        <resptr permissions="open">resA</resptr>
                     </resptr-prop>
                 </resource>
         </knora>"""
@@ -128,30 +128,30 @@ def test_get_all_ids_prop_encoding_from_root_with_text() -> None:
                 <resource label="First Testthing"
                       restype=":TestThing"
                       id="test_thing_1"
-                      permissions="res-default">
+                      permissions="open">
                     <uri-prop name=":hasUri">
-                        <uri permissions="prop-default">https://dasch.swiss</uri>
+                        <uri permissions="open">https://dasch.swiss</uri>
                     </uri-prop>
                     <text-prop name=":hasRichtext">
                         <text encoding="xml">Text</text>
                     </text-prop>
                 </resource>
-                <resource label="resB" restype=":TestThing2" id="resB" permissions="res-default">
+                <resource label="resB" restype=":TestThing2" id="resB" permissions="open">
                     <text-prop name=":hasSimpleText">
                         <text encoding="utf8">Text</text>
                     </text-prop>
                 </resource>
-                <resource label="resC" restype=":TestThing2" id="resC" permissions="res-default">
+                <resource label="resC" restype=":TestThing2" id="resC" permissions="open">
                     <resptr-prop name=":hasResource2">
-                        <resptr permissions="prop-default">resB</resptr>
+                        <resptr permissions="open">resB</resptr>
                     </resptr-prop>
                     <text-prop name=":hasSimpleText">
                         <text encoding="utf8">Text</text>
                     </text-prop>
                 </resource>
-                <resource label="resD" restype=":TestThing2" id="resD" permissions="res-default">
+                <resource label="resD" restype=":TestThing2" id="resD" permissions="open">
                     <resptr-prop name=":hasResource2">
-                        <resptr permissions="prop-default">resB</resptr>
+                        <resptr permissions="open">resB</resptr>
                     </resptr-prop>
                 </resource>
         </knora>"""
@@ -175,12 +175,12 @@ class TestGetEncodingsOneResource:
             <resource label="First Testthing"
                   restype=":TestThing"
                   id="test_thing_1"
-                  permissions="res-default">
+                  permissions="open">
                 <uri-prop name=":hasUri">
-                    <uri permissions="prop-default">https://dasch.swiss</uri>
+                    <uri permissions="open">https://dasch.swiss</uri>
                 </uri-prop>
                 <boolean-prop name=":hasBoolean">
-                    <boolean permissions="prop-default">true</boolean>
+                    <boolean permissions="open">true</boolean>
                 </boolean-prop>
             </resource>
             """
@@ -194,12 +194,12 @@ class TestGetEncodingsOneResource:
             <resource label="First Testthing"
                   restype=":TestThing"
                   id="test_thing_1"
-                  permissions="res-default">
+                  permissions="open">
                 <uri-prop name=":hasUri">
-                    <uri permissions="prop-default">https://dasch.swiss</uri>
+                    <uri permissions="open">https://dasch.swiss</uri>
                 </uri-prop>
                 <boolean-prop name=":hasBoolean">
-                    <boolean permissions="prop-default">true</boolean>
+                    <boolean permissions="open">true</boolean>
                 </boolean-prop>
                 <text-prop name=":hasRichtext">
                     <text encoding="utf8">Text</text>
@@ -218,12 +218,12 @@ class TestGetEncodingsOneResource:
             <resource label="First Testthing"
                   restype=":TestThing"
                   id="test_thing_1"
-                  permissions="res-default">
+                  permissions="open">
                 <uri-prop name=":hasUri">
-                    <uri permissions="prop-default">https://dasch.swiss</uri>
+                    <uri permissions="open">https://dasch.swiss</uri>
                 </uri-prop>
                 <boolean-prop name=":hasBoolean">
-                    <boolean permissions="prop-default">true</boolean>
+                    <boolean permissions="open">true</boolean>
                 </boolean-prop>
                 <text-prop name=":hasRichtext">
                     <text encoding="xml">Text</text>
@@ -250,7 +250,7 @@ class TestGetEncodingOneProperty:
             """
             <text-prop name=":hasRichtext">
                 <text encoding="xml">&lt;</text>
-                <text encoding="xml" permissions="prop-default">
+                <text encoding="xml" permissions="open">
                     This text contains links to all resources:
                     <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>
                 </text>
@@ -297,31 +297,31 @@ def test_check_if_only_one_encoding_is_used_in_xml_good() -> None:
                 <resource label="First Testthing"
                       restype=":TestThing"
                       id="test_thing_1"
-                      permissions="res-default">
+                      permissions="open">
                     <uri-prop name=":hasUri">
-                        <uri permissions="prop-default">https://dasch.swiss</uri>
+                        <uri permissions="open">https://dasch.swiss</uri>
                     </uri-prop>
                     <text-prop name=":hasRichtext">
                         <text encoding="xml">Text</text>
                     </text-prop>
                 </resource>
-                <resource label="resB" restype=":TestThing2" id="resB" permissions="res-default">
+                <resource label="resB" restype=":TestThing2" id="resB" permissions="open">
                     <text-prop name=":hasSimpleText">
                         <text encoding="utf8">Text</text>
                     </text-prop>
                 </resource>
-                <resource label="resC" restype=":TestThing2" id="resC" permissions="res-default">
+                <resource label="resC" restype=":TestThing2" id="resC" permissions="open">
                     <resptr-prop name=":hasResource2">
-                        <resptr permissions="prop-default">resB</resptr>
+                        <resptr permissions="open">resB</resptr>
                     </resptr-prop>
                     <text-prop name=":hasSimpleText">
                         <text encoding="utf8">Text 1</text>
                         <text encoding="utf8">Text 2</text>
                     </text-prop>
                 </resource>
-                <resource label="resD" restype=":TestThing2" id="resD" permissions="res-default">
+                <resource label="resD" restype=":TestThing2" id="resD" permissions="open">
                     <resptr-prop name=":hasResource2">
-                        <resptr permissions="prop-default">resB</resptr>
+                        <resptr permissions="open">resB</resptr>
                     </resptr-prop>
                 </resource>
         </knora>"""
@@ -336,31 +336,31 @@ def test_check_if_only_one_encoding_is_used_in_xml_problem() -> None:
                 <resource label="First Testthing"
                       restype=":TestThing"
                       id="test_thing_1"
-                      permissions="res-default">
+                      permissions="open">
                     <uri-prop name=":hasUri">
-                        <uri permissions="prop-default">https://dasch.swiss</uri>
+                        <uri permissions="open">https://dasch.swiss</uri>
                     </uri-prop>
                     <text-prop name=":hasRichtext">
                         <text encoding="xml">Text</text>
                     </text-prop>
                 </resource>
-                <resource label="resB" restype=":TestThing2" id="resB" permissions="res-default">
+                <resource label="resB" restype=":TestThing2" id="resB" permissions="open">
                     <text-prop name=":hasSimpleText">
                         <text encoding="utf8">Text</text>
                     </text-prop>
                 </resource>
-                <resource label="resC" restype=":TestThing2" id="resC" permissions="res-default">
+                <resource label="resC" restype=":TestThing2" id="resC" permissions="open">
                     <resptr-prop name=":hasResource2">
-                        <resptr permissions="prop-default">resB</resptr>
+                        <resptr permissions="open">resB</resptr>
                     </resptr-prop>
                     <text-prop name=":hasSimpleText">
                         <text encoding="utf8">Text 1</text>
                         <text encoding="xml">Text 2</text>
                     </text-prop>
                 </resource>
-                <resource label="resD" restype=":TestThing2" id="resD" permissions="res-default">
+                <resource label="resD" restype=":TestThing2" id="resD" permissions="open">
                     <resptr-prop name=":hasResource2">
-                        <resptr permissions="prop-default">resB</resptr>
+                        <resptr permissions="open">resB</resptr>
                     </resptr-prop>
                 </resource>
         </knora>"""

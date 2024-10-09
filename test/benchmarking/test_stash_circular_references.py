@@ -14,7 +14,7 @@ def test_get_length_ok_resources() -> None:
     test_root = parse_and_clean_xml_file(Path("testdata/xml-data/circular-references/test_circular_references_1.xml"))
     stash_lookup, _ = identify_circular_references(test_root)
     resources = _extract_resources_from_xml(test_root, "simcir")
-    stash = stash_circular_references(resources, stash_lookup, {"prop-default": Permissions()})
+    stash = stash_circular_references(resources, stash_lookup, {"open": Permissions()})
     len_standoff = len(stash.standoff_stash.res_2_stash_items)  # type: ignore[union-attr]
     len_resptr = len(stash.link_value_stash.res_2_stash_items)  # type: ignore[union-attr]
     stashed_links = len_standoff + len_resptr

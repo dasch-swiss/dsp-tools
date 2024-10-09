@@ -44,7 +44,7 @@ class Value(Protocol):
 class BooleanValue:
     value: Any
     prop_name: str
-    permissions: str | None = "prop-default"
+    permissions: str | None = "open"
     comment: str | None = None
     resource_id: str | None = None
 
@@ -76,7 +76,7 @@ class BooleanValue:
 class ColorValue:
     value: Any
     prop_name: str
-    permissions: str | None = "prop-default"
+    permissions: str | None = "open"
     comment: str | None = None
     resource_id: str | None = None
 
@@ -107,7 +107,7 @@ class ColorValue:
 class DateValue:
     value: str
     prop_name: str
-    permissions: str | None = "prop-default"
+    permissions: str | None = "open"
     comment: str | None = None
     resource_id: str | None = None
 
@@ -138,7 +138,7 @@ class DateValue:
 class DecimalValue:
     value: Any
     prop_name: str
-    permissions: str | None = "prop-default"
+    permissions: str | None = "open"
     comment: str | None = None
     resource_id: str | None = None
 
@@ -169,7 +169,7 @@ class DecimalValue:
 class GeonameValue:
     value: Any
     prop_name: str
-    permissions: str | None = "prop-default"
+    permissions: str | None = "open"
     comment: str | None = None
     resource_id: str | None = None
 
@@ -200,7 +200,7 @@ class GeonameValue:
 class IntValue:
     value: int | str
     prop_name: str
-    permissions: str | None = "prop-default"
+    permissions: str | None = "open"
     comment: str | None = None
     resource_id: str | None = None
 
@@ -231,7 +231,7 @@ class IntValue:
 class LinkValue:
     value: str
     prop_name: str
-    permissions: str | None = "prop-default"
+    permissions: str | None = "open"
     comment: str | None = None
     resource_id: str | None = None
 
@@ -263,7 +263,7 @@ class ListValue:
     value: Any
     list_name: Any
     prop_name: str
-    permissions: str | None = "prop-default"
+    permissions: str | None = "open"
     comment: str | None = None
     resource_id: str | None = None
 
@@ -296,7 +296,7 @@ class ListValue:
 class SimpleText:
     value: str
     prop_name: str
-    permissions: str | None = "prop-default"
+    permissions: str | None = "open"
     comment: str | None = None
     resource_id: str | None = None
 
@@ -329,7 +329,7 @@ class SimpleText:
 class Richtext:
     value: str
     prop_name: str
-    permissions: str | None = "prop-default"
+    permissions: str | None = "open"
     comment: str | None = None
     resource_id: str | None = None
 
@@ -362,7 +362,7 @@ class Richtext:
 class TimeValue:
     value: str
     prop_name: str
-    permissions: str | None = "prop-default"
+    permissions: str | None = "open"
     comment: str | None = None
     resource_id: str | None = None
 
@@ -393,7 +393,7 @@ class TimeValue:
 class UriValue:
     value: str
     prop_name: str
-    permissions: str | None = "prop-default"
+    permissions: str | None = "open"
     comment: str | None = None
     resource_id: str | None = None
 

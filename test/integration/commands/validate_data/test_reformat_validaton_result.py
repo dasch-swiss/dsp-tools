@@ -29,8 +29,9 @@ def result_cardinality_violation() -> Graph:
 
 @pytest.fixture
 def data_value_type_violation() -> Graph:
-    data, _ = _get_data_info_from_file(Path("testdata/validate-data/data/value_type_violation.xml"), LOCAL_API)
-    return data.make_graph()
+    g = Graph()
+    g.parse("testdata/validate-data/validation_results/value_type_violation_data.ttl")
+    return g
 
 
 @pytest.fixture
@@ -76,44 +77,27 @@ def test_reformat_value_type_violation(result_value_type_violation: Graph, data_
     )
     result = reformat_validation_graph(val_rep)
     assert not result.unexpected_results
-    assert len(result.problems) == 4
+    assert len(result.problems) == 12
     sorted_problems = sorted(result.problems, key=lambda x: x.sort_value())
-    val_one = sorted_problems[0]
-    assert isinstance(val_one, ValueTypeViolation)
-    assert val_one.res_id == ""
-    val_one = sorted_problems[1]
-    assert isinstance(val_one, ValueTypeViolation)
-    assert val_one.res_id == ""
-    val_one = sorted_problems[2]
-    assert isinstance(val_one, ValueTypeViolation)
-    assert val_one.res_id == ""
-    val_one = sorted_problems[3]
-    assert isinstance(val_one, ValueTypeViolation)
-    assert val_one.res_id == ""
-    val_one = sorted_problems[4]
-    assert isinstance(val_one, ValueTypeViolation)
-    assert val_one.res_id == ""
-    val_one = sorted_problems[5]
-    assert isinstance(val_one, ValueTypeViolation)
-    assert val_one.res_id == ""
-    val_one = sorted_problems[6]
-    assert isinstance(val_one, ValueTypeViolation)
-    assert val_one.res_id == ""
-    val_one = sorted_problems[7]
-    assert isinstance(val_one, ValueTypeViolation)
-    assert val_one.res_id == ""
-    val_one = sorted_problems[8]
-    assert isinstance(val_one, ValueTypeViolation)
-    assert val_one.res_id == ""
-    val_one = sorted_problems[9]
-    assert isinstance(val_one, ValueTypeViolation)
-    assert val_one.res_id == ""
-    val_one = sorted_problems[10]
-    assert isinstance(val_one, ValueTypeViolation)
-    assert val_one.res_id == ""
-    val_one = sorted_problems[11]
-    assert isinstance(val_one, ValueTypeViolation)
-    assert val_one.res_id == ""
+    expected_info = [
+        ("id_bool", "BooleanValue", "onto:testBoolean"),
+        ("id_color", "ColorValue", "onto:testColor"),
+        ("id_decimal", "DecimalValue", "onto:testDecimalSimpleText"),
+        ("id_geoname", "GeonameValue", "onto:testGeoname"),
+        ("id_link", "LinkValue", "onto:testHasLinkTo"),
+        ("id_integer", "IntValue", "onto:testIntegerSimpleText"),
+        ("id_list", "ListValue", "onto:testListProp"),
+        ("id_richtext", "TextValue with formatting", "onto:testRichtext"),
+        ("id_date", "DateValue", "onto:testSubDate1"),
+        ("id_simpletext", "TextValue without formatting", "onto:testTextarea"),
+        ("id_time", "TimeValue", "onto:testTimeValue"),
+        ("id_uri", "UriValue", "onto:testUriValue"),
+    ]
+    for actual_problem, expected_info_tuple in zip(sorted_problems, expected_info):
+        assert isinstance(actual_problem, ValueTypeViolation)
+        assert actual_problem.res_id == expected_info_tuple[0]
+        assert actual_problem.expected_type == expected_info_tuple[1]
+        assert actual_problem.prop_name == expected_info_tuple[2]
 
 
 if __name__ == "__main__":

@@ -7,17 +7,32 @@ from rdflib.term import Node
 
 
 @dataclass
-class ValidationResultTypes:
-    node_constraint_component: set[Node]
-    detail_bns: set[Node]
-    cardinality_components: set[Node]
+class RDFGraphs:
+    data: Graph
+    ontos: Graph
+    cardinality_shapes: Graph
+    content_shapes: Graph
+
+    def get_cardinality_data_str(self) -> str:
+        return self.data.serialize(format="ttl")
+
+    def get_cardinality_shacl_str(self) -> str:
+        return self.cardinality_shapes.serialize(format="ttl")
+
+    def get_content_data_str(self) -> str:
+        g = self.data + self.ontos
+        return g.serialize(format="ttl")
+
+    def get_content_shacl_str(self) -> str:
+        return self.content_shapes.serialize(format="ttl")
 
 
 @dataclass
-class ValidationReport:
+class ValidationReports:
     conforms: bool
-    validation_graph: Graph
-    shacl_graph: Graph
+    content_validation: Graph | None
+    cardinality_validation: Graph | None
+    shacl_graphs: Graph
     data_graph: Graph
 
 
@@ -27,7 +42,16 @@ class UnexpectedComponent:
 
 
 @dataclass
-class ValidationResult:
+class CardinalityValidationResult:
+    source_constraint_component: Node
+    res_iri: Node
+    res_class: Node
+    property: Node
+    results_message: str
+
+
+@dataclass
+class ContentValidationResult:
     source_constraint_component: Node
     res_iri: Node
     res_class: Node

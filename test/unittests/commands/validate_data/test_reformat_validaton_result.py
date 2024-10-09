@@ -8,12 +8,13 @@ from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalit
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
+from dsp_tools.commands.validate_data.models.validation import CardinalityValidationResult
+from dsp_tools.commands.validate_data.models.validation import ContentValidationResult
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
-from dsp_tools.commands.validate_data.models.validation import ValidationResult
-from dsp_tools.commands.validate_data.reformat_validaton_result import _extract_one_cardinality_violation
-from dsp_tools.commands.validate_data.reformat_validaton_result import _extract_one_node_constraint_violation
-from dsp_tools.commands.validate_data.reformat_validaton_result import _reformat_one_violation
-from dsp_tools.commands.validate_data.reformat_validaton_result import _separate_different_results
+from dsp_tools.commands.validate_data.reformat_validaton_result import _query_for_one_cardinality_validation_result
+from dsp_tools.commands.validate_data.reformat_validaton_result import _query_for_one_content_validation_result
+from dsp_tools.commands.validate_data.reformat_validaton_result import _reformat_one_cardinality_validation_result
+from dsp_tools.commands.validate_data.reformat_validaton_result import _reformat_one_content_validation_result
 
 VALIDATION_PREFIXES = """
     @prefix onto: <http://0.0.0.0:3333/ontology/9999/onto/v2#> .
@@ -96,8 +97,8 @@ def class_constraint_component() -> Graph:
 
 
 @pytest.fixture
-def violation_min_card() -> ValidationResult:
-    return ValidationResult(
+def violation_min_card() -> CardinalityValidationResult:
+    return CardinalityValidationResult(
         source_constraint_component=SH.MinCountConstraintComponent,
         res_iri=DATA.id_min_card,
         res_class=ONTO.ClassMixedCard,
@@ -107,8 +108,8 @@ def violation_min_card() -> ValidationResult:
 
 
 @pytest.fixture
-def violation_max_card() -> ValidationResult:
-    return ValidationResult(
+def violation_max_card() -> CardinalityValidationResult:
+    return CardinalityValidationResult(
         source_constraint_component=SH.MaxCountConstraintComponent,
         res_iri=DATA.id_max_card,
         res_class=ONTO.ClassMixedCard,
@@ -118,8 +119,8 @@ def violation_max_card() -> ValidationResult:
 
 
 @pytest.fixture
-def violation_closed() -> ValidationResult:
-    return ValidationResult(
+def violation_closed() -> CardinalityValidationResult:
+    return CardinalityValidationResult(
         source_constraint_component=SH.ClosedConstraintComponent,
         res_iri=DATA.id_closed_constraint,
         res_class=ONTO.CardOneResource,
@@ -129,8 +130,8 @@ def violation_closed() -> ValidationResult:
 
 
 @pytest.fixture
-def violation_value_type() -> ValidationResult:
-    return ValidationResult(
+def violation_value_type() -> ContentValidationResult:
+    return ContentValidationResult(
         source_constraint_component=SH.NodeConstraintComponent,
         res_iri=DATA.id_2,
         res_class=ONTO.ClassWithEverything,
@@ -141,8 +142,8 @@ def violation_value_type() -> ValidationResult:
 
 
 @pytest.fixture
-def violation_unknown() -> ValidationResult:
-    return ValidationResult(
+def violation_unknown_content() -> ContentValidationResult:
+    return ContentValidationResult(
         source_constraint_component=SH.UniqueLangConstraintComponent,
         res_iri=DATA.id,
         res_class=ONTO.ClassMixedCard,
@@ -151,19 +152,11 @@ def violation_unknown() -> ValidationResult:
     )
 
 
-def test_separate_different_results(class_constraint_component: Graph, min_count_violation: Graph) -> None:
-    test_g = class_constraint_component + min_count_violation
-    result = _separate_different_results(test_g)
-    assert len(result.node_constraint_component) == 1
-    assert len(result.detail_bns) == 1
-    assert len(result.cardinality_components) == 1
-
-
-def test_extract_one_node_constraint_violation(
+def test_query_for_one_content_validation_result(
     class_constraint_component: Graph, data_class_constraint_component: Graph
 ) -> None:
     bn = next(class_constraint_component.subjects(SH.sourceConstraintComponent, SH.NodeConstraintComponent))
-    result = _extract_one_node_constraint_violation(bn, class_constraint_component, data_class_constraint_component)
+    result = _query_for_one_content_validation_result(bn, class_constraint_component, data_class_constraint_component)
     assert result.source_constraint_component == SH.NodeConstraintComponent
     assert result.res_iri == DATA.id_2
     assert result.res_class == ONTO.ClassWithEverything
@@ -172,9 +165,11 @@ def test_extract_one_node_constraint_violation(
     assert result.value_type == KNORA_API.TextValue
 
 
-def test_extract_one_violation(min_count_violation: Graph, data_min_count_violation: Graph) -> None:
+def test_query_for_one_cardinality_validation_result(
+    min_count_violation: Graph, data_min_count_violation: Graph
+) -> None:
     bn = next(min_count_violation.subjects(RDF.type, SH.ValidationResult))
-    result = _extract_one_cardinality_violation(bn, min_count_violation, data_min_count_violation)
+    result = _query_for_one_cardinality_validation_result(bn, min_count_violation, data_min_count_violation)
     assert result.source_constraint_component == SH.MinCountConstraintComponent
     assert result.res_iri == DATA.id_min_card
     assert result.res_class == ONTO.ClassMixedCard
@@ -182,32 +177,34 @@ def test_extract_one_violation(min_count_violation: Graph, data_min_count_violat
     assert result.results_message == "1-n"
 
 
-class TestReformatViolation:
-    def test_min(self, violation_min_card: ValidationResult) -> None:
-        result = _reformat_one_violation(violation_min_card)
+class TestReformatCardinalityViolation:
+    def test_min(self, violation_min_card: CardinalityValidationResult) -> None:
+        result = _reformat_one_cardinality_validation_result(violation_min_card)
         assert isinstance(result, MinCardinalityViolation)
         assert result.res_id == "id_min_card"
         assert result.res_type == "onto:ClassMixedCard"
         assert result.prop_name == "onto:testGeoname"
         assert result.expected_cardinality == "1-n"
 
-    def test_max(self, violation_max_card: ValidationResult) -> None:
-        result = _reformat_one_violation(violation_max_card)
+    def test_max(self, violation_max_card: CardinalityValidationResult) -> None:
+        result = _reformat_one_cardinality_validation_result(violation_max_card)
         assert isinstance(result, MaxCardinalityViolation)
         assert result.res_id == "id_max_card"
         assert result.res_type == "onto:ClassMixedCard"
         assert result.prop_name == "onto:testDecimalSimpleText"
         assert result.expected_cardinality == "0-1"
 
-    def test_closed(self, violation_closed: ValidationResult) -> None:
-        result = _reformat_one_violation(violation_closed)
+    def test_closed(self, violation_closed: CardinalityValidationResult) -> None:
+        result = _reformat_one_cardinality_validation_result(violation_closed)
         assert isinstance(result, NonExistentCardinalityViolation)
         assert result.res_id == "id_closed_constraint"
         assert result.res_type == "onto:CardOneResource"
         assert result.prop_name == "onto:testIntegerSimpleText"
 
-    def test_value_type(self, violation_value_type: ValidationResult) -> None:
-        result = _reformat_one_violation(violation_value_type)
+
+class TestReformatContentViolation:
+    def test_value_type(self, violation_value_type: ContentValidationResult) -> None:
+        result = _reformat_one_content_validation_result(violation_value_type)
         assert isinstance(result, ValueTypeViolation)
         assert result.res_id == "id_2"
         assert result.res_type == "onto:ClassWithEverything"
@@ -215,8 +212,8 @@ class TestReformatViolation:
         assert result.actual_type == "TextValue"
         assert result.expected_type == "ColorValue"
 
-    def test_unknown(self, violation_unknown: ValidationResult) -> None:
-        result = _reformat_one_violation(violation_unknown)
+    def test_unknown(self, violation_unknown_content: ContentValidationResult) -> None:
+        result = _reformat_one_content_validation_result(violation_unknown_content)
         assert isinstance(result, UnexpectedComponent)
         assert result.component_type == str(SH.UniqueLangConstraintComponent)
 

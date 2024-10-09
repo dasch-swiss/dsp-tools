@@ -6,13 +6,13 @@ from rdflib import Graph
 from rdflib import Literal
 from rdflib import Namespace
 
-from dsp_tools.commands.validate_data.sparql.resource_shacl import _construct_0_1_cardinality
-from dsp_tools.commands.validate_data.sparql.resource_shacl import _construct_0_n_cardinality
-from dsp_tools.commands.validate_data.sparql.resource_shacl import _construct_1_cardinality
-from dsp_tools.commands.validate_data.sparql.resource_shacl import _construct_1_n_cardinality
-from dsp_tools.commands.validate_data.sparql.resource_shacl import _construct_all_cardinalities
-from dsp_tools.commands.validate_data.sparql.resource_shacl import _construct_resource_nodeshape
-from dsp_tools.commands.validate_data.sparql.resource_shacl import construct_resource_class_node_shape
+from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct_0_1_cardinality
+from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct_0_n_cardinality
+from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct_1_cardinality
+from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct_1_n_cardinality
+from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct_all_cardinalities
+from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct_resource_nodeshape
+from dsp_tools.commands.validate_data.sparql.cardinality_shacl import construct_cardinality_node_shapes
 
 ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
 API_SHAPES = Namespace("http://api.knora.org/ontology/knora-api/shapes/v2#")
@@ -61,8 +61,8 @@ class TestCheckTripleNumbersOnto:
         assert len(result) == triples_card_1_n
 
 
-def test_construct_resource_class_nodeshape(onto_graph: Graph) -> None:
-    result = construct_resource_class_node_shape(onto_graph)
+def test_construct_cardinality_node_shapes(onto_graph: Graph) -> None:
+    result = construct_cardinality_node_shapes(onto_graph)
     shape_iri = next(result.subjects(SH.targetClass, ONTO.ClassInheritedCardinality))
     assert shape_iri == ONTO.ClassInheritedCardinality_Shape
     shape_iri = next(result.subjects(SH.targetClass, ONTO.ClassMixedCard))

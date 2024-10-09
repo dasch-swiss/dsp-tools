@@ -9,35 +9,35 @@
     <!-- 10 Violations -->
 
     <!-- Geoname should be a number -->
-    <resource label="Geoname is not a number" restype=":ClassWithEverything" id="id_5">
+    <resource label="Geoname is not a number" restype=":ClassWithEverything" id="geoname_not_number">
         <geoname-prop name=":testGeoname">
             <geoname>ab</geoname>
         </geoname-prop>
     </resource>
 
     <!-- attribute 'list' may not be empty -->
-    <resource label="List attribute is empty" restype=":ClassWithEverything" id="id_7">
+    <resource label="List attribute is empty" restype=":ClassWithEverything" id="list_name_attrib_empty">
         <list-prop list="" name=":testListProp">
             <list>n1</list>
         </list-prop>
     </resource>
 
     <!-- node does not exist -->
-    <resource label="List node does not exist" restype=":ClassWithEverything" id="id_7.1">
+    <resource label="List node does not exist" restype=":ClassWithEverything" id="list_node_non_existent">
         <list-prop list="onlyList" name=":testListProp">
             <list>other</list>
         </list-prop>
     </resource>
 
     <!-- list does not exist -->
-    <resource label="List name does not exist" restype=":ClassWithEverything" id="id_7.2">
+    <resource label="List name does not exist" restype=":ClassWithEverything" id="list_name_non_existent">
         <list-prop list="other" name=":testListProp">
             <list>n1</list>
         </list-prop>
     </resource>
 
     <!-- Link does not exist -->
-    <resource label="Target does not exist" restype=":ClassWithEverything" id="id_8">
+    <resource label="Target does not exist" restype=":ClassWithEverything" id="link_target_non_existent">
         <resptr-prop name=":testHasLinkTo">
             <resptr>other</resptr>
         </resptr-prop>
@@ -45,28 +45,28 @@
 
     <!-- Link target is not the range class -->
     <resource label="Link Prop" restype=":ClassWithEverything" id="id_9_target"/>
-    <resource label="Target not the right class" restype=":ClassWithEverything" id="id_9">
+    <resource label="Target not the right class" restype=":ClassWithEverything" id="link_target_wrong_class">
         <resptr-prop name=":testHasLinkToCardOneResource">
             <resptr>id_9_target</resptr>
         </resptr-prop>
     </resource>
 
     <!-- Text may not be empty -->
-    <resource label="No Content" restype=":ClassWithEverything" id="id_10">
+    <resource label="No Content" restype=":ClassWithEverything" id="empty_text_rich">
         <text-prop name=":testRichtext">
             <text encoding="xml"></text>
         </text-prop>
     </resource>
 
     <!-- Text may not be empty -->
-    <resource label="No Content" restype=":ClassWithEverything" id="id_11.1">
+    <resource label="No Content" restype=":ClassWithEverything" id="empty_text_simple">
         <text-prop name=":testTextarea">
             <text encoding="utf8"></text>
         </text-prop>
     </resource>
 
     <!-- Text may not only consist of whitespace characters -->
-    <resource label="Only newline and spaces" restype=":ClassWithEverything" id="id_11.2">
+    <resource label="Only newline and spaces" restype=":ClassWithEverything" id="text_only_whitespace_simple">
         <text-prop name=":testTextarea">
             <text encoding="utf8">
 
@@ -76,7 +76,7 @@
 
 
     <!-- The value of the same property may not be identical -->
-    <resource label="Duplicate Value" restype=":ClassWithEverything" id="id_12">
+    <resource label="Duplicate Value" restype=":ClassWithEverything" id="d">
         <text-prop name=":testTextarea">
             <text encoding="utf8">Text</text>
             <text encoding="utf8">Text</text>

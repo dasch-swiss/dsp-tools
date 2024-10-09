@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="9999"
+       default-ontology="onto">
+
+        <!--
+        Our Violation Type:            MaxCardinalityViolation
+        sh:sourceConstraintComponent:  MaxCountConstraintComponent
+        -->
+        <resource label="Decimal Card 0-1" restype=":ClassMixedCard" id="id_max_card">
+            <boolean-prop name=":testBoolean">
+                <boolean>true</boolean>
+            </boolean-prop>
+            <resptr-prop name=":testHasLinkToCardOneResource">
+                <resptr>id_closed_constraint</resptr>
+                <resptr>id_card_one</resptr>
+            </resptr-prop>
+            <geoname-prop name=":testGeoname">
+                <geoname>111111</geoname>
+            </geoname-prop>
+        </resource>
+
+        <!--
+        Our Violation Type:            MinCardinalityViolation
+        sh:sourceConstraintComponent:  MinCountConstraintComponent
+        -->
+        <resource label="Bool Card 1" restype=":ClassInheritedCardinalityOverwriting" id="id_card_one"/>
+
+        <!--
+        Our Violation Type:            NonExistentCardinalityViolation
+        sh:sourceConstraintComponent:  ClosedConstraintComponent
+        -->
+        <resource label="Int card does not exist" restype=":CardOneResource" id="id_closed_constraint">
+            <integer-prop name=":testIntegerSimpleText">
+                <integer>1</integer>
+            </integer-prop>
+        </resource>
+
+        <!--
+        Our Violation Type:            ContentRegexViolation
+        sh:sourceConstraintComponent:  PatternConstraintComponent
+        -->
+        <resource label="Geoname is not a number" restype=":ClassWithEverything" id="geoname_not_number">
+            <geoname-prop name=":testGeoname">
+                <geoname>this-is-not-a-valid-code</geoname>
+            </geoname-prop>
+        </resource>
+
+        <!--
+        Our Violation Type:            ValueTypeViolation
+        sh:sourceConstraintComponent:  ClassConstraintComponent
+        -->
+        <resource label="Uri" restype=":ClassWithEverything" id="id_uri">
+            <text-prop name=":testUriValue">
+                <text encoding="utf8">https://dasch.swiss</text>
+            </text-prop>
+        </resource>
+
+        <!--
+        Our Violation Type:            ValueTypeViolation
+        sh:sourceConstraintComponent:  MinCountConstraintComponent
+        -->
+        <resource label="Simpletext" restype=":ClassWithEverything" id="id_simpletext">
+            <text-prop name=":testTextarea">
+                <text encoding="xml">Text</text>
+            </text-prop>
+        </resource>
+
+</knora>

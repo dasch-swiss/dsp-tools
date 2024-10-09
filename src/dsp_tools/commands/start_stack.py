@@ -26,7 +26,7 @@ class StackConfiguration:
         enforce_docker_system_prune: if True, prune Docker without asking the user
         suppress_docker_system_prune: if True, don't prune Docker (and don't ask)
         latest_dev_version: if True, start DSP-API from repo's main branch, instead of the latest deployed version
-        api_version_for_validate: if True a fixed API version is taken that has the features necessary for xml-validate
+        api_version_for_validate: if True a fixed API version is taken that has the features necessary for validate-data
     """
 
     max_file_size: Optional[int] = None

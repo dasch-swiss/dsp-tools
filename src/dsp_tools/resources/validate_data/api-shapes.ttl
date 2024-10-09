@@ -1,0 +1,268 @@
+@prefix sh:         <http://www.w3.org/ns/shacl#> .
+@prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:        <http://www.w3.org/2002/07/owl#> .
+@prefix knora-api:  <http://api.knora.org/ontology/knora-api/v2#> .
+
+@prefix api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#> .
+
+#########################################
+# GENERAL SHAPES
+#########################################
+
+
+########################
+# UNIQUE VALUE SHAPE
+########################
+
+
+########################
+# RDFS:LABEL SHAPE
+########################
+
+
+########################
+# USER FACING VALUES
+########################
+
+##############
+# BooleanValue
+##############
+
+api-shapes:BooleanValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "BooleanValue" ;
+  sh:class    knora-api:BooleanValue ;
+  sh:severity sh:Violation .
+
+
+##############
+# ColorValue
+##############
+
+api-shapes:ColorValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "ColorValue" ;
+  sh:class    knora-api:ColorValue ;
+  sh:severity sh:Violation .
+
+
+##############
+# DateValue
+##############
+
+api-shapes:DateValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "DateValue" ;
+  sh:class    knora-api:DateValue ;
+  sh:severity sh:Violation .
+
+
+##############
+# DecimalValue
+##############
+
+api-shapes:DecimalValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "DecimalValue" ;
+  sh:class    knora-api:DecimalValue ;
+  sh:severity sh:Violation .
+
+
+##############
+# GeonameValue
+##############
+
+api-shapes:GeonameValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "GeonameValue" ;
+  sh:class    knora-api:GeonameValue ;
+  sh:severity sh:Violation .
+
+
+##############
+# IntValue
+##############
+
+api-shapes:IntValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "IntValue" ;
+  sh:class    knora-api:IntValue ;
+  sh:severity sh:Violation .
+
+
+##############
+# LinkValue
+##############
+
+api-shapes:LinkValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "LinkValue" ;
+  sh:class    knora-api:LinkValue ;
+  sh:severity sh:Violation .
+
+
+##############
+# ListValue
+##############
+
+api-shapes:ListValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "ListValue" ;
+  sh:class    knora-api:ListValue ;
+  sh:severity sh:Violation .
+
+
+##############
+# TextValue
+##############
+
+###
+# SimpleTextValue
+
+api-shapes:SimpleTextValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:property api-shapes:SimpleTextValue_PropShape ;
+  sh:severity sh:Violation .
+
+api-shapes:SimpleTextValue_PropShape
+  a           sh:PropertyShape ;
+  sh:message  "TextValue without formatting" ;
+  sh:path     knora-api:valueAsString ;
+  sh:datatype xsd:string ;
+  sh:minCount 1 ;
+  sh:maxCount 1 .
+
+###
+# FormattedTextValue
+
+api-shapes:FormattedTextValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:property api-shapes:FormattedTextValue_PropShape ;
+  sh:severity sh:Violation .
+
+
+api-shapes:FormattedTextValue_PropShape
+  a           sh:PropertyShape ;
+  sh:message  "TextValue with formatting" ;
+  sh:path     knora-api:textValueAsXml ;
+  sh:datatype xsd:string ;
+  sh:minCount 1 ;
+  sh:maxCount 1 .
+
+
+##############
+# TimeValue
+##############
+
+api-shapes:TimeValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "TimeValue" ;
+  sh:class    knora-api:TimeValue ;
+  sh:severity sh:Violation .
+
+
+##############
+# UriValue
+##############
+
+api-shapes:UriValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "UriValue" ;
+  sh:class    knora-api:UriValue ;
+  sh:severity sh:Violation .
+
+
+#########################################
+# KNORA-API IN-BUILT PROPERTIES
+#########################################
+
+
+#########################################
+# RESOURCES WITH FILES
+#########################################
+
+###########################
+# ArchiveRepresentation
+###########################
+
+# knora-api:ArchiveFileValue -> knora-api:hasArchiveFileValue
+
+
+###########################
+# AudioRepresentation
+###########################
+
+# knora-api:AudioFileValue -> knora-api:hasAudioFileValue
+
+
+###########################
+# DocumentRepresentation
+###########################
+
+# knora-api:DocumentFileValue -> knora-api:hasDocumentFileValue
+
+
+###########################
+# MovingImageRepresentation
+###########################
+
+# knora-api:MovingImageFileValue -> knora-api:hasMovingImageFileValue
+
+
+###########################
+# StillImageRepresentation
+###########################
+
+# knora-api:StillImageExternalFileValue -> knora-api:fileValueHasExternalUrl
+
+
+# knora-api:StillImageFileValue -> knora-api:hasStillImageFileValue
+
+
+###########################
+# TextRepresentation
+###########################
+
+# knora-api:TextFileValue -> knora-api:hasTextFileValue
+
+
+#########################################
+# DSP BUILT IN RESOURCES
+#########################################
+
+###########################
+# Annotation
+###########################
+
+
+###########################
+# Region
+###########################
+
+
+###########################
+# LinkObj
+###########################
+
+
+###########################
+# VideoSegment
+###########################
+
+
+###########################
+# AudioSegment
+###########################

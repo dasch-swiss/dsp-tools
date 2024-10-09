@@ -83,12 +83,19 @@ def is_decimal(value: Any) -> bool:
     Returns:
         True if conforms to the above-mentioned criteria.
     """
-    if isinstance(value, str):
-        if regex.search(r"^\d+(\.\d+)?$", value):
+    if pd.isna(value):
+        return False
+
+    match value:
+        case bool():
+            return False
+        case int() | float():
             return True
-    elif isinstance(value, int) or isinstance(value, float):
+    try:
+        float(value)
         return True
-    return False
+    except ValueError:
+        return False
 
 
 def is_integer(value: Any) -> bool:
@@ -101,9 +108,15 @@ def is_integer(value: Any) -> bool:
     Returns:
         True if conforms to the above-mentioned criteria.
     """
-    if isinstance(value, str):
-        return bool(regex.search(r"^\d+$", value))
-    return isinstance(value, int)
+    match value:
+        case bool():
+            return False
+        case int():
+            return True
+        case str():
+            return bool(regex.search(r"^\d+$", value))
+        case _:
+            return False
 
 
 def is_string_like(value: Any) -> bool:

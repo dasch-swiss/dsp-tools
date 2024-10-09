@@ -81,7 +81,16 @@ api-shapes:GeonameValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
   sh:message  "GeonameValue" ;
+  sh:property api-shapes:geonameValueAsGeonameCode_Shape ;
   sh:class    knora-api:GeonameValue ;
+  sh:severity sh:Violation .
+
+api-shapes:geonameValueAsGeonameCode_Shape
+  a           sh:PropertyShape ;
+  sh:message  "The value must be a valid geoname code" ;
+  sh:path     knora-api:geonameValueAsGeonameCode ;
+  sh:pattern  "^\\d+$" ;
+  sh:datatype xsd:string ;
   sh:severity sh:Violation .
 
 
@@ -131,7 +140,7 @@ api-shapes:ListValue_ClassShape
 api-shapes:SimpleTextValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
-  sh:property api-shapes:SimpleTextValue_PropShape ;
+  sh:property api-shapes:SimpleTextValue_PropShape, api-shapes:valueAsString_Shape ;
   sh:severity sh:Violation .
 
 api-shapes:SimpleTextValue_PropShape
@@ -142,13 +151,46 @@ api-shapes:SimpleTextValue_PropShape
   sh:minCount 1 ;
   sh:maxCount 1 .
 
+api-shapes:valueAsString_Shape
+  a           sh:PropertyShape ;
+  sh:message  "The value must be a non-empty string" ;
+  sh:path     knora-api:valueAsString ;
+  sh:pattern  "\\s*\\S+\\s*" ;
+  sh:datatype xsd:string ;
+  sh:severity sh:Violation .
+
+api-shapes:SimpleTextValue_PropShape
+  a           sh:PropertyShape ;
+  sh:message  "TextValue without formatting" ;
+  sh:path     knora-api:valueAsString ;
+  sh:datatype xsd:string ;
+  sh:minCount 1 ;
+  sh:maxCount 1 .
+
+
 ###
 # FormattedTextValue
 
 api-shapes:FormattedTextValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
-  sh:property api-shapes:FormattedTextValue_PropShape ;
+  sh:property api-shapes:FormattedTextValue_PropShape, api-shapes:textValueAsXml_Shape ;
+  sh:severity sh:Violation .
+
+api-shapes:FormattedTextValue_PropShape
+  a           sh:PropertyShape ;
+  sh:message  "TextValue with formatting" ;
+  sh:path     knora-api:textValueAsXml ;
+  sh:datatype xsd:string ;
+  sh:minCount 1 ;
+  sh:maxCount 1 .
+
+api-shapes:textValueAsXml_Shape
+  a           sh:PropertyShape ;
+  sh:message  "The value must be a non-empty string" ;
+  sh:path     knora-api:textValueAsXml ;
+  sh:pattern  "\\s*\\S+\\s*" ;
+  sh:datatype xsd:string ;
   sh:severity sh:Violation .
 
 

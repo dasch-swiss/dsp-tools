@@ -57,5 +57,6 @@ class ContentValidationResult:
     res_class: Node
     property: Node
     results_message: str
-    value: str | None = None
+    detail_bn_component: Node
+    value: str | None
     value_type: Node | None = None

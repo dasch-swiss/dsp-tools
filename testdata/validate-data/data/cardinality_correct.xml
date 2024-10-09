@@ -12,9 +12,6 @@
         <boolean-prop name=":testBoolean">
             <boolean>true</boolean>
         </boolean-prop>
-        <text-prop name="hasComment">
-            <text encoding="xml">Comment Text</text>
-        </text-prop>
     </resource>
 
     <resource label="Card 1" restype=":ClassInheritedCardinalityOverwriting" id="id_2">

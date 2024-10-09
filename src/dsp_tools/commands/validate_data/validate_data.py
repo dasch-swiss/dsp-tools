@@ -112,7 +112,9 @@ def _save_graphs(filepath: Path, rdf_graphs: RDFGraphs) -> Path:
     cprint(f"\n   Saving graphs to {new_directory}   ", color="light_blue", attrs=["bold", "reverse"])
     generic_filepath = new_directory / filepath.stem
     rdf_graphs.ontos.serialize(f"{generic_filepath}_ONTO.ttl")
-    rdf_graphs.shapes.serialize(f"{generic_filepath}_SHACL^.ttl")
+    shacl_onto = rdf_graphs.shapes + rdf_graphs.ontos
+    shacl_onto.serialize(f"{generic_filepath}_SHACL_ONTO.ttl")
+    rdf_graphs.shapes.serialize(f"{generic_filepath}_SHACL.ttl")
     rdf_graphs.data.serialize(f"{generic_filepath}_DATA.ttl")
     onto_data = rdf_graphs.data + rdf_graphs.ontos
     onto_data.serialize(f"{generic_filepath}_ONTO_DATA.ttl")

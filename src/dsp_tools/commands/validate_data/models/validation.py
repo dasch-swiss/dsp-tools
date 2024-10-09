@@ -17,7 +17,8 @@ class RDFGraphs:
         return g.serialize(format="ttl")
 
     def get_shacl_str(self) -> str:
-        return self.shapes.serialize(format="ttl")
+        g = self.shapes + self.ontos
+        return g.serialize(format="ttl")
 
 
 @dataclass

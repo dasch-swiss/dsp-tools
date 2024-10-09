@@ -234,15 +234,22 @@ class ContentRegexViolation(InputProblem):
     def get_msg(self) -> str:
         msg = f"{self.problem}, Expected Format: {self.expected_format}"
         if self.actual_content:
-            msg += f" | Actual Content: '{self.actual_content}'"
+            msg += f" | Actual Content: '{self._short_content()}'"
         return msg
 
     def to_dict(self) -> dict[str, str]:
         problm_dict = self._base_dict()
         problm_dict["Expected"] = self.expected_format
         if self.actual_content:
-            problm_dict["Actual"] = self.actual_content
+            problm_dict["Actual"] = self._short_content()
         return problm_dict
+
+    def _short_content(self) -> str:
+        if not self.actual_content:
+            return ""
+        if len(self.actual_content) > 15:
+            return f"{self.actual_content[:15]}[...]"
+        return self.actual_content
 
     def sort_value(self) -> str:
         return self.prop_name

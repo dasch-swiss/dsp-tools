@@ -1,3 +1,4 @@
+import regex
 from rdflib import RDF
 from rdflib import SH
 from rdflib import Graph
@@ -166,12 +167,15 @@ def _reformat_one_content_validation_result(val_result: ContentValidationResult)
     res_type = _reformat_onto_iri(str(val_result.res_class))
     match val_result.detail_bn_component:
         case SH.PatternConstraintComponent:
+            val: str | None = val_result.value
+            if val and not regex.search(r"\S+", val):
+                val = None
             return ContentRegexViolation(
                 res_id=subject_id,
                 res_type=res_type,
                 prop_name=prop_name,
                 expected_format=val_result.results_message,
-                actual_content=val_result.value,
+                actual_content=val,
             )
         case SH.ClassConstraintComponent | SH.MinCountConstraintComponent:
             actual_type = _reformat_onto_iri(str(val_result.value_type)).replace("knora-api:", "")

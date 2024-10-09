@@ -29,8 +29,7 @@ def result_cardinality_violation() -> Graph:
 def test_reformat_validation_graph(result_cardinality_violation: Graph, data_cardinality_violation: Graph) -> None:
     val_rep = ValidationReport(
         conforms=False,
-        content_validation=None,
-        cardinality_validation=result_cardinality_violation,
+        validation_graph=result_cardinality_violation,
         shacl_graphs=Graph(),
         data_graph=data_cardinality_violation,
     )

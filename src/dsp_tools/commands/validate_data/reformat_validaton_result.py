@@ -34,14 +34,17 @@ def reformat_validation_graph(report: ValidationReport) -> AllProblems:
     """
     reformatted_results: list[InputProblem] = []
     unexpected_components: list[UnexpectedComponent] = []
-    if report.cardinality_validation:
-        reformatted, unexpected = _get_cardinality_input_errors(report.cardinality_validation, report.data_graph)
-        reformatted_results.extend(reformatted)
-        unexpected_components.extend(unexpected)
-    if report.content_validation:
-        reformatted, unexpected = _get_content_input_errors(report.content_validation, report.data_graph)
-        reformatted_results.extend(reformatted)
-        unexpected_components.extend(unexpected)
+
+    reformatted_cardinality, unexpected_cardinality = _get_cardinality_input_errors(
+        report.validation_graph, report.data_graph
+    )
+    reformatted_results.extend(reformatted_cardinality)
+    unexpected_components.extend(unexpected_cardinality)
+
+    reformatted_content, unexpected_content = _get_content_input_errors(report.validation_graph, report.data_graph)
+    reformatted_results.extend(reformatted_content)
+    unexpected_components.extend(unexpected_content)
+
     unexpected_found = UnexpectedResults(unexpected_components) if unexpected_components else None
     return AllProblems(reformatted_results, unexpected_found)
 

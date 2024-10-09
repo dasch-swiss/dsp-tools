@@ -142,7 +142,7 @@ class TestGeonameValue:
         assert isinstance(val, GeonameValueRDF)
         assert val.res_iri == DATA["id"]
         assert val.prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testGeoname")
-        assert val.object_value == Literal("1241345", datatype=XSD.integer)
+        assert val.object_value == Literal("1241345", datatype=XSD.string)
 
     def test_none(self, geoname_value_deserialised_none: GeonameValueDeserialised) -> None:
         val = _transform_one_value(geoname_value_deserialised_none, DATA["id"])

@@ -1,9 +1,11 @@
+import regex
 from rdflib import RDF
 from rdflib import SH
 from rdflib import Graph
 from rdflib.term import Node
 
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
+from dsp_tools.commands.validate_data.models.input_problems import ContentRegexViolation
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityViolation
@@ -142,6 +144,10 @@ def _query_for_one_content_validation_result(
     value_type = next(data_graph.objects(value_iri, RDF.type))
     component = next(results_graph.objects(bn, SH.sourceConstraintComponent))
     detail_bn = next(results_graph.objects(bn, SH.detail))
+    detail_component = next(results_graph.objects(detail_bn, SH.sourceConstraintComponent))
+    val = None
+    if node_value := list(results_graph.objects(detail_bn, SH.value)):
+        val = str(node_value[0])
     msg = str(next(results_graph.objects(detail_bn, SH.resultMessage)))
     return ContentValidationResult(
         source_constraint_component=component,
@@ -149,7 +155,9 @@ def _query_for_one_content_validation_result(
         res_class=res_type,
         property=path,
         results_message=msg,
+        detail_bn_component=detail_component,
         value_type=value_type,
+        value=val,
     )
 
 
@@ -157,8 +165,19 @@ def _reformat_one_content_validation_result(val_result: ContentValidationResult)
     subject_id = _reformat_data_iri(str(val_result.res_iri))
     prop_name = _reformat_onto_iri(str(val_result.property))
     res_type = _reformat_onto_iri(str(val_result.res_class))
-    match val_result.source_constraint_component:
-        case SH.NodeConstraintComponent:
+    match val_result.detail_bn_component:
+        case SH.PatternConstraintComponent:
+            val: str | None = val_result.value
+            if val and not regex.search(r"\S+", val):
+                val = None
+            return ContentRegexViolation(
+                res_id=subject_id,
+                res_type=res_type,
+                prop_name=prop_name,
+                expected_format=val_result.results_message,
+                actual_content=val,
+            )
+        case SH.ClassConstraintComponent | SH.MinCountConstraintComponent:
             actual_type = _reformat_onto_iri(str(val_result.value_type)).replace("knora-api:", "")
             return ValueTypeViolation(
                 res_id=subject_id,

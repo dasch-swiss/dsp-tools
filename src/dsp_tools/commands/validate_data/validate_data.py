@@ -136,26 +136,13 @@ def _validate(validator: ShaclValidator, rdf_graphs: RDFGraphs) -> ValidationRep
     content_results = validator.validate(content_data, content_shacl)
     content_conforms = bool(next(content_results.objects(None, SH.conforms)))
 
-    conforms: bool
-    card_report: Graph | None
-    content_report: Graph | None
-    match card_conforms, content_conforms:
-        case False, False:
-            conforms = False
-            card_report = card_results
-            content_report = content_results
-        case False, True:
-            conforms = False
-            card_report = card_results
-            content_report = None
-        case True, False:
-            conforms = False
-            card_report = None
-            content_report = content_results
-        case _, _:
-            conforms = True
-            card_report = None
-            content_report = None
+    conforms = all([content_conforms, card_conforms])
+    card_report: Graph | None = None
+    content_report: Graph | None = None
+    if not card_conforms:
+        card_report = card_results
+    if not content_conforms:
+        content_report = content_results
     return ValidationReports(
         conforms=conforms,
         content_validation=content_report,

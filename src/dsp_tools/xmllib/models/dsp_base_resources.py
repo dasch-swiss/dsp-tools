@@ -8,31 +8,67 @@ from typing import Any
 from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
+from dsp_tools.models.exceptions import InputError
+from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
 from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import LinkValue
 from dsp_tools.xmllib.models.values import Richtext
 from dsp_tools.xmllib.value_checkers import find_geometry_problem
+from dsp_tools.xmllib.value_checkers import is_color
 from dsp_tools.xmllib.value_checkers import is_decimal
-from dsp_tools.xmllib.value_checkers import is_integer
 from dsp_tools.xmllib.value_checkers import is_string_like
 
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
+
+LIST_SEPARATOR = "\n    - "
 
 
 @dataclass
 class AnnotationResource:
     res_id: str
     label: str
-    comments: list[str]
     annotation_of: str
+    comments: list[str]
     permissions: str = "open"
+    migration_metadata: MigrationMetadata | None = None
 
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
         _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
 
+    def new(
+        self, res_id: str, label: str, annotation_of: str, comments: list[str], permissions: str = "res-default"
+    ) -> AnnotationResource:
+        return AnnotationResource(
+            res_id=res_id,
+            label=label,
+            annotation_of=annotation_of,
+            comments=comments,
+            permissions=permissions,
+        )
+
+    def add_comment(self, comment: str) -> AnnotationResource:
+        self.comments.append(comment)
+        return self
+
+    def add_comments(self, comments: list[str]) -> AnnotationResource:
+        self.comments.extend(comments)
+        return self
+
+    def add_migration_metadata(
+        self, creation_date: str | None, iri: str | None = None, ark: str | None = None
+    ) -> AnnotationResource:
+        if self.migration_metadata:
+            raise InputError(
+                f"The resource with the ID '{self.res_id}' already contains migration metadata, "
+                f"no new data can be added."
+            )
+        self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
+        return self
+
     def serialise(self) -> etree._Element:
+        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
         res_ele = self._serialise_resource_element()
         res_ele.append(self._serialise_annotation_of())
         res_ele.append(_serialise_has_comment(self.comments, self.res_id))
@@ -57,15 +93,62 @@ class RegionResource:
     geometry: dict[str, Any]
     comments: list[str]
     permissions: str = "open"
+    migration_metadata: MigrationMetadata | None = None
 
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
         _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
+        if not is_color(self.color):
+            msg = (
+                f"The color value '{self.color}' for the resource with the ID: '{self.res_id}' failed validation. "
+                f"Please consult the documentation for details."
+            )
+            warnings.warn(DspToolsUserWarning(msg))
         if fail_msg := find_geometry_problem(self.geometry):
             msg = f"The geometry of the resource with the ID '{self.res_id}' failed validation.\n" + fail_msg
             warnings.warn(DspToolsUserWarning(msg))
 
+    def new(
+        self,
+        res_id: str,
+        label: str,
+        color: str,
+        region_of: str,
+        geometry: dict[str, Any],
+        comments: list[str],
+        permissions: str = "res-default",
+    ) -> RegionResource:
+        return RegionResource(
+            res_id=res_id,
+            label=label,
+            color=color,
+            region_of=region_of,
+            geometry=geometry,
+            comments=comments,
+            permissions=permissions,
+        )
+
+    def add_comment(self, comment: str) -> RegionResource:
+        self.comments.append(comment)
+        return self
+
+    def add_comments(self, comments: list[str]) -> RegionResource:
+        self.comments.extend(comments)
+        return self
+
+    def add_migration_metadata(
+        self, creation_date: str | None, iri: str | None = None, ark: str | None = None
+    ) -> RegionResource:
+        if self.migration_metadata:
+            raise InputError(
+                f"The resource with the ID '{self.res_id}' already contains migration metadata, "
+                f"no new data can be added."
+            )
+        self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
+        return self
+
     def serialise(self) -> etree._Element:
+        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
         res_ele = self._serialise_resource_element()
         res_ele.append(self._serialise_geometry())
         res_ele.extend(self._serialise_values())
@@ -100,16 +183,50 @@ class LinkResource:
     link_to: list[str]
     comments: list[str]
     permissions: str = "open"
+    migration_metadata: MigrationMetadata | None = None
 
-    def __post_init__(self) -> None:
-        _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
-        _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
+    def new(
+        self, res_id: str, label: str, link_to: list[str], comments: list[str], permissions: str = "res-default"
+    ) -> LinkResource:
+        return LinkResource(
+            res_id=res_id,
+            label=label,
+            link_to=link_to,
+            comments=comments,
+            permissions=permissions,
+        )
+
+    def add_comment(self, comment: str) -> LinkResource:
+        self.comments.append(comment)
+        return self
+
+    def add_comments(self, comments: list[str]) -> LinkResource:
+        self.comments.extend(comments)
+        return self
+
+    def add_migration_metadata(
+        self, creation_date: str | None, iri: str | None = None, ark: str | None = None
+    ) -> LinkResource:
+        if self.migration_metadata:
+            raise InputError(
+                f"The resource with the ID '{self.res_id}' already contains migration metadata, "
+                f"no new data can be added."
+            )
+        self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
+        return self
 
     def serialise(self) -> etree._Element:
+        self._check_for_and_convert_unexpected_input()
         res_ele = self._serialise_resource_element()
         res_ele.append(_serialise_has_comment(self.comments, self.res_id))
         res_ele.append(self._serialise_links())
         return res_ele
+
+    def _check_for_and_convert_unexpected_input(self) -> None:
+        _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
+        _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
+        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
+        self.link_to = _transform_unexpected_input(self.link_to, "link_to", self.res_id)
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}
@@ -125,26 +242,120 @@ class LinkResource:
 
 
 @dataclass
+class SegmentBounds:
+    segment_start: float | int | str
+    segment_end: float | int | str
+    res_id: str
+
+    def __post_init__(self) -> None:
+        msg: list[str] = []
+        if not is_decimal(self.segment_start):
+            msg.append(f"Segment Start Value: {self.segment_start} | Type: {type(self.segment_start)}")
+        if not is_decimal(self.segment_end):
+            msg.append(f"Segment End Value: {self.segment_end} | Type: {type(self.segment_start)}")
+        if msg:
+            title = (
+                f"The resource with the ID: '{self.res_id}' expects a float or integer for segment bounds. "
+                f"The following places have an unexpected type:"
+            )
+            wrng = f"{title}{LIST_SEPARATOR}{LIST_SEPARATOR.join(msg)}"
+            warnings.warn(DspToolsUserWarning(wrng))
+
+
+@dataclass
 class VideoSegmentResource:
     res_id: str
     label: str
     segment_of: str
-    segment_start: float
-    segment_end: float
+    segment_bounds: SegmentBounds
     title: str | None = None
-    comment: list[str] = field(default_factory=list)
-    description: list[str] = field(default_factory=list)
+    comments: list[str] = field(default_factory=list)
+    descriptions: list[str] = field(default_factory=list)
     keywords: list[str] = field(default_factory=list)
     relates_to: list[str] = field(default_factory=list)
     permissions: str = "open"
+    migration_metadata: MigrationMetadata | None = None
 
-    def __post_init__(self) -> None:
-        _validate_segment(self)
+    def new(
+        self,
+        res_id: str,
+        label: str,
+        segment_of: str,
+        segment_start: float,
+        segment_end: float,
+        title: str | None = None,
+        permissions: str = "res-default",
+    ) -> VideoSegmentResource:
+        return VideoSegmentResource(
+            res_id=res_id,
+            label=label,
+            segment_of=segment_of,
+            segment_bounds=SegmentBounds(segment_start, segment_end, res_id),
+            title=title,
+            permissions=permissions,
+        )
+
+    def add_title(self, title: str) -> VideoSegmentResource:
+        if self.title:
+            _warn_value_exists(self.title, title, "title", self.res_id)
+        self.title = title
+        return self
+
+    def add_comment(self, comment: str) -> VideoSegmentResource:
+        self.comments.append(comment)
+        return self
+
+    def add_comments(self, comments: list[str]) -> VideoSegmentResource:
+        self.comments.extend(comments)
+        return self
+
+    def add_description(self, description: str) -> VideoSegmentResource:
+        self.descriptions.append(description)
+        return self
+
+    def add_descriptions(self, descriptions: list[str]) -> VideoSegmentResource:
+        self.descriptions.extend(descriptions)
+        return self
+
+    def add_keyword(self, keywords: str) -> VideoSegmentResource:
+        self.keywords.append(keywords)
+        return self
+
+    def add_keywords(self, keywords: list[str]) -> VideoSegmentResource:
+        self.keywords.extend(keywords)
+        return self
+
+    def add_relates_to(self, relates_to: str) -> VideoSegmentResource:
+        self.relates_to.append(relates_to)
+        return self
+
+    def add_relates_to_multiple(self, relates_to: list[str]) -> VideoSegmentResource:
+        self.relates_to.extend(relates_to)
+        return self
+
+    def add_migration_metadata(
+        self, creation_date: str | None, iri: str | None = None, ark: str | None = None
+    ) -> VideoSegmentResource:
+        if self.migration_metadata:
+            raise InputError(
+                f"The resource with the ID '{self.res_id}' already contains migration metadata, "
+                f"no new data can be added."
+            )
+        self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
+        return self
 
     def serialise(self) -> etree._Element:
+        self._check_for_and_convert_unexpected_input()
         res_ele = self._serialise_resource_element()
         res_ele.extend(_serialise_segment_children(self))
         return res_ele
+
+    def _check_for_and_convert_unexpected_input(self) -> None:
+        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
+        self.descriptions = _transform_unexpected_input(self.descriptions, "descriptions", self.res_id)
+        self.keywords = _transform_unexpected_input(self.keywords, "keywords", self.res_id)
+        self.relates_to = _transform_unexpected_input(self.relates_to, "relates_to", self.res_id)
+        _validate_segment(self)
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}
@@ -158,22 +369,95 @@ class AudioSegmentResource:
     res_id: str
     label: str
     segment_of: str
-    segment_start: float
-    segment_end: float
+    segment_bounds: SegmentBounds
     title: str | None = None
-    comment: list[str] = field(default_factory=list)
-    description: list[str] = field(default_factory=list)
+    comments: list[str] = field(default_factory=list)
+    descriptions: list[str] = field(default_factory=list)
     keywords: list[str] = field(default_factory=list)
     relates_to: list[str] = field(default_factory=list)
     permissions: str = "open"
+    migration_metadata: MigrationMetadata | None = None
 
-    def __post_init__(self) -> None:
-        _validate_segment(self)
+    def new(
+        self,
+        res_id: str,
+        label: str,
+        segment_of: str,
+        segment_start: float,
+        segment_end: float,
+        title: str | None = None,
+        permissions: str = "res-default",
+    ) -> AudioSegmentResource:
+        return AudioSegmentResource(
+            res_id=res_id,
+            label=label,
+            segment_of=segment_of,
+            segment_bounds=SegmentBounds(segment_start, segment_end, res_id),
+            title=title,
+            permissions=permissions,
+        )
+
+    def add_title(self, title: str) -> AudioSegmentResource:
+        if self.title:
+            _warn_value_exists(self.title, title, "title", self.res_id)
+        self.title = title
+        return self
+
+    def add_comment(self, comment: str) -> AudioSegmentResource:
+        self.comments.append(comment)
+        return self
+
+    def add_comments(self, comments: list[str]) -> AudioSegmentResource:
+        self.comments.extend(comments)
+        return self
+
+    def add_description(self, description: str) -> AudioSegmentResource:
+        self.descriptions.append(description)
+        return self
+
+    def add_descriptions(self, descriptions: list[str]) -> AudioSegmentResource:
+        self.descriptions.extend(descriptions)
+        return self
+
+    def add_keyword(self, keywords: str) -> AudioSegmentResource:
+        self.keywords.append(keywords)
+        return self
+
+    def add_keywords(self, keywords: list[str]) -> AudioSegmentResource:
+        self.keywords.extend(keywords)
+        return self
+
+    def add_relates_to(self, relates_to: str) -> AudioSegmentResource:
+        self.relates_to.append(relates_to)
+        return self
+
+    def add_relates_to_multiple(self, relates_to: list[str]) -> AudioSegmentResource:
+        self.relates_to.extend(relates_to)
+        return self
+
+    def add_migration_metadata(
+        self, creation_date: str | None, iri: str | None = None, ark: str | None = None
+    ) -> AudioSegmentResource:
+        if self.migration_metadata:
+            raise InputError(
+                f"The resource with the ID '{self.res_id}' already contains migration metadata, "
+                f"no new data can be added."
+            )
+        self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
+        return self
 
     def serialise(self) -> etree._Element:
+        self._check_for_and_convert_unexpected_input()
         res_ele = self._serialise_resource_element()
         res_ele.extend(_serialise_segment_children(self))
         return res_ele
+
+    def _check_for_and_convert_unexpected_input(self) -> None:
+        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
+        self.descriptions = _transform_unexpected_input(self.descriptions, "descriptions", self.res_id)
+        self.keywords = _transform_unexpected_input(self.keywords, "keywords", self.res_id)
+        self.relates_to = _transform_unexpected_input(self.relates_to, "relates_to", self.res_id)
+        _validate_segment(self)
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}
@@ -208,27 +492,17 @@ def _validate_segment(segment: AudioSegmentResource | VideoSegmentResource) -> N
         problems.append(f"Field: segment_of | Value: {segment.segment_of}")
     if segment.title and not is_string_like(segment.title):
         problems.append(f"Field: title | Value: {segment.title}")
-    if fails := [x for x in segment.comment if not is_string_like(x)]:
+    if fails := [x for x in segment.comments if not is_string_like(x)]:
         problems.extend([f"Field: comment | Value: {x}" for x in fails])
-    if fails := [x for x in segment.description if not is_string_like(x)]:
+    if fails := [x for x in segment.descriptions if not is_string_like(x)]:
         problems.extend([f"Field: description | Value: {x}" for x in fails])
     if fails := [x for x in segment.keywords if not is_string_like(x)]:
         problems.extend([f"Field: keywords | Value: {x}" for x in fails])
     if fails := [x for x in segment.relates_to if not is_string_like(x)]:
         problems.extend([f"Field: relates_to | Value: {x}" for x in fails])
-    problems.extend(_validate_segment_bounds(segment.segment_start, segment.segment_end))
     if problems:
         msg = f"The resource with the ID '{segment.res_id}' has the following problem(s):{'\n- '.join(problems)}"
         warnings.warn(DspToolsUserWarning(msg))
-
-
-def _validate_segment_bounds(segment_start: Any, segment_end: Any) -> list[str]:
-    seg_bounds_msg = []
-    if not is_decimal(segment_start) or not is_integer(segment_start):
-        seg_bounds_msg.append(f"Segment start should be an integer or float, but it is: {segment_start}")
-    if not is_decimal(segment_end) or not is_integer(segment_end):
-        seg_bounds_msg.append(f"Segment end should be an integer or float, but it is: {segment_start}")
-    return seg_bounds_msg
 
 
 def _serialise_segment_children(segment: AudioSegmentResource | VideoSegmentResource) -> list[etree._Element]:
@@ -239,14 +513,14 @@ def _serialise_segment_children(segment: AudioSegmentResource | VideoSegmentReso
     segment_elements.append(
         etree.Element(
             f"{DASCH_SCHEMA}hasSegmentBounds",
-            attrib={"start": str(segment.segment_start), "end": str(segment.segment_end)},
+            attrib={"start": str(segment.segment_bounds.segment_start), "end": str(segment.segment_bounds.segment_end)},
             nsmap=XML_NAMESPACE_MAP,
         )
     )
     if segment.title:
         segment_elements.append(_make_element_with_text("hasTitle", segment.title))
-    segment_elements.extend([_make_element_with_text("hasComment", x) for x in segment.comment])
-    segment_elements.extend([_make_element_with_text("hasDescription", x) for x in segment.description])
+    segment_elements.extend([_make_element_with_text("hasComment", x) for x in segment.comments])
+    segment_elements.extend([_make_element_with_text("hasDescription", x) for x in segment.descriptions])
     segment_elements.extend([_make_element_with_text("hasKeyword", x) for x in segment.keywords])
     segment_elements.extend([_make_element_with_text("relatesTo", x) for x in segment.relates_to])
     return segment_elements
@@ -256,3 +530,33 @@ def _make_element_with_text(tag_name: str, text_content: str) -> etree._Element:
     ele = etree.Element(f"{DASCH_SCHEMA}{tag_name}", nsmap=XML_NAMESPACE_MAP)
     ele.text = text_content
     return ele
+
+
+def _transform_unexpected_input(value: Any, prop_name: str, res_id: str) -> list[str]:
+    match value:
+        case list():
+            return value
+        case set() | tuple():
+            return list(value)
+        case str():
+            return [value]
+        case _:
+            _warn_unexpected_value(value, prop_name, res_id)
+            return [str(value)]
+
+
+def _warn_unexpected_value(value: Any, prop_name: str, res_id: str | None) -> None:
+    msg = (
+        f"The resource: {res_id} should have a list of strings for the field '{prop_name}'. "
+        f"Your input: '{value}' is of type {type(value)}."
+    )
+    warnings.warn(DspToolsUserWarning(msg))
+
+
+def _warn_value_exists(old_value: Any, new_value: Any, value_field: str, res_id: str | None) -> None:
+    """Emits a warning if a values is not in the expected format."""
+    msg = (
+        f"The resource with the ID '{res_id}' already has a value in the field '{value_field}'. "
+        f"The old value '{old_value}' is being replace with '{new_value}'."
+    )
+    warnings.warn(DspToolsUserWarning(msg))

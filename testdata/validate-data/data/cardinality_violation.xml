@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="9999"
+       default-ontology="onto">
+
+    <!-- 4 Violations -->
+
+    <!-- 'testBoolean' cardinality 1 -->
+    <resource label="Bool Card 1" restype=":ClassInheritedCardinalityOverwriting" id="id_card_one"/>
+
+    <!-- This class does not have a cardinality for the property -->
+    <resource label="Int card does not exist" restype=":CardOneResource" id="id_closed_constraint">
+        <integer-prop name=":testIntegerSimpleText">
+            <integer>1</integer>
+        </integer-prop>
+    </resource>
+
+    <!-- 'testDecimalSimpleText' max cardinality 1 -->
+    <resource label="Decimal Card 0-1" restype=":ClassMixedCard" id="id_max_card">
+        <boolean-prop name=":testBoolean">
+            <boolean>true</boolean>
+        </boolean-prop>
+        <resptr-prop name=":testHasLinkToCardOneResource">
+            <resptr>id_closed_constraint</resptr>
+            <resptr>id_card_one</resptr>
+        </resptr-prop>
+        <geoname-prop name=":testGeoname">
+            <geoname>111111</geoname>
+        </geoname-prop>
+    </resource>
+
+    <!-- 'testGeoname' cardinality 1-n -->
+    <resource label="Geoname Card 1-n" restype=":ClassMixedCard" id="id_min_card">
+        <resptr-prop name=":testHasLinkToCardOneResource">
+            <resptr>id_closed_constraint</resptr>
+        </resptr-prop>
+    </resource>
+
+</knora>

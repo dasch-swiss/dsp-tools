@@ -1,0 +1,91 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="9999"
+       default-ontology="onto">
+
+    <!-- 12 Violations -->
+
+    <!--
+        In this file, the property type does not match with the ontology.
+        The content is valid (eg. a boolean is a valid boolean)
+        For the text-prop the encoding was switched
+     -->
+
+    <resource label="Empty" restype=":ClassWithEverything" id="id_0"/>
+
+    <resource label="Bool" restype=":ClassWithEverything" id="id_1">
+        <text-prop name=":testBoolean">
+            <text encoding="utf8">true</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Color" restype=":ClassWithEverything" id="id_2">
+        <text-prop name=":testColor">
+            <text encoding="utf8">#00ff00</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Date" restype=":ClassWithEverything" id="id_3">
+        <text-prop name=":testSubDate1">
+            <text encoding="utf8">JULIAN:BCE:0700:BCE:0600</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Decimal" restype=":ClassWithEverything" id="id_4">
+        <text-prop name=":testDecimalSimpleText">
+            <text encoding="utf8">2.71</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Geoname" restype=":ClassWithEverything" id="id_5">
+        <text-prop name=":testGeoname">
+            <text encoding="utf8">1111111</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Integer" restype=":ClassWithEverything" id="id_6">
+        <text-prop name=":testIntegerSimpleText">
+            <text encoding="utf8">1</text>
+        </text-prop>
+    </resource>
+
+    <resource label="List" restype=":ClassWithEverything" id="id_7">
+        <text-prop name=":testListProp">
+            <text encoding="utf8">n1</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Link Prop" restype=":ClassWithEverything" id="id_8">
+        <text-prop name=":testHasLinkTo">
+            <text encoding="utf8">id_1</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Richtext" restype=":ClassWithEverything" id="id_9">
+        <text-prop name=":testRichtext">
+            <text encoding="utf8">Text</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Simpletext" restype=":ClassWithEverything" id="id_10">
+        <text-prop name=":testTextarea">
+            <text encoding="xml">Text</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Time" restype=":ClassWithEverything" id="id_11">
+        <text-prop name=":testTimeValue">
+            <text encoding="utf8">2019-10-23T13:45:12.01-14:00</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Uri" restype=":ClassWithEverything" id="id_12">
+        <text-prop name=":testUriValue">
+            <text encoding="utf8">https://dasch.swiss</text>
+        </text-prop>
+    </resource>
+
+</knora>

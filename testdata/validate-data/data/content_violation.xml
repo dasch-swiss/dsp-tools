@@ -1,0 +1,83 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="9999"
+       default-ontology="onto">
+
+    <!-- 10 Violations -->
+
+    <!-- This is an integer -->
+    <resource label="Decimal" restype=":ClassWithEverything" id="id_4">
+        <decimal-prop name=":testDecimalSimpleText">
+            <decimal>1</decimal>
+        </decimal-prop>
+    </resource>
+
+    <!-- Geoname should be a number -->
+    <resource label="Geoname" restype=":ClassWithEverything" id="id_5">
+        <geoname-prop name=":testGeoname">
+            <geoname>ab</geoname>
+        </geoname-prop>
+    </resource>
+
+    <!-- attribute 'list' may not be empty -->
+    <resource label="List" restype=":ClassWithEverything" id="id_7">
+        <list-prop list="" name=":testListProp">
+            <list>n1</list>
+        </list-prop>
+    </resource>
+
+    <!-- node does not exist -->
+    <resource label="List" restype=":ClassWithEverything" id="id_7.1">
+        <list-prop list="onlyList" name=":testListProp">
+            <list>other</list>
+        </list-prop>
+    </resource>
+
+    <!-- list does not exist -->
+    <resource label="List" restype=":ClassWithEverything" id="id_7.2">
+        <list-prop list="other" name=":testListProp">
+            <list>n1</list>
+        </list-prop>
+    </resource>
+
+    <!-- Link does not exist -->
+    <resource label="Link Prop" restype=":ClassWithEverything" id="id_8">
+        <resptr-prop name=":testHasLinkTo">
+            <resptr>other</resptr>
+        </resptr-prop>
+    </resource>
+
+    <!-- Link target is not the range class -->
+    <resource label="Link Prop" restype=":ClassWithEverything" id="id_9_target"/>
+    <resource label="Link Prop" restype=":ClassWithEverything" id="id_9">
+        <resptr-prop name=":testHasLinkToCardOneResource">
+            <resptr>id_9_target</resptr>
+        </resptr-prop>
+    </resource>
+
+    <!-- Text may not be empty -->
+    <resource label="Richtext" restype=":ClassWithEverything" id="id_10">
+        <text-prop name=":testRichtext">
+            <text encoding="xml"></text>
+        </text-prop>
+    </resource>
+
+    <!-- Text may not be empty -->
+    <resource label="Simpletext" restype=":ClassWithEverything" id="id_11">
+        <text-prop name=":testTextarea">
+            <text encoding="utf8"></text>
+        </text-prop>
+    </resource>
+
+    <!-- Value of the same property may not be identical -->
+    <resource label="Duplicate Value" restype=":ClassWithEverything" id="id_12">
+        <text-prop name=":testTextarea">
+            <text encoding="utf8">Text</text>
+            <text encoding="utf8">Text</text>
+        </text-prop>
+    </resource>
+
+</knora>

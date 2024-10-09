@@ -14,6 +14,8 @@ from dsp_tools.models.exceptions import InputError
 from dsp_tools.xmllib.models.file_values import AbstractFileValue
 from dsp_tools.xmllib.models.file_values import FileValue
 from dsp_tools.xmllib.models.file_values import IIIFUri
+from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
+from dsp_tools.xmllib.models.user_enums import NewlineReplacement
 from dsp_tools.xmllib.models.values import BooleanValue
 from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import DateValue
@@ -28,11 +30,12 @@ from dsp_tools.xmllib.models.values import TimeValue
 from dsp_tools.xmllib.models.values import UriValue
 from dsp_tools.xmllib.models.values import Value
 from dsp_tools.xmllib.value_checkers import is_string_like
+from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 
-LIST_SEPARATOR = "\n    -"
+LIST_SEPARATOR = "\n    - "
 
 
 @dataclass
@@ -43,6 +46,7 @@ class Resource:
     values: list[Value] = field(default_factory=list)
     permissions: str = "open"
     file_value: AbstractFileValue | None = None
+    migration_metadata: MigrationMetadata | None = None
 
     def __post_init__(self) -> None:
         msg = []
@@ -58,6 +62,14 @@ class Resource:
                 f"the input is not a valid string.:{LIST_SEPARATOR}{LIST_SEPARATOR.join(msg)}"
             )
             warnings.warn(DspToolsUserWarning(out_msg))
+
+    def new(self, res_id: str, restype: str, label: str, permissions: str = "res-default") -> Resource:
+        return Resource(
+            res_id=res_id,
+            restype=restype,
+            label=label,
+            permissions=permissions,
+        )
 
     def serialise(self) -> etree._Element:
         res_ele = self._serialise_resource_element()
@@ -301,21 +313,39 @@ class Resource:
     #######################
 
     def add_richtext(
-        self, value: str, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self,
+        value: str,
+        prop_name: str,
+        permissions: str | None = None,
+        comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> Resource:
+        value = replace_newlines_with_tags(str(value), newline_replacement)
         self.values.append(Richtext(value, prop_name, permissions, comment, self.res_id))
         return self
 
     def add_richtexts(
-        self, values: list[str], prop_name: str, permissions: str | None = None, comment: str | None = None
+        self,
+        values: list[str],
+        prop_name: str,
+        permissions: str | None = None,
+        comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> Resource:
+        values = [replace_newlines_with_tags(str(v), newline_replacement) for v in values]
         self.values.extend([Richtext(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
     def add_richtext_optional(
-        self, value: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self,
+        value: Any,
+        prop_name: str,
+        permissions: str | None = None,
+        comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> Resource:
         if not pd.isna(value):
+            value = replace_newlines_with_tags(str(value), newline_replacement)
             self.values.append(Richtext(value, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -387,4 +417,19 @@ class Resource:
                 f"The new file with the name '{iiif_uri}' cannot be added."
             )
         self.file_value = IIIFUri(iiif_uri, permissions, comment, self.res_id)
+        return self
+
+    #######################
+    # Migration Metadata
+    #######################
+
+    def add_migration_metadata(
+        self, creation_date: str | None, iri: str | None = None, ark: str | None = None
+    ) -> Resource:
+        if self.migration_metadata:
+            raise InputError(
+                f"The resource with the ID '{self.res_id}' already contains migration metadata, "
+                f"no new data can be added."
+            )
+        self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
         return self

@@ -14,41 +14,43 @@ class PermissionTypes(StrEnum):
 
 
 class XMLPermissions:
-    def get(self) -> list[etree._Element]:
-        return [self._get_open(), self._get_restricted(), self._get_restricted_view()]
+    def serialise(self) -> list[etree._Element]:
+        return [self._serialise_open(), self._serialise_restricted(), self._serialise_restricted_view()]
 
-    def _get_open(self) -> etree._Element:
+    def _serialise_open(self) -> etree._Element:
         permissions = {
             "UnknownUser": PermissionTypes.V,
             "KnownUser": PermissionTypes.V,
             "ProjectMember": PermissionTypes.D,
             "ProjectAdmin": PermissionTypes.CR,
         }
-        return self._get_one_permission_element("open", permissions)
+        return self._serialise_one_permission_element("open", permissions)
 
-    def _get_restricted(self) -> etree._Element:
+    def _serialise_restricted(self) -> etree._Element:
         permissions = {
             "ProjectMember": PermissionTypes.D,
             "ProjectAdmin": PermissionTypes.CR,
         }
-        return self._get_one_permission_element("restricted", permissions)
+        return self._serialise_one_permission_element("restricted", permissions)
 
-    def _get_restricted_view(self) -> etree._Element:
+    def _serialise_restricted_view(self) -> etree._Element:
         permissions = {
             "UnknownUser": PermissionTypes.RV,
             "KnownUser": PermissionTypes.RV,
             "ProjectMember": PermissionTypes.D,
             "ProjectAdmin": PermissionTypes.CR,
         }
-        return self._get_one_permission_element("restricted-view", permissions)
+        return self._serialise_one_permission_element("restricted-view", permissions)
 
-    def _get_one_permission_element(self, permission_name: str, groups: dict[str, PermissionTypes]) -> etree._Element:
+    def _serialise_one_permission_element(
+        self, permission_name: str, groups: dict[str, PermissionTypes]
+    ) -> etree._Element:
         ele = etree.Element(f"{DASCH_SCHEMA}permissions", attrib={"id": permission_name}, nsmap=XML_NAMESPACE_MAP)
-        allows = [self._get_one_allow(g, name) for g, name in groups.items()]
+        allows = [self._serialise_one_allow(g, name) for g, name in groups.items()]
         ele.extend(allows)
         return ele
 
-    def _get_one_allow(self, group: str, tag_text: PermissionTypes) -> etree._Element:
+    def _serialise_one_allow(self, group: str, tag_text: PermissionTypes) -> etree._Element:
         ele = etree.Element(f"{DASCH_SCHEMA}allow", attrib={"group": group}, nsmap=XML_NAMESPACE_MAP)
         ele.text = str(tag_text)
         return ele

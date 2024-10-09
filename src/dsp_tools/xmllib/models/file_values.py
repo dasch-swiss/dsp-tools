@@ -29,7 +29,7 @@ class AbstractFileValue(ABC):
 @dataclass
 class FileValue(AbstractFileValue):
     value: str | Path
-    permissions: Permissions | None = None
+    permissions: Permissions = Permissions.DOAP
     comment: str | None = None
     resource_id: str | None = None
 
@@ -51,7 +51,7 @@ class FileValue(AbstractFileValue):
 @dataclass
 class IIIFUri(AbstractFileValue):
     value: str
-    permissions: Permissions | None = None
+    permissions: Permissions = Permissions.DOAP
     comment: str | None = None
     resource_id: str | None = None
 

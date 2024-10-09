@@ -31,7 +31,7 @@ class AnnotationResource:
     label: str
     annotation_of: str
     comments: list[str]
-    permissions: Permissions | None = None
+    permissions: Permissions = Permissions.DOAP
     migration_metadata: MigrationMetadata | None = None
 
     def __post_init__(self) -> None:
@@ -98,7 +98,7 @@ class RegionResource:
     region_of: str
     geometry: dict[str, Any]
     comments: list[str]
-    permissions: Permissions | None = None
+    permissions: Permissions = Permissions.DOAP
     migration_metadata: MigrationMetadata | None = None
 
     def __post_init__(self) -> None:
@@ -188,7 +188,7 @@ class LinkResource:
     label: str
     link_to: list[str]
     comments: list[str]
-    permissions: Permissions | None = None
+    permissions: Permissions = Permissions.DOAP
     migration_metadata: MigrationMetadata | None = None
 
     def new(
@@ -284,7 +284,7 @@ class VideoSegmentResource:
     descriptions: list[str] = field(default_factory=list)
     keywords: list[str] = field(default_factory=list)
     relates_to: list[str] = field(default_factory=list)
-    permissions: Permissions | None = None
+    permissions: Permissions = Permissions.DOAP
     migration_metadata: MigrationMetadata | None = None
 
     def new(
@@ -386,7 +386,7 @@ class AudioSegmentResource:
     descriptions: list[str] = field(default_factory=list)
     keywords: list[str] = field(default_factory=list)
     relates_to: list[str] = field(default_factory=list)
-    permissions: Permissions | None = None
+    permissions: Permissions = Permissions.DOAP
     migration_metadata: MigrationMetadata | None = None
 
     def new(

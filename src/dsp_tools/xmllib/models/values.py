@@ -27,7 +27,7 @@ DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 class Value(ABC):
     value: Any
     prop_name: str
-    permissions: Permissions | None
+    permissions: Permissions
     comment: str | None
     resource_id: str | None
 
@@ -45,7 +45,7 @@ class Value(ABC):
 class BooleanValue(Value):
     value: Any
     prop_name: str
-    permissions: Permissions | None = None
+    permissions: Permissions = Permissions.DOAP
     comment: str | None = None
     resource_id: str | None = None
 
@@ -65,7 +65,7 @@ class BooleanValue(Value):
         return etree.Element(f"{DASCH_SCHEMA}boolean-prop", name=self.prop_name, nsmap=XML_NAMESPACE_MAP)
 
     def make_element(self) -> etree._Element:
-        attribs = {"permissions": self.permissions.value} if self.permissions else {}
+        attribs = {"permissions": self.permissions.value} if not self.permissions.DOAP else {}
         if self.comment:
             attribs["comment"] = self.comment
         ele = etree.Element(f"{DASCH_SCHEMA}boolean", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
@@ -77,7 +77,7 @@ class BooleanValue(Value):
 class ColorValue(Value):
     value: Any
     prop_name: str
-    permissions: Permissions | None = None
+    permissions: Permissions = Permissions.DOAP
     comment: str | None = None
     resource_id: str | None = None
 
@@ -96,7 +96,7 @@ class ColorValue(Value):
         return etree.Element(f"{DASCH_SCHEMA}color-prop", name=self.prop_name, nsmap=XML_NAMESPACE_MAP)
 
     def make_element(self) -> etree._Element:
-        attribs = {"permissions": self.permissions.value} if self.permissions else {}
+        attribs = {"permissions": self.permissions.value} if not self.permissions.DOAP else {}
         if self.comment:
             attribs["comment"] = self.comment
         ele = etree.Element(f"{DASCH_SCHEMA}color", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
@@ -108,7 +108,7 @@ class ColorValue(Value):
 class DateValue(Value):
     value: str
     prop_name: str
-    permissions: Permissions | None = None
+    permissions: Permissions = Permissions.DOAP
     comment: str | None = None
     resource_id: str | None = None
 
@@ -127,7 +127,7 @@ class DateValue(Value):
         return etree.Element(f"{DASCH_SCHEMA}date-prop", name=self.prop_name, nsmap=XML_NAMESPACE_MAP)
 
     def make_element(self) -> etree._Element:
-        attribs = {"permissions": self.permissions.value} if self.permissions else {}
+        attribs = {"permissions": self.permissions.value} if not self.permissions.DOAP else {}
         if self.comment:
             attribs["comment"] = self.comment
         ele = etree.Element(f"{DASCH_SCHEMA}date", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
@@ -139,7 +139,7 @@ class DateValue(Value):
 class DecimalValue(Value):
     value: Any
     prop_name: str
-    permissions: Permissions | None = None
+    permissions: Permissions = Permissions.DOAP
     comment: str | None = None
     resource_id: str | None = None
 
@@ -158,7 +158,7 @@ class DecimalValue(Value):
         return etree.Element(f"{DASCH_SCHEMA}decimal-prop", name=self.prop_name, nsmap=XML_NAMESPACE_MAP)
 
     def make_element(self) -> etree._Element:
-        attribs = {"permissions": self.permissions.value} if self.permissions else {}
+        attribs = {"permissions": self.permissions.value} if not self.permissions.DOAP else {}
         if self.comment:
             attribs["comment"] = self.comment
         ele = etree.Element(f"{DASCH_SCHEMA}decimal", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
@@ -170,7 +170,7 @@ class DecimalValue(Value):
 class GeonameValue(Value):
     value: Any
     prop_name: str
-    permissions: Permissions | None = None
+    permissions: Permissions = Permissions.DOAP
     comment: str | None = None
     resource_id: str | None = None
 
@@ -189,7 +189,7 @@ class GeonameValue(Value):
         return etree.Element(f"{DASCH_SCHEMA}geoname-prop", name=self.prop_name, nsmap=XML_NAMESPACE_MAP)
 
     def make_element(self) -> etree._Element:
-        attribs = {"permissions": self.permissions.value} if self.permissions else {}
+        attribs = {"permissions": self.permissions.value} if not self.permissions.DOAP else {}
         if self.comment:
             attribs["comment"] = self.comment
         ele = etree.Element(f"{DASCH_SCHEMA}geoname", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
@@ -201,7 +201,7 @@ class GeonameValue(Value):
 class IntValue(Value):
     value: int | str
     prop_name: str
-    permissions: Permissions | None = None
+    permissions: Permissions = Permissions.DOAP
     comment: str | None = None
     resource_id: str | None = None
 
@@ -220,7 +220,7 @@ class IntValue(Value):
         return etree.Element(f"{DASCH_SCHEMA}integer-prop", name=self.prop_name, nsmap=XML_NAMESPACE_MAP)
 
     def make_element(self) -> etree._Element:
-        attribs = {"permissions": self.permissions.value} if self.permissions else {}
+        attribs = {"permissions": self.permissions.value} if not self.permissions.DOAP else {}
         if self.comment:
             attribs["comment"] = self.comment
         ele = etree.Element(f"{DASCH_SCHEMA}integer", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
@@ -232,7 +232,7 @@ class IntValue(Value):
 class LinkValue(Value):
     value: str
     prop_name: str
-    permissions: Permissions | None = None
+    permissions: Permissions = Permissions.DOAP
     comment: str | None = None
     resource_id: str | None = None
 
@@ -251,7 +251,7 @@ class LinkValue(Value):
         return etree.Element(f"{DASCH_SCHEMA}resptr-prop", name=self.prop_name, nsmap=XML_NAMESPACE_MAP)
 
     def make_element(self) -> etree._Element:
-        attribs = {"permissions": self.permissions.value} if self.permissions else {}
+        attribs = {"permissions": self.permissions.value} if not self.permissions.DOAP else {}
         if self.comment:
             attribs["comment"] = self.comment
         ele = etree.Element(f"{DASCH_SCHEMA}resptr", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
@@ -264,7 +264,7 @@ class ListValue(Value):
     value: Any
     list_name: Any
     prop_name: str
-    permissions: Permissions | None = None
+    permissions: Permissions = Permissions.DOAP
     comment: str | None = None
     resource_id: str | None = None
 
@@ -285,7 +285,7 @@ class ListValue(Value):
         )
 
     def make_element(self) -> etree._Element:
-        attribs = {"permissions": self.permissions.value} if self.permissions else {}
+        attribs = {"permissions": self.permissions.value} if not self.permissions.DOAP else {}
         if self.comment:
             attribs["comment"] = self.comment
         ele = etree.Element(f"{DASCH_SCHEMA}list", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
@@ -297,7 +297,7 @@ class ListValue(Value):
 class SimpleText(Value):
     value: str
     prop_name: str
-    permissions: Permissions | None = None
+    permissions: Permissions = Permissions.DOAP
     comment: str | None = None
     resource_id: str | None = None
 
@@ -317,7 +317,7 @@ class SimpleText(Value):
 
     def make_element(self) -> etree._Element:
         attribs = {"encoding": "utf8"}
-        if self.permissions:
+        if not self.permissions.DOAP:
             attribs["permissions"] = self.permissions.value
         if self.comment:
             attribs["comment"] = self.comment
@@ -330,7 +330,7 @@ class SimpleText(Value):
 class Richtext(Value):
     value: str
     prop_name: str
-    permissions: Permissions | None = None
+    permissions: Permissions = Permissions.DOAP
     comment: str | None = None
     resource_id: str | None = None
 
@@ -350,7 +350,7 @@ class Richtext(Value):
 
     def make_element(self) -> etree._Element:
         attribs = {"encoding": "xml"}
-        if self.permissions:
+        if not self.permissions.DOAP:
             attribs["permissions"] = self.permissions.value
         if self.comment:
             attribs["comment"] = self.comment
@@ -363,7 +363,7 @@ class Richtext(Value):
 class TimeValue(Value):
     value: str
     prop_name: str
-    permissions: Permissions | None = None
+    permissions: Permissions = Permissions.DOAP
     comment: str | None = None
     resource_id: str | None = None
 
@@ -382,7 +382,7 @@ class TimeValue(Value):
         return etree.Element(f"{DASCH_SCHEMA}time-prop", name=self.prop_name, nsmap=XML_NAMESPACE_MAP)
 
     def make_element(self) -> etree._Element:
-        attribs = {"permissions": self.permissions.value} if self.permissions else {}
+        attribs = {"permissions": self.permissions.value} if not self.permissions.DOAP else {}
         if self.comment:
             attribs["comment"] = self.comment
         ele = etree.Element(f"{DASCH_SCHEMA}time", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
@@ -394,7 +394,7 @@ class TimeValue(Value):
 class UriValue(Value):
     value: str
     prop_name: str
-    permissions: Permissions | None = None
+    permissions: Permissions = Permissions.DOAP
     comment: str | None = None
     resource_id: str | None = None
 
@@ -413,7 +413,7 @@ class UriValue(Value):
         return etree.Element(f"{DASCH_SCHEMA}uri-prop", name=self.prop_name, nsmap=XML_NAMESPACE_MAP)
 
     def make_element(self) -> etree._Element:
-        attribs = {"permissions": self.permissions.value} if self.permissions else {}
+        attribs = {"permissions": self.permissions.value} if not self.permissions.DOAP else {}
         if self.comment:
             attribs["comment"] = self.comment
         ele = etree.Element(f"{DASCH_SCHEMA}uri", attrib=attribs, nsmap=XML_NAMESPACE_MAP)

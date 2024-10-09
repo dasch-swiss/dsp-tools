@@ -54,7 +54,7 @@ class XMLRoot:
 
     def serialise(self) -> etree._Element:
         root = self.make_root()
-        permissions = XMLPermissions().get()
+        permissions = XMLPermissions().serialise()
         root.extend(permissions)
         serialised_resources = [x.serialise() for x in self.resources]
         root.extend(serialised_resources)

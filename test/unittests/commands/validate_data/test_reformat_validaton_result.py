@@ -1,5 +1,4 @@
 import pytest
-from rdflib import RDF
 from rdflib import SH
 from rdflib import Graph
 
@@ -11,8 +10,8 @@ from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViol
 from dsp_tools.commands.validate_data.models.validation import CardinalityValidationResult
 from dsp_tools.commands.validate_data.models.validation import ContentValidationResult
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
-from dsp_tools.commands.validate_data.reformat_validaton_result import _query_for_one_cardinality_validation_result
-from dsp_tools.commands.validate_data.reformat_validaton_result import _query_for_one_content_validation_result
+from dsp_tools.commands.validate_data.reformat_validaton_result import _query_for_cardinality_validation_results
+from dsp_tools.commands.validate_data.reformat_validaton_result import _query_for_content_validation_results
 from dsp_tools.commands.validate_data.reformat_validaton_result import _reformat_one_cardinality_validation_result
 from dsp_tools.commands.validate_data.reformat_validaton_result import _reformat_one_content_validation_result
 from test.unittests.commands.validate_data.constants import DASH
@@ -23,34 +22,35 @@ from test.unittests.commands.validate_data.constants import ONTO
 
 class TestQueryCardinality:
     def test_min_constraint(self, graph_min_count_violation: Graph, data_min_count_violation: Graph) -> None:
-        bn = next(graph_min_count_violation.subjects(RDF.type, SH.ValidationResult))
-        result = _query_for_one_cardinality_validation_result(bn, graph_min_count_violation, data_min_count_violation)
-        assert result.source_constraint_component == SH.MinCountConstraintComponent
-        assert result.res_iri == DATA.id_min_card
-        assert result.res_class == ONTO.ClassMixedCard
-        assert result.property == ONTO.testGeoname
-        assert result.results_message == "1-n"
+        result = _query_for_cardinality_validation_results(graph_min_count_violation, data_min_count_violation)
+        assert len(result) == 1
+        violation = result[0]
+        assert violation.source_constraint_component == SH.MinCountConstraintComponent
+        assert violation.res_iri == DATA.id_min_card
+        assert violation.res_class == ONTO.ClassMixedCard
+        assert violation.property == ONTO.testGeoname
+        assert violation.results_message == "1-n"
 
     def test_max_constraint(self, graph_max_card_violation: Graph, data_max_card_count_violation: Graph) -> None:
-        bn = next(graph_max_card_violation.subjects(RDF.type, SH.ValidationResult))
-        result = _query_for_one_cardinality_validation_result(
-            bn, graph_max_card_violation, data_max_card_count_violation
-        )
-        assert result.source_constraint_component == SH.MaxCountConstraintComponent
-        assert result.res_iri == DATA.id_max_card
-        assert result.res_class == ONTO.ClassMixedCard
-        assert result.property == ONTO.testHasLinkToCardOneResource
-        assert result.results_message == "1"
+        result = _query_for_cardinality_validation_results(graph_max_card_violation, data_max_card_count_violation)
+        assert len(result) == 1
+        violation = result[0]
+        assert violation.source_constraint_component == SH.MaxCountConstraintComponent
+        assert violation.res_iri == DATA.id_max_card
+        assert violation.res_class == ONTO.ClassMixedCard
+        assert violation.property == ONTO.testHasLinkToCardOneResource
+        assert violation.results_message == "1"
 
     def test_closed_constraint(self, graph_closed_constraint: Graph, data_closed_constraint: Graph) -> None:
-        bn = next(graph_closed_constraint.subjects(RDF.type, SH.ValidationResult))
-        result = _query_for_one_cardinality_validation_result(bn, graph_closed_constraint, data_closed_constraint)
-        assert result.source_constraint_component == DASH.ClosedByTypesConstraintComponent
-        assert result.res_iri == DATA.id_closed_constraint
-        assert result.res_class == ONTO.CardOneResource
-        assert result.property == ONTO.testIntegerSimpleText
+        result = _query_for_cardinality_validation_results(graph_closed_constraint, data_closed_constraint)
+        assert len(result) == 1
+        violation = result[0]
+        assert violation.source_constraint_component == DASH.ClosedByTypesConstraintComponent
+        assert violation.res_iri == DATA.id_closed_constraint
+        assert violation.res_class == ONTO.CardOneResource
+        assert violation.property == ONTO.testIntegerSimpleText
         assert (
-            result.results_message
+            violation.results_message
             == "Property onto:testIntegerSimpleText is not among those permitted for any of the types"
         )
 
@@ -82,8 +82,9 @@ class TestReformatCardinalityViolation:
 
 class TestQueryGraphContent:
     def test_value_type_mismatch(self, graph_value_type_mismatch: Graph, data_value_type_mismatch: Graph) -> None:
-        bn = next(graph_value_type_mismatch.subjects(SH.sourceConstraintComponent, SH.NodeConstraintComponent))
-        result = _query_for_one_content_validation_result(bn, graph_value_type_mismatch, data_value_type_mismatch)
+        all_result = _query_for_content_validation_results(graph_value_type_mismatch, data_value_type_mismatch)
+        assert len(all_result) == 1
+        result = all_result[0]
         assert result.source_constraint_component == SH.NodeConstraintComponent
         assert result.res_iri == DATA.value_type_mismatch
         assert result.res_class == ONTO.ClassWithEverything
@@ -92,8 +93,9 @@ class TestQueryGraphContent:
         assert result.value_type == KNORA_API.TextValue
 
     def test_wrong_regex_content(self, graph_wrong_regex_content: Graph, data_wrong_regex_content: Graph) -> None:
-        bn = next(graph_wrong_regex_content.subjects(SH.sourceConstraintComponent, SH.NodeConstraintComponent))
-        result = _query_for_one_content_validation_result(bn, graph_wrong_regex_content, data_wrong_regex_content)
+        all_result = _query_for_content_validation_results(graph_wrong_regex_content, data_wrong_regex_content)
+        assert len(all_result) == 1
+        result = all_result[0]
         assert result.source_constraint_component == SH.NodeConstraintComponent
         assert result.res_iri == DATA.geoname_not_number
         assert result.res_class == ONTO.ClassWithEverything

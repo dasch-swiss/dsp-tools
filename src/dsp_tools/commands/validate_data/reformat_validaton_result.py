@@ -1,7 +1,6 @@
 import regex
 from rdflib import RDF
 from rdflib import SH
-from rdflib import BNode
 from rdflib import Graph
 from rdflib import Namespace
 from rdflib.term import Node
@@ -71,8 +70,7 @@ def _query_for_cardinality_validation_results(
     all_violations = set(results_graph.subjects(RDF.type, SH.ValidationResult))
     content_violations = set(results_graph.subjects(SH.sourceConstraintComponent, SH.NodeConstraintComponent))
     card_violations = all_violations - content_violations
-    violations_non_bnode = [x for x in card_violations if not isinstance(x, BNode)]
-    return [_query_for_one_cardinality_validation_result(x, results_graph, data_graph) for x in violations_non_bnode]
+    return [_query_for_one_cardinality_validation_result(x, results_graph, data_graph) for x in card_violations]
 
 
 def _query_for_one_cardinality_validation_result(

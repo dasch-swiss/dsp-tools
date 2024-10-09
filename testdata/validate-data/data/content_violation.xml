@@ -11,7 +11,7 @@
     <!-- Geoname should be a number -->
     <resource label="Geoname is not a number" restype=":ClassWithEverything" id="geoname_not_number">
         <geoname-prop name=":testGeoname">
-            <geoname>llllllllllllllllll</geoname>
+            <geoname>this-is-not-a-valid-code</geoname>
         </geoname-prop>
     </resource>
 

@@ -115,7 +115,7 @@ def graph_wrong_regex_content() -> Graph:
     sh:resultSeverity sh:Violation ;
     sh:sourceConstraintComponent sh:PatternConstraintComponent ;
     sh:sourceShape api-shapes:geonameValueAsGeonameCode_Shape ;
-    sh:value "llllllllllllllllll" .
+    sh:value "this-is-not-a-valid-code" .
     '''
     g = Graph()
     g.parse(data=gstr, format="ttl")
@@ -203,5 +203,5 @@ def violation_regex() -> ContentValidationResult:
         results_message="The value must be a valid geoname code",
         value_type=KNORA_API.GeonameValue,
         detail_bn_component=SH.PatternConstraintComponent,
-        value="llllllllllllllllll",
+        value="this-is-not-a-valid-code",
     )

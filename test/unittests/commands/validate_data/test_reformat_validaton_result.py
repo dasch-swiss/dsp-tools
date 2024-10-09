@@ -81,7 +81,7 @@ class TestQueryGraphContent:
         assert result.results_message == "The value must be a valid geoname code"
         assert result.detail_bn_component == SH.PatternConstraintComponent
         assert result.value_type == KNORA_API.GeonameValue
-        assert result.value == "llllllllllllllllll"
+        assert result.value == "this-is-not-a-valid-code"
 
 
 class TestReformatContentViolation:
@@ -101,7 +101,7 @@ class TestReformatContentViolation:
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testGeoname"
         assert result.expected_format == "The value must be a valid geoname code"
-        assert result.actual_content == "llllllllllllllllll"
+        assert result.actual_content == "this-is-not-a-valid-code"
 
     def test_unknown(self, violation_unknown_content: ContentValidationResult) -> None:
         result = _reformat_one_content_validation_result(violation_unknown_content)

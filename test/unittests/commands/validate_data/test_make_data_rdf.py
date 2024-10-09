@@ -1,7 +1,6 @@
 import pytest
 from rdflib import XSD
 from rdflib import Literal
-from rdflib import Namespace
 from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.make_data_rdf import _transform_one_resource
@@ -32,8 +31,7 @@ from dsp_tools.commands.validate_data.models.data_rdf import RichtextRDF
 from dsp_tools.commands.validate_data.models.data_rdf import SimpleTextRDF
 from dsp_tools.commands.validate_data.models.data_rdf import TimeValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import UriValueRDF
-
-DATA = Namespace("http://data/")
+from test.unittests.commands.validate_data.constants import DATA
 
 
 class TestResource:

@@ -1,7 +1,6 @@
 import pytest
 from rdflib import XSD
 from rdflib import Literal
-from rdflib import Namespace
 from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.models.data_rdf import BooleanValueRDF
@@ -17,9 +16,7 @@ from dsp_tools.commands.validate_data.models.data_rdf import RichtextRDF
 from dsp_tools.commands.validate_data.models.data_rdf import SimpleTextRDF
 from dsp_tools.commands.validate_data.models.data_rdf import TimeValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import UriValueRDF
-
-ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
-KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
+from test.unittests.commands.validate_data.constants import ONTO
 
 
 @pytest.fixture

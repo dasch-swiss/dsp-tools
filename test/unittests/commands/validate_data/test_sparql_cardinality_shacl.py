@@ -4,7 +4,6 @@ from rdflib import SH
 from rdflib import BNode
 from rdflib import Graph
 from rdflib import Literal
-from rdflib import Namespace
 
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct_0_1_cardinality
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct_0_n_cardinality
@@ -14,9 +13,8 @@ from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct_resource_nodeshape
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import construct_cardinality_node_shapes
 
-ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
-API_SHAPES = Namespace("http://api.knora.org/ontology/knora-api/shapes/v2#")
-DASH = Namespace("http://datashapes.org/dash#")
+from test.unittests.commands.validate_data.constants import ONTO
+
 
 
 class TestCheckTripleNumbersOnto:

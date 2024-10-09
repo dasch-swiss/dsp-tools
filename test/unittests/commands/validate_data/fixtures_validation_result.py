@@ -9,7 +9,7 @@ from dsp_tools.commands.validate_data.models.validation import ContentValidation
 ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
 DATA = Namespace("http://data/")
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
-
+DASH = Namespace("http://datashapes.org/dash#")
 
 VALIDATION_PREFIXES = """
     @prefix onto: <http://0.0.0.0:3333/ontology/9999/onto/v2#> .
@@ -208,11 +208,11 @@ def violation_max_card() -> CardinalityValidationResult:
 @pytest.fixture
 def violation_closed() -> CardinalityValidationResult:
     return CardinalityValidationResult(
-        source_constraint_component=SH.ClosedConstraintComponent,
+        source_constraint_component=DASH.ClosedByTypesConstraintComponent,
         res_iri=DATA.id_closed_constraint,
         res_class=ONTO.CardOneResource,
         property=ONTO.testIntegerSimpleText,
-        results_message="Predicate ns3:testIntegerSimpleText is not allowed (closed shape)",
+        results_message="Property onto:testIntegerSimpleText is not among those permitted for any of the types",
     )
 
 

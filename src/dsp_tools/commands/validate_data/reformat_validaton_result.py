@@ -2,6 +2,7 @@ import regex
 from rdflib import RDF
 from rdflib import SH
 from rdflib import Graph
+from rdflib import Namespace
 from rdflib.term import Node
 
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
@@ -16,6 +17,8 @@ from dsp_tools.commands.validate_data.models.validation import CardinalityValida
 from dsp_tools.commands.validate_data.models.validation import ContentValidationResult
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.models.validation import ValidationReports
+
+DASH = Namespace("http://datashapes.org/dash#")
 
 
 def reformat_validation_graph(report: ValidationReports) -> AllProblems:
@@ -103,7 +106,7 @@ def _reformat_one_cardinality_validation_result(
                 prop_name=prop_name,
                 expected_cardinality=violation.results_message,
             )
-        case SH.ClosedConstraintComponent:
+        case DASH.ClosedByTypesConstraintComponent:
             return NonExistentCardinalityViolation(
                 res_id=subject_id,
                 res_type=res_type,

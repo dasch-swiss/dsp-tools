@@ -41,6 +41,20 @@ def result_value_type_violation() -> Graph:
     return g
 
 
+@pytest.fixture
+def data_content_violation() -> Graph:
+    g = Graph()
+    g.parse("testdata/validate-data/validation_results/content_violation_data.ttl")
+    return g
+
+
+@pytest.fixture
+def result_content_violation() -> Graph:
+    g = Graph()
+    g.parse("testdata/validate-data/validation_results/content_violation_result.ttl")
+    return g
+
+
 def test_reformat_cardinality_violation(result_cardinality_violation: Graph, data_cardinality_violation: Graph) -> None:
     val_rep = ValidationReports(
         conforms=False,
@@ -50,21 +64,18 @@ def test_reformat_cardinality_violation(result_cardinality_violation: Graph, dat
         data_graph=data_cardinality_violation,
     )
     result = reformat_validation_graph(val_rep)
+    expected_info_tuples = [
+        (MinCardinalityViolation, "id_card_one"),
+        (MaxCardinalityViolation, "id_max_card"),
+        (MinCardinalityViolation, "id_min_card"),
+        (NonExistentCardinalityViolation, "id_closed_constraint"),
+    ]
     assert not result.unexpected_results
     assert len(result.problems) == 4
     sorted_problems = sorted(result.problems, key=lambda x: x.sort_value())
-    val_one = sorted_problems[0]
-    assert isinstance(val_one, MinCardinalityViolation)
-    assert val_one.res_id == "id_card_one"
-    val_one = sorted_problems[1]
-    assert isinstance(val_one, MaxCardinalityViolation)
-    assert val_one.res_id == "id_max_card"
-    val_one = sorted_problems[2]
-    assert isinstance(val_one, MinCardinalityViolation)
-    assert val_one.res_id == "id_min_card"
-    val_one = sorted_problems[3]
-    assert isinstance(val_one, NonExistentCardinalityViolation)
-    assert val_one.res_id == "id_closed_constraint"
+    for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
+        assert isinstance(one_result, expected_info[0])
+        assert one_result.res_id == expected_info[1]
 
 
 def test_reformat_value_type_violation(result_value_type_violation: Graph, data_value_type_violation: Graph) -> None:
@@ -79,7 +90,7 @@ def test_reformat_value_type_violation(result_value_type_violation: Graph, data_
     assert not result.unexpected_results
     assert len(result.problems) == 12
     sorted_problems = sorted(result.problems, key=lambda x: x.sort_value())
-    expected_info = [
+    expected_info_tuples = [
         ("id_bool", "BooleanValue", "onto:testBoolean"),
         ("id_color", "ColorValue", "onto:testColor"),
         ("id_decimal", "DecimalValue", "onto:testDecimalSimpleText"),
@@ -93,11 +104,11 @@ def test_reformat_value_type_violation(result_value_type_violation: Graph, data_
         ("id_time", "TimeValue", "onto:testTimeValue"),
         ("id_uri", "UriValue", "onto:testUriValue"),
     ]
-    for actual_problem, expected_info_tuple in zip(sorted_problems, expected_info):
-        assert isinstance(actual_problem, ValueTypeViolation)
-        assert actual_problem.res_id == expected_info_tuple[0]
-        assert actual_problem.expected_type == expected_info_tuple[1]
-        assert actual_problem.prop_name == expected_info_tuple[2]
+    for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
+        assert isinstance(one_result, ValueTypeViolation)
+        assert one_result.res_id == expected_info[0]
+        assert one_result.expected_type == expected_info[1]
+        assert one_result.prop_name == expected_info[2]
 
 
 if __name__ == "__main__":

@@ -4,8 +4,7 @@ from rdflib import Graph
 
 from dsp_tools.commands.validate_data.models.validation import CardinalityValidationResult
 from dsp_tools.commands.validate_data.models.validation import ContentValidationResult
-
-
+from test.unittests.commands.validate_data.constants import DASH
 from test.unittests.commands.validate_data.constants import DATA
 from test.unittests.commands.validate_data.constants import KNORA_API
 from test.unittests.commands.validate_data.constants import ONTO
@@ -13,7 +12,7 @@ from test.unittests.commands.validate_data.constants import PREFIXES
 
 
 @pytest.fixture
-def min_count_violation() -> Graph:
+def graph_min_count_violation() -> Graph:
     gstr = f"""{PREFIXES}
     [ a sh:ValidationResult ;
             sh:focusNode <http://data/id_min_card> ;
@@ -38,7 +37,7 @@ def data_min_count_violation() -> Graph:
 
 @pytest.fixture
 def graph_closed_constraint() -> Graph:
-    gstr = f"""{VALIDATION_PREFIXES}
+    gstr = f"""{PREFIXES}
     [ a sh:ValidationResult ;
             sh:focusNode <http://data/id_closed_constraint> ;
             sh:resultMessage "Property onto:testIntegerSimpleText is not among those permitted for any of the types" ;
@@ -63,7 +62,7 @@ def data_closed_constraint() -> Graph:
 
 @pytest.fixture
 def graph_max_card_violation() -> Graph:
-    gstr = f"""{VALIDATION_PREFIXES}
+    gstr = f"""{PREFIXES}
     [ a sh:ValidationResult ;
             sh:focusNode <http://data/id_max_card> ;
             sh:resultMessage "1" ;

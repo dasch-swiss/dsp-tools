@@ -10,6 +10,7 @@ from lxml import etree
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
+from dsp_tools.xmllib.models.user_enums import Permissions
 from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import LinkValue
 from dsp_tools.xmllib.models.values import Richtext
@@ -30,7 +31,7 @@ class AnnotationResource:
     label: str
     annotation_of: str
     comments: list[str]
-    permissions: str = "res-default"
+    permissions: Permissions = Permissions.DOAP
     migration_metadata: MigrationMetadata | None = None
 
     def __post_init__(self) -> None:
@@ -38,7 +39,12 @@ class AnnotationResource:
         _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
 
     def new(
-        self, res_id: str, label: str, annotation_of: str, comments: list[str], permissions: str = "res-default"
+        self,
+        res_id: str,
+        label: str,
+        annotation_of: str,
+        comments: list[str],
+        permissions: Permissions = Permissions.DOAP,
     ) -> AnnotationResource:
         return AnnotationResource(
             res_id=res_id,
@@ -76,8 +82,8 @@ class AnnotationResource:
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}
-        if self.permissions:
-            attribs["permissions"] = self.permissions
+        if self.permissions != Permissions.DOAP:
+            attribs["permissions"] = self.permissions.value
         return etree.Element(f"{DASCH_SCHEMA}annotation", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
 
     def _serialise_annotation_of(self) -> etree._Element:
@@ -92,7 +98,7 @@ class RegionResource:
     region_of: str
     geometry: dict[str, Any]
     comments: list[str]
-    permissions: str = "res-default"
+    permissions: Permissions = Permissions.DOAP
     migration_metadata: MigrationMetadata | None = None
 
     def __post_init__(self) -> None:
@@ -116,7 +122,7 @@ class RegionResource:
         region_of: str,
         geometry: dict[str, Any],
         comments: list[str],
-        permissions: str = "res-default",
+        permissions: Permissions = Permissions.DOAP,
     ) -> RegionResource:
         return RegionResource(
             res_id=res_id,
@@ -158,8 +164,8 @@ class RegionResource:
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}
-        if self.permissions:
-            attribs["permissions"] = self.permissions
+        if self.permissions != Permissions.DOAP:
+            attribs["permissions"] = self.permissions.value
         return etree.Element(f"{DASCH_SCHEMA}region", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
 
     def _serialise_values(self) -> list[etree._Element]:
@@ -182,11 +188,16 @@ class LinkResource:
     label: str
     link_to: list[str]
     comments: list[str]
-    permissions: str = "res-default"
+    permissions: Permissions = Permissions.DOAP
     migration_metadata: MigrationMetadata | None = None
 
     def new(
-        self, res_id: str, label: str, link_to: list[str], comments: list[str], permissions: str = "res-default"
+        self,
+        res_id: str,
+        label: str,
+        link_to: list[str],
+        comments: list[str],
+        permissions: Permissions = Permissions.DOAP,
     ) -> LinkResource:
         return LinkResource(
             res_id=res_id,
@@ -230,8 +241,8 @@ class LinkResource:
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}
-        if self.permissions:
-            attribs["permissions"] = self.permissions
+        if self.permissions != Permissions.DOAP:
+            attribs["permissions"] = self.permissions.value
         return etree.Element(f"{DASCH_SCHEMA}link", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
 
     def _serialise_links(self) -> etree._Element:
@@ -273,7 +284,7 @@ class VideoSegmentResource:
     descriptions: list[str] = field(default_factory=list)
     keywords: list[str] = field(default_factory=list)
     relates_to: list[str] = field(default_factory=list)
-    permissions: str = "res-default"
+    permissions: Permissions = Permissions.DOAP
     migration_metadata: MigrationMetadata | None = None
 
     def new(
@@ -284,7 +295,7 @@ class VideoSegmentResource:
         segment_start: float,
         segment_end: float,
         title: str | None = None,
-        permissions: str = "res-default",
+        permissions: Permissions = Permissions.DOAP,
     ) -> VideoSegmentResource:
         return VideoSegmentResource(
             res_id=res_id,
@@ -359,8 +370,8 @@ class VideoSegmentResource:
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}
-        if self.permissions:
-            attribs["permissions"] = self.permissions
+        if self.permissions != Permissions.DOAP:
+            attribs["permissions"] = self.permissions.value
         return etree.Element(f"{DASCH_SCHEMA}video-segment", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
 
 
@@ -375,7 +386,7 @@ class AudioSegmentResource:
     descriptions: list[str] = field(default_factory=list)
     keywords: list[str] = field(default_factory=list)
     relates_to: list[str] = field(default_factory=list)
-    permissions: str = "res-default"
+    permissions: Permissions = Permissions.DOAP
     migration_metadata: MigrationMetadata | None = None
 
     def new(
@@ -386,7 +397,7 @@ class AudioSegmentResource:
         segment_start: float,
         segment_end: float,
         title: str | None = None,
-        permissions: str = "res-default",
+        permissions: Permissions = Permissions.DOAP,
     ) -> AudioSegmentResource:
         return AudioSegmentResource(
             res_id=res_id,
@@ -461,8 +472,8 @@ class AudioSegmentResource:
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}
-        if self.permissions:
-            attribs["permissions"] = self.permissions
+        if self.permissions != Permissions.DOAP:
+            attribs["permissions"] = self.permissions.value
         return etree.Element(f"{DASCH_SCHEMA}audio-segment", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
 
 

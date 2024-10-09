@@ -2,7 +2,6 @@ import pytest
 from rdflib import RDF
 from rdflib import SH
 from rdflib import Graph
-from rdflib import Namespace
 
 from dsp_tools.commands.validate_data.models.input_problems import ContentRegexViolation
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityViolation
@@ -16,10 +15,9 @@ from dsp_tools.commands.validate_data.reformat_validaton_result import _query_fo
 from dsp_tools.commands.validate_data.reformat_validaton_result import _query_for_one_content_validation_result
 from dsp_tools.commands.validate_data.reformat_validaton_result import _reformat_one_cardinality_validation_result
 from dsp_tools.commands.validate_data.reformat_validaton_result import _reformat_one_content_validation_result
-
-ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
-DATA = Namespace("http://data/")
-KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
+from test.unittests.commands.validate_data.constants import DATA
+from test.unittests.commands.validate_data.constants import KNORA_API
+from test.unittests.commands.validate_data.constants import ONTO
 
 
 class TestQueryCardinality:

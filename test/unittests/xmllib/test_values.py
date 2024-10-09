@@ -41,6 +41,18 @@ class TestBooleanValue:
         res_str = etree.tostring(v.serialise())
         assert res_str == expected
 
+    def test_serialise_doap(self) -> None:
+        v = BooleanValue("0", ":booleanProp", resource_id="res_id")
+        expected = (
+            b"<boolean-prop "
+            b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'name=":booleanProp">'
+            b"<boolean>false</boolean>"
+            b"</boolean-prop>"
+        )
+        res_str = etree.tostring(v.serialise())
+        assert res_str == expected
+
 
 class TestColorValue:
     def test_good(self) -> None:
@@ -59,6 +71,18 @@ class TestColorValue:
             b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'name=":colorProp">'
             b'<color permissions="open">#000000</color>'
+            b"</color-prop>"
+        )
+        res_str = etree.tostring(v.serialise())
+        assert res_str == expected
+
+    def test_serialise_doap(self) -> None:
+        v = ColorValue("#000000", ":colorProp", resource_id="res_id", permissions=Permissions.DOAP)
+        expected = (
+            b"<color-prop "
+            b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'name=":colorProp">'
+            b"<color>#000000</color>"
             b"</color-prop>"
         )
         res_str = etree.tostring(v.serialise())
@@ -87,6 +111,18 @@ class TestDateValue:
         res_str = etree.tostring(v.serialise())
         assert res_str == expected
 
+    def test_serialise_doap(self) -> None:
+        v = DateValue("2023-01-01", ":dateProp", resource_id="res_id")
+        expected = (
+            b"<date-prop "
+            b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'name=":dateProp">'
+            b"<date>2023-01-01</date>"
+            b"</date-prop>"
+        )
+        res_str = etree.tostring(v.serialise())
+        assert res_str == expected
+
 
 class TestDecimalValue:
     def test_good(self) -> None:
@@ -105,6 +141,18 @@ class TestDecimalValue:
             b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'name=":decimalProp">'
             b'<decimal permissions="open">3.14</decimal>'
+            b"</decimal-prop>"
+        )
+        res_str = etree.tostring(v.serialise())
+        assert res_str == expected
+
+    def test_serialise_doap(self) -> None:
+        v = DecimalValue("3.14", ":decimalProp", resource_id="res_id")
+        expected = (
+            b"<decimal-prop "
+            b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'name=":decimalProp">'
+            b"<decimal>3.14</decimal>"
             b"</decimal-prop>"
         )
         res_str = etree.tostring(v.serialise())
@@ -133,6 +181,18 @@ class TestGeonameValue:
         res_str = etree.tostring(v.serialise())
         assert res_str == expected
 
+    def test_serialise_doap(self) -> None:
+        v = GeonameValue("99", ":geonameProp", resource_id="res_id")
+        expected = (
+            b"<geoname-prop "
+            b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'name=":geonameProp">'
+            b"<geoname>99</geoname>"
+            b"</geoname-prop>"
+        )
+        res_str = etree.tostring(v.serialise())
+        assert res_str == expected
+
 
 class TestIntValue:
     def test_good(self) -> None:
@@ -156,6 +216,18 @@ class TestIntValue:
         res_str = etree.tostring(v.serialise())
         assert res_str == expected
 
+    def test_serialise_doap(self) -> None:
+        v = IntValue("42", ":intProp", resource_id="res_id")
+        expected = (
+            b"<integer-prop "
+            b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'name=":intProp">'
+            b"<integer>42</integer>"
+            b"</integer-prop>"
+        )
+        res_str = etree.tostring(v.serialise())
+        assert res_str == expected
+
 
 class TestLinkValue:
     def test_good(self) -> None:
@@ -174,6 +246,18 @@ class TestLinkValue:
             b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'name=":linkProp">'
             b'<resptr permissions="open">res_link</resptr>'
+            b"</resptr-prop>"
+        )
+        res_str = etree.tostring(v.serialise())
+        assert res_str == expected
+
+    def test_serialise_doap(self) -> None:
+        v = LinkValue("res_link", ":linkProp", resource_id="res_id")
+        expected = (
+            b"<resptr-prop "
+            b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'name=":linkProp">'
+            b"<resptr>res_link</resptr>"
             b"</resptr-prop>"
         )
         res_str = etree.tostring(v.serialise())
@@ -206,6 +290,18 @@ class TestListValue:
         res_str = etree.tostring(v.serialise())
         assert res_str == expected
 
+    def test_serialise_doap(self) -> None:
+        v = ListValue("item1", "listName", ":listProp", resource_id="res_id")
+        expected = (
+            b"<list-prop "
+            b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'name=":listProp" list="listName">'
+            b"<list>item1</list>"
+            b"</list-prop>"
+        )
+        res_str = etree.tostring(v.serialise())
+        assert res_str == expected
+
 
 class TestRichtext:
     def test_good(self) -> None:
@@ -224,6 +320,18 @@ class TestRichtext:
             b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'name=":richtextProp">'
             b'<text encoding="xml" permissions="open">&lt;p&gt;Hello World&lt;/p&gt;</text>'
+            b"</text-prop>"
+        )
+        res_str = etree.tostring(v.serialise())
+        assert res_str == expected
+
+    def test_serialise_doap(self) -> None:
+        v = Richtext("<p>Hello World</p>", ":richtextProp", resource_id="res_id")
+        expected = (
+            b"<text-prop "
+            b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'name=":richtextProp">'
+            b'<text encoding="xml">&lt;p&gt;Hello World&lt;/p&gt;</text>'
             b"</text-prop>"
         )
         res_str = etree.tostring(v.serialise())
@@ -252,6 +360,18 @@ class TestSimpleText:
         res_str = etree.tostring(v.serialise())
         assert res_str == expected
 
+    def test_serialise_doap(self) -> None:
+        v = SimpleText("Hello World", ":simpleTextProp", resource_id="res_id")
+        expected = (
+            b"<text-prop "
+            b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'name=":simpleTextProp">'
+            b'<text encoding="utf8">Hello World</text>'
+            b"</text-prop>"
+        )
+        res_str = etree.tostring(v.serialise())
+        assert res_str == expected
+
 
 class TestTimeValue:
     def test_good(self) -> None:
@@ -275,6 +395,18 @@ class TestTimeValue:
         res_str = etree.tostring(v.serialise())
         assert res_str == expected
 
+    def test_serialise_doap(self) -> None:
+        v = TimeValue("2009-10-10T12:00:00-05:00", ":timeProp", resource_id="res_id")
+        expected = (
+            b"<time-prop "
+            b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'name=":timeProp">'
+            b"<time>2009-10-10T12:00:00-05:00</time>"
+            b"</time-prop>"
+        )
+        res_str = etree.tostring(v.serialise())
+        assert res_str == expected
+
 
 class TestUriValue:
     def test_good(self) -> None:
@@ -293,6 +425,18 @@ class TestUriValue:
             b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'name=":uriProp">'
             b'<uri permissions="open">https://example.com</uri>'
+            b"</uri-prop>"
+        )
+        res_str = etree.tostring(v.serialise())
+        assert res_str == expected
+
+    def test_serialise_doap(self) -> None:
+        v = UriValue("https://example.com", ":uriProp", resource_id="res_id")
+        expected = (
+            b"<uri-prop "
+            b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'name=":uriProp">'
+            b"<uri>https://example.com</uri>"
             b"</uri-prop>"
         )
         res_str = etree.tostring(v.serialise())

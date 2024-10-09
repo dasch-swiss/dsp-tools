@@ -59,14 +59,14 @@ def result_content_violation() -> Graph:
 @pytest.fixture
 def data_every_constraint_once() -> Graph:
     g = Graph()
-    g.parse("testdata/validate-data/validation_results/every_constraint_once_data.ttl")
+    g.parse("testdata/validate-data/validation_results/every_combination_once_data.ttl")
     return g
 
 
 @pytest.fixture
 def result_card_every_constraint_once() -> Graph:
     g = Graph()
-    g.parse("testdata/validate-data/validation_results/every_constraint_once_result_cardinality.ttl")
+    g.parse("testdata/validate-data/validation_results/every_combination_once_result_cardinality.ttl")
     return g
 
 

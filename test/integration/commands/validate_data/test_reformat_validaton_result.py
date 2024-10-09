@@ -6,6 +6,7 @@ from rdflib import Graph
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
+from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
 from dsp_tools.commands.validate_data.models.validation import ValidationReports
 from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.validate_data import _get_data_info_from_file
@@ -26,7 +27,20 @@ def result_cardinality_violation() -> Graph:
     return g
 
 
-def test_reformat_validation_graph(result_cardinality_violation: Graph, data_cardinality_violation: Graph) -> None:
+@pytest.fixture
+def data_value_type_violation() -> Graph:
+    data, _ = _get_data_info_from_file(Path("testdata/validate-data/data/value_type_violation.xml"), LOCAL_API)
+    return data.make_graph()
+
+
+@pytest.fixture
+def result_value_type_violation() -> Graph:
+    g = Graph()
+    g.parse("testdata/validate-data/validation_results/value_type_violation_result.ttl")
+    return g
+
+
+def test_reformat_cardinality_violation(result_cardinality_violation: Graph, data_cardinality_violation: Graph) -> None:
     val_rep = ValidationReports(
         conforms=False,
         content_validation=None,
@@ -34,7 +48,6 @@ def test_reformat_validation_graph(result_cardinality_violation: Graph, data_car
         shacl_graphs=Graph(),
         data_graph=data_cardinality_violation,
     )
-
     result = reformat_validation_graph(val_rep)
     assert not result.unexpected_results
     assert len(result.problems) == 4
@@ -51,6 +64,56 @@ def test_reformat_validation_graph(result_cardinality_violation: Graph, data_car
     val_one = sorted_problems[3]
     assert isinstance(val_one, NonExistentCardinalityViolation)
     assert val_one.res_id == "id_closed_constraint"
+
+
+def test_reformat_value_type_violation(result_value_type_violation: Graph, data_value_type_violation: Graph) -> None:
+    val_rep = ValidationReports(
+        conforms=False,
+        content_validation=result_value_type_violation,
+        cardinality_validation=None,
+        shacl_graphs=Graph(),
+        data_graph=data_value_type_violation,
+    )
+    result = reformat_validation_graph(val_rep)
+    assert not result.unexpected_results
+    assert len(result.problems) == 4
+    sorted_problems = sorted(result.problems, key=lambda x: x.sort_value())
+    val_one = sorted_problems[0]
+    assert isinstance(val_one, ValueTypeViolation)
+    assert val_one.res_id == ""
+    val_one = sorted_problems[1]
+    assert isinstance(val_one, ValueTypeViolation)
+    assert val_one.res_id == ""
+    val_one = sorted_problems[2]
+    assert isinstance(val_one, ValueTypeViolation)
+    assert val_one.res_id == ""
+    val_one = sorted_problems[3]
+    assert isinstance(val_one, ValueTypeViolation)
+    assert val_one.res_id == ""
+    val_one = sorted_problems[4]
+    assert isinstance(val_one, ValueTypeViolation)
+    assert val_one.res_id == ""
+    val_one = sorted_problems[5]
+    assert isinstance(val_one, ValueTypeViolation)
+    assert val_one.res_id == ""
+    val_one = sorted_problems[6]
+    assert isinstance(val_one, ValueTypeViolation)
+    assert val_one.res_id == ""
+    val_one = sorted_problems[7]
+    assert isinstance(val_one, ValueTypeViolation)
+    assert val_one.res_id == ""
+    val_one = sorted_problems[8]
+    assert isinstance(val_one, ValueTypeViolation)
+    assert val_one.res_id == ""
+    val_one = sorted_problems[9]
+    assert isinstance(val_one, ValueTypeViolation)
+    assert val_one.res_id == ""
+    val_one = sorted_problems[10]
+    assert isinstance(val_one, ValueTypeViolation)
+    assert val_one.res_id == ""
+    val_one = sorted_problems[11]
+    assert isinstance(val_one, ValueTypeViolation)
+    assert val_one.res_id == ""
 
 
 if __name__ == "__main__":

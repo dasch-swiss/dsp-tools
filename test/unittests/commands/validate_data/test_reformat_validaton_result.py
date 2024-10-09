@@ -20,14 +20,15 @@ from dsp_tools.commands.validate_data.reformat_validaton_result import _reformat
 ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
 DATA = Namespace("http://data/")
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
+DASH = Namespace("http://datashapes.org/dash#")
 
 
 class TestQueryCardinality:
     def test_query_for_one_cardinality_validation_result(
-        self, min_count_violation: Graph, data_min_count_violation: Graph
+        self, graph_min_count_violation: Graph, data_min_count_violation: Graph
     ) -> None:
-        bn = next(min_count_violation.subjects(RDF.type, SH.ValidationResult))
-        result = _query_for_one_cardinality_validation_result(bn, min_count_violation, data_min_count_violation)
+        bn = next(graph_min_count_violation.subjects(RDF.type, SH.ValidationResult))
+        result = _query_for_one_cardinality_validation_result(bn, graph_min_count_violation, data_min_count_violation)
         assert result.source_constraint_component == SH.MinCountConstraintComponent
         assert result.res_iri == DATA.id_min_card
         assert result.res_class == ONTO.ClassMixedCard

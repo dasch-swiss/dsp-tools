@@ -15,13 +15,14 @@ VALIDATION_PREFIXES = """
     @prefix onto: <http://0.0.0.0:3333/ontology/9999/onto/v2#> .
     @prefix sh: <http://www.w3.org/ns/shacl#> .
     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+    @prefix dash: <http://datashapes.org/dash#> .
     @prefix api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#> .
     @prefix knora-api: <http://api.knora.org/ontology/knora-api/v2#> .
     """
 
 
 @pytest.fixture
-def min_count_violation() -> Graph:
+def graph_min_count_violation() -> Graph:
     gstr = f"""{VALIDATION_PREFIXES}
     [ a sh:ValidationResult ;
             sh:focusNode <http://data/id_min_card> ;
@@ -39,6 +40,55 @@ def min_count_violation() -> Graph:
 @pytest.fixture
 def data_min_count_violation() -> Graph:
     gstr = "<http://data/id_min_card> a <http://0.0.0.0:3333/ontology/9999/onto/v2#ClassMixedCard> ."
+    g = Graph()
+    g.parse(data=gstr, format="ttl")
+    return g
+
+
+@pytest.fixture
+def graph_closed_constraint() -> Graph:
+    gstr = f"""{VALIDATION_PREFIXES}
+    [ a sh:ValidationResult ;
+            sh:focusNode <http://data/id_closed_constraint> ;
+            sh:resultMessage "Property onto:testIntegerSimpleText is not among those permitted for any of the types" ;
+            sh:resultPath onto:testIntegerSimpleText ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent dash:ClosedByTypesConstraintComponent ;
+            sh:sourceShape onto:CardOneResource ;
+            sh:value <http://data/val-id_closed_constraint> ] .
+    """
+    g = Graph()
+    g.parse(data=gstr, format="ttl")
+    return g
+
+
+@pytest.fixture
+def data_closed_constraint() -> Graph:
+    gstr = "<http://data/id_closed_constraint> a <http://0.0.0.0:3333/ontology/9999/onto/v2#CardOneResource> ."
+    g = Graph()
+    g.parse(data=gstr, format="ttl")
+    return g
+
+
+@pytest.fixture
+def graph_max_card_violation() -> Graph:
+    gstr = f"""{VALIDATION_PREFIXES}
+    [ a sh:ValidationResult ;
+            sh:focusNode <http://data/id_max_card> ;
+            sh:resultMessage "1" ;
+            sh:resultPath onto:testHasLinkToCardOneResource ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:MaxCountConstraintComponent ;
+            sh:sourceShape [ ] ] .
+    """
+    g = Graph()
+    g.parse(data=gstr, format="ttl")
+    return g
+
+
+@pytest.fixture
+def data_max_card_count_violation() -> Graph:
+    gstr = "<http://data/id_max_card> a <http://0.0.0.0:3333/ontology/9999/onto/v2#ClassMixedCard> ."
     g = Graph()
     g.parse(data=gstr, format="ttl")
     return g

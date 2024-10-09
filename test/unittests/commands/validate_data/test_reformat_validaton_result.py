@@ -24,9 +24,7 @@ DASH = Namespace("http://datashapes.org/dash#")
 
 
 class TestQueryCardinality:
-    def test_query_for_one_cardinality_validation_result(
-        self, graph_min_count_violation: Graph, data_min_count_violation: Graph
-    ) -> None:
+    def test_min_constraint(self, graph_min_count_violation: Graph, data_min_count_violation: Graph) -> None:
         bn = next(graph_min_count_violation.subjects(RDF.type, SH.ValidationResult))
         result = _query_for_one_cardinality_validation_result(bn, graph_min_count_violation, data_min_count_violation)
         assert result.source_constraint_component == SH.MinCountConstraintComponent
@@ -34,6 +32,29 @@ class TestQueryCardinality:
         assert result.res_class == ONTO.ClassMixedCard
         assert result.property == ONTO.testGeoname
         assert result.results_message == "1-n"
+
+    def test_max_constraint(self, graph_max_card_violation: Graph, data_max_card_count_violation: Graph) -> None:
+        bn = next(graph_max_card_violation.subjects(RDF.type, SH.ValidationResult))
+        result = _query_for_one_cardinality_validation_result(
+            bn, graph_max_card_violation, data_max_card_count_violation
+        )
+        assert result.source_constraint_component == SH.MaxCountConstraintComponent
+        assert result.res_iri == DATA.id_max_card
+        assert result.res_class == ONTO.ClassMixedCard
+        assert result.property == ONTO.testHasLinkToCardOneResource
+        assert result.results_message == "1"
+
+    def test_closed_constraint(self, graph_closed_constraint: Graph, data_closed_constraint: Graph) -> None:
+        bn = next(graph_closed_constraint.subjects(RDF.type, SH.ValidationResult))
+        result = _query_for_one_cardinality_validation_result(bn, graph_closed_constraint, data_closed_constraint)
+        assert result.source_constraint_component == DASH.ClosedByTypesConstraintComponent
+        assert result.res_iri == DATA.id_closed_constraint
+        assert result.res_class == ONTO.CardOneResource
+        assert result.property == ONTO.testIntegerSimpleText
+        assert (
+            result.results_message
+            == "Property onto:testIntegerSimpleText is not among those permitted for any of the types"
+        )
 
 
 class TestReformatCardinalityViolation:

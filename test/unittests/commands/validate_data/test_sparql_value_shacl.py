@@ -2,15 +2,13 @@ import pytest
 from rdflib import RDF
 from rdflib import SH
 from rdflib import Graph
-from rdflib import Namespace
 
 from dsp_tools.commands.validate_data.sparql.value_shacl import _add_property_shapes_to_class_shapes
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_link_value_shape
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_property_type_shape_based_on_object_type
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_property_type_text_value
-
-ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
-API_SHAPES = Namespace("http://api.knora.org/ontology/knora-api/shapes/v2#")
+from test.unittests.commands.validate_data.constants import API_SHAPES
+from test.unittests.commands.validate_data.constants import ONTO
 
 
 def test_construct_one_property_type_shape_based_on_object_type(one_res_one_prop: Graph) -> None:

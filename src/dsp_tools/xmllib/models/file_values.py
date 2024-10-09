@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import warnings
-from abc import ABC
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+from typing import Protocol
 
 from lxml import etree
 
@@ -17,7 +17,7 @@ XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.o
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 
 
-class AbstractFileValue(ABC):
+class AbstractFileValue(Protocol):
     value: str | Path
     permissions: Permissions | None
     comment: str | None = None
@@ -39,7 +39,7 @@ class FileValue(AbstractFileValue):
 
     def serialise(self) -> etree._Element:
         attribs = {}
-        if self.permissions:
+        if self.permissions != Permissions.DOAP:
             attribs["permissions"] = self.permissions.value
         if self.comment:
             attribs["comment"] = self.comment
@@ -61,7 +61,7 @@ class IIIFUri(AbstractFileValue):
 
     def serialise(self) -> etree._Element:
         attribs = {}
-        if self.permissions:
+        if self.permissions != Permissions.DOAP:
             attribs["permissions"] = self.permissions.value
         if self.comment:
             attribs["comment"] = self.comment

@@ -82,7 +82,7 @@ class AnnotationResource:
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}
-        if self.permissions:
+        if self.permissions != Permissions.DOAP:
             attribs["permissions"] = self.permissions.value
         return etree.Element(f"{DASCH_SCHEMA}annotation", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
 
@@ -164,7 +164,7 @@ class RegionResource:
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}
-        if self.permissions:
+        if self.permissions != Permissions.DOAP:
             attribs["permissions"] = self.permissions.value
         return etree.Element(f"{DASCH_SCHEMA}region", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
 
@@ -241,7 +241,7 @@ class LinkResource:
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}
-        if self.permissions:
+        if self.permissions != Permissions.DOAP:
             attribs["permissions"] = self.permissions.value
         return etree.Element(f"{DASCH_SCHEMA}link", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
 
@@ -370,7 +370,7 @@ class VideoSegmentResource:
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}
-        if self.permissions:
+        if self.permissions != Permissions.DOAP:
             attribs["permissions"] = self.permissions.value
         return etree.Element(f"{DASCH_SCHEMA}video-segment", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
 
@@ -472,7 +472,7 @@ class AudioSegmentResource:
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}
-        if self.permissions:
+        if self.permissions != Permissions.DOAP:
             attribs["permissions"] = self.permissions.value
         return etree.Element(f"{DASCH_SCHEMA}audio-segment", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
 

@@ -81,7 +81,7 @@ class Resource:
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "restype": self.restype, "id": self.res_id}
-        if self.permissions:
+        if self.permissions != Permissions.DOAP:
             attribs["permissions"] = self.permissions.value
         return etree.Element(f"{DASCH_SCHEMA}resource", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
 

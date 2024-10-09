@@ -44,7 +44,7 @@ class AnnotationResource:
         label: str,
         annotation_of: str,
         comments: list[str],
-        permissions: Permissions = Permissions.OPEN,
+        permissions: Permissions = Permissions.DOAP,
     ) -> AnnotationResource:
         return AnnotationResource(
             res_id=res_id,
@@ -122,7 +122,7 @@ class RegionResource:
         region_of: str,
         geometry: dict[str, Any],
         comments: list[str],
-        permissions: Permissions = Permissions.OPEN,
+        permissions: Permissions = Permissions.DOAP,
     ) -> RegionResource:
         return RegionResource(
             res_id=res_id,
@@ -197,7 +197,7 @@ class LinkResource:
         label: str,
         link_to: list[str],
         comments: list[str],
-        permissions: Permissions = Permissions.OPEN,
+        permissions: Permissions = Permissions.DOAP,
     ) -> LinkResource:
         return LinkResource(
             res_id=res_id,
@@ -295,7 +295,7 @@ class VideoSegmentResource:
         segment_start: float,
         segment_end: float,
         title: str | None = None,
-        permissions: Permissions = Permissions.OPEN,
+        permissions: Permissions = Permissions.DOAP,
     ) -> VideoSegmentResource:
         return VideoSegmentResource(
             res_id=res_id,
@@ -397,7 +397,7 @@ class AudioSegmentResource:
         segment_start: float,
         segment_end: float,
         title: str | None = None,
-        permissions: Permissions = Permissions.OPEN,
+        permissions: Permissions = Permissions.DOAP,
     ) -> AudioSegmentResource:
         return AudioSegmentResource(
             res_id=res_id,

@@ -1,4 +1,4 @@
-from enum import StrEnum
+from enum import Enum
 
 from lxml import etree
 
@@ -6,7 +6,7 @@ XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.o
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 
 
-class PermissionTypes(StrEnum):
+class PermissionTypes(Enum):
     RV = "RV"
     V = "V"
     D = "D"

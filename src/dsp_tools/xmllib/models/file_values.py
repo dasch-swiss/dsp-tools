@@ -19,7 +19,7 @@ DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 
 class AbstractFileValue(Protocol):
     value: str | Path
-    permissions: Permissions | None
+    permissions: Permissions
     comment: str | None = None
 
     def serialise(self) -> etree._Element:

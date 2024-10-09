@@ -62,6 +62,13 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
         cprint("\n   Validation errors found!   ", color="light_red", attrs=["bold", "reverse"])
         print(problem_msg)
         if reformatted.unexpected_results:
+            if save_graphs:
+                cprint(
+                    "\n   Unexpected violations were found in the validation results!   ",
+                    color="yellow",
+                    attrs=["bold", "reverse"],
+                )
+                return True
             report_graphs = Graph()
             if report.content_validation:
                 report_graphs += report.content_validation

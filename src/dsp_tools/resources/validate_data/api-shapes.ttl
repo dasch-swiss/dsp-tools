@@ -167,6 +167,7 @@ api-shapes:SimpleTextValue_PropShape
   sh:minCount 1 ;
   sh:maxCount 1 .
 
+
 ###
 # FormattedTextValue
 

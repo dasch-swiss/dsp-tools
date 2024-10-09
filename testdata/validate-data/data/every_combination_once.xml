@@ -7,8 +7,9 @@
        default-ontology="onto">
 
         <!--
-        Our Violation Type:            MaxCardinalityViolation
-        sh:sourceConstraintComponent:  MaxCountConstraintComponent
+        Our Violation Type            MaxCardinalityViolation
+        sh:sourceConstraintComponent  sh:MaxCountConstraintComponent
+        sh:detail                     -
         -->
         <resource label="Decimal Card 0-1" restype=":ClassMixedCard" id="id_max_card">
             <boolean-prop name=":testBoolean">
@@ -24,14 +25,16 @@
         </resource>
 
         <!--
-        Our Violation Type:            MinCardinalityViolation
-        sh:sourceConstraintComponent:  MinCountConstraintComponent
+        Our Violation Type            MinCardinalityViolation
+        sh:sourceConstraintComponent  sh:MinCountConstraintComponent
+        sh:detail                     -
         -->
         <resource label="Bool Card 1" restype=":ClassInheritedCardinalityOverwriting" id="id_card_one"/>
 
         <!--
-        Our Violation Type:            NonExistentCardinalityViolation
-        sh:sourceConstraintComponent:  ClosedConstraintComponent
+        Our Violation Type            NonExistentCardinalityViolation
+        sh:sourceConstraintComponent  sh:ClosedConstraintComponent
+        sh:detail                     -
         -->
         <resource label="Int card does not exist" restype=":CardOneResource" id="id_closed_constraint">
             <integer-prop name=":testIntegerSimpleText">
@@ -40,8 +43,9 @@
         </resource>
 
         <!--
-        Our Violation Type:            ContentRegexViolation
-        sh:sourceConstraintComponent:  PatternConstraintComponent
+        Our Violation Type            ContentRegexViolation
+        sh:sourceConstraintComponent  sh:NodeConstraintComponent
+        sh:detail                     sh:PatternConstraintComponent
         -->
         <resource label="Geoname is not a number" restype=":ClassWithEverything" id="geoname_not_number">
             <geoname-prop name=":testGeoname">
@@ -50,8 +54,9 @@
         </resource>
 
         <!--
-        Our Violation Type:            ValueTypeViolation
-        sh:sourceConstraintComponent:  ClassConstraintComponent
+        Our Violation Type            ValueTypeViolation
+        sh:sourceConstraintComponent  sh:NodeConstraintComponent
+        sh:detail                     sh:ClassConstraintComponent
         -->
         <resource label="Uri" restype=":ClassWithEverything" id="id_uri">
             <text-prop name=":testUriValue">
@@ -60,8 +65,9 @@
         </resource>
 
         <!--
-        Our Violation Type:            ValueTypeViolation
-        sh:sourceConstraintComponent:  MinCountConstraintComponent
+        Our Violation Type            ValueTypeViolation
+        sh:sourceConstraintComponent  sh:NodeConstraintComponent
+        sh:detail                     sh:MinCountConstraintComponent
         -->
         <resource label="Simpletext" restype=":ClassWithEverything" id="id_simpletext">
             <text-prop name=":testTextarea">

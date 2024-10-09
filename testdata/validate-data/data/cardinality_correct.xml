@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="9999"
+       default-ontology="onto">
+
+    <resource label="Empty" restype=":ClassWithEverything" id="id_0"/>
+
+    <resource label="Card 0-1" restype=":ClassInheritedCardinality" id="id_1">
+        <boolean-prop name=":testBoolean">
+            <boolean>true</boolean>
+        </boolean-prop>
+        <text-prop name="hasComment">
+            <text encoding="xml">Comment Text</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Card 1" restype=":ClassInheritedCardinalityOverwriting" id="id_2">
+        <boolean-prop name=":testBoolean">
+            <boolean>true</boolean>
+        </boolean-prop>
+    </resource>
+
+    <resource label="Card 1" restype=":ClassInheritedCardinality" id="id_3">
+        <text-prop name=":testSimpleText">
+            <text encoding="utf8">Text</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Card Mixed" restype=":ClassMixedCard" id="id_4">
+        <boolean-prop name=":testBoolean">
+            <boolean>true</boolean>
+        </boolean-prop>
+        <resptr-prop name=":testHasLinkToCardOneResource">
+            <resptr>id_2</resptr>
+        </resptr-prop>
+        <geoname-prop name=":testGeoname">
+            <geoname>1111111</geoname>
+            <geoname>2222222</geoname>
+        </geoname-prop>
+    </resource>
+
+</knora>

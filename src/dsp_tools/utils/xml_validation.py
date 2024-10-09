@@ -66,8 +66,9 @@ def validate_xml(xml: etree._Element) -> bool:
         logger.opt(exception=True).error(err_msg)
         raise InputError(err_msg)
 
-    logger.info("The XML file is syntactically correct and passed validation.")
-    print(f"{datetime.now()}: The XML file is syntactically correct and passed validation.")
+    info_str = "The XML file is syntactically correct."
+    logger.info(info_str)
+    print(f"{datetime.now()}: {info_str}")
 
     return True
 

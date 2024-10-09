@@ -1,0 +1,110 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="9999"
+       default-ontology="onto">
+
+    <resource label="Empty" restype=":ClassWithEverything" id="id_0"/>
+
+    <resource label="Bool" restype=":ClassWithEverything" id="id_1">
+        <boolean-prop name=":testBoolean">
+            <boolean>true</boolean>
+        </boolean-prop>
+    </resource>
+
+    <resource label="Color" restype=":ClassWithEverything" id="id_2">
+        <color-prop name=":testColor">
+            <color>#00ff00</color>
+        </color-prop>
+    </resource>
+
+    <resource label="Date" restype=":ClassWithEverything" id="id_3">
+        <date-prop name=":testSubDate1">
+            <date>JULIAN:BCE:0700:BCE:0600</date>
+        </date-prop>
+    </resource>
+
+    <resource label="Decimal" restype=":ClassWithEverything" id="id_4">
+        <decimal-prop name=":testDecimalSimpleText">
+            <decimal>2.71</decimal>
+        </decimal-prop>
+    </resource>
+
+    <resource label="Geoname" restype=":ClassWithEverything" id="id_5">
+        <geoname-prop name=":testGeoname">
+            <geoname>1111111</geoname>
+        </geoname-prop>
+    </resource>
+
+    <resource label="Integer" restype=":ClassWithEverything" id="id_6">
+        <integer-prop name=":testIntegerSimpleText">
+            <integer>1</integer>
+        </integer-prop>
+    </resource>
+
+    <resource label="List" restype=":ClassWithEverything" id="id_7">
+        <list-prop list="onlyList" name=":testListProp">
+            <list>n1</list>
+        </list-prop>
+    </resource>
+
+    <resource label="Link Prop" restype=":ClassWithEverything" id="id_8">
+        <resptr-prop name=":testHasLinkTo">
+            <resptr>id_1</resptr>
+        </resptr-prop>
+    </resource>
+
+    <resource label="Richtext" restype=":ClassWithEverything" id="id_9">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">Text</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Simpletext" restype=":ClassWithEverything" id="id_10">
+        <text-prop name=":testTextarea">
+            <text encoding="utf8">Text</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Time" restype=":ClassWithEverything" id="id_11">
+        <time-prop name=":testTimeValue">
+            <time>2019-10-23T13:45:12.01-14:00</time>
+        </time-prop>
+    </resource>
+
+    <resource label="Uri" restype=":ClassWithEverything" id="id_12">
+        <uri-prop name=":testUriValue">
+            <uri>https://dasch.swiss</uri>
+        </uri-prop>
+    </resource>
+
+    <region label="Region" id="region_1">
+        <color-prop name="hasColor">
+            <color permissions="prop-restricted">#5d1f1e</color>
+        </color-prop>
+        <resptr-prop name="isRegionOf">
+            <resptr permissions="prop-default">image_thing_0</resptr>
+        </resptr-prop>
+        <geometry-prop name="hasGeometry">
+            <geometry permissions="prop-default">
+                {
+                "status": "active",
+                "type": "polygon",
+                "lineWidth": 5,
+                "points": [{"x": 0.4, "y": 0.6},
+                {"x": 0.5, "y": 0.9},
+                {"x": 0.8, "y": 0.9},
+                {"x": 0.7, "y": 0.6}]
+                }
+            </geometry>
+        </geometry-prop>
+        <text-prop name="hasComment">
+            <text encoding="xml" permissions="prop-default">
+                This is a polygon-formed region of interest of an image. It is also displayed as Annotation.
+            </text>
+        </text-prop>
+    </region>
+
+</knora>

@@ -1,11 +1,9 @@
 [![](https://img.shields.io/pypi/v/dsp-tools.svg)](https://pypi.org/project/dsp-tools/) 
 [![](https://img.shields.io/pypi/l/dsp-tools.svg)](https://pypi.org/project/dsp-tools/) 
-[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)
-  ](https://github.com/astral-sh/ruff) 
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff) 
 [![](https://img.shields.io/badge/mypy-blue)](https://github.com/python/mypy) 
 [![](https://img.shields.io/badge/markdownlint-darkgreen)](https://github.com/igorshubovych/markdownlint-cli) 
-[![](https://img.shields.io/badge/markdown%20link%20validator-darkgreen)
-  ](https://www.npmjs.com/package/markdown-link-validator) 
+[![](https://img.shields.io/badge/markdown%20link%20validator-darkgreen)](https://www.npmjs.com/package/markdown-link-validator) 
 
 
 # DSP-TOOLS - DaSCH Service Platform Tools
@@ -27,69 +25,70 @@ More details can be found in the [developers' documentation](https://docs.dasch.
 
 To get started quickly, without reading the details, just execute these commands.
 
-- `curl -sSL https://install.python-poetry.org | python3 -`
-- `poetry self add poetry-exec-plugin`
-- `poetry install`
-- `poetry shell`
+- `curl -LsSf https://astral.sh/uv/install.sh | sh`
+- `uv sync --all-extras --dev`
+- `source .venv/bin/activate`
 - `pre-commit install`
 - `npm install -g markdown-link-validator`
+- `brew install just`
 
 The remainder of this README explains these commands in more detail.
 
 
 
-## Using Poetry for Dependency Management
+## Using UV to manage Python installations, virtual environments, and dependencies
 
-Curious what poetry is and why we use it? 
+Curious what uv is and why we use it? 
 Check out the respective section in the
 [developers' documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/developers/packaging/).
 
 If you want to work on the code of DSP-TOOLS, you first have to do the following:
 
-- Install poetry with `curl -sSL https://install.python-poetry.org | python3 -` 
-- Install the exec plugin with `poetry self add poetry-exec-plugin`.
-- Execute `poetry install`, which will: 
-    - Create a virtual environment (if there isn't already one).
-    - Install all dependencies (dev and non-dev) from `poetry.lock`. 
-      If `poetry.lock` doesn't exist, it installs the dependencies from `pyproject.toml` and creates a new `poetry.lock`.
+- Install uv with `curl -LsSf https://astral.sh/uv/install.sh | sh` 
+- Execute `uv sync --all-extras --dev`, which will: 
+    - Install an appropriate Python version, if it doesn't find one on your machine.
+    - Create a virtual environment in the folder `.venv` (if there isn't already one).
+    - Install all dependencies (dev and non-dev) from `uv.lock`. 
+      If `uv.lock` doesn't exist, it installs the dependencies from `pyproject.toml` and creates a new `uv.lock`.
     - Make an editable installation of DSP-TOOLS inside the virtual environment.
 
 There are two files defining the dependencies:
 
 - `pyproject.toml` lists the direct dependencies, ordered in two sections:
-    - `[tool.poetry.dependencies]` lists the dependencies used to run the software.
-    - `[tool.poetry.group.dev.dependencies]` lists the dependencies used for developing and testing.
-- `poetry.lock` enables deterministic installations, by exactly pinning the versions of all (sub-)dependencies. 
+    - `[project.dependencies]` lists the dependencies used to run the software.
+    - `[tool.uv.dev-dependencies]` lists the dependencies used for developing and testing.
+- `uv.lock` enables deterministic installations, by exactly pinning the versions of all (sub-)dependencies. 
 
-If you want to install a new package, install it with `poetry add package`.
+If you want to install a new package, install it with `uv add package`.
+If your new package is only used in test code, use `uv add --dev package` instead.
 
 This
 
 - Installs the package (incl. sub-dependencies) in your virtual environment,
-- Adds the package to the section `[tool.poetry.dependencies]` of `pyproject.toml`,
-- Adds the pinned versions of the package and all sub-dependencies to `poetry.lock`.
+- Adds the package to the section `[project.dependencies]` of `pyproject.toml`,
+- Adds the pinned versions of the package and all sub-dependencies to `uv.lock`.
 
 If a package is only needed for development, 
-please install it with `poetry add package --group dev`,
-so it will be added to the `[tool.poetry.group.dev.dependencies]` section of `pyproject.toml`.
+please install it with `uv add --dev package`,
+so it will be added to the `[tool.uv.dev-dependencies]` section of `pyproject.toml`.
 
 GitHub's dependabot is configured to automatically create a version bumping PR if there is an update for a dependency.
-Version bumping PRs can also be created manually: run `poetry update` and create a PR from the resulting changes.
+Version bumping PRs can also be created manually: run `uv lock --upgrade` and create a PR from the resulting changes.
 
-All developers working with the DSP-TOOLS repository should regularly execute `poetry self update` to update poetry, 
-and `poetry install` to update the dependencies from `poetry.lock`.
+All developers working with the DSP-TOOLS repository should regularly execute `uv self update` to update uv, 
+and `uv sync` to update the dependencies from `uv.lock`.
 
 
 
 ## Using the Virtual Environment
 
-`poetry shell` spawns a shell within the virtual environment. 
+`source .venv/bin/activate` activates the virtual environment. 
 Set `.venv/bin/python` as the interpreter in your IDE, 
 so that your IDE automatically activates the virtual env if you open a new terminal.
 
-The advantage of being in a poetry shell is that the command `dsp-tools` is available, 
-because `poetry install` installed an editable version of DSP-TOOLS inside the virtual environment. 
-This means, that inside the `site-packages` folder of your poetry virtual environment, 
+The advantage of being in a virtual environment is that the command `dsp-tools` is available, 
+because `uv sync` installed an editable version of DSP-TOOLS inside the virtual environment. 
+This means, that inside the `site-packages` folder of your virtual environment, 
 there is a folder called `dsp_tools-[version].dist-info`, 
 which contains a link to your local clone of the DSP-TOOLS repository. 
 When you call `dsp-tools` from within the virtual environment, the code of your local clone will be executed.
@@ -160,12 +159,12 @@ so that every pull request is checked for code style violations.
 
 Your code can be checked for style violations locally before they are committed:
 
-- `poetry exec mypy`
-- `poetry exec ruff-check`
-- `poetry exec ruff-format-check`
-- `poetry exec darglint`
-- `poetry exec check-links`
-- `poetry exec markdownlint`
+- `just mypy`
+- `just ruff-check`
+- `just ruff-format-check`
+- `just darglint`
+- `just check-links`
+- `just markdownlint`
 - `yamllint .`
 
 In addition, there are [pre-commit hooks](#pre-commit-hooks) 

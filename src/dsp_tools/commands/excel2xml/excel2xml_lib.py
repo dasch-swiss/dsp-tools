@@ -1866,7 +1866,7 @@ def make_relatesTo_prop(
     Examples:
         >>> video_segment = excel2xml.make_video_segment("label", "id")
         >>> video_segment.append(excel2xml.make_relatesTo_prop("resource_id"))
-        >>> video_segment.append(excel2xml.make_relatesTo_prop("other_resource_id)
+        >>> video_segment.append(excel2xml.make_relatesTo_prop("other_resource_id")
         >>> # add other properties
         >>> root.append(video_segment)
 

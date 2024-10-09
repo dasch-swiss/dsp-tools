@@ -64,7 +64,7 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
         if reformatted.unexpected_results:
             if save_graphs:
                 cprint(
-                    "\n   Unexpected violations were found in the validation results!   ",
+                    "\n   Unexpected violations were found! Consult the saved graphs for details.   ",
                     color="yellow",
                     attrs=["bold", "reverse"],
                 )

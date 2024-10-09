@@ -45,44 +45,33 @@ def data_min_count_violation() -> Graph:
 
 
 @pytest.fixture
-def data_value_type_mismatch() -> Graph:
-    gstr = """
-    <http://data/id_2> a <http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything> .
-    <http://data/value-iri> a <http://api.knora.org/ontology/knora-api/v2#TextValue> .
-    """
-    g = Graph()
-    g.parse(data=gstr, format="ttl")
-    return g
-
-
-@pytest.fixture
 def graph_value_type_mismatch() -> Graph:
     gstr = f'''{VALIDATION_PREFIXES}
     [] a sh:ValidationReport ;
-    sh:result _:bn1 .
+    sh:result _:bn_value_type_mismatch .
 
     [] a sh:ValidationReport ;
     sh:conforms false ;
     sh:result [ 
             a sh:ValidationResult ;
-            sh:detail _:bn1 ;
-            sh:focusNode <http://data/id_2> ;
+            sh:detail _:bn_value_type_mismatch ;
+            sh:focusNode <http://data/value_type_mismatch> ;
             sh:resultMessage """Value does not have shape
                  <http://api.knora.org/ontology/knora-api/shapes/v2#ColorValue_ClassShape>""" ;
             sh:resultPath onto:testColor ;
             sh:resultSeverity sh:Violation ;
             sh:sourceConstraintComponent sh:NodeConstraintComponent ;
             sh:sourceShape onto:testColor_PropShape ;
-            sh:value <http://data/value-iri> 
+            sh:value <http://data/value-iri-value_type_mismatch> 
             ] .
 
-    _:bn1 a sh:ValidationResult ;
+    _:bn_value_type_mismatch a sh:ValidationResult ;
     sh:focusNode <http://data/value-iri> ;
     sh:resultMessage "ColorValue" ;
     sh:resultSeverity sh:Violation ;
     sh:sourceConstraintComponent sh:ClassConstraintComponent ;
     sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#ColorValue_ClassShape> ;
-    sh:value <http://data/value-iri> .
+    sh:value <http://data/value-iri-value_type_mismatch> .
     '''
     g = Graph()
     g.parse(data=gstr, format="ttl")
@@ -90,10 +79,10 @@ def graph_value_type_mismatch() -> Graph:
 
 
 @pytest.fixture
-def data_wrong_regex_content() -> Graph:
+def data_value_type_mismatch() -> Graph:
     gstr = """
-    <http://data/geoname_not_number> a <http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything> .
-    <http://data/value-iri> a <http://api.knora.org/ontology/knora-api/v2#GeonameValue> .
+    <http://data/value_type_mismatch> a <http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything> .
+    <http://data/value-iri-value_type_mismatch> a <http://api.knora.org/ontology/knora-api/v2#TextValue> .
     """
     g = Graph()
     g.parse(data=gstr, format="ttl")
@@ -104,12 +93,12 @@ def data_wrong_regex_content() -> Graph:
 def graph_wrong_regex_content() -> Graph:
     gstr = f'''{VALIDATION_PREFIXES}
     [] a sh:ValidationReport ;
-    sh:result _:bn1 .
+    sh:result _:bn_geoname_not_number .
 
     [] a sh:ValidationReport ;
     sh:conforms false ;
     sh:result [ a sh:ValidationResult ;
-            sh:detail _:bn1 ;
+            sh:detail _:bn_geoname_not_number ;
             sh:focusNode <http://data/geoname_not_number> ;
             sh:resultMessage """Value does not have shape 
                                         <http://api.knora.org/ontology/knora-api/shapes/v2#GeonameValue_ClassShape>""" ;
@@ -117,10 +106,10 @@ def graph_wrong_regex_content() -> Graph:
             sh:resultSeverity sh:Violation ;
             sh:sourceConstraintComponent sh:NodeConstraintComponent ;
             sh:sourceShape onto:testGeoname_PropShape ;
-            sh:value <http://data/value-iri> ] .
+            sh:value <http://data/value-iri-geoname_not_number> ] .
 
-    _:bn1 a sh:ValidationResult ;
-    sh:focusNode <http://data/value-iri> ;
+    _:bn_geoname_not_number a sh:ValidationResult ;
+    sh:focusNode <http://data/value-iri-geoname_not_number> ;
     sh:resultMessage "The value must be a valid geoname code" ;
     sh:resultPath knora-api:geonameValueAsGeonameCode ;
     sh:resultSeverity sh:Violation ;
@@ -128,6 +117,17 @@ def graph_wrong_regex_content() -> Graph:
     sh:sourceShape api-shapes:geonameValueAsGeonameCode_Shape ;
     sh:value "llllllllllllllllll" .
     '''
+    g = Graph()
+    g.parse(data=gstr, format="ttl")
+    return g
+
+
+@pytest.fixture
+def data_wrong_regex_content() -> Graph:
+    gstr = """
+    <http://data/geoname_not_number> a <http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything> .
+    <http://data/value-iri-geoname_not_number> a <http://api.knora.org/ontology/knora-api/v2#GeonameValue> .
+    """
     g = Graph()
     g.parse(data=gstr, format="ttl")
     return g

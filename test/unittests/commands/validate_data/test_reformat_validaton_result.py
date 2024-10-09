@@ -65,7 +65,7 @@ class TestQueryGraphContent:
         bn = next(graph_value_type_mismatch.subjects(SH.sourceConstraintComponent, SH.NodeConstraintComponent))
         result = _query_for_one_content_validation_result(bn, graph_value_type_mismatch, data_value_type_mismatch)
         assert result.source_constraint_component == SH.NodeConstraintComponent
-        assert result.res_iri == DATA.id_2
+        assert result.res_iri == DATA.value_type_mismatch
         assert result.res_class == ONTO.ClassWithEverything
         assert result.property == ONTO.testColor
         assert result.results_message == "ColorValue"

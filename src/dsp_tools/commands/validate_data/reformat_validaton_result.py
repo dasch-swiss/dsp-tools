@@ -16,12 +16,12 @@ from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViol
 from dsp_tools.commands.validate_data.models.validation import CardinalityValidationResult
 from dsp_tools.commands.validate_data.models.validation import ContentValidationResult
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
-from dsp_tools.commands.validate_data.models.validation import ValidationReports
+from dsp_tools.commands.validate_data.models.validation import ValidationReport
 
 DASH = Namespace("http://datashapes.org/dash#")
 
 
-def reformat_validation_graph(report: ValidationReports) -> AllProblems:
+def reformat_validation_graph(report: ValidationReport) -> AllProblems:
     """
     Reformats the validation result from an RDF graph into class instances
     that are used to communicate the problems with the user.
@@ -64,8 +64,10 @@ def _get_cardinality_input_errors(
 def _query_for_cardinality_validation_results(
     results_graph: Graph, data_graph: Graph
 ) -> list[CardinalityValidationResult]:
-    violations = results_graph.subjects(RDF.type, SH.ValidationResult)
-    return [_query_for_one_cardinality_validation_result(x, results_graph, data_graph) for x in violations]
+    all_violations = set(results_graph.subjects(RDF.type, SH.ValidationResult))
+    content_violations = set(results_graph.subjects(SH.sourceConstraintComponent, SH.NodeConstraintComponent))
+    card_violations = all_violations - content_violations
+    return [_query_for_one_cardinality_validation_result(x, results_graph, data_graph) for x in card_violations]
 
 
 def _query_for_one_cardinality_validation_result(

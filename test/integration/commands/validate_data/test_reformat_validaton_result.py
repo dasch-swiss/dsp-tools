@@ -6,7 +6,7 @@ from rdflib import Graph
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
-from dsp_tools.commands.validate_data.models.validation import ValidationReports
+from dsp_tools.commands.validate_data.models.validation import ValidationReport
 from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.validate_data import _get_data_info_from_file
 
@@ -27,7 +27,7 @@ def result_cardinality_violation() -> Graph:
 
 
 def test_reformat_validation_graph(result_cardinality_violation: Graph, data_cardinality_violation: Graph) -> None:
-    val_rep = ValidationReports(
+    val_rep = ValidationReport(
         conforms=False,
         content_validation=None,
         cardinality_validation=result_cardinality_violation,

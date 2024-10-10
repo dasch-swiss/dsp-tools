@@ -17,8 +17,7 @@ from dsp_tools.commands.validate_data.models.validation import CardinalityValida
 from dsp_tools.commands.validate_data.models.validation import ContentValidationResult
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.models.validation import ValidationReport
-
-DASH = Namespace("http://datashapes.org/dash#")
+from dsp_tools.commands.validate_data.models.validation import ValidationResultTypes
 
 DASH = Namespace("http://datashapes.org/dash#")
 
@@ -49,6 +48,18 @@ def reformat_validation_graph(report: ValidationReport) -> AllProblems:
 
     unexpected_found = UnexpectedResults(unexpected_components) if unexpected_components else None
     return AllProblems(reformatted_results, unexpected_found)
+
+
+def _separate_different_result_types(results_graph: Graph) -> ValidationResultTypes:
+    violations = set(results_graph.subjects(RDF.type, SH.ValidationResult))
+    nodes_constraints = set(results_graph.subjects(SH.sourceConstraintComponent, SH.NodeConstraintComponent))
+    class_constraints = set(results_graph.subjects(SH.sourceConstraintComponent, SH.ClassConstraintComponent))
+    other_violations = violations - nodes_constraints - class_constraints
+    return ValidationResultTypes(
+        node_constraint_component=nodes_constraints,
+        detail_bns=class_constraints,
+        cardinality_components=other_violations,
+    )
 
 
 def _get_cardinality_input_errors(

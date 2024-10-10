@@ -1,6 +1,7 @@
 import pytest
 from rdflib import SH
 from rdflib import Graph
+from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.models.input_problems import ContentRegexViolation
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityViolation
@@ -15,14 +16,71 @@ from dsp_tools.commands.validate_data.reformat_validaton_result import _query_wi
 from dsp_tools.commands.validate_data.reformat_validaton_result import _query_without_detail
 from dsp_tools.commands.validate_data.reformat_validaton_result import _reformat_one_with_detail
 from dsp_tools.commands.validate_data.reformat_validaton_result import _reformat_one_without_detail
+from dsp_tools.commands.validate_data.reformat_validaton_result import _separate_result_types
 from test.unittests.commands.validate_data.constants import DASH
 from test.unittests.commands.validate_data.constants import KNORA_API
 from test.unittests.commands.validate_data.constants import ONTO
 
 
+class TestSeparateResultTypes:
+    def test_result_id_card_one(
+        self, result_id_card_one: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
+    ) -> None:
+        res_g, onto_data_g, _ = result_id_card_one
+        no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
+        assert len(no_detail) == 1
+        assert len(with_detail) == 0
+        assert no_detail[0].res_iri == URIRef("http://data/id_card_one")
+
+    def test_result_id_simpletext(
+        self, result_id_simpletext: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
+    ) -> None:
+        res_g, onto_data_g, _ = result_id_simpletext
+        no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
+        assert len(no_detail) == 0
+        assert len(with_detail) == 1
+        assert with_detail[0].res_iri == URIRef("http://data/id_simpletext")
+
+    def test_result_id_uri(self, result_id_uri: tuple[Graph, Graph, ResourceValidationReportIdentifiers]) -> None:
+        res_g, onto_data_g, _ = result_id_uri
+        no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
+        assert len(no_detail) == 0
+        assert len(with_detail) == 1
+        assert with_detail[0].res_iri == URIRef("http://data/id_uri")
+
+    def test_result_geoname_not_number(
+        self, result_geoname_not_number: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
+    ) -> None:
+        res_g, onto_data_g, _ = result_geoname_not_number
+        no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
+        assert len(no_detail) == 0
+        assert len(with_detail) == 1
+        assert with_detail[0].res_iri == URIRef("http://data/geoname_not_number")
+
+    def test_result_id_closed_constraint(
+        self, result_id_closed_constraint: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
+    ) -> None:
+        res_g, onto_data_g, _ = result_id_closed_constraint
+        no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
+        assert len(no_detail) == 1
+        assert len(with_detail) == 0
+        assert no_detail[0].res_iri == URIRef("http://data/id_closed_constraint")
+
+    def test_result_id_max_card(
+        self, result_id_max_card: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
+    ) -> None:
+        res_g, onto_data_g, _ = result_id_max_card
+        no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
+        assert len(no_detail) == 1
+        assert len(with_detail) == 0
+        assert no_detail[0].res_iri == URIRef("http://data/id_max_card")
+
+
 class TestQueryWithoutDetail:
-    def test_result_id_card_one(self, result_id_card_one: tuple[Graph, ResourceValidationReportIdentifiers]) -> None:
-        res, ids = result_id_card_one
+    def test_result_id_card_one(
+        self, result_id_card_one: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
+    ) -> None:
+        res, _, ids = result_id_card_one
         result = _query_without_detail(ids, res)
         assert result.source_constraint_component == SH.MinCountConstraintComponent
         assert result.res_iri == ids.focus_node_iri
@@ -31,9 +89,9 @@ class TestQueryWithoutDetail:
         assert result.results_message == "1"
 
     def test_result_id_closed_constraint(
-        self, result_id_closed_constraint: tuple[Graph, ResourceValidationReportIdentifiers]
+        self, result_id_closed_constraint: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
     ) -> None:
-        res, ids = result_id_closed_constraint
+        res, _, ids = result_id_closed_constraint
         result = _query_without_detail(ids, res)
         assert result.source_constraint_component == DASH.ClosedByTypesConstraintComponent
         assert result.res_iri == ids.focus_node_iri
@@ -44,8 +102,10 @@ class TestQueryWithoutDetail:
             "                                is not among those permitted for any of the types"
         )
 
-    def test_result_id_max_card(self, result_id_max_card: tuple[Graph, ResourceValidationReportIdentifiers]) -> None:
-        res, ids = result_id_max_card
+    def test_result_id_max_card(
+        self, result_id_max_card: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
+    ) -> None:
+        res, _, ids = result_id_max_card
         result = _query_without_detail(ids, res)
         assert result.source_constraint_component == SH.MaxCountConstraintComponent
         assert result.res_iri == ids.focus_node_iri

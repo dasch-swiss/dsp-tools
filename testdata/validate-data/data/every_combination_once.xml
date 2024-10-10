@@ -33,7 +33,7 @@
 
         <!--
         Our Violation Type            NonExistentCardinalityViolation
-        sh:sourceConstraintComponent  sh:ClosedConstraintComponent
+        sh:sourceConstraintComponent  dash:ClosedByTypesConstraintComponent
         sh:detail                     -
         -->
         <resource label="Int card does not exist" restype=":CardOneResource" id="id_closed_constraint">

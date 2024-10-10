@@ -1,14 +1,226 @@
 import pytest
+from rdflib import RDF
 from rdflib import SH
 from rdflib import Graph
+from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.models.validation import CardinalityValidationResult
 from dsp_tools.commands.validate_data.models.validation import ContentValidationResult
+from dsp_tools.commands.validate_data.models.validation import ResourceValidationReportIdentifiers
 from test.unittests.commands.validate_data.constants import DASH
 from test.unittests.commands.validate_data.constants import DATA
 from test.unittests.commands.validate_data.constants import KNORA_API
 from test.unittests.commands.validate_data.constants import ONTO
 from test.unittests.commands.validate_data.constants import PREFIXES
+
+
+@pytest.fixture
+def id_card_one() -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+    gstr = f"""{PREFIXES}
+    [ a sh:ValidationResult ;
+            sh:focusNode <http://data/id_card_one> ;
+            sh:resultMessage "1" ;
+            sh:resultPath onto:testBoolean ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:MinCountConstraintComponent ;
+            sh:sourceShape [ ] ] .
+    """
+    result = Graph()
+    result.parse(data=gstr, format="ttl")
+    datastr = f"""{PREFIXES}
+    <http://data/id_card_one> a onto:ClassInheritedCardinalityOverwriting ;
+        rdfs:label "Bool Card 1"^^xsd:string .
+    """
+    data = Graph()
+    data.parse(data=datastr, format="ttl")
+    val_bn = next(result.subjects(RDF.type, SH.ValidationResult))
+    identifiers = ResourceValidationReportIdentifiers(
+        val_bn, URIRef("http://data/id_card_one"), ONTO.ClassInheritedCardinalityOverwriting
+    )
+    return result, data, identifiers
+
+
+@pytest.fixture
+def id_simpletext() -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+    gstr = f'''{PREFIXES}
+    [ a sh:ValidationResult ;
+            sh:detail _:bn_id_simpletext ;
+            sh:focusNode <http://data/id_simpletext> ;
+            sh:resultMessage """Value does not have shape 
+                    <http://api.knora.org/ontology/knora-api/shapes/v2#SimpleTextValue_ClassShape>""" ;
+            sh:resultPath onto:testTextarea ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+            sh:sourceShape onto:testTextarea_PropShape ;
+            sh:value <http://data/value_id_simpletext> ] .
+            
+    _:bn_id_simpletext a sh:ValidationResult ;
+        sh:focusNode <http://data/value_id_simpletext> ;
+        sh:resultMessage "TextValue without formatting" ;
+        sh:resultPath knora-api:valueAsString ;
+        sh:resultSeverity sh:Violation ;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent ;
+        sh:sourceShape api-shapes:SimpleTextValue_PropShape .
+    '''
+    g = Graph()
+    g.parse(data=gstr, format="ttl")
+    datastr = f"""{PREFIXES}
+    <http://data/id_simpletext> a onto:ClassWithEverything ;
+        rdfs:label "Simpletext"^^xsd:string ;
+        onto:testTextarea <http://data/value_id_simpletext> .
+        
+    <http://data/value_id_simpletext> a knora-api:TextValue ;
+        knora-api:textValueAsXml "Text"^^xsd:string .
+    """
+    data = Graph()
+    data.parse(data=datastr, format="ttl")
+    val_bn = next(g.subjects(RDF.type, SH.ValidationResult))
+    identifiers = ResourceValidationReportIdentifiers(
+        val_bn, URIRef("http://data/id_simpletext"), ONTO.ClassWithEverything
+    )
+    return g, data, identifiers
+
+
+@pytest.fixture
+def id_uri() -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+    gstr = f'''{PREFIXES}
+    [ a sh:ValidationResult ;
+                sh:detail _:bn_id_uri ;
+                sh:focusNode <http://data/id_uri> ;
+                sh:resultMessage """Value does not have shape 
+            <http://api.knora.org/ontology/knora-api/shapes/v2#UriValue_ClassShape>""" ;
+                sh:resultPath onto:testUriValue ;
+                sh:resultSeverity sh:Violation ;
+                sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+                sh:sourceShape onto:testUriValue_PropShape ;
+                sh:value <http://data/value_id_uri> ] .
+    
+    _:bn_id_uri a sh:ValidationResult ;
+        sh:focusNode <http://data/value_id_uri> ;
+        sh:resultMessage "UriValue" ;
+        sh:resultSeverity sh:Violation ;
+        sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+        sh:sourceShape api-shapes:UriValue_ClassShape ;
+        sh:value <http://data/value_id_uri> .
+    '''
+    g = Graph()
+    g.parse(data=gstr, format="ttl")
+    datastr = f"""{PREFIXES}
+    <http://data/id_uri> a onto:ClassWithEverything ;
+        rdfs:label "Uri"^^xsd:string ;
+        onto:testUriValue <http://data/value_id_uri> .
+    
+    <http://data/value_id_uri> a knora-api:TextValue ;
+        knora-api:valueAsString "https://dasch.swiss"^^xsd:string .
+    """
+    data = Graph()
+    data.parse(data=datastr, format="ttl")
+    val_bn = next(g.subjects(RDF.type, SH.ValidationResult))
+    identifiers = ResourceValidationReportIdentifiers(val_bn, URIRef("http://data/id_uri"), ONTO.ClassWithEverything)
+    return g, data, identifiers
+
+
+@pytest.fixture
+def geoname_not_number() -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+    gstr = f'''{PREFIXES}
+    [ a sh:ValidationResult ;
+                sh:detail _:bn_geoname_not_number ;
+                sh:focusNode <http://data/geoname_not_number> ;
+                sh:resultMessage """Value does not have shape 
+                        <http://api.knora.org/ontology/knora-api/shapes/v2#GeonameValue_ClassShape>""" ;
+                sh:resultPath onto:testGeoname ;
+                sh:resultSeverity sh:Violation ;
+                sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+                sh:sourceShape onto:testGeoname_PropShape ;
+                sh:value <http://data/value_geoname_not_number> ] .
+                
+    _:bn_geoname_not_number a sh:ValidationResult ;
+        sh:focusNode <http://data/value_geoname_not_number> ;
+        sh:resultMessage "The value must be a valid geoname code" ;
+        sh:resultPath knora-api:geonameValueAsGeonameCode ;
+        sh:resultSeverity sh:Violation ;
+        sh:sourceConstraintComponent sh:PatternConstraintComponent ;
+        sh:sourceShape api-shapes:geonameValueAsGeonameCode_Shape ;
+        sh:value "this-is-not-a-valid-code" .
+    '''
+    g = Graph()
+    g.parse(data=gstr, format="ttl")
+    datastr = f"""{PREFIXES}
+    <http://data/geoname_not_number> a onto:ClassWithEverything ;
+        rdfs:label "Geoname is not a number"^^xsd:string ;
+        onto:testGeoname <http://data/value_geoname_not_number> .
+        
+    <http://data/value_geoname_not_number> a knora-api:GeonameValue ;
+        knora-api:geonameValueAsGeonameCode "this-is-not-a-valid-code"^^xsd:string .
+    """
+    data = Graph()
+    data.parse(data=datastr, format="ttl")
+    val_bn = next(g.subjects(RDF.type, SH.ValidationResult))
+    identifiers = ResourceValidationReportIdentifiers(
+        val_bn, URIRef("http://data/geoname_not_number"), ONTO.ClassWithEverything
+    )
+    return g, data, identifiers
+
+
+@pytest.fixture
+def id_closed_constraint() -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+    gstr = f'''{PREFIXES}
+    [ a sh:ValidationResult ;
+                sh:focusNode <http://data/id_closed_constraint> ;
+                sh:resultMessage """Property onto:testIntegerSimpleText 
+                                is not among those permitted for any of the types""" ;
+                sh:resultPath onto:testIntegerSimpleText ;
+                sh:resultSeverity sh:Violation ;
+                sh:sourceConstraintComponent dash:ClosedByTypesConstraintComponent ;
+                sh:sourceShape onto:CardOneResource ;
+                sh:value <http://data/value_id_closed_constraint> ] .
+    '''
+    g = Graph()
+    g.parse(data=gstr, format="ttl")
+    datastr = f"""{PREFIXES}
+    <http://data/id_closed_constraint> a onto:CardOneResource ;
+        rdfs:label "Int card does not exist"^^xsd:string ;
+        onto:testIntegerSimpleText <http://data/value_id_closed_constraint> .
+    <http://data/value_id_closed_constraint> a knora-api:IntValue ;
+        knora-api:intValueAsInt 1 .
+    """
+    data = Graph()
+    data.parse(data=datastr, format="ttl")
+    val_bn = next(g.subjects(RDF.type, SH.ValidationResult))
+    identifiers = ResourceValidationReportIdentifiers(
+        val_bn, URIRef("http://data/id_closed_constraint"), ONTO.CardOneResource
+    )
+    return g, data, identifiers
+
+
+@pytest.fixture
+def id_max_card() -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+    gstr = f"""{PREFIXES}
+    [ a sh:ValidationResult ;
+                sh:focusNode <http://data/id_max_card> ;
+                sh:resultMessage "1" ;
+                sh:resultPath onto:testHasLinkToCardOneResource ;
+                sh:resultSeverity sh:Violation ;
+                sh:sourceConstraintComponent sh:MaxCountConstraintComponent ;
+                sh:sourceShape [ ] ] .
+    """
+    g = Graph()
+    g.parse(data=gstr, format="ttl")
+    datastr = f"""{PREFIXES}
+    <http://data/id_max_card> a onto:ClassMixedCard ;
+        rdfs:label "Decimal Card 0-1"^^xsd:string ;
+        onto:testHasLinkToCardOneResource <http://data/value_1> , <http://data/value_2> .
+            
+    <http://data/value_1> a knora-api:LinkValue ;
+        api-shapes:linkValueHasTargetID <http://data/id_card_one> .
+    <http://data/value_2> a knora-api:LinkValue ;
+        api-shapes:linkValueHasTargetID <http://data/id_closed_constraint> .
+    """
+    data = Graph()
+    data.parse(data=datastr, format="ttl")
+    val_bn = next(g.subjects(RDF.type, SH.ValidationResult))
+    identifiers = ResourceValidationReportIdentifiers(val_bn, URIRef("http://data/id_max_card"), ONTO.ClassMixedCard)
+    return g, data, identifiers
 
 
 @pytest.fixture

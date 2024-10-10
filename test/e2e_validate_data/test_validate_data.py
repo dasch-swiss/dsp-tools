@@ -4,6 +4,7 @@ from typing import Iterator
 
 import pytest
 from rdflib import URIRef
+
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.validate_data.models.input_problems import ContentRegexViolation
@@ -12,10 +13,8 @@ from dsp_tools.commands.validate_data.models.input_problems import MinCardinalit
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
 from dsp_tools.commands.validate_data.models.validation import ValidationReport
-from dsp_tools.commands.validate_data.reformat_validaton_result import (
-    reformat_validation_graph,
-    _extract_identifiers_of_resource_results,
-)
+from dsp_tools.commands.validate_data.reformat_validaton_result import _extract_identifiers_of_resource_results
+from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
 from test.e2e_validate_data.setup_testcontainers import get_containers
 

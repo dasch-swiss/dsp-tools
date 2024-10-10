@@ -21,7 +21,7 @@ RESCLASSES_IN_ONTO_JSON = 2
 
 @pytest.fixture
 def _create_project() -> Iterator[None]:
-    with get_containers():
+    with get_containers(api_version="v2.0.0"):
         success = create_project(Path("testdata/json-project/test-project-e2e.json"), CREDS, verbose=True)
         assert success
         yield

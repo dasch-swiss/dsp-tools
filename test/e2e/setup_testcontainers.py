@@ -52,23 +52,23 @@ def get_test_network() -> Iterator[Network]:
 
 
 @contextmanager
-def get_containers() -> Iterator[Containers]:
+def get_containers(api_version: str | None = None) -> Iterator[Containers]:
     if subprocess.run("docker stats --no-stream".split(), check=False).returncode != 0:
         raise RuntimeError("Docker is not running properly")
     with get_test_network() as network:
-        containers = _get_all_containers(network)
+        containers = _get_all_containers(network, api_version)
         try:
             yield containers
         finally:
             _stop_all_containers(containers)
 
 
-def _get_all_containers(network: Network) -> Containers:
+def _get_all_containers(network: Network, api_version: str | None) -> Containers:
     versions = _get_image_versions()
     fuseki = _get_fuseki_container(network, versions.fuseki)
     sipi = _get_sipi_container(network, versions.sipi)
     ingest = _get_ingest_container(network, versions.ingest)
-    api = _get_api_container(network, versions.api)
+    api = api_version or _get_api_container(network, versions.api)
     containers = Containers(fuseki=fuseki, sipi=sipi, ingest=ingest, api=api)
     _print_containers_are_ready(containers)
     return containers

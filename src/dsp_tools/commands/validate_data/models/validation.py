@@ -22,19 +22,19 @@ class RDFGraphs:
 
 
 @dataclass
-class ResourceValidationReportIdentifiers:
-    validation_bn: Node
-    focus_node_iri: Node
-    res_class_type: Node
-    detail_node: Node | None = None
-
-
-@dataclass
 class ValidationReport:
     conforms: bool
     validation_graph: Graph
     shacl_graphs: Graph
     data_graph: Graph
+
+
+@dataclass
+class ResourceValidationReportIdentifiers:
+    validation_bn: Node
+    focus_node_iri: Node
+    res_class_type: Node
+    detail_node: Node | None = None
 
 
 @dataclass

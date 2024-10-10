@@ -180,29 +180,26 @@ def test_reformat_every_constraint_once(
         assert isinstance(one_result, expected_info[1])
 
 
-def test_reformat_validation_graph_type(result_type_violation: Graph, value_type_violation_xml: Graph) -> None:
+def test_reformat_validation_graph_type(value_type_violation_result: Graph, value_type_violation_data: Graph) -> None:
     val_rep = ValidationReport(
         conforms=False,
-        validation_graph=result_type_violation,
+        validation_graph=value_type_violation_result,
         shacl_graphs=Graph(),
-        data_graph=value_type_violation_xml,
+        data_graph=value_type_violation_data,
     )
     result = reformat_validation_graph(val_rep)
+    expected_info_tuples = [
+        ("id_card_one", MinCardinalityViolation),
+        ("id_closed_constraint", NonExistentCardinalityViolation),
+        ("id_max_card", MaxCardinalityViolation),
+        ("id_min_card", MinCardinalityViolation),
+    ]
     assert not result.unexpected_results
     assert len(result.problems) == 4
-    sorted_problems = sorted(result.problems, key=lambda x: x.sort_value())
-    val_one = sorted_problems[0]
-    assert isinstance(val_one, MinCardinalityViolation)
-    assert val_one.res_id == "id_card_one"
-    val_one = sorted_problems[1]
-    assert isinstance(val_one, MinCardinalityViolation)
-    assert val_one.res_id == "id_min_card"
-    val_one = sorted_problems[2]
-    assert isinstance(val_one, MaxCardinalityViolation)
-    assert val_one.res_id == "id_max_card"
-    val_one = sorted_problems[3]
-    assert isinstance(val_one, NonExistentCardinalityViolation)
-    assert val_one.res_id == "id_closed_constraint"
+    sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
+    for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
+        assert one_result.res_id == expected_info[0]
+        assert isinstance(one_result, expected_info[1])
 
 
 if __name__ == "__main__":

@@ -38,15 +38,17 @@ def reformat_validation_graph(report: ValidationReport) -> AllProblems:
     reformatted_results: list[InputProblem] = []
     unexpected_components: list[UnexpectedComponent] = []
 
-    reformatted_cardinality, unexpected_cardinality = _get_cardinality_input_errors(
-        report.validation_graph, report.data_graph
+    no_detail_results, details_results = _separate_result_types(
+        results_graph=report.validation_graph, data_onto_graph=report.data_graph
     )
-    reformatted_results.extend(reformatted_cardinality)
-    unexpected_components.extend(unexpected_cardinality)
 
-    reformatted_content, unexpected_content = _get_content_input_errors(report.validation_graph, report.data_graph)
-    reformatted_results.extend(reformatted_content)
-    unexpected_components.extend(unexpected_content)
+    no_detail_reformatted, no_detail_unexpected = _reformat_without_detail(no_detail_results)
+    reformatted_results.extend(no_detail_reformatted)
+    unexpected_components.extend(no_detail_unexpected)
+
+    detail_reformatted, detail_unexpected = _reformat_with_detail(details_results)
+    reformatted_results.extend(detail_reformatted)
+    unexpected_components.extend(detail_unexpected)
 
     unexpected_found = UnexpectedResults(unexpected_components) if unexpected_components else None
     return AllProblems(reformatted_results, unexpected_found)
@@ -128,25 +130,91 @@ def _query_with_detail(
 
 
 def _reformat_without_detail(
-    node_list: list[ResourceValidationReportIdentifiers], result_graph: Graph, data_graph: Graph
-) -> list[InputProblem]:
-    # ClosedByTypesConstraintComponent -> NonExistentCardinality
+    validation_results: list[ResultWithoutDetail],
+) -> tuple[list[InputProblem], list[UnexpectedComponent]]:
+    input_problems: list[InputProblem] = []
+    unexpected_components: list[UnexpectedComponent] = []
 
-    # MaxCountConstraintComponent -> MaxCardViolation
+    for violation in validation_results:
+        problem = _reformat_one_without_detail(violation)
+        if isinstance(problem, UnexpectedComponent):
+            unexpected_components.append(problem)
+        else:
+            input_problems.append(problem)
+    return input_problems, unexpected_components
 
-    # MinCountConstraintComponent -> MinCardViolation
-    pass
+
+def _reformat_one_without_detail(violation: ResultWithoutDetail) -> InputProblem | UnexpectedComponent:
+    subject_id = _reformat_data_iri(str(violation.res_iri))
+    prop_name = _reformat_onto_iri(str(violation.property))
+    res_type = _reformat_onto_iri(str(violation.res_class))
+    match violation.source_constraint_component:
+        case SH.MaxCountConstraintComponent:
+            return MaxCardinalityViolation(
+                res_id=subject_id,
+                res_type=res_type,
+                prop_name=prop_name,
+                expected_cardinality=violation.results_message,
+            )
+        case SH.MinCountConstraintComponent:
+            return MinCardinalityViolation(
+                res_id=subject_id,
+                res_type=res_type,
+                prop_name=prop_name,
+                expected_cardinality=violation.results_message,
+            )
+        case DASH.ClosedByTypesConstraintComponent:
+            return NonExistentCardinalityViolation(
+                res_id=subject_id,
+                res_type=res_type,
+                prop_name=prop_name,
+            )
+        case _:
+            return UnexpectedComponent(str(violation.source_constraint_component))
 
 
 def _reformat_with_detail(
-    node_list: list[ResourceValidationReportIdentifiers], result_graph: Graph, data_graph: Graph
-) -> list[InputProblem]:
-    # NodeConstraintComponent - MinCountConstraintComponent --> ValueTypeMismatch (TextValue)
+    validation_results: list[ResultWithDetail],
+) -> tuple[list[InputProblem], list[UnexpectedComponent]]:
+    input_problems: list[InputProblem] = []
+    unexpected_components: list[UnexpectedComponent] = []
 
-    # NodeConstraintComponent - ClassConstraintComponent --> ValueTypeMismatch
+    for violation in validation_results:
+        problem = _reformat_one_with_detail(violation)
+        if isinstance(problem, UnexpectedComponent):
+            unexpected_components.append(problem)
+        else:
+            input_problems.append(problem)
+    return input_problems, unexpected_components
 
-    # NodeConstraintComponent - PatternConstraintComponent --> RegexContentViolation
-    pass
+
+def _reformat_one_with_detail(val_result: ResultWithDetail) -> InputProblem | UnexpectedComponent:
+    subject_id = _reformat_data_iri(str(val_result.res_iri))
+    prop_name = _reformat_onto_iri(str(val_result.property))
+    res_type = _reformat_onto_iri(str(val_result.res_class))
+    match val_result.detail_bn_component:
+        case SH.PatternConstraintComponent:
+            val: str | None = val_result.value
+            if val and not regex.search(r"\S+", val):
+                val = None
+            return ContentRegexViolation(
+                res_id=subject_id,
+                res_type=res_type,
+                prop_name=prop_name,
+                expected_format=val_result.results_message,
+                actual_content=val,
+            )
+        case SH.ClassConstraintComponent | SH.MinCountConstraintComponent:
+            actual_type = _reformat_onto_iri(str(val_result.value_type)).replace("knora-api:", "")
+            return ValueTypeViolation(
+                res_id=subject_id,
+                res_type=res_type,
+                prop_name=prop_name,
+                actual_type=actual_type,
+                expected_type=val_result.results_message,
+            )
+        case _:
+            return UnexpectedComponent(str(val_result.source_constraint_component))
 
 
 def _get_cardinality_input_errors(

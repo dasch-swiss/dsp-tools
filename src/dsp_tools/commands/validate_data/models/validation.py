@@ -8,33 +8,33 @@ from rdflib.term import Node
 
 @dataclass
 class RDFGraphs:
-    data: Graph
+    data_onto: Graph
     ontos: Graph
-    cardinality_shapes: Graph
-    content_shapes: Graph
+    shapes: Graph
 
-    def get_cardinality_data_str(self) -> str:
-        return self.data.serialize(format="ttl")
-
-    def get_cardinality_shacl_str(self) -> str:
-        g = self.cardinality_shapes + self.ontos
+    def get_data_str(self) -> str:
+        g = self.data_onto + self.ontos
         return g.serialize(format="ttl")
 
-    def get_content_data_str(self) -> str:
-        g = self.data + self.ontos
+    def get_shacl_str(self) -> str:
+        g = self.shapes + self.ontos
         return g.serialize(format="ttl")
-
-    def get_content_shacl_str(self) -> str:
-        return self.content_shapes.serialize(format="ttl")
 
 
 @dataclass
-class ValidationReports:
+class ValidationReport:
     conforms: bool
-    content_validation: Graph | None
-    cardinality_validation: Graph | None
+    validation_graph: Graph
     shacl_graphs: Graph
     data_graph: Graph
+
+
+@dataclass
+class ResourceValidationReportIdentifiers:
+    validation_bn: Node
+    focus_node_iri: Node
+    res_class_type: Node
+    detail_node: Node | None = None
 
 
 @dataclass
@@ -43,16 +43,17 @@ class UnexpectedComponent:
 
 
 @dataclass
-class CardinalityValidationResult:
+class ResultWithoutDetail:
     source_constraint_component: Node
     res_iri: Node
     res_class: Node
     property: Node
     results_message: str
+    value: str | None = None
 
 
 @dataclass
-class ContentValidationResult:
+class ResultWithDetail:
     source_constraint_component: Node
     res_iri: Node
     res_class: Node

@@ -41,9 +41,8 @@ def test_construct_one_property_type_text_value(one_richtext_prop: Graph) -> Non
 
 def test_add_property_shapes_to_class_shapes(card_1: Graph) -> None:
     res = _add_property_shapes_to_class_shapes(card_1)
-    assert len(res) == 2
-    assert next(res.objects(ONTO.ClassMixedCard_Shape, SH.property)) == ONTO.testBoolean_PropShape
-    assert next(res.objects(ONTO.ClassMixedCard_Shape, SH.targetClass)) == ONTO.ClassMixedCard
+    assert len(res) == 1
+    assert next(res.objects(ONTO.ClassMixedCard, SH.property)) == ONTO.testBoolean_PropShape
 
 
 if __name__ == "__main__":

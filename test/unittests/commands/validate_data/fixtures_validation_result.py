@@ -15,7 +15,7 @@ from test.unittests.commands.validate_data.constants import PREFIXES
 
 
 @pytest.fixture
-def id_card_one() -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+def result_id_card_one() -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
     gstr = f"""{PREFIXES}
     [ a sh:ValidationResult ;
             sh:focusNode <http://data/id_card_one> ;
@@ -41,7 +41,7 @@ def id_card_one() -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
 
 
 @pytest.fixture
-def id_simpletext() -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+def result_id_simpletext() -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
     gstr = f'''{PREFIXES}
     [ a sh:ValidationResult ;
             sh:detail _:bn_id_simpletext ;
@@ -82,7 +82,7 @@ def id_simpletext() -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
 
 
 @pytest.fixture
-def id_uri() -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+def result_id_uri() -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
     gstr = f'''{PREFIXES}
     [ a sh:ValidationResult ;
                 sh:detail _:bn_id_uri ;
@@ -121,7 +121,7 @@ def id_uri() -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
 
 
 @pytest.fixture
-def geoname_not_number() -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+def result_geoname_not_number() -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
     gstr = f'''{PREFIXES}
     [ a sh:ValidationResult ;
                 sh:detail _:bn_geoname_not_number ;
@@ -163,7 +163,7 @@ def geoname_not_number() -> tuple[Graph, Graph, ResourceValidationReportIdentifi
 
 
 @pytest.fixture
-def id_closed_constraint() -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+def result_id_closed_constraint() -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
     gstr = f'''{PREFIXES}
     [ a sh:ValidationResult ;
                 sh:focusNode <http://data/id_closed_constraint> ;
@@ -194,7 +194,7 @@ def id_closed_constraint() -> tuple[Graph, Graph, ResourceValidationReportIdenti
 
 
 @pytest.fixture
-def id_max_card() -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+def result_id_max_card() -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
     gstr = f"""{PREFIXES}
     [ a sh:ValidationResult ;
                 sh:focusNode <http://data/id_max_card> ;

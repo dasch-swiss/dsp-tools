@@ -7,8 +7,8 @@ from dsp_tools.commands.validate_data.models.input_problems import ContentRegexV
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
-from dsp_tools.commands.validate_data.models.validation import ValidationReport
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
+from dsp_tools.commands.validate_data.models.validation import ValidationReport
 from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.validate_data import _get_data_info_from_file
 
@@ -29,7 +29,7 @@ def cardinality_violation_result() -> Graph:
 
 
 @pytest.fixture
-def data_type_violation() -> Graph:
+def value_type_violation_xml() -> Graph:
     data, _ = _get_data_info_from_file(Path("testdata/validate-data/data/value_type_violation.xml"), LOCAL_API)
     return data.make_graph()
 
@@ -47,13 +47,6 @@ def value_type_violation_result() -> Graph:
     g.parse("testdata/validate-data/validation_results/value_type_violation_result.ttl")
     return g
 
-
-def test_reformat_validation_graph_cardinality(
-    result_cardinality_violation: Graph, data_cardinality_violation: Graph
-) -> None:
-    val_rep = ValidationReport(
-        conforms=False,
-        validation_graph=result_cardinality_violation)
 
 @pytest.fixture
 def content_violation_data() -> Graph:
@@ -77,24 +70,16 @@ def every_combination_once_data() -> Graph:
 
 
 @pytest.fixture
-def every_combination_once_result_cardinality() -> Graph:
+def every_combination_once_result() -> Graph:
     g = Graph()
     g.parse("testdata/validate-data/validation_results/every_combination_once_result.ttl")
-    return g
-
-
-@pytest.fixture
-def every_constraint_once_result_content() -> Graph:
-    g = Graph()
-    g.parse("testdata/validate-data/validation_results/every_constraint_once_result_content.ttl")
     return g
 
 
 def test_reformat_cardinality_violation(cardinality_violation_result: Graph, cardinality_violation_data: Graph) -> None:
     val_rep = ValidationReport(
         conforms=False,
-        content_validation=None,
-        cardinality_validation=cardinality_violation_result,
+        validation_graph=cardinality_violation_result,
         shacl_graphs=Graph(),
         data_graph=cardinality_violation_data,
     )
@@ -116,8 +101,7 @@ def test_reformat_cardinality_violation(cardinality_violation_result: Graph, car
 def test_reformat_value_type_violation(value_type_violation_result: Graph, value_type_violation_data: Graph) -> None:
     val_rep = ValidationReport(
         conforms=False,
-        content_validation=value_type_violation_result,
-        cardinality_validation=None,
+        validation_graph=value_type_violation_result,
         shacl_graphs=Graph(),
         data_graph=value_type_violation_data,
     )
@@ -149,8 +133,7 @@ def test_reformat_value_type_violation(value_type_violation_result: Graph, value
 def test_reformat_content_violation(content_violation_result: Graph, content_violation_data: Graph) -> None:
     val_rep = ValidationReport(
         conforms=False,
-        content_validation=content_violation_result,
-        cardinality_validation=None,
+        validation_graph=content_violation_result,
         shacl_graphs=Graph(),
         data_graph=content_violation_data,
     )
@@ -172,14 +155,11 @@ def test_reformat_content_violation(content_violation_result: Graph, content_vio
 
 
 def test_reformat_every_constraint_once(
-    every_combination_once_result_cardinality: Graph,
-    every_constraint_once_result_content: Graph,
-    every_combination_once_data: Graph,
+    every_combination_once_data: Graph, every_combination_once_result: Graph
 ) -> None:
     val_rep = ValidationReport(
         conforms=False,
-        content_validation=every_constraint_once_result_content,
-        cardinality_validation=every_combination_once_result_cardinality,
+        validation_graph=every_combination_once_result,
         shacl_graphs=Graph(),
         data_graph=every_combination_once_data,
     )
@@ -200,14 +180,13 @@ def test_reformat_every_constraint_once(
         assert isinstance(one_result, expected_info[1])
 
 
-def test_reformat_validation_graph_type(result_type_violation: Graph, data_type_violation: Graph) -> None:
+def test_reformat_validation_graph_type(result_type_violation: Graph, value_type_violation_xml: Graph) -> None:
     val_rep = ValidationReport(
         conforms=False,
         validation_graph=result_type_violation,
         shacl_graphs=Graph(),
-        data_graph=data_type_violation,
+        data_graph=value_type_violation_xml,
     )
-
     result = reformat_validation_graph(val_rep)
     assert not result.unexpected_results
     assert len(result.problems) == 4

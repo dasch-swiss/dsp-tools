@@ -14,7 +14,6 @@ from dsp_tools.commands.validate_data.models.input_problems import MinCardinalit
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
 from dsp_tools.commands.validate_data.models.validation import ValidationReport
-from dsp_tools.commands.validate_data.models.validation import ValidationReports
 from dsp_tools.commands.validate_data.reformat_validaton_result import _extract_identifiers_of_resource_results
 from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
@@ -35,7 +34,7 @@ def _create_project() -> Iterator[None]:
 
 @lru_cache(maxsize=None)
 @pytest.fixture
-def cardinality_correct(_create_project: None) -> ValidationReports:
+def cardinality_correct(_create_project: None) -> ValidationReport:
     return _get_validation_result(
         LOCAL_API, Path("testdata/validate-data/data/cardinality_correct.xml"), DONT_SAVE_GRAPHS
     )
@@ -43,7 +42,7 @@ def cardinality_correct(_create_project: None) -> ValidationReports:
 
 @lru_cache(maxsize=None)
 @pytest.fixture
-def cardinality_violation(_create_project: None) -> ValidationReports:
+def cardinality_violation(_create_project: None) -> ValidationReport:
     return _get_validation_result(
         LOCAL_API, Path("testdata/validate-data/data/cardinality_violation.xml"), DONT_SAVE_GRAPHS
     )
@@ -51,13 +50,13 @@ def cardinality_violation(_create_project: None) -> ValidationReports:
 
 @lru_cache(maxsize=None)
 @pytest.fixture
-def content_correct(_create_project: None) -> ValidationReports:
+def content_correct(_create_project: None) -> ValidationReport:
     return _get_validation_result(LOCAL_API, Path("testdata/validate-data/data/content_correct.xml"), DONT_SAVE_GRAPHS)
 
 
 @lru_cache(maxsize=None)
 @pytest.fixture
-def content_violation(_create_project: None) -> ValidationReports:
+def content_violation(_create_project: None) -> ValidationReport:
     return _get_validation_result(
         LOCAL_API, Path("testdata/validate-data/data/content_violation.xml"), DONT_SAVE_GRAPHS
     )
@@ -65,7 +64,7 @@ def content_violation(_create_project: None) -> ValidationReports:
 
 @lru_cache(maxsize=None)
 @pytest.fixture
-def every_combination_once(_create_project: None) -> ValidationReports:
+def every_combination_once(_create_project: None) -> ValidationReport:
     return _get_validation_result(
         LOCAL_API, Path("testdata/validate-data/data/every_combination_once.xml"), DONT_SAVE_GRAPHS
     )
@@ -73,7 +72,7 @@ def every_combination_once(_create_project: None) -> ValidationReports:
 
 @lru_cache(maxsize=None)
 @pytest.fixture
-def minimal_correct(_create_project: None) -> ValidationReports:
+def minimal_correct(_create_project: None) -> ValidationReport:
     return _get_validation_result(LOCAL_API, Path("testdata/validate-data/data/minimal_correct.xml"), DONT_SAVE_GRAPHS)
 
 
@@ -85,11 +84,11 @@ def value_type_violation(_create_project: None) -> ValidationReport:
     )
 
 
-def test_extract_identifiers_of_resource_results(every_combination_once) -> None:
+def test_extract_identifiers_of_resource_results(every_combination_once: ValidationReport) -> None:
     result = _extract_identifiers_of_resource_results(
         every_combination_once.validation_graph, every_combination_once.data_graph
     )
-    result_sorted = sorted(result, key=lambda x: x.focus_node_iri)
+    result_sorted = sorted(result, key=lambda x: str(x.focus_node_iri))
     expected_iris = [
         (URIRef("http://data/geoname_not_number"), BNode),
         (URIRef("http://data/id_card_one"), None),
@@ -107,30 +106,30 @@ def test_extract_identifiers_of_resource_results(every_combination_once) -> None
 
 
 class TestGetValidationResult:
-    def test_cardinality_correct(self, cardinality_correct: ValidationReports) -> None:
+    def test_cardinality_correct(self, cardinality_correct: ValidationReport) -> None:
         assert cardinality_correct.conforms
 
-    def test_cardinality_violation(self, cardinality_violation: ValidationReports) -> None:
+    def test_cardinality_violation(self, cardinality_violation: ValidationReport) -> None:
         assert not cardinality_violation.conforms
 
-    def test_content_correct(self, content_correct: ValidationReports) -> None:
+    def test_content_correct(self, content_correct: ValidationReport) -> None:
         assert content_correct.conforms
 
-    def test_content_violation(self, content_violation: ValidationReports) -> None:
+    def test_content_violation(self, content_violation: ValidationReport) -> None:
         assert not content_violation.conforms
 
-    def test_every_combination_once(self, every_combination_once: ValidationReports) -> None:
+    def test_every_combination_once(self, every_combination_once: ValidationReport) -> None:
         assert not every_combination_once.conforms
 
-    def test_minimal_correct(self, minimal_correct: ValidationReports) -> None:
+    def test_minimal_correct(self, minimal_correct: ValidationReport) -> None:
         assert minimal_correct.conforms
 
-    def test_value_type_violation(self, value_type_violation: ValidationReports) -> None:
+    def test_value_type_violation(self, value_type_violation: ValidationReport) -> None:
         assert not value_type_violation.conforms
 
 
 class TestReformatValidationGraph:
-    def test_reformat_cardinality_violation(self, cardinality_violation: ValidationReports) -> None:
+    def test_reformat_cardinality_violation(self, cardinality_violation: ValidationReport) -> None:
         result = reformat_validation_graph(cardinality_violation)
         expected_info_tuples = [
             (MinCardinalityViolation, "id_card_one"),

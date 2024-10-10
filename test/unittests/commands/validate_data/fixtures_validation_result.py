@@ -1,5 +1,6 @@
 import pytest
 from rdflib import RDF
+from rdflib import RDFS
 from rdflib import SH
 from rdflib import Graph
 from rdflib import URIRef
@@ -278,6 +279,47 @@ def result_id_max_card() -> tuple[Graph, Graph, ResourceValidationReportIdentifi
     val_bn = next(g.subjects(RDF.type, SH.ValidationResult))
     identifiers = ResourceValidationReportIdentifiers(val_bn, URIRef("http://data/id_max_card"), ONTO.ClassMixedCard)
     return g, data, identifiers
+
+
+@pytest.fixture
+def result_empty_label() -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+    gstr = f"""{PREFIXES}
+    [ a sh:ValidationResult ;
+            sh:focusNode <http://data/empty_label> ;
+            sh:resultMessage "The label must be a non-empty string" ;
+            sh:resultPath rdfs:label ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:PatternConstraintComponent ;
+            sh:sourceShape api-shapes:rdfsLabel_Shape ;
+            sh:value " " ] .
+    """
+    g = Graph()
+    g.parse(data=gstr, format="ttl")
+    datastr = (
+        f"""{PREFIXES}
+        <http://data/empty_label> a onto:ClassWithEverything ;
+            rdfs:label " "^^xsd:string .
+    """
+        + MINIMAL_ONTO
+    )
+    data = Graph()
+    data.parse(data=datastr, format="ttl")
+    val_bn = next(g.subjects(RDF.type, SH.ValidationResult))
+    identifiers = ResourceValidationReportIdentifiers(
+        val_bn, URIRef("http://data/empty_label"), ONTO.ClassWithEverything
+    )
+    return g, data, identifiers
+
+
+@pytest.fixture
+def violation_empty_label() -> ResultWithoutDetail:
+    return ResultWithoutDetail(
+        source_constraint_component=SH.PatternConstraintComponent,
+        res_iri=DATA.empty_label,
+        res_class=ONTO.ClassWithEverything,
+        property=RDFS.label,
+        results_message="The label must be a non-empty string",
+    )
 
 
 @pytest.fixture

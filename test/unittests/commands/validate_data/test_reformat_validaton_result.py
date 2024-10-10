@@ -1,4 +1,5 @@
 import pytest
+from rdflib import RDFS
 from rdflib import SH
 from rdflib import Graph
 from rdflib import URIRef
@@ -113,6 +114,17 @@ class TestQueryWithoutDetail:
         assert result.property == ONTO.testHasLinkToCardOneResource
         assert result.results_message == "1"
 
+    def test_result_empty_label(
+        self, result_empty_label: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
+    ) -> None:
+        res, _, ids = result_empty_label
+        result = _query_without_detail(ids, res)
+        assert result.source_constraint_component == SH.PatternConstraintComponent
+        assert result.res_iri == ids.focus_node_iri
+        assert result.res_class == ids.res_class_type
+        assert result.property == RDFS.label
+        assert result.results_message == "The label must be a non-empty string"
+
 
 class TestQueryWithDetail:
     def test_result_id_simpletext(
@@ -156,7 +168,7 @@ class TestQueryWithDetail:
         assert result.value == "this-is-not-a-valid-code"
 
 
-class TestReformatCardinalityViolation:
+class TestReformatWithoutDetail:
     def test_min(self, violation_min_card: ResultWithoutDetail) -> None:
         result = _reformat_one_without_detail(violation_min_card)
         assert isinstance(result, MinCardinalityViolation)
@@ -173,6 +185,15 @@ class TestReformatCardinalityViolation:
         assert result.prop_name == "onto:testDecimalSimpleText"
         assert result.expected_cardinality == "0-1"
 
+    def test_violation_empty_label(self, violation_empty_label: ResultWithoutDetail) -> None:
+        result = _reformat_one_without_detail(violation_empty_label)
+        assert isinstance(result, ContentRegexViolation)
+        assert result.res_id == "empty_label"
+        assert result.res_type == "onto:ClassWithEverything"
+        assert result.prop_name == "rdfs:label"
+        assert result.expected_format == "The label must be a non-empty string"
+        assert not result.actual_content
+
     def test_closed(self, violation_closed: ResultWithoutDetail) -> None:
         result = _reformat_one_without_detail(violation_closed)
         assert isinstance(result, NonExistentCardinalityViolation)
@@ -181,7 +202,7 @@ class TestReformatCardinalityViolation:
         assert result.prop_name == "onto:testIntegerSimpleText"
 
 
-class TestReformatContentViolation:
+class TestReformatWithDetail:
     def test_value_type(self, violation_value_type: ResultWithDetail) -> None:
         result = _reformat_one_with_detail(violation_value_type)
         assert isinstance(result, ValueTypeViolation)

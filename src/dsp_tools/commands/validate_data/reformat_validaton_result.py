@@ -168,6 +168,14 @@ def _reformat_one_without_detail(violation: ResultWithoutDetail) -> InputProblem
                 res_type=res_type,
                 prop_name=prop_name,
             )
+        case SH.PatternConstraintComponent:
+            return ContentRegexViolation(
+                res_id=subject_id,
+                res_type=res_type,
+                prop_name=prop_name,
+                expected_format=violation.results_message,
+                actual_content=None,
+            )
         case _:
             return UnexpectedComponent(str(violation.source_constraint_component))
 
@@ -217,6 +225,8 @@ def _reformat_one_with_detail(val_result: ResultWithDetail) -> InputProblem | Un
 
 
 def _reformat_onto_iri(prop: str) -> str:
+    if "http://www.w3.org/2000/01/rdf-schema#" in prop:
+        return f'rdfs:{prop.split("#")[-1]}'
     onto = prop.split("/")[-2]
     return f'{onto}:{prop.split("#")[-1]}'
 

@@ -8,25 +8,25 @@
 
     <resource label="Empty" restype=":ClassWithEverything" id="id_0"/>
 
-    <resource label="Card 0-1" restype=":ClassInheritedCardinality" id="id_1">
+    <resource label="Card 0-1" restype=":ClassInheritedCardinality" id="card_0_1">
         <boolean-prop name=":testBoolean">
             <boolean>true</boolean>
         </boolean-prop>
     </resource>
 
-    <resource label="Card 1" restype=":ClassInheritedCardinalityOverwriting" id="id_2">
+    <resource label="Card 1" restype=":ClassInheritedCardinalityOverwriting" id="card_1">
         <boolean-prop name=":testBoolean">
             <boolean>true</boolean>
         </boolean-prop>
     </resource>
 
-    <resource label="Card 1" restype=":ClassInheritedCardinality" id="id_3">
+    <resource label="Card 1" restype=":ClassInheritedCardinality" id="card_1_inherited">
         <text-prop name=":testSimpleText">
             <text encoding="utf8">Text</text>
         </text-prop>
     </resource>
 
-    <resource label="Card Mixed" restype=":ClassMixedCard" id="id_4">
+    <resource label="Card Mixed" restype=":ClassMixedCard" id="card_mixed">
         <boolean-prop name=":testBoolean">
             <boolean>true</boolean>
         </boolean-prop>

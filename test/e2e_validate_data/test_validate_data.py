@@ -18,7 +18,7 @@ from test.e2e_validate_data.setup_testcontainers import get_containers
 
 CREDS = ServerCredentials("root@example.com", "test", "http://0.0.0.0:3333")
 LOCAL_API = "http://0.0.0.0:3333"
-SAVE_GRAPHS = False
+DONT_SAVE_GRAPHS = False
 
 
 @pytest.fixture
@@ -32,45 +32,53 @@ def _create_project() -> Iterator[None]:
 @lru_cache(maxsize=None)
 @pytest.fixture
 def cardinality_correct(_create_project: None) -> ValidationReports:
-    return _get_validation_result(LOCAL_API, Path("testdata/validate-data/data/cardinality_correct.xml"), SAVE_GRAPHS)
+    return _get_validation_result(
+        LOCAL_API, Path("testdata/validate-data/data/cardinality_correct.xml"), DONT_SAVE_GRAPHS
+    )
 
 
 @lru_cache(maxsize=None)
 @pytest.fixture
 def cardinality_violation(_create_project: None) -> ValidationReports:
-    return _get_validation_result(LOCAL_API, Path("testdata/validate-data/data/cardinality_violation.xml"), SAVE_GRAPHS)
+    return _get_validation_result(
+        LOCAL_API, Path("testdata/validate-data/data/cardinality_violation.xml"), DONT_SAVE_GRAPHS
+    )
 
 
 @lru_cache(maxsize=None)
 @pytest.fixture
 def content_correct(_create_project: None) -> ValidationReports:
-    return _get_validation_result(LOCAL_API, Path("testdata/validate-data/data/content_correct.xml"), SAVE_GRAPHS)
+    return _get_validation_result(LOCAL_API, Path("testdata/validate-data/data/content_correct.xml"), DONT_SAVE_GRAPHS)
 
 
 @lru_cache(maxsize=None)
 @pytest.fixture
 def content_violation(_create_project: None) -> ValidationReports:
-    return _get_validation_result(LOCAL_API, Path("testdata/validate-data/data/content_violation.xml"), SAVE_GRAPHS)
+    return _get_validation_result(
+        LOCAL_API, Path("testdata/validate-data/data/content_violation.xml"), DONT_SAVE_GRAPHS
+    )
 
 
 @lru_cache(maxsize=None)
 @pytest.fixture
 def every_combination_once(_create_project: None) -> ValidationReports:
     return _get_validation_result(
-        LOCAL_API, Path("testdata/validate-data/data/every_combination_once.xml"), SAVE_GRAPHS
+        LOCAL_API, Path("testdata/validate-data/data/every_combination_once.xml"), DONT_SAVE_GRAPHS
     )
 
 
 @lru_cache(maxsize=None)
 @pytest.fixture
 def minimal_correct(_create_project: None) -> ValidationReports:
-    return _get_validation_result(LOCAL_API, Path("testdata/validate-data/data/minimal_correct.xml"), SAVE_GRAPHS)
+    return _get_validation_result(LOCAL_API, Path("testdata/validate-data/data/minimal_correct.xml"), DONT_SAVE_GRAPHS)
 
 
 @lru_cache(maxsize=None)
 @pytest.fixture
 def value_type_violation(_create_project: None) -> ValidationReports:
-    return _get_validation_result(LOCAL_API, Path("testdata/validate-data/data/value_type_violation.xml"), SAVE_GRAPHS)
+    return _get_validation_result(
+        LOCAL_API, Path("testdata/validate-data/data/value_type_violation.xml"), DONT_SAVE_GRAPHS
+    )
 
 
 class TestGetValidationResult:

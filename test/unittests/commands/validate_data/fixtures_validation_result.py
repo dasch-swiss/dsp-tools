@@ -115,8 +115,9 @@ def result_id_simpletext() -> tuple[Graph, Graph, ResourceValidationReportIdenti
     data = Graph()
     data.parse(data=datastr, format="ttl")
     val_bn = next(g.subjects(RDF.type, SH.ValidationResult))
+    detail_bn = next(g.objects(predicate=SH.detail))
     identifiers = ResourceValidationReportIdentifiers(
-        val_bn, URIRef("http://data/id_simpletext"), ONTO.ClassWithEverything
+        val_bn, URIRef("http://data/id_simpletext"), ONTO.ClassWithEverything, detail_bn
     )
     return g, data, identifiers
 
@@ -159,7 +160,10 @@ def result_id_uri() -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
     data = Graph()
     data.parse(data=datastr, format="ttl")
     val_bn = next(g.subjects(RDF.type, SH.ValidationResult))
-    identifiers = ResourceValidationReportIdentifiers(val_bn, URIRef("http://data/id_uri"), ONTO.ClassWithEverything)
+    detail_bn = next(g.objects(predicate=SH.detail))
+    identifiers = ResourceValidationReportIdentifiers(
+        val_bn, URIRef("http://data/id_uri"), ONTO.ClassWithEverything, detail_bn
+    )
     return g, data, identifiers
 
 
@@ -202,8 +206,9 @@ def result_geoname_not_number() -> tuple[Graph, Graph, ResourceValidationReportI
     data = Graph()
     data.parse(data=datastr, format="ttl")
     val_bn = next(g.subjects(RDF.type, SH.ValidationResult))
+    detail_bn = next(g.objects(predicate=SH.detail))
     identifiers = ResourceValidationReportIdentifiers(
-        val_bn, URIRef("http://data/geoname_not_number"), ONTO.ClassWithEverything
+        val_bn, URIRef("http://data/geoname_not_number"), ONTO.ClassWithEverything, detail_bn
     )
     return g, data, identifiers
 

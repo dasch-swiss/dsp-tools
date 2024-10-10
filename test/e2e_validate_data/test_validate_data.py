@@ -4,6 +4,7 @@ from typing import Iterator
 
 import pytest
 from rdflib import URIRef
+from rdflib.term import Node
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create import create_project
@@ -104,15 +105,16 @@ def test_extract_identifiers_of_resource_results(every_combination_once) -> None
     )
     result_sorted = sorted(result, key=lambda x: x.focus_node_iri)
     expected_iris = [
-        URIRef("http://data/geoname_not_number"),
-        URIRef("http://data/id_card_one"),
-        URIRef("http://data/id_closed_constraint"),
-        URIRef("http://data/id_max_card"),
-        URIRef("http://data/id_simpletext"),
-        URIRef("http://data/id_uri"),
+        (URIRef("http://data/geoname_not_number"), Node),
+        (URIRef("http://data/id_card_one"), None),
+        (URIRef("http://data/id_closed_constraint"), None),
+        (URIRef("http://data/id_max_card"), None),
+        (URIRef("http://data/id_simpletext"), Node),
+        (URIRef("http://data/id_uri"), Node),
     ]
     for result_iri, expected_iri in zip(result_sorted, expected_iris):
-        assert result_iri.focus_node_iri == expected_iri
+        assert result_iri.focus_node_iri == expected_iri[0]
+        assert isinstance(result_iri.detail_node, expected_iris[1])
 
 
 class TestReformatValidationGraph:

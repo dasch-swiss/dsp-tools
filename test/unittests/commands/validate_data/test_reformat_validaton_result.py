@@ -88,6 +88,7 @@ class TestQueryWithoutDetail:
         assert result.res_class == ids.res_class_type
         assert result.property == ONTO.testBoolean
         assert result.results_message == "1"
+        assert not result.value
 
     def test_result_id_closed_constraint(
         self, result_id_closed_constraint: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
@@ -102,6 +103,7 @@ class TestQueryWithoutDetail:
             result.results_message == "Property onto:testIntegerSimpleText \n"
             "                                is not among those permitted for any of the types"
         )
+        assert result.value == "http://data/value_id_closed_constraint"
 
     def test_result_id_max_card(
         self, result_id_max_card: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
@@ -113,6 +115,7 @@ class TestQueryWithoutDetail:
         assert result.res_class == ids.res_class_type
         assert result.property == ONTO.testHasLinkToCardOneResource
         assert result.results_message == "1"
+        assert not result.value
 
     def test_result_empty_label(
         self, result_empty_label: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
@@ -124,6 +127,7 @@ class TestQueryWithoutDetail:
         assert result.res_class == ids.res_class_type
         assert result.property == RDFS.label
         assert result.results_message == "The label must be a non-empty string"
+        assert result.value == " "
 
 
 class TestQueryWithDetail:

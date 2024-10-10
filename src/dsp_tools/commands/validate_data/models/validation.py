@@ -49,6 +49,7 @@ class ResultWithoutDetail:
     res_class: Node
     property: Node
     results_message: str
+    value: str | None = None
 
 
 @dataclass

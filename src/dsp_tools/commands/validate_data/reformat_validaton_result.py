@@ -95,12 +95,16 @@ def _query_without_detail(
     path = next(results_graph.objects(identifiers.validation_bn, SH.resultPath))
     component = next(results_graph.objects(identifiers.validation_bn, SH.sourceConstraintComponent))
     msg = str(next(results_graph.objects(identifiers.validation_bn, SH.resultMessage)))
+    res_value: str | None = None
+    if val := list(results_graph.objects(identifiers.validation_bn, SH.value)):
+        res_value = str(val[0])
     return ResultWithoutDetail(
         source_constraint_component=component,
         res_iri=identifiers.focus_node_iri,
         res_class=identifiers.res_class_type,
         property=path,
         results_message=msg,
+        value=res_value,
     )
 
 
@@ -174,7 +178,7 @@ def _reformat_one_without_detail(violation: ResultWithoutDetail) -> InputProblem
                 res_type=res_type,
                 prop_name=prop_name,
                 expected_format=violation.results_message,
-                actual_content=None,
+                actual_content=violation.value,
             )
         case _:
             return UnexpectedComponent(str(violation.source_constraint_component))

@@ -1,3 +1,4 @@
+from functools import lru_cache
 from pathlib import Path
 from typing import Iterator
 
@@ -28,26 +29,31 @@ def _create_project() -> Iterator[None]:
         yield
 
 
+@lru_cache(maxsize=None)
 @pytest.fixture
 def cardinality_correct(_create_project: None) -> ValidationReports:
     return _get_validation_result(LOCAL_API, Path("testdata/validate-data/data/cardinality_correct.xml"), SAVE_GRAPHS)
 
 
+@lru_cache(maxsize=None)
 @pytest.fixture
 def cardinality_violation(_create_project: None) -> ValidationReports:
     return _get_validation_result(LOCAL_API, Path("testdata/validate-data/data/cardinality_violation.xml"), SAVE_GRAPHS)
 
 
+@lru_cache(maxsize=None)
 @pytest.fixture
 def content_correct(_create_project: None) -> ValidationReports:
     return _get_validation_result(LOCAL_API, Path("testdata/validate-data/data/content_correct.xml"), SAVE_GRAPHS)
 
 
+@lru_cache(maxsize=None)
 @pytest.fixture
 def content_violation(_create_project: None) -> ValidationReports:
     return _get_validation_result(LOCAL_API, Path("testdata/validate-data/data/content_violation.xml"), SAVE_GRAPHS)
 
 
+@lru_cache(maxsize=None)
 @pytest.fixture
 def every_combination_once(_create_project: None) -> ValidationReports:
     return _get_validation_result(
@@ -55,11 +61,13 @@ def every_combination_once(_create_project: None) -> ValidationReports:
     )
 
 
+@lru_cache(maxsize=None)
 @pytest.fixture
 def minimal_correct(_create_project: None) -> ValidationReports:
     return _get_validation_result(LOCAL_API, Path("testdata/validate-data/data/minimal_correct.xml"), SAVE_GRAPHS)
 
 
+@lru_cache(maxsize=None)
 @pytest.fixture
 def value_type_violation(_create_project: None) -> ValidationReports:
     return _get_validation_result(LOCAL_API, Path("testdata/validate-data/data/value_type_violation.xml"), SAVE_GRAPHS)

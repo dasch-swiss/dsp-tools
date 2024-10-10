@@ -16,74 +16,74 @@ LOCAL_API = "http://0.0.0.0:3333"
 
 
 @pytest.fixture
-def data_cardinality_violation() -> Graph:
+def cardinality_violation_data() -> Graph:
     data, _ = _get_data_info_from_file(Path("testdata/validate-data/data/cardinality_violation.xml"), LOCAL_API)
     return data.make_graph()
 
 
 @pytest.fixture
-def result_cardinality_violation() -> Graph:
+def cardinality_violation_result() -> Graph:
     g = Graph()
     g.parse("testdata/validate-data/validation_results/cardinality_violation_result.ttl")
     return g
 
 
 @pytest.fixture
-def data_value_type_violation() -> Graph:
+def value_type_violation_data() -> Graph:
     g = Graph()
     g.parse("testdata/validate-data/validation_results/value_type_violation_data.ttl")
     return g
 
 
 @pytest.fixture
-def result_value_type_violation() -> Graph:
+def value_type_violation_result() -> Graph:
     g = Graph()
     g.parse("testdata/validate-data/validation_results/value_type_violation_result.ttl")
     return g
 
 
 @pytest.fixture
-def data_content_violation() -> Graph:
+def content_violation_data() -> Graph:
     g = Graph()
     g.parse("testdata/validate-data/validation_results/content_violation_data.ttl")
     return g
 
 
 @pytest.fixture
-def result_content_violation() -> Graph:
+def content_violation_result() -> Graph:
     g = Graph()
     g.parse("testdata/validate-data/validation_results/content_violation_result.ttl")
     return g
 
 
 @pytest.fixture
-def data_every_constraint_once() -> Graph:
+def every_combination_once_data() -> Graph:
     g = Graph()
     g.parse("testdata/validate-data/validation_results/every_combination_once_data.ttl")
     return g
 
 
 @pytest.fixture
-def result_card_every_constraint_once() -> Graph:
+def every_combination_once_result_cardinality() -> Graph:
     g = Graph()
     g.parse("testdata/validate-data/validation_results/every_combination_once_result_cardinality.ttl")
     return g
 
 
 @pytest.fixture
-def result_content_every_constraint_once() -> Graph:
+def every_constraint_once_result_content() -> Graph:
     g = Graph()
     g.parse("testdata/validate-data/validation_results/every_constraint_once_result_content.ttl")
     return g
 
 
-def test_reformat_cardinality_violation(result_cardinality_violation: Graph, data_cardinality_violation: Graph) -> None:
+def test_reformat_cardinality_violation(cardinality_violation_result: Graph, cardinality_violation_data: Graph) -> None:
     val_rep = ValidationReports(
         conforms=False,
         content_validation=None,
-        cardinality_validation=result_cardinality_violation,
+        cardinality_validation=cardinality_violation_result,
         shacl_graphs=Graph(),
-        data_graph=data_cardinality_violation,
+        data_graph=cardinality_violation_data,
     )
     result = reformat_validation_graph(val_rep)
     expected_info_tuples = [
@@ -100,13 +100,13 @@ def test_reformat_cardinality_violation(result_cardinality_violation: Graph, dat
         assert one_result.res_id == expected_info[1]
 
 
-def test_reformat_value_type_violation(result_value_type_violation: Graph, data_value_type_violation: Graph) -> None:
+def test_reformat_value_type_violation(value_type_violation_result: Graph, value_type_violation_data: Graph) -> None:
     val_rep = ValidationReports(
         conforms=False,
-        content_validation=result_value_type_violation,
+        content_validation=value_type_violation_result,
         cardinality_validation=None,
         shacl_graphs=Graph(),
-        data_graph=data_value_type_violation,
+        data_graph=value_type_violation_data,
     )
     result = reformat_validation_graph(val_rep)
     assert not result.unexpected_results
@@ -133,13 +133,13 @@ def test_reformat_value_type_violation(result_value_type_violation: Graph, data_
         assert one_result.prop_name == expected_info[2]
 
 
-def test_reformat_content_violation(result_content_violation: Graph, data_content_violation: Graph) -> None:
+def test_reformat_content_violation(content_violation_result: Graph, content_violation_data: Graph) -> None:
     val_rep = ValidationReports(
         conforms=False,
-        content_validation=result_content_violation,
+        content_validation=content_violation_result,
         cardinality_validation=None,
         shacl_graphs=Graph(),
-        data_graph=data_content_violation,
+        data_graph=content_violation_data,
     )
     result = reformat_validation_graph(val_rep)
     assert not result.unexpected_results
@@ -159,16 +159,16 @@ def test_reformat_content_violation(result_content_violation: Graph, data_conten
 
 
 def test_reformat_every_constraint_once(
-    result_card_every_constraint_once: Graph,
-    result_content_every_constraint_once: Graph,
-    data_every_constraint_once: Graph,
+    every_combination_once_result_cardinality: Graph,
+    every_constraint_once_result_content: Graph,
+    every_combination_once_data: Graph,
 ) -> None:
     val_rep = ValidationReports(
         conforms=False,
-        content_validation=result_content_every_constraint_once,
-        cardinality_validation=result_card_every_constraint_once,
+        content_validation=every_constraint_once_result_content,
+        cardinality_validation=every_combination_once_result_cardinality,
         shacl_graphs=Graph(),
-        data_graph=data_every_constraint_once,
+        data_graph=every_combination_once_data,
     )
     result = reformat_validation_graph(val_rep)
     expected_info_tuples = [

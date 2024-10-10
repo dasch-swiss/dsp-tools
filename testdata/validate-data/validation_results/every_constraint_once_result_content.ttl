@@ -1,70 +1,70 @@
 @prefix ns1: <http://0.0.0.0:3333/ontology/9999/onto/v2#> .
-@prefix ns2: <http://api.knora.org/ontology/knora-api/shapes/v2#> .
-@prefix ns3: <http://api.knora.org/ontology/knora-api/v2#> .
+@prefix ns2: <http://api.knora.org/ontology/knora-api/v2#> .
+@prefix ns3: <http://api.knora.org/ontology/knora-api/shapes/v2#> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 [] a sh:ValidationReport ;
-    sh:result _:n651f675e4e94490fb96e3d977666459db1 .
+    sh:result _:n6de83da7580c47c4a225f952aba86bd7b1 .
 
 [] a sh:ValidationReport ;
-    sh:result _:n651f675e4e94490fb96e3d977666459db3 .
+    sh:result _:n6de83da7580c47c4a225f952aba86bd7b4 .
 
 [] a sh:ValidationReport ;
-    sh:result _:n651f675e4e94490fb96e3d977666459db4 .
+    sh:result _:n6de83da7580c47c4a225f952aba86bd7b5 .
 
 [] a sh:ValidationReport ;
     sh:conforms false ;
     sh:result [ a sh:ValidationResult ;
-            sh:detail _:n651f675e4e94490fb96e3d977666459db4 ;
-            sh:focusNode <http://data/geoname_not_number> ;
-            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#GeonameValue_ClassShape>" ;
-            sh:resultPath ns1:testGeoname ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-            sh:sourceShape ns1:testGeoname_PropShape ;
-            sh:value <http://data/f36d36de-3010-4ed3-8f12-0d997fd59789> ],
-        [ a sh:ValidationResult ;
-            sh:detail _:n651f675e4e94490fb96e3d977666459db1 ;
-            sh:focusNode <http://data/id_uri> ;
-            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#UriValue_ClassShape>" ;
-            sh:resultPath ns1:testUriValue ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-            sh:sourceShape ns1:testUriValue_PropShape ;
-            sh:value <http://data/12c2b602-ee93-40d5-9fc5-2c4925c979d1> ],
-        [ a sh:ValidationResult ;
-            sh:detail _:n651f675e4e94490fb96e3d977666459db3 ;
+            sh:detail _:n6de83da7580c47c4a225f952aba86bd7b4 ;
             sh:focusNode <http://data/id_simpletext> ;
             sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#SimpleTextValue_ClassShape>" ;
             sh:resultPath ns1:testTextarea ;
             sh:resultSeverity sh:Violation ;
             sh:sourceConstraintComponent sh:NodeConstraintComponent ;
             sh:sourceShape ns1:testTextarea_PropShape ;
-            sh:value <http://data/0a5a49ae-6036-4624-b0cd-d4b21c53d632> ] .
+            sh:value <http://data/a7ed0869-8b4e-43f5-bd59-355686cc8e71> ],
+        [ a sh:ValidationResult ;
+            sh:detail _:n6de83da7580c47c4a225f952aba86bd7b5 ;
+            sh:focusNode <http://data/geoname_not_number> ;
+            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#GeonameValue_ClassShape>" ;
+            sh:resultPath ns1:testGeoname ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+            sh:sourceShape ns1:testGeoname_PropShape ;
+            sh:value <http://data/1d0e1ec9-e79e-48f7-be89-9dd6731e2b7d> ],
+        [ a sh:ValidationResult ;
+            sh:detail _:n6de83da7580c47c4a225f952aba86bd7b1 ;
+            sh:focusNode <http://data/id_uri> ;
+            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#UriValue_ClassShape>" ;
+            sh:resultPath ns1:testUriValue ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+            sh:sourceShape ns1:testUriValue_PropShape ;
+            sh:value <http://data/a994ed02-368a-4926-b878-9c78529c3c06> ] .
 
-_:n651f675e4e94490fb96e3d977666459db1 a sh:ValidationResult ;
-    sh:focusNode <http://data/12c2b602-ee93-40d5-9fc5-2c4925c979d1> ;
+_:n6de83da7580c47c4a225f952aba86bd7b1 a sh:ValidationResult ;
+    sh:focusNode <http://data/a994ed02-368a-4926-b878-9c78529c3c06> ;
     sh:resultMessage "UriValue" ;
     sh:resultSeverity sh:Violation ;
     sh:sourceConstraintComponent sh:ClassConstraintComponent ;
-    sh:sourceShape ns2:UriValue_ClassShape ;
-    sh:value <http://data/12c2b602-ee93-40d5-9fc5-2c4925c979d1> .
+    sh:sourceShape ns3:UriValue_ClassShape ;
+    sh:value <http://data/a994ed02-368a-4926-b878-9c78529c3c06> .
 
-_:n651f675e4e94490fb96e3d977666459db3 a sh:ValidationResult ;
-    sh:focusNode <http://data/0a5a49ae-6036-4624-b0cd-d4b21c53d632> ;
+_:n6de83da7580c47c4a225f952aba86bd7b4 a sh:ValidationResult ;
+    sh:focusNode <http://data/a7ed0869-8b4e-43f5-bd59-355686cc8e71> ;
     sh:resultMessage "TextValue without formatting" ;
-    sh:resultPath ns3:valueAsString ;
+    sh:resultPath ns2:valueAsString ;
     sh:resultSeverity sh:Violation ;
     sh:sourceConstraintComponent sh:MinCountConstraintComponent ;
-    sh:sourceShape ns2:SimpleTextValue_PropShape .
+    sh:sourceShape ns3:SimpleTextValue_PropShape .
 
-_:n651f675e4e94490fb96e3d977666459db4 a sh:ValidationResult ;
-    sh:focusNode <http://data/f36d36de-3010-4ed3-8f12-0d997fd59789> ;
+_:n6de83da7580c47c4a225f952aba86bd7b5 a sh:ValidationResult ;
+    sh:focusNode <http://data/1d0e1ec9-e79e-48f7-be89-9dd6731e2b7d> ;
     sh:resultMessage "The value must be a valid geoname code" ;
-    sh:resultPath ns3:geonameValueAsGeonameCode ;
+    sh:resultPath ns2:geonameValueAsGeonameCode ;
     sh:resultSeverity sh:Violation ;
     sh:sourceConstraintComponent sh:PatternConstraintComponent ;
-    sh:sourceShape ns2:geonameValueAsGeonameCode_Shape ;
+    sh:sourceShape ns3:geonameValueAsGeonameCode_Shape ;
     sh:value "this-is-not-a-valid-code" .
 

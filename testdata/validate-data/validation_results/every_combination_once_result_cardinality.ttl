@@ -1,10 +1,19 @@
 @prefix ns1: <http://0.0.0.0:3333/ontology/9999/onto/v2#> .
+@prefix ns11: <http://datashapes.org/dash#> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 [] a sh:ValidationReport ;
     sh:conforms false ;
     sh:result [ a sh:ValidationResult ;
+            sh:focusNode <http://data/id_closed_constraint> ;
+            sh:resultMessage "Property ns1:testIntegerSimpleText is not among those permitted for any of the types" ;
+            sh:resultPath ns1:testIntegerSimpleText ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent ns11:ClosedByTypesConstraintComponent ;
+            sh:sourceShape ns1:CardOneResource ;
+            sh:value <http://data/28ad1de4-1444-496b-b15c-8b1191bb0da2> ],
+        [ a sh:ValidationResult ;
             sh:focusNode <http://data/id_max_card> ;
             sh:resultMessage "1" ;
             sh:resultPath ns1:testHasLinkToCardOneResource ;
@@ -17,13 +26,5 @@
             sh:resultPath ns1:testBoolean ;
             sh:resultSeverity sh:Violation ;
             sh:sourceConstraintComponent sh:MinCountConstraintComponent ;
-            sh:sourceShape [ ] ],
-        [ a sh:ValidationResult ;
-            sh:focusNode <http://data/id_closed_constraint> ;
-            sh:resultMessage "Predicate ns1:testIntegerSimpleText is not allowed (closed shape)" ;
-            sh:resultPath ns1:testIntegerSimpleText ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:ClosedConstraintComponent ;
-            sh:sourceShape ns1:CardOneResource_Shape ;
-            sh:value <http://data/0c9365aa-8d0d-4be3-afc6-b7fe4a821762> ] .
+            sh:sourceShape [ ] ] .
 

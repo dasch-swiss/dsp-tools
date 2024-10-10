@@ -88,13 +88,13 @@ def test_reformat_cardinality_violation(result_cardinality_violation: Graph, dat
     result = reformat_validation_graph(val_rep)
     expected_info_tuples = [
         (MinCardinalityViolation, "id_card_one"),
+        (NonExistentCardinalityViolation, "id_closed_constraint"),
         (MaxCardinalityViolation, "id_max_card"),
         (MinCardinalityViolation, "id_min_card"),
-        (NonExistentCardinalityViolation, "id_closed_constraint"),
     ]
     assert not result.unexpected_results
     assert len(result.problems) == 4
-    sorted_problems = sorted(result.problems, key=lambda x: x.sort_value())
+    sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
     for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
         assert isinstance(one_result, expected_info[0])
         assert one_result.res_id == expected_info[1]

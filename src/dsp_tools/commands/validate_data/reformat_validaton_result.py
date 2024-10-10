@@ -14,9 +14,9 @@ from dsp_tools.commands.validate_data.models.input_problems import MinCardinalit
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import UnexpectedResults
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
-from dsp_tools.commands.validate_data.models.validation import CardinalityValidationResult
-from dsp_tools.commands.validate_data.models.validation import ContentValidationResult
 from dsp_tools.commands.validate_data.models.validation import ResourceValidationReportIdentifiers
+from dsp_tools.commands.validate_data.models.validation import ResultWithDetail
+from dsp_tools.commands.validate_data.models.validation import ResultWithoutDetail
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.models.validation import ValidationReport
 
@@ -52,6 +52,17 @@ def reformat_validation_graph(report: ValidationReport) -> AllProblems:
     return AllProblems(reformatted_results, unexpected_found)
 
 
+def _separate_result_types(
+    results_graph: Graph, data_onto_graph: Graph
+) -> tuple[list[ResultWithoutDetail], list[ResultWithDetail]]:
+    identifiers = _extract_identifiers_of_resource_results(results_graph, data_onto_graph)
+    no_details = [x for x in identifiers if not x.detail_node]
+    no_detail_results = [_query_without_detail(x, results_graph) for x in no_details]
+    with_details = [x for x in identifiers if x.detail_node]
+    details_results = [_query_with_detail(x, results_graph, data_onto_graph) for x in with_details]
+    return no_detail_results, details_results
+
+
 def _extract_identifiers_of_resource_results(
     results_graph: Graph, data_onto_graph: Graph
 ) -> list[ResourceValidationReportIdentifiers]:
@@ -63,12 +74,79 @@ def _extract_identifiers_of_resource_results(
         focus_iri = nd[1]
         res_type = next(data_onto_graph.objects(focus_iri, RDF.type))
         if res_type in resource_classes:
+            detail_bn = None
+            if detail_bn_list := list(results_graph.objects(validation_bn, SH.detail)):
+                detail_bn = detail_bn_list[0]
             all_res_focus_nodes.append(
                 ResourceValidationReportIdentifiers(
-                    validation_bn=validation_bn, focus_node_iri=focus_iri, res_class_type=res_type
+                    validation_bn=validation_bn,
+                    focus_node_iri=focus_iri,
+                    res_class_type=res_type,
+                    detail_node=detail_bn,
                 )
             )
     return all_res_focus_nodes
+
+
+def _query_without_detail(
+    identifiers: ResourceValidationReportIdentifiers, results_graph: Graph
+) -> ResultWithoutDetail:
+    path = next(results_graph.objects(identifiers.validation_bn, SH.resultPath))
+    component = next(results_graph.objects(identifiers.validation_bn, SH.sourceConstraintComponent))
+    msg = str(next(results_graph.objects(identifiers.validation_bn, SH.resultMessage)))
+    return ResultWithoutDetail(
+        source_constraint_component=component,
+        res_iri=identifiers.focus_node_iri,
+        res_class=identifiers.res_class_type,
+        property=path,
+        results_message=msg,
+    )
+
+
+def _query_with_detail(
+    identifiers: ResourceValidationReportIdentifiers, results_graph: Graph, data_graph: Graph
+) -> ResultWithDetail:
+    path = next(results_graph.objects(identifiers.validation_bn, SH.resultPath))
+    value_iri = next(results_graph.objects(identifiers.validation_bn, SH.value))
+    value_type = next(data_graph.objects(value_iri, RDF.type))
+    component = next(results_graph.objects(identifiers.validation_bn, SH.sourceConstraintComponent))
+    detail_component = next(results_graph.objects(identifiers.detail_node, SH.sourceConstraintComponent))
+    val = None
+    if node_value := list(results_graph.objects(identifiers.detail_node, SH.value)):
+        val = str(node_value[0])
+    msg = str(next(results_graph.objects(identifiers.detail_node, SH.resultMessage)))
+    return ResultWithDetail(
+        source_constraint_component=component,
+        res_iri=identifiers.focus_node_iri,
+        res_class=identifiers.res_class_type,
+        property=path,
+        results_message=msg,
+        detail_bn_component=detail_component,
+        value_type=value_type,
+        value=val,
+    )
+
+
+def _reformat_without_detail(
+    node_list: list[ResourceValidationReportIdentifiers], result_graph: Graph, data_graph: Graph
+) -> list[InputProblem]:
+    # ClosedByTypesConstraintComponent -> NonExistentCardinality
+
+    # MaxCountConstraintComponent -> MaxCardViolation
+
+    # MinCountConstraintComponent -> MinCardViolation
+    pass
+
+
+def _reformat_with_detail(
+    node_list: list[ResourceValidationReportIdentifiers], result_graph: Graph, data_graph: Graph
+) -> list[InputProblem]:
+    # NodeConstraintComponent - MinCountConstraintComponent --> ValueTypeMismatch (TextValue)
+
+    # NodeConstraintComponent - ClassConstraintComponent --> ValueTypeMismatch
+
+    # NodeConstraintComponent - PatternConstraintComponent --> RegexContentViolation
+    pass
 
 
 def _get_cardinality_input_errors(
@@ -86,9 +164,7 @@ def _get_cardinality_input_errors(
     return input_problems, unexpected_components
 
 
-def _query_for_cardinality_validation_results(
-    results_graph: Graph, data_graph: Graph
-) -> list[CardinalityValidationResult]:
+def _query_for_cardinality_validation_results(results_graph: Graph, data_graph: Graph) -> list[ResultWithoutDetail]:
     all_violations = set(results_graph.subjects(RDF.type, SH.ValidationResult))
     content_violations = set(results_graph.subjects(SH.sourceConstraintComponent, SH.NodeConstraintComponent))
     card_violations = all_violations - content_violations
@@ -97,13 +173,13 @@ def _query_for_cardinality_validation_results(
 
 def _query_for_one_cardinality_validation_result(
     bn: Node, results_graph: Graph, data_graph: Graph
-) -> CardinalityValidationResult:
+) -> ResultWithoutDetail:
     focus_nd = next(results_graph.objects(bn, SH.focusNode))
     res_type = next(data_graph.objects(focus_nd, RDF.type))
     path = next(results_graph.objects(bn, SH.resultPath))
     component = next(results_graph.objects(bn, SH.sourceConstraintComponent))
     msg = str(next(results_graph.objects(bn, SH.resultMessage)))
-    return CardinalityValidationResult(
+    return ResultWithoutDetail(
         source_constraint_component=component,
         res_iri=focus_nd,
         res_class=res_type,
@@ -113,7 +189,7 @@ def _query_for_one_cardinality_validation_result(
 
 
 def _reformat_one_cardinality_validation_result(
-    violation: CardinalityValidationResult,
+    violation: ResultWithoutDetail,
 ) -> InputProblem | UnexpectedComponent:
     subject_id = _reformat_data_iri(str(violation.res_iri))
     prop_name = _reformat_onto_iri(str(violation.property))
@@ -159,14 +235,12 @@ def _get_content_input_errors(
     return input_problems, unexpected_components
 
 
-def _query_for_content_validation_results(results_graph: Graph, data_graph: Graph) -> list[ContentValidationResult]:
+def _query_for_content_validation_results(results_graph: Graph, data_graph: Graph) -> list[ResultWithDetail]:
     main_results = list(results_graph.subjects(SH.sourceConstraintComponent, SH.NodeConstraintComponent))
     return [_query_for_one_content_validation_result(x, results_graph, data_graph) for x in main_results]
 
 
-def _query_for_one_content_validation_result(
-    bn: Node, results_graph: Graph, data_graph: Graph
-) -> ContentValidationResult:
+def _query_for_one_content_validation_result(bn: Node, results_graph: Graph, data_graph: Graph) -> ResultWithDetail:
     focus_nd = next(results_graph.objects(bn, SH.focusNode))
     res_type = next(data_graph.objects(focus_nd, RDF.type))
     path = next(results_graph.objects(bn, SH.resultPath))
@@ -179,7 +253,7 @@ def _query_for_one_content_validation_result(
     if node_value := list(results_graph.objects(detail_bn, SH.value)):
         val = str(node_value[0])
     msg = str(next(results_graph.objects(detail_bn, SH.resultMessage)))
-    return ContentValidationResult(
+    return ResultWithDetail(
         source_constraint_component=component,
         res_iri=focus_nd,
         res_class=res_type,
@@ -191,7 +265,7 @@ def _query_for_one_content_validation_result(
     )
 
 
-def _reformat_one_content_validation_result(val_result: ContentValidationResult) -> InputProblem | UnexpectedComponent:
+def _reformat_one_content_validation_result(val_result: ResultWithDetail) -> InputProblem | UnexpectedComponent:
     subject_id = _reformat_data_iri(str(val_result.res_iri))
     prop_name = _reformat_onto_iri(str(val_result.property))
     res_type = _reformat_onto_iri(str(val_result.res_class))

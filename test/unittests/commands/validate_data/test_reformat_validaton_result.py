@@ -7,8 +7,8 @@ from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalit
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
-from dsp_tools.commands.validate_data.models.validation import CardinalityValidationResult
-from dsp_tools.commands.validate_data.models.validation import ContentValidationResult
+from dsp_tools.commands.validate_data.models.validation import ResultWithDetail
+from dsp_tools.commands.validate_data.models.validation import ResultWithoutDetail
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.reformat_validaton_result import _query_for_cardinality_validation_results
 from dsp_tools.commands.validate_data.reformat_validaton_result import _query_for_content_validation_results
@@ -56,7 +56,7 @@ class TestQueryCardinality:
 
 
 class TestReformatCardinalityViolation:
-    def test_min(self, violation_min_card: CardinalityValidationResult) -> None:
+    def test_min(self, violation_min_card: ResultWithoutDetail) -> None:
         result = _reformat_one_cardinality_validation_result(violation_min_card)
         assert isinstance(result, MinCardinalityViolation)
         assert result.res_id == "id_min_card"
@@ -64,7 +64,7 @@ class TestReformatCardinalityViolation:
         assert result.prop_name == "onto:testGeoname"
         assert result.expected_cardinality == "1-n"
 
-    def test_max(self, violation_max_card: CardinalityValidationResult) -> None:
+    def test_max(self, violation_max_card: ResultWithoutDetail) -> None:
         result = _reformat_one_cardinality_validation_result(violation_max_card)
         assert isinstance(result, MaxCardinalityViolation)
         assert result.res_id == "id_max_card"
@@ -72,7 +72,7 @@ class TestReformatCardinalityViolation:
         assert result.prop_name == "onto:testDecimalSimpleText"
         assert result.expected_cardinality == "0-1"
 
-    def test_closed(self, violation_closed: CardinalityValidationResult) -> None:
+    def test_closed(self, violation_closed: ResultWithoutDetail) -> None:
         result = _reformat_one_cardinality_validation_result(violation_closed)
         assert isinstance(result, NonExistentCardinalityViolation)
         assert result.res_id == "id_closed_constraint"
@@ -107,7 +107,7 @@ class TestQueryGraphContent:
 
 
 class TestReformatContentViolation:
-    def test_value_type(self, violation_value_type: ContentValidationResult) -> None:
+    def test_value_type(self, violation_value_type: ResultWithDetail) -> None:
         result = _reformat_one_content_validation_result(violation_value_type)
         assert isinstance(result, ValueTypeViolation)
         assert result.res_id == "id_2"
@@ -116,7 +116,7 @@ class TestReformatContentViolation:
         assert result.actual_type == "TextValue"
         assert result.expected_type == "ColorValue"
 
-    def test_violation_regex(self, violation_regex: ContentValidationResult) -> None:
+    def test_violation_regex(self, violation_regex: ResultWithDetail) -> None:
         result = _reformat_one_content_validation_result(violation_regex)
         assert isinstance(result, ContentRegexViolation)
         assert result.res_id == "geoname_not_number"
@@ -125,7 +125,7 @@ class TestReformatContentViolation:
         assert result.expected_format == "The value must be a valid geoname code"
         assert result.actual_content == "this-is-not-a-valid-code"
 
-    def test_unknown(self, violation_unknown_content: ContentValidationResult) -> None:
+    def test_unknown(self, violation_unknown_content: ResultWithDetail) -> None:
         result = _reformat_one_content_validation_result(violation_unknown_content)
         assert isinstance(result, UnexpectedComponent)
         assert result.component_type == str(SH.UniqueLangConstraintComponent)

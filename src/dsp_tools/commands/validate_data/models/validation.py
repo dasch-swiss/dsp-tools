@@ -26,6 +26,7 @@ class ResourceValidationReportIdentifiers:
     validation_bn: Node
     focus_node_iri: Node
     res_class_type: Node
+    detail_node: Node | None = None
 
 
 @dataclass
@@ -42,7 +43,7 @@ class UnexpectedComponent:
 
 
 @dataclass
-class CardinalityValidationResult:
+class ResultWithoutDetail:
     source_constraint_component: Node
     res_iri: Node
     res_class: Node
@@ -51,7 +52,7 @@ class CardinalityValidationResult:
 
 
 @dataclass
-class ContentValidationResult:
+class ResultWithDetail:
     source_constraint_component: Node
     res_iri: Node
     res_class: Node

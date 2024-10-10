@@ -4,9 +4,9 @@ from rdflib import SH
 from rdflib import Graph
 from rdflib import URIRef
 
-from dsp_tools.commands.validate_data.models.validation import CardinalityValidationResult
-from dsp_tools.commands.validate_data.models.validation import ContentValidationResult
 from dsp_tools.commands.validate_data.models.validation import ResourceValidationReportIdentifiers
+from dsp_tools.commands.validate_data.models.validation import ResultWithDetail
+from dsp_tools.commands.validate_data.models.validation import ResultWithoutDetail
 from test.unittests.commands.validate_data.constants import DASH
 from test.unittests.commands.validate_data.constants import DATA
 from test.unittests.commands.validate_data.constants import KNORA_API
@@ -75,8 +75,9 @@ def result_id_simpletext() -> tuple[Graph, Graph, ResourceValidationReportIdenti
     data = Graph()
     data.parse(data=datastr, format="ttl")
     val_bn = next(g.subjects(RDF.type, SH.ValidationResult))
+    detail_bn = next(g.objects(predicate=SH.detail))
     identifiers = ResourceValidationReportIdentifiers(
-        val_bn, URIRef("http://data/id_simpletext"), ONTO.ClassWithEverything
+        val_bn, URIRef("http://data/id_simpletext"), ONTO.ClassWithEverything, detail_bn
     )
     return g, data, identifiers
 
@@ -116,7 +117,10 @@ def result_id_uri() -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
     data = Graph()
     data.parse(data=datastr, format="ttl")
     val_bn = next(g.subjects(RDF.type, SH.ValidationResult))
-    identifiers = ResourceValidationReportIdentifiers(val_bn, URIRef("http://data/id_uri"), ONTO.ClassWithEverything)
+    detail_bn = next(g.objects(predicate=SH.detail))
+    identifiers = ResourceValidationReportIdentifiers(
+        val_bn, URIRef("http://data/id_uri"), ONTO.ClassWithEverything, detail_bn
+    )
     return g, data, identifiers
 
 
@@ -156,8 +160,9 @@ def result_geoname_not_number() -> tuple[Graph, Graph, ResourceValidationReportI
     data = Graph()
     data.parse(data=datastr, format="ttl")
     val_bn = next(g.subjects(RDF.type, SH.ValidationResult))
+    detail_bn = next(g.objects(predicate=SH.detail))
     identifiers = ResourceValidationReportIdentifiers(
-        val_bn, URIRef("http://data/geoname_not_number"), ONTO.ClassWithEverything
+        val_bn, URIRef("http://data/geoname_not_number"), ONTO.ClassWithEverything, detail_bn
     )
     return g, data, identifiers
 
@@ -386,8 +391,8 @@ def data_wrong_regex_content() -> Graph:
 
 
 @pytest.fixture
-def violation_min_card() -> CardinalityValidationResult:
-    return CardinalityValidationResult(
+def violation_min_card() -> ResultWithoutDetail:
+    return ResultWithoutDetail(
         source_constraint_component=SH.MinCountConstraintComponent,
         res_iri=DATA.id_min_card,
         res_class=ONTO.ClassMixedCard,
@@ -397,8 +402,8 @@ def violation_min_card() -> CardinalityValidationResult:
 
 
 @pytest.fixture
-def violation_max_card() -> CardinalityValidationResult:
-    return CardinalityValidationResult(
+def violation_max_card() -> ResultWithoutDetail:
+    return ResultWithoutDetail(
         source_constraint_component=SH.MaxCountConstraintComponent,
         res_iri=DATA.id_max_card,
         res_class=ONTO.ClassMixedCard,
@@ -408,8 +413,8 @@ def violation_max_card() -> CardinalityValidationResult:
 
 
 @pytest.fixture
-def violation_closed() -> CardinalityValidationResult:
-    return CardinalityValidationResult(
+def violation_closed() -> ResultWithoutDetail:
+    return ResultWithoutDetail(
         source_constraint_component=DASH.ClosedByTypesConstraintComponent,
         res_iri=DATA.id_closed_constraint,
         res_class=ONTO.CardOneResource,
@@ -419,8 +424,8 @@ def violation_closed() -> CardinalityValidationResult:
 
 
 @pytest.fixture
-def violation_value_type() -> ContentValidationResult:
-    return ContentValidationResult(
+def violation_value_type() -> ResultWithDetail:
+    return ResultWithDetail(
         source_constraint_component=SH.NodeConstraintComponent,
         res_iri=DATA.id_2,
         res_class=ONTO.ClassWithEverything,
@@ -433,8 +438,8 @@ def violation_value_type() -> ContentValidationResult:
 
 
 @pytest.fixture
-def violation_unknown_content() -> ContentValidationResult:
-    return ContentValidationResult(
+def violation_unknown_content() -> ResultWithDetail:
+    return ResultWithDetail(
         source_constraint_component=SH.UniqueLangConstraintComponent,
         res_iri=DATA.id,
         res_class=ONTO.ClassMixedCard,
@@ -446,8 +451,8 @@ def violation_unknown_content() -> ContentValidationResult:
 
 
 @pytest.fixture
-def violation_regex() -> ContentValidationResult:
-    return ContentValidationResult(
+def violation_regex() -> ResultWithDetail:
+    return ResultWithDetail(
         source_constraint_component=SH.NodeConstraintComponent,
         res_iri=DATA.geoname_not_number,
         res_class=ONTO.ClassWithEverything,

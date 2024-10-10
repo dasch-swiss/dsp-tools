@@ -97,7 +97,8 @@ def _create_graphs(onto_con: OntologyConnection, data_rdf: DataRDF) -> RDFGraphs
     api_shapes = Graph()
     api_shapes.parse("src/dsp_tools/resources/validate_data/api-shapes.ttl")
     shapes_graph += api_shapes
-    return RDFGraphs(data=data_rdf.make_graph(), ontos=ontologies, shapes=shapes_graph)
+    data_onto = data_rdf.make_graph() + ontologies
+    return RDFGraphs(data_onto=data_onto, ontos=ontologies, shapes=shapes_graph)
 
 
 def _get_project_ontos(onto_con: OntologyConnection) -> Graph:
@@ -120,8 +121,8 @@ def _save_graphs(filepath: Path, rdf_graphs: RDFGraphs) -> Path:
     shacl_onto = rdf_graphs.shapes + rdf_graphs.ontos
     shacl_onto.serialize(f"{generic_filepath}_SHACL_ONTO.ttl")
     rdf_graphs.shapes.serialize(f"{generic_filepath}_SHACL.ttl")
-    rdf_graphs.data.serialize(f"{generic_filepath}_DATA.ttl")
-    onto_data = rdf_graphs.data + rdf_graphs.ontos
+    rdf_graphs.data_onto.serialize(f"{generic_filepath}_DATA.ttl")
+    onto_data = rdf_graphs.data_onto + rdf_graphs.ontos
     onto_data.serialize(f"{generic_filepath}_ONTO_DATA.ttl")
     return generic_filepath
 
@@ -135,7 +136,7 @@ def _validate(validator: ShaclValidator, rdf_graphs: RDFGraphs) -> ValidationRep
         conforms=conforms,
         validation_graph=validation_results,
         shacl_graphs=rdf_graphs.shapes,
-        data_graph=rdf_graphs.data,
+        data_graph=rdf_graphs.data_onto,
     )
 
 

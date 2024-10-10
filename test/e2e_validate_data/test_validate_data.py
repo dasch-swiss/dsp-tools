@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Iterator
 
 import pytest
-
+from rdflib import URIRef
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.validate_data.models.input_problems import ContentRegexViolation
@@ -12,7 +12,10 @@ from dsp_tools.commands.validate_data.models.input_problems import MinCardinalit
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
 from dsp_tools.commands.validate_data.models.validation import ValidationReport
-from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_validation_graph
+from dsp_tools.commands.validate_data.reformat_validaton_result import (
+    reformat_validation_graph,
+    _extract_identifiers_of_resource_results,
+)
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
 from test.e2e_validate_data.setup_testcontainers import get_containers
 
@@ -94,6 +97,23 @@ class TestGetValidationResult:
 
     def test_value_type_violation(self, value_type_violation: ValidationReport) -> None:
         assert not value_type_violation.conforms
+
+
+def test_extract_identifiers_of_resource_results(every_combination_once) -> None:
+    result = _extract_identifiers_of_resource_results(
+        every_combination_once.validation_graph, every_combination_once.data_graph
+    )
+    result_sorted = sorted(result, key=lambda x: x.focus_node_iri)
+    expected_iris = [
+        URIRef("http://data/geoname_not_number"),
+        URIRef("http://data/id_card_one"),
+        URIRef("http://data/id_closed_constraint"),
+        URIRef("http://data/id_max_card"),
+        URIRef("http://data/id_simpletext"),
+        URIRef("http://data/id_uri"),
+    ]
+    for result_iri, expected_iri in zip(result_sorted, expected_iris):
+        assert result_iri.focus_node_iri == expected_iri
 
 
 class TestReformatValidationGraph:

@@ -8,12 +8,12 @@ from rdflib.term import Node
 
 @dataclass
 class RDFGraphs:
-    data: Graph
+    data_onto: Graph
     ontos: Graph
     shapes: Graph
 
     def get_data_str(self) -> str:
-        g = self.data + self.ontos
+        g = self.data_onto + self.ontos
         return g.serialize(format="ttl")
 
     def get_shacl_str(self) -> str:

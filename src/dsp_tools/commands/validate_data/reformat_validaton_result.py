@@ -52,7 +52,7 @@ def reformat_validation_graph(report: ValidationReport) -> AllProblems:
     return AllProblems(reformatted_results, unexpected_found)
 
 
-def _separate_different_result_types(
+def _extract_identifiers_of_resource_results(
     results_graph: Graph, data_onto_graph: Graph
 ) -> list[ResourceValidationReportIdentifiers]:
     focus_nodes = list(results_graph.subject_objects(SH.focusNode))

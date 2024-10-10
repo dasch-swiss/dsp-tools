@@ -2,7 +2,7 @@ import pytest
 from rdflib import Graph
 from rdflib import URIRef
 
-from dsp_tools.commands.validate_data.reformat_validaton_result import _separate_different_result_types
+from dsp_tools.commands.validate_data.reformat_validaton_result import _extract_identifiers_of_resource_results
 
 
 @pytest.fixture
@@ -22,7 +22,7 @@ def every_combination_once_data() -> Graph:
 def test_separate_different_result_types(
     every_combination_once_report: Graph, every_combination_once_data: Graph
 ) -> None:
-    result = _separate_different_result_types(every_combination_once_report, every_combination_once_data)
+    result = _extract_identifiers_of_resource_results(every_combination_once_report, every_combination_once_data)
     result_sorted = sorted(result, key=lambda x: x.focus_node_iri)
     expected_iris = [
         URIRef("http://data/geoname_not_number"),

@@ -73,7 +73,7 @@ e2e-tests *FLAGS:
 # Run the end-to-end tests for the validate-data command (with testcontainers)
 [no-exit-message]
 e2e-validate-data-tests *FLAGS:
-    uv run pytest test/e2e-validate-data/ {{FLAGS}}
+    uv run pytest test/test/e2e_validate_data/ {{FLAGS}}
 
 
 # Run the legacy end-to-end tests (needs a running stack)

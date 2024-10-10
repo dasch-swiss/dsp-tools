@@ -53,7 +53,7 @@ def test_reformat_validation_graph_cardinality(
 ) -> None:
     val_rep = ValidationReport(
         conforms=False,
-        validation_graph=result_cardinality_violation,
+        validation_graph=result_cardinality_violation)
 
 @pytest.fixture
 def content_violation_data() -> Graph:
@@ -91,7 +91,7 @@ def every_constraint_once_result_content() -> Graph:
 
 
 def test_reformat_cardinality_violation(cardinality_violation_result: Graph, cardinality_violation_data: Graph) -> None:
-    val_rep = ValidationReports(
+    val_rep = ValidationReport(
         conforms=False,
         content_validation=None,
         cardinality_validation=cardinality_violation_result,
@@ -114,7 +114,7 @@ def test_reformat_cardinality_violation(cardinality_violation_result: Graph, car
 
 
 def test_reformat_value_type_violation(value_type_violation_result: Graph, value_type_violation_data: Graph) -> None:
-    val_rep = ValidationReports(
+    val_rep = ValidationReport(
         conforms=False,
         content_validation=value_type_violation_result,
         cardinality_validation=None,
@@ -147,7 +147,7 @@ def test_reformat_value_type_violation(value_type_violation_result: Graph, value
 
 
 def test_reformat_content_violation(content_violation_result: Graph, content_violation_data: Graph) -> None:
-    val_rep = ValidationReports(
+    val_rep = ValidationReport(
         conforms=False,
         content_validation=content_violation_result,
         cardinality_validation=None,
@@ -176,7 +176,7 @@ def test_reformat_every_constraint_once(
     every_constraint_once_result_content: Graph,
     every_combination_once_data: Graph,
 ) -> None:
-    val_rep = ValidationReports(
+    val_rep = ValidationReport(
         conforms=False,
         content_validation=every_constraint_once_result_content,
         cardinality_validation=every_combination_once_result_cardinality,

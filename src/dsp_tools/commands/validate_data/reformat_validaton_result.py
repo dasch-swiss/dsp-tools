@@ -20,6 +20,8 @@ from dsp_tools.commands.validate_data.models.validation import ValidationReport
 
 DASH = Namespace("http://datashapes.org/dash#")
 
+DASH = Namespace("http://datashapes.org/dash#")
+
 
 def reformat_validation_graph(report: ValidationReport) -> AllProblems:
     """

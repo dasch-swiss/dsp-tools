@@ -16,7 +16,6 @@ from dsp_tools.commands.validate_data.reformat_validaton_result import _query_wi
 from dsp_tools.commands.validate_data.reformat_validaton_result import _reformat_one_with_detail
 from dsp_tools.commands.validate_data.reformat_validaton_result import _reformat_one_without_detail
 from test.unittests.commands.validate_data.constants import DASH
-from test.unittests.commands.validate_data.constants import DATA
 from test.unittests.commands.validate_data.constants import KNORA_API
 from test.unittests.commands.validate_data.constants import ONTO
 
@@ -41,8 +40,8 @@ class TestQueryWithoutDetail:
         assert result.res_class == ids.res_class_type
         assert result.property == ONTO.testIntegerSimpleText
         assert (
-            result.results_message
-            == "Property onto:testIntegerSimpleText is not among those permitted for any of the types"
+            result.results_message == "Property onto:testIntegerSimpleText \n"
+            "                                is not among those permitted for any of the types"
         )
 
     def test_result_id_max_card(self, result_id_max_card: tuple[Graph, ResourceValidationReportIdentifiers]) -> None:
@@ -79,8 +78,8 @@ class TestQueryWithDetail:
         assert result.property == ONTO.testUriValue
         assert result.results_message == "UriValue"
         assert result.detail_bn_component == SH.ClassConstraintComponent
-        assert result.value_type == KNORA_API.UriValue
-        assert result.value == DATA.value_id_uri
+        assert result.value_type == KNORA_API.TextValue
+        assert result.value == "http://data/value_id_uri"
 
     def test_result_geoname_not_number(
         self, result_geoname_not_number: tuple[Graph, Graph, ResourceValidationReportIdentifiers]

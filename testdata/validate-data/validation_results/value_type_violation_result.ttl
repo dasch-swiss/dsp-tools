@@ -1,373 +1,248 @@
 @prefix ns1: <http://api.knora.org/ontology/knora-api/v2#> .
-@prefix ns21: <http://0.0.0.0:3333/ontology/9999/onto/v2#> .
 @prefix ns2: <http://0.0.0.0:3333/ontology/9999/onto/v2#> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 [] a sh:ValidationReport ;
-    sh:result _:nfd120c3808c348c4a9b02dc6cc8bb5d3b13 .
+    sh:result _:n84407e05add24a89a98484981927c1e5b2 .
 
 [] a sh:ValidationReport ;
-    sh:result _:nfd120c3808c348c4a9b02dc6cc8bb5d3b6 .
+    sh:result _:n84407e05add24a89a98484981927c1e5b11 .
 
 [] a sh:ValidationReport ;
-    sh:result _:nfd120c3808c348c4a9b02dc6cc8bb5d3b14 .
+    sh:result _:n84407e05add24a89a98484981927c1e5b9 .
 
 [] a sh:ValidationReport ;
-    sh:result _:nfd120c3808c348c4a9b02dc6cc8bb5d3b7 .
+    sh:result _:n84407e05add24a89a98484981927c1e5b14 .
 
 [] a sh:ValidationReport ;
-    sh:result _:nfd120c3808c348c4a9b02dc6cc8bb5d3b20 .
+    sh:result _:n84407e05add24a89a98484981927c1e5b16 .
 
 [] a sh:ValidationReport ;
-    sh:result _:nfd120c3808c348c4a9b02dc6cc8bb5d3b1 .
+    sh:result _:n84407e05add24a89a98484981927c1e5b18 .
 
 [] a sh:ValidationReport ;
-    sh:result _:nfd120c3808c348c4a9b02dc6cc8bb5d3b11 .
-
-    sh:result _:nc06554bf690943e991682e20b650ecd6b2 .
+    sh:result _:n84407e05add24a89a98484981927c1e5b20 .
 
 [] a sh:ValidationReport ;
-    sh:result _:nc06554bf690943e991682e20b650ecd6b9 .
+    sh:result _:n84407e05add24a89a98484981927c1e5b22 .
 
 [] a sh:ValidationReport ;
-    sh:result _:nc06554bf690943e991682e20b650ecd6b13 .
-
-[] a sh:ValidationReport ;
-    sh:result _:nc06554bf690943e991682e20b650ecd6b10 .
-
+    sh:result _:n84407e05add24a89a98484981927c1e5b3 .
 
 [] a sh:ValidationReport ;
     sh:conforms false ;
     sh:result [ a sh:ValidationResult ;
-            sh:detail _:nfd120c3808c348c4a9b02dc6cc8bb5d3b10 ;
-            sh:focusNode <http://data/id_12> ;
-            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#UriValue_ClassShape>" ;
-            sh:resultPath ns21:testUriValue ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-            sh:sourceShape ns21:testUriValue_PropShape ;
-            sh:value <http://data/fd20284e-5884-4d88-8e3d-b58c8a739f03> ],
-        [ a sh:ValidationResult ;
-            sh:detail _:nfd120c3808c348c4a9b02dc6cc8bb5d3b3 ;
-            sh:focusNode <http://data/id_2> ;
-            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#ColorValue_ClassShape>" ;
-            sh:resultPath ns21:testColor ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-            sh:sourceShape ns21:testColor_PropShape ;
-            sh:value <http://data/b59c1c08-3e7a-41fb-963d-f5738c7e61ca> ],
-        [ a sh:ValidationResult ;
-            sh:detail _:nfd120c3808c348c4a9b02dc6cc8bb5d3b1 ;
-            sh:focusNode <http://data/id_4> ;
-            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#DecimalValue_ClassShape>" ;
-            sh:resultPath ns21:testDecimalSimpleText ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-            sh:sourceShape ns21:testDecimalSimpleText_PropShape ;
-            sh:value <http://data/f37ee16d-cc78-468e-980c-5f3257584324> ],
-        [ a sh:ValidationResult ;
-            sh:detail _:nfd120c3808c348c4a9b02dc6cc8bb5d3b11 ;
-            sh:focusNode <http://data/id_3> ;
-            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#DateValue_ClassShape>" ;
-            sh:resultPath ns21:testSubDate1 ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-            sh:sourceShape ns21:testSubDate1_PropShape ;
-            sh:value <http://data/42a6974a-ec46-4d54-b9dd-09e7efbc4082> ],
-        [ a sh:ValidationResult ;
-            sh:detail _:nfd120c3808c348c4a9b02dc6cc8bb5d3b13 ;
-            sh:focusNode <http://data/id_6> ;
-            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#IntValue_ClassShape>" ;
-            sh:resultPath ns21:testIntegerSimpleText ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-            sh:sourceShape ns21:testIntegerSimpleText_PropShape ;
-            sh:value <http://data/03576f53-1c26-4eff-bc1f-c80820cc0eb8> ],
-        [ a sh:ValidationResult ;
-            sh:detail _:nfd120c3808c348c4a9b02dc6cc8bb5d3b16 ;
-            sh:focusNode <http://data/id_11> ;
-            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#TimeValue_ClassShape>" ;
-            sh:resultPath ns21:testTimeValue ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-            sh:sourceShape ns21:testTimeValue_PropShape ;
-            sh:value <http://data/7763a461-a98f-4f7a-851d-37a120e82c1e> ],
-        [ a sh:ValidationResult ;
-            sh:detail _:nfd120c3808c348c4a9b02dc6cc8bb5d3b6 ;
-            sh:focusNode <http://data/id_9> ;
-            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#FormattedTextValue_ClassShape>" ;
-            sh:resultPath ns21:testRichtext ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-            sh:sourceShape ns21:testRichtext_PropShape ;
-            sh:value <http://data/47123e3d-62b6-4cc5-93c6-be4cf8e85b4d> ],
-        [ a sh:ValidationResult ;
-            sh:detail _:nfd120c3808c348c4a9b02dc6cc8bb5d3b7 ;
-            sh:focusNode <http://data/id_10> ;
-            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#SimpleTextValue_ClassShape>" ;
-            sh:resultPath ns21:testTextarea ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-            sh:sourceShape ns21:testTextarea_PropShape ;
-            sh:value <http://data/ca8b1700-bc85-4da1-9bce-0671d80389de> ],
-        [ a sh:ValidationResult ;
-            sh:detail _:nfd120c3808c348c4a9b02dc6cc8bb5d3b9 ;
-            sh:focusNode <http://data/id_5> ;
-            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#GeonameValue_ClassShape>" ;
-            sh:resultPath ns21:testGeoname ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-            sh:sourceShape ns21:testGeoname_PropShape ;
-            sh:value <http://data/260e2f96-3159-4afe-af5c-71257efda0fa> ],
-        [ a sh:ValidationResult ;
-            sh:detail _:nfd120c3808c348c4a9b02dc6cc8bb5d3b14 ;
-            sh:focusNode <http://data/id_8> ;
-            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#LinkValue_ClassShape>" ;
-            sh:resultPath ns21:testHasLinkTo ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-            sh:sourceShape ns21:testHasLinkTo_PropShape ;
-            sh:value <http://data/1032dd51-c9c9-442e-b290-301d586cc134> ],
-        [ a sh:ValidationResult ;
-            sh:detail _:nfd120c3808c348c4a9b02dc6cc8bb5d3b20 ;
-            sh:focusNode <http://data/id_7> ;
-            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#ListValue_ClassShape>" ;
-            sh:resultPath ns21:testListProp ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-            sh:sourceShape ns21:testListProp_PropShape ;
-            sh:value <http://data/5bc26e43-0463-4e3a-927e-775438e33190> ],
-        [ a sh:ValidationResult ;
-            sh:detail _:nfd120c3808c348c4a9b02dc6cc8bb5d3b5 ;
-            sh:focusNode <http://data/id_1> ;
-            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#BooleanValue_ClassShape>" ;
-            sh:resultPath ns21:testBoolean ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-            sh:sourceShape ns21:testBoolean_PropShape ;
-            sh:value <http://data/2f134d75-e94f-4fc6-a197-1df70c283d0b> ] .
-
-[] a sh:ValidationReport ;
-    sh:result _:nfd120c3808c348c4a9b02dc6cc8bb5d3b3 .
-
-[] a sh:ValidationReport ;
-    sh:result _:nfd120c3808c348c4a9b02dc6cc8bb5d3b16 .
-
-[] a sh:ValidationReport ;
-    sh:result _:nfd120c3808c348c4a9b02dc6cc8bb5d3b10 .
-
-[] a sh:ValidationReport ;
-    sh:result _:nfd120c3808c348c4a9b02dc6cc8bb5d3b5 .
-
-[] a sh:ValidationReport ;
-    sh:result _:nfd120c3808c348c4a9b02dc6cc8bb5d3b9 .
-
-_:nfd120c3808c348c4a9b02dc6cc8bb5d3b1 a sh:ValidationResult ;
-    sh:focusNode <http://data/f37ee16d-cc78-468e-980c-5f3257584324> ;
-    sh:resultMessage "DecimalValue" ;
-    sh:resultSeverity sh:Violation ;
-    sh:sourceConstraintComponent sh:ClassConstraintComponent ;
-    sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#DecimalValue_ClassShape> ;
-    sh:value <http://data/f37ee16d-cc78-468e-980c-5f3257584324> .
-
-_:nfd120c3808c348c4a9b02dc6cc8bb5d3b10 a sh:ValidationResult ;
-    sh:focusNode <http://data/fd20284e-5884-4d88-8e3d-b58c8a739f03> ;
-
-            sh:detail _:nc06554bf690943e991682e20b650ecd6b13 ;
-            sh:focusNode <http://data/id_uri> ;
-            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#UriValue_ClassShape>" ;
-            sh:resultPath ns2:testUriValue ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-            sh:sourceShape ns2:testUriValue_PropShape ;
-            sh:value <http://data/9ff9b594-7f98-4d6f-96ea-1aa46c2d2e36> ],
-        [ a sh:ValidationResult ;
-            sh:detail _:nc06554bf690943e991682e20b650ecd6b19 ;
-            sh:focusNode <http://data/id_geoname> ;
-            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#GeonameValue_ClassShape>" ;
-            sh:resultPath ns2:testGeoname ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-            sh:sourceShape ns2:testGeoname_PropShape ;
-            sh:value <http://data/7d2e36f4-cbb7-4f45-ac64-cabbf9909ef7> ],
-        [ a sh:ValidationResult ;
-            sh:detail _:nc06554bf690943e991682e20b650ecd6b21 ;
-            sh:focusNode <http://data/id_link> ;
-            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#LinkValue_ClassShape>" ;
-            sh:resultPath ns2:testHasLinkTo ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-            sh:sourceShape ns2:testHasLinkTo_PropShape ;
-            sh:value <http://data/a030c7c0-d516-464f-a72a-df88d92b2651> ],
-        [ a sh:ValidationResult ;
-            sh:detail _:nc06554bf690943e991682e20b650ecd6b8 ;
-            sh:focusNode <http://data/id_integer> ;
-            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#IntValue_ClassShape>" ;
-            sh:resultPath ns2:testIntegerSimpleText ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-            sh:sourceShape ns2:testIntegerSimpleText_PropShape ;
-            sh:value <http://data/d73aeed9-37fc-4120-ade2-b178a94e8184> ],
-        [ a sh:ValidationResult ;
-            sh:detail _:nc06554bf690943e991682e20b650ecd6b9 ;
-            sh:focusNode <http://data/id_decimal> ;
-            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#DecimalValue_ClassShape>" ;
-            sh:resultPath ns2:testDecimalSimpleText ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-            sh:sourceShape ns2:testDecimalSimpleText_PropShape ;
-            sh:value <http://data/0d3d02b9-c159-4eec-9360-d118b8910c77> ],
-        [ a sh:ValidationResult ;
-            sh:detail _:nc06554bf690943e991682e20b650ecd6b4 ;
-            sh:focusNode <http://data/id_color> ;
-            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#ColorValue_ClassShape>" ;
-            sh:resultPath ns2:testColor ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-            sh:sourceShape ns2:testColor_PropShape ;
-            sh:value <http://data/6bd8610e-7804-4b9d-917c-71da54438f91> ],
-        [ a sh:ValidationResult ;
-            sh:detail _:nc06554bf690943e991682e20b650ecd6b15 ;
-            sh:focusNode <http://data/id_bool> ;
-            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#BooleanValue_ClassShape>" ;
-            sh:resultPath ns2:testBoolean ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-            sh:sourceShape ns2:testBoolean_PropShape ;
-            sh:value <http://data/976bf2d0-774b-48d4-a1cc-e1facdf24bb7> ],
-        [ a sh:ValidationResult ;
-            sh:detail _:nc06554bf690943e991682e20b650ecd6b27 ;
-            sh:focusNode <http://data/id_date> ;
-            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#DateValue_ClassShape>" ;
-            sh:resultPath ns2:testSubDate1 ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-            sh:sourceShape ns2:testSubDate1_PropShape ;
-            sh:value <http://data/fbbc639d-ed65-4e2f-80c6-0193c598cef1> ],
-        [ a sh:ValidationResult ;
-            sh:detail _:nc06554bf690943e991682e20b650ecd6b6 ;
-            sh:focusNode <http://data/id_time> ;
-            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#TimeValue_ClassShape>" ;
-            sh:resultPath ns2:testTimeValue ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-            sh:sourceShape ns2:testTimeValue_PropShape ;
-            sh:value <http://data/ee316453-5001-479f-a054-69133fe916e5> ],
-        [ a sh:ValidationResult ;
-            sh:detail _:nc06554bf690943e991682e20b650ecd6b10 ;
+            sh:detail _:n84407e05add24a89a98484981927c1e5b5 ;
             sh:focusNode <http://data/id_richtext> ;
             sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#FormattedTextValue_ClassShape>" ;
             sh:resultPath ns2:testRichtext ;
             sh:resultSeverity sh:Violation ;
             sh:sourceConstraintComponent sh:NodeConstraintComponent ;
             sh:sourceShape ns2:testRichtext_PropShape ;
-            sh:value <http://data/915aa7d2-d900-4976-bb3b-669af019816c> ],
+            sh:value <http://data/b2b382a2-4568-4369-9f2e-eca71cde2ab5> ],
         [ a sh:ValidationResult ;
-            sh:detail _:nc06554bf690943e991682e20b650ecd6b2 ;
-            sh:focusNode <http://data/id_simpletext> ;
-            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#SimpleTextValue_ClassShape>" ;
-            sh:resultPath ns2:testTextarea ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-            sh:sourceShape ns2:testTextarea_PropShape ;
-            sh:value <http://data/97cb2da9-940f-4b9b-ab09-5f56448eaea0> ],
-        [ a sh:ValidationResult ;
-            sh:detail _:nc06554bf690943e991682e20b650ecd6b32 ;
+            sh:detail _:n84407e05add24a89a98484981927c1e5b20 ;
             sh:focusNode <http://data/id_list> ;
             sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#ListValue_ClassShape>" ;
             sh:resultPath ns2:testListProp ;
             sh:resultSeverity sh:Violation ;
             sh:sourceConstraintComponent sh:NodeConstraintComponent ;
             sh:sourceShape ns2:testListProp_PropShape ;
-            sh:value <http://data/869a49ba-b6cc-4a61-be1c-d7cc560494d0> ] .
+            sh:value <http://data/8adf375f-d0b4-41d5-a47e-a91f7ea34d8c> ],
+        [ a sh:ValidationResult ;
+            sh:detail _:n84407e05add24a89a98484981927c1e5b16 ;
+            sh:focusNode <http://data/id_time> ;
+            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#TimeValue_ClassShape>" ;
+            sh:resultPath ns2:testTimeValue ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+            sh:sourceShape ns2:testTimeValue_PropShape ;
+            sh:value <http://data/66eba1be-af17-4a8d-9269-ca5074560e48> ],
+        [ a sh:ValidationResult ;
+            sh:detail _:n84407e05add24a89a98484981927c1e5b9 ;
+            sh:focusNode <http://data/id_decimal> ;
+            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#DecimalValue_ClassShape>" ;
+            sh:resultPath ns2:testDecimalSimpleText ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+            sh:sourceShape ns2:testDecimalSimpleText_PropShape ;
+            sh:value <http://data/8046124e-a9fe-49d5-a0d7-ab7f06a0730b> ],
+        [ a sh:ValidationResult ;
+            sh:detail _:n84407e05add24a89a98484981927c1e5b11 ;
+            sh:focusNode <http://data/id_uri> ;
+            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#UriValue_ClassShape>" ;
+            sh:resultPath ns2:testUriValue ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+            sh:sourceShape ns2:testUriValue_PropShape ;
+            sh:value <http://data/eb971f1e-3552-4bae-ba19-16e4627410c9> ],
+        [ a sh:ValidationResult ;
+            sh:detail _:n84407e05add24a89a98484981927c1e5b18 ;
+            sh:focusNode <http://data/id_integer> ;
+            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#IntValue_ClassShape>" ;
+            sh:resultPath ns2:testIntegerSimpleText ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+            sh:sourceShape ns2:testIntegerSimpleText_PropShape ;
+            sh:value <http://data/f22a918f-cd55-4a4c-b363-8215da983fec> ],
+        [ a sh:ValidationResult ;
+            sh:detail _:n84407e05add24a89a98484981927c1e5b2 ;
+            sh:focusNode <http://data/id_bool> ;
+            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#BooleanValue_ClassShape>" ;
+            sh:resultPath ns2:testBoolean ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+            sh:sourceShape ns2:testBoolean_PropShape ;
+            sh:value <http://data/f0dd6bdd-c675-4c02-89a0-a08c7b9f369c> ],
+        [ a sh:ValidationResult ;
+            sh:detail _:n84407e05add24a89a98484981927c1e5b14 ;
+            sh:focusNode <http://data/id_link> ;
+            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#LinkValue_ClassShape>" ;
+            sh:resultPath ns2:testHasLinkTo ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+            sh:sourceShape ns2:testHasLinkTo_PropShape ;
+            sh:value <http://data/e5e51cd3-7ba7-442c-803c-176b3a0d582b> ],
+        [ a sh:ValidationResult ;
+            sh:detail _:n84407e05add24a89a98484981927c1e5b3 ;
+            sh:focusNode <http://data/id_geoname> ;
+            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#GeonameValue_ClassShape>" ;
+            sh:resultPath ns2:testGeoname ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+            sh:sourceShape ns2:testGeoname_PropShape ;
+            sh:value <http://data/60a51b21-8b0f-497a-861c-6bd77991c8f1> ],
+        [ a sh:ValidationResult ;
+            sh:detail _:n84407e05add24a89a98484981927c1e5b6 ;
+            sh:focusNode <http://data/id_date> ;
+            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#DateValue_ClassShape>" ;
+            sh:resultPath ns2:testSubDate1 ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+            sh:sourceShape ns2:testSubDate1_PropShape ;
+            sh:value <http://data/3fdc8d16-2027-4e13-995a-a7da4e585fd5> ],
+        [ a sh:ValidationResult ;
+            sh:detail _:n84407e05add24a89a98484981927c1e5b22 ;
+            sh:focusNode <http://data/id_color> ;
+            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#ColorValue_ClassShape>" ;
+            sh:resultPath ns2:testColor ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+            sh:sourceShape ns2:testColor_PropShape ;
+            sh:value <http://data/d94c2807-1e79-415f-adae-7c41ee7dc40f> ],
+        [ a sh:ValidationResult ;
+            sh:detail _:n84407e05add24a89a98484981927c1e5b7 ;
+            sh:focusNode <http://data/id_simpletext> ;
+            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#SimpleTextValue_ClassShape>" ;
+            sh:resultPath ns2:testTextarea ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+            sh:sourceShape ns2:testTextarea_PropShape ;
+            sh:value <http://data/f1c874b8-bafd-41b7-a198-041322b0e696> ] .
 
 [] a sh:ValidationReport ;
-    sh:result _:nc06554bf690943e991682e20b650ecd6b4 .
+    sh:result _:n84407e05add24a89a98484981927c1e5b6 .
 
 [] a sh:ValidationReport ;
-    sh:result _:nc06554bf690943e991682e20b650ecd6b15 .
+    sh:result _:n84407e05add24a89a98484981927c1e5b5 .
 
 [] a sh:ValidationReport ;
-    sh:result _:nc06554bf690943e991682e20b650ecd6b27 .
+    sh:result _:n84407e05add24a89a98484981927c1e5b7 .
 
-[] a sh:ValidationReport ;
-    sh:result _:nc06554bf690943e991682e20b650ecd6b19 .
+_:n84407e05add24a89a98484981927c1e5b11 a sh:ValidationResult ;
+    sh:focusNode <http://data/eb971f1e-3552-4bae-ba19-16e4627410c9> ;
+    sh:resultMessage "UriValue" ;
+    sh:resultSeverity sh:Violation ;
+    sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+    sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#UriValue_ClassShape> ;
+    sh:value <http://data/eb971f1e-3552-4bae-ba19-16e4627410c9> .
 
-[] a sh:ValidationReport ;
-    sh:result _:nc06554bf690943e991682e20b650ecd6b32 .
+_:n84407e05add24a89a98484981927c1e5b14 a sh:ValidationResult ;
+    sh:focusNode <http://data/e5e51cd3-7ba7-442c-803c-176b3a0d582b> ;
+    sh:resultMessage "LinkValue" ;
+    sh:resultSeverity sh:Violation ;
+    sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+    sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#LinkValue_ClassShape> ;
+    sh:value <http://data/e5e51cd3-7ba7-442c-803c-176b3a0d582b> .
 
-[] a sh:ValidationReport ;
-    sh:result _:nc06554bf690943e991682e20b650ecd6b21 .
+_:n84407e05add24a89a98484981927c1e5b16 a sh:ValidationResult ;
+    sh:focusNode <http://data/66eba1be-af17-4a8d-9269-ca5074560e48> ;
+    sh:resultMessage "TimeValue" ;
+    sh:resultSeverity sh:Violation ;
+    sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+    sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#TimeValue_ClassShape> ;
+    sh:value <http://data/66eba1be-af17-4a8d-9269-ca5074560e48> .
 
-[] a sh:ValidationReport ;
-    sh:result _:nc06554bf690943e991682e20b650ecd6b6 .
+_:n84407e05add24a89a98484981927c1e5b18 a sh:ValidationResult ;
+    sh:focusNode <http://data/f22a918f-cd55-4a4c-b363-8215da983fec> ;
+    sh:resultMessage "IntValue" ;
+    sh:resultSeverity sh:Violation ;
+    sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+    sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#IntValue_ClassShape> ;
+    sh:value <http://data/f22a918f-cd55-4a4c-b363-8215da983fec> .
 
-[] a sh:ValidationReport ;
-    sh:result _:nc06554bf690943e991682e20b650ecd6b8 .
+_:n84407e05add24a89a98484981927c1e5b2 a sh:ValidationResult ;
+    sh:focusNode <http://data/f0dd6bdd-c675-4c02-89a0-a08c7b9f369c> ;
+    sh:resultMessage "BooleanValue" ;
+    sh:resultSeverity sh:Violation ;
+    sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+    sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#BooleanValue_ClassShape> ;
+    sh:value <http://data/f0dd6bdd-c675-4c02-89a0-a08c7b9f369c> .
 
-_:nc06554bf690943e991682e20b650ecd6b10 a sh:ValidationResult ;
-    sh:focusNode <http://data/915aa7d2-d900-4976-bb3b-669af019816c> ;
+_:n84407e05add24a89a98484981927c1e5b20 a sh:ValidationResult ;
+    sh:focusNode <http://data/8adf375f-d0b4-41d5-a47e-a91f7ea34d8c> ;
+    sh:resultMessage "ListValue" ;
+    sh:resultSeverity sh:Violation ;
+    sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+    sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#ListValue_ClassShape> ;
+    sh:value <http://data/8adf375f-d0b4-41d5-a47e-a91f7ea34d8c> .
+
+_:n84407e05add24a89a98484981927c1e5b22 a sh:ValidationResult ;
+    sh:focusNode <http://data/d94c2807-1e79-415f-adae-7c41ee7dc40f> ;
+    sh:resultMessage "ColorValue" ;
+    sh:resultSeverity sh:Violation ;
+    sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+    sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#ColorValue_ClassShape> ;
+    sh:value <http://data/d94c2807-1e79-415f-adae-7c41ee7dc40f> .
+
+_:n84407e05add24a89a98484981927c1e5b3 a sh:ValidationResult ;
+    sh:focusNode <http://data/60a51b21-8b0f-497a-861c-6bd77991c8f1> ;
+    sh:resultMessage "GeonameValue" ;
+    sh:resultSeverity sh:Violation ;
+    sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+    sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#GeonameValue_ClassShape> ;
+    sh:value <http://data/60a51b21-8b0f-497a-861c-6bd77991c8f1> .
+
+_:n84407e05add24a89a98484981927c1e5b5 a sh:ValidationResult ;
+    sh:focusNode <http://data/b2b382a2-4568-4369-9f2e-eca71cde2ab5> ;
     sh:resultMessage "TextValue with formatting" ;
     sh:resultPath ns1:textValueAsXml ;
     sh:resultSeverity sh:Violation ;
     sh:sourceConstraintComponent sh:MinCountConstraintComponent ;
     sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#FormattedTextValue_PropShape> .
 
-_:nc06554bf690943e991682e20b650ecd6b13 a sh:ValidationResult ;
-    sh:focusNode <http://data/9ff9b594-7f98-4d6f-96ea-1aa46c2d2e36> ;
-
-    sh:resultMessage "UriValue" ;
-    sh:resultSeverity sh:Violation ;
-    sh:sourceConstraintComponent sh:ClassConstraintComponent ;
-    sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#UriValue_ClassShape> ;
-
-    sh:value <http://data/fd20284e-5884-4d88-8e3d-b58c8a739f03> .
-
-_:nfd120c3808c348c4a9b02dc6cc8bb5d3b11 a sh:ValidationResult ;
-    sh:focusNode <http://data/42a6974a-ec46-4d54-b9dd-09e7efbc4082> ;
+_:n84407e05add24a89a98484981927c1e5b6 a sh:ValidationResult ;
+    sh:focusNode <http://data/3fdc8d16-2027-4e13-995a-a7da4e585fd5> ;
     sh:resultMessage "DateValue" ;
     sh:resultSeverity sh:Violation ;
     sh:sourceConstraintComponent sh:ClassConstraintComponent ;
     sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#DateValue_ClassShape> ;
-    sh:value <http://data/42a6974a-ec46-4d54-b9dd-09e7efbc4082> .
+    sh:value <http://data/3fdc8d16-2027-4e13-995a-a7da4e585fd5> .
 
-_:nfd120c3808c348c4a9b02dc6cc8bb5d3b13 a sh:ValidationResult ;
-    sh:focusNode <http://data/03576f53-1c26-4eff-bc1f-c80820cc0eb8> ;
-    sh:resultMessage "IntValue" ;
-    sh:resultSeverity sh:Violation ;
-    sh:sourceConstraintComponent sh:ClassConstraintComponent ;
-    sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#IntValue_ClassShape> ;
-    sh:value <http://data/03576f53-1c26-4eff-bc1f-c80820cc0eb8> .
-
-_:nfd120c3808c348c4a9b02dc6cc8bb5d3b14 a sh:ValidationResult ;
-    sh:focusNode <http://data/1032dd51-c9c9-442e-b290-301d586cc134> ;
-
-    sh:value <http://data/9ff9b594-7f98-4d6f-96ea-1aa46c2d2e36> .
-
-_:nc06554bf690943e991682e20b650ecd6b15 a sh:ValidationResult ;
-    sh:focusNode <http://data/976bf2d0-774b-48d4-a1cc-e1facdf24bb7> ;
-    sh:resultMessage "BooleanValue" ;
-    sh:resultSeverity sh:Violation ;
-    sh:sourceConstraintComponent sh:ClassConstraintComponent ;
-    sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#BooleanValue_ClassShape> ;
-    sh:value <http://data/976bf2d0-774b-48d4-a1cc-e1facdf24bb7> .
-
-_:nc06554bf690943e991682e20b650ecd6b19 a sh:ValidationResult ;
-    sh:focusNode <http://data/7d2e36f4-cbb7-4f45-ac64-cabbf9909ef7> ;
-    sh:resultMessage "GeonameValue" ;
-    sh:resultSeverity sh:Violation ;
-    sh:sourceConstraintComponent sh:ClassConstraintComponent ;
-    sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#GeonameValue_ClassShape> ;
-    sh:value <http://data/7d2e36f4-cbb7-4f45-ac64-cabbf9909ef7> .
-
-_:nc06554bf690943e991682e20b650ecd6b2 a sh:ValidationResult ;
-    sh:focusNode <http://data/97cb2da9-940f-4b9b-ab09-5f56448eaea0> ;
+_:n84407e05add24a89a98484981927c1e5b7 a sh:ValidationResult ;
+    sh:focusNode <http://data/f1c874b8-bafd-41b7-a198-041322b0e696> ;
     sh:resultMessage "TextValue without formatting" ;
     sh:resultPath ns1:valueAsString ;
     sh:resultSeverity sh:Violation ;
     sh:sourceConstraintComponent sh:MinCountConstraintComponent ;
     sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#SimpleTextValue_PropShape> .
 
-_:nc06554bf690943e991682e20b650ecd6b21 a sh:ValidationResult ;
-    sh:focusNode <http://data/a030c7c0-d516-464f-a72a-df88d92b2651> ;
+_:n84407e05add24a89a98484981927c1e5b9 a sh:ValidationResult ;
+    sh:focusNode <http://data/8046124e-a9fe-49d5-a0d7-ab7f06a0730b> ;
+    sh:resultMessage "DecimalValue" ;
+    sh:resultSeverity sh:Violation ;
+    sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+    sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#DecimalValue_ClassShape> ;
+    sh:value <http://data/8046124e-a9fe-49d5-a0d7-ab7f06a0730b> .
+

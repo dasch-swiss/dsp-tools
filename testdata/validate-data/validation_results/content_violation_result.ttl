@@ -1,95 +1,104 @@
 @prefix ns1: <http://api.knora.org/ontology/knora-api/v2#> .
-@prefix ns11: <http://0.0.0.0:3333/ontology/9999/onto/v2#> .
-@prefix ns2: <http://api.knora.org/ontology/knora-api/shapes/v2#> .
+@prefix ns2: <http://0.0.0.0:3333/ontology/9999/onto/v2#> .
+@prefix ns3: <http://api.knora.org/ontology/knora-api/shapes/v2#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 [] a sh:ValidationReport ;
-    sh:result _:neaeb911761a44d448c6004fa04c38204b2 .
+    sh:result _:n38bb08bf3177439b94aef7fbfde35ee2b7 .
 
 [] a sh:ValidationReport ;
-    sh:result _:neaeb911761a44d448c6004fa04c38204b10 .
+    sh:result _:n38bb08bf3177439b94aef7fbfde35ee2b3 .
 
 [] a sh:ValidationReport ;
-    sh:result _:neaeb911761a44d448c6004fa04c38204b3 .
+    sh:result _:n38bb08bf3177439b94aef7fbfde35ee2b11 .
 
 [] a sh:ValidationReport ;
-    sh:result _:neaeb911761a44d448c6004fa04c38204b6 .
+    sh:result _:n38bb08bf3177439b94aef7fbfde35ee2b1 .
 
 [] a sh:ValidationReport ;
     sh:conforms false ;
     sh:result [ a sh:ValidationResult ;
-            sh:detail _:neaeb911761a44d448c6004fa04c38204b6 ;
+            sh:detail _:n38bb08bf3177439b94aef7fbfde35ee2b11 ;
             sh:focusNode <http://data/geoname_not_number> ;
             sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#GeonameValue_ClassShape>" ;
-            sh:resultPath ns11:testGeoname ;
+            sh:resultPath ns2:testGeoname ;
             sh:resultSeverity sh:Violation ;
             sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-            sh:sourceShape ns11:testGeoname_PropShape ;
-            sh:value <http://data/22c2cb82-accb-4b13-9105-8fb21494d2e4> ],
+            sh:sourceShape ns2:testGeoname_PropShape ;
+            sh:value <http://data/a2daf56b-0834-4db5-93a7-8cd3cc5b3d14> ],
         [ a sh:ValidationResult ;
-            sh:detail _:neaeb911761a44d448c6004fa04c38204b2 ;
-            sh:focusNode <http://data/text_only_whitespace_simple> ;
-            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#SimpleTextValue_ClassShape>" ;
-            sh:resultPath ns11:testTextarea ;
+            sh:focusNode <http://data/empty_label> ;
+            sh:resultMessage "The label must be a non-empty string" ;
+            sh:resultPath rdfs:label ;
             sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-            sh:sourceShape ns11:testTextarea_PropShape ;
-            sh:value <http://data/776db28f-fe37-47ab-a2dd-a96e5d8989bc> ],
+            sh:sourceConstraintComponent sh:PatternConstraintComponent ;
+            sh:sourceShape ns3:rdfsLabel_Shape ;
+            sh:value " " ],
         [ a sh:ValidationResult ;
-            sh:detail _:neaeb911761a44d448c6004fa04c38204b3 ;
-            sh:focusNode <http://data/empty_text_simple> ;
-            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#SimpleTextValue_ClassShape>" ;
-            sh:resultPath ns11:testTextarea ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-            sh:sourceShape ns11:testTextarea_PropShape ;
-            sh:value <http://data/7c738bde-3ebb-46ed-9234-064de85a87c2> ],
-        [ a sh:ValidationResult ;
-            sh:detail _:neaeb911761a44d448c6004fa04c38204b10 ;
+            sh:detail _:n38bb08bf3177439b94aef7fbfde35ee2b7 ;
             sh:focusNode <http://data/empty_text_rich> ;
             sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#FormattedTextValue_ClassShape>" ;
-            sh:resultPath ns11:testRichtext ;
+            sh:resultPath ns2:testRichtext ;
             sh:resultSeverity sh:Violation ;
             sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-            sh:sourceShape ns11:testRichtext_PropShape ;
-            sh:value <http://data/2a67f33d-c68c-4d4c-b313-ba2f157ca85c> ] .
+            sh:sourceShape ns2:testRichtext_PropShape ;
+            sh:value <http://data/4220dfdd-df1e-47f4-bbe6-88e53ff25cf8> ],
+        [ a sh:ValidationResult ;
+            sh:detail _:n38bb08bf3177439b94aef7fbfde35ee2b3 ;
+            sh:focusNode <http://data/text_only_whitespace_simple> ;
+            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#SimpleTextValue_ClassShape>" ;
+            sh:resultPath ns2:testTextarea ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+            sh:sourceShape ns2:testTextarea_PropShape ;
+            sh:value <http://data/f765e9fb-2b79-40d8-9c77-99c7417057ca> ],
+        [ a sh:ValidationResult ;
+            sh:detail _:n38bb08bf3177439b94aef7fbfde35ee2b1 ;
+            sh:focusNode <http://data/empty_text_simple> ;
+            sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#SimpleTextValue_ClassShape>" ;
+            sh:resultPath ns2:testTextarea ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+            sh:sourceShape ns2:testTextarea_PropShape ;
+            sh:value <http://data/428551d2-d41b-4247-b965-8a57456d156c> ] .
 
-_:neaeb911761a44d448c6004fa04c38204b10 a sh:ValidationResult ;
-    sh:focusNode <http://data/2a67f33d-c68c-4d4c-b313-ba2f157ca85c> ;
-    sh:resultMessage "The value must be a non-empty string" ;
-    sh:resultPath ns1:textValueAsXml ;
-    sh:resultSeverity sh:Violation ;
-    sh:sourceConstraintComponent sh:PatternConstraintComponent ;
-    sh:sourceShape ns2:textValueAsXml_Shape ;
-    sh:value "" .
-
-_:neaeb911761a44d448c6004fa04c38204b2 a sh:ValidationResult ;
-    sh:focusNode <http://data/776db28f-fe37-47ab-a2dd-a96e5d8989bc> ;
-    sh:resultMessage "The value must be a non-empty string" ;
-    sh:resultPath ns1:valueAsString ;
-    sh:resultSeverity sh:Violation ;
-    sh:sourceConstraintComponent sh:PatternConstraintComponent ;
-    sh:sourceShape ns2:valueAsString_Shape ;
-    sh:value """
-
-            """ .
-
-_:neaeb911761a44d448c6004fa04c38204b3 a sh:ValidationResult ;
-    sh:focusNode <http://data/7c738bde-3ebb-46ed-9234-064de85a87c2> ;
+_:n38bb08bf3177439b94aef7fbfde35ee2b1 a sh:ValidationResult ;
+    sh:focusNode <http://data/428551d2-d41b-4247-b965-8a57456d156c> ;
     sh:resultMessage "The value must be a non-empty string" ;
     sh:resultPath ns1:valueAsString ;
     sh:resultSeverity sh:Violation ;
     sh:sourceConstraintComponent sh:PatternConstraintComponent ;
-    sh:sourceShape ns2:valueAsString_Shape ;
+    sh:sourceShape ns3:valueAsString_Shape ;
     sh:value "" .
 
-_:neaeb911761a44d448c6004fa04c38204b6 a sh:ValidationResult ;
-    sh:focusNode <http://data/22c2cb82-accb-4b13-9105-8fb21494d2e4> ;
+_:n38bb08bf3177439b94aef7fbfde35ee2b11 a sh:ValidationResult ;
+    sh:focusNode <http://data/a2daf56b-0834-4db5-93a7-8cd3cc5b3d14> ;
     sh:resultMessage "The value must be a valid geoname code" ;
     sh:resultPath ns1:geonameValueAsGeonameCode ;
     sh:resultSeverity sh:Violation ;
     sh:sourceConstraintComponent sh:PatternConstraintComponent ;
-    sh:sourceShape ns2:geonameValueAsGeonameCode_Shape ;
+    sh:sourceShape ns3:geonameValueAsGeonameCode_Shape ;
     sh:value "this-is-not-a-valid-code" .
+
+_:n38bb08bf3177439b94aef7fbfde35ee2b3 a sh:ValidationResult ;
+    sh:focusNode <http://data/f765e9fb-2b79-40d8-9c77-99c7417057ca> ;
+    sh:resultMessage "The value must be a non-empty string" ;
+    sh:resultPath ns1:valueAsString ;
+    sh:resultSeverity sh:Violation ;
+    sh:sourceConstraintComponent sh:PatternConstraintComponent ;
+    sh:sourceShape ns3:valueAsString_Shape ;
+    sh:value """
+
+            """ .
+
+_:n38bb08bf3177439b94aef7fbfde35ee2b7 a sh:ValidationResult ;
+    sh:focusNode <http://data/4220dfdd-df1e-47f4-bbe6-88e53ff25cf8> ;
+    sh:resultMessage "The value must be a non-empty string" ;
+    sh:resultPath ns1:textValueAsXml ;
+    sh:resultSeverity sh:Violation ;
+    sh:sourceConstraintComponent sh:PatternConstraintComponent ;
+    sh:sourceShape ns3:textValueAsXml_Shape ;
+    sh:value "" .
 

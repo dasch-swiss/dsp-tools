@@ -12,7 +12,7 @@
             sh:resultSeverity sh:Violation ;
             sh:sourceConstraintComponent ns11:ClosedByTypesConstraintComponent ;
             sh:sourceShape ns1:CardOneResource ;
-            sh:value <http://data/57eb342b-6968-4e61-a794-9d0f219edc8f> ],
+            sh:value <http://data/eaab0ced-37ed-4589-95e8-1709c6eceaad> ],
         [ a sh:ValidationResult ;
             sh:focusNode <http://data/id_max_card> ;
             sh:resultMessage "1" ;

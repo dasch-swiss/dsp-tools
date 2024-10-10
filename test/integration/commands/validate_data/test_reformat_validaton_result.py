@@ -79,7 +79,7 @@ def every_combination_once_data() -> Graph:
 @pytest.fixture
 def every_combination_once_result_cardinality() -> Graph:
     g = Graph()
-    g.parse("testdata/validate-data/validation_results/every_combination_once_result_cardinality.ttl")
+    g.parse("testdata/validate-data/validation_results/every_combination_once_result.ttl")
     return g
 
 

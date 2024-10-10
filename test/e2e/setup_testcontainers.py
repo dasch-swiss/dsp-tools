@@ -81,10 +81,13 @@ def _get_image_version(docker_compose_content: str, component: str) -> str:
 
 def _get_image_versions() -> ImageVersions:
     docker_compose_content = Path("src/dsp_tools/resources/start-stack/docker-compose.yml").read_text(encoding="utf-8")
+    docker_compose__validation_content = Path(
+        "src/dsp_tools/resources/start-stack/docker-compose-validation.yml"
+    ).read_text(encoding="utf-8")
     fuseki = _get_image_version(docker_compose_content, "apache-jena-fuseki")
     sipi = _get_image_version(docker_compose_content, "knora-sipi")
     ingest = _get_image_version(docker_compose_content, "dsp-ingest")
-    api = _get_image_version(docker_compose_content, "knora-api")
+    api = _get_image_version(docker_compose__validation_content, "knora-api")
     return ImageVersions(fuseki=fuseki, sipi=sipi, ingest=ingest, api=api)
 
 

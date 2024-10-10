@@ -1,5 +1,6 @@
 import regex
 from rdflib import RDF
+from rdflib import RDFS
 from rdflib import SH
 from rdflib import Graph
 from rdflib import Namespace
@@ -15,11 +16,12 @@ from dsp_tools.commands.validate_data.models.input_problems import UnexpectedRes
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
 from dsp_tools.commands.validate_data.models.validation import CardinalityValidationResult
 from dsp_tools.commands.validate_data.models.validation import ContentValidationResult
+from dsp_tools.commands.validate_data.models.validation import ResourceValidationReportIdentifiers
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.models.validation import ValidationReport
-from dsp_tools.commands.validate_data.models.validation import ValidationResultTypes
 
 DASH = Namespace("http://datashapes.org/dash#")
+KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
 
 
 def reformat_validation_graph(report: ValidationReport) -> AllProblems:
@@ -50,16 +52,23 @@ def reformat_validation_graph(report: ValidationReport) -> AllProblems:
     return AllProblems(reformatted_results, unexpected_found)
 
 
-def _separate_different_result_types(results_graph: Graph) -> ValidationResultTypes:
-    violations = set(results_graph.subjects(RDF.type, SH.ValidationResult))
-    nodes_constraints = set(results_graph.subjects(SH.sourceConstraintComponent, SH.NodeConstraintComponent))
-    class_constraints = set(results_graph.subjects(SH.sourceConstraintComponent, SH.ClassConstraintComponent))
-    other_violations = violations - nodes_constraints - class_constraints
-    return ValidationResultTypes(
-        node_constraint_component=nodes_constraints,
-        detail_bns=class_constraints,
-        cardinality_components=other_violations,
-    )
+def _separate_different_result_types(
+    results_graph: Graph, data_onto_graph: Graph
+) -> list[ResourceValidationReportIdentifiers]:
+    focus_nodes = list(results_graph.subject_objects(SH.focusNode))
+    resource_classes = list(data_onto_graph.transitive_subjects(RDFS.subClassOf, KNORA_API.Resource))
+    all_res_focus_nodes = []
+    for nd in focus_nodes:
+        validation_bn = nd[0]
+        focus_iri = nd[1]
+        res_type = next(data_onto_graph.objects(focus_iri, RDF.type))
+        if res_type in resource_classes:
+            all_res_focus_nodes.append(
+                ResourceValidationReportIdentifiers(
+                    validation_bn=validation_bn, focus_node_iri=focus_iri, res_class_type=res_type
+                )
+            )
+    return all_res_focus_nodes
 
 
 def _get_cardinality_input_errors(

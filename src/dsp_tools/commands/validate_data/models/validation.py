@@ -22,10 +22,10 @@ class RDFGraphs:
 
 
 @dataclass
-class ValidationResultTypes:
-    node_constraint_component: set[Node]
-    detail_bns: set[Node]
-    cardinality_components: set[Node]
+class ResourceValidationReportIdentifiers:
+    validation_bn: Node
+    focus_node_iri: Node
+    res_class_type: Node
 
 
 @dataclass

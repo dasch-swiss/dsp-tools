@@ -4,7 +4,6 @@ from rdflib import RDFS
 from rdflib import SH
 from rdflib import Graph
 from rdflib import Namespace
-from rdflib.term import Node
 
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import ContentRegexViolation
@@ -215,60 +214,6 @@ def _reformat_one_with_detail(val_result: ResultWithDetail) -> InputProblem | Un
             )
         case _:
             return UnexpectedComponent(str(val_result.source_constraint_component))
-
-
-def _query_for_cardinality_validation_results(results_graph: Graph, data_graph: Graph) -> list[ResultWithoutDetail]:
-    all_violations = set(results_graph.subjects(RDF.type, SH.ValidationResult))
-    content_violations = set(results_graph.subjects(SH.sourceConstraintComponent, SH.NodeConstraintComponent))
-    card_violations = all_violations - content_violations
-    return [_query_for_one_cardinality_validation_result(x, results_graph, data_graph) for x in card_violations]
-
-
-def _query_for_one_cardinality_validation_result(
-    bn: Node, results_graph: Graph, data_graph: Graph
-) -> ResultWithoutDetail:
-    focus_nd = next(results_graph.objects(bn, SH.focusNode))
-    res_type = next(data_graph.objects(focus_nd, RDF.type))
-    path = next(results_graph.objects(bn, SH.resultPath))
-    component = next(results_graph.objects(bn, SH.sourceConstraintComponent))
-    msg = str(next(results_graph.objects(bn, SH.resultMessage)))
-    return ResultWithoutDetail(
-        source_constraint_component=component,
-        res_iri=focus_nd,
-        res_class=res_type,
-        property=path,
-        results_message=msg,
-    )
-
-
-def _query_for_content_validation_results(results_graph: Graph, data_graph: Graph) -> list[ResultWithDetail]:
-    main_results = list(results_graph.subjects(SH.sourceConstraintComponent, SH.NodeConstraintComponent))
-    return [_query_for_one_content_validation_result(x, results_graph, data_graph) for x in main_results]
-
-
-def _query_for_one_content_validation_result(bn: Node, results_graph: Graph, data_graph: Graph) -> ResultWithDetail:
-    focus_nd = next(results_graph.objects(bn, SH.focusNode))
-    res_type = next(data_graph.objects(focus_nd, RDF.type))
-    path = next(results_graph.objects(bn, SH.resultPath))
-    value_iri = next(results_graph.objects(bn, SH.value))
-    value_type = next(data_graph.objects(value_iri, RDF.type))
-    component = next(results_graph.objects(bn, SH.sourceConstraintComponent))
-    detail_bn = next(results_graph.objects(bn, SH.detail))
-    detail_component = next(results_graph.objects(detail_bn, SH.sourceConstraintComponent))
-    val = None
-    if node_value := list(results_graph.objects(detail_bn, SH.value)):
-        val = str(node_value[0])
-    msg = str(next(results_graph.objects(detail_bn, SH.resultMessage)))
-    return ResultWithDetail(
-        source_constraint_component=component,
-        res_iri=focus_nd,
-        res_class=res_type,
-        property=path,
-        results_message=msg,
-        detail_bn_component=detail_component,
-        value_type=value_type,
-        value=val,
-    )
 
 
 def _reformat_onto_iri(prop: str) -> str:

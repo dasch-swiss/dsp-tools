@@ -11,8 +11,6 @@ from dsp_tools.commands.validate_data.models.validation import ResourceValidatio
 from dsp_tools.commands.validate_data.models.validation import ResultWithDetail
 from dsp_tools.commands.validate_data.models.validation import ResultWithoutDetail
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
-from dsp_tools.commands.validate_data.reformat_validaton_result import _query_for_cardinality_validation_results
-from dsp_tools.commands.validate_data.reformat_validaton_result import _query_for_content_validation_results
 from dsp_tools.commands.validate_data.reformat_validaton_result import _query_with_detail
 from dsp_tools.commands.validate_data.reformat_validaton_result import _query_without_detail
 from dsp_tools.commands.validate_data.reformat_validaton_result import _reformat_one_with_detail
@@ -27,16 +25,34 @@ class TestQueryWithoutDetail:
     def test_result_id_card_one(self, result_id_card_one: tuple[Graph, ResourceValidationReportIdentifiers]) -> None:
         res, ids = result_id_card_one
         result = _query_without_detail(ids, res)
+        assert result.source_constraint_component == SH.MinCountConstraintComponent
+        assert result.res_iri == ids.focus_node_iri
+        assert result.res_class == ids.res_class_type
+        assert result.property == ONTO.testBoolean
+        assert result.results_message == "1"
 
     def test_result_id_closed_constraint(
         self, result_id_closed_constraint: tuple[Graph, ResourceValidationReportIdentifiers]
     ) -> None:
         res, ids = result_id_closed_constraint
         result = _query_without_detail(ids, res)
+        assert result.source_constraint_component == DASH.ClosedByTypesConstraintComponent
+        assert result.res_iri == ids.focus_node_iri
+        assert result.res_class == ids.res_class_type
+        assert result.property == ONTO.testIntegerSimpleText
+        assert (
+            result.results_message
+            == "Property onto:testIntegerSimpleText is not among those permitted for any of the types"
+        )
 
     def test_result_id_max_card(self, result_id_max_card: tuple[Graph, ResourceValidationReportIdentifiers]) -> None:
         res, ids = result_id_max_card
         result = _query_without_detail(ids, res)
+        assert result.source_constraint_component == SH.MaxCountConstraintComponent
+        assert result.res_iri == ids.focus_node_iri
+        assert result.res_class == ids.res_class_type
+        assert result.property == ONTO.testHasLinkToCardOneResource
+        assert result.results_message == "1"
 
 
 class TestQueryWithDetail:
@@ -45,51 +61,40 @@ class TestQueryWithDetail:
     ) -> None:
         res, data, ids = result_id_simpletext
         result = _query_with_detail(ids, res, data)
+        assert result.source_constraint_component == SH.NodeConstraintComponent
+        assert result.res_iri == ids.focus_node_iri
+        assert result.res_class == ids.res_class_type
+        assert result.property == ONTO.testTextarea
+        assert result.results_message == "TextValue without formatting"
+        assert result.detail_bn_component == SH.MinCountConstraintComponent
+        assert result.value_type == KNORA_API.TextValue
+        assert not result.value
 
     def test_result_id_uri(self, result_id_uri: tuple[Graph, Graph, ResourceValidationReportIdentifiers]) -> None:
         res, data, ids = result_id_uri
         result = _query_with_detail(ids, res, data)
+        assert result.source_constraint_component == SH.NodeConstraintComponent
+        assert result.res_iri == ids.focus_node_iri
+        assert result.res_class == ids.res_class_type
+        assert result.property == ONTO.testUriValue
+        assert result.results_message == "UriValue"
+        assert result.detail_bn_component == SH.ClassConstraintComponent
+        assert result.value_type == KNORA_API.UriValue
+        assert result.value == DATA.value_id_uri
 
     def test_result_geoname_not_number(
         self, result_geoname_not_number: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
     ) -> None:
         res, data, ids = result_geoname_not_number
         result = _query_with_detail(ids, res, data)
-
-
-class TestQueryCardinality:
-    def test_min_constraint(self, graph_min_count_violation: Graph, data_min_count_violation: Graph) -> None:
-        result = _query_for_cardinality_validation_results(graph_min_count_violation, data_min_count_violation)
-        assert len(result) == 1
-        violation = result[0]
-        assert violation.source_constraint_component == SH.MinCountConstraintComponent
-        assert violation.res_iri == DATA.id_min_card
-        assert violation.res_class == ONTO.ClassMixedCard
-        assert violation.property == ONTO.testGeoname
-        assert violation.results_message == "1-n"
-
-    def test_max_constraint(self, graph_max_card_violation: Graph, data_max_card_count_violation: Graph) -> None:
-        result = _query_for_cardinality_validation_results(graph_max_card_violation, data_max_card_count_violation)
-        assert len(result) == 1
-        violation = result[0]
-        assert violation.source_constraint_component == SH.MaxCountConstraintComponent
-        assert violation.res_iri == DATA.id_max_card
-        assert violation.res_class == ONTO.ClassMixedCard
-        assert violation.property == ONTO.testHasLinkToCardOneResource
-        assert violation.results_message == "1"
-
-    def test_closed_constraint(self, graph_closed_constraint: Graph, data_closed_constraint: Graph) -> None:
-        result = _query_for_cardinality_validation_results(graph_closed_constraint, data_closed_constraint)
-        assert len(result) == 1
-        violation = result[0]
-        assert violation.source_constraint_component == DASH.ClosedByTypesConstraintComponent
-        assert violation.res_iri == DATA.id_closed_constraint
-        assert violation.res_class == ONTO.CardOneResource
-        assert violation.property == ONTO.testIntegerSimpleText
-        assert (
-            violation.results_message
-            == "Property onto:testIntegerSimpleText is not among those permitted for any of the types"
-        )
+        assert result.source_constraint_component == SH.NodeConstraintComponent
+        assert result.res_iri == ids.focus_node_iri
+        assert result.res_class == ids.res_class_type
+        assert result.property == ONTO.testGeoname
+        assert result.results_message == "The value must be a valid geoname code"
+        assert result.detail_bn_component == SH.PatternConstraintComponent
+        assert result.value_type == KNORA_API.GeonameValue
+        assert result.value == "this-is-not-a-valid-code"
 
 
 class TestReformatCardinalityViolation:
@@ -115,32 +120,6 @@ class TestReformatCardinalityViolation:
         assert result.res_id == "id_closed_constraint"
         assert result.res_type == "onto:CardOneResource"
         assert result.prop_name == "onto:testIntegerSimpleText"
-
-
-class TestQueryGraphContent:
-    def test_value_type_mismatch(self, graph_value_type_mismatch: Graph, data_value_type_mismatch: Graph) -> None:
-        all_result = _query_for_content_validation_results(graph_value_type_mismatch, data_value_type_mismatch)
-        assert len(all_result) == 1
-        result = all_result[0]
-        assert result.source_constraint_component == SH.NodeConstraintComponent
-        assert result.res_iri == DATA.value_type_mismatch
-        assert result.res_class == ONTO.ClassWithEverything
-        assert result.property == ONTO.testColor
-        assert result.results_message == "ColorValue"
-        assert result.value_type == KNORA_API.TextValue
-
-    def test_wrong_regex_content(self, graph_wrong_regex_content: Graph, data_wrong_regex_content: Graph) -> None:
-        all_result = _query_for_content_validation_results(graph_wrong_regex_content, data_wrong_regex_content)
-        assert len(all_result) == 1
-        result = all_result[0]
-        assert result.source_constraint_component == SH.NodeConstraintComponent
-        assert result.res_iri == DATA.geoname_not_number
-        assert result.res_class == ONTO.ClassWithEverything
-        assert result.property == ONTO.testGeoname
-        assert result.results_message == "The value must be a valid geoname code"
-        assert result.detail_bn_component == SH.PatternConstraintComponent
-        assert result.value_type == KNORA_API.GeonameValue
-        assert result.value == "this-is-not-a-valid-code"
 
 
 class TestReformatContentViolation:

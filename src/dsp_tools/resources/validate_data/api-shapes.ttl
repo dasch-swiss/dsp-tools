@@ -20,6 +20,15 @@
 # RDFS:LABEL SHAPE
 ########################
 
+api-shapes:rdfsLabel_Shape
+  a           sh:PropertyShape ;
+  sh:message  "The label must be a non-empty string" ;
+  sh:minCount 1 ;
+  sh:maxCount 1 ;
+  sh:path     rdfs:label ;
+  sh:datatype xsd:string ;
+  sh:severity sh:Violation .
+
 
 ########################
 # USER FACING VALUES

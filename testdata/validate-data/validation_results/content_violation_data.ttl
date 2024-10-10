@@ -1,0 +1,88 @@
+@prefix ns1: <http://0.0.0.0:3333/ontology/9999/onto/v2#> .
+@prefix ns2: <http://api.knora.org/ontology/knora-api/shapes/v2#> .
+@prefix ns3: <http://api.knora.org/ontology/knora-api/v2#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://data/empty_text_rich> a ns1:ClassWithEverything ;
+    rdfs:label "No Content"^^xsd:string ;
+    ns1:testRichtext <http://data/2a67f33d-c68c-4d4c-b313-ba2f157ca85c> .
+
+<http://data/empty_text_simple> a ns1:ClassWithEverything ;
+    rdfs:label "No Content"^^xsd:string ;
+    ns1:testTextarea <http://data/7c738bde-3ebb-46ed-9234-064de85a87c2> .
+
+<http://data/geoname_not_number> a ns1:ClassWithEverything ;
+    rdfs:label "Geoname is not a number"^^xsd:string ;
+    ns1:testGeoname <http://data/22c2cb82-accb-4b13-9105-8fb21494d2e4> .
+
+<http://data/identical_values> a ns1:ClassWithEverything ;
+    rdfs:label "Duplicate Value"^^xsd:string ;
+    ns1:testTextarea <http://data/5336f2a4-6686-4b11-841c-8192b402604d>,
+        <http://data/a17dd26a-26f9-491c-9224-bef27197199e> .
+
+<http://data/link_target_non_existent> a ns1:ClassWithEverything ;
+    rdfs:label "Target does not exist"^^xsd:string ;
+    ns1:testHasLinkTo <http://data/094b6372-4f30-4f86-a82a-2a11d6ffcbed> .
+
+<http://data/link_target_wrong_class> a ns1:ClassWithEverything ;
+    rdfs:label "Target not the right class"^^xsd:string ;
+    ns1:testHasLinkToCardOneResource <http://data/082f64b7-2944-4115-8391-dfba33da8755> .
+
+<http://data/list_name_attrib_empty> a ns1:ClassWithEverything ;
+    rdfs:label "List attribute is empty"^^xsd:string ;
+    ns1:testListProp <http://data/12fc0da2-bfe6-4cd9-b582-5946d4be54a5> .
+
+<http://data/list_name_non_existent> a ns1:ClassWithEverything ;
+    rdfs:label "List name does not exist"^^xsd:string ;
+    ns1:testListProp <http://data/a5f4d175-73d4-4524-aae9-2ac454a79bd9> .
+
+<http://data/list_node_non_existent> a ns1:ClassWithEverything ;
+    rdfs:label "List node does not exist"^^xsd:string ;
+    ns1:testListProp <http://data/db7dced1-012d-4c79-a7bc-b5bc9987df6a> .
+
+<http://data/text_only_whitespace_simple> a ns1:ClassWithEverything ;
+    rdfs:label "Only newline and spaces"^^xsd:string ;
+    ns1:testTextarea <http://data/776db28f-fe37-47ab-a2dd-a96e5d8989bc> .
+
+<http://data/082f64b7-2944-4115-8391-dfba33da8755> a ns3:LinkValue ;
+    ns2:linkValueHasTargetID <http://data/id_9_target> .
+
+<http://data/094b6372-4f30-4f86-a82a-2a11d6ffcbed> a ns3:LinkValue ;
+    ns2:linkValueHasTargetID <http://data/other> .
+
+<http://data/12fc0da2-bfe6-4cd9-b582-5946d4be54a5> a ns3:ListValue ;
+    ns2:listNameAsString ""^^xsd:string ;
+    ns2:listNodeAsString "n1"^^xsd:string .
+
+<http://data/22c2cb82-accb-4b13-9105-8fb21494d2e4> a ns3:GeonameValue ;
+    ns3:geonameValueAsGeonameCode "this-is-not-a-valid-code"^^xsd:string .
+
+<http://data/2a67f33d-c68c-4d4c-b313-ba2f157ca85c> a ns3:TextValue ;
+    ns3:textValueAsXml ""^^xsd:string .
+
+<http://data/5336f2a4-6686-4b11-841c-8192b402604d> a ns3:TextValue ;
+    ns3:valueAsString "Text"^^xsd:string .
+
+<http://data/776db28f-fe37-47ab-a2dd-a96e5d8989bc> a ns3:TextValue ;
+    ns3:valueAsString """
+
+            """^^xsd:string .
+
+<http://data/7c738bde-3ebb-46ed-9234-064de85a87c2> a ns3:TextValue ;
+    ns3:valueAsString ""^^xsd:string .
+
+<http://data/a17dd26a-26f9-491c-9224-bef27197199e> a ns3:TextValue ;
+    ns3:valueAsString "Text"^^xsd:string .
+
+<http://data/a5f4d175-73d4-4524-aae9-2ac454a79bd9> a ns3:ListValue ;
+    ns2:listNameAsString "other"^^xsd:string ;
+    ns2:listNodeAsString "n1"^^xsd:string .
+
+<http://data/db7dced1-012d-4c79-a7bc-b5bc9987df6a> a ns3:ListValue ;
+    ns2:listNameAsString "onlyList"^^xsd:string ;
+    ns2:listNodeAsString "other"^^xsd:string .
+
+<http://data/id_9_target> a ns1:ClassWithEverything ;
+    rdfs:label "Link Prop"^^xsd:string .
+

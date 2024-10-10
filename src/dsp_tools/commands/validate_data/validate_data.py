@@ -41,19 +41,7 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
         true unless it crashed
     """
     _inform_about_experimental_feature()
-    data_rdf, shortcode = _get_data_info_from_file(filepath, api_url)
-    onto_con = OntologyConnection(api_url, shortcode)
-    rdf_graphs = _create_graphs(onto_con, data_rdf)
-    generic_filepath = Path()
-    if save_graphs:
-        generic_filepath = _save_graphs(filepath, rdf_graphs)
-    val = ShaclValidator(api_url)
-    report = _validate(val, rdf_graphs)
-    if save_graphs:
-        if report.content_validation:
-            report.content_validation.serialize(f"{generic_filepath}_VALIDATION_REPORT_CONTENT.ttl")
-        if report.cardinality_validation:
-            report.cardinality_validation.serialize(f"{generic_filepath}_VALIDATION_REPORT_CARD.ttl")
+    report = _get_validation_result(api_url, filepath, save_graphs)
     if report.conforms:
         cprint("\n   Validation passed!   ", color="green", attrs=["bold", "reverse"])
     else:
@@ -77,9 +65,26 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
             reformatted.unexpected_results.save_inform_user(
                 results_graph=report_graphs,
                 shacl=report.shacl_graphs,
-                data=rdf_graphs.data,
+                data=report.data_graph,
             )
     return True
+
+
+def _get_validation_result(api_url: str, filepath: Path, save_graphs: bool) -> ValidationReports:
+    data_rdf, shortcode = _get_data_info_from_file(filepath, api_url)
+    onto_con = OntologyConnection(api_url, shortcode)
+    rdf_graphs = _create_graphs(onto_con, data_rdf)
+    generic_filepath = Path()
+    if save_graphs:
+        generic_filepath = _save_graphs(filepath, rdf_graphs)
+    val = ShaclValidator(api_url)
+    report = _validate(val, rdf_graphs)
+    if save_graphs:
+        if report.content_validation:
+            report.content_validation.serialize(f"{generic_filepath}_VALIDATION_REPORT_CONTENT.ttl")
+        if report.cardinality_validation:
+            report.cardinality_validation.serialize(f"{generic_filepath}_VALIDATION_REPORT_CARD.ttl")
+    return report
 
 
 def _inform_about_experimental_feature() -> None:

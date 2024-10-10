@@ -15,7 +15,7 @@ from test.unittests.commands.validate_data.constants import PREFIXES
 
 
 @pytest.fixture
-def result_id_card_one() -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+def result_id_card_one() -> tuple[Graph, ResourceValidationReportIdentifiers]:
     gstr = f"""{PREFIXES}
     [ a sh:ValidationResult ;
             sh:focusNode <http://data/id_card_one> ;
@@ -37,7 +37,7 @@ def result_id_card_one() -> tuple[Graph, Graph, ResourceValidationReportIdentifi
     identifiers = ResourceValidationReportIdentifiers(
         val_bn, URIRef("http://data/id_card_one"), ONTO.ClassInheritedCardinalityOverwriting
     )
-    return result, data, identifiers
+    return result, identifiers
 
 
 @pytest.fixture
@@ -168,7 +168,7 @@ def result_geoname_not_number() -> tuple[Graph, Graph, ResourceValidationReportI
 
 
 @pytest.fixture
-def result_id_closed_constraint() -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+def result_id_closed_constraint() -> tuple[Graph, ResourceValidationReportIdentifiers]:
     gstr = f'''{PREFIXES}
     [ a sh:ValidationResult ;
                 sh:focusNode <http://data/id_closed_constraint> ;
@@ -182,24 +182,15 @@ def result_id_closed_constraint() -> tuple[Graph, Graph, ResourceValidationRepor
     '''
     g = Graph()
     g.parse(data=gstr, format="ttl")
-    datastr = f"""{PREFIXES}
-    <http://data/id_closed_constraint> a onto:CardOneResource ;
-        rdfs:label "Int card does not exist"^^xsd:string ;
-        onto:testIntegerSimpleText <http://data/value_id_closed_constraint> .
-    <http://data/value_id_closed_constraint> a knora-api:IntValue ;
-        knora-api:intValueAsInt 1 .
-    """
-    data = Graph()
-    data.parse(data=datastr, format="ttl")
     val_bn = next(g.subjects(RDF.type, SH.ValidationResult))
     identifiers = ResourceValidationReportIdentifiers(
         val_bn, URIRef("http://data/id_closed_constraint"), ONTO.CardOneResource
     )
-    return g, data, identifiers
+    return g, identifiers
 
 
 @pytest.fixture
-def result_id_max_card() -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+def result_id_max_card() -> tuple[Graph, ResourceValidationReportIdentifiers]:
     gstr = f"""{PREFIXES}
     [ a sh:ValidationResult ;
                 sh:focusNode <http://data/id_max_card> ;
@@ -211,21 +202,9 @@ def result_id_max_card() -> tuple[Graph, Graph, ResourceValidationReportIdentifi
     """
     g = Graph()
     g.parse(data=gstr, format="ttl")
-    datastr = f"""{PREFIXES}
-    <http://data/id_max_card> a onto:ClassMixedCard ;
-        rdfs:label "Decimal Card 0-1"^^xsd:string ;
-        onto:testHasLinkToCardOneResource <http://data/value_1> , <http://data/value_2> .
-            
-    <http://data/value_1> a knora-api:LinkValue ;
-        api-shapes:linkValueHasTargetID <http://data/id_card_one> .
-    <http://data/value_2> a knora-api:LinkValue ;
-        api-shapes:linkValueHasTargetID <http://data/id_closed_constraint> .
-    """
-    data = Graph()
-    data.parse(data=datastr, format="ttl")
     val_bn = next(g.subjects(RDF.type, SH.ValidationResult))
     identifiers = ResourceValidationReportIdentifiers(val_bn, URIRef("http://data/id_max_card"), ONTO.ClassMixedCard)
-    return g, data, identifiers
+    return g, identifiers
 
 
 @pytest.fixture

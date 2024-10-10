@@ -217,21 +217,6 @@ def _reformat_one_with_detail(val_result: ResultWithDetail) -> InputProblem | Un
             return UnexpectedComponent(str(val_result.source_constraint_component))
 
 
-def _get_cardinality_input_errors(
-    results_graph: Graph, data_graph: Graph
-) -> tuple[list[InputProblem], list[UnexpectedComponent]]:
-    validation_results = _query_for_cardinality_validation_results(results_graph, data_graph)
-    input_problems: list[InputProblem] = []
-    unexpected_components: list[UnexpectedComponent] = []
-    for violation in validation_results:
-        problem = _reformat_one_cardinality_validation_result(violation)
-        if isinstance(problem, UnexpectedComponent):
-            unexpected_components.append(problem)
-        else:
-            input_problems.append(problem)
-    return input_problems, unexpected_components
-
-
 def _query_for_cardinality_validation_results(results_graph: Graph, data_graph: Graph) -> list[ResultWithoutDetail]:
     all_violations = set(results_graph.subjects(RDF.type, SH.ValidationResult))
     content_violations = set(results_graph.subjects(SH.sourceConstraintComponent, SH.NodeConstraintComponent))
@@ -254,53 +239,6 @@ def _query_for_one_cardinality_validation_result(
         property=path,
         results_message=msg,
     )
-
-
-def _reformat_one_cardinality_validation_result(
-    violation: ResultWithoutDetail,
-) -> InputProblem | UnexpectedComponent:
-    subject_id = _reformat_data_iri(str(violation.res_iri))
-    prop_name = _reformat_onto_iri(str(violation.property))
-    res_type = _reformat_onto_iri(str(violation.res_class))
-    match violation.source_constraint_component:
-        case SH.MaxCountConstraintComponent:
-            return MaxCardinalityViolation(
-                res_id=subject_id,
-                res_type=res_type,
-                prop_name=prop_name,
-                expected_cardinality=violation.results_message,
-            )
-        case SH.MinCountConstraintComponent:
-            return MinCardinalityViolation(
-                res_id=subject_id,
-                res_type=res_type,
-                prop_name=prop_name,
-                expected_cardinality=violation.results_message,
-            )
-        case DASH.ClosedByTypesConstraintComponent:
-            return NonExistentCardinalityViolation(
-                res_id=subject_id,
-                res_type=res_type,
-                prop_name=prop_name,
-            )
-        case _:
-            return UnexpectedComponent(str(violation.source_constraint_component))
-
-
-def _get_content_input_errors(
-    results_graph: Graph, data_graph: Graph
-) -> tuple[list[InputProblem], list[UnexpectedComponent]]:
-    violations = _query_for_content_validation_results(results_graph, data_graph)
-
-    input_problems: list[InputProblem] = []
-    unexpected_components: list[UnexpectedComponent] = []
-    for violation in violations:
-        problem = _reformat_one_content_validation_result(violation)
-        if isinstance(problem, UnexpectedComponent):
-            unexpected_components.append(problem)
-        else:
-            input_problems.append(problem)
-    return input_problems, unexpected_components
 
 
 def _query_for_content_validation_results(results_graph: Graph, data_graph: Graph) -> list[ResultWithDetail]:
@@ -331,35 +269,6 @@ def _query_for_one_content_validation_result(bn: Node, results_graph: Graph, dat
         value_type=value_type,
         value=val,
     )
-
-
-def _reformat_one_content_validation_result(val_result: ResultWithDetail) -> InputProblem | UnexpectedComponent:
-    subject_id = _reformat_data_iri(str(val_result.res_iri))
-    prop_name = _reformat_onto_iri(str(val_result.property))
-    res_type = _reformat_onto_iri(str(val_result.res_class))
-    match val_result.detail_bn_component:
-        case SH.PatternConstraintComponent:
-            val: str | None = val_result.value
-            if val and not regex.search(r"\S+", val):
-                val = None
-            return ContentRegexViolation(
-                res_id=subject_id,
-                res_type=res_type,
-                prop_name=prop_name,
-                expected_format=val_result.results_message,
-                actual_content=val,
-            )
-        case SH.ClassConstraintComponent | SH.MinCountConstraintComponent:
-            actual_type = _reformat_onto_iri(str(val_result.value_type)).replace("knora-api:", "")
-            return ValueTypeViolation(
-                res_id=subject_id,
-                res_type=res_type,
-                prop_name=prop_name,
-                actual_type=actual_type,
-                expected_type=val_result.results_message,
-            )
-        case _:
-            return UnexpectedComponent(str(val_result.source_constraint_component))
 
 
 def _reformat_onto_iri(prop: str) -> str:

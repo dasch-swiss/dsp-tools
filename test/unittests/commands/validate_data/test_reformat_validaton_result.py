@@ -7,17 +7,54 @@ from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalit
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
+from dsp_tools.commands.validate_data.models.validation import ResourceValidationReportIdentifiers
 from dsp_tools.commands.validate_data.models.validation import ResultWithDetail
 from dsp_tools.commands.validate_data.models.validation import ResultWithoutDetail
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.reformat_validaton_result import _query_for_cardinality_validation_results
 from dsp_tools.commands.validate_data.reformat_validaton_result import _query_for_content_validation_results
+from dsp_tools.commands.validate_data.reformat_validaton_result import _query_with_detail
+from dsp_tools.commands.validate_data.reformat_validaton_result import _query_without_detail
 from dsp_tools.commands.validate_data.reformat_validaton_result import _reformat_one_with_detail
 from dsp_tools.commands.validate_data.reformat_validaton_result import _reformat_one_without_detail
 from test.unittests.commands.validate_data.constants import DASH
 from test.unittests.commands.validate_data.constants import DATA
 from test.unittests.commands.validate_data.constants import KNORA_API
 from test.unittests.commands.validate_data.constants import ONTO
+
+
+class TestQueryWithoutDetail:
+    def test_result_id_card_one(self, result_id_card_one: tuple[Graph, ResourceValidationReportIdentifiers]) -> None:
+        res, ids = result_id_card_one
+        result = _query_without_detail(ids, res)
+
+    def test_result_id_closed_constraint(
+        self, result_id_closed_constraint: tuple[Graph, ResourceValidationReportIdentifiers]
+    ) -> None:
+        res, ids = result_id_closed_constraint
+        result = _query_without_detail(ids, res)
+
+    def test_result_id_max_card(self, result_id_max_card: tuple[Graph, ResourceValidationReportIdentifiers]) -> None:
+        res, ids = result_id_max_card
+        result = _query_without_detail(ids, res)
+
+
+class TestQueryWithDetail:
+    def test_result_id_simpletext(
+        self, result_id_simpletext: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
+    ) -> None:
+        res, data, ids = result_id_simpletext
+        result = _query_with_detail(ids, res, data)
+
+    def test_result_id_uri(self, result_id_uri: tuple[Graph, Graph, ResourceValidationReportIdentifiers]) -> None:
+        res, data, ids = result_id_uri
+        result = _query_with_detail(ids, res, data)
+
+    def test_result_geoname_not_number(
+        self, result_geoname_not_number: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
+    ) -> None:
+        res, data, ids = result_geoname_not_number
+        result = _query_with_detail(ids, res, data)
 
 
 class TestQueryCardinality:

@@ -3,12 +3,10 @@ from typing import Iterator
 
 import pytest
 
-
 from test.e2e_validate_data.setup_testcontainers import INGEST_DB
 from test.e2e_validate_data.setup_testcontainers import SIPI_IMAGES
 from test.e2e_validate_data.setup_testcontainers import TMP_INGEST
 from test.e2e_validate_data.setup_testcontainers import TMP_SIPI
-
 
 
 @pytest.fixture(scope="package", autouse=True)

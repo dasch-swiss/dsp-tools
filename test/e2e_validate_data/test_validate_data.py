@@ -175,7 +175,7 @@ class TestReformatValidationGraph:
         assert len(result.problems) == 5
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         expected_info_tuples = [
-            ("empty_label", "rdfs:label", "The value must be a non-empty string"),
+            ("empty_label", "rdfs:label", "The label must be a non-empty string"),
             ("empty_text_rich", "onto:testRichtext", "The value must be a non-empty string"),
             ("empty_text_simple", "onto:testTextarea", "The value must be a non-empty string"),
             ("geoname_not_number", "onto:testGeoname", "The value must be a valid geoname code"),

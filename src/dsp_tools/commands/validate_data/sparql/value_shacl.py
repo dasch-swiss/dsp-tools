@@ -153,21 +153,6 @@ def _construct_link_value_node_shape(onto: Graph) -> Graph:
     return Graph()
 
 
-"""
-
-onto-shapes:linkProp_NodeShape
-  a              sh:NodeShape ;
-  sh:name        "Validates class of target." ;
-  sh:property    [
-                    a            sh:PropertyShape ;
-                    sh:path      val-onto:hasValue ;
-                    sh:class     onto:CardOneResource ;
-                    sh:message   "Target must be of type 'onto:CardOneResource' or a subclass of it." ;
-                 ] ;
-  sh:severity    sh:Violation .
-"""
-
-
 def _construct_property_type_text_value(onto: Graph) -> Graph:
     property_type_mapper = {
         "salsah-gui:SimpleText": "api-shapes:SimpleTextValue_ClassShape",

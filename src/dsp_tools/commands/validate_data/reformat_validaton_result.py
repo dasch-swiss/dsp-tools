@@ -1,8 +1,8 @@
 import regex
 from rdflib import RDF
-from rdflib import RDFS
 from rdflib import SH
 from rdflib import Graph
+from rdflib import Literal
 from rdflib import Namespace
 
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
@@ -68,7 +68,7 @@ def _extract_identifiers_of_resource_results(
     results_graph: Graph, data_onto_graph: Graph
 ) -> list[ResourceValidationReportIdentifiers]:
     focus_nodes = list(results_graph.subject_objects(SH.focusNode))
-    resource_classes = list(data_onto_graph.transitive_subjects(RDFS.subClassOf, KNORA_API.Resource))
+    resource_classes = list(data_onto_graph.subjects(KNORA_API.canBeInstantiated, Literal(True)))
     all_res_focus_nodes = []
     for nd in focus_nodes:
         validation_bn = nd[0]

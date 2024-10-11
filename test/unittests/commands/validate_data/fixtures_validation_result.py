@@ -29,12 +29,12 @@ def onto_graph() -> Graph:
 def result_id_card_one(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
-            sh:focusNode <http://data/id_card_one> ;
-            sh:resultMessage "1" ;
-            sh:resultPath onto:testBoolean ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:MinCountConstraintComponent ;
-            sh:sourceShape [ ] ] .
+        sh:focusNode <http://data/id_card_one> ;
+        sh:resultMessage "1" ;
+        sh:resultPath onto:testBoolean ;
+        sh:resultSeverity sh:Violation ;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent ;
+        sh:sourceShape [ ] ] .
     """
     validation_g = Graph()
     validation_g.parse(data=validation_str, format="ttl")
@@ -54,17 +54,16 @@ def result_id_card_one(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidat
 
 @pytest.fixture
 def result_id_simpletext(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
-    validation_str = f'''{PREFIXES}
+    validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
-            sh:detail _:bn_id_simpletext ;
-            sh:focusNode <http://data/id_simpletext> ;
-            sh:resultMessage """Value does not have shape 
-                    <http://api.knora.org/ontology/knora-api/shapes/v2#SimpleTextValue_ClassShape>""" ;
-            sh:resultPath onto:testTextarea ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-            sh:sourceShape onto:testTextarea_PropShape ;
-            sh:value <http://data/value_id_simpletext> ] .
+        sh:detail _:bn_id_simpletext ;
+        sh:focusNode <http://data/id_simpletext> ;
+        sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#SimpleTextValue_ClassShape>" ;
+        sh:resultPath onto:testTextarea ;
+        sh:resultSeverity sh:Violation ;
+        sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+        sh:sourceShape onto:testTextarea_PropShape ;
+        sh:value <http://data/value_id_simpletext> ] .
 
     _:bn_id_simpletext a sh:ValidationResult ;
         sh:focusNode <http://data/value_id_simpletext> ;
@@ -73,7 +72,7 @@ def result_id_simpletext(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValid
         sh:resultSeverity sh:Violation ;
         sh:sourceConstraintComponent sh:MinCountConstraintComponent ;
         sh:sourceShape api-shapes:SimpleTextValue_PropShape .
-    '''
+    """  # noqa: E501 (Line too long)
     valiation_g = Graph()
     valiation_g.parse(data=validation_str, format="ttl")
     data_str = f"""{PREFIXES}
@@ -97,18 +96,17 @@ def result_id_simpletext(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValid
 
 @pytest.fixture
 def result_id_uri(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
-    validation_str = f'''{PREFIXES}
+    validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
-                sh:detail _:bn_id_uri ;
-                sh:focusNode <http://data/id_uri> ;
-                sh:resultMessage """Value does not have shape 
-            <http://api.knora.org/ontology/knora-api/shapes/v2#UriValue_ClassShape>""" ;
-                sh:resultPath onto:testUriValue ;
-                sh:resultSeverity sh:Violation ;
-                sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-                sh:sourceShape onto:testUriValue_PropShape ;
-                sh:value <http://data/value_id_uri> ] .
-
+        sh:detail _:bn_id_uri ;
+        sh:focusNode <http://data/id_uri> ;
+        sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#UriValue_ClassShape>" ;
+        sh:resultPath onto:testUriValue ;
+        sh:resultSeverity sh:Violation ;
+        sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+        sh:sourceShape onto:testUriValue_PropShape ;
+        sh:value <http://data/value_id_uri> ] .
+    
     _:bn_id_uri a sh:ValidationResult ;
         sh:focusNode <http://data/value_id_uri> ;
         sh:resultMessage "UriValue" ;
@@ -116,7 +114,7 @@ def result_id_uri(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationRe
         sh:sourceConstraintComponent sh:ClassConstraintComponent ;
         sh:sourceShape api-shapes:UriValue_ClassShape ;
         sh:value <http://data/value_id_uri> .
-    '''
+    """  # noqa: E501 (Line too long)
     validation_g = Graph()
     validation_g.parse(data=validation_str, format="ttl")
     data_str = f"""{PREFIXES}
@@ -140,17 +138,16 @@ def result_id_uri(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationRe
 
 @pytest.fixture
 def result_geoname_not_number(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
-    validation_str = f'''{PREFIXES}
+    validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
-                sh:detail _:bn_geoname_not_number ;
-                sh:focusNode <http://data/geoname_not_number> ;
-                sh:resultMessage """Value does not have shape 
-                        <http://api.knora.org/ontology/knora-api/shapes/v2#GeonameValue_ClassShape>""" ;
-                sh:resultPath onto:testGeoname ;
-                sh:resultSeverity sh:Violation ;
-                sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-                sh:sourceShape onto:testGeoname_PropShape ;
-                sh:value <http://data/value_geoname_not_number> ] .
+        sh:detail _:bn_geoname_not_number ;
+        sh:focusNode <http://data/geoname_not_number> ;
+        sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#GeonameValue_ClassShape>" ;
+        sh:resultPath onto:testGeoname ;
+        sh:resultSeverity sh:Violation ;
+        sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+        sh:sourceShape onto:testGeoname_PropShape ;
+        sh:value <http://data/value_geoname_not_number> ] .
 
     _:bn_geoname_not_number a sh:ValidationResult ;
         sh:focusNode <http://data/value_geoname_not_number> ;
@@ -160,7 +157,7 @@ def result_geoname_not_number(onto_graph: Graph) -> tuple[Graph, Graph, Resource
         sh:sourceConstraintComponent sh:PatternConstraintComponent ;
         sh:sourceShape api-shapes:geonameValueAsGeonameCode_Shape ;
         sh:value "this-is-not-a-valid-code" .
-    '''
+    """  # noqa: E501 (Line too long)
     validation_g = Graph()
     validation_g.parse(data=validation_str, format="ttl")
     data_str = f"""{PREFIXES}
@@ -184,17 +181,16 @@ def result_geoname_not_number(onto_graph: Graph) -> tuple[Graph, Graph, Resource
 
 @pytest.fixture
 def result_id_closed_constraint(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
-    validation_str = f'''{PREFIXES}
+    validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
-                sh:focusNode <http://data/id_closed_constraint> ;
-                sh:resultMessage """Property onto:testIntegerSimpleText 
-                                is not among those permitted for any of the types""" ;
-                sh:resultPath onto:testIntegerSimpleText ;
-                sh:resultSeverity sh:Violation ;
-                sh:sourceConstraintComponent dash:ClosedByTypesConstraintComponent ;
-                sh:sourceShape onto:CardOneResource ;
-                sh:value <http://data/value_id_closed_constraint> ] .
-    '''
+        sh:focusNode <http://data/id_closed_constraint> ;
+        sh:resultMessage "Property onto:testIntegerSimpleText is not among those permitted for any of the types" ;
+        sh:resultPath onto:testIntegerSimpleText ;
+        sh:resultSeverity sh:Violation ;
+        sh:sourceConstraintComponent dash:ClosedByTypesConstraintComponent ;
+        sh:sourceShape onto:CardOneResource ;
+        sh:value <http://data/value_id_closed_constraint> ] .
+    """
     validation_g = Graph()
     validation_g.parse(data=validation_str, format="ttl")
     data_str = f"""{PREFIXES}
@@ -218,12 +214,12 @@ def result_id_closed_constraint(onto_graph: Graph) -> tuple[Graph, Graph, Resour
 def result_id_max_card(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
-                sh:focusNode <http://data/id_max_card> ;
-                sh:resultMessage "1" ;
-                sh:resultPath onto:testHasLinkToCardOneResource ;
-                sh:resultSeverity sh:Violation ;
-                sh:sourceConstraintComponent sh:MaxCountConstraintComponent ;
-                sh:sourceShape [ ] ] .
+        sh:focusNode <http://data/id_max_card> ;
+        sh:resultMessage "1" ;
+        sh:resultPath onto:testHasLinkToCardOneResource ;
+        sh:resultSeverity sh:Violation ;
+        sh:sourceConstraintComponent sh:MaxCountConstraintComponent ;
+        sh:sourceShape [ ] ] .
     """
     validation_g = Graph()
     validation_g.parse(data=validation_str, format="ttl")
@@ -249,13 +245,13 @@ def result_id_max_card(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidat
 def result_empty_label(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
-            sh:focusNode <http://data/empty_label> ;
-            sh:resultMessage "The label must be a non-empty string" ;
-            sh:resultPath rdfs:label ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:PatternConstraintComponent ;
-            sh:sourceShape api-shapes:rdfsLabel_Shape ;
-            sh:value " " ] .
+        sh:focusNode <http://data/empty_label> ;
+        sh:resultMessage "The label must be a non-empty string" ;
+        sh:resultPath rdfs:label ;
+        sh:resultSeverity sh:Violation ;
+        sh:sourceConstraintComponent sh:PatternConstraintComponent ;
+        sh:sourceShape api-shapes:rdfsLabel_Shape ;
+        sh:value " " ] .
     """
     validation_g = Graph()
     validation_g.parse(data=validation_str, format="ttl")

@@ -100,8 +100,8 @@ class TestQueryWithoutDetail:
         assert result.res_class == ids.res_class_type
         assert result.property == ONTO.testIntegerSimpleText
         assert (
-            result.results_message == "Property onto:testIntegerSimpleText \n"
-            "                                is not among those permitted for any of the types"
+            result.results_message
+            == "Property onto:testIntegerSimpleText is not among those permitted for any of the types"
         )
         assert result.value == "http://data/value_id_closed_constraint"
 

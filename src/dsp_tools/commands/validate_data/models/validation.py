@@ -25,9 +25,9 @@ class RDFGraphs:
 class ValidationReport:
     conforms: bool
     validation_graph: Graph
-    shacl_graphs: Graph
+    shacl_graph: Graph
     onto_graph: Graph
-    data: Graph
+    data_graph: Graph
 
 
 @dataclass

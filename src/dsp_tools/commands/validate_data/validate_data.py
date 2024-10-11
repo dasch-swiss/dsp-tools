@@ -56,8 +56,8 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
                 return True
             reformatted.unexpected_results.save_inform_user(
                 results_graph=report.validation_graph,
-                shacl=report.shacl_graphs,
-                data=report.data,
+                shacl=report.shacl_graph,
+                data=report.data_graph,
             )
     return True
 
@@ -134,9 +134,9 @@ def _validate(validator: ShaclValidator, rdf_graphs: RDFGraphs) -> ValidationRep
     return ValidationReport(
         conforms=conforms,
         validation_graph=validation_results,
-        shacl_graphs=rdf_graphs.shapes,
+        shacl_graph=rdf_graphs.shapes,
         onto_graph=rdf_graphs.ontos,
-        data=rdf_graphs.data,
+        data_graph=rdf_graphs.data,
     )
 
 

@@ -26,7 +26,7 @@ def onto_graph() -> Graph:
 
 
 @pytest.fixture
-def result_id_card_one(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+def report_min_card(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
         sh:focusNode <http://data/id_card_one> ;
@@ -53,18 +53,18 @@ def result_id_card_one(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidat
 
 
 @pytest.fixture
-def violation_min_card() -> ResultWithoutDetail:
+def extracted_min_card() -> ResultWithoutDetail:
     return ResultWithoutDetail(
         source_constraint_component=SH.MinCountConstraintComponent,
-        res_iri=DATA.id_min_card,
-        res_class=ONTO.ClassMixedCard,
-        property=ONTO.testGeoname,
-        results_message="1-n",
+        res_iri=DATA.id_card_one,
+        res_class=ONTO.ClassInheritedCardinalityOverwriting,
+        property=ONTO.testBoolean,
+        results_message="1",
     )
 
 
 @pytest.fixture
-def result_id_simpletext(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+def report_value_type_simpletext(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
         sh:detail _:bn_id_simpletext ;
@@ -106,7 +106,7 @@ def result_id_simpletext(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValid
 
 
 @pytest.fixture
-def result_id_uri(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+def report_value_type(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
         sh:detail _:bn_id_uri ;
@@ -148,7 +148,7 @@ def result_id_uri(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationRe
 
 
 @pytest.fixture
-def violation_value_type() -> ResultWithDetail:
+def extracted_value_type() -> ResultWithDetail:
     return ResultWithDetail(
         source_constraint_component=SH.NodeConstraintComponent,
         res_iri=DATA.id_2,
@@ -162,7 +162,7 @@ def violation_value_type() -> ResultWithDetail:
 
 
 @pytest.fixture
-def result_geoname_not_number(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+def report_regex(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
         sh:detail _:bn_geoname_not_number ;
@@ -205,7 +205,7 @@ def result_geoname_not_number(onto_graph: Graph) -> tuple[Graph, Graph, Resource
 
 
 @pytest.fixture
-def violation_regex() -> ResultWithDetail:
+def extracted_regex() -> ResultWithDetail:
     return ResultWithDetail(
         source_constraint_component=SH.NodeConstraintComponent,
         res_iri=DATA.geoname_not_number,
@@ -219,7 +219,7 @@ def violation_regex() -> ResultWithDetail:
 
 
 @pytest.fixture
-def result_id_closed_constraint(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+def report_closed_constraint(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
         sh:focusNode <http://data/id_closed_constraint> ;
@@ -250,7 +250,7 @@ def result_id_closed_constraint(onto_graph: Graph) -> tuple[Graph, Graph, Resour
 
 
 @pytest.fixture
-def violation_closed() -> ResultWithoutDetail:
+def extracted_closed_constraint() -> ResultWithoutDetail:
     return ResultWithoutDetail(
         source_constraint_component=DASH.ClosedByTypesConstraintComponent,
         res_iri=DATA.id_closed_constraint,
@@ -261,7 +261,7 @@ def violation_closed() -> ResultWithoutDetail:
 
 
 @pytest.fixture
-def result_id_max_card(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+def report_max_card(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
         sh:focusNode <http://data/id_max_card> ;
@@ -292,7 +292,7 @@ def result_id_max_card(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidat
 
 
 @pytest.fixture
-def violation_max_card() -> ResultWithoutDetail:
+def extracted_max_card() -> ResultWithoutDetail:
     return ResultWithoutDetail(
         source_constraint_component=SH.MaxCountConstraintComponent,
         res_iri=DATA.id_max_card,
@@ -303,7 +303,7 @@ def violation_max_card() -> ResultWithoutDetail:
 
 
 @pytest.fixture
-def result_empty_label(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+def report_empty_label(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
         sh:focusNode <http://data/empty_label> ;
@@ -331,7 +331,7 @@ def result_empty_label(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidat
 
 
 @pytest.fixture
-def violation_empty_label() -> ResultWithoutDetail:
+def extracted_empty_label() -> ResultWithoutDetail:
     return ResultWithoutDetail(
         source_constraint_component=SH.PatternConstraintComponent,
         res_iri=DATA.empty_label,
@@ -342,7 +342,7 @@ def violation_empty_label() -> ResultWithoutDetail:
 
 
 @pytest.fixture
-def violation_unknown_content() -> ResultWithDetail:
+def extracted_unknown_component() -> ResultWithDetail:
     return ResultWithDetail(
         source_constraint_component=SH.UniqueLangConstraintComponent,
         res_iri=DATA.id,

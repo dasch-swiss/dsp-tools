@@ -106,6 +106,20 @@ def report_value_type_simpletext(onto_graph: Graph) -> tuple[Graph, Graph, Resou
 
 
 @pytest.fixture
+def extracted_value_type_simpletext() -> ResultWithDetail:
+    return ResultWithDetail(
+        source_constraint_component=SH.NodeConstraintComponent,
+        res_iri=DATA.id_simpletext,
+        res_class=ONTO.ClassWithEverything,
+        property=ONTO.testTextarea,
+        results_message="TextValue without formatting",
+        value_type=KNORA_API.TextValue,
+        detail_bn_component=SH.MinCountConstraintComponent,
+        value=None,
+    )
+
+
+@pytest.fixture
 def report_value_type(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
@@ -151,10 +165,10 @@ def report_value_type(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidati
 def extracted_value_type() -> ResultWithDetail:
     return ResultWithDetail(
         source_constraint_component=SH.NodeConstraintComponent,
-        res_iri=DATA.id_2,
+        res_iri=DATA.id_uri,
         res_class=ONTO.ClassWithEverything,
-        property=ONTO.testColor,
-        results_message="ColorValue",
+        property=ONTO.testUriValue,
+        results_message="UriValue",
         value_type=KNORA_API.TextValue,
         detail_bn_component=SH.ClassConstraintComponent,
         value=None,

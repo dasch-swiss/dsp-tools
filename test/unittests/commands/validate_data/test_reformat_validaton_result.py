@@ -1,6 +1,7 @@
 import pytest
 from rdflib import RDFS
 from rdflib import SH
+from rdflib import Graph
 from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.models.input_problems import ContentRegexViolation
@@ -8,6 +9,7 @@ from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalit
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
+from dsp_tools.commands.validate_data.models.validation import ResourceValidationReportIdentifiers
 from dsp_tools.commands.validate_data.models.validation import ResultWithDetail
 from dsp_tools.commands.validate_data.models.validation import ResultWithoutDetail
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
@@ -22,42 +24,52 @@ from test.unittests.commands.validate_data.constants import ONTO
 
 
 class TestSeparateResultTypes:
-    def test_result_id_card_one(self, report_min_card) -> None:
+    def test_result_id_card_one(
+        self, report_min_card: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
+    ) -> None:
         res_g, onto_data_g, _ = report_min_card
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 1
         assert len(with_detail) == 0
         assert no_detail[0].res_iri == URIRef("http://data/id_card_one")
 
-    def test_result_id_simpletext(self, report_value_type_simpletext) -> None:
+    def test_result_id_simpletext(
+        self, report_value_type_simpletext: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
+    ) -> None:
         res_g, onto_data_g, _ = report_value_type_simpletext
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 0
         assert len(with_detail) == 1
         assert with_detail[0].res_iri == URIRef("http://data/id_simpletext")
 
-    def test_result_id_uri(self, report_value_type) -> None:
+    def test_result_id_uri(self, report_value_type: tuple[Graph, Graph, ResourceValidationReportIdentifiers]) -> None:
         res_g, onto_data_g, _ = report_value_type
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 0
         assert len(with_detail) == 1
         assert with_detail[0].res_iri == URIRef("http://data/id_uri")
 
-    def test_result_geoname_not_number(self, report_regex) -> None:
+    def test_result_geoname_not_number(
+        self, report_regex: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
+    ) -> None:
         res_g, onto_data_g, _ = report_regex
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 0
         assert len(with_detail) == 1
         assert with_detail[0].res_iri == URIRef("http://data/geoname_not_number")
 
-    def test_result_id_closed_constraint(self, report_closed_constraint) -> None:
+    def test_result_id_closed_constraint(
+        self, report_closed_constraint: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
+    ) -> None:
         res_g, onto_data_g, _ = report_closed_constraint
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 1
         assert len(with_detail) == 0
         assert no_detail[0].res_iri == URIRef("http://data/id_closed_constraint")
 
-    def test_result_id_max_card(self, report_max_card) -> None:
+    def test_result_id_max_card(
+        self, report_max_card: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
+    ) -> None:
         res_g, onto_data_g, _ = report_max_card
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 1
@@ -66,7 +78,9 @@ class TestSeparateResultTypes:
 
 
 class TestQueryWithoutDetail:
-    def test_result_id_card_one(self, report_min_card) -> None:
+    def test_result_id_card_one(
+        self, report_min_card: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
+    ) -> None:
         res, _, ids = report_min_card
         result = _query_without_detail(ids, res)
         assert result.source_constraint_component == SH.MinCountConstraintComponent
@@ -76,7 +90,9 @@ class TestQueryWithoutDetail:
         assert result.results_message == "1"
         assert not result.value
 
-    def test_result_id_closed_constraint(self, report_closed_constraint) -> None:
+    def test_result_id_closed_constraint(
+        self, report_closed_constraint: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
+    ) -> None:
         res, _, ids = report_closed_constraint
         result = _query_without_detail(ids, res)
         assert result.source_constraint_component == DASH.ClosedByTypesConstraintComponent
@@ -89,7 +105,9 @@ class TestQueryWithoutDetail:
         )
         assert result.value == "http://data/value_id_closed_constraint"
 
-    def test_result_id_max_card(self, report_max_card) -> None:
+    def test_result_id_max_card(
+        self, report_max_card: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
+    ) -> None:
         res, _, ids = report_max_card
         result = _query_without_detail(ids, res)
         assert result.source_constraint_component == SH.MaxCountConstraintComponent
@@ -99,7 +117,9 @@ class TestQueryWithoutDetail:
         assert result.results_message == "1"
         assert not result.value
 
-    def test_result_empty_label(self, report_empty_label) -> None:
+    def test_result_empty_label(
+        self, report_empty_label: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
+    ) -> None:
         res, _, ids = report_empty_label
         result = _query_without_detail(ids, res)
         assert result.source_constraint_component == SH.PatternConstraintComponent
@@ -111,7 +131,9 @@ class TestQueryWithoutDetail:
 
 
 class TestQueryWithDetail:
-    def test_result_id_simpletext(self, report_value_type_simpletext) -> None:
+    def test_result_id_simpletext(
+        self, report_value_type_simpletext: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
+    ) -> None:
         res, data, ids = report_value_type_simpletext
         result = _query_with_detail(ids, res, data)
         assert result.source_constraint_component == SH.NodeConstraintComponent
@@ -123,7 +145,7 @@ class TestQueryWithDetail:
         assert result.value_type == KNORA_API.TextValue
         assert not result.value
 
-    def test_result_id_uri(self, report_value_type) -> None:
+    def test_result_id_uri(self, report_value_type: tuple[Graph, Graph, ResourceValidationReportIdentifiers]) -> None:
         res, data, ids = report_value_type
         result = _query_with_detail(ids, res, data)
         assert result.source_constraint_component == SH.NodeConstraintComponent
@@ -135,7 +157,9 @@ class TestQueryWithDetail:
         assert result.value_type == KNORA_API.TextValue
         assert result.value == "http://data/value_id_uri"
 
-    def test_result_geoname_not_number(self, report_regex) -> None:
+    def test_result_geoname_not_number(
+        self, report_regex: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
+    ) -> None:
         res, data, ids = report_regex
         result = _query_with_detail(ids, res, data)
         assert result.source_constraint_component == SH.NodeConstraintComponent
@@ -183,14 +207,23 @@ class TestReformatWithoutDetail:
 
 
 class TestReformatWithDetail:
+    def test_value_type_simpletext(self, extracted_value_type_simpletext: ResultWithDetail) -> None:
+        result = _reformat_one_with_detail(extracted_value_type_simpletext)
+        assert isinstance(result, ValueTypeViolation)
+        assert result.res_id == "id_simpletext"
+        assert result.res_type == "onto:ClassWithEverything"
+        assert result.prop_name == "onto:testTextarea"
+        assert result.actual_type == "TextValue"
+        assert result.expected_type == "TextValue without formatting"
+
     def test_value_type(self, extracted_value_type: ResultWithDetail) -> None:
         result = _reformat_one_with_detail(extracted_value_type)
         assert isinstance(result, ValueTypeViolation)
-        assert result.res_id == "id_2"
+        assert result.res_id == "id_uri"
         assert result.res_type == "onto:ClassWithEverything"
-        assert result.prop_name == "onto:testColor"
+        assert result.prop_name == "onto:testUriValue"
         assert result.actual_type == "TextValue"
-        assert result.expected_type == "ColorValue"
+        assert result.expected_type == "UriValue"
 
     def test_violation_regex(self, extracted_regex: ResultWithDetail) -> None:
         result = _reformat_one_with_detail(extracted_regex)

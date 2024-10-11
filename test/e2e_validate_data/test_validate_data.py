@@ -85,9 +85,9 @@ def value_type_violation(_create_project: None) -> ValidationReport:
 
 
 def test_extract_identifiers_of_resource_results(every_combination_once: ValidationReport) -> None:
-    result = _extract_identifiers_of_resource_results(
-        every_combination_once.validation_graph, every_combination_once.data_onto_graph
-    )
+    report_and_onto = every_combination_once.validation_graph + every_combination_once.onto_graph
+    data_and_onto = every_combination_once.data + every_combination_once.onto_graph
+    result = _extract_identifiers_of_resource_results(report_and_onto, data_and_onto)
     result_sorted = sorted(result, key=lambda x: str(x.focus_node_iri))
     expected_iris = [
         (URIRef("http://data/empty_label"), None),

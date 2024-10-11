@@ -26,7 +26,7 @@ class ValidationReport:
     conforms: bool
     validation_graph: Graph
     shacl_graphs: Graph
-    data_onto: Graph
+    data_onto_graph: Graph
 
 
 @dataclass

@@ -6,6 +6,27 @@
        shortcode="9999"
        default-ontology="onto">
 
+
+    <!--
+        This file aims to represent every combination of:
+            - our error type,
+            - the component type of the validation report where the focus node is a resource class,
+            - the component type of the sh:detail node, if applicable,
+        This should primarily be used to ensure that the user gets the correct message
+        when the validation reports gets reformatted.
+        It does not aim to represent every validation that can be made.
+        For example, it is not an exhaustive list of value type violations
+        because they mostly result in the same combination.
+    -->
+
+
+        <!--
+        Our Violation Type            ContentRegexViolation
+        sh:sourceConstraintComponent  sh:PatternConstraintComponent
+        sh:detail                     -
+        -->
+        <resource label=" " restype=":ClassWithEverything" id="empty_label"/>
+
         <!--
         Our Violation Type            MaxCardinalityViolation
         sh:sourceConstraintComponent  sh:MaxCountConstraintComponent

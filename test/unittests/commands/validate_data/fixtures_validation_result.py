@@ -53,6 +53,17 @@ def result_id_card_one(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidat
 
 
 @pytest.fixture
+def violation_min_card() -> ResultWithoutDetail:
+    return ResultWithoutDetail(
+        source_constraint_component=SH.MinCountConstraintComponent,
+        res_iri=DATA.id_min_card,
+        res_class=ONTO.ClassMixedCard,
+        property=ONTO.testGeoname,
+        results_message="1-n",
+    )
+
+
+@pytest.fixture
 def result_id_simpletext(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
@@ -137,6 +148,20 @@ def result_id_uri(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationRe
 
 
 @pytest.fixture
+def violation_value_type() -> ResultWithDetail:
+    return ResultWithDetail(
+        source_constraint_component=SH.NodeConstraintComponent,
+        res_iri=DATA.id_2,
+        res_class=ONTO.ClassWithEverything,
+        property=ONTO.testColor,
+        results_message="ColorValue",
+        value_type=KNORA_API.TextValue,
+        detail_bn_component=SH.ClassConstraintComponent,
+        value=None,
+    )
+
+
+@pytest.fixture
 def result_geoname_not_number(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
@@ -180,6 +205,20 @@ def result_geoname_not_number(onto_graph: Graph) -> tuple[Graph, Graph, Resource
 
 
 @pytest.fixture
+def violation_regex() -> ResultWithDetail:
+    return ResultWithDetail(
+        source_constraint_component=SH.NodeConstraintComponent,
+        res_iri=DATA.geoname_not_number,
+        res_class=ONTO.ClassWithEverything,
+        property=ONTO.testGeoname,
+        results_message="The value must be a valid geoname code",
+        value_type=KNORA_API.GeonameValue,
+        detail_bn_component=SH.PatternConstraintComponent,
+        value="this-is-not-a-valid-code",
+    )
+
+
+@pytest.fixture
 def result_id_closed_constraint(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
@@ -211,6 +250,17 @@ def result_id_closed_constraint(onto_graph: Graph) -> tuple[Graph, Graph, Resour
 
 
 @pytest.fixture
+def violation_closed() -> ResultWithoutDetail:
+    return ResultWithoutDetail(
+        source_constraint_component=DASH.ClosedByTypesConstraintComponent,
+        res_iri=DATA.id_closed_constraint,
+        res_class=ONTO.CardOneResource,
+        property=ONTO.testIntegerSimpleText,
+        results_message="Property onto:testIntegerSimpleText is not among those permitted for any of the types",
+    )
+
+
+@pytest.fixture
 def result_id_max_card(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
@@ -239,6 +289,17 @@ def result_id_max_card(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidat
     val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
     identifiers = ResourceValidationReportIdentifiers(val_bn, URIRef("http://data/id_max_card"), ONTO.ClassMixedCard)
     return validation_g, onto_data_g, identifiers
+
+
+@pytest.fixture
+def violation_max_card() -> ResultWithoutDetail:
+    return ResultWithoutDetail(
+        source_constraint_component=SH.MaxCountConstraintComponent,
+        res_iri=DATA.id_max_card,
+        res_class=ONTO.ClassMixedCard,
+        property=ONTO.testDecimalSimpleText,
+        results_message="0-1",
+    )
 
 
 @pytest.fixture
@@ -281,53 +342,6 @@ def violation_empty_label() -> ResultWithoutDetail:
 
 
 @pytest.fixture
-def violation_min_card() -> ResultWithoutDetail:
-    return ResultWithoutDetail(
-        source_constraint_component=SH.MinCountConstraintComponent,
-        res_iri=DATA.id_min_card,
-        res_class=ONTO.ClassMixedCard,
-        property=ONTO.testGeoname,
-        results_message="1-n",
-    )
-
-
-@pytest.fixture
-def violation_max_card() -> ResultWithoutDetail:
-    return ResultWithoutDetail(
-        source_constraint_component=SH.MaxCountConstraintComponent,
-        res_iri=DATA.id_max_card,
-        res_class=ONTO.ClassMixedCard,
-        property=ONTO.testDecimalSimpleText,
-        results_message="0-1",
-    )
-
-
-@pytest.fixture
-def violation_closed() -> ResultWithoutDetail:
-    return ResultWithoutDetail(
-        source_constraint_component=DASH.ClosedByTypesConstraintComponent,
-        res_iri=DATA.id_closed_constraint,
-        res_class=ONTO.CardOneResource,
-        property=ONTO.testIntegerSimpleText,
-        results_message="Property onto:testIntegerSimpleText is not among those permitted for any of the types",
-    )
-
-
-@pytest.fixture
-def violation_value_type() -> ResultWithDetail:
-    return ResultWithDetail(
-        source_constraint_component=SH.NodeConstraintComponent,
-        res_iri=DATA.id_2,
-        res_class=ONTO.ClassWithEverything,
-        property=ONTO.testColor,
-        results_message="ColorValue",
-        value_type=KNORA_API.TextValue,
-        detail_bn_component=SH.ClassConstraintComponent,
-        value=None,
-    )
-
-
-@pytest.fixture
 def violation_unknown_content() -> ResultWithDetail:
     return ResultWithDetail(
         source_constraint_component=SH.UniqueLangConstraintComponent,
@@ -337,18 +351,4 @@ def violation_unknown_content() -> ResultWithDetail:
         results_message="This is a constraint that is not checked in the data and should never appear.",
         detail_bn_component=SH.AndConstraintComponent,
         value=None,
-    )
-
-
-@pytest.fixture
-def violation_regex() -> ResultWithDetail:
-    return ResultWithDetail(
-        source_constraint_component=SH.NodeConstraintComponent,
-        res_iri=DATA.geoname_not_number,
-        res_class=ONTO.ClassWithEverything,
-        property=ONTO.testGeoname,
-        results_message="The value must be a valid geoname code",
-        value_type=KNORA_API.GeonameValue,
-        detail_bn_component=SH.PatternConstraintComponent,
-        value="this-is-not-a-valid-code",
     )

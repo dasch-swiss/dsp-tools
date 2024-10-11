@@ -38,7 +38,7 @@ def reformat_validation_graph(report: ValidationReport) -> AllProblems:
     unexpected_components: list[UnexpectedComponent] = []
 
     no_detail_results, details_results = _separate_result_types(
-        results_graph=report.validation_graph, data_onto_graph=report.data_graph
+        results_graph=report.validation_graph, data_onto_graph=report.data_onto
     )
 
     no_detail_reformatted, no_detail_unexpected = _reformat_without_detail(no_detail_results)

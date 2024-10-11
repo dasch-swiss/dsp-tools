@@ -57,7 +57,7 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
             reformatted.unexpected_results.save_inform_user(
                 results_graph=report.validation_graph,
                 shacl=report.shacl_graphs,
-                data=report.data_graph,
+                data=report.data_onto,
             )
     return True
 
@@ -96,8 +96,8 @@ def _create_graphs(onto_con: OntologyConnection, data_rdf: DataRDF) -> RDFGraphs
     api_shapes = Graph()
     api_shapes.parse("src/dsp_tools/resources/validate_data/api-shapes.ttl")
     shapes_graph += api_shapes
-    data_onto = data_rdf.make_graph() + ontologies
-    return RDFGraphs(data_onto=data_onto, ontos=ontologies, shapes=shapes_graph)
+    data = data_rdf.make_graph()
+    return RDFGraphs(data=data, ontos=ontologies, shapes=shapes_graph)
 
 
 def _get_project_ontos(onto_con: OntologyConnection) -> Graph:
@@ -120,22 +120,22 @@ def _save_graphs(filepath: Path, rdf_graphs: RDFGraphs) -> Path:
     shacl_onto = rdf_graphs.shapes + rdf_graphs.ontos
     shacl_onto.serialize(f"{generic_filepath}_SHACL_ONTO.ttl")
     rdf_graphs.shapes.serialize(f"{generic_filepath}_SHACL.ttl")
-    rdf_graphs.data_onto.serialize(f"{generic_filepath}_DATA.ttl")
-    onto_data = rdf_graphs.data_onto + rdf_graphs.ontos
+    rdf_graphs.data.serialize(f"{generic_filepath}_DATA.ttl")
+    onto_data = rdf_graphs.data + rdf_graphs.ontos
     onto_data.serialize(f"{generic_filepath}_ONTO_DATA.ttl")
     return generic_filepath
 
 
 def _validate(validator: ShaclValidator, rdf_graphs: RDFGraphs) -> ValidationReport:
-    shapes_str = rdf_graphs.get_shacl_str()
-    data_str = rdf_graphs.get_data_str()
+    shapes_str = rdf_graphs.get_shacl_and_onto_str()
+    data_str = rdf_graphs.get_data_and_onto_str()
     validation_results = validator.validate(data_str, shapes_str)
     conforms = bool(next(validation_results.objects(None, SH.conforms)))
     return ValidationReport(
         conforms=conforms,
         validation_graph=validation_results,
         shacl_graphs=rdf_graphs.shapes,
-        data_graph=rdf_graphs.data_onto,
+        data_onto=rdf_graphs.data,
     )
 
 

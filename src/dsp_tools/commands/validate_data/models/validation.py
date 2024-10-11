@@ -8,15 +8,15 @@ from rdflib.term import Node
 
 @dataclass
 class RDFGraphs:
-    data_onto: Graph
+    data: Graph
     ontos: Graph
     shapes: Graph
 
-    def get_data_str(self) -> str:
-        g = self.data_onto + self.ontos
+    def get_data_and_onto_str(self) -> str:
+        g = self.data + self.ontos
         return g.serialize(format="ttl")
 
-    def get_shacl_str(self) -> str:
+    def get_shacl_and_onto_str(self) -> str:
         g = self.shapes + self.ontos
         return g.serialize(format="ttl")
 
@@ -26,7 +26,7 @@ class ValidationReport:
     conforms: bool
     validation_graph: Graph
     shacl_graphs: Graph
-    data_graph: Graph
+    data_onto: Graph
 
 
 @dataclass

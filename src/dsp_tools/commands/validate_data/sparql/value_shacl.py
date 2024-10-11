@@ -14,6 +14,7 @@ def construct_property_shapes(onto: Graph) -> Graph:
     g = Graph()
     g += _construct_property_type_shape_based_on_object_type(onto)
     g += _construct_link_value_shape(onto)
+    g += _construct_link_value_node_shape(onto)
     g += _construct_property_type_text_value(onto)
     return g + _add_property_shapes_to_class_shapes(onto)
 
@@ -104,7 +105,7 @@ def _construct_link_value_shape(onto: Graph) -> Graph:
 
         ?shapesIRI a sh:PropertyShape ;
                    sh:path ?prop ;
-                   sh:node api-shapes:LinkValue_ClassShape .
+                   sh:node api-shapes:LinkValue_ClassShape , ?nodeShapeIRI .
 
     } WHERE {
 
@@ -112,11 +113,61 @@ def _construct_link_value_shape(onto: Graph) -> Graph:
                 salsah-gui:guiElement salsah-gui:Searchbox .
 
         BIND(IRI(CONCAT(str(?prop), "_PropShape")) AS ?shapesIRI)
+        BIND(IRI(CONCAT(str(?prop), "_NodeShape")) AS ?nodeShapeIRI)
     }
     """
     if results_graph := onto.query(query_s).graph:
         return results_graph
     return Graph()
+
+
+def _construct_link_value_node_shape(onto: Graph) -> Graph:
+    query_s = """
+    PREFIX owl: <http://www.w3.org/2002/07/owl#> 
+    PREFIX sh: <http://www.w3.org/ns/shacl#>
+    PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
+    PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
+    PREFIX salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#>
+
+    CONSTRUCT {
+
+        ?nodeShapeIRI a sh:NodeShape ;
+            sh:property    [
+                                a            sh:PropertyShape ;
+                                sh:path      api-shapes:linkValueHasTargetID ;
+                                sh:class     ?rangeClass ;
+                                sh:message   ?rangeString ;
+                            ] ;
+            sh:severity    sh:Violation .
+
+    } WHERE {
+
+        ?prop a owl:ObjectProperty ;
+                salsah-gui:guiElement salsah-gui:Searchbox ;
+                knora-api:objectType ?rangeClass .
+
+        BIND(IRI(CONCAT(str(?prop), "_NodeShape")) AS ?nodeShapeIRI)
+        BIND(STRAFTER(STR(?rangeClass), "#") AS ?rangeString )
+    }
+    """
+    if results_graph := onto.query(query_s).graph:
+        return results_graph
+    return Graph()
+
+
+"""
+
+onto-shapes:linkProp_NodeShape
+  a              sh:NodeShape ;
+  sh:name        "Validates class of target." ;
+  sh:property    [
+                    a            sh:PropertyShape ;
+                    sh:path      val-onto:hasValue ;
+                    sh:class     onto:CardOneResource ;
+                    sh:message   "Target must be of type 'onto:CardOneResource' or a subclass of it." ;
+                 ] ;
+  sh:severity    sh:Violation .
+"""
 
 
 def _construct_property_type_text_value(onto: Graph) -> Graph:

@@ -1,4 +1,3 @@
-import warnings
 from copy import deepcopy
 from pathlib import Path
 
@@ -17,7 +16,6 @@ from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationReport
 from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_shapes_graph
-from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.utils.xml_utils import parse_xml_file
 from dsp_tools.utils.xml_utils import remove_comments_from_element_tree
 from dsp_tools.utils.xml_utils import transform_into_localnames
@@ -83,8 +81,9 @@ def _inform_about_experimental_feature() -> None:
         "This is an experimental feature, it will change and be extended continuously. "
         "The following information of your data is being validated:",
         "Cardinalities",
+        "If the value type used matches the ontology",
     ]
-    warnings.warn(DspToolsUserWarning(LIST_SEPARATOR.join(what_is_validated)))
+    cprint(LIST_SEPARATOR.join(what_is_validated), color="magenta", attrs=["bold"])
 
 
 def _create_graphs(onto_con: OntologyConnection, data_rdf: DataRDF) -> RDFGraphs:

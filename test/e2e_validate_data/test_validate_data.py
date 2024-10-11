@@ -90,6 +90,7 @@ def test_extract_identifiers_of_resource_results(every_combination_once: Validat
     )
     result_sorted = sorted(result, key=lambda x: str(x.focus_node_iri))
     expected_iris = [
+        (URIRef("http://data/empty_label"), None),
         (URIRef("http://data/geoname_not_number"), BNode),
         (URIRef("http://data/id_card_one"), None),
         (URIRef("http://data/id_closed_constraint"), None),
@@ -105,7 +106,7 @@ def test_extract_identifiers_of_resource_results(every_combination_once: Validat
             assert isinstance(result_iri.detail_node, expected_iri[1])
 
 
-class TestGetValidationResult:
+class TestCheckConforms:
     def test_cardinality_correct(self, cardinality_correct: ValidationReport) -> None:
         assert cardinality_correct.conforms
 
@@ -190,6 +191,7 @@ class TestReformatValidationGraph:
     def test_reformat_every_constraint_once(self, every_combination_once: ValidationReport) -> None:
         result = reformat_validation_graph(every_combination_once)
         expected_info_tuples = [
+            ("empty_label", ContentRegexViolation),
             ("geoname_not_number", ContentRegexViolation),
             ("id_card_one", MinCardinalityViolation),
             ("id_closed_constraint", NonExistentCardinalityViolation),
@@ -198,7 +200,7 @@ class TestReformatValidationGraph:
             ("id_uri", ValueTypeViolation),
         ]
         assert not result.unexpected_results
-        assert len(result.problems) == 6
+        assert len(result.problems) == 7
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
             assert one_result.res_id == expected_info[0]

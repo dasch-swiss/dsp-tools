@@ -272,10 +272,14 @@ class TestCreateGetXMLUpload(unittest.TestCase):
             # expand ":xyz" to "project_shortname:xyz"
             if user.get("groups"):
                 users_original[index]["groups"] = [regex.sub("^:", f"{project_shortname}:", g) for g in user["groups"]]
-            if user.get("projects"):
-                users_original[index]["projects"] = [
-                    regex.sub("^:", f"{project_shortname}:", p) for p in user["projects"]
-                ]
+            if proj_memberships := user.get("projects"):
+                proj_memberships_expanded = [regex.sub("^:", f"{project_shortname}:", p) for p in proj_memberships]
+                if all(
+                    x in proj_memberships_expanded
+                    for x in [f"{project_shortname}:admin", f"{project_shortname}:member"]
+                ):
+                    proj_memberships_expanded.remove(f"{project_shortname}:member")
+                users_original[index]["projects"] = proj_memberships_expanded
 
         # sort both lists
         users_original = sorted(users_original or [], key=lambda x: cast(str, x["username"]))

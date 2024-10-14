@@ -308,7 +308,13 @@ def _get_projects_where_user_is_admin(
             in_project = in_project_list[0]
 
         is_admin = project_role == "admin"
-        project_info[str(in_project.iri)] = is_admin
+        match project_info.get(str(in_project.iri)):
+            case None:  # user hasn't yet been registered as admin/member of this project
+                project_info[str(in_project.iri)] = is_admin
+            case True:  # user has already been registered as **admin** of this project
+                pass  # leave previous admin/member status untouched
+            case False:  # user has already been registered as **member** of this project
+                project_info[str(in_project.iri)] = is_admin  # overwrite previous admin/member status
         if verbose:
             print(f"    Added user '{username}' as {project_role} to project '{in_project.shortname}'.")
         logger.info(f"Added user '{username}' as {project_role} to project '{in_project.shortname}'.")

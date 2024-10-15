@@ -255,7 +255,10 @@ def _reformat_detail_class_constraint_component(val_result: ResultWithDetail) ->
             value = _reformat_data_iri(str(val_result.detail.value))
             if val_result.detail.results_message == "Resource":
                 return ResourceDoesNotExist(
-                    res_id=subject_id, res_type=res_type, prop_name=prop_name, link_target_id=value
+                    res_id=subject_id,
+                    res_type=res_type,
+                    prop_name=prop_name,
+                    link_target_id=value,
                 )
             return LinkTargetTypeMismatch(
                 res_id=subject_id,

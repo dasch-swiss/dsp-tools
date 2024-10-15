@@ -5,9 +5,11 @@ from rdflib import Graph
 from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.models.input_problems import ContentRegexViolation
+from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatch
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
+from dsp_tools.commands.validate_data.models.input_problems import ResourceDoesNotExist
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
 from dsp_tools.commands.validate_data.models.validation import ResourceValidationReportIdentifiers
 from dsp_tools.commands.validate_data.models.validation import ResultWithDetail
@@ -268,10 +270,21 @@ class TestReformatWithDetail:
         assert result.component_type == str(SH.UniqueLangConstraintComponent)
 
     def test_link_target_non_existent(self, extracted_link_target_non_existent: ResultWithDetail) -> None:
-        pass
+        result = _reformat_one_with_detail(extracted_link_target_non_existent)
+        assert isinstance(result, ResourceDoesNotExist)
+        assert result.res_id == "link_target_non_existent"
+        assert result.res_type == "onto:ClassWithEverything"
+        assert result.prop_name == "onto:testHasLinkTo"
+        assert result.link_target_id == "other"
 
     def test_link_target_wrong_class(self, extracted_link_target_wrong_class: ResultWithDetail) -> None:
-        pass
+        result = _reformat_one_with_detail(extracted_link_target_wrong_class)
+        assert isinstance(result, LinkTargetTypeMismatch)
+        assert result.res_id == "link_target_wrong_class"
+        assert result.res_type == "onto:ClassWithEverything"
+        assert result.prop_name == "onto:testHasLinkToCardOneResource"
+        assert result.link_target_id == "id_9_target"
+        assert result.expected_type == "CardOneResource"
 
 
 if __name__ == "__main__":

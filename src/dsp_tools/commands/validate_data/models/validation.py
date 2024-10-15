@@ -59,7 +59,13 @@ class ResultWithDetail:
     res_iri: Node
     res_class: Node
     property: Node
+    detail: ResultDetail
+
+
+@dataclass
+class ResultDetail:
+    component: Node
     results_message: str
-    detail_bn_component: Node
+    result_path: Node
+    value_type: Node | None
     value: str | None
-    value_type: Node | None = None

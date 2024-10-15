@@ -217,7 +217,9 @@ def _reformat_one_with_detail(val_result: ResultWithDetail) -> InputProblem | Un
                 expected_format=val_result.results_message,
                 actual_content=val,
             )
-        case SH.ClassConstraintComponent | SH.MinCountConstraintComponent:
+        case SH.ClassConstraintComponent:
+            return _reformat_detail_class_constraint_component(val_result)
+        case SH.MinCountConstraintComponent:
             actual_type = _reformat_onto_iri(str(val_result.value_type)).replace("knora-api:", "")
             return ValueTypeViolation(
                 res_id=subject_id,
@@ -228,6 +230,20 @@ def _reformat_one_with_detail(val_result: ResultWithDetail) -> InputProblem | Un
             )
         case _:
             return UnexpectedComponent(str(val_result.source_constraint_component))
+
+
+def _reformat_detail_class_constraint_component(val_result: ResultWithDetail) -> InputProblem:
+    subject_id = _reformat_data_iri(str(val_result.res_iri))
+    prop_name = _reformat_onto_iri(str(val_result.property))
+    res_type = _reformat_onto_iri(str(val_result.res_class))
+    actual_type = _reformat_onto_iri(str(val_result.value_type)).replace("knora-api:", "")
+    return ValueTypeViolation(
+        res_id=subject_id,
+        res_type=res_type,
+        prop_name=prop_name,
+        actual_type=actual_type,
+        expected_type=val_result.results_message,
+    )
 
 
 def _reformat_onto_iri(prop: str) -> str:

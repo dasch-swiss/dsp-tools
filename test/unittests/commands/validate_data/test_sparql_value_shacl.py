@@ -23,10 +23,13 @@ def test_construct_one_property_type_shape_based_on_object_type(one_res_one_prop
 
 def test_construct_link_value_shape(link_prop: Graph) -> None:
     res = _construct_link_value_shape(link_prop)
-    assert len(res) == 3
+    assert len(res) == 4
     assert next(res.objects(ONTO.testHasLinkTo_PropShape, SH.path)) == ONTO.testHasLinkTo
     assert next(res.objects(ONTO.testHasLinkTo_PropShape, RDF.type)) == SH.PropertyShape
-    assert next(res.objects(ONTO.testHasLinkTo_PropShape, SH.node)) == API_SHAPES.LinkValue_ClassShape
+    assert set(res.objects(ONTO.testHasLinkTo_PropShape, SH.node)) == {
+        API_SHAPES.LinkValue_ClassShape,
+        ONTO.testHasLinkTo_NodeShape,
+    }
 
 
 def test_construct_one_property_type_text_value(one_richtext_prop: Graph) -> None:

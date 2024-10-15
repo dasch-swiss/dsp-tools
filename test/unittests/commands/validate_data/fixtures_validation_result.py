@@ -11,6 +11,7 @@ from dsp_tools.commands.validate_data.models.validation import ResourceValidatio
 from dsp_tools.commands.validate_data.models.validation import ResultDetail
 from dsp_tools.commands.validate_data.models.validation import ResultWithDetail
 from dsp_tools.commands.validate_data.models.validation import ResultWithoutDetail
+from dsp_tools.commands.validate_data.reformat_validaton_result import API_SHAPES
 from test.unittests.commands.validate_data.constants import DASH
 from test.unittests.commands.validate_data.constants import DATA
 from test.unittests.commands.validate_data.constants import KNORA_API
@@ -241,6 +242,113 @@ def extracted_regex() -> ResultWithDetail:
         res_iri=DATA.geoname_not_number,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testGeoname,
+        detail=detail,
+    )
+
+
+@pytest.fixture
+def report_link_target_non_existent(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+    validation_str = f"""{PREFIXES}
+    [ a sh:ValidationResult ;
+        sh:detail _:bn_link_target_non_existent ;
+        sh:focusNode <http://data/link_target_non_existent> ;
+        sh:resultMessage "Value does not have shape <http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo_NodeShape>" ;
+        sh:resultPath ns1:testHasLinkTo ;
+        sh:resultSeverity sh:Violation ;
+        sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+        sh:sourceShape ns1:testHasLinkTo_PropShape ;
+        sh:value <http://data/value_link_target_non_existent> ] .
+    
+    _:bn_link_target_non_existent a sh:ValidationResult ;
+        sh:focusNode <http://data/value_link_target_non_existent> ;
+        sh:resultMessage "Resource" ;
+        sh:resultPath ns21:linkValueHasTargetID ;
+        sh:resultSeverity sh:Violation ;
+        sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+        sh:sourceShape [ ] ;
+        sh:value <http://data/other> .
+    """  # noqa: E501 (Line too long)
+    validation_g = Graph()
+    validation_g.parse(data=validation_str, format="ttl")
+    data_str = f"""{PREFIXES}
+    <http://data/link_target_non_existent> a onto:ClassWithEverything ;
+        rdfs:label "Target does not exist"^^xsd:string ;
+        onto:testHasLinkTo <http://data/value_link_target_non_existent> .
+    
+    <http://data/value_link_target_non_existent> a knora-api:LinkValue ;
+    api-shapes:linkValueHasTargetID <http://data/other> .
+    """
+    onto_data_g = Graph()
+    onto_data_g += onto_graph
+    onto_data_g.parse(data=data_str, format="ttl")
+    val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+    detail_bn = next(validation_g.objects(predicate=SH.detail))
+    identifiers = ResourceValidationReportIdentifiers(
+        val_bn,
+        URIRef("http://data/link_target_non_existent"),
+        ONTO.ClassWithEverything,
+        detail_bn,
+    )
+    return validation_g, onto_data_g, identifiers
+
+
+@pytest.fixture
+def extracted_link_target_non_existent() -> ResultWithDetail:
+    detail = ResultDetail(
+        component=SH.ClassConstraintComponent,
+        results_message="Resource",
+        result_path=API_SHAPES.linkValueHasTargetID,
+        value_type=KNORA_API.LinkValue,
+        value=URIRef("http://data/other"),
+    )
+    return ResultWithDetail(
+        source_constraint_component=SH.NodeConstraintComponent,
+        res_iri=DATA.link_target_non_existent,
+        res_class=ONTO.ClassWithEverything,
+        property=ONTO.testHasLinkTo,
+        detail=detail,
+    )
+
+
+@pytest.fixture
+def report_link_target_wrong_class(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+    validation_str = f"""{PREFIXES}
+
+    """
+    validation_g = Graph()
+    validation_g.parse(data=validation_str, format="ttl")
+    data_str = f"""{PREFIXES}
+
+    """
+    onto_data_g = Graph()
+    onto_data_g += onto_graph
+    onto_data_g.parse(data=data_str, format="ttl")
+    val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+    detail_bn = next(validation_g.objects(predicate=SH.detail))
+    identifiers = ResourceValidationReportIdentifiers(
+        val_bn,
+        URIRef("http://data/link_target_non_existent"),
+        ONTO.ClassWithEverything,
+        detail_bn,
+    )
+    return validation_g, onto_data_g, identifiers
+
+
+@pytest.fixture
+def extracted_link_target_wrong_class() -> ResultWithDetail:
+    # TODO: add correct
+    detail = ResultDetail(
+        component=SH.ClassConstraintComponent,
+        results_message="Resource",
+        result_path=API_SHAPES.linkValueHasTargetID,
+        value_type=KNORA_API.LinkValue,
+        value=URIRef("http://data/other"),
+    )
+    return ResultWithDetail(
+        source_constraint_component=SH.NodeConstraintComponent,
+        res_iri=DATA.link_target_non_existent,
+        res_class=ONTO.ClassWithEverything,
+        property=ONTO.testHasLinkTo,
         detail=detail,
     )
 

@@ -258,23 +258,20 @@ class ContentRegexViolation(InputProblem):
 @dataclass
 class LinkTargetTypeMismatch(InputProblem):
     link_target_id: str
-    link_target_type: str
     expected_type: str
 
     @property
     def problem(self) -> str:
-        return "Link Value Resource Type Mismatch"
+        return "Linked Resource Type Mismatch"
 
     def get_msg(self) -> str:
         return (
-            f"{self.problem}, Link Target ID: {self.link_target_id} | "
-            f"Actual Resource Type: {self.link_target_type} | Expected Resource Type: {self.expected_type}"
+            f"{self.problem}, Target Resource ID {self.link_target_id} | Expected Resource Type: {self.expected_type}"
         )
 
     def to_dict(self) -> dict[str, str]:
         problm_dict = self._base_dict()
         problm_dict["Expected"] = self.expected_type
-        problm_dict["Actual"] = self.link_target_type
         problm_dict["Content"] = self.link_target_id
         return problm_dict
 

@@ -26,6 +26,8 @@ from dsp_tools.commands.validate_data.models.validation import ValidationReport
 DASH = Namespace("http://datashapes.org/dash#")
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
 
+API_SHAPES = Namespace("http://api.knora.org/ontology/knora-api/shapes/v2#")
+
 
 def reformat_validation_graph(report: ValidationReport) -> AllProblems:
     """
@@ -249,8 +251,8 @@ def _reformat_detail_class_constraint_component(val_result: ResultWithDetail) ->
     res_type = _reformat_onto_iri(str(val_result.res_class))
     actual_type = _reformat_onto_iri(str(val_result.detail.value_type)).replace("knora-api:", "")
     match val_result.detail.result_path:
-        case KNORA_API.linkValueHasTargetID:
-            value = _reformat_onto_iri(str(val_result.detail.value))
+        case API_SHAPES.linkValueHasTargetID:
+            value = _reformat_data_iri(str(val_result.detail.value))
             if val_result.detail.results_message == "Resource":
                 return ResourceDoesNotExist(
                     res_id=subject_id, res_type=res_type, prop_name=prop_name, link_target_id=value
@@ -260,7 +262,6 @@ def _reformat_detail_class_constraint_component(val_result: ResultWithDetail) ->
                 res_type=res_type,
                 prop_name=prop_name,
                 link_target_id=value,
-                link_target_type=actual_type,
                 expected_type=val_result.detail.results_message,
             )
         case _:

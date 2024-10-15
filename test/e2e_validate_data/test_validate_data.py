@@ -26,6 +26,7 @@ LOCAL_API = "http://0.0.0.0:3333"
 DONT_SAVE_GRAPHS = False
 
 
+@lru_cache(maxsize=None)
 @pytest.fixture
 def _create_project() -> Iterator[None]:
     with get_containers():

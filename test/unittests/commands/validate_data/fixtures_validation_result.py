@@ -8,6 +8,7 @@ from rdflib import Graph
 from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.models.validation import ResourceValidationReportIdentifiers
+from dsp_tools.commands.validate_data.models.validation import ResultDetail
 from dsp_tools.commands.validate_data.models.validation import ResultWithDetail
 from dsp_tools.commands.validate_data.models.validation import ResultWithoutDetail
 from test.unittests.commands.validate_data.constants import DASH
@@ -107,15 +108,19 @@ def report_value_type_simpletext(onto_graph: Graph) -> tuple[Graph, Graph, Resou
 
 @pytest.fixture
 def extracted_value_type_simpletext() -> ResultWithDetail:
+    detail = ResultDetail(
+        component=SH.MinCountConstraintComponent,
+        results_message="TextValue without formatting",
+        result_path=KNORA_API.textValueAsXml,
+        value_type=KNORA_API.TextValue,
+        value=None,
+    )
     return ResultWithDetail(
         source_constraint_component=SH.NodeConstraintComponent,
         res_iri=DATA.id_simpletext,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testTextarea,
-        results_message="TextValue without formatting",
-        value_type=KNORA_API.TextValue,
-        detail_bn_component=SH.MinCountConstraintComponent,
-        value=None,
+        detail=detail,
     )
 
 
@@ -163,15 +168,19 @@ def report_value_type(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidati
 
 @pytest.fixture
 def extracted_value_type() -> ResultWithDetail:
+    detail = ResultDetail(
+        component=SH.ClassConstraintComponent,
+        results_message="UriValue",
+        result_path=None,
+        value_type=KNORA_API.TextValue,
+        value=None,
+    )
     return ResultWithDetail(
         source_constraint_component=SH.NodeConstraintComponent,
         res_iri=DATA.id_uri,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testUriValue,
-        results_message="UriValue",
-        value_type=KNORA_API.TextValue,
-        detail_bn_component=SH.ClassConstraintComponent,
-        value=None,
+        detail=detail,
     )
 
 
@@ -220,15 +229,19 @@ def report_regex(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationRep
 
 @pytest.fixture
 def extracted_regex() -> ResultWithDetail:
+    detail = ResultDetail(
+        component=SH.PatternConstraintComponent,
+        results_message="The value must be a valid geoname code",
+        result_path=KNORA_API.geonameValueAsGeonameCode,
+        value_type=KNORA_API.GeonameValue,
+        value="this-is-not-a-valid-code",
+    )
     return ResultWithDetail(
         source_constraint_component=SH.NodeConstraintComponent,
         res_iri=DATA.geoname_not_number,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testGeoname,
-        results_message="The value must be a valid geoname code",
-        value_type=KNORA_API.GeonameValue,
-        detail_bn_component=SH.PatternConstraintComponent,
-        value="this-is-not-a-valid-code",
+        detail=detail,
     )
 
 
@@ -357,12 +370,17 @@ def extracted_empty_label() -> ResultWithoutDetail:
 
 @pytest.fixture
 def extracted_unknown_component() -> ResultWithDetail:
+    detail = ResultDetail(
+        component=SH.AndConstraintComponent,
+        results_message="This is a constraint that is not checked in the data and should never appear.",
+        result_path=KNORA_API.doesNotExist,
+        value_type=KNORA_API.TextValue,
+        value=None,
+    )
     return ResultWithDetail(
         source_constraint_component=SH.UniqueLangConstraintComponent,
         res_iri=DATA.id,
         res_class=ONTO.ClassMixedCard,
         property=ONTO.testIntegerSimpleText,
-        results_message="This is a constraint that is not checked in the data and should never appear.",
-        detail_bn_component=SH.AndConstraintComponent,
-        value=None,
+        detail=detail,
     )

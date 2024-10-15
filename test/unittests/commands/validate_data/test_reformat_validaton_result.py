@@ -140,10 +140,10 @@ class TestQueryWithDetail:
         assert result.res_iri == ids.focus_node_iri
         assert result.res_class == ids.res_class_type
         assert result.property == ONTO.testTextarea
-        assert result.results_message == "TextValue without formatting"
-        assert result.detail_bn_component == SH.MinCountConstraintComponent
-        assert result.value_type == KNORA_API.TextValue
-        assert not result.value
+        assert result.detail.results_message == "TextValue without formatting"
+        assert result.detail.component == SH.MinCountConstraintComponent
+        assert result.detail.value_type == KNORA_API.TextValue
+        assert not result.detail.value
 
     def test_result_id_uri(self, report_value_type: tuple[Graph, Graph, ResourceValidationReportIdentifiers]) -> None:
         res, data, ids = report_value_type
@@ -152,10 +152,10 @@ class TestQueryWithDetail:
         assert result.res_iri == ids.focus_node_iri
         assert result.res_class == ids.res_class_type
         assert result.property == ONTO.testUriValue
-        assert result.results_message == "UriValue"
-        assert result.detail_bn_component == SH.ClassConstraintComponent
-        assert result.value_type == KNORA_API.TextValue
-        assert result.value == "http://data/value_id_uri"
+        assert result.detail.results_message == "UriValue"
+        assert result.detail.component == SH.ClassConstraintComponent
+        assert result.detail.value_type == KNORA_API.TextValue
+        assert result.detail.value == "http://data/value_id_uri"
 
     def test_result_geoname_not_number(
         self, report_regex: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
@@ -166,10 +166,10 @@ class TestQueryWithDetail:
         assert result.res_iri == ids.focus_node_iri
         assert result.res_class == ids.res_class_type
         assert result.property == ONTO.testGeoname
-        assert result.results_message == "The value must be a valid geoname code"
-        assert result.detail_bn_component == SH.PatternConstraintComponent
-        assert result.value_type == KNORA_API.GeonameValue
-        assert result.value == "this-is-not-a-valid-code"
+        assert result.detail.results_message == "The value must be a valid geoname code"
+        assert result.detail.component == SH.PatternConstraintComponent
+        assert result.detail.value_type == KNORA_API.GeonameValue
+        assert result.detail.value == "this-is-not-a-valid-code"
 
 
 class TestReformatWithoutDetail:

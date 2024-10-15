@@ -66,6 +66,6 @@ class ResultWithDetail:
 class ResultDetail:
     component: Node
     results_message: str
-    result_path: Node
-    value_type: Node | None
+    result_path: Node | None
+    value_type: Node
     value: str | None

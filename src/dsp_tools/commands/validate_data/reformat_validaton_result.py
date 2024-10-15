@@ -4,6 +4,7 @@ from rdflib import SH
 from rdflib import Graph
 from rdflib import Literal
 from rdflib import Namespace
+from rdflib.term import Node
 
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import ContentRegexViolation
@@ -119,7 +120,9 @@ def _query_with_detail(
     value_type = next(data_graph.objects(value_iri, RDF.type))
     component = next(results_and_onto.objects(identifiers.validation_bn, SH.sourceConstraintComponent))
     detail_component = next(results_and_onto.objects(identifiers.detail_node, SH.sourceConstraintComponent))
-    detail_path = next(results_and_onto.objects(identifiers.detail_node, SH.resultPath))
+    detail_path: None | Node = None
+    if path_found := list(results_and_onto.objects(identifiers.detail_node, SH.resultPath)):
+        detail_path = path_found[0]
     val = None
     if node_value := list(results_and_onto.objects(identifiers.detail_node, SH.value)):
         val = str(node_value[0])

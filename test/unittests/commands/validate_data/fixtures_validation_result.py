@@ -253,16 +253,16 @@ def report_link_target_non_existent(onto_graph: Graph) -> tuple[Graph, Graph, Re
         sh:detail _:bn_link_target_non_existent ;
         sh:focusNode <http://data/link_target_non_existent> ;
         sh:resultMessage "Value does not have shape <http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo_NodeShape>" ;
-        sh:resultPath ns1:testHasLinkTo ;
+        sh:resultPath onto:testHasLinkTo ;
         sh:resultSeverity sh:Violation ;
         sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-        sh:sourceShape ns1:testHasLinkTo_PropShape ;
+        sh:sourceShape onto:testHasLinkTo_PropShape ;
         sh:value <http://data/value_link_target_non_existent> ] .
     
     _:bn_link_target_non_existent a sh:ValidationResult ;
         sh:focusNode <http://data/value_link_target_non_existent> ;
         sh:resultMessage "Resource" ;
-        sh:resultPath ns21:linkValueHasTargetID ;
+        sh:resultPath api-shapes:linkValueHasTargetID ;
         sh:resultSeverity sh:Violation ;
         sh:sourceConstraintComponent sh:ClassConstraintComponent ;
         sh:sourceShape [ ] ;
@@ -313,12 +313,37 @@ def extracted_link_target_non_existent() -> ResultWithDetail:
 @pytest.fixture
 def report_link_target_wrong_class(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
     validation_str = f"""{PREFIXES}
-
-    """
+    [ a sh:ValidationResult ;
+        sh:detail _:bn_link_target_wrong_class ;
+        sh:focusNode <http://data/link_target_wrong_class> ;
+        sh:resultMessage "Value does not have shape <http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkToCardOneResource_NodeShape>" ;
+        sh:resultPath onto:testHasLinkToCardOneResource ;
+        sh:resultSeverity sh:Violation ;
+        sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+        sh:sourceShape onto:testHasLinkToCardOneResource_PropShape ;
+        sh:value <http://data/value_link_target_wrong_class> ] .
+        
+    _:bn_link_target_wrong_class a sh:ValidationResult ;
+        sh:focusNode <http://data/value_link_target_wrong_class> ;
+        sh:resultMessage "CardOneResource" ;
+        sh:resultPath api-shapes:linkValueHasTargetID ;
+        sh:resultSeverity sh:Violation ;
+        sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+        sh:sourceShape [ ] ;
+        sh:value <http://data/id_9_target> .
+    """  # noqa: E501 (Line too long)
     validation_g = Graph()
     validation_g.parse(data=validation_str, format="ttl")
     data_str = f"""{PREFIXES}
+    <http://data/link_target_wrong_class> a onto:ClassWithEverything ;
+        rdfs:label "Target not the right class"^^xsd:string ;
+        onto:testHasLinkToCardOneResource <http://data/value_link_target_wrong_class> .
+    
+    <http://data/id_9_target> a onto:ClassWithEverything ;
+        rdfs:label "Link Prop"^^xsd:string .
 
+    <http://data/value_link_target_wrong_class> a knora-api:LinkValue ;
+        api-shapes:linkValueHasTargetID <http://data/id_9_target> .
     """
     onto_data_g = Graph()
     onto_data_g += onto_graph
@@ -327,7 +352,7 @@ def report_link_target_wrong_class(onto_graph: Graph) -> tuple[Graph, Graph, Res
     detail_bn = next(validation_g.objects(predicate=SH.detail))
     identifiers = ResourceValidationReportIdentifiers(
         val_bn,
-        URIRef("http://data/link_target_non_existent"),
+        URIRef("http://data/link_target_wrong_class"),
         ONTO.ClassWithEverything,
         detail_bn,
     )
@@ -336,19 +361,18 @@ def report_link_target_wrong_class(onto_graph: Graph) -> tuple[Graph, Graph, Res
 
 @pytest.fixture
 def extracted_link_target_wrong_class() -> ResultWithDetail:
-    # TODO: add correct
     detail = ResultDetail(
         component=SH.ClassConstraintComponent,
-        results_message="Resource",
+        results_message="CardOneResource",
         result_path=API_SHAPES.linkValueHasTargetID,
         value_type=KNORA_API.LinkValue,
-        value=URIRef("http://data/other"),
+        value=URIRef("http://data/id_9_target"),
     )
     return ResultWithDetail(
         source_constraint_component=SH.NodeConstraintComponent,
-        res_iri=DATA.link_target_non_existent,
+        res_iri=DATA.link_target_wrong_class,
         res_class=ONTO.ClassWithEverything,
-        property=ONTO.testHasLinkTo,
+        property=ONTO.testHasLinkToCardOneResource,
         detail=detail,
     )
 

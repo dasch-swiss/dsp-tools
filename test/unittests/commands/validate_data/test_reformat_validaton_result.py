@@ -171,6 +171,34 @@ class TestQueryWithDetail:
         assert result.detail.value_type == KNORA_API.GeonameValue
         assert result.detail.value == "this-is-not-a-valid-code"
 
+    def test_link_target_non_existent(
+        self, report_link_target_non_existent: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
+    ) -> None:
+        res, data, ids = report_link_target_non_existent
+        result = _query_with_detail(ids, res, data)
+        assert result.source_constraint_component == SH.NodeConstraintComponent
+        assert result.res_iri == ids.focus_node_iri
+        assert result.res_class == ids.res_class_type
+        assert result.property == ONTO.testHasLinkTo
+        assert result.detail.results_message == "Resource"
+        assert result.detail.component == SH.ClassConstraintComponent
+        assert result.detail.value_type == KNORA_API.LinkValue
+        assert result.detail.value == "http://data/other"
+
+    def test_link_target_wrong_class(
+        self, report_link_target_wrong_class: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
+    ) -> None:
+        res, data, ids = report_link_target_wrong_class
+        result = _query_with_detail(ids, res, data)
+        assert result.source_constraint_component == SH.NodeConstraintComponent
+        assert result.res_iri == ids.focus_node_iri
+        assert result.res_class == ids.res_class_type
+        assert result.property == ONTO.testHasLinkToCardOneResource
+        assert result.detail.results_message == "CardOneResource"
+        assert result.detail.component == SH.ClassConstraintComponent
+        assert result.detail.value_type == KNORA_API.LinkValue
+        assert result.detail.value == "http://data/id_9_target"
+
 
 class TestReformatWithoutDetail:
     def test_min(self, extracted_min_card: ResultWithoutDetail) -> None:
@@ -238,6 +266,12 @@ class TestReformatWithDetail:
         result = _reformat_one_with_detail(extracted_unknown_component)
         assert isinstance(result, UnexpectedComponent)
         assert result.component_type == str(SH.UniqueLangConstraintComponent)
+
+    def test_link_target_non_existent(self, extracted_link_target_non_existent: ResultWithDetail) -> None:
+        pass
+
+    def test_link_target_wrong_class(self, extracted_link_target_wrong_class: ResultWithDetail) -> None:
+        pass
 
 
 if __name__ == "__main__":

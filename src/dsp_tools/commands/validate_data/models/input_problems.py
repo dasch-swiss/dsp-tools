@@ -266,7 +266,8 @@ class LinkTargetTypeMismatch(InputProblem):
 
     def get_msg(self) -> str:
         return (
-            f"{self.problem}, Target Resource ID {self.link_target_id} | Expected Resource Type: {self.expected_type}"
+            f"{self.problem}, "
+            f"Target Resource ID: '{self.link_target_id}' | Expected Resource Type: '{self.expected_type}'"
         )
 
     def to_dict(self) -> dict[str, str]:
@@ -288,7 +289,7 @@ class ResourceDoesNotExist(InputProblem):
         return "Linked Resource does not Exist"
 
     def get_msg(self) -> str:
-        return f"{self.problem}, Target Resource ID: {self.link_target_id}"
+        return f"{self.problem}, Target Resource ID: '{self.link_target_id}'"
 
     def to_dict(self) -> dict[str, str]:
         problm_dict = self._base_dict()

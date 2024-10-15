@@ -141,7 +141,7 @@ def _construct_link_value_node_shape(onto: Graph) -> Graph:
     } WHERE {
 
         ?prop a owl:ObjectProperty ;
-                salsah-gui:guiElement salsah-gui:Searchbox ;
+                knora-api:isLinkProperty true ;
                 knora-api:objectType ?rangeClass .
 
         BIND(IRI(CONCAT(str(?prop), "_NodeShape")) AS ?nodeShapeIRI)

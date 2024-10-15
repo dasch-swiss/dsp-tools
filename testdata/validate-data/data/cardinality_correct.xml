@@ -31,7 +31,7 @@
             <boolean>true</boolean>
         </boolean-prop>
         <resptr-prop name=":testHasLinkToCardOneResource">
-            <resptr>id_2</resptr>
+            <resptr>card_1</resptr>
         </resptr-prop>
         <geoname-prop name=":testGeoname">
             <geoname>1111111</geoname>

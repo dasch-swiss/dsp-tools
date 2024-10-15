@@ -8,8 +8,10 @@ from rdflib import Graph
 from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.models.validation import ResourceValidationReportIdentifiers
+from dsp_tools.commands.validate_data.models.validation import ResultDetail
 from dsp_tools.commands.validate_data.models.validation import ResultWithDetail
 from dsp_tools.commands.validate_data.models.validation import ResultWithoutDetail
+from dsp_tools.commands.validate_data.reformat_validaton_result import API_SHAPES
 from test.unittests.commands.validate_data.constants import DASH
 from test.unittests.commands.validate_data.constants import DATA
 from test.unittests.commands.validate_data.constants import KNORA_API
@@ -107,15 +109,19 @@ def report_value_type_simpletext(onto_graph: Graph) -> tuple[Graph, Graph, Resou
 
 @pytest.fixture
 def extracted_value_type_simpletext() -> ResultWithDetail:
+    detail = ResultDetail(
+        component=SH.MinCountConstraintComponent,
+        results_message="TextValue without formatting",
+        result_path=KNORA_API.textValueAsXml,
+        value_type=KNORA_API.TextValue,
+        value=None,
+    )
     return ResultWithDetail(
         source_constraint_component=SH.NodeConstraintComponent,
         res_iri=DATA.id_simpletext,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testTextarea,
-        results_message="TextValue without formatting",
-        value_type=KNORA_API.TextValue,
-        detail_bn_component=SH.MinCountConstraintComponent,
-        value=None,
+        detail=detail,
     )
 
 
@@ -163,15 +169,19 @@ def report_value_type(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidati
 
 @pytest.fixture
 def extracted_value_type() -> ResultWithDetail:
+    detail = ResultDetail(
+        component=SH.ClassConstraintComponent,
+        results_message="UriValue",
+        result_path=None,
+        value_type=KNORA_API.TextValue,
+        value=None,
+    )
     return ResultWithDetail(
         source_constraint_component=SH.NodeConstraintComponent,
         res_iri=DATA.id_uri,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testUriValue,
-        results_message="UriValue",
-        value_type=KNORA_API.TextValue,
-        detail_bn_component=SH.ClassConstraintComponent,
-        value=None,
+        detail=detail,
     )
 
 
@@ -220,15 +230,150 @@ def report_regex(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationRep
 
 @pytest.fixture
 def extracted_regex() -> ResultWithDetail:
+    detail = ResultDetail(
+        component=SH.PatternConstraintComponent,
+        results_message="The value must be a valid geoname code",
+        result_path=KNORA_API.geonameValueAsGeonameCode,
+        value_type=KNORA_API.GeonameValue,
+        value="this-is-not-a-valid-code",
+    )
     return ResultWithDetail(
         source_constraint_component=SH.NodeConstraintComponent,
         res_iri=DATA.geoname_not_number,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testGeoname,
-        results_message="The value must be a valid geoname code",
-        value_type=KNORA_API.GeonameValue,
-        detail_bn_component=SH.PatternConstraintComponent,
-        value="this-is-not-a-valid-code",
+        detail=detail,
+    )
+
+
+@pytest.fixture
+def report_link_target_non_existent(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+    validation_str = f"""{PREFIXES}
+    [ a sh:ValidationResult ;
+        sh:detail _:bn_link_target_non_existent ;
+        sh:focusNode <http://data/link_target_non_existent> ;
+        sh:resultMessage "Value does not have shape <http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo_NodeShape>" ;
+        sh:resultPath onto:testHasLinkTo ;
+        sh:resultSeverity sh:Violation ;
+        sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+        sh:sourceShape onto:testHasLinkTo_PropShape ;
+        sh:value <http://data/value_link_target_non_existent> ] .
+    
+    _:bn_link_target_non_existent a sh:ValidationResult ;
+        sh:focusNode <http://data/value_link_target_non_existent> ;
+        sh:resultMessage "Resource" ;
+        sh:resultPath api-shapes:linkValueHasTargetID ;
+        sh:resultSeverity sh:Violation ;
+        sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+        sh:sourceShape [ ] ;
+        sh:value <http://data/other> .
+    """  # noqa: E501 (Line too long)
+    validation_g = Graph()
+    validation_g.parse(data=validation_str, format="ttl")
+    data_str = f"""{PREFIXES}
+    <http://data/link_target_non_existent> a onto:ClassWithEverything ;
+        rdfs:label "Target does not exist"^^xsd:string ;
+        onto:testHasLinkTo <http://data/value_link_target_non_existent> .
+    
+    <http://data/value_link_target_non_existent> a knora-api:LinkValue ;
+    api-shapes:linkValueHasTargetID <http://data/other> .
+    """
+    onto_data_g = Graph()
+    onto_data_g += onto_graph
+    onto_data_g.parse(data=data_str, format="ttl")
+    val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+    detail_bn = next(validation_g.objects(predicate=SH.detail))
+    identifiers = ResourceValidationReportIdentifiers(
+        val_bn,
+        URIRef("http://data/link_target_non_existent"),
+        ONTO.ClassWithEverything,
+        detail_bn,
+    )
+    return validation_g, onto_data_g, identifiers
+
+
+@pytest.fixture
+def extracted_link_target_non_existent() -> ResultWithDetail:
+    detail = ResultDetail(
+        component=SH.ClassConstraintComponent,
+        results_message="Resource",
+        result_path=API_SHAPES.linkValueHasTargetID,
+        value_type=KNORA_API.LinkValue,
+        value=URIRef("http://data/other"),
+    )
+    return ResultWithDetail(
+        source_constraint_component=SH.NodeConstraintComponent,
+        res_iri=DATA.link_target_non_existent,
+        res_class=ONTO.ClassWithEverything,
+        property=ONTO.testHasLinkTo,
+        detail=detail,
+    )
+
+
+@pytest.fixture
+def report_link_target_wrong_class(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+    validation_str = f"""{PREFIXES}
+    [ a sh:ValidationResult ;
+        sh:detail _:bn_link_target_wrong_class ;
+        sh:focusNode <http://data/link_target_wrong_class> ;
+        sh:resultMessage "Value does not have shape <http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkToCardOneResource_NodeShape>" ;
+        sh:resultPath onto:testHasLinkToCardOneResource ;
+        sh:resultSeverity sh:Violation ;
+        sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+        sh:sourceShape onto:testHasLinkToCardOneResource_PropShape ;
+        sh:value <http://data/value_link_target_wrong_class> ] .
+        
+    _:bn_link_target_wrong_class a sh:ValidationResult ;
+        sh:focusNode <http://data/value_link_target_wrong_class> ;
+        sh:resultMessage "CardOneResource" ;
+        sh:resultPath api-shapes:linkValueHasTargetID ;
+        sh:resultSeverity sh:Violation ;
+        sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+        sh:sourceShape [ ] ;
+        sh:value <http://data/id_9_target> .
+    """  # noqa: E501 (Line too long)
+    validation_g = Graph()
+    validation_g.parse(data=validation_str, format="ttl")
+    data_str = f"""{PREFIXES}
+    <http://data/link_target_wrong_class> a onto:ClassWithEverything ;
+        rdfs:label "Target not the right class"^^xsd:string ;
+        onto:testHasLinkToCardOneResource <http://data/value_link_target_wrong_class> .
+    
+    <http://data/id_9_target> a onto:ClassWithEverything ;
+        rdfs:label "Link Prop"^^xsd:string .
+
+    <http://data/value_link_target_wrong_class> a knora-api:LinkValue ;
+        api-shapes:linkValueHasTargetID <http://data/id_9_target> .
+    """
+    onto_data_g = Graph()
+    onto_data_g += onto_graph
+    onto_data_g.parse(data=data_str, format="ttl")
+    val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+    detail_bn = next(validation_g.objects(predicate=SH.detail))
+    identifiers = ResourceValidationReportIdentifiers(
+        val_bn,
+        URIRef("http://data/link_target_wrong_class"),
+        ONTO.ClassWithEverything,
+        detail_bn,
+    )
+    return validation_g, onto_data_g, identifiers
+
+
+@pytest.fixture
+def extracted_link_target_wrong_class() -> ResultWithDetail:
+    detail = ResultDetail(
+        component=SH.ClassConstraintComponent,
+        results_message="CardOneResource",
+        result_path=API_SHAPES.linkValueHasTargetID,
+        value_type=KNORA_API.LinkValue,
+        value=URIRef("http://data/id_9_target"),
+    )
+    return ResultWithDetail(
+        source_constraint_component=SH.NodeConstraintComponent,
+        res_iri=DATA.link_target_wrong_class,
+        res_class=ONTO.ClassWithEverything,
+        property=ONTO.testHasLinkToCardOneResource,
+        detail=detail,
     )
 
 
@@ -357,12 +502,17 @@ def extracted_empty_label() -> ResultWithoutDetail:
 
 @pytest.fixture
 def extracted_unknown_component() -> ResultWithDetail:
+    detail = ResultDetail(
+        component=SH.AndConstraintComponent,
+        results_message="This is a constraint that is not checked in the data and should never appear.",
+        result_path=KNORA_API.doesNotExist,
+        value_type=KNORA_API.TextValue,
+        value=None,
+    )
     return ResultWithDetail(
         source_constraint_component=SH.UniqueLangConstraintComponent,
         res_iri=DATA.id,
         res_class=ONTO.ClassMixedCard,
         property=ONTO.testIntegerSimpleText,
-        results_message="This is a constraint that is not checked in the data and should never appear.",
-        detail_bn_component=SH.AndConstraintComponent,
-        value=None,
+        detail=detail,
     )

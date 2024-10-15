@@ -96,4 +96,27 @@
             </text-prop>
         </resource>
 
+        <!--
+        Our Violation Type            LinkedResourceDoesNotExist
+        sh:sourceConstraintComponent  sh:NodeConstraintComponent
+        sh:detail                     sh:ClassConstraintComponent
+        -->
+        <resource label="Target does not exist" restype=":ClassWithEverything" id="link_target_non_existent">
+            <resptr-prop name=":testHasLinkTo">
+                <resptr>other</resptr>
+            </resptr-prop>
+        </resource>
+
+        <!--
+        Our Violation Type            LinkTargetTypeMismatch
+        sh:sourceConstraintComponent  sh:NodeConstraintComponent
+        sh:detail                     sh:ClassConstraintComponent
+        -->
+        <resource label="Link Prop" restype=":ClassWithEverything" id="id_9_target"/>
+        <resource label="Target not the right class" restype=":ClassWithEverything" id="link_target_wrong_class">
+            <resptr-prop name=":testHasLinkToCardOneResource">
+                <resptr>id_9_target</resptr>
+            </resptr-prop>
+        </resource>
+
 </knora>

@@ -95,7 +95,7 @@
                 <text encoding="xml">Text</text>
             </text-prop>
         </resource>
-    
+
         <!--
         Our Violation Type            LinkedResourceDoesNotExist
         sh:sourceConstraintComponent  sh:NodeConstraintComponent

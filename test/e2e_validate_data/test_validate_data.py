@@ -175,20 +175,28 @@ class TestReformatValidationGraph:
     def test_reformat_content_violation(self, content_violation: ValidationReport) -> None:
         result = reformat_validation_graph(content_violation)
         assert not result.unexpected_results
-        assert len(result.problems) == 5
+        assert len(result.problems) == 7
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         expected_info_tuples = [
             ("empty_label", "rdfs:label", "The label must be a non-empty string"),
             ("empty_text_rich", "onto:testRichtext", "The value must be a non-empty string"),
             ("empty_text_simple", "onto:testTextarea", "The value must be a non-empty string"),
             ("geoname_not_number", "onto:testGeoname", "The value must be a valid geoname code"),
+            ("link_target_non_existent", "onto:testHasLinkTo", "other"),
+            ("link_target_wrong_class", "onto:testHasLinkToCardOneResource", "id_9_target"),
             ("text_only_whitespace_simple", "onto:testTextarea", "The value must be a non-empty string"),
         ]
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
-            assert isinstance(one_result, ContentRegexViolation)
             assert one_result.res_id == expected_info[0]
             assert one_result.prop_name == expected_info[1]
-            assert one_result.expected_format == expected_info[2]
+            if isinstance(one_result, ContentRegexViolation):
+                assert one_result.expected_format == expected_info[2]
+            elif isinstance(one_result, LinkTargetTypeMismatch):
+                assert one_result.link_target_id == expected_info[2]
+            elif isinstance(one_result, LinkedResourceDoesNotExist):
+                assert one_result.link_target_id == expected_info[2]
+            else:
+                assert isinstance(one_result, LinkedResourceDoesNotExist)
 
     def test_reformat_every_constraint_once(self, every_combination_once: ValidationReport) -> None:
         result = reformat_validation_graph(every_combination_once)
@@ -204,7 +212,7 @@ class TestReformatValidationGraph:
             ("link_target_wrong_class", LinkTargetTypeMismatch),
         ]
         assert not result.unexpected_results
-        assert len(result.problems) == 7
+        assert len(result.problems) == 9
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
             assert one_result.res_id == expected_info[0]

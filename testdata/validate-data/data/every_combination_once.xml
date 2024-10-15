@@ -98,8 +98,8 @@
 
 
 
-    <!-- TODO:
-    Our Violation Type            LinkTargetDoesNotExist
+    <!--
+    Our Violation Type            LinkedResourceDoesNotExist
     sh:sourceConstraintComponent  sh:NodeConstraintComponent
     sh:detail                     sh:ClassConstraintComponent
     -->
@@ -109,8 +109,8 @@
         </resptr-prop>
     </resource>
 
-    <!-- TODO:
-    Our Violation Type            LinkTargetWrongResourceType
+    <!--
+    Our Violation Type            LinkTargetTypeMismatch
     sh:sourceConstraintComponent  sh:NodeConstraintComponent
     sh:detail                     sh:ClassConstraintComponent
     -->

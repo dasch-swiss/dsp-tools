@@ -281,7 +281,7 @@ class LinkTargetTypeMismatch(InputProblem):
 
 
 @dataclass
-class ResourceDoesNotExist(InputProblem):
+class LinkedResourceDoesNotExist(InputProblem):
     link_target_id: str
 
     @property

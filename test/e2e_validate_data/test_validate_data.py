@@ -9,6 +9,8 @@ from rdflib import URIRef
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.validate_data.models.input_problems import ContentRegexViolation
+from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExist
+from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatch
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
@@ -198,6 +200,8 @@ class TestReformatValidationGraph:
             ("id_max_card", MaxCardinalityViolation),
             ("id_simpletext", ValueTypeViolation),
             ("id_uri", ValueTypeViolation),
+            ("link_target_non_existent", LinkedResourceDoesNotExist),
+            ("link_target_wrong_class", LinkTargetTypeMismatch),
         ]
         assert not result.unexpected_results
         assert len(result.problems) == 7

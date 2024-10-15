@@ -9,11 +9,11 @@ from rdflib.term import Node
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import ContentRegexViolation
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
+from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExist
 from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatch
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
-from dsp_tools.commands.validate_data.models.input_problems import ResourceDoesNotExist
 from dsp_tools.commands.validate_data.models.input_problems import UnexpectedResults
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
 from dsp_tools.commands.validate_data.models.validation import ResourceValidationReportIdentifiers
@@ -254,7 +254,7 @@ def _reformat_detail_class_constraint_component(val_result: ResultWithDetail) ->
         case API_SHAPES.linkValueHasTargetID:
             value = _reformat_data_iri(str(val_result.detail.value))
             if val_result.detail.results_message == "Resource":
-                return ResourceDoesNotExist(
+                return LinkedResourceDoesNotExist(
                     res_id=subject_id,
                     res_type=res_type,
                     prop_name=prop_name,

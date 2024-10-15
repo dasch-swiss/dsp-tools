@@ -5,11 +5,11 @@ from rdflib import Graph
 from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.models.input_problems import ContentRegexViolation
+from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExist
 from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatch
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
-from dsp_tools.commands.validate_data.models.input_problems import ResourceDoesNotExist
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
 from dsp_tools.commands.validate_data.models.validation import ResourceValidationReportIdentifiers
 from dsp_tools.commands.validate_data.models.validation import ResultWithDetail
@@ -271,7 +271,7 @@ class TestReformatWithDetail:
 
     def test_link_target_non_existent(self, extracted_link_target_non_existent: ResultWithDetail) -> None:
         result = _reformat_one_with_detail(extracted_link_target_non_existent)
-        assert isinstance(result, ResourceDoesNotExist)
+        assert isinstance(result, LinkedResourceDoesNotExist)
         assert result.res_id == "link_target_non_existent"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testHasLinkTo"

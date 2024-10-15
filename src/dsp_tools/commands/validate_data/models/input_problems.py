@@ -234,14 +234,14 @@ class ContentRegexViolation(InputProblem):
     def get_msg(self) -> str:
         msg = f"{self.problem}, Expected Format: {self.expected_format}"
         if self.actual_content:
-            msg += f" | Actual Content: '{self._short_content()}'"
+            msg += f" | Content: '{self._short_content()}'"
         return msg
 
     def to_dict(self) -> dict[str, str]:
         problm_dict = self._base_dict()
         problm_dict["Expected"] = self.expected_format
         if self.actual_content:
-            problm_dict["Actual"] = self._short_content()
+            problm_dict["Content"] = self._short_content()
         return problm_dict
 
     def _short_content(self) -> str:
@@ -250,6 +250,53 @@ class ContentRegexViolation(InputProblem):
         if len(self.actual_content) > 15:
             return f"{self.actual_content[:15]}[...]"
         return self.actual_content
+
+    def sort_value(self) -> str:
+        return self.prop_name
+
+
+@dataclass
+class LinkTargetTypeMismatch(InputProblem):
+    link_target_id: str
+    link_target_type: str
+    expected_type: str
+
+    @property
+    def problem(self) -> str:
+        return "Link Value Resource Type Mismatch"
+
+    def get_msg(self) -> str:
+        return (
+            f"{self.problem}, Link Target ID: {self.link_target_id} | "
+            f"Actual Resource Type: {self.link_target_type} | Expected Resource Type: {self.expected_type}"
+        )
+
+    def to_dict(self) -> dict[str, str]:
+        problm_dict = self._base_dict()
+        problm_dict["Expected"] = self.expected_type
+        problm_dict["Actual"] = self.link_target_type
+        problm_dict["Content"] = self.link_target_id
+        return problm_dict
+
+    def sort_value(self) -> str:
+        return self.prop_name
+
+
+@dataclass
+class ResourceDoesNotExist(InputProblem):
+    link_target_id: str
+
+    @property
+    def problem(self) -> str:
+        return "Linked Resource does not Exist"
+
+    def get_msg(self) -> str:
+        return f"{self.problem}, Target Resource ID: {self.link_target_id}"
+
+    def to_dict(self) -> dict[str, str]:
+        problm_dict = self._base_dict()
+        problm_dict["Actual"] = self.link_target_id
+        return problm_dict
 
     def sort_value(self) -> str:
         return self.prop_name

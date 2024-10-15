@@ -9,9 +9,11 @@ from rdflib.term import Node
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import ContentRegexViolation
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
+from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatch
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
+from dsp_tools.commands.validate_data.models.input_problems import ResourceDoesNotExist
 from dsp_tools.commands.validate_data.models.input_problems import UnexpectedResults
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
 from dsp_tools.commands.validate_data.models.validation import ResourceValidationReportIdentifiers
@@ -246,13 +248,29 @@ def _reformat_detail_class_constraint_component(val_result: ResultWithDetail) ->
     prop_name = _reformat_onto_iri(str(val_result.property))
     res_type = _reformat_onto_iri(str(val_result.res_class))
     actual_type = _reformat_onto_iri(str(val_result.detail.value_type)).replace("knora-api:", "")
-    return ValueTypeViolation(
-        res_id=subject_id,
-        res_type=res_type,
-        prop_name=prop_name,
-        actual_type=actual_type,
-        expected_type=val_result.detail.results_message,
-    )
+    match val_result.detail.result_path:
+        case KNORA_API.linkValueHasTargetID:
+            value = _reformat_onto_iri(str(val_result.detail.value))
+            if val_result.detail.results_message == "Resource":
+                return ResourceDoesNotExist(
+                    res_id=subject_id, res_type=res_type, prop_name=prop_name, link_target_id=value
+                )
+            return LinkTargetTypeMismatch(
+                res_id=subject_id,
+                res_type=res_type,
+                prop_name=prop_name,
+                link_target_id=value,
+                link_target_type=actual_type,
+                expected_type=val_result.detail.results_message,
+            )
+        case _:
+            return ValueTypeViolation(
+                res_id=subject_id,
+                res_type=res_type,
+                prop_name=prop_name,
+                actual_type=actual_type,
+                expected_type=val_result.detail.results_message,
+            )
 
 
 def _reformat_onto_iri(prop: str) -> str:

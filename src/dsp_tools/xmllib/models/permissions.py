@@ -19,26 +19,26 @@ class XMLPermissions:
 
     def _serialise_open(self) -> etree._Element:
         permissions = {
-            "UnknownUser": PermissionTypes.V,
-            "KnownUser": PermissionTypes.V,
-            "ProjectMember": PermissionTypes.D,
-            "ProjectAdmin": PermissionTypes.CR,
+            "UnknownUser": PermissionTypes.V.value,
+            "KnownUser": PermissionTypes.V.value,
+            "ProjectMember": PermissionTypes.D.value,
+            "ProjectAdmin": PermissionTypes.CR.value,
         }
         return self._serialise_one_permission_element("open", permissions)
 
     def _serialise_restricted(self) -> etree._Element:
         permissions = {
-            "ProjectMember": PermissionTypes.D,
-            "ProjectAdmin": PermissionTypes.CR,
+            "ProjectMember": PermissionTypes.D.value,
+            "ProjectAdmin": PermissionTypes.CR.value,
         }
         return self._serialise_one_permission_element("restricted", permissions)
 
     def _serialise_restricted_view(self) -> etree._Element:
         permissions = {
-            "UnknownUser": PermissionTypes.RV,
-            "KnownUser": PermissionTypes.RV,
-            "ProjectMember": PermissionTypes.D,
-            "ProjectAdmin": PermissionTypes.CR,
+            "UnknownUser": PermissionTypes.RV.value,
+            "KnownUser": PermissionTypes.RV.value,
+            "ProjectMember": PermissionTypes.D.value,
+            "ProjectAdmin": PermissionTypes.CR.value,
         }
         return self._serialise_one_permission_element("restricted-view", permissions)
 

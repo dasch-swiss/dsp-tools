@@ -29,7 +29,7 @@ class AbstractFileValue(Protocol):
 @dataclass
 class FileValue(AbstractFileValue):
     value: str | Path
-    permissions: Permissions = Permissions.DOAP
+    permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
     resource_id: str | None = None
 
@@ -39,7 +39,7 @@ class FileValue(AbstractFileValue):
 
     def serialise(self) -> etree._Element:
         attribs = {}
-        if self.permissions != Permissions.DOAP:
+        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
             attribs["permissions"] = self.permissions.value
         if self.comment:
             attribs["comment"] = self.comment
@@ -51,7 +51,7 @@ class FileValue(AbstractFileValue):
 @dataclass
 class IIIFUri(AbstractFileValue):
     value: str
-    permissions: Permissions = Permissions.DOAP
+    permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
     resource_id: str | None = None
 
@@ -61,7 +61,7 @@ class IIIFUri(AbstractFileValue):
 
     def serialise(self) -> etree._Element:
         attribs = {}
-        if self.permissions != Permissions.DOAP:
+        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
             attribs["permissions"] = self.permissions.value
         if self.comment:
             attribs["comment"] = self.comment

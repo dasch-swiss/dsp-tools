@@ -54,7 +54,7 @@ class ValidationResult:
 @dataclass
 class ResultValueTypeViolation(ValidationResult):
     results_message: str
-    value_type: Node
+    actual_value_type: Node
 
 
 @dataclass
@@ -65,6 +65,7 @@ class ResultPatternViolation(ValidationResult):
 
 @dataclass
 class ResultLinkTargetViolation(ValidationResult):
+    results_message: str
     target_id: Node
     target_resource_type: Node | None
 

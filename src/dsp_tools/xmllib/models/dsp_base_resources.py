@@ -58,7 +58,7 @@ class AnnotationResource:
         self.comments.append(comment)
         return self
 
-    def add_comments(self, comments: list[str]) -> AnnotationResource:
+    def add_comment_multiple(self, comments: list[str]) -> AnnotationResource:
         self.comments.extend(comments)
         return self
 
@@ -138,7 +138,7 @@ class RegionResource:
         self.comments.append(comment)
         return self
 
-    def add_comments(self, comments: list[str]) -> RegionResource:
+    def add_comment_multiple(self, comments: list[str]) -> RegionResource:
         self.comments.extend(comments)
         return self
 
@@ -211,7 +211,7 @@ class LinkResource:
         self.comments.append(comment)
         return self
 
-    def add_comments(self, comments: list[str]) -> LinkResource:
+    def add_comment_multiple(self, comments: list[str]) -> LinkResource:
         self.comments.extend(comments)
         return self
 
@@ -316,7 +316,7 @@ class VideoSegmentResource:
         self.comments.append(comment)
         return self
 
-    def add_comments(self, comments: list[str]) -> VideoSegmentResource:
+    def add_comment_multiple(self, comments: list[str]) -> VideoSegmentResource:
         self.comments.extend(comments)
         return self
 
@@ -324,7 +324,7 @@ class VideoSegmentResource:
         self.descriptions.append(description)
         return self
 
-    def add_descriptions(self, descriptions: list[str]) -> VideoSegmentResource:
+    def add_description_multiple(self, descriptions: list[str]) -> VideoSegmentResource:
         self.descriptions.extend(descriptions)
         return self
 
@@ -332,7 +332,7 @@ class VideoSegmentResource:
         self.keywords.append(keywords)
         return self
 
-    def add_keywords(self, keywords: list[str]) -> VideoSegmentResource:
+    def add_keyword_multiple(self, keywords: list[str]) -> VideoSegmentResource:
         self.keywords.extend(keywords)
         return self
 
@@ -418,7 +418,7 @@ class AudioSegmentResource:
         self.comments.append(comment)
         return self
 
-    def add_comments(self, comments: list[str]) -> AudioSegmentResource:
+    def add_comment_multiple(self, comments: list[str]) -> AudioSegmentResource:
         self.comments.extend(comments)
         return self
 
@@ -426,7 +426,7 @@ class AudioSegmentResource:
         self.descriptions.append(description)
         return self
 
-    def add_descriptions(self, descriptions: list[str]) -> AudioSegmentResource:
+    def add_description_multiple(self, descriptions: list[str]) -> AudioSegmentResource:
         self.descriptions.extend(descriptions)
         return self
 
@@ -434,7 +434,7 @@ class AudioSegmentResource:
         self.keywords.append(keywords)
         return self
 
-    def add_keywords(self, keywords: list[str]) -> AudioSegmentResource:
+    def add_keyword_multiple(self, keywords: list[str]) -> AudioSegmentResource:
         self.keywords.extend(keywords)
         return self
 

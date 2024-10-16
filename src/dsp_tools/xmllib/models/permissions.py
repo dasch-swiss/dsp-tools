@@ -52,5 +52,5 @@ class XMLPermissions:
 
     def _serialise_one_allow(self, group: str, tag_text: PermissionTypes) -> etree._Element:
         ele = etree.Element(f"{DASCH_SCHEMA}allow", attrib={"group": group}, nsmap=XML_NAMESPACE_MAP)
-        ele.text = str(tag_text)
+        ele.text = tag_text.value
         return ele

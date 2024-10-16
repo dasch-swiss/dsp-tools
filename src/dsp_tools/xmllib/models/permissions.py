@@ -19,26 +19,26 @@ class XMLPermissions:
 
     def _serialise_open(self) -> etree._Element:
         permissions = {
-            "UnknownUser": PermissionTypes.V.value,
-            "KnownUser": PermissionTypes.V.value,
-            "ProjectMember": PermissionTypes.D.value,
-            "ProjectAdmin": PermissionTypes.CR.value,
+            "UnknownUser": PermissionTypes.V,
+            "KnownUser": PermissionTypes.V,
+            "ProjectMember": PermissionTypes.D,
+            "ProjectAdmin": PermissionTypes.CR,
         }
         return self._serialise_one_permission_element("open", permissions)
 
     def _serialise_restricted(self) -> etree._Element:
         permissions = {
-            "ProjectMember": PermissionTypes.D.value,
-            "ProjectAdmin": PermissionTypes.CR.value,
+            "ProjectMember": PermissionTypes.D,
+            "ProjectAdmin": PermissionTypes.CR,
         }
         return self._serialise_one_permission_element("restricted", permissions)
 
     def _serialise_restricted_view(self) -> etree._Element:
         permissions = {
-            "UnknownUser": PermissionTypes.RV.value,
-            "KnownUser": PermissionTypes.RV.value,
-            "ProjectMember": PermissionTypes.D.value,
-            "ProjectAdmin": PermissionTypes.CR.value,
+            "UnknownUser": PermissionTypes.RV,
+            "KnownUser": PermissionTypes.RV,
+            "ProjectMember": PermissionTypes.D,
+            "ProjectAdmin": PermissionTypes.CR,
         }
         return self._serialise_one_permission_element("restricted-view", permissions)
 
@@ -52,5 +52,5 @@ class XMLPermissions:
 
     def _serialise_one_allow(self, group: str, tag_text: PermissionTypes) -> etree._Element:
         ele = etree.Element(f"{DASCH_SCHEMA}allow", attrib={"group": group}, nsmap=XML_NAMESPACE_MAP)
-        ele.text = str(tag_text)
+        ele.text = tag_text.value
         return ele

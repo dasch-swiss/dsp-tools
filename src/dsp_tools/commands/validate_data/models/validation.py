@@ -75,6 +75,7 @@ class ResultCardinalityViolation(ValidationResult):
     results_message: str
 
 
+# TODO: remove these after they are not used
 @dataclass
 class ResultWithoutDetail:
     source_constraint_component: Node

@@ -151,7 +151,7 @@ class TestReformatValidationGraph:
     def test_reformat_value_type_violation(self, value_type_violation: ValidationReport) -> None:
         result = reformat_validation_graph(value_type_violation)
         assert not result.unexpected_results
-        assert len(result.problems) == 14
+        assert len(result.problems) == len(expected_info_tuples)
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         expected_info_tuples = [
             ("id_bool", "BooleanValue", "onto:testBoolean"),

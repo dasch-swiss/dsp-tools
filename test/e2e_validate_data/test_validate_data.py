@@ -151,7 +151,7 @@ class TestReformatValidationGraph:
     def test_reformat_value_type_violation(self, value_type_violation: ValidationReport) -> None:
         result = reformat_validation_graph(value_type_violation)
         assert not result.unexpected_results
-        assert len(result.problems) == 12
+        assert len(result.problems) == 14
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         expected_info_tuples = [
             ("id_bool", "BooleanValue", "onto:testBoolean"),
@@ -166,6 +166,8 @@ class TestReformatValidationGraph:
             ("id_simpletext", "TextValue without formatting", "onto:testTextarea"),
             ("id_time", "TimeValue", "onto:testTimeValue"),
             ("id_uri", "UriValue", "onto:testUriValue"),
+            ("is_link_should_be_integer", "IntValue", "onto:testIntegerSpinbox"),
+            ("is_link_should_be_text", "TextValue without formatting", "onto:testTextarea"),
         ]
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
             assert isinstance(one_result, ValueTypeViolation)

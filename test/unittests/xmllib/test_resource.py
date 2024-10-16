@@ -94,7 +94,7 @@ class TestAddValues:
         res = Resource.new("", "", "").add_geoname("", "")
         assert len(res.values) == 1
         assert isinstance(res.values[0], GeonameValue)
-        
+
     def test_add_geoname_multiple(self) -> None:
         res = Resource.new("", "", "").add_geoname_multiple(["", ""], "")
         assert len(res.values) == 2
@@ -203,7 +203,7 @@ class TestAddValues:
         res = Resource.new("", "", "").add_time("", "")
         assert len(res.values) == 1
         assert isinstance(res.values[0], TimeValue)
-        
+
     def test_add_time_multiple(self) -> None:
         res = Resource.new("", "", "").add_time_multiple(["", ""], "")
         assert len(res.values) == 2

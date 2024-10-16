@@ -142,7 +142,7 @@ class TestReformatValidationGraph:
             (MinCardinalityViolation, "id_min_card"),
         ]
         assert not result.unexpected_results
-        assert len(result.problems) == 4
+        assert len(result.problems) == len(expected_info_tuples)
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
             assert isinstance(one_result, expected_info[0])
@@ -151,7 +151,6 @@ class TestReformatValidationGraph:
     def test_reformat_value_type_violation(self, value_type_violation: ValidationReport) -> None:
         result = reformat_validation_graph(value_type_violation)
         assert not result.unexpected_results
-        assert len(result.problems) == 14
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         expected_info_tuples = [
             ("id_bool", "BooleanValue", "onto:testBoolean"),
@@ -169,6 +168,7 @@ class TestReformatValidationGraph:
             ("is_link_should_be_integer", "IntValue", "onto:testIntegerSpinbox"),
             ("is_link_should_be_text", "TextValue without formatting", "onto:testTextarea"),
         ]
+        assert len(result.problems) == len(expected_info_tuples)
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
             assert isinstance(one_result, ValueTypeViolation)
             assert one_result.res_id == expected_info[0]
@@ -178,7 +178,6 @@ class TestReformatValidationGraph:
     def test_reformat_content_violation(self, content_violation: ValidationReport) -> None:
         result = reformat_validation_graph(content_violation)
         assert not result.unexpected_results
-        assert len(result.problems) == 7
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         expected_info_tuples = [
             ("empty_label", "rdfs:label", "The label must be a non-empty string"),
@@ -189,6 +188,7 @@ class TestReformatValidationGraph:
             ("link_target_wrong_class", "onto:testHasLinkToCardOneResource", "id_9_target"),
             ("text_only_whitespace_simple", "onto:testTextarea", "The value must be a non-empty string"),
         ]
+        assert len(result.problems) == len(expected_info_tuples)
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
             assert one_result.res_id == expected_info[0]
             assert one_result.prop_name == expected_info[1]
@@ -215,7 +215,7 @@ class TestReformatValidationGraph:
             ("link_target_wrong_class", LinkTargetTypeMismatch),
         ]
         assert not result.unexpected_results
-        assert len(result.problems) == 9
+        assert len(result.problems) == len(expected_info_tuples)
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
             assert one_result.res_id == expected_info[0]

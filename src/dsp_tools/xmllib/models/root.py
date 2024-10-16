@@ -23,6 +23,26 @@ class XMLRoot:
     default_ontology: str
     resources: list[Resource] = field(default_factory=list)
 
+    @staticmethod
+    def new(shortcode: str, default_ontology: str) -> XMLRoot:
+        return XMLRoot(shortcode=shortcode, default_ontology=default_ontology)
+
+    def make_root(self) -> etree._Element:
+        schema_url = (
+            "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/data.xsd"
+        )
+        schema_location_key = str(etree.QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation"))
+        schema_location_value = f"https://dasch.swiss/schema {schema_url}"
+        return etree.Element(
+            f"{DASCH_SCHEMA}knora",
+            attrib={
+                schema_location_key: schema_location_value,
+                "shortcode": self.shortcode,
+                "default-ontology": self.default_ontology,
+            },
+            nsmap=XML_NAMESPACE_MAP,
+        )
+
     def add_resource(self, resource: Resource) -> XMLRoot:
         self.resources.append(resource)
         return self

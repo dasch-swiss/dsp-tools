@@ -64,7 +64,8 @@ class Resource:
             )
             warnings.warn(DspToolsUserWarning(out_msg))
 
-    def new(self, res_id: str, restype: str, label: str, permissions: Permissions = Permissions.DOAP) -> Resource:
+    @staticmethod
+    def new(res_id: str, restype: str, label: str, permissions: Permissions = Permissions.DOAP) -> Resource:
         return Resource(
             res_id=res_id,
             restype=restype,

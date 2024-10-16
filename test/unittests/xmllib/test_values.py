@@ -77,7 +77,9 @@ class TestColorValue:
         assert res_str == expected
 
     def test_serialise_doap(self) -> None:
-        v = ColorValue("#000000", ":colorProp", resource_id="res_id", permissions=Permissions.DOAP)
+        v = ColorValue(
+            "#000000", ":colorProp", resource_id="res_id", permissions=Permissions.PROJECT_SPECIFIC_PERMISSIONS
+        )
         expected = (
             b"<color-prop "
             b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '

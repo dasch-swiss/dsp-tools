@@ -3,7 +3,7 @@ from enum import auto
 
 
 class Permissions(Enum):
-    DOAP = ""
+    PROJECT_SPECIFIC_PERMISSIONS = ""
     OPEN = "open"
     RESTRICTED = "restricted"
     RESTRICTED_VIEW = "restricted-view"

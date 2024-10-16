@@ -70,17 +70,9 @@ class ResultLinkTargetViolation(ValidationResult):
 
 
 @dataclass
-class ResultMinCardinalityViolation(ValidationResult):
+class ResultCardinalityViolation(ValidationResult):
+    constraint_component: Node
     results_message: str
-
-
-@dataclass
-class ResultMaxCardinalityViolation(ValidationResult):
-    results_message: str
-
-
-@dataclass
-class ResultNonExistentCardinalityViolation(ValidationResult): ...
 
 
 @dataclass

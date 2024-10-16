@@ -22,6 +22,7 @@ from dsp_tools.commands.validate_data.models.validation import ResultWithDetail
 from dsp_tools.commands.validate_data.models.validation import ResultWithoutDetail
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.models.validation import ValidationReport
+from dsp_tools.commands.validate_data.models.validation import ValidationResult
 
 DASH = Namespace("http://datashapes.org/dash#")
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
@@ -99,7 +100,7 @@ def _extract_identifiers_of_resource_results(
 
 def _query_without_detail(
     identifiers: ResourceValidationReportIdentifiers, results_and_onto: Graph
-) -> ResultWithoutDetail:
+) -> ValidationResult:
     path = next(results_and_onto.objects(identifiers.validation_bn, SH.resultPath))
     component = next(results_and_onto.objects(identifiers.validation_bn, SH.sourceConstraintComponent))
     msg = str(next(results_and_onto.objects(identifiers.validation_bn, SH.resultMessage)))

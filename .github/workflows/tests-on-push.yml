@@ -147,7 +147,7 @@ jobs:
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v4
-      - name: Install uv, build & install wheel, install pytest
+      - name: Install uv, python, build & install wheel, install pytest
         uses: ./.github/actions/setup-from-wheel
       - name: distribution tests
         run: python -m pytest --noconftest test/distribution/

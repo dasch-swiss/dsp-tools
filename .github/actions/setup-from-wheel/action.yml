@@ -1,6 +1,6 @@
 ---
 
-name: Setup - Install uv, build & install wheel, install pytest
+name: Setup - Install uv, python, build & install wheel, install pytest
 description: Simulate an end-user installation of DSP-TOOLS. Specifically for the distribution tests.
 runs:
   using: "composite"

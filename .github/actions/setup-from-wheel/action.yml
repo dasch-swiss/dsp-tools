@@ -1,15 +1,11 @@
 ---
 
-name: Setup - Install python, pytest, uv, build & install wheel
+name: Setup - Install uv, build & install wheel, install pytest
 description: Simulate an end-user installation of DSP-TOOLS. Specifically for the distribution tests.
 runs:
   using: "composite"
   steps:
-    - name: Install python
-      uses: actions/setup-python@v5
-      with:
-        python-version-file: "pyproject.toml"
-    - name: Install uv
+    - name: Install uv (uv will install python automatically, if no appropriate version is installed)
       uses: astral-sh/setup-uv@v2
       with:
         enable-cache: true

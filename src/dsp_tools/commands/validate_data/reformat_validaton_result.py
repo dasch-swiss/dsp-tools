@@ -101,34 +101,43 @@ def _extract_identifiers_of_resource_results(
 def _query_without_detail(
     identifiers: ResourceValidationReportIdentifiers, results_and_onto: Graph
 ) -> ValidationResult:
+    """
+    TODO:
+    component type
+    - Pattern
+    - All Cards
+    - OTHER UNKNOWN
+
+    """
+
     path = next(results_and_onto.objects(identifiers.validation_bn, SH.resultPath))
     component = next(results_and_onto.objects(identifiers.validation_bn, SH.sourceConstraintComponent))
     msg = str(next(results_and_onto.objects(identifiers.validation_bn, SH.resultMessage)))
     res_value: str | None = None
     if val := list(results_and_onto.objects(identifiers.validation_bn, SH.value)):
         res_value = str(val[0])
-    return ResultWithoutDetail(
-        source_constraint_component=component,
-        res_iri=identifiers.focus_node_iri,
-        res_class=identifiers.res_class_type,
-        property=path,
-        results_message=msg,
-        value=res_value,
-    )
 
 
 def _query_with_detail(
     identifiers: ResourceValidationReportIdentifiers, results_and_onto: Graph, data_graph: Graph
-) -> ResultWithDetail:
-    # TODO:
-    #  - find value type
-    #  - if LinkValue put separate function
+) -> ValidationResult:
+    """
+    TODO:
+    constraint component type
+    - MinCount
+    - Pattern
+    - Class
+        - source shape
+            - None -> Link
+            - Other -> ValueType
+    - OTHER
+
+    """
+
     path = next(results_and_onto.objects(identifiers.validation_bn, SH.resultPath))
     value_iri = next(results_and_onto.objects(identifiers.validation_bn, SH.value))
     value_type = next(data_graph.objects(value_iri, RDF.type))
     component = next(results_and_onto.objects(identifiers.validation_bn, SH.sourceConstraintComponent))
-    # TODO:
-    #  - if detail is sh:PatternConstraintComponent then with value otherwise no
     detail_component = next(results_and_onto.objects(identifiers.detail_node, SH.sourceConstraintComponent))
     detail_path: None | Node = None
     if path_found := list(results_and_onto.objects(identifiers.detail_node, SH.resultPath)):
@@ -144,13 +153,14 @@ def _query_with_detail(
         value_type=value_type,
         value=val,
     )
-    return ResultWithDetail(
-        source_constraint_component=component,
-        res_iri=identifiers.focus_node_iri,
-        res_class=identifiers.res_class_type,
-        property=path,
-        detail=detail,
-    )
+
+
+def _reformat_validation_results(results: list[ValidationResult]) -> list[InputProblem]:
+    pass
+
+
+def _reformat_one_validation_result(validation_result: ValidationResult) -> InputProblem:
+    pass
 
 
 def _reformat_without_detail(

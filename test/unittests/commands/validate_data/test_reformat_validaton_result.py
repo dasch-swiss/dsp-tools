@@ -12,6 +12,10 @@ from dsp_tools.commands.validate_data.models.input_problems import MinCardinalit
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
 from dsp_tools.commands.validate_data.models.validation import ResourceValidationReportIdentifiers
+from dsp_tools.commands.validate_data.models.validation import ResultCardinalityViolation
+from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
+from dsp_tools.commands.validate_data.models.validation import ResultPatternViolation
+from dsp_tools.commands.validate_data.models.validation import ResultValueTypeViolation
 from dsp_tools.commands.validate_data.models.validation import ResultWithDetail
 from dsp_tools.commands.validate_data.models.validation import ResultWithoutDetail
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
@@ -85,18 +89,19 @@ class TestQueryWithoutDetail:
     ) -> None:
         res, _, ids = report_min_card
         result = _query_without_detail(ids, res)
+        assert isinstance(result, ResultCardinalityViolation)
         assert result.source_constraint_component == SH.MinCountConstraintComponent
         assert result.res_iri == ids.focus_node_iri
         assert result.res_class == ids.res_class_type
         assert result.property == ONTO.testBoolean
         assert result.results_message == "1"
-        assert not result.value
 
     def test_result_id_closed_constraint(
         self, report_closed_constraint: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
     ) -> None:
         res, _, ids = report_closed_constraint
         result = _query_without_detail(ids, res)
+        assert isinstance(result, ResultCardinalityViolation)
         assert result.source_constraint_component == DASH.ClosedByTypesConstraintComponent
         assert result.res_iri == ids.focus_node_iri
         assert result.res_class == ids.res_class_type
@@ -105,31 +110,30 @@ class TestQueryWithoutDetail:
             result.results_message
             == "Property onto:testIntegerSimpleText is not among those permitted for any of the types"
         )
-        assert result.value == "http://data/value_id_closed_constraint"
 
     def test_result_id_max_card(
         self, report_max_card: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
     ) -> None:
         res, _, ids = report_max_card
         result = _query_without_detail(ids, res)
+        assert isinstance(result, ResultCardinalityViolation)
         assert result.source_constraint_component == SH.MaxCountConstraintComponent
         assert result.res_iri == ids.focus_node_iri
         assert result.res_class == ids.res_class_type
         assert result.property == ONTO.testHasLinkToCardOneResource
         assert result.results_message == "1"
-        assert not result.value
 
     def test_result_empty_label(
         self, report_empty_label: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
     ) -> None:
         res, _, ids = report_empty_label
         result = _query_without_detail(ids, res)
-        assert result.source_constraint_component == SH.PatternConstraintComponent
+        assert isinstance(result, ResultPatternViolation)
         assert result.res_iri == ids.focus_node_iri
         assert result.res_class == ids.res_class_type
         assert result.property == RDFS.label
         assert result.results_message == "The label must be a non-empty string"
-        assert result.value == " "
+        assert result.actual_value == " "
 
 
 class TestQueryWithDetail:
@@ -138,68 +142,60 @@ class TestQueryWithDetail:
     ) -> None:
         res, data, ids = report_value_type_simpletext
         result = _query_with_detail(ids, res, data)
-        assert result.source_constraint_component == SH.NodeConstraintComponent
+        assert isinstance(result, ResultValueTypeViolation)
         assert result.res_iri == ids.focus_node_iri
         assert result.res_class == ids.res_class_type
         assert result.property == ONTO.testTextarea
-        assert result.detail.results_message == "TextValue without formatting"
-        assert result.detail.component == SH.MinCountConstraintComponent
-        assert result.detail.value_type == KNORA_API.TextValue
-        assert not result.detail.value
+        assert result.results_message == "TextValue without formatting"
+        assert result.actual_value_type == KNORA_API.TextValue
 
     def test_result_id_uri(self, report_value_type: tuple[Graph, Graph, ResourceValidationReportIdentifiers]) -> None:
         res, data, ids = report_value_type
         result = _query_with_detail(ids, res, data)
-        assert result.source_constraint_component == SH.NodeConstraintComponent
+        assert isinstance(result, ResultValueTypeViolation)
         assert result.res_iri == ids.focus_node_iri
         assert result.res_class == ids.res_class_type
         assert result.property == ONTO.testUriValue
-        assert result.detail.results_message == "UriValue"
-        assert result.detail.component == SH.ClassConstraintComponent
-        assert result.detail.value_type == KNORA_API.TextValue
-        assert result.detail.value == "http://data/value_id_uri"
+        assert result.results_message == "UriValue"
+        assert result.actual_value_type == KNORA_API.TextValue
 
     def test_result_geoname_not_number(
         self, report_regex: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
     ) -> None:
         res, data, ids = report_regex
         result = _query_with_detail(ids, res, data)
-        assert result.source_constraint_component == SH.NodeConstraintComponent
+        assert isinstance(result, ResultPatternViolation)
         assert result.res_iri == ids.focus_node_iri
         assert result.res_class == ids.res_class_type
         assert result.property == ONTO.testGeoname
-        assert result.detail.results_message == "The value must be a valid geoname code"
-        assert result.detail.component == SH.PatternConstraintComponent
-        assert result.detail.value_type == KNORA_API.GeonameValue
-        assert result.detail.value == "this-is-not-a-valid-code"
+        assert result.results_message == "The value must be a valid geoname code"
+        assert result.actual_value == "this-is-not-a-valid-code"
 
     def test_link_target_non_existent(
         self, report_link_target_non_existent: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
     ) -> None:
         res, data, ids = report_link_target_non_existent
         result = _query_with_detail(ids, res, data)
-        assert result.source_constraint_component == SH.NodeConstraintComponent
+        assert isinstance(result, ResultLinkTargetViolation)
         assert result.res_iri == ids.focus_node_iri
         assert result.res_class == ids.res_class_type
         assert result.property == ONTO.testHasLinkTo
-        assert result.detail.results_message == "Resource"
-        assert result.detail.component == SH.ClassConstraintComponent
-        assert result.detail.value_type == KNORA_API.LinkValue
-        assert result.detail.value == "http://data/other"
+        assert result.results_message == "Resource"
+        assert result.target_id == URIRef("http://data/other")
+        assert not result.target_resource_type
 
     def test_link_target_wrong_class(
         self, report_link_target_wrong_class: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
     ) -> None:
         res, data, ids = report_link_target_wrong_class
         result = _query_with_detail(ids, res, data)
-        assert result.source_constraint_component == SH.NodeConstraintComponent
+        assert isinstance(result, ResultLinkTargetViolation)
         assert result.res_iri == ids.focus_node_iri
         assert result.res_class == ids.res_class_type
         assert result.property == ONTO.testHasLinkToCardOneResource
-        assert result.detail.results_message == "CardOneResource"
-        assert result.detail.component == SH.ClassConstraintComponent
-        assert result.detail.value_type == KNORA_API.LinkValue
-        assert result.detail.value == "http://data/id_9_target"
+        assert result.results_message == "CardOneResource"
+        assert result.target_id == URIRef("http://data/id_9_target")
+        assert result.target_resource_type == ONTO.ClassWithEverything
 
 
 class TestReformatWithoutDetail:

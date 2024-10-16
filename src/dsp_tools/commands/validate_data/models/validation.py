@@ -71,7 +71,7 @@ class ResultLinkTargetViolation(ValidationResult):
 
 @dataclass
 class ResultCardinalityViolation(ValidationResult):
-    constraint_component: Node
+    source_constraint_component: Node
     results_message: str
 
 

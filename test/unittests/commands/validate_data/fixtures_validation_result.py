@@ -62,7 +62,7 @@ def extracted_min_card() -> ResultCardinalityViolation:
         res_iri=DATA.id_card_one,
         res_class=ONTO.ClassInheritedCardinalityOverwriting,
         property=ONTO.testBoolean,
-        constraint_component=SH.MinCountConstraintComponent,
+        source_constraint_component=SH.MinCountConstraintComponent,
         results_message="1",
     )
 
@@ -392,7 +392,7 @@ def extracted_closed_constraint() -> ResultCardinalityViolation:
         res_iri=DATA.id_closed_constraint,
         res_class=ONTO.CardOneResource,
         property=ONTO.testIntegerSimpleText,
-        constraint_component=DASH.ClosedByTypesConstraintComponent,
+        source_constraint_component=DASH.ClosedByTypesConstraintComponent,
         results_message="Property onto:testIntegerSimpleText is not among those permitted for any of the types",
     )
 
@@ -434,7 +434,7 @@ def extracted_max_card() -> ResultCardinalityViolation:
         res_iri=DATA.id_max_card,
         res_class=ONTO.ClassMixedCard,
         property=ONTO.testDecimalSimpleText,
-        constraint_component=SH.MaxCountConstraintComponent,
+        source_constraint_component=SH.MaxCountConstraintComponent,
         results_message="0-1",
     )
 

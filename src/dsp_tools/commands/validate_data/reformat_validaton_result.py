@@ -84,18 +84,14 @@ def _extract_identifiers_of_resource_results(
         res_type = next(data_onto_graph.objects(focus_iri, RDF.type))
         if res_type in resource_classes:
             detail_bn = None
-            value_type = None
             if detail_bn_list := list(results_and_onto.objects(validation_bn, SH.detail)):
                 detail_bn = detail_bn_list[0]
-                value_node = next(results_and_onto.objects(detail_bn, SH.focusNode))
-                value_type = next(data_onto_graph.objects(value_node, RDF.type))
             all_res_focus_nodes.append(
                 ResourceValidationReportIdentifiers(
                     validation_bn=validation_bn,
                     focus_node_iri=focus_iri,
                     res_class_type=res_type,
                     detail_node=detail_bn,
-                    value_type=value_type,
                 )
             )
     return all_res_focus_nodes

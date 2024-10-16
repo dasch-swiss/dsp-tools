@@ -108,7 +108,6 @@ def report_value_type_simpletext(onto_graph: Graph) -> tuple[Graph, Graph, Resou
         URIRef("http://data/id_simpletext"),
         ONTO.ClassWithEverything,
         detail_bn,
-        KNORA_API.TextValue,
     )
     return valiation_g, onto_data_g, identifiers
 
@@ -165,7 +164,6 @@ def report_value_type(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidati
         URIRef("http://data/id_uri"),
         ONTO.ClassWithEverything,
         detail_bn,
-        KNORA_API.TextValue,
     )
     return validation_g, onto_data_g, identifiers
 
@@ -223,7 +221,6 @@ def report_regex(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationRep
         URIRef("http://data/geoname_not_number"),
         ONTO.ClassWithEverything,
         detail_bn,
-        KNORA_API.GeonameValue,
     )
     return validation_g, onto_data_g, identifiers
 
@@ -281,7 +278,6 @@ def report_link_target_non_existent(onto_graph: Graph) -> tuple[Graph, Graph, Re
         URIRef("http://data/link_target_non_existent"),
         ONTO.ClassWithEverything,
         detail_bn,
-        KNORA_API.LinkValue,
     )
     return validation_g, onto_data_g, identifiers
 
@@ -343,7 +339,6 @@ def report_link_target_wrong_class(onto_graph: Graph) -> tuple[Graph, Graph, Res
         URIRef("http://data/link_target_wrong_class"),
         ONTO.ClassWithEverything,
         detail_bn,
-        KNORA_API.LinkValue,
     )
     return validation_g, onto_data_g, identifiers
 

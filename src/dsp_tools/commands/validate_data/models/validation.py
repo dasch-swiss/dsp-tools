@@ -36,7 +36,6 @@ class ResourceValidationReportIdentifiers:
     focus_node_iri: Node
     res_class_type: Node
     detail_node: Node | None = None
-    value_type: Node | None = None
 
 
 @dataclass

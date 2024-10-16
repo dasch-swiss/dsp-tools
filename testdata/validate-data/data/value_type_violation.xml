@@ -6,7 +6,7 @@
        shortcode="9999"
        default-ontology="onto">
 
-    <!-- 12 Violations -->
+    <!-- 14 Violations -->
 
     <!--
         In this file, the property type does not match with the ontology.
@@ -52,6 +52,14 @@
         </text-prop>
     </resource>
 
+
+    <resource label="This should be an int value" restype=":ClassWithEverything" id="is_link_should_be_integer">
+        <resptr-prop name=":testIntegerSpinbox">
+            <resptr>1</resptr>
+        </resptr-prop>
+    </resource>
+
+
     <resource label="List" restype=":ClassWithEverything" id="id_list">
         <text-prop name=":testListProp">
             <text encoding="utf8">n1</text>
@@ -75,6 +83,14 @@
             <text encoding="xml">Text</text>
         </text-prop>
     </resource>
+
+
+    <resource label="This should be a text value" restype=":ClassWithEverything" id="is_link_should_be_text">
+        <resptr-prop name=":testTextarea">
+            <resptr>link_non_existing</resptr>
+        </resptr-prop>
+    </resource>
+
 
     <resource label="Time" restype=":ClassWithEverything" id="id_time">
         <text-prop name=":testTimeValue">

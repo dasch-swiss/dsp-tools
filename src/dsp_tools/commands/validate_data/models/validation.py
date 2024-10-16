@@ -45,6 +45,45 @@ class UnexpectedComponent:
 
 
 @dataclass
+class ValidationResult:
+    res_iri: Node
+    res_class: Node
+    property: Node
+
+
+@dataclass
+class ResultValueTypeViolation(ValidationResult):
+    results_message: str
+    value_type: Node
+
+
+@dataclass
+class ResultPatternViolation(ValidationResult):
+    results_message: str
+    actual_value: str
+
+
+@dataclass
+class ResultLinkTargetViolation(ValidationResult):
+    target_id: Node
+    target_resource_type: Node | None
+
+
+@dataclass
+class ResultMinCardinalityViolation(ValidationResult):
+    results_message: str
+
+
+@dataclass
+class ResultMaxCardinalityViolation(ValidationResult):
+    results_message: str
+
+
+@dataclass
+class ResultNonExistentCardinalityViolation(ValidationResult): ...
+
+
+@dataclass
 class ResultWithoutDetail:
     source_constraint_component: Node
     res_iri: Node

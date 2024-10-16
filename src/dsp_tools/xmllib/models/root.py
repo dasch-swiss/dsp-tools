@@ -23,27 +23,15 @@ class XMLRoot:
     default_ontology: str
     resources: list[Resource] = field(default_factory=list)
 
-    def make_root(self) -> etree._Element:
-        schema_url = (
-            "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/data.xsd"
-        )
-        schema_location_key = str(etree.QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation"))
-        schema_location_value = f"https://dasch.swiss/schema {schema_url}"
-        return etree.Element(
-            f"{DASCH_SCHEMA}knora",
-            attrib={
-                schema_location_key: schema_location_value,
-                "shortcode": self.shortcode,
-                "default-ontology": self.default_ontology,
-            },
-            nsmap=XML_NAMESPACE_MAP,
-        )
+    @staticmethod
+    def new(shortcode: str, default_ontology: str) -> XMLRoot:
+        return XMLRoot(shortcode=shortcode, default_ontology=default_ontology)
 
     def add_resource(self, resource: Resource) -> XMLRoot:
         self.resources.append(resource)
         return self
 
-    def add_resources(self, resources: list[Resource]) -> XMLRoot:
+    def add_resource_multiple(self, resources: list[Resource]) -> XMLRoot:
         self.resources.extend(resources)
         return self
 
@@ -51,14 +39,6 @@ class XMLRoot:
         if resource:
             self.resources.append(resource)
         return self
-
-    def serialise(self) -> etree._Element:
-        root = self.make_root()
-        permissions = XMLPermissions().serialise()
-        root.extend(permissions)
-        serialised_resources = [x.serialise() for x in self.resources]
-        root.extend(serialised_resources)
-        return root
 
     def write_file(self, filepath: str | Path) -> None:
         """
@@ -70,7 +50,7 @@ class XMLRoot:
         Warning:
             if the XML is not valid, according to the schema
         """
-        root = self.serialise()
+        root = self._serialise()
         etree.indent(root, space="    ")
         xml_string = etree.tostring(
             root,
@@ -90,3 +70,27 @@ class XMLRoot:
                 f"but the following Schema validation error(s) occurred: {err.message}"
             )
             warnings.warn(DspToolsUserWarning(msg))
+
+    def _make_root(self) -> etree._Element:
+        schema_url = (
+            "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/data.xsd"
+        )
+        schema_location_key = str(etree.QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation"))
+        schema_location_value = f"https://dasch.swiss/schema {schema_url}"
+        return etree.Element(
+            f"{DASCH_SCHEMA}knora",
+            attrib={
+                schema_location_key: schema_location_value,
+                "shortcode": self.shortcode,
+                "default-ontology": self.default_ontology,
+            },
+            nsmap=XML_NAMESPACE_MAP,
+        )
+
+    def _serialise(self) -> etree._Element:
+        root = self._make_root()
+        permissions = XMLPermissions().serialise()
+        root.extend(permissions)
+        serialised_resources = [x.serialise() for x in self.resources]
+        root.extend(serialised_resources)
+        return root

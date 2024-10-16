@@ -31,20 +31,20 @@ class AnnotationResource:
     label: str
     annotation_of: str
     comments: list[str]
-    permissions: Permissions = Permissions.DOAP
+    permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
 
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
         _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
 
+    @staticmethod
     def new(
-        self,
         res_id: str,
         label: str,
         annotation_of: str,
         comments: list[str],
-        permissions: Permissions = Permissions.DOAP,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> AnnotationResource:
         return AnnotationResource(
             res_id=res_id,
@@ -58,7 +58,7 @@ class AnnotationResource:
         self.comments.append(comment)
         return self
 
-    def add_comments(self, comments: list[str]) -> AnnotationResource:
+    def add_comment_multiple(self, comments: list[str]) -> AnnotationResource:
         self.comments.extend(comments)
         return self
 
@@ -82,7 +82,7 @@ class AnnotationResource:
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}
-        if self.permissions != Permissions.DOAP:
+        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
             attribs["permissions"] = self.permissions.value
         return etree.Element(f"{DASCH_SCHEMA}annotation", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
 
@@ -98,7 +98,7 @@ class RegionResource:
     region_of: str
     geometry: dict[str, Any]
     comments: list[str]
-    permissions: Permissions = Permissions.DOAP
+    permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
 
     def __post_init__(self) -> None:
@@ -114,15 +114,15 @@ class RegionResource:
             msg = f"The geometry of the resource with the ID '{self.res_id}' failed validation.\n" + fail_msg
             warnings.warn(DspToolsUserWarning(msg))
 
+    @staticmethod
     def new(
-        self,
         res_id: str,
         label: str,
         color: str,
         region_of: str,
         geometry: dict[str, Any],
         comments: list[str],
-        permissions: Permissions = Permissions.DOAP,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> RegionResource:
         return RegionResource(
             res_id=res_id,
@@ -138,7 +138,7 @@ class RegionResource:
         self.comments.append(comment)
         return self
 
-    def add_comments(self, comments: list[str]) -> RegionResource:
+    def add_comment_multiple(self, comments: list[str]) -> RegionResource:
         self.comments.extend(comments)
         return self
 
@@ -164,7 +164,7 @@ class RegionResource:
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}
-        if self.permissions != Permissions.DOAP:
+        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
             attribs["permissions"] = self.permissions.value
         return etree.Element(f"{DASCH_SCHEMA}region", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
 
@@ -188,16 +188,16 @@ class LinkResource:
     label: str
     link_to: list[str]
     comments: list[str]
-    permissions: Permissions = Permissions.DOAP
+    permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
 
+    @staticmethod
     def new(
-        self,
         res_id: str,
         label: str,
         link_to: list[str],
         comments: list[str],
-        permissions: Permissions = Permissions.DOAP,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> LinkResource:
         return LinkResource(
             res_id=res_id,
@@ -211,7 +211,7 @@ class LinkResource:
         self.comments.append(comment)
         return self
 
-    def add_comments(self, comments: list[str]) -> LinkResource:
+    def add_comment_multiple(self, comments: list[str]) -> LinkResource:
         self.comments.extend(comments)
         return self
 
@@ -241,7 +241,7 @@ class LinkResource:
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}
-        if self.permissions != Permissions.DOAP:
+        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
             attribs["permissions"] = self.permissions.value
         return etree.Element(f"{DASCH_SCHEMA}link", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
 
@@ -284,18 +284,18 @@ class VideoSegmentResource:
     descriptions: list[str] = field(default_factory=list)
     keywords: list[str] = field(default_factory=list)
     relates_to: list[str] = field(default_factory=list)
-    permissions: Permissions = Permissions.DOAP
+    permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
 
+    @staticmethod
     def new(
-        self,
         res_id: str,
         label: str,
         segment_of: str,
         segment_start: float,
         segment_end: float,
         title: str | None = None,
-        permissions: Permissions = Permissions.DOAP,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> VideoSegmentResource:
         return VideoSegmentResource(
             res_id=res_id,
@@ -316,7 +316,7 @@ class VideoSegmentResource:
         self.comments.append(comment)
         return self
 
-    def add_comments(self, comments: list[str]) -> VideoSegmentResource:
+    def add_comment_multiple(self, comments: list[str]) -> VideoSegmentResource:
         self.comments.extend(comments)
         return self
 
@@ -324,7 +324,7 @@ class VideoSegmentResource:
         self.descriptions.append(description)
         return self
 
-    def add_descriptions(self, descriptions: list[str]) -> VideoSegmentResource:
+    def add_description_multiple(self, descriptions: list[str]) -> VideoSegmentResource:
         self.descriptions.extend(descriptions)
         return self
 
@@ -332,7 +332,7 @@ class VideoSegmentResource:
         self.keywords.append(keywords)
         return self
 
-    def add_keywords(self, keywords: list[str]) -> VideoSegmentResource:
+    def add_keyword_multiple(self, keywords: list[str]) -> VideoSegmentResource:
         self.keywords.extend(keywords)
         return self
 
@@ -370,7 +370,7 @@ class VideoSegmentResource:
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}
-        if self.permissions != Permissions.DOAP:
+        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
             attribs["permissions"] = self.permissions.value
         return etree.Element(f"{DASCH_SCHEMA}video-segment", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
 
@@ -386,18 +386,18 @@ class AudioSegmentResource:
     descriptions: list[str] = field(default_factory=list)
     keywords: list[str] = field(default_factory=list)
     relates_to: list[str] = field(default_factory=list)
-    permissions: Permissions = Permissions.DOAP
+    permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
 
+    @staticmethod
     def new(
-        self,
         res_id: str,
         label: str,
         segment_of: str,
         segment_start: float,
         segment_end: float,
         title: str | None = None,
-        permissions: Permissions = Permissions.DOAP,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> AudioSegmentResource:
         return AudioSegmentResource(
             res_id=res_id,
@@ -418,7 +418,7 @@ class AudioSegmentResource:
         self.comments.append(comment)
         return self
 
-    def add_comments(self, comments: list[str]) -> AudioSegmentResource:
+    def add_comment_multiple(self, comments: list[str]) -> AudioSegmentResource:
         self.comments.extend(comments)
         return self
 
@@ -426,7 +426,7 @@ class AudioSegmentResource:
         self.descriptions.append(description)
         return self
 
-    def add_descriptions(self, descriptions: list[str]) -> AudioSegmentResource:
+    def add_description_multiple(self, descriptions: list[str]) -> AudioSegmentResource:
         self.descriptions.extend(descriptions)
         return self
 
@@ -434,7 +434,7 @@ class AudioSegmentResource:
         self.keywords.append(keywords)
         return self
 
-    def add_keywords(self, keywords: list[str]) -> AudioSegmentResource:
+    def add_keyword_multiple(self, keywords: list[str]) -> AudioSegmentResource:
         self.keywords.extend(keywords)
         return self
 
@@ -472,7 +472,7 @@ class AudioSegmentResource:
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}
-        if self.permissions != Permissions.DOAP:
+        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
             attribs["permissions"] = self.permissions.value
         return etree.Element(f"{DASCH_SCHEMA}audio-segment", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
 

@@ -119,10 +119,15 @@ def _query_without_detail(
 def _query_with_detail(
     identifiers: ResourceValidationReportIdentifiers, results_and_onto: Graph, data_graph: Graph
 ) -> ResultWithDetail:
+    # TODO:
+    #  - find value type
+    #  - if LinkValue put separate function
     path = next(results_and_onto.objects(identifiers.validation_bn, SH.resultPath))
     value_iri = next(results_and_onto.objects(identifiers.validation_bn, SH.value))
     value_type = next(data_graph.objects(value_iri, RDF.type))
     component = next(results_and_onto.objects(identifiers.validation_bn, SH.sourceConstraintComponent))
+    # TODO:
+    #  - if detail is sh:PatternConstraintComponent then with value otherwise no
     detail_component = next(results_and_onto.objects(identifiers.detail_node, SH.sourceConstraintComponent))
     detail_path: None | Node = None
     if path_found := list(results_and_onto.objects(identifiers.detail_node, SH.resultPath)):

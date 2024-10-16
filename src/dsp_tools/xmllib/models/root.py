@@ -23,6 +23,10 @@ class XMLRoot:
     default_ontology: str
     resources: list[Resource] = field(default_factory=list)
 
+    @staticmethod
+    def new(shortcode: str, default_ontology: str) -> XMLRoot:
+        return XMLRoot(shortcode=shortcode, default_ontology=default_ontology)
+
     def make_root(self) -> etree._Element:
         schema_url = (
             "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/data.xsd"

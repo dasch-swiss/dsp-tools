@@ -9,6 +9,9 @@ runs:
       uses: astral-sh/setup-uv@v2
       with:
         enable-cache: true
+    - name: Install python
+      run: uv python install
+      shell: bash
     - name: Build wheel
       run: |
         echo ########### STEP: BUILD WHEEL ###########

@@ -9,11 +9,9 @@ from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.models.validation import ResourceValidationReportIdentifiers
 from dsp_tools.commands.validate_data.models.validation import ResultCardinalityViolation
-from dsp_tools.commands.validate_data.models.validation import ResultDetail
 from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
 from dsp_tools.commands.validate_data.models.validation import ResultPatternViolation
 from dsp_tools.commands.validate_data.models.validation import ResultValueTypeViolation
-from dsp_tools.commands.validate_data.models.validation import ResultWithDetail
 from test.unittests.commands.validate_data.constants import DASH
 from test.unittests.commands.validate_data.constants import DATA
 from test.unittests.commands.validate_data.constants import KNORA_API
@@ -479,21 +477,31 @@ def extracted_empty_label() -> ResultPatternViolation:
 
 
 @pytest.fixture
-def extracted_unknown_component() -> ResultWithDetail:
-    detail = ResultDetail(
-        component=SH.AndConstraintComponent,
-        results_message="This is a constraint that is not checked in the data and should never appear.",
-        result_path=KNORA_API.doesNotExist,
-        value_type=KNORA_API.TextValue,
-        value=None,
+def result_unknown_component(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+    validation_str = f"""{PREFIXES}
+    [ a sh:ValidationResult ;
+        sh:focusNode <http://data/empty_label> ;
+        sh:resultMessage "The label must be a non-empty string" ;
+        sh:resultPath rdfs:label ;
+        sh:resultSeverity sh:Violation ;
+        sh:sourceConstraintComponent sh:UniqueLangConstraintComponent ;
+        sh:sourceShape api-shapes:rdfsLabel_Shape ;
+        sh:value " " ] .
+    """
+    validation_g = Graph()
+    validation_g.parse(data=validation_str, format="ttl")
+    data_str = f"""{PREFIXES}
+        <http://data/empty_label> a onto:ClassWithEverything ;
+            rdfs:label " "^^xsd:string .
+    """
+    onto_data_g = Graph()
+    onto_data_g += onto_graph
+    onto_data_g.parse(data=data_str, format="ttl")
+    val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+    identifiers = ResourceValidationReportIdentifiers(
+        val_bn, URIRef("http://data/empty_label"), ONTO.ClassWithEverything
     )
-    return ResultWithDetail(
-        source_constraint_component=SH.UniqueLangConstraintComponent,
-        res_iri=DATA.id,
-        res_class=ONTO.ClassMixedCard,
-        property=ONTO.testIntegerSimpleText,
-        detail=detail,
-    )
+    return validation_g, onto_data_g, identifiers
 
 
 @pytest.fixture

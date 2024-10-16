@@ -17,8 +17,8 @@ from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetV
 from dsp_tools.commands.validate_data.models.validation import ResultPatternViolation
 from dsp_tools.commands.validate_data.models.validation import ResultValueTypeViolation
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
-from dsp_tools.commands.validate_data.reformat_validaton_result import _query_with_detail
-from dsp_tools.commands.validate_data.reformat_validaton_result import _query_without_detail
+from dsp_tools.commands.validate_data.reformat_validaton_result import _query_one_with_detail
+from dsp_tools.commands.validate_data.reformat_validaton_result import _query_one_without_detail
 from dsp_tools.commands.validate_data.reformat_validaton_result import _reformat_one_validation_result
 from dsp_tools.commands.validate_data.reformat_validaton_result import _separate_result_types
 from test.unittests.commands.validate_data.constants import DASH
@@ -85,7 +85,7 @@ class TestQueryWithoutDetail:
         self, report_min_card: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
     ) -> None:
         res, _, ids = report_min_card
-        result = _query_without_detail(ids, res)
+        result = _query_one_without_detail(ids, res)
         assert isinstance(result, ResultCardinalityViolation)
         assert result.source_constraint_component == SH.MinCountConstraintComponent
         assert result.res_iri == ids.focus_node_iri
@@ -97,7 +97,7 @@ class TestQueryWithoutDetail:
         self, report_closed_constraint: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
     ) -> None:
         res, _, ids = report_closed_constraint
-        result = _query_without_detail(ids, res)
+        result = _query_one_without_detail(ids, res)
         assert isinstance(result, ResultCardinalityViolation)
         assert result.source_constraint_component == DASH.ClosedByTypesConstraintComponent
         assert result.res_iri == ids.focus_node_iri
@@ -112,7 +112,7 @@ class TestQueryWithoutDetail:
         self, report_max_card: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
     ) -> None:
         res, _, ids = report_max_card
-        result = _query_without_detail(ids, res)
+        result = _query_one_without_detail(ids, res)
         assert isinstance(result, ResultCardinalityViolation)
         assert result.source_constraint_component == SH.MaxCountConstraintComponent
         assert result.res_iri == ids.focus_node_iri
@@ -124,7 +124,7 @@ class TestQueryWithoutDetail:
         self, report_empty_label: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
     ) -> None:
         res, _, ids = report_empty_label
-        result = _query_without_detail(ids, res)
+        result = _query_one_without_detail(ids, res)
         assert isinstance(result, ResultPatternViolation)
         assert result.res_iri == ids.focus_node_iri
         assert result.res_class == ids.res_class_type
@@ -136,7 +136,7 @@ class TestQueryWithoutDetail:
         self, extracted_unknown_component: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
     ) -> None:
         res, _, ids = extracted_unknown_component
-        result = _query_without_detail(ids, res)
+        result = _query_one_without_detail(ids, res)
         assert isinstance(result, UnexpectedComponent)
         assert result.component_type == str(SH.UniqueLangConstraintComponent)
 
@@ -146,7 +146,7 @@ class TestQueryWithDetail:
         self, report_value_type_simpletext: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
     ) -> None:
         res, data, ids = report_value_type_simpletext
-        result = _query_with_detail(ids, res, data)
+        result = _query_one_with_detail(ids, res, data)
         assert isinstance(result, ResultValueTypeViolation)
         assert result.res_iri == ids.focus_node_iri
         assert result.res_class == ids.res_class_type
@@ -156,7 +156,7 @@ class TestQueryWithDetail:
 
     def test_result_id_uri(self, report_value_type: tuple[Graph, Graph, ResourceValidationReportIdentifiers]) -> None:
         res, data, ids = report_value_type
-        result = _query_with_detail(ids, res, data)
+        result = _query_one_with_detail(ids, res, data)
         assert isinstance(result, ResultValueTypeViolation)
         assert result.res_iri == ids.focus_node_iri
         assert result.res_class == ids.res_class_type
@@ -168,7 +168,7 @@ class TestQueryWithDetail:
         self, report_regex: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
     ) -> None:
         res, data, ids = report_regex
-        result = _query_with_detail(ids, res, data)
+        result = _query_one_with_detail(ids, res, data)
         assert isinstance(result, ResultPatternViolation)
         assert result.res_iri == ids.focus_node_iri
         assert result.res_class == ids.res_class_type
@@ -180,7 +180,7 @@ class TestQueryWithDetail:
         self, report_link_target_non_existent: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
     ) -> None:
         res, data, ids = report_link_target_non_existent
-        result = _query_with_detail(ids, res, data)
+        result = _query_one_with_detail(ids, res, data)
         assert isinstance(result, ResultLinkTargetViolation)
         assert result.res_iri == ids.focus_node_iri
         assert result.res_class == ids.res_class_type
@@ -193,7 +193,7 @@ class TestQueryWithDetail:
         self, report_link_target_wrong_class: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
     ) -> None:
         res, data, ids = report_link_target_wrong_class
-        result = _query_with_detail(ids, res, data)
+        result = _query_one_with_detail(ids, res, data)
         assert isinstance(result, ResultLinkTargetViolation)
         assert result.res_iri == ids.focus_node_iri
         assert result.res_class == ids.res_class_type

@@ -41,36 +41,42 @@ def reformat_validation_graph(report: ValidationReport) -> AllProblems:
     Returns:
         All Problems
     """
-    reformatted_results: list[InputProblem] = []
     unexpected_components: list[UnexpectedComponent] = []
 
     results_and_onto = report.validation_graph + report.onto_graph
     data_and_onto = report.onto_graph + report.data_graph
-    no_detail_results, details_results = _separate_result_types(
-        results_and_onto=results_and_onto, data_onto_graph=data_and_onto
-    )
 
-    no_detail_reformatted, no_detail_unexpected = _reformat_without_detail(no_detail_results)
-    reformatted_results.extend(no_detail_reformatted)
-    unexpected_components.extend(no_detail_unexpected)
-
-    detail_reformatted, detail_unexpected = _reformat_with_detail(details_results)
-    reformatted_results.extend(detail_reformatted)
-    unexpected_components.extend(detail_unexpected)
+    validation_results, unexpected_extracted = _query_all_results(results_and_onto, data_and_onto)
+    reformatted_results: list[InputProblem] = _reformat_validation_results(validation_results)
 
     unexpected_found = UnexpectedResults(unexpected_components) if unexpected_components else None
     return AllProblems(reformatted_results, unexpected_found)
 
 
+def _query_all_results(
+    results_and_onto: Graph, data_onto_graph: Graph
+) -> tuple[list[ValidationResult], list[UnexpectedComponent]]:
+    no_details, with_details = _separate_result_types(results_and_onto, data_onto_graph)
+    extracted_results: list[ValidationResult] = []
+    unexpected_components: list[UnexpectedComponent] = []
+
+    no_detail_extracted, no_detail_unexpected = _query_all_without_detail(no_details, results_and_onto)
+    extracted_results.extend(no_detail_extracted)
+    unexpected_components.extend(no_detail_unexpected)
+
+    detail_reformatted, detail_unexpected = _query_all_with_detail(with_details, results_and_onto, data_onto_graph)
+    extracted_results.extend(detail_reformatted)
+    unexpected_components.extend(detail_unexpected)
+    return extracted_results, unexpected_components
+
+
 def _separate_result_types(
     results_and_onto: Graph, data_onto_graph: Graph
-) -> tuple[list[ResultWithoutDetail], list[ResultWithDetail]]:
+) -> tuple[list[ResourceValidationReportIdentifiers], list[ResourceValidationReportIdentifiers]]:
     identifiers = _extract_identifiers_of_resource_results(results_and_onto, data_onto_graph)
     no_details = [x for x in identifiers if not x.detail_node]
-    no_detail_results = [_query_without_detail(x, results_and_onto) for x in no_details]
     with_details = [x for x in identifiers if x.detail_node]
-    details_results = [_query_with_detail(x, results_and_onto, data_onto_graph) for x in with_details]
-    return no_detail_results, details_results
+    return no_details, with_details
 
 
 def _extract_identifiers_of_resource_results(
@@ -98,9 +104,15 @@ def _extract_identifiers_of_resource_results(
     return all_res_focus_nodes
 
 
-def _query_without_detail(
+def _query_all_without_detail(
+    all_identifiers: list[ResourceValidationReportIdentifiers], results_and_onto: Graph
+) -> tuple[list[ValidationResult], list[UnexpectedComponent]]:
+    pass
+
+
+def _query_one_without_detail(
     identifiers: ResourceValidationReportIdentifiers, results_and_onto: Graph
-) -> ValidationResult:
+) -> ValidationResult | UnexpectedComponent:
     """
     TODO:
     component type
@@ -118,9 +130,15 @@ def _query_without_detail(
         res_value = str(val[0])
 
 
-def _query_with_detail(
+def _query_all_with_detail(
+    all_identifiers: list[ResourceValidationReportIdentifiers], results_and_onto: Graph, data_graph: Graph
+) -> tuple[list[ValidationResult], list[UnexpectedComponent]]:
+    pass
+
+
+def _query_one_with_detail(
     identifiers: ResourceValidationReportIdentifiers, results_and_onto: Graph, data_graph: Graph
-) -> ValidationResult:
+) -> ValidationResult | UnexpectedComponent:
     """
     TODO:
     constraint component type
@@ -163,22 +181,8 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
     pass
 
 
-def _reformat_without_detail(
-    validation_results: list[ResultWithoutDetail],
-) -> tuple[list[InputProblem], list[UnexpectedComponent]]:
-    input_problems: list[InputProblem] = []
-    unexpected_components: list[UnexpectedComponent] = []
-
-    for violation in validation_results:
-        problem = _reformat_one_without_detail(violation)
-        if isinstance(problem, UnexpectedComponent):
-            unexpected_components.append(problem)
-        else:
-            input_problems.append(problem)
-    return input_problems, unexpected_components
-
-
 def _reformat_one_without_detail(violation: ResultWithoutDetail) -> InputProblem | UnexpectedComponent:
+    # TODO: REMOVE
     subject_id = _reformat_data_iri(str(violation.res_iri))
     prop_name = _reformat_onto_iri(str(violation.property))
     res_type = _reformat_onto_iri(str(violation.res_class))
@@ -215,22 +219,8 @@ def _reformat_one_without_detail(violation: ResultWithoutDetail) -> InputProblem
             return UnexpectedComponent(str(violation.source_constraint_component))
 
 
-def _reformat_with_detail(
-    validation_results: list[ResultWithDetail],
-) -> tuple[list[InputProblem], list[UnexpectedComponent]]:
-    input_problems: list[InputProblem] = []
-    unexpected_components: list[UnexpectedComponent] = []
-
-    for violation in validation_results:
-        problem = _reformat_one_with_detail(violation)
-        if isinstance(problem, UnexpectedComponent):
-            unexpected_components.append(problem)
-        else:
-            input_problems.append(problem)
-    return input_problems, unexpected_components
-
-
 def _reformat_one_with_detail(val_result: ResultWithDetail) -> InputProblem | UnexpectedComponent:
+    # TODO: REMOVE
     subject_id = _reformat_data_iri(str(val_result.res_iri))
     prop_name = _reformat_onto_iri(str(val_result.property))
     res_type = _reformat_onto_iri(str(val_result.res_class))
@@ -262,6 +252,7 @@ def _reformat_one_with_detail(val_result: ResultWithDetail) -> InputProblem | Un
 
 
 def _reformat_detail_class_constraint_component(val_result: ResultWithDetail) -> InputProblem:
+    # TODO: REMOVE
     subject_id = _reformat_data_iri(str(val_result.res_iri))
     prop_name = _reformat_onto_iri(str(val_result.property))
     res_type = _reformat_onto_iri(str(val_result.res_class))

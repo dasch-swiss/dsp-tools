@@ -107,7 +107,7 @@ class Resource:
         self.values.append(BooleanValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    def add_bools(
+    def add_bool_multiple(
         self,
         values: list[Any],
         prop_name: str,
@@ -138,7 +138,7 @@ class Resource:
         self.values.append(ColorValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    def add_colors(
+    def add_color_multiple(
         self,
         values: list[int | str],
         prop_name: str,
@@ -165,7 +165,7 @@ class Resource:
         self.values.append(DateValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    def add_dates(
+    def add_date_multiple(
         self,
         values: list[str],
         prop_name: str,
@@ -196,7 +196,7 @@ class Resource:
         self.values.append(DecimalValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    def add_decimals(
+    def add_decimal_multiple(
         self,
         values: list[float | str],
         prop_name: str,
@@ -227,7 +227,7 @@ class Resource:
         self.values.append(GeonameValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    def add_geonames(
+    def add_geoname_multiple(
         self,
         values: list[int | str],
         prop_name: str,
@@ -258,7 +258,7 @@ class Resource:
         self.values.append(IntValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    def add_integers(
+    def add_integer_multiple(
         self,
         values: list[int | str],
         prop_name: str,
@@ -285,7 +285,7 @@ class Resource:
         self.values.append(LinkValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    def add_links(
+    def add_link_multiple(
         self,
         values: list[str],
         prop_name: str,
@@ -317,7 +317,7 @@ class Resource:
         self.values.append(ListValue(value, list_name, prop_name, permissions, comment, self.res_id))
         return self
 
-    def add_lists(
+    def add_list_multiple(
         self,
         values: list[Any],
         list_name: Any,
@@ -350,7 +350,7 @@ class Resource:
         self.values.append(SimpleText(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    def add_simpletexts(
+    def add_simpletext_multiple(
         self,
         values: list[str],
         prop_name: str,
@@ -383,7 +383,7 @@ class Resource:
         self.values.append(Richtext(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    def add_richtexts(
+    def add_richtext_multiple(
         self,
         values: list[str],
         prop_name: str,
@@ -418,7 +418,7 @@ class Resource:
         self.values.append(TimeValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    def add_times(
+    def add_time_multiple(
         self,
         values: list[str],
         prop_name: str,
@@ -445,7 +445,7 @@ class Resource:
         self.values.append(UriValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    def add_uris(
+    def add_uri_multiple(
         self,
         values: list[str],
         prop_name: str,

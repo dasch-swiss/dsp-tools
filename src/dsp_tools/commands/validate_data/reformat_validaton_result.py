@@ -79,8 +79,8 @@ def _separate_result_types(
     results_and_onto: Graph, data_onto_graph: Graph
 ) -> tuple[list[ValidationResultBaseInfo], list[ValidationResultBaseInfo]]:
     base_info = _extract_base_info_of_resource_results(results_and_onto, data_onto_graph)
-    no_details = [x for x in base_info if not x.detail_node]
-    with_details = [x for x in base_info if x.detail_node]
+    no_details = [x for x in base_info if not x.detail]
+    with_details = [x for x in base_info if x.detail]
     return no_details, with_details
 
 
@@ -142,13 +142,13 @@ def _query_all_without_detail(
 def _query_one_without_detail(
     base_info: ValidationResultBaseInfo, results_and_onto: Graph
 ) -> ValidationResult | UnexpectedComponent:
-    msg = str(next(results_and_onto.objects(base_info.validation_bn, SH.resultMessage)))
-    component = next(results_and_onto.objects(base_info.validation_bn, SH.sourceConstraintComponent))
+    msg = str(next(results_and_onto.objects(base_info.result_bn, SH.resultMessage)))
+    component = next(results_and_onto.objects(base_info.result_bn, SH.sourceConstraintComponent))
     match component:
         case SH.PatternConstraintComponent:
-            val = next(results_and_onto.objects(base_info.validation_bn, SH.value))
+            val = next(results_and_onto.objects(base_info.result_bn, SH.value))
             return ResultPatternViolation(
-                res_iri=base_info.focus_node_iri,
+                res_iri=base_info.resource_iri,
                 res_class=base_info.res_class_type,
                 property=base_info.result_path,
                 results_message=msg,
@@ -156,21 +156,21 @@ def _query_one_without_detail(
             )
         case SH.MinCountConstraintComponent:
             return ResultMinCardinalityViolation(
-                res_iri=base_info.focus_node_iri,
+                res_iri=base_info.resource_iri,
                 res_class=base_info.res_class_type,
                 property=base_info.result_path,
                 results_message=msg,
             )
         case SH.MaxCountConstraintComponent:
             return ResultMaxCardinalityViolation(
-                res_iri=base_info.focus_node_iri,
+                res_iri=base_info.resource_iri,
                 res_class=base_info.res_class_type,
                 property=base_info.result_path,
                 results_message=msg,
             )
         case DASH.ClosedByTypesConstraintComponent:
             return ResultNonExistentCardinalityViolation(
-                res_iri=base_info.focus_node_iri,
+                res_iri=base_info.resource_iri,
                 res_class=base_info.res_class_type,
                 property=base_info.result_path,
             )
@@ -179,13 +179,13 @@ def _query_one_without_detail(
 
 
 def _query_all_with_detail(
-    all_base_info: list[ValidationResultBaseInfo], results_and_onto: Graph
+    all_base_info: list[ValidationResultBaseInfo], results_and_onto: Graph, data_onto_graph: Graph
 ) -> tuple[list[ValidationResult], list[UnexpectedComponent]]:
     extracted_results: list[ValidationResult] = []
     unexpected_components: list[UnexpectedComponent] = []
 
     for base_info in all_base_info:
-        res = _query_one_with_detail(base_info, results_and_onto)
+        res = _query_one_with_detail(base_info, results_and_onto, data_onto_graph)
         if isinstance(res, UnexpectedComponent):
             unexpected_components.append(res)
         else:
@@ -196,8 +196,7 @@ def _query_all_with_detail(
 def _query_one_with_detail(
     base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
 ) -> ValidationResult | UnexpectedComponent:
-    component = next(results_and_onto.objects(base_info.validation_bn, SH.sourceConstraintComponent))
-    match component:
+    match base_info.detail.source_constraint_component:
         case SH.MinCountConstraintComponent:
             return ResultValueTypeViolation
 
@@ -208,7 +207,7 @@ def _query_one_with_detail(
             return _query_one_class_constraint_component(base_info, results_and_onto, data_graph)
 
         case _:
-            return UnexpectedComponent(str(component))
+            return UnexpectedComponent(str(base_info.detail.source_constraint_component))
     """
     TODO:
     constraint component type

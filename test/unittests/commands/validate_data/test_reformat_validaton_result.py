@@ -26,6 +26,8 @@ from dsp_tools.commands.validate_data.reformat_validaton_result import _separate
 from test.unittests.commands.validate_data.constants import KNORA_API
 from test.unittests.commands.validate_data.constants import ONTO
 
+# TODO: path in base info
+
 
 class TestSeparateResultTypes:
     def test_result_id_card_one(self, report_min_card: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:

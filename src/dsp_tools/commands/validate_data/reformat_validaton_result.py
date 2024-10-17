@@ -77,13 +77,13 @@ def _query_all_results(
 def _separate_result_types(
     results_and_onto: Graph, data_onto_graph: Graph
 ) -> tuple[list[ValidationResultBaseInfo], list[ValidationResultBaseInfo]]:
-    identifiers = _extract_identifiers_of_resource_results(results_and_onto, data_onto_graph)
-    no_details = [x for x in identifiers if not x.detail_node]
-    with_details = [x for x in identifiers if x.detail_node]
+    base_info = _extract_base_info_of_resource_results(results_and_onto, data_onto_graph)
+    no_details = [x for x in base_info if not x.detail_node]
+    with_details = [x for x in base_info if x.detail_node]
     return no_details, with_details
 
 
-def _extract_identifiers_of_resource_results(
+def _extract_base_info_of_resource_results(
     results_and_onto: Graph, data_onto_graph: Graph
 ) -> list[ValidationResultBaseInfo]:
     focus_nodes = list(results_and_onto.subject_objects(SH.focusNode))
@@ -111,13 +111,13 @@ def _extract_identifiers_of_resource_results(
 
 
 def _query_all_without_detail(
-    all_identifiers: list[ValidationResultBaseInfo], results_and_onto: Graph
+    all_base_info: list[ValidationResultBaseInfo], results_and_onto: Graph
 ) -> tuple[list[ValidationResult], list[UnexpectedComponent]]:
     extracted_results: list[ValidationResult] = []
     unexpected_components: list[UnexpectedComponent] = []
 
-    for identifiers in all_identifiers:
-        res = _query_one_without_detail(identifiers, results_and_onto)
+    for base_info in all_base_info:
+        res = _query_one_without_detail(base_info, results_and_onto)
         if isinstance(res, UnexpectedComponent):
             unexpected_components.append(res)
         else:
@@ -126,54 +126,52 @@ def _query_all_without_detail(
 
 
 def _query_one_without_detail(
-    identifiers: ValidationResultBaseInfo, results_and_onto: Graph
+    base_info: ValidationResultBaseInfo, results_and_onto: Graph
 ) -> ValidationResult | UnexpectedComponent:
-    path = next(results_and_onto.objects(identifiers.validation_bn, SH.resultPath))
-    focus_node = next(results_and_onto.objects(identifiers.validation_bn, SH.focusNode))
-    msg = str(next(results_and_onto.objects(identifiers.validation_bn, SH.resultMessage)))
-    component = next(results_and_onto.objects(identifiers.validation_bn, SH.sourceConstraintComponent))
+    msg = str(next(results_and_onto.objects(base_info.validation_bn, SH.resultMessage)))
+    component = next(results_and_onto.objects(base_info.validation_bn, SH.sourceConstraintComponent))
     match component:
         case SH.PatternConstraintComponent:
-            val = next(results_and_onto.objects(identifiers.validation_bn, SH.value))
+            val = next(results_and_onto.objects(base_info.validation_bn, SH.value))
             return ResultPatternViolation(
-                res_iri=focus_node,
-                res_class=identifiers.res_class_type,
-                property=path,
+                res_iri=base_info.focus_node_iri,
+                res_class=base_info.res_class_type,
+                property=base_info.result_path,
                 results_message=msg,
                 actual_value=str(val),
             )
         case SH.MinCountConstraintComponent:
             return ResultMinCardinalityViolation(
-                res_iri=focus_node,
-                res_class=identifiers.res_class_type,
-                property=path,
+                res_iri=base_info.focus_node_iri,
+                res_class=base_info.res_class_type,
+                property=base_info.result_path,
                 results_message=msg,
             )
         case SH.MaxCountConstraintComponent:
             return ResultMaxCardinalityViolation(
-                res_iri=focus_node,
-                res_class=identifiers.res_class_type,
-                property=path,
+                res_iri=base_info.focus_node_iri,
+                res_class=base_info.res_class_type,
+                property=base_info.result_path,
                 results_message=msg,
             )
         case DASH.ClosedByTypesConstraintComponent:
             return ResultNonExistentCardinalityViolation(
-                res_iri=focus_node,
-                res_class=identifiers.res_class_type,
-                property=path,
+                res_iri=base_info.focus_node_iri,
+                res_class=base_info.res_class_type,
+                property=base_info.result_path,
             )
         case _:
             return UnexpectedComponent(str(component))
 
 
 def _query_all_with_detail(
-    all_identifiers: list[ValidationResultBaseInfo], results_and_onto: Graph, data_graph: Graph
+    all_base_info: list[ValidationResultBaseInfo], results_and_onto: Graph, data_graph: Graph
 ) -> tuple[list[ValidationResult], list[UnexpectedComponent]]:
     extracted_results: list[ValidationResult] = []
     unexpected_components: list[UnexpectedComponent] = []
 
-    for identifiers in all_identifiers:
-        res = _query_one_with_detail(identifiers, results_and_onto)
+    for base_info in all_base_info:
+        res = _query_one_with_detail(base_info, results_and_onto)
         if isinstance(res, UnexpectedComponent):
             unexpected_components.append(res)
         else:
@@ -182,9 +180,9 @@ def _query_all_with_detail(
 
 
 def _query_one_with_detail(
-    identifiers: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
+    base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
 ) -> ValidationResult | UnexpectedComponent:
-    component = next(results_and_onto.objects(identifiers.validation_bn, SH.sourceConstraintComponent))
+    component = next(results_and_onto.objects(base_info.validation_bn, SH.sourceConstraintComponent))
     match component:
         case SH.MinCountConstraintComponent:
             return ResultValueTypeViolation
@@ -193,7 +191,7 @@ def _query_one_with_detail(
             return ResultPatternViolation
 
         case SH.ClassConstraintComponent:
-            return _query_one_class_constraint_component(identifiers, results_and_onto, data_graph)
+            return _query_one_class_constraint_component(base_info, results_and_onto, data_graph)
 
         case _:
             return UnexpectedComponent(str(component))
@@ -210,17 +208,17 @@ def _query_one_with_detail(
 
     """
 
-    path = next(results_and_onto.objects(identifiers.validation_bn, SH.resultPath))
-    value_iri = next(results_and_onto.objects(identifiers.validation_bn, SH.value))
+    path = next(results_and_onto.objects(base_info.validation_bn, SH.resultPath))
+    value_iri = next(results_and_onto.objects(base_info.validation_bn, SH.value))
     value_type = next(data_graph.objects(value_iri, RDF.type))
-    detail_component = next(results_and_onto.objects(identifiers.detail_node, SH.sourceConstraintComponent))
+    detail_component = next(results_and_onto.objects(base_info.detail_node, SH.sourceConstraintComponent))
     detail_path: None | Node = None
-    if path_found := list(results_and_onto.objects(identifiers.detail_node, SH.resultPath)):
+    if path_found := list(results_and_onto.objects(base_info.detail_node, SH.resultPath)):
         detail_path = path_found[0]
     val = None
-    if node_value := list(results_and_onto.objects(identifiers.detail_node, SH.value)):
+    if node_value := list(results_and_onto.objects(base_info.detail_node, SH.value)):
         val = str(node_value[0])
-    msg = str(next(results_and_onto.objects(identifiers.detail_node, SH.resultMessage)))
+    msg = str(next(results_and_onto.objects(base_info.detail_node, SH.resultMessage)))
     detail = ResultDetail(
         component=detail_component,
         results_message=msg,
@@ -231,7 +229,7 @@ def _query_one_with_detail(
 
 
 def _query_one_class_constraint_component(
-    identifiers: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
+    base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
 ) -> ValidationResult | UnexpectedComponent:
     pass
 

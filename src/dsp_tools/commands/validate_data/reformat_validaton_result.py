@@ -16,13 +16,13 @@ from dsp_tools.commands.validate_data.models.input_problems import MinCardinalit
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import UnexpectedResults
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
+from dsp_tools.commands.validate_data.models.validation import ExtractedResultWithDetail
 from dsp_tools.commands.validate_data.models.validation import ResultDetail
 from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMinCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultNonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultPatternViolation
 from dsp_tools.commands.validate_data.models.validation import ResultValueTypeViolation
-from dsp_tools.commands.validate_data.models.validation import ResultWithDetail
 from dsp_tools.commands.validate_data.models.validation import ResultWithoutDetail
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.models.validation import ValidationReport
@@ -236,8 +236,10 @@ def _query_one_class_constraint_component(
         return ResultValueTypeViolation
     return _query_link_value_target_result()
 
+
 def _query_link_value_target_result(base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph):
     pass
+
 
 def _reformat_validation_results(results: list[ValidationResult]) -> list[InputProblem]:
     pass
@@ -285,7 +287,7 @@ def _reformat_one_without_detail(violation: ResultWithoutDetail) -> InputProblem
             return UnexpectedComponent(str(violation.source_constraint_component))
 
 
-def _reformat_one_with_detail(val_result: ResultWithDetail) -> InputProblem | UnexpectedComponent:
+def _reformat_one_with_detail(val_result: ExtractedResultWithDetail) -> InputProblem | UnexpectedComponent:
     # TODO: REMOVE
     subject_id = _reformat_data_iri(str(val_result.res_iri))
     prop_name = _reformat_onto_iri(str(val_result.property))
@@ -317,7 +319,7 @@ def _reformat_one_with_detail(val_result: ResultWithDetail) -> InputProblem | Un
             return UnexpectedComponent(str(val_result.source_constraint_component))
 
 
-def _reformat_detail_class_constraint_component(val_result: ResultWithDetail) -> InputProblem:
+def _reformat_detail_class_constraint_component(val_result: ExtractedResultWithDetail) -> InputProblem:
     # TODO: REMOVE
     subject_id = _reformat_data_iri(str(val_result.res_iri))
     prop_name = _reformat_onto_iri(str(val_result.property))

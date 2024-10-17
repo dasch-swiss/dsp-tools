@@ -86,7 +86,7 @@ class ResultNonExistentCardinalityViolation(ValidationResult): ...
 
 # TODO: remove these after they are not used
 @dataclass
-class ResultWithoutDetail:
+class ExtractedResultWithoutDetail:
     source_constraint_component: Node
     res_iri: Node
     res_class: Node
@@ -96,7 +96,7 @@ class ResultWithoutDetail:
 
 
 @dataclass
-class ResultWithDetail:
+class ExtractedResultWithDetail:
     source_constraint_component: Node
     res_iri: Node
     res_class: Node

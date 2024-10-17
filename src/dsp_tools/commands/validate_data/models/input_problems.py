@@ -258,6 +258,7 @@ class ContentRegexProblem(InputProblem):
 @dataclass
 class LinkTargetTypeMismatchProblem(InputProblem):
     link_target_id: str
+    actual_type: str
     expected_type: str
 
     @property
@@ -266,13 +267,14 @@ class LinkTargetTypeMismatchProblem(InputProblem):
 
     def get_msg(self) -> str:
         return (
-            f"{self.problem}, "
-            f"Target Resource ID: '{self.link_target_id}' | Expected Resource Type: '{self.expected_type}'"
+            f"{self.problem}, Target Resource ID: '{self.link_target_id}' "
+            f"Actual Type: '{self.actual_type}' | Expected Resource Type: '{self.expected_type}'"
         )
 
     def to_dict(self) -> dict[str, str]:
         problm_dict = self._base_dict()
         problm_dict["Expected"] = self.expected_type
+        problm_dict["Actual"] = self.actual_type
         problm_dict["Content"] = self.link_target_id
         return problm_dict
 

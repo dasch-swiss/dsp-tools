@@ -1,5 +1,6 @@
 from typing import cast
 
+import regex
 from rdflib import RDF
 from rdflib import SH
 from rdflib import Graph
@@ -316,7 +317,7 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
 
 def _reformat_value_type_violation_result(result: ResultValueTypeViolation) -> ValueTypeProblem:
     iris = _reformat_main_iris(result)
-    actual_type = _reformat_onto_iri(str(result.property))
+    actual_type = _reformat_onto_iri(str(result.actual_value_type))
     return ValueTypeProblem(
         res_id=iris.res_id,
         res_type=iris.res_type,
@@ -328,12 +329,15 @@ def _reformat_value_type_violation_result(result: ResultValueTypeViolation) -> V
 
 def _reformat_pattern_violation_result(result: ResultPatternViolation) -> ContentRegexProblem:
     iris = _reformat_main_iris(result)
+    val: str | None = result.actual_value
+    if val and not regex.search(r"\S+", val):
+        val = None
     return ContentRegexProblem(
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
         expected_format=result.results_message,
-        actual_content=result.actual_value,
+        actual_content=val,
     )
 
 
@@ -347,13 +351,14 @@ def _reformat_link_target_violation_result(result: ResultLinkTargetViolation) ->
             prop_name=iris.prop_name,
             link_target_id=target_id,
         )
-    expected_class = _reformat_onto_iri(str(result.target_resource_type))
+    actual_type = _reformat_onto_iri(str(result.target_resource_type))
     return LinkTargetTypeMismatchProblem(
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
         link_target_id=target_id,
-        expected_type=expected_class,
+        actual_type=actual_type,
+        expected_type=result.results_message,
     )
 
 
@@ -368,7 +373,10 @@ def _reformat_onto_iri(iri_str: str) -> str:
     if "http://www.w3.org/2000/01/rdf-schema#" in iri_str:
         return f'rdfs:{iri_str.split("#")[-1]}'
     onto = iri_str.split("/")[-2]
-    return f'{onto}:{iri_str.split("#")[-1]}'
+    ending = iri_str.split("#")[-1]
+    if onto == "knora-api":
+        return ending
+    return f"{onto}:{ending}"
 
 
 def _reformat_data_iri(iri: str) -> str:

@@ -291,6 +291,7 @@ class TestReformatResult:
         assert result.prop_name == "onto:testHasLinkToCardOneResource"
         assert result.link_target_id == "id_9_target"
         assert result.expected_type == "CardOneResource"
+        assert result.actual_type == "onto:ClassWithEverything"
 
 
 if __name__ == "__main__":

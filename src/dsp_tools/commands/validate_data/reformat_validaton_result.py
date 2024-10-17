@@ -194,7 +194,9 @@ def _query_one_with_detail(
         case SH.MinCountConstraintComponent:
             return _query_for_value_type_violation(base_info, results_and_onto, data_graph)
         case SH.PatternConstraintComponent:
-            return _query_pattern_constraint_component_violation(base_info.detail.detail_bn, base_info, results_and_onto)
+            return _query_pattern_constraint_component_violation(
+                base_info.detail.detail_bn, base_info, results_and_onto
+            )
         case SH.ClassConstraintComponent:
             return _query_class_constraint_component_violation(base_info, results_and_onto, data_graph)
         case _:
@@ -204,9 +206,20 @@ def _query_one_with_detail(
 def _query_class_constraint_component_violation(
     base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
 ) -> ValidationResult | UnexpectedComponent:
-    detail_source_shape = list(results_and_onto.objects(base_info.detail.detail_bn, SH.sourceShape))
-    if detail_source_shape:
-
+    detail_source_shape = next(results_and_onto.objects(base_info.detail.detail_bn, SH.sourceShape))
+    all_class_shapes = {
+        API_SHAPES.BooleanValue_ClassShape,
+        API_SHAPES.ColorValue_ClassShape,
+        API_SHAPES.DateValue_ClassShape,
+        API_SHAPES.DecimalValue_ClassShape,
+        API_SHAPES.GeonameValue_ClassShape,
+        API_SHAPES.IntValue_ClassShape,
+        API_SHAPES.LinkValue_ClassShape,
+        API_SHAPES.ListValue_ClassShape,
+        API_SHAPES.TimeValue_ClassShape,
+        API_SHAPES.UriValue_ClassShape,
+    }
+    if detail_source_shape in all_class_shapes:
         return _query_for_value_type_violation(base_info, results_and_onto, data_graph)
     return _query_for_link_value_target_violation(base_info, results_and_onto, data_graph)
 

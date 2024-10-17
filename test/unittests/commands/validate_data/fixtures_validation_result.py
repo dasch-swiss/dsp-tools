@@ -8,8 +8,10 @@ from rdflib import Graph
 from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.models.validation import ResourceValidationReportIdentifiers
-from dsp_tools.commands.validate_data.models.validation import ResultCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
+from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
+from dsp_tools.commands.validate_data.models.validation import ResultMinCardinalityViolation
+from dsp_tools.commands.validate_data.models.validation import ResultNonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultPatternViolation
 from dsp_tools.commands.validate_data.models.validation import ResultValueTypeViolation
 from test.unittests.commands.validate_data.constants import DASH
@@ -55,8 +57,8 @@ def report_min_card(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidation
 
 
 @pytest.fixture
-def extracted_min_card() -> ResultCardinalityViolation:
-    return ResultCardinalityViolation(
+def extracted_min_card() -> ResultMinCardinalityViolation:
+    return ResultMinCardinalityViolation(
         res_iri=DATA.id_card_one,
         res_class=ONTO.ClassInheritedCardinalityOverwriting,
         property=ONTO.testBoolean,
@@ -385,8 +387,8 @@ def report_closed_constraint(onto_graph: Graph) -> tuple[Graph, Graph, ResourceV
 
 
 @pytest.fixture
-def extracted_closed_constraint() -> ResultCardinalityViolation:
-    return ResultCardinalityViolation(
+def extracted_closed_constraint() -> ResultNonExistentCardinalityViolation:
+    return ResultNonExistentCardinalityViolation(
         res_iri=DATA.id_closed_constraint,
         res_class=ONTO.CardOneResource,
         property=ONTO.testIntegerSimpleText,
@@ -427,8 +429,8 @@ def report_max_card(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidation
 
 
 @pytest.fixture
-def extracted_max_card() -> ResultCardinalityViolation:
-    return ResultCardinalityViolation(
+def extracted_max_card() -> ResultMaxCardinalityViolation:
+    return ResultMaxCardinalityViolation(
         res_iri=DATA.id_max_card,
         res_class=ONTO.ClassMixedCard,
         property=ONTO.testDecimalSimpleText,

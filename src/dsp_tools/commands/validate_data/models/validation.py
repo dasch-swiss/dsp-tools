@@ -70,9 +70,17 @@ class ResultLinkTargetViolation(ValidationResult):
 
 
 @dataclass
-class ResultCardinalityViolation(ValidationResult):
-    source_constraint_component: Node
+class ResultMaxCardinalityViolation(ValidationResult):
     results_message: str
+
+
+@dataclass
+class ResultMinCardinalityViolation(ValidationResult):
+    results_message: str
+
+
+@dataclass
+class ResultNonExistentCardinalityViolation(ValidationResult): ...
 
 
 # TODO: remove these after they are not used

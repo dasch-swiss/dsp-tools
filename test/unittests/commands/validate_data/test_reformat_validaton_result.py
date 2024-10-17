@@ -12,8 +12,10 @@ from dsp_tools.commands.validate_data.models.input_problems import MinCardinalit
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
 from dsp_tools.commands.validate_data.models.validation import ResourceValidationReportIdentifiers
-from dsp_tools.commands.validate_data.models.validation import ResultCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
+from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
+from dsp_tools.commands.validate_data.models.validation import ResultMinCardinalityViolation
+from dsp_tools.commands.validate_data.models.validation import ResultNonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultPatternViolation
 from dsp_tools.commands.validate_data.models.validation import ResultValueTypeViolation
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
@@ -21,7 +23,6 @@ from dsp_tools.commands.validate_data.reformat_validaton_result import _query_on
 from dsp_tools.commands.validate_data.reformat_validaton_result import _query_one_without_detail
 from dsp_tools.commands.validate_data.reformat_validaton_result import _reformat_one_validation_result
 from dsp_tools.commands.validate_data.reformat_validaton_result import _separate_result_types
-from test.unittests.commands.validate_data.constants import DASH
 from test.unittests.commands.validate_data.constants import KNORA_API
 from test.unittests.commands.validate_data.constants import ONTO
 
@@ -86,8 +87,7 @@ class TestQueryWithoutDetail:
     ) -> None:
         res, _, ids = report_min_card
         result = _query_one_without_detail(ids, res)
-        assert isinstance(result, ResultCardinalityViolation)
-        assert result.source_constraint_component == SH.MinCountConstraintComponent
+        assert isinstance(result, ResultMinCardinalityViolation)
         assert result.res_iri == ids.focus_node_iri
         assert result.res_class == ids.res_class_type
         assert result.property == ONTO.testBoolean
@@ -98,23 +98,17 @@ class TestQueryWithoutDetail:
     ) -> None:
         res, _, ids = report_closed_constraint
         result = _query_one_without_detail(ids, res)
-        assert isinstance(result, ResultCardinalityViolation)
-        assert result.source_constraint_component == DASH.ClosedByTypesConstraintComponent
+        assert isinstance(result, ResultNonExistentCardinalityViolation)
         assert result.res_iri == ids.focus_node_iri
         assert result.res_class == ids.res_class_type
         assert result.property == ONTO.testIntegerSimpleText
-        assert (
-            result.results_message
-            == "Property onto:testIntegerSimpleText is not among those permitted for any of the types"
-        )
 
     def test_result_id_max_card(
         self, report_max_card: tuple[Graph, Graph, ResourceValidationReportIdentifiers]
     ) -> None:
         res, _, ids = report_max_card
         result = _query_one_without_detail(ids, res)
-        assert isinstance(result, ResultCardinalityViolation)
-        assert result.source_constraint_component == SH.MaxCountConstraintComponent
+        assert isinstance(result, ResultMaxCardinalityViolation)
         assert result.res_iri == ids.focus_node_iri
         assert result.res_class == ids.res_class_type
         assert result.property == ONTO.testHasLinkToCardOneResource
@@ -204,7 +198,7 @@ class TestQueryWithDetail:
 
 
 class TestReformatResult:
-    def test_min(self, extracted_min_card: ResultCardinalityViolation) -> None:
+    def test_min(self, extracted_min_card: ResultMinCardinalityViolation) -> None:
         result = _reformat_one_validation_result(extracted_min_card)
         assert isinstance(result, MinCardinalityViolation)
         assert result.res_id == "id_card_one"
@@ -212,7 +206,7 @@ class TestReformatResult:
         assert result.prop_name == "onto:testBoolean"
         assert result.expected_cardinality == "1"
 
-    def test_max(self, extracted_max_card: ResultCardinalityViolation) -> None:
+    def test_max(self, extracted_max_card: ResultMaxCardinalityViolation) -> None:
         result = _reformat_one_validation_result(extracted_max_card)
         assert isinstance(result, MaxCardinalityViolation)
         assert result.res_id == "id_max_card"
@@ -229,7 +223,7 @@ class TestReformatResult:
         assert result.expected_format == "The label must be a non-empty string"
         assert not result.actual_content
 
-    def test_closed(self, extracted_closed_constraint: ResultCardinalityViolation) -> None:
+    def test_closed(self, extracted_closed_constraint: ResultNonExistentCardinalityViolation) -> None:
         result = _reformat_one_validation_result(extracted_closed_constraint)
         assert isinstance(result, NonExistentCardinalityViolation)
         assert result.res_id == "id_closed_constraint"

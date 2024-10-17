@@ -18,6 +18,10 @@ from dsp_tools.commands.validate_data.models.input_problems import UnexpectedRes
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
 from dsp_tools.commands.validate_data.models.validation import ResourceValidationReportIdentifiers
 from dsp_tools.commands.validate_data.models.validation import ResultDetail
+from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
+from dsp_tools.commands.validate_data.models.validation import ResultMinCardinalityViolation
+from dsp_tools.commands.validate_data.models.validation import ResultNonExistentCardinalityViolation
+from dsp_tools.commands.validate_data.models.validation import ResultPatternViolation
 from dsp_tools.commands.validate_data.models.validation import ResultWithDetail
 from dsp_tools.commands.validate_data.models.validation import ResultWithoutDetail
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
@@ -112,21 +116,43 @@ def _query_all_without_detail(
 def _query_one_without_detail(
     identifiers: ResourceValidationReportIdentifiers, results_and_onto: Graph
 ) -> ValidationResult | UnexpectedComponent:
-    """
-    TODO:
-    component type
-    - Pattern
-    - All Cards
-    - OTHER UNKNOWN
-
-    """
-
     path = next(results_and_onto.objects(identifiers.validation_bn, SH.resultPath))
-    component = next(results_and_onto.objects(identifiers.validation_bn, SH.sourceConstraintComponent))
+    focus_node = next(results_and_onto.objects(identifiers.validation_bn, SH.focusNode))
     msg = str(next(results_and_onto.objects(identifiers.validation_bn, SH.resultMessage)))
-    res_value: str | None = None
-    if val := list(results_and_onto.objects(identifiers.validation_bn, SH.value)):
-        res_value = str(val[0])
+
+    component = next(results_and_onto.objects(identifiers.validation_bn, SH.sourceConstraintComponent))
+    match component:
+        case SH.PatternConstraintComponent:
+            val = next(results_and_onto.objects(identifiers.validation_bn, SH.value))
+            return ResultPatternViolation(
+                res_iri=focus_node,
+                res_class=identifiers.res_class_type,
+                property=path,
+                results_message=msg,
+                actual_value=str(val),
+            )
+        case SH.MinCountConstraintComponent:
+            return ResultMinCardinalityViolation(
+                res_iri=focus_node,
+                res_class=identifiers.res_class_type,
+                property=path,
+                results_message=msg,
+            )
+        case SH.MaxCountConstraintComponent:
+            return ResultMaxCardinalityViolation(
+                res_iri=focus_node,
+                res_class=identifiers.res_class_type,
+                property=path,
+                results_message=msg,
+            )
+        case DASH.ClosedByTypesConstraintComponent:
+            return ResultNonExistentCardinalityViolation(
+                res_iri=focus_node,
+                res_class=identifiers.res_class_type,
+                property=path,
+            )
+        case _:
+            return UnexpectedComponent(str(component))
 
 
 def _query_all_with_detail(

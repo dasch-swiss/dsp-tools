@@ -14,7 +14,6 @@ from dsp_tools.commands.validate_data.models.validation import ResultMinCardinal
 from dsp_tools.commands.validate_data.models.validation import ResultNonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultPatternViolation
 from dsp_tools.commands.validate_data.models.validation import ResultValueTypeViolation
-from test.unittests.commands.validate_data.constants import DASH
 from test.unittests.commands.validate_data.constants import DATA
 from test.unittests.commands.validate_data.constants import KNORA_API
 from test.unittests.commands.validate_data.constants import ONTO
@@ -62,7 +61,6 @@ def extracted_min_card() -> ResultMinCardinalityViolation:
         res_iri=DATA.id_card_one,
         res_class=ONTO.ClassInheritedCardinalityOverwriting,
         property=ONTO.testBoolean,
-        source_constraint_component=SH.MinCountConstraintComponent,
         results_message="1",
     )
 
@@ -392,8 +390,6 @@ def extracted_closed_constraint() -> ResultNonExistentCardinalityViolation:
         res_iri=DATA.id_closed_constraint,
         res_class=ONTO.CardOneResource,
         property=ONTO.testIntegerSimpleText,
-        source_constraint_component=DASH.ClosedByTypesConstraintComponent,
-        results_message="Property onto:testIntegerSimpleText is not among those permitted for any of the types",
     )
 
 
@@ -434,7 +430,6 @@ def extracted_max_card() -> ResultMaxCardinalityViolation:
         res_iri=DATA.id_max_card,
         res_class=ONTO.ClassMixedCard,
         property=ONTO.testDecimalSimpleText,
-        source_constraint_component=SH.MaxCountConstraintComponent,
         results_message="0-1",
     )
 

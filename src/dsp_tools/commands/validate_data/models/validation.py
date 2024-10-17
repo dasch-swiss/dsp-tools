@@ -31,15 +31,15 @@ class ValidationReport:
 
 
 @dataclass
-class UnexpectedComponent:
-    component_type: str
-
-
-@dataclass
-class ValidationResultBaseInfo:
+class QueryInfo:
     validation_bn: Node
     focus_iri: Node
     focus_rdf_type: Node
+
+
+@dataclass
+class UnexpectedComponent:
+    component_type: str
 
 
 @dataclass
@@ -58,6 +58,7 @@ class DetailBaseInfo:
     source_constraint_component: Node
 
 
+@dataclass
 class ValidationResult:
     res_iri: Node
     res_class: Node

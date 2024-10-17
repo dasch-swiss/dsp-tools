@@ -319,7 +319,7 @@ def extracted_link_target_non_existent() -> ResultLinkTargetViolation:
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testHasLinkTo,
         results_message="Resource",
-        target_id=URIRef("http://data/other"),
+        target_id=DATA.other,
         target_resource_type=None,
     )
 
@@ -518,7 +518,7 @@ def report_empty_label(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResul
 @pytest.fixture
 def extracted_empty_label() -> ResultPatternViolation:
     return ResultPatternViolation(
-        res=DATA.empty_label,
+        res_iri=DATA.empty_label,
         res_class=ONTO.ClassWithEverything,
         property=RDFS.label,
         results_message="The label must be a non-empty string",

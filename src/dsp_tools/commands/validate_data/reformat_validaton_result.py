@@ -17,15 +17,14 @@ from dsp_tools.commands.validate_data.models.input_problems import NonExistentCa
 from dsp_tools.commands.validate_data.models.input_problems import UnexpectedResults
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
+from dsp_tools.commands.validate_data.models.validation import ExtractedResultDetail
 from dsp_tools.commands.validate_data.models.validation import ExtractedResultWithDetail
 from dsp_tools.commands.validate_data.models.validation import QueryInfo
-from dsp_tools.commands.validate_data.models.validation import ResultDetail
 from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMinCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultNonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultPatternViolation
 from dsp_tools.commands.validate_data.models.validation import ResultValueTypeViolation
-from dsp_tools.commands.validate_data.models.validation import ResultWithoutDetail
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.models.validation import ValidationReport
 from dsp_tools.commands.validate_data.models.validation import ValidationResult
@@ -92,7 +91,6 @@ def _extract_base_info_of_resource_results(
     resource_classes = list(data_onto_graph.subjects(KNORA_API.canBeInstantiated, Literal(True)))
     all_res_focus_nodes = []
     for nd in focus_nodes:
-        validation_bn = nd[0]
         focus_iri = nd[1]
         res_type = next(data_onto_graph.objects(focus_iri, RDF.type))
         if res_type in resource_classes:
@@ -181,7 +179,7 @@ def _query_one_without_detail(
 
 
 def _query_all_with_detail(
-    all_base_info: list[ValidationResultBaseInfo], results_and_onto: Graph, data_graph: Graph
+    all_base_info: list[ValidationResultBaseInfo], results_and_onto: Graph
 ) -> tuple[list[ValidationResult], list[UnexpectedComponent]]:
     extracted_results: list[ValidationResult] = []
     unexpected_components: list[UnexpectedComponent] = []
@@ -224,7 +222,6 @@ def _query_one_with_detail(
 
     """
 
-    path = next(results_and_onto.objects(base_info.validation_bn, SH.resultPath))
     value_iri = next(results_and_onto.objects(base_info.validation_bn, SH.value))
     value_type = next(data_graph.objects(value_iri, RDF.type))
     detail_component = next(results_and_onto.objects(base_info.detail_node, SH.sourceConstraintComponent))
@@ -247,7 +244,7 @@ def _query_one_with_detail(
 def _query_one_class_constraint_component(
     base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
 ) -> ValidationResult | UnexpectedComponent:
-    detail_component = list(results_and_onto.objects(base_info.detail_node, SH.sourceConstraintComponent))
+    detail_component = list(results_and_onto.objects(base_info.detail.detail_bn, SH.sourceConstraintComponent))
     if detail_component:
         return ResultValueTypeViolation
     return _query_link_value_target_result()
@@ -265,7 +262,7 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
     pass
 
 
-def _reformat_one_without_detail(violation: ResultWithoutDetail) -> InputProblem | UnexpectedComponent:
+def _reformat_one_without_detail(violation: ExtractedResultDetail) -> InputProblem | UnexpectedComponent:
     # TODO: REMOVE
     subject_id = _reformat_data_iri(str(violation.res_iri))
     prop_name = _reformat_onto_iri(str(violation.property))

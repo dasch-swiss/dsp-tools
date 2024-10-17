@@ -38,13 +38,26 @@ class UnexpectedComponent:
 @dataclass
 class ValidationResultBaseInfo:
     validation_bn: Node
-    focus_node_iri: Node
-    res_class_type: Node
-    result_path: Node
-    detail_node: Node | None = None
+    focus_iri: Node
+    focus_rdf_type: Node
 
 
 @dataclass
+class ValidationResultBaseInfo:
+    result_bn: Node
+    source_constraint_component: Node
+    resource_iri: Node
+    res_class_type: Node
+    result_path: Node
+    detail: DetailBaseInfo | None = None
+
+
+@dataclass
+class DetailBaseInfo:
+    detail_bn: Node
+    source_constraint_component: Node
+
+
 class ValidationResult:
     res_iri: Node
     res_class: Node
@@ -101,11 +114,11 @@ class ExtractedResultWithDetail:
     res_iri: Node
     res_class: Node
     property: Node
-    detail: ResultDetail
+    detail: ExtractedResultDetail
 
 
 @dataclass
-class ResultDetail:
+class ExtractedResultDetail:
     component: Node
     results_message: str
     result_path: Node | None

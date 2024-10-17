@@ -5,8 +5,8 @@ from rdflib import RDF
 from rdflib import RDFS
 from rdflib import SH
 from rdflib import Graph
-from rdflib import URIRef
 
+from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMinCardinalityViolation
@@ -14,6 +14,7 @@ from dsp_tools.commands.validate_data.models.validation import ResultNonExistent
 from dsp_tools.commands.validate_data.models.validation import ResultPatternViolation
 from dsp_tools.commands.validate_data.models.validation import ResultValueTypeViolation
 from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
+from test.unittests.commands.validate_data.constants import DASH
 from test.unittests.commands.validate_data.constants import DATA
 from test.unittests.commands.validate_data.constants import KNORA_API
 from test.unittests.commands.validate_data.constants import ONTO
@@ -49,13 +50,14 @@ def report_min_card(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBa
     onto_data_g += onto_graph
     onto_data_g.parse(data=data_str, format="ttl")
     val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
-    identifiers = ValidationResultBaseInfo(
-        validation_bn=val_bn,
-        focus_node_iri=URIRef("http://data/id_card_one"),
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=SH.MinCountConstraintComponent,
+        resource_iri=DATA.id_card_one,
         res_class_type=ONTO.ClassInheritedCardinalityOverwriting,
         result_path=ONTO.testBoolean,
     )
-    return validation_g, onto_data_g, identifiers
+    return validation_g, onto_data_g, base_info
 
 
 @pytest.fixture
@@ -89,8 +91,8 @@ def report_value_type_simpletext(onto_graph: Graph) -> tuple[Graph, Graph, Valid
         sh:sourceConstraintComponent sh:MinCountConstraintComponent ;
         sh:sourceShape api-shapes:SimpleTextValue_PropShape .
     """  # noqa: E501 (Line too long)
-    valiation_g = Graph()
-    valiation_g.parse(data=validation_str, format="ttl")
+    validation_g = Graph()
+    validation_g.parse(data=validation_str, format="ttl")
     data_str = f"""{PREFIXES}
     <http://data/id_simpletext> a onto:ClassWithEverything ;
         rdfs:label "Simpletext"^^xsd:string ;
@@ -102,16 +104,21 @@ def report_value_type_simpletext(onto_graph: Graph) -> tuple[Graph, Graph, Valid
     onto_data_g = Graph()
     onto_data_g += onto_graph
     onto_data_g.parse(data=data_str, format="ttl")
-    val_bn = next(valiation_g.subjects(RDF.type, SH.ValidationResult))
-    detail_bn = next(valiation_g.objects(predicate=SH.detail))
-    identifiers = ValidationResultBaseInfo(
-        validation_bn=val_bn,
-        focus_node_iri=URIRef("http://data/id_simpletext"),
-        res_class_type=ONTO.ClassWithEverything,
-        result_path=ONTO.testTextarea,
-        detail_node=detail_bn,
+    val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+    detail_bn = next(validation_g.objects(val_bn, SH.detail))
+    detail = DetailBaseInfo(
+        detail_bn=detail_bn,
+        source_constraint_component=SH.MinCountConstraintComponent,
     )
-    return valiation_g, onto_data_g, identifiers
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        result_path=ONTO.testTextarea,
+        source_constraint_component=SH.NodeConstraintComponent,
+        resource_iri=DATA.id_simpletext,
+        res_class_type=ONTO.ClassWithEverything,
+        detail=detail,
+    )
+    return validation_g, onto_data_g, base_info
 
 
 @pytest.fixture
@@ -161,14 +168,20 @@ def report_value_type(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResult
     onto_data_g.parse(data=data_str, format="ttl")
     val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
     detail_bn = next(validation_g.objects(predicate=SH.detail))
-    identifiers = ValidationResultBaseInfo(
-        validation_bn=val_bn,
-        focus_node_iri=URIRef("http://data/id_uri"),
+    detail_component = next(validation_g.objects(detail_bn, SH.sourceConstraintComponent))
+    detail = DetailBaseInfo(
+        detail_bn=detail_bn,
+        source_constraint_component=detail_component,
+    )
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=SH.NodeConstraintComponent,
+        resource_iri=DATA.id_uri,
         res_class_type=ONTO.ClassWithEverything,
         result_path=ONTO.testUriValue,
-        detail_node=detail_bn,
+        detail=detail,
     )
-    return validation_g, onto_data_g, identifiers
+    return validation_g, onto_data_g, base_info
 
 
 @pytest.fixture
@@ -218,15 +231,21 @@ def report_regex(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseI
     onto_data_g += onto_graph
     onto_data_g.parse(data=data_str, format="ttl")
     val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
-    detail_bn = next(validation_g.objects(predicate=SH.detail))
-    identifiers = ValidationResultBaseInfo(
-        validation_bn=val_bn,
-        focus_node_iri=URIRef("http://data/geoname_not_number"),
+    detail_bn = next(validation_g.objects(val_bn, SH.detail))
+    detail_component = next(validation_g.objects(detail_bn, SH.sourceConstraintComponent))
+    detail = DetailBaseInfo(
+        detail_bn=detail_bn,
+        source_constraint_component=detail_component,
+    )
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=SH.NodeConstraintComponent,
+        resource_iri=DATA.geoname_not_number,
         res_class_type=ONTO.ClassWithEverything,
         result_path=ONTO.testGeoname,
-        detail_node=detail_bn,
+        detail=detail,
     )
-    return validation_g, onto_data_g, identifiers
+    return validation_g, onto_data_g, base_info
 
 
 @pytest.fixture
@@ -276,15 +295,21 @@ def report_link_target_non_existent(onto_graph: Graph) -> tuple[Graph, Graph, Va
     onto_data_g += onto_graph
     onto_data_g.parse(data=data_str, format="ttl")
     val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
-    detail_bn = next(validation_g.objects(predicate=SH.detail))
-    identifiers = ValidationResultBaseInfo(
-        validation_bn=val_bn,
-        focus_node_iri=URIRef("http://data/link_target_non_existent"),
+    detail_bn = next(validation_g.objects(val_bn, SH.detail))
+    detail_component = next(validation_g.objects(detail_bn, SH.sourceConstraintComponent))
+    detail = DetailBaseInfo(
+        detail_bn=detail_bn,
+        source_constraint_component=detail_component,
+    )
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=SH.NodeConstraintComponent,
+        resource_iri=DATA.link_target_non_existent,
         res_class_type=ONTO.ClassWithEverything,
         result_path=ONTO.testHasLinkTo,
-        detail_node=detail_bn,
+        detail=detail,
     )
-    return validation_g, onto_data_g, identifiers
+    return validation_g, onto_data_g, base_info
 
 
 @pytest.fixture
@@ -338,15 +363,21 @@ def report_link_target_wrong_class(onto_graph: Graph) -> tuple[Graph, Graph, Val
     onto_data_g += onto_graph
     onto_data_g.parse(data=data_str, format="ttl")
     val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
-    detail_bn = next(validation_g.objects(predicate=SH.detail))
-    identifiers = ValidationResultBaseInfo(
-        validation_bn=val_bn,
-        focus_node_iri=URIRef("http://data/link_target_wrong_class"),
+    detail_bn = next(validation_g.objects(val_bn, SH.detail))
+    detail_component = next(validation_g.objects(detail_bn, SH.sourceConstraintComponent))
+    detail = DetailBaseInfo(
+        detail_bn=detail_bn,
+        source_constraint_component=detail_component,
+    )
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=SH.NodeConstraintComponent,
+        resource_iri=DATA.link_target_wrong_class,
         res_class_type=ONTO.ClassWithEverything,
         result_path=ONTO.testHasLinkToCardOneResource,
-        detail_node=detail_bn,
+        detail=detail,
     )
-    return validation_g, onto_data_g, identifiers
+    return validation_g, onto_data_g, base_info
 
 
 @pytest.fixture
@@ -356,7 +387,7 @@ def extracted_link_target_wrong_class() -> ResultLinkTargetViolation:
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testHasLinkToCardOneResource,
         results_message="CardOneResource",
-        target_id=URIRef("http://data/id_9_target"),
+        target_id=DATA.id_9_target,
         target_resource_type=ONTO.ClassWithEverything,
     )
 
@@ -386,13 +417,14 @@ def report_closed_constraint(onto_graph: Graph) -> tuple[Graph, Graph, Validatio
     onto_data_g += onto_graph
     onto_data_g.parse(data=data_str, format="ttl")
     val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
-    identifiers = ValidationResultBaseInfo(
-        validation_bn=val_bn,
-        focus_node_iri=URIRef("http://data/id_closed_constraint"),
-        result_path=ONTO.testIntegerSimpleText,
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=DASH.ClosedByTypesConstraintComponent,
+        resource_iri=DATA.id_closed_constraint,
         res_class_type=ONTO.CardOneResource,
+        result_path=ONTO.testIntegerSimpleText,
     )
-    return validation_g, onto_data_g, identifiers
+    return validation_g, onto_data_g, base_info
 
 
 @pytest.fixture
@@ -431,13 +463,14 @@ def report_max_card(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBa
     onto_data_g += onto_graph
     onto_data_g.parse(data=data_str, format="ttl")
     val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
-    identifiers = ValidationResultBaseInfo(
-        validation_bn=val_bn,
-        focus_node_iri=URIRef("http://data/id_max_card"),
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=SH.MaxCountConstraintComponent,
+        resource_iri=DATA.id_max_card,
         res_class_type=ONTO.ClassMixedCard,
         result_path=ONTO.testHasLinkToCardOneResource,
     )
-    return validation_g, onto_data_g, identifiers
+    return validation_g, onto_data_g, base_info
 
 
 @pytest.fixture
@@ -472,19 +505,20 @@ def report_empty_label(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResul
     onto_data_g += onto_graph
     onto_data_g.parse(data=data_str, format="ttl")
     val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
-    identifiers = ValidationResultBaseInfo(
-        validation_bn=val_bn,
-        focus_node_iri=URIRef("http://data/empty_label"),
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=SH.PatternConstraintComponent,
+        resource_iri=DATA.empty_label,
         res_class_type=ONTO.ClassWithEverything,
         result_path=RDFS.label,
     )
-    return validation_g, onto_data_g, identifiers
+    return validation_g, onto_data_g, base_info
 
 
 @pytest.fixture
 def extracted_empty_label() -> ResultPatternViolation:
     return ResultPatternViolation(
-        res_iri=DATA.empty_label,
+        res=DATA.empty_label,
         res_class=ONTO.ClassWithEverything,
         property=RDFS.label,
         results_message="The label must be a non-empty string",
@@ -514,13 +548,14 @@ def result_unknown_component(onto_graph: Graph) -> tuple[Graph, Graph, Validatio
     onto_data_g += onto_graph
     onto_data_g.parse(data=data_str, format="ttl")
     val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
-    identifiers = ValidationResultBaseInfo(
-        validation_bn=val_bn,
-        focus_node_iri=URIRef("http://data/empty_label"),
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=SH.PatternConstraintComponent,
+        resource_iri=DATA.empty_label,
         res_class_type=ONTO.ClassWithEverything,
         result_path=RDFS.label,
     )
-    return validation_g, onto_data_g, identifiers
+    return validation_g, onto_data_g, base_info
 
 
 @pytest.fixture

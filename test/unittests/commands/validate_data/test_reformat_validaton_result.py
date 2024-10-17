@@ -11,6 +11,7 @@ from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalit
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
+from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMinCardinalityViolation
@@ -19,12 +20,45 @@ from dsp_tools.commands.validate_data.models.validation import ResultPatternViol
 from dsp_tools.commands.validate_data.models.validation import ResultValueTypeViolation
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
+from dsp_tools.commands.validate_data.reformat_validaton_result import _extract_base_info_of_resource_results
 from dsp_tools.commands.validate_data.reformat_validaton_result import _query_one_with_detail
 from dsp_tools.commands.validate_data.reformat_validaton_result import _query_one_without_detail
 from dsp_tools.commands.validate_data.reformat_validaton_result import _reformat_one_validation_result
 from dsp_tools.commands.validate_data.reformat_validaton_result import _separate_result_types
+from test.unittests.commands.validate_data.constants import DATA
 from test.unittests.commands.validate_data.constants import KNORA_API
 from test.unittests.commands.validate_data.constants import ONTO
+
+
+class TestExtractBaseInfo:
+    def test_not_resource(self, report_not_resource: tuple[Graph, Graph]) -> None:
+        validation_g, onto_data_g = report_not_resource
+        results = _extract_base_info_of_resource_results(validation_g, onto_data_g)
+        assert not results
+
+    def test_no_detail(self, report_min_card: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
+        validation_g, onto_data_g, _ = report_min_card
+        results = _extract_base_info_of_resource_results(validation_g, onto_data_g)
+        assert len(results) == 1
+        found_result = results[0]
+        assert found_result.resource_iri == DATA.id_card_one
+        assert found_result.res_class_type == ONTO.ClassInheritedCardinalityOverwriting
+        assert found_result.result_path == ONTO.testBoolean
+        assert found_result.source_constraint_component == SH.MinCountConstraintComponent
+        assert not found_result.detail
+
+    def test_with_detail(self, report_value_type_simpletext: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
+        validation_g, onto_data_g, _ = report_value_type_simpletext
+        results = _extract_base_info_of_resource_results(validation_g, onto_data_g)
+        assert len(results) == 1
+        found_result = results[0]
+        assert found_result.resource_iri == DATA.id_simpletext
+        assert found_result.res_class_type == ONTO.ClassWithEverything
+        assert found_result.result_path == ONTO.testTextarea
+        assert found_result.source_constraint_component == SH.NodeConstraintComponent
+        detail = found_result.detail
+        assert isinstance(detail, DetailBaseInfo)
+        assert detail.source_constraint_component == SH.MinCountConstraintComponent
 
 
 class TestSeparateResultTypes:
@@ -33,7 +67,7 @@ class TestSeparateResultTypes:
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 1
         assert len(with_detail) == 0
-        assert no_detail[0].focus_node_iri == URIRef("http://data/id_card_one")
+        assert no_detail[0].focus_node_iri == DATA.id_card_one
 
     def test_result_id_simpletext(
         self, report_value_type_simpletext: tuple[Graph, Graph, ValidationResultBaseInfo]
@@ -42,21 +76,21 @@ class TestSeparateResultTypes:
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 0
         assert len(with_detail) == 1
-        assert with_detail[0].focus_node_iri == URIRef("http://data/id_simpletext")
+        assert with_detail[0].focus_node_iri == DATA.id_simpletext
 
     def test_result_id_uri(self, report_value_type: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res_g, onto_data_g, _ = report_value_type
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 0
         assert len(with_detail) == 1
-        assert with_detail[0].focus_node_iri == URIRef("http://data/id_uri")
+        assert with_detail[0].focus_node_iri == DATA.id_uri
 
     def test_result_geoname_not_number(self, report_regex: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res_g, onto_data_g, _ = report_regex
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 0
         assert len(with_detail) == 1
-        assert with_detail[0].focus_node_iri == URIRef("http://data/geoname_not_number")
+        assert with_detail[0].focus_node_iri == DATA.geoname_not_number
 
     def test_result_id_closed_constraint(
         self, report_closed_constraint: tuple[Graph, Graph, ValidationResultBaseInfo]
@@ -65,14 +99,14 @@ class TestSeparateResultTypes:
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 1
         assert len(with_detail) == 0
-        assert no_detail[0].focus_node_iri == URIRef("http://data/id_closed_constraint")
+        assert no_detail[0].focus_node_iri == DATA.id_closed_constraint
 
     def test_result_id_max_card(self, report_max_card: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res_g, onto_data_g, _ = report_max_card
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 1
         assert len(with_detail) == 0
-        assert no_detail[0].focus_node_iri == URIRef("http://data/id_max_card")
+        assert no_detail[0].focus_node_iri == DATA.id_max_card
 
 
 class TestQueryWithoutDetail:
@@ -80,7 +114,7 @@ class TestQueryWithoutDetail:
         res, _, ids = report_min_card
         result = _query_one_without_detail(ids, res)
         assert isinstance(result, ResultMinCardinalityViolation)
-        assert result.focus_node_iri == ids.focus_node_iri
+        assert result.res_iri == ids.focus_node_iri
         assert result.res_class == ids.res_class_type
         assert result.property == ONTO.testBoolean
         assert result.results_message == "1"
@@ -91,7 +125,7 @@ class TestQueryWithoutDetail:
         res, _, ids = report_closed_constraint
         result = _query_one_without_detail(ids, res)
         assert isinstance(result, ResultNonExistentCardinalityViolation)
-        assert result.focus_node_iri == ids.focus_node_iri
+        assert result.res_iri == ids.focus_node_iri
         assert result.res_class == ids.res_class_type
         assert result.property == ONTO.testIntegerSimpleText
 
@@ -99,7 +133,7 @@ class TestQueryWithoutDetail:
         res, _, ids = report_max_card
         result = _query_one_without_detail(ids, res)
         assert isinstance(result, ResultMaxCardinalityViolation)
-        assert result.focus_node_iri == ids.focus_node_iri
+        assert result.res_iri == ids.focus_node_iri
         assert result.res_class == ids.res_class_type
         assert result.property == ONTO.testHasLinkToCardOneResource
         assert result.results_message == "1"

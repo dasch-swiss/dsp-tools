@@ -16,7 +16,9 @@ from dsp_tools.commands.validate_data.models.input_problems import MinCardinalit
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import UnexpectedResults
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
+from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import ExtractedResultWithDetail
+from dsp_tools.commands.validate_data.models.validation import QueryInfo
 from dsp_tools.commands.validate_data.models.validation import ResultDetail
 from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMinCardinalityViolation
@@ -94,20 +96,34 @@ def _extract_base_info_of_resource_results(
         focus_iri = nd[1]
         res_type = next(data_onto_graph.objects(focus_iri, RDF.type))
         if res_type in resource_classes:
-            detail_bn = None
-            if detail_bn_list := list(results_and_onto.objects(validation_bn, SH.detail)):
-                detail_bn = detail_bn_list[0]
-            path = next(results_and_onto.objects(validation_bn, SH.resultPath))
-            all_res_focus_nodes.append(
-                ValidationResultBaseInfo(
-                    validation_bn=validation_bn,
-                    focus_node_iri=focus_iri,
-                    res_class_type=res_type,
-                    result_path=path,
-                    detail_node=detail_bn,
-                )
+            info = QueryInfo(
+                validation_bn=nd[0],
+                focus_iri=focus_iri,
+                focus_rdf_type=res_type,
             )
+            all_res_focus_nodes.append(_extract_one_base_info(info, results_and_onto))
     return all_res_focus_nodes
+
+
+def _extract_one_base_info(info: QueryInfo, results_and_onto: Graph) -> ValidationResultBaseInfo:
+    path = next(results_and_onto.objects(info.validation_bn, SH.resultPath))
+    main_component_type = next(results_and_onto.objects(info.validation_bn, SH.sourceConstraintComponent))
+    detail = None
+    if detail_bn_list := list(results_and_onto.objects(info.validation_bn, SH.detail)):
+        detail_bn = detail_bn_list[0]
+        detail_component = next(results_and_onto.objects(detail_bn, SH.sourceConstraintComponent))
+        detail = DetailBaseInfo(
+            detail_bn=detail_bn,
+            source_constraint_component=detail_component,
+        )
+    return ValidationResultBaseInfo(
+        result_bn=info.validation_bn,
+        source_constraint_component=main_component_type,
+        resource_iri=info.focus_iri,
+        res_class_type=info.focus_rdf_type,
+        result_path=path,
+        detail=detail,
+    )
 
 
 def _query_all_without_detail(

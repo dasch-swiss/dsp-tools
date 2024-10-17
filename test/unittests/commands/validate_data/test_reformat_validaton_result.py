@@ -11,18 +11,52 @@ from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalit
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
+from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import ExtractedResultWithDetail
 from dsp_tools.commands.validate_data.models.validation import ExtractedResultWithoutDetail
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
+from dsp_tools.commands.validate_data.reformat_validaton_result import _extract_base_info_of_resource_results
 from dsp_tools.commands.validate_data.reformat_validaton_result import _query_with_detail
 from dsp_tools.commands.validate_data.reformat_validaton_result import _query_without_detail
 from dsp_tools.commands.validate_data.reformat_validaton_result import _reformat_one_with_detail
 from dsp_tools.commands.validate_data.reformat_validaton_result import _reformat_one_without_detail
 from dsp_tools.commands.validate_data.reformat_validaton_result import _separate_result_types
 from test.unittests.commands.validate_data.constants import DASH
+from test.unittests.commands.validate_data.constants import DATA
 from test.unittests.commands.validate_data.constants import KNORA_API
 from test.unittests.commands.validate_data.constants import ONTO
+
+
+class TestExtractBaseInfo:
+    def test_not_resource(self, report_not_resource: tuple[Graph, Graph]) -> None:
+        validation_g, onto_data_g = report_not_resource
+        results = _extract_base_info_of_resource_results(validation_g, onto_data_g)
+        assert not results
+
+    def test_no_detail(self, report_min_card: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
+        validation_g, onto_data_g, _ = report_min_card
+        results = _extract_base_info_of_resource_results(validation_g, onto_data_g)
+        assert len(results) == 1
+        found_result = results[0]
+        assert found_result.resource_iri == DATA.id_card_one
+        assert found_result.res_class_type == ONTO.ClassInheritedCardinalityOverwriting
+        assert found_result.result_path == ONTO.testBoolean
+        assert found_result.source_constraint_component == SH.MinCountConstraintComponent
+        assert not found_result.detail
+
+    def test_with_detail(self, report_value_type_simpletext: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
+        validation_g, onto_data_g, _ = report_value_type_simpletext
+        results = _extract_base_info_of_resource_results(validation_g, onto_data_g)
+        assert len(results) == 1
+        found_result = results[0]
+        assert found_result.resource_iri == DATA.id_simpletext
+        assert found_result.res_class_type == ONTO.ClassWithEverything
+        assert found_result.result_path == ONTO.testTextarea
+        assert found_result.source_constraint_component == SH.NodeConstraintComponent
+        detail = found_result.detail
+        assert isinstance(detail, DetailBaseInfo)
+        assert detail.source_constraint_component == SH.MinCountConstraintComponent
 
 
 class TestSeparateResultTypes:

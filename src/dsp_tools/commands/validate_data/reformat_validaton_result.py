@@ -101,7 +101,7 @@ def _extract_one_base_info(info: QueryInfo, results_and_onto: Graph) -> Validati
     detail = None
     if detail_bn_list := list(results_and_onto.objects(info.validation_bn, SH.detail)):
         detail_bn = detail_bn_list[0]
-        detail_component = next(results_and_onto.objects(info.validation_bn, SH.sourceConstraintComponent))
+        detail_component = next(results_and_onto.objects(detail_bn, SH.sourceConstraintComponent))
         detail = DetailBaseInfo(
             detail_bn=detail_bn,
             source_constraint_component=detail_component,

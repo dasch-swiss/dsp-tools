@@ -31,14 +31,6 @@ class ValidationReport:
 
 
 @dataclass
-class ResourceValidationReportIdentifiers:
-    validation_bn: Node
-    focus_node_iri: Node
-    res_class_type: Node
-    detail_node: Node | None = None
-
-
-@dataclass
 class UnexpectedComponent:
     component_type: str
 
@@ -51,6 +43,14 @@ class ResultWithoutDetail:
     property: Node
     results_message: str
     value: str | None = None
+
+
+@dataclass
+class ValidationResultBaseInfo:
+    validation_bn: Node
+    focus_node_iri: Node
+    res_class_type: Node
+    detail_node: Node | None = None
 
 
 @dataclass

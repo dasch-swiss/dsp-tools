@@ -7,10 +7,10 @@ from rdflib import SH
 from rdflib import Graph
 from rdflib import URIRef
 
-from dsp_tools.commands.validate_data.models.validation import ResourceValidationReportIdentifiers
 from dsp_tools.commands.validate_data.models.validation import ResultDetail
 from dsp_tools.commands.validate_data.models.validation import ResultWithDetail
 from dsp_tools.commands.validate_data.models.validation import ResultWithoutDetail
+from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
 from dsp_tools.commands.validate_data.reformat_validaton_result import API_SHAPES
 from test.unittests.commands.validate_data.constants import DASH
 from test.unittests.commands.validate_data.constants import DATA
@@ -28,7 +28,7 @@ def onto_graph() -> Graph:
 
 
 @pytest.fixture
-def report_min_card(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+def report_min_card(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
         sh:focusNode <http://data/id_card_one> ;
@@ -48,7 +48,7 @@ def report_min_card(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidation
     onto_data_g += onto_graph
     onto_data_g.parse(data=data_str, format="ttl")
     val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
-    identifiers = ResourceValidationReportIdentifiers(
+    identifiers = ValidationResultBaseInfo(
         val_bn, URIRef("http://data/id_card_one"), ONTO.ClassInheritedCardinalityOverwriting
     )
     return validation_g, onto_data_g, identifiers
@@ -66,7 +66,7 @@ def extracted_min_card() -> ResultWithoutDetail:
 
 
 @pytest.fixture
-def report_value_type_simpletext(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+def report_value_type_simpletext(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
         sh:detail _:bn_id_simpletext ;
@@ -101,7 +101,7 @@ def report_value_type_simpletext(onto_graph: Graph) -> tuple[Graph, Graph, Resou
     onto_data_g.parse(data=data_str, format="ttl")
     val_bn = next(valiation_g.subjects(RDF.type, SH.ValidationResult))
     detail_bn = next(valiation_g.objects(predicate=SH.detail))
-    identifiers = ResourceValidationReportIdentifiers(
+    identifiers = ValidationResultBaseInfo(
         val_bn, URIRef("http://data/id_simpletext"), ONTO.ClassWithEverything, detail_bn
     )
     return valiation_g, onto_data_g, identifiers
@@ -126,7 +126,7 @@ def extracted_value_type_simpletext() -> ResultWithDetail:
 
 
 @pytest.fixture
-def report_value_type(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+def report_value_type(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
         sh:detail _:bn_id_uri ;
@@ -161,9 +161,7 @@ def report_value_type(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidati
     onto_data_g.parse(data=data_str, format="ttl")
     val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
     detail_bn = next(validation_g.objects(predicate=SH.detail))
-    identifiers = ResourceValidationReportIdentifiers(
-        val_bn, URIRef("http://data/id_uri"), ONTO.ClassWithEverything, detail_bn
-    )
+    identifiers = ValidationResultBaseInfo(val_bn, URIRef("http://data/id_uri"), ONTO.ClassWithEverything, detail_bn)
     return validation_g, onto_data_g, identifiers
 
 
@@ -186,7 +184,7 @@ def extracted_value_type() -> ResultWithDetail:
 
 
 @pytest.fixture
-def report_regex(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+def report_regex(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
         sh:detail _:bn_geoname_not_number ;
@@ -222,7 +220,7 @@ def report_regex(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationRep
     onto_data_g.parse(data=data_str, format="ttl")
     val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
     detail_bn = next(validation_g.objects(predicate=SH.detail))
-    identifiers = ResourceValidationReportIdentifiers(
+    identifiers = ValidationResultBaseInfo(
         val_bn, URIRef("http://data/geoname_not_number"), ONTO.ClassWithEverything, detail_bn
     )
     return validation_g, onto_data_g, identifiers
@@ -247,7 +245,7 @@ def extracted_regex() -> ResultWithDetail:
 
 
 @pytest.fixture
-def report_link_target_non_existent(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+def report_link_target_non_existent(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
         sh:detail _:bn_link_target_non_existent ;
@@ -283,7 +281,7 @@ def report_link_target_non_existent(onto_graph: Graph) -> tuple[Graph, Graph, Re
     onto_data_g.parse(data=data_str, format="ttl")
     val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
     detail_bn = next(validation_g.objects(predicate=SH.detail))
-    identifiers = ResourceValidationReportIdentifiers(
+    identifiers = ValidationResultBaseInfo(
         val_bn,
         URIRef("http://data/link_target_non_existent"),
         ONTO.ClassWithEverything,
@@ -311,7 +309,7 @@ def extracted_link_target_non_existent() -> ResultWithDetail:
 
 
 @pytest.fixture
-def report_link_target_wrong_class(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+def report_link_target_wrong_class(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
         sh:detail _:bn_link_target_wrong_class ;
@@ -350,7 +348,7 @@ def report_link_target_wrong_class(onto_graph: Graph) -> tuple[Graph, Graph, Res
     onto_data_g.parse(data=data_str, format="ttl")
     val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
     detail_bn = next(validation_g.objects(predicate=SH.detail))
-    identifiers = ResourceValidationReportIdentifiers(
+    identifiers = ValidationResultBaseInfo(
         val_bn,
         URIRef("http://data/link_target_wrong_class"),
         ONTO.ClassWithEverything,
@@ -378,7 +376,7 @@ def extracted_link_target_wrong_class() -> ResultWithDetail:
 
 
 @pytest.fixture
-def report_closed_constraint(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+def report_closed_constraint(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
         sh:focusNode <http://data/id_closed_constraint> ;
@@ -402,9 +400,7 @@ def report_closed_constraint(onto_graph: Graph) -> tuple[Graph, Graph, ResourceV
     onto_data_g += onto_graph
     onto_data_g.parse(data=data_str, format="ttl")
     val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
-    identifiers = ResourceValidationReportIdentifiers(
-        val_bn, URIRef("http://data/id_closed_constraint"), ONTO.CardOneResource
-    )
+    identifiers = ValidationResultBaseInfo(val_bn, URIRef("http://data/id_closed_constraint"), ONTO.CardOneResource)
     return validation_g, onto_data_g, identifiers
 
 
@@ -420,7 +416,7 @@ def extracted_closed_constraint() -> ResultWithoutDetail:
 
 
 @pytest.fixture
-def report_max_card(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+def report_max_card(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
         sh:focusNode <http://data/id_max_card> ;
@@ -446,7 +442,7 @@ def report_max_card(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidation
     onto_data_g += onto_graph
     onto_data_g.parse(data=data_str, format="ttl")
     val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
-    identifiers = ResourceValidationReportIdentifiers(val_bn, URIRef("http://data/id_max_card"), ONTO.ClassMixedCard)
+    identifiers = ValidationResultBaseInfo(val_bn, URIRef("http://data/id_max_card"), ONTO.ClassMixedCard)
     return validation_g, onto_data_g, identifiers
 
 
@@ -462,7 +458,7 @@ def extracted_max_card() -> ResultWithoutDetail:
 
 
 @pytest.fixture
-def report_empty_label(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+def report_empty_label(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
         sh:focusNode <http://data/empty_label> ;
@@ -483,9 +479,7 @@ def report_empty_label(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidat
     onto_data_g += onto_graph
     onto_data_g.parse(data=data_str, format="ttl")
     val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
-    identifiers = ResourceValidationReportIdentifiers(
-        val_bn, URIRef("http://data/empty_label"), ONTO.ClassWithEverything
-    )
+    identifiers = ValidationResultBaseInfo(val_bn, URIRef("http://data/empty_label"), ONTO.ClassWithEverything)
     return validation_g, onto_data_g, identifiers
 
 

@@ -16,12 +16,12 @@ from dsp_tools.commands.validate_data.models.input_problems import MinCardinalit
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import UnexpectedResults
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
-from dsp_tools.commands.validate_data.models.validation import ResourceValidationReportIdentifiers
 from dsp_tools.commands.validate_data.models.validation import ResultDetail
 from dsp_tools.commands.validate_data.models.validation import ResultWithDetail
 from dsp_tools.commands.validate_data.models.validation import ResultWithoutDetail
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.models.validation import ValidationReport
+from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
 
 DASH = Namespace("http://datashapes.org/dash#")
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
@@ -64,17 +64,17 @@ def reformat_validation_graph(report: ValidationReport) -> AllProblems:
 def _separate_result_types(
     results_and_onto: Graph, data_onto_graph: Graph
 ) -> tuple[list[ResultWithoutDetail], list[ResultWithDetail]]:
-    identifiers = _extract_identifiers_of_resource_results(results_and_onto, data_onto_graph)
-    no_details = [x for x in identifiers if not x.detail_node]
+    all_base_info = _extract_base_info_of_resource_results(results_and_onto, data_onto_graph)
+    no_details = [x for x in all_base_info if not x.detail_node]
     no_detail_results = [_query_without_detail(x, results_and_onto) for x in no_details]
-    with_details = [x for x in identifiers if x.detail_node]
+    with_details = [x for x in all_base_info if x.detail_node]
     details_results = [_query_with_detail(x, results_and_onto, data_onto_graph) for x in with_details]
     return no_detail_results, details_results
 
 
-def _extract_identifiers_of_resource_results(
+def _extract_base_info_of_resource_results(
     results_and_onto: Graph, data_onto_graph: Graph
-) -> list[ResourceValidationReportIdentifiers]:
+) -> list[ValidationResultBaseInfo]:
     focus_nodes = list(results_and_onto.subject_objects(SH.focusNode))
     resource_classes = list(data_onto_graph.subjects(KNORA_API.canBeInstantiated, Literal(True)))
     all_res_focus_nodes = []
@@ -87,7 +87,7 @@ def _extract_identifiers_of_resource_results(
             if detail_bn_list := list(results_and_onto.objects(validation_bn, SH.detail)):
                 detail_bn = detail_bn_list[0]
             all_res_focus_nodes.append(
-                ResourceValidationReportIdentifiers(
+                ValidationResultBaseInfo(
                     validation_bn=validation_bn,
                     focus_node_iri=focus_iri,
                     res_class_type=res_type,
@@ -97,19 +97,17 @@ def _extract_identifiers_of_resource_results(
     return all_res_focus_nodes
 
 
-def _query_without_detail(
-    identifiers: ResourceValidationReportIdentifiers, results_and_onto: Graph
-) -> ResultWithoutDetail:
-    path = next(results_and_onto.objects(identifiers.validation_bn, SH.resultPath))
-    component = next(results_and_onto.objects(identifiers.validation_bn, SH.sourceConstraintComponent))
-    msg = str(next(results_and_onto.objects(identifiers.validation_bn, SH.resultMessage)))
+def _query_without_detail(base_info: ValidationResultBaseInfo, results_and_onto: Graph) -> ResultWithoutDetail:
+    path = next(results_and_onto.objects(base_info.validation_bn, SH.resultPath))
+    component = next(results_and_onto.objects(base_info.validation_bn, SH.sourceConstraintComponent))
+    msg = str(next(results_and_onto.objects(base_info.validation_bn, SH.resultMessage)))
     res_value: str | None = None
-    if val := list(results_and_onto.objects(identifiers.validation_bn, SH.value)):
+    if val := list(results_and_onto.objects(base_info.validation_bn, SH.value)):
         res_value = str(val[0])
     return ResultWithoutDetail(
         source_constraint_component=component,
-        res_iri=identifiers.focus_node_iri,
-        res_class=identifiers.res_class_type,
+        res_iri=base_info.focus_node_iri,
+        res_class=base_info.res_class_type,
         property=path,
         results_message=msg,
         value=res_value,
@@ -117,20 +115,20 @@ def _query_without_detail(
 
 
 def _query_with_detail(
-    identifiers: ResourceValidationReportIdentifiers, results_and_onto: Graph, data_graph: Graph
+    base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
 ) -> ResultWithDetail:
-    path = next(results_and_onto.objects(identifiers.validation_bn, SH.resultPath))
-    value_iri = next(results_and_onto.objects(identifiers.validation_bn, SH.value))
+    path = next(results_and_onto.objects(base_info.validation_bn, SH.resultPath))
+    value_iri = next(results_and_onto.objects(base_info.validation_bn, SH.value))
     value_type = next(data_graph.objects(value_iri, RDF.type))
-    component = next(results_and_onto.objects(identifiers.validation_bn, SH.sourceConstraintComponent))
-    detail_component = next(results_and_onto.objects(identifiers.detail_node, SH.sourceConstraintComponent))
+    component = next(results_and_onto.objects(base_info.validation_bn, SH.sourceConstraintComponent))
+    detail_component = next(results_and_onto.objects(base_info.detail_node, SH.sourceConstraintComponent))
     detail_path: None | Node = None
-    if path_found := list(results_and_onto.objects(identifiers.detail_node, SH.resultPath)):
+    if path_found := list(results_and_onto.objects(base_info.detail_node, SH.resultPath)):
         detail_path = path_found[0]
     val = None
-    if node_value := list(results_and_onto.objects(identifiers.detail_node, SH.value)):
+    if node_value := list(results_and_onto.objects(base_info.detail_node, SH.value)):
         val = str(node_value[0])
-    msg = str(next(results_and_onto.objects(identifiers.detail_node, SH.resultMessage)))
+    msg = str(next(results_and_onto.objects(base_info.detail_node, SH.resultMessage)))
     detail = ResultDetail(
         component=detail_component,
         results_message=msg,
@@ -140,8 +138,8 @@ def _query_with_detail(
     )
     return ResultWithDetail(
         source_constraint_component=component,
-        res_iri=identifiers.focus_node_iri,
-        res_class=identifiers.res_class_type,
+        res_iri=base_info.focus_node_iri,
+        res_class=base_info.res_class_type,
         property=path,
         detail=detail,
     )

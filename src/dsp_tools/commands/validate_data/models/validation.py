@@ -59,7 +59,7 @@ class DetailBaseInfo:
 
 
 @dataclass
-class ResultWithoutDetail:
+class ExtractedResultWithoutDetail:
     source_constraint_component: Node
     res_iri: Node
     res_class: Node
@@ -69,16 +69,16 @@ class ResultWithoutDetail:
 
 
 @dataclass
-class ResultWithDetail:
+class ExtractedResultWithDetail:
     source_constraint_component: Node
     res_iri: Node
     res_class: Node
     property: Node
-    detail: ResultDetail
+    detail: ExtractedResultDetail
 
 
 @dataclass
-class ResultDetail:
+class ExtractedResultDetail:
     component: Node
     results_message: str
     result_path: Node | None

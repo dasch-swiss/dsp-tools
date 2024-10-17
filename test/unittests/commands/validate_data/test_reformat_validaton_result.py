@@ -11,8 +11,8 @@ from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalit
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
-from dsp_tools.commands.validate_data.models.validation import ResultWithDetail
-from dsp_tools.commands.validate_data.models.validation import ResultWithoutDetail
+from dsp_tools.commands.validate_data.models.validation import ExtractedResultWithDetail
+from dsp_tools.commands.validate_data.models.validation import ExtractedResultWithoutDetail
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
 from dsp_tools.commands.validate_data.reformat_validaton_result import _query_with_detail
@@ -189,7 +189,7 @@ class TestQueryWithDetail:
 
 
 class TestReformatWithoutDetail:
-    def test_min(self, extracted_min_card: ResultWithoutDetail) -> None:
+    def test_min(self, extracted_min_card: ExtractedResultWithoutDetail) -> None:
         result = _reformat_one_without_detail(extracted_min_card)
         assert isinstance(result, MinCardinalityViolation)
         assert result.res_id == "id_card_one"
@@ -197,7 +197,7 @@ class TestReformatWithoutDetail:
         assert result.prop_name == "onto:testBoolean"
         assert result.expected_cardinality == "1"
 
-    def test_max(self, extracted_max_card: ResultWithoutDetail) -> None:
+    def test_max(self, extracted_max_card: ExtractedResultWithoutDetail) -> None:
         result = _reformat_one_without_detail(extracted_max_card)
         assert isinstance(result, MaxCardinalityViolation)
         assert result.res_id == "id_max_card"
@@ -205,7 +205,7 @@ class TestReformatWithoutDetail:
         assert result.prop_name == "onto:testDecimalSimpleText"
         assert result.expected_cardinality == "0-1"
 
-    def test_violation_empty_label(self, extracted_empty_label: ResultWithoutDetail) -> None:
+    def test_violation_empty_label(self, extracted_empty_label: ExtractedResultWithoutDetail) -> None:
         result = _reformat_one_without_detail(extracted_empty_label)
         assert isinstance(result, ContentRegexViolation)
         assert result.res_id == "empty_label"
@@ -214,7 +214,7 @@ class TestReformatWithoutDetail:
         assert result.expected_format == "The label must be a non-empty string"
         assert not result.actual_content
 
-    def test_closed(self, extracted_closed_constraint: ResultWithoutDetail) -> None:
+    def test_closed(self, extracted_closed_constraint: ExtractedResultWithoutDetail) -> None:
         result = _reformat_one_without_detail(extracted_closed_constraint)
         assert isinstance(result, NonExistentCardinalityViolation)
         assert result.res_id == "id_closed_constraint"
@@ -223,7 +223,7 @@ class TestReformatWithoutDetail:
 
 
 class TestReformatWithDetail:
-    def test_value_type_simpletext(self, extracted_value_type_simpletext: ResultWithDetail) -> None:
+    def test_value_type_simpletext(self, extracted_value_type_simpletext: ExtractedResultWithDetail) -> None:
         result = _reformat_one_with_detail(extracted_value_type_simpletext)
         assert isinstance(result, ValueTypeViolation)
         assert result.res_id == "id_simpletext"
@@ -232,7 +232,7 @@ class TestReformatWithDetail:
         assert result.actual_type == "TextValue"
         assert result.expected_type == "TextValue without formatting"
 
-    def test_value_type(self, extracted_value_type: ResultWithDetail) -> None:
+    def test_value_type(self, extracted_value_type: ExtractedResultWithDetail) -> None:
         result = _reformat_one_with_detail(extracted_value_type)
         assert isinstance(result, ValueTypeViolation)
         assert result.res_id == "id_uri"
@@ -241,7 +241,7 @@ class TestReformatWithDetail:
         assert result.actual_type == "TextValue"
         assert result.expected_type == "UriValue"
 
-    def test_violation_regex(self, extracted_regex: ResultWithDetail) -> None:
+    def test_violation_regex(self, extracted_regex: ExtractedResultWithDetail) -> None:
         result = _reformat_one_with_detail(extracted_regex)
         assert isinstance(result, ContentRegexViolation)
         assert result.res_id == "geoname_not_number"
@@ -250,12 +250,12 @@ class TestReformatWithDetail:
         assert result.expected_format == "The value must be a valid geoname code"
         assert result.actual_content == "this-is-not-a-valid-code"
 
-    def test_unknown(self, extracted_unknown_component: ResultWithDetail) -> None:
+    def test_unknown(self, extracted_unknown_component: ExtractedResultWithDetail) -> None:
         result = _reformat_one_with_detail(extracted_unknown_component)
         assert isinstance(result, UnexpectedComponent)
         assert result.component_type == str(SH.UniqueLangConstraintComponent)
 
-    def test_link_target_non_existent(self, extracted_link_target_non_existent: ResultWithDetail) -> None:
+    def test_link_target_non_existent(self, extracted_link_target_non_existent: ExtractedResultWithDetail) -> None:
         result = _reformat_one_with_detail(extracted_link_target_non_existent)
         assert isinstance(result, LinkedResourceDoesNotExist)
         assert result.res_id == "link_target_non_existent"
@@ -263,7 +263,7 @@ class TestReformatWithDetail:
         assert result.prop_name == "onto:testHasLinkTo"
         assert result.link_target_id == "other"
 
-    def test_link_target_wrong_class(self, extracted_link_target_wrong_class: ResultWithDetail) -> None:
+    def test_link_target_wrong_class(self, extracted_link_target_wrong_class: ExtractedResultWithDetail) -> None:
         result = _reformat_one_with_detail(extracted_link_target_wrong_class)
         assert isinstance(result, LinkTargetTypeMismatch)
         assert result.res_id == "link_target_wrong_class"

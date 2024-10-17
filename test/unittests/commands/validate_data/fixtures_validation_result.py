@@ -7,9 +7,9 @@ from rdflib import SH
 from rdflib import Graph
 from rdflib import URIRef
 
-from dsp_tools.commands.validate_data.models.validation import ResultDetail
-from dsp_tools.commands.validate_data.models.validation import ResultWithDetail
-from dsp_tools.commands.validate_data.models.validation import ResultWithoutDetail
+from dsp_tools.commands.validate_data.models.validation import ExtractedResultDetail
+from dsp_tools.commands.validate_data.models.validation import ExtractedResultWithDetail
+from dsp_tools.commands.validate_data.models.validation import ExtractedResultWithoutDetail
 from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
 from dsp_tools.commands.validate_data.reformat_validaton_result import API_SHAPES
 from test.unittests.commands.validate_data.constants import DASH
@@ -55,8 +55,8 @@ def report_min_card(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBa
 
 
 @pytest.fixture
-def extracted_min_card() -> ResultWithoutDetail:
-    return ResultWithoutDetail(
+def extracted_min_card() -> ExtractedResultWithoutDetail:
+    return ExtractedResultWithoutDetail(
         source_constraint_component=SH.MinCountConstraintComponent,
         res_iri=DATA.id_card_one,
         res_class=ONTO.ClassInheritedCardinalityOverwriting,
@@ -108,15 +108,15 @@ def report_value_type_simpletext(onto_graph: Graph) -> tuple[Graph, Graph, Valid
 
 
 @pytest.fixture
-def extracted_value_type_simpletext() -> ResultWithDetail:
-    detail = ResultDetail(
+def extracted_value_type_simpletext() -> ExtractedResultWithDetail:
+    detail = ExtractedResultDetail(
         component=SH.MinCountConstraintComponent,
         results_message="TextValue without formatting",
         result_path=KNORA_API.textValueAsXml,
         value_type=KNORA_API.TextValue,
         value=None,
     )
-    return ResultWithDetail(
+    return ExtractedResultWithDetail(
         source_constraint_component=SH.NodeConstraintComponent,
         res_iri=DATA.id_simpletext,
         res_class=ONTO.ClassWithEverything,
@@ -166,15 +166,15 @@ def report_value_type(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResult
 
 
 @pytest.fixture
-def extracted_value_type() -> ResultWithDetail:
-    detail = ResultDetail(
+def extracted_value_type() -> ExtractedResultWithDetail:
+    detail = ExtractedResultDetail(
         component=SH.ClassConstraintComponent,
         results_message="UriValue",
         result_path=None,
         value_type=KNORA_API.TextValue,
         value=None,
     )
-    return ResultWithDetail(
+    return ExtractedResultWithDetail(
         source_constraint_component=SH.NodeConstraintComponent,
         res_iri=DATA.id_uri,
         res_class=ONTO.ClassWithEverything,
@@ -227,15 +227,15 @@ def report_regex(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseI
 
 
 @pytest.fixture
-def extracted_regex() -> ResultWithDetail:
-    detail = ResultDetail(
+def extracted_regex() -> ExtractedResultWithDetail:
+    detail = ExtractedResultDetail(
         component=SH.PatternConstraintComponent,
         results_message="The value must be a valid geoname code",
         result_path=KNORA_API.geonameValueAsGeonameCode,
         value_type=KNORA_API.GeonameValue,
         value="this-is-not-a-valid-code",
     )
-    return ResultWithDetail(
+    return ExtractedResultWithDetail(
         source_constraint_component=SH.NodeConstraintComponent,
         res_iri=DATA.geoname_not_number,
         res_class=ONTO.ClassWithEverything,
@@ -291,15 +291,15 @@ def report_link_target_non_existent(onto_graph: Graph) -> tuple[Graph, Graph, Va
 
 
 @pytest.fixture
-def extracted_link_target_non_existent() -> ResultWithDetail:
-    detail = ResultDetail(
+def extracted_link_target_non_existent() -> ExtractedResultWithDetail:
+    detail = ExtractedResultDetail(
         component=SH.ClassConstraintComponent,
         results_message="Resource",
         result_path=API_SHAPES.linkValueHasTargetID,
         value_type=KNORA_API.LinkValue,
         value=URIRef("http://data/other"),
     )
-    return ResultWithDetail(
+    return ExtractedResultWithDetail(
         source_constraint_component=SH.NodeConstraintComponent,
         res_iri=DATA.link_target_non_existent,
         res_class=ONTO.ClassWithEverything,
@@ -358,15 +358,15 @@ def report_link_target_wrong_class(onto_graph: Graph) -> tuple[Graph, Graph, Val
 
 
 @pytest.fixture
-def extracted_link_target_wrong_class() -> ResultWithDetail:
-    detail = ResultDetail(
+def extracted_link_target_wrong_class() -> ExtractedResultWithDetail:
+    detail = ExtractedResultDetail(
         component=SH.ClassConstraintComponent,
         results_message="CardOneResource",
         result_path=API_SHAPES.linkValueHasTargetID,
         value_type=KNORA_API.LinkValue,
         value=URIRef("http://data/id_9_target"),
     )
-    return ResultWithDetail(
+    return ExtractedResultWithDetail(
         source_constraint_component=SH.NodeConstraintComponent,
         res_iri=DATA.link_target_wrong_class,
         res_class=ONTO.ClassWithEverything,
@@ -405,8 +405,8 @@ def report_closed_constraint(onto_graph: Graph) -> tuple[Graph, Graph, Validatio
 
 
 @pytest.fixture
-def extracted_closed_constraint() -> ResultWithoutDetail:
-    return ResultWithoutDetail(
+def extracted_closed_constraint() -> ExtractedResultWithoutDetail:
+    return ExtractedResultWithoutDetail(
         source_constraint_component=DASH.ClosedByTypesConstraintComponent,
         res_iri=DATA.id_closed_constraint,
         res_class=ONTO.CardOneResource,
@@ -447,8 +447,8 @@ def report_max_card(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBa
 
 
 @pytest.fixture
-def extracted_max_card() -> ResultWithoutDetail:
-    return ResultWithoutDetail(
+def extracted_max_card() -> ExtractedResultWithoutDetail:
+    return ExtractedResultWithoutDetail(
         source_constraint_component=SH.MaxCountConstraintComponent,
         res_iri=DATA.id_max_card,
         res_class=ONTO.ClassMixedCard,
@@ -484,8 +484,8 @@ def report_empty_label(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResul
 
 
 @pytest.fixture
-def extracted_empty_label() -> ResultWithoutDetail:
-    return ResultWithoutDetail(
+def extracted_empty_label() -> ExtractedResultWithoutDetail:
+    return ExtractedResultWithoutDetail(
         source_constraint_component=SH.PatternConstraintComponent,
         res_iri=DATA.empty_label,
         res_class=ONTO.ClassWithEverything,
@@ -495,15 +495,15 @@ def extracted_empty_label() -> ResultWithoutDetail:
 
 
 @pytest.fixture
-def extracted_unknown_component() -> ResultWithDetail:
-    detail = ResultDetail(
+def extracted_unknown_component() -> ExtractedResultWithDetail:
+    detail = ExtractedResultDetail(
         component=SH.AndConstraintComponent,
         results_message="This is a constraint that is not checked in the data and should never appear.",
         result_path=KNORA_API.doesNotExist,
         value_type=KNORA_API.TextValue,
         value=None,
     )
-    return ResultWithDetail(
+    return ExtractedResultWithDetail(
         source_constraint_component=SH.UniqueLangConstraintComponent,
         res_iri=DATA.id,
         res_class=ONTO.ClassMixedCard,

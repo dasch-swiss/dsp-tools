@@ -17,10 +17,10 @@ from dsp_tools.commands.validate_data.models.input_problems import NonExistentCa
 from dsp_tools.commands.validate_data.models.input_problems import UnexpectedResults
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
+from dsp_tools.commands.validate_data.models.validation import ExtractedResultDetail
+from dsp_tools.commands.validate_data.models.validation import ExtractedResultWithDetail
+from dsp_tools.commands.validate_data.models.validation import ExtractedResultWithoutDetail
 from dsp_tools.commands.validate_data.models.validation import QueryInfo
-from dsp_tools.commands.validate_data.models.validation import ResultDetail
-from dsp_tools.commands.validate_data.models.validation import ResultWithDetail
-from dsp_tools.commands.validate_data.models.validation import ResultWithoutDetail
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.models.validation import ValidationReport
 from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
@@ -65,24 +65,13 @@ def reformat_validation_graph(report: ValidationReport) -> AllProblems:
 
 def _separate_result_types(
     results_and_onto: Graph, data_onto_graph: Graph
-) -> tuple[list[ResultWithoutDetail], list[ResultWithDetail]]:
+) -> tuple[list[ExtractedResultWithoutDetail], list[ExtractedResultWithDetail]]:
     all_base_info = _extract_base_info_of_resource_results(results_and_onto, data_onto_graph)
-    no_details = [x for x in all_base_info if not x.detail_node]
+    no_details = [x for x in all_base_info if not x.detail]
     no_detail_results = [_query_without_detail(x, results_and_onto) for x in no_details]
-    with_details = [x for x in all_base_info if x.detail_node]
+    with_details = [x for x in all_base_info if x.detail]
     details_results = [_query_with_detail(x, results_and_onto, data_onto_graph) for x in with_details]
     return no_detail_results, details_results
-
-
-# TODO: all need:
-#  - sh:focusNode
-#  - rdf:type of focusNode
-#  - sh:resultPath
-#  - sh:sourceConstraintComponent
-
-# TODO: if sh:detail
-#  - detail bn
-#  - sh:sourceConstraintComponent
 
 
 def _extract_base_info_of_resource_results(
@@ -125,14 +114,14 @@ def _extract_one_base_info(info: QueryInfo, results_and_onto: Graph) -> Validati
     )
 
 
-def _query_without_detail(base_info: ValidationResultBaseInfo, results_and_onto: Graph) -> ResultWithoutDetail:
+def _query_without_detail(base_info: ValidationResultBaseInfo, results_and_onto: Graph) -> ExtractedResultWithoutDetail:
     path = next(results_and_onto.objects(base_info.result_bn, SH.resultPath))
     component = next(results_and_onto.objects(base_info.result_bn, SH.sourceConstraintComponent))
     msg = str(next(results_and_onto.objects(base_info.result_bn, SH.resultMessage)))
     res_value: str | None = None
     if val := list(results_and_onto.objects(base_info.result_bn, SH.value)):
         res_value = str(val[0])
-    return ResultWithoutDetail(
+    return ExtractedResultWithoutDetail(
         source_constraint_component=component,
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
@@ -144,27 +133,27 @@ def _query_without_detail(base_info: ValidationResultBaseInfo, results_and_onto:
 
 def _query_with_detail(
     base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
-) -> ResultWithDetail:
+) -> ExtractedResultWithDetail:
     path = next(results_and_onto.objects(base_info.result_bn, SH.resultPath))
     value_iri = next(results_and_onto.objects(base_info.result_bn, SH.value))
     value_type = next(data_graph.objects(value_iri, RDF.type))
     component = next(results_and_onto.objects(base_info.result_bn, SH.sourceConstraintComponent))
-    detail_component = next(results_and_onto.objects(base_info.detail_node, SH.sourceConstraintComponent))
+    detail_component = next(results_and_onto.objects(base_info.detail.detail_bn, SH.sourceConstraintComponent))
     detail_path: None | Node = None
-    if path_found := list(results_and_onto.objects(base_info.detail_node, SH.resultPath)):
+    if path_found := list(results_and_onto.objects(base_info.detail.detail_bn, SH.resultPath)):
         detail_path = path_found[0]
     val = None
-    if node_value := list(results_and_onto.objects(base_info.detail_node, SH.value)):
+    if node_value := list(results_and_onto.objects(base_info.detail.detail_bn, SH.value)):
         val = str(node_value[0])
-    msg = str(next(results_and_onto.objects(base_info.detail_node, SH.resultMessage)))
-    detail = ResultDetail(
+    msg = str(next(results_and_onto.objects(base_info.detail.detail_bn, SH.resultMessage)))
+    detail = ExtractedResultDetail(
         component=detail_component,
         results_message=msg,
         result_path=detail_path,
         value_type=value_type,
         value=val,
     )
-    return ResultWithDetail(
+    return ExtractedResultWithDetail(
         source_constraint_component=component,
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
@@ -174,7 +163,7 @@ def _query_with_detail(
 
 
 def _reformat_without_detail(
-    validation_results: list[ResultWithoutDetail],
+    validation_results: list[ExtractedResultWithoutDetail],
 ) -> tuple[list[InputProblem], list[UnexpectedComponent]]:
     input_problems: list[InputProblem] = []
     unexpected_components: list[UnexpectedComponent] = []
@@ -188,7 +177,7 @@ def _reformat_without_detail(
     return input_problems, unexpected_components
 
 
-def _reformat_one_without_detail(violation: ResultWithoutDetail) -> InputProblem | UnexpectedComponent:
+def _reformat_one_without_detail(violation: ExtractedResultWithoutDetail) -> InputProblem | UnexpectedComponent:
     subject_id = _reformat_data_iri(str(violation.res_iri))
     prop_name = _reformat_onto_iri(str(violation.property))
     res_type = _reformat_onto_iri(str(violation.res_class))
@@ -226,7 +215,7 @@ def _reformat_one_without_detail(violation: ResultWithoutDetail) -> InputProblem
 
 
 def _reformat_with_detail(
-    validation_results: list[ResultWithDetail],
+    validation_results: list[ExtractedResultWithDetail],
 ) -> tuple[list[InputProblem], list[UnexpectedComponent]]:
     input_problems: list[InputProblem] = []
     unexpected_components: list[UnexpectedComponent] = []
@@ -240,7 +229,7 @@ def _reformat_with_detail(
     return input_problems, unexpected_components
 
 
-def _reformat_one_with_detail(val_result: ResultWithDetail) -> InputProblem | UnexpectedComponent:
+def _reformat_one_with_detail(val_result: ExtractedResultWithDetail) -> InputProblem | UnexpectedComponent:
     subject_id = _reformat_data_iri(str(val_result.res_iri))
     prop_name = _reformat_onto_iri(str(val_result.property))
     res_type = _reformat_onto_iri(str(val_result.res_class))
@@ -271,7 +260,7 @@ def _reformat_one_with_detail(val_result: ResultWithDetail) -> InputProblem | Un
             return UnexpectedComponent(str(val_result.source_constraint_component))
 
 
-def _reformat_detail_class_constraint_component(val_result: ResultWithDetail) -> InputProblem:
+def _reformat_detail_class_constraint_component(val_result: ExtractedResultWithDetail) -> InputProblem:
     subject_id = _reformat_data_iri(str(val_result.res_iri))
     prop_name = _reformat_onto_iri(str(val_result.property))
     res_type = _reformat_onto_iri(str(val_result.res_class))

@@ -231,8 +231,13 @@ def _query_one_with_detail(
 def _query_one_class_constraint_component(
     base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
 ) -> ValidationResult | UnexpectedComponent:
-    pass
+    detail_component = list(results_and_onto.objects(base_info.detail_node, SH.sourceConstraintComponent))
+    if detail_component:
+        return ResultValueTypeViolation
+    return _query_link_value_target_result()
 
+def _query_link_value_target_result(base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph):
+    pass
 
 def _reformat_validation_results(results: list[ValidationResult]) -> list[InputProblem]:
     pass

@@ -80,7 +80,7 @@ class ResultPatternViolation(ValidationResult):
 @dataclass
 class ResultLinkTargetViolation(ValidationResult):
     results_message: str
-    target_id: Node
+    target_iri: Node
     target_resource_type: Node | None
 
 
@@ -98,30 +98,8 @@ class ResultMinCardinalityViolation(ValidationResult):
 class ResultNonExistentCardinalityViolation(ValidationResult): ...
 
 
-# TODO: remove these after they are not used
 @dataclass
-class ExtractedResultWithoutDetail:
-    source_constraint_component: Node
-    res_iri: Node
-    res_class: Node
-    property: Node
-    results_message: str
-    value: str | None = None
-
-
-@dataclass
-class ExtractedResultWithDetail:
-    source_constraint_component: Node
-    res_iri: Node
-    res_class: Node
-    property: Node
-    detail: ExtractedResultDetail
-
-
-@dataclass
-class ExtractedResultDetail:
-    component: Node
-    results_message: str
-    result_path: Node | None
-    value_type: Node
-    value: str | None
+class ReformattedIRI:
+    res_id: str
+    res_type: str
+    prop_name: str

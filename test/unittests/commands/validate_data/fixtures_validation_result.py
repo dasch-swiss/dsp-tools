@@ -345,7 +345,7 @@ def extracted_link_target_non_existent() -> ResultLinkTargetViolation:
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testHasLinkTo,
         results_message="Resource",
-        target_id=DATA.other,
+        target_iri=DATA.other,
         target_resource_type=None,
     )
 
@@ -413,7 +413,7 @@ def extracted_link_target_wrong_class() -> ResultLinkTargetViolation:
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testHasLinkToCardOneResource,
         results_message="CardOneResource",
-        target_id=DATA.id_9_target,
+        target_iri=DATA.id_9_target,
         target_resource_type=ONTO.ClassWithEverything,
     )
 

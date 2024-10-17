@@ -4,13 +4,13 @@ from rdflib import SH
 from rdflib import Graph
 from rdflib import URIRef
 
-from dsp_tools.commands.validate_data.models.input_problems import ContentRegexViolation
-from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExist
-from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatch
-from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityViolation
-from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityViolation
-from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
-from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
+from dsp_tools.commands.validate_data.models.input_problems import ContentRegexProblem
+from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
+from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
+from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
+from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityProblem
+from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityProblem
+from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProblem
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
@@ -198,7 +198,7 @@ class TestQueryWithDetail:
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testHasLinkTo
         assert result.results_message == "Resource"
-        assert result.target_id == URIRef("http://data/other")
+        assert result.target_iri == URIRef("http://data/other")
         assert not result.target_resource_type
 
     def test_link_target_wrong_class(
@@ -211,14 +211,14 @@ class TestQueryWithDetail:
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testHasLinkToCardOneResource
         assert result.results_message == "CardOneResource"
-        assert result.target_id == URIRef("http://data/id_9_target")
+        assert result.target_iri == URIRef("http://data/id_9_target")
         assert result.target_resource_type == ONTO.ClassWithEverything
 
 
 class TestReformatResult:
     def test_min(self, extracted_min_card: ResultMinCardinalityViolation) -> None:
         result = _reformat_one_validation_result(extracted_min_card)
-        assert isinstance(result, MinCardinalityViolation)
+        assert isinstance(result, MinCardinalityProblem)
         assert result.res_id == "id_card_one"
         assert result.res_type == "onto:ClassInheritedCardinalityOverwriting"
         assert result.prop_name == "onto:testBoolean"
@@ -226,7 +226,7 @@ class TestReformatResult:
 
     def test_max(self, extracted_max_card: ResultMaxCardinalityViolation) -> None:
         result = _reformat_one_validation_result(extracted_max_card)
-        assert isinstance(result, MaxCardinalityViolation)
+        assert isinstance(result, MaxCardinalityProblem)
         assert result.res_id == "id_max_card"
         assert result.res_type == "onto:ClassMixedCard"
         assert result.prop_name == "onto:testDecimalSimpleText"
@@ -234,7 +234,7 @@ class TestReformatResult:
 
     def test_violation_empty_label(self, extracted_empty_label: ResultPatternViolation) -> None:
         result = _reformat_one_validation_result(extracted_empty_label)
-        assert isinstance(result, ContentRegexViolation)
+        assert isinstance(result, ContentRegexProblem)
         assert result.res_id == "empty_label"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "rdfs:label"
@@ -243,14 +243,14 @@ class TestReformatResult:
 
     def test_closed(self, extracted_closed_constraint: ResultNonExistentCardinalityViolation) -> None:
         result = _reformat_one_validation_result(extracted_closed_constraint)
-        assert isinstance(result, NonExistentCardinalityViolation)
+        assert isinstance(result, NonExistentCardinalityProblem)
         assert result.res_id == "id_closed_constraint"
         assert result.res_type == "onto:CardOneResource"
         assert result.prop_name == "onto:testIntegerSimpleText"
 
     def test_value_type_simpletext(self, extracted_value_type_simpletext: ResultValueTypeViolation) -> None:
         result = _reformat_one_validation_result(extracted_value_type_simpletext)
-        assert isinstance(result, ValueTypeViolation)
+        assert isinstance(result, ValueTypeProblem)
         assert result.res_id == "id_simpletext"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testTextarea"
@@ -259,7 +259,7 @@ class TestReformatResult:
 
     def test_value_type(self, extracted_value_type: ResultValueTypeViolation) -> None:
         result = _reformat_one_validation_result(extracted_value_type)
-        assert isinstance(result, ValueTypeViolation)
+        assert isinstance(result, ValueTypeProblem)
         assert result.res_id == "id_uri"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testUriValue"
@@ -268,7 +268,7 @@ class TestReformatResult:
 
     def test_violation_regex(self, extracted_regex: ResultPatternViolation) -> None:
         result = _reformat_one_validation_result(extracted_regex)
-        assert isinstance(result, ContentRegexViolation)
+        assert isinstance(result, ContentRegexProblem)
         assert result.res_id == "geoname_not_number"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testGeoname"
@@ -277,7 +277,7 @@ class TestReformatResult:
 
     def test_link_target_non_existent(self, extracted_link_target_non_existent: ResultLinkTargetViolation) -> None:
         result = _reformat_one_validation_result(extracted_link_target_non_existent)
-        assert isinstance(result, LinkedResourceDoesNotExist)
+        assert isinstance(result, LinkedResourceDoesNotExistProblem)
         assert result.res_id == "link_target_non_existent"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testHasLinkTo"
@@ -285,7 +285,7 @@ class TestReformatResult:
 
     def test_link_target_wrong_class(self, extracted_link_target_wrong_class: ResultLinkTargetViolation) -> None:
         result = _reformat_one_validation_result(extracted_link_target_wrong_class)
-        assert isinstance(result, LinkTargetTypeMismatch)
+        assert isinstance(result, LinkTargetTypeMismatchProblem)
         assert result.res_id == "link_target_wrong_class"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testHasLinkToCardOneResource"

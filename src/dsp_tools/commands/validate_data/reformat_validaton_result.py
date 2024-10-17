@@ -1,4 +1,4 @@
-import regex
+from lxml.parser import result
 from rdflib import RDF
 from rdflib import SH
 from rdflib import Graph
@@ -7,19 +7,18 @@ from rdflib import Namespace
 from rdflib.term import Node
 
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
-from dsp_tools.commands.validate_data.models.input_problems import ContentRegexViolation
+from dsp_tools.commands.validate_data.models.input_problems import ContentRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
-from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExist
-from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatch
-from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityViolation
-from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityViolation
-from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
+from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
+from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
+from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
+from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityProblem
+from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import UnexpectedResults
-from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
+from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProblem
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
-from dsp_tools.commands.validate_data.models.validation import ExtractedResultDetail
-from dsp_tools.commands.validate_data.models.validation import ExtractedResultWithDetail
 from dsp_tools.commands.validate_data.models.validation import QueryInfo
+from dsp_tools.commands.validate_data.models.validation import ReformattedIRI
 from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMinCardinalityViolation
@@ -266,127 +265,104 @@ def _query_for_link_value_target_violation(
         res_class=base_info.res_class_type,
         property=base_info.result_path,
         results_message=str(msg),
-        target_id=target_iri,
+        target_iri=target_iri,
         target_resource_type=target_rdf_type,
     )
 
 
 def _reformat_extracted_results(results: list[ValidationResult]) -> list[InputProblem]:
-    pass
+    all_reformatted: list[InputProblem] = [_reformat_one_validation_result(x) for x in results]
+    return all_reformatted
 
 
 def _reformat_one_validation_result(validation_result: ValidationResult) -> InputProblem:
-    pass
+    match validation_result:
+        case ResultMaxCardinalityViolation():
+            iris = _reformat_main_iris(validation_result)
+            return MaxCardinalityProblem(
+                res_id=iris.res_id,
+                res_type=iris.res_type,
+                prop_name=iris.prop_name,
+                expected_cardinality=validation_result.results_message,
+            )
+        case ResultMinCardinalityViolation():
+            iris = _reformat_main_iris(validation_result)
+            return MinCardinalityProblem(
+                res_id=iris.res_id,
+                res_type=iris.res_type,
+                prop_name=iris.prop_name,
+                expected_cardinality=validation_result.results_message,
+            )
+        case ResultNonExistentCardinalityViolation():
+            iris = _reformat_main_iris(validation_result)
+            return NonExistentCardinalityProblem(
+                res_id=iris.res_id,
+                res_type=iris.res_type,
+                prop_name=iris.prop_name,
+            )
+        case ResultValueTypeViolation():
+            return _reformat_value_type_violation_result(result)
+        case ResultPatternViolation():
+            return _reformat_pattern_violation_result(result)
+        case ResultLinkTargetViolation():
+            return _reformat_link_target_violation_result(result)
 
 
-def _reformat_one_without_detail(violation: ExtractedResultDetail) -> InputProblem | UnexpectedComponent:
-    # TODO: REMOVE
-    subject_id = _reformat_data_iri(str(violation.res_iri))
-    prop_name = _reformat_onto_iri(str(violation.property))
-    res_type = _reformat_onto_iri(str(violation.res_class))
-    match violation.source_constraint_component:
-        case SH.MaxCountConstraintComponent:
-            return MaxCardinalityViolation(
-                res_id=subject_id,
-                res_type=res_type,
-                prop_name=prop_name,
-                expected_cardinality=violation.results_message,
-            )
-        case SH.MinCountConstraintComponent:
-            return MinCardinalityViolation(
-                res_id=subject_id,
-                res_type=res_type,
-                prop_name=prop_name,
-                expected_cardinality=violation.results_message,
-            )
-        case DASH.ClosedByTypesConstraintComponent:
-            return NonExistentCardinalityViolation(
-                res_id=subject_id,
-                res_type=res_type,
-                prop_name=prop_name,
-            )
-        case SH.PatternConstraintComponent:
-            return ContentRegexViolation(
-                res_id=subject_id,
-                res_type=res_type,
-                prop_name=prop_name,
-                expected_format=violation.results_message,
-                actual_content=violation.value,
-            )
-        case _:
-            return UnexpectedComponent(str(violation.source_constraint_component))
+def _reformat_value_type_violation_result(result: ResultValueTypeViolation) -> ValueTypeProblem:
+    iris = _reformat_main_iris(result)
+    actual_type = _reformat_onto_iri(str(result.property))
+    return ValueTypeProblem(
+        res_id=iris.res_id,
+        res_type=iris.res_type,
+        prop_name=iris.prop_name,
+        actual_type=actual_type,
+        expected_type=result.results_message,
+    )
 
 
-def _reformat_one_with_detail(val_result: ExtractedResultWithDetail) -> InputProblem | UnexpectedComponent:
-    # TODO: REMOVE
-    subject_id = _reformat_data_iri(str(val_result.res_iri))
-    prop_name = _reformat_onto_iri(str(val_result.property))
-    res_type = _reformat_onto_iri(str(val_result.res_class))
-    match val_result.detail.component:
-        case SH.PatternConstraintComponent:
-            val: str | None = val_result.detail.value
-            if val and not regex.search(r"\S+", val):
-                val = None
-            return ContentRegexViolation(
-                res_id=subject_id,
-                res_type=res_type,
-                prop_name=prop_name,
-                expected_format=val_result.detail.results_message,
-                actual_content=val,
-            )
-        case SH.ClassConstraintComponent:
-            return _reformat_detail_class_constraint_component(val_result)
-        case SH.MinCountConstraintComponent:
-            actual_type = _reformat_onto_iri(str(val_result.detail.value_type)).replace("knora-api:", "")
-            return ValueTypeViolation(
-                res_id=subject_id,
-                res_type=res_type,
-                prop_name=prop_name,
-                actual_type=actual_type,
-                expected_type=val_result.detail.results_message,
-            )
-        case _:
-            return UnexpectedComponent(str(val_result.source_constraint_component))
+def _reformat_pattern_violation_result(result: ResultPatternViolation) -> ContentRegexProblem:
+    iris = _reformat_main_iris(result)
+    return ContentRegexProblem(
+        res_id=iris.res_id,
+        res_type=iris.res_type,
+        prop_name=iris.prop_name,
+        expected_format=result.results_message,
+        actual_content=result.actual_value,
+    )
 
 
-def _reformat_detail_class_constraint_component(val_result: ExtractedResultWithDetail) -> InputProblem:
-    # TODO: REMOVE
-    subject_id = _reformat_data_iri(str(val_result.res_iri))
-    prop_name = _reformat_onto_iri(str(val_result.property))
-    res_type = _reformat_onto_iri(str(val_result.res_class))
-    actual_type = _reformat_onto_iri(str(val_result.detail.value_type)).replace("knora-api:", "")
-    match val_result.detail.result_path:
-        case API_SHAPES.linkValueHasTargetID:
-            value = _reformat_data_iri(str(val_result.detail.value))
-            if val_result.detail.results_message == "Resource":
-                return LinkedResourceDoesNotExist(
-                    res_id=subject_id,
-                    res_type=res_type,
-                    prop_name=prop_name,
-                    link_target_id=value,
-                )
-            return LinkTargetTypeMismatch(
-                res_id=subject_id,
-                res_type=res_type,
-                prop_name=prop_name,
-                link_target_id=value,
-                expected_type=val_result.detail.results_message,
-            )
-        case _:
-            return ValueTypeViolation(
-                res_id=subject_id,
-                res_type=res_type,
-                prop_name=prop_name,
-                actual_type=actual_type,
-                expected_type=val_result.detail.results_message,
-            )
+def _reformat_link_target_violation_result(result: ResultLinkTargetViolation) -> InputProblem:
+    iris = _reformat_main_iris(result)
+    target_id = _reformat_data_iri(str(result.target_iri))
+    if not result.target_resource_type:
+        return LinkedResourceDoesNotExistProblem(
+            res_id=iris.res_id,
+            res_type=iris.res_type,
+            prop_name=iris.prop_name,
+            link_target_id=target_id,
+        )
+    expected_class = _reformat_onto_iri(str(result.target_resource_type))
+    return LinkTargetTypeMismatchProblem(
+        res_id=iris.res_id,
+        res_type=iris.res_type,
+        prop_name=iris.prop_name,
+        link_target_id=target_id,
+        expected_type=expected_class,
+    )
 
 
-def _reformat_onto_iri(prop: str) -> str:
-    if "http://www.w3.org/2000/01/rdf-schema#" in prop:
-        return f'rdfs:{prop.split("#")[-1]}'
-    onto = prop.split("/")[-2]
-    return f'{onto}:{prop.split("#")[-1]}'
+def _reformat_main_iris(result: ValidationResult) -> ReformattedIRI:
+    subject_id = _reformat_data_iri(str(result.res_iri))
+    prop_name = _reformat_onto_iri(str(result.property))
+    res_type = _reformat_onto_iri(str(result.res_class))
+    return ReformattedIRI(res_id=subject_id, res_type=res_type, prop_name=prop_name)
+
+
+def _reformat_onto_iri(iri_str: str) -> str:
+    if "http://www.w3.org/2000/01/rdf-schema#" in iri_str:
+        return f'rdfs:{iri_str.split("#")[-1]}'
+    onto = iri_str.split("/")[-2]
+    return f'{onto}:{iri_str.split("#")[-1]}'
 
 
 def _reformat_data_iri(iri: str) -> str:

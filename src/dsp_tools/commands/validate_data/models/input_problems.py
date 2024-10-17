@@ -137,7 +137,7 @@ class InputProblem(ABC):
 
 
 @dataclass
-class MaxCardinalityViolation(InputProblem):
+class MaxCardinalityProblem(InputProblem):
     expected_cardinality: str
 
     @property
@@ -157,7 +157,7 @@ class MaxCardinalityViolation(InputProblem):
 
 
 @dataclass
-class MinCardinalityViolation(InputProblem):
+class MinCardinalityProblem(InputProblem):
     expected_cardinality: str
 
     @property
@@ -177,7 +177,7 @@ class MinCardinalityViolation(InputProblem):
 
 
 @dataclass
-class NonExistentCardinalityViolation(InputProblem):
+class NonExistentCardinalityProblem(InputProblem):
     @property
     def problem(self) -> str:
         return "The resource class does not have a cardinality for this property."
@@ -197,7 +197,7 @@ class NonExistentCardinalityViolation(InputProblem):
 
 
 @dataclass
-class ValueTypeViolation(InputProblem):
+class ValueTypeProblem(InputProblem):
     actual_type: str
     expected_type: str
 
@@ -223,7 +223,7 @@ class ValueTypeViolation(InputProblem):
 
 
 @dataclass
-class ContentRegexViolation(InputProblem):
+class ContentRegexProblem(InputProblem):
     expected_format: str
     actual_content: str | None
 
@@ -256,7 +256,7 @@ class ContentRegexViolation(InputProblem):
 
 
 @dataclass
-class LinkTargetTypeMismatch(InputProblem):
+class LinkTargetTypeMismatchProblem(InputProblem):
     link_target_id: str
     expected_type: str
 
@@ -281,7 +281,7 @@ class LinkTargetTypeMismatch(InputProblem):
 
 
 @dataclass
-class LinkedResourceDoesNotExist(InputProblem):
+class LinkedResourceDoesNotExistProblem(InputProblem):
     link_target_id: str
 
     @property

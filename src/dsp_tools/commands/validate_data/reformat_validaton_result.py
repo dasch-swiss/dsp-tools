@@ -1,4 +1,5 @@
-from lxml.parser import result
+from typing import cast
+
 from rdflib import RDF
 from rdflib import SH
 from rdflib import Graph
@@ -29,6 +30,7 @@ from dsp_tools.commands.validate_data.models.validation import UnexpectedCompone
 from dsp_tools.commands.validate_data.models.validation import ValidationReport
 from dsp_tools.commands.validate_data.models.validation import ValidationResult
 from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
+from dsp_tools.models.exceptions import BaseError
 
 DASH = Namespace("http://datashapes.org/dash#")
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
@@ -189,23 +191,23 @@ def _query_all_with_detail(
 def _query_one_with_detail(
     base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
 ) -> ValidationResult | UnexpectedComponent:
-    match base_info.detail.source_constraint_component:
+    detail_info = cast(DetailBaseInfo, base_info.detail)
+    match detail_info.source_constraint_component:
         case SH.MinCountConstraintComponent:
             return _query_for_value_type_violation(base_info, results_and_onto, data_graph)
         case SH.PatternConstraintComponent:
-            return _query_pattern_constraint_component_violation(
-                base_info.detail.detail_bn, base_info, results_and_onto
-            )
+            return _query_pattern_constraint_component_violation(detail_info.detail_bn, base_info, results_and_onto)
         case SH.ClassConstraintComponent:
             return _query_class_constraint_component_violation(base_info, results_and_onto, data_graph)
         case _:
-            return UnexpectedComponent(str(base_info.detail.source_constraint_component))
+            return UnexpectedComponent(str(detail_info.source_constraint_component))
 
 
 def _query_class_constraint_component_violation(
     base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
 ) -> ValidationResult | UnexpectedComponent:
-    detail_source_shape = next(results_and_onto.objects(base_info.detail.detail_bn, SH.sourceShape))
+    detail_info = cast(DetailBaseInfo, base_info.detail)
+    detail_source_shape = next(results_and_onto.objects(detail_info.detail_bn, SH.sourceShape))
     all_class_shapes = {
         API_SHAPES.BooleanValue_ClassShape,
         API_SHAPES.ColorValue_ClassShape,
@@ -226,7 +228,8 @@ def _query_class_constraint_component_violation(
 def _query_for_value_type_violation(
     base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
 ) -> ResultValueTypeViolation:
-    msg = next(results_and_onto.objects(base_info.detail.detail_bn, SH.resultMessage))
+    detail_info = cast(DetailBaseInfo, base_info.detail)
+    msg = next(results_and_onto.objects(detail_info.detail_bn, SH.resultMessage))
     val = next(results_and_onto.objects(base_info.result_bn, SH.value))
     val_type = next(data_graph.objects(val, RDF.type))
     return ResultValueTypeViolation(
@@ -255,11 +258,12 @@ def _query_pattern_constraint_component_violation(
 def _query_for_link_value_target_violation(
     base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
 ) -> ResultLinkTargetViolation:
-    target_iri = next(results_and_onto.objects(base_info.detail.detail_bn, SH.value))
+    detail_info = cast(DetailBaseInfo, base_info.detail)
+    target_iri = next(results_and_onto.objects(detail_info.detail_bn, SH.value))
     target_rdf_type: Node | None = None
     if target_type := list(data_graph.objects(target_iri, RDF.type)):
         target_rdf_type = target_type[0]
-    msg = next(results_and_onto.objects(base_info.detail.detail_bn, SH.resultMessage))
+    msg = next(results_and_onto.objects(detail_info.detail_bn, SH.resultMessage))
     return ResultLinkTargetViolation(
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
@@ -301,11 +305,13 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
                 prop_name=iris.prop_name,
             )
         case ResultValueTypeViolation():
-            return _reformat_value_type_violation_result(result)
+            return _reformat_value_type_violation_result(validation_result)
         case ResultPatternViolation():
-            return _reformat_pattern_violation_result(result)
+            return _reformat_pattern_violation_result(validation_result)
         case ResultLinkTargetViolation():
-            return _reformat_link_target_violation_result(result)
+            return _reformat_link_target_violation_result(validation_result)
+        case _:
+            raise BaseError(f"An unknown violation result was found: {validation_result.__class__.__name__}")
 
 
 def _reformat_value_type_violation_result(result: ResultValueTypeViolation) -> ValueTypeProblem:

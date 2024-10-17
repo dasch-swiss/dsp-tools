@@ -147,7 +147,7 @@ def _query_one_without_detail(
     component = next(results_and_onto.objects(base_info.result_bn, SH.sourceConstraintComponent))
     match component:
         case SH.PatternConstraintComponent:
-            return _query_pattern_constraint_component_violation(base_info, results_and_onto)
+            return _query_pattern_constraint_component_violation(base_info.result_bn, base_info, results_and_onto)
         case SH.MinCountConstraintComponent:
             return ResultMinCardinalityViolation(
                 res_iri=base_info.resource_iri,
@@ -194,7 +194,7 @@ def _query_one_with_detail(
         case SH.MinCountConstraintComponent:
             return _query_for_value_type_violation(base_info, results_and_onto, data_graph)
         case SH.PatternConstraintComponent:
-            return _query_pattern_constraint_component_violation(base_info, results_and_onto)
+            return _query_pattern_constraint_component_violation(base_info.detail.detail_bn, base_info, results_and_onto)
         case SH.ClassConstraintComponent:
             return _query_class_constraint_component_violation(base_info, results_and_onto, data_graph)
         case _:
@@ -204,8 +204,9 @@ def _query_one_with_detail(
 def _query_class_constraint_component_violation(
     base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
 ) -> ValidationResult | UnexpectedComponent:
-    detail_component = list(results_and_onto.objects(base_info.detail.detail_bn, SH.sourceConstraintComponent))
-    if detail_component:
+    detail_source_shape = list(results_and_onto.objects(base_info.detail.detail_bn, SH.sourceShape))
+    if detail_source_shape:
+
         return _query_for_value_type_violation(base_info, results_and_onto, data_graph)
     return _query_for_link_value_target_violation(base_info, results_and_onto, data_graph)
 
@@ -226,10 +227,10 @@ def _query_for_value_type_violation(
 
 
 def _query_pattern_constraint_component_violation(
-    base_info: ValidationResultBaseInfo, results_and_onto: Graph
+    bn_with_info: Node, base_info: ValidationResultBaseInfo, results_and_onto: Graph
 ) -> ResultPatternViolation:
-    val = next(results_and_onto.objects(base_info.result_bn, SH.value))
-    msg = str(next(results_and_onto.objects(base_info.result_bn, SH.resultMessage)))
+    val = next(results_and_onto.objects(bn_with_info, SH.value))
+    msg = str(next(results_and_onto.objects(bn_with_info, SH.resultMessage)))
     return ResultPatternViolation(
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,

@@ -16,17 +16,18 @@ from dsp_tools.commands.validate_data.models.input_problems import MinCardinalit
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import UnexpectedResults
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
-from dsp_tools.commands.validate_data.models.validation import ResourceValidationReportIdentifiers
 from dsp_tools.commands.validate_data.models.validation import ResultDetail
 from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMinCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultNonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultPatternViolation
+from dsp_tools.commands.validate_data.models.validation import ResultValueTypeViolation
 from dsp_tools.commands.validate_data.models.validation import ResultWithDetail
 from dsp_tools.commands.validate_data.models.validation import ResultWithoutDetail
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.models.validation import ValidationReport
 from dsp_tools.commands.validate_data.models.validation import ValidationResult
+from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
 
 DASH = Namespace("http://datashapes.org/dash#")
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
@@ -75,7 +76,7 @@ def _query_all_results(
 
 def _separate_result_types(
     results_and_onto: Graph, data_onto_graph: Graph
-) -> tuple[list[ResourceValidationReportIdentifiers], list[ResourceValidationReportIdentifiers]]:
+) -> tuple[list[ValidationResultBaseInfo], list[ValidationResultBaseInfo]]:
     identifiers = _extract_identifiers_of_resource_results(results_and_onto, data_onto_graph)
     no_details = [x for x in identifiers if not x.detail_node]
     with_details = [x for x in identifiers if x.detail_node]
@@ -84,7 +85,7 @@ def _separate_result_types(
 
 def _extract_identifiers_of_resource_results(
     results_and_onto: Graph, data_onto_graph: Graph
-) -> list[ResourceValidationReportIdentifiers]:
+) -> list[ValidationResultBaseInfo]:
     focus_nodes = list(results_and_onto.subject_objects(SH.focusNode))
     resource_classes = list(data_onto_graph.subjects(KNORA_API.canBeInstantiated, Literal(True)))
     all_res_focus_nodes = []
@@ -96,11 +97,13 @@ def _extract_identifiers_of_resource_results(
             detail_bn = None
             if detail_bn_list := list(results_and_onto.objects(validation_bn, SH.detail)):
                 detail_bn = detail_bn_list[0]
+            path = next(results_and_onto.objects(validation_bn, SH.resultPath))
             all_res_focus_nodes.append(
-                ResourceValidationReportIdentifiers(
+                ValidationResultBaseInfo(
                     validation_bn=validation_bn,
                     focus_node_iri=focus_iri,
                     res_class_type=res_type,
+                    result_path=path,
                     detail_node=detail_bn,
                 )
             )
@@ -108,18 +111,26 @@ def _extract_identifiers_of_resource_results(
 
 
 def _query_all_without_detail(
-    all_identifiers: list[ResourceValidationReportIdentifiers], results_and_onto: Graph
+    all_identifiers: list[ValidationResultBaseInfo], results_and_onto: Graph
 ) -> tuple[list[ValidationResult], list[UnexpectedComponent]]:
-    pass
+    extracted_results: list[ValidationResult] = []
+    unexpected_components: list[UnexpectedComponent] = []
+
+    for identifiers in all_identifiers:
+        res = _query_one_without_detail(identifiers, results_and_onto)
+        if isinstance(res, UnexpectedComponent):
+            unexpected_components.append(res)
+        else:
+            extracted_results.append(res)
+    return extracted_results, unexpected_components
 
 
 def _query_one_without_detail(
-    identifiers: ResourceValidationReportIdentifiers, results_and_onto: Graph
+    identifiers: ValidationResultBaseInfo, results_and_onto: Graph
 ) -> ValidationResult | UnexpectedComponent:
     path = next(results_and_onto.objects(identifiers.validation_bn, SH.resultPath))
     focus_node = next(results_and_onto.objects(identifiers.validation_bn, SH.focusNode))
     msg = str(next(results_and_onto.objects(identifiers.validation_bn, SH.resultMessage)))
-
     component = next(results_and_onto.objects(identifiers.validation_bn, SH.sourceConstraintComponent))
     match component:
         case SH.PatternConstraintComponent:
@@ -156,14 +167,36 @@ def _query_one_without_detail(
 
 
 def _query_all_with_detail(
-    all_identifiers: list[ResourceValidationReportIdentifiers], results_and_onto: Graph, data_graph: Graph
+    all_identifiers: list[ValidationResultBaseInfo], results_and_onto: Graph, data_graph: Graph
 ) -> tuple[list[ValidationResult], list[UnexpectedComponent]]:
-    pass
+    extracted_results: list[ValidationResult] = []
+    unexpected_components: list[UnexpectedComponent] = []
+
+    for identifiers in all_identifiers:
+        res = _query_one_with_detail(identifiers, results_and_onto)
+        if isinstance(res, UnexpectedComponent):
+            unexpected_components.append(res)
+        else:
+            extracted_results.append(res)
+    return extracted_results, unexpected_components
 
 
 def _query_one_with_detail(
-    identifiers: ResourceValidationReportIdentifiers, results_and_onto: Graph, data_graph: Graph
+    identifiers: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
 ) -> ValidationResult | UnexpectedComponent:
+    component = next(results_and_onto.objects(identifiers.validation_bn, SH.sourceConstraintComponent))
+    match component:
+        case SH.MinCountConstraintComponent:
+            return ResultValueTypeViolation
+
+        case SH.PatternConstraintComponent:
+            return ResultPatternViolation
+
+        case SH.ClassConstraintComponent:
+            return _query_one_class_constraint_component(identifiers, results_and_onto, data_graph)
+
+        case _:
+            return UnexpectedComponent(str(component))
     """
     TODO:
     constraint component type
@@ -180,7 +213,6 @@ def _query_one_with_detail(
     path = next(results_and_onto.objects(identifiers.validation_bn, SH.resultPath))
     value_iri = next(results_and_onto.objects(identifiers.validation_bn, SH.value))
     value_type = next(data_graph.objects(value_iri, RDF.type))
-    component = next(results_and_onto.objects(identifiers.validation_bn, SH.sourceConstraintComponent))
     detail_component = next(results_and_onto.objects(identifiers.detail_node, SH.sourceConstraintComponent))
     detail_path: None | Node = None
     if path_found := list(results_and_onto.objects(identifiers.detail_node, SH.resultPath)):
@@ -196,6 +228,12 @@ def _query_one_with_detail(
         value_type=value_type,
         value=val,
     )
+
+
+def _query_one_class_constraint_component(
+    identifiers: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
+) -> ValidationResult | UnexpectedComponent:
+    pass
 
 
 def _reformat_validation_results(results: list[ValidationResult]) -> list[InputProblem]:

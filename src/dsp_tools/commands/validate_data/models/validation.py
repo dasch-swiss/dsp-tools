@@ -31,16 +31,17 @@ class ValidationReport:
 
 
 @dataclass
-class ResourceValidationReportIdentifiers:
-    validation_bn: Node
-    focus_node_iri: Node
-    res_class_type: Node
-    detail_node: Node | None = None
+class UnexpectedComponent:
+    component_type: str
 
 
 @dataclass
-class UnexpectedComponent:
-    component_type: str
+class ValidationResultBaseInfo:
+    validation_bn: Node
+    focus_node_iri: Node
+    res_class_type: Node
+    result_path: Node
+    detail_node: Node | None = None
 
 
 @dataclass

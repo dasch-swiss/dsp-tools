@@ -20,6 +20,7 @@ from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import ExtractedResultDetail
 from dsp_tools.commands.validate_data.models.validation import ExtractedResultWithDetail
 from dsp_tools.commands.validate_data.models.validation import QueryInfo
+from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMinCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultNonExistentCardinalityViolation
@@ -52,7 +53,7 @@ def reformat_validation_graph(report: ValidationReport) -> AllProblems:
     data_and_onto = report.onto_graph + report.data_graph
 
     validation_results, unexpected_extracted = _query_all_results(results_and_onto, data_and_onto)
-    reformatted_results: list[InputProblem] = _reformat_validation_results(validation_results)
+    reformatted_results: list[InputProblem] = _reformat_extracted_results(validation_results)
 
     unexpected_found = UnexpectedResults(unexpected_components) if unexpected_components else None
     return AllProblems(reformatted_results, unexpected_found)
@@ -146,14 +147,7 @@ def _query_one_without_detail(
     component = next(results_and_onto.objects(base_info.result_bn, SH.sourceConstraintComponent))
     match component:
         case SH.PatternConstraintComponent:
-            val = next(results_and_onto.objects(base_info.result_bn, SH.value))
-            return ResultPatternViolation(
-                res_iri=base_info.resource_iri,
-                res_class=base_info.res_class_type,
-                property=base_info.result_path,
-                results_message=msg,
-                actual_value=str(val),
-            )
+            return _query_pattern_constraint_component_violation(base_info, results_and_onto)
         case SH.MinCountConstraintComponent:
             return ResultMinCardinalityViolation(
                 res_iri=base_info.resource_iri,
@@ -198,62 +192,72 @@ def _query_one_with_detail(
 ) -> ValidationResult | UnexpectedComponent:
     match base_info.detail.source_constraint_component:
         case SH.MinCountConstraintComponent:
-            return ResultValueTypeViolation
-
+            return _query_for_value_type_violation(base_info, results_and_onto, data_graph)
         case SH.PatternConstraintComponent:
-            return ResultPatternViolation
-
+            return _query_pattern_constraint_component_violation(base_info, results_and_onto)
         case SH.ClassConstraintComponent:
-            return _query_one_class_constraint_component(base_info, results_and_onto, data_graph)
-
+            return _query_class_constraint_component_violation(base_info, results_and_onto, data_graph)
         case _:
             return UnexpectedComponent(str(base_info.detail.source_constraint_component))
-    """
-    TODO:
-    constraint component type
-    - MinCount
-    - Pattern
-    - Class
-        - source shape
-            - None -> Link
-            - Other -> ValueType
-    - OTHER
-
-    """
-
-    value_iri = next(results_and_onto.objects(base_info.validation_bn, SH.value))
-    value_type = next(data_graph.objects(value_iri, RDF.type))
-    detail_component = next(results_and_onto.objects(base_info.detail_node, SH.sourceConstraintComponent))
-    detail_path: None | Node = None
-    if path_found := list(results_and_onto.objects(base_info.detail_node, SH.resultPath)):
-        detail_path = path_found[0]
-    val = None
-    if node_value := list(results_and_onto.objects(base_info.detail_node, SH.value)):
-        val = str(node_value[0])
-    msg = str(next(results_and_onto.objects(base_info.detail_node, SH.resultMessage)))
-    detail = ResultDetail(
-        component=detail_component,
-        results_message=msg,
-        result_path=detail_path,
-        value_type=value_type,
-        value=val,
-    )
 
 
-def _query_one_class_constraint_component(
+def _query_class_constraint_component_violation(
     base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
 ) -> ValidationResult | UnexpectedComponent:
     detail_component = list(results_and_onto.objects(base_info.detail.detail_bn, SH.sourceConstraintComponent))
     if detail_component:
-        return ResultValueTypeViolation
-    return _query_link_value_target_result()
+        return _query_for_value_type_violation(base_info, results_and_onto, data_graph)
+    return _query_for_link_value_target_violation(base_info, results_and_onto, data_graph)
 
 
-def _query_link_value_target_result(base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph):
-    pass
+def _query_for_value_type_violation(
+    base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
+) -> ResultValueTypeViolation:
+    msg = next(results_and_onto.objects(base_info.detail.detail_bn, SH.resultMessage))
+    val = next(results_and_onto.objects(base_info.result_bn, SH.value))
+    val_type = next(data_graph.objects(val, RDF.type))
+    return ResultValueTypeViolation(
+        res_iri=base_info.resource_iri,
+        res_class=base_info.res_class_type,
+        property=base_info.result_path,
+        results_message=str(msg),
+        actual_value_type=val_type,
+    )
 
 
-def _reformat_validation_results(results: list[ValidationResult]) -> list[InputProblem]:
+def _query_pattern_constraint_component_violation(
+    base_info: ValidationResultBaseInfo, results_and_onto: Graph
+) -> ResultPatternViolation:
+    val = next(results_and_onto.objects(base_info.result_bn, SH.value))
+    msg = str(next(results_and_onto.objects(base_info.result_bn, SH.resultMessage)))
+    return ResultPatternViolation(
+        res_iri=base_info.resource_iri,
+        res_class=base_info.res_class_type,
+        property=base_info.result_path,
+        results_message=msg,
+        actual_value=str(val),
+    )
+
+
+def _query_for_link_value_target_violation(
+    base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
+) -> ResultLinkTargetViolation:
+    target_iri = next(results_and_onto.objects(base_info.detail.detail_bn, SH.value))
+    target_rdf_type: Node | None = None
+    if target_type := list(data_graph.objects(target_iri, RDF.type)):
+        target_rdf_type = target_type[0]
+    msg = next(results_and_onto.objects(base_info.detail.detail_bn, SH.resultMessage))
+    return ResultLinkTargetViolation(
+        res_iri=base_info.resource_iri,
+        res_class=base_info.res_class_type,
+        property=base_info.result_path,
+        results_message=str(msg),
+        target_id=target_iri,
+        target_resource_type=target_rdf_type,
+    )
+
+
+def _reformat_extracted_results(results: list[ValidationResult]) -> list[InputProblem]:
     pass
 
 

@@ -76,21 +76,21 @@ class TestSeparateResultTypes:
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 0
         assert len(with_detail) == 1
-        assert no_detail[0].resource_iri == DATA.id_simpletext
+        assert with_detail[0].resource_iri == DATA.id_simpletext
 
     def test_result_id_uri(self, report_value_type: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res_g, onto_data_g, _ = report_value_type
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 0
         assert len(with_detail) == 1
-        assert no_detail[0].resource_iri == DATA.id_uri
+        assert with_detail[0].resource_iri == DATA.id_uri
 
     def test_result_geoname_not_number(self, report_regex: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res_g, onto_data_g, _ = report_regex
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 0
         assert len(with_detail) == 1
-        assert no_detail[0].resource_iri == DATA.geoname_not_number
+        assert with_detail[0].resource_iri == DATA.geoname_not_number
 
     def test_result_id_closed_constraint(
         self, report_closed_constraint: tuple[Graph, Graph, ValidationResultBaseInfo]
@@ -148,8 +148,8 @@ class TestQueryWithoutDetail:
         assert result.results_message == "The label must be a non-empty string"
         assert result.actual_value == " "
 
-    def test_unknown(self, extracted_unknown_component: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
-        res, _, info = extracted_unknown_component
+    def test_unknown(self, result_unknown_component: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
+        res, _, info = result_unknown_component
         result = _query_one_without_detail(info, res)
         assert isinstance(result, UnexpectedComponent)
         assert result.component_type == str(SH.UniqueLangConstraintComponent)

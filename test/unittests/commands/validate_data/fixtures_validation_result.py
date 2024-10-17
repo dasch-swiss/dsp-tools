@@ -30,6 +30,32 @@ def onto_graph() -> Graph:
 
 
 @pytest.fixture
+def report_not_resource(onto_graph: Graph) -> tuple[Graph, Graph]:
+    validation_str = f"""{PREFIXES}
+    _:bn_id_simpletext a sh:ValidationResult ;
+        sh:focusNode <http://data/value_id_simpletext> ;
+        sh:resultMessage "TextValue without formatting" ;
+        sh:resultPath knora-api:valueAsString ;
+        sh:resultSeverity sh:Violation ;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent ;
+        sh:sourceShape api-shapes:SimpleTextValue_PropShape .
+    """
+    validation_g = Graph()
+    validation_g.parse(data=validation_str, format="ttl")
+    data_str = f"""{PREFIXES}
+    <http://data/id_simpletext> a onto:ClassWithEverything ;
+        rdfs:label "Simpletext"^^xsd:string ;
+        onto:testTextarea <http://data/value_id_simpletext> .
+    <http://data/value_id_simpletext> a knora-api:TextValue ;
+        knora-api:textValueAsXml "Text"^^xsd:string .
+    """
+    onto_data_g = Graph()
+    onto_data_g += onto_graph
+    onto_data_g.parse(data=data_str, format="ttl")
+    return validation_g, onto_data_g
+
+
+@pytest.fixture
 def report_min_card(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;

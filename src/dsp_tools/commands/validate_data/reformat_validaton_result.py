@@ -1,3 +1,5 @@
+from typing import cast
+
 import regex
 from rdflib import RDF
 from rdflib import SH
@@ -132,17 +134,18 @@ def _query_without_detail(base_info: ValidationResultBaseInfo, results_and_onto:
 def _query_with_detail(
     base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
 ) -> ExtractedResultWithDetail:
+    detail_info = cast(DetailBaseInfo, base_info.detail)
     value_iri = next(results_and_onto.objects(base_info.result_bn, SH.value))
     value_type = next(data_graph.objects(value_iri, RDF.type))
     detail_path: None | Node = None
-    if path_found := list(results_and_onto.objects(base_info.detail.detail_bn, SH.resultPath)):
+    if path_found := list(results_and_onto.objects(detail_info.detail_bn, SH.resultPath)):
         detail_path = path_found[0]
     val = None
-    if node_value := list(results_and_onto.objects(base_info.detail.detail_bn, SH.value)):
+    if node_value := list(results_and_onto.objects(detail_info.detail_bn, SH.value)):
         val = str(node_value[0])
-    msg = str(next(results_and_onto.objects(base_info.detail.detail_bn, SH.resultMessage)))
+    msg = str(next(results_and_onto.objects(detail_info.detail_bn, SH.resultMessage)))
     detail = ExtractedResultDetail(
-        component=base_info.detail.source_constraint_component,
+        component=detail_info.source_constraint_component,
         results_message=msg,
         result_path=detail_path,
         value_type=value_type,

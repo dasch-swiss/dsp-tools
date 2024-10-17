@@ -15,8 +15,9 @@ from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalit
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
+from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import ValidationReport
-from dsp_tools.commands.validate_data.reformat_validaton_result import _extract_identifiers_of_resource_results
+from dsp_tools.commands.validate_data.reformat_validaton_result import _extract_base_info_of_resource_results
 from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
 from test.e2e_validate_data.setup_testcontainers import get_containers
@@ -90,7 +91,7 @@ def value_type_violation(_create_project: None) -> ValidationReport:
 def test_extract_identifiers_of_resource_results(every_combination_once: ValidationReport) -> None:
     report_and_onto = every_combination_once.validation_graph + every_combination_once.onto_graph
     data_and_onto = every_combination_once.data_graph + every_combination_once.onto_graph
-    result = _extract_identifiers_of_resource_results(report_and_onto, data_and_onto)
+    result = _extract_base_info_of_resource_results(report_and_onto, data_and_onto)
     result_sorted = sorted(result, key=lambda x: str(x.resource_iri))
     expected_iris = [
         (URIRef("http://data/empty_label"), None),
@@ -101,12 +102,14 @@ def test_extract_identifiers_of_resource_results(every_combination_once: Validat
         (URIRef("http://data/id_simpletext"), BNode),
         (URIRef("http://data/id_uri"), BNode),
     ]
-    for result_iri, expected_iri in zip(result_sorted, expected_iris):
-        assert result_iri.resource_iri == expected_iri[0]
+    for result_info, expected_iri in zip(result_sorted, expected_iris):
+        assert result_info.resource_iri == expected_iri[0]
         if expected_iri[1] is None:
-            assert not result_iri.detail_node
+            assert not result_info.detail
         else:
-            assert isinstance(result_iri.detail_node, expected_iri[1])
+            detail_base_info = result_info.detail
+            assert isinstance(detail_base_info, DetailBaseInfo)
+            assert isinstance(detail_base_info.detail_bn, expected_iri[1])
 
 
 class TestCheckConforms:

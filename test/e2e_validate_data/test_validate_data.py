@@ -91,7 +91,7 @@ def test_extract_identifiers_of_resource_results(every_combination_once: Validat
     report_and_onto = every_combination_once.validation_graph + every_combination_once.onto_graph
     data_and_onto = every_combination_once.data_graph + every_combination_once.onto_graph
     result = _extract_identifiers_of_resource_results(report_and_onto, data_and_onto)
-    result_sorted = sorted(result, key=lambda x: str(x.focus_node_iri))
+    result_sorted = sorted(result, key=lambda x: str(x.resource_iri))
     expected_iris = [
         (URIRef("http://data/empty_label"), None),
         (URIRef("http://data/geoname_not_number"), BNode),
@@ -102,7 +102,7 @@ def test_extract_identifiers_of_resource_results(every_combination_once: Validat
         (URIRef("http://data/id_uri"), BNode),
     ]
     for result_iri, expected_iri in zip(result_sorted, expected_iris):
-        assert result_iri.focus_node_iri == expected_iri[0]
+        assert result_iri.resource_iri == expected_iri[0]
         if expected_iri[1] is None:
             assert not result_iri.detail_node
         else:

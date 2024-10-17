@@ -16,6 +16,8 @@ from dsp_tools.commands.validate_data.models.input_problems import MinCardinalit
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import UnexpectedResults
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
+from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
+from dsp_tools.commands.validate_data.models.validation import QueryInfo
 from dsp_tools.commands.validate_data.models.validation import ResultDetail
 from dsp_tools.commands.validate_data.models.validation import ResultWithDetail
 from dsp_tools.commands.validate_data.models.validation import ResultWithoutDetail
@@ -72,6 +74,17 @@ def _separate_result_types(
     return no_detail_results, details_results
 
 
+# TODO: all need:
+#  - sh:focusNode
+#  - rdf:type of focusNode
+#  - sh:resultPath
+#  - sh:sourceConstraintComponent
+
+# TODO: if sh:detail
+#  - detail bn
+#  - sh:sourceConstraintComponent
+
+
 def _extract_base_info_of_resource_results(
     results_and_onto: Graph, data_onto_graph: Graph
 ) -> list[ValidationResultBaseInfo]:
@@ -79,34 +92,49 @@ def _extract_base_info_of_resource_results(
     resource_classes = list(data_onto_graph.subjects(KNORA_API.canBeInstantiated, Literal(True)))
     all_res_focus_nodes = []
     for nd in focus_nodes:
-        validation_bn = nd[0]
         focus_iri = nd[1]
         res_type = next(data_onto_graph.objects(focus_iri, RDF.type))
         if res_type in resource_classes:
-            detail_bn = None
-            if detail_bn_list := list(results_and_onto.objects(validation_bn, SH.detail)):
-                detail_bn = detail_bn_list[0]
-            all_res_focus_nodes.append(
-                ValidationResultBaseInfo(
-                    validation_bn=validation_bn,
-                    focus_node_iri=focus_iri,
-                    res_class_type=res_type,
-                    detail_node=detail_bn,
-                )
+            info = QueryInfo(
+                validation_bn=nd[0],
+                focus_iri=focus_iri,
+                focus_rdf_type=res_type,
             )
+            all_res_focus_nodes.append(_extract_one_base_info(info, results_and_onto))
     return all_res_focus_nodes
 
 
+def _extract_one_base_info(info: QueryInfo, results_and_onto: Graph) -> ValidationResultBaseInfo:
+    path = next(results_and_onto.objects(info.validation_bn, SH.resultPath))
+    main_component_type = next(results_and_onto.objects(info.validation_bn, SH.sourceConstraintComponent))
+    detail = None
+    if detail_bn_list := list(results_and_onto.objects(info.validation_bn, SH.detail)):
+        detail_bn = detail_bn_list[0]
+        detail_component = next(results_and_onto.objects(info.validation_bn, SH.sourceConstraintComponent))
+        detail = DetailBaseInfo(
+            detail_bn=detail_bn,
+            source_constraint_component=detail_component,
+        )
+    return ValidationResultBaseInfo(
+        result_bn=info.validation_bn,
+        source_constraint_component=main_component_type,
+        resource_iri=info.focus_iri,
+        res_class_type=info.focus_rdf_type,
+        result_path=path,
+        detail=detail,
+    )
+
+
 def _query_without_detail(base_info: ValidationResultBaseInfo, results_and_onto: Graph) -> ResultWithoutDetail:
-    path = next(results_and_onto.objects(base_info.validation_bn, SH.resultPath))
-    component = next(results_and_onto.objects(base_info.validation_bn, SH.sourceConstraintComponent))
-    msg = str(next(results_and_onto.objects(base_info.validation_bn, SH.resultMessage)))
+    path = next(results_and_onto.objects(base_info.result_bn, SH.resultPath))
+    component = next(results_and_onto.objects(base_info.result_bn, SH.sourceConstraintComponent))
+    msg = str(next(results_and_onto.objects(base_info.result_bn, SH.resultMessage)))
     res_value: str | None = None
-    if val := list(results_and_onto.objects(base_info.validation_bn, SH.value)):
+    if val := list(results_and_onto.objects(base_info.result_bn, SH.value)):
         res_value = str(val[0])
     return ResultWithoutDetail(
         source_constraint_component=component,
-        res_iri=base_info.focus_node_iri,
+        res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
         property=path,
         results_message=msg,
@@ -117,10 +145,10 @@ def _query_without_detail(base_info: ValidationResultBaseInfo, results_and_onto:
 def _query_with_detail(
     base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
 ) -> ResultWithDetail:
-    path = next(results_and_onto.objects(base_info.validation_bn, SH.resultPath))
-    value_iri = next(results_and_onto.objects(base_info.validation_bn, SH.value))
+    path = next(results_and_onto.objects(base_info.result_bn, SH.resultPath))
+    value_iri = next(results_and_onto.objects(base_info.result_bn, SH.value))
     value_type = next(data_graph.objects(value_iri, RDF.type))
-    component = next(results_and_onto.objects(base_info.validation_bn, SH.sourceConstraintComponent))
+    component = next(results_and_onto.objects(base_info.result_bn, SH.sourceConstraintComponent))
     detail_component = next(results_and_onto.objects(base_info.detail_node, SH.sourceConstraintComponent))
     detail_path: None | Node = None
     if path_found := list(results_and_onto.objects(base_info.detail_node, SH.resultPath)):
@@ -138,7 +166,7 @@ def _query_with_detail(
     )
     return ResultWithDetail(
         source_constraint_component=component,
-        res_iri=base_info.focus_node_iri,
+        res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
         property=path,
         detail=detail,

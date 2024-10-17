@@ -36,6 +36,29 @@ class UnexpectedComponent:
 
 
 @dataclass
+class QueryInfo:
+    validation_bn: Node
+    focus_iri: Node
+    focus_rdf_type: Node
+
+
+@dataclass
+class ValidationResultBaseInfo:
+    result_bn: Node
+    source_constraint_component: Node
+    resource_iri: Node
+    res_class_type: Node
+    result_path: Node
+    detail: DetailBaseInfo | None = None
+
+
+@dataclass
+class DetailBaseInfo:
+    detail_bn: Node
+    source_constraint_component: Node
+
+
+@dataclass
 class ResultWithoutDetail:
     source_constraint_component: Node
     res_iri: Node
@@ -43,14 +66,6 @@ class ResultWithoutDetail:
     property: Node
     results_message: str
     value: str | None = None
-
-
-@dataclass
-class ValidationResultBaseInfo:
-    validation_bn: Node
-    focus_node_iri: Node
-    res_class_type: Node
-    detail_node: Node | None = None
 
 
 @dataclass

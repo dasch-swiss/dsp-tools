@@ -78,7 +78,7 @@ class TestQueryWithoutDetail:
         res, _, ids = report_min_card
         result = _query_without_detail(ids, res)
         assert result.source_constraint_component == SH.MinCountConstraintComponent
-        assert result.res_iri == ids.focus_node_iri
+        assert result.res_iri == ids.resource_iri
         assert result.res_class == ids.res_class_type
         assert result.property == ONTO.testBoolean
         assert result.results_message == "1"
@@ -90,7 +90,7 @@ class TestQueryWithoutDetail:
         res, _, ids = report_closed_constraint
         result = _query_without_detail(ids, res)
         assert result.source_constraint_component == DASH.ClosedByTypesConstraintComponent
-        assert result.res_iri == ids.focus_node_iri
+        assert result.res_iri == ids.resource_iri
         assert result.res_class == ids.res_class_type
         assert result.property == ONTO.testIntegerSimpleText
         assert (
@@ -103,7 +103,7 @@ class TestQueryWithoutDetail:
         res, _, ids = report_max_card
         result = _query_without_detail(ids, res)
         assert result.source_constraint_component == SH.MaxCountConstraintComponent
-        assert result.res_iri == ids.focus_node_iri
+        assert result.res_iri == ids.resource_iri
         assert result.res_class == ids.res_class_type
         assert result.property == ONTO.testHasLinkToCardOneResource
         assert result.results_message == "1"
@@ -113,7 +113,7 @@ class TestQueryWithoutDetail:
         res, _, ids = report_empty_label
         result = _query_without_detail(ids, res)
         assert result.source_constraint_component == SH.PatternConstraintComponent
-        assert result.res_iri == ids.focus_node_iri
+        assert result.res_iri == ids.resource_iri
         assert result.res_class == ids.res_class_type
         assert result.property == RDFS.label
         assert result.results_message == "The label must be a non-empty string"
@@ -127,7 +127,7 @@ class TestQueryWithDetail:
         res, data, ids = report_value_type_simpletext
         result = _query_with_detail(ids, res, data)
         assert result.source_constraint_component == SH.NodeConstraintComponent
-        assert result.res_iri == ids.focus_node_iri
+        assert result.res_iri == ids.resource_iri
         assert result.res_class == ids.res_class_type
         assert result.property == ONTO.testTextarea
         assert result.detail.results_message == "TextValue without formatting"
@@ -139,7 +139,7 @@ class TestQueryWithDetail:
         res, data, ids = report_value_type
         result = _query_with_detail(ids, res, data)
         assert result.source_constraint_component == SH.NodeConstraintComponent
-        assert result.res_iri == ids.focus_node_iri
+        assert result.res_iri == ids.resource_iri
         assert result.res_class == ids.res_class_type
         assert result.property == ONTO.testUriValue
         assert result.detail.results_message == "UriValue"
@@ -151,7 +151,7 @@ class TestQueryWithDetail:
         res, data, ids = report_regex
         result = _query_with_detail(ids, res, data)
         assert result.source_constraint_component == SH.NodeConstraintComponent
-        assert result.res_iri == ids.focus_node_iri
+        assert result.res_iri == ids.resource_iri
         assert result.res_class == ids.res_class_type
         assert result.property == ONTO.testGeoname
         assert result.detail.results_message == "The value must be a valid geoname code"
@@ -165,7 +165,7 @@ class TestQueryWithDetail:
         res, data, ids = report_link_target_non_existent
         result = _query_with_detail(ids, res, data)
         assert result.source_constraint_component == SH.NodeConstraintComponent
-        assert result.res_iri == ids.focus_node_iri
+        assert result.res_iri == ids.resource_iri
         assert result.res_class == ids.res_class_type
         assert result.property == ONTO.testHasLinkTo
         assert result.detail.results_message == "Resource"
@@ -179,7 +179,7 @@ class TestQueryWithDetail:
         res, data, ids = report_link_target_wrong_class
         result = _query_with_detail(ids, res, data)
         assert result.source_constraint_component == SH.NodeConstraintComponent
-        assert result.res_iri == ids.focus_node_iri
+        assert result.res_iri == ids.resource_iri
         assert result.res_class == ids.res_class_type
         assert result.property == ONTO.testHasLinkToCardOneResource
         assert result.detail.results_message == "CardOneResource"

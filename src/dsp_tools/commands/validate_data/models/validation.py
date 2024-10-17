@@ -31,20 +31,35 @@ class ValidationReport:
 
 
 @dataclass
-class ResourceValidationReportIdentifiers:
-    validation_bn: Node
-    focus_node_iri: Node
-    res_class_type: Node
-    detail_node: Node | None = None
-
-
-@dataclass
 class UnexpectedComponent:
     component_type: str
 
 
 @dataclass
-class ResultWithoutDetail:
+class QueryInfo:
+    validation_bn: Node
+    focus_iri: Node
+    focus_rdf_type: Node
+
+
+@dataclass
+class ValidationResultBaseInfo:
+    result_bn: Node
+    source_constraint_component: Node
+    resource_iri: Node
+    res_class_type: Node
+    result_path: Node
+    detail: DetailBaseInfo | None = None
+
+
+@dataclass
+class DetailBaseInfo:
+    detail_bn: Node
+    source_constraint_component: Node
+
+
+@dataclass
+class ExtractedResultWithoutDetail:
     source_constraint_component: Node
     res_iri: Node
     res_class: Node
@@ -54,16 +69,16 @@ class ResultWithoutDetail:
 
 
 @dataclass
-class ResultWithDetail:
+class ExtractedResultWithDetail:
     source_constraint_component: Node
     res_iri: Node
     res_class: Node
     property: Node
-    detail: ResultDetail
+    detail: ExtractedResultDetail
 
 
 @dataclass
-class ResultDetail:
+class ExtractedResultDetail:
     component: Node
     results_message: str
     result_path: Node | None

@@ -1,3 +1,5 @@
+from typing import cast
+
 import regex
 from rdflib import RDF
 from rdflib import SH
@@ -16,12 +18,14 @@ from dsp_tools.commands.validate_data.models.input_problems import MinCardinalit
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.models.input_problems import UnexpectedResults
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
-from dsp_tools.commands.validate_data.models.validation import ResourceValidationReportIdentifiers
-from dsp_tools.commands.validate_data.models.validation import ResultDetail
-from dsp_tools.commands.validate_data.models.validation import ResultWithDetail
-from dsp_tools.commands.validate_data.models.validation import ResultWithoutDetail
+from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
+from dsp_tools.commands.validate_data.models.validation import ExtractedResultDetail
+from dsp_tools.commands.validate_data.models.validation import ExtractedResultWithDetail
+from dsp_tools.commands.validate_data.models.validation import ExtractedResultWithoutDetail
+from dsp_tools.commands.validate_data.models.validation import QueryInfo
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.models.validation import ValidationReport
+from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
 
 DASH = Namespace("http://datashapes.org/dash#")
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
@@ -63,92 +67,101 @@ def reformat_validation_graph(report: ValidationReport) -> AllProblems:
 
 def _separate_result_types(
     results_and_onto: Graph, data_onto_graph: Graph
-) -> tuple[list[ResultWithoutDetail], list[ResultWithDetail]]:
-    identifiers = _extract_identifiers_of_resource_results(results_and_onto, data_onto_graph)
-    no_details = [x for x in identifiers if not x.detail_node]
+) -> tuple[list[ExtractedResultWithoutDetail], list[ExtractedResultWithDetail]]:
+    all_base_info = _extract_base_info_of_resource_results(results_and_onto, data_onto_graph)
+    no_details = [x for x in all_base_info if not x.detail]
     no_detail_results = [_query_without_detail(x, results_and_onto) for x in no_details]
-    with_details = [x for x in identifiers if x.detail_node]
+    with_details = [x for x in all_base_info if x.detail]
     details_results = [_query_with_detail(x, results_and_onto, data_onto_graph) for x in with_details]
     return no_detail_results, details_results
 
 
-def _extract_identifiers_of_resource_results(
+def _extract_base_info_of_resource_results(
     results_and_onto: Graph, data_onto_graph: Graph
-) -> list[ResourceValidationReportIdentifiers]:
+) -> list[ValidationResultBaseInfo]:
     focus_nodes = list(results_and_onto.subject_objects(SH.focusNode))
     resource_classes = list(data_onto_graph.subjects(KNORA_API.canBeInstantiated, Literal(True)))
     all_res_focus_nodes = []
     for nd in focus_nodes:
-        validation_bn = nd[0]
         focus_iri = nd[1]
         res_type = next(data_onto_graph.objects(focus_iri, RDF.type))
         if res_type in resource_classes:
-            detail_bn = None
-            if detail_bn_list := list(results_and_onto.objects(validation_bn, SH.detail)):
-                detail_bn = detail_bn_list[0]
-            all_res_focus_nodes.append(
-                ResourceValidationReportIdentifiers(
-                    validation_bn=validation_bn,
-                    focus_node_iri=focus_iri,
-                    res_class_type=res_type,
-                    detail_node=detail_bn,
-                )
+            info = QueryInfo(
+                validation_bn=nd[0],
+                focus_iri=focus_iri,
+                focus_rdf_type=res_type,
             )
+            all_res_focus_nodes.append(_extract_one_base_info(info, results_and_onto))
     return all_res_focus_nodes
 
 
-def _query_without_detail(
-    identifiers: ResourceValidationReportIdentifiers, results_and_onto: Graph
-) -> ResultWithoutDetail:
-    path = next(results_and_onto.objects(identifiers.validation_bn, SH.resultPath))
-    component = next(results_and_onto.objects(identifiers.validation_bn, SH.sourceConstraintComponent))
-    msg = str(next(results_and_onto.objects(identifiers.validation_bn, SH.resultMessage)))
+def _extract_one_base_info(info: QueryInfo, results_and_onto: Graph) -> ValidationResultBaseInfo:
+    path = next(results_and_onto.objects(info.validation_bn, SH.resultPath))
+    main_component_type = next(results_and_onto.objects(info.validation_bn, SH.sourceConstraintComponent))
+    detail = None
+    if detail_bn_list := list(results_and_onto.objects(info.validation_bn, SH.detail)):
+        detail_bn = detail_bn_list[0]
+        detail_component = next(results_and_onto.objects(detail_bn, SH.sourceConstraintComponent))
+        detail = DetailBaseInfo(
+            detail_bn=detail_bn,
+            source_constraint_component=detail_component,
+        )
+    return ValidationResultBaseInfo(
+        result_bn=info.validation_bn,
+        source_constraint_component=main_component_type,
+        resource_iri=info.focus_iri,
+        res_class_type=info.focus_rdf_type,
+        result_path=path,
+        detail=detail,
+    )
+
+
+def _query_without_detail(base_info: ValidationResultBaseInfo, results_and_onto: Graph) -> ExtractedResultWithoutDetail:
+    msg = str(next(results_and_onto.objects(base_info.result_bn, SH.resultMessage)))
     res_value: str | None = None
-    if val := list(results_and_onto.objects(identifiers.validation_bn, SH.value)):
+    if val := list(results_and_onto.objects(base_info.result_bn, SH.value)):
         res_value = str(val[0])
-    return ResultWithoutDetail(
-        source_constraint_component=component,
-        res_iri=identifiers.focus_node_iri,
-        res_class=identifiers.res_class_type,
-        property=path,
+    return ExtractedResultWithoutDetail(
+        source_constraint_component=base_info.source_constraint_component,
+        res_iri=base_info.resource_iri,
+        res_class=base_info.res_class_type,
+        property=base_info.result_path,
         results_message=msg,
         value=res_value,
     )
 
 
 def _query_with_detail(
-    identifiers: ResourceValidationReportIdentifiers, results_and_onto: Graph, data_graph: Graph
-) -> ResultWithDetail:
-    path = next(results_and_onto.objects(identifiers.validation_bn, SH.resultPath))
-    value_iri = next(results_and_onto.objects(identifiers.validation_bn, SH.value))
+    base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
+) -> ExtractedResultWithDetail:
+    detail_info = cast(DetailBaseInfo, base_info.detail)
+    value_iri = next(results_and_onto.objects(base_info.result_bn, SH.value))
     value_type = next(data_graph.objects(value_iri, RDF.type))
-    component = next(results_and_onto.objects(identifiers.validation_bn, SH.sourceConstraintComponent))
-    detail_component = next(results_and_onto.objects(identifiers.detail_node, SH.sourceConstraintComponent))
     detail_path: None | Node = None
-    if path_found := list(results_and_onto.objects(identifiers.detail_node, SH.resultPath)):
+    if path_found := list(results_and_onto.objects(detail_info.detail_bn, SH.resultPath)):
         detail_path = path_found[0]
     val = None
-    if node_value := list(results_and_onto.objects(identifiers.detail_node, SH.value)):
+    if node_value := list(results_and_onto.objects(detail_info.detail_bn, SH.value)):
         val = str(node_value[0])
-    msg = str(next(results_and_onto.objects(identifiers.detail_node, SH.resultMessage)))
-    detail = ResultDetail(
-        component=detail_component,
+    msg = str(next(results_and_onto.objects(detail_info.detail_bn, SH.resultMessage)))
+    detail = ExtractedResultDetail(
+        component=detail_info.source_constraint_component,
         results_message=msg,
         result_path=detail_path,
         value_type=value_type,
         value=val,
     )
-    return ResultWithDetail(
-        source_constraint_component=component,
-        res_iri=identifiers.focus_node_iri,
-        res_class=identifiers.res_class_type,
-        property=path,
+    return ExtractedResultWithDetail(
+        source_constraint_component=base_info.source_constraint_component,
+        res_iri=base_info.resource_iri,
+        res_class=base_info.res_class_type,
+        property=base_info.result_path,
         detail=detail,
     )
 
 
 def _reformat_without_detail(
-    validation_results: list[ResultWithoutDetail],
+    validation_results: list[ExtractedResultWithoutDetail],
 ) -> tuple[list[InputProblem], list[UnexpectedComponent]]:
     input_problems: list[InputProblem] = []
     unexpected_components: list[UnexpectedComponent] = []
@@ -162,7 +175,7 @@ def _reformat_without_detail(
     return input_problems, unexpected_components
 
 
-def _reformat_one_without_detail(violation: ResultWithoutDetail) -> InputProblem | UnexpectedComponent:
+def _reformat_one_without_detail(violation: ExtractedResultWithoutDetail) -> InputProblem | UnexpectedComponent:
     subject_id = _reformat_data_iri(str(violation.res_iri))
     prop_name = _reformat_onto_iri(str(violation.property))
     res_type = _reformat_onto_iri(str(violation.res_class))
@@ -200,7 +213,7 @@ def _reformat_one_without_detail(violation: ResultWithoutDetail) -> InputProblem
 
 
 def _reformat_with_detail(
-    validation_results: list[ResultWithDetail],
+    validation_results: list[ExtractedResultWithDetail],
 ) -> tuple[list[InputProblem], list[UnexpectedComponent]]:
     input_problems: list[InputProblem] = []
     unexpected_components: list[UnexpectedComponent] = []
@@ -214,7 +227,7 @@ def _reformat_with_detail(
     return input_problems, unexpected_components
 
 
-def _reformat_one_with_detail(val_result: ResultWithDetail) -> InputProblem | UnexpectedComponent:
+def _reformat_one_with_detail(val_result: ExtractedResultWithDetail) -> InputProblem | UnexpectedComponent:
     subject_id = _reformat_data_iri(str(val_result.res_iri))
     prop_name = _reformat_onto_iri(str(val_result.property))
     res_type = _reformat_onto_iri(str(val_result.res_class))
@@ -245,7 +258,7 @@ def _reformat_one_with_detail(val_result: ResultWithDetail) -> InputProblem | Un
             return UnexpectedComponent(str(val_result.source_constraint_component))
 
 
-def _reformat_detail_class_constraint_component(val_result: ResultWithDetail) -> InputProblem:
+def _reformat_detail_class_constraint_component(val_result: ExtractedResultWithDetail) -> InputProblem:
     subject_id = _reformat_data_iri(str(val_result.res_iri))
     prop_name = _reformat_onto_iri(str(val_result.property))
     res_type = _reformat_onto_iri(str(val_result.res_class))

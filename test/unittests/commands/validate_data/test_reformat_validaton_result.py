@@ -67,7 +67,7 @@ class TestSeparateResultTypes:
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 1
         assert len(with_detail) == 0
-        assert no_detail[0].focus_node_iri == DATA.id_card_one
+        assert no_detail[0].resource_iri == DATA.id_card_one
 
     def test_result_id_simpletext(
         self, report_value_type_simpletext: tuple[Graph, Graph, ValidationResultBaseInfo]
@@ -76,21 +76,21 @@ class TestSeparateResultTypes:
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 0
         assert len(with_detail) == 1
-        assert with_detail[0].focus_node_iri == DATA.id_simpletext
+        assert no_detail[0].resource_iri == DATA.id_simpletext
 
     def test_result_id_uri(self, report_value_type: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res_g, onto_data_g, _ = report_value_type
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 0
         assert len(with_detail) == 1
-        assert with_detail[0].focus_node_iri == DATA.id_uri
+        assert no_detail[0].resource_iri == DATA.id_uri
 
     def test_result_geoname_not_number(self, report_regex: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res_g, onto_data_g, _ = report_regex
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 0
         assert len(with_detail) == 1
-        assert with_detail[0].focus_node_iri == DATA.geoname_not_number
+        assert no_detail[0].resource_iri == DATA.geoname_not_number
 
     def test_result_id_closed_constraint(
         self, report_closed_constraint: tuple[Graph, Graph, ValidationResultBaseInfo]
@@ -99,58 +99,58 @@ class TestSeparateResultTypes:
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 1
         assert len(with_detail) == 0
-        assert no_detail[0].focus_node_iri == DATA.id_closed_constraint
+        assert no_detail[0].resource_iri == DATA.id_closed_constraint
 
     def test_result_id_max_card(self, report_max_card: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res_g, onto_data_g, _ = report_max_card
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 1
         assert len(with_detail) == 0
-        assert no_detail[0].focus_node_iri == DATA.id_max_card
+        assert no_detail[0].resource_iri == DATA.id_max_card
 
 
 class TestQueryWithoutDetail:
     def test_result_id_card_one(self, report_min_card: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
-        res, _, ids = report_min_card
-        result = _query_one_without_detail(ids, res)
+        res, _, info = report_min_card
+        result = _query_one_without_detail(info, res)
         assert isinstance(result, ResultMinCardinalityViolation)
-        assert result.res_iri == ids.focus_node_iri
-        assert result.res_class == ids.res_class_type
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
         assert result.property == ONTO.testBoolean
         assert result.results_message == "1"
 
     def test_result_id_closed_constraint(
         self, report_closed_constraint: tuple[Graph, Graph, ValidationResultBaseInfo]
     ) -> None:
-        res, _, ids = report_closed_constraint
-        result = _query_one_without_detail(ids, res)
+        res, _, info = report_closed_constraint
+        result = _query_one_without_detail(info, res)
         assert isinstance(result, ResultNonExistentCardinalityViolation)
-        assert result.res_iri == ids.focus_node_iri
-        assert result.res_class == ids.res_class_type
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
         assert result.property == ONTO.testIntegerSimpleText
 
     def test_result_id_max_card(self, report_max_card: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
-        res, _, ids = report_max_card
-        result = _query_one_without_detail(ids, res)
+        res, _, info = report_max_card
+        result = _query_one_without_detail(info, res)
         assert isinstance(result, ResultMaxCardinalityViolation)
-        assert result.res_iri == ids.focus_node_iri
-        assert result.res_class == ids.res_class_type
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
         assert result.property == ONTO.testHasLinkToCardOneResource
         assert result.results_message == "1"
 
     def test_result_empty_label(self, report_empty_label: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
-        res, _, ids = report_empty_label
-        result = _query_one_without_detail(ids, res)
+        res, _, info = report_empty_label
+        result = _query_one_without_detail(info, res)
         assert isinstance(result, ResultPatternViolation)
-        assert result.res_iri == ids.focus_node_iri
-        assert result.res_class == ids.res_class_type
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
         assert result.property == RDFS.label
         assert result.results_message == "The label must be a non-empty string"
         assert result.actual_value == " "
 
     def test_unknown(self, extracted_unknown_component: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
-        res, _, ids = extracted_unknown_component
-        result = _query_one_without_detail(ids, res)
+        res, _, info = extracted_unknown_component
+        result = _query_one_without_detail(info, res)
         assert isinstance(result, UnexpectedComponent)
         assert result.component_type == str(SH.UniqueLangConstraintComponent)
 
@@ -159,31 +159,31 @@ class TestQueryWithDetail:
     def test_result_id_simpletext(
         self, report_value_type_simpletext: tuple[Graph, Graph, ValidationResultBaseInfo]
     ) -> None:
-        res, data, ids = report_value_type_simpletext
-        result = _query_one_with_detail(ids, res, data)
+        res, data, info = report_value_type_simpletext
+        result = _query_one_with_detail(info, res, data)
         assert isinstance(result, ResultValueTypeViolation)
-        assert result.res_iri == ids.focus_node_iri
-        assert result.res_class == ids.res_class_type
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
         assert result.property == ONTO.testTextarea
         assert result.results_message == "TextValue without formatting"
         assert result.actual_value_type == KNORA_API.TextValue
 
     def test_result_id_uri(self, report_value_type: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
-        res, data, ids = report_value_type
-        result = _query_one_with_detail(ids, res, data)
+        res, data, info = report_value_type
+        result = _query_one_with_detail(info, res, data)
         assert isinstance(result, ResultValueTypeViolation)
-        assert result.res_iri == ids.focus_node_iri
-        assert result.res_class == ids.res_class_type
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
         assert result.property == ONTO.testUriValue
         assert result.results_message == "UriValue"
         assert result.actual_value_type == KNORA_API.TextValue
 
     def test_result_geoname_not_number(self, report_regex: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
-        res, data, ids = report_regex
-        result = _query_one_with_detail(ids, res, data)
+        res, data, info = report_regex
+        result = _query_one_with_detail(info, res, data)
         assert isinstance(result, ResultPatternViolation)
-        assert result.res_iri == ids.focus_node_iri
-        assert result.res_class == ids.res_class_type
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
         assert result.property == ONTO.testGeoname
         assert result.results_message == "The value must be a valid geoname code"
         assert result.actual_value == "this-is-not-a-valid-code"
@@ -191,11 +191,11 @@ class TestQueryWithDetail:
     def test_link_target_non_existent(
         self, report_link_target_non_existent: tuple[Graph, Graph, ValidationResultBaseInfo]
     ) -> None:
-        res, data, ids = report_link_target_non_existent
-        result = _query_one_with_detail(ids, res, data)
+        res, data, info = report_link_target_non_existent
+        result = _query_one_with_detail(info, res, data)
         assert isinstance(result, ResultLinkTargetViolation)
-        assert result.res_iri == ids.focus_node_iri
-        assert result.res_class == ids.res_class_type
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
         assert result.property == ONTO.testHasLinkTo
         assert result.results_message == "Resource"
         assert result.target_id == URIRef("http://data/other")
@@ -204,11 +204,11 @@ class TestQueryWithDetail:
     def test_link_target_wrong_class(
         self, report_link_target_wrong_class: tuple[Graph, Graph, ValidationResultBaseInfo]
     ) -> None:
-        res, data, ids = report_link_target_wrong_class
-        result = _query_one_with_detail(ids, res, data)
+        res, data, info = report_link_target_wrong_class
+        result = _query_one_with_detail(info, res, data)
         assert isinstance(result, ResultLinkTargetViolation)
-        assert result.res_iri == ids.focus_node_iri
-        assert result.res_class == ids.res_class_type
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
         assert result.property == ONTO.testHasLinkToCardOneResource
         assert result.results_message == "CardOneResource"
         assert result.target_id == URIRef("http://data/id_9_target")

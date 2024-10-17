@@ -169,14 +169,6 @@ api-shapes:valueAsString_Shape
   sh:datatype xsd:string ;
   sh:severity sh:Violation .
 
-api-shapes:SimpleTextValue_PropShape
-  a           sh:PropertyShape ;
-  sh:message  "TextValue without formatting" ;
-  sh:path     knora-api:valueAsString ;
-  sh:datatype xsd:string ;
-  sh:minCount 1 ;
-  sh:maxCount 1 .
-
 
 ###
 # FormattedTextValue
@@ -202,15 +194,6 @@ api-shapes:textValueAsXml_Shape
   sh:pattern  "\\s*\\S+\\s*" ;
   sh:datatype xsd:string ;
   sh:severity sh:Violation .
-
-
-api-shapes:FormattedTextValue_PropShape
-  a           sh:PropertyShape ;
-  sh:message  "TextValue with formatting" ;
-  sh:path     knora-api:textValueAsXml ;
-  sh:datatype xsd:string ;
-  sh:minCount 1 ;
-  sh:maxCount 1 .
 
 
 ##############

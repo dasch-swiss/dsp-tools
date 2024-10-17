@@ -31,11 +31,10 @@ class ValidationReport:
 
 
 @dataclass
-class ResourceValidationReportIdentifiers:
+class QueryInfo:
     validation_bn: Node
-    focus_node_iri: Node
-    res_class_type: Node
-    detail_node: Node | None = None
+    focus_iri: Node
+    focus_rdf_type: Node
 
 
 @dataclass
@@ -44,28 +43,63 @@ class UnexpectedComponent:
 
 
 @dataclass
-class ResultWithoutDetail:
+class ValidationResultBaseInfo:
+    result_bn: Node
     source_constraint_component: Node
-    res_iri: Node
-    res_class: Node
-    property: Node
-    results_message: str
-    value: str | None = None
+    resource_iri: Node
+    res_class_type: Node
+    result_path: Node
+    detail: DetailBaseInfo | None = None
 
 
 @dataclass
-class ResultWithDetail:
+class DetailBaseInfo:
+    detail_bn: Node
     source_constraint_component: Node
-    res_iri: Node
-    res_class: Node
-    property: Node
-    detail: ResultDetail
 
 
 @dataclass
-class ResultDetail:
-    component: Node
+class ValidationResult:
+    res_iri: Node
+    res_class: Node
+    property: Node
+
+
+@dataclass
+class ResultValueTypeViolation(ValidationResult):
     results_message: str
-    result_path: Node | None
-    value_type: Node
-    value: str | None
+    actual_value_type: Node
+
+
+@dataclass
+class ResultPatternViolation(ValidationResult):
+    results_message: str
+    actual_value: str
+
+
+@dataclass
+class ResultLinkTargetViolation(ValidationResult):
+    results_message: str
+    target_iri: Node
+    target_resource_type: Node | None
+
+
+@dataclass
+class ResultMaxCardinalityViolation(ValidationResult):
+    results_message: str
+
+
+@dataclass
+class ResultMinCardinalityViolation(ValidationResult):
+    results_message: str
+
+
+@dataclass
+class ResultNonExistentCardinalityViolation(ValidationResult): ...
+
+
+@dataclass
+class ReformattedIRI:
+    res_id: str
+    res_type: str
+    prop_name: str

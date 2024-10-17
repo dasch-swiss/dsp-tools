@@ -115,17 +115,15 @@ def _extract_one_base_info(info: QueryInfo, results_and_onto: Graph) -> Validati
 
 
 def _query_without_detail(base_info: ValidationResultBaseInfo, results_and_onto: Graph) -> ExtractedResultWithoutDetail:
-    path = next(results_and_onto.objects(base_info.result_bn, SH.resultPath))
-    component = next(results_and_onto.objects(base_info.result_bn, SH.sourceConstraintComponent))
     msg = str(next(results_and_onto.objects(base_info.result_bn, SH.resultMessage)))
     res_value: str | None = None
     if val := list(results_and_onto.objects(base_info.result_bn, SH.value)):
         res_value = str(val[0])
     return ExtractedResultWithoutDetail(
-        source_constraint_component=component,
+        source_constraint_component=base_info.source_constraint_component,
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
-        property=path,
+        property=base_info.result_path,
         results_message=msg,
         value=res_value,
     )
@@ -134,11 +132,8 @@ def _query_without_detail(base_info: ValidationResultBaseInfo, results_and_onto:
 def _query_with_detail(
     base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
 ) -> ExtractedResultWithDetail:
-    path = next(results_and_onto.objects(base_info.result_bn, SH.resultPath))
     value_iri = next(results_and_onto.objects(base_info.result_bn, SH.value))
     value_type = next(data_graph.objects(value_iri, RDF.type))
-    component = next(results_and_onto.objects(base_info.result_bn, SH.sourceConstraintComponent))
-    detail_component = next(results_and_onto.objects(base_info.detail.detail_bn, SH.sourceConstraintComponent))
     detail_path: None | Node = None
     if path_found := list(results_and_onto.objects(base_info.detail.detail_bn, SH.resultPath)):
         detail_path = path_found[0]
@@ -147,17 +142,17 @@ def _query_with_detail(
         val = str(node_value[0])
     msg = str(next(results_and_onto.objects(base_info.detail.detail_bn, SH.resultMessage)))
     detail = ExtractedResultDetail(
-        component=detail_component,
+        component=base_info.detail.source_constraint_component,
         results_message=msg,
         result_path=detail_path,
         value_type=value_type,
         value=val,
     )
     return ExtractedResultWithDetail(
-        source_constraint_component=component,
+        source_constraint_component=base_info.source_constraint_component,
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
-        property=path,
+        property=base_info.result_path,
         detail=detail,
     )
 

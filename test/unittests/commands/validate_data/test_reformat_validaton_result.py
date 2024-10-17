@@ -2,7 +2,6 @@ import pytest
 from rdflib import RDFS
 from rdflib import SH
 from rdflib import Graph
-from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.models.input_problems import ContentRegexViolation
 from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExist
@@ -65,7 +64,7 @@ class TestSeparateResultTypes:
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 1
         assert len(with_detail) == 0
-        assert no_detail[0].res_iri == URIRef("http://data/id_card_one")
+        assert no_detail[0].res_iri == DATA.id_card_one
 
     def test_result_id_simpletext(
         self, report_value_type_simpletext: tuple[Graph, Graph, ValidationResultBaseInfo]
@@ -74,21 +73,21 @@ class TestSeparateResultTypes:
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 0
         assert len(with_detail) == 1
-        assert with_detail[0].res_iri == URIRef("http://data/id_simpletext")
+        assert with_detail[0].res_iri == DATA.id_simpletext
 
     def test_result_id_uri(self, report_value_type: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res_g, onto_data_g, _ = report_value_type
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 0
         assert len(with_detail) == 1
-        assert with_detail[0].res_iri == URIRef("http://data/id_uri")
+        assert with_detail[0].res_iri == DATA.id_uri
 
     def test_result_geoname_not_number(self, report_regex: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res_g, onto_data_g, _ = report_regex
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 0
         assert len(with_detail) == 1
-        assert with_detail[0].res_iri == URIRef("http://data/geoname_not_number")
+        assert with_detail[0].res_iri == DATA.geoname_not_number
 
     def test_result_id_closed_constraint(
         self, report_closed_constraint: tuple[Graph, Graph, ValidationResultBaseInfo]
@@ -97,14 +96,14 @@ class TestSeparateResultTypes:
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 1
         assert len(with_detail) == 0
-        assert no_detail[0].res_iri == URIRef("http://data/id_closed_constraint")
+        assert no_detail[0].res_iri == DATA.id_closed_constraint
 
     def test_result_id_max_card(self, report_max_card: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res_g, onto_data_g, _ = report_max_card
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 1
         assert len(with_detail) == 0
-        assert no_detail[0].res_iri == URIRef("http://data/id_max_card")
+        assert no_detail[0].res_iri == DATA.id_max_card
 
 
 class TestQueryWithoutDetail:

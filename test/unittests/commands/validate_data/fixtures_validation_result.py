@@ -5,7 +5,6 @@ from rdflib import RDF
 from rdflib import RDFS
 from rdflib import SH
 from rdflib import Graph
-from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import ExtractedResultDetail
@@ -210,7 +209,7 @@ def report_value_type(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResult
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.NodeConstraintComponent,
-        resource_iri=URIRef("http://data/id_uri"),
+        resource_iri=DATA.id_uri,
         res_class_type=ONTO.ClassWithEverything,
         result_path=ONTO.testUriValue,
         detail=detail,
@@ -281,7 +280,7 @@ def report_regex(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseI
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.NodeConstraintComponent,
-        resource_iri=URIRef("http://data/geoname_not_number"),
+        resource_iri=DATA.geoname_not_number,
         res_class_type=ONTO.ClassWithEverything,
         result_path=ONTO.testGeoname,
         detail=detail,
@@ -352,7 +351,7 @@ def report_link_target_non_existent(onto_graph: Graph) -> tuple[Graph, Graph, Va
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.NodeConstraintComponent,
-        resource_iri=URIRef("http://data/link_target_non_existent"),
+        resource_iri=DATA.link_target_non_existent,
         res_class_type=ONTO.ClassWithEverything,
         result_path=ONTO.testHasLinkTo,
         detail=detail,
@@ -367,7 +366,7 @@ def extracted_link_target_non_existent() -> ExtractedResultWithDetail:
         results_message="Resource",
         result_path=API_SHAPES.linkValueHasTargetID,
         value_type=KNORA_API.LinkValue,
-        value=URIRef("http://data/other"),
+        value=DATA.other,
     )
     return ExtractedResultWithDetail(
         source_constraint_component=SH.NodeConstraintComponent,
@@ -426,7 +425,7 @@ def report_link_target_wrong_class(onto_graph: Graph) -> tuple[Graph, Graph, Val
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.NodeConstraintComponent,
-        resource_iri=URIRef("http://data/link_target_wrong_class"),
+        resource_iri=DATA.link_target_wrong_class,
         res_class_type=ONTO.ClassWithEverything,
         result_path=ONTO.testHasLinkToCardOneResource,
         detail=detail,
@@ -441,7 +440,7 @@ def extracted_link_target_wrong_class() -> ExtractedResultWithDetail:
         results_message="CardOneResource",
         result_path=API_SHAPES.linkValueHasTargetID,
         value_type=KNORA_API.LinkValue,
-        value=URIRef("http://data/id_9_target"),
+        value=DATA.id_9_target,
     )
     return ExtractedResultWithDetail(
         source_constraint_component=SH.NodeConstraintComponent,
@@ -480,7 +479,7 @@ def report_closed_constraint(onto_graph: Graph) -> tuple[Graph, Graph, Validatio
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=DASH.ClosedByTypesConstraintComponent,
-        resource_iri=URIRef("http://data/id_closed_constraint"),
+        resource_iri=DATA.id_closed_constraint,
         res_class_type=ONTO.CardOneResource,
         result_path=ONTO.testIntegerSimpleText,
     )
@@ -528,7 +527,7 @@ def report_max_card(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBa
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.MaxCountConstraintComponent,
-        resource_iri=URIRef("http://data/id_max_card"),
+        resource_iri=DATA.id_max_card,
         res_class_type=ONTO.ClassMixedCard,
         result_path=ONTO.testHasLinkToCardOneResource,
     )
@@ -571,7 +570,7 @@ def report_empty_label(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResul
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.PatternConstraintComponent,
-        resource_iri=URIRef("http://data/empty_label"),
+        resource_iri=DATA.empty_label,
         res_class_type=ONTO.ClassWithEverything,
         result_path=RDFS.label,
     )

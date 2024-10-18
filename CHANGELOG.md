@@ -1,5 +1,59 @@
 # Changelog
 
+## [9.2.0](https://github.com/dasch-swiss/dsp-tools/compare/v9.1.0...v9.2.0) (2024-10-18)
+
+
+### Enhancements
+
+* rename CLI command `xml-validate` to `validate-data` (DEV-4219) ([#1203](https://github.com/dasch-swiss/dsp-tools/issues/1203)) ([8c10f83](https://github.com/dasch-swiss/dsp-tools/commit/8c10f83f55fc306465b1c5a272c08d648cfcb2f8))
+* **start-stack:** make api version necessary for validation accessible through a flag (DEV-4200) ([#1194](https://github.com/dasch-swiss/dsp-tools/issues/1194)) ([081a6f2](https://github.com/dasch-swiss/dsp-tools/commit/081a6f2af2c2569355ba2d17f36c3ccc24606438))
+* **validate-data:** make content validation conform with `dash` syntax (DEV-4233) ([#1211](https://github.com/dasch-swiss/dsp-tools/issues/1211)) ([2af7a69](https://github.com/dasch-swiss/dsp-tools/commit/2af7a69d60b9b1a63b246e1aa1d3985867e58e6d))
+* **validate-data:** validate cardinality with `dash:closedByTypes` (DEV-4231) ([#1209](https://github.com/dasch-swiss/dsp-tools/issues/1209)) ([e883cbb](https://github.com/dasch-swiss/dsp-tools/commit/e883cbbf59fc5f3c27e9de3338ef67827d03e37f))
+* **validate-data:** validate generic content of values (DEV-4225) ([#1208](https://github.com/dasch-swiss/dsp-tools/issues/1208)) ([86042ff](https://github.com/dasch-swiss/dsp-tools/commit/86042ffa6564e73e3b1ca4e39a17176f45c88a1b))
+* **validate-data:** validate link value class type (DEV-4237) ([#1215](https://github.com/dasch-swiss/dsp-tools/issues/1215)) ([9e306c2](https://github.com/dasch-swiss/dsp-tools/commit/9e306c2954b25535b5417e12b4491e2d2d50b21f))
+* **validate-data:** validate text value type (DEV-4209) ([#1205](https://github.com/dasch-swiss/dsp-tools/issues/1205)) ([cafca60](https://github.com/dasch-swiss/dsp-tools/commit/cafca60d1c77e56487370167539af36018be633e))
+* **xmllib:** add factory method to resources (DEV-4189) ([#1185](https://github.com/dasch-swiss/dsp-tools/issues/1185)) ([99c76ea](https://github.com/dasch-swiss/dsp-tools/commit/99c76ea07de47327b58866e7188cac100194bfbc))
+* **xmllib:** add migration metadata to resources (DEV-4194) ([#1190](https://github.com/dasch-swiss/dsp-tools/issues/1190)) ([1784065](https://github.com/dasch-swiss/dsp-tools/commit/1784065118328a13a45931a390975160d06bc606))
+* **xmllib:** create permissions (DEV-4192) ([#1191](https://github.com/dasch-swiss/dsp-tools/issues/1191)) ([cfe95aa](https://github.com/dasch-swiss/dsp-tools/commit/cfe95aabc9cc8f90fb060677128f39caba509793))
+* **xmllib:** rename add multiple function (DEV-4249) ([#1223](https://github.com/dasch-swiss/dsp-tools/issues/1223)) ([df5f87f](https://github.com/dasch-swiss/dsp-tools/commit/df5f87f0aa38e254c0223d064dbbb78be6aa6ae2))
+* **xmllib:** rename default permissions enum (DEV-4248) ([#1222](https://github.com/dasch-swiss/dsp-tools/issues/1222)) ([8b5f858](https://github.com/dasch-swiss/dsp-tools/commit/8b5f858752fdec9e615c60fef1263be5b7835d60))
+* **xmllib:** replace newline with XML tag (DEV-4195) ([#1189](https://github.com/dasch-swiss/dsp-tools/issues/1189)) ([3419b34](https://github.com/dasch-swiss/dsp-tools/commit/3419b34c7c8fdc00f9ef5176c40a7be7dbdf7b31))
+* **xmlvalidate:** add CLI command (DEV-4119) ([#1193](https://github.com/dasch-swiss/dsp-tools/issues/1193)) ([1db3135](https://github.com/dasch-swiss/dsp-tools/commit/1db31352cc2c41f5f7df5ae8324687107735c1e3))
+* **xmlvalidate:** add save graph flag to CLI (DEV-4206) ([#1199](https://github.com/dasch-swiss/dsp-tools/issues/1199)) ([aa55a2f](https://github.com/dasch-swiss/dsp-tools/commit/aa55a2fb9682344968ca069028ebede647646c4a))
+* **xmlvalidate:** reformat validation results graph (DEV-4133) ([#1187](https://github.com/dasch-swiss/dsp-tools/issues/1187)) ([e655d98](https://github.com/dasch-swiss/dsp-tools/commit/e655d985a7358d7804ed51bb409b482f0c028811))
+* **xmlvalidate:** save large number of errors as csv (DEV-4208) ([#1200](https://github.com/dasch-swiss/dsp-tools/issues/1200)) ([841975a](https://github.com/dasch-swiss/dsp-tools/commit/841975ab60f36a1e8e9932e85279d45a0ecb4a42))
+* **xmlvalidate:** send validation request to API (DEV-4177) ([#1186](https://github.com/dasch-swiss/dsp-tools/issues/1186)) ([57099e4](https://github.com/dasch-swiss/dsp-tools/commit/57099e4c00fe1e2d2675169dcb09cdf9d342198a))
+* **xmlvalidate:** value type checks (DEV-4122) ([#1197](https://github.com/dasch-swiss/dsp-tools/issues/1197)) ([bf509cd](https://github.com/dasch-swiss/dsp-tools/commit/bf509cd96b496c5ea6379e9e57f9157521c87f34))
+
+
+### Bug Fixes
+
+* add missing dependency in xmllib (DEV-4254) ([#1228](https://github.com/dasch-swiss/dsp-tools/issues/1228)) ([26bd3dc](https://github.com/dasch-swiss/dsp-tools/commit/26bd3dc23f9072ed06e1d005d2fb75d4cb876399))
+* **ci:** pin the python version used in the CI ([#1230](https://github.com/dasch-swiss/dsp-tools/issues/1230)) ([ec75682](https://github.com/dasch-swiss/dsp-tools/commit/ec756829fd0b2adc10fcfb1564e3b31f33117bd8))
+* **create:** always respect admin status of user in JSON file (DEV-4239) ([#1217](https://github.com/dasch-swiss/dsp-tools/issues/1217)) ([0e3c654](https://github.com/dasch-swiss/dsp-tools/commit/0e3c65439ada1cff6f4589263f959a9ca53428b0))
+* **validate-data:** prevent SimpleText Class shape to be used at the wrong place (DEV-4224) ([#1206](https://github.com/dasch-swiss/dsp-tools/issues/1206)) ([e0e686f](https://github.com/dasch-swiss/dsp-tools/commit/e0e686fe15bc22a305f9dc4a571d2dbf4dfd57f0))
+* **xmllib:** make permission serialisation into correct string (DEV-4256) ([#1225](https://github.com/dasch-swiss/dsp-tools/issues/1225)) ([1be649a](https://github.com/dasch-swiss/dsp-tools/commit/1be649af6db6f8fc6c113d9c1a15f52f059933a2))
+* **xmllib:** turn `Resource.new()` into `staticmethod` (DEV-4250) ([#1220](https://github.com/dasch-swiss/dsp-tools/issues/1220)) ([00a66d9](https://github.com/dasch-swiss/dsp-tools/commit/00a66d923e87a57f43d047ef7669e27d92f317b3))
+* **xmlupload:** downgrade fuseki to prevent backend from crashing ([#1201](https://github.com/dasch-swiss/dsp-tools/issues/1201)) ([12ebe12](https://github.com/dasch-swiss/dsp-tools/commit/12ebe12ce8a0917c551f106092479ba1568ede6f))
+* **xmlvalidate:** duplicate cardinalities of LinkValues (DEV-4203) ([#1198](https://github.com/dasch-swiss/dsp-tools/issues/1198)) ([a8a67ab](https://github.com/dasch-swiss/dsp-tools/commit/a8a67abf2731870d20e3c08b2e2a75b9533eb7ec))
+
+
+### Maintenance
+
+* **ci:** delegate python installation to uv ([#1218](https://github.com/dasch-swiss/dsp-tools/issues/1218)) ([0d7f91c](https://github.com/dasch-swiss/dsp-tools/commit/0d7f91c0635f4db183e98eb8db7cd95de31fbd6a))
+* **ci:** use uv publish instead of twine ([#1219](https://github.com/dasch-swiss/dsp-tools/issues/1219)) ([39f91d8](https://github.com/dasch-swiss/dsp-tools/commit/39f91d82162ab8f662708228bfd84cd70d0781f1))
+* make info string of schema validation more precise ([#1202](https://github.com/dasch-swiss/dsp-tools/issues/1202)) ([59bd01a](https://github.com/dasch-swiss/dsp-tools/commit/59bd01ada348f1a82387654ab8b5f14db7f8e758))
+* remove obsolete python version definitions ([#1221](https://github.com/dasch-swiss/dsp-tools/issues/1221)) ([a34b45d](https://github.com/dasch-swiss/dsp-tools/commit/a34b45d721b2335be8b7aea19f68d2ff7e5cc81c))
+* rename folder with test data ([#1204](https://github.com/dasch-swiss/dsp-tools/issues/1204)) ([e147d55](https://github.com/dasch-swiss/dsp-tools/commit/e147d55a0ea7950164d85e0e36a4fc03782ddb54))
+* **validate-data:** change base info extraction from validation report (DEV-4258) ([#1227](https://github.com/dasch-swiss/dsp-tools/issues/1227)) ([c1f78a2](https://github.com/dasch-swiss/dsp-tools/commit/c1f78a28137b1b8a951f1c0e49fb055ddb6a9f06))
+* **validate-data:** move prefix constants to separate file ([#1210](https://github.com/dasch-swiss/dsp-tools/issues/1210)) ([a4b08f7](https://github.com/dasch-swiss/dsp-tools/commit/a4b08f7b83d2e8d5620e04271d9d6c806b64aa38))
+* **validate-data:** separate cardinality and content validation (DEV-4217) ([#1207](https://github.com/dasch-swiss/dsp-tools/issues/1207)) ([c0b057e](https://github.com/dasch-swiss/dsp-tools/commit/c0b057e60026ca13d4b55c4b5779ee81416b7395))
+* **xmllib:** check and convert erroneous input datatypes (DEV-4190) ([#1184](https://github.com/dasch-swiss/dsp-tools/issues/1184)) ([8ea7914](https://github.com/dasch-swiss/dsp-tools/commit/8ea7914ef2b30dc03f3fdfea6795a41d85bdaaa8))
+* **xmllib:** fix typing in XMLRoot ([#1229](https://github.com/dasch-swiss/dsp-tools/issues/1229)) ([2f60f0e](https://github.com/dasch-swiss/dsp-tools/commit/2f60f0e3cd0e9ec4c3b20762da0826dfa2d45c36))
+* **xmllib:** improve decimal checks ([#1195](https://github.com/dasch-swiss/dsp-tools/issues/1195)) ([324e7ca](https://github.com/dasch-swiss/dsp-tools/commit/324e7caf3082adafae75bab8a48c00299d0a8354))
+* **xmlvalidate:** ignore built-in dsp-properties (DEV-4191) ([#1192](https://github.com/dasch-swiss/dsp-tools/issues/1192)) ([3c01cfb](https://github.com/dasch-swiss/dsp-tools/commit/3c01cfb28e0b95b33a22dfc944eb5b6f2a598bcc))
+* **xmlvalidate:** improve error message (DEV-4201) ([#1196](https://github.com/dasch-swiss/dsp-tools/issues/1196)) ([6b386e9](https://github.com/dasch-swiss/dsp-tools/commit/6b386e90ad8e8ee2103bc0f0e2b12fc86d57f917))
+
 ## [9.1.0](https://github.com/dasch-swiss/dsp-tools/compare/v9.0.2...v9.1.0) (2024-10-01)
 
 

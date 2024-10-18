@@ -4,6 +4,7 @@ import warnings
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
+from typing import TypeAlias
 from typing import Union
 
 from lxml import etree
@@ -22,7 +23,7 @@ from dsp_tools.xmllib.models.resource import Resource
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 
-ResourceBase = Union[
+AnyResource: TypeAlias = Union[
     Resource, AnnotationResource, RegionResource, LinkResource, VideoSegmentResource, AudioSegmentResource
 ]
 
@@ -31,21 +32,21 @@ ResourceBase = Union[
 class XMLRoot:
     shortcode: str
     default_ontology: str
-    resources: list[ResourceBase] = field(default_factory=list)
+    resources: list[AnyResource] = field(default_factory=list)
 
     @staticmethod
     def new(shortcode: str, default_ontology: str) -> XMLRoot:
         return XMLRoot(shortcode=shortcode, default_ontology=default_ontology)
 
-    def add_resource(self, resource: ResourceBase) -> XMLRoot:
+    def add_resource(self, resource: AnyResource) -> XMLRoot:
         self.resources.append(resource)
         return self
 
-    def add_resource_multiple(self, resources: list[ResourceBase]) -> XMLRoot:
+    def add_resource_multiple(self, resources: list[AnyResource]) -> XMLRoot:
         self.resources.extend(resources)
         return self
 
-    def add_resource_optional(self, resource: ResourceBase | None) -> XMLRoot:
+    def add_resource_optional(self, resource: AnyResource | None) -> XMLRoot:
         if resource:
             self.resources.append(resource)
         return self

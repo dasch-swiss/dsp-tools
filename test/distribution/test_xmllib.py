@@ -18,5 +18,5 @@ def test_xmllib() -> None:
         my_res.add_bool(convert_to_bool_string("0"), "my_prop")
     my_res.add_file("my_file")
     annotation = AnnotationResource.new("res_id", "label", "annotation_of", ["comment1", "comment2"])
-    root.add_resource(annotation)  # type: ignore[arg-type]
+    root.add_resource(annotation)
     root.add_resource(my_res)

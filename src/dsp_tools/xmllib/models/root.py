@@ -4,38 +4,48 @@ import warnings
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
+from typing import Union
 
 from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.xml_validation import validate_xml_file
+from dsp_tools.xmllib.models.dsp_base_resources import AnnotationResource
+from dsp_tools.xmllib.models.dsp_base_resources import AudioSegmentResource
+from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
+from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
+from dsp_tools.xmllib.models.dsp_base_resources import VideoSegmentResource
 from dsp_tools.xmllib.models.permissions import XMLPermissions
 from dsp_tools.xmllib.models.resource import Resource
 
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 
+ResourceBase = Union[
+    Resource, AnnotationResource, RegionResource, LinkResource, VideoSegmentResource, AudioSegmentResource
+]
+
 
 @dataclass
 class XMLRoot:
     shortcode: str
     default_ontology: str
-    resources: list[Resource] = field(default_factory=list)
+    resources: list[ResourceBase] = field(default_factory=list)
 
     @staticmethod
     def new(shortcode: str, default_ontology: str) -> XMLRoot:
         return XMLRoot(shortcode=shortcode, default_ontology=default_ontology)
 
-    def add_resource(self, resource: Resource) -> XMLRoot:
+    def add_resource(self, resource: ResourceBase) -> XMLRoot:
         self.resources.append(resource)
         return self
 
-    def add_resource_multiple(self, resources: list[Resource]) -> XMLRoot:
+    def add_resource_multiple(self, resources: list[ResourceBase]) -> XMLRoot:
         self.resources.extend(resources)
         return self
 
-    def add_resource_optional(self, resource: Resource | None) -> XMLRoot:
+    def add_resource_optional(self, resource: ResourceBase | None) -> XMLRoot:
         if resource:
             self.resources.append(resource)
         return self

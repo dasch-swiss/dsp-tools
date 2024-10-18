@@ -220,6 +220,7 @@ dependencies = [
     { name = "rustworkx" },
     { name = "termcolor" },
     { name = "tqdm" },
+    { name = "typing-extensions" },
 ]
 
 [package.dev-dependencies]
@@ -272,6 +273,7 @@ requires-dist = [
     { name = "rustworkx", specifier = ">=0.15.1" },
     { name = "termcolor", specifier = ">=2.4.0" },
     { name = "tqdm", specifier = ">=4.66.5" },
+    { name = "typing-extensions", specifier = ">=4.12.2" },
 ]
 
 [package.metadata.requires-dev]

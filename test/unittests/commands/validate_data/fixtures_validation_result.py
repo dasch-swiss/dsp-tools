@@ -5,12 +5,12 @@ from rdflib import RDF
 from rdflib import RDFS
 from rdflib import SH
 from rdflib import Graph
-from rdflib import URIRef
 
-from dsp_tools.commands.validate_data.models.validation import ResourceValidationReportIdentifiers
-from dsp_tools.commands.validate_data.models.validation import ResultDetail
-from dsp_tools.commands.validate_data.models.validation import ResultWithDetail
-from dsp_tools.commands.validate_data.models.validation import ResultWithoutDetail
+from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
+from dsp_tools.commands.validate_data.models.validation import ExtractedResultDetail
+from dsp_tools.commands.validate_data.models.validation import ExtractedResultWithDetail
+from dsp_tools.commands.validate_data.models.validation import ExtractedResultWithoutDetail
+from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
 from dsp_tools.commands.validate_data.reformat_validaton_result import API_SHAPES
 from test.unittests.commands.validate_data.constants import DASH
 from test.unittests.commands.validate_data.constants import DATA
@@ -28,7 +28,34 @@ def onto_graph() -> Graph:
 
 
 @pytest.fixture
-def report_min_card(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+def report_not_resource(onto_graph: Graph) -> tuple[Graph, Graph]:
+    validation_str = f"""{PREFIXES}
+    _:bn_id_simpletext a sh:ValidationResult ;
+        sh:focusNode <http://data/value_id_simpletext> ;
+        sh:resultMessage "TextValue without formatting" ;
+        sh:resultPath knora-api:valueAsString ;
+        sh:resultSeverity sh:Violation ;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent ;
+        sh:sourceShape api-shapes:SimpleTextValue_PropShape .
+    """
+    validation_g = Graph()
+    validation_g.parse(data=validation_str, format="ttl")
+    data_str = f"""{PREFIXES}
+    <http://data/id_simpletext> a onto:ClassWithEverything ;
+        rdfs:label "Simpletext"^^xsd:string ;
+        onto:testTextarea <http://data/value_id_simpletext> .
+
+    <http://data/value_id_simpletext> a knora-api:TextValue ;
+        knora-api:textValueAsXml "Text"^^xsd:string .
+    """
+    onto_data_g = Graph()
+    onto_data_g += onto_graph
+    onto_data_g.parse(data=data_str, format="ttl")
+    return validation_g, onto_data_g
+
+
+@pytest.fixture
+def report_min_card(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
         sh:focusNode <http://data/id_card_one> ;
@@ -48,15 +75,19 @@ def report_min_card(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidation
     onto_data_g += onto_graph
     onto_data_g.parse(data=data_str, format="ttl")
     val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
-    identifiers = ResourceValidationReportIdentifiers(
-        val_bn, URIRef("http://data/id_card_one"), ONTO.ClassInheritedCardinalityOverwriting
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=SH.MinCountConstraintComponent,
+        resource_iri=DATA.id_card_one,
+        res_class_type=ONTO.ClassInheritedCardinalityOverwriting,
+        result_path=ONTO.testBoolean,
     )
-    return validation_g, onto_data_g, identifiers
+    return validation_g, onto_data_g, base_info
 
 
 @pytest.fixture
-def extracted_min_card() -> ResultWithoutDetail:
-    return ResultWithoutDetail(
+def extracted_min_card() -> ExtractedResultWithoutDetail:
+    return ExtractedResultWithoutDetail(
         source_constraint_component=SH.MinCountConstraintComponent,
         res_iri=DATA.id_card_one,
         res_class=ONTO.ClassInheritedCardinalityOverwriting,
@@ -66,7 +97,7 @@ def extracted_min_card() -> ResultWithoutDetail:
 
 
 @pytest.fixture
-def report_value_type_simpletext(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+def report_value_type_simpletext(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
         sh:detail _:bn_id_simpletext ;
@@ -86,8 +117,8 @@ def report_value_type_simpletext(onto_graph: Graph) -> tuple[Graph, Graph, Resou
         sh:sourceConstraintComponent sh:MinCountConstraintComponent ;
         sh:sourceShape api-shapes:SimpleTextValue_PropShape .
     """  # noqa: E501 (Line too long)
-    valiation_g = Graph()
-    valiation_g.parse(data=validation_str, format="ttl")
+    validation_g = Graph()
+    validation_g.parse(data=validation_str, format="ttl")
     data_str = f"""{PREFIXES}
     <http://data/id_simpletext> a onto:ClassWithEverything ;
         rdfs:label "Simpletext"^^xsd:string ;
@@ -99,24 +130,33 @@ def report_value_type_simpletext(onto_graph: Graph) -> tuple[Graph, Graph, Resou
     onto_data_g = Graph()
     onto_data_g += onto_graph
     onto_data_g.parse(data=data_str, format="ttl")
-    val_bn = next(valiation_g.subjects(RDF.type, SH.ValidationResult))
-    detail_bn = next(valiation_g.objects(predicate=SH.detail))
-    identifiers = ResourceValidationReportIdentifiers(
-        val_bn, URIRef("http://data/id_simpletext"), ONTO.ClassWithEverything, detail_bn
+    val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+    detail_bn = next(validation_g.objects(val_bn, SH.detail))
+    detail = DetailBaseInfo(
+        detail_bn=detail_bn,
+        source_constraint_component=SH.MinCountConstraintComponent,
     )
-    return valiation_g, onto_data_g, identifiers
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        result_path=ONTO.testTextarea,
+        source_constraint_component=SH.NodeConstraintComponent,
+        resource_iri=DATA.id_simpletext,
+        res_class_type=ONTO.ClassWithEverything,
+        detail=detail,
+    )
+    return validation_g, onto_data_g, base_info
 
 
 @pytest.fixture
-def extracted_value_type_simpletext() -> ResultWithDetail:
-    detail = ResultDetail(
+def extracted_value_type_simpletext() -> ExtractedResultWithDetail:
+    detail = ExtractedResultDetail(
         component=SH.MinCountConstraintComponent,
         results_message="TextValue without formatting",
         result_path=KNORA_API.textValueAsXml,
         value_type=KNORA_API.TextValue,
         value=None,
     )
-    return ResultWithDetail(
+    return ExtractedResultWithDetail(
         source_constraint_component=SH.NodeConstraintComponent,
         res_iri=DATA.id_simpletext,
         res_class=ONTO.ClassWithEverything,
@@ -126,7 +166,7 @@ def extracted_value_type_simpletext() -> ResultWithDetail:
 
 
 @pytest.fixture
-def report_value_type(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+def report_value_type(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
         sh:detail _:bn_id_uri ;
@@ -160,23 +200,33 @@ def report_value_type(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidati
     onto_data_g += onto_graph
     onto_data_g.parse(data=data_str, format="ttl")
     val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
-    detail_bn = next(validation_g.objects(predicate=SH.detail))
-    identifiers = ResourceValidationReportIdentifiers(
-        val_bn, URIRef("http://data/id_uri"), ONTO.ClassWithEverything, detail_bn
+    detail_bn = next(validation_g.objects(val_bn, SH.detail))
+    detail_component = next(validation_g.objects(detail_bn, SH.sourceConstraintComponent))
+    detail = DetailBaseInfo(
+        detail_bn=detail_bn,
+        source_constraint_component=detail_component,
     )
-    return validation_g, onto_data_g, identifiers
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=SH.NodeConstraintComponent,
+        resource_iri=DATA.id_uri,
+        res_class_type=ONTO.ClassWithEverything,
+        result_path=ONTO.testUriValue,
+        detail=detail,
+    )
+    return validation_g, onto_data_g, base_info
 
 
 @pytest.fixture
-def extracted_value_type() -> ResultWithDetail:
-    detail = ResultDetail(
+def extracted_value_type() -> ExtractedResultWithDetail:
+    detail = ExtractedResultDetail(
         component=SH.ClassConstraintComponent,
         results_message="UriValue",
         result_path=None,
         value_type=KNORA_API.TextValue,
         value=None,
     )
-    return ResultWithDetail(
+    return ExtractedResultWithDetail(
         source_constraint_component=SH.NodeConstraintComponent,
         res_iri=DATA.id_uri,
         res_class=ONTO.ClassWithEverything,
@@ -186,7 +236,7 @@ def extracted_value_type() -> ResultWithDetail:
 
 
 @pytest.fixture
-def report_regex(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+def report_regex(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
         sh:detail _:bn_geoname_not_number ;
@@ -221,23 +271,33 @@ def report_regex(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationRep
     onto_data_g += onto_graph
     onto_data_g.parse(data=data_str, format="ttl")
     val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
-    detail_bn = next(validation_g.objects(predicate=SH.detail))
-    identifiers = ResourceValidationReportIdentifiers(
-        val_bn, URIRef("http://data/geoname_not_number"), ONTO.ClassWithEverything, detail_bn
+    detail_bn = next(validation_g.objects(val_bn, SH.detail))
+    detail_component = next(validation_g.objects(detail_bn, SH.sourceConstraintComponent))
+    detail = DetailBaseInfo(
+        detail_bn=detail_bn,
+        source_constraint_component=detail_component,
     )
-    return validation_g, onto_data_g, identifiers
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=SH.NodeConstraintComponent,
+        resource_iri=DATA.geoname_not_number,
+        res_class_type=ONTO.ClassWithEverything,
+        result_path=ONTO.testGeoname,
+        detail=detail,
+    )
+    return validation_g, onto_data_g, base_info
 
 
 @pytest.fixture
-def extracted_regex() -> ResultWithDetail:
-    detail = ResultDetail(
+def extracted_regex() -> ExtractedResultWithDetail:
+    detail = ExtractedResultDetail(
         component=SH.PatternConstraintComponent,
         results_message="The value must be a valid geoname code",
         result_path=KNORA_API.geonameValueAsGeonameCode,
         value_type=KNORA_API.GeonameValue,
         value="this-is-not-a-valid-code",
     )
-    return ResultWithDetail(
+    return ExtractedResultWithDetail(
         source_constraint_component=SH.NodeConstraintComponent,
         res_iri=DATA.geoname_not_number,
         res_class=ONTO.ClassWithEverything,
@@ -247,7 +307,7 @@ def extracted_regex() -> ResultWithDetail:
 
 
 @pytest.fixture
-def report_link_target_non_existent(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+def report_link_target_non_existent(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
         sh:detail _:bn_link_target_non_existent ;
@@ -282,26 +342,33 @@ def report_link_target_non_existent(onto_graph: Graph) -> tuple[Graph, Graph, Re
     onto_data_g += onto_graph
     onto_data_g.parse(data=data_str, format="ttl")
     val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
-    detail_bn = next(validation_g.objects(predicate=SH.detail))
-    identifiers = ResourceValidationReportIdentifiers(
-        val_bn,
-        URIRef("http://data/link_target_non_existent"),
-        ONTO.ClassWithEverything,
-        detail_bn,
+    detail_bn = next(validation_g.objects(val_bn, SH.detail))
+    detail_component = next(validation_g.objects(detail_bn, SH.sourceConstraintComponent))
+    detail = DetailBaseInfo(
+        detail_bn=detail_bn,
+        source_constraint_component=detail_component,
     )
-    return validation_g, onto_data_g, identifiers
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=SH.NodeConstraintComponent,
+        resource_iri=DATA.link_target_non_existent,
+        res_class_type=ONTO.ClassWithEverything,
+        result_path=ONTO.testHasLinkTo,
+        detail=detail,
+    )
+    return validation_g, onto_data_g, base_info
 
 
 @pytest.fixture
-def extracted_link_target_non_existent() -> ResultWithDetail:
-    detail = ResultDetail(
+def extracted_link_target_non_existent() -> ExtractedResultWithDetail:
+    detail = ExtractedResultDetail(
         component=SH.ClassConstraintComponent,
         results_message="Resource",
         result_path=API_SHAPES.linkValueHasTargetID,
         value_type=KNORA_API.LinkValue,
-        value=URIRef("http://data/other"),
+        value=DATA.other,
     )
-    return ResultWithDetail(
+    return ExtractedResultWithDetail(
         source_constraint_component=SH.NodeConstraintComponent,
         res_iri=DATA.link_target_non_existent,
         res_class=ONTO.ClassWithEverything,
@@ -311,7 +378,7 @@ def extracted_link_target_non_existent() -> ResultWithDetail:
 
 
 @pytest.fixture
-def report_link_target_wrong_class(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+def report_link_target_wrong_class(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
         sh:detail _:bn_link_target_wrong_class ;
@@ -349,26 +416,33 @@ def report_link_target_wrong_class(onto_graph: Graph) -> tuple[Graph, Graph, Res
     onto_data_g += onto_graph
     onto_data_g.parse(data=data_str, format="ttl")
     val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
-    detail_bn = next(validation_g.objects(predicate=SH.detail))
-    identifiers = ResourceValidationReportIdentifiers(
-        val_bn,
-        URIRef("http://data/link_target_wrong_class"),
-        ONTO.ClassWithEverything,
-        detail_bn,
+    detail_bn = next(validation_g.objects(val_bn, SH.detail))
+    detail_component = next(validation_g.objects(detail_bn, SH.sourceConstraintComponent))
+    detail = DetailBaseInfo(
+        detail_bn=detail_bn,
+        source_constraint_component=detail_component,
     )
-    return validation_g, onto_data_g, identifiers
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=SH.NodeConstraintComponent,
+        resource_iri=DATA.link_target_wrong_class,
+        res_class_type=ONTO.ClassWithEverything,
+        result_path=ONTO.testHasLinkToCardOneResource,
+        detail=detail,
+    )
+    return validation_g, onto_data_g, base_info
 
 
 @pytest.fixture
-def extracted_link_target_wrong_class() -> ResultWithDetail:
-    detail = ResultDetail(
+def extracted_link_target_wrong_class() -> ExtractedResultWithDetail:
+    detail = ExtractedResultDetail(
         component=SH.ClassConstraintComponent,
         results_message="CardOneResource",
         result_path=API_SHAPES.linkValueHasTargetID,
         value_type=KNORA_API.LinkValue,
-        value=URIRef("http://data/id_9_target"),
+        value=DATA.id_9_target,
     )
-    return ResultWithDetail(
+    return ExtractedResultWithDetail(
         source_constraint_component=SH.NodeConstraintComponent,
         res_iri=DATA.link_target_wrong_class,
         res_class=ONTO.ClassWithEverything,
@@ -378,7 +452,7 @@ def extracted_link_target_wrong_class() -> ResultWithDetail:
 
 
 @pytest.fixture
-def report_closed_constraint(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+def report_closed_constraint(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
         sh:focusNode <http://data/id_closed_constraint> ;
@@ -402,15 +476,19 @@ def report_closed_constraint(onto_graph: Graph) -> tuple[Graph, Graph, ResourceV
     onto_data_g += onto_graph
     onto_data_g.parse(data=data_str, format="ttl")
     val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
-    identifiers = ResourceValidationReportIdentifiers(
-        val_bn, URIRef("http://data/id_closed_constraint"), ONTO.CardOneResource
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=DASH.ClosedByTypesConstraintComponent,
+        resource_iri=DATA.id_closed_constraint,
+        res_class_type=ONTO.CardOneResource,
+        result_path=ONTO.testIntegerSimpleText,
     )
-    return validation_g, onto_data_g, identifiers
+    return validation_g, onto_data_g, base_info
 
 
 @pytest.fixture
-def extracted_closed_constraint() -> ResultWithoutDetail:
-    return ResultWithoutDetail(
+def extracted_closed_constraint() -> ExtractedResultWithoutDetail:
+    return ExtractedResultWithoutDetail(
         source_constraint_component=DASH.ClosedByTypesConstraintComponent,
         res_iri=DATA.id_closed_constraint,
         res_class=ONTO.CardOneResource,
@@ -420,7 +498,7 @@ def extracted_closed_constraint() -> ResultWithoutDetail:
 
 
 @pytest.fixture
-def report_max_card(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+def report_max_card(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
         sh:focusNode <http://data/id_max_card> ;
@@ -446,13 +524,19 @@ def report_max_card(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidation
     onto_data_g += onto_graph
     onto_data_g.parse(data=data_str, format="ttl")
     val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
-    identifiers = ResourceValidationReportIdentifiers(val_bn, URIRef("http://data/id_max_card"), ONTO.ClassMixedCard)
-    return validation_g, onto_data_g, identifiers
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=SH.MaxCountConstraintComponent,
+        resource_iri=DATA.id_max_card,
+        res_class_type=ONTO.ClassMixedCard,
+        result_path=ONTO.testHasLinkToCardOneResource,
+    )
+    return validation_g, onto_data_g, base_info
 
 
 @pytest.fixture
-def extracted_max_card() -> ResultWithoutDetail:
-    return ResultWithoutDetail(
+def extracted_max_card() -> ExtractedResultWithoutDetail:
+    return ExtractedResultWithoutDetail(
         source_constraint_component=SH.MaxCountConstraintComponent,
         res_iri=DATA.id_max_card,
         res_class=ONTO.ClassMixedCard,
@@ -462,7 +546,7 @@ def extracted_max_card() -> ResultWithoutDetail:
 
 
 @pytest.fixture
-def report_empty_label(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidationReportIdentifiers]:
+def report_empty_label(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
         sh:focusNode <http://data/empty_label> ;
@@ -483,15 +567,19 @@ def report_empty_label(onto_graph: Graph) -> tuple[Graph, Graph, ResourceValidat
     onto_data_g += onto_graph
     onto_data_g.parse(data=data_str, format="ttl")
     val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
-    identifiers = ResourceValidationReportIdentifiers(
-        val_bn, URIRef("http://data/empty_label"), ONTO.ClassWithEverything
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=SH.PatternConstraintComponent,
+        resource_iri=DATA.empty_label,
+        res_class_type=ONTO.ClassWithEverything,
+        result_path=RDFS.label,
     )
-    return validation_g, onto_data_g, identifiers
+    return validation_g, onto_data_g, base_info
 
 
 @pytest.fixture
-def extracted_empty_label() -> ResultWithoutDetail:
-    return ResultWithoutDetail(
+def extracted_empty_label() -> ExtractedResultWithoutDetail:
+    return ExtractedResultWithoutDetail(
         source_constraint_component=SH.PatternConstraintComponent,
         res_iri=DATA.empty_label,
         res_class=ONTO.ClassWithEverything,
@@ -501,15 +589,15 @@ def extracted_empty_label() -> ResultWithoutDetail:
 
 
 @pytest.fixture
-def extracted_unknown_component() -> ResultWithDetail:
-    detail = ResultDetail(
+def extracted_unknown_component() -> ExtractedResultWithDetail:
+    detail = ExtractedResultDetail(
         component=SH.AndConstraintComponent,
         results_message="This is a constraint that is not checked in the data and should never appear.",
         result_path=KNORA_API.doesNotExist,
         value_type=KNORA_API.TextValue,
         value=None,
     )
-    return ResultWithDetail(
+    return ExtractedResultWithDetail(
         source_constraint_component=SH.UniqueLangConstraintComponent,
         res_iri=DATA.id,
         res_class=ONTO.ClassMixedCard,

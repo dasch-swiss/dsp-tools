@@ -8,13 +8,13 @@ from rdflib import URIRef
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create import create_project
-from dsp_tools.commands.validate_data.models.input_problems import ContentRegexViolation
-from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExist
-from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatch
-from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityViolation
-from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityViolation
-from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
-from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
+from dsp_tools.commands.validate_data.models.input_problems import ContentRegexProblem
+from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
+from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
+from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
+from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityProblem
+from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityProblem
+from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProblem
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import ValidationReport
 from dsp_tools.commands.validate_data.reformat_validaton_result import _extract_base_info_of_resource_results
@@ -139,10 +139,10 @@ class TestReformatValidationGraph:
     def test_reformat_cardinality_violation(self, cardinality_violation: ValidationReport) -> None:
         result = reformat_validation_graph(cardinality_violation)
         expected_info_tuples = [
-            (MinCardinalityViolation, "id_card_one"),
-            (NonExistentCardinalityViolation, "id_closed_constraint"),
-            (MaxCardinalityViolation, "id_max_card"),
-            (MinCardinalityViolation, "id_min_card"),
+            (MinCardinalityProblem, "id_card_one"),
+            (NonExistentCardinalityProblem, "id_closed_constraint"),
+            (MaxCardinalityProblem, "id_max_card"),
+            (MinCardinalityProblem, "id_min_card"),
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)
@@ -173,7 +173,7 @@ class TestReformatValidationGraph:
         ]
         assert len(result.problems) == len(expected_info_tuples)
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
-            assert isinstance(one_result, ValueTypeViolation)
+            assert isinstance(one_result, ValueTypeProblem)
             assert one_result.res_id == expected_info[0]
             assert one_result.expected_type == expected_info[1]
             assert one_result.prop_name == expected_info[2]
@@ -195,27 +195,27 @@ class TestReformatValidationGraph:
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
             assert one_result.res_id == expected_info[0]
             assert one_result.prop_name == expected_info[1]
-            if isinstance(one_result, ContentRegexViolation):
+            if isinstance(one_result, ContentRegexProblem):
                 assert one_result.expected_format == expected_info[2]
-            elif isinstance(one_result, LinkTargetTypeMismatch):
+            elif isinstance(one_result, LinkTargetTypeMismatchProblem):
                 assert one_result.link_target_id == expected_info[2]
-            elif isinstance(one_result, LinkedResourceDoesNotExist):
+            elif isinstance(one_result, LinkedResourceDoesNotExistProblem):
                 assert one_result.link_target_id == expected_info[2]
             else:
-                assert isinstance(one_result, LinkedResourceDoesNotExist)
+                assert isinstance(one_result, LinkedResourceDoesNotExistProblem)
 
     def test_reformat_every_constraint_once(self, every_combination_once: ValidationReport) -> None:
         result = reformat_validation_graph(every_combination_once)
         expected_info_tuples = [
-            ("empty_label", ContentRegexViolation),
-            ("geoname_not_number", ContentRegexViolation),
-            ("id_card_one", MinCardinalityViolation),
-            ("id_closed_constraint", NonExistentCardinalityViolation),
-            ("id_max_card", MaxCardinalityViolation),
-            ("id_simpletext", ValueTypeViolation),
-            ("id_uri", ValueTypeViolation),
-            ("link_target_non_existent", LinkedResourceDoesNotExist),
-            ("link_target_wrong_class", LinkTargetTypeMismatch),
+            ("empty_label", ContentRegexProblem),
+            ("geoname_not_number", ContentRegexProblem),
+            ("id_card_one", MinCardinalityProblem),
+            ("id_closed_constraint", NonExistentCardinalityProblem),
+            ("id_max_card", MaxCardinalityProblem),
+            ("id_simpletext", ValueTypeProblem),
+            ("id_uri", ValueTypeProblem),
+            ("link_target_non_existent", LinkedResourceDoesNotExistProblem),
+            ("link_target_wrong_class", LinkTargetTypeMismatchProblem),
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)

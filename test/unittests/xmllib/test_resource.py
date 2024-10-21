@@ -191,10 +191,7 @@ class TestAddValues:
         assert isinstance(res.values[0], SimpleText)
 
     def test_add_richtext(self) -> None:
-        res = Resource.new("", "", "").add_richtext(
-            "",
-            "A\nB",
-        )
+        res = Resource.new("", "", "").add_richtext("", "A\nB")
         assert len(res.values) == 1
         assert isinstance(res.values[0], Richtext)
         assert res.values[0].value == "A<br/>B"

@@ -88,6 +88,7 @@ def card_1() -> Graph:
                 owl:cardinality 1 ;
                 owl:onProperty onto:testBoolean
                          ] .
+    onto:testBoolean knora-api:isEditable true .
     """
     g = Graph()
     g.parse(data=ttl, format="ttl")
@@ -105,7 +106,8 @@ def card_0_1() -> Graph:
                 salsah-gui:guiOrder 1 ;
                 owl:maxCardinality 1 ;
                 owl:onProperty onto:testDecimalSimpleText
-                         ] .
+                         ] . 
+    onto:testDecimalSimpleText knora-api:isEditable true .
     """
     g = Graph()
     g.parse(data=ttl, format="ttl")
@@ -124,6 +126,7 @@ def card_1_n() -> Graph:
                 owl:minCardinality 1 ;
                 owl:onProperty onto:testGeoname
                          ] .
+    onto:testGeoname knora-api:isEditable true .
     """
     g = Graph()
     g.parse(data=ttl, format="ttl")
@@ -142,6 +145,7 @@ def card_0_n() -> Graph:
                 owl:minCardinality 0 ;
                 owl:onProperty onto:testSimpleText
                          ] .
+    onto:testSimpleText knora-api:isEditable true .
     """
     g = Graph()
     g.parse(data=ttl, format="ttl")

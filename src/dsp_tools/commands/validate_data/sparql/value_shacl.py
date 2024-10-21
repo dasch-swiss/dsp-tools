@@ -39,8 +39,9 @@ def _add_property_shapes_to_class_shapes(onto: Graph) -> Graph:
           knora-api:canBeInstantiated true ;
           rdfs:subClassOf ?restriction .
       ?restriction a owl:Restriction ;
-          owl:onProperty ?propRestriction ;
-          salsah-gui:guiOrder ?order .
+          owl:onProperty ?propRestriction .
+          
+      ?propRestriction knora-api:isEditable true .
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
 
       BIND(IRI(CONCAT(str(?propRestriction), "_PropShape")) AS ?propShapesIRI)

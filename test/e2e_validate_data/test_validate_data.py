@@ -143,6 +143,7 @@ class TestReformatValidationGraph:
             (NonExistentCardinalityProblem, "id_closed_constraint"),
             (MaxCardinalityProblem, "id_max_card"),
             (MinCardinalityProblem, "id_min_card"),
+            (NonExistentCardinalityProblem, "super_prop_no_card"),
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)

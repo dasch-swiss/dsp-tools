@@ -40,8 +40,8 @@
     </resource>
 
     <!--
-        'testSuperDate' does not have a cardinality
-        The sub-property 'testSubDate1' has one
+        'testSuperDate' does not have a cardinality.
+        The sub-property 'testSubDate1' has a cardinality.
         It is not allowed to use the super-property without an explicit cardinality.
     -->
     <resource label="Super property without cardinality" restype=":ClassWithEverything" id="super_prop_no_card">

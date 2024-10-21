@@ -355,8 +355,8 @@ class Resource:
     def add_list(
         self,
         prop_name: str,
-        value: Any,
         list_name: Any,
+        value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -366,8 +366,8 @@ class Resource:
     def add_list_multiple(
         self,
         prop_name: str,
-        values: list[Any],
         list_name: Any,
+        values: list[Any],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -377,8 +377,8 @@ class Resource:
     def add_list_optional(
         self,
         prop_name: str,
-        value: Any,
         list_name: Any,
+        value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:

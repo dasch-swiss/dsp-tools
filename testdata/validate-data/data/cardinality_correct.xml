@@ -6,7 +6,13 @@
        shortcode="9999"
        default-ontology="onto">
 
-    <resource label="Empty" restype=":ClassWithEverything" id="id_0"/>
+    <resource label="Empty" restype=":ClassWithEverything" id="id_no_properties"/>
+
+    <resource label="The property is a sub-property of another" restype=":ClassWithEverything" id="prop_with_super_prop">
+        <date-prop name=":testSubDate1">
+            <date>JULIAN:BCE:0700:BCE:0600</date>
+        </date-prop>
+    </resource>
 
     <resource label="Card 0-1" restype=":ClassInheritedCardinality" id="card_0_1">
         <boolean-prop name=":testBoolean">

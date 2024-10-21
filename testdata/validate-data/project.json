@@ -505,6 +505,44 @@
             ]
           }
         ]
+      },
+      {
+        "name": "second-onto",
+        "label": "Second Ontology",
+        "properties": [
+          {
+            "name": "testBoolean",
+            "super": [
+              "hasValue"
+            ],
+            "object": "BooleanValue",
+            "labels": {
+              "en": "Test Boolean of the second onto"
+            },
+            "gui_element": "Checkbox"
+          }
+        ],
+        "resources": [
+          {
+            "name": "SecondOntoClass",
+            "super": "Resource",
+            "labels": {
+              "en": "Resource with all cardinality options"
+            },
+            "cardinalities": [
+              {
+                "propname": ":testBoolean",
+                "cardinality": "0-1",
+                "gui_order": 0
+              },
+              {
+                "propname": "onto:testSimpleText",
+                "cardinality": "0-n",
+                "gui_order": 1
+              }
+            ]
+          }
+        ]
       }
     ]
   }

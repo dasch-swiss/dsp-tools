@@ -45,4 +45,13 @@
         </geoname-prop>
     </resource>
 
+    <resource label="Class of second ontology" restype="second-onto:SecondOntoClass" id="second_onto_class">
+        <boolean-prop name="second-onto:testBoolean">
+            <boolean>true</boolean>
+        </boolean-prop>
+        <text-prop name=":testSimpleText">
+            <text encoding="utf8">Text</text>
+        </text-prop>
+    </resource>
+
 </knora>

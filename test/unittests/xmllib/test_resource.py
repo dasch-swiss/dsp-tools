@@ -50,36 +50,24 @@ class TestAddValues:
         assert all([isinstance(x, ColorValue) for x in res.values])
 
     def test_add_color_optional(self) -> None:
-        res = Resource.new("", "", "").add_color_optional(
-            "",
-            pd.NA,
-        )
+        res = Resource.new("", "", "").add_color_optional("", pd.NA)
         assert not res.values
         res = res.add_color_optional("", "")
         assert len(res.values) == 1
         assert isinstance(res.values[0], ColorValue)
 
     def test_add_date(self) -> None:
-        res = Resource.new("", "", "").add_date(
-            "",
-            "",
-        )
+        res = Resource.new("", "", "").add_date("", "")
         assert len(res.values) == 1
         assert isinstance(res.values[0], DateValue)
 
     def test_add_date_multiple(self) -> None:
-        res = Resource.new("", "", "").add_date_multiple(
-            "",
-            ["", ""],
-        )
+        res = Resource.new("", "", "").add_date_multiple("", ["", ""])
         assert len(res.values) == 2
         assert all([isinstance(x, DateValue) for x in res.values])
 
     def test_add_date_optional(self) -> None:
-        res = Resource.new("", "", "").add_date_optional(
-            "",
-            None,
-        )
+        res = Resource.new("", "", "").add_date_optional("", None)
         assert not res.values
         res = res.add_date_optional("", "")
         assert len(res.values) == 1
@@ -91,10 +79,7 @@ class TestAddValues:
         assert isinstance(res.values[0], DecimalValue)
 
     def test_add_decimal_multiple(self) -> None:
-        res = Resource.new("", "", "").add_decimal_multiple(
-            "",
-            ["", ""],
-        )
+        res = Resource.new("", "", "").add_decimal_multiple("", ["", ""])
         assert len(res.values) == 2
         assert all([isinstance(x, DecimalValue) for x in res.values])
 

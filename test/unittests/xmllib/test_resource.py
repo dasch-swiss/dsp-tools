@@ -27,11 +27,6 @@ class TestAddValues:
         assert len(res.values) == 1
         assert isinstance(res.values[0], BooleanValue)
 
-    def test_add_bool_multiple(self) -> None:
-        res = Resource.new("", "", "").add_bool_multiple("", ["", ""])
-        assert len(res.values) == 2
-        assert all([isinstance(x, BooleanValue) for x in res.values])
-
     def test_add_bool_optional(self) -> None:
         res = Resource.new("", "", "").add_bool_optional("", None)
         assert not res.values

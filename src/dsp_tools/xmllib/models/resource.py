@@ -117,16 +117,6 @@ class Resource:
         self.values.append(BooleanValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    def add_bool_multiple(
-        self,
-        prop_name: str,
-        values: list[Any],
-        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
-        comment: str | None = None,
-    ) -> Resource:
-        self.values.extend([BooleanValue(v, prop_name, permissions, comment, self.res_id) for v in values])
-        return self
-
     def add_bool_optional(
         self,
         prop_name: str,

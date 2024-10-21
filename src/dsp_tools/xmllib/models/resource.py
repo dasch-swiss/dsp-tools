@@ -109,8 +109,8 @@ class Resource:
 
     def add_bool(
         self,
-        value: Any,
         prop_name: str,
+        value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:

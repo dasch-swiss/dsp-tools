@@ -80,6 +80,15 @@
         </uri-prop>
     </resource>
 
+    <resource label="Class of second ontology" restype="second-onto:SecondOntoClass" id="second_onto_class">
+        <boolean-prop name="second-onto:testBoolean">
+            <boolean>true</boolean>
+        </boolean-prop>
+        <text-prop name=":testSimpleText">
+            <text encoding="utf8">Text</text>
+        </text-prop>
+    </resource>
+
     <region label="Region" id="region_1">
         <color-prop name="hasColor">
             <color permissions="prop-restricted">#5d1f1e</color>

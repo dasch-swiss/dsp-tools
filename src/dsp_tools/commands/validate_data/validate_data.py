@@ -11,17 +11,20 @@ from dsp_tools.commands.validate_data.api_connection import ShaclValidator
 from dsp_tools.commands.validate_data.deserialise_input import deserialise_xml
 from dsp_tools.commands.validate_data.make_data_rdf import make_data_rdf
 from dsp_tools.commands.validate_data.models.data_deserialised import ProjectDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import XMLProject
 from dsp_tools.commands.validate_data.models.data_rdf import DataRDF
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationReport
 from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_shapes_graph
+from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.xml_utils import parse_xml_file
 from dsp_tools.utils.xml_utils import remove_comments_from_element_tree
 from dsp_tools.utils.xml_utils import transform_into_localnames
 from dsp_tools.utils.xml_validation import validate_xml
 
 LIST_SEPARATOR = "\n    - "
+KNORA_API = "http://api.knora.org/ontology/knora-api/v2#"
 
 
 def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bool) -> bool:  # noqa: ARG001 (unused argument)
@@ -146,13 +149,13 @@ def _validate(validator: ShaclValidator, rdf_graphs: RDFGraphs) -> ValidationRep
 
 
 def _get_data_info_from_file(file: Path, api_url: str) -> tuple[DataRDF, str]:
-    cleaned_root = _parse_and_clean_file(file, api_url)
-    deserialised: ProjectDeserialised = deserialise_xml(cleaned_root)
+    xml_project = _parse_and_clean_file(file, api_url)
+    deserialised: ProjectDeserialised = deserialise_xml(xml_project.root)
     rdf_data: DataRDF = make_data_rdf(deserialised.data)
     return rdf_data, deserialised.info.shortcode
 
 
-def _parse_and_clean_file(file: Path, api_url: str) -> etree._Element:
+def _parse_and_clean_file(file: Path, api_url: str) -> XMLProject:
     root = parse_xml_file(file)
     root = remove_comments_from_element_tree(root)
     validate_xml(root)
@@ -160,13 +163,40 @@ def _parse_and_clean_file(file: Path, api_url: str) -> etree._Element:
     return _replace_namespaces(root, api_url)
 
 
-def _replace_namespaces(root: etree._Element, api_url: str) -> etree._Element:
-    with open("src/dsp_tools/resources/validate_data/replace_namespace.xslt", "rb") as xslt_file:
-        xslt_data = xslt_file.read()
+def _replace_namespaces(root: etree._Element, api_url: str) -> XMLProject:
+    new_root = deepcopy(root)
     shortcode = root.attrib["shortcode"]
     default_ontology = root.attrib["default-ontology"]
-    namespace = f"{api_url}/ontology/{shortcode}/{default_ontology}/v2#"
-    xslt_root = etree.XML(xslt_data)
-    transform = etree.XSLT(xslt_root)
-    replacement_value = etree.XSLT.strparam(namespace)
-    return transform(root, replacementValue=replacement_value).getroot()
+    namespace_lookup = _make_namespace_lookup(api_url, shortcode, default_ontology)
+    for ele in new_root.iterdescendants():
+        if (found := ele.attrib.get("restype")) or (found := ele.attrib.get("name")):
+            split_found = found.split(":")
+            if len(split_found) == 1:
+                ele.set("restype" if "restype" in ele.attrib else "name", f"{KNORA_API}{found}")
+            elif len(split_found) == 2:
+                if len(split_found[0]) == 0:
+                    found_namespace = namespace_lookup[default_ontology]
+                elif not (namespace := namespace_lookup.get(split_found[0])):
+                    found_namespace = _construct_namespace(api_url, shortcode, split_found[0])
+                    namespace_lookup[split_found[0]] = found_namespace
+                else:
+                    found_namespace = namespace
+                ele.set("restype" if "restype" in ele.attrib else "name", f"{found_namespace}{split_found[1]}")
+            else:
+                raise InputError(
+                    f"It is not permissible to have a colon in a property or resource class name. "
+                    f"Please correct the following: {found}"
+                )
+    return XMLProject(
+        shortcode=shortcode,
+        root=new_root,
+        used_ontologies=set(namespace_lookup.values()),
+    )
+
+
+def _make_namespace_lookup(api_url: str, shortcode: str, default_onto: str) -> dict[str, str]:
+    return {default_onto: _construct_namespace(api_url, shortcode, default_onto), "knora-api": KNORA_API}
+
+
+def _construct_namespace(api_url: str, shortcode: str, onto_name: str) -> str:
+    return f"{api_url}/ontology/{shortcode}/{onto_name}/v2#"

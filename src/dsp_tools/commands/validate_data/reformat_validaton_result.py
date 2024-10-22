@@ -296,7 +296,7 @@ def _reformat_extracted_results(results: list[ValidationResult]) -> list[InputPr
     return all_reformatted
 
 
-def _reformat_one_validation_result(validation_result: ValidationResult) -> InputProblem:  # noqa: PLR0911 Too many return statements (7 > 6)
+def _reformat_one_validation_result(validation_result: ValidationResult) -> InputProblem:  # noqa: PLR0911 Too many return statements
     match validation_result:
         case ResultMaxCardinalityViolation():
             iris = _reformat_main_iris(validation_result)

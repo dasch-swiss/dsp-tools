@@ -96,8 +96,8 @@
         <text-prop name=":testTextarea">
             <text encoding="utf8">Text</text>
         </text-prop>
-        <text-prop name=":testRichtext">
-            <text encoding="xml">Text</text>
+        <text-prop name=":testSimpleText">
+            <text encoding="utf8">Text</text>
         </text-prop>
     </resource>
 

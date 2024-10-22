@@ -77,7 +77,7 @@ def _construct_unique_value_shape(onto: Graph) -> Graph:
                 SELECT $this ?path ?value WHERE {
 
                     $this ?path ?valueClass .
-                    ?valueClass knora-api:valueAsString|api-shapes:linkValueHasTargetID|knora-api:valueHas* ?value .
+                    ?valueClass knora-api:valueHas* ?value .
                 }
                 GROUP BY $this ?path ?value
                 HAVING (COUNT(?value) > 1)
@@ -98,6 +98,7 @@ def _construct_unique_value_shape(onto: Graph) -> Graph:
         return results_graph
     return Graph()
 
+# TODO: add these into the query:: knora-api:valueAsString|api-shapes:linkValueHasTargetID|
 
 def _construct_property_type_shape_based_on_object_type(onto: Graph) -> Graph:
     def as_object_type_and_shacl_shape(property_type: str) -> tuple[str, str]:

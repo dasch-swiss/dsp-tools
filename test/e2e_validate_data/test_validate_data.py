@@ -222,12 +222,12 @@ class TestReformatValidationGraph:
         expected_info_tuples = [
             ("empty_label", ContentRegexProblem),
             ("geoname_not_number", ContentRegexProblem),
-            ("identical_values", DuplicateValueProblem),
             ("id_card_one", MinCardinalityProblem),
             ("id_closed_constraint", NonExistentCardinalityProblem),
             ("id_max_card", MaxCardinalityProblem),
             ("id_simpletext", ValueTypeProblem),
             ("id_uri", ValueTypeProblem),
+            ("identical_values", DuplicateValueProblem),
             ("link_target_non_existent", LinkedResourceDoesNotExistProblem),
             ("link_target_wrong_class", LinkTargetTypeMismatchProblem),
         ]

@@ -80,7 +80,7 @@ def _construct_unique_value_shape(onto: Graph) -> Graph:
                     $this ?path ?valueClass .
                     
                     {
-                        ?prop rdfs:subPropertyOf* knora-api:valueHas .
+                        ?prop rdfs:subPropertyOf knora-api:valueHas .
                         ?valueClass ?prop ?value .
                     }
                     UNION

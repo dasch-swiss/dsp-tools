@@ -11,7 +11,6 @@ class XMLProject:
     shortcode: str
     root: etree._Element
     used_ontologies: set[str]
-    used_props_and_classes: set[str]
 
 
 @dataclass

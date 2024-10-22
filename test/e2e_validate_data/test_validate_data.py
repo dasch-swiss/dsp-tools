@@ -9,6 +9,7 @@ from rdflib import URIRef
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.validate_data.models.input_problems import ContentRegexProblem
+from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
@@ -88,6 +89,14 @@ def value_type_violation(_create_project: None) -> ValidationReport:
     )
 
 
+@lru_cache(maxsize=None)
+@pytest.fixture
+def unique_value_violation(_create_project: None) -> ValidationReport:
+    return _get_validation_result(
+        LOCAL_API, Path("testdata/validate-data/data/unique_value_violation.xml"), DONT_SAVE_GRAPHS
+    )
+
+
 def test_extract_identifiers_of_resource_results(every_combination_once: ValidationReport) -> None:
     report_and_onto = every_combination_once.validation_graph + every_combination_once.onto_graph
     data_and_onto = every_combination_once.data_graph + every_combination_once.onto_graph
@@ -133,6 +142,9 @@ class TestCheckConforms:
 
     def test_value_type_violation(self, value_type_violation: ValidationReport) -> None:
         assert not value_type_violation.conforms
+
+    def test_unique_value_violation(self, unique_value_violation: ValidationReport) -> None:
+        assert not unique_value_violation.conforms
 
 
 class TestReformatValidationGraph:
@@ -210,6 +222,7 @@ class TestReformatValidationGraph:
         expected_info_tuples = [
             ("empty_label", ContentRegexProblem),
             ("geoname_not_number", ContentRegexProblem),
+            ("identical_values", DuplicateValueProblem),
             ("id_card_one", MinCardinalityProblem),
             ("id_closed_constraint", NonExistentCardinalityProblem),
             ("id_max_card", MaxCardinalityProblem),
@@ -224,6 +237,21 @@ class TestReformatValidationGraph:
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
             assert one_result.res_id == expected_info[0]
             assert isinstance(one_result, expected_info[1])
+
+    def test_reformat_unique_value_violation(self, unique_value_violation: ValidationReport) -> None:
+        result = reformat_validation_graph(unique_value_violation)
+        expected_ids = [
+            "identical_values_LinkValue",
+            "identical_values_listNode",
+            "identical_values_valueAsString",
+            "identical_values_valueHas",
+        ]
+        assert not result.unexpected_results
+        assert len(result.problems) == len(expected_ids)
+        sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
+        for one_result, expected_id in zip(sorted_problems, expected_ids):
+            assert isinstance(one_result, DuplicateValueProblem)
+            assert one_result.res_id == expected_id
 
 
 if __name__ == "__main__":

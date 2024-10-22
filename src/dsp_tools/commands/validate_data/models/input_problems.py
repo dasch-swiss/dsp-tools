@@ -308,7 +308,7 @@ class DuplicateValueProblem(InputProblem):
 
     @property
     def problem(self) -> str:
-        return "Duplicate Value"
+        return "Value is duplicated"
 
     def get_msg(self) -> str:
         return f"{self.problem}, Content: '{self.actual_content}'"

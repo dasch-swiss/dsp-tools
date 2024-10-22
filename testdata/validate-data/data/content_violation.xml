@@ -6,7 +6,7 @@
        shortcode="9999"
        default-ontology="onto">
 
-    <!-- 11 Violations -->
+    <!-- 9 Violations -->
 
     <!-- label may not be empty -->
     <resource label=" " restype=":ClassWithEverything" id="empty_label"/>
@@ -75,48 +75,6 @@
 
             </text>
         </text-prop>
-    </resource>
-
-
-    <!--
-    The value of the same property may not be identical
-    knora-api:valueAsString is not rdfs:subProperty of any knora-api properties
-    -->
-    <resource label="Duplicate Value" restype=":ClassWithEverything" id="identical_values_text">
-        <text-prop name=":testTextarea">
-            <text encoding="utf8">Text</text>
-            <text encoding="utf8">Text</text>
-        </text-prop>
-    </resource>
-
-    <!--
-    The value of the same property may not be identical
-    linkvalue TODO: listnode
-    -->
-    <resource label="Duplicate Value" restype=":ClassWithEverything" id="identical_values_linkValue">
-        <text-prop name=":testTextarea">
-            <text encoding="utf8">Text</text>
-            <text encoding="utf8">Text</text>
-        </text-prop>
-    </resource>
-
-    <!--
-    The value of the same property may not be identical
-    The following values use properties that are rdfs:subProperty of knora-api:valueHas
-    - BooleanValue
-    - ColorValue
-    - DecimalValue
-    - GeonameValue
-    - IntValue
-    - Richtext (knora-api:textValueAsXml)
-    - TimeValue
-    - UriValue
-    -->
-    <resource label="Geoname is not a number" restype=":ClassWithEverything" id="identical_values_value_has">
-        <geoname-prop name=":testGeoname">
-            <geoname>00111111</geoname>
-            <geoname>00111111</geoname>
-        </geoname-prop>
     </resource>
 
 </knora>

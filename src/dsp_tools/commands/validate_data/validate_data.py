@@ -97,7 +97,12 @@ def _create_graphs(onto_con: OntologyConnection, data_rdf: DataRDF) -> RDFGraphs
     api_shapes.parse("src/dsp_tools/resources/validate_data/api-shapes.ttl")
     shapes_graph += api_shapes
     data = data_rdf.make_graph()
-    return RDFGraphs(data=data, ontos=ontologies, shapes=shapes_graph)
+    return RDFGraphs(
+        data=data,
+        ontos=ontologies,
+        shapes=shapes_graph,
+        knora_api=knora_api,
+    )
 
 
 def _get_project_ontos(onto_con: OntologyConnection) -> Graph:

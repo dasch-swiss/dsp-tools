@@ -23,7 +23,7 @@
         The value of the same property may not be identical
         api-shapes:linkValueHasTargetID
     -->
-    <resource label="Duplicate Value: LinkValue" restype=":ClassWithEverything" id="link_valueTarget_id"/>
+    <resource label="Target of duplicate LinkValue" restype=":ClassWithEverything" id="link_valueTarget_id"/>
     <resource label="Duplicate Value: LinkValue" restype=":ClassWithEverything" id="identical_values_LinkValue">
         <resptr-prop name=":testHasLinkTo">
             <resptr>link_valueTarget_id</resptr>

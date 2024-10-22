@@ -119,4 +119,16 @@
             </resptr-prop>
         </resource>
 
+        <!--
+        Our Violation Type
+        sh:sourceConstraintComponent  sh:SPARQLConstraintComponent
+        sh:detail                     -
+        -->
+        <resource label="Duplicate Value: valueAsString" restype=":ClassWithEverything" id="identical_values">
+            <text-prop name=":testTextarea">
+                <text encoding="utf8">Text</text>
+                <text encoding="utf8">Text</text>
+            </text-prop>
+        </resource>
+
 </knora>

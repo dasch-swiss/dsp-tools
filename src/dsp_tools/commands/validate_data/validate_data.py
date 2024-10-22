@@ -159,6 +159,7 @@ def _parse_and_clean_file(file: Path, api_url: str) -> XMLProject:
 
 
 def _replace_namespaces(root: etree._Element, api_url: str) -> XMLProject:
+    used_absolute_iris = set()
     new_root = deepcopy(root)
     shortcode = root.attrib["shortcode"]
     default_ontology = root.attrib["default-ontology"]
@@ -167,7 +168,9 @@ def _replace_namespaces(root: etree._Element, api_url: str) -> XMLProject:
         if (found := ele.attrib.get("restype")) or (found := ele.attrib.get("name")):
             split_found = found.split(":")
             if len(split_found) == 1:
-                ele.set("restype" if "restype" in ele.attrib else "name", f"{KNORA_API}{found}")
+                new_absolute_iri = f"{KNORA_API}{found}"
+                used_absolute_iris.add(new_absolute_iri)
+                ele.set("restype" if "restype" in ele.attrib else "name", new_absolute_iri)
             elif len(split_found) == 2:
                 if len(split_found[0]) == 0:
                     found_namespace = namespace_lookup[default_ontology]
@@ -176,7 +179,9 @@ def _replace_namespaces(root: etree._Element, api_url: str) -> XMLProject:
                     namespace_lookup[split_found[0]] = found_namespace
                 else:
                     found_namespace = namespace
-                ele.set("restype" if "restype" in ele.attrib else "name", f"{found_namespace}{split_found[1]}")
+                new_absolute_iri = f"{found_namespace}{split_found[1]}"
+                used_absolute_iris.add(new_absolute_iri)
+                ele.set("restype" if "restype" in ele.attrib else "name", new_absolute_iri)
             else:
                 raise InputError(
                     f"It is not permissible to have a colon in a property or resource class name. "
@@ -185,7 +190,8 @@ def _replace_namespaces(root: etree._Element, api_url: str) -> XMLProject:
     return XMLProject(
         shortcode=shortcode,
         root=new_root,
-        used_ontologies=list(namespace_lookup.values()),
+        used_ontologies=set(namespace_lookup.values()),
+        used_props_and_classes=used_absolute_iris,
     )
 
 

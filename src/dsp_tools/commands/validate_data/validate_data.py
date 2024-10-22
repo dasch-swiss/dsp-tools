@@ -169,11 +169,13 @@ def _replace_namespaces(root: etree._Element, api_url: str) -> XMLProject:
                 ele.set("restype" if "restype" in ele.attrib else "name", f"{KNORA_API}{found}")
             elif len(split_found) == 2:
                 if len(split_found[0]) == 0:
-                    namespace = namespace_lookup[default_ontology]
+                    found_namespace = namespace_lookup[default_ontology]
                 elif not (namespace := namespace_lookup.get(split_found[0])):
-                    namespace = _construct_namespace(api_url, shortcode, split_found[0])
-                    namespace_lookup[split_found[0]] = namespace
-                ele.set("restype" if "restype" in ele.attrib else "name", f"{namespace}{split_found[1]}")
+                    found_namespace = _construct_namespace(api_url, shortcode, split_found[0])
+                    namespace_lookup[split_found[0]] = found_namespace
+                else:
+                    found_namespace = namespace
+                ele.set("restype" if "restype" in ele.attrib else "name", f"{found_namespace}{split_found[1]}")
     return XMLProject(
         shortcode=shortcode,
         root=new_root,

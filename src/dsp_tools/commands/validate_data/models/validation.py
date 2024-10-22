@@ -67,6 +67,11 @@ class ValidationResult:
 
 
 @dataclass
+class ResultUniqueValueViolation(ValidationResult):
+    actual_value: Node
+
+
+@dataclass
 class ResultValueTypeViolation(ValidationResult):
     results_message: str
     actual_value_type: Node

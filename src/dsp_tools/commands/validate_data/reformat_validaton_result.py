@@ -10,6 +10,7 @@ from rdflib.term import Node
 
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import ContentRegexProblem
+from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
@@ -26,6 +27,7 @@ from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinal
 from dsp_tools.commands.validate_data.models.validation import ResultMinCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultNonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultPatternViolation
+from dsp_tools.commands.validate_data.models.validation import ResultUniqueValueViolation
 from dsp_tools.commands.validate_data.models.validation import ResultValueTypeViolation
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.models.validation import ValidationReport
@@ -169,6 +171,8 @@ def _query_one_without_detail(
                 res_class=base_info.res_class_type,
                 property=base_info.result_path,
             )
+        case SH.SPARQLConstraintComponent:
+            return _query_for_unique_value_violation(base_info, results_and_onto)
         case _:
             return UnexpectedComponent(str(component))
 
@@ -274,6 +278,19 @@ def _query_for_link_value_target_violation(
     )
 
 
+def _query_for_unique_value_violation(
+    base_info: ValidationResultBaseInfo,
+    results_and_onto: Graph,
+) -> ResultUniqueValueViolation:
+    val = next(results_and_onto.objects(base_info.result_bn, SH.value))
+    return ResultUniqueValueViolation(
+        res_iri=base_info.resource_iri,
+        res_class=base_info.res_class_type,
+        property=base_info.result_path,
+        actual_value=val,
+    )
+
+
 def _reformat_extracted_results(results: list[ValidationResult]) -> list[InputProblem]:
     all_reformatted: list[InputProblem] = [_reformat_one_validation_result(x) for x in results]
     return all_reformatted
@@ -310,6 +327,8 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
             return _reformat_pattern_violation_result(validation_result)
         case ResultLinkTargetViolation():
             return _reformat_link_target_violation_result(validation_result)
+        case ResultUniqueValueViolation():
+            return _reformat_unique_value_violation_result(validation_result)
         case _:
             raise BaseError(f"An unknown violation result was found: {validation_result.__class__.__name__}")
 
@@ -359,6 +378,10 @@ def _reformat_link_target_violation_result(result: ResultLinkTargetViolation) ->
         actual_type=actual_type,
         expected_type=result.results_message,
     )
+
+
+def _reformat_unique_value_violation_result(result: ResultUniqueValueViolation) -> DuplicateValueProblem:
+    iris = _reformat_main_iris(result)
 
 
 def _reformat_main_iris(result: ValidationResult) -> ReformattedIRI:

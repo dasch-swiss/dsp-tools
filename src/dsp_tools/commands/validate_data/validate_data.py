@@ -17,6 +17,7 @@ from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationReport
 from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_shapes_graph
+from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.xml_utils import parse_xml_file
 from dsp_tools.utils.xml_utils import remove_comments_from_element_tree
 from dsp_tools.utils.xml_utils import transform_into_localnames
@@ -176,6 +177,11 @@ def _replace_namespaces(root: etree._Element, api_url: str) -> XMLProject:
                 else:
                     found_namespace = namespace
                 ele.set("restype" if "restype" in ele.attrib else "name", f"{found_namespace}{split_found[1]}")
+            else:
+                raise InputError(
+                    f"It is not permissible to have a colon in a property or resource class name. "
+                    f"Please correct the following: {found}"
+                )
     return XMLProject(
         shortcode=shortcode,
         root=new_root,

@@ -21,26 +21,25 @@
 
     <!--
         The value of the same property may not be identical
-        linkvalue TODO: linkvalue
+        api-shapes:linkValueHasTargetID
     -->
     <resource label="Duplicate Value: LinkValue" restype=":ClassWithEverything" id="identical_values_LinkValue">
-        <text-prop name=":testTextarea">
-            <text encoding="utf8">Text</text>
-            <text encoding="utf8">Text</text>
-        </text-prop>
+        <resptr-prop name=":testHasLinkTo">
+            <resptr>identical_values_listNode</resptr>
+            <resptr>identical_values_listNode</resptr>
+        </resptr-prop>
     </resource>
 
     <!--
         The value of the same property may not be identical
-        linkvalue TODO: listnode
+        api-shapes:listNodeAsString
     -->
     <resource label="Duplicate Value: ListNode" restype=":ClassWithEverything" id="identical_values_listNode">
-        <text-prop name=":testTextarea">
-            <text encoding="utf8">Text</text>
-            <text encoding="utf8">Text</text>
-        </text-prop>
+        <list-prop list="onlyList" name=":testListProp">
+            <list>n1</list>
+            <list>n1</list>
+        </list-prop>
     </resource>
-
 
     <!--
         The value of the same property may not be identical

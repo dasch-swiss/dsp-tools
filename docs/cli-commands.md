@@ -145,7 +145,7 @@ The following options are available:
 - `--interrupt-after=int` (optional): interrupt the upload after `int` resources have been uploaded
 - `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
   (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
-- `--no-iiif-uri-validation` (optional): don't check if the IIIF links are conform to the standard schema
+- `--no-iiif-uri-validation` (optional): don't check if the IIIF links are valid URLs that can be reached online.
 
 Output:
 

@@ -296,7 +296,7 @@ def _reformat_extracted_results(results: list[ValidationResult]) -> list[InputPr
     return all_reformatted
 
 
-def _reformat_one_validation_result(validation_result: ValidationResult) -> InputProblem:
+def _reformat_one_validation_result(validation_result: ValidationResult) -> InputProblem:  # noqa: PLR0911 Too many return statements (7 > 6)
     match validation_result:
         case ResultMaxCardinalityViolation():
             iris = _reformat_main_iris(validation_result)
@@ -382,6 +382,13 @@ def _reformat_link_target_violation_result(result: ResultLinkTargetViolation) ->
 
 def _reformat_unique_value_violation_result(result: ResultUniqueValueViolation) -> DuplicateValueProblem:
     iris = _reformat_main_iris(result)
+    if isinstance(result.actual_value, Literal):
+        actual_value = str(result.actual_value)
+    else:
+        actual_value = _reformat_data_iri(str(result.actual_value))
+    return DuplicateValueProblem(
+        res_id=iris.res_id, res_type=iris.res_type, prop_name=iris.prop_name, actual_content=actual_value
+    )
 
 
 def _reformat_main_iris(result: ValidationResult) -> ReformattedIRI:

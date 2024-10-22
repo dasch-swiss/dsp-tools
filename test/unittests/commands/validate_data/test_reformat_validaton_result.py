@@ -2,9 +2,11 @@ import pytest
 from rdflib import RDFS
 from rdflib import SH
 from rdflib import Graph
+from rdflib import Literal
 from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.models.input_problems import ContentRegexProblem
+from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
@@ -17,6 +19,7 @@ from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinal
 from dsp_tools.commands.validate_data.models.validation import ResultMinCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultNonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultPatternViolation
+from dsp_tools.commands.validate_data.models.validation import ResultUniqueValueViolation
 from dsp_tools.commands.validate_data.models.validation import ResultValueTypeViolation
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
@@ -147,6 +150,26 @@ class TestQueryWithoutDetail:
         assert result.property == RDFS.label
         assert result.results_message == "The label must be a non-empty string"
         assert result.actual_value == " "
+
+    def test_unique_value_literal(
+        self, report_unique_value_literal: tuple[Graph, Graph, ValidationResultBaseInfo]
+    ) -> None:
+        res, _, info = report_unique_value_literal
+        result = _query_one_without_detail(info, res)
+        assert isinstance(result, ResultUniqueValueViolation)
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
+        assert result.property == ONTO.testGeoname
+        assert result.actual_value == Literal("00111111")
+
+    def test_unique_value_iri(self, report_unique_value_iri: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
+        res, _, info = report_unique_value_iri
+        result = _query_one_without_detail(info, res)
+        assert isinstance(result, ResultUniqueValueViolation)
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
+        assert result.property == ONTO.testHasLinkTo
+        assert result.actual_value == DATA.link_valueTarget_id
 
     def test_unknown(self, result_unknown_component: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res, _, info = result_unknown_component
@@ -292,6 +315,22 @@ class TestReformatResult:
         assert result.link_target_id == "id_9_target"
         assert result.expected_type == "CardOneResource"
         assert result.actual_type == "onto:ClassWithEverything"
+
+    def test_unique_value_literal(self, extracted_unique_value_literal: ResultUniqueValueViolation) -> None:
+        result = _reformat_one_validation_result(extracted_unique_value_literal)
+        assert isinstance(result, DuplicateValueProblem)
+        assert result.res_id == "identical_values_valueHas"
+        assert result.res_type == "onto:ClassWithEverything"
+        assert result.prop_name == "onto:testGeoname"
+        assert result.actual_content == "00111111"
+
+    def test_unique_value_iri(self, extracted_unique_value_iri: ResultUniqueValueViolation) -> None:
+        result = _reformat_one_validation_result(extracted_unique_value_iri)
+        assert isinstance(result, DuplicateValueProblem)
+        assert result.res_id == "identical_values_LinkValue"
+        assert result.res_type == "onto:ClassWithEverything"
+        assert result.prop_name == "onto:testHasLinkTo"
+        assert result.actual_content == "link_valueTarget_id"
 
 
 if __name__ == "__main__":

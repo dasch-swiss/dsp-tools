@@ -68,18 +68,20 @@ def _construct_unique_value_shape(onto: Graph) -> Graph:
       a              sh:NodeShape ;
       sh:targetClass ?class ;
       sh:sparql   [
-                    a          sh:SPARQLConstraint ;
-                    sh:message "A resource may not have the same property and value more than one time." ;
-                    sh:select  """
-    
-                        SELECT $this ?path ?value WHERE {
-    
-                            $this ?path ?valueClass .
-                            ?valueClass ?knoraProp ?value .
-                        }
-                        GROUP BY $this ?path ?value
-                        HAVING (COUNT(?value) > 1)
-                    """ ;
+            a          sh:SPARQLConstraint ;
+            sh:message "A resource may not have the same property and value more than one time." ;
+            sh:select  """
+            PREFIX knora-api: <http://api.knora.org/ontology/knora-api/v2#>
+            PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
+
+                SELECT $this ?path ?value WHERE {
+
+                    $this ?path ?valueClass .
+                    ?valueClass knora-api:valueAsString|api-shapes:linkValueHasTargetID|knora-api:valueHas* ?value .
+                }
+                GROUP BY $this ?path ?value
+                HAVING (COUNT(?value) > 1)
+                        """ ;
                   ] ;
       sh:severity sh:Violation .
 

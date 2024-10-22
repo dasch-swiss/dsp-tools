@@ -120,7 +120,7 @@
         </resource>
 
         <!--
-        Our Violation Type
+        Our Violation Type            DuplicateValueProblem
         sh:sourceConstraintComponent  sh:SPARQLConstraintComponent
         sh:detail                     -
         -->

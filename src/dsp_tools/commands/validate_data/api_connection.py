@@ -10,7 +10,8 @@ from requests import ReadTimeout
 from requests import RequestException
 from requests import Response
 
-from dsp_tools.commands.validate_data.models.validation import SHACLValidationReport
+from dsp_tools.commands.validate_data.models.api_responses import AllProjectLists
+from dsp_tools.commands.validate_data.models.api_responses import SHACLValidationReport
 from dsp_tools.models.exceptions import InternalError
 from dsp_tools.models.exceptions import UserError
 
@@ -84,6 +85,17 @@ class OntologyConnection:
     def _get_one_ontology(self, ontology_iri: str) -> str:
         response = self._get(ontology_iri, headers={"Accept": "text/turtle"})
         return response.text
+
+
+@dataclass
+class ListConnection:
+    """Client to request and reformat the lists of a project."""
+
+    api_url: str
+    shortcode: str
+
+    def get_lists(self) -> AllProjectLists:
+        pass
 
 
 @dataclass

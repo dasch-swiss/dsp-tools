@@ -19,6 +19,7 @@ from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import execute_upload
 from dsp_tools.commands.xmlupload.xmlupload import prepare_upload
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
 
@@ -50,8 +51,8 @@ def ingest_xmlupload(
     """
     default_ontology, root, shortcode = _parse_xml_and_replace_filepaths(xml_file)
 
-    con = ConnectionLive(creds.server)
-    con.login(creds.user, creds.password)
+    auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
+    con = ConnectionLive(creds.server, auth)
 
     config = UploadConfig(
         media_previously_uploaded=True,

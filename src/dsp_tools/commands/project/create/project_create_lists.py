@@ -11,6 +11,7 @@ from dsp_tools.commands.project.models.listnode import ListNode
 from dsp_tools.commands.project.models.project import Project
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import UserError
+from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
 from dsp_tools.utils.shared import parse_json_input
@@ -180,9 +181,8 @@ def create_lists(
     validate_project(project_definition, expand_lists=False)
     print("JSON project file is syntactically correct and passed validation.")
 
-    # connect to the DSP server
-    con = ConnectionLive(creds.server)
-    con.login(creds.user, creds.password)
+    auth = AuthenticationClientLive(creds.server, creds.user, creds.password)
+    con = ConnectionLive(creds.server, auth)
 
     # retrieve the project
     shortcode = project_definition["project"]["shortcode"]

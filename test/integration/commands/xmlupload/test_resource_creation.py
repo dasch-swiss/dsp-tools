@@ -24,6 +24,7 @@ from dsp_tools.models.exceptions import PermanentTimeOutError
 from dsp_tools.models.exceptions import XmlUploadInterruptedError
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
+from test.integration.commands.xmlupload.authentication_client_mock import AuthenticationClientMockBase
 
 
 @pytest.fixture
@@ -468,7 +469,7 @@ def test_interruption_if_resource_cannot_be_created_because_of_404() -> None:
     con.session.request = Mock(side_effect=post_responses)  # type: ignore[method-assign]
     project_client = ProjectClientStub(con, "1234", None)
     xmlupload._handle_upload_error = Mock()
-    ingest_client = DspIngestClientLive("", "", "1234", ".")
+    ingest_client = DspIngestClientLive("", AuthenticationClientMockBase(), "1234", ".")
 
     xmlupload._upload_resources(UploadClients(ingest_client, project_client, ListClientMock()), upload_state)
     msg = (

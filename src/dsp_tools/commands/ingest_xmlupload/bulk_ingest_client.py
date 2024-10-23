@@ -14,6 +14,7 @@ from requests.adapters import Retry
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailure
 from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import UserError
+from dsp_tools.utils.authentication_client import AuthenticationClient
 from dsp_tools.utils.logger_config import LOGGER_SAVEPATH
 
 STATUS_OK = 200
@@ -30,7 +31,7 @@ class BulkIngestClient:
     """Client to upload multiple files to the ingest server and monitor the ingest process."""
 
     dsp_ingest_url: str
-    token: str
+    authentication_client: AuthenticationClient
     shortcode: str
     imgdir: Path = field(default=Path.cwd())
     session: Session = field(init=False)
@@ -50,7 +51,7 @@ class BulkIngestClient:
         adapter = HTTPAdapter(max_retries=retry)
         self.session.mount("http://", adapter)
         self.session.mount("https://", adapter)
-        self.session.headers["Authorization"] = f"Bearer {self.token}"
+        self.session.headers["Authorization"] = f"Bearer {self.authentication_client.get_token()}"
 
     def upload_file(
         self,

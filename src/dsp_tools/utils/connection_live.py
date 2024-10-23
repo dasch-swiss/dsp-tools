@@ -9,7 +9,6 @@ from importlib.metadata import version
 from typing import Any
 from typing import Literal
 from typing import Never
-from typing import Optional
 from typing import cast
 
 import regex
@@ -20,11 +19,10 @@ from requests import Response
 from requests import Session
 
 from dsp_tools.models.exceptions import BadCredentialsError
-from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InvalidInputError
 from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.models.exceptions import PermanentTimeOutError
-from dsp_tools.models.exceptions import UserError
+from dsp_tools.utils.authentication_client import AuthenticationClient
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.logger_config import WARNINGS_SAVEPATH
 from dsp_tools.utils.set_encoder import SetEncoder
@@ -61,6 +59,8 @@ class RequestParameters:
             "files": self.files,
         }
 
+    # TODO: remove all sanitization etc
+
 
 @dataclass
 class ConnectionLive(Connection):
@@ -73,7 +73,7 @@ class ConnectionLive(Connection):
     """
 
     server: str
-    token: Optional[str] = None
+    authenticationClient: AuthenticationClient | None = None
     session: Session = field(init=False, default=Session())
     # downtimes of server-side services -> API still processes request
     # -> retry too early has side effects (e.g. duplicated resources)
@@ -84,54 +84,14 @@ class ConnectionLive(Connection):
         self.session.headers["User-Agent"] = f'DSP-TOOLS/{version("dsp-tools")}'
         if self.server.endswith("/"):
             self.server = self.server[:-1]
-
-    def login(self, email: str, password: str) -> None:
-        """
-        Retrieve a session token and store it as class attribute.
-
-        Args:
-            email: email address of the user
-            password: password of the user
-
-        Raises:
-            UserError: if DSP-API returns no token with the provided user credentials
-        """
-        try:
-            response = self.post(
-                route="/v2/authentication",
-                data={"email": email, "password": password},
-                timeout=10,
-            )
-        except BadCredentialsError:
-            raise UserError(f"Username and/or password are not valid on server '{self.server}'") from None
-        except PermanentConnectionError as e:
-            raise UserError(e.message) from None
-        if not response.get("token"):
-            raise UserError("Unable to retrieve a token from the server with the provided credentials.")
-        self.token = response["token"]
-        self.session.headers["Authorization"] = f"Bearer {self.token}"
+        if self.authenticationClient and (token := self.authenticationClient.get_token()):
+            self.session.headers["Authorization"] = f"Bearer {token}"
 
     def logout(self) -> None:
         """
         Delete the token on the server and in this class.
         """
-        if self.token:
-            self.token = None
-            del self.session.headers["Authorization"]
-
-    def get_token(self) -> str:
-        """
-        Return the token of this connection.
-
-        Returns:
-            token
-
-        Raises:
-            BaseError: if no token is available
-        """
-        if not self.token:
-            raise BaseError("No token available.")
-        return self.token
+        del self.session.headers["Authorization"]
 
     def post(
         self,
@@ -290,8 +250,8 @@ class ConnectionLive(Connection):
         self.session.close()
         self.session = Session()
         self.session.headers["User-Agent"] = f'DSP-TOOLS/{version("dsp-tools")}'
-        if self.token:
-            self.session.headers["Authorization"] = f"Bearer {self.token}"
+        if self.authenticationClient and (token := self.authenticationClient.get_token()):
+            self.session.headers["Authorization"] = f"Bearer {token}"
 
     def _log_and_sleep(self, reason: str, retry_counter: int, exc_info: bool) -> None:
         msg = f"{reason}: Try reconnecting to DSP server, next attempt in {2 ** retry_counter} seconds..."

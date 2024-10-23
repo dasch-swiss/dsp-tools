@@ -16,7 +16,6 @@ from requests import RequestException
 
 from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.models.exceptions import PermanentTimeOutError
-from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.connection_live import ConnectionLive
 from dsp_tools.utils.connection_live import RequestParameters
 
@@ -39,28 +38,6 @@ class ResponseMock:
     status_code: int
     headers: dict[str, Any]
     text: str
-
-
-def test_log_in_log_out() -> None:
-    con = ConnectionLive("http://example.com/")
-    con.post = Mock(return_value={"token": "token"})
-    con.login("root@example.com", "test")
-    assert con.post.call_args.kwargs["route"] == "/v2/authentication"
-    assert con.token == "token"
-    assert con.session.headers["Authorization"] == "Bearer token"
-    con.logout()
-    assert con.token is None
-    assert "Authorization" not in con.session.headers
-
-
-def test_log_in_bad_credentials() -> None:
-    con = ConnectionLive("http://example.com/")
-    con._log_response = Mock()
-    con.session.request = Mock(return_value=Mock(status_code=401))
-    with patch("dsp_tools.utils.connection_live.time.sleep") as sleep_mock:
-        with pytest.raises(UserError, match=regex.escape("Username and/or password are not valid")):
-            con.login("invalid@example.com", "wrong")
-        sleep_mock.assert_not_called()
 
 
 def test_post() -> None:
@@ -360,11 +337,9 @@ def test_log_response() -> None:
 
 
 def test_renew_session() -> None:
-    con = ConnectionLive("http://example.com/", "my-super-secret-token")
-    assert con.get_token() == "my-super-secret-token"
+    con = ConnectionLive("http://example.com/")
     assert con.session.headers["User-Agent"] == f'DSP-TOOLS/{version("dsp-tools")}'
     con._renew_session()
-    assert con.get_token() == "my-super-secret-token"
     assert con.session.headers["User-Agent"] == f'DSP-TOOLS/{version("dsp-tools")}'
 
 

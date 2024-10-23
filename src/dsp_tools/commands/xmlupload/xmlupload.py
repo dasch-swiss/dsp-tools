@@ -45,6 +45,8 @@ from dsp_tools.models.exceptions import PermanentTimeOutError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.models.exceptions import XmlUploadInterruptedError
 from dsp_tools.models.projectContext import ProjectContext
+from dsp_tools.utils.authentication_client import AuthenticationClient
+from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
 from dsp_tools.utils.logger_config import WARNINGS_SAVEPATH
@@ -80,14 +82,14 @@ def xmlupload(
     if not config.skip_iiif_validation:
         _validate_iiif_uris(root)
 
-    con = ConnectionLive(creds.server)
-    con.login(creds.user, creds.password)
+    auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
+    con = ConnectionLive(creds.server, auth)
     config = config.with_server_info(server=creds.server, shortcode=shortcode)
 
     ontology_client = OntologyClientLive(con=con, shortcode=shortcode, default_ontology=default_ontology)
     resources, permissions_lookup, stash = prepare_upload(root, ontology_client)
 
-    clients = _get_live_clients(con, creds, shortcode, imgdir)
+    clients = _get_live_clients(con, auth, creds, shortcode, imgdir)
     state = UploadState(resources, stash, config, permissions_lookup)
 
     return execute_upload(clients, state)
@@ -115,17 +117,13 @@ def _parse_xml(imgdir: str, input_file: Path) -> tuple[str, etree._Element, str]
 
 def _get_live_clients(
     con: Connection,
+    auth: AuthenticationClient,
     creds: ServerCredentials,
     shortcode: str,
     imgdir: str,
 ) -> UploadClients:
     ingest_client: AssetClient
-    ingest_client = DspIngestClientLive(
-        dsp_ingest_url=creds.dsp_ingest_url,
-        token=con.get_token(),
-        shortcode=shortcode,
-        imgdir=imgdir,
-    )
+    ingest_client = DspIngestClientLive(creds.dsp_ingest_url, auth, shortcode, imgdir)
     project_client: ProjectClient = ProjectClientLive(con, shortcode)
     list_client: ListClient = ListClientLive(con, project_client.get_project_iri())
     return UploadClients(

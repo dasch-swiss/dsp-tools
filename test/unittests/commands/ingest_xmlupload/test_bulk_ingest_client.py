@@ -10,6 +10,7 @@ from requests_mock import Mocker
 from dsp_tools.commands.ingest_xmlupload.bulk_ingest_client import BulkIngestClient
 from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import UserError
+from test.integration.commands.xmlupload.authentication_client_mock import AuthenticationClientMockBase
 
 DSP_INGEST_URL = "https://example.com"
 SHORTCODE = "0001"
@@ -17,7 +18,7 @@ SHORTCODE = "0001"
 
 @pytest.fixture
 def ingest_client() -> BulkIngestClient:
-    return BulkIngestClient(DSP_INGEST_URL, "token", SHORTCODE)
+    return BulkIngestClient(DSP_INGEST_URL, AuthenticationClientMockBase(), SHORTCODE)
 
 
 @pytest.fixture

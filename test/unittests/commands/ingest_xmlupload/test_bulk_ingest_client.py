@@ -42,7 +42,7 @@ def test_upload_file_success(ingest_client: BulkIngestClient, requests_mock: Moc
     req = requests_mock.request_history[0]
     assert req.url == url
     assert req.method == "POST"
-    assert req.headers["Authorization"] == "Bearer token"
+    assert req.headers["Authorization"] == "Bearer mocked_token"
     assert req.headers["Content-Type"] == "application/octet-stream"
     assert req.body == file_content.encode()
 
@@ -95,7 +95,7 @@ def test_trigger_if_success(ingest_client: BulkIngestClient, requests_mock: Mock
     req = requests_mock.request_history[0]
     assert req.url == url
     assert req.method == "POST"
-    assert req.headers["Authorization"] == "Bearer token"
+    assert req.headers["Authorization"] == "Bearer mocked_token"
 
 
 def test_trigger_if_unauthorized(ingest_client: BulkIngestClient, requests_mock: Mocker) -> None:

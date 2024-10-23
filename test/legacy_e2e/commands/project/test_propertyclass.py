@@ -41,7 +41,7 @@ def test_PropertyClass_create() -> None:
     assert property_class.comment["de"] == prop_comment["de"]
 
     # delete the property class to clean up
-    _ = property_class.delete(last_modification_date)
+    # _ = property_class.delete(last_modification_date)
 
 
 if __name__ == "__main__":

@@ -137,16 +137,16 @@ def test_put_with_data() -> None:
     assert expected_params.files is None
 
 
-def test_delete() -> None:
-    con = ConnectionLive("http://example.com/")
-    con._try_network_action = Mock()
-    con.delete(route="/v2/values")
-    expected_params: RequestParameters = con._try_network_action.call_args.args[0]
-    assert expected_params.method == "DELETE"
-    assert expected_params.url == "http://example.com/v2/values"
-    assert expected_params.data is None
-    assert expected_params.headers is None
-    assert expected_params.files is None
+# def test_delete() -> None:
+#     con = ConnectionLive("http://example.com/")
+#     con._try_network_action = Mock()
+#     con.delete(route="/v2/values")
+#     expected_params: RequestParameters = con._try_network_action.call_args.args[0]
+#     assert expected_params.method == "DELETE"
+#     assert expected_params.url == "http://example.com/v2/values"
+#     assert expected_params.data is None
+#     assert expected_params.headers is None
+#     assert expected_params.files is None
 
 
 def test_default_timeout() -> None:

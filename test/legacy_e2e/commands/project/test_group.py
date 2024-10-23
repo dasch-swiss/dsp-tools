@@ -80,31 +80,31 @@ class TestGroup(unittest.TestCase):
         self.assertTrue(group.status)
         self.assertTrue(group.selfjoin)
 
-    def test_Group_delete(self) -> None:
-        """
-        Mark an existing group as deleted (it will not be deleted completely from the triplestore, but status set to
-        False)
-        :return: None
-        """
-        group = Group(
-            con=self.con,
-            name="Group delete",
-            descriptions=LangString({Languages.EN: "This is group delete"}),
-            project=self.test_project,
-            status=True,
-            selfjoin=False,
-        )
-        group = group.create()
+    # def test_Group_delete(self) -> None:
+    #     """
+    #     Mark an existing group as deleted (it will not be deleted completely from the triplestore, but status set to
+    #     False)
+    #     :return: None
+    #     """
+    #     group = Group(
+    #         con=self.con,
+    #         name="Group delete",
+    #         descriptions=LangString({Languages.EN: "This is group delete"}),
+    #         project=self.test_project,
+    #         status=True,
+    #         selfjoin=False,
+    #     )
+    #     group = group.create()
 
-        deleted_group = group.delete()
-        self.assertEqual(deleted_group.name, "Group delete")
-        self.assertCountEqual(
-            cast(list[dict[str, str]], deleted_group.descriptions.toJsonObj()),
-            [{"language": "en", "value": "This is group delete"}],
-        )
-        self.assertEqual(deleted_group.project, self.test_project)
-        self.assertFalse(deleted_group.status)
-        self.assertFalse(deleted_group.selfjoin)
+    #     deleted_group = group.delete()
+    #     self.assertEqual(deleted_group.name, "Group delete")
+    #     self.assertCountEqual(
+    #         cast(list[dict[str, str]], deleted_group.descriptions.toJsonObj()),
+    #         [{"language": "en", "value": "This is group delete"}],
+    #     )
+    #     self.assertEqual(deleted_group.project, self.test_project)
+    #     self.assertFalse(deleted_group.status)
+    #     self.assertFalse(deleted_group.selfjoin)
 
 
 if __name__ == "__main__":

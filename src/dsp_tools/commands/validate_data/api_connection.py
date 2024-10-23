@@ -112,7 +112,7 @@ class ShaclValidator:
             msg = f"Failed to send request. Status code: {response.status_code}, Original Message:\n{response.text}"
             logger.error(msg)
             raise InternalError(msg)
-        return self._reformat_validation_result(response.text)
+        return self._parse_validation_result(response.text)
 
     def _request_validation_result(self, data_ttl: str, shacl_ttl: str) -> requests.Response:
         files = {
@@ -124,7 +124,7 @@ class ShaclValidator:
         logger.debug(f"REQUEST: POST to {request_url}, timeout: {timeout}")
         return requests.post(request_url, files=files, timeout=timeout)
 
-    def _reformat_validation_result(self, response_text: str) -> SHACLValidationReport:
+    def _parse_validation_result(self, response_text: str) -> SHACLValidationReport:
         graph = Graph()
         graph.parse(data=response_text, format="turtle")
         conforms = bool(next(graph.objects(None, SH.conforms)))

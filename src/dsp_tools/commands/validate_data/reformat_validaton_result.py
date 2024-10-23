@@ -30,7 +30,7 @@ from dsp_tools.commands.validate_data.models.validation import ResultPatternViol
 from dsp_tools.commands.validate_data.models.validation import ResultUniqueValueViolation
 from dsp_tools.commands.validate_data.models.validation import ResultValueTypeViolation
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
-from dsp_tools.commands.validate_data.models.validation import ValidationReport
+from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationResult
 from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
 from dsp_tools.models.exceptions import BaseError
@@ -40,7 +40,7 @@ KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
 API_SHAPES = Namespace("http://api.knora.org/ontology/knora-api/shapes/v2#")
 
 
-def reformat_validation_graph(report: ValidationReport) -> AllProblems:
+def reformat_validation_graph(report: ValidationReportGraphs) -> AllProblems:
     """
     Reformats the validation result from an RDF graph into class instances
     that are used to communicate the problems with the user.

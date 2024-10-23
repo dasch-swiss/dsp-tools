@@ -4,11 +4,13 @@ from typing import cast
 
 import requests
 from loguru import logger
+from rdflib import SH
 from rdflib import Graph
 from requests import ReadTimeout
 from requests import RequestException
 from requests import Response
 
+from dsp_tools.commands.validate_data.models.validation import SHACLValidationReport
 from dsp_tools.models.exceptions import InternalError
 from dsp_tools.models.exceptions import UserError
 
@@ -90,7 +92,7 @@ class ShaclValidator:
 
     dsp_api_url: str
 
-    def validate(self, data_ttl: str, shacl_ttl: str) -> Graph:
+    def validate(self, data_ttl: str, shacl_ttl: str) -> SHACLValidationReport:
         """
         Sends a multipart/form-data request with two turtle files (data.ttl and shacl.ttl) to the given URL
         and expects a response containing a single text/turtle body which is loaded into an rdflib Graph.
@@ -105,6 +107,14 @@ class ShaclValidator:
         Raises:
             InternalError: in case of a non-ok response
         """
+        response = self._request_validation_result(data_ttl, shacl_ttl)
+        if not response.ok:
+            msg = f"Failed to send request. Status code: {response.status_code}, Original Message:\n{response.text}"
+            logger.error(msg)
+            raise InternalError(msg)
+        return self._reformat_validation_result(response.text)
+
+    def _request_validation_result(self, data_ttl: str, shacl_ttl: str) -> requests.Response:
         files = {
             "data.ttl": ("data.ttl", data_ttl, "text/turtle"),
             "shacl.ttl": ("shacl.ttl", shacl_ttl, "text/turtle"),
@@ -112,11 +122,10 @@ class ShaclValidator:
         timeout = 10
         request_url = f"{self.dsp_api_url}/shacl/validate"
         logger.debug(f"REQUEST: POST to {request_url}, timeout: {timeout}")
-        response = requests.post(request_url, files=files, timeout=timeout)
-        if not response.ok:
-            msg = f"Failed to send request. Status code: {response.status_code}, Original Message:\n{response.text}"
-            logger.error(msg)
-            raise InternalError(msg)
+        return requests.post(request_url, files=files, timeout=timeout)
+
+    def _reformat_validation_result(self, response_text: str) -> SHACLValidationReport:
         graph = Graph()
-        graph.parse(data=response.text, format="turtle")
-        return graph
+        graph.parse(data=response_text, format="turtle")
+        conforms = bool(next(graph.objects(None, SH.conforms)))
+        return SHACLValidationReport(conforms=conforms, validation_graph=graph)

@@ -289,14 +289,14 @@ class ConnectionLive(Connection):
 
 
 def _sanatize_headers(headers: dict[str, str | bytes]) -> dict[str, str]:
-    def _mask(k: str, s: str | bytes) -> str:
-        if isinstance(s, bytes):
-            s = s.decode("utf-8")
-        if k == "Authorization" and s.startswith("Bearer "):
+    def _mask(key: str, value: str | bytes) -> str:
+        if isinstance(value, bytes):
+            value = value.decode("utf-8")
+        if key == "Authorization" and value.startswith("Bearer "):
             return "Bearer ***"
-        if k == "Set-Cookie":
+        if key == "Set-Cookie":
             return "***"
-        return s
+        return value
 
     return {k: _mask(k, v) for k, v in headers.items()}
 

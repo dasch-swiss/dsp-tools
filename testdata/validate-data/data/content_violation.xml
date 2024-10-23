@@ -27,7 +27,7 @@
 
     <!-- node does not exist -->
     <resource label="List node does not exist" restype=":ClassWithEverything" id="list_node_non_existent">
-        <list-prop list="onlyList" name=":testListProp">
+        <list-prop list="firstList" name=":testListProp">
             <list>other</list>
         </list-prop>
     </resource>

@@ -154,7 +154,7 @@ class TestListValue:
         res = res_list[0]
         assert isinstance(res, ListValueDeserialised)
         assert res.prop_name == "http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp"
-        assert res.list_name == "onlyList"
+        assert res.list_name == "firstList"
         assert res.object_value == "n1"
 
     def test_several(self, list_value_corr_several: etree._Element) -> None:
@@ -164,7 +164,7 @@ class TestListValue:
         one = res[0]
         assert isinstance(one, ListValueDeserialised)
         assert one.prop_name == "http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp"
-        assert one.list_name == "onlyList"
+        assert one.list_name == "firstList"
         assert res[0].object_value == "n1"
         assert res[1].object_value == "n2"
 

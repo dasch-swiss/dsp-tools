@@ -387,7 +387,10 @@ def _reformat_unique_value_violation_result(result: ResultUniqueValueViolation) 
     else:
         actual_value = _reformat_data_iri(str(result.actual_value))
     return DuplicateValueProblem(
-        res_id=iris.res_id, res_type=iris.res_type, prop_name=iris.prop_name, actual_content=actual_value
+        res_id=iris.res_id,
+        res_type=iris.res_type,
+        prop_name=iris.prop_name,
+        actual_content=actual_value,
     )
 
 

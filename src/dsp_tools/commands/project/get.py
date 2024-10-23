@@ -43,7 +43,7 @@ def get_project(
         con = ConnectionLive(creds.server, auth)
     except BaseError:
         warnings.warn("WARNING: Missing or wrong credentials. You won't get data about the users of this project.")
-    con = ConnectionLive(creds.server)
+        con = ConnectionLive(creds.server)
 
     project = _create_project(con, project_identifier)
 

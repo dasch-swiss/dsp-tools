@@ -48,7 +48,6 @@ def test_log_in_log_out() -> None:
     assert con.post.call_args.kwargs["route"] == "/v2/authentication"
     assert con.token == "token"
     assert con.session.headers["Authorization"] == "Bearer token"
-    con.delete = Mock()
     con.logout()
     assert con.token is None
     assert "Authorization" not in con.session.headers
@@ -145,7 +144,7 @@ def test_default_timeout() -> None:
         method(route="/v2/resources")
         expected_params: RequestParameters = con._try_network_action.call_args.args[0]
         assert expected_params.timeout == con.timeout_put_post, f"Method '{method.__name__}' failed"
-    for method in (con.get, con.delete):  # type: ignore[assignment]
+    for method in (con.get,):  # type: ignore[assignment]
         method = cast(Callable[..., Any], method)
         method(route="/v2/resources")
         expected_params = con._try_network_action.call_args.args[0]
@@ -163,7 +162,7 @@ def test_custom_timeout() -> None:
 def test_custom_header() -> None:
     con = ConnectionLive("http://example.com/")
     con._try_network_action = Mock()
-    for method in (con.post, con.put, con.get, con.delete):
+    for method in (con.post, con.put, con.get):
         method = cast(Callable[..., Any], method)
         method(route="/v2/resources", headers={"foo": "bar"})
         expected_params: RequestParameters = con._try_network_action.call_args.args[0]
@@ -173,7 +172,7 @@ def test_custom_header() -> None:
 def test_custom_content_type() -> None:
     con = ConnectionLive("http://example.com/")
     con._try_network_action = Mock()
-    for method in (con.post, con.put, con.get, con.delete):
+    for method in (con.post, con.put, con.get):
         method = cast(Callable[..., Any], method)
         method(route="/v2/resources", headers={"Content-Type": "bar"})
         expected_params: RequestParameters = con._try_network_action.call_args.args[0]
@@ -183,7 +182,7 @@ def test_custom_content_type() -> None:
 def test_server_without_trailing_slash() -> None:
     con = ConnectionLive("http://example.com")
     con._try_network_action = Mock()
-    for method in (con.post, con.put, con.get, con.delete):
+    for method in (con.post, con.put, con.get):
         method = cast(Callable[..., Any], method)
         method(route="/v2/resources")
         expected_params: RequestParameters = con._try_network_action.call_args.args[0]
@@ -193,7 +192,7 @@ def test_server_without_trailing_slash() -> None:
 def test_route_without_leading_slash() -> None:
     con = ConnectionLive("http://example.com/")
     con._try_network_action = Mock()
-    for method in (con.post, con.put, con.get, con.delete):
+    for method in (con.post, con.put, con.get):
         method = cast(Callable[..., Any], method)
         method(route="v2/resources")
         expected_params: RequestParameters = con._try_network_action.call_args.args[0]
@@ -203,7 +202,7 @@ def test_route_without_leading_slash() -> None:
 def test_server_and_route_without_slash() -> None:
     con = ConnectionLive("http://example.com")
     con._try_network_action = Mock()
-    for method in (con.post, con.put, con.get, con.delete):
+    for method in (con.post, con.put, con.get):
         method = cast(Callable[..., Any], method)
         method(route="v2/resources")
         expected_params: RequestParameters = con._try_network_action.call_args.args[0]

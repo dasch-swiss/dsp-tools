@@ -120,6 +120,15 @@ class TestSeparateResultTypes:
         assert len(with_detail) == 0
         assert no_detail[0].resource_iri == DATA.identical_values_valueHas
 
+    def test_report_unique_value_iri(
+        self, report_unique_value_iri: tuple[Graph, Graph, ValidationResultBaseInfo]
+    ) -> None:
+        res_g, onto_data_g, _ = report_unique_value_iri
+        no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
+        assert len(no_detail) == 1
+        assert len(with_detail) == 0
+        assert no_detail[0].resource_iri == DATA.identical_values_LinkValue
+
 
 class TestQueryWithoutDetail:
     def test_result_id_card_one(self, report_min_card: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:

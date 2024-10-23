@@ -89,13 +89,13 @@ def value_type_violation(_create_project: None) -> ValidationReportGraphs:
     )
 
 
-
 @lru_cache(maxsize=None)
 @pytest.fixture
 def unique_value_violation(_create_project: None) -> ValidationReportGraphs:
     return _get_validation_result(
         LOCAL_API, Path("testdata/validate-data/data/unique_value_violation.xml"), DONT_SAVE_GRAPHS
     )
+
 
 def test_extract_identifiers_of_resource_results(every_combination_once: ValidationReportGraphs) -> None:
     report_and_onto = every_combination_once.validation_graph + every_combination_once.onto_graph
@@ -143,7 +143,7 @@ class TestCheckConforms:
     def test_value_type_violation(self, value_type_violation: ValidationReportGraphs) -> None:
         assert not value_type_violation.conforms
 
-    def test_unique_value_violation(self, unique_value_violation: ValidationReport) -> None:
+    def test_unique_value_violation(self, unique_value_violation: ValidationReportGraphs) -> None:
         assert not unique_value_violation.conforms
 
 
@@ -238,7 +238,7 @@ class TestReformatValidationGraph:
             assert one_result.res_id == expected_info[0]
             assert isinstance(one_result, expected_info[1])
 
-    def test_reformat_unique_value_violation(self, unique_value_violation: ValidationReport) -> None:
+    def test_reformat_unique_value_violation(self, unique_value_violation: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(unique_value_violation)
         expected_ids = [
             "identical_values_LinkValue",

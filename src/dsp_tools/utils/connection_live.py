@@ -78,7 +78,7 @@ class ConnectionLive(Connection):
     # downtimes of server-side services -> API still processes request
     # -> retry too early has side effects (e.g. duplicated resources)
     timeout_put_post: int = field(init=False, default=30 * 60)
-    timeout_get_delete: int = field(init=False, default=20)
+    timeout_get: int = field(init=False, default=20)
 
     def __post_init__(self) -> None:
         self.session.headers["User-Agent"] = f'DSP-TOOLS/{version("dsp-tools")}'
@@ -187,7 +187,7 @@ class ConnectionLive(Connection):
             PermanentConnectionError: if all attempts have failed
             InvalidInputError: if the API responds with a permanent error because of invalid input data
         """
-        params = RequestParameters("GET", self._make_url(route), self.timeout_get_delete, headers=headers)
+        params = RequestParameters("GET", self._make_url(route), self.timeout_get, headers=headers)
         response = self._try_network_action(params)
         return cast(dict[str, Any], response.json())
 

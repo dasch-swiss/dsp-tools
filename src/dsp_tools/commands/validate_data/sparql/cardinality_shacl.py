@@ -38,7 +38,6 @@ def _construct_resource_nodeshape(onto_graph: Graph) -> Graph:
         ?class a owl:Class ;
                knora-api:isResourceClass true ;
                knora-api:canBeInstantiated true .
-               
     }
     """
     if results_graph := onto_graph.query(query_s).graph:
@@ -88,7 +87,9 @@ def _construct_1_cardinality(onto_graph: Graph) -> Graph:
     
       ?propRestriction knora-api:isEditable true .
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
-    
+      FILTER (?class NOT IN (
+            knora-api:Region, knora-api:Annotation, knora-api:AudioSegment, knora-api:VideoSegment, knora-api:LinkObj)
+      )
     }
     """
     if results_graph := onto_graph.query(query_s).graph:
@@ -129,7 +130,9 @@ def _construct_0_1_cardinality(onto_graph: Graph) -> Graph:
     
       ?propRestriction knora-api:isEditable true .
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
-    
+      FILTER (?class NOT IN (
+            knora-api:Region, knora-api:Annotation, knora-api:AudioSegment, knora-api:VideoSegment, knora-api:LinkObj)
+      )
     }
     """
     if results_graph := onto_graph.query(query_s).graph:
@@ -169,7 +172,9 @@ def _construct_1_n_cardinality(onto_graph: Graph) -> Graph:
     
       ?propRestriction knora-api:isEditable true .
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
-    
+      FILTER (?class NOT IN (
+            knora-api:Region, knora-api:Annotation, knora-api:AudioSegment, knora-api:VideoSegment, knora-api:LinkObj)
+      )
     }
     """
     if results_graph := onto_graph.query(query_s).graph:
@@ -206,7 +211,9 @@ def _construct_0_n_cardinality(onto_graph: Graph) -> Graph:
     
       ?propRestriction knora-api:isEditable true .
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
-    
+      FILTER (?class NOT IN (
+            knora-api:Region, knora-api:Annotation, knora-api:AudioSegment, knora-api:VideoSegment, knora-api:LinkObj)
+      )
     }
     """
     if results_graph := onto_graph.query(query_s).graph:

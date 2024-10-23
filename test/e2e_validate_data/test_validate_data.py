@@ -131,6 +131,9 @@ class TestCheckConforms:
     def test_every_combination_once(self, every_combination_once: ValidationReport) -> None:
         assert not every_combination_once.conforms
 
+    def test_minimal_correct(self, minimal_correct: ValidationReport) -> None:
+        assert minimal_correct.conforms
+
     def test_value_type_violation(self, value_type_violation: ValidationReport) -> None:
         assert not value_type_violation.conforms
 

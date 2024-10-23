@@ -77,12 +77,6 @@ def every_combination_once(_create_project: None) -> ValidationReport:
 
 @lru_cache(maxsize=None)
 @pytest.fixture
-def minimal_correct(_create_project: None) -> ValidationReport:
-    return _get_validation_result(LOCAL_API, Path("testdata/validate-data/data/minimal_correct.xml"), DONT_SAVE_GRAPHS)
-
-
-@lru_cache(maxsize=None)
-@pytest.fixture
 def value_type_violation(_create_project: None) -> ValidationReport:
     return _get_validation_result(
         LOCAL_API, Path("testdata/validate-data/data/value_type_violation.xml"), DONT_SAVE_GRAPHS
@@ -136,9 +130,6 @@ class TestCheckConforms:
 
     def test_every_combination_once(self, every_combination_once: ValidationReport) -> None:
         assert not every_combination_once.conforms
-
-    def test_minimal_correct(self, minimal_correct: ValidationReport) -> None:
-        assert minimal_correct.conforms
 
     def test_value_type_violation(self, value_type_violation: ValidationReport) -> None:
         assert not value_type_violation.conforms

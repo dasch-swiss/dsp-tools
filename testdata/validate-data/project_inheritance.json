@@ -90,7 +90,7 @@
               },
               {
                 "propname": ":nonRelatedProp",
-                "gui_order": 1,
+                "gui_order": 2,
                 "cardinality": "1"
               }
             ]

@@ -12,7 +12,24 @@
         </text-prop>
     </resource>
 
-    <resource label="ResourceSubCls1" restype=":ResourceSubCls1" id="ResourceSubCls1">
+    <resource label="ResourceSubCls1" restype=":ResourceSubCls1" id="ResourceSubCls1_non_inherited">
+        <text-prop name=":hasTextSubProp1">
+            <text encoding="utf8">Text 1</text>
+        </text-prop>
+        <text-prop name=":nonRelatedProp">
+            <text encoding="utf8">Text non-related</text>
+        </text-prop>
+    </resource>
+
+    <!--
+    Should this also be allowed?
+    With normal inheritance logic, I would say yes.
+    The API rejects it because the ontology does not explicitly inherit the property hasText0
+    -->
+    <resource label="ResourceSubCls1" restype=":ResourceSubCls1" id="ResourceSubCls1_with_inherited_prop_used">
+        <text-prop name=":hasText0">
+            <text encoding="utf8">Text 0</text>
+        </text-prop>
         <text-prop name=":hasTextSubProp1">
             <text encoding="utf8">Text 1</text>
         </text-prop>

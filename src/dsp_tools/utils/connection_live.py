@@ -267,10 +267,6 @@ class ConnectionLive(Connection):
         }
         try:
             dumpobj["content"] = response.json()
-            data = dumpobj["content"]
-            # TODO: remove this check
-            if "Set-Cookie" in data or "Authorization" in data or "token" in data or "password" in data:
-                raise Exception(f"Failed to sanitize data: {data}")
         except json.JSONDecodeError:
             dumpobj["content"] = response.text
         logger.debug(f"RESPONSE: {json.dumps(dumpobj)}")
@@ -287,10 +283,6 @@ class ConnectionLive(Connection):
             if "password" in data:
                 data["password"] = "***"
             dumpobj["data"] = data
-
-            # TODO: remove this check
-            if "Set-Cookie" in params.data or "Authorization" in params.data or "token" in params.data:
-                raise Exception(f"Failed to sanitize data: {params.data}")
         if params.files:
             dumpobj["files"] = params.files["file"][0]
         logger.debug(f"REQUEST: {json.dumps(dumpobj, cls=SetEncoder)}")

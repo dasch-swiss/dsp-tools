@@ -116,7 +116,6 @@ class ConnectionLive(Connection):
         Delete the token on the server and in this class.
         """
         if self.token:
-            # self.delete(route="/v2/authentication")
             self.token = None
             del self.session.headers["Authorization"]
 

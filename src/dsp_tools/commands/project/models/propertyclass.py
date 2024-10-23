@@ -351,12 +351,6 @@ class PropertyClass(Model):
                 tmp["@graph"][0]["rdfs:comment"] = self._comment.toJsonLdObj()
         return tmp
 
-    # def delete(self, last_modification_date: DateTimeStamp) -> DateTimeStamp:
-    #     result = self._con.delete(
-    #         PropertyClass.ROUTE + "/" + quote_plus(self._iri) + "?lastModificationDate=" + str(last_modification_date)
-    #     )
-    #     return DateTimeStamp(result["knora-api:lastModificationDate"])
-
     def createDefinitionFileObj(self, context: Context, shortname: str) -> dict[str, Any]:
         """
         Create an object that can be used as input for `create_onto()` to create an ontology on a DSP server

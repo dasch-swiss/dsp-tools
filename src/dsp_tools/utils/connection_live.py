@@ -283,14 +283,13 @@ class ConnectionLive(Connection):
             "timeout": params.timeout,
         }
         if params.data:
-            dumpobj["data"] = params.data
+            data = params.data.copy()
+            if "password" in data:
+                data["password"] = "***"
+            dumpobj["data"] = data
+
             # TODO: remove this check
-            if (
-                "Set-Cookie" in params.data
-                or "Authorization" in params.data
-                or "token" in params.data
-                or "password" in params.data
-            ):
+            if "Set-Cookie" in params.data or "Authorization" in params.data or "token" in params.data:
                 raise Exception(f"Failed to sanitize data: {params.data}")
         if params.files:
             dumpobj["files"] = params.files["file"][0]

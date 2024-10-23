@@ -184,29 +184,6 @@ def test_server_and_route_without_slash() -> None:
         assert expected_params.url == "http://example.com/v2/resources", f"Method '{method.__name__}' failed"
 
 
-def test_anonymize_different_keys() -> None:
-    con = ConnectionLive("foo")
-    assert con._anonymize(None) is None
-    assert con._anonymize({"foo": "bar"}) == {"foo": "bar"}
-    assert con._anonymize({"token": "uk7m20-8gqn8"}) == {"token": "uk7m2[+7]"}
-    assert con._anonymize({"Set-Cookie": "uk7m20-8gqn8"}) == {"Set-Cookie": "uk7m2[+7]"}
-    assert con._anonymize({"Authorization": "Bearer uk7m20-8gqn8"}) == {"Authorization": "Bearer uk7m2[+7]"}
-    assert con._anonymize({"password": "uk7m20-8gqn8"}) == {"password": "************"}
-
-
-def test_anonymize_doesnt_mutate_original() -> None:
-    con = ConnectionLive("foo")
-    random = {"foo": "bar"}
-    assert con._anonymize(random) is not random
-
-
-def test_anonymize_different_lengths() -> None:
-    con = ConnectionLive("foo")
-    assert con._anonymize({"token": "uk7m20-8gqn8ir7e30"}) == {"token": "uk7m2[+13]"}
-    assert con._anonymize({"token": "uk7m2"}) == {"token": "*****"}
-    assert con._anonymize({"token": "u"}) == {"token": "*"}
-
-
 def test_try_network_action() -> None:
     con = ConnectionLive("http://example.com/")
     response_expected = Mock(status_code=200)

@@ -18,7 +18,6 @@ from requests import RequestException
 from requests import Response
 from requests import Session
 
-from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import InvalidInputError
 from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.models.exceptions import PermanentTimeOutError
@@ -59,8 +58,6 @@ class RequestParameters:
             "files": self.files,
         }
 
-    # TODO: remove all sanitization etc
-
 
 @dataclass
 class ConnectionLive(Connection):
@@ -89,7 +86,7 @@ class ConnectionLive(Connection):
 
     def logout(self) -> None:
         """
-        Delete the token on the server and in this class.
+        Remove the authorization header from the connection's session.
         """
         del self.session.headers["Authorization"]
 
@@ -221,19 +218,14 @@ class ConnectionLive(Connection):
             if response.status_code == HTTP_OK:
                 return response
 
-            self._handle_non_ok_responses(response, params.url, i)
+            self._handle_non_ok_responses(response, i)
 
         # if all attempts have failed, raise error
         msg = f"Permanently unable to execute the network action. See {WARNINGS_SAVEPATH} for more information."
         raise PermanentConnectionError(msg)
 
-    def _handle_non_ok_responses(self, response: Response, request_url: str, retry_counter: int) -> None:
-        if "v2/authentication" in request_url and response.status_code == HTTP_UNAUTHORIZED:
-            raise BadCredentialsError("Bad credentials")
-        in_500_range = 500 <= response.status_code < 600
-        try_again_later = "try again later" in response.text.lower()
-        should_retry = (try_again_later or in_500_range) and not self._in_testing_environment()
-        if should_retry:
+    def _handle_non_ok_responses(self, response: Response, retry_counter: int) -> None:
+        if _should_retry(response):
             self._log_and_sleep("Transient Error", retry_counter, exc_info=False)
             return None
         else:
@@ -271,49 +263,56 @@ class ConnectionLive(Connection):
     def _log_response(self, response: Response) -> None:
         dumpobj: dict[str, Any] = {
             "status_code": response.status_code,
-            "headers": self._anonymize(dict(response.headers)),
+            "headers": _sanatize_headers(dict(response.headers)),
         }
         try:
-            dumpobj["content"] = self._anonymize(json.loads(response.text))
+            dumpobj["content"] = response.json()
+            data = dumpobj["content"]
+            # TODO: remove this check
+            if "Set-Cookie" in data or "Authorization" in data or "token" in data or "password" in data:
+                raise Exception(f"Failed to sanitize data: {data}")
         except json.JSONDecodeError:
-            dumpobj["content"] = response.text if "token" not in response.text else "***"
+            dumpobj["content"] = response.text
         logger.debug(f"RESPONSE: {json.dumps(dumpobj)}")
-
-    def _anonymize(self, data: dict[str, Any] | None) -> dict[str, Any] | None:
-        if not data:
-            return data
-        data = data.copy()
-        if "token" in data:
-            data["token"] = self._mask(data["token"])
-        if "Set-Cookie" in data:
-            data["Set-Cookie"] = self._mask(data["Set-Cookie"])
-        if "Authorization" in data:
-            if match := regex.search(r"^Bearer (.+)", data["Authorization"]):
-                data["Authorization"] = f"Bearer {self._mask(match.group(1))}"
-        if "password" in data:
-            data["password"] = "*" * len(data["password"])
-        return data
-
-    def _mask(self, sensitive_info: str) -> str:
-        unmasked_until = 5
-        if len(sensitive_info) <= unmasked_until * 2:
-            return "*" * len(sensitive_info)
-        else:
-            return f"{sensitive_info[:unmasked_until]}[+{len(sensitive_info) - unmasked_until}]"
-
-    def _in_testing_environment(self) -> bool:
-        in_testing_env = os.getenv("DSP_TOOLS_TESTING")  # set in .github/workflows/tests-on-push.yml
-        return in_testing_env == "true"
 
     def _log_request(self, params: RequestParameters) -> None:
         dumpobj = {
             "method": params.method,
             "url": params.url,
-            "headers": self._anonymize(dict(self.session.headers) | (params.headers or {})),
+            "headers": _sanatize_headers(dict(self.session.headers) | (params.headers or {})),  # type: ignore[operator]
             "timeout": params.timeout,
         }
         if params.data:
-            dumpobj["data"] = self._anonymize(params.data)
+            dumpobj["data"] = params.data
+            # TODO: remove this check
+            if (
+                "Set-Cookie" in params.data
+                or "Authorization" in params.data
+                or "token" in params.data
+                or "password" in params.data
+            ):
+                raise Exception(f"Failed to sanitize data: {params.data}")
         if params.files:
             dumpobj["files"] = params.files["file"][0]
         logger.debug(f"REQUEST: {json.dumps(dumpobj, cls=SetEncoder)}")
+
+
+def _sanatize_headers(headers: dict[str, str | bytes]) -> dict[str, str]:
+    def _mask(s: str | bytes) -> str:
+        if isinstance(s, bytes):
+            s = s.decode("utf-8")
+        if s.startswith("Bearer "):
+            return "Bearer: ***"
+        # TODO: remove this check
+        if "Set-Cookie" in s or "Authorization" in s or "token" in s or "password" in s:
+            raise Exception(f"Failed to sanitize headers: {headers}")
+        return s
+
+    return {k: _mask(v) for k, v in headers.items()}
+
+
+def _should_retry(response: Response) -> bool:
+    in_500_range = 500 <= response.status_code < 600
+    try_again_later = "try again later" in response.text.lower()
+    in_testing_env = os.getenv("DSP_TOOLS_TESTING") == "true"  # set in .github/workflows/tests-on-push.yml
+    return (try_again_later or in_500_range) and not in_testing_env

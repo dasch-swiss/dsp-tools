@@ -102,7 +102,7 @@ class ShaclValidator:
             shacl_ttl (str): The turtle content for the shacl.ttl file (as a string).
 
         Returns:
-            Graph: The rdflib Graph object loaded with the response turtle data.
+            SHACLValidationReport: A report containing the validation graph and a bool to indicate if it passed.
 
         Raises:
             InternalError: in case of a non-ok response

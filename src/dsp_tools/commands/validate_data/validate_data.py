@@ -2,7 +2,6 @@ from copy import deepcopy
 from pathlib import Path
 
 from lxml import etree
-from rdflib import SH
 from rdflib import Graph
 from termcolor import cprint
 
@@ -14,7 +13,7 @@ from dsp_tools.commands.validate_data.models.data_deserialised import ProjectDes
 from dsp_tools.commands.validate_data.models.data_deserialised import XMLProject
 from dsp_tools.commands.validate_data.models.data_rdf import DataRDF
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
-from dsp_tools.commands.validate_data.models.validation import ValidationReport
+from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_shapes_graph
 from dsp_tools.models.exceptions import InputError
@@ -65,7 +64,7 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
     return True
 
 
-def _get_validation_result(api_url: str, filepath: Path, save_graphs: bool) -> ValidationReport:
+def _get_validation_result(api_url: str, filepath: Path, save_graphs: bool) -> ValidationReportGraphs:
     data_rdf, shortcode = _get_data_info_from_file(filepath, api_url)
     onto_con = OntologyConnection(api_url, shortcode)
     rdf_graphs = _create_graphs(onto_con, data_rdf)
@@ -129,14 +128,13 @@ def _save_graphs(filepath: Path, rdf_graphs: RDFGraphs) -> Path:
     return generic_filepath
 
 
-def _validate(validator: ShaclValidator, rdf_graphs: RDFGraphs) -> ValidationReport:
+def _validate(validator: ShaclValidator, rdf_graphs: RDFGraphs) -> ValidationReportGraphs:
     shapes_str = rdf_graphs.get_shacl_and_onto_str()
     data_str = rdf_graphs.get_data_and_onto_str()
     validation_results = validator.validate(data_str, shapes_str)
-    conforms = bool(next(validation_results.objects(None, SH.conforms)))
-    return ValidationReport(
-        conforms=conforms,
-        validation_graph=validation_results,
+    return ValidationReportGraphs(
+        conforms=validation_results.conforms,
+        validation_graph=validation_results.validation_graph,
         shacl_graph=rdf_graphs.shapes,
         onto_graph=rdf_graphs.ontos,
         data_graph=rdf_graphs.data,

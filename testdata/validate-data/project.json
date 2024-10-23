@@ -12,12 +12,12 @@
     ],
     "lists": [
       {
-        "name": "onlyList",
+        "name": "firstList",
         "labels": {
-          "en": "List"
+          "en": "List 1"
         },
         "comments": {
-          "en": "This is the only list"
+          "en": "This is the first list"
         },
         "nodes": [
           {
@@ -41,6 +41,23 @@
                 ]
               }
             ]
+          }
+        ]
+      },
+      {
+        "name": "secondList",
+        "labels": {
+          "en": "List"
+        },
+        "comments": {
+          "en": "This is the second list"
+        },
+        "nodes": [
+          {
+            "name": "l2n1",
+            "labels": {
+              "en": "List 2, Node 1"
+            }
           }
         ]
       }
@@ -181,7 +198,7 @@
             },
             "gui_element": "List",
             "gui_attributes": {
-              "hlist": "onlyList"
+              "hlist": "firstList"
             }
           },
           {

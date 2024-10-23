@@ -16,7 +16,6 @@ def construct_property_shapes(onto: Graph) -> Graph:
     g += _construct_link_value_shape(onto)
     g += _construct_link_value_node_shape(onto)
     g += _construct_property_type_text_value(onto)
-    g += _construct_unique_value_shape(onto)
     return g + _add_property_shapes_to_class_shapes(onto)
 
 
@@ -48,61 +47,6 @@ def _add_property_shapes_to_class_shapes(onto: Graph) -> Graph:
       BIND(IRI(CONCAT(str(?propRestriction), "_PropShape")) AS ?propShapesIRI)
     }
     """
-    if results_graph := onto.query(query_s).graph:
-        return results_graph
-    return Graph()
-
-
-def _construct_unique_value_shape(onto: Graph) -> Graph:
-    query_s = '''
-    PREFIX owl: <http://www.w3.org/2002/07/owl#> 
-    PREFIX sh: <http://www.w3.org/ns/shacl#>
-    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    PREFIX salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#> 
-    PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
-    PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
-
-    CONSTRUCT {
-
-    ?uniqueShapeIRI
-      a              sh:NodeShape ;
-      sh:targetClass ?class ;
-      sh:sparql   [
-            a          sh:SPARQLConstraint ;
-            sh:message "A resource may not have the same property and value more than one time." ;
-            sh:select  """
-            PREFIX rdfs:       <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
-            PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
-
-                SELECT $this ?path ?value WHERE {
-
-                    $this ?path ?valueClass .
-                    
-                    {
-                        ?prop rdfs:subPropertyOf knora-api:valueHas .
-                        ?valueClass ?prop ?value .
-                    }
-                    UNION
-                    {
-                        ?valueClass knora-api:valueAsString|api-shapes:linkValueHasTargetID|api-shapes:listNodeAsString ?value .
-                    }
-                }
-                GROUP BY $this ?path ?value
-                HAVING (COUNT(?value) > 1)
-                        """ ;
-                  ] ;
-      sh:severity sh:Violation .
-
-    } WHERE {
-
-      ?class a owl:Class ;
-          knora-api:isResourceClass true ;
-          knora-api:canBeInstantiated true .
-
-      BIND(IRI(CONCAT(str(?class), "_Unique")) AS ?uniqueShapeIRI)
-    }
-    '''  # noqa: E501 Line too long (128 > 120)
     if results_graph := onto.query(query_s).graph:
         return results_graph
     return Graph()

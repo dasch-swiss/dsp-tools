@@ -34,13 +34,6 @@ class Connection(Protocol):
     ) -> dict[str, Any]:
         pass
 
-    def delete(
-        self,
-        route: str,
-        headers: dict[str, str] | None = None,
-    ) -> dict[str, Any]:
-        pass
-
     def get_token(self) -> str:
         pass
 

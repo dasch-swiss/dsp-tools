@@ -220,29 +220,6 @@ class ConnectionLive(Connection):
         response = self._try_network_action(params)
         return cast(dict[str, Any], response.json())
 
-    def delete(
-        self,
-        route: str,
-        headers: dict[str, str] | None = None,
-    ) -> dict[str, Any]:
-        """
-        Make an HTTP GET request to the server to which this connection has been established.
-
-        Args:
-            route: route that will be called on the server
-            headers: headers for the HTTP request
-
-        Returns:
-            response from server
-
-        Raises:
-            PermanentConnectionError: if all attempts have failed
-            InvalidInputError: if the API responds with a permanent error because of invalid input data
-        """
-        params = RequestParameters("DELETE", self._make_url(route), self.timeout_get_delete, headers=headers)
-        response = self._try_network_action(params)
-        return cast(dict[str, Any], response.json())
-
     def _make_url(self, route: str) -> str:
         if not route.startswith("/"):
             route = f"/{route}"

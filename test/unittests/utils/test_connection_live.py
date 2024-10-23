@@ -39,6 +39,9 @@ class ResponseMock:
     headers: dict[str, Any]
     text: str
 
+    def json(self) -> dict[str, Any]:
+        return cast(dict[str, Any], json.loads(self.text))
+
 
 def test_post() -> None:
     con = ConnectionLive("http://example.com/")
@@ -287,9 +290,9 @@ def test_log_request() -> None:
     expected_output = {
         "method": "GET",
         "url": "http://example.com/",
-        "headers": {"Authorization": "Bearer my-ve[+13]", "request-header": "request-value"},
+        "headers": {"Authorization": "Bearer ***", "request-header": "request-value"},
         "timeout": 1,
-        "data": {"password": "************************", "foo": "bar"},
+        "data": {"password": "***", "foo": "bar"},
     }
     with patch("dsp_tools.utils.connection_live.logger.debug") as debug_mock:
         con._log_request(params)
@@ -301,12 +304,12 @@ def test_log_response() -> None:
     response_mock = ResponseMock(
         status_code=200,
         headers={"Set-Cookie": "KnoraAuthenticationMFYGSLT", "Content-Type": "application/json"},
-        text=json.dumps({"token": "my-very-long-token", "foo": "bar"}),
+        text=json.dumps({"foo": "bar"}),
     )
     expected_output = {
         "status_code": 200,
-        "headers": {"Set-Cookie": "Knora[+21]", "Content-Type": "application/json"},
-        "content": {"token": "my-ve[+13]", "foo": "bar"},
+        "headers": {"Set-Cookie": "***", "Content-Type": "application/json"},
+        "content": {"foo": "bar"},
     }
     with patch("dsp_tools.utils.connection_live.logger.debug") as debug_mock:
         con._log_response(response_mock)  # type: ignore[arg-type]

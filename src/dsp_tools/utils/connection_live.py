@@ -297,17 +297,16 @@ class ConnectionLive(Connection):
 
 
 def _sanatize_headers(headers: dict[str, str | bytes]) -> dict[str, str]:
-    def _mask(s: str | bytes) -> str:
+    def _mask(k: str, s: str | bytes) -> str:
         if isinstance(s, bytes):
             s = s.decode("utf-8")
-        if s.startswith("Bearer "):
-            return "Bearer: ***"
-        # TODO: remove this check
-        if "Set-Cookie" in s or "Authorization" in s or "token" in s or "password" in s:
-            raise Exception(f"Failed to sanitize headers: {headers}")
+        if k == "Authorization" and s.startswith("Bearer "):
+            return "Bearer ***"
+        if k == "Set-Cookie":
+            return "***"
         return s
 
-    return {k: _mask(v) for k, v in headers.items()}
+    return {k: _mask(k, v) for k, v in headers.items()}
 
 
 def _should_retry(response: Response) -> bool:

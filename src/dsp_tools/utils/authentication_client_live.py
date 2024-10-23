@@ -2,13 +2,12 @@ from dataclasses import dataclass
 from typing import Any
 
 import requests
+from loguru import logger
 
 from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.authentication_client import AuthenticationClient
-
-# TODO: logging
 
 
 @dataclass
@@ -33,6 +32,7 @@ class AuthenticationClientLive(AuthenticationClient):
     def _get_token(self) -> str:
         url = f"{self.server}/v2/authentication"
         payload = {"email": self.email, "password": self.password}
+        logger.info(f"Requesting token from url '{url}' for user '{self.email}'.")
         try:
             response: dict[str, Any] = requests.post(url, json=payload, timeout=10).json()
         except BadCredentialsError:

@@ -23,12 +23,6 @@ class RDFGraphs:
 
 
 @dataclass
-class SHACLValidationReport:
-    conforms: bool
-    validation_graph: Graph
-
-
-@dataclass
 class ValidationReportGraphs:
     conforms: bool
     validation_graph: Graph

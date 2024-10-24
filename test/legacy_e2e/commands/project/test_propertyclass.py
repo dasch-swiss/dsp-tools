@@ -4,12 +4,13 @@ from dsp_tools.commands.project.models.ontology import Ontology
 from dsp_tools.commands.project.models.propertyclass import PropertyClass
 from dsp_tools.models.langstring import LangString
 from dsp_tools.models.langstring import Languages
+from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
 from dsp_tools.utils.connection_live import ConnectionLive
 
 
 def test_PropertyClass_create() -> None:
-    con = ConnectionLive(server="http://0.0.0.0:3333")
-    con.login(email="root@example.com", password="test")
+    auth = AuthenticationClientLive("http://0.0.0.0:3333", "root@example.com", "test")
+    con = ConnectionLive("http://0.0.0.0:3333", auth)
 
     # Create a test ontology
     onto = Ontology(
@@ -39,9 +40,6 @@ def test_PropertyClass_create() -> None:
     assert property_class.name == prop_name
     assert property_class.label["de"] == prop_label["de"]
     assert property_class.comment["de"] == prop_comment["de"]
-
-    # delete the property class to clean up
-    _ = property_class.delete(last_modification_date)
 
 
 if __name__ == "__main__":

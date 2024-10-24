@@ -10,6 +10,7 @@ from requests_mock import Mocker
 from dsp_tools.commands.ingest_xmlupload.bulk_ingest_client import BulkIngestClient
 from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import UserError
+from test.integration.commands.xmlupload.authentication_client_mock import AuthenticationClientMockBase
 
 DSP_INGEST_URL = "https://example.com"
 SHORTCODE = "0001"
@@ -17,7 +18,7 @@ SHORTCODE = "0001"
 
 @pytest.fixture
 def ingest_client() -> BulkIngestClient:
-    return BulkIngestClient(DSP_INGEST_URL, "token", SHORTCODE)
+    return BulkIngestClient(DSP_INGEST_URL, AuthenticationClientMockBase(), SHORTCODE)
 
 
 @pytest.fixture
@@ -41,7 +42,7 @@ def test_upload_file_success(ingest_client: BulkIngestClient, requests_mock: Moc
     req = requests_mock.request_history[0]
     assert req.url == url
     assert req.method == "POST"
-    assert req.headers["Authorization"] == "Bearer token"
+    assert req.headers["Authorization"] == "Bearer mocked_token"
     assert req.headers["Content-Type"] == "application/octet-stream"
     assert req.body == file_content.encode()
 
@@ -94,7 +95,7 @@ def test_trigger_if_success(ingest_client: BulkIngestClient, requests_mock: Mock
     req = requests_mock.request_history[0]
     assert req.url == url
     assert req.method == "POST"
-    assert req.headers["Authorization"] == "Bearer token"
+    assert req.headers["Authorization"] == "Bearer mocked_token"
 
 
 def test_trigger_if_unauthorized(ingest_client: BulkIngestClient, requests_mock: Mocker) -> None:

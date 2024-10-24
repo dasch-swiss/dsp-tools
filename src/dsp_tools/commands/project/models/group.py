@@ -224,10 +224,6 @@ class Group(Model):
             tmp["selfjoin"] = self._selfjoin
         return tmp
 
-    def delete(self) -> Group:
-        result = self._con.delete(Group.ROUTE_SLASH + quote_plus(self._iri))
-        return Group.fromJsonObj(self._con, result["group"])
-
     @staticmethod
     def getAllGroups(con: Connection) -> list[Group]:
         result = con.get(Group.ROUTE)

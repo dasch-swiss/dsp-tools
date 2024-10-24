@@ -15,6 +15,7 @@ from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import Bitstrea
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import PermanentConnectionError
+from dsp_tools.utils.authentication_client import AuthenticationClient
 from dsp_tools.utils.logger_config import WARNINGS_SAVEPATH
 
 STATUS_OK = 200
@@ -54,7 +55,7 @@ class DspIngestClientLive(AssetClient):
     """Client for uploading assets to the DSP-Ingest."""
 
     dsp_ingest_url: str
-    token: str
+    authentication_client: AuthenticationClient
     shortcode: str
     imgdir: str
     session: Session = field(init=False)
@@ -95,7 +96,10 @@ class DspIngestClientLive(AssetClient):
         """
         filename = urllib.parse.quote(filepath.name)
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/assets/ingest/{filename}"
-        headers = {"Authorization": f"Bearer {self.token}", "Content-Type": "application/octet-stream"}
+        headers = {
+            "Authorization": f"Bearer {self.authentication_client.get_token()}",
+            "Content-Type": "application/octet-stream",
+        }
         timeout = 600
         err = f"Failed to ingest {filepath} to '{url}'."
         with open(filepath, "rb") as binary_io:

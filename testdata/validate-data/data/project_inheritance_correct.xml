@@ -47,4 +47,14 @@
         </text-prop>
     </resource>
 
+
+    <resource label="ResourceUnrelated" restype=":ResourceUnrelated" id="ResourceUnrelated">
+        <text-prop name=":hasTextSubProp1">
+            <text encoding="utf8">Property with cardinality</text>
+        </text-prop>
+        <text-prop name=":hasText0">
+            <text encoding="utf8">Super-property no explicit cardinality</text>
+        </text-prop>
+    </resource>
+
 </knora>

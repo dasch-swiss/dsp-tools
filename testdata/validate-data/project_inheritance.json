@@ -108,6 +108,20 @@
                 "cardinality": "1"
               }
             ]
+          },
+          {
+            "name": "ResourceUnrelated",
+            "super": "Resource",
+            "labels": {
+              "en": "ResourceUnrelated"
+            },
+            "cardinalities": [
+              {
+                "propname": ":hasTextSubProp1",
+                "gui_order": 1,
+                "cardinality": "1"
+              }
+            ]
           }
         ]
       }

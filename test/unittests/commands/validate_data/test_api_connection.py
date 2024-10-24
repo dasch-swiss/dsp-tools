@@ -70,11 +70,33 @@ class TestListConnection:
     def test_get_all_list_iris_non_ok_code(self, list_connection: ListConnection) -> None:
         mock_response = Mock()
         mock_response.ok = False
-        mock_response.json.return_value = {}
         with patch.object(list_connection, "_get", return_value=mock_response) as patched_get:
             with pytest.raises(UserError):
                 list_connection._get_all_list_iris()
             patched_get.assert_called_once_with(url="http://0.0.0.0:3333/admin/lists?9999", headers={})
+
+    def test_get_one_list(self, list_connection: ListConnection) -> None:
+        mock_response = Mock()
+        mock_response.ok = True
+        mock_response.json = {"type": "ListGetResponseADM", "list": {}}
+        with patch.object(list_connection, "_get", return_value=mock_response) as patched_get:
+            result = list_connection._get_all_list_iris()
+            assert result == {"type": "ListGetResponseADM", "list": {}}
+            patched_get.assert_called_once_with(
+                url="http://0.0.0.0:3333/admin/lists/http%3A%2F%2Frdfh.ch%2Flists%2F9999%2FWWqeCEj8R_qrK5djsVcHvg",
+                headers={},
+            )
+
+    def test_get_one_list_non_ok_code(self, list_connection: ListConnection) -> None:
+        mock_response = Mock()
+        mock_response.ok = False
+        with patch.object(list_connection, "_get", return_value=mock_response) as patched_get:
+            with pytest.raises(UserError):
+                list_connection._get_all_list_iris()
+            patched_get.assert_called_once_with(
+                url="http://0.0.0.0:3333/admin/lists/http%3A%2F%2Frdfh.ch%2Flists%2F9999%2FWWqeCEj8R_qrK5djsVcHvg",
+                headers={},
+            )
 
     def test_extract_list_iris(
         self, list_connection: ListConnection, response_all_list_one_project: dict[str, Any]
@@ -82,6 +104,12 @@ class TestListConnection:
         extracted = list_connection._extract_list_iris(response_all_list_one_project)
         expected = {"http://rdfh.ch/lists/9999/list1", "http://rdfh.ch/lists/9999/list2"}
         assert extracted == expected
+
+    def test_extract_list_iris_no_lists(
+        self, list_connection: ListConnection, response_all_list_one_project_no_lists: dict[str, Any]
+    ) -> None:
+        extracted = list_connection._extract_list_iris(response_all_list_one_project_no_lists)
+        assert not extracted
 
     def test_reformat_one_list(self, list_connection: ListConnection, response_one_list: dict[str, Any]) -> None:
         reformatted = list_connection._reformat_one_list(response_one_list)

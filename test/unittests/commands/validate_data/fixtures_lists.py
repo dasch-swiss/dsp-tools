@@ -28,7 +28,12 @@ def response_all_list_one_project() -> dict[str, Any]:
 
 
 @pytest.fixture
-def get_one_list() -> dict[str, Any]:
+def response_all_list_one_project_no_lists() -> dict[str, Any]:
+    return {"lists": []}
+
+
+@pytest.fixture
+def response_one_list() -> dict[str, Any]:
     return {
         "type": "ListGetResponseADM",
         "list": {

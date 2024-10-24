@@ -42,7 +42,6 @@ class OntologyConnection:
             timeout = 100
             logger.debug(f"REQUEST: GET to {url}, timeout: {timeout}, headers: {headers}")
             response = requests.get(url, headers=headers, timeout=timeout)
-            logger.debug(f"RESPONSE: {response.status_code}")
         except (TimeoutError, ReadTimeout) as err:
             logger.exception(err)
             raise InternalError("TimeoutError occurred. See logs for details.") from None
@@ -53,6 +52,7 @@ class OntologyConnection:
             msg = f"Non-ok response: {response.status_code}\nOriginal message: {response.text}"
             logger.exception(msg)
             raise UserError(msg)
+        logger.debug(f"RESPONSE: {response.status_code}")
         return response
 
     def get_knora_api(self) -> str:
@@ -101,7 +101,6 @@ class ListConnection:
             timeout = 100
             logger.debug(f"REQUEST: GET to {url}, timeout: {timeout}, headers: {headers}")
             response = requests.get(url, headers=headers, timeout=timeout)
-            logger.debug(f"RESPONSE: {response.status_code}")
         except (TimeoutError, ReadTimeout) as err:
             logger.exception(err)
             raise InternalError("TimeoutError occurred. See logs for details.") from None
@@ -112,6 +111,7 @@ class ListConnection:
             msg = f"Non-ok response: {response.status_code}\nOriginal message: {response.text}"
             logger.exception(msg)
             raise UserError(msg)
+        logger.debug(f"RESPONSE: {response.status_code}")
         return response
 
     def get_lists(self) -> AllProjectLists:
@@ -123,9 +123,9 @@ class ListConnection:
 
     def _get_all_list_iris(self) -> dict[str, Any]:
         url = f"{self.api_url}/admin/lists?{self.shortcode}"
-        response = self._get(url)
-        response_json = cast(dict[str, Any], response.json())
-        return response_json
+        response = self._get(url=url)
+        json_response = cast(dict[str, Any], response.json)
+        return json_response
 
     def _extract_list_iris(self, response_json: dict[str, Any]) -> list[str]:
         return [x["id"] for x in response_json["lists"]]
@@ -133,8 +133,8 @@ class ListConnection:
     def _get_one_list(self, list_iri: str) -> dict[str, Any]:
         encoded_list_iri = quote_plus(list_iri)
         url = f"{self.api_url}/admin/lists/{encoded_list_iri}"
-        response = self._get(url)
-        response_json = cast(dict[str, Any], response.json())
+        response = self._get(url=url)
+        response_json = cast(dict[str, Any], response.json)
         return response_json
 
     def _reformat_one_list(self, response_json: dict[str, Any]) -> OneList:

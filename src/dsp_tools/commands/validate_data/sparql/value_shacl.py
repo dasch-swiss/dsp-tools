@@ -250,8 +250,8 @@ def _construct_one_list_property_shape(onto, one_list: OneList) -> Graph:
                    sh:severity sh:Violation .
     } WHERE {
         ?prop a owl:ObjectProperty ;
-                knora-api:objectType knora-api:ListValue ;
-                salsah-gui:guiAttribute %(guiAttribute)s .
+              knora-api:objectType knora-api:ListValue ;
+              salsah-gui:guiAttribute %(guiAttribute)s .
 
         BIND(IRI(CONCAT(str(?prop), "_PropShape")) AS ?shapesIRI)
     }

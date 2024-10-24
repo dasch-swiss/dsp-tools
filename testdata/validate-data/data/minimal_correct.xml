@@ -50,9 +50,10 @@
         </list-prop>
     </resource>
 
+    <resource label="Target of Link Prop" restype=":ClassWithEverything" id="id_link_target"/>
     <resource label="Link Prop" restype=":ClassWithEverything" id="id_link">
         <resptr-prop name=":testHasLinkTo">
-            <resptr>id_1</resptr>
+            <resptr>id_link_target</resptr>
         </resptr-prop>
     </resource>
 

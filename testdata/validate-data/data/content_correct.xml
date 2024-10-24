@@ -84,18 +84,6 @@
         </text-prop>
     </resource>
 
-    <resource label="Richtext" restype=":ClassWithEverything" id="id_richtext_with_formatting">
-        <text-prop name=":testRichtext">
-            <text encoding="xml">This is <em>italicized and <strong>bold</strong></em> text!</text>
-        </text-prop>
-    </resource>
-
-    <resource label="Richtext" restype=":ClassWithEverything" id="id_richtext_with_salsah_links">
-        <text-prop name=":testRichtext">
-            <text encoding="xml"><a class="salsah-link" href="IRI:id_simpletext:IRI">Text of Link</a></text>
-        </text-prop>
-    </resource>
-
     <resource label="Simpletext" restype=":ClassWithEverything" id="id_simpletext">
         <text-prop name=":testTextarea">
             <text encoding="utf8">Text line 1

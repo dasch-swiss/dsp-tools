@@ -28,17 +28,13 @@ def _construct_resource_nodeshape(onto_graph: Graph) -> Graph:
     PREFIX dash: <http://datashapes.org/dash#>
 
     CONSTRUCT {
-
         ?class a sh:NodeShape ;
                 sh:property api-shapes:rdfsLabel_Shape ;
                 dash:closedByTypes true .
-
     } WHERE {
-
         ?class a owl:Class ;
                knora-api:isResourceClass true ;
                knora-api:canBeInstantiated true .
-               
     }
     """
     if results_graph := onto_graph.query(query_s).graph:
@@ -64,9 +60,8 @@ def _construct_1_cardinality(onto_graph: Graph) -> Graph:
     PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
     PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
     PREFIX dash: <http://datashapes.org/dash#>
-    
+
     CONSTRUCT {
-    
       ?class sh:property [
           a sh:PropertyShape ;
           sh:path ?propRestriction ;
@@ -75,20 +70,19 @@ def _construct_1_cardinality(onto_graph: Graph) -> Graph:
           sh:severity sh:Violation ;
           sh:message "1" ;
       ] .
-    
     } WHERE {
-    
       ?class a owl:Class ;
           knora-api:isResourceClass true ;
           knora-api:canBeInstantiated true ;
           rdfs:subClassOf ?restriction .
       ?restriction a owl:Restriction ;
           owl:onProperty ?propRestriction ;
+          salsah-gui:guiOrder ?order ;
           owl:cardinality 1 .
-    
-      ?propRestriction knora-api:isEditable true .
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
-    
+      FILTER (?class NOT IN (
+            knora-api:Region, knora-api:Annotation, knora-api:AudioSegment, knora-api:VideoSegment, knora-api:LinkObj)
+      )
     }
     """
     if results_graph := onto_graph.query(query_s).graph:
@@ -107,7 +101,6 @@ def _construct_0_1_cardinality(onto_graph: Graph) -> Graph:
     PREFIX dash: <http://datashapes.org/dash#>
 
     CONSTRUCT {
-    
       ?class sh:property [
           a sh:PropertyShape ;
           sh:path ?propRestriction ;
@@ -116,20 +109,19 @@ def _construct_0_1_cardinality(onto_graph: Graph) -> Graph:
           sh:severity sh:Violation ;
           sh:message "0-1" ;
       ] .
-    
     } WHERE {
-    
       ?class a owl:Class ;
           knora-api:isResourceClass true ;
           knora-api:canBeInstantiated true ;
           rdfs:subClassOf ?restriction .
       ?restriction a owl:Restriction ;
           owl:onProperty ?propRestriction ;
+          salsah-gui:guiOrder ?order ;
           owl:maxCardinality 1 .
-    
-      ?propRestriction knora-api:isEditable true .
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
-    
+      FILTER (?class NOT IN (
+            knora-api:Region, knora-api:Annotation, knora-api:AudioSegment, knora-api:VideoSegment, knora-api:LinkObj)
+      )
     }
     """
     if results_graph := onto_graph.query(query_s).graph:
@@ -148,7 +140,6 @@ def _construct_1_n_cardinality(onto_graph: Graph) -> Graph:
     PREFIX dash: <http://datashapes.org/dash#>
 
     CONSTRUCT {
-    
       ?class sh:property [
           a sh:PropertyShape ;
           sh:path ?propRestriction ;
@@ -156,20 +147,19 @@ def _construct_1_n_cardinality(onto_graph: Graph) -> Graph:
           sh:severity sh:Violation ;
           sh:message "1-n" ;
       ] .
-    
     } WHERE {
-    
       ?class a owl:Class ;
           knora-api:isResourceClass true ;
           knora-api:canBeInstantiated true ;
           rdfs:subClassOf ?restriction .
       ?restriction a owl:Restriction ;
           owl:onProperty ?propRestriction ;
+          salsah-gui:guiOrder ?order ;
           owl:minCardinality 1 .
-    
-      ?propRestriction knora-api:isEditable true .
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
-    
+      FILTER (?class NOT IN (
+            knora-api:Region, knora-api:Annotation, knora-api:AudioSegment, knora-api:VideoSegment, knora-api:LinkObj)
+      )
     }
     """
     if results_graph := onto_graph.query(query_s).graph:
@@ -188,25 +178,23 @@ def _construct_0_n_cardinality(onto_graph: Graph) -> Graph:
     PREFIX dash: <http://datashapes.org/dash#>
 
     CONSTRUCT {
-    
       ?class sh:property [
           a sh:PropertyShape ;
           sh:path ?propRestriction ;
       ] .
-    
     } WHERE {
-    
       ?class a owl:Class ;
           knora-api:isResourceClass true ;
           knora-api:canBeInstantiated true ;
           rdfs:subClassOf ?restriction .
       ?restriction a owl:Restriction ;
           owl:onProperty ?propRestriction ;
+          salsah-gui:guiOrder ?order ;
           owl:minCardinality 0 .
-    
-      ?propRestriction knora-api:isEditable true .
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
-    
+      FILTER (?class NOT IN (
+            knora-api:Region, knora-api:Annotation, knora-api:AudioSegment, knora-api:VideoSegment, knora-api:LinkObj)
+      )
     }
     """
     if results_graph := onto_graph.query(query_s).graph:

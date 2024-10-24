@@ -11,13 +11,14 @@ class RDFGraphs:
     data: Graph
     ontos: Graph
     shapes: Graph
+    knora_api: Graph
 
     def get_data_and_onto_str(self) -> str:
-        g = self.data + self.ontos
+        g = self.data + self.ontos + self.knora_api
         return g.serialize(format="ttl")
 
     def get_shacl_and_onto_str(self) -> str:
-        g = self.shapes + self.ontos
+        g = self.shapes + self.ontos + self.knora_api
         return g.serialize(format="ttl")
 
 
@@ -69,6 +70,11 @@ class ValidationResult:
     res_iri: Node
     res_class: Node
     property: Node
+
+
+@dataclass
+class ResultUniqueValueViolation(ValidationResult):
+    actual_value: Node
 
 
 @dataclass

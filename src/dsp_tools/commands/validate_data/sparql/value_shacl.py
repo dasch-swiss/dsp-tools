@@ -4,12 +4,13 @@ from dsp_tools.commands.validate_data.models.api_responses import AllProjectList
 from dsp_tools.commands.validate_data.models.api_responses import OneList
 
 
-def construct_property_shapes(onto: Graph) -> Graph:
+def construct_property_shapes(onto: Graph, project_lists: AllProjectLists) -> Graph:
     """
     Returns the sh:PropertyShape for the properties in the ontology.
 
     Args:
         onto: ontology graph
+        project_lists: lists of a project
 
     Returns:
         Graph with the property shapes
@@ -19,6 +20,7 @@ def construct_property_shapes(onto: Graph) -> Graph:
     g += _construct_link_value_shape(onto)
     g += _construct_link_value_node_shape(onto)
     g += _construct_property_type_text_value(onto)
+    g += _construct_list_shapes(onto, project_lists)
     return g + _add_property_shapes_to_class_shapes(onto)
 
 
@@ -196,30 +198,64 @@ def _construct_one_property_type_text_value(onto: Graph, gui_element: str, shacl
     return Graph()
 
 
-def construct_list_property_shapes(onto: Graph, project_lists: AllProjectLists) -> Graph:
-    pass
+def _construct_list_shapes(onto: Graph, project_lists: AllProjectLists) -> Graph:
+    lists_graph = Graph()
+    for one_list in project_lists.all_lists:
+        lists_graph += _construct_one_list_node_shape(one_list)
+    for one_list in project_lists.all_lists:
+        lists_graph += _construct_one_list_property_shape(onto, one_list)
+    return lists_graph
 
 
-def _construct_one_list_property_shape(onto: Graph, one_list: OneList) -> Graph:
-    pass
+def _construct_one_list_node_shape(one_list: OneList) -> Graph:
+    list_str = f"""
+    @prefix  owl: <http://www.w3.org/2002/07/owl#> .
+    @prefix  sh: <http://www.w3.org/ns/shacl#> .
+    @prefix  api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#> .
+    @prefix  knora-api:  <http://api.knora.org/ontology/knora-api/v2#> .
+    @prefix  salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#> .
+    
+    api-shapes:{one_list.list_name}_NodeShape a sh:NodeShape ;
+          sh:property [
+                        a          sh:PropertyShape ;
+                        sh:path    api-shapes:listNodeAsString ;
+                        sh:in      {one_list.shacl_nodes()} ;
+                        sh:message "Unknown list node for list '{one_list.list_name}'."
+                      ] ,
+                      [
+                        a           sh:PropertyShape ;
+                        sh:path     api-shapes:listNameAsString ;
+                        sh:in       {one_list.shacl_list()} ;
+                        sh:message  "The list that should be used with this property is '{one_list.list_name}'."
+                      ] ;
+          sh:severity sh:Violation .
+    """
+    list_graph = Graph()
+    list_graph.parse(data=list_str, format="ttl")
+    return list_graph
 
 
-"""
-onto-shapes:onlyList_NodeShape
-  a           sh:NodeShape ;
-  sh:name     "Validates the content of the ListValue with the specific property." ;
-  sh:property [
-                a         sh:PropertyShape ;
-                sh:path   val-onto:hasValue ;
-                sh:in     ( "n1" "n1.1" "n1.1.1" ) ;
-                sh:message "Unknown list node for list 'onlyList'."
-              ] ,
-              [
-                a               sh:PropertyShape ;
-                sh:path         val-onto:hasListName ;
-                sh:in           ( "onlyList" ) ;
-                sh:message      "The list that should be used with this property is 'onlyList'."
-              ] ;
-  sh:severity sh:Violation .
+def _construct_one_list_property_shape(onto, one_list: OneList) -> Graph:
+    query_s = """
+    PREFIX owl: <http://www.w3.org/2002/07/owl#> 
+    PREFIX sh: <http://www.w3.org/ns/shacl#>
+    PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
+    PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
+    PREFIX salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#>
 
-"""
+    CONSTRUCT {
+        ?shapesIRI sh:PropertyShape ;
+                   sh:path ?prop ;
+                   sh:node api-shapes:%(list)s_NodeShape ;
+                   sh:severity sh:Violation .
+    } WHERE {
+        ?prop a owl:ObjectProperty ;
+                knora-api:objectType knora-api:ListValue ;
+                salsah-gui:guiAttribute %(guiAttribute)s .
+
+        BIND(IRI(CONCAT(str(?prop), "_PropShape")) AS ?shapesIRI)
+    }
+    """ % {"guiAttribute": one_list.hlist(), "list": one_list.list_name}  # noqa: UP031 (printf-string-formatting)
+    if results_graph := onto.query(query_s).graph:
+        return results_graph
+    return Graph()

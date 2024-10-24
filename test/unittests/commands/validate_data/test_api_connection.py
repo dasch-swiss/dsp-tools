@@ -14,6 +14,11 @@ def ontology_connection() -> OntologyConnection:
     return OntologyConnection("http://0.0.0.0:3333", "9999")
 
 
+@pytest.fixture
+def list_connection() -> ListConnection:
+    return ListConnection("http://0.0.0.0:3333", "9999")
+
+
 class TestOntologyConnection:
     def test_get_ontology_iris_ok(self, ontology_connection: OntologyConnection) -> None:
         mock_response = Mock()
@@ -53,13 +58,33 @@ class TestOntologyConnection:
 
 
 class TestListConnection:
-    def test_extract_list_iris(self, response_all_list_one_project) -> None:
-        extracted = ListConnection("", "")._extract_list_iris(response_all_list_one_project)
+    def test_get_all_list_iris(self, list_connection: ListConnection) -> None:
+        mock_response = Mock()
+        mock_response.ok = True
+        mock_response.json = {"lists": []}
+        with patch.object(list_connection, "_get", return_value=mock_response) as patched_get:
+            result = list_connection._get_all_list_iris()
+            assert result == {"lists": []}
+            patched_get.assert_called_once_with(url="http://0.0.0.0:3333/admin/lists?9999", headers={})
+
+    def test_get_all_list_iris_non_ok_code(self, list_connection: ListConnection) -> None:
+        mock_response = Mock()
+        mock_response.ok = False
+        mock_response.json.return_value = {}
+        with patch.object(list_connection, "_get", return_value=mock_response) as patched_get:
+            with pytest.raises(UserError):
+                list_connection._get_all_list_iris()
+            patched_get.assert_called_once_with(url="http://0.0.0.0:3333/admin/lists?9999", headers={})
+
+    def test_extract_list_iris(
+        self, list_connection: ListConnection, response_all_list_one_project: dict[str, Any]
+    ) -> None:
+        extracted = list_connection._extract_list_iris(response_all_list_one_project)
         expected = {"http://rdfh.ch/lists/9999/list1", "http://rdfh.ch/lists/9999/list2"}
         assert extracted == expected
 
-    def test_reformat_one_list(self, response_one_list: dict[str, Any]) -> None:
-        reformatted = ListConnection("", "")._reformat_one_list(response_one_list)
+    def test_reformat_one_list(self, list_connection: ListConnection, response_one_list: dict[str, Any]) -> None:
+        reformatted = list_connection._reformat_one_list(response_one_list)
         expected_nodes = {"n1", "n1.1", "n1.1.1"}
         assert reformatted.list_name == "firstList"
         assert set(reformatted.nodes) == expected_nodes

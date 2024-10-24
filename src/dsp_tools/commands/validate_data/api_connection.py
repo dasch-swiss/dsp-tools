@@ -95,10 +95,34 @@ class ListConnection:
     api_url: str
     shortcode: str
 
+    def _get(self, url: str, headers: dict[str, Any] | None = None) -> Response:
+        try:
+            timeout = 100
+            logger.debug(f"REQUEST: GET to {url}, timeout: {timeout}, headers: {headers}")
+            response = requests.get(url, headers=headers, timeout=timeout)
+            logger.debug(f"RESPONSE: {response.status_code}")
+        except (TimeoutError, ReadTimeout) as err:
+            logger.exception(err)
+            raise InternalError("TimeoutError occurred. See logs for details.") from None
+        except (ConnectionError, RequestException) as err:
+            logger.exception(err)
+            raise InternalError("ConnectionError occurred. See logs for details.") from None
+        if not response.ok:
+            msg = f"Non-ok response: {response.status_code}\nOriginal message: {response.text}"
+            logger.exception(msg)
+            raise UserError(msg)
+        return response
+
     def get_lists(self) -> AllProjectLists:
         pass
 
+    def _get_all_list_iris(self) -> requests.Response:
+        pass
+
     def _extract_list_iris(self, response_json: dict[str, Any]) -> list[str]:
+        pass
+
+    def _get_one_list(self) -> requests.Response:
         pass
 
     def _reformat_one_list(self, response_json: dict[str, Any]) -> OneList:

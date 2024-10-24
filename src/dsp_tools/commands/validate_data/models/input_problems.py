@@ -300,3 +300,23 @@ class LinkedResourceDoesNotExistProblem(InputProblem):
 
     def sort_value(self) -> str:
         return self.prop_name
+
+
+@dataclass
+class DuplicateValueProblem(InputProblem):
+    actual_content: str
+
+    @property
+    def problem(self) -> str:
+        return "Value is duplicated"
+
+    def get_msg(self) -> str:
+        return f"{self.problem}, Content: '{self.actual_content}'"
+
+    def to_dict(self) -> dict[str, str]:
+        problm_dict = self._base_dict()
+        problm_dict["Content"] = self.actual_content
+        return problm_dict
+
+    def sort_value(self) -> str:
+        return self.prop_name

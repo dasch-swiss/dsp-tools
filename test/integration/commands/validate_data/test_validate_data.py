@@ -6,6 +6,7 @@ def test_to_data_rdf(data_xml: etree._Element) -> None:
     all_types = {x.attrib["restype"] for x in res_list}
     assert all_types == {
         "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything",
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#TestStillImageRepresentation",
         "http://0.0.0.0:3333/ontology/9999/second-onto/v2#SecondOntoClass",
     }
     expected_names = {

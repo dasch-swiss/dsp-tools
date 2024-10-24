@@ -5,6 +5,7 @@ from rdflib import RDF
 from rdflib import RDFS
 from rdflib import SH
 from rdflib import Graph
+from rdflib import Literal
 
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
@@ -12,6 +13,7 @@ from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinal
 from dsp_tools.commands.validate_data.models.validation import ResultMinCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultNonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultPatternViolation
+from dsp_tools.commands.validate_data.models.validation import ResultUniqueValueViolation
 from dsp_tools.commands.validate_data.models.validation import ResultValueTypeViolation
 from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
 from test.unittests.commands.validate_data.constants import DASH
@@ -549,6 +551,90 @@ def extracted_empty_label() -> ResultPatternViolation:
         property=RDFS.label,
         results_message="The label must be a non-empty string",
         actual_value=" ",
+    )
+
+
+@pytest.fixture
+def report_unique_value_literal(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
+    validation_str = f"""{PREFIXES}
+    [ a sh:ValidationResult ;
+        sh:focusNode <http://data/identical_values_valueHas> ;
+        sh:resultMessage "A resource may not have the same property and value more than one time." ;
+        sh:resultPath onto:testGeoname ;
+        sh:resultSeverity sh:Violation ;
+        sh:sourceConstraint _:1 ;
+        sh:sourceConstraintComponent sh:SPARQLConstraintComponent ;
+        sh:sourceShape onto:ClassWithEverything_Unique ;
+        sh:value "00111111" ] .
+    """
+    validation_g = Graph()
+    validation_g.parse(data=validation_str, format="ttl")
+    data_str = f"""{PREFIXES}
+        <http://data/identical_values_valueHas> a onto:ClassWithEverything .
+    """
+    onto_data_g = Graph()
+    onto_data_g += onto_graph
+    onto_data_g.parse(data=data_str, format="ttl")
+    val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=SH.SPARQLConstraintComponent,
+        resource_iri=DATA.identical_values_valueHas,
+        res_class_type=ONTO.ClassWithEverything,
+        result_path=ONTO.testGeoname,
+    )
+    return validation_g, onto_data_g, base_info
+
+
+@pytest.fixture
+def extracted_unique_value_literal() -> ResultUniqueValueViolation:
+    return ResultUniqueValueViolation(
+        res_iri=DATA.identical_values_valueHas,
+        res_class=ONTO.ClassWithEverything,
+        property=ONTO.testGeoname,
+        actual_value=Literal("00111111"),
+    )
+
+
+@pytest.fixture
+def report_unique_value_iri(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
+    validation_str = f"""{PREFIXES}
+    [ a sh:ValidationResult ;
+        sh:focusNode <http://data/identical_values_LinkValue> ;
+        sh:resultMessage "A resource may not have the same property and value more than one time." ;
+        sh:resultPath onto:testHasLinkTo ;
+        sh:resultSeverity sh:Violation ;
+        sh:sourceConstraint _:1 ;
+        sh:sourceConstraintComponent sh:SPARQLConstraintComponent ;
+        sh:sourceShape onto:ClassWithEverything_Unique ;
+        sh:value <http://data/link_valueTarget_id> ] .
+    """
+    validation_g = Graph()
+    validation_g.parse(data=validation_str, format="ttl")
+    data_str = f"""{PREFIXES}
+        <http://data/identical_values_LinkValue> a onto:ClassWithEverything .
+    """
+    onto_data_g = Graph()
+    onto_data_g += onto_graph
+    onto_data_g.parse(data=data_str, format="ttl")
+    val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=SH.SPARQLConstraintComponent,
+        resource_iri=DATA.identical_values_LinkValue,
+        res_class_type=ONTO.ClassWithEverything,
+        result_path=ONTO.testHasLinkTo,
+    )
+    return validation_g, onto_data_g, base_info
+
+
+@pytest.fixture
+def extracted_unique_value_iri() -> ResultUniqueValueViolation:
+    return ResultUniqueValueViolation(
+        res_iri=DATA.identical_values_LinkValue,
+        res_class=ONTO.ClassWithEverything,
+        property=ONTO.testHasLinkTo,
+        actual_value=DATA.link_valueTarget_id,
     )
 
 

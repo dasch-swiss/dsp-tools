@@ -11,6 +11,7 @@ from requests import RequestException
 from requests import Response
 
 from dsp_tools.commands.validate_data.models.api_responses import AllProjectLists
+from dsp_tools.commands.validate_data.models.api_responses import OneList
 from dsp_tools.commands.validate_data.models.api_responses import SHACLValidationReport
 from dsp_tools.models.exceptions import InternalError
 from dsp_tools.models.exceptions import UserError
@@ -95,6 +96,12 @@ class ListConnection:
     shortcode: str
 
     def get_lists(self) -> AllProjectLists:
+        pass
+
+    def _extract_list_iris(self, response_json: dict[str, Any]) -> list[str]:
+        pass
+
+    def _reformat_one_list(self, response_json: dict[str, Any]) -> OneList:
         pass
 
 

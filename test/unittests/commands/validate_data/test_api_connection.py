@@ -1,8 +1,10 @@
+from typing import Any
 from unittest.mock import Mock
 from unittest.mock import patch
 
 import pytest
 
+from dsp_tools.commands.validate_data.api_connection import ListConnection
 from dsp_tools.commands.validate_data.api_connection import OntologyConnection
 from dsp_tools.models.exceptions import UserError
 
@@ -12,44 +14,55 @@ def ontology_connection() -> OntologyConnection:
     return OntologyConnection("http://0.0.0.0:3333", "9999")
 
 
-def test_get_ontology_iris_ok(ontology_connection: OntologyConnection) -> None:
-    mock_response = Mock()
-    mock_response.ok = True
-    mock_response.json.return_value = {"project": {"ontologies": ["onto_iri"]}}
-    with patch.object(ontology_connection, "_get", return_value=mock_response) as patched_get:
-        result = ontology_connection._get_ontology_iris()
-        assert result == ["onto_iri"]
-        patched_get.assert_called_once_with("http://0.0.0.0:3333/admin/projects/shortcode/9999")
+class TestOntologyConnection:
+    def test_get_ontology_iris_ok(self, ontology_connection: OntologyConnection) -> None:
+        mock_response = Mock()
+        mock_response.ok = True
+        mock_response.json.return_value = {"project": {"ontologies": ["onto_iri"]}}
+        with patch.object(ontology_connection, "_get", return_value=mock_response) as patched_get:
+            result = ontology_connection._get_ontology_iris()
+            assert result == ["onto_iri"]
+            patched_get.assert_called_once_with("http://0.0.0.0:3333/admin/projects/shortcode/9999")
+
+    def test_get_ontology_iris_non_ok_code(self, ontology_connection: OntologyConnection) -> None:
+        mock_response = Mock()
+        mock_response.ok = False
+        mock_response.json.return_value = {}
+        with patch.object(ontology_connection, "_get", return_value=mock_response) as patched_get:
+            with pytest.raises(UserError):
+                ontology_connection._get_ontology_iris()
+            patched_get.assert_called_once_with("http://0.0.0.0:3333/admin/projects/shortcode/9999")
+
+    def test_get_ontology_iris_no_ontology_key(self, ontology_connection: OntologyConnection) -> None:
+        mock_response = Mock()
+        mock_response.ok = True
+        mock_response.json.return_value = {}
+        with patch.object(ontology_connection, "_get", return_value=mock_response) as patched_get:
+            with pytest.raises(UserError):
+                ontology_connection._get_ontology_iris()
+            patched_get.assert_called_once_with("http://0.0.0.0:3333/admin/projects/shortcode/9999")
+
+    def test_get_one_ontology(self, ontology_connection: OntologyConnection) -> None:
+        mock_response = Mock()
+        mock_response.ok = True
+        mock_response.text = "Turtle Text"
+        with patch.object(ontology_connection, "_get", return_value=mock_response) as patched_get:
+            result = ontology_connection._get_one_ontology("iri")
+            assert result == "Turtle Text"
+            patched_get.assert_called_once_with("iri", headers={"Accept": "text/turtle"})
 
 
-def test_get_ontology_iris_non_ok_code(ontology_connection: OntologyConnection) -> None:
-    mock_response = Mock()
-    mock_response.ok = False
-    mock_response.json.return_value = {}
-    with patch.object(ontology_connection, "_get", return_value=mock_response) as patched_get:
-        with pytest.raises(UserError):
-            ontology_connection._get_ontology_iris()
-        patched_get.assert_called_once_with("http://0.0.0.0:3333/admin/projects/shortcode/9999")
+class TestListConnection:
+    def test_extract_list_iris(self, response_all_list_one_project) -> None:
+        extracted = ListConnection("", "")._extract_list_iris(response_all_list_one_project)
+        expected = {"http://rdfh.ch/lists/9999/list1", "http://rdfh.ch/lists/9999/list2"}
+        assert extracted == expected
 
-
-def test_get_ontology_iris_no_ontology_key(ontology_connection: OntologyConnection) -> None:
-    mock_response = Mock()
-    mock_response.ok = True
-    mock_response.json.return_value = {}
-    with patch.object(ontology_connection, "_get", return_value=mock_response) as patched_get:
-        with pytest.raises(UserError):
-            ontology_connection._get_ontology_iris()
-        patched_get.assert_called_once_with("http://0.0.0.0:3333/admin/projects/shortcode/9999")
-
-
-def test_get_one_ontology(ontology_connection: OntologyConnection) -> None:
-    mock_response = Mock()
-    mock_response.ok = True
-    mock_response.text = "Turtle Text"
-    with patch.object(ontology_connection, "_get", return_value=mock_response) as patched_get:
-        result = ontology_connection._get_one_ontology("iri")
-        assert result == "Turtle Text"
-        patched_get.assert_called_once_with("iri", headers={"Accept": "text/turtle"})
+    def test_reformat_one_list(self, response_one_list: dict[str, Any]) -> None:
+        reformatted = ListConnection("", "")._reformat_one_list(response_one_list)
+        expected_nodes = {"n1", "n1.1", "n1.1.1"}
+        assert reformatted.list_name == "firstList"
+        assert set(reformatted.nodes) == expected_nodes
 
 
 if __name__ == "__main__":

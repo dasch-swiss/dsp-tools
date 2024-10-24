@@ -4,7 +4,7 @@ import pytest
 
 
 @pytest.fixture
-def get_all_list_one_project() -> dict[str, Any]:
+def response_all_list_one_project() -> dict[str, Any]:
     return {
         "lists": [
             {

@@ -103,7 +103,7 @@ class TestListConnection:
     ) -> None:
         extracted = list_connection._extract_list_iris(response_all_list_one_project)
         expected = {"http://rdfh.ch/lists/9999/list1", "http://rdfh.ch/lists/9999/list2"}
-        assert extracted == expected
+        assert set(extracted) == expected
 
     def test_extract_list_iris_no_lists(
         self, list_connection: ListConnection, response_all_list_one_project_no_lists: dict[str, Any]

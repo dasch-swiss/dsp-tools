@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Any
 from typing import cast
+from urllib.parse import quote_plus
 
 import requests
 from loguru import logger
@@ -116,7 +117,9 @@ class ListConnection:
     def get_lists(self) -> AllProjectLists:
         list_json = self._get_all_list_iris()
         all_iris = self._extract_list_iris(list_json)
-
+        all_lists = [self._get_one_list(iri) for iri in all_iris]
+        reformatted = [self._reformat_one_list(lst) for lst in all_lists]
+        return AllProjectLists(reformatted)
 
     def _get_all_list_iris(self) -> dict[str, Any]:
         url = f"{self.api_url}/admin/lists?{self.shortcode}"
@@ -125,13 +128,30 @@ class ListConnection:
         return response_json
 
     def _extract_list_iris(self, response_json: dict[str, Any]) -> list[str]:
-        pass
+        return [x["id"] for x in response_json["lists"]]
 
-    def _get_one_list(self) -> requests.Response:
-        pass
+    def _get_one_list(self, list_iri: str) -> dict[str, Any]:
+        encoded_list_iri = quote_plus(list_iri)
+        url = f"{self.api_url}/admin/lists/{encoded_list_iri}"
+        response = self._get(url)
+        response_json = cast(dict[str, Any], response.json())
+        return response_json
 
     def _reformat_one_list(self, response_json: dict[str, Any]) -> OneList:
-        pass
+        list_name = response_json["list"]["listinfo"]["name"]
+        nodes = response_json["list"]["children"]
+        all_nodes = []
+        for child in nodes:
+            all_nodes.append(child["name"])
+            if node_child := child.get("children"):
+                all_nodes.extend(self._reformat_children(node_child, all_nodes))
+        return OneList(list_name=list_name, nodes=all_nodes)
+
+    def _reformat_children(self, list_child: dict[str, Any], current_nodes: list[str]) -> list[str]:
+        current_nodes.append(list_child["name"])
+        if grand_child := list_child.get("children"):
+            self._reformat_children(grand_child, current_nodes)
+        return current_nodes
 
 
 @dataclass

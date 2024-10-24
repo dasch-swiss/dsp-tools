@@ -1,5 +1,8 @@
 from rdflib import Graph
 
+from dsp_tools.commands.validate_data.models.api_responses import AllProjectLists
+from dsp_tools.commands.validate_data.models.api_responses import OneList
+
 
 def construct_property_shapes(onto: Graph) -> Graph:
     """
@@ -191,3 +194,32 @@ def _construct_one_property_type_text_value(onto: Graph, gui_element: str, shacl
     if results_graph := onto.query(query_s).graph:
         return results_graph
     return Graph()
+
+
+def construct_list_property_shapes(onto: Graph, project_lists: AllProjectLists) -> Graph:
+    pass
+
+
+def _construct_one_list_property_shape(onto: Graph, one_list: OneList) -> Graph:
+    pass
+
+
+"""
+onto-shapes:onlyList_NodeShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the content of the ListValue with the specific property." ;
+  sh:property [
+                a         sh:PropertyShape ;
+                sh:path   val-onto:hasValue ;
+                sh:in     ( "n1" "n1.1" "n1.1.1" ) ;
+                sh:message "Unknown list node for list 'onlyList'."
+              ] ,
+              [
+                a               sh:PropertyShape ;
+                sh:path         val-onto:hasListName ;
+                sh:in           ( "onlyList" ) ;
+                sh:message      "The list that should be used with this property is 'onlyList'."
+              ] ;
+  sh:severity sh:Violation .
+
+"""

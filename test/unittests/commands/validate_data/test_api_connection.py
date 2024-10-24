@@ -111,6 +111,7 @@ class TestListConnection:
     def test_reformat_one_list(self, list_connection: ListConnection, response_one_list: dict[str, Any]) -> None:
         reformatted = list_connection._reformat_one_list(response_one_list)
         expected_nodes = {"n1", "n1.1", "n1.1.1", "n1.1.2"}
+        assert reformatted.list_iri == "http://rdfh.ch/lists/9999/list1"
         assert reformatted.list_name == "firstList"
         assert set(reformatted.nodes) == expected_nodes
 

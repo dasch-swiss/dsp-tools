@@ -70,7 +70,16 @@ def response_one_list() -> dict[str, Any]:
                                     "position": 0,
                                     "hasRootNode": "http://rdfh.ch/lists/9999/list1",
                                     "children": [],
-                                }
+                                },
+                                {
+                                    "id": "http://rdfh.ch/lists/9999/n112",
+                                    "name": "n1.1.2",
+                                    "labels": [{"value": "Node 1.1.2", "language": "en"}],
+                                    "comments": [],
+                                    "position": 1,
+                                    "hasRootNode": "http://rdfh.ch/lists/9999/list1",
+                                    "children": [],
+                                },
                             ],
                         }
                     ],

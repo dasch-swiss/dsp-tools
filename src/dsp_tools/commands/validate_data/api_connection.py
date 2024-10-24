@@ -147,10 +147,11 @@ class ListConnection:
                 all_nodes.extend(self._reformat_children(node_child, all_nodes))
         return OneList(list_name=list_name, nodes=all_nodes)
 
-    def _reformat_children(self, list_child: dict[str, Any], current_nodes: list[str]) -> list[str]:
-        current_nodes.append(list_child["name"])
-        if grand_child := list_child.get("children"):
-            self._reformat_children(grand_child, current_nodes)
+    def _reformat_children(self, list_child: list[dict[str, Any]], current_nodes: list[str]) -> list[str]:
+        for child in list_child:
+            current_nodes.append(child["name"])
+            if grand_child := child.get("children"):
+                self._reformat_children(grand_child, current_nodes)
         return current_nodes
 
 

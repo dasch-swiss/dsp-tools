@@ -80,6 +80,9 @@ def _construct_1_cardinality(onto_graph: Graph) -> Graph:
           salsah-gui:guiOrder ?order ;
           owl:cardinality 1 .
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
+      FILTER (?class NOT IN (
+            knora-api:Region, knora-api:Annotation, knora-api:AudioSegment, knora-api:VideoSegment, knora-api:LinkObj)
+      )
     }
     """
     if results_graph := onto_graph.query(query_s).graph:
@@ -116,6 +119,9 @@ def _construct_0_1_cardinality(onto_graph: Graph) -> Graph:
           salsah-gui:guiOrder ?order ;
           owl:maxCardinality 1 .
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
+      FILTER (?class NOT IN (
+            knora-api:Region, knora-api:Annotation, knora-api:AudioSegment, knora-api:VideoSegment, knora-api:LinkObj)
+      )
     }
     """
     if results_graph := onto_graph.query(query_s).graph:
@@ -151,6 +157,9 @@ def _construct_1_n_cardinality(onto_graph: Graph) -> Graph:
           salsah-gui:guiOrder ?order ;
           owl:minCardinality 1 .
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
+      FILTER (?class NOT IN (
+            knora-api:Region, knora-api:Annotation, knora-api:AudioSegment, knora-api:VideoSegment, knora-api:LinkObj)
+      )
     }
     """
     if results_graph := onto_graph.query(query_s).graph:
@@ -183,6 +192,9 @@ def _construct_0_n_cardinality(onto_graph: Graph) -> Graph:
           salsah-gui:guiOrder ?order ;
           owl:minCardinality 0 .
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
+      FILTER (?class NOT IN (
+            knora-api:Region, knora-api:Annotation, knora-api:AudioSegment, knora-api:VideoSegment, knora-api:LinkObj)
+      )
     }
     """
     if results_graph := onto_graph.query(query_s).graph:

@@ -114,10 +114,15 @@ class ListConnection:
         return response
 
     def get_lists(self) -> AllProjectLists:
-        pass
+        list_json = self._get_all_list_iris()
+        all_iris = self._extract_list_iris(list_json)
 
-    def _get_all_list_iris(self) -> requests.Response:
-        pass
+
+    def _get_all_list_iris(self) -> dict[str, Any]:
+        url = f"{self.api_url}/admin/lists?{self.shortcode}"
+        response = self._get(url)
+        response_json = cast(dict[str, Any], response.json())
+        return response_json
 
     def _extract_list_iris(self, response_json: dict[str, Any]) -> list[str]:
         pass

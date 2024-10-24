@@ -28,13 +28,10 @@ def _construct_resource_nodeshape(onto_graph: Graph) -> Graph:
     PREFIX dash: <http://datashapes.org/dash#>
 
     CONSTRUCT {
-
         ?class a sh:NodeShape ;
                 sh:property api-shapes:rdfsLabel_Shape ;
                 dash:closedByTypes true .
-
     } WHERE {
-
         ?class a owl:Class ;
                knora-api:isResourceClass true ;
                knora-api:canBeInstantiated true .
@@ -65,7 +62,6 @@ def _construct_1_cardinality(onto_graph: Graph) -> Graph:
     PREFIX dash: <http://datashapes.org/dash#>
 
     CONSTRUCT {
-
       ?class sh:property [
           a sh:PropertyShape ;
           sh:path ?propRestriction ;
@@ -74,9 +70,7 @@ def _construct_1_cardinality(onto_graph: Graph) -> Graph:
           sh:severity sh:Violation ;
           sh:message "1" ;
       ] .
-
     } WHERE {
-
       ?class a owl:Class ;
           knora-api:isResourceClass true ;
           knora-api:canBeInstantiated true ;
@@ -104,7 +98,6 @@ def _construct_0_1_cardinality(onto_graph: Graph) -> Graph:
     PREFIX dash: <http://datashapes.org/dash#>
 
     CONSTRUCT {
-
       ?class sh:property [
           a sh:PropertyShape ;
           sh:path ?propRestriction ;
@@ -113,9 +106,7 @@ def _construct_0_1_cardinality(onto_graph: Graph) -> Graph:
           sh:severity sh:Violation ;
           sh:message "0-1" ;
       ] .
-
     } WHERE {
-
       ?class a owl:Class ;
           knora-api:isResourceClass true ;
           knora-api:canBeInstantiated true ;
@@ -143,7 +134,6 @@ def _construct_1_n_cardinality(onto_graph: Graph) -> Graph:
     PREFIX dash: <http://datashapes.org/dash#>
 
     CONSTRUCT {
-
       ?class sh:property [
           a sh:PropertyShape ;
           sh:path ?propRestriction ;
@@ -151,9 +141,7 @@ def _construct_1_n_cardinality(onto_graph: Graph) -> Graph:
           sh:severity sh:Violation ;
           sh:message "1-n" ;
       ] .
-
     } WHERE {
-
       ?class a owl:Class ;
           knora-api:isResourceClass true ;
           knora-api:canBeInstantiated true ;
@@ -181,14 +169,11 @@ def _construct_0_n_cardinality(onto_graph: Graph) -> Graph:
     PREFIX dash: <http://datashapes.org/dash#>
 
     CONSTRUCT {
-
       ?class sh:property [
           a sh:PropertyShape ;
           sh:path ?propRestriction ;
       ] .
-
     } WHERE {
-
       ?class a owl:Class ;
           knora-api:isResourceClass true ;
           knora-api:canBeInstantiated true ;

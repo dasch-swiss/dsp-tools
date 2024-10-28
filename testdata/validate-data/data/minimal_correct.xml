@@ -45,7 +45,7 @@
     </resource>
 
     <resource label="List" restype=":ClassWithEverything" id="id_list">
-        <list-prop list="onlyList" name=":testListProp">
+        <list-prop list="firstList" name=":testListProp">
             <list>n1</list>
         </list-prop>
     </resource>

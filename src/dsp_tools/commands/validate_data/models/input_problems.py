@@ -146,7 +146,7 @@ class GenericProblem(InputProblem):
         return self.results_message
 
     def get_msg(self) -> str:
-        return f"{self.problem} | Actual content: {self.actual_content}"
+        return f"{self.problem} | Content: '{self.actual_content}'"
 
     def to_dict(self) -> dict[str, str]:
         problm_dict = self._base_dict()

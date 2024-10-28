@@ -10,6 +10,7 @@ from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.validate_data.models.input_problems import ContentRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
+from dsp_tools.commands.validate_data.models.input_problems import GenericProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
@@ -202,6 +203,17 @@ class TestReformatValidationGraph:
             ("geoname_not_number", "onto:testGeoname", "The value must be a valid geoname code"),
             ("link_target_non_existent", "onto:testHasLinkTo", "other"),
             ("link_target_wrong_class", "onto:testHasLinkToCardOneResource", "id_9_target"),
+            (
+                "list_name_attrib_empty",
+                "onto:testListProp",
+                "The list that should be used with this property is 'firstList'.",
+            ),
+            (
+                "list_name_non_existent",
+                "onto:testListProp",
+                "The list that should be used with this property is 'firstList'.",
+            ),
+            ("list_node_non_existent", "onto:testListProp", "Unknown list node for list 'firstList'."),
             ("text_only_whitespace_simple", "onto:testTextarea", "The value must be a non-empty string"),
         ]
         assert len(result.problems) == len(expected_info_tuples)
@@ -210,6 +222,8 @@ class TestReformatValidationGraph:
             assert one_result.prop_name == expected_info[1]
             if isinstance(one_result, ContentRegexProblem):
                 assert one_result.expected_format == expected_info[2]
+            elif isinstance(one_result, GenericProblem):
+                assert one_result.results_message == expected_info[2]
             elif isinstance(one_result, LinkTargetTypeMismatchProblem):
                 assert one_result.link_target_id == expected_info[2]
             elif isinstance(one_result, LinkedResourceDoesNotExistProblem):

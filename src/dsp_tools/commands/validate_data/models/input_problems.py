@@ -133,7 +133,7 @@ class InputProblem(ABC):
 
 
 #######################
-# Generic Violation
+# Generic Problem
 
 
 @dataclass

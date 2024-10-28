@@ -244,6 +244,7 @@ class TestReformatValidationGraph:
             ("identical_values", DuplicateValueProblem),
             ("link_target_non_existent", LinkedResourceDoesNotExistProblem),
             ("link_target_wrong_class", LinkTargetTypeMismatchProblem),
+            ("list_node_non_existent", GenericProblem),
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)

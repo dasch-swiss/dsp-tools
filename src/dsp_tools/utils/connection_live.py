@@ -267,7 +267,7 @@ class ConnectionLive(Connection):
         }
         try:
             dumpobj["content"] = response.json()
-        except json.JSONDecodeError:
+        except requests.exceptions.JSONDecodeError:
             dumpobj["content"] = response.text
         logger.debug(f"RESPONSE: {json.dumps(dumpobj)}")
 
@@ -288,7 +288,7 @@ class ConnectionLive(Connection):
         logger.debug(f"REQUEST: {json.dumps(dumpobj, cls=SetEncoder)}")
 
 
-def _sanatize_headers(headers: dict[str, str | bytes]) -> dict[str, str]:
+def _sanitize_headers(headers: dict[str, str | bytes]) -> dict[str, str]:
     def _mask(key: str, value: str | bytes) -> str:
         if isinstance(value, bytes):
             value = value.decode("utf-8")

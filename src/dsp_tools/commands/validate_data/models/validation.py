@@ -84,7 +84,7 @@ class ResultPatternViolation(ValidationResult):
 
 
 @dataclass
-class ResultListViolation(ValidationResult):
+class ResultGenericViolation(ValidationResult):
     results_message: str
     actual_value: str
 

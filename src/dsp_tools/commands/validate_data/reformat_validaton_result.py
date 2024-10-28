@@ -11,6 +11,7 @@ from rdflib.term import Node
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import ContentRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
+from dsp_tools.commands.validate_data.models.input_problems import GenericProblem
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
@@ -22,6 +23,7 @@ from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProb
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import QueryInfo
 from dsp_tools.commands.validate_data.models.validation import ReformattedIRI
+from dsp_tools.commands.validate_data.models.validation import ResultGenericViolation
 from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMinCardinalityViolation
@@ -259,6 +261,12 @@ def _query_pattern_constraint_component_violation(
     )
 
 
+def _query_list_violation(
+    bn_with_info: Node, base_info: ValidationResultBaseInfo, results_and_onto: Graph
+) -> ResultGenericViolation:
+    pass
+
+
 def _query_for_link_value_target_violation(
     base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
 ) -> ResultLinkTargetViolation:
@@ -320,6 +328,15 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
                 res_id=iris.res_id,
                 res_type=iris.res_type,
                 prop_name=iris.prop_name,
+            )
+        case ResultGenericViolation():
+            iris = _reformat_main_iris(validation_result)
+            return GenericProblem(
+                res_id=iris.res_id,
+                res_type=iris.res_type,
+                prop_name=iris.prop_name,
+                results_message=validation_result.results_message,
+                actual_content=validation_result.actual_value,
             )
         case ResultValueTypeViolation():
             return _reformat_value_type_violation_result(validation_result)

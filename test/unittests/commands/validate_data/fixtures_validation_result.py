@@ -8,8 +8,8 @@ from rdflib import Graph
 from rdflib import Literal
 
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
+from dsp_tools.commands.validate_data.models.validation import ResultGenericViolation
 from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
-from dsp_tools.commands.validate_data.models.validation import ResultListViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMinCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultNonExistentCardinalityViolation
@@ -688,8 +688,8 @@ sh:value <http://data/value_list_node_non_existent> ] .
 
 
 @pytest.fixture
-def extracted_unknown_list_node() -> ResultListViolation:
-    return ResultListViolation(
+def extracted_unknown_list_node() -> ResultGenericViolation:
+    return ResultGenericViolation(
         res_iri=DATA.list_node_non_existent,
         res_class=DATA.ClassWithEverything,
         property=ONTO.testListProp,
@@ -746,8 +746,8 @@ _:bn_list_name_non_existent a sh:ValidationResult ;
 
 
 @pytest.fixture
-def extracted_unknown_list_name() -> ResultListViolation:
-    return ResultListViolation(
+def extracted_unknown_list_name() -> ResultGenericViolation:
+    return ResultGenericViolation(
         res_iri=DATA.list_name_non_existent,
         res_class=DATA.ClassWithEverything,
         property=ONTO.testListProp,

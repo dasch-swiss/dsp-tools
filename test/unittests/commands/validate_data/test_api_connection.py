@@ -61,7 +61,7 @@ class TestListConnection:
     def test_get_all_list_iris(self, list_connection: ListConnection) -> None:
         mock_response = Mock()
         mock_response.ok = True
-        mock_response.json = {"lists": []}
+        mock_response.json.return_value = {"lists": []}
         with patch.object(list_connection, "_get", return_value=mock_response) as patched_get:
             result = list_connection._get_all_list_iris()
             assert result == {"lists": []}
@@ -77,7 +77,7 @@ class TestListConnection:
     def test_get_one_list(self, list_connection: ListConnection) -> None:
         mock_response = Mock()
         mock_response.ok = True
-        mock_response.json = {"type": "ListGetResponseADM", "list": {}}
+        mock_response.json.return_value = {"type": "ListGetResponseADM", "list": {}}
         with patch.object(list_connection, "_get", return_value=mock_response) as patched_get:
             result = list_connection._get_one_list("http://rdfh.ch/lists/9999/WWqeCEj8R_qrK5djsVcHvg")
             assert result == {"type": "ListGetResponseADM", "list": {}}

@@ -691,7 +691,7 @@ sh:value <http://data/value_list_node_non_existent> ] .
 def extracted_unknown_list_node() -> ResultGenericViolation:
     return ResultGenericViolation(
         res_iri=DATA.list_node_non_existent,
-        res_class=DATA.ClassWithEverything,
+        res_class=ONTO.ClassWithEverything,
         property=ONTO.testListProp,
         results_message="Unknown list node for list 'firstList'.",
         actual_value="other",
@@ -749,7 +749,7 @@ _:bn_list_name_non_existent a sh:ValidationResult ;
 def extracted_unknown_list_name() -> ResultGenericViolation:
     return ResultGenericViolation(
         res_iri=DATA.list_name_non_existent,
-        res_class=DATA.ClassWithEverything,
+        res_class=ONTO.ClassWithEverything,
         property=ONTO.testListProp,
         results_message="The list that should be used with this property is 'firstList'.",
         actual_value="other",

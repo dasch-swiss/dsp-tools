@@ -205,6 +205,8 @@ def _query_one_with_detail(
             return _query_pattern_constraint_component_violation(detail_info.detail_bn, base_info, results_and_onto)
         case SH.ClassConstraintComponent:
             return _query_class_constraint_component_violation(base_info, results_and_onto, data_graph)
+        case SH.InConstraintComponent:
+            return _query_generic_violation(base_info, results_and_onto)
         case _:
             return UnexpectedComponent(str(detail_info.source_constraint_component))
 
@@ -261,10 +263,17 @@ def _query_pattern_constraint_component_violation(
     )
 
 
-def _query_list_violation(
-    bn_with_info: Node, base_info: ValidationResultBaseInfo, results_and_onto: Graph
-) -> ResultGenericViolation:
-    pass
+def _query_generic_violation(base_info: ValidationResultBaseInfo, results_and_onto: Graph) -> ResultGenericViolation:
+    detail_info = cast(DetailBaseInfo, base_info.detail)
+    val = next(results_and_onto.objects(detail_info.detail_bn, SH.value))
+    msg = str(next(results_and_onto.objects(detail_info.detail_bn, SH.resultMessage)))
+    return ResultGenericViolation(
+        res_iri=base_info.resource_iri,
+        res_class=base_info.res_class_type,
+        property=base_info.result_path,
+        results_message=msg,
+        actual_value=str(val),
+    )
 
 
 def _query_for_link_value_target_violation(

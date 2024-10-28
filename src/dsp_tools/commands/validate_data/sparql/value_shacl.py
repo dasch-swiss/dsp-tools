@@ -232,7 +232,7 @@ def _construct_one_list_node_shape(one_list: OneList) -> Graph:
     return list_graph
 
 
-def _construct_one_list_property_shape(onto, one_list: OneList) -> Graph:
+def _construct_one_list_property_shape(onto: Graph, one_list: OneList) -> Graph:
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>

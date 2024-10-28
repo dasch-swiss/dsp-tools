@@ -126,7 +126,7 @@ def test_default_timeout() -> None:
         assert expected_params.timeout == con.timeout_put_post, f"Method '{method.__name__}' failed"
     con.get(route="/v2/resources")
     expected_params = con._try_network_action.call_args.args[0]
-    assert expected_params.timeout == con.timeout_get, f"Method '{method.__name__}' failed"
+    assert expected_params.timeout == con.timeout_get, f"Method 'GET' failed"
 
 
 def test_custom_timeout() -> None:

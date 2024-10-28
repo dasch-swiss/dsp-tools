@@ -133,8 +133,8 @@
 
         <!--
         Our Violation Type            GenericProblem
-        sh:sourceConstraintComponent  sh:InConstraintComponent
-        sh:detail                     -
+        sh:sourceConstraintComponent  sh:NodeConstraintComponent
+        sh:detail                     sh:InConstraintComponent
         -->
         <resource label="List node does not exist" restype=":ClassWithEverything" id="list_node_non_existent">
             <list-prop list="firstList" name=":testListProp">

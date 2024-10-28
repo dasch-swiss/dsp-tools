@@ -7,9 +7,9 @@ import requests
 from loguru import logger
 from rdflib import SH
 from rdflib import Graph
-from requests import ReadTimeout
 from requests import RequestException
 from requests import Response
+from requests import Timeout
 
 from dsp_tools.commands.validate_data.models.api_responses import AllProjectLists
 from dsp_tools.commands.validate_data.models.api_responses import OneList
@@ -42,15 +42,15 @@ class OntologyConnection:
             timeout = 100
             logger.debug(f"REQUEST: GET to {url}, timeout: {timeout}, headers: {headers}")
             response = requests.get(url, headers=headers, timeout=timeout)
-        except (TimeoutError, ReadTimeout) as err:
-            logger.exception(err)
+        except (TimeoutError, Timeout) as err:
+            logger.error(err)
             raise InternalError("TimeoutError occurred. See logs for details.") from None
         except (ConnectionError, RequestException) as err:
-            logger.exception(err)
+            logger.error(err)
             raise InternalError("ConnectionError occurred. See logs for details.") from None
         if not response.ok:
             msg = f"Non-ok response: {response.status_code}\nOriginal message: {response.text}"
-            logger.exception(msg)
+            logger.error(msg)
             raise UserError(msg)
         logger.debug(f"RESPONSE: {response.status_code}")
         return response
@@ -100,16 +100,16 @@ class ListConnection:
         try:
             timeout = 100
             logger.debug(f"REQUEST: GET to {url}, timeout: {timeout}, headers: {headers}")
-            response = requests.get(url, headers=headers, timeout=timeout)
-        except (TimeoutError, ReadTimeout) as err:
-            logger.exception(err)
+            response = requests.get(url=url, headers=headers, timeout=timeout)
+        except (TimeoutError, Timeout) as err:
+            logger.error(err)
             raise InternalError("TimeoutError occurred. See logs for details.") from None
         except (ConnectionError, RequestException) as err:
-            logger.exception(err)
+            logger.error(err)
             raise InternalError("ConnectionError occurred. See logs for details.") from None
         if not response.ok:
             msg = f"Non-ok response: {response.status_code}\nOriginal message: {response.text}"
-            logger.exception(msg)
+            logger.error(msg)
             raise UserError(msg)
         logger.debug(f"RESPONSE: {response.status_code}")
         return response

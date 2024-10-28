@@ -30,12 +30,13 @@ class TestOntologyConnection:
             patched_get.assert_called_once_with("http://0.0.0.0:3333/admin/projects/shortcode/9999")
 
     def test_get_ontology_iris_non_ok_code(self, ontology_connection: OntologyConnection) -> None:
-        mock_response = Mock()
-        mock_response.ok = False
-        with patch.object(ontology_connection, "_get", return_value=mock_response) as patched_get:
+        with patch("requests.get") as patched_get:
+            patched_get.return_value.ok = False
             with pytest.raises(UserError):
                 ontology_connection._get_ontology_iris()
-            patched_get.assert_called_once_with("http://0.0.0.0:3333/admin/projects/shortcode/9999")
+            patched_get.assert_called_once_with(
+                "http://0.0.0.0:3333/admin/projects/shortcode/9999", headers=None, timeout=100
+            )
 
     def test_get_ontology_iris_no_ontology_key(self, ontology_connection: OntologyConnection) -> None:
         mock_response = Mock()
@@ -67,12 +68,11 @@ class TestListConnection:
             patched_get.assert_called_once_with(url="http://0.0.0.0:3333/admin/lists?9999")
 
     def test_get_all_list_iris_non_ok_code(self, list_connection: ListConnection) -> None:
-        mock_response = Mock()
-        mock_response.ok = False
-        with patch.object(list_connection, "_get", return_value=mock_response) as patched_get:
+        with patch("requests.get") as patched_get:
+            patched_get.return_value.ok = False
             with pytest.raises(UserError):
                 list_connection._get_all_list_iris()
-            patched_get.assert_called_once_with(url="http://0.0.0.0:3333/admin/lists?9999")
+            patched_get.assert_called_once_with(url="http://0.0.0.0:3333/admin/lists?9999", headers=None, timeout=100)
 
     def test_get_one_list(self, list_connection: ListConnection) -> None:
         mock_response = Mock()
@@ -86,13 +86,14 @@ class TestListConnection:
             )
 
     def test_get_one_list_non_ok_code(self, list_connection: ListConnection) -> None:
-        mock_response = Mock()
-        mock_response.ok = False
-        with patch.object(list_connection, "_get", return_value=mock_response) as patched_get:
+        with patch("requests.get") as patched_get:
+            patched_get.return_value.ok = False
             with pytest.raises(UserError):
-                list_connection._get_all_list_iris()
+                list_connection._get_one_list("http://rdfh.ch/lists/9999/WWqeCEj8R_qrK5djsVcHvg")
             patched_get.assert_called_once_with(
                 url="http://0.0.0.0:3333/admin/lists/http%3A%2F%2Frdfh.ch%2Flists%2F9999%2FWWqeCEj8R_qrK5djsVcHvg",
+                headers=None,
+                timeout=100,
             )
 
     def test_extract_list_iris(

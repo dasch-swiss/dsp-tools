@@ -124,7 +124,7 @@ class ListConnection:
     def _get_all_list_iris(self) -> dict[str, Any]:
         url = f"{self.api_url}/admin/lists?{self.shortcode}"
         response = self._get(url=url)
-        json_response = cast(dict[str, Any], response.json)
+        json_response = cast(dict[str, Any], response.json())
         return json_response
 
     def _extract_list_iris(self, response_json: dict[str, Any]) -> list[str]:
@@ -134,7 +134,7 @@ class ListConnection:
         encoded_list_iri = quote_plus(list_iri)
         url = f"{self.api_url}/admin/lists/{encoded_list_iri}"
         response = self._get(url=url)
-        response_json = cast(dict[str, Any], response.json)
+        response_json = cast(dict[str, Any], response.json())
         return response_json
 
     def _reformat_one_list(self, response_json: dict[str, Any]) -> OneList:

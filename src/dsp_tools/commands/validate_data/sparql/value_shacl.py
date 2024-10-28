@@ -241,7 +241,7 @@ def _construct_one_list_property_shape(onto: Graph, one_list: OneList) -> Graph:
     PREFIX salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#>
 
     CONSTRUCT {
-        ?shapesIRI sh:PropertyShape ;
+        ?shapesIRI a sh:PropertyShape ;
                    sh:path ?prop ;
                    sh:node api-shapes:%(list)s_NodeShape ;
                    sh:severity sh:Violation .

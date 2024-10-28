@@ -84,6 +84,12 @@ class ResultPatternViolation(ValidationResult):
 
 
 @dataclass
+class ResultListViolation(ValidationResult):
+    results_message: str
+    actual_value: str
+
+
+@dataclass
 class ResultLinkTargetViolation(ValidationResult):
     results_message: str
     target_iri: Node

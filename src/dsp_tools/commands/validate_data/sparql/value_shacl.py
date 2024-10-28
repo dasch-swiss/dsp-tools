@@ -209,11 +209,8 @@ def _construct_list_shapes(onto: Graph, project_lists: AllProjectLists) -> Graph
 
 def _construct_one_list_node_shape(one_list: OneList) -> Graph:
     list_str = f"""
-    @prefix  owl: <http://www.w3.org/2002/07/owl#> .
     @prefix  sh: <http://www.w3.org/ns/shacl#> .
     @prefix  api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#> .
-    @prefix  knora-api:  <http://api.knora.org/ontology/knora-api/v2#> .
-    @prefix  salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#> .
     
     api-shapes:{one_list.list_name}_NodeShape a sh:NodeShape ;
           sh:property [

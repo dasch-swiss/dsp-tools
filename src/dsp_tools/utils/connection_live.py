@@ -13,6 +13,7 @@ from typing import cast
 
 import regex
 from loguru import logger
+from requests import JSONDecodeError
 from requests import ReadTimeout
 from requests import RequestException
 from requests import Response
@@ -263,11 +264,11 @@ class ConnectionLive(Connection):
     def _log_response(self, response: Response) -> None:
         dumpobj: dict[str, Any] = {
             "status_code": response.status_code,
-            "headers": _sanatize_headers(dict(response.headers)),
+            "headers": _sanitize_headers(dict(response.headers)),
         }
         try:
             dumpobj["content"] = response.json()
-        except requests.exceptions.JSONDecodeError:
+        except JSONDecodeError:
             dumpobj["content"] = response.text
         logger.debug(f"RESPONSE: {json.dumps(dumpobj)}")
 
@@ -275,7 +276,7 @@ class ConnectionLive(Connection):
         dumpobj = {
             "method": params.method,
             "url": params.url,
-            "headers": _sanatize_headers(dict(self.session.headers) | (params.headers or {})),  # type: ignore[operator]
+            "headers": _sanitize_headers(dict(self.session.headers) | (params.headers or {})),  # type: ignore[operator]
             "timeout": params.timeout,
         }
         if params.data:

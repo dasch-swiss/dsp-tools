@@ -12,6 +12,7 @@ from dsp_tools.commands.validate_data.api_connection import ApiConnection
 from dsp_tools.commands.validate_data.models.api_responses import AllProjectLists
 from dsp_tools.commands.validate_data.models.api_responses import OneList
 from dsp_tools.commands.validate_data.models.api_responses import SHACLValidationReport
+from dsp_tools.models.exceptions import InternalError
 from dsp_tools.models.exceptions import UserError
 
 
@@ -22,6 +23,10 @@ class OntologyConnection:
 
     def get_knora_api(self) -> str:
         response = self.api_con.get(endpoint="ontology/knora-api/v2#", headers={"Accept": "text/turtle"})
+        if not response.ok:
+            msg = f"NON-OK RESPONSE | Code: {response.status_code} | Message: {response.text}"
+            logger.error(msg)
+            raise InternalError(msg)
         return response.text
 
     def get_ontologies(self) -> list[str]:
@@ -36,6 +41,10 @@ class OntologyConnection:
 
     def _get_ontology_iris(self) -> list[str]:
         response = self.api_con.get(endpoint=f"admin/projects/shortcode/{self.shortcode}")
+        if not response.ok:
+            msg = f"NON-OK RESPONSE | Code: {response.status_code} | Message: {response.text}"
+            logger.error(msg)
+            raise InternalError(msg)
         response_json = cast(dict[str, Any], response.json())
         msg = f"The response from the API does not contain any ontologies.\nAPI response:{response.text}"
         if not (proj := response_json.get("project")):
@@ -49,6 +58,10 @@ class OntologyConnection:
 
     def _get_one_ontology(self, ontology_iri: str) -> str:
         response = self.api_con.get(endpoint=ontology_iri, headers={"Accept": "text/turtle"})
+        if not response.ok:
+            msg = f"NON-OK RESPONSE | Code: {response.status_code} | Message: {response.text}"
+            logger.error(msg)
+            raise InternalError(msg)
         return response.text
 
 
@@ -68,6 +81,10 @@ class ListConnection:
 
     def _get_all_list_iris(self) -> dict[str, Any]:
         response = self.api_con.get(endpoint=f"admin/lists?{self.shortcode}")
+        if not response.ok:
+            msg = f"NON-OK RESPONSE | Code: {response.status_code} | Message: {response.text}"
+            logger.error(msg)
+            raise InternalError(msg)
         json_response = cast(dict[str, Any], response.json())
         return json_response
 
@@ -77,6 +94,10 @@ class ListConnection:
     def _get_one_list(self, list_iri: str) -> dict[str, Any]:
         encoded_list_iri = quote_plus(list_iri)
         response = self.api_con.get(endpoint=f"admin/lists/{encoded_list_iri}")
+        if not response.ok:
+            msg = f"NON-OK RESPONSE | Code: {response.status_code} | Message: {response.text}"
+            logger.error(msg)
+            raise InternalError(msg)
         response_json = cast(dict[str, Any], response.json())
         return response_json
 
@@ -121,6 +142,10 @@ class ShaclValidator:
             InternalError: in case of a non-ok response
         """
         response = self._request_validation_result(data_ttl, shacl_ttl)
+        if not response.ok:
+            msg = f"Failed to send request. Status code: {response.status_code}, Original Message:\n{response.text}"
+            logger.error(msg)
+            raise InternalError(msg)
         return self._parse_validation_result(response.text)
 
     def _request_validation_result(self, data_ttl: str, shacl_ttl: str) -> requests.Response:

@@ -11,4 +11,5 @@ formatter:
   max_line_length: 120
   scan_folded_as_literal: true
   pad_line_comments: 2
-  gitignore_excludes: true
+  
+gitignore_excludes: true

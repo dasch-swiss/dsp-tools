@@ -24,7 +24,7 @@ class OntologyConnection:
     def get_knora_api(self) -> str:
         response = self.api_con.get_with_endpoint(endpoint="ontology/knora-api/v2#", headers={"Accept": "text/turtle"})
         if not response.ok:
-            msg = f"NON-OK RESPONSE | Code: {response.status_code} | Message: {response.text}"
+            msg = f"NON-OK RESPONSE | Request: get knora-api | Code: {response.status_code} | Message: {response.text}"
             logger.error(msg)
             raise InternalError(msg)
         return response.text
@@ -42,7 +42,10 @@ class OntologyConnection:
     def _get_ontology_iris(self) -> list[str]:
         response = self.api_con.get_with_endpoint(endpoint=f"admin/projects/shortcode/{self.shortcode}")
         if not response.ok:
-            msg = f"NON-OK RESPONSE | Code: {response.status_code} | Message: {response.text}"
+            msg = (
+                f"NON-OK RESPONSE | Request: get ontology IRIs | "
+                f"Code: {response.status_code} | Message: {response.text}"
+            )
             logger.error(msg)
             raise InternalError(msg)
         response_json = cast(dict[str, Any], response.json())
@@ -59,7 +62,10 @@ class OntologyConnection:
     def _get_one_ontology(self, ontology_iri: str) -> str:
         response = self.api_con.get_with_url(url=ontology_iri, headers={"Accept": "text/turtle"})
         if not response.ok:
-            msg = f"NON-OK RESPONSE | Code: {response.status_code} | Message: {response.text}"
+            msg = (
+                f"NON-OK RESPONSE | Request: get {ontology_iri} | "
+                f"Code: {response.status_code} | Message: {response.text}"
+            )
             logger.error(msg)
             raise InternalError(msg)
         return response.text
@@ -82,7 +88,10 @@ class ListConnection:
     def _get_all_list_iris(self) -> dict[str, Any]:
         response = self.api_con.get_with_endpoint(endpoint=f"admin/lists?{self.shortcode}")
         if not response.ok:
-            msg = f"NON-OK RESPONSE | Code: {response.status_code} | Message: {response.text}"
+            msg = (
+                f"NON-OK RESPONSE | Request: get all list IRIs | "
+                f"Code: {response.status_code} | Message: {response.text}"
+            )
             logger.error(msg)
             raise InternalError(msg)
         json_response = cast(dict[str, Any], response.json())
@@ -95,7 +104,10 @@ class ListConnection:
         encoded_list_iri = quote_plus(list_iri)
         response = self.api_con.get_with_endpoint(endpoint=f"admin/lists/{encoded_list_iri}")
         if not response.ok:
-            msg = f"NON-OK RESPONSE | Code: {response.status_code} | Message: {response.text}"
+            msg = (
+                f"NON-OK RESPONSE | Request: get one list {list_iri} | "
+                f"Code: {response.status_code} | Message: {response.text}"
+            )
             logger.error(msg)
             raise InternalError(msg)
         response_json = cast(dict[str, Any], response.json())

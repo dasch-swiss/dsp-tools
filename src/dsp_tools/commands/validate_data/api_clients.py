@@ -3,15 +3,17 @@ from typing import Any
 from typing import cast
 from urllib.parse import quote_plus
 
-import requests
 from loguru import logger
 from rdflib import SH
 from rdflib import Graph
 
 from dsp_tools.commands.validate_data.api_connection import ApiConnection
+from dsp_tools.commands.validate_data.api_connection import OneFile
+from dsp_tools.commands.validate_data.api_connection import PostFiles
 from dsp_tools.commands.validate_data.models.api_responses import AllProjectLists
 from dsp_tools.commands.validate_data.models.api_responses import OneList
 from dsp_tools.commands.validate_data.models.api_responses import SHACLValidationReport
+from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.models.exceptions import InternalError
 from dsp_tools.models.exceptions import UserError
 
@@ -136,16 +138,13 @@ class ListClient:
 class ShaclValidator:
     """Client to validate RDF data against a given SHACL shape."""
 
-    api_url: str
+    api_con: ApiConnection
+    rdf_graphs: RDFGraphs
 
-    def validate(self, data_ttl: str, shacl_ttl: str) -> SHACLValidationReport:
+    def validate(self) -> SHACLValidationReport:
         """
         Sends a multipart/form-data request with two turtle files (data.ttl and shacl.ttl) to the given URL
         and expects a response containing a single text/turtle body which is loaded into an rdflib Graph.
-
-        Args:
-            data_ttl (str): The turtle content for the data.ttl file (as a string).
-            shacl_ttl (str): The turtle content for the shacl.ttl file (as a string).
 
         Returns:
             SHACLValidationReport: A report containing the validation graph and a bool to indicate if it passed.
@@ -153,22 +152,23 @@ class ShaclValidator:
         Raises:
             InternalError: in case of a non-ok response
         """
-        response = self._request_validation_result(data_ttl, shacl_ttl)
+        files = self._prepare_files()
+        response = self.api_con.post_files(endpoint="shacl/validate", files=files)
         if not response.ok:
-            msg = f"Failed to send request. Status code: {response.status_code}, Original Message:\n{response.text}"
+            msg = (
+                f"NON-OK RESPONSE | Request: POST files for SHACL validation | "
+                f"Code: {response.status_code} | Message: {response.text}"
+            )
             logger.error(msg)
             raise InternalError(msg)
         return self._parse_validation_result(response.text)
 
-    def _request_validation_result(self, data_ttl: str, shacl_ttl: str) -> requests.Response:
-        files = {
-            "data.ttl": ("data.ttl", data_ttl, "text/turtle"),
-            "shacl.ttl": ("shacl.ttl", shacl_ttl, "text/turtle"),
-        }
-        timeout = 10
-        request_url = f"{self.api_url}/shacl/validate"
-        logger.debug(f"REQUEST: POST to {request_url}, timeout: {timeout}")
-        return requests.post(request_url, files=files, timeout=timeout)
+    def _prepare_files(self) -> PostFiles:
+        data_str = self.rdf_graphs.get_data_and_onto_str()
+        data_file = OneFile(file_name="data.ttl", file_content=data_str, file_format="text/turtle")
+        shacl_str = self.rdf_graphs.get_shacl_and_onto_str()
+        shacl_file = OneFile(file_name="shacl.ttl", file_content=shacl_str, file_format="text/turtle")
+        return PostFiles([data_file, shacl_file])
 
     def _parse_validation_result(self, response_text: str) -> SHACLValidationReport:
         graph = Graph()

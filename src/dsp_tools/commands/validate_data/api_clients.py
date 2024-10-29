@@ -7,10 +7,8 @@ import requests
 from loguru import logger
 from rdflib import SH
 from rdflib import Graph
-from requests import RequestException
-from requests import Response
-from requests import Timeout
 
+from dsp_tools.commands.validate_data.api_connection import ApiConnection
 from dsp_tools.commands.validate_data.models.api_responses import AllProjectLists
 from dsp_tools.commands.validate_data.models.api_responses import OneList
 from dsp_tools.commands.validate_data.models.api_responses import SHACLValidationReport
@@ -20,45 +18,16 @@ from dsp_tools.models.exceptions import UserError
 
 @dataclass
 class OntologyConnection:
-    api_url: str
+    api_con: ApiConnection
     shortcode: str
 
-    def _get(self, url: str, headers: dict[str, Any] | None = None) -> Response:
-        """
-        Sends a get request to the designated url
-
-        Args:
-            url: URL for the request
-            headers: headers for the request
-
-        Returns:
-            Response of the request if it was a 200 response code
-
-        Raises:
-            InternalError: in case of errors raised by the requests library
-            UserError: If a non-200 response was given
-        """
-        try:
-            timeout = 100
-            logger.debug(f"REQUEST: GET to {url}, timeout: {timeout}, headers: {headers}")
-            response = requests.get(url, headers=headers, timeout=timeout)
-        except (TimeoutError, Timeout) as err:
-            logger.error(err)
-            raise InternalError("TimeoutError occurred. See logs for details.") from None
-        except (ConnectionError, RequestException) as err:
-            logger.error(err)
-            raise InternalError("ConnectionError occurred. See logs for details.") from None
-        if not response.ok:
-            msg = f"Non-ok response: {response.status_code}\nOriginal message: {response.text}"
-            logger.error(msg)
-            raise UserError(msg)
-        logger.debug(f"RESPONSE: {response.status_code}")
-        return response
-
     def get_knora_api(self) -> str:
-        url = f"{self.api_url}/ontology/knora-api/v2#"
-        onto = self._get(url, headers={"Accept": "text/turtle"})
-        return onto.text
+        response = self.api_con.get(endpoint="ontology/knora-api/v2#", headers={"Accept": "text/turtle"})
+        if not response.ok:
+            msg = f"Non-ok response, Code: {response.status_code} Message: {response.text}"
+            logger.error(msg)
+            raise InternalError(msg)
+        return response.text
 
     def get_ontologies(self) -> list[str]:
         """
@@ -71,8 +40,11 @@ class OntologyConnection:
         return [self._get_one_ontology(x) for x in ontology_iris]
 
     def _get_ontology_iris(self) -> list[str]:
-        endpoint = f"{self.api_url}/admin/projects/shortcode/{self.shortcode}"
-        response = self._get(endpoint)
+        response = self.api_con.get(endpoint=f"admin/projects/shortcode/{self.shortcode}")
+        if not response.ok:
+            msg = f"Non-ok response, Code: {response.status_code} Message: {response.text}"
+            logger.error(msg)
+            raise InternalError(msg)
         response_json = cast(dict[str, Any], response.json())
         msg = f"The response from the API does not contain any ontologies.\nAPI response:{response.text}"
         if not (proj := response_json.get("project")):
@@ -85,7 +57,11 @@ class OntologyConnection:
         return output
 
     def _get_one_ontology(self, ontology_iri: str) -> str:
-        response = self._get(ontology_iri, headers={"Accept": "text/turtle"})
+        response = self.api_con.get(endpoint=ontology_iri, headers={"Accept": "text/turtle"})
+        if not response.ok:
+            msg = f"Non-ok response, Code: {response.status_code} Message: {response.text}"
+            logger.error(msg)
+            raise InternalError(msg)
         return response.text
 
 
@@ -93,26 +69,8 @@ class OntologyConnection:
 class ListConnection:
     """Client to request and reformat the lists of a project."""
 
-    api_url: str
+    api_con: ApiConnection
     shortcode: str
-
-    def _get(self, url: str, headers: dict[str, Any] | None = None) -> Response:
-        try:
-            timeout = 100
-            logger.debug(f"REQUEST: GET to {url}, timeout: {timeout}, headers: {headers}")
-            response = requests.get(url=url, headers=headers, timeout=timeout)
-        except (TimeoutError, Timeout) as err:
-            logger.error(err)
-            raise InternalError("TimeoutError occurred. See logs for details.") from None
-        except (ConnectionError, RequestException) as err:
-            logger.error(err)
-            raise InternalError("ConnectionError occurred. See logs for details.") from None
-        if not response.ok:
-            msg = f"Non-ok response: {response.status_code}\nOriginal message: {response.text}"
-            logger.error(msg)
-            raise UserError(msg)
-        logger.debug(f"RESPONSE: {response.status_code}")
-        return response
 
     def get_lists(self) -> AllProjectLists:
         list_json = self._get_all_list_iris()
@@ -122,8 +80,11 @@ class ListConnection:
         return AllProjectLists(reformatted)
 
     def _get_all_list_iris(self) -> dict[str, Any]:
-        url = f"{self.api_url}/admin/lists?{self.shortcode}"
-        response = self._get(url=url)
+        response = self.api_con.get(endpoint=f"admin/lists?{self.shortcode}")
+        if not response.ok:
+            msg = f"Non-ok response, Code: {response.status_code} Message: {response.text}"
+            logger.error(msg)
+            raise InternalError(msg)
         json_response = cast(dict[str, Any], response.json())
         return json_response
 
@@ -132,8 +93,11 @@ class ListConnection:
 
     def _get_one_list(self, list_iri: str) -> dict[str, Any]:
         encoded_list_iri = quote_plus(list_iri)
-        url = f"{self.api_url}/admin/lists/{encoded_list_iri}"
-        response = self._get(url=url)
+        response = self.api_con.get(endpoint=f"admin/lists/{encoded_list_iri}")
+        if not response.ok:
+            msg = f"Non-ok response, Code: {response.status_code} Message: {response.text}"
+            logger.error(msg)
+            raise InternalError(msg)
         response_json = cast(dict[str, Any], response.json())
         return response_json
 
@@ -160,7 +124,7 @@ class ListConnection:
 class ShaclValidator:
     """Client to validate RDF data against a given SHACL shape."""
 
-    dsp_api_url: str
+    api_url: str
 
     def validate(self, data_ttl: str, shacl_ttl: str) -> SHACLValidationReport:
         """
@@ -190,7 +154,7 @@ class ShaclValidator:
             "shacl.ttl": ("shacl.ttl", shacl_ttl, "text/turtle"),
         }
         timeout = 10
-        request_url = f"{self.dsp_api_url}/shacl/validate"
+        request_url = f"{self.api_url}/shacl/validate"
         logger.debug(f"REQUEST: POST to {request_url}, timeout: {timeout}")
         return requests.post(request_url, files=files, timeout=timeout)
 

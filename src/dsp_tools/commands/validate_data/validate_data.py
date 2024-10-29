@@ -8,6 +8,7 @@ from termcolor import cprint
 from dsp_tools.commands.validate_data.api_clients import ListConnection
 from dsp_tools.commands.validate_data.api_clients import OntologyConnection
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
+from dsp_tools.commands.validate_data.api_connection import ApiConnection
 from dsp_tools.commands.validate_data.deserialise_input import deserialise_xml
 from dsp_tools.commands.validate_data.make_data_rdf import make_data_rdf
 from dsp_tools.commands.validate_data.models.data_deserialised import ProjectDeserialised
@@ -67,8 +68,9 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
 
 def _get_validation_result(api_url: str, filepath: Path, save_graphs: bool) -> ValidationReportGraphs:
     data_rdf, shortcode = _get_data_info_from_file(filepath, api_url)
-    onto_con = OntologyConnection(api_url, shortcode)
-    list_con = ListConnection(api_url, shortcode)
+    api_con = ApiConnection(api_url)
+    onto_con = OntologyConnection(api_con, shortcode)
+    list_con = ListConnection(api_con, shortcode)
     rdf_graphs = _create_graphs(onto_con, list_con, data_rdf)
     generic_filepath = Path()
     if save_graphs:

@@ -16,8 +16,11 @@ from dsp_tools.models.exceptions import InternalError
 class ApiConnection:
     api_url: str
 
-    def get(self, endpoint: str, headers: dict[str, Any] | None = None, timeout: int = 42) -> Response:
+    def get_with_endpoint(self, endpoint: str, headers: dict[str, Any] | None = None, timeout: int = 42) -> Response:
         url = f"{self.api_url}/{endpoint}"
+        return self.get_with_url(url, headers, timeout)
+
+    def get_with_url(self, url: str, headers: dict[str, Any] | None = None, timeout: int = 42) -> Response:
         logger.debug(f"REQUEST: GET to {url} | Timeout: {timeout} | Headers: {headers}")
         try:
             return requests.get(url=url, headers=headers, timeout=timeout)

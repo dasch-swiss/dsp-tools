@@ -22,7 +22,7 @@ class OntologyConnection:
     shortcode: str
 
     def get_knora_api(self) -> str:
-        response = self.api_con.get(endpoint="ontology/knora-api/v2#", headers={"Accept": "text/turtle"})
+        response = self.api_con.get_with_endpoint(endpoint="ontology/knora-api/v2#", headers={"Accept": "text/turtle"})
         if not response.ok:
             msg = f"NON-OK RESPONSE | Code: {response.status_code} | Message: {response.text}"
             logger.error(msg)
@@ -40,7 +40,7 @@ class OntologyConnection:
         return [self._get_one_ontology(x) for x in ontology_iris]
 
     def _get_ontology_iris(self) -> list[str]:
-        response = self.api_con.get(endpoint=f"admin/projects/shortcode/{self.shortcode}")
+        response = self.api_con.get_with_endpoint(endpoint=f"admin/projects/shortcode/{self.shortcode}")
         if not response.ok:
             msg = f"NON-OK RESPONSE | Code: {response.status_code} | Message: {response.text}"
             logger.error(msg)
@@ -57,7 +57,7 @@ class OntologyConnection:
         return output
 
     def _get_one_ontology(self, ontology_iri: str) -> str:
-        response = self.api_con.get(endpoint=ontology_iri, headers={"Accept": "text/turtle"})
+        response = self.api_con.get_with_url(url=ontology_iri, headers={"Accept": "text/turtle"})
         if not response.ok:
             msg = f"NON-OK RESPONSE | Code: {response.status_code} | Message: {response.text}"
             logger.error(msg)
@@ -80,7 +80,7 @@ class ListConnection:
         return AllProjectLists(reformatted)
 
     def _get_all_list_iris(self) -> dict[str, Any]:
-        response = self.api_con.get(endpoint=f"admin/lists?{self.shortcode}")
+        response = self.api_con.get_with_endpoint(endpoint=f"admin/lists?{self.shortcode}")
         if not response.ok:
             msg = f"NON-OK RESPONSE | Code: {response.status_code} | Message: {response.text}"
             logger.error(msg)
@@ -93,7 +93,7 @@ class ListConnection:
 
     def _get_one_list(self, list_iri: str) -> dict[str, Any]:
         encoded_list_iri = quote_plus(list_iri)
-        response = self.api_con.get(endpoint=f"admin/lists/{encoded_list_iri}")
+        response = self.api_con.get_with_endpoint(endpoint=f"admin/lists/{encoded_list_iri}")
         if not response.ok:
             msg = f"NON-OK RESPONSE | Code: {response.status_code} | Message: {response.text}"
             logger.error(msg)

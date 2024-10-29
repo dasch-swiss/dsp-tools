@@ -8,15 +8,17 @@ from rdflib import URIRef
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create import create_project
-from dsp_tools.commands.validate_data.models.input_problems import ContentRegexViolation
-from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExist
-from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatch
-from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityViolation
-from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityViolation
-from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
-from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
+from dsp_tools.commands.validate_data.models.input_problems import ContentRegexProblem
+from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
+from dsp_tools.commands.validate_data.models.input_problems import GenericProblem
+from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
+from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
+from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
+from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityProblem
+from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityProblem
+from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProblem
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
-from dsp_tools.commands.validate_data.models.validation import ValidationReport
+from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.reformat_validaton_result import _extract_base_info_of_resource_results
 from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
@@ -38,7 +40,7 @@ def _create_project() -> Iterator[None]:
 
 @lru_cache(maxsize=None)
 @pytest.fixture
-def cardinality_correct(_create_project: None) -> ValidationReport:
+def cardinality_correct(_create_project: None) -> ValidationReportGraphs:
     return _get_validation_result(
         LOCAL_API, Path("testdata/validate-data/data/cardinality_correct.xml"), DONT_SAVE_GRAPHS
     )
@@ -46,7 +48,7 @@ def cardinality_correct(_create_project: None) -> ValidationReport:
 
 @lru_cache(maxsize=None)
 @pytest.fixture
-def cardinality_violation(_create_project: None) -> ValidationReport:
+def cardinality_violation(_create_project: None) -> ValidationReportGraphs:
     return _get_validation_result(
         LOCAL_API, Path("testdata/validate-data/data/cardinality_violation.xml"), DONT_SAVE_GRAPHS
     )
@@ -54,13 +56,13 @@ def cardinality_violation(_create_project: None) -> ValidationReport:
 
 @lru_cache(maxsize=None)
 @pytest.fixture
-def content_correct(_create_project: None) -> ValidationReport:
+def content_correct(_create_project: None) -> ValidationReportGraphs:
     return _get_validation_result(LOCAL_API, Path("testdata/validate-data/data/content_correct.xml"), DONT_SAVE_GRAPHS)
 
 
 @lru_cache(maxsize=None)
 @pytest.fixture
-def content_violation(_create_project: None) -> ValidationReport:
+def content_violation(_create_project: None) -> ValidationReportGraphs:
     return _get_validation_result(
         LOCAL_API, Path("testdata/validate-data/data/content_violation.xml"), DONT_SAVE_GRAPHS
     )
@@ -68,7 +70,7 @@ def content_violation(_create_project: None) -> ValidationReport:
 
 @lru_cache(maxsize=None)
 @pytest.fixture
-def every_combination_once(_create_project: None) -> ValidationReport:
+def every_combination_once(_create_project: None) -> ValidationReportGraphs:
     return _get_validation_result(
         LOCAL_API, Path("testdata/validate-data/data/every_combination_once.xml"), DONT_SAVE_GRAPHS
     )
@@ -76,19 +78,27 @@ def every_combination_once(_create_project: None) -> ValidationReport:
 
 @lru_cache(maxsize=None)
 @pytest.fixture
-def minimal_correct(_create_project: None) -> ValidationReport:
+def minimal_correct(_create_project: None) -> ValidationReportGraphs:
     return _get_validation_result(LOCAL_API, Path("testdata/validate-data/data/minimal_correct.xml"), DONT_SAVE_GRAPHS)
 
 
 @lru_cache(maxsize=None)
 @pytest.fixture
-def value_type_violation(_create_project: None) -> ValidationReport:
+def value_type_violation(_create_project: None) -> ValidationReportGraphs:
     return _get_validation_result(
         LOCAL_API, Path("testdata/validate-data/data/value_type_violation.xml"), DONT_SAVE_GRAPHS
     )
 
 
-def test_extract_identifiers_of_resource_results(every_combination_once: ValidationReport) -> None:
+@lru_cache(maxsize=None)
+@pytest.fixture
+def unique_value_violation(_create_project: None) -> ValidationReportGraphs:
+    return _get_validation_result(
+        LOCAL_API, Path("testdata/validate-data/data/unique_value_violation.xml"), DONT_SAVE_GRAPHS
+    )
+
+
+def test_extract_identifiers_of_resource_results(every_combination_once: ValidationReportGraphs) -> None:
     report_and_onto = every_combination_once.validation_graph + every_combination_once.onto_graph
     data_and_onto = every_combination_once.data_graph + every_combination_once.onto_graph
     result = _extract_base_info_of_resource_results(report_and_onto, data_and_onto)
@@ -113,36 +123,40 @@ def test_extract_identifiers_of_resource_results(every_combination_once: Validat
 
 
 class TestCheckConforms:
-    def test_cardinality_correct(self, cardinality_correct: ValidationReport) -> None:
+    def test_cardinality_correct(self, cardinality_correct: ValidationReportGraphs) -> None:
         assert cardinality_correct.conforms
 
-    def test_cardinality_violation(self, cardinality_violation: ValidationReport) -> None:
+    def test_cardinality_violation(self, cardinality_violation: ValidationReportGraphs) -> None:
         assert not cardinality_violation.conforms
 
-    def test_content_correct(self, content_correct: ValidationReport) -> None:
+    def test_content_correct(self, content_correct: ValidationReportGraphs) -> None:
         assert content_correct.conforms
 
-    def test_content_violation(self, content_violation: ValidationReport) -> None:
+    def test_content_violation(self, content_violation: ValidationReportGraphs) -> None:
         assert not content_violation.conforms
 
-    def test_every_combination_once(self, every_combination_once: ValidationReport) -> None:
+    def test_every_combination_once(self, every_combination_once: ValidationReportGraphs) -> None:
         assert not every_combination_once.conforms
 
-    def test_minimal_correct(self, minimal_correct: ValidationReport) -> None:
+    def test_minimal_correct(self, minimal_correct: ValidationReportGraphs) -> None:
         assert minimal_correct.conforms
 
-    def test_value_type_violation(self, value_type_violation: ValidationReport) -> None:
+    def test_value_type_violation(self, value_type_violation: ValidationReportGraphs) -> None:
         assert not value_type_violation.conforms
+
+    def test_unique_value_violation(self, unique_value_violation: ValidationReportGraphs) -> None:
+        assert not unique_value_violation.conforms
 
 
 class TestReformatValidationGraph:
-    def test_reformat_cardinality_violation(self, cardinality_violation: ValidationReport) -> None:
+    def test_reformat_cardinality_violation(self, cardinality_violation: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(cardinality_violation)
         expected_info_tuples = [
-            (MinCardinalityViolation, "id_card_one"),
-            (NonExistentCardinalityViolation, "id_closed_constraint"),
-            (MaxCardinalityViolation, "id_max_card"),
-            (MinCardinalityViolation, "id_min_card"),
+            (MinCardinalityProblem, "id_card_one"),
+            (NonExistentCardinalityProblem, "id_closed_constraint"),
+            (MaxCardinalityProblem, "id_max_card"),
+            (MinCardinalityProblem, "id_min_card"),
+            (NonExistentCardinalityProblem, "super_prop_no_card"),
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)
@@ -151,7 +165,7 @@ class TestReformatValidationGraph:
             assert isinstance(one_result, expected_info[0])
             assert one_result.res_id == expected_info[1]
 
-    def test_reformat_value_type_violation(self, value_type_violation: ValidationReport) -> None:
+    def test_reformat_value_type_violation(self, value_type_violation: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(value_type_violation)
         assert not result.unexpected_results
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
@@ -173,12 +187,12 @@ class TestReformatValidationGraph:
         ]
         assert len(result.problems) == len(expected_info_tuples)
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
-            assert isinstance(one_result, ValueTypeViolation)
+            assert isinstance(one_result, ValueTypeProblem)
             assert one_result.res_id == expected_info[0]
             assert one_result.expected_type == expected_info[1]
             assert one_result.prop_name == expected_info[2]
 
-    def test_reformat_content_violation(self, content_violation: ValidationReport) -> None:
+    def test_reformat_content_violation(self, content_violation: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(content_violation)
         assert not result.unexpected_results
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
@@ -189,33 +203,48 @@ class TestReformatValidationGraph:
             ("geoname_not_number", "onto:testGeoname", "The value must be a valid geoname code"),
             ("link_target_non_existent", "onto:testHasLinkTo", "other"),
             ("link_target_wrong_class", "onto:testHasLinkToCardOneResource", "id_9_target"),
+            (
+                "list_name_attrib_empty",
+                "onto:testListProp",
+                "The list that should be used with this property is 'firstList'.",
+            ),
+            (
+                "list_name_non_existent",
+                "onto:testListProp",
+                "The list that should be used with this property is 'firstList'.",
+            ),
+            ("list_node_non_existent", "onto:testListProp", "Unknown list node for list 'firstList'."),
             ("text_only_whitespace_simple", "onto:testTextarea", "The value must be a non-empty string"),
         ]
         assert len(result.problems) == len(expected_info_tuples)
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
             assert one_result.res_id == expected_info[0]
             assert one_result.prop_name == expected_info[1]
-            if isinstance(one_result, ContentRegexViolation):
+            if isinstance(one_result, ContentRegexProblem):
                 assert one_result.expected_format == expected_info[2]
-            elif isinstance(one_result, LinkTargetTypeMismatch):
+            elif isinstance(one_result, GenericProblem):
+                assert one_result.results_message == expected_info[2]
+            elif isinstance(one_result, LinkTargetTypeMismatchProblem):
                 assert one_result.link_target_id == expected_info[2]
-            elif isinstance(one_result, LinkedResourceDoesNotExist):
+            elif isinstance(one_result, LinkedResourceDoesNotExistProblem):
                 assert one_result.link_target_id == expected_info[2]
             else:
-                assert isinstance(one_result, LinkedResourceDoesNotExist)
+                assert isinstance(one_result, LinkedResourceDoesNotExistProblem)
 
-    def test_reformat_every_constraint_once(self, every_combination_once: ValidationReport) -> None:
+    def test_reformat_every_constraint_once(self, every_combination_once: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(every_combination_once)
         expected_info_tuples = [
-            ("empty_label", ContentRegexViolation),
-            ("geoname_not_number", ContentRegexViolation),
-            ("id_card_one", MinCardinalityViolation),
-            ("id_closed_constraint", NonExistentCardinalityViolation),
-            ("id_max_card", MaxCardinalityViolation),
-            ("id_simpletext", ValueTypeViolation),
-            ("id_uri", ValueTypeViolation),
-            ("link_target_non_existent", LinkedResourceDoesNotExist),
-            ("link_target_wrong_class", LinkTargetTypeMismatch),
+            ("empty_label", ContentRegexProblem),
+            ("geoname_not_number", ContentRegexProblem),
+            ("id_card_one", MinCardinalityProblem),
+            ("id_closed_constraint", NonExistentCardinalityProblem),
+            ("id_max_card", MaxCardinalityProblem),
+            ("id_simpletext", ValueTypeProblem),
+            ("id_uri", ValueTypeProblem),
+            ("identical_values", DuplicateValueProblem),
+            ("link_target_non_existent", LinkedResourceDoesNotExistProblem),
+            ("link_target_wrong_class", LinkTargetTypeMismatchProblem),
+            ("list_node_non_existent", GenericProblem),
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)
@@ -223,6 +252,21 @@ class TestReformatValidationGraph:
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
             assert one_result.res_id == expected_info[0]
             assert isinstance(one_result, expected_info[1])
+
+    def test_reformat_unique_value_violation(self, unique_value_violation: ValidationReportGraphs) -> None:
+        result = reformat_validation_graph(unique_value_violation)
+        expected_ids = [
+            "identical_values_LinkValue",
+            "identical_values_listNode",
+            "identical_values_valueAsString",
+            "identical_values_valueHas",
+        ]
+        assert not result.unexpected_results
+        assert len(result.problems) == len(expected_ids)
+        sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
+        for one_result, expected_id in zip(sorted_problems, expected_ids):
+            assert isinstance(one_result, DuplicateValueProblem)
+            assert one_result.res_id == expected_id
 
 
 if __name__ == "__main__":

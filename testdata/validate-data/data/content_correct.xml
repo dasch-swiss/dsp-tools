@@ -57,7 +57,7 @@
     </resource>
 
     <resource label="List" restype=":ClassWithEverything" id="id_list">
-        <list-prop list="onlyList" name=":testListProp">
+        <list-prop list="firstList" name=":testListProp">
             <list>n1</list>
         </list-prop>
     </resource>
@@ -89,6 +89,15 @@
             <text encoding="utf8">Text line 1
 
             line 2  </text>
+        </text-prop>
+    </resource>
+
+    <resource label="Simpletext" restype=":ClassWithEverything" id="identical_text_different_prop">
+        <text-prop name=":testTextarea">
+            <text encoding="utf8">Text</text>
+        </text-prop>
+        <text-prop name=":testSimpleText">
+            <text encoding="utf8">Text</text>
         </text-prop>
     </resource>
 

@@ -6,7 +6,7 @@
        shortcode="9999"
        default-ontology="onto">
 
-    <!-- 11 Violations -->
+    <!-- 10 Violations -->
 
     <!-- label may not be empty -->
     <resource label=" " restype=":ClassWithEverything" id="empty_label"/>
@@ -27,7 +27,7 @@
 
     <!-- node does not exist -->
     <resource label="List node does not exist" restype=":ClassWithEverything" id="list_node_non_existent">
-        <list-prop list="onlyList" name=":testListProp">
+        <list-prop list="firstList" name=":testListProp">
             <list>other</list>
         </list-prop>
     </resource>
@@ -74,15 +74,6 @@
             <text encoding="utf8">
 
             </text>
-        </text-prop>
-    </resource>
-
-
-    <!-- The value of the same property may not be identical -->
-    <resource label="Duplicate Value" restype=":ClassWithEverything" id="identical_values">
-        <text-prop name=":testTextarea">
-            <text encoding="utf8">Text</text>
-            <text encoding="utf8">Text</text>
         </text-prop>
     </resource>
 

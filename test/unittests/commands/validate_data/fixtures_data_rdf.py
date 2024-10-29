@@ -90,7 +90,7 @@ def rdf_list_value_corr() -> ListValueRDF:
     return ListValueRDF(
         ONTO.testListProp,
         object_value=Literal("n1", datatype=XSD.string),
-        list_name=Literal("onlyList", datatype=XSD.string),
+        list_name=Literal("firstList", datatype=XSD.string),
         res_iri=URIRef("id"),
     )
 
@@ -100,7 +100,7 @@ def rdf_list_value_wrong_node() -> ListValueRDF:
     return ListValueRDF(
         ONTO.testListProp,
         object_value=Literal("other", datatype=XSD.string),
-        list_name=Literal("onlyList", datatype=XSD.string),
+        list_name=Literal("firstList", datatype=XSD.string),
         res_iri=URIRef("id"),
     )
 

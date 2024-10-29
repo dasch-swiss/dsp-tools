@@ -119,4 +119,27 @@
             </resptr-prop>
         </resource>
 
+        <!--
+        Our Violation Type            DuplicateValueProblem
+        sh:sourceConstraintComponent  sh:SPARQLConstraintComponent
+        sh:detail                     -
+        -->
+        <resource label="Duplicate Value: valueAsString" restype=":ClassWithEverything" id="identical_values">
+            <text-prop name=":testTextarea">
+                <text encoding="utf8">Text</text>
+                <text encoding="utf8">Text</text>
+            </text-prop>
+        </resource>
+
+        <!--
+        Our Violation Type            GenericProblem
+        sh:sourceConstraintComponent  sh:NodeConstraintComponent
+        sh:detail                     sh:InConstraintComponent
+        -->
+        <resource label="List node does not exist" restype=":ClassWithEverything" id="list_node_non_existent">
+            <list-prop list="firstList" name=":testListProp">
+                <list>other</list>
+            </list-prop>
+        </resource>
+
 </knora>

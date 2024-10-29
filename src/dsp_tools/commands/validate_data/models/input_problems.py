@@ -133,11 +133,36 @@ class InputProblem(ABC):
 
 
 #######################
+# Generic Problem
+
+
+@dataclass
+class GenericProblem(InputProblem):
+    results_message: str
+    actual_content: str
+
+    @property
+    def problem(self) -> str:
+        return self.results_message
+
+    def get_msg(self) -> str:
+        return f"{self.problem} | Content: '{self.actual_content}'"
+
+    def to_dict(self) -> dict[str, str]:
+        problm_dict = self._base_dict()
+        problm_dict["Actual"] = self.actual_content
+        return problm_dict
+
+    def sort_value(self) -> str:
+        return self.prop_name
+
+
+#######################
 # Cardinality Violation
 
 
 @dataclass
-class MaxCardinalityViolation(InputProblem):
+class MaxCardinalityProblem(InputProblem):
     expected_cardinality: str
 
     @property
@@ -157,7 +182,7 @@ class MaxCardinalityViolation(InputProblem):
 
 
 @dataclass
-class MinCardinalityViolation(InputProblem):
+class MinCardinalityProblem(InputProblem):
     expected_cardinality: str
 
     @property
@@ -177,7 +202,7 @@ class MinCardinalityViolation(InputProblem):
 
 
 @dataclass
-class NonExistentCardinalityViolation(InputProblem):
+class NonExistentCardinalityProblem(InputProblem):
     @property
     def problem(self) -> str:
         return "The resource class does not have a cardinality for this property."
@@ -197,7 +222,7 @@ class NonExistentCardinalityViolation(InputProblem):
 
 
 @dataclass
-class ValueTypeViolation(InputProblem):
+class ValueTypeProblem(InputProblem):
     actual_type: str
     expected_type: str
 
@@ -223,7 +248,7 @@ class ValueTypeViolation(InputProblem):
 
 
 @dataclass
-class ContentRegexViolation(InputProblem):
+class ContentRegexProblem(InputProblem):
     expected_format: str
     actual_content: str | None
 
@@ -256,8 +281,9 @@ class ContentRegexViolation(InputProblem):
 
 
 @dataclass
-class LinkTargetTypeMismatch(InputProblem):
+class LinkTargetTypeMismatchProblem(InputProblem):
     link_target_id: str
+    actual_type: str
     expected_type: str
 
     @property
@@ -266,13 +292,14 @@ class LinkTargetTypeMismatch(InputProblem):
 
     def get_msg(self) -> str:
         return (
-            f"{self.problem}, "
-            f"Target Resource ID: '{self.link_target_id}' | Expected Resource Type: '{self.expected_type}'"
+            f"{self.problem}, Target Resource ID: '{self.link_target_id}' "
+            f"Actual Type: '{self.actual_type}' | Expected Resource Type: '{self.expected_type}'"
         )
 
     def to_dict(self) -> dict[str, str]:
         problm_dict = self._base_dict()
         problm_dict["Expected"] = self.expected_type
+        problm_dict["Actual"] = self.actual_type
         problm_dict["Content"] = self.link_target_id
         return problm_dict
 
@@ -281,7 +308,7 @@ class LinkTargetTypeMismatch(InputProblem):
 
 
 @dataclass
-class LinkedResourceDoesNotExist(InputProblem):
+class LinkedResourceDoesNotExistProblem(InputProblem):
     link_target_id: str
 
     @property
@@ -294,6 +321,26 @@ class LinkedResourceDoesNotExist(InputProblem):
     def to_dict(self) -> dict[str, str]:
         problm_dict = self._base_dict()
         problm_dict["Actual"] = self.link_target_id
+        return problm_dict
+
+    def sort_value(self) -> str:
+        return self.prop_name
+
+
+@dataclass
+class DuplicateValueProblem(InputProblem):
+    actual_content: str
+
+    @property
+    def problem(self) -> str:
+        return "Value is duplicated"
+
+    def get_msg(self) -> str:
+        return f"{self.problem}, Content: '{self.actual_content}'"
+
+    def to_dict(self) -> dict[str, str]:
+        problm_dict = self._base_dict()
+        problm_dict["Content"] = self.actual_content
         return problm_dict
 
     def sort_value(self) -> str:

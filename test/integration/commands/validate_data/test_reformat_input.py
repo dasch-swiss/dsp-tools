@@ -10,7 +10,7 @@ def test_to_data_rdf(data_xml: etree._Element) -> None:
     assert isinstance(res, ProjectDeserialised)
     assert res.info.shortcode == "9999"
     assert res.info.default_onto == "onto"
-    assert len(res.data.resources) == 14
+    assert len(res.data.resources) == 17
 
 
 if __name__ == "__main__":

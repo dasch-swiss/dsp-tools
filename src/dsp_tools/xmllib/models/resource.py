@@ -109,28 +109,18 @@ class Resource:
 
     def add_bool(
         self,
-        value: Any,
         prop_name: str,
+        value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
         self.values.append(BooleanValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    def add_bool_multiple(
-        self,
-        values: list[Any],
-        prop_name: str,
-        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
-        comment: str | None = None,
-    ) -> Resource:
-        self.values.extend([BooleanValue(v, prop_name, permissions, comment, self.res_id) for v in values])
-        return self
-
     def add_bool_optional(
         self,
-        value: Any,
         prop_name: str,
+        value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -144,8 +134,8 @@ class Resource:
 
     def add_color(
         self,
-        value: int | str,
         prop_name: str,
+        value: int | str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -154,8 +144,8 @@ class Resource:
 
     def add_color_multiple(
         self,
-        values: list[int | str],
         prop_name: str,
+        values: list[int | str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -164,8 +154,8 @@ class Resource:
 
     def add_color_optional(
         self,
-        value: Any,
         prop_name: str,
+        value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -179,8 +169,8 @@ class Resource:
 
     def add_date(
         self,
-        value: str,
         prop_name: str,
+        value: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -189,8 +179,8 @@ class Resource:
 
     def add_date_multiple(
         self,
-        values: list[str],
         prop_name: str,
+        values: list[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -199,8 +189,8 @@ class Resource:
 
     def add_date_optional(
         self,
-        value: Any,
         prop_name: str,
+        value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -214,8 +204,8 @@ class Resource:
 
     def add_decimal(
         self,
-        value: float | str,
         prop_name: str,
+        value: float | str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -224,8 +214,8 @@ class Resource:
 
     def add_decimal_multiple(
         self,
-        values: list[float | str],
         prop_name: str,
+        values: list[float | str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -234,8 +224,8 @@ class Resource:
 
     def add_decimal_optional(
         self,
-        value: Any,
         prop_name: str,
+        value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -249,8 +239,8 @@ class Resource:
 
     def add_geoname(
         self,
-        value: int | str,
         prop_name: str,
+        value: int | str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -259,8 +249,8 @@ class Resource:
 
     def add_geoname_multiple(
         self,
-        values: list[int | str],
         prop_name: str,
+        values: list[int | str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -269,8 +259,8 @@ class Resource:
 
     def add_geoname_optional(
         self,
-        value: Any,
         prop_name: str,
+        value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -284,8 +274,8 @@ class Resource:
 
     def add_integer(
         self,
-        value: int | str,
         prop_name: str,
+        value: int | str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -294,8 +284,8 @@ class Resource:
 
     def add_integer_multiple(
         self,
-        values: list[int | str],
         prop_name: str,
+        values: list[int | str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -304,8 +294,8 @@ class Resource:
 
     def add_integer_optional(
         self,
-        value: Any,
         prop_name: str,
+        value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -319,8 +309,8 @@ class Resource:
 
     def add_link(
         self,
-        value: str,
         prop_name: str,
+        value: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -329,8 +319,8 @@ class Resource:
 
     def add_link_multiple(
         self,
-        values: list[str],
         prop_name: str,
+        values: list[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -339,8 +329,8 @@ class Resource:
 
     def add_link_optional(
         self,
-        value: Any,
         prop_name: str,
+        value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -354,9 +344,9 @@ class Resource:
 
     def add_list(
         self,
-        value: Any,
-        list_name: Any,
         prop_name: str,
+        list_name: Any,
+        value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -365,9 +355,9 @@ class Resource:
 
     def add_list_multiple(
         self,
-        values: list[Any],
-        list_name: Any,
         prop_name: str,
+        list_name: Any,
+        values: list[Any],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -376,9 +366,9 @@ class Resource:
 
     def add_list_optional(
         self,
-        value: Any,
-        list_name: Any,
         prop_name: str,
+        list_name: Any,
+        value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -392,8 +382,8 @@ class Resource:
 
     def add_simpletext(
         self,
-        value: str,
         prop_name: str,
+        value: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -402,8 +392,8 @@ class Resource:
 
     def add_simpletext_multiple(
         self,
-        values: list[str],
         prop_name: str,
+        values: list[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -412,8 +402,8 @@ class Resource:
 
     def add_simpletext_optional(
         self,
-        value: Any,
         prop_name: str,
+        value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -427,8 +417,8 @@ class Resource:
 
     def add_richtext(
         self,
-        value: str,
         prop_name: str,
+        value: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
@@ -439,8 +429,8 @@ class Resource:
 
     def add_richtext_multiple(
         self,
-        values: list[str],
         prop_name: str,
+        values: list[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
@@ -451,8 +441,8 @@ class Resource:
 
     def add_richtext_optional(
         self,
-        value: Any,
         prop_name: str,
+        value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
@@ -468,8 +458,8 @@ class Resource:
 
     def add_time(
         self,
-        value: str,
         prop_name: str,
+        value: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -478,8 +468,8 @@ class Resource:
 
     def add_time_multiple(
         self,
-        values: list[str],
         prop_name: str,
+        values: list[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -488,8 +478,8 @@ class Resource:
 
     def add_time_optional(
         self,
-        value: Any,
         prop_name: str,
+        value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -503,8 +493,8 @@ class Resource:
 
     def add_uri(
         self,
-        value: str,
         prop_name: str,
+        value: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -513,8 +503,8 @@ class Resource:
 
     def add_uri_multiple(
         self,
-        values: list[str],
         prop_name: str,
+        values: list[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -523,8 +513,8 @@ class Resource:
 
     def add_uri_optional(
         self,
-        value: Any,
         prop_name: str,
+        value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:

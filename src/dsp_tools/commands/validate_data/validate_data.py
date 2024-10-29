@@ -5,6 +5,7 @@ from lxml import etree
 from rdflib import Graph
 from termcolor import cprint
 
+from dsp_tools.commands.validate_data.api_connection import ListConnection
 from dsp_tools.commands.validate_data.api_connection import OntologyConnection
 from dsp_tools.commands.validate_data.api_connection import ShaclValidator
 from dsp_tools.commands.validate_data.deserialise_input import deserialise_xml
@@ -67,7 +68,8 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
 def _get_validation_result(api_url: str, filepath: Path, save_graphs: bool) -> ValidationReportGraphs:
     data_rdf, shortcode = _get_data_info_from_file(filepath, api_url)
     onto_con = OntologyConnection(api_url, shortcode)
-    rdf_graphs = _create_graphs(onto_con, data_rdf)
+    list_con = ListConnection(api_url, shortcode)
+    rdf_graphs = _create_graphs(onto_con, list_con, data_rdf)
     generic_filepath = Path()
     if save_graphs:
         generic_filepath = _save_graphs(filepath, rdf_graphs)
@@ -88,13 +90,14 @@ def _inform_about_experimental_feature() -> None:
     cprint(LIST_SEPARATOR.join(what_is_validated), color="magenta", attrs=["bold"])
 
 
-def _create_graphs(onto_con: OntologyConnection, data_rdf: DataRDF) -> RDFGraphs:
+def _create_graphs(onto_con: OntologyConnection, list_con: ListConnection, data_rdf: DataRDF) -> RDFGraphs:
     ontologies = _get_project_ontos(onto_con)
+    all_lists = list_con.get_lists()
     knora_ttl = onto_con.get_knora_api()
     knora_api = Graph()
     knora_api.parse(data=knora_ttl, format="ttl")
     onto_for_construction = deepcopy(ontologies) + knora_api
-    shapes_graph = construct_shapes_graph(onto_for_construction)
+    shapes_graph = construct_shapes_graph(onto_for_construction, all_lists)
     api_shapes = Graph()
     api_shapes.parse("src/dsp_tools/resources/validate_data/api-shapes.ttl")
     shapes_graph += api_shapes

@@ -11,6 +11,7 @@ from rdflib.term import Node
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import ContentRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
+from dsp_tools.commands.validate_data.models.input_problems import GenericProblem
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
@@ -22,6 +23,7 @@ from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProb
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import QueryInfo
 from dsp_tools.commands.validate_data.models.validation import ReformattedIRI
+from dsp_tools.commands.validate_data.models.validation import ResultGenericViolation
 from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMinCardinalityViolation
@@ -203,6 +205,8 @@ def _query_one_with_detail(
             return _query_pattern_constraint_component_violation(detail_info.detail_bn, base_info, results_and_onto)
         case SH.ClassConstraintComponent:
             return _query_class_constraint_component_violation(base_info, results_and_onto, data_graph)
+        case SH.InConstraintComponent:
+            return _query_generic_violation(base_info, results_and_onto)
         case _:
             return UnexpectedComponent(str(detail_info.source_constraint_component))
 
@@ -251,6 +255,19 @@ def _query_pattern_constraint_component_violation(
     val = next(results_and_onto.objects(bn_with_info, SH.value))
     msg = str(next(results_and_onto.objects(bn_with_info, SH.resultMessage)))
     return ResultPatternViolation(
+        res_iri=base_info.resource_iri,
+        res_class=base_info.res_class_type,
+        property=base_info.result_path,
+        results_message=msg,
+        actual_value=str(val),
+    )
+
+
+def _query_generic_violation(base_info: ValidationResultBaseInfo, results_and_onto: Graph) -> ResultGenericViolation:
+    detail_info = cast(DetailBaseInfo, base_info.detail)
+    val = next(results_and_onto.objects(detail_info.detail_bn, SH.value))
+    msg = str(next(results_and_onto.objects(detail_info.detail_bn, SH.resultMessage)))
+    return ResultGenericViolation(
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
         property=base_info.result_path,
@@ -320,6 +337,15 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
                 res_id=iris.res_id,
                 res_type=iris.res_type,
                 prop_name=iris.prop_name,
+            )
+        case ResultGenericViolation():
+            iris = _reformat_main_iris(validation_result)
+            return GenericProblem(
+                res_id=iris.res_id,
+                res_type=iris.res_type,
+                prop_name=iris.prop_name,
+                results_message=validation_result.results_message,
+                actual_content=validation_result.actual_value,
             )
         case ResultValueTypeViolation():
             return _reformat_value_type_violation_result(validation_result)

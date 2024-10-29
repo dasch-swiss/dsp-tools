@@ -133,6 +133,31 @@ class InputProblem(ABC):
 
 
 #######################
+# Generic Problem
+
+
+@dataclass
+class GenericProblem(InputProblem):
+    results_message: str
+    actual_content: str
+
+    @property
+    def problem(self) -> str:
+        return self.results_message
+
+    def get_msg(self) -> str:
+        return f"{self.problem} | Content: '{self.actual_content}'"
+
+    def to_dict(self) -> dict[str, str]:
+        problm_dict = self._base_dict()
+        problm_dict["Actual"] = self.actual_content
+        return problm_dict
+
+    def sort_value(self) -> str:
+        return self.prop_name
+
+
+#######################
 # Cardinality Violation
 
 

@@ -7,6 +7,7 @@ from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.models.input_problems import ContentRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
+from dsp_tools.commands.validate_data.models.input_problems import GenericProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
@@ -14,6 +15,7 @@ from dsp_tools.commands.validate_data.models.input_problems import MinCardinalit
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProblem
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
+from dsp_tools.commands.validate_data.models.validation import ResultGenericViolation
 from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMinCardinalityViolation
@@ -255,6 +257,30 @@ class TestQueryWithDetail:
         assert result.target_iri == URIRef("http://data/id_9_target")
         assert result.target_resource_type == ONTO.ClassWithEverything
 
+    def test_report_unknown_list_name(
+        self, report_unknown_list_name: tuple[Graph, Graph, ValidationResultBaseInfo]
+    ) -> None:
+        res, data, info = report_unknown_list_name
+        result = _query_one_with_detail(info, res, data)
+        assert isinstance(result, ResultGenericViolation)
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
+        assert result.property == ONTO.testListProp
+        assert result.results_message == "The list that should be used with this property is 'firstList'."
+        assert result.actual_value == "other"
+
+    def test_report_unknown_list_node(
+        self, report_unknown_list_node: tuple[Graph, Graph, ValidationResultBaseInfo]
+    ) -> None:
+        res, data, info = report_unknown_list_node
+        result = _query_one_with_detail(info, res, data)
+        assert isinstance(result, ResultGenericViolation)
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
+        assert result.property == ONTO.testListProp
+        assert result.results_message == "Unknown list node for list 'firstList'."
+        assert result.actual_value == "other"
+
 
 class TestReformatResult:
     def test_min(self, extracted_min_card: ResultMinCardinalityViolation) -> None:
@@ -349,6 +375,24 @@ class TestReformatResult:
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testHasLinkTo"
         assert result.actual_content == "link_valueTarget_id"
+
+    def test_unknown_list_node(self, extracted_unknown_list_node: ResultGenericViolation) -> None:
+        result = _reformat_one_validation_result(extracted_unknown_list_node)
+        assert isinstance(result, GenericProblem)
+        assert result.res_id == "list_node_non_existent"
+        assert result.res_type == "onto:ClassWithEverything"
+        assert result.prop_name == "onto:testListProp"
+        assert result.results_message == "Unknown list node for list 'firstList'."
+        assert result.actual_content == "other"
+
+    def test_unknown_list_name(self, extracted_unknown_list_name: ResultGenericViolation) -> None:
+        result = _reformat_one_validation_result(extracted_unknown_list_name)
+        assert isinstance(result, GenericProblem)
+        assert result.res_id == "list_name_non_existent"
+        assert result.res_type == "onto:ClassWithEverything"
+        assert result.prop_name == "onto:testListProp"
+        assert result.results_message == "The list that should be used with this property is 'firstList'."
+        assert result.actual_content == "other"
 
 
 if __name__ == "__main__":

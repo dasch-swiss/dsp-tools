@@ -1,16 +1,19 @@
 from dataclasses import dataclass
 from typing import Any
 from typing import cast
+from urllib.parse import quote_plus
 
 import requests
 from loguru import logger
 from rdflib import SH
 from rdflib import Graph
-from requests import ReadTimeout
 from requests import RequestException
 from requests import Response
+from requests import Timeout
 
-from dsp_tools.commands.validate_data.models.validation import SHACLValidationReport
+from dsp_tools.commands.validate_data.models.api_responses import AllProjectLists
+from dsp_tools.commands.validate_data.models.api_responses import OneList
+from dsp_tools.commands.validate_data.models.api_responses import SHACLValidationReport
 from dsp_tools.models.exceptions import InternalError
 from dsp_tools.models.exceptions import UserError
 
@@ -39,17 +42,17 @@ class OntologyConnection:
             timeout = 100
             logger.debug(f"REQUEST: GET to {url}, timeout: {timeout}, headers: {headers}")
             response = requests.get(url, headers=headers, timeout=timeout)
-            logger.debug(f"RESPONSE: {response.status_code}")
-        except (TimeoutError, ReadTimeout) as err:
-            logger.exception(err)
+        except (TimeoutError, Timeout) as err:
+            logger.error(err)
             raise InternalError("TimeoutError occurred. See logs for details.") from None
         except (ConnectionError, RequestException) as err:
-            logger.exception(err)
+            logger.error(err)
             raise InternalError("ConnectionError occurred. See logs for details.") from None
         if not response.ok:
             msg = f"Non-ok response: {response.status_code}\nOriginal message: {response.text}"
-            logger.exception(msg)
+            logger.error(msg)
             raise UserError(msg)
+        logger.debug(f"RESPONSE: {response.status_code}")
         return response
 
     def get_knora_api(self) -> str:
@@ -84,6 +87,73 @@ class OntologyConnection:
     def _get_one_ontology(self, ontology_iri: str) -> str:
         response = self._get(ontology_iri, headers={"Accept": "text/turtle"})
         return response.text
+
+
+@dataclass
+class ListConnection:
+    """Client to request and reformat the lists of a project."""
+
+    api_url: str
+    shortcode: str
+
+    def _get(self, url: str, headers: dict[str, Any] | None = None) -> Response:
+        try:
+            timeout = 100
+            logger.debug(f"REQUEST: GET to {url}, timeout: {timeout}, headers: {headers}")
+            response = requests.get(url=url, headers=headers, timeout=timeout)
+        except (TimeoutError, Timeout) as err:
+            logger.error(err)
+            raise InternalError("TimeoutError occurred. See logs for details.") from None
+        except (ConnectionError, RequestException) as err:
+            logger.error(err)
+            raise InternalError("ConnectionError occurred. See logs for details.") from None
+        if not response.ok:
+            msg = f"Non-ok response: {response.status_code}\nOriginal message: {response.text}"
+            logger.error(msg)
+            raise UserError(msg)
+        logger.debug(f"RESPONSE: {response.status_code}")
+        return response
+
+    def get_lists(self) -> AllProjectLists:
+        list_json = self._get_all_list_iris()
+        all_iris = self._extract_list_iris(list_json)
+        all_lists = [self._get_one_list(iri) for iri in all_iris]
+        reformatted = [self._reformat_one_list(lst) for lst in all_lists]
+        return AllProjectLists(reformatted)
+
+    def _get_all_list_iris(self) -> dict[str, Any]:
+        url = f"{self.api_url}/admin/lists?{self.shortcode}"
+        response = self._get(url=url)
+        json_response = cast(dict[str, Any], response.json())
+        return json_response
+
+    def _extract_list_iris(self, response_json: dict[str, Any]) -> list[str]:
+        return [x["id"] for x in response_json["lists"]]
+
+    def _get_one_list(self, list_iri: str) -> dict[str, Any]:
+        encoded_list_iri = quote_plus(list_iri)
+        url = f"{self.api_url}/admin/lists/{encoded_list_iri}"
+        response = self._get(url=url)
+        response_json = cast(dict[str, Any], response.json())
+        return response_json
+
+    def _reformat_one_list(self, response_json: dict[str, Any]) -> OneList:
+        list_name = response_json["list"]["listinfo"]["name"]
+        list_id = response_json["list"]["listinfo"]["id"]
+        nodes = response_json["list"]["children"]
+        all_nodes = []
+        for child in nodes:
+            all_nodes.append(child["name"])
+            if node_child := child.get("children"):
+                all_nodes.extend(self._reformat_children(node_child, all_nodes))
+        return OneList(list_iri=list_id, list_name=list_name, nodes=all_nodes)
+
+    def _reformat_children(self, list_child: list[dict[str, Any]], current_nodes: list[str]) -> list[str]:
+        for child in list_child:
+            current_nodes.append(child["name"])
+            if grand_child := child.get("children"):
+                self._reformat_children(grand_child, current_nodes)
+        return current_nodes
 
 
 @dataclass

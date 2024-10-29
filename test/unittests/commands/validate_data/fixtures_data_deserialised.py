@@ -116,12 +116,12 @@ def link_value_deserialised_none() -> LinkValueDeserialised:
 
 @pytest.fixture
 def list_value_deserialised_corr() -> ListValueDeserialised:
-    return ListValueDeserialised("http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp", "n1", "onlyList")
+    return ListValueDeserialised("http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp", "n1", "firstList")
 
 
 @pytest.fixture
 def list_value_deserialised_none() -> ListValueDeserialised:
-    return ListValueDeserialised("http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp", None, "onlyList")
+    return ListValueDeserialised("http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp", None, "firstList")
 
 
 @pytest.fixture

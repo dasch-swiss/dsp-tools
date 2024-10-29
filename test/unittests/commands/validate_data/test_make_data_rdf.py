@@ -188,7 +188,7 @@ class TestListValue:
         assert isinstance(val, ListValueRDF)
         assert val.res_iri == DATA["id"]
         assert val.prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp")
-        assert val.list_name == Literal("onlyList", datatype=XSD.string)
+        assert val.list_name == Literal("firstList", datatype=XSD.string)
         assert val.object_value == Literal("n1", datatype=XSD.string)
 
     def test_none(self, list_value_deserialised_none: ListValueDeserialised) -> None:
@@ -196,7 +196,7 @@ class TestListValue:
         assert isinstance(val, ListValueRDF)
         assert val.res_iri == DATA["id"]
         assert val.prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp")
-        assert val.list_name == Literal("onlyList", datatype=XSD.string)
+        assert val.list_name == Literal("firstList", datatype=XSD.string)
         assert val.object_value == Literal("", datatype=XSD.string)
 
 

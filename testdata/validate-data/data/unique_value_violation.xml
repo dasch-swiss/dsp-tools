@@ -38,7 +38,7 @@
         api-shapes:listNodeAsString
     -->
     <resource label="Duplicate Value: ListNode" restype=":ClassWithEverything" id="identical_values_listNode">
-        <list-prop list="onlyList" name=":testListProp">
+        <list-prop list="firstList" name=":testListProp">
             <list>n1</list>
             <list>n1</list>
         </list-prop>

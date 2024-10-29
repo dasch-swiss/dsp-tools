@@ -1,0 +1,56 @@
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <http://0.0.0.0:3333/ontology/9990/onto/v2#> .
+@prefix data: <http://0.0.0.0:3333/ontology/9990/data/> .
+
+@prefix dash: <http://datashapes.org/dash#> .
+
+# ONTO
+
+onto:Resource0 a owl:Class .
+
+onto:Resource1
+  a               owl:Class ;
+  rdfs:subClassOf onto:Resource0 .
+
+onto:hasText0 a owl:DatatypeProperty .
+
+onto:hasText1
+  a                  owl:DatatypeProperty ;
+  rdfs:subPropertyOf onto:hasText0 .
+
+onto:hasTextOther a owl:DatatypeProperty .
+
+
+# SHACL
+
+onto:Resource0_Shape
+  a              sh:NodeShape ;
+  sh:targetClass onto:Resource0 ;
+  dash:closedByTypes true ;
+  sh:property    [
+                   a           sh:PropertyShape ;
+                   sh:path     onto:hasText0 ;
+                   sh:minCount 1 ;
+                   sh:maxCount 1
+                 ] ,
+                 [
+                   a           sh:PropertyShape ;
+                   sh:path     onto:hasTextOther ;
+                   sh:minCount 1 ;
+                   sh:maxCount 1
+                 ] .
+
+onto:Resource1_Shape
+  a              sh:NodeShape ;
+  sh:targetClass onto:Resource1 ;
+  dash:closedByTypes true ;
+  sh:property    [
+                   a           sh:PropertyShape ;
+                   sh:path     onto:hasText1 ;
+                   sh:minCount 1 ;
+                   sh:maxCount 1
+                 ] .

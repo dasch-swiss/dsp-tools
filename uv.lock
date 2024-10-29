@@ -282,7 +282,7 @@ requires-dist = [
     { name = "pandas", extras = ["excel"], specifier = ">=2.2.2" },
     { name = "pyld", specifier = ">=2.0.4" },
     { name = "pyyaml", specifier = ">=6.0.2" },
-    { name = "rdflib", specifier = ">=7.0.0" },
+    { name = "rdflib", specifier = "==7.0.0" },
     { name = "regex", specifier = ">=2024.9.11" },
     { name = "requests", specifier = ">=2.32.3" },
     { name = "rustworkx", specifier = ">=0.15.1" },
@@ -362,15 +362,6 @@ wheels = [
 ]
 
 [[package]]
-name = "html5lib-modern"
-version = "1.2"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/af/6d/a773b5338f4341cdeca17d17cf0e56016ed1f9e7ea8377456b275b63a7b0/html5lib_modern-1.2.tar.gz", hash = "sha256:1fadbfc27ea955431270e4e79a4a4c290ba11c3a3098a95cc22dc73e312a1768", size = 275189 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/b1/cd/ddf0baebab2dfac62a90af9d7a1c2504d697f1411f2529b928e02b4e9cd0/html5lib_modern-1.2-py2.py3-none-any.whl", hash = "sha256:3458b6e31525ede4fcaac0ff42d9eeb5efaf755473768103cb56e0275caa8d99", size = 116249 },
-]
-
-[[package]]
 name = "identify"
 version = "2.6.1"
 source = { registry = "https://pypi.org/simple" }
@@ -395,6 +386,18 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/d7/4b/cbd8e699e64a6f16ca3a8220661b5f83792b3017d0f79807cb8708d33913/iniconfig-2.0.0.tar.gz", hash = "sha256:2d91e135bf72d31a410b17c16da610a82cb55f6b0477d1a902134b24a455b8b3", size = 4646 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ef/a6/62565a6e1cf69e10f5727360368e451d4b7f58beeac6173dc9db836a5b46/iniconfig-2.0.0-py3-none-any.whl", hash = "sha256:b6a85871a79d2e3b22d2d1b94ac2824226a63c6b741c88f7ae975f18b6778374", size = 5892 },
+]
+
+[[package]]
+name = "isodate"
+version = "0.6.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "six" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/db/7a/c0a56c7d56c7fa723988f122fa1f1ccf8c5c4ccc48efad0d214b49e5b1af/isodate-0.6.1.tar.gz", hash = "sha256:48c5881de7e8b0a0d648cb024c8062dc84e7b840ed81e864c7614fd3c127bde9", size = 28443 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b6/85/7882d311924cbcfc70b1890780763e36ff0b140c7e51c110fc59a532f087/isodate-0.6.1-py2.py3-none-any.whl", hash = "sha256:0751eece944162659049d35f4f549ed815792b38793f07cf73381c1c87cbed96", size = 41722 },
 ]
 
 [[package]]
@@ -1074,15 +1077,15 @@ wheels = [
 
 [[package]]
 name = "rdflib"
-version = "7.1.0"
+version = "7.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "html5lib-modern" },
+    { name = "isodate" },
     { name = "pyparsing" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/8c/93/b91a99eb79da85bbbac0487ff28aeca4505d604484275d62b80ba269fd60/rdflib-7.1.0.tar.gz", hash = "sha256:a29a8fccebd3d3a5f1b7e88d92dace1c89829018c7d29a6114fff4449c188b3b", size = 4863439 }
+sdist = { url = "https://files.pythonhosted.org/packages/0d/a3/63740490a392921a611cfc05b5b17bffd4259b3c9589c7904a4033b3d291/rdflib-7.0.0.tar.gz", hash = "sha256:9995eb8569428059b8c1affd26b25eac510d64f5043d9ce8c84e0d0036e995ae", size = 4765796 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/6b/50/206e30a1093289d6fe456c9491774004d9d84d7ed823ed9dd13a3e0caeee/rdflib-7.1.0-py3-none-any.whl", hash = "sha256:240c25c6e1b573ffa67aed23aae128e253c443c15291c9a01d8d392ea80c05b6", size = 562080 },
+    { url = "https://files.pythonhosted.org/packages/d4/b0/7b7d8b5b0d01f1a0b12cc2e5038a868ef3a15825731b8a0d776cf47566c0/rdflib-7.0.0-py3-none-any.whl", hash = "sha256:0438920912a642c866a513de6fe8a0001bd86ef975057d6962c79ce4771687cd", size = 531912 },
 ]
 
 [[package]]

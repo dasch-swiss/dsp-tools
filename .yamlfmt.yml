@@ -2,6 +2,8 @@
 
 # https://github.com/google/yamlfmt
 
+gitignore_excludes: true
+
 formatter:
   type: basic
   include_document_start: true
@@ -11,5 +13,3 @@ formatter:
   max_line_length: 120
   scan_folded_as_literal: true
   pad_line_comments: 2
-  
-gitignore_excludes: true

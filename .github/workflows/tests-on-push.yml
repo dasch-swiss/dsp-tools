@@ -45,9 +45,7 @@ jobs:
       - name: Linting with darglint
         run: just darglint
       - name: Check formatting of YAML files
-        run: |
-          brew install yamlfmt
-          yamlfmt -lint . 
+        run: brew install yamlfmt; yamlfmt -lint .
 
 
   yamllint:

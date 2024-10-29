@@ -18,13 +18,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: check presence of Linear ticket in PR title
-        run: |
-          import re, os, sys
-          if not re.match(
-              r"^.+\((DEV|RDU)-[0-9]+(, (DEV|RDU)-[0-9]+)*\)$|^(chore|refactor|docs|test|fix).+", 
-              os.environ["PR_TITLE"]
-          ):
-              print(f"PR title '{os.environ['PR_TITLE']}' does not match the regex")
+        run: >
+          import re, os, sys;
+          rgx = r"^.+\((DEV|RDU)-[0-9]+(, (DEV|RDU)-[0-9]+)*\)$|^(chore|refactor|docs|test|fix).+";
+          if not re.match(rgx, os.environ["PR_TITLE"]):;
+              print(f"PR title '{os.environ['PR_TITLE']}' does not match the regex");
               sys.exit(1)
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}

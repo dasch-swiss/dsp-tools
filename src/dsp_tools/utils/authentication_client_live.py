@@ -33,15 +33,17 @@ class AuthenticationClientLive(AuthenticationClient):
     def _get_token(self) -> str:
         url = f"{self.server}/v2/authentication"
         payload = {"email": self.email, "password": self.password}
-        logger.info(f"Requesting token from url '{url}' for user '{self.email}'.")
+        logger.debug(f"REQUEST: Requesting token from url '{url}' for user '{self.email}'.")
         headers = {"User-Agent": f'DSP-TOOLS/{version("dsp-tools")}'}
         try:
-            response: dict[str, Any] = requests.post(url, json=payload, headers=headers, timeout=10).json()
+            response = requests.post(url, json=payload, headers=headers, timeout=10)
+            logger.debug(f"RESPONSE: Requesting token responded with status {response.status_code}")
+            res_json: dict[str, Any] = response.json()
         except BadCredentialsError:
             raise UserError(f"Username and/or password are not valid on server '{self.server}'") from None
         except PermanentConnectionError as e:
             raise UserError(e.message) from None
-        match response.get("token"):
+        match res_json.get("token"):
             case str(token):
                 self._token = token
                 return token

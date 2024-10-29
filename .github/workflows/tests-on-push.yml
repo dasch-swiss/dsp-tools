@@ -47,7 +47,6 @@ jobs:
       - name: Check formatting of YAML files
         # Homebrew is pre-installed but not added to PATH. 
         # See https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2204-Readme.md#homebrew-note
-        
         run: |
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           brew install yamlfmt

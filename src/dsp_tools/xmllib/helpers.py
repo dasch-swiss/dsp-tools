@@ -13,9 +13,6 @@ def create_label_to_name_list_node_mapping(
     which is needed for the `dsp-tools xmlupload`.
     In order to create a correct XML, you need a dictionary that maps the "labels" to their correct "names".
 
-    Alternatively, consider using the method create_json_excel_list_mapping(), which also creates a dictionary, but maps
-    values from your data source to list node names from the JSON project file, based on similarity.
-
     Args:
         project_json_path: path to a JSON project file (a.k.a. ontology)
         list_name: name of a list in the JSON project (works also for nested lists)

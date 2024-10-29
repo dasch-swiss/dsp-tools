@@ -361,17 +361,17 @@ class VideoSegmentResource:
             self.descriptions.append(description)
         return self
 
-    def add_keyword(self, keywords: str) -> VideoSegmentResource:
-        self.keywords.append(keywords)
+    def add_keyword(self, keyword: str) -> VideoSegmentResource:
+        self.keywords.append(keyword)
         return self
 
     def add_keyword_multiple(self, keywords: list[str]) -> VideoSegmentResource:
         self.keywords.extend(keywords)
         return self
 
-    def add_keyword_optional(self, keywords: Any) -> VideoSegmentResource:
-        if not pd.isna(keywords):
-            self.keywords.append(keywords)
+    def add_keyword_optional(self, keyword: Any) -> VideoSegmentResource:
+        if not pd.isna(keyword):
+            self.keywords.append(keyword)
         return self
 
     def add_relates_to(self, relates_to: str) -> VideoSegmentResource:
@@ -490,17 +490,17 @@ class AudioSegmentResource:
             self.descriptions.append(description)
         return self
 
-    def add_keyword(self, keywords: str) -> AudioSegmentResource:
-        self.keywords.append(keywords)
+    def add_keyword(self, keyword: str) -> AudioSegmentResource:
+        self.keywords.append(keyword)
         return self
 
     def add_keyword_multiple(self, keywords: list[str]) -> AudioSegmentResource:
         self.keywords.extend(keywords)
         return self
 
-    def add_keyword_optional(self, keywords: Any) -> AudioSegmentResource:
-        if not pd.isna(keywords):
-            self.keywords.append(keywords)
+    def add_keyword_optional(self, keyword: Any) -> AudioSegmentResource:
+        if not pd.isna(keyword):
+            self.keywords.append(keyword)
         return self
 
     def add_relates_to(self, relates_to: str) -> AudioSegmentResource:

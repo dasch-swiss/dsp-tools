@@ -15,7 +15,7 @@ def create_label_to_name_list_node_mapping(
 
     Args:
         project_json_path: path to a JSON project file (a.k.a. ontology)
-        list_name: name of a list in the JSON project (works also for nested lists)
+        list_name: name of a list in the JSON project
         language_label: which language of the label to choose
 
     Returns:

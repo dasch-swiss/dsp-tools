@@ -27,7 +27,7 @@ dependencies = [
     "pyld>=2.0.4",
     "pyyaml>=6.0.2",
     "rdflib==7.0.0",
-    # rdflib: don't upgrade until ...
+    # rdflib: don't upgrade until backend allows parsing of different types of json-ld formats
     "regex>=2024.9.11",
     "requests>=2.32.3",
     "rustworkx>=0.15.1",

@@ -5,8 +5,8 @@ from lxml import etree
 from rdflib import Graph
 from termcolor import cprint
 
-from dsp_tools.commands.validate_data.api_clients import ListConnection
-from dsp_tools.commands.validate_data.api_clients import OntologyConnection
+from dsp_tools.commands.validate_data.api_clients import ListClient
+from dsp_tools.commands.validate_data.api_clients import OntologyClient
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
 from dsp_tools.commands.validate_data.api_connection import ApiConnection
 from dsp_tools.commands.validate_data.deserialise_input import deserialise_xml
@@ -69,8 +69,8 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
 def _get_validation_result(api_url: str, filepath: Path, save_graphs: bool) -> ValidationReportGraphs:
     data_rdf, shortcode = _get_data_info_from_file(filepath, api_url)
     api_con = ApiConnection(api_url)
-    onto_con = OntologyConnection(api_con, shortcode)
-    list_con = ListConnection(api_con, shortcode)
+    onto_con = OntologyClient(api_con, shortcode)
+    list_con = ListClient(api_con, shortcode)
     rdf_graphs = _create_graphs(onto_con, list_con, data_rdf)
     generic_filepath = Path()
     if save_graphs:
@@ -92,7 +92,7 @@ def _inform_about_experimental_feature() -> None:
     cprint(LIST_SEPARATOR.join(what_is_validated), color="magenta", attrs=["bold"])
 
 
-def _create_graphs(onto_con: OntologyConnection, list_con: ListConnection, data_rdf: DataRDF) -> RDFGraphs:
+def _create_graphs(onto_con: OntologyClient, list_con: ListClient, data_rdf: DataRDF) -> RDFGraphs:
     ontologies = _get_project_ontos(onto_con)
     all_lists = list_con.get_lists()
     knora_ttl = onto_con.get_knora_api()
@@ -112,7 +112,7 @@ def _create_graphs(onto_con: OntologyConnection, list_con: ListConnection, data_
     )
 
 
-def _get_project_ontos(onto_con: OntologyConnection) -> Graph:
+def _get_project_ontos(onto_con: OntologyClient) -> Graph:
     all_ontos = onto_con.get_ontologies()
     onto_g = Graph()
     for onto in all_ontos:

@@ -4,8 +4,8 @@ from unittest.mock import patch
 
 import pytest
 
-from dsp_tools.commands.validate_data.api_clients import ListConnection
-from dsp_tools.commands.validate_data.api_clients import OntologyConnection
+from dsp_tools.commands.validate_data.api_clients import ListClient
+from dsp_tools.commands.validate_data.api_clients import OntologyClient
 from dsp_tools.commands.validate_data.api_connection import ApiConnection
 from dsp_tools.models.exceptions import InternalError
 from dsp_tools.models.exceptions import UserError
@@ -17,17 +17,17 @@ def api_con() -> ApiConnection:
 
 
 @pytest.fixture
-def ontology_connection(api_con: ApiConnection) -> OntologyConnection:
-    return OntologyConnection(api_con, "9999")
+def ontology_connection(api_con: ApiConnection) -> OntologyClient:
+    return OntologyClient(api_con, "9999")
 
 
 @pytest.fixture
-def list_connection(api_con: ApiConnection) -> ListConnection:
-    return ListConnection(api_con, "9999")
+def list_connection(api_con: ApiConnection) -> ListClient:
+    return ListClient(api_con, "9999")
 
 
 class TestOntologyConnection:
-    def test_get_ontology_iris_ok(self, ontology_connection: OntologyConnection) -> None:
+    def test_get_ontology_iris_ok(self, ontology_connection: OntologyClient) -> None:
         mock_response = Mock()
         mock_response.ok = True
         mock_response.json.return_value = {"project": {"ontologies": ["onto_iri"]}}
@@ -36,7 +36,7 @@ class TestOntologyConnection:
             assert result == ["onto_iri"]
             patched_get.assert_called_once_with(endpoint="admin/projects/shortcode/9999")
 
-    def test_get_ontology_iris_non_ok_code(self, ontology_connection: OntologyConnection) -> None:
+    def test_get_ontology_iris_non_ok_code(self, ontology_connection: OntologyClient) -> None:
         mock_response = Mock()
         mock_response.ok = False
         with patch.object(ontology_connection.api_con, "get_with_endpoint", return_value=mock_response) as patched_get:
@@ -44,7 +44,7 @@ class TestOntologyConnection:
                 ontology_connection._get_ontology_iris()
             patched_get.assert_called_once_with(endpoint="admin/projects/shortcode/9999")
 
-    def test_get_ontology_iris_no_ontology_key(self, ontology_connection: OntologyConnection) -> None:
+    def test_get_ontology_iris_no_ontology_key(self, ontology_connection: OntologyClient) -> None:
         mock_response = Mock()
         mock_response.ok = True
         mock_response.json.return_value = {}
@@ -53,7 +53,7 @@ class TestOntologyConnection:
                 ontology_connection._get_ontology_iris()
             patched_get.assert_called_once_with(endpoint="admin/projects/shortcode/9999")
 
-    def test_get_one_ontology(self, ontology_connection: OntologyConnection) -> None:
+    def test_get_one_ontology(self, ontology_connection: OntologyClient) -> None:
         mock_response = Mock()
         mock_response.ok = True
         mock_response.text = "Turtle Text"
@@ -64,7 +64,7 @@ class TestOntologyConnection:
 
 
 class TestListConnection:
-    def test_get_all_list_iris(self, list_connection: ListConnection) -> None:
+    def test_get_all_list_iris(self, list_connection: ListClient) -> None:
         mock_response = Mock()
         mock_response.ok = True
         mock_response.json.return_value = {"lists": []}
@@ -73,7 +73,7 @@ class TestListConnection:
             assert result == {"lists": []}
             patched_get.assert_called_once_with(endpoint="admin/lists?9999")
 
-    def test_get_all_list_iris_non_ok_code(self, list_connection: ListConnection) -> None:
+    def test_get_all_list_iris_non_ok_code(self, list_connection: ListClient) -> None:
         mock_response = Mock()
         mock_response.ok = False
         with patch.object(list_connection.api_con, "get_with_endpoint", return_value=mock_response) as patched_get:
@@ -81,7 +81,7 @@ class TestListConnection:
                 list_connection._get_all_list_iris()
             patched_get.assert_called_once_with(endpoint="admin/lists?9999")
 
-    def test_get_one_list(self, list_connection: ListConnection) -> None:
+    def test_get_one_list(self, list_connection: ListClient) -> None:
         mock_response = Mock()
         mock_response.ok = True
         mock_response.json.return_value = {"type": "ListGetResponseADM", "list": {}}
@@ -92,7 +92,7 @@ class TestListConnection:
                 endpoint="admin/lists/http%3A%2F%2Frdfh.ch%2Flists%2F9999%2FWWqeCEj8R_qrK5djsVcHvg"
             )
 
-    def test_get_one_list_non_ok_code(self, list_connection: ListConnection) -> None:
+    def test_get_one_list_non_ok_code(self, list_connection: ListClient) -> None:
         mock_response = Mock()
         mock_response.ok = False
         with patch.object(list_connection.api_con, "get_with_endpoint", return_value=mock_response) as patched_get:
@@ -103,19 +103,19 @@ class TestListConnection:
             )
 
     def test_extract_list_iris(
-        self, list_connection: ListConnection, response_all_list_one_project: dict[str, Any]
+        self, list_connection: ListClient, response_all_list_one_project: dict[str, Any]
     ) -> None:
         extracted = list_connection._extract_list_iris(response_all_list_one_project)
         expected = {"http://rdfh.ch/lists/9999/list1", "http://rdfh.ch/lists/9999/list2"}
         assert set(extracted) == expected
 
     def test_extract_list_iris_no_lists(
-        self, list_connection: ListConnection, response_all_list_one_project_no_lists: dict[str, Any]
+        self, list_connection: ListClient, response_all_list_one_project_no_lists: dict[str, Any]
     ) -> None:
         extracted = list_connection._extract_list_iris(response_all_list_one_project_no_lists)
         assert not extracted
 
-    def test_reformat_one_list(self, list_connection: ListConnection, response_one_list: dict[str, Any]) -> None:
+    def test_reformat_one_list(self, list_connection: ListClient, response_one_list: dict[str, Any]) -> None:
         reformatted = list_connection._reformat_one_list(response_one_list)
         expected_nodes = {"n1", "n1.1", "n1.1.1", "n1.1.2"}
         assert reformatted.list_iri == "http://rdfh.ch/lists/9999/list1"

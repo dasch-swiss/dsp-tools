@@ -17,7 +17,7 @@ from dsp_tools.models.exceptions import UserError
 
 
 @dataclass
-class OntologyConnection:
+class OntologyClient:
     api_con: ApiConnection
     shortcode: str
 
@@ -72,7 +72,7 @@ class OntologyConnection:
 
 
 @dataclass
-class ListConnection:
+class ListClient:
     """Client to request and reformat the lists of a project."""
 
     api_con: ApiConnection

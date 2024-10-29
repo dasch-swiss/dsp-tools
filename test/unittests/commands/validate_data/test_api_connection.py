@@ -4,8 +4,8 @@ from unittest.mock import patch
 
 import pytest
 
-from dsp_tools.commands.validate_data.api_connection import ListConnection
-from dsp_tools.commands.validate_data.api_connection import OntologyConnection
+from dsp_tools.commands.validate_data.api_clients import ListConnection
+from dsp_tools.commands.validate_data.api_clients import OntologyConnection
 from dsp_tools.models.exceptions import UserError
 
 

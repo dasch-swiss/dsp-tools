@@ -5,9 +5,9 @@ from lxml import etree
 from rdflib import Graph
 from termcolor import cprint
 
-from dsp_tools.commands.validate_data.api_connection import ListConnection
-from dsp_tools.commands.validate_data.api_connection import OntologyConnection
-from dsp_tools.commands.validate_data.api_connection import ShaclValidator
+from dsp_tools.commands.validate_data.api_clients import ListConnection
+from dsp_tools.commands.validate_data.api_clients import OntologyConnection
+from dsp_tools.commands.validate_data.api_clients import ShaclValidator
 from dsp_tools.commands.validate_data.deserialise_input import deserialise_xml
 from dsp_tools.commands.validate_data.make_data_rdf import make_data_rdf
 from dsp_tools.commands.validate_data.models.data_deserialised import ProjectDeserialised

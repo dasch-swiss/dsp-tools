@@ -18,9 +18,14 @@ class ApiConnection:
 
     def get(self, endpoint: str, headers: dict[str, Any] | None = None, timeout: int = 42) -> Response:
         url = f"{self.api_url}/{endpoint}"
-        logger.debug(f"REQUEST: GET to {url}, timeout: {timeout}, headers: {headers}")
+        logger.debug(f"REQUEST: GET to {url} | Timeout: {timeout} | Headers: {headers}")
         try:
-            return requests.get(url=url, headers=headers, timeout=timeout)
+            response = requests.get(url=url, headers=headers, timeout=timeout)
+            if not response.ok:
+                msg = f"NON-OK RESPONSE | Code: {response.status_code} | Message: {response.text}"
+                logger.error(msg)
+                raise InternalError(msg)
+            return response
         except (TimeoutError, Timeout) as err:
             logger.error(err)
             raise InternalError("TimeoutError occurred. See logs for details.") from None
@@ -33,9 +38,14 @@ class ApiConnection:
     ) -> Response:
         file_dict = files.to_dict()
         url = f"{self.api_url}/{endpoint}"
-        logger.debug(f"REQUEST: POST FILES to {url}, timeout: {timeout}, headers: {headers}")
+        logger.debug(f"REQUEST: POST FILES to {url} | Timeout: {timeout} | Headers: {headers}")
         try:
-            return requests.post(url, files=file_dict, timeout=timeout)
+            response = requests.post(url, files=file_dict, timeout=timeout)
+            if not response.ok:
+                msg = f"NON-OK RESPONSE | Code: {response.status_code} | Message: {response.text}"
+                logger.error(msg)
+                raise InternalError(msg)
+            return response
         except (TimeoutError, Timeout) as err:
             logger.error(err)
             raise InternalError("TimeoutError occurred. See logs for details.") from None

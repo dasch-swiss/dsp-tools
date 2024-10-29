@@ -12,7 +12,6 @@ from typing import Any
 from typing import Optional
 from typing import Sequence
 from typing import Union
-from urllib.parse import quote_plus
 
 import regex
 
@@ -670,12 +669,6 @@ class ResourceClass(Model):
                 }  # ":name" in current ontology
         else:
             return {"@id": "knora-api:" + resref}  # no ":", must be from knora-api!
-
-    def delete(self, last_modification_date: DateTimeStamp) -> DateTimeStamp:
-        result = self._con.delete(
-            ResourceClass.ROUTE + "/" + quote_plus(self._iri) + "?lastModificationDate=" + str(last_modification_date)
-        )
-        return DateTimeStamp(result["knora-api:lastModificationDate"])
 
     def createDefinitionFileObj(self, context: Context, shortname: str, skiplist: list[str]) -> dict[str, Any]:
         resource = {"name": self._name}

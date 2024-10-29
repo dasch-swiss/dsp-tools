@@ -6,6 +6,7 @@ import pytest
 
 from dsp_tools.commands.project.models.ontology import Ontology
 from dsp_tools.models.datetimestamp import DateTimeStamp
+from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
 
@@ -22,8 +23,8 @@ class TestOntology(unittest.TestCase):
         Creates a connection to DSP-API.
         For each test method, a new TestCase instance is created, so setUp() is executed before each test method.
         """
-        self.con = ConnectionLive(server="http://0.0.0.0:3333")
-        self.con.login(email="root@example.com", password="test")
+        auth = AuthenticationClientLive("http://0.0.0.0:3333", "root@example.com", "test")
+        self.con = ConnectionLive("http://0.0.0.0:3333", auth)
 
     def tearDown(self) -> None:
         """

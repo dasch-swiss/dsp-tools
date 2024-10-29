@@ -45,7 +45,9 @@ jobs:
       - name: Linting with darglint
         run: just darglint
       - name: Check formatting of YAML files
-        run: brew install yamlfmt; yamlfmt -lint .
+        # Homebrew is pre-installed but not added to PATH. 
+        # See https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2204-Readme.md#homebrew-note
+        run: /home/linuxbrew/.linuxbrew/bin/brew install yamlfmt; yamlfmt -lint .
 
 
   yamllint:

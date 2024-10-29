@@ -324,14 +324,14 @@ class VideoSegmentResource:
 
     def add_title(self, title: str) -> VideoSegmentResource:
         if self.title:
-            _warn_value_exists(self.title, title, "title", self.res_id)
+            _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
         self.title = title
         return self
 
     def add_title_optional(self, title: Any) -> VideoSegmentResource:
         if not pd.isna(title):
             if self.title:
-                _warn_value_exists(self.title, title, "title", self.res_id)
+                _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
             self.title = title
         return self
 
@@ -453,14 +453,14 @@ class AudioSegmentResource:
 
     def add_title(self, title: str) -> AudioSegmentResource:
         if self.title:
-            _warn_value_exists(self.title, title, "title", self.res_id)
+            _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
         self.title = title
         return self
 
     def add_title_optional(self, title: Any) -> AudioSegmentResource:
         if not pd.isna(title):
             if self.title:
-                _warn_value_exists(self.title, title, "title", self.res_id)
+                _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
             self.title = title
         return self
 
@@ -622,11 +622,11 @@ def _transform_unexpected_input(value: Any, prop_name: str, res_id: str) -> list
         case str():
             return [value]
         case _:
-            _warn_unexpected_value(value, prop_name, res_id)
+            _warn_unexpected_value(value=value, prop_name=prop_name, res_id=res_id)
             return [str(value)]
 
 
-def _warn_unexpected_value(value: Any, prop_name: str, res_id: str | None) -> None:
+def _warn_unexpected_value(*, value: Any, prop_name: str, res_id: str | None) -> None:
     msg = (
         f"The resource: {res_id} should have a list of strings for the field '{prop_name}'. "
         f"Your input: '{value}' is of type {type(value)}."
@@ -634,7 +634,7 @@ def _warn_unexpected_value(value: Any, prop_name: str, res_id: str | None) -> No
     warnings.warn(DspToolsUserWarning(msg))
 
 
-def _warn_value_exists(old_value: Any, new_value: Any, value_field: str, res_id: str | None) -> None:
+def _warn_value_exists(*, old_value: Any, new_value: Any, value_field: str, res_id: str | None) -> None:
     """Emits a warning if a values is not in the expected format."""
     msg = (
         f"The resource with the ID '{res_id}' already has a value in the field '{value_field}'. "

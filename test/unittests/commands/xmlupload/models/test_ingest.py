@@ -7,6 +7,7 @@ from requests_mock import Mocker
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
 from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import PermanentConnectionError
+from test.integration.commands.xmlupload.authentication_client_mock import AuthenticationClientMockBase
 
 
 @pytest.fixture
@@ -21,7 +22,7 @@ def shortcode() -> str:
 
 @pytest.fixture
 def ingest_client(dsp_ingest_url: str, shortcode: str) -> DspIngestClientLive:
-    return DspIngestClientLive(dsp_ingest_url, "token", shortcode, ".")
+    return DspIngestClientLive(dsp_ingest_url, AuthenticationClientMockBase(), shortcode, ".")
 
 
 @pytest.fixture

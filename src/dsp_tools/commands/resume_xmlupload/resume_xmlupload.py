@@ -16,6 +16,7 @@ from dsp_tools.commands.xmlupload.project_client import ProjectClient
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import execute_upload
+from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
 from dsp_tools.utils.connection_live import ConnectionLive
 
 
@@ -38,19 +39,14 @@ def resume_xmlupload(creds: ServerCredentials, skip_first_resource: bool = False
 
     _print_and_log(upload_state, server)
 
-    con = ConnectionLive(server)
-    con.login(creds.user, creds.password)
+    auth = AuthenticationClientLive(server, creds.user, creds.password)
+    con = ConnectionLive(server, auth)
 
     ingest_client: AssetClient
     if upload_state.config.media_previously_uploaded:
         ingest_client = BulkIngestedAssetClient()
     else:
-        ingest_client = DspIngestClientLive(
-            dsp_ingest_url=creds.dsp_ingest_url,
-            token=con.get_token(),
-            shortcode=upload_state.config.shortcode,
-            imgdir=".",
-        )
+        ingest_client = DspIngestClientLive(creds.dsp_ingest_url, auth, upload_state.config.shortcode, ".")
 
     project_client: ProjectClient = ProjectClientLive(con, upload_state.config.shortcode)
     list_client: ListClient = ListClientLive(con, project_client.get_project_iri())

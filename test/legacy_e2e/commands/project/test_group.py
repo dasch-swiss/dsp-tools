@@ -8,6 +8,7 @@ import pytest
 from dsp_tools.commands.project.models.group import Group
 from dsp_tools.models.langstring import LangString
 from dsp_tools.models.langstring import Languages
+from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
 
@@ -23,8 +24,8 @@ class TestGroup(unittest.TestCase):
         Creates a connection to DSP-API.
         For each test method, a new TestCase instance is created, so setUp() is executed before each test method.
         """
-        self.con = ConnectionLive(server="http://0.0.0.0:3333")
-        self.con.login(email="root@example.com", password="test")
+        auth = AuthenticationClientLive("http://0.0.0.0:3333", "root@example.com", "test")
+        self.con = ConnectionLive("http://0.0.0.0:3333", auth)
 
     def tearDown(self) -> None:
         """
@@ -79,32 +80,6 @@ class TestGroup(unittest.TestCase):
         self.assertEqual(group.project, self.test_project)
         self.assertTrue(group.status)
         self.assertTrue(group.selfjoin)
-
-    def test_Group_delete(self) -> None:
-        """
-        Mark an existing group as deleted (it will not be deleted completely from the triplestore, but status set to
-        False)
-        :return: None
-        """
-        group = Group(
-            con=self.con,
-            name="Group delete",
-            descriptions=LangString({Languages.EN: "This is group delete"}),
-            project=self.test_project,
-            status=True,
-            selfjoin=False,
-        )
-        group = group.create()
-
-        deleted_group = group.delete()
-        self.assertEqual(deleted_group.name, "Group delete")
-        self.assertCountEqual(
-            cast(list[dict[str, str]], deleted_group.descriptions.toJsonObj()),
-            [{"language": "en", "value": "This is group delete"}],
-        )
-        self.assertEqual(deleted_group.project, self.test_project)
-        self.assertFalse(deleted_group.status)
-        self.assertFalse(deleted_group.selfjoin)
 
 
 if __name__ == "__main__":

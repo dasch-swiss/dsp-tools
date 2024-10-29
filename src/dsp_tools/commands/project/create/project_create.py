@@ -26,6 +26,7 @@ from dsp_tools.models.datetimestamp import DateTimeStamp
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.models.langstring import LangString
+from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
 from dsp_tools.utils.shared import parse_json_input
@@ -981,9 +982,8 @@ def create_project(
 
     all_ontos = _get_all_ontos(project_json, all_lists)
 
-    # establish connection to DSP server
-    con = ConnectionLive(creds.server)
-    con.login(creds.user, creds.password)
+    auth = AuthenticationClientLive(creds.server, creds.user, creds.password)
+    con = ConnectionLive(creds.server, auth)
 
     # create project on DSP server
     info_str = f"Create project '{project_definition.shortname}' ({project_definition.shortcode})..."

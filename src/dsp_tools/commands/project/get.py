@@ -11,6 +11,7 @@ from dsp_tools.commands.project.models.ontology import Ontology
 from dsp_tools.commands.project.models.project import Project
 from dsp_tools.commands.project.models.user import User
 from dsp_tools.models.exceptions import BaseError
+from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
 
@@ -36,11 +37,13 @@ def get_project(
     Returns:
         True if the process finishes without errors
     """
-    con = ConnectionLive(creds.server)
+    auth = AuthenticationClientLive(creds.server, creds.user, creds.password)
     try:
-        con.login(creds.user, creds.password)
+        auth.get_token()
+        con = ConnectionLive(creds.server, auth)
     except BaseError:
         warnings.warn("WARNING: Missing or wrong credentials. You won't get data about the users of this project.")
+        con = ConnectionLive(creds.server)
 
     project = _create_project(con, project_identifier)
 

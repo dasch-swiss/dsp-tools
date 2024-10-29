@@ -9,22 +9,20 @@ from importlib.metadata import version
 from typing import Any
 from typing import Literal
 from typing import Never
-from typing import Optional
 from typing import cast
 
 import regex
 from loguru import logger
+from requests import JSONDecodeError
 from requests import ReadTimeout
 from requests import RequestException
 from requests import Response
 from requests import Session
 
-from dsp_tools.models.exceptions import BadCredentialsError
-from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InvalidInputError
 from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.models.exceptions import PermanentTimeOutError
-from dsp_tools.models.exceptions import UserError
+from dsp_tools.utils.authentication_client import AuthenticationClient
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.logger_config import WARNINGS_SAVEPATH
 from dsp_tools.utils.set_encoder import SetEncoder
@@ -73,66 +71,25 @@ class ConnectionLive(Connection):
     """
 
     server: str
-    token: Optional[str] = None
+    authenticationClient: AuthenticationClient | None = None
     session: Session = field(init=False, default=Session())
     # downtimes of server-side services -> API still processes request
     # -> retry too early has side effects (e.g. duplicated resources)
     timeout_put_post: int = field(init=False, default=30 * 60)
-    timeout_get_delete: int = field(init=False, default=20)
+    timeout_get: int = field(init=False, default=20)
 
     def __post_init__(self) -> None:
         self.session.headers["User-Agent"] = f'DSP-TOOLS/{version("dsp-tools")}'
         if self.server.endswith("/"):
             self.server = self.server[:-1]
-
-    def login(self, email: str, password: str) -> None:
-        """
-        Retrieve a session token and store it as class attribute.
-
-        Args:
-            email: email address of the user
-            password: password of the user
-
-        Raises:
-            UserError: if DSP-API returns no token with the provided user credentials
-        """
-        try:
-            response = self.post(
-                route="/v2/authentication",
-                data={"email": email, "password": password},
-                timeout=10,
-            )
-        except BadCredentialsError:
-            raise UserError(f"Username and/or password are not valid on server '{self.server}'") from None
-        except PermanentConnectionError as e:
-            raise UserError(e.message) from None
-        if not response.get("token"):
-            raise UserError("Unable to retrieve a token from the server with the provided credentials.")
-        self.token = response["token"]
-        self.session.headers["Authorization"] = f"Bearer {self.token}"
+        if self.authenticationClient and (token := self.authenticationClient.get_token()):
+            self.session.headers["Authorization"] = f"Bearer {token}"
 
     def logout(self) -> None:
         """
-        Delete the token on the server and in this class.
+        Remove the authorization header from the connection's session.
         """
-        if self.token:
-            self.delete(route="/v2/authentication")
-            self.token = None
-            del self.session.headers["Authorization"]
-
-    def get_token(self) -> str:
-        """
-        Return the token of this connection.
-
-        Returns:
-            token
-
-        Raises:
-            BaseError: if no token is available
-        """
-        if not self.token:
-            raise BaseError("No token available.")
-        return self.token
+        del self.session.headers["Authorization"]
 
     def post(
         self,
@@ -188,7 +145,7 @@ class ConnectionLive(Connection):
             PermanentConnectionError: if all attempts have failed
             InvalidInputError: if the API responds with a permanent error because of invalid input data
         """
-        params = RequestParameters("GET", self._make_url(route), self.timeout_get_delete, headers=headers)
+        params = RequestParameters("GET", self._make_url(route), self.timeout_get, headers=headers)
         response = self._try_network_action(params)
         return cast(dict[str, Any], response.json())
 
@@ -218,29 +175,6 @@ class ConnectionLive(Connection):
             if "Content-Type" not in headers:
                 headers["Content-Type"] = "application/json; charset=UTF-8"
         params = RequestParameters("PUT", self._make_url(route), self.timeout_put_post, data, headers)
-        response = self._try_network_action(params)
-        return cast(dict[str, Any], response.json())
-
-    def delete(
-        self,
-        route: str,
-        headers: dict[str, str] | None = None,
-    ) -> dict[str, Any]:
-        """
-        Make an HTTP GET request to the server to which this connection has been established.
-
-        Args:
-            route: route that will be called on the server
-            headers: headers for the HTTP request
-
-        Returns:
-            response from server
-
-        Raises:
-            PermanentConnectionError: if all attempts have failed
-            InvalidInputError: if the API responds with a permanent error because of invalid input data
-        """
-        params = RequestParameters("DELETE", self._make_url(route), self.timeout_get_delete, headers=headers)
         response = self._try_network_action(params)
         return cast(dict[str, Any], response.json())
 
@@ -285,19 +219,14 @@ class ConnectionLive(Connection):
             if response.status_code == HTTP_OK:
                 return response
 
-            self._handle_non_ok_responses(response, params.url, i)
+            self._handle_non_ok_responses(response, i)
 
         # if all attempts have failed, raise error
         msg = f"Permanently unable to execute the network action. See {WARNINGS_SAVEPATH} for more information."
         raise PermanentConnectionError(msg)
 
-    def _handle_non_ok_responses(self, response: Response, request_url: str, retry_counter: int) -> None:
-        if "v2/authentication" in request_url and response.status_code == HTTP_UNAUTHORIZED:
-            raise BadCredentialsError("Bad credentials")
-        in_500_range = 500 <= response.status_code < 600
-        try_again_later = "try again later" in response.text.lower()
-        should_retry = (try_again_later or in_500_range) and not self._in_testing_environment()
-        if should_retry:
+    def _handle_non_ok_responses(self, response: Response, retry_counter: int) -> None:
+        if _should_retry(response):
             self._log_and_sleep("Transient Error", retry_counter, exc_info=False)
             return None
         else:
@@ -314,8 +243,8 @@ class ConnectionLive(Connection):
         self.session.close()
         self.session = Session()
         self.session.headers["User-Agent"] = f'DSP-TOOLS/{version("dsp-tools")}'
-        if self.token:
-            self.session.headers["Authorization"] = f"Bearer {self.token}"
+        if self.authenticationClient and (token := self.authenticationClient.get_token()):
+            self.session.headers["Authorization"] = f"Bearer {token}"
 
     def _log_and_sleep(self, reason: str, retry_counter: int, exc_info: bool) -> None:
         msg = f"{reason}: Try reconnecting to DSP server, next attempt in {2 ** retry_counter} seconds..."
@@ -335,49 +264,46 @@ class ConnectionLive(Connection):
     def _log_response(self, response: Response) -> None:
         dumpobj: dict[str, Any] = {
             "status_code": response.status_code,
-            "headers": self._anonymize(dict(response.headers)),
+            "headers": _sanitize_headers(dict(response.headers)),
         }
         try:
-            dumpobj["content"] = self._anonymize(json.loads(response.text))
-        except json.JSONDecodeError:
-            dumpobj["content"] = response.text if "token" not in response.text else "***"
+            dumpobj["content"] = response.json()
+        except JSONDecodeError:
+            dumpobj["content"] = response.text
         logger.debug(f"RESPONSE: {json.dumps(dumpobj)}")
-
-    def _anonymize(self, data: dict[str, Any] | None) -> dict[str, Any] | None:
-        if not data:
-            return data
-        data = data.copy()
-        if "token" in data:
-            data["token"] = self._mask(data["token"])
-        if "Set-Cookie" in data:
-            data["Set-Cookie"] = self._mask(data["Set-Cookie"])
-        if "Authorization" in data:
-            if match := regex.search(r"^Bearer (.+)", data["Authorization"]):
-                data["Authorization"] = f"Bearer {self._mask(match.group(1))}"
-        if "password" in data:
-            data["password"] = "*" * len(data["password"])
-        return data
-
-    def _mask(self, sensitive_info: str) -> str:
-        unmasked_until = 5
-        if len(sensitive_info) <= unmasked_until * 2:
-            return "*" * len(sensitive_info)
-        else:
-            return f"{sensitive_info[:unmasked_until]}[+{len(sensitive_info) - unmasked_until}]"
-
-    def _in_testing_environment(self) -> bool:
-        in_testing_env = os.getenv("DSP_TOOLS_TESTING")  # set in .github/workflows/tests-on-push.yml
-        return in_testing_env == "true"
 
     def _log_request(self, params: RequestParameters) -> None:
         dumpobj = {
             "method": params.method,
             "url": params.url,
-            "headers": self._anonymize(dict(self.session.headers) | (params.headers or {})),
+            "headers": _sanitize_headers(dict(self.session.headers) | (params.headers or {})),  # type: ignore[operator]
             "timeout": params.timeout,
         }
         if params.data:
-            dumpobj["data"] = self._anonymize(params.data)
+            data = params.data.copy()
+            if "password" in data:
+                data["password"] = "***"
+            dumpobj["data"] = data
         if params.files:
             dumpobj["files"] = params.files["file"][0]
         logger.debug(f"REQUEST: {json.dumps(dumpobj, cls=SetEncoder)}")
+
+
+def _sanitize_headers(headers: dict[str, str | bytes]) -> dict[str, str]:
+    def _mask(key: str, value: str | bytes) -> str:
+        if isinstance(value, bytes):
+            value = value.decode("utf-8")
+        if key == "Authorization" and value.startswith("Bearer "):
+            return "Bearer ***"
+        if key == "Set-Cookie":
+            return "***"
+        return value
+
+    return {k: _mask(k, v) for k, v in headers.items()}
+
+
+def _should_retry(response: Response) -> bool:
+    in_500_range = 500 <= response.status_code < 600
+    try_again_later = "try again later" in response.text.lower()
+    in_testing_env = os.getenv("DSP_TOOLS_TESTING") == "true"  # set in .github/workflows/tests-on-push.yml
+    return (try_again_later or in_500_range) and not in_testing_env

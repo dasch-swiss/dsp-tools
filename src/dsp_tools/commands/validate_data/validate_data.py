@@ -69,9 +69,9 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
 def _get_validation_result(api_url: str, filepath: Path, save_graphs: bool) -> ValidationReportGraphs:
     data_rdf, shortcode = _get_data_info_from_file(filepath, api_url)
     api_con = ApiConnection(api_url)
-    onto_con = OntologyClient(api_con, shortcode)
-    list_con = ListClient(api_con, shortcode)
-    rdf_graphs = _create_graphs(onto_con, list_con, data_rdf)
+    onto_client = OntologyClient(api_con, shortcode)
+    list_client = ListClient(api_con, shortcode)
+    rdf_graphs = _create_graphs(onto_client, list_client, data_rdf)
     generic_filepath = Path()
     if save_graphs:
         generic_filepath = _save_graphs(filepath, rdf_graphs)
@@ -92,10 +92,10 @@ def _inform_about_experimental_feature() -> None:
     cprint(LIST_SEPARATOR.join(what_is_validated), color="magenta", attrs=["bold"])
 
 
-def _create_graphs(onto_con: OntologyClient, list_con: ListClient, data_rdf: DataRDF) -> RDFGraphs:
-    ontologies = _get_project_ontos(onto_con)
-    all_lists = list_con.get_lists()
-    knora_ttl = onto_con.get_knora_api()
+def _create_graphs(onto_client: OntologyClient, list_client: ListClient, data_rdf: DataRDF) -> RDFGraphs:
+    ontologies = _get_project_ontos(onto_client)
+    all_lists = list_client.get_lists()
+    knora_ttl = onto_client.get_knora_api()
     knora_api = Graph()
     knora_api.parse(data=knora_ttl, format="ttl")
     onto_for_construction = deepcopy(ontologies) + knora_api
@@ -112,8 +112,8 @@ def _create_graphs(onto_con: OntologyClient, list_con: ListClient, data_rdf: Dat
     )
 
 
-def _get_project_ontos(onto_con: OntologyClient) -> Graph:
-    all_ontos = onto_con.get_ontologies()
+def _get_project_ontos(onto_client: OntologyClient) -> Graph:
+    all_ontos = onto_client.get_ontologies()
     onto_g = Graph()
     for onto in all_ontos:
         og = Graph()

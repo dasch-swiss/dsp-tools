@@ -93,10 +93,12 @@ The `<permissions>` element defines a _permission ID_ that can subsequently be u
 [permissions attribute](#using-permissions-with-the-permissions-attribute) of a `<resource>` or `<xyz-prop>` tag.
 
 It is optional to define permission IDs in the XML. 
-If not defined, default permissions are applied, 
+If not defined, the project's default permissions are applied, 
 so that only project and system administrators can view and edit resources. 
 All other users have no rights at all, 
 not even view or restricted view permissions.
+
+(The project's default permission default to "restricted", but this can be changed on a per-project-basis via DSP-API.)
 
 If the resources/values in your XML should have permissions 
 that are different from the project's defaults,

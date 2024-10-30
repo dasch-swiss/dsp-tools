@@ -86,12 +86,13 @@ Then, the root element is created, which represents the `<knora>` tag of the XML
 As first children of `<knora>`, some standard permissions are added. At the end, please carefully check the permissions 
 of the finished XML file to ensure that they meet your requirements, and adapt them if necessary.  
 
-The standard permission is `open`. 
+The standard permission is `open` 
+(read more about this [here](./file-formats/xml-data-file.md#defining-permissions-with-the-permissions-element)). 
 If you don't specify it otherwise, all resources and properties get this permission. 
 
 With `excel2xml`, it is not possible to create resources/properties that don't have permissions, because they would be 
-invisible for all users except project admins and system admins. [Read more about permissions 
-here](./file-formats/xml-data-file.md#using-permissions-with-the-permissions-attribute).
+invisible for all users except project members. [Read more about permissions 
+here](./file-formats/xml-data-file.md#defining-permissions-with-the-permissions-element).
 
 
 ## 4. Create List Mappings

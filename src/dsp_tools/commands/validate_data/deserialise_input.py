@@ -135,7 +135,7 @@ def _deserialise_text_prop(prop: etree._Element) -> list[SimpleTextDeserialised 
     return all_vals
 
 
-def _get_text_as_string(value: etree._Element) -> str:
+def _get_text_as_string(value: etree._Element) -> str | None:
     if len(value):
         return "".join(etree.tostring(child, encoding="unicode") for child in value)
     else:

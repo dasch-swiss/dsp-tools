@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <knora xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://dasch.swiss/schema https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/data.xsd" shortcode="1234" default-ontology="excel2xml-output">
     <permissions id="open">
-        <allow group="ProjectAdmin">CR</allow>
-        <allow group="ProjectMember">D</allow>
-        <allow group="KnownUser">V</allow>
         <allow group="UnknownUser">V</allow>
+        <allow group="KnownUser">V</allow>
+        <allow group="ProjectMember">D</allow>
+        <allow group="ProjectAdmin">CR</allow>
     </permissions>
     <permissions id="restricted-view">
-        <allow group="ProjectAdmin">CR</allow>
-        <allow group="ProjectMember">D</allow>
-        <allow group="KnownUser">RV</allow>
         <allow group="UnknownUser">RV</allow>
+        <allow group="KnownUser">RV</allow>
+        <allow group="ProjectMember">D</allow>
+        <allow group="ProjectAdmin">CR</allow>
     </permissions>
     <permissions id="restricted">
-        <allow group="ProjectAdmin">CR</allow>
         <allow group="ProjectMember">D</allow>
+        <allow group="ProjectAdmin">CR</allow>
     </permissions>
     <resource label="Homer" restype=":Person" id="person_0" permissions="open" creation_date="1999-12-31T23:59:59.9999999+01:00">
         <text-prop name=":hasName">

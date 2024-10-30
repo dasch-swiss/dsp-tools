@@ -202,7 +202,7 @@ class TestRichtextValue:
         res = res_list[0]
         assert isinstance(res, RichtextDeserialised)
         assert res.prop_name == "http://0.0.0.0:3333/ontology/9999/onto/v2#testRichtext"
-        assert res.object_value == "Text"
+        assert res.object_value == "<p>Text</p>"
 
     def test_several(self, text_richtext_value_corr_several: etree._Element) -> None:
         res = _deserialise_one_property(text_richtext_value_corr_several)

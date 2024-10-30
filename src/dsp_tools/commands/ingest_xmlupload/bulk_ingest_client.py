@@ -4,6 +4,7 @@ from dataclasses import field
 from pathlib import Path
 from typing import Iterator
 
+import regex
 from loguru import logger
 from requests import JSONDecodeError
 from requests import RequestException
@@ -58,7 +59,10 @@ class BulkIngestClient:
         filepath: Path,
     ) -> UploadFailure | None:
         """Uploads a file to the ingest server."""
-        url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/ingest/{urllib.parse.quote(str(filepath))}"
+        # Remove leading slash, because ingest only accepts relative paths.
+        # The leading slash has to be added again in the "ingest-xmlupload" step, when applying the ingest ID.
+        quoted = regex.sub(r"^\/", "", urllib.parse.quote(str(filepath)))
+        url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/ingest/{quoted}"
         headers = {"Content-Type": "application/octet-stream"}
         timeout = 600
         err_msg = f"Failed to upload '{filepath}' to '{url}'."

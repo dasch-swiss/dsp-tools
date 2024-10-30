@@ -6,7 +6,6 @@ from dataclasses import dataclass
 from dataclasses import field
 from typing import Any
 
-import pandas as pd
 from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
@@ -16,6 +15,7 @@ from dsp_tools.xmllib.models.file_values import FileValue
 from dsp_tools.xmllib.models.file_values import IIIFUri
 from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
 from dsp_tools.xmllib.models.user_enums import NewlineReplacement
+from dsp_tools.xmllib.models.user_enums import Permissions
 from dsp_tools.xmllib.models.values import BooleanValue
 from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import DateValue
@@ -29,6 +29,7 @@ from dsp_tools.xmllib.models.values import SimpleText
 from dsp_tools.xmllib.models.values import TimeValue
 from dsp_tools.xmllib.models.values import UriValue
 from dsp_tools.xmllib.models.values import Value
+from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_string_like
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
@@ -44,7 +45,7 @@ class Resource:
     restype: str
     label: str
     values: list[Value] = field(default_factory=list)
-    permissions: str = "open"
+    permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     file_value: AbstractFileValue | None = None
     migration_metadata: MigrationMetadata | None = None
 
@@ -63,7 +64,13 @@ class Resource:
             )
             warnings.warn(DspToolsUserWarning(out_msg))
 
-    def new(self, res_id: str, restype: str, label: str, permissions: str = "res-default") -> Resource:
+    @staticmethod
+    def new(
+        res_id: str,
+        restype: str,
+        label: str,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+    ) -> Resource:
         return Resource(
             res_id=res_id,
             restype=restype,
@@ -80,8 +87,8 @@ class Resource:
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "restype": self.restype, "id": self.res_id}
-        if self.permissions:
-            attribs["permissions"] = self.permissions
+        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
+            attribs["permissions"] = self.permissions.value
         return etree.Element(f"{DASCH_SCHEMA}resource", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
 
     def _serialise_values(self) -> list[etree._Element]:
@@ -101,21 +108,23 @@ class Resource:
     #######################
 
     def add_bool(
-        self, value: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self,
+        prop_name: str,
+        value: Any,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
     ) -> Resource:
         self.values.append(BooleanValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    def add_bools(
-        self, values: list[Any], prop_name: str, permissions: str | None = None, comment: str | None = None
-    ) -> Resource:
-        self.values.extend([BooleanValue(v, prop_name, permissions, comment, self.res_id) for v in values])
-        return self
-
     def add_bool_optional(
-        self, value: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self,
+        prop_name: str,
+        value: Any,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
     ) -> Resource:
-        if not pd.isna(value):
+        if is_nonempty_value(value):
             self.values.append(BooleanValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -124,21 +133,33 @@ class Resource:
     #######################
 
     def add_color(
-        self, value: int | str, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self,
+        prop_name: str,
+        value: int | str,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
     ) -> Resource:
         self.values.append(ColorValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    def add_colors(
-        self, values: list[int | str], prop_name: str, permissions: str | None = None, comment: str | None = None
+    def add_color_multiple(
+        self,
+        prop_name: str,
+        values: list[int | str],
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
     ) -> Resource:
         self.values.extend([ColorValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
     def add_color_optional(
-        self, value: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self,
+        prop_name: str,
+        value: Any,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
     ) -> Resource:
-        if not pd.isna(value):
+        if is_nonempty_value(value):
             self.values.append(ColorValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -147,21 +168,33 @@ class Resource:
     #######################
 
     def add_date(
-        self, value: str, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self,
+        prop_name: str,
+        value: str,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
     ) -> Resource:
         self.values.append(DateValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    def add_dates(
-        self, values: list[str], prop_name: str, permissions: str | None = None, comment: str | None = None
+    def add_date_multiple(
+        self,
+        prop_name: str,
+        values: list[str],
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
     ) -> Resource:
         self.values.extend([DateValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
     def add_date_optional(
-        self, value: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self,
+        prop_name: str,
+        value: Any,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
     ) -> Resource:
-        if not pd.isna(value):
+        if is_nonempty_value(value):
             self.values.append(DateValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -170,21 +203,33 @@ class Resource:
     #######################
 
     def add_decimal(
-        self, value: float | str, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self,
+        prop_name: str,
+        value: float | str,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
     ) -> Resource:
         self.values.append(DecimalValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    def add_decimals(
-        self, values: list[float | str], prop_name: str, permissions: str | None = None, comment: str | None = None
+    def add_decimal_multiple(
+        self,
+        prop_name: str,
+        values: list[float | str],
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
     ) -> Resource:
         self.values.extend([DecimalValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
     def add_decimal_optional(
-        self, value: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self,
+        prop_name: str,
+        value: Any,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
     ) -> Resource:
-        if not pd.isna(value):
+        if is_nonempty_value(value):
             self.values.append(DecimalValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -193,21 +238,33 @@ class Resource:
     #######################
 
     def add_geoname(
-        self, value: int | str, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self,
+        prop_name: str,
+        value: int | str,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
     ) -> Resource:
         self.values.append(GeonameValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    def add_geonames(
-        self, values: list[int | str], prop_name: str, permissions: str | None = None, comment: str | None = None
+    def add_geoname_multiple(
+        self,
+        prop_name: str,
+        values: list[int | str],
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
     ) -> Resource:
         self.values.extend([GeonameValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
     def add_geoname_optional(
-        self, value: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self,
+        prop_name: str,
+        value: Any,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
     ) -> Resource:
-        if not pd.isna(value):
+        if is_nonempty_value(value):
             self.values.append(GeonameValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -216,21 +273,33 @@ class Resource:
     #######################
 
     def add_integer(
-        self, value: int | str, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self,
+        prop_name: str,
+        value: int | str,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
     ) -> Resource:
         self.values.append(IntValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    def add_integers(
-        self, values: list[int | str], prop_name: str, permissions: str | None = None, comment: str | None = None
+    def add_integer_multiple(
+        self,
+        prop_name: str,
+        values: list[int | str],
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
     ) -> Resource:
         self.values.extend([IntValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
     def add_integer_optional(
-        self, value: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self,
+        prop_name: str,
+        value: Any,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
     ) -> Resource:
-        if not pd.isna(value):
+        if is_nonempty_value(value):
             self.values.append(IntValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -239,21 +308,33 @@ class Resource:
     #######################
 
     def add_link(
-        self, value: str, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self,
+        prop_name: str,
+        value: str,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
     ) -> Resource:
         self.values.append(LinkValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    def add_links(
-        self, values: list[str], prop_name: str, permissions: str | None = None, comment: str | None = None
+    def add_link_multiple(
+        self,
+        prop_name: str,
+        values: list[str],
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
     ) -> Resource:
         self.values.extend([LinkValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
     def add_link_optional(
-        self, value: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self,
+        prop_name: str,
+        value: Any,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
     ) -> Resource:
-        if not pd.isna(value):
+        if is_nonempty_value(value):
             self.values.append(LinkValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -262,26 +343,36 @@ class Resource:
     #######################
 
     def add_list(
-        self, value: Any, list_name: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self,
+        prop_name: str,
+        list_name: Any,
+        value: Any,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
     ) -> Resource:
         self.values.append(ListValue(value, list_name, prop_name, permissions, comment, self.res_id))
         return self
 
-    def add_lists(
+    def add_list_multiple(
         self,
-        values: list[Any],
-        list_name: Any,
         prop_name: str,
-        permissions: str | None = None,
+        list_name: Any,
+        values: list[Any],
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
         self.values.extend([ListValue(v, list_name, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
     def add_list_optional(
-        self, value: Any, list_name: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self,
+        prop_name: str,
+        list_name: Any,
+        value: Any,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
     ) -> Resource:
-        if not pd.isna(value):
+        if is_nonempty_value(value):
             self.values.append(ListValue(value, list_name, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -290,21 +381,33 @@ class Resource:
     #######################
 
     def add_simpletext(
-        self, value: str, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self,
+        prop_name: str,
+        value: str,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
     ) -> Resource:
         self.values.append(SimpleText(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    def add_simpletexts(
-        self, values: list[str], prop_name: str, permissions: str | None = None, comment: str | None = None
+    def add_simpletext_multiple(
+        self,
+        prop_name: str,
+        values: list[str],
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
     ) -> Resource:
         self.values.extend([SimpleText(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
     def add_simpletext_optional(
-        self, value: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self,
+        prop_name: str,
+        value: Any,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
     ) -> Resource:
-        if not pd.isna(value):
+        if is_nonempty_value(value):
             self.values.append(SimpleText(value, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -314,9 +417,9 @@ class Resource:
 
     def add_richtext(
         self,
-        value: str,
         prop_name: str,
-        permissions: str | None = None,
+        value: str,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> Resource:
@@ -324,11 +427,11 @@ class Resource:
         self.values.append(Richtext(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    def add_richtexts(
+    def add_richtext_multiple(
         self,
-        values: list[str],
         prop_name: str,
-        permissions: str | None = None,
+        values: list[str],
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> Resource:
@@ -338,13 +441,13 @@ class Resource:
 
     def add_richtext_optional(
         self,
-        value: Any,
         prop_name: str,
-        permissions: str | None = None,
+        value: Any,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> Resource:
-        if not pd.isna(value):
+        if is_nonempty_value(value):
             value = replace_newlines_with_tags(str(value), newline_replacement)
             self.values.append(Richtext(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -354,21 +457,33 @@ class Resource:
     #######################
 
     def add_time(
-        self, value: str, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self,
+        prop_name: str,
+        value: str,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
     ) -> Resource:
         self.values.append(TimeValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    def add_times(
-        self, values: list[str], prop_name: str, permissions: str | None = None, comment: str | None = None
+    def add_time_multiple(
+        self,
+        prop_name: str,
+        values: list[str],
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
     ) -> Resource:
         self.values.extend([TimeValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
     def add_time_optional(
-        self, value: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self,
+        prop_name: str,
+        value: Any,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
     ) -> Resource:
-        if not pd.isna(value):
+        if is_nonempty_value(value):
             self.values.append(TimeValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -377,21 +492,33 @@ class Resource:
     #######################
 
     def add_uri(
-        self, value: str, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self,
+        prop_name: str,
+        value: str,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
     ) -> Resource:
         self.values.append(UriValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
-    def add_uris(
-        self, values: list[str], prop_name: str, permissions: str | None = None, comment: str | None = None
+    def add_uri_multiple(
+        self,
+        prop_name: str,
+        values: list[str],
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
     ) -> Resource:
         self.values.extend([UriValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
     def add_uri_optional(
-        self, value: Any, prop_name: str, permissions: str | None = None, comment: str | None = None
+        self,
+        prop_name: str,
+        value: Any,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
     ) -> Resource:
-        if not pd.isna(value):
+        if is_nonempty_value(value):
             self.values.append(UriValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -399,7 +526,12 @@ class Resource:
     # AbstractFileValue
     #######################
 
-    def add_file(self, filename: str, permissions: str | None = None, comment: str | None = None) -> Resource:
+    def add_file(
+        self,
+        filename: str,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+    ) -> Resource:
         if self.file_value:
             raise InputError(
                 f"The resource with the ID '{self.res_id}' already contains a file with the name: "
@@ -409,7 +541,12 @@ class Resource:
         self.file_value = FileValue(filename, permissions, comment, self.res_id)
         return self
 
-    def add_iiif_uri(self, iiif_uri: str, permissions: str | None = None, comment: str | None = None) -> Resource:
+    def add_iiif_uri(
+        self,
+        iiif_uri: str,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+    ) -> Resource:
         if self.file_value:
             raise InputError(
                 f"The resource with the ID '{self.res_id}' already contains a file with the name: "

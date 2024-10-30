@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from dataclasses import field
 from typing import Any
 
+import pandas as pd
 from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
@@ -60,6 +61,11 @@ class AnnotationResource:
 
     def add_comment_multiple(self, comments: list[str]) -> AnnotationResource:
         self.comments.extend(comments)
+        return self
+
+    def add_comment_optional(self, comment: Any) -> AnnotationResource:
+        if not pd.isna(comment):
+            self.comments.append(comment)
         return self
 
     def add_migration_metadata(
@@ -142,6 +148,11 @@ class RegionResource:
         self.comments.extend(comments)
         return self
 
+    def add_comment_optional(self, comment: Any) -> RegionResource:
+        if not pd.isna(comment):
+            self.comments.append(comment)
+        return self
+
     def add_migration_metadata(
         self, creation_date: str | None, iri: str | None = None, ark: str | None = None
     ) -> RegionResource:
@@ -213,6 +224,11 @@ class LinkResource:
 
     def add_comment_multiple(self, comments: list[str]) -> LinkResource:
         self.comments.extend(comments)
+        return self
+
+    def add_comment_optional(self, comment: Any) -> LinkResource:
+        if not pd.isna(comment):
+            self.comments.append(comment)
         return self
 
     def add_migration_metadata(
@@ -308,8 +324,15 @@ class VideoSegmentResource:
 
     def add_title(self, title: str) -> VideoSegmentResource:
         if self.title:
-            _warn_value_exists(self.title, title, "title", self.res_id)
+            _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
         self.title = title
+        return self
+
+    def add_title_optional(self, title: Any) -> VideoSegmentResource:
+        if not pd.isna(title):
+            if self.title:
+                _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
+            self.title = title
         return self
 
     def add_comment(self, comment: str) -> VideoSegmentResource:
@@ -320,6 +343,11 @@ class VideoSegmentResource:
         self.comments.extend(comments)
         return self
 
+    def add_comment_optional(self, comment: Any) -> VideoSegmentResource:
+        if not pd.isna(comment):
+            self.comments.append(comment)
+        return self
+
     def add_description(self, description: str) -> VideoSegmentResource:
         self.descriptions.append(description)
         return self
@@ -328,12 +356,22 @@ class VideoSegmentResource:
         self.descriptions.extend(descriptions)
         return self
 
-    def add_keyword(self, keywords: str) -> VideoSegmentResource:
-        self.keywords.append(keywords)
+    def add_description_optional(self, description: Any) -> VideoSegmentResource:
+        if not pd.isna(description):
+            self.descriptions.append(description)
+        return self
+
+    def add_keyword(self, keyword: str) -> VideoSegmentResource:
+        self.keywords.append(keyword)
         return self
 
     def add_keyword_multiple(self, keywords: list[str]) -> VideoSegmentResource:
         self.keywords.extend(keywords)
+        return self
+
+    def add_keyword_optional(self, keyword: Any) -> VideoSegmentResource:
+        if not pd.isna(keyword):
+            self.keywords.append(keyword)
         return self
 
     def add_relates_to(self, relates_to: str) -> VideoSegmentResource:
@@ -342,6 +380,11 @@ class VideoSegmentResource:
 
     def add_relates_to_multiple(self, relates_to: list[str]) -> VideoSegmentResource:
         self.relates_to.extend(relates_to)
+        return self
+
+    def add_relates_to_optional(self, relates_to: Any) -> VideoSegmentResource:
+        if not pd.isna(relates_to):
+            self.relates_to.append(relates_to)
         return self
 
     def add_migration_metadata(
@@ -410,8 +453,15 @@ class AudioSegmentResource:
 
     def add_title(self, title: str) -> AudioSegmentResource:
         if self.title:
-            _warn_value_exists(self.title, title, "title", self.res_id)
+            _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
         self.title = title
+        return self
+
+    def add_title_optional(self, title: Any) -> AudioSegmentResource:
+        if not pd.isna(title):
+            if self.title:
+                _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
+            self.title = title
         return self
 
     def add_comment(self, comment: str) -> AudioSegmentResource:
@@ -422,6 +472,11 @@ class AudioSegmentResource:
         self.comments.extend(comments)
         return self
 
+    def add_comment_optional(self, comment: Any) -> AudioSegmentResource:
+        if not pd.isna(comment):
+            self.comments.append(comment)
+        return self
+
     def add_description(self, description: str) -> AudioSegmentResource:
         self.descriptions.append(description)
         return self
@@ -430,12 +485,22 @@ class AudioSegmentResource:
         self.descriptions.extend(descriptions)
         return self
 
-    def add_keyword(self, keywords: str) -> AudioSegmentResource:
-        self.keywords.append(keywords)
+    def add_description_optional(self, description: Any) -> AudioSegmentResource:
+        if not pd.isna(description):
+            self.descriptions.append(description)
+        return self
+
+    def add_keyword(self, keyword: str) -> AudioSegmentResource:
+        self.keywords.append(keyword)
         return self
 
     def add_keyword_multiple(self, keywords: list[str]) -> AudioSegmentResource:
         self.keywords.extend(keywords)
+        return self
+
+    def add_keyword_optional(self, keyword: Any) -> AudioSegmentResource:
+        if not pd.isna(keyword):
+            self.keywords.append(keyword)
         return self
 
     def add_relates_to(self, relates_to: str) -> AudioSegmentResource:
@@ -444,6 +509,11 @@ class AudioSegmentResource:
 
     def add_relates_to_multiple(self, relates_to: list[str]) -> AudioSegmentResource:
         self.relates_to.extend(relates_to)
+        return self
+
+    def add_relates_to_optional(self, relates_to: Any) -> AudioSegmentResource:
+        if not pd.isna(relates_to):
+            self.relates_to.append(relates_to)
         return self
 
     def add_migration_metadata(
@@ -552,11 +622,11 @@ def _transform_unexpected_input(value: Any, prop_name: str, res_id: str) -> list
         case str():
             return [value]
         case _:
-            _warn_unexpected_value(value, prop_name, res_id)
+            _warn_unexpected_value(value=value, prop_name=prop_name, res_id=res_id)
             return [str(value)]
 
 
-def _warn_unexpected_value(value: Any, prop_name: str, res_id: str | None) -> None:
+def _warn_unexpected_value(*, value: Any, prop_name: str, res_id: str | None) -> None:
     msg = (
         f"The resource: {res_id} should have a list of strings for the field '{prop_name}'. "
         f"Your input: '{value}' is of type {type(value)}."
@@ -564,7 +634,7 @@ def _warn_unexpected_value(value: Any, prop_name: str, res_id: str | None) -> No
     warnings.warn(DspToolsUserWarning(msg))
 
 
-def _warn_value_exists(old_value: Any, new_value: Any, value_field: str, res_id: str | None) -> None:
+def _warn_value_exists(*, old_value: Any, new_value: Any, value_field: str, res_id: str | None) -> None:
     """Emits a warning if a values is not in the expected format."""
     msg = (
         f"The resource with the ID '{res_id}' already has a value in the field '{value_field}'. "

@@ -200,7 +200,7 @@ A `<resource>` element contains all necessary information to create a resource. 
   and later replaced by the IRI used internally by DSP 
 - `permissions` 
   (optional, but if omitted, 
-  users who are lower than a `ProjectAdmin` have no permissions at all,
+  users who are lower than a `ProjectMember` have no permissions at all,
   not even view rights):
   a reference to a permission ID
 - `iri` (optional): a custom IRI, used when migrating existing resources (DaSCH-internal only)
@@ -298,7 +298,7 @@ For more details, please consult the [API docs](https://docs.dasch.swiss/latest/
 Attributes:
 
 - `permissions` : Permission ID 
-  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+  (optional, but if omitted, users who are lower than a `ProjectMember` have no permissions at all, not even view rights)
 
 Example of a public image inside a `StillImageRepresentation`:
 
@@ -328,7 +328,7 @@ Please consult the official documentation for details regarding the URI syntax:
 Attributes:
 
 - `permissions` : Permission ID 
-  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+  (optional, but if omitted, users who are lower than a `ProjectMember` have no permissions at all, not even view rights)
 
 
 Example of a public image inside a `StillImageRepresentation`:
@@ -357,7 +357,7 @@ The `<boolean>` element must contain the string "true"/"True" or "false"/"False"
 Attributes:
 
 - `permissions`: Permission ID 
-  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+  (optional, but if omitted, users who are lower than a `ProjectMember` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a public and a hidden boolean property:
@@ -389,7 +389,7 @@ followed by 3 or 6 hex numerals.
 Attributes:
 
 - `permissions`: Permission ID 
-  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+  (optional, but if omitted, users who are lower than a `ProjectMember` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public and a hidden color value:
@@ -445,7 +445,7 @@ Notes:
 Attributes:
 
 - `permissions`: Permission ID 
-  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+  (optional, but if omitted, users who are lower than a `ProjectMember` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public and a hidden date value:
@@ -475,7 +475,7 @@ The `<decimal>` element contains a decimal number, they must be written with a d
 Attributes:
 
 - `permissions`: Permission ID 
-  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+  (optional, but if omitted, users who are lower than a `ProjectMember` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public and a hidden decimal value:
@@ -516,7 +516,7 @@ A geometry value is defined as a JSON object. It contains the following data:
 Attributes:
 
 - `permissions`: Permission ID 
-  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+  (optional, but if omitted, users who are lower than a `ProjectMember` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example:
@@ -581,7 +581,7 @@ Contains a valid [geonames.org](https://www.geonames.org/) ID.
 Attributes:
 
 - `permissions`: Permission ID 
-  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+  (optional, but if omitted, users who are lower than a `ProjectMember` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public link to Vienna and a hidden link to Basel:
@@ -611,7 +611,7 @@ The `<integer>` element contains an integer value, these are whole numbers.
 Attributes:
 
 - `permissions`: Permission ID 
-  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+  (optional, but if omitted, users who are lower than a `ProjectMember` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public and a hidden integer value:
@@ -643,7 +643,7 @@ The `<list>` element references a node in a (pull-down or hierarchical) list.
 Attributes:
 
 - `permissions`: Permission ID 
-  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+  (optional, but if omitted, users who are lower than a `ProjectMember` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public and a hidden list value:
@@ -673,7 +673,7 @@ existing resource on DSP.
 Attributes:
 
 - `permissions`: Permission ID 
-  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+  (optional, but if omitted, users who are lower than a `ProjectMember` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public link to `<resource id="res_1" ...>` 
@@ -704,7 +704,7 @@ The `<text>` element has the following attributes:
     - `utf8`: simple text without markup
     - `xml`: complex text with markup. It must follow the XML format as defined by the
   [DSP standard mapping](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/).
-- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions 
+- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectMember` have no permissions 
   at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
@@ -866,7 +866,7 @@ The timezone is defined as follows:
 Attributes:
 
 - `permissions`: Permission ID 
-  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+  (optional, but if omitted, users who are lower than a `ProjectMember` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public and a hidden time value:
@@ -896,7 +896,7 @@ The `<uri>` element contains a syntactically valid URI.
 Attributes:
 
 - `permissions`: Permission ID 
-  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+  (optional, but if omitted, users who are lower than a `ProjectMember` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public and a hidden URI:

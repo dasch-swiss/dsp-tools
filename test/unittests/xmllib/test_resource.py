@@ -87,7 +87,9 @@ class TestAddValues:
         assert isinstance(res.values[0], DecimalValue)
 
     def test_add_decimal_warns(self) -> None:
-        with pytest.warns(DspToolsUserWarning, match=regex.escape("a 'decimal' does not conform to the expected format")):
+        with pytest.warns(
+            DspToolsUserWarning, match=regex.escape("a 'decimal' does not conform to the expected format")
+        ):
             Resource.new("res_id", "restype", "label").add_decimal("", "")
 
     def test_add_decimal_multiple(self) -> None:
@@ -108,7 +110,9 @@ class TestAddValues:
         assert isinstance(res.values[0], GeonameValue)
 
     def test_add_geoname_warns(self) -> None:
-        with pytest.warns(DspToolsUserWarning, match=regex.escape("a 'geoname' does not conform to the expected format")):
+        with pytest.warns(
+            DspToolsUserWarning, match=regex.escape("a 'geoname' does not conform to the expected format")
+        ):
             Resource.new("res_id", "restype", "label").add_geoname("", "")
 
     def test_add_geoname_multiple(self) -> None:
@@ -129,7 +133,9 @@ class TestAddValues:
         assert isinstance(res.values[0], IntValue)
 
     def test_add_integer_warns(self) -> None:
-        with pytest.warns(DspToolsUserWarning, match=regex.escape("a 'integer' does not conform to the expected format")):
+        with pytest.warns(
+            DspToolsUserWarning, match=regex.escape("a 'integer' does not conform to the expected format")
+        ):
             Resource.new("res_id", "restype", "label").add_integer("", "")
 
     def test_add_integer_multiple(self) -> None:
@@ -150,7 +156,9 @@ class TestAddValues:
         assert isinstance(res.values[0], LinkValue)
 
     def test_add_link_warns(self) -> None:
-        with pytest.warns(DspToolsUserWarning, match=regex.escape("a 'string' does not conform to the expected format")):
+        with pytest.warns(
+            DspToolsUserWarning, match=regex.escape("a 'string' does not conform to the expected format")
+        ):
             Resource.new("res_id", "restype", "label").add_link("", "")
 
     def test_add_link_multiple(self) -> None:
@@ -192,7 +200,9 @@ class TestAddValues:
         assert isinstance(res.values[0], SimpleText)
 
     def test_add_simple_text_warns(self) -> None:
-        with pytest.warns(DspToolsUserWarning, match=regex.escape("a 'string' does not conform to the expected format")):
+        with pytest.warns(
+            DspToolsUserWarning, match=regex.escape("a 'string' does not conform to the expected format")
+        ):
             Resource.new("res_id", "restype", "label").add_simpletext("", "")
 
     def test_add_simple_text_multiple(self) -> None:
@@ -214,7 +224,9 @@ class TestAddValues:
         assert res.values[0].value == "A<br/>B"
 
     def test_add_richtext_warns(self) -> None:
-        with pytest.warns(DspToolsUserWarning, match=regex.escape("a 'string' does not conform to the expected format")):
+        with pytest.warns(
+            DspToolsUserWarning, match=regex.escape("a 'string' does not conform to the expected format")
+        ):
             Resource.new("res_id", "restype", "label").add_richtext("", "")
 
     def test_add_richtext_no_replace(self) -> None:
@@ -243,7 +255,9 @@ class TestAddValues:
         assert isinstance(res.values[0], TimeValue)
 
     def test_add_time_warns(self) -> None:
-        with pytest.warns(DspToolsUserWarning, match=regex.escape("a 'timestamp' does not conform to the expected format")):
+        with pytest.warns(
+            DspToolsUserWarning, match=regex.escape("a 'timestamp' does not conform to the expected format")
+        ):
             Resource.new("res_id", "restype", "label").add_time("", "")
 
     def test_add_time_multiple(self) -> None:

@@ -35,7 +35,7 @@ class TestAddValues:
     def test_add_bool_optional(self) -> None:
         res = Resource.new("res_id", "restype", "label").add_bool_optional("", None)
         assert not res.values
-        res = res.add_bool_optional("val", "")
+        res = res.add_bool_optional(":prop", "True")
         assert len(res.values) == 1
         assert isinstance(res.values[0], BooleanValue)
 
@@ -56,7 +56,7 @@ class TestAddValues:
     def test_add_color_optional(self) -> None:
         res = Resource.new("res_id", "restype", "label").add_color_optional("", pd.NA)
         assert not res.values
-        res = res.add_color_optional("", "")
+        res = res.add_color_optional(":prop", "#000000")
         assert len(res.values) == 1
         assert isinstance(res.values[0], ColorValue)
 
@@ -77,7 +77,7 @@ class TestAddValues:
     def test_add_date_optional(self) -> None:
         res = Resource.new("res_id", "restype", "label").add_date_optional("", None)
         assert not res.values
-        res = res.add_date_optional("", "")
+        res = res.add_date_optional(":prop", "2024-10-30")
         assert len(res.values) == 1
         assert isinstance(res.values[0], DateValue)
 
@@ -98,7 +98,7 @@ class TestAddValues:
     def test_add_decimal_optional(self) -> None:
         res = Resource.new("res_id", "restype", "label").add_decimal_optional("", None)
         assert not res.values
-        res = res.add_decimal_optional("", "")
+        res = res.add_decimal_optional(":prop", "0.1")
         assert len(res.values) == 1
         assert isinstance(res.values[0], DecimalValue)
 
@@ -119,7 +119,7 @@ class TestAddValues:
     def test_add_geoname_optional(self) -> None:
         res = Resource.new("res_id", "restype", "label").add_geoname_optional("", pd.NA)
         assert not res.values
-        res = res.add_geoname_optional("", "")
+        res = res.add_geoname_optional(":prop", "123456")
         assert len(res.values) == 1
         assert isinstance(res.values[0], GeonameValue)
 
@@ -140,7 +140,7 @@ class TestAddValues:
     def test_add_integer_optional(self) -> None:
         res = Resource.new("res_id", "restype", "label").add_integer_optional("", None)
         assert not res.values
-        res = res.add_integer_optional("", "")
+        res = res.add_integer_optional(":prop", "1")
         assert len(res.values) == 1
         assert isinstance(res.values[0], IntValue)
 
@@ -161,7 +161,7 @@ class TestAddValues:
     def test_add_link_optional(self) -> None:
         res = Resource.new("res_id", "restype", "label").add_link_optional("", pd.NA)
         assert not res.values
-        res = res.add_link_optional("", "")
+        res = res.add_link_optional(":prop", "other_id")
         assert len(res.values) == 1
         assert isinstance(res.values[0], LinkValue)
 
@@ -180,9 +180,9 @@ class TestAddValues:
         assert all([isinstance(x, ListValue) for x in res.values])
 
     def test_add_list_optional(self) -> None:
-        res = Resource.new("res_id", "restype", "label").add_list_optional("", "listname", None)
+        res = Resource.new("res_id", "restype", "label").add_list_optional(":prop", "listname", None)
         assert not res.values
-        res = res.add_list_optional("", "", "")
+        res = res.add_list_optional(":prop", "list-1", "node-1")
         assert len(res.values) == 1
         assert isinstance(res.values[0], ListValue)
 
@@ -201,9 +201,9 @@ class TestAddValues:
         assert all([isinstance(x, SimpleText) for x in res.values])
 
     def test_add_simple_text_optional(self) -> None:
-        res = Resource.new("res_id", "restype", "label").add_simpletext_optional("", None)
+        res = Resource.new("res_id", "restype", "label").add_simpletext_optional(":prop", None)
         assert not res.values
-        res = res.add_simpletext_optional("", "")
+        res = res.add_simpletext_optional(":prop", "text")
         assert len(res.values) == 1
         assert isinstance(res.values[0], SimpleText)
 
@@ -231,9 +231,9 @@ class TestAddValues:
         assert all([isinstance(x, Richtext) for x in res.values])
 
     def test_add_richtext_optional(self) -> None:
-        res = Resource.new("res_id", "restype", "label").add_richtext_optional("", None)
+        res = Resource.new("res_id", "restype", "label").add_richtext_optional(":prop", None)
         assert not res.values
-        res = res.add_richtext_optional("", "")
+        res = res.add_richtext_optional(":prop", "text")
         assert len(res.values) == 1
         assert isinstance(res.values[0], Richtext)
 
@@ -254,9 +254,9 @@ class TestAddValues:
         assert all([isinstance(x, TimeValue) for x in res.values])
 
     def test_add_time_optional(self) -> None:
-        res = Resource.new("res_id", "restype", "label").add_time_optional("", None)
+        res = Resource.new("res_id", "restype", "label").add_time_optional(":prop", None)
         assert not res.values
-        res = res.add_time_optional("", "")
+        res = res.add_time_optional(":prop", "2023-01-01T00:00:00Z")
         assert len(res.values) == 1
         assert isinstance(res.values[0], TimeValue)
 
@@ -275,9 +275,9 @@ class TestAddValues:
         assert all([isinstance(x, UriValue) for x in res.values])
 
     def test_add_uri_optional(self) -> None:
-        res = Resource.new("res_id", "restype", "label").add_uri_optional("", pd.NA)
+        res = Resource.new("res_id", "restype", "label").add_uri_optional(":prop", pd.NA)
         assert not res.values
-        res = res.add_uri_optional("", "")
+        res = res.add_uri_optional(":prop", "https://dasch.swiss/")
         assert len(res.values) == 1
         assert isinstance(res.values[0], UriValue)
 

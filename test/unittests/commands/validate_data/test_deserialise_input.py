@@ -4,6 +4,7 @@ from lxml import etree
 from dsp_tools.commands.validate_data.deserialise_input import _deserialise_all_resources
 from dsp_tools.commands.validate_data.deserialise_input import _deserialise_one_property
 from dsp_tools.commands.validate_data.deserialise_input import _deserialise_one_resource
+from dsp_tools.commands.validate_data.deserialise_input import _get_text_as_string
 from dsp_tools.commands.validate_data.models.data_deserialised import BooleanValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ColorValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DateValueDeserialised
@@ -202,7 +203,7 @@ class TestRichtextValue:
         res = res_list[0]
         assert isinstance(res, RichtextDeserialised)
         assert res.prop_name == "http://0.0.0.0:3333/ontology/9999/onto/v2#testRichtext"
-        assert res.object_value == "Text"
+        assert res.object_value == "<p>Text</p>"
 
     def test_several(self, text_richtext_value_corr_several: etree._Element) -> None:
         res = _deserialise_one_property(text_richtext_value_corr_several)
@@ -265,6 +266,25 @@ class TestLinkValue:
         assert res[0].prop_name == "http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo"
         assert res[0].object_value == "id_1"
         assert res[1].object_value == "id_2"
+
+
+@pytest.mark.parametrize(
+    ("input_str", "expected"),
+    [
+        ('<text encoding="xml"><p>Text</p></text>', "<p>Text</p>"),
+        ('<text encoding="xml"><text>Text</text></text>', "<text>Text</text>"),
+        ('<text encoding="xml"><p><p>Text second word</p>Tail</p></text>', "<p><p>Text second word</p>Tail</p>"),
+        ('<text encoding="xml"> </text>', " "),
+        ('<text encoding="xml"></text>', None),
+        ('<text encoding="xml"><br/>Text</text>', "<br/>Text"),
+        ('<text encoding="xml">Text<br/>  </text>', "Text<br/>"),
+        ('<text encoding="xml">  Text<br/>Text<br/>Text</text>', "Text<br/>Text<br/>Text"),
+    ],
+)
+def test_get_text_as_string(input_str: str, expected: str) -> None:
+    val = etree.fromstring(input_str)
+    result = _get_text_as_string(val)
+    assert result == expected
 
 
 if __name__ == "__main__":

@@ -52,13 +52,11 @@
         </text-prop>
     </resource>
 
-
     <resource label="This should be an int value" restype=":ClassWithEverything" id="is_link_should_be_integer">
         <resptr-prop name=":testIntegerSpinbox">
             <resptr>1</resptr>
         </resptr-prop>
     </resource>
-
 
     <resource label="List" restype=":ClassWithEverything" id="id_list">
         <text-prop name=":testListProp">
@@ -74,7 +72,7 @@
 
     <resource label="Richtext" restype=":ClassWithEverything" id="id_richtext">
         <text-prop name=":testRichtext">
-            <text encoding="utf8">Text</text>
+            <text encoding="utf8"><p>Text</p></text>
         </text-prop>
     </resource>
 
@@ -84,13 +82,11 @@
         </text-prop>
     </resource>
 
-
     <resource label="This should be a text value" restype=":ClassWithEverything" id="is_link_should_be_text">
         <resptr-prop name=":testTextarea">
             <resptr>link_non_existing</resptr>
         </resptr-prop>
     </resource>
-
 
     <resource label="Time" restype=":ClassWithEverything" id="id_time">
         <text-prop name=":testTimeValue">

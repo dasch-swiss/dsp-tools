@@ -262,7 +262,7 @@ def resptr_value_wrong() -> etree._Element:
 def text_richtext_value_corr() -> etree._Element:
     return etree.fromstring("""
         <text-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testRichtext">
-            <text encoding="xml">Text</text>
+            <text encoding="xml"><p>Text</p></text>
         </text-prop>
     """)
 

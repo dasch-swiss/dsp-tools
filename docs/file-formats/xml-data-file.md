@@ -706,8 +706,9 @@ The `<text>` element has the following attributes:
     - `utf8`: simple text without markup
     - `xml`: complex text with markup. It must follow the XML format as defined by the
   [DSP standard mapping](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/).
-- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectMember` have no permissions 
-  at all, not even view rights)
+- `permissions`: Permission ID 
+  (optional, but if omitted, users who are lower than a `ProjectMember` 
+  have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a public and a hidden text:

@@ -151,4 +151,4 @@ class BulkIngestClient:
             else:
                 logger.info("Ingest process completed.")
                 break
-        yield res.text
+        yield res.content.decode("utf-8")

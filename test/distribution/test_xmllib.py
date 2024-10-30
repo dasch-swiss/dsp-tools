@@ -15,7 +15,7 @@ def test_xmllib() -> None:
     root = XMLRoot("0000", "my_onto")
     my_res = Resource.new("my_res", "restype", "label")
     if is_bool_like("0"):
-        my_res.add_bool(convert_to_bool_string("0"), "my_prop")
+        my_res.add_bool("my_prop", convert_to_bool_string("0"))
     my_res.add_file("my_file")
     annotation = AnnotationResource.new("res_id", "label", "annotation_of", ["comment1", "comment2"])
     root.add_resource(annotation)

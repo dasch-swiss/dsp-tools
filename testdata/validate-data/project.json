@@ -214,6 +214,20 @@
             }
           },
           {
+            "name": "testSecondListProp",
+            "super": [
+              "hasValue"
+            ],
+            "object": "ListValue",
+            "labels": {
+              "en": "Test Second List"
+            },
+            "gui_element": "List",
+            "gui_attributes": {
+              "hlist": "secondList"
+            }
+          },
+          {
             "name": "testSimpleText",
             "super": [
               "hasValue"
@@ -442,6 +456,11 @@
                 "propname": ":testIsPartOf",
                 "cardinality": "0-n",
                 "gui_order": 19
+              },
+              {
+                "propname": ":testSecondListProp",
+                "cardinality": "0-n",
+                "gui_order": 20
               }
             ]
           },

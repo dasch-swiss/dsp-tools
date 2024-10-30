@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="9999"
+       default-ontology="onto">
+
+
+    <resource label="Backslash" restype=":ClassWithEverything" id="list_backslash">
+        <list-prop list="secondList" name=":testSecondListProp">
+            <list>l2n1 \ or</list>
+        </list-prop>
+    </resource>
+
+    <resource label="Double Quote" restype=":ClassWithEverything" id="list_double_quote">
+        <list-prop list="secondList" name=":testSecondListProp">
+            <list>l2n2 "</list>
+        </list-prop>
+    </resource>
+
+    <resource label="Single Quote" restype=":ClassWithEverything" id="list_single_quote">
+        <list-prop list="secondList" name=":testSecondListProp">
+            <list>l2n3 '</list>
+        </list-prop>
+    </resource>
+
+</knora>

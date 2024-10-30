@@ -2,6 +2,7 @@ from typing import Callable
 from typing import Sequence
 from typing import cast
 
+import regex
 from lxml import etree
 
 from dsp_tools.commands.validate_data.models.data_deserialised import AbstractResource
@@ -137,6 +138,8 @@ def _deserialise_text_prop(prop: etree._Element) -> list[SimpleTextDeserialised 
 
 def _get_text_as_string(value: etree._Element) -> str | None:
     if len(value):
-        return "".join(etree.tostring(child, encoding="unicode") for child in value)
+        xmlstr = etree.tostring(value, encoding="unicode", method="xml")
+        result = regex.sub("<text.*?>|</text>", "", xmlstr)
+        return result.lstrip(" ").rstrip(" ").lstrip("\n").rstrip("\n")
     else:
         return value.text

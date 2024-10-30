@@ -272,12 +272,12 @@ class TestLinkValue:
     ("input_str", "expected"),
     [
         ('<text encoding="xml"><p>Text</p></text>', "<p>Text</p>"),
-        ('<text encoding="xml"><p><p>Text</p>Tail</p></text>', "<p><p>Text</p>Tail</p>"),
+        ('<text encoding="xml"><p><p>Text second word</p>Tail</p></text>', "<p><p>Text second word</p>Tail</p>"),
         ('<text encoding="xml"> </text>', " "),
         ('<text encoding="xml"></text>', None),
         ('<text encoding="xml"><br/>Text</text>', "<br/>Text"),
-        ('<text encoding="xml">Text<br/></text>', "Text<br/>"),
-        ('<text encoding="xml">Text<br/>Text<br/>Text</text>', "Text<br/>Text<br/>Text"),
+        ('<text encoding="xml">Text<br/>  </text>', "Text<br/>"),
+        ('<text encoding="xml">  Text<br/>Text<br/>Text</text>', "Text<br/>Text<br/>Text"),
     ],
 )
 def test_get_text_as_string(input_str: str, expected: str) -> None:

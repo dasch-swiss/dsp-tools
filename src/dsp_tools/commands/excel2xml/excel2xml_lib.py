@@ -407,22 +407,22 @@ def append_permissions(root_element: etree._Element) -> etree._Element:
     # E.tag is equivalent to E("tag") and results in <tag>
 
     _open = PERMISSIONS(id="open")
-    _open.append(ALLOW("CR", group="ProjectAdmin"))
-    _open.append(ALLOW("D", group="ProjectMember"))
-    _open.append(ALLOW("V", group="KnownUser"))
     _open.append(ALLOW("V", group="UnknownUser"))
+    _open.append(ALLOW("V", group="KnownUser"))
+    _open.append(ALLOW("D", group="ProjectMember"))
+    _open.append(ALLOW("CR", group="ProjectAdmin"))
     root_element.append(_open)
 
     _restricted_view = PERMISSIONS(id="restricted-view")
-    _restricted_view.append(ALLOW("CR", group="ProjectAdmin"))
-    _restricted_view.append(ALLOW("D", group="ProjectMember"))
-    _restricted_view.append(ALLOW("RV", group="KnownUser"))
     _restricted_view.append(ALLOW("RV", group="UnknownUser"))
+    _restricted_view.append(ALLOW("RV", group="KnownUser"))
+    _restricted_view.append(ALLOW("D", group="ProjectMember"))
+    _restricted_view.append(ALLOW("CR", group="ProjectAdmin"))
     root_element.append(_restricted_view)
 
     _restricted = PERMISSIONS(id="restricted")
-    _restricted.append(ALLOW("CR", group="ProjectAdmin"))
     _restricted.append(ALLOW("D", group="ProjectMember"))
+    _restricted.append(ALLOW("CR", group="ProjectAdmin"))
     root_element.append(_restricted)
 
     return root_element

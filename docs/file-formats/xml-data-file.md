@@ -92,30 +92,56 @@ Every right of this row includes all previous rights.
 The `<permissions>` element defines a _permission ID_ that can subsequently be used in a 
 [permissions attribute](#using-permissions-with-the-permissions-attribute) of a `<resource>` or `<xyz-prop>` tag.
 
-It is optional to define permissions in the XML. If not defined, default permissions are applied, so that only project 
-and system administrators can view and edit resources. All other users have no rights at all, not even view or 
-restricted view permissions.
+It is optional to define permission IDs in the XML. 
+If not defined, default permissions are applied, 
+so that only project and system administrators can view and edit resources. 
+All other users have no rights at all, 
+not even view or restricted view permissions.
 
-The `<permissions>` element defines which rights are given to which groups:
+If the resources/values in your XML should have permissions 
+that are different from the project's defaults,
+you have to use the `<permissions>` elements to define permission IDs.
+
+The `<permissions>` element defines which rights are given to which groups.
+The canonical standard that we recommend are these 3 permission IDs:
 
 ```xml
 <permissions id="open">
-  <allow group="UnknownUser">RV</allow>
-  <allow group="KnownUser">V</allow>
-  <allow group="dsp-test:MlsEditors">D</allow>
+    <allow group="UnknownUser">V</allow>
+    <allow group="KnownUser">V</allow>
+    <allow group="ProjectMember">D</allow>
+    <allow group="ProjectAdmin">CR</allow>
+</permissions>
+<permissions id="restricted-view">
+    <allow group="UnknownUser">RV</allow>
+    <allow group="KnownUser">RV</allow>
+    <allow group="ProjectMember">D</allow>
+    <allow group="ProjectAdmin">CR</allow>
+</permissions>
+<permissions id="restricted">
+    <allow group="ProjectMember">D</allow>
+    <allow group="ProjectAdmin">CR</allow>
 </permissions>
 ```
 
-In addition to the DSP built-in groups, [project specific groups](./json-project/overview.md#groups) 
-are supported as well.
-A project specific group name has the form `project-shortname:groupname`.
+This means that if a resource/value is marked as `open`,
 
-If you don't want a group to have access at all, leave it out. In the following example, resources or properties with 
-permission `special-permission` can only be viewed by `ProjectAdmin`s:
+- users who are not logged in can view the resource/value
+- users who are logged in, but not members of your project can view the resource/value
+- project members can modify and delete the resource/value
+- project admins can modify, delete, and change the rights of the resource/value
+
+If you don't want a group to have access at all, leave it out:
+If a resource/value is marked as `restricted`, 
+users who are not members of the project have no rights at all, not even view rights.
+
+In addition to the DSP built-in groups, 
+[project specific groups](./json-project/overview.md#groups) are supported as well.
+A project specific group name has the form `project-shortname:groupname`:
 
 ```xml
-<permissions id="special-permission">
-  <allow group="ProjectAdmin">CR</allow>
+<permissions id="discouraged-edge-case">
+    <allow group="systematic-tp:testgroupEditors">M</allow>
 </permissions>
 ```
 
@@ -131,20 +157,22 @@ the bitstreams don't inherit the permissions from their resource:
 
 ```xml
 <permissions id="open">
-  <allow group="ProjectAdmin">CR</allow>
-  <allow group="ProjectMember">D</allow>
-  <allow group="KnownUser">V</allow>
   <allow group="UnknownUser">V</allow>
-</permissions>
-<permissions id="restricted">
-  <allow group="ProjectAdmin">CR</allow>
+  <allow group="KnownUser">V</allow>
   <allow group="ProjectMember">D</allow>
+  <allow group="ProjectAdmin">CR</allow>
+</permissions>
+<permissions id="restricted-view">
+  <allow group="UnknownUser">RV</allow>
+  <allow group="KnownUser">RV</allow>
+  <allow group="ProjectMember">D</allow>
+  <allow group="ProjectAdmin">CR</allow>
 </permissions>
 <resource ...>
     <bitstream permissions="open">images/EURUS015a.jpg</bitstream>
 </resource>
 <resource ...>
-    <bitstream permissions="restricted">images/EURUS015a.jpg</bitstream>
+    <bitstream permissions="restricted-view">images/EURUS015a.jpg</bitstream>
 </resource>
 <resource ...>
     <bitstream>images/EURUS015a.jpg</bitstream>
@@ -155,9 +183,9 @@ So if you upload this data, and then log in as `KnownUser`, i.e. a logged-in use
 you will see the following:
 
 - With `permissions="open"`, you have `V` rights on the image: Normal view.
-- With `permissions="restricted"`, you have `RV` rights on the image: Blurred image.
-- With a blank `<bitstream>` tag, you have no rights on the image: No view possible. Only users from `ProjectMember` 
-  upwards are able to look at the image.
+- With `permissions="restricted-view"`, you have `RV` rights on the image: Blurred image.
+- With a blank `<bitstream>` tag, you have no rights on the image: No view possible. 
+  Only users from `ProjectMember` upwards are able to look at the image.
 
 
 ## Describing Resources With the `<resource>` Element
@@ -1060,8 +1088,8 @@ In addition, there is another complete example of an XML data file here:
         <allow group="ProjectAdmin">CR</allow>
     </permissions>
     <permissions id="restricted-view">
-        <allow group="KnownUser">RV</allow>
         <allow group="UnknownUser">RV</allow>
+        <allow group="KnownUser">RV</allow>
         <allow group="ProjectMember">D</allow>
         <allow group="ProjectAdmin">CR</allow>
     </permissions>

@@ -14,8 +14,8 @@
         <allow group="ProjectAdmin">CR</allow>
     </permissions>
     <permissions id="restricted-view">
-        <allow group="KnownUser">RV</allow>
         <allow group="UnknownUser">RV</allow>
+        <allow group="KnownUser">RV</allow>
         <allow group="ProjectMember">D</allow>
         <allow group="ProjectAdmin">CR</allow>
     </permissions>

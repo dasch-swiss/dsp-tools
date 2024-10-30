@@ -57,14 +57,14 @@ def _test_upload_step() -> None:
 def _test_ingest_step(mapping_file: Path) -> None:
     success = ingest_files(CREDS, SHORTCODE)
     assert success
-    assert not set(TMP_FOLDER.iterdir())
+    assert not {x.relative_to(TMP_FOLDER) for x in TMP_FOLDER.glob("**/*.*")}
     ingested_files = list((SIPI_IMAGES / SHORTCODE).glob("**/*.*"))
     ingested_files_ext = [f.suffixes for f in ingested_files]
     expected_ext = [[".info"], [".jpg", ".orig"], [".jpx"], [".info"], [".pdf", ".orig"], [".pdf"]]
     assert unordered(ingested_files_ext) == expected_ext
 
     df = pd.read_csv(mapping_file)
-    assert df["original"].tolist() == unordered([MULTIMEDIA_FILE_1, MULTIMEDIA_FILE_2])
+    assert df["original"].tolist() == unordered([str(MULTIMEDIA_FILE_1), str(MULTIMEDIA_FILE_2)])
 
 
 def _test_xmlupload_step() -> None:

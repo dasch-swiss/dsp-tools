@@ -1,8 +1,9 @@
+import json
 from dataclasses import dataclass
 from typing import Any
 from typing import cast
 from urllib.parse import quote_plus
-import json
+
 from loguru import logger
 from rdflib import SH
 from rdflib import Graph

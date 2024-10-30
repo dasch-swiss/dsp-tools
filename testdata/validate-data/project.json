@@ -50,13 +50,25 @@
           "en": "List"
         },
         "comments": {
-          "en": "This is the second list"
+          "en": "This is the second list and contains characters that need to be escaped."
         },
         "nodes": [
           {
-            "name": "l2n1",
+            "name": "l2n1 \\ or",
             "labels": {
               "en": "List 2, Node 1"
+            }
+          },
+          {
+            "name": "l2n2 \"",
+            "labels": {
+              "en": "List 2, Node 2"
+            }
+          },
+          {
+            "name": "l2n3 '",
+            "labels": {
+              "en": "List 2, Node 3"
             }
           }
         ]

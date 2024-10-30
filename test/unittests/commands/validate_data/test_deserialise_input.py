@@ -272,6 +272,7 @@ class TestLinkValue:
     ("input_str", "expected"),
     [
         ('<text encoding="xml"><p>Text</p></text>', "<p>Text</p>"),
+        ('<text encoding="xml"><text>Text</text></text>', "<text>Text</text>"),
         ('<text encoding="xml"><p><p>Text second word</p>Tail</p></text>', "<p><p>Text second word</p>Tail</p>"),
         ('<text encoding="xml"> </text>', " "),
         ('<text encoding="xml"></text>', None),

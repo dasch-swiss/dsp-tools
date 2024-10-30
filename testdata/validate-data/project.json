@@ -50,7 +50,7 @@
           "en": "List"
         },
         "comments": {
-          "en": "This is the second list and contains characters that need to be escaped."
+          "en": "This is the second list and contains characters that need to be escaped in turtle."
         },
         "nodes": [
           {

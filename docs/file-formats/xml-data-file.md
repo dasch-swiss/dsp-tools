@@ -92,30 +92,58 @@ Every right of this row includes all previous rights.
 The `<permissions>` element defines a _permission ID_ that can subsequently be used in a 
 [permissions attribute](#using-permissions-with-the-permissions-attribute) of a `<resource>` or `<xyz-prop>` tag.
 
-It is optional to define permissions in the XML. If not defined, default permissions are applied, so that only project 
-and system administrators can view and edit resources. All other users have no rights at all, not even view or 
-restricted view permissions.
+It is optional to define permission IDs in the XML. 
+If not defined, the project's default permissions are applied, 
+so that only project and system administrators can view and edit resources. 
+All other users have no rights at all, 
+not even view or restricted view permissions.
 
-The `<permissions>` element defines which rights are given to which groups:
+(The project's default permission default to "restricted", but this can be changed on a per-project-basis via DSP-API.)
+
+If the resources/values in your XML should have permissions 
+that are different from the project's defaults,
+you have to use the `<permissions>` elements to define permission IDs.
+
+The `<permissions>` element defines which rights are given to which groups.
+The canonical standard that we recommend are these 3 permission IDs:
 
 ```xml
-<permissions id="res-default">
-  <allow group="UnknownUser">RV</allow>
-  <allow group="KnownUser">V</allow>
-  <allow group="dsp-test:MlsEditors">D</allow>
+<permissions id="open">
+    <allow group="UnknownUser">V</allow>
+    <allow group="KnownUser">V</allow>
+    <allow group="ProjectMember">D</allow>
+    <allow group="ProjectAdmin">CR</allow>
+</permissions>
+<permissions id="restricted-view">
+    <allow group="UnknownUser">RV</allow>
+    <allow group="KnownUser">RV</allow>
+    <allow group="ProjectMember">D</allow>
+    <allow group="ProjectAdmin">CR</allow>
+</permissions>
+<permissions id="restricted">
+    <allow group="ProjectMember">D</allow>
+    <allow group="ProjectAdmin">CR</allow>
 </permissions>
 ```
 
-In addition to the DSP built-in groups, [project specific groups](./json-project/overview.md#groups) 
-are supported as well.
-A project specific group name has the form `project-shortname:groupname`.
+This means that if a resource/value is marked as `open`,
 
-If you don't want a group to have access at all, leave it out. In the following example, resources or properties with 
-permission `special-permission` can only be viewed by `ProjectAdmin`s:
+- users who are not logged in can view the resource/value
+- users who are logged in, but not members of your project can view the resource/value
+- project members can modify and delete the resource/value
+- project admins can modify, delete, and change the rights of the resource/value
+
+If you don't want a group to have access at all, leave it out:
+If a resource/value is marked as `restricted`, 
+users who are not members of the project have no rights at all, not even view rights.
+
+In addition to the DSP built-in groups, 
+[project specific groups](./json-project/overview.md#groups) are supported as well.
+A project specific group name has the form `project-shortname:groupname`:
 
 ```xml
-<permissions id="special-permission">
-  <allow group="ProjectAdmin">CR</allow>
+<permissions id="discouraged-edge-case">
+    <allow group="systematic-tp:testgroupEditors">M</allow>
 </permissions>
 ```
 
@@ -130,23 +158,36 @@ So, in the following example,
 the bitstreams don't inherit the permissions from their resource:
 
 ```xml
+<permissions id="open">
+  <allow group="UnknownUser">V</allow>
+  <allow group="KnownUser">V</allow>
+  <allow group="ProjectMember">D</allow>
+  <allow group="ProjectAdmin">CR</allow>
+</permissions>
+<permissions id="restricted-view">
+  <allow group="UnknownUser">RV</allow>
+  <allow group="KnownUser">RV</allow>
+  <allow group="ProjectMember">D</allow>
+  <allow group="ProjectAdmin">CR</allow>
+</permissions>
 <resource ...>
-    <bitstream permissions="prop-default">images/EURUS015a.jpg</bitstream>
+    <bitstream permissions="open">images/EURUS015a.jpg</bitstream>
 </resource>
 <resource ...>
-    <bitstream permissions="prop-restricted">images/EURUS015a.jpg</bitstream>
+    <bitstream permissions="restricted-view">images/EURUS015a.jpg</bitstream>
 </resource>
 <resource ...>
     <bitstream>images/EURUS015a.jpg</bitstream>
 </resource>
 ```
 
-To take as example `KnownUser`, i.e. a logged-in user who is not member of the project:
+So if you upload this data, and then log in as `KnownUser`, i.e. a logged-in user who is not member of the project, 
+you will see the following:
 
-- With `permissions="prop-default"`, he has `V` rights on the image: Normal view.
-- With `permissions="prop-restricted"`, he has `RV` rights on the image: Blurred image.
-- With a blank `<bitstream>` tag, he has no rights on the image: No view possible. Only users from `ProjectAdmin` 
-  upwards are able to look at the image.
+- With `permissions="open"`, you have `V` rights on the image: Normal view.
+- With `permissions="restricted-view"`, you have `RV` rights on the image: Blurred image.
+- With a blank `<bitstream>` tag, you have no rights on the image: No view possible. 
+  Only users from `ProjectMember` upwards are able to look at the image.
 
 
 ## Describing Resources With the `<resource>` Element
@@ -161,7 +202,7 @@ A `<resource>` element contains all necessary information to create a resource. 
   and later replaced by the IRI used internally by DSP 
 - `permissions` 
   (optional, but if omitted, 
-  users who are lower than a `ProjectAdmin` have no permissions at all,
+  users who are lower than a `ProjectMember` have no permissions at all,
   not even view rights):
   a reference to a permission ID
 - `iri` (optional): a custom IRI, used when migrating existing resources (DaSCH-internal only)
@@ -190,8 +231,8 @@ Example of a property element of type integer with two values:
 
 ```xml
 <integer-prop name=":hasInteger">
-    <integer permissions="prop-default">4711</integer>
-    <integer permissions="prop-default">1</integer>
+    <integer permissions="open">4711</integer>
+    <integer permissions="open">1</integer>
 </integer-prop>
 ```
 
@@ -259,13 +300,13 @@ For more details, please consult the [API docs](https://docs.dasch.swiss/latest/
 Attributes:
 
 - `permissions` : Permission ID 
-  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+  (optional, but if omitted, users who are lower than a `ProjectMember` have no permissions at all, not even view rights)
 
 Example of a public image inside a `StillImageRepresentation`:
 
 ```xml
-<resource restype=":Image" id="image_1" label="image_1" permissions="res-default">
-    <bitstream permissions="prop-default">postcards/images/EURUS015a.jpg</bitstream>
+<resource restype=":Image" id="image_1" label="image_1" permissions="open">
+    <bitstream permissions="open">postcards/images/EURUS015a.jpg</bitstream>
 </resource>
 ```
 
@@ -289,14 +330,14 @@ Please consult the official documentation for details regarding the URI syntax:
 Attributes:
 
 - `permissions` : Permission ID 
-  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+  (optional, but if omitted, users who are lower than a `ProjectMember` have no permissions at all, not even view rights)
 
 
 Example of a public image inside a `StillImageRepresentation`:
 
 ```xml
-<resource restype=":Image" id="image_1" label="image_1" permissions="res-default">
-    <iiif-uri permissions="prop-default">https://iiif.dasch.swiss/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/837,530/0/default.jp2</iiif-uri>
+<resource restype=":Image" id="image_1" label="image_1" permissions="open">
+    <iiif-uri permissions="open">https://iiif.dasch.swiss/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/837,530/0/default.jp2</iiif-uri>
 </resource>
 ```
 
@@ -318,14 +359,14 @@ The `<boolean>` element must contain the string "true"/"True" or "false"/"False"
 Attributes:
 
 - `permissions`: Permission ID 
-  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+  (optional, but if omitted, users who are lower than a `ProjectMember` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a public and a hidden boolean property:
 
 ```xml
 <boolean-prop name=":hasBoolean">
-  <boolean permissions="prop-default">true</boolean>
+  <boolean permissions="open">true</boolean>
 </boolean-prop>
 <boolean-prop name=":hasHiddenBoolean">
   <boolean>0</boolean>
@@ -350,14 +391,14 @@ followed by 3 or 6 hex numerals.
 Attributes:
 
 - `permissions`: Permission ID 
-  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+  (optional, but if omitted, users who are lower than a `ProjectMember` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public and a hidden color value:
 
 ```xml
 <color-prop name=":hasColor">
-    <color permissions="prop-default">#00ff66</color>
+    <color permissions="open">#00ff66</color>
     <color>#ff00ff</color>
 </color-prop>
 ```
@@ -406,14 +447,14 @@ Notes:
 Attributes:
 
 - `permissions`: Permission ID 
-  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+  (optional, but if omitted, users who are lower than a `ProjectMember` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public and a hidden date value:
 
 ```xml
 <date-prop name=":hasDate">
-  <date permissions="prop-default">GREGORIAN:CE:2014-01-31:CE:2014-01-31</date>
+  <date permissions="open">GREGORIAN:CE:2014-01-31:CE:2014-01-31</date>
   <date>GREGORIAN:CE:1930-09-02:CE:1930-09-03</date>
 </date-prop>
 ```
@@ -436,14 +477,14 @@ The `<decimal>` element contains a decimal number, they must be written with a d
 Attributes:
 
 - `permissions`: Permission ID 
-  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+  (optional, but if omitted, users who are lower than a `ProjectMember` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public and a hidden decimal value:
 
 ```xml
 <decimal-prop name=":hasDecimal">
-    <decimal permissions="prop-default">3.14159</decimal>
+    <decimal permissions="open">3.14159</decimal>
     <decimal>2.71828</decimal>
 </decimal-prop>
 ```
@@ -477,14 +518,14 @@ A geometry value is defined as a JSON object. It contains the following data:
 Attributes:
 
 - `permissions`: Permission ID 
-  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+  (optional, but if omitted, users who are lower than a `ProjectMember` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example:
 
 ```xml
 <geometry-prop name="hasGeometry">
-    <geometry permissions="prop-default">
+    <geometry permissions="open">
         {
             "status": "active",
             "type": "rectangle",
@@ -495,7 +536,7 @@ Example:
             ]
         }
     </geometry>
-    <geometry permissions="prop-default">
+    <geometry permissions="open">
         {
             "status": "active",
             "type": "circle",
@@ -504,7 +545,7 @@ Example:
             "radius": {"x":0.1,"y":0.1}     // vector (0.1, 0.1)
         }
     </geometry>
-    <geometry permissions="prop-default">
+    <geometry permissions="open">
         {
             "status": "active",
             "type": "polygon",
@@ -542,14 +583,14 @@ Contains a valid [geonames.org](https://www.geonames.org/) ID.
 Attributes:
 
 - `permissions`: Permission ID 
-  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+  (optional, but if omitted, users who are lower than a `ProjectMember` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public link to Vienna and a hidden link to Basel:
 
 ```xml
 <geoname-prop name=":hasLocation">
-    <geoname permissions="prop-default">2761369</geoname>
+    <geoname permissions="open">2761369</geoname>
     <geoname>2661604</geoname>
 </geoname-prop>
 ```
@@ -572,14 +613,14 @@ The `<integer>` element contains an integer value, these are whole numbers.
 Attributes:
 
 - `permissions`: Permission ID 
-  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+  (optional, but if omitted, users who are lower than a `ProjectMember` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public and a hidden integer value:
 
 ```xml
 <integer-prop name=":hasInteger">
-    <integer permissions="prop-default">4711</integer>
+    <integer permissions="open">4711</integer>
     <integer>1</integer>
 </integer-prop>
 ```
@@ -604,14 +645,14 @@ The `<list>` element references a node in a (pull-down or hierarchical) list.
 Attributes:
 
 - `permissions`: Permission ID 
-  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+  (optional, but if omitted, users who are lower than a `ProjectMember` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public and a hidden list value:
 
 ```xml
 <list-prop list="category" name=":hasCategory">
-    <list permissions="prop-default">physics</list>
+    <list permissions="open">physics</list>
     <list>nature</list>
 </list-prop>
 ```
@@ -634,7 +675,7 @@ existing resource on DSP.
 Attributes:
 
 - `permissions`: Permission ID 
-  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+  (optional, but if omitted, users who are lower than a `ProjectMember` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public link to `<resource id="res_1" ...>` 
@@ -642,7 +683,7 @@ and a hidden link to `<resource id="res_2" ...>`:
 
 ```xml
 <resptr-prop name=":hasReferenceTo">
-    <resptr permissions="prop-default">res_1</resptr>
+    <resptr permissions="open">res_1</resptr>
     <resptr>res_2</resptr>
 </resptr-prop>
 ```
@@ -665,15 +706,16 @@ The `<text>` element has the following attributes:
     - `utf8`: simple text without markup
     - `xml`: complex text with markup. It must follow the XML format as defined by the
   [DSP standard mapping](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/).
-- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions 
-  at all, not even view rights)
+- `permissions`: Permission ID 
+  (optional, but if omitted, users who are lower than a `ProjectMember` 
+  have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a public and a hidden text:
 
 ```xml
 <text-prop name=":hasDescription">
-    <text encoding="xml" permissions="prop-default">Probe bei "Wimberger". Lokal in Wien?</text>
+    <text encoding="xml" permissions="open">Probe bei "Wimberger". Lokal in Wien?</text>
     <text encoding="xml">
         <strong>Bold text</strong> and a <a class="salsah-link" href="IRI:obj_0003:IRI">link to an ID</a>.<br/>
         And a <a class="salsah-link" href="http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmOdQ">link to an IRI</a>.
@@ -827,14 +869,14 @@ The timezone is defined as follows:
 Attributes:
 
 - `permissions`: Permission ID 
-  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+  (optional, but if omitted, users who are lower than a `ProjectMember` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public and a hidden time value:
 
 ```xml
 <time-prop name=":hasTime">
-    <time permissions="prop-default">2019-10-23T13:45:12Z</time>
+    <time permissions="open">2019-10-23T13:45:12Z</time>
     <time>2009-10-10T12:00:00-05:00</time>
 </time-prop>
 ```
@@ -857,14 +899,14 @@ The `<uri>` element contains a syntactically valid URI.
 Attributes:
 
 - `permissions`: Permission ID 
-  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+  (optional, but if omitted, users who are lower than a `ProjectMember` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a property with a public and a hidden URI:
 
 ```xml
 <uri-prop name=":hasURI">
-    <uri permissions="prop-default">http://www.groove-t-gang.ch</uri>
+    <uri permissions="open">http://www.groove-t-gang.ch</uri>
     <uri>http://dasch.swiss</uri>
 </uri-prop>
 ```
@@ -889,12 +931,12 @@ See also [the related part of the JSON project documentation](./json-project/cav
 Example:
 
 ```xml
-<annotation label="Annotation to another resource" id="annotation_0" permissions="res-default">
+<annotation label="Annotation to another resource" id="annotation_0" permissions="open">
     <text-prop name="hasComment">
-        <text encoding="utf8" permissions="prop-default">This is an annotation to a resource.</text>
+        <text encoding="utf8" permissions="open">This is an annotation to a resource.</text>
     </text-prop>
     <resptr-prop name="isAnnotationOf">
-        <resptr permissions="prop-default">img_1</resptr>
+        <resptr permissions="open">img_1</resptr>
     </resptr-prop>
 </annotation>
 ```
@@ -915,15 +957,15 @@ A `<region>` resource defines a region of interest (ROI) in an image. It must ha
 Example:
 
 ```xml
-<region label="Rectangle in image" id="region_0" permissions="res-default">
+<region label="Rectangle in image" id="region_0" permissions="open">
     <color-prop name="hasColor">
-        <color permissions="prop-default">#5d1f1e</color>
+        <color permissions="open">#5d1f1e</color>
     </color-prop>
     <resptr-prop name="isRegionOf">
-        <resptr permissions="prop-default">img_1</resptr>
+        <resptr permissions="open">img_1</resptr>
     </resptr-prop>
     <geometry-prop name="hasGeometry">
-        <geometry permissions="prop-default">
+        <geometry permissions="open">
             {
                 "status": "active",
                 "type": "rectangle",
@@ -936,7 +978,7 @@ Example:
         </geometry>
     </geometry-prop>
     <text-prop name="hasComment">
-        <text encoding="utf8" permissions="prop-default">This is a rectangle-formed region of interest.</text>
+        <text encoding="utf8" permissions="open">This is a rectangle-formed region of interest.</text>
     </text-prop>
 </region>
 ```
@@ -958,16 +1000,16 @@ predefined properties:
 Example:
 
 ```xml
-<link label="Link between three resources" id="link_obj_0" permissions="res-default">
+<link label="Link between three resources" id="link_obj_0" permissions="open">
     <text-prop name="hasComment">
-        <text permissions="prop-default" encoding="utf8">
+        <text permissions="open" encoding="utf8">
             A link object can link together an arbitrary number of resources from any resource class.
         </text>
     </text-prop>
     <resptr-prop name="hasLinkTo">
-        <resptr permissions="prop-default">doc_001</resptr>
-        <resptr permissions="prop-default">img_obj_5</resptr>
-        <resptr permissions="prop-default">audio_obj_0</resptr>
+        <resptr permissions="open">doc_001</resptr>
+        <resptr permissions="open">img_obj_5</resptr>
+        <resptr permissions="open">audio_obj_0</resptr>
     </resptr-prop>
 </link>
 ```
@@ -998,19 +1040,19 @@ Example:
 
 ```xml
 <video-segment label="Video Segment" id="video_segment_1">
-    <isSegmentOf permissions="prop-default">video_thing_1</isSegmentOf>
+    <isSegmentOf permissions="open">video_thing_1</isSegmentOf>
     <!-- The segment bounds must be entered in seconds. Decimal (for fractions of a second) are allowed, e.g. `1.4`.-->
-    <hasSegmentBounds permissions="prop-default" start="600" end="1200"/> <!-- from 0h 10min 00s to 0h 20min 00s -->
-    <hasTitle permissions="prop-default">Title of video segment</hasTitle>
-    <hasComment permissions="prop-default"><strong>Comment</strong> of video segment</hasComment>
-    <hasDescription permissions="prop-default"><strong>Description</strong> of video segment</hasDescription>
-    <hasKeyword permissions="prop-default">Keyword of video segment</hasKeyword>
-    <relatesTo permissions="prop-default">audio_segment_1</relatesTo>
+    <hasSegmentBounds permissions="open" start="600" end="1200"/> <!-- from 0h 10min 00s to 0h 20min 00s -->
+    <hasTitle permissions="open">Title of video segment</hasTitle>
+    <hasComment permissions="open"><strong>Comment</strong> of video segment</hasComment>
+    <hasDescription permissions="open"><strong>Description</strong> of video segment</hasDescription>
+    <hasKeyword permissions="open">Keyword of video segment</hasKeyword>
+    <relatesTo permissions="open">audio_segment_1</relatesTo>
 </video-segment>
 ```
 
 Allowed attributes in these property tags: `permissions`, `comment`. 
-Example: `<hasTitle permissions="prop-default" comment="Comment to my title">Title of video segment</hasTitle>`
+Example: `<hasTitle permissions="open" comment="Comment to my title">Title of video segment</hasTitle>`
 
 Technical notes: 
 
@@ -1042,168 +1084,156 @@ In addition, there is another complete example of an XML data file here:
     default-ontology="anything">
 
     <!-- permissions: see https://docs.dasch.swiss/latest/DSP-API/02-knora-ontologies/knora-base/#permissions -->
-    <permissions id="res-default">
+    <permissions id="open">
         <allow group="UnknownUser">V</allow>
         <allow group="KnownUser">V</allow>
-        <allow group="Creator">CR</allow>
+        <allow group="ProjectMember">D</allow>
         <allow group="ProjectAdmin">CR</allow>
-        <allow group="anything:Thing searcher">D</allow>
     </permissions>
-    <permissions id="res-restricted">
+    <permissions id="restricted-view">
         <allow group="UnknownUser">RV</allow>
-        <allow group="KnownUser">V</allow>
-        <allow group="Creator">CR</allow>
+        <allow group="KnownUser">RV</allow>
+        <allow group="ProjectMember">D</allow>
         <allow group="ProjectAdmin">CR</allow>
-        <allow group="anything:Thing searcher">M</allow>
     </permissions>
-    <permissions id="prop-default">
-        <allow group="UnknownUser">V</allow>
-        <allow group="KnownUser">V</allow>
-        <allow group="Creator">CR</allow>
+    <permissions id="restricted">
+        <allow group="ProjectMember">D</allow>
         <allow group="ProjectAdmin">CR</allow>
-        <allow group="anything:Thing searcher">D</allow>
-    </permissions>
-    <permissions id="prop-restricted">
-        <allow group="UnknownUser">RV</allow>
-        <allow group="KnownUser">V</allow>
-        <allow group="Creator">CR</allow>
-        <allow group="ProjectAdmin">CR</allow>
-        <allow group="anything:Thing searcher">M</allow>
     </permissions>
     <resource label="obj_inst1"
               restype=":BlueThing"
               id="obj_0001"
-              permissions="res-default">
+              permissions="open">
         <list-prop list="treelistroot" name=":hasListItem">
-            <list permissions="prop-default">Tree list node 02</list>
+            <list permissions="open">Tree list node 02</list>
         </list-prop>
         <list-prop list="treelistroot" name=":hasOtherListItem">
-            <list permissions="prop-default">Tree list node 03</list>
+            <list permissions="open">Tree list node 03</list>
         </list-prop>
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">
+            <text permissions="open" encoding="xml">
                 The <strong>third</strong> object and a <a class="salsah-link" href="IRI:obj_0003:IRI">link to an ID</a>
                 and a <a class="salsah-link" href="http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmOdQ">link to an IRI</a>.
             </text>
         </text-prop>
         <text-prop name=":hasText">
-            <text permissions="prop-default" encoding="utf8">Dies ist ein einfacher Text ohne Markup</text>
-            <text permissions="prop-restricted" encoding="utf8">Nochmals ein einfacher Text</text>
+            <text permissions="open" encoding="utf8">Dies ist ein einfacher Text ohne Markup</text>
+            <text permissions="restricted" encoding="utf8">Nochmals ein einfacher Text</text>
         </text-prop>
         <date-prop name=":hasDate">
-            <date permissions="prop-default">JULIAN:CE:1401-05-17:CE:1402-01</date>
+            <date permissions="open">JULIAN:CE:1401-05-17:CE:1402-01</date>
         </date-prop>
         <integer-prop name=":hasInteger">
-            <integer permissions="prop-default">4711</integer>
+            <integer permissions="open">4711</integer>
         </integer-prop>
         <decimal-prop name=":hasDecimal">
-            <decimal permissions="prop-default" comment="Eulersche Zahl">2.718281828459</decimal>
+            <decimal permissions="open" comment="Eulersche Zahl">2.718281828459</decimal>
         </decimal-prop>
         <boolean-prop name=":hasBoolean">
-            <boolean permissions="prop-default">true</boolean>
+            <boolean permissions="open">true</boolean>
         </boolean-prop>
         <uri-prop name=":hasUri">
-            <uri permissions="prop-default">http://dasch.swiss/gaga</uri>
+            <uri permissions="open">http://dasch.swiss/gaga</uri>
         </uri-prop>
         <color-prop name=":hasColor">
-            <color permissions="prop-default">#00ff00</color>
+            <color permissions="open">#00ff00</color>
         </color-prop>
         <geoname-prop name=":hasGeoname">
-            <geoname permissions="prop-default" comment="A sacred place for railroad fans">5416656</geoname>
+            <geoname permissions="open" comment="A sacred place for railroad fans">5416656</geoname>
         </geoname-prop>
         <resptr-prop name=":hasBlueThing">
-            <resptr permissions="prop-default">obj_0002</resptr>
+            <resptr permissions="open">obj_0002</resptr>
         </resptr-prop>
     </resource>
 
     <resource label="obj_inst2"
               restype=":BlueThing"
               id="obj_0002"
-              permissions="res-default">
+              permissions="open">
         <list-prop list="treelistroot" name=":hasListItem">
-            <list permissions="prop-default">Tree list node 10</list>
+            <list permissions="open">Tree list node 10</list>
         </list-prop>
         <list-prop list="treelistroot" name=":hasOtherListItem">
-            <list permissions="prop-default">Tree list node 11</list>
+            <list permissions="open">Tree list node 11</list>
         </list-prop>
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">What is this <em>bold</em> thing?</text>
+            <text permissions="open" encoding="xml">What is this <em>bold</em> thing?</text>
         </text-prop>
         <text-prop name=":hasText">
-            <text permissions="prop-default" encoding="utf8">aa bbb cccc ddddd</text>
+            <text permissions="open" encoding="utf8">aa bbb cccc ddddd</text>
         </text-prop>
         <date-prop name=":hasDate">
-            <date permissions="prop-default">1888</date>
+            <date permissions="open">1888</date>
         </date-prop>
         <integer-prop name=":hasInteger">
-            <integer permissions="prop-default">42</integer>
+            <integer permissions="open">42</integer>
         </integer-prop>
         <decimal-prop name=":hasDecimal">
-            <decimal permissions="prop-default" comment="Die Zahl PI">3.14159</decimal>
+            <decimal permissions="open" comment="Die Zahl PI">3.14159</decimal>
         </decimal-prop>
         <boolean-prop name=":hasBoolean">
-            <boolean permissions="prop-default">false</boolean>
+            <boolean permissions="open">false</boolean>
         </boolean-prop>
         <uri-prop name=":hasUri">
-            <uri permissions="prop-default">http://unibas.ch/gugus</uri>
+            <uri permissions="open">http://unibas.ch/gugus</uri>
         </uri-prop>
         <color-prop name=":hasColor">
-            <color permissions="prop-default">#33ff77</color>
+            <color permissions="open">#33ff77</color>
         </color-prop>
         <geoname-prop name=":hasGeoname">
-            <geoname permissions="prop-default" comment="A sacred place for railroad fans">5416656</geoname>
+            <geoname permissions="open" comment="A sacred place for railroad fans">5416656</geoname>
         </geoname-prop>
         <resptr-prop name=":hasBlueThing">
-            <resptr permissions="prop-default">obj_0003</resptr>
+            <resptr permissions="open">obj_0003</resptr>
         </resptr-prop>
     </resource>
 
     <resource label="obj_inst3"
               restype=":BlueThing"
               id="obj_0003"
-              permissions="res-default">
+              permissions="open">
         <list-prop list="treelistroot" name=":hasListItem">
-            <list permissions="prop-default">Tree list node 01</list>
+            <list permissions="open">Tree list node 01</list>
         </list-prop>
         <list-prop list="treelistroot" name=":hasOtherListItem">
-            <list permissions="prop-default">Tree list node 02</list>
+            <list permissions="open">Tree list node 02</list>
         </list-prop>
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">This is <em>italicized and <strong>bold</strong></em> text!</text>
+            <text permissions="open" encoding="xml">This is <em>italicized and <strong>bold</strong></em> text!</text>
         </text-prop>
         <text-prop name=":hasText">
-            <text permissions="prop-default" encoding="utf8">aa bbb cccc ddddd</text>
+            <text permissions="open" encoding="utf8">aa bbb cccc ddddd</text>
         </text-prop>
         <date-prop name=":hasDate">
-            <date permissions="prop-default">1888</date>
+            <date permissions="open">1888</date>
         </date-prop>
         <integer-prop name=":hasInteger">
-            <integer permissions="prop-default">42</integer>
+            <integer permissions="open">42</integer>
         </integer-prop>
         <decimal-prop name=":hasDecimal">
-            <decimal permissions="prop-default" comment="Die Zahl PI">3.14159</decimal>
+            <decimal permissions="open" comment="Die Zahl PI">3.14159</decimal>
         </decimal-prop>
         <boolean-prop name=":hasBoolean">
-            <boolean permissions="prop-default">false</boolean>
+            <boolean permissions="open">false</boolean>
         </boolean-prop>
         <uri-prop name=":hasUri">
-            <uri permissions="prop-default">http://unibas.ch/gugus</uri>
+            <uri permissions="open">http://unibas.ch/gugus</uri>
         </uri-prop>
         <color-prop name=":hasColor">
-            <color permissions="prop-default">#33ff77</color>
+            <color permissions="open">#33ff77</color>
         </color-prop>
         <geoname-prop name=":hasGeoname">
-            <geoname permissions="prop-default" comment="A sacred place for railroad fans">5416656</geoname>
+            <geoname permissions="open" comment="A sacred place for railroad fans">5416656</geoname>
         </geoname-prop>
     </resource>
 
     <resource label="obj_inst4"
               restype=":ThingPicture"
               id="obj_0004"
-              permissions="res-default">
+              permissions="open">
         <bitstream>gaga.tif</bitstream>
         <text-prop name=":hasPictureTitle">
-            <text permissions="prop-default" encoding="utf8">This is the famous Lena</text>
+            <text permissions="open" encoding="utf8">This is the famous Lena</text>
         </text-prop>
     </resource>
 

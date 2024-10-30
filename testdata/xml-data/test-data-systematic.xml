@@ -7,29 +7,26 @@
        default-ontology="testonto">
 
     <!-- permissions: see https://docs.dasch.swiss/latest/DSP-API/02-knora-ontologies/knora-base/#permissions -->
-    <permissions id="res-default">
-        <allow group="UnknownUser">RV</allow>
-        <allow group="KnownUser">V</allow>
-        <allow group="Creator">M</allow>
-        <allow group="systematic-tp:testgroupEditors">M</allow>
-        <allow group="ProjectAdmin">CR</allow>
-    </permissions>
-    <permissions id="res-restricted">
-        <allow group="KnownUser">V</allow>
-        <allow group="Creator">CR</allow>
-        <allow group=":testgroup-viewers">M</allow>
-        <allow group="ProjectAdmin">CR</allow>
-    </permissions>
-    <permissions id="prop-default">
+    <permissions id="open">
         <allow group="UnknownUser">V</allow>
         <allow group="KnownUser">V</allow>
-        <allow group="Creator">D</allow>
+        <allow group="ProjectMember">D</allow>
         <allow group="ProjectAdmin">CR</allow>
     </permissions>
-    <permissions id="prop-restricted">
-        <allow group="KnownUser">V</allow>
-        <allow group="Creator">CR</allow>
+    <permissions id="restricted-view">
+        <allow group="UnknownUser">RV</allow>
+        <allow group="KnownUser">RV</allow>
+        <allow group="ProjectMember">D</allow>
         <allow group="ProjectAdmin">CR</allow>
+    </permissions>
+    <permissions id="restricted">
+        <allow group="ProjectMember">D</allow>
+        <allow group="ProjectAdmin">CR</allow>
+    </permissions>
+    <permissions id="discouraged-edge-cases">
+        <allow group="SystemAdmin">CR</allow>
+        <allow group="Creator">M</allow>
+        <allow group="systematic-tp:testgroupEditors">M</allow>
     </permissions>
 
 
@@ -48,27 +45,27 @@
             <text encoding="utf8">Dies ist ein TestThing ohne Angabe von permissions</text>
         </text-prop>
         <resptr-prop name=":hasTestThing">
-            <resptr permissions="prop-default">test_thing_1</resptr>
+            <resptr permissions="open">test_thing_1</resptr>
         </resptr-prop>
     </resource>
 
     <annotation label="Annotation to TestthingOhnePermissions"
                 id="annotation_1"
-                permissions="res-default"
+                permissions="open"
                 creation_date="2005-10-23T13:45:12.01-14:00">
         <text-prop name="hasComment">
-            <text encoding="xml" permissions="prop-default">This is an annotation to TestthingOhnePermissions.</text>
-            <text encoding="xml" permissions="prop-default">Second comment</text>
+            <text encoding="xml" permissions="open">This is an annotation to TestthingOhnePermissions.</text>
+            <text encoding="xml" permissions="open">Second comment</text>
         </text-prop>
         <resptr-prop name="isAnnotationOf">
-            <resptr permissions="prop-default">test_thing_0</resptr>
+            <resptr permissions="open">test_thing_0</resptr>
         </resptr-prop>
     </annotation>
 
     <resource label="First Testthing"
               restype=":TestThing"
               id="test_thing_1"
-              permissions="res-default">
+              permissions="open">
         <text-prop name=":hasSimpleText">
             <text encoding="utf8">&lt;</text>
             <text encoding="utf8">&amp;lt;</text>
@@ -95,7 +92,7 @@
             <text encoding="xml"><em>text</em></text>
             <text encoding="xml">text &lt;not a tag&gt; text</text>
             <text encoding="xml">This is <em>italicized and <strong>bold</strong></em> text! </text>
-            <text encoding="xml" permissions="prop-default">
+            <text encoding="xml" permissions="open">
                 This text contains links to all resources:
                 <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>
                 <a class="salsah-link" href="IRI:test_thing_1:IRI">test_thing_1</a>
@@ -114,79 +111,79 @@
             <text encoding="xml">Text with an external link: <a href="https://www.google.com/">Google</a></text>
         </text-prop>
         <uri-prop name=":hasUri">
-            <uri permissions="prop-default">https://dasch.swiss</uri>
+            <uri permissions="open">https://dasch.swiss</uri>
         </uri-prop>
         <boolean-prop name=":hasBoolean">
-            <boolean permissions="prop-default">true</boolean>
+            <boolean permissions="open">true</boolean>
         </boolean-prop>
         <date-prop name=":hasDate">
-            <date permissions="prop-default">JULIAN:BCE:70:CE:1</date>
-            <date permissions="prop-default">CE:1849:CE:1850</date>
-            <date permissions="prop-default">GREGORIAN:1848-01:1849-02</date>
-            <date permissions="prop-default">2022</date>
-            <date permissions="prop-default">GREGORIAN:AD:0476-09-04:AD:0476-09-04</date>
-            <date permissions="prop-default">GREGORIAN:CE:2014-01-31</date>
-            <date permissions="prop-default">ISLAMIC:1:100</date>
+            <date permissions="open">JULIAN:BCE:70:CE:1</date>
+            <date permissions="open">CE:1849:CE:1850</date>
+            <date permissions="open">GREGORIAN:1848-01:1849-02</date>
+            <date permissions="open">2022</date>
+            <date permissions="open">GREGORIAN:AD:0476-09-04:AD:0476-09-04</date>
+            <date permissions="open">GREGORIAN:CE:2014-01-31</date>
+            <date permissions="open">ISLAMIC:1:100</date>
         </date-prop>
         <integer-prop name=":hasInteger">
-            <integer permissions="prop-default">4711</integer>
+            <integer permissions="open">4711</integer>
         </integer-prop>
         <decimal-prop name=":hasDecimal">
-            <decimal permissions="prop-default" comment="Eulersche Zahl">2.718281828459</decimal>
+            <decimal permissions="open" comment="Eulersche Zahl">2.718281828459</decimal>
         </decimal-prop>
         <geoname-prop name=":hasGeoname">
-            <geoname permissions="prop-default" comment="A sacred place for railroad fans">5416656</geoname>
+            <geoname permissions="open" comment="A sacred place for railroad fans">5416656</geoname>
         </geoname-prop>
         <color-prop name=":hasColor">
-            <color permissions="prop-default">#00ff00</color>
+            <color permissions="open">#00ff00</color>
         </color-prop>
         <list-prop list="testlist" name=":hasListItem">
-            <list permissions="prop-default">first subnode</list>
+            <list permissions="open">first subnode</list>
         </list-prop>
         <resptr-prop name=":hasTestThing2">
-            <resptr permissions="prop-default">test_thing_0</resptr>
+            <resptr permissions="open">test_thing_0</resptr>
         </resptr-prop>
         <resptr-prop name=":hasResource">
-            <resptr permissions="prop-default">test_thing_0</resptr>
-            <resptr permissions="prop-default">test_thing_2</resptr>
-            <resptr permissions="prop-default">image_thing_0</resptr>
-            <resptr permissions="prop-default">compound_thing_0</resptr>
-            <resptr permissions="prop-default">partof_thing_1</resptr>
-            <resptr permissions="prop-default">partof_thing_2</resptr>
-            <resptr permissions="prop-default">partof_thing_3</resptr>
-            <resptr permissions="prop-default">document_thing_1</resptr>
-            <resptr permissions="prop-default">text_thing_1</resptr>
-            <resptr permissions="prop-default">zip_thing_1</resptr>
-            <resptr permissions="prop-default">audio_thing_1</resptr>
-            <resptr permissions="prop-default">TestThing2Child1</resptr>
-            <resptr permissions="prop-default">TestThing2Child2</resptr>
-            <resptr permissions="prop-default">video_thing_1</resptr>
-            <resptr permissions="prop-default">annotation_1</resptr>
-            <resptr permissions="prop-default">region_1</resptr>
-            <resptr permissions="prop-default">link_obj_1</resptr>
+            <resptr permissions="open">test_thing_0</resptr>
+            <resptr permissions="open">test_thing_2</resptr>
+            <resptr permissions="open">image_thing_0</resptr>
+            <resptr permissions="open">compound_thing_0</resptr>
+            <resptr permissions="open">partof_thing_1</resptr>
+            <resptr permissions="open">partof_thing_2</resptr>
+            <resptr permissions="open">partof_thing_3</resptr>
+            <resptr permissions="open">document_thing_1</resptr>
+            <resptr permissions="open">text_thing_1</resptr>
+            <resptr permissions="open">zip_thing_1</resptr>
+            <resptr permissions="open">audio_thing_1</resptr>
+            <resptr permissions="open">TestThing2Child1</resptr>
+            <resptr permissions="open">TestThing2Child2</resptr>
+            <resptr permissions="open">video_thing_1</resptr>
+            <resptr permissions="open">annotation_1</resptr>
+            <resptr permissions="open">region_1</resptr>
+            <resptr permissions="open">link_obj_1</resptr>
        </resptr-prop>
         <resptr-prop name=":hasRegion">
-            <resptr permissions="prop-default">region_2</resptr>
+            <resptr permissions="open">region_2</resptr>
         </resptr-prop>
         <resptr-prop name=":hasRepresentation">
-            <resptr permissions="prop-default">image_thing_0</resptr>
-            <resptr permissions="prop-default">video_thing_1</resptr>
-            <resptr permissions="prop-default">document_thing_1</resptr>
-            <resptr permissions="prop-default">text_thing_1</resptr>
-            <resptr permissions="prop-default">zip_thing_1</resptr>
-            <resptr permissions="prop-default">audio_thing_1</resptr>
+            <resptr permissions="open">image_thing_0</resptr>
+            <resptr permissions="open">video_thing_1</resptr>
+            <resptr permissions="open">document_thing_1</resptr>
+            <resptr permissions="open">text_thing_1</resptr>
+            <resptr permissions="open">zip_thing_1</resptr>
+            <resptr permissions="open">audio_thing_1</resptr>
         </resptr-prop>
         <resptr-prop name=":hasMovingImageRepresentation">
-            <resptr permissions="prop-default">video_thing_1</resptr>
+            <resptr permissions="open">video_thing_1</resptr>
         </resptr-prop>
     </resource>
 
     <resource label="Second Testthing"
               restype=":TestThing"
               id="test_thing_2"
-              permissions="res-default">
+              permissions="open">
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">Dies ist ein einfacher Text ohne Markup</text>
+            <text permissions="open" encoding="utf8">Dies ist ein einfacher Text ohne Markup</text>
             <text encoding="utf8">_</text>
             <text encoding="utf8">!</text>
             <text encoding="utf8">?</text>
@@ -195,7 +192,7 @@
         </text-prop>
         <text-prop name=":hasRichtext">
             <text encoding="xml">This is <em>italicized and <strong>bold</strong></em> text! </text>
-            <text encoding="xml" permissions="prop-default">
+            <text encoding="xml" permissions="open">
                 This text contains links to all resources:
                 <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>
                 <a class="salsah-link" href="IRI:test_thing_1:IRI">test_thing_1</a>
@@ -210,7 +207,7 @@
                 <a class="salsah-link" href="IRI:audio_thing_1:IRI">audio_thing_1</a>
                 <a class="salsah-link" href="IRI:test_thing_2:IRI">test_thing_2</a>
             </text>
-            <text permissions="prop-default" encoding="xml">
+            <text permissions="open" encoding="xml">
                 Another text without salsah-links
             </text>
         </text-prop>
@@ -218,41 +215,41 @@
             <boolean>false</boolean>
         </boolean-prop>
         <uri-prop name=":hasUri">
-            <uri permissions="prop-restricted">https://en.wiktionary.org/wiki/Ῥόδος</uri>
-            <uri permissions="prop-restricted">https://www.test-case.ch/</uri>
-            <uri permissions="prop-restricted">https://reg-exr.com:3000</uri>
-            <uri permissions="prop-restricted">https://reg-exr.com:3000/path/to/file_(%C3%89).htm</uri>
-            <uri permissions="prop-restricted">https://reg-exr.com:3000/path/to/file#fragment</uri>
-            <uri permissions="prop-restricted">https://reg-exr.com:3000/path/to/file?query=test</uri>
-            <uri permissions="prop-restricted">https://reg-exr.com:3000/path/to/file?query=test#fragment</uri>
-            <uri permissions="prop-restricted">https://reg-exr.com/path/to/file?query=test#fragment</uri>
-            <uri permissions="prop-restricted">http://www.168.1.1.0/path</uri>
-            <uri permissions="prop-restricted">http://www.168.1.1.0:4200/path</uri>
-            <uri permissions="prop-restricted">http://[2001:0db8:0000:0000:0000:8a2e:0370:7334]:4200/path</uri>
-            <uri permissions="prop-restricted">https://en.wikipedia.org/wiki/Haiku#/media/File:Basho_Horohoroto.jpg</uri>
-            <uri permissions="prop-restricted">http://datypic.com/prod.html#shirt</uri>
-            <uri permissions="prop-restricted">https://www.findagrave.com/memorial/171722836/krikor-madenician?_gl=1*100n0s5*_ga*NzIzMDQxNjc2LjE2Mjg2MDk1OTQ.*_ga_4QT8FMEX30*MTY1Mjc5OTI4OC4xNC4xLjE2NTI4MDA2MDQuMA..</uri>
-            <uri permissions="prop-restricted">https://markarslan.org/ArmenianImmigrants/Public-ViewDetail-ArmenianImmigrants-Main.php?submit=View&amp;Staging=&amp;SourcePage=Public-ViewSummary-ArmenianImmigrants-Main-ByDestinationDate&amp;SelectDestinationYear=1907&amp;SelectLastNameStd=all&amp;argument1=PLIN-29NOV1907-3-73-0018</uri>
-            <uri permissions="prop-restricted">http://markarslan.org/ArmenianImmigrants/Public-ViewDetail-ArmenianImmigrants-Main.php?submit=View&amp;Staging=&amp;SourcePage=Public-ViewSummary-ArmenianImmigrants-Main-ByDestinationDate&amp;SelectDestinationYear=1907&amp;SelectLastNameStd=all&amp;argument1=CRTH-12JAN1907-3-%404-0016</uri>
-            <uri permissions="prop-restricted">https://www.ancestry.com/discoveryui-content/view/47577828:60525?ssrc=pt&amp;tid=109007397&amp;pid=410070328478</uri>
-            <uri permissions="prop-restricted">https://geohack.toolforge.org/geohack.php?pagename=Adige&amp;params=45_8_59_N_12_19_13_E_type:river</uri>
-            <uri permissions="prop-restricted">https://www.digitale-sammlungen.de/de/view/bsb00055375?page=,1</uri>
-            <uri permissions="prop-restricted">https://digiliblt.uniupo.it/xtf/view?docId=dlt000521/dlt000521.xml;query=De%20taxone;brand=default</uri>
-            <uri permissions="prop-restricted">https://books.google.ch/books?id=B0AVAAAAQAAJ&amp;printsec=frontcover&amp;hl=de&amp;source=gbs_ge_summary_r&amp;cad=0#v=onepage&amp;q&amp;f=false</uri>
-            <uri permissions="prop-restricted">https://www.google.com/maps/place/Necropolis+of+Cannicella/@42.7150588$12.1174224$15z/data=!4m12!1m6!3m5!1s0x0:0xab5f4587e69858d9!2sNecropolis+of+Cannicella!8m2!3d42.7149!4d12.1170832!3m4!1s0x0:0xab5f4587e69858d9!8m2!3d42.7149!4d12.1170832</uri>
-            <uri permissions="prop-restricted">https://geohack.toolforge.org/geohack.php?pagename=Castel_Gandolfo&amp;language=de&amp;params=41.746388888889_N_12.650833333333_E_dim:10000_region:IT-RM_type:city(8869)</uri>
+            <uri permissions="restricted">https://en.wiktionary.org/wiki/Ῥόδος</uri>
+            <uri permissions="restricted">https://www.test-case.ch/</uri>
+            <uri permissions="restricted">https://reg-exr.com:3000</uri>
+            <uri permissions="restricted">https://reg-exr.com:3000/path/to/file_(%C3%89).htm</uri>
+            <uri permissions="restricted">https://reg-exr.com:3000/path/to/file#fragment</uri>
+            <uri permissions="restricted">https://reg-exr.com:3000/path/to/file?query=test</uri>
+            <uri permissions="restricted">https://reg-exr.com:3000/path/to/file?query=test#fragment</uri>
+            <uri permissions="restricted">https://reg-exr.com/path/to/file?query=test#fragment</uri>
+            <uri permissions="restricted">http://www.168.1.1.0/path</uri>
+            <uri permissions="restricted">http://www.168.1.1.0:4200/path</uri>
+            <uri permissions="restricted">http://[2001:0db8:0000:0000:0000:8a2e:0370:7334]:4200/path</uri>
+            <uri permissions="restricted">https://en.wikipedia.org/wiki/Haiku#/media/File:Basho_Horohoroto.jpg</uri>
+            <uri permissions="restricted">http://datypic.com/prod.html#shirt</uri>
+            <uri permissions="restricted">https://www.findagrave.com/memorial/171722836/krikor-madenician?_gl=1*100n0s5*_ga*NzIzMDQxNjc2LjE2Mjg2MDk1OTQ.*_ga_4QT8FMEX30*MTY1Mjc5OTI4OC4xNC4xLjE2NTI4MDA2MDQuMA..</uri>
+            <uri permissions="restricted">https://markarslan.org/ArmenianImmigrants/Public-ViewDetail-ArmenianImmigrants-Main.php?submit=View&amp;Staging=&amp;SourcePage=Public-ViewSummary-ArmenianImmigrants-Main-ByDestinationDate&amp;SelectDestinationYear=1907&amp;SelectLastNameStd=all&amp;argument1=PLIN-29NOV1907-3-73-0018</uri>
+            <uri permissions="restricted">http://markarslan.org/ArmenianImmigrants/Public-ViewDetail-ArmenianImmigrants-Main.php?submit=View&amp;Staging=&amp;SourcePage=Public-ViewSummary-ArmenianImmigrants-Main-ByDestinationDate&amp;SelectDestinationYear=1907&amp;SelectLastNameStd=all&amp;argument1=CRTH-12JAN1907-3-%404-0016</uri>
+            <uri permissions="restricted">https://www.ancestry.com/discoveryui-content/view/47577828:60525?ssrc=pt&amp;tid=109007397&amp;pid=410070328478</uri>
+            <uri permissions="restricted">https://geohack.toolforge.org/geohack.php?pagename=Adige&amp;params=45_8_59_N_12_19_13_E_type:river</uri>
+            <uri permissions="restricted">https://www.digitale-sammlungen.de/de/view/bsb00055375?page=,1</uri>
+            <uri permissions="restricted">https://digiliblt.uniupo.it/xtf/view?docId=dlt000521/dlt000521.xml;query=De%20taxone;brand=default</uri>
+            <uri permissions="restricted">https://books.google.ch/books?id=B0AVAAAAQAAJ&amp;printsec=frontcover&amp;hl=de&amp;source=gbs_ge_summary_r&amp;cad=0#v=onepage&amp;q&amp;f=false</uri>
+            <uri permissions="restricted">https://www.google.com/maps/place/Necropolis+of+Cannicella/@42.7150588$12.1174224$15z/data=!4m12!1m6!3m5!1s0x0:0xab5f4587e69858d9!2sNecropolis+of+Cannicella!8m2!3d42.7149!4d12.1170832!3m4!1s0x0:0xab5f4587e69858d9!8m2!3d42.7149!4d12.1170832</uri>
+            <uri permissions="restricted">https://geohack.toolforge.org/geohack.php?pagename=Castel_Gandolfo&amp;language=de&amp;params=41.746388888889_N_12.650833333333_E_dim:10000_region:IT-RM_type:city(8869)</uri>
         </uri-prop>
         <date-prop name=":hasDate">
             <date>JULIAN:BCE:0700:BCE:0600</date>
         </date-prop>
         <time-prop name=":hasTime">
-            <time permissions="prop-default">2019-10-23T13:45:12.01-14:00</time>
-            <time permissions="prop-default">2019-10-23T13:45:12-14:00</time>
-            <time permissions="prop-default">2019-10-23T13:45:12Z</time>
-            <time permissions="prop-default">2019-10-23T13:45:12-13:30</time>
-            <time permissions="prop-default">2019-10-23T13:45:12+01:00</time>
-            <time permissions="prop-default">2019-10-23T13:45:12.1111111+01:00</time>
-            <time permissions="prop-default">2019-10-23T13:45:12.1111111Z</time>
+            <time permissions="open">2019-10-23T13:45:12.01-14:00</time>
+            <time permissions="open">2019-10-23T13:45:12-14:00</time>
+            <time permissions="open">2019-10-23T13:45:12Z</time>
+            <time permissions="open">2019-10-23T13:45:12-13:30</time>
+            <time permissions="open">2019-10-23T13:45:12+01:00</time>
+            <time permissions="open">2019-10-23T13:45:12.1111111+01:00</time>
+            <time permissions="open">2019-10-23T13:45:12.1111111Z</time>
         </time-prop>
         <integer-prop name=":hasInteger">
             <integer>4711</integer>
@@ -277,135 +274,135 @@
     <resource label="Imagething-tif"
               restype=":ImageThing"
               id="image_thing_0"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.tif</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Imagething as TIF</text>
+            <text permissions="open" encoding="utf8">This is a Imagething as TIF</text>
         </text-prop>
     </resource>
 
     <resource label="iiif-link"
               restype=":ImageThing"
               id="iiif-link"
-              permissions="res-default">
+              permissions="open">
         <iiif-uri>https://iiif.dasch.swiss/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/837,530/0/default.jp2</iiif-uri>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a IIIFImageThing</text>
+            <text permissions="open" encoding="utf8">This is a IIIFImageThing</text>
         </text-prop>
     </resource>
 
     <resource label="Imagething-tiff"
               restype=":ImageThing"
               id="image_thing_1"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.tiff</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Imagething as TIFF</text>
+            <text permissions="open" encoding="utf8">This is a Imagething as TIFF</text>
         </text-prop>
     </resource>
 
     <resource label="Imagething-jp2"
               restype=":ImageThing"
               id="image_thing_2"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.jp2</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Imagething as JP2</text>
+            <text permissions="open" encoding="utf8">This is a Imagething as JP2</text>
         </text-prop>
     </resource>
 
     <resource label="Imagething-jpeg"
               restype=":ImageThing"
               id="image_thing_3"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.jpeg</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Imagething as JPEG</text>
+            <text permissions="open" encoding="utf8">This is a Imagething as JPEG</text>
         </text-prop>
     </resource>
 
     <resource label="Imagething-jpg"
               restype=":ImageThing"
               id="image_thing_4"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.jpg</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Imagething as JPG</text>
+            <text permissions="open" encoding="utf8">This is a Imagething as JPG</text>
         </text-prop>
     </resource>
 
     <resource label="Imagething-png"
               restype=":ImageThing"
               id="image_thing_5"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.png</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Imagething as PNG</text>
+            <text permissions="open" encoding="utf8">This is a Imagething as PNG</text>
         </text-prop>
     </resource>
 
     <resource label="Imagething-multiple-dots"
               restype=":ImageThing"
               id="image_thing_6"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.with.multiple.dots.png</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Imagething, the name has multiple dots</text>
+            <text permissions="open" encoding="utf8">This is a Imagething, the name has multiple dots</text>
         </text-prop>
     </resource>
 
     <resource label="Imagething-white-space"
               restype=":ImageThing"
               id="image_thing_7"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test with whitespaces.png</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Imagething, the name has whitespaces</text>
+            <text permissions="open" encoding="utf8">This is a Imagething, the name has whitespaces</text>
         </text-prop>
     </resource>
 
     <resource label="Imagething-uppercase-extension"
               restype=":ImageThing"
               id="image_thing_8"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test with uppercase extension.JPG</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Imagething, with an uppercase extension</text>
+            <text permissions="open" encoding="utf8">This is a Imagething, with an uppercase extension</text>
         </text-prop>
     </resource>
 
     <resource label="Imagething-multiple-commas"
               restype=":ImageThing"
               id="image_thing_9"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test,with,multiple,commas.png</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Imagething, the name has multiple commas</text>
+            <text permissions="open" encoding="utf8">This is a Imagething, the name has multiple commas</text>
         </text-prop>
     </resource>
 
     <resource label="Imagething-special-characters"
               restype=":ImageThing"
               id="image_thing_10"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test with special chars àéèêëôû äöüß 0123456789 _-'()+=!?&lt;&gt;| 漢が글ርبيةб中.png</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Imagething, the name contains special chars</text>
+            <text permissions="open" encoding="utf8">This is a Imagething, the name contains special chars</text>
         </text-prop>
     </resource>
 
     <region label="Polygon in image"
             id="region_1"
-            permissions="res-restricted"
+            permissions="restricted-view"
             creation_date="1999-12-31T23:59:59.9999999+01:00">
         <color-prop name="hasColor">
-            <color permissions="prop-restricted">#5d1f1e</color>
+            <color permissions="restricted">#5d1f1e</color>
         </color-prop>
         <resptr-prop name="isRegionOf">
-            <resptr permissions="prop-default">image_thing_0</resptr>
+            <resptr permissions="open">image_thing_0</resptr>
         </resptr-prop>
         <geometry-prop name="hasGeometry">
-            <geometry permissions="prop-default">
+            <geometry permissions="open">
                 {
                     "status": "active",
                     "type": "polygon",
@@ -418,7 +415,7 @@
             </geometry>
         </geometry-prop>
         <text-prop name="hasComment">
-            <text encoding="xml" permissions="prop-default">
+            <text encoding="xml" permissions="open">
                 This is a polygon-formed region of interest of an image. It is also displayed as Annotation.
             </text>
         </text-prop>
@@ -427,339 +424,339 @@
     <resource label="Compoundthing"
               restype=":CompoundThing"
               id="compound_thing_0"
-              permissions="res-default">
+              permissions="open">
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Compoundthing</text>
+            <text permissions="open" encoding="utf8">This is a Compoundthing</text>
         </text-prop>
     </resource>
 
     <resource label="Compoundthing"
               restype=":CompoundThing"
               id="compound_thing_1"
-              permissions="res-default">
+              permissions="open">
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Compoundthing</text>
+            <text permissions="open" encoding="utf8">This is a Compoundthing</text>
         </text-prop>
     </resource>
 
     <resource label="Partofthing-1"
               restype=":PartOfThing"
               id="partof_thing_1"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.jpg</bitstream>
         <resptr-prop name="knora-api:isPartOf">
-            <resptr permissions="prop-default">compound_thing_0</resptr>
+            <resptr permissions="open">compound_thing_0</resptr>
         </resptr-prop>
         <integer-prop name="knora-api:seqnum">
-            <integer permissions="prop-default">1</integer>
+            <integer permissions="open">1</integer>
         </integer-prop>
     </resource>
 
     <resource label="Partofthing-2"
               restype=":PartOfThing"
               id="partof_thing_2"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.jpg</bitstream>
         <resptr-prop name="isPartOf">
-            <resptr permissions="prop-default">compound_thing_0</resptr>
+            <resptr permissions="open">compound_thing_0</resptr>
         </resptr-prop>
         <integer-prop name="seqnum">
-            <integer permissions="prop-default">2</integer>
+            <integer permissions="open">2</integer>
         </integer-prop>
     </resource>
 
     <resource label="Partofthing-3"
               restype=":PartOfThingWithSubproperties"
               id="partof_thing_3"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.jpg</bitstream>
         <resptr-prop name=":partOf">
-            <resptr permissions="prop-default">compound_thing_1</resptr>
+            <resptr permissions="open">compound_thing_1</resptr>
         </resptr-prop>
         <integer-prop name=":hasPagenum">
-            <integer permissions="prop-default">1</integer>
+            <integer permissions="open">1</integer>
         </integer-prop>
     </resource>
 
     <resource label="Partofthing-4"
               restype=":PartOfThingWithSubproperties"
               id="partof_thing_4"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.jpg</bitstream>
         <resptr-prop name=":partOf">
-            <resptr permissions="prop-default">compound_thing_1</resptr>
+            <resptr permissions="open">compound_thing_1</resptr>
         </resptr-prop>
         <integer-prop name=":hasPagenum">
-            <integer permissions="prop-default">1</integer>
+            <integer permissions="open">1</integer>
         </integer-prop>
     </resource>
 
     <resource label="Documentthing-pdf"
               restype=":DocumentThing"
               id="document_thing_1"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.pdf</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Documentthing as PDF</text>
+            <text permissions="open" encoding="utf8">This is a Documentthing as PDF</text>
         </text-prop>
     </resource>
 
     <resource label="Documentthing-xls"
               restype=":DocumentThing"
               id="document_thing_2"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.xls</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Documentthing as XLS</text>
+            <text permissions="open" encoding="utf8">This is a Documentthing as XLS</text>
         </text-prop>
     </resource>
 
     <resource label="Documentthing-xlsx"
               restype=":DocumentThing"
               id="document_thing_3"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.xlsx</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Documentthing as XLSX</text>
+            <text permissions="open" encoding="utf8">This is a Documentthing as XLSX</text>
         </text-prop>
     </resource>
 
     <resource label="Documentthing-doc"
               restype=":DocumentThing"
               id="document_thing_4"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.doc</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Documentthing as DOC</text>
+            <text permissions="open" encoding="utf8">This is a Documentthing as DOC</text>
         </text-prop>
     </resource>
 
     <resource label="Documentthing-docx"
               restype=":DocumentThing"
               id="document_thing_5"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.docx</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Documentthing as DOCX</text>
+            <text permissions="open" encoding="utf8">This is a Documentthing as DOCX</text>
         </text-prop>
     </resource>
 
     <resource label="Documentthing-ppt"
               restype=":DocumentThing"
               id="document_thing_6"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.ppt</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Documentthing as PPT</text>
+            <text permissions="open" encoding="utf8">This is a Documentthing as PPT</text>
         </text-prop>
     </resource>
 
     <resource label="Documentthing-pptx"
               restype=":DocumentThing"
               id="document_thing_7"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.pptx</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Documentthing as PPTX</text>
+            <text permissions="open" encoding="utf8">This is a Documentthing as PPTX</text>
         </text-prop>
     </resource>
 
     <resource label="Textthing-csv"
               restype=":TextThing"
               id="text_thing_1"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.csv</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Textthing as CSV</text>
+            <text permissions="open" encoding="utf8">This is a Textthing as CSV</text>
         </text-prop>
     </resource>
 
     <resource label="Textthing-txt"
               restype=":TextThing"
               id="text_thing_2"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.txt</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Textthing as TXT</text>
+            <text permissions="open" encoding="utf8">This is a Textthing as TXT</text>
         </text-prop>
     </resource>
 
     <resource label="Textthing-xml"
               restype=":TextThing"
               id="text_thing_3"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.xml</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Textthing as XML</text>
+            <text permissions="open" encoding="utf8">This is a Textthing as XML</text>
         </text-prop>
     </resource>
 
     <resource label="Textthing-xsl"
               restype=":TextThing"
               id="text_thing_4"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.xsl</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Textthing as XSL</text>
+            <text permissions="open" encoding="utf8">This is a Textthing as XSL</text>
         </text-prop>
     </resource>
 
     <resource label="Textthing-xsd"
               restype=":TextThing"
               id="text_thing_5"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.xsd</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Textthing as XSD</text>
+            <text permissions="open" encoding="utf8">This is a Textthing as XSD</text>
         </text-prop>
     </resource>
 
     <resource label="Textthing-odd"
               restype=":TextThing"
               id="text_thing_6"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.odd</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Textthing as ODD</text>
+            <text permissions="open" encoding="utf8">This is a Textthing as ODD</text>
         </text-prop>
     </resource>
 
     <resource label="Textthing-rng"
               restype=":TextThing"
               id="text_thing_7"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.rng</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Textthing as RNG</text>
+            <text permissions="open" encoding="utf8">This is a Textthing as RNG</text>
         </text-prop>
     </resource>
 
     <resource label="Zipthing-zip"
               restype=":ZipThing"
               id="zip_thing_1"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.zip</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Zipthing as ZIP</text>
+            <text permissions="open" encoding="utf8">This is a Zipthing as ZIP</text>
         </text-prop>
     </resource>
 
     <resource label="Zipthing-7z"
               restype=":ZipThing"
               id="zip_thing_2"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.7z</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Zipthing as 7Z</text>
+            <text permissions="open" encoding="utf8">This is a Zipthing as 7Z</text>
         </text-prop>
     </resource>
 
     <resource label="Zipthing-gzip"
               restype=":ZipThing"
               id="zip_thing_3"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.gzip</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Zipthing as gzip</text>
+            <text permissions="open" encoding="utf8">This is a Zipthing as gzip</text>
         </text-prop>
     </resource>
 
     <resource label="Zipthing-tar-gz"
               restype=":ZipThing"
               id="zip_thing_4"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.tar.gz</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Zipthing as tar.gz</text>
+            <text permissions="open" encoding="utf8">This is a Zipthing as tar.gz</text>
         </text-prop>
     </resource>
 
     <resource label="Zipthing-tar"
               restype=":ZipThing"
               id="zip_thing_5"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.tar</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Zipthing as tar</text>
+            <text permissions="open" encoding="utf8">This is a Zipthing as tar</text>
         </text-prop>
     </resource>
 
     <resource label="Zipthing-tgz"
               restype=":ZipThing"
               id="zip_thing_6"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.tgz</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Zipthing as tgz</text>
+            <text permissions="open" encoding="utf8">This is a Zipthing as tgz</text>
         </text-prop>
     </resource>
 
     <resource label="Zipthing-z"
               restype=":ZipThing"
               id="zip_thing_7"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.z</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Zipthing as z</text>
+            <text permissions="open" encoding="utf8">This is a Zipthing as z</text>
         </text-prop>
     </resource>
 
     <resource label="Zipthing-gz"
               restype=":ZipThing"
               id="zip_thing_8"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.gz</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Zipthing as gz</text>
+            <text permissions="open" encoding="utf8">This is a Zipthing as gz</text>
         </text-prop>
     </resource>
 
     <resource label="Audiothing-wav"
               restype=":AudioThing"
               id="audio_thing_1"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.wav</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Audiothing as WAV</text>
+            <text permissions="open" encoding="utf8">This is a Audiothing as WAV</text>
         </text-prop>
     </resource>
 
     <resource label="Audiothing-mp3"
               restype=":AudioThing"
               id="audio_thing_2"
-              permissions="res-default">
+              permissions="open">
         <bitstream>testdata/bitstreams/test.mp3</bitstream>
         <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Audiothing as MP3</text>
+            <text permissions="open" encoding="utf8">This is a Audiothing as MP3</text>
         </text-prop>
     </resource>
 
     <resource label="Moviething"
               restype=":MovieThing"
               id="video_thing_1"
-              permissions="res-restricted">
+              permissions="restricted-view">
         <bitstream>testdata/bitstreams/test.mp4</bitstream>
         <text-prop name=":hasSimpleText">
-            <text encoding="utf8" permissions="prop-default">Dummy video with music</text>
+            <text encoding="utf8" permissions="open">Dummy video with music</text>
         </text-prop>
     </resource>
 
     <link label="Link between 'Second Testthing', 'Compoundthing' and 'Partofthing-1'"
           id="link_obj_1"
-          permissions="res-default"
+          permissions="open"
           creation_date="1970-10-23T03:45:12-13:30">
         <text-prop name="hasComment">
-            <text permissions="prop-default" encoding="xml">
+            <text permissions="open" encoding="xml">
                 A link object can link together an arbitrary number of resources from any resource class.
             </text>
-            <text permissions="prop-default" encoding="xml">
+            <text permissions="open" encoding="xml">
                 Second comment
             </text>
         </text-prop>
         <resptr-prop name="hasLinkTo">
-            <resptr permissions="prop-default">test_thing_2</resptr>
-            <resptr permissions="prop-default">compound_thing_0</resptr>
-            <resptr permissions="prop-default">partof_thing_1</resptr>
+            <resptr permissions="open">test_thing_2</resptr>
+            <resptr permissions="open">compound_thing_0</resptr>
+            <resptr permissions="open">partof_thing_1</resptr>
         </resptr-prop>
     </link>
 
@@ -781,17 +778,17 @@
 
     <region label="Rectangle in image"
             id="region_2"
-            permissions="res-restricted">
+            permissions="restricted-view">
         <text-prop name="hasComment">
-            <text encoding="xml" permissions="prop-default">
+            <text encoding="xml" permissions="open">
                 This is a rectangle-formed region of interest of an image. It is also displayed as Annotation.
             </text>
-            <text encoding="xml" permissions="prop-restricted">
+            <text encoding="xml" permissions="restricted">
                 This is a second comment.
             </text>
         </text-prop>
         <geometry-prop name="hasGeometry">
-            <geometry permissions="prop-default">
+            <geometry permissions="open">
                 {
                     "status": "active",
                     "type": "rectangle",
@@ -804,23 +801,23 @@
             </geometry>
         </geometry-prop>
         <resptr-prop name="isRegionOf">
-            <resptr permissions="prop-default">image_thing_0</resptr>
+            <resptr permissions="open">image_thing_0</resptr>
         </resptr-prop>
         <color-prop name="hasColor">
-            <color permissions="prop-restricted">#5d1f1e</color>
+            <color permissions="restricted">#5d1f1e</color>
         </color-prop>
     </region>
 
     <region label="Circle in image"
             id="region_3"
-            permissions="res-restricted">
+            permissions="restricted-view">
         <text-prop name="hasComment">
-            <text encoding="xml" permissions="prop-default">
+            <text encoding="xml" permissions="open">
                 This is a circle-formed region of interest of an image. It is also displayed as Annotation.
             </text>
         </text-prop>
         <geometry-prop name="hasGeometry">
-            <geometry permissions="prop-default">
+            <geometry permissions="open">
                 {
                     "status": "active",
                     "type": "circle",
@@ -831,66 +828,66 @@
             </geometry>
         </geometry-prop>
         <resptr-prop name="isRegionOf">
-            <resptr permissions="prop-default">image_thing_0</resptr>
+            <resptr permissions="open">image_thing_0</resptr>
         </resptr-prop>
         <color-prop name="hasColor">
-            <color permissions="prop-restricted">#5d1f1e</color>
+            <color permissions="restricted">#5d1f1e</color>
         </color-prop>
     </region>
 
     <!-- video segment -->
-    <video-segment label="Video Segment with all possible values" id="video_segment_0" permissions="res-default" creation_date="2024-08-06T07:00:01Z">
-        <isSegmentOf permissions="prop-default" comment="This refers to video_thing_1">video_thing_1</isSegmentOf>
-        <hasSegmentBounds permissions="prop-default" segment_start="0.1" segment_end="0.234" comment="These are the bounds"/>
-        <hasTitle permissions="prop-default" comment="This is the title">Title of video segment</hasTitle>
-        <hasComment permissions="prop-default" comment="This is the first comment"><strong>Bold comment</strong> of video segment</hasComment>
-        <hasComment permissions="prop-default">Comment with <a class="salsah-link" href="IRI:test_thing_2:IRI">link to test_thing_2</a></hasComment>
-        <hasDescription permissions="prop-default" comment="This is the first description"><strong>Bold description</strong> of video segment</hasDescription>
-        <hasDescription permissions="prop-default">Description with <a class="salsah-link" href="IRI:test_thing_2:IRI">link to test_thing_2</a></hasDescription>
-        <hasKeyword permissions="prop-default" comment="This is the first keyword">Keyword 1 of video segment</hasKeyword>
-        <hasKeyword permissions="prop-default">Keyword 2 of video segment</hasKeyword>
-        <relatesTo permissions="prop-default" comment="This refers to audio_segment_0">audio_segment_0</relatesTo>
-        <relatesTo permissions="prop-default">audio_segment_2</relatesTo>
+    <video-segment label="Video Segment with all possible values" id="video_segment_0" permissions="open" creation_date="2024-08-06T07:00:01Z">
+        <isSegmentOf permissions="open" comment="This refers to video_thing_1">video_thing_1</isSegmentOf>
+        <hasSegmentBounds permissions="open" segment_start="0.1" segment_end="0.234" comment="These are the bounds"/>
+        <hasTitle permissions="open" comment="This is the title">Title of video segment</hasTitle>
+        <hasComment permissions="open" comment="This is the first comment"><strong>Bold comment</strong> of video segment</hasComment>
+        <hasComment permissions="open">Comment with <a class="salsah-link" href="IRI:test_thing_2:IRI">link to test_thing_2</a></hasComment>
+        <hasDescription permissions="open" comment="This is the first description"><strong>Bold description</strong> of video segment</hasDescription>
+        <hasDescription permissions="open">Description with <a class="salsah-link" href="IRI:test_thing_2:IRI">link to test_thing_2</a></hasDescription>
+        <hasKeyword permissions="open" comment="This is the first keyword">Keyword 1 of video segment</hasKeyword>
+        <hasKeyword permissions="open">Keyword 2 of video segment</hasKeyword>
+        <relatesTo permissions="open" comment="This refers to audio_segment_0">audio_segment_0</relatesTo>
+        <relatesTo permissions="open">audio_segment_2</relatesTo>
     </video-segment>
 
     <video-segment label="Video Segment with only a few values" id="video_segment_2">
-        <isSegmentOf permissions="prop-default">video_thing_1</isSegmentOf>
-        <hasSegmentBounds permissions="prop-default" segment_start="2" segment_end="3.5"/>
-        <hasTitle permissions="prop-default">Title of video segment</hasTitle>
-        <hasDescription permissions="prop-default">Description of video segment</hasDescription>
+        <isSegmentOf permissions="open">video_thing_1</isSegmentOf>
+        <hasSegmentBounds permissions="open" segment_start="2" segment_end="3.5"/>
+        <hasTitle permissions="open">Title of video segment</hasTitle>
+        <hasDescription permissions="open">Description of video segment</hasDescription>
     </video-segment>
 
     <video-segment label="Video Segment with only the mandatory values" id="video_segment_3">
-        <isSegmentOf permissions="prop-default">video_thing_1</isSegmentOf>
-        <hasSegmentBounds permissions="prop-default" segment_start="2" segment_end="3.5"/>
+        <isSegmentOf permissions="open">video_thing_1</isSegmentOf>
+        <hasSegmentBounds permissions="open" segment_start="2" segment_end="3.5"/>
     </video-segment>
 
     <!-- audio segment -->
-    <audio-segment label="Audio Segment with all possible values" id="audio_segment_0" permissions="res-default" creation_date="2024-08-06T07:00:01Z">
-        <isSegmentOf permissions="prop-default" comment="This refers to audio_thing_1">audio_thing_1</isSegmentOf>
-        <hasSegmentBounds permissions="prop-default" segment_start="3.5" segment_end="5.6" comment="These are the segment bounds"/>
-        <hasTitle permissions="prop-default">Title of audio segment</hasTitle>
-        <hasComment permissions="prop-default" comment="This is a comment">Comment 1 of audio segment</hasComment>
-        <hasComment permissions="prop-default">Comment 2 of audio segment</hasComment>
-        <hasDescription permissions="prop-default" comment="This is a description">Description 1 of audio segment</hasDescription>
-        <hasDescription permissions="prop-default">Description 2 of audio segment</hasDescription>
-        <hasKeyword permissions="prop-default" comment="This is a keyword">Keyword 1 of audio segment</hasKeyword>
-        <hasKeyword permissions="prop-default">Keyword 2 of audio segment</hasKeyword>
-        <relatesTo permissions="prop-default" comment="This refers to video_segment_0">video_segment_0</relatesTo>
-        <relatesTo permissions="prop-default">video_segment_2</relatesTo>
+    <audio-segment label="Audio Segment with all possible values" id="audio_segment_0" permissions="open" creation_date="2024-08-06T07:00:01Z">
+        <isSegmentOf permissions="open" comment="This refers to audio_thing_1">audio_thing_1</isSegmentOf>
+        <hasSegmentBounds permissions="open" segment_start="3.5" segment_end="5.6" comment="These are the segment bounds"/>
+        <hasTitle permissions="open">Title of audio segment</hasTitle>
+        <hasComment permissions="open" comment="This is a comment">Comment 1 of audio segment</hasComment>
+        <hasComment permissions="open">Comment 2 of audio segment</hasComment>
+        <hasDescription permissions="open" comment="This is a description">Description 1 of audio segment</hasDescription>
+        <hasDescription permissions="open">Description 2 of audio segment</hasDescription>
+        <hasKeyword permissions="open" comment="This is a keyword">Keyword 1 of audio segment</hasKeyword>
+        <hasKeyword permissions="open">Keyword 2 of audio segment</hasKeyword>
+        <relatesTo permissions="open" comment="This refers to video_segment_0">video_segment_0</relatesTo>
+        <relatesTo permissions="open">video_segment_2</relatesTo>
     </audio-segment>
 
     <audio-segment label="Audio Segment with only a few values" id="audio_segment_2">
-        <isSegmentOf permissions="prop-default">audio_thing_1</isSegmentOf>
-        <hasSegmentBounds permissions="prop-default" segment_start="10" segment_end="30"/>
-        <hasTitle permissions="prop-default">Title of audio segment</hasTitle>
-        <hasDescription permissions="prop-default">Description of audio segment</hasDescription>
-        <relatesTo permissions="prop-default">video_segment_0</relatesTo>
+        <isSegmentOf permissions="open">audio_thing_1</isSegmentOf>
+        <hasSegmentBounds permissions="open" segment_start="10" segment_end="30"/>
+        <hasTitle permissions="open">Title of audio segment</hasTitle>
+        <hasDescription permissions="open">Description of audio segment</hasDescription>
+        <relatesTo permissions="open">video_segment_0</relatesTo>
     </audio-segment>
 
     <audio-segment label="Audio Segment with only the mandatory values" id="audio_segment_3">
-        <isSegmentOf permissions="prop-default">audio_thing_1</isSegmentOf>
-        <hasSegmentBounds permissions="prop-default" segment_start="0.5" segment_end="7"/>
+        <isSegmentOf permissions="open">audio_thing_1</isSegmentOf>
+        <hasSegmentBounds permissions="open" segment_start="0.5" segment_end="7"/>
     </audio-segment>
 
     <!-- reference a resource class from another ontology defined in the same JSON project file than default-ontology-->

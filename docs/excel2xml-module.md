@@ -86,12 +86,13 @@ Then, the root element is created, which represents the `<knora>` tag of the XML
 As first children of `<knora>`, some standard permissions are added. At the end, please carefully check the permissions 
 of the finished XML file to ensure that they meet your requirements, and adapt them if necessary.  
 
-The standard permission of a resource is `res-default`, and of a property `prop-default`. If you don't specify it 
-otherwise, all resources and properties get these permissions. 
+The standard permission is `open` 
+(read more about this [here](./file-formats/xml-data-file.md#defining-permissions-with-the-permissions-element)). 
+If you don't specify it otherwise, all resources and properties get this permission. 
 
 With `excel2xml`, it is not possible to create resources/properties that don't have permissions, because they would be 
-invisible for all users except project admins and system admins. [Read more about permissions 
-here](./file-formats/xml-data-file.md#using-permissions-with-the-permissions-attribute).
+invisible for all users except project members. [Read more about permissions 
+here](./file-formats/xml-data-file.md#defining-permissions-with-the-permissions-element).
 
 
 ## 4. Create List Mappings
@@ -224,7 +225,7 @@ Here's how the docstrings assist you:
 #### Fine-Tuning With the `PropertyElement`
 
 There are two possibilities how to create a property: The value can be passed as it is, or as a `PropertyElement`. If it
-is passed as it is, the `permissions` are assumed to be `prop-default`, texts are assumed to be encoded as `utf8`, and 
+is passed as it is, the `permissions` are assumed to be `open`, texts are assumed to be encoded as `utf8`, and 
 the value won't have a comment:
 
 ```python
@@ -233,7 +234,7 @@ make_text_prop(":testproperty", "first text")
 
 ```xml
     <text-prop name=":testproperty">
-        <text encoding="utf8" permissions="prop-default">first text</text>
+        <text encoding="utf8" permissions="open">first text</text>
     </text-prop>
 ```
 
@@ -244,7 +245,7 @@ make_text_prop(
     ":testproperty", 
     PropertyElement(
         value="first text", 
-        permissions="prop-restricted", 
+        permissions="restricted", 
         encoding="xml",
         comment="some comment"
     )
@@ -253,7 +254,7 @@ make_text_prop(
 
 ```xml
     <text-prop name=":testproperty">
-        <text encoding="xml" permissions="prop-restricted" comment="some comment">first text</text>
+        <text encoding="xml" permissions="restricted" comment="some comment">first text</text>
     </text-prop>
 ```
 

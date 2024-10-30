@@ -21,7 +21,7 @@ XML_FILE = Path("data.xml")
 MULTIMEDIA_FILE_1 = Path("Bilder Projekt 2024/Côté gauche/Bild A (1).jpg")
 MULTIMEDIA_FILE_2 = Path("Bilder Projekt 2024/Côté gauche/Dokument B (2).pdf")
 SHORTCODE = "4125"
-TMP_FOLDER = TMP_INGEST / "import" / SHORTCODE / "testdata" / "bitstreams"
+TMP_FOLDER = TMP_INGEST / "import" / SHORTCODE
 
 
 @pytest.fixture(scope="module")
@@ -51,7 +51,7 @@ def test_ingest_upload(mapping_file: Path, monkeypatch: pytest.MonkeyPatch) -> N
 def _test_upload_step() -> None:
     success = upload_files(XML_FILE, CREDS, Path(".").absolute())
     assert success
-    assert set(TMP_FOLDER.iterdir()) == {MULTIMEDIA_FILE_1, MULTIMEDIA_FILE_2}
+    assert {x.relative_to(TMP_FOLDER) for x in TMP_FOLDER.glob("**/*.*")} == {MULTIMEDIA_FILE_1, MULTIMEDIA_FILE_2}
 
 
 def _test_ingest_step(mapping_file: Path) -> None:

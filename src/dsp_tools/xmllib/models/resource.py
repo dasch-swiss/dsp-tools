@@ -6,7 +6,6 @@ from dataclasses import dataclass
 from dataclasses import field
 from typing import Any
 
-import pandas as pd
 from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
@@ -30,6 +29,7 @@ from dsp_tools.xmllib.models.values import SimpleText
 from dsp_tools.xmllib.models.values import TimeValue
 from dsp_tools.xmllib.models.values import UriValue
 from dsp_tools.xmllib.models.values import Value
+from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_string_like
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
@@ -124,7 +124,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
-        if not pd.isna(value):
+        if is_nonempty_value(value):
             self.values.append(BooleanValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -159,7 +159,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
-        if not pd.isna(value):
+        if is_nonempty_value(value):
             self.values.append(ColorValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -194,7 +194,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
-        if not pd.isna(value):
+        if is_nonempty_value(value):
             self.values.append(DateValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -229,7 +229,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
-        if not pd.isna(value):
+        if is_nonempty_value(value):
             self.values.append(DecimalValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -264,7 +264,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
-        if not pd.isna(value):
+        if is_nonempty_value(value):
             self.values.append(GeonameValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -299,7 +299,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
-        if not pd.isna(value):
+        if is_nonempty_value(value):
             self.values.append(IntValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -334,7 +334,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
-        if not pd.isna(value):
+        if is_nonempty_value(value):
             self.values.append(LinkValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -372,7 +372,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
-        if not pd.isna(value):
+        if is_nonempty_value(value):
             self.values.append(ListValue(value, list_name, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -407,7 +407,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
-        if not pd.isna(value):
+        if is_nonempty_value(value):
             self.values.append(SimpleText(value, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -447,7 +447,7 @@ class Resource:
         comment: str | None = None,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> Resource:
-        if not pd.isna(value):
+        if is_nonempty_value(value):
             value = replace_newlines_with_tags(str(value), newline_replacement)
             self.values.append(Richtext(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -483,7 +483,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
-        if not pd.isna(value):
+        if is_nonempty_value(value):
             self.values.append(TimeValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -518,7 +518,7 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
-        if not pd.isna(value):
+        if is_nonempty_value(value):
             self.values.append(UriValue(value, prop_name, permissions, comment, self.res_id))
         return self
 

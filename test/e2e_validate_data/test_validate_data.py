@@ -98,6 +98,22 @@ def unique_value_violation(_create_project: None) -> ValidationReportGraphs:
     )
 
 
+@lru_cache(maxsize=None)
+@pytest.fixture
+def special_characters_correct(_create_project: None) -> ValidationReportGraphs:
+    return _get_validation_result(
+        LOCAL_API, Path("testdata/validate-data/data/special_characters_correct.xml"), DONT_SAVE_GRAPHS
+    )
+
+
+@lru_cache(maxsize=None)
+@pytest.fixture
+def special_characters_violation(_create_project: None) -> ValidationReportGraphs:
+    return _get_validation_result(
+        LOCAL_API, Path("testdata/validate-data/data/special_characters_violation.xml"), DONT_SAVE_GRAPHS
+    )
+
+
 def test_extract_identifiers_of_resource_results(every_combination_once: ValidationReportGraphs) -> None:
     report_and_onto = every_combination_once.validation_graph + every_combination_once.onto_graph
     data_and_onto = every_combination_once.data_graph + every_combination_once.onto_graph
@@ -146,6 +162,12 @@ class TestCheckConforms:
 
     def test_unique_value_violation(self, unique_value_violation: ValidationReportGraphs) -> None:
         assert not unique_value_violation.conforms
+
+    def test_special_characters_correct(self, special_characters_correct: ValidationReportGraphs) -> None:
+        assert special_characters_correct.conforms
+
+    def test_special_characters_violation(self, special_characters_violation: ValidationReportGraphs) -> None:
+        assert not special_characters_violation.conforms
 
 
 class TestReformatValidationGraph:

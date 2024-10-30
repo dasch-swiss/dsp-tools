@@ -8,8 +8,7 @@ from tqdm import tqdm
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.ingest_xmlupload.bulk_ingest_client import BulkIngestClient
-from dsp_tools.utils.connection import Connection
-from dsp_tools.utils.connection_live import ConnectionLive
+from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
 
 
 def ingest_files(creds: ServerCredentials, shortcode: str) -> bool:
@@ -24,9 +23,8 @@ def ingest_files(creds: ServerCredentials, shortcode: str) -> bool:
     Returns:
         success status
     """
-    con: Connection = ConnectionLive(creds.server)
-    con.login(creds.user, creds.password)
-    bulk_ingest_client = BulkIngestClient(creds.dsp_ingest_url, con.get_token(), shortcode)
+    auth = AuthenticationClientLive(creds.server, creds.user, creds.password)
+    bulk_ingest_client = BulkIngestClient(creds.dsp_ingest_url, auth, shortcode)
     bulk_ingest_client.trigger_ingest_process()
     sleep(5)
     mapping = _retrieve_mapping(bulk_ingest_client)

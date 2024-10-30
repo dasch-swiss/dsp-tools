@@ -10,15 +10,54 @@
 # GENERAL SHAPES
 #########################################
 
-
 ########################
 # UNIQUE VALUE SHAPE
 ########################
+
+api-shapes:UniqueValue_Shape
+  a              sh:NodeShape ;
+  sh:targetClass knora-api:Resource ;
+  sh:sparql      [
+                   a          sh:SPARQLConstraint ;
+                   sh:message "A resource may not have the same property and value more than one time." ;
+                   sh:select  """
+        PREFIX rdfs:       <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
+        PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
+
+            SELECT $this ?path ?value WHERE {
+
+                $this ?path ?valueClass .
+
+                {
+                    ?prop rdfs:subPropertyOf knora-api:valueHas .
+                    ?valueClass ?prop ?value .
+                }
+                UNION
+                {
+                    ?valueClass knora-api:valueAsString|api-shapes:linkValueHasTargetID|api-shapes:listNodeAsString ?value .
+                }
+            }
+            GROUP BY $this ?path ?value
+            HAVING (COUNT(?value) > 1)
+                    """ ;
+                 ] ;
+  sh:severity    sh:Violation .
 
 
 ########################
 # RDFS:LABEL SHAPE
 ########################
+
+api-shapes:rdfsLabel_Shape
+  a           sh:PropertyShape ;
+  sh:message  "The label must be a non-empty string" ;
+  sh:path     rdfs:label ;
+  sh:minCount 1 ;
+  sh:maxCount 1 ;
+  sh:pattern  "\\s*\\S+\\s*" ;
+  sh:datatype xsd:string ;
+  sh:severity sh:Violation .
 
 
 ########################
@@ -81,7 +120,16 @@ api-shapes:GeonameValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
   sh:message  "GeonameValue" ;
+  sh:property api-shapes:geonameValueAsGeonameCode_Shape ;
   sh:class    knora-api:GeonameValue ;
+  sh:severity sh:Violation .
+
+api-shapes:geonameValueAsGeonameCode_Shape
+  a           sh:PropertyShape ;
+  sh:message  "The value must be a valid geoname code" ;
+  sh:path     knora-api:geonameValueAsGeonameCode ;
+  sh:pattern  "^\\d+$" ;
+  sh:datatype xsd:string ;
   sh:severity sh:Violation .
 
 
@@ -127,19 +175,53 @@ api-shapes:ListValue_ClassShape
 
 ###
 # SimpleTextValue
+
 api-shapes:SimpleTextValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
-  sh:message  "TextValue without formatting." ;
+  sh:property api-shapes:SimpleTextValue_PropShape, api-shapes:valueAsString_Shape ;
+  sh:severity sh:Violation .
+
+api-shapes:SimpleTextValue_PropShape
+  a           sh:PropertyShape ;
+  sh:message  "TextValue without formatting" ;
+  sh:path     knora-api:valueAsString ;
+  sh:datatype xsd:string ;
+  sh:minCount 1 ;
+  sh:maxCount 1 .
+
+api-shapes:valueAsString_Shape
+  a           sh:PropertyShape ;
+  sh:message  "The value must be a non-empty string" ;
+  sh:path     knora-api:valueAsString ;
+  sh:pattern  "\\s*\\S+\\s*" ;
+  sh:datatype xsd:string ;
   sh:severity sh:Violation .
 
 
 ###
 # FormattedTextValue
+
 api-shapes:FormattedTextValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
-  sh:message  "TextValue with formatting." ;
+  sh:property api-shapes:FormattedTextValue_PropShape, api-shapes:textValueAsXml_Shape ;
+  sh:severity sh:Violation .
+
+api-shapes:FormattedTextValue_PropShape
+  a           sh:PropertyShape ;
+  sh:message  "TextValue with formatting" ;
+  sh:path     knora-api:textValueAsXml ;
+  sh:datatype xsd:string ;
+  sh:minCount 1 ;
+  sh:maxCount 1 .
+
+api-shapes:textValueAsXml_Shape
+  a           sh:PropertyShape ;
+  sh:message  "The value must be a non-empty string" ;
+  sh:path     knora-api:textValueAsXml ;
+  sh:pattern  "\\s*\\S+\\s*" ;
+  sh:datatype xsd:string ;
   sh:severity sh:Violation .
 
 

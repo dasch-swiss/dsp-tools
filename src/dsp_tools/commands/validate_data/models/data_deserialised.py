@@ -3,6 +3,15 @@ from __future__ import annotations
 from abc import ABC
 from dataclasses import dataclass
 
+from lxml import etree
+
+
+@dataclass
+class XMLProject:
+    shortcode: str
+    root: etree._Element
+    used_ontologies: set[str]
+
 
 @dataclass
 class ProjectDeserialised:

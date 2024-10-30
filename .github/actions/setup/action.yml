@@ -1,6 +1,6 @@
 ---
 
-name: Setup - Install uv, just, python, and dependencies
+name: Setup - Install uv, just, and dependencies
 description: This action contains some setup steps that are common to several workflows
 runs:
   using: "composite"
@@ -11,10 +11,6 @@ runs:
         enable-cache: true
     - name: Install just
       uses: taiki-e/install-action@just
-    - name: Install Python
-      uses: actions/setup-python@v5
-      with:
-        python-version-file: "pyproject.toml"
-    - name: Install Python dependencies
+    - name: Install Python dependencies (uv will install python automatically, if no appropriate version is installed)
       run: uv sync --all-extras --dev
       shell: bash

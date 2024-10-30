@@ -1,7 +1,6 @@
 import pytest
 from rdflib import XSD
 from rdflib import Literal
-from rdflib import Namespace
 from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.models.data_rdf import BooleanValueRDF
@@ -17,9 +16,7 @@ from dsp_tools.commands.validate_data.models.data_rdf import RichtextRDF
 from dsp_tools.commands.validate_data.models.data_rdf import SimpleTextRDF
 from dsp_tools.commands.validate_data.models.data_rdf import TimeValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import UriValueRDF
-
-ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
-KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
+from test.unittests.commands.validate_data.constants import ONTO
 
 
 @pytest.fixture
@@ -93,7 +90,7 @@ def rdf_list_value_corr() -> ListValueRDF:
     return ListValueRDF(
         ONTO.testListProp,
         object_value=Literal("n1", datatype=XSD.string),
-        list_name=Literal("onlyList", datatype=XSD.string),
+        list_name=Literal("firstList", datatype=XSD.string),
         res_iri=URIRef("id"),
     )
 
@@ -103,7 +100,7 @@ def rdf_list_value_wrong_node() -> ListValueRDF:
     return ListValueRDF(
         ONTO.testListProp,
         object_value=Literal("other", datatype=XSD.string),
-        list_name=Literal("onlyList", datatype=XSD.string),
+        list_name=Literal("firstList", datatype=XSD.string),
         res_iri=URIRef("id"),
     )
 

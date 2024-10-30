@@ -5,6 +5,21 @@ import pandas as pd
 import regex
 
 
+def is_nonempty_value(value: Any) -> bool:
+    """
+    Check if a value is non-empty.
+
+    Args:
+        value: value to check
+
+    Returns:
+        True if it is non-empty
+    """
+    if isinstance(value, str) and len(value) == 0:
+        return False
+    return not pd.isna(value)
+
+
 def is_bool_like(value: Any) -> bool:
     """
     Checks if a value is a bool or can be converted into a bool.
@@ -147,7 +162,7 @@ def is_timestamp(value: Any) -> bool:
     Returns:
         True if it conforms
     """
-    validation_regex = r"^\d{4}-[0-1]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(.\d{1,12})?(Z|[+-][0-1]\d:[0-5]\d)$"
+    validation_regex = r"^\d{4}-[0-1]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(\.\d{1,12})?(Z|[+-][0-1]\d:[0-5]\d)$"
     return bool(regex.search(validation_regex, str(value)))
 
 

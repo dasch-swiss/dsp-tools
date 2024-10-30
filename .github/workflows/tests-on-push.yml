@@ -17,7 +17,7 @@ jobs:
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v4
-      - name: Install uv, just, python, and dependencies
+      - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: build docs
         run: uv run mkdocs build --strict
@@ -34,7 +34,7 @@ jobs:
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v4
-      - name: Install uv, just, python, and dependencies
+      - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: Linting with ruff
         run: just ruff-check-github
@@ -44,6 +44,13 @@ jobs:
         run: just mypy
       - name: Linting with darglint
         run: just darglint
+      - name: Check formatting of YAML files
+        # Homebrew is pre-installed but not added to PATH. 
+        # See https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2204-Readme.md#homebrew-note
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          brew install yamlfmt
+          yamlfmt -lint .
 
 
   yamllint:
@@ -62,7 +69,7 @@ jobs:
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v4
-      - name: Install uv, just, python, and dependencies
+      - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: unittests
         run: just unittests --cov=dsp_tools --cov-report xml
@@ -78,7 +85,7 @@ jobs:
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v4
-      - name: Install uv, just, python, and dependencies
+      - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: integration-tests
         run: just integration-tests --cov=dsp_tools --cov-report xml
@@ -95,7 +102,7 @@ jobs:
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v4
-      - name: Install uv, just, python, and dependencies
+      - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: benchmarking
         run: uv run pytest -s test/benchmarking/
@@ -105,18 +112,27 @@ jobs:
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v4
-      - name: Install uv, just, python, and dependencies
+      - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: e2e-tests
         run: just e2e-tests
 
+  e2e-validate-data-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout dsp-tools repo
+        uses: actions/checkout@v4
+      - name: Install uv, just, and dependencies
+        uses: ./.github/actions/setup
+      - name: e2e-validate-data-tests
+        run: just e2e-validate-data-tests
 
   legacy-e2e-tests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v4
-      - name: Install uv, just, python, and dependencies
+      - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: start stack
         run: uv run dsp-tools start-stack --no-prune --with-test-data

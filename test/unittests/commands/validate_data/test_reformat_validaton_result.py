@@ -1,221 +1,398 @@
 import pytest
-from rdflib import RDF
+from rdflib import RDFS
 from rdflib import SH
 from rdflib import Graph
-from rdflib import Namespace
+from rdflib import Literal
+from rdflib import URIRef
 
-from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityViolation
-from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityViolation
-from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityViolation
-from dsp_tools.commands.validate_data.models.input_problems import ValueTypeViolation
-from dsp_tools.commands.validate_data.models.validation import CardinalityValidationResult
-from dsp_tools.commands.validate_data.models.validation import ContentValidationResult
+from dsp_tools.commands.validate_data.models.input_problems import ContentRegexProblem
+from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
+from dsp_tools.commands.validate_data.models.input_problems import GenericProblem
+from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
+from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
+from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
+from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityProblem
+from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityProblem
+from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProblem
+from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
+from dsp_tools.commands.validate_data.models.validation import ResultGenericViolation
+from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
+from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
+from dsp_tools.commands.validate_data.models.validation import ResultMinCardinalityViolation
+from dsp_tools.commands.validate_data.models.validation import ResultNonExistentCardinalityViolation
+from dsp_tools.commands.validate_data.models.validation import ResultPatternViolation
+from dsp_tools.commands.validate_data.models.validation import ResultUniqueValueViolation
+from dsp_tools.commands.validate_data.models.validation import ResultValueTypeViolation
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
-from dsp_tools.commands.validate_data.reformat_validaton_result import _query_for_one_cardinality_validation_result
-from dsp_tools.commands.validate_data.reformat_validaton_result import _query_for_one_content_validation_result
-from dsp_tools.commands.validate_data.reformat_validaton_result import _reformat_one_cardinality_validation_result
-from dsp_tools.commands.validate_data.reformat_validaton_result import _reformat_one_content_validation_result
-
-VALIDATION_PREFIXES = """
-    @prefix onto: <http://0.0.0.0:3333/ontology/9999/onto/v2#> .
-    @prefix sh: <http://www.w3.org/ns/shacl#> .
-    @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-    """
-
-ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
-DATA = Namespace("http://data/")
-KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
+from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
+from dsp_tools.commands.validate_data.reformat_validaton_result import _extract_base_info_of_resource_results
+from dsp_tools.commands.validate_data.reformat_validaton_result import _query_one_with_detail
+from dsp_tools.commands.validate_data.reformat_validaton_result import _query_one_without_detail
+from dsp_tools.commands.validate_data.reformat_validaton_result import _reformat_one_validation_result
+from dsp_tools.commands.validate_data.reformat_validaton_result import _separate_result_types
+from test.unittests.commands.validate_data.constants import DATA
+from test.unittests.commands.validate_data.constants import KNORA_API
+from test.unittests.commands.validate_data.constants import ONTO
 
 
-@pytest.fixture
-def min_count_violation() -> Graph:
-    gstr = f"""{VALIDATION_PREFIXES}
-    [ a sh:ValidationResult ;
-            sh:focusNode <http://data/id_min_card> ;
-            sh:resultMessage "1-n" ;
-            sh:resultPath onto:testGeoname ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:MinCountConstraintComponent ;
-            sh:sourceShape [ ] ] .
-    """
-    g = Graph()
-    g.parse(data=gstr, format="ttl")
-    return g
+class TestExtractBaseInfo:
+    def test_not_resource(self, report_not_resource: tuple[Graph, Graph]) -> None:
+        validation_g, onto_data_g = report_not_resource
+        results = _extract_base_info_of_resource_results(validation_g, onto_data_g)
+        assert not results
+
+    def test_no_detail(self, report_min_card: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
+        validation_g, onto_data_g, _ = report_min_card
+        results = _extract_base_info_of_resource_results(validation_g, onto_data_g)
+        assert len(results) == 1
+        found_result = results[0]
+        assert found_result.resource_iri == DATA.id_card_one
+        assert found_result.res_class_type == ONTO.ClassInheritedCardinalityOverwriting
+        assert found_result.result_path == ONTO.testBoolean
+        assert found_result.source_constraint_component == SH.MinCountConstraintComponent
+        assert not found_result.detail
+
+    def test_with_detail(self, report_value_type_simpletext: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
+        validation_g, onto_data_g, _ = report_value_type_simpletext
+        results = _extract_base_info_of_resource_results(validation_g, onto_data_g)
+        assert len(results) == 1
+        found_result = results[0]
+        assert found_result.resource_iri == DATA.id_simpletext
+        assert found_result.res_class_type == ONTO.ClassWithEverything
+        assert found_result.result_path == ONTO.testTextarea
+        assert found_result.source_constraint_component == SH.NodeConstraintComponent
+        detail = found_result.detail
+        assert isinstance(detail, DetailBaseInfo)
+        assert detail.source_constraint_component == SH.MinCountConstraintComponent
 
 
-@pytest.fixture
-def data_min_count_violation() -> Graph:
-    gstr = "<http://data/id_min_card> a <http://0.0.0.0:3333/ontology/9999/onto/v2#ClassMixedCard> ."
-    g = Graph()
-    g.parse(data=gstr, format="ttl")
-    return g
+class TestSeparateResultTypes:
+    def test_result_id_card_one(self, report_min_card: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
+        res_g, onto_data_g, _ = report_min_card
+        no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
+        assert len(no_detail) == 1
+        assert len(with_detail) == 0
+        assert no_detail[0].resource_iri == DATA.id_card_one
+
+    def test_result_id_simpletext(
+        self, report_value_type_simpletext: tuple[Graph, Graph, ValidationResultBaseInfo]
+    ) -> None:
+        res_g, onto_data_g, _ = report_value_type_simpletext
+        no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
+        assert len(no_detail) == 0
+        assert len(with_detail) == 1
+        assert with_detail[0].resource_iri == DATA.id_simpletext
+
+    def test_result_id_uri(self, report_value_type: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
+        res_g, onto_data_g, _ = report_value_type
+        no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
+        assert len(no_detail) == 0
+        assert len(with_detail) == 1
+        assert with_detail[0].resource_iri == DATA.id_uri
+
+    def test_result_geoname_not_number(self, report_regex: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
+        res_g, onto_data_g, _ = report_regex
+        no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
+        assert len(no_detail) == 0
+        assert len(with_detail) == 1
+        assert with_detail[0].resource_iri == DATA.geoname_not_number
+
+    def test_result_id_closed_constraint(
+        self, report_closed_constraint: tuple[Graph, Graph, ValidationResultBaseInfo]
+    ) -> None:
+        res_g, onto_data_g, _ = report_closed_constraint
+        no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
+        assert len(no_detail) == 1
+        assert len(with_detail) == 0
+        assert no_detail[0].resource_iri == DATA.id_closed_constraint
+
+    def test_result_id_max_card(self, report_max_card: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
+        res_g, onto_data_g, _ = report_max_card
+        no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
+        assert len(no_detail) == 1
+        assert len(with_detail) == 0
+        assert no_detail[0].resource_iri == DATA.id_max_card
+
+    def test_report_unique_value_literal(
+        self, report_unique_value_literal: tuple[Graph, Graph, ValidationResultBaseInfo]
+    ) -> None:
+        res_g, onto_data_g, _ = report_unique_value_literal
+        no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
+        assert len(no_detail) == 1
+        assert len(with_detail) == 0
+        assert no_detail[0].resource_iri == DATA.identical_values_valueHas
+
+    def test_report_unique_value_iri(
+        self, report_unique_value_iri: tuple[Graph, Graph, ValidationResultBaseInfo]
+    ) -> None:
+        res_g, onto_data_g, _ = report_unique_value_iri
+        no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
+        assert len(no_detail) == 1
+        assert len(with_detail) == 0
+        assert no_detail[0].resource_iri == DATA.identical_values_LinkValue
 
 
-@pytest.fixture
-def data_class_constraint_component() -> Graph:
-    gstr = """
-    <http://data/id_2> a <http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything> .
-    <http://data/value-iri> a <http://api.knora.org/ontology/knora-api/v2#TextValue> .
-    """
-    g = Graph()
-    g.parse(data=gstr, format="ttl")
-    return g
+class TestQueryWithoutDetail:
+    def test_result_id_card_one(self, report_min_card: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
+        res, _, info = report_min_card
+        result = _query_one_without_detail(info, res)
+        assert isinstance(result, ResultMinCardinalityViolation)
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
+        assert result.property == ONTO.testBoolean
+        assert result.results_message == "1"
+
+    def test_result_id_closed_constraint(
+        self, report_closed_constraint: tuple[Graph, Graph, ValidationResultBaseInfo]
+    ) -> None:
+        res, _, info = report_closed_constraint
+        result = _query_one_without_detail(info, res)
+        assert isinstance(result, ResultNonExistentCardinalityViolation)
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
+        assert result.property == ONTO.testIntegerSimpleText
+
+    def test_result_id_max_card(self, report_max_card: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
+        res, _, info = report_max_card
+        result = _query_one_without_detail(info, res)
+        assert isinstance(result, ResultMaxCardinalityViolation)
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
+        assert result.property == ONTO.testHasLinkToCardOneResource
+        assert result.results_message == "1"
+
+    def test_result_empty_label(self, report_empty_label: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
+        res, _, info = report_empty_label
+        result = _query_one_without_detail(info, res)
+        assert isinstance(result, ResultPatternViolation)
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
+        assert result.property == RDFS.label
+        assert result.results_message == "The label must be a non-empty string"
+        assert result.actual_value == " "
+
+    def test_unique_value_literal(
+        self, report_unique_value_literal: tuple[Graph, Graph, ValidationResultBaseInfo]
+    ) -> None:
+        res, _, info = report_unique_value_literal
+        result = _query_one_without_detail(info, res)
+        assert isinstance(result, ResultUniqueValueViolation)
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
+        assert result.property == ONTO.testGeoname
+        assert result.actual_value == Literal("00111111")
+
+    def test_unique_value_iri(self, report_unique_value_iri: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
+        res, _, info = report_unique_value_iri
+        result = _query_one_without_detail(info, res)
+        assert isinstance(result, ResultUniqueValueViolation)
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
+        assert result.property == ONTO.testHasLinkTo
+        assert result.actual_value == DATA.link_valueTarget_id
+
+    def test_unknown(self, result_unknown_component: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
+        res, _, info = result_unknown_component
+        result = _query_one_without_detail(info, res)
+        assert isinstance(result, UnexpectedComponent)
+        assert result.component_type == str(SH.UniqueLangConstraintComponent)
 
 
-@pytest.fixture
-def class_constraint_component() -> Graph:
-    gstr = f'''{VALIDATION_PREFIXES}
-    [] a sh:ValidationReport ;
-    sh:result _:bn1 .
+class TestQueryWithDetail:
+    def test_result_id_simpletext(
+        self, report_value_type_simpletext: tuple[Graph, Graph, ValidationResultBaseInfo]
+    ) -> None:
+        res, data, info = report_value_type_simpletext
+        result = _query_one_with_detail(info, res, data)
+        assert isinstance(result, ResultValueTypeViolation)
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
+        assert result.property == ONTO.testTextarea
+        assert result.results_message == "TextValue without formatting"
+        assert result.actual_value_type == KNORA_API.TextValue
 
-    [] a sh:ValidationReport ;
-    sh:conforms false ;
-    sh:result [ 
-            a sh:ValidationResult ;
-            sh:detail _:bn1 ;
-            sh:focusNode <http://data/id_2> ;
-            sh:resultMessage """Value does not have shape
-                 <http://api.knora.org/ontology/knora-api/shapes/v2#ColorValue_ClassShape>""" ;
-            sh:resultPath onto:testColor ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-            sh:sourceShape onto:testColor_PropShape ;
-            sh:value <http://data/value-iri> 
-            ] .
-    
-    _:bn1 a sh:ValidationResult ;
-    sh:focusNode <http://data/value-iri> ;
-    sh:resultMessage "ColorValue" ;
-    sh:resultSeverity sh:Violation ;
-    sh:sourceConstraintComponent sh:ClassConstraintComponent ;
-    sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#ColorValue_ClassShape> ;
-    sh:value <http://data/value-iri> .
-    '''
-    g = Graph()
-    g.parse(data=gstr, format="ttl")
-    return g
+    def test_result_id_uri(self, report_value_type: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
+        res, data, info = report_value_type
+        result = _query_one_with_detail(info, res, data)
+        assert isinstance(result, ResultValueTypeViolation)
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
+        assert result.property == ONTO.testUriValue
+        assert result.results_message == "UriValue"
+        assert result.actual_value_type == KNORA_API.TextValue
 
+    def test_result_geoname_not_number(self, report_regex: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
+        res, data, info = report_regex
+        result = _query_one_with_detail(info, res, data)
+        assert isinstance(result, ResultPatternViolation)
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
+        assert result.property == ONTO.testGeoname
+        assert result.results_message == "The value must be a valid geoname code"
+        assert result.actual_value == "this-is-not-a-valid-code"
 
-@pytest.fixture
-def violation_min_card() -> CardinalityValidationResult:
-    return CardinalityValidationResult(
-        source_constraint_component=SH.MinCountConstraintComponent,
-        res_iri=DATA.id_min_card,
-        res_class=ONTO.ClassMixedCard,
-        property=ONTO.testGeoname,
-        results_message="1-n",
-    )
+    def test_link_target_non_existent(
+        self, report_link_target_non_existent: tuple[Graph, Graph, ValidationResultBaseInfo]
+    ) -> None:
+        res, data, info = report_link_target_non_existent
+        result = _query_one_with_detail(info, res, data)
+        assert isinstance(result, ResultLinkTargetViolation)
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
+        assert result.property == ONTO.testHasLinkTo
+        assert result.results_message == "Resource"
+        assert result.target_iri == URIRef("http://data/other")
+        assert not result.target_resource_type
 
+    def test_link_target_wrong_class(
+        self, report_link_target_wrong_class: tuple[Graph, Graph, ValidationResultBaseInfo]
+    ) -> None:
+        res, data, info = report_link_target_wrong_class
+        result = _query_one_with_detail(info, res, data)
+        assert isinstance(result, ResultLinkTargetViolation)
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
+        assert result.property == ONTO.testHasLinkToCardOneResource
+        assert result.results_message == "CardOneResource"
+        assert result.target_iri == URIRef("http://data/id_9_target")
+        assert result.target_resource_type == ONTO.ClassWithEverything
 
-@pytest.fixture
-def violation_max_card() -> CardinalityValidationResult:
-    return CardinalityValidationResult(
-        source_constraint_component=SH.MaxCountConstraintComponent,
-        res_iri=DATA.id_max_card,
-        res_class=ONTO.ClassMixedCard,
-        property=ONTO.testDecimalSimpleText,
-        results_message="0-1",
-    )
+    def test_report_unknown_list_name(
+        self, report_unknown_list_name: tuple[Graph, Graph, ValidationResultBaseInfo]
+    ) -> None:
+        res, data, info = report_unknown_list_name
+        result = _query_one_with_detail(info, res, data)
+        assert isinstance(result, ResultGenericViolation)
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
+        assert result.property == ONTO.testListProp
+        assert result.results_message == "The list that should be used with this property is 'firstList'."
+        assert result.actual_value == "other"
 
-
-@pytest.fixture
-def violation_closed() -> CardinalityValidationResult:
-    return CardinalityValidationResult(
-        source_constraint_component=SH.ClosedConstraintComponent,
-        res_iri=DATA.id_closed_constraint,
-        res_class=ONTO.CardOneResource,
-        property=ONTO.testIntegerSimpleText,
-        results_message="Predicate ns3:testIntegerSimpleText is not allowed (closed shape)",
-    )
-
-
-@pytest.fixture
-def violation_value_type() -> ContentValidationResult:
-    return ContentValidationResult(
-        source_constraint_component=SH.NodeConstraintComponent,
-        res_iri=DATA.id_2,
-        res_class=ONTO.ClassWithEverything,
-        property=ONTO.testColor,
-        results_message="ColorValue",
-        value_type=KNORA_API.TextValue,
-    )
-
-
-@pytest.fixture
-def violation_unknown_content() -> ContentValidationResult:
-    return ContentValidationResult(
-        source_constraint_component=SH.UniqueLangConstraintComponent,
-        res_iri=DATA.id,
-        res_class=ONTO.ClassMixedCard,
-        property=ONTO.testIntegerSimpleText,
-        results_message="This is a constraint that is not checked in the data and should never appear.",
-    )
+    def test_report_unknown_list_node(
+        self, report_unknown_list_node: tuple[Graph, Graph, ValidationResultBaseInfo]
+    ) -> None:
+        res, data, info = report_unknown_list_node
+        result = _query_one_with_detail(info, res, data)
+        assert isinstance(result, ResultGenericViolation)
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
+        assert result.property == ONTO.testListProp
+        assert result.results_message == "Unknown list node for list 'firstList'."
+        assert result.actual_value == "other"
 
 
-def test_query_for_one_content_validation_result(
-    class_constraint_component: Graph, data_class_constraint_component: Graph
-) -> None:
-    bn = next(class_constraint_component.subjects(SH.sourceConstraintComponent, SH.NodeConstraintComponent))
-    result = _query_for_one_content_validation_result(bn, class_constraint_component, data_class_constraint_component)
-    assert result.source_constraint_component == SH.NodeConstraintComponent
-    assert result.res_iri == DATA.id_2
-    assert result.res_class == ONTO.ClassWithEverything
-    assert result.property == ONTO.testColor
-    assert result.results_message == "ColorValue"
-    assert result.value_type == KNORA_API.TextValue
+class TestReformatResult:
+    def test_min(self, extracted_min_card: ResultMinCardinalityViolation) -> None:
+        result = _reformat_one_validation_result(extracted_min_card)
+        assert isinstance(result, MinCardinalityProblem)
+        assert result.res_id == "id_card_one"
+        assert result.res_type == "onto:ClassInheritedCardinalityOverwriting"
+        assert result.prop_name == "onto:testBoolean"
+        assert result.expected_cardinality == "1"
 
-
-def test_query_for_one_cardinality_validation_result(
-    min_count_violation: Graph, data_min_count_violation: Graph
-) -> None:
-    bn = next(min_count_violation.subjects(RDF.type, SH.ValidationResult))
-    result = _query_for_one_cardinality_validation_result(bn, min_count_violation, data_min_count_violation)
-    assert result.source_constraint_component == SH.MinCountConstraintComponent
-    assert result.res_iri == DATA.id_min_card
-    assert result.res_class == ONTO.ClassMixedCard
-    assert result.property == ONTO.testGeoname
-    assert result.results_message == "1-n"
-
-
-class TestReformatCardinalityViolation:
-    def test_min(self, violation_min_card: CardinalityValidationResult) -> None:
-        result = _reformat_one_cardinality_validation_result(violation_min_card)
-        assert isinstance(result, MinCardinalityViolation)
-        assert result.res_id == "id_min_card"
-        assert result.res_type == "onto:ClassMixedCard"
-        assert result.prop_name == "onto:testGeoname"
-        assert result.expected_cardinality == "1-n"
-
-    def test_max(self, violation_max_card: CardinalityValidationResult) -> None:
-        result = _reformat_one_cardinality_validation_result(violation_max_card)
-        assert isinstance(result, MaxCardinalityViolation)
+    def test_max(self, extracted_max_card: ResultMaxCardinalityViolation) -> None:
+        result = _reformat_one_validation_result(extracted_max_card)
+        assert isinstance(result, MaxCardinalityProblem)
         assert result.res_id == "id_max_card"
         assert result.res_type == "onto:ClassMixedCard"
         assert result.prop_name == "onto:testDecimalSimpleText"
         assert result.expected_cardinality == "0-1"
 
-    def test_closed(self, violation_closed: CardinalityValidationResult) -> None:
-        result = _reformat_one_cardinality_validation_result(violation_closed)
-        assert isinstance(result, NonExistentCardinalityViolation)
+    def test_violation_empty_label(self, extracted_empty_label: ResultPatternViolation) -> None:
+        result = _reformat_one_validation_result(extracted_empty_label)
+        assert isinstance(result, ContentRegexProblem)
+        assert result.res_id == "empty_label"
+        assert result.res_type == "onto:ClassWithEverything"
+        assert result.prop_name == "rdfs:label"
+        assert result.expected_format == "The label must be a non-empty string"
+        assert not result.actual_content
+
+    def test_closed(self, extracted_closed_constraint: ResultNonExistentCardinalityViolation) -> None:
+        result = _reformat_one_validation_result(extracted_closed_constraint)
+        assert isinstance(result, NonExistentCardinalityProblem)
         assert result.res_id == "id_closed_constraint"
         assert result.res_type == "onto:CardOneResource"
         assert result.prop_name == "onto:testIntegerSimpleText"
 
-
-class TestReformatContentViolation:
-    def test_value_type(self, violation_value_type: ContentValidationResult) -> None:
-        result = _reformat_one_content_validation_result(violation_value_type)
-        assert isinstance(result, ValueTypeViolation)
-        assert result.res_id == "id_2"
+    def test_value_type_simpletext(self, extracted_value_type_simpletext: ResultValueTypeViolation) -> None:
+        result = _reformat_one_validation_result(extracted_value_type_simpletext)
+        assert isinstance(result, ValueTypeProblem)
+        assert result.res_id == "id_simpletext"
         assert result.res_type == "onto:ClassWithEverything"
-        assert result.prop_name == "onto:testColor"
+        assert result.prop_name == "onto:testTextarea"
         assert result.actual_type == "TextValue"
-        assert result.expected_type == "ColorValue"
+        assert result.expected_type == "TextValue without formatting"
 
-    def test_unknown(self, violation_unknown_content: ContentValidationResult) -> None:
-        result = _reformat_one_content_validation_result(violation_unknown_content)
-        assert isinstance(result, UnexpectedComponent)
-        assert result.component_type == str(SH.UniqueLangConstraintComponent)
+    def test_value_type(self, extracted_value_type: ResultValueTypeViolation) -> None:
+        result = _reformat_one_validation_result(extracted_value_type)
+        assert isinstance(result, ValueTypeProblem)
+        assert result.res_id == "id_uri"
+        assert result.res_type == "onto:ClassWithEverything"
+        assert result.prop_name == "onto:testUriValue"
+        assert result.actual_type == "TextValue"
+        assert result.expected_type == "UriValue"
+
+    def test_violation_regex(self, extracted_regex: ResultPatternViolation) -> None:
+        result = _reformat_one_validation_result(extracted_regex)
+        assert isinstance(result, ContentRegexProblem)
+        assert result.res_id == "geoname_not_number"
+        assert result.res_type == "onto:ClassWithEverything"
+        assert result.prop_name == "onto:testGeoname"
+        assert result.expected_format == "The value must be a valid geoname code"
+        assert result.actual_content == "this-is-not-a-valid-code"
+
+    def test_link_target_non_existent(self, extracted_link_target_non_existent: ResultLinkTargetViolation) -> None:
+        result = _reformat_one_validation_result(extracted_link_target_non_existent)
+        assert isinstance(result, LinkedResourceDoesNotExistProblem)
+        assert result.res_id == "link_target_non_existent"
+        assert result.res_type == "onto:ClassWithEverything"
+        assert result.prop_name == "onto:testHasLinkTo"
+        assert result.link_target_id == "other"
+
+    def test_link_target_wrong_class(self, extracted_link_target_wrong_class: ResultLinkTargetViolation) -> None:
+        result = _reformat_one_validation_result(extracted_link_target_wrong_class)
+        assert isinstance(result, LinkTargetTypeMismatchProblem)
+        assert result.res_id == "link_target_wrong_class"
+        assert result.res_type == "onto:ClassWithEverything"
+        assert result.prop_name == "onto:testHasLinkToCardOneResource"
+        assert result.link_target_id == "id_9_target"
+        assert result.expected_type == "CardOneResource"
+        assert result.actual_type == "onto:ClassWithEverything"
+
+    def test_unique_value_literal(self, extracted_unique_value_literal: ResultUniqueValueViolation) -> None:
+        result = _reformat_one_validation_result(extracted_unique_value_literal)
+        assert isinstance(result, DuplicateValueProblem)
+        assert result.res_id == "identical_values_valueHas"
+        assert result.res_type == "onto:ClassWithEverything"
+        assert result.prop_name == "onto:testGeoname"
+        assert result.actual_content == "00111111"
+
+    def test_unique_value_iri(self, extracted_unique_value_iri: ResultUniqueValueViolation) -> None:
+        result = _reformat_one_validation_result(extracted_unique_value_iri)
+        assert isinstance(result, DuplicateValueProblem)
+        assert result.res_id == "identical_values_LinkValue"
+        assert result.res_type == "onto:ClassWithEverything"
+        assert result.prop_name == "onto:testHasLinkTo"
+        assert result.actual_content == "link_valueTarget_id"
+
+    def test_unknown_list_node(self, extracted_unknown_list_node: ResultGenericViolation) -> None:
+        result = _reformat_one_validation_result(extracted_unknown_list_node)
+        assert isinstance(result, GenericProblem)
+        assert result.res_id == "list_node_non_existent"
+        assert result.res_type == "onto:ClassWithEverything"
+        assert result.prop_name == "onto:testListProp"
+        assert result.results_message == "Unknown list node for list 'firstList'."
+        assert result.actual_content == "other"
+
+    def test_unknown_list_name(self, extracted_unknown_list_name: ResultGenericViolation) -> None:
+        result = _reformat_one_validation_result(extracted_unknown_list_name)
+        assert isinstance(result, GenericProblem)
+        assert result.res_id == "list_name_non_existent"
+        assert result.res_type == "onto:ClassWithEverything"
+        assert result.prop_name == "onto:testListProp"
+        assert result.results_message == "The list that should be used with this property is 'firstList'."
+        assert result.actual_content == "other"
 
 
 if __name__ == "__main__":

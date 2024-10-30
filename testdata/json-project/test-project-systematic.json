@@ -120,6 +120,30 @@
                     ":admin"
                 ],
                 "status": false
+            },
+            {
+                "username": "member-admin",
+                "email": "member-admin@test.org",
+                "givenName": "member-admin",
+                "familyName": "member-admin",
+                "password": "test0815",
+                "lang": "en",
+                "projects": [
+                    ":member",
+                    ":admin"
+                ]
+            },
+            {
+                "username": "admin-member",
+                "email": "admin-member@test.org",
+                "givenName": "admin-member",
+                "familyName": "admin-member",
+                "password": "test0815",
+                "lang": "en",
+                "projects": [
+                    ":admin",
+                    ":member"
+                ]
             }
         ],
         "lists": [

@@ -6,7 +6,7 @@
        shortcode="9999"
        default-ontology="onto">
 
-    <!-- 12 Violations -->
+    <!-- 14 Violations -->
 
     <!--
         In this file, the property type does not match with the ontology.
@@ -14,75 +14,91 @@
         For the text-prop the encoding was switched
      -->
 
-    <resource label="Empty" restype=":ClassWithEverything" id="id_0"/>
+    <resource label="Empty" restype=":ClassWithEverything" id="empty_ok"/>
 
-    <resource label="Bool" restype=":ClassWithEverything" id="id_1">
+    <resource label="Bool" restype=":ClassWithEverything" id="id_bool">
         <text-prop name=":testBoolean">
             <text encoding="utf8">true</text>
         </text-prop>
     </resource>
 
-    <resource label="Color" restype=":ClassWithEverything" id="id_2">
+    <resource label="Color" restype=":ClassWithEverything" id="id_color">
         <text-prop name=":testColor">
             <text encoding="utf8">#00ff00</text>
         </text-prop>
     </resource>
 
-    <resource label="Date" restype=":ClassWithEverything" id="id_3">
+    <resource label="Date" restype=":ClassWithEverything" id="id_date">
         <text-prop name=":testSubDate1">
             <text encoding="utf8">JULIAN:BCE:0700:BCE:0600</text>
         </text-prop>
     </resource>
 
-    <resource label="Decimal" restype=":ClassWithEverything" id="id_4">
+    <resource label="Decimal" restype=":ClassWithEverything" id="id_decimal">
         <text-prop name=":testDecimalSimpleText">
             <text encoding="utf8">2.71</text>
         </text-prop>
     </resource>
 
-    <resource label="Geoname" restype=":ClassWithEverything" id="id_5">
+    <resource label="Geoname" restype=":ClassWithEverything" id="id_geoname">
         <text-prop name=":testGeoname">
             <text encoding="utf8">1111111</text>
         </text-prop>
     </resource>
 
-    <resource label="Integer" restype=":ClassWithEverything" id="id_6">
+    <resource label="Integer" restype=":ClassWithEverything" id="id_integer">
         <text-prop name=":testIntegerSimpleText">
             <text encoding="utf8">1</text>
         </text-prop>
     </resource>
 
-    <resource label="List" restype=":ClassWithEverything" id="id_7">
+
+    <resource label="This should be an int value" restype=":ClassWithEverything" id="is_link_should_be_integer">
+        <resptr-prop name=":testIntegerSpinbox">
+            <resptr>1</resptr>
+        </resptr-prop>
+    </resource>
+
+
+    <resource label="List" restype=":ClassWithEverything" id="id_list">
         <text-prop name=":testListProp">
             <text encoding="utf8">n1</text>
         </text-prop>
     </resource>
 
-    <resource label="Link Prop" restype=":ClassWithEverything" id="id_8">
+    <resource label="Link Prop" restype=":ClassWithEverything" id="id_link">
         <text-prop name=":testHasLinkTo">
             <text encoding="utf8">id_1</text>
         </text-prop>
     </resource>
 
-    <resource label="Richtext" restype=":ClassWithEverything" id="id_9">
+    <resource label="Richtext" restype=":ClassWithEverything" id="id_richtext">
         <text-prop name=":testRichtext">
             <text encoding="utf8">Text</text>
         </text-prop>
     </resource>
 
-    <resource label="Simpletext" restype=":ClassWithEverything" id="id_10">
+    <resource label="Simpletext" restype=":ClassWithEverything" id="id_simpletext">
         <text-prop name=":testTextarea">
             <text encoding="xml">Text</text>
         </text-prop>
     </resource>
 
-    <resource label="Time" restype=":ClassWithEverything" id="id_11">
+
+    <resource label="This should be a text value" restype=":ClassWithEverything" id="is_link_should_be_text">
+        <resptr-prop name=":testTextarea">
+            <resptr>link_non_existing</resptr>
+        </resptr-prop>
+    </resource>
+
+
+    <resource label="Time" restype=":ClassWithEverything" id="id_time">
         <text-prop name=":testTimeValue">
             <text encoding="utf8">2019-10-23T13:45:12.01-14:00</text>
         </text-prop>
     </resource>
 
-    <resource label="Uri" restype=":ClassWithEverything" id="id_12">
+    <resource label="Uri" restype=":ClassWithEverything" id="id_uri">
         <text-prop name=":testUriValue">
             <text encoding="utf8">https://dasch.swiss</text>
         </text-prop>

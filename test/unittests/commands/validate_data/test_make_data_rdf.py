@@ -1,7 +1,6 @@
 import pytest
 from rdflib import XSD
 from rdflib import Literal
-from rdflib import Namespace
 from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.make_data_rdf import _transform_one_resource
@@ -32,8 +31,7 @@ from dsp_tools.commands.validate_data.models.data_rdf import RichtextRDF
 from dsp_tools.commands.validate_data.models.data_rdf import SimpleTextRDF
 from dsp_tools.commands.validate_data.models.data_rdf import TimeValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import UriValueRDF
-
-DATA = Namespace("http://data/")
+from test.unittests.commands.validate_data.constants import DATA
 
 
 class TestResource:
@@ -142,7 +140,7 @@ class TestGeonameValue:
         assert isinstance(val, GeonameValueRDF)
         assert val.res_iri == DATA["id"]
         assert val.prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testGeoname")
-        assert val.object_value == Literal("1241345", datatype=XSD.integer)
+        assert val.object_value == Literal("1241345", datatype=XSD.string)
 
     def test_none(self, geoname_value_deserialised_none: GeonameValueDeserialised) -> None:
         val = _transform_one_value(geoname_value_deserialised_none, DATA["id"])
@@ -190,7 +188,7 @@ class TestListValue:
         assert isinstance(val, ListValueRDF)
         assert val.res_iri == DATA["id"]
         assert val.prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp")
-        assert val.list_name == Literal("onlyList", datatype=XSD.string)
+        assert val.list_name == Literal("firstList", datatype=XSD.string)
         assert val.object_value == Literal("n1", datatype=XSD.string)
 
     def test_none(self, list_value_deserialised_none: ListValueDeserialised) -> None:
@@ -198,7 +196,7 @@ class TestListValue:
         assert isinstance(val, ListValueRDF)
         assert val.res_iri == DATA["id"]
         assert val.prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp")
-        assert val.list_name == Literal("onlyList", datatype=XSD.string)
+        assert val.list_name == Literal("firstList", datatype=XSD.string)
         assert val.object_value == Literal("", datatype=XSD.string)
 
 

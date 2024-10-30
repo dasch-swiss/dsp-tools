@@ -10,30 +10,32 @@ from rdflib.term import Node
 class RDFGraphs:
     data: Graph
     ontos: Graph
-    cardinality_shapes: Graph
-    content_shapes: Graph
+    shapes: Graph
+    knora_api: Graph
 
-    def get_cardinality_data_str(self) -> str:
-        return self.data.serialize(format="ttl")
-
-    def get_cardinality_shacl_str(self) -> str:
-        return self.cardinality_shapes.serialize(format="ttl")
-
-    def get_content_data_str(self) -> str:
-        g = self.data + self.ontos
+    def get_data_and_onto_str(self) -> str:
+        g = self.data + self.ontos + self.knora_api
         return g.serialize(format="ttl")
 
-    def get_content_shacl_str(self) -> str:
-        return self.content_shapes.serialize(format="ttl")
+    def get_shacl_and_onto_str(self) -> str:
+        g = self.shapes + self.ontos + self.knora_api
+        return g.serialize(format="ttl")
 
 
 @dataclass
-class ValidationReports:
+class ValidationReportGraphs:
     conforms: bool
-    content_validation: Graph | None
-    cardinality_validation: Graph | None
-    shacl_graphs: Graph
+    validation_graph: Graph
+    shacl_graph: Graph
+    onto_graph: Graph
     data_graph: Graph
+
+
+@dataclass
+class QueryInfo:
+    validation_bn: Node
+    focus_iri: Node
+    focus_rdf_type: Node
 
 
 @dataclass
@@ -42,20 +44,74 @@ class UnexpectedComponent:
 
 
 @dataclass
-class CardinalityValidationResult:
+class ValidationResultBaseInfo:
+    result_bn: Node
     source_constraint_component: Node
+    resource_iri: Node
+    res_class_type: Node
+    result_path: Node
+    detail: DetailBaseInfo | None = None
+
+
+@dataclass
+class DetailBaseInfo:
+    detail_bn: Node
+    source_constraint_component: Node
+
+
+@dataclass
+class ValidationResult:
     res_iri: Node
     res_class: Node
     property: Node
+
+
+@dataclass
+class ResultUniqueValueViolation(ValidationResult):
+    actual_value: Node
+
+
+@dataclass
+class ResultValueTypeViolation(ValidationResult):
+    results_message: str
+    actual_value_type: Node
+
+
+@dataclass
+class ResultPatternViolation(ValidationResult):
+    results_message: str
+    actual_value: str
+
+
+@dataclass
+class ResultGenericViolation(ValidationResult):
+    results_message: str
+    actual_value: str
+
+
+@dataclass
+class ResultLinkTargetViolation(ValidationResult):
+    results_message: str
+    target_iri: Node
+    target_resource_type: Node | None
+
+
+@dataclass
+class ResultMaxCardinalityViolation(ValidationResult):
     results_message: str
 
 
 @dataclass
-class ContentValidationResult:
-    source_constraint_component: Node
-    res_iri: Node
-    res_class: Node
-    property: Node
+class ResultMinCardinalityViolation(ValidationResult):
     results_message: str
-    value: str | None = None
-    value_type: Node | None = None
+
+
+@dataclass
+class ResultNonExistentCardinalityViolation(ValidationResult): ...
+
+
+@dataclass
+class ReformattedIRI:
+    res_id: str
+    res_type: str
+    prop_name: str

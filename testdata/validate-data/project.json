@@ -12,12 +12,12 @@
     ],
     "lists": [
       {
-        "name": "onlyList",
+        "name": "firstList",
         "labels": {
-          "en": "List"
+          "en": "List 1"
         },
         "comments": {
-          "en": "This is the only list"
+          "en": "This is the first list"
         },
         "nodes": [
           {
@@ -41,6 +41,23 @@
                 ]
               }
             ]
+          }
+        ]
+      },
+      {
+        "name": "secondList",
+        "labels": {
+          "en": "List"
+        },
+        "comments": {
+          "en": "This is the second list"
+        },
+        "nodes": [
+          {
+            "name": "l2n1",
+            "labels": {
+              "en": "List 2, Node 1"
+            }
           }
         ]
       }
@@ -181,7 +198,7 @@
             },
             "gui_element": "List",
             "gui_attributes": {
-              "hlist": "onlyList"
+              "hlist": "firstList"
             }
           },
           {
@@ -501,6 +518,44 @@
               {
                 "propname": "seqnum",
                 "cardinality": "0-1"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "second-onto",
+        "label": "Second Ontology",
+        "properties": [
+          {
+            "name": "testBoolean",
+            "super": [
+              "hasValue"
+            ],
+            "object": "BooleanValue",
+            "labels": {
+              "en": "Test Boolean of the second onto"
+            },
+            "gui_element": "Checkbox"
+          }
+        ],
+        "resources": [
+          {
+            "name": "SecondOntoClass",
+            "super": "Resource",
+            "labels": {
+              "en": "Resource with all cardinality options"
+            },
+            "cardinalities": [
+              {
+                "propname": ":testBoolean",
+                "cardinality": "0-1",
+                "gui_order": 0
+              },
+              {
+                "propname": "onto:testSimpleText",
+                "cardinality": "0-n",
+                "gui_order": 1
               }
             ]
           }

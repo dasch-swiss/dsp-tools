@@ -2,6 +2,7 @@ import pandas as pd
 import pytest
 import regex
 
+from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.xmllib.models.file_values import FileValue
 from dsp_tools.xmllib.models.file_values import IIIFUri
@@ -23,206 +24,258 @@ from dsp_tools.xmllib.models.values import UriValue
 
 class TestAddValues:
     def test_add_bool(self) -> None:
-        res = Resource.new("", "", "").add_bool("", "")
+        res = Resource.new("res_id", "restype", "label").add_bool(":prop", "True")
         assert len(res.values) == 1
         assert isinstance(res.values[0], BooleanValue)
 
+    def test_add_bool_warns(self) -> None:
+        with pytest.warns(DspToolsUserWarning, match="a 'bool' does not conform to the expected format"):
+            Resource.new("res_id", "restype", "label").add_bool("", "")
+
     def test_add_bool_optional(self) -> None:
-        res = Resource.new("", "", "").add_bool_optional("", None)
+        res = Resource.new("res_id", "restype", "label").add_bool_optional("", None)
         assert not res.values
         res = res.add_bool_optional("val", "")
         assert len(res.values) == 1
         assert isinstance(res.values[0], BooleanValue)
 
     def test_add_color(self) -> None:
-        res = Resource.new("", "", "").add_color("", "")
+        res = Resource.new("res_id", "restype", "label").add_color(":prop", "#000000")
         assert len(res.values) == 1
         assert isinstance(res.values[0], ColorValue)
 
+    def test_add_color_warns(self) -> None:
+        with pytest.warns(DspToolsUserWarning, match="a 'color' does not conform to the expected format"):
+            Resource.new("res_id", "restype", "label").add_color("", "")
+
     def test_add_color_multiple(self) -> None:
-        res = Resource.new("", "", "").add_color_multiple("", ["", ""])
+        res = Resource.new("res_id", "restype", "label").add_color_multiple(":prop", ["#000000", "#ffffff"])
         assert len(res.values) == 2
         assert all([isinstance(x, ColorValue) for x in res.values])
 
     def test_add_color_optional(self) -> None:
-        res = Resource.new("", "", "").add_color_optional("", pd.NA)
+        res = Resource.new("res_id", "restype", "label").add_color_optional("", pd.NA)
         assert not res.values
         res = res.add_color_optional("", "")
         assert len(res.values) == 1
         assert isinstance(res.values[0], ColorValue)
 
     def test_add_date(self) -> None:
-        res = Resource.new("", "", "").add_date("", "")
+        res = Resource.new("res_id", "restype", "label").add_date(":prop", "2024-10-31")
         assert len(res.values) == 1
         assert isinstance(res.values[0], DateValue)
 
+    def test_add_date_warns(self) -> None:
+        with pytest.warns(DspToolsUserWarning, match="a 'date' does not conform to the expected format"):
+            Resource.new("res_id", "restype", "label").add_date("", "")
+
     def test_add_date_multiple(self) -> None:
-        res = Resource.new("", "", "").add_date_multiple("", ["", ""])
+        res = Resource.new("res_id", "restype", "label").add_date_multiple(":prop", ["2024-10-30", "2024-10-31"])
         assert len(res.values) == 2
         assert all([isinstance(x, DateValue) for x in res.values])
 
     def test_add_date_optional(self) -> None:
-        res = Resource.new("", "", "").add_date_optional("", None)
+        res = Resource.new("res_id", "restype", "label").add_date_optional("", None)
         assert not res.values
         res = res.add_date_optional("", "")
         assert len(res.values) == 1
         assert isinstance(res.values[0], DateValue)
 
     def test_add_decimal(self) -> None:
-        res = Resource.new("", "", "").add_decimal("", "")
+        res = Resource.new("res_id", "restype", "label").add_decimal(":prop", "0.1")
         assert len(res.values) == 1
         assert isinstance(res.values[0], DecimalValue)
 
+    def test_add_decimal_warns(self) -> None:
+        with pytest.warns(DspToolsUserWarning, match="a 'decimal' does not conform to the expected format"):
+            Resource.new("res_id", "restype", "label").add_decimal("", "")
+
     def test_add_decimal_multiple(self) -> None:
-        res = Resource.new("", "", "").add_decimal_multiple("", ["", ""])
+        res = Resource.new("res_id", "restype", "label").add_decimal_multiple(":prop", ["0.1", "0.2"])
         assert len(res.values) == 2
         assert all([isinstance(x, DecimalValue) for x in res.values])
 
     def test_add_decimal_optional(self) -> None:
-        res = Resource.new("", "", "").add_decimal_optional("", None)
+        res = Resource.new("res_id", "restype", "label").add_decimal_optional("", None)
         assert not res.values
         res = res.add_decimal_optional("", "")
         assert len(res.values) == 1
         assert isinstance(res.values[0], DecimalValue)
 
     def test_add_geoname(self) -> None:
-        res = Resource.new("", "", "").add_geoname("", "")
+        res = Resource.new("res_id", "restype", "label").add_geoname(":prop", "123456")
         assert len(res.values) == 1
         assert isinstance(res.values[0], GeonameValue)
 
+    def test_add_geoname_warns(self) -> None:
+        with pytest.warns(DspToolsUserWarning, match="a 'geoname' does not conform to the expected format"):
+            Resource.new("res_id", "restype", "label").add_geoname("", "")
+
     def test_add_geoname_multiple(self) -> None:
-        res = Resource.new("", "", "").add_geoname_multiple("", ["", ""])
+        res = Resource.new("res_id", "restype", "label").add_geoname_multiple(":prop", ["123456", "7890"])
         assert len(res.values) == 2
         assert all([isinstance(x, GeonameValue) for x in res.values])
 
     def test_add_geoname_optional(self) -> None:
-        res = Resource.new("", "", "").add_geoname_optional("", pd.NA)
+        res = Resource.new("res_id", "restype", "label").add_geoname_optional("", pd.NA)
         assert not res.values
         res = res.add_geoname_optional("", "")
         assert len(res.values) == 1
         assert isinstance(res.values[0], GeonameValue)
 
     def test_add_integer(self) -> None:
-        res = Resource.new("", "", "").add_integer("", "")
+        res = Resource.new("res_id", "restype", "label").add_integer(":prop", "1")
         assert len(res.values) == 1
         assert isinstance(res.values[0], IntValue)
 
+    def test_add_integer_warns(self) -> None:
+        with pytest.warns(DspToolsUserWarning, match="a 'integer' does not conform to the expected format"):
+            Resource.new("res_id", "restype", "label").add_integer("", "")
+
     def test_add_integer_multiple(self) -> None:
-        res = Resource.new("", "", "").add_integer_multiple("", ["", ""])
+        res = Resource.new("res_id", "restype", "label").add_integer_multiple(":prop", ["1", "2"])
         assert len(res.values) == 2
         assert all([isinstance(x, IntValue) for x in res.values])
 
     def test_add_integer_optional(self) -> None:
-        res = Resource.new("", "", "").add_integer_optional("", None)
+        res = Resource.new("res_id", "restype", "label").add_integer_optional("", None)
         assert not res.values
         res = res.add_integer_optional("", "")
         assert len(res.values) == 1
         assert isinstance(res.values[0], IntValue)
 
     def test_add_link(self) -> None:
-        res = Resource.new("", "", "").add_link("", "")
+        res = Resource.new("res_id", "restype", "label").add_link(":prop", "other_id")
         assert len(res.values) == 1
         assert isinstance(res.values[0], LinkValue)
 
+    def test_add_link_warns(self) -> None:
+        with pytest.warns(DspToolsUserWarning, match="a 'string' does not conform to the expected format"):
+            Resource.new("res_id", "restype", "label").add_link("", "")
+
     def test_add_link_multiple(self) -> None:
-        res = Resource.new("", "", "").add_link_multiple("", ["", ""])
+        res = Resource.new("res_id", "restype", "label").add_link_multiple(":prop", ["other_id", "yet_another_id"])
         assert len(res.values) == 2
         assert all([isinstance(x, LinkValue) for x in res.values])
 
     def test_add_link_optional(self) -> None:
-        res = Resource.new("", "", "").add_link_optional("", pd.NA)
+        res = Resource.new("res_id", "restype", "label").add_link_optional("", pd.NA)
         assert not res.values
         res = res.add_link_optional("", "")
         assert len(res.values) == 1
         assert isinstance(res.values[0], LinkValue)
 
     def test_add_list(self) -> None:
-        res = Resource.new("", "", "").add_list("", "", "")
+        res = Resource.new("res_id", "restype", "label").add_list(":prop", "list-1", "node-1")
         assert len(res.values) == 1
         assert isinstance(res.values[0], ListValue)
 
+    def test_add_list_warns(self) -> None:
+        with pytest.warns(DspToolsUserWarning, match="a 'list' does not conform to the expected format"):
+            Resource.new("res_id", "restype", "label").add_list("", "", "")
+
     def test_add_list_multiple(self) -> None:
-        res = Resource.new("", "", "").add_list_multiple("", "", ["", ""])
+        res = Resource.new("res_id", "restype", "label").add_list_multiple(":prop", "list-1", ["node-1", "node-2"])
         assert len(res.values) == 2
         assert all([isinstance(x, ListValue) for x in res.values])
 
     def test_add_list_optional(self) -> None:
-        res = Resource.new("", "", "").add_list_optional("", "listname", None)
+        res = Resource.new("res_id", "restype", "label").add_list_optional("", "listname", None)
         assert not res.values
         res = res.add_list_optional("", "", "")
         assert len(res.values) == 1
         assert isinstance(res.values[0], ListValue)
 
     def test_add_simple_text(self) -> None:
-        res = Resource.new("", "", "").add_simpletext("", "")
+        res = Resource.new("res_id", "restype", "label").add_simpletext(":prop", "text")
         assert len(res.values) == 1
         assert isinstance(res.values[0], SimpleText)
 
+    def test_add_simple_text_warns(self) -> None:
+        with pytest.warns(DspToolsUserWarning, match="a 'string' does not conform to the expected format"):
+            Resource.new("res_id", "restype", "label").add_simpletext("", "")
+
     def test_add_simple_text_multiple(self) -> None:
-        res = Resource.new("", "", "").add_simpletext_multiple("", ["", ""])
+        res = Resource.new("res_id", "restype", "label").add_simpletext_multiple(":prop", ["text1", "text2"])
         assert len(res.values) == 2
         assert all([isinstance(x, SimpleText) for x in res.values])
 
     def test_add_simple_text_optional(self) -> None:
-        res = Resource.new("", "", "").add_simpletext_optional("", None)
+        res = Resource.new("res_id", "restype", "label").add_simpletext_optional("", None)
         assert not res.values
         res = res.add_simpletext_optional("", "")
         assert len(res.values) == 1
         assert isinstance(res.values[0], SimpleText)
 
     def test_add_richtext(self) -> None:
-        res = Resource.new("", "", "").add_richtext("", "A\nB")
+        res = Resource.new("res_id", "restype", "label").add_richtext(":prop", "A\nB")
         assert len(res.values) == 1
         assert isinstance(res.values[0], Richtext)
         assert res.values[0].value == "A<br/>B"
 
+    def test_add_richtext_warns(self) -> None:
+        with pytest.warns(DspToolsUserWarning, match="a 'string' does not conform to the expected format"):
+            Resource.new("res_id", "restype", "label").add_richtext("", "")
+
     def test_add_richtext_no_replace(self) -> None:
-        res = Resource.new("", "", "").add_richtext("", "A\nB", newline_replacement=NewlineReplacement.NONE)
+        res = Resource.new("res_id", "restype", "label").add_richtext(
+            "", "A\nB", newline_replacement=NewlineReplacement.NONE
+        )
         assert len(res.values) == 1
         assert isinstance(res.values[0], Richtext)
         assert res.values[0].value == "A\nB"
 
     def test_add_richtext_multiple(self) -> None:
-        res = Resource.new("", "", "").add_richtext_multiple("", ["", ""])
+        res = Resource.new("res_id", "restype", "label").add_richtext_multiple(":prop", ["text1", "text2"])
         assert len(res.values) == 2
         assert all([isinstance(x, Richtext) for x in res.values])
 
     def test_add_richtext_optional(self) -> None:
-        res = Resource.new("", "", "").add_richtext_optional("", None)
+        res = Resource.new("res_id", "restype", "label").add_richtext_optional("", None)
         assert not res.values
         res = res.add_richtext_optional("", "")
         assert len(res.values) == 1
         assert isinstance(res.values[0], Richtext)
 
     def test_add_time(self) -> None:
-        res = Resource.new("", "", "").add_time("", "")
+        res = Resource.new("res_id", "restype", "label").add_time(":prop", "2024-10-31T11:00:00Z")
         assert len(res.values) == 1
         assert isinstance(res.values[0], TimeValue)
 
+    def test_add_time_warns(self) -> None:
+        with pytest.warns(DspToolsUserWarning, match="a 'timestamp' does not conform to the expected format"):
+            Resource.new("res_id", "restype", "label").add_time("", "")
+
     def test_add_time_multiple(self) -> None:
-        res = Resource.new("", "", "").add_time_multiple("", ["", ""])
+        res = Resource.new("res_id", "restype", "label").add_time_multiple(
+            ":prop", ["2024-10-31T11:00:00Z", "2023-01-01T00:00:00Z"]
+        )
         assert len(res.values) == 2
         assert all([isinstance(x, TimeValue) for x in res.values])
 
     def test_add_time_optional(self) -> None:
-        res = Resource.new("", "", "").add_time_optional("", None)
+        res = Resource.new("res_id", "restype", "label").add_time_optional("", None)
         assert not res.values
         res = res.add_time_optional("", "")
         assert len(res.values) == 1
         assert isinstance(res.values[0], TimeValue)
 
     def test_add_uri(self) -> None:
-        res = Resource.new("", "", "").add_uri("", "")
+        res = Resource.new("res_id", "restype", "label").add_uri(":prop", "https://www.google.com/")
         assert len(res.values) == 1
         assert isinstance(res.values[0], UriValue)
 
+    def test_add_uri_warns(self) -> None:
+        with pytest.warns(DspToolsUserWarning, match="a 'uri' does not conform to the expected format"):
+            Resource.new("res_id", "restype", "label").add_uri("", "")
+
     def test_add_uri_multiple(self) -> None:
-        res = Resource.new("", "", "").add_uri_multiple("", ["", ""])
+        res = Resource.new("res_id", "restype", "label").add_uri_multiple("", ["https://www.google.com/", "https://dasch.swiss/"])
         assert len(res.values) == 2
         assert all([isinstance(x, UriValue) for x in res.values])
 
     def test_add_uri_optional(self) -> None:
-        res = Resource.new("", "", "").add_uri_optional("", pd.NA)
+        res = Resource.new("res_id", "restype", "label").add_uri_optional("", pd.NA)
         assert not res.values
         res = res.add_uri_optional("", "")
         assert len(res.values) == 1
@@ -231,7 +284,7 @@ class TestAddValues:
 
 class TestAddFiles:
     def test_add_file(self) -> None:
-        res = Resource.new("", "", "").add_file("")
+        res = Resource.new("res_id", "restype", "label").add_file("")
         assert isinstance(res.file_value, FileValue)
 
     def test_add_file_raising(self) -> None:
@@ -244,7 +297,7 @@ class TestAddFiles:
             res.add_file("new filename")
 
     def test_add_iiif_uri(self) -> None:
-        res = Resource.new("", "", "").add_iiif_uri("")
+        res = Resource.new("res_id", "restype", "label").add_iiif_uri("")
         assert isinstance(res.file_value, IIIFUri)
 
     def test_add_iiif_uri_raising(self) -> None:

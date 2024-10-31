@@ -224,7 +224,7 @@
             },
             "gui_element": "List",
             "gui_attributes": {
-              "hlist": "secondList"
+              "hlist": "secondList with space"
             }
           },
           {

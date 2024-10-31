@@ -7,37 +7,25 @@
        default-ontology="onto">
 
 
-    <resource label="Backslash" restype=":ClassWithEverything" id="list_backslash_wrong_node">
-        <list-prop list="secondList \\ ' space" name=":testListProp">
+    <resource label="Backslash" restype=":ClassWithEverything" id="wrong_list_name">
+        <list-prop list="secondList \ ' space" name=":testListProp">
             <list>other</list>
         </list-prop>
     </resource>
 
-    <resource label="Double Quote" restype=":ClassWithEverything" id="list_double_quote_wrong_node">
-        <list-prop list="secondList \\ ' space" name=":testListProp">
-            <list>other</list>
-        </list-prop>
-    </resource>
-
-    <resource label="Single Quote" restype=":ClassWithEverything" id="list_single_quote_wrong_node">
-        <list-prop list="secondList \\ ' space" name=":testListProp">
-            <list>other</list>
-        </list-prop>
-    </resource>
-
-    <resource label="Backslash" restype=":ClassWithEverything" id="list_backslash">
+    <resource label="Backslash" restype=":ClassWithEverything" id="node_backslash">
         <list-prop list="other" name=":testListProp">
             <list> \ backslash</list>
         </list-prop>
     </resource>
 
-    <resource label="Double Quote" restype=":ClassWithEverything" id="list_double_quote">
+    <resource label="Double Quote" restype=":ClassWithEverything" id="node_double_quote">
         <list-prop list="other" name=":testListProp">
             <list>double quote "</list>
         </list-prop>
     </resource>
 
-    <resource label="Single Quote" restype=":ClassWithEverything" id="list_single_quote">
+    <resource label="Single Quote" restype=":ClassWithEverything" id="node_single_quote">
         <list-prop list="other" name=":testListProp">
             <list>single quote '</list>
         </list-prop>

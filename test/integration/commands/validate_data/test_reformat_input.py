@@ -8,7 +8,7 @@ from dsp_tools.commands.validate_data.models.data_deserialised import ProjectDes
 def test_to_data_rdf(data_xml: etree._Element) -> None:
     res = deserialise_xml(data_xml)
     assert isinstance(res, ProjectDeserialised)
-    assert res.info.shortcode == "9999"
+    assert res.info.shortcode == "0001"
     assert res.info.default_onto == "onto"
     assert len(res.data.resources) == 17
 

@@ -399,10 +399,10 @@ def test_to_boolean() -> None:
 
 
 def test_make_iiif_uri_value_with_permissions() -> None:
-    permission = {"prop-default": Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})}
+    permission = {"open": Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})}
     xml_str = """
         <resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id">
-            <iiif-uri permissions="prop-default">http://example.org/prefix1/abcd1234/full/full/0/native.jpg</iiif-uri>
+            <iiif-uri permissions="open">http://example.org/prefix1/abcd1234/full/full/0/native.jpg</iiif-uri>
         </resource>
         """
     xmlresource = XMLResource.from_node(etree.fromstring(xml_str), "foo")
@@ -412,7 +412,7 @@ def test_make_iiif_uri_value_with_permissions() -> None:
 
 
 def test_make_iiif_uri_value_no_permissions() -> None:
-    permission = {"prop-default": Permissions()}
+    permission = {"open": Permissions()}
     xml_str = """
         <resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id">
             <iiif-uri>http://example.org/prefix1/abcd1234/full/full/0/native.jpg</iiif-uri>
@@ -428,7 +428,7 @@ def test_make_iiif_uri_value_raises() -> None:
     permission = {"": Permissions()}
     xml_str = """
         <resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id">
-            <iiif-uri permissions="prop-default">http://example.org/prefix1/abcd1234/full/full/0/native.jpg</iiif-uri>
+            <iiif-uri permissions="open">http://example.org/prefix1/abcd1234/full/full/0/native.jpg</iiif-uri>
         </resource>
         """
     xmlresource = XMLResource.from_node(etree.fromstring(xml_str), "foo")
@@ -459,12 +459,12 @@ def test_make_iiif_uri_value_serialised() -> None:
 
 
 def test_make_boolean_value_with_permissions() -> None:
-    permissions_lookup = {"prop-default": Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})}
+    permissions_lookup = {"open": Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})}
 
     xml_str = """
         <resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id">
             <boolean-prop name=":isTrueOrFalse">
-                <boolean permissions="prop-default">true</boolean>
+                <boolean permissions="open">true</boolean>
             </boolean-prop>
         </resource>
         """

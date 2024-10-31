@@ -84,6 +84,12 @@
         </text-prop>
     </resource>
 
+    <resource label="Richtext" restype=":ClassWithEverything" id="id_richtext_with_xml_tags">
+        <text-prop name=":testRichtext">
+            <text encoding="xml"><p>Text</p></text>
+        </text-prop>
+    </resource>
+
     <resource label="Simpletext" restype=":ClassWithEverything" id="id_simpletext">
         <text-prop name=":testTextarea">
             <text encoding="utf8">Text line 1

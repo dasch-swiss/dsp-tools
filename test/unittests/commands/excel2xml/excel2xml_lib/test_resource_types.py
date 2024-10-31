@@ -14,27 +14,27 @@ from dsp_tools.models.exceptions import BaseError
 
 class TestResourceTypes(unittest.TestCase):
     def test_make_annotation(self) -> None:
-        expected = '<annotation label="label" id="id" permissions="res-default"/>'
+        expected = '<annotation label="label" id="id" permissions="open"/>'
         result = _strip_namespace(excel2xml.make_annotation("label", "id"))
         self.assertEqual(expected, result)
 
     def test_make_annotation_with_permission(self) -> None:
-        expected = '<annotation label="label" id="id" permissions="res-restricted"/>'
-        result = _strip_namespace(excel2xml.make_annotation("label", "id", "res-restricted"))
+        expected = '<annotation label="label" id="id" permissions="restricted"/>'
+        result = _strip_namespace(excel2xml.make_annotation("label", "id", "restricted"))
         self.assertEqual(expected, result)
 
     def test_make_annotation_with_ark(self) -> None:
-        expected = '<annotation label="label" id="id" permissions="res-default" ark="ark"/>'
+        expected = '<annotation label="label" id="id" permissions="open" ark="ark"/>'
         result = _strip_namespace(excel2xml.make_annotation("label", "id", ark="ark"))
         self.assertEqual(expected, result)
 
     def test_make_annotation_with_iri(self) -> None:
-        expected = '<annotation label="label" id="id" permissions="res-default" iri="iri"/>'
+        expected = '<annotation label="label" id="id" permissions="open" iri="iri"/>'
         result = _strip_namespace(excel2xml.make_annotation("label", "id", iri="iri"))
         self.assertEqual(expected, result)
 
     def test_make_annotation_with_creation_date(self) -> None:
-        expected = '<annotation label="label" id="id" permissions="res-default" creation_date="2019-10-23T13:45:12Z"/>'
+        expected = '<annotation label="label" id="id" permissions="open" creation_date="2019-10-23T13:45:12Z"/>'
         result = _strip_namespace(excel2xml.make_annotation("label", "id", creation_date="2019-10-23T13:45:12Z"))
         self.assertEqual(expected, result)
 
@@ -47,27 +47,27 @@ class TestResourceTypes(unittest.TestCase):
             excel2xml.make_annotation("label", "id", creation_date="2019-10-23T13:45:12")
 
     def test_make_link(self) -> None:
-        expected = '<link label="label" id="id" permissions="res-default"/>'
+        expected = '<link label="label" id="id" permissions="open"/>'
         result = _strip_namespace(excel2xml.make_link("label", "id"))
         self.assertEqual(expected, result)
 
     def test_make_link_with_permission(self) -> None:
-        expected = '<link label="label" id="id" permissions="res-restricted"/>'
-        result = _strip_namespace(excel2xml.make_link("label", "id", "res-restricted"))
+        expected = '<link label="label" id="id" permissions="restricted"/>'
+        result = _strip_namespace(excel2xml.make_link("label", "id", "restricted"))
         self.assertEqual(expected, result)
 
     def test_make_link_with_ark(self) -> None:
-        expected = '<link label="label" id="id" permissions="res-default" ark="ark"/>'
+        expected = '<link label="label" id="id" permissions="open" ark="ark"/>'
         result = _strip_namespace(excel2xml.make_link("label", "id", ark="ark"))
         self.assertEqual(expected, result)
 
     def test_make_link_with_iri(self) -> None:
-        expected = '<link label="label" id="id" permissions="res-default" iri="iri"/>'
+        expected = '<link label="label" id="id" permissions="open" iri="iri"/>'
         result = _strip_namespace(excel2xml.make_link("label", "id", iri="iri"))
         self.assertEqual(expected, result)
 
     def test_make_link_with_creation_date(self) -> None:
-        expected = '<link label="label" id="id" permissions="res-default" creation_date="2019-10-23T13:45:12Z"/>'
+        expected = '<link label="label" id="id" permissions="open" creation_date="2019-10-23T13:45:12Z"/>'
         result = _strip_namespace(excel2xml.make_link("label", "id", creation_date="2019-10-23T13:45:12Z"))
         self.assertEqual(expected, result)
 
@@ -80,27 +80,27 @@ class TestResourceTypes(unittest.TestCase):
             excel2xml.make_link("label", "id", creation_date="2019-10-23T13:45:12")
 
     def test_make_region(self) -> None:
-        expected = '<region label="label" id="id" permissions="res-default"/>'
+        expected = '<region label="label" id="id" permissions="open"/>'
         result = _strip_namespace(excel2xml.make_region("label", "id"))
         self.assertEqual(expected, result)
 
     def test_make_region_with_permission(self) -> None:
-        expected = '<region label="label" id="id" permissions="res-restricted"/>'
-        result = _strip_namespace(excel2xml.make_region("label", "id", "res-restricted"))
+        expected = '<region label="label" id="id" permissions="restricted"/>'
+        result = _strip_namespace(excel2xml.make_region("label", "id", "restricted"))
         self.assertEqual(expected, result)
 
     def test_make_region_with_ark(self) -> None:
-        expected = '<region label="label" id="id" permissions="res-default" ark="ark"/>'
+        expected = '<region label="label" id="id" permissions="open" ark="ark"/>'
         result = _strip_namespace(excel2xml.make_region("label", "id", ark="ark"))
         self.assertEqual(expected, result)
 
     def test_make_region_with_iri(self) -> None:
-        expected = '<region label="label" id="id" permissions="res-default" iri="iri"/>'
+        expected = '<region label="label" id="id" permissions="open" iri="iri"/>'
         result = _strip_namespace(excel2xml.make_region("label", "id", iri="iri"))
         self.assertEqual(expected, result)
 
     def test_make_region_with_creation_date(self) -> None:
-        expected = '<region label="label" id="id" permissions="res-default" creation_date="2019-10-23T13:45:12Z"/>'
+        expected = '<region label="label" id="id" permissions="open" creation_date="2019-10-23T13:45:12Z"/>'
         result = _strip_namespace(excel2xml.make_region("label", "id", creation_date="2019-10-23T13:45:12Z"))
         self.assertEqual(expected, result)
 
@@ -113,47 +113,47 @@ class TestResourceTypes(unittest.TestCase):
             excel2xml.make_region("label", "id", creation_date="2019-10-23T13:45:12")
 
     def test_make_audio_segment(self) -> None:
-        expected = '<audio-segment label="label" id="id" permissions="res-default"/>'
+        expected = '<audio-segment label="label" id="id" permissions="open"/>'
         result = _strip_namespace(excel2xml.make_audio_segment("label", "id"))
         self.assertEqual(expected, result)
 
     def test_make_audio_segment_with_custom_permissions(self) -> None:
-        expected = '<audio-segment label="label" id="id" permissions="res-restricted"/>'
-        result = _strip_namespace(excel2xml.make_audio_segment("label", "id", "res-restricted"))
+        expected = '<audio-segment label="label" id="id" permissions="restricted"/>'
+        result = _strip_namespace(excel2xml.make_audio_segment("label", "id", "restricted"))
         self.assertEqual(expected, result)
 
     def test_make_video_segment(self) -> None:
-        expected = '<video-segment label="label" id="id" permissions="res-default"/>'
+        expected = '<video-segment label="label" id="id" permissions="open"/>'
         result = _strip_namespace(excel2xml.make_video_segment("label", "id"))
         self.assertEqual(expected, result)
 
     def test_make_video_segment_with_custom_permissions(self) -> None:
-        expected = '<video-segment label="label" id="id" permissions="res-restricted"/>'
-        result = _strip_namespace(excel2xml.make_video_segment("label", "id", "res-restricted"))
+        expected = '<video-segment label="label" id="id" permissions="restricted"/>'
+        result = _strip_namespace(excel2xml.make_video_segment("label", "id", "restricted"))
         self.assertEqual(expected, result)
 
     def test_make_resource(self) -> None:
         test_cases: list[tuple[Callable[..., etree._Element], str]] = [
             (
                 lambda: excel2xml.make_resource("label", "restype", "id"),
-                '<resource label="label" restype="restype" id="id" permissions="res-default"/>',
+                '<resource label="label" restype="restype" id="id" permissions="open"/>',
             ),
             (
-                lambda: excel2xml.make_resource("label", "restype", "id", "res-restricted"),
-                '<resource label="label" restype="restype" id="id" permissions="res-restricted"/>',
+                lambda: excel2xml.make_resource("label", "restype", "id", "restricted"),
+                '<resource label="label" restype="restype" id="id" permissions="restricted"/>',
             ),
             (
                 lambda: excel2xml.make_resource("label", "restype", "id", ark="ark"),
-                '<resource label="label" restype="restype" id="id" permissions="res-default" ark="ark"/>',
+                '<resource label="label" restype="restype" id="id" permissions="open" ark="ark"/>',
             ),
             (
                 lambda: excel2xml.make_resource("label", "restype", "id", iri="iri"),
-                '<resource label="label" restype="restype" id="id" permissions="res-default" iri="iri"/>',
+                '<resource label="label" restype="restype" id="id" permissions="open" iri="iri"/>',
             ),
             (
                 lambda: excel2xml.make_resource("label", "restype", "id", creation_date="2019-10-23T13:45:12Z"),
                 (
-                    '<resource label="label" restype="restype" id="id" permissions="res-default" '
+                    '<resource label="label" restype="restype" id="id" permissions="open" '
                     'creation_date="2019-10-23T13:45:12Z"/>'
                 ),
             ),

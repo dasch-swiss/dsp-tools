@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json",
   "project": {
-    "shortcode": "9999",
+    "shortcode": "0002",
     "shortname": "special",
     "longname": "Test project for validate-data with special characters",
     "descriptions": {
@@ -21,19 +21,19 @@
         },
         "nodes": [
           {
-            "name": "l2n1 \\ or",
+            "name": " \\ backslash",
             "labels": {
               "en": "List 2, Node 1"
             }
           },
           {
-            "name": "l2n2 \"",
+            "name": "double quote \"",
             "labels": {
               "en": "List 2, Node 2"
             }
           },
           {
-            "name": "l2n3 '",
+            "name": "single quote '",
             "labels": {
               "en": "List 2, Node 3"
             }

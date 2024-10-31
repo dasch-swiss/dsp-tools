@@ -3,14 +3,26 @@
 <knora xmlns="https://dasch.swiss/schema"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
-       shortcode="9999"
+       shortcode="0001"
        default-ontology="onto">
 
     <resource label="Empty" restype=":ClassWithEverything" id="id_empty"/>
 
-    <resource label="Bool" restype=":ClassWithEverything" id="id_bool">
+    <resource label="Bool True" restype=":ClassWithEverything" id="id_bool_true">
         <boolean-prop name=":testBoolean">
             <boolean>true</boolean>
+        </boolean-prop>
+    </resource>
+
+    <resource label="Bool One" restype=":ClassWithEverything" id="id_bool_1">
+        <boolean-prop name=":testBoolean">
+            <boolean>1</boolean>
+        </boolean-prop>
+    </resource>
+
+    <resource label="Bool Zero" restype=":ClassWithEverything" id="id_bool_0">
+        <boolean-prop name=":testBoolean">
+            <boolean>0</boolean>
         </boolean-prop>
     </resource>
 
@@ -50,21 +62,47 @@
         </list-prop>
     </resource>
 
-    <resource label="Target of Link Prop" restype=":ClassWithEverything" id="id_link_target"/>
     <resource label="Link Prop" restype=":ClassWithEverything" id="id_link">
         <resptr-prop name=":testHasLinkTo">
-            <resptr>id_link_target</resptr>
+            <resptr>id_empty</resptr>
+        </resptr-prop>
+    </resource>
+
+    <resource label="Link Target" restype=":ClassInheritedCardinality" id="id_target_of_link_inherited"/>
+
+    <resource label="Link Prop" restype=":ClassWithEverything" id="id_link_with_inheritance">
+        <resptr-prop name=":testHasLinkToCardOneResource">
+            <resptr>id_target_of_link_inherited</resptr>
         </resptr-prop>
     </resource>
 
     <resource label="Richtext" restype=":ClassWithEverything" id="id_richtext">
         <text-prop name=":testRichtext">
-            <text encoding="xml">Text</text>
+            <text encoding="xml"> Text line 1
+
+            line2 </text>
+        </text-prop>
+    </resource>
+
+    <resource label="Richtext" restype=":ClassWithEverything" id="id_richtext_with_xml_tags">
+        <text-prop name=":testRichtext">
+            <text encoding="xml"><p>Text</p></text>
         </text-prop>
     </resource>
 
     <resource label="Simpletext" restype=":ClassWithEverything" id="id_simpletext">
         <text-prop name=":testTextarea">
+            <text encoding="utf8">Text line 1
+
+            line 2  </text>
+        </text-prop>
+    </resource>
+
+    <resource label="Simpletext" restype=":ClassWithEverything" id="identical_text_different_prop">
+        <text-prop name=":testTextarea">
+            <text encoding="utf8">Text</text>
+        </text-prop>
+        <text-prop name=":testSimpleText">
             <text encoding="utf8">Text</text>
         </text-prop>
     </resource>
@@ -80,45 +118,5 @@
             <uri>https://dasch.swiss</uri>
         </uri-prop>
     </resource>
-
-    <resource label="Image" restype=":TestStillImageRepresentation" id="id_image">
-        <bitstream>this/is/filepath/img.jpg</bitstream>
-    </resource>
-
-    <resource label="Class of second ontology" restype="second-onto:SecondOntoClass" id="second_onto_class">
-        <boolean-prop name="second-onto:testBoolean">
-            <boolean>true</boolean>
-        </boolean-prop>
-        <text-prop name=":testSimpleText">
-            <text encoding="utf8">Text</text>
-        </text-prop>
-    </resource>
-
-    <region label="Region" id="region_1">
-        <color-prop name="hasColor">
-            <color permissions="restricted">#5d1f1e</color>
-        </color-prop>
-        <resptr-prop name="isRegionOf">
-            <resptr permissions="open">image_thing_0</resptr>
-        </resptr-prop>
-        <geometry-prop name="hasGeometry">
-            <geometry permissions="open">
-                {
-                    "status": "active",
-                    "type": "polygon",
-                    "lineWidth": 5,
-                    "points": [{"x": 0.4, "y": 0.6},
-                    {"x": 0.5, "y": 0.9},
-                    {"x": 0.8, "y": 0.9},
-                    {"x": 0.7, "y": 0.6}]
-                }
-            </geometry>
-        </geometry-prop>
-        <text-prop name="hasComment">
-            <text encoding="xml" permissions="open">
-                This is a polygon-formed region of interest of an image. It is also displayed as Annotation.
-            </text>
-        </text-prop>
-    </region>
 
 </knora>

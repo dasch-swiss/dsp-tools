@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass
 
 from rdflib import Graph
@@ -27,12 +26,16 @@ class OneList:
         return f'"hlist=<{self.list_iri}>"'
 
     def shacl_nodes(self) -> str:
-        escaped_nodes = [str(self._to_json_str(x)) for x in sorted(self.nodes)]
+        escaped_nodes = [self._escape(x) for x in sorted(self.nodes)]
         node_str = " ".join(escaped_nodes)
         return f"( {node_str} )"
 
     def shacl_list(self) -> str:
-        return f"( {self._to_json_str(self.list_name)} )"
+        return f"( {self._escape(self.list_name)} )"
 
-    def _to_json_str(self, in_str: str) -> bytes:
-        return json.dumps(in_str, ensure_ascii=False).encode("utf-8")
+    def escaped_list_name(self) -> str:
+        return self.list_name.replace("\\", "\\\\").replace("'", "\\'").replace('"', '\\"')
+
+    def _escape(self, in_str: str) -> str:
+        replace_problems = in_str.replace("\\", "\\\\").replace("'", "\\'").replace('"', '\\"')
+        return '"' + replace_problems + '"'

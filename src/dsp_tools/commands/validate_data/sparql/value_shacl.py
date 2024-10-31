@@ -217,16 +217,16 @@ def _construct_one_list_node_shape(one_list: OneList) -> Graph:
                         a          sh:PropertyShape ;
                         sh:path    api-shapes:listNodeAsString ;
                         sh:in      {one_list.shacl_nodes()} ;
-                        sh:message "Unknown list node for list '{one_list.list_name}'."
+                        sh:message "Unknown list node for list: {one_list.escaped_list_name()}."
                       ] ,
                       [
                         a           sh:PropertyShape ;
                         sh:path     api-shapes:listNameAsString ;
                         sh:in       {one_list.shacl_list()} ;
-                        sh:message  "The list that should be used with this property is '{one_list.list_name}'."
+                        sh:message  "The list that should be used with this property is: {one_list.escaped_list_name()}."
                       ] ;
           sh:severity sh:Violation .
-    """
+    """  # noqa: E501 Line too long (121 > 120)
     list_graph = Graph()
     list_graph.parse(data=list_str, format="ttl")
     return list_graph

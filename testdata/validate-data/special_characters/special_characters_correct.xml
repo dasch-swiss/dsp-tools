@@ -25,6 +25,12 @@
         </list-prop>
     </resource>
 
+    <resource label="Accented characters" restype=":ClassWithEverything" id="list_accented_characters">
+        <list-prop list="list \ ' space" name=":testListProp">
+            <list>àéèêëôûäöüßÂ</list>
+        </list-prop>
+    </resource>
+
     <resource label="simpletext" restype=":ClassWithEverything" id="simpletext_non_ascii">
         <text-prop name=":testSimpleText">
             <text encoding="utf8">àéèêëôû äöüß 0123456789 _-'()+=!?&lt;&gt;| 漢が글ርبيةб中</text>

@@ -37,6 +37,12 @@
             "labels": {
               "en": "List 2, Node 3"
             }
+          },
+          {
+            "name": "àéèêëôûäöüßÂ",
+            "labels": {
+              "en": "List 2, Node 4"
+            }
           }
         ]
       }

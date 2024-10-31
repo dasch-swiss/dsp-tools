@@ -40,7 +40,7 @@ def _create_project_generic() -> Iterator[None]:
 
 @lru_cache(maxsize=None)
 @pytest.fixture
-def cardinality_correct(_create_project_generic) -> ValidationReportGraphs:
+def cardinality_correct(_create_project_generic: Iterator[None]) -> ValidationReportGraphs:
     return _get_validation_result(
         LOCAL_API, Path("testdata/validate-data/generic/cardinality_correct.xml"), DONT_SAVE_GRAPHS
     )
@@ -48,7 +48,7 @@ def cardinality_correct(_create_project_generic) -> ValidationReportGraphs:
 
 @lru_cache(maxsize=None)
 @pytest.fixture
-def cardinality_violation(_create_project_generic) -> ValidationReportGraphs:
+def cardinality_violation(_create_project_generic: Iterator[None]) -> ValidationReportGraphs:
     return _get_validation_result(
         LOCAL_API, Path("testdata/validate-data/generic/cardinality_violation.xml"), DONT_SAVE_GRAPHS
     )
@@ -56,7 +56,7 @@ def cardinality_violation(_create_project_generic) -> ValidationReportGraphs:
 
 @lru_cache(maxsize=None)
 @pytest.fixture
-def content_correct(_create_project_generic) -> ValidationReportGraphs:
+def content_correct(_create_project_generic: Iterator[None]) -> ValidationReportGraphs:
     return _get_validation_result(
         LOCAL_API, Path("testdata/validate-data/generic/content_correct.xml"), DONT_SAVE_GRAPHS
     )
@@ -64,7 +64,7 @@ def content_correct(_create_project_generic) -> ValidationReportGraphs:
 
 @lru_cache(maxsize=None)
 @pytest.fixture
-def content_violation(_create_project_generic) -> ValidationReportGraphs:
+def content_violation(_create_project_generic: Iterator[None]) -> ValidationReportGraphs:
     return _get_validation_result(
         LOCAL_API, Path("testdata/validate-data/generic/content_violation.xml"), DONT_SAVE_GRAPHS
     )
@@ -72,7 +72,7 @@ def content_violation(_create_project_generic) -> ValidationReportGraphs:
 
 @lru_cache(maxsize=None)
 @pytest.fixture
-def every_combination_once(_create_project_generic) -> ValidationReportGraphs:
+def every_combination_once(_create_project_generic: Iterator[None]) -> ValidationReportGraphs:
     return _get_validation_result(
         LOCAL_API, Path("testdata/validate-data/generic/every_combination_once.xml"), DONT_SAVE_GRAPHS
     )
@@ -80,7 +80,7 @@ def every_combination_once(_create_project_generic) -> ValidationReportGraphs:
 
 @lru_cache(maxsize=None)
 @pytest.fixture
-def minimal_correct(_create_project_generic) -> ValidationReportGraphs:
+def minimal_correct(_create_project_generic: Iterator[None]) -> ValidationReportGraphs:
     return _get_validation_result(
         LOCAL_API, Path("testdata/validate-data/generic/minimal_correct.xml"), DONT_SAVE_GRAPHS
     )
@@ -88,7 +88,7 @@ def minimal_correct(_create_project_generic) -> ValidationReportGraphs:
 
 @lru_cache(maxsize=None)
 @pytest.fixture
-def value_type_violation(_create_project_generic) -> ValidationReportGraphs:
+def value_type_violation(_create_project_generic: Iterator[None]) -> ValidationReportGraphs:
     return _get_validation_result(
         LOCAL_API, Path("testdata/validate-data/generic/value_type_violation.xml"), DONT_SAVE_GRAPHS
     )
@@ -96,7 +96,7 @@ def value_type_violation(_create_project_generic) -> ValidationReportGraphs:
 
 @lru_cache(maxsize=None)
 @pytest.fixture
-def unique_value_violation(_create_project_generic) -> ValidationReportGraphs:
+def unique_value_violation(_create_project_generic: Iterator[None]) -> ValidationReportGraphs:
     return _get_validation_result(
         LOCAL_API, Path("testdata/validate-data/generic/unique_value_violation.xml"), DONT_SAVE_GRAPHS
     )
@@ -115,7 +115,7 @@ def _create_project_special() -> Iterator[None]:
 
 @lru_cache(maxsize=None)
 @pytest.fixture
-def special_characters_correct(_create_project_special) -> ValidationReportGraphs:
+def special_characters_correct(_create_project_special: Iterator[None]) -> ValidationReportGraphs:
     return _get_validation_result(
         LOCAL_API, Path("testdata/validate-data/special_characters/special_characters_correct.xml"), DONT_SAVE_GRAPHS
     )
@@ -123,7 +123,7 @@ def special_characters_correct(_create_project_special) -> ValidationReportGraph
 
 @lru_cache(maxsize=None)
 @pytest.fixture
-def special_characters_violation(_create_project_special) -> ValidationReportGraphs:
+def special_characters_violation(_create_project_special: Iterator[None]) -> ValidationReportGraphs:
     return _get_validation_result(
         LOCAL_API,
         Path("testdata/validate-data/special_characters/generic/special_characters_violation.xml"),
@@ -321,25 +321,25 @@ class TestReformatValidationGraph:
         first = sorted_problems[0]
         assert isinstance(first, GenericProblem)
         assert first.res_id == "node_backslash"
-        assert first.problem == "Unknown list node for list: secondList \ ' space."
-        assert first.actual_content == "other \ backslash"
+        assert first.problem == "Unknown list node for list: secondList \\ ' space."
+        assert first.actual_content == "other \\ backslash"
 
         second = sorted_problems[1]
         assert isinstance(second, GenericProblem)
         assert second.res_id == "node_double_quote"
-        assert second.problem == "Unknown list node for list: secondList \ ' space."
+        assert second.problem == "Unknown list node for list: secondList \\ ' space."
         assert second.actual_content == 'other double quote "'
 
         third = sorted_problems[2]
         assert isinstance(third, GenericProblem)
         assert third.res_id == "node_single_quote"
-        assert third.problem == "Unknown list node for list: secondList \ ' space."
+        assert third.problem == "Unknown list node for list: secondList \\ ' space."
         assert third.actual_content == "other single quote '"
 
         fourth = sorted_problems[3]
         assert isinstance(fourth, GenericProblem)
         assert fourth.res_id == "wrong_list_name"
-        assert fourth.problem == "The list that should be used with this property is: secondList \ ' space."
+        assert fourth.problem == "The list that should be used with this property is: secondList \\ ' space."
         assert fourth.actual_content == "other"
 
 

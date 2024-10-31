@@ -8,19 +8,19 @@
 
 
     <resource label="Backslash" restype=":ClassWithEverything" id="list_backslash_wrong_node">
-        <list-prop list="secondList with space" name=":testSecondListProp">
+        <list-prop list="secondList \\ ' space" name=":testSecondListProp">
             <list>other</list>
         </list-prop>
     </resource>
 
     <resource label="Double Quote" restype=":ClassWithEverything" id="list_double_quote_wrong_node">
-        <list-prop list="secondList with space" name=":testSecondListProp">
+        <list-prop list="secondList \\ ' space" name=":testSecondListProp">
             <list>other</list>
         </list-prop>
     </resource>
 
     <resource label="Single Quote" restype=":ClassWithEverything" id="list_single_quote_wrong_node">
-        <list-prop list="secondList with space" name=":testSecondListProp">
+        <list-prop list="secondList \\ ' space" name=":testSecondListProp">
             <list>other</list>
         </list-prop>
     </resource>

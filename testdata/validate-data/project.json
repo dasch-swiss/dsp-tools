@@ -45,7 +45,7 @@
         ]
       },
       {
-        "name": "secondList with space",
+        "name": "secondList \\ ' space",
         "labels": {
           "en": "List"
         },
@@ -224,7 +224,7 @@
             },
             "gui_element": "List",
             "gui_attributes": {
-              "hlist": "secondList with space"
+              "hlist": "secondList \\ ' space"
             }
           },
           {

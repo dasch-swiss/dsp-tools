@@ -8,19 +8,19 @@
 
 
     <resource label="Backslash" restype=":ClassWithEverything" id="list_backslash">
-        <list-prop list="secondList with space" name=":testSecondListProp">
+        <list-prop list="secondList \\ ' space" name=":testSecondListProp">
             <list>l2n1 \ or</list>
         </list-prop>
     </resource>
 
     <resource label="Double Quote" restype=":ClassWithEverything" id="list_double_quote">
-        <list-prop list="secondList with space" name=":testSecondListProp">
+        <list-prop list="secondList \\ ' space" name=":testSecondListProp">
             <list>l2n2 "</list>
         </list-prop>
     </resource>
 
     <resource label="Single Quote" restype=":ClassWithEverything" id="list_single_quote">
-        <list-prop list="secondList with space" name=":testSecondListProp">
+        <list-prop list="secondList \\ ' space" name=":testSecondListProp">
             <list>l2n3 '</list>
         </list-prop>
     </resource>

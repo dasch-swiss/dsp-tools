@@ -212,7 +212,7 @@ def _construct_one_list_node_shape(one_list: OneList) -> Graph:
     @prefix  sh: <http://www.w3.org/ns/shacl#> .
     @prefix  api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#> .
     
-    {one_list.list_iri} a sh:NodeShape ;
+    <{one_list.list_iri}> a sh:NodeShape ;
           sh:property [
                         a          sh:PropertyShape ;
                         sh:path    api-shapes:listNodeAsString ;
@@ -243,7 +243,7 @@ def _construct_one_list_property_shape(onto: Graph, one_list: OneList) -> Graph:
     CONSTRUCT {
         ?shapesIRI a sh:PropertyShape ;
                    sh:path ?prop ;
-                   sh:node %(list)s ;
+                   sh:node <%(list)s> ;
                    sh:severity sh:Violation .
     } WHERE {
         ?prop a owl:ObjectProperty ;

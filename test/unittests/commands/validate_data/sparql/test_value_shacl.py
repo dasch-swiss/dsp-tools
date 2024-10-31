@@ -54,7 +54,7 @@ def test_add_property_shapes_to_class_shapes(card_1: Graph) -> None:
 class TestConstructListNode:
     def test_node_space(self) -> None:
         test_list = OneList(
-            list_iri="<http://rdfh.ch/lists/9999/test>",
+            list_iri="http://rdfh.ch/lists/9999/test",
             list_name="list",
             nodes=["l2n1 space"],
         )
@@ -64,7 +64,7 @@ class TestConstructListNode:
 
     def test_node_backslash(self) -> None:
         test_list = OneList(
-            list_iri="<http://rdfh.ch/lists/9999/test>",
+            list_iri="http://rdfh.ch/lists/9999/test",
             list_name="list",
             nodes=["l2n1 \ or"],
         )
@@ -74,7 +74,7 @@ class TestConstructListNode:
 
     def test_node_double_quote(self) -> None:
         test_list = OneList(
-            list_iri="<http://rdfh.ch/lists/9999/test>",
+            list_iri="http://rdfh.ch/lists/9999/test",
             list_name="list",
             nodes=['l2n2"'],
         )
@@ -84,7 +84,7 @@ class TestConstructListNode:
 
     def test_node_apostrophe(self) -> None:
         test_list = OneList(
-            list_iri="<http://rdfh.ch/lists/9999/test>",
+            list_iri="http://rdfh.ch/lists/9999/test",
             list_name="list",
             nodes=["l2n3'"],
         )
@@ -94,7 +94,7 @@ class TestConstructListNode:
 
     def test_list_special(self):
         test_list = OneList(
-            list_iri="<http://rdfh.ch/lists/9999/test>",
+            list_iri="http://rdfh.ch/lists/9999/test",
             list_name="secondList \ ",
             nodes=["a"],
         )
@@ -104,7 +104,7 @@ class TestConstructListNode:
 
     def test_list_double_quote(self):
         test_list = OneList(
-            list_iri="<http://rdfh.ch/lists/9999/test>",
+            list_iri="http://rdfh.ch/lists/9999/test",
             list_name='secondList " ',
             nodes=["a"],
         )
@@ -114,7 +114,7 @@ class TestConstructListNode:
 
     def test_list_single_quote(self):
         test_list = OneList(
-            list_iri="<http://rdfh.ch/lists/9999/test>",
+            list_iri="http://rdfh.ch/lists/9999/test",
             list_name='secondList " ',
             nodes=["a"],
         )

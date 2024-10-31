@@ -313,16 +313,21 @@ class TestReformatValidationGraph:
             ("node_backslash", "Unknown list node for list: list \\ ' space.", "other \\ backslash"),
             ("node_double_quote", "Unknown list node for list: list \\ ' space.", 'other double quote "'),
             ("node_single_quote", "Unknown list node for list: list \\ ' space.", "other single quote '"),
+            ("non_ascii_latin_alphabet", "", ""),
+            ("non_ascii_other_alphabet", "", ""),
+            ("special_char", "", ""),
             ("wrong_list_name", "The list that should be used with this property is: list \\ ' space.", "other"),
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_tuples)
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         for prblm, expected in zip(sorted_problems, expected_tuples):
-            assert isinstance(prblm, GenericProblem)
-            assert prblm.res_id == expected[0]
-            assert prblm.problem == expected[1]
-            assert prblm.actual_content == expected[2]
+            if isinstance(prblm, GenericProblem):
+                assert prblm.res_id == expected[0]
+                assert prblm.problem == expected[1]
+                assert prblm.actual_content == expected[2]
+            elif isinstance(prblm, ContentRegexProblem):
+                assert prblm.res_id == expected[0]
 
 
 if __name__ == "__main__":

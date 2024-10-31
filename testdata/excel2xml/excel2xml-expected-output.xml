@@ -1,117 +1,109 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <knora xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://dasch.swiss/schema https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/data.xsd" shortcode="1234" default-ontology="excel2xml-output">
-    <permissions id="res-default">
+    <permissions id="open">
         <allow group="UnknownUser">V</allow>
         <allow group="KnownUser">V</allow>
         <allow group="ProjectMember">D</allow>
         <allow group="ProjectAdmin">CR</allow>
-        <allow group="Creator">CR</allow>
     </permissions>
-    <permissions id="res-restricted">
-        <allow group="ProjectMember">M</allow>
-        <allow group="ProjectAdmin">CR</allow>
-        <allow group="Creator">CR</allow>
-    </permissions>
-    <permissions id="prop-default">
-        <allow group="UnknownUser">V</allow>
-        <allow group="KnownUser">V</allow>
+    <permissions id="restricted-view">
+        <allow group="UnknownUser">RV</allow>
+        <allow group="KnownUser">RV</allow>
         <allow group="ProjectMember">D</allow>
         <allow group="ProjectAdmin">CR</allow>
-        <allow group="Creator">CR</allow>
     </permissions>
-    <permissions id="prop-restricted">
-        <allow group="ProjectMember">M</allow>
+    <permissions id="restricted">
+        <allow group="ProjectMember">D</allow>
         <allow group="ProjectAdmin">CR</allow>
-        <allow group="Creator">CR</allow>
     </permissions>
-    <resource label="Homer" restype=":Person" id="person_0" permissions="res-default" creation_date="1999-12-31T23:59:59.9999999+01:00">
+    <resource label="Homer" restype=":Person" id="person_0" permissions="open" creation_date="1999-12-31T23:59:59.9999999+01:00">
         <text-prop name=":hasName">
-            <text permissions="prop-default" encoding="utf8">Homer</text>
-            <text permissions="prop-default" encoding="utf8">Ὅμηρος</text>
-            <text permissions="prop-default" encoding="utf8">??</text>
+            <text permissions="open" encoding="utf8">Homer</text>
+            <text permissions="open" encoding="utf8">Ὅμηρος</text>
+            <text permissions="open" encoding="utf8">??</text>
         </text-prop>
         <uri-prop name=":hasIdentifier">
-            <uri permissions="prop-default">https://en.wiktionary.org/wiki/Ῥόδος</uri>
-            <uri permissions="prop-default">https://digiliblt.uniupo.it/xtf/view?docId=dlt000521/dlt000521.xml;query=De%20taxone;brand=default</uri>
-            <uri permissions="prop-default">https://reg-exr.com:3000</uri>
-            <uri permissions="prop-default">https://reg-exr.com:3000/path/to/file_(%C3%89).htm</uri>
+            <uri permissions="open">https://en.wiktionary.org/wiki/Ῥόδος</uri>
+            <uri permissions="open">https://digiliblt.uniupo.it/xtf/view?docId=dlt000521/dlt000521.xml;query=De%20taxone;brand=default</uri>
+            <uri permissions="open">https://reg-exr.com:3000</uri>
+            <uri permissions="open">https://reg-exr.com:3000/path/to/file_(%C3%89).htm</uri>
         </uri-prop>
         <uri-prop name=":hasExternalLink">
-            <uri permissions="prop-default">https://reg-exr.com:3000/path/to/file#fragment,fragment</uri>
-            <uri permissions="prop-default">https://reg-exr.com:3000/path/to/file?query=test</uri>
-            <uri permissions="prop-default">https://reg-exr.com:3000/path/to/file?query=test#fragment</uri>
-            <uri permissions="prop-default">https://reg-exr.com/path/to/file?query=test#fragment</uri>
+            <uri permissions="open">https://reg-exr.com:3000/path/to/file#fragment,fragment</uri>
+            <uri permissions="open">https://reg-exr.com:3000/path/to/file?query=test</uri>
+            <uri permissions="open">https://reg-exr.com:3000/path/to/file?query=test#fragment</uri>
+            <uri permissions="open">https://reg-exr.com/path/to/file?query=test#fragment</uri>
         </uri-prop>
         <uri-prop name=":hasAnotherLink">
-            <uri permissions="prop-default">http://www.168.1.1.0/path</uri>
-            <uri permissions="prop-default">http://www.168.1.1.0:4200/path</uri>
-            <uri permissions="prop-default">http://[2001:0db8:0000:0000:0000:8a2e:0370:7334]:4200/path</uri>
-            <uri permissions="prop-default">https://en.wikipedia.org/wiki/Haiku#/media/File:Basho_Horohoroto.jpg</uri>
+            <uri permissions="open">http://www.168.1.1.0/path</uri>
+            <uri permissions="open">http://www.168.1.1.0:4200/path</uri>
+            <uri permissions="open">http://[2001:0db8:0000:0000:0000:8a2e:0370:7334]:4200/path</uri>
+            <uri permissions="open">https://en.wikipedia.org/wiki/Haiku#/media/File:Basho_Horohoroto.jpg</uri>
         </uri-prop>
         <uri-prop name=":hasThirdLink">
-            <uri permissions="prop-default">http://datypic.com/prod.html#shirt</uri>
-            <uri permissions="prop-default">https://www.findagrave.com/memorial/171722836/krikor-madenician?_gl=1*100n0s5*_ga*NzIzMDQxNjc2LjE2Mjg2MDk1OTQ.*_ga_4QT8FMEX30*MTY1Mjc5OTI4OC4xNC4xLjE2NTI4MDA2MDQuMA..</uri>
-            <uri permissions="prop-default">https://markarslan.org/ArmenianImmigrants/Public-ViewDetail-ArmenianImmigrants-Main.php?submit=View&amp;Staging=&amp;SourcePage=Public-ViewSummary-ArmenianImmigrants-Main-ByDestinationDate&amp;SelectDestinationYear=1907&amp;SelectLastNameStd=all&amp;argument1=PLIN-29NOV1907-3-73-0018</uri>
-            <uri permissions="prop-default">http://markarslan.org/ArmenianImmigrants/Public-ViewDetail-ArmenianImmigrants-Main.php?submit=View&amp;Staging=&amp;SourcePage=Public-ViewSummary-ArmenianImmigrants-Main-ByDestinationDate&amp;SelectDestinationYear=1907&amp;SelectLastNameStd=all&amp;argument1=CRTH-12JAN1907-3-%404-0016</uri>
+            <uri permissions="open">http://datypic.com/prod.html#shirt</uri>
+            <uri permissions="open">https://www.findagrave.com/memorial/171722836/krikor-madenician?_gl=1*100n0s5*_ga*NzIzMDQxNjc2LjE2Mjg2MDk1OTQ.*_ga_4QT8FMEX30*MTY1Mjc5OTI4OC4xNC4xLjE2NTI4MDA2MDQuMA..</uri>
+            <uri permissions="open">https://markarslan.org/ArmenianImmigrants/Public-ViewDetail-ArmenianImmigrants-Main.php?submit=View&amp;Staging=&amp;SourcePage=Public-ViewSummary-ArmenianImmigrants-Main-ByDestinationDate&amp;SelectDestinationYear=1907&amp;SelectLastNameStd=all&amp;argument1=PLIN-29NOV1907-3-73-0018</uri>
+            <uri permissions="open">http://markarslan.org/ArmenianImmigrants/Public-ViewDetail-ArmenianImmigrants-Main.php?submit=View&amp;Staging=&amp;SourcePage=Public-ViewSummary-ArmenianImmigrants-Main-ByDestinationDate&amp;SelectDestinationYear=1907&amp;SelectLastNameStd=all&amp;argument1=CRTH-12JAN1907-3-%404-0016</uri>
         </uri-prop>
         <uri-prop name=":hasFourthLink">
-            <uri permissions="prop-default">https://www.ancestry.com/discoveryui-content/view/47577828:60525?ssrc=pt&amp;tid=109007397&amp;pid=410070328478</uri>
+            <uri permissions="open">https://www.ancestry.com/discoveryui-content/view/47577828:60525?ssrc=pt&amp;tid=109007397&amp;pid=410070328478</uri>
         </uri-prop>
     </resource>
-    <annotation label="Annotation to Homer" id="annotation_0" permissions="res-default">
+    <annotation label="Annotation to Homer" id="annotation_0" permissions="open">
         <text-prop name="hasComment">
-            <text permissions="prop-default" encoding="xml">This is an annotation to the resource Homer</text>
+            <text permissions="open" encoding="xml">This is an annotation to the resource Homer</text>
         </text-prop>
         <resptr-prop name="isAnnotationOf">
-            <resptr permissions="prop-default">person_0</resptr>
+            <resptr permissions="open">person_0</resptr>
         </resptr-prop>
     </annotation>
-    <resource label="Iliad Prooem" restype=":Image2D" id="img_obj_6" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/test.jpg</bitstream>
+    <resource label="Iliad Prooem" restype=":Image2D" id="img_obj_6" permissions="open">
+        <bitstream permissions="open">testdata/bitstreams/test.jpg</bitstream>
         <text-prop name=":hasTitle">
-            <text permissions="prop-default" encoding="utf8">Iliad Prooem ' and a single quote in utf8</text>
+            <text permissions="open" encoding="utf8">Iliad Prooem ' and a single quote in utf8</text>
         </text-prop>
         <text-prop name=":hasDescription">
-            <text permissions="prop-default" encoding="xml">Iliad Prooem ' and a single quote in xml</text>
+            <text permissions="open" encoding="xml">Iliad Prooem ' and a single quote in xml</text>
         </text-prop>
         <text-prop name=":hasCopyright">
-            <text permissions="prop-default" encoding="xml">© Library of Congress Collection of Manuscripts in St. Catherine's Monastery, Mt. Sinai.</text>
+            <text permissions="open" encoding="xml">© Library of Congress Collection of Manuscripts in St. Catherine's Monastery, Mt. Sinai.</text>
         </text-prop>
         <list-prop list="category" name=":hasCategory">
-            <list permissions="prop-default">artwork</list>
+            <list permissions="open">artwork</list>
         </list-prop>
     </resource>
-    <resource label="Testthing Zero" restype=":TestThing2" id="test_thing_0" permissions="res-default" ark="ark:/72163/4123-31ec6eab334-a.2022829">
+    <resource label="Testthing Zero" restype=":TestThing2" id="test_thing_0" permissions="open" ark="ark:/72163/4123-31ec6eab334-a.2022829">
         <text-prop name=":hasText">
-            <text permissions="prop-default" encoding="utf8">Dies ist ein TestThing</text>
+            <text permissions="open" encoding="utf8">Dies ist ein TestThing</text>
         </text-prop>
         <resptr-prop name=":hasTestThing">
-            <resptr permissions="prop-default">test_thing_1</resptr>
+            <resptr permissions="open">test_thing_1</resptr>
         </resptr-prop>
     </resource>
-    <region label="Region of img_obj_6" id="region_0" permissions="res-restricted" iri="http://rdfh.ch/4123/54SYvWF0QUW6a">
+    <region label="Region of img_obj_6" id="region_0" permissions="restricted" iri="http://rdfh.ch/4123/54SYvWF0QUW6a">
         <text-prop name="hasComment">
-            <text permissions="prop-restricted" encoding="xml">This is an annotation to Testthing.</text>
-            <text permissions="prop-restricted" encoding="xml">Second comment</text>
+            <text permissions="restricted" encoding="xml">This is an annotation to Testthing.</text>
+            <text permissions="restricted" encoding="xml">Second comment</text>
         </text-prop>
         <color-prop name="hasColor">
-            <color permissions="prop-restricted">#5d1f1e</color>
+            <color permissions="restricted">#5d1f1e</color>
         </color-prop>
         <geometry-prop name="hasGeometry">
-            <geometry permissions="prop-restricted">{"type": "rectangle", "lineWidth": 2, "points": [{"x": 0.08, "y": 0.16}, {"x": 0.73, "y": 0.72}], "original_index": 0}</geometry>
+            <geometry permissions="restricted">{"type": "rectangle", "lineWidth": 2, "points": [{"x": 0.08, "y": 0.16}, {"x": 0.73, "y": 0.72}], "original_index": 0}</geometry>
         </geometry-prop>
         <resptr-prop name="isRegionOf">
-            <resptr permissions="prop-restricted">img_obj_6</resptr>
+            <resptr permissions="restricted">img_obj_6</resptr>
         </resptr-prop>
     </region>
-    <resource label="First Testthing" restype=":TestThing" id="test_thing_1" permissions="res-default" iri="http://rdfh.ch/4123/54SYvWF0QUW6d">
-        <bitstream permissions="prop-default">testdata/bitstreams/test.jpg</bitstream>
+    <resource label="First Testthing" restype=":TestThing" id="test_thing_1" permissions="open" iri="http://rdfh.ch/4123/54SYvWF0QUW6d">
+        <bitstream permissions="open">testdata/bitstreams/test.jpg</bitstream>
         <text-prop name=":hasText">
-            <text permissions="prop-default" encoding="utf8">Dies ist ein einfacher Text ohne Markup</text>
-            <text permissions="prop-restricted" encoding="utf8">Nochmals ein einfacher Text</text>
+            <text permissions="open" encoding="utf8">Dies ist ein einfacher Text ohne Markup</text>
+            <text permissions="restricted" encoding="utf8">Nochmals ein einfacher Text</text>
         </text-prop>
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">This is <em>bold and <strong>strong</strong>
+            <text permissions="open" encoding="xml">This is <em>bold and <strong>strong</strong>
                 </em> text! It contains links to all resources:
                 <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>
                 <a class="salsah-link" href="IRI:test_thing_1:IRI">test_thing_1</a>
@@ -126,31 +118,31 @@
                 <a class="salsah-link" href="IRI:audio_thing_1:IRI">audio_thing_1</a>
                 <a class="salsah-link" href="IRI:test_thing_2:IRI">test_thing_2</a>
             </text>
-            <text permissions="prop-default" encoding="xml">Another text without salsah-links</text>
-            <text permissions="prop-default" encoding="xml">Another text without salsah-links</text>
+            <text permissions="open" encoding="xml">Another text without salsah-links</text>
+            <text permissions="open" encoding="xml">Another text without salsah-links</text>
         </text-prop>
         <uri-prop name=":hasUri">
-            <uri permissions="prop-default">https://dasch.swiss</uri>
+            <uri permissions="open">https://dasch.swiss</uri>
         </uri-prop>
         <boolean-prop name=":hasBoolean">
-            <boolean permissions="prop-default">true</boolean>
+            <boolean permissions="open">true</boolean>
         </boolean-prop>
         <date-prop name=":hasDate">
-            <date permissions="prop-default">JULIAN:BCE:0700:BCE:0600</date>
-            <date permissions="prop-default">CE:1849:CE:1850</date>
-            <date permissions="prop-default">2022</date>
+            <date permissions="open">JULIAN:BCE:0700:BCE:0600</date>
+            <date permissions="open">CE:1849:CE:1850</date>
+            <date permissions="open">2022</date>
         </date-prop>
         <integer-prop name=":hasInteger">
-            <integer permissions="prop-default">4711</integer>
+            <integer permissions="open">4711</integer>
         </integer-prop>
     </resource>
-    <link label="Link between person_0 and img_obj_6" id="link_thing_0" permissions="res-default" ark="ark:/72163/4123-31ec6eab334-a.202280">
+    <link label="Link between person_0 and img_obj_6" id="link_thing_0" permissions="open" ark="ark:/72163/4123-31ec6eab334-a.202280">
         <text-prop name="hasComment">
-            <text permissions="prop-default" encoding="xml">This is a link between Homer and Iliad Prooem</text>
+            <text permissions="open" encoding="xml">This is a link between Homer and Iliad Prooem</text>
         </text-prop>
         <resptr-prop name="hasLinkTo">
-            <resptr permissions="prop-default">person_0</resptr>
-            <resptr permissions="prop-default">img_obj_6</resptr>
+            <resptr permissions="open">person_0</resptr>
+            <resptr permissions="open">img_obj_6</resptr>
         </resptr-prop>
     </link>
 </knora>

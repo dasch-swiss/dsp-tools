@@ -307,6 +307,41 @@ class TestReformatValidationGraph:
             assert isinstance(one_result, DuplicateValueProblem)
             assert one_result.res_id == expected_id
 
+    def test_reformat_special_characters_violation(self, special_characters_violation: ValidationReportGraphs) -> None:
+        result = reformat_validation_graph(special_characters_violation)
+        expected_ids = [
+            "identical_values_LinkValue",
+            "identical_values_listNode",
+            "identical_values_valueAsString",
+            "identical_values_valueHas",
+        ]
+        assert not result.unexpected_results
+        assert len(result.problems) == len(expected_ids)
+        sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
+        first = sorted_problems[0]
+        assert isinstance(first, GenericProblem)
+        assert first.res_id == "node_backslash"
+        assert first.problem == "Unknown list node for list: secondList \ ' space."
+        assert first.actual_content == "other \ backslash"
+
+        second = sorted_problems[1]
+        assert isinstance(second, GenericProblem)
+        assert second.res_id == "node_double_quote"
+        assert second.problem == "Unknown list node for list: secondList \ ' space."
+        assert second.actual_content == 'other double quote "'
+
+        third = sorted_problems[2]
+        assert isinstance(third, GenericProblem)
+        assert third.res_id == "node_single_quote"
+        assert third.problem == "Unknown list node for list: secondList \ ' space."
+        assert third.actual_content == "other single quote '"
+
+        fourth = sorted_problems[3]
+        assert isinstance(fourth, GenericProblem)
+        assert fourth.res_id == "wrong_list_name"
+        assert fourth.problem == "The list that should be used with this property is: secondList \ ' space."
+        assert fourth.actual_content == "other"
+
 
 if __name__ == "__main__":
     pytest.main([__file__])

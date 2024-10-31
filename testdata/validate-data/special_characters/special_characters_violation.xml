@@ -30,4 +30,22 @@
         </list-prop>
     </resource>
 
+    <resource label="Backslash" restype=":ClassWithEverything" id="non_ascii_latin_alphabet">
+        <geoname-prop name=":testGeoname">
+            <geoname>àéèêëôûäöüßÂ</geoname>
+        </geoname-prop>
+    </resource>
+
+    <resource label="Backslash" restype=":ClassWithEverything" id="special_char">
+        <geoname-prop name=":testGeoname">
+            <geoname>_-'()+=!?&lt;&gt;|$£</geoname>
+        </geoname-prop>
+    </resource>
+
+    <resource label="Backslash" restype=":ClassWithEverything" id="non_ascii_other_alphabet">
+        <geoname-prop name=":testGeoname">
+            <geoname>漢が글ርبيةб中</geoname>
+        </geoname-prop>
+    </resource>
+
 </knora>

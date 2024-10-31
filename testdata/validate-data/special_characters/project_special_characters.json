@@ -81,6 +81,17 @@
               "en": "Test Richtext"
             },
             "gui_element": "Richtext"
+          },
+          {
+            "name": "testGeoname",
+            "super": [
+              "hasValue"
+            ],
+            "object": "GeonameValue",
+            "labels": {
+              "en": "Test Geoname"
+            },
+            "gui_element": "Geonames"
           }
         ],
         "resources": [
@@ -105,6 +116,11 @@
                 "propname": ":testRichtext",
                 "cardinality": "0-n",
                 "gui_order": 2
+              },
+              {
+                "propname": ":testGeoname",
+                "cardinality": "0-n",
+                "gui_order": 3
               }
             ]
           }

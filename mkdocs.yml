@@ -19,6 +19,7 @@ nav:
       - excel2xml: file-formats/excel2xml.md
   - Incremental xmlupload: incremental-xmlupload.md
   - excel2xml module: excel2xml-module.md
+  - xmllib: xmllib.md
   - Running DSP locally: start-stack.md
   - Information for developers:
       - Developers documentation: developers/index.md
@@ -61,3 +62,4 @@ extra_css:
 plugins:
   - search
   - include-markdown
+  - mkdocstrings

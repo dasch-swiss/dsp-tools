@@ -87,10 +87,10 @@ class BulkIngestClient:
             reason = f"Response {res.status_code}: {res.text}" if res.text else f"Response {res.status_code}"
             return UploadFailure(filepath, reason)
         return None
-    
+
     def _build_url_for_bulk_ingest_ingest_route(self, filepath: Path) -> str:
         """
-        Remove the leading slash of absolute filepaths, 
+        Remove the leading slash of absolute filepaths,
         because the /project/<shortcode>/bulk-ingest/ingest route only accepts relative paths.
         The leading slash has to be added again in the "ingest-xmlupload" step, when applying the ingest ID.
         """

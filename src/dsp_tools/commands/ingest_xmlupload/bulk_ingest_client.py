@@ -93,6 +93,12 @@ class BulkIngestClient:
         Remove the leading slash of absolute filepaths,
         because the /project/<shortcode>/bulk-ingest/ingest route only accepts relative paths.
         The leading slash has to be added again in the "ingest-xmlupload" step, when applying the ingest ID.
+
+        Args:
+            filepath: filepath
+
+        Returns:
+            url
         """
         quoted = regex.sub(r"^\/", "", urllib.parse.quote(str(filepath)))
         return f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/ingest/{quoted}"

@@ -206,6 +206,7 @@ def _construct_list_shapes(onto: Graph, project_lists: AllProjectLists) -> Graph
         lists_graph += _construct_one_list_property_shape(onto, one_list)
     return lists_graph
 
+
 # TODO: deal with special characters in list name
 def _construct_one_list_node_shape(one_list: OneList) -> Graph:
     list_str = f"""

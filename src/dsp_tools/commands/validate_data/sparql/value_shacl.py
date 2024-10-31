@@ -207,13 +207,12 @@ def _construct_list_shapes(onto: Graph, project_lists: AllProjectLists) -> Graph
     return lists_graph
 
 
-# TODO: deal with special characters in list name
 def _construct_one_list_node_shape(one_list: OneList) -> Graph:
     list_str = f"""
     @prefix  sh: <http://www.w3.org/ns/shacl#> .
     @prefix  api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#> .
     
-    api-shapes:{one_list.list_name}_NodeShape a sh:NodeShape ;
+    {one_list.list_iri} a sh:NodeShape ;
           sh:property [
                         a          sh:PropertyShape ;
                         sh:path    api-shapes:listNodeAsString ;
@@ -244,7 +243,7 @@ def _construct_one_list_property_shape(onto: Graph, one_list: OneList) -> Graph:
     CONSTRUCT {
         ?shapesIRI a sh:PropertyShape ;
                    sh:path ?prop ;
-                   sh:node api-shapes:%(list)s_NodeShape ;
+                   sh:node %(list)s ;
                    sh:severity sh:Violation .
     } WHERE {
         ?prop a owl:ObjectProperty ;
@@ -253,7 +252,7 @@ def _construct_one_list_property_shape(onto: Graph, one_list: OneList) -> Graph:
 
         BIND(IRI(CONCAT(str(?prop), "_PropShape")) AS ?shapesIRI)
     }
-    """ % {"guiAttribute": one_list.hlist(), "list": one_list.list_name}  # noqa: UP031 (printf-string-formatting)
+    """ % {"guiAttribute": one_list.hlist(), "list": one_list.list_iri}  # noqa: UP031 (printf-string-formatting)
     if results_graph := onto.query(query_s).graph:
         return results_graph
     return Graph()

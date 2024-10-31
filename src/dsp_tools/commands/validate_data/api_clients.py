@@ -1,4 +1,3 @@
-import json
 from dataclasses import dataclass
 from typing import Any
 from typing import cast
@@ -117,18 +116,15 @@ class ListClient:
         return response_json
 
     def _reformat_one_list(self, response_json: dict[str, Any]) -> OneList:
-        list_name = self._escape_special_character_in_string(response_json["list"]["listinfo"]["name"])
+        list_name = response_json["list"]["listinfo"]["name"]
         list_id = response_json["list"]["listinfo"]["id"]
         nodes = response_json["list"]["children"]
         all_nodes = []
         for child in nodes:
-            all_nodes.append(self._escape_special_character_in_string(child["name"]))
+            all_nodes.append(child["name"])
             if node_child := child.get("children"):
                 all_nodes.extend(self._reformat_children(node_child, all_nodes))
         return OneList(list_iri=list_id, list_name=list_name, nodes=all_nodes)
-
-    def _escape_special_character_in_string(self, in_str: str) -> str:
-        return json.dumps(in_str)[1:-1]
 
     def _reformat_children(self, list_child: list[dict[str, Any]], current_nodes: list[str]) -> list[str]:
         for child in list_child:

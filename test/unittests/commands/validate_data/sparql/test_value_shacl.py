@@ -2,10 +2,12 @@ import pytest
 from rdflib import RDF
 from rdflib import SH
 from rdflib import Graph
+from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.models.api_responses import OneList
 from dsp_tools.commands.validate_data.sparql.value_shacl import _add_property_shapes_to_class_shapes
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_link_value_shape
+from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_list_node_shape
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_property_type_shape_based_on_object_type
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_property_type_text_value
 from test.unittests.commands.validate_data.constants import API_SHAPES
@@ -51,65 +53,45 @@ def test_add_property_shapes_to_class_shapes(card_1: Graph) -> None:
 
 class TestConstructListNode:
     def test_node_space(self) -> None:
-        test_list = OneList(list_iri="<https//:>", list_name="", nodes=[])
+        test_list = OneList(
+            list_iri="<http://rdfh.ch/lists/9999/test>",
+            list_name="list",
+            nodes=["l2n1 \\ or"],
+        )
+        result = _construct_one_list_node_shape(test_list)
+        nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
+        assert next(result.subjects(RDF.type, SH.NodeShape)) == nodeshape_iri
 
     def test_node_backslash(self) -> None:
-        test_list = OneList(list_iri="", list_name="", nodes=[])
+        test_list = OneList(
+            list_iri="<http://rdfh.ch/lists/9999/test>",
+            list_name="list",
+            nodes=['l2n2 "'],
+        )
+        result = _construct_one_list_node_shape(test_list)
+        nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
+        assert next(result.subjects(RDF.type, SH.NodeShape)) == nodeshape_iri
 
     def test_node_apostrophe(self) -> None:
-        test_list = OneList(list_iri="", list_name="", nodes=[])
+        test_list = OneList(
+            list_iri="<http://rdfh.ch/lists/9999/test>",
+            list_name="list",
+            nodes=["l2n3 '"],
+        )
+        result = _construct_one_list_node_shape(test_list)
+        nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
+        assert next(result.subjects(RDF.type, SH.NodeShape)) == nodeshape_iri
 
     def test_list_special(self):
-        test_list = OneList(list_iri="", list_name="", nodes=["a"])
+        test_list = OneList(
+            list_iri="<http://rdfh.ch/lists/9999/test>",
+            list_name="secondList \\ ' space",
+            nodes=["a"],
+        )
+        result = _construct_one_list_node_shape(test_list)
+        nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
+        assert next(result.subjects(RDF.type, SH.NodeShape)) == nodeshape_iri
 
-
-l = {
-    "type": "ListGetResponseADM",
-    "list": {
-        "listinfo": {
-            "id": "http://rdfh.ch/lists/9999/gsUgVoeiSk2wTQOZNHLPZA",
-            "projectIri": "http://rdfh.ch/projects/meXOSM_fSBqwbum-qaqqOg",
-            "name": "secondList \\ ' space",
-            "labels": [{"value": "List", "language": "en"}],
-            "comments": [
-                {
-                    "value": "This is the second list and contains characters that need to be escaped in turtle.",
-                    "language": "en",
-                }
-            ],
-            "isRootNode": True,
-        },
-        "children": [
-            {
-                "id": "http://rdfh.ch/lists/9999/UPnCJdK9Rc6i7tTdFwEAtQ",
-                "name": "l2n1 \\ or",
-                "labels": [{"value": "List 2, Node 1", "language": "en"}],
-                "comments": [],
-                "position": 0,
-                "hasRootNode": "http://rdfh.ch/lists/9999/gsUgVoeiSk2wTQOZNHLPZA",
-                "children": [],
-            },
-            {
-                "id": "http://rdfh.ch/lists/9999/kTNIti9UQ3qYzQKgW1_hxA",
-                "name": 'l2n2 "',
-                "labels": [{"value": "List 2, Node 2", "language": "en"}],
-                "comments": [],
-                "position": 1,
-                "hasRootNode": "http://rdfh.ch/lists/9999/gsUgVoeiSk2wTQOZNHLPZA",
-                "children": [],
-            },
-            {
-                "id": "http://rdfh.ch/lists/9999/yCMCZvd_RaCr9a75VXse9A",
-                "name": "l2n3 '",
-                "labels": [{"value": "List 2, Node 3", "language": "en"}],
-                "comments": [],
-                "position": 2,
-                "hasRootNode": "http://rdfh.ch/lists/9999/gsUgVoeiSk2wTQOZNHLPZA",
-                "children": [],
-            },
-        ],
-    },
-}
 
 if __name__ == "__main__":
     pytest.main([__file__])

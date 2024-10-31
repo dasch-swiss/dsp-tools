@@ -7,19 +7,19 @@
        default-ontology="onto">
 
     <resource label="Backslash" restype=":ClassWithEverything" id="node_backslash">
-        <list-prop list="secondList \ ' space" name=":testListProp">
+        <list-prop list="list \ ' space" name=":testListProp">
             <list>other \ backslash</list>
         </list-prop>
     </resource>
 
     <resource label="Double Quote" restype=":ClassWithEverything" id="node_double_quote">
-        <list-prop list="secondList \ ' space" name=":testListProp">
+        <list-prop list="list \ ' space" name=":testListProp">
             <list>other double quote "</list>
         </list-prop>
     </resource>
 
     <resource label="Single Quote" restype=":ClassWithEverything" id="node_single_quote">
-        <list-prop list="secondList \ ' space" name=":testListProp">
+        <list-prop list="list \ ' space" name=":testListProp">
             <list>other single quote '</list>
         </list-prop>
     </resource>

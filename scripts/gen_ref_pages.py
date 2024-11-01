@@ -18,7 +18,7 @@ import mkdocs_gen_files
 
 nav = mkdocs_gen_files.Nav()  # type: ignore[attr-defined,no-untyped-call]
 
-root = Path(__file__).parent.parent
+root = next(x for x in reversed(Path(__file__).parents) if x.name in ["dsp-docs", "dsp-tools"])
 src = root / "src"
 dsp_tools = src / "dsp_tools"
 

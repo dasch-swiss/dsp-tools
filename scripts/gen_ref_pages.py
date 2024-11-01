@@ -19,15 +19,21 @@ import mkdocs_gen_files
 nav = mkdocs_gen_files.Nav()  # type: ignore[attr-defined,no-untyped-call]
 
 root = next(x for x in reversed(Path(__file__).parents) if x.name in ["dsp-docs", "dsp-tools"])
-src = root / "src"
+src = root / "src" if root.name == "dsp-tools" else root / "dsp/dsp-tools/src"
 dsp_tools = src / "dsp_tools"
+docstrings_build_target = Path("reference") if root.name == "dsp-tools" else Path("DSP-TOOLS/reference")
+
+if root.name == "dsp-docs":
+    (root / "dsp/__init__.py").touch()
+    (root / "dsp/dsp-tools/__init__.py").touch()
+    (root / "dsp/dsp-tools/src/__init__.py").touch()
 
 for path in sorted(src.glob("dsp_tools/xmllib/**/*.py")):
     module_path = path.relative_to(src).with_suffix("")
     doc_path = path.relative_to(dsp_tools).with_suffix(".md")  # omit the "dsp_tools" level in the navigation bar
-    full_doc_path = Path("reference", doc_path)
+    full_doc_path = docstrings_build_target / doc_path
 
-    parts = tuple(module_path.parts)
+    parts = tuple(module_path.parts) if root.name == "dsp-tools" else tuple(path.relative_to(root).with_suffix("").parts)
 
     if parts[-1] == "__init__":
         parts = parts[:-1]
@@ -46,5 +52,5 @@ for path in sorted(src.glob("dsp_tools/xmllib/**/*.py")):
     # See https://mkdocstrings.github.io/recipes/#generate-pages-on-the-fly
     mkdocs_gen_files.set_edit_path(full_doc_path, Path("../") / path)
 
-with mkdocs_gen_files.open("reference/xmllib-generated-api-doc.md", "w") as nav_file:
+with mkdocs_gen_files.open(docstrings_build_target / "xmllib-generated-api-doc.md", "w") as nav_file:
     nav_file.writelines(nav.build_literate_nav())

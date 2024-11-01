@@ -1,10 +1,14 @@
-"""Generate the code reference pages and navigation."""
+"""
+Auto-generate API docs from docstrings, using mkdocs-gen-files and mkdocs-literate-nav.
+This script generates md files containing syntax that is rendered by mkdocstrings.
+The generated files are neither visible nor accessible in the file system, but can be seen by mkdocstrings.
+"""  # noqa: INP001
 
 from pathlib import Path
 
 import mkdocs_gen_files
 
-nav = mkdocs_gen_files.Nav()
+nav = mkdocs_gen_files.Nav()  # type: ignore[attr-defined,no-untyped-call]
 
 root = Path(__file__).parent.parent
 src = root / "src"

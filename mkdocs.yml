@@ -19,7 +19,7 @@ nav:
       - excel2xml: file-formats/excel2xml.md
   - Incremental xmlupload: incremental-xmlupload.md
   - excel2xml module: excel2xml-module.md
-  - xmllib: xmllib.md
+  - xmllib: xmllib/
   - Running DSP locally: start-stack.md
   - Information for developers:
       - Developers documentation: developers/index.md
@@ -64,5 +64,7 @@ plugins:
   - include-markdown
   - gen-files:
       scripts:
-      - docs/scripts/gen_ref_pages.py
+        - docs/scripts/gen_ref_pages.py
+  - literate-nav:
+      nav_file: docs/xmllib/SUMMARY.md
   - mkdocstrings

@@ -62,4 +62,7 @@ extra_css:
 plugins:
   - search
   - include-markdown
+  - gen-files:
+      scripts:
+      - docs/scripts/gen_ref_pages.py
   - mkdocstrings

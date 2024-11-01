@@ -1,7 +1,15 @@
 """
-Auto-generate API docs from docstrings, using mkdocs-gen-files and mkdocs-literate-nav.
-This script generates md files containing syntax that is rendered by mkdocstrings.
+Auto-generate API docs from docstrings.
+This script generates markdown files containing syntax that is rendered by mkdocstrings.
 The generated files are neither visible nor accessible in the file system, but can be seen by mkdocstrings.
+
+Components/tools:
+- mkdocstrings: triggered by dedicated instructions in markdown files, this tool reads docstrings and generates API docs
+- mkdocs-gen-files: for every python file, automatically generates a markdown file with instructions for mkdocstrings
+- mkdocs-literate-nav: generates the navigation bar, so that every API docs page appears in the nav bar
+- mkdocs-section-index: instead of listing __init__.py files in the nav bar, extract their content and render it
+
+https://mkdocstrings.github.io/recipes/#automatic-code-reference-pages
 """  # noqa: INP001
 
 from pathlib import Path
@@ -23,6 +31,8 @@ for path in sorted(src.glob("dsp_tools/xmllib/**/*.py")):
 
     if parts[-1] == "__init__":
         parts = parts[:-1]
+        doc_path = doc_path.with_name("index.md")
+        full_doc_path = full_doc_path.with_name("index.md")
     elif parts[-1] == "__main__":
         continue
 

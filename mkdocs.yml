@@ -67,4 +67,5 @@ plugins:
         - scripts/gen_ref_pages.py
   - literate-nav:
       nav_file: xmllib-generated-api-doc.md
+  - section-index
   - mkdocstrings

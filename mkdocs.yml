@@ -35,7 +35,7 @@ nav:
           - Security checks: developers/code-quality-tools/security.md
           - See also: developers/code-quality-tools/python-see-also.md
   - Changelog: changelog.md
-  - Code Reference: reference/ 
+  - Code Reference: reference/
 
 theme:
   name: material
@@ -64,7 +64,7 @@ plugins:
   - include-markdown
   - gen-files:
       scripts:
-      - scripts/gen_ref_pages.py
+        - scripts/gen_ref_pages.py
   - literate-nav:
-      nav_file: SUMMARY.md
+      nav_file: xmllib-generated-api-doc.md
   - mkdocstrings

@@ -12,10 +12,11 @@ nav = mkdocs_gen_files.Nav()  # type: ignore[attr-defined,no-untyped-call]
 
 root = Path(__file__).parent.parent
 src = root / "src"
+dsp_tools = src / "dsp_tools"
 
 for path in sorted(src.glob("dsp_tools/xmllib/**/*.py")):
     module_path = path.relative_to(src).with_suffix("")
-    doc_path = path.relative_to(src).with_suffix(".md")
+    doc_path = path.relative_to(dsp_tools).with_suffix(".md")
     full_doc_path = Path("reference", doc_path)
 
     parts = tuple(module_path.parts)
@@ -25,7 +26,7 @@ for path in sorted(src.glob("dsp_tools/xmllib/**/*.py")):
     elif parts[-1] == "__main__":
         continue
 
-    nav[parts] = doc_path.as_posix()
+    nav[parts[1:]] = doc_path.as_posix()  # omit the "dsp_tools" level in the navigation bar
 
     with mkdocs_gen_files.open(full_doc_path, "w") as fd:
         ident = ".".join(parts)

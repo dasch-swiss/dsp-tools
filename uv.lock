@@ -245,7 +245,6 @@ dev = [
     { name = "mkdocs" },
     { name = "mkdocs-gen-files" },
     { name = "mkdocs-include-markdown-plugin" },
-    { name = "mkdocs-literate-nav" },
     { name = "mkdocs-material" },
     { name = "mkdocstrings", extra = ["python"] },
     { name = "mypy" },
@@ -301,7 +300,6 @@ dev = [
     { name = "mkdocs", specifier = ">=1.6.1" },
     { name = "mkdocs-gen-files", specifier = ">=0.5.0" },
     { name = "mkdocs-include-markdown-plugin", specifier = ">=6.2.2" },
-    { name = "mkdocs-literate-nav", specifier = ">=0.6.1" },
     { name = "mkdocs-material", specifier = ">=9.5.34" },
     { name = "mkdocstrings", extras = ["python"], specifier = ">=0.26.2" },
     { name = "mypy", specifier = ">=1.11.2" },
@@ -652,18 +650,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/ee/fe/4bb438d0f58995f81e2616d640f7efe0df9b1f992cba706a9453676c9140/mkdocs_include_markdown_plugin-6.2.2.tar.gz", hash = "sha256:f2bd5026650492a581d2fd44be6c22f90391910d76582b96a34c264f2d17875d", size = 21045 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/50/d9/7b2b09b4870a2cd5a80628c74553307205a8474aabe128b66e305b56ac30/mkdocs_include_markdown_plugin-6.2.2-py3-none-any.whl", hash = "sha256:d293950f6499d2944291ca7b9bc4a60e652bbfd3e3a42b564f6cceee268694e7", size = 24643 },
-]
-
-[[package]]
-name = "mkdocs-literate-nav"
-version = "0.6.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "mkdocs" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/4d/f9/c48a04f3cf484f8016a343c1d7d99c3a1ef01dbb33ceabb1d02e0ecabda7/mkdocs_literate_nav-0.6.1.tar.gz", hash = "sha256:78a7ab6d878371728acb0cdc6235c9b0ffc6e83c997b037f4a5c6ff7cef7d759", size = 16437 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/51/3b/e00d839d3242844c77e248f9572dd34644a04300839a60fe7d6bf652ab19/mkdocs_literate_nav-0.6.1-py3-none-any.whl", hash = "sha256:e70bdc4a07050d32da79c0b697bd88e9a104cf3294282e9cb20eec94c6b0f401", size = 13182 },
 ]
 
 [[package]]

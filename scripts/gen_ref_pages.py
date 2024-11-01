@@ -9,7 +9,7 @@ Components/tools:
 - mkdocs-literate-nav: generates the navigation bar, so that every API docs page appears in the nav bar
 - mkdocs-section-index: instead of listing __init__.py files in the nav bar, extract their content and render it
 
-https://mkdocstrings.github.io/recipes/#automatic-code-reference-pages
+See https://mkdocstrings.github.io/recipes/#automatic-code-reference-pages
 """  # noqa: INP001
 
 from pathlib import Path
@@ -24,7 +24,7 @@ dsp_tools = src / "dsp_tools"
 
 for path in sorted(src.glob("dsp_tools/xmllib/**/*.py")):
     module_path = path.relative_to(src).with_suffix("")
-    doc_path = path.relative_to(dsp_tools).with_suffix(".md")
+    doc_path = path.relative_to(dsp_tools).with_suffix(".md")  # omit the "dsp_tools" level in the navigation bar
     full_doc_path = Path("reference", doc_path)
 
     parts = tuple(module_path.parts)

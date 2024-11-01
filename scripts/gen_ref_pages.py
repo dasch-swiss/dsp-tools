@@ -42,7 +42,8 @@ for path in sorted(src.glob("dsp_tools/xmllib/**/*.py")):
     elif parts[-1] == "__main__":
         continue
 
-    nav[parts[1:]] = doc_path.as_posix()  # omit the "dsp_tools" level in the navigation bar
+    nav_parts = parts[parts.index("xmllib"):]
+    nav[nav_parts] = doc_path.as_posix()  # nav bar:only show levels from "xmllib" on, omitting "src", "dsp_tools", etc.
 
     with mkdocs_gen_files.open(full_doc_path, "w") as fd:
         ident = ".".join(parts)

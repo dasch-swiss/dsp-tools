@@ -19,7 +19,6 @@ nav:
       - excel2xml: file-formats/excel2xml.md
   - Incremental xmlupload: incremental-xmlupload.md
   - excel2xml module: excel2xml-module.md
-  - xmllib: xmllib.md
   - Running DSP locally: start-stack.md
   - Information for developers:
       - Developers documentation: developers/index.md
@@ -36,6 +35,7 @@ nav:
           - Security checks: developers/code-quality-tools/security.md
           - See also: developers/code-quality-tools/python-see-also.md
   - Changelog: changelog.md
+  - Code Reference: reference/ 
 
 theme:
   name: material
@@ -64,5 +64,7 @@ plugins:
   - include-markdown
   - gen-files:
       scripts:
-      - docs/scripts/gen_ref_pages.py
+      - scripts/gen_ref_pages.py
+  - literate-nav:
+      nav_file: SUMMARY.md
   - mkdocstrings

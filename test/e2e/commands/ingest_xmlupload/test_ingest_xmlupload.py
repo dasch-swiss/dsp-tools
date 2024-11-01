@@ -16,9 +16,12 @@ from test.e2e.setup_testcontainers import TMP_INGEST
 from test.e2e.setup_testcontainers import get_containers
 
 CREDS = ServerCredentials("root@example.com", "test", "http://0.0.0.0:3333")
-XML_FILE = Path("testdata/xml-data/test-data-e2e.xml")
+CWD = Path("testdata/dsp-ingest-data/e2e-sample-project")
+XML_FILE = Path("data.xml")
+MULTIMEDIA_FILE_1 = Path("Bilder Projekt 2024/Côté gauche/Bild A (1).jpg")
+MULTIMEDIA_FILE_2 = Path("Bilder Projekt 2024/Côté gauche/Dokument B (2).pdf")
 SHORTCODE = "4125"
-TMP_FOLDER = TMP_INGEST / "import" / SHORTCODE / "testdata" / "bitstreams"
+TMP_FOLDER = TMP_INGEST / "import" / SHORTCODE
 
 
 @pytest.fixture(scope="module")
@@ -31,35 +34,37 @@ def mapping_file() -> Iterator[Path]:
 @pytest.fixture
 def _create_project() -> Iterator[None]:
     with get_containers():
-        success = create_project(Path("testdata/json-project/test-project-e2e.json"), CREDS, verbose=True)
+        success = create_project(Path("testdata/dsp-ingest-data/e2e-sample-project/project.json"), CREDS, verbose=True)
         assert success
         yield
 
 
 @pytest.mark.usefixtures("_create_project")
-def test_ingest_upload(mapping_file: Path) -> None:
-    _test_upload_step()
-    _test_ingest_step(mapping_file)
-    _test_xmlupload_step()
+def test_ingest_upload(mapping_file: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    with monkeypatch.context() as m:
+        m.chdir(CWD)
+        _test_upload_step()
+        _test_ingest_step(mapping_file)
+        _test_xmlupload_step()
 
 
 def _test_upload_step() -> None:
-    success = upload_files(XML_FILE, CREDS)
+    success = upload_files(XML_FILE, CREDS, Path(".").absolute())
     assert success
-    assert set(TMP_FOLDER.iterdir()) == {TMP_FOLDER / "test.jpg", TMP_FOLDER / "test.pdf"}
+    assert {x.relative_to(TMP_FOLDER) for x in TMP_FOLDER.glob("**/*.*")} == {MULTIMEDIA_FILE_1, MULTIMEDIA_FILE_2}
 
 
 def _test_ingest_step(mapping_file: Path) -> None:
     success = ingest_files(CREDS, SHORTCODE)
     assert success
-    assert not set(TMP_FOLDER.iterdir())
+    assert not {x.relative_to(TMP_FOLDER) for x in TMP_FOLDER.glob("**/*.*")}
     ingested_files = list((SIPI_IMAGES / SHORTCODE).glob("**/*.*"))
     ingested_files_ext = [f.suffixes for f in ingested_files]
     expected_ext = [[".info"], [".jpg", ".orig"], [".jpx"], [".info"], [".pdf", ".orig"], [".pdf"]]
     assert unordered(ingested_files_ext) == expected_ext
 
     df = pd.read_csv(mapping_file)
-    assert df["original"].tolist() == unordered(["testdata/bitstreams/test.jpg", "testdata/bitstreams/test.pdf"])
+    assert df["original"].tolist() == unordered([str(MULTIMEDIA_FILE_1), str(MULTIMEDIA_FILE_2)])
 
 
 def _test_xmlupload_step() -> None:

@@ -58,13 +58,7 @@ def replace_filepath_with_internal_filename(
             continue
         img_path_str = elem.text
         if img_path_str not in orig_path_2_asset_id:
-            img_path = Path(elem.text)
-            img_path_str = str(img_path.relative_to(Path.cwd()) if img_path.is_absolute() else img_path)
-            if img_path_str not in orig_path_2_asset_id:
-                img_path_str = str(img_path.with_suffix(img_path.suffix.lower()))
-            if img_path_str not in orig_path_2_asset_id:
-                img_path_str = str(img_path.with_suffix(img_path.suffix.upper()))
-
+            img_path_str = "/" + img_path_str
         if img_path_str in orig_path_2_asset_id:
             elem.text = orig_path_2_asset_id[img_path_str]
             used_media_file_paths.append(img_path_str)

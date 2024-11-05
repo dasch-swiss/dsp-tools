@@ -808,6 +808,8 @@ class AudioSegmentResource:
         If you want to add additional information, create the incomplete segment first, 
         and then use the dedicated methods, e.g. `add_description()`.
 
+        See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#video-segment-and-audio-segment.
+        
         Args:
             res_id: ID of this audio segment resource
             label: label of this audio segment resource

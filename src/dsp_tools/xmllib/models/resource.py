@@ -80,6 +80,11 @@ class Resource:
             label: Resource label
             permissions: permission of the resource, default is `PROJECT_SPECIFIC_PERMISSIONS`
 
+        Warnings:
+            - If res_id is not non-empty
+            - If restype is not non-empty
+            - If label is not non-empty
+
         Returns:
             Resource
         """
@@ -126,6 +131,26 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        Adds a boolean value to the resource
+
+        Accepted values: "false", "0", "0.0", "no", "true", "1", "1.0", "yes"
+        Wrong values:    anything else
+        Conversions:     "false", "0", "0.0", "no" -> "false"
+                         "true", "1", "1.0", "yes" -> "true"
+
+        Args:
+            prop_name: name of the property
+            value: value to add
+            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
+            comment: comments to the value
+
+        Warnings:
+            If the value is not amongst the accepted formats.
+
+        Returns:
+            Resource
+        """
         self.values.append(BooleanValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -135,7 +160,27 @@ class Resource:
         value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
-    ) -> Resource:
+    ) -> Resource:        
+        """
+        Adds a boolean value to the resource if it is non-empty
+
+        Accepted values: "false", "0", "0.0", "no", "true", "1", "1.0", "yes"
+        Wrong values:    anything else
+        Conversions:     "false", "0", "0.0", "no" -> "false"
+                         "true", "1", "1.0", "yes" -> "true"
+
+        Args:
+            prop_name: name of the property
+            value: value to add
+            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
+            comment: comments to the value
+
+        Warnings:
+            If the value is not amongst the accepted formats.
+
+        Returns:
+            Resource
+        """
         if is_nonempty_value(value):
             self.values.append(BooleanValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -151,6 +196,25 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        Adds a color value to the resource
+
+        Accepted values: `#[0-9a-f]{6}`
+        Wrong values:    anything else
+        Conversions:     None
+
+        Args:
+            prop_name: name of the property
+            value: value to add
+            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
+            comment: comments to the value
+
+        Warnings:
+            If the value is not amongst the accepted formats.
+
+        Returns:
+            Resource
+        """
         self.values.append(ColorValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -186,6 +250,25 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        Adds a date value to the resource
+
+        Accepted values: Date in the format according to the documentation
+        Wrong values:    any other format
+        Conversions:     None
+
+        Args:
+            prop_name: name of the property
+            value: value to add
+            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
+            comment: comments to the value
+
+        Warnings:
+            If the value is not amongst the accepted formats.
+
+        Returns:
+            Resource
+        """
         self.values.append(DateValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -221,6 +304,25 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        Adds a decimal value to the resource
+
+        Accepted values: decimals, integers in numeric forms or scientific notation (eg: 1e2)
+        Wrong values:    anything else
+        Conversions:     None
+
+        Args:
+            prop_name: name of the property
+            value: value to add
+            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
+            comment: comments to the value
+
+        Warnings:
+            If the value is not amongst the accepted formats.
+
+        Returns:
+            Resource
+        """
         self.values.append(DecimalValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -256,6 +358,25 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        Adds a geoname value to the resource
+
+        Accepted values: string of integers
+        Wrong values:    anything else
+        Conversions:     None
+
+        Args:
+            prop_name: name of the property
+            value: value to add
+            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
+            comment: comments to the value
+
+        Warnings:
+            If the value is not amongst the accepted formats.
+
+        Returns:
+            Resource
+        """
         self.values.append(GeonameValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -291,6 +412,25 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        Adds a integer value to the resource
+
+        Accepted values: integer
+        Wrong values:    anything else
+        Conversions:     None
+
+        Args:
+            prop_name: name of the property
+            value: value to add
+            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
+            comment: comments to the value
+
+        Warnings:
+            If the value is not amongst the accepted formats.
+
+        Returns:
+            Resource
+        """
         self.values.append(IntValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -326,6 +466,25 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        Adds a link value to the resource
+
+        Accepted values: ID of another resource
+        Wrong values:    anything else
+        Conversions:     None
+
+        Args:
+            prop_name: name of the property
+            value: value to add
+            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
+            comment: comments to the value
+
+        Warnings:
+            If the value is not amongst the accepted formats.
+
+        Returns:
+            Resource
+        """
         self.values.append(LinkValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -362,6 +521,26 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        Adds a list value to the resource
+
+        Accepted values: non-empty value
+        Wrong values:    anything else
+        Conversions:     None
+
+        Args:
+            prop_name: name of the property
+            list_name: name of the list
+            value: value to add
+            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
+            comment: comments to the value
+
+        Warnings:
+            If the value is not amongst the accepted formats.
+
+        Returns:
+            Resource
+        """
         self.values.append(ListValue(value, list_name, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -399,6 +578,25 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        Adds a simple text value to the resource
+
+        Accepted values: stimple text string
+        Wrong values:    anything else
+        Conversions:     None
+
+        Args:
+            prop_name: name of the property
+            value: value to add
+            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
+            comment: comments to the value
+
+        Warnings:
+            If the value is not amongst the accepted formats.
+
+        Returns:
+            Resource
+        """
         self.values.append(SimpleText(value, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -435,6 +633,26 @@ class Resource:
         comment: str | None = None,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> Resource:
+        """
+        Adds a rich text value to the resource
+
+        Accepted values: richtext as a string
+        Wrong values:    anything else
+        Conversions:     None
+
+        Args:
+            prop_name: name of the property
+            value: value to add
+            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
+            comment: comments to the value
+            newline_replacement: Options to replace the `\\n` with XML tags, default `<br/>`
+
+        Warnings:
+            If the value is not amongst the accepted formats.
+
+        Returns:
+            Resource
+        """
         value = replace_newlines_with_tags(str(value), newline_replacement)
         self.values.append(Richtext(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -475,6 +693,25 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        Adds a time value to the resource
+
+        Accepted values: valid timestamp
+        Wrong values:    anything else
+        Conversions:     None
+
+        Args:
+            prop_name: name of the property
+            value: value to add
+            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
+            comment: comments to the value
+
+        Warnings:
+            If the value is not amongst the accepted formats.
+
+        Returns:
+            Resource
+        """
         self.values.append(TimeValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -510,6 +747,25 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        Adds a URI value to the resource
+
+        Accepted values: valid URI
+        Wrong values:    anything else
+        Conversions:     None
+
+        Args:
+            prop_name: name of the property
+            value: value to add
+            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
+            comment: comments to the value
+
+        Warnings:
+            If the value is not amongst the accepted formats.
+
+        Returns:
+            Resource
+        """
         self.values.append(UriValue(value, prop_name, permissions, comment, self.res_id))
         return self
 

@@ -28,6 +28,7 @@ LIST_SEPARATOR = "\n    - "
 
 @dataclass
 class AnnotationResource:
+    """Represents an annotation to another resource of any class."""
     res_id: str
     label: str
     annotation_of: str
@@ -98,6 +99,7 @@ class AnnotationResource:
 
 @dataclass
 class RegionResource:
+    """Represents a region of interest (ROI) in an image"""
     res_id: str
     label: str
     color: str
@@ -195,6 +197,7 @@ class RegionResource:
 
 @dataclass
 class LinkResource:
+    """Represents a link between several other resources of different classes."""
     res_id: str
     label: str
     link_to: list[str]
@@ -291,6 +294,7 @@ class SegmentBounds:
 
 @dataclass
 class VideoSegmentResource:
+    """Represent sections of a video file."""
     res_id: str
     label: str
     segment_of: str
@@ -420,6 +424,7 @@ class VideoSegmentResource:
 
 @dataclass
 class AudioSegmentResource:
+    """Represent sections of an audio file."""
     res_id: str
     label: str
     segment_of: str

@@ -34,6 +34,7 @@ class AnnotationResource:
     Raises:
         InputError: _description_
     """
+
     res_id: str
     label: str
     annotation_of: str
@@ -157,6 +158,7 @@ class RegionResource:
     Raises:
         InputError: _description_
     """
+
     res_id: str
     label: str
     color: str
@@ -307,6 +309,7 @@ class LinkResource:
     Raises:
         InputError: _description_
     """
+
     res_id: str
     label: str
     link_to: list[str]
@@ -456,6 +459,7 @@ class VideoSegmentResource:
     Raises:
         InputError: _description_
     """
+
     res_id: str
     label: str
     segment_of: str
@@ -737,6 +741,7 @@ class AudioSegmentResource:
     Raises:
         InputError: _description_
     """
+
     res_id: str
     label: str
     segment_of: str

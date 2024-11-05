@@ -33,6 +33,7 @@ class XMLRoot:
     """
     _summary_
     """
+
     shortcode: str
     default_ontology: str
     resources: list[AnyResource] = field(default_factory=list)

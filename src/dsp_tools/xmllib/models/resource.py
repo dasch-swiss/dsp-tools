@@ -49,6 +49,7 @@ class Resource:
         InputError: _description_
         InputError: _description_
     """
+
     res_id: str
     restype: str
     label: str

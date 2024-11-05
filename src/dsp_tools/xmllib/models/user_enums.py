@@ -3,6 +3,9 @@ from enum import auto
 
 
 class Permissions(Enum):
+    """
+    _summary_
+    """
     PROJECT_SPECIFIC_PERMISSIONS = ""
     OPEN = "open"
     RESTRICTED = "restricted"
@@ -10,6 +13,9 @@ class Permissions(Enum):
 
 
 class NewlineReplacement(Enum):
+    """
+    _summary_
+    """
     NONE = auto()
     PARAGRAPH = auto()
     LINEBREAK = auto()

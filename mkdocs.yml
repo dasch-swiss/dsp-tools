@@ -35,6 +35,12 @@ nav:
           - Security checks: developers/code-quality-tools/security.md
           - See also: developers/code-quality-tools/python-see-also.md
   - Changelog: changelog.md
+  - API Reference:
+      - xmllib:
+          - XMLRoot: api-reference/xmllib/xmlroot.md
+          - Resource: api-reference/xmllib/resource.md
+          - DSP base resources: api-reference/xmllib/dsp_base_resources.md
+          - Permissions: api-reference/xmllib/permissions.md
 
 theme:
   name: material
@@ -61,3 +67,7 @@ extra_css:
 plugins:
   - search
   - include-markdown
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src/dsp_tools/xmllib/models]

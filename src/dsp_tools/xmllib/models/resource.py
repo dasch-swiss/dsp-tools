@@ -41,6 +41,14 @@ LIST_SEPARATOR = "\n    - "
 
 @dataclass
 class Resource:
+    """
+    _summary_
+
+    Raises:
+        InputError: _description_
+        InputError: _description_
+        InputError: _description_
+    """
     res_id: str
     restype: str
     label: str
@@ -71,6 +79,18 @@ class Resource:
         label: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> Resource:
+        """
+        _summary_
+
+        Args:
+            res_id: _description_
+            restype: _description_
+            label: _description_
+            permissions: _description_. Defaults to Permissions.PROJECT_SPECIFIC_PERMISSIONS.
+
+        Returns:
+            _description_
+        """
         return Resource(
             res_id=res_id,
             restype=restype,
@@ -79,6 +99,12 @@ class Resource:
         )
 
     def serialise(self) -> etree._Element:
+        """
+        _summary_
+
+        Returns:
+            _description_
+        """
         res_ele = self._serialise_resource_element()
         if self.file_value:
             res_ele.append(self.file_value.serialise())
@@ -114,6 +140,18 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        _summary_
+
+        Args:
+            prop_name: _description_
+            value: _description_
+            permissions: _description_. Defaults to Permissions.PROJECT_SPECIFIC_PERMISSIONS.
+            comment: _description_. Defaults to None.
+
+        Returns:
+            _description_
+        """
         self.values.append(BooleanValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -124,6 +162,18 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        _summary_
+
+        Args:
+            prop_name: _description_
+            value: _description_
+            permissions: _description_. Defaults to Permissions.PROJECT_SPECIFIC_PERMISSIONS.
+            comment: _description_. Defaults to None.
+
+        Returns:
+            _description_
+        """
         if is_nonempty_value(value):
             self.values.append(BooleanValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -139,6 +189,18 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        _summary_
+
+        Args:
+            prop_name: _description_
+            value: _description_
+            permissions: _description_. Defaults to Permissions.PROJECT_SPECIFIC_PERMISSIONS.
+            comment: _description_. Defaults to None.
+
+        Returns:
+            _description_
+        """
         self.values.append(ColorValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -149,6 +211,18 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        _summary_
+
+        Args:
+            prop_name: _description_
+            values: _description_
+            permissions: _description_. Defaults to Permissions.PROJECT_SPECIFIC_PERMISSIONS.
+            comment: _description_. Defaults to None.
+
+        Returns:
+            _description_
+        """
         self.values.extend([ColorValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
@@ -159,6 +233,18 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        _summary_
+
+        Args:
+            prop_name: _description_
+            value: _description_
+            permissions: _description_. Defaults to Permissions.PROJECT_SPECIFIC_PERMISSIONS.
+            comment: _description_. Defaults to None.
+
+        Returns:
+            _description_
+        """
         if is_nonempty_value(value):
             self.values.append(ColorValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -174,6 +260,18 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        _summary_
+
+        Args:
+            prop_name: _description_
+            value: _description_
+            permissions: _description_. Defaults to Permissions.PROJECT_SPECIFIC_PERMISSIONS.
+            comment: _description_. Defaults to None.
+
+        Returns:
+            _description_
+        """
         self.values.append(DateValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -184,6 +282,18 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        _summary_
+
+        Args:
+            prop_name: _description_
+            values: _description_
+            permissions: _description_. Defaults to Permissions.PROJECT_SPECIFIC_PERMISSIONS.
+            comment: _description_. Defaults to None.
+
+        Returns:
+            _description_
+        """
         self.values.extend([DateValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
@@ -194,6 +304,18 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        _summary_
+
+        Args:
+            prop_name: _description_
+            value: _description_
+            permissions: _description_. Defaults to Permissions.PROJECT_SPECIFIC_PERMISSIONS.
+            comment: _description_. Defaults to None.
+
+        Returns:
+            _description_
+        """
         if is_nonempty_value(value):
             self.values.append(DateValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -209,6 +331,18 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        _summary_
+
+        Args:
+            prop_name: _description_
+            value: _description_
+            permissions: _description_. Defaults to Permissions.PROJECT_SPECIFIC_PERMISSIONS.
+            comment: _description_. Defaults to None.
+
+        Returns:
+            _description_
+        """
         self.values.append(DecimalValue(value, prop_name, permissions, comment, self.res_id))
         return self
 
@@ -219,6 +353,18 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        _summary_
+
+        Args:
+            prop_name: _description_
+            values: _description_
+            permissions: _description_. Defaults to Permissions.PROJECT_SPECIFIC_PERMISSIONS.
+            comment: _description_. Defaults to None.
+
+        Returns:
+            _description_
+        """
         self.values.extend([DecimalValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
@@ -229,6 +375,18 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        _summary_
+
+        Args:
+            prop_name: _description_
+            value: _description_
+            permissions: _description_. Defaults to Permissions.PROJECT_SPECIFIC_PERMISSIONS.
+            comment: _description_. Defaults to None.
+
+        Returns:
+            _description_
+        """
         if is_nonempty_value(value):
             self.values.append(DecimalValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -299,6 +457,18 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        _summary_
+
+        Args:
+            prop_name: _description_
+            value: _description_
+            permissions: _description_. Defaults to Permissions.PROJECT_SPECIFIC_PERMISSIONS.
+            comment: _description_. Defaults to None.
+
+        Returns:
+            _description_
+        """
         if is_nonempty_value(value):
             self.values.append(IntValue(value, prop_name, permissions, comment, self.res_id))
         return self

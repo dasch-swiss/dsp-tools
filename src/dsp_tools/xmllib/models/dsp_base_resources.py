@@ -200,14 +200,41 @@ class RegionResource:
         )
 
     def add_comment(self, comment: str) -> RegionResource:
+        """
+        Add a comment to the resource
+
+        Args:
+            comment: Comment text
+
+        Returns:
+            The resource with one comment added.
+        """
         self.comments.append(comment)
         return self
 
     def add_comment_multiple(self, comments: list[str]) -> RegionResource:
+        """
+        Add several comments to the resource
+
+        Args:
+            comments: List of comment texts
+
+        Returns:
+            The resource with several comment added.
+        """
         self.comments.extend(comments)
         return self
 
     def add_comment_optional(self, comment: Any) -> RegionResource:
+        """
+        Add one comment if the value is not empty.
+
+        Args:
+            comment: Comment or empty value
+
+        Returns:
+            Resource with comment added if it is non-empty, otherwise an unchanged resource.
+        """
         if is_nonempty_value(comment):
             self.comments.append(comment)
         return self
@@ -293,14 +320,41 @@ class LinkResource:
         )
 
     def add_comment(self, comment: str) -> LinkResource:
+        """
+        Add a comment to the resource
+
+        Args:
+            comment: Comment text
+
+        Returns:
+            The resource with one comment added.
+        """
         self.comments.append(comment)
         return self
 
     def add_comment_multiple(self, comments: list[str]) -> LinkResource:
+        """
+        Add several comments to the resource
+
+        Args:
+            comments: List of comment texts
+
+        Returns:
+            The resource with several comment added.
+        """
         self.comments.extend(comments)
         return self
 
     def add_comment_optional(self, comment: Any) -> LinkResource:
+        """
+        Add one comment if the value is not empty.
+
+        Args:
+            comment: Comment or empty value
+
+        Returns:
+            Resource with comment added if it is non-empty, otherwise an unchanged resource.
+        """
         if is_nonempty_value(comment):
             self.comments.append(comment)
         return self
@@ -427,14 +481,41 @@ class VideoSegmentResource:
         return self
 
     def add_comment(self, comment: str) -> VideoSegmentResource:
+        """
+        Add a comment to the resource
+
+        Args:
+            comment: Comment text
+
+        Returns:
+            The resource with one comment added.
+        """
         self.comments.append(comment)
         return self
 
     def add_comment_multiple(self, comments: list[str]) -> VideoSegmentResource:
+        """
+        Add several comments to the resource
+
+        Args:
+            comments: List of comment texts
+
+        Returns:
+            The resource with several comment added.
+        """
         self.comments.extend(comments)
         return self
 
     def add_comment_optional(self, comment: Any) -> VideoSegmentResource:
+        """
+        Add one comment if the value is not empty.
+
+        Args:
+            comment: Comment or empty value
+
+        Returns:
+            Resource with comment added if it is non-empty, otherwise an unchanged resource.
+        """
         if is_nonempty_value(comment):
             self.comments.append(comment)
         return self
@@ -573,14 +654,41 @@ class AudioSegmentResource:
         return self
 
     def add_comment(self, comment: str) -> AudioSegmentResource:
+        """
+        Add a comment to the resource
+
+        Args:
+            comment: Comment text
+
+        Returns:
+            The resource with one comment added.
+        """
         self.comments.append(comment)
         return self
 
     def add_comment_multiple(self, comments: list[str]) -> AudioSegmentResource:
+        """
+        Add several comments to the resource
+
+        Args:
+            comments: List of comment texts
+
+        Returns:
+            The resource with several comment added.
+        """
         self.comments.extend(comments)
         return self
 
     def add_comment_optional(self, comment: Any) -> AudioSegmentResource:
+        """
+        Add one comment if the value is not empty.
+
+        Args:
+            comment: Comment or empty value
+
+        Returns:
+            Resource with comment added if it is non-empty, otherwise an unchanged resource.
+        """
         if is_nonempty_value(comment):
             self.comments.append(comment)
         return self

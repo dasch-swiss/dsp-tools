@@ -11,6 +11,7 @@ from rdflib.term import Node
 
 from dsp_tools.commands.validate_data.models.api_responses import AllProjectLists
 from dsp_tools.commands.validate_data.models.api_responses import OneList
+from dsp_tools.commands.validate_data.models.api_responses import SHACLListInfo
 
 API_SHAPES = Namespace("http://api.knora.org/ontology/knora-api/shapes/v2#")
 
@@ -220,40 +221,40 @@ def _construct_list_shapes(onto: Graph, project_lists: AllProjectLists) -> Graph
 
 def _construct_one_list_node_shape(one_list: OneList) -> Graph:
     g = Graph()
-
     list_iri = URIRef(one_list.list_iri)
     g.add((list_iri, RDF.type, SH.NodeShape))
     g.add((list_iri, SH.severity, SH.Violation))
+    list_prop_info = SHACLListInfo(
+        list_iri=list_iri,
+        sh_path=API_SHAPES.listNameAsString,
+        sh_message=f"The list that should be used with this property is: {one_list.list_name}.",
+        sh_in_list=[one_list.list_name],
+    )
+    g = _construct_one_list_property_shape_with_collection(g, list_prop_info)
+    node_prop_info = SHACLListInfo(
+        list_iri=list_iri,
+        sh_path=API_SHAPES.listNodeAsString,
+        sh_message=f"Unknown list node for list: {one_list.list_name}.",
+        sh_in_list=one_list.nodes,
+    )
+    g = _construct_one_list_property_shape_with_collection(g, node_prop_info)
+    return g
 
-    list_collection_bn = BNode()
-    Collection(g, list_collection_bn, [Literal(one_list.list_name, datatype=XSD.string)])
-    list_msg = f"The list that should be used with this property is: {one_list.list_name}."
-    list_prop_shape = [
-        (RDF.type, SH.PropertyShape),
-        (SH.path, API_SHAPES.listNameAsString),
-        (URIRef("http://www.w3.org/ns/shacl#in"), list_collection_bn),
-        (SH.message, Literal(list_msg, datatype=XSD.string)),
-    ]
-    list_prop_bn = BNode()
-    for prop, obj in list_prop_shape:
-        g.add((list_prop_bn, prop, obj))
-    g.add((list_iri, SH.property, list_prop_bn))
 
+def _construct_one_list_property_shape_with_collection(g: Graph, shacl_info: SHACLListInfo) -> Graph:
     node_collection_bn = BNode()
-    node_literals: list[Node] = [Literal(lit, datatype=XSD.string) for lit in one_list.nodes]
+    node_literals: list[Node] = [Literal(lit, datatype=XSD.string) for lit in shacl_info.sh_in_list]
     Collection(g, node_collection_bn, node_literals)
-    node_msg = f"Unknown list node for list: {one_list.list_name}."
     node_prop_shape = [
         (RDF.type, SH.PropertyShape),
-        (SH.path, API_SHAPES.listNodeAsString),
+        (SH.path, shacl_info.sh_path),
         (URIRef("http://www.w3.org/ns/shacl#in"), node_collection_bn),
-        (SH.message, Literal(node_msg, datatype=XSD.string)),
+        (SH.message, Literal(shacl_info.sh_message, datatype=XSD.string)),
     ]
     node_prop_bn = BNode()
     for prop, obj in node_prop_shape:
         g.add((node_prop_bn, prop, obj))
-    g.add((list_iri, SH.property, node_prop_bn))
-
+    g.add((shacl_info.list_iri, SH.property, node_prop_bn))
     return g
 
 

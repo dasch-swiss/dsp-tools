@@ -6,6 +6,8 @@
        shortcode="0002"
        default-ontology="onto">
 
+    <!-- 7 Violations -->
+
     <resource label="Backslash" restype=":ClassWithEverything" id="node_backslash">
         <list-prop list="list \ ' space" name=":testListProp">
             <list>other \ backslash</list>

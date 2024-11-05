@@ -243,19 +243,19 @@ def _construct_one_list_node_shape(one_list: OneList) -> Graph:
 
 def _construct_one_list_property_shape_with_collection(shacl_info: SHACLListInfo) -> Graph:
     g = Graph()
-    node_collection_bn = BNode()
-    node_literals: list[Node] = [Literal(lit, datatype=XSD.string) for lit in shacl_info.sh_in]
-    Collection(g, node_collection_bn, node_literals)
-    node_prop_shape = [
+    collection_bn = BNode()
+    collection_literals: list[Node] = [Literal(lit, datatype=XSD.string) for lit in shacl_info.sh_in]
+    Collection(g, collection_bn, collection_literals)
+    prop_shape = [
         (RDF.type, SH.PropertyShape),
         (SH.path, shacl_info.sh_path),
-        (URIRef("http://www.w3.org/ns/shacl#in"), node_collection_bn),
+        (URIRef("http://www.w3.org/ns/shacl#in"), collection_bn),
         (SH.message, Literal(shacl_info.sh_message, datatype=XSD.string)),
     ]
-    node_prop_bn = BNode()
-    for prop, obj in node_prop_shape:
-        g.add((node_prop_bn, prop, obj))
-    g.add((shacl_info.list_iri, SH.property, node_prop_bn))
+    prop_bn = BNode()
+    for prop, obj in prop_shape:
+        g.add((prop_bn, prop, obj))
+    g.add((shacl_info.list_iri, SH.property, prop_bn))
     return g
 
 

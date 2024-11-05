@@ -78,7 +78,7 @@ class AnnotationResource:
             comment: Comment text
 
         Returns:
-            The resource with one comment added.
+            Resource
         """
         self.comments.append(comment)
         return self
@@ -91,7 +91,7 @@ class AnnotationResource:
             comments: List of comment texts
 
         Returns:
-            The resource with several comments added.
+            Resource
         """
         self.comments.extend(comments)
         return self
@@ -104,7 +104,7 @@ class AnnotationResource:
             comment: Comment or empty value
 
         Returns:
-            Resource with comment added if it is non-empty, otherwise an unchanged resource.
+            Resource
         """
         if is_nonempty_value(comment):
             self.comments.append(comment)
@@ -125,7 +125,7 @@ class AnnotationResource:
             InputError if metadata already exists
 
         Returns:
-            Resource with metadata added
+            Resource
         """
         if self.migration_metadata:
             raise InputError(
@@ -221,7 +221,7 @@ class RegionResource:
             comment: Comment text
 
         Returns:
-            The resource with one comment added.
+            Resource
         """
         self.comments.append(comment)
         return self
@@ -234,7 +234,7 @@ class RegionResource:
             comments: List of comment texts
 
         Returns:
-            The resource with several comments added.
+            Resource
         """
         self.comments.extend(comments)
         return self
@@ -247,7 +247,7 @@ class RegionResource:
             comment: Comment or empty value
 
         Returns:
-            Resource with comment added if it is non-empty, otherwise an unchanged resource.
+            Resource
         """
         if is_nonempty_value(comment):
             self.comments.append(comment)
@@ -268,7 +268,7 @@ class RegionResource:
             InputError if metadata already exists
 
         Returns:
-            Resource with metadata added
+            Resource
         """
         if self.migration_metadata:
             raise InputError(
@@ -357,7 +357,7 @@ class LinkResource:
             comment: Comment text
 
         Returns:
-            The resource with one comment added.
+            Resource
         """
         self.comments.append(comment)
         return self
@@ -370,7 +370,7 @@ class LinkResource:
             comments: List of comment texts
 
         Returns:
-            The resource with several comments added.
+            Resource
         """
         self.comments.extend(comments)
         return self
@@ -383,7 +383,7 @@ class LinkResource:
             comment: Comment or empty value
 
         Returns:
-            Resource with comment added if it is non-empty, otherwise an unchanged resource.
+            Resource
         """
         if is_nonempty_value(comment):
             self.comments.append(comment)
@@ -404,7 +404,7 @@ class LinkResource:
             InputError if metadata already exists
 
         Returns:
-            Resource with metadata added
+            Resource
         """
         if self.migration_metadata:
             raise InputError(
@@ -560,7 +560,7 @@ class VideoSegmentResource:
             comment: Comment text
 
         Returns:
-            The resource with one comment added.
+            Resource
         """
         self.comments.append(comment)
         return self
@@ -573,7 +573,7 @@ class VideoSegmentResource:
             comments: List of comment texts
 
         Returns:
-            The resource with several comments added.
+            Resource
         """
         self.comments.extend(comments)
         return self
@@ -586,7 +586,7 @@ class VideoSegmentResource:
             comment: Comment or empty value
 
         Returns:
-            Resource with comment added if it is non-empty, otherwise an unchanged resource.
+            Resource
         """
         if is_nonempty_value(comment):
             self.comments.append(comment)
@@ -673,7 +673,7 @@ class VideoSegmentResource:
             InputError if metadata already exists
 
         Returns:
-            Resource with metadata added
+            Resource
         """
         if self.migration_metadata:
             raise InputError(
@@ -744,7 +744,7 @@ class AudioSegmentResource:
             permissions: permission of the resource, default is `PROJECT_SPECIFIC_PERMISSIONS`
 
         Returns:
-            A audio segment resource
+            An audio segment resource
         """
         return AudioSegmentResource(
             res_id=res_id,
@@ -785,7 +785,7 @@ class AudioSegmentResource:
             comment: Comment text
 
         Returns:
-            The resource with one comment added.
+            Resource
         """
         self.comments.append(comment)
         return self
@@ -798,7 +798,7 @@ class AudioSegmentResource:
             comments: List of comment texts
 
         Returns:
-            The resource with several comments added.
+            Resource
         """
         self.comments.extend(comments)
         return self
@@ -811,7 +811,7 @@ class AudioSegmentResource:
             comment: Comment or empty value
 
         Returns:
-            Resource with comment added if it is non-empty, otherwise an unchanged resource.
+            Resource
         """
         if is_nonempty_value(comment):
             self.comments.append(comment)
@@ -898,7 +898,7 @@ class AudioSegmentResource:
             InputError if metadata already exists
 
         Returns:
-            Resource with metadata added
+            Resource
         """
         if self.migration_metadata:
             raise InputError(

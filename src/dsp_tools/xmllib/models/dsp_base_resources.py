@@ -328,6 +328,8 @@ class LinkResource:
     ) -> LinkResource:
         """
         Creates a new link resource.
+        All of these fields are required.
+        Use the additional functions to add non-required information.
 
         Args:
             res_id: Resource ID
@@ -487,6 +489,8 @@ class VideoSegmentResource:
     ) -> VideoSegmentResource:
         """
         Creates a new video segment resource.
+        All except title are required.
+        Use the additional functions to add non-required information.
 
         Args:
             res_id: Resource ID
@@ -510,12 +514,38 @@ class VideoSegmentResource:
         )
 
     def add_title(self, title: str) -> VideoSegmentResource:
+        """
+        Add a title to the resource.
+
+        Args:
+            title: Title text
+
+        Warnings:
+            If the resource already has a title.
+            In that case, the title will be replaced.
+
+        Returns:
+            Resource
+        """
         if self.title:
             _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
         self.title = title
         return self
 
     def add_title_optional(self, title: Any) -> VideoSegmentResource:
+        """
+        Add a title if the value is non-empty.
+
+        Args:
+            title: Title
+
+        Warnings:
+            If the resource already has a title.
+            In that case, the title will be replaced.
+
+        Returns:
+            Resource
+        """
         if is_nonempty_value(title):
             if self.title:
                 _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
@@ -563,6 +593,15 @@ class VideoSegmentResource:
         return self
 
     def add_description(self, description: str) -> VideoSegmentResource:
+        """
+        Add a description to the resource
+
+        Args:
+            description: text
+
+        Returns:
+            Resource
+        """
         self.descriptions.append(description)
         return self
 
@@ -576,6 +615,15 @@ class VideoSegmentResource:
         return self
 
     def add_keyword(self, keyword: str) -> VideoSegmentResource:
+        """
+        Add a keyword to the resource
+
+        Args:
+            keyword: text
+
+        Returns:
+            Resource
+        """
         self.keywords.append(keyword)
         return self
 
@@ -589,6 +637,15 @@ class VideoSegmentResource:
         return self
 
     def add_relates_to(self, relates_to: str) -> VideoSegmentResource:
+        """
+        Add a link to a resource to which it relates to
+
+        Args:
+            relates_to: Resource ID to which it relates to
+
+        Returns:
+            Resource
+        """
         self.relates_to.append(relates_to)
         return self
 
@@ -674,6 +731,8 @@ class AudioSegmentResource:
     ) -> AudioSegmentResource:
         """
         Creates a new audio segment resource.
+        All except title are required.
+        Use the additional functions to add non-required information.
 
         Args:
             res_id: Resource ID
@@ -697,6 +756,15 @@ class AudioSegmentResource:
         )
 
     def add_title(self, title: str) -> AudioSegmentResource:
+        """
+        Add a title to the resource
+
+        Args:
+            title: text
+
+        Returns:
+            Resource
+        """
         if self.title:
             _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
         self.title = title
@@ -750,6 +818,15 @@ class AudioSegmentResource:
         return self
 
     def add_description(self, description: str) -> AudioSegmentResource:
+        """
+        Add a description to the resource
+
+        Args:
+            description: text
+
+        Returns:
+            Resource
+        """
         self.descriptions.append(description)
         return self
 
@@ -763,6 +840,15 @@ class AudioSegmentResource:
         return self
 
     def add_keyword(self, keyword: str) -> AudioSegmentResource:
+        """
+        Add a keyword to the resource
+
+        Args:
+            keyword: text
+
+        Returns:
+            Resource
+        """
         self.keywords.append(keyword)
         return self
 
@@ -776,6 +862,15 @@ class AudioSegmentResource:
         return self
 
     def add_relates_to(self, relates_to: str) -> AudioSegmentResource:
+        """
+        Add a link to a resource to which it relates to
+
+        Args:
+            relates_to: Resource ID to which it relates to
+
+        Returns:
+            Resource
+        """
         self.relates_to.append(relates_to)
         return self
 

@@ -59,6 +59,10 @@ class AnnotationResource:
             comments: Comment to an annotation (cardinality 1-n)
             permissions: permission of the resource, default is `PROJECT_SPECIFIC_PERMISSIONS`
 
+        Warnings:
+            - If the Resource ID is not a valid string
+            - If the label is not a valid string
+
         Returns:
             An annotation resource
         """
@@ -199,6 +203,12 @@ class RegionResource:
             geometry: Geometry information of the region (cardinality 1)
             comments: Comment to an annotation (cardinality 1-n)
             permissions: permission of the resource, default is `PROJECT_SPECIFIC_PERMISSIONS`
+
+        Warnings:
+            - If the Resource ID is not a valid string
+            - If the label is not a valid string
+            - If the color does not follow the pattern: # followed by 3 or 6 hex numerals
+            - If the geometry does not follow the specifications
 
         Returns:
             A region resource

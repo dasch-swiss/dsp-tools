@@ -17,6 +17,7 @@ class MigrationMetadata:
     Metadata originating from a SALSAH migration.
     This will be deprecated in the future when all projects are migrated.
     """
+
     creation_date: str | None
     iri: str | None
     ark: str | None

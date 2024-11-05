@@ -20,9 +20,13 @@ class Permissions(Enum):
 
 class NewlineReplacement(Enum):
     """
+    Options to replace '\\n' with XML formatting
 
-
+    - `NONE`: The text is returned without changes
+    - `PARAGRAPH`: Replaces `Start Text\\nEnd Text` with `<p>Start Text</p><p>End Text</p>`
+    - `LINEBREAK`: Replaces `Start Text\\nEnd Text` with `Start Text<br/>End Text`
     """
+
     NONE = auto()
     PARAGRAPH = auto()
     LINEBREAK = auto()

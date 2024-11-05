@@ -944,7 +944,7 @@ class Resource:
 
         Accepted values: richtext as a string
         Wrong values:    anything else
-        Conversions:     None
+        Conversions:     Options to replace the `\\n` with XML tags
 
         Args:
             prop_name: name of the property
@@ -976,7 +976,7 @@ class Resource:
 
         Accepted values: list of richtexts as a string
         Wrong values:    anything else
-        Conversions:     None
+        Conversions:     Options to replace the `\\n` with XML tags
 
         Args:
             prop_name: name of the property
@@ -1008,7 +1008,7 @@ class Resource:
 
         Accepted values: richtext as a string
         Wrong values:    anything else
-        Conversions:     None
+        Conversions:     Options to replace the `\\n` with XML tags
 
         Args:
             prop_name: name of the property

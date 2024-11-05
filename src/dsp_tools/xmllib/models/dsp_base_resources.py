@@ -59,7 +59,7 @@ class AnnotationResource:
             label: label of this annotation resource
             annotation_of: ID of the resource that this annotation refers to (cardinality 1)
             comments: the comment(s) that this annotation consists of, i.e. the annotation itself (cardinality 1-n)
-            permissions: permissions of this annotation resource. Defaults to `PROJECT_SPECIFIC_PERMISSIONS`
+            permissions: permissions of this annotation resource
 
         Warnings:
             - If the Resource ID is not a valid string
@@ -208,7 +208,7 @@ class RegionResource:
             geometry: geometry information of the region (cardinality 1) 
                       (see https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geometry)
             comments: comments to this region (cardinality 1-n)
-            permissions: permissions of this region resource. Defaults to `PROJECT_SPECIFIC_PERMISSIONS`
+            permissions: permissions of this region resource
 
         Warnings:
             - If the Resource ID is not a valid string
@@ -352,7 +352,7 @@ class LinkResource:
             label: label of this link resource
             link_to: IDs of the resources that should be linked together (cardinality 1-n)
             comments: comments to this link (cardinality 1-n)
-            permissions: permissions of this link resource. Defaults to `PROJECT_SPECIFIC_PERMISSIONS`
+            permissions: permissions of this link resource
 
         Returns:
             A link resource
@@ -518,7 +518,7 @@ class VideoSegmentResource:
             segment_start: start of the segment in seconds (cardinality 1)
             segment_end: end of the segment in seconds (cardinality 1)
             title: title of this segment (cardinality 0-1)
-            permissions: permissions of this resource. Defaults to `PROJECT_SPECIFIC_PERMISSIONS`
+            permissions: permissions of this resource
 
         Returns:
             A video segment resource
@@ -809,7 +809,7 @@ class AudioSegmentResource:
         and then use the dedicated methods, e.g. `add_description()`.
 
         See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#video-segment-and-audio-segment.
-        
+
         Args:
             res_id: ID of this audio segment resource
             label: label of this audio segment resource
@@ -817,7 +817,7 @@ class AudioSegmentResource:
             segment_start: start of the segment in seconds (cardinality 1)
             segment_end: end of the segment in seconds (cardinality 1)
             title: title of this segment (cardinality 0-1)
-            permissions: permissions of this resource. Defaults to `PROJECT_SPECIFIC_PERMISSIONS`
+            permissions: permissions of this resource
 
         Returns:
             An audio segment resource

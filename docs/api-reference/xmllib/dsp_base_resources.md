@@ -1,6 +1,8 @@
 # DSP base resources
 
-## ::: xmllib.AnnotationResource
+<!-- markdownlint-disable MD022 -->
+
+## ::: xmllib.AnnotationResource 
     options:
         show_root_heading: true
 

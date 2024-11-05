@@ -1,21 +1,21 @@
 # DSP base resources
 
-## ::: dsp_base_resources.AnnotationResource
+## ::: xmllib.AnnotationResource
     options:
         show_root_heading: true
 
-## ::: dsp_base_resources.RegionResource
+## ::: xmllib.RegionResource
     options:
         show_root_heading: true
 
-## ::: dsp_base_resources.LinkResource
+## ::: xmllib.LinkResource
     options:
         show_root_heading: true
 
-## ::: dsp_base_resources.AudioSegmentResource
+## ::: xmllib.AudioSegmentResource
     options:
         show_root_heading: true
 
-## ::: dsp_base_resources.VideoSegmentResource
+## ::: xmllib.VideoSegmentResource
     options:
         show_root_heading: true

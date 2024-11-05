@@ -70,4 +70,4 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
-          paths: [src/dsp_tools/xmllib/models]
+          paths: [src/dsp_tools/]

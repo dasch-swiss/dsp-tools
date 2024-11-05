@@ -451,7 +451,7 @@ class Resource:
     ) -> Resource:
         """
         Add a [geonames.org](geonames.org) value to the resource.
-        The [geonames.org](geonames.org) identifier must be provided as integer 
+        The [geonames.org](geonames.org) identifier must be provided as integer
         or string that is convertible to integer.
         Geoname values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geoname.
 
@@ -507,7 +507,7 @@ class Resource:
     ) -> Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
-        The [geonames.org](geonames.org) identifier must be provided as integer 
+        The [geonames.org](geonames.org) identifier must be provided as integer
         or string that is convertible to integer.
         Geoname values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geoname.
 

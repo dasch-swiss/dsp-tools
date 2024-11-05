@@ -195,7 +195,7 @@ class RegionResource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> RegionResource:
         """
-        Creates a new region resource. 
+        Creates a new region resource.
         A region is a region of interest (ROI) in an image.
         See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#region.
 
@@ -205,7 +205,7 @@ class RegionResource:
             color: color of the region, as `#` followed by 3 or 6 hex numerals (cardinality 1)
                    (see https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#color)
             region_of: ID of the image resource that this region refers to (cardinality 1)
-            geometry: geometry information of the region (cardinality 1) 
+            geometry: geometry information of the region (cardinality 1)
                       (see https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geometry)
             comments: comments to this region (cardinality 1-n)
             permissions: permissions of this region resource
@@ -506,7 +506,7 @@ class VideoSegmentResource:
         """
         Creates a new video segment resource.
         This factory method supports only the most frequently used parameters.
-        If you want to add additional information, create the incomplete segment first, 
+        If you want to add additional information, create the incomplete segment first,
         and then use the dedicated methods, e.g. `add_description()`.
 
         See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#video-segment-and-audio-segment.
@@ -805,7 +805,7 @@ class AudioSegmentResource:
         """
         Creates a new audio segment resource.
         This factory method supports only the most frequently used parameters.
-        If you want to add additional information, create the incomplete segment first, 
+        If you want to add additional information, create the incomplete segment first,
         and then use the dedicated methods, e.g. `add_description()`.
 
         See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#video-segment-and-audio-segment.

@@ -91,7 +91,7 @@ class AnnotationResource:
             comments: List of comment texts
 
         Returns:
-            The resource with several comment added.
+            The resource with several comments added.
         """
         self.comments.extend(comments)
         return self
@@ -113,6 +113,20 @@ class AnnotationResource:
     def add_migration_metadata(
         self, creation_date: str | None, iri: str | None = None, ark: str | None = None
     ) -> AnnotationResource:
+        """
+        Add metadata from a SALSAH migration
+
+        Args:
+            creation_date: Creation date of the resource
+            iri: Original IRI
+            ark: Original ARK
+
+        Raises:
+            InputError if metadata already exists
+
+        Returns:
+            Resource with metadata added
+        """
         if self.migration_metadata:
             raise InputError(
                 f"The resource with the ID '{self.res_id}' already contains migration metadata, "
@@ -220,7 +234,7 @@ class RegionResource:
             comments: List of comment texts
 
         Returns:
-            The resource with several comment added.
+            The resource with several comments added.
         """
         self.comments.extend(comments)
         return self
@@ -242,6 +256,20 @@ class RegionResource:
     def add_migration_metadata(
         self, creation_date: str | None, iri: str | None = None, ark: str | None = None
     ) -> RegionResource:
+        """
+        Add metadata from a SALSAH migration
+
+        Args:
+            creation_date: Creation date of the resource
+            iri: Original IRI
+            ark: Original ARK
+
+        Raises:
+            InputError if metadata already exists
+
+        Returns:
+            Resource with metadata added
+        """
         if self.migration_metadata:
             raise InputError(
                 f"The resource with the ID '{self.res_id}' already contains migration metadata, "
@@ -340,7 +368,7 @@ class LinkResource:
             comments: List of comment texts
 
         Returns:
-            The resource with several comment added.
+            The resource with several comments added.
         """
         self.comments.extend(comments)
         return self
@@ -362,6 +390,20 @@ class LinkResource:
     def add_migration_metadata(
         self, creation_date: str | None, iri: str | None = None, ark: str | None = None
     ) -> LinkResource:
+        """
+        Add metadata from a SALSAH migration
+
+        Args:
+            creation_date: Creation date of the resource
+            iri: Original IRI
+            ark: Original ARK
+
+        Raises:
+            InputError if metadata already exists
+
+        Returns:
+            Resource with metadata added
+        """
         if self.migration_metadata:
             raise InputError(
                 f"The resource with the ID '{self.res_id}' already contains migration metadata, "
@@ -501,7 +543,7 @@ class VideoSegmentResource:
             comments: List of comment texts
 
         Returns:
-            The resource with several comment added.
+            The resource with several comments added.
         """
         self.comments.extend(comments)
         return self
@@ -562,6 +604,20 @@ class VideoSegmentResource:
     def add_migration_metadata(
         self, creation_date: str | None, iri: str | None = None, ark: str | None = None
     ) -> VideoSegmentResource:
+        """
+        Add metadata from a SALSAH migration
+
+        Args:
+            creation_date: Creation date of the resource
+            iri: Original IRI
+            ark: Original ARK
+
+        Raises:
+            InputError if metadata already exists
+
+        Returns:
+            Resource with metadata added
+        """
         if self.migration_metadata:
             raise InputError(
                 f"The resource with the ID '{self.res_id}' already contains migration metadata, "
@@ -674,7 +730,7 @@ class AudioSegmentResource:
             comments: List of comment texts
 
         Returns:
-            The resource with several comment added.
+            The resource with several comments added.
         """
         self.comments.extend(comments)
         return self
@@ -735,6 +791,20 @@ class AudioSegmentResource:
     def add_migration_metadata(
         self, creation_date: str | None, iri: str | None = None, ark: str | None = None
     ) -> AudioSegmentResource:
+        """
+        Add metadata from a SALSAH migration
+
+        Args:
+            creation_date: Creation date of the resource
+            iri: Original IRI
+            ark: Original ARK
+
+        Raises:
+            InputError if metadata already exists
+
+        Returns:
+            Resource with metadata added
+        """
         if self.migration_metadata:
             raise InputError(
                 f"The resource with the ID '{self.res_id}' already contains migration metadata, "

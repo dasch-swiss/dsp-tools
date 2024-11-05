@@ -225,6 +225,25 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        Adds several color values to the resource
+
+        Accepted values: list of `#[0-9a-f]{6}`
+        Wrong values:    anything else
+        Conversions:     None
+
+        Args:
+            prop_name: name of the property
+            values: values to add
+            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
+            comment: comments to the value
+
+        Warnings:
+            If the values are not amongst the accepted formats.
+
+        Returns:
+            Resource
+        """
         self.values.extend([ColorValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
@@ -298,6 +317,25 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        Adds several date values to the resource
+
+        Accepted values: list of dates in the format according to the documentation
+        Wrong values:    anything else
+        Conversions:     None
+
+        Args:
+            prop_name: name of the property
+            values: values to add
+            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
+            comment: comments to the value
+
+        Warnings:
+            If the values are not amongst the accepted formats.
+
+        Returns:
+            Resource
+        """
         self.values.extend([DateValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
@@ -371,6 +409,25 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        Adds several decimal values to the resource
+
+        Accepted values: list of decimals, integers in numeric forms or scientific notation (eg: 1e2)
+        Wrong values:    anything else
+        Conversions:     None
+
+        Args:
+            prop_name: name of the property
+            values: values to add
+            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
+            comment: comments to the value
+
+        Warnings:
+            If the values are not amongst the accepted formats.
+
+        Returns:
+            Resource
+        """
         self.values.extend([DecimalValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
@@ -444,6 +501,25 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        Adds several geoname values to the resource
+
+        Accepted values: list integer strings
+        Wrong values:    anything else
+        Conversions:     None
+
+        Args:
+            prop_name: name of the property
+            values: values to add
+            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
+            comment: comments to the value
+
+        Warnings:
+            If the values are not amongst the accepted formats.
+
+        Returns:
+            Resource
+        """
         self.values.extend([GeonameValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
@@ -517,6 +593,25 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        Adds several integer values to the resource
+
+        Accepted values: list of integers
+        Wrong values:    anything else
+        Conversions:     None
+
+        Args:
+            prop_name: name of the property
+            values: values to add
+            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
+            comment: comments to the value
+
+        Warnings:
+            If the values are not amongst the accepted formats.
+
+        Returns:
+            Resource
+        """
         self.values.extend([IntValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
@@ -590,6 +685,25 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        Adds several link values to the resource
+
+        Accepted values: list of resource IDs
+        Wrong values:    anything else
+        Conversions:     None
+
+        Args:
+            prop_name: name of the property
+            values: values to add
+            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
+            comment: comments to the value
+
+        Warnings:
+            If the values are not amongst the accepted formats.
+
+        Returns:
+            Resource
+        """
         self.values.extend([LinkValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
@@ -666,6 +780,26 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        Adds several list values to the resource
+
+        Accepted values: list of non-empty values
+        Wrong values:    anything else
+        Conversions:     None
+
+        Args:
+            prop_name: name of the property
+            list_name: name of the list
+            values: values to add
+            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
+            comment: comments to the value
+
+        Warnings:
+            If the values are not amongst the accepted formats.
+
+        Returns:
+            Resource
+        """
         self.values.extend([ListValue(v, list_name, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
@@ -741,6 +875,25 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        Adds several simple text values to the resource
+
+        Accepted values: list of simple text strings
+        Wrong values:    anything else
+        Conversions:     None
+
+        Args:
+            prop_name: name of the property
+            values: values to add
+            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
+            comment: comments to the value
+
+        Warnings:
+            If the values are not amongst the accepted formats.
+
+        Returns:
+            Resource
+        """
         self.values.extend([SimpleText(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
@@ -818,6 +971,26 @@ class Resource:
         comment: str | None = None,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> Resource:
+        """
+        Adds several rich text values to the resource
+
+        Accepted values: list of richtexts as a string
+        Wrong values:    anything else
+        Conversions:     None
+
+        Args:
+            prop_name: name of the property
+            values: values to add
+            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
+            comment: comments to the value
+            newline_replacement: Options to replace the `\\n` with XML tags, default `<br/>`
+
+        Warnings:
+            If the values are not amongst the accepted formats.
+
+        Returns:
+            Resource
+        """
         values = [replace_newlines_with_tags(str(v), newline_replacement) for v in values]
         self.values.extend([Richtext(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
@@ -895,6 +1068,25 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        Adds several time values to the resource
+
+        Accepted values: list of timestamps
+        Wrong values:    anything else
+        Conversions:     None
+
+        Args:
+            prop_name: name of the property
+            values: values to add
+            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
+            comment: comments to the value
+
+        Warnings:
+            If the values are not amongst the accepted formats.
+
+        Returns:
+            Resource
+        """
         self.values.extend([TimeValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 
@@ -968,6 +1160,25 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        Adds several URI values to the resource
+
+        Accepted values: list of URIs
+        Wrong values:    anything else
+        Conversions:     None
+
+        Args:
+            prop_name: name of the property
+            values: values to add
+            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
+            comment: comments to the value
+
+        Warnings:
+            If the values are not amongst the accepted formats.
+
+        Returns:
+            Resource
+        """
         self.values.extend([UriValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
 

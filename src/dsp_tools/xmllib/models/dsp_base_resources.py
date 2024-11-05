@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from dataclasses import field
 from typing import Any
 
-import pandas as pd
 from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
@@ -18,6 +17,7 @@ from dsp_tools.xmllib.models.values import Richtext
 from dsp_tools.xmllib.value_checkers import find_geometry_problem
 from dsp_tools.xmllib.value_checkers import is_color
 from dsp_tools.xmllib.value_checkers import is_decimal
+from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_string_like
 
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
@@ -71,15 +71,42 @@ class AnnotationResource:
         )
 
     def add_comment(self, comment: str) -> AnnotationResource:
+        """
+        Add a comment to the resource
+
+        Args:
+            comment: Comment text
+
+        Returns:
+            The resource with one comment added.
+        """
         self.comments.append(comment)
         return self
 
     def add_comment_multiple(self, comments: list[str]) -> AnnotationResource:
+        """
+        Add several comments to the resource
+
+        Args:
+            comments: List of comment texts
+
+        Returns:
+            The resource with several comment added.
+        """
         self.comments.extend(comments)
         return self
 
     def add_comment_optional(self, comment: Any) -> AnnotationResource:
-        if not pd.isna(comment):
+        """
+        Add one comment if the value is not empty.
+
+        Args:
+            comment: Comment or empty value
+
+        Returns:
+            Resource with comment added if it is non-empty, otherwise an unchanged resource.
+        """
+        if is_nonempty_value(comment):
             self.comments.append(comment)
         return self
 
@@ -181,7 +208,7 @@ class RegionResource:
         return self
 
     def add_comment_optional(self, comment: Any) -> RegionResource:
-        if not pd.isna(comment):
+        if is_nonempty_value(comment):
             self.comments.append(comment)
         return self
 
@@ -274,7 +301,7 @@ class LinkResource:
         return self
 
     def add_comment_optional(self, comment: Any) -> LinkResource:
-        if not pd.isna(comment):
+        if is_nonempty_value(comment):
             self.comments.append(comment)
         return self
 
@@ -393,7 +420,7 @@ class VideoSegmentResource:
         return self
 
     def add_title_optional(self, title: Any) -> VideoSegmentResource:
-        if not pd.isna(title):
+        if is_nonempty_value(title):
             if self.title:
                 _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
             self.title = title
@@ -408,7 +435,7 @@ class VideoSegmentResource:
         return self
 
     def add_comment_optional(self, comment: Any) -> VideoSegmentResource:
-        if not pd.isna(comment):
+        if is_nonempty_value(comment):
             self.comments.append(comment)
         return self
 
@@ -421,7 +448,7 @@ class VideoSegmentResource:
         return self
 
     def add_description_optional(self, description: Any) -> VideoSegmentResource:
-        if not pd.isna(description):
+        if is_nonempty_value(description):
             self.descriptions.append(description)
         return self
 
@@ -434,7 +461,7 @@ class VideoSegmentResource:
         return self
 
     def add_keyword_optional(self, keyword: Any) -> VideoSegmentResource:
-        if not pd.isna(keyword):
+        if is_nonempty_value(keyword):
             self.keywords.append(keyword)
         return self
 
@@ -447,7 +474,7 @@ class VideoSegmentResource:
         return self
 
     def add_relates_to_optional(self, relates_to: Any) -> VideoSegmentResource:
-        if not pd.isna(relates_to):
+        if is_nonempty_value(relates_to):
             self.relates_to.append(relates_to)
         return self
 
@@ -539,7 +566,7 @@ class AudioSegmentResource:
         return self
 
     def add_title_optional(self, title: Any) -> AudioSegmentResource:
-        if not pd.isna(title):
+        if is_nonempty_value(title):
             if self.title:
                 _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
             self.title = title
@@ -554,7 +581,7 @@ class AudioSegmentResource:
         return self
 
     def add_comment_optional(self, comment: Any) -> AudioSegmentResource:
-        if not pd.isna(comment):
+        if is_nonempty_value(comment):
             self.comments.append(comment)
         return self
 
@@ -567,7 +594,7 @@ class AudioSegmentResource:
         return self
 
     def add_description_optional(self, description: Any) -> AudioSegmentResource:
-        if not pd.isna(description):
+        if is_nonempty_value(description):
             self.descriptions.append(description)
         return self
 
@@ -580,7 +607,7 @@ class AudioSegmentResource:
         return self
 
     def add_keyword_optional(self, keyword: Any) -> AudioSegmentResource:
-        if not pd.isna(keyword):
+        if is_nonempty_value(keyword):
             self.keywords.append(keyword)
         return self
 
@@ -593,7 +620,7 @@ class AudioSegmentResource:
         return self
 
     def add_relates_to_optional(self, relates_to: Any) -> AudioSegmentResource:
-        if not pd.isna(relates_to):
+        if is_nonempty_value(relates_to):
             self.relates_to.append(relates_to)
         return self
 

@@ -1234,7 +1234,7 @@ class Resource:
             If the filename is not string like
 
         Raises:
-            If a file or IIIF URI value already exists
+            InputError: If a file or IIIF URI value already exists
 
         Returns:
             Resource
@@ -1266,7 +1266,7 @@ class Resource:
             If the IIIF URI is not according to the official specifications
 
         Raises:
-            If a file or IIIF URI value already exists
+            InputError: If a file or IIIF URI value already exists
 
         Returns:
             Resource

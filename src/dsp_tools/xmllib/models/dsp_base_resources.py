@@ -126,7 +126,7 @@ class AnnotationResource:
             ark: Original ARK
 
         Raises:
-            InputError if metadata already exists
+            InputError: if metadata already exists
 
         Returns:
             Resource
@@ -275,7 +275,7 @@ class RegionResource:
             ark: Original ARK
 
         Raises:
-            InputError if metadata already exists
+            InputError: if metadata already exists
 
         Returns:
             Resource
@@ -411,7 +411,7 @@ class LinkResource:
             ark: Original ARK
 
         Raises:
-            InputError if metadata already exists
+            InputError: if metadata already exists
 
         Returns:
             Resource
@@ -734,7 +734,7 @@ class VideoSegmentResource:
             ark: Original ARK
 
         Raises:
-            InputError if metadata already exists
+            InputError: if metadata already exists
 
         Returns:
             Resource
@@ -1030,7 +1030,7 @@ class AudioSegmentResource:
             ark: Original ARK
 
         Raises:
-            InputError if metadata already exists
+            InputError: if metadata already exists
 
         Returns:
             Resource

@@ -86,7 +86,7 @@ class Resource:
             - If label is empty
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         return Resource(
             res_id=res_id,
@@ -133,6 +133,7 @@ class Resource:
     ) -> Resource:
         """
         Add a boolean value to the resource.
+        Boolean values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#boolean.
 
         Accepted values: "false", "0", "0.0", "no", "true", "1", "1.0", "yes".
 
@@ -150,7 +151,7 @@ class Resource:
             If the value is not amongst the accepted formats.
 
         Returns:
-            The original resource that this method has been called on, with the added value
+            The original resource that this method has been called on, with the added value(s)
         """
         self.values.append(BooleanValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -164,6 +165,7 @@ class Resource:
     ) -> Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
+        Boolean values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#boolean.
 
         Accepted values: "false", "0", "0.0", "no", "true", "1", "1.0", "yes".
 
@@ -181,7 +183,7 @@ class Resource:
             If the value is not amongst the accepted formats.
 
         Returns:
-            The original resource that this method has been called on, with the added value
+            The original resource that this method has been called on, with the added value(s)
         """
         if is_nonempty_value(value):
             self.values.append(BooleanValue(value, prop_name, permissions, comment, self.res_id))
@@ -200,6 +202,7 @@ class Resource:
     ) -> Resource:
         """
         Add a color value to the resource.
+        Color values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#color.
 
         Args:
             prop_name: name of the property
@@ -211,7 +214,7 @@ class Resource:
             If the value is not amongst the accepted formats.
 
         Returns:
-            The original resource that this method has been called on, with the added value
+            The original resource that this method has been called on, with the added value(s)
         """
         self.values.append(ColorValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -225,6 +228,7 @@ class Resource:
     ) -> Resource:
         """
         Add several color values to the resource.
+        Color values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#color.
 
         Args:
             prop_name: name of the property
@@ -236,7 +240,7 @@ class Resource:
             If the values are not amongst the accepted formats.
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         self.values.extend([ColorValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
@@ -250,6 +254,7 @@ class Resource:
     ) -> Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
+        Color values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#color.
 
         Args:
             prop_name: name of the property
@@ -258,10 +263,10 @@ class Resource:
             comment: optional comment
 
         Warnings:
-            The original resource that this method has been called on, with the added value
+            The original resource that this method has been called on, with the added value(s)
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         if is_nonempty_value(value):
             self.values.append(ColorValue(value, prop_name, permissions, comment, self.res_id))
@@ -280,7 +285,7 @@ class Resource:
     ) -> Resource:
         """
         Add a date value to the resource.
-        The DSP date format is documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#date.
+        Date values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#date.
 
         Args:
             prop_name: name of the property
@@ -292,7 +297,7 @@ class Resource:
             If the value is not amongst the accepted formats.
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         self.values.append(DateValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -306,7 +311,7 @@ class Resource:
     ) -> Resource:
         """
         Add several date values to the resource.
-        The DSP date format is documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#date.
+        Date values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#date.
 
         Args:
             prop_name: name of the property
@@ -318,7 +323,7 @@ class Resource:
             If the values are not amongst the accepted formats.
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         self.values.extend([DateValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
@@ -331,11 +336,8 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Add a date value to the resource if it is non-empty
-
-        Accepted values: Date in the format according to the documentation
-        Wrong values:    any other format
-        Conversions:     None
+        If the value is not empty, add it to the resource, otherwise return the resource unchanged.
+        Date values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#date.
 
         Args:
             prop_name: name of the property
@@ -347,7 +349,7 @@ class Resource:
             If the value is not amongst the accepted formats.
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         if is_nonempty_value(value):
             self.values.append(DateValue(value, prop_name, permissions, comment, self.res_id))
@@ -365,15 +367,12 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Add a decimal value to the resource
-
-        Accepted values: decimals, integers in numeric forms or scientific notation (eg: 1e2)
-        Wrong values:    anything else
-        Conversions:     None
+        Add a decimal value to the resource.
+        Decimal values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#decimal.
 
         Args:
             prop_name: name of the property
-            value: value to add
+            value: value to add (if provided as string, it must be convertible to int/float)
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -381,7 +380,7 @@ class Resource:
             If the value is not amongst the accepted formats.
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         self.values.append(DecimalValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -394,11 +393,8 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Add several decimal values to the resource
-
-        Accepted values: list of decimals, integers in numeric forms or scientific notation (eg: 1e2)
-        Wrong values:    anything else
-        Conversions:     None
+        Add several decimal values to the resource.
+        Decimal values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#decimal.
 
         Args:
             prop_name: name of the property
@@ -410,7 +406,7 @@ class Resource:
             If the values are not amongst the accepted formats.
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         self.values.extend([DecimalValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
@@ -423,11 +419,8 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Add a decimal value to the resource if it is non-empty
-
-        Accepted values: decimals, integers in numeric forms or scientific notation (eg: 1e2)
-        Wrong values:    anything else
-        Conversions:     None
+        If the value is not empty, add it to the resource, otherwise return the resource unchanged.
+        Decimal values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#decimal.
 
         Args:
             prop_name: name of the property
@@ -439,7 +432,7 @@ class Resource:
             If the value is not amongst the accepted formats.
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         if is_nonempty_value(value):
             self.values.append(DecimalValue(value, prop_name, permissions, comment, self.res_id))
@@ -457,15 +450,14 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Add a geoname value to the resource
-
-        Accepted values: string of integers
-        Wrong values:    anything else
-        Conversions:     None
+        Add a [geonames.org](geonames.org) value to the resource.
+        The [geonames.org](geonames.org) identifier must be provided as integer 
+        or string that is convertible to integer.
+        Geoname values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geoname.
 
         Args:
             prop_name: name of the property
-            value: value to add
+            value: [geonames.org](geonames.org) identifier to add
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -473,7 +465,7 @@ class Resource:
             If the value is not amongst the accepted formats.
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         self.values.append(GeonameValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -486,15 +478,14 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Add several geoname values to the resource
-
-        Accepted values: list integer strings
-        Wrong values:    anything else
-        Conversions:     None
+        Add several [geonames.org](geonames.org) values to the resource.
+        The [geonames.org](geonames.org) identifiers must be provided as integers
+        or strings that are convertible to integers.
+        Geoname values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geoname.
 
         Args:
             prop_name: name of the property
-            values: values to add
+            values: [geonames.org](geonames.org) identifiers to add
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -502,7 +493,7 @@ class Resource:
             If the values are not amongst the accepted formats.
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         self.values.extend([GeonameValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
@@ -515,15 +506,14 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Add a geoname value to the resource if it is non-empty
-
-        Accepted values: string of integers
-        Wrong values:    anything else
-        Conversions:     None
+        If the value is not empty, add it to the resource, otherwise return the resource unchanged.
+        The [geonames.org](geonames.org) identifier must be provided as integer 
+        or string that is convertible to integer.
+        Geoname values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geoname.
 
         Args:
             prop_name: name of the property
-            value: value to add
+            value: [geonames.org](geonames.org) identifier to add
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -531,7 +521,7 @@ class Resource:
             If the value is not amongst the accepted formats.
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         if is_nonempty_value(value):
             self.values.append(GeonameValue(value, prop_name, permissions, comment, self.res_id))
@@ -549,15 +539,12 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Add a integer value to the resource
-
-        Accepted values: integer
-        Wrong values:    anything else
-        Conversions:     None
+        Add an integer value to the resource.
+        Integer values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#integer.
 
         Args:
             prop_name: name of the property
-            value: value to add
+            value: value to add. If it is provided as string, it must be convertible to integer.
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -565,7 +552,7 @@ class Resource:
             If the value is not amongst the accepted formats.
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         self.values.append(IntValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -578,15 +565,12 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Add several integer values to the resource
-
-        Accepted values: list of integers
-        Wrong values:    anything else
-        Conversions:     None
+        Add several integer values to the resource.
+        Integer values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#integer.
 
         Args:
             prop_name: name of the property
-            values: values to add
+            values: values to add. If they are provided as strings, they must be convertible to integers.
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -594,7 +578,7 @@ class Resource:
             If the values are not amongst the accepted formats.
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         self.values.extend([IntValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
@@ -607,15 +591,12 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Add a integer value to the resource if it is non-empty
-
-        Accepted values: integer
-        Wrong values:    anything else
-        Conversions:     None
+        If the value is not empty, add it to the resource, otherwise return the resource unchanged.
+        Integer values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#integer.
 
         Args:
             prop_name: name of the property
-            value: value to add
+            value: value to add. If it is provided as string, it must be convertible to integer.
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -623,7 +604,7 @@ class Resource:
             If the value is not amongst the accepted formats.
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         if is_nonempty_value(value):
             self.values.append(IntValue(value, prop_name, permissions, comment, self.res_id))
@@ -641,15 +622,12 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Add a link value to the resource
-
-        Accepted values: ID of another resource
-        Wrong values:    anything else
-        Conversions:     None
+        Add a link value to the resource, in the form of an ID of another resource.
+        Link values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#resptr.
 
         Args:
             prop_name: name of the property
-            value: value to add
+            value: ID of the target resource
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -657,7 +635,7 @@ class Resource:
             If the value is not amongst the accepted formats.
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         self.values.append(LinkValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -670,15 +648,12 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Add several link values to the resource
-
-        Accepted values: list of resource IDs
-        Wrong values:    anything else
-        Conversions:     None
+        Add several link values to the resource, in the form of IDs of other resources.
+        Link values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#resptr.
 
         Args:
             prop_name: name of the property
-            values: values to add
+            values: IDs of the target resources
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -686,7 +661,7 @@ class Resource:
             If the values are not amongst the accepted formats.
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         self.values.extend([LinkValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
@@ -699,15 +674,13 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Add a link value to the resource if it is non-empty
-
-        Accepted values: ID of another resource
-        Wrong values:    anything else
-        Conversions:     None
+        If the value is not empty, add it to the resource, otherwise return the resource unchanged.
+        If non-empty, the value must be an ID of another resource.
+        Link values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#resptr.
 
         Args:
             prop_name: name of the property
-            value: value to add
+            value: ID of target resource
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -715,7 +688,7 @@ class Resource:
             If the value is not amongst the accepted formats.
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         if is_nonempty_value(value):
             self.values.append(LinkValue(value, prop_name, permissions, comment, self.res_id))
@@ -734,16 +707,13 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Add a list value to the resource
-
-        Accepted values: non-empty value
-        Wrong values:    anything else
-        Conversions:     None
+        Add a list value to the resource, i.e. a name of a list node.
+        List values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#list.
 
         Args:
             prop_name: name of the property
-            list_name: name of the list
-            value: value to add
+            list_name: name of the list (N.B. not the label, but the name of the list)
+            value: name of a list node (N.B. not the label, but the name of the list node)
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -751,7 +721,7 @@ class Resource:
             If the value is not amongst the accepted formats.
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         self.values.append(ListValue(value, list_name, prop_name, permissions, comment, self.res_id))
         return self
@@ -765,16 +735,13 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Add several list values to the resource
-
-        Accepted values: list of non-empty values
-        Wrong values:    anything else
-        Conversions:     None
+        Add several list values to the resource, i.e. names of list nodes.
+        List values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#list.
 
         Args:
             prop_name: name of the property
-            list_name: name of the list
-            values: values to add
+            list_name: name of the list (N.B. not the label, but the name of the list)
+            values: names of list nodes (N.B. not the labels, but the names of the list nodes)
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -782,7 +749,7 @@ class Resource:
             If the values are not amongst the accepted formats.
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         self.values.extend([ListValue(v, list_name, prop_name, permissions, comment, self.res_id) for v in values])
         return self
@@ -796,16 +763,13 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Add a list value to the resource if it is non-empty
-
-        Accepted values: non-empty value
-        Wrong values:    anything else
-        Conversions:     None
+        If the value is not empty, add it to the resource, otherwise return the resource unchanged.
+        List values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#list.
 
         Args:
             prop_name: name of the property
-            list_name: name of the list
-            value: value to add
+            list_name: name of the list (N.B. not the label, but the name of the list)
+            value: name of a list node (N.B. not the label, but the name of the list node)
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -813,7 +777,7 @@ class Resource:
             If the value is not amongst the accepted formats.
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         if is_nonempty_value(value):
             self.values.append(ListValue(value, list_name, prop_name, permissions, comment, self.res_id))
@@ -831,15 +795,12 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Add a simple text value to the resource
-
-        Accepted values: simple text string
-        Wrong values:    anything else
-        Conversions:     None
+        Add a simple text value to the resource.
+        Text values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text.
 
         Args:
             prop_name: name of the property
-            value: value to add
+            value: text value to add
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -847,7 +808,7 @@ class Resource:
             If the value is not amongst the accepted formats.
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         self.values.append(SimpleText(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -860,15 +821,12 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Add several simple text values to the resource
-
-        Accepted values: list of simple text strings
-        Wrong values:    anything else
-        Conversions:     None
+        Add several simple text values to the resource.
+        Text values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text.
 
         Args:
             prop_name: name of the property
-            values: values to add
+            values: text values to add
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -876,7 +834,7 @@ class Resource:
             If the values are not amongst the accepted formats.
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         self.values.extend([SimpleText(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
@@ -889,15 +847,12 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Add a simple text value to the resource if it is non-empty
-
-        Accepted values: simple text string
-        Wrong values:    anything else
-        Conversions:     None
+        If the value is not empty, add it to the resource, otherwise return the resource unchanged.
+        Text values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text.
 
         Args:
             prop_name: name of the property
-            value: value to add
+            value: text value to add
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -905,7 +860,7 @@ class Resource:
             If the value is not amongst the accepted formats.
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         if is_nonempty_value(value):
             self.values.append(SimpleText(value, prop_name, permissions, comment, self.res_id))
@@ -924,24 +879,28 @@ class Resource:
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> Resource:
         """
-        Add a rich text value to the resource
+        Add a rich text value to the resource.
+        Rich text values must be provided as strings, potentially containing DSP Standard Standoff Markup XML tags
+        as documented in https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/.
+        Only the documented tags are allowed.
 
-        Accepted values: richtext as a string
-        Wrong values:    anything else
-        Conversions:     Options to replace the `\\n` with XML tags
+        By default, replace newline characters inside the text value with `<br/>`, which preserves the linebreak.
+        Without this replacement, the newline would disappear, because `\\n` is meaningless in an XML file.
+
+        Text values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text.
 
         Args:
             prop_name: name of the property
-            value: value to add
+            value: rich text value as string, potentially containing DSP Standard Standoff Markup XML tags
             permissions: optional permissions of this value
             comment: optional comment
-            newline_replacement: Options to replace the `\\n` with XML tags, default `<br/>`
+            newline_replacement: Options how to deal with `\\n` inside the text value. Default: replace with `<br/>`.
 
         Warnings:
             If the value is not amongst the accepted formats.
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         value = replace_newlines_with_tags(str(value), newline_replacement)
         self.values.append(Richtext(value, prop_name, permissions, comment, self.res_id))
@@ -956,24 +915,28 @@ class Resource:
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> Resource:
         """
-        Add several rich text values to the resource
+        Add several rich text values to the resource.
+        Rich text values must be provided as strings, potentially containing DSP Standard Standoff Markup XML tags
+        as documented in https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/.
+        Only the documented tags are allowed.
 
-        Accepted values: list of richtexts as a string
-        Wrong values:    anything else
-        Conversions:     Options to replace the `\\n` with XML tags
+        By default, replace newline characters inside the text value with `<br/>`, which preserves the linebreak.
+        Without this replacement, the newline would disappear, because `\\n` is meaningless in an XML file.
+
+        Text values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text.
 
         Args:
             prop_name: name of the property
-            values: values to add
+            values: rich text values as strings, potentially containing DSP Standard Standoff Markup XML tags
             permissions: optional permissions of this value
             comment: optional comment
-            newline_replacement: Options to replace the `\\n` with XML tags, default `<br/>`
+            newline_replacement: Options how to deal with `\\n` inside the text value. Default: replace with `<br/>`.
 
         Warnings:
             If the values are not amongst the accepted formats.
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         values = [replace_newlines_with_tags(str(v), newline_replacement) for v in values]
         self.values.extend([Richtext(v, prop_name, permissions, comment, self.res_id) for v in values])
@@ -988,24 +951,28 @@ class Resource:
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> Resource:
         """
-        Add a rich text value to the resource if it is non-empty
+        If the value is not empty, add it to the resource, otherwise return the resource unchanged.
+        Rich text values must be provided as strings, potentially containing DSP Standard Standoff Markup XML tags
+        as documented in https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/.
+        Only the documented tags are allowed.
 
-        Accepted values: richtext as a string
-        Wrong values:    anything else
-        Conversions:     Options to replace the `\\n` with XML tags
+        By default, replace newline characters inside the text value with `<br/>`, which preserves the linebreak.
+        Without this replacement, the newline would disappear, because `\\n` is meaningless in an XML file.
+
+        Text values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text.
 
         Args:
             prop_name: name of the property
-            value: value to add
+            value: rich text value as string, potentially containing DSP Standard Standoff Markup XML tags
             permissions: optional permissions of this value
             comment: optional comment
-            newline_replacement: Options to replace the `\\n` with XML tags, default `<br/>`
+            newline_replacement: Options how to deal with `\\n` inside the text value. Default: replace with `<br/>`.
 
         Warnings:
             If the value is not amongst the accepted formats.
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         if is_nonempty_value(value):
             value = replace_newlines_with_tags(str(value), newline_replacement)
@@ -1024,11 +991,8 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Add a time value to the resource
-
-        Accepted values: valid timestamp
-        Wrong values:    anything else
-        Conversions:     None
+        Add a time value to the resource.
+        Time values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#time.
 
         Args:
             prop_name: name of the property
@@ -1040,7 +1004,7 @@ class Resource:
             If the value is not amongst the accepted formats.
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         self.values.append(TimeValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -1053,11 +1017,8 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Add several time values to the resource
-
-        Accepted values: list of timestamps
-        Wrong values:    anything else
-        Conversions:     None
+        Add several time values to the resource.
+        Time values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#time.
 
         Args:
             prop_name: name of the property
@@ -1069,7 +1030,7 @@ class Resource:
             If the values are not amongst the accepted formats.
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         self.values.extend([TimeValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
@@ -1082,11 +1043,8 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Add a time value to the resource if it is non-empty
-
-        Accepted values: valid timestamp
-        Wrong values:    anything else
-        Conversions:     None
+        If the value is not empty, add it to the resource, otherwise return the resource unchanged.
+        Time values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#time.
 
         Args:
             prop_name: name of the property
@@ -1098,7 +1056,7 @@ class Resource:
             If the value is not amongst the accepted formats.
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         if is_nonempty_value(value):
             self.values.append(TimeValue(value, prop_name, permissions, comment, self.res_id))
@@ -1116,11 +1074,8 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Add a URI value to the resource
-
-        Accepted values: valid URI
-        Wrong values:    anything else
-        Conversions:     None
+        Add a URI value to the resource.
+        URI values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#uri.
 
         Args:
             prop_name: name of the property
@@ -1132,7 +1087,7 @@ class Resource:
             If the value is not amongst the accepted formats.
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         self.values.append(UriValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -1145,11 +1100,8 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Add several URI values to the resource
-
-        Accepted values: list of URIs
-        Wrong values:    anything else
-        Conversions:     None
+        Add several URI values to the resource.
+        URI values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#uri.
 
         Args:
             prop_name: name of the property
@@ -1161,7 +1113,7 @@ class Resource:
             If the values are not amongst the accepted formats.
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         self.values.extend([UriValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
@@ -1174,11 +1126,8 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Add a URI value to the resource if it is non-empty
-
-        Accepted values: valid URI
-        Wrong values:    anything else
-        Conversions:     None
+        If the value is not empty, add it to the resource, otherwise return the resource unchanged.
+        URI values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#uri.
 
         Args:
             prop_name: name of the property
@@ -1190,7 +1139,7 @@ class Resource:
             If the value is not amongst the accepted formats.
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         if is_nonempty_value(value):
             self.values.append(UriValue(value, prop_name, permissions, comment, self.res_id))
@@ -1207,7 +1156,7 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Add a file (bitstream) to the resource
+        Add a file (bitstream) to the resource.
 
         Args:
             filename: path to the file
@@ -1218,10 +1167,10 @@ class Resource:
             If the filename is not string like
 
         Raises:
-            InputError: If a file or IIIF URI value already exists
+            InputError: If the resource already has a file or IIIF URI value
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         if self.file_value:
             raise InputError(
@@ -1239,7 +1188,7 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Add a IIIF URI to the resource
+        Add a IIIF URI to the resource.
 
         Args:
             iiif_uri: valid IIIF URI
@@ -1250,10 +1199,10 @@ class Resource:
             If the IIIF URI is not according to the official specifications
 
         Raises:
-            InputError: If a file or IIIF URI value already exists
+            InputError: If the resource already has a file or IIIF URI value
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         if self.file_value:
             raise InputError(
@@ -1272,18 +1221,18 @@ class Resource:
         self, creation_date: str | None, iri: str | None = None, ark: str | None = None
     ) -> Resource:
         """
-        Add metadata from a SALSAH migration
+        Add metadata from a SALSAH migration.
 
         Args:
-            creation_date: Creation date of the resource
-            iri: Original IRI
-            ark: Original ARK
+            creation_date: Creation date of the resource in SALSAH
+            iri: Original IRI in SALSAH
+            ark: Original ARK in SALSAH
 
         Raises:
             InputError: if metadata already exists
 
         Returns:
-            The original resource that this method has been called on, with the added values
+            The original resource that this method has been called on, with the added value(s)
         """
         if self.migration_metadata:
             raise InputError(

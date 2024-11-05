@@ -72,21 +72,21 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> Resource:
         """
-        Creates a new resource
+        Create a new resource.
 
         Args:
             res_id: Resource ID
             restype: Resource type
             label: Resource label
-            permissions: permission of the resource, default is `PROJECT_SPECIFIC_PERMISSIONS`
+            permissions: optional permissions of this resource
 
         Warnings:
-            - If res_id is not non-empty
-            - If restype is not non-empty
-            - If label is not non-empty
+            - If res_id is empty
+            - If restype is empty
+            - If label is empty
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         return Resource(
             res_id=res_id,
@@ -132,24 +132,25 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Adds a boolean value to the resource
+        Add a boolean value to the resource.
 
-        Accepted values: "false", "0", "0.0", "no", "true", "1", "1.0", "yes"
-        Wrong values:    anything else
-        Conversions:     "false", "0", "0.0", "no" -> "false"
-                         "true", "1", "1.0", "yes" -> "true"
+        Accepted values: "false", "0", "0.0", "no", "true", "1", "1.0", "yes".
+
+        Conversions:
+         - "false", "0", "0.0", "no" -> "false"
+         - "true", "1", "1.0", "yes" -> "true"
 
         Args:
             prop_name: name of the property
             value: value to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Warnings:
             If the value is not amongst the accepted formats.
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added value
         """
         self.values.append(BooleanValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -162,24 +163,25 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Adds a boolean value to the resource if it is non-empty
+        If the value is not empty, add it to the resource, otherwise return the resource unchanged.
 
-        Accepted values: "false", "0", "0.0", "no", "true", "1", "1.0", "yes"
-        Wrong values:    anything else
-        Conversions:     "false", "0", "0.0", "no" -> "false"
-                         "true", "1", "1.0", "yes" -> "true"
+        Accepted values: "false", "0", "0.0", "no", "true", "1", "1.0", "yes".
+
+        Conversions:
+         - "false", "0", "0.0", "no" -> "false"
+         - "true", "1", "1.0", "yes" -> "true"
 
         Args:
             prop_name: name of the property
             value: value to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Warnings:
             If the value is not amongst the accepted formats.
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added value
         """
         if is_nonempty_value(value):
             self.values.append(BooleanValue(value, prop_name, permissions, comment, self.res_id))
@@ -197,23 +199,19 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Adds a color value to the resource
-
-        Accepted values: `#[0-9a-f]{6}`
-        Wrong values:    anything else
-        Conversions:     None
+        Add a color value to the resource.
 
         Args:
             prop_name: name of the property
-            value: value to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            value: color value as `#` followed by 6 hexadecimal digits
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Warnings:
             If the value is not amongst the accepted formats.
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added value
         """
         self.values.append(ColorValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -226,23 +224,19 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Adds several color values to the resource
-
-        Accepted values: list of `#[0-9a-f]{6}`
-        Wrong values:    anything else
-        Conversions:     None
+        Add several color values to the resource.
 
         Args:
             prop_name: name of the property
-            values: values to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            values: color values as `#` followed by 6 hexadecimal digits
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Warnings:
             If the values are not amongst the accepted formats.
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         self.values.extend([ColorValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
@@ -255,23 +249,19 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Adds a color value to the resource if it is non-empty
-
-        Accepted values: `#[0-9a-f]{6}`
-        Wrong values:    anything else
-        Conversions:     None
+        If the value is not empty, add it to the resource, otherwise return the resource unchanged.
 
         Args:
             prop_name: name of the property
-            value: value to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            value: color value as `#` followed by 6 hexadecimal digits
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Warnings:
-            If the value is not amongst the accepted formats.
+            The original resource that this method has been called on, with the added value
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         if is_nonempty_value(value):
             self.values.append(ColorValue(value, prop_name, permissions, comment, self.res_id))
@@ -289,23 +279,20 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Adds a date value to the resource
-
-        Accepted values: Date in the format according to the documentation
-        Wrong values:    any other format
-        Conversions:     None
+        Add a date value to the resource.
+        The DSP date format is documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#date.
 
         Args:
             prop_name: name of the property
             value: value to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Warnings:
             If the value is not amongst the accepted formats.
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         self.values.append(DateValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -318,23 +305,20 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Adds several date values to the resource
-
-        Accepted values: list of dates in the format according to the documentation
-        Wrong values:    anything else
-        Conversions:     None
+        Add several date values to the resource.
+        The DSP date format is documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#date.
 
         Args:
             prop_name: name of the property
             values: values to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Warnings:
             If the values are not amongst the accepted formats.
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         self.values.extend([DateValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
@@ -347,7 +331,7 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Adds a date value to the resource if it is non-empty
+        Add a date value to the resource if it is non-empty
 
         Accepted values: Date in the format according to the documentation
         Wrong values:    any other format
@@ -356,14 +340,14 @@ class Resource:
         Args:
             prop_name: name of the property
             value: value to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Warnings:
             If the value is not amongst the accepted formats.
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         if is_nonempty_value(value):
             self.values.append(DateValue(value, prop_name, permissions, comment, self.res_id))
@@ -381,7 +365,7 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Adds a decimal value to the resource
+        Add a decimal value to the resource
 
         Accepted values: decimals, integers in numeric forms or scientific notation (eg: 1e2)
         Wrong values:    anything else
@@ -390,14 +374,14 @@ class Resource:
         Args:
             prop_name: name of the property
             value: value to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Warnings:
             If the value is not amongst the accepted formats.
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         self.values.append(DecimalValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -410,7 +394,7 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Adds several decimal values to the resource
+        Add several decimal values to the resource
 
         Accepted values: list of decimals, integers in numeric forms or scientific notation (eg: 1e2)
         Wrong values:    anything else
@@ -419,14 +403,14 @@ class Resource:
         Args:
             prop_name: name of the property
             values: values to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Warnings:
             If the values are not amongst the accepted formats.
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         self.values.extend([DecimalValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
@@ -439,7 +423,7 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Adds a decimal value to the resource if it is non-empty
+        Add a decimal value to the resource if it is non-empty
 
         Accepted values: decimals, integers in numeric forms or scientific notation (eg: 1e2)
         Wrong values:    anything else
@@ -448,14 +432,14 @@ class Resource:
         Args:
             prop_name: name of the property
             value: value to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Warnings:
             If the value is not amongst the accepted formats.
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         if is_nonempty_value(value):
             self.values.append(DecimalValue(value, prop_name, permissions, comment, self.res_id))
@@ -473,7 +457,7 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Adds a geoname value to the resource
+        Add a geoname value to the resource
 
         Accepted values: string of integers
         Wrong values:    anything else
@@ -482,14 +466,14 @@ class Resource:
         Args:
             prop_name: name of the property
             value: value to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Warnings:
             If the value is not amongst the accepted formats.
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         self.values.append(GeonameValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -502,7 +486,7 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Adds several geoname values to the resource
+        Add several geoname values to the resource
 
         Accepted values: list integer strings
         Wrong values:    anything else
@@ -511,14 +495,14 @@ class Resource:
         Args:
             prop_name: name of the property
             values: values to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Warnings:
             If the values are not amongst the accepted formats.
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         self.values.extend([GeonameValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
@@ -531,7 +515,7 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Adds a geoname value to the resource if it is non-empty
+        Add a geoname value to the resource if it is non-empty
 
         Accepted values: string of integers
         Wrong values:    anything else
@@ -540,14 +524,14 @@ class Resource:
         Args:
             prop_name: name of the property
             value: value to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Warnings:
             If the value is not amongst the accepted formats.
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         if is_nonempty_value(value):
             self.values.append(GeonameValue(value, prop_name, permissions, comment, self.res_id))
@@ -565,7 +549,7 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Adds a integer value to the resource
+        Add a integer value to the resource
 
         Accepted values: integer
         Wrong values:    anything else
@@ -574,14 +558,14 @@ class Resource:
         Args:
             prop_name: name of the property
             value: value to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Warnings:
             If the value is not amongst the accepted formats.
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         self.values.append(IntValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -594,7 +578,7 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Adds several integer values to the resource
+        Add several integer values to the resource
 
         Accepted values: list of integers
         Wrong values:    anything else
@@ -603,14 +587,14 @@ class Resource:
         Args:
             prop_name: name of the property
             values: values to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Warnings:
             If the values are not amongst the accepted formats.
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         self.values.extend([IntValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
@@ -623,7 +607,7 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Adds a integer value to the resource if it is non-empty
+        Add a integer value to the resource if it is non-empty
 
         Accepted values: integer
         Wrong values:    anything else
@@ -632,14 +616,14 @@ class Resource:
         Args:
             prop_name: name of the property
             value: value to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Warnings:
             If the value is not amongst the accepted formats.
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         if is_nonempty_value(value):
             self.values.append(IntValue(value, prop_name, permissions, comment, self.res_id))
@@ -657,7 +641,7 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Adds a link value to the resource
+        Add a link value to the resource
 
         Accepted values: ID of another resource
         Wrong values:    anything else
@@ -666,14 +650,14 @@ class Resource:
         Args:
             prop_name: name of the property
             value: value to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Warnings:
             If the value is not amongst the accepted formats.
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         self.values.append(LinkValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -686,7 +670,7 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Adds several link values to the resource
+        Add several link values to the resource
 
         Accepted values: list of resource IDs
         Wrong values:    anything else
@@ -695,14 +679,14 @@ class Resource:
         Args:
             prop_name: name of the property
             values: values to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Warnings:
             If the values are not amongst the accepted formats.
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         self.values.extend([LinkValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
@@ -715,7 +699,7 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Adds a link value to the resource if it is non-empty
+        Add a link value to the resource if it is non-empty
 
         Accepted values: ID of another resource
         Wrong values:    anything else
@@ -724,14 +708,14 @@ class Resource:
         Args:
             prop_name: name of the property
             value: value to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Warnings:
             If the value is not amongst the accepted formats.
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         if is_nonempty_value(value):
             self.values.append(LinkValue(value, prop_name, permissions, comment, self.res_id))
@@ -750,7 +734,7 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Adds a list value to the resource
+        Add a list value to the resource
 
         Accepted values: non-empty value
         Wrong values:    anything else
@@ -760,14 +744,14 @@ class Resource:
             prop_name: name of the property
             list_name: name of the list
             value: value to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Warnings:
             If the value is not amongst the accepted formats.
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         self.values.append(ListValue(value, list_name, prop_name, permissions, comment, self.res_id))
         return self
@@ -781,7 +765,7 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Adds several list values to the resource
+        Add several list values to the resource
 
         Accepted values: list of non-empty values
         Wrong values:    anything else
@@ -791,14 +775,14 @@ class Resource:
             prop_name: name of the property
             list_name: name of the list
             values: values to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Warnings:
             If the values are not amongst the accepted formats.
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         self.values.extend([ListValue(v, list_name, prop_name, permissions, comment, self.res_id) for v in values])
         return self
@@ -812,7 +796,7 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Adds a list value to the resource if it is non-empty
+        Add a list value to the resource if it is non-empty
 
         Accepted values: non-empty value
         Wrong values:    anything else
@@ -822,14 +806,14 @@ class Resource:
             prop_name: name of the property
             list_name: name of the list
             value: value to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Warnings:
             If the value is not amongst the accepted formats.
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         if is_nonempty_value(value):
             self.values.append(ListValue(value, list_name, prop_name, permissions, comment, self.res_id))
@@ -847,7 +831,7 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Adds a simple text value to the resource
+        Add a simple text value to the resource
 
         Accepted values: simple text string
         Wrong values:    anything else
@@ -856,14 +840,14 @@ class Resource:
         Args:
             prop_name: name of the property
             value: value to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Warnings:
             If the value is not amongst the accepted formats.
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         self.values.append(SimpleText(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -876,7 +860,7 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Adds several simple text values to the resource
+        Add several simple text values to the resource
 
         Accepted values: list of simple text strings
         Wrong values:    anything else
@@ -885,14 +869,14 @@ class Resource:
         Args:
             prop_name: name of the property
             values: values to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Warnings:
             If the values are not amongst the accepted formats.
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         self.values.extend([SimpleText(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
@@ -905,7 +889,7 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Adds a simple text value to the resource if it is non-empty
+        Add a simple text value to the resource if it is non-empty
 
         Accepted values: simple text string
         Wrong values:    anything else
@@ -914,14 +898,14 @@ class Resource:
         Args:
             prop_name: name of the property
             value: value to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Warnings:
             If the value is not amongst the accepted formats.
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         if is_nonempty_value(value):
             self.values.append(SimpleText(value, prop_name, permissions, comment, self.res_id))
@@ -940,7 +924,7 @@ class Resource:
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> Resource:
         """
-        Adds a rich text value to the resource
+        Add a rich text value to the resource
 
         Accepted values: richtext as a string
         Wrong values:    anything else
@@ -949,15 +933,15 @@ class Resource:
         Args:
             prop_name: name of the property
             value: value to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            permissions: optional permissions of this value
+            comment: optional comment
             newline_replacement: Options to replace the `\\n` with XML tags, default `<br/>`
 
         Warnings:
             If the value is not amongst the accepted formats.
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         value = replace_newlines_with_tags(str(value), newline_replacement)
         self.values.append(Richtext(value, prop_name, permissions, comment, self.res_id))
@@ -972,7 +956,7 @@ class Resource:
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> Resource:
         """
-        Adds several rich text values to the resource
+        Add several rich text values to the resource
 
         Accepted values: list of richtexts as a string
         Wrong values:    anything else
@@ -981,15 +965,15 @@ class Resource:
         Args:
             prop_name: name of the property
             values: values to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            permissions: optional permissions of this value
+            comment: optional comment
             newline_replacement: Options to replace the `\\n` with XML tags, default `<br/>`
 
         Warnings:
             If the values are not amongst the accepted formats.
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         values = [replace_newlines_with_tags(str(v), newline_replacement) for v in values]
         self.values.extend([Richtext(v, prop_name, permissions, comment, self.res_id) for v in values])
@@ -1004,7 +988,7 @@ class Resource:
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> Resource:
         """
-        Adds a rich text value to the resource if it is non-empty
+        Add a rich text value to the resource if it is non-empty
 
         Accepted values: richtext as a string
         Wrong values:    anything else
@@ -1013,15 +997,15 @@ class Resource:
         Args:
             prop_name: name of the property
             value: value to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            permissions: optional permissions of this value
+            comment: optional comment
             newline_replacement: Options to replace the `\\n` with XML tags, default `<br/>`
 
         Warnings:
             If the value is not amongst the accepted formats.
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         if is_nonempty_value(value):
             value = replace_newlines_with_tags(str(value), newline_replacement)
@@ -1040,7 +1024,7 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Adds a time value to the resource
+        Add a time value to the resource
 
         Accepted values: valid timestamp
         Wrong values:    anything else
@@ -1049,14 +1033,14 @@ class Resource:
         Args:
             prop_name: name of the property
             value: value to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Warnings:
             If the value is not amongst the accepted formats.
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         self.values.append(TimeValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -1069,7 +1053,7 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Adds several time values to the resource
+        Add several time values to the resource
 
         Accepted values: list of timestamps
         Wrong values:    anything else
@@ -1078,14 +1062,14 @@ class Resource:
         Args:
             prop_name: name of the property
             values: values to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Warnings:
             If the values are not amongst the accepted formats.
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         self.values.extend([TimeValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
@@ -1098,7 +1082,7 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Adds a time value to the resource if it is non-empty
+        Add a time value to the resource if it is non-empty
 
         Accepted values: valid timestamp
         Wrong values:    anything else
@@ -1107,14 +1091,14 @@ class Resource:
         Args:
             prop_name: name of the property
             value: value to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Warnings:
             If the value is not amongst the accepted formats.
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         if is_nonempty_value(value):
             self.values.append(TimeValue(value, prop_name, permissions, comment, self.res_id))
@@ -1132,7 +1116,7 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Adds a URI value to the resource
+        Add a URI value to the resource
 
         Accepted values: valid URI
         Wrong values:    anything else
@@ -1141,14 +1125,14 @@ class Resource:
         Args:
             prop_name: name of the property
             value: value to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Warnings:
             If the value is not amongst the accepted formats.
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         self.values.append(UriValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -1161,7 +1145,7 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Adds several URI values to the resource
+        Add several URI values to the resource
 
         Accepted values: list of URIs
         Wrong values:    anything else
@@ -1170,14 +1154,14 @@ class Resource:
         Args:
             prop_name: name of the property
             values: values to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Warnings:
             If the values are not amongst the accepted formats.
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         self.values.extend([UriValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
@@ -1190,7 +1174,7 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Adds a URI value to the resource if it is non-empty
+        Add a URI value to the resource if it is non-empty
 
         Accepted values: valid URI
         Wrong values:    anything else
@@ -1199,14 +1183,14 @@ class Resource:
         Args:
             prop_name: name of the property
             value: value to add
-            permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Warnings:
             If the value is not amongst the accepted formats.
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         if is_nonempty_value(value):
             self.values.append(UriValue(value, prop_name, permissions, comment, self.res_id))
@@ -1227,8 +1211,8 @@ class Resource:
 
         Args:
             filename: path to the file
-            permissions: permissions of the file, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            permissions: optional permissions of this file
+            comment: optional comment
 
         Warnings:
             If the filename is not string like
@@ -1237,7 +1221,7 @@ class Resource:
             InputError: If a file or IIIF URI value already exists
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         if self.file_value:
             raise InputError(
@@ -1259,8 +1243,8 @@ class Resource:
 
         Args:
             iiif_uri: valid IIIF URI
-            permissions: permissions of the value, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: optional comment, default is None
+            permissions: optional permissions of this value
+            comment: optional comment
 
         Warnings:
             If the IIIF URI is not according to the official specifications
@@ -1269,7 +1253,7 @@ class Resource:
             InputError: If a file or IIIF URI value already exists
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         if self.file_value:
             raise InputError(
@@ -1299,7 +1283,7 @@ class Resource:
             InputError: if metadata already exists
 
         Returns:
-            Resource
+            The original resource that this method has been called on, with the added values
         """
         if self.migration_metadata:
             raise InputError(

@@ -51,13 +51,15 @@ class AnnotationResource:
     ) -> AnnotationResource:
         """
         Creates a new annotation resource.
+        An annotation provides metadata to another resource.
+        See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#annotation.
 
         Args:
-            res_id: Resource ID
-            label: Resource Label
-            annotation_of: Resource ID of which it is an annotation of (cardinality 1)
-            comments: Comment to an annotation (cardinality 1-n)
-            permissions: permission of the resource, default is `PROJECT_SPECIFIC_PERMISSIONS`
+            res_id: ID of this annotation resource
+            label: label of this annotation resource
+            annotation_of: ID of the resource that this annotation refers to (cardinality 1)
+            comments: the comment(s) that this annotation consists of, i.e. the annotation itself (cardinality 1-n)
+            permissions: permissions of this annotation resource. Defaults to `PROJECT_SPECIFIC_PERMISSIONS`
 
         Warnings:
             - If the Resource ID is not a valid string
@@ -82,7 +84,7 @@ class AnnotationResource:
             comment: Comment text
 
         Returns:
-            AnnotationResource
+            The original resource that this method has been called on, with the added comment
         """
         self.comments.append(comment)
         return self
@@ -95,20 +97,20 @@ class AnnotationResource:
             comments: List of comment texts
 
         Returns:
-            AnnotationResource
+            The original resource that this method has been called on, with the added comments
         """
         self.comments.extend(comments)
         return self
 
     def add_comment_optional(self, comment: Any) -> AnnotationResource:
         """
-        Add one comment if the value is not empty.
+        If the value is not empty, add it as comment, otherwise return the resource unchanged.
 
         Args:
             comment: Comment or empty value
 
         Returns:
-            AnnotationResource
+            The original resource that this method has been called on, with the added comment
         """
         if is_nonempty_value(comment):
             self.comments.append(comment)
@@ -118,18 +120,18 @@ class AnnotationResource:
         self, creation_date: str | None, iri: str | None = None, ark: str | None = None
     ) -> AnnotationResource:
         """
-        Add metadata from a SALSAH migration
+        Add metadata from a SALSAH migration.
 
         Args:
-            creation_date: Creation date of the resource
-            iri: Original IRI
-            ark: Original ARK
+            creation_date: Creation date of the resource in SALSAH
+            iri: Original IRI in SALSAH
+            ark: Original ARK in SALSAH
 
         Raises:
             InputError: if metadata already exists
 
         Returns:
-            AnnotationResource
+            The original resource that this method has been called on, with the added metadata
         """
         if self.migration_metadata:
             raise InputError(
@@ -193,21 +195,25 @@ class RegionResource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> RegionResource:
         """
-        Creates a new region resource.
+        Creates a new region resource. 
+        A region is a region of interest (ROI) in an image.
+        See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#region.
 
         Args:
-            res_id: Resource ID
-            label: Resource Label
-            color: color of the region (cardinality 1)
-            region_of: Resource if of which it is a region of (cardinality 1)
-            geometry: Geometry information of the region (cardinality 1)
-            comments: Comment to an annotation (cardinality 1-n)
-            permissions: permission of the resource, default is `PROJECT_SPECIFIC_PERMISSIONS`
+            res_id: ID of this region resource
+            label: label of this region resource
+            color: color of the region, as `#` followed by 3 or 6 hex numerals (cardinality 1)
+                   (see https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#color)
+            region_of: ID of the image resource that this region refers to (cardinality 1)
+            geometry: geometry information of the region (cardinality 1) 
+                      (see https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geometry)
+            comments: comments to this region (cardinality 1-n)
+            permissions: permissions of this region resource. Defaults to `PROJECT_SPECIFIC_PERMISSIONS`
 
         Warnings:
             - If the Resource ID is not a valid string
             - If the label is not a valid string
-            - If the color does not follow the pattern: # followed by 3 or 6 hex numerals
+            - If the color is not a valid color string
             - If the geometry does not follow the specifications
 
         Returns:
@@ -231,7 +237,7 @@ class RegionResource:
             comment: Comment text
 
         Returns:
-            RegionResource
+            The original resource that this method has been called on, with the added comment
         """
         self.comments.append(comment)
         return self
@@ -244,20 +250,20 @@ class RegionResource:
             comments: List of comment texts
 
         Returns:
-            RegionResource
+            The original resource that this method has been called on, with the added comments
         """
         self.comments.extend(comments)
         return self
 
     def add_comment_optional(self, comment: Any) -> RegionResource:
         """
-        Add one comment if the value is not empty.
+        If the value is not empty, add it as comment, otherwise return the resource unchanged.
 
         Args:
             comment: Comment or empty value
 
         Returns:
-            RegionResource
+            The original resource that this method has been called on, with the added comment
         """
         if is_nonempty_value(comment):
             self.comments.append(comment)
@@ -267,18 +273,18 @@ class RegionResource:
         self, creation_date: str | None, iri: str | None = None, ark: str | None = None
     ) -> RegionResource:
         """
-        Add metadata from a SALSAH migration
+        Add metadata from a SALSAH migration.
 
         Args:
-            creation_date: Creation date of the resource
-            iri: Original IRI
-            ark: Original ARK
+            creation_date: Creation date of the resource in SALSAH
+            iri: Original IRI in SALSAH
+            ark: Original ARK in SALSAH
 
         Raises:
             InputError: if metadata already exists
 
         Returns:
-            RegionResource
+            The original resource that this method has been called on, with the added metadata
         """
         if self.migration_metadata:
             raise InputError(
@@ -338,15 +344,15 @@ class LinkResource:
     ) -> LinkResource:
         """
         Creates a new link resource.
-        All of these fields are required.
-        Use the additional functions to add non-required information.
+        A link groups together several other resources of different classes.
+        See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#link.
 
         Args:
-            res_id: Resource ID
-            label: Resource Label
-            link_to: Resource IDs that should be linked together (cardinality 1-n)
-            comments: Comment to an annotation (cardinality 1-n)
-            permissions: permission of the resource, default is `PROJECT_SPECIFIC_PERMISSIONS`
+            res_id: ID of this link resource
+            label: label of this link resource
+            link_to: IDs of the resources that should be linked together (cardinality 1-n)
+            comments: comments to this link (cardinality 1-n)
+            permissions: permissions of this link resource. Defaults to `PROJECT_SPECIFIC_PERMISSIONS`
 
         Returns:
             A link resource
@@ -367,7 +373,7 @@ class LinkResource:
             comment: Comment text
 
         Returns:
-            LinkResource
+            The original resource that this method has been called on, with the added comment
         """
         self.comments.append(comment)
         return self
@@ -380,20 +386,20 @@ class LinkResource:
             comments: List of comment texts
 
         Returns:
-            LinkResource
+            The original resource that this method has been called on, with the added comments
         """
         self.comments.extend(comments)
         return self
 
     def add_comment_optional(self, comment: Any) -> LinkResource:
         """
-        Add one comment if the value is not empty.
+        If the value is not empty, add it as comment, otherwise return the resource unchanged.
 
         Args:
             comment: Comment or empty value
 
         Returns:
-            LinkResource
+            The original resource that this method has been called on, with the added comment
         """
         if is_nonempty_value(comment):
             self.comments.append(comment)
@@ -403,18 +409,18 @@ class LinkResource:
         self, creation_date: str | None, iri: str | None = None, ark: str | None = None
     ) -> LinkResource:
         """
-        Add metadata from a SALSAH migration
+        Add metadata from a SALSAH migration.
 
         Args:
-            creation_date: Creation date of the resource
-            iri: Original IRI
-            ark: Original ARK
+            creation_date: Creation date of the resource in SALSAH
+            iri: Original IRI in SALSAH
+            ark: Original ARK in SALSAH
 
         Raises:
             InputError: if metadata already exists
 
         Returns:
-            LinkResource
+            The original resource that this method has been called on, with the added metadata
         """
         if self.migration_metadata:
             raise InputError(
@@ -473,7 +479,7 @@ class SegmentBounds:
 
 @dataclass
 class VideoSegmentResource:
-    """Represent sections of a video file."""
+    """Represents a section of a video."""
 
     res_id: str
     label: str
@@ -499,17 +505,20 @@ class VideoSegmentResource:
     ) -> VideoSegmentResource:
         """
         Creates a new video segment resource.
-        All except title are required.
-        Use the additional functions to add non-required information.
+        This factory method supports only the most frequently used parameters.
+        If you want to add additional information, create the incomplete segment first, 
+        and then use the dedicated methods, e.g. `add_description()`.
+
+        See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#video-segment-and-audio-segment.
 
         Args:
-            res_id: Resource ID
-            label: Resource Label
-            segment_of: Resource ID of which this is segment of (cardinality 1)
-            segment_start: Start of the segment in seconds (cardinality 1)
-            segment_end: End of the segment in seconds (cardinality 1)
-            title: title of the segment, default `None` (cardinality 0-1)
-            permissions: permission of the resource, default is `PROJECT_SPECIFIC_PERMISSIONS`
+            res_id: ID of this video segment resource
+            label: label of this video segment resource
+            segment_of: ID of the video resource that this segment refers to (cardinality 1)
+            segment_start: start of the segment in seconds (cardinality 1)
+            segment_end: end of the segment in seconds (cardinality 1)
+            title: title of this segment (cardinality 0-1)
+            permissions: permissions of this resource. Defaults to `PROJECT_SPECIFIC_PERMISSIONS`
 
         Returns:
             A video segment resource
@@ -535,7 +544,7 @@ class VideoSegmentResource:
             In that case, the title will be replaced.
 
         Returns:
-            VideoSegmentResource
+            The original resource that this method has been called on, with the added title
         """
         if self.title:
             _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
@@ -544,7 +553,7 @@ class VideoSegmentResource:
 
     def add_title_optional(self, title: Any) -> VideoSegmentResource:
         """
-        Add a title if the value is non-empty.
+        If the value is not empty, add it as title, otherwise return the resource unchanged.
 
         Args:
             title: Title
@@ -554,7 +563,7 @@ class VideoSegmentResource:
             In that case, the title will be replaced.
 
         Returns:
-            VideoSegmentResource
+            The original resource that this method has been called on, with the added title
         """
         if is_nonempty_value(title):
             if self.title:
@@ -570,7 +579,7 @@ class VideoSegmentResource:
             comment: Comment text
 
         Returns:
-            VideoSegmentResource
+            The original resource that this method has been called on, with the added comment
         """
         self.comments.append(comment)
         return self
@@ -583,20 +592,20 @@ class VideoSegmentResource:
             comments: List of comment texts
 
         Returns:
-            VideoSegmentResource
+            The original resource that this method has been called on, with the added comments
         """
         self.comments.extend(comments)
         return self
 
     def add_comment_optional(self, comment: Any) -> VideoSegmentResource:
         """
-        Add one comment if the value is not empty.
+        If the value is not empty, add it as comment, otherwise return the resource unchanged.
 
         Args:
             comment: Comment or empty value
 
         Returns:
-            VideoSegmentResource
+            The original resource that this method has been called on, with the added comment
         """
         if is_nonempty_value(comment):
             self.comments.append(comment)
@@ -610,7 +619,7 @@ class VideoSegmentResource:
             description: text
 
         Returns:
-            VideoSegmentResource
+            The original resource that this method has been called on, with the added description
         """
         self.descriptions.append(description)
         return self
@@ -623,20 +632,20 @@ class VideoSegmentResource:
             descriptions: list of text
 
         Returns:
-            VideoSegmentResource
+            The original resource that this method has been called on, with the added descriptions
         """
         self.descriptions.extend(descriptions)
         return self
 
     def add_description_optional(self, description: Any) -> VideoSegmentResource:
         """
-        Add several descriptions to the resource if the value is non-empty
+        If the value is not empty, add it as description, otherwise return the resource unchanged.
 
         Args:
             description: value
 
         Returns:
-            VideoSegmentResource
+            The original resource that this method has been called on, with the added description
         """
         if is_nonempty_value(description):
             self.descriptions.append(description)
@@ -650,7 +659,7 @@ class VideoSegmentResource:
             keyword: text
 
         Returns:
-            VideoSegmentResource
+            The original resource that this method has been called on, with the added keyword
         """
         self.keywords.append(keyword)
         return self
@@ -663,20 +672,20 @@ class VideoSegmentResource:
             keywords: list of text
 
         Returns:
-            VideoSegmentResource
+            The original resource that this method has been called on, with the added keywords
         """
         self.keywords.extend(keywords)
         return self
 
     def add_keyword_optional(self, keyword: Any) -> VideoSegmentResource:
         """
-        Add one keyword to the resource if it is non-empty
+        If the value is not empty, add it as keyword, otherwise return the resource unchanged.
 
         Args:
             keyword: value
 
         Returns:
-            VideoSegmentResource
+            The original resource that this method has been called on, with the added keyword
         """
         if is_nonempty_value(keyword):
             self.keywords.append(keyword)
@@ -684,39 +693,39 @@ class VideoSegmentResource:
 
     def add_relates_to(self, relates_to: str) -> VideoSegmentResource:
         """
-        Add a link to a resource to which it relates to
+        Add a link to a related resource
 
         Args:
-            relates_to: Resource ID to which it relates to
+            relates_to: ID of the related resource
 
         Returns:
-            VideoSegmentResource
+            The original resource that this method has been called on, with the added related resource
         """
         self.relates_to.append(relates_to)
         return self
 
     def add_relates_to_multiple(self, relates_to: list[str]) -> VideoSegmentResource:
         """
-        Add several links to a resource to which it relates to
+        Add several links to related resources
 
         Args:
-            relates_to: List of resource IDs to which it relates to
+            relates_to: IDs of the related resources
 
         Returns:
-            VideoSegmentResource
+            The original resource that this method has been called on, with the added related resources
         """
         self.relates_to.extend(relates_to)
         return self
 
     def add_relates_to_optional(self, relates_to: Any) -> VideoSegmentResource:
         """
-        Add a link to a resource to which it relates to if the value is non-empty
+        If the value is not empty, add it as related resource, otherwise return the resource unchanged.
 
         Args:
-            relates_to: Resource ID to which it relates to
+            relates_to: ID of the related resource
 
         Returns:
-            VideoSegmentResource
+            The original resource that this method has been called on, with the added related resources
         """
         if is_nonempty_value(relates_to):
             self.relates_to.append(relates_to)
@@ -726,18 +735,18 @@ class VideoSegmentResource:
         self, creation_date: str | None, iri: str | None = None, ark: str | None = None
     ) -> VideoSegmentResource:
         """
-        Add metadata from a SALSAH migration
+        Add metadata from a SALSAH migration.
 
         Args:
-            creation_date: Creation date of the resource
-            iri: Original IRI
-            ark: Original ARK
+            creation_date: Creation date of the resource in SALSAH
+            iri: Original IRI in SALSAH
+            ark: Original ARK in SALSAH
 
         Raises:
             InputError: if metadata already exists
 
         Returns:
-            VideoSegmentResource
+            The original resource that this method has been called on, with the added metadata
         """
         if self.migration_metadata:
             raise InputError(
@@ -769,7 +778,7 @@ class VideoSegmentResource:
 
 @dataclass
 class AudioSegmentResource:
-    """Represent sections of an audio file."""
+    """Represents a section of an audio."""
 
     res_id: str
     label: str
@@ -795,17 +804,18 @@ class AudioSegmentResource:
     ) -> AudioSegmentResource:
         """
         Creates a new audio segment resource.
-        All except title are required.
-        Use the additional functions to add non-required information.
+        This factory method supports only the most frequently used parameters.
+        If you want to add additional information, create the incomplete segment first, 
+        and then use the dedicated methods, e.g. `add_description()`.
 
         Args:
-            res_id: Resource ID
-            label: Resource Label
-            segment_of: Resource ID of which this is segment of (cardinality 1)
-            segment_start: Start of the segment in seconds (cardinality 1)
-            segment_end: End of the segment in seconds (cardinality 1)
-            title: title of the segment, default `None` (cardinality 0-1)
-            permissions: permission of the resource, default is `PROJECT_SPECIFIC_PERMISSIONS`
+            res_id: ID of this audio segment resource
+            label: label of this audio segment resource
+            segment_of: ID of the audio resource that this segment refers to (cardinality 1)
+            segment_start: start of the segment in seconds (cardinality 1)
+            segment_end: end of the segment in seconds (cardinality 1)
+            title: title of this segment (cardinality 0-1)
+            permissions: permissions of this resource. Defaults to `PROJECT_SPECIFIC_PERMISSIONS`
 
         Returns:
             An audio segment resource
@@ -831,7 +841,7 @@ class AudioSegmentResource:
             In that case, the title will be replaced.
 
         Returns:
-            AudioSegmentResource
+            The original resource that this method has been called on, with the added title
         """
         if self.title:
             _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
@@ -840,7 +850,7 @@ class AudioSegmentResource:
 
     def add_title_optional(self, title: Any) -> AudioSegmentResource:
         """
-        Add a title if the value is non-empty.
+        If the value is not empty, add it as title, otherwise return the resource unchanged.
 
         Args:
             title: Title
@@ -850,7 +860,7 @@ class AudioSegmentResource:
             In that case, the title will be replaced.
 
         Returns:
-            AudioSegmentResource
+            The original resource that this method has been called on, with the added title
         """
         if is_nonempty_value(title):
             if self.title:
@@ -866,7 +876,7 @@ class AudioSegmentResource:
             comment: Comment text
 
         Returns:
-            AudioSegmentResource
+            The original resource that this method has been called on, with the added comment
         """
         self.comments.append(comment)
         return self
@@ -879,20 +889,20 @@ class AudioSegmentResource:
             comments: List of comment texts
 
         Returns:
-            AudioSegmentResource
+            The original resource that this method has been called on, with the added comments
         """
         self.comments.extend(comments)
         return self
 
     def add_comment_optional(self, comment: Any) -> AudioSegmentResource:
         """
-        Add one comment if the value is not empty.
+        If the value is not empty, add it as comment, otherwise return the resource unchanged.
 
         Args:
             comment: Comment or empty value
 
         Returns:
-            AudioSegmentResource
+            The original resource that this method has been called on, with the added comment
         """
         if is_nonempty_value(comment):
             self.comments.append(comment)
@@ -906,7 +916,7 @@ class AudioSegmentResource:
             description: text
 
         Returns:
-            AudioSegmentResource
+            The original resource that this method has been called on, with the added description
         """
         self.descriptions.append(description)
         return self
@@ -919,20 +929,20 @@ class AudioSegmentResource:
             descriptions: list of text
 
         Returns:
-            AudioSegmentResource
+            The original resource that this method has been called on, with the added descriptions
         """
         self.descriptions.extend(descriptions)
         return self
 
     def add_description_optional(self, description: Any) -> AudioSegmentResource:
         """
-        Add several descriptions to the resource if the value is non-empty
+        If the value is not empty, add it as description, otherwise return the resource unchanged.
 
         Args:
             description: value
 
         Returns:
-            AudioSegmentResource
+            The original resource that this method has been called on, with the added description
         """
         if is_nonempty_value(description):
             self.descriptions.append(description)
@@ -946,7 +956,7 @@ class AudioSegmentResource:
             keyword: text
 
         Returns:
-            AudioSegmentResource
+            The original resource that this method has been called on, with the added keyword
         """
         self.keywords.append(keyword)
         return self
@@ -959,20 +969,20 @@ class AudioSegmentResource:
             keywords: list of text
 
         Returns:
-            AudioSegmentResource
+            The original resource that this method has been called on, with the added keywords
         """
         self.keywords.extend(keywords)
         return self
 
     def add_keyword_optional(self, keyword: Any) -> AudioSegmentResource:
         """
-        Add one keyword to the resource if it is non-empty
+        If the value is not empty, add it as keyword, otherwise return the resource unchanged.
 
         Args:
             keyword: value
 
         Returns:
-            AudioSegmentResource
+            The original resource that this method has been called on, with the added keyword
         """
         if is_nonempty_value(keyword):
             self.keywords.append(keyword)
@@ -980,39 +990,39 @@ class AudioSegmentResource:
 
     def add_relates_to(self, relates_to: str) -> AudioSegmentResource:
         """
-        Add a link to a resource to which it relates to
+        Add a link to a related resource
 
         Args:
-            relates_to: Resource ID to which it relates to
+            relates_to: ID of the related resource
 
         Returns:
-            AudioSegmentResource
+            The original resource that this method has been called on, with the added related resource
         """
         self.relates_to.append(relates_to)
         return self
 
     def add_relates_to_multiple(self, relates_to: list[str]) -> AudioSegmentResource:
         """
-        Add several links to a resource to which it relates to
+        Add several links to related resources
 
         Args:
-            relates_to: List of resource IDs to which it relates to
+            relates_to: IDs of the related resources
 
         Returns:
-            AudioSegmentResource
+            The original resource that this method has been called on, with the added related resources
         """
         self.relates_to.extend(relates_to)
         return self
 
     def add_relates_to_optional(self, relates_to: Any) -> AudioSegmentResource:
         """
-        Add a link to a resource to which it relates to if the value is non-empty
+        If the value is not empty, add it as related resource, otherwise return the resource unchanged.
 
         Args:
-            relates_to: Resource ID to which it relates to
+            relates_to: ID of the related resource
 
         Returns:
-            AudioSegmentResource
+            The original resource that this method has been called on, with the added related resources
         """
         if is_nonempty_value(relates_to):
             self.relates_to.append(relates_to)
@@ -1022,18 +1032,18 @@ class AudioSegmentResource:
         self, creation_date: str | None, iri: str | None = None, ark: str | None = None
     ) -> AudioSegmentResource:
         """
-        Add metadata from a SALSAH migration
+        Add metadata from a SALSAH migration.
 
         Args:
-            creation_date: Creation date of the resource
-            iri: Original IRI
-            ark: Original ARK
+            creation_date: Creation date of the resource in SALSAH
+            iri: Original IRI in SALSAH
+            ark: Original ARK in SALSAH
 
         Raises:
             InputError: if metadata already exists
 
         Returns:
-            AudioSegmentResource
+            The original resource that this method has been called on, with the added metadata
         """
         if self.migration_metadata:
             raise InputError(

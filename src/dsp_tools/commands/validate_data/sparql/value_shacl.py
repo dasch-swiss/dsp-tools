@@ -7,6 +7,7 @@ from rdflib import Literal
 from rdflib import Namespace
 from rdflib import URIRef
 from rdflib.collection import Collection
+from rdflib.term import Node
 
 from dsp_tools.commands.validate_data.models.api_responses import AllProjectLists
 from dsp_tools.commands.validate_data.models.api_responses import OneList
@@ -239,7 +240,7 @@ def _construct_one_list_node_shape(one_list: OneList) -> Graph:
     g.add((list_iri, SH.property, list_prop_bn))
 
     node_collection_bn = BNode()
-    node_literals = [Literal(lit, datatype=XSD.string) for lit in one_list.nodes]
+    node_literals: list[Node] = [Literal(lit, datatype=XSD.string) for lit in one_list.nodes]
     Collection(g, node_collection_bn, node_literals)
     node_msg = f"Unknown list node for list: {one_list.list_name}."
     node_prop_shape = [

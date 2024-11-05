@@ -606,10 +606,28 @@ class VideoSegmentResource:
         return self
 
     def add_description_multiple(self, descriptions: list[str]) -> VideoSegmentResource:
+        """
+        Add several descriptions to the resource
+
+        Args:
+            descriptions: list of text
+
+        Returns:
+            Resource
+        """
         self.descriptions.extend(descriptions)
         return self
 
     def add_description_optional(self, description: Any) -> VideoSegmentResource:
+        """
+        Add several descriptions to the resource if the value is non-empty
+
+        Args:
+            description: value
+
+        Returns:
+            Resource
+        """
         if is_nonempty_value(description):
             self.descriptions.append(description)
         return self
@@ -628,10 +646,28 @@ class VideoSegmentResource:
         return self
 
     def add_keyword_multiple(self, keywords: list[str]) -> VideoSegmentResource:
+        """
+        Add several keywords to the resource
+
+        Args:
+            keywords: list of text
+
+        Returns:
+            Resource
+        """
         self.keywords.extend(keywords)
         return self
 
     def add_keyword_optional(self, keyword: Any) -> VideoSegmentResource:
+        """
+        Add one keyword to the resource if it is non-empty
+
+        Args:
+            keyword: value
+
+        Returns:
+            Resource
+        """
         if is_nonempty_value(keyword):
             self.keywords.append(keyword)
         return self
@@ -650,10 +686,28 @@ class VideoSegmentResource:
         return self
 
     def add_relates_to_multiple(self, relates_to: list[str]) -> VideoSegmentResource:
+        """
+        Add several links to a resource to which it relates to
+
+        Args:
+            relates_to: List of resource IDs to which it relates to
+
+        Returns:
+            Resource
+        """
         self.relates_to.extend(relates_to)
         return self
 
     def add_relates_to_optional(self, relates_to: Any) -> VideoSegmentResource:
+        """
+        Add a link to a resource to which it relates to if the value is non-empty
+
+        Args:
+            relates_to: Resource ID to which it relates to
+
+        Returns:
+            Resource
+        """
         if is_nonempty_value(relates_to):
             self.relates_to.append(relates_to)
         return self
@@ -757,10 +811,14 @@ class AudioSegmentResource:
 
     def add_title(self, title: str) -> AudioSegmentResource:
         """
-        Add a title to the resource
+        Add a title to the resource.
 
         Args:
-            title: text
+            title: Title text
+
+        Warnings:
+            If the resource already has a title.
+            In that case, the title will be replaced.
 
         Returns:
             Resource
@@ -771,6 +829,19 @@ class AudioSegmentResource:
         return self
 
     def add_title_optional(self, title: Any) -> AudioSegmentResource:
+        """
+        Add a title if the value is non-empty.
+
+        Args:
+            title: Title
+
+        Warnings:
+            If the resource already has a title.
+            In that case, the title will be replaced.
+
+        Returns:
+            Resource
+        """
         if is_nonempty_value(title):
             if self.title:
                 _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
@@ -831,10 +902,28 @@ class AudioSegmentResource:
         return self
 
     def add_description_multiple(self, descriptions: list[str]) -> AudioSegmentResource:
+        """
+        Add several descriptions to the resource
+
+        Args:
+            descriptions: list of text
+
+        Returns:
+            Resource
+        """
         self.descriptions.extend(descriptions)
         return self
 
     def add_description_optional(self, description: Any) -> AudioSegmentResource:
+        """
+        Add several descriptions to the resource if the value is non-empty
+
+        Args:
+            description: value
+
+        Returns:
+            Resource
+        """
         if is_nonempty_value(description):
             self.descriptions.append(description)
         return self
@@ -853,10 +942,28 @@ class AudioSegmentResource:
         return self
 
     def add_keyword_multiple(self, keywords: list[str]) -> AudioSegmentResource:
+        """
+        Add several keywords to the resource
+
+        Args:
+            keywords: list of text
+
+        Returns:
+            Resource
+        """
         self.keywords.extend(keywords)
         return self
 
     def add_keyword_optional(self, keyword: Any) -> AudioSegmentResource:
+        """
+        Add one keyword to the resource if it is non-empty
+
+        Args:
+            keyword: value
+
+        Returns:
+            Resource
+        """
         if is_nonempty_value(keyword):
             self.keywords.append(keyword)
         return self
@@ -875,10 +982,28 @@ class AudioSegmentResource:
         return self
 
     def add_relates_to_multiple(self, relates_to: list[str]) -> AudioSegmentResource:
+        """
+        Add several links to a resource to which it relates to
+
+        Args:
+            relates_to: List of resource IDs to which it relates to
+
+        Returns:
+            Resource
+        """
         self.relates_to.extend(relates_to)
         return self
 
     def add_relates_to_optional(self, relates_to: Any) -> AudioSegmentResource:
+        """
+        Add a link to a resource to which it relates to if the value is non-empty
+
+        Args:
+            relates_to: Resource ID to which it relates to
+
+        Returns:
+            Resource
+        """
         if is_nonempty_value(relates_to):
             self.relates_to.append(relates_to)
         return self

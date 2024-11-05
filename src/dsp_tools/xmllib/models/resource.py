@@ -143,7 +143,7 @@ class Resource:
             prop_name: name of the property
             value: value to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
 
         Warnings:
             If the value is not amongst the accepted formats.
@@ -173,7 +173,7 @@ class Resource:
             prop_name: name of the property
             value: value to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
 
         Warnings:
             If the value is not amongst the accepted formats.
@@ -207,7 +207,7 @@ class Resource:
             prop_name: name of the property
             value: value to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
 
         Warnings:
             If the value is not amongst the accepted formats.
@@ -236,7 +236,7 @@ class Resource:
             prop_name: name of the property
             values: values to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
 
         Warnings:
             If the values are not amongst the accepted formats.
@@ -265,7 +265,7 @@ class Resource:
             prop_name: name of the property
             value: value to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
 
         Warnings:
             If the value is not amongst the accepted formats.
@@ -299,7 +299,7 @@ class Resource:
             prop_name: name of the property
             value: value to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
 
         Warnings:
             If the value is not amongst the accepted formats.
@@ -328,7 +328,7 @@ class Resource:
             prop_name: name of the property
             values: values to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
 
         Warnings:
             If the values are not amongst the accepted formats.
@@ -357,7 +357,7 @@ class Resource:
             prop_name: name of the property
             value: value to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
 
         Warnings:
             If the value is not amongst the accepted formats.
@@ -391,7 +391,7 @@ class Resource:
             prop_name: name of the property
             value: value to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
 
         Warnings:
             If the value is not amongst the accepted formats.
@@ -420,7 +420,7 @@ class Resource:
             prop_name: name of the property
             values: values to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
 
         Warnings:
             If the values are not amongst the accepted formats.
@@ -449,7 +449,7 @@ class Resource:
             prop_name: name of the property
             value: value to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
 
         Warnings:
             If the value is not amongst the accepted formats.
@@ -483,7 +483,7 @@ class Resource:
             prop_name: name of the property
             value: value to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
 
         Warnings:
             If the value is not amongst the accepted formats.
@@ -512,7 +512,7 @@ class Resource:
             prop_name: name of the property
             values: values to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
 
         Warnings:
             If the values are not amongst the accepted formats.
@@ -541,7 +541,7 @@ class Resource:
             prop_name: name of the property
             value: value to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
 
         Warnings:
             If the value is not amongst the accepted formats.
@@ -575,7 +575,7 @@ class Resource:
             prop_name: name of the property
             value: value to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
 
         Warnings:
             If the value is not amongst the accepted formats.
@@ -604,7 +604,7 @@ class Resource:
             prop_name: name of the property
             values: values to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
 
         Warnings:
             If the values are not amongst the accepted formats.
@@ -633,7 +633,7 @@ class Resource:
             prop_name: name of the property
             value: value to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
 
         Warnings:
             If the value is not amongst the accepted formats.
@@ -667,7 +667,7 @@ class Resource:
             prop_name: name of the property
             value: value to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
 
         Warnings:
             If the value is not amongst the accepted formats.
@@ -696,7 +696,7 @@ class Resource:
             prop_name: name of the property
             values: values to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
 
         Warnings:
             If the values are not amongst the accepted formats.
@@ -725,7 +725,7 @@ class Resource:
             prop_name: name of the property
             value: value to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
 
         Warnings:
             If the value is not amongst the accepted formats.
@@ -761,7 +761,7 @@ class Resource:
             list_name: name of the list
             value: value to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
 
         Warnings:
             If the value is not amongst the accepted formats.
@@ -792,7 +792,7 @@ class Resource:
             list_name: name of the list
             values: values to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
 
         Warnings:
             If the values are not amongst the accepted formats.
@@ -823,7 +823,7 @@ class Resource:
             list_name: name of the list
             value: value to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
 
         Warnings:
             If the value is not amongst the accepted formats.
@@ -857,7 +857,7 @@ class Resource:
             prop_name: name of the property
             value: value to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
 
         Warnings:
             If the value is not amongst the accepted formats.
@@ -886,7 +886,7 @@ class Resource:
             prop_name: name of the property
             values: values to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
 
         Warnings:
             If the values are not amongst the accepted formats.
@@ -915,7 +915,7 @@ class Resource:
             prop_name: name of the property
             value: value to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
 
         Warnings:
             If the value is not amongst the accepted formats.
@@ -950,7 +950,7 @@ class Resource:
             prop_name: name of the property
             value: value to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
             newline_replacement: Options to replace the `\\n` with XML tags, default `<br/>`
 
         Warnings:
@@ -982,7 +982,7 @@ class Resource:
             prop_name: name of the property
             values: values to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
             newline_replacement: Options to replace the `\\n` with XML tags, default `<br/>`
 
         Warnings:
@@ -1014,7 +1014,7 @@ class Resource:
             prop_name: name of the property
             value: value to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
             newline_replacement: Options to replace the `\\n` with XML tags, default `<br/>`
 
         Warnings:
@@ -1050,7 +1050,7 @@ class Resource:
             prop_name: name of the property
             value: value to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
 
         Warnings:
             If the value is not amongst the accepted formats.
@@ -1079,7 +1079,7 @@ class Resource:
             prop_name: name of the property
             values: values to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
 
         Warnings:
             If the values are not amongst the accepted formats.
@@ -1108,7 +1108,7 @@ class Resource:
             prop_name: name of the property
             value: value to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
 
         Warnings:
             If the value is not amongst the accepted formats.
@@ -1142,7 +1142,7 @@ class Resource:
             prop_name: name of the property
             value: value to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
 
         Warnings:
             If the value is not amongst the accepted formats.
@@ -1171,7 +1171,7 @@ class Resource:
             prop_name: name of the property
             values: values to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
 
         Warnings:
             If the values are not amongst the accepted formats.
@@ -1200,7 +1200,7 @@ class Resource:
             prop_name: name of the property
             value: value to add
             permissions: value permissions, default is `PROJECT_SPECIFIC_PERMISSIONS`
-            comment: comments to the value
+            comment: optional comment, default is None
 
         Warnings:
             If the value is not amongst the accepted formats.
@@ -1222,6 +1222,23 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        Add a file (bitstream) to the resource
+
+        Args:
+            filename: path to the file
+            permissions: permissions of the file, default is `PROJECT_SPECIFIC_PERMISSIONS`
+            comment: optional comment, default is None
+
+        Warnings:
+            If the filename is not string like
+
+        Raises:
+            If a file or IIIF URI value already exists
+
+        Returns:
+            Resource
+        """
         if self.file_value:
             raise InputError(
                 f"The resource with the ID '{self.res_id}' already contains a file with the name: "
@@ -1237,6 +1254,23 @@ class Resource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
+        """
+        Add a IIIF URI to the resource
+
+        Args:
+            iiif_uri: valid IIIF URI
+            permissions: permissions of the value, default is `PROJECT_SPECIFIC_PERMISSIONS`
+            comment: optional comment, default is None
+
+        Warnings:
+            If the IIIF URI is not according to the official specifications
+
+        Raises:
+            If a file or IIIF URI value already exists
+
+        Returns:
+            Resource
+        """
         if self.file_value:
             raise InputError(
                 f"The resource with the ID '{self.res_id}' already contains a file with the name: "
@@ -1253,6 +1287,20 @@ class Resource:
     def add_migration_metadata(
         self, creation_date: str | None, iri: str | None = None, ark: str | None = None
     ) -> Resource:
+        """
+        Add metadata from a SALSAH migration
+
+        Args:
+            creation_date: Creation date of the resource
+            iri: Original IRI
+            ark: Original ARK
+
+        Raises:
+            InputError: if metadata already exists
+
+        Returns:
+            Resource
+        """
         if self.migration_metadata:
             raise InputError(
                 f"The resource with the ID '{self.res_id}' already contains migration metadata, "

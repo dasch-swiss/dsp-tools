@@ -48,6 +48,19 @@ class AnnotationResource:
         comments: list[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> AnnotationResource:
+        """
+        Creates a new annotation resource.
+
+        Args:
+            res_id: Resource ID
+            label: Resource Label
+            annotation_of: Resource ID of which it is an annotation of (cardinality 1)
+            comments: Comment to an annotation (cardinality 1-n)
+            permissions: permission of the resource, default is `PROJECT_SPECIFIC_PERMISSIONS`
+
+        Returns:
+            An annotation resource
+        """
         return AnnotationResource(
             res_id=res_id,
             label=label,
@@ -132,6 +145,21 @@ class RegionResource:
         comments: list[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> RegionResource:
+        """
+        Creates a new region resource.
+
+        Args:
+            res_id: Resource ID
+            label: Resource Label
+            color: color of the region (cardinality 1)
+            region_of: Resource if of which it is a region of (cardinality 1)
+            geometry: Geometry information of the region (cardinality 1)
+            comments: Comment to an annotation (cardinality 1-n)
+            permissions: permission of the resource, default is `PROJECT_SPECIFIC_PERMISSIONS`
+
+        Returns:
+            A region resource
+        """
         return RegionResource(
             res_id=res_id,
             label=label,
@@ -213,6 +241,19 @@ class LinkResource:
         comments: list[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> LinkResource:
+        """
+        Creates a new link resource.
+
+        Args:
+            res_id: Resource ID
+            label: Resource Label
+            link_to: Resource IDs that should be linked together (cardinality 1-n)
+            comments: Comment to an annotation (cardinality 1-n)
+            permissions: permission of the resource, default is `PROJECT_SPECIFIC_PERMISSIONS`
+
+        Returns:
+            A link resource
+        """
         return LinkResource(
             res_id=res_id,
             label=label,
@@ -317,6 +358,21 @@ class VideoSegmentResource:
         title: str | None = None,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> VideoSegmentResource:
+        """
+        Creates a new video segment resource.
+
+        Args:
+            res_id: Resource ID
+            label: Resource Label
+            segment_of: Resource ID of which this is segment of (cardinality 1)
+            segment_start: Start of the segment in seconds (cardinality 1)
+            segment_end: End of the segment in seconds (cardinality 1)
+            title: title of the segment, default `None` (cardinality 0-1)
+            permissions: permission of the resource, default is `PROJECT_SPECIFIC_PERMISSIONS`
+
+        Returns:
+            A video segment resource
+        """
         return VideoSegmentResource(
             res_id=res_id,
             label=label,
@@ -447,6 +503,21 @@ class AudioSegmentResource:
         title: str | None = None,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> AudioSegmentResource:
+        """
+        Creates a new audio segment resource.
+
+        Args:
+            res_id: Resource ID
+            label: Resource Label
+            segment_of: Resource ID of which this is segment of (cardinality 1)
+            segment_start: Start of the segment in seconds (cardinality 1)
+            segment_end: End of the segment in seconds (cardinality 1)
+            title: title of the segment, default `None` (cardinality 0-1)
+            permissions: permission of the resource, default is `PROJECT_SPECIFIC_PERMISSIONS`
+
+        Returns:
+            A audio segment resource
+        """
         return AudioSegmentResource(
             res_id=res_id,
             label=label,

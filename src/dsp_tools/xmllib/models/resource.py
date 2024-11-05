@@ -71,6 +71,18 @@ class Resource:
         label: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> Resource:
+        """
+        Creates a new resource
+
+        Args:
+            res_id: Resource ID
+            restype: Resource type
+            label: Resource label
+            permissions: permission of the resource, default is `PROJECT_SPECIFIC_PERMISSIONS`
+
+        Returns:
+            Resource
+        """
         return Resource(
             res_id=res_id,
             restype=restype,

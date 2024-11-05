@@ -30,23 +30,93 @@ AnyResource: TypeAlias = Union[
 
 @dataclass
 class XMLRoot:
+    """
+    Root of the XML file.
+
+    Args:
+        shortcode: project shortcode
+        default_ontology: name of the default ontology
+        resources: list of resources, can be modified
+
+    Returns:
+        Instance of XMLRoot
+    """
+
     shortcode: str
     default_ontology: str
     resources: list[AnyResource] = field(default_factory=list)
 
     @staticmethod
     def new(shortcode: str, default_ontology: str) -> XMLRoot:
+        """
+        Create a new XML root, for one file.
+
+        Args:
+            shortcode: project shortcode
+            default_ontology: name of the default ontology
+
+        Returns:
+            Instance of `XMLRoot`
+        """
         return XMLRoot(shortcode=shortcode, default_ontology=default_ontology)
 
     def add_resource(self, resource: AnyResource) -> XMLRoot:
+        """
+        Add one resource
+
+        Args:
+            resource: Any one of:
+                    `Resource`,
+                    `AnnotationResource`,
+                    `RegionResource`,
+                    `LinkResource`,
+                    `VideoSegmentResource`,
+                    `AudioSegmentResource`
+
+        Returns:
+            `XMLRoot` with additional resource
+        """
         self.resources.append(resource)
         return self
 
     def add_resource_multiple(self, resources: list[AnyResource]) -> XMLRoot:
+        """
+        Add a list of resources
+
+        Args:
+            resources: A list of:
+                    `Resource`,
+                    `AnnotationResource`,
+                    `RegionResource`,
+                    `LinkResource`,
+                    `VideoSegmentResource`,
+                    `AudioSegmentResource`
+                    The type of the resource may be mixed.
+
+        Returns:
+            `XMLRoot` with additional resources
+        """
         self.resources.extend(resources)
         return self
 
     def add_resource_optional(self, resource: AnyResource | None) -> XMLRoot:
+        """
+        A resource or `None`
+        In case of `None` the `XMLRoot` will be returned unchanged
+
+        Args:
+            resource: Any one of:
+                    `Resource`,
+                    `AnnotationResource`,
+                    `RegionResource`,
+                    `LinkResource`,
+                    `VideoSegmentResource`,
+                    `AudioSegmentResource`
+                    The type of the resource may be mixed.
+
+        Returns:
+            XMLRoot with additional resources
+        """
         if resource:
             self.resources.append(resource)
         return self

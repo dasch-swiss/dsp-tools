@@ -32,4 +32,4 @@ class SHACLListInfo:
     list_iri: URIRef
     sh_path: URIRef
     sh_message: str
-    sh_in_list: list[str]
+    sh_in: list[str]

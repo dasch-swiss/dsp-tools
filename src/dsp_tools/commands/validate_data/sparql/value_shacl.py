@@ -228,14 +228,14 @@ def _construct_one_list_node_shape(one_list: OneList) -> Graph:
         list_iri=list_iri,
         sh_path=API_SHAPES.listNameAsString,
         sh_message=f"The list that should be used with this property is: {one_list.list_name}.",
-        sh_in_list=[one_list.list_name],
+        sh_in=[one_list.list_name],
     )
     g = _construct_one_list_property_shape_with_collection(g, list_prop_info)
     node_prop_info = SHACLListInfo(
         list_iri=list_iri,
         sh_path=API_SHAPES.listNodeAsString,
         sh_message=f"Unknown list node for list: {one_list.list_name}.",
-        sh_in_list=one_list.nodes,
+        sh_in=one_list.nodes,
     )
     g = _construct_one_list_property_shape_with_collection(g, node_prop_info)
     return g
@@ -243,7 +243,7 @@ def _construct_one_list_node_shape(one_list: OneList) -> Graph:
 
 def _construct_one_list_property_shape_with_collection(g: Graph, shacl_info: SHACLListInfo) -> Graph:
     node_collection_bn = BNode()
-    node_literals: list[Node] = [Literal(lit, datatype=XSD.string) for lit in shacl_info.sh_in_list]
+    node_literals: list[Node] = [Literal(lit, datatype=XSD.string) for lit in shacl_info.sh_in]
     Collection(g, node_collection_bn, node_literals)
     node_prop_shape = [
         (RDF.type, SH.PropertyShape),

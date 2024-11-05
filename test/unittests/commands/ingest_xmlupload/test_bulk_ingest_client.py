@@ -28,6 +28,7 @@ def tmp_file(tmp_path: Path) -> Path:
 
 def _make_url(file: Path) -> str:
     filename = urllib.parse.quote(str(file))
+    filename = filename[1:] if filename.startswith("/") else filename
     return f"{DSP_INGEST_URL}/projects/{SHORTCODE}/bulk-ingest/ingest/{filename}"
 
 
@@ -51,7 +52,7 @@ def test_upload_file_with_inexisting_file(ingest_client: BulkIngestClient) -> No
     failure_detail = ingest_client.upload_file(Path("inexisting.xml"))
     assert failure_detail
     assert failure_detail.filepath == Path("inexisting.xml")
-    assert failure_detail.reason == "File could not be opened/read: No such file or directory"
+    assert re.search(r"the file could not be opened/read", failure_detail.reason)
 
 
 def test_upload_file_failure_upon_request_exception(
@@ -85,6 +86,21 @@ def test_upload_file_failure_upon_server_error_with_response_text(
     assert failure_detail
     assert failure_detail.filepath == tmp_file
     assert failure_detail.reason == "Response 500: response text"
+
+
+@pytest.mark.parametrize(
+    ("filepath", "url_suffix"),
+    [
+        (Path("Côté gauche/Süd.png"), "C%C3%B4t%C3%A9%20gauche/S%C3%BCd.png"),
+        (Path("/absolute/path/to/file.txt"), "absolute/path/to/file.txt"),
+    ],
+)
+def test_build_url_for_bulk_ingest_ingest_route(
+    ingest_client: BulkIngestClient, filepath: Path, url_suffix: str
+) -> None:
+    res = ingest_client._build_url_for_bulk_ingest_ingest_route(filepath)
+    common_part = f"{DSP_INGEST_URL}/projects/{SHORTCODE}/bulk-ingest/ingest/"
+    assert res == f"{common_part}{url_suffix}"
 
 
 def test_trigger_if_success(ingest_client: BulkIngestClient, requests_mock: Mocker) -> None:

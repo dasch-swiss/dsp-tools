@@ -1,7 +1,17 @@
+from rdflib import RDF
+from rdflib import SH
+from rdflib import XSD
+from rdflib import BNode
 from rdflib import Graph
+from rdflib import Literal
+from rdflib import Namespace
+from rdflib import URIRef
+from rdflib.collection import Collection
 
 from dsp_tools.commands.validate_data.models.api_responses import AllProjectLists
 from dsp_tools.commands.validate_data.models.api_responses import OneList
+
+API_SHAPES = Namespace("http://api.knora.org/ontology/knora-api/shapes/v2#")
 
 
 def construct_property_shapes(onto: Graph, project_lists: AllProjectLists) -> Graph:
@@ -208,28 +218,42 @@ def _construct_list_shapes(onto: Graph, project_lists: AllProjectLists) -> Graph
 
 
 def _construct_one_list_node_shape(one_list: OneList) -> Graph:
-    list_str = f"""
-    @prefix  sh: <http://www.w3.org/ns/shacl#> .
-    @prefix  api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#> .
-    
-    <{one_list.list_iri}> a sh:NodeShape ;
-          sh:property [
-                        a          sh:PropertyShape ;
-                        sh:path    api-shapes:listNodeAsString ;
-                        sh:in      {one_list.shacl_nodes()} ;
-                        sh:message "Unknown list node for list: {one_list.escaped_list_name()}."
-                      ] ,
-                      [
-                        a           sh:PropertyShape ;
-                        sh:path     api-shapes:listNameAsString ;
-                        sh:in       {one_list.shacl_list()} ;
-                        sh:message  "The list that should be used with this property is: {one_list.escaped_list_name()}."
-                      ] ;
-          sh:severity sh:Violation .
-    """  # noqa: E501 Line too long (121 > 120)
-    list_graph = Graph()
-    list_graph.parse(data=list_str, format="ttl")
-    return list_graph
+    g = Graph()
+
+    list_iri = URIRef(one_list.list_iri)
+    g.add((list_iri, RDF.type, SH.NodeShape))
+    g.add((list_iri, SH.severity, SH.Violation))
+
+    list_collection_bn = BNode()
+    Collection(g, list_collection_bn, [Literal(one_list.list_name, datatype=XSD.string)])
+    list_msg = f"The list that should be used with this property is: {one_list.list_name}."
+    list_prop_shape = [
+        (RDF.type, SH.PropertyShape),
+        (SH.path, API_SHAPES.listNameAsString),
+        (URIRef("http://www.w3.org/ns/shacl#in"), list_collection_bn),
+        (SH.message, Literal(list_msg, datatype=XSD.string)),
+    ]
+    list_prop_bn = BNode()
+    for prop, obj in list_prop_shape:
+        g.add((list_prop_bn, prop, obj))
+    g.add((list_iri, SH.property, list_prop_bn))
+
+    node_collection_bn = BNode()
+    node_literals = [Literal(lit, datatype=XSD.string) for lit in one_list.nodes]
+    Collection(g, node_collection_bn, node_literals)
+    node_msg = f"Unknown list node for list: {one_list.list_name}."
+    node_prop_shape = [
+        (RDF.type, SH.PropertyShape),
+        (SH.path, API_SHAPES.listNodeAsString),
+        (URIRef("http://www.w3.org/ns/shacl#in"), node_collection_bn),
+        (SH.message, Literal(node_msg, datatype=XSD.string)),
+    ]
+    node_prop_bn = BNode()
+    for prop, obj in node_prop_shape:
+        g.add((node_prop_bn, prop, obj))
+    g.add((list_iri, SH.property, node_prop_bn))
+
+    return g
 
 
 def _construct_one_list_property_shape(onto: Graph, one_list: OneList) -> Graph:

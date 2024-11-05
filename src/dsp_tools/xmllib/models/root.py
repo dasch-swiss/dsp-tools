@@ -36,7 +36,7 @@ class XMLRoot:
     Args:
         shortcode: project shortcode
         default_ontology: name of the default ontology
-        resources: list of resources, can be modified
+        resources: list of resources (can be modified after creation)
 
     Returns:
         Instance of XMLRoot
@@ -62,7 +62,7 @@ class XMLRoot:
 
     def add_resource(self, resource: AnyResource) -> XMLRoot:
         """
-        Add one resource
+        Add one resource to the root.
 
         Args:
             resource: Any one of:
@@ -74,14 +74,14 @@ class XMLRoot:
                     `AudioSegmentResource`
 
         Returns:
-            `XMLRoot` with additional resource
+            The XMLRoot that this method has been called on, with the added resource
         """
         self.resources.append(resource)
         return self
 
     def add_resource_multiple(self, resources: list[AnyResource]) -> XMLRoot:
         """
-        Add a list of resources
+        Add a list of resources to the root.
 
         Args:
             resources: A list of:
@@ -91,18 +91,17 @@ class XMLRoot:
                     `LinkResource`,
                     `VideoSegmentResource`,
                     `AudioSegmentResource`
-                    The type of the resource may be mixed.
+                    The types of the resources may be mixed.
 
         Returns:
-            `XMLRoot` with additional resources
+            The XMLRoot that this method has been called on, with the added resources
         """
         self.resources.extend(resources)
         return self
 
     def add_resource_optional(self, resource: AnyResource | None) -> XMLRoot:
         """
-        A resource or `None`
-        In case of `None` the `XMLRoot` will be returned unchanged
+        If the resource is not None, add it to the XMLRoot, otherwise return the XMLRoot unchanged.
 
         Args:
             resource: Any one of:
@@ -112,10 +111,9 @@ class XMLRoot:
                     `LinkResource`,
                     `VideoSegmentResource`,
                     `AudioSegmentResource`
-                    The type of the resource may be mixed.
 
         Returns:
-            XMLRoot with additional resources
+            The XMLRoot that this method has been called on, with the added resource
         """
         if resource:
             self.resources.append(resource)
@@ -129,7 +127,7 @@ class XMLRoot:
             filepath: where to save the file
 
         Warning:
-            if the XML is not valid, according to the schema
+            if the XML is not valid according to the schema
         """
         root = self._serialise()
         etree.indent(root, space="    ")

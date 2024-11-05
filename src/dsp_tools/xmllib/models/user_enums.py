@@ -6,10 +6,11 @@ class Permissions(Enum):
     """
     Options of permissions for resources and values:
 
-    - `PROJECT_SPECIFIC_PERMISSIONS`: the permissions defined for the project will be applied
-    - `OPEN`: the resource or value is openly accessible
-    - `RESTRICTED`: the resource of value is only accessible for project members
-    - `RESTRICTED_VIEW`: the image file has a restricted view
+    - `PROJECT_SPECIFIC_PERMISSIONS`: the permissions defined on project level will be applied
+    - `OPEN`: the resource/value is visible for everyone
+    - `RESTRICTED`: the resource/value is only visible for project members
+    - `RESTRICTED_VIEW`: the resource/value is visible for everyone, 
+      but images are blurred/watermarked for non-project members
     """
 
     PROJECT_SPECIFIC_PERMISSIONS = ""
@@ -20,11 +21,11 @@ class Permissions(Enum):
 
 class NewlineReplacement(Enum):
     """
-    Options to replace '\\n' with XML formatting
+    Options how to deal with `\\n` inside rich text values.
 
-    - `NONE`: The text is returned without changes
-    - `PARAGRAPH`: Replaces `Start Text\\nEnd Text` with `<p>Start Text</p><p>End Text</p>`
-    - `LINEBREAK`: Replaces `Start Text\\nEnd Text` with `Start Text<br/>End Text`
+    - `NONE`: Don't modify the rich text (`\\n` will be lost, because it is meaningless in an XML file)
+    - `PARAGRAPH`: Replace `Start\\nEnd` with `<p>Start</p><p>End</p>`
+    - `LINEBREAK`: Replace `Start\\nEnd` with `Start<br/>End`
     """
 
     NONE = auto()

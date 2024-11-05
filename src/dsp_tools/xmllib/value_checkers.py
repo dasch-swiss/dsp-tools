@@ -191,7 +191,7 @@ def find_geometry_problem(value: Any) -> str:
 
 def is_dsp_iri(value: Any) -> bool:
     """
-    Checks if a value is a valid internal dsp IRI
+    Check if a value is a valid internal DSP IRI.
 
     Args:
         value: IRI
@@ -204,7 +204,7 @@ def is_dsp_iri(value: Any) -> bool:
 
 def is_dsp_ark(value: Any) -> bool:
     """
-    Checks if a value is a valid ARK
+    Checks if a value is a valid ARK.
 
     Args:
         value: ARK

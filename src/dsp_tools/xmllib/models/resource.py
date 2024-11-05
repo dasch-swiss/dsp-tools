@@ -127,7 +127,7 @@ class Resource:
     def add_bool(
         self,
         prop_name: str,
-        value: Any,
+        value: bool | str | int | float,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -192,7 +192,7 @@ class Resource:
     def add_color(
         self,
         prop_name: str,
-        value: int | str,
+        value: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -221,7 +221,7 @@ class Resource:
     def add_color_multiple(
         self,
         prop_name: str,
-        values: list[int | str],
+        values: list[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -376,7 +376,7 @@ class Resource:
     def add_decimal(
         self,
         prop_name: str,
-        value: float | str,
+        value: float | int | str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -405,7 +405,7 @@ class Resource:
     def add_decimal_multiple(
         self,
         prop_name: str,
-        values: list[float | str],
+        values: list[float | int | str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -744,8 +744,8 @@ class Resource:
     def add_list(
         self,
         prop_name: str,
-        list_name: Any,
-        value: Any,
+        list_name: str | int | float,
+        value: str | int | float,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -775,8 +775,8 @@ class Resource:
     def add_list_multiple(
         self,
         prop_name: str,
-        list_name: Any,
-        values: list[Any],
+        list_name: str | int | float,
+        values: list[str | int | float],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -806,7 +806,7 @@ class Resource:
     def add_list_optional(
         self,
         prop_name: str,
-        list_name: Any,
+        list_name: str | int | float,
         value: Any,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,

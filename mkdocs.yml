@@ -35,14 +35,13 @@ nav:
           - Security checks: developers/code-quality-tools/security.md
           - See also: developers/code-quality-tools/python-see-also.md
   - Changelog: changelog.md
-  - API Reference:
-      - xmllib:
-          - XMLRoot: api-reference/xmllib/xmlroot.md
-          - Resource: api-reference/xmllib/resource.md
-          - DSP base resources: api-reference/xmllib/dsp-base-resources.md
-          - Configuration options: api-reference/xmllib/configuration-options.md
-          - Value Checkers: api-reference/xmllib/value-checkers.md
-          - Helpers: api-reference/xmllib/helpers.md
+  - xmllib API Reference:
+      - XMLRoot: api-reference/xmllib/xmlroot.md
+      - Resource: api-reference/xmllib/resource.md
+      - DSP base resources: api-reference/xmllib/dsp-base-resources.md
+      - Configuration options: api-reference/xmllib/configuration-options.md
+      - Value Checkers: api-reference/xmllib/value-checkers.md
+      - Helpers: api-reference/xmllib/helpers.md
 
 theme:
   name: material
@@ -73,4 +72,5 @@ plugins:
       handlers:
         python:
           paths: [src/dsp_tools/]
-          members_order: source
+          options:
+            members_order: source

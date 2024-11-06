@@ -38,7 +38,12 @@ nav:
   - xmllib API Reference:
       - XMLRoot: xmllib-api-reference/xmlroot.md
       - Resource: xmllib-api-reference/resource.md
-      - DSP base resources: xmllib-api-reference/dsp-base-resources.md
+      - DSP base resources: 
+          - AnnotationResource: xmllib-api-reference/dsp-base-resources/annotation-resource.md
+          - RegionResource: xmllib-api-reference/dsp-base-resources/region-resource.md
+          - LinkResource: xmllib-api-reference/dsp-base-resources/link-resource.md
+          - VideoSegmentResource: xmllib-api-reference/dsp-base-resources/video-segment-resource.md
+          - AudioSegmentResource: xmllib-api-reference/dsp-base-resources/audio-segment-resource.md
       - Configuration options: xmllib-api-reference/config-options.md
       - Value Checkers: xmllib-api-reference/value-checkers.md
       - Helpers: xmllib-api-reference/helpers.md

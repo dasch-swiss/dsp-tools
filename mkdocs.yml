@@ -39,8 +39,10 @@ nav:
       - xmllib:
           - XMLRoot: api-reference/xmllib/xmlroot.md
           - Resource: api-reference/xmllib/resource.md
-          - DSP base resources: api-reference/xmllib/dsp_base_resources.md
-          - Permissions: api-reference/xmllib/permissions.md
+          - DSP base resources: api-reference/xmllib/dsp-base-resources.md
+          - Configuration options: api-reference/xmllib/configuration-options.md
+          - Value Checkers: api-reference/xmllib/value-checkers.md
+          - Helpers: api-reference/xmllib/helpers.md
 
 theme:
   name: material

@@ -32,7 +32,6 @@ AnyResource: TypeAlias = Union[
 
 @dataclass
 class XMLRoot:
-
     shortcode: str
     default_ontology: str
     resources: list[AnyResource] = field(default_factory=list)

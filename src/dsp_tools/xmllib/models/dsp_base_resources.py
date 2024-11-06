@@ -9,8 +9,8 @@ from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
-from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
 from dsp_tools.xmllib.models.config_options import Permissions
+from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
 from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import LinkValue
 from dsp_tools.xmllib.models.values import Richtext
@@ -61,10 +61,6 @@ class AnnotationResource:
             annotation_of: ID of the resource that this annotation refers to (cardinality 1)
             comments: the comment(s) that this annotation consists of, i.e. the annotation itself (cardinality 1-n)
             permissions: permissions of this annotation resource
-
-        Warns:
-            Warning: If the Resource ID is not a valid string
-            Warning: If the label is not a valid string
 
         Returns:
             An annotation resource
@@ -209,12 +205,6 @@ class RegionResource:
                       ([See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geometry))
             comments: comments to this region (cardinality 1-n)
             permissions: permissions of this region resource
-
-        Warns:
-            Warning: If the Resource ID is not a valid string
-            Warning: If the label is not a valid string
-            Warning: If the color is not a valid color string
-            Warning: If the geometry does not follow the specifications
 
         Returns:
             A region resource
@@ -536,9 +526,6 @@ class VideoSegmentResource:
         Args:
             title: Title text
 
-        Warns:
-            Warning: If the resource already has a title. In that case, the title will be replaced.
-
         Returns:
             The original resource, with the added title
         """
@@ -553,9 +540,6 @@ class VideoSegmentResource:
 
         Args:
             title: Title or empty value
-
-        Warns:
-            Warning: If the resource already has a title. In that case, the title will be replaced.
 
         Returns:
             The original resource, with the added title
@@ -831,9 +815,6 @@ class AudioSegmentResource:
         Args:
             title: Title text
 
-        Warns:
-            Warning: If the resource already has a title. In that case, the title will be replaced.
-
         Returns:
             The original resource, with the added title
         """
@@ -848,9 +829,6 @@ class AudioSegmentResource:
 
         Args:
             title: Title text or empty value
-
-        Warns:
-            Warning: If the resource already has a title. In that case, the title will be replaced.
 
         Returns:
             The original resource, with the added title

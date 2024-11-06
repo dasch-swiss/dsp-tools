@@ -10,12 +10,12 @@ from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.xmllib.models.config_options import NewlineReplacement
+from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.file_values import AbstractFileValue
 from dsp_tools.xmllib.models.file_values import FileValue
 from dsp_tools.xmllib.models.file_values import IIIFUri
 from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
-from dsp_tools.xmllib.models.config_options import NewlineReplacement
-from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.values import BooleanValue
 from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import DateValue
@@ -82,11 +82,6 @@ class Resource:
             label: Resource label
             permissions: optional permissions of this resource
 
-        Warns:
-            Warning: If res_id is empty
-            Warning: If restype is empty
-            Warning: If label is empty
-
         Returns:
             Resource
         """
@@ -148,9 +143,6 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warns:
-            Warning: If the value is not amongst the accepted formats.
-
         Returns:
             The original resource, with the added value
         """
@@ -178,9 +170,6 @@ class Resource:
             value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
-
-        Warns:
-            Warning: If the value is not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -211,9 +200,6 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warns:
-            Warning: If the value is not amongst the accepted formats.
-
         Returns:
             The original resource, with the added value
         """
@@ -238,9 +224,6 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warns:
-            Warning: If the values are not amongst the accepted formats.
-
         Returns:
             The original resource, with the added values
         """
@@ -264,9 +247,6 @@ class Resource:
             value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
-
-        Warns:
-            Warning: If the values are not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -296,9 +276,6 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warns:
-            Warning: If the value is not amongst the accepted formats.
-
         Returns:
             The original resource, with the added value
         """
@@ -323,9 +300,6 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warns:
-            Warning: If the values are not amongst the accepted formats.
-
         Returns:
             The original resource, with the added values
         """
@@ -349,9 +323,6 @@ class Resource:
             value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
-
-        Warns:
-            Warning: If the value is not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -383,9 +354,6 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warns:
-            Warning: If the value is not amongst the accepted formats.
-
         Returns:
             The original resource, with the added value
         """
@@ -411,9 +379,6 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warns:
-            Warning: If the values are not amongst the accepted formats.
-
         Returns:
             The original resource, with the added values
         """
@@ -438,9 +403,6 @@ class Resource:
             value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
-
-        Warns:
-            Warning: If the value is not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -474,9 +436,6 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warns:
-            Warning: If the value is not amongst the accepted formats.
-
         Returns:
             The original resource, with the added value
         """
@@ -503,9 +462,6 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warns:
-            Warning: If the values are not amongst the accepted formats.
-
         Returns:
             The original resource, with the added values
         """
@@ -531,9 +487,6 @@ class Resource:
             value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
-
-        Warns:
-            Warning: If the value is not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -565,9 +518,6 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warns:
-            Warning: If the value is not amongst the accepted formats.
-
         Returns:
             The original resource, with the added value
         """
@@ -593,9 +543,6 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warns:
-            Warning: If the values are not amongst the accepted formats.
-
         Returns:
             The original resource, with the added values
         """
@@ -620,9 +567,6 @@ class Resource:
             value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
-
-        Warns:
-            Warning: If the value is not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -653,9 +597,6 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warns:
-            Warning: If the value is not amongst the accepted formats.
-
         Returns:
             The original resource, with the added value
         """
@@ -679,9 +620,6 @@ class Resource:
             values: list of target resources IDs
             permissions: optional permissions of this value
             comment: optional comment
-
-        Warns:
-            Warning: If the values are not amongst the accepted formats.
 
         Returns:
             The original resource, with the added values
@@ -707,9 +645,6 @@ class Resource:
             value: target resource ID or empty value
             permissions: optional permissions of this value
             comment: optional comment
-
-        Warns:
-            Warning: If the value is not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -742,9 +677,6 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warns:
-            Warning: If the value is not amongst the accepted formats.
-
         Returns:
             The original resource, with the added value
         """
@@ -771,9 +703,6 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warns:
-            Warning: If the values are not amongst the accepted formats.
-
         Returns:
             The original resource, with the added values
         """
@@ -799,9 +728,6 @@ class Resource:
             value: name of a list node (N.B. not the label, but the name of the list node) or empty value
             permissions: optional permissions of this value
             comment: optional comment
-
-        Warns:
-            Warning: If the value is not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -832,9 +758,6 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warns:
-            Warning: If the value is not amongst the accepted formats.
-
         Returns:
             The original resource, with the added value
         """
@@ -859,9 +782,6 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warns:
-            Warning: If the values are not amongst the accepted formats.
-
         Returns:
             The original resource, with the added values
         """
@@ -885,9 +805,6 @@ class Resource:
             value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
-
-        Warns:
-            Warning: If the value is not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -927,9 +844,6 @@ class Resource:
             comment: optional comment
             newline_replacement: Options how to deal with `\\n` inside the text value. Default: replace with `<br/>`.
 
-        Warns:
-            Warning: If the value is not amongst the accepted formats.
-
         Returns:
             The original resource, with the added value
         """
@@ -963,9 +877,6 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
             newline_replacement: Options how to deal with `\\n` inside the text value. Default: replace with `<br/>`.
-
-        Warns:
-            Warning: If the values are not amongst the accepted formats.
 
         Returns:
             The original resource, with the added values
@@ -1001,9 +912,6 @@ class Resource:
             comment: optional comment
             newline_replacement: Options how to deal with `\\n` inside the text value. Default: replace with `<br/>`.
 
-        Warns:
-            Warning: If the value is not amongst the accepted formats.
-
         Returns:
             The original resource, with the added value
         """
@@ -1034,9 +942,6 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warns:
-            Warning: If the value is not amongst the accepted formats.
-
         Returns:
             The original resource, with the added value
         """
@@ -1061,9 +966,6 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warns:
-            Warning: If the values are not amongst the accepted formats.
-
         Returns:
             The original resource, with the added values
         """
@@ -1087,9 +989,6 @@ class Resource:
             value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
-
-        Warns:
-            Warning: If the value is not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -1120,9 +1019,6 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warns:
-            Warning: If the value is not amongst the accepted formats.
-
         Returns:
             The original resource, with the added value
         """
@@ -1147,9 +1043,6 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warns:
-            Warning: If the values are not amongst the accepted formats.
-
         Returns:
             The original resource, with the added values
         """
@@ -1173,9 +1066,6 @@ class Resource:
             value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
-
-        Warns:
-            Warning: If the value is not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -1203,9 +1093,6 @@ class Resource:
             filename: path to the file
             permissions: optional permissions of this file
             comment: optional comment
-
-        Warns:
-            Warning: If the filename is not string like
 
         Raises:
             InputError: If the resource already has a file or IIIF URI value
@@ -1237,9 +1124,6 @@ class Resource:
             iiif_uri: valid IIIF URI
             permissions: optional permissions of this value
             comment: optional comment
-
-        Warns:
-            Warning: If the IIIF URI is not according to the official specifications
 
         Raises:
             InputError: If the resource already has a file or IIIF URI value

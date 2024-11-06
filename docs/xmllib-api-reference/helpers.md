@@ -1,3 +1,3 @@
-::: xmllib.create_label_to_name_list_node_mapping
+::: xmllib.helpers
     options:
         show_root_heading: true

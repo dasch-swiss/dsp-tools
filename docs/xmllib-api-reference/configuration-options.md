@@ -1,7 +1,3 @@
-::: xmllib.Permissions
-    options:
-        show_root_heading: true
-
-::: xmllib.NewlineReplacement
+::: xmllib.config_options
     options:
         show_root_heading: true

@@ -1,5 +1,7 @@
+from . import helpers as helpers
 from . import value_checkers as value_checkers
 from .helpers import create_label_to_name_list_node_mapping as create_label_to_name_list_node_mapping
+from .models import user_enums as config_options
 from .models.dsp_base_resources import AnnotationResource as AnnotationResource
 from .models.dsp_base_resources import AudioSegmentResource as AudioSegmentResource
 from .models.dsp_base_resources import LinkResource as LinkResource

@@ -51,7 +51,7 @@ class AnnotationResource:
     ) -> AnnotationResource:
         """
         Creates a new annotation resource.
-        An annotation provides metadata to another resource.
+        An annotation is a comment to another resource.
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#annotation)
 
@@ -191,7 +191,7 @@ class RegionResource:
     ) -> RegionResource:
         """
         Creates a new region resource.
-        A region is a region of interest (ROI) in an image.
+        A region is a region of interest (ROI) in a StillImageRepresentation.
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#region)
 
@@ -332,7 +332,7 @@ class LinkResource:
     ) -> LinkResource:
         """
         Creates a new link resource.
-        A link groups together several other resources of different classes.
+        A link resource is like a container that groups together several other resources of different classes.
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#link)
 
@@ -491,10 +491,7 @@ class VideoSegmentResource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> VideoSegmentResource:
         """
-        Creates a new video segment resource.
-        This factory method supports only the most frequently used parameters.
-        If you want to add additional information, create the incomplete segment first,
-        and then use the dedicated methods, e.g. `add_description()`.
+        Creates a new video segment resource, i.e. a time span of a MovingImageRepresentation.
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#video-segment-and-audio-segment)
 
@@ -780,10 +777,7 @@ class AudioSegmentResource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> AudioSegmentResource:
         """
-        Creates a new audio segment resource.
-        This factory method supports only the most frequently used parameters.
-        If you want to add additional information, create the incomplete segment first,
-        and then use the dedicated methods, e.g. `add_description()`.
+        Creates a new audio segment resource, i.e. a time span of an AudioRepresentation.
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#video-segment-and-audio-segment)
 

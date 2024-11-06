@@ -13,10 +13,10 @@ def test_xmllib() -> None:
     Indirect imports are okay, too, i.e. modules that are imported by modules that are imported here.
     """
     root = XMLRoot("0000", "my_onto")
-    my_res = Resource.new("my_res", "restype", "label")
+    my_res = Resource.create_new("my_res", "restype", "label")
     if is_bool_like("0"):
         my_res.add_bool("my_prop", convert_to_bool_string("0"))
     my_res.add_file("my_file")
-    annotation = AnnotationResource.new("res_id", "label", "annotation_of", ["comment1", "comment2"])
+    annotation = AnnotationResource.create_new("res_id", "label", "annotation_of", ["comment1", "comment2"])
     root.add_resource(annotation)
     root.add_resource(my_res)

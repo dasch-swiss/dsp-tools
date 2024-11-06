@@ -38,7 +38,7 @@ nav:
   - xmllib API documentation:
       - XMLRoot: xmllib-api-reference/xmlroot.md
       - Resource: xmllib-api-reference/resource.md
-      - DSP base resources: 
+      - DSP base resources:
           - AnnotationResource: xmllib-api-reference/dsp-base-resources/annotation-resource.md
           - RegionResource: xmllib-api-reference/dsp-base-resources/region-resource.md
           - LinkResource: xmllib-api-reference/dsp-base-resources/link-resource.md

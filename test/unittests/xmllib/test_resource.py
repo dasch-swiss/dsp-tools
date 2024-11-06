@@ -162,7 +162,9 @@ class TestAddValues:
             Resource.create_new("res_id", "restype", "label").add_link("", "")
 
     def test_add_link_multiple(self) -> None:
-        res = Resource.create_new("res_id", "restype", "label").add_link_multiple(":prop", ["other_id", "yet_another_id"])
+        res = Resource.create_new("res_id", "restype", "label").add_link_multiple(
+            ":prop", ["other_id", "yet_another_id"]
+        )
         assert len(res.values) == 2
         assert all([isinstance(x, LinkValue) for x in res.values])
 
@@ -183,7 +185,9 @@ class TestAddValues:
             Resource.create_new("res_id", "restype", "label").add_list("", "", "")
 
     def test_add_list_multiple(self) -> None:
-        res = Resource.create_new("res_id", "restype", "label").add_list_multiple(":prop", "list-1", ["node-1", "node-2"])
+        res = Resource.create_new("res_id", "restype", "label").add_list_multiple(
+            ":prop", "list-1", ["node-1", "node-2"]
+        )
         assert len(res.values) == 2
         assert all([isinstance(x, ListValue) for x in res.values])
 

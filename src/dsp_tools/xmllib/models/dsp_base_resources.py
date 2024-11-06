@@ -53,7 +53,7 @@ class AnnotationResource:
         Creates a new annotation resource.
         An annotation provides metadata to another resource.
 
-        See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#annotation.
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#annotation)
 
         Args:
             res_id: ID of this annotation resource
@@ -199,16 +199,16 @@ class RegionResource:
         Creates a new region resource.
         A region is a region of interest (ROI) in an image.
 
-        See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#region.
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#region)
 
         Args:
             res_id: ID of this region resource
             label: label of this region resource
             color: color of the region, as `#` followed by 3 or 6 hex numerals (cardinality 1)
-                   (see https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#color)
+                   ([See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#color))
             region_of: ID of the image resource that this region refers to (cardinality 1)
             geometry: geometry information of the region (cardinality 1)
-                      (see https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geometry)
+                      ([See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geometry))
             comments: comments to this region (cardinality 1-n)
             permissions: permissions of this region resource
 
@@ -348,7 +348,7 @@ class LinkResource:
         Creates a new link resource.
         A link groups together several other resources of different classes.
 
-        See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#link.
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#link)
 
         Args:
             res_id: ID of this link resource
@@ -512,7 +512,7 @@ class VideoSegmentResource:
         If you want to add additional information, create the incomplete segment first,
         and then use the dedicated methods, e.g. `add_description()`.
 
-        See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#video-segment-and-audio-segment.
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#video-segment-and-audio-segment)
 
         Args:
             res_id: ID of this video segment resource
@@ -811,7 +811,7 @@ class AudioSegmentResource:
         If you want to add additional information, create the incomplete segment first,
         and then use the dedicated methods, e.g. `add_description()`.
 
-        See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#video-segment-and-audio-segment.
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#video-segment-and-audio-segment)
 
         Args:
             res_id: ID of this audio segment resource

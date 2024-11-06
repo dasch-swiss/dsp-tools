@@ -503,7 +503,6 @@ class VideoSegmentResource:
         segment_of: str,
         segment_start: float,
         segment_end: float,
-        title: str | None = None,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> VideoSegmentResource:
         """
@@ -520,7 +519,6 @@ class VideoSegmentResource:
             segment_of: ID of the video resource that this segment refers to (cardinality 1)
             segment_start: start of the segment in seconds (cardinality 1)
             segment_end: end of the segment in seconds (cardinality 1)
-            title: title of this segment (cardinality 0-1)
             permissions: permissions of this resource
 
         Returns:
@@ -531,7 +529,6 @@ class VideoSegmentResource:
             label=label,
             segment_of=segment_of,
             segment_bounds=SegmentBounds(segment_start, segment_end, res_id),
-            title=title,
             permissions=permissions,
         )
 
@@ -802,7 +799,6 @@ class AudioSegmentResource:
         segment_of: str,
         segment_start: float,
         segment_end: float,
-        title: str | None = None,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> AudioSegmentResource:
         """
@@ -819,7 +815,6 @@ class AudioSegmentResource:
             segment_of: ID of the audio resource that this segment refers to (cardinality 1)
             segment_start: start of the segment in seconds (cardinality 1)
             segment_end: end of the segment in seconds (cardinality 1)
-            title: title of this segment (cardinality 0-1)
             permissions: permissions of this resource
 
         Returns:
@@ -830,7 +825,6 @@ class AudioSegmentResource:
             label=label,
             segment_of=segment_of,
             segment_bounds=SegmentBounds(segment_start, segment_end, res_id),
-            title=title,
             permissions=permissions,
         )
 

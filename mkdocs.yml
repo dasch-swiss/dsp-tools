@@ -75,7 +75,9 @@ plugins:
   - include-markdown
   - mkdocstrings:
       handlers:
-        python:  # configuration options are documented at https://mkdocstrings.github.io/python/usage/#configuration
+        python:
+          # configuration options are documented at https://mkdocstrings.github.io/python/usage/#configuration
+          # IF YOU CHANGE THIS CONFIG, DON'T FORGET TO CHANGE IT ALSO IN THE DSP-DOCS REPO!
           paths: [src/dsp_tools/]
           options:
             members_order: source

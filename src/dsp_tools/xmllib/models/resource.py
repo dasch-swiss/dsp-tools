@@ -205,7 +205,7 @@ class Resource:
 
         Args:
             prop_name: name of the property
-            value: color value as `#` followed by 6 hexadecimal digits
+            value: value to add
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -232,7 +232,7 @@ class Resource:
 
         Args:
             prop_name: name of the property
-            values: color values as `#` followed by 6 hexadecimal digits
+            values: values to add
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -259,7 +259,7 @@ class Resource:
 
         Args:
             prop_name: name of the property
-            value: color value as `#` followed by 6 hexadecimal digits or empty value
+            value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -468,7 +468,7 @@ class Resource:
 
         Args:
             prop_name: name of the property
-            value: [geonames.org](geonames.org) identifier to add
+            value: value to add
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -497,7 +497,7 @@ class Resource:
 
         Args:
             prop_name: name of the property
-            values: [geonames.org](geonames.org) identifiers to add
+            values: values to add
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -526,7 +526,7 @@ class Resource:
 
         Args:
             prop_name: name of the property
-            value: [geonames.org](geonames.org) identifier to add or empty value
+            value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -647,7 +647,7 @@ class Resource:
 
         Args:
             prop_name: name of the property
-            value: ID of the target resource
+            value: target resource ID
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -674,7 +674,7 @@ class Resource:
 
         Args:
             prop_name: name of the property
-            values: IDs of the target resources
+            values: list of target resources IDs
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -702,7 +702,7 @@ class Resource:
 
         Args:
             prop_name: name of the property
-            value: ID of target resource or empty value
+            value: target resource ID or empty value
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -826,7 +826,7 @@ class Resource:
 
         Args:
             prop_name: name of the property
-            value: text value to add
+            value: value to add
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -853,7 +853,7 @@ class Resource:
 
         Args:
             prop_name: name of the property
-            values: text values to add
+            values: values to add
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -880,7 +880,7 @@ class Resource:
 
         Args:
             prop_name: name of the property
-            value: text value to add or empty value
+            value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -920,7 +920,7 @@ class Resource:
 
         Args:
             prop_name: name of the property
-            value: rich text value as string, potentially containing DSP Standard Standoff Markup XML tags
+            value: value to add
             permissions: optional permissions of this value
             comment: optional comment
             newline_replacement: Options how to deal with `\\n` inside the text value. Default: replace with `<br/>`.
@@ -957,7 +957,7 @@ class Resource:
 
         Args:
             prop_name: name of the property
-            values: rich text values as strings, potentially containing DSP Standard Standoff Markup XML tags
+            values: values to add
             permissions: optional permissions of this value
             comment: optional comment
             newline_replacement: Options how to deal with `\\n` inside the text value. Default: replace with `<br/>`.
@@ -994,7 +994,7 @@ class Resource:
 
         Args:
             prop_name: name of the property
-            value: rich text value as string or empty value
+            value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
             newline_replacement: Options how to deal with `\\n` inside the text value. Default: replace with `<br/>`.

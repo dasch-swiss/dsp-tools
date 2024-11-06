@@ -368,11 +368,12 @@ class Resource:
     ) -> Resource:
         """
         Add a decimal value to the resource.
+        If the value is provided as string, it must be convertible to integer or float.
         Decimal values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#decimal.
 
         Args:
             prop_name: name of the property
-            value: value to add (if provided as string, it must be convertible to int/float)
+            value: value to add
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -394,6 +395,7 @@ class Resource:
     ) -> Resource:
         """
         Add several decimal values to the resource.
+        If the values are provided as string, they must be convertible to integer or float.
         Decimal values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#decimal.
 
         Args:
@@ -420,6 +422,7 @@ class Resource:
     ) -> Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
+        If the value is provided as string, it must be convertible to integer or float.
         Decimal values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#decimal.
 
         Args:
@@ -540,11 +543,12 @@ class Resource:
     ) -> Resource:
         """
         Add an integer value to the resource.
+        If the value is provided as string, it must be convertible to integer.
         Integer values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#integer.
 
         Args:
             prop_name: name of the property
-            value: value to add. If it is provided as string, it must be convertible to integer.
+            value: value to add
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -566,11 +570,12 @@ class Resource:
     ) -> Resource:
         """
         Add several integer values to the resource.
+        If the values are provided as string, they must be convertible to integer.
         Integer values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#integer.
 
         Args:
             prop_name: name of the property
-            values: values to add. If they are provided as strings, they must be convertible to integers.
+            values: values to add
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -592,7 +597,7 @@ class Resource:
     ) -> Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
-        If it is provided as string, it must be convertible to integer.
+        If the value is provided as string, it must be convertible to integer.
         Integer values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#integer.
 
         Args:

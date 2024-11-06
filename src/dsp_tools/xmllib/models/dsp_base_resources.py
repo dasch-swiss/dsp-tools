@@ -28,13 +28,6 @@ LIST_SEPARATOR = "\n    - "
 
 @dataclass
 class AnnotationResource:
-    """
-    _summary_
-
-    Raises:
-        InputError: _description_
-    """
-
     res_id: str
     label: str
     annotation_of: str
@@ -63,41 +56,14 @@ class AnnotationResource:
         )
 
     def add_comment(self, comment: str) -> AnnotationResource:
-        """
-        _summary_
-
-        Args:
-            comment: _description_
-
-        Returns:
-            _description_
-        """
         self.comments.append(comment)
         return self
 
     def add_comment_multiple(self, comments: list[str]) -> AnnotationResource:
-        """
-        _summary_
-
-        Args:
-            comments: _description_
-
-        Returns:
-            _description_
-        """
         self.comments.extend(comments)
         return self
 
     def add_comment_optional(self, comment: Any) -> AnnotationResource:
-        """
-        _summary_
-
-        Args:
-            comment: _description_
-
-        Returns:
-            _description_
-        """
         if not pd.isna(comment):
             self.comments.append(comment)
         return self
@@ -105,20 +71,6 @@ class AnnotationResource:
     def add_migration_metadata(
         self, creation_date: str | None, iri: str | None = None, ark: str | None = None
     ) -> AnnotationResource:
-        """
-        _summary_
-
-        Args:
-            creation_date: _description_
-            iri: _description_. Defaults to None.
-            ark: _description_. Defaults to None.
-
-        Raises:
-            InputError: _description_
-
-        Returns:
-            _description_
-        """
         if self.migration_metadata:
             raise InputError(
                 f"The resource with the ID '{self.res_id}' already contains migration metadata, "
@@ -128,12 +80,6 @@ class AnnotationResource:
         return self
 
     def serialise(self) -> etree._Element:
-        """
-        _summary_
-
-        Returns:
-            _description_
-        """
         self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
         res_ele = self._serialise_resource_element()
         res_ele.append(self._serialise_annotation_of())
@@ -152,13 +98,6 @@ class AnnotationResource:
 
 @dataclass
 class RegionResource:
-    """
-    _summary_
-
-    Raises:
-        InputError: _description_
-    """
-
     res_id: str
     label: str
     color: str
@@ -202,41 +141,14 @@ class RegionResource:
         )
 
     def add_comment(self, comment: str) -> RegionResource:
-        """
-        _summary_
-
-        Args:
-            comment: _description_
-
-        Returns:
-            _description_
-        """
         self.comments.append(comment)
         return self
 
     def add_comment_multiple(self, comments: list[str]) -> RegionResource:
-        """
-        _summary_
-
-        Args:
-            comments: _description_
-
-        Returns:
-            _description_
-        """
         self.comments.extend(comments)
         return self
 
     def add_comment_optional(self, comment: Any) -> RegionResource:
-        """
-        _summary_
-
-        Args:
-            comment: _description_
-
-        Returns:
-            _description_
-        """
         if not pd.isna(comment):
             self.comments.append(comment)
         return self
@@ -244,20 +156,6 @@ class RegionResource:
     def add_migration_metadata(
         self, creation_date: str | None, iri: str | None = None, ark: str | None = None
     ) -> RegionResource:
-        """
-        _summary_
-
-        Args:
-            creation_date: _description_
-            iri: _description_. Defaults to None.
-            ark: _description_. Defaults to None.
-
-        Raises:
-            InputError: _description_
-
-        Returns:
-            _description_
-        """
         if self.migration_metadata:
             raise InputError(
                 f"The resource with the ID '{self.res_id}' already contains migration metadata, "
@@ -267,12 +165,6 @@ class RegionResource:
         return self
 
     def serialise(self) -> etree._Element:
-        """
-        _summary_
-
-        Returns:
-            _description_
-        """
         self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
         res_ele = self._serialise_resource_element()
         res_ele.append(self._serialise_geometry())
@@ -303,13 +195,6 @@ class RegionResource:
 
 @dataclass
 class LinkResource:
-    """
-    _summary_
-
-    Raises:
-        InputError: _description_
-    """
-
     res_id: str
     label: str
     link_to: list[str]
@@ -334,41 +219,14 @@ class LinkResource:
         )
 
     def add_comment(self, comment: str) -> LinkResource:
-        """
-        _summary_
-
-        Args:
-            comment: _description_
-
-        Returns:
-            _description_
-        """
         self.comments.append(comment)
         return self
 
     def add_comment_multiple(self, comments: list[str]) -> LinkResource:
-        """
-        _summary_
-
-        Args:
-            comments: _description_
-
-        Returns:
-            _description_
-        """
         self.comments.extend(comments)
         return self
 
     def add_comment_optional(self, comment: Any) -> LinkResource:
-        """
-        _summary_
-
-        Args:
-            comment: _description_
-
-        Returns:
-            _description_
-        """
         if not pd.isna(comment):
             self.comments.append(comment)
         return self
@@ -376,20 +234,6 @@ class LinkResource:
     def add_migration_metadata(
         self, creation_date: str | None, iri: str | None = None, ark: str | None = None
     ) -> LinkResource:
-        """
-        _summary_
-
-        Args:
-            creation_date: _description_
-            iri: _description_. Defaults to None.
-            ark: _description_. Defaults to None.
-
-        Raises:
-            InputError: _description_
-
-        Returns:
-            _description_
-        """
         if self.migration_metadata:
             raise InputError(
                 f"The resource with the ID '{self.res_id}' already contains migration metadata, "
@@ -399,12 +243,6 @@ class LinkResource:
         return self
 
     def serialise(self) -> etree._Element:
-        """
-        _summary_
-
-        Returns:
-            _description_
-        """
         self._check_for_and_convert_unexpected_input()
         res_ele = self._serialise_resource_element()
         res_ele.append(_serialise_has_comment(self.comments, self.res_id))
@@ -453,13 +291,6 @@ class SegmentBounds:
 
 @dataclass
 class VideoSegmentResource:
-    """
-    _summary_
-
-    Raises:
-        InputError: _description_
-    """
-
     res_id: str
     label: str
     segment_of: str
@@ -492,30 +323,12 @@ class VideoSegmentResource:
         )
 
     def add_title(self, title: str) -> VideoSegmentResource:
-        """
-        _summary_
-
-        Args:
-            title: _description_
-
-        Returns:
-            _description_
-        """
         if self.title:
             _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
         self.title = title
         return self
 
     def add_title_optional(self, title: Any) -> VideoSegmentResource:
-        """
-        _summary_
-
-        Args:
-            title: _description_
-
-        Returns:
-            _description_
-        """
         if not pd.isna(title):
             if self.title:
                 _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
@@ -523,161 +336,53 @@ class VideoSegmentResource:
         return self
 
     def add_comment(self, comment: str) -> VideoSegmentResource:
-        """
-        _summary_
-
-        Args:
-            comment: _description_
-
-        Returns:
-            _description_
-        """
         self.comments.append(comment)
         return self
 
     def add_comment_multiple(self, comments: list[str]) -> VideoSegmentResource:
-        """
-        _summary_
-
-        Args:
-            comments: _description_
-
-        Returns:
-            _description_
-        """
         self.comments.extend(comments)
         return self
 
     def add_comment_optional(self, comment: Any) -> VideoSegmentResource:
-        """
-        _summary_
-
-        Args:
-            comment: _description_
-
-        Returns:
-            _description_
-        """
         if not pd.isna(comment):
             self.comments.append(comment)
         return self
 
     def add_description(self, description: str) -> VideoSegmentResource:
-        """
-        _summary_
-
-        Args:
-            description: _description_
-
-        Returns:
-            _description_
-        """
         self.descriptions.append(description)
         return self
 
     def add_description_multiple(self, descriptions: list[str]) -> VideoSegmentResource:
-        """
-        _summary_
-
-        Args:
-            descriptions: _description_
-
-        Returns:
-            _description_
-        """
         self.descriptions.extend(descriptions)
         return self
 
     def add_description_optional(self, description: Any) -> VideoSegmentResource:
-        """
-        _summary_
-
-        Args:
-            description: _description_
-
-        Returns:
-            _description_
-        """
         if not pd.isna(description):
             self.descriptions.append(description)
         return self
 
     def add_keyword(self, keyword: str) -> VideoSegmentResource:
-        """
-        _summary_
-
-        Args:
-            keyword: _description_
-
-        Returns:
-            _description_
-        """
         self.keywords.append(keyword)
         return self
 
     def add_keyword_multiple(self, keywords: list[str]) -> VideoSegmentResource:
-        """
-        _summary_
-
-        Args:
-            keywords: _description_
-
-        Returns:
-            _description_
-        """
         self.keywords.extend(keywords)
         return self
 
     def add_keyword_optional(self, keyword: Any) -> VideoSegmentResource:
-        """
-        _summary_
-
-        Args:
-            keyword: _description_
-
-        Returns:
-            _description_
-        """
         if not pd.isna(keyword):
             self.keywords.append(keyword)
         return self
 
     def add_relates_to(self, relates_to: str) -> VideoSegmentResource:
-        """
-        _summary_
-
-        Args:
-            relates_to: _description_
-
-        Returns:
-            _description_
-        """
         self.relates_to.append(relates_to)
         return self
 
     def add_relates_to_multiple(self, relates_to: list[str]) -> VideoSegmentResource:
-        """
-        _summary_
-
-        Args:
-            relates_to: _description_
-
-        Returns:
-            _description_
-        """
         self.relates_to.extend(relates_to)
         return self
 
     def add_relates_to_optional(self, relates_to: Any) -> VideoSegmentResource:
-        """
-        _summary_
-
-        Args:
-            relates_to: _description_
-
-        Returns:
-            _description_
-        """
         if not pd.isna(relates_to):
             self.relates_to.append(relates_to)
         return self
@@ -685,20 +390,6 @@ class VideoSegmentResource:
     def add_migration_metadata(
         self, creation_date: str | None, iri: str | None = None, ark: str | None = None
     ) -> VideoSegmentResource:
-        """
-        _summary_
-
-        Args:
-            creation_date: _description_
-            iri: _description_. Defaults to None.
-            ark: _description_. Defaults to None.
-
-        Raises:
-            InputError: _description_
-
-        Returns:
-            _description_
-        """
         if self.migration_metadata:
             raise InputError(
                 f"The resource with the ID '{self.res_id}' already contains migration metadata, "
@@ -708,12 +399,6 @@ class VideoSegmentResource:
         return self
 
     def serialise(self) -> etree._Element:
-        """
-        _summary_
-
-        Returns:
-            _description_
-        """
         self._check_for_and_convert_unexpected_input()
         res_ele = self._serialise_resource_element()
         res_ele.extend(_serialise_segment_children(self))
@@ -735,13 +420,6 @@ class VideoSegmentResource:
 
 @dataclass
 class AudioSegmentResource:
-    """
-    _summary_
-
-    Raises:
-        InputError: _description_
-    """
-
     res_id: str
     label: str
     segment_of: str
@@ -774,30 +452,12 @@ class AudioSegmentResource:
         )
 
     def add_title(self, title: str) -> AudioSegmentResource:
-        """
-        _summary_
-
-        Args:
-            title: _description_
-
-        Returns:
-            _description_
-        """
         if self.title:
             _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
         self.title = title
         return self
 
     def add_title_optional(self, title: Any) -> AudioSegmentResource:
-        """
-        _summary_
-
-        Args:
-            title: _description_
-
-        Returns:
-            _description_
-        """
         if not pd.isna(title):
             if self.title:
                 _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
@@ -805,161 +465,53 @@ class AudioSegmentResource:
         return self
 
     def add_comment(self, comment: str) -> AudioSegmentResource:
-        """
-        _summary_
-
-        Args:
-            comment: _description_
-
-        Returns:
-            _description_
-        """
         self.comments.append(comment)
         return self
 
     def add_comment_multiple(self, comments: list[str]) -> AudioSegmentResource:
-        """
-        _summary_
-
-        Args:
-            comments: _description_
-
-        Returns:
-            _description_
-        """
         self.comments.extend(comments)
         return self
 
     def add_comment_optional(self, comment: Any) -> AudioSegmentResource:
-        """
-        _summary_
-
-        Args:
-            comment: _description_
-
-        Returns:
-            _description_
-        """
         if not pd.isna(comment):
             self.comments.append(comment)
         return self
 
     def add_description(self, description: str) -> AudioSegmentResource:
-        """
-        _summary_
-
-        Args:
-            description: _description_
-
-        Returns:
-            _description_
-        """
         self.descriptions.append(description)
         return self
 
     def add_description_multiple(self, descriptions: list[str]) -> AudioSegmentResource:
-        """
-        _summary_
-
-        Args:
-            descriptions: _description_
-
-        Returns:
-            _description_
-        """
         self.descriptions.extend(descriptions)
         return self
 
     def add_description_optional(self, description: Any) -> AudioSegmentResource:
-        """
-        _summary_
-
-        Args:
-            description: _description_
-
-        Returns:
-            _description_
-        """
         if not pd.isna(description):
             self.descriptions.append(description)
         return self
 
     def add_keyword(self, keyword: str) -> AudioSegmentResource:
-        """
-        _summary_
-
-        Args:
-            keyword: _description_
-
-        Returns:
-            _description_
-        """
         self.keywords.append(keyword)
         return self
 
     def add_keyword_multiple(self, keywords: list[str]) -> AudioSegmentResource:
-        """
-        _summary_
-
-        Args:
-            keywords: _description_
-
-        Returns:
-            _description_
-        """
         self.keywords.extend(keywords)
         return self
 
     def add_keyword_optional(self, keyword: Any) -> AudioSegmentResource:
-        """
-        _summary_
-
-        Args:
-            keyword: _description_
-
-        Returns:
-            _description_
-        """
         if not pd.isna(keyword):
             self.keywords.append(keyword)
         return self
 
     def add_relates_to(self, relates_to: str) -> AudioSegmentResource:
-        """
-        _summary_
-
-        Args:
-            relates_to: _description_
-
-        Returns:
-            _description_
-        """
         self.relates_to.append(relates_to)
         return self
 
     def add_relates_to_multiple(self, relates_to: list[str]) -> AudioSegmentResource:
-        """
-        _summary_
-
-        Args:
-            relates_to: _description_
-
-        Returns:
-            _description_
-        """
         self.relates_to.extend(relates_to)
         return self
 
     def add_relates_to_optional(self, relates_to: Any) -> AudioSegmentResource:
-        """
-        _summary_
-
-        Args:
-            relates_to: _description_
-
-        Returns:
-            _description_
-        """
         if not pd.isna(relates_to):
             self.relates_to.append(relates_to)
         return self
@@ -967,20 +519,6 @@ class AudioSegmentResource:
     def add_migration_metadata(
         self, creation_date: str | None, iri: str | None = None, ark: str | None = None
     ) -> AudioSegmentResource:
-        """
-        _summary_
-
-        Args:
-            creation_date: _description_
-            iri: _description_. Defaults to None.
-            ark: _description_. Defaults to None.
-
-        Raises:
-            InputError: _description_
-
-        Returns:
-            _description_
-        """
         if self.migration_metadata:
             raise InputError(
                 f"The resource with the ID '{self.res_id}' already contains migration metadata, "
@@ -990,12 +528,6 @@ class AudioSegmentResource:
         return self
 
     def serialise(self) -> etree._Element:
-        """
-        _summary_
-
-        Returns:
-            _description_
-        """
         self._check_for_and_convert_unexpected_input()
         res_ele = self._serialise_resource_element()
         res_ele.extend(_serialise_segment_children(self))

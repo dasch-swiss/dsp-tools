@@ -20,6 +20,8 @@ from dsp_tools.xmllib.models.dsp_base_resources import VideoSegmentResource
 from dsp_tools.xmllib.models.permissions import XMLPermissions
 from dsp_tools.xmllib.models.resource import Resource
 
+# ruff: noqa: D101
+
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 
@@ -30,17 +32,6 @@ AnyResource: TypeAlias = Union[
 
 @dataclass
 class XMLRoot:
-    """
-    Root of the XML file.
-
-    Args:
-        shortcode: project shortcode
-        default_ontology: name of the default ontology
-        resources: list of resources (can be modified after creation)
-
-    Returns:
-        Instance of XMLRoot
-    """
 
     shortcode: str
     default_ontology: str

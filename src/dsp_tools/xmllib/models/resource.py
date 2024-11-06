@@ -33,6 +33,8 @@ from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_string_like
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
+# ruff: noqa: D101, D102
+
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 
@@ -80,10 +82,10 @@ class Resource:
             label: Resource label
             permissions: optional permissions of this resource
 
-        Warnings:
-            - If res_id is empty
-            - If restype is empty
-            - If label is empty
+        Warns:
+            Warning: If res_id is empty
+            Warning: If restype is empty
+            Warning: If label is empty
 
         Returns:
             Resource
@@ -146,8 +148,8 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warnings:
-            If the value is not amongst the accepted formats.
+        Warns:
+            Warning: If the value is not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -177,8 +179,8 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warnings:
-            If the value is not amongst the accepted formats.
+        Warns:
+            Warning: If the value is not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -209,8 +211,8 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warnings:
-            If the value is not amongst the accepted formats.
+        Warns:
+            Warning: If the value is not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -236,8 +238,8 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warnings:
-            If the values are not amongst the accepted formats.
+        Warns:
+            Warning: If the values are not amongst the accepted formats.
 
         Returns:
             The original resource, with the added values
@@ -263,8 +265,8 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warnings:
-            If the values are not amongst the accepted formats.
+        Warns:
+            Warning: If the values are not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -294,8 +296,8 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warnings:
-            If the value is not amongst the accepted formats.
+        Warns:
+            Warning: If the value is not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -321,8 +323,8 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warnings:
-            If the values are not amongst the accepted formats.
+        Warns:
+            Warning: If the values are not amongst the accepted formats.
 
         Returns:
             The original resource, with the added values
@@ -348,8 +350,8 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warnings:
-            If the value is not amongst the accepted formats.
+        Warns:
+            Warning: If the value is not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -381,8 +383,8 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warnings:
-            If the value is not amongst the accepted formats.
+        Warns:
+            Warning: If the value is not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -409,8 +411,8 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warnings:
-            If the values are not amongst the accepted formats.
+        Warns:
+            Warning: If the values are not amongst the accepted formats.
 
         Returns:
             The original resource, with the added values
@@ -437,8 +439,8 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warnings:
-            If the value is not amongst the accepted formats.
+        Warns:
+            Warning: If the value is not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -459,8 +461,8 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Add a [geonames.org](geonames.org) value to the resource.
-        The [geonames.org](geonames.org) identifier must be provided as integer
+        Add a [geonames.org](https://www.geonames.org/) value to the resource.
+        The [geonames.org](https://www.geonames.org/) identifier must be provided as integer
         or string that is convertible to integer.
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geoname)
@@ -472,8 +474,8 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warnings:
-            If the value is not amongst the accepted formats.
+        Warns:
+            Warning: If the value is not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -489,8 +491,8 @@ class Resource:
         comment: str | None = None,
     ) -> Resource:
         """
-        Add several [geonames.org](geonames.org) values to the resource.
-        The [geonames.org](geonames.org) identifiers must be provided as integers
+        Add several [geonames.org](https://www.geonames.org/) values to the resource.
+        The [geonames.org](https://www.geonames.org/) identifiers must be provided as integers
         or strings that are convertible to integers.
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geoname)
@@ -501,8 +503,8 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warnings:
-            If the values are not amongst the accepted formats.
+        Warns:
+            Warning: If the values are not amongst the accepted formats.
 
         Returns:
             The original resource, with the added values
@@ -519,7 +521,7 @@ class Resource:
     ) -> Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
-        The [geonames.org](geonames.org) identifier must be provided as integer
+        The [geonames.org](https://www.geonames.org/) identifier must be provided as integer
         or string that is convertible to integer.
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geoname)
@@ -530,8 +532,8 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warnings:
-            If the value is not amongst the accepted formats.
+        Warns:
+            Warning: If the value is not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -563,8 +565,8 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warnings:
-            If the value is not amongst the accepted formats.
+        Warns:
+            Warning: If the value is not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -591,8 +593,8 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warnings:
-            If the values are not amongst the accepted formats.
+        Warns:
+            Warning: If the values are not amongst the accepted formats.
 
         Returns:
             The original resource, with the added values
@@ -619,8 +621,8 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warnings:
-            If the value is not amongst the accepted formats.
+        Warns:
+            Warning: If the value is not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -651,8 +653,8 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warnings:
-            If the value is not amongst the accepted formats.
+        Warns:
+            Warning: If the value is not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -678,8 +680,8 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warnings:
-            If the values are not amongst the accepted formats.
+        Warns:
+            Warning: If the values are not amongst the accepted formats.
 
         Returns:
             The original resource, with the added values
@@ -706,8 +708,8 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warnings:
-            If the value is not amongst the accepted formats.
+        Warns:
+            Warning: If the value is not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -740,8 +742,8 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warnings:
-            If the value is not amongst the accepted formats.
+        Warns:
+            Warning: If the value is not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -769,8 +771,8 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warnings:
-            If the values are not amongst the accepted formats.
+        Warns:
+            Warning: If the values are not amongst the accepted formats.
 
         Returns:
             The original resource, with the added values
@@ -798,8 +800,8 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warnings:
-            If the value is not amongst the accepted formats.
+        Warns:
+            Warning: If the value is not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -830,8 +832,8 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warnings:
-            If the value is not amongst the accepted formats.
+        Warns:
+            Warning: If the value is not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -857,8 +859,8 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warnings:
-            If the values are not amongst the accepted formats.
+        Warns:
+            Warning: If the values are not amongst the accepted formats.
 
         Returns:
             The original resource, with the added values
@@ -884,8 +886,8 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warnings:
-            If the value is not amongst the accepted formats.
+        Warns:
+            Warning: If the value is not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -925,8 +927,8 @@ class Resource:
             comment: optional comment
             newline_replacement: Options how to deal with `\\n` inside the text value. Default: replace with `<br/>`.
 
-        Warnings:
-            If the value is not amongst the accepted formats.
+        Warns:
+            Warning: If the value is not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -962,8 +964,8 @@ class Resource:
             comment: optional comment
             newline_replacement: Options how to deal with `\\n` inside the text value. Default: replace with `<br/>`.
 
-        Warnings:
-            If the values are not amongst the accepted formats.
+        Warns:
+            Warning: If the values are not amongst the accepted formats.
 
         Returns:
             The original resource, with the added values
@@ -999,8 +1001,8 @@ class Resource:
             comment: optional comment
             newline_replacement: Options how to deal with `\\n` inside the text value. Default: replace with `<br/>`.
 
-        Warnings:
-            If the value is not amongst the accepted formats.
+        Warns:
+            Warning: If the value is not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -1032,8 +1034,8 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warnings:
-            If the value is not amongst the accepted formats.
+        Warns:
+            Warning: If the value is not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -1059,8 +1061,8 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warnings:
-            If the values are not amongst the accepted formats.
+        Warns:
+            Warning: If the values are not amongst the accepted formats.
 
         Returns:
             The original resource, with the added values
@@ -1086,8 +1088,8 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warnings:
-            If the value is not amongst the accepted formats.
+        Warns:
+            Warning: If the value is not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -1118,8 +1120,8 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warnings:
-            If the value is not amongst the accepted formats.
+        Warns:
+            Warning: If the value is not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -1145,8 +1147,8 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warnings:
-            If the values are not amongst the accepted formats.
+        Warns:
+            Warning: If the values are not amongst the accepted formats.
 
         Returns:
             The original resource, with the added values
@@ -1172,8 +1174,8 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warnings:
-            If the value is not amongst the accepted formats.
+        Warns:
+            Warning: If the value is not amongst the accepted formats.
 
         Returns:
             The original resource, with the added value
@@ -1202,8 +1204,8 @@ class Resource:
             permissions: optional permissions of this file
             comment: optional comment
 
-        Warnings:
-            If the filename is not string like
+        Warns:
+            Warning: If the filename is not string like
 
         Raises:
             InputError: If the resource already has a file or IIIF URI value
@@ -1236,8 +1238,8 @@ class Resource:
             permissions: optional permissions of this value
             comment: optional comment
 
-        Warnings:
-            If the IIIF URI is not according to the official specifications
+        Warns:
+            Warning: If the IIIF URI is not according to the official specifications
 
         Raises:
             InputError: If the resource already has a file or IIIF URI value

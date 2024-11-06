@@ -20,6 +20,8 @@ from dsp_tools.xmllib.value_checkers import is_decimal
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_string_like
 
+# ruff: noqa: D101, D102
+
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 
@@ -28,8 +30,6 @@ LIST_SEPARATOR = "\n    - "
 
 @dataclass
 class AnnotationResource:
-    """Represents an annotation to another resource of any class."""
-
     res_id: str
     label: str
     annotation_of: str
@@ -62,9 +62,9 @@ class AnnotationResource:
             comments: the comment(s) that this annotation consists of, i.e. the annotation itself (cardinality 1-n)
             permissions: permissions of this annotation resource
 
-        Warnings:
-            - If the Resource ID is not a valid string
-            - If the label is not a valid string
+        Warns:
+            Warning: If the Resource ID is not a valid string
+            Warning: If the label is not a valid string
 
         Returns:
             An annotation resource
@@ -161,8 +161,6 @@ class AnnotationResource:
 
 @dataclass
 class RegionResource:
-    """Represents a region of interest (ROI) in an image"""
-
     res_id: str
     label: str
     color: str
@@ -212,11 +210,11 @@ class RegionResource:
             comments: comments to this region (cardinality 1-n)
             permissions: permissions of this region resource
 
-        Warnings:
-            - If the Resource ID is not a valid string
-            - If the label is not a valid string
-            - If the color is not a valid color string
-            - If the geometry does not follow the specifications
+        Warns:
+            Warning: If the Resource ID is not a valid string
+            Warning: If the label is not a valid string
+            Warning: If the color is not a valid color string
+            Warning: If the geometry does not follow the specifications
 
         Returns:
             A region resource
@@ -327,8 +325,6 @@ class RegionResource:
 
 @dataclass
 class LinkResource:
-    """Represents a link between several other resources of different classes."""
-
     res_id: str
     label: str
     link_to: list[str]
@@ -482,8 +478,6 @@ class SegmentBounds:
 
 @dataclass
 class VideoSegmentResource:
-    """Represents a section of a video."""
-
     res_id: str
     label: str
     segment_of: str
@@ -542,9 +536,8 @@ class VideoSegmentResource:
         Args:
             title: Title text
 
-        Warnings:
-            If the resource already has a title.
-            In that case, the title will be replaced.
+        Warns:
+            Warning: If the resource already has a title. In that case, the title will be replaced.
 
         Returns:
             The original resource, with the added title
@@ -561,9 +554,8 @@ class VideoSegmentResource:
         Args:
             title: Title or empty value
 
-        Warnings:
-            If the resource already has a title.
-            In that case, the title will be replaced.
+        Warns:
+            Warning: If the resource already has a title. In that case, the title will be replaced.
 
         Returns:
             The original resource, with the added title
@@ -781,8 +773,6 @@ class VideoSegmentResource:
 
 @dataclass
 class AudioSegmentResource:
-    """Represents a section of an audio."""
-
     res_id: str
     label: str
     segment_of: str
@@ -841,9 +831,8 @@ class AudioSegmentResource:
         Args:
             title: Title text
 
-        Warnings:
-            If the resource already has a title.
-            In that case, the title will be replaced.
+        Warns:
+            Warning: If the resource already has a title. In that case, the title will be replaced.
 
         Returns:
             The original resource, with the added title
@@ -860,9 +849,8 @@ class AudioSegmentResource:
         Args:
             title: Title text or empty value
 
-        Warnings:
-            If the resource already has a title.
-            In that case, the title will be replaced.
+        Warns:
+            Warning: If the resource already has a title. In that case, the title will be replaced.
 
         Returns:
             The original resource, with the added title

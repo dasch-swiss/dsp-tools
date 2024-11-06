@@ -30,23 +30,91 @@ AnyResource: TypeAlias = Union[
 
 @dataclass
 class XMLRoot:
+    """
+    Root of the XML file.
+
+    Args:
+        shortcode: project shortcode
+        default_ontology: name of the default ontology
+        resources: list of resources (can be modified after creation)
+
+    Returns:
+        Instance of XMLRoot
+    """
+
     shortcode: str
     default_ontology: str
     resources: list[AnyResource] = field(default_factory=list)
 
     @staticmethod
-    def new(shortcode: str, default_ontology: str) -> XMLRoot:
+    def create_new(shortcode: str, default_ontology: str) -> XMLRoot:
+        """
+        Create a new XML root, for one file.
+
+        Args:
+            shortcode: project shortcode
+            default_ontology: name of the default ontology
+
+        Returns:
+            Instance of `XMLRoot`
+        """
         return XMLRoot(shortcode=shortcode, default_ontology=default_ontology)
 
     def add_resource(self, resource: AnyResource) -> XMLRoot:
+        """
+        Add one resource to the root.
+
+        Args:
+            resource: Any one of:
+                    `Resource`,
+                    `AnnotationResource`,
+                    `RegionResource`,
+                    `LinkResource`,
+                    `VideoSegmentResource`,
+                    `AudioSegmentResource`
+
+        Returns:
+            The XMLRoot that this method has been called on, with the added resource
+        """
         self.resources.append(resource)
         return self
 
     def add_resource_multiple(self, resources: list[AnyResource]) -> XMLRoot:
+        """
+        Add a list of resources to the root.
+
+        Args:
+            resources: A list of:
+                    `Resource`,
+                    `AnnotationResource`,
+                    `RegionResource`,
+                    `LinkResource`,
+                    `VideoSegmentResource`,
+                    `AudioSegmentResource`
+                    The types of the resources may be mixed.
+
+        Returns:
+            The XMLRoot that this method has been called on, with the added resources
+        """
         self.resources.extend(resources)
         return self
 
     def add_resource_optional(self, resource: AnyResource | None) -> XMLRoot:
+        """
+        If the resource is not None, add it to the XMLRoot, otherwise return the XMLRoot unchanged.
+
+        Args:
+            resource: Any one of:
+                    `Resource`,
+                    `AnnotationResource`,
+                    `RegionResource`,
+                    `LinkResource`,
+                    `VideoSegmentResource`,
+                    `AudioSegmentResource`
+
+        Returns:
+            The XMLRoot that this method has been called on, with the added resource
+        """
         if resource:
             self.resources.append(resource)
         return self
@@ -59,7 +127,7 @@ class XMLRoot:
             filepath: where to save the file
 
         Warning:
-            if the XML is not valid, according to the schema
+            if the XML is not valid according to the schema
         """
         root = self._serialise()
         etree.indent(root, space="    ")

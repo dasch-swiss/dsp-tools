@@ -16,7 +16,6 @@ from requests import RequestException
 
 from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.models.exceptions import PermanentTimeOutError
-from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.connection_live import ConnectionLive
 from dsp_tools.utils.connection_live import RequestParameters
 
@@ -40,28 +39,8 @@ class ResponseMock:
     headers: dict[str, Any]
     text: str
 
-
-def test_log_in_log_out() -> None:
-    con = ConnectionLive("http://example.com/")
-    con.post = Mock(return_value={"token": "token"})
-    con.login("root@example.com", "test")
-    assert con.post.call_args.kwargs["route"] == "/v2/authentication"
-    assert con.token == "token"
-    assert con.session.headers["Authorization"] == "Bearer token"
-    con.delete = Mock()
-    con.logout()
-    assert con.token is None
-    assert "Authorization" not in con.session.headers
-
-
-def test_log_in_bad_credentials() -> None:
-    con = ConnectionLive("http://example.com/")
-    con._log_response = Mock()
-    con.session.request = Mock(return_value=Mock(status_code=401))
-    with patch("dsp_tools.utils.connection_live.time.sleep") as sleep_mock:
-        with pytest.raises(UserError, match=regex.escape("Username and/or password are not valid")):
-            con.login("invalid@example.com", "wrong")
-        sleep_mock.assert_not_called()
+    def json(self) -> dict[str, Any]:
+        return cast(dict[str, Any], json.loads(self.text))
 
 
 def test_post() -> None:
@@ -137,18 +116,6 @@ def test_put_with_data() -> None:
     assert expected_params.files is None
 
 
-def test_delete() -> None:
-    con = ConnectionLive("http://example.com/")
-    con._try_network_action = Mock()
-    con.delete(route="/v2/values")
-    expected_params: RequestParameters = con._try_network_action.call_args.args[0]
-    assert expected_params.method == "DELETE"
-    assert expected_params.url == "http://example.com/v2/values"
-    assert expected_params.data is None
-    assert expected_params.headers is None
-    assert expected_params.files is None
-
-
 def test_default_timeout() -> None:
     con = ConnectionLive("http://example.com/")
     con._try_network_action = Mock()
@@ -157,11 +124,9 @@ def test_default_timeout() -> None:
         method(route="/v2/resources")
         expected_params: RequestParameters = con._try_network_action.call_args.args[0]
         assert expected_params.timeout == con.timeout_put_post, f"Method '{method.__name__}' failed"
-    for method in (con.get, con.delete):  # type: ignore[assignment]
-        method = cast(Callable[..., Any], method)
-        method(route="/v2/resources")
-        expected_params = con._try_network_action.call_args.args[0]
-        assert expected_params.timeout == con.timeout_get_delete, f"Method '{method.__name__}' failed"
+    con.get(route="/v2/resources")
+    expected_params = con._try_network_action.call_args.args[0]
+    assert expected_params.timeout == con.timeout_get, "Method 'GET' failed"
 
 
 def test_custom_timeout() -> None:
@@ -175,7 +140,7 @@ def test_custom_timeout() -> None:
 def test_custom_header() -> None:
     con = ConnectionLive("http://example.com/")
     con._try_network_action = Mock()
-    for method in (con.post, con.put, con.get, con.delete):
+    for method in (con.post, con.put, con.get):
         method = cast(Callable[..., Any], method)
         method(route="/v2/resources", headers={"foo": "bar"})
         expected_params: RequestParameters = con._try_network_action.call_args.args[0]
@@ -185,7 +150,7 @@ def test_custom_header() -> None:
 def test_custom_content_type() -> None:
     con = ConnectionLive("http://example.com/")
     con._try_network_action = Mock()
-    for method in (con.post, con.put, con.get, con.delete):
+    for method in (con.post, con.put, con.get):
         method = cast(Callable[..., Any], method)
         method(route="/v2/resources", headers={"Content-Type": "bar"})
         expected_params: RequestParameters = con._try_network_action.call_args.args[0]
@@ -195,7 +160,7 @@ def test_custom_content_type() -> None:
 def test_server_without_trailing_slash() -> None:
     con = ConnectionLive("http://example.com")
     con._try_network_action = Mock()
-    for method in (con.post, con.put, con.get, con.delete):
+    for method in (con.post, con.put, con.get):
         method = cast(Callable[..., Any], method)
         method(route="/v2/resources")
         expected_params: RequestParameters = con._try_network_action.call_args.args[0]
@@ -205,7 +170,7 @@ def test_server_without_trailing_slash() -> None:
 def test_route_without_leading_slash() -> None:
     con = ConnectionLive("http://example.com/")
     con._try_network_action = Mock()
-    for method in (con.post, con.put, con.get, con.delete):
+    for method in (con.post, con.put, con.get):
         method = cast(Callable[..., Any], method)
         method(route="v2/resources")
         expected_params: RequestParameters = con._try_network_action.call_args.args[0]
@@ -215,34 +180,11 @@ def test_route_without_leading_slash() -> None:
 def test_server_and_route_without_slash() -> None:
     con = ConnectionLive("http://example.com")
     con._try_network_action = Mock()
-    for method in (con.post, con.put, con.get, con.delete):
+    for method in (con.post, con.put, con.get):
         method = cast(Callable[..., Any], method)
         method(route="v2/resources")
         expected_params: RequestParameters = con._try_network_action.call_args.args[0]
         assert expected_params.url == "http://example.com/v2/resources", f"Method '{method.__name__}' failed"
-
-
-def test_anonymize_different_keys() -> None:
-    con = ConnectionLive("foo")
-    assert con._anonymize(None) is None
-    assert con._anonymize({"foo": "bar"}) == {"foo": "bar"}
-    assert con._anonymize({"token": "uk7m20-8gqn8"}) == {"token": "uk7m2[+7]"}
-    assert con._anonymize({"Set-Cookie": "uk7m20-8gqn8"}) == {"Set-Cookie": "uk7m2[+7]"}
-    assert con._anonymize({"Authorization": "Bearer uk7m20-8gqn8"}) == {"Authorization": "Bearer uk7m2[+7]"}
-    assert con._anonymize({"password": "uk7m20-8gqn8"}) == {"password": "************"}
-
-
-def test_anonymize_doesnt_mutate_original() -> None:
-    con = ConnectionLive("foo")
-    random = {"foo": "bar"}
-    assert con._anonymize(random) is not random
-
-
-def test_anonymize_different_lengths() -> None:
-    con = ConnectionLive("foo")
-    assert con._anonymize({"token": "uk7m20-8gqn8ir7e30"}) == {"token": "uk7m2[+13]"}
-    assert con._anonymize({"token": "uk7m2"}) == {"token": "*****"}
-    assert con._anonymize({"token": "u"}) == {"token": "*"}
 
 
 def test_try_network_action() -> None:
@@ -348,9 +290,9 @@ def test_log_request() -> None:
     expected_output = {
         "method": "GET",
         "url": "http://example.com/",
-        "headers": {"Authorization": "Bearer my-ve[+13]", "request-header": "request-value"},
+        "headers": {"Authorization": "Bearer ***", "request-header": "request-value"},
         "timeout": 1,
-        "data": {"password": "************************", "foo": "bar"},
+        "data": {"password": "***", "foo": "bar"},
     }
     with patch("dsp_tools.utils.connection_live.logger.debug") as debug_mock:
         con._log_request(params)
@@ -362,12 +304,12 @@ def test_log_response() -> None:
     response_mock = ResponseMock(
         status_code=200,
         headers={"Set-Cookie": "KnoraAuthenticationMFYGSLT", "Content-Type": "application/json"},
-        text=json.dumps({"token": "my-very-long-token", "foo": "bar"}),
+        text=json.dumps({"foo": "bar"}),
     )
     expected_output = {
         "status_code": 200,
-        "headers": {"Set-Cookie": "Knora[+21]", "Content-Type": "application/json"},
-        "content": {"token": "my-ve[+13]", "foo": "bar"},
+        "headers": {"Set-Cookie": "***", "Content-Type": "application/json"},
+        "content": {"foo": "bar"},
     }
     with patch("dsp_tools.utils.connection_live.logger.debug") as debug_mock:
         con._log_response(response_mock)  # type: ignore[arg-type]
@@ -375,11 +317,9 @@ def test_log_response() -> None:
 
 
 def test_renew_session() -> None:
-    con = ConnectionLive("http://example.com/", "my-super-secret-token")
-    assert con.get_token() == "my-super-secret-token"
+    con = ConnectionLive("http://example.com/")
     assert con.session.headers["User-Agent"] == f'DSP-TOOLS/{version("dsp-tools")}'
     con._renew_session()
-    assert con.get_token() == "my-super-secret-token"
     assert con.session.headers["User-Agent"] == f'DSP-TOOLS/{version("dsp-tools")}'
 
 

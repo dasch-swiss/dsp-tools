@@ -23,12 +23,6 @@ class RDFGraphs:
 
 
 @dataclass
-class SHACLValidationReport:
-    conforms: bool
-    validation_graph: Graph
-
-
-@dataclass
 class ValidationReportGraphs:
     conforms: bool
     validation_graph: Graph
@@ -85,6 +79,12 @@ class ResultValueTypeViolation(ValidationResult):
 
 @dataclass
 class ResultPatternViolation(ValidationResult):
+    results_message: str
+    actual_value: str
+
+
+@dataclass
+class ResultGenericViolation(ValidationResult):
     results_message: str
     actual_value: str
 

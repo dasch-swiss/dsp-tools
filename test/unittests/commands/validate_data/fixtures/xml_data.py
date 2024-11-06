@@ -196,7 +196,7 @@ def integer_value_corr_several() -> etree._Element:
 @pytest.fixture
 def list_value_corr() -> etree._Element:
     return etree.fromstring("""
-        <list-prop list="onlyList" name="http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp">
+        <list-prop list="firstList" name="http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp">
             <list>n1</list>
         </list-prop>
     """)
@@ -205,7 +205,7 @@ def list_value_corr() -> etree._Element:
 @pytest.fixture
 def list_value_corr_several() -> etree._Element:
     return etree.fromstring("""
-        <list-prop list="onlyList" name="http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp">
+        <list-prop list="firstList" name="http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp">
             <list>n1</list>
             <list>n2</list>
         </list-prop>
@@ -215,7 +215,7 @@ def list_value_corr_several() -> etree._Element:
 @pytest.fixture
 def list_value_wrong_node() -> etree._Element:
     return etree.fromstring("""
-        <list-prop list="onlyList" name="http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp">
+        <list-prop list="firstList" name="http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp">
             <list>other</list>
         </list-prop>
     """)
@@ -262,7 +262,7 @@ def resptr_value_wrong() -> etree._Element:
 def text_richtext_value_corr() -> etree._Element:
     return etree.fromstring("""
         <text-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testRichtext">
-            <text encoding="xml">Text</text>
+            <text encoding="xml"><p>Text</p></text>
         </text-prop>
     """)
 

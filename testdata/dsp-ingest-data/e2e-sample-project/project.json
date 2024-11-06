@@ -1,0 +1,49 @@
+{
+    "$schema": "../../../src/dsp_tools/resources/schema/project.json",
+    "project": {
+        "shortcode": "4125",
+        "shortname": "e2e-tp",
+        "longname": "e2e test project",
+        "descriptions": {
+            "en": "The e2e test project"
+        },
+        "keywords": [
+            "e2e-test-projec-keyword"
+        ],
+        "ontologies": [
+            {
+                "name": "e2e-testonto",
+                "label": "e2e Test ontology",
+                "properties": [
+                    {
+                        "name": "hasText",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "Text"
+                        },
+                        "gui_element": "SimpleText"
+                    }
+                ],
+                "resources": [
+                    {
+                        "name": "ImageResource",
+                        "super": "StillImageRepresentation",
+                        "labels": {
+                            "en": "Image Resource"
+                        }
+                    },
+                    {
+                        "name": "PDFResource",
+                        "super": "DocumentRepresentation",
+                        "labels": {
+                            "en": "PDF Resource"
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}

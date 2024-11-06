@@ -57,7 +57,7 @@
     </resource>
 
     <resource label="List" restype=":ClassWithEverything" id="id_list">
-        <list-prop list="onlyList" name=":testListProp">
+        <list-prop list="firstList" name=":testListProp">
             <list>n1</list>
         </list-prop>
     </resource>
@@ -81,6 +81,12 @@
             <text encoding="xml"> Text line 1
 
             line2 </text>
+        </text-prop>
+    </resource>
+
+    <resource label="Richtext" restype=":ClassWithEverything" id="id_richtext_with_xml_tags">
+        <text-prop name=":testRichtext">
+            <text encoding="xml"><p>Text</p></text>
         </text-prop>
     </resource>
 

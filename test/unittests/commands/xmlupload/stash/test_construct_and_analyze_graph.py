@@ -26,13 +26,13 @@ from dsp_tools.commands.xmlupload.stash.graph_models import XMLLink
 
 def test_create_info_from_xml_for_graph_from_one_resource() -> None:
     test_ele = etree.fromstring(
-        """<resource label="res_A_19" restype=":TestThing" id="res_A_19" permissions="res-default">
+        """<resource label="res_A_19" restype=":TestThing" id="res_A_19" permissions="open">
             <resptr-prop name=":hasResource1">
-                <resptr permissions="prop-default">res_B_19</resptr>
-                <resptr permissions="prop-default">res_C_19</resptr>
+                <resptr permissions="open">res_B_19</resptr>
+                <resptr permissions="open">res_C_19</resptr>
             </resptr-prop>
             <text-prop name=":hasRichtext">
-                <text permissions="prop-default" encoding="xml">
+                <text permissions="open" encoding="xml">
                     <a class="salsah-link" href="IRI:res_B_19:IRI">res_B_19</a>
                     <a class="salsah-link" href="IRI:res_C_19:IRI">res_C_19</a>
                 </text>
@@ -49,14 +49,14 @@ def test_create_info_from_xml_for_graph_from_one_resource() -> None:
 
 def test_create_info_from_xml_for_graph_from_one_resource_one() -> None:
     test_ele = etree.fromstring(
-        """<resource label="res_A_11" restype=":TestThing" id="res_A_11" permissions="res-default">
+        """<resource label="res_A_11" restype=":TestThing" id="res_A_11" permissions="open">
             <text-prop name=":hasRichtext">
-                <text permissions="prop-default" encoding="xml">
+                <text permissions="open" encoding="xml">
                     <a class="salsah-link" href="IRI:res_B_11:IRI">res_B_11</a>
                 </text>
             </text-prop>
             <resptr-prop name=":hasResource1">
-                <resptr permissions="prop-default">res_B_11</resptr>
+                <resptr permissions="open">res_B_11</resptr>
             </resptr-prop>
         </resource>"""
     )
@@ -68,21 +68,19 @@ def test_create_info_from_xml_for_graph_from_one_resource_one() -> None:
 
 
 def test_create_info_from_xml_for_graph_from_one_resource_no_links() -> None:
-    test_ele = etree.fromstring(
-        '<resource label="res_B_18" restype=":TestThing" id="res_B_18" permissions="res-default"/>'
-    )
+    test_ele = etree.fromstring('<resource label="res_B_18" restype=":TestThing" id="res_B_18" permissions="open"/>')
     res_resptr, res_xml = _create_info_from_xml_for_graph_from_one_resource(test_ele)
     assert (res_resptr, res_xml) == ([], [])
 
 
 def test_text_only_create_info_from_xml_for_graph_from_one_resource() -> None:
     test_ele = etree.fromstring(
-        """<resource label="res_C_18" restype=":TestThing" id="res_C_18" permissions="res-default">
+        """<resource label="res_C_18" restype=":TestThing" id="res_C_18" permissions="open">
             <text-prop name=":hasRichtext">
-                <text permissions="prop-default" encoding="xml">
+                <text permissions="open" encoding="xml">
                     <a class="salsah-link" href="IRI:res_A_18:IRI">res_A_18</a>
                 </text>
-                <text permissions="prop-default" encoding="xml">
+                <text permissions="open" encoding="xml">
                     <a class="salsah-link" href="IRI:res_B_18:IRI">res_B_18</a>
                 </text>
             </text-prop>
@@ -96,7 +94,7 @@ def test_text_only_create_info_from_xml_for_graph_from_one_resource() -> None:
 
 def test_extract_id_one_text_with_one_id() -> None:
     test_ele = etree.fromstring(
-        """<text permissions="prop-default" encoding="xml">
+        """<text permissions="open" encoding="xml">
             <a class="salsah-link" href="IRI:res_A_11:IRI">res_A_11</a>
         </text>"""
     )
@@ -106,7 +104,7 @@ def test_extract_id_one_text_with_one_id() -> None:
 
 def test_extract_id_one_text_with_iri() -> None:
     test_ele = etree.fromstring(
-        '<text permissions="prop-default" encoding="xml">'
+        '<text permissions="open" encoding="xml">'
         '<a class="salsah-link" href="http://rdfh.ch/0801/RDE7_KU1STuDhHnGr5uu0g">res_A_11</a></text>'
     )
     res = _extract_ids_from_one_text_value(test_ele)
@@ -115,7 +113,7 @@ def test_extract_id_one_text_with_iri() -> None:
 
 def test_extract_id_one_text_with_several_id() -> None:
     test_ele = etree.fromstring(
-        """<text permissions="prop-default" encoding="xml">
+        """<text permissions="open" encoding="xml">
             <a class="salsah-link" href="IRI:res_A_11:IRI">res_A_11</a>
             <a class="salsah-link" href="IRI:res_B_11:IRI">res_B_11</a>
             <a class="salsah-link" href="IRI:res_B_11:IRI">res_B_11</a>
@@ -128,10 +126,10 @@ def test_extract_id_one_text_with_several_id() -> None:
 def test_extract_ids_from_text_prop_with_several_text_links() -> None:
     test_ele = etree.fromstring(
         """<text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">
+            <text permissions="open" encoding="xml">
                 <a class="salsah-link" href="IRI:res_A_18:IRI">res_A_18</a>
             </text>
-            <text permissions="prop-default" encoding="xml">
+            <text permissions="open" encoding="xml">
                 <a class="salsah-link" href="IRI:res_B_18:IRI">res_B_18</a>
             </text>
         </text-prop>"""
@@ -144,10 +142,10 @@ def test_extract_ids_from_text_prop_with_several_text_links() -> None:
 def test_extract_ids_from_text_prop_with_iris_and_ids() -> None:
     test_ele = etree.fromstring(
         """<text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">
+            <text permissions="open" encoding="xml">
                 <a class="salsah-link" href="http://rdfh.ch/4123/vEpjk7zAQBC2j3pvTGSxcw">foo</a>
             </text>
-            <text permissions="prop-default" encoding="xml">
+            <text permissions="open" encoding="xml">
                 <a class="salsah-link" href="IRI:res_B_18:IRI">res_B_18</a>
             </text>
         </text-prop>"""
@@ -164,7 +162,7 @@ def test_create_class_instance_resptr_link_one_link() -> None:
     test_ele = etree.fromstring(
         """<resptr-prop xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
         name=":hasResource1">
-            <resptr permissions="prop-default">res_C_15</resptr>
+            <resptr permissions="open">res_C_15</resptr>
         </resptr-prop>"""
     )
     res = _create_resptr_link_objects("res_A_15", test_ele)
@@ -174,9 +172,9 @@ def test_create_class_instance_resptr_link_one_link() -> None:
 def test_create_class_instance_resptr_link_several() -> None:
     test_ele = etree.fromstring(
         """<resptr-prop name=":hasResource1">
-            <resptr permissions="prop-default">res_A_13</resptr>
-            <resptr permissions="prop-default">res_B_13</resptr>
-            <resptr permissions="prop-default">res_C_13</resptr>
+            <resptr permissions="open">res_A_13</resptr>
+            <resptr permissions="open">res_B_13</resptr>
+            <resptr permissions="open">res_C_13</resptr>
         </resptr-prop>"""
     )
     res = _create_resptr_link_objects("res_D_13", test_ele)
@@ -189,9 +187,9 @@ def test_create_class_instance_resptr_link_several() -> None:
 def test_create_class_instance_resptr_link_with_iris() -> None:
     test_ele = etree.fromstring(
         """<resptr-prop name=":hasResource1">
-            <resptr permissions="prop-default">res_A_13</resptr>
-            <resptr permissions="prop-default">res_B_13</resptr>
-            <resptr permissions="prop-default">http://rdfh.ch/4123/vEpjk7zAQBC2j3pvTGSxcw</resptr>
+            <resptr permissions="open">res_A_13</resptr>
+            <resptr permissions="open">res_B_13</resptr>
+            <resptr permissions="open">http://rdfh.ch/4123/vEpjk7zAQBC2j3pvTGSxcw</resptr>
         </resptr-prop>"""
     )
     res = _create_resptr_link_objects("foo", test_ele)
@@ -207,19 +205,19 @@ def test_create_class_instance_resptr_link_with_iris() -> None:
 def test_create_info_from_xml_for_graph_check_UUID_in_root() -> None:
     root = etree.fromstring(
         """<knora shortcode="0700" default-ontology="simcir">
-            <resource label="res_A_11" restype=":TestThing" id="res_A_11" permissions="res-default">
+            <resource label="res_A_11" restype=":TestThing" id="res_A_11" permissions="open">
                 <resptr-prop name=":hasResource1">
-                    <resptr permissions="prop-default">res_B_11</resptr>
+                    <resptr permissions="open">res_B_11</resptr>
                 </resptr-prop>
             </resource>
-            <resource label="res_B_11" restype=":TestThing" id="res_B_11" permissions="res-default">
+            <resource label="res_B_11" restype=":TestThing" id="res_B_11" permissions="open">
                 <text-prop name=":hasRichtext">
-                    <text permissions="prop-default" encoding="xml">
+                    <text permissions="open" encoding="xml">
                         Start text<a class="salsah-link" href="IRI:res_C_11:IRI">res_C_11</a>end text.
                     </text>
                 </text-prop>
             </resource>
-            <resource label="res_C_11" restype=":TestThing" id="res_C_11" permissions="res-default"></resource>
+            <resource label="res_C_11" restype=":TestThing" id="res_C_11" permissions="open"></resource>
         </knora>"""
     )
     res_resptr_li, res_xml_li, res_all_ids = create_info_from_xml_for_graph(root)

@@ -5,8 +5,10 @@ from lxml import etree
 from rdflib import Graph
 from termcolor import cprint
 
-from dsp_tools.commands.validate_data.api_connection import OntologyConnection
-from dsp_tools.commands.validate_data.api_connection import ShaclValidator
+from dsp_tools.commands.validate_data.api_clients import ListClient
+from dsp_tools.commands.validate_data.api_clients import OntologyClient
+from dsp_tools.commands.validate_data.api_clients import ShaclValidator
+from dsp_tools.commands.validate_data.api_connection import ApiConnection
 from dsp_tools.commands.validate_data.deserialise_input import deserialise_xml
 from dsp_tools.commands.validate_data.make_data_rdf import make_data_rdf
 from dsp_tools.commands.validate_data.models.data_deserialised import ProjectDeserialised
@@ -66,13 +68,15 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
 
 def _get_validation_result(api_url: str, filepath: Path, save_graphs: bool) -> ValidationReportGraphs:
     data_rdf, shortcode = _get_data_info_from_file(filepath, api_url)
-    onto_con = OntologyConnection(api_url, shortcode)
-    rdf_graphs = _create_graphs(onto_con, data_rdf)
+    api_con = ApiConnection(api_url)
+    onto_client = OntologyClient(api_con, shortcode)
+    list_client = ListClient(api_con, shortcode)
+    rdf_graphs = _create_graphs(onto_client, list_client, data_rdf)
     generic_filepath = Path()
     if save_graphs:
         generic_filepath = _save_graphs(filepath, rdf_graphs)
-    val = ShaclValidator(api_url)
-    report = _validate(val, rdf_graphs)
+    val = ShaclValidator(api_con, rdf_graphs)
+    report = _validate(val)
     if save_graphs:
         report.validation_graph.serialize(f"{generic_filepath}_VALIDATION_REPORT.ttl")
     return report
@@ -88,13 +92,14 @@ def _inform_about_experimental_feature() -> None:
     cprint(LIST_SEPARATOR.join(what_is_validated), color="magenta", attrs=["bold"])
 
 
-def _create_graphs(onto_con: OntologyConnection, data_rdf: DataRDF) -> RDFGraphs:
-    ontologies = _get_project_ontos(onto_con)
-    knora_ttl = onto_con.get_knora_api()
+def _create_graphs(onto_client: OntologyClient, list_client: ListClient, data_rdf: DataRDF) -> RDFGraphs:
+    ontologies = _get_project_ontos(onto_client)
+    all_lists = list_client.get_lists()
+    knora_ttl = onto_client.get_knora_api()
     knora_api = Graph()
     knora_api.parse(data=knora_ttl, format="ttl")
     onto_for_construction = deepcopy(ontologies) + knora_api
-    shapes_graph = construct_shapes_graph(onto_for_construction)
+    shapes_graph = construct_shapes_graph(onto_for_construction, all_lists)
     api_shapes = Graph()
     api_shapes.parse("src/dsp_tools/resources/validate_data/api-shapes.ttl")
     shapes_graph += api_shapes
@@ -107,8 +112,8 @@ def _create_graphs(onto_con: OntologyConnection, data_rdf: DataRDF) -> RDFGraphs
     )
 
 
-def _get_project_ontos(onto_con: OntologyConnection) -> Graph:
-    all_ontos = onto_con.get_ontologies()
+def _get_project_ontos(onto_client: OntologyClient) -> Graph:
+    all_ontos = onto_client.get_ontologies()
     onto_g = Graph()
     for onto in all_ontos:
         og = Graph()
@@ -133,16 +138,14 @@ def _save_graphs(filepath: Path, rdf_graphs: RDFGraphs) -> Path:
     return generic_filepath
 
 
-def _validate(validator: ShaclValidator, rdf_graphs: RDFGraphs) -> ValidationReportGraphs:
-    shapes_str = rdf_graphs.get_shacl_and_onto_str()
-    data_str = rdf_graphs.get_data_and_onto_str()
-    validation_results = validator.validate(data_str, shapes_str)
+def _validate(validator: ShaclValidator) -> ValidationReportGraphs:
+    validation_results = validator.validate()
     return ValidationReportGraphs(
         conforms=validation_results.conforms,
         validation_graph=validation_results.validation_graph,
-        shacl_graph=rdf_graphs.shapes,
-        onto_graph=rdf_graphs.ontos,
-        data_graph=rdf_graphs.data,
+        shacl_graph=validator.rdf_graphs.shapes,
+        onto_graph=validator.rdf_graphs.ontos,
+        data_graph=validator.rdf_graphs.data,
     )
 
 

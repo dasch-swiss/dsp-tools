@@ -8,6 +8,7 @@ from rdflib import Graph
 from rdflib import Literal
 
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
+from dsp_tools.commands.validate_data.models.validation import ResultGenericViolation
 from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMinCardinalityViolation
@@ -635,6 +636,123 @@ def extracted_unique_value_iri() -> ResultUniqueValueViolation:
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testHasLinkTo,
         actual_value=DATA.link_valueTarget_id,
+    )
+
+
+@pytest.fixture
+def report_unknown_list_node(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
+    validation_str = f"""{PREFIXES}
+    [ 
+    a sh:ValidationResult ;
+sh:detail _:bn_list_node_non_existent ;
+sh:focusNode <http://data/list_node_non_existent> ;
+sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#firstList_NodeShape>" ;
+sh:resultPath onto:testListProp ;
+sh:resultSeverity sh:Violation ;
+sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+sh:sourceShape onto:testListProp_PropShape ;
+sh:value <http://data/value_list_node_non_existent> ] .
+    
+    _:bn_list_node_non_existent a sh:ValidationResult ;
+    sh:focusNode <http://data/value_list_node_non_existent> ;
+    sh:resultMessage "Unknown list node for list 'firstList'." ;
+    sh:resultPath api-shapes:listNodeAsString ;
+    sh:resultSeverity sh:Violation ;
+    sh:sourceConstraintComponent sh:InConstraintComponent ;
+    sh:sourceShape [ ] ;
+    sh:value "other" .
+    """
+    validation_g = Graph()
+    validation_g.parse(data=validation_str, format="ttl")
+    data_str = f"""{PREFIXES}
+    <http://data/list_node_non_existent> a onto:ClassWithEverything .
+    """
+    onto_data_g = Graph()
+    onto_data_g += onto_graph
+    onto_data_g.parse(data=data_str, format="ttl")
+    val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+    detail_bn = next(validation_g.objects(val_bn, SH.detail))
+    detail = DetailBaseInfo(
+        detail_bn=detail_bn,
+        source_constraint_component=SH.InConstraintComponent,
+    )
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=SH.NodeConstraintComponent,
+        resource_iri=DATA.list_node_non_existent,
+        res_class_type=ONTO.ClassWithEverything,
+        result_path=ONTO.testListProp,
+        detail=detail,
+    )
+    return validation_g, onto_data_g, base_info
+
+
+@pytest.fixture
+def extracted_unknown_list_node() -> ResultGenericViolation:
+    return ResultGenericViolation(
+        res_iri=DATA.list_node_non_existent,
+        res_class=ONTO.ClassWithEverything,
+        property=ONTO.testListProp,
+        results_message="Unknown list node for list 'firstList'.",
+        actual_value="other",
+    )
+
+
+@pytest.fixture
+def report_unknown_list_name(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
+    validation_str = f"""{PREFIXES}
+[ a sh:ValidationResult ;
+sh:detail _:bn_list_name_non_existent ;
+sh:focusNode <http://data/list_name_non_existent> ;
+sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#firstList_NodeShape>" ;
+sh:resultPath onto:testListProp ;
+sh:resultSeverity sh:Violation ;
+sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+sh:sourceShape onto:testListProp_PropShape ;
+sh:value <http://data/value_list_name_non_existent> ] .
+
+_:bn_list_name_non_existent a sh:ValidationResult ;
+    sh:focusNode <http://data/value_list_name_non_existent> ;
+    sh:resultMessage "The list that should be used with this property is 'firstList'." ;
+    sh:resultPath api-shapes:listNameAsString ;
+    sh:resultSeverity sh:Violation ;
+    sh:sourceConstraintComponent sh:InConstraintComponent ;
+    sh:sourceShape _:bn_source ;
+    sh:value "other" .
+    """
+    validation_g = Graph()
+    validation_g.parse(data=validation_str, format="ttl")
+    data_str = f"""{PREFIXES}
+    <http://data/list_name_non_existent> a onto:ClassWithEverything .
+    """
+    onto_data_g = Graph()
+    onto_data_g += onto_graph
+    onto_data_g.parse(data=data_str, format="ttl")
+    val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+    detail_bn = next(validation_g.objects(val_bn, SH.detail))
+    detail = DetailBaseInfo(
+        detail_bn=detail_bn,
+        source_constraint_component=SH.InConstraintComponent,
+    )
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=SH.NodeConstraintComponent,
+        resource_iri=DATA.list_name_non_existent,
+        res_class_type=ONTO.ClassWithEverything,
+        result_path=ONTO.testListProp,
+        detail=detail,
+    )
+    return validation_g, onto_data_g, base_info
+
+
+@pytest.fixture
+def extracted_unknown_list_name() -> ResultGenericViolation:
+    return ResultGenericViolation(
+        res_iri=DATA.list_name_non_existent,
+        res_class=ONTO.ClassWithEverything,
+        property=ONTO.testListProp,
+        results_message="The list that should be used with this property is 'firstList'.",
+        actual_value="other",
     )
 
 

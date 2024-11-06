@@ -45,7 +45,7 @@
     </resource>
 
     <resource label="List" restype=":ClassWithEverything" id="id_list">
-        <list-prop list="onlyList" name=":testListProp">
+        <list-prop list="firstList" name=":testListProp">
             <list>n1</list>
         </list-prop>
     </resource>
@@ -96,13 +96,13 @@
 
     <region label="Region" id="region_1">
         <color-prop name="hasColor">
-            <color permissions="prop-restricted">#5d1f1e</color>
+            <color permissions="restricted">#5d1f1e</color>
         </color-prop>
         <resptr-prop name="isRegionOf">
-            <resptr permissions="prop-default">image_thing_0</resptr>
+            <resptr permissions="open">image_thing_0</resptr>
         </resptr-prop>
         <geometry-prop name="hasGeometry">
-            <geometry permissions="prop-default">
+            <geometry permissions="open">
                 {
                     "status": "active",
                     "type": "polygon",
@@ -115,7 +115,7 @@
             </geometry>
         </geometry-prop>
         <text-prop name="hasComment">
-            <text encoding="xml" permissions="prop-default">
+            <text encoding="xml" permissions="open">
                 This is a polygon-formed region of interest of an image. It is also displayed as Annotation.
             </text>
         </text-prop>

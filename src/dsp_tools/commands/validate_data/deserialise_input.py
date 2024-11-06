@@ -129,7 +129,18 @@ def _deserialise_text_prop(prop: etree._Element) -> list[SimpleTextDeserialised 
     for val in prop.iterchildren():
         match val.attrib["encoding"]:
             case "utf8":
-                all_vals.append(SimpleTextDeserialised(prop_name, val.text))
+                all_vals.append(SimpleTextDeserialised(prop_name, _get_text_as_string(val)))
             case "xml":
-                all_vals.append(RichtextDeserialised(prop_name, val.text))
+                all_vals.append(RichtextDeserialised(prop_name, _get_text_as_string(val)))
     return all_vals
+
+
+def _get_text_as_string(value: etree._Element) -> str | None:
+    if len(value):
+        text_list = []
+        if found := value.text:
+            text_list = [found]
+        text_list.extend([etree.tostring(child, encoding="unicode", method="xml") for child in value])
+        return "".join(text_list).strip()
+    else:
+        return value.text

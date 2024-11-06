@@ -5,9 +5,11 @@ from rdflib import Graph
 from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.models.api_responses import OneList
+from dsp_tools.commands.validate_data.models.api_responses import SHACLListInfo
 from dsp_tools.commands.validate_data.sparql.value_shacl import _add_property_shapes_to_class_shapes
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_link_value_shape
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_list_node_shape
+from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_list_property_shape_with_collection
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_property_type_shape_based_on_object_type
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_property_type_text_value
 from test.unittests.commands.validate_data.constants import API_SHAPES
@@ -121,6 +123,28 @@ class TestConstructListNode:
         result = _construct_one_list_node_shape(test_list)
         nodeshape_iri = URIRef("http://rdfh.ch/lists/9999/test")
         assert next(result.subjects(RDF.type, SH.NodeShape)) == nodeshape_iri
+
+    def test_construct_one_list_property_shape_with_collection_one(self) -> None:
+        test_info = SHACLListInfo(
+            list_iri=URIRef("http://rdfh.ch/lists/9999/test"),
+            sh_path=ONTO.testListProp,
+            sh_message="Test",
+            sh_in=["one"],
+        )
+        result = _construct_one_list_property_shape_with_collection(test_info)
+        number_of_strings_in_list = 1
+        assert len(list(result.objects(predicate=RDF.first))) == number_of_strings_in_list
+
+    def test_construct_one_list_property_shape_with_collection_three(self) -> None:
+        test_info = SHACLListInfo(
+            list_iri=URIRef("http://rdfh.ch/lists/9999/test"),
+            sh_path=ONTO.testListProp,
+            sh_message="Test",
+            sh_in=["one", "two", "three"],
+        )
+        result = _construct_one_list_property_shape_with_collection(test_info)
+        number_of_strings_in_list = 3
+        assert len(list(result.objects(predicate=RDF.first))) == number_of_strings_in_list
 
 
 if __name__ == "__main__":

@@ -84,7 +84,7 @@ class AnnotationResource:
             comment: Comment text
 
         Returns:
-            The original resource that this method has been called on, with the added comment
+            The original resource, with the added comment
         """
         self.comments.append(comment)
         return self
@@ -97,7 +97,7 @@ class AnnotationResource:
             comments: List of comment texts
 
         Returns:
-            The original resource that this method has been called on, with the added comments
+            The original resource, with the added comments
         """
         self.comments.extend(comments)
         return self
@@ -110,7 +110,7 @@ class AnnotationResource:
             comment: Comment or empty value
 
         Returns:
-            The original resource that this method has been called on, with the added comment
+            The original resource, with the added comment
         """
         if is_nonempty_value(comment):
             self.comments.append(comment)
@@ -131,7 +131,7 @@ class AnnotationResource:
             InputError: if metadata already exists
 
         Returns:
-            The original resource that this method has been called on, with the added metadata
+            The original resource, with the added metadata
         """
         if self.migration_metadata:
             raise InputError(
@@ -237,7 +237,7 @@ class RegionResource:
             comment: Comment text
 
         Returns:
-            The original resource that this method has been called on, with the added comment
+            The original resource, with the added comment
         """
         self.comments.append(comment)
         return self
@@ -250,7 +250,7 @@ class RegionResource:
             comments: List of comment texts
 
         Returns:
-            The original resource that this method has been called on, with the added comments
+            The original resource, with the added comments
         """
         self.comments.extend(comments)
         return self
@@ -263,7 +263,7 @@ class RegionResource:
             comment: Comment or empty value
 
         Returns:
-            The original resource that this method has been called on, with the added comment
+            The original resource, with the added comment
         """
         if is_nonempty_value(comment):
             self.comments.append(comment)
@@ -284,7 +284,7 @@ class RegionResource:
             InputError: if metadata already exists
 
         Returns:
-            The original resource that this method has been called on, with the added metadata
+            The original resource, with the added metadata
         """
         if self.migration_metadata:
             raise InputError(
@@ -373,7 +373,7 @@ class LinkResource:
             comment: Comment text
 
         Returns:
-            The original resource that this method has been called on, with the added comment
+            The original resource, with the added comment
         """
         self.comments.append(comment)
         return self
@@ -386,7 +386,7 @@ class LinkResource:
             comments: List of comment texts
 
         Returns:
-            The original resource that this method has been called on, with the added comments
+            The original resource, with the added comments
         """
         self.comments.extend(comments)
         return self
@@ -399,7 +399,7 @@ class LinkResource:
             comment: Comment or empty value
 
         Returns:
-            The original resource that this method has been called on, with the added comment
+            The original resource, with the added comment
         """
         if is_nonempty_value(comment):
             self.comments.append(comment)
@@ -420,7 +420,7 @@ class LinkResource:
             InputError: if metadata already exists
 
         Returns:
-            The original resource that this method has been called on, with the added metadata
+            The original resource, with the added metadata
         """
         if self.migration_metadata:
             raise InputError(
@@ -544,7 +544,7 @@ class VideoSegmentResource:
             In that case, the title will be replaced.
 
         Returns:
-            The original resource that this method has been called on, with the added title
+            The original resource, with the added title
         """
         if self.title:
             _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
@@ -563,7 +563,7 @@ class VideoSegmentResource:
             In that case, the title will be replaced.
 
         Returns:
-            The original resource that this method has been called on, with the added title
+            The original resource, with the added title
         """
         if is_nonempty_value(title):
             if self.title:
@@ -579,7 +579,7 @@ class VideoSegmentResource:
             comment: Comment text
 
         Returns:
-            The original resource that this method has been called on, with the added comment
+            The original resource, with the added comment
         """
         self.comments.append(comment)
         return self
@@ -592,7 +592,7 @@ class VideoSegmentResource:
             comments: List of comment texts
 
         Returns:
-            The original resource that this method has been called on, with the added comments
+            The original resource, with the added comments
         """
         self.comments.extend(comments)
         return self
@@ -605,7 +605,7 @@ class VideoSegmentResource:
             comment: Comment or empty value
 
         Returns:
-            The original resource that this method has been called on, with the added comment
+            The original resource, with the added comment
         """
         if is_nonempty_value(comment):
             self.comments.append(comment)
@@ -619,7 +619,7 @@ class VideoSegmentResource:
             description: text
 
         Returns:
-            The original resource that this method has been called on, with the added description
+            The original resource, with the added description
         """
         self.descriptions.append(description)
         return self
@@ -632,7 +632,7 @@ class VideoSegmentResource:
             descriptions: list of text
 
         Returns:
-            The original resource that this method has been called on, with the added descriptions
+            The original resource, with the added descriptions
         """
         self.descriptions.extend(descriptions)
         return self
@@ -645,7 +645,7 @@ class VideoSegmentResource:
             description: value
 
         Returns:
-            The original resource that this method has been called on, with the added description
+            The original resource, with the added description
         """
         if is_nonempty_value(description):
             self.descriptions.append(description)
@@ -659,7 +659,7 @@ class VideoSegmentResource:
             keyword: text
 
         Returns:
-            The original resource that this method has been called on, with the added keyword
+            The original resource, with the added keyword
         """
         self.keywords.append(keyword)
         return self
@@ -672,7 +672,7 @@ class VideoSegmentResource:
             keywords: list of text
 
         Returns:
-            The original resource that this method has been called on, with the added keywords
+            The original resource, with the added keywords
         """
         self.keywords.extend(keywords)
         return self
@@ -685,7 +685,7 @@ class VideoSegmentResource:
             keyword: value
 
         Returns:
-            The original resource that this method has been called on, with the added keyword
+            The original resource, with the added keyword
         """
         if is_nonempty_value(keyword):
             self.keywords.append(keyword)
@@ -699,7 +699,7 @@ class VideoSegmentResource:
             relates_to: ID of the related resource
 
         Returns:
-            The original resource that this method has been called on, with the added related resource
+            The original resource, with the added related resource
         """
         self.relates_to.append(relates_to)
         return self
@@ -712,7 +712,7 @@ class VideoSegmentResource:
             relates_to: IDs of the related resources
 
         Returns:
-            The original resource that this method has been called on, with the added related resources
+            The original resource, with the added related resources
         """
         self.relates_to.extend(relates_to)
         return self
@@ -725,7 +725,7 @@ class VideoSegmentResource:
             relates_to: ID of the related resource
 
         Returns:
-            The original resource that this method has been called on, with the added related resources
+            The original resource, with the added related resources
         """
         if is_nonempty_value(relates_to):
             self.relates_to.append(relates_to)
@@ -746,7 +746,7 @@ class VideoSegmentResource:
             InputError: if metadata already exists
 
         Returns:
-            The original resource that this method has been called on, with the added metadata
+            The original resource, with the added metadata
         """
         if self.migration_metadata:
             raise InputError(
@@ -843,7 +843,7 @@ class AudioSegmentResource:
             In that case, the title will be replaced.
 
         Returns:
-            The original resource that this method has been called on, with the added title
+            The original resource, with the added title
         """
         if self.title:
             _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
@@ -862,7 +862,7 @@ class AudioSegmentResource:
             In that case, the title will be replaced.
 
         Returns:
-            The original resource that this method has been called on, with the added title
+            The original resource, with the added title
         """
         if is_nonempty_value(title):
             if self.title:
@@ -878,7 +878,7 @@ class AudioSegmentResource:
             comment: Comment text
 
         Returns:
-            The original resource that this method has been called on, with the added comment
+            The original resource, with the added comment
         """
         self.comments.append(comment)
         return self
@@ -891,7 +891,7 @@ class AudioSegmentResource:
             comments: List of comment texts
 
         Returns:
-            The original resource that this method has been called on, with the added comments
+            The original resource, with the added comments
         """
         self.comments.extend(comments)
         return self
@@ -904,7 +904,7 @@ class AudioSegmentResource:
             comment: Comment or empty value
 
         Returns:
-            The original resource that this method has been called on, with the added comment
+            The original resource, with the added comment
         """
         if is_nonempty_value(comment):
             self.comments.append(comment)
@@ -918,7 +918,7 @@ class AudioSegmentResource:
             description: text
 
         Returns:
-            The original resource that this method has been called on, with the added description
+            The original resource, with the added description
         """
         self.descriptions.append(description)
         return self
@@ -931,7 +931,7 @@ class AudioSegmentResource:
             descriptions: list of text
 
         Returns:
-            The original resource that this method has been called on, with the added descriptions
+            The original resource, with the added descriptions
         """
         self.descriptions.extend(descriptions)
         return self
@@ -944,7 +944,7 @@ class AudioSegmentResource:
             description: value
 
         Returns:
-            The original resource that this method has been called on, with the added description
+            The original resource, with the added description
         """
         if is_nonempty_value(description):
             self.descriptions.append(description)
@@ -958,7 +958,7 @@ class AudioSegmentResource:
             keyword: text
 
         Returns:
-            The original resource that this method has been called on, with the added keyword
+            The original resource, with the added keyword
         """
         self.keywords.append(keyword)
         return self
@@ -971,7 +971,7 @@ class AudioSegmentResource:
             keywords: list of text
 
         Returns:
-            The original resource that this method has been called on, with the added keywords
+            The original resource, with the added keywords
         """
         self.keywords.extend(keywords)
         return self
@@ -984,7 +984,7 @@ class AudioSegmentResource:
             keyword: value
 
         Returns:
-            The original resource that this method has been called on, with the added keyword
+            The original resource, with the added keyword
         """
         if is_nonempty_value(keyword):
             self.keywords.append(keyword)
@@ -998,7 +998,7 @@ class AudioSegmentResource:
             relates_to: ID of the related resource
 
         Returns:
-            The original resource that this method has been called on, with the added related resource
+            The original resource, with the added related resource
         """
         self.relates_to.append(relates_to)
         return self
@@ -1011,7 +1011,7 @@ class AudioSegmentResource:
             relates_to: IDs of the related resources
 
         Returns:
-            The original resource that this method has been called on, with the added related resources
+            The original resource, with the added related resources
         """
         self.relates_to.extend(relates_to)
         return self
@@ -1024,7 +1024,7 @@ class AudioSegmentResource:
             relates_to: ID of the related resource
 
         Returns:
-            The original resource that this method has been called on, with the added related resources
+            The original resource, with the added related resources
         """
         if is_nonempty_value(relates_to):
             self.relates_to.append(relates_to)
@@ -1045,7 +1045,7 @@ class AudioSegmentResource:
             InputError: if metadata already exists
 
         Returns:
-            The original resource that this method has been called on, with the added metadata
+            The original resource, with the added metadata
         """
         if self.migration_metadata:
             raise InputError(

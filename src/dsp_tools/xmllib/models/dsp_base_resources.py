@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from dataclasses import field
 from typing import Any
 
-import pandas as pd
 from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
@@ -18,6 +17,7 @@ from dsp_tools.xmllib.models.values import Richtext
 from dsp_tools.xmllib.value_checkers import find_geometry_problem
 from dsp_tools.xmllib.value_checkers import is_color
 from dsp_tools.xmllib.value_checkers import is_decimal
+from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_string_like
 
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
@@ -28,6 +28,8 @@ LIST_SEPARATOR = "\n    - "
 
 @dataclass
 class AnnotationResource:
+    """Represents an annotation to another resource of any class."""
+
     res_id: str
     label: str
     annotation_of: str
@@ -40,13 +42,33 @@ class AnnotationResource:
         _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
 
     @staticmethod
-    def new(
+    def create_new(
         res_id: str,
         label: str,
         annotation_of: str,
         comments: list[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> AnnotationResource:
+        """
+        Creates a new annotation resource.
+        An annotation provides metadata to another resource.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#annotation)
+
+        Args:
+            res_id: ID of this annotation resource
+            label: label of this annotation resource
+            annotation_of: ID of the resource that this annotation refers to (cardinality 1)
+            comments: the comment(s) that this annotation consists of, i.e. the annotation itself (cardinality 1-n)
+            permissions: permissions of this annotation resource
+
+        Warnings:
+            - If the Resource ID is not a valid string
+            - If the label is not a valid string
+
+        Returns:
+            An annotation resource
+        """
         return AnnotationResource(
             res_id=res_id,
             label=label,
@@ -56,21 +78,62 @@ class AnnotationResource:
         )
 
     def add_comment(self, comment: str) -> AnnotationResource:
+        """
+        Add a comment to the resource
+
+        Args:
+            comment: text
+
+        Returns:
+            The original resource, with the added comment
+        """
         self.comments.append(comment)
         return self
 
     def add_comment_multiple(self, comments: list[str]) -> AnnotationResource:
+        """
+        Add several comments to the resource
+
+        Args:
+            comments: List of texts
+
+        Returns:
+            The original resource, with the added comments
+        """
         self.comments.extend(comments)
         return self
 
     def add_comment_optional(self, comment: Any) -> AnnotationResource:
-        if not pd.isna(comment):
+        """
+        If the value is not empty, add it as comment, otherwise return the resource unchanged.
+
+        Args:
+            comment: Comment or empty value
+
+        Returns:
+            The original resource, with the added comment
+        """
+        if is_nonempty_value(comment):
             self.comments.append(comment)
         return self
 
     def add_migration_metadata(
         self, creation_date: str | None, iri: str | None = None, ark: str | None = None
     ) -> AnnotationResource:
+        """
+        Add metadata from a SALSAH migration.
+
+        Args:
+            creation_date: Creation date of the resource in SALSAH
+            iri: Original IRI in SALSAH
+            ark: Original ARK in SALSAH
+
+        Raises:
+            InputError: if metadata already exists
+
+        Returns:
+            The original resource, with the added metadata
+        """
         if self.migration_metadata:
             raise InputError(
                 f"The resource with the ID '{self.res_id}' already contains migration metadata, "
@@ -98,6 +161,8 @@ class AnnotationResource:
 
 @dataclass
 class RegionResource:
+    """Represents a region of interest (ROI) in an image"""
+
     res_id: str
     label: str
     color: str
@@ -121,7 +186,7 @@ class RegionResource:
             warnings.warn(DspToolsUserWarning(msg))
 
     @staticmethod
-    def new(
+    def create_new(
         res_id: str,
         label: str,
         color: str,
@@ -130,6 +195,32 @@ class RegionResource:
         comments: list[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> RegionResource:
+        """
+        Creates a new region resource.
+        A region is a region of interest (ROI) in an image.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#region)
+
+        Args:
+            res_id: ID of this region resource
+            label: label of this region resource
+            color: color of the region, as `#` followed by 3 or 6 hex numerals (cardinality 1)
+                   ([See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#color))
+            region_of: ID of the image resource that this region refers to (cardinality 1)
+            geometry: geometry information of the region (cardinality 1)
+                      ([See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geometry))
+            comments: comments to this region (cardinality 1-n)
+            permissions: permissions of this region resource
+
+        Warnings:
+            - If the Resource ID is not a valid string
+            - If the label is not a valid string
+            - If the color is not a valid color string
+            - If the geometry does not follow the specifications
+
+        Returns:
+            A region resource
+        """
         return RegionResource(
             res_id=res_id,
             label=label,
@@ -141,21 +232,62 @@ class RegionResource:
         )
 
     def add_comment(self, comment: str) -> RegionResource:
+        """
+        Add a comment to the resource
+
+        Args:
+            comment: Comment text
+
+        Returns:
+            The original resource, with the added comment
+        """
         self.comments.append(comment)
         return self
 
     def add_comment_multiple(self, comments: list[str]) -> RegionResource:
+        """
+        Add several comments to the resource
+
+        Args:
+            comments: List of comment texts
+
+        Returns:
+            The original resource, with the added comments
+        """
         self.comments.extend(comments)
         return self
 
     def add_comment_optional(self, comment: Any) -> RegionResource:
-        if not pd.isna(comment):
+        """
+        If the value is not empty, add it as comment, otherwise return the resource unchanged.
+
+        Args:
+            comment: Comment or empty value
+
+        Returns:
+            The original resource, with the added comment
+        """
+        if is_nonempty_value(comment):
             self.comments.append(comment)
         return self
 
     def add_migration_metadata(
         self, creation_date: str | None, iri: str | None = None, ark: str | None = None
     ) -> RegionResource:
+        """
+        Add metadata from a SALSAH migration.
+
+        Args:
+            creation_date: Creation date of the resource in SALSAH
+            iri: Original IRI in SALSAH
+            ark: Original ARK in SALSAH
+
+        Raises:
+            InputError: if metadata already exists
+
+        Returns:
+            The original resource, with the added metadata
+        """
         if self.migration_metadata:
             raise InputError(
                 f"The resource with the ID '{self.res_id}' already contains migration metadata, "
@@ -195,6 +327,8 @@ class RegionResource:
 
 @dataclass
 class LinkResource:
+    """Represents a link between several other resources of different classes."""
+
     res_id: str
     label: str
     link_to: list[str]
@@ -203,13 +337,29 @@ class LinkResource:
     migration_metadata: MigrationMetadata | None = None
 
     @staticmethod
-    def new(
+    def create_new(
         res_id: str,
         label: str,
         link_to: list[str],
         comments: list[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> LinkResource:
+        """
+        Creates a new link resource.
+        A link groups together several other resources of different classes.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#link)
+
+        Args:
+            res_id: ID of this link resource
+            label: label of this link resource
+            link_to: IDs of the resources that should be linked together (cardinality 1-n)
+            comments: comments to this link (cardinality 1-n)
+            permissions: permissions of this link resource
+
+        Returns:
+            A link resource
+        """
         return LinkResource(
             res_id=res_id,
             label=label,
@@ -219,21 +369,62 @@ class LinkResource:
         )
 
     def add_comment(self, comment: str) -> LinkResource:
+        """
+        Add a comment to the resource
+
+        Args:
+            comment: Comment text
+
+        Returns:
+            The original resource, with the added comment
+        """
         self.comments.append(comment)
         return self
 
     def add_comment_multiple(self, comments: list[str]) -> LinkResource:
+        """
+        Add several comments to the resource
+
+        Args:
+            comments: List of comment texts
+
+        Returns:
+            The original resource, with the added comments
+        """
         self.comments.extend(comments)
         return self
 
     def add_comment_optional(self, comment: Any) -> LinkResource:
-        if not pd.isna(comment):
+        """
+        If the value is not empty, add it as comment, otherwise return the resource unchanged.
+
+        Args:
+            comment: Comment or empty value
+
+        Returns:
+            The original resource, with the added comment
+        """
+        if is_nonempty_value(comment):
             self.comments.append(comment)
         return self
 
     def add_migration_metadata(
         self, creation_date: str | None, iri: str | None = None, ark: str | None = None
     ) -> LinkResource:
+        """
+        Add metadata from a SALSAH migration.
+
+        Args:
+            creation_date: Creation date of the resource in SALSAH
+            iri: Original IRI in SALSAH
+            ark: Original ARK in SALSAH
+
+        Raises:
+            InputError: if metadata already exists
+
+        Returns:
+            The original resource, with the added metadata
+        """
         if self.migration_metadata:
             raise InputError(
                 f"The resource with the ID '{self.res_id}' already contains migration metadata, "
@@ -291,6 +482,8 @@ class SegmentBounds:
 
 @dataclass
 class VideoSegmentResource:
+    """Represents a section of a video."""
+
     res_id: str
     label: str
     segment_of: str
@@ -304,7 +497,7 @@ class VideoSegmentResource:
     migration_metadata: MigrationMetadata | None = None
 
     @staticmethod
-    def new(
+    def create_new(
         res_id: str,
         label: str,
         segment_of: str,
@@ -313,6 +506,26 @@ class VideoSegmentResource:
         title: str | None = None,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> VideoSegmentResource:
+        """
+        Creates a new video segment resource.
+        This factory method supports only the most frequently used parameters.
+        If you want to add additional information, create the incomplete segment first,
+        and then use the dedicated methods, e.g. `add_description()`.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#video-segment-and-audio-segment)
+
+        Args:
+            res_id: ID of this video segment resource
+            label: label of this video segment resource
+            segment_of: ID of the video resource that this segment refers to (cardinality 1)
+            segment_start: start of the segment in seconds (cardinality 1)
+            segment_end: end of the segment in seconds (cardinality 1)
+            title: title of this segment (cardinality 0-1)
+            permissions: permissions of this resource
+
+        Returns:
+            A video segment resource
+        """
         return VideoSegmentResource(
             res_id=res_id,
             label=label,
@@ -323,73 +536,221 @@ class VideoSegmentResource:
         )
 
     def add_title(self, title: str) -> VideoSegmentResource:
+        """
+        Add a title to the resource.
+
+        Args:
+            title: Title text
+
+        Warnings:
+            If the resource already has a title.
+            In that case, the title will be replaced.
+
+        Returns:
+            The original resource, with the added title
+        """
         if self.title:
             _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
         self.title = title
         return self
 
     def add_title_optional(self, title: Any) -> VideoSegmentResource:
-        if not pd.isna(title):
+        """
+        If the value is not empty, add it as title, otherwise return the resource unchanged.
+
+        Args:
+            title: Title or empty value
+
+        Warnings:
+            If the resource already has a title.
+            In that case, the title will be replaced.
+
+        Returns:
+            The original resource, with the added title
+        """
+        if is_nonempty_value(title):
             if self.title:
                 _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
             self.title = title
         return self
 
     def add_comment(self, comment: str) -> VideoSegmentResource:
+        """
+        Add a comment to the resource
+
+        Args:
+            comment: Comment text
+
+        Returns:
+            The original resource, with the added comment
+        """
         self.comments.append(comment)
         return self
 
     def add_comment_multiple(self, comments: list[str]) -> VideoSegmentResource:
+        """
+        Add several comments to the resource
+
+        Args:
+            comments: List of comment texts
+
+        Returns:
+            The original resource, with the added comments
+        """
         self.comments.extend(comments)
         return self
 
     def add_comment_optional(self, comment: Any) -> VideoSegmentResource:
-        if not pd.isna(comment):
+        """
+        If the value is not empty, add it as comment, otherwise return the resource unchanged.
+
+        Args:
+            comment: Comment or empty value
+
+        Returns:
+            The original resource, with the added comment
+        """
+        if is_nonempty_value(comment):
             self.comments.append(comment)
         return self
 
     def add_description(self, description: str) -> VideoSegmentResource:
+        """
+        Add a description to the resource
+
+        Args:
+            description: text
+
+        Returns:
+            The original resource, with the added description
+        """
         self.descriptions.append(description)
         return self
 
     def add_description_multiple(self, descriptions: list[str]) -> VideoSegmentResource:
+        """
+        Add several descriptions to the resource
+
+        Args:
+            descriptions: list of text
+
+        Returns:
+            The original resource, with the added descriptions
+        """
         self.descriptions.extend(descriptions)
         return self
 
     def add_description_optional(self, description: Any) -> VideoSegmentResource:
-        if not pd.isna(description):
+        """
+        If the value is not empty, add it as description, otherwise return the resource unchanged.
+
+        Args:
+            description: text or empty value
+
+        Returns:
+            The original resource, with the added description
+        """
+        if is_nonempty_value(description):
             self.descriptions.append(description)
         return self
 
     def add_keyword(self, keyword: str) -> VideoSegmentResource:
+        """
+        Add a keyword to the resource
+
+        Args:
+            keyword: text
+
+        Returns:
+            The original resource, with the added keyword
+        """
         self.keywords.append(keyword)
         return self
 
     def add_keyword_multiple(self, keywords: list[str]) -> VideoSegmentResource:
+        """
+        Add several keywords to the resource
+
+        Args:
+            keywords: list of text
+
+        Returns:
+            The original resource, with the added keywords
+        """
         self.keywords.extend(keywords)
         return self
 
     def add_keyword_optional(self, keyword: Any) -> VideoSegmentResource:
-        if not pd.isna(keyword):
+        """
+        If the value is not empty, add it as keyword, otherwise return the resource unchanged.
+
+        Args:
+            keyword: text or empty value
+
+        Returns:
+            The original resource, with the added keyword
+        """
+        if is_nonempty_value(keyword):
             self.keywords.append(keyword)
         return self
 
     def add_relates_to(self, relates_to: str) -> VideoSegmentResource:
+        """
+        Add a link to a related resource
+
+        Args:
+            relates_to: ID of the related resource
+
+        Returns:
+            The original resource, with the added related resource
+        """
         self.relates_to.append(relates_to)
         return self
 
     def add_relates_to_multiple(self, relates_to: list[str]) -> VideoSegmentResource:
+        """
+        Add several links to related resources
+
+        Args:
+            relates_to: IDs of the related resources
+
+        Returns:
+            The original resource, with the added related resources
+        """
         self.relates_to.extend(relates_to)
         return self
 
     def add_relates_to_optional(self, relates_to: Any) -> VideoSegmentResource:
-        if not pd.isna(relates_to):
+        """
+        If the value is not empty, add it as related resource, otherwise return the resource unchanged.
+
+        Args:
+            relates_to: ID or the related resource or empty value
+
+        Returns:
+            The original resource, with the added related resources
+        """
+        if is_nonempty_value(relates_to):
             self.relates_to.append(relates_to)
         return self
 
     def add_migration_metadata(
         self, creation_date: str | None, iri: str | None = None, ark: str | None = None
     ) -> VideoSegmentResource:
+        """
+        Add metadata from a SALSAH migration.
+
+        Args:
+            creation_date: Creation date of the resource in SALSAH
+            iri: Original IRI in SALSAH
+            ark: Original ARK in SALSAH
+
+        Raises:
+            InputError: if metadata already exists
+
+        Returns:
+            The original resource, with the added metadata
+        """
         if self.migration_metadata:
             raise InputError(
                 f"The resource with the ID '{self.res_id}' already contains migration metadata, "
@@ -420,6 +781,8 @@ class VideoSegmentResource:
 
 @dataclass
 class AudioSegmentResource:
+    """Represents a section of an audio."""
+
     res_id: str
     label: str
     segment_of: str
@@ -433,7 +796,7 @@ class AudioSegmentResource:
     migration_metadata: MigrationMetadata | None = None
 
     @staticmethod
-    def new(
+    def create_new(
         res_id: str,
         label: str,
         segment_of: str,
@@ -442,6 +805,26 @@ class AudioSegmentResource:
         title: str | None = None,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> AudioSegmentResource:
+        """
+        Creates a new audio segment resource.
+        This factory method supports only the most frequently used parameters.
+        If you want to add additional information, create the incomplete segment first,
+        and then use the dedicated methods, e.g. `add_description()`.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#video-segment-and-audio-segment)
+
+        Args:
+            res_id: ID of this audio segment resource
+            label: label of this audio segment resource
+            segment_of: ID of the audio resource that this segment refers to (cardinality 1)
+            segment_start: start of the segment in seconds (cardinality 1)
+            segment_end: end of the segment in seconds (cardinality 1)
+            title: title of this segment (cardinality 0-1)
+            permissions: permissions of this resource
+
+        Returns:
+            An audio segment resource
+        """
         return AudioSegmentResource(
             res_id=res_id,
             label=label,
@@ -452,73 +835,221 @@ class AudioSegmentResource:
         )
 
     def add_title(self, title: str) -> AudioSegmentResource:
+        """
+        Add a title to the resource.
+
+        Args:
+            title: Title text
+
+        Warnings:
+            If the resource already has a title.
+            In that case, the title will be replaced.
+
+        Returns:
+            The original resource, with the added title
+        """
         if self.title:
             _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
         self.title = title
         return self
 
     def add_title_optional(self, title: Any) -> AudioSegmentResource:
-        if not pd.isna(title):
+        """
+        If the value is not empty, add it as title, otherwise return the resource unchanged.
+
+        Args:
+            title: Title text or empty value
+
+        Warnings:
+            If the resource already has a title.
+            In that case, the title will be replaced.
+
+        Returns:
+            The original resource, with the added title
+        """
+        if is_nonempty_value(title):
             if self.title:
                 _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
             self.title = title
         return self
 
     def add_comment(self, comment: str) -> AudioSegmentResource:
+        """
+        Add a comment to the resource
+
+        Args:
+            comment: Comment text
+
+        Returns:
+            The original resource, with the added comment
+        """
         self.comments.append(comment)
         return self
 
     def add_comment_multiple(self, comments: list[str]) -> AudioSegmentResource:
+        """
+        Add several comments to the resource
+
+        Args:
+            comments: List of comment texts
+
+        Returns:
+            The original resource, with the added comments
+        """
         self.comments.extend(comments)
         return self
 
     def add_comment_optional(self, comment: Any) -> AudioSegmentResource:
-        if not pd.isna(comment):
+        """
+        If the value is not empty, add it as comment, otherwise return the resource unchanged.
+
+        Args:
+            comment: Comment or empty value
+
+        Returns:
+            The original resource, with the added comment
+        """
+        if is_nonempty_value(comment):
             self.comments.append(comment)
         return self
 
     def add_description(self, description: str) -> AudioSegmentResource:
+        """
+        Add a description to the resource
+
+        Args:
+            description: text
+
+        Returns:
+            The original resource, with the added description
+        """
         self.descriptions.append(description)
         return self
 
     def add_description_multiple(self, descriptions: list[str]) -> AudioSegmentResource:
+        """
+        Add several descriptions to the resource
+
+        Args:
+            descriptions: list of text
+
+        Returns:
+            The original resource, with the added descriptions
+        """
         self.descriptions.extend(descriptions)
         return self
 
     def add_description_optional(self, description: Any) -> AudioSegmentResource:
-        if not pd.isna(description):
+        """
+        If the value is not empty, add it as description, otherwise return the resource unchanged.
+
+        Args:
+            description: text or empty value
+
+        Returns:
+            The original resource, with the added description
+        """
+        if is_nonempty_value(description):
             self.descriptions.append(description)
         return self
 
     def add_keyword(self, keyword: str) -> AudioSegmentResource:
+        """
+        Add a keyword to the resource
+
+        Args:
+            keyword: text
+
+        Returns:
+            The original resource, with the added keyword
+        """
         self.keywords.append(keyword)
         return self
 
     def add_keyword_multiple(self, keywords: list[str]) -> AudioSegmentResource:
+        """
+        Add several keywords to the resource
+
+        Args:
+            keywords: list of text
+
+        Returns:
+            The original resource, with the added keywords
+        """
         self.keywords.extend(keywords)
         return self
 
     def add_keyword_optional(self, keyword: Any) -> AudioSegmentResource:
-        if not pd.isna(keyword):
+        """
+        If the value is not empty, add it as keyword, otherwise return the resource unchanged.
+
+        Args:
+            keyword: text or empty value
+
+        Returns:
+            The original resource, with the added keyword
+        """
+        if is_nonempty_value(keyword):
             self.keywords.append(keyword)
         return self
 
     def add_relates_to(self, relates_to: str) -> AudioSegmentResource:
+        """
+        Add a link to a related resource
+
+        Args:
+            relates_to: ID of the related resource
+
+        Returns:
+            The original resource, with the added related resource
+        """
         self.relates_to.append(relates_to)
         return self
 
     def add_relates_to_multiple(self, relates_to: list[str]) -> AudioSegmentResource:
+        """
+        Add several links to related resources
+
+        Args:
+            relates_to: IDs of the related resources
+
+        Returns:
+            The original resource, with the added related resources
+        """
         self.relates_to.extend(relates_to)
         return self
 
     def add_relates_to_optional(self, relates_to: Any) -> AudioSegmentResource:
-        if not pd.isna(relates_to):
+        """
+        If the value is not empty, add it as related resource, otherwise return the resource unchanged.
+
+        Args:
+            relates_to: ID of the related resource or empty value
+
+        Returns:
+            The original resource, with the added related resources
+        """
+        if is_nonempty_value(relates_to):
             self.relates_to.append(relates_to)
         return self
 
     def add_migration_metadata(
         self, creation_date: str | None, iri: str | None = None, ark: str | None = None
     ) -> AudioSegmentResource:
+        """
+        Add metadata from a SALSAH migration.
+
+        Args:
+            creation_date: Creation date of the resource in SALSAH
+            iri: Original IRI in SALSAH
+            ark: Original ARK in SALSAH
+
+        Raises:
+            InputError: if metadata already exists
+
+        Returns:
+            The original resource, with the added metadata
+        """
         if self.migration_metadata:
             raise InputError(
                 f"The resource with the ID '{self.res_id}' already contains migration metadata, "

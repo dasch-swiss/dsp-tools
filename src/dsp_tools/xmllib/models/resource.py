@@ -890,8 +890,9 @@ class Resource:
         as documented in https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/.
         Only the documented tags are allowed.
 
-        By default, replace newline characters inside the text value with `<br/>`, which preserves the linebreak.
-        Without this replacement, the newline would disappear, because `\\n` is meaningless in an XML file.
+        Conversions:
+            By default, replace newline characters inside the text value with `<br/>`, which preserves the linebreak.
+            Without this replacement, the newline would disappear, because `\\n` is meaningless in an XML file.
 
         Text values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text.
 
@@ -926,8 +927,9 @@ class Resource:
         as documented in https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/.
         Only the documented tags are allowed.
 
-        By default, replace newline characters inside the text value with `<br/>`, which preserves the linebreak.
-        Without this replacement, the newline would disappear, because `\\n` is meaningless in an XML file.
+        Conversions:
+            By default, replace newline characters inside the text value with `<br/>`, which preserves the linebreak.
+            Without this replacement, the newline would disappear, because `\\n` is meaningless in an XML file.
 
         Text values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text.
 
@@ -962,8 +964,9 @@ class Resource:
         as documented in https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/.
         Only the documented tags are allowed.
 
-        By default, replace newline characters inside the text value with `<br/>`, which preserves the linebreak.
-        Without this replacement, the newline would disappear, because `\\n` is meaningless in an XML file.
+        Conversions:
+            By default, replace newline characters inside the text value with `<br/>`, which preserves the linebreak.
+            Without this replacement, the newline would disappear, because `\\n` is meaningless in an XML file.
 
         Text values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text.
 

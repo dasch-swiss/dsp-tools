@@ -175,7 +175,7 @@ class Resource:
 
         Args:
             prop_name: name of the property
-            value: value to add
+            value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -258,7 +258,7 @@ class Resource:
 
         Args:
             prop_name: name of the property
-            value: color value as `#` followed by 6 hexadecimal digits
+            value: color value as `#` followed by 6 hexadecimal digits or empty value
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -341,7 +341,7 @@ class Resource:
 
         Args:
             prop_name: name of the property
-            value: value to add
+            value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -424,7 +424,7 @@ class Resource:
 
         Args:
             prop_name: name of the property
-            value: value to add
+            value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -513,7 +513,7 @@ class Resource:
 
         Args:
             prop_name: name of the property
-            value: [geonames.org](geonames.org) identifier to add
+            value: [geonames.org](geonames.org) identifier to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -592,11 +592,12 @@ class Resource:
     ) -> Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
+        If it is provided as string, it must be convertible to integer.
         Integer values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#integer.
 
         Args:
             prop_name: name of the property
-            value: value to add. If it is provided as string, it must be convertible to integer.
+            value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -680,7 +681,7 @@ class Resource:
 
         Args:
             prop_name: name of the property
-            value: ID of target resource
+            value: ID of target resource or empty value
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -769,7 +770,7 @@ class Resource:
         Args:
             prop_name: name of the property
             list_name: name of the list (N.B. not the label, but the name of the list)
-            value: name of a list node (N.B. not the label, but the name of the list node)
+            value: name of a list node (N.B. not the label, but the name of the list node) or empty value
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -852,7 +853,7 @@ class Resource:
 
         Args:
             prop_name: name of the property
-            value: text value to add
+            value: text value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -963,7 +964,7 @@ class Resource:
 
         Args:
             prop_name: name of the property
-            value: rich text value as string, potentially containing DSP Standard Standoff Markup XML tags
+            value: rich text value as string or empty value
             permissions: optional permissions of this value
             comment: optional comment
             newline_replacement: Options how to deal with `\\n` inside the text value. Default: replace with `<br/>`.
@@ -1048,7 +1049,7 @@ class Resource:
 
         Args:
             prop_name: name of the property
-            value: value to add
+            value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
 
@@ -1131,7 +1132,7 @@ class Resource:
 
         Args:
             prop_name: name of the property
-            value: value to add
+            value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
 

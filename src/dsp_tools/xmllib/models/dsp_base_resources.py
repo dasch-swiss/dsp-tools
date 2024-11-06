@@ -52,6 +52,7 @@ class AnnotationResource:
         """
         Creates a new annotation resource.
         An annotation provides metadata to another resource.
+
         See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#annotation.
 
         Args:
@@ -81,7 +82,7 @@ class AnnotationResource:
         Add a comment to the resource
 
         Args:
-            comment: Comment text
+            comment: text
 
         Returns:
             The original resource, with the added comment
@@ -94,7 +95,7 @@ class AnnotationResource:
         Add several comments to the resource
 
         Args:
-            comments: List of comment texts
+            comments: List of texts
 
         Returns:
             The original resource, with the added comments
@@ -197,6 +198,7 @@ class RegionResource:
         """
         Creates a new region resource.
         A region is a region of interest (ROI) in an image.
+
         See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#region.
 
         Args:
@@ -345,6 +347,7 @@ class LinkResource:
         """
         Creates a new link resource.
         A link groups together several other resources of different classes.
+
         See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#link.
 
         Args:
@@ -556,7 +559,7 @@ class VideoSegmentResource:
         If the value is not empty, add it as title, otherwise return the resource unchanged.
 
         Args:
-            title: Title
+            title: Title or empty value
 
         Warnings:
             If the resource already has a title.
@@ -642,7 +645,7 @@ class VideoSegmentResource:
         If the value is not empty, add it as description, otherwise return the resource unchanged.
 
         Args:
-            description: value
+            description: text or empty value
 
         Returns:
             The original resource, with the added description
@@ -682,7 +685,7 @@ class VideoSegmentResource:
         If the value is not empty, add it as keyword, otherwise return the resource unchanged.
 
         Args:
-            keyword: value
+            keyword: text or empty value
 
         Returns:
             The original resource, with the added keyword
@@ -722,7 +725,7 @@ class VideoSegmentResource:
         If the value is not empty, add it as related resource, otherwise return the resource unchanged.
 
         Args:
-            relates_to: ID of the related resource
+            relates_to: ID or the related resource or empty value
 
         Returns:
             The original resource, with the added related resources
@@ -855,7 +858,7 @@ class AudioSegmentResource:
         If the value is not empty, add it as title, otherwise return the resource unchanged.
 
         Args:
-            title: Title
+            title: Title text or empty value
 
         Warnings:
             If the resource already has a title.
@@ -941,7 +944,7 @@ class AudioSegmentResource:
         If the value is not empty, add it as description, otherwise return the resource unchanged.
 
         Args:
-            description: value
+            description: text or empty value
 
         Returns:
             The original resource, with the added description
@@ -981,7 +984,7 @@ class AudioSegmentResource:
         If the value is not empty, add it as keyword, otherwise return the resource unchanged.
 
         Args:
-            keyword: value
+            keyword: text or empty value
 
         Returns:
             The original resource, with the added keyword
@@ -1021,7 +1024,7 @@ class AudioSegmentResource:
         If the value is not empty, add it as related resource, otherwise return the resource unchanged.
 
         Args:
-            relates_to: ID of the related resource
+            relates_to: ID of the related resource or empty value
 
         Returns:
             The original resource, with the added related resources

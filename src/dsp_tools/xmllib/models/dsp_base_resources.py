@@ -42,7 +42,7 @@ class AnnotationResource:
         _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
 
     @staticmethod
-    def new(
+    def create_new(
         res_id: str,
         label: str,
         annotation_of: str,
@@ -186,7 +186,7 @@ class RegionResource:
             warnings.warn(DspToolsUserWarning(msg))
 
     @staticmethod
-    def new(
+    def create_new(
         res_id: str,
         label: str,
         color: str,
@@ -337,7 +337,7 @@ class LinkResource:
     migration_metadata: MigrationMetadata | None = None
 
     @staticmethod
-    def new(
+    def create_new(
         res_id: str,
         label: str,
         link_to: list[str],
@@ -497,7 +497,7 @@ class VideoSegmentResource:
     migration_metadata: MigrationMetadata | None = None
 
     @staticmethod
-    def new(
+    def create_new(
         res_id: str,
         label: str,
         segment_of: str,
@@ -796,7 +796,7 @@ class AudioSegmentResource:
     migration_metadata: MigrationMetadata | None = None
 
     @staticmethod
-    def new(
+    def create_new(
         res_id: str,
         label: str,
         segment_of: str,

@@ -47,7 +47,7 @@ class XMLRoot:
     resources: list[AnyResource] = field(default_factory=list)
 
     @staticmethod
-    def new(shortcode: str, default_ontology: str) -> XMLRoot:
+    def create_new(shortcode: str, default_ontology: str) -> XMLRoot:
         """
         Create a new XML root, for one file.
 

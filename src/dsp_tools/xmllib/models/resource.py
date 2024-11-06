@@ -65,7 +65,7 @@ class Resource:
             warnings.warn(DspToolsUserWarning(out_msg))
 
     @staticmethod
-    def new(
+    def create_new(
         res_id: str,
         restype: str,
         label: str,

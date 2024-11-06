@@ -31,70 +31,103 @@ DONT_SAVE_GRAPHS = False
 
 @lru_cache(maxsize=None)
 @pytest.fixture
-def _create_project() -> Iterator[None]:
+def _create_project_generic() -> Iterator[None]:
     with get_containers():
-        success = create_project(Path("testdata/validate-data/project.json"), CREDS, verbose=True)
+        success = create_project(Path("testdata/validate-data/generic/project.json"), CREDS)
         assert success
         yield
 
 
 @lru_cache(maxsize=None)
 @pytest.fixture
-def cardinality_correct(_create_project: None) -> ValidationReportGraphs:
+def cardinality_correct(_create_project_generic: Iterator[None]) -> ValidationReportGraphs:
     return _get_validation_result(
-        LOCAL_API, Path("testdata/validate-data/data/cardinality_correct.xml"), DONT_SAVE_GRAPHS
+        LOCAL_API, Path("testdata/validate-data/generic/cardinality_correct.xml"), DONT_SAVE_GRAPHS
     )
 
 
 @lru_cache(maxsize=None)
 @pytest.fixture
-def cardinality_violation(_create_project: None) -> ValidationReportGraphs:
+def cardinality_violation(_create_project_generic: Iterator[None]) -> ValidationReportGraphs:
     return _get_validation_result(
-        LOCAL_API, Path("testdata/validate-data/data/cardinality_violation.xml"), DONT_SAVE_GRAPHS
+        LOCAL_API, Path("testdata/validate-data/generic/cardinality_violation.xml"), DONT_SAVE_GRAPHS
     )
 
 
 @lru_cache(maxsize=None)
 @pytest.fixture
-def content_correct(_create_project: None) -> ValidationReportGraphs:
-    return _get_validation_result(LOCAL_API, Path("testdata/validate-data/data/content_correct.xml"), DONT_SAVE_GRAPHS)
-
-
-@lru_cache(maxsize=None)
-@pytest.fixture
-def content_violation(_create_project: None) -> ValidationReportGraphs:
+def content_correct(_create_project_generic: Iterator[None]) -> ValidationReportGraphs:
     return _get_validation_result(
-        LOCAL_API, Path("testdata/validate-data/data/content_violation.xml"), DONT_SAVE_GRAPHS
+        LOCAL_API, Path("testdata/validate-data/generic/content_correct.xml"), DONT_SAVE_GRAPHS
     )
 
 
 @lru_cache(maxsize=None)
 @pytest.fixture
-def every_combination_once(_create_project: None) -> ValidationReportGraphs:
+def content_violation(_create_project_generic: Iterator[None]) -> ValidationReportGraphs:
     return _get_validation_result(
-        LOCAL_API, Path("testdata/validate-data/data/every_combination_once.xml"), DONT_SAVE_GRAPHS
+        LOCAL_API, Path("testdata/validate-data/generic/content_violation.xml"), DONT_SAVE_GRAPHS
     )
 
 
 @lru_cache(maxsize=None)
 @pytest.fixture
-def minimal_correct(_create_project: None) -> ValidationReportGraphs:
-    return _get_validation_result(LOCAL_API, Path("testdata/validate-data/data/minimal_correct.xml"), DONT_SAVE_GRAPHS)
-
-
-@lru_cache(maxsize=None)
-@pytest.fixture
-def value_type_violation(_create_project: None) -> ValidationReportGraphs:
+def every_combination_once(_create_project_generic: Iterator[None]) -> ValidationReportGraphs:
     return _get_validation_result(
-        LOCAL_API, Path("testdata/validate-data/data/value_type_violation.xml"), DONT_SAVE_GRAPHS
+        LOCAL_API, Path("testdata/validate-data/generic/every_combination_once.xml"), DONT_SAVE_GRAPHS
     )
 
 
 @lru_cache(maxsize=None)
 @pytest.fixture
-def unique_value_violation(_create_project: None) -> ValidationReportGraphs:
+def minimal_correct(_create_project_generic: Iterator[None]) -> ValidationReportGraphs:
     return _get_validation_result(
-        LOCAL_API, Path("testdata/validate-data/data/unique_value_violation.xml"), DONT_SAVE_GRAPHS
+        LOCAL_API, Path("testdata/validate-data/generic/minimal_correct.xml"), DONT_SAVE_GRAPHS
+    )
+
+
+@lru_cache(maxsize=None)
+@pytest.fixture
+def value_type_violation(_create_project_generic: Iterator[None]) -> ValidationReportGraphs:
+    return _get_validation_result(
+        LOCAL_API, Path("testdata/validate-data/generic/value_type_violation.xml"), DONT_SAVE_GRAPHS
+    )
+
+
+@lru_cache(maxsize=None)
+@pytest.fixture
+def unique_value_violation(_create_project_generic: Iterator[None]) -> ValidationReportGraphs:
+    return _get_validation_result(
+        LOCAL_API, Path("testdata/validate-data/generic/unique_value_violation.xml"), DONT_SAVE_GRAPHS
+    )
+
+
+@lru_cache(maxsize=None)
+@pytest.fixture
+def _create_project_special() -> Iterator[None]:
+    with get_containers():
+        success = create_project(
+            Path("testdata/validate-data/special_characters/project_special_characters.json"), CREDS
+        )
+        assert success
+        yield
+
+
+@lru_cache(maxsize=None)
+@pytest.fixture
+def special_characters_correct(_create_project_special: Iterator[None]) -> ValidationReportGraphs:
+    return _get_validation_result(
+        LOCAL_API, Path("testdata/validate-data/special_characters/special_characters_correct.xml"), DONT_SAVE_GRAPHS
+    )
+
+
+@lru_cache(maxsize=None)
+@pytest.fixture
+def special_characters_violation(_create_project_special: Iterator[None]) -> ValidationReportGraphs:
+    return _get_validation_result(
+        LOCAL_API,
+        Path("testdata/validate-data/special_characters/special_characters_violation.xml"),
+        DONT_SAVE_GRAPHS,
     )
 
 
@@ -146,6 +179,12 @@ class TestCheckConforms:
 
     def test_unique_value_violation(self, unique_value_violation: ValidationReportGraphs) -> None:
         assert not unique_value_violation.conforms
+
+    def test_special_characters_correct(self, special_characters_correct: ValidationReportGraphs) -> None:
+        assert special_characters_correct.conforms
+
+    def test_special_characters_violation(self, special_characters_violation: ValidationReportGraphs) -> None:
+        assert not special_characters_violation.conforms
 
 
 class TestReformatValidationGraph:
@@ -206,14 +245,14 @@ class TestReformatValidationGraph:
             (
                 "list_name_attrib_empty",
                 "onto:testListProp",
-                "The list that should be used with this property is 'firstList'.",
+                "The list that should be used with this property is: firstList.",
             ),
             (
                 "list_name_non_existent",
                 "onto:testListProp",
-                "The list that should be used with this property is 'firstList'.",
+                "The list that should be used with this property is: firstList.",
             ),
-            ("list_node_non_existent", "onto:testListProp", "Unknown list node for list 'firstList'."),
+            ("list_node_non_existent", "onto:testListProp", "Unknown list node for list: firstList."),
             ("text_only_whitespace_simple", "onto:testTextarea", "The value must be a non-empty string"),
         ]
         assert len(result.problems) == len(expected_info_tuples)
@@ -267,6 +306,28 @@ class TestReformatValidationGraph:
         for one_result, expected_id in zip(sorted_problems, expected_ids):
             assert isinstance(one_result, DuplicateValueProblem)
             assert one_result.res_id == expected_id
+
+    def test_reformat_special_characters_violation(self, special_characters_violation: ValidationReportGraphs) -> None:
+        result = reformat_validation_graph(special_characters_violation)
+        expected_tuples = [
+            ("node_backslash", "Unknown list node for list: list \\ ' space.", "other \\ backslash"),
+            ("node_double_quote", "Unknown list node for list: list \\ ' space.", 'other double quote "'),
+            ("node_single_quote", "Unknown list node for list: list \\ ' space.", "other single quote '"),
+            ("non_ascii_latin_alphabet", "", ""),
+            ("non_ascii_other_alphabet", "", ""),
+            ("special_char", "", ""),
+            ("wrong_list_name", "The list that should be used with this property is: list \\ ' space.", "other"),
+        ]
+        assert not result.unexpected_results
+        assert len(result.problems) == len(expected_tuples)
+        sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
+        for prblm, expected in zip(sorted_problems, expected_tuples):
+            if isinstance(prblm, GenericProblem):
+                assert prblm.res_id == expected[0]
+                assert prblm.problem == expected[1]
+                assert prblm.actual_content == expected[2]
+            elif isinstance(prblm, ContentRegexProblem):
+                assert prblm.res_id == expected[0]
 
 
 if __name__ == "__main__":

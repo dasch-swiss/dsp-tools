@@ -1,0 +1,46 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="0002"
+       default-ontology="onto">
+
+
+    <resource label="Backslash" restype=":ClassWithEverything" id="list_backslash">
+        <list-prop list="list \ ' space" name=":testListProp">
+            <list> \ backslash</list>
+        </list-prop>
+    </resource>
+
+    <resource label="Double Quote" restype=":ClassWithEverything" id="list_double_quote">
+        <list-prop list="list \ ' space" name=":testListProp">
+            <list>double quote "</list>
+        </list-prop>
+    </resource>
+
+    <resource label="Single Quote" restype=":ClassWithEverything" id="list_single_quote">
+        <list-prop list="list \ ' space" name=":testListProp">
+            <list>single quote '</list>
+        </list-prop>
+    </resource>
+
+    <resource label="Accented characters" restype=":ClassWithEverything" id="list_accented_characters">
+        <list-prop list="list \ ' space" name=":testListProp">
+            <list>àéèêëôûäöüßÂ</list>
+        </list-prop>
+    </resource>
+
+    <resource label="simpletext" restype=":ClassWithEverything" id="simpletext_non_ascii">
+        <text-prop name=":testSimpleText">
+            <text encoding="utf8">àéèêëôû äöüß 0123456789 _-'()+=!?&lt;&gt;| 漢が글ርبيةб中</text>
+        </text-prop>
+    </resource>
+
+    <resource label="richtext" restype=":ClassWithEverything" id="richtext_non_ascii">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">àéèêëôû äöüß 0123456789 _-'()+=!?&lt;&gt;| 漢が글ርبيةб中</text>
+        </text-prop>
+    </resource>
+
+</knora>

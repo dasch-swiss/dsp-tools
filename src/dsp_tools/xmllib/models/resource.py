@@ -14,8 +14,8 @@ from dsp_tools.xmllib.models.file_values import AbstractFileValue
 from dsp_tools.xmllib.models.file_values import FileValue
 from dsp_tools.xmllib.models.file_values import IIIFUri
 from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
-from dsp_tools.xmllib.models.user_enums import NewlineReplacement
-from dsp_tools.xmllib.models.user_enums import Permissions
+from dsp_tools.xmllib.models.config_options import NewlineReplacement
+from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.values import BooleanValue
 from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import DateValue

@@ -39,7 +39,7 @@ nav:
       - XMLRoot: xmllib-api-reference/xmlroot.md
       - Resource: xmllib-api-reference/resource.md
       - DSP base resources: xmllib-api-reference/dsp-base-resources.md
-      - Configuration options: xmllib-api-reference/configuration-options.md
+      - Configuration options: xmllib-api-reference/config-options.md
       - Value Checkers: xmllib-api-reference/value-checkers.md
       - Helpers: xmllib-api-reference/helpers.md
 

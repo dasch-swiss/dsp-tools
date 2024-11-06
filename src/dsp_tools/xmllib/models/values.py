@@ -9,7 +9,7 @@ from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.utils.uri_util import is_uri
-from dsp_tools.xmllib.models.user_enums import Permissions
+from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.value_checkers import is_bool_like
 from dsp_tools.xmllib.value_checkers import is_color
 from dsp_tools.xmllib.value_checkers import is_date

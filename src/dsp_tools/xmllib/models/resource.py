@@ -133,9 +133,8 @@ class Resource:
     ) -> Resource:
         """
         Add a boolean value to the resource.
-        Boolean values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#boolean.
 
-        Accepted values: "false", "0", "0.0", "no", "true", "1", "1.0", "yes".
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#boolean)
 
         Conversions:
          - "false", "0", "0.0", "no" -> "false"
@@ -165,9 +164,8 @@ class Resource:
     ) -> Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
-        Boolean values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#boolean.
 
-        Accepted values: "false", "0", "0.0", "no", "true", "1", "1.0", "yes".
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#boolean)
 
         Conversions:
          - "false", "0", "0.0", "no" -> "false"
@@ -202,7 +200,8 @@ class Resource:
     ) -> Resource:
         """
         Add a color value to the resource.
-        Color values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#color.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#color)
 
         Args:
             prop_name: name of the property
@@ -228,7 +227,8 @@ class Resource:
     ) -> Resource:
         """
         Add several color values to the resource.
-        Color values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#color.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#color)
 
         Args:
             prop_name: name of the property
@@ -254,7 +254,8 @@ class Resource:
     ) -> Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
-        Color values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#color.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#color)
 
         Args:
             prop_name: name of the property
@@ -285,7 +286,7 @@ class Resource:
     ) -> Resource:
         """
         Add a date value to the resource.
-        Date values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#date.
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#date)
 
         Args:
             prop_name: name of the property
@@ -311,7 +312,8 @@ class Resource:
     ) -> Resource:
         """
         Add several date values to the resource.
-        Date values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#date.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#date)
 
         Args:
             prop_name: name of the property
@@ -337,7 +339,8 @@ class Resource:
     ) -> Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
-        Date values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#date.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#date)
 
         Args:
             prop_name: name of the property
@@ -369,7 +372,8 @@ class Resource:
         """
         Add a decimal value to the resource.
         If the value is provided as string, it must be convertible to integer or float.
-        Decimal values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#decimal.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#decimal)
 
         Args:
             prop_name: name of the property
@@ -396,7 +400,8 @@ class Resource:
         """
         Add several decimal values to the resource.
         If the values are provided as string, they must be convertible to integer or float.
-        Decimal values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#decimal.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#decimal)
 
         Args:
             prop_name: name of the property
@@ -423,7 +428,8 @@ class Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
         If the value is provided as string, it must be convertible to integer or float.
-        Decimal values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#decimal.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#decimal)
 
         Args:
             prop_name: name of the property
@@ -456,7 +462,9 @@ class Resource:
         Add a [geonames.org](geonames.org) value to the resource.
         The [geonames.org](geonames.org) identifier must be provided as integer
         or string that is convertible to integer.
-        Geoname values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geoname.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geoname)
+
 
         Args:
             prop_name: name of the property
@@ -484,7 +492,8 @@ class Resource:
         Add several [geonames.org](geonames.org) values to the resource.
         The [geonames.org](geonames.org) identifiers must be provided as integers
         or strings that are convertible to integers.
-        Geoname values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geoname.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geoname)
 
         Args:
             prop_name: name of the property
@@ -512,7 +521,8 @@ class Resource:
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
         The [geonames.org](geonames.org) identifier must be provided as integer
         or string that is convertible to integer.
-        Geoname values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geoname.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geoname)
 
         Args:
             prop_name: name of the property
@@ -544,7 +554,8 @@ class Resource:
         """
         Add an integer value to the resource.
         If the value is provided as string, it must be convertible to integer.
-        Integer values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#integer.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#integer)
 
         Args:
             prop_name: name of the property
@@ -571,7 +582,8 @@ class Resource:
         """
         Add several integer values to the resource.
         If the values are provided as string, they must be convertible to integer.
-        Integer values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#integer.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#integer)
 
         Args:
             prop_name: name of the property
@@ -598,7 +610,8 @@ class Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
         If the value is provided as string, it must be convertible to integer.
-        Integer values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#integer.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#integer)
 
         Args:
             prop_name: name of the property
@@ -629,7 +642,8 @@ class Resource:
     ) -> Resource:
         """
         Add a link value to the resource, in the form of an ID of another resource.
-        Link values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#resptr.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#resptr)
 
         Args:
             prop_name: name of the property
@@ -655,7 +669,8 @@ class Resource:
     ) -> Resource:
         """
         Add several link values to the resource, in the form of IDs of other resources.
-        Link values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#resptr.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#resptr)
 
         Args:
             prop_name: name of the property
@@ -682,7 +697,8 @@ class Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
         If non-empty, the value must be an ID of another resource.
-        Link values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#resptr.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#resptr)
 
         Args:
             prop_name: name of the property
@@ -714,7 +730,8 @@ class Resource:
     ) -> Resource:
         """
         Add a list value to the resource, i.e. a name of a list node.
-        List values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#list.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#list)
 
         Args:
             prop_name: name of the property
@@ -742,7 +759,8 @@ class Resource:
     ) -> Resource:
         """
         Add several list values to the resource, i.e. names of list nodes.
-        List values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#list.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#list)
 
         Args:
             prop_name: name of the property
@@ -770,7 +788,8 @@ class Resource:
     ) -> Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
-        List values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#list.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#list)
 
         Args:
             prop_name: name of the property
@@ -802,7 +821,8 @@ class Resource:
     ) -> Resource:
         """
         Add a simple text value to the resource.
-        Text values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text)
 
         Args:
             prop_name: name of the property
@@ -828,7 +848,8 @@ class Resource:
     ) -> Resource:
         """
         Add several simple text values to the resource.
-        Text values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text)
 
         Args:
             prop_name: name of the property
@@ -854,7 +875,8 @@ class Resource:
     ) -> Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
-        Text values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text)
 
         Args:
             prop_name: name of the property
@@ -887,14 +909,14 @@ class Resource:
         """
         Add a rich text value to the resource.
         Rich text values must be provided as strings, potentially containing DSP Standard Standoff Markup XML tags
-        as documented in https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/.
+        as [documented here.](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/)
         Only the documented tags are allowed.
 
         Conversions:
             By default, replace newline characters inside the text value with `<br/>`, which preserves the linebreak.
             Without this replacement, the newline would disappear, because `\\n` is meaningless in an XML file.
 
-        Text values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text.
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text)
 
         Args:
             prop_name: name of the property
@@ -924,14 +946,14 @@ class Resource:
         """
         Add several rich text values to the resource.
         Rich text values must be provided as strings, potentially containing DSP Standard Standoff Markup XML tags
-        as documented in https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/.
+        as [documented here.](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/)
         Only the documented tags are allowed.
 
         Conversions:
             By default, replace newline characters inside the text value with `<br/>`, which preserves the linebreak.
             Without this replacement, the newline would disappear, because `\\n` is meaningless in an XML file.
 
-        Text values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text.
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text)
 
         Args:
             prop_name: name of the property
@@ -961,14 +983,14 @@ class Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
         Rich text values must be provided as strings, potentially containing DSP Standard Standoff Markup XML tags
-        as documented in https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/.
+        as [documented here.](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/)
         Only the documented tags are allowed.
 
         Conversions:
             By default, replace newline characters inside the text value with `<br/>`, which preserves the linebreak.
             Without this replacement, the newline would disappear, because `\\n` is meaningless in an XML file.
 
-        Text values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text.
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text)
 
         Args:
             prop_name: name of the property
@@ -1001,7 +1023,8 @@ class Resource:
     ) -> Resource:
         """
         Add a time value to the resource.
-        Time values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#time.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#time)
 
         Args:
             prop_name: name of the property
@@ -1027,7 +1050,8 @@ class Resource:
     ) -> Resource:
         """
         Add several time values to the resource.
-        Time values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#time.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#time)
 
         Args:
             prop_name: name of the property
@@ -1053,7 +1077,8 @@ class Resource:
     ) -> Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
-        Time values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#time.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#time)
 
         Args:
             prop_name: name of the property
@@ -1084,7 +1109,8 @@ class Resource:
     ) -> Resource:
         """
         Add a URI value to the resource.
-        URI values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#uri.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#uri)
 
         Args:
             prop_name: name of the property
@@ -1110,7 +1136,8 @@ class Resource:
     ) -> Resource:
         """
         Add several URI values to the resource.
-        URI values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#uri.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#uri)
 
         Args:
             prop_name: name of the property
@@ -1136,7 +1163,8 @@ class Resource:
     ) -> Resource:
         """
         If the value is not empty, add it to the resource, otherwise return the resource unchanged.
-        URI values are documented at https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#uri.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#uri)
 
         Args:
             prop_name: name of the property
@@ -1166,6 +1194,8 @@ class Resource:
     ) -> Resource:
         """
         Add a file (bitstream) to the resource.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#bitstream)
 
         Args:
             filename: path to the file
@@ -1199,6 +1229,8 @@ class Resource:
         """
         Add a IIIF URI to the resource.
 
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#iiif-uri)
+
         Args:
             iiif_uri: valid IIIF URI
             permissions: optional permissions of this value
@@ -1231,6 +1263,8 @@ class Resource:
     ) -> Resource:
         """
         Add metadata from a SALSAH migration.
+
+        [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#describing-resources-with-the-resource-element)
 
         Args:
             creation_date: Creation date of the resource in SALSAH

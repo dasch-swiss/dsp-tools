@@ -1,7 +1,19 @@
+from rdflib import RDF
+from rdflib import SH
+from rdflib import XSD
+from rdflib import BNode
 from rdflib import Graph
+from rdflib import Literal
+from rdflib import Namespace
+from rdflib import URIRef
+from rdflib.collection import Collection
+from rdflib.term import Node
 
 from dsp_tools.commands.validate_data.models.api_responses import AllProjectLists
 from dsp_tools.commands.validate_data.models.api_responses import OneList
+from dsp_tools.commands.validate_data.models.api_responses import SHACLListInfo
+
+API_SHAPES = Namespace("http://api.knora.org/ontology/knora-api/shapes/v2#")
 
 
 def construct_property_shapes(onto: Graph, project_lists: AllProjectLists) -> Graph:
@@ -208,28 +220,43 @@ def _construct_list_shapes(onto: Graph, project_lists: AllProjectLists) -> Graph
 
 
 def _construct_one_list_node_shape(one_list: OneList) -> Graph:
-    list_str = f"""
-    @prefix  sh: <http://www.w3.org/ns/shacl#> .
-    @prefix  api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#> .
-    
-    api-shapes:{one_list.list_name}_NodeShape a sh:NodeShape ;
-          sh:property [
-                        a          sh:PropertyShape ;
-                        sh:path    api-shapes:listNodeAsString ;
-                        sh:in      {one_list.shacl_nodes()} ;
-                        sh:message "Unknown list node for list '{one_list.list_name}'."
-                      ] ,
-                      [
-                        a           sh:PropertyShape ;
-                        sh:path     api-shapes:listNameAsString ;
-                        sh:in       {one_list.shacl_list()} ;
-                        sh:message  "The list that should be used with this property is '{one_list.list_name}'."
-                      ] ;
-          sh:severity sh:Violation .
-    """
-    list_graph = Graph()
-    list_graph.parse(data=list_str, format="ttl")
-    return list_graph
+    g = Graph()
+    list_iri = URIRef(one_list.list_iri)
+    g.add((list_iri, RDF.type, SH.NodeShape))
+    g.add((list_iri, SH.severity, SH.Violation))
+    list_prop_info = SHACLListInfo(
+        list_iri=list_iri,
+        sh_path=API_SHAPES.listNameAsString,
+        sh_message=f"The list that should be used with this property is: {one_list.list_name}.",
+        sh_in=[one_list.list_name],
+    )
+    g += _construct_one_list_property_shape_with_collection(list_prop_info)
+    node_prop_info = SHACLListInfo(
+        list_iri=list_iri,
+        sh_path=API_SHAPES.listNodeAsString,
+        sh_message=f"Unknown list node for list: {one_list.list_name}.",
+        sh_in=one_list.nodes,
+    )
+    g += _construct_one_list_property_shape_with_collection(node_prop_info)
+    return g
+
+
+def _construct_one_list_property_shape_with_collection(shacl_info: SHACLListInfo) -> Graph:
+    g = Graph()
+    collection_bn = BNode()
+    collection_literals: list[Node] = [Literal(lit, datatype=XSD.string) for lit in shacl_info.sh_in]
+    Collection(g, collection_bn, collection_literals)
+    prop_shape = [
+        (RDF.type, SH.PropertyShape),
+        (SH.path, shacl_info.sh_path),
+        (URIRef("http://www.w3.org/ns/shacl#in"), collection_bn),
+        (SH.message, Literal(shacl_info.sh_message, datatype=XSD.string)),
+    ]
+    prop_bn = BNode()
+    for prop, obj in prop_shape:
+        g.add((prop_bn, prop, obj))
+    g.add((shacl_info.list_iri, SH.property, prop_bn))
+    return g
 
 
 def _construct_one_list_property_shape(onto: Graph, one_list: OneList) -> Graph:
@@ -243,7 +270,7 @@ def _construct_one_list_property_shape(onto: Graph, one_list: OneList) -> Graph:
     CONSTRUCT {
         ?shapesIRI a sh:PropertyShape ;
                    sh:path ?prop ;
-                   sh:node api-shapes:%(list)s_NodeShape ;
+                   sh:node <%(list)s> ;
                    sh:severity sh:Violation .
     } WHERE {
         ?prop a owl:ObjectProperty ;
@@ -252,7 +279,7 @@ def _construct_one_list_property_shape(onto: Graph, one_list: OneList) -> Graph:
 
         BIND(IRI(CONCAT(str(?prop), "_PropShape")) AS ?shapesIRI)
     }
-    """ % {"guiAttribute": one_list.hlist(), "list": one_list.list_name}  # noqa: UP031 (printf-string-formatting)
+    """ % {"guiAttribute": one_list.hlist(), "list": one_list.list_iri}  # noqa: UP031 (printf-string-formatting)
     if results_graph := onto.query(query_s).graph:
         return results_graph
     return Graph()

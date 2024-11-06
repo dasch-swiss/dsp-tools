@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="0002"
+       default-ontology="onto">
+
+    <!-- 7 Violations -->
+
+    <resource label="Backslash" restype=":ClassWithEverything" id="node_backslash">
+        <list-prop list="list \ ' space" name=":testListProp">
+            <list>other \ backslash</list>
+        </list-prop>
+    </resource>
+
+    <resource label="Double Quote" restype=":ClassWithEverything" id="node_double_quote">
+        <list-prop list="list \ ' space" name=":testListProp">
+            <list>other double quote "</list>
+        </list-prop>
+    </resource>
+
+    <resource label="Single Quote" restype=":ClassWithEverything" id="node_single_quote">
+        <list-prop list="list \ ' space" name=":testListProp">
+            <list>other single quote '</list>
+        </list-prop>
+    </resource>
+
+    <resource label="Backslash" restype=":ClassWithEverything" id="wrong_list_name">
+        <list-prop list="other" name=":testListProp">
+            <list> \ backslash</list>
+        </list-prop>
+    </resource>
+
+    <resource label="Backslash" restype=":ClassWithEverything" id="non_ascii_latin_alphabet">
+        <geoname-prop name=":testGeoname">
+            <geoname>àéèêëôûäöüßÂ</geoname>
+        </geoname-prop>
+    </resource>
+
+    <resource label="Backslash" restype=":ClassWithEverything" id="special_char">
+        <geoname-prop name=":testGeoname">
+            <geoname>_-'()+=!?&lt;&gt;|$£</geoname>
+        </geoname-prop>
+    </resource>
+
+    <resource label="Backslash" restype=":ClassWithEverything" id="non_ascii_other_alphabet">
+        <geoname-prop name=":testGeoname">
+            <geoname>漢が글ርبيةб中</geoname>
+        </geoname-prop>
+    </resource>
+
+</knora>

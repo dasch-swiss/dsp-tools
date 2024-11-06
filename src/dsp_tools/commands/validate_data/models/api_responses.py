@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from rdflib import Graph
+from rdflib import URIRef
 
 
 @dataclass
@@ -25,11 +26,10 @@ class OneList:
     def hlist(self) -> str:
         return f'"hlist=<{self.list_iri}>"'
 
-    def shacl_nodes(self) -> str:
-        sorted_nodes = sorted(self.nodes)
-        output = [f'"{x}"' for x in sorted_nodes]
-        node_str = " ".join(output)
-        return f"( {node_str} )"
 
-    def shacl_list(self) -> str:
-        return f'( "{self.list_name}" )'
+@dataclass
+class SHACLListInfo:
+    list_iri: URIRef
+    sh_path: URIRef
+    sh_message: str
+    sh_in: list[str]

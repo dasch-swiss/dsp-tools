@@ -354,9 +354,8 @@ def _from_year_range(year_range: Match[str]) -> str:
 def make_xsd_compatible_id(input_value: str | float | int | bool) -> str:
     """
     An xsd:ID may not contain all types of special characters,
-    additionally, it must start with a letter or underscore, if the provided string does not start with either,
-    an underscore is added.
-    This function replaces illegal characters with "_".
+    and it must start with a letter or underscore.
+    Replace illegal characters with "_", and prepend a leading "_" if necessary.
 
     The string must contain at least one Unicode letter (matching the regex ``\\p{L}``),
     _, !, ?, or number, but must not be `None`, `<NA>`, `N/A`, or `-`.
@@ -382,9 +381,9 @@ def make_xsd_compatible_id(input_value: str | float | int | bool) -> str:
 def make_xsd_compatible_id_with_uuid(input_value: str | float | int | bool) -> str:
     """
     An xsd:ID may not contain all types of special characters,
-    additionally, it must start with a letter or underscore, if the provided string does not start with either,
-    an underscore is added.
-    This function replaces illegal characters with "_".
+    and it must start with a letter or underscore.
+    Replace illegal characters with "_", and prepend a leading "_" if necessary.
+    Additionally, add a UUID at the end.
     The UUID will be different each time the function is called.
 
     The string must contain at least one Unicode letter (matching the regex ``\\p{L}``),

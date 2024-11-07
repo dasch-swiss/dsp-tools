@@ -64,7 +64,7 @@ class XMLRoot:
                     `AudioSegmentResource`
 
         Returns:
-            The XMLRoot that this method has been called on, with the added resource
+            The original XMLRoot, with the added resource
         """
         self.resources.append(resource)
         return self
@@ -84,7 +84,7 @@ class XMLRoot:
                     The types of the resources may be mixed.
 
         Returns:
-            The XMLRoot that this method has been called on, with the added resources
+            The original XMLRoot, with the added resource
         """
         self.resources.extend(resources)
         return self
@@ -103,7 +103,7 @@ class XMLRoot:
                     `AudioSegmentResource`
 
         Returns:
-            The XMLRoot that this method has been called on, with the added resource
+            The original XMLRoot, with the added resource
         """
         if resource:
             self.resources.append(resource)

@@ -134,8 +134,8 @@ class Resource:
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#boolean)
 
         Conversions:
-         - "false", "0", "0.0", "no" -> "false"
-         - "true", "1", "1.0", "yes" -> "true"
+         - "false", "0", "0.0", "no", "non", "nein" -> "false"
+         - "true", "1", "1.0", "yes", "oui", "ja" -> "true"
 
         Args:
             prop_name: name of the property

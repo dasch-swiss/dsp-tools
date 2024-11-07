@@ -7,13 +7,13 @@ import regex
 
 def is_nonempty_value(value: Any) -> bool:
     """
-    Check if a value is non-empty.
+    Check if a value is not empty.
 
     Args:
         value: value to check
 
     Returns:
-        True if it is non-empty
+        True if it is not empty
     """
     if isinstance(value, str) and len(value) == 0:
         return False
@@ -174,7 +174,7 @@ def find_geometry_problem(value: Any) -> str:
         value: geometry object
 
     Returns:
-        string with the validation message if it fails
+        String with the validation message if it fails, else an empty string.
     """
     msg = ""
     try:

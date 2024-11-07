@@ -1,6 +1,6 @@
 from typing import Any
 
-from dsp_tools.xmllib.models.user_enums import NewlineReplacement
+from dsp_tools.xmllib.models.config_options import NewlineReplacement
 
 
 def convert_to_bool_string(value: Any) -> str:

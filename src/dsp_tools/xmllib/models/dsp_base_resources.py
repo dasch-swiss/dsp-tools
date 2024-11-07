@@ -9,8 +9,8 @@ from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
-from dsp_tools.xmllib.models.user_enums import Permissions
 from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import LinkValue
 from dsp_tools.xmllib.models.values import Richtext
@@ -20,6 +20,8 @@ from dsp_tools.xmllib.value_checkers import is_decimal
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_string_like
 
+# ruff: noqa: D101, D102
+
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 
@@ -28,8 +30,6 @@ LIST_SEPARATOR = "\n    - "
 
 @dataclass
 class AnnotationResource:
-    """Represents an annotation to another resource of any class."""
-
     res_id: str
     label: str
     annotation_of: str
@@ -51,7 +51,7 @@ class AnnotationResource:
     ) -> AnnotationResource:
         """
         Creates a new annotation resource.
-        An annotation provides metadata to another resource.
+        An annotation is a comment to another resource.
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#annotation)
 
@@ -61,10 +61,6 @@ class AnnotationResource:
             annotation_of: ID of the resource that this annotation refers to (cardinality 1)
             comments: the comment(s) that this annotation consists of, i.e. the annotation itself (cardinality 1-n)
             permissions: permissions of this annotation resource
-
-        Warnings:
-            - If the Resource ID is not a valid string
-            - If the label is not a valid string
 
         Returns:
             An annotation resource
@@ -161,8 +157,6 @@ class AnnotationResource:
 
 @dataclass
 class RegionResource:
-    """Represents a region of interest (ROI) in an image"""
-
     res_id: str
     label: str
     color: str
@@ -197,7 +191,7 @@ class RegionResource:
     ) -> RegionResource:
         """
         Creates a new region resource.
-        A region is a region of interest (ROI) in an image.
+        A region is a region of interest (ROI) in a StillImageRepresentation.
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#region)
 
@@ -211,12 +205,6 @@ class RegionResource:
                       ([See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geometry))
             comments: comments to this region (cardinality 1-n)
             permissions: permissions of this region resource
-
-        Warnings:
-            - If the Resource ID is not a valid string
-            - If the label is not a valid string
-            - If the color is not a valid color string
-            - If the geometry does not follow the specifications
 
         Returns:
             A region resource
@@ -327,8 +315,6 @@ class RegionResource:
 
 @dataclass
 class LinkResource:
-    """Represents a link between several other resources of different classes."""
-
     res_id: str
     label: str
     link_to: list[str]
@@ -346,7 +332,7 @@ class LinkResource:
     ) -> LinkResource:
         """
         Creates a new link resource.
-        A link groups together several other resources of different classes.
+        A link resource is like a container that groups together several other resources of different classes.
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#link)
 
@@ -482,8 +468,6 @@ class SegmentBounds:
 
 @dataclass
 class VideoSegmentResource:
-    """Represents a section of a video."""
-
     res_id: str
     label: str
     segment_of: str
@@ -506,10 +490,7 @@ class VideoSegmentResource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> VideoSegmentResource:
         """
-        Creates a new video segment resource.
-        This factory method supports only the most frequently used parameters.
-        If you want to add additional information, create the incomplete segment first,
-        and then use the dedicated methods, e.g. `add_description()`.
+        Creates a new video segment resource, i.e. a time span of a MovingImageRepresentation.
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#video-segment-and-audio-segment)
 
@@ -539,10 +520,6 @@ class VideoSegmentResource:
         Args:
             title: Title text
 
-        Warnings:
-            If the resource already has a title.
-            In that case, the title will be replaced.
-
         Returns:
             The original resource, with the added title
         """
@@ -557,10 +534,6 @@ class VideoSegmentResource:
 
         Args:
             title: Title or empty value
-
-        Warnings:
-            If the resource already has a title.
-            In that case, the title will be replaced.
 
         Returns:
             The original resource, with the added title
@@ -778,8 +751,6 @@ class VideoSegmentResource:
 
 @dataclass
 class AudioSegmentResource:
-    """Represents a section of an audio."""
-
     res_id: str
     label: str
     segment_of: str
@@ -802,10 +773,7 @@ class AudioSegmentResource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> AudioSegmentResource:
         """
-        Creates a new audio segment resource.
-        This factory method supports only the most frequently used parameters.
-        If you want to add additional information, create the incomplete segment first,
-        and then use the dedicated methods, e.g. `add_description()`.
+        Creates a new audio segment resource, i.e. a time span of an AudioRepresentation.
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#video-segment-and-audio-segment)
 
@@ -835,10 +803,6 @@ class AudioSegmentResource:
         Args:
             title: Title text
 
-        Warnings:
-            If the resource already has a title.
-            In that case, the title will be replaced.
-
         Returns:
             The original resource, with the added title
         """
@@ -853,10 +817,6 @@ class AudioSegmentResource:
 
         Args:
             title: Title text or empty value
-
-        Warnings:
-            If the resource already has a title.
-            In that case, the title will be replaced.
 
         Returns:
             The original resource, with the added title

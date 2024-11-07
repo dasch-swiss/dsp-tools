@@ -18,7 +18,7 @@ from dsp_tools.xmllib.value_checkers import is_timestamp
 
 
 @pytest.mark.parametrize(
-    "val", ["false", "0", "0.0", "no", "true", "1", "1.0", "yes", False, True, "oui", "ja", "non", "nein"]
+    "val", ["false", "0", "0.0", "no", "true", "1", "1.0", "yes", False, True, "oui", "JA", "non", "nein"]
 )
 def test_is_bool_correct(val: Any) -> None:
     assert is_bool_like(val)

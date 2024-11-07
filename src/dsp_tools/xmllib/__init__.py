@@ -1,4 +1,5 @@
 from .helpers import create_label_to_name_list_node_mapping
+from .helpers import escape_reserved_xml_characters
 from .helpers import find_date_in_string
 from .helpers import make_xsd_compatible_id
 from .helpers import make_xsd_compatible_id_with_uuid

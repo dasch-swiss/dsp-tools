@@ -1,4 +1,6 @@
-from .helpers import create_label_to_name_list_node_mapping as create_label_to_name_list_node_mapping
+from .helpers import create_label_to_name_list_node_mapping
+from .helpers import make_xsd_compatible_id
+from .helpers import make_xsd_compatible_id_with_uuid
 from .models.config_options import NewlineReplacement as NewlineReplacement
 from .models.config_options import Permissions as Permissions
 from .models.dsp_base_resources import AnnotationResource as AnnotationResource

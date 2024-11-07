@@ -64,7 +64,7 @@ def _name_label_mapper_iterator(
             # the actual values of the name and the label
 
 
-def make_xsd_compatible_id_with_uuid(string: str) -> str:
+def make_xsd_compatible_id_with_uuid(input_string: str | float | int | bool) -> str:
     """
     An xsd:ID may not contain all types of special characters.
     This function replaces illegal characters with "_".
@@ -74,7 +74,7 @@ def make_xsd_compatible_id_with_uuid(string: str) -> str:
     _, !, ?, or number, but must not be `None`, `<NA>`, `N/A`, or `-`.
 
     Args:
-        string: input string
+        input_string: input string
 
     Raises:
         InputError: if the input cannot be transformed to an xsd:ID
@@ -82,13 +82,13 @@ def make_xsd_compatible_id_with_uuid(string: str) -> str:
     Returns:
         an xsd ID based on the input string, with a UUID attached.
     """
-    res = make_xsd_compatible_id(string)
+    res = make_xsd_compatible_id(input_string)
     _uuid = uuid.uuid4()
     res = f"{res}_{_uuid}"
     return res
 
 
-def make_xsd_compatible_id(string: str) -> str:
+def make_xsd_compatible_id(input_string: str | float | int | bool) -> str:
     """
     An xsd:ID may not contain all types of special characters.
     This function replaces illegal characters with "_".
@@ -97,7 +97,7 @@ def make_xsd_compatible_id(string: str) -> str:
     _, !, ?, or number, but must not be `None`, `<NA>`, `N/A`, or `-`.
 
     Args:
-        string: input string
+        input_string: input string
 
     Raises:
         InputError: if the input cannot be transformed to an xsd:ID
@@ -105,10 +105,10 @@ def make_xsd_compatible_id(string: str) -> str:
     Returns:
         An xsd ID compatible string based on the input string
     """
-    if not isinstance(string, str) or not is_nonempty_value(string):
-        raise InputError(f"The input '{string}' cannot be transformed to an xsd:ID")
+    if not is_nonempty_value(input_string):
+        raise InputError(f"The input '{input_string}' cannot be transformed to an xsd:ID")
     # if the start of string is neither letter nor underscore, add an underscore
-    res = regex.sub(r"^(?=[^A-Za-z_])", "_", string)
+    res = regex.sub(r"^(?=[^A-Za-z_])", "_", str(input_string))
     # replace all illegal characters by underscore
     res = regex.sub(r"[^\w_\-.]", "_", res, flags=regex.ASCII)
     return res

@@ -77,9 +77,9 @@ class Resource:
         Create a new resource.
 
         Args:
-            res_id: Resource ID
-            restype: Resource type
-            label: Resource label
+            res_id: resource ID
+            restype: resource type
+            label: resource label
             permissions: optional permissions of this resource
 
         Returns:
@@ -842,7 +842,7 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
-            newline_replacement: Options how to deal with `\\n` inside the text value. Default: replace with `<br/>`.
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added value
@@ -876,7 +876,7 @@ class Resource:
             values: values to add
             permissions: optional permissions of this value
             comment: optional comment
-            newline_replacement: Options how to deal with `\\n` inside the text value. Default: replace with `<br/>`.
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added values
@@ -910,7 +910,7 @@ class Resource:
             value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
-            newline_replacement: Options how to deal with `\\n` inside the text value. Default: replace with `<br/>`.
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added value
@@ -1153,7 +1153,7 @@ class Resource:
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#describing-resources-with-the-resource-element)
 
         Args:
-            creation_date: Creation date of the resource in SALSAH
+            creation_date: creation date of the resource in SALSAH
             iri: Original IRI in SALSAH
             ark: Original ARK in SALSAH
 

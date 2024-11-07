@@ -56,7 +56,7 @@ def replace_newlines_with_paragraph_tags(text: str) -> str:
     Replace `Start\\nEnd` with `<p>Start</p><p>End</p>`
 
     Multiple consecutive newlines will be treated as one newline:
-    `Start\\nMidde\\n\\nEnd` becomes `<p>Start</p><p>Middle</p><p>End</p>`
+    `Start\\nMiddle\\n\\nEnd` becomes `<p>Start</p><p>Middle</p><p>End</p>`
 
     Args:
         text: string to be formatted

@@ -144,7 +144,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value.
+            The original resource, with the added value
         """
         self.values.append(BooleanValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -172,7 +172,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value. if it was not empty.
+            The original resource, with the added value if it was not empty.
             Else the unchanged original resource.
         """
         if is_nonempty_value(value):
@@ -202,7 +202,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value.
+            The original resource, with the added value
         """
         self.values.append(ColorValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -226,7 +226,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value.s
+            The original resource, with the added values
         """
         self.values.extend([ColorValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
@@ -250,7 +250,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value. if it was not empty.
+            The original resource, with the added value if it was not empty.
             Else the unchanged original resource.
         """
         if is_nonempty_value(value):
@@ -279,7 +279,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value.
+            The original resource, with the added value
         """
         self.values.append(DateValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -303,7 +303,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value.s
+            The original resource, with the added values
         """
         self.values.extend([DateValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
@@ -327,7 +327,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value. if it was not empty.
+            The original resource, with the added value if it was not empty.
             Else the unchanged original resource.
         """
         if is_nonempty_value(value):
@@ -358,7 +358,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value.
+            The original resource, with the added value
         """
         self.values.append(DecimalValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -383,7 +383,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value.s
+            The original resource, with the added values
         """
         self.values.extend([DecimalValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
@@ -408,7 +408,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value. if it was not empty.
+            The original resource, with the added value if it was not empty.
             Else the unchanged original resource.
         """
         if is_nonempty_value(value):
@@ -441,7 +441,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value.
+            The original resource, with the added value
         """
         self.values.append(GeonameValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -467,7 +467,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value.s
+            The original resource, with the added values
         """
         self.values.extend([GeonameValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
@@ -493,7 +493,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value. if it was not empty.
+            The original resource, with the added value if it was not empty.
             Else the unchanged original resource.
         """
         if is_nonempty_value(value):
@@ -524,7 +524,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value.
+            The original resource, with the added value
         """
         self.values.append(IntValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -549,7 +549,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value.s
+            The original resource, with the added values
         """
         self.values.extend([IntValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
@@ -574,7 +574,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value. if it was not empty.
+            The original resource, with the added value if it was not empty.
             Else the unchanged original resource.
         """
         if is_nonempty_value(value):
@@ -604,7 +604,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value.
+            The original resource, with the added value
         """
         self.values.append(LinkValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -628,7 +628,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value.s
+            The original resource, with the added values
         """
         self.values.extend([LinkValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
@@ -653,7 +653,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value. if it was not empty.
+            The original resource, with the added value if it was not empty.
             Else the unchanged original resource.
         """
         if is_nonempty_value(value):
@@ -685,7 +685,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value.
+            The original resource, with the added value
         """
         self.values.append(ListValue(value, list_name, prop_name, permissions, comment, self.res_id))
         return self
@@ -711,7 +711,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value.s
+            The original resource, with the added values
         """
         self.values.extend([ListValue(v, list_name, prop_name, permissions, comment, self.res_id) for v in values])
         return self
@@ -737,7 +737,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value. if it was not empty.
+            The original resource, with the added value if it was not empty.
             Else the unchanged original resource.
         """
         if is_nonempty_value(value):
@@ -767,7 +767,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value.
+            The original resource, with the added value
         """
         self.values.append(SimpleText(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -791,7 +791,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value.s
+            The original resource, with the added values
         """
         self.values.extend([SimpleText(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
@@ -815,7 +815,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value. if it was not empty.
+            The original resource, with the added value if it was not empty.
             Else the unchanged original resource.
         """
         if is_nonempty_value(value):
@@ -854,7 +854,7 @@ class Resource:
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
-            The original resource, with the added value.
+            The original resource, with the added value
         """
         value = replace_newlines_with_tags(str(value), newline_replacement)
         self.values.append(Richtext(value, prop_name, permissions, comment, self.res_id))
@@ -888,7 +888,7 @@ class Resource:
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
-            The original resource, with the added value.s
+            The original resource, with the added values
         """
         values = [replace_newlines_with_tags(str(v), newline_replacement) for v in values]
         self.values.extend([Richtext(v, prop_name, permissions, comment, self.res_id) for v in values])
@@ -922,7 +922,7 @@ class Resource:
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
-            The original resource, with the added value. if it was not empty.
+            The original resource, with the added value if it was not empty.
             Else the unchanged original resource.
         """
         if is_nonempty_value(value):
@@ -953,7 +953,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value.
+            The original resource, with the added value
         """
         self.values.append(TimeValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -977,7 +977,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value.s
+            The original resource, with the added values
         """
         self.values.extend([TimeValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
@@ -1001,7 +1001,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value. if it was not empty.
+            The original resource, with the added value if it was not empty.
             Else the unchanged original resource.
         """
         if is_nonempty_value(value):
@@ -1031,7 +1031,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value.
+            The original resource, with the added value
         """
         self.values.append(UriValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -1055,7 +1055,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value.s
+            The original resource, with the added values
         """
         self.values.extend([UriValue(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
@@ -1079,7 +1079,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value. if it was not empty.
+            The original resource, with the added value if it was not empty.
             Else the unchanged original resource.
         """
         if is_nonempty_value(value):
@@ -1110,7 +1110,7 @@ class Resource:
             InputError: If the resource already has a file or IIIF URI value
 
         Returns:
-            The original resource, with the added value.
+            The original resource, with the added value
         """
         if self.file_value:
             raise InputError(
@@ -1141,7 +1141,7 @@ class Resource:
             InputError: If the resource already has a file or IIIF URI value
 
         Returns:
-            The original resource, with the added value.
+            The original resource, with the added value
         """
         if self.file_value:
             raise InputError(

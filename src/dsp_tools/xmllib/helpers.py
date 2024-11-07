@@ -351,7 +351,7 @@ def _from_year_range(year_range: Match[str]) -> str:
     return f"GREGORIAN:CE:{startyear}:CE:{endyear}"
 
 
-def make_xsd_compatible_id(input_value: str | float | int | bool) -> str:
+def make_xsd_compatible_id(input_value: str | float | int) -> str:
     """
     An xsd:ID may not contain all types of special characters,
     and it must start with a letter or underscore.
@@ -378,7 +378,7 @@ def make_xsd_compatible_id(input_value: str | float | int | bool) -> str:
     return res
 
 
-def make_xsd_compatible_id_with_uuid(input_value: str | float | int | bool) -> str:
+def make_xsd_compatible_id_with_uuid(input_value: str | float | int) -> str:
     """
     An xsd:ID may not contain all types of special characters,
     and it must start with a letter or underscore.

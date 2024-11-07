@@ -23,6 +23,7 @@ def is_nonempty_value(value: Any) -> bool:
 def is_bool_like(value: Any) -> bool:
     """
     Checks if a value is a bool or can be converted into a bool.
+    It is case-insensitive, meaning that the words can also be capitalised.
 
     Args:
         value: value to check

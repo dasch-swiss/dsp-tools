@@ -1,6 +1,12 @@
 import json
+import uuid
 from typing import Any
 from typing import Iterable
+
+import regex
+
+from dsp_tools.models.exceptions import InputError
+from dsp_tools.xmllib.value_checkers import is_nonempty_value
 
 
 def create_label_to_name_list_node_mapping(
@@ -56,3 +62,54 @@ def _name_label_mapper_iterator(
         if "name" in node:
             yield node["labels"][language_of_label], node["name"]
             # the actual values of the name and the label
+
+
+def make_xsd_compatible_id_with_uuid(string: str) -> str:
+    """
+    An xsd:ID may not contain all types of special characters.
+    This function replaces illegal characters with "_" and appends a random UUID.
+    The UUID will be different each time the function is called.
+
+    The string must contain at least one Unicode letter (matching the regex ``\\p{L}``),
+    underscore, !, ?, or number, but must not be `None`, `<NA>`, `N/A`, or `-`.
+    Otherwise, a BaseError will be raised.
+
+    Args:
+        string: input string
+
+    Raises:
+        BaseError: if the input cannot be transformed to an xsd:ID
+
+    Returns:
+        an xsd ID based on the input string, with a UUID attached.
+    """
+    res = make_xsd_compatible_id(string)
+    _uuid = uuid.uuid4()
+    res = f"{res}_{_uuid}"
+    return res
+
+
+def make_xsd_compatible_id(string: str) -> str:
+    """
+    An xsd:ID may not contain all types of special characters.
+    This function replaces illegal characters with "_".
+
+    The string must contain at least one Unicode letter (matching the regex ``\\p{L}``),
+    _, !, ?, or number, but must not be `None`, `<NA>`, `N/A`, or `-`.
+
+    Args:
+        string: input string
+
+    Raises:
+        InputError: if the input cannot be transformed to an xsd:ID
+
+    Returns:
+        An xsd ID compatible string based on the input string
+    """
+    if not isinstance(string, str) or not is_nonempty_value(string):
+        raise InputError(f"The input '{string}' cannot be transformed to an xsd:ID")
+    # if the start of string is neither letter nor underscore, add an underscore
+    res = regex.sub(r"^(?=[^A-Za-z_])", "_", string)
+    # replace all illegal characters by underscore
+    res = regex.sub(r"[^\w_\-.]", "_", res, flags=regex.ASCII)
+    return res

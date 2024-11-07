@@ -66,6 +66,56 @@ def _name_label_mapper_iterator(
             # the actual values of the name and the label
 
 
+def escape_reserved_xml_characters(text: str) -> str:
+    """
+    From richtext strings (encoding="xml"), escape the reserved characters `<`, `>` and `&`,
+    but only if they are not part of a standard standoff tag or escape sequence.
+
+    [See the documentation for the standard standoff tags allowed by DSP-API,
+    which will not be escaped.](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/)
+
+    Args:
+        text: the richtext string to be escaped
+
+    Returns:
+        The escaped richtext string
+    """
+    allowed_tags = [
+        "a( [^>]+)?",  # <a> is the only tag that can have attributes
+        "p",
+        "em",
+        "strong",
+        "u",
+        "sub",
+        "sup",
+        "strike",
+        "h1",
+        "ol",
+        "ul",
+        "li",
+        "tbody",
+        "table",
+        "tr",
+        "td",
+        "br",
+        "hr",
+        "pre",
+        "cite",
+        "blockquote",
+        "code",
+    ]
+    allowed_tags_regex = "|".join(allowed_tags)
+    lookahead = rf"(?!/?({allowed_tags_regex})/?>)"
+    illegal_lt = rf"<{lookahead}"
+    lookbehind = rf"(?<!</?({allowed_tags_regex})/?)"
+    illegal_gt = rf"{lookbehind}>"
+    illegal_amp = r"&(?![#a-zA-Z0-9]+;)"
+    text = regex.sub(illegal_lt, "&lt;", text)
+    text = regex.sub(illegal_gt, "&gt;", text)
+    text = regex.sub(illegal_amp, "&amp;", text)
+    return text
+
+
 def find_date_in_string(string: str) -> str | None:
     """
     Checks if a string contains a date value (single date, or date range),

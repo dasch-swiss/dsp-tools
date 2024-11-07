@@ -64,9 +64,39 @@ def _name_label_mapper_iterator(
             # the actual values of the name and the label
 
 
-def make_xsd_compatible_id_with_uuid(input_string: str | float | int | bool) -> str:
+def make_xsd_compatible_id(input_value: str | float | int | bool) -> str:
     """
-    An xsd:ID may not contain all types of special characters.
+    An xsd:ID may not contain all types of special characters,
+    additionally, it must start with a letter or underscore, if the provided string does not start with either,
+    an underscore is added.
+    This function replaces illegal characters with "_".
+
+    The string must contain at least one Unicode letter (matching the regex ``\\p{L}``),
+    _, !, ?, or number, but must not be `None`, `<NA>`, `N/A`, or `-`.
+
+    Args:
+        input_value: input value
+
+    Raises:
+        InputError: if the input cannot be transformed to an xsd:ID
+
+    Returns:
+        An xsd ID compatible string based on the input value
+    """
+    if not is_nonempty_value(input_value):
+        raise InputError(f"The input '{input_value}' cannot be transformed to an xsd:ID")
+    # if the start of string is neither letter nor underscore, add an underscore
+    res = regex.sub(r"^(?=[^A-Za-z_])", "_", str(input_value))
+    # replace all illegal characters by underscore
+    res = regex.sub(r"[^\w_\-.]", "_", res, flags=regex.ASCII)
+    return res
+
+
+def make_xsd_compatible_id_with_uuid(input_value: str | float | int | bool) -> str:
+    """
+    An xsd:ID may not contain all types of special characters,
+    additionally, it must start with a letter or underscore, if the provided string does not start with either,
+    an underscore is added.
     This function replaces illegal characters with "_".
     The UUID will be different each time the function is called.
 
@@ -74,41 +104,15 @@ def make_xsd_compatible_id_with_uuid(input_string: str | float | int | bool) -> 
     _, !, ?, or number, but must not be `None`, `<NA>`, `N/A`, or `-`.
 
     Args:
-        input_string: input string
+        input_value: input value
 
     Raises:
         InputError: if the input cannot be transformed to an xsd:ID
 
     Returns:
-        an xsd ID based on the input string, with a UUID attached.
+        an xsd ID based on the input value, with a UUID attached.
     """
-    res = make_xsd_compatible_id(input_string)
+    res = make_xsd_compatible_id(input_value)
     _uuid = uuid.uuid4()
     res = f"{res}_{_uuid}"
-    return res
-
-
-def make_xsd_compatible_id(input_string: str | float | int | bool) -> str:
-    """
-    An xsd:ID may not contain all types of special characters.
-    This function replaces illegal characters with "_".
-
-    The string must contain at least one Unicode letter (matching the regex ``\\p{L}``),
-    _, !, ?, or number, but must not be `None`, `<NA>`, `N/A`, or `-`.
-
-    Args:
-        input_string: input string
-
-    Raises:
-        InputError: if the input cannot be transformed to an xsd:ID
-
-    Returns:
-        An xsd ID compatible string based on the input string
-    """
-    if not is_nonempty_value(input_string):
-        raise InputError(f"The input '{input_string}' cannot be transformed to an xsd:ID")
-    # if the start of string is neither letter nor underscore, add an underscore
-    res = regex.sub(r"^(?=[^A-Za-z_])", "_", str(input_string))
-    # replace all illegal characters by underscore
-    res = regex.sub(r"[^\w_\-.]", "_", res, flags=regex.ASCII)
     return res

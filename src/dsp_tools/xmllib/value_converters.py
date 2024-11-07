@@ -47,7 +47,9 @@ def replace_newlines_with_tags(text: str, converter_option: NewlineReplacement) 
 
 def replace_newlines_with_paragraph_tags(text: str) -> str:
     """
-    Replace `Start\\nEnd` with `<p>Start</p><p>End</p>`
+    Replaces one newline `Start\\nEnd` with `<p>Start</p><p>End</p>`
+
+    Replaces multiple newlines `Start\\n\\nEnd` with `<p>Start</p><p>End</p>`
 
     Args:
         text: string to be formatted
@@ -62,7 +64,9 @@ def replace_newlines_with_paragraph_tags(text: str) -> str:
 
 def replace_newlines_with_br_tags(text: str) -> str:
     """
-    Replaces `Start\\nEnd` with `Start<br/>End`
+    Replaces one newline `Start\\nEnd` with `Start<br/>End`
+
+    Replaces multiple newlines `Start\\n\\nEnd` with `Start<br/><br/>End`
 
     Args:
         text: string to be formatted

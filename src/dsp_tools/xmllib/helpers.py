@@ -67,18 +67,17 @@ def _name_label_mapper_iterator(
 def make_xsd_compatible_id_with_uuid(string: str) -> str:
     """
     An xsd:ID may not contain all types of special characters.
-    This function replaces illegal characters with "_" and appends a random UUID.
+    This function replaces illegal characters with "_".
     The UUID will be different each time the function is called.
 
     The string must contain at least one Unicode letter (matching the regex ``\\p{L}``),
-    underscore, !, ?, or number, but must not be `None`, `<NA>`, `N/A`, or `-`.
-    Otherwise, a BaseError will be raised.
+    _, !, ?, or number, but must not be `None`, `<NA>`, `N/A`, or `-`.
 
     Args:
         string: input string
 
     Raises:
-        BaseError: if the input cannot be transformed to an xsd:ID
+        InputError: if the input cannot be transformed to an xsd:ID
 
     Returns:
         an xsd ID based on the input string, with a UUID attached.

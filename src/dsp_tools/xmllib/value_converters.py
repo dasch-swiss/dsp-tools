@@ -37,7 +37,7 @@ def replace_newlines_with_tags(text: str, converter_option: NewlineReplacement) 
         converter_option: tag options
 
     Returns:
-        string with replaced values
+        String with replaced values
 
     Raises:
         InputError: If an invalid conversion option is given
@@ -55,11 +55,14 @@ def replace_newlines_with_paragraph_tags(text: str) -> str:
     """
     Replace `Start\\nEnd` with `<p>Start</p><p>End</p>`
 
+    Multiple consecutive newlines will be treated as one newline:
+    `Start\\nMiddle\\n\\nEnd` becomes `<p>Start</p><p>Middle</p><p>End</p>`
+
     Args:
         text: string to be formatted
 
     Returns:
-        formatted string with tags
+        Formatted string with paragraph tags
     """
     splt = [x for x in text.split("\n") if x != ""]
     formatted = [f"<p>{x}</p>" for x in splt]
@@ -70,10 +73,13 @@ def replace_newlines_with_br_tags(text: str) -> str:
     """
     Replaces `Start\\nEnd` with `Start<br/>End`
 
+    Multiple consecutive newlines will be converted into multiple break-lines:
+    `Start\\n\\nEnd` with `Start<br/><br/>End`
+
     Args:
         text: string to be formatted
 
     Returns:
-        formatted string with tags
+        Formatted string with break-line tags
     """
     return text.replace("\n", "<br/>")

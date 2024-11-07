@@ -23,9 +23,9 @@ class NewlineReplacement(Enum):
     """
     Options how to deal with `\\n` inside rich text values.
 
-    - `NONE`: Don't modify the rich text (`\\n` will be lost, because it is meaningless in an XML file)
-    - `PARAGRAPH`: Replace `Start\\nEnd` with `<p>Start</p><p>End</p>`
-    - `LINEBREAK`: Replace `Start\\nEnd` with `Start<br/>End`
+    - `NONE`: don't modify the rich text (`\\n` will be lost, because it is meaningless in an XML file)
+    - `PARAGRAPH`: replace `Start\\nEnd` with `<p>Start</p><p>End</p>`
+    - `LINEBREAK`: replace `Start\\nEnd` with `Start<br/>End`
     """
 
     NONE = auto()

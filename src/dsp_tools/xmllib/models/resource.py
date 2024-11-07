@@ -77,9 +77,9 @@ class Resource:
         Create a new resource.
 
         Args:
-            res_id: Resource ID
-            restype: Resource type
-            label: Resource label
+            res_id: resource ID
+            restype: resource type
+            label: resource label
             permissions: optional permissions of this resource
 
         Returns:
@@ -174,7 +174,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value
+            The original resource, with the added value if it was not empty, else the unchanged original resource.
         """
         if is_nonempty_value(value):
             self.values.append(BooleanValue(value, prop_name, permissions, comment, self.res_id))
@@ -251,7 +251,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value
+            The original resource, with the added value if it was not empty, else the unchanged original resource.
         """
         if is_nonempty_value(value):
             self.values.append(ColorValue(value, prop_name, permissions, comment, self.res_id))
@@ -327,7 +327,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value
+            The original resource, with the added value if it was not empty, else the unchanged original resource.
         """
         if is_nonempty_value(value):
             self.values.append(DateValue(value, prop_name, permissions, comment, self.res_id))
@@ -407,7 +407,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value
+            The original resource, with the added value if it was not empty, else the unchanged original resource.
         """
         if is_nonempty_value(value):
             self.values.append(DecimalValue(value, prop_name, permissions, comment, self.res_id))
@@ -491,7 +491,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value
+            The original resource, with the added value if it was not empty, else the unchanged original resource.
         """
         if is_nonempty_value(value):
             self.values.append(GeonameValue(value, prop_name, permissions, comment, self.res_id))
@@ -571,7 +571,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value
+            The original resource, with the added value if it was not empty, else the unchanged original resource.
         """
         if is_nonempty_value(value):
             self.values.append(IntValue(value, prop_name, permissions, comment, self.res_id))
@@ -649,7 +649,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value
+            The original resource, with the added value if it was not empty, else the unchanged original resource.
         """
         if is_nonempty_value(value):
             self.values.append(LinkValue(value, prop_name, permissions, comment, self.res_id))
@@ -732,7 +732,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value
+            The original resource, with the added value if it was not empty, else the unchanged original resource.
         """
         if is_nonempty_value(value):
             self.values.append(ListValue(value, list_name, prop_name, permissions, comment, self.res_id))
@@ -809,7 +809,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value
+            The original resource, with the added value if it was not empty, else the unchanged original resource.
         """
         if is_nonempty_value(value):
             self.values.append(SimpleText(value, prop_name, permissions, comment, self.res_id))
@@ -844,7 +844,7 @@ class Resource:
             value: value to add
             permissions: optional permissions of this value
             comment: optional comment
-            newline_replacement: Options how to deal with `\\n` inside the text value. Default: replace with `<br/>`.
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added value
@@ -878,7 +878,7 @@ class Resource:
             values: values to add
             permissions: optional permissions of this value
             comment: optional comment
-            newline_replacement: Options how to deal with `\\n` inside the text value. Default: replace with `<br/>`.
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added values
@@ -912,10 +912,10 @@ class Resource:
             value: value to add or empty value
             permissions: optional permissions of this value
             comment: optional comment
-            newline_replacement: Options how to deal with `\\n` inside the text value. Default: replace with `<br/>`.
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
-            The original resource, with the added value
+            The original resource, with the added value if it was not empty, else the unchanged original resource.
         """
         if is_nonempty_value(value):
             value = replace_newlines_with_tags(str(value), newline_replacement)
@@ -993,7 +993,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value
+            The original resource, with the added value if it was not empty, else the unchanged original resource.
         """
         if is_nonempty_value(value):
             self.values.append(TimeValue(value, prop_name, permissions, comment, self.res_id))
@@ -1070,7 +1070,7 @@ class Resource:
             comment: optional comment
 
         Returns:
-            The original resource, with the added value
+            The original resource, with the added value if it was not empty, else the unchanged original resource.
         """
         if is_nonempty_value(value):
             self.values.append(UriValue(value, prop_name, permissions, comment, self.res_id))
@@ -1155,7 +1155,7 @@ class Resource:
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#describing-resources-with-the-resource-element)
 
         Args:
-            creation_date: Creation date of the resource in SALSAH
+            creation_date: creation date of the resource in SALSAH
             iri: Original IRI in SALSAH
             ark: Original ARK in SALSAH
 

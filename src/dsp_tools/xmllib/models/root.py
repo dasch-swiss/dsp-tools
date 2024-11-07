@@ -55,7 +55,7 @@ class XMLRoot:
         Add one resource to the root.
 
         Args:
-            resource: Any one of:
+            resource: any one of:
                     `Resource`,
                     `AnnotationResource`,
                     `RegionResource`,
@@ -74,7 +74,7 @@ class XMLRoot:
         Add a list of resources to the root.
 
         Args:
-            resources: A list of:
+            resources: a list of:
                     `Resource`,
                     `AnnotationResource`,
                     `RegionResource`,
@@ -94,7 +94,7 @@ class XMLRoot:
         If the resource is not None, add it to the XMLRoot, otherwise return the XMLRoot unchanged.
 
         Args:
-            resource: Any one of:
+            resource: any one of:
                     `Resource`,
                     `AnnotationResource`,
                     `RegionResource`,
@@ -103,7 +103,7 @@ class XMLRoot:
                     `AudioSegmentResource`
 
         Returns:
-            The original XMLRoot, with the added resource
+            The original XMLRoot, with the added value if it was not empty. Else the unchanged original XMLRoot.
         """
         if resource:
             self.resources.append(resource)

@@ -104,7 +104,7 @@ class AnnotationResource:
         If the value is not empty, add it as comment, otherwise return the resource unchanged.
 
         Args:
-            comment: Comment or empty value
+            comment: text or empty value
 
         Returns:
             The original resource, with the added comment
@@ -120,7 +120,7 @@ class AnnotationResource:
         Add metadata from a SALSAH migration.
 
         Args:
-            creation_date: Creation date of the resource in SALSAH
+            creation_date: creation date of the resource in SALSAH
             iri: Original IRI in SALSAH
             ark: Original ARK in SALSAH
 
@@ -224,7 +224,7 @@ class RegionResource:
         Add a comment to the resource
 
         Args:
-            comment: Comment text
+            comment: text
 
         Returns:
             The original resource, with the added comment
@@ -237,7 +237,7 @@ class RegionResource:
         Add several comments to the resource
 
         Args:
-            comments: List of comment texts
+            comments: list of texts
 
         Returns:
             The original resource, with the added comments
@@ -250,7 +250,7 @@ class RegionResource:
         If the value is not empty, add it as comment, otherwise return the resource unchanged.
 
         Args:
-            comment: Comment or empty value
+            comment: text or empty value
 
         Returns:
             The original resource, with the added comment
@@ -266,7 +266,7 @@ class RegionResource:
         Add metadata from a SALSAH migration.
 
         Args:
-            creation_date: Creation date of the resource in SALSAH
+            creation_date: creation date of the resource in SALSAH
             iri: Original IRI in SALSAH
             ark: Original ARK in SALSAH
 
@@ -359,7 +359,7 @@ class LinkResource:
         Add a comment to the resource
 
         Args:
-            comment: Comment text
+            comment: text
 
         Returns:
             The original resource, with the added comment
@@ -372,7 +372,7 @@ class LinkResource:
         Add several comments to the resource
 
         Args:
-            comments: List of comment texts
+            comments: list of texts
 
         Returns:
             The original resource, with the added comments
@@ -385,7 +385,7 @@ class LinkResource:
         If the value is not empty, add it as comment, otherwise return the resource unchanged.
 
         Args:
-            comment: Comment or empty value
+            comment: text or empty value
 
         Returns:
             The original resource, with the added comment
@@ -401,7 +401,7 @@ class LinkResource:
         Add metadata from a SALSAH migration.
 
         Args:
-            creation_date: Creation date of the resource in SALSAH
+            creation_date: creation date of the resource in SALSAH
             iri: Original IRI in SALSAH
             ark: Original ARK in SALSAH
 
@@ -518,7 +518,7 @@ class VideoSegmentResource:
         Add a title to the resource.
 
         Args:
-            title: Title text
+            title: text
 
         Returns:
             The original resource, with the added title
@@ -533,7 +533,7 @@ class VideoSegmentResource:
         If the value is not empty, add it as title, otherwise return the resource unchanged.
 
         Args:
-            title: Title or empty value
+            title: text or empty value
 
         Returns:
             The original resource, with the added title
@@ -549,7 +549,7 @@ class VideoSegmentResource:
         Add a comment to the resource
 
         Args:
-            comment: Comment text
+            comment: text
 
         Returns:
             The original resource, with the added comment
@@ -562,7 +562,7 @@ class VideoSegmentResource:
         Add several comments to the resource
 
         Args:
-            comments: List of comment texts
+            comments: list of texts
 
         Returns:
             The original resource, with the added comments
@@ -575,7 +575,7 @@ class VideoSegmentResource:
         If the value is not empty, add it as comment, otherwise return the resource unchanged.
 
         Args:
-            comment: Comment or empty value
+            comment: text or empty value
 
         Returns:
             The original resource, with the added comment
@@ -602,7 +602,7 @@ class VideoSegmentResource:
         Add several descriptions to the resource
 
         Args:
-            descriptions: list of text
+            descriptions: list of texts
 
         Returns:
             The original resource, with the added descriptions
@@ -642,7 +642,7 @@ class VideoSegmentResource:
         Add several keywords to the resource
 
         Args:
-            keywords: list of text
+            keywords: list of texts
 
         Returns:
             The original resource, with the added keywords
@@ -682,7 +682,7 @@ class VideoSegmentResource:
         Add several links to related resources
 
         Args:
-            relates_to: IDs of the related resources
+            relates_to: list of IDs of the related resources
 
         Returns:
             The original resource, with the added related resources
@@ -711,7 +711,7 @@ class VideoSegmentResource:
         Add metadata from a SALSAH migration.
 
         Args:
-            creation_date: Creation date of the resource in SALSAH
+            creation_date: creation date of the resource in SALSAH
             iri: Original IRI in SALSAH
             ark: Original ARK in SALSAH
 
@@ -801,7 +801,7 @@ class AudioSegmentResource:
         Add a title to the resource.
 
         Args:
-            title: Title text
+            title: text
 
         Returns:
             The original resource, with the added title
@@ -816,7 +816,7 @@ class AudioSegmentResource:
         If the value is not empty, add it as title, otherwise return the resource unchanged.
 
         Args:
-            title: Title text or empty value
+            title: text or empty value
 
         Returns:
             The original resource, with the added title
@@ -832,7 +832,7 @@ class AudioSegmentResource:
         Add a comment to the resource
 
         Args:
-            comment: Comment text
+            comment: text
 
         Returns:
             The original resource, with the added comment
@@ -845,7 +845,7 @@ class AudioSegmentResource:
         Add several comments to the resource
 
         Args:
-            comments: List of comment texts
+            comments: list of texts
 
         Returns:
             The original resource, with the added comments
@@ -858,7 +858,7 @@ class AudioSegmentResource:
         If the value is not empty, add it as comment, otherwise return the resource unchanged.
 
         Args:
-            comment: Comment or empty value
+            comment: text or empty value
 
         Returns:
             The original resource, with the added comment
@@ -885,7 +885,7 @@ class AudioSegmentResource:
         Add several descriptions to the resource
 
         Args:
-            descriptions: list of text
+            descriptions: list of texts
 
         Returns:
             The original resource, with the added descriptions
@@ -925,7 +925,7 @@ class AudioSegmentResource:
         Add several keywords to the resource
 
         Args:
-            keywords: list of text
+            keywords: list of texts
 
         Returns:
             The original resource, with the added keywords
@@ -965,7 +965,7 @@ class AudioSegmentResource:
         Add several links to related resources
 
         Args:
-            relates_to: IDs of the related resources
+            relates_to: list of IDs of the related resources
 
         Returns:
             The original resource, with the added related resources
@@ -994,7 +994,7 @@ class AudioSegmentResource:
         Add metadata from a SALSAH migration.
 
         Args:
-            creation_date: Creation date of the resource in SALSAH
+            creation_date: creation date of the resource in SALSAH
             iri: Original IRI in SALSAH
             ark: Original ARK in SALSAH
 

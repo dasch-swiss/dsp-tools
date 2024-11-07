@@ -66,64 +66,11 @@ def _name_label_mapper_iterator(
             # the actual values of the name and the label
 
 
-def make_xsd_compatible_id(input_value: str | float | int | bool) -> str:
-    """
-    An xsd:ID may not contain all types of special characters,
-    additionally, it must start with a letter or underscore, if the provided string does not start with either,
-    an underscore is added.
-    This function replaces illegal characters with "_".
-
-    The string must contain at least one Unicode letter (matching the regex ``\\p{L}``),
-    _, !, ?, or number, but must not be `None`, `<NA>`, `N/A`, or `-`.
-
-    Args:
-        input_value: input value
-
-    Raises:
-        InputError: if the input cannot be transformed to an xsd:ID
-
-    Returns:
-        An xsd ID compatible string based on the input value
-    """
-    if not is_nonempty_value(input_value):
-        raise InputError(f"The input '{input_value}' cannot be transformed to an xsd:ID")
-    # if the start of string is neither letter nor underscore, add an underscore
-    res = regex.sub(r"^(?=[^A-Za-z_])", "_", str(input_value))
-    # replace all illegal characters by underscore
-    res = regex.sub(r"[^\w_\-.]", "_", res, flags=regex.ASCII)
-    return res
-
-
-def make_xsd_compatible_id_with_uuid(input_value: str | float | int | bool) -> str:
-    """
-    An xsd:ID may not contain all types of special characters,
-    additionally, it must start with a letter or underscore, if the provided string does not start with either,
-    an underscore is added.
-    This function replaces illegal characters with "_".
-    The UUID will be different each time the function is called.
-
-    The string must contain at least one Unicode letter (matching the regex ``\\p{L}``),
-    _, !, ?, or number, but must not be `None`, `<NA>`, `N/A`, or `-`.
-
-    Args:
-        input_value: input value
-
-    Raises:
-        InputError: if the input cannot be transformed to an xsd:ID
-
-    Returns:
-        an xsd ID based on the input value, with a UUID attached.
-    """
-    res = make_xsd_compatible_id(input_value)
-    _uuid = uuid.uuid4()
-    res = f"{res}_{_uuid}"
-    return res
-
-
 def find_date_in_string(string: str) -> str | None:
     """
     Checks if a string contains a date value (single date, or date range),
-    and returns the first found date as DSP-formatted string.
+    and returns the first found date as DSP-formatted string,
+    [see XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#date)
     Returns None if no date was found.
 
     Notes:
@@ -159,8 +106,6 @@ def find_date_in_string(string: str) -> str | None:
 
     Returns:
         DSP-formatted date string, or None
-
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#date-prop
     """
 
     # sanitise input, just in case that the method was called on an empty or N/A cell
@@ -354,3 +299,57 @@ def _from_year_range(year_range: Match[str]) -> str:
     if endyear <= startyear:
         raise ValueError
     return f"GREGORIAN:CE:{startyear}:CE:{endyear}"
+
+
+def make_xsd_compatible_id(input_value: str | float | int | bool) -> str:
+    """
+    An xsd:ID may not contain all types of special characters,
+    additionally, it must start with a letter or underscore, if the provided string does not start with either,
+    an underscore is added.
+    This function replaces illegal characters with "_".
+
+    The string must contain at least one Unicode letter (matching the regex ``\\p{L}``),
+    _, !, ?, or number, but must not be `None`, `<NA>`, `N/A`, or `-`.
+
+    Args:
+        input_value: input value
+
+    Raises:
+        InputError: if the input cannot be transformed to an xsd:ID
+
+    Returns:
+        An xsd ID compatible string based on the input value
+    """
+    if not is_nonempty_value(input_value):
+        raise InputError(f"The input '{input_value}' cannot be transformed to an xsd:ID")
+    # if the start of string is neither letter nor underscore, add an underscore
+    res = regex.sub(r"^(?=[^A-Za-z_])", "_", str(input_value))
+    # replace all illegal characters by underscore
+    res = regex.sub(r"[^\w_\-.]", "_", res, flags=regex.ASCII)
+    return res
+
+
+def make_xsd_compatible_id_with_uuid(input_value: str | float | int | bool) -> str:
+    """
+    An xsd:ID may not contain all types of special characters,
+    additionally, it must start with a letter or underscore, if the provided string does not start with either,
+    an underscore is added.
+    This function replaces illegal characters with "_".
+    The UUID will be different each time the function is called.
+
+    The string must contain at least one Unicode letter (matching the regex ``\\p{L}``),
+    _, !, ?, or number, but must not be `None`, `<NA>`, `N/A`, or `-`.
+
+    Args:
+        input_value: input value
+
+    Raises:
+        InputError: if the input cannot be transformed to an xsd:ID
+
+    Returns:
+        an xsd ID based on the input value, with a UUID attached.
+    """
+    res = make_xsd_compatible_id(input_value)
+    _uuid = uuid.uuid4()
+    res = f"{res}_{_uuid}"
+    return res

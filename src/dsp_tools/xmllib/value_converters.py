@@ -6,18 +6,23 @@ from dsp_tools.xmllib.models.config_options import NewlineReplacement
 def convert_to_bool_string(value: Any) -> str:
     """
     Turns a value into a bool string, suitable for an XML.
+    It is case-insensitive, meaning that the words can also be capitalised.
+
+    Accepted values:
+        - "false", "0", "0.0", "no", "non", "nein" -> "false"
+        - "true", "1", "1.0", "yes", "oui", "ja" -> "true"
 
     Args:
         value: value to transform
 
     Returns:
-        'true' or 'false' if it is a known value,
+        'true' or 'false' if it is an accepted value,
         else it returns the original value as a string.
     """
     str_val = str(value).lower().strip()
-    if str_val in ("false", "0", "0.0", "no"):
+    if str_val in ("false", "0", "0.0", "no", "non", "nein"):
         return "false"
-    elif str_val in ("true", "1", "1.0", "yes"):
+    elif str_val in ("true", "1", "1.0", "yes", "oui", "ja"):
         return "true"
     return str(value)
 

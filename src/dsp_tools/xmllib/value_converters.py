@@ -11,8 +11,7 @@ def convert_to_bool_string(value: Any) -> str:
         value: value to transform
 
     Returns:
-        'true' or 'false' if it is a known value,
-        else it returns the original value as a string.
+        'true' or 'false' if it is a known value, else it returns the original value as a string.
     """
     str_val = str(value).lower().strip()
     if str_val in ("false", "0", "0.0", "no"):
@@ -32,7 +31,7 @@ def replace_newlines_with_tags(text: str, converter_option: NewlineReplacement) 
         converter_option: tag options
 
     Returns:
-        string with replaced values
+        String with replaced values
 
     Raises:
         InputError: If an invalid conversion option is given
@@ -54,7 +53,7 @@ def replace_newlines_with_paragraph_tags(text: str) -> str:
         text: string to be formatted
 
     Returns:
-        formatted string with tags
+        Formatted string with paragraph tags
     """
     splt = [x for x in text.split("\n") if x != ""]
     formatted = [f"<p>{x}</p>" for x in splt]
@@ -69,6 +68,6 @@ def replace_newlines_with_br_tags(text: str) -> str:
         text: string to be formatted
 
     Returns:
-        formatted string with tags
+        Formatted string with break-line tags
     """
     return text.replace("\n", "<br/>")

@@ -152,30 +152,23 @@ class ShaclValidator:
         Raises:
             InternalError: in case of a non-ok response
         """
-        data_onto_file = self._get_data_and_onto()
         result_graph = Graph()
         conforms = True
 
-        card_result = self._validate_cardinality(data_onto_file)
+        card_result = self._validate_cardinality()
         if not card_result.conforms:
             result_graph += card_result.validation_graph
             conforms = False
 
-        content_result = self._validate_content(data_onto_file)
+        content_result = self._validate_content()
         if not content_result.conforms:
             result_graph += content_result.validation_graph
             conforms = False
 
         return SHACLValidationReport(conforms=conforms, validation_graph=result_graph)
 
-    def _get_data_and_onto(self) -> OneFile:
-        data_str = self.rdf_graphs.get_data_and_onto_str()
-        return OneFile(file_name="data.ttl", file_content=data_str, file_format="text/turtle")
-
-    def _validate_cardinality(self, data_onto_file: OneFile) -> SHACLValidationReport:
-        shacl_str = self.rdf_graphs.get_cardinality_shacl_and_onto_str()
-        shacl_file = OneFile(file_name="shacl.ttl", file_content=shacl_str, file_format="text/turtle")
-        card_files = PostFiles([shacl_file, data_onto_file])
+    def _validate_cardinality(self) -> SHACLValidationReport:
+        card_files = self._prepare_cardinality_files()
         response = self.api_con.post_files(endpoint="shacl/validate", files=card_files)
         if not response.ok:
             msg = (
@@ -186,11 +179,16 @@ class ShaclValidator:
             raise InternalError(msg)
         return self._parse_validation_result(response.text)
 
-    def _validate_content(self, data_onto_file: OneFile) -> SHACLValidationReport:
-        shacl_str = self.rdf_graphs.get_content_shacl_and_onto_str()
+    def _prepare_cardinality_files(self) -> PostFiles:
+        shacl_str = self.rdf_graphs.get_cardinality_shacl_and_onto_str()
         shacl_file = OneFile(file_name="shacl.ttl", file_content=shacl_str, file_format="text/turtle")
-        card_files = PostFiles([shacl_file, data_onto_file])
-        response = self.api_con.post_files(endpoint="shacl/validate", files=card_files)
+        data_str = self.rdf_graphs.get_data_str()
+        data_file = OneFile(file_name="data.ttl", file_content=data_str, file_format="text/turtle")
+        return PostFiles([shacl_file, data_file])
+
+    def _validate_content(self) -> SHACLValidationReport:
+        content_files = self._prepare_content_files()
+        response = self.api_con.post_files(endpoint="shacl/validate", files=content_files)
         if not response.ok:
             msg = (
                 f"NON-OK RESPONSE | Request: POST files for SHACL content validation | "
@@ -199,6 +197,13 @@ class ShaclValidator:
             logger.error(msg)
             raise InternalError(msg)
         return self._parse_validation_result(response.text)
+
+    def _prepare_content_files(self) -> PostFiles:
+        shacl_str = self.rdf_graphs.get_content_shacl_and_onto_str()
+        shacl_file = OneFile(file_name="shacl.ttl", file_content=shacl_str, file_format="text/turtle")
+        data_str = self.rdf_graphs.get_data_and_onto_str()
+        data_onto_file = OneFile(file_name="data.ttl", file_content=data_str, file_format="text/turtle")
+        return PostFiles([shacl_file, data_onto_file])
 
     def _parse_validation_result(self, response_text: str) -> SHACLValidationReport:
         graph = Graph()

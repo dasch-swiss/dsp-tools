@@ -24,8 +24,11 @@ class RDFGraphs:
         g = self.data + self.ontos + self.knora_api
         return g.serialize(format="ttl")
 
+    def get_data_str(self) -> str:
+        return self.data.serialize(format="ttl")
+
     def get_cardinality_shacl_and_onto_str(self) -> str:
-        g = self.cardinality_shapes
+        g = self.cardinality_shapes + self.ontos + self.knora_api
         return g.serialize(format="ttl")
 
     def get_content_shacl_and_onto_str(self) -> str:

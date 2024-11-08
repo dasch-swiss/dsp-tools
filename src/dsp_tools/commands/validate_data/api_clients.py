@@ -152,16 +152,16 @@ class ShaclValidator:
         Raises:
             InternalError: in case of a non-ok response
         """
-        data_onto = self._get_data_and_onto()
+        data_onto_file = self._get_data_and_onto()
         result_graph = Graph()
         conforms = True
 
-        card_result = self._validate_cardinality(data_onto)
+        card_result = self._validate_cardinality(data_onto_file)
         if not card_result.conforms:
             result_graph += card_result.validation_graph
             conforms = False
 
-        content_result = self._validate_content(data_onto)
+        content_result = self._validate_content(data_onto_file)
         if not content_result.conforms:
             result_graph += content_result.validation_graph
             conforms = False

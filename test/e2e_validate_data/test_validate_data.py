@@ -366,13 +366,19 @@ class TestReformatValidationGraph:
 
     def test_reformat_inheritance_violation(self, inheritance_violation: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(inheritance_violation)
-        expected_ids = ["ResourceSubCls1", "ResourceSubCls2", "ResourceSubCls2", "ResourceUnrelated"]
+        expected_results = [
+            ("ResourceSubCls1", {"onto:hasText0"}),
+            ("ResourceSubCls2", {"onto:hasTextSubProp1", "onto:hasText0"}),
+            ("ResourceSubCls2", {"onto:hasTextSubProp1", "onto:hasText0"}),
+            ("ResourceUnrelated", {"onto:hasText0"}),
+        ]
         assert not result.unexpected_results
-        assert len(result.problems) == len(expected_ids)
+        assert len(result.problems) == len(expected_results)
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
-        for one_result, expected_id in zip(sorted_problems, expected_ids):
+        for one_result, expected in zip(sorted_problems, expected_results):
             assert isinstance(one_result, NonExistentCardinalityProblem)
-            assert one_result.res_id == expected_id
+            assert one_result.res_id == expected[0]
+            assert one_result.prop_name in expected[1]
 
 
 if __name__ == "__main__":

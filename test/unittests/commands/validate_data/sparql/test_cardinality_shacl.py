@@ -12,7 +12,6 @@ from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct_all_cardinalities
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct_resource_nodeshape
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import construct_cardinality_node_shapes
-from test.unittests.commands.validate_data.constants import API_SHAPES
 from test.unittests.commands.validate_data.constants import DASH
 from test.unittests.commands.validate_data.constants import ONTO
 
@@ -21,7 +20,7 @@ class TestCheckTripleNumbersOnto:
     def test_nodeshape(self, onto_graph: Graph) -> None:
         result = _construct_resource_nodeshape(onto_graph)
         number_of_resource_classes = 6
-        triples_cls_nodeshape = 3 * number_of_resource_classes
+        triples_cls_nodeshape = 9 * number_of_resource_classes
         assert len(result) == triples_cls_nodeshape
 
     def test_cardinality_1(self, onto_graph: Graph) -> None:
@@ -74,7 +73,7 @@ def test_construct_resource_nodeshape_one_res(one_res_one_prop: Graph) -> None:
     assert len(node_triples) == num_triples
     assert next(result.subjects(RDF.type, SH.NodeShape)) == subject_iri
     assert next(result.objects(subject_iri, DASH.closedByTypes)) == Literal(True)
-    assert next(result.objects(subject_iri, SH.property)) == API_SHAPES.rdfsLabel_Shape
+    assert isinstance(next(result.objects(subject_iri, SH.property)), BNode)
 
 
 def test_construct_resource_nodeshape_no_res(one_bool_prop: Graph) -> None:

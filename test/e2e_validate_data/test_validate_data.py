@@ -131,6 +131,35 @@ def special_characters_violation(_create_project_special: Iterator[None]) -> Val
     )
 
 
+@lru_cache(maxsize=None)
+@pytest.fixture
+def _create_project_inheritance() -> Iterator[None]:
+    with get_containers():
+        success = create_project(Path("testdata/validate-data/inheritance/project_inheritance.json"), CREDS)
+        assert success
+        yield
+
+
+@lru_cache(maxsize=None)
+@pytest.fixture
+def inheritance_correct(_create_project_inheritance: Iterator[None]) -> ValidationReportGraphs:
+    return _get_validation_result(
+        LOCAL_API,
+        Path("testdata/validate-data/inheritance/inheritance_correct.xml"),
+        DONT_SAVE_GRAPHS,
+    )
+
+
+@lru_cache(maxsize=None)
+@pytest.fixture
+def inheritance_violation(_create_project_inheritance: Iterator[None]) -> ValidationReportGraphs:
+    return _get_validation_result(
+        LOCAL_API,
+        Path("testdata/validate-data/inheritance/inheritance_violation.xml"),
+        DONT_SAVE_GRAPHS,
+    )
+
+
 def test_extract_identifiers_of_resource_results(every_combination_once: ValidationReportGraphs) -> None:
     report_and_onto = every_combination_once.validation_graph + every_combination_once.onto_graph
     data_and_onto = every_combination_once.data_graph + every_combination_once.onto_graph
@@ -185,6 +214,12 @@ class TestCheckConforms:
 
     def test_special_characters_violation(self, special_characters_violation: ValidationReportGraphs) -> None:
         assert not special_characters_violation.conforms
+
+    def test_inheritance_correct(self, inheritance_correct: ValidationReportGraphs) -> None:
+        assert inheritance_correct.conforms
+
+    def test_inheritance_violation(self, inheritance_violation: ValidationReportGraphs) -> None:
+        assert not inheritance_violation.conforms
 
 
 class TestReformatValidationGraph:
@@ -328,6 +363,22 @@ class TestReformatValidationGraph:
                 assert prblm.actual_content == expected[2]
             elif isinstance(prblm, ContentRegexProblem):
                 assert prblm.res_id == expected[0]
+
+    def test_reformat_inheritance_violation(self, inheritance_violation: ValidationReportGraphs) -> None:
+        result = reformat_validation_graph(inheritance_violation)
+        expected_results = [
+            ("ResourceSubCls1", {"onto:hasText0"}),
+            ("ResourceSubCls2", {"onto:hasTextSubProp1", "onto:hasText0"}),
+            ("ResourceSubCls2", {"onto:hasTextSubProp1", "onto:hasText0"}),
+            ("ResourceUnrelated", {"onto:hasText0"}),
+        ]
+        assert not result.unexpected_results
+        assert len(result.problems) == len(expected_results)
+        sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
+        for one_result, expected in zip(sorted_problems, expected_results):
+            assert isinstance(one_result, NonExistentCardinalityProblem)
+            assert one_result.res_id == expected[0]
+            assert one_result.prop_name in expected[1]
 
 
 if __name__ == "__main__":

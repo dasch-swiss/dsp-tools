@@ -396,13 +396,14 @@ def _reformat_link_target_violation_result(result: ResultLinkTargetViolation) ->
             link_target_id=target_id,
         )
     actual_type = _reformat_onto_iri(str(result.target_resource_type))
+    expected_type = _reformat_onto_iri(result.results_message)
     return LinkTargetTypeMismatchProblem(
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
         link_target_id=target_id,
         actual_type=actual_type,
-        expected_type=result.results_message,
+        expected_type=expected_type,
     )
 
 

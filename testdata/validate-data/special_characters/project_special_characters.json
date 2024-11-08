@@ -1,0 +1,137 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json",
+  "project": {
+    "shortcode": "0002",
+    "shortname": "special",
+    "longname": "Test project for validate-data with special characters",
+    "descriptions": {
+      "en": "Test project for validate-data with special characters"
+    },
+    "keywords": [
+      "validate"
+    ],
+    "lists": [
+      {
+        "name": "list \\ ' space",
+        "labels": {
+          "en": "List"
+        },
+        "comments": {
+          "en": "Contains characters that need to be escaped in turtle."
+        },
+        "nodes": [
+          {
+            "name": " \\ backslash",
+            "labels": {
+              "en": "List 2, Node 1"
+            }
+          },
+          {
+            "name": "double quote \"",
+            "labels": {
+              "en": "List 2, Node 2"
+            }
+          },
+          {
+            "name": "single quote '",
+            "labels": {
+              "en": "List 2, Node 3"
+            }
+          },
+          {
+            "name": "àéèêëôûäöüßÂ",
+            "labels": {
+              "en": "List 2, Node 4"
+            }
+          }
+        ]
+      }
+    ],
+    "ontologies": [
+      {
+        "name": "onto",
+        "label": "Ontology",
+        "properties": [
+          {
+            "name": "testListProp",
+            "super": [
+              "hasValue"
+            ],
+            "object": "ListValue",
+            "labels": {
+              "en": "Test List"
+            },
+            "gui_element": "List",
+            "gui_attributes": {
+              "hlist": "list \\ ' space"
+            }
+          },
+          {
+            "name": "testSimpleText",
+            "super": [
+              "hasValue"
+            ],
+            "object": "TextValue",
+            "labels": {
+              "en": "Test SimpleText"
+            },
+            "gui_element": "SimpleText"
+          },
+          {
+            "name": "testRichtext",
+            "super": [
+              "hasValue"
+            ],
+            "object": "TextValue",
+            "labels": {
+              "en": "Test Richtext"
+            },
+            "gui_element": "Richtext"
+          },
+          {
+            "name": "testGeoname",
+            "super": [
+              "hasValue"
+            ],
+            "object": "GeonameValue",
+            "labels": {
+              "en": "Test Geoname"
+            },
+            "gui_element": "Geonames"
+          }
+        ],
+        "resources": [
+          {
+            "name": "ClassWithEverything",
+            "super": "Resource",
+            "labels": {
+              "en": "Resource with every property"
+            },
+            "cardinalities": [
+              {
+                "propname": ":testListProp",
+                "cardinality": "0-1",
+                "gui_order": 0
+              },
+              {
+                "propname": ":testSimpleText",
+                "cardinality": "0-n",
+                "gui_order": 1
+              },
+              {
+                "propname": ":testRichtext",
+                "cardinality": "0-n",
+                "gui_order": 2
+              },
+              {
+                "propname": ":testGeoname",
+                "cardinality": "0-n",
+                "gui_order": 3
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

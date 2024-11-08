@@ -20,6 +20,8 @@ from dsp_tools.xmllib.models.dsp_base_resources import VideoSegmentResource
 from dsp_tools.xmllib.models.permissions import XMLPermissions
 from dsp_tools.xmllib.models.resource import Resource
 
+# ruff: noqa: D101
+
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 
@@ -30,18 +32,6 @@ AnyResource: TypeAlias = Union[
 
 @dataclass
 class XMLRoot:
-    """
-    Root of the XML file.
-
-    Args:
-        shortcode: project shortcode
-        default_ontology: name of the default ontology
-        resources: list of resources (can be modified after creation)
-
-    Returns:
-        Instance of XMLRoot
-    """
-
     shortcode: str
     default_ontology: str
     resources: list[AnyResource] = field(default_factory=list)
@@ -65,7 +55,7 @@ class XMLRoot:
         Add one resource to the root.
 
         Args:
-            resource: Any one of:
+            resource: any one of:
                     `Resource`,
                     `AnnotationResource`,
                     `RegionResource`,
@@ -74,7 +64,7 @@ class XMLRoot:
                     `AudioSegmentResource`
 
         Returns:
-            The XMLRoot that this method has been called on, with the added resource
+            The original XMLRoot, with the added resource
         """
         self.resources.append(resource)
         return self
@@ -84,7 +74,7 @@ class XMLRoot:
         Add a list of resources to the root.
 
         Args:
-            resources: A list of:
+            resources: a list of:
                     `Resource`,
                     `AnnotationResource`,
                     `RegionResource`,
@@ -94,7 +84,7 @@ class XMLRoot:
                     The types of the resources may be mixed.
 
         Returns:
-            The XMLRoot that this method has been called on, with the added resources
+            The original XMLRoot, with the added resource
         """
         self.resources.extend(resources)
         return self
@@ -104,7 +94,7 @@ class XMLRoot:
         If the resource is not None, add it to the XMLRoot, otherwise return the XMLRoot unchanged.
 
         Args:
-            resource: Any one of:
+            resource: any one of:
                     `Resource`,
                     `AnnotationResource`,
                     `RegionResource`,
@@ -113,7 +103,7 @@ class XMLRoot:
                     `AudioSegmentResource`
 
         Returns:
-            The XMLRoot that this method has been called on, with the added resource
+            The original XMLRoot, with the added value if it was not empty. Else the unchanged original XMLRoot.
         """
         if resource:
             self.resources.append(resource)

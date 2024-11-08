@@ -9,8 +9,8 @@ from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
-from dsp_tools.xmllib.models.user_enums import Permissions
 from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import LinkValue
 from dsp_tools.xmllib.models.values import Richtext
@@ -20,6 +20,8 @@ from dsp_tools.xmllib.value_checkers import is_decimal
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_string_like
 
+# ruff: noqa: D101, D102
+
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 
@@ -28,8 +30,6 @@ LIST_SEPARATOR = "\n    - "
 
 @dataclass
 class AnnotationResource:
-    """Represents an annotation to another resource of any class."""
-
     res_id: str
     label: str
     annotation_of: str
@@ -51,7 +51,7 @@ class AnnotationResource:
     ) -> AnnotationResource:
         """
         Creates a new annotation resource.
-        An annotation provides metadata to another resource.
+        An annotation is a comment to another resource.
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#annotation)
 
@@ -61,10 +61,6 @@ class AnnotationResource:
             annotation_of: ID of the resource that this annotation refers to (cardinality 1)
             comments: the comment(s) that this annotation consists of, i.e. the annotation itself (cardinality 1-n)
             permissions: permissions of this annotation resource
-
-        Warnings:
-            - If the Resource ID is not a valid string
-            - If the label is not a valid string
 
         Returns:
             An annotation resource
@@ -108,7 +104,7 @@ class AnnotationResource:
         If the value is not empty, add it as comment, otherwise return the resource unchanged.
 
         Args:
-            comment: Comment or empty value
+            comment: text or empty value
 
         Returns:
             The original resource, with the added comment
@@ -124,7 +120,7 @@ class AnnotationResource:
         Add metadata from a SALSAH migration.
 
         Args:
-            creation_date: Creation date of the resource in SALSAH
+            creation_date: creation date of the resource in SALSAH
             iri: Original IRI in SALSAH
             ark: Original ARK in SALSAH
 
@@ -161,8 +157,6 @@ class AnnotationResource:
 
 @dataclass
 class RegionResource:
-    """Represents a region of interest (ROI) in an image"""
-
     res_id: str
     label: str
     color: str
@@ -197,7 +191,7 @@ class RegionResource:
     ) -> RegionResource:
         """
         Creates a new region resource.
-        A region is a region of interest (ROI) in an image.
+        A region is a region of interest (ROI) in a StillImageRepresentation.
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#region)
 
@@ -211,12 +205,6 @@ class RegionResource:
                       ([See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geometry))
             comments: comments to this region (cardinality 1-n)
             permissions: permissions of this region resource
-
-        Warnings:
-            - If the Resource ID is not a valid string
-            - If the label is not a valid string
-            - If the color is not a valid color string
-            - If the geometry does not follow the specifications
 
         Returns:
             A region resource
@@ -236,7 +224,7 @@ class RegionResource:
         Add a comment to the resource
 
         Args:
-            comment: Comment text
+            comment: text
 
         Returns:
             The original resource, with the added comment
@@ -249,7 +237,7 @@ class RegionResource:
         Add several comments to the resource
 
         Args:
-            comments: List of comment texts
+            comments: list of texts
 
         Returns:
             The original resource, with the added comments
@@ -262,7 +250,7 @@ class RegionResource:
         If the value is not empty, add it as comment, otherwise return the resource unchanged.
 
         Args:
-            comment: Comment or empty value
+            comment: text or empty value
 
         Returns:
             The original resource, with the added comment
@@ -278,7 +266,7 @@ class RegionResource:
         Add metadata from a SALSAH migration.
 
         Args:
-            creation_date: Creation date of the resource in SALSAH
+            creation_date: creation date of the resource in SALSAH
             iri: Original IRI in SALSAH
             ark: Original ARK in SALSAH
 
@@ -327,8 +315,6 @@ class RegionResource:
 
 @dataclass
 class LinkResource:
-    """Represents a link between several other resources of different classes."""
-
     res_id: str
     label: str
     link_to: list[str]
@@ -346,7 +332,7 @@ class LinkResource:
     ) -> LinkResource:
         """
         Creates a new link resource.
-        A link groups together several other resources of different classes.
+        A link resource is like a container that groups together several other resources of different classes.
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#link)
 
@@ -373,7 +359,7 @@ class LinkResource:
         Add a comment to the resource
 
         Args:
-            comment: Comment text
+            comment: text
 
         Returns:
             The original resource, with the added comment
@@ -386,7 +372,7 @@ class LinkResource:
         Add several comments to the resource
 
         Args:
-            comments: List of comment texts
+            comments: list of texts
 
         Returns:
             The original resource, with the added comments
@@ -399,7 +385,7 @@ class LinkResource:
         If the value is not empty, add it as comment, otherwise return the resource unchanged.
 
         Args:
-            comment: Comment or empty value
+            comment: text or empty value
 
         Returns:
             The original resource, with the added comment
@@ -415,7 +401,7 @@ class LinkResource:
         Add metadata from a SALSAH migration.
 
         Args:
-            creation_date: Creation date of the resource in SALSAH
+            creation_date: creation date of the resource in SALSAH
             iri: Original IRI in SALSAH
             ark: Original ARK in SALSAH
 
@@ -482,8 +468,6 @@ class SegmentBounds:
 
 @dataclass
 class VideoSegmentResource:
-    """Represents a section of a video."""
-
     res_id: str
     label: str
     segment_of: str
@@ -503,14 +487,10 @@ class VideoSegmentResource:
         segment_of: str,
         segment_start: float,
         segment_end: float,
-        title: str | None = None,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> VideoSegmentResource:
         """
-        Creates a new video segment resource.
-        This factory method supports only the most frequently used parameters.
-        If you want to add additional information, create the incomplete segment first,
-        and then use the dedicated methods, e.g. `add_description()`.
+        Creates a new video segment resource, i.e. a time span of a MovingImageRepresentation.
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#video-segment-and-audio-segment)
 
@@ -520,7 +500,6 @@ class VideoSegmentResource:
             segment_of: ID of the video resource that this segment refers to (cardinality 1)
             segment_start: start of the segment in seconds (cardinality 1)
             segment_end: end of the segment in seconds (cardinality 1)
-            title: title of this segment (cardinality 0-1)
             permissions: permissions of this resource
 
         Returns:
@@ -531,7 +510,6 @@ class VideoSegmentResource:
             label=label,
             segment_of=segment_of,
             segment_bounds=SegmentBounds(segment_start, segment_end, res_id),
-            title=title,
             permissions=permissions,
         )
 
@@ -540,11 +518,7 @@ class VideoSegmentResource:
         Add a title to the resource.
 
         Args:
-            title: Title text
-
-        Warnings:
-            If the resource already has a title.
-            In that case, the title will be replaced.
+            title: text
 
         Returns:
             The original resource, with the added title
@@ -559,11 +533,7 @@ class VideoSegmentResource:
         If the value is not empty, add it as title, otherwise return the resource unchanged.
 
         Args:
-            title: Title or empty value
-
-        Warnings:
-            If the resource already has a title.
-            In that case, the title will be replaced.
+            title: text or empty value
 
         Returns:
             The original resource, with the added title
@@ -579,7 +549,7 @@ class VideoSegmentResource:
         Add a comment to the resource
 
         Args:
-            comment: Comment text
+            comment: text
 
         Returns:
             The original resource, with the added comment
@@ -592,7 +562,7 @@ class VideoSegmentResource:
         Add several comments to the resource
 
         Args:
-            comments: List of comment texts
+            comments: list of texts
 
         Returns:
             The original resource, with the added comments
@@ -605,7 +575,7 @@ class VideoSegmentResource:
         If the value is not empty, add it as comment, otherwise return the resource unchanged.
 
         Args:
-            comment: Comment or empty value
+            comment: text or empty value
 
         Returns:
             The original resource, with the added comment
@@ -632,7 +602,7 @@ class VideoSegmentResource:
         Add several descriptions to the resource
 
         Args:
-            descriptions: list of text
+            descriptions: list of texts
 
         Returns:
             The original resource, with the added descriptions
@@ -672,7 +642,7 @@ class VideoSegmentResource:
         Add several keywords to the resource
 
         Args:
-            keywords: list of text
+            keywords: list of texts
 
         Returns:
             The original resource, with the added keywords
@@ -712,7 +682,7 @@ class VideoSegmentResource:
         Add several links to related resources
 
         Args:
-            relates_to: IDs of the related resources
+            relates_to: list of IDs of the related resources
 
         Returns:
             The original resource, with the added related resources
@@ -741,7 +711,7 @@ class VideoSegmentResource:
         Add metadata from a SALSAH migration.
 
         Args:
-            creation_date: Creation date of the resource in SALSAH
+            creation_date: creation date of the resource in SALSAH
             iri: Original IRI in SALSAH
             ark: Original ARK in SALSAH
 
@@ -781,8 +751,6 @@ class VideoSegmentResource:
 
 @dataclass
 class AudioSegmentResource:
-    """Represents a section of an audio."""
-
     res_id: str
     label: str
     segment_of: str
@@ -802,14 +770,10 @@ class AudioSegmentResource:
         segment_of: str,
         segment_start: float,
         segment_end: float,
-        title: str | None = None,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> AudioSegmentResource:
         """
-        Creates a new audio segment resource.
-        This factory method supports only the most frequently used parameters.
-        If you want to add additional information, create the incomplete segment first,
-        and then use the dedicated methods, e.g. `add_description()`.
+        Creates a new audio segment resource, i.e. a time span of an AudioRepresentation.
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#video-segment-and-audio-segment)
 
@@ -819,7 +783,6 @@ class AudioSegmentResource:
             segment_of: ID of the audio resource that this segment refers to (cardinality 1)
             segment_start: start of the segment in seconds (cardinality 1)
             segment_end: end of the segment in seconds (cardinality 1)
-            title: title of this segment (cardinality 0-1)
             permissions: permissions of this resource
 
         Returns:
@@ -830,7 +793,6 @@ class AudioSegmentResource:
             label=label,
             segment_of=segment_of,
             segment_bounds=SegmentBounds(segment_start, segment_end, res_id),
-            title=title,
             permissions=permissions,
         )
 
@@ -839,11 +801,7 @@ class AudioSegmentResource:
         Add a title to the resource.
 
         Args:
-            title: Title text
-
-        Warnings:
-            If the resource already has a title.
-            In that case, the title will be replaced.
+            title: text
 
         Returns:
             The original resource, with the added title
@@ -858,11 +816,7 @@ class AudioSegmentResource:
         If the value is not empty, add it as title, otherwise return the resource unchanged.
 
         Args:
-            title: Title text or empty value
-
-        Warnings:
-            If the resource already has a title.
-            In that case, the title will be replaced.
+            title: text or empty value
 
         Returns:
             The original resource, with the added title
@@ -878,7 +832,7 @@ class AudioSegmentResource:
         Add a comment to the resource
 
         Args:
-            comment: Comment text
+            comment: text
 
         Returns:
             The original resource, with the added comment
@@ -891,7 +845,7 @@ class AudioSegmentResource:
         Add several comments to the resource
 
         Args:
-            comments: List of comment texts
+            comments: list of texts
 
         Returns:
             The original resource, with the added comments
@@ -904,7 +858,7 @@ class AudioSegmentResource:
         If the value is not empty, add it as comment, otherwise return the resource unchanged.
 
         Args:
-            comment: Comment or empty value
+            comment: text or empty value
 
         Returns:
             The original resource, with the added comment
@@ -931,7 +885,7 @@ class AudioSegmentResource:
         Add several descriptions to the resource
 
         Args:
-            descriptions: list of text
+            descriptions: list of texts
 
         Returns:
             The original resource, with the added descriptions
@@ -971,7 +925,7 @@ class AudioSegmentResource:
         Add several keywords to the resource
 
         Args:
-            keywords: list of text
+            keywords: list of texts
 
         Returns:
             The original resource, with the added keywords
@@ -1011,7 +965,7 @@ class AudioSegmentResource:
         Add several links to related resources
 
         Args:
-            relates_to: IDs of the related resources
+            relates_to: list of IDs of the related resources
 
         Returns:
             The original resource, with the added related resources
@@ -1040,7 +994,7 @@ class AudioSegmentResource:
         Add metadata from a SALSAH migration.
 
         Args:
-            creation_date: Creation date of the resource in SALSAH
+            creation_date: creation date of the resource in SALSAH
             iri: Original IRI in SALSAH
             ark: Original ARK in SALSAH
 

@@ -7,13 +7,13 @@ import regex
 
 def is_nonempty_value(value: Any) -> bool:
     """
-    Check if a value is non-empty.
+    Check if a value is not empty.
 
     Args:
         value: value to check
 
     Returns:
-        True if it is non-empty
+        True if it is not empty
     """
     if isinstance(value, str) and len(value) == 0:
         return False
@@ -23,6 +23,7 @@ def is_nonempty_value(value: Any) -> bool:
 def is_bool_like(value: Any) -> bool:
     """
     Checks if a value is a bool or can be converted into a bool.
+    It is case-insensitive, meaning that the words can also be capitalised.
 
     Args:
         value: value to check
@@ -31,9 +32,9 @@ def is_bool_like(value: Any) -> bool:
         True if it conforms
     """
     value = str(value).lower().strip()
-    if value in ("false", "0", "0.0", "no"):
+    if value in ("false", "0", "0.0", "no", "non", "nein"):
         return True
-    elif value in ("true", "1", "1.0", "yes"):
+    elif value in ("true", "1", "1.0", "yes", "oui", "ja"):
         return True
     return False
 
@@ -174,7 +175,7 @@ def find_geometry_problem(value: Any) -> str:
         value: geometry object
 
     Returns:
-        string with the validation message if it fails
+        String with the validation message if it fails, else an empty string.
     """
     msg = ""
     try:

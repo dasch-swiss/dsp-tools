@@ -4,7 +4,7 @@ import pytest
 from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
-from dsp_tools.xmllib.models.user_enums import Permissions
+from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.values import BooleanValue
 from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import DateValue

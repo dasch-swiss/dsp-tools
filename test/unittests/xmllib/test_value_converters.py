@@ -3,17 +3,17 @@ from typing import Any
 import pandas as pd
 import pytest
 
-from dsp_tools.xmllib.models.user_enums import NewlineReplacement
+from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.value_converters import convert_to_bool_string
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
 
-@pytest.mark.parametrize("val", ["false", "0  ", "  0.0", "NO", False])
+@pytest.mark.parametrize("val", ["false", "0  ", "  0.0", "NO", False, "non", "nein"])
 def test_convert_to_bool_false(val: Any) -> None:
     assert convert_to_bool_string(val) == "false"
 
 
-@pytest.mark.parametrize("val", ["TRUE ", "  1", "1.0", "Yes", True])
+@pytest.mark.parametrize("val", ["TRUE ", "  1", "1.0", "Yes", True, "ouI", "JA"])
 def test_convert_to_bool_true(val: Any) -> None:
     assert convert_to_bool_string(val) == "true"
 

@@ -284,12 +284,12 @@ def _query_for_link_value_target_violation(
     target_rdf_type: Node | None = None
     if target_type := list(data_graph.objects(target_iri, RDF.type)):
         target_rdf_type = target_type[0]
-    msg = next(results_and_onto.objects(detail_info.detail_bn, SH.resultMessage))
+    expected_type = next(results_and_onto.objects(detail_info.detail_bn, SH.resultMessage))
     return ResultLinkTargetViolation(
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
         property=base_info.result_path,
-        results_message=str(msg),
+        expected_type=expected_type,
         target_iri=target_iri,
         target_resource_type=target_rdf_type,
     )
@@ -396,7 +396,7 @@ def _reformat_link_target_violation_result(result: ResultLinkTargetViolation) ->
             link_target_id=target_id,
         )
     actual_type = _reformat_onto_iri(str(result.target_resource_type))
-    expected_type = _reformat_onto_iri(result.results_message)
+    expected_type = _reformat_onto_iri(str(result.expected_type))
     return LinkTargetTypeMismatchProblem(
         res_id=iris.res_id,
         res_type=iris.res_type,

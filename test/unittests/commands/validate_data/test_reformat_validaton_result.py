@@ -240,7 +240,7 @@ class TestQueryWithDetail:
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testHasLinkTo
-        assert result.results_message == "Resource"
+        assert result.expected_type == KNORA_API.Resource
         assert result.target_iri == URIRef("http://data/other")
         assert not result.target_resource_type
 
@@ -253,7 +253,7 @@ class TestQueryWithDetail:
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testHasLinkToCardOneResource
-        assert result.results_message == "CardOneResource"
+        assert result.expected_type == ONTO.CardOneResource
         assert result.target_iri == URIRef("http://data/id_9_target")
         assert result.target_resource_type == ONTO.ClassWithEverything
 
@@ -357,7 +357,7 @@ class TestReformatResult:
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testHasLinkToCardOneResource"
         assert result.link_target_id == "id_9_target"
-        assert result.expected_type == "CardOneResource"
+        assert result.expected_type == "onto:CardOneResource"
         assert result.actual_type == "onto:ClassWithEverything"
 
     def test_unique_value_literal(self, extracted_unique_value_literal: ResultUniqueValueViolation) -> None:

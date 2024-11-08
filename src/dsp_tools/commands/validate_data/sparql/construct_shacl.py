@@ -6,7 +6,7 @@ from dsp_tools.commands.validate_data.sparql.cardinality_shacl import construct_
 from dsp_tools.commands.validate_data.sparql.value_shacl import construct_property_shapes
 
 
-def construct_shapes_graph(onto: Graph, project_lists: AllProjectLists) -> SHACLGraphs:
+def construct_shapes_graphs(onto: Graph, project_lists: AllProjectLists) -> SHACLGraphs:
     """
     Constructs a shapes graph from a project ontology
 
@@ -18,5 +18,5 @@ def construct_shapes_graph(onto: Graph, project_lists: AllProjectLists) -> SHACL
         shapes graph
     """
     cardinality = construct_cardinality_node_shapes(onto)
-    value = construct_property_shapes(onto, project_lists)
-    return SHACLGraphs(cardinality=cardinality, content=value)
+    content = construct_property_shapes(onto, project_lists)
+    return SHACLGraphs(cardinality=cardinality, content=content)

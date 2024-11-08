@@ -17,7 +17,7 @@ from dsp_tools.commands.validate_data.models.data_rdf import DataRDF
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_validation_graph
-from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_shapes_graph
+from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_shapes_graphs
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.xml_utils import parse_xml_file
 from dsp_tools.utils.xml_utils import remove_comments_from_element_tree
@@ -99,7 +99,7 @@ def _create_graphs(onto_client: OntologyClient, list_client: ListClient, data_rd
     knora_api = Graph()
     knora_api.parse(data=knora_ttl, format="ttl")
     onto_for_construction = deepcopy(ontologies) + knora_api
-    shapes = construct_shapes_graph(onto_for_construction, all_lists)
+    shapes = construct_shapes_graphs(onto_for_construction, all_lists)
     api_shapes = Graph()
     api_shapes.parse("src/dsp_tools/resources/validate_data/api-shapes.ttl")
     content_shapes = shapes.content + api_shapes

@@ -105,7 +105,7 @@ class ResultGenericViolation(ValidationResult):
 
 @dataclass
 class ResultLinkTargetViolation(ValidationResult):
-    results_message: str
+    expected_type: Node
     target_iri: Node
     target_resource_type: Node | None
 

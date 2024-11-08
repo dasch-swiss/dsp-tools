@@ -145,7 +145,7 @@ def _validate(validator: ShaclValidator) -> ValidationReportGraphs:
     return ValidationReportGraphs(
         conforms=validation_results.conforms,
         validation_graph=validation_results.validation_graph,
-        shacl_graph=validator.rdf_graphs.cardinality,
+        shacl_graph=validator.rdf_graphs.cardinality_shapes + validator.rdf_graphs.content_shapes,
         onto_graph=validator.rdf_graphs.ontos,
         data_graph=validator.rdf_graphs.data,
     )

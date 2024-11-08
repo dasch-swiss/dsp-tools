@@ -99,15 +99,16 @@ def _create_graphs(onto_client: OntologyClient, list_client: ListClient, data_rd
     knora_api = Graph()
     knora_api.parse(data=knora_ttl, format="ttl")
     onto_for_construction = deepcopy(ontologies) + knora_api
-    shapes_graph = construct_shapes_graph(onto_for_construction, all_lists)
+    shapes = construct_shapes_graph(onto_for_construction, all_lists)
     api_shapes = Graph()
     api_shapes.parse("src/dsp_tools/resources/validate_data/api-shapes.ttl")
-    shapes_graph += api_shapes
+    content_shapes = shapes.values + api_shapes
     data = data_rdf.make_graph()
     return RDFGraphs(
         data=data,
         ontos=ontologies,
-        shapes=shapes_graph,
+        cardinality_shapes=shapes.cardinality,
+        content_shapes=content_shapes,
         knora_api=knora_api,
     )
 
@@ -129,9 +130,10 @@ def _save_graphs(filepath: Path, rdf_graphs: RDFGraphs) -> Path:
     cprint(f"\n   Saving graphs to {new_directory}   ", color="light_blue", attrs=["bold", "reverse"])
     generic_filepath = new_directory / filepath.stem
     rdf_graphs.ontos.serialize(f"{generic_filepath}_ONTO.ttl")
-    shacl_onto = rdf_graphs.shapes + rdf_graphs.ontos
+    shacl_onto = rdf_graphs.content_shapes + rdf_graphs.cardinality_shapes + rdf_graphs.ontos
     shacl_onto.serialize(f"{generic_filepath}_SHACL_ONTO.ttl")
-    rdf_graphs.shapes.serialize(f"{generic_filepath}_SHACL.ttl")
+    rdf_graphs.cardinality_shapes.serialize(f"{generic_filepath}_SHACL_CARD.ttl")
+    rdf_graphs.content_shapes.serialize(f"{generic_filepath}_SHACL_CONTENT.ttl")
     rdf_graphs.data.serialize(f"{generic_filepath}_DATA.ttl")
     onto_data = rdf_graphs.data + rdf_graphs.ontos
     onto_data.serialize(f"{generic_filepath}_ONTO_DATA.ttl")
@@ -143,7 +145,7 @@ def _validate(validator: ShaclValidator) -> ValidationReportGraphs:
     return ValidationReportGraphs(
         conforms=validation_results.conforms,
         validation_graph=validation_results.validation_graph,
-        shacl_graph=validator.rdf_graphs.shapes,
+        shacl_graph=validator.rdf_graphs.cardinality,
         onto_graph=validator.rdf_graphs.ontos,
         data_graph=validator.rdf_graphs.data,
     )

@@ -47,7 +47,9 @@ def _add_property_shapes_to_class_shapes(onto: Graph) -> Graph:
 
     CONSTRUCT {
 
-      ?class sh:property ?propShapesIRI .
+      ?class a sh:NodeShape ;
+            sh:property api-shapes:rdfsLabel_Shape ;
+            sh:property ?propShapesIRI .
 
     } WHERE {
 

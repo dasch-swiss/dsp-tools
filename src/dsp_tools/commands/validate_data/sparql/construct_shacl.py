@@ -19,4 +19,4 @@ def construct_shapes_graph(onto: Graph, project_lists: AllProjectLists) -> SHACL
     """
     cardinality = construct_cardinality_node_shapes(onto)
     value = construct_property_shapes(onto, project_lists)
-    return SHACLGraphs(cardinality=cardinality, values=value)
+    return SHACLGraphs(cardinality=cardinality, content=value)

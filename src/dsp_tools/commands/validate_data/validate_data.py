@@ -102,7 +102,7 @@ def _create_graphs(onto_client: OntologyClient, list_client: ListClient, data_rd
     shapes = construct_shapes_graph(onto_for_construction, all_lists)
     api_shapes = Graph()
     api_shapes.parse("src/dsp_tools/resources/validate_data/api-shapes.ttl")
-    content_shapes = shapes.values + api_shapes
+    content_shapes = shapes.content + api_shapes
     data = data_rdf.make_graph()
     return RDFGraphs(
         data=data,

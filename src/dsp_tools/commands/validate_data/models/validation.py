@@ -9,7 +9,7 @@ from rdflib.term import Node
 @dataclass
 class SHACLGraphs:
     cardinality: Graph
-    values: Graph
+    content: Graph
 
 
 @dataclass

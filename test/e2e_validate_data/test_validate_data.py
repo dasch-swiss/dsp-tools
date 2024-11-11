@@ -20,6 +20,7 @@ from dsp_tools.commands.validate_data.models.input_problems import NonExistentCa
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProblem
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
+from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.reformat_validaton_result import _extract_base_info_of_resource_results
 from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_validation_graph
@@ -54,6 +55,13 @@ def cardinality_correct(_create_project_generic: Iterator[None], api_con: ApiCon
     file = Path("testdata/validate-data/generic/cardinality_correct.xml")
     graphs = _get_parsed_graphs(api_con, file)
     return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+
+
+@lru_cache(maxsize=None)
+@pytest.fixture
+def unknown_classes_graphs(_create_project_generic: Iterator[None], api_con: ApiConnection) -> RDFGraphs:
+    file = Path("testdata/validate-data/generic/unknown_classes.xml")
+    return _get_parsed_graphs(api_con, file)
 
 
 @lru_cache(maxsize=None)
@@ -391,10 +399,8 @@ class TestReformatValidationGraph:
             assert one_result.prop_name in expected[1]
 
 
-def test_check_for_unknown_resource_classes(api_con: ApiConnection) -> None:
-    file = Path("testdata/validate-data/generic/unknown_classes.xml")
-    graphs = _get_parsed_graphs(api_con, file)
-    result = _check_for_unknown_resource_classes(graphs)
+def test_check_for_unknown_resource_classes(unknown_classes_graphs: RDFGraphs) -> None:
+    result = _check_for_unknown_resource_classes(unknown_classes_graphs)
     assert isinstance(result, UnknownClassesInData)
     expected = {"onto:NonExisting", "unknown:ClassWithEverything", "unknownClass"}
     assert result.unknown_classes == expected

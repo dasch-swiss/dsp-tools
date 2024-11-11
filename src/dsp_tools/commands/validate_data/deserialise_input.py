@@ -4,18 +4,18 @@ from typing import cast
 
 from lxml import etree
 
-from dsp_tools.commands.validate_data.models.data_deserialised import AbstractFileValue
+from dsp_tools.commands.validate_data.models.data_deserialised import AbstractFileValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import AbstractResource
 from dsp_tools.commands.validate_data.models.data_deserialised import AnnotationDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import AudioSegmentDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import BitstreamFile
+from dsp_tools.commands.validate_data.models.data_deserialised import BitstreamDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import BooleanValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ColorValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DataDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DateValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DecimalValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import GeonameValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import IIIFUri
+from dsp_tools.commands.validate_data.models.data_deserialised import IIIFUriDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import IntValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import LinkObjDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import LinkValueDeserialised
@@ -85,7 +85,7 @@ def _deserialise_one_resource(resource: etree._Element) -> ResourceDeserialised:
     )
 
 
-def _deserialise_one_property(prop_ele: etree._Element) -> Sequence[ValueDeserialised | AbstractFileValue]:  # noqa: PLR0911,PLR0912 (too-many-branches, return statements)
+def _deserialise_one_property(prop_ele: etree._Element) -> Sequence[ValueDeserialised | AbstractFileValueDeserialised]:  # noqa: PLR0911,PLR0912 (too-many-branches, return statements)
     match prop_ele.tag:
         case "boolean-prop":
             return _deserialise_one_value(prop_ele, BooleanValueDeserialised)
@@ -110,9 +110,9 @@ def _deserialise_one_property(prop_ele: etree._Element) -> Sequence[ValueDeseria
         case "uri-prop":
             return _deserialise_one_value(prop_ele, UriValueDeserialised)
         case "bitstream":
-            return [_deserialise_file_value(prop_ele, BitstreamFile)]
+            return [_deserialise_file_value(prop_ele, BitstreamDeserialised)]
         case "iiif-uri":
-            return [_deserialise_file_value(prop_ele, IIIFUri)]
+            return [_deserialise_file_value(prop_ele, IIIFUriDeserialised)]
         case _:
             return []
 
@@ -153,5 +153,7 @@ def _get_text_as_string(value: etree._Element) -> str | None:
         return value.text
 
 
-def _deserialise_file_value(value: etree._Element, func: Callable[[str], AbstractFileValue]) -> AbstractFileValue:
+def _deserialise_file_value(
+    value: etree._Element, func: Callable[[str], AbstractFileValueDeserialised]
+) -> AbstractFileValueDeserialised:
     return func(value.text)

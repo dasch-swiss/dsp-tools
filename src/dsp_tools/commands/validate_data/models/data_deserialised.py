@@ -118,13 +118,13 @@ class UriValueDeserialised(ValueDeserialised): ...
 
 
 @dataclass
-class AbstractFileValue(ABC):
+class AbstractFileValueDeserialised(ABC):
     value: str | None
 
 
 @dataclass
-class BitstreamFile(AbstractFileValue): ...
+class BitstreamDeserialised(AbstractFileValueDeserialised): ...
 
 
 @dataclass
-class IIIFUri(AbstractFileValue): ...
+class IIIFUriDeserialised(AbstractFileValueDeserialised): ...

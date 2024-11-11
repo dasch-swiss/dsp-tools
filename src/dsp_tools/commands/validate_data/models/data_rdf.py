@@ -212,3 +212,8 @@ class UriValueRDF(ValueRDF):
         g.add((val_iri, KNORA_API.uriValueAsUri, self.object_value))
         g.add((self.res_iri, self.prop_name, val_iri))
         return g
+
+
+@dataclass
+class AbstractFileValueRDF:
+    extension: str

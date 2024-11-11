@@ -5,6 +5,7 @@ from rdflib import Literal
 from rdflib import Namespace
 from rdflib import URIRef
 
+from dsp_tools.commands.validate_data.models.data_deserialised import AbstractFileValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import AbstractResource
 from dsp_tools.commands.validate_data.models.data_deserialised import AnnotationDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import AudioSegmentDeserialised
@@ -26,6 +27,7 @@ from dsp_tools.commands.validate_data.models.data_deserialised import TimeValueD
 from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import VideoSegmentDeserialised
+from dsp_tools.commands.validate_data.models.data_rdf import AbstractFileValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import BooleanValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import ColorValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import DataRDF
@@ -197,3 +199,7 @@ def _transform_uri_value(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
         else Literal("", datatype=XSD.string)
     )
     return UriValueRDF(URIRef(val.prop_name), content, res_iri)
+
+
+def _transform_file_value(val: AbstractFileValueDeserialised) -> AbstractFileValueRDF:
+    pass

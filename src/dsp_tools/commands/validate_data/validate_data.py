@@ -98,9 +98,10 @@ def _get_parsed_graphs(api_con: ApiConnection, filepath: Path) -> RDFGraphs:
 
 def _check_for_unknown_resource_classes(rdf_graphs: RDFGraphs) -> UnknownClassesUsed | None:
     used_cls = _get_all_used_classes(rdf_graphs.data)
-    onto_cls = _get_all_onto_classes(rdf_graphs.ontos + rdf_graphs.knora_api)
-    if extra_cls := used_cls - onto_cls:
-        return UnknownClassesUsed(unknown_classes=extra_cls, classes_onto=onto_cls)
+    res_cls, value_cls = _get_all_onto_classes(rdf_graphs.ontos + rdf_graphs.knora_api)
+    all_cls = res_cls.union(value_cls)
+    if extra_cls := used_cls - all_cls:
+        return UnknownClassesUsed(unknown_classes=extra_cls, classes_onto=res_cls)
     return None
 
 
@@ -109,13 +110,14 @@ def _get_all_used_classes(data_graph: Graph) -> set[str]:
     return {reformat_onto_iri(x) for x in types_used}
 
 
-def _get_all_onto_classes(ontos: Graph) -> set[str]:
+def _get_all_onto_classes(ontos: Graph) -> tuple[set[str], set[str]]:
     is_resource_iri = URIRef(KNORA_API + "isResourceClass")
     resource_classes = set(ontos.subjects(is_resource_iri, Literal(True)))
+    res_cls = {reformat_onto_iri(x) for x in resource_classes}
     is_value_iri = URIRef(KNORA_API + "isValueClass")
     value_classes = set(ontos.subjects(is_value_iri, Literal(True)))
-    all_used = value_classes.union(resource_classes)
-    return {reformat_onto_iri(x) for x in all_used}
+    value_cls = {reformat_onto_iri(x) for x in value_classes}
+    return res_cls, value_cls
 
 
 def _get_validation_result(

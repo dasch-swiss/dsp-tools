@@ -6,8 +6,6 @@ from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validate_data import _get_all_onto_classes
 from dsp_tools.commands.validate_data.validate_data import _get_all_used_classes
-from test.unittests.commands.validate_data.constants import KNORA_API
-from test.unittests.commands.validate_data.constants import ONTO
 from test.unittests.commands.validate_data.constants import PREFIXES
 
 
@@ -69,41 +67,50 @@ def data_prefix_non_existent() -> Graph:
     return g
 
 
-def _get_rdf_graphs(data_graph: Graph, onto: Graph = onto) -> RDFGraphs:
-    return RDFGraphs(data=data_graph, ontos=onto, cardinality_shapes=Graph(), content_shapes=Graph(), knora_api=Graph())
+def _get_rdf_graphs(data_graph: Graph) -> RDFGraphs:
+    ttl = f"""{PREFIXES}
+    onto:One a owl:Class ;
+            knora-api:isResourceClass true .
+
+    knora-api:TextValue a owl:Class ;
+            knora-api:isValueClass true .
+    """
+    onto_g = Graph()
+    onto_g.parse(data=ttl, format="turtle")
+    return RDFGraphs(
+        data=data_graph, ontos=onto_g, cardinality_shapes=Graph(), content_shapes=Graph(), knora_api=Graph()
+    )
 
 
 class TestFindUnknownClasses:
     def test_check_for_unknown_resource_classes_data_ok(self, data_ok: Graph) -> None:
         graphs = _get_rdf_graphs(data_ok)
         result = _check_for_unknown_resource_classes(graphs)
-        assert isinstance(result, UnknownClassesUsed)
-        assert result.unknown_classes == {}
-        assert result.classes_onto == {}
+        assert not result
 
     def test_check_for_unknown_resource_classes_data_wrong(self, data_wrong: Graph) -> None:
         graphs = _get_rdf_graphs(data_wrong)
         result = _check_for_unknown_resource_classes(graphs)
         assert isinstance(result, UnknownClassesUsed)
-        assert result.unknown_classes == {}
-        assert result.classes_onto == {}
+        assert result.unknown_classes == {"onto:NonExistent"}
+        assert result.classes_onto == {"onto:One"}
 
     def test_check_for_unknown_resource_classes_data_prefix_non_existent(self, data_prefix_non_existent: Graph) -> None:
         graphs = _get_rdf_graphs(data_prefix_non_existent)
         result = _check_for_unknown_resource_classes(graphs)
         assert isinstance(result, UnknownClassesUsed)
-        assert result.unknown_classes == {}
-        assert result.classes_onto == {}
+        assert result.unknown_classes == {"non-existent:One"}
+        assert result.classes_onto == {"onto:One"}
 
     def test_get_all_used_classes(self, data_ok: Graph) -> None:
         result = _get_all_used_classes(data_ok)
-        expected = {KNORA_API.TextValue, ONTO.One}
+        expected = {"TextValue", "onto:One"}
         assert result == expected
 
     def test_get_all_onto_classes(self, onto: Graph) -> None:
-        result = _get_all_onto_classes(onto)
-        expected = {KNORA_API.TextValue, ONTO.One}
-        assert result == expected
+        res_cls, value_cls = _get_all_onto_classes(onto)
+        assert res_cls == {"onto:One"}
+        assert value_cls == {"TextValue"}
 
 
 if __name__ == "__main__":

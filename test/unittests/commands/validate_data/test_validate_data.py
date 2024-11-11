@@ -1,6 +1,9 @@
 import pytest
 from rdflib import Graph
 
+from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesUsed
+from dsp_tools.commands.validate_data.models.validation import RDFGraphs
+from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_resource_classes
 from test.unittests.commands.validate_data.constants import PREFIXES
 
 
@@ -47,7 +50,7 @@ def data_wrong() -> Graph:
 
 
 @pytest.fixture
-def prefix_non_existent() -> Graph:
+def data_prefix_non_existent() -> Graph:
     ttl = f"""{PREFIXES}
     @prefix  non-existing-onto: <http://0.0.0.0:3333/ontology/9999/non-existent/v2#> .
     
@@ -60,6 +63,39 @@ def prefix_non_existent() -> Graph:
     g = Graph()
     g.parse(data=ttl, format="turtle")
     return g
+
+
+def _get_rdf_graphs(data_graph: Graph, onto: Graph = onto) -> RDFGraphs:
+    return RDFGraphs(data=data_graph, ontos=onto, cardinality_shapes=Graph(), content_shapes=Graph(), knora_api=Graph())
+
+
+class TestFindUnknownClasses:
+    def test_check_for_unknown_resource_classes_data_ok(self, data_ok: Graph) -> None:
+        graphs = _get_rdf_graphs(data_ok)
+        result = _check_for_unknown_resource_classes(graphs)
+        assert isinstance(result, UnknownClassesUsed)
+        assert result.unknown_classes == {}
+        assert result.classes_onto == {}
+
+    def test_check_for_unknown_resource_classes_data_wrong(self, data_wrong: Graph) -> None:
+        graphs = _get_rdf_graphs(data_wrong)
+        result = _check_for_unknown_resource_classes(graphs)
+        assert isinstance(result, UnknownClassesUsed)
+        assert result.unknown_classes == {}
+        assert result.classes_onto == {}
+
+    def test_check_for_unknown_resource_classes_data_prefix_non_existent(self, data_prefix_non_existent: Graph) -> None:
+        graphs = _get_rdf_graphs(data_prefix_non_existent)
+        result = _check_for_unknown_resource_classes(graphs)
+        assert isinstance(result, UnknownClassesUsed)
+        assert result.unknown_classes == {}
+        assert result.classes_onto == {}
+
+    def test_get_all_used_classes(self, data_ok: Graph) -> None:
+        pass
+
+    def test_get_all_onto_classes(self, onto: Graph) -> None:
+        pass
 
 
 if __name__ == "__main__":

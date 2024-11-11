@@ -33,6 +33,7 @@ from dsp_tools.commands.validate_data.models.data_rdf import ColorValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import DataRDF
 from dsp_tools.commands.validate_data.models.data_rdf import DateValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import DecimalValueRDF
+from dsp_tools.commands.validate_data.models.data_rdf import GenericFileValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import GeonameValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import IntValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import LinkValueRDF
@@ -202,4 +203,7 @@ def _transform_uri_value(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
 
 
 def _transform_file_value(val: AbstractFileValueDeserialised) -> AbstractFileValueRDF:
-    pass
+    file_extension = ""
+    if val.value:
+        file_extension = val.value
+    return GenericFileValueRDF(file_extension)

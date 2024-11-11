@@ -217,3 +217,12 @@ class UriValueRDF(ValueRDF):
 @dataclass
 class AbstractFileValueRDF:
     extension: str
+
+    def make_graph(self) -> Graph:
+        raise NotImplementedError
+
+
+@dataclass
+class GenericFileValueRDF(AbstractFileValueRDF):
+    def make_graph(self) -> Graph:
+        pass

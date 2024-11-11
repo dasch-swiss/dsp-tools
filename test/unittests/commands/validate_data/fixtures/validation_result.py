@@ -6,7 +6,6 @@ from rdflib import RDFS
 from rdflib import SH
 from rdflib import Graph
 from rdflib import Literal
-from unittests.commands.validate_data.constants import API_SHAPES
 
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import ResultGenericViolation
@@ -18,6 +17,7 @@ from dsp_tools.commands.validate_data.models.validation import ResultPatternViol
 from dsp_tools.commands.validate_data.models.validation import ResultUniqueValueViolation
 from dsp_tools.commands.validate_data.models.validation import ResultValueTypeViolation
 from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
+from test.unittests.commands.validate_data.constants import API_SHAPES
 from test.unittests.commands.validate_data.constants import DASH
 from test.unittests.commands.validate_data.constants import DATA
 from test.unittests.commands.validate_data.constants import KNORA_API

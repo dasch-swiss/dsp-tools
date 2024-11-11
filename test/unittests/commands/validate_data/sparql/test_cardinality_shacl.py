@@ -4,6 +4,7 @@ from rdflib import SH
 from rdflib import BNode
 from rdflib import Graph
 from rdflib import Literal
+from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct_0_1_cardinality
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct_0_n_cardinality
@@ -19,7 +20,7 @@ from test.unittests.commands.validate_data.constants import ONTO
 class TestCheckTripleNumbersOnto:
     def test_nodeshape(self, onto_graph: Graph) -> None:
         result = _construct_resource_nodeshape(onto_graph)
-        number_of_resource_classes = 6
+        number_of_resource_classes = 12
         triples_cls_nodeshape = 9 * number_of_resource_classes
         assert len(result) == triples_cls_nodeshape
 
@@ -31,13 +32,13 @@ class TestCheckTripleNumbersOnto:
 
     def test_cardinality_0_1(self, onto_graph: Graph) -> None:
         result = _construct_0_1_cardinality(onto_graph)
-        number_of_occurrences_in_onto = 4
+        number_of_occurrences_in_onto = 5
         triples_card_0_1 = 7 * number_of_occurrences_in_onto
         assert len(result) == triples_card_0_1
 
     def test_cardinality_0_n(self, onto_graph: Graph) -> None:
         result = _construct_0_n_cardinality(onto_graph)
-        number_of_occurrences_in_onto = 21  # Inheritance included
+        number_of_occurrences_in_onto = 22  # Inheritance included
         triples_card_0_n = 3 * number_of_occurrences_in_onto
         assert len(result) == triples_card_0_n
 
@@ -57,6 +58,13 @@ def test_construct_cardinality_node_shapes(onto_graph: Graph) -> None:
         ONTO.ClassWithEverything,
         ONTO.TestStillImageRepresentation,
         ONTO.ClassInheritedCardinalityOverwriting,
+        ONTO.TestArchiveRepresentation,
+        ONTO.TestAudioRepresentation,
+        ONTO.TestDocumentRepresentation,
+        ONTO.TestMovingImageRepresentation,
+        ONTO.TestStillImageRepresentation,
+        ONTO.TestTextRepresentation,
+        URIRef("http://0.0.0.0:3333/ontology/9999/second-onto/v2#SecondOntoClass"),
     }
     result_classes = set(result.subjects(DASH.closedByTypes, Literal(True)))
     assert result_classes == expected_classes

@@ -225,6 +225,8 @@ class AbstractFileValueRDF(RDFTriples):
 
 @dataclass
 class GenericFileValueRDF(AbstractFileValueRDF):
+    """This class is a placeholder for all types of file values that are not yet implemented."""
+
     def make_graph(self) -> Graph:
         g = Graph()
         val_iri = DATA[str(uuid4())]

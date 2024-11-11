@@ -155,7 +155,7 @@ def _deserialise_file_value(root: etree._Element) -> list[AbstractFileValueDeser
     for res in root.iterchildren(tag="resource"):
         res_id = res.attrib["id"]
         if (bitstream := res.find("bitstream")) is not None:
-            file_values.append(BitstreamDeserialised(bitstream.text, res_id))
+            file_values.append(BitstreamDeserialised(res_id, bitstream.text))
         elif (iiif_uri := res.find("iiif-uri")) is not None:
-            file_values.append(IIIFUriDeserialised(iiif_uri.text, res_id))
+            file_values.append(IIIFUriDeserialised(res_id, iiif_uri.text))
     return file_values

@@ -207,5 +207,5 @@ def _transform_uri_value(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
 def _transform_file_value(val: AbstractFileValueDeserialised) -> AbstractFileValueRDF:
     file_extension = ""
     if val.value:
-        file_extension = val.value
-    return GenericFileValueRDF(DATA[val.res_id], Literal(file_extension))
+        file_extension = val.value.split(".")[-1]
+    return GenericFileValueRDF(res_iri=DATA[val.res_id], extension=Literal(file_extension))

@@ -35,6 +35,8 @@ from dsp_tools.commands.validate_data.models.validation import UnexpectedCompone
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationResult
 from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
+from dsp_tools.commands.validate_data.utils import reformat_data_iri
+from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.models.exceptions import BaseError
 
 DASH = Namespace("http://datashapes.org/dash#")
@@ -361,7 +363,7 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
 
 def _reformat_value_type_violation_result(result: ResultValueTypeViolation) -> ValueTypeProblem:
     iris = _reformat_main_iris(result)
-    actual_type = _reformat_onto_iri(result.actual_value_type)
+    actual_type = reformat_onto_iri(result.actual_value_type)
     return ValueTypeProblem(
         res_id=iris.res_id,
         res_type=iris.res_type,
@@ -387,7 +389,7 @@ def _reformat_pattern_violation_result(result: ResultPatternViolation) -> Conten
 
 def _reformat_link_target_violation_result(result: ResultLinkTargetViolation) -> InputProblem:
     iris = _reformat_main_iris(result)
-    target_id = _reformat_data_iri(result.target_iri)
+    target_id = reformat_data_iri(result.target_iri)
     if not result.target_resource_type:
         return LinkedResourceDoesNotExistProblem(
             res_id=iris.res_id,
@@ -395,8 +397,8 @@ def _reformat_link_target_violation_result(result: ResultLinkTargetViolation) ->
             prop_name=iris.prop_name,
             link_target_id=target_id,
         )
-    actual_type = _reformat_onto_iri(result.target_resource_type)
-    expected_type = _reformat_onto_iri(result.expected_type)
+    actual_type = reformat_onto_iri(result.target_resource_type)
+    expected_type = reformat_onto_iri(result.expected_type)
     return LinkTargetTypeMismatchProblem(
         res_id=iris.res_id,
         res_type=iris.res_type,
@@ -412,7 +414,7 @@ def _reformat_unique_value_violation_result(result: ResultUniqueValueViolation) 
     if isinstance(result.actual_value, Literal):
         actual_value = str(result.actual_value)
     else:
-        actual_value = _reformat_data_iri(result.actual_value)
+        actual_value = reformat_data_iri(result.actual_value)
     return DuplicateValueProblem(
         res_id=iris.res_id,
         res_type=iris.res_type,
@@ -422,22 +424,7 @@ def _reformat_unique_value_violation_result(result: ResultUniqueValueViolation) 
 
 
 def _reformat_main_iris(result: ValidationResult) -> ReformattedIRI:
-    subject_id = _reformat_data_iri(result.res_iri)
-    prop_name = _reformat_onto_iri(result.property)
-    res_type = _reformat_onto_iri(result.res_class)
+    subject_id = reformat_data_iri(result.res_iri)
+    prop_name = reformat_onto_iri(result.property)
+    res_type = reformat_onto_iri(result.res_class)
     return ReformattedIRI(res_id=subject_id, res_type=res_type, prop_name=prop_name)
-
-
-def _reformat_onto_iri(iri: Node) -> str:
-    iri_str = str(iri)
-    if "http://www.w3.org/2000/01/rdf-schema#" in iri_str:
-        return f'rdfs:{iri_str.split("#")[-1]}'
-    onto = iri_str.split("/")[-2]
-    ending = iri_str.split("#")[-1]
-    if onto == "knora-api":
-        return ending
-    return f"{onto}:{ending}"
-
-
-def _reformat_data_iri(iri: Node) -> str:
-    return str(iri).replace("http://data/", "")

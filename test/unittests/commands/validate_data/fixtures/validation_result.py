@@ -6,6 +6,7 @@ from rdflib import RDFS
 from rdflib import SH
 from rdflib import Graph
 from rdflib import Literal
+from unittests.commands.validate_data.constants import API_SHAPES
 
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import ResultGenericViolation
@@ -753,6 +754,47 @@ def extracted_unknown_list_name() -> ResultGenericViolation:
         property=ONTO.testListProp,
         results_message="The list that should be used with this property is 'firstList'.",
         actual_value="other",
+    )
+
+
+@pytest.fixture
+def report_missing_file_value(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
+    validation_str = f"""{PREFIXES}
+    [ a sh:ValidationResult ;
+            sh:focusNode <http://data/id_missing_file_value> ;
+            sh:resultMessage "A file is required for this resource" ;
+            sh:resultPath <http://api.knora.org/ontology/knora-api/shapes/v2#hasGenericFileValue> ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:MinCountConstraintComponent ;
+            sh:sourceShape [ ] ] .
+    """
+    validation_g = Graph()
+    validation_g.parse(data=validation_str, format="ttl")
+    data_str = f"""{PREFIXES}
+    <http://data/id_missing_file_value> a onto:TestArchiveRepresentation ;
+    rdfs:label "TestArchiveRepresentation"^^xsd:string .
+    """
+    onto_data_g = Graph()
+    onto_data_g += onto_graph
+    onto_data_g.parse(data=data_str, format="ttl")
+    val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=SH.MinCountConstraintComponent,
+        resource_iri=DATA.id_missing_file_value,
+        res_class_type=ONTO.TestArchiveRepresentation,
+        result_path=API_SHAPES.hasGenericFileValue,
+    )
+    return validation_g, onto_data_g, base_info
+
+
+@pytest.fixture
+def extracted_missing_file_value() -> ResultMinCardinalityViolation:
+    return ResultMinCardinalityViolation(
+        res_iri=DATA.id_missing_file_value,
+        res_class=ONTO.TestArchiveRepresentation,
+        property=API_SHAPES.hasGenericFileValue,
+        results_message="A file is required for this resource",
     )
 
 

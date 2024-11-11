@@ -407,6 +407,9 @@ class TestReformatValidationGraph:
             assert one_result.prop_name in expected[1]
 
 
+# TODO: file value
+
+
 def test_check_for_unknown_resource_classes(unknown_classes_graphs: RDFGraphs) -> None:
     result = _check_for_unknown_resource_classes(unknown_classes_graphs)
     assert isinstance(result, UnknownClassesInData)

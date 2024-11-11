@@ -363,7 +363,7 @@ def _reformat_min_cardinality_validation_result(validation_result: ResultMinCard
         return MissingFileValueProblem(
             res_id=iris.res_id,
             res_type=iris.res_type,
-            prop_name=iris.prop_name,
+            prop_name="bitstream / iiif-uri",
             expected=validation_result.results_message,
         )
     return MinCardinalityProblem(

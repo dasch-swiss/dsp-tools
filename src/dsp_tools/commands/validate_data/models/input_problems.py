@@ -388,10 +388,10 @@ class MissingFileValueProblem(InputProblem):
 
     @property
     def problem(self) -> str:
-        return "File value is missing"
+        return "Required file value is missing"
 
     def get_msg(self) -> str:
-        return f"{self.problem}, Allowed Types: {self.expected}"
+        return f"{self.problem}"
 
     def to_dict(self) -> dict[str, str]:
         problm_dict = self._base_dict()

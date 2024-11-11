@@ -23,8 +23,27 @@ class UnknownClassesUsed:
     classes_onto: set[str]
 
     def get_msg(self) -> str:
-        pass
+        if unknown := self._get_unknown_ontos_msg():
+            return unknown
 
+
+    def _get_unknown_ontos_msg(self) -> str:
+        def split_prefix(relative_iri: str) -> str:
+            return relative_iri.split(":")[0]
+
+        used_ontos = set(split_prefix(x) for x in self.unknown_classes)
+        exising_ontos = set(split_prefix(x) for x in self.classes_onto)
+        msg = ""
+        if unknown := used_ontos - exising_ontos:
+            msg = (
+                f"You data uses ontologies that don't exist in the database.\n"
+                f"The following ontologies are uploaded: {''.join(unknown)}\n"
+                f"The following ontologies that are used in the data are unknown: {''.join(exising_ontos)}"
+            )
+        return msg
+
+    def _get_unknown_classes_msg(self) -> str:
+        pass
 
 @dataclass
 class UnexpectedResults:

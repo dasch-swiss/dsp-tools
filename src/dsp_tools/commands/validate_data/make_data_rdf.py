@@ -94,7 +94,7 @@ def _transform_one_project_resource(res: ResourceDeserialised) -> list[RDFTriple
     return all_triples
 
 
-def _transform_one_value(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:  # noqa: PLR0911 (too many return statements)
+def _transform_one_value(val: ValueDeserialised | AbstractFileValueDeserialised, res_iri: URIRef) -> ValueRDF:  # noqa: PLR0911 (too many return statements)
     func_mapper = {
         ColorValueDeserialised: ColorValueRDF,
         DateValueDeserialised: DateValueRDF,

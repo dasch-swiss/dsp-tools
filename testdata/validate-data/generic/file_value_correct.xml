@@ -27,7 +27,7 @@
     </resource>
 
     <resource label="TestStillImageRepresentation IIIF" restype=":TestStillImageRepresentation" id="id_still_image_iiif">
-        <iiif-uri>https://iiif.dasch.swiss:443/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/3346,2118/0/default.jpg</iiif-uri>
+        <iiif-uri>https://iiif.dasch.swiss:443/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg</iiif-uri>
     </resource>
 
     <resource label="TestTextRepresentation" restype=":TestTextRepresentation" id="id_text">

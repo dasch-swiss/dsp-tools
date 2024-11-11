@@ -18,6 +18,41 @@ GRAND_SEPARATOR = "\n\n----------------------------\n"
 
 
 @dataclass
+class UnknownClassesInData:
+    unknown_classes: set[str]
+    classes_onto: set[str]
+
+    def get_msg(self) -> str:
+        if unknown := self._get_unknown_ontos_msg():
+            return unknown
+        return self._get_unknown_classes_msg()
+
+    def _get_unknown_ontos_msg(self) -> str:
+        def split_prefix(relative_iri: str) -> str:
+            return relative_iri.split(":")[0]
+
+        used_ontos = set(split_prefix(x) for x in self.unknown_classes)
+        exising_ontos = set(split_prefix(x) for x in self.classes_onto)
+        msg = ""
+        if unknown := used_ontos - exising_ontos:
+            msg = (
+                f"Your data uses ontologies that don't exist in the database.\n"
+                f"The following ontologies that are used in the data are unknown: {''.join(exising_ontos)}"
+                f"The following ontologies are uploaded: {''.join(unknown)}\n"
+            )
+        return msg
+
+    def _get_unknown_classes_msg(self) -> str:
+        unknown_classes = sorted(list(self.unknown_classes))
+        known_classes = sorted(list(self.classes_onto))
+        return (
+            f"Your data uses resource classes that do not exist in the ontologies in the database.\n"
+            f"The following classes that are used in the data are unknown: {''.join(unknown_classes)}\n"
+            f"The following classes exist in the uploaded ontologies: {''.join(known_classes)}\n"
+        )
+
+
+@dataclass
 class UnexpectedResults:
     components: list[UnexpectedComponent]
 

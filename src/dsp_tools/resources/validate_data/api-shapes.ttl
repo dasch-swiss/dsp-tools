@@ -259,17 +259,6 @@ api-shapes:UriValue_ClassShape
 #########################################
 
 
-
-###########################
-# Generic File Value
-###########################
-
-# Until all file types are implemented the cardinality is checked with this property.
-
-# api-shapes:GenericFileValue -> api-shapes:hasGenericFileValue
-
-# fileValueHasExtension
-
 ###########################
 # ArchiveRepresentation
 ###########################

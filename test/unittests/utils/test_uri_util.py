@@ -26,6 +26,7 @@ from dsp_tools.utils.uri_util import is_iiif_uri
         "https://www.example.org/prefix1/prefix2/prefix3/prefix4/abcd1234/full/%5Emax/0/gray.webp",
         "https://iiif.dasch.swiss/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg",
         "http://www.example.org/prefix1/prefix2/prefix3/abcd1234/80,15,60,75/full/0/native",
+        "https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg",
     ],
 )
 def test_is_iiif_uri_correct(uri: str) -> None:

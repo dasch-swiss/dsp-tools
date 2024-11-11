@@ -17,11 +17,13 @@ from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTyp
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityProblem
+from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProblem
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.reformat_validaton_result import _extract_base_info_of_resource_results
 from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_validation_graph
+from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validate_data import _get_parsed_graphs
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
 from test.e2e_validate_data.setup_testcontainers import get_containers
@@ -387,6 +389,15 @@ class TestReformatValidationGraph:
             assert isinstance(one_result, NonExistentCardinalityProblem)
             assert one_result.res_id == expected[0]
             assert one_result.prop_name in expected[1]
+
+
+def test_check_for_unknown_resource_classes(api_con: ApiConnection) -> None:
+    file = Path("testdata/validate-data/generic/unknown_classes.xml")
+    graphs = _get_parsed_graphs(api_con, file)
+    result = _check_for_unknown_resource_classes(graphs)
+    assert isinstance(result, UnknownClassesInData)
+    expected = {"onto:NonExisting", "unknown:ClassWithEverything", "unknownClass"}
+    assert result.unknown_classes == expected
 
 
 if __name__ == "__main__":

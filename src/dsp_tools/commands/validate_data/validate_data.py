@@ -17,7 +17,7 @@ from dsp_tools.commands.validate_data.make_data_rdf import make_data_rdf
 from dsp_tools.commands.validate_data.models.data_deserialised import ProjectDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import XMLProject
 from dsp_tools.commands.validate_data.models.data_rdf import DataRDF
-from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesUsed
+from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_validation_graph
@@ -96,12 +96,12 @@ def _get_parsed_graphs(api_con: ApiConnection, filepath: Path) -> RDFGraphs:
     return rdf_graphs
 
 
-def _check_for_unknown_resource_classes(rdf_graphs: RDFGraphs) -> UnknownClassesUsed | None:
+def _check_for_unknown_resource_classes(rdf_graphs: RDFGraphs) -> UnknownClassesInData | None:
     used_cls = _get_all_used_classes(rdf_graphs.data)
     res_cls, value_cls = _get_all_onto_classes(rdf_graphs.ontos + rdf_graphs.knora_api)
     all_cls = res_cls.union(value_cls)
     if extra_cls := used_cls - all_cls:
-        return UnknownClassesUsed(unknown_classes=extra_cls, classes_onto=res_cls)
+        return UnknownClassesInData(unknown_classes=extra_cls, classes_onto=res_cls)
     return None
 
 

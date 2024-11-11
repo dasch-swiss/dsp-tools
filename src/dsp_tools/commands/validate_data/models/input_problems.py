@@ -18,7 +18,7 @@ GRAND_SEPARATOR = "\n\n----------------------------\n"
 
 
 @dataclass
-class UnknownClassesUsed:
+class UnknownClassesInData:
     unknown_classes: set[str]
     classes_onto: set[str]
 

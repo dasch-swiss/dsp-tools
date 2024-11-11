@@ -1,7 +1,7 @@
 import pytest
 from rdflib import Graph
 
-from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesUsed
+from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validate_data import _get_all_onto_classes
@@ -91,14 +91,14 @@ class TestFindUnknownClasses:
     def test_check_for_unknown_resource_classes_data_wrong(self, data_wrong: Graph) -> None:
         graphs = _get_rdf_graphs(data_wrong)
         result = _check_for_unknown_resource_classes(graphs)
-        assert isinstance(result, UnknownClassesUsed)
+        assert isinstance(result, UnknownClassesInData)
         assert result.unknown_classes == {"onto:NonExistent"}
         assert result.classes_onto == {"onto:One"}
 
     def test_check_for_unknown_resource_classes_data_prefix_non_existent(self, data_prefix_non_existent: Graph) -> None:
         graphs = _get_rdf_graphs(data_prefix_non_existent)
         result = _check_for_unknown_resource_classes(graphs)
-        assert isinstance(result, UnknownClassesUsed)
+        assert isinstance(result, UnknownClassesInData)
         assert result.unknown_classes == {"non-existent:One"}
         assert result.classes_onto == {"onto:One"}
 

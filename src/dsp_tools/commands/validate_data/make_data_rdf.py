@@ -208,4 +208,4 @@ def _transform_file_value(val: AbstractFileValueDeserialised) -> AbstractFileVal
     file_extension = ""
     if val.value:
         file_extension = val.value
-    return GenericFileValueRDF(DATA[val.res_id], file_extension)
+    return GenericFileValueRDF(DATA[val.res_id], Literal(file_extension))

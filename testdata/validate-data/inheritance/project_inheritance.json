@@ -1,0 +1,130 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json",
+  "project": {
+    "shortcode": "9990",
+    "shortname": "test-inheritance",
+    "longname": "Test project for validate-data with complex inheritance",
+    "descriptions": {
+      "en": "Test project for validate-data with complex inheritance"
+    },
+    "keywords": [
+      "validate"
+    ],
+    "ontologies": [
+      {
+        "name": "onto",
+        "label": "ontology",
+        "comment": "Ontology",
+        "properties": [
+          {
+            "name": "hasText0",
+            "super": [
+              "hasValue"
+            ],
+            "object": "TextValue",
+            "labels": {
+              "en": "Text 0"
+            },
+            "gui_element": "SimpleText"
+          },
+          {
+            "name": "hasTextSubProp1",
+            "super": [
+              ":hasText0"
+            ],
+            "object": "TextValue",
+            "labels": {
+              "en": "Text 1"
+            },
+            "gui_element": "SimpleText"
+          },
+          {
+            "name": "hasTextSubProp2",
+            "super": [
+              ":hasTextSubProp1"
+            ],
+            "object": "TextValue",
+            "labels": {
+              "en": "Text 2"
+            },
+            "gui_element": "SimpleText"
+          },
+          {
+            "name": "nonRelatedProp",
+            "super": [
+              "hasValue"
+            ],
+            "object": "TextValue",
+            "labels": {
+              "en": "Other Text"
+            },
+            "gui_element": "SimpleText"
+          }
+        ],
+        "resources": [
+          {
+            "name": "Resource0",
+            "super": "Resource",
+            "labels": {
+              "en": "Resource0"
+            },
+            "cardinalities": [
+              {
+                "propname": ":hasText0",
+                "gui_order": 1,
+                "cardinality": "1"
+              }
+            ]
+          },
+          {
+            "name": "ResourceSubCls1",
+            "super": ":Resource0",
+            "labels": {
+              "en": "ResourceSubCls1"
+            },
+            "cardinalities": [
+              {
+                "propname": ":hasTextSubProp1",
+                "gui_order": 1,
+                "cardinality": "1"
+              },
+              {
+                "propname": ":nonRelatedProp",
+                "gui_order": 2,
+                "cardinality": "1"
+              }
+            ]
+          },
+          {
+            "name": "ResourceSubCls2",
+            "super": ":ResourceSubCls1",
+            "labels": {
+              "en": "ResourceSubCls2"
+            },
+            "cardinalities": [
+              {
+                "propname": ":hasTextSubProp2",
+                "gui_order": 1,
+                "cardinality": "1"
+              }
+            ]
+          },
+          {
+            "name": "ResourceUnrelated",
+            "super": "Resource",
+            "labels": {
+              "en": "ResourceUnrelated"
+            },
+            "cardinalities": [
+              {
+                "propname": ":hasTextSubProp1",
+                "gui_order": 1,
+                "cardinality": "1"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

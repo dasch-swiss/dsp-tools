@@ -303,7 +303,7 @@ def report_link_target_non_existent(onto_graph: Graph) -> tuple[Graph, Graph, Va
     
     _:bn_link_target_non_existent a sh:ValidationResult ;
         sh:focusNode <http://data/value_link_target_non_existent> ;
-        sh:resultMessage "Resource" ;
+        sh:resultMessage <http://api.knora.org/ontology/knora-api/v2#Resource> ;
         sh:resultPath api-shapes:linkValueHasTargetID ;
         sh:resultSeverity sh:Violation ;
         sh:sourceConstraintComponent sh:ClassConstraintComponent ;
@@ -347,7 +347,7 @@ def extracted_link_target_non_existent() -> ResultLinkTargetViolation:
         res_iri=DATA.link_target_non_existent,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testHasLinkTo,
-        results_message="Resource",
+        expected_type=KNORA_API.Resource,
         target_iri=DATA.other,
         target_resource_type=None,
     )
@@ -368,7 +368,7 @@ def report_link_target_wrong_class(onto_graph: Graph) -> tuple[Graph, Graph, Val
         
     _:bn_link_target_wrong_class a sh:ValidationResult ;
         sh:focusNode <http://data/value_link_target_wrong_class> ;
-        sh:resultMessage "CardOneResource" ;
+        sh:resultMessage <http://0.0.0.0:3333/ontology/9999/onto/v2#CardOneResource> ;
         sh:resultPath api-shapes:linkValueHasTargetID ;
         sh:resultSeverity sh:Violation ;
         sh:sourceConstraintComponent sh:ClassConstraintComponent ;
@@ -415,7 +415,7 @@ def extracted_link_target_wrong_class() -> ResultLinkTargetViolation:
         res_iri=DATA.link_target_wrong_class,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testHasLinkToCardOneResource,
-        results_message="CardOneResource",
+        expected_type=ONTO.CardOneResource,
         target_iri=DATA.id_9_target,
         target_resource_type=ONTO.ClassWithEverything,
     )

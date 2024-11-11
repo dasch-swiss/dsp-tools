@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="9990"
+       default-ontology="onto">
+
+    <resource label="Resource0" restype=":Resource0" id="Resource0">
+        <text-prop name=":hasText0">
+            <text encoding="utf8">Text 0</text>
+        </text-prop>
+    </resource>
+
+    <resource label="ResourceSubCls1" restype=":ResourceSubCls1" id="ResourceSubCls1">
+        <text-prop name=":hasTextSubProp1">
+            <text encoding="utf8">Text 1</text>
+        </text-prop>
+        <text-prop name=":nonRelatedProp">
+            <text encoding="utf8">Text non-related</text>
+        </text-prop>
+    </resource>
+
+    <resource label="ResourceSubCls2" restype=":ResourceSubCls2" id="ResourceSubCls2">
+        <text-prop name=":hasTextSubProp2">
+            <text encoding="utf8">Text 2</text>
+        </text-prop>
+        <text-prop name=":nonRelatedProp">
+            <text encoding="utf8">Text non-related</text>
+        </text-prop>
+    </resource>
+
+    <resource label="ResourceUnrelated" restype=":ResourceUnrelated" id="ResourceUnrelated">
+        <text-prop name=":hasTextSubProp1">
+            <text encoding="utf8">hasTextSubProp1</text>
+        </text-prop>
+    </resource>
+
+</knora>

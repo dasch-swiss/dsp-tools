@@ -47,7 +47,9 @@ def _add_property_shapes_to_class_shapes(onto: Graph) -> Graph:
 
     CONSTRUCT {
 
-      ?class sh:property ?propShapesIRI .
+      ?class a sh:NodeShape ;
+             sh:property api-shapes:rdfsLabel_Shape ;
+             sh:property ?propShapesIRI .
 
     } WHERE {
 
@@ -151,7 +153,7 @@ def _construct_link_value_node_shape(onto: Graph) -> Graph:
                                 a            sh:PropertyShape ;
                                 sh:path      api-shapes:linkValueHasTargetID ;
                                 sh:class     ?rangeClass ;
-                                sh:message   ?rangeString ;
+                                sh:message   ?rangeClass ;
                             ] ;
             sh:severity    sh:Violation .
 
@@ -162,7 +164,6 @@ def _construct_link_value_node_shape(onto: Graph) -> Graph:
                 knora-api:objectType ?rangeClass .
 
         BIND(IRI(CONCAT(str(?prop), "_NodeShape")) AS ?nodeShapeIRI)
-        BIND(STRAFTER(STR(?rangeClass), "#") AS ?rangeString )
     }
     """
     if results_graph := onto.query(query_s).graph:

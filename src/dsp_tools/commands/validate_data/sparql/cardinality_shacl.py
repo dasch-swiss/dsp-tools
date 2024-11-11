@@ -29,8 +29,15 @@ def _construct_resource_nodeshape(onto_graph: Graph) -> Graph:
 
     CONSTRUCT {
         ?class a sh:NodeShape ;
-                sh:property api-shapes:rdfsLabel_Shape ;
-                dash:closedByTypes true .
+                dash:closedByTypes true ;
+                sh:property [
+                              a sh:PropertyShape ;
+                              sh:path rdfs:label ;
+                              sh:minCount 1 ;
+                              sh:maxCount 1 ;
+                              sh:severity sh:Violation ;
+                              sh:message "A label is required" ;
+                            ] .
     } WHERE {
         ?class a owl:Class ;
                knora-api:isResourceClass true ;

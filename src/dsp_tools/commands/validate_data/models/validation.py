@@ -7,18 +7,32 @@ from rdflib.term import Node
 
 
 @dataclass
+class SHACLGraphs:
+    cardinality: Graph
+    content: Graph
+
+
+@dataclass
 class RDFGraphs:
     data: Graph
     ontos: Graph
-    shapes: Graph
+    cardinality_shapes: Graph
+    content_shapes: Graph
     knora_api: Graph
 
     def get_data_and_onto_str(self) -> str:
         g = self.data + self.ontos + self.knora_api
         return g.serialize(format="ttl")
 
-    def get_shacl_and_onto_str(self) -> str:
-        g = self.shapes + self.ontos + self.knora_api
+    def get_data_str(self) -> str:
+        return self.data.serialize(format="ttl")
+
+    def get_cardinality_shacl_and_onto_str(self) -> str:
+        g = self.cardinality_shapes + self.ontos + self.knora_api
+        return g.serialize(format="ttl")
+
+    def get_content_shacl_and_onto_str(self) -> str:
+        g = self.content_shapes + self.ontos + self.knora_api
         return g.serialize(format="ttl")
 
 
@@ -91,7 +105,7 @@ class ResultGenericViolation(ValidationResult):
 
 @dataclass
 class ResultLinkTargetViolation(ValidationResult):
-    results_message: str
+    expected_type: Node
     target_iri: Node
     target_resource_type: Node | None
 

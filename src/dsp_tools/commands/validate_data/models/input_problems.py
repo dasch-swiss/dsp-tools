@@ -18,6 +18,15 @@ GRAND_SEPARATOR = "\n\n----------------------------\n"
 
 
 @dataclass
+class UnknownClassesUsed:
+    unknown_classes: set[str]
+    classes_onto: set[str]
+
+    def get_msg(self) -> str:
+        pass
+
+
+@dataclass
 class UnexpectedResults:
     components: list[UnexpectedComponent]
 

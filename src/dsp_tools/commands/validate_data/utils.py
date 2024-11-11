@@ -2,7 +2,7 @@ from rdflib.term import Node
 
 
 def reformat_onto_iri(iri: Node) -> str:
-    """Takes an rdblib Node and returns a prefixed IRI in string form."""
+    """Takes a rdflib Node and returns a prefixed IRI in string form."""
     iri_str = str(iri)
     if "http://www.w3.org/2000/01/rdf-schema#" in iri_str:
         return f'rdfs:{iri_str.split("#")[-1]}'
@@ -14,5 +14,5 @@ def reformat_onto_iri(iri: Node) -> str:
 
 
 def reformat_data_iri(iri: Node) -> str:
-    """Takes an rdflib Node with in the data namespace and returns only the suffix."""
+    """Takes a rdflib Node with in the data namespace and returns only the suffix."""
     return str(iri).replace("http://data/", "")

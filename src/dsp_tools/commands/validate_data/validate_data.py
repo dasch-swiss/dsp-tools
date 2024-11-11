@@ -2,6 +2,7 @@ from copy import deepcopy
 from pathlib import Path
 
 from lxml import etree
+from rdflib import RDF
 from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
@@ -16,10 +17,12 @@ from dsp_tools.commands.validate_data.make_data_rdf import make_data_rdf
 from dsp_tools.commands.validate_data.models.data_deserialised import ProjectDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import XMLProject
 from dsp_tools.commands.validate_data.models.data_rdf import DataRDF
+from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesUsed
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_shapes_graphs
+from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.xml_utils import parse_xml_file
 from dsp_tools.utils.xml_utils import remove_comments_from_element_tree
@@ -125,17 +128,26 @@ def _get_project_ontos(onto_client: OntologyClient) -> Graph:
     return onto_g
 
 
-def _check_for_unknown_resource_classes(rdf_graphs: RDFGraphs):
-    pass
+def _check_for_unknown_resource_classes(rdf_graphs: RDFGraphs) -> UnknownClassesUsed | None:
+    used_cls = _get_all_used_classes(rdf_graphs.data)
+    onto_cls = _get_all_onto_classes(rdf_graphs.ontos + rdf_graphs.knora_api)
+    if extra_cls := used_cls - onto_cls:
+        return UnknownClassesUsed(unknown_classes=extra_cls, classes_onto=onto_cls)
+    return None
 
 
-def _get_all_used_classes(data_graph: Graph):
-    pass
+def _get_all_used_classes(data_graph: Graph) -> set[str]:
+    types_used = set(data_graph.objects(predicate=RDF.type))
+    return {reformat_onto_iri(x) for x in types_used}
 
 
-def _get_all_onto_classes(ontos: Graph):
+def _get_all_onto_classes(ontos: Graph) -> set[str]:
     is_resource_iri = URIRef(KNORA_API + "isResourceClass")
     resource_classes = set(ontos.subjects(is_resource_iri, Literal(True)))
+    is_value_iri = URIRef(KNORA_API + "isValueClass")
+    value_classes = set(ontos.subjects(is_value_iri, Literal(True)))
+    all_used = value_classes.union(resource_classes)
+    return {reformat_onto_iri(x) for x in all_used}
 
 
 def _save_graphs(filepath: Path, rdf_graphs: RDFGraphs) -> Path:

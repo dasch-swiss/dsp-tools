@@ -57,7 +57,7 @@
         sh:sourceConstraintComponent  sh:MinCountConstraintComponent
         sh:detail                     -
         -->
-        <resource label="TestArchiveRepresentation" restype=":TestArchiveRepresentation" id="id_archive"/>
+        <resource label="TestArchiveRepresentation" restype=":TestArchiveRepresentation" id="id_missing_file_value"/>
 
         <!--
         Our Violation Type            NonExistentCardinalityViolation

@@ -16,6 +16,7 @@ from dsp_tools.commands.validate_data.models.input_problems import LinkedResourc
 from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityProblem
+from dsp_tools.commands.validate_data.models.input_problems import MissingFileValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProblem
@@ -189,9 +190,15 @@ def test_extract_identifiers_of_resource_results(every_combination_once: Validat
         (URIRef("http://data/id_card_one"), None),
         (URIRef("http://data/id_closed_constraint"), None),
         (URIRef("http://data/id_max_card"), None),
+        (URIRef("http://data/id_missing_file_value"), None),
         (URIRef("http://data/id_simpletext"), BNode),
         (URIRef("http://data/id_uri"), BNode),
+        (URIRef("http://data/identical_values"), None),
+        (URIRef("http://data/link_target_non_existent"), BNode),
+        (URIRef("http://data/link_target_wrong_class"), BNode),
+        (URIRef("http://data/list_node_non_existent"), BNode),
     ]
+    assert len(result) == len(expected_iris)
     for result_info, expected_iri in zip(result_sorted, expected_iris):
         assert result_info.resource_iri == expected_iri[0]
         if expected_iri[1] is None:
@@ -331,6 +338,7 @@ class TestReformatValidationGraph:
             ("id_card_one", MinCardinalityProblem),
             ("id_closed_constraint", NonExistentCardinalityProblem),
             ("id_max_card", MaxCardinalityProblem),
+            ("id_missing_file_value", MissingFileValueProblem),
             ("id_simpletext", ValueTypeProblem),
             ("id_uri", ValueTypeProblem),
             ("identical_values", DuplicateValueProblem),

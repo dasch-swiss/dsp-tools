@@ -115,3 +115,16 @@ class TimeValueDeserialised(ValueDeserialised): ...
 
 @dataclass
 class UriValueDeserialised(ValueDeserialised): ...
+
+
+@dataclass
+class AbstractFileValue(ABC):
+    value: str | None
+
+
+@dataclass
+class BitstreamFile(AbstractFileValue): ...
+
+
+@dataclass
+class IIIFUri(AbstractFileValue): ...

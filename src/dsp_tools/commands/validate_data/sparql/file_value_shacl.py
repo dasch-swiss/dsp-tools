@@ -41,9 +41,17 @@ def _construct_generic_file_value_cardinality(onto: Graph) -> Graph:
                             ] .
     } WHERE {
         ?class a owl:Class ;
-               rdfs:subClassOf knora-api:ArchiveRepresentation|knora-api:AudioRepresentation|knora-api:DocumentRepresentation|knora-api:MovingImageRepresentation|knora-api:StillImageRepresentation|knora-api:TextRepresentation .
+               rdfs:subClassOf ?superClass .
+        VALUES ?superClass {
+            knora-api:ArchiveRepresentation
+            knora-api:AudioRepresentation
+            knora-api:DocumentRepresentation
+            knora-api:MovingImageRepresentation
+            knora-api:StillImageRepresentation
+            knora-api:TextRepresentation
+        }
     }
-    """  # noqa:E501 (Line too long)
+    """
     if results_graph := onto.query(query_s).graph:
         return results_graph
     return Graph()

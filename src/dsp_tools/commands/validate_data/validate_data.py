@@ -2,7 +2,10 @@ from copy import deepcopy
 from pathlib import Path
 
 from lxml import etree
+from rdflib import RDF
 from rdflib import Graph
+from rdflib import Literal
+from rdflib import URIRef
 from termcolor import cprint
 
 from dsp_tools.commands.validate_data.api_clients import ListClient
@@ -14,10 +17,12 @@ from dsp_tools.commands.validate_data.make_data_rdf import make_data_rdf
 from dsp_tools.commands.validate_data.models.data_deserialised import ProjectDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import XMLProject
 from dsp_tools.commands.validate_data.models.data_rdf import DataRDF
+from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_shapes_graphs
+from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.xml_utils import parse_xml_file
 from dsp_tools.utils.xml_utils import remove_comments_from_element_tree
@@ -42,7 +47,14 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
         true unless it crashed
     """
     _inform_about_experimental_feature()
-    report = _get_validation_result(api_url, filepath, save_graphs)
+    api_con = ApiConnection(api_url)
+    graphs = _get_parsed_graphs(api_con, filepath)
+    if unknown_classes := _check_for_unknown_resource_classes(graphs):
+        msg = unknown_classes.get_msg()
+        cprint("\n   Validation errors found!   ", color="light_red", attrs=["bold", "reverse"])
+        print(msg)
+        return True
+    report = _get_validation_result(graphs, api_con, filepath, save_graphs)
     if report.conforms:
         cprint("\n   Validation passed!   ", color="green", attrs=["bold", "reverse"])
     else:
@@ -66,22 +78,6 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
     return True
 
 
-def _get_validation_result(api_url: str, filepath: Path, save_graphs: bool) -> ValidationReportGraphs:
-    data_rdf, shortcode = _get_data_info_from_file(filepath, api_url)
-    api_con = ApiConnection(api_url)
-    onto_client = OntologyClient(api_con, shortcode)
-    list_client = ListClient(api_con, shortcode)
-    rdf_graphs = _create_graphs(onto_client, list_client, data_rdf)
-    generic_filepath = Path()
-    if save_graphs:
-        generic_filepath = _save_graphs(filepath, rdf_graphs)
-    val = ShaclValidator(api_con, rdf_graphs)
-    report = _validate(val)
-    if save_graphs:
-        report.validation_graph.serialize(f"{generic_filepath}_VALIDATION_REPORT.ttl")
-    return report
-
-
 def _inform_about_experimental_feature() -> None:
     what_is_validated = [
         "This is an experimental feature, it will change and be extended continuously. "
@@ -90,6 +86,51 @@ def _inform_about_experimental_feature() -> None:
         "If the value type used matches the ontology",
     ]
     cprint(LIST_SEPARATOR.join(what_is_validated), color="magenta", attrs=["bold"])
+
+
+def _get_parsed_graphs(api_con: ApiConnection, filepath: Path) -> RDFGraphs:
+    data_rdf, shortcode = _get_data_info_from_file(filepath, api_con.api_url)
+    onto_client = OntologyClient(api_con, shortcode)
+    list_client = ListClient(api_con, shortcode)
+    rdf_graphs = _create_graphs(onto_client, list_client, data_rdf)
+    return rdf_graphs
+
+
+def _check_for_unknown_resource_classes(rdf_graphs: RDFGraphs) -> UnknownClassesInData | None:
+    used_cls = _get_all_used_classes(rdf_graphs.data)
+    res_cls, value_cls = _get_all_onto_classes(rdf_graphs.ontos + rdf_graphs.knora_api)
+    all_cls = res_cls.union(value_cls)
+    if extra_cls := used_cls - all_cls:
+        return UnknownClassesInData(unknown_classes=extra_cls, classes_onto=res_cls)
+    return None
+
+
+def _get_all_used_classes(data_graph: Graph) -> set[str]:
+    types_used = set(data_graph.objects(predicate=RDF.type))
+    return {reformat_onto_iri(x) for x in types_used}
+
+
+def _get_all_onto_classes(ontos: Graph) -> tuple[set[str], set[str]]:
+    is_resource_iri = URIRef(KNORA_API + "isResourceClass")
+    resource_classes = set(ontos.subjects(is_resource_iri, Literal(True)))
+    res_cls = {reformat_onto_iri(x) for x in resource_classes}
+    is_value_iri = URIRef(KNORA_API + "isValueClass")
+    value_classes = set(ontos.subjects(is_value_iri, Literal(True)))
+    value_cls = {reformat_onto_iri(x) for x in value_classes}
+    return res_cls, value_cls
+
+
+def _get_validation_result(
+    rdf_graphs: RDFGraphs, api_con: ApiConnection, filepath: Path, save_graphs: bool
+) -> ValidationReportGraphs:
+    generic_filepath = Path()
+    if save_graphs:
+        generic_filepath = _save_graphs(filepath, rdf_graphs)
+    val = ShaclValidator(api_con, rdf_graphs)
+    report = _validate(val)
+    if save_graphs:
+        report.validation_graph.serialize(f"{generic_filepath}_VALIDATION_REPORT.ttl")
+    return report
 
 
 def _create_graphs(onto_client: OntologyClient, list_client: ListClient, data_rdf: DataRDF) -> RDFGraphs:

@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="9999"
+       default-ontology="onto">
+
+    <!-- 3 Violations -->
+
+    <resource label="Class Non Existing" restype=":NonExisting" id="cls_not_in_onto"/>
+
+    <resource label="Prefix unknown" restype="unknown:ClassWithEverything" id="prefix_unknown"/>
+
+    <resource label="Knora class unknown" restype="unknownClass" id="class_unknown_no_prefix"/>
+
+</knora>

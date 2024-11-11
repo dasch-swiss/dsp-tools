@@ -258,7 +258,6 @@ api-shapes:UriValue_ClassShape
 # RESOURCES WITH FILES
 #########################################
 
-
 ###########################
 # ArchiveRepresentation
 ###########################

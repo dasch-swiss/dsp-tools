@@ -53,6 +53,13 @@
         <resource label="Bool Card 1" restype=":ClassInheritedCardinalityOverwriting" id="id_card_one"/>
 
         <!--
+        Our Violation Type            MissingFileValueProblem
+        sh:sourceConstraintComponent  sh:MinCountConstraintComponent
+        sh:detail                     -
+        -->
+        <resource label="TestArchiveRepresentation" restype=":TestArchiveRepresentation" id="id_archive"/>
+
+        <!--
         Our Violation Type            NonExistentCardinalityViolation
         sh:sourceConstraintComponent  dash:ClosedByTypesConstraintComponent
         sh:detail                     -

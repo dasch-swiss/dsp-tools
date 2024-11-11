@@ -17,6 +17,7 @@ from dsp_tools.commands.validate_data.models.input_problems import LinkedResourc
 from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityProblem
+from dsp_tools.commands.validate_data.models.input_problems import MissingFileValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import UnexpectedResults
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProblem
@@ -326,13 +327,7 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
                 expected_cardinality=validation_result.results_message,
             )
         case ResultMinCardinalityViolation():
-            iris = _reformat_main_iris(validation_result)
-            return MinCardinalityProblem(
-                res_id=iris.res_id,
-                res_type=iris.res_type,
-                prop_name=iris.prop_name,
-                expected_cardinality=validation_result.results_message,
-            )
+            return _reformat_min_cardinality_validation_result(validation_result)
         case ResultNonExistentCardinalityViolation():
             iris = _reformat_main_iris(validation_result)
             return NonExistentCardinalityProblem(
@@ -359,6 +354,24 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
             return _reformat_unique_value_violation_result(validation_result)
         case _:
             raise BaseError(f"An unknown violation result was found: {validation_result.__class__.__name__}")
+
+
+def _reformat_min_cardinality_validation_result(validation_result: ResultMinCardinalityViolation) -> InputProblem:
+    iris = _reformat_main_iris(validation_result)
+    file_value_properties = ["shapes:hasGenericFileValue"]
+    if iris.prop_name in file_value_properties:
+        return MissingFileValueProblem(
+            res_id=iris.res_id,
+            res_type=iris.res_type,
+            prop_name=iris.prop_name,
+            expected=validation_result.results_message,
+        )
+    return MinCardinalityProblem(
+        res_id=iris.res_id,
+        res_type=iris.res_type,
+        prop_name=iris.prop_name,
+        expected_cardinality=validation_result.results_message,
+    )
 
 
 def _reformat_value_type_violation_result(result: ResultValueTypeViolation) -> ValueTypeProblem:

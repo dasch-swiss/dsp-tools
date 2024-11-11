@@ -380,3 +380,23 @@ class DuplicateValueProblem(InputProblem):
 
     def sort_value(self) -> str:
         return self.prop_name
+
+
+@dataclass
+class MissingFileValueProblem(InputProblem):
+    expected: str
+
+    @property
+    def problem(self) -> str:
+        return "File value is missing"
+
+    def get_msg(self) -> str:
+        return f"{self.problem}, Allowed Types: {self.expected}"
+
+    def to_dict(self) -> dict[str, str]:
+        problm_dict = self._base_dict()
+        problm_dict["Expected"] = self.expected
+        return problm_dict
+
+    def sort_value(self) -> str:
+        return self.prop_name

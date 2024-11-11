@@ -48,7 +48,7 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
     """
     _inform_about_experimental_feature()
     api_con = ApiConnection(api_url)
-    graphs = _prepare_all_graphs(api_con, filepath)
+    graphs = _get_parsed_graphs(api_con, filepath)
     if unknown_classes := _check_for_unknown_resource_classes(graphs):
         msg = unknown_classes.get_msg()
         cprint("\n   Validation errors found!   ", color="light_red", attrs=["bold", "reverse"])
@@ -88,7 +88,7 @@ def _inform_about_experimental_feature() -> None:
     cprint(LIST_SEPARATOR.join(what_is_validated), color="magenta", attrs=["bold"])
 
 
-def _prepare_all_graphs(api_con: ApiConnection, filepath: Path) -> RDFGraphs:
+def _get_parsed_graphs(api_con: ApiConnection, filepath: Path) -> RDFGraphs:
     data_rdf, shortcode = _get_data_info_from_file(filepath, api_con.api_url)
     onto_client = OntologyClient(api_con, shortcode)
     list_client = ListClient(api_con, shortcode)

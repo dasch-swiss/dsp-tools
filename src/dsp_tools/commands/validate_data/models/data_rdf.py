@@ -215,7 +215,8 @@ class UriValueRDF(ValueRDF):
 
 
 @dataclass
-class AbstractFileValueRDF:
+class AbstractFileValueRDF(RDFTriples):
+    res_id: URIRef
     extension: str
 
     def make_graph(self) -> Graph:

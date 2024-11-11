@@ -120,6 +120,7 @@ class UriValueDeserialised(ValueDeserialised): ...
 
 @dataclass
 class AbstractFileValueDeserialised(ABC):
+    res_id: str
     value: str | None
 
 

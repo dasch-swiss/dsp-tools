@@ -64,6 +64,8 @@ def make_data_rdf(data_deserialised: DataDeserialised) -> DataRDF:
     all_triples: list[RDFTriples] = []
     for r in data_deserialised.resources:
         all_triples.extend(_transform_one_resource(r))
+    file_values: list[RDFTriples] = [_transform_file_value(x) for x in data_deserialised.file_values]
+    all_triples.extend(file_values)
     return DataRDF(all_triples)
 
 
@@ -95,7 +97,7 @@ def _transform_one_project_resource(res: ResourceDeserialised) -> list[RDFTriple
     return all_triples
 
 
-def _transform_one_value(val: ValueDeserialised | AbstractFileValueDeserialised, res_iri: URIRef) -> ValueRDF:  # noqa: PLR0911 (too many return statements)
+def _transform_one_value(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:  # noqa: PLR0911 (too many return statements)
     func_mapper = {
         ColorValueDeserialised: ColorValueRDF,
         DateValueDeserialised: DateValueRDF,
@@ -206,4 +208,4 @@ def _transform_file_value(val: AbstractFileValueDeserialised) -> AbstractFileVal
     file_extension = ""
     if val.value:
         file_extension = val.value
-    return GenericFileValueRDF(file_extension)
+    return GenericFileValueRDF(DATA[val.res_id], file_extension)

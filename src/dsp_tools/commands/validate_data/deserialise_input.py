@@ -152,9 +152,10 @@ def _get_text_as_string(value: etree._Element) -> str | None:
 
 def _deserialise_file_value(root: etree._Element) -> list[AbstractFileValueDeserialised]:
     file_values: list[AbstractFileValueDeserialised] = []
-    for elem in root.iterchildren(tag="resource"):
-        if (bitstream := elem.find("bitstream")) is not None:
-            file_values.append(BitstreamDeserialised(bitstream.text))
-        elif (iiif_uri := elem.find("iiif-uri")) is not None:
-            file_values.append(IIIFUriDeserialised(iiif_uri.text))
+    for res in root.iterchildren(tag="resource"):
+        res_id = res.attrib["id"]
+        if (bitstream := res.find("bitstream")) is not None:
+            file_values.append(BitstreamDeserialised(bitstream.text, res_id))
+        elif (iiif_uri := res.find("iiif-uri")) is not None:
+            file_values.append(IIIFUriDeserialised(iiif_uri.text, res_id))
     return file_values

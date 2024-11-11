@@ -1,0 +1,84 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json",
+  "project": {
+    "shortcode": "0003",
+    "shortname": "files",
+    "longname": "Test project for validate-data with files",
+    "descriptions": {
+      "en": "Test project for validate-data with files"
+    },
+    "keywords": [
+      "validate"
+    ],
+    "ontologies": [
+      {
+        "name": "onto",
+        "label": "Ontology",
+        "properties": [
+          {
+            "name": "testGeoname",
+            "super": [
+              "hasValue"
+            ],
+            "object": "GeonameValue",
+            "labels": {
+              "en": "Test Geoname"
+            },
+            "gui_element": "Geonames"
+          }
+        ],
+        "resources": [
+          {
+            "name": "TestArchiveRepresentation",
+            "super": "ArchiveRepresentation",
+            "labels": {
+              "en": "ArchiveRepresentation"
+            }
+          },
+          {
+            "name": "TestAudioRepresentation",
+            "super": "AudioRepresentation",
+            "labels": {
+              "en": "AudioRepresentation"
+            }
+          },
+          {
+            "name": "TestDDDRepresentation",
+            "super": "DDDRepresentation",
+            "labels": {
+              "en": "DDDRepresentation"
+            }
+          },
+          {
+            "name": "TestDocumentRepresentation",
+            "super": "DocumentRepresentation",
+            "labels": {
+              "en": "DocumentRepresentation"
+            }
+          },
+          {
+            "name": "TestMovingImageRepresentation",
+            "super": "MovingImageRepresentation",
+            "labels": {
+              "en": "MovingImageRepresentation"
+            }
+          },
+          {
+            "name": "TestStillImageRepresentation",
+            "super": "StillImageRepresentation",
+            "labels": {
+              "en": "StillImageRepresentation"
+            }
+          },
+          {
+            "name": "TestTextRepresentation",
+            "super": "TextRepresentation",
+            "labels": {
+              "en": "TextRepresentation"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

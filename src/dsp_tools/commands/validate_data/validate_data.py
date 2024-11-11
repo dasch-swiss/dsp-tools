@@ -3,6 +3,8 @@ from pathlib import Path
 
 from lxml import etree
 from rdflib import Graph
+from rdflib import Literal
+from rdflib import URIRef
 from termcolor import cprint
 
 from dsp_tools.commands.validate_data.api_clients import ListClient
@@ -121,6 +123,19 @@ def _get_project_ontos(onto_client: OntologyClient) -> Graph:
         og.parse(data=onto, format="ttl")
         onto_g += og
     return onto_g
+
+
+def _check_for_unknown_resource_classes(rdf_graphs: RDFGraphs):
+    pass
+
+
+def _get_all_used_classes(data_graph: Graph):
+    pass
+
+
+def _get_all_onto_classes(ontos: Graph):
+    is_resource_iri = URIRef(KNORA_API + "isResourceClass")
+    resource_classes = set(ontos.subjects(is_resource_iri, Literal(True)))
 
 
 def _save_graphs(filepath: Path, rdf_graphs: RDFGraphs) -> Path:

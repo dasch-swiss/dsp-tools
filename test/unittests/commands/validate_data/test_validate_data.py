@@ -4,6 +4,10 @@ from rdflib import Graph
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesUsed
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_resource_classes
+from dsp_tools.commands.validate_data.validate_data import _get_all_onto_classes
+from dsp_tools.commands.validate_data.validate_data import _get_all_used_classes
+from test.unittests.commands.validate_data.constants import KNORA_API
+from test.unittests.commands.validate_data.constants import ONTO
 from test.unittests.commands.validate_data.constants import PREFIXES
 
 
@@ -92,10 +96,14 @@ class TestFindUnknownClasses:
         assert result.classes_onto == {}
 
     def test_get_all_used_classes(self, data_ok: Graph) -> None:
-        pass
+        result = _get_all_used_classes(data_ok)
+        expected = {KNORA_API.TextValue, ONTO.One}
+        assert result == expected
 
     def test_get_all_onto_classes(self, onto: Graph) -> None:
-        pass
+        result = _get_all_onto_classes(onto)
+        expected = {KNORA_API.TextValue, ONTO.One}
+        assert result == expected
 
 
 if __name__ == "__main__":

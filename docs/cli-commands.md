@@ -553,6 +553,10 @@ the upload will be rejected.
 
 More help for this command can be found [here](./start-stack.md).
 
+!!! note "Login credentials for DSP-APP"
+
+    To gain system administration rights inside a locally running DSP-APP,
+    login with username `root@example.com` and password `test`.
 
 
 ## `stop-stack`

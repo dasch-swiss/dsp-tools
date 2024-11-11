@@ -28,6 +28,7 @@ class ProjectInformation:
 @dataclass
 class DataDeserialised:
     resources: list[AbstractResource]
+    file_values: list[AbstractFileValueDeserialised]
 
 
 @dataclass

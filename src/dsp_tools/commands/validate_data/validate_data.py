@@ -117,6 +117,7 @@ def _get_all_onto_classes(ontos: Graph) -> tuple[set[str], set[str]]:
     is_value_iri = URIRef(KNORA_API + "isValueClass")
     value_classes = set(ontos.subjects(is_value_iri, Literal(True)))
     value_cls = {reformat_onto_iri(x) for x in value_classes}
+    value_cls.add("shapes:GenericFileValue")
     return res_cls, value_cls
 
 

@@ -37,8 +37,8 @@ class UnknownClassesInData:
         if unknown := used_ontos - exising_ontos:
             msg = (
                 f"Your data uses ontologies that don't exist in the database.\n"
-                f"The following ontologies that are used in the data are unknown: {''.join(exising_ontos)}"
-                f"The following ontologies are uploaded: {''.join(unknown)}\n"
+                f"The following ontologies that are used in the data are unknown: {', '.join(exising_ontos)}"
+                f"The following ontologies are uploaded: {', '.join(unknown)}\n"
             )
         return msg
 
@@ -47,8 +47,8 @@ class UnknownClassesInData:
         known_classes = sorted(list(self.classes_onto))
         return (
             f"Your data uses resource classes that do not exist in the ontologies in the database.\n"
-            f"The following classes that are used in the data are unknown: {''.join(unknown_classes)}\n"
-            f"The following classes exist in the uploaded ontologies: {''.join(known_classes)}\n"
+            f"The following classes that are used in the data are unknown: {', '.join(unknown_classes)}\n"
+            f"The following classes exist in the uploaded ontologies: {', '.join(known_classes)}\n"
         )
 
 

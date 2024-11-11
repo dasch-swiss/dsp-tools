@@ -50,7 +50,7 @@ def is_iiif_uri(uri: str) -> bool:
         r"^((\^|%5e)?max|"  # max | ^max
         r"(\^|%5e)?full|"  # full | ^full
         r"(\^|%5e)?pct:\d+(\.\d+)?|"  # pct:n | ^pct:n
-        r"(\^|%5e)?(\d+(\.\d+)?)+,|"  # w, | ^w,
+        r"(\^|%5e)?(\d+(\.\d+)?)+(,|%2c)|"  # w, | ^w,
         r"(\^|%5e)?,\d+(\.\d+)?|"  # ,h | ^,h
         r"(\^|%5e)?!?\d+(\.\d+)?,\d+(\.\d+)?)$"  # w,h | ^w,h | !w,h | ^!w,h
     )

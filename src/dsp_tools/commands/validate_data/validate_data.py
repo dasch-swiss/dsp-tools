@@ -47,7 +47,14 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
         true unless it crashed
     """
     _inform_about_experimental_feature()
-    report = _get_validation_result(api_url, filepath, save_graphs)
+    api_con = ApiConnection(api_url)
+    graphs = _prepare_all_graphs(api_con, filepath)
+    if unknown_classes := _check_for_unknown_resource_classes(graphs):
+        msg = unknown_classes.get_msg()
+        cprint("\n   Validation errors found!   ", color="light_red", attrs=["bold", "reverse"])
+        print(msg)
+        return True
+    report = _get_validation_result(graphs, api_con, filepath, save_graphs)
     if report.conforms:
         cprint("\n   Validation passed!   ", color="green", attrs=["bold", "reverse"])
     else:
@@ -71,22 +78,6 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
     return True
 
 
-def _get_validation_result(api_url: str, filepath: Path, save_graphs: bool) -> ValidationReportGraphs:
-    data_rdf, shortcode = _get_data_info_from_file(filepath, api_url)
-    api_con = ApiConnection(api_url)
-    onto_client = OntologyClient(api_con, shortcode)
-    list_client = ListClient(api_con, shortcode)
-    rdf_graphs = _create_graphs(onto_client, list_client, data_rdf)
-    generic_filepath = Path()
-    if save_graphs:
-        generic_filepath = _save_graphs(filepath, rdf_graphs)
-    val = ShaclValidator(api_con, rdf_graphs)
-    report = _validate(val)
-    if save_graphs:
-        report.validation_graph.serialize(f"{generic_filepath}_VALIDATION_REPORT.ttl")
-    return report
-
-
 def _inform_about_experimental_feature() -> None:
     what_is_validated = [
         "This is an experimental feature, it will change and be extended continuously. "
@@ -95,6 +86,49 @@ def _inform_about_experimental_feature() -> None:
         "If the value type used matches the ontology",
     ]
     cprint(LIST_SEPARATOR.join(what_is_validated), color="magenta", attrs=["bold"])
+
+
+def _prepare_all_graphs(api_con: ApiConnection, filepath: Path) -> RDFGraphs:
+    data_rdf, shortcode = _get_data_info_from_file(filepath, api_con.api_url)
+    onto_client = OntologyClient(api_con, shortcode)
+    list_client = ListClient(api_con, shortcode)
+    rdf_graphs = _create_graphs(onto_client, list_client, data_rdf)
+    return rdf_graphs
+
+
+def _check_for_unknown_resource_classes(rdf_graphs: RDFGraphs) -> UnknownClassesUsed | None:
+    used_cls = _get_all_used_classes(rdf_graphs.data)
+    onto_cls = _get_all_onto_classes(rdf_graphs.ontos + rdf_graphs.knora_api)
+    if extra_cls := used_cls - onto_cls:
+        return UnknownClassesUsed(unknown_classes=extra_cls, classes_onto=onto_cls)
+    return None
+
+
+def _get_all_used_classes(data_graph: Graph) -> set[str]:
+    types_used = set(data_graph.objects(predicate=RDF.type))
+    return {reformat_onto_iri(x) for x in types_used}
+
+
+def _get_all_onto_classes(ontos: Graph) -> set[str]:
+    is_resource_iri = URIRef(KNORA_API + "isResourceClass")
+    resource_classes = set(ontos.subjects(is_resource_iri, Literal(True)))
+    is_value_iri = URIRef(KNORA_API + "isValueClass")
+    value_classes = set(ontos.subjects(is_value_iri, Literal(True)))
+    all_used = value_classes.union(resource_classes)
+    return {reformat_onto_iri(x) for x in all_used}
+
+
+def _get_validation_result(
+    rdf_graphs: RDFGraphs, api_con: ApiConnection, filepath: Path, save_graphs: bool
+) -> ValidationReportGraphs:
+    generic_filepath = Path()
+    if save_graphs:
+        generic_filepath = _save_graphs(filepath, rdf_graphs)
+    val = ShaclValidator(api_con, rdf_graphs)
+    report = _validate(val)
+    if save_graphs:
+        report.validation_graph.serialize(f"{generic_filepath}_VALIDATION_REPORT.ttl")
+    return report
 
 
 def _create_graphs(onto_client: OntologyClient, list_client: ListClient, data_rdf: DataRDF) -> RDFGraphs:
@@ -126,28 +160,6 @@ def _get_project_ontos(onto_client: OntologyClient) -> Graph:
         og.parse(data=onto, format="ttl")
         onto_g += og
     return onto_g
-
-
-def _check_for_unknown_resource_classes(rdf_graphs: RDFGraphs) -> UnknownClassesUsed | None:
-    used_cls = _get_all_used_classes(rdf_graphs.data)
-    onto_cls = _get_all_onto_classes(rdf_graphs.ontos + rdf_graphs.knora_api)
-    if extra_cls := used_cls - onto_cls:
-        return UnknownClassesUsed(unknown_classes=extra_cls, classes_onto=onto_cls)
-    return None
-
-
-def _get_all_used_classes(data_graph: Graph) -> set[str]:
-    types_used = set(data_graph.objects(predicate=RDF.type))
-    return {reformat_onto_iri(x) for x in types_used}
-
-
-def _get_all_onto_classes(ontos: Graph) -> set[str]:
-    is_resource_iri = URIRef(KNORA_API + "isResourceClass")
-    resource_classes = set(ontos.subjects(is_resource_iri, Literal(True)))
-    is_value_iri = URIRef(KNORA_API + "isValueClass")
-    value_classes = set(ontos.subjects(is_value_iri, Literal(True)))
-    all_used = value_classes.union(resource_classes)
-    return {reformat_onto_iri(x) for x in all_used}
 
 
 def _save_graphs(filepath: Path, rdf_graphs: RDFGraphs) -> Path:

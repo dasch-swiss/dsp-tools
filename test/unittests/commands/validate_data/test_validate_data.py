@@ -94,6 +94,7 @@ class TestFindUnknownClasses:
         assert isinstance(result, UnknownClassesInData)
         assert result.unknown_classes == {"onto:NonExistent"}
         assert result.classes_onto == {"onto:One"}
+        assert result._get_unknown_ontos_msg() == ""
 
     def test_check_for_unknown_resource_classes_data_prefix_non_existent(self, data_prefix_non_existent: Graph) -> None:
         graphs = _get_rdf_graphs(data_prefix_non_existent)
@@ -101,6 +102,7 @@ class TestFindUnknownClasses:
         assert isinstance(result, UnknownClassesInData)
         assert result.unknown_classes == {"non-existent:One"}
         assert result.classes_onto == {"onto:One"}
+        assert result._get_unknown_ontos_msg() != ""
 
     def test_get_all_used_classes(self, data_ok: Graph) -> None:
         result = _get_all_used_classes(data_ok)

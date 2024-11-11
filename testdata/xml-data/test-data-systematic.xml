@@ -285,9 +285,12 @@
               restype=":ImageThing"
               id="iiif-link"
               permissions="open">
-        <iiif-uri>https://iiif.dasch.swiss/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/837,530/0/default.jp2</iiif-uri>
+        <iiif-uri>https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg</iiif-uri>
         <text-prop name=":hasSimpleText">
-            <text permissions="open" encoding="utf8">This is a IIIFImageThing</text>
+            <text permissions="open" encoding="utf8">
+                Licence: Attribution-NonCommercial 4.0 International (CC BY-NC 4.0).
+                Credit: Zebrafish embryo. Source: Wellcome Collection.
+            </text>
         </text-prop>
     </resource>
 

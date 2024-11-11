@@ -519,13 +519,6 @@
             }
           },
           {
-            "name": "TestDDDRepresentation",
-            "super": "DDDRepresentation",
-            "labels": {
-              "en": "DDDRepresentation"
-            }
-          },
-          {
             "name": "TestDocumentRepresentation",
             "super": "DocumentRepresentation",
             "labels": {

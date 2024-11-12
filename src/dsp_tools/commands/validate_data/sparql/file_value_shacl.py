@@ -55,5 +55,6 @@ def _construct_generic_file_value_cardinality(onto: Graph) -> Graph:
         return results_graph
     return Graph()
 
+
 def _construct_moving_image_representation(onto: Graph) -> Graph:
     pass

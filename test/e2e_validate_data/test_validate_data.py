@@ -131,10 +131,8 @@ def file_value_correct(_create_project_generic: Iterator[None], api_con: ApiConn
 
 @lru_cache(maxsize=None)
 @pytest.fixture
-def file_value_cardinality_violation(
-    _create_project_generic: Iterator[None], api_con: ApiConnection
-) -> ValidationReportGraphs:
-    file = Path("testdata/validate-data/generic/file_value_cardinality_violation.xml")
+def file_value_violation(_create_project_generic: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+    file = Path("testdata/validate-data/generic/file_value_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
     return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
 
@@ -255,8 +253,8 @@ class TestCheckConforms:
     def test_file_value_correct(self, file_value_correct: ValidationReportGraphs) -> None:
         assert file_value_correct.conforms
 
-    def test_file_value_cardinality_violation(self, file_value_cardinality_violation: ValidationReportGraphs) -> None:
-        assert not file_value_cardinality_violation.conforms
+    def test_file_value_cardinality_violation(self, file_value_violation: ValidationReportGraphs) -> None:
+        assert not file_value_violation.conforms
 
     def test_special_characters_correct(self, special_characters_correct: ValidationReportGraphs) -> None:
         assert special_characters_correct.conforms
@@ -392,10 +390,8 @@ class TestReformatValidationGraph:
             assert isinstance(one_result, DuplicateValueProblem)
             assert one_result.res_id == expected_id
 
-    def test_reformat_file_value_cardinality_violation(
-        self, file_value_cardinality_violation: ValidationReportGraphs
-    ) -> None:
-        result = reformat_validation_graph(file_value_cardinality_violation)
+    def test_reformat_file_value_cardinality_violation(self, file_value_violation: ValidationReportGraphs) -> None:
+        result = reformat_validation_graph(file_value_violation)
         expected_info_tuples = [
             "id_archive_missing",
             "id_audio_missing",

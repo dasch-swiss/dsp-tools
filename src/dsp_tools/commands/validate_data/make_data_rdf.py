@@ -215,12 +215,12 @@ def _transform_file_value(val: AbstractFileValueDeserialised) -> AbstractFileVal
 def _map_into_correct_file_value(val: AbstractFileValueDeserialised) -> AbstractFileValueRDF:
     res_iri = DATA[val.res_id]
     file_extension = _get_file_extension(val.value)
-    extension_rdf = Literal(file_extension)
+    file_literal = Literal(val.value)
     match file_extension:
         case "mp4":
-            return MovingImageFileValueRDF(res_iri=res_iri, value=extension_rdf)
+            return MovingImageFileValueRDF(res_iri=res_iri, value=file_literal)
         case _:
-            return GenericFileValueRDF(res_iri=res_iri, value=extension_rdf)
+            return GenericFileValueRDF(res_iri=res_iri, value=file_literal)
 
 
 def _get_file_extension(value: str | None) -> str:

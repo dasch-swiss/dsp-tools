@@ -242,6 +242,6 @@ class MovingImageFileValueRDF(AbstractFileValueRDF):
         g = Graph()
         val_iri = DATA[str(uuid4())]
         g.add((val_iri, RDF.type, KNORA_API.MovingImageFileValue))
-        g.add((val_iri, API_SHAPES.fileValueHasValue, self.value))
+        g.add((val_iri, KNORA_API.fileValueHasFilename, self.value))
         g.add((self.res_iri, KNORA_API.hasMovingImageFileValue, val_iri))
         return g

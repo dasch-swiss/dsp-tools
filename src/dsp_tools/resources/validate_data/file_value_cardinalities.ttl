@@ -49,17 +49,16 @@ api-shapes:MovingImageFileValue_ClassShape
   sh:name     "Validates the class type" ;
   sh:message  "MovingImageFileValue" ;
   sh:class    knora-api:MovingImageFileValue ;
-  sh:property api-shapes:fileValueHasValue_MovingImage ;
+  sh:property [
+                a           sh:PropertyShape ;
+                sh:path     knora-api:fileValueHasFilename ;
+                sh:minCount 1 ;
+                sh:maxCount 1 ;
+                sh:pattern  ".+\\.mp4$" ;
+                sh:severity sh:Violation ;
+                sh:message  "A MovingImageRepresentation requires a file with the extension 'mp4'." ;
+              ] ;
   sh:severity sh:Violation .
-
-api-shapes:fileValueHasValue_MovingImage
-  a           sh:PropertyShape ;
-  sh:path     knora-api:fileValueHasFilename ;
-  sh:minCount 1 ;
-  sh:maxCount 1 ;
-  sh:pattern  ".+\\.mp4$" ;
-  sh:severity sh:Violation ;
-  sh:message  "A MovingImageRepresentation requires a file with the extension 'mp4'." .
 
 ###########################
 # StillImageRepresentation

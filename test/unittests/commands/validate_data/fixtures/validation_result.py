@@ -17,7 +17,6 @@ from dsp_tools.commands.validate_data.models.validation import ResultPatternViol
 from dsp_tools.commands.validate_data.models.validation import ResultUniqueValueViolation
 from dsp_tools.commands.validate_data.models.validation import ResultValueTypeViolation
 from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
-from test.unittests.commands.validate_data.constants import API_SHAPES
 from test.unittests.commands.validate_data.constants import DASH
 from test.unittests.commands.validate_data.constants import DATA
 from test.unittests.commands.validate_data.constants import KNORA_API
@@ -761,18 +760,19 @@ def extracted_unknown_list_name() -> ResultGenericViolation:
 def report_missing_file_value(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
-            sh:focusNode <http://data/id_missing_file_value> ;
-            sh:resultMessage "A file is required for this resource" ;
-            sh:resultPath <http://api.knora.org/ontology/knora-api/shapes/v2#hasGenericFileValue> ;
+            sh:focusNode <http://data/id_video_missing> ;
+            sh:resultMessage "A MovingImageRepresentation requires a file with the extension 'mp4'" ;
+            sh:resultPath <http://api.knora.org/ontology/knora-api/v2#hasMovingImageFileValue> ;
             sh:resultSeverity sh:Violation ;
             sh:sourceConstraintComponent sh:MinCountConstraintComponent ;
-            sh:sourceShape [ ] ] .
+            sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#hasMovingImageFileValue_PropShape> 
+    ] .
     """
     validation_g = Graph()
     validation_g.parse(data=validation_str, format="ttl")
     data_str = f"""{PREFIXES}
-    <http://data/id_missing_file_value> a onto:TestArchiveRepresentation ;
-    rdfs:label "TestArchiveRepresentation"^^xsd:string .
+    <http://data/id_video_missing> a <http://0.0.0.0:3333/ontology/9999/onto/v2#TestMovingImageRepresentation> ;
+        rdfs:label "TestMovingImageRepresentation"^^xsd:string .
     """
     onto_data_g = Graph()
     onto_data_g += onto_graph
@@ -781,9 +781,9 @@ def report_missing_file_value(onto_graph: Graph) -> tuple[Graph, Graph, Validati
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.MinCountConstraintComponent,
-        resource_iri=DATA.id_missing_file_value,
-        res_class_type=ONTO.TestArchiveRepresentation,
-        result_path=API_SHAPES.hasGenericFileValue,
+        resource_iri=DATA.id_video_missing,
+        res_class_type=ONTO.TestMovingImageRepresentation,
+        result_path=KNORA_API.hasMovingImageFileValue,
     )
     return validation_g, onto_data_g, base_info
 
@@ -791,10 +791,10 @@ def report_missing_file_value(onto_graph: Graph) -> tuple[Graph, Graph, Validati
 @pytest.fixture
 def extracted_missing_file_value() -> ResultMinCardinalityViolation:
     return ResultMinCardinalityViolation(
-        res_iri=DATA.id_missing_file_value,
-        res_class=ONTO.TestArchiveRepresentation,
-        property=API_SHAPES.hasGenericFileValue,
-        results_message="A file is required for this resource",
+        res_iri=DATA.id_video_missing,
+        res_class=ONTO.TestMovingImageRepresentation,
+        property=KNORA_API.hasMovingImageFileValue,
+        results_message="A MovingImageRepresentation requires a file with the extension 'mp4'",
     )
 
 

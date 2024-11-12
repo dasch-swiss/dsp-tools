@@ -217,7 +217,7 @@ class UriValueRDF(ValueRDF):
 @dataclass
 class AbstractFileValueRDF(RDFTriples):
     res_iri: URIRef
-    extension: Literal
+    value: Literal
 
     def make_graph(self) -> Graph:
         raise NotImplementedError
@@ -231,6 +231,6 @@ class GenericFileValueRDF(AbstractFileValueRDF):
         g = Graph()
         val_iri = DATA[str(uuid4())]
         g.add((val_iri, RDF.type, API_SHAPES.GenericFileValue))
-        g.add((val_iri, API_SHAPES.fileValueHasExtension, self.extension))
+        g.add((val_iri, API_SHAPES.fileValueHasValue, self.value))
         g.add((self.res_iri, API_SHAPES.hasGenericFileValue, val_iri))
         return g

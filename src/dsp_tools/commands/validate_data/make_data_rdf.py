@@ -15,6 +15,7 @@ from dsp_tools.commands.validate_data.models.data_deserialised import DataDeseri
 from dsp_tools.commands.validate_data.models.data_deserialised import DateValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DecimalValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import GeonameValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import IIIFUriDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import IntValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import LinkObjDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import LinkValueDeserialised
@@ -205,7 +206,18 @@ def _transform_uri_value(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
 
 
 def _transform_file_value(val: AbstractFileValueDeserialised) -> AbstractFileValueRDF:
-    file_extension = ""
-    if val.value:
-        file_extension = val.value.split(".")[-1].lower()
-    return GenericFileValueRDF(res_iri=DATA[val.res_id], extension=Literal(file_extension))
+    res_iri = DATA[val.res_id]
+    if isinstance(val, IIIFUriDeserialised):
+        return GenericFileValueRDF(res_iri=res_iri, value=Literal(str(val.value)))
+    file_extension = _get_file_extension(val.value)
+    return GenericFileValueRDF(res_iri=res_iri, value=Literal(file_extension))
+
+
+def _get_file_extension(value: str | None) -> str:
+    file_extension = "No file path was given."
+    if value:
+        if "." not in value:
+            file_extension = f"This file is missing a valid extension, actual value: {value}"
+        else:
+            file_extension = value.split(".")[-1].lower()
+    return file_extension

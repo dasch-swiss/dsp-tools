@@ -37,8 +37,8 @@ class UnknownClassesInData:
         if unknown := used_ontos - exising_ontos:
             msg = (
                 f"Your data uses ontologies that don't exist in the database.\n"
-                f"The following ontologies that are used in the data are unknown: {''.join(exising_ontos)}"
-                f"The following ontologies are uploaded: {''.join(unknown)}\n"
+                f"The following ontologies that are used in the data are unknown: {', '.join(exising_ontos)}"
+                f"The following ontologies are uploaded: {', '.join(unknown)}\n"
             )
         return msg
 
@@ -47,8 +47,8 @@ class UnknownClassesInData:
         known_classes = sorted(list(self.classes_onto))
         return (
             f"Your data uses resource classes that do not exist in the ontologies in the database.\n"
-            f"The following classes that are used in the data are unknown: {''.join(unknown_classes)}\n"
-            f"The following classes exist in the uploaded ontologies: {''.join(known_classes)}\n"
+            f"The following classes that are used in the data are unknown: {', '.join(unknown_classes)}\n"
+            f"The following classes exist in the uploaded ontologies: {', '.join(known_classes)}\n"
         )
 
 
@@ -376,6 +376,26 @@ class DuplicateValueProblem(InputProblem):
     def to_dict(self) -> dict[str, str]:
         problm_dict = self._base_dict()
         problm_dict["Content"] = self.actual_content
+        return problm_dict
+
+    def sort_value(self) -> str:
+        return self.prop_name
+
+
+@dataclass
+class MissingFileValueProblem(InputProblem):
+    expected: str
+
+    @property
+    def problem(self) -> str:
+        return "Required file value is missing"
+
+    def get_msg(self) -> str:
+        return f"{self.problem}"
+
+    def to_dict(self) -> dict[str, str]:
+        problm_dict = self._base_dict()
+        problm_dict["Expected"] = self.expected
         return problm_dict
 
     def sort_value(self) -> str:

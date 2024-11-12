@@ -505,21 +505,46 @@
             ]
           },
           {
-            "name": "TestStillImageRepresentation",
+            "name": "TestArchiveRepresentation",
+            "super": "ArchiveRepresentation",
             "labels": {
-              "en": "Page using 'isPartOf' and 'seqnum' directly"
-            },
+              "en": "ArchiveRepresentation"
+            }
+          },
+          {
+            "name": "TestAudioRepresentation",
+            "super": "AudioRepresentation",
+            "labels": {
+              "en": "AudioRepresentation"
+            }
+          },
+          {
+            "name": "TestDocumentRepresentation",
+            "super": "DocumentRepresentation",
+            "labels": {
+              "en": "DocumentRepresentation"
+            }
+          },
+          {
+            "name": "TestMovingImageRepresentation",
+            "super": "MovingImageRepresentation",
+            "labels": {
+              "en": "MovingImageRepresentation"
+            }
+          },
+          {
+            "name": "TestStillImageRepresentation",
             "super": "StillImageRepresentation",
-            "cardinalities": [
-              {
-                "propname": "isPartOf",
-                "cardinality": "0-1"
-              },
-              {
-                "propname": "seqnum",
-                "cardinality": "0-1"
-              }
-            ]
+            "labels": {
+              "en": "StillImageRepresentation"
+            }
+          },
+          {
+            "name": "TestTextRepresentation",
+            "super": "TextRepresentation",
+            "labels": {
+              "en": "TextRepresentation"
+            }
           }
         ]
       },

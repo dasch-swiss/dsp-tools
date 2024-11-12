@@ -12,6 +12,7 @@ from dsp_tools.commands.validate_data.models.input_problems import LinkedResourc
 from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityProblem
+from dsp_tools.commands.validate_data.models.input_problems import MissingFileValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProblem
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
@@ -30,6 +31,7 @@ from dsp_tools.commands.validate_data.reformat_validaton_result import _query_on
 from dsp_tools.commands.validate_data.reformat_validaton_result import _query_one_without_detail
 from dsp_tools.commands.validate_data.reformat_validaton_result import _reformat_one_validation_result
 from dsp_tools.commands.validate_data.reformat_validaton_result import _separate_result_types
+from test.unittests.commands.validate_data.constants import API_SHAPES
 from test.unittests.commands.validate_data.constants import DATA
 from test.unittests.commands.validate_data.constants import KNORA_API
 from test.unittests.commands.validate_data.constants import ONTO
@@ -282,6 +284,17 @@ class TestQueryWithDetail:
         assert result.actual_value == "other"
 
 
+class TestQueryFileValueViolations:
+    def test_missing_file_value(self, report_missing_file_value: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
+        res, _, info = report_missing_file_value
+        result = _query_one_without_detail(info, res)
+        assert isinstance(result, ResultMinCardinalityViolation)
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
+        assert result.property == API_SHAPES.hasGenericFileValue
+        assert result.results_message == "A file is required for this resource"
+
+
 class TestReformatResult:
     def test_min(self, extracted_min_card: ResultMinCardinalityViolation) -> None:
         result = _reformat_one_validation_result(extracted_min_card)
@@ -393,6 +406,14 @@ class TestReformatResult:
         assert result.prop_name == "onto:testListProp"
         assert result.results_message == "The list that should be used with this property is 'firstList'."
         assert result.actual_content == "other"
+
+    def test_missing_file_value(self, extracted_missing_file_value: ResultMinCardinalityViolation) -> None:
+        result = _reformat_one_validation_result(extracted_missing_file_value)
+        assert isinstance(result, MissingFileValueProblem)
+        assert result.res_id == "id_missing_file_value"
+        assert result.res_type == "onto:TestArchiveRepresentation"
+        assert result.prop_name == "bitstream / iiif-uri"
+        assert result.expected == "A file is required for this resource"
 
 
 if __name__ == "__main__":

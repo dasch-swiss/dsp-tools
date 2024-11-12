@@ -3,13 +3,18 @@ from rdflib import XSD
 from rdflib import Literal
 from rdflib import URIRef
 
+from dsp_tools.commands.validate_data.make_data_rdf import _get_file_extension
+from dsp_tools.commands.validate_data.make_data_rdf import _transform_file_value
 from dsp_tools.commands.validate_data.make_data_rdf import _transform_one_resource
 from dsp_tools.commands.validate_data.make_data_rdf import _transform_one_value
+from dsp_tools.commands.validate_data.models.data_deserialised import AbstractFileValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import BitstreamDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import BooleanValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ColorValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DateValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DecimalValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import GeonameValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import IIIFUriDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import IntValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import LinkValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ListValueDeserialised
@@ -262,6 +267,32 @@ class TestUriValue:
         assert val.res_iri == DATA["id"]
         assert val.prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testUriValue")
         assert val.object_value == Literal("", datatype=XSD.string)
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        (BitstreamDeserialised("id", "test.jpg"), "jpg"),
+        (BitstreamDeserialised("id", None), "No file path was given."),
+        (IIIFUriDeserialised("id", "https://uri.org"), "https://uri.org"),
+        (IIIFUriDeserialised("id", None), "None"),
+    ],
+)
+def test_transform_file_value(value: AbstractFileValueDeserialised, expected: str) -> None:
+    assert _transform_file_value(value).value == Literal(expected)
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        ("test.jpg", "jpg"),
+        ("test.JPG", "jpg"),
+        (None, "No file path was given."),
+        ("test", "This file is missing a valid extension, actual value: test"),
+    ],
+)
+def test_get_file_extension(value: str | None, expected: str) -> None:
+    assert _get_file_extension(value) == expected
 
 
 if __name__ == "__main__":

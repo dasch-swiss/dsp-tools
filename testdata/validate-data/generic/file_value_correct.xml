@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="9999"
+       default-ontology="onto">
+
+    <resource label="TestArchiveRepresentation" restype=":TestArchiveRepresentation" id="id_archive">
+        <bitstream>this/is/filepath/file.zip</bitstream>
+    </resource>
+
+    <resource label="TestAudioRepresentation" restype=":TestAudioRepresentation" id="id_audio">
+        <bitstream>this/is/filepath/file.mp3</bitstream>
+    </resource>
+
+    <resource label="TestDocumentRepresentation" restype=":TestDocumentRepresentation" id="id_document">
+        <bitstream>this/is/filepath/file.pdf</bitstream>
+    </resource>
+
+    <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="id_video">
+        <bitstream>this/is/filepath/file.mp4</bitstream>
+    </resource>
+
+    <resource label="TestStillImageRepresentation File" restype=":TestStillImageRepresentation" id="id_still_image_file">
+        <bitstream>this/is/filepath/file.jpg</bitstream>
+    </resource>
+
+    <resource label="TestStillImageRepresentation IIIF" restype=":TestStillImageRepresentation" id="id_still_image_iiif">
+        <iiif-uri>https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg</iiif-uri>
+    </resource>
+
+    <resource label="TestTextRepresentation" restype=":TestTextRepresentation" id="id_text">
+        <bitstream>this/is/filepath/file.xml</bitstream>
+    </resource>
+
+</knora>

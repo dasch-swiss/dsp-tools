@@ -28,6 +28,7 @@ class ProjectInformation:
 @dataclass
 class DataDeserialised:
     resources: list[AbstractResource]
+    file_values: list[AbstractFileValueDeserialised]
 
 
 @dataclass
@@ -115,3 +116,17 @@ class TimeValueDeserialised(ValueDeserialised): ...
 
 @dataclass
 class UriValueDeserialised(ValueDeserialised): ...
+
+
+@dataclass
+class AbstractFileValueDeserialised(ABC):
+    res_id: str
+    value: str | None
+
+
+@dataclass
+class BitstreamDeserialised(AbstractFileValueDeserialised): ...
+
+
+@dataclass
+class IIIFUriDeserialised(AbstractFileValueDeserialised): ...

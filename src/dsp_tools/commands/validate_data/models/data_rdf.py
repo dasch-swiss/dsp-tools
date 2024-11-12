@@ -212,3 +212,25 @@ class UriValueRDF(ValueRDF):
         g.add((val_iri, KNORA_API.uriValueAsUri, self.object_value))
         g.add((self.res_iri, self.prop_name, val_iri))
         return g
+
+
+@dataclass
+class AbstractFileValueRDF(RDFTriples):
+    res_iri: URIRef
+    value: Literal
+
+    def make_graph(self) -> Graph:
+        raise NotImplementedError
+
+
+@dataclass
+class GenericFileValueRDF(AbstractFileValueRDF):
+    """This class is a placeholder for all types of file values that are not yet implemented."""
+
+    def make_graph(self) -> Graph:
+        g = Graph()
+        val_iri = DATA[str(uuid4())]
+        g.add((val_iri, RDF.type, API_SHAPES.GenericFileValue))
+        g.add((val_iri, API_SHAPES.fileValueHasValue, self.value))
+        g.add((self.res_iri, API_SHAPES.hasGenericFileValue, val_iri))
+        return g

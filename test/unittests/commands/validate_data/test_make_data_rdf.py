@@ -273,9 +273,9 @@ class TestUriValue:
     ("value", "expected"),
     [
         (BitstreamDeserialised("id", "test.jpg"), "jpg"),
-        (BitstreamDeserialised("id", None), "No file path was given."),
+        (BitstreamDeserialised("id", None), ""),
         (IIIFUriDeserialised("id", "https://uri.org"), "https://uri.org"),
-        (IIIFUriDeserialised("id", None), "None"),
+        (IIIFUriDeserialised("id", None), ""),
     ],
 )
 def test_transform_file_value(value: AbstractFileValueDeserialised, expected: str) -> None:
@@ -287,8 +287,8 @@ def test_transform_file_value(value: AbstractFileValueDeserialised, expected: st
     [
         ("test.jpg", "jpg"),
         ("test.JPG", "jpg"),
-        (None, "No file path was given."),
-        ("test", "This file is missing a valid extension, actual value: test"),
+        (None, ""),
+        ("test", ""),
     ],
 )
 def test_get_file_extension(value: str | None, expected: str) -> None:

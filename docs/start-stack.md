@@ -23,6 +23,10 @@ Here's an overview of the two ways:
 | available versions          | latest released version, or `main` branch | any branch, or locally modified working tree                             |
 | caveats                     |                                           | dependencies must be kept up to date                                     |
 
+!!! note "Login credentials for DSP-APP"
+
+    To gain system administration rights inside a locally running DSP-APP, 
+    login with username `root@example.com` and password `test`.
 
 
 ## The Simple Way: `dsp-tools start-stack`

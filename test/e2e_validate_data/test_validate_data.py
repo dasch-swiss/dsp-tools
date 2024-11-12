@@ -253,7 +253,7 @@ class TestCheckConforms:
         assert not unique_value_violation.conforms
 
     def test_file_value_correct(self, file_value_correct: ValidationReportGraphs) -> None:
-        assert not file_value_correct.conforms
+        assert file_value_correct.conforms
 
     def test_file_value_cardinality_violation(self, file_value_cardinality_violation: ValidationReportGraphs) -> None:
         assert not file_value_cardinality_violation.conforms

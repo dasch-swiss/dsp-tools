@@ -67,14 +67,7 @@ def _construct_moving_image_representation(onto: Graph) -> Graph:
     PREFIX dash: <http://datashapes.org/dash#>
 
     CONSTRUCT {
-        ?class sh:property [
-                              a sh:PropertyShape ;
-                              sh:path knora-api:hasMovingImageFileValue ;
-                              sh:minCount 1 ;
-                              sh:maxCount 1 ;
-                              sh:severity sh:Violation ;
-                              sh:message "A MovingImageRepresentation requires a file with the extension 'mp4'" ;
-                            ]  .
+        ?class sh:property api-shapes:hasMovingImageFileValue_PropShape .
     } WHERE {
         ?class a owl:Class ;
                rdfs:subClassOf knora-api:MovingImageRepresentation .

@@ -146,12 +146,13 @@ def _create_graphs(onto_client: OntologyClient, list_client: ListClient, data_rd
     api_shapes.parse("src/dsp_tools/resources/validate_data/api-shapes.ttl")
     file_shapes = Graph()
     file_shapes.parse("src/dsp_tools/resources/validate_data/file_value_cardinalities.ttl")
-    content_shapes = shapes.content + api_shapes + file_shapes
+    content_shapes = shapes.content + api_shapes
+    card_shapes = shapes.cardinality + file_shapes
     data = data_rdf.make_graph()
     return RDFGraphs(
         data=data,
         ontos=ontologies,
-        cardinality_shapes=shapes.cardinality,
+        cardinality_shapes=card_shapes,
         content_shapes=content_shapes,
         knora_api=knora_api,
     )

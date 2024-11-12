@@ -397,19 +397,19 @@ class TestReformatValidationGraph:
     ) -> None:
         result = reformat_validation_graph(file_value_cardinality_violation)
         expected_info_tuples = [
-            "id_archive",
-            "id_audio",
-            "id_document",
-            "id_video",
-            "id_still_image_file",
-            "id_still_image_iiif",
-            "id_text",
+            "id_archive_missing",
+            "id_audio_missing",
+            "id_document_missing",
+            "id_moving_image_missing",
+            "id_still_image_file_missing",
+            "id_still_image_iiif_missing",
+            "id_text_missing",
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
-            assert isinstance(one_result, MinCardinalityProblem)
+            assert isinstance(one_result, MissingFileValueProblem)
             assert one_result.res_id == expected_info
 
     def test_reformat_special_characters_violation(self, special_characters_violation: ValidationReportGraphs) -> None:

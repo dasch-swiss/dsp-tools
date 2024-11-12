@@ -37,7 +37,14 @@
 ###########################
 
 # knora-api:MovingImageFileValue -> knora-api:hasMovingImageFileValue
-
+api-shapes:hasMovingImageFileValue_PropShape
+  a           sh:PropertyShape ;
+  sh:path     knora-api:hasMovingImageFileValue ;
+  sh:minCount 1 ;
+  sh:maxCount 1 ;
+  sh:in       ( "mp4" ) ;
+  sh:severity sh:Violation ;
+  sh:message  "A MovingImageRepresentation requires a file with the extension: 'mp4'." .
 
 ###########################
 # StillImageRepresentation

@@ -39,6 +39,7 @@ from dsp_tools.commands.validate_data.models.data_rdf import GeonameValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import IntValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import LinkValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import ListValueRDF
+from dsp_tools.commands.validate_data.models.data_rdf import MovingImageFileValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import RDFTriples
 from dsp_tools.commands.validate_data.models.data_rdf import ResourceRDF
 from dsp_tools.commands.validate_data.models.data_rdf import RichtextRDF
@@ -206,11 +207,20 @@ def _transform_uri_value(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
 
 
 def _transform_file_value(val: AbstractFileValueDeserialised) -> AbstractFileValueRDF:
-    res_iri = DATA[val.res_id]
     if isinstance(val, IIIFUriDeserialised):
-        return GenericFileValueRDF(res_iri=res_iri, value=Literal(str(val.value)))
+        return GenericFileValueRDF(res_iri=DATA[val.res_id], value=Literal(str(val.value)))
+    return _map_into_correct_file_value(val)
+
+
+def _map_into_correct_file_value(val: AbstractFileValueDeserialised) -> AbstractFileValueRDF:
+    res_iri = DATA[val.res_id]
     file_extension = _get_file_extension(val.value)
-    return GenericFileValueRDF(res_iri=res_iri, value=Literal(file_extension))
+    extension_rdf = Literal(file_extension)
+    match file_extension:
+        case "mp4":
+            return MovingImageFileValueRDF(res_iri=res_iri, value=extension_rdf)
+        case _:
+            return GenericFileValueRDF(res_iri=res_iri, value=extension_rdf)
 
 
 def _get_file_extension(value: str | None) -> str:

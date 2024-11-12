@@ -16,6 +16,7 @@ def construct_file_value_cardinality(onto: Graph) -> Graph:
     """
     g = Graph()
     g += _construct_generic_file_value_cardinality(onto)
+    g += _construct_moving_image_representation(onto)
     return g
 
 
@@ -45,7 +46,6 @@ def _construct_generic_file_value_cardinality(onto: Graph) -> Graph:
             knora-api:ArchiveRepresentation
             knora-api:AudioRepresentation
             knora-api:DocumentRepresentation
-            knora-api:MovingImageRepresentation
             knora-api:StillImageRepresentation
             knora-api:TextRepresentation
         }
@@ -57,4 +57,22 @@ def _construct_generic_file_value_cardinality(onto: Graph) -> Graph:
 
 
 def _construct_moving_image_representation(onto: Graph) -> Graph:
-    pass
+    query_s = """
+    PREFIX owl: <http://www.w3.org/2002/07/owl#> 
+    PREFIX sh: <http://www.w3.org/ns/shacl#>
+    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
+    PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+    PREFIX dash: <http://datashapes.org/dash#>
+
+    CONSTRUCT {
+        ?class sh:property api-shapes:hasMovingImageFileValue_PropShape .
+    } WHERE {
+        ?class a owl:Class ;
+               rdfs:subClassOf knora-api:MovingImageRepresentation .
+    }
+    """
+    if results_graph := onto.query(query_s).graph:
+        return results_graph
+    return Graph()

@@ -20,7 +20,6 @@ def construct_file_value_cardinality(onto: Graph) -> Graph:
 
 
 def _construct_generic_file_value_cardinality(onto: Graph) -> Graph:
-    """This is only in use until all file value types have been implemented."""
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>

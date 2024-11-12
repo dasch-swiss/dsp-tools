@@ -123,6 +123,24 @@ def unique_value_violation(_create_project_generic: Iterator[None], api_con: Api
 
 @lru_cache(maxsize=None)
 @pytest.fixture
+def file_value_correct(_create_project_generic: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+    file = Path("testdata/validate-data/generic/file_value_correct.xml")
+    graphs = _get_parsed_graphs(api_con, file)
+    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+
+
+@lru_cache(maxsize=None)
+@pytest.fixture
+def file_value_cardinality_violation(
+    _create_project_generic: Iterator[None], api_con: ApiConnection
+) -> ValidationReportGraphs:
+    file = Path("testdata/validate-data/generic/file_value_cardinality_violation.xml")
+    graphs = _get_parsed_graphs(api_con, file)
+    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+
+
+@lru_cache(maxsize=None)
+@pytest.fixture
 def _create_project_special() -> Iterator[None]:
     with get_containers():
         success = create_project(
@@ -233,6 +251,12 @@ class TestCheckConforms:
 
     def test_unique_value_violation(self, unique_value_violation: ValidationReportGraphs) -> None:
         assert not unique_value_violation.conforms
+
+    def test_file_value_correct(self, file_value_correct: ValidationReportGraphs) -> None:
+        assert not file_value_correct.conforms
+
+    def test_file_value_cardinality_violation(self, file_value_cardinality_violation: ValidationReportGraphs) -> None:
+        assert not file_value_cardinality_violation.conforms
 
     def test_special_characters_correct(self, special_characters_correct: ValidationReportGraphs) -> None:
         assert special_characters_correct.conforms
@@ -368,6 +392,26 @@ class TestReformatValidationGraph:
             assert isinstance(one_result, DuplicateValueProblem)
             assert one_result.res_id == expected_id
 
+    def test_reformat_file_value_cardinality_violation(
+        self, file_value_cardinality_violation: ValidationReportGraphs
+    ) -> None:
+        result = reformat_validation_graph(file_value_cardinality_violation)
+        expected_info_tuples = [
+            "id_archive",
+            "id_audio",
+            "id_document",
+            "id_video",
+            "id_still_image_file",
+            "id_still_image_iiif",
+            "id_text",
+        ]
+        assert not result.unexpected_results
+        assert len(result.problems) == len(expected_info_tuples)
+        sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
+        for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
+            assert isinstance(one_result, MinCardinalityProblem)
+            assert one_result.res_id == expected_info
+
     def test_reformat_special_characters_violation(self, special_characters_violation: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(special_characters_violation)
         expected_tuples = [
@@ -405,9 +449,6 @@ class TestReformatValidationGraph:
             assert isinstance(one_result, NonExistentCardinalityProblem)
             assert one_result.res_id == expected[0]
             assert one_result.prop_name in expected[1]
-
-
-# TODO: file value
 
 
 def test_check_for_unknown_resource_classes(unknown_classes_graphs: RDFGraphs) -> None:

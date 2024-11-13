@@ -41,7 +41,7 @@ api-shapes:hasMovingImageFileValue_PropShape
   sh:path     knora-api:hasMovingImageFileValue ;
   sh:minCount 1 ;
   sh:maxCount 1 ;
-  sh:message  "A MovingImageRepresentation requires a file with the extension 'mp4'" ;
+  sh:message  "File with the extension 'mp4'" ;
   sh:node     api-shapes:MovingImageFileValue_ClassShape .
 
 api-shapes:MovingImageFileValue_ClassShape

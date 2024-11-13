@@ -11,12 +11,12 @@ from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.validate_data.api_connection import ApiConnection
 from dsp_tools.commands.validate_data.models.input_problems import ContentRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
+from dsp_tools.commands.validate_data.models.input_problems import FileValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import GenericProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityProblem
-from dsp_tools.commands.validate_data.models.input_problems import MissingFileValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProblem
@@ -360,7 +360,7 @@ class TestReformatValidationGraph:
             ("id_card_one", MinCardinalityProblem),
             ("id_closed_constraint", NonExistentCardinalityProblem),
             ("id_max_card", MaxCardinalityProblem),
-            ("id_missing_file_value", MissingFileValueProblem),
+            ("id_missing_file_value", FileValueProblem),
             ("id_simpletext", ValueTypeProblem),
             ("id_uri", ValueTypeProblem),
             ("identical_values", DuplicateValueProblem),
@@ -405,7 +405,7 @@ class TestReformatValidationGraph:
         assert len(result.problems) == len(expected_info_tuples)
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
-            assert isinstance(one_result, MissingFileValueProblem)
+            assert isinstance(one_result, FileValueProblem)
             assert one_result.res_id == expected_info
 
     def test_reformat_special_characters_violation(self, special_characters_violation: ValidationReportGraphs) -> None:

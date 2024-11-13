@@ -761,7 +761,7 @@ def report_missing_file_value(onto_graph: Graph) -> tuple[Graph, Graph, Validati
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
             sh:focusNode <http://data/id_video_missing> ;
-            sh:resultMessage "A MovingImageRepresentation requires a file with the extension 'mp4'" ;
+            sh:resultMessage "File with the extension 'mp4'" ;
             sh:resultPath <http://api.knora.org/ontology/knora-api/v2#hasMovingImageFileValue> ;
             sh:resultSeverity sh:Violation ;
             sh:sourceConstraintComponent sh:MinCountConstraintComponent ;
@@ -794,7 +794,7 @@ def extracted_missing_file_value() -> ResultMinCardinalityViolation:
         res_iri=DATA.id_video_missing,
         res_class=ONTO.TestMovingImageRepresentation,
         property=KNORA_API.hasMovingImageFileValue,
-        results_message="A MovingImageRepresentation requires a file with the extension 'mp4'",
+        results_message="File with the extension 'mp4'",
     )
 
 

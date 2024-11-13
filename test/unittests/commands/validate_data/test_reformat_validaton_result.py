@@ -7,12 +7,12 @@ from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.models.input_problems import ContentRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
+from dsp_tools.commands.validate_data.models.input_problems import FileValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import GenericProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityProblem
-from dsp_tools.commands.validate_data.models.input_problems import MissingFileValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProblem
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
@@ -291,7 +291,7 @@ class TestQueryFileValueViolations:
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == KNORA_API.hasMovingImageFileValue
-        assert result.results_message == "A MovingImageRepresentation requires a file with the extension 'mp4'"
+        assert result.results_message == "File with the extension 'mp4'"
 
 
 class TestReformatResult:
@@ -408,11 +408,11 @@ class TestReformatResult:
 
     def test_missing_file_value(self, extracted_missing_file_value: ResultMinCardinalityViolation) -> None:
         result = _reformat_one_validation_result(extracted_missing_file_value)
-        assert isinstance(result, MissingFileValueProblem)
+        assert isinstance(result, FileValueProblem)
         assert result.res_id == "id_video_missing"
         assert result.res_type == "onto:TestMovingImageRepresentation"
         assert result.prop_name == "bitstream / iiif-uri"
-        assert result.expected == "A MovingImageRepresentation requires a file with the extension 'mp4'"
+        assert result.expected == "File with the extension 'mp4'"
 
 
 if __name__ == "__main__":

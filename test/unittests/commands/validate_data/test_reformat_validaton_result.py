@@ -291,7 +291,7 @@ class TestQueryFileValueViolations:
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == KNORA_API.hasMovingImageFileValue
-        assert result.results_message == "File with the extension 'mp4'"
+        assert result.results_message == "A MovingImageRepresentation requires a file with the extension 'mp4'."
 
 
 class TestReformatResult:
@@ -412,7 +412,7 @@ class TestReformatResult:
         assert result.res_id == "id_video_missing"
         assert result.res_type == "onto:TestMovingImageRepresentation"
         assert result.prop_name == "bitstream / iiif-uri"
-        assert result.expected == "File with the extension 'mp4'"
+        assert result.expected == "A MovingImageRepresentation requires a file with the extension 'mp4'."
 
 
 if __name__ == "__main__":

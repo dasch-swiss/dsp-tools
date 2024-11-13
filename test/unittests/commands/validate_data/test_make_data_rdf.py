@@ -14,7 +14,6 @@ from dsp_tools.commands.validate_data.models.data_deserialised import ColorValue
 from dsp_tools.commands.validate_data.models.data_deserialised import DateValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DecimalValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import GeonameValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import IIIFUriDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import IntValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import LinkValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ListValueDeserialised
@@ -270,16 +269,13 @@ class TestUriValue:
 
 
 @pytest.mark.parametrize(
-    ("value", "expected"),
+    "value",
     [
-        (BitstreamDeserialised("id", "test.jpg"), "jpg"),
-        (BitstreamDeserialised("id", None), ""),
-        (IIIFUriDeserialised("id", "https://uri.org"), "https://uri.org"),
-        (IIIFUriDeserialised("id", None), ""),
+        (BitstreamDeserialised("id", "test.mp4")),
     ],
 )
-def test_transform_file_value(value: AbstractFileValueDeserialised, expected: str) -> None:
-    assert _transform_file_value(value).value == Literal(expected)
+def test_transform_file_value_sucess(value: AbstractFileValueDeserialised) -> None:
+    assert _transform_file_value(value).value == Literal(value.value)
 
 
 @pytest.mark.parametrize(

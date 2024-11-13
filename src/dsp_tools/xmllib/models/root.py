@@ -4,6 +4,7 @@ import warnings
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
+from typing import Sequence
 from typing import TypeAlias
 from typing import Union
 
@@ -69,7 +70,7 @@ class XMLRoot:
         self.resources.append(resource)
         return self
 
-    def add_resource_multiple(self, resources: list[AnyResource]) -> XMLRoot:
+    def add_resource_multiple(self, resources: Sequence[AnyResource]) -> XMLRoot:
         """
         Add a list of resources to the root.
 

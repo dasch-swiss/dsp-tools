@@ -7,7 +7,6 @@ from dsp_tools.commands.validate_data.make_data_rdf import _get_file_extension
 from dsp_tools.commands.validate_data.make_data_rdf import _transform_file_value
 from dsp_tools.commands.validate_data.make_data_rdf import _transform_one_resource
 from dsp_tools.commands.validate_data.make_data_rdf import _transform_one_value
-from dsp_tools.commands.validate_data.models.data_deserialised import AbstractFileValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import BitstreamDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import BooleanValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ColorValueDeserialised
@@ -30,6 +29,7 @@ from dsp_tools.commands.validate_data.models.data_rdf import GeonameValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import IntValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import LinkValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import ListValueRDF
+from dsp_tools.commands.validate_data.models.data_rdf import MovingImageFileValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import ResourceRDF
 from dsp_tools.commands.validate_data.models.data_rdf import RichtextRDF
 from dsp_tools.commands.validate_data.models.data_rdf import SimpleTextRDF
@@ -268,14 +268,17 @@ class TestUriValue:
         assert val.object_value == Literal("", datatype=XSD.string)
 
 
-@pytest.mark.parametrize(
-    "value",
-    [
-        (BitstreamDeserialised("id", "test.mp4")),
-    ],
-)
-def test_transform_file_value_sucess(value: AbstractFileValueDeserialised) -> None:
-    assert _transform_file_value(value).value == Literal(value.value)
+class TestTransformFileValue:
+    def test_moving_image(self) -> None:
+        bitstream = BitstreamDeserialised("id", "test.mp4")
+        result = _transform_file_value(bitstream)
+        assert isinstance(result, MovingImageFileValueRDF)
+        assert result.value == Literal(bitstream.value)
+
+    def test_other(self) -> None:
+        bitstream = BitstreamDeserialised("id", "test.other")
+        result = _transform_file_value(bitstream)
+        assert not result
 
 
 @pytest.mark.parametrize(

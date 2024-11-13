@@ -84,6 +84,7 @@ def _inform_about_experimental_feature() -> None:
         "The following information of your data is being validated:",
         "Cardinalities",
         "If the value type used matches the ontology",
+        "Content of the values",
     ]
     cprint(LIST_SEPARATOR.join(what_is_validated), color="magenta", attrs=["bold"])
 

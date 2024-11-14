@@ -52,6 +52,43 @@ class SerialiseColor(SerialiseValue):
 
 
 @dataclass(frozen=True)
+class SerialiseDecimal(SerialiseValue):
+    """A  to be serialised."""
+
+    value: str
+    permissions: str | None
+    comment: str | None
+
+    def serialise(self) -> dict[str, Any]:
+        serialised = {
+            "@type": "knora-api:DecimalValue",
+            "knora-api:decimalValueAsDecimal": {
+                "@type": "xsd:decimal",
+                "@value": self.value,
+            },
+        }
+        serialised.update(self._get_optionals())
+        return serialised
+
+
+@dataclass(frozen=True)
+class SerialiseGeometry(SerialiseValue):
+    """A GeomValue to be serialised."""
+
+    value: str
+    permissions: str | None
+    comment: str | None
+
+    def serialise(self) -> dict[str, Any]:
+        serialised = {
+            "@type": "knora-api:GeomValue",
+            "knora-api:geometryValueAsGeometry": self.value,
+        }
+        serialised.update(self._get_optionals())
+        return serialised
+
+
+@dataclass(frozen=True)
 class SerialiseGeoname(SerialiseValue):
     """A GeonameValue to be serialised."""
 

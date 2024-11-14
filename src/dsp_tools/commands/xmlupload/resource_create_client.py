@@ -27,6 +27,8 @@ from dsp_tools.commands.xmlupload.models.namespace_context import make_namespace
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.serialise.jsonld_serialiser import serialise_property_graph
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseColor
+from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseDecimal
+from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseGeometry
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseGeoname
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseProperty
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseTime
@@ -138,10 +140,10 @@ class ResourceCreateClient:
         last_prop_name = None
 
         str_value_to_serialiser_mapper = {
-            "uri": SerialiseURI,
             "color": SerialiseColor,
             "geoname": SerialiseGeoname,
             "time": SerialiseTime,
+            "uri": SerialiseURI,
         }
 
         for prop in resource.properties:
@@ -153,6 +155,9 @@ class ResourceCreateClient:
                         permissions_lookup=self.permissions_lookup,
                         seraliser=str_value_to_serialiser_mapper[val_type],
                     )
+                    properties_serialised.update(transformed_prop.serialise())
+                case "decimal":
+                    transformed_prop = _transform_decimal_prop(prop=prop, permissions_lookup=self.permissions_lookup)
                     properties_serialised.update(transformed_prop.serialise())
                 # serialised with rdflib
                 case "integer":
@@ -186,8 +191,6 @@ class ResourceCreateClient:
         match value_type:
             case "date":
                 res = _make_date_value(value)
-            case "decimal":
-                res = _make_decimal_value(value)
             case "geometry":
                 res = _make_geometry_value(value)
             case "interval":
@@ -299,25 +302,29 @@ def _make_date_value(value: XMLValue) -> dict[str, Any]:
     return res
 
 
-def _make_decimal_value(value: XMLValue) -> dict[str, Any]:
+def _transform_decimal_prop(prop: XMLProperty, permissions_lookup: dict[str, Permissions]) -> SerialiseProperty:
+    vals = [_transform_into_serialise_decimal(v, permissions_lookup) for v in prop.values]
+    return SerialiseProperty(property_name=prop.name, values=vals)
+
+
+def _transform_into_serialise_decimal(value: XMLValue, permissions_lookup: dict[str, Permissions]) -> SerialiseDecimal:
     s = _assert_is_string(value.value)
-    return {
-        "@type": "knora-api:DecimalValue",
-        "knora-api:decimalValueAsDecimal": {
-            "@type": "xsd:decimal",
-            "@value": str(float(s)),
-        },
-    }
+    val = str(float(s))
+    permission_str = _get_permission_str(value.permissions, permissions_lookup)
+    return SerialiseDecimal(value=val, permissions=permission_str, comment=value.comment)
 
 
-def _make_geometry_value(value: XMLValue) -> dict[str, Any]:
+def _transform_geometry_prop(prop: XMLProperty, permissions_lookup: dict[str, Permissions]) -> SerialiseProperty:
+    vals = [_make_geometry_value(v, permissions_lookup) for v in prop.values]
+    return SerialiseProperty(property_name=prop.name, values=vals)
+
+
+def _make_geometry_value(value: XMLValue, permissions_lookup: dict[str, Permissions]) -> SerialiseGeometry:
     s = _assert_is_string(value.value)
     # this removes all whitespaces from the embedded json string
     encoded_value = json.dumps(json.loads(s))
-    return {
-        "@type": "knora-api:GeomValue",
-        "knora-api:geometryValueAsGeometry": encoded_value,
-    }
+    permission_str = _get_permission_str(value.permissions, permissions_lookup)
+    return SerialiseGeometry(value=encoded_value, permissions=permission_str, comment=value.comment)
 
 
 def _make_boolean_prop(

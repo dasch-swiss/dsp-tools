@@ -41,8 +41,6 @@ class SerialiseColor(SerialiseValue):
     comment: str | None
 
     def serialise(self) -> dict[str, Any]:
-        """Serialise the URI value."""
-
         serialised = {
             "@type": "knora-api:ColorValue",
             "knora-api:colorValueAsColor": self.value,
@@ -60,8 +58,6 @@ class SerialiseURI(SerialiseValue):
     comment: str | None
 
     def serialise(self) -> dict[str, Any]:
-        """Serialise the URI value."""
-
         serialised = {
             "@type": "knora-api:UriValue",
             "knora-api:uriValueAsUri": {

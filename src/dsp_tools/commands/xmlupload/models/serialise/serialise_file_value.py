@@ -58,4 +58,4 @@ class SerialiseStillImageFileValue(SerialiseAbstractFileValue):
 @dataclass
 class SerialiseTextFileValue(SerialiseAbstractFileValue):
     def serialise(self) -> dict[str, Any]:
-        return {"knora-api:hasTextFileValue": self._get_file_value("")}
+        return {"knora-api:hasTextFileValue": self._get_file_value("TextFileValue")}

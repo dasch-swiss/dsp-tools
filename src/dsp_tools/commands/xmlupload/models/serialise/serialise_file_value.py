@@ -21,9 +21,6 @@ class SerialiseAbstractFileValue(ABC):
 
 @dataclass
 class SerialiseArchiveFileValue(SerialiseAbstractFileValue):
-    file_name: str
-    permissions: str | None
-
     def serialise(self) -> dict[str, Any]:
         file_value = {
             "@type": "knora-api:ArchiveFileValue",
@@ -35,9 +32,6 @@ class SerialiseArchiveFileValue(SerialiseAbstractFileValue):
 
 @dataclass
 class SerialiseAudioFileValue(SerialiseAbstractFileValue):
-    file_name: str
-    permissions: str | None
-
     def serialise(self) -> dict[str, Any]:
         file_value = {
             "@type": "knora-api:AudioFileValue",
@@ -49,9 +43,6 @@ class SerialiseAudioFileValue(SerialiseAbstractFileValue):
 
 @dataclass
 class SerialiseDocumentFileValue(SerialiseAbstractFileValue):
-    file_name: str
-    permissions: str | None
-
     def serialise(self) -> dict[str, Any]:
         file_value = {
             "@type": "knora-api:DocumentFileValue",
@@ -63,9 +54,6 @@ class SerialiseDocumentFileValue(SerialiseAbstractFileValue):
 
 @dataclass
 class SerialiseMovingImageFileValue(SerialiseAbstractFileValue):
-    file_name: str
-    permissions: str | None
-
     def serialise(self) -> dict[str, Any]:
         file_value = {
             "@type": "knora-api:MovingImageFileValue",
@@ -77,9 +65,6 @@ class SerialiseMovingImageFileValue(SerialiseAbstractFileValue):
 
 @dataclass
 class SerialiseStillImageFileValue(SerialiseAbstractFileValue):
-    file_name: str
-    permissions: str | None
-
     def serialise(self) -> dict[str, Any]:
         file_value = {
             "@type": "knora-api:StillImageFileValue",
@@ -91,9 +76,6 @@ class SerialiseStillImageFileValue(SerialiseAbstractFileValue):
 
 @dataclass
 class SerialiseTextFileValue(SerialiseAbstractFileValue):
-    file_name: str
-    permissions: str | None
-
     def serialise(self) -> dict[str, Any]:
         file_value = {
             "@type": "knora-api:TextFileValue",

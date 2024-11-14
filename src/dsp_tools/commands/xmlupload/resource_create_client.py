@@ -135,7 +135,7 @@ class ResourceCreateClient:
         # To frame the json-ld correctly, we need one property used in the graph. It does not matter which.
         last_prop_name = None
 
-        str_value_func_mapper = {
+        str_value_to_serialiser_mapper = {
             "uri": SerialiseURI,
             "color": SerialiseColor,
         }
@@ -147,7 +147,7 @@ class ResourceCreateClient:
                     transformed_prop = _transform_into_serialise_property_with_string_value(
                         prop=prop,
                         permissions_lookup=self.permissions_lookup,
-                        func=str_value_func_mapper[val_type],
+                        seraliser=str_value_to_serialiser_mapper[val_type],
                     )
                     properties_serialised.update(transformed_prop.serialise())
                 # serialised with rdflib
@@ -461,10 +461,10 @@ def _make_time_value(value: XMLValue) -> dict[str, Any]:
 def _transform_into_serialise_property_with_string_value(
     prop: XMLProperty,
     permissions_lookup: dict[str, Permissions],
-    func: Callable[[str, str | None, str | None], SerialiseValue],
+    seraliser: Callable[[str, str | None, str | None], SerialiseValue],
 ) -> SerialiseProperty:
-    serialised_values: list[SerialiseValue] = [
-        _transform_into_serialise_value_with_string_value(v, permissions_lookup, func) for v in prop.values
+    serialised_values = [
+        _transform_into_serialise_value_with_string_value(v, permissions_lookup, seraliser) for v in prop.values
     ]
     prop_serialise = SerialiseProperty(
         property_name=prop.name,
@@ -476,11 +476,11 @@ def _transform_into_serialise_property_with_string_value(
 def _transform_into_serialise_value_with_string_value(
     value: XMLValue,
     permissions_lookup: dict[str, Permissions],
-    func: Callable[[str, str | None, str | None], SerialiseValue],
+    serialiser: Callable[[str, str | None, str | None], SerialiseValue],
 ) -> SerialiseValue:
     permission_str = _get_permission_str(value.permissions, permissions_lookup)
     value_str = cast(str, value.value)
-    return func(value_str, permission_str, value.comment)
+    return serialiser(value_str, permission_str, value.comment)
 
 
 def _get_permission_str(value_permissions: str | None, permissions_lookup: dict[str, Permissions]) -> str | None:

@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from abc import ABC
+from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Any
-from typing import Protocol
 
 
 @dataclass(frozen=True)
@@ -15,13 +16,14 @@ class SerialiseProperty:
         return {self.property_name: [value.serialise() for value in self.values]}
 
 
-class SerialiseValue(Protocol):
+class SerialiseValue(ABC):
     """A value to be serialised."""
 
     value: str
     permissions: str | None
     comment: str | None
 
+    @abstractmethod
     def serialise(self) -> dict[str, Any]:
         """Serialise the value."""
 

@@ -49,7 +49,7 @@ class SerialiseColor(SerialiseValue):
 
 
 class SerialiseDecimal(SerialiseValue):
-    """A  to be serialised."""
+    """A DecimalValue to be serialised."""
 
     def serialise(self) -> dict[str, Any]:
         serialised = {

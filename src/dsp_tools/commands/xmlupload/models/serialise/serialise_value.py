@@ -16,6 +16,7 @@ class SerialiseProperty:
         return {self.property_name: [value.serialise() for value in self.values]}
 
 
+@dataclass(frozen=True)
 class SerialiseValue(ABC):
     """A value to be serialised."""
 
@@ -34,13 +35,8 @@ class SerialiseValue(ABC):
         return optionals
 
 
-@dataclass(frozen=True)
 class SerialiseColor(SerialiseValue):
     """A ColorValue to be serialised."""
-
-    value: str
-    permissions: str | None
-    comment: str | None
 
     def serialise(self) -> dict[str, Any]:
         serialised = {
@@ -51,13 +47,8 @@ class SerialiseColor(SerialiseValue):
         return serialised
 
 
-@dataclass(frozen=True)
 class SerialiseDecimal(SerialiseValue):
     """A  to be serialised."""
-
-    value: str
-    permissions: str | None
-    comment: str | None
 
     def serialise(self) -> dict[str, Any]:
         serialised = {
@@ -71,13 +62,8 @@ class SerialiseDecimal(SerialiseValue):
         return serialised
 
 
-@dataclass(frozen=True)
 class SerialiseGeometry(SerialiseValue):
     """A GeomValue to be serialised."""
-
-    value: str
-    permissions: str | None
-    comment: str | None
 
     def serialise(self) -> dict[str, Any]:
         serialised = {
@@ -88,13 +74,8 @@ class SerialiseGeometry(SerialiseValue):
         return serialised
 
 
-@dataclass(frozen=True)
 class SerialiseGeoname(SerialiseValue):
     """A GeonameValue to be serialised."""
-
-    value: str
-    permissions: str | None
-    comment: str | None
 
     def serialise(self) -> dict[str, Any]:
         serialised = {
@@ -105,13 +86,8 @@ class SerialiseGeoname(SerialiseValue):
         return serialised
 
 
-@dataclass(frozen=True)
 class SerialiseSimpletext(SerialiseValue):
     """A Simpletext to be serialised."""
-
-    value: str
-    permissions: str | None
-    comment: str | None
 
     def serialise(self) -> dict[str, Any]:
         serialised = {
@@ -122,13 +98,8 @@ class SerialiseSimpletext(SerialiseValue):
         return serialised
 
 
-@dataclass(frozen=True)
 class SerialiseRichtext(SerialiseValue):
     """A Richtext to be serialised."""
-
-    value: str
-    permissions: str | None
-    comment: str | None
 
     def serialise(self) -> dict[str, Any]:
         serialised = {
@@ -142,13 +113,8 @@ class SerialiseRichtext(SerialiseValue):
         return serialised
 
 
-@dataclass(frozen=True)
 class SerialiseTime(SerialiseValue):
     """A TimeValue to be serialised."""
-
-    value: str
-    permissions: str | None
-    comment: str | None
 
     def serialise(self) -> dict[str, Any]:
         serialised = {
@@ -162,13 +128,8 @@ class SerialiseTime(SerialiseValue):
         return serialised
 
 
-@dataclass(frozen=True)
 class SerialiseURI(SerialiseValue):
     """A UriValue to be serialised."""
-
-    value: str
-    permissions: str | None
-    comment: str | None
 
     def serialise(self) -> dict[str, Any]:
         serialised = {

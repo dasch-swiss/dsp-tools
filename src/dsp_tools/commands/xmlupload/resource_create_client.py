@@ -135,13 +135,19 @@ class ResourceCreateClient:
         # To frame the json-ld correctly, we need one property used in the graph. It does not matter which.
         last_prop_name = None
 
+        func_mapper = {
+            "uri": SerialiseURI,
+            "color": SerialiseColor,
+        }
+
         for prop in resource.properties:
             match prop.valtype:
                 # serialised as dict
-                case "uri":
-                    properties_serialised.update(_serialise_uri_prop(prop, self.permissions_lookup))
-                case "color":
-                    properties_serialised.update(_serialise_color_prop(prop, self.permissions_lookup))
+                case "uri" | "color" as val_type:
+                    prop_serialised = _serialise_property_with_string_value(
+                        prop, self.permissions_lookup, func_mapper[val_type]
+                    )
+                    properties_serialised.update(prop_serialised.serialise())
                 # serialised with rdflib
                 case "integer":
                     int_prop_name = self._get_absolute_prop_iri(prop.name, namespaces)
@@ -450,28 +456,19 @@ def _make_time_value(value: XMLValue) -> dict[str, Any]:
     }
 
 
-def _serialise_color_prop(prop: XMLProperty, permissions_lookup: dict[str, Permissions]) -> dict[str, Any]:
-    uri_values: list[SerialiseValue] = [
-        _transform_single_value_with_string_into_serialise_value(v, permissions_lookup, SerialiseColor)
-        for v in prop.values
+def _serialise_property_with_string_value(
+    prop: XMLProperty,
+    permissions_lookup: dict[str, Permissions],
+    func: Callable[[str, str | None, str | None], SerialiseValue],
+) -> SerialiseProperty:
+    serialised_values: list[SerialiseValue] = [
+        _transform_single_value_with_string_into_serialise_value(v, permissions_lookup, func) for v in prop.values
     ]
     prop_serialise = SerialiseProperty(
         property_name=prop.name,
-        values=uri_values,
+        values=serialised_values,
     )
-    return prop_serialise.serialise()
-
-
-def _serialise_uri_prop(prop: XMLProperty, permissions_lookup: dict[str, Permissions]) -> dict[str, Any]:
-    colo_values: list[SerialiseValue] = [
-        _transform_single_value_with_string_into_serialise_value(v, permissions_lookup, SerialiseURI)
-        for v in prop.values
-    ]
-    prop_serialise = SerialiseProperty(
-        property_name=prop.name,
-        values=colo_values,
-    )
-    return prop_serialise.serialise()
+    return prop_serialise
 
 
 def _transform_single_value_with_string_into_serialise_value(

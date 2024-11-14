@@ -47,7 +47,7 @@ class AnnotationResource:
         res_id: str,
         label: str,
         annotation_of: str,
-        comments: list[str],
+        comments: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> AnnotationResource:
         """
@@ -70,7 +70,7 @@ class AnnotationResource:
             res_id=res_id,
             label=label,
             annotation_of=annotation_of,
-            comments=comments,
+            comments=list(comments),
             permissions=permissions,
         )
 
@@ -87,7 +87,7 @@ class AnnotationResource:
         self.comments.append(comment)
         return self
 
-    def add_comment_multiple(self, comments: list[str]) -> AnnotationResource:
+    def add_comment_multiple(self, comments: Collection[str]) -> AnnotationResource:
         """
         Add several comments to the resource
 

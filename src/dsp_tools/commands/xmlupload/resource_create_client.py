@@ -2,6 +2,7 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+from typing import Callable
 from typing import assert_never
 from typing import cast
 
@@ -25,6 +26,7 @@ from dsp_tools.commands.xmlupload.models.namespace_context import get_json_ld_co
 from dsp_tools.commands.xmlupload.models.namespace_context import make_namespace_dict_from_onto_names
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.serialise.jsonld_serialiser import serialise_property_graph
+from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseColor
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseProperty
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseURI
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseValue
@@ -133,10 +135,22 @@ class ResourceCreateClient:
         # To frame the json-ld correctly, we need one property used in the graph. It does not matter which.
         last_prop_name = None
 
+        str_value_to_serialiser_mapper = {
+            "uri": SerialiseURI,
+            "color": SerialiseColor,
+        }
+
         for prop in resource.properties:
             match prop.valtype:
-                case "uri":
-                    properties_serialised.update(_serialise_uri_prop(prop, self.permissions_lookup))
+                # serialised as dict
+                case "uri" | "color" as val_type:
+                    transformed_prop = _transform_into_serialise_prop(
+                        prop=prop,
+                        permissions_lookup=self.permissions_lookup,
+                        seraliser=str_value_to_serialiser_mapper[val_type],
+                    )
+                    properties_serialised.update(transformed_prop.serialise())
+                # serialised with rdflib
                 case "integer":
                     int_prop_name = self._get_absolute_prop_iri(prop.name, namespaces)
                     int_graph = _make_integer_prop(prop, res_bnode, int_prop_name, self.permissions_lookup)
@@ -147,6 +161,7 @@ class ResourceCreateClient:
                     bool_graph = _make_boolean_prop(prop, res_bnode, bool_prop_name, self.permissions_lookup)
                     properties_graph += bool_graph
                     last_prop_name = bool_prop_name
+                # serialised as dict
                 case _:
                     properties_serialised[prop_name(prop)] = make_values(prop)
         if resource.iiif_uri:
@@ -165,8 +180,6 @@ class ResourceCreateClient:
 
     def _make_value(self, value: XMLValue, value_type: str) -> dict[str, Any]:  # noqa: PLR0912 (too many branches)
         match value_type:
-            case "color":
-                res = _make_color_value(value)
             case "date":
                 res = _make_date_value(value)
             case "decimal":
@@ -258,13 +271,6 @@ def _to_boolean(s: str | int | bool) -> bool:
             return False
         case _:
             raise BaseError(f"Could not parse boolean value: {s}")
-
-
-def _make_color_value(value: XMLValue) -> dict[str, Any]:
-    return {
-        "@type": "knora-api:ColorValue",
-        "knora-api:colorValueAsColor": value.value,
-    }
 
 
 def _make_date_value(value: XMLValue) -> dict[str, Any]:
@@ -452,28 +458,35 @@ def _make_time_value(value: XMLValue) -> dict[str, Any]:
     }
 
 
-def _serialise_uri_prop(prop: XMLProperty, permissions_lookup: dict[str, Permissions]) -> dict[str, Any]:
-    uri_values: list[SerialiseValue] = []
-    for v in prop.values:
-        if v.permissions:
-            if not (per := permissions_lookup.get(v.permissions)):
-                raise PermissionNotExistsError(f"Could not find permissions for value: {v.permissions}")
-            permission = str(per)
-        else:
-            permission = None
-        uri = cast(str, v.value)
-        uri_values.append(
-            SerialiseURI(
-                value=uri,
-                permissions=permission,
-                comment=v.comment,
-            )
-        )
+def _transform_into_serialise_prop(
+    prop: XMLProperty,
+    permissions_lookup: dict[str, Permissions],
+    seraliser: Callable[[str, str | None, str | None], SerialiseValue],
+) -> SerialiseProperty:
+    serialised_values = [_transform_into_serialise_value(v, permissions_lookup, seraliser) for v in prop.values]
     prop_serialise = SerialiseProperty(
         property_name=prop.name,
-        values=uri_values,
+        values=serialised_values,
     )
-    return prop_serialise.serialise()
+    return prop_serialise
+
+
+def _transform_into_serialise_value(
+    value: XMLValue,
+    permissions_lookup: dict[str, Permissions],
+    serialiser: Callable[[str, str | None, str | None], SerialiseValue],
+) -> SerialiseValue:
+    permission_str = _get_permission_str(value.permissions, permissions_lookup)
+    value_str = cast(str, value.value)
+    return serialiser(value_str, permission_str, value.comment)
+
+
+def _get_permission_str(value_permissions: str | None, permissions_lookup: dict[str, Permissions]) -> str | None:
+    if value_permissions:
+        if not (per := permissions_lookup.get(value_permissions)):
+            raise PermissionNotExistsError(f"Could not find permissions for value: {value_permissions}")
+        return str(per)
+    return None
 
 
 def _assert_is_string(value: str | FormattedTextValue) -> str:

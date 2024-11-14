@@ -27,6 +27,7 @@ from dsp_tools.commands.xmlupload.models.namespace_context import make_namespace
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.serialise.jsonld_serialiser import serialise_property_graph
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseColor
+from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseGeoname
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseProperty
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseURI
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseValue
@@ -135,15 +136,12 @@ class ResourceCreateClient:
         # To frame the json-ld correctly, we need one property used in the graph. It does not matter which.
         last_prop_name = None
 
-        str_value_to_serialiser_mapper = {
-            "uri": SerialiseURI,
-            "color": SerialiseColor,
-        }
+        str_value_to_serialiser_mapper = {"uri": SerialiseURI, "color": SerialiseColor, "geoname": SerialiseGeoname}
 
         for prop in resource.properties:
             match prop.valtype:
                 # serialised as dict
-                case "uri" | "color" as val_type:
+                case "uri" | "color" | "geoname" as val_type:
                     transformed_prop = _transform_into_serialise_prop(
                         prop=prop,
                         permissions_lookup=self.permissions_lookup,
@@ -186,8 +184,6 @@ class ResourceCreateClient:
                 res = _make_decimal_value(value)
             case "geometry":
                 res = _make_geometry_value(value)
-            case "geoname":
-                res = _make_geoname_value(value)
             case "interval":
                 res = _make_interval_value(value)
             case "resptr":
@@ -317,13 +313,6 @@ def _make_geometry_value(value: XMLValue) -> dict[str, Any]:
     return {
         "@type": "knora-api:GeomValue",
         "knora-api:geometryValueAsGeometry": encoded_value,
-    }
-
-
-def _make_geoname_value(value: XMLValue) -> dict[str, Any]:
-    return {
-        "@type": "knora-api:GeonameValue",
-        "knora-api:geonameValueAsGeonameCode": value.value,
     }
 
 

@@ -69,6 +69,26 @@ class SerialiseGeoname(SerialiseValue):
 
 
 @dataclass(frozen=True)
+class SerialiseTime(SerialiseValue):
+    """A TimeValue to be serialised."""
+
+    value: str
+    permissions: str | None
+    comment: str | None
+
+    def serialise(self) -> dict[str, Any]:
+        serialised = {
+            "@type": "knora-api:TimeValue",
+            "knora-api:timeValueAsTimeStamp": {
+                "@type": "xsd:dateTimeStamp",
+                "@value": self.value,
+            },
+        }
+        serialised.update(self._get_optionals())
+        return serialised
+
+
+@dataclass(frozen=True)
 class SerialiseURI(SerialiseValue):
     """A UriValue to be serialised."""
 

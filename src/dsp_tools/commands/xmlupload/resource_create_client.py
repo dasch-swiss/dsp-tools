@@ -29,6 +29,7 @@ from dsp_tools.commands.xmlupload.models.serialise.jsonld_serialiser import seri
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseColor
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseGeoname
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseProperty
+from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseTime
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseURI
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseValue
 from dsp_tools.models.exceptions import BaseError
@@ -136,12 +137,17 @@ class ResourceCreateClient:
         # To frame the json-ld correctly, we need one property used in the graph. It does not matter which.
         last_prop_name = None
 
-        str_value_to_serialiser_mapper = {"uri": SerialiseURI, "color": SerialiseColor, "geoname": SerialiseGeoname}
+        str_value_to_serialiser_mapper = {
+            "uri": SerialiseURI,
+            "color": SerialiseColor,
+            "geoname": SerialiseGeoname,
+            "time": SerialiseTime,
+        }
 
         for prop in resource.properties:
             match prop.valtype:
                 # serialised as dict
-                case "uri" | "color" | "geoname" as val_type:
+                case "uri" | "color" | "geoname" | "time" as val_type:
                     transformed_prop = _transform_into_serialise_prop(
                         prop=prop,
                         permissions_lookup=self.permissions_lookup,
@@ -176,7 +182,7 @@ class ResourceCreateClient:
             raise InputError(f"Could not find namespace for prefix: {prefix}")
         return namespace[prop]
 
-    def _make_value(self, value: XMLValue, value_type: str) -> dict[str, Any]:  # noqa: PLR0912 (too many branches)
+    def _make_value(self, value: XMLValue, value_type: str) -> dict[str, Any]:
         match value_type:
             case "date":
                 res = _make_date_value(value)
@@ -192,8 +198,6 @@ class ResourceCreateClient:
                 res = _make_list_value(value, self.listnode_lookup)
             case "text":
                 res = _make_text_value(value, self.iri_resolver)
-            case "time":
-                res = _make_time_value(value)
             case _:
                 raise UserError(f"Unknown value type: {value_type}")
         if value.comment:
@@ -435,16 +439,6 @@ def _make_text_value(value: XMLValue, iri_resolver: IriResolver) -> dict[str, An
             }
         case _:
             assert_never(value.value)
-
-
-def _make_time_value(value: XMLValue) -> dict[str, Any]:
-    return {
-        "@type": "knora-api:TimeValue",
-        "knora-api:timeValueAsTimeStamp": {
-            "@type": "xsd:dateTimeStamp",
-            "@value": value.value,
-        },
-    }
 
 
 def _transform_into_serialise_prop(

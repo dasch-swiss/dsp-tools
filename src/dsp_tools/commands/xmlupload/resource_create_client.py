@@ -144,7 +144,7 @@ class ResourceCreateClient:
             match prop.valtype:
                 # serialised as dict
                 case "uri" | "color" as val_type:
-                    prop_serialised = _serialise_property_with_string_value(
+                    prop_serialised = _transform_into_serialise_property_with_string_value(
                         prop=prop,
                         permissions_lookup=self.permissions_lookup,
                         func=str_value_func_mapper[val_type],
@@ -458,13 +458,13 @@ def _make_time_value(value: XMLValue) -> dict[str, Any]:
     }
 
 
-def _serialise_property_with_string_value(
+def _transform_into_serialise_property_with_string_value(
     prop: XMLProperty,
     permissions_lookup: dict[str, Permissions],
     func: Callable[[str, str | None, str | None], SerialiseValue],
 ) -> SerialiseProperty:
     serialised_values: list[SerialiseValue] = [
-        _transform_single_value_with_string_into_serialise_value(v, permissions_lookup, func) for v in prop.values
+        _transform_into_serialise_value_with_string_value(v, permissions_lookup, func) for v in prop.values
     ]
     prop_serialise = SerialiseProperty(
         property_name=prop.name,
@@ -473,7 +473,7 @@ def _serialise_property_with_string_value(
     return prop_serialise
 
 
-def _transform_single_value_with_string_into_serialise_value(
+def _transform_into_serialise_value_with_string_value(
     value: XMLValue,
     permissions_lookup: dict[str, Permissions],
     func: Callable[[str, str | None, str | None], SerialiseValue],

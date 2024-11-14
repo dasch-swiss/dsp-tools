@@ -5,6 +5,7 @@ from lxml import etree
 from rdflib import RDF
 from rdflib import BNode
 from rdflib import Literal
+from rdflib import Namespace
 from rdflib import URIRef
 
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import IIIFUriInfo
@@ -21,6 +22,8 @@ from dsp_tools.commands.xmlupload.resource_create_client import _make_iiif_uri_v
 from dsp_tools.commands.xmlupload.resource_create_client import _to_boolean
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import PermissionNotExistsError
+
+ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
 
 
 class TestMakeBitstreamFileValue:
@@ -470,21 +473,25 @@ def test_make_boolean_value_with_permissions() -> None:
         """
     xmlresource = XMLResource.from_node(etree.fromstring(xml_str), "foo")
     test_val: XMLValue = xmlresource.properties[0].values[0]
-    b_node = BNode()
-    bool_graph = _make_boolean_value(test_val, b_node, permissions_lookup)
+    res_bn = BNode()
+    prop_name = ONTO.isTrueOrFalse
+    bool_graph = _make_boolean_value(
+        value=test_val, prop_name=prop_name, res_bn=res_bn, permissions_lookup=permissions_lookup
+    ).as_graph()
 
-    for triple in bool_graph.triples((b_node, None, None)):
-        if triple[1] == URIRef(RDF.type) and triple[2] == URIRef(KNORA_API.BooleanValue):
-            continue
-        elif triple[1] == URIRef(KNORA_API.booleanValueAsBoolean) and triple[2] == Literal(_to_boolean("true")):
-            continue
-        elif triple[1] == URIRef(KNORA_API.hasPermissions) and triple[2] == Literal(
-            str(permissions_lookup.get(str(test_val.permissions)))
-        ):
-            continue
-        else:
-            # unexpected triple
-            pytest.fail(f"unexpected triple: {triple}")
+    number_of_triples = 4
+    assert len(bool_graph) == number_of_triples
+
+    value_bn = next(bool_graph.objects(res_bn, prop_name))
+
+    rdf_type = next(bool_graph.objects(value_bn, RDF.type))
+    assert rdf_type == KNORA_API.BooleanValue
+
+    bool_val = next(bool_graph.objects(value_bn, KNORA_API.booleanValueAsBoolean))
+    assert bool_val == Literal(True)
+
+    permissions = next(bool_graph.objects(value_bn, KNORA_API.hasPermissions))
+    assert permissions == Literal(str(permissions_lookup.get("open")))
 
 
 if __name__ == "__main__":

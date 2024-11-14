@@ -359,14 +359,13 @@ def _make_boolean_value(
     permission_literal = None
     if permission_str := _get_permission_str(value.permissions, permissions_lookup):
         permission_literal = Literal(permission_str)
-    boolean_value = BooleanValueRDF(
+    return BooleanValueRDF(
         resource_bn=res_bn,
         prop_name=prop_name,
         value=Literal(as_bool),
         permissions=permission_literal,
         comment=Literal(value.comment) if value.comment else None,
     )
-    return boolean_value
 
 
 def _make_integer_prop(

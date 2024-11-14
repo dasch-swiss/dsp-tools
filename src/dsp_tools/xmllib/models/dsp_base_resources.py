@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import warnings
+from collections.abc import Collection
 from dataclasses import dataclass
 from dataclasses import field
 from typing import Any
@@ -46,7 +47,7 @@ class AnnotationResource:
         res_id: str,
         label: str,
         annotation_of: str,
-        comments: list[str],
+        comments: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> AnnotationResource:
         """
@@ -69,7 +70,7 @@ class AnnotationResource:
             res_id=res_id,
             label=label,
             annotation_of=annotation_of,
-            comments=comments,
+            comments=list(comments),
             permissions=permissions,
         )
 
@@ -86,7 +87,7 @@ class AnnotationResource:
         self.comments.append(comment)
         return self
 
-    def add_comment_multiple(self, comments: list[str]) -> AnnotationResource:
+    def add_comment_multiple(self, comments: Collection[str]) -> AnnotationResource:
         """
         Add several comments to the resource
 
@@ -186,7 +187,7 @@ class RegionResource:
         color: str,
         region_of: str,
         geometry: dict[str, Any],
-        comments: list[str],
+        comments: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> RegionResource:
         """
@@ -215,7 +216,7 @@ class RegionResource:
             color=color,
             region_of=region_of,
             geometry=geometry,
-            comments=comments,
+            comments=list(comments),
             permissions=permissions,
         )
 
@@ -232,7 +233,7 @@ class RegionResource:
         self.comments.append(comment)
         return self
 
-    def add_comment_multiple(self, comments: list[str]) -> RegionResource:
+    def add_comment_multiple(self, comments: Collection[str]) -> RegionResource:
         """
         Add several comments to the resource
 
@@ -326,8 +327,8 @@ class LinkResource:
     def create_new(
         res_id: str,
         label: str,
-        link_to: list[str],
-        comments: list[str],
+        link_to: Collection[str],
+        comments: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> LinkResource:
         """
@@ -349,8 +350,8 @@ class LinkResource:
         return LinkResource(
             res_id=res_id,
             label=label,
-            link_to=link_to,
-            comments=comments,
+            link_to=list(link_to),
+            comments=list(comments),
             permissions=permissions,
         )
 
@@ -367,7 +368,7 @@ class LinkResource:
         self.comments.append(comment)
         return self
 
-    def add_comment_multiple(self, comments: list[str]) -> LinkResource:
+    def add_comment_multiple(self, comments: Collection[str]) -> LinkResource:
         """
         Add several comments to the resource
 
@@ -557,7 +558,7 @@ class VideoSegmentResource:
         self.comments.append(comment)
         return self
 
-    def add_comment_multiple(self, comments: list[str]) -> VideoSegmentResource:
+    def add_comment_multiple(self, comments: Collection[str]) -> VideoSegmentResource:
         """
         Add several comments to the resource
 
@@ -597,7 +598,7 @@ class VideoSegmentResource:
         self.descriptions.append(description)
         return self
 
-    def add_description_multiple(self, descriptions: list[str]) -> VideoSegmentResource:
+    def add_description_multiple(self, descriptions: Collection[str]) -> VideoSegmentResource:
         """
         Add several descriptions to the resource
 
@@ -637,7 +638,7 @@ class VideoSegmentResource:
         self.keywords.append(keyword)
         return self
 
-    def add_keyword_multiple(self, keywords: list[str]) -> VideoSegmentResource:
+    def add_keyword_multiple(self, keywords: Collection[str]) -> VideoSegmentResource:
         """
         Add several keywords to the resource
 
@@ -677,7 +678,7 @@ class VideoSegmentResource:
         self.relates_to.append(relates_to)
         return self
 
-    def add_relates_to_multiple(self, relates_to: list[str]) -> VideoSegmentResource:
+    def add_relates_to_multiple(self, relates_to: Collection[str]) -> VideoSegmentResource:
         """
         Add several links to related resources
 
@@ -840,7 +841,7 @@ class AudioSegmentResource:
         self.comments.append(comment)
         return self
 
-    def add_comment_multiple(self, comments: list[str]) -> AudioSegmentResource:
+    def add_comment_multiple(self, comments: Collection[str]) -> AudioSegmentResource:
         """
         Add several comments to the resource
 
@@ -880,7 +881,7 @@ class AudioSegmentResource:
         self.descriptions.append(description)
         return self
 
-    def add_description_multiple(self, descriptions: list[str]) -> AudioSegmentResource:
+    def add_description_multiple(self, descriptions: Collection[str]) -> AudioSegmentResource:
         """
         Add several descriptions to the resource
 
@@ -920,7 +921,7 @@ class AudioSegmentResource:
         self.keywords.append(keyword)
         return self
 
-    def add_keyword_multiple(self, keywords: list[str]) -> AudioSegmentResource:
+    def add_keyword_multiple(self, keywords: Collection[str]) -> AudioSegmentResource:
         """
         Add several keywords to the resource
 
@@ -960,7 +961,7 @@ class AudioSegmentResource:
         self.relates_to.append(relates_to)
         return self
 
-    def add_relates_to_multiple(self, relates_to: list[str]) -> AudioSegmentResource:
+    def add_relates_to_multiple(self, relates_to: Collection[str]) -> AudioSegmentResource:
         """
         Add several links to related resources
 

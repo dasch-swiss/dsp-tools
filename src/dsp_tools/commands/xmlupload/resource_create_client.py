@@ -144,12 +144,12 @@ class ResourceCreateClient:
             match prop.valtype:
                 # serialised as dict
                 case "uri" | "color" as val_type:
-                    prop_serialised = _transform_into_serialise_property_with_string_value(
+                    transformed_prop = _transform_into_serialise_property_with_string_value(
                         prop=prop,
                         permissions_lookup=self.permissions_lookup,
                         func=str_value_func_mapper[val_type],
                     )
-                    properties_serialised.update(prop_serialised.serialise())
+                    properties_serialised.update(transformed_prop.serialise())
                 # serialised with rdflib
                 case "integer":
                     int_prop_name = self._get_absolute_prop_iri(prop.name, namespaces)

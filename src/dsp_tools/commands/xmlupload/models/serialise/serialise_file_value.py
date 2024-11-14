@@ -15,71 +15,47 @@ class SerialiseAbstractFileValue(ABC):
     def serialise(self) -> dict[str, Any]:
         """Serialise the value."""
 
-    def _get_general_info(self) -> dict[str, str]:
-        return {"knora-api:hasPermissions": self.permissions} if self.permissions else {}
+    def _get_file_value(self, file_value_type: str) -> dict[str, str]:
+        file_value = {
+            "@type": f"knora-api:{file_value_type}",
+            "knora-api:fileValueHasFilename": self.file_name,
+        }
+        if self.permissions:
+            file_value["knora-api:hasPermissions"] = self.permissions
+        return file_value
 
 
 @dataclass
 class SerialiseArchiveFileValue(SerialiseAbstractFileValue):
     def serialise(self) -> dict[str, Any]:
-        file_value = {
-            "@type": "knora-api:ArchiveFileValue",
-            "knora-api:fileValueHasFilename": self.file_name,
-        }
-        file_value.update(self._get_general_info())
-        return {"knora-api:hasArchiveFileValue": file_value}
+        return {"knora-api:hasArchiveFileValue": self._get_file_value("ArchiveFileValue")}
 
 
 @dataclass
 class SerialiseAudioFileValue(SerialiseAbstractFileValue):
     def serialise(self) -> dict[str, Any]:
-        file_value = {
-            "@type": "knora-api:AudioFileValue",
-            "knora-api:fileValueHasFilename": self.file_name,
-        }
-        file_value.update(self._get_general_info())
-        return {"knora-api:hasAudioFileValue": file_value}
+        return {"knora-api:hasAudioFileValue": self._get_file_value("AudioFileValue")}
 
 
 @dataclass
 class SerialiseDocumentFileValue(SerialiseAbstractFileValue):
     def serialise(self) -> dict[str, Any]:
-        file_value = {
-            "@type": "knora-api:DocumentFileValue",
-            "knora-api:fileValueHasFilename": self.file_name,
-        }
-        file_value.update(self._get_general_info())
-        return {"knora-api:hasDocumentFileValue": file_value}
+        return {"knora-api:hasDocumentFileValue": self._get_file_value("DocumentFileValue")}
 
 
 @dataclass
 class SerialiseMovingImageFileValue(SerialiseAbstractFileValue):
     def serialise(self) -> dict[str, Any]:
-        file_value = {
-            "@type": "knora-api:MovingImageFileValue",
-            "knora-api:fileValueHasFilename": self.file_name,
-        }
-        file_value.update(self._get_general_info())
-        return {"knora-api:hasMovingImageFileValue": file_value}
+        return {"knora-api:hasMovingImageFileValue": self._get_file_value("MovingImageFileValue")}
 
 
 @dataclass
 class SerialiseStillImageFileValue(SerialiseAbstractFileValue):
     def serialise(self) -> dict[str, Any]:
-        file_value = {
-            "@type": "knora-api:StillImageFileValue",
-            "knora-api:fileValueHasFilename": self.file_name,
-        }
-        file_value.update(self._get_general_info())
-        return {"knora-api:hasStillImageFileValue": file_value}
+        return {"knora-api:hasStillImageFileValue": self._get_file_value("StillImageFileValue")}
 
 
 @dataclass
 class SerialiseTextFileValue(SerialiseAbstractFileValue):
     def serialise(self) -> dict[str, Any]:
-        file_value = {
-            "@type": "knora-api:TextFileValue",
-            "knora-api:fileValueHasFilename": self.file_name,
-        }
-        file_value.update(self._get_general_info())
-        return {"knora-api:hasTextFileValue": file_value}
+        return {"knora-api:hasTextFileValue": self._get_file_value("")}

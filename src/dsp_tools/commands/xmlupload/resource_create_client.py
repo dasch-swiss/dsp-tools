@@ -135,7 +135,7 @@ class ResourceCreateClient:
         # To frame the json-ld correctly, we need one property used in the graph. It does not matter which.
         last_prop_name = None
 
-        func_mapper = {
+        str_value_func_mapper = {
             "uri": SerialiseURI,
             "color": SerialiseColor,
         }
@@ -145,7 +145,9 @@ class ResourceCreateClient:
                 # serialised as dict
                 case "uri" | "color" as val_type:
                     prop_serialised = _serialise_property_with_string_value(
-                        prop, self.permissions_lookup, func_mapper[val_type]
+                        prop=prop,
+                        permissions_lookup=self.permissions_lookup,
+                        func=str_value_func_mapper[val_type],
                     )
                     properties_serialised.update(prop_serialised.serialise())
                 # serialised with rdflib

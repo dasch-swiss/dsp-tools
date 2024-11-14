@@ -52,6 +52,23 @@ class SerialiseColor(SerialiseValue):
 
 
 @dataclass(frozen=True)
+class SerialiseGeoname(SerialiseValue):
+    """A GeonameValue to be serialised."""
+
+    value: str
+    permissions: str | None
+    comment: str | None
+
+    def serialise(self) -> dict[str, Any]:
+        serialised = {
+            "@type": "knora-api:GeonameValue",
+            "knora-api:geonameValueAsGeonameCode": self.value,
+        }
+        serialised.update(self._get_optionals())
+        return serialised
+
+
+@dataclass(frozen=True)
 class SerialiseURI(SerialiseValue):
     """A UriValue to be serialised."""
 

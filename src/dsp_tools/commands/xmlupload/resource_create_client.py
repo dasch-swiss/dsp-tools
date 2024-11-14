@@ -159,6 +159,9 @@ class ResourceCreateClient:
                 case "decimal":
                     transformed_prop = _transform_decimal_prop(prop=prop, permissions_lookup=self.permissions_lookup)
                     properties_serialised.update(transformed_prop.serialise())
+                case "geometry":
+                    transformed_prop = _transform_geometry_prop(prop=prop, permissions_lookup=self.permissions_lookup)
+                    properties_serialised.update(transformed_prop.serialise())
                 # serialised with rdflib
                 case "integer":
                     int_prop_name = self._get_absolute_prop_iri(prop.name, namespaces)
@@ -191,8 +194,6 @@ class ResourceCreateClient:
         match value_type:
             case "date":
                 res = _make_date_value(value)
-            case "geometry":
-                res = _make_geometry_value(value)
             case "interval":
                 res = _make_interval_value(value)
             case "resptr":

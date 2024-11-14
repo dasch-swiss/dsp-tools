@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from abc import ABC
 from abc import abstractmethod
+from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Any
 
@@ -9,7 +10,7 @@ from typing import Any
 @dataclass(frozen=True)
 class SerialiseProperty:
     property_name: str
-    values: list[SerialiseValue]
+    values: Sequence[SerialiseValue]
 
     def serialise(self) -> dict[str, Any]:
         """Serialise the property and all its values."""

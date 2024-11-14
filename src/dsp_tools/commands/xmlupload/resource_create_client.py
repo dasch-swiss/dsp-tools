@@ -315,7 +315,7 @@ def _make_date_value(value: XMLValue) -> dict[str, Any]:
 
 
 def _transform_into_decimal_prop(prop: XMLProperty, permissions_lookup: dict[str, Permissions]) -> SerialiseProperty:
-    vals: list[SerialiseValue] = [_transform_into_decimal_value(v, permissions_lookup) for v in prop.values]
+    vals = [_transform_into_decimal_value(v, permissions_lookup) for v in prop.values]
     return SerialiseProperty(property_name=prop.name, values=vals)
 
 
@@ -327,7 +327,7 @@ def _transform_into_decimal_value(value: XMLValue, permissions_lookup: dict[str,
 
 
 def _transform_into_geometry_prop(prop: XMLProperty, permissions_lookup: dict[str, Permissions]) -> SerialiseProperty:
-    vals: list[SerialiseValue] = [_transform_into_geometry_value(v, permissions_lookup) for v in prop.values]
+    vals = [_transform_into_geometry_value(v, permissions_lookup) for v in prop.values]
     return SerialiseProperty(property_name=prop.name, values=vals)
 
 
@@ -443,7 +443,7 @@ def _make_list_value(value: XMLValue, iri_lookup: dict[str, str]) -> dict[str, A
 def _transform_text_prop(
     prop: XMLProperty, permissions_lookup: dict[str, Permissions], iri_resolver: IriResolver
 ) -> SerialiseProperty:
-    values: list[SerialiseValue] = []
+    values = []
     for val in prop.values:
         match val.value:
             case str():

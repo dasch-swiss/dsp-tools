@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import warnings
+from collections.abc import Collection
 from dataclasses import dataclass
 from dataclasses import field
 from typing import Any
-from typing import Sequence
 
 from lxml import etree
 
@@ -187,7 +187,7 @@ class RegionResource:
         color: str,
         region_of: str,
         geometry: dict[str, Any],
-        comments: Sequence[str],
+        comments: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> RegionResource:
         """
@@ -233,7 +233,7 @@ class RegionResource:
         self.comments.append(comment)
         return self
 
-    def add_comment_multiple(self, comments: Sequence[str]) -> RegionResource:
+    def add_comment_multiple(self, comments: Collection[str]) -> RegionResource:
         """
         Add several comments to the resource
 
@@ -327,8 +327,8 @@ class LinkResource:
     def create_new(
         res_id: str,
         label: str,
-        link_to: Sequence[str],
-        comments: Sequence[str],
+        link_to: Collection[str],
+        comments: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> LinkResource:
         """
@@ -368,7 +368,7 @@ class LinkResource:
         self.comments.append(comment)
         return self
 
-    def add_comment_multiple(self, comments: Sequence[str]) -> LinkResource:
+    def add_comment_multiple(self, comments: Collection[str]) -> LinkResource:
         """
         Add several comments to the resource
 
@@ -558,7 +558,7 @@ class VideoSegmentResource:
         self.comments.append(comment)
         return self
 
-    def add_comment_multiple(self, comments: Sequence[str]) -> VideoSegmentResource:
+    def add_comment_multiple(self, comments: Collection[str]) -> VideoSegmentResource:
         """
         Add several comments to the resource
 
@@ -598,7 +598,7 @@ class VideoSegmentResource:
         self.descriptions.append(description)
         return self
 
-    def add_description_multiple(self, descriptions: Sequence[str]) -> VideoSegmentResource:
+    def add_description_multiple(self, descriptions: Collection[str]) -> VideoSegmentResource:
         """
         Add several descriptions to the resource
 
@@ -638,7 +638,7 @@ class VideoSegmentResource:
         self.keywords.append(keyword)
         return self
 
-    def add_keyword_multiple(self, keywords: Sequence[str]) -> VideoSegmentResource:
+    def add_keyword_multiple(self, keywords: Collection[str]) -> VideoSegmentResource:
         """
         Add several keywords to the resource
 
@@ -678,7 +678,7 @@ class VideoSegmentResource:
         self.relates_to.append(relates_to)
         return self
 
-    def add_relates_to_multiple(self, relates_to: Sequence[str]) -> VideoSegmentResource:
+    def add_relates_to_multiple(self, relates_to: Collection[str]) -> VideoSegmentResource:
         """
         Add several links to related resources
 
@@ -841,7 +841,7 @@ class AudioSegmentResource:
         self.comments.append(comment)
         return self
 
-    def add_comment_multiple(self, comments: Sequence[str]) -> AudioSegmentResource:
+    def add_comment_multiple(self, comments: Collection[str]) -> AudioSegmentResource:
         """
         Add several comments to the resource
 
@@ -881,7 +881,7 @@ class AudioSegmentResource:
         self.descriptions.append(description)
         return self
 
-    def add_description_multiple(self, descriptions: Sequence[str]) -> AudioSegmentResource:
+    def add_description_multiple(self, descriptions: Collection[str]) -> AudioSegmentResource:
         """
         Add several descriptions to the resource
 
@@ -921,7 +921,7 @@ class AudioSegmentResource:
         self.keywords.append(keyword)
         return self
 
-    def add_keyword_multiple(self, keywords: Sequence[str]) -> AudioSegmentResource:
+    def add_keyword_multiple(self, keywords: Collection[str]) -> AudioSegmentResource:
         """
         Add several keywords to the resource
 
@@ -961,7 +961,7 @@ class AudioSegmentResource:
         self.relates_to.append(relates_to)
         return self
 
-    def add_relates_to_multiple(self, relates_to: Sequence[str]) -> AudioSegmentResource:
+    def add_relates_to_multiple(self, relates_to: Collection[str]) -> AudioSegmentResource:
         """
         Add several links to related resources
 

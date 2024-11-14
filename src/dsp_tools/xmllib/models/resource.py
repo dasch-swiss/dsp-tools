@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import warnings
 from collections import defaultdict
+from collections.abc import Collection
 from dataclasses import dataclass
 from dataclasses import field
 from typing import Any
-from typing import Sequence
 
 from lxml import etree
 
@@ -212,7 +212,7 @@ class Resource:
     def add_color_multiple(
         self,
         prop_name: str,
-        values: Sequence[str],
+        values: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -288,7 +288,7 @@ class Resource:
     def add_date_multiple(
         self,
         prop_name: str,
-        values: Sequence[str],
+        values: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -366,7 +366,7 @@ class Resource:
     def add_decimal_multiple(
         self,
         prop_name: str,
-        values: Sequence[float | int | str],
+        values: Collection[float | int | str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -448,7 +448,7 @@ class Resource:
     def add_geoname_multiple(
         self,
         prop_name: str,
-        values: Sequence[int | str],
+        values: Collection[int | str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -530,7 +530,7 @@ class Resource:
     def add_integer_multiple(
         self,
         prop_name: str,
-        values: Sequence[int | str],
+        values: Collection[int | str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -609,7 +609,7 @@ class Resource:
     def add_link_multiple(
         self,
         prop_name: str,
-        values: Sequence[str],
+        values: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -690,7 +690,7 @@ class Resource:
         self,
         prop_name: str,
         list_name: str | int | float,
-        values: Sequence[str | int | float],
+        values: Collection[str | int | float],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -770,7 +770,7 @@ class Resource:
     def add_simpletext_multiple(
         self,
         prop_name: str,
-        values: Sequence[str],
+        values: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -857,7 +857,7 @@ class Resource:
     def add_richtext_multiple(
         self,
         prop_name: str,
-        values: Sequence[str],
+        values: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
         newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
@@ -954,7 +954,7 @@ class Resource:
     def add_time_multiple(
         self,
         prop_name: str,
-        values: Sequence[str],
+        values: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -1031,7 +1031,7 @@ class Resource:
     def add_uri_multiple(
         self,
         prop_name: str,
-        values: Sequence[str],
+        values: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:

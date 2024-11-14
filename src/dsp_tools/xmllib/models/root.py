@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import warnings
+from collections.abc import Collection
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
-from typing import Sequence
 from typing import TypeAlias
 from typing import Union
 
@@ -70,7 +70,7 @@ class XMLRoot:
         self.resources.append(resource)
         return self
 
-    def add_resource_multiple(self, resources: Sequence[AnyResource]) -> XMLRoot:
+    def add_resource_multiple(self, resources: Collection[AnyResource]) -> XMLRoot:
         """
         Add a list of resources to the root.
 

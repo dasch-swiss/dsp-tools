@@ -141,7 +141,7 @@ class ResourceCreateClient:
                 case "uri":
                     properties_serialised.update(_serialise_uri_prop(prop, self.permissions_lookup))
                 case "color":
-                    pass
+                    properties_serialised.update(_serialise_color_prop(prop, self.permissions_lookup))
                 # serialised with rdflib
                 case "integer":
                     int_prop_name = self._get_absolute_prop_iri(prop.name, namespaces)

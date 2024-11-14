@@ -33,6 +33,25 @@ class SerialiseValue(Protocol):
 
 
 @dataclass(frozen=True)
+class SerialiseColor(SerialiseValue):
+    """A URI to be serialised."""
+
+    value: str
+    permissions: str | None
+    comment: str | None
+
+    def serialise(self) -> dict[str, Any]:
+        """Serialise the URI value."""
+
+        serialised = {
+            "@type": "knora-api:ColorValue",
+            "knora-api:colorValueAsColor": self.value,
+        }
+        serialised.update(self._get_optionals())
+        return serialised
+
+
+@dataclass(frozen=True)
 class SerialiseURI(SerialiseValue):
     """A URI to be serialised."""
 

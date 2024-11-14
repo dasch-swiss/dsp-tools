@@ -26,6 +26,7 @@ from dsp_tools.commands.xmlupload.models.namespace_context import get_json_ld_co
 from dsp_tools.commands.xmlupload.models.namespace_context import make_namespace_dict_from_onto_names
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.serialise.jsonld_serialiser import serialise_property_graph
+from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import IntValueRDF
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseColor
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseProperty
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseURI
@@ -354,20 +355,18 @@ def _make_integer_prop(
 ) -> Graph:
     g = Graph()
     for value in prop.values:
-        single_val_bn = BNode()
-        g.add((res_bn, prop_name, single_val_bn))
-        g += _make_integer_value(value, single_val_bn, permissions_lookup)
-    return g
-
-
-def _make_integer_value(value: XMLValue, val_bn: BNode, permissions_lookup: dict[str, Permissions]) -> Graph:
-    s = _assert_is_string(value.value)
-    g = Graph()
-    g.add((val_bn, RDF.type, KNORA_API.IntValue))
-    g.add((val_bn, KNORA_API.intValueAsInt, Literal(int(s))))
-    _add_optional_permission_triple(value, val_bn, g, permissions_lookup)
-    if value.comment:
-        g.add((val_bn, KNORA_API.valueHasComment, Literal(value.comment)))
+        permission_literal = None
+        if permission_str := _get_permission_str(value.permissions, permissions_lookup):
+            permission_literal = Literal(permission_str)
+        s = _assert_is_string(value.value)
+        int_value = IntValueRDF(
+            resource_bn=res_bn,
+            prop_name=prop_name,
+            value=Literal(int(s)),
+            permissions=permission_literal,
+            comment=Literal(value.comment) if value.comment else None,
+        )
+        g += int_value.as_graph()
     return g
 
 

@@ -26,6 +26,7 @@ from dsp_tools.commands.xmlupload.models.namespace_context import get_json_ld_co
 from dsp_tools.commands.xmlupload.models.namespace_context import make_namespace_dict_from_onto_names
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.serialise.jsonld_serialiser import serialise_property_graph
+from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import BooleanValueRDF
 from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import IntValueRDF
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseColor
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseProperty
@@ -333,21 +334,27 @@ def _make_boolean_prop(
 ) -> Graph:
     g = Graph()
     for value in prop.values:
-        single_val_bn = BNode()
-        g.add((res_bn, prop_name, single_val_bn))
-        g += _make_boolean_value(value, single_val_bn, permissions_lookup)
+        boolean_value = _make_boolean_value(value, prop_name, res_bn, permissions_lookup)
+        g += boolean_value.as_graph()
     return g
 
 
-def _make_boolean_value(value: XMLValue, val_bn: BNode, permissions_lookup: dict[str, Permissions]) -> Graph:
+def _make_boolean_value(
+    value: XMLValue, prop_name: URIRef, res_bn: BNode, permissions_lookup: dict[str, Permissions]
+) -> BooleanValueRDF:
     s = _assert_is_string(value.value)
-    g = Graph()
-    g.add((val_bn, RDF.type, KNORA_API.BooleanValue))
-    g.add((val_bn, KNORA_API.booleanValueAsBoolean, Literal(_to_boolean(s))))
-    _add_optional_permission_triple(value, val_bn, g, permissions_lookup)
-    if value.comment:
-        g.add((val_bn, KNORA_API.valueHasComment, Literal(value.comment)))
-    return g
+    as_bool = _to_boolean(s)
+    permission_literal = None
+    if permission_str := _get_permission_str(value.permissions, permissions_lookup):
+        permission_literal = Literal(permission_str)
+    boolean_value = BooleanValueRDF(
+        resource_bn=res_bn,
+        prop_name=prop_name,
+        value=Literal(as_bool),
+        permissions=permission_literal,
+        comment=Literal(value.comment) if value.comment else None,
+    )
+    return boolean_value
 
 
 def _make_integer_prop(
@@ -355,19 +362,25 @@ def _make_integer_prop(
 ) -> Graph:
     g = Graph()
     for value in prop.values:
-        permission_literal = None
-        if permission_str := _get_permission_str(value.permissions, permissions_lookup):
-            permission_literal = Literal(permission_str)
-        s = _assert_is_string(value.value)
-        int_value = IntValueRDF(
-            resource_bn=res_bn,
-            prop_name=prop_name,
-            value=Literal(int(s)),
-            permissions=permission_literal,
-            comment=Literal(value.comment) if value.comment else None,
-        )
+        int_value = _make_integer_value(value, prop_name, res_bn, permissions_lookup)
         g += int_value.as_graph()
     return g
+
+
+def _make_integer_value(
+    value: XMLValue, prop_name: URIRef, res_bn: BNode, permissions_lookup: dict[str, Permissions]
+) -> IntValueRDF:
+    s = _assert_is_string(value.value)
+    permission_literal = None
+    if permission_str := _get_permission_str(value.permissions, permissions_lookup):
+        permission_literal = Literal(permission_str)
+    return IntValueRDF(
+        resource_bn=res_bn,
+        prop_name=prop_name,
+        value=Literal(int(s)),
+        permissions=permission_literal,
+        comment=Literal(value.comment) if value.comment else None,
+    )
 
 
 def _make_interval_value(value: XMLValue) -> dict[str, Any]:

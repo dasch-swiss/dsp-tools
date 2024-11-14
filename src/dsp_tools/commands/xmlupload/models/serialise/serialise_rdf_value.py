@@ -1,8 +1,10 @@
+import json
 from abc import ABC
 from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Any
 
+from pyld import jsonld
 from rdflib import RDF
 from rdflib import BNode
 from rdflib import Graph
@@ -22,7 +24,8 @@ class ValueRDF(ABC):
     comment: Literal | None
 
     def serialise(self) -> dict[str, Any]:
-        """Serialises the value."""
+        jsonld = self._make_jsonld()
+        return self._frame_property(jsonld)
 
     @abstractmethod
     def _as_graph(self) -> Graph:
@@ -36,6 +39,19 @@ class ValueRDF(ABC):
         if self.comment:
             g.add((val_bn, KNORA_API.valueHasComment, self.comment))
         return g
+
+    def _make_jsonld(self) -> list[dict[str, Any]]:
+        g = self._as_graph()
+        graph_bytes = g.serialize(format="json-ld", encoding="utf-8")
+        json_graph: list[dict[str, Any]] = json.loads(graph_bytes)
+        return json_graph
+
+    def _frame_property(self, serialised_json: list[dict[str, Any]]) -> dict[str, Any]:
+        json_frame: dict[str, Any] = {
+            str(self.prop_name): {},
+        }
+        framed: dict[str, Any] = jsonld.frame(serialised_json, json_frame)
+        return framed
 
 
 class BooleanValueRDF(ValueRDF):

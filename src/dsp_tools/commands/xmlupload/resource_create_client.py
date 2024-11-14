@@ -439,27 +439,26 @@ def _make_list_value(value: XMLValue, iri_lookup: dict[str, str]) -> dict[str, A
 def _transform_text_prop(
     prop: XMLProperty, permissions_lookup: dict[str, Permissions], iri_resolver: IriResolver
 ) -> SerialiseProperty:
+    values: list[SerialiseValue] = []
     for val in prop.values:
         match val.value:
             case str():
-                return _transform_into_serialise_prop(prop, permissions_lookup, SerialiseSimpletext)
+                values.append(_transform_into_serialise_value(val, permissions_lookup, SerialiseSimpletext))
             case FormattedTextValue():
-                return _transform_into_serialise_richtext(prop, permissions_lookup, iri_resolver)
+                values.append(_transform_into_serialise_richtext(val, permissions_lookup, iri_resolver))
             case _:
-                assert_never(val)
+                assert_never(val.value)
+    return SerialiseProperty(property_name=prop.name, values=values)
 
 
 def _transform_into_serialise_richtext(
-    prop: XMLProperty, permissions_lookup: dict[str, Permissions], iri_resolver: IriResolver
-) -> SerialiseProperty:
-    values: list[SerialiseValue] = []
-    for val in prop.values:
-        xml_val = cast(FormattedTextValue, val.value)
-        xml_with_iris = xml_val.with_iris(iri_resolver)
-        val_str = xml_with_iris.as_xml()
-        permission_str = _get_permission_str(val.permissions, permissions_lookup)
-        values.append(SerialiseRichtext(value=val_str, permissions=permission_str, comment=val.comment))
-    return SerialiseProperty(property_name=prop.name, values=values)
+    val: XMLValue, permissions_lookup: dict[str, Permissions], iri_resolver: IriResolver
+) -> SerialiseRichtext:
+    xml_val = cast(FormattedTextValue, val.value)
+    xml_with_iris = xml_val.with_iris(iri_resolver)
+    val_str = xml_with_iris.as_xml()
+    permission_str = _get_permission_str(val.permissions, permissions_lookup)
+    return SerialiseRichtext(value=val_str, permissions=permission_str, comment=val.comment)
 
 
 def _transform_into_serialise_prop(

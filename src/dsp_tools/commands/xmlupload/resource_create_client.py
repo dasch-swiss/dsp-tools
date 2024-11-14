@@ -159,10 +159,14 @@ class ResourceCreateClient:
                     )
                     properties_serialised.update(transformed_prop.serialise())
                 case "decimal":
-                    transformed_prop = _transform_decimal_prop(prop=prop, permissions_lookup=self.permissions_lookup)
+                    transformed_prop = _transform_into_decimal_prop(
+                        prop=prop, permissions_lookup=self.permissions_lookup
+                    )
                     properties_serialised.update(transformed_prop.serialise())
                 case "geometry":
-                    transformed_prop = _transform_geometry_prop(prop=prop, permissions_lookup=self.permissions_lookup)
+                    transformed_prop = _transform_into_geometry_prop(
+                        prop=prop, permissions_lookup=self.permissions_lookup
+                    )
                     properties_serialised.update(transformed_prop.serialise())
                 case "text":
                     transformed_prop = _transform_text_prop(
@@ -310,24 +314,24 @@ def _make_date_value(value: XMLValue) -> dict[str, Any]:
     return res
 
 
-def _transform_decimal_prop(prop: XMLProperty, permissions_lookup: dict[str, Permissions]) -> SerialiseProperty:
-    vals: list[SerialiseValue] = [_transform_into_serialise_decimal(v, permissions_lookup) for v in prop.values]
+def _transform_into_decimal_prop(prop: XMLProperty, permissions_lookup: dict[str, Permissions]) -> SerialiseProperty:
+    vals: list[SerialiseValue] = [_transform_into_decimal_value(v, permissions_lookup) for v in prop.values]
     return SerialiseProperty(property_name=prop.name, values=vals)
 
 
-def _transform_into_serialise_decimal(value: XMLValue, permissions_lookup: dict[str, Permissions]) -> SerialiseDecimal:
+def _transform_into_decimal_value(value: XMLValue, permissions_lookup: dict[str, Permissions]) -> SerialiseDecimal:
     s = _assert_is_string(value.value)
     val = str(float(s))
     permission_str = _get_permission_str(value.permissions, permissions_lookup)
     return SerialiseDecimal(value=val, permissions=permission_str, comment=value.comment)
 
 
-def _transform_geometry_prop(prop: XMLProperty, permissions_lookup: dict[str, Permissions]) -> SerialiseProperty:
-    vals: list[SerialiseValue] = [_make_geometry_value(v, permissions_lookup) for v in prop.values]
+def _transform_into_geometry_prop(prop: XMLProperty, permissions_lookup: dict[str, Permissions]) -> SerialiseProperty:
+    vals: list[SerialiseValue] = [_transform_into_geometry_value(v, permissions_lookup) for v in prop.values]
     return SerialiseProperty(property_name=prop.name, values=vals)
 
 
-def _make_geometry_value(value: XMLValue, permissions_lookup: dict[str, Permissions]) -> SerialiseGeometry:
+def _transform_into_geometry_value(value: XMLValue, permissions_lookup: dict[str, Permissions]) -> SerialiseGeometry:
     s = _assert_is_string(value.value)
     # this removes all whitespaces from the embedded json string
     encoded_value = json.dumps(json.loads(s))
@@ -445,13 +449,13 @@ def _transform_text_prop(
             case str():
                 values.append(_transform_into_serialise_value(val, permissions_lookup, SerialiseSimpletext))
             case FormattedTextValue():
-                values.append(_transform_into_serialise_richtext(val, permissions_lookup, iri_resolver))
+                values.append(_transform_into_richtext_value(val, permissions_lookup, iri_resolver))
             case _:
                 assert_never(val.value)
     return SerialiseProperty(property_name=prop.name, values=values)
 
 
-def _transform_into_serialise_richtext(
+def _transform_into_richtext_value(
     val: XMLValue, permissions_lookup: dict[str, Permissions], iri_resolver: IriResolver
 ) -> SerialiseRichtext:
     xml_val = cast(FormattedTextValue, val.value)

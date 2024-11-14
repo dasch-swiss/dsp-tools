@@ -463,7 +463,6 @@ def test_make_iiif_uri_value_serialised() -> None:
 
 def test_make_boolean_value_with_permissions() -> None:
     permissions_lookup = {"open": Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})}
-
     xml_str = """
         <resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id">
             <boolean-prop name=":isTrueOrFalse">
@@ -478,18 +477,13 @@ def test_make_boolean_value_with_permissions() -> None:
     bool_graph = _make_boolean_value(
         value=test_val, prop_name=prop_name, res_bn=res_bn, permissions_lookup=permissions_lookup
     ).as_graph()
-
     number_of_triples = 4
     assert len(bool_graph) == number_of_triples
-
     value_bn = next(bool_graph.objects(res_bn, prop_name))
-
     rdf_type = next(bool_graph.objects(value_bn, RDF.type))
     assert rdf_type == KNORA_API.BooleanValue
-
     bool_val = next(bool_graph.objects(value_bn, KNORA_API.booleanValueAsBoolean))
     assert bool_val == Literal(True)
-
     permissions = next(bool_graph.objects(value_bn, KNORA_API.hasPermissions))
     assert permissions == Literal(str(permissions_lookup.get("open")))
 

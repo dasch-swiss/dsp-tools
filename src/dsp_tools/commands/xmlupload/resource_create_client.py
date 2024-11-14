@@ -455,12 +455,7 @@ def _make_time_value(value: XMLValue) -> dict[str, Any]:
 def _serialise_uri_prop(prop: XMLProperty, permissions_lookup: dict[str, Permissions]) -> dict[str, Any]:
     uri_values: list[SerialiseValue] = []
     for v in prop.values:
-        if v.permissions:
-            if not (per := permissions_lookup.get(v.permissions)):
-                raise PermissionNotExistsError(f"Could not find permissions for value: {v.permissions}")
-            permission = str(per)
-        else:
-            permission = None
+        permission = _get_permission_str(v.permissions, permissions_lookup)
         uri = cast(str, v.value)
         uri_values.append(
             SerialiseURI(
@@ -484,3 +479,11 @@ def _assert_is_string(value: str | FormattedTextValue) -> str:
             raise BaseError(f"Expected string value, but got XML value: {xml.as_xml()}")
         case _:
             assert_never(value)
+
+
+def _get_permission_str(value_permissions: str | None, permissions_lookup: dict[str, Permissions]) -> str | None:
+    if value_permissions:
+        if not (per := permissions_lookup.get(value_permissions)):
+            raise PermissionNotExistsError(f"Could not find permissions for value: {value_permissions}")
+        return str(per)
+    return None

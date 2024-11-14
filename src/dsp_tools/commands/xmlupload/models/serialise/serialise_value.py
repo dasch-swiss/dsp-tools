@@ -25,6 +25,12 @@ class SerialiseValue(Protocol):
     def serialise(self) -> dict[str, Any]:
         """Serialise the value."""
 
+    def _get_optionals(self) -> dict[str, str]:
+        optionals = {"knora-api:valueHasComment": self.comment} if self.comment else {}
+        if self.permissions:
+            optionals["knora-api:hasPermissions"] = self.permissions
+        return optionals
+
 
 @dataclass(frozen=True)
 class SerialiseURI(SerialiseValue):
@@ -44,8 +50,5 @@ class SerialiseURI(SerialiseValue):
                 "@value": self.value,
             },
         }
-        if self.comment:
-            serialised["knora-api:valueHasComment"] = self.comment
-        if self.permissions:
-            serialised["knora-api:hasPermissions"] = self.permissions
+        serialised.update(self._get_optionals())
         return serialised

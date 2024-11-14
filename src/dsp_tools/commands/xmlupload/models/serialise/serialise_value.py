@@ -34,7 +34,7 @@ class SerialiseValue(Protocol):
 
 @dataclass(frozen=True)
 class SerialiseColor(SerialiseValue):
-    """A Color to be serialised."""
+    """A ColorValue to be serialised."""
 
     value: str
     permissions: str | None
@@ -53,7 +53,7 @@ class SerialiseColor(SerialiseValue):
 
 @dataclass(frozen=True)
 class SerialiseURI(SerialiseValue):
-    """A URI to be serialised."""
+    """A UriValue to be serialised."""
 
     value: str
     permissions: str | None

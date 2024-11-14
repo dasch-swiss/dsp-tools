@@ -31,6 +31,8 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_value import Serial
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseGeometry
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseGeoname
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseProperty
+from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseRichtext
+from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseSimpletext
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseTime
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseURI
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseValue
@@ -162,6 +164,13 @@ class ResourceCreateClient:
                 case "geometry":
                     transformed_prop = _transform_geometry_prop(prop=prop, permissions_lookup=self.permissions_lookup)
                     properties_serialised.update(transformed_prop.serialise())
+                case "text":
+                    transformed_prop = _transform_text_prop(
+                        prop=prop,
+                        permissions_lookup=self.permissions_lookup,
+                        iri_resolver=self.iri_resolver,
+                    )
+                    properties_serialised.update(transformed_prop.serialise())
                 # serialised with rdflib
                 case "integer":
                     int_prop_name = self._get_absolute_prop_iri(prop.name, namespaces)
@@ -200,8 +209,6 @@ class ResourceCreateClient:
                 res = _make_link_value(value, self.iri_resolver)
             case "list":
                 res = _make_list_value(value, self.listnode_lookup)
-            case "text":
-                res = _make_text_value(value, self.iri_resolver)
             case _:
                 raise UserError(f"Unknown value type: {value_type}")
         if value.comment:
@@ -304,7 +311,7 @@ def _make_date_value(value: XMLValue) -> dict[str, Any]:
 
 
 def _transform_decimal_prop(prop: XMLProperty, permissions_lookup: dict[str, Permissions]) -> SerialiseProperty:
-    vals = [_transform_into_serialise_decimal(v, permissions_lookup) for v in prop.values]
+    vals: list[SerialiseValue] = [_transform_into_serialise_decimal(v, permissions_lookup) for v in prop.values]
     return SerialiseProperty(property_name=prop.name, values=vals)
 
 
@@ -316,7 +323,7 @@ def _transform_into_serialise_decimal(value: XMLValue, permissions_lookup: dict[
 
 
 def _transform_geometry_prop(prop: XMLProperty, permissions_lookup: dict[str, Permissions]) -> SerialiseProperty:
-    vals = [_make_geometry_value(v, permissions_lookup) for v in prop.values]
+    vals: list[SerialiseValue] = [_make_geometry_value(v, permissions_lookup) for v in prop.values]
     return SerialiseProperty(property_name=prop.name, values=vals)
 
 
@@ -429,24 +436,30 @@ def _make_list_value(value: XMLValue, iri_lookup: dict[str, str]) -> dict[str, A
         raise BaseError(msg)
 
 
-def _make_text_value(value: XMLValue, iri_resolver: IriResolver) -> dict[str, Any]:
-    match value.value:
-        case str() as s:
-            return {
-                "@type": "knora-api:TextValue",
-                "knora-api:valueAsString": s,
-            }
-        case FormattedTextValue() as xml:
-            xml_with_iris = xml.with_iris(iri_resolver)
-            return {
-                "@type": "knora-api:TextValue",
-                "knora-api:textValueAsXml": xml_with_iris.as_xml(),
-                "knora-api:textValueHasMapping": {
-                    "@id": "http://rdfh.ch/standoff/mappings/StandardMapping",
-                },
-            }
-        case _:
-            assert_never(value.value)
+def _transform_text_prop(
+    prop: XMLProperty, permissions_lookup: dict[str, Permissions], iri_resolver: IriResolver
+) -> SerialiseProperty:
+    for val in prop.values:
+        match val.value:
+            case str():
+                return _transform_into_serialise_prop(prop, permissions_lookup, SerialiseSimpletext)
+            case FormattedTextValue():
+                return _transform_into_serialise_richtext(prop, permissions_lookup, iri_resolver)
+            case _:
+                assert_never(val)
+
+
+def _transform_into_serialise_richtext(
+    prop: XMLProperty, permissions_lookup: dict[str, Permissions], iri_resolver: IriResolver
+) -> SerialiseProperty:
+    values: list[SerialiseValue] = []
+    for val in prop.values:
+        xml_val = cast(FormattedTextValue, val.value)
+        xml_with_iris = xml_val.with_iris(iri_resolver)
+        val_str = xml_with_iris.as_xml()
+        permission_str = _get_permission_str(val.permissions, permissions_lookup)
+        values.append(SerialiseRichtext(value=val_str, permissions=permission_str, comment=val.comment))
+    return SerialiseProperty(property_name=prop.name, values=values)
 
 
 def _transform_into_serialise_prop(

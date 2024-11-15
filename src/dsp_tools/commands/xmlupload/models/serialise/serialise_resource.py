@@ -15,12 +15,12 @@ class SerialiseResource:
     permissions: str | None
     migration_metadata: MigrationMetadata | None
 
-    def serialise_resource(self) -> dict[str, Any]:
+    def serialise(self) -> dict[str, Any]:
         serialised = self.migration_metadata.to_dict() if self.migration_metadata else {}
-        serialised.update(self._get_base_info())
+        serialised.update(self._get_resource_info())
         return serialised
 
-    def _get_base_info(self) -> dict[str, Any]:
+    def _get_resource_info(self) -> dict[str, Any]:
         serialised = self.project_context.to_dict()
         serialised.update({"rdfs:label": self.label, "@type": self.res_type})
         if self.permissions:

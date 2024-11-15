@@ -122,7 +122,7 @@ class ResourceCreateClient:
             project_context=context,
             migration_metadata=migration_metadata,
         )
-        res = serialise_resource.serialise_resource()
+        res = serialise_resource.serialise()
         if bitstream_information:
             res.update(_make_bitstream_file_value(bitstream_information))
         return res

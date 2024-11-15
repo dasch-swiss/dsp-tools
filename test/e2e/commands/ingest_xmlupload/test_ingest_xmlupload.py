@@ -24,11 +24,15 @@ SHORTCODE = "4125"
 TMP_FOLDER = TMP_INGEST / "import" / SHORTCODE
 
 
-@pytest.fixture(scope="module")
-def mapping_file() -> Iterator[Path]:
-    mapping_file = Path(f"mapping-{SHORTCODE}.csv")
-    yield mapping_file
-    mapping_file.unlink(missing_ok=True)
+@pytest.fixture
+def mapping_file(monkeypatch: pytest.MonkeyPatch) -> Iterator[Path]:
+    with monkeypatch.context() as m:
+        m.chdir(CWD)
+        mapping_file = Path(f"mapping-{SHORTCODE}.csv")
+        yield mapping_file
+        mapping_file.unlink(missing_ok=True)
+        for id2iri_mapping in Path(".").glob("*id2iri_mapping*.json"):
+            id2iri_mapping.unlink(missing_ok=True)
 
 
 @pytest.fixture
@@ -40,12 +44,10 @@ def _create_project() -> Iterator[None]:
 
 
 @pytest.mark.usefixtures("_create_project")
-def test_ingest_upload(mapping_file: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    with monkeypatch.context() as m:
-        m.chdir(CWD)
-        _test_upload_step()
-        _test_ingest_step(mapping_file)
-        _test_xmlupload_step()
+def test_ingest_upload(mapping_file: Path) -> None:
+    _test_upload_step()
+    _test_ingest_step(mapping_file)
+    _test_xmlupload_step()
 
 
 def _test_upload_step() -> None:

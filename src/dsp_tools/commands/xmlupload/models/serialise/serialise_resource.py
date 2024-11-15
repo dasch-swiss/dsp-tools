@@ -11,13 +11,12 @@ class SerialiseResource:
     res_id: str
     res_type: str
     label: str
-    project_context: ProjectContext
     permissions: str | None
     migration_metadata: MigrationMetadata | None
 
-    def serialise(self) -> dict[str, Any]:
+    def serialise(self, project_context: ProjectContext) -> dict[str, Any]:
         serialised = self.migration_metadata.to_dict() if self.migration_metadata else {}
-        serialised.update(self.project_context.to_dict())
+        serialised.update(project_context.to_dict())
         serialised.update(self._get_resource_info())
         return serialised
 

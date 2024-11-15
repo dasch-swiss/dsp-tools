@@ -118,10 +118,9 @@ class ResourceCreateClient:
             res_type=resource.restype,
             label=resource.label,
             permissions=permission_str,
-            project_context=context,
             migration_metadata=migration_metadata,
         )
-        res = serialise_resource.serialise()
+        res = serialise_resource.serialise(context)
         if bitstream_information:
             res.update(_make_bitstream_file_value(bitstream_information))
         return res

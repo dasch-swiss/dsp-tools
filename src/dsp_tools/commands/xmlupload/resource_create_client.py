@@ -249,35 +249,26 @@ def _make_iiif_uri_value(iiif_uri: IIIFUriInfo, res_bnode: BNode, permissions_lo
 def _make_bitstream_file_value(bitstream_info: BitstreamInfo) -> dict[str, Any]:
     local_file = Path(bitstream_info.local_file)
     file_ending = local_file.suffix[1:]
+    internal_filename = bitstream_info.internal_file_name
+    permissions = str(bitstream_info.permissions) if bitstream_info.permissions else None
     match file_ending.lower():
         case "zip" | "tar" | "gz" | "z" | "tgz" | "gzip" | "7z":
-            prop = "knora-api:hasArchiveFileValue"
-            value_type = "ArchiveFileValue"
+            return SerialiseArchiveFileValue(internal_filename, permissions).serialise()
         case "mp3" | "wav":
-            prop = "knora-api:hasAudioFileValue"
-            value_type = "AudioFileValue"
+            return SerialiseAudioFileValue(internal_filename, permissions).serialise()
         case "pdf" | "doc" | "docx" | "xls" | "xlsx" | "ppt" | "pptx":
-            prop = "knora-api:hasDocumentFileValue"
-            value_type = "DocumentFileValue"
+            return SerialiseDocumentFileValue(internal_filename, permissions).serialise()
         case "mp4":
-            prop = "knora-api:hasMovingImageFileValue"
-            value_type = "MovingImageFileValue"
+            return SerialiseMovingImageFileValue(internal_filename, permissions).serialise()
         # jpx is the extension of the files returned by dsp-ingest
         case "jpg" | "jpeg" | "jp2" | "png" | "tif" | "tiff" | "jpx":
-            prop = "knora-api:hasStillImageFileValue"
-            value_type = "StillImageFileValue"
+            return SerialiseStillImageFileValue(internal_filename, permissions).serialise()
         case "odd" | "rng" | "txt" | "xml" | "xsd" | "xsl" | "csv":
-            prop = "knora-api:hasTextFileValue"
-            value_type = "TextFileValue"
+            return SerialiseTextFileValue(internal_filename, permissions).serialise()
         case _:
             raise BaseError(f"Unknown file ending '{file_ending}' for file '{local_file}'")
-    file_value = {
-        "@type": f"knora-api:{value_type}",
-        "knora-api:fileValueHasFilename": bitstream_info.internal_file_name,
-    }
-    if bitstream_info.permissions:
-        file_value["knora-api:hasPermissions"] = str(bitstream_info.permissions)
-    return {prop: file_value}
+
+
 
 
 def _to_boolean(s: str | int | bool) -> bool:

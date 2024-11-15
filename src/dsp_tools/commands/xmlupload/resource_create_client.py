@@ -26,6 +26,12 @@ from dsp_tools.commands.xmlupload.models.namespace_context import get_json_ld_co
 from dsp_tools.commands.xmlupload.models.namespace_context import make_namespace_dict_from_onto_names
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.serialise.jsonld_serialiser import serialise_property_graph
+from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseArchiveFileValue
+from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseAudioFileValue
+from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseDocumentFileValue
+from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseMovingImageFileValue
+from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseStillImageFileValue
+from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseTextFileValue
 from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import BooleanValueRDF
 from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import IntValueRDF
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseColor
@@ -267,8 +273,6 @@ def _make_bitstream_file_value(bitstream_info: BitstreamInfo) -> dict[str, Any]:
             return SerialiseTextFileValue(internal_filename, permissions).serialise()
         case _:
             raise BaseError(f"Unknown file ending '{file_ending}' for file '{local_file}'")
-
-
 
 
 def _to_boolean(s: str | int | bool) -> bool:

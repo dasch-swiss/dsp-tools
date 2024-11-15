@@ -7,19 +7,19 @@ from rdflib.namespace import Namespace
 
 
 @dataclass(frozen=True)
-class JSONLDNamespaces:
-    namespaces: dict[str, Any]
+class JSONLDContext:
+    context: dict[str, Any]
 
     def serialise(self) -> dict[str, Any]:
-        return {"@context": self.namespaces}
+        return {"@context": self.context}
 
 
-def get_json_ld_context_for_project(ontos: dict[str, str]) -> JSONLDNamespaces:
+def get_json_ld_context_for_project(ontos: dict[str, str]) -> JSONLDContext:
     """Provided a dictionary of ontology names and IRIs, returns a JSON-LD context for the project."""
     context = _get_default_json_ld_context()
     project_context = _correct_project_context_namespaces(ontos)
     context.update(project_context)
-    return JSONLDNamespaces(context)
+    return JSONLDContext(context)
 
 
 def _get_default_json_ld_context() -> dict[str, str]:

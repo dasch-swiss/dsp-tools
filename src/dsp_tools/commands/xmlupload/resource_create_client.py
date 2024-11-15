@@ -22,7 +22,7 @@ from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XM
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
-from dsp_tools.commands.xmlupload.models.namespace_context import JSONLDNamespaces
+from dsp_tools.commands.xmlupload.models.namespace_context import JSONLDContext
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.serialise.jsonld_serialiser import serialise_property_graph
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseArchiveFileValue
@@ -67,7 +67,7 @@ class ResourceCreateClient:
     iri_resolver: IriResolver
     permissions_lookup: dict[str, Permissions]
     listnode_lookup: dict[str, str]
-    jsonld_namespaces: JSONLDNamespaces
+    jsonld_context: JSONLDContext
     namespaces: dict[str, Namespace]
     media_previously_ingested: bool = False
 
@@ -122,7 +122,7 @@ class ResourceCreateClient:
         res = serialise_resource.serialise()
         if bitstream_information:
             res.update(_make_bitstream_file_value(bitstream_information))
-        res.update(self.jsonld_namespaces.serialise())
+        res.update(self.jsonld_context.serialise())
         return res
 
     def _make_values(self, resource: XMLResource, res_bnode: BNode, namespaces: dict[str, Namespace]) -> dict[str, Any]:

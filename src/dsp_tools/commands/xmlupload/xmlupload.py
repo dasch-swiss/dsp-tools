@@ -249,7 +249,7 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
         con=clients.project_client.con,
         project_iri=project_iri,
         iri_resolver=upload_state.iri_resolver,
-        jsonld_namespaces=project_context,
+        jsonld_context=project_context,
         namespaces=namespaces,
         permissions_lookup=upload_state.permissions_lookup,
         listnode_lookup=listnode_lookup,

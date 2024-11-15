@@ -107,9 +107,10 @@ class ResourceCreateClient:
     ) -> dict[str, Any]:
         migration_metadata = None
         if resource.iri or resource.ark:
-            iri = resource.iri
             if resource.ark:
                 iri = convert_ark_v0_to_resource_iri(resource.ark)
+            else:
+                iri = cast(str, resource.iri)
             migration_metadata = MigrationMetadata(iri=iri, creation_date=resource.creation_date)
         permission_str = _get_permission_str(resource.permissions, self.permissions_lookup)
         context = ProjectContext(get_json_ld_context_for_project(self.project_onto_dict), self.project_iri)

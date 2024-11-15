@@ -4,7 +4,9 @@ from abc import ABC
 from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Any
+
 from dsp_tools.models.datetimestamp import DateTimeStamp
+
 
 @dataclass(frozen=True)
 class ProjectContext:
@@ -54,7 +56,7 @@ class MigrationMetadata:
     iri: str
 
     def to_dict(self) -> dict[str, Any]:
-        info = {"@id": self.iri}
+        info: dict[str, Any] = {"@id": self.iri}
         if self.creation_date:
             info["knora-api:creationDate"] = {
                 "@type": "xsd:dateTimeStamp",

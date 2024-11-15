@@ -7,14 +7,14 @@ from typing import TypeAlias
 from typing import Union
 from typing import assert_never
 
-from dsp_tools.utils.date_util import Date
-
 InputTypes: TypeAlias = Union[str]
-OutputTypes: TypeAlias = Union[str, Date]
+OutputTypes: TypeAlias = Union[str]
 
 
 @dataclass(frozen=True)
 class ValueTransformer(ABC):
+    """Class used to transform an input value."""
+
     @abstractmethod
     def transform(self, input_value: InputTypes) -> OutputTypes: ...
 

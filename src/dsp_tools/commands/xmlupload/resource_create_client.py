@@ -159,7 +159,9 @@ class ResourceCreateClient:
             "uri": SerialiseURI,
         }
 
-        value_with_transformer_mapper = {"decimal": (SerialiseDecimal, DecimalTransformer)}
+        value_with_transformer_mapper = {
+            "decimal": (SerialiseDecimal, DecimalTransformer()),
+        }
 
         for prop in resource.properties:
             match prop.valtype:
@@ -168,12 +170,16 @@ class ResourceCreateClient:
                     transformed_prop = _transform_into_serialise_prop(
                         prop=prop,
                         permissions_lookup=self.permissions_lookup,
-                        seraliser=str_value_to_serialiser_mapper[val_type],
+                        serialiser=str_value_to_serialiser_mapper[val_type],
                     )
                     properties_serialised.update(transformed_prop.serialise())
-                case "decimal":
-                    transformed_prop = _transform_into_decimal_prop(
-                        prop=prop, permissions_lookup=self.permissions_lookup
+                case "decimal" as val_type:
+                    serialiser, transformer = value_with_transformer_mapper[val_type]
+                    transformed_prop = _transform_into_serialise_prop_with_transformer(
+                        prop=prop,
+                        permissions_lookup=self.permissions_lookup,
+                        serialiser=serialiser,
+                        transformer=transformer,
                     )
                     properties_serialised.update(transformed_prop.serialise())
                 case "geometry":
@@ -469,11 +475,11 @@ def _transform_into_richtext_value(
 def _transform_into_serialise_prop_with_transformer(
     prop: XMLProperty,
     permissions_lookup: dict[str, Permissions],
-    seraliser: Callable[[str, str | None, str | None], SerialiseValue],
+    serialiser: Callable[[str, str | None, str | None], SerialiseValue],
     transformer: Callable[[str], ValueTransformer],
 ) -> SerialiseProperty:
     serialised_values = [
-        _transform_into_serialise_value_with_transformer(v, permissions_lookup, seraliser, transformer)
+        _transform_into_serialise_value_with_transformer(v, permissions_lookup, serialiser, transformer)
         for v in prop.values
     ]
     prop_serialise = SerialiseProperty(
@@ -497,9 +503,9 @@ def _transform_into_serialise_value_with_transformer(
 def _transform_into_serialise_prop(
     prop: XMLProperty,
     permissions_lookup: dict[str, Permissions],
-    seraliser: Callable[[str, str | None, str | None], SerialiseValue],
+    serialiser: Callable[[str, str | None, str | None], SerialiseValue],
 ) -> SerialiseProperty:
-    serialised_values = [_transform_into_serialise_value(v, permissions_lookup, seraliser) for v in prop.values]
+    serialised_values = [_transform_into_serialise_value(v, permissions_lookup, serialiser) for v in prop.values]
     prop_serialise = SerialiseProperty(
         property_name=prop.name,
         values=serialised_values,

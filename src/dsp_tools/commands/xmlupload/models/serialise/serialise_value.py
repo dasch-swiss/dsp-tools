@@ -13,7 +13,26 @@ from dsp_tools.utils.date_util import DayMonthYearEra
 from dsp_tools.utils.date_util import SingleDate
 from dsp_tools.utils.date_util import StartEnd
 
-ValueTypes: TypeAlias = Union[str, Date]
+
+@dataclass
+class Interval:
+    start: str
+    end: str
+
+    def interval_start(self) -> dict[str, str]:
+        return self._to_dict(self.start)
+
+    def interval_end(self) -> dict[str, str]:
+        return self._to_dict(self.end)
+
+    def _to_dict(self, interval_value: str) -> dict[str, str]:
+        return {
+            "@type": "xsd:decimal",
+            "@value": interval_value,
+        }
+
+
+ValueTypes: TypeAlias = Union[str, Date, Interval]
 
 
 @dataclass(frozen=True)
@@ -133,23 +152,18 @@ class SerialiseGeoname(SerialiseValue):
 
 
 class SerialiseInterval(SerialiseValue):
-    """A IntervalValue to be serialised."""
+    """An IntervalValue to be serialised."""
 
+    value: Interval
 
-@dataclass
-class Interval:
-    start: str
-    end: str
-
-    def interval_start(self) -> dict[str, str]: ...
-
-    def interval_end(self) -> dict[str, str]: ...
-
-    def _to_dict(self, inverval_value: str) -> dict[str, str]:
-        return {
-            "@type": "xsd:decimal",
-            "@value": inverval_value,
+    def serialise(self) -> dict[str, Any]:
+        serialised = {
+            "@type": "knora-api:IntervalValue",
+            "knora-api:intervalValueHasStart": self.value.interval_start(),
+            "knora-api:intervalValueHasEnd": self.value.interval_end(),
         }
+        serialised.update(self._get_optionals())
+        return serialised
 
 
 class SerialiseSimpletext(SerialiseValue):

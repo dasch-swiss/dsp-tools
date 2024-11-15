@@ -64,7 +64,7 @@ class AudioSegmentDeserialised(AbstractResource): ...
 
 
 @dataclass
-class ValueDeserialised:
+class ValueDeserialised(ABC):
     prop_name: str
     object_value: str | None
 

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import warnings
 from abc import ABC
+from abc import abstractmethod
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime
@@ -146,12 +147,15 @@ class InputProblem(ABC):
     prop_name: str
 
     @property
+    @abstractmethod
     def problem(self) -> str:
         raise NotImplementedError
 
+    @abstractmethod
     def get_msg(self) -> str:
         raise NotImplementedError
 
+    @abstractmethod
     def to_dict(self) -> dict[str, str]:
         raise NotImplementedError
 
@@ -163,6 +167,7 @@ class InputProblem(ABC):
             "Problem": self.problem,
         }
 
+    @abstractmethod
     def sort_value(self) -> str:
         raise NotImplementedError
 

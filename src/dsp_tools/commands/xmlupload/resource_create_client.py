@@ -95,7 +95,7 @@ class ResourceCreateClient:
             resource=resource,
             bitstream_information=bitstream_information,
         )
-        vals = self._make_values(resource, res_bnode, self.namespaces)
+        vals = self._make_values(resource, res_bnode)
         res.update(vals)
         return res
 
@@ -125,7 +125,7 @@ class ResourceCreateClient:
         res.update(self.jsonld_context.serialise())
         return res
 
-    def _make_values(self, resource: XMLResource, res_bnode: BNode, namespaces: dict[str, Namespace]) -> dict[str, Any]:
+    def _make_values(self, resource: XMLResource, res_bnode: BNode) -> dict[str, Any]:
         def prop_name(p: XMLProperty) -> str:
             if p.valtype != "resptr":
                 return p.name
@@ -186,12 +186,12 @@ class ResourceCreateClient:
                     properties_serialised.update(transformed_prop.serialise())
                 # serialised with rdflib
                 case "integer":
-                    int_prop_name = self._get_absolute_prop_iri(prop.name, namespaces)
+                    int_prop_name = self._get_absolute_prop_iri(prop.name)
                     int_graph = _make_integer_prop(prop, res_bnode, int_prop_name, self.permissions_lookup)
                     properties_graph += int_graph
                     last_prop_name = int_prop_name
                 case "boolean":
-                    bool_prop_name = self._get_absolute_prop_iri(prop.name, namespaces)
+                    bool_prop_name = self._get_absolute_prop_iri(prop.name)
                     bool_graph = _make_boolean_prop(prop, res_bnode, bool_prop_name, self.permissions_lookup)
                     properties_graph += bool_graph
                     last_prop_name = bool_prop_name
@@ -206,9 +206,9 @@ class ResourceCreateClient:
             properties_serialised.update(serialised_graph_props)
         return properties_serialised
 
-    def _get_absolute_prop_iri(self, prefixed_prop: str, namespaces: dict[str, Namespace]) -> URIRef:
+    def _get_absolute_prop_iri(self, prefixed_prop: str) -> URIRef:
         prefix, prop = prefixed_prop.split(":", maxsplit=1)
-        if not (namespace := namespaces.get(prefix)):
+        if not (namespace := self.namespaces.get(prefix)):
             raise InputError(f"Could not find namespace for prefix: {prefix}")
         return namespace[prop]
 

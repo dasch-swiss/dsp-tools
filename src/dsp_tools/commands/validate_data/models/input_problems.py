@@ -148,16 +148,13 @@ class InputProblem(ABC):
 
     @property
     @abstractmethod
-    def problem(self) -> str:
-        raise NotImplementedError
+    def problem(self) -> str: ...
 
     @abstractmethod
-    def get_msg(self) -> str:
-        raise NotImplementedError
+    def get_msg(self) -> str: ...
 
     @abstractmethod
-    def to_dict(self) -> dict[str, str]:
-        raise NotImplementedError
+    def to_dict(self) -> dict[str, str]: ...
 
     def _base_dict(self) -> dict[str, str]:
         return {
@@ -168,8 +165,7 @@ class InputProblem(ABC):
         }
 
     @abstractmethod
-    def sort_value(self) -> str:
-        raise NotImplementedError
+    def sort_value(self) -> str: ...
 
 
 #######################

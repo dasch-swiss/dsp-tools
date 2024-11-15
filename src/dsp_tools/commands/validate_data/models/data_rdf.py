@@ -30,8 +30,7 @@ class DataRDF:
 
 class RDFTriples(ABC):
     @abstractmethod
-    def make_graph(self) -> Graph:
-        raise NotImplementedError
+    def make_graph(self) -> Graph: ...
 
 
 @dataclass
@@ -222,8 +221,7 @@ class AbstractFileValueRDF(RDFTriples):
     value: Literal
 
     @abstractmethod
-    def make_graph(self) -> Graph:
-        raise NotImplementedError
+    def make_graph(self) -> Graph: ...
 
 
 @dataclass

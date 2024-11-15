@@ -59,7 +59,7 @@ class SerialiseColor(SerialiseValue):
         return serialised
 
 
-class SerialiseDateValue(SerialiseValue):
+class SerialiseDate(SerialiseValue):
     """A DateValue to be serialised."""
 
     value: Date

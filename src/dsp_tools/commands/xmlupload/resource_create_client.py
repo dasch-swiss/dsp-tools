@@ -35,7 +35,7 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import S
 from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import BooleanValueRDF
 from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import IntValueRDF
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseColor
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseDateValue
+from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseDate
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseDecimal
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseGeometry
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseGeoname
@@ -295,11 +295,11 @@ def _transform_into_date_prop(prop: XMLProperty, permissions_lookup: dict[str, P
     return SerialiseProperty(property_name=prop.name, values=vals)
 
 
-def _transform_into_date_value(value: XMLValue, permissions_lookup: dict[str, Permissions]) -> SerialiseDateValue:
+def _transform_into_date_value(value: XMLValue, permissions_lookup: dict[str, Permissions]) -> SerialiseDate:
     string_value = _assert_is_string(value.value)
     date = parse_date_string(string_value)
     permission_str = _get_permission_str(value.permissions, permissions_lookup)
-    return SerialiseDateValue(value=date, permissions=permission_str, comment=value.comment)
+    return SerialiseDate(value=date, permissions=permission_str, comment=value.comment)
 
 
 def _transform_into_decimal_prop(prop: XMLProperty, permissions_lookup: dict[str, Permissions]) -> SerialiseProperty:

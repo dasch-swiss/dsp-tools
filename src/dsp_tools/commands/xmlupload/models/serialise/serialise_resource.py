@@ -17,12 +17,12 @@ class SerialiseResource:
 
     def serialise(self) -> dict[str, Any]:
         serialised = self.migration_metadata.to_dict() if self.migration_metadata else {}
+        serialised.update(self.project_context.to_dict())
         serialised.update(self._get_resource_info())
         return serialised
 
     def _get_resource_info(self) -> dict[str, Any]:
-        serialised = self.project_context.to_dict()
-        serialised.update({"rdfs:label": self.label, "@type": self.res_type})
+        serialised = {"rdfs:label": self.label, "@type": self.res_type}
         if self.permissions:
             serialised["knora-api:hasPermissions"] = self.permissions
         return serialised

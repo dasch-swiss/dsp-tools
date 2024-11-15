@@ -8,10 +8,10 @@ from rdflib.namespace import Namespace
 
 @dataclass(frozen=True)
 class JSONLDNamespaces:
-    context: dict[str, Any]
+    namespaces: dict[str, Any]
 
     def serialise(self) -> dict[str, Any]:
-        return {"@context": self.context}
+        return {"@context": self.namespaces}
 
 
 def get_json_ld_context_for_project(ontos: dict[str, str]) -> JSONLDNamespaces:

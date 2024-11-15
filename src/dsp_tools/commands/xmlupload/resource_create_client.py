@@ -67,7 +67,7 @@ class ResourceCreateClient:
     iri_resolver: IriResolver
     permissions_lookup: dict[str, Permissions]
     listnode_lookup: dict[str, str]
-    project_context: JSONLDNamespaces
+    jsonld_namespaces: JSONLDNamespaces
     namespaces: dict[str, Namespace]
     media_previously_ingested: bool = False
 
@@ -122,7 +122,7 @@ class ResourceCreateClient:
         res = serialise_resource.serialise()
         if bitstream_information:
             res.update(_make_bitstream_file_value(bitstream_information))
-        res.update(self.project_context.serialise())
+        res.update(self.jsonld_namespaces.serialise())
         return res
 
     def _make_values(self, resource: XMLResource, res_bnode: BNode, namespaces: dict[str, Namespace]) -> dict[str, Any]:

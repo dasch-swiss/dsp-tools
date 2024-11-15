@@ -18,7 +18,7 @@ from dsp_tools.utils.connection import Connection
 def upload_stashed_resptr_props(
     upload_state: UploadState,
     con: Connection,
-    context: JSONLDNamespaces,
+    jsonld_namespaces: JSONLDNamespaces,
 ) -> None:
     """
     After all resources are uploaded, the stashed resptr props must be applied to their resources in DSP.
@@ -27,7 +27,7 @@ def upload_stashed_resptr_props(
     Args:
         upload_state: the current state of the upload
         con: connection to DSP
-        context: the JSON-LD context of the resource
+        jsonld_namespaces: the JSON-LD context of the resource
     """
 
     print(f"{datetime.now()}: Upload the stashed resptrs...")
@@ -48,7 +48,7 @@ def upload_stashed_resptr_props(
             target_iri = upload_state.iri_resolver.get(stash_item.target_id)
             if not target_iri:
                 continue
-            if _upload_stash_item(stash_item, res_iri, target_iri, con, context):
+            if _upload_stash_item(stash_item, res_iri, target_iri, con, jsonld_namespaces):
                 link_value_stash.res_2_stash_items[res_id].remove(stash_item)
         # remove res_id if all stash items were uploaded
         if not link_value_stash.res_2_stash_items[res_id]:
@@ -60,7 +60,7 @@ def _upload_stash_item(
     res_iri: str,
     target_iri: str,
     con: Connection,
-    context: JSONLDNamespaces,
+    jsonld_namespaces: JSONLDNamespaces,
 ) -> bool:
     """
     Upload a single stashed link value to DSP.
@@ -70,12 +70,12 @@ def _upload_stash_item(
         res_iri: the iri of the resource
         target_iri: the iri of the target resource
         con: connection to DSP
-        context: the JSON-LD context of the resource
+        jsonld_namespaces: the JSON-LD context of the resource
 
     Returns:
         True, if the upload was successful, False otherwise
     """
-    payload = _create_resptr_prop_json_object_to_update(stash, res_iri, target_iri, context)
+    payload = _create_resptr_prop_json_object_to_update(stash, res_iri, target_iri, jsonld_namespaces)
     try:
         con.post(route="/v2/values", data=payload)
     except BaseError as err:
@@ -95,7 +95,7 @@ def _create_resptr_prop_json_object_to_update(
     stash: LinkValueStashItem,
     res_iri: str,
     target_iri: str,
-    context: JSONLDNamespaces,
+    jsonld_namespaces: JSONLDNamespaces,
 ) -> dict[str, Any]:
     """This function creates a JSON object that can be sent as an update request to the DSP-API."""
     linkVal = {
@@ -109,5 +109,5 @@ def _create_resptr_prop_json_object_to_update(
         "@type": stash.res_type,
         f"{stash.prop_name}Value": linkVal,
     }
-    jsonobj.update(context.serialise())
+    jsonobj.update(jsonld_namespaces.serialise())
     return jsonobj

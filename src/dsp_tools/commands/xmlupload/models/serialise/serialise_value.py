@@ -59,8 +59,10 @@ class SerialiseDateValue(SerialiseValue):
     value: Date
 
     def serialise(self) -> dict[str, Any]:
-        serialised = self._get_one_date_dict(self.value.start, StartEnd.START)
-
+        serialised = {"@type": "knora-api:DateValue"}
+        serialised.update(self._get_one_date_dict(self.value.start, StartEnd.START))
+        serialised.update(self._get_one_date_dict(self.value.end, StartEnd.END))
+        return serialised
 
     def _get_one_date_dict(self, date: SingleDate, start_end: StartEnd) -> dict[str, str]:
         def get_prop(precision: DayMonthYearEra) -> str:

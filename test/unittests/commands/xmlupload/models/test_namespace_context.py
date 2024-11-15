@@ -1,11 +1,11 @@
 import pytest
 
-from dsp_tools.commands.xmlupload.models.namespace_context import get_default_json_ld_context
+from dsp_tools.commands.xmlupload.models.namespace_context import _get_default_json_ld_context
 from dsp_tools.commands.xmlupload.models.namespace_context import get_json_ld_context_for_project
 
 
 def test_get_default_context() -> None:
-    context = get_default_json_ld_context()
+    context = _get_default_json_ld_context()
     expected = {
         "knora-api": "http://api.knora.org/ontology/knora-api/v2#",
         "salsah-gui": "http://api.knora.org/ontology/salsah-gui/v2#",

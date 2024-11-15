@@ -476,7 +476,7 @@ def _transform_into_serialise_prop_with_transformer(
     prop: XMLProperty,
     permissions_lookup: dict[str, Permissions],
     serialiser: Callable[[str, str | None, str | None], SerialiseValue],
-    transformer: Callable[[str], ValueTransformer],
+    transformer: ValueTransformer,
 ) -> SerialiseProperty:
     serialised_values = [
         _transform_into_serialise_value_with_transformer(v, permissions_lookup, serialiser, transformer)
@@ -493,7 +493,7 @@ def _transform_into_serialise_value_with_transformer(
     value: XMLValue,
     permissions_lookup: dict[str, Permissions],
     serialiser: Callable[[str, str | None, str | None], SerialiseValue],
-    transformer: Callable[[str], ValueTransformer],
+    transformer: ValueTransformer,
 ) -> SerialiseValue:
     transformed = transformer.transform(value.value)
     permission_str = _get_permission_str(value.permissions, permissions_lookup)

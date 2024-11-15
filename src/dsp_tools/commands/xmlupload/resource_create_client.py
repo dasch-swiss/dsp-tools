@@ -36,6 +36,7 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import In
 from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import MigrationMetadata
 from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseResource
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseColor
+from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseDate
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseDecimal
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseGeometry
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseGeoname
@@ -177,6 +178,12 @@ class ResourceCreateClient:
                         iri_resolver=self.iri_resolver,
                     )
                     properties_serialised.update(transformed_prop.serialise())
+                case "date":
+                    transformed_prop = _transform_into_date_prop(
+                        prop=prop,
+                        permissions_lookup=self.permissions_lookup,
+                    )
+                    properties_serialised.update(transformed_prop.serialise())
                 # serialised with rdflib
                 case "integer":
                     int_prop_name = self._get_absolute_prop_iri(prop.name, namespaces)
@@ -207,8 +214,6 @@ class ResourceCreateClient:
 
     def _make_value(self, value: XMLValue, value_type: str) -> dict[str, Any]:
         match value_type:
-            case "date":
-                res = _make_date_value(value)
             case "interval":
                 res = _make_interval_value(value)
             case "resptr":
@@ -279,30 +284,16 @@ def _to_boolean(s: str | int | bool) -> bool:
             raise BaseError(f"Could not parse boolean value: {s}")
 
 
-def _make_date_value(value: XMLValue) -> dict[str, Any]:
+def _transform_into_date_prop(prop: XMLProperty, permissions_lookup: dict[str, Permissions]) -> SerialiseProperty:
+    vals = [_transform_into_date_value(v, permissions_lookup) for v in prop.values]
+    return SerialiseProperty(property_name=prop.name, values=vals)
+
+
+def _transform_into_date_value(value: XMLValue, permissions_lookup: dict[str, Permissions]) -> SerialiseDate:
     string_value = _assert_is_string(value.value)
     date = parse_date_string(string_value)
-    res: dict[str, Any] = {
-        "@type": "knora-api:DateValue",
-        "knora-api:dateValueHasStartYear": date.start.year,
-    }
-    if month := date.start.month:
-        res["knora-api:dateValueHasStartMonth"] = month
-    if day := date.start.day:
-        res["knora-api:dateValueHasStartDay"] = day
-    if era := date.start.era:
-        res["knora-api:dateValueHasStartEra"] = era.value
-    if calendar := date.calendar:
-        res["knora-api:dateValueHasCalendar"] = calendar.value
-    if date.end:
-        res["knora-api:dateValueHasEndYear"] = date.end.year
-        if month := date.end.month:
-            res["knora-api:dateValueHasEndMonth"] = month
-        if day := date.end.day:
-            res["knora-api:dateValueHasEndDay"] = day
-        if era := date.end.era:
-            res["knora-api:dateValueHasEndEra"] = era.value
-    return res
+    permission_str = _get_permission_str(value.permissions, permissions_lookup)
+    return SerialiseDate(value=date, permissions=permission_str, comment=value.comment)
 
 
 def _transform_into_decimal_prop(prop: XMLProperty, permissions_lookup: dict[str, Permissions]) -> SerialiseProperty:

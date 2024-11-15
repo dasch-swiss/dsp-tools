@@ -28,7 +28,7 @@ def test_get_json_ld_context_for_project() -> None:
         "xsd": "http://www.w3.org/2001/XMLSchema#",
         "testonto": "http://www.knora.org/ontology/testonto#",
     }
-    assert context == expected
+    assert context.serialise() == expected
 
 
 def test_get_json_ld_context_for_project_with_multiple_ontologies() -> None:
@@ -48,7 +48,7 @@ def test_get_json_ld_context_for_project_with_multiple_ontologies() -> None:
         "testonto": "http://www.knora.org/ontology/testonto#",
         "testonto2": "http://www.knora.org/ontology/testonto2#",
     }
-    assert context == expected
+    assert context.serialise() == expected
 
 
 if __name__ == "__main__":

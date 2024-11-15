@@ -45,6 +45,8 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_value import Serial
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseTime
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseURI
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseValue
+from dsp_tools.commands.xmlupload.models.value_transformers import DecimalTransformer
+from dsp_tools.commands.xmlupload.models.value_transformers import ValueTransformer
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import PermissionNotExistsError
@@ -156,6 +158,8 @@ class ResourceCreateClient:
             "time": SerialiseTime,
             "uri": SerialiseURI,
         }
+
+        value_with_transformer_mapper = {"decimal": (SerialiseDecimal, DecimalTransformer)}
 
         for prop in resource.properties:
             match prop.valtype:
@@ -460,6 +464,34 @@ def _transform_into_richtext_value(
     val_str = xml_with_iris.as_xml()
     permission_str = _get_permission_str(val.permissions, permissions_lookup)
     return SerialiseRichtext(value=val_str, permissions=permission_str, comment=val.comment)
+
+
+def _transform_into_serialise_prop_with_transformer(
+    prop: XMLProperty,
+    permissions_lookup: dict[str, Permissions],
+    seraliser: Callable[[str, str | None, str | None], SerialiseValue],
+    transformer: Callable[[str], ValueTransformer],
+) -> SerialiseProperty:
+    serialised_values = [
+        _transform_into_serialise_value_with_transformer(v, permissions_lookup, seraliser, transformer)
+        for v in prop.values
+    ]
+    prop_serialise = SerialiseProperty(
+        property_name=prop.name,
+        values=serialised_values,
+    )
+    return prop_serialise
+
+
+def _transform_into_serialise_value_with_transformer(
+    value: XMLValue,
+    permissions_lookup: dict[str, Permissions],
+    serialiser: Callable[[str, str | None, str | None], SerialiseValue],
+    transformer: Callable[[str], ValueTransformer],
+) -> SerialiseValue:
+    transformed = transformer.transform(value.value)
+    permission_str = _get_permission_str(value.permissions, permissions_lookup)
+    return serialiser(transformed, permission_str, value.comment)
 
 
 def _transform_into_serialise_prop(

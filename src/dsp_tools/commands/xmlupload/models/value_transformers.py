@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+import json
 from abc import ABC
 from abc import abstractmethod
-from dataclasses import dataclass
 from typing import Any
 from typing import TypeAlias
 from typing import Union
@@ -10,12 +10,13 @@ from typing import assert_never
 
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.models.exceptions import BaseError
+from dsp_tools.utils.date_util import Date
+from dsp_tools.utils.date_util import parse_date_string
 
 InputTypes: TypeAlias = Union[str, FormattedTextValue]
-OutputTypes: TypeAlias = Union[str]
+OutputTypes: TypeAlias = Union[str, Date]
 
 
-@dataclass(frozen=True)
 class ValueTransformer(ABC):
     """Class used to transform an input value."""
 
@@ -33,7 +34,24 @@ class ValueTransformer(ABC):
                 assert_never(value)
 
 
+class DateTransformer(ValueTransformer):
+    def transform(self, input_value: Any) -> Date:
+        val = self._assert_is_string(input_value)
+        return parse_date_string(val)
+
+
 class DecimalTransformer(ValueTransformer):
     def transform(self, input_value: Any) -> str:
         val = self._assert_is_string(input_value)
         return str(float(val))
+
+
+class GeometryTransformer(ValueTransformer):
+    def transform(self, input_value: Any) -> str:
+        val = self._assert_is_string(input_value)
+        return json.dumps(json.loads(val))
+
+
+class StringTransformer(ValueTransformer):
+    def transform(self, input_value: Any) -> str:
+        return self._assert_is_string(input_value)

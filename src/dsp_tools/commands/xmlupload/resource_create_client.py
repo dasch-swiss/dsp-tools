@@ -1,4 +1,3 @@
-import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -45,14 +44,17 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_value import Serial
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseTime
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseURI
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseValue
+from dsp_tools.commands.xmlupload.models.serialise.serialise_value import ValueTypes
+from dsp_tools.commands.xmlupload.models.value_transformers import DateTransformer
 from dsp_tools.commands.xmlupload.models.value_transformers import DecimalTransformer
+from dsp_tools.commands.xmlupload.models.value_transformers import GeometryTransformer
+from dsp_tools.commands.xmlupload.models.value_transformers import StringTransformer
 from dsp_tools.commands.xmlupload.models.value_transformers import ValueTransformer
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import PermissionNotExistsError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.connection import Connection
-from dsp_tools.utils.date_util import parse_date_string
 from dsp_tools.utils.iri_util import is_resource_iri
 from dsp_tools.utils.logger_config import WARNINGS_SAVEPATH
 
@@ -153,38 +155,25 @@ class ResourceCreateClient:
         last_prop_name = None
 
         str_value_to_serialiser_mapper = {
-            "color": SerialiseColor,
-            "geoname": SerialiseGeoname,
-            "time": SerialiseTime,
-            "uri": SerialiseURI,
-        }
-
-        value_with_transformer_mapper = {
+            "color": (SerialiseColor, StringTransformer()),
+            "date": (SerialiseDate, DateTransformer()),
             "decimal": (SerialiseDecimal, DecimalTransformer()),
+            "geometry": (SerialiseGeometry, GeometryTransformer()),
+            "geoname": (SerialiseGeoname, StringTransformer()),
+            "time": (SerialiseTime, StringTransformer()),
+            "uri": (SerialiseURI, StringTransformer()),
         }
 
         for prop in resource.properties:
             match prop.valtype:
                 # serialised as dict
-                case "uri" | "color" | "geoname" | "time" as val_type:
+                case "uri" | "color" | "geoname" | "time" | "decimal" | "geometry" | "date" as val_type:
+                    serialiser, transformer = str_value_to_serialiser_mapper[val_type]
                     transformed_prop = _transform_into_serialise_prop(
-                        prop=prop,
-                        permissions_lookup=self.permissions_lookup,
-                        serialiser=str_value_to_serialiser_mapper[val_type],
-                    )
-                    properties_serialised.update(transformed_prop.serialise())
-                case "decimal" as val_type:
-                    serialiser, transformer = value_with_transformer_mapper[val_type]
-                    transformed_prop = _transform_into_serialise_prop_with_transformer(
                         prop=prop,
                         permissions_lookup=self.permissions_lookup,
                         serialiser=serialiser,
                         transformer=transformer,
-                    )
-                    properties_serialised.update(transformed_prop.serialise())
-                case "geometry":
-                    transformed_prop = _transform_into_geometry_prop(
-                        prop=prop, permissions_lookup=self.permissions_lookup
                     )
                     properties_serialised.update(transformed_prop.serialise())
                 case "text":
@@ -192,12 +181,6 @@ class ResourceCreateClient:
                         prop=prop,
                         permissions_lookup=self.permissions_lookup,
                         iri_resolver=self.iri_resolver,
-                    )
-                    properties_serialised.update(transformed_prop.serialise())
-                case "date":
-                    transformed_prop = _transform_into_date_prop(
-                        prop=prop,
-                        permissions_lookup=self.permissions_lookup,
                     )
                     properties_serialised.update(transformed_prop.serialise())
                 # serialised with rdflib
@@ -246,6 +229,33 @@ class ResourceCreateClient:
             else:
                 raise PermissionNotExistsError(f"Could not find permissions for value: {value.permissions}")
         return res
+
+
+def _transform_into_serialise_prop(
+    prop: XMLProperty,
+    permissions_lookup: dict[str, Permissions],
+    serialiser: Callable[[ValueTypes, str | None, str | None], SerialiseValue],
+    transformer: ValueTransformer,
+) -> SerialiseProperty:
+    serialised_values = [
+        _transform_into_serialise_value(v, permissions_lookup, serialiser, transformer) for v in prop.values
+    ]
+    prop_serialise = SerialiseProperty(
+        property_name=prop.name,
+        values=serialised_values,
+    )
+    return prop_serialise
+
+
+def _transform_into_serialise_value(
+    value: XMLValue,
+    permissions_lookup: dict[str, Permissions],
+    serialiser: Callable[[ValueTypes, str | None, str | None], SerialiseValue],
+    transformer: ValueTransformer,
+) -> SerialiseValue:
+    transformed = transformer.transform(value.value)
+    permission_str = _get_permission_str(value.permissions, permissions_lookup)
+    return serialiser(transformed, permission_str, value.comment)
 
 
 def _add_optional_permission_triple(
@@ -298,43 +308,6 @@ def _to_boolean(s: str | int | bool) -> bool:
             return False
         case _:
             raise BaseError(f"Could not parse boolean value: {s}")
-
-
-def _transform_into_date_prop(prop: XMLProperty, permissions_lookup: dict[str, Permissions]) -> SerialiseProperty:
-    vals = [_transform_into_date_value(v, permissions_lookup) for v in prop.values]
-    return SerialiseProperty(property_name=prop.name, values=vals)
-
-
-def _transform_into_date_value(value: XMLValue, permissions_lookup: dict[str, Permissions]) -> SerialiseDate:
-    string_value = _assert_is_string(value.value)
-    date = parse_date_string(string_value)
-    permission_str = _get_permission_str(value.permissions, permissions_lookup)
-    return SerialiseDate(value=date, permissions=permission_str, comment=value.comment)
-
-
-def _transform_into_decimal_prop(prop: XMLProperty, permissions_lookup: dict[str, Permissions]) -> SerialiseProperty:
-    vals = [_transform_into_decimal_value(v, permissions_lookup) for v in prop.values]
-    return SerialiseProperty(property_name=prop.name, values=vals)
-
-
-def _transform_into_decimal_value(value: XMLValue, permissions_lookup: dict[str, Permissions]) -> SerialiseDecimal:
-    s = _assert_is_string(value.value)
-    val = str(float(s))
-    permission_str = _get_permission_str(value.permissions, permissions_lookup)
-    return SerialiseDecimal(value=val, permissions=permission_str, comment=value.comment)
-
-
-def _transform_into_geometry_prop(prop: XMLProperty, permissions_lookup: dict[str, Permissions]) -> SerialiseProperty:
-    vals = [_transform_into_geometry_value(v, permissions_lookup) for v in prop.values]
-    return SerialiseProperty(property_name=prop.name, values=vals)
-
-
-def _transform_into_geometry_value(value: XMLValue, permissions_lookup: dict[str, Permissions]) -> SerialiseGeometry:
-    s = _assert_is_string(value.value)
-    # this removes all whitespaces from the embedded json string
-    encoded_value = json.dumps(json.loads(s))
-    permission_str = _get_permission_str(value.permissions, permissions_lookup)
-    return SerialiseGeometry(value=encoded_value, permissions=permission_str, comment=value.comment)
 
 
 def _make_boolean_prop(
@@ -454,7 +427,14 @@ def _transform_text_prop(
     for val in prop.values:
         match val.value:
             case str():
-                values.append(_transform_into_serialise_value(val, permissions_lookup, SerialiseSimpletext))
+                values.append(
+                    _transform_into_serialise_value(
+                        value=val,
+                        permissions_lookup=permissions_lookup,
+                        serialiser=SerialiseSimpletext,
+                        transformer=StringTransformer(),
+                    )
+                )
             case FormattedTextValue():
                 values.append(_transform_into_richtext_value(val, permissions_lookup, iri_resolver))
             case _:
@@ -470,57 +450,6 @@ def _transform_into_richtext_value(
     val_str = xml_with_iris.as_xml()
     permission_str = _get_permission_str(val.permissions, permissions_lookup)
     return SerialiseRichtext(value=val_str, permissions=permission_str, comment=val.comment)
-
-
-def _transform_into_serialise_prop_with_transformer(
-    prop: XMLProperty,
-    permissions_lookup: dict[str, Permissions],
-    serialiser: Callable[[str, str | None, str | None], SerialiseValue],
-    transformer: ValueTransformer,
-) -> SerialiseProperty:
-    serialised_values = [
-        _transform_into_serialise_value_with_transformer(v, permissions_lookup, serialiser, transformer)
-        for v in prop.values
-    ]
-    prop_serialise = SerialiseProperty(
-        property_name=prop.name,
-        values=serialised_values,
-    )
-    return prop_serialise
-
-
-def _transform_into_serialise_value_with_transformer(
-    value: XMLValue,
-    permissions_lookup: dict[str, Permissions],
-    serialiser: Callable[[str, str | None, str | None], SerialiseValue],
-    transformer: ValueTransformer,
-) -> SerialiseValue:
-    transformed = transformer.transform(value.value)
-    permission_str = _get_permission_str(value.permissions, permissions_lookup)
-    return serialiser(transformed, permission_str, value.comment)
-
-
-def _transform_into_serialise_prop(
-    prop: XMLProperty,
-    permissions_lookup: dict[str, Permissions],
-    serialiser: Callable[[str, str | None, str | None], SerialiseValue],
-) -> SerialiseProperty:
-    serialised_values = [_transform_into_serialise_value(v, permissions_lookup, serialiser) for v in prop.values]
-    prop_serialise = SerialiseProperty(
-        property_name=prop.name,
-        values=serialised_values,
-    )
-    return prop_serialise
-
-
-def _transform_into_serialise_value(
-    value: XMLValue,
-    permissions_lookup: dict[str, Permissions],
-    serialiser: Callable[[str, str | None, str | None], SerialiseValue],
-) -> SerialiseValue:
-    permission_str = _get_permission_str(value.permissions, permissions_lookup)
-    value_str = cast(str, value.value)
-    return serialiser(value_str, permission_str, value.comment)
 
 
 def _get_permission_str(value_permissions: str | None, permissions_lookup: dict[str, Permissions]) -> str | None:

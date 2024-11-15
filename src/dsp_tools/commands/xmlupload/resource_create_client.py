@@ -34,11 +34,13 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import S
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseTextFileValue
 from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import BooleanValueRDF
 from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import IntValueRDF
+from dsp_tools.commands.xmlupload.models.serialise.serialise_value import Interval
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseColor
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseDate
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseDecimal
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseGeometry
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseGeoname
+from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseInterval
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseProperty
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseRichtext
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseSimpletext
@@ -190,6 +192,12 @@ class ResourceCreateClient:
                         permissions_lookup=self.permissions_lookup,
                     )
                     properties_serialised.update(transformed_prop.serialise())
+                case "interval":
+                    transformed_prop = _transform_into_interval_prop(
+                        prop=prop,
+                        permissions_lookup=self.permissions_lookup,
+                    )
+                    properties_serialised.update(transformed_prop.serialise())
                 # serialised with rdflib
                 case "integer":
                     int_prop_name = self._get_absolute_prop_iri(prop.name, namespaces)
@@ -220,8 +228,6 @@ class ResourceCreateClient:
 
     def _make_value(self, value: XMLValue, value_type: str) -> dict[str, Any]:
         match value_type:
-            case "interval":
-                res = _make_interval_value(value)
             case "resptr":
                 res = _make_link_value(value, self.iri_resolver)
             case "list":
@@ -380,21 +386,18 @@ def _make_integer_value(
     )
 
 
-def _make_interval_value(value: XMLValue) -> dict[str, Any]:
+def _transform_into_interval_prop(prop: XMLProperty, permissions_lookup: dict[str, Permissions]) -> SerialiseProperty:
+    vals = [_transform_into_interval_value(v, permissions_lookup) for v in prop.values]
+    return SerialiseProperty(property_name=prop.name, values=vals)
+
+
+def _transform_into_interval_value(value: XMLValue, permissions_lookup: dict[str, Permissions]) -> SerialiseInterval:
     s = _assert_is_string(value.value)
     match s.split(":", 1):
         case [start, end]:
-            return {
-                "@type": "knora-api:IntervalValue",
-                "knora-api:intervalValueHasStart": {
-                    "@type": "xsd:decimal",
-                    "@value": str(float(start)),
-                },
-                "knora-api:intervalValueHasEnd": {
-                    "@type": "xsd:decimal",
-                    "@value": str(float(end)),
-                },
-            }
+            interval = Interval(str(float(start)), str(float(end)))
+            permission_str = _get_permission_str(value.permissions, permissions_lookup)
+            return SerialiseInterval(value=interval, permissions=permission_str, comment=value.comment)
         case _:
             raise BaseError(f"Could not parse interval value: {s}")
 

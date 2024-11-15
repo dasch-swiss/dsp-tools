@@ -75,7 +75,7 @@ class SerialiseDateValue(SerialiseValue):
 
     def _get_one_date_dict(self, date: SingleDate, start_end: StartEnd) -> dict[str, Any]:
         def get_prop(precision: DayMonthYearEra) -> str:
-            return f"knora-api:dateValueHas{start_end!s}{precision!s}"
+            return f"knora-api:dateValueHas{start_end.value}{precision.value}"
 
         date_dict: dict[str, Any] = {get_prop(DayMonthYearEra.YEAR): date.year} if date.year else {}
         if date.month:

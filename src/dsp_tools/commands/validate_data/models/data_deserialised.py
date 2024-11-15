@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from abc import ABC
 from dataclasses import dataclass
 
 from lxml import etree
@@ -32,7 +31,7 @@ class DataDeserialised:
 
 
 @dataclass
-class AbstractResource(ABC):
+class AbstractResource:
     res_id: str
     label: str
 
@@ -64,7 +63,7 @@ class AudioSegmentDeserialised(AbstractResource): ...
 
 
 @dataclass
-class ValueDeserialised(ABC):
+class ValueDeserialised:
     prop_name: str
     object_value: str | None
 
@@ -119,7 +118,7 @@ class UriValueDeserialised(ValueDeserialised): ...
 
 
 @dataclass
-class AbstractFileValueDeserialised(ABC):
+class AbstractFileValueDeserialised:
     res_id: str
     value: str | None
 

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from abc import ABC
 from dataclasses import dataclass
 
 from rdflib import Graph
@@ -75,7 +74,7 @@ class DetailBaseInfo:
 
 
 @dataclass
-class ValidationResult(ABC):
+class ValidationResult:
     res_iri: Node
     res_class: Node
     property: Node

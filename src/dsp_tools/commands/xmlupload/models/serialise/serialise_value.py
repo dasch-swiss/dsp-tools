@@ -6,6 +6,11 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Any
 
+from dsp_tools.utils.date_util import Date
+from dsp_tools.utils.date_util import DayMonthYearEra
+from dsp_tools.utils.date_util import SingleDate
+from dsp_tools.utils.date_util import StartEnd
+
 
 @dataclass(frozen=True)
 class SerialiseProperty:
@@ -46,6 +51,29 @@ class SerialiseColor(SerialiseValue):
         }
         serialised.update(self._get_optionals())
         return serialised
+
+
+class SerialiseDateValue(SerialiseValue):
+    """A DateValue to be serialised."""
+
+    value: Date
+
+    def serialise(self) -> dict[str, Any]:
+        serialised = self._get_one_date_dict(self.value.start, StartEnd.START)
+
+
+    def _get_one_date_dict(self, date: SingleDate, start_end: StartEnd) -> dict[str, str]:
+        def get_prop(precision: DayMonthYearEra) -> str:
+            return f"knora-api:dateValueHas{start_end!s}{precision!s}"
+
+        date_dict = {get_prop(DayMonthYearEra.YEAR): date.year} if date.year else {}
+        if date.month:
+            date_dict[get_prop(DayMonthYearEra.MONTH)] = date.month
+        if date.day:
+            date_dict[get_prop(DayMonthYearEra.DAY)] = date.day
+        if date.era:
+            date_dict[get_prop(DayMonthYearEra.ERA)] = date.era
+        return date_dict
 
 
 class SerialiseDecimal(SerialiseValue):

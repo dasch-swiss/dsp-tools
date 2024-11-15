@@ -65,7 +65,8 @@ class SerialiseDateValue(SerialiseValue):
     value: Date
 
     def serialise(self) -> dict[str, Any]:
-        serialised = {"@type": "knora-api:DateValue"}
+        serialised = {"knora-api:dateValueHasCalendar": self.value.calendar.value} if self.value.calendar else {}
+        serialised["@type"] = "knora-api:DateValue"
         serialised.update(self._get_one_date_dict(self.value.start, StartEnd.START))
         if self.value.end:
             serialised.update(self._get_one_date_dict(self.value.end, StartEnd.END))
@@ -82,7 +83,7 @@ class SerialiseDateValue(SerialiseValue):
         if date.day:
             date_dict[get_prop(DayMonthYearEra.DAY)] = date.day
         if date.era:
-            date_dict[get_prop(DayMonthYearEra.ERA)] = date.era
+            date_dict[get_prop(DayMonthYearEra.ERA)] = date.era.value
         return date_dict
 
 

@@ -4,7 +4,7 @@ from abc import ABC
 from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Any
-
+from dsp_tools.models.datetimestamp import DateTimeStamp
 
 @dataclass(frozen=True)
 class ProjectContext:
@@ -29,7 +29,7 @@ class SerialiseAbstractResource(ABC):
     @abstractmethod
     def serialise_resource(self) -> dict[str, Any]: ...
 
-    def _get_base_info(self) -> dict[str, str]:
+    def _get_base_info(self) -> dict[str, Any]:
         serialised = self.project_context.to_dict()
         serialised["rdfs:label"] = self.label
         if self.permissions:
@@ -50,7 +50,7 @@ class SerialiseResource(SerialiseAbstractResource):
 
 @dataclass(frozen=True)
 class MigrationMetadata:
-    creation_date: str | None
+    creation_date: DateTimeStamp | None
     iri: str
 
     def to_dict(self) -> dict[str, Any]:
@@ -58,6 +58,6 @@ class MigrationMetadata:
         if self.creation_date:
             info["knora-api:creationDate"] = {
                 "@type": "xsd:dateTimeStamp",
-                "@value": self.creation_date,
+                "@value": str(self.creation_date),
             }
         return info

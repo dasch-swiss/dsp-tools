@@ -62,6 +62,7 @@ class SerialiseDateValue(SerialiseValue):
         serialised = {"@type": "knora-api:DateValue"}
         serialised.update(self._get_one_date_dict(self.value.start, StartEnd.START))
         serialised.update(self._get_one_date_dict(self.value.end, StartEnd.END))
+        serialised.update(self._get_optionals())
         return serialised
 
     def _get_one_date_dict(self, date: SingleDate, start_end: StartEnd) -> dict[str, str]:

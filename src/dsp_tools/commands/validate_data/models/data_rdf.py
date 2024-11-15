@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC
+from abc import abstractmethod
 from dataclasses import dataclass
 from uuid import uuid4
 
@@ -28,8 +29,8 @@ class DataRDF:
 
 
 class RDFTriples(ABC):
-    def make_graph(self) -> Graph:
-        raise NotImplementedError
+    @abstractmethod
+    def make_graph(self) -> Graph: ...
 
 
 @dataclass
@@ -219,8 +220,8 @@ class AbstractFileValueRDF(RDFTriples):
     res_iri: URIRef
     value: Literal
 
-    def make_graph(self) -> Graph:
-        raise NotImplementedError
+    @abstractmethod
+    def make_graph(self) -> Graph: ...
 
 
 @dataclass

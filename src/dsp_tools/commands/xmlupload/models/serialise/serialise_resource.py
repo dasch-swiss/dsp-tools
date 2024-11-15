@@ -42,8 +42,8 @@ class ProjectContext:
 
 @dataclass(frozen=True)
 class MigrationMetadata:
-    creation_date: DateTimeStamp | None
     iri: str
+    creation_date: DateTimeStamp | None
 
     def to_dict(self) -> dict[str, Any]:
         info: dict[str, Any] = {"@id": self.iri}

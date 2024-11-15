@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 from abc import ABC
 from abc import abstractmethod
-from typing import Any
 from typing import TypeAlias
 from typing import Union
 from typing import assert_never
@@ -35,23 +34,23 @@ class ValueTransformer(ABC):
 
 
 class DateTransformer(ValueTransformer):
-    def transform(self, input_value: Any) -> Date:
+    def transform(self, input_value: InputTypes) -> Date:
         val = self._assert_is_string(input_value)
         return parse_date_string(val)
 
 
 class DecimalTransformer(ValueTransformer):
-    def transform(self, input_value: Any) -> str:
+    def transform(self, input_value: InputTypes) -> str:
         val = self._assert_is_string(input_value)
         return str(float(val))
 
 
 class GeometryTransformer(ValueTransformer):
-    def transform(self, input_value: Any) -> str:
+    def transform(self, input_value: InputTypes) -> str:
         val = self._assert_is_string(input_value)
         return json.dumps(json.loads(val))
 
 
 class StringTransformer(ValueTransformer):
-    def transform(self, input_value: Any) -> str:
+    def transform(self, input_value: InputTypes) -> str:
         return self._assert_is_string(input_value)

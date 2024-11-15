@@ -166,6 +166,22 @@ class SerialiseInterval(SerialiseValue):
         return serialised
 
 
+class SerialiseList(SerialiseValue):
+    """An ListValue to be serialised."""
+
+    value: str
+
+    def serialise(self) -> dict[str, Any]:
+        serialised = {
+            "@type": "knora-api:ListValue",
+            "knora-api:listValueAsListNode": {
+                "@id": self.value,
+            },
+        }
+        serialised.update(self._get_optionals())
+        return serialised
+
+
 class SerialiseLink(SerialiseValue):
     """A LinkValue to be serialised."""
 

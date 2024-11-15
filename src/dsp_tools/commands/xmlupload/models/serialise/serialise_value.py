@@ -132,6 +132,26 @@ class SerialiseGeoname(SerialiseValue):
         return serialised
 
 
+class SerialiseInterval(SerialiseValue):
+    """A IntervalValue to be serialised."""
+
+
+@dataclass
+class Interval:
+    start: str
+    end: str
+
+    def interval_start(self) -> dict[str, str]: ...
+
+    def interval_end(self) -> dict[str, str]: ...
+
+    def _to_dict(self, inverval_value: str) -> dict[str, str]:
+        return {
+            "@type": "xsd:decimal",
+            "@value": inverval_value,
+        }
+
+
 class SerialiseSimpletext(SerialiseValue):
     """A Simpletext to be serialised."""
 

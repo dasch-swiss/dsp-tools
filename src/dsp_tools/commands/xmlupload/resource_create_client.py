@@ -120,9 +120,10 @@ class ResourceCreateClient:
             permissions=permission_str,
             migration_metadata=migration_metadata,
         )
-        res = serialise_resource.serialise(context)
+        res = serialise_resource.serialise()
         if bitstream_information:
             res.update(_make_bitstream_file_value(bitstream_information))
+        res.update(context.serialise())
         return res
 
     def _make_values(self, resource: XMLResource, res_bnode: BNode, namespaces: dict[str, Namespace]) -> dict[str, Any]:

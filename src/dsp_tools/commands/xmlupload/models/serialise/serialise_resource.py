@@ -14,9 +14,8 @@ class SerialiseResource:
     permissions: str | None
     migration_metadata: MigrationMetadata | None
 
-    def serialise(self, project_context: ProjectContext) -> dict[str, Any]:
+    def serialise(self) -> dict[str, Any]:
         serialised = self.migration_metadata.to_dict() if self.migration_metadata else {}
-        serialised.update(project_context.to_dict())
         serialised.update(self._get_resource_info())
         return serialised
 
@@ -32,7 +31,7 @@ class ProjectContext:
     context: dict[str, Any]
     project_iri: str
 
-    def to_dict(self) -> dict[str, Any]:
+    def serialise(self) -> dict[str, Any]:
         return {
             "knora-api:attachedToProject": {"@id": self.project_iri},
             "@context": self.context,

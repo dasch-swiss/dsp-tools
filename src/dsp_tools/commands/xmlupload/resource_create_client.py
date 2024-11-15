@@ -41,6 +41,7 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_value import Serial
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseGeometry
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseGeoname
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseInterval
+from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseLink
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseProperty
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseRichtext
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseSimpletext
@@ -133,7 +134,7 @@ class ResourceCreateClient:
             res.update(_make_bitstream_file_value(bitstream_information))
         return res
 
-    def _make_values(self, resource: XMLResource, res_bnode: BNode, namespaces: dict[str, Namespace]) -> dict[str, Any]:
+    def _make_values(self, resource: XMLResource, res_bnode: BNode, namespaces: dict[str, Namespace]) -> dict[str, Any]:  # noqa:PLR0912 (Too many branches)
         def prop_name(p: XMLProperty) -> str:
             if p.valtype != "resptr":
                 return p.name
@@ -198,6 +199,11 @@ class ResourceCreateClient:
                         permissions_lookup=self.permissions_lookup,
                     )
                     properties_serialised.update(transformed_prop.serialise())
+                case "resptr":
+                    transformed_prop = _transform_into_link_prop(
+                        prop=prop, permissions_lookup=self.permissions_lookup, iri_resolver=self.iri_resolver
+                    )
+                    properties_serialised.update(transformed_prop.serialise())
                 # serialised with rdflib
                 case "integer":
                     int_prop_name = self._get_absolute_prop_iri(prop.name, namespaces)
@@ -228,8 +234,6 @@ class ResourceCreateClient:
 
     def _make_value(self, value: XMLValue, value_type: str) -> dict[str, Any]:
         match value_type:
-            case "resptr":
-                res = _make_link_value(value, self.iri_resolver)
             case "list":
                 res = _make_list_value(value, self.listnode_lookup)
             case _:
@@ -402,7 +406,16 @@ def _transform_into_interval_value(value: XMLValue, permissions_lookup: dict[str
             raise BaseError(f"Could not parse interval value: {s}")
 
 
-def _make_link_value(value: XMLValue, iri_resolver: IriResolver) -> dict[str, Any]:
+def _transform_into_link_prop(
+    prop: XMLProperty, permissions_lookup: dict[str, Permissions], iri_resolver: IriResolver
+) -> SerialiseProperty:
+    vals = [_transform_into_link_value(v, permissions_lookup, iri_resolver) for v in prop.values]
+    return SerialiseProperty(property_name=prop.name, values=vals)
+
+
+def _transform_into_link_value(
+    value: XMLValue, permissions_lookup: dict[str, Permissions], iri_resolver: IriResolver
+) -> SerialiseLink:
     s = _assert_is_string(value.value)
     if is_resource_iri(s):
         iri = s
@@ -415,12 +428,8 @@ def _make_link_value(value: XMLValue, iri_resolver: IriResolver) -> dict[str, An
             f"See {WARNINGS_SAVEPATH} for more information."
         )
         raise BaseError(msg)
-    return {
-        "@type": "knora-api:LinkValue",
-        "knora-api:linkValueHasTargetIri": {
-            "@id": iri,
-        },
-    }
+    permission_str = _get_permission_str(value.permissions, permissions_lookup)
+    return SerialiseLink(value=iri, permissions=permission_str, comment=value.comment)
 
 
 def _make_list_value(value: XMLValue, iri_lookup: dict[str, str]) -> dict[str, Any]:

@@ -34,6 +34,9 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import S
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseTextFileValue
 from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import BooleanValueRDF
 from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import IntValueRDF
+from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import MigrationMetadata
+from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import ProjectContext
+from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseResource
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseColor
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseDecimal
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseGeometry
@@ -102,30 +105,23 @@ class ResourceCreateClient:
         resource: XMLResource,
         bitstream_information: BitstreamInfo | None,
     ) -> dict[str, Any]:
-        resource_iri = resource.iri
-        if resource.ark:
-            resource_iri = convert_ark_v0_to_resource_iri(resource.ark)
-        context = get_json_ld_context_for_project(self.project_onto_dict)
-        res = {
-            "@type": resource.restype,
-            "rdfs:label": resource.label,
-            "knora-api:attachedToProject": {"@id": self.project_iri},
-            "@context": context,
-        }
-        if resource_iri:
-            res["@id"] = resource_iri
-        if resource.permissions:
-            if perm := self.permissions_lookup.get(resource.permissions):
-                res["knora-api:hasPermissions"] = str(perm)
-            else:
-                raise PermissionNotExistsError(
-                    f"Could not find permissions for resource {resource.res_id} with permissions {resource.permissions}"
-                )
-        if resource.creation_date:
-            res["knora-api:creationDate"] = {
-                "@type": "xsd:dateTimeStamp",
-                "@value": str(resource.creation_date),
-            }
+        migration_metadata = None
+        if resource.iri or resource.ark:
+            iri = resource.iri
+            if resource.ark:
+                iri = convert_ark_v0_to_resource_iri(resource.ark)
+            migration_metadata = MigrationMetadata(iri=iri, creation_date=resource.creation_date)
+        permission_str = _get_permission_str(resource.permissions, self.permissions_lookup)
+        context = ProjectContext(get_json_ld_context_for_project(self.project_onto_dict), self.project_iri)
+        serialise_resource = SerialiseResource(
+            res_id=resource.res_id,
+            res_type=resource.restype,
+            label=resource.label,
+            permissions=permission_str,
+            project_context=context,
+            migration_metadata=migration_metadata,
+        )
+        res = serialise_resource.serialise_resource()
         if bitstream_information:
             res.update(_make_bitstream_file_value(bitstream_information))
         return res
@@ -494,10 +490,10 @@ def _transform_into_serialise_value(
     return serialiser(value_str, permission_str, value.comment)
 
 
-def _get_permission_str(value_permissions: str | None, permissions_lookup: dict[str, Permissions]) -> str | None:
-    if value_permissions:
-        if not (per := permissions_lookup.get(value_permissions)):
-            raise PermissionNotExistsError(f"Could not find permissions for value: {value_permissions}")
+def _get_permission_str(permissions: str | None, permissions_lookup: dict[str, Permissions]) -> str | None:
+    if permissions:
+        if not (per := permissions_lookup.get(permissions)):
+            raise PermissionNotExistsError(f"Could not find permissions for value: {permissions}")
         return str(per)
     return None
 

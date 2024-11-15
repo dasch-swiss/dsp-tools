@@ -5,8 +5,6 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Any
 
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseProperty
-
 
 @dataclass(frozen=True)
 class ProjectContext:
@@ -24,10 +22,8 @@ class ProjectContext:
 class SerialiseAbstractResource(ABC):
     res_id: str
     label: str
-    properties: list[SerialiseProperty]
     project_context: ProjectContext
     permissions: str | None
-    comment: str | None
     migration_metadata: MigrationMetadata | None
 
     @abstractmethod
@@ -49,7 +45,6 @@ class SerialiseResource(SerialiseAbstractResource):
         serialised = self.migration_metadata.to_dict() if self.migration_metadata else {}
         serialised.update(self._get_base_info())
         serialised["@type"] = self.res_type
-
         return serialised
 
 

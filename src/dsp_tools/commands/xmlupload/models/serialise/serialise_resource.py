@@ -12,6 +12,7 @@ class SerialiseResource:
     res_type: str
     label: str
     permissions: str | None
+    project_iri: str
     migration_metadata: MigrationMetadata | None
 
     def serialise(self) -> dict[str, Any]:
@@ -20,22 +21,14 @@ class SerialiseResource:
         return serialised
 
     def _get_resource_info(self) -> dict[str, Any]:
-        serialised = {"rdfs:label": self.label, "@type": self.res_type}
+        serialised = {
+            "rdfs:label": self.label,
+            "@type": self.res_type,
+            "knora-api:attachedToProject": {"@id": self.project_iri},
+        }
         if self.permissions:
             serialised["knora-api:hasPermissions"] = self.permissions
         return serialised
-
-
-@dataclass(frozen=True)
-class ProjectContext:
-    context: dict[str, Any]
-    project_iri: str
-
-    def serialise(self) -> dict[str, Any]:
-        return {
-            "knora-api:attachedToProject": {"@id": self.project_iri},
-            "@context": self.context,
-        }
 
 
 @dataclass(frozen=True)

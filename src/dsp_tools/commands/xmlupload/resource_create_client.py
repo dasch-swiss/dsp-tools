@@ -22,8 +22,7 @@ from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XM
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
-from dsp_tools.commands.xmlupload.models.namespace_context import get_json_ld_context_for_project
-from dsp_tools.commands.xmlupload.models.namespace_context import make_namespace_dict_from_onto_names
+from dsp_tools.commands.xmlupload.models.namespace_context import JSONLDNamespaces
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.serialise.jsonld_serialiser import serialise_property_graph
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseArchiveFileValue
@@ -35,7 +34,6 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import S
 from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import BooleanValueRDF
 from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import IntValueRDF
 from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import MigrationMetadata
-from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import ProjectContext
 from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseResource
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseColor
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseDecimal
@@ -66,9 +64,10 @@ class ResourceCreateClient:
     con: Connection
     project_iri: str
     iri_resolver: IriResolver
-    project_onto_dict: dict[str, str]
     permissions_lookup: dict[str, Permissions]
     listnode_lookup: dict[str, str]
+    project_context: JSONLDNamespaces
+    namespaces: dict[str, Namespace]
     media_previously_ingested: bool = False
 
     def create_resource(
@@ -91,12 +90,11 @@ class ResourceCreateClient:
         bitstream_information: BitstreamInfo | None,
     ) -> dict[str, Any]:
         res_bnode = BNode()
-        namespaces = make_namespace_dict_from_onto_names(self.project_onto_dict)
         res = self._make_resource(
             resource=resource,
             bitstream_information=bitstream_information,
         )
-        vals = self._make_values(resource, res_bnode, namespaces)
+        vals = self._make_values(resource, res_bnode, self.namespaces)
         res.update(vals)
         return res
 
@@ -112,18 +110,18 @@ class ResourceCreateClient:
         if res_iri:
             migration_metadata = MigrationMetadata(iri=res_iri, creation_date=resource.creation_date)
         permission_str = _get_permission_str(resource.permissions, self.permissions_lookup)
-        context = ProjectContext(get_json_ld_context_for_project(self.project_onto_dict), self.project_iri)
         serialise_resource = SerialiseResource(
             res_id=resource.res_id,
             res_type=resource.restype,
             label=resource.label,
             permissions=permission_str,
+            project_iri=self.project_iri,
             migration_metadata=migration_metadata,
         )
         res = serialise_resource.serialise()
         if bitstream_information:
             res.update(_make_bitstream_file_value(bitstream_information))
-        res.update(context.serialise())
+        res.update(self.project_context.serialise())
         return res
 
     def _make_values(self, resource: XMLResource, res_bnode: BNode, namespaces: dict[str, Namespace]) -> dict[str, Any]:

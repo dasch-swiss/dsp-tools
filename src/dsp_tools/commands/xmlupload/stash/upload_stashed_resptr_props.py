@@ -6,6 +6,7 @@ from typing import cast
 
 from loguru import logger
 
+from dsp_tools.commands.xmlupload.models.namespace_context import JSONLDNamespaces
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem
@@ -17,7 +18,7 @@ from dsp_tools.utils.connection import Connection
 def upload_stashed_resptr_props(
     upload_state: UploadState,
     con: Connection,
-    context: dict[str, str],
+    context: JSONLDNamespaces,
 ) -> None:
     """
     After all resources are uploaded, the stashed resptr props must be applied to their resources in DSP.
@@ -59,7 +60,7 @@ def _upload_stash_item(
     res_iri: str,
     target_iri: str,
     con: Connection,
-    context: dict[str, str],
+    context: JSONLDNamespaces,
 ) -> bool:
     """
     Upload a single stashed link value to DSP.
@@ -94,7 +95,7 @@ def _create_resptr_prop_json_object_to_update(
     stash: LinkValueStashItem,
     res_iri: str,
     target_iri: str,
-    context: dict[str, str],
+    context: JSONLDNamespaces,
 ) -> dict[str, Any]:
     """This function creates a JSON object that can be sent as an update request to the DSP-API."""
     linkVal = {
@@ -107,6 +108,6 @@ def _create_resptr_prop_json_object_to_update(
         "@id": res_iri,
         "@type": stash.res_type,
         f"{stash.prop_name}Value": linkVal,
-        "@context": context,
     }
+    jsonobj.update(context.serialise())
     return jsonobj

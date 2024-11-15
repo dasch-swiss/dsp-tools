@@ -1,3 +1,8 @@
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Any
+
 from rdflib.namespace import Namespace
 
 
@@ -20,20 +25,28 @@ def get_default_json_ld_context() -> dict[str, str]:
 
 def make_namespace_dict_from_onto_names(ontos: dict[str, str]) -> dict[str, Namespace]:
     """Provided a dictionary of ontology names and IRIs, returns a dictionary of Namespace objects."""
-    ontos = correct_project_context_namespaces(ontos)
+    ontos = _correct_project_context_namespaces(ontos)
     namespaces = {k: Namespace(v) for k, v in ontos.items()}
     namespaces["knora-api"] = Namespace("http://api.knora.org/ontology/knora-api/v2#")
     return namespaces
 
 
-def correct_project_context_namespaces(ontos: dict[str, str]) -> dict[str, str]:
+def _correct_project_context_namespaces(ontos: dict[str, str]) -> dict[str, str]:
     """Add the hashtag to make it a valid namespace."""
     return {k: f"{v}#" for k, v in ontos.items()}
 
 
-def get_json_ld_context_for_project(ontos: dict[str, str]) -> dict[str, str]:
+@dataclass(frozen=True)
+class JSONLDNamespaces:
+    context: dict[str, Any]
+
+    def serialise(self) -> dict[str, Any]:
+        return {"@context": self.context}
+
+
+def get_json_ld_context_for_project(ontos: dict[str, str]) -> JSONLDNamespaces:
     """Provided a dictionary of ontology names and IRIs, returns a JSON-LD context for the project."""
     context = get_default_json_ld_context()
-    project_context = correct_project_context_namespaces(ontos)
+    project_context = _correct_project_context_namespaces(ontos)
     context.update(project_context)
-    return context
+    return JSONLDNamespaces(context)

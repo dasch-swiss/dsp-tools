@@ -4,6 +4,7 @@ import json
 from dataclasses import dataclass
 from typing import Callable
 from typing import TypeAlias
+from typing import assert_never
 
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseColor
@@ -15,9 +16,11 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_value import Serial
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseURI
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseValue
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import ValueTypes
-from dsp_tools.commands.xmlupload.resource_create_client import assert_is_string
+from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.date_util import Date
 from dsp_tools.utils.date_util import parse_date_string
+
+# ruff: noqa: D101, D103
 
 InputTypes: TypeAlias = str | FormattedTextValue
 OutputTypes: TypeAlias = str | Date
@@ -59,3 +62,13 @@ str_value_to_transformation_steps_mapper = {
     "time": TransformationSteps(SerialiseTime, transform_string),
     "uri": TransformationSteps(SerialiseURI, transform_string),
 }
+
+
+def assert_is_string(value: str | FormattedTextValue) -> str:
+    match value:
+        case str() as s:
+            return s
+        case FormattedTextValue() as xml:
+            raise BaseError(f"Expected string value, but got XML value: {xml.as_xml()}")
+        case _:
+            assert_never(value)

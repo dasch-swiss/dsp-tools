@@ -38,6 +38,7 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_value import Serial
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseValue
 from dsp_tools.commands.xmlupload.models.value_transformers import ValueSerialiser
 from dsp_tools.commands.xmlupload.models.value_transformers import ValueTransformer
+from dsp_tools.commands.xmlupload.models.value_transformers import assert_is_string
 from dsp_tools.commands.xmlupload.models.value_transformers import str_value_to_transformation_steps_mapper
 from dsp_tools.commands.xmlupload.models.value_transformers import transform_string
 from dsp_tools.models.exceptions import BaseError
@@ -438,13 +439,3 @@ def _get_permission_str(value_permissions: str | None, permissions_lookup: dict[
             raise PermissionNotExistsError(f"Could not find permissions for value: {value_permissions}")
         return str(per)
     return None
-
-
-def assert_is_string(value: str | FormattedTextValue) -> str:
-    match value:
-        case str() as s:
-            return s
-        case FormattedTextValue() as xml:
-            raise BaseError(f"Expected string value, but got XML value: {xml.as_xml()}")
-        case _:
-            assert_never(value)

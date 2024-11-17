@@ -412,9 +412,6 @@ class Richtext(Value):
         The standard standoff tags allowed by DSP-API are documented here:
         https://docs.dasch.swiss/2023.12.01/DSP-API/03-endpoints/api-v2/text/standard-standoff/
 
-        Args:
-            text: the richtext string to be escaped
-
         Returns:
             the escaped richtext string
         """

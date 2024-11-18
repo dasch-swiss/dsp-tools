@@ -33,11 +33,11 @@ class SerialiseResource:
 
 @dataclass(frozen=True)
 class SerialiseMigrationMetadata:
-    iri: str
+    iri: str | None
     creation_date: DateTimeStamp | None
 
     def serialise(self) -> dict[str, Any]:
-        info: dict[str, Any] = {"@id": self.iri}
+        info = {"@id": self.iri} if self.iri else {}
         if self.creation_date:
             info["knora-api:creationDate"] = {
                 "@type": "xsd:dateTimeStamp",

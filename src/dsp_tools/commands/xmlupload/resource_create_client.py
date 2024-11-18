@@ -106,9 +106,10 @@ class ResourceCreateClient:
     ) -> dict[str, Any]:
         migration_metadata = None
         res_iri = resource.iri
+        creation_date = resource.creation_date
         if resource.ark:
             res_iri = convert_ark_v0_to_resource_iri(resource.ark)
-        if res_iri:
+        if any([creation_date, res_iri]):
             migration_metadata = SerialiseMigrationMetadata(iri=res_iri, creation_date=resource.creation_date)
         permission_str = _get_permission_str(resource.permissions, self.permissions_lookup)
         serialise_resource = SerialiseResource(

@@ -42,7 +42,7 @@ from dsp_tools.commands.xmlupload.value_transformers import TransformationSteps
 from dsp_tools.commands.xmlupload.value_transformers import assert_is_string
 from dsp_tools.commands.xmlupload.value_transformers import transform_boolean
 from dsp_tools.commands.xmlupload.value_transformers import transform_string
-from dsp_tools.commands.xmlupload.value_transformers import value_to_serialiser_and_transformer_mapper
+from dsp_tools.commands.xmlupload.value_transformers import value_to_transformations_mapper
 from dsp_tools.commands.xmlupload.value_transformers import value_to_serialiser_mapper
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InputError
@@ -143,7 +143,7 @@ class ResourceCreateClient:
             match prop.valtype:
                 # serialised as dict
                 case "uri" | "color" | "geoname" | "time" | "decimal" | "geometry" | "date" | "interval" as val_type:
-                    transformations = value_to_serialiser_and_transformer_mapper[val_type]
+                    transformations = value_to_transformations_mapper[val_type]
                     transformed_prop = _transform_into_prop_serialiser(
                         prop=prop,
                         permissions_lookup=self.permissions_lookup,

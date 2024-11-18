@@ -33,7 +33,7 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import S
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseTextFileValue
 from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import BooleanValueRDF
 from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import IntValueRDF
-from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import MigrationMetadata
+from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseMigrationMetadata
 from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseResource
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseColor
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseDate
@@ -109,7 +109,7 @@ class ResourceCreateClient:
         if resource.ark:
             res_iri = convert_ark_v0_to_resource_iri(resource.ark)
         if res_iri:
-            migration_metadata = MigrationMetadata(iri=res_iri, creation_date=resource.creation_date)
+            migration_metadata = SerialiseMigrationMetadata(iri=res_iri, creation_date=resource.creation_date)
         permission_str = _get_permission_str(resource.permissions, self.permissions_lookup)
         serialise_resource = SerialiseResource(
             res_id=resource.res_id,

@@ -13,7 +13,7 @@ class SerialiseResource:
     label: str
     permissions: str | None
     project_iri: str
-    migration_metadata: MigrationMetadata | None
+    migration_metadata: SerialiseMigrationMetadata | None
 
     def serialise(self) -> dict[str, Any]:
         serialised = self.migration_metadata.to_dict() if self.migration_metadata else {}
@@ -32,7 +32,7 @@ class SerialiseResource:
 
 
 @dataclass(frozen=True)
-class MigrationMetadata:
+class SerialiseMigrationMetadata:
     iri: str
     creation_date: DateTimeStamp | None
 

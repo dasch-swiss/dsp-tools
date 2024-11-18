@@ -225,13 +225,11 @@ class AbstractFileValueRDF(RDFTriples):
 
 
 @dataclass
-class GenericFileValueRDF(AbstractFileValueRDF):
-    """This class is a placeholder for all types of file values that are not yet implemented."""
-
+class MovingImageFileValueRDF(AbstractFileValueRDF):
     def make_graph(self) -> Graph:
         g = Graph()
         val_iri = DATA[str(uuid4())]
-        g.add((val_iri, RDF.type, API_SHAPES.GenericFileValue))
-        g.add((val_iri, API_SHAPES.fileValueHasValue, self.value))
-        g.add((self.res_iri, API_SHAPES.hasGenericFileValue, val_iri))
+        g.add((val_iri, RDF.type, KNORA_API.MovingImageFileValue))
+        g.add((val_iri, KNORA_API.fileValueHasFilename, self.value))
+        g.add((self.res_iri, KNORA_API.hasMovingImageFileValue, val_iri))
         return g

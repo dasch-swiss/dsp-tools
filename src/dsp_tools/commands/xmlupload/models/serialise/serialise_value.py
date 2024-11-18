@@ -14,7 +14,7 @@ from dsp_tools.utils.date_util import DayMonthYearEra
 from dsp_tools.utils.date_util import SingleDate
 from dsp_tools.utils.date_util import StartEnd
 
-ValueTypes: TypeAlias = Union[str, Date]
+ValueTypes: TypeAlias = Union[str, Date, "Interval"]
 ValueSerialiser: TypeAlias = Callable[[ValueTypes, str | None, str | None], "SerialiseValue"]
 
 
@@ -129,6 +129,71 @@ class SerialiseGeoname(SerialiseValue):
         serialised = {
             "@type": "knora-api:GeonameValue",
             "knora-api:geonameValueAsGeonameCode": self.value,
+        }
+        serialised.update(self._get_optionals())
+        return serialised
+
+
+class SerialiseInterval(SerialiseValue):
+    """An IntervalValue to be serialised."""
+
+    value: Interval
+
+    def serialise(self) -> dict[str, Any]:
+        serialised = {
+            "@type": "knora-api:IntervalValue",
+            "knora-api:intervalValueHasStart": self.value.interval_start(),
+            "knora-api:intervalValueHasEnd": self.value.interval_end(),
+        }
+        serialised.update(self._get_optionals())
+        return serialised
+
+
+@dataclass
+class Interval:
+    start: str
+    end: str
+
+    def interval_start(self) -> dict[str, str]:
+        return self._to_dict(self.start)
+
+    def interval_end(self) -> dict[str, str]:
+        return self._to_dict(self.end)
+
+    def _to_dict(self, interval_value: str) -> dict[str, str]:
+        return {
+            "@type": "xsd:decimal",
+            "@value": interval_value,
+        }
+
+
+class SerialiseList(SerialiseValue):
+    """An ListValue to be serialised."""
+
+    value: str
+
+    def serialise(self) -> dict[str, Any]:
+        serialised = {
+            "@type": "knora-api:ListValue",
+            "knora-api:listValueAsListNode": {
+                "@id": self.value,
+            },
+        }
+        serialised.update(self._get_optionals())
+        return serialised
+
+
+class SerialiseLink(SerialiseValue):
+    """A LinkValue to be serialised."""
+
+    value: str
+
+    def serialise(self) -> dict[str, Any]:
+        serialised = {
+            "@type": "knora-api:LinkValue",
+            "knora-api:linkValueHasTargetIri": {
+                "@id": self.value,
+            },
         }
         serialised.update(self._get_optionals())
         return serialised

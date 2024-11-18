@@ -42,8 +42,8 @@ from dsp_tools.commands.xmlupload.value_transformers import TransformationSteps
 from dsp_tools.commands.xmlupload.value_transformers import assert_is_string
 from dsp_tools.commands.xmlupload.value_transformers import transform_boolean
 from dsp_tools.commands.xmlupload.value_transformers import transform_string
-from dsp_tools.commands.xmlupload.value_transformers import value_to_transformations_mapper
 from dsp_tools.commands.xmlupload.value_transformers import value_to_serialiser_mapper
+from dsp_tools.commands.xmlupload.value_transformers import value_to_transformations_mapper
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import PermissionNotExistsError

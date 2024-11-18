@@ -33,9 +33,9 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import S
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseTextFileValue
 from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import BooleanValueRDF
 from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import IntValueRDF
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import Interval
 from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseMigrationMetadata
 from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseResource
+from dsp_tools.commands.xmlupload.models.serialise.serialise_value import Interval
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseColor
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseDate
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseDecimal
@@ -129,7 +129,7 @@ class ResourceCreateClient:
         res.update(self.jsonld_context.serialise())
         return res
 
-    def _make_values(self, resource: XMLResource, res_bnode: BNode, namespaces: dict[str, Namespace]) -> dict[str, Any]:  # noqa:PLR0912 (Too many branches)
+    def _make_values(self, resource: XMLResource, res_bnode: BNode) -> dict[str, Any]:  # noqa:PLR0912 (Too many branches)
         def prop_name(p: XMLProperty) -> str:
             if p.valtype != "resptr":
                 return p.name

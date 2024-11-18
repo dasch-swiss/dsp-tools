@@ -125,10 +125,8 @@ class ResourceCreateClient:
         return res
 
     def _make_values(self, resource: XMLResource, res_bnode: BNode) -> dict[str, Any]:
-        def prop_name(p: XMLProperty) -> str:
-            if p.valtype != "resptr":
-                return p.name
-            elif p.name == "knora-api:isSegmentOf" and resource.restype == "knora-api:VideoSegment":
+        def get_link_prop_name(p: XMLProperty) -> str:
+            if p.name == "knora-api:isSegmentOf" and resource.restype == "knora-api:VideoSegment":
                 return "knora-api:isVideoSegmentOfValue"
             elif p.name == "knora-api:isSegmentOf" and resource.restype == "knora-api:AudioSegment":
                 return "knora-api:isAudioSegmentOfValue"
@@ -159,8 +157,10 @@ class ResourceCreateClient:
                     )
                     properties_serialised.update(transformed_prop.serialise())
                 case "resptr":
+                    prop_name = get_link_prop_name(prop)
                     transformed_prop = _transform_into_link_prop(
                         prop=prop,
+                        prop_name=prop_name,
                         permissions_lookup=self.permissions_lookup,
                         iri_resolver=self.iri_resolver,
                     )
@@ -321,11 +321,12 @@ def _make_integer_value(
 
 def _transform_into_link_prop(
     prop: XMLProperty,
+    prop_name: str,
     permissions_lookup: dict[str, Permissions],
     iri_resolver: IriResolver,
 ) -> SerialiseProperty:
     vals = [_transform_into_value_with_iri(v, permissions_lookup, SerialiseLink, iri_resolver) for v in prop.values]
-    return SerialiseProperty(property_name=f"{prop.name}Value", values=vals)
+    return SerialiseProperty(property_name=prop_name, values=vals)
 
 
 def _transform_into_list_prop(

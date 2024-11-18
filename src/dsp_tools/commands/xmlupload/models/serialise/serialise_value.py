@@ -5,6 +5,7 @@ from abc import abstractmethod
 from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Any
+from typing import Callable
 from typing import TypeAlias
 from typing import Union
 
@@ -14,6 +15,7 @@ from dsp_tools.utils.date_util import SingleDate
 from dsp_tools.utils.date_util import StartEnd
 
 ValueTypes: TypeAlias = Union[str, Date]
+ValueSerialiser: TypeAlias = Callable[[ValueTypes, str | None, str | None], "SerialiseValue"]
 
 
 @dataclass(frozen=True)

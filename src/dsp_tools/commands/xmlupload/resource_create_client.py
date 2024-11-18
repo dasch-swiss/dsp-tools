@@ -43,7 +43,6 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_value import Serial
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseTime
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseURI
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseValue
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import ValueSerialiser
 from dsp_tools.commands.xmlupload.value_transformers import TransformationSteps
 from dsp_tools.commands.xmlupload.value_transformers import transform_date
 from dsp_tools.commands.xmlupload.value_transformers import transform_decimal
@@ -234,10 +233,7 @@ def _transform_into_serialise_prop(
     permissions_lookup: dict[str, Permissions],
     transformations: TransformationSteps,
 ) -> SerialiseProperty:
-    serialised_values = [
-        _transform_into_serialise_value(v, permissions_lookup, transformations)
-        for v in prop.values
-    ]
+    serialised_values = [_transform_into_serialise_value(v, permissions_lookup, transformations) for v in prop.values]
     prop_serialise = SerialiseProperty(
         property_name=prop.name,
         values=serialised_values,
@@ -428,7 +424,7 @@ def _transform_text_prop(
                     _transform_into_serialise_value(
                         value=val,
                         permissions_lookup=permissions_lookup,
-                        transformations=TransformationSteps(SerialiseSimpletext, transform_string)
+                        transformations=TransformationSteps(SerialiseSimpletext, transform_string),
                     )
                 )
             case FormattedTextValue():

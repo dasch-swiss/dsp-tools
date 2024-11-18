@@ -218,6 +218,29 @@ def _transform_into_value_serialiser(
     return transformations.serialiser(transformed, permission_str, value.comment)
 
 
+def _transform_into_prop_serialiser(
+    prop: XMLProperty,
+    permissions_lookup: dict[str, Permissions],
+    transformations: TransformationSteps,
+) -> SerialiseProperty:
+    serialised_values = [_transform_into_value_serialiser(v, permissions_lookup, transformations) for v in prop.values]
+    prop_serialise = SerialiseProperty(
+        property_name=prop.name,
+        values=serialised_values,
+    )
+    return prop_serialise
+
+
+def _transform_into_value_serialiser(
+    value: XMLValue,
+    permissions_lookup: dict[str, Permissions],
+    transformations: TransformationSteps,
+) -> SerialiseValue:
+    transformed = transformations.transformer(value.value)
+    permission_str = _get_permission_str(value.permissions, permissions_lookup)
+    return transformations.serialiser(transformed, permission_str, value.comment)
+
+
 def _add_optional_permission_triple(
     value: XMLValue | IIIFUriInfo, val_bn: BNode, g: Graph, permissions_lookup: dict[str, Permissions]
 ) -> None:
@@ -343,6 +366,7 @@ def _transform_into_value_with_iri(
         raise BaseError(msg)
     permission_str = _get_permission_str(value.permissions, permissions_lookup)
     return serialiser(iri, permission_str, value.comment)
+
 
 
 def _transform_text_prop(

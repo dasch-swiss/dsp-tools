@@ -22,8 +22,7 @@ from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XM
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
-from dsp_tools.commands.xmlupload.models.namespace_context import get_json_ld_context_for_project
-from dsp_tools.commands.xmlupload.models.namespace_context import make_namespace_dict_from_onto_names
+from dsp_tools.commands.xmlupload.models.namespace_context import JSONLDContext
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.serialise.jsonld_serialiser import serialise_property_graph
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseArchiveFileValue
@@ -34,6 +33,8 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import S
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseTextFileValue
 from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import BooleanValueRDF
 from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import IntValueRDF
+from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseMigrationMetadata
+from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseResource
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseColor
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseDate
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseDecimal
@@ -64,9 +65,10 @@ class ResourceCreateClient:
     con: Connection
     project_iri: str
     iri_resolver: IriResolver
-    project_onto_dict: dict[str, str]
     permissions_lookup: dict[str, Permissions]
     listnode_lookup: dict[str, str]
+    jsonld_context: JSONLDContext
+    namespaces: dict[str, Namespace]
     media_previously_ingested: bool = False
 
     def create_resource(
@@ -89,12 +91,11 @@ class ResourceCreateClient:
         bitstream_information: BitstreamInfo | None,
     ) -> dict[str, Any]:
         res_bnode = BNode()
-        namespaces = make_namespace_dict_from_onto_names(self.project_onto_dict)
         res = self._make_resource(
             resource=resource,
             bitstream_information=bitstream_information,
         )
-        vals = self._make_values(resource, res_bnode, namespaces)
+        vals = self._make_values(resource, res_bnode)
         res.update(vals)
         return res
 
@@ -103,35 +104,29 @@ class ResourceCreateClient:
         resource: XMLResource,
         bitstream_information: BitstreamInfo | None,
     ) -> dict[str, Any]:
-        resource_iri = resource.iri
+        migration_metadata = None
+        res_iri = resource.iri
+        creation_date = resource.creation_date
         if resource.ark:
-            resource_iri = convert_ark_v0_to_resource_iri(resource.ark)
-        context = get_json_ld_context_for_project(self.project_onto_dict)
-        res = {
-            "@type": resource.restype,
-            "rdfs:label": resource.label,
-            "knora-api:attachedToProject": {"@id": self.project_iri},
-            "@context": context,
-        }
-        if resource_iri:
-            res["@id"] = resource_iri
-        if resource.permissions:
-            if perm := self.permissions_lookup.get(resource.permissions):
-                res["knora-api:hasPermissions"] = str(perm)
-            else:
-                raise PermissionNotExistsError(
-                    f"Could not find permissions for resource {resource.res_id} with permissions {resource.permissions}"
-                )
-        if resource.creation_date:
-            res["knora-api:creationDate"] = {
-                "@type": "xsd:dateTimeStamp",
-                "@value": str(resource.creation_date),
-            }
+            res_iri = convert_ark_v0_to_resource_iri(resource.ark)
+        if any([creation_date, res_iri]):
+            migration_metadata = SerialiseMigrationMetadata(iri=res_iri, creation_date=resource.creation_date)
+        permission_str = _get_permission_str(resource.permissions, self.permissions_lookup)
+        serialise_resource = SerialiseResource(
+            res_id=resource.res_id,
+            res_type=resource.restype,
+            label=resource.label,
+            permissions=permission_str,
+            project_iri=self.project_iri,
+            migration_metadata=migration_metadata,
+        )
+        res = serialise_resource.serialise()
         if bitstream_information:
             res.update(_make_bitstream_file_value(bitstream_information))
+        res.update(self.jsonld_context.serialise())
         return res
 
-    def _make_values(self, resource: XMLResource, res_bnode: BNode, namespaces: dict[str, Namespace]) -> dict[str, Any]:
+    def _make_values(self, resource: XMLResource, res_bnode: BNode) -> dict[str, Any]:
         def prop_name(p: XMLProperty) -> str:
             if p.valtype != "resptr":
                 return p.name
@@ -192,12 +187,12 @@ class ResourceCreateClient:
                     properties_serialised.update(transformed_prop.serialise())
                 # serialised with rdflib
                 case "integer":
-                    int_prop_name = self._get_absolute_prop_iri(prop.name, namespaces)
+                    int_prop_name = self._get_absolute_prop_iri(prop.name)
                     int_graph = _make_integer_prop(prop, res_bnode, int_prop_name, self.permissions_lookup)
                     properties_graph += int_graph
                     last_prop_name = int_prop_name
                 case "boolean":
-                    bool_prop_name = self._get_absolute_prop_iri(prop.name, namespaces)
+                    bool_prop_name = self._get_absolute_prop_iri(prop.name)
                     bool_graph = _make_boolean_prop(prop, res_bnode, bool_prop_name, self.permissions_lookup)
                     properties_graph += bool_graph
                     last_prop_name = bool_prop_name
@@ -212,9 +207,9 @@ class ResourceCreateClient:
             properties_serialised.update(serialised_graph_props)
         return properties_serialised
 
-    def _get_absolute_prop_iri(self, prefixed_prop: str, namespaces: dict[str, Namespace]) -> URIRef:
+    def _get_absolute_prop_iri(self, prefixed_prop: str) -> URIRef:
         prefix, prop = prefixed_prop.split(":", maxsplit=1)
-        if not (namespace := namespaces.get(prefix)):
+        if not (namespace := self.namespaces.get(prefix)):
             raise InputError(f"Could not find namespace for prefix: {prefix}")
         return namespace[prop]
 
@@ -485,10 +480,10 @@ def _transform_into_serialise_value(
     return serialiser(value_str, permission_str, value.comment)
 
 
-def _get_permission_str(value_permissions: str | None, permissions_lookup: dict[str, Permissions]) -> str | None:
-    if value_permissions:
-        if not (per := permissions_lookup.get(value_permissions)):
-            raise PermissionNotExistsError(f"Could not find permissions for value: {value_permissions}")
+def _get_permission_str(permissions: str | None, permissions_lookup: dict[str, Permissions]) -> str | None:
+    if permissions:
+        if not (per := permissions_lookup.get(permissions)):
+            raise PermissionNotExistsError(f"Could not find permissions for value: {permissions}")
         return str(per)
     return None
 

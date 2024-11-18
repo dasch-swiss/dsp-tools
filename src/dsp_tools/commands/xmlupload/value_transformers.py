@@ -65,7 +65,7 @@ def assert_is_string(value: str | FormattedTextValue) -> str:
             assert_never(value)
 
 
-value_to_serialiser_mapper: dict[str, TransformationSteps] = {
+value_to_transformations_mapper: dict[str, TransformationSteps] = {
     "color": TransformationSteps(SerialiseColor, transform_string),
     "date": TransformationSteps(SerialiseDate, transform_date),
     "decimal": TransformationSteps(SerialiseDecimal, transform_decimal),

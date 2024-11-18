@@ -169,7 +169,7 @@ class ResourceCreateClient:
                     transformed_prop = _transform_into_list_prop(
                         prop=prop,
                         permissions_lookup=self.permissions_lookup,
-                        iri_resolver=self.iri_resolver,
+                        listnode_lookup=self.listnode_lookup,
                     )
                     properties_serialised.update(transformed_prop.serialise())
                 # serialised with rdflib
@@ -325,20 +325,11 @@ def _transform_into_link_prop(
     permissions_lookup: dict[str, Permissions],
     iri_resolver: IriResolver,
 ) -> SerialiseProperty:
-    vals = [_transform_into_value_with_iri(v, permissions_lookup, SerialiseLink, iri_resolver) for v in prop.values]
+    vals = [_transform_into_link_value(v, permissions_lookup, SerialiseLink, iri_resolver) for v in prop.values]
     return SerialiseProperty(property_name=prop_name, values=vals)
 
 
-def _transform_into_list_prop(
-    prop: XMLProperty,
-    permissions_lookup: dict[str, Permissions],
-    iri_resolver: IriResolver,
-) -> SerialiseProperty:
-    vals = [_transform_into_value_with_iri(v, permissions_lookup, SerialiseList, iri_resolver) for v in prop.values]
-    return SerialiseProperty(property_name=prop.name, values=vals)
-
-
-def _transform_into_value_with_iri(
+def _transform_into_link_value(
     value: XMLValue,
     permissions_lookup: dict[str, Permissions],
     serialiser: ValueSerialiser,
@@ -358,6 +349,27 @@ def _transform_into_value_with_iri(
         raise BaseError(msg)
     permission_str = _get_permission_str(value.permissions, permissions_lookup)
     return serialiser(iri, permission_str, value.comment)
+
+
+def _transform_into_list_prop(
+    prop: XMLProperty, permissions_lookup: dict[str, Permissions], listnode_lookup: dict[str, str]
+) -> SerialiseProperty:
+    vals = [_transform_into_list_value(v, permissions_lookup, listnode_lookup) for v in prop.values]
+    return SerialiseProperty(property_name=prop.name, values=vals)
+
+
+def _transform_into_list_value(
+    value: XMLValue, permissions_lookup: dict[str, Permissions], listnode_lookup: dict[str, str]
+) -> SerialiseValue:
+    s = assert_is_string(value.value)
+    if not (iri := listnode_lookup.get(s)):
+        msg = (
+            f"Could not resolve list node ID '{s}' to IRI. "
+            f"This is probably because the list node '{s}' does not exist on the server."
+        )
+        raise BaseError(msg)
+    permission_str = _get_permission_str(value.permissions, permissions_lookup)
+    return SerialiseList(iri, permission_str, value.comment)
 
 
 def _transform_text_prop(

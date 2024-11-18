@@ -15,10 +15,10 @@ from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResou
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.commands.xmlupload.models.serialise.jsonld_serialiser import serialise_property_graph
-from dsp_tools.commands.xmlupload.resource_create_client import KNORA_API
-from dsp_tools.commands.xmlupload.resource_create_client import _make_bitstream_file_value
-from dsp_tools.commands.xmlupload.resource_create_client import _make_boolean_value
-from dsp_tools.commands.xmlupload.resource_create_client import _make_iiif_uri_value
+from dsp_tools.commands.xmlupload.transform_resource_and_values import KNORA_API
+from dsp_tools.commands.xmlupload.transform_resource_and_values import _make_bitstream_file_value
+from dsp_tools.commands.xmlupload.transform_resource_and_values import _make_boolean_value
+from dsp_tools.commands.xmlupload.transform_resource_and_values import _make_iiif_uri_value
 from dsp_tools.models.exceptions import PermissionNotExistsError
 
 ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")

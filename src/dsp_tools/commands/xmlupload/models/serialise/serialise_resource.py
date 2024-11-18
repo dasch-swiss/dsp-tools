@@ -16,7 +16,7 @@ class SerialiseResource:
     migration_metadata: SerialiseMigrationMetadata | None
 
     def serialise(self) -> dict[str, Any]:
-        serialised = self.migration_metadata.to_dict() if self.migration_metadata else {}
+        serialised = self.migration_metadata.serialise() if self.migration_metadata else {}
         serialised.update(self._get_resource_info())
         return serialised
 
@@ -36,7 +36,7 @@ class SerialiseMigrationMetadata:
     iri: str
     creation_date: DateTimeStamp | None
 
-    def to_dict(self) -> dict[str, Any]:
+    def serialise(self) -> dict[str, Any]:
         info: dict[str, Any] = {"@id": self.iri}
         if self.creation_date:
             info["knora-api:creationDate"] = {

@@ -134,9 +134,6 @@ class ResourceCreateClient:
             else:
                 return f"{p.name}Value"
 
-        def make_values(p: XMLProperty) -> list[dict[str, Any]]:
-            return [self._make_value(v, p.valtype) for v in p.values]
-
         properties_serialised = {}
         properties_graph = Graph()
         # To frame the json-ld correctly, we need one property used in the graph. It does not matter which.
@@ -345,7 +342,7 @@ def _transform_into_value_with_iri(
         )
         raise BaseError(msg)
     permission_str = _get_permission_str(value.permissions, permissions_lookup)
-    return serialiser(value=iri, permissions=permission_str, comment=value.comment)
+    return serialiser(iri, permission_str, value.comment)
 
 
 def _transform_text_prop(

@@ -32,23 +32,14 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import S
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseTextFileValue
 from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import BooleanValueRDF
 from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import IntValueRDF
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseColor
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseDate
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseDecimal
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseGeometry
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseGeoname
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseProperty
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseRichtext
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseSimpletext
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseTime
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseURI
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseValue
 from dsp_tools.commands.xmlupload.value_transformers import TransformationSteps
 from dsp_tools.commands.xmlupload.value_transformers import assert_is_string
-from dsp_tools.commands.xmlupload.value_transformers import transform_date
-from dsp_tools.commands.xmlupload.value_transformers import transform_decimal
-from dsp_tools.commands.xmlupload.value_transformers import transform_geometry
 from dsp_tools.commands.xmlupload.value_transformers import transform_string
+from dsp_tools.commands.xmlupload.value_transformers import value_to_serialiser_mapper
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import PermissionNotExistsError
@@ -152,16 +143,6 @@ class ResourceCreateClient:
         properties_graph = Graph()
         # To frame the json-ld correctly, we need one property used in the graph. It does not matter which.
         last_prop_name = None
-
-        value_to_serialiser_mapper: dict[str, TransformationSteps] = {
-            "color": TransformationSteps(SerialiseColor, transform_string),
-            "date": TransformationSteps(SerialiseDate, transform_date),
-            "decimal": TransformationSteps(SerialiseDecimal, transform_decimal),
-            "geometry": TransformationSteps(SerialiseGeometry, transform_geometry),
-            "geoname": TransformationSteps(SerialiseGeoname, transform_string),
-            "time": TransformationSteps(SerialiseTime, transform_string),
-            "uri": TransformationSteps(SerialiseURI, transform_string),
-        }
 
         for prop in resource.properties:
             match prop.valtype:

@@ -8,6 +8,13 @@ from typing import Union
 from typing import assert_never
 
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
+from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseColor
+from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseDate
+from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseDecimal
+from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseGeometry
+from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseGeoname
+from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseTime
+from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseURI
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import ValueSerialiser
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.date_util import Date
@@ -56,3 +63,14 @@ def assert_is_string(value: str | FormattedTextValue) -> str:
             raise BaseError(f"Expected string value, but got XML value: {xml.as_xml()}")
         case _:
             assert_never(value)
+
+
+value_to_serialiser_mapper: dict[str, TransformationSteps] = {
+    "color": TransformationSteps(SerialiseColor, transform_string),
+    "date": TransformationSteps(SerialiseDate, transform_date),
+    "decimal": TransformationSteps(SerialiseDecimal, transform_decimal),
+    "geometry": TransformationSteps(SerialiseGeometry, transform_geometry),
+    "geoname": TransformationSteps(SerialiseGeoname, transform_string),
+    "time": TransformationSteps(SerialiseTime, transform_string),
+    "uri": TransformationSteps(SerialiseURI, transform_string),
+}

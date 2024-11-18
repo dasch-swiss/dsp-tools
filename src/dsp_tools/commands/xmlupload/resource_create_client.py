@@ -33,11 +33,6 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import Bo
 from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import IntValueRDF
 from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseMigrationMetadata
 from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseResource
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseColor
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseDate
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseDecimal
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseGeometry
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseGeoname
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseProperty
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseRichtext
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseSimpletext
@@ -429,7 +424,7 @@ def _transform_into_richtext_value(
 def _transform_into_serialise_prop(
     prop: XMLProperty,
     permissions_lookup: dict[str, Permissions],
-    seraliser: Callable[[str, str | None, str | None], SerialiseValue],
+    seraliser: TransformationSteps,
 ) -> SerialiseProperty:
     serialised_values = [_transform_into_serialise_value(v, permissions_lookup, seraliser) for v in prop.values]
     prop_serialise = SerialiseProperty(
@@ -442,11 +437,11 @@ def _transform_into_serialise_prop(
 def _transform_into_serialise_value(
     value: XMLValue,
     permissions_lookup: dict[str, Permissions],
-    serialiser: Callable[[str, str | None, str | None], SerialiseValue],
+    transformer: TransformationSteps,
 ) -> SerialiseValue:
     permission_str = _get_permission_str(value.permissions, permissions_lookup)
     value_str = cast(str, value.value)
-    return serialiser(value_str, permission_str, value.comment)
+    return transformer.serialiser(value_str, permission_str, value.comment)
 
 
 def _get_permission_str(permissions: str | None, permissions_lookup: dict[str, Permissions]) -> str | None:

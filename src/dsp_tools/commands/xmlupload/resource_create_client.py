@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
-from typing import Callable
 from typing import assert_never
 from typing import cast
 
@@ -44,8 +43,8 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_value import Serial
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseTime
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseURI
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseValue
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import ValueTypes
-from dsp_tools.commands.xmlupload.value_transformers import ValueTransformer
+from dsp_tools.commands.xmlupload.models.serialise.serialise_value import ValueSerialiser
+from dsp_tools.commands.xmlupload.value_transformers import TransformationSteps
 from dsp_tools.commands.xmlupload.value_transformers import transform_date
 from dsp_tools.commands.xmlupload.value_transformers import transform_decimal
 from dsp_tools.commands.xmlupload.value_transformers import transform_geometry
@@ -154,26 +153,25 @@ class ResourceCreateClient:
         # To frame the json-ld correctly, we need one property used in the graph. It does not matter which.
         last_prop_name = None
 
-        str_value_to_serialiser_mapper = {
-            "color": (SerialiseColor, transform_string),
-            "date": (SerialiseDate, transform_date),
-            "decimal": (SerialiseDecimal, transform_decimal),
-            "geometry": (SerialiseGeometry, transform_geometry),
-            "geoname": (SerialiseGeoname, transform_string),
-            "time": (SerialiseTime, transform_string),
-            "uri": (SerialiseURI, transform_string),
+        value_to_serialiser_mapper: dict[str, TransformationSteps] = {
+            "color": TransformationSteps(SerialiseColor, transform_string),
+            "date": TransformationSteps(SerialiseDate, transform_date),
+            "decimal": TransformationSteps(SerialiseDecimal, transform_decimal),
+            "geometry": TransformationSteps(SerialiseGeometry, transform_geometry),
+            "geoname": TransformationSteps(SerialiseGeoname, transform_string),
+            "time": TransformationSteps(SerialiseTime, transform_string),
+            "uri": TransformationSteps(SerialiseURI, transform_string),
         }
 
         for prop in resource.properties:
             match prop.valtype:
                 # serialised as dict
                 case "uri" | "color" | "geoname" | "time" | "decimal" | "geometry" | "date" as val_type:
-                    serialiser, transformer = str_value_to_serialiser_mapper[val_type]
+                    transformations = value_to_serialiser_mapper[val_type]
                     transformed_prop = _transform_into_serialise_prop(
                         prop=prop,
                         permissions_lookup=self.permissions_lookup,
-                        serialiser=serialiser,
-                        transformer=transformer,
+                        transformations=transformations,
                     )
                     properties_serialised.update(transformed_prop.serialise())
                 case "text":
@@ -234,11 +232,11 @@ class ResourceCreateClient:
 def _transform_into_serialise_prop(
     prop: XMLProperty,
     permissions_lookup: dict[str, Permissions],
-    serialiser: Callable[[ValueTypes, str | None, str | None], SerialiseValue],
-    transformer: ValueTransformer,
+    transformations: TransformationSteps,
 ) -> SerialiseProperty:
     serialised_values = [
-        _transform_into_serialise_value(v, permissions_lookup, serialiser, transformer) for v in prop.values
+        _transform_into_serialise_value(v, permissions_lookup, transformations)
+        for v in prop.values
     ]
     prop_serialise = SerialiseProperty(
         property_name=prop.name,
@@ -250,12 +248,11 @@ def _transform_into_serialise_prop(
 def _transform_into_serialise_value(
     value: XMLValue,
     permissions_lookup: dict[str, Permissions],
-    serialiser: Callable[[ValueTypes, str | None, str | None], SerialiseValue],
-    transformer: ValueTransformer,
+    transformations: TransformationSteps,
 ) -> SerialiseValue:
-    transformed = transformer(value.value)
+    transformed = transformations.transformer(value.value)
     permission_str = _get_permission_str(value.permissions, permissions_lookup)
-    return serialiser(transformed, permission_str, value.comment)
+    return transformations.serialiser(transformed, permission_str, value.comment)
 
 
 def _add_optional_permission_triple(
@@ -431,8 +428,7 @@ def _transform_text_prop(
                     _transform_into_serialise_value(
                         value=val,
                         permissions_lookup=permissions_lookup,
-                        serialiser=SerialiseSimpletext,
-                        transformer=transform_string,
+                        transformations=TransformationSteps(SerialiseSimpletext, transform_string)
                     )
                 )
             case FormattedTextValue():

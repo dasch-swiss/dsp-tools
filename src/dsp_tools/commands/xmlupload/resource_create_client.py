@@ -33,6 +33,8 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import Bo
 from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import IntValueRDF
 from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseMigrationMetadata
 from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseResource
+from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseLink
+from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseList
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseProperty
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseRichtext
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseSimpletext
@@ -42,7 +44,6 @@ from dsp_tools.commands.xmlupload.value_transformers import TransformationSteps
 from dsp_tools.commands.xmlupload.value_transformers import assert_is_string
 from dsp_tools.commands.xmlupload.value_transformers import transform_boolean
 from dsp_tools.commands.xmlupload.value_transformers import transform_string
-from dsp_tools.commands.xmlupload.value_transformers import value_to_serialiser_mapper
 from dsp_tools.commands.xmlupload.value_transformers import value_to_transformations_mapper
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InputError
@@ -157,12 +158,17 @@ class ResourceCreateClient:
                         iri_resolver=self.iri_resolver,
                     )
                     properties_serialised.update(transformed_prop.serialise())
-                case "resptr" | "list" as val_type:
-                    serialiser = value_to_serialiser_mapper[val_type]
-                    transformed_prop = _transform_into_prop_with_iri(
+                case "resptr":
+                    transformed_prop = _transform_into_link_prop(
                         prop=prop,
                         permissions_lookup=self.permissions_lookup,
-                        serialiser=serialiser,
+                        iri_resolver=self.iri_resolver,
+                    )
+                    properties_serialised.update(transformed_prop.serialise())
+                case "list":
+                    transformed_prop = _transform_into_list_prop(
+                        prop=prop,
+                        permissions_lookup=self.permissions_lookup,
                         iri_resolver=self.iri_resolver,
                     )
                     properties_serialised.update(transformed_prop.serialise())
@@ -313,13 +319,21 @@ def _make_integer_value(
     )
 
 
-def _transform_into_prop_with_iri(
+def _transform_into_link_prop(
     prop: XMLProperty,
     permissions_lookup: dict[str, Permissions],
-    serialiser: ValueSerialiser,
     iri_resolver: IriResolver,
 ) -> SerialiseProperty:
-    vals = [_transform_into_value_with_iri(v, permissions_lookup, serialiser, iri_resolver) for v in prop.values]
+    vals = [_transform_into_value_with_iri(v, permissions_lookup, SerialiseLink, iri_resolver) for v in prop.values]
+    return SerialiseProperty(property_name=f"{prop.name}Value", values=vals)
+
+
+def _transform_into_list_prop(
+    prop: XMLProperty,
+    permissions_lookup: dict[str, Permissions],
+    iri_resolver: IriResolver,
+) -> SerialiseProperty:
+    vals = [_transform_into_value_with_iri(v, permissions_lookup, SerialiseList, iri_resolver) for v in prop.values]
     return SerialiseProperty(property_name=prop.name, values=vals)
 
 

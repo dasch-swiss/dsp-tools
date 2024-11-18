@@ -15,8 +15,6 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_value import Serial
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseGeometry
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseGeoname
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseInterval
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseLink
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseList
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseTime
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseURI
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import ValueSerialiser
@@ -99,9 +97,4 @@ value_to_transformations_mapper: dict[str, TransformationSteps] = {
     "time": TransformationSteps(SerialiseTime, transform_string),
     "uri": TransformationSteps(SerialiseURI, transform_string),
     "interval": TransformationSteps(SerialiseInterval, transform_interval),
-}
-
-value_to_serialiser_mapper = {
-    "resptr": SerialiseLink,
-    "list": SerialiseList,
 }

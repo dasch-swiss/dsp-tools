@@ -8,11 +8,15 @@ from typing import Union
 from typing import assert_never
 
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
+from dsp_tools.commands.xmlupload.models.serialise.serialise_value import Interval
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseColor
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseDate
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseDecimal
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseGeometry
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseGeoname
+from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseInterval
+from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseLink
+from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseList
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseTime
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseURI
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import ValueSerialiser
@@ -21,7 +25,7 @@ from dsp_tools.utils.date_util import Date
 from dsp_tools.utils.date_util import parse_date_string
 
 InputTypes: TypeAlias = Union[str, FormattedTextValue]
-OutputTypes: TypeAlias = Union[str, Date]
+OutputTypes: TypeAlias = Union[str, Date, Interval]
 ValueTransformer: TypeAlias = Callable[[InputTypes], OutputTypes]
 
 
@@ -29,6 +33,17 @@ ValueTransformer: TypeAlias = Callable[[InputTypes], OutputTypes]
 class TransformationSteps:
     serialiser: ValueSerialiser
     transformer: ValueTransformer
+
+
+def transform_boolean(s: str | int | bool) -> bool:
+    """Takes an input value and transforms it into a boolean."""
+    match s:
+        case "True" | "true" | "1" | 1 | True:
+            return True
+        case "False" | "false" | "0" | 0 | False:
+            return False
+        case _:
+            raise BaseError(f"Could not parse boolean value: {s}")
 
 
 def transform_date(input_value: InputTypes) -> Date:
@@ -49,6 +64,16 @@ def transform_geometry(input_value: InputTypes) -> str:
     return json.dumps(json.loads(val))
 
 
+def transform_interval(input_value: InputTypes) -> Interval:
+    """Transform a sting input into an interval object."""
+    val = assert_is_string(input_value)
+    match val.split(":", 1):
+        case [start, end]:
+            return Interval(start, end)
+        case _:
+            raise BaseError(f"Could not parse interval value: {input_value}")
+
+
 def transform_string(input_value: InputTypes) -> str:
     """Assert that an input is of type string."""
     return assert_is_string(input_value)
@@ -65,7 +90,7 @@ def assert_is_string(value: str | FormattedTextValue) -> str:
             assert_never(value)
 
 
-value_to_serialiser_mapper: dict[str, TransformationSteps] = {
+value_to_serialiser_and_transformer_mapper: dict[str, TransformationSteps] = {
     "color": TransformationSteps(SerialiseColor, transform_string),
     "date": TransformationSteps(SerialiseDate, transform_date),
     "decimal": TransformationSteps(SerialiseDecimal, transform_decimal),
@@ -73,4 +98,10 @@ value_to_serialiser_mapper: dict[str, TransformationSteps] = {
     "geoname": TransformationSteps(SerialiseGeoname, transform_string),
     "time": TransformationSteps(SerialiseTime, transform_string),
     "uri": TransformationSteps(SerialiseURI, transform_string),
+    "interval": TransformationSteps(SerialiseInterval, transform_interval),
+}
+
+value_to_serialiser_mapper = {
+    "resptr": SerialiseLink,
+    "list": SerialiseList,
 }

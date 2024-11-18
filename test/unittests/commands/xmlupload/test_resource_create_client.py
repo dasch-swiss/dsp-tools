@@ -19,8 +19,6 @@ from dsp_tools.commands.xmlupload.resource_create_client import KNORA_API
 from dsp_tools.commands.xmlupload.resource_create_client import _make_bitstream_file_value
 from dsp_tools.commands.xmlupload.resource_create_client import _make_boolean_value
 from dsp_tools.commands.xmlupload.resource_create_client import _make_iiif_uri_value
-from dsp_tools.commands.xmlupload.resource_create_client import _to_boolean
-from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import PermissionNotExistsError
 
 ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
@@ -382,23 +380,6 @@ class TestMakeBitstreamFileValue:
             }
         }
         assert value == expected
-
-
-def test_to_boolean() -> None:
-    assert _to_boolean("true")
-    assert _to_boolean("True")
-    assert _to_boolean("1")
-    assert _to_boolean(1)
-    assert _to_boolean(True)
-    assert not _to_boolean("false")
-    assert not _to_boolean("False")
-    assert not _to_boolean("0")
-    assert not _to_boolean(0)
-    assert not _to_boolean(False)
-    with pytest.raises(BaseError):
-        _to_boolean("foo")
-    with pytest.raises(BaseError):
-        _to_boolean(2)
 
 
 def test_make_iiif_uri_value_with_permissions() -> None:

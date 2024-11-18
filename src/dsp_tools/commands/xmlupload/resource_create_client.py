@@ -45,11 +45,11 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_value import Serial
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseURI
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseValue
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import ValueTypes
-from dsp_tools.commands.xmlupload.value_transformers import DateTransformer
-from dsp_tools.commands.xmlupload.value_transformers import DecimalTransformer
-from dsp_tools.commands.xmlupload.value_transformers import GeometryTransformer
-from dsp_tools.commands.xmlupload.value_transformers import StringTransformer
 from dsp_tools.commands.xmlupload.value_transformers import ValueTransformer
+from dsp_tools.commands.xmlupload.value_transformers import transform_date
+from dsp_tools.commands.xmlupload.value_transformers import transform_decimal
+from dsp_tools.commands.xmlupload.value_transformers import transform_geometry
+from dsp_tools.commands.xmlupload.value_transformers import transform_string
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import PermissionNotExistsError
@@ -155,13 +155,13 @@ class ResourceCreateClient:
         last_prop_name = None
 
         str_value_to_serialiser_mapper = {
-            "color": (SerialiseColor, StringTransformer()),
-            "date": (SerialiseDate, DateTransformer()),
-            "decimal": (SerialiseDecimal, DecimalTransformer()),
-            "geometry": (SerialiseGeometry, GeometryTransformer()),
-            "geoname": (SerialiseGeoname, StringTransformer()),
-            "time": (SerialiseTime, StringTransformer()),
-            "uri": (SerialiseURI, StringTransformer()),
+            "color": (SerialiseColor, transform_string),
+            "date": (SerialiseDate, transform_date),
+            "decimal": (SerialiseDecimal, transform_decimal),
+            "geometry": (SerialiseGeometry, transform_geometry),
+            "geoname": (SerialiseGeoname, transform_string),
+            "time": (SerialiseTime, transform_string),
+            "uri": (SerialiseURI, transform_string),
         }
 
         for prop in resource.properties:
@@ -253,7 +253,7 @@ def _transform_into_serialise_value(
     serialiser: Callable[[ValueTypes, str | None, str | None], SerialiseValue],
     transformer: ValueTransformer,
 ) -> SerialiseValue:
-    transformed = transformer.transform(value.value)
+    transformed = transformer(value.value)
     permission_str = _get_permission_str(value.permissions, permissions_lookup)
     return serialiser(transformed, permission_str, value.comment)
 
@@ -432,7 +432,7 @@ def _transform_text_prop(
                         value=val,
                         permissions_lookup=permissions_lookup,
                         serialiser=SerialiseSimpletext,
-                        transformer=StringTransformer(),
+                        transformer=transform_string,
                     )
                 )
             case FormattedTextValue():

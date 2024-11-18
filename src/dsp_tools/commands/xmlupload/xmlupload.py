@@ -21,6 +21,7 @@ from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResou
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
 from dsp_tools.commands.xmlupload.models.namespace_context import get_json_ld_context_for_project
+from dsp_tools.commands.xmlupload.models.namespace_context import make_namespace_dict_from_onto_names
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
@@ -242,12 +243,14 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
     project_iri = clients.project_client.get_project_iri()
     project_onto_dict = clients.project_client.get_ontology_name_dict()
     listnode_lookup = clients.list_client.get_list_node_id_to_iri_lookup()
-
+    project_context = get_json_ld_context_for_project(project_onto_dict)
+    namespaces = make_namespace_dict_from_onto_names(project_onto_dict)
     resource_create_client = ResourceCreateClient(
         con=clients.project_client.con,
         project_iri=project_iri,
         iri_resolver=upload_state.iri_resolver,
-        project_onto_dict=project_onto_dict,
+        jsonld_context=project_context,
+        namespaces=namespaces,
         permissions_lookup=upload_state.permissions_lookup,
         listnode_lookup=listnode_lookup,
         media_previously_ingested=upload_state.config.media_previously_uploaded,

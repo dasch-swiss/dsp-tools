@@ -26,28 +26,29 @@ class TransformationSteps:
 
 def transform_date(input_value: InputTypes) -> Date:
     """Transform a date string into a date object."""
-    val = _assert_is_string(input_value)
+    val = assert_is_string(input_value)
     return parse_date_string(val)
 
 
 def transform_decimal(input_value: InputTypes) -> str:
     """Transform an input into a decimal in string format."""
-    val = _assert_is_string(input_value)
+    val = assert_is_string(input_value)
     return str(float(val))
 
 
 def transform_geometry(input_value: InputTypes) -> str:
     """Transform a geometry input into a string."""
-    val = _assert_is_string(input_value)
+    val = assert_is_string(input_value)
     return json.dumps(json.loads(val))
 
 
 def transform_string(input_value: InputTypes) -> str:
     """Assert that an input is of type string."""
-    return _assert_is_string(input_value)
+    return assert_is_string(input_value)
 
 
-def _assert_is_string(value: str | FormattedTextValue) -> str:
+def assert_is_string(value: str | FormattedTextValue) -> str:
+    """Assert a value is a string."""
     match value:
         case str() as s:
             return s

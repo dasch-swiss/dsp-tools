@@ -44,6 +44,7 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_value import Serial
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseURI
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseValue
 from dsp_tools.commands.xmlupload.value_transformers import TransformationSteps
+from dsp_tools.commands.xmlupload.value_transformers import assert_is_string
 from dsp_tools.commands.xmlupload.value_transformers import transform_date
 from dsp_tools.commands.xmlupload.value_transformers import transform_decimal
 from dsp_tools.commands.xmlupload.value_transformers import transform_geometry
@@ -316,7 +317,7 @@ def _make_boolean_prop(
 def _make_boolean_value(
     value: XMLValue, prop_name: URIRef, res_bn: BNode, permissions_lookup: dict[str, Permissions]
 ) -> BooleanValueRDF:
-    s = _assert_is_string(value.value)
+    s = assert_is_string(value.value)
     as_bool = _to_boolean(s)
     permission_literal = None
     if permission_str := _get_permission_str(value.permissions, permissions_lookup):
@@ -343,7 +344,7 @@ def _make_integer_prop(
 def _make_integer_value(
     value: XMLValue, prop_name: URIRef, res_bn: BNode, permissions_lookup: dict[str, Permissions]
 ) -> IntValueRDF:
-    s = _assert_is_string(value.value)
+    s = assert_is_string(value.value)
     permission_literal = None
     if permission_str := _get_permission_str(value.permissions, permissions_lookup):
         permission_literal = Literal(permission_str)
@@ -357,7 +358,7 @@ def _make_integer_value(
 
 
 def _make_interval_value(value: XMLValue) -> dict[str, Any]:
-    s = _assert_is_string(value.value)
+    s = assert_is_string(value.value)
     match s.split(":", 1):
         case [start, end]:
             return {
@@ -376,7 +377,7 @@ def _make_interval_value(value: XMLValue) -> dict[str, Any]:
 
 
 def _make_link_value(value: XMLValue, iri_resolver: IriResolver) -> dict[str, Any]:
-    s = _assert_is_string(value.value)
+    s = assert_is_string(value.value)
     if is_resource_iri(s):
         iri = s
     elif resolved_iri := iri_resolver.get(s):
@@ -397,7 +398,7 @@ def _make_link_value(value: XMLValue, iri_resolver: IriResolver) -> dict[str, An
 
 
 def _make_list_value(value: XMLValue, iri_lookup: dict[str, str]) -> dict[str, Any]:
-    s = _assert_is_string(value.value)
+    s = assert_is_string(value.value)
     if iri := iri_lookup.get(s):
         return {
             "@type": "knora-api:ListValue",
@@ -450,13 +451,3 @@ def _get_permission_str(value_permissions: str | None, permissions_lookup: dict[
             raise PermissionNotExistsError(f"Could not find permissions for value: {value_permissions}")
         return str(per)
     return None
-
-
-def _assert_is_string(value: str | FormattedTextValue) -> str:
-    match value:
-        case str() as s:
-            return s
-        case FormattedTextValue() as xml:
-            raise BaseError(f"Expected string value, but got XML value: {xml.as_xml()}")
-        case _:
-            assert_never(value)

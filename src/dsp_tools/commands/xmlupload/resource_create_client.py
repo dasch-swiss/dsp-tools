@@ -183,7 +183,6 @@ class ResourceCreateClient:
                     bool_graph = _make_boolean_prop(prop, res_bnode, bool_prop_name, self.permissions_lookup)
                     properties_graph += bool_graph
                     last_prop_name = bool_prop_name
-                # serialised as dict
                 case _:
                     raise UserError(f"Unknown value type: {prop.valtype}")
         if resource.iiif_uri:

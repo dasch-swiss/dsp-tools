@@ -45,11 +45,11 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_value import Serial
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseURI
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseValue
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import ValueTypes
-from dsp_tools.commands.xmlupload.models.value_transformers import DateTransformer
-from dsp_tools.commands.xmlupload.models.value_transformers import DecimalTransformer
-from dsp_tools.commands.xmlupload.models.value_transformers import GeometryTransformer
-from dsp_tools.commands.xmlupload.models.value_transformers import StringTransformer
-from dsp_tools.commands.xmlupload.models.value_transformers import ValueTransformer
+from dsp_tools.commands.xmlupload.value_transformers import DateTransformer
+from dsp_tools.commands.xmlupload.value_transformers import DecimalTransformer
+from dsp_tools.commands.xmlupload.value_transformers import GeometryTransformer
+from dsp_tools.commands.xmlupload.value_transformers import StringTransformer
+from dsp_tools.commands.xmlupload.value_transformers import ValueTransformer
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import PermissionNotExistsError

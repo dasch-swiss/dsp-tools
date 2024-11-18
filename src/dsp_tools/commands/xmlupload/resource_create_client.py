@@ -22,8 +22,7 @@ from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XM
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
-from dsp_tools.commands.xmlupload.models.namespace_context import get_json_ld_context_for_project
-from dsp_tools.commands.xmlupload.models.namespace_context import make_namespace_dict_from_onto_names
+from dsp_tools.commands.xmlupload.models.namespace_context import JSONLDContext
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.serialise.jsonld_serialiser import serialise_property_graph
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseArchiveFileValue
@@ -32,7 +31,12 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import S
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseMovingImageFileValue
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseStillImageFileValue
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseTextFileValue
+from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import BooleanValueRDF
+from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import IntValueRDF
+from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseMigrationMetadata
+from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseResource
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseColor
+from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseDate
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseDecimal
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseGeometry
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseGeoname
@@ -61,9 +65,10 @@ class ResourceCreateClient:
     con: Connection
     project_iri: str
     iri_resolver: IriResolver
-    project_onto_dict: dict[str, str]
     permissions_lookup: dict[str, Permissions]
     listnode_lookup: dict[str, str]
+    jsonld_context: JSONLDContext
+    namespaces: dict[str, Namespace]
     media_previously_ingested: bool = False
 
     def create_resource(
@@ -86,12 +91,11 @@ class ResourceCreateClient:
         bitstream_information: BitstreamInfo | None,
     ) -> dict[str, Any]:
         res_bnode = BNode()
-        namespaces = make_namespace_dict_from_onto_names(self.project_onto_dict)
         res = self._make_resource(
             resource=resource,
             bitstream_information=bitstream_information,
         )
-        vals = self._make_values(resource, res_bnode, namespaces)
+        vals = self._make_values(resource, res_bnode)
         res.update(vals)
         return res
 
@@ -100,35 +104,29 @@ class ResourceCreateClient:
         resource: XMLResource,
         bitstream_information: BitstreamInfo | None,
     ) -> dict[str, Any]:
-        resource_iri = resource.iri
+        migration_metadata = None
+        res_iri = resource.iri
+        creation_date = resource.creation_date
         if resource.ark:
-            resource_iri = convert_ark_v0_to_resource_iri(resource.ark)
-        context = get_json_ld_context_for_project(self.project_onto_dict)
-        res = {
-            "@type": resource.restype,
-            "rdfs:label": resource.label,
-            "knora-api:attachedToProject": {"@id": self.project_iri},
-            "@context": context,
-        }
-        if resource_iri:
-            res["@id"] = resource_iri
-        if resource.permissions:
-            if perm := self.permissions_lookup.get(resource.permissions):
-                res["knora-api:hasPermissions"] = str(perm)
-            else:
-                raise PermissionNotExistsError(
-                    f"Could not find permissions for resource {resource.res_id} with permissions {resource.permissions}"
-                )
-        if resource.creation_date:
-            res["knora-api:creationDate"] = {
-                "@type": "xsd:dateTimeStamp",
-                "@value": str(resource.creation_date),
-            }
+            res_iri = convert_ark_v0_to_resource_iri(resource.ark)
+        if any([creation_date, res_iri]):
+            migration_metadata = SerialiseMigrationMetadata(iri=res_iri, creation_date=resource.creation_date)
+        permission_str = _get_permission_str(resource.permissions, self.permissions_lookup)
+        serialise_resource = SerialiseResource(
+            res_id=resource.res_id,
+            res_type=resource.restype,
+            label=resource.label,
+            permissions=permission_str,
+            project_iri=self.project_iri,
+            migration_metadata=migration_metadata,
+        )
+        res = serialise_resource.serialise()
         if bitstream_information:
             res.update(_make_bitstream_file_value(bitstream_information))
+        res.update(self.jsonld_context.serialise())
         return res
 
-    def _make_values(self, resource: XMLResource, res_bnode: BNode, namespaces: dict[str, Namespace]) -> dict[str, Any]:
+    def _make_values(self, resource: XMLResource, res_bnode: BNode) -> dict[str, Any]:
         def prop_name(p: XMLProperty) -> str:
             if p.valtype != "resptr":
                 return p.name
@@ -181,14 +179,20 @@ class ResourceCreateClient:
                         iri_resolver=self.iri_resolver,
                     )
                     properties_serialised.update(transformed_prop.serialise())
+                case "date":
+                    transformed_prop = _transform_into_date_prop(
+                        prop=prop,
+                        permissions_lookup=self.permissions_lookup,
+                    )
+                    properties_serialised.update(transformed_prop.serialise())
                 # serialised with rdflib
                 case "integer":
-                    int_prop_name = self._get_absolute_prop_iri(prop.name, namespaces)
+                    int_prop_name = self._get_absolute_prop_iri(prop.name)
                     int_graph = _make_integer_prop(prop, res_bnode, int_prop_name, self.permissions_lookup)
                     properties_graph += int_graph
                     last_prop_name = int_prop_name
                 case "boolean":
-                    bool_prop_name = self._get_absolute_prop_iri(prop.name, namespaces)
+                    bool_prop_name = self._get_absolute_prop_iri(prop.name)
                     bool_graph = _make_boolean_prop(prop, res_bnode, bool_prop_name, self.permissions_lookup)
                     properties_graph += bool_graph
                     last_prop_name = bool_prop_name
@@ -203,16 +207,14 @@ class ResourceCreateClient:
             properties_serialised.update(serialised_graph_props)
         return properties_serialised
 
-    def _get_absolute_prop_iri(self, prefixed_prop: str, namespaces: dict[str, Namespace]) -> URIRef:
+    def _get_absolute_prop_iri(self, prefixed_prop: str) -> URIRef:
         prefix, prop = prefixed_prop.split(":", maxsplit=1)
-        if not (namespace := namespaces.get(prefix)):
+        if not (namespace := self.namespaces.get(prefix)):
             raise InputError(f"Could not find namespace for prefix: {prefix}")
         return namespace[prop]
 
     def _make_value(self, value: XMLValue, value_type: str) -> dict[str, Any]:
         match value_type:
-            case "date":
-                res = _make_date_value(value)
             case "interval":
                 res = _make_interval_value(value)
             case "resptr":
@@ -283,30 +285,16 @@ def _to_boolean(s: str | int | bool) -> bool:
             raise BaseError(f"Could not parse boolean value: {s}")
 
 
-def _make_date_value(value: XMLValue) -> dict[str, Any]:
+def _transform_into_date_prop(prop: XMLProperty, permissions_lookup: dict[str, Permissions]) -> SerialiseProperty:
+    vals = [_transform_into_date_value(v, permissions_lookup) for v in prop.values]
+    return SerialiseProperty(property_name=prop.name, values=vals)
+
+
+def _transform_into_date_value(value: XMLValue, permissions_lookup: dict[str, Permissions]) -> SerialiseDate:
     string_value = _assert_is_string(value.value)
     date = parse_date_string(string_value)
-    res: dict[str, Any] = {
-        "@type": "knora-api:DateValue",
-        "knora-api:dateValueHasStartYear": date.start.year,
-    }
-    if month := date.start.month:
-        res["knora-api:dateValueHasStartMonth"] = month
-    if day := date.start.day:
-        res["knora-api:dateValueHasStartDay"] = day
-    if era := date.start.era:
-        res["knora-api:dateValueHasStartEra"] = era.value
-    if calendar := date.calendar:
-        res["knora-api:dateValueHasCalendar"] = calendar.value
-    if date.end:
-        res["knora-api:dateValueHasEndYear"] = date.end.year
-        if month := date.end.month:
-            res["knora-api:dateValueHasEndMonth"] = month
-        if day := date.end.day:
-            res["knora-api:dateValueHasEndDay"] = day
-        if era := date.end.era:
-            res["knora-api:dateValueHasEndEra"] = era.value
-    return res
+    permission_str = _get_permission_str(value.permissions, permissions_lookup)
+    return SerialiseDate(value=date, permissions=permission_str, comment=value.comment)
 
 
 def _transform_into_decimal_prop(prop: XMLProperty, permissions_lookup: dict[str, Permissions]) -> SerialiseProperty:
@@ -339,21 +327,26 @@ def _make_boolean_prop(
 ) -> Graph:
     g = Graph()
     for value in prop.values:
-        single_val_bn = BNode()
-        g.add((res_bn, prop_name, single_val_bn))
-        g += _make_boolean_value(value, single_val_bn, permissions_lookup)
+        boolean_value = _make_boolean_value(value, prop_name, res_bn, permissions_lookup)
+        g += boolean_value.as_graph()
     return g
 
 
-def _make_boolean_value(value: XMLValue, val_bn: BNode, permissions_lookup: dict[str, Permissions]) -> Graph:
+def _make_boolean_value(
+    value: XMLValue, prop_name: URIRef, res_bn: BNode, permissions_lookup: dict[str, Permissions]
+) -> BooleanValueRDF:
     s = _assert_is_string(value.value)
-    g = Graph()
-    g.add((val_bn, RDF.type, KNORA_API.BooleanValue))
-    g.add((val_bn, KNORA_API.booleanValueAsBoolean, Literal(_to_boolean(s))))
-    _add_optional_permission_triple(value, val_bn, g, permissions_lookup)
-    if value.comment:
-        g.add((val_bn, KNORA_API.valueHasComment, Literal(value.comment)))
-    return g
+    as_bool = _to_boolean(s)
+    permission_literal = None
+    if permission_str := _get_permission_str(value.permissions, permissions_lookup):
+        permission_literal = Literal(permission_str)
+    return BooleanValueRDF(
+        resource_bn=res_bn,
+        prop_name=prop_name,
+        value=Literal(as_bool),
+        permissions=permission_literal,
+        comment=Literal(value.comment) if value.comment else None,
+    )
 
 
 def _make_integer_prop(
@@ -361,21 +354,25 @@ def _make_integer_prop(
 ) -> Graph:
     g = Graph()
     for value in prop.values:
-        single_val_bn = BNode()
-        g.add((res_bn, prop_name, single_val_bn))
-        g += _make_integer_value(value, single_val_bn, permissions_lookup)
+        int_value = _make_integer_value(value, prop_name, res_bn, permissions_lookup)
+        g += int_value.as_graph()
     return g
 
 
-def _make_integer_value(value: XMLValue, val_bn: BNode, permissions_lookup: dict[str, Permissions]) -> Graph:
+def _make_integer_value(
+    value: XMLValue, prop_name: URIRef, res_bn: BNode, permissions_lookup: dict[str, Permissions]
+) -> IntValueRDF:
     s = _assert_is_string(value.value)
-    g = Graph()
-    g.add((val_bn, RDF.type, KNORA_API.IntValue))
-    g.add((val_bn, KNORA_API.intValueAsInt, Literal(int(s))))
-    _add_optional_permission_triple(value, val_bn, g, permissions_lookup)
-    if value.comment:
-        g.add((val_bn, KNORA_API.valueHasComment, Literal(value.comment)))
-    return g
+    permission_literal = None
+    if permission_str := _get_permission_str(value.permissions, permissions_lookup):
+        permission_literal = Literal(permission_str)
+    return IntValueRDF(
+        resource_bn=res_bn,
+        prop_name=prop_name,
+        value=Literal(int(s)),
+        permissions=permission_literal,
+        comment=Literal(value.comment) if value.comment else None,
+    )
 
 
 def _make_interval_value(value: XMLValue) -> dict[str, Any]:
@@ -483,10 +480,10 @@ def _transform_into_serialise_value(
     return serialiser(value_str, permission_str, value.comment)
 
 
-def _get_permission_str(value_permissions: str | None, permissions_lookup: dict[str, Permissions]) -> str | None:
-    if value_permissions:
-        if not (per := permissions_lookup.get(value_permissions)):
-            raise PermissionNotExistsError(f"Could not find permissions for value: {value_permissions}")
+def _get_permission_str(permissions: str | None, permissions_lookup: dict[str, Permissions]) -> str | None:
+    if permissions:
+        if not (per := permissions_lookup.get(permissions)):
+            raise PermissionNotExistsError(f"Could not find permissions for value: {permissions}")
         return str(per)
     return None
 

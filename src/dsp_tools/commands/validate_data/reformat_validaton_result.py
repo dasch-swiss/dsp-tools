@@ -11,13 +11,13 @@ from rdflib.term import Node
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import ContentRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
+from dsp_tools.commands.validate_data.models.input_problems import FileValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import GenericProblem
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityProblem
-from dsp_tools.commands.validate_data.models.input_problems import MissingFileValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import UnexpectedResults
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProblem
@@ -358,9 +358,9 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
 
 def _reformat_min_cardinality_validation_result(validation_result: ResultMinCardinalityViolation) -> InputProblem:
     iris = _reformat_main_iris(validation_result)
-    file_value_properties = ["shapes:hasGenericFileValue"]
+    file_value_properties = ["hasMovingImageFileValue"]
     if iris.prop_name in file_value_properties:
-        return MissingFileValueProblem(
+        return FileValueProblem(
             res_id=iris.res_id,
             res_type=iris.res_type,
             prop_name="bitstream / iiif-uri",

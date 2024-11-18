@@ -34,11 +34,11 @@ from dsp_tools.commands.validate_data.models.data_rdf import ColorValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import DataRDF
 from dsp_tools.commands.validate_data.models.data_rdf import DateValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import DecimalValueRDF
-from dsp_tools.commands.validate_data.models.data_rdf import GenericFileValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import GeonameValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import IntValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import LinkValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import ListValueRDF
+from dsp_tools.commands.validate_data.models.data_rdf import MovingImageFileValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import RDFTriples
 from dsp_tools.commands.validate_data.models.data_rdf import ResourceRDF
 from dsp_tools.commands.validate_data.models.data_rdf import RichtextRDF
@@ -65,7 +65,9 @@ def make_data_rdf(data_deserialised: DataDeserialised) -> DataRDF:
     all_triples: list[RDFTriples] = []
     for r in data_deserialised.resources:
         all_triples.extend(_transform_one_resource(r))
-    file_values: list[RDFTriples] = [_transform_file_value(x) for x in data_deserialised.file_values]
+    file_values: list[RDFTriples] = [
+        transformed for x in data_deserialised.file_values if (transformed := _transform_file_value(x))
+    ]
     all_triples.extend(file_values)
     return DataRDF(all_triples)
 
@@ -205,19 +207,25 @@ def _transform_uri_value(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
     return UriValueRDF(URIRef(val.prop_name), content, res_iri)
 
 
-def _transform_file_value(val: AbstractFileValueDeserialised) -> AbstractFileValueRDF:
-    res_iri = DATA[val.res_id]
+def _transform_file_value(val: AbstractFileValueDeserialised) -> AbstractFileValueRDF | None:
     if isinstance(val, IIIFUriDeserialised):
-        return GenericFileValueRDF(res_iri=res_iri, value=Literal(str(val.value)))
+        return None
+    return _map_into_correct_file_value(val)
+
+
+def _map_into_correct_file_value(val: AbstractFileValueDeserialised) -> AbstractFileValueRDF | None:
+    res_iri = DATA[val.res_id]
+    file_literal = Literal(val.value)
     file_extension = _get_file_extension(val.value)
-    return GenericFileValueRDF(res_iri=res_iri, value=Literal(file_extension))
+    match file_extension:
+        case "mp4":
+            return MovingImageFileValueRDF(res_iri=res_iri, value=file_literal)
+        case _:
+            return None
 
 
 def _get_file_extension(value: str | None) -> str:
-    file_extension = "No file path was given."
-    if value:
-        if "." not in value:
-            file_extension = f"This file is missing a valid extension, actual value: {value}"
-        else:
-            file_extension = value.split(".")[-1].lower()
+    file_extension = ""
+    if value and "." in value:
+        file_extension = value.split(".")[-1].lower()
     return file_extension

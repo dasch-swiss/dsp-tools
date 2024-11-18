@@ -11,12 +11,12 @@ from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.validate_data.api_connection import ApiConnection
 from dsp_tools.commands.validate_data.models.input_problems import ContentRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
+from dsp_tools.commands.validate_data.models.input_problems import FileValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import GenericProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityProblem
-from dsp_tools.commands.validate_data.models.input_problems import MissingFileValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProblem
@@ -131,10 +131,8 @@ def file_value_correct(_create_project_generic: Iterator[None], api_con: ApiConn
 
 @lru_cache(maxsize=None)
 @pytest.fixture
-def file_value_cardinality_violation(
-    _create_project_generic: Iterator[None], api_con: ApiConnection
-) -> ValidationReportGraphs:
-    file = Path("testdata/validate-data/generic/file_value_cardinality_violation.xml")
+def file_value_violation(_create_project_generic: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+    file = Path("testdata/validate-data/generic/file_value_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
     return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
 
@@ -255,8 +253,8 @@ class TestCheckConforms:
     def test_file_value_correct(self, file_value_correct: ValidationReportGraphs) -> None:
         assert file_value_correct.conforms
 
-    def test_file_value_cardinality_violation(self, file_value_cardinality_violation: ValidationReportGraphs) -> None:
-        assert not file_value_cardinality_violation.conforms
+    def test_file_value_cardinality_violation(self, file_value_violation: ValidationReportGraphs) -> None:
+        assert not file_value_violation.conforms
 
     def test_special_characters_correct(self, special_characters_correct: ValidationReportGraphs) -> None:
         assert special_characters_correct.conforms
@@ -362,7 +360,7 @@ class TestReformatValidationGraph:
             ("id_card_one", MinCardinalityProblem),
             ("id_closed_constraint", NonExistentCardinalityProblem),
             ("id_max_card", MaxCardinalityProblem),
-            ("id_missing_file_value", MissingFileValueProblem),
+            ("id_missing_file_value", FileValueProblem),
             ("id_simpletext", ValueTypeProblem),
             ("id_uri", ValueTypeProblem),
             ("identical_values", DuplicateValueProblem),
@@ -392,24 +390,14 @@ class TestReformatValidationGraph:
             assert isinstance(one_result, DuplicateValueProblem)
             assert one_result.res_id == expected_id
 
-    def test_reformat_file_value_cardinality_violation(
-        self, file_value_cardinality_violation: ValidationReportGraphs
-    ) -> None:
-        result = reformat_validation_graph(file_value_cardinality_violation)
-        expected_info_tuples = [
-            "id_archive_missing",
-            "id_audio_missing",
-            "id_document_missing",
-            "id_moving_image_missing",
-            "id_still_image_file_missing",
-            "id_still_image_iiif_missing",
-            "id_text_missing",
-        ]
+    def test_reformat_file_value_violation(self, file_value_violation: ValidationReportGraphs) -> None:
+        result = reformat_validation_graph(file_value_violation)
+        expected_info_tuples = ["id_video_missing", "id_video_wrong_extension"]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
-            assert isinstance(one_result, MissingFileValueProblem)
+            assert isinstance(one_result, FileValueProblem)
             assert one_result.res_id == expected_info
 
     def test_reformat_special_characters_violation(self, special_characters_violation: ValidationReportGraphs) -> None:

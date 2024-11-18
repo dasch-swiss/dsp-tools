@@ -53,11 +53,11 @@
         <resource label="Bool Card 1" restype=":ClassInheritedCardinalityOverwriting" id="id_card_one"/>
 
         <!--
-        Our Violation Type            MissingFileValueProblem
+        Our Violation Type            FileValueProblem
         sh:sourceConstraintComponent  sh:MinCountConstraintComponent
         sh:detail                     -
         -->
-        <resource label="TestArchiveRepresentation" restype=":TestArchiveRepresentation" id="id_missing_file_value"/>
+        <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="id_missing_file_value"/>
 
         <!--
         Our Violation Type            NonExistentCardinalityViolation

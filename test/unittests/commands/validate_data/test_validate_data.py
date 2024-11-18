@@ -112,7 +112,7 @@ class TestFindUnknownClasses:
     def test_get_all_onto_classes(self, onto: Graph) -> None:
         res_cls, value_cls = _get_all_onto_classes(onto)
         assert res_cls == {"onto:One"}
-        assert value_cls == {"TextValue", "shapes:GenericFileValue"}
+        assert value_cls == {"TextValue"}
 
 
 if __name__ == "__main__":

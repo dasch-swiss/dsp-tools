@@ -168,7 +168,7 @@ class ResourceCreateClient:
                 # serialised as dict
                 case "uri" | "color" | "geoname" | "time" | "decimal" | "geometry" | "date" as val_type:
                     transformations = value_to_serialiser_mapper[val_type]
-                    transformed_prop = _transform_into_serialise_prop(
+                    transformed_prop = _transform_into_prop_serialiser(
                         prop=prop,
                         permissions_lookup=self.permissions_lookup,
                         transformations=transformations,
@@ -229,12 +229,12 @@ class ResourceCreateClient:
         return res
 
 
-def _transform_into_serialise_prop(
+def _transform_into_prop_serialiser(
     prop: XMLProperty,
     permissions_lookup: dict[str, Permissions],
     transformations: TransformationSteps,
 ) -> SerialiseProperty:
-    serialised_values = [_transform_into_serialise_value(v, permissions_lookup, transformations) for v in prop.values]
+    serialised_values = [_transform_into_value_serialiser(v, permissions_lookup, transformations) for v in prop.values]
     prop_serialise = SerialiseProperty(
         property_name=prop.name,
         values=serialised_values,
@@ -242,7 +242,7 @@ def _transform_into_serialise_prop(
     return prop_serialise
 
 
-def _transform_into_serialise_value(
+def _transform_into_value_serialiser(
     value: XMLValue,
     permissions_lookup: dict[str, Permissions],
     transformations: TransformationSteps,
@@ -422,7 +422,7 @@ def _transform_text_prop(
         match val.value:
             case str():
                 values.append(
-                    _transform_into_serialise_value(
+                    _transform_into_value_serialiser(
                         value=val,
                         permissions_lookup=permissions_lookup,
                         transformations=TransformationSteps(SerialiseSimpletext, transform_string),

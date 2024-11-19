@@ -75,9 +75,9 @@ class DetailBaseInfo:
 
 @dataclass
 class ValidationResult:
-    property: Node
     res_iri: Node
     res_class: Node
+    property: Node
 
 
 @dataclass

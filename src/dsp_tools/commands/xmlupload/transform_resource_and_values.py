@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 from typing import assert_never
@@ -19,7 +18,7 @@ from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XM
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
-from dsp_tools.commands.xmlupload.models.namespace_context import JSONLDContext
+from dsp_tools.commands.xmlupload.models.lookup_models import Lookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.serialise.jsonld_serialiser import serialise_property_graph
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseArchiveFileValue
@@ -52,16 +51,6 @@ from dsp_tools.utils.iri_util import is_resource_iri
 from dsp_tools.utils.logger_config import WARNINGS_SAVEPATH
 
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
-
-
-@dataclass
-class Lookups:
-    project_iri: str
-    id_to_iri: IriResolver
-    permissions: dict[str, Permissions]
-    listnodes: dict[str, str]
-    namespaces: dict[str, Namespace]
-    jsonld_context: JSONLDContext
 
 
 def create_resource_with_values(

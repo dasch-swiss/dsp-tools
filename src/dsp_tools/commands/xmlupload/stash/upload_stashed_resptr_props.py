@@ -6,7 +6,7 @@ from typing import cast
 
 from loguru import logger
 
-from dsp_tools.commands.xmlupload.models.namespace_context import JSONLDContext
+from dsp_tools.commands.xmlupload.models.lookup_models import JSONLDContext
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem

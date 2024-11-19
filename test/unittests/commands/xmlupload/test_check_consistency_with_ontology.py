@@ -24,10 +24,10 @@ from dsp_tools.commands.xmlupload.check_consistency_with_ontology import _get_pr
 from dsp_tools.commands.xmlupload.check_consistency_with_ontology import (
     _get_separate_prefix_and_iri_from_onto_prop_or_cls,
 )
-from dsp_tools.commands.xmlupload.models.ontology_lookup_models import OntoInfo
-from dsp_tools.commands.xmlupload.models.ontology_lookup_models import ProjectOntosInformation
-from dsp_tools.commands.xmlupload.models.ontology_lookup_models import PropertyTextValueTypes
-from dsp_tools.commands.xmlupload.models.ontology_lookup_models import TextValueData
+from dsp_tools.commands.xmlupload.models.lookup_models import OntoInfo
+from dsp_tools.commands.xmlupload.models.lookup_models import ProjectOntosInformation
+from dsp_tools.commands.xmlupload.models.lookup_models import PropertyTextValueTypes
+from dsp_tools.commands.xmlupload.models.lookup_models import TextValueData
 
 
 class TestFindClassType:

@@ -27,7 +27,8 @@ prop_dtype_mapper = {
 }
 
 
-def make_resource_rdf(resource: IntermediaryResource) -> RDFResource:
+def make_resource_rdf(resource: IntermediaryResource, id_to_iri_lookup: dict[str, str]) -> RDFResource:
+    """Takes the intermediary resources and makes them into ones, that can be serialised as a graph."""
     values = []
     for val in resource.values:
         match val:
@@ -38,7 +39,7 @@ def make_resource_rdf(resource: IntermediaryResource) -> RDFResource:
     resource_triples = _make_resource_triples(resource)
     if resource.file_value:
         values.append(_make_file_triples(resource.file_value))
-    return RDFResource(res_bn=BNode(), resource_triples=resource_triples, values=values)
+    return RDFResource(res_id=resource.res_id, res_bn=BNode(), resource_triples=resource_triples, values=values)
 
 
 def _make_resource_triples(resource: IntermediaryResource) -> list[PropertyObject]:

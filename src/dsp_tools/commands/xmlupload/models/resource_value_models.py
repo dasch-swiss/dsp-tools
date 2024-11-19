@@ -91,6 +91,7 @@ class ValueTypeTripleInfo:
 
 @dataclass
 class RDFResource:
+    res_id: str  # This is for the mapping at the moment and communication with the user
     res_bn: BNode
     resource_triples: list[PropertyObject]
     values: list[PropertyObjectCollection]

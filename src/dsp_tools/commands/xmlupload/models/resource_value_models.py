@@ -92,23 +92,34 @@ class ValueTypeTripleInfo:
 @dataclass
 class RDFResource:
     res_bn: BNode
-    triples: list[RDFTriples]
+    values: list[PropertyObjectCollection]
 
     def to_graph(self) -> Graph:
         g = Graph()
-        for trip in self.triples:
-            g.add((self.res_bn, trip.property, trip.object_value))
+        for val in self.values:
+            g += val.to_graph(self.res_bn)
+        return g
+
+
+# Once we are allowed to create Resource IRIs, this is no longer necessary
+@dataclass
+class PropertyObjectCollection:
+    bn: BNode
+    prop_name: URIRef
+    value_triples: list[PropertyObject]
+
+    def to_graph(self, res_bn: BNode) -> Graph:
+        g = Graph()
+        for trip in self.value_triples:
+            g.add(trip.to_triple())
+        g.add((res_bn, self.prop_name, self.bn))
         return g
 
 
 @dataclass
-class PropertyObjectCollection:
-    prop_name: URIRef
-    value_triples: list[RDFTriples]
-
-
-@dataclass
-class RDFTriples:
-    bn: BNode
+class PropertyObject:
     property: URIRef
     object_value: URIRef | Literal | BNode
+
+    def to_triple(self) -> tuple[BNode, URIRef, URIRef | Literal | BNode]:
+        return self.bn, self.property, self.object_value

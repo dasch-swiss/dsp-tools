@@ -6,6 +6,7 @@
        shortcode="4124"
        default-ontology="testonto">
 
+
     <copyRights id="wellcomeCollection_short">
         <copyRight id="wellcomeCollection_short">Wellcome Collection.</copyRight>
         <copyRight id="wellcomeCollection_long">Credit: Zebrafish embryo.
@@ -16,22 +17,18 @@
         <license id="CC-BY-NC">Attribution-NonCommercial 4.0 International (CC BY-NC 4.0).</license>
     </licenses>
 
-
     <resource label="The only resource" restype=":minimalResource" id="the_only_resource">
-        <bitstream>
-            <path>testdata/bitstreams/test.tif</path>
-            <copyright>wellcomeCollection_short</copyright>
-            <license>CC-BY-NC</license>
-        </bitstream>
+        <bitstream
+                license_ref="CC-BY-NC"
+                copyright_ref="wellcomeCollection_long"
+        >testdata/bitstreams/test.tif</bitstream>
     </resource>
 
-
     <resource label="iiifLink" restype=":iiifLink" id="iiifLink">
-        <iiif-uri>
-            <uri>https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg</uri>
-            <copyright>wellcomeCollection_long</copyright>
-            <license>CC-BY-NC</license>
-        </iiif-uri>
+        <iiif-uri
+                license_ref="CC-BY-NC"
+                copyright_ref="wellcomeCollection_long"
+        >https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg</iiif-uri>
     </resource>
 
 </knora>

@@ -94,7 +94,7 @@ class RDFResource:
     res_id: str  # This is for the mapping at the moment and communication with the user
     res_bn: BNode
     resource_triples: list[PropertyObject]
-    values: list[PropertyObjectCollection]
+    values: list[ValuePropertyObjects]
 
     def to_graph(self) -> Graph:
         g = self._make_self()
@@ -111,7 +111,7 @@ class RDFResource:
 
 # Once we are allowed to create Resource IRIs, this is no longer necessary
 @dataclass
-class PropertyObjectCollection:
+class ValuePropertyObjects:
     bn: BNode
     prop_name: URIRef
     value_triples: list[PropertyObject]

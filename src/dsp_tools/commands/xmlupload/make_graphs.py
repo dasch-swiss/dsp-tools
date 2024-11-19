@@ -11,8 +11,8 @@ from dsp_tools.commands.xmlupload.models.resource_value_models import Intermedia
 from dsp_tools.commands.xmlupload.models.resource_value_models import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.resource_value_models import IntermediaryValue
 from dsp_tools.commands.xmlupload.models.resource_value_models import PropertyObject
-from dsp_tools.commands.xmlupload.models.resource_value_models import PropertyObjectCollection
 from dsp_tools.commands.xmlupload.models.resource_value_models import RDFResource
+from dsp_tools.commands.xmlupload.models.resource_value_models import ValuePropertyObjects
 from dsp_tools.commands.xmlupload.models.resource_value_models import ValueTypeTripleInfo
 
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
@@ -28,8 +28,18 @@ prop_dtype_mapper = {
 
 
 def make_resource_rdf(resource: IntermediaryResource, id_to_iri_lookup: dict[str, str]) -> RDFResource:
-    """Takes the intermediary resources and makes them into ones, that can be serialised as a graph."""
+    """
+    Takes the intermediary resources and makes them into ones, that can be serialised as a graph.
+
+    Args:
+        resource: Resource to transform
+        id_to_iri_lookup: To resolve references in richtext and link values
+
+    Returns:
+        Resource that can be serialised as a graph.
+    """
     values = []
+    res_bn = BNode()
     for val in resource.values:
         match val:
             case IntermediaryBoolean() as val_type:
@@ -39,7 +49,7 @@ def make_resource_rdf(resource: IntermediaryResource, id_to_iri_lookup: dict[str
     resource_triples = _make_resource_triples(resource)
     if resource.file_value:
         values.append(_make_file_triples(resource.file_value))
-    return RDFResource(res_id=resource.res_id, res_bn=BNode(), resource_triples=resource_triples, values=values)
+    return RDFResource(res_id=resource.res_id, res_bn=res_bn, resource_triples=resource_triples, values=values)
 
 
 def _make_resource_triples(resource: IntermediaryResource) -> list[PropertyObject]:
@@ -49,12 +59,12 @@ def _make_resource_triples(resource: IntermediaryResource) -> list[PropertyObjec
     return triple_collection
 
 
-def _literal_value(value: IntermediaryValue, value_type_info: ValueTypeTripleInfo) -> PropertyObjectCollection:
+def _literal_value(value: IntermediaryValue, value_type_info: ValueTypeTripleInfo) -> ValuePropertyObjects:
     bn = BNode()
     triples = _make_optional_triples(value)
     triples.append(PropertyObject(value_type_info.prop_name, Literal(value, datatype=value_type_info.d_type)))
     triples.append(PropertyObject(RDF.type, value_type_info.rdf_type))
-    return PropertyObjectCollection(bn=bn, prop_name=URIRef(value.prop_name), value_triples=triples)
+    return ValuePropertyObjects(bn=bn, prop_name=URIRef(value.prop_name), value_triples=triples)
 
 
 def _make_optional_triples(value: IntermediaryValue) -> list[PropertyObject]:
@@ -67,8 +77,8 @@ def _make_optional_triples(value: IntermediaryValue) -> list[PropertyObject]:
     return optionals
 
 
-def _make_file_triples(file: AbstractFileValue) -> PropertyObjectCollection:
-    return PropertyObjectCollection(BNode(), URIRef(""), [])
+def _make_file_triples(file: AbstractFileValue) -> ValuePropertyObjects:
+    return ValuePropertyObjects(BNode(), URIRef(""), [])
 
 
 def _make_permissions(permission: Permissions) -> PropertyObject:

@@ -83,6 +83,13 @@ class AbstractFileValue:
 
 
 @dataclass
+class ValueTypeTripleInfo:
+    rdf_type: URIRef
+    d_type: URIRef
+    prop_name: URIRef
+
+
+@dataclass
 class RDFResource:
     res_bn: BNode
     triples: list[RDFTriples]
@@ -95,6 +102,13 @@ class RDFResource:
 
 
 @dataclass
+class PropertyObjectCollection:
+    prop_name: URIRef
+    value_triples: list[RDFTriples]
+
+
+@dataclass
 class RDFTriples:
+    bn: BNode
     property: URIRef
     object_value: URIRef | Literal | BNode

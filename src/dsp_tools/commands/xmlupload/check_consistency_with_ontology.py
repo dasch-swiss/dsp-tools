@@ -7,12 +7,12 @@ import regex
 from lxml import etree
 from regex import Pattern
 
-from dsp_tools.commands.xmlupload.models.ontology_lookup_models import AllowedEncodings
-from dsp_tools.commands.xmlupload.models.ontology_lookup_models import ProjectOntosInformation
-from dsp_tools.commands.xmlupload.models.ontology_lookup_models import PropertyTextValueTypes
-from dsp_tools.commands.xmlupload.models.ontology_lookup_models import TextValueData
-from dsp_tools.commands.xmlupload.models.ontology_lookup_models import get_text_value_types_of_properties_from_onto
-from dsp_tools.commands.xmlupload.models.ontology_lookup_models import make_project_onto_information
+from dsp_tools.commands.xmlupload.models.lookup_models import AllowedEncodings
+from dsp_tools.commands.xmlupload.models.lookup_models import ProjectOntosInformation
+from dsp_tools.commands.xmlupload.models.lookup_models import PropertyTextValueTypes
+from dsp_tools.commands.xmlupload.models.lookup_models import TextValueData
+from dsp_tools.commands.xmlupload.models.lookup_models import get_text_value_types_of_properties_from_onto
+from dsp_tools.commands.xmlupload.models.lookup_models import make_project_onto_information
 from dsp_tools.commands.xmlupload.models.ontology_problem_models import InvalidOntologyElementsInData
 from dsp_tools.commands.xmlupload.models.ontology_problem_models import InvalidTextValueEncodings
 from dsp_tools.commands.xmlupload.ontology_client import OntologyClient

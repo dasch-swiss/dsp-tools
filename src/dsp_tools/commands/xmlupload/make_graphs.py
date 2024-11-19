@@ -6,6 +6,7 @@ from rdflib import Namespace
 from rdflib import URIRef
 
 from dsp_tools.commands.xmlupload.models.permission import Permissions
+from dsp_tools.commands.xmlupload.models.resource_value_models import AbstractFileValue
 from dsp_tools.commands.xmlupload.models.resource_value_models import IntermediaryBoolean
 from dsp_tools.commands.xmlupload.models.resource_value_models import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.resource_value_models import IntermediaryValue
@@ -35,6 +36,8 @@ def make_resource_rdf(resource: IntermediaryResource) -> RDFResource:
             case _:
                 ...  # continue in the same manner
     resource_triples = _make_resource_triples(resource)
+    if resource.file_value:
+        values.append(_make_file_triples(resource.file_value))
     return RDFResource(res_bn=BNode(), resource_triples=resource_triples, values=values)
 
 
@@ -61,6 +64,10 @@ def _make_optional_triples(value: IntermediaryValue) -> list[PropertyObject]:
         cmt = PropertyObject(KNORA_API.valueHasComment, Literal(value.comment, datatype=XSD.string))
         optionals.append(cmt)
     return optionals
+
+
+def _make_file_triples(file: AbstractFileValue) -> PropertyObjectCollection:
+    return PropertyObjectCollection(BNode(), URIRef(""), [])
 
 
 def _make_permissions(permission: Permissions) -> PropertyObject:

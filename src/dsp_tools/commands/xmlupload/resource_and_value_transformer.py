@@ -2,15 +2,15 @@ from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XM
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLValue
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
+from dsp_tools.commands.xmlupload.models.intermediary_models import CollectedProblems
+from dsp_tools.commands.xmlupload.models.intermediary_models import IntermediaryAbstractFileValue
+from dsp_tools.commands.xmlupload.models.intermediary_models import IntermediaryBoolean
+from dsp_tools.commands.xmlupload.models.intermediary_models import IntermediaryResource
+from dsp_tools.commands.xmlupload.models.intermediary_models import IntermediaryValue
+from dsp_tools.commands.xmlupload.models.intermediary_models import ResolvingInformationProblem
+from dsp_tools.commands.xmlupload.models.intermediary_models import ResourceTransformationProblems
+from dsp_tools.commands.xmlupload.models.intermediary_models import TransformationSteps
 from dsp_tools.commands.xmlupload.models.permission import Permissions
-from dsp_tools.commands.xmlupload.models.resource_value_models import AbstractFileValue
-from dsp_tools.commands.xmlupload.models.resource_value_models import CollectedProblems
-from dsp_tools.commands.xmlupload.models.resource_value_models import IntermediaryBoolean
-from dsp_tools.commands.xmlupload.models.resource_value_models import IntermediaryResource
-from dsp_tools.commands.xmlupload.models.resource_value_models import IntermediaryValue
-from dsp_tools.commands.xmlupload.models.resource_value_models import ResolvingInformationProblem
-from dsp_tools.commands.xmlupload.models.resource_value_models import ResourceTransformationProblems
-from dsp_tools.commands.xmlupload.models.resource_value_models import TransformationSteps
 from dsp_tools.commands.xmlupload.value_transformers import transform_boolean
 
 transformation_lookup = {"bool": TransformationSteps(IntermediaryBoolean, transform_boolean)}
@@ -91,7 +91,7 @@ def _transform_value(
 
 def _transform_file_value(
     value: XMLBitstream, permission_lookup: dict[str, Permissions]
-) -> AbstractFileValue | ResolvingInformationProblem: ...
+) -> IntermediaryAbstractFileValue | ResolvingInformationProblem: ...
 
 
 def _get_permissions(

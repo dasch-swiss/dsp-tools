@@ -5,11 +5,11 @@ from rdflib import Literal
 from rdflib import Namespace
 from rdflib import URIRef
 
+from dsp_tools.commands.xmlupload.models.intermediary_models import IntermediaryAbstractFileValue
+from dsp_tools.commands.xmlupload.models.intermediary_models import IntermediaryBoolean
+from dsp_tools.commands.xmlupload.models.intermediary_models import IntermediaryResource
+from dsp_tools.commands.xmlupload.models.intermediary_models import IntermediaryValue
 from dsp_tools.commands.xmlupload.models.permission import Permissions
-from dsp_tools.commands.xmlupload.models.resource_value_models import AbstractFileValue
-from dsp_tools.commands.xmlupload.models.resource_value_models import IntermediaryBoolean
-from dsp_tools.commands.xmlupload.models.resource_value_models import IntermediaryResource
-from dsp_tools.commands.xmlupload.models.resource_value_models import IntermediaryValue
 from dsp_tools.commands.xmlupload.models.resource_value_models import RDFResource
 from dsp_tools.commands.xmlupload.models.resource_value_models import RDFTriple
 from dsp_tools.commands.xmlupload.models.resource_value_models import ValueTypeTripleInfo
@@ -78,7 +78,7 @@ def _make_optional_triples(value_bn: BNode, value: IntermediaryValue) -> list[RD
     return optionals
 
 
-def _make_file_triples(file: AbstractFileValue) -> list[RDFTriple]:
+def _make_file_triples(file: IntermediaryAbstractFileValue) -> list[RDFTriple]:
     return []
 
 

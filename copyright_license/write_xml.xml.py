@@ -19,11 +19,9 @@ def as_attrib() -> None:
 
 
 s = """
-        <iiif-uri
-                license="Credit: Zebrafish embryo.
-                Source: Wellcome Collection."
-                copyright="CC BY-NC 4.0"
-        >https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg</iiif-uri>
+            <license>Credit: Zebrafish embryo.
+                Source: Wellcome Collection.
+            </license>
 """
 
 tree = etree.fromstring(s)

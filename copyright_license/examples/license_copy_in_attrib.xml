@@ -13,12 +13,26 @@
         >testdata/bitstreams/test.tif</bitstream>
     </resource>
 
-    <resource label="iiifLink" restype=":iiifLink" id="iiifLink">
+    <resource label="iiifLink" restype=":iiifLink" id="iiifLink_whitespaces">
         <iiif-uri
                 license="Credit: Zebrafish embryo.
                 Source: Wellcome Collection."
                 copyright="CC BY-NC 4.0"
-        >https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg</iiif-uri>
+        >
+        <!-- If any user would write a newline like this, lxml would parse it as many white-spaces but not as newline -->
+            https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg</iiif-uri>
     </resource>
+
+
+    <!-- To get a newline it must be encoded -->
+    <resource label="iiifLink" restype=":iiifLink" id="iiifLink_encoded_newline">
+        <iiif-uri
+                license="Credit: Zebrafish embryo.&#10;Source: Wellcome Collection."
+                copyright="CC BY-NC 4.0"
+        >
+            https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg</iiif-uri>
+    </resource>
+
+
 
 </knora>

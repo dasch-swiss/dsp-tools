@@ -1,6 +1,7 @@
 from rdflib import RDF
 from rdflib import XSD
 from rdflib import BNode
+from rdflib import Graph
 from rdflib import Literal
 from rdflib import Namespace
 from rdflib import URIRef
@@ -48,7 +49,15 @@ def make_resource_rdf(resource: IntermediaryResource, id_to_iri_lookup: dict[str
     triples.extend(_make_resource_triples(resource, res_bn))
     if resource.file_value:
         triples.extend(_make_file_triples(resource.file_value))
-    return RDFResource(res_id=resource.res_id, res_bn=res_bn, triples=triples)
+    graph = _make_graph(triples)
+    return RDFResource(res_id=resource.res_id, res_bn=res_bn, graph=graph)
+
+
+def _make_graph(triples: list[RDFTriple]) -> Graph:
+    g = Graph()
+    for trip in triples:
+        g.add(trip.to_triple())
+    return g
 
 
 def _make_resource_triples(resource: IntermediaryResource, res_bn: BNode) -> list[RDFTriple]:

@@ -19,13 +19,7 @@ class ValueTypeTripleInfo:
 class RDFResource:
     res_id: str  # This is for the mapping at the moment and communication with the user
     res_bn: BNode  # This is for the mapping
-    triples: list[RDFTriple]
-
-    def to_graph(self) -> Graph:
-        g = Graph()
-        for val in self.triples:
-            g.add(val.to_triple())
-        return g
+    graph: Graph
 
 
 @dataclass

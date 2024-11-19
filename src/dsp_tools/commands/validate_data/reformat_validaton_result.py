@@ -303,7 +303,10 @@ def _query_for_min_cardinality_violation(
     file_shapes = {API_SHAPES.hasMovingImageFileValue_PropShape}
     if source_shape in file_shapes:
         return ResultFileValueViolation(
-            res_iri=base_info.resource_iri, res_class=base_info.res_class_type, results_message=msg
+            res_iri=base_info.resource_iri,
+            res_class=base_info.res_class_type,
+            property=base_info.result_path,
+            results_message=msg,
         )
     return ResultMinCardinalityViolation(
         res_iri=base_info.resource_iri,
@@ -342,7 +345,13 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
                 expected_cardinality=validation_result.results_message,
             )
         case ResultMinCardinalityViolation():
-            return _reformat_min_cardinality_validation_result(validation_result)
+            iris = _reformat_main_iris(validation_result)
+            return MinCardinalityProblem(
+                res_id=iris.res_id,
+                res_type=iris.res_type,
+                prop_name=iris.prop_name,
+                expected_cardinality=validation_result.results_message,
+            )
         case ResultNonExistentCardinalityViolation():
             iris = _reformat_main_iris(validation_result)
             return NonExistentCardinalityProblem(
@@ -367,26 +376,16 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
             return _reformat_link_target_violation_result(validation_result)
         case ResultUniqueValueViolation():
             return _reformat_unique_value_violation_result(validation_result)
+        case ResultFileValueViolation():
+            iris = _reformat_main_iris(validation_result)
+            return FileValueProblem(
+                res_id=iris.res_id,
+                res_type=iris.res_type,
+                prop_name="bitstream / iiif-uri",
+                expected=validation_result.results_message,
+            )
         case _:
             raise BaseError(f"An unknown violation result was found: {validation_result.__class__.__name__}")
-
-
-def _reformat_min_cardinality_validation_result(validation_result: ResultMinCardinalityViolation) -> InputProblem:
-    iris = _reformat_main_iris(validation_result)
-    file_value_properties = ["hasMovingImageFileValue"]
-    if iris.prop_name in file_value_properties:
-        return FileValueProblem(
-            res_id=iris.res_id,
-            res_type=iris.res_type,
-            prop_name="bitstream / iiif-uri",
-            expected=validation_result.results_message,
-        )
-    return MinCardinalityProblem(
-        res_id=iris.res_id,
-        res_type=iris.res_type,
-        prop_name=iris.prop_name,
-        expected_cardinality=validation_result.results_message,
-    )
 
 
 def _reformat_value_type_violation_result(result: ResultValueTypeViolation) -> ValueTypeProblem:

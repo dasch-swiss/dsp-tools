@@ -92,42 +92,21 @@ class ValueTypeTripleInfo:
 @dataclass
 class RDFResource:
     res_id: str  # This is for the mapping at the moment and communication with the user
-    res_bn: BNode
-    resource_triples: list[PropertyObject]
-    values: list[ValuePropertyObjects]
+    res_bn: BNode  # This is for the mapping
+    triples: list[RDFTriple]
 
     def to_graph(self) -> Graph:
-        g = self._make_self()
-        for val in self.values:
-            g += val.to_graph(self.res_bn)
-        return g
-
-    def _make_self(self) -> Graph:
         g = Graph()
-        for trip in self.resource_triples:
-            g.add(trip.to_triple(self.res_bn))
-        return g
-
-
-# Once we are allowed to create Resource IRIs, this is no longer necessary
-@dataclass
-class ValuePropertyObjects:
-    bn: BNode
-    prop_name: URIRef
-    value_triples: list[PropertyObject]
-
-    def to_graph(self, res_bn: BNode) -> Graph:
-        g = Graph()
-        for trip in self.value_triples:
-            g.add(trip.to_triple(self.bn))
-        g.add((res_bn, self.prop_name, self.bn))
+        for val in self.triples:
+            g.add(val.to_triple())
         return g
 
 
 @dataclass
-class PropertyObject:
-    property: URIRef
-    object_value: URIRef | Literal | BNode
+class RDFTriple:
+    rdf_subject: URIRef | BNode
+    rdf_property: URIRef
+    rdf_object: URIRef | Literal | BNode
 
-    def to_triple(self, bn) -> tuple[BNode, URIRef, URIRef | Literal | BNode]:
-        return bn, self.property, self.object_value
+    def to_triple(self) -> tuple[BNode, URIRef, URIRef | Literal | BNode]:
+        return self.rdf_subject, self.rdf_property, self.rdf_object

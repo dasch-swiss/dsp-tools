@@ -19,9 +19,9 @@
     <resource label="iiifLink" restype=":iiifLink" id="iiifLink">
         <iiif-uri>
             <uri>https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg</uri>
-            <copyright>Credit: Zebrafish embryo.
-                Source: Wellcome Collection.</copyright>
-            <license>Attribution-NonCommercial 4.0 International (CC BY-NC 4.0).</license>
+            <copyright>Wellcome Collection.</copyright>
+            <license>Credit: Zebrafish embryo.
+                Source: Wellcome Collection.</license>
         </iiif-uri>
     </resource>
 

@@ -7,27 +7,27 @@
        default-ontology="testonto">
 
 
-    <copyRights id="wellcomeCollection_short">
-        <copyRight id="wellcomeCollection_short">Wellcome Collection.</copyRight>
-        <copyRight id="wellcomeCollection_long">Credit: Zebrafish embryo.
-                Source: Wellcome Collection.</copyRight>
+    <copyRights id="copyright">
+        <copyRight id="copyright">Wellcome Collection.</copyRight>
     </copyRights>
 
     <licenses>
         <license id="CC-BY-NC">Attribution-NonCommercial 4.0 International (CC BY-NC 4.0).</license>
+        <license id="wellcomeCollection_long">Credit: Zebrafish embryo.
+                Source: Wellcome Collection.</license>
     </licenses>
 
     <resource label="The only resource" restype=":minimalResource" id="the_only_resource">
         <bitstream
-                license_ref="CC-BY-NC"
-                copyright_ref="wellcomeCollection_short"
+                license="CC-BY-NC"
+                copyright="copyright"
         >testdata/bitstreams/test.tif</bitstream>
     </resource>
 
     <resource label="iiifLink" restype=":iiifLink" id="iiifLink">
         <iiif-uri
-                license_ref="CC-BY-NC"
-                copyright_ref="wellcomeCollection_long"
+                license="wellcomeCollection_long"
+                copyright="copyright"
         >https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg</iiif-uri>
     </resource>
 

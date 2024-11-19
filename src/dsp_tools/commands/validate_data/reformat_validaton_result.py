@@ -1,3 +1,4 @@
+from typing import Callable
 from typing import cast
 
 import regex
@@ -44,6 +45,11 @@ from dsp_tools.models.exceptions import BaseError
 DASH = Namespace("http://datashapes.org/dash#")
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
 API_SHAPES = Namespace("http://api.knora.org/ontology/knora-api/shapes/v2#")
+
+result_to_problem_mapper = {
+    ResultMaxCardinalityViolation: MaxCardinalityProblem,
+    ResultMinCardinalityViolation: MinCardinalityProblem,
+}
 
 
 def reformat_validation_graph(report: ValidationReportGraphs) -> AllProblems:
@@ -336,22 +342,9 @@ def _reformat_extracted_results(results: list[ValidationResult]) -> list[InputPr
 
 def _reformat_one_validation_result(validation_result: ValidationResult) -> InputProblem:  # noqa: PLR0911 Too many return statements
     match validation_result:
-        case ResultMaxCardinalityViolation():
-            iris = _reformat_main_iris(validation_result)
-            return MaxCardinalityProblem(
-                res_id=iris.res_id,
-                res_type=iris.res_type,
-                prop_name=iris.prop_name,
-                expected_cardinality=validation_result.results_message,
-            )
-        case ResultMinCardinalityViolation():
-            iris = _reformat_main_iris(validation_result)
-            return MinCardinalityProblem(
-                res_id=iris.res_id,
-                res_type=iris.res_type,
-                prop_name=iris.prop_name,
-                expected_cardinality=validation_result.results_message,
-            )
+        case ResultMaxCardinalityViolation() | ResultMinCardinalityViolation() as violation:
+            problem = result_to_problem_mapper[type(violation)]
+            return _reformat_with_prop_and_message(result=validation_result, problem_type=problem)
         case ResultNonExistentCardinalityViolation():
             iris = _reformat_main_iris(validation_result)
             return NonExistentCardinalityProblem(
@@ -386,6 +379,19 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
             )
         case _:
             raise BaseError(f"An unknown violation result was found: {validation_result.__class__.__name__}")
+
+
+def _reformat_with_prop_and_message(
+    result: ResultMaxCardinalityViolation | ResultMinCardinalityViolation,
+    problem_type: Callable[[str, str, str, str], InputProblem],
+) -> InputProblem:
+    iris = _reformat_main_iris(result)
+    return problem_type(
+        iris.res_id,
+        iris.res_type,
+        iris.prop_name,
+        result.results_message,
+    )
 
 
 def _reformat_value_type_violation_result(result: ResultValueTypeViolation) -> ValueTypeProblem:

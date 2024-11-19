@@ -66,7 +66,7 @@ class Lookups:
 
 def create_resource_with_values(
     resource: XMLResource, bitstream_information: BitstreamInfo | None, lookup: Lookups
-) -> SerialiseResource:
+) -> dict[str, Any]:
     """
     This function takes an XMLResource and serialises it into a json-ld type dict that can be sent to the API.
 
@@ -82,6 +82,7 @@ def create_resource_with_values(
     res = _make_resource(resource=resource, bitstream_information=bitstream_information, lookup=lookup)
     vals = _make_values(resource, res_bnode, lookup)
     res.update(vals)
+    res.update(lookup.jsonld_context.serialise())
     return res
 
 

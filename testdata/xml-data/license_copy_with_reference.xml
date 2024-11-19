@@ -20,7 +20,7 @@
     <resource label="The only resource" restype=":minimalResource" id="the_only_resource">
         <bitstream
                 license_ref="CC-BY-NC"
-                copyright_ref="wellcomeCollection_long"
+                copyright_ref="wellcomeCollection_short"
         >testdata/bitstreams/test.tif</bitstream>
     </resource>
 

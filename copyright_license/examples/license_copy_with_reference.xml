@@ -7,9 +7,9 @@
        default-ontology="testonto">
 
 
-    <copyRights id="copyright">
-        <copyRight id="copyright">Wellcome Collection.</copyRight>
-    </copyRights>
+    <copyrights>
+        <copyright id="copyright">Wellcome Collection.</copyright>
+    </copyrights>
 
     <licenses>
         <license id="CC-BY-NC">Attribution-NonCommercial 4.0 International (CC BY-NC 4.0).</license>

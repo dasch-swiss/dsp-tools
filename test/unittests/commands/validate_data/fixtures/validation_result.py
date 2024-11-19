@@ -8,6 +8,7 @@ from rdflib import Graph
 from rdflib import Literal
 
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
+from dsp_tools.commands.validate_data.models.validation import ResultFileValueViolation
 from dsp_tools.commands.validate_data.models.validation import ResultGenericViolation
 from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
@@ -789,8 +790,8 @@ def report_missing_file_value(onto_graph: Graph) -> tuple[Graph, Graph, Validati
 
 
 @pytest.fixture
-def extracted_missing_file_value() -> ResultMinCardinalityViolation:
-    return ResultMinCardinalityViolation(
+def extracted_missing_file_value() -> ResultFileValueViolation:
+    return ResultFileValueViolation(
         res_iri=DATA.id_video_missing,
         res_class=ONTO.TestMovingImageRepresentation,
         property=KNORA_API.hasMovingImageFileValue,

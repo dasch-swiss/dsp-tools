@@ -1,3 +1,4 @@
+from typing import Callable
 from typing import cast
 
 import regex
@@ -24,6 +25,7 @@ from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProb
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import QueryInfo
 from dsp_tools.commands.validate_data.models.validation import ReformattedIRI
+from dsp_tools.commands.validate_data.models.validation import ResultFileValueViolation
 from dsp_tools.commands.validate_data.models.validation import ResultGenericViolation
 from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
@@ -43,6 +45,11 @@ from dsp_tools.models.exceptions import BaseError
 DASH = Namespace("http://datashapes.org/dash#")
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
 API_SHAPES = Namespace("http://api.knora.org/ontology/knora-api/shapes/v2#")
+
+result_to_problem_mapper = {
+    ResultMaxCardinalityViolation: MaxCardinalityProblem,
+    ResultMinCardinalityViolation: MinCardinalityProblem,
+}
 
 
 def reformat_validation_graph(report: ValidationReportGraphs) -> AllProblems:
@@ -157,12 +164,7 @@ def _query_one_without_detail(
         case SH.PatternConstraintComponent:
             return _query_pattern_constraint_component_violation(base_info.result_bn, base_info, results_and_onto)
         case SH.MinCountConstraintComponent:
-            return ResultMinCardinalityViolation(
-                res_iri=base_info.resource_iri,
-                res_class=base_info.res_class_type,
-                property=base_info.result_path,
-                results_message=msg,
-            )
+            return _query_for_min_cardinality_violation(base_info, msg, results_and_onto)
         case SH.MaxCountConstraintComponent:
             return ResultMaxCardinalityViolation(
                 res_iri=base_info.resource_iri,
@@ -298,6 +300,28 @@ def _query_for_link_value_target_violation(
     )
 
 
+def _query_for_min_cardinality_violation(
+    base_info: ValidationResultBaseInfo,
+    msg: str,
+    results_and_onto: Graph,
+) -> ValidationResult:
+    source_shape = next(results_and_onto.objects(base_info.result_bn, SH.sourceShape))
+    file_shapes = {API_SHAPES.hasMovingImageFileValue_PropShape}
+    if source_shape in file_shapes:
+        return ResultFileValueViolation(
+            res_iri=base_info.resource_iri,
+            res_class=base_info.res_class_type,
+            property=base_info.result_path,
+            results_message=msg,
+        )
+    return ResultMinCardinalityViolation(
+        res_iri=base_info.resource_iri,
+        res_class=base_info.res_class_type,
+        property=base_info.result_path,
+        results_message=msg,
+    )
+
+
 def _query_for_unique_value_violation(
     base_info: ValidationResultBaseInfo,
     results_and_onto: Graph,
@@ -318,16 +342,9 @@ def _reformat_extracted_results(results: list[ValidationResult]) -> list[InputPr
 
 def _reformat_one_validation_result(validation_result: ValidationResult) -> InputProblem:  # noqa: PLR0911 Too many return statements
     match validation_result:
-        case ResultMaxCardinalityViolation():
-            iris = _reformat_main_iris(validation_result)
-            return MaxCardinalityProblem(
-                res_id=iris.res_id,
-                res_type=iris.res_type,
-                prop_name=iris.prop_name,
-                expected_cardinality=validation_result.results_message,
-            )
-        case ResultMinCardinalityViolation():
-            return _reformat_min_cardinality_validation_result(validation_result)
+        case ResultMaxCardinalityViolation() | ResultMinCardinalityViolation() as violation:
+            problem = result_to_problem_mapper[type(violation)]
+            return _reformat_with_prop_and_message(result=validation_result, problem_type=problem)
         case ResultNonExistentCardinalityViolation():
             iris = _reformat_main_iris(validation_result)
             return NonExistentCardinalityProblem(
@@ -352,25 +369,28 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
             return _reformat_link_target_violation_result(validation_result)
         case ResultUniqueValueViolation():
             return _reformat_unique_value_violation_result(validation_result)
+        case ResultFileValueViolation():
+            iris = _reformat_main_iris(validation_result)
+            return FileValueProblem(
+                res_id=iris.res_id,
+                res_type=iris.res_type,
+                prop_name="bitstream / iiif-uri",
+                expected=validation_result.results_message,
+            )
         case _:
             raise BaseError(f"An unknown violation result was found: {validation_result.__class__.__name__}")
 
 
-def _reformat_min_cardinality_validation_result(validation_result: ResultMinCardinalityViolation) -> InputProblem:
-    iris = _reformat_main_iris(validation_result)
-    file_value_properties = ["hasMovingImageFileValue"]
-    if iris.prop_name in file_value_properties:
-        return FileValueProblem(
-            res_id=iris.res_id,
-            res_type=iris.res_type,
-            prop_name="bitstream / iiif-uri",
-            expected=validation_result.results_message,
-        )
-    return MinCardinalityProblem(
-        res_id=iris.res_id,
-        res_type=iris.res_type,
-        prop_name=iris.prop_name,
-        expected_cardinality=validation_result.results_message,
+def _reformat_with_prop_and_message(
+    result: ResultMaxCardinalityViolation | ResultMinCardinalityViolation,
+    problem_type: Callable[[str, str, str, str], InputProblem],
+) -> InputProblem:
+    iris = _reformat_main_iris(result)
+    return problem_type(
+        iris.res_id,
+        iris.res_type,
+        iris.prop_name,
+        result.results_message,
     )
 
 

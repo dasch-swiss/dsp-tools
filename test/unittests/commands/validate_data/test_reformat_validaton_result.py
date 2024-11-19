@@ -16,6 +16,7 @@ from dsp_tools.commands.validate_data.models.input_problems import MinCardinalit
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProblem
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
+from dsp_tools.commands.validate_data.models.validation import ResultFileValueViolation
 from dsp_tools.commands.validate_data.models.validation import ResultGenericViolation
 from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
@@ -287,7 +288,7 @@ class TestQueryFileValueViolations:
     def test_missing_file_value(self, report_missing_file_value: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res, _, info = report_missing_file_value
         result = _query_one_without_detail(info, res)
-        assert isinstance(result, ResultMinCardinalityViolation)
+        assert isinstance(result, ResultFileValueViolation)
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == KNORA_API.hasMovingImageFileValue
@@ -406,7 +407,7 @@ class TestReformatResult:
         assert result.results_message == "The list that should be used with this property is 'firstList'."
         assert result.actual_content == "other"
 
-    def test_missing_file_value(self, extracted_missing_file_value: ResultMinCardinalityViolation) -> None:
+    def test_missing_file_value(self, extracted_missing_file_value: ResultFileValueViolation) -> None:
         result = _reformat_one_validation_result(extracted_missing_file_value)
         assert isinstance(result, FileValueProblem)
         assert result.res_id == "id_video_missing"

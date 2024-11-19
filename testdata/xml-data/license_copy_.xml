@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="4124"
+       default-ontology="testonto">
+
+    <resource label="The only resource" restype=":minimalResource" id="the_only_resource">
+        <bitstream>testdata/bitstreams/test.tif</bitstream>
+    </resource>
+
+
+    <resource label="iiifLink" restype=":iiifLink" id="iiifLink">
+        <iiif-uri>https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg</iiif-uri>
+        <text-prop name=":hasSimpleText">
+            <text permissions="open" encoding="utf8">
+                Licence: Attribution-NonCommercial 4.0 International (CC BY-NC 4.0).
+                Credit: Zebrafish embryo.
+                Source: Wellcome Collection.
+            </text>
+        </text-prop>
+    </resource>
+
+</knora>

@@ -61,19 +61,19 @@ class Lookups:
     permissions: dict[str, Permissions]
     listnodes: dict[str, str]
     namespaces: dict[str, Namespace]
+    jsonld_context: JSONLDContext
 
 
 def create_resource_with_values(
-    resource: XMLResource, bitstream_information: BitstreamInfo | None, lookup: Lookups, jsonld_context: JSONLDContext
-) -> dict[str, Any]:
+    resource: XMLResource, bitstream_information: BitstreamInfo | None, lookup: Lookups
+) -> SerialiseResource:
     """
     This function takes an XMLResource and serialises it into a json-ld type dict that can be sent to the API.
 
     Args:
         resource: XMLResource
         bitstream_information: if the resource has a FileValue
-        lookup: Lookups to resolve IRIs, etc
-        jsonld_context: context for the json-ld dictionary
+        lookup: Lookups to resolve IRIs, etc.
 
     Returns:
         A resource serialised in json-ld type format.
@@ -82,7 +82,6 @@ def create_resource_with_values(
     res = _make_resource(resource=resource, bitstream_information=bitstream_information, lookup=lookup)
     vals = _make_values(resource, res_bnode, lookup)
     res.update(vals)
-    res.update(jsonld_context.serialise())
     return res
 
 

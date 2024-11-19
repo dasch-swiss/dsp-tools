@@ -27,7 +27,7 @@ prop_dtype_mapper = {
 }
 
 
-def make_resource_rdf(resource: IntermediaryResource, id_to_iri_lookup: dict[str, str]) -> RDFResource:
+def make_resource_rdf(resource: IntermediaryResource, id_to_iri_lookup: dict[str, str]) -> RDFResource:  # noqa:ARG001
     """
     Takes the intermediary resources and makes them into ones, that can be serialised as a graph.
 
@@ -87,7 +87,7 @@ def _make_optional_triples(value_bn: BNode, value: IntermediaryValue) -> list[RD
     return optionals
 
 
-def _make_file_triples(file: IntermediaryAbstractFileValue) -> list[RDFTriple]:
+def _make_file_triples(file: IntermediaryAbstractFileValue) -> list[RDFTriple]:  # noqa:ARG001
     return []
 
 

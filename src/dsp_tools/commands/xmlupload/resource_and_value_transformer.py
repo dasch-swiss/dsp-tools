@@ -16,7 +16,7 @@ from dsp_tools.commands.xmlupload.value_transformers import transform_boolean
 transformation_lookup = {"bool": TransformationSteps(IntermediaryBoolean, transform_boolean)}
 
 
-def transform_resource(
+def transform_resource(  # noqa:D103
     xml_resource: XMLResource, permission_lookup: dict[str, Permissions]
 ) -> IntermediaryResource | ResourceTransformationProblems:
     problems = []

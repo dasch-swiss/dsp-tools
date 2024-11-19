@@ -24,6 +24,7 @@ from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProb
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import QueryInfo
 from dsp_tools.commands.validate_data.models.validation import ReformattedIRI
+from dsp_tools.commands.validate_data.models.validation import ResultFileValueViolation
 from dsp_tools.commands.validate_data.models.validation import ResultGenericViolation
 from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
@@ -157,12 +158,7 @@ def _query_one_without_detail(
         case SH.PatternConstraintComponent:
             return _query_pattern_constraint_component_violation(base_info.result_bn, base_info, results_and_onto)
         case SH.MinCountConstraintComponent:
-            return ResultMinCardinalityViolation(
-                res_iri=base_info.resource_iri,
-                res_class=base_info.res_class_type,
-                property=base_info.result_path,
-                results_message=msg,
-            )
+            return _query_for_min_cardinality_violation(base_info, msg, results_and_onto)
         case SH.MaxCountConstraintComponent:
             return ResultMaxCardinalityViolation(
                 res_iri=base_info.resource_iri,
@@ -295,6 +291,25 @@ def _query_for_link_value_target_violation(
         expected_type=expected_type,
         target_iri=target_iri,
         target_resource_type=target_rdf_type,
+    )
+
+
+def _query_for_min_cardinality_violation(
+    base_info: ValidationResultBaseInfo,
+    msg: str,
+    results_and_onto: Graph,
+) -> ValidationResult:
+    source_shape = next(results_and_onto.objects(base_info.result_bn, SH.sourceShape))
+    file_shapes = {API_SHAPES.hasMovingImageFileValue_PropShape}
+    if source_shape in file_shapes:
+        return ResultFileValueViolation(
+            res_iri=base_info.resource_iri, res_class=base_info.res_class_type, results_message=msg
+        )
+    return ResultMinCardinalityViolation(
+        res_iri=base_info.resource_iri,
+        res_class=base_info.res_class_type,
+        property=base_info.result_path,
+        results_message=msg,
     )
 
 

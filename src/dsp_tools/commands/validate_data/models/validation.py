@@ -77,34 +77,38 @@ class DetailBaseInfo:
 class ValidationResult:
     res_iri: Node
     res_class: Node
-    property: Node
 
 
 @dataclass
 class ResultUniqueValueViolation(ValidationResult):
+    property: Node
     actual_value: Node
 
 
 @dataclass
 class ResultValueTypeViolation(ValidationResult):
+    property: Node
     results_message: str
     actual_value_type: Node
 
 
 @dataclass
 class ResultPatternViolation(ValidationResult):
+    property: Node
     results_message: str
     actual_value: str
 
 
 @dataclass
 class ResultGenericViolation(ValidationResult):
+    property: Node
     results_message: str
     actual_value: str
 
 
 @dataclass
 class ResultLinkTargetViolation(ValidationResult):
+    property: Node
     expected_type: Node
     target_iri: Node
     target_resource_type: Node | None
@@ -112,16 +116,24 @@ class ResultLinkTargetViolation(ValidationResult):
 
 @dataclass
 class ResultMaxCardinalityViolation(ValidationResult):
+    property: Node
     results_message: str
 
 
 @dataclass
 class ResultMinCardinalityViolation(ValidationResult):
+    property: Node
     results_message: str
 
 
 @dataclass
-class ResultNonExistentCardinalityViolation(ValidationResult): ...
+class ResultNonExistentCardinalityViolation(ValidationResult):
+    property: Node
+
+
+@dataclass
+class ResultFileValueViolation(ValidationResult):
+    results_message: str
 
 
 @dataclass

@@ -368,7 +368,7 @@ def _upload_one_resource(
     iri = None
     try:
         logger.info(f"Attempting to create resource {resource.res_id} (label: {resource.label})...")
-        iri = resource_create_client.create_resource(serialised_resource, media_info)
+        iri = resource_create_client.create_resource(serialised_resource, bool(media_info))
     except (PermanentTimeOutError, KeyboardInterrupt) as err:
         _handle_permanent_timeout_or_keyboard_interrupt(err, resource.res_id)
     except PermanentConnectionError as err:

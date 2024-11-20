@@ -445,10 +445,9 @@ def _make_richtext_value_graph(
     g = _add_optional_triples(val_bn, resolved_permission, val.comment)
     xml_val = cast(FormattedTextValue, val.value)
     val_str = _get_richtext_string(xml_val, iri_resolver)
-    literal_val = Literal(val_str, datatype=XSD.string)
     g.add((res_bn, prop_name, val_bn))
     g.add((val_bn, RDF.type, KNORA_API.TextValue))
-    g.add((val_bn, KNORA_API.textValueAsXml, literal_val))
+    g.add((val_bn, KNORA_API.textValueAsXml, Literal(val_str, datatype=XSD.string)))
     g.add((val_bn, KNORA_API.textValueHasMapping, URIRef("http://rdfh.ch/standoff/mappings/StandardMapping")))
     return g
 

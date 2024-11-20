@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from abc import ABC
 from abc import abstractmethod
 from dataclasses import dataclass
@@ -150,3 +152,24 @@ class IntValueRDF(ValueRDF):
         g.add((val_bn, RDF.type, KNORA_API.IntValue))
         g.add((val_bn, KNORA_API.intValueAsInt, self.value))
         return g
+
+
+
+class IntervalValueValueRDF(ValueRDF):
+    """An IntervalValue to be serialised."""
+
+    value: Interval
+
+    def as_graph(self) -> Graph:
+        val_bn = BNode()
+        g = self._get_generic_graph(val_bn)
+        g.add((val_bn, RDF.type, KNORA_API.IntervalValue))
+        g.add((val_bn, KNORA_API.intervalValueHasStart, self.value.start))
+        g.add((val_bn, KNORA_API.intervalValueHasEnd, self.value.end))
+        return g
+
+
+@dataclass
+class Interval:
+    start: Literal
+    end: Literal

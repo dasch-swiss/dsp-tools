@@ -1,4 +1,5 @@
 import pytest
+import regex
 from lxml import etree
 from rdflib import RDF
 from rdflib import XSD
@@ -15,6 +16,10 @@ from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.commands.xmlupload.transform_resource_and_values_for_upload import KNORA_API
 from dsp_tools.commands.xmlupload.transform_resource_and_values_for_upload import _make_one_prop_graph
+from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import InputError
+from dsp_tools.models.exceptions import PermissionNotExistsError
+from dsp_tools.models.exceptions import UserError
 
 ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
 namespaces = {"onto": ONTO, "knora-api": KNORA_API}
@@ -345,3 +350,76 @@ class TestMakeOnePropGraphSuccess:
         assert rdf_type == KNORA_API.LinkValue
         value = next(result.objects(val_bn, KNORA_API.linkValueHasTargetIri))
         assert value == RES_ONE_URI
+
+
+class TestMakeOnePropGraphRaises:
+    def test_permissions(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+        res_bn, res_type = res_info
+        xml_prop = etree.fromstring("""
+        <integer-prop name=":hasInteger">
+            <integer permissions="nonExistent">4711</integer>
+        </integer-prop>
+        """)
+        prop = XMLProperty.from_node(xml_prop, "integer", "onto")
+        err_str = regex.escape("Could not find permissions for value: nonExistent")
+        with pytest.raises(PermissionNotExistsError, match=err_str):
+            _make_one_prop_graph(prop, res_type, res_bn, lookups)
+
+    def test_unknown_type(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+        res_bn, res_type = res_info
+        xml_prop = etree.fromstring("""
+        <other-prop name=":hasInteger">
+            <other permissions="nonExistent">4711</other>
+        </other-prop>
+        """)
+        prop = XMLProperty.from_node(xml_prop, "other", "onto")
+        err_str = regex.escape("Unknown value type: other")
+        with pytest.raises(UserError, match=err_str):
+            _make_one_prop_graph(prop, res_type, res_bn, lookups)
+
+    def test_unknown_prefix(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+        res_bn, res_type = res_info
+        xml_prop = etree.fromstring("""
+        <integer-prop name="other:hasInteger">
+            <integer permissions="nonExistent">4711</integer>
+        </integer-prop>
+        """)
+        prop = XMLProperty.from_node(xml_prop, "integer", "onto")
+        err_str = regex.escape("Could not find namespace for prefix: other")
+        with pytest.raises(InputError, match=err_str):
+            _make_one_prop_graph(prop, res_type, res_bn, lookups)
+
+    def test_link_traget_not_found(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+        res_bn, res_type = res_info
+        xml_prop = etree.fromstring("""
+        <resptr-prop name=":hasResource">
+            <resptr>non_existing</resptr>
+        </resptr-prop>
+        """)
+        prop = XMLProperty.from_node(xml_prop, "resptr", "onto")
+        err_str = regex.escape(
+            (
+                "Could not find the ID non_existing in the id2iri mapping. "
+                "This is probably because the resource 'non_existing' could not be created. "
+                "See warnings.log for more information."
+            )
+        )
+        with pytest.raises(BaseError, match=err_str):
+            _make_one_prop_graph(prop, res_type, res_bn, lookups)
+
+    def test_list_node_not_found(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+        res_bn, res_type = res_info
+        xml_prop = etree.fromstring("""
+        <list-prop list="testlist" name=":hasListItem">
+            <list>other</list>
+        </list-prop>
+        """)
+        prop = XMLProperty.from_node(xml_prop, "list", "onto")
+        err_str = regex.escape(
+            (
+                "Could not resolve list node ID 'testlist:other' to IRI. "
+                "This is probably because the list node 'testlist:other' does not exist on the server."
+            )
+        )
+        with pytest.raises(BaseError, match=err_str):
+            _make_one_prop_graph(prop, res_type, res_bn, lookups)

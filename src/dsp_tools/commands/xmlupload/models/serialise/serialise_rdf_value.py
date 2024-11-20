@@ -40,6 +40,19 @@ class ValueRDF(ABC):
         return g
 
 
+
+
+class RDF(ValueRDF):
+    value: Literal
+
+    def as_graph(self) -> Graph:
+        val_bn = BNode()
+        g = self._get_generic_graph(val_bn)
+        g.add((val_bn, RDF.type, KNORA_API.))
+        g.add((val_bn, KNORA_API., self.value))
+        return g
+
+
 class BooleanValueRDF(ValueRDF):
     value: Literal
 
@@ -89,6 +102,18 @@ class DateValueRDF(ValueRDF):
             g.add((val_bn, get_prop(DayMonthYearEra.DAY), Literal(day, datatype=XSD.int)))
         if era := date.era:
             g.add((val_bn, get_prop(DayMonthYearEra.ERA), Literal(era, datatype=XSD.string)))
+        return g
+
+
+
+class DecimalValueRDF(ValueRDF):
+    value: Literal
+
+    def as_graph(self) -> Graph:
+        val_bn = BNode()
+        g = self._get_generic_graph(val_bn)
+        g.add((val_bn, RDF.type, KNORA_API.DecimalValue))
+        g.add((val_bn, KNORA_API.decimalValueAsDecimal, self.value))
         return g
 
 

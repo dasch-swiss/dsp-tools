@@ -238,32 +238,32 @@ class TestMakeOnePropGraph:
         """)
         prop = XMLProperty.from_node(xml_prop, "text", "onto")
         result, prop_name = _make_one_prop_graph(prop, res_type, res_bn, lookups)
-        assert len(result) == 0
-        assert prop_name == ONTO
+        assert len(result) == 3
+        assert prop_name == ONTO.hasSimpleText
         val_bn = next(result.objects(res_bn, prop_name))
         rdf_type = next(result.objects(val_bn, RDF.type))
-        assert rdf_type == KNORA_API
-        value = next(result.objects(val_bn, KNORA_API))
-        assert value == Literal("", datatype=XSD)
-        permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
-        assert permissions == PERMISSION_LITERAL
+        assert rdf_type == KNORA_API.TextValue
+        value = next(result.objects(val_bn, KNORA_API.valueAsString))
+        assert value == Literal("Text", datatype=XSD.string)
 
     def test_richtext_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
         res_bn, res_type = res_info
         xml_prop = etree.fromstring("""
         <text-prop name=":hasRichtext">
-            <text encoding="xml">Text</text>
+            <text permissions="open" encoding="xml">Text</text>
         </text-prop>
         """)
         prop = XMLProperty.from_node(xml_prop, "text", "onto")
         result, prop_name = _make_one_prop_graph(prop, res_type, res_bn, lookups)
-        assert len(result) == 0
-        assert prop_name == ONTO
+        assert len(result) == 5
+        assert prop_name == ONTO.hasRichtext
         val_bn = next(result.objects(res_bn, prop_name))
         rdf_type = next(result.objects(val_bn, RDF.type))
-        assert rdf_type == KNORA_API
-        value = next(result.objects(val_bn, KNORA_API))
-        assert value == Literal("", datatype=XSD)
+        assert rdf_type == KNORA_API.TextValue
+        value = next(result.objects(val_bn, KNORA_API.textValueAsXml))
+        assert value == Literal('<?xml version="1.0" encoding="UTF-8"?>\n<text>Text</text>', datatype=XSD.string)
+        mapping = next(result.objects(val_bn, KNORA_API.textValueHasMapping))
+        assert mapping == URIRef("http://rdfh.ch/standoff/mappings/StandardMapping")
         permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
         assert permissions == PERMISSION_LITERAL
 

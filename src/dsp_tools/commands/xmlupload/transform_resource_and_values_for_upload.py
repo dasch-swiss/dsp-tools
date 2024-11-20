@@ -108,7 +108,6 @@ def _make_values(resource: XMLResource, res_bnode: BNode, lookup: Lookups) -> di
 
     for prop in resource.properties:
         prop_name = _get_absolute_prop_iri(prop.name, lookup.namespaces)
-        last_prop_name = prop_name
         match prop.valtype:
             case "boolean" | "color" | "decimal" | "geometry" | "geoname" | "integer" | "time" | "uri" as val_type:
                 literal_info = rdf_prop_type_mapper[val_type]
@@ -130,6 +129,7 @@ def _make_values(resource: XMLResource, res_bnode: BNode, lookup: Lookups) -> di
                     listnode_lookup=lookup.listnodes,
                 )
             case "resptr":
+                prop_name = _get_link_prop_name(prop, resource.restype, lookup.namespaces)
                 properties_graph += _make_link_prop_graph(
                     prop=prop,
                     res_bn=res_bnode,
@@ -137,7 +137,6 @@ def _make_values(resource: XMLResource, res_bnode: BNode, lookup: Lookups) -> di
                     permissions_lookup=lookup.permissions,
                     iri_resolver=lookup.id_to_iri,
                 )
-
             case "text":
                 properties_graph += _make_text_prop_graph(
                     prop=prop,
@@ -146,7 +145,6 @@ def _make_values(resource: XMLResource, res_bnode: BNode, lookup: Lookups) -> di
                     permissions_lookup=lookup.permissions,
                     iri_resolver=lookup.id_to_iri,
                 )
-
             # serialised as dict
             case "date" | "interval" as val_type:
                 transformations = value_to_transformations_mapper[val_type]
@@ -156,15 +154,10 @@ def _make_values(resource: XMLResource, res_bnode: BNode, lookup: Lookups) -> di
                     transformations=transformations,
                 )
                 properties_serialised.update(transformed_prop.serialise())
-            case "text":
-                transformed_prop = _transform_text_prop(
-                    prop=prop,
-                    permissions_lookup=lookup.permissions,
-                    iri_resolver=lookup.id_to_iri,
-                )
-                properties_serialised.update(transformed_prop.serialise())
             case _:
                 raise UserError(f"Unknown value type: {prop.valtype}")
+        last_prop_name = prop_name
+
     if resource.iiif_uri:
         properties_graph += _make_iiif_uri_value(resource.iiif_uri, res_bnode, lookup.permissions)
         last_prop_name = KNORA_API.hasStillImageFileValue
@@ -174,13 +167,13 @@ def _make_values(resource: XMLResource, res_bnode: BNode, lookup: Lookups) -> di
     return properties_serialised
 
 
-def _get_link_prop_name(p: XMLProperty, restype: str) -> str:
+def _get_link_prop_name(p: XMLProperty, restype: str, namespaces: dict[str, Namespace]) -> URIRef:
     if p.name == "knora-api:isSegmentOf" and restype == "knora-api:VideoSegment":
-        return "knora-api:isVideoSegmentOfValue"
+        return KNORA_API.isVideoSegmentOfValue
     elif p.name == "knora-api:isSegmentOf" and restype == "knora-api:AudioSegment":
-        return "knora-api:isAudioSegmentOfValue"
-    else:
-        return f"{p.name}Value"
+        return KNORA_API.isAudioSegmentOfValue
+    prop = f"{p.name}Value"
+    return _get_absolute_prop_iri(prop, namespaces)
 
 
 def _get_absolute_prop_iri(prefixed_prop: str, namepsaces: dict[str, Namespace]) -> URIRef:

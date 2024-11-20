@@ -250,7 +250,7 @@ def _make_simple_value_graph(
     prop_type_info: RDFPropTypeInfo,
 ) -> Graph:
     val_bn = BNode()
-    g = _get_optional_triples(val_bn, val.permissions, val.comment)
+    g = _add_optional_triples(val_bn, val.permissions, val.comment)
     g.add((res_bn, val.prop_name, val_bn))
     g.add((val_bn, RDF.type, prop_type_info.knora_type))
     g.add((val_bn, prop_type_info.knora_prop, val.value))
@@ -306,7 +306,7 @@ def _make_date_value_graph(
 ) -> Graph:
     date = transform_date(val.value)
     val_bn = BNode()
-    g = _get_optional_triples(val_bn, resolved_permission, val.comment)
+    g = _add_optional_triples(val_bn, resolved_permission, val.comment)
     g.add((res_bn, prop_name, val_bn))
     g.add((val_bn, RDF.type, KNORA_API.DateValue))
     if cal := date.calendar.value:
@@ -354,7 +354,7 @@ def _make_interval_value_graph(
 ) -> Graph:
     interval = transform_interval(val.value)
     val_bn = BNode()
-    g = _get_optional_triples(val_bn, resolved_permission, val.comment)
+    g = _add_optional_triples(val_bn, resolved_permission, val.comment)
     g.add((res_bn, prop_name, val_bn))
     g.add((val_bn, RDF.type, KNORA_API.IntervalValue))
     g.add((val_bn, KNORA_API.intervalValueHasStart, interval.start))
@@ -442,7 +442,7 @@ def _make_richtext_value_graph(
 ) -> Graph:
     val_bn = BNode()
     resolved_permission = _resolve_permission(val.permissions, permissions_lookup)
-    g = _get_optional_triples(val_bn, resolved_permission, val.comment)
+    g = _add_optional_triples(val_bn, resolved_permission, val.comment)
     xml_val = cast(FormattedTextValue, val.value)
     val_str = _get_richtext_string(xml_val, iri_resolver)
     literal_val = Literal(val_str, datatype=XSD.string)
@@ -458,7 +458,7 @@ def _get_richtext_string(xml_val: FormattedTextValue, iri_resolver: IriResolver)
     return xml_with_iris.as_xml()
 
 
-def _get_optional_triples(val_bn: BNode, permissions: str | None, comment: str | None) -> Graph:
+def _add_optional_triples(val_bn: BNode, permissions: str | None, comment: str | None) -> Graph:
     g = Graph()
     if permissions:
         g.add((val_bn, KNORA_API.hasPermissions, Literal(permissions, datatype=XSD.string)))
@@ -471,10 +471,8 @@ def _add_optional_permission_triple(
     value: XMLValue | IIIFUriInfo, val_bn: BNode, permissions_lookup: dict[str, Permissions]
 ) -> Graph:
     g = Graph()
-    if value.permissions:
-        if not (per := permissions_lookup.get(value.permissions)):
-            raise PermissionNotExistsError(f"Could not find permissions for value: {value.permissions}")
-        g.add((val_bn, KNORA_API.hasPermissions, Literal(str(per))))
+    if per_str := _resolve_permission(value.permissions, permissions_lookup):
+        g.add((val_bn, KNORA_API.hasPermissions, Literal(per_str, datatype=XSD.string)))
     return g
 
 

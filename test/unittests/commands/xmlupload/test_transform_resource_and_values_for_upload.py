@@ -272,20 +272,30 @@ class TestMakeOnePropGraph:
         res_bn, res_type = res_info
         xml_prop = etree.fromstring("""
         <date-prop name=":hasDate">
-            <date>GREGORIAN:AD:0476-09-04:AD:0477</date>
+            <date>GREGORIAN:AD:0476-09-04:0477</date>
         </date-prop>
         """)
         prop = XMLProperty.from_node(xml_prop, "date", "onto")
         result, prop_name = _make_one_prop_graph(prop, res_type, res_bn, lookups)
-        assert len(result) == 0
-        assert prop_name == ONTO
+        assert len(result) == 9
+        assert prop_name == ONTO.hasDate
         val_bn = next(result.objects(res_bn, prop_name))
         rdf_type = next(result.objects(val_bn, RDF.type))
-        assert rdf_type == KNORA_API
-        value = next(result.objects(val_bn, KNORA_API))
-        assert value == Literal("", datatype=XSD)
-        permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
-        assert permissions == PERMISSION_LITERAL
+        assert rdf_type == KNORA_API.DateValue
+        calendar = next(result.objects(val_bn, KNORA_API.dateValueHasCalendar))
+        assert calendar == Literal("GREGORIAN", datatype=XSD.string)
+        start_day = next(result.objects(val_bn, KNORA_API.dateValueHasStartDay))
+        assert start_day == Literal("4", datatype=XSD.integer)
+        start_month = next(result.objects(val_bn, KNORA_API.dateValueHasStartMonth))
+        assert start_month == Literal("9", datatype=XSD.integer)
+        start_year = next(result.objects(val_bn, KNORA_API.dateValueHasStartYear))
+        assert start_year == Literal("476", datatype=XSD.integer)
+        start_era = next(result.objects(val_bn, KNORA_API.dateValueHasStartEra))
+        assert start_era == Literal("AD", datatype=XSD.string)
+        end_year = next(result.objects(val_bn, KNORA_API.dateValueHasEndYear))
+        assert end_year == Literal("477", datatype=XSD.integer)
+        start_era = next(result.objects(val_bn, KNORA_API.dateValueHasEndEra))
+        assert start_era == Literal("AD", datatype=XSD.string)
 
     def test_interval_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
         res_bn, res_type = res_info

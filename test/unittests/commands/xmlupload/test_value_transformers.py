@@ -4,12 +4,13 @@ import pytest
 from rdflib import XSD
 from rdflib import Literal
 
-from dsp_tools.commands.xmlupload.value_transformers import transform_xsd_boolean
+from dsp_tools.commands.xmlupload.value_transformers import transform_xsd_boolean, transform_interval
 from dsp_tools.models.exceptions import BaseError
 
+from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import Interval
 
 @pytest.mark.parametrize(
-    ("input_bool", "success"),
+    ("input_bool", "out_bool"),
     [
         ("true", True),
         ("True", True),
@@ -23,9 +24,9 @@ from dsp_tools.models.exceptions import BaseError
         (False, False),
     ],
 )
-def test_transform_boolean_success(input_bool: Any, success: bool) -> None:
+def test_transform_boolean_success(input_bool: Any, out_bool: bool) -> None:
     result = transform_xsd_boolean(input_bool)
-    assert result == Literal(success, datatype=XSD.boolean)
+    assert result == Literal(out_bool, datatype=XSD.boolean)
 
 
 def test_transform_boolean_raises_string() -> None:
@@ -36,3 +37,16 @@ def test_transform_boolean_raises_string() -> None:
 def test_transform_boolean_raises_int() -> None:
     with pytest.raises(BaseError):
         transform_xsd_boolean(2)  # type: ignore[arg-type]
+
+
+def test_transform_interval_success() -> None:
+    result = transform_interval("1:2")
+    assert isinstance(result, Interval)
+    assert result.start==Literal("1.0", datatype=XSD.decimal)
+    assert result.end==Literal("2.0", datatype=XSD.decimal)
+
+def test_transform_interval_success_with_space() -> None:
+    result = transform_interval("1:2.1 ")
+    assert isinstance(result, Interval)
+    assert result.start==Literal("1.0", datatype=XSD.decimal)
+    assert result.end==Literal("2.1", datatype=XSD.decimal)

@@ -103,14 +103,6 @@ def _make_resource(
 
 
 def _make_values(resource: XMLResource, res_bnode: BNode, lookup: Lookups) -> dict[str, Any]:
-    def get_link_prop_name(p: XMLProperty) -> str:
-        if p.name == "knora-api:isSegmentOf" and resource.restype == "knora-api:VideoSegment":
-            return "knora-api:isVideoSegmentOfValue"
-        elif p.name == "knora-api:isSegmentOf" and resource.restype == "knora-api:AudioSegment":
-            return "knora-api:isAudioSegmentOfValue"
-        else:
-            return f"{p.name}Value"
-
     properties_serialised = {}
     properties_graph = Graph()
     # To frame the json-ld correctly, we need one property used in the graph. It does not matter which.
@@ -142,7 +134,7 @@ def _make_values(resource: XMLResource, res_bnode: BNode, lookup: Lookups) -> di
                 )
                 properties_serialised.update(transformed_prop.serialise())
             case "resptr":
-                prop_name = get_link_prop_name(prop)
+                prop_name = _get_link_prop_name(prop, resource.restype)
                 transformed_prop = _transform_into_link_prop(
                     prop=prop,
                     prop_name=prop_name,
@@ -166,6 +158,15 @@ def _make_values(resource: XMLResource, res_bnode: BNode, lookup: Lookups) -> di
         serialised_graph_props = serialise_property_graph(properties_graph, last_prop_name)
         properties_serialised.update(serialised_graph_props)
     return properties_serialised
+
+
+def _get_link_prop_name(p: XMLProperty, restype: str) -> str:
+    if p.name == "knora-api:isSegmentOf" and restype == "knora-api:VideoSegment":
+        return "knora-api:isVideoSegmentOfValue"
+    elif p.name == "knora-api:isSegmentOf" and restype == "knora-api:AudioSegment":
+        return "knora-api:isAudioSegmentOfValue"
+    else:
+        return f"{p.name}Value"
 
 
 def _get_absolute_prop_iri(prefixed_prop: str, namepsaces: dict[str, Namespace]) -> URIRef:

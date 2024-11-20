@@ -25,7 +25,7 @@ from dsp_tools.models.exceptions import BaseError
 )
 def test_transform_boolean_success(input_bool: Any, success: bool) -> None:
     result = transform_xsd_boolean(input_bool)
-    assert result == Literal(success, XSD.boolean)
+    assert result == Literal(success, datatype=XSD.boolean)
 
 
 def test_transform_boolean_raises_string() -> None:

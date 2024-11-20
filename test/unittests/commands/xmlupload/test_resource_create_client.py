@@ -442,6 +442,7 @@ def test_make_iiif_uri_value_serialised() -> None:
     assert serialised == expected
 
 
+# TODO: change
 def test_make_boolean_value_with_permissions() -> None:
     permissions_lookup = {"open": Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})}
     xml_str = """

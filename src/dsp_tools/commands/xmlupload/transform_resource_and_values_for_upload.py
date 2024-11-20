@@ -4,6 +4,7 @@ from typing import assert_never
 from typing import cast
 
 from rdflib import RDF
+from rdflib import XSD
 from rdflib import BNode
 from rdflib import Graph
 from rdflib import Literal
@@ -28,7 +29,8 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import S
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseStillImageFileValue
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseTextFileValue
 from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import BooleanValueRDF
-from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import IntValueRDF
+from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import RDFLiteralInfo
+from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import rdf_literal_mapper
 from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseMigrationMetadata
 from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseResource
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseLink
@@ -116,8 +118,15 @@ def _make_values(resource: XMLResource, res_bnode: BNode, lookup: Lookups) -> di
 
     for prop in resource.properties:
         match prop.valtype:
+            # serialised with rdflib
+            case "boolean" | "color" | "decimal" | "geometry" | "geoname" | "integer" | "time" | "uri" as val_type:
+                literal_info = rdf_literal_mapper[val_type]
+                prop_name = _get_absolute_prop_iri(prop.name, lookup.namespaces)
+                properties_graph += _make_literal_prop(prop, res_bnode, prop_name, literal_info, lookup.permissions)
+                last_prop_name = prop_name
+
             # serialised as dict
-            case "uri" | "color" | "geoname" | "time" | "decimal" | "geometry" | "date" | "interval" as val_type:
+            case "date" | "interval" as val_type:
                 transformations = value_to_transformations_mapper[val_type]
                 transformed_prop = _transform_into_prop_serialiser(
                     prop=prop,
@@ -148,17 +157,6 @@ def _make_values(resource: XMLResource, res_bnode: BNode, lookup: Lookups) -> di
                     listnode_lookup=lookup.listnodes,
                 )
                 properties_serialised.update(transformed_prop.serialise())
-            # serialised with rdflib
-            case "integer":
-                int_prop_name = _get_absolute_prop_iri(prop.name, lookup.namespaces)
-                int_graph = _make_integer_prop(prop, res_bnode, int_prop_name, lookup.permissions)
-                properties_graph += int_graph
-                last_prop_name = int_prop_name
-            case "boolean":
-                bool_prop_name = _get_absolute_prop_iri(prop.name, lookup.namespaces)
-                bool_graph = _make_boolean_prop(prop, res_bnode, bool_prop_name, lookup.permissions)
-                properties_graph += bool_graph
-                last_prop_name = bool_prop_name
             case _:
                 raise UserError(f"Unknown value type: {prop.valtype}")
     if resource.iiif_uri:
@@ -200,22 +198,13 @@ def _transform_into_value_serialiser(
     return transformations.serialiser(transformed, permission_str, value.comment)
 
 
-def _add_optional_permission_triple(
-    value: XMLValue | IIIFUriInfo, val_bn: BNode, g: Graph, permissions_lookup: dict[str, Permissions]
-) -> None:
-    if value.permissions:
-        if not (per := permissions_lookup.get(value.permissions)):
-            raise PermissionNotExistsError(f"Could not find permissions for value: {value.permissions}")
-        g.add((val_bn, KNORA_API.hasPermissions, Literal(str(per))))
-
-
 def _make_iiif_uri_value(iiif_uri: IIIFUriInfo, res_bnode: BNode, permissions_lookup: dict[str, Permissions]) -> Graph:
     g = Graph()
     iiif_bn = BNode()
     g.add((res_bnode, KNORA_API.hasStillImageFileValue, iiif_bn))
     g.add((iiif_bn, RDF.type, KNORA_API.StillImageExternalFileValue))
     g.add((iiif_bn, KNORA_API.fileValueHasExternalUrl, Literal(iiif_uri.value)))
-    _add_optional_permission_triple(iiif_uri, iiif_bn, g, permissions_lookup)
+    g += _add_optional_permission_triple(iiif_uri, iiif_bn, permissions_lookup)
     return g
 
 
@@ -242,16 +231,45 @@ def _make_bitstream_file_value(bitstream_info: BitstreamInfo) -> dict[str, Any]:
             raise BaseError(f"Unknown file ending '{file_ending}' for file '{local_file}'")
 
 
-def _make_boolean_prop(
-    prop: XMLProperty, res_bn: BNode, prop_name: URIRef, permissions_lookup: dict[str, Permissions]
+def _make_literal_prop(
+    prop: XMLProperty,
+    res_bn: BNode,
+    prop_name: URIRef,
+    literal_info: RDFLiteralInfo,
+    permissions_lookup: dict[str, Permissions],
 ) -> Graph:
     g = Graph()
-    for value in prop.values:
-        boolean_value = _make_boolean_value(value, prop_name, res_bn, permissions_lookup)
-        g += boolean_value.as_graph()
+    for val in prop.values:
+        g += _make_literal_value(val, res_bn, prop_name, literal_info, permissions_lookup)
     return g
 
 
+def _make_literal_value(
+    val: XMLValue,
+    res_bn: BNode,
+    prop_name: URIRef,
+    literal_info: RDFLiteralInfo,
+    permissions_lookup: dict[str, Permissions],
+) -> Graph():
+    g = Graph()
+    transformed_val = literal_info.transformations(val.value)
+    val_bn = BNode()
+    g.add((res_bn, prop_name, val_bn))
+    g.add((val_bn, RDF.type, literal_info.knora_type))
+    g.add((val_bn, literal_info.knora_prop, transformed_val))
+    g += _get_optional_triples(val, val_bn, permissions_lookup)
+    return g
+
+
+def _get_optional_triples(val: XMLValue, val_bn: BNode, permissions_lookup: dict[str, Permissions]) -> Graph:
+    g = Graph()
+    g += _add_optional_permission_triple(val, val_bn, permissions_lookup)
+    if val.comment:
+        g.add((val_bn, KNORA_API.valueHasComment, Literal(val.comment, datatype=XSD.string)))
+    return g
+
+
+# TODO: delete
 def _make_boolean_value(
     value: XMLValue, prop_name: URIRef, res_bn: BNode, permissions_lookup: dict[str, Permissions]
 ) -> BooleanValueRDF:
@@ -264,32 +282,6 @@ def _make_boolean_value(
         resource_bn=res_bn,
         prop_name=prop_name,
         value=Literal(as_bool),
-        permissions=permission_literal,
-        comment=Literal(value.comment) if value.comment else None,
-    )
-
-
-def _make_integer_prop(
-    prop: XMLProperty, res_bn: BNode, prop_name: URIRef, permissions_lookup: dict[str, Permissions]
-) -> Graph:
-    g = Graph()
-    for value in prop.values:
-        int_value = _make_integer_value(value, prop_name, res_bn, permissions_lookup)
-        g += int_value.as_graph()
-    return g
-
-
-def _make_integer_value(
-    value: XMLValue, prop_name: URIRef, res_bn: BNode, permissions_lookup: dict[str, Permissions]
-) -> IntValueRDF:
-    s = assert_is_string(value.value)
-    permission_literal = None
-    if permission_str := _get_permission_str(value.permissions, permissions_lookup):
-        permission_literal = Literal(permission_str)
-    return IntValueRDF(
-        resource_bn=res_bn,
-        prop_name=prop_name,
-        value=Literal(int(s)),
         permissions=permission_literal,
         comment=Literal(value.comment) if value.comment else None,
     )
@@ -379,27 +371,15 @@ def _transform_into_richtext_value(
     return SerialiseRichtext(value=val_str, permissions=permission_str, comment=val.comment)
 
 
-def _transform_into_serialise_prop(
-    prop: XMLProperty,
-    permissions_lookup: dict[str, Permissions],
-    transformer: TransformationSteps,
-) -> SerialiseProperty:
-    serialised_values = [_transform_into_serialise_value(v, permissions_lookup, transformer) for v in prop.values]
-    prop_serialise = SerialiseProperty(
-        property_name=prop.name,
-        values=serialised_values,
-    )
-    return prop_serialise
-
-
-def _transform_into_serialise_value(
-    value: XMLValue,
-    permissions_lookup: dict[str, Permissions],
-    transformer: TransformationSteps,
-) -> SerialiseValue:
-    permission_str = _get_permission_str(value.permissions, permissions_lookup)
-    value_str = cast(str, value.value)
-    return transformer.serialiser(value_str, permission_str, value.comment)
+def _add_optional_permission_triple(
+    value: XMLValue | IIIFUriInfo, val_bn: BNode, permissions_lookup: dict[str, Permissions]
+) -> Graph:
+    g = Graph()
+    if value.permissions:
+        if not (per := permissions_lookup.get(value.permissions)):
+            raise PermissionNotExistsError(f"Could not find permissions for value: {value.permissions}")
+        g.add((val_bn, KNORA_API.hasPermissions, Literal(str(per))))
+    return g
 
 
 def _get_permission_str(permissions: str | None, permissions_lookup: dict[str, Permissions]) -> str | None:

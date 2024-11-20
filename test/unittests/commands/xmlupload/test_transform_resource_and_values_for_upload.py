@@ -89,15 +89,15 @@ class TestMakeOnePropGraph:
         """)
         prop = XMLProperty.from_node(xml_prop, "decimal", "onto")
         result, prop_name = _make_one_prop_graph(prop, res_type, res_bn, lookups)
-        assert len(result) == 0
-        assert prop_name == ONTO
+        assert len(result) == 4
+        assert prop_name == ONTO.hasDecimal
         val_bn = next(result.objects(res_bn, prop_name))
         rdf_type = next(result.objects(val_bn, RDF.type))
-        assert rdf_type == KNORA_API
-        value = next(result.objects(val_bn, KNORA_API))
-        assert value == Literal("", datatype=XSD)
-        permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
-        assert permissions == PERMISSION_LITERAL
+        assert rdf_type == KNORA_API.DecimalValue
+        value = next(result.objects(val_bn, KNORA_API.decimalValueAsDecimal))
+        assert value == Literal("2.718281828459", datatype=XSD.decimal)
+        comment = next(result.objects(val_bn, KNORA_API.valueHasComment))
+        assert comment == Literal("Eulersche Zahl", datatype=XSD.string)
 
     def test_geometry_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
         res_bn, res_type = res_info

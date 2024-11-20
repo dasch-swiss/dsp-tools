@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from abc import ABC
 from abc import abstractmethod
 from dataclasses import dataclass
@@ -14,7 +15,8 @@ from rdflib import Literal
 from rdflib import Namespace
 from rdflib import URIRef
 
-from dsp_tools.commands.xmlupload.value_transformers import transform_geometry, assert_is_string
+from dsp_tools.commands.xmlupload.value_transformers import InputTypes
+from dsp_tools.commands.xmlupload.value_transformers import assert_is_string
 from dsp_tools.utils.date_util import Date
 from dsp_tools.utils.date_util import DayMonthYearEra
 from dsp_tools.utils.date_util import SingleDate
@@ -30,12 +32,40 @@ class RDFLiteralInfo:
     transformations: Callable[[Any], Literal]
 
 
-def transform_xsd_string(): ...
-def transform_xsd_decimal(): ...
-def transform_xsd_boolean(): ...
-def transform_xsd_integer(): ...
-def transform_xsd_date_time(): ...
-def transform_xsd_anyuri(): ...
+def transform_xsd_string(value: InputTypes):
+    str_val = assert_is_string(value)
+    return Literal(str_val, datatype=XSD.string)
+
+
+def transform_xsd_decimal(value: InputTypes):
+    str_val = assert_is_string(value)
+    return Literal(str_val, datatype=XSD.decimal)
+
+
+def transform_xsd_boolean(value: InputTypes):
+    str_val = assert_is_string(value)
+    return Literal(str_val, datatype=XSD.boolean)
+
+
+def transform_xsd_integer(value: InputTypes):
+    str_val = assert_is_string(value)
+    return Literal(str_val, datatype=XSD.integer)
+
+
+def transform_xsd_date_time(value: InputTypes):
+    str_val = assert_is_string(value)
+    return Literal(str_val, datatype=XSD.dateTimeStamp)
+
+
+def transform_xsd_any_uri(value: InputTypes):
+    str_val = assert_is_string(value)
+    return Literal(str_val, datatype=XSD.anyURI)
+
+
+def transform_geometry(value: InputTypes):
+    str_val = assert_is_string(value)
+    str_val = json.dumps(json.loads(str_val))
+    return Literal(str_val, datatype=XSD.string)
 
 
 rdf_mapper = {
@@ -46,7 +76,7 @@ rdf_mapper = {
     "geoname": RDFLiteralInfo(KNORA_API.GeonameValue, KNORA_API.geonameValueAsGeonameCode, transform_xsd_string),
     "integer": RDFLiteralInfo(KNORA_API.IntValue, KNORA_API.intValueAsInt, transform_xsd_integer),
     "time": RDFLiteralInfo(KNORA_API.TimeValue, KNORA_API.timeValueAsTimeStamp, transform_xsd_date_time),
-    "uri": RDFLiteralInfo(KNORA_API.UriValue, KNORA_API.uriValueAsUri, transform_xsd_anyuri),
+    "uri": RDFLiteralInfo(KNORA_API.UriValue, KNORA_API.uriValueAsUri, transform_xsd_any_uri),
 }
 
 # date

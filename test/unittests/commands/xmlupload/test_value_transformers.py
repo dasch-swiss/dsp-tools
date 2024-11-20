@@ -1,8 +1,10 @@
 from typing import Any
 
 import pytest
+from rdflib import XSD
+from rdflib import Literal
 
-from dsp_tools.commands.xmlupload.value_transformers import transform_boolean
+from dsp_tools.commands.xmlupload.value_transformers import transform_xsd_boolean
 from dsp_tools.models.exceptions import BaseError
 
 
@@ -22,15 +24,15 @@ from dsp_tools.models.exceptions import BaseError
     ],
 )
 def test_transform_boolean_success(input_bool: Any, success: bool) -> None:
-    result = transform_boolean(input_bool)
-    assert result == success
+    result = transform_xsd_boolean(input_bool)
+    assert result == Literal(success, XSD.boolean)
 
 
 def test_transform_boolean_raises_string() -> None:
     with pytest.raises(BaseError):
-        transform_boolean("foo")
+        transform_xsd_boolean("foo")
 
 
 def test_transform_boolean_raises_int() -> None:
     with pytest.raises(BaseError):
-        transform_boolean(2)
+        transform_xsd_boolean(2)

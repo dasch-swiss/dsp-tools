@@ -20,15 +20,15 @@ OutputTypes: TypeAlias = Union[str, Date, Interval]
 ValueTransformer: TypeAlias = Callable[[InputTypes], OutputTypes]
 
 
-def transform_boolean(s: str | int | bool) -> bool:
-    """Takes an input value and transforms it into a boolean."""
-    match s:
+def transform_xsd_boolean(value: InputTypes):
+    """Takes an input value and transforms it into an xsd:boolean."""
+    match value:
         case "True" | "true" | "1" | 1 | True:
-            return True
+            return Literal(True, datatype=XSD.boolean)
         case "False" | "false" | "0" | 0 | False:
-            return False
+            return Literal(False, datatype=XSD.boolean)
         case _:
-            raise BaseError(f"Could not parse boolean value: {s}")
+            raise BaseError(f"Could not parse boolean value: {value}")
 
 
 def transform_date(input_value: InputTypes) -> Date:
@@ -47,6 +47,43 @@ def transform_interval(input_value: InputTypes) -> Interval:
             raise BaseError(f"Could not parse interval value: {input_value}")
 
 
+def transform_xsd_string(value: InputTypes):
+    """Transform a value into an rdflib Literal with datatype xsd:string"""
+    str_val = assert_is_string(value)
+    return Literal(str_val, datatype=XSD.string)
+
+
+def transform_xsd_decimal(value: InputTypes):
+    """Transform a value into an rdflib Literal with datatype xsd:decimal"""
+    str_val = assert_is_string(value)
+    return Literal(str(float(str_val)), datatype=XSD.decimal)
+
+
+def transform_xsd_integer(value: InputTypes):
+    """Transform a value into an rdflib Literal with datatype xsd:integer"""
+    str_val = assert_is_string(value)
+    return Literal(str_val, datatype=XSD.integer)
+
+
+def transform_xsd_date_time(value: InputTypes):
+    """Transform a value into an rdflib Literal with datatype xsd:dateTimeStamp"""
+    str_val = assert_is_string(value)
+    return Literal(str_val, datatype=XSD.dateTimeStamp)
+
+
+def transform_xsd_any_uri(value: InputTypes):
+    """Transform a value into an rdflib Literal with datatype xsd:anyURI"""
+    str_val = assert_is_string(value)
+    return Literal(str_val, datatype=XSD.anyURI)
+
+
+def transform_geometry(value: InputTypes):
+    """Transform a value into a geometry string rdflib Literal with datatype xsd:string"""
+    str_val = assert_is_string(value)
+    str_val = json.dumps(json.loads(str_val))
+    return Literal(str_val, datatype=XSD.string)
+
+
 def assert_is_string(value: str | FormattedTextValue) -> str:
     """Assert a value is a string."""
     match value:
@@ -56,47 +93,6 @@ def assert_is_string(value: str | FormattedTextValue) -> str:
             raise BaseError(f"Expected string value, but got XML value: {xml.as_xml()}")
         case _:
             assert_never(value)
-
-
-def transform_xsd_string(value: InputTypes):
-    str_val = assert_is_string(value)
-    return Literal(str_val, datatype=XSD.string)
-
-
-def transform_xsd_decimal(value: InputTypes):
-    str_val = assert_is_string(value)
-    return Literal(str(float(str_val)), datatype=XSD.decimal)
-
-
-def transform_xsd_boolean(value: InputTypes):
-    match value:
-        case "True" | "true" | "1" | 1 | True:
-            return Literal(True, datatype=XSD.boolean)
-        case "False" | "false" | "0" | 0 | False:
-            return Literal(False, datatype=XSD.boolean)
-        case _:
-            raise BaseError(f"Could not parse boolean value: {value}")
-
-
-def transform_xsd_integer(value: InputTypes):
-    str_val = assert_is_string(value)
-    return Literal(str_val, datatype=XSD.integer)
-
-
-def transform_xsd_date_time(value: InputTypes):
-    str_val = assert_is_string(value)
-    return Literal(str_val, datatype=XSD.dateTimeStamp)
-
-
-def transform_xsd_any_uri(value: InputTypes):
-    str_val = assert_is_string(value)
-    return Literal(str_val, datatype=XSD.anyURI)
-
-
-def transform_geometry(value: InputTypes):
-    str_val = assert_is_string(value)
-    str_val = json.dumps(json.loads(str_val))
-    return Literal(str_val, datatype=XSD.string)
 
 
 rdf_literal_transformer = {

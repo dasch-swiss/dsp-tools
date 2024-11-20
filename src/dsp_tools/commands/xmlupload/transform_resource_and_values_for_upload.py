@@ -292,18 +292,7 @@ def _make_link_prop_graph(
 ) -> Graph:
     g = Graph()
     for val in prop.values:
-        s = assert_is_string(val.value)
-        if is_resource_iri(s):
-            iri_str = s
-        elif resolved_iri := iri_resolver.get(s):
-            iri_str = resolved_iri
-        else:
-            msg = (
-                f"Could not find the ID {s} in the id2iri mapping. "
-                f"This is probably because the resource '{s}' could not be created. "
-                f"See {WARNINGS_SAVEPATH} for more information."
-            )
-            raise BaseError(msg)
+        iri_str = _resolve_id_to_iri(val.value, iri_resolver)
         per_str = _get_permission_str(val.permissions, permissions_lookup)
         transformed = TransformedValue(
             value=URIRef(iri_str),
@@ -313,6 +302,22 @@ def _make_link_prop_graph(
         )
         g += _make_simple_value_graph(transformed, res_bn, rdf_prop_type_mapper["link"])
     return g
+
+
+def _resolve_id_to_iri(value: str, iri_resolver: IriResolver) -> str:
+    s = assert_is_string(value)
+    if is_resource_iri(s):
+        iri_str = s
+    elif resolved_iri := iri_resolver.get(s):
+        iri_str = resolved_iri
+    else:
+        msg = (
+            f"Could not find the ID {s} in the id2iri mapping. "
+            f"This is probably because the resource '{s}' could not be created. "
+            f"See {WARNINGS_SAVEPATH} for more information."
+        )
+        raise BaseError(msg)
+    return iri_str
 
 
 def _make_text_prop_graph(

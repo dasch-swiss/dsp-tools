@@ -294,15 +294,15 @@ class TestMakeOnePropGraph:
         """)
         prop = XMLProperty.from_node(xml_prop, "interval", "onto")
         result, prop_name = _make_one_prop_graph(prop, res_type, res_bn, lookups)
-        assert len(result) == 0
-        assert prop_name == ONTO
+        assert len(result) == 4
+        assert prop_name == KNORA_API.hasSegmentBounds
         val_bn = next(result.objects(res_bn, prop_name))
         rdf_type = next(result.objects(val_bn, RDF.type))
-        assert rdf_type == KNORA_API
-        value = next(result.objects(val_bn, KNORA_API))
-        assert value == Literal("", datatype=XSD)
-        permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
-        assert permissions == PERMISSION_LITERAL
+        assert rdf_type == KNORA_API.IntervalValue
+        start = next(result.objects(val_bn, KNORA_API.intervalValueHasStart))
+        assert start == Literal("0.1", datatype=XSD.float)
+        end = next(result.objects(val_bn, KNORA_API.intervalValueHasEnd))
+        assert end == Literal("0.234", datatype=XSD.float)
 
     def test_segment_of_video_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
         res_bn, _ = res_info

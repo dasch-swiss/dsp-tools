@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
 from typing import Callable
 from typing import TypeAlias
 from typing import Union
@@ -12,7 +11,6 @@ from rdflib import Literal
 
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import Interval
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import ValueSerialiser
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.date_util import Date
 from dsp_tools.utils.date_util import parse_date_string
@@ -20,12 +18,6 @@ from dsp_tools.utils.date_util import parse_date_string
 InputTypes: TypeAlias = Union[str, FormattedTextValue]
 OutputTypes: TypeAlias = Union[str, Date, Interval]
 ValueTransformer: TypeAlias = Callable[[InputTypes], OutputTypes]
-
-
-@dataclass
-class TransformationSteps:
-    serialiser: ValueSerialiser
-    transformer: ValueTransformer
 
 
 def transform_boolean(s: str | int | bool) -> bool:

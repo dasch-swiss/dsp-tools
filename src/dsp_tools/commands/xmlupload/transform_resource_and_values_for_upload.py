@@ -34,9 +34,6 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import Tr
 from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import rdf_prop_type_mapper
 from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseMigrationMetadata
 from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseResource
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseProperty
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseValue
-from dsp_tools.commands.xmlupload.value_transformers import TransformationSteps
 from dsp_tools.commands.xmlupload.value_transformers import assert_is_string
 from dsp_tools.commands.xmlupload.value_transformers import rdf_literal_transformer
 from dsp_tools.commands.xmlupload.value_transformers import transform_date
@@ -187,29 +184,6 @@ def _get_absolute_prop_iri(prefixed_prop: str, namepsaces: dict[str, Namespace])
     if not (namespace := namepsaces.get(prefix)):
         raise InputError(f"Could not find namespace for prefix: {prefix}")
     return namespace[prop]
-
-
-def _transform_into_prop_serialiser(
-    prop: XMLProperty,
-    permissions_lookup: dict[str, Permissions],
-    transformations: TransformationSteps,
-) -> SerialiseProperty:
-    serialised_values = [_transform_into_value_serialiser(v, permissions_lookup, transformations) for v in prop.values]
-    prop_serialise = SerialiseProperty(
-        property_name=prop.name,
-        values=serialised_values,
-    )
-    return prop_serialise
-
-
-def _transform_into_value_serialiser(
-    value: XMLValue,
-    permissions_lookup: dict[str, Permissions],
-    transformations: TransformationSteps,
-) -> SerialiseValue:
-    transformed = transformations.transformer(value.value)
-    resolved_permission = _resolve_permission(value.permissions, permissions_lookup)
-    return transformations.serialiser(transformed, resolved_permission, value.comment)
 
 
 def _make_iiif_uri_value(iiif_uri: IIIFUriInfo, res_bnode: BNode, permissions_lookup: dict[str, Permissions]) -> Graph:

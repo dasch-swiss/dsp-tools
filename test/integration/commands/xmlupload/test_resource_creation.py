@@ -52,7 +52,7 @@ class ProjectClientStub:
         raise NotImplementedError("get_project_iri not implemented")
 
     def get_ontology_name_dict(self) -> dict[str, str]:
-        return {}
+        return {"my_onto": "http://0.0.0.0:3333/ontology/9999/onto/v2"}
 
     def get_ontology_iri_dict(self) -> dict[str, str]:
         raise NotImplementedError("get_project_iri not implemented")
@@ -72,27 +72,28 @@ def test_one_resource_without_links(ingest_client_mock: AssetClient) -> None:
     post_responses = [{"@id": "foo_1_iri", "rdfs:label": "foo_1_label"}]
     con.post = Mock(side_effect=post_responses)
     project_client = ProjectClientStub(con, "1234", None)
+
     clients = dsp_tools.commands.xmlupload.models.upload_clients.UploadClients(
         ingest_client_mock, project_client, ListClientMock()
     )
-
     xmlupload._upload_resources(clients, upload_state)
 
     assert len(con.post.call_args_list) == len(post_responses)
-    match con.post.call_args_list[0].kwargs:
-        case {
-            "route": "/v2/resources",
-            "data": {
-                "@type": "my_onto:foo_1_type",
-                "rdfs:label": "foo_1_label",
-                "knora-api:attachedToProject": {"@id": "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"},
-                "@context": dict(),
-                "my_onto:hasSimpleText": [{"@type": "knora-api:TextValue", "knora-api:valueAsString": "foo_1 text"}],
-            },
-        }:
-            assert True
-        case _:
-            pytest.fail("POST request was not sent correctly")
+    post_call_args = con.post.call_args_list[0].kwargs
+    assert len(post_call_args) == 3
+    assert post_call_args["route"] == "/v2/resources"
+    assert not post_call_args["headers"]
+    data = post_call_args["data"]
+    text_val = {
+        "@type": "http://api.knora.org/ontology/knora-api/v2#TextValue",
+        "http://api.knora.org/ontology/knora-api/v2#valueAsString": "foo_1 text",
+    }
+    assert data["http://0.0.0.0:3333/ontology/9999/onto/v2#hasSimpleText"] == text_val
+    assert data["knora-api:attachedToProject"] == {
+        "@id": "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"
+    }
+    assert data["rdfs:label"] == "foo_1_label"
+    assert data["@type"] == "my_onto:foo_1_type"
     assert not upload_state.pending_resources
     assert not upload_state.failed_uploads
     assert upload_state.iri_resolver.lookup == {"foo_1_id": "foo_1_iri"}
@@ -116,26 +117,24 @@ def test_one_resource_with_link_to_existing_resource(ingest_client_mock: AssetCl
     clients = dsp_tools.commands.xmlupload.models.upload_clients.UploadClients(
         ingest_client_mock, project_client, ListClientMock()
     )
-
     xmlupload._upload_resources(clients, upload_state)
 
     assert len(con.post.call_args_list) == len(post_responses)
-    match con.post.call_args_list[0].kwargs:
-        case {
-            "route": "/v2/resources",
-            "data": {
-                "@type": "my_onto:foo_1_type",
-                "rdfs:label": "foo_1_label",
-                "knora-api:attachedToProject": {"@id": "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"},
-                "@context": dict(),
-                "my_onto:hasCustomLinkValue": [
-                    {"@type": "knora-api:LinkValue", "knora-api:linkValueHasTargetIri": {"@id": "foo_2_iri"}}
-                ],
-            },
-        }:
-            assert True
-        case _:
-            pytest.fail("POST request was not sent correctly")
+    post_call_args = con.post.call_args_list[0].kwargs
+    assert len(post_call_args) == 3
+    assert post_call_args["route"] == "/v2/resources"
+    assert not post_call_args["headers"]
+    data = post_call_args["data"]
+    link_val = {
+        "@type": "http://api.knora.org/ontology/knora-api/v2#LinkValue",
+        "http://api.knora.org/ontology/knora-api/v2#linkValueHasTargetIri": {"@id": "foo_2_iri"},
+    }
+    assert data["http://0.0.0.0:3333/ontology/9999/onto/v2#hasCustomLinkValue"] == link_val
+    assert data["knora-api:attachedToProject"] == {
+        "@id": "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"
+    }
+    assert data["rdfs:label"] == "foo_1_label"
+    assert data["@type"] == "my_onto:foo_1_type"
     assert not upload_state.pending_resources
     assert not upload_state.failed_uploads
     assert upload_state.iri_resolver.lookup == {"foo_1_id": "foo_1_iri", "foo_2_id": "foo_2_iri"}

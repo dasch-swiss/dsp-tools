@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="9999"
+       default-ontology="onto">
+
+    <!-- 2 Violations -->
+
+    <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="id_video_missing"/>
+
+    <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="id_video_wrong_extension">
+        <bitstream>this/is/filepath/file.other</bitstream>
+    </resource>
+
+</knora>

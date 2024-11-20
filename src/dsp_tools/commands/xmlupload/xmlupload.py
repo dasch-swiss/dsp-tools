@@ -20,7 +20,9 @@ from dsp_tools.commands.xmlupload.models.deserialise.xmlpermission import XmlPer
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
-from dsp_tools.commands.xmlupload.models.namespace_context import get_json_ld_context_for_project
+from dsp_tools.commands.xmlupload.models.lookup_models import Lookups
+from dsp_tools.commands.xmlupload.models.lookup_models import get_json_ld_context_for_project
+from dsp_tools.commands.xmlupload.models.lookup_models import make_namespace_dict_from_onto_names
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
@@ -36,6 +38,7 @@ from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_c
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.commands.xmlupload.stash.upload_stashed_resptr_props import upload_stashed_resptr_props
 from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import upload_stashed_xml_texts
+from dsp_tools.commands.xmlupload.transform_resource_and_values_for_upload import create_resource_with_values
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.write_diagnostic_info import write_id2iri_mapping
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
@@ -242,14 +245,21 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
     project_iri = clients.project_client.get_project_iri()
     project_onto_dict = clients.project_client.get_ontology_name_dict()
     listnode_lookup = clients.list_client.get_list_node_id_to_iri_lookup()
+    project_context = get_json_ld_context_for_project(project_onto_dict)
+    namespaces = make_namespace_dict_from_onto_names(project_onto_dict)
+
+    lookups = Lookups(
+        project_iri=project_iri,
+        id_to_iri=upload_state.iri_resolver,
+        permissions=upload_state.permissions_lookup,
+        listnodes=listnode_lookup,
+        namespaces=namespaces,
+        jsonld_context=project_context,
+    )
 
     resource_create_client = ResourceCreateClient(
         con=clients.project_client.con,
         project_iri=project_iri,
-        iri_resolver=upload_state.iri_resolver,
-        project_onto_dict=project_onto_dict,
-        permissions_lookup=upload_state.permissions_lookup,
-        listnode_lookup=listnode_lookup,
         media_previously_ingested=upload_state.config.media_previously_uploaded,
     )
 
@@ -261,6 +271,7 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
                 resource=resource,
                 ingest_client=clients.asset_client,
                 resource_create_client=resource_create_client,
+                lookups=lookups,
                 creation_attempts_of_this_round=creation_attempts_of_this_round,
             )
             progress_bar.set_description(f"Creating Resources (failed: {len(upload_state.failed_uploads)})")
@@ -331,6 +342,7 @@ def _upload_one_resource(
     resource: XMLResource,
     ingest_client: AssetClient,
     resource_create_client: ResourceCreateClient,
+    lookups: Lookups,
     creation_attempts_of_this_round: int,
 ) -> None:
     try:
@@ -349,9 +361,14 @@ def _upload_one_resource(
     except KeyboardInterrupt:
         _handle_keyboard_interrupt()
 
+    serialised_resource = create_resource_with_values(
+        resource=resource, bitstream_information=media_info, lookup=lookups
+    )
+
     iri = None
     try:
-        iri = resource_create_client.create_resource(resource, media_info)
+        logger.info(f"Attempting to create resource {resource.res_id} (label: {resource.label})...")
+        iri = resource_create_client.create_resource(serialised_resource, bool(media_info))
     except (PermanentTimeOutError, KeyboardInterrupt) as err:
         _handle_permanent_timeout_or_keyboard_interrupt(err, resource.res_id)
     except PermanentConnectionError as err:

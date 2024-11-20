@@ -125,6 +125,11 @@ class ResultNonExistentCardinalityViolation(ValidationResult): ...
 
 
 @dataclass
+class ResultFileValueViolation(ValidationResult):
+    results_message: str
+
+
+@dataclass
 class ReformattedIRI:
     res_id: str
     res_type: str

@@ -384,12 +384,12 @@ class DuplicateValueProblem(InputProblem):
 
 
 @dataclass
-class MissingFileValueProblem(InputProblem):
+class FileValueProblem(InputProblem):
     expected: str
 
     @property
     def problem(self) -> str:
-        return "Required file value is missing"
+        return self.expected
 
     def get_msg(self) -> str:
         return f"{self.problem}"

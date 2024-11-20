@@ -84,6 +84,7 @@ def _inform_about_experimental_feature() -> None:
         "The following information of your data is being validated:",
         "Cardinalities",
         "If the value type used matches the ontology",
+        "Content of the values",
     ]
     cprint(LIST_SEPARATOR.join(what_is_validated), color="magenta", attrs=["bold"])
 
@@ -117,7 +118,6 @@ def _get_all_onto_classes(ontos: Graph) -> tuple[set[str], set[str]]:
     is_value_iri = URIRef(KNORA_API + "isValueClass")
     value_classes = set(ontos.subjects(is_value_iri, Literal(True)))
     value_cls = {reformat_onto_iri(x) for x in value_classes}
-    value_cls.add("shapes:GenericFileValue")
     return res_cls, value_cls
 
 
@@ -144,12 +144,15 @@ def _create_graphs(onto_client: OntologyClient, list_client: ListClient, data_rd
     shapes = construct_shapes_graphs(onto_for_construction, all_lists)
     api_shapes = Graph()
     api_shapes.parse("src/dsp_tools/resources/validate_data/api-shapes.ttl")
+    file_shapes = Graph()
+    file_shapes.parse("src/dsp_tools/resources/validate_data/file_value_cardinalities.ttl")
     content_shapes = shapes.content + api_shapes
+    card_shapes = shapes.cardinality + file_shapes
     data = data_rdf.make_graph()
     return RDFGraphs(
         data=data,
         ontos=ontologies,
-        cardinality_shapes=shapes.cardinality,
+        cardinality_shapes=card_shapes,
         content_shapes=content_shapes,
         knora_api=knora_api,
     )

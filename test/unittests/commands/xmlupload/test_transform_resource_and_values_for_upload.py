@@ -30,7 +30,7 @@ def permissions_lookup() -> dict[str, Permissions]:
 def lookups(permissions_lookup: dict[str, Permissions]) -> Lookups:
     return Lookups(
         project_iri="http://rdfh.ch/9999/project",
-        id_to_iri=IriResolver({"one": "1"}),
+        id_to_iri=IriResolver({"res_one": "http://rdfh.ch/9999/res_one"}),
         permissions=permissions_lookup,
         listnodes={"node": "http://rdfh.ch/9999/node"},
         namespaces=namespaces,
@@ -60,5 +60,294 @@ class TestMakeOnePropGraph:
         assert rdf_type == KNORA_API.BooleanValue
         value = next(result.objects(val_bn, KNORA_API.booleanValueAsBoolean))
         assert value == Literal(True, datatype=XSD.boolean)
+        permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
+        assert permissions == PERMISSION_LITERAL
+
+    def test_color_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+        res_bn, res_type = res_info
+        xml_prop = etree.fromstring("""
+        <color-prop name=":hasColor">
+            <color>#5d1f1e</color>
+        </color-prop>
+        """)
+        prop = XMLProperty.from_node(xml_prop, "color", "onto")
+        result, prop_name = _make_one_prop_graph(prop, res_type, res_bn, lookups)
+        assert len(result) == 3
+        assert prop_name == ONTO.hasColor
+        val_bn = next(result.objects(res_bn, prop_name))
+        rdf_type = next(result.objects(val_bn, RDF.type))
+        assert rdf_type == KNORA_API.ColorValue
+        value = next(result.objects(val_bn, KNORA_API.colorValueAsColor))
+        assert value == Literal("#5d1f1e", datatype=XSD.string)
+
+    def test_decimal_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+        res_bn, res_type = res_info
+        xml_prop = etree.fromstring("""
+        <decimal-prop name=":hasDecimal">
+            <decimal comment="Eulersche Zahl">2.718281828459</decimal>
+        </decimal-prop>
+        """)
+        prop = XMLProperty.from_node(xml_prop, "decimal", "onto")
+        result, prop_name = _make_one_prop_graph(prop, res_type, res_bn, lookups)
+        assert len(result) == 0
+        assert prop_name == ONTO
+        val_bn = next(result.objects(res_bn, prop_name))
+        rdf_type = next(result.objects(val_bn, RDF.type))
+        assert rdf_type == KNORA_API
+        value = next(result.objects(val_bn, KNORA_API))
+        assert value == Literal("", datatype=XSD)
+        permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
+        assert permissions == PERMISSION_LITERAL
+
+    def test_geometry_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+        res_bn, res_type = res_info
+        xml_prop = etree.fromstring("""
+        <geometry-prop name="hasGeometry">
+            <geometry permissions="open">
+                {
+                    "status": "active",
+                    "type": "polygon",
+                    "lineWidth": 5,
+                    "points": [{"x": 0.4, "y": 0.6},
+                               {"x": 0.5, "y": 0.9},
+                               {"x": 0.8, "y": 0.9},
+                               {"x": 0.7, "y": 0.6}]
+                }
+            </geometry>
+        </geometry-prop>
+        """)
+        prop = XMLProperty.from_node(xml_prop, "geometry", "onto")
+        result, prop_name = _make_one_prop_graph(prop, res_type, res_bn, lookups)
+        assert len(result) == 0
+        assert prop_name == ONTO
+        val_bn = next(result.objects(res_bn, prop_name))
+        rdf_type = next(result.objects(val_bn, RDF.type))
+        assert rdf_type == KNORA_API
+        value = next(result.objects(val_bn, KNORA_API))
+        assert value == Literal("", datatype=XSD)
+        permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
+        assert permissions == PERMISSION_LITERAL
+
+    def test_geoname_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+        res_bn, res_type = res_info
+        xml_prop = etree.fromstring("""
+        <geoname-prop name=":hasGeoname">
+            <geoname>5416656</geoname>
+        </geoname-prop>
+        """)
+        prop = XMLProperty.from_node(xml_prop, "geoname", "onto")
+        result, prop_name = _make_one_prop_graph(prop, res_type, res_bn, lookups)
+        assert len(result) == 0
+        assert prop_name == ONTO
+        val_bn = next(result.objects(res_bn, prop_name))
+        rdf_type = next(result.objects(val_bn, RDF.type))
+        assert rdf_type == KNORA_API
+        value = next(result.objects(val_bn, KNORA_API))
+        assert value == Literal("", datatype=XSD)
+        permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
+        assert permissions == PERMISSION_LITERAL
+
+    def test_integer_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+        res_bn, res_type = res_info
+        xml_prop = etree.fromstring("""
+        <integer-prop name=":hasInteger">
+            <integer>4711</integer>
+        </integer-prop>
+        """)
+        prop = XMLProperty.from_node(xml_prop, "integer", "onto")
+        result, prop_name = _make_one_prop_graph(prop, res_type, res_bn, lookups)
+        assert len(result) == 0
+        assert prop_name == ONTO
+        val_bn = next(result.objects(res_bn, prop_name))
+        rdf_type = next(result.objects(val_bn, RDF.type))
+        assert rdf_type == KNORA_API
+        value = next(result.objects(val_bn, KNORA_API))
+        assert value == Literal("", datatype=XSD)
+        permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
+        assert permissions == PERMISSION_LITERAL
+
+    def test_time_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+        res_bn, res_type = res_info
+        xml_prop = etree.fromstring("""
+        <time-prop name=":hasTime">
+            <time>2019-10-23T13:45:12.01-14:00</time>
+        </time-prop>
+        """)
+        prop = XMLProperty.from_node(xml_prop, "time", "onto")
+        result, prop_name = _make_one_prop_graph(prop, res_type, res_bn, lookups)
+        assert len(result) == 0
+        assert prop_name == ONTO
+        val_bn = next(result.objects(res_bn, prop_name))
+        rdf_type = next(result.objects(val_bn, RDF.type))
+        assert rdf_type == KNORA_API
+        value = next(result.objects(val_bn, KNORA_API))
+        assert value == Literal("", datatype=XSD)
+        permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
+        assert permissions == PERMISSION_LITERAL
+
+    def test_uri_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+        res_bn, res_type = res_info
+        xml_prop = etree.fromstring("""
+        <uri-prop name=":hasUri">
+            <uri>https://dasch.swiss</uri>
+        </uri-prop>
+        """)
+        prop = XMLProperty.from_node(xml_prop, "uri", "onto")
+        result, prop_name = _make_one_prop_graph(prop, res_type, res_bn, lookups)
+        assert len(result) == 0
+        assert prop_name == ONTO
+        val_bn = next(result.objects(res_bn, prop_name))
+        rdf_type = next(result.objects(val_bn, RDF.type))
+        assert rdf_type == KNORA_API
+        value = next(result.objects(val_bn, KNORA_API))
+        assert value == Literal("", datatype=XSD)
+        permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
+        assert permissions == PERMISSION_LITERAL
+
+    def test_list_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+        res_bn, res_type = res_info
+        xml_prop = etree.fromstring("""
+        <list-prop list="testlist" name=":hasListItem">
+            <list>node</list>
+        </list-prop>
+        """)
+        prop = XMLProperty.from_node(xml_prop, "list", "onto")
+        result, prop_name = _make_one_prop_graph(prop, res_type, res_bn, lookups)
+        assert len(result) == 0
+        assert prop_name == ONTO
+        val_bn = next(result.objects(res_bn, prop_name))
+        rdf_type = next(result.objects(val_bn, RDF.type))
+        assert rdf_type == KNORA_API
+        value = next(result.objects(val_bn, KNORA_API))
+        assert value == Literal("", datatype=XSD)
+        permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
+        assert permissions == PERMISSION_LITERAL
+
+    def test_resptr_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+        res_bn, res_type = res_info
+        xml_prop = etree.fromstring("""
+        <resptr-prop name=":hasResource">
+            <resptr>res_one</resptr>
+        </resptr-prop>
+        """)
+        prop = XMLProperty.from_node(xml_prop, "resptr", "onto")
+        result, prop_name = _make_one_prop_graph(prop, res_type, res_bn, lookups)
+        assert len(result) == 0
+        assert prop_name == ONTO
+        val_bn = next(result.objects(res_bn, prop_name))
+        rdf_type = next(result.objects(val_bn, RDF.type))
+        assert rdf_type == KNORA_API
+        value = next(result.objects(val_bn, KNORA_API))
+        assert value == Literal("", datatype=XSD)
+        permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
+        assert permissions == PERMISSION_LITERAL
+
+    def test_simpletext_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+        res_bn, res_type = res_info
+        xml_prop = etree.fromstring("""
+        <text-prop name=":hasSimpleText">
+            <text encoding="utf8">Text</text>
+        </text-prop>
+        """)
+        prop = XMLProperty.from_node(xml_prop, "text", "onto")
+        result, prop_name = _make_one_prop_graph(prop, res_type, res_bn, lookups)
+        assert len(result) == 0
+        assert prop_name == ONTO
+        val_bn = next(result.objects(res_bn, prop_name))
+        rdf_type = next(result.objects(val_bn, RDF.type))
+        assert rdf_type == KNORA_API
+        value = next(result.objects(val_bn, KNORA_API))
+        assert value == Literal("", datatype=XSD)
+        permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
+        assert permissions == PERMISSION_LITERAL
+
+    def test_richtext_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+        res_bn, res_type = res_info
+        xml_prop = etree.fromstring("""
+        <text-prop name=":hasRichtext">
+            <text encoding="xml">Text</text>
+        </text-prop>
+        """)
+        prop = XMLProperty.from_node(xml_prop, "text", "onto")
+        result, prop_name = _make_one_prop_graph(prop, res_type, res_bn, lookups)
+        assert len(result) == 0
+        assert prop_name == ONTO
+        val_bn = next(result.objects(res_bn, prop_name))
+        rdf_type = next(result.objects(val_bn, RDF.type))
+        assert rdf_type == KNORA_API
+        value = next(result.objects(val_bn, KNORA_API))
+        assert value == Literal("", datatype=XSD)
+        permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
+        assert permissions == PERMISSION_LITERAL
+
+    def test_date_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+        res_bn, res_type = res_info
+        xml_prop = etree.fromstring("""
+        <date-prop name=":hasDate">
+            <date>GREGORIAN:AD:0476-09-04:AD:0477</date>
+        </date-prop>
+        """)
+        prop = XMLProperty.from_node(xml_prop, "date", "onto")
+        result, prop_name = _make_one_prop_graph(prop, res_type, res_bn, lookups)
+        assert len(result) == 0
+        assert prop_name == ONTO
+        val_bn = next(result.objects(res_bn, prop_name))
+        rdf_type = next(result.objects(val_bn, RDF.type))
+        assert rdf_type == KNORA_API
+        value = next(result.objects(val_bn, KNORA_API))
+        assert value == Literal("", datatype=XSD)
+        permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
+        assert permissions == PERMISSION_LITERAL
+
+    def test_interval_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+        res_bn, res_type = res_info
+        xml_prop = etree.fromstring("""
+        <hasSegmentBounds segment_start="0.1" segment_end="0.234"/>
+        """)
+        prop = XMLProperty.from_node(xml_prop, "interval", "onto")
+        result, prop_name = _make_one_prop_graph(prop, res_type, res_bn, lookups)
+        assert len(result) == 0
+        assert prop_name == ONTO
+        val_bn = next(result.objects(res_bn, prop_name))
+        rdf_type = next(result.objects(val_bn, RDF.type))
+        assert rdf_type == KNORA_API
+        value = next(result.objects(val_bn, KNORA_API))
+        assert value == Literal("", datatype=XSD)
+        permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
+        assert permissions == PERMISSION_LITERAL
+
+    def test_segment_of_video_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+        res_bn, _ = res_info
+        res_type = "knora-api:VideoSegment"
+        xml_prop = etree.fromstring("""
+        <isSegmentOf >res_one</isSegmentOf>
+        """)
+        prop = XMLProperty.from_node(xml_prop, "resptr", "onto")
+        result, prop_name = _make_one_prop_graph(prop, res_type, res_bn, lookups)
+        assert len(result) == 0
+        assert prop_name == ONTO
+        val_bn = next(result.objects(res_bn, prop_name))
+        rdf_type = next(result.objects(val_bn, RDF.type))
+        assert rdf_type == KNORA_API
+        value = next(result.objects(val_bn, KNORA_API))
+        assert value == Literal("", datatype=XSD)
+        permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
+        assert permissions == PERMISSION_LITERAL
+
+    def test_segment_of_audio_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+        res_bn, _ = res_info
+        res_type = "knora-api:AudioSegment"
+        xml_prop = etree.fromstring("""
+        <isSegmentOf >res_one</isSegmentOf>
+        """)
+        prop = XMLProperty.from_node(xml_prop, "resptr", "onto")
+        result, prop_name = _make_one_prop_graph(prop, res_type, res_bn, lookups)
+        assert len(result) == 0
+        assert prop_name == ONTO
+        val_bn = next(result.objects(res_bn, prop_name))
+        rdf_type = next(result.objects(val_bn, RDF.type))
+        assert rdf_type == KNORA_API
+        value = next(result.objects(val_bn, KNORA_API))
+        assert value == Literal("", datatype=XSD)
         permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
         assert permissions == PERMISSION_LITERAL

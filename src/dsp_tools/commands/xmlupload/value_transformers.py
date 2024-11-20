@@ -11,9 +11,7 @@ from rdflib import XSD
 from rdflib import Literal
 
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import Interval
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseDate
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseInterval
+from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import Interval
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import ValueSerialiser
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.date_util import Date
@@ -52,14 +50,9 @@ def transform_interval(input_value: InputTypes) -> Interval:
     val = assert_is_string(input_value)
     match val.split(":", 1):
         case [start, end]:
-            return Interval(start, end)
+            return Interval(transform_xsd_decimal(start), transform_xsd_decimal(end))
         case _:
             raise BaseError(f"Could not parse interval value: {input_value}")
-
-
-def transform_string(input_value: InputTypes) -> str:
-    """Assert that an input is of type string."""
-    return assert_is_string(input_value)
 
 
 def assert_is_string(value: str | FormattedTextValue) -> str:
@@ -71,12 +64,6 @@ def assert_is_string(value: str | FormattedTextValue) -> str:
             raise BaseError(f"Expected string value, but got XML value: {xml.as_xml()}")
         case _:
             assert_never(value)
-
-
-value_to_transformations_mapper: dict[str, TransformationSteps] = {
-    "date": TransformationSteps(SerialiseDate, transform_date),
-    "interval": TransformationSteps(SerialiseInterval, transform_interval),
-}
 
 
 def transform_xsd_string(value: InputTypes):

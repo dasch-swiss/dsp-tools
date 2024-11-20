@@ -39,11 +39,15 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_value import Serial
 from dsp_tools.commands.xmlupload.value_transformers import TransformationSteps
 from dsp_tools.commands.xmlupload.value_transformers import assert_is_string
 from dsp_tools.commands.xmlupload.value_transformers import rdf_literal_transformer
-from dsp_tools.commands.xmlupload.value_transformers import value_to_transformations_mapper
+from dsp_tools.commands.xmlupload.value_transformers import transform_date
+from dsp_tools.commands.xmlupload.value_transformers import transform_interval
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import PermissionNotExistsError
 from dsp_tools.models.exceptions import UserError
+from dsp_tools.utils.date_util import DayMonthYearEra
+from dsp_tools.utils.date_util import SingleDate
+from dsp_tools.utils.date_util import StartEnd
 from dsp_tools.utils.iri_util import is_resource_iri
 from dsp_tools.utils.logger_config import WARNINGS_SAVEPATH
 
@@ -82,12 +86,12 @@ def _make_resource(
         res_iri = convert_ark_v0_to_resource_iri(resource.ark)
     if any([creation_date, res_iri]):
         migration_metadata = SerialiseMigrationMetadata(iri=res_iri, creation_date=resource.creation_date)
-    permission_str = _get_permission_str(resource.permissions, lookup.permissions)
+    resolved_permission = _resolve_permission(resource.permissions, lookup.permissions)
     serialise_resource = SerialiseResource(
         res_id=resource.res_id,
         res_type=resource.restype,
         label=resource.label,
-        permissions=permission_str,
+        permissions=resolved_permission,
         project_iri=lookup.project_iri,
         migration_metadata=migration_metadata,
     )
@@ -142,15 +146,20 @@ def _make_values(resource: XMLResource, res_bnode: BNode, lookup: Lookups) -> di
                     permissions_lookup=lookup.permissions,
                     iri_resolver=lookup.id_to_iri,
                 )
-            # serialised as dict
-            case "date" | "interval" as val_type:
-                transformations = value_to_transformations_mapper[val_type]
-                transformed_prop = _transform_into_prop_serialiser(
+            case "date":
+                properties_graph += _make_date_prop_graph(
                     prop=prop,
+                    res_bn=res_bnode,
+                    prop_name=prop_name,
                     permissions_lookup=lookup.permissions,
-                    transformations=transformations,
                 )
-                properties_serialised.update(transformed_prop.serialise())
+            case "interval":
+                properties_graph += _make_interval_prop_graph(
+                    prop=prop,
+                    res_bn=res_bnode,
+                    prop_name=prop_name,
+                    permissions_lookup=lookup.permissions,
+                )
             case _:
                 raise UserError(f"Unknown value type: {prop.valtype}")
         last_prop_name = prop_name
@@ -199,8 +208,8 @@ def _transform_into_value_serialiser(
     transformations: TransformationSteps,
 ) -> SerialiseValue:
     transformed = transformations.transformer(value.value)
-    permission_str = _get_permission_str(value.permissions, permissions_lookup)
-    return transformations.serialiser(transformed, permission_str, value.comment)
+    resolved_permission = _resolve_permission(value.permissions, permissions_lookup)
+    return transformations.serialiser(transformed, resolved_permission, value.comment)
 
 
 def _make_iiif_uri_value(iiif_uri: IIIFUriInfo, res_bnode: BNode, permissions_lookup: dict[str, Permissions]) -> Graph:
@@ -247,9 +256,9 @@ def _make_simple_prop_graph(
     g = Graph()
     for val in prop.values:
         transformed_val = transformer(val.value)
-        per_str = _get_permission_str(val.permissions, permissions_lookup)
+        resolved_permission = _resolve_permission(val.permissions, permissions_lookup)
         transformed = TransformedValue(
-            value=transformed_val, prop_name=prop_name, permissions=per_str, comment=val.comment
+            value=transformed_val, prop_name=prop_name, permissions=resolved_permission, comment=val.comment
         )
         g += _make_simple_value_graph(transformed, res_bn, prop_type_info)
     return g
@@ -272,15 +281,91 @@ def _make_list_prop_graph(
             )
             raise BaseError(msg)
 
-        per_str = _get_permission_str(val.permissions, permissions_lookup)
+        resolved_permission = _resolve_permission(val.permissions, permissions_lookup)
         transformed = TransformedValue(
             value=URIRef(iri_str),
             prop_name=prop_name,
-            permissions=per_str,
+            permissions=resolved_permission,
             comment=val.comment,
         )
         g += _make_simple_value_graph(transformed, res_bn, rdf_prop_type_mapper["list"])
     return g
+
+
+def _make_date_prop_graph(
+    prop: XMLProperty,
+    res_bn: BNode,
+    prop_name: URIRef,
+    permissions_lookup: dict[str, Permissions],
+) -> Graph:
+    g = Graph()
+    for val in prop.values:
+        resolved_permission = _resolve_permission(val.permissions, permissions_lookup)
+        g += _make_date_value_graph(val, prop_name, resolved_permission, res_bn)
+    return g
+
+
+def _make_date_value_graph(
+    val: XMLValue,
+    prop_name: URIRef,
+    resolved_permission: str | None,
+    res_bn: BNode,
+) -> Graph:
+    date = transform_date(val.value)
+    val_bn = BNode()
+    g = _get_optional_triples(val_bn, resolved_permission, val.comment)
+    g.add((res_bn, prop_name, val_bn))
+    g.add((val_bn, RDF.type, KNORA_API.DateValue))
+    if cal := date.calendar.value:
+        g.add((val_bn, KNORA_API.dateValueHasCalendar, Literal(cal, datatype=XSD.string)))
+    g += _make_single_date_graph(val_bn, date.start, StartEnd.START)
+    if date.end:
+        g += _make_single_date_graph(val_bn, date.end, StartEnd.END)
+    return g
+
+
+def _make_single_date_graph(val_bn: BNode, date: SingleDate, start_end: StartEnd) -> Graph:
+    def get_prop(precision: DayMonthYearEra) -> URIRef:
+        return KNORA_API[f"dateValueHas{start_end.value}{precision.value}"]
+
+    g = Graph()
+    if yr := date.year:
+        g.add((val_bn, get_prop(DayMonthYearEra.YEAR), Literal(yr, datatype=XSD.int)))
+    if mnt := date.month:
+        g.add((val_bn, get_prop(DayMonthYearEra.MONTH), Literal(mnt, datatype=XSD.int)))
+    if day := date.day:
+        g.add((val_bn, get_prop(DayMonthYearEra.DAY), Literal(day, datatype=XSD.int)))
+    if era := date.era:
+        g.add((val_bn, get_prop(DayMonthYearEra.ERA), Literal(era, datatype=XSD.string)))
+    return g
+
+
+def _make_interval_prop_graph(
+    prop: XMLProperty,
+    res_bn: BNode,
+    prop_name: URIRef,
+    permissions_lookup: dict[str, Permissions],
+) -> Graph:
+    g = Graph()
+    for val in prop.values:
+        resolved_permission = _resolve_permission(val.permissions, permissions_lookup)
+        g += _make_interval_value_graph(val, prop_name, resolved_permission, res_bn)
+    return g
+
+
+def _make_interval_value_graph(
+    val: XMLValue,
+    prop_name: URIRef,
+    resolved_permission: str | None,
+    res_bn: BNode,
+) -> Graph:
+    interval = transform_interval(val.value)
+    val_bn = BNode()
+    g = _get_optional_triples(val_bn, resolved_permission, val.comment)
+    g.add((res_bn, prop_name, val_bn))
+    g.add((val_bn, RDF.type, KNORA_API.IntervalValue))
+    g.add((val_bn, KNORA_API.intervalValueHasStart, interval.start))
+    g.add((val_bn, KNORA_API.intervalValueHasEnd, interval.end))
 
 
 def _make_link_prop_graph(
@@ -293,11 +378,11 @@ def _make_link_prop_graph(
     g = Graph()
     for val in prop.values:
         iri_str = _resolve_id_to_iri(val.value, iri_resolver)
-        per_str = _get_permission_str(val.permissions, permissions_lookup)
+        resolved_permission = _resolve_permission(val.permissions, permissions_lookup)
         transformed = TransformedValue(
             value=URIRef(iri_str),
             prop_name=prop_name,
-            permissions=per_str,
+            permissions=resolved_permission,
             comment=val.comment,
         )
         g += _make_simple_value_graph(transformed, res_bn, rdf_prop_type_mapper["link"])
@@ -329,13 +414,13 @@ def _make_text_prop_graph(
 ) -> Graph:
     g = Graph()
     for val in prop.values:
-        per_str = _get_permission_str(val.permissions, permissions_lookup)
+        resolved_permission = _resolve_permission(val.permissions, permissions_lookup)
         match val.value:
             case str():
                 transformed = TransformedValue(
                     value=Literal(val.value, datatype=XSD.string),
                     prop_name=prop_name,
-                    permissions=per_str,
+                    permissions=resolved_permission,
                     comment=val.comment,
                 )
                 g += _make_simple_value_graph(
@@ -375,8 +460,8 @@ def _make_richtext_value_graph(
     iri_resolver: IriResolver,
 ) -> Graph:
     val_bn = BNode()
-    per_str = _get_permission_str(val.permissions, permissions_lookup)
-    g = _get_optional_triples(val_bn, per_str, val.comment)
+    resolved_permission = _resolve_permission(val.permissions, permissions_lookup)
+    g = _get_optional_triples(val_bn, resolved_permission, val.comment)
     val_str = _get_richtext_string(val.value, iri_resolver)
     literal_val = Literal(val_str, datatype=XSD.string)
     g.add((res_bn, prop_name, val_bn))
@@ -412,7 +497,7 @@ def _add_optional_permission_triple(
     return g
 
 
-def _get_permission_str(permissions: str | None, permissions_lookup: dict[str, Permissions]) -> str | None:
+def _resolve_permission(permissions: str | None, permissions_lookup: dict[str, Permissions]) -> str | None:
     if permissions:
         if not (per := permissions_lookup.get(permissions)):
             raise PermissionNotExistsError(f"Could not find permissions for value: {permissions}")

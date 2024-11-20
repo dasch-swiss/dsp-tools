@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass
 from typing import Callable
 from typing import TypeAlias
@@ -9,14 +8,8 @@ from typing import assert_never
 
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import Interval
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseColor
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseDate
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseDecimal
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseGeometry
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseGeoname
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseInterval
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseTime
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseURI
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import ValueSerialiser
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.date_util import Date
@@ -50,18 +43,6 @@ def transform_date(input_value: InputTypes) -> Date:
     return parse_date_string(val)
 
 
-def transform_decimal(input_value: InputTypes) -> str:
-    """Transform an input into a decimal in string format."""
-    val = assert_is_string(input_value)
-    return str(float(val))
-
-
-def transform_geometry(input_value: InputTypes) -> str:
-    """Transform a geometry input into a string."""
-    val = assert_is_string(input_value)
-    return json.dumps(json.loads(val))
-
-
 def transform_interval(input_value: InputTypes) -> Interval:
     """Transform a sting input into an interval object."""
     val = assert_is_string(input_value)
@@ -89,12 +70,6 @@ def assert_is_string(value: str | FormattedTextValue) -> str:
 
 
 value_to_transformations_mapper: dict[str, TransformationSteps] = {
-    "color": TransformationSteps(SerialiseColor, transform_string),
     "date": TransformationSteps(SerialiseDate, transform_date),
-    "decimal": TransformationSteps(SerialiseDecimal, transform_decimal),
-    "geometry": TransformationSteps(SerialiseGeometry, transform_geometry),
-    "geoname": TransformationSteps(SerialiseGeoname, transform_string),
-    "time": TransformationSteps(SerialiseTime, transform_string),
-    "uri": TransformationSteps(SerialiseURI, transform_string),
     "interval": TransformationSteps(SerialiseInterval, transform_interval),
 }

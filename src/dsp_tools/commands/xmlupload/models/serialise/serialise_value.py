@@ -47,21 +47,7 @@ class SerialiseValue(ABC):
         return optionals
 
 
-class SerialiseColor(SerialiseValue):
-    """A ColorValue to be serialised."""
-
-    value: str
-
-    def serialise(self) -> dict[str, Any]:
-        serialised = {
-            "@type": "knora-api:ColorValue",
-            "knora-api:colorValueAsColor": self.value,
-        }
-        serialised.update(self._get_optionals())
-        return serialised
-
-
-class SerialiseDate(SerialiseValue):
+class SerialiseDate(SerialiseValue):  # TODO
     """A DateValue to be serialised."""
 
     value: Date
@@ -89,52 +75,7 @@ class SerialiseDate(SerialiseValue):
         return date_dict
 
 
-class SerialiseDecimal(SerialiseValue):
-    """A DecimalValue to be serialised."""
-
-    value: str
-
-    def serialise(self) -> dict[str, Any]:
-        serialised = {
-            "@type": "knora-api:DecimalValue",
-            "knora-api:decimalValueAsDecimal": {
-                "@type": "xsd:decimal",
-                "@value": self.value,
-            },
-        }
-        serialised.update(self._get_optionals())
-        return serialised
-
-
-class SerialiseGeometry(SerialiseValue):
-    """A GeomValue to be serialised."""
-
-    value: str
-
-    def serialise(self) -> dict[str, Any]:
-        serialised = {
-            "@type": "knora-api:GeomValue",
-            "knora-api:geometryValueAsGeometry": self.value,
-        }
-        serialised.update(self._get_optionals())
-        return serialised
-
-
-class SerialiseGeoname(SerialiseValue):
-    """A GeonameValue to be serialised."""
-
-    value: str
-
-    def serialise(self) -> dict[str, Any]:
-        serialised = {
-            "@type": "knora-api:GeonameValue",
-            "knora-api:geonameValueAsGeonameCode": self.value,
-        }
-        serialised.update(self._get_optionals())
-        return serialised
-
-
-class SerialiseInterval(SerialiseValue):
+class SerialiseInterval(SerialiseValue):  # TODO
     """An IntervalValue to be serialised."""
 
     value: Interval
@@ -150,7 +91,7 @@ class SerialiseInterval(SerialiseValue):
 
 
 @dataclass
-class Interval:
+class Interval:  # TODO
     start: str
     end: str
 
@@ -167,7 +108,7 @@ class Interval:
         }
 
 
-class SerialiseList(SerialiseValue):
+class SerialiseList(SerialiseValue):  # TODO
     """An ListValue to be serialised."""
 
     value: str
@@ -183,7 +124,7 @@ class SerialiseList(SerialiseValue):
         return serialised
 
 
-class SerialiseLink(SerialiseValue):
+class SerialiseLink(SerialiseValue):  # TODO
     """A LinkValue to be serialised."""
 
     value: str
@@ -224,40 +165,6 @@ class SerialiseRichtext(SerialiseValue):
             "knora-api:textValueAsXml": self.value,
             "knora-api:textValueHasMapping": {
                 "@id": "http://rdfh.ch/standoff/mappings/StandardMapping",
-            },
-        }
-        serialised.update(self._get_optionals())
-        return serialised
-
-
-class SerialiseTime(SerialiseValue):
-    """A TimeValue to be serialised."""
-
-    value: str
-
-    def serialise(self) -> dict[str, Any]:
-        serialised = {
-            "@type": "knora-api:TimeValue",
-            "knora-api:timeValueAsTimeStamp": {
-                "@type": "xsd:dateTimeStamp",
-                "@value": self.value,
-            },
-        }
-        serialised.update(self._get_optionals())
-        return serialised
-
-
-class SerialiseURI(SerialiseValue):
-    """A UriValue to be serialised."""
-
-    value: str
-
-    def serialise(self) -> dict[str, Any]:
-        serialised = {
-            "@type": "knora-api:UriValue",
-            "knora-api:uriValueAsUri": {
-                "@type": "xsd:anyURI",
-                "@value": self.value,
             },
         }
         serialised.update(self._get_optionals())

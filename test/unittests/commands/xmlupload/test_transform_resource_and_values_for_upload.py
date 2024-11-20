@@ -5,6 +5,7 @@ from rdflib import XSD
 from rdflib import BNode
 from rdflib import Literal
 from rdflib import Namespace
+from rdflib import URIRef
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
@@ -186,15 +187,13 @@ class TestMakeOnePropGraph:
         """)
         prop = XMLProperty.from_node(xml_prop, "uri", "onto")
         result, prop_name = _make_one_prop_graph(prop, res_type, res_bn, lookups)
-        assert len(result) == 0
-        assert prop_name == ONTO
+        assert len(result) == 3
+        assert prop_name == ONTO.hasUri
         val_bn = next(result.objects(res_bn, prop_name))
         rdf_type = next(result.objects(val_bn, RDF.type))
-        assert rdf_type == KNORA_API
-        value = next(result.objects(val_bn, KNORA_API))
-        assert value == Literal("", datatype=XSD)
-        permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
-        assert permissions == PERMISSION_LITERAL
+        assert rdf_type == KNORA_API.UriValue
+        value = next(result.objects(val_bn, KNORA_API.uriValueAsUri))
+        assert value == Literal("https://dasch.swiss", datatype=XSD.anyURI)
 
     def test_list_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
         res_bn, res_type = res_info
@@ -205,15 +204,13 @@ class TestMakeOnePropGraph:
         """)
         prop = XMLProperty.from_node(xml_prop, "list", "onto")
         result, prop_name = _make_one_prop_graph(prop, res_type, res_bn, lookups)
-        assert len(result) == 0
-        assert prop_name == ONTO
+        assert len(result) == 3
+        assert prop_name == ONTO.hasListItem
         val_bn = next(result.objects(res_bn, prop_name))
         rdf_type = next(result.objects(val_bn, RDF.type))
-        assert rdf_type == KNORA_API
-        value = next(result.objects(val_bn, KNORA_API))
-        assert value == Literal("", datatype=XSD)
-        permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
-        assert permissions == PERMISSION_LITERAL
+        assert rdf_type == KNORA_API.ListValue
+        value = next(result.objects(val_bn, KNORA_API.listValueAsListNode))
+        assert value == URIRef("http://rdfh.ch/9999/node")
 
     def test_resptr_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
         res_bn, res_type = res_info

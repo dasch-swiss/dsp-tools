@@ -3,11 +3,17 @@ from abc import abstractmethod
 from dataclasses import dataclass
 
 from rdflib import RDF
+from rdflib import XSD
 from rdflib import BNode
 from rdflib import Graph
 from rdflib import Literal
 from rdflib import Namespace
 from rdflib import URIRef
+
+from dsp_tools.utils.date_util import Date
+from dsp_tools.utils.date_util import DayMonthYearEra
+from dsp_tools.utils.date_util import SingleDate
+from dsp_tools.utils.date_util import StartEnd
 
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
 
@@ -34,17 +40,15 @@ class ValueRDF(ABC):
         return g
 
 
-
-class RDF(ValueRDF):
+class BooleanValueRDF(ValueRDF):
     value: Literal
 
     def as_graph(self) -> Graph:
         val_bn = BNode()
         g = self._get_generic_graph(val_bn)
-        g.add((val_bn, RDF.type, KNORA_API.))
-        g.add((val_bn, KNORA_API., self.value))
+        g.add((val_bn, RDF.type, KNORA_API.BooleanValue))
+        g.add((val_bn, KNORA_API.booleanValueAsBoolean, self.value))
         return g
-
 
 
 class ColorValueRDF(ValueRDF):
@@ -58,15 +62,33 @@ class ColorValueRDF(ValueRDF):
         return g
 
 
-
-class BooleanValueRDF(ValueRDF):
-    value: Literal
+class DateValueRDF(ValueRDF):
+    value: Date
 
     def as_graph(self) -> Graph:
         val_bn = BNode()
         g = self._get_generic_graph(val_bn)
-        g.add((val_bn, RDF.type, KNORA_API.BooleanValue))
-        g.add((val_bn, KNORA_API.booleanValueAsBoolean, self.value))
+        g.add((val_bn, RDF.type, KNORA_API.DateValue))
+        if cal := self.value.calendar.value:
+            g.add((val_bn, KNORA_API.dateValueHasCalendar, Literal(cal, datatype=XSD.string)))
+        g += self._get_one_date_graph(val_bn, self.value.start, StartEnd.START)
+        if self.value.end:
+            g += self._get_one_date_graph(val_bn, self.value.end, StartEnd.END)
+        return g
+
+    def _get_one_date_graph(self, val_bn: BNode, date: SingleDate, start_end: StartEnd) -> Graph:
+        def get_prop(precision: DayMonthYearEra) -> URIRef:
+            return KNORA_API[f"dateValueHas{start_end.value}{precision.value}"]
+
+        g = Graph()
+        if yr := date.year:
+            g.add((val_bn, get_prop(DayMonthYearEra.YEAR), Literal(yr, datatype=XSD.int)))
+        if mnt := date.month:
+            g.add((val_bn, get_prop(DayMonthYearEra.MONTH), Literal(mnt, datatype=XSD.int)))
+        if day := date.day:
+            g.add((val_bn, get_prop(DayMonthYearEra.DAY), Literal(day, datatype=XSD.int)))
+        if era := date.era:
+            g.add((val_bn, get_prop(DayMonthYearEra.ERA), Literal(era, datatype=XSD.string)))
         return g
 
 

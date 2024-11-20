@@ -35,7 +35,6 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import rd
 from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import rdf_prop_type_mapper
 from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseMigrationMetadata
 from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseResource
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseList
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseProperty
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseRichtext
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseSimpletext
@@ -108,11 +107,12 @@ def _make_values(resource: XMLResource, res_bnode: BNode, lookup: Lookups) -> di
     last_prop_name = None
 
     for prop in resource.properties:
-        match prop.valtype:  # serialised with rdflib
+        prop_name = _get_absolute_prop_iri(prop.name, lookup.namespaces)
+        last_prop_name = prop_name
+        match prop.valtype:
             case "boolean" | "color" | "decimal" | "geometry" | "geoname" | "integer" | "time" | "uri" as val_type:
                 literal_info = rdf_prop_type_mapper[val_type]
                 transformer = rdf_literal_transformer[val_type]
-                prop_name = _get_absolute_prop_iri(prop.name, lookup.namespaces)
                 properties_graph += _make_simple_prop_graph(
                     prop=prop,
                     res_bn=res_bnode,
@@ -121,9 +121,7 @@ def _make_values(resource: XMLResource, res_bnode: BNode, lookup: Lookups) -> di
                     transformer=transformer,
                     permissions_lookup=lookup.permissions,
                 )
-                last_prop_name = prop_name
             case "list":
-                prop_name = _get_absolute_prop_iri(prop.name, lookup.namespaces)
                 properties_graph += _make_list_prop_graph(
                     prop=prop,
                     res_bn=res_bnode,
@@ -131,9 +129,7 @@ def _make_values(resource: XMLResource, res_bnode: BNode, lookup: Lookups) -> di
                     permissions_lookup=lookup.permissions,
                     listnode_lookup=lookup.listnodes,
                 )
-                last_prop_name = prop_name
             case "resptr":
-                prop_name = _get_absolute_prop_iri(prop.name, lookup.namespaces)
                 properties_graph += _make_link_prop_graph(
                     prop=prop,
                     res_bn=res_bnode,
@@ -141,7 +137,15 @@ def _make_values(resource: XMLResource, res_bnode: BNode, lookup: Lookups) -> di
                     permissions_lookup=lookup.permissions,
                     iri_resolver=lookup.id_to_iri,
                 )
-                last_prop_name = prop_name
+
+            case "text":
+                properties_graph += _make_text_prop_graph(
+                    prop=prop,
+                    res_bn=res_bnode,
+                    prop_name=prop_name,
+                    permissions_lookup=lookup.permissions,
+                    iri_resolver=lookup.id_to_iri,
+                )
 
             # serialised as dict
             case "date" | "interval" as val_type:
@@ -321,7 +325,37 @@ def _make_link_prop_graph(
     return g
 
 
-def _make_text_value_graph() -> Graph: ...
+def _make_text_prop_graph(
+    prop: XMLProperty,
+    res_bn: BNode,
+    prop_name: URIRef,
+    permissions_lookup: dict[str, Permissions],
+    iri_resolver: IriResolver,
+) -> Graph:
+    g = Graph()
+    for val in prop.values:
+        per_str = _get_permission_str(val.permissions, permissions_lookup)
+        match val.value:
+            case str():
+                transformed = TransformedValue(
+                    value=Literal(val.value, datatype=XSD.string),
+                    prop_name=prop_name,
+                    permissions=per_str,
+                    comment=val.comment,
+                )
+                g += _make_simple_value_graph(
+                    val=transformed, res_bn=res_bn, prop_type_info=rdf_prop_type_mapper["simpletext"]
+                )
+            case FormattedTextValue():
+                g += _make_richtext_value_graph(
+                    val=val,
+                    prop_name=prop_name,
+                    res_bn=res_bn,
+                    permissions_lookup=permissions_lookup,
+                    iri_resolver=iri_resolver,
+                )
+            case _:
+                assert_never(val.value)
 
 
 def _make_simple_value_graph(
@@ -337,7 +371,29 @@ def _make_simple_value_graph(
     return g
 
 
-def _make_richtext_value_graph() -> Graph: ...
+def _make_richtext_value_graph(
+    val: XMLValue,
+    prop_name: URIRef,
+    res_bn: BNode,
+    permissions_lookup: dict[str, Permissions],
+    iri_resolver: IriResolver,
+) -> Graph:
+    val_bn = BNode()
+    per_str = _get_permission_str(val.permissions, permissions_lookup)
+    g = _get_optional_triples(val_bn, per_str, val.comment)
+    val_str = _get_richtext_string(val.value, iri_resolver)
+    literal_val = Literal(val_str, datatype=XSD.string)
+    g.add((res_bn, prop_name, val_bn))
+    g.add((val_bn, RDF.type, KNORA_API.TextValue))
+    g.add((val_bn, KNORA_API.textValueAsXml, literal_val))
+    g.add((val_bn, KNORA_API.textValueHasMapping, URIRef("http://rdfh.ch/standoff/mappings/StandardMapping")))
+    return g
+
+
+def _get_richtext_string(value: FormattedTextValue, iri_resolver: IriResolver) -> str:
+    xml_val = cast(FormattedTextValue, value)
+    xml_with_iris = xml_val.with_iris(iri_resolver)
+    return xml_with_iris.as_xml()
 
 
 def _get_optional_triples(val_bn: BNode, permissions: str | None, comment: str | None) -> Graph:
@@ -347,27 +403,6 @@ def _get_optional_triples(val_bn: BNode, permissions: str | None, comment: str |
     if comment:
         g.add((val_bn, KNORA_API.valueHasComment, Literal(comment, datatype=XSD.string)))
     return g
-
-
-def _transform_into_list_prop(
-    prop: XMLProperty, permissions_lookup: dict[str, Permissions], listnode_lookup: dict[str, str]
-) -> SerialiseProperty:
-    vals = [_transform_into_list_value(v, permissions_lookup, listnode_lookup) for v in prop.values]
-    return SerialiseProperty(property_name=prop.name, values=vals)
-
-
-def _transform_into_list_value(
-    value: XMLValue, permissions_lookup: dict[str, Permissions], listnode_lookup: dict[str, str]
-) -> SerialiseValue:
-    s = assert_is_string(value.value)
-    if not (iri := listnode_lookup.get(s)):
-        msg = (
-            f"Could not resolve list node ID '{s}' to IRI. "
-            f"This is probably because the list node '{s}' does not exist on the server."
-        )
-        raise BaseError(msg)
-    permission_str = _get_permission_str(value.permissions, permissions_lookup)
-    return SerialiseList(iri, permission_str, value.comment)
 
 
 def _transform_text_prop(

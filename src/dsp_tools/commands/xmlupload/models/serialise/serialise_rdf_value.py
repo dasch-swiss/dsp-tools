@@ -3,6 +3,8 @@ from __future__ import annotations
 from abc import ABC
 from abc import abstractmethod
 from dataclasses import dataclass
+from typing import Any
+from typing import Callable
 
 from rdflib import RDF
 from rdflib import XSD
@@ -12,12 +14,46 @@ from rdflib import Literal
 from rdflib import Namespace
 from rdflib import URIRef
 
+from dsp_tools.commands.xmlupload.value_transformers import transform_geometry, assert_is_string
 from dsp_tools.utils.date_util import Date
 from dsp_tools.utils.date_util import DayMonthYearEra
 from dsp_tools.utils.date_util import SingleDate
 from dsp_tools.utils.date_util import StartEnd
 
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
+
+
+@dataclass
+class RDFLiteralInfo:
+    knora_type: URIRef
+    knora_prop: URIRef
+    transformations: Callable[[Any], Literal]
+
+
+def transform_xsd_string(): ...
+def transform_xsd_decimal(): ...
+def transform_xsd_boolean(): ...
+def transform_xsd_integer(): ...
+def transform_xsd_date_time(): ...
+def transform_xsd_anyuri(): ...
+
+
+rdf_mapper = {
+    "boolean": RDFLiteralInfo(KNORA_API.BooleanValue, KNORA_API.booleanValueAsBoolean, transform_xsd_boolean),
+    "color": RDFLiteralInfo(KNORA_API.ColorValue, KNORA_API.colorValueAsColor, transform_xsd_string),
+    "decimal": RDFLiteralInfo(KNORA_API.DecimalValue, KNORA_API.decimalValueAsDecimal, transform_xsd_decimal),
+    "geometry": RDFLiteralInfo(KNORA_API.GeomValue, KNORA_API.geometryValueAsGeometry, transform_geometry),
+    "geoname": RDFLiteralInfo(KNORA_API.GeonameValue, KNORA_API.geonameValueAsGeonameCode, transform_xsd_string),
+    "integer": RDFLiteralInfo(KNORA_API.IntValue, KNORA_API.intValueAsInt, transform_xsd_integer),
+    "time": RDFLiteralInfo(KNORA_API.TimeValue, KNORA_API.timeValueAsTimeStamp, transform_xsd_date_time),
+    "uri": RDFLiteralInfo(KNORA_API.UriValue, KNORA_API.uriValueAsUri, transform_xsd_anyuri),
+}
+
+# date
+# interval
+# list
+# resptr
+# text
 
 
 @dataclass(frozen=True)

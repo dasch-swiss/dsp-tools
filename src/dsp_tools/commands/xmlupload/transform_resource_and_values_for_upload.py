@@ -35,13 +35,11 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import rd
 from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import rdf_prop_type_mapper
 from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseMigrationMetadata
 from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseResource
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseLink
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseList
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseProperty
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseRichtext
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseSimpletext
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseValue
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import ValueSerialiser
 from dsp_tools.commands.xmlupload.value_transformers import TransformationSteps
 from dsp_tools.commands.xmlupload.value_transformers import assert_is_string
 from dsp_tools.commands.xmlupload.value_transformers import transform_string
@@ -300,7 +298,7 @@ def _make_link_prop_graph(
 ) -> Graph:
     g = Graph()
     for val in prop.values:
-        s = assert_is_string(value.value)
+        s = assert_is_string(val.value)
         if is_resource_iri(s):
             iri_str = s
         elif resolved_iri := iri_resolver.get(s):
@@ -323,6 +321,9 @@ def _make_link_prop_graph(
     return g
 
 
+def _make_text_value_graph() -> Graph: ...
+
+
 def _make_simple_value_graph(
     val: TransformedValue,
     res_bn: BNode,
@@ -336,13 +337,7 @@ def _make_simple_value_graph(
     return g
 
 
-def _make_text_value_graph() -> Graph: ...
-
-
 def _make_richtext_value_graph() -> Graph: ...
-
-
-def _make_simpletext_value_graph() -> Graph: ...
 
 
 def _get_optional_triples(val_bn: BNode, permissions: str | None, comment: str | None) -> Graph:
@@ -352,38 +347,6 @@ def _get_optional_triples(val_bn: BNode, permissions: str | None, comment: str |
     if comment:
         g.add((val_bn, KNORA_API.valueHasComment, Literal(comment, datatype=XSD.string)))
     return g
-
-
-def _transform_into_link_prop(
-    prop: XMLProperty,
-    prop_name: str,
-    permissions_lookup: dict[str, Permissions],
-    iri_resolver: IriResolver,
-) -> SerialiseProperty:
-    vals = [_transform_into_link_value(v, permissions_lookup, SerialiseLink, iri_resolver) for v in prop.values]
-    return SerialiseProperty(property_name=prop_name, values=vals)
-
-
-def _transform_into_link_value(
-    value: XMLValue,
-    permissions_lookup: dict[str, Permissions],
-    serialiser: ValueSerialiser,
-    iri_resolver: IriResolver,
-) -> SerialiseValue:
-    s = assert_is_string(value.value)
-    if is_resource_iri(s):
-        iri = s
-    elif resolved_iri := iri_resolver.get(s):
-        iri = resolved_iri
-    else:
-        msg = (
-            f"Could not find the ID {s} in the id2iri mapping. "
-            f"This is probably because the resource '{s}' could not be created. "
-            f"See {WARNINGS_SAVEPATH} for more information."
-        )
-        raise BaseError(msg)
-    permission_str = _get_permission_str(value.permissions, permissions_lookup)
-    return serialiser(iri, permission_str, value.comment)
 
 
 def _transform_into_list_prop(

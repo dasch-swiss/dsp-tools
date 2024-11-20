@@ -82,6 +82,7 @@ rdf_prop_type_mapper = {
     "integer": RDFPropTypeInfo(KNORA_API.IntValue, KNORA_API.intValueAsInt),
     "link": RDFPropTypeInfo(KNORA_API.LinkValue, KNORA_API.linkValueHasTargetIri),
     "list": RDFPropTypeInfo(KNORA_API.ListValue, KNORA_API.listValueAsListNode),
+    "simpletext": RDFPropTypeInfo(KNORA_API.TextValue, KNORA_API.valueAsString),
     "time": RDFPropTypeInfo(KNORA_API.TimeValue, KNORA_API.timeValueAsTimeStamp),
     "uri": RDFPropTypeInfo(KNORA_API.UriValue, KNORA_API.uriValueAsUri),
 }
@@ -195,28 +196,6 @@ class ListValueRDF(ValueRDF):
         g = self._get_generic_graph(val_bn)
         g.add((val_bn, RDF.type, KNORA_API.ListValue))
         g.add((val_bn, KNORA_API.listValueAsListNode, self.value))
-        return g
-
-
-class LinkValueRDF(ValueRDF):
-    value: URIRef
-
-    def as_graph(self) -> Graph:
-        val_bn = BNode()
-        g = self._get_generic_graph(val_bn)
-        g.add((val_bn, RDF.type, KNORA_API.LinkValue))
-        g.add((val_bn, KNORA_API.linkValueHasTargetIri, self.value))
-        return g
-
-
-class SimpletextRDF(ValueRDF):
-    value: Literal
-
-    def as_graph(self) -> Graph:
-        val_bn = BNode()
-        g = self._get_generic_graph(val_bn)
-        g.add((val_bn, RDF.type, KNORA_API.TextValue))
-        g.add((val_bn, KNORA_API.valueAsString, self.value))
         return g
 
 

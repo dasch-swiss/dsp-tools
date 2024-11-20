@@ -20,6 +20,7 @@ ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
 namespaces = {"onto": ONTO, "knora-api": KNORA_API}
 
 PERMISSION_LITERAL = Literal("CR knora-admin:ProjectAdmin", datatype=XSD.string)
+RES_ONE_URI = URIRef("http://rdfh.ch/9999/res_one")
 
 
 @pytest.fixture
@@ -227,7 +228,7 @@ class TestMakeOnePropGraph:
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.LinkValue
         value = next(result.objects(val_bn, KNORA_API.linkValueHasTargetIri))
-        assert value == URIRef("http://rdfh.ch/9999/res_one")
+        assert value == RES_ONE_URI
 
     def test_simpletext_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
         res_bn, res_type = res_info
@@ -311,15 +312,13 @@ class TestMakeOnePropGraph:
         """)
         prop = XMLProperty.from_node(xml_prop, "resptr", "onto")
         result, prop_name = _make_one_prop_graph(prop, res_type, res_bn, lookups)
-        assert len(result) == 0
-        assert prop_name == ONTO
+        assert len(result) == 3
+        assert prop_name == KNORA_API.isVideoSegmentOfValue
         val_bn = next(result.objects(res_bn, prop_name))
         rdf_type = next(result.objects(val_bn, RDF.type))
-        assert rdf_type == KNORA_API
-        value = next(result.objects(val_bn, KNORA_API))
-        assert value == Literal("", datatype=XSD)
-        permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
-        assert permissions == PERMISSION_LITERAL
+        assert rdf_type == KNORA_API.LinkValue
+        value = next(result.objects(val_bn, KNORA_API.linkValueHasTargetIri))
+        assert value == RES_ONE_URI
 
     def test_segment_of_audio_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
         res_bn, _ = res_info
@@ -329,12 +328,10 @@ class TestMakeOnePropGraph:
         """)
         prop = XMLProperty.from_node(xml_prop, "resptr", "onto")
         result, prop_name = _make_one_prop_graph(prop, res_type, res_bn, lookups)
-        assert len(result) == 0
-        assert prop_name == ONTO
+        assert len(result) == 3
+        assert prop_name == KNORA_API.isAudioSegmentOfValue
         val_bn = next(result.objects(res_bn, prop_name))
         rdf_type = next(result.objects(val_bn, RDF.type))
-        assert rdf_type == KNORA_API
-        value = next(result.objects(val_bn, KNORA_API))
-        assert value == Literal("", datatype=XSD)
-        permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
-        assert permissions == PERMISSION_LITERAL
+        assert rdf_type == KNORA_API.LinkValue
+        value = next(result.objects(val_bn, KNORA_API.linkValueHasTargetIri))
+        assert value == RES_ONE_URI

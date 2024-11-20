@@ -102,8 +102,8 @@ class TestMakeOnePropGraph:
     def test_geometry_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
         res_bn, res_type = res_info
         xml_prop = etree.fromstring("""
-        <geometry-prop name="hasGeometry">
-            <geometry permissions="open">
+        <geometry-prop name=":hasGeometry">
+            <geometry>
                 {
                     "status": "active",
                     "type": "polygon",
@@ -118,15 +118,13 @@ class TestMakeOnePropGraph:
         """)
         prop = XMLProperty.from_node(xml_prop, "geometry", "onto")
         result, prop_name = _make_one_prop_graph(prop, res_type, res_bn, lookups)
-        assert len(result) == 0
-        assert prop_name == ONTO
+        assert len(result) == 3
+        assert prop_name == ONTO.hasGeometry
         val_bn = next(result.objects(res_bn, prop_name))
         rdf_type = next(result.objects(val_bn, RDF.type))
-        assert rdf_type == KNORA_API
-        value = next(result.objects(val_bn, KNORA_API))
-        assert value == Literal("", datatype=XSD)
-        permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
-        assert permissions == PERMISSION_LITERAL
+        assert rdf_type == KNORA_API.GeomValue
+        value = next(result.objects(val_bn, KNORA_API.geometryValueAsGeometry))
+        assert isinstance(value, Literal)
 
     def test_geoname_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
         res_bn, res_type = res_info

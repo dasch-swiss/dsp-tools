@@ -15,6 +15,7 @@ from rdflib import URIRef
 
 from dsp_tools.commands.xmlupload.value_transformers import InputTypes
 from dsp_tools.commands.xmlupload.value_transformers import assert_is_string
+from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.date_util import Date
 from dsp_tools.utils.date_util import DayMonthYearEra
 from dsp_tools.utils.date_util import SingleDate
@@ -44,12 +45,17 @@ def transform_xsd_string(value: InputTypes):
 
 def transform_xsd_decimal(value: InputTypes):
     str_val = assert_is_string(value)
-    return Literal(str_val, datatype=XSD.decimal)
+    return Literal(str(float(str_val)), datatype=XSD.decimal)
 
 
 def transform_xsd_boolean(value: InputTypes):
-    str_val = assert_is_string(value)
-    return Literal(str_val, datatype=XSD.boolean)
+    match value:
+        case "True" | "true" | "1" | 1 | True:
+            return Literal(True, datatype=XSD.boolean)
+        case "False" | "false" | "0" | 0 | False:
+            return Literal(False, datatype=XSD.boolean)
+        case _:
+            raise BaseError(f"Could not parse boolean value: {value}")
 
 
 def transform_xsd_integer(value: InputTypes):

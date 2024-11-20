@@ -34,7 +34,7 @@ def lookups(permissions_lookup: dict[str, Permissions]) -> Lookups:
         project_iri="http://rdfh.ch/9999/project",
         id_to_iri=IriResolver({"res_one": "http://rdfh.ch/9999/res_one"}),
         permissions=permissions_lookup,
-        listnodes={"node": "http://rdfh.ch/9999/node"},
+        listnodes={"testlist:node": "http://rdfh.ch/9999/node"},
         namespaces=namespaces,
         jsonld_context=JSONLDContext({}),
     )

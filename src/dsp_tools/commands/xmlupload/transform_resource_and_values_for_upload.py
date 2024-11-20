@@ -34,6 +34,7 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import Tr
 from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import rdf_prop_type_mapper
 from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseMigrationMetadata
 from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseResource
+from dsp_tools.commands.xmlupload.value_transformers import InputTypes
 from dsp_tools.commands.xmlupload.value_transformers import assert_is_string
 from dsp_tools.commands.xmlupload.value_transformers import rdf_literal_transformer
 from dsp_tools.commands.xmlupload.value_transformers import transform_date
@@ -229,7 +230,7 @@ def _make_simple_prop_graph(
     res_bn: BNode,
     prop_name: URIRef,
     prop_type_info: RDFPropTypeInfo,
-    transformer: Callable[[Any], Any],
+    transformer: Callable[[InputTypes], Literal],
     permissions_lookup: dict[str, Permissions],
 ) -> Graph:
     g = Graph()

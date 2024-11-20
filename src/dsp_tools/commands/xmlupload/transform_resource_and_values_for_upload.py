@@ -31,6 +31,7 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import S
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseTextFileValue
 from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import RDFPropTypeInfo
 from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import TransformedValue
+from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import rdf_literal_transformer
 from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import rdf_prop_type_mapper
 from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseMigrationMetadata
 from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseResource
@@ -109,13 +110,38 @@ def _make_values(resource: XMLResource, res_bnode: BNode, lookup: Lookups) -> di
     last_prop_name = None
 
     for prop in resource.properties:
-        match prop.valtype:
-            # serialised with rdflib
+        match prop.valtype:  # serialised with rdflib
             case "boolean" | "color" | "decimal" | "geometry" | "geoname" | "integer" | "time" | "uri" as val_type:
                 literal_info = rdf_prop_type_mapper[val_type]
+                transformer = rdf_literal_transformer[val_type]
                 prop_name = _get_absolute_prop_iri(prop.name, lookup.namespaces)
                 properties_graph += _make_simple_prop_graph(
-                    prop, res_bnode, prop_name, literal_info, lookup.permissions
+                    prop=prop,
+                    res_bn=res_bnode,
+                    prop_name=prop_name,
+                    prop_type_info=literal_info,
+                    transformer=transformer,
+                    permissions_lookup=lookup.permissions,
+                )
+                last_prop_name = prop_name
+            case "list":
+                prop_name = _get_absolute_prop_iri(prop.name, lookup.namespaces)
+                properties_graph += _make_list_prop_graph(
+                    prop=prop,
+                    res_bn=res_bnode,
+                    prop_name=prop_name,
+                    permissions_lookup=lookup.permissions,
+                    listnode_lookup=lookup.listnodes,
+                )
+                last_prop_name = prop_name
+            case "resptr":
+                prop_name = _get_absolute_prop_iri(prop.name, lookup.namespaces)
+                properties_graph += _make_link_prop_graph(
+                    prop=prop,
+                    res_bn=res_bnode,
+                    prop_name=prop_name,
+                    permissions_lookup=lookup.permissions,
+                    iri_resolver=lookup.id_to_iri,
                 )
                 last_prop_name = prop_name
 
@@ -133,22 +159,6 @@ def _make_values(resource: XMLResource, res_bnode: BNode, lookup: Lookups) -> di
                     prop=prop,
                     permissions_lookup=lookup.permissions,
                     iri_resolver=lookup.id_to_iri,
-                )
-                properties_serialised.update(transformed_prop.serialise())
-            case "resptr":
-                prop_name = _get_link_prop_name(prop, resource.restype)
-                transformed_prop = _transform_into_link_prop(
-                    prop=prop,
-                    prop_name=prop_name,
-                    permissions_lookup=lookup.permissions,
-                    iri_resolver=lookup.id_to_iri,
-                )
-                properties_serialised.update(transformed_prop.serialise())
-            case "list":
-                transformed_prop = _transform_into_list_prop(
-                    prop=prop,
-                    permissions_lookup=lookup.permissions,
-                    listnode_lookup=lookup.listnodes,
                 )
                 properties_serialised.update(transformed_prop.serialise())
             case _:

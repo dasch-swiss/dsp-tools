@@ -68,7 +68,7 @@ def transform_geometry(value: InputTypes):
     return Literal(str_val, datatype=XSD.string)
 
 
-rdf_mapper = {
+rdf_literal_mapper = {
     "boolean": RDFLiteralInfo(KNORA_API.BooleanValue, KNORA_API.booleanValueAsBoolean, transform_xsd_boolean),
     "color": RDFLiteralInfo(KNORA_API.ColorValue, KNORA_API.colorValueAsColor, transform_xsd_string),
     "decimal": RDFLiteralInfo(KNORA_API.DecimalValue, KNORA_API.decimalValueAsDecimal, transform_xsd_decimal),
@@ -119,17 +119,6 @@ class BooleanValueRDF(ValueRDF):
         return g
 
 
-class ColorValueRDF(ValueRDF):
-    value: Literal
-
-    def as_graph(self) -> Graph:
-        val_bn = BNode()
-        g = self._get_generic_graph(val_bn)
-        g.add((val_bn, RDF.type, KNORA_API.ColorValue))
-        g.add((val_bn, KNORA_API.colorValueAsColor, self.value))
-        return g
-
-
 class DateValueRDF(ValueRDF):
     value: Date
 
@@ -157,50 +146,6 @@ class DateValueRDF(ValueRDF):
             g.add((val_bn, get_prop(DayMonthYearEra.DAY), Literal(day, datatype=XSD.int)))
         if era := date.era:
             g.add((val_bn, get_prop(DayMonthYearEra.ERA), Literal(era, datatype=XSD.string)))
-        return g
-
-
-class DecimalValueRDF(ValueRDF):
-    value: Literal
-
-    def as_graph(self) -> Graph:
-        val_bn = BNode()
-        g = self._get_generic_graph(val_bn)
-        g.add((val_bn, RDF.type, KNORA_API.DecimalValue))
-        g.add((val_bn, KNORA_API.decimalValueAsDecimal, self.value))
-        return g
-
-
-class GeomValueRDF(ValueRDF):
-    value: Literal
-
-    def as_graph(self) -> Graph:
-        val_bn = BNode()
-        g = self._get_generic_graph(val_bn)
-        g.add((val_bn, RDF.type, KNORA_API.GeomValue))
-        g.add((val_bn, KNORA_API.geometryValueAsGeometry, self.value))
-        return g
-
-
-class GeonameValueRDF(ValueRDF):
-    value: Literal
-
-    def as_graph(self) -> Graph:
-        val_bn = BNode()
-        g = self._get_generic_graph(val_bn)
-        g.add((val_bn, RDF.type, KNORA_API.GeonameValue))
-        g.add((val_bn, KNORA_API.geonameValueAsGeonameCode, self.value))
-        return g
-
-
-class IntValueRDF(ValueRDF):
-    value: Literal
-
-    def as_graph(self) -> Graph:
-        val_bn = BNode()
-        g = self._get_generic_graph(val_bn)
-        g.add((val_bn, RDF.type, KNORA_API.IntValue))
-        g.add((val_bn, KNORA_API.intValueAsInt, self.value))
         return g
 
 
@@ -266,26 +211,4 @@ class RichtextRDF(ValueRDF):
         g.add((val_bn, RDF.type, KNORA_API.TextValue))
         g.add((val_bn, KNORA_API.textValueAsXml, self.value))
         g.add((val_bn, KNORA_API.textValueHasMapping, URIRef("http://rdfh.ch/standoff/mappings/StandardMapping")))
-        return g
-
-
-class TimeValueRDF(ValueRDF):
-    value: Literal
-
-    def as_graph(self) -> Graph:
-        val_bn = BNode()
-        g = self._get_generic_graph(val_bn)
-        g.add((val_bn, RDF.type, KNORA_API.TimeValue))
-        g.add((val_bn, KNORA_API.timeValueAsTimeStamp, self.value))
-        return g
-
-
-class UriValueRDF(ValueRDF):
-    value: Literal
-
-    def as_graph(self) -> Graph:
-        val_bn = BNode()
-        g = self._get_generic_graph(val_bn)
-        g.add((val_bn, RDF.type, KNORA_API.UriValue))
-        g.add((val_bn, KNORA_API.uriValueAsUri, self.value))
         return g

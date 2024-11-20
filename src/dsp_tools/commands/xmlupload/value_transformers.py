@@ -37,11 +37,8 @@ def transform_date(input_value: InputTypes) -> Date:
 def transform_interval(input_value: InputTypes) -> Interval:
     """Transform a sting input into an interval object."""
     val = assert_is_string(input_value)
-    match val.split(":", 1):
-        case [start, end]:
-            return Interval(transform_xsd_decimal(start), transform_xsd_decimal(end))
-        case _:
-            raise BaseError(f"Could not parse interval value: {input_value}")
+    start, end = val.split(":", 1)
+    return Interval(transform_xsd_decimal(start.strip()), transform_xsd_decimal(end.strip()))
 
 
 def transform_xsd_string(value: InputTypes) -> Literal:

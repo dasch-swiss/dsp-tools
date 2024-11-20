@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Any
+from typing import Callable
 from typing import assert_never
 from typing import cast
 
@@ -28,9 +29,9 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import S
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseMovingImageFileValue
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseStillImageFileValue
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseTextFileValue
-from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import BooleanValueRDF
-from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import RDFLiteralInfo
-from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import rdf_literal_mapper
+from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import RDFPropTypeInfo
+from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import TransformedValue
+from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import rdf_prop_type_mapper
 from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseMigrationMetadata
 from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseResource
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseLink
@@ -42,7 +43,6 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_value import Serial
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import ValueSerialiser
 from dsp_tools.commands.xmlupload.value_transformers import TransformationSteps
 from dsp_tools.commands.xmlupload.value_transformers import assert_is_string
-from dsp_tools.commands.xmlupload.value_transformers import transform_boolean
 from dsp_tools.commands.xmlupload.value_transformers import transform_string
 from dsp_tools.commands.xmlupload.value_transformers import value_to_transformations_mapper
 from dsp_tools.models.exceptions import BaseError
@@ -112,9 +112,11 @@ def _make_values(resource: XMLResource, res_bnode: BNode, lookup: Lookups) -> di
         match prop.valtype:
             # serialised with rdflib
             case "boolean" | "color" | "decimal" | "geometry" | "geoname" | "integer" | "time" | "uri" as val_type:
-                literal_info = rdf_literal_mapper[val_type]
+                literal_info = rdf_prop_type_mapper[val_type]
                 prop_name = _get_absolute_prop_iri(prop.name, lookup.namespaces)
-                properties_graph += _make_literal_prop(prop, res_bnode, prop_name, literal_info, lookup.permissions)
+                properties_graph += _make_simple_prop_graph(
+                    prop, res_bnode, prop_name, literal_info, lookup.permissions
+                )
                 last_prop_name = prop_name
 
             # serialised as dict
@@ -232,60 +234,114 @@ def _make_bitstream_file_value(bitstream_info: BitstreamInfo) -> dict[str, Any]:
             raise BaseError(f"Unknown file ending '{file_ending}' for file '{local_file}'")
 
 
-def _make_literal_prop(
+def _make_simple_prop_graph(
     prop: XMLProperty,
     res_bn: BNode,
     prop_name: URIRef,
-    literal_info: RDFLiteralInfo,
+    prop_type_info: RDFPropTypeInfo,
+    transformer: Callable[[Any], Any],
     permissions_lookup: dict[str, Permissions],
 ) -> Graph:
     g = Graph()
     for val in prop.values:
-        g += _make_literal_value(val, res_bn, prop_name, literal_info, permissions_lookup)
+        transformed_val = transformer(val.value)
+        per_str = _get_permission_str(val.permissions, permissions_lookup)
+        transformed = TransformedValue(
+            value=transformed_val, prop_name=prop_name, permissions=per_str, comment=val.comment
+        )
+        g += _make_simple_value_graph(transformed, res_bn, prop_type_info)
     return g
 
 
-def _make_literal_value(
-    val: XMLValue,
+def _make_list_prop_graph(
+    prop: XMLProperty,
     res_bn: BNode,
     prop_name: URIRef,
-    literal_info: RDFLiteralInfo,
     permissions_lookup: dict[str, Permissions],
+    listnode_lookup: dict[str, str],
+) -> Graph:
+    g = Graph()
+    for val in prop.values:
+        s = assert_is_string(val.value)
+        if not (iri_str := listnode_lookup.get(s)):
+            msg = (
+                f"Could not resolve list node ID '{s}' to IRI. "
+                f"This is probably because the list node '{s}' does not exist on the server."
+            )
+            raise BaseError(msg)
+
+        per_str = _get_permission_str(val.permissions, permissions_lookup)
+        transformed = TransformedValue(
+            value=URIRef(iri_str),
+            prop_name=prop_name,
+            permissions=per_str,
+            comment=val.comment,
+        )
+        g += _make_simple_value_graph(transformed, res_bn, rdf_prop_type_mapper["list"])
+    return g
+
+
+def _make_link_prop_graph(
+    prop: XMLProperty,
+    res_bn: BNode,
+    prop_name: URIRef,
+    permissions_lookup: dict[str, Permissions],
+    iri_resolver: IriResolver,
+) -> Graph:
+    g = Graph()
+    for val in prop.values:
+        s = assert_is_string(value.value)
+        if is_resource_iri(s):
+            iri_str = s
+        elif resolved_iri := iri_resolver.get(s):
+            iri_str = resolved_iri
+        else:
+            msg = (
+                f"Could not find the ID {s} in the id2iri mapping. "
+                f"This is probably because the resource '{s}' could not be created. "
+                f"See {WARNINGS_SAVEPATH} for more information."
+            )
+            raise BaseError(msg)
+        per_str = _get_permission_str(val.permissions, permissions_lookup)
+        transformed = TransformedValue(
+            value=URIRef(iri_str),
+            prop_name=prop_name,
+            permissions=per_str,
+            comment=val.comment,
+        )
+        g += _make_simple_value_graph(transformed, res_bn, rdf_prop_type_mapper["link"])
+    return g
+
+
+def _make_simple_value_graph(
+    val: TransformedValue,
+    res_bn: BNode,
+    prop_type_info: RDFPropTypeInfo,
 ) -> Graph():
-    g = Graph()
-    transformed_val = literal_info.transformations(val.value)
     val_bn = BNode()
-    g.add((res_bn, prop_name, val_bn))
-    g.add((val_bn, RDF.type, literal_info.knora_type))
-    g.add((val_bn, literal_info.knora_prop, transformed_val))
-    g += _get_optional_triples(val, val_bn, permissions_lookup)
+    g = _get_optional_triples(val_bn, val.permissions, val.comment)
+    g.add((res_bn, val.prop_name, val_bn))
+    g.add((val_bn, RDF.type, prop_type_info.knora_type))
+    g.add((val_bn, prop_type_info.knora_prop, val.value))
     return g
 
 
-def _get_optional_triples(val: XMLValue, val_bn: BNode, permissions_lookup: dict[str, Permissions]) -> Graph:
+def _make_text_value_graph() -> Graph: ...
+
+
+def _make_richtext_value_graph() -> Graph: ...
+
+
+def _make_simpletext_value_graph() -> Graph: ...
+
+
+def _get_optional_triples(val_bn: BNode, permissions: str | None, comment: str | None) -> Graph:
     g = Graph()
-    g += _add_optional_permission_triple(val, val_bn, permissions_lookup)
-    if val.comment:
-        g.add((val_bn, KNORA_API.valueHasComment, Literal(val.comment, datatype=XSD.string)))
+    if permissions:
+        g.add((val_bn, KNORA_API.hasPermissions, Literal(permissions, datatype=XSD.string)))
+    if comment:
+        g.add((val_bn, KNORA_API.valueHasComment, Literal(comment, datatype=XSD.string)))
     return g
-
-
-# TODO: delete
-def _make_boolean_value(
-    value: XMLValue, prop_name: URIRef, res_bn: BNode, permissions_lookup: dict[str, Permissions]
-) -> BooleanValueRDF:
-    s = assert_is_string(value.value)
-    as_bool = transform_boolean(s)
-    permission_literal = None
-    if permission_str := _get_permission_str(value.permissions, permissions_lookup):
-        permission_literal = Literal(permission_str)
-    return BooleanValueRDF(
-        resource_bn=res_bn,
-        prop_name=prop_name,
-        value=Literal(as_bool),
-        permissions=permission_literal,
-        comment=Literal(value.comment) if value.comment else None,
-    )
 
 
 def _transform_into_link_prop(

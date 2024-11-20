@@ -4,8 +4,6 @@ import json
 from abc import ABC
 from abc import abstractmethod
 from dataclasses import dataclass
-from typing import Any
-from typing import Callable
 
 from rdflib import RDF
 from rdflib import XSD
@@ -26,10 +24,17 @@ KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
 
 
 @dataclass
-class RDFLiteralInfo:
+class TransformedValue:
+    value: Literal | URIRef
+    prop_name: URIRef
+    permissions: str | None
+    comment: str | None
+
+
+@dataclass
+class RDFPropTypeInfo:
     knora_type: URIRef
     knora_prop: URIRef
-    transformations: Callable[[Any], Literal]
 
 
 def transform_xsd_string(value: InputTypes):
@@ -68,15 +73,28 @@ def transform_geometry(value: InputTypes):
     return Literal(str_val, datatype=XSD.string)
 
 
-rdf_literal_mapper = {
-    "boolean": RDFLiteralInfo(KNORA_API.BooleanValue, KNORA_API.booleanValueAsBoolean, transform_xsd_boolean),
-    "color": RDFLiteralInfo(KNORA_API.ColorValue, KNORA_API.colorValueAsColor, transform_xsd_string),
-    "decimal": RDFLiteralInfo(KNORA_API.DecimalValue, KNORA_API.decimalValueAsDecimal, transform_xsd_decimal),
-    "geometry": RDFLiteralInfo(KNORA_API.GeomValue, KNORA_API.geometryValueAsGeometry, transform_geometry),
-    "geoname": RDFLiteralInfo(KNORA_API.GeonameValue, KNORA_API.geonameValueAsGeonameCode, transform_xsd_string),
-    "integer": RDFLiteralInfo(KNORA_API.IntValue, KNORA_API.intValueAsInt, transform_xsd_integer),
-    "time": RDFLiteralInfo(KNORA_API.TimeValue, KNORA_API.timeValueAsTimeStamp, transform_xsd_date_time),
-    "uri": RDFLiteralInfo(KNORA_API.UriValue, KNORA_API.uriValueAsUri, transform_xsd_any_uri),
+rdf_prop_type_mapper = {
+    "boolean": RDFPropTypeInfo(KNORA_API.BooleanValue, KNORA_API.booleanValueAsBoolean),
+    "color": RDFPropTypeInfo(KNORA_API.ColorValue, KNORA_API.colorValueAsColor),
+    "decimal": RDFPropTypeInfo(KNORA_API.DecimalValue, KNORA_API.decimalValueAsDecimal),
+    "geometry": RDFPropTypeInfo(KNORA_API.GeomValue, KNORA_API.geometryValueAsGeometry),
+    "geoname": RDFPropTypeInfo(KNORA_API.GeonameValue, KNORA_API.geonameValueAsGeonameCode),
+    "integer": RDFPropTypeInfo(KNORA_API.IntValue, KNORA_API.intValueAsInt),
+    "link": RDFPropTypeInfo(KNORA_API.LinkValue, KNORA_API.linkValueHasTargetIri),
+    "list": RDFPropTypeInfo(KNORA_API.ListValue, KNORA_API.listValueAsListNode),
+    "time": RDFPropTypeInfo(KNORA_API.TimeValue, KNORA_API.timeValueAsTimeStamp),
+    "uri": RDFPropTypeInfo(KNORA_API.UriValue, KNORA_API.uriValueAsUri),
+}
+
+rdf_literal_transformer = {
+    "boolean": transform_xsd_boolean,
+    "color": transform_xsd_string,
+    "decimal": transform_xsd_decimal,
+    "geometry": transform_geometry,
+    "geoname": transform_xsd_string,
+    "integer": transform_xsd_integer,
+    "time": transform_xsd_date_time,
+    "uri": transform_xsd_any_uri,
 }
 
 # date

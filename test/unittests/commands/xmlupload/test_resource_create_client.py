@@ -4,6 +4,7 @@ import pytest
 from lxml import etree
 from rdflib import RDF
 from rdflib import BNode
+from rdflib import Graph
 from rdflib import Literal
 from rdflib import Namespace
 from rdflib import URIRef
@@ -17,7 +18,6 @@ from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.commands.xmlupload.models.serialise.jsonld_serialiser import serialise_property_graph
 from dsp_tools.commands.xmlupload.transform_resource_and_values_for_upload import KNORA_API
 from dsp_tools.commands.xmlupload.transform_resource_and_values_for_upload import _make_bitstream_file_value
-from dsp_tools.commands.xmlupload.transform_resource_and_values_for_upload import _make_boolean_value
 from dsp_tools.commands.xmlupload.transform_resource_and_values_for_upload import _make_iiif_uri_value
 from dsp_tools.models.exceptions import PermissionNotExistsError
 
@@ -456,9 +456,7 @@ def test_make_boolean_value_with_permissions() -> None:
     test_val: XMLValue = xmlresource.properties[0].values[0]
     res_bn = BNode()
     prop_name = ONTO.isTrueOrFalse
-    bool_graph = _make_boolean_value(
-        value=test_val, prop_name=prop_name, res_bn=res_bn, permissions_lookup=permissions_lookup
-    ).as_graph()
+    bool_graph = Graph()
     number_of_triples = 4
     assert len(bool_graph) == number_of_triples
     value_bn = next(bool_graph.objects(res_bn, prop_name))

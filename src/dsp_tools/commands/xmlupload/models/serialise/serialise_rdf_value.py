@@ -186,26 +186,3 @@ class IntervalValueValueRDF(ValueRDF):
 class Interval:
     start: Literal
     end: Literal
-
-
-class ListValueRDF(ValueRDF):
-    value: URIRef
-
-    def as_graph(self) -> Graph:
-        val_bn = BNode()
-        g = self._get_generic_graph(val_bn)
-        g.add((val_bn, RDF.type, KNORA_API.ListValue))
-        g.add((val_bn, KNORA_API.listValueAsListNode, self.value))
-        return g
-
-
-class RichtextRDF(ValueRDF):
-    value: Literal
-
-    def as_graph(self) -> Graph:
-        val_bn = BNode()
-        g = self._get_generic_graph(val_bn)
-        g.add((val_bn, RDF.type, KNORA_API.TextValue))
-        g.add((val_bn, KNORA_API.textValueAsXml, self.value))
-        g.add((val_bn, KNORA_API.textValueHasMapping, URIRef("http://rdfh.ch/standoff/mappings/StandardMapping")))
-        return g

@@ -36,12 +36,9 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import rd
 from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseMigrationMetadata
 from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseResource
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseProperty
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseRichtext
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseSimpletext
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseValue
 from dsp_tools.commands.xmlupload.value_transformers import TransformationSteps
 from dsp_tools.commands.xmlupload.value_transformers import assert_is_string
-from dsp_tools.commands.xmlupload.value_transformers import transform_string
 from dsp_tools.commands.xmlupload.value_transformers import value_to_transformations_mapper
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InputError
@@ -349,6 +346,7 @@ def _make_text_prop_graph(
                 )
             case _:
                 assert_never(val.value)
+    return g
 
 
 def _make_simple_value_graph(
@@ -396,37 +394,6 @@ def _get_optional_triples(val_bn: BNode, permissions: str | None, comment: str |
     if comment:
         g.add((val_bn, KNORA_API.valueHasComment, Literal(comment, datatype=XSD.string)))
     return g
-
-
-def _transform_text_prop(
-    prop: XMLProperty, permissions_lookup: dict[str, Permissions], iri_resolver: IriResolver
-) -> SerialiseProperty:
-    values = []
-    for val in prop.values:
-        match val.value:
-            case str():
-                values.append(
-                    _transform_into_value_serialiser(
-                        value=val,
-                        permissions_lookup=permissions_lookup,
-                        transformations=TransformationSteps(SerialiseSimpletext, transform_string),
-                    )
-                )
-            case FormattedTextValue():
-                values.append(_transform_into_richtext_value(val, permissions_lookup, iri_resolver))
-            case _:
-                assert_never(val.value)
-    return SerialiseProperty(property_name=prop.name, values=values)
-
-
-def _transform_into_richtext_value(
-    val: XMLValue, permissions_lookup: dict[str, Permissions], iri_resolver: IriResolver
-) -> SerialiseRichtext:
-    xml_val = cast(FormattedTextValue, val.value)
-    xml_with_iris = xml_val.with_iris(iri_resolver)
-    val_str = xml_with_iris.as_xml()
-    permission_str = _get_permission_str(val.permissions, permissions_lookup)
-    return SerialiseRichtext(value=val_str, permissions=permission_str, comment=val.comment)
 
 
 def _add_optional_permission_triple(

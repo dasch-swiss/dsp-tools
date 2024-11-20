@@ -245,6 +245,19 @@ def _make_simple_prop_graph(
     return g
 
 
+def _make_simple_value_graph(
+    val: TransformedValue,
+    res_bn: BNode,
+    prop_type_info: RDFPropTypeInfo,
+) -> Graph():
+    val_bn = BNode()
+    g = _get_optional_triples(val_bn, val.permissions, val.comment)
+    g.add((res_bn, val.prop_name, val_bn))
+    g.add((val_bn, RDF.type, prop_type_info.knora_type))
+    g.add((val_bn, prop_type_info.knora_prop, val.value))
+    return g
+
+
 def _make_list_prop_graph(
     prop: XMLProperty,
     res_bn: BNode,
@@ -417,19 +430,6 @@ def _make_text_prop_graph(
                 )
             case _:
                 assert_never(val.value)
-    return g
-
-
-def _make_simple_value_graph(
-    val: TransformedValue,
-    res_bn: BNode,
-    prop_type_info: RDFPropTypeInfo,
-) -> Graph():
-    val_bn = BNode()
-    g = _get_optional_triples(val_bn, val.permissions, val.comment)
-    g.add((res_bn, val.prop_name, val_bn))
-    g.add((val_bn, RDF.type, prop_type_info.knora_type))
-    g.add((val_bn, prop_type_info.knora_prop, val.value))
     return g
 
 

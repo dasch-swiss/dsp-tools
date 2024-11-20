@@ -34,6 +34,31 @@ class ValueRDF(ABC):
         return g
 
 
+
+class RDF(ValueRDF):
+    value: Literal
+
+    def as_graph(self) -> Graph:
+        val_bn = BNode()
+        g = self._get_generic_graph(val_bn)
+        g.add((val_bn, RDF.type, KNORA_API.))
+        g.add((val_bn, KNORA_API., self.value))
+        return g
+
+
+
+class ColorValueRDF(ValueRDF):
+    value: Literal
+
+    def as_graph(self) -> Graph:
+        val_bn = BNode()
+        g = self._get_generic_graph(val_bn)
+        g.add((val_bn, RDF.type, KNORA_API.ColorValue))
+        g.add((val_bn, KNORA_API.colorValueAsColor, self.value))
+        return g
+
+
+
 class BooleanValueRDF(ValueRDF):
     value: Literal
 

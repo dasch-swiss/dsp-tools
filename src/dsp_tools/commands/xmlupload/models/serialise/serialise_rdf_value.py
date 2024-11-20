@@ -117,6 +117,30 @@ class DecimalValueRDF(ValueRDF):
         return g
 
 
+class GeomValueRDF(ValueRDF):
+    value: Literal
+
+    def as_graph(self) -> Graph:
+        val_bn = BNode()
+        g = self._get_generic_graph(val_bn)
+        g.add((val_bn, RDF.type, KNORA_API.GeomValue))
+        g.add((val_bn, KNORA_API.geometryValueAsGeometry, self.value))
+        return g
+
+
+
+
+class GeonameValueRDF(ValueRDF):
+    value: Literal
+
+    def as_graph(self) -> Graph:
+        val_bn = BNode()
+        g = self._get_generic_graph(val_bn)
+        g.add((val_bn, RDF.type, KNORA_API.GeonameValue))
+        g.add((val_bn, KNORA_API.geonameValueAsGeonameCode, self.value))
+        return g
+
+
 class IntValueRDF(ValueRDF):
     value: Literal
 

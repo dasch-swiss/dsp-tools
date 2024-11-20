@@ -35,4 +35,4 @@ def test_transform_boolean_raises_string() -> None:
 
 def test_transform_boolean_raises_int() -> None:
     with pytest.raises(BaseError):
-        transform_xsd_boolean(2)
+        transform_xsd_boolean(2)  # type: ignore[arg-type]

@@ -249,7 +249,7 @@ def _make_simple_value_graph(
     val: TransformedValue,
     res_bn: BNode,
     prop_type_info: RDFPropTypeInfo,
-) -> Graph():
+) -> Graph:
     val_bn = BNode()
     g = _get_optional_triples(val_bn, val.permissions, val.comment)
     g.add((res_bn, val.prop_name, val_bn))
@@ -360,6 +360,7 @@ def _make_interval_value_graph(
     g.add((val_bn, RDF.type, KNORA_API.IntervalValue))
     g.add((val_bn, KNORA_API.intervalValueHasStart, interval.start))
     g.add((val_bn, KNORA_API.intervalValueHasEnd, interval.end))
+    return g
 
 
 def _make_link_prop_graph(
@@ -371,7 +372,8 @@ def _make_link_prop_graph(
 ) -> Graph:
     g = Graph()
     for val in prop.values:
-        iri_str = _resolve_id_to_iri(val.value, iri_resolver)
+        str_val = assert_is_string(val.value)
+        iri_str = _resolve_id_to_iri(str_val, iri_resolver)
         resolved_permission = _resolve_permission(val.permissions, permissions_lookup)
         transformed = TransformedValue(
             value=URIRef(iri_str),
@@ -384,15 +386,14 @@ def _make_link_prop_graph(
 
 
 def _resolve_id_to_iri(value: str, iri_resolver: IriResolver) -> str:
-    s = assert_is_string(value)
-    if is_resource_iri(s):
-        iri_str = s
-    elif resolved_iri := iri_resolver.get(s):
+    if is_resource_iri(value):
+        iri_str = value
+    elif resolved_iri := iri_resolver.get(value):
         iri_str = resolved_iri
     else:
         msg = (
-            f"Could not find the ID {s} in the id2iri mapping. "
-            f"This is probably because the resource '{s}' could not be created. "
+            f"Could not find the ID {value} in the id2iri mapping. "
+            f"This is probably because the resource '{value}' could not be created. "
             f"See {WARNINGS_SAVEPATH} for more information."
         )
         raise BaseError(msg)
@@ -443,7 +444,8 @@ def _make_richtext_value_graph(
     val_bn = BNode()
     resolved_permission = _resolve_permission(val.permissions, permissions_lookup)
     g = _get_optional_triples(val_bn, resolved_permission, val.comment)
-    val_str = _get_richtext_string(val.value, iri_resolver)
+    xml_val = cast(FormattedTextValue, val.value)
+    val_str = _get_richtext_string(xml_val, iri_resolver)
     literal_val = Literal(val_str, datatype=XSD.string)
     g.add((res_bn, prop_name, val_bn))
     g.add((val_bn, RDF.type, KNORA_API.TextValue))
@@ -452,8 +454,7 @@ def _make_richtext_value_graph(
     return g
 
 
-def _get_richtext_string(value: FormattedTextValue, iri_resolver: IriResolver) -> str:
-    xml_val = cast(FormattedTextValue, value)
+def _get_richtext_string(xml_val: FormattedTextValue, iri_resolver: IriResolver) -> str:
     xml_with_iris = xml_val.with_iris(iri_resolver)
     return xml_with_iris.as_xml()
 

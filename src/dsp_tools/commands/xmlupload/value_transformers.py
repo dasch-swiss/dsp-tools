@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from typing import Callable
 from typing import TypeAlias
 from typing import Union
 from typing import assert_never
@@ -16,11 +15,9 @@ from dsp_tools.utils.date_util import Date
 from dsp_tools.utils.date_util import parse_date_string
 
 InputTypes: TypeAlias = Union[str, FormattedTextValue]
-OutputTypes: TypeAlias = Union[str, Date, Interval]
-ValueTransformer: TypeAlias = Callable[[InputTypes], OutputTypes]
 
 
-def transform_xsd_boolean(value: InputTypes):
+def transform_xsd_boolean(value: InputTypes) -> Literal:
     """Takes an input value and transforms it into an xsd:boolean."""
     match value:
         case "True" | "true" | "1" | 1 | True:
@@ -47,37 +44,37 @@ def transform_interval(input_value: InputTypes) -> Interval:
             raise BaseError(f"Could not parse interval value: {input_value}")
 
 
-def transform_xsd_string(value: InputTypes):
+def transform_xsd_string(value: InputTypes) -> Literal:
     """Transform a value into an rdflib Literal with datatype xsd:string"""
     str_val = assert_is_string(value)
     return Literal(str_val, datatype=XSD.string)
 
 
-def transform_xsd_decimal(value: InputTypes):
+def transform_xsd_decimal(value: InputTypes) -> Literal:
     """Transform a value into an rdflib Literal with datatype xsd:decimal"""
     str_val = assert_is_string(value)
     return Literal(str(float(str_val)), datatype=XSD.decimal)
 
 
-def transform_xsd_integer(value: InputTypes):
+def transform_xsd_integer(value: InputTypes) -> Literal:
     """Transform a value into an rdflib Literal with datatype xsd:integer"""
     str_val = assert_is_string(value)
     return Literal(str_val, datatype=XSD.integer)
 
 
-def transform_xsd_date_time(value: InputTypes):
+def transform_xsd_date_time(value: InputTypes) -> Literal:
     """Transform a value into an rdflib Literal with datatype xsd:dateTimeStamp"""
     str_val = assert_is_string(value)
     return Literal(str_val, datatype=XSD.dateTimeStamp)
 
 
-def transform_xsd_any_uri(value: InputTypes):
+def transform_xsd_any_uri(value: InputTypes) -> Literal:
     """Transform a value into an rdflib Literal with datatype xsd:anyURI"""
     str_val = assert_is_string(value)
     return Literal(str_val, datatype=XSD.anyURI)
 
 
-def transform_geometry(value: InputTypes):
+def transform_geometry(value: InputTypes) -> Literal:
     """Transform a value into a geometry string rdflib Literal with datatype xsd:string"""
     str_val = assert_is_string(value)
     str_val = json.dumps(json.loads(str_val))

@@ -105,61 +105,10 @@ def _make_values(resource: XMLResource, res_bnode: BNode, lookup: Lookups) -> di
     last_prop_name = None
 
     for prop in resource.properties:
-        prop_name = _get_absolute_prop_iri(prop.name, lookup.namespaces)
-        match prop.valtype:
-            case "boolean" | "color" | "decimal" | "geometry" | "geoname" | "integer" | "time" | "uri" as val_type:
-                literal_info = rdf_prop_type_mapper[val_type]
-                transformer = rdf_literal_transformer[val_type]
-                properties_graph += _make_simple_prop_graph(
-                    prop=prop,
-                    res_bn=res_bnode,
-                    prop_name=prop_name,
-                    prop_type_info=literal_info,
-                    transformer=transformer,
-                    permissions_lookup=lookup.permissions,
-                )
-            case "list":
-                properties_graph += _make_list_prop_graph(
-                    prop=prop,
-                    res_bn=res_bnode,
-                    prop_name=prop_name,
-                    permissions_lookup=lookup.permissions,
-                    listnode_lookup=lookup.listnodes,
-                )
-            case "resptr":
-                prop_name = _get_link_prop_name(prop, resource.restype, lookup.namespaces)
-                properties_graph += _make_link_prop_graph(
-                    prop=prop,
-                    res_bn=res_bnode,
-                    prop_name=prop_name,
-                    permissions_lookup=lookup.permissions,
-                    iri_resolver=lookup.id_to_iri,
-                )
-            case "text":
-                properties_graph += _make_text_prop_graph(
-                    prop=prop,
-                    res_bn=res_bnode,
-                    prop_name=prop_name,
-                    permissions_lookup=lookup.permissions,
-                    iri_resolver=lookup.id_to_iri,
-                )
-            case "date":
-                properties_graph += _make_date_prop_graph(
-                    prop=prop,
-                    res_bn=res_bnode,
-                    prop_name=prop_name,
-                    permissions_lookup=lookup.permissions,
-                )
-            case "interval":
-                properties_graph += _make_interval_prop_graph(
-                    prop=prop,
-                    res_bn=res_bnode,
-                    prop_name=prop_name,
-                    permissions_lookup=lookup.permissions,
-                )
-            case _:
-                raise UserError(f"Unknown value type: {prop.valtype}")
-        last_prop_name = prop_name
+        single_prop_graph, last_prop_name = _make_one_prop_graph(
+            prop=prop, restype=resource.restype, res_bnode=res_bnode, lookup=lookup
+        )
+        properties_graph += single_prop_graph
 
     if resource.iiif_uri:
         properties_graph += _make_iiif_uri_value(resource.iiif_uri, res_bnode, lookup.permissions)
@@ -168,6 +117,64 @@ def _make_values(resource: XMLResource, res_bnode: BNode, lookup: Lookups) -> di
         serialised_graph_props = serialise_property_graph(properties_graph, last_prop_name)
         properties_serialised.update(serialised_graph_props)
     return properties_serialised
+
+
+def _make_one_prop_graph(prop: XMLProperty, restype: str, res_bnode: BNode, lookup: Lookups) -> tuple[Graph, URIRef]:
+    prop_name = _get_absolute_prop_iri(prop.name, lookup.namespaces)
+    match prop.valtype:
+        case "boolean" | "color" | "decimal" | "geometry" | "geoname" | "integer" | "time" | "uri" as val_type:
+            literal_info = rdf_prop_type_mapper[val_type]
+            transformer = rdf_literal_transformer[val_type]
+            properties_graph = _make_simple_prop_graph(
+                prop=prop,
+                res_bn=res_bnode,
+                prop_name=prop_name,
+                prop_type_info=literal_info,
+                transformer=transformer,
+                permissions_lookup=lookup.permissions,
+            )
+        case "list":
+            properties_graph = _make_list_prop_graph(
+                prop=prop,
+                res_bn=res_bnode,
+                prop_name=prop_name,
+                permissions_lookup=lookup.permissions,
+                listnode_lookup=lookup.listnodes,
+            )
+        case "resptr":
+            prop_name = _get_link_prop_name(prop, restype, lookup.namespaces)
+            properties_graph = _make_link_prop_graph(
+                prop=prop,
+                res_bn=res_bnode,
+                prop_name=prop_name,
+                permissions_lookup=lookup.permissions,
+                iri_resolver=lookup.id_to_iri,
+            )
+        case "text":
+            properties_graph = _make_text_prop_graph(
+                prop=prop,
+                res_bn=res_bnode,
+                prop_name=prop_name,
+                permissions_lookup=lookup.permissions,
+                iri_resolver=lookup.id_to_iri,
+            )
+        case "date":
+            properties_graph = _make_date_prop_graph(
+                prop=prop,
+                res_bn=res_bnode,
+                prop_name=prop_name,
+                permissions_lookup=lookup.permissions,
+            )
+        case "interval":
+            properties_graph = _make_interval_prop_graph(
+                prop=prop,
+                res_bn=res_bnode,
+                prop_name=prop_name,
+                permissions_lookup=lookup.permissions,
+            )
+        case _:
+            raise UserError(f"Unknown value type: {prop.valtype}")
+    return properties_graph, prop_name
 
 
 def _get_link_prop_name(p: XMLProperty, restype: str, namespaces: dict[str, Namespace]) -> URIRef:

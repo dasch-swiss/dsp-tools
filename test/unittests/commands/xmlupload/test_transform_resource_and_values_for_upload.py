@@ -45,8 +45,8 @@ def res_info() -> tuple[BNode, str]:
     return BNode(), "restype"
 
 
-class TestMakeOnePropGraph:
-    def test_boolean_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+class TestMakeOnePropGraphSuccess:
+    def test_boolean(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
         res_bn, res_type = res_info
         xml_prop = etree.fromstring("""
         <boolean-prop name=":isTrueOrFalse">
@@ -65,7 +65,7 @@ class TestMakeOnePropGraph:
         permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
         assert permissions == PERMISSION_LITERAL
 
-    def test_color_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+    def test_color(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
         res_bn, res_type = res_info
         xml_prop = etree.fromstring("""
         <color-prop name=":hasColor">
@@ -82,7 +82,7 @@ class TestMakeOnePropGraph:
         value = next(result.objects(val_bn, KNORA_API.colorValueAsColor))
         assert value == Literal("#5d1f1e", datatype=XSD.string)
 
-    def test_decimal_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+    def test_decimal(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
         res_bn, res_type = res_info
         xml_prop = etree.fromstring("""
         <decimal-prop name=":hasDecimal">
@@ -101,7 +101,7 @@ class TestMakeOnePropGraph:
         comment = next(result.objects(val_bn, KNORA_API.valueHasComment))
         assert comment == Literal("Eulersche Zahl", datatype=XSD.string)
 
-    def test_geometry_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+    def test_geometry(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
         res_bn, res_type = res_info
         xml_prop = etree.fromstring("""
         <geometry-prop name=":hasGeometry">
@@ -128,7 +128,7 @@ class TestMakeOnePropGraph:
         value = next(result.objects(val_bn, KNORA_API.geometryValueAsGeometry))
         assert isinstance(value, Literal)
 
-    def test_geoname_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+    def test_geoname(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
         res_bn, res_type = res_info
         xml_prop = etree.fromstring("""
         <geoname-prop name=":hasGeoname">
@@ -145,7 +145,7 @@ class TestMakeOnePropGraph:
         value = next(result.objects(val_bn, KNORA_API.geonameValueAsGeonameCode))
         assert value == Literal("5416656", datatype=XSD.string)
 
-    def test_integer_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+    def test_integer(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
         res_bn, res_type = res_info
         xml_prop = etree.fromstring("""
         <integer-prop name=":hasInteger">
@@ -162,7 +162,7 @@ class TestMakeOnePropGraph:
         value = next(result.objects(val_bn, KNORA_API.intValueAsInt))
         assert value == Literal("4711", datatype=XSD.integer)
 
-    def test_time_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+    def test_time(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
         res_bn, res_type = res_info
         xml_prop = etree.fromstring("""
         <time-prop name=":hasTime">
@@ -179,7 +179,7 @@ class TestMakeOnePropGraph:
         value = next(result.objects(val_bn, KNORA_API.timeValueAsTimeStamp))
         assert value == Literal("2019-10-23T13:45:12.01-14:00", datatype=XSD.dateTimeStamp)
 
-    def test_uri_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+    def test_uri(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
         res_bn, res_type = res_info
         xml_prop = etree.fromstring("""
         <uri-prop name=":hasUri">
@@ -196,7 +196,7 @@ class TestMakeOnePropGraph:
         value = next(result.objects(val_bn, KNORA_API.uriValueAsUri))
         assert value == Literal("https://dasch.swiss", datatype=XSD.anyURI)
 
-    def test_list_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+    def test_list(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
         res_bn, res_type = res_info
         xml_prop = etree.fromstring("""
         <list-prop list="testlist" name=":hasListItem">
@@ -213,7 +213,7 @@ class TestMakeOnePropGraph:
         value = next(result.objects(val_bn, KNORA_API.listValueAsListNode))
         assert value == URIRef("http://rdfh.ch/9999/node")
 
-    def test_resptr_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+    def test_resptr(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
         res_bn, res_type = res_info
         xml_prop = etree.fromstring("""
         <resptr-prop name=":hasResource">
@@ -230,7 +230,7 @@ class TestMakeOnePropGraph:
         value = next(result.objects(val_bn, KNORA_API.linkValueHasTargetIri))
         assert value == RES_ONE_URI
 
-    def test_simpletext_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+    def test_simpletext(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
         res_bn, res_type = res_info
         xml_prop = etree.fromstring("""
         <text-prop name=":hasSimpleText">
@@ -247,7 +247,7 @@ class TestMakeOnePropGraph:
         value = next(result.objects(val_bn, KNORA_API.valueAsString))
         assert value == Literal("Text", datatype=XSD.string)
 
-    def test_richtext_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+    def test_richtext(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
         res_bn, res_type = res_info
         xml_prop = etree.fromstring("""
         <text-prop name=":hasRichtext">
@@ -268,7 +268,7 @@ class TestMakeOnePropGraph:
         permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
         assert permissions == PERMISSION_LITERAL
 
-    def test_date_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+    def test_date(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
         res_bn, res_type = res_info
         xml_prop = etree.fromstring("""
         <date-prop name=":hasDate">
@@ -297,7 +297,7 @@ class TestMakeOnePropGraph:
         start_era = next(result.objects(val_bn, KNORA_API.dateValueHasEndEra))
         assert start_era == Literal("AD", datatype=XSD.string)
 
-    def test_interval_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+    def test_interval(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
         res_bn, res_type = res_info
         xml_prop = etree.fromstring("""
         <hasSegmentBounds segment_start="0.1" segment_end="0.234"/>
@@ -314,7 +314,7 @@ class TestMakeOnePropGraph:
         end = next(result.objects(val_bn, KNORA_API.intervalValueHasEnd))
         assert end == Literal("0.234", datatype=XSD.decimal)
 
-    def test_segment_of_video_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+    def test_segment_of_video(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
         res_bn, _ = res_info
         res_type = "knora-api:VideoSegment"
         xml_prop = etree.fromstring("""
@@ -330,7 +330,7 @@ class TestMakeOnePropGraph:
         value = next(result.objects(val_bn, KNORA_API.linkValueHasTargetIri))
         assert value == RES_ONE_URI
 
-    def test_segment_of_audio_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
+    def test_segment_of_audio(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
         res_bn, _ = res_info
         res_type = "knora-api:AudioSegment"
         xml_prop = etree.fromstring("""

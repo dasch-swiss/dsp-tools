@@ -169,15 +169,13 @@ class TestMakeOnePropGraph:
         """)
         prop = XMLProperty.from_node(xml_prop, "time", "onto")
         result, prop_name = _make_one_prop_graph(prop, res_type, res_bn, lookups)
-        assert len(result) == 0
-        assert prop_name == ONTO
+        assert len(result) == 3
+        assert prop_name == ONTO.hasTime
         val_bn = next(result.objects(res_bn, prop_name))
         rdf_type = next(result.objects(val_bn, RDF.type))
-        assert rdf_type == KNORA_API
-        value = next(result.objects(val_bn, KNORA_API))
-        assert value == Literal("", datatype=XSD)
-        permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
-        assert permissions == PERMISSION_LITERAL
+        assert rdf_type == KNORA_API.TimeValue
+        value = next(result.objects(val_bn, KNORA_API.timeValueAsTimeStamp))
+        assert value == Literal("2019-10-23T13:45:12.01-14:00", datatype=XSD.dateTimeStamp)
 
     def test_uri_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
         res_bn, res_type = res_info

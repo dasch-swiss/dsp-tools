@@ -5,6 +5,7 @@ from rdflib import XSD
 from rdflib import Literal
 
 from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import Interval
+from dsp_tools.commands.xmlupload.value_transformers import transform_geometry
 from dsp_tools.commands.xmlupload.value_transformers import transform_interval
 from dsp_tools.commands.xmlupload.value_transformers import transform_xsd_boolean
 from dsp_tools.commands.xmlupload.value_transformers import transform_xsd_decimal
@@ -69,3 +70,17 @@ def test_transform_interval_success_with_space() -> None:
 def test_transform_xsd_integer_success() -> None:
     result = transform_xsd_integer("1")
     assert result == Literal(1, datatype=XSD.integer)
+
+
+def test_transform_geometry() -> None:
+    test_geom = """
+    {
+        "status": "active",
+        "type": "polygon",
+        "lineWidth": 5,
+        "points": []
+    }
+    """
+    result = transform_geometry(test_geom)
+    expected = '{"status": "active", "type": "polygon", "lineWidth": 5, "points": []}'
+    assert result == Literal(expected, datatype=XSD.string)

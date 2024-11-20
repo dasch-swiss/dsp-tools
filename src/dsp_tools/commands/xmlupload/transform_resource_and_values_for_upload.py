@@ -99,7 +99,6 @@ def _make_resource(
 
 
 def _make_values(resource: XMLResource, res_bnode: BNode, lookup: Lookups) -> dict[str, Any]:
-    properties_serialised = {}
     properties_graph = Graph()
     # To frame the json-ld correctly, we need one property used in the graph. It does not matter which.
     last_prop_name = None
@@ -114,9 +113,8 @@ def _make_values(resource: XMLResource, res_bnode: BNode, lookup: Lookups) -> di
         properties_graph += _make_iiif_uri_value(resource.iiif_uri, res_bnode, lookup.permissions)
         last_prop_name = KNORA_API.hasStillImageFileValue
     if last_prop_name:
-        serialised_graph_props = serialise_property_graph(properties_graph, last_prop_name)
-        properties_serialised.update(serialised_graph_props)
-    return properties_serialised
+        return serialise_property_graph(properties_graph, last_prop_name)
+    return {}
 
 
 def _make_one_prop_graph(prop: XMLProperty, restype: str, res_bnode: BNode, lookup: Lookups) -> tuple[Graph, URIRef]:

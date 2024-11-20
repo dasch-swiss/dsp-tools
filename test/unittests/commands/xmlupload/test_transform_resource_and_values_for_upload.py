@@ -300,9 +300,9 @@ class TestMakeOnePropGraph:
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.IntervalValue
         start = next(result.objects(val_bn, KNORA_API.intervalValueHasStart))
-        assert start == Literal("0.1", datatype=XSD.float)
+        assert start == Literal("0.1", datatype=XSD.decimal)
         end = next(result.objects(val_bn, KNORA_API.intervalValueHasEnd))
-        assert end == Literal("0.234", datatype=XSD.float)
+        assert end == Literal("0.234", datatype=XSD.decimal)
 
     def test_segment_of_video_success(self, lookups: Lookups, res_info: tuple[BNode, str]) -> None:
         res_bn, _ = res_info

@@ -31,7 +31,6 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import S
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseTextFileValue
 from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import RDFPropTypeInfo
 from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import TransformedValue
-from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import rdf_literal_transformer
 from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import rdf_prop_type_mapper
 from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseMigrationMetadata
 from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseResource
@@ -39,6 +38,7 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_value import Serial
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseValue
 from dsp_tools.commands.xmlupload.value_transformers import TransformationSteps
 from dsp_tools.commands.xmlupload.value_transformers import assert_is_string
+from dsp_tools.commands.xmlupload.value_transformers import rdf_literal_transformer
 from dsp_tools.commands.xmlupload.value_transformers import value_to_transformations_mapper
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InputError

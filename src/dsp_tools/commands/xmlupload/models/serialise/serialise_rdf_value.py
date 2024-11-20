@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from abc import ABC
 from abc import abstractmethod
 from dataclasses import dataclass
@@ -13,9 +12,6 @@ from rdflib import Literal
 from rdflib import Namespace
 from rdflib import URIRef
 
-from dsp_tools.commands.xmlupload.value_transformers import InputTypes
-from dsp_tools.commands.xmlupload.value_transformers import assert_is_string
-from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.date_util import Date
 from dsp_tools.utils.date_util import DayMonthYearEra
 from dsp_tools.utils.date_util import SingleDate
@@ -38,47 +34,6 @@ class RDFPropTypeInfo:
     knora_prop: URIRef
 
 
-def transform_xsd_string(value: InputTypes):
-    str_val = assert_is_string(value)
-    return Literal(str_val, datatype=XSD.string)
-
-
-def transform_xsd_decimal(value: InputTypes):
-    str_val = assert_is_string(value)
-    return Literal(str(float(str_val)), datatype=XSD.decimal)
-
-
-def transform_xsd_boolean(value: InputTypes):
-    match value:
-        case "True" | "true" | "1" | 1 | True:
-            return Literal(True, datatype=XSD.boolean)
-        case "False" | "false" | "0" | 0 | False:
-            return Literal(False, datatype=XSD.boolean)
-        case _:
-            raise BaseError(f"Could not parse boolean value: {value}")
-
-
-def transform_xsd_integer(value: InputTypes):
-    str_val = assert_is_string(value)
-    return Literal(str_val, datatype=XSD.integer)
-
-
-def transform_xsd_date_time(value: InputTypes):
-    str_val = assert_is_string(value)
-    return Literal(str_val, datatype=XSD.dateTimeStamp)
-
-
-def transform_xsd_any_uri(value: InputTypes):
-    str_val = assert_is_string(value)
-    return Literal(str_val, datatype=XSD.anyURI)
-
-
-def transform_geometry(value: InputTypes):
-    str_val = assert_is_string(value)
-    str_val = json.dumps(json.loads(str_val))
-    return Literal(str_val, datatype=XSD.string)
-
-
 rdf_prop_type_mapper = {
     "boolean": RDFPropTypeInfo(KNORA_API.BooleanValue, KNORA_API.booleanValueAsBoolean),
     "color": RDFPropTypeInfo(KNORA_API.ColorValue, KNORA_API.colorValueAsColor),
@@ -92,18 +47,6 @@ rdf_prop_type_mapper = {
     "time": RDFPropTypeInfo(KNORA_API.TimeValue, KNORA_API.timeValueAsTimeStamp),
     "uri": RDFPropTypeInfo(KNORA_API.UriValue, KNORA_API.uriValueAsUri),
 }
-
-rdf_literal_transformer = {
-    "boolean": transform_xsd_boolean,
-    "color": transform_xsd_string,
-    "decimal": transform_xsd_decimal,
-    "geometry": transform_geometry,
-    "geoname": transform_xsd_string,
-    "integer": transform_xsd_integer,
-    "time": transform_xsd_date_time,
-    "uri": transform_xsd_any_uri,
-}
-
 # date
 # interval
 # list
@@ -130,17 +73,6 @@ class ValueRDF(ABC):
             g.add((val_bn, KNORA_API.hasPermissions, self.permissions))
         if self.comment:
             g.add((val_bn, KNORA_API.valueHasComment, self.comment))
-        return g
-
-
-class BooleanValueRDF(ValueRDF):
-    value: Literal
-
-    def as_graph(self) -> Graph:
-        val_bn = BNode()
-        g = self._get_generic_graph(val_bn)
-        g.add((val_bn, RDF.type, KNORA_API.BooleanValue))
-        g.add((val_bn, KNORA_API.booleanValueAsBoolean, self.value))
         return g
 
 

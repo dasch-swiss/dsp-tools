@@ -42,19 +42,6 @@ class ValueRDF(ABC):
         return g
 
 
-
-
-class RDF(ValueRDF):
-    value: Literal
-
-    def as_graph(self) -> Graph:
-        val_bn = BNode()
-        g = self._get_generic_graph(val_bn)
-        g.add((val_bn, RDF.type, KNORA_API.))
-        g.add((val_bn, KNORA_API., self.value))
-        return g
-
-
 class BooleanValueRDF(ValueRDF):
     value: Literal
 
@@ -107,7 +94,6 @@ class DateValueRDF(ValueRDF):
         return g
 
 
-
 class DecimalValueRDF(ValueRDF):
     value: Literal
 
@@ -128,8 +114,6 @@ class GeomValueRDF(ValueRDF):
         g.add((val_bn, RDF.type, KNORA_API.GeomValue))
         g.add((val_bn, KNORA_API.geometryValueAsGeometry, self.value))
         return g
-
-
 
 
 class GeonameValueRDF(ValueRDF):
@@ -154,7 +138,6 @@ class IntValueRDF(ValueRDF):
         return g
 
 
-
 class IntervalValueValueRDF(ValueRDF):
     """An IntervalValue to be serialised."""
 
@@ -173,3 +156,70 @@ class IntervalValueValueRDF(ValueRDF):
 class Interval:
     start: Literal
     end: Literal
+
+
+class ListValueRDF(ValueRDF):
+    value: URIRef
+
+    def as_graph(self) -> Graph:
+        val_bn = BNode()
+        g = self._get_generic_graph(val_bn)
+        g.add((val_bn, RDF.type, KNORA_API.ListValue))
+        g.add((val_bn, KNORA_API.listValueAsListNode, self.value))
+        return g
+
+
+class LinkValueRDF(ValueRDF):
+    value: URIRef
+
+    def as_graph(self) -> Graph:
+        val_bn = BNode()
+        g = self._get_generic_graph(val_bn)
+        g.add((val_bn, RDF.type, KNORA_API.LinkValue))
+        g.add((val_bn, KNORA_API.linkValueHasTargetIri, self.value))
+        return g
+
+
+class SimpletextRDF(ValueRDF):
+    value: Literal
+
+    def as_graph(self) -> Graph:
+        val_bn = BNode()
+        g = self._get_generic_graph(val_bn)
+        g.add((val_bn, RDF.type, KNORA_API.TextValue))
+        g.add((val_bn, KNORA_API.valueAsString, self.value))
+        return g
+
+
+class RichtextRDF(ValueRDF):
+    value: Literal
+
+    def as_graph(self) -> Graph:
+        val_bn = BNode()
+        g = self._get_generic_graph(val_bn)
+        g.add((val_bn, RDF.type, KNORA_API.TextValue))
+        g.add((val_bn, KNORA_API.textValueAsXml, self.value))
+        g.add((val_bn, KNORA_API.textValueHasMapping, URIRef("http://rdfh.ch/standoff/mappings/StandardMapping")))
+        return g
+
+
+class TimeValueRDF(ValueRDF):
+    value: Literal
+
+    def as_graph(self) -> Graph:
+        val_bn = BNode()
+        g = self._get_generic_graph(val_bn)
+        g.add((val_bn, RDF.type, KNORA_API.TimeValue))
+        g.add((val_bn, KNORA_API.timeValueAsTimeStamp, self.value))
+        return g
+
+
+class UriValueRDF(ValueRDF):
+    value: Literal
+
+    def as_graph(self) -> Graph:
+        val_bn = BNode()
+        g = self._get_generic_graph(val_bn)
+        g.add((val_bn, RDF.type, KNORA_API.UriValue))
+        g.add((val_bn, KNORA_API.uriValueAsUri, self.value))
+        return g

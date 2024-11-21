@@ -19,7 +19,7 @@ def test_idempotency_on_success() -> None:
         </resource>
         """,
     ]
-    xml_resources = [XMLResource.from_node(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
+    xml_resources = [XMLResource.from_node(etree.fromstring(xml_str), "onto") for xml_str in xml_strings]
     upload_state = UploadState(xml_resources.copy(), None, UploadConfig(), {})
     for _ in range(3):
         _tidy_up_resource_creation_idempotent(upload_state, "foo_1_iri", xml_resources[0])
@@ -42,7 +42,7 @@ def test_idempotency_on_failure() -> None:
         </resource>
         """,
     ]
-    xml_resources = [XMLResource.from_node(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
+    xml_resources = [XMLResource.from_node(etree.fromstring(xml_str), "onto") for xml_str in xml_strings]
     upload_state = UploadState(xml_resources.copy(), None, UploadConfig(), {})
     for _ in range(3):
         _tidy_up_resource_creation_idempotent(upload_state, None, xml_resources[0])

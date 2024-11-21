@@ -18,7 +18,6 @@ from dsp_tools.commands.excel2json.models.input_error import JsonValidationResou
 from dsp_tools.commands.excel2json.models.input_error import MandatorySheetsMissingProblem
 from dsp_tools.commands.excel2json.models.input_error import MissingValuesProblem
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
-from dsp_tools.commands.excel2json.models.input_error import Problem
 from dsp_tools.commands.excel2json.models.input_error import ResourceSheetNotListedProblem
 from dsp_tools.commands.excel2json.models.ontology import OntoResource
 from dsp_tools.commands.excel2json.models.ontology import ResourceCardinality
@@ -30,6 +29,7 @@ from dsp_tools.commands.excel2json.utils import get_comments
 from dsp_tools.commands.excel2json.utils import get_labels
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.models.problems import Problem
 
 languages = ["en", "de", "fr", "it", "rm"]
 

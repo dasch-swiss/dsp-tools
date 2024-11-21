@@ -2,22 +2,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any
-from typing import Protocol
+
+from dsp_tools.models.problems import Problem
 
 separator = "\n    "
 list_separator = "\n    - "
 medium_separator = "\n----------------------------\n"
 
 grand_separator = "\n\n---------------------------------------\n\n"
-
-
-class Problem(Protocol):
-    """Information about input errors."""
-
-    def execute_error_protocol(self) -> str:
-        """
-        This function initiates all the steps for successful problem communication with the user.
-        """
 
 
 @dataclass(frozen=True)

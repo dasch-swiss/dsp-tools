@@ -1,20 +1,12 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Protocol
 
 import pandas as pd
 
+from dsp_tools.models.problems import Problem
+
 separator = "\n\n"
 list_separator = "\n - "
-
-
-class Problem(Protocol):
-    """Information about input errors."""
-
-    def execute_error_protocol(self) -> str:
-        """
-        This function initiates all the steps for successful problem communication with the user.
-        """
 
 
 @dataclass(frozen=True)

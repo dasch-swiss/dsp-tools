@@ -1,5 +1,7 @@
 from copy import deepcopy
 from dataclasses import dataclass
+from typing import Any
+from typing import cast
 from unittest.mock import Mock
 
 import pytest
@@ -79,7 +81,7 @@ def test_one_resource_without_links(ingest_client_mock: AssetClient) -> None:
     xmlupload._upload_resources(clients, upload_state)
 
     assert len(con.post.call_args_list) == len(post_responses)
-    post_call_args = con.post.call_args_list[0].kwargs
+    post_call_args = cast(dict[str, Any], con.post.call_args_list[0].kwargs)
     assert len(post_call_args) == 3
     prop_name = "http://0.0.0.0:3333/ontology/9999/onto/v2#hasSimpleText"
     expected = {
@@ -88,7 +90,7 @@ def test_one_resource_without_links(ingest_client_mock: AssetClient) -> None:
             "@type": "my_onto:foo_1_type",
             "rdfs:label": "foo_1_label",
             "knora-api:attachedToProject": {"@id": "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"},
-            "@context": dict(),
+            "@context": {},
             prop_name: {
                 "@type": "http://api.knora.org/ontology/knora-api/v2#TextValue",
                 "http://api.knora.org/ontology/knora-api/v2#valueAsString": "foo_1 text",
@@ -97,10 +99,10 @@ def test_one_resource_without_links(ingest_client_mock: AssetClient) -> None:
     }
     assert post_call_args["route"] == expected["route"]
     assert not post_call_args["headers"]
-    assert post_call_args["data"][prop_name] == expected["data"][prop_name]
-    assert post_call_args["data"]["knora-api:attachedToProject"] == expected["data"]["knora-api:attachedToProject"]
-    assert post_call_args["data"]["rdfs:label"] == expected["data"]["rdfs:label"]
-    assert post_call_args["data"]["@type"] == expected["data"]["@type"]
+    assert post_call_args["data"][prop_name] == expected["data"][prop_name]  # type: ignore[index]
+    assert post_call_args["data"]["knora-api:attachedToProject"] == expected["data"]["knora-api:attachedToProject"]  # type: ignore[index]
+    assert post_call_args["data"]["rdfs:label"] == expected["data"]["rdfs:label"]  # type: ignore[index]
+    assert post_call_args["data"]["@type"] == expected["data"]["@type"]  # type: ignore[index]
     assert not upload_state.pending_resources
     assert not upload_state.failed_uploads
     assert upload_state.iri_resolver.lookup == {"foo_1_id": "foo_1_iri"}
@@ -127,7 +129,7 @@ def test_one_resource_with_link_to_existing_resource(ingest_client_mock: AssetCl
     xmlupload._upload_resources(clients, upload_state)
 
     assert len(con.post.call_args_list) == len(post_responses)
-    post_call_args = con.post.call_args_list[0].kwargs
+    post_call_args = cast(dict[str, Any], con.post.call_args_list[0].kwargs)
     assert len(post_call_args) == 3
     prop_name = "http://0.0.0.0:3333/ontology/9999/onto/v2#hasCustomLinkValue"
     expected = {
@@ -136,7 +138,7 @@ def test_one_resource_with_link_to_existing_resource(ingest_client_mock: AssetCl
             "@type": "my_onto:foo_1_type",
             "rdfs:label": "foo_1_label",
             "knora-api:attachedToProject": {"@id": "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"},
-            "@context": dict(),
+            "@context": {},
             prop_name: {
                 "@type": "http://api.knora.org/ontology/knora-api/v2#LinkValue",
                 "http://api.knora.org/ontology/knora-api/v2#linkValueHasTargetIri": {"@id": "foo_2_iri"},
@@ -145,10 +147,10 @@ def test_one_resource_with_link_to_existing_resource(ingest_client_mock: AssetCl
     }
     assert post_call_args["route"] == expected["route"]
     assert not post_call_args["headers"]
-    assert post_call_args["data"][prop_name] == expected["data"][prop_name]
-    assert post_call_args["data"]["knora-api:attachedToProject"] == expected["data"]["knora-api:attachedToProject"]
-    assert post_call_args["data"]["rdfs:label"] == expected["data"]["rdfs:label"]
-    assert post_call_args["data"]["@type"] == expected["data"]["@type"]
+    assert post_call_args["data"][prop_name] == expected["data"][prop_name]  # type: ignore[index]
+    assert post_call_args["data"]["knora-api:attachedToProject"] == expected["data"]["knora-api:attachedToProject"]  # type: ignore[index]
+    assert post_call_args["data"]["rdfs:label"] == expected["data"]["rdfs:label"]  # type: ignore[index]
+    assert post_call_args["data"]["@type"] == expected["data"]["@type"]  # type: ignore[index]
     assert not upload_state.pending_resources
     assert not upload_state.failed_uploads
     assert upload_state.iri_resolver.lookup == {"foo_1_id": "foo_1_iri", "foo_2_id": "foo_2_iri"}

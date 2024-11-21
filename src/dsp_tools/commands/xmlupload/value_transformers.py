@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from json.decoder import JSONDecodeError
 from typing import TypeAlias
 from typing import Union
 from typing import assert_never
@@ -74,8 +75,11 @@ def transform_xsd_any_uri(value: InputTypes) -> Literal:
 def transform_geometry(value: InputTypes) -> Literal:
     """Transform a value into a geometry string rdflib Literal with datatype xsd:string"""
     str_val = assert_is_string(value)
-    str_val = json.dumps(json.loads(str_val))
-    return Literal(str_val, datatype=XSD.string)
+    try:
+        str_val = json.dumps(json.loads(str_val))
+        return Literal(str_val, datatype=XSD.string)
+    except JSONDecodeError:
+        raise BaseError(f"Could not parse json value: {value}") from None
 
 
 def assert_is_string(value: str | FormattedTextValue) -> str:

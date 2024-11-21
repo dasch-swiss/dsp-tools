@@ -1,6 +1,7 @@
 from typing import Any
 
 import pytest
+import regex
 from rdflib import XSD
 from rdflib import Literal
 
@@ -72,7 +73,7 @@ def test_transform_xsd_integer_success() -> None:
     assert result == Literal(1, datatype=XSD.integer)
 
 
-def test_transform_geometry() -> None:
+def test_transform_geometry_success() -> None:
     test_geom = """
     {
         "status": "active",
@@ -84,3 +85,10 @@ def test_transform_geometry() -> None:
     result = transform_geometry(test_geom)
     expected = '{"status": "active", "type": "polygon", "lineWidth": 5, "points": []}'
     assert result == Literal(expected, datatype=XSD.string)
+
+
+def test_transform_geometry_raises() -> None:
+    value = ' { "status": "active",'
+    msg = regex.escape(f"Could not parse json value: {value}")
+    with pytest.raises(BaseError, match=msg):
+        transform_geometry(value)

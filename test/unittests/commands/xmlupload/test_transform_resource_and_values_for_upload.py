@@ -329,7 +329,7 @@ class TestMakeOnePropGraphSuccess:
         res_bn, _ = res_info
         res_type = "knora-api:VideoSegment"
         xml_prop = etree.fromstring("""
-        <isSegmentOf >res_one</isSegmentOf>
+        <isSegmentOf>res_one</isSegmentOf>
         """)
         prop = XMLProperty.from_node(xml_prop, "resptr", "onto")
         result, prop_name = _make_one_prop_graph(prop, res_type, res_bn, lookups)
@@ -345,7 +345,7 @@ class TestMakeOnePropGraphSuccess:
         res_bn, _ = res_info
         res_type = "knora-api:AudioSegment"
         xml_prop = etree.fromstring("""
-        <isSegmentOf >res_one</isSegmentOf>
+        <isSegmentOf>res_one</isSegmentOf>
         """)
         prop = XMLProperty.from_node(xml_prop, "resptr", "onto")
         result, prop_name = _make_one_prop_graph(prop, res_type, res_bn, lookups)

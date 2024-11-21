@@ -114,7 +114,7 @@ def _make_values(resource: XMLResource, res_bnode: BNode, lookup: Lookups) -> di
         properties_graph += single_prop_graph
 
     if resource.iiif_uri:
-        resolved_permissions = _get_permission_str(resource.iiif_uri.permissions, lookup.permissions)
+        resolved_permissions = _resolve_permission(resource.iiif_uri.permissions, lookup.permissions)
         metadata = FileValueMetadata(resolved_permissions)
         iiif_val = AbstractFileValue(resource.iiif_uri.value, metadata)
         properties_graph += make_iiif_uri_value_graph(iiif_val, res_bnode)

@@ -185,9 +185,9 @@ def _get_link_prop_name(p: XMLProperty, restype: str, namespaces: dict[str, Name
     return _get_absolute_prop_iri(prop, namespaces)
 
 
-def _get_absolute_prop_iri(prefixed_prop: str, namepsaces: dict[str, Namespace]) -> URIRef:
+def _get_absolute_prop_iri(prefixed_prop: str, namespaces: dict[str, Namespace]) -> URIRef:
     prefix, prop = prefixed_prop.split(":", maxsplit=1)
-    if not (namespace := namepsaces.get(prefix)):
+    if not (namespace := namespaces.get(prefix)):
         raise InputError(f"Could not find namespace for prefix: {prefix}")
     return namespace[prop]
 

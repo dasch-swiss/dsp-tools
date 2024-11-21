@@ -65,9 +65,7 @@ def make_file_value_graph(
     Returns:
         Graph with the File Value
     """
-    local_file = Path(bitstream_info.local_file)
-    file_ending = local_file.suffix[1:].lower()
-    file_type = _get_file_type_info(file_ending, bitstream_info.local_file)
+    file_type = _get_file_type_info(bitstream_info.local_file)
     internal_filename = bitstream_info.internal_file_name
     permissions = _get_permission_str(bitstream_info.permissions, permission_lookup)
     metadata = FileValueMetadata(permissions)
@@ -75,7 +73,8 @@ def make_file_value_graph(
     return _make_file_value_graph(file_value, file_type, res_bn), file_type.knora_prop
 
 
-def _get_file_type_info(file_ending: str, local_file: str) -> RDFPropTypeInfo:
+def _get_file_type_info(local_file: str) -> RDFPropTypeInfo:
+    file_ending = Path(local_file).suffix[1:].lower()
     match file_ending:
         case "zip" | "tar" | "gz" | "z" | "tgz" | "gzip" | "7z":
             return ARCHIVE_FILE_VALUE

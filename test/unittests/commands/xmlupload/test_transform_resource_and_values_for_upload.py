@@ -369,7 +369,7 @@ class TestMakeOnePropGraphRaises:
         res_bn, res_type = res_info
         xml_prop = etree.fromstring("""
         <other-prop name=":hasInteger">
-            <other permissions="nonExistent">4711</other>
+            <other>4711</other>
         </other-prop>
         """)
         prop = XMLProperty.from_node(xml_prop, "other", "onto")
@@ -381,7 +381,7 @@ class TestMakeOnePropGraphRaises:
         res_bn, res_type = res_info
         xml_prop = etree.fromstring("""
         <integer-prop name="other:hasInteger">
-            <integer permissions="nonExistent">4711</integer>
+            <integer>4711</integer>
         </integer-prop>
         """)
         prop = XMLProperty.from_node(xml_prop, "integer", "onto")

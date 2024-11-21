@@ -5,8 +5,8 @@ from rdflib import BNode
 from dsp_tools.commands.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
 from dsp_tools.commands.xmlupload.make_rdf_graph.helpers import resolve_permission
 from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_serialiser import serialise_property_graph
-from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value_graph import make_file_value_graph
-from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value_graph import make_iiif_uri_value_graph
+from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_file_value_graph
+from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_iiif_uri_value_graph
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import make_values
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource

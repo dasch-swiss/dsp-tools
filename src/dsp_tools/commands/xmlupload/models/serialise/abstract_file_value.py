@@ -8,6 +8,7 @@ from rdflib import URIRef
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
 
 
+# TODO: import this from the other file
 @dataclass
 class RDFPropTypeInfo:
     knora_type: URIRef

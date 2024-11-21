@@ -6,6 +6,7 @@ from rdflib import BNode
 from rdflib import Namespace
 from rdflib import URIRef
 
+from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_serialiser import serialise_property_graph
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import _make_bitstream_file_value
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import _make_iiif_uri_value
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import IIIFUriInfo
@@ -13,7 +14,6 @@ from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import Bitstrea
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
-from dsp_tools.commands.xmlupload.models.serialise.jsonld_serialiser import serialise_property_graph
 from dsp_tools.models.exceptions import PermissionNotExistsError
 
 ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")

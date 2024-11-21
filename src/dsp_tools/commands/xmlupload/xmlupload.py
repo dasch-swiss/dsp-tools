@@ -16,9 +16,7 @@ from dsp_tools.commands.xmlupload.check_consistency_with_ontology import do_xml_
 from dsp_tools.commands.xmlupload.iiif_uri_validator import IIIFUriValidator
 from dsp_tools.commands.xmlupload.list_client import ListClient
 from dsp_tools.commands.xmlupload.list_client import ListClientLive
-from dsp_tools.commands.xmlupload.make_rdf_graph.transform_resource_and_values_for_upload import (
-    create_resource_with_values,
-)
+from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import create_resource_with_values
 from dsp_tools.commands.xmlupload.models.deserialise.xmlpermission import XmlPermission
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient

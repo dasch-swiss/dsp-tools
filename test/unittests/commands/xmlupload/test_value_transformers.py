@@ -10,7 +10,7 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import trans
 from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_xsd_boolean
 from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_xsd_decimal
 from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_xsd_integer
-from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import Interval
+from dsp_tools.commands.xmlupload.models.rdf_models import Interval
 from dsp_tools.models.exceptions import BaseError
 
 

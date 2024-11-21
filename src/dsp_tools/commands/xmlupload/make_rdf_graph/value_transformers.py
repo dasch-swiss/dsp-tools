@@ -10,7 +10,7 @@ from rdflib import XSD
 from rdflib import Literal
 
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
-from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import Interval
+from dsp_tools.commands.xmlupload.models.rdf_models import Interval
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.date_util import Date
 from dsp_tools.utils.date_util import parse_date_string

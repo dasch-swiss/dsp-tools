@@ -14,7 +14,9 @@ from rdflib import URIRef
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import KNORA_API
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import rdf_prop_type_mapper
 from dsp_tools.commands.xmlupload.make_rdf_graph.helpers import resolve_permission
+from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_serialiser import serialise_property_graph
 from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import InputTypes
 from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import assert_is_string
 from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import rdf_literal_transformer
@@ -28,16 +30,14 @@ from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResou
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.lookup_models import Lookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
-from dsp_tools.commands.xmlupload.models.serialise.jsonld_serialiser import serialise_property_graph
+from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
+from dsp_tools.commands.xmlupload.models.rdf_models import TransformedValue
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseArchiveFileValue
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseAudioFileValue
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseDocumentFileValue
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseMovingImageFileValue
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseStillImageFileValue
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseTextFileValue
-from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import RDFPropTypeInfo
-from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import TransformedValue
-from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import rdf_prop_type_mapper
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import UserError

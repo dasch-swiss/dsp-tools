@@ -10,7 +10,6 @@ import regex
 from loguru import logger
 
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
-from dsp_tools.commands.excel2json.models.input_error import Problem
 from dsp_tools.commands.excel2json.new_lists.models.deserialise import Columns
 from dsp_tools.commands.excel2json.new_lists.models.deserialise import ExcelSheet
 from dsp_tools.commands.excel2json.new_lists.models.input_error import CollectedSheetProblems
@@ -35,6 +34,7 @@ from dsp_tools.commands.excel2json.new_lists.utils import get_hierarchy_nums
 from dsp_tools.commands.excel2json.new_lists.utils import get_lang_string_from_column_name
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.models.problems import Problem
 
 
 def make_all_excel_compliance_checks(sheet_list: list[ExcelSheet]) -> None:

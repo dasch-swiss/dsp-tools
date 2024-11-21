@@ -1,8 +1,14 @@
 import json
+import warnings
 from typing import Any
 
 import pandas as pd
 import regex
+from lxml import etree
+from namedentities.core import numeric_entities  # type: ignore[import-untyped]
+
+from dsp_tools.models.custom_warnings import DspToolsUserWarning
+from dsp_tools.xmllib.models.problems import IllegalTagProblem
 
 
 def is_nonempty_value(value: Any) -> bool:
@@ -214,3 +220,67 @@ def is_dsp_ark(value: Any) -> bool:
         True if it is valid, else false
     """
     return bool(regex.search(r"^ark:/", str(value)))
+
+
+def check_richtext_syntax(richtext: str) -> None:
+    """
+    DSP richtexts must be convertible into valid XML.
+    This checker escapes the reserved characters `<`, `>` and `&`,
+    but only if they are not part of a standard standoff tag or escape sequence.
+    Then, it tries to parse the resulting XML.
+
+    Note: Only DSP standard standoff tags are allowed in richtexts. They are documented
+    [here](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/).
+
+    Args:
+        richtext: richtext to check
+
+    Warns:
+        DspToolsUserWarning: if the input contains XML syntax problems
+    """
+    escaped_text = _escape_reserved_chars(richtext)
+    # transform named entities (=character references) to numeric entities, e.g. &nbsp; -> &#160;
+    num_ent = numeric_entities(escaped_text)
+    pseudo_xml = f"<text>{num_ent}</text>"
+    try:
+        _ = etree.fromstring(pseudo_xml)
+    except etree.XMLSyntaxError as err:
+        prob = IllegalTagProblem(orig_err_msg=err.msg, pseudo_xml=pseudo_xml)
+        warnings.warn(DspToolsUserWarning(prob.execute_error_protocol()))
+
+
+def _escape_reserved_chars(richtext: str) -> str:
+    allowed_tags = [  # defined at https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/
+        "a( [^>]+)?",  # <a> is the only tag that can have attributes
+        "p",
+        "em",
+        "strong",
+        "u",
+        "sub",
+        "sup",
+        "strike",
+        "h1",
+        "ol",
+        "ul",
+        "li",
+        "tbody",
+        "table",
+        "tr",
+        "td",
+        "br",
+        "hr",
+        "pre",
+        "cite",
+        "blockquote",
+        "code",
+    ]
+    allowed_tags_regex = "|".join(allowed_tags)
+    lookahead = rf"(?!/?({allowed_tags_regex})/?>)"
+    illegal_lt = rf"<{lookahead}"
+    lookbehind = rf"(?<!</?({allowed_tags_regex})/?)"
+    illegal_gt = rf"{lookbehind}>"
+    illegal_amp = r"&(?![#a-zA-Z0-9]+;)"
+    richtext = regex.sub(illegal_lt, "&lt;", richtext or "")
+    richtext = regex.sub(illegal_gt, "&gt;", richtext)
+    richtext = regex.sub(illegal_amp, "&amp;", richtext)
+    return richtext

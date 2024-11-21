@@ -1,5 +1,8 @@
+from typing import cast
+
 import pytest
 import regex
+from lxml import etree
 from rdflib import RDF
 from rdflib import XSD
 from rdflib import BNode
@@ -9,6 +12,11 @@ from rdflib import Namespace
 from dsp_tools.commands.xmlupload.make_file_value_graph import _add_metadata
 from dsp_tools.commands.xmlupload.make_file_value_graph import _get_file_type_info
 from dsp_tools.commands.xmlupload.make_file_value_graph import _make_file_value_graph
+from dsp_tools.commands.xmlupload.make_file_value_graph import make_iiif_uri_value_graph
+from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import IIIFUriInfo
+from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
+from dsp_tools.commands.xmlupload.models.permission import Permissions
+from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import ARCHIVE_FILE_VALUE
 from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import AUDIO_FILE_VALUE
 from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import DOCUMENT_FILE_VALUE
@@ -19,6 +27,7 @@ from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import Ab
 from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import FileValueMetadata
 from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import RDFPropTypeInfo
 from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import PermissionNotExistsError
 
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
 
@@ -41,6 +50,57 @@ def abstract_file_permissions(metadata_permissions: FileValueMetadata) -> Abstra
 @pytest.fixture
 def abstract_file_no_permissions(metadata_no_permissions: FileValueMetadata) -> AbstractFileValue:
     return AbstractFileValue("IdFromIngest", metadata_no_permissions)
+
+
+class TestIIIFURI:
+    def test_make_iiif_uri_value_graph_with_permissions(self) -> None:
+        permission = {"open": Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})}
+        url = "http://example.org/prefix1/abcd1234/full/full/0/native.jpg"
+        xml_str = f"""
+            <resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id">
+                <iiif-uri permissions="open">{url}</iiif-uri>
+            </resource>
+            """
+        xmlresource = XMLResource.from_node(etree.fromstring(xml_str), "foo")
+        test_val = cast(IIIFUriInfo, xmlresource.iiif_uri)
+        res_bn = BNode()
+        g, _ = make_iiif_uri_value_graph(test_val, res_bn, permission)
+        assert len(g) == 4
+        val_bn = next(g.objects(res_bn, KNORA_API.hasStillImageFileValue))
+        assert next(g.objects(val_bn, RDF.type)) == KNORA_API.StillImageExternalFileValue
+        assert next(g.objects(val_bn, KNORA_API.fileValueHasExternalUrl)) == Literal(url, datatype=XSD.string)
+        assert next(g.objects(val_bn, KNORA_API.hasPermissions)) == Literal(
+            "CR knora-admin:ProjectAdmin", datatype=XSD.string
+        )
+
+    def test_make_iiif_uri_value_graph_no_permissions(self) -> None:
+        permission = {"open": Permissions()}
+        url = "http://example.org/prefix1/abcd1234/full/full/0/native.jpg"
+        xml_str = f"""
+            <resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id">
+                <iiif-uri>{url}</iiif-uri>
+            </resource>
+            """
+        xmlresource = XMLResource.from_node(etree.fromstring(xml_str), "foo")
+        test_val = cast(IIIFUriInfo, xmlresource.iiif_uri)
+        res_bn = BNode()
+        g, _ = make_iiif_uri_value_graph(test_val, res_bn, permission)
+        assert len(g) == 3
+        val_bn = next(g.objects(res_bn, KNORA_API.hasStillImageFileValue))
+        assert next(g.objects(val_bn, RDF.type)) == KNORA_API.StillImageExternalFileValue
+        assert next(g.objects(val_bn, KNORA_API.fileValueHasExternalUrl)) == Literal(url, datatype=XSD.string)
+
+    def test_make_iiif_uri_value_graph_raises(self) -> None:
+        permission = {}
+        xml_str = """
+            <resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id">
+                <iiif-uri permissions="open">http://example.org/prefix1/abcd1234/full/full/0/native.jpg</iiif-uri>
+            </resource>
+            """
+        xmlresource = XMLResource.from_node(etree.fromstring(xml_str), "foo")
+        test_val = cast(IIIFUriInfo, xmlresource.iiif_uri)
+        with pytest.raises(PermissionNotExistsError):
+            make_iiif_uri_value_graph(test_val, BNode(), permission)
 
 
 class TestMakeFileValueGraph:

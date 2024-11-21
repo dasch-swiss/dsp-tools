@@ -47,7 +47,7 @@ def make_iiif_uri_value_graph(
     knora_prop = KNORA_API.hasStillImageFileValue
     g.add((res_bn, knora_prop, iiif_bn))
     g.add((iiif_bn, RDF.type, KNORA_API.StillImageExternalFileValue))
-    g.add((iiif_bn, KNORA_API.fileValueHasExternalUrl, Literal(iiif_uri.value)))
+    g.add((iiif_bn, KNORA_API.fileValueHasExternalUrl, Literal(iiif_uri.value, datatype=XSD.string)))
     return g, knora_prop
 
 

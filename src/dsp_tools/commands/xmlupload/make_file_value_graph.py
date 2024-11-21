@@ -51,9 +51,7 @@ def make_iiif_uri_value_graph(
     return g, knora_prop
 
 
-def make_file_value_graph(
-    bitstream_info: BitstreamInfo, res_bn: BNode, permission_lookup: dict[str, Permissions]
-) -> tuple[Graph, URIRef]:
+def make_file_value_graph(bitstream_info: BitstreamInfo, res_bn: BNode) -> tuple[Graph, URIRef]:
     """
     Creates a graph with the File Value information.
 
@@ -67,8 +65,7 @@ def make_file_value_graph(
     """
     file_type = _get_file_type_info(bitstream_info.local_file)
     internal_filename = bitstream_info.internal_file_name
-    permissions = _get_permission_str(bitstream_info.permissions, permission_lookup)
-    metadata = FileValueMetadata(permissions)
+    metadata = FileValueMetadata(str(bitstream_info.permissions))
     file_value = AbstractFileValue(internal_filename, metadata)
     return _make_file_value_graph(file_value, file_type, res_bn), file_type.knora_prop
 

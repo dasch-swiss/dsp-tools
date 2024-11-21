@@ -91,7 +91,7 @@ class TestIIIFURI:
         assert next(g.objects(val_bn, KNORA_API.fileValueHasExternalUrl)) == Literal(url, datatype=XSD.string)
 
     def test_make_iiif_uri_value_graph_raises(self) -> None:
-        permission = {}
+        permission = {"": Permissions()}
         xml_str = """
             <resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id">
                 <iiif-uri permissions="open">http://example.org/prefix1/abcd1234/full/full/0/native.jpg</iiif-uri>

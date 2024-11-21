@@ -5,14 +5,12 @@ from dataclasses import dataclass
 from typing import Any
 from typing import Protocol
 
-import regex
 from lxml import etree
-from namedentities.core import numeric_entities  # type: ignore[import-untyped]
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.utils.uri_util import is_uri
 from dsp_tools.xmllib.models.config_options import Permissions
-from dsp_tools.xmllib.models.problems import IllegalTagProblem
+from dsp_tools.xmllib.value_checkers import check_richtext_syntax
 from dsp_tools.xmllib.value_checkers import is_bool_like
 from dsp_tools.xmllib.value_checkers import is_color
 from dsp_tools.xmllib.value_checkers import is_date
@@ -374,7 +372,7 @@ class Richtext(Value):
             _warn_type_mismatch(
                 expected_type="string", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
-        self._check_tags()
+        check_richtext_syntax(self.value)
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()
@@ -393,62 +391,6 @@ class Richtext(Value):
         ele = etree.Element(f"{DASCH_SCHEMA}text", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
         ele.text = self.value
         return ele
-
-    def _check_tags(self) -> None:
-        escaped_text = self._escape_reserved_chars()
-        # transform named entities (=character references) to numeric entities, e.g. &nbsp; -> &#160;
-        num_ent = numeric_entities(escaped_text)
-        pseudo_xml = f"<ignore-this>{num_ent}</ignore-this>"
-        try:
-            _ = etree.fromstring(pseudo_xml)
-        except etree.XMLSyntaxError as err:
-            prob = IllegalTagProblem(orig_err_msg=err.msg, pseudo_xml=pseudo_xml)
-            warnings.warn(DspToolsUserWarning(prob.execute_error_protocol()))
-
-    def _escape_reserved_chars(self) -> str:
-        """
-        From richtext strings (encoding="xml"), escape the reserved characters <, > and &,
-        but only if they are not part of a standard standoff tag or escape sequence.
-        The standard standoff tags allowed by DSP-API are documented here:
-        https://docs.dasch.swiss/2023.12.01/DSP-API/03-endpoints/api-v2/text/standard-standoff/
-
-        Returns:
-            the escaped richtext string
-        """
-        allowed_tags = [
-            "a( [^>]+)?",  # <a> is the only tag that can have attributes
-            "p",
-            "em",
-            "strong",
-            "u",
-            "sub",
-            "sup",
-            "strike",
-            "h1",
-            "ol",
-            "ul",
-            "li",
-            "tbody",
-            "table",
-            "tr",
-            "td",
-            "br",
-            "hr",
-            "pre",
-            "cite",
-            "blockquote",
-            "code",
-        ]
-        allowed_tags_regex = "|".join(allowed_tags)
-        lookahead = rf"(?!/?({allowed_tags_regex})/?>)"
-        illegal_lt = rf"<{lookahead}"
-        lookbehind = rf"(?<!</?({allowed_tags_regex})/?)"
-        illegal_gt = rf"{lookbehind}>"
-        illegal_amp = r"&(?![#a-zA-Z0-9]+;)"
-        text = regex.sub(illegal_lt, "&lt;", self.value or "")
-        text = regex.sub(illegal_gt, "&gt;", text)
-        text = regex.sub(illegal_amp, "&amp;", text)
-        return text
 
 
 @dataclass

@@ -81,9 +81,7 @@ def test_one_resource_without_links(ingest_client_mock: AssetClient) -> None:
     assert len(con.post.call_args_list) == len(post_responses)
     post_call_args = con.post.call_args_list[0].kwargs
     assert len(post_call_args) == 3
-
     prop_name = "http://0.0.0.0:3333/ontology/9999/onto/v2#hasSimpleText"
-
     expected = {
         "route": "/v2/resources",
         "data": {
@@ -131,9 +129,7 @@ def test_one_resource_with_link_to_existing_resource(ingest_client_mock: AssetCl
     assert len(con.post.call_args_list) == len(post_responses)
     post_call_args = con.post.call_args_list[0].kwargs
     assert len(post_call_args) == 3
-
     prop_name = "http://0.0.0.0:3333/ontology/9999/onto/v2#hasCustomLinkValue"
-
     expected = {
         "route": "/v2/resources",
         "data": {

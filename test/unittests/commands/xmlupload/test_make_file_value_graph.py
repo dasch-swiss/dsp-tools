@@ -46,7 +46,7 @@ class TestFileTypeInfo:
         result = _get_file_type_info(file_name)
         assert result.knora_type == KNORA_API.TextFileValue
 
-    @pytest.mark.parametrize(("file_name", "ending"), [("test.", ""), ("test", "test"), ("test.other", "other")])
+    @pytest.mark.parametrize(("file_name", "ending"), [("test.", ""), ("test", ""), ("test.other", "other")])
     def test_raises(self, file_name: str, ending: str) -> None:
         msg = regex.escape(f"Unknown file ending '{ending}' for file '{file_name}'")
         with pytest.raises(BaseError, match=msg):

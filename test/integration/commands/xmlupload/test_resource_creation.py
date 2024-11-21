@@ -81,19 +81,28 @@ def test_one_resource_without_links(ingest_client_mock: AssetClient) -> None:
     assert len(con.post.call_args_list) == len(post_responses)
     post_call_args = con.post.call_args_list[0].kwargs
     assert len(post_call_args) == 3
-    assert post_call_args["route"] == "/v2/resources"
+
+    prop_name = "http://0.0.0.0:3333/ontology/9999/onto/v2#hasSimpleText"
+
+    expected = {
+        "route": "/v2/resources",
+        "data": {
+            "@type": "my_onto:foo_1_type",
+            "rdfs:label": "foo_1_label",
+            "knora-api:attachedToProject": {"@id": "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"},
+            "@context": dict(),
+            prop_name: {
+                "@type": "http://api.knora.org/ontology/knora-api/v2#TextValue",
+                "http://api.knora.org/ontology/knora-api/v2#valueAsString": "foo_1 text",
+            },
+        },
+    }
+    assert post_call_args["route"] == expected["route"]
     assert not post_call_args["headers"]
-    data = post_call_args["data"]
-    text_val = {
-        "@type": "http://api.knora.org/ontology/knora-api/v2#TextValue",
-        "http://api.knora.org/ontology/knora-api/v2#valueAsString": "foo_1 text",
-    }
-    assert data["http://0.0.0.0:3333/ontology/9999/onto/v2#hasSimpleText"] == text_val
-    assert data["knora-api:attachedToProject"] == {
-        "@id": "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"
-    }
-    assert data["rdfs:label"] == "foo_1_label"
-    assert data["@type"] == "my_onto:foo_1_type"
+    assert post_call_args["data"][prop_name] == expected["data"][prop_name]
+    assert post_call_args["data"]["knora-api:attachedToProject"] == expected["data"]["knora-api:attachedToProject"]
+    assert post_call_args["data"]["rdfs:label"] == expected["data"]["rdfs:label"]
+    assert post_call_args["data"]["@type"] == expected["data"]["@type"]
     assert not upload_state.pending_resources
     assert not upload_state.failed_uploads
     assert upload_state.iri_resolver.lookup == {"foo_1_id": "foo_1_iri"}
@@ -122,19 +131,28 @@ def test_one_resource_with_link_to_existing_resource(ingest_client_mock: AssetCl
     assert len(con.post.call_args_list) == len(post_responses)
     post_call_args = con.post.call_args_list[0].kwargs
     assert len(post_call_args) == 3
-    assert post_call_args["route"] == "/v2/resources"
+
+    prop_name = "http://0.0.0.0:3333/ontology/9999/onto/v2#hasCustomLinkValue"
+
+    expected = {
+        "route": "/v2/resources",
+        "data": {
+            "@type": "my_onto:foo_1_type",
+            "rdfs:label": "foo_1_label",
+            "knora-api:attachedToProject": {"@id": "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"},
+            "@context": dict(),
+            prop_name: {
+                "@type": "http://api.knora.org/ontology/knora-api/v2#LinkValue",
+                "http://api.knora.org/ontology/knora-api/v2#linkValueHasTargetIri": {"@id": "foo_2_iri"},
+            },
+        },
+    }
+    assert post_call_args["route"] == expected["route"]
     assert not post_call_args["headers"]
-    data = post_call_args["data"]
-    link_val = {
-        "@type": "http://api.knora.org/ontology/knora-api/v2#LinkValue",
-        "http://api.knora.org/ontology/knora-api/v2#linkValueHasTargetIri": {"@id": "foo_2_iri"},
-    }
-    assert data["http://0.0.0.0:3333/ontology/9999/onto/v2#hasCustomLinkValue"] == link_val
-    assert data["knora-api:attachedToProject"] == {
-        "@id": "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"
-    }
-    assert data["rdfs:label"] == "foo_1_label"
-    assert data["@type"] == "my_onto:foo_1_type"
+    assert post_call_args["data"][prop_name] == expected["data"][prop_name]
+    assert post_call_args["data"]["knora-api:attachedToProject"] == expected["data"]["knora-api:attachedToProject"]
+    assert post_call_args["data"]["rdfs:label"] == expected["data"]["rdfs:label"]
+    assert post_call_args["data"]["@type"] == expected["data"]["@type"]
     assert not upload_state.pending_resources
     assert not upload_state.failed_uploads
     assert upload_state.iri_resolver.lookup == {"foo_1_id": "foo_1_iri", "foo_2_id": "foo_2_iri"}

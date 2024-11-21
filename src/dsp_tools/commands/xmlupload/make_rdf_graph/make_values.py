@@ -1,5 +1,3 @@
-from pathlib import Path
-from typing import Any
 from typing import Callable
 from typing import assert_never
 from typing import cast
@@ -16,23 +14,16 @@ from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import KNORA_API
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import rdf_prop_type_mapper
 from dsp_tools.commands.xmlupload.make_rdf_graph.helpers import resolve_permission
-from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_serialiser import serialise_property_graph
-from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value_graph import make_iiif_uri_value_graph
 from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import InputTypes
 from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import assert_is_string
 from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import rdf_literal_transformer
 from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_date
 from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_interval
-from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import IIIFUriInfo
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLValue
-from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
-from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.lookup_models import Lookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
-from dsp_tools.commands.xmlupload.models.rdf_models import AbstractFileValue
-from dsp_tools.commands.xmlupload.models.rdf_models import FileValueMetadata
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 from dsp_tools.commands.xmlupload.models.rdf_models import TransformedValue
 from dsp_tools.models.exceptions import BaseError
@@ -45,37 +36,30 @@ from dsp_tools.utils.iri_util import is_resource_iri
 from dsp_tools.utils.logger_config import WARNINGS_SAVEPATH
 
 
-def make_values(resource: XMLResource, res_bnode: BNode, lookup: Lookups) -> dict[str, Any]:
+def make_values(properties: list[XMLProperty], restype: str, res_bnode: BNode, lookup: Lookups) -> tuple[Graph, URIRef]:
     """
     Serialise the values of a resource.
 
     Args:
-        resource: XMLResource
+        properties: list of XMLProperty of the resource
+        restype: type of the resource as a string
         res_bnode: blank node of the resource
         lookup: lookups to resolve, permissions, IRIs, etc.
 
     Returns:
-        Values serialised as a dict
+        Graph with the values and the last property name
     """
     properties_graph = Graph()
     # To frame the json-ld correctly, we need one property used in the graph. It does not matter which.
     last_prop_name = None
 
-    for prop in resource.properties:
+    for prop in properties:
         single_prop_graph, last_prop_name = _make_one_prop_graph(
-            prop=prop, restype=resource.restype, res_bnode=res_bnode, lookup=lookup
+            prop=prop, restype=restype, res_bnode=res_bnode, lookup=lookup
         )
         properties_graph += single_prop_graph
 
-    if resource.iiif_uri:
-        resolved_permissions = resolve_permission(resource.iiif_uri.permissions, lookup.permissions)
-        metadata = FileValueMetadata(resolved_permissions)
-        iiif_val = AbstractFileValue(resource.iiif_uri.value, metadata)
-        properties_graph += make_iiif_uri_value_graph(iiif_val, res_bnode)
-        last_prop_name = KNORA_API.hasStillImageFileValue
-    if last_prop_name:
-        return serialise_property_graph(properties_graph, last_prop_name)
-    return {}
+    return properties_graph, last_prop_name
 
 
 def _make_one_prop_graph(prop: XMLProperty, restype: str, res_bnode: BNode, lookup: Lookups) -> tuple[Graph, URIRef]:
@@ -150,39 +134,6 @@ def _get_absolute_prop_iri(prefixed_prop: str, namespaces: dict[str, Namespace])
     if not (namespace := namespaces.get(prefix)):
         raise InputError(f"Could not find namespace for prefix: {prefix}")
     return namespace[prop]
-
-
-def _make_iiif_uri_value(iiif_uri: IIIFUriInfo, res_bnode: BNode, permissions_lookup: dict[str, Permissions]) -> Graph:
-    g = Graph()
-    iiif_bn = BNode()
-    g.add((res_bnode, KNORA_API.hasStillImageFileValue, iiif_bn))
-    g.add((iiif_bn, RDF.type, KNORA_API.StillImageExternalFileValue))
-    g.add((iiif_bn, KNORA_API.fileValueHasExternalUrl, Literal(iiif_uri.value)))
-    g += _add_optional_permission_triple(iiif_uri, iiif_bn, permissions_lookup)
-    return g
-
-
-def _make_bitstream_file_value(bitstream_info: BitstreamInfo) -> dict[str, Any]:
-    local_file = Path(bitstream_info.local_file)
-    file_ending = local_file.suffix[1:]
-    internal_filename = bitstream_info.internal_file_name
-    permissions = str(bitstream_info.permissions) if bitstream_info.permissions else None
-    match file_ending.lower():
-        case "zip" | "tar" | "gz" | "z" | "tgz" | "gzip" | "7z":
-            return SerialiseArchiveFileValue(internal_filename, permissions).serialise()
-        case "mp3" | "wav":
-            return SerialiseAudioFileValue(internal_filename, permissions).serialise()
-        case "pdf" | "doc" | "docx" | "xls" | "xlsx" | "ppt" | "pptx":
-            return SerialiseDocumentFileValue(internal_filename, permissions).serialise()
-        case "mp4":
-            return SerialiseMovingImageFileValue(internal_filename, permissions).serialise()
-        # jpx is the extension of the files returned by dsp-ingest
-        case "jpg" | "jpeg" | "jp2" | "png" | "tif" | "tiff" | "jpx":
-            return SerialiseStillImageFileValue(internal_filename, permissions).serialise()
-        case "odd" | "rng" | "txt" | "xml" | "xsd" | "xsl" | "csv":
-            return SerialiseTextFileValue(internal_filename, permissions).serialise()
-        case _:
-            raise BaseError(f"Unknown file ending '{file_ending}' for file '{local_file}'")
 
 
 def _make_simple_prop_graph(
@@ -423,13 +374,4 @@ def _add_optional_triples(val_bn: BNode, permissions: str | None, comment: str |
         g.add((val_bn, KNORA_API.hasPermissions, Literal(permissions, datatype=XSD.string)))
     if comment:
         g.add((val_bn, KNORA_API.valueHasComment, Literal(comment, datatype=XSD.string)))
-    return g
-
-
-def _add_optional_permission_triple(
-    value: XMLValue | IIIFUriInfo, val_bn: BNode, permissions_lookup: dict[str, Permissions]
-) -> Graph:
-    g = Graph()
-    if per_str := resolve_permission(value.permissions, permissions_lookup):
-        g.add((val_bn, KNORA_API.hasPermissions, Literal(per_str, datatype=XSD.string)))
     return g

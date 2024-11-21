@@ -15,7 +15,7 @@ from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import AR
 from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import AUDIO_FILE_VALUE
 from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import DOCUMENT_FILE_VALUE
 from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import MOVING_IMAGE_FILE_VALUE
-from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import STILL_IMAGE
+from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import STILL_IMAGE_FILE_VALUE
 from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import TEXT_FILE_VALUE
 from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import AbstractFileValue
 from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import FileValueMetadata
@@ -86,7 +86,7 @@ def _get_file_type_info(local_file: str) -> RDFPropTypeInfo:
             return MOVING_IMAGE_FILE_VALUE
         # jpx is the extension of the files returned by dsp-ingest
         case "jpg" | "jpeg" | "jp2" | "png" | "tif" | "tiff" | "jpx":
-            return STILL_IMAGE
+            return STILL_IMAGE_FILE_VALUE
         case "odd" | "rng" | "txt" | "xml" | "xsd" | "xsl" | "csv":
             return TEXT_FILE_VALUE
         case _:

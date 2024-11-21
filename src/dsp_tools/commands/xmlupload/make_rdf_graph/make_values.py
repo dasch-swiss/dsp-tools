@@ -17,12 +17,12 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.constants import KNORA_API
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import rdf_prop_type_mapper
 from dsp_tools.commands.xmlupload.make_rdf_graph.helpers import resolve_permission
 from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_serialiser import serialise_property_graph
+from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value_graph import make_iiif_uri_value_graph
 from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import InputTypes
 from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import assert_is_string
 from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import rdf_literal_transformer
 from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_date
 from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_interval
-from dsp_tools.commands.xmlupload.make_file_value_graph import make_iiif_uri_value_graph
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import IIIFUriInfo
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLValue
@@ -31,17 +31,10 @@ from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResou
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.lookup_models import Lookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
-from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import AbstractFileValue
-from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import FileValueMetadata
-from dsp_tools.commands.xmlupload.models.serialise.jsonld_serialiser import serialise_property_graph
+from dsp_tools.commands.xmlupload.models.rdf_models import AbstractFileValue
+from dsp_tools.commands.xmlupload.models.rdf_models import FileValueMetadata
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 from dsp_tools.commands.xmlupload.models.rdf_models import TransformedValue
-from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseArchiveFileValue
-from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseAudioFileValue
-from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseDocumentFileValue
-from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseMovingImageFileValue
-from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseStillImageFileValue
-from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseTextFileValue
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import UserError
@@ -75,7 +68,7 @@ def make_values(resource: XMLResource, res_bnode: BNode, lookup: Lookups) -> dic
         properties_graph += single_prop_graph
 
     if resource.iiif_uri:
-        resolved_permissions = _resolve_permission(resource.iiif_uri.permissions, lookup.permissions)
+        resolved_permissions = resolve_permission(resource.iiif_uri.permissions, lookup.permissions)
         metadata = FileValueMetadata(resolved_permissions)
         iiif_val = AbstractFileValue(resource.iiif_uri.value, metadata)
         properties_graph += make_iiif_uri_value_graph(iiif_val, res_bnode)

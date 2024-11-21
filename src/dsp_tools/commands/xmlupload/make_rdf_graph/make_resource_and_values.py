@@ -9,8 +9,8 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import make_values
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.lookup_models import Lookups
-from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseMigrationMetadata
-from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseResource
+from dsp_tools.commands.xmlupload.models.serialise_resource import SerialiseMigrationMetadata
+from dsp_tools.commands.xmlupload.models.serialise_resource import SerialiseResource
 
 
 def create_resource_with_values(

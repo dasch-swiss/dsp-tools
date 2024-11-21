@@ -1,10 +1,7 @@
-from abc import ABC
-from abc import abstractmethod
+from __future__ import annotations
+
 from dataclasses import dataclass
 
-from rdflib import RDF
-from rdflib import BNode
-from rdflib import Graph
 from rdflib import Literal
 from rdflib import Namespace
 from rdflib import URIRef
@@ -12,45 +9,36 @@ from rdflib import URIRef
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
 
 
-@dataclass(frozen=True)
-class ValueRDF(ABC):
-    resource_bn: BNode
-    prop_name: URIRef
+@dataclass
+class TransformedValue:
     value: Literal | URIRef
-    permissions: Literal | None
-    comment: Literal | None
-
-    @abstractmethod
-    def as_graph(self) -> Graph:
-        """Creates the value as rdflib graph"""
-
-    def _get_generic_graph(self, val_bn: BNode) -> Graph:
-        g = Graph()
-        g.add((self.resource_bn, self.prop_name, val_bn))
-        if self.permissions:
-            g.add((val_bn, KNORA_API.hasPermissions, self.permissions))
-        if self.comment:
-            g.add((val_bn, KNORA_API.valueHasComment, self.comment))
-        return g
+    prop_name: URIRef
+    permissions: str | None
+    comment: str | None
 
 
-class BooleanValueRDF(ValueRDF):
-    value: Literal
-
-    def as_graph(self) -> Graph:
-        val_bn = BNode()
-        g = self._get_generic_graph(val_bn)
-        g.add((val_bn, RDF.type, KNORA_API.BooleanValue))
-        g.add((val_bn, KNORA_API.booleanValueAsBoolean, self.value))
-        return g
+@dataclass
+class RDFPropTypeInfo:
+    knora_type: URIRef
+    knora_prop: URIRef
 
 
-class IntValueRDF(ValueRDF):
-    value: Literal
+@dataclass
+class Interval:
+    start: Literal
+    end: Literal
 
-    def as_graph(self) -> Graph:
-        val_bn = BNode()
-        g = self._get_generic_graph(val_bn)
-        g.add((val_bn, RDF.type, KNORA_API.IntValue))
-        g.add((val_bn, KNORA_API.intValueAsInt, self.value))
-        return g
+
+rdf_prop_type_mapper = {
+    "boolean": RDFPropTypeInfo(KNORA_API.BooleanValue, KNORA_API.booleanValueAsBoolean),
+    "color": RDFPropTypeInfo(KNORA_API.ColorValue, KNORA_API.colorValueAsColor),
+    "decimal": RDFPropTypeInfo(KNORA_API.DecimalValue, KNORA_API.decimalValueAsDecimal),
+    "geometry": RDFPropTypeInfo(KNORA_API.GeomValue, KNORA_API.geometryValueAsGeometry),
+    "geoname": RDFPropTypeInfo(KNORA_API.GeonameValue, KNORA_API.geonameValueAsGeonameCode),
+    "integer": RDFPropTypeInfo(KNORA_API.IntValue, KNORA_API.intValueAsInt),
+    "link": RDFPropTypeInfo(KNORA_API.LinkValue, KNORA_API.linkValueHasTargetIri),
+    "list": RDFPropTypeInfo(KNORA_API.ListValue, KNORA_API.listValueAsListNode),
+    "simpletext": RDFPropTypeInfo(KNORA_API.TextValue, KNORA_API.valueAsString),
+    "time": RDFPropTypeInfo(KNORA_API.TimeValue, KNORA_API.timeValueAsTimeStamp),
+    "uri": RDFPropTypeInfo(KNORA_API.UriValue, KNORA_API.uriValueAsUri),
+}

@@ -13,7 +13,6 @@ from dsp_tools.commands.excel2json.models.input_error import InvalidExcelContent
 from dsp_tools.commands.excel2json.models.input_error import MissingValuesProblem
 from dsp_tools.commands.excel2json.models.input_error import MoreThanOneRowProblem
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
-from dsp_tools.commands.excel2json.models.input_error import Problem
 from dsp_tools.commands.excel2json.models.input_error import RequiredColumnMissingProblem
 from dsp_tools.commands.excel2json.models.json_header import Descriptions
 from dsp_tools.commands.excel2json.models.json_header import EmptyJsonHeader
@@ -29,6 +28,7 @@ from dsp_tools.commands.excel2json.utils import check_contains_required_columns
 from dsp_tools.commands.excel2json.utils import find_missing_required_values
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.models.problems import Problem
 from dsp_tools.utils.uri_util import is_uri
 
 

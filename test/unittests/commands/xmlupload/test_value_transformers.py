@@ -5,12 +5,12 @@ import regex
 from rdflib import XSD
 from rdflib import Literal
 
-from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import Interval
-from dsp_tools.commands.xmlupload.value_transformers import transform_geometry
-from dsp_tools.commands.xmlupload.value_transformers import transform_interval
-from dsp_tools.commands.xmlupload.value_transformers import transform_xsd_boolean
-from dsp_tools.commands.xmlupload.value_transformers import transform_xsd_decimal
-from dsp_tools.commands.xmlupload.value_transformers import transform_xsd_integer
+from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_geometry
+from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_interval
+from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_xsd_boolean
+from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_xsd_decimal
+from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_xsd_integer
+from dsp_tools.commands.xmlupload.models.rdf_models import Interval
 from dsp_tools.models.exceptions import BaseError
 
 

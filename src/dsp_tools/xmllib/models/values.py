@@ -10,6 +10,7 @@ from lxml import etree
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.utils.uri_util import is_uri
 from dsp_tools.xmllib.models.config_options import Permissions
+from dsp_tools.xmllib.value_checkers import check_richtext_syntax
 from dsp_tools.xmllib.value_checkers import is_bool_like
 from dsp_tools.xmllib.value_checkers import is_color
 from dsp_tools.xmllib.value_checkers import is_date
@@ -371,6 +372,7 @@ class Richtext(Value):
             _warn_type_mismatch(
                 expected_type="string", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
+        check_richtext_syntax(self.value)
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()

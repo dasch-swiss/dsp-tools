@@ -9,13 +9,13 @@ from rdflib import Namespace
 from rdflib import URIRef
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import KNORA_API
+from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import _make_one_prop_graph
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
 from dsp_tools.commands.xmlupload.models.lookup_models import JSONLDContext
 from dsp_tools.commands.xmlupload.models.lookup_models import Lookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
-from dsp_tools.commands.xmlupload.transform_resource_and_values_for_upload import KNORA_API
-from dsp_tools.commands.xmlupload.transform_resource_and_values_for_upload import _make_one_prop_graph
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import PermissionNotExistsError

@@ -76,7 +76,7 @@ GitHub's dependabot is configured to automatically create a version bumping PR i
 Version bumping PRs can also be created manually: run `uv lock --upgrade` and create a PR from the resulting changes.
 
 All developers working with the DSP-TOOLS repository should regularly execute `uv self update` to update uv, 
-and `uv sync` to update the dependencies from `uv.lock`.
+and `uv sync --upgrade` to update the dependencies from `uv.lock`.
 
 
 

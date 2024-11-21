@@ -11,10 +11,15 @@ from rdflib import URIRef
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import IIIFUriInfo
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.permission import Permissions
+from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import ARCHIVE_FILE_VALUE
+from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import AUDIO_FILE_VALUE
+from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import DOCUMENT_FILE_VALUE
+from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import MOVING_IMAGE_FILE_VALUE
+from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import STILL_IMAGE
+from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import TEXT_FILE_VALUE
 from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import AbstractFileValue
 from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import FileValueMetadata
 from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import RDFPropTypeInfo
-from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import file_extension_to_type_mapper
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import PermissionNotExistsError
 
@@ -61,14 +66,32 @@ def make_file_value_graph(
         Graph with the File Value
     """
     local_file = Path(bitstream_info.local_file)
-    file_ending = local_file.suffix[1:]
-    if not (file_type := file_extension_to_type_mapper.get(file_ending)):
-        raise BaseError(f"Unknown file ending '{file_ending}' for file '{local_file}'")
+    file_ending = local_file.suffix[1:].lower()
+    file_type = _get_file_type_info(file_ending, bitstream_info.local_file)
     internal_filename = bitstream_info.internal_file_name
     permissions = _get_permission_str(bitstream_info.permissions, permission_lookup)
     metadata = FileValueMetadata(permissions)
     file_value = AbstractFileValue(internal_filename, metadata)
     return _make_file_value_graph(file_value, file_type, res_bn), file_type.knora_prop
+
+
+def _get_file_type_info(file_ending: str, local_file: str) -> RDFPropTypeInfo:
+    match file_ending:
+        case "zip" | "tar" | "gz" | "z" | "tgz" | "gzip" | "7z":
+            return ARCHIVE_FILE_VALUE
+        case "mp3" | "wav":
+            return AUDIO_FILE_VALUE
+        case "pdf" | "doc" | "docx" | "xls" | "xlsx" | "ppt" | "pptx":
+            return DOCUMENT_FILE_VALUE
+        case "mp4":
+            return MOVING_IMAGE_FILE_VALUE
+        # jpx is the extension of the files returned by dsp-ingest
+        case "jpg" | "jpeg" | "jp2" | "png" | "tif" | "tiff" | "jpx":
+            return STILL_IMAGE
+        case "odd" | "rng" | "txt" | "xml" | "xsd" | "xsl" | "csv":
+            return TEXT_FILE_VALUE
+        case _:
+            raise BaseError(f"Unknown file ending '{file_ending}' for file '{local_file}'")
 
 
 def _make_file_value_graph(file_value: AbstractFileValue, type_info: RDFPropTypeInfo, res_bn: BNode) -> Graph:

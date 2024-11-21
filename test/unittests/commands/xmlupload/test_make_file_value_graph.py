@@ -13,6 +13,16 @@ from dsp_tools.models.exceptions import BaseError
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
 
 
+@pytest.fixture
+def metadata_permissions() -> FileValueMetadata:
+    return FileValueMetadata("permissions")
+
+
+@pytest.fixture
+def metadata_no_permissions() -> FileValueMetadata:
+    return FileValueMetadata(None)
+
+
 class TestFileTypeInfo:
     @pytest.mark.parametrize(
         "file_name", ["test.zip", "test.tar", "test.gz", "test.z", "test.tgz", "test.gzip", "test.7z"]
@@ -59,16 +69,14 @@ class TestFileTypeInfo:
 
 
 class TestMakeMetadata:
-    def test_permissions(self) -> None:
+    def test_permissions(self, metadata_permissions: FileValueMetadata) -> None:
         bn = BNode()
-        meta = FileValueMetadata("permissions")
-        g = _add_metadata(bn, meta)
+        g = _add_metadata(bn, metadata_permissions)
         assert len(g) == 1
         permission = next(g.objects(bn, KNORA_API.hasPermissions))
         assert permission == Literal("permissions", datatype=XSD.string)
 
-    def test_no_permissions(self) -> None:
+    def test_no_permissions(self, metadata_no_permissions: FileValueMetadata) -> None:
         bn = BNode()
-        meta = FileValueMetadata(None)
-        g = _add_metadata(bn, meta)
+        g = _add_metadata(bn, metadata_no_permissions)
         assert len(g) == 0

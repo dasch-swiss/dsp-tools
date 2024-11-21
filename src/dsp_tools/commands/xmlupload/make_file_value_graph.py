@@ -9,7 +9,6 @@ from rdflib import Namespace
 from rdflib import URIRef
 
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
-from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import ARCHIVE_FILE_VALUE
 from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import AUDIO_FILE_VALUE
 from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import DOCUMENT_FILE_VALUE
@@ -21,7 +20,6 @@ from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import Ab
 from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import FileValueMetadata
 from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import RDFPropTypeInfo
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.exceptions import PermissionNotExistsError
 
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
 
@@ -98,11 +96,3 @@ def _add_metadata(file_bn: BNode, metadata: FileValueMetadata) -> Graph:
     if metadata.permissions:
         g.add((file_bn, KNORA_API.hasPermissions, Literal(metadata.permissions, datatype=XSD.string)))
     return g
-
-
-def _get_permission_str(permissions: str | None, permissions_lookup: dict[str, Permissions]) -> str | None:
-    if permissions:
-        if not (per := permissions_lookup.get(permissions)):
-            raise PermissionNotExistsError(f"Could not find permissions for value: {permissions}")
-        return str(per)
-    return None

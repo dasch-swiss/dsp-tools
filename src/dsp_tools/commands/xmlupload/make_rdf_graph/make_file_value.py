@@ -50,7 +50,10 @@ def make_file_value_graph(bitstream_info: BitstreamInfo, res_bn: BNode) -> tuple
     """
     file_type = _get_file_type_info(bitstream_info.local_file)
     internal_filename = bitstream_info.internal_file_name
-    metadata = FileValueMetadata(str(bitstream_info.permissions))
+    bitstream_permissions = None
+    if bitstream_info.permissions:
+        bitstream_permissions = str(bitstream_info.permissions)
+    metadata = FileValueMetadata(bitstream_permissions)
     file_value = AbstractFileValue(internal_filename, metadata)
     return _make_abstract_file_value_graph(file_value, file_type, res_bn), file_type.knora_prop
 

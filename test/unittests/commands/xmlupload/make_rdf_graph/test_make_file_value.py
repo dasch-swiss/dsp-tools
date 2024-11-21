@@ -15,7 +15,11 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.constants import TEXT_FILE_VALU
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import _add_metadata
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import _get_file_type_info
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import _make_abstract_file_value_graph
+from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_file_value_graph
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_iiif_uri_value_graph
+from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
+from dsp_tools.commands.xmlupload.models.permission import Permissions
+from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.commands.xmlupload.models.rdf_models import AbstractFileValue
 from dsp_tools.commands.xmlupload.models.rdf_models import FileValueMetadata
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
@@ -62,6 +66,38 @@ class TestIIIFURI:
         assert next(g.objects(val_bn, RDF.type)) == KNORA_API.StillImageExternalFileValue
         value = next(g.objects(val_bn, KNORA_API.fileValueHasExternalUrl))
         assert value == Literal("value", datatype=XSD.string)
+
+
+class TestMakeBitstreamFileGraph:
+    def test_make_file_value_graph_with_permissions(self) -> None:
+        bitstream = BitstreamInfo(
+            local_file="path/test.txt",
+            internal_file_name="FileID",
+            permissions=Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]}),
+        )
+        res_bn = BNode()
+        g, file_prop = make_file_value_graph(bitstream, res_bn)
+        assert file_prop == KNORA_API.hasTextFileValue
+        file_bn = next(g.objects(res_bn, file_prop))
+        assert next(g.objects(file_bn, RDF.type)) == KNORA_API.TextFileValue
+        file_id = next(g.objects(file_bn, KNORA_API.fileValueHasFilename))
+        assert file_id == Literal("FileID", datatype=XSD.string)
+        permissions = next(g.objects(file_bn, KNORA_API.hasPermissions))
+        assert permissions == Literal("CR knora-admin:ProjectAdmin", datatype=XSD.string)
+
+    def test_make_file_value_graph_no_permissions(self) -> None:
+        bitstream = BitstreamInfo(
+            local_file="path/test.txt",
+            internal_file_name="FileID",
+            permissions=None,
+        )
+        res_bn = BNode()
+        g, file_prop = make_file_value_graph(bitstream, res_bn)
+        assert file_prop == KNORA_API.hasTextFileValue
+        file_bn = next(g.objects(res_bn, file_prop))
+        assert next(g.objects(file_bn, RDF.type)) == KNORA_API.TextFileValue
+        file_id = next(g.objects(file_bn, KNORA_API.fileValueHasFilename))
+        assert file_id == Literal("FileID", datatype=XSD.string)
 
 
 class TestMakeFileValueGraph:

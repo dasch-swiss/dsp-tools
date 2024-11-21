@@ -1,12 +1,11 @@
 from typing import Any
 
 from rdflib import BNode
-from rdflib import Graph
 
 from dsp_tools.commands.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import KNORA_API
 from dsp_tools.commands.xmlupload.make_rdf_graph.helpers import resolve_permission
 from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_serialiser import serialise_property_graph
+from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value_graph import make_file_value_graph
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value_graph import make_iiif_uri_value_graph
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import make_values
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
@@ -33,36 +32,36 @@ def create_resource_with_values(
         A resource serialised in json-ld type format.
     """
 
-    res = _make_resource(resource=resource, bitstream_information=bitstream_information, lookup=lookup)
-
+    res = _make_resource(resource=resource, lookup=lookup)
+    res.update(_make_values_dict_from_resource(resource, bitstream_information, lookup))
     res.update(lookup.jsonld_context.serialise())
     return res
 
 
-def _make_value_graphs_from_resource(
+def _make_values_dict_from_resource(
     resource: XMLResource, bitstream_information: BitstreamInfo | None, lookup: Lookups
 ) -> dict[str, Any]:
     res_bnode = BNode()
-    properties_graph = Graph()
 
-    value_graph, last_prop_name = make_values(resource, res_bnode, lookup)
-    properties_graph += value_graph
+    properties_graph, last_prop_name = make_values(resource.properties, resource.restype, res_bnode, lookup)
 
     if resource.iiif_uri:
         resolved_permissions = resolve_permission(resource.iiif_uri.permissions, lookup.permissions)
         metadata = FileValueMetadata(resolved_permissions)
         iiif_val = AbstractFileValue(resource.iiif_uri.value, metadata)
-        properties_graph += make_iiif_uri_value_graph(iiif_val, res_bnode)
-        last_prop_name = KNORA_API.hasStillImageFileValue
+        iiif_g, last_prop_name = make_iiif_uri_value_graph(iiif_val, res_bnode)
+        properties_graph += iiif_g
+
+    elif bitstream_information:
+        file_g, last_prop_name = make_file_value_graph(bitstream_information, res_bnode)
+        properties_graph += file_g
 
     if last_prop_name:
         return serialise_property_graph(properties_graph, last_prop_name)
     return {}
 
 
-def _make_resource(
-    resource: XMLResource, bitstream_information: BitstreamInfo | None, lookup: Lookups
-) -> dict[str, Any]:
+def _make_resource(resource: XMLResource, lookup: Lookups) -> dict[str, Any]:
     migration_metadata = None
     res_iri = resource.iri
     creation_date = resource.creation_date
@@ -79,7 +78,4 @@ def _make_resource(
         project_iri=lookup.project_iri,
         migration_metadata=migration_metadata,
     )
-    res = serialise_resource.serialise()
-    if bitstream_information:
-        res.update(_make_bitstream_file_value(bitstream_information))
-    return res
+    return serialise_resource.serialise()

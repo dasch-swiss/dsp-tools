@@ -36,7 +36,9 @@ from dsp_tools.utils.iri_util import is_resource_iri
 from dsp_tools.utils.logger_config import WARNINGS_SAVEPATH
 
 
-def make_values(properties: list[XMLProperty], restype: str, res_bnode: BNode, lookup: Lookups) -> tuple[Graph, URIRef]:
+def make_values(
+    properties: list[XMLProperty], restype: str, res_bnode: BNode, lookup: Lookups
+) -> tuple[Graph, URIRef | None]:
     """
     Serialise the values of a resource.
 

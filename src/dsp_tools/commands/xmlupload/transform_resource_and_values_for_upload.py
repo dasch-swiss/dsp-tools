@@ -12,6 +12,7 @@ from rdflib import URIRef
 
 from dsp_tools.commands.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
+from dsp_tools.commands.xmlupload.make_file_value_graph import make_iiif_uri_value_graph
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import IIIFUriInfo
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLValue
@@ -20,6 +21,8 @@ from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResou
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.lookup_models import Lookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
+from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import AbstractFileValue
+from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import FileValueMetadata
 from dsp_tools.commands.xmlupload.models.serialise.jsonld_serialiser import serialise_property_graph
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseArchiveFileValue
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseAudioFileValue
@@ -162,7 +165,10 @@ def _make_values(resource: XMLResource, res_bnode: BNode, lookup: Lookups) -> di
             case _:
                 raise UserError(f"Unknown value type: {prop.valtype}")
     if resource.iiif_uri:
-        properties_graph += _make_iiif_uri_value(resource.iiif_uri, res_bnode, lookup.permissions)
+        resolved_permissions = _get_permission_str(resource.iiif_uri.permissions, lookup.permissions)
+        metadata = FileValueMetadata(resolved_permissions)
+        iiif_val = AbstractFileValue(resource.iiif_uri.value, metadata)
+        properties_graph += make_iiif_uri_value_graph(iiif_val, res_bnode)
         last_prop_name = KNORA_API.hasStillImageFileValue
     if last_prop_name:
         serialised_graph_props = serialise_property_graph(properties_graph, last_prop_name)

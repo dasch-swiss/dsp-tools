@@ -8,12 +8,12 @@ from rdflib import Literal
 from rdflib import Namespace
 from rdflib import URIRef
 
-from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import IIIFUriInfo
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import ARCHIVE_FILE_VALUE
 from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import AUDIO_FILE_VALUE
 from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import DOCUMENT_FILE_VALUE
+from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import IIIF_URI_VALUE
 from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import MOVING_IMAGE_FILE_VALUE
 from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import STILL_IMAGE_FILE_VALUE
 from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import TEXT_FILE_VALUE
@@ -26,29 +26,19 @@ from dsp_tools.models.exceptions import PermissionNotExistsError
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
 
 
-def make_iiif_uri_value_graph(
-    iiif_uri: IIIFUriInfo, res_bn: BNode, permissions_lookup: dict[str, Permissions]
-) -> tuple[Graph, URIRef]:
+def make_iiif_uri_value_graph(iiif_uri: AbstractFileValue, res_bn: BNode) -> tuple[Graph, URIRef]:
     """
     Creates a graph with the IIIF-URI Link
 
     Args:
         iiif_uri: Information about the IIIF URI
         res_bn: Blank-node of the resource
-        permissions_lookup: to resolve the permissions
 
     Returns:
         Graph with the IIIF-URI Value
     """
-    iiif_bn = BNode()
-    permissions = _get_permission_str(iiif_uri.permissions, permissions_lookup)
-    metadata = FileValueMetadata(permissions)
-    g = _add_metadata(iiif_bn, metadata)
-    knora_prop = KNORA_API.hasStillImageFileValue
-    g.add((res_bn, knora_prop, iiif_bn))
-    g.add((iiif_bn, RDF.type, KNORA_API.StillImageExternalFileValue))
-    g.add((iiif_bn, KNORA_API.fileValueHasExternalUrl, Literal(iiif_uri.value, datatype=XSD.string)))
-    return g, knora_prop
+    g = _make_abstract_file_value_graph(iiif_uri, IIIF_URI_VALUE, res_bn, KNORA_API.fileValueHasExternalUrl)
+    return g, KNORA_API.hasStillImageFileValue
 
 
 def make_file_value_graph(bitstream_info: BitstreamInfo, res_bn: BNode) -> tuple[Graph, URIRef]:
@@ -58,7 +48,6 @@ def make_file_value_graph(bitstream_info: BitstreamInfo, res_bn: BNode) -> tuple
     Args:
         bitstream_info: Information about the previously uploaded file
         res_bn: Blank-node of the resource
-        permission_lookup: to resolve the permissions
 
     Returns:
         Graph with the File Value
@@ -67,7 +56,7 @@ def make_file_value_graph(bitstream_info: BitstreamInfo, res_bn: BNode) -> tuple
     internal_filename = bitstream_info.internal_file_name
     metadata = FileValueMetadata(str(bitstream_info.permissions))
     file_value = AbstractFileValue(internal_filename, metadata)
-    return _make_file_value_graph(file_value, file_type, res_bn), file_type.knora_prop
+    return _make_abstract_file_value_graph(file_value, file_type, res_bn), file_type.knora_prop
 
 
 def _get_file_type_info(local_file: str) -> RDFPropTypeInfo:
@@ -90,12 +79,17 @@ def _get_file_type_info(local_file: str) -> RDFPropTypeInfo:
             raise BaseError(f"Unknown file ending '{file_ending}' for file '{local_file}'")
 
 
-def _make_file_value_graph(file_value: AbstractFileValue, type_info: RDFPropTypeInfo, res_bn: BNode) -> Graph:
+def _make_abstract_file_value_graph(
+    file_value: AbstractFileValue,
+    type_info: RDFPropTypeInfo,
+    res_bn: BNode,
+    has_file_name_prop: URIRef = KNORA_API.fileValueHasFilename,
+) -> Graph:
     file_bn = BNode()
     g = _add_metadata(file_bn, file_value.metadata)
     g.add((res_bn, type_info.knora_prop, file_bn))
     g.add((file_bn, RDF.type, type_info.knora_type))
-    g.add((file_bn, KNORA_API.fileValueHasFilename, Literal(file_value.internal_filename, datatype=XSD.string)))
+    g.add((file_bn, has_file_name_prop, Literal(file_value.value, datatype=XSD.string)))
     return g
 
 

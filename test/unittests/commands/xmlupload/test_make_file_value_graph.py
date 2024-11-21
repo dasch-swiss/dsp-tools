@@ -1,5 +1,6 @@
 import pytest
 import regex
+from rdflib import RDF
 from rdflib import XSD
 from rdflib import BNode
 from rdflib import Literal
@@ -7,7 +8,16 @@ from rdflib import Namespace
 
 from dsp_tools.commands.xmlupload.make_file_value_graph import _add_metadata
 from dsp_tools.commands.xmlupload.make_file_value_graph import _get_file_type_info
+from dsp_tools.commands.xmlupload.make_file_value_graph import _make_file_value_graph
+from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import ARCHIVE_FILE_VALUE
+from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import AUDIO_FILE_VALUE
+from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import DOCUMENT_FILE_VALUE
+from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import MOVING_IMAGE_FILE_VALUE
+from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import STILL_IMAGE_FILE_VALUE
+from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import TEXT_FILE_VALUE
+from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import AbstractFileValue
 from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import FileValueMetadata
+from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import RDFPropTypeInfo
 from dsp_tools.models.exceptions import BaseError
 
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
@@ -21,6 +31,60 @@ def metadata_permissions() -> FileValueMetadata:
 @pytest.fixture
 def metadata_no_permissions() -> FileValueMetadata:
     return FileValueMetadata(None)
+
+
+@pytest.fixture
+def abstract_file_permissions(metadata_permissions: FileValueMetadata) -> AbstractFileValue:
+    return AbstractFileValue("IdFromIngest", metadata_permissions)
+
+
+@pytest.fixture
+def abstract_file_no_permissions(metadata_no_permissions: FileValueMetadata) -> AbstractFileValue:
+    return AbstractFileValue("IdFromIngest", metadata_no_permissions)
+
+
+class TestMakeFileValueGraph:
+    @pytest.mark.parametrize(
+        "type_info",
+        [
+            ARCHIVE_FILE_VALUE,
+            AUDIO_FILE_VALUE,
+            DOCUMENT_FILE_VALUE,
+            MOVING_IMAGE_FILE_VALUE,
+            STILL_IMAGE_FILE_VALUE,
+            TEXT_FILE_VALUE,
+        ],
+    )
+    def test_with_permissions(self, abstract_file_permissions: AbstractFileValue, type_info: RDFPropTypeInfo) -> None:
+        res_bn = BNode()
+        g = _make_file_value_graph(abstract_file_permissions, type_info, res_bn)
+        assert len(g) == 4
+        val_bn = next(g.objects(res_bn, type_info.knora_prop))
+        assert next(g.objects(val_bn, RDF.type)) == type_info.knora_type
+        filename = next(g.objects(val_bn, KNORA_API.fileValueHasFilename))
+        assert filename == Literal("IdFromIngest", datatype=XSD.string)
+        permissions = next(g.objects(val_bn, KNORA_API.hasPermissions))
+        assert permissions == Literal("permissions", datatype=XSD.string)
+
+    @pytest.mark.parametrize(
+        "type_info",
+        [
+            ARCHIVE_FILE_VALUE,
+            AUDIO_FILE_VALUE,
+            DOCUMENT_FILE_VALUE,
+            MOVING_IMAGE_FILE_VALUE,
+            STILL_IMAGE_FILE_VALUE,
+            TEXT_FILE_VALUE,
+        ],
+    )
+    def test_no_permissions(self, abstract_file_no_permissions: AbstractFileValue, type_info: RDFPropTypeInfo) -> None:
+        res_bn = BNode()
+        g = _make_file_value_graph(abstract_file_no_permissions, type_info, res_bn)
+        assert len(g) == 3
+        val_bn = next(g.objects(res_bn, type_info.knora_prop))
+        assert next(g.objects(val_bn, RDF.type)) == type_info.knora_type
+        filename = next(g.objects(val_bn, KNORA_API.fileValueHasFilename))
+        assert filename == Literal("IdFromIngest", datatype=XSD.string)
 
 
 class TestFileTypeInfo:

@@ -189,7 +189,7 @@ class TestFileTypeInfo:
             _get_file_type_info(file_name)
 
 
-class TestMakeMetadata:
+class TestAddMetadata:
     def test_permissions(self, metadata_permissions: FileValueMetadata) -> None:
         bn = BNode()
         g = _add_metadata(bn, metadata_permissions)

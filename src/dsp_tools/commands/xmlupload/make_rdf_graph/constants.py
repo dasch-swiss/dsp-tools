@@ -1,32 +1,10 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-
-from rdflib import Literal
 from rdflib import Namespace
-from rdflib import URIRef
+
+from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
-
-
-@dataclass
-class TransformedValue:
-    value: Literal | URIRef
-    prop_name: URIRef
-    permissions: str | None
-    comment: str | None
-
-
-@dataclass
-class RDFPropTypeInfo:
-    knora_type: URIRef
-    knora_prop: URIRef
-
-
-@dataclass
-class Interval:
-    start: Literal
-    end: Literal
 
 
 rdf_prop_type_mapper = {

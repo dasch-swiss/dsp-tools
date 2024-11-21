@@ -12,8 +12,16 @@ from rdflib import Literal
 from rdflib import Namespace
 from rdflib import URIRef
 
-from dsp_tools.commands.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import KNORA_API
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import rdf_prop_type_mapper
+from dsp_tools.commands.xmlupload.make_rdf_graph.helpers import resolve_permission
+from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_serialiser import serialise_property_graph
+from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import InputTypes
+from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import assert_is_string
+from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import rdf_literal_transformer
+from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_date
+from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_interval
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import IIIFUriInfo
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLValue
@@ -22,26 +30,16 @@ from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResou
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.lookup_models import Lookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
-from dsp_tools.commands.xmlupload.models.serialise.jsonld_serialiser import serialise_property_graph
+from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
+from dsp_tools.commands.xmlupload.models.rdf_models import TransformedValue
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseArchiveFileValue
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseAudioFileValue
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseDocumentFileValue
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseMovingImageFileValue
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseStillImageFileValue
 from dsp_tools.commands.xmlupload.models.serialise.serialise_file_value import SerialiseTextFileValue
-from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import RDFPropTypeInfo
-from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import TransformedValue
-from dsp_tools.commands.xmlupload.models.serialise.serialise_rdf_value import rdf_prop_type_mapper
-from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseMigrationMetadata
-from dsp_tools.commands.xmlupload.models.serialise.serialise_resource import SerialiseResource
-from dsp_tools.commands.xmlupload.value_transformers import InputTypes
-from dsp_tools.commands.xmlupload.value_transformers import assert_is_string
-from dsp_tools.commands.xmlupload.value_transformers import rdf_literal_transformer
-from dsp_tools.commands.xmlupload.value_transformers import transform_date
-from dsp_tools.commands.xmlupload.value_transformers import transform_interval
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InputError
-from dsp_tools.models.exceptions import PermissionNotExistsError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.date_util import DayMonthYearEra
 from dsp_tools.utils.date_util import SingleDate
@@ -49,57 +47,19 @@ from dsp_tools.utils.date_util import StartEnd
 from dsp_tools.utils.iri_util import is_resource_iri
 from dsp_tools.utils.logger_config import WARNINGS_SAVEPATH
 
-KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
 
-
-def create_resource_with_values(
-    resource: XMLResource, bitstream_information: BitstreamInfo | None, lookup: Lookups
-) -> dict[str, Any]:
+def make_values(resource: XMLResource, res_bnode: BNode, lookup: Lookups) -> dict[str, Any]:
     """
-    This function takes an XMLResource and serialises it into a json-ld type dict that can be sent to the API.
+    Serialise the values of a resource.
 
     Args:
         resource: XMLResource
-        bitstream_information: if the resource has a FileValue
-        lookup: Lookups to resolve IRIs, etc.
+        res_bnode: blank node of the resource
+        lookup: lookups to resolve, permissions, IRIs, etc.
 
     Returns:
-        A resource serialised in json-ld type format.
+        Values serialised as a dict
     """
-    res_bnode = BNode()
-    res = _make_resource(resource=resource, bitstream_information=bitstream_information, lookup=lookup)
-    vals = _make_values(resource, res_bnode, lookup)
-    res.update(vals)
-    res.update(lookup.jsonld_context.serialise())
-    return res
-
-
-def _make_resource(
-    resource: XMLResource, bitstream_information: BitstreamInfo | None, lookup: Lookups
-) -> dict[str, Any]:
-    migration_metadata = None
-    res_iri = resource.iri
-    creation_date = resource.creation_date
-    if resource.ark:
-        res_iri = convert_ark_v0_to_resource_iri(resource.ark)
-    if any([creation_date, res_iri]):
-        migration_metadata = SerialiseMigrationMetadata(iri=res_iri, creation_date=resource.creation_date)
-    resolved_permission = _resolve_permission(resource.permissions, lookup.permissions)
-    serialise_resource = SerialiseResource(
-        res_id=resource.res_id,
-        res_type=resource.restype,
-        label=resource.label,
-        permissions=resolved_permission,
-        project_iri=lookup.project_iri,
-        migration_metadata=migration_metadata,
-    )
-    res = serialise_resource.serialise()
-    if bitstream_information:
-        res.update(_make_bitstream_file_value(bitstream_information))
-    return res
-
-
-def _make_values(resource: XMLResource, res_bnode: BNode, lookup: Lookups) -> dict[str, Any]:
     properties_graph = Graph()
     # To frame the json-ld correctly, we need one property used in the graph. It does not matter which.
     last_prop_name = None
@@ -236,7 +196,7 @@ def _make_simple_prop_graph(
     g = Graph()
     for val in prop.values:
         transformed_val = transformer(val.value)
-        resolved_permission = _resolve_permission(val.permissions, permissions_lookup)
+        resolved_permission = resolve_permission(val.permissions, permissions_lookup)
         transformed = TransformedValue(
             value=transformed_val, prop_name=prop_name, permissions=resolved_permission, comment=val.comment
         )
@@ -274,7 +234,7 @@ def _make_list_prop_graph(
             )
             raise BaseError(msg)
 
-        resolved_permission = _resolve_permission(val.permissions, permissions_lookup)
+        resolved_permission = resolve_permission(val.permissions, permissions_lookup)
         transformed = TransformedValue(
             value=URIRef(iri_str),
             prop_name=prop_name,
@@ -293,7 +253,7 @@ def _make_date_prop_graph(
 ) -> Graph:
     g = Graph()
     for val in prop.values:
-        resolved_permission = _resolve_permission(val.permissions, permissions_lookup)
+        resolved_permission = resolve_permission(val.permissions, permissions_lookup)
         g += _make_date_value_graph(val, prop_name, resolved_permission, res_bn)
     return g
 
@@ -341,7 +301,7 @@ def _make_interval_prop_graph(
 ) -> Graph:
     g = Graph()
     for val in prop.values:
-        resolved_permission = _resolve_permission(val.permissions, permissions_lookup)
+        resolved_permission = resolve_permission(val.permissions, permissions_lookup)
         g += _make_interval_value_graph(val, prop_name, resolved_permission, res_bn)
     return g
 
@@ -373,7 +333,7 @@ def _make_link_prop_graph(
     for val in prop.values:
         str_val = assert_is_string(val.value)
         iri_str = _resolve_id_to_iri(str_val, iri_resolver)
-        resolved_permission = _resolve_permission(val.permissions, permissions_lookup)
+        resolved_permission = resolve_permission(val.permissions, permissions_lookup)
         transformed = TransformedValue(
             value=URIRef(iri_str),
             prop_name=prop_name,
@@ -408,7 +368,7 @@ def _make_text_prop_graph(
 ) -> Graph:
     g = Graph()
     for val in prop.values:
-        resolved_permission = _resolve_permission(val.permissions, permissions_lookup)
+        resolved_permission = resolve_permission(val.permissions, permissions_lookup)
         match val.value:
             case str():
                 transformed = TransformedValue(
@@ -441,7 +401,7 @@ def _make_richtext_value_graph(
     iri_resolver: IriResolver,
 ) -> Graph:
     val_bn = BNode()
-    resolved_permission = _resolve_permission(val.permissions, permissions_lookup)
+    resolved_permission = resolve_permission(val.permissions, permissions_lookup)
     g = _add_optional_triples(val_bn, resolved_permission, val.comment)
     xml_val = cast(FormattedTextValue, val.value)
     val_str = _get_richtext_string(xml_val, iri_resolver)
@@ -470,14 +430,6 @@ def _add_optional_permission_triple(
     value: XMLValue | IIIFUriInfo, val_bn: BNode, permissions_lookup: dict[str, Permissions]
 ) -> Graph:
     g = Graph()
-    if per_str := _resolve_permission(value.permissions, permissions_lookup):
+    if per_str := resolve_permission(value.permissions, permissions_lookup):
         g.add((val_bn, KNORA_API.hasPermissions, Literal(per_str, datatype=XSD.string)))
     return g
-
-
-def _resolve_permission(permissions: str | None, permissions_lookup: dict[str, Permissions]) -> str | None:
-    if permissions:
-        if not (per := permissions_lookup.get(permissions)):
-            raise PermissionNotExistsError(f"Could not find permissions for value: {permissions}")
-        return str(per)
-    return None

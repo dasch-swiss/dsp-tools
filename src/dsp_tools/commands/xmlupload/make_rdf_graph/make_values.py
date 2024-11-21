@@ -13,6 +13,7 @@ from rdflib import URIRef
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import KNORA_API
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import rdf_prop_type_mapper
+from dsp_tools.commands.xmlupload.make_rdf_graph.helpers import get_absolute_iri
 from dsp_tools.commands.xmlupload.make_rdf_graph.helpers import resolve_permission
 from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import InputTypes
 from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import assert_is_string
@@ -27,7 +28,6 @@ from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 from dsp_tools.commands.xmlupload.models.rdf_models import TransformedValue
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.date_util import DayMonthYearEra
 from dsp_tools.utils.date_util import SingleDate
@@ -65,7 +65,7 @@ def make_values(
 
 
 def _make_one_prop_graph(prop: XMLProperty, restype: str, res_bnode: BNode, lookup: Lookups) -> tuple[Graph, URIRef]:
-    prop_name = _get_absolute_prop_iri(prop.name, lookup.namespaces)
+    prop_name = get_absolute_iri(prop.name, lookup.namespaces)
     match prop.valtype:
         case "boolean" | "color" | "decimal" | "geometry" | "geoname" | "integer" | "time" | "uri" as val_type:
             literal_info = rdf_prop_type_mapper[val_type]
@@ -128,14 +128,7 @@ def _get_link_prop_name(p: XMLProperty, restype: str, namespaces: dict[str, Name
     elif p.name == "knora-api:isSegmentOf" and restype == "knora-api:AudioSegment":
         return KNORA_API.isAudioSegmentOfValue
     prop = f"{p.name}Value"
-    return _get_absolute_prop_iri(prop, namespaces)
-
-
-def _get_absolute_prop_iri(prefixed_prop: str, namespaces: dict[str, Namespace]) -> URIRef:
-    prefix, prop = prefixed_prop.split(":", maxsplit=1)
-    if not (namespace := namespaces.get(prefix)):
-        raise InputError(f"Could not find namespace for prefix: {prefix}")
-    return namespace[prop]
+    return get_absolute_iri(prop, namespaces)
 
 
 def _make_simple_prop_graph(

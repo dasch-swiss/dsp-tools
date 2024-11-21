@@ -1,8 +1,13 @@
 import pytest
 import regex
+from rdflib import XSD
+from rdflib import BNode
+from rdflib import Literal
 from rdflib import Namespace
 
+from dsp_tools.commands.xmlupload.make_file_value_graph import _add_metadata
 from dsp_tools.commands.xmlupload.make_file_value_graph import _get_file_type_info
+from dsp_tools.commands.xmlupload.models.serialise.abstract_file_value import FileValueMetadata
 from dsp_tools.models.exceptions import BaseError
 
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
@@ -51,3 +56,19 @@ class TestFileTypeInfo:
         msg = regex.escape(f"Unknown file ending '{ending}' for file '{file_name}'")
         with pytest.raises(BaseError, match=msg):
             _get_file_type_info(file_name)
+
+
+class TestMakeMetadata:
+    def test_permissions(self) -> None:
+        bn = BNode()
+        meta = FileValueMetadata("permissions")
+        g = _add_metadata(bn, meta)
+        assert len(g) == 1
+        permission = next(g.objects(bn, KNORA_API.hasPermissions))
+        assert permission == Literal("permissions", datatype=XSD.string)
+
+    def test_no_permissions(self) -> None:
+        bn = BNode()
+        meta = FileValueMetadata(None)
+        g = _add_metadata(bn, meta)
+        assert len(g) == 0

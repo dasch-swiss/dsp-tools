@@ -2,12 +2,30 @@ from __future__ import annotations
 
 from rdflib import Namespace
 
+from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_geometry
+from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_xsd_any_uri
+from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_xsd_boolean
+from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_xsd_date_time
+from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_xsd_decimal
+from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_xsd_integer
+from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_xsd_string
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
 
+RDF_LITERAL_TRANSFORMER_MAPPER = {
+    "boolean": transform_xsd_boolean,
+    "color": transform_xsd_string,
+    "decimal": transform_xsd_decimal,
+    "geometry": transform_geometry,
+    "geoname": transform_xsd_string,
+    "integer": transform_xsd_integer,
+    "time": transform_xsd_date_time,
+    "uri": transform_xsd_any_uri,
+}
 
-rdf_prop_type_mapper = {
+
+RDF_PROP_TYPE_MAPPER = {
     "boolean": RDFPropTypeInfo(KNORA_API.BooleanValue, KNORA_API.booleanValueAsBoolean),
     "color": RDFPropTypeInfo(KNORA_API.ColorValue, KNORA_API.colorValueAsColor),
     "decimal": RDFPropTypeInfo(KNORA_API.DecimalValue, KNORA_API.decimalValueAsDecimal),

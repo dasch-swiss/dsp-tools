@@ -12,12 +12,12 @@ from rdflib import URIRef
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import KNORA_API
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import rdf_prop_type_mapper
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import RDF_LITERAL_TRANSFORMER_MAPPER
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import RDF_PROP_TYPE_MAPPER
 from dsp_tools.commands.xmlupload.make_rdf_graph.helpers import get_absolute_iri
 from dsp_tools.commands.xmlupload.make_rdf_graph.helpers import resolve_permission
 from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import InputTypes
 from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import assert_is_string
-from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import rdf_literal_transformer
 from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_date
 from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_interval
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
@@ -68,8 +68,8 @@ def _make_one_prop_graph(prop: XMLProperty, restype: str, res_bnode: BNode, look
     prop_name = get_absolute_iri(prop.name, lookup.namespaces)
     match prop.valtype:
         case "boolean" | "color" | "decimal" | "geometry" | "geoname" | "integer" | "time" | "uri" as val_type:
-            literal_info = rdf_prop_type_mapper[val_type]
-            transformer = rdf_literal_transformer[val_type]
+            literal_info = RDF_PROP_TYPE_MAPPER[val_type]
+            transformer = RDF_LITERAL_TRANSFORMER_MAPPER[val_type]
             properties_graph = _make_simple_prop_graph(
                 prop=prop,
                 res_bn=res_bnode,
@@ -187,7 +187,7 @@ def _make_list_prop_graph(
             permissions=resolved_permission,
             comment=val.comment,
         )
-        g += _make_simple_value_graph(transformed, res_bn, rdf_prop_type_mapper["list"])
+        g += _make_simple_value_graph(transformed, res_bn, RDF_PROP_TYPE_MAPPER["list"])
     return g
 
 
@@ -286,7 +286,7 @@ def _make_link_prop_graph(
             permissions=resolved_permission,
             comment=val.comment,
         )
-        g += _make_simple_value_graph(transformed, res_bn, rdf_prop_type_mapper["link"])
+        g += _make_simple_value_graph(transformed, res_bn, RDF_PROP_TYPE_MAPPER["link"])
     return g
 
 
@@ -324,7 +324,7 @@ def _make_text_prop_graph(
                     comment=val.comment,
                 )
                 g += _make_simple_value_graph(
-                    val=transformed, res_bn=res_bn, prop_type_info=rdf_prop_type_mapper["simpletext"]
+                    val=transformed, res_bn=res_bn, prop_type_info=RDF_PROP_TYPE_MAPPER["simpletext"]
                 )
             case FormattedTextValue():
                 g += _make_richtext_value_graph(

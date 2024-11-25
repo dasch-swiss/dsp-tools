@@ -5,7 +5,8 @@ import pandas as pd
 import regex
 
 separator = "\n\n"
-list_separator = "\n - "
+list_separator = "\n- "
+list_separator_indented = "\n    - "
 
 
 @dataclass(frozen=True)
@@ -14,6 +15,8 @@ class UploadFailure:
 
     filepath: Path
     reason: str
+    status_code: int | None = None
+    response_text: str | None = None
 
 
 @dataclass(frozen=True)
@@ -44,13 +47,20 @@ class UploadFailures:
             msg += f"The full list of failed files has been saved to '{output_file}'."
         else:
             msg += f"Failed to upload the following {len(self.failures)} files:"
-            msg += list_separator + list_separator.join([f"{x.filepath}: {x.reason}" for x in self.failures])
+            for f in self.failures:
+                msg += list_separator + f"{f.filepath}: {f.reason}"
+                if f.status_code:
+                    msg += list_separator_indented + f"Status code: {f.status_code}"
+                if f.response_text:
+                    msg += list_separator_indented + f"Response text: {f.response_text}"
         return msg
 
     def _save_to_csv(self, output_file: Path) -> None:
         data = {
             "Filepath": [failure.filepath for failure in self.failures],
             "Reason": [failure.reason for failure in self.failures],
+            "Status code": [failure.status_code for failure in self.failures],
+            "Response text": [failure.response_text for failure in self.failures],
         }
         df = pd.DataFrame(data)
         df.to_csv(output_file, index=False)

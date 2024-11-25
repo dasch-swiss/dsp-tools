@@ -6,6 +6,13 @@
        shortcode="4124"
        default-ontology="testonto">
 
+    <permissions id="open">
+        <allow group="UnknownUser">V</allow>
+        <allow group="KnownUser">V</allow>
+        <allow group="ProjectMember">D</allow>
+        <allow group="ProjectAdmin">CR</allow>
+    </permissions>
+
     <copyrights>
         <copyright id="copyright_id">Copyright Text</copyright>
     </copyrights>
@@ -14,7 +21,7 @@
         <license id="license_id">license text</license>
     </licenses>
 
-    <resource label="label" restype=":Type" id="resource">
+    <resource label="label" restype=":Type" id="resource" permissions="unknown">
         <iiif-uri
                 license="license_not_exists"
                 copyright="copyright_not_exists"

@@ -179,7 +179,7 @@ def _make_bitstream_file_value(bitstream_info: BitstreamInfo) -> dict[str, Any]:
         # jpx is the extension of the files returned by dsp-ingest
         case "jpg" | "jpeg" | "jp2" | "png" | "tif" | "tiff" | "jpx":
             return SerialiseStillImageFileValue(internal_filename, permissions).serialise()
-        case "odd" | "rng" | "txt" | "xml" | "xsd" | "xsl" | "csv":
+        case "odd" | "rng" | "txt" | "xml" | "xsd" | "xsl" | "csv" | "json":
             return SerialiseTextFileValue(internal_filename, permissions).serialise()
         case _:
             raise BaseError(f"Unknown file ending '{file_ending}' for file '{local_file}'")

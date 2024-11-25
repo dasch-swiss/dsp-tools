@@ -634,6 +634,16 @@
         </text-prop>
     </resource>
 
+    <resource label="Textthing-json"
+              restype=":TextThing"
+              id="text_thing_8"
+              permissions="open">
+        <bitstream>testdata/bitstreams/test.json</bitstream>
+        <text-prop name=":hasSimpleText">
+            <text permissions="open" encoding="utf8">This is a Textthing as JSON</text>
+        </text-prop>
+    </resource>
+
     <resource label="Zipthing-zip"
               restype=":ZipThing"
               id="zip_thing_1"

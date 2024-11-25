@@ -16,7 +16,7 @@ def test_one_failure() -> None:
     msg = aggregated_failures.execute_error_protocol()
     expected = (
         f"Uploaded 2/3 files onto server {DSP_INGEST_URL}. Failed to upload the following 1 files:\n"
-        " - path1: reason1"
+        "- path1: reason1"
     )
     assert msg == expected
 
@@ -25,16 +25,18 @@ def test_several_failures() -> None:
     num_of_all_files = 5
     failures = [
         UploadFailure(Path("path1"), "reason1"),
-        UploadFailure(Path("path2"), "reason2"),
+        UploadFailure(Path("path2"), "reason2", 404, "not found"),
         UploadFailure(Path("path3"), "reason3"),
     ]
     aggregated_failures = UploadFailures(failures, num_of_all_files, SHORTCODE, DSP_INGEST_URL)
     msg = aggregated_failures.execute_error_protocol()
     expected = (
         f"Uploaded 2/5 files onto server {DSP_INGEST_URL}. Failed to upload the following 3 files:\n"
-        " - path1: reason1\n"
-        " - path2: reason2\n"
-        " - path3: reason3"
+        "- path1: reason1\n"
+        "- path2: reason2\n"
+        "    - Status code: 404\n"
+        "    - Response text: not found\n"
+        "- path3: reason3"
     )
     assert msg == expected
 
@@ -50,9 +52,9 @@ def test_all_failures() -> None:
     msg = aggregated_failures.execute_error_protocol()
     expected = (
         f"Uploaded 0/3 files onto server {DSP_INGEST_URL}. Failed to upload the following 3 files:\n"
-        " - path1: reason1\n"
-        " - path2: reason2\n"
-        " - path3: reason3"
+        "- path1: reason1\n"
+        "- path2: reason2\n"
+        "- path3: reason3"
     )
     assert msg == expected
 

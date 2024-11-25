@@ -3,6 +3,7 @@ from typing import Optional
 from typing import Union
 
 from dsp_tools.models.exceptions import BaseError
+from dsp_tools.xmllib.models.config_options import NewlineReplacement
 
 # ruff: noqa: E501 (line-too-long)
 
@@ -41,6 +42,7 @@ class PropertyElement:
     permissions: str = "open"
     comment: Optional[str] = None
     encoding: Optional[str] = None
+    newline_replacement: NewlineReplacement = NewlineReplacement.NONE
 
     def __post_init__(self) -> None:
         if self.encoding not in ["utf8", "xml", None]:

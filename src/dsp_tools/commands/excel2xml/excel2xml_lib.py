@@ -28,6 +28,8 @@ from dsp_tools.utils.shared import simplify_name
 from dsp_tools.utils.uri_util import is_iiif_uri
 from dsp_tools.utils.uri_util import is_uri
 from dsp_tools.utils.xml_validation import validate_xml_file
+from dsp_tools.xmllib.models.config_options import NewlineReplacement
+from dsp_tools.xmllib.value_converters import replace_newlines_with_br_tags, replace_newlines_with_paragraph_tags
 
 # ruff: noqa: E501, UP031 (line-too-long, use f-string over percent formatting)
 
@@ -1338,8 +1340,9 @@ def make_text_prop(
             # write the text into the tag, without validation
             value_.text = str(val.value)
         else:
+            val_replaced = _handle_newlines_in_richtext(val)
             try:
-                value_ = _add_richtext_to_etree_element(str(val.value), value_)
+                value_ = _add_richtext_to_etree_element(str(val_replaced.value), value_)
             except BaseError as err:
                 if calling_resource:
                     err.message += f"The error occurred in resource {calling_resource}, property {name}"
@@ -1417,6 +1420,18 @@ def _escape_reserved_chars(text: str) -> str:
     text = regex.sub(illegal_gt, "&gt;", text)
     text = regex.sub(illegal_amp, "&amp;", text)
     return text
+
+
+def _handle_newlines_in_richtext(prop: PropertyElement) -> PropertyElement:
+    match prop.newline_replacement:
+        case NewlineReplacement.NONE:
+            return prop
+        case NewlineReplacement.LINEBREAK:
+            new = replace_newlines_with_br_tags(str(prop.value))
+            return dataclasses.replace(prop, value=new)
+        case NewlineReplacement.PARAGRAPH:
+            new = replace_newlines_with_paragraph_tags(str(prop.value))
+            return dataclasses.replace(prop, value=new)
 
 
 def make_time_prop(

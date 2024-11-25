@@ -8,7 +8,6 @@ import pytest
 from lxml import etree
 from requests import Response
 
-import dsp_tools.commands.xmlupload.models.upload_clients
 from dsp_tools.commands.xmlupload import xmlupload
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
@@ -282,9 +281,7 @@ def test_5_resources_with_stash_and_interrupt_after_2(ingest_client_mock: AssetC
     xmlupload._handle_upload_error = Mock()
     err_msg = "Interrupted: Maximum number of resources was reached (2)"
 
-    client = dsp_tools.commands.xmlupload.models.upload_clients.UploadClients(
-        ingest_client_mock, project_client, ListClientMock()
-    )
+    client = UploadClients(ingest_client_mock, project_client, ListClientMock())
 
     xmlupload._upload_resources(client, upload_state)
     iri_resolver_expected = IriResolver({"foo_1_id": "foo_1_iri", "foo_2_id": "foo_2_iri"})
@@ -339,9 +336,7 @@ def test_6_resources_with_stash_and_interrupt_after_2(ingest_client_mock: AssetC
     xmlupload._handle_upload_error = Mock()
     err_msg = "Interrupted: Maximum number of resources was reached (2)"
 
-    client = dsp_tools.commands.xmlupload.models.upload_clients.UploadClients(
-        ingest_client_mock, project_client, ListClientMock()
-    )
+    client = UploadClients(ingest_client_mock, project_client, ListClientMock())
 
     xmlupload._upload_resources(client, upload_state)
     iri_resolver_expected = IriResolver({"foo_1_id": "foo_1_iri", "foo_2_id": "foo_2_iri"})

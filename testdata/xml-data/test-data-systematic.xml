@@ -328,7 +328,7 @@
         </text-prop>
     </resource>
 
-    <resource label="iiif-link with license / copyright"
+    <resource label="iiif-link"
               restype=":ImageThing"
               id="iiif-link"
               permissions="open">

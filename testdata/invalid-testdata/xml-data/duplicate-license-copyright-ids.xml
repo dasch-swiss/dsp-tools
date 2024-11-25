@@ -16,4 +16,10 @@
         <license id="license_id">license text</license>
     </licenses>
 
+    <resource label="label" restype=":Type" id="resource">
+        <iiif-uri
+                license="license_not_exists"
+                copyright="copyright_not_exists"
+        >https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg</iiif-uri>
+    </resource>
 </knora>

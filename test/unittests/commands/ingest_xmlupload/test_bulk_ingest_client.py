@@ -91,8 +91,8 @@ def test_upload_file_failure_upon_server_error_with_response_text(
 @pytest.mark.parametrize(
     ("filepath", "url_suffix"),
     [
-        (Path("Côté gauche/Süd.png"), "C%C3%B4t%C3%A9%20gauche%2FS%C3%BCd.png"),
-        (Path("/absolute/path/to/file.txt"), "absolute%2Fpath%2Fto%2Ffile.txt"),
+        (Path("Côté gauche/Süd.png"), "C%C3%B4t%C3%A9%20gauche/S%C3%BCd.png"),
+        (Path("/absolute/path/to/file.txt"), "absolute/path/to/file.txt"),
     ],
 )
 def test_build_url_for_bulk_ingest_ingest_route(

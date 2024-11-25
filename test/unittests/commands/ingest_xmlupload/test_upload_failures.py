@@ -15,8 +15,7 @@ def test_one_failure() -> None:
     aggregated_failures = UploadFailures(failures, num_of_all_files, SHORTCODE, DSP_INGEST_URL)
     msg = aggregated_failures.execute_error_protocol()
     expected = (
-        f"Uploaded 2/3 files onto server {DSP_INGEST_URL}. Failed to upload the following 1 files:\n"
-        "- path1: reason1"
+        f"Uploaded 2/3 files onto server {DSP_INGEST_URL}. Failed to upload the following 1 files:\n- path1: reason1"
     )
     assert msg == expected
 

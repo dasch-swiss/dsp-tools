@@ -50,9 +50,9 @@ class UploadFailures:
             for f in self.failures:
                 msg += list_separator + f"{f.filepath}: {f.reason}"
                 if f.status_code:
-                    msg += list_separator_indented +f"Status code: {f.status_code}"
+                    msg += list_separator_indented + f"Status code: {f.status_code}"
                 if f.response_text:
-                    msg += list_separator_indented +f"Response text: {f.response_text}"
+                    msg += list_separator_indented + f"Response text: {f.response_text}"
         return msg
 
     def _save_to_csv(self, output_file: Path) -> None:

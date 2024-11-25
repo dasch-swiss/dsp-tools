@@ -176,7 +176,8 @@ class TestFileTypeInfo:
         assert result.knora_type == KNORA_API.StillImageFileValue
 
     @pytest.mark.parametrize(
-        "file_name", ["path/test.odd", "test.rng", "test.txt", "test.xml", "test.xsd", "test.xsl", "test.csv"]
+        "file_name",
+        ["path/test.odd", "test.rng", "test.txt", "test.xml", "test.xsd", "test.xsl", "test.csv", "test.json"],
     )
     def test_text(self, file_name: str) -> None:
         result = _get_file_type_info(file_name)

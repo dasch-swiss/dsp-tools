@@ -72,7 +72,7 @@ def _get_file_type_info(local_file: str) -> RDFPropTypeInfo:
         # jpx is the extension of the files returned by dsp-ingest
         case "jpg" | "jpeg" | "jp2" | "png" | "tif" | "tiff" | "jpx":
             return STILL_IMAGE_FILE_VALUE
-        case "odd" | "rng" | "txt" | "xml" | "xsd" | "xsl" | "csv":
+        case "odd" | "rng" | "txt" | "xml" | "xsd" | "xsl" | "csv" | "json":
             return TEXT_FILE_VALUE
         case _:
             raise BaseError(f"Unknown file ending '{file_ending}' for file '{local_file}'")

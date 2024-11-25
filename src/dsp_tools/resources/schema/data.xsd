@@ -584,12 +584,30 @@
         </xs:sequence>
     </xs:complexType>
 
+    <!-- license tag -->
+    <xs:complexType name="license_type">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="id" type="xs:ID" use="required"/>
+                <xs:attribute name="uri" type="xs:string" use="optional"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <!-- licenses tag -->
+    <xs:complexType name="licenses_type">
+        <xs:sequence>
+            <xs:element name="license" type="license_type" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
     <!-- complete document -->
     <xs:element name="knora">
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="permissions" type="permissions_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="copyrights" type="copyrights_type" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element name="licenses" type="licenses_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:choice maxOccurs="unbounded">
                     <xs:element name="resource" type="resource_type" minOccurs="1" maxOccurs="unbounded">
                         <xs:unique name="UniqueNameAttr_Resource">

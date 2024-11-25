@@ -312,15 +312,28 @@
         </text-prop>
     </resource>
 
-    <resource label="iiif-link"
+    <resource label="iiif-link with license / copyright"
               restype=":ImageThing"
-              id="iiif-link"
+              id="iiif-link-license-copyright"
               permissions="open">
         <iiif-uri
                 license="CC-BY-NC"
                 copyright="copyright_id"
         >
             https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg</iiif-uri>
+        <text-prop name=":hasSimpleText">
+            <text permissions="open" encoding="utf8">
+                Licence: Attribution-NonCommercial 4.0 International (CC BY-NC 4.0).
+                Credit: Zebrafish embryo. Source: Wellcome Collection.
+            </text>
+        </text-prop>
+    </resource>
+
+    <resource label="iiif-link with license / copyright"
+              restype=":ImageThing"
+              id="iiif-link"
+              permissions="open">
+        <iiif-uri>https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg</iiif-uri>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">
                 Licence: Attribution-NonCommercial 4.0 International (CC BY-NC 4.0).

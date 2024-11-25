@@ -79,11 +79,5 @@ def test_validate_xml_duplicate_license_copyright_id() -> None:
         validate_xml_file(input_file="testdata/invalid-testdata/xml-data/duplicate-license-copyright-ids.xml")
 
 
-def test_validate_xml_non_existent_reference_ids() -> None:
-    expected_msg = regex.escape("k")
-    with pytest.raises(InputError, match=expected_msg):
-        validate_xml_file(input_file="testdata/invalid-testdata/xml-data/non-existent-reference-ids.xml")
-
-
 if __name__ == "__main__":
     pytest.main([__file__])

@@ -1,16 +1,14 @@
 import pytest
 from pytest_unordered import unordered
 
-from dsp_tools.commands.xmlupload.models.ontology_lookup_models import _check_if_text_value_property
-from dsp_tools.commands.xmlupload.models.ontology_lookup_models import _extract_classes_and_properties_from_onto
-from dsp_tools.commands.xmlupload.models.ontology_lookup_models import _get_all_classes_from_onto
-from dsp_tools.commands.xmlupload.models.ontology_lookup_models import _get_all_properties_from_onto
-from dsp_tools.commands.xmlupload.models.ontology_lookup_models import (
-    _get_all_text_value_types_properties_and_from_onto,
-)
-from dsp_tools.commands.xmlupload.models.ontology_lookup_models import _make_text_value_property_type_lookup
-from dsp_tools.commands.xmlupload.models.ontology_lookup_models import _remove_default_prefix
-from dsp_tools.commands.xmlupload.models.ontology_lookup_models import _remove_prefixes
+from dsp_tools.commands.xmlupload.models.lookup_models import _check_if_text_value_property
+from dsp_tools.commands.xmlupload.models.lookup_models import _extract_classes_and_properties_from_onto
+from dsp_tools.commands.xmlupload.models.lookup_models import _get_all_classes_from_onto
+from dsp_tools.commands.xmlupload.models.lookup_models import _get_all_properties_from_onto
+from dsp_tools.commands.xmlupload.models.lookup_models import _get_all_text_value_types_properties_and_from_onto
+from dsp_tools.commands.xmlupload.models.lookup_models import _make_text_value_property_type_lookup
+from dsp_tools.commands.xmlupload.models.lookup_models import _remove_default_prefix
+from dsp_tools.commands.xmlupload.models.lookup_models import _remove_prefixes
 
 
 class TestGetAllClassesFromJson:

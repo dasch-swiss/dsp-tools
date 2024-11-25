@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 import pandas as pd
 
-from dsp_tools.commands.xmlupload.models.ontology_lookup_models import TextValueData
+from dsp_tools.commands.xmlupload.models.lookup_models import TextValueData
 
 separator = "\n    "
 list_separator = "\n    - "

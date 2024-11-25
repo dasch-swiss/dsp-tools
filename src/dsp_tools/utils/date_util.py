@@ -70,6 +70,18 @@ class Era(Enum):
                 raise BaseError(f"Invalid era type: {s}")
 
 
+class DayMonthYearEra(Enum):
+    DAY = "Day"
+    MONTH = "Month"
+    YEAR = "Year"
+    ERA = "Era"
+
+
+class StartEnd(Enum):
+    START = "Start"
+    END = "End"
+
+
 @dataclass(frozen=True)
 class SingleDate:
     """Information about a single date."""

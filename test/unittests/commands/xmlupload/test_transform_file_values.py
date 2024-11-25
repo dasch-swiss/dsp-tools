@@ -2,25 +2,21 @@ from typing import cast
 
 import pytest
 from lxml import etree
-from rdflib import RDF
 from rdflib import BNode
-from rdflib import Literal
+from rdflib import Namespace
 from rdflib import URIRef
 
+from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_serialiser import serialise_property_graph
+from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import _make_bitstream_file_value
+from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import _make_iiif_uri_value
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import IIIFUriInfo
-from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLValue
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
-from dsp_tools.commands.xmlupload.models.serialise.jsonld_serialiser import serialise_property_graph
-from dsp_tools.commands.xmlupload.resource_create_client import KNORA_API
-from dsp_tools.commands.xmlupload.resource_create_client import _make_bitstream_file_value
-from dsp_tools.commands.xmlupload.resource_create_client import _make_boolean_value
-from dsp_tools.commands.xmlupload.resource_create_client import _make_iiif_uri_value
-from dsp_tools.commands.xmlupload.resource_create_client import _to_boolean
-from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import PermissionNotExistsError
+
+ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
 
 
 class TestMakeBitstreamFileValue:
@@ -381,23 +377,6 @@ class TestMakeBitstreamFileValue:
         assert value == expected
 
 
-def test_to_boolean() -> None:
-    assert _to_boolean("true")
-    assert _to_boolean("True")
-    assert _to_boolean("1")
-    assert _to_boolean(1)
-    assert _to_boolean(True)
-    assert not _to_boolean("false")
-    assert not _to_boolean("False")
-    assert not _to_boolean("0")
-    assert not _to_boolean(0)
-    assert not _to_boolean(False)
-    with pytest.raises(BaseError):
-        _to_boolean("foo")
-    with pytest.raises(BaseError):
-        _to_boolean(2)
-
-
 def test_make_iiif_uri_value_with_permissions() -> None:
     permission = {"open": Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})}
     xml_str = """
@@ -456,35 +435,6 @@ def test_make_iiif_uri_value_serialised() -> None:
         }
     }
     assert serialised == expected
-
-
-def test_make_boolean_value_with_permissions() -> None:
-    permissions_lookup = {"open": Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})}
-
-    xml_str = """
-        <resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id">
-            <boolean-prop name=":isTrueOrFalse">
-                <boolean permissions="open">true</boolean>
-            </boolean-prop>
-        </resource>
-        """
-    xmlresource = XMLResource.from_node(etree.fromstring(xml_str), "foo")
-    test_val: XMLValue = xmlresource.properties[0].values[0]
-    b_node = BNode()
-    bool_graph = _make_boolean_value(test_val, b_node, permissions_lookup)
-
-    for triple in bool_graph.triples((b_node, None, None)):
-        if triple[1] == URIRef(RDF.type) and triple[2] == URIRef(KNORA_API.BooleanValue):
-            continue
-        elif triple[1] == URIRef(KNORA_API.booleanValueAsBoolean) and triple[2] == Literal(_to_boolean("true")):
-            continue
-        elif triple[1] == URIRef(KNORA_API.hasPermissions) and triple[2] == Literal(
-            str(permissions_lookup.get(str(test_val.permissions)))
-        ):
-            continue
-        else:
-            # unexpected triple
-            pytest.fail(f"unexpected triple: {triple}")
 
 
 if __name__ == "__main__":

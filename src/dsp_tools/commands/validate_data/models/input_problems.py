@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import warnings
 from abc import ABC
+from abc import abstractmethod
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime
@@ -37,8 +38,8 @@ class UnknownClassesInData:
         if unknown := used_ontos - exising_ontos:
             msg = (
                 f"Your data uses ontologies that don't exist in the database.\n"
-                f"The following ontologies that are used in the data are unknown: {''.join(exising_ontos)}"
-                f"The following ontologies are uploaded: {''.join(unknown)}\n"
+                f"The following ontologies that are used in the data are unknown: {', '.join(exising_ontos)}"
+                f"The following ontologies are uploaded: {', '.join(unknown)}\n"
             )
         return msg
 
@@ -47,8 +48,8 @@ class UnknownClassesInData:
         known_classes = sorted(list(self.classes_onto))
         return (
             f"Your data uses resource classes that do not exist in the ontologies in the database.\n"
-            f"The following classes that are used in the data are unknown: {''.join(unknown_classes)}\n"
-            f"The following classes exist in the uploaded ontologies: {''.join(known_classes)}\n"
+            f"The following classes that are used in the data are unknown: {', '.join(unknown_classes)}\n"
+            f"The following classes exist in the uploaded ontologies: {', '.join(known_classes)}\n"
         )
 
 
@@ -146,14 +147,14 @@ class InputProblem(ABC):
     prop_name: str
 
     @property
-    def problem(self) -> str:
-        raise NotImplementedError
+    @abstractmethod
+    def problem(self) -> str: ...
 
-    def get_msg(self) -> str:
-        raise NotImplementedError
+    @abstractmethod
+    def get_msg(self) -> str: ...
 
-    def to_dict(self) -> dict[str, str]:
-        raise NotImplementedError
+    @abstractmethod
+    def to_dict(self) -> dict[str, str]: ...
 
     def _base_dict(self) -> dict[str, str]:
         return {
@@ -163,8 +164,8 @@ class InputProblem(ABC):
             "Problem": self.problem,
         }
 
-    def sort_value(self) -> str:
-        raise NotImplementedError
+    @abstractmethod
+    def sort_value(self) -> str: ...
 
 
 #######################
@@ -376,6 +377,26 @@ class DuplicateValueProblem(InputProblem):
     def to_dict(self) -> dict[str, str]:
         problm_dict = self._base_dict()
         problm_dict["Content"] = self.actual_content
+        return problm_dict
+
+    def sort_value(self) -> str:
+        return self.prop_name
+
+
+@dataclass
+class FileValueProblem(InputProblem):
+    expected: str
+
+    @property
+    def problem(self) -> str:
+        return self.expected
+
+    def get_msg(self) -> str:
+        return f"{self.problem}"
+
+    def to_dict(self) -> dict[str, str]:
+        problm_dict = self._base_dict()
+        problm_dict["Expected"] = self.expected
         return problm_dict
 
     def sort_value(self) -> str:

@@ -4,15 +4,18 @@ from typing import cast
 
 from lxml import etree
 
+from dsp_tools.commands.validate_data.models.data_deserialised import AbstractFileValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import AbstractResource
 from dsp_tools.commands.validate_data.models.data_deserialised import AnnotationDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import AudioSegmentDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import BitstreamDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import BooleanValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ColorValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DataDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DateValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DecimalValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import GeonameValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import IIIFUriDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import IntValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import LinkObjDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import LinkValueDeserialised
@@ -67,7 +70,8 @@ def _deserialise_all_resources(root: etree._Element) -> DataDeserialised:
                 all_res.append(AudioSegmentDeserialised(res_id, lbl))
             case _:
                 pass
-    return DataDeserialised(all_res)
+    file_values = _deserialise_file_value(root)
+    return DataDeserialised(all_res, file_values)
 
 
 def _deserialise_one_resource(resource: etree._Element) -> ResourceDeserialised:
@@ -144,3 +148,14 @@ def _get_text_as_string(value: etree._Element) -> str | None:
         return "".join(text_list).strip()
     else:
         return value.text
+
+
+def _deserialise_file_value(root: etree._Element) -> list[AbstractFileValueDeserialised]:
+    file_values: list[AbstractFileValueDeserialised] = []
+    for res in root.iterchildren(tag="resource"):
+        res_id = res.attrib["id"]
+        if (bitstream := res.find("bitstream")) is not None:
+            file_values.append(BitstreamDeserialised(res_id, bitstream.text))
+        elif (iiif_uri := res.find("iiif-uri")) is not None:
+            file_values.append(IIIFUriDeserialised(res_id, iiif_uri.text))
+    return file_values

@@ -255,55 +255,6 @@ api-shapes:UriValue_ClassShape
 
 
 #########################################
-# RESOURCES WITH FILES
-#########################################
-
-###########################
-# ArchiveRepresentation
-###########################
-
-# knora-api:ArchiveFileValue -> knora-api:hasArchiveFileValue
-
-
-###########################
-# AudioRepresentation
-###########################
-
-# knora-api:AudioFileValue -> knora-api:hasAudioFileValue
-
-
-###########################
-# DocumentRepresentation
-###########################
-
-# knora-api:DocumentFileValue -> knora-api:hasDocumentFileValue
-
-
-###########################
-# MovingImageRepresentation
-###########################
-
-# knora-api:MovingImageFileValue -> knora-api:hasMovingImageFileValue
-
-
-###########################
-# StillImageRepresentation
-###########################
-
-# knora-api:StillImageExternalFileValue -> knora-api:fileValueHasExternalUrl
-
-
-# knora-api:StillImageFileValue -> knora-api:hasStillImageFileValue
-
-
-###########################
-# TextRepresentation
-###########################
-
-# knora-api:TextFileValue -> knora-api:hasTextFileValue
-
-
-#########################################
 # DSP BUILT IN RESOURCES
 #########################################
 

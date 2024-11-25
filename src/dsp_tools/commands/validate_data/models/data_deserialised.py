@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from abc import ABC
 from dataclasses import dataclass
 
 from lxml import etree
@@ -28,10 +27,11 @@ class ProjectInformation:
 @dataclass
 class DataDeserialised:
     resources: list[AbstractResource]
+    file_values: list[AbstractFileValueDeserialised]
 
 
 @dataclass
-class AbstractResource(ABC):
+class AbstractResource:
     res_id: str
     label: str
 
@@ -115,3 +115,17 @@ class TimeValueDeserialised(ValueDeserialised): ...
 
 @dataclass
 class UriValueDeserialised(ValueDeserialised): ...
+
+
+@dataclass
+class AbstractFileValueDeserialised:
+    res_id: str
+    value: str | None
+
+
+@dataclass
+class BitstreamDeserialised(AbstractFileValueDeserialised): ...
+
+
+@dataclass
+class IIIFUriDeserialised(AbstractFileValueDeserialised): ...

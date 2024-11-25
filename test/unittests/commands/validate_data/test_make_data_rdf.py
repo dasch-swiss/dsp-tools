@@ -3,8 +3,11 @@ from rdflib import XSD
 from rdflib import Literal
 from rdflib import URIRef
 
+from dsp_tools.commands.validate_data.make_data_rdf import _get_file_extension
+from dsp_tools.commands.validate_data.make_data_rdf import _transform_file_value
 from dsp_tools.commands.validate_data.make_data_rdf import _transform_one_resource
 from dsp_tools.commands.validate_data.make_data_rdf import _transform_one_value
+from dsp_tools.commands.validate_data.models.data_deserialised import BitstreamDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import BooleanValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ColorValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DateValueDeserialised
@@ -26,6 +29,7 @@ from dsp_tools.commands.validate_data.models.data_rdf import GeonameValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import IntValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import LinkValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import ListValueRDF
+from dsp_tools.commands.validate_data.models.data_rdf import MovingImageFileValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import ResourceRDF
 from dsp_tools.commands.validate_data.models.data_rdf import RichtextRDF
 from dsp_tools.commands.validate_data.models.data_rdf import SimpleTextRDF
@@ -262,6 +266,32 @@ class TestUriValue:
         assert val.res_iri == DATA["id"]
         assert val.prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testUriValue")
         assert val.object_value == Literal("", datatype=XSD.string)
+
+
+class TestTransformFileValue:
+    def test_moving_image(self) -> None:
+        bitstream = BitstreamDeserialised("id", "test.mp4")
+        result = _transform_file_value(bitstream)
+        assert isinstance(result, MovingImageFileValueRDF)
+        assert result.value == Literal(bitstream.value)
+
+    def test_other(self) -> None:
+        bitstream = BitstreamDeserialised("id", "test.other")
+        result = _transform_file_value(bitstream)
+        assert not result
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        ("test.jpg", "jpg"),
+        ("test.JPG", "jpg"),
+        (None, ""),
+        ("test", ""),
+    ],
+)
+def test_get_file_extension(value: str | None, expected: str) -> None:
+    assert _get_file_extension(value) == expected
 
 
 if __name__ == "__main__":

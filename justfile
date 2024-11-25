@@ -85,12 +85,15 @@ legacy-e2e-tests *FLAGS:
 # Remove artifact files
 [no-exit-message]
 clean:
-    rm -rf ./**/*.pyc
-    rm -rf ./**/__pycache__
-    rm -rf ./**/.pytest_cache
-    rm -rf ./**/.mypy_cache
-    rm -rf ./*id2iri_mapping*.json
+    find . -name "*.pyc" -exec rm -rf {} \;
+    find . -name .__pycache__ -exec rm -rf {} \;
+    find . -name .ruff_cache -exec rm -rf {} \;
+    find . -name .pytest_cache -exec rm -rf {} \;
+    find . -name .mypy_cache -exec rm -rf {} \;
+    rm -rf *id2iri_mapping*.json
     rm -f warnings.log
     rm -rf testdata/e2e/tmp-dsp-ingest/
+    rm -rf testdata/e2e/tmp-dsp-sipi/
+    rm -rf testdata/e2e/ingest-db/
     rm -rf testdata/e2e/images/
     rm -f mapping-????.csv

@@ -7,6 +7,7 @@ from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.models.input_problems import ContentRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
+from dsp_tools.commands.validate_data.models.input_problems import FileValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import GenericProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
@@ -15,6 +16,7 @@ from dsp_tools.commands.validate_data.models.input_problems import MinCardinalit
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProblem
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
+from dsp_tools.commands.validate_data.models.validation import ResultFileValueViolation
 from dsp_tools.commands.validate_data.models.validation import ResultGenericViolation
 from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
@@ -282,6 +284,17 @@ class TestQueryWithDetail:
         assert result.actual_value == "other"
 
 
+class TestQueryFileValueViolations:
+    def test_missing_file_value(self, report_missing_file_value: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
+        res, _, info = report_missing_file_value
+        result = _query_one_without_detail(info, res)
+        assert isinstance(result, ResultFileValueViolation)
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
+        assert result.property == KNORA_API.hasMovingImageFileValue
+        assert result.results_message == "A MovingImageRepresentation requires a file with the extension 'mp4'."
+
+
 class TestReformatResult:
     def test_min(self, extracted_min_card: ResultMinCardinalityViolation) -> None:
         result = _reformat_one_validation_result(extracted_min_card)
@@ -393,6 +406,14 @@ class TestReformatResult:
         assert result.prop_name == "onto:testListProp"
         assert result.results_message == "The list that should be used with this property is 'firstList'."
         assert result.actual_content == "other"
+
+    def test_missing_file_value(self, extracted_missing_file_value: ResultFileValueViolation) -> None:
+        result = _reformat_one_validation_result(extracted_missing_file_value)
+        assert isinstance(result, FileValueProblem)
+        assert result.res_id == "id_video_missing"
+        assert result.res_type == "onto:TestMovingImageRepresentation"
+        assert result.prop_name == "bitstream / iiif-uri"
+        assert result.expected == "A MovingImageRepresentation requires a file with the extension 'mp4'."
 
 
 if __name__ == "__main__":

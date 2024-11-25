@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="4124"
+       default-ontology="testonto">
+
+    <copyrights>
+        <copyright id="copyright_id">Copyright Text</copyright>
+        <copyright id="copyright_id">Copyright Text</copyright>
+    </copyrights>
+
+    <licenses>
+        <license id="license_id">license text</license>
+        <license id="license_id">license text</license>
+    </licenses>
+
+</knora>

@@ -29,7 +29,8 @@ from dsp_tools.utils.uri_util import is_iiif_uri
 from dsp_tools.utils.uri_util import is_uri
 from dsp_tools.utils.xml_validation import validate_xml_file
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
-from dsp_tools.xmllib.value_converters import replace_newlines_with_br_tags, replace_newlines_with_paragraph_tags
+from dsp_tools.xmllib.value_converters import replace_newlines_with_br_tags
+from dsp_tools.xmllib.value_converters import replace_newlines_with_paragraph_tags
 
 # ruff: noqa: E501, UP031 (line-too-long, use f-string over percent formatting)
 

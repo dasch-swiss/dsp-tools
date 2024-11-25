@@ -656,5 +656,15 @@
             <xs:selector xpath=".//*"/>
             <xs:field xpath="@ark"/>
         </xs:unique>
+        <!-- Define a key constraint for license IDs -->
+        <xs:key name="licenseIdKey">
+            <xs:selector xpath="licenses/license"/>
+            <xs:field xpath="@id"/>
+        </xs:key>
+        <!-- Define a keyref constraint for iiif-uri license references -->
+        <xs:keyref name="licenseIdRef" refer="licenseIdKey">
+            <xs:selector xpath="resource/iiif-uri"/>
+            <xs:field xpath="@license"/>
+        </xs:keyref>
     </xs:element>
 </xs:schema>

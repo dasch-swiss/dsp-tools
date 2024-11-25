@@ -662,7 +662,7 @@
             <xs:field xpath="@id"/>
         </xs:key>
         <xs:keyref name="licenseIdRef" refer="licenseIdKey">
-            <xs:selector xpath="resource/iiif-uri"/>
+            <xs:selector xpath=".//*"/>
             <xs:field xpath="@license"/>
         </xs:keyref>
         <!-- Define a key constraint for copyright IDs -->
@@ -671,7 +671,7 @@
             <xs:field xpath="@id"/>
         </xs:key>
         <xs:keyref name="copyrightIdRef" refer="copyrightsIdKey">
-            <xs:selector xpath="resource/iiif-uri"/>
+            <xs:selector xpath=".//*"/>
             <xs:field xpath="@copyright"/>
         </xs:keyref>
     </xs:element>

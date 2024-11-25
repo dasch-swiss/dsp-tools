@@ -412,6 +412,8 @@
         <xs:simpleContent>
             <xs:extension base="nonEmptyString">
                 <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+                <xs:attribute name="license" type="xs:NCName" use="optional"/>
+                <xs:attribute name="copyright" type="xs:NCName" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>

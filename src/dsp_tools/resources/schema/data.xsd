@@ -568,11 +568,28 @@
         <xs:attribute name="id" type="xs:ID" use="required"/>
     </xs:complexType>
 
+    <!-- copyright tag -->
+    <xs:complexType name="copyright_type">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="id" type="xs:ID" use="required"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <!-- copyrights tag -->
+    <xs:complexType name="copyrights_type">
+        <xs:sequence>
+            <xs:element name="copyright" type="copyright_type" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
     <!-- complete document -->
     <xs:element name="knora">
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="permissions" type="permissions_type" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element name="copyrights" type="copyrights_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:choice maxOccurs="unbounded">
                     <xs:element name="resource" type="resource_type" minOccurs="1" maxOccurs="unbounded">
                         <xs:unique name="UniqueNameAttr_Resource">

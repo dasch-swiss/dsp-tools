@@ -14,6 +14,8 @@ class UploadFailure:
 
     filepath: Path
     reason: str
+    status_code: int | None = None
+    response_text: str | None = None
 
 
 @dataclass(frozen=True)
@@ -44,13 +46,17 @@ class UploadFailures:
             msg += f"The full list of failed files has been saved to '{output_file}'."
         else:
             msg += f"Failed to upload the following {len(self.failures)} files:"
-            msg += list_separator + list_separator.join([f"{x.filepath}: {x.reason}" for x in self.failures])
+            msg += list_separator + list_separator.join(
+                [f"{x.filepath}: {x.reason} ({x.status_code}: {x.response_text})" for x in self.failures]
+            )
         return msg
 
     def _save_to_csv(self, output_file: Path) -> None:
         data = {
             "Filepath": [failure.filepath for failure in self.failures],
             "Reason": [failure.reason for failure in self.failures],
+            "Status code": [failure.status_code for failure in self.failures],
+            "Response text": [failure.response_text for failure in self.failures],
         }
         df = pd.DataFrame(data)
         df.to_csv(output_file, index=False)

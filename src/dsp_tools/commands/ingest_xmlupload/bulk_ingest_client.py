@@ -84,8 +84,7 @@ class BulkIngestClient:
             return UploadFailure(filepath, f"Exception of requests library: {e}")
         if res.status_code != STATUS_OK:
             logger.error(err_msg)
-            reason = f"Response {res.status_code}: {res.text}" if res.text else f"Response {res.status_code}"
-            return UploadFailure(filepath, reason)
+            return UploadFailure(filepath, res.reason, res.status_code, res.text)
         return None
 
     def _build_url_for_bulk_ingest_ingest_route(self, filepath: Path) -> str:

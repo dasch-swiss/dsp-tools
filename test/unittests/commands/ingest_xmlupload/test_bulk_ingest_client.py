@@ -27,8 +27,8 @@ def tmp_file(tmp_path: Path) -> Path:
 
 
 def _make_url(file: Path) -> str:
-    filename = urllib.parse.quote(str(file))
-    filename = filename[1:] if filename.startswith("/") else filename
+    filename = str(file)[1:] if str(file).startswith("/") else str(file)
+    filename = urllib.parse.quote(filename, safe="")
     return f"{DSP_INGEST_URL}/projects/{SHORTCODE}/bulk-ingest/ingest/{filename}"
 
 
@@ -74,7 +74,7 @@ def test_upload_file_failure_upon_server_error(
     failure_detail = ingest_client.upload_file(tmp_file)
     assert failure_detail
     assert failure_detail.filepath == tmp_file
-    assert failure_detail.reason == "Response 500"
+    assert failure_detail.status_code == 500
 
 
 def test_upload_file_failure_upon_server_error_with_response_text(
@@ -85,14 +85,15 @@ def test_upload_file_failure_upon_server_error_with_response_text(
     failure_detail = ingest_client.upload_file(tmp_file)
     assert failure_detail
     assert failure_detail.filepath == tmp_file
-    assert failure_detail.reason == "Response 500: response text"
+    assert failure_detail.status_code == 500
+    assert failure_detail.response_text == "response text"
 
 
 @pytest.mark.parametrize(
     ("filepath", "url_suffix"),
     [
-        (Path("Côté gauche/Süd.png"), "C%C3%B4t%C3%A9%20gauche/S%C3%BCd.png"),
-        (Path("/absolute/path/to/file.txt"), "absolute/path/to/file.txt"),
+        (Path("Côté gauche/Süd.png"), "C%C3%B4t%C3%A9%20gauche%2FS%C3%BCd.png"),
+        (Path("/absolute/path/to/file.txt"), "absolute%2Fpath%2Fto%2Ffile.txt"),
     ],
 )
 def test_build_url_for_bulk_ingest_ingest_route(

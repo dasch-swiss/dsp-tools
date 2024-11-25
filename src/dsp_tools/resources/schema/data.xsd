@@ -413,7 +413,7 @@
             <xs:extension base="nonEmptyString">
                 <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
                 <xs:attribute name="license" type="xs:IDREF" use="optional"/>
-                <xs:attribute name="copyright" type="xs:NCName" use="optional"/>
+                <xs:attribute name="copyright" type="xs:IDREF" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -661,10 +661,18 @@
             <xs:selector xpath="licenses/license"/>
             <xs:field xpath="@id"/>
         </xs:key>
-        <!-- Define a keyref constraint for iiif-uri license references -->
         <xs:keyref name="licenseIdRef" refer="licenseIdKey">
             <xs:selector xpath="resource/iiif-uri"/>
             <xs:field xpath="@license"/>
+        </xs:keyref>
+        <!-- Define a key constraint for copyright IDs -->
+        <xs:key name="copyrightsIdKey">
+            <xs:selector xpath="copyrights/copyright"/>
+            <xs:field xpath="@id"/>
+        </xs:key>
+        <xs:keyref name="copyrightIdRef" refer="copyrightsIdKey">
+            <xs:selector xpath="resource/iiif-uri"/>
+            <xs:field xpath="@copyright"/>
         </xs:keyref>
     </xs:element>
 </xs:schema>

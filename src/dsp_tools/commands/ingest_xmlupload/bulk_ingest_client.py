@@ -99,7 +99,7 @@ class BulkIngestClient:
         Returns:
             url
         """
-        quoted = regex.sub(r"^\/", "", urllib.parse.quote(str(filepath)))
+        quoted = regex.sub(r"^\/", "", urllib.parse.quote(str(filepath), safe=""))
         return f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/ingest/{quoted}"
 
     def trigger_ingest_process(self) -> None:

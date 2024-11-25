@@ -29,6 +29,37 @@
         <allow group="systematic-tp:testgroupEditors">M</allow>
     </permissions>
 
+    <copyrights>
+        <copyright id="copyright_id">Copyright Text</copyright>
+    </copyrights>
+
+    <licenses>
+        <license id="CC-BY">
+            CC BY 4.0 https://creativecommons.org/licenses/by/4.0/
+        </license>
+        <license id="CC-BY-SA">
+            CC BY-SA 4.0 https://creativecommons.org/licenses/by-sa/4.0/
+        </license>
+        <license id="CC-BY-NC">
+            CC BY-NC 4.0 https://creativecommons.org/licenses/by-nc/4.0/
+        </license>
+        <license id="CC-BY-NC">
+            CC BY-NC-SA 4.0 https://creativecommons.org/licenses/by-nc-sa/4.0/
+        </license>
+        <license id="CC-BY-ND">
+            CC BY-ND 4.0 https://creativecommons.org/licenses/by-nd/4.0/
+        </license>
+        <license id="CC-BY-NC-ND">
+            CC BY-NC-ND 4.0 https://creativecommons.org/licenses/by-nc-nd/4.0/
+        </license>
+        <license id="CC0">
+            CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/
+        </license>
+         <license id="twoLineLicense">
+            First Line.
+            Second Line.
+        </license>
+    </licenses>
 
     <resource label="TestthingWithArk1"
               restype=":TestThing2"

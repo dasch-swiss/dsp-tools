@@ -1111,7 +1111,8 @@ class Resource:
                 f"'{self.file_value.value}'.\n"
                 f"The new file with the name '{filename}' cannot be added."
             )
-        self.file_value = FileValue(filename, permissions, comment, self.res_id)
+        metadata = FileMetadata(permissions, None, None)
+        self.file_value = FileValue(filename, metadata, comment, self.res_id)
         return self
 
     def add_iiif_uri(

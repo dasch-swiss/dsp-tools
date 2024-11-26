@@ -31,3 +31,25 @@ class NewlineReplacement(Enum):
     NONE = auto()
     PARAGRAPH = auto()
     LINEBREAK = auto()
+
+
+class LicenseOptions(Enum):
+    """
+    Options for the pre-defined licenses.
+
+    - ID: CC-BY | URI: https://creativecommons.org/licenses/by/4.0/
+    - ID: CC-BY-SA | URI: https://creativecommons.org/licenses/by-sa/4.0/
+    - ID: CC-BY-NC | URI: https://creativecommons.org/licenses/by-nc/4.0/
+    - ID: CC-BY-NC-SA | URI: https://creativecommons.org/licenses/by-nc-sa/4.0/
+    - ID: CC-BY-ND | URI: https://creativecommons.org/licenses/by-nd/4.0/
+    - ID: CC-BY-NC-ND | URI: https://creativecommons.org/licenses/by-nc-nd/4.0/
+    - ID: CC0 | URI: https://creativecommons.org/publicdomain/zero/1.0/
+    """
+
+    CC_BY = "CC-BY"
+    CC_BY_SA = "CC-BY-SA"
+    CC_BY_NC = "CC-BY-NC"
+    CC_BY_NC_SA = "CC-BY-NC-SA"
+    CC_BY_ND = "CC-BY-ND"
+    CC_BY_NC_ND = "CC-BY-NC-ND"
+    CC0 = "CC0"

@@ -21,7 +21,7 @@ class CopyrightAndLicense:
         New copyright attributions and licenses can be added.
 
         The following creative commons licenses are included by default:
-        The fist value is the reference ID to reference in the attribute.
+        They can be referened through a string or one of the
             - ID: CC-BY | URI: https://creativecommons.org/licenses/by/4.0/
             - ID: CC-BY-SA | URI: https://creativecommons.org/licenses/by-sa/4.0/
             - ID: CC-BY-NC | URI: https://creativecommons.org/licenses/by-nc/4.0/

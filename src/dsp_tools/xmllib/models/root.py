@@ -169,6 +169,8 @@ class XMLRoot:
         root = self._make_root()
         permissions = XMLPermissions().serialise()
         root.extend(permissions)
+        root.append(_serialise_copyright_attributions(self.copyright_and_license.copyright_attribution))
+        root.append(_serialise_license(self.copyright_and_license.license))
         serialised_resources = [x.serialise() for x in self.resources]
         root.extend(serialised_resources)
         return root

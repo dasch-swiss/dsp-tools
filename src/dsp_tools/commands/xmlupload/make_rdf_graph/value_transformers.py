@@ -91,15 +91,3 @@ def assert_is_string(value: str | FormattedTextValue) -> str:
             raise BaseError(f"Expected string value, but got XML value: {xml.as_xml()}")
         case _:
             assert_never(value)
-
-
-rdf_literal_transformer = {
-    "boolean": transform_xsd_boolean,
-    "color": transform_xsd_string,
-    "decimal": transform_xsd_decimal,
-    "geometry": transform_geometry,
-    "geoname": transform_xsd_string,
-    "integer": transform_xsd_integer,
-    "time": transform_xsd_date_time,
-    "uri": transform_xsd_any_uri,
-}

@@ -13,7 +13,9 @@ from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
+from dsp_tools.xmllib.models.config_options import PreDefinedLicenses
 from dsp_tools.xmllib.models.file_values import AbstractFileValue
+from dsp_tools.xmllib.models.file_values import FileMetadata
 from dsp_tools.xmllib.models.file_values import FileValue
 from dsp_tools.xmllib.models.file_values import IIIFUri
 from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
@@ -1116,6 +1118,8 @@ class Resource:
         self,
         iiif_uri: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        copyright_id: str | None = None,
+        license_id: str | None | PreDefinedLicenses = None,
         comment: str | None = None,
     ) -> Resource:
         """
@@ -1126,6 +1130,8 @@ class Resource:
         Args:
             iiif_uri: valid IIIF URI
             permissions: optional permissions of this value
+            copyright_id: optional ID to the copyright information of this image
+            license_id: optional ID to the license information of this image
             comment: optional comment
 
         Raises:
@@ -1140,7 +1146,8 @@ class Resource:
                 f"'{self.file_value.value}'.\n"
                 f"The new file with the name '{iiif_uri}' cannot be added."
             )
-        self.file_value = IIIFUri(iiif_uri, permissions, comment, self.res_id)
+        metadata = FileMetadata(permissions, copyright_id, license_id)
+        self.file_value = IIIFUri(iiif_uri, metadata, comment, self.res_id)
         return self
 
     #######################

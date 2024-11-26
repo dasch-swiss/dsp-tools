@@ -19,14 +19,22 @@ DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 
 @dataclass
 class FileMetadata:
-    permissions: Permissions
+    permissions: Permissions | None
     copyright_attribution: str | None
     license: str | None
+
+    def to_dict(self) -> dict[str, str]:
+        meta_dict = {"permissions": self.permissions.value} if self.permissions else {}
+        if self.copyright_attribution:
+            meta_dict["copyright"] = self.copyright_attribution
+        if self.license:
+            meta_dict["license"] = self.license
+        return meta_dict
 
 
 class AbstractFileValue(Protocol):
     value: str | Path
-    permissions: Permissions
+    metadata: FileMetadata
     comment: str | None = None
 
     def serialise(self) -> etree._Element:
@@ -36,7 +44,7 @@ class AbstractFileValue(Protocol):
 @dataclass
 class FileValue(AbstractFileValue):
     value: str | Path
-    permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
+    permissions: Permissions
     comment: str | None = None
     resource_id: str | None = None
 
@@ -58,7 +66,7 @@ class FileValue(AbstractFileValue):
 @dataclass
 class IIIFUri(AbstractFileValue):
     value: str
-    permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
+    metadata: FileMetadata
     comment: str | None = None
     resource_id: str | None = None
 
@@ -67,9 +75,7 @@ class IIIFUri(AbstractFileValue):
             _warn_type_mismatch(expected_type="IIIF uri", value=self.value, res_id=self.resource_id)
 
     def serialise(self) -> etree._Element:
-        attribs = {}
-        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
-            attribs["permissions"] = self.permissions.value
+        attribs = self.metadata.to_dict()
         if self.comment:
             attribs["comment"] = self.comment
         ele = etree.Element(f"{DASCH_SCHEMA}iiif-uri", attrib=attribs, nsmap=XML_NAMESPACE_MAP)

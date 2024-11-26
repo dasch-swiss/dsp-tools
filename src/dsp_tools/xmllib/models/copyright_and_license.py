@@ -34,7 +34,7 @@ class CopyrightAndLicense:
         Returns:
             A CopyrightAndLicense object with the default licenses.
         """
-        return CopyrightAndLicense(license=CREATIVE_COMMONS_LICENSES)
+        return CopyrightAndLicense(license=PRE_DEFINED_LICENSES)
 
     def add_copyright_attribution(self, id_: str, text: str) -> CopyrightAndLicense:
         """
@@ -155,7 +155,7 @@ class License:
     uri: str | None
 
 
-CREATIVE_COMMONS_LICENSES = [
+PRE_DEFINED_LICENSES = [
     License("CC_BY", "CC BY 4.0", "https://creativecommons.org/licenses/by/4.0/"),
     License("CC_BY_SA", "CC BY-SA 4.0", "https://creativecommons.org/licenses/by-sa/4.0/"),
     License("CC_BY_NC", "CC BY-NC 4.0", "https://creativecommons.org/licenses/by-nc/4.0/"),

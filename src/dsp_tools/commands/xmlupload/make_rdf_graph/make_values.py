@@ -37,7 +37,7 @@ from dsp_tools.utils.logger_config import WARNINGS_SAVEPATH
 
 
 def make_values(
-    properties: list[XMLProperty], restype: str, res_bnode: BNode, lookup: Lookups
+    properties: list[XMLProperty], restype: str, res_bnode: BNode, lookups: Lookups
 ) -> tuple[Graph, URIRef | None]:
     """
     Serialise the values of a resource.
@@ -46,7 +46,7 @@ def make_values(
         properties: list of XMLProperty of the resource
         restype: type of the resource as a string
         res_bnode: blank node of the resource
-        lookup: lookups to resolve, permissions, IRIs, etc.
+        lookups: lookups to resolve, permissions, IRIs, etc.
 
     Returns:
         Graph with the values and the last property name
@@ -57,15 +57,15 @@ def make_values(
 
     for prop in properties:
         single_prop_graph, last_prop_name = _make_one_prop_graph(
-            prop=prop, restype=restype, res_bnode=res_bnode, lookup=lookup
+            prop=prop, restype=restype, res_bnode=res_bnode, lookups=lookups
         )
         properties_graph += single_prop_graph
 
     return properties_graph, last_prop_name
 
 
-def _make_one_prop_graph(prop: XMLProperty, restype: str, res_bnode: BNode, lookup: Lookups) -> tuple[Graph, URIRef]:
-    prop_name = get_absolute_iri(prop.name, lookup.namespaces)
+def _make_one_prop_graph(prop: XMLProperty, restype: str, res_bnode: BNode, lookups: Lookups) -> tuple[Graph, URIRef]:
+    prop_name = get_absolute_iri(prop.name, lookups.namespaces)
     match prop.valtype:
         case "boolean" | "color" | "decimal" | "geometry" | "geoname" | "integer" | "time" | "uri" as val_type:
             literal_info = RDF_PROP_TYPE_MAPPER[val_type]
@@ -76,46 +76,46 @@ def _make_one_prop_graph(prop: XMLProperty, restype: str, res_bnode: BNode, look
                 prop_name=prop_name,
                 prop_type_info=literal_info,
                 transformer=transformer,
-                permissions_lookup=lookup.permissions,
+                permissions_lookup=lookups.permissions,
             )
         case "list":
             properties_graph = _make_list_prop_graph(
                 prop=prop,
                 res_bn=res_bnode,
                 prop_name=prop_name,
-                permissions_lookup=lookup.permissions,
-                listnode_lookup=lookup.listnodes,
+                permissions_lookup=lookups.permissions,
+                listnode_lookup=lookups.listnodes,
             )
         case "resptr":
-            prop_name = _get_link_prop_name(prop, restype, lookup.namespaces)
+            prop_name = _get_link_prop_name(prop, restype, lookups.namespaces)
             properties_graph = _make_link_prop_graph(
                 prop=prop,
                 res_bn=res_bnode,
                 prop_name=prop_name,
-                permissions_lookup=lookup.permissions,
-                iri_resolver=lookup.id_to_iri,
+                permissions_lookup=lookups.permissions,
+                iri_resolver=lookups.id_to_iri,
             )
         case "text":
             properties_graph = _make_text_prop_graph(
                 prop=prop,
                 res_bn=res_bnode,
                 prop_name=prop_name,
-                permissions_lookup=lookup.permissions,
-                iri_resolver=lookup.id_to_iri,
+                permissions_lookup=lookups.permissions,
+                iri_resolver=lookups.id_to_iri,
             )
         case "date":
             properties_graph = _make_date_prop_graph(
                 prop=prop,
                 res_bn=res_bnode,
                 prop_name=prop_name,
-                permissions_lookup=lookup.permissions,
+                permissions_lookup=lookups.permissions,
             )
         case "interval":
             properties_graph = _make_interval_prop_graph(
                 prop=prop,
                 res_bn=res_bnode,
                 prop_name=prop_name,
-                permissions_lookup=lookup.permissions,
+                permissions_lookup=lookups.permissions,
             )
         case _:
             raise UserError(f"Unknown value type: {prop.valtype}")

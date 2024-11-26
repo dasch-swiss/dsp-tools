@@ -39,14 +39,14 @@ def create_resource_with_values(
 
 
 def _make_values_dict_from_resource(
-    resource: XMLResource, bitstream_information: BitstreamInfo | None, lookup: Lookups
+    resource: XMLResource, bitstream_information: BitstreamInfo | None, lookups: Lookups
 ) -> dict[str, Any]:
     res_bnode = BNode()
 
-    properties_graph, last_prop_name = make_values(resource.properties, resource.restype, res_bnode, lookup)
+    properties_graph, last_prop_name = make_values(resource.properties, resource.restype, res_bnode, lookups)
 
     if resource.iiif_uri:
-        resolved_permissions = resolve_permission(resource.iiif_uri.permissions, lookup.permissions)
+        resolved_permissions = resolve_permission(resource.iiif_uri.permissions, lookups.permissions)
         metadata = FileValueMetadata(resolved_permissions)
         iiif_val = AbstractFileValue(resource.iiif_uri.value, metadata)
         iiif_g, last_prop_name = make_iiif_uri_value_graph(iiif_val, res_bnode)

@@ -55,14 +55,3 @@ class PreDefinedLicenses(Enum):
     CC_BY_NC_ND = "CC-BY-NC-ND"
     CC0 = "CC0"
     UNKNOWN = "unknown"
-
-
-class PreDefinedCopyrights(Enum):
-    """
-    Options for the pre-defined copyright attributions:
-
-    - ID: unknown
-
-    """
-
-    UNKNOWN = "unknown"

@@ -31,9 +31,6 @@ class CopyrightAndLicense:
             - ID: CC0 | URI: https://creativecommons.org/publicdomain/zero/1.0/
             - ID: unknown | URI: https://rightsstatements.org/page/CNE/1.0/
 
-        The following copyright attributions are included by default:
-        They can be referenced through a string or one of the PreDefinedCopyrights
-
         Returns:
             A CopyrightAndLicense object with the default licenses.
         """
@@ -131,20 +128,12 @@ class CopyrightAttribution:
     id_: str
     text: str
 
-    @staticmethod
-    def create_new(id_: str, text: str) -> CopyrightAttribution:
-        pass
-
 
 @dataclass
 class License:
     id_: str
     text: str
     uri: str | None
-
-    @staticmethod
-    def create_new(id_: str, text: str, uri: str | None = None) -> License:
-        pass
 
 
 CREATIVE_COMMONS_LICENSES = [

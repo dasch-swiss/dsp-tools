@@ -20,7 +20,6 @@ from dsp_tools.xmllib.value_checkers import is_integer
 from dsp_tools.xmllib.value_checkers import is_string_like
 from dsp_tools.xmllib.value_checkers import is_timestamp
 from dsp_tools.xmllib.value_converters import convert_to_bool_string
-from dsp_tools.xmllib.value_checkers import is_nonempty_value
 
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
@@ -56,8 +55,6 @@ class BooleanValue(Value):
             _warn_type_mismatch(
                 expected_type="bool", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
-        if not is_nonempty_value(self.comment):
-            self.comment = None
         self.value = convert_to_bool_string(self.value)
 
     def serialise(self) -> etree._Element:
@@ -74,8 +71,8 @@ class BooleanValue(Value):
             if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS
             else {}
         )
-        if self.comment:
-            attribs["comment"] = self.comment
+        if is_string_like(self.comment):
+            attribs["comment"] = str(self.comment)
         ele = etree.Element(f"{DASCH_SCHEMA}boolean", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
         ele.text = str(self.value)
         return ele
@@ -94,8 +91,6 @@ class ColorValue(Value):
             _warn_type_mismatch(
                 expected_type="color", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
-        if not is_nonempty_value(self.comment):
-            self.comment = None
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()
@@ -111,8 +106,8 @@ class ColorValue(Value):
             if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS
             else {}
         )
-        if self.comment:
-            attribs["comment"] = self.comment
+        if is_string_like(self.comment):
+            attribs["comment"] = str(self.comment)
         ele = etree.Element(f"{DASCH_SCHEMA}color", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
         ele.text = str(self.value)
         return ele
@@ -131,8 +126,6 @@ class DateValue(Value):
             _warn_type_mismatch(
                 expected_type="date", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
-        if not is_nonempty_value(self.comment):
-            self.comment = None
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()
@@ -148,8 +141,8 @@ class DateValue(Value):
             if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS
             else {}
         )
-        if self.comment:
-            attribs["comment"] = self.comment
+        if is_string_like(self.comment):
+            attribs["comment"] = str(self.comment)
         ele = etree.Element(f"{DASCH_SCHEMA}date", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
         ele.text = str(self.value)
         return ele
@@ -168,8 +161,6 @@ class DecimalValue(Value):
             _warn_type_mismatch(
                 expected_type="decimal", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
-        if not is_nonempty_value(self.comment):
-            self.comment = None
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()
@@ -185,8 +176,8 @@ class DecimalValue(Value):
             if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS
             else {}
         )
-        if self.comment:
-            attribs["comment"] = self.comment
+        if is_string_like(self.comment):
+            attribs["comment"] = str(self.comment)
         ele = etree.Element(f"{DASCH_SCHEMA}decimal", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
         ele.text = str(self.value)
         return ele
@@ -205,8 +196,6 @@ class GeonameValue(Value):
             _warn_type_mismatch(
                 expected_type="geoname", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
-        if not is_nonempty_value(self.comment):
-            self.comment = None
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()
@@ -222,8 +211,8 @@ class GeonameValue(Value):
             if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS
             else {}
         )
-        if self.comment:
-            attribs["comment"] = self.comment
+        if is_string_like(self.comment):
+            attribs["comment"] = str(self.comment)
         ele = etree.Element(f"{DASCH_SCHEMA}geoname", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
         ele.text = str(self.value)
         return ele
@@ -242,8 +231,6 @@ class IntValue(Value):
             _warn_type_mismatch(
                 expected_type="integer", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
-        if not is_nonempty_value(self.comment):
-            self.comment = None
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()
@@ -259,8 +246,8 @@ class IntValue(Value):
             if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS
             else {}
         )
-        if self.comment:
-            attribs["comment"] = self.comment
+        if is_string_like(self.comment):
+            attribs["comment"] = str(self.comment)
         ele = etree.Element(f"{DASCH_SCHEMA}integer", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
         ele.text = str(self.value)
         return ele
@@ -279,8 +266,6 @@ class LinkValue(Value):
             _warn_type_mismatch(
                 expected_type="string", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
-        if not is_nonempty_value(self.comment):
-            self.comment = None
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()
@@ -296,8 +281,8 @@ class LinkValue(Value):
             if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS
             else {}
         )
-        if self.comment:
-            attribs["comment"] = self.comment
+        if is_string_like(self.comment):
+            attribs["comment"] = str(self.comment)
         ele = etree.Element(f"{DASCH_SCHEMA}resptr", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
         ele.text = self.value
         return ele
@@ -317,8 +302,6 @@ class ListValue(Value):
             _warn_type_mismatch(
                 expected_type="list", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
-        if not is_nonempty_value(self.comment):
-            self.comment = None
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()
@@ -336,8 +319,8 @@ class ListValue(Value):
             if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS
             else {}
         )
-        if self.comment:
-            attribs["comment"] = self.comment
+        if is_string_like(self.comment):
+            attribs["comment"] = str(self.comment)
         ele = etree.Element(f"{DASCH_SCHEMA}list", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
         ele.text = self.value
         return ele
@@ -356,8 +339,6 @@ class SimpleText(Value):
             _warn_type_mismatch(
                 expected_type="string", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
-        if not is_nonempty_value(self.comment):
-            self.comment = None
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()
@@ -371,8 +352,8 @@ class SimpleText(Value):
         attribs = {"encoding": "utf8"}
         if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
             attribs["permissions"] = self.permissions.value
-        if self.comment:
-            attribs["comment"] = self.comment
+        if is_string_like(self.comment):
+            attribs["comment"] = str(self.comment)
         ele = etree.Element(f"{DASCH_SCHEMA}text", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
         ele.text = self.value
         return ele
@@ -391,8 +372,6 @@ class Richtext(Value):
             _warn_type_mismatch(
                 expected_type="string", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
-        if not is_nonempty_value(self.comment):
-            self.comment = None
         check_richtext_syntax(self.value)
 
     def serialise(self) -> etree._Element:
@@ -407,8 +386,8 @@ class Richtext(Value):
         attribs = {"encoding": "xml"}
         if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
             attribs["permissions"] = self.permissions.value
-        if self.comment:
-            attribs["comment"] = self.comment
+        if is_string_like(self.comment):
+            attribs["comment"] = str(self.comment)
         ele = etree.Element(f"{DASCH_SCHEMA}text", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
         ele.text = self.value
         return ele
@@ -427,8 +406,6 @@ class TimeValue(Value):
             _warn_type_mismatch(
                 expected_type="timestamp", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
-        if not is_nonempty_value(self.comment):
-            self.comment = None
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()
@@ -444,8 +421,8 @@ class TimeValue(Value):
             if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS
             else {}
         )
-        if self.comment:
-            attribs["comment"] = self.comment
+        if is_string_like(self.comment):
+            attribs["comment"] = str(self.comment)
         ele = etree.Element(f"{DASCH_SCHEMA}time", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
         ele.text = self.value
         return ele
@@ -464,8 +441,6 @@ class UriValue(Value):
             _warn_type_mismatch(
                 expected_type="uri", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
-        if not is_nonempty_value(self.comment):
-            self.comment = None
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()
@@ -481,8 +456,8 @@ class UriValue(Value):
             if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS
             else {}
         )
-        if self.comment:
-            attribs["comment"] = self.comment
+        if is_string_like(self.comment):
+            attribs["comment"] = str(self.comment)
         ele = etree.Element(f"{DASCH_SCHEMA}uri", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
         ele.text = self.value
         return ele

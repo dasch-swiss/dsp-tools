@@ -27,7 +27,7 @@ from dsp_tools.models.exceptions import BaseError
 
 
 @pytest.fixture
-def metadata_permissions() -> FileValueMetadata:
+def metadata_with_permissions() -> FileValueMetadata:
     return FileValueMetadata("permissions")
 
 
@@ -37,8 +37,8 @@ def metadata_no_permissions() -> FileValueMetadata:
 
 
 @pytest.fixture
-def abstract_file_permissions(metadata_permissions: FileValueMetadata) -> AbstractFileValue:
-    return AbstractFileValue("value", metadata_permissions)
+def abstract_file_with_permissions(metadata_with_permissions: FileValueMetadata) -> AbstractFileValue:
+    return AbstractFileValue("value", metadata_with_permissions)
 
 
 @pytest.fixture
@@ -47,9 +47,11 @@ def abstract_file_no_permissions(metadata_no_permissions: FileValueMetadata) -> 
 
 
 class TestIIIFURI:
-    def test_make_iiif_uri_value_graph_with_permissions(self, abstract_file_permissions: AbstractFileValue) -> None:
+    def test_make_iiif_uri_value_graph_with_permissions(
+        self, abstract_file_with_permissions: AbstractFileValue
+    ) -> None:
         res_bn = BNode()
-        g, _ = make_iiif_uri_value_graph(abstract_file_permissions, res_bn)
+        g, _ = make_iiif_uri_value_graph(abstract_file_with_permissions, res_bn)
         assert len(g) == 4
         val_bn = next(g.objects(res_bn, KNORA_API.hasStillImageFileValue))
         assert next(g.objects(val_bn, RDF.type)) == KNORA_API.StillImageExternalFileValue
@@ -112,9 +114,11 @@ class TestMakeFileValueGraph:
             TEXT_FILE_VALUE,
         ],
     )
-    def test_with_permissions(self, abstract_file_permissions: AbstractFileValue, type_info: RDFPropTypeInfo) -> None:
+    def test_with_permissions(
+        self, abstract_file_with_permissions: AbstractFileValue, type_info: RDFPropTypeInfo
+    ) -> None:
         res_bn = BNode()
-        g = _make_abstract_file_value_graph(abstract_file_permissions, type_info, res_bn)
+        g = _make_abstract_file_value_graph(abstract_file_with_permissions, type_info, res_bn)
         assert len(g) == 4
         val_bn = next(g.objects(res_bn, type_info.knora_prop))
         assert next(g.objects(val_bn, RDF.type)) == type_info.knora_type
@@ -191,9 +195,9 @@ class TestFileTypeInfo:
 
 
 class TestAddMetadata:
-    def test_permissions(self, metadata_permissions: FileValueMetadata) -> None:
+    def test_permissions(self, metadata_with_permissions: FileValueMetadata) -> None:
         bn = BNode()
-        g = _add_metadata(bn, metadata_permissions)
+        g = _add_metadata(bn, metadata_with_permissions)
         assert len(g) == 1
         permission = next(g.objects(bn, KNORA_API.hasPermissions))
         assert permission == Literal("permissions", datatype=XSD.string)

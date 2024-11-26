@@ -1147,7 +1147,11 @@ class Resource:
                 f"'{self.file_value.value}'.\n"
                 f"The new file with the name '{iiif_uri}' cannot be added."
             )
-        metadata = FileMetadata(permissions, copyright_id, license_id)
+        if isinstance(license_id, PreDefinedLicenses):
+            license_val: str | None = license_id.value
+        else:
+            license_val = license_id
+        metadata = FileMetadata(permissions, copyright_id, license_val)
         self.file_value = IIIFUri(iiif_uri, metadata, comment, self.res_id)
         return self
 

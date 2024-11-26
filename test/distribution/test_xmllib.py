@@ -1,3 +1,4 @@
+from dsp_tools.xmllib.models.copyright_and_license import CopyrightAndLicense
 from dsp_tools.xmllib.models.dsp_base_resources import AnnotationResource
 from dsp_tools.xmllib.models.resource import Resource
 from dsp_tools.xmllib.models.root import XMLRoot
@@ -12,7 +13,7 @@ def test_xmllib() -> None:
     For this purpose, it is enough to import all modules of the xmllib.
     Indirect imports are okay, too, i.e. modules that are imported by modules that are imported here.
     """
-    root = XMLRoot("0000", "my_onto")
+    root = XMLRoot("0000", "my_onto", CopyrightAndLicense.create_new())
     my_res = Resource.create_new("my_res", "restype", "label")
     if is_bool_like("0"):
         my_res.add_bool("my_prop", convert_to_bool_string("0"))

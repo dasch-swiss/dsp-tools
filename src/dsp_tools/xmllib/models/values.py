@@ -284,7 +284,7 @@ class LinkValue(Value):
         if is_string_like(self.comment):
             attribs["comment"] = str(self.comment)
         ele = etree.Element(f"{DASCH_SCHEMA}resptr", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
-        ele.text = self.value
+        ele.text = str(self.value)
         return ele
 
 
@@ -322,7 +322,7 @@ class ListValue(Value):
         if is_string_like(self.comment):
             attribs["comment"] = str(self.comment)
         ele = etree.Element(f"{DASCH_SCHEMA}list", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
-        ele.text = self.value
+        ele.text = str(self.value)
         return ele
 
 
@@ -355,7 +355,7 @@ class SimpleText(Value):
         if is_string_like(self.comment):
             attribs["comment"] = str(self.comment)
         ele = etree.Element(f"{DASCH_SCHEMA}text", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
-        ele.text = self.value
+        ele.text = str(self.value)
         return ele
 
 
@@ -389,7 +389,7 @@ class Richtext(Value):
         if is_string_like(self.comment):
             attribs["comment"] = str(self.comment)
         ele = etree.Element(f"{DASCH_SCHEMA}text", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
-        ele.text = self.value
+        ele.text = str(self.value)
         return ele
 
 
@@ -424,7 +424,7 @@ class TimeValue(Value):
         if is_string_like(self.comment):
             attribs["comment"] = str(self.comment)
         ele = etree.Element(f"{DASCH_SCHEMA}time", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
-        ele.text = self.value
+        ele.text = str(self.value)
         return ele
 
 
@@ -459,7 +459,7 @@ class UriValue(Value):
         if is_string_like(self.comment):
             attribs["comment"] = str(self.comment)
         ele = etree.Element(f"{DASCH_SCHEMA}uri", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
-        ele.text = self.value
+        ele.text = str(self.value)
         return ele
 
 

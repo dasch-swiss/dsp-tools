@@ -21,7 +21,7 @@ class CopyrightAndLicense:
         New copyright attributions and licenses can be added.
 
         The following licenses are included by default:
-        They can be referenced through a string or one of the LicenseOptions
+        They can be referenced through a string or one of the PreDefinedLicenses
             - ID: CC-BY | URI: https://creativecommons.org/licenses/by/4.0/
             - ID: CC-BY-SA | URI: https://creativecommons.org/licenses/by-sa/4.0/
             - ID: CC-BY-NC | URI: https://creativecommons.org/licenses/by-nc/4.0/
@@ -32,8 +32,7 @@ class CopyrightAndLicense:
             - ID: unknown | URI: https://rightsstatements.org/page/CNE/1.0/
 
         The following copyright attributions are included by default:
-        They can be referenced through a string or one of the
-
+        They can be referenced through a string or one of the PreDefinedCopyrights
 
         Returns:
             A CopyrightAndLicense object with the default licenses.

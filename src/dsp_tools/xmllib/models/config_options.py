@@ -33,7 +33,7 @@ class NewlineReplacement(Enum):
     LINEBREAK = auto()
 
 
-class LicenseOptions(Enum):
+class PreDefinedLicenses(Enum):
     """
     Options for the pre-defined licenses.
 
@@ -57,7 +57,7 @@ class LicenseOptions(Enum):
     UNKNOWN = "unknown"
 
 
-class CopyrightOptions(Enum):
+class PreDefinedCopyrights(Enum):
     """
     Options for the pre-defined copyright attributions:
 

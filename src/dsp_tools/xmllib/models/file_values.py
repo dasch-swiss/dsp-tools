@@ -17,6 +17,13 @@ XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.o
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 
 
+@dataclass
+class FileMetadata:
+    permissions: Permissions
+    copyright_attribution: str | None
+    license: str | None
+
+
 class AbstractFileValue(Protocol):
     value: str | Path
     permissions: Permissions

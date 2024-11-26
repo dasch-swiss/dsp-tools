@@ -14,8 +14,6 @@ from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.xml_validation import validate_xml_file
 from dsp_tools.xmllib.models.copyright_and_license import CopyrightAndLicense
-from dsp_tools.xmllib.models.copyright_and_license import CopyrightAttribution
-from dsp_tools.xmllib.models.copyright_and_license import License
 from dsp_tools.xmllib.models.dsp_base_resources import AnnotationResource
 from dsp_tools.xmllib.models.dsp_base_resources import AudioSegmentResource
 from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
@@ -169,30 +167,8 @@ class XMLRoot:
         root = self._make_root()
         permissions = XMLPermissions().serialise()
         root.extend(permissions)
-        root.append(_serialise_copyright_attributions(self.copyright_and_license.copyright_attribution))
-        root.append(_serialise_license(self.copyright_and_license.license))
+        root.append(self.copyright_and_license.serialise_license())
+        root.append(self.copyright_and_license.serialise_copyright_attributions())
         serialised_resources = [x.serialise() for x in self.resources]
         root.extend(serialised_resources)
         return root
-
-
-def _serialise_copyright_attributions(copyright_attributions: list[CopyrightAttribution]) -> etree._Element:
-    copyrights = etree.Element(f"{DASCH_SCHEMA}copyrights", nsmap=XML_NAMESPACE_MAP)
-    for copy_right in copyright_attributions:
-        attrib = {"id": copy_right.id_}
-        ele = etree.Element(f"{DASCH_SCHEMA}copyright", attrib=attrib, nsmap=XML_NAMESPACE_MAP)
-        ele.text = copy_right.text
-        copyrights.append(ele)
-    return copyrights
-
-
-def _serialise_license(license_list: list[License]) -> etree._Element:
-    licenses = etree.Element(f"{DASCH_SCHEMA}licenses", nsmap=XML_NAMESPACE_MAP)
-    for one_license in license_list:
-        attrib = {"id": one_license.id_}
-        if one_license.uri:
-            attrib["uri"] = one_license.uri
-            ele = etree.Element(f"{DASCH_SCHEMA}license", attrib=attrib, nsmap=XML_NAMESPACE_MAP)
-            ele.text = one_license.text
-            licenses.append(ele)
-    return licenses

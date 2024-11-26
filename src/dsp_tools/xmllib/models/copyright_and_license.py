@@ -5,8 +5,12 @@ from dataclasses import field
 from typing import Any
 
 import pandas as pd
+from lxml import etree
 
 from dsp_tools.models.exceptions import InputError
+
+XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
+DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 
 
 @dataclass
@@ -140,6 +144,26 @@ class CopyrightAndLicense:
 
     def _get_license_ids(self) -> set[str]:
         return {x.id_ for x in self.license}
+
+    def serialise_copyright_attributions(self) -> etree._Element:
+        copyrights = etree.Element(f"{DASCH_SCHEMA}copyrights", nsmap=XML_NAMESPACE_MAP)
+        for copy_right in self.copyright_attribution:
+            attrib = {"id": copy_right.id_}
+            ele = etree.Element(f"{DASCH_SCHEMA}copyright", attrib=attrib, nsmap=XML_NAMESPACE_MAP)
+            ele.text = copy_right.text
+            copyrights.append(ele)
+        return copyrights
+
+    def serialise_license(self) -> etree._Element:
+        licenses = etree.Element(f"{DASCH_SCHEMA}licenses", nsmap=XML_NAMESPACE_MAP)
+        for one_license in self.license:
+            attrib = {"id": one_license.id_}
+            if one_license.uri:
+                attrib["uri"] = one_license.uri
+                ele = etree.Element(f"{DASCH_SCHEMA}license", attrib=attrib, nsmap=XML_NAMESPACE_MAP)
+                ele.text = one_license.text
+                licenses.append(ele)
+        return licenses
 
 
 @dataclass

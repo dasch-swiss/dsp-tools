@@ -58,7 +58,7 @@ def _make_values_dict_from_resource(
 
     if last_prop_name:
         return serialise_property_graph(properties_graph, last_prop_name)
-    return {}
+    return {}  # we allow resources without properties
 
 
 def _make_resource(resource: XMLResource, lookup: Lookups) -> dict[str, Any]:

@@ -20,8 +20,8 @@ class CopyrightAndLicense:
         Creates a new copyright attribution and license container.
         New copyright attributions and licenses can be added.
 
-        The following creative commons licenses are included by default:
-        They can be referened through a string or one of the
+        The following licenses are included by default:
+        They can be referenced through a string or one of the LicenseOptions
             - ID: CC-BY | URI: https://creativecommons.org/licenses/by/4.0/
             - ID: CC-BY-SA | URI: https://creativecommons.org/licenses/by-sa/4.0/
             - ID: CC-BY-NC | URI: https://creativecommons.org/licenses/by-nc/4.0/
@@ -29,6 +29,11 @@ class CopyrightAndLicense:
             - ID: CC-BY-ND | URI: https://creativecommons.org/licenses/by-nd/4.0/
             - ID: CC-BY-NC-ND | URI: https://creativecommons.org/licenses/by-nc-nd/4.0/
             - ID: CC0 | URI: https://creativecommons.org/publicdomain/zero/1.0/
+            - ID: unknown | URI: https://rightsstatements.org/page/CNE/1.0/
+
+        The following copyright attributions are included by default:
+        They can be referenced through a string or one of the
+
 
         Returns:
             A CopyrightAndLicense object with the default licenses.
@@ -114,7 +119,7 @@ class CopyrightAndLicense:
         Returns:
             The original CopyrightAndLicense with the added licenses.
         """
-        for license_id, info_tuple in license_dict:
+        for license_id, info_tuple in license_dict.items():
             self.add_license(license_id, info_tuple[0], info_tuple[1])
         return self
 
@@ -151,4 +156,5 @@ CREATIVE_COMMONS_LICENSES = [
     License("CC-BY-ND", "CC BY-ND 4.0", "https://creativecommons.org/licenses/by-nd/4.0/"),
     License("CC-BY-NC-ND", "CC BY-NC-ND 4.0", "https://creativecommons.org/licenses/by-nc-nd/4.0/"),
     License("CC0", "CC0 1.0", "https://creativecommons.org/publicdomain/zero/1.0/"),
+    License("unknown", "Copyright Not Evaluated", "https://rightsstatements.org/page/CNE/1.0/"),
 ]

@@ -44,6 +44,7 @@ class LicenseOptions(Enum):
     - ID: CC-BY-ND | URI: https://creativecommons.org/licenses/by-nd/4.0/
     - ID: CC-BY-NC-ND | URI: https://creativecommons.org/licenses/by-nc-nd/4.0/
     - ID: CC0 | URI: https://creativecommons.org/publicdomain/zero/1.0/
+    - ID: unknown | URI: http://rightsstatements.org/vocab/CNE/1.0/
     """
 
     CC_BY = "CC-BY"
@@ -53,3 +54,15 @@ class LicenseOptions(Enum):
     CC_BY_ND = "CC-BY-ND"
     CC_BY_NC_ND = "CC-BY-NC-ND"
     CC0 = "CC0"
+    UNKNOWN = "unknown"
+
+
+class CopyrightOptions(Enum):
+    """
+    Options for the pre-defined copyright attributions:
+
+    - ID: unknown
+
+    """
+
+    UNKNOWN = "unknown"

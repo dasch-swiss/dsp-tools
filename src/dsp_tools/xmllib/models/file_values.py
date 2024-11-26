@@ -38,11 +38,9 @@ class FileValue(AbstractFileValue):
             _warn_type_mismatch(expected_type="file name", value=self.value, res_id=self.resource_id)
 
     def serialise(self) -> etree._Element:
-        attribs = (
-            {"permissions": self.permissions.value}
-            if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS
-            else {}
-        )
+        attribs = {}
+        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
+            attribs["permissions"] = self.permissions.value
         if is_string_like(self.comment):
             attribs["comment"] = str(self.comment)
         ele = etree.Element(f"{DASCH_SCHEMA}bitstream", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
@@ -62,11 +60,9 @@ class IIIFUri(AbstractFileValue):
             _warn_type_mismatch(expected_type="IIIF uri", value=self.value, res_id=self.resource_id)
 
     def serialise(self) -> etree._Element:
-        attribs = (
-            {"permissions": self.permissions.value}
-            if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS
-            else {}
-        )
+        attribs = {}
+        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
+            attribs["permissions"] = self.permissions.value
         if is_string_like(self.comment):
             attribs["comment"] = str(self.comment)
         ele = etree.Element(f"{DASCH_SCHEMA}iiif-uri", attrib=attribs, nsmap=XML_NAMESPACE_MAP)

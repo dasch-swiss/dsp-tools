@@ -41,7 +41,7 @@ class CopyrightAndLicense:
         self.copyright_attribution.append(CopyrightAttribution(id_, text))
         return self
 
-    def add_copyright_attribution_from_dict(self, copyright_dict: dict[str, str]) -> CopyrightAndLicense:
+    def add_copyright_attribution_with_dict(self, copyright_dict: dict[str, str]) -> CopyrightAndLicense:
         if ids_exist := set(copyright_dict.keys()).intersection(self._get_copyright_attribution_ids()):
             raise InputError(
                 f"The following copyright IDs already exist: {", ".join(ids_exist)}. All IDs must be unique."
@@ -59,6 +59,15 @@ class CopyrightAndLicense:
                 f"A license with the ID '{id_}' and the text '{text}' already exists. " f"All IDs must be unique."
             )
         self.license.append(License(id_, text, uri))
+        return self
+
+    def add_license_with_dict(self, license_dict: dict[str, tuple[str, str | None]]) -> CopyrightAndLicense:
+        if ids_exist := set(license_dict.keys()).intersection(self._get_license_ids()):
+            raise InputError(
+                f"The following license IDs already exist: {", ".join(ids_exist)}. All IDs must be unique."
+            )
+        license_list = [License(k, v[0], v[1]) for k, v in license_dict.items()]
+        self.license.extend(license_list)
         return self
 
     def _get_license_ids(self) -> set[str]:

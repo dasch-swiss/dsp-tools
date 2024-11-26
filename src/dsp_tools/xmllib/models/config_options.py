@@ -47,11 +47,11 @@ class PreDefinedLicenses(Enum):
     - `UNKNOWN` [Copyright Not Evaluated](http://rightsstatements.org/vocab/CNE/1.0/)
     """
 
-    CC_BY = "CC-BY"
-    CC_BY_SA = "CC-BY-SA"
-    CC_BY_NC = "CC-BY-NC"
-    CC_BY_NC_SA = "CC-BY-NC-SA"
-    CC_BY_ND = "CC-BY-ND"
-    CC_BY_NC_ND = "CC-BY-NC-ND"
+    CC_BY = "CC_BY"
+    CC_BY_SA = "CC_BY_SA"
+    CC_BY_NC = "CC_BY_NC"
+    CC_BY_NC_SA = "CC_BY_NC_SA"
+    CC_BY_ND = "CC_BY_ND"
+    CC_BY_NC_ND = "CC_BY_NC_ND"
     CC0 = "CC0"
     UNKNOWN = "unknown"

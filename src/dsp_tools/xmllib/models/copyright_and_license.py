@@ -39,11 +39,14 @@ class CopyrightAndLicense:
     def add_copyright_attribution(self, id_: str, text: str) -> CopyrightAndLicense:
         """
         Add a new copyright attribution element.
-        Please note that the id must be unique, this will raise an error if it is not.
+        Please note that the id must be unique.
 
         Args:
             id_: ID which is referenced in the attributes of the XML
             text: Text that should be displayed in the APP.
+
+        Raises:
+            InputError: if the id already exists
 
         Returns:
             The original CopyrightAndLicense with the added copyright attribution.
@@ -59,10 +62,13 @@ class CopyrightAndLicense:
     def add_copyright_attribution_with_dict(self, copyright_dict: dict[str, str]) -> CopyrightAndLicense:
         """
         Add a several new copyright attribution elements from a dictionary.
-        Please note that the id must be unique, this will raise an error if it is not.
+        Please note that the id must be unique.
 
         Args:
             copyright_dict: the dictionary should have the following structure: { id: text }
+
+        Raises:
+            InputError: if the id already exists
 
         Returns:
             The original CopyrightAndLicense with the added copyright attributions.
@@ -81,13 +87,16 @@ class CopyrightAndLicense:
     def add_license(self, id_: str, text: str, uri: Any = None) -> CopyrightAndLicense:
         """
         Add a new license element.
-        Please note that the id must be unique, this will raise an error if it is not.
+        Please note that the id must be unique.
 
         Args:
             id_: ID which is referenced in the attributes of the XML
             text: Text that should be displayed in the APP.
             uri: Optional URI liking to the license documentation.
             A pd.isna() check is done before adding the URI, therefore any value is permissible.
+
+        Raises:
+            InputError: If the resource already has a file or IIIF URI value
 
         Returns:
             The original CopyrightAndLicense with the added license.
@@ -105,12 +114,15 @@ class CopyrightAndLicense:
     def add_license_with_dict(self, license_dict: dict[str, tuple[str, Any]]) -> CopyrightAndLicense:
         """
         Add a new license element.
-        Please note that the id must be unique, this will raise an error if it is not.
+        Please note that the id must be unique.
 
         Args:
             license_dict: dictionary with the information for license elements.
-            It should have the following structure: { id: (text, uri) }
-            A pd.isna() check is done before adding the URI, therefore, any value is permissible.
+                It should have the following structure: { id:
+                (text, uri) } A pd.isna() check is done before adding the URI, therefore, any value is permissible.
+
+        Raises:
+            InputError: If the resource already has a file or IIIF URI value
 
         Returns:
             The original CopyrightAndLicense with the added licenses.

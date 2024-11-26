@@ -20,6 +20,7 @@ from dsp_tools.xmllib.value_checkers import is_integer
 from dsp_tools.xmllib.value_checkers import is_string_like
 from dsp_tools.xmllib.value_checkers import is_timestamp
 from dsp_tools.xmllib.value_converters import convert_to_bool_string
+from dsp_tools.xmllib.value_checkers import is_nonempty_value
 
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
@@ -55,6 +56,8 @@ class BooleanValue(Value):
             _warn_type_mismatch(
                 expected_type="bool", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
+        if not is_nonempty_value(self.comment):
+            self.comment = None
         self.value = convert_to_bool_string(self.value)
 
     def serialise(self) -> etree._Element:
@@ -91,6 +94,8 @@ class ColorValue(Value):
             _warn_type_mismatch(
                 expected_type="color", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
+        if not is_nonempty_value(self.comment):
+            self.comment = None
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()
@@ -126,6 +131,8 @@ class DateValue(Value):
             _warn_type_mismatch(
                 expected_type="date", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
+        if not is_nonempty_value(self.comment):
+            self.comment = None
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()
@@ -161,6 +168,8 @@ class DecimalValue(Value):
             _warn_type_mismatch(
                 expected_type="decimal", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
+        if not is_nonempty_value(self.comment):
+            self.comment = None
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()
@@ -196,6 +205,8 @@ class GeonameValue(Value):
             _warn_type_mismatch(
                 expected_type="geoname", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
+        if not is_nonempty_value(self.comment):
+            self.comment = None
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()
@@ -231,6 +242,8 @@ class IntValue(Value):
             _warn_type_mismatch(
                 expected_type="integer", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
+        if not is_nonempty_value(self.comment):
+            self.comment = None
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()
@@ -266,6 +279,8 @@ class LinkValue(Value):
             _warn_type_mismatch(
                 expected_type="string", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
+        if not is_nonempty_value(self.comment):
+            self.comment = None
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()
@@ -302,6 +317,8 @@ class ListValue(Value):
             _warn_type_mismatch(
                 expected_type="list", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
+        if not is_nonempty_value(self.comment):
+            self.comment = None
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()
@@ -339,6 +356,8 @@ class SimpleText(Value):
             _warn_type_mismatch(
                 expected_type="string", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
+        if not is_nonempty_value(self.comment):
+            self.comment = None
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()
@@ -372,6 +391,8 @@ class Richtext(Value):
             _warn_type_mismatch(
                 expected_type="string", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
+        if not is_nonempty_value(self.comment):
+            self.comment = None
         check_richtext_syntax(self.value)
 
     def serialise(self) -> etree._Element:
@@ -406,6 +427,8 @@ class TimeValue(Value):
             _warn_type_mismatch(
                 expected_type="timestamp", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
+        if not is_nonempty_value(self.comment):
+            self.comment = None
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()
@@ -441,6 +464,8 @@ class UriValue(Value):
             _warn_type_mismatch(
                 expected_type="uri", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
+        if not is_nonempty_value(self.comment):
+            self.comment = None
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()

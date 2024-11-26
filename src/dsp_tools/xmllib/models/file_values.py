@@ -11,7 +11,7 @@ from lxml import etree
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.utils.uri_util import is_iiif_uri
 from dsp_tools.xmllib.models.config_options import Permissions
-from dsp_tools.xmllib.value_checkers import is_string_like
+from dsp_tools.xmllib.value_checkers import is_string_like, is_nonempty_value
 
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
@@ -36,6 +36,8 @@ class FileValue(AbstractFileValue):
     def __post_init__(self) -> None:
         if not is_string_like(str(self.value)):
             _warn_type_mismatch(expected_type="file name", value=self.value, res_id=self.resource_id)
+        if not is_nonempty_value(self.comment):
+            self.comment = None
 
     def serialise(self) -> etree._Element:
         attribs = {}
@@ -58,6 +60,8 @@ class IIIFUri(AbstractFileValue):
     def __post_init__(self) -> None:
         if not is_iiif_uri(self.value):
             _warn_type_mismatch(expected_type="IIIF uri", value=self.value, res_id=self.resource_id)
+        if not is_nonempty_value(self.comment):
+            self.comment = None
 
     def serialise(self) -> etree._Element:
         attribs = {}

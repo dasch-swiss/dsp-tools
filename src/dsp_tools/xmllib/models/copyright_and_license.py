@@ -46,7 +46,7 @@ class CopyrightAndLicense:
             text: Text that should be displayed in the APP.
 
         Raises:
-            InputError: if the id already exists
+            InputError: If the id already exists
 
         Returns:
             The original CopyrightAndLicense with the added copyright attribution.
@@ -68,7 +68,7 @@ class CopyrightAndLicense:
             copyright_dict: the dictionary should have the following structure: { id: text }
 
         Raises:
-            InputError: if the id already exists
+            InputError: If the id already exists
 
         Returns:
             The original CopyrightAndLicense with the added copyright attributions.
@@ -96,7 +96,7 @@ class CopyrightAndLicense:
             A pd.isna() check is done before adding the URI, therefore any value is permissible.
 
         Raises:
-            InputError: If the resource already has a file or IIIF URI value
+            InputError: If the id already exists
 
         Returns:
             The original CopyrightAndLicense with the added license.
@@ -122,13 +122,20 @@ class CopyrightAndLicense:
                 (text, uri) } A pd.isna() check is done before adding the URI, therefore, any value is permissible.
 
         Raises:
-            InputError: If the resource already has a file or IIIF URI value
+            InputError: If the id already exists
 
         Returns:
             The original CopyrightAndLicense with the added licenses.
         """
+        if ids_exist := set(license_dict.keys()).intersection(self._get_copyright_attribution_ids()):
+            raise InputError(
+                f"The following license IDs already exist: {", ".join(ids_exist)}. All IDs must be unique."
+            )
         for license_id, info_tuple in license_dict.items():
-            self.add_license(license_id, info_tuple[0], info_tuple[1])
+            new_uri = None
+            if not pd.isna(info_tuple[1]):
+                new_uri = info_tuple[1]
+            self.license.append(License(license_id, info_tuple[0], new_uri))
         return self
 
     def _get_license_ids(self) -> set[str]:

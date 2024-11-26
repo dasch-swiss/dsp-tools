@@ -15,12 +15,23 @@ class TransformedValue:
 
 
 @dataclass
+class Interval:
+    start: Literal
+    end: Literal
+
+
+@dataclass
 class RDFPropTypeInfo:
     knora_type: URIRef
     knora_prop: URIRef
 
 
 @dataclass
-class Interval:
-    start: Literal
-    end: Literal
+class AbstractFileValue:
+    value: str
+    metadata: FileValueMetadata
+
+
+@dataclass
+class FileValueMetadata:
+    permissions: str | None

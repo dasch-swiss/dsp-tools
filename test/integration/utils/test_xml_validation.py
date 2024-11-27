@@ -70,11 +70,10 @@ def test_validate_xml_empty_label() -> None:
 
 def test_validate_xml_duplicate_license_copyright_id() -> None:
     expected_msg = regex.escape(
-        "The XML file cannot be uploaded due to the following validation error(s):"
-        "\n    Line 11: Element 'copyright', attribute 'id': "
-        "'copyright_id' is not a valid value of the atomic type 'xs:ID'."
-        "\n    Line 16: Element 'license', "
-        "attribute 'id': 'license_id' is not a valid value of the atomic type 'xs:ID'."
+        "The XML file cannot be uploaded due to the following validation error(s):\n"
+        "    Line 11: Element 'copyright-attribution', attribute 'id': 'copyright_id' "
+        "is not a valid value of the atomic type 'xs:ID'.\n"
+        "    Line 16: Element 'license', attribute 'id': 'license_id' is not a valid value of the atomic type 'xs:ID'."
     )
     with pytest.raises(InputError, match=expected_msg):
         validate_xml_file(input_file="testdata/invalid-testdata/xml-data/duplicate-license-copyright-ids.xml")

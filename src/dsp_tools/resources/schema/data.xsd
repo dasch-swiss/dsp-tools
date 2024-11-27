@@ -8,7 +8,15 @@
     <xs:simpleType name="nonEmptyString">
         <xs:restriction base="xs:string">
             <xs:minLength value="1"/>
-            <xs:pattern value=".*\S+.*"/>
+            <xs:pattern value=".*\w*.*"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- nonEmptyString_pretty_printed-->
+    <xs:simpleType name="nonEmptyString_pretty_printed">
+        <xs:restriction base="xs:string">
+            <xs:minLength value="1"/>
+            <xs:pattern value=".*\w*.*"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -401,7 +409,7 @@
     <!-- bitstream tag -->
     <xs:complexType name="bitstream_type">
         <xs:simpleContent>
-            <xs:extension base="nonEmptyString">
+            <xs:extension base="nonEmptyString_pretty_printed">
                 <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
@@ -410,7 +418,7 @@
     <!-- iiif-uri tag -->
     <xs:complexType name="iiif_uri_type">
         <xs:simpleContent>
-            <xs:extension base="nonEmptyString">
+            <xs:extension base="nonEmptyString_pretty_printed">
                 <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
             </xs:extension>
         </xs:simpleContent>

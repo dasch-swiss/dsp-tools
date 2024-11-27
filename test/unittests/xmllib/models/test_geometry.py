@@ -56,4 +56,8 @@ class TestGeometryPoint:
         assert point.y == 0.2
 
     def test_warning(self) -> None:
-        pass
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            point = GeometryPoint("x", "y", "res_id")  # type: ignore[arg-type]
+            assert len(caught_warnings) == 1
+        assert point.x == "x"
+        assert point.y == "y"

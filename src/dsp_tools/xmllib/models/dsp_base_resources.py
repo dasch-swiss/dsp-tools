@@ -11,12 +11,11 @@ from lxml import etree
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.xmllib.models.config_options import Permissions
+from dsp_tools.xmllib.models.geometry import GeometryShape
 from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
 from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import LinkValue
 from dsp_tools.xmllib.models.values import Richtext
-from dsp_tools.xmllib.value_checkers import find_geometry_problem
-from dsp_tools.xmllib.value_checkers import is_color
 from dsp_tools.xmllib.value_checkers import is_decimal
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_string_like
@@ -160,9 +159,8 @@ class AnnotationResource:
 class RegionResource:
     res_id: str
     label: str
-    color: str  # TODO: remove from here
     region_of: str
-    geometry: dict[str, Any]
+    geometry: GeometryShape
     comments: list[str]
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
@@ -170,23 +168,12 @@ class RegionResource:
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
         _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
-        if not is_color(self.color):
-            msg = (
-                f"The color value '{self.color}' for the resource with the ID: '{self.res_id}' failed validation. "
-                f"Please consult the documentation for details."
-            )
-            warnings.warn(DspToolsUserWarning(msg))
-        if fail_msg := find_geometry_problem(self.geometry):
-            msg = f"The geometry of the resource with the ID '{self.res_id}' failed validation.\n" + fail_msg
-            warnings.warn(DspToolsUserWarning(msg))
 
     @staticmethod
     def create_new(
         res_id: str,
         label: str,
-        color: str,
         region_of: str,
-        geometry: dict[str, Any],
         comments: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> RegionResource:
@@ -199,11 +186,7 @@ class RegionResource:
         Args:
             res_id: ID of this region resource
             label: label of this region resource
-            color: color of the region, as `#` followed by 3 or 6 hex numerals (cardinality 1)
-                   ([See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#color))
             region_of: ID of the image resource that this region refers to (cardinality 1)
-            geometry: geometry information of the region (cardinality 1)
-                      ([See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geometry))
             comments: comments to this region (cardinality 1-n)
             permissions: permissions of this region resource
 
@@ -213,12 +196,36 @@ class RegionResource:
         return RegionResource(
             res_id=res_id,
             label=label,
-            color=color,
             region_of=region_of,
-            geometry=geometry,
+            geometry=GeometryShape(),
             comments=list(comments),
             permissions=permissions,
         )
+
+    def customise_shape(
+        self,
+        line_width: float = 2,
+        color: str = "#5b24bf",
+        status: str = "active",
+        type_: str = "rectangle",
+    ) -> RegionResource:
+        """
+        Change the default values of the geometry shape.
+
+        Args:
+            line_width: An integer number in pixels between 1 - 5
+            color: A hexadecimal color value,
+            [see documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#color).
+                The default value was chosen as it is distinguishable for most color-blind people.
+            status: "active" or "deleted"
+            type_: "circle", "rectangle" or "polygon" (only the rectangle can be displayed in DSP-APP.
+                The others can be looked at in another frontend, e.g. in TANGOH.)
+
+        Returns:
+            A region resource with the customised shape.
+        """
+        self.geometry = self.geometry.customise_shape(line_width, color, status, type_)
+        return self
 
     def add_comment(self, comment: str) -> RegionResource:
         """

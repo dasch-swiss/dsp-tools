@@ -1098,8 +1098,8 @@ class Resource:
         Args:
             filename: path to the file
             permissions: optional permissions of this file
-            copyright_id: optional ID to the copyright information of this image
-            license_id: optional ID to the license information of this image
+            copyright_id: optional ID to the copyright information of this file
+            license_id: optional ID to the license information of this file
             comment: optional comment
 
         Raises:

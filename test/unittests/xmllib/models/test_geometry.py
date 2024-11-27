@@ -25,7 +25,10 @@ class TestGeometryShape:
     def test_to_json_string_success(self) -> None:
         geom_obj = GeometryShape("res_id")
         geom_obj.points = [GeometryPoint(0.1, 0.2, "res_id"), GeometryPoint(0.2, 0.3, "res_id")]
-        expected_str = ""
+        expected_str = (
+            '{"status": "active", "type": "rectangle", "lineWidth": 2, '
+            '"points": [{"x": 0.1, "y": 0.2}, {"x": 0.2, "y": 0.3}]}'
+        )
         result = geom_obj.to_json_string()
         assert result == expected_str
 
@@ -33,7 +36,7 @@ class TestGeometryShape:
         with warnings.catch_warnings(record=True) as caught_warnings:
             result = GeometryShape("res_id").to_json_string()
             assert len(caught_warnings) == 1
-        expected_str = ""
+        expected_str = '{"status": "active", "type": "rectangle", "lineWidth": 2, "points": []}'
         assert result == expected_str
 
 

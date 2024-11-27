@@ -160,7 +160,7 @@ class AnnotationResource:
 class RegionResource:
     res_id: str
     label: str
-    color: str
+    color: str  # TODO: remove from here
     region_of: str
     geometry: dict[str, Any]
     comments: list[str]

@@ -301,7 +301,7 @@ dsp-tools ingest-files -s https://api.dasch.swiss -u 'your@email.com' -p 'passwo
 ```
 
 
-## `ingest-xmlupload`
+### `ingest-xmlupload`
 
 This command creates all resources defined in an XML file on a DSP server. 
 In order for this to work, the files referenced in the XML file 
@@ -312,7 +312,7 @@ The mapping CSV file that was created by [`ingest-files`](#ingest-files)
 must be present in the current working directory.
 
 ```bash
-dsp-tools xmlupload [options] xml_data_file.xml
+dsp-tools ingest-xmlupload [options] xml_data_file.xml
 ```
 
 The following options are available:

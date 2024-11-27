@@ -59,5 +59,5 @@ class TestGeometryPoint:
         with warnings.catch_warnings(record=True) as caught_warnings:
             point = GeometryPoint("x", "y", "res_id")  # type: ignore[arg-type]
             assert len(caught_warnings) == 1
-        assert point.x == "x"
-        assert point.y == "y"
+        assert point.x == "x"  # type: ignore[comparison-overlap]
+        assert point.y == "y"  # type: ignore[comparison-overlap]

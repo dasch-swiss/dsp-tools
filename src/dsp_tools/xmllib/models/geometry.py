@@ -79,7 +79,7 @@ class Polygon(GeometryShape):
 @dataclass
 class Circle(GeometryShape):
     center: GeometryPoint
-    radius: GeometryPoint
+    radius: Vector
     line_width: float
     color: str
     active: bool
@@ -125,6 +125,39 @@ class GeometryPoint:
                 msg = (
                     f"The geometry points must be larger/equal 0 and smaller/equal 1. "
                     f"The following points of the resource with the ID '{self.resource_id}' "
+                    f"are not valid: {', '.join(info)}"
+                )
+                warnings.warn(DspToolsUserWarning(msg))
+            self.x = float(self.x)
+            self.y = float(self.y)
+
+    def to_dict(self) -> dict[str, float]:
+        return {"x": self.x, "y": self.y}
+
+
+@dataclass
+class Vector:
+    x: float
+    y: float
+    resource_id: str
+
+    def __post_init__(self) -> None:
+        if not all([is_decimal(self.x), is_decimal(self.y)]):
+            msg = (
+                f"The radius vector for the resource with the ID '{self.resource_id}' are not floats. "
+                f"x: '{self.x}', y: '{self.y}'"
+            )
+            warnings.warn(DspToolsUserWarning(msg))
+        else:
+            info = []
+            if not 0 <= float(self.x) <= 1:
+                info.append(f"x: '{self.x}'")
+            if not 0 <= float(self.y) <= 1:
+                info.append(f"y: '{self.y}'")
+            if info:
+                msg = (
+                    f"The radius vector must be larger/equal 0 and smaller/equal 1. "
+                    f"The following values of the resource with the ID '{self.resource_id}' "
                     f"are not valid: {', '.join(info)}"
                 )
                 warnings.warn(DspToolsUserWarning(msg))

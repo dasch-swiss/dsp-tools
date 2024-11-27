@@ -16,6 +16,7 @@ from dsp_tools.xmllib.models.geometry import GeometryPoint
 from dsp_tools.xmllib.models.geometry import GeometryShape
 from dsp_tools.xmllib.models.geometry import Polygon
 from dsp_tools.xmllib.models.geometry import Rectangle
+from dsp_tools.xmllib.models.geometry import Vector
 from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
 from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import LinkValue
@@ -311,7 +312,7 @@ class RegionResource:
         """
         self.geometry = Circle(
             center=GeometryPoint(center[0], center[1], self.res_id),
-            radius=GeometryPoint(radius[0], radius[1], self.res_id),
+            radius=Vector(radius[0], radius[1], self.res_id),
             line_width=line_width,
             color=color,
             active=active,

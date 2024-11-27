@@ -5,15 +5,21 @@ from collections.abc import Collection
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
+from typing import Any
 from typing import TypeAlias
 from typing import Union
 
+import pandas as pd
 from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.xml_validation import validate_xml_file
-from dsp_tools.xmllib.models.copyright_and_license import CopyrightAndLicense
+from dsp_tools.xmllib.models.copyright_and_license import CopyrightAttribution
+from dsp_tools.xmllib.models.copyright_and_license import CopyrightAttributions
+from dsp_tools.xmllib.models.copyright_and_license import License
+from dsp_tools.xmllib.models.copyright_and_license import Licenses
 from dsp_tools.xmllib.models.dsp_base_resources import AnnotationResource
 from dsp_tools.xmllib.models.dsp_base_resources import AudioSegmentResource
 from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
@@ -31,19 +37,46 @@ AnyResource: TypeAlias = Union[
     Resource, AnnotationResource, RegionResource, LinkResource, VideoSegmentResource, AudioSegmentResource
 ]
 
-# todo: migrate to root change functions to there
+
+PRE_DEFINED_LICENSES = [
+    License("CC_BY", "CC BY 4.0", "https://creativecommons.org/licenses/by/4.0/"),
+    License("CC_BY_SA", "CC BY-SA 4.0", "https://creativecommons.org/licenses/by-sa/4.0/"),
+    License("CC_BY_NC", "CC BY-NC 4.0", "https://creativecommons.org/licenses/by-nc/4.0/"),
+    License("CC_BY_NC_SA", "CC BY-NC-SA 4.0", "https://creativecommons.org/licenses/by-nc-sa/4.0/"),
+    License("CC_BY_ND", "CC BY-ND 4.0", "https://creativecommons.org/licenses/by-nd/4.0/"),
+    License("CC_BY_NC_ND", "CC BY-NC-ND 4.0", "https://creativecommons.org/licenses/by-nc-nd/4.0/"),
+    License("CC0", "CC0 1.0", "https://creativecommons.org/publicdomain/zero/1.0/"),
+    License("unknown", "Copyright Not Evaluated", "https://rightsstatements.org/page/CNE/1.0/"),
+]
+
 
 @dataclass
 class XMLRoot:
     shortcode: str
     default_ontology: str
-    copyright_and_license: CopyrightAndLicense
+    copyright_attributions: CopyrightAttributions
+    licenses: Licenses
     resources: list[AnyResource] = field(default_factory=list)
 
     @staticmethod
     def create_new(shortcode: str, default_ontology: str) -> XMLRoot:
         """
         Create a new XML root, for one file.
+        The following elements are added by default:
+            - `<permissions>` (with default permissions)
+            - `<copyright-attributions>` (empty)
+            - `<licenses>` (with default licenses, see below)
+
+        The following licenses are included by default:
+        They can be referenced through a string or one of the PreDefinedLicenses
+            - `CC_BY` [Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/)
+            - `CC_BY_SA` [Attribution-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-sa/4.0/)
+            - `CC_BY_NC` [Attribution-NonCommercial 4.0 International](https://creativecommons.org/licenses/by-nc/4.0/)
+            - `CC_BY_NC_SA` [Attribution-NonCommercial-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+            - `CC_BY_ND` [Attribution-NoDerivatives 4.0 International](https://creativecommons.org/licenses/by-nd/4.0/)
+            - `CC_BY_NC_ND` [Attribution-NonCommercial-NoDerivatives 4.0 International](https://creativecommons.org/licenses/by-nc-nd/4.0/)
+            - `CC0` [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/)
+            - `UNKNOWN` [Copyright Not Evaluated](http://rightsstatements.org/vocab/CNE/1.0/)
 
         Args:
             shortcode: project shortcode
@@ -55,8 +88,110 @@ class XMLRoot:
         return XMLRoot(
             shortcode=shortcode,
             default_ontology=default_ontology,
-            copyright_and_license=CopyrightAndLicense.create_new(),
+            copyright_attributions=CopyrightAttributions(),
+            licenses=Licenses(PRE_DEFINED_LICENSES),
         )
+
+    def add_license(self, id_: str, text: str, uri: Any = None) -> XMLRoot:
+        """
+        Add a new license element.
+        Please note that the id must be unique.
+
+        Args:
+            id_: ID which is referenced in the attributes of the XML
+            text: Text that should be displayed in the APP.
+            uri: Optional URI liking to the license documentation.
+            A pd.isna() check is done before adding the URI, therefore any value is permissible.
+
+        Raises:
+            InputError: If the id already exists
+
+        Returns:
+            The original XMLRoot with the added license.
+        """
+        if id_ in self.licenses.get_license_ids():
+            raise InputError(
+                f"A license with the ID '{id_}' and the text '{text}' already exists. " f"All IDs must be unique."
+            )
+        new_uri = None
+        if not pd.isna(uri):
+            new_uri = uri
+        self.licenses.licenses.append(License(id_, text, new_uri))
+        return self
+
+    def add_license_with_dict(self, license_dict: dict[str, tuple[str, Any]]) -> XMLRoot:
+        """
+        Add a new license element.
+        Please note that the id must be unique.
+
+        Args:
+            license_dict: dictionary with the information for license elements.
+                It should have the following structure: { id:
+                (text, uri) } A pd.isna() check is done before adding the URI, therefore, any value is permissible.
+
+        Raises:
+            InputError: If the id already exists
+
+        Returns:
+            The original XMLRoot with the added licenses.
+        """
+        if ids_exist := set(license_dict.keys()).intersection(self.licenses.get_license_ids()):
+            raise InputError(
+                f"The following license IDs already exist: {", ".join(ids_exist)}. All IDs must be unique."
+            )
+        for license_id, info_tuple in license_dict.items():
+            new_uri = None
+            if not pd.isna(info_tuple[1]):
+                new_uri = info_tuple[1]
+            self.licenses.licenses.append(License(license_id, info_tuple[0], new_uri))
+        return self
+
+    def add_copyright_attribution(self, id_: str, text: str) -> XMLRoot:
+        """
+        Add a new copyright attribution element.
+        Please note that the id must be unique.
+
+        Args:
+            id_: ID which is referenced in the attributes of the XML
+            text: Text that should be displayed in the APP.
+
+        Raises:
+            InputError: If the id already exists
+
+        Returns:
+            The original XMLRoot with the added copyright attribution.
+        """
+        if id_ in self.copyright_attributions.get_copyright_attribution_ids():
+            raise InputError(
+                f"Copyright attribution with the ID '{id_}' and the text '{text}' already exists. "
+                f"All IDs must be unique."
+            )
+        self.copyright_attributions.copyright_attributions.append(CopyrightAttribution(id_, text))
+        return self
+
+    def add_copyright_attribution_with_dict(self, copyright_dict: dict[str, str]) -> XMLRoot:
+        """
+        Add a several new copyright attribution elements from a dictionary.
+        Please note that the id must be unique.
+
+        Args:
+            copyright_dict: the dictionary should have the following structure: { id: text }
+
+        Raises:
+            InputError: If the id already exists
+
+        Returns:
+            The original XMLRoot with the added copyright attributions.
+        """
+        if ids_exist := set(copyright_dict.keys()).intersection(
+            self.copyright_attributions.get_copyright_attribution_ids()
+        ):
+            raise InputError(
+                f"The following copyright IDs already exist: {", ".join(ids_exist)}. All IDs must be unique."
+            )
+        copyright_list = [CopyrightAttribution(k, v) for k, v in copyright_dict.items()]
+        self.copyright_attributions.copyright_attributions.extend(copyright_list)
+        return self
 
     def add_resource(self, resource: AnyResource) -> XMLRoot:
         """
@@ -168,8 +303,8 @@ class XMLRoot:
         root = self._make_root()
         permissions = XMLPermissions().serialise()
         root.extend(permissions)
-        root.append(self.copyright_and_license.serialise_license())
-        root.append(self.copyright_and_license.serialise_copyright_attributions())
+        root.append(self.copyright_attributions.serialise())
+        root.append(self.licenses.serialise())
         serialised_resources = [x.serialise() for x in self.resources]
         root.extend(serialised_resources)
         return root

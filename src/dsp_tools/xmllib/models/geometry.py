@@ -4,10 +4,62 @@ import json
 import warnings
 from dataclasses import dataclass
 from dataclasses import field
+from typing import Protocol
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.xmllib.value_checkers import is_color
 from dsp_tools.xmllib.value_checkers import is_decimal
+
+
+@dataclass
+class GeometryShape(Protocol):
+    def to_json_string(self) -> str:
+        raise NotImplementedError
+
+
+@dataclass
+class Rectangle(GeometryShape):
+    point_one: GeometryPoint
+    point_two: GeometryPoint
+    line_width: float
+    color: str
+    active: bool
+    resource_id: str
+
+    def __post_init__(self) -> None:
+        _check_warn_shape_info(self.color, self.line_width, self.resource_id)
+
+
+@dataclass
+class Polygon(GeometryShape):
+    points: list[GeometryPoint]
+    line_width: float
+    color: str
+    active: bool
+    resource_id: str
+
+    def __post_init__(self) -> None:
+        _check_warn_shape_info(self.color, self.line_width, self.resource_id)
+        if len(self.points) < 3:
+            msg = (
+                f"The region shape of the resource with the ID '{self.resource_id}' is a polygon."
+                f"Polygons should have at least 3 points. If you would like to display a rectangle "
+                f"we recommend ot use the designated rectangle shape."
+            )
+            warnings.warn(DspToolsUserWarning(msg))
+
+
+@dataclass
+class Circle(GeometryShape):
+    center: GeometryPoint
+    radius: GeometryPoint
+    line_width: float
+    color: str
+    active: bool
+    resource_id: str
+
+    def __post_init__(self) -> None:
+        _check_warn_shape_info(self.color, self.line_width, self.resource_id)
 
 
 @dataclass
@@ -19,40 +71,8 @@ class GeometryShape:
     status: str = "active"
     type_: str = "rectangle"
 
-    def customise_shape(self, line_width: float, color: str, status: str, type_: str) -> GeometryShape:
-        """Change the default values of the geometry shape."""
-        problems = []
-        line_msg = f"The line width must be a number between 1-5. The provided value is not valid: {line_width}"
-        if not is_decimal(line_width):
-            problems.append(line_msg)
-        elif not 0 < int(line_width) <= 5:
-            problems.append(line_msg)
-        if not is_color(color):
-            problems.append(f"The color must be a valid hexadecimal color. The provided value is not valid: {color}")
-        if status.lower() not in ["active", "deleted"]:
-            problems.append(
-                f'The status must be either "active" or "deleted". The provided value is not valid: {status}'
-            )
-        if type_.lower() not in ["circle", "rectangle", "polygon"]:
-            problems.append(
-                f'The type must be either ""circle", "rectangle" or "polygon" . '
-                f"The provided value is not valid: {type_}"
-            )
-        if problems:
-            warnings.warn(
-                DspToolsUserWarning(
-                    f"Some of the shape values of the resource with the ID '{self.resource_id}' are not valid: "
-                    f"\n- {'\n- '.join(problems)}"
-                )
-            )
-        self.line_width = line_width
-        self.color = color
-        self.status = status.lower()
-        self.type_ = type_.lower()
-        return self
-
     def to_json_string(self) -> str:
-        if len(self.points) == 0:
+        if len(self.points) < 2:
             msg = (
                 f"The region shape of the resource with the ID '{self.resource_id}' does not have any points. "
                 f"At least two points are required."
@@ -100,3 +120,21 @@ class GeometryPoint:
 
     def to_dict(self) -> dict[str, float]:
         return {"x": self.x, "y": self.y}
+
+
+def _check_warn_shape_info(color: str, line_width: float, res_id: str) -> None:
+    problems = []
+    line_msg = f"The line width must be a number between 1-5. The provided value is not valid: {line_width}"
+    if not is_decimal(line_width):
+        problems.append(line_msg)
+    elif not 0 < int(line_width) <= 5:
+        problems.append(line_msg)
+    if not is_color(color):
+        problems.append(f"The color must be a valid hexadecimal color. The provided value is not valid: {color}")
+    if problems:
+        warnings.warn(
+            DspToolsUserWarning(
+                f"Some of the shape values of the resource with the ID '{res_id}' are not valid: "
+                f"\n- {'\n- '.join(problems)}"
+            )
+        )

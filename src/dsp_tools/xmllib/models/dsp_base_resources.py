@@ -161,7 +161,7 @@ class RegionResource:
     res_id: str
     label: str
     region_of: str
-    geometry: GeometryShape
+    geometry: GeometryShape | None
     comments: list[str]
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
@@ -200,10 +200,32 @@ class RegionResource:
             res_id=res_id,
             label=label,
             region_of=region_of,
-            geometry=GeometryShape(res_id),
+            geometry=None,
             comments=list(comments),
             permissions=permissions,
         )
+
+    def add_rectangle(
+        self,
+        point_one: tuple[float, float],
+        point_two: tuple[float, float],
+        line_width: float = 2,
+        color: str = "#5b24bf",
+        active: bool = True,
+    ) -> RegionResource: ...
+
+    def add_circle(
+        self,
+        center: tuple[float, float],
+        radius: tuple[float, float],
+        line_width: float = 2,
+        color: str = "#5b24bf",
+        active: bool = True,
+    ) -> RegionResource: ...
+
+    def add_polygon(
+        self, points: list[tuple[float, float]], line_width: float = 2, color: str = "#5b24bf", active: bool = True
+    ) -> RegionResource: ...
 
     def customise_shape(
         self,

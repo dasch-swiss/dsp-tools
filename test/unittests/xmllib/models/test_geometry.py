@@ -6,6 +6,7 @@ from dsp_tools.xmllib.models.geometry import Circle
 from dsp_tools.xmllib.models.geometry import GeometryPoint
 from dsp_tools.xmllib.models.geometry import Polygon
 from dsp_tools.xmllib.models.geometry import Rectangle
+from dsp_tools.xmllib.models.geometry import Vector
 
 
 class TestGeometryShape:
@@ -42,7 +43,7 @@ class TestGeometryShape:
     def test_circle_to_json_string_success(self) -> None:
         geom_obj = Circle(
             center=GeometryPoint(0.1, 0.2, "res_id"),
-            radius=GeometryPoint(0.2, 0.2, "res_id"),
+            radius=Vector(0.2, 0.2, "res_id"),
             line_width=2,
             color="#5b24bf",
             active=True,

@@ -182,7 +182,7 @@ class RegionResource:
         Creates a new region resource.
         A region is a region of interest (ROI) in a StillImageRepresentation.
         The shape of the region comes with default values.
-        They can be customised with the function `customise_shape`.
+        They can be customised with the method `customise_shape`.
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#region)
 
@@ -231,15 +231,51 @@ class RegionResource:
         return self
 
     def add_shape_point(self, x: float, y: float) -> RegionResource:
+        """
+        Adds a point to the region shape.
+        Please note that the point must be a float between 0 and 1.
+        They represent the location in the image as a percentage of the whole.
+
+        Args:
+            x: point on the x-axis
+            y: point on the y-axis
+
+        Returns:
+            A region resource with the added point.
+        """
         self.geometry.points.append(GeometryPoint(x, y, self.res_id))
         return self
 
     def add_shape_point_optional(self, x: Any, y: Any) -> RegionResource:
+        """
+        Adds a point to the region shape.
+        Please note that the point must be a float between 0 and 1.
+        They represent the location in the image as a percentage of the whole.
+        Please note that a point will only be added if **both x and y** are valid floats.
+
+        Args:
+            x: point on the x-axis
+            y: point on the y-axis
+
+        Returns:
+            A region resource with the added point if both are valid floats.
+        """
         if all([is_decimal(x), is_decimal(y)]):
             self.geometry.points.append(GeometryPoint(x, y, self.res_id))
         return self
 
     def add_shape_point_multiple(self, points: list[tuple[float, float]]) -> RegionResource:
+        """
+        Adds multiple points to the region shape.
+        Please note that the points must be a float between 0 and 1.
+        They represent the location in the image as a percentage of the whole.
+
+        Args:
+            points: a list of tuples in the format [ (x, y) ]
+
+        Returns:
+            A region resource with the added points.
+        """
         transformed_points = [GeometryPoint(val[0], val[1], self.res_id) for val in points]
         self.geometry.points.extend(transformed_points)
         return self

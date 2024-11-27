@@ -41,8 +41,8 @@ class FileValue(AbstractFileValue):
         attribs = {}
         if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
             attribs["permissions"] = self.permissions.value
-        if self.comment:
-            attribs["comment"] = self.comment
+        if is_string_like(self.comment):
+            attribs["comment"] = str(self.comment)
         ele = etree.Element(f"{DASCH_SCHEMA}bitstream", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
         ele.text = str(self.value)
         return ele
@@ -63,8 +63,8 @@ class IIIFUri(AbstractFileValue):
         attribs = {}
         if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
             attribs["permissions"] = self.permissions.value
-        if self.comment:
-            attribs["comment"] = self.comment
+        if is_string_like(self.comment):
+            attribs["comment"] = str(self.comment)
         ele = etree.Element(f"{DASCH_SCHEMA}iiif-uri", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
         ele.text = str(self.value)
         return ele

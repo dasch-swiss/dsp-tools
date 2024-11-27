@@ -218,7 +218,7 @@ class RegionResource:
         Args:
             line_width: An integer number in pixels between 1 - 5
             color: A hexadecimal color value,
-            [see documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#color).
+                [see documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#color).
                 The default value was chosen as it is distinguishable for most color-blind people.
             status: "active" or "deleted"
             type_: "circle", "rectangle" or "polygon" (only the rectangle can be displayed in DSP-APP.

@@ -1086,6 +1086,8 @@ class Resource:
         self,
         filename: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        copyright_id: str | None = None,
+        license_id: str | None | PredefinedLicenses = None,
         comment: str | None = None,
     ) -> Resource:
         """
@@ -1096,6 +1098,9 @@ class Resource:
         Args:
             filename: path to the file
             permissions: optional permissions of this file
+            copyright_id: optional ID to the copyright information of this image
+            license_id: optional ID to the license information of this image
+            comment: optional comment
             comment: optional comment
 
         Raises:
@@ -1110,7 +1115,11 @@ class Resource:
                 f"'{self.file_value.value}'.\n"
                 f"The new file with the name '{filename}' cannot be added."
             )
-        metadata = FileMetadata(permissions, None, None)
+        if isinstance(license_id, PredefinedLicenses):
+            license_val: str | None = license_id.value
+        else:
+            license_val = license_id
+        metadata = FileMetadata(permissions, copyright_id, license_val)
         self.file_value = FileValue(filename, metadata, comment, self.res_id)
         return self
 

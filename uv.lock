@@ -214,7 +214,7 @@ wheels = [
 
 [[package]]
 name = "dsp-tools"
-version = "9.1.0"
+version = "9.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "argparse" },
@@ -434,6 +434,9 @@ dependencies = [
     { name = "ply" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/6d/86/08646239a313f895186ff0a4573452038eed8c86f54380b3ebac34d32fb2/jsonpath-ng-1.7.0.tar.gz", hash = "sha256:f6f5f7fd4e5ff79c785f1573b394043b39849fb2bb47bcead935d12b00beab3c", size = 37838 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/35/5a/73ecb3d82f8615f32ccdadeb9356726d6cae3a4bbc840b437ceb95708063/jsonpath_ng-1.7.0-py3-none-any.whl", hash = "sha256:f3d7f9e848cba1b6da28c55b1c26ff915dc9e0b1ba7e752a53d6da8d5cbd00b6", size = 30105 },
+]
 
 [[package]]
 name = "jsonschema"

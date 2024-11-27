@@ -52,10 +52,17 @@ class GeometryShape:
         return self
 
     def to_json_string(self) -> str:
-        points = [x.to_dict() for x in self.points]
+        if len(self.points) == 0:
+            msg = (
+                f"The region shape of the resource with the ID '{self.resource_id}' does not have any points. "
+                f"At least two points are required."
+            )
+            warnings.warn(DspToolsUserWarning(msg))
+        sorted_points = sorted(self.points, key=lambda x: x.x)
+        points = [x.to_dict() for x in sorted_points]
         json_dict = {
-            "status": f'"{self.status}"',
-            "type": f'"{self.type_}"',
+            "status": self.status,
+            "type": self.type_,
             "lineWidth": self.line_width,
             "points": points,
         }
@@ -88,6 +95,8 @@ class GeometryPoint:
                     f"are not valid: {', '.join(info)}"
                 )
                 warnings.warn(DspToolsUserWarning(msg))
+            self.x = float(self.x)
+            self.y = float(self.y)
 
     def to_dict(self) -> dict[str, float]:
         return {"x": self.x, "y": self.y}

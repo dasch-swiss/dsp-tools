@@ -235,11 +235,13 @@ class RegionResource:
         Adds a point to the region shape.
 
         Please note that the point must be a float between 0 and 1.
-        They represent the location in the image as a percentage of the whole.
+        They represent the location in the image as a percentage of the whole image.
+
+        [See the XML documentation for a visual example.](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geometry)
 
         Args:
-            x: point on the x-axis
-            y: point on the y-axis
+            x: point on the x-axis (width)
+            y: point on the y-axis (height)
 
         Returns:
             A region resource with the added point.
@@ -252,7 +254,9 @@ class RegionResource:
         Adds multiple points to the region shape.
 
         Please note that the points must be a float between 0 and 1.
-        They represent the location in the image as a percentage of the whole.
+        They represent the location in the image as a percentage of the whole image.
+
+        [See the XML documentation for a visual example.](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geometry)
 
         Args:
             points: a list of tuples in the format `[ (x, y) ]`
@@ -269,18 +273,20 @@ class RegionResource:
         Adds a point to the region shape.
 
         Please note that the point must be a float between 0 and 1.
-        They represent the location in the image as a percentage of the whole.
+        They represent the location in the image as a percentage of the whole image.
+
+        [See the XML documentation for a visual example.](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geometry)
 
         A point will only be added if **both x and y** are valid floats.
 
         Args:
-            x: point on the x-axis
-            y: point on the y-axis
+            x: point on the x-axis (width)
+            y: point on the y-axis (height)
 
         Returns:
             A region resource with the added point if both are valid floats.
         """
-        if all([is_decimal(x), is_decimal(y)]):
+        if any([is_decimal(x), is_decimal(y)]):
             self.geometry.points.append(GeometryPoint(x, y, self.res_id))
         return self
 

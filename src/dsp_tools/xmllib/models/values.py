@@ -66,13 +66,11 @@ class BooleanValue(Value):
         return etree.Element(f"{DASCH_SCHEMA}boolean-prop", name=self.prop_name, nsmap=XML_NAMESPACE_MAP)
 
     def make_element(self) -> etree._Element:
-        attribs = (
-            {"permissions": self.permissions.value}
-            if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS
-            else {}
-        )
-        if self.comment:
-            attribs["comment"] = self.comment
+        attribs = {}
+        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
+            attribs["permissions"] = self.permissions.value
+        if is_string_like(self.comment):
+            attribs["comment"] = str(self.comment)
         ele = etree.Element(f"{DASCH_SCHEMA}boolean", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
         ele.text = str(self.value)
         return ele
@@ -101,13 +99,11 @@ class ColorValue(Value):
         return etree.Element(f"{DASCH_SCHEMA}color-prop", name=self.prop_name, nsmap=XML_NAMESPACE_MAP)
 
     def make_element(self) -> etree._Element:
-        attribs = (
-            {"permissions": self.permissions.value}
-            if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS
-            else {}
-        )
-        if self.comment:
-            attribs["comment"] = self.comment
+        attribs = {}
+        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
+            attribs["permissions"] = self.permissions.value
+        if is_string_like(self.comment):
+            attribs["comment"] = str(self.comment)
         ele = etree.Element(f"{DASCH_SCHEMA}color", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
         ele.text = str(self.value)
         return ele
@@ -136,13 +132,11 @@ class DateValue(Value):
         return etree.Element(f"{DASCH_SCHEMA}date-prop", name=self.prop_name, nsmap=XML_NAMESPACE_MAP)
 
     def make_element(self) -> etree._Element:
-        attribs = (
-            {"permissions": self.permissions.value}
-            if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS
-            else {}
-        )
-        if self.comment:
-            attribs["comment"] = self.comment
+        attribs = {}
+        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
+            attribs["permissions"] = self.permissions.value
+        if is_string_like(self.comment):
+            attribs["comment"] = str(self.comment)
         ele = etree.Element(f"{DASCH_SCHEMA}date", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
         ele.text = str(self.value)
         return ele
@@ -171,13 +165,11 @@ class DecimalValue(Value):
         return etree.Element(f"{DASCH_SCHEMA}decimal-prop", name=self.prop_name, nsmap=XML_NAMESPACE_MAP)
 
     def make_element(self) -> etree._Element:
-        attribs = (
-            {"permissions": self.permissions.value}
-            if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS
-            else {}
-        )
-        if self.comment:
-            attribs["comment"] = self.comment
+        attribs = {}
+        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
+            attribs["permissions"] = self.permissions.value
+        if is_string_like(self.comment):
+            attribs["comment"] = str(self.comment)
         ele = etree.Element(f"{DASCH_SCHEMA}decimal", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
         ele.text = str(self.value)
         return ele
@@ -206,13 +198,11 @@ class GeonameValue(Value):
         return etree.Element(f"{DASCH_SCHEMA}geoname-prop", name=self.prop_name, nsmap=XML_NAMESPACE_MAP)
 
     def make_element(self) -> etree._Element:
-        attribs = (
-            {"permissions": self.permissions.value}
-            if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS
-            else {}
-        )
-        if self.comment:
-            attribs["comment"] = self.comment
+        attribs = {}
+        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
+            attribs["permissions"] = self.permissions.value
+        if is_string_like(self.comment):
+            attribs["comment"] = str(self.comment)
         ele = etree.Element(f"{DASCH_SCHEMA}geoname", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
         ele.text = str(self.value)
         return ele
@@ -241,13 +231,11 @@ class IntValue(Value):
         return etree.Element(f"{DASCH_SCHEMA}integer-prop", name=self.prop_name, nsmap=XML_NAMESPACE_MAP)
 
     def make_element(self) -> etree._Element:
-        attribs = (
-            {"permissions": self.permissions.value}
-            if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS
-            else {}
-        )
-        if self.comment:
-            attribs["comment"] = self.comment
+        attribs = {}
+        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
+            attribs["permissions"] = self.permissions.value
+        if is_string_like(self.comment):
+            attribs["comment"] = str(self.comment)
         ele = etree.Element(f"{DASCH_SCHEMA}integer", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
         ele.text = str(self.value)
         return ele
@@ -276,15 +264,13 @@ class LinkValue(Value):
         return etree.Element(f"{DASCH_SCHEMA}resptr-prop", name=self.prop_name, nsmap=XML_NAMESPACE_MAP)
 
     def make_element(self) -> etree._Element:
-        attribs = (
-            {"permissions": self.permissions.value}
-            if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS
-            else {}
-        )
-        if self.comment:
-            attribs["comment"] = self.comment
+        attribs = {}
+        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
+            attribs["permissions"] = self.permissions.value
+        if is_string_like(self.comment):
+            attribs["comment"] = str(self.comment)
         ele = etree.Element(f"{DASCH_SCHEMA}resptr", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
-        ele.text = self.value
+        ele.text = str(self.value)
         return ele
 
 
@@ -314,15 +300,13 @@ class ListValue(Value):
         )
 
     def make_element(self) -> etree._Element:
-        attribs = (
-            {"permissions": self.permissions.value}
-            if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS
-            else {}
-        )
-        if self.comment:
-            attribs["comment"] = self.comment
+        attribs = {}
+        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
+            attribs["permissions"] = self.permissions.value
+        if is_string_like(self.comment):
+            attribs["comment"] = str(self.comment)
         ele = etree.Element(f"{DASCH_SCHEMA}list", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
-        ele.text = self.value
+        ele.text = str(self.value)
         return ele
 
 
@@ -352,10 +336,10 @@ class SimpleText(Value):
         attribs = {"encoding": "utf8"}
         if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
             attribs["permissions"] = self.permissions.value
-        if self.comment:
-            attribs["comment"] = self.comment
+        if is_string_like(self.comment):
+            attribs["comment"] = str(self.comment)
         ele = etree.Element(f"{DASCH_SCHEMA}text", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
-        ele.text = self.value
+        ele.text = str(self.value)
         return ele
 
 
@@ -386,10 +370,10 @@ class Richtext(Value):
         attribs = {"encoding": "xml"}
         if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
             attribs["permissions"] = self.permissions.value
-        if self.comment:
-            attribs["comment"] = self.comment
+        if is_string_like(self.comment):
+            attribs["comment"] = str(self.comment)
         ele = etree.Element(f"{DASCH_SCHEMA}text", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
-        ele.text = self.value
+        ele.text = str(self.value)
         return ele
 
 
@@ -416,15 +400,13 @@ class TimeValue(Value):
         return etree.Element(f"{DASCH_SCHEMA}time-prop", name=self.prop_name, nsmap=XML_NAMESPACE_MAP)
 
     def make_element(self) -> etree._Element:
-        attribs = (
-            {"permissions": self.permissions.value}
-            if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS
-            else {}
-        )
-        if self.comment:
-            attribs["comment"] = self.comment
+        attribs = {}
+        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
+            attribs["permissions"] = self.permissions.value
+        if is_string_like(self.comment):
+            attribs["comment"] = str(self.comment)
         ele = etree.Element(f"{DASCH_SCHEMA}time", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
-        ele.text = self.value
+        ele.text = str(self.value)
         return ele
 
 
@@ -451,15 +433,13 @@ class UriValue(Value):
         return etree.Element(f"{DASCH_SCHEMA}uri-prop", name=self.prop_name, nsmap=XML_NAMESPACE_MAP)
 
     def make_element(self) -> etree._Element:
-        attribs = (
-            {"permissions": self.permissions.value}
-            if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS
-            else {}
-        )
-        if self.comment:
-            attribs["comment"] = self.comment
+        attribs = {}
+        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
+            attribs["permissions"] = self.permissions.value
+        if is_string_like(self.comment):
+            attribs["comment"] = str(self.comment)
         ele = etree.Element(f"{DASCH_SCHEMA}uri", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
-        ele.text = self.value
+        ele.text = str(self.value)
         return ele
 
 

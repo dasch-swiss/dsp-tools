@@ -6,8 +6,8 @@ from dataclasses import dataclass
 from dataclasses import field
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
-from dsp_tools.xmllib import is_color
-from dsp_tools.xmllib import is_decimal
+from dsp_tools.xmllib.value_checkers import is_color
+from dsp_tools.xmllib.value_checkers import is_decimal
 
 
 @dataclass

@@ -11,8 +11,11 @@ from lxml import etree
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.xmllib.models.config_options import Permissions
+from dsp_tools.xmllib.models.geometry import Circle
 from dsp_tools.xmllib.models.geometry import GeometryPoint
 from dsp_tools.xmllib.models.geometry import GeometryShape
+from dsp_tools.xmllib.models.geometry import Polygon
+from dsp_tools.xmllib.models.geometry import Rectangle
 from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
 from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import LinkValue
@@ -212,7 +215,25 @@ class RegionResource:
         line_width: float = 2,
         color: str = "#5b24bf",
         active: bool = True,
-    ) -> RegionResource: ...
+    ) -> RegionResource:
+        self.geometry = Rectangle(
+            point_one=GeometryPoint(point_one[0], point_one[1], self.res_id),
+            point_two=GeometryPoint(point_two[0], point_two[1], self.res_id),
+            line_width=line_width,
+            color=color,
+            active=active,
+            resource_id=self.res_id,
+        )
+        return self
+
+    def add_polygon(
+        self, points: list[tuple[float, float]], line_width: float = 2, color: str = "#5b24bf", active: bool = True
+    ) -> RegionResource:
+        geom_points = [GeometryPoint(val[0], val[1]) for val in points]
+        self.geometry = Polygon(
+            points=geom_points, line_width=line_width, color=color, active=active, resource_id=self.res_id
+        )
+        return self
 
     def add_circle(
         self,
@@ -221,11 +242,16 @@ class RegionResource:
         line_width: float = 2,
         color: str = "#5b24bf",
         active: bool = True,
-    ) -> RegionResource: ...
-
-    def add_polygon(
-        self, points: list[tuple[float, float]], line_width: float = 2, color: str = "#5b24bf", active: bool = True
-    ) -> RegionResource: ...
+    ) -> RegionResource:
+        self.geometry = Circle(
+            center=GeometryPoint(center[0], center[1], self.res_id),
+            radius=GeometryPoint(radius[0], radius[1], self.res_id),
+            line_width=line_width,
+            color=color,
+            active=active,
+            resource_id=self.res_id,
+        )
+        return self
 
     def customise_shape(
         self,
@@ -250,66 +276,6 @@ class RegionResource:
             A region resource with the customised shape.
         """
         self.geometry = self.geometry.customise_shape(line_width, color, status, type_)
-        return self
-
-    def add_shape_point(self, x: float, y: float) -> RegionResource:
-        """
-        Adds a point to the region shape.
-
-        Please note that the point must be a float between 0 and 1.
-        They represent the location in the image as a percentage of the whole image.
-
-        [See the XML documentation for a visual example.](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geometry)
-
-        Args:
-            x: point on the x-axis (width)
-            y: point on the y-axis (height)
-
-        Returns:
-            A region resource with the added point.
-        """
-        self.geometry.points.append(GeometryPoint(x, y, self.res_id))
-        return self
-
-    def add_shape_point_multiple(self, points: list[tuple[float, float]]) -> RegionResource:
-        """
-        Adds multiple points to the region shape.
-
-        Please note that the points must be a float between 0 and 1.
-        They represent the location in the image as a percentage of the whole image.
-
-        [See the XML documentation for a visual example.](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geometry)
-
-        Args:
-            points: a list of tuples in the format `[ (x, y) ]`
-
-        Returns:
-            A region resource with the added points.
-        """
-        transformed_points = [GeometryPoint(val[0], val[1], self.res_id) for val in points]
-        self.geometry.points.extend(transformed_points)
-        return self
-
-    def add_shape_point_optional(self, x: Any, y: Any) -> RegionResource:
-        """
-        Adds a point to the region shape.
-
-        Please note that the point must be a float between 0 and 1.
-        They represent the location in the image as a percentage of the whole image.
-
-        [See the XML documentation for a visual example.](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geometry)
-
-        A point will only be added if **both x and y** are valid floats.
-
-        Args:
-            x: point on the x-axis (width)
-            y: point on the y-axis (height)
-
-        Returns:
-            A region resource with the added point if both are valid floats.
-        """
-        if any([is_decimal(x), is_decimal(y)]):
-            self.geometry.points.append(GeometryPoint(x, y, self.res_id))
         return self
 
     def add_comment(self, comment: str) -> RegionResource:

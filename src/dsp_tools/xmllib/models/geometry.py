@@ -29,6 +29,19 @@ class Rectangle(GeometryShape):
     def __post_init__(self) -> None:
         _check_warn_shape_info(self.color, self.line_width, self.resource_id)
 
+    def to_json_string(self) -> str:
+        points = [self.point_one.to_dict(), self.point_two.to_dict()]
+        status = "active"
+        if not self.active:
+            status = "deleted"
+        json_dict = {
+            "status": status,
+            "type": "rectangle",
+            "lineWidth": self.line_width,
+            "points": points,
+        }
+        return json.dumps(json_dict)
+
 
 @dataclass
 class Polygon(GeometryShape):
@@ -48,6 +61,19 @@ class Polygon(GeometryShape):
             )
             warnings.warn(DspToolsUserWarning(msg))
 
+    def to_json_string(self) -> str:
+        points = [x.to_dict() for x in self.points]
+        status = "active"
+        if not self.active:
+            status = "deleted"
+        json_dict = {
+            "status": status,
+            "type": "rectangle",
+            "lineWidth": self.line_width,
+            "points": points,
+        }
+        return json.dumps(json_dict)
+
 
 @dataclass
 class Circle(GeometryShape):
@@ -60,6 +86,19 @@ class Circle(GeometryShape):
 
     def __post_init__(self) -> None:
         _check_warn_shape_info(self.color, self.line_width, self.resource_id)
+
+    def to_json_string(self) -> str:
+        status = "active"
+        if not self.active:
+            status = "deleted"
+        json_dict = {
+            "status": status,
+            "type": "rectangle",
+            "lineWidth": self.line_width,
+            "points": [self.center.to_dict()],
+            "radius": self.radius.to_dict(),
+        }
+        return json.dumps(json_dict)
 
 
 @dataclass

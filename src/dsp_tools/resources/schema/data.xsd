@@ -404,7 +404,7 @@
             <xs:extension base="nonEmptyString">
                 <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
                 <xs:attribute name="license" type="xs:IDREF" use="optional"/>
-                <xs:attribute name="copyright" type="xs:IDREF" use="optional"/>
+                <xs:attribute name="copyright-attribution" type="xs:IDREF" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -415,7 +415,7 @@
             <xs:extension base="nonEmptyString">
                 <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
                 <xs:attribute name="license" type="xs:IDREF" use="optional"/>
-                <xs:attribute name="copyright" type="xs:IDREF" use="optional"/>
+                <xs:attribute name="copyright-attribution" type="xs:IDREF" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -570,8 +570,8 @@
         <xs:attribute name="id" type="xs:ID" use="required"/>
     </xs:complexType>
 
-    <!-- copyright tag -->
-    <xs:complexType name="copyright_type">
+    <!-- copyright-attribution tag -->
+    <xs:complexType name="copyright_attribution_type">
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute name="id" type="xs:ID" use="required"/>
@@ -579,10 +579,10 @@
         </xs:simpleContent>
     </xs:complexType>
 
-    <!-- copyrights tag -->
-    <xs:complexType name="copyrights_type">
+    <!-- copyright-attributions tag -->
+    <xs:complexType name="copyright_attributions_type">
         <xs:sequence>
-            <xs:element name="copyright" type="copyright_type" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:element name="copyright-attribution" type="copyright_attribution_type" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 
@@ -608,7 +608,7 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="permissions" type="permissions_type" minOccurs="0" maxOccurs="unbounded"/>
-                <xs:element name="copyrights" type="copyrights_type" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element name="copyright-attributions" type="copyright_attributions_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="licenses" type="licenses_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:choice maxOccurs="unbounded">
                     <xs:element name="resource" type="resource_type" minOccurs="1" maxOccurs="unbounded">
@@ -668,13 +668,13 @@
             <xs:field xpath="@license"/>
         </xs:keyref>
         <!-- Define a key constraint for copyright IDs -->
-        <xs:key name="copyrightsIdKey">
-            <xs:selector xpath="copyrights/copyright"/>
+        <xs:key name="copyright-attributionsIdKey">
+            <xs:selector xpath="copyright-attributions/copyright-attribution"/>
             <xs:field xpath="@id"/>
         </xs:key>
-        <xs:keyref name="copyrightIdRef" refer="copyrightsIdKey">
+        <xs:keyref name="copyrightIdRef" refer="copyright-attributionsIdKey">
             <xs:selector xpath="resource/*"/>
-            <xs:field xpath="@copyright"/>
+            <xs:field xpath="@copyright-attribution"/>
         </xs:keyref>
     </xs:element>
 </xs:schema>

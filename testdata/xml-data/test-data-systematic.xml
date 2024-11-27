@@ -29,9 +29,9 @@
         <allow group="systematic-tp:testgroupEditors">M</allow>
     </permissions>
 
-    <copyrights>
-        <copyright id="copyright_id">Copyright Text</copyright>
-    </copyrights>
+    <copyright-attributions>
+        <copyright-attribution id="copyright_id">Copyright Text</copyright-attribution>
+    </copyright-attributions>
 
     <licenses>
         <license id="CC-BY" uri="https://creativecommons.org/licenses/by/4.0/">
@@ -318,7 +318,7 @@
               permissions="open">
         <iiif-uri
                 license="twoLineLicense"
-                copyright="copyright_id"
+                copyright-attribution="copyright_id"
         >https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg</iiif-uri>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">
@@ -347,7 +347,7 @@
               permissions="open">
         <bitstream
                 license="CC-BY-NC"
-                copyright="copyright_id"
+                copyright-attribution="copyright_id"
         >testdata/bitstreams/test.tiff</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Imagething as TIFF</text>

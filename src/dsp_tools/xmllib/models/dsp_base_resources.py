@@ -220,8 +220,8 @@ class RegionResource:
             color: A hexadecimal color value,
                 [see documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#color).
                 The default value was chosen as it is distinguishable for most color-blind people.
-            status: "active" or "deleted"
-            type_: "circle", "rectangle" or "polygon" (only the rectangle can be displayed in DSP-APP.
+            status: `active` or `deleted`
+            type_: `circle`, `rectangle` or `polygon` (only the rectangle can be displayed in DSP-APP.
                 The others can be looked at in another frontend, e.g. in TANGOH.)
 
         Returns:
@@ -233,6 +233,7 @@ class RegionResource:
     def add_shape_point(self, x: float, y: float) -> RegionResource:
         """
         Adds a point to the region shape.
+
         Please note that the point must be a float between 0 and 1.
         They represent the location in the image as a percentage of the whole.
 
@@ -246,12 +247,31 @@ class RegionResource:
         self.geometry.points.append(GeometryPoint(x, y, self.res_id))
         return self
 
+    def add_shape_point_multiple(self, points: list[tuple[float, float]]) -> RegionResource:
+        """
+        Adds multiple points to the region shape.
+
+        Please note that the points must be a float between 0 and 1.
+        They represent the location in the image as a percentage of the whole.
+
+        Args:
+            points: a list of tuples in the format `[ (x, y) ]`
+
+        Returns:
+            A region resource with the added points.
+        """
+        transformed_points = [GeometryPoint(val[0], val[1], self.res_id) for val in points]
+        self.geometry.points.extend(transformed_points)
+        return self
+
     def add_shape_point_optional(self, x: Any, y: Any) -> RegionResource:
         """
         Adds a point to the region shape.
+
         Please note that the point must be a float between 0 and 1.
         They represent the location in the image as a percentage of the whole.
-        Please note that a point will only be added if **both x and y** are valid floats.
+
+        A point will only be added if **both x and y** are valid floats.
 
         Args:
             x: point on the x-axis
@@ -262,22 +282,6 @@ class RegionResource:
         """
         if all([is_decimal(x), is_decimal(y)]):
             self.geometry.points.append(GeometryPoint(x, y, self.res_id))
-        return self
-
-    def add_shape_point_multiple(self, points: list[tuple[float, float]]) -> RegionResource:
-        """
-        Adds multiple points to the region shape.
-        Please note that the points must be a float between 0 and 1.
-        They represent the location in the image as a percentage of the whole.
-
-        Args:
-            points: a list of tuples in the format [ (x, y) ]
-
-        Returns:
-            A region resource with the added points.
-        """
-        transformed_points = [GeometryPoint(val[0], val[1], self.res_id) for val in points]
-        self.geometry.points.extend(transformed_points)
         return self
 
     def add_comment(self, comment: str) -> RegionResource:

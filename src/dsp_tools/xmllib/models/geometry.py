@@ -29,11 +29,11 @@ class GeometryShape:
             problems.append(line_msg)
         if not is_color(color):
             problems.append(f"The color must be a valid hexadecimal color. The provided value is not valid: {color}")
-        if status not in ["active", "deleted"]:
+        if status.lower() not in ["active", "deleted"]:
             problems.append(
                 f'The status must be either "active" or "deleted". The provided value is not valid: {status}'
             )
-        if type_ not in ["circle", "rectangle", "polygon"]:
+        if type_.lower() not in ["circle", "rectangle", "polygon"]:
             problems.append(
                 f'The type must be either ""circle", "rectangle" or "polygon" . '
                 f"The provided value is not valid: {type_}"
@@ -47,8 +47,8 @@ class GeometryShape:
             )
         self.line_width = line_width
         self.color = color
-        self.status = status
-        self.type_ = type_
+        self.status = status.lower()
+        self.type_ = type_.lower()
         return self
 
     def to_json_string(self) -> str:

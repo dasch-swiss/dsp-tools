@@ -8,7 +8,7 @@ class TestGeometryShape:
     def test_customise_shape_good(self) -> None:
         geom_obj = GeometryShape("res_id")
         with warnings.catch_warnings(record=True) as caught_warnings:
-            changed = geom_obj.customise_shape(line_width=1, color="#5b24ba", status="deleted", type_="polygon")
+            changed = geom_obj.customise_shape(line_width=1, color="#5b24ba", status="DELETED", type_="Polygon")
             assert len(caught_warnings) == 0
         assert changed.line_width == 1
         assert changed.color == "#5b24ba"

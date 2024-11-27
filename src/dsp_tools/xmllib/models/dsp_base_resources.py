@@ -228,7 +228,6 @@ class RegionResource:
             line_width: A number in pixels between 1 - 5
             color: A hexadecimal color value,
                 [see documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#color).
-
                 The default value was chosen as it is distinguishable for most color-blind people.
             active: If set to `False` the region is marked as 'deleted'
 
@@ -266,14 +265,13 @@ class RegionResource:
             line_width: A number in pixels between 1 - 5
             color: A hexadecimal color value,
                 [see documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#color).
-
                 The default value was chosen as it is distinguishable for most color-blind people.
             active: If set to `False` the region is marked as 'deleted'
 
         Returns:
             Region with added polygon
         """
-        geom_points = [GeometryPoint(val[0], val[1]) for val in points]
+        geom_points = [GeometryPoint(val[0], val[1], self.res_id) for val in points]
         self.geometry = Polygon(
             points=geom_points, line_width=line_width, color=color, active=active, resource_id=self.res_id
         )
@@ -300,7 +298,6 @@ class RegionResource:
             line_width: A number in pixels between 1 - 5
             color: A hexadecimal color value,
                 [see documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#color).
-
                 The default value was chosen as it is distinguishable for most color-blind people.
             active: If set to `False` the region is marked as 'deleted'
 
@@ -385,15 +382,7 @@ class RegionResource:
     def serialise(self) -> etree._Element:
         self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
         res_ele = self._serialise_resource_element()
-        if not self.geometry:
-            warnings.warn(
-                DspToolsUserWarning(
-                    f"The region resource with the ID does not have a geometry '{self.res_id}', "
-                    f"please note that an xmlupload will fail."
-                )
-            )
-        else:
-            res_ele.append(self._serialise_geometry_shape())
+        res_ele.extend(self._serialise_geometry_shape())
         res_ele.extend(self._serialise_values())
         if self.comments:
             res_ele.append(_serialise_has_comment(self.comments, self.res_id))
@@ -411,7 +400,15 @@ class RegionResource:
         ]
 
     def _serialise_geometry_shape(self) -> list[etree._Element]:
-        prop_list = []
+        prop_list: list[etree._Element] = []
+        if not self.geometry:
+            warnings.warn(
+                DspToolsUserWarning(
+                    f"The region resource with the ID does not have a geometry '{self.res_id}', "
+                    f"please note that an xmlupload will fail."
+                )
+            )
+            return prop_list
         geo_prop = etree.Element(f"{DASCH_SCHEMA}geometry-prop", name="hasGeometry", nsmap=XML_NAMESPACE_MAP)
         ele = etree.Element(f"{DASCH_SCHEMA}geometry", nsmap=XML_NAMESPACE_MAP)
         ele.text = self.geometry.to_json_string()

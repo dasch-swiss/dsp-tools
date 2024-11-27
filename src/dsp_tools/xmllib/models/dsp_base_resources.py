@@ -181,6 +181,8 @@ class RegionResource:
         """
         Creates a new region resource.
         A region is a region of interest (ROI) in a StillImageRepresentation.
+        The shape of the region comes with default values.
+        They can be customised with the function `customise_shape`.
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#region)
 

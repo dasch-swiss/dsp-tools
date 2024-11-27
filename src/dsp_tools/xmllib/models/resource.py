@@ -13,7 +13,7 @@ from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
-from dsp_tools.xmllib.models.config_options import PreDefinedLicenses
+from dsp_tools.xmllib.models.config_options import PredefinedLicenses
 from dsp_tools.xmllib.models.file_values import AbstractFileValue
 from dsp_tools.xmllib.models.file_values import FileMetadata
 from dsp_tools.xmllib.models.file_values import FileValue
@@ -1120,7 +1120,7 @@ class Resource:
         iiif_uri: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         copyright_id: str | None = None,
-        license_id: str | None | PreDefinedLicenses = None,
+        license_id: str | None | PredefinedLicenses = None,
         comment: str | None = None,
     ) -> Resource:
         """
@@ -1147,7 +1147,7 @@ class Resource:
                 f"'{self.file_value.value}'.\n"
                 f"The new file with the name '{iiif_uri}' cannot be added."
             )
-        if isinstance(license_id, PreDefinedLicenses):
+        if isinstance(license_id, PredefinedLicenses):
             license_val: str | None = license_id.value
         else:
             license_val = license_id

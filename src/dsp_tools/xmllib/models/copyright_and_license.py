@@ -12,6 +12,7 @@ from dsp_tools.models.exceptions import InputError
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 
+# TODO: separate object
 
 @dataclass
 class CopyrightAndLicense:
@@ -55,7 +56,7 @@ class CopyrightAndLicense:
         Returns:
             The original CopyrightAndLicense with the added copyright attribution.
         """
-        if id_ in self._get_copyright_attribution_ids():
+        if id_ in self.get_copyright_attribution_ids():
             raise InputError(
                 f"Copyright attribution with the ID '{id_}' and the text '{text}' already exists. "
                 f"All IDs must be unique."
@@ -77,7 +78,7 @@ class CopyrightAndLicense:
         Returns:
             The original CopyrightAndLicense with the added copyright attributions.
         """
-        if ids_exist := set(copyright_dict.keys()).intersection(self._get_copyright_attribution_ids()):
+        if ids_exist := set(copyright_dict.keys()).intersection(self.get_copyright_attribution_ids()):
             raise InputError(
                 f"The following copyright IDs already exist: {", ".join(ids_exist)}. All IDs must be unique."
             )
@@ -85,7 +86,7 @@ class CopyrightAndLicense:
         self.copyright_attribution.extend(copyright_list)
         return self
 
-    def _get_copyright_attribution_ids(self) -> set[str]:
+    def get_copyright_attribution_ids(self) -> set[str]:
         return {x.id_ for x in self.copyright_attribution}
 
     def add_license(self, id_: str, text: str, uri: Any = None) -> CopyrightAndLicense:
@@ -105,7 +106,7 @@ class CopyrightAndLicense:
         Returns:
             The original CopyrightAndLicense with the added license.
         """
-        if id_ in self._get_license_ids():
+        if id_ in self.get_license_ids():
             raise InputError(
                 f"A license with the ID '{id_}' and the text '{text}' already exists. " f"All IDs must be unique."
             )
@@ -131,7 +132,7 @@ class CopyrightAndLicense:
         Returns:
             The original CopyrightAndLicense with the added licenses.
         """
-        if ids_exist := set(license_dict.keys()).intersection(self._get_copyright_attribution_ids()):
+        if ids_exist := set(license_dict.keys()).intersection(self.get_copyright_attribution_ids()):
             raise InputError(
                 f"The following license IDs already exist: {", ".join(ids_exist)}. All IDs must be unique."
             )
@@ -142,7 +143,7 @@ class CopyrightAndLicense:
             self.license.append(License(license_id, info_tuple[0], new_uri))
         return self
 
-    def _get_license_ids(self) -> set[str]:
+    def get_license_ids(self) -> set[str]:
         return {x.id_ for x in self.license}
 
     def serialise_copyright_attributions(self) -> etree._Element:

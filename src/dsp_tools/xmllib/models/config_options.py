@@ -33,7 +33,7 @@ class NewlineReplacement(Enum):
     LINEBREAK = auto()
 
 
-class PreDefinedLicenses(Enum):
+class PredefinedLicenses(Enum):
     """
     Options for the pre-defined licenses.
 

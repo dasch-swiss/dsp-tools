@@ -31,6 +31,7 @@ AnyResource: TypeAlias = Union[
     Resource, AnnotationResource, RegionResource, LinkResource, VideoSegmentResource, AudioSegmentResource
 ]
 
+# todo: migrate to root change functions to there
 
 @dataclass
 class XMLRoot:

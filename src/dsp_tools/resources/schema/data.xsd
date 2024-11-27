@@ -660,20 +660,20 @@
         </xs:unique>
         <!-- Define a key constraint for license IDs -->
         <xs:key name="licenseIdKey">
-            <xs:selector xpath="licenses/license"/>
+            <xs:selector xpath="knora/licenses/license"/>
             <xs:field xpath="@id"/>
         </xs:key>
         <xs:keyref name="licenseIdRef" refer="licenseIdKey">
-            <xs:selector xpath="resource/*"/>
+            <xs:selector xpath="knora/resource/*"/>
             <xs:field xpath="@license"/>
         </xs:keyref>
         <!-- Define a key constraint for copyright IDs -->
         <xs:key name="copyright-attributionsIdKey">
-            <xs:selector xpath="copyright-attributions/copyright-attribution"/>
+            <xs:selector xpath="knora/copyright-attributions/copyright-attribution"/>
             <xs:field xpath="@id"/>
         </xs:key>
         <xs:keyref name="copyrightIdRef" refer="copyright-attributionsIdKey">
-            <xs:selector xpath="resource/*"/>
+            <xs:selector xpath="knora/resource/*"/>
             <xs:field xpath="@copyright-attribution"/>
         </xs:keyref>
     </xs:element>

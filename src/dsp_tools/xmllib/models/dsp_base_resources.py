@@ -146,7 +146,15 @@ class AnnotationResource:
         self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
         res_ele = self._serialise_resource_element()
         res_ele.append(self._serialise_annotation_of())
-        res_ele.append(_serialise_has_comment(self.comments, self.res_id))
+        if self.comments:
+            res_ele.append(_serialise_has_comment(self.comments, self.res_id))
+        else:
+            warnings.warn(
+                DspToolsUserWarning(
+                    f"The annotation with the ID '{self.res_id}' does not have any comments. "
+                    f"At least one comment must be provided, please note that an xmlupload will fail."
+                )
+            )
         return res_ele
 
     def _serialise_resource_element(self) -> etree._Element:
@@ -386,6 +394,13 @@ class RegionResource:
         res_ele.extend(self._serialise_values())
         if self.comments:
             res_ele.append(_serialise_has_comment(self.comments, self.res_id))
+        else:
+            warnings.warn(
+                DspToolsUserWarning(
+                    f"The region with the ID '{self.res_id}' does not have any comments. "
+                    f"At least one comment must be provided, please note that an xmlupload will fail."
+                )
+            )
         return res_ele
 
     def _serialise_resource_element(self) -> etree._Element:
@@ -529,7 +544,15 @@ class LinkResource:
     def serialise(self) -> etree._Element:
         self._check_for_and_convert_unexpected_input()
         res_ele = self._serialise_resource_element()
-        res_ele.append(_serialise_has_comment(self.comments, self.res_id))
+        if self.comments:
+            res_ele.append(_serialise_has_comment(self.comments, self.res_id))
+        else:
+            warnings.warn(
+                DspToolsUserWarning(
+                    f"The link object with the ID '{self.res_id}' does not have any comments. "
+                    f"At least one comment must be provided, please note that an xmlupload will fail."
+                )
+            )
         res_ele.append(self._serialise_links())
         return res_ele
 

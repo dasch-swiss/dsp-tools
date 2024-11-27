@@ -1,5 +1,7 @@
 import warnings
 
+import pytest
+
 from dsp_tools.xmllib.models.geometry import Circle
 from dsp_tools.xmllib.models.geometry import GeometryPoint
 from dsp_tools.xmllib.models.geometry import Polygon
@@ -75,3 +77,7 @@ class TestGeometryPoint:
             assert len(caught_warnings) == 1
         assert point.x == "x"  # type: ignore[comparison-overlap]
         assert point.y == "y"  # type: ignore[comparison-overlap]
+
+
+if __name__ == "__main__":
+    pytest.main([__file__])

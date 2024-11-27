@@ -16,22 +16,22 @@ from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.xml_validation import validate_xml_file
-from dsp_tools.xmllib.models.copyright_and_license import CopyrightAttribution
-from dsp_tools.xmllib.models.copyright_and_license import CopyrightAttributions
-from dsp_tools.xmllib.models.copyright_and_license import License
-from dsp_tools.xmllib.models.copyright_and_license import Licenses
+from dsp_tools.xmllib.constants import DASCH_SCHEMA
+from dsp_tools.xmllib.constants import XML_NAMESPACE_MAP
+from dsp_tools.xmllib.models.copyright_attributions import CopyrightAttribution
+from dsp_tools.xmllib.models.copyright_attributions import CopyrightAttributions
 from dsp_tools.xmllib.models.dsp_base_resources import AnnotationResource
 from dsp_tools.xmllib.models.dsp_base_resources import AudioSegmentResource
 from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
 from dsp_tools.xmllib.models.dsp_base_resources import VideoSegmentResource
+from dsp_tools.xmllib.models.licenses import License
+from dsp_tools.xmllib.models.licenses import Licenses
 from dsp_tools.xmllib.models.permissions import XMLPermissions
 from dsp_tools.xmllib.models.resource import Resource
 
 # ruff: noqa: D101
 
-XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
-DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 
 AnyResource: TypeAlias = Union[
     Resource, AnnotationResource, RegionResource, LinkResource, VideoSegmentResource, AudioSegmentResource
@@ -64,13 +64,11 @@ class XMLRoot:
         Create a new XML root, for one file.
 
         The following elements are added by default:
-
             - `<permissions>` (with default permissions)
             - `<copyright-attributions>` (empty)
             - `<licenses>` (with default licenses, see below)
 
         The following licenses are included by default:
-
             - `CC_BY` [Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/)
             - `CC_BY_SA` [Attribution-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-sa/4.0/)
             - `CC_BY_NC` [Attribution-NonCommercial 4.0 International](https://creativecommons.org/licenses/by-nc/4.0/)
@@ -128,8 +126,8 @@ class XMLRoot:
 
         Args:
             license_dict: dictionary with the information for license elements.
-                It should have the following structure: { id:
-                (text, uri) } A pd.isna() check is done before adding the URI, therefore, any value is permissible.
+                It should have the following structure: `{ id: (text, uri) }`
+                A `pd.isna()` check is done before adding the URI, therefore, any value is permissible.
 
         Raises:
             InputError: If the id already exists
@@ -177,7 +175,7 @@ class XMLRoot:
         Please note that the id must be unique.
 
         Args:
-            copyright_dict: the dictionary should have the following structure: { id: text }
+            copyright_dict: the dictionary should have the following structure: `{ id: text }`
 
         Raises:
             InputError: If the id already exists

@@ -10,11 +10,10 @@ from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.utils.uri_util import is_iiif_uri
+from dsp_tools.xmllib.constants import DASCH_SCHEMA
+from dsp_tools.xmllib.constants import XML_NAMESPACE_MAP
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.value_checkers import is_string_like
-
-XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
-DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 
 
 @dataclass

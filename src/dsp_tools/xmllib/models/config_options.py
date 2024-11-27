@@ -35,7 +35,7 @@ class NewlineReplacement(Enum):
 
 class PredefinedLicenses(Enum):
     """
-    Options for the pre-defined licenses.
+    Options for the pre-defined licenses:
 
     - `CC_BY` [Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/)
     - `CC_BY_SA` [Attribution-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-sa/4.0/)

@@ -11,6 +11,8 @@ from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.xmllib.constants import DASCH_SCHEMA
+from dsp_tools.xmllib.constants import XML_NAMESPACE_MAP
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.config_options import PredefinedLicenses
@@ -37,9 +39,6 @@ from dsp_tools.xmllib.value_checkers import is_string_like
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
 # ruff: noqa: D101, D102
-
-XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
-DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 
 LIST_SEPARATOR = "\n    - "
 

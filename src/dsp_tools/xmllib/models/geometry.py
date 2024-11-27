@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import warnings
 from dataclasses import dataclass
 from dataclasses import field
@@ -50,6 +51,16 @@ class GeometryShape:
         self.type_ = type_
         return self
 
+    def to_json_string(self) -> str:
+        points = [x.to_dict() for x in self.points]
+        json_dict = {
+            "status": f'"{self.status}"',
+            "type": f'"{self.type_}"',
+            "lineWidth": self.line_width,
+            "points": points,
+        }
+        return json.dumps(json_dict)
+
 
 @dataclass
 class GeometryPoint:
@@ -77,3 +88,6 @@ class GeometryPoint:
                     f"are not valid: {', '.join(info)}"
                 )
                 warnings.warn(DspToolsUserWarning(msg))
+
+    def to_dict(self) -> dict[str, float]:
+        return {"x": self.x, "y": self.y}

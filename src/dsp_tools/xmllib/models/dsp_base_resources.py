@@ -362,14 +362,14 @@ class RegionResource:
 
     def _serialise_values(self) -> list[etree._Element]:
         return [
-            ColorValue(value=self.color, prop_name="hasColor", resource_id=self.res_id).serialise(),
+            ColorValue(value=self.geometry.color, prop_name="hasColor", resource_id=self.res_id).serialise(),
             LinkValue(value=self.region_of, prop_name="isRegionOf", resource_id=self.res_id).serialise(),
         ]
 
     def _serialise_geometry(self) -> etree._Element:
         geo_prop = etree.Element(f"{DASCH_SCHEMA}geometry-prop", name="hasGeometry", nsmap=XML_NAMESPACE_MAP)
         ele = etree.Element(f"{DASCH_SCHEMA}geometry", nsmap=XML_NAMESPACE_MAP)
-        ele.text = str(self.geometry)
+        ele.text = self.geometry.to_json_string()
         geo_prop.append(ele)
         return geo_prop
 

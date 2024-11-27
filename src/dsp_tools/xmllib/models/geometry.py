@@ -68,7 +68,7 @@ class Polygon(GeometryShape):
             status = "deleted"
         json_dict = {
             "status": status,
-            "type": "rectangle",
+            "type": "polygon",
             "lineWidth": self.line_width,
             "points": points,
         }
@@ -93,7 +93,7 @@ class Circle(GeometryShape):
             status = "deleted"
         json_dict = {
             "status": status,
-            "type": "rectangle",
+            "type": "circle",
             "lineWidth": self.line_width,
             "points": [self.center.to_dict()],
             "radius": self.radius.to_dict(),

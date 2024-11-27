@@ -184,8 +184,9 @@ class RegionResource:
         """
         Creates a new region resource.
         A region is a region of interest (ROI) in a StillImageRepresentation.
-        The shape of the region comes with default values.
-        They can be customised with the method `customise_shape`.
+
+        Exactly one geometry shape has to be added to the resource with one of the following methods:
+        `add_rectangle`, `add_polygon`, `add_circle` (see documentation below for more information).
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#region)
 
@@ -216,6 +217,24 @@ class RegionResource:
         color: str = "#5b24bf",
         active: bool = True,
     ) -> RegionResource:
+        """
+        Add a rectangle shape to the region.
+
+        [For a visual example see the XML documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geometry)
+
+        Args:
+            point_one: first point of the rectangle represented as two numbers between 0 and 1 in the format (x, y)
+            point_two: second point of the rectangle represented as two numbers between 0 and 1 in the format (x, y)
+            line_width: A number in pixels between 1 - 5
+            color: A hexadecimal color value,
+                [see documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#color).
+
+                The default value was chosen as it is distinguishable for most color-blind people.
+            active: If set to `False` the region is marked as 'deleted'
+
+        Returns:
+            Region with added rectangle
+        """
         self.geometry = Rectangle(
             point_one=GeometryPoint(point_one[0], point_one[1], self.res_id),
             point_two=GeometryPoint(point_two[0], point_two[1], self.res_id),
@@ -227,8 +246,33 @@ class RegionResource:
         return self
 
     def add_polygon(
-        self, points: list[tuple[float, float]], line_width: float = 2, color: str = "#5b24bf", active: bool = True
+        self,
+        points: list[tuple[float, float]],
+        line_width: float = 2,
+        color: str = "#5b24bf",
+        active: bool = True,
     ) -> RegionResource:
+        """
+        Add a polygon shape to the region.
+        A polygon should have at least three points.
+        If you wish to create a rectangle, please use the designated `add_rectangle` method.
+
+        [For a visual example see the XML documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geometry)
+
+        **Please note that this cannot currently be displayed in the dsp-app.**
+
+        Args:
+            points: list of tuples containing two numbers between 0 and 1 in the format (x, y)
+            line_width: A number in pixels between 1 - 5
+            color: A hexadecimal color value,
+                [see documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#color).
+
+                The default value was chosen as it is distinguishable for most color-blind people.
+            active: If set to `False` the region is marked as 'deleted'
+
+        Returns:
+            Region with added polygon
+        """
         geom_points = [GeometryPoint(val[0], val[1]) for val in points]
         self.geometry = Polygon(
             points=geom_points, line_width=line_width, color=color, active=active, resource_id=self.res_id
@@ -243,6 +287,26 @@ class RegionResource:
         color: str = "#5b24bf",
         active: bool = True,
     ) -> RegionResource:
+        """
+        Add a circle shape to the region.
+
+        [For a visual example see the XML documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geometry)
+
+        **Please note that this cannot currently be displayed in the dsp-app.**
+
+        Args:
+            center: center of the circle represented as two numbers between 0 and 1 in the format (x, y)
+            radius: radius of the circle represented as two numbers between 0 and 1 in the format (x, y)
+            line_width: A number in pixels between 1 - 5
+            color: A hexadecimal color value,
+                [see documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#color).
+
+                The default value was chosen as it is distinguishable for most color-blind people.
+            active: If set to `False` the region is marked as 'deleted'
+
+        Returns:
+            Region with added circle
+        """
         self.geometry = Circle(
             center=GeometryPoint(center[0], center[1], self.res_id),
             radius=GeometryPoint(radius[0], radius[1], self.res_id),
@@ -251,31 +315,6 @@ class RegionResource:
             active=active,
             resource_id=self.res_id,
         )
-        return self
-
-    def customise_shape(
-        self,
-        line_width: float = 2,
-        color: str = "#5b24bf",
-        status: str = "active",
-        type_: str = "rectangle",
-    ) -> RegionResource:
-        """
-        Change the default values of the geometry shape.
-
-        Args:
-            line_width: An integer number in pixels between 1 - 5
-            color: A hexadecimal color value,
-                [see documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#color).
-                The default value was chosen as it is distinguishable for most color-blind people.
-            status: `active` or `deleted`
-            type_: `circle`, `rectangle` or `polygon` (only the rectangle can be displayed in DSP-APP.
-                The others can be looked at in another frontend, e.g. in TANGOH.)
-
-        Returns:
-            A region resource with the customised shape.
-        """
-        self.geometry = self.geometry.customise_shape(line_width, color, status, type_)
         return self
 
     def add_comment(self, comment: str) -> RegionResource:
@@ -346,7 +385,15 @@ class RegionResource:
     def serialise(self) -> etree._Element:
         self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
         res_ele = self._serialise_resource_element()
-        res_ele.append(self._serialise_geometry())
+        if not self.geometry:
+            warnings.warn(
+                DspToolsUserWarning(
+                    f"The region resource with the ID does not have a geometry '{self.res_id}', "
+                    f"please note that an xmlupload will fail."
+                )
+            )
+        else:
+            res_ele.append(self._serialise_geometry_shape())
         res_ele.extend(self._serialise_values())
         if self.comments:
             res_ele.append(_serialise_has_comment(self.comments, self.res_id))
@@ -360,16 +407,20 @@ class RegionResource:
 
     def _serialise_values(self) -> list[etree._Element]:
         return [
-            ColorValue(value=self.geometry.color, prop_name="hasColor", resource_id=self.res_id).serialise(),
             LinkValue(value=self.region_of, prop_name="isRegionOf", resource_id=self.res_id).serialise(),
         ]
 
-    def _serialise_geometry(self) -> etree._Element:
+    def _serialise_geometry_shape(self) -> list[etree._Element]:
+        prop_list = []
         geo_prop = etree.Element(f"{DASCH_SCHEMA}geometry-prop", name="hasGeometry", nsmap=XML_NAMESPACE_MAP)
         ele = etree.Element(f"{DASCH_SCHEMA}geometry", nsmap=XML_NAMESPACE_MAP)
         ele.text = self.geometry.to_json_string()
         geo_prop.append(ele)
-        return geo_prop
+        prop_list.append(geo_prop)
+        prop_list.append(
+            ColorValue(value=self.geometry.color, prop_name="hasColor", resource_id=self.res_id).serialise(),
+        )
+        return prop_list
 
 
 @dataclass

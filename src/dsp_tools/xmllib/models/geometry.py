@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 import warnings
 from dataclasses import dataclass
-from dataclasses import field
 from typing import Protocol
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
@@ -97,33 +96,6 @@ class Circle(GeometryShape):
             "lineWidth": self.line_width,
             "points": [self.center.to_dict()],
             "radius": self.radius.to_dict(),
-        }
-        return json.dumps(json_dict)
-
-
-@dataclass
-class GeometryShape:
-    resource_id: str
-    points: list[GeometryPoint] = field(default_factory=list)
-    line_width: float = 2
-    color: str = "#5b24bf"
-    status: str = "active"
-    type_: str = "rectangle"
-
-    def to_json_string(self) -> str:
-        if len(self.points) < 2:
-            msg = (
-                f"The region shape of the resource with the ID '{self.resource_id}' does not have any points. "
-                f"At least two points are required."
-            )
-            warnings.warn(DspToolsUserWarning(msg))
-        sorted_points = sorted(self.points, key=lambda x: x.x)
-        points = [x.to_dict() for x in sorted_points]
-        json_dict = {
-            "status": self.status,
-            "type": self.type_,
-            "lineWidth": self.line_width,
-            "points": points,
         }
         return json.dumps(json_dict)
 

@@ -1101,7 +1101,6 @@ class Resource:
             copyright_id: optional ID to the copyright information of this image
             license_id: optional ID to the license information of this image
             comment: optional comment
-            comment: optional comment
 
         Raises:
             InputError: If the resource already has a file or IIIF URI value

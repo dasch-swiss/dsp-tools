@@ -62,13 +62,15 @@ class XMLRoot:
     def create_new(shortcode: str, default_ontology: str) -> XMLRoot:
         """
         Create a new XML root, for one file.
+
         The following elements are added by default:
+
             - `<permissions>` (with default permissions)
             - `<copyright-attributions>` (empty)
             - `<licenses>` (with default licenses, see below)
 
         The following licenses are included by default:
-        They can be referenced through a string or one of the PreDefinedLicenses
+
             - `CC_BY` [Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/)
             - `CC_BY_SA` [Attribution-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-sa/4.0/)
             - `CC_BY_NC` [Attribution-NonCommercial 4.0 International](https://creativecommons.org/licenses/by-nc/4.0/)
@@ -101,7 +103,7 @@ class XMLRoot:
             id_: ID which is referenced in the attributes of the XML
             text: Text that should be displayed in the APP.
             uri: Optional URI liking to the license documentation.
-            A pd.isna() check is done before adding the URI, therefore any value is permissible.
+                A `pd.isna()` check is done before adding the URI, therefore any value is permissible.
 
         Raises:
             InputError: If the id already exists

@@ -3,7 +3,6 @@ from __future__ import annotations
 import warnings
 from dataclasses import dataclass
 from dataclasses import field
-from typing import Any
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.xmllib import is_color
@@ -12,6 +11,7 @@ from dsp_tools.xmllib import is_decimal
 
 @dataclass
 class GeometryShape:
+    resource_id: str
     points: list[GeometryPoint] = field(default_factory=list)
     line_width: float = 2
     color: str = "#5b24bf"
@@ -38,33 +38,31 @@ class GeometryShape:
                 f"The provided value is not valid: {type_}"
             )
         if problems:
-            warnings.warn(DspToolsUserWarning(f"Some of the shape values are not valid: \n- {'\n- '.join(problems)}"))
+            warnings.warn(
+                DspToolsUserWarning(
+                    f"Some of the shape values of the resource with the ID '{self.resource_id}' are not valid: "
+                    f"\n- {'\n- '.join(problems)}"
+                )
+            )
         self.line_width = line_width
         self.color = color
         self.status = status
         self.type_ = type_
         return self
 
-    def add_shape_point(self, x: float, y: float) -> GeometryShape:
-        self.points.append(GeometryPoint(x, y))
-        return self
-
-    def add_shape_point_optional(self, x: Any, y: Any) -> GeometryShape:
-        if all([is_decimal(x), is_decimal(y)]):
-            self.points.append(GeometryPoint(x, y))
-        return self
-
-    def add_shape_point_multiple(self, points: list[tuple[float, float]]) -> GeometryShape: ...
-
 
 @dataclass
 class GeometryPoint:
     x: float
     y: float
+    resource_id: str
 
     def __post_init__(self) -> None:
         if not all([is_decimal(self.x), is_decimal(self.y)]):
-            msg = f"The entered geometry points are not floats. x: '{self.x}', y: '{self.y}'"
+            msg = (
+                f"The entered geometry points for the resource with the ID '{self.resource_id}' are not floats. "
+                f"x: '{self.x}', y: '{self.y}'"
+            )
             warnings.warn(DspToolsUserWarning(msg))
         else:
             info = []
@@ -75,6 +73,7 @@ class GeometryPoint:
             if info:
                 msg = (
                     f"The geometry points must be larger/equal 0 and smaller/equal 1. "
-                    f"The following points do not conform: {', '.join(info)}"
+                    f"The following points of the resource with the ID '{self.resource_id}' "
+                    f"are not valid: {', '.join(info)}"
                 )
                 warnings.warn(DspToolsUserWarning(msg))

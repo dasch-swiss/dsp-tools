@@ -11,6 +11,7 @@ from lxml import etree
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.xmllib.models.config_options import Permissions
+from dsp_tools.xmllib.models.geometry import GeometryPoint
 from dsp_tools.xmllib.models.geometry import GeometryShape
 from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
 from dsp_tools.xmllib.models.values import ColorValue
@@ -197,7 +198,7 @@ class RegionResource:
             res_id=res_id,
             label=label,
             region_of=region_of,
-            geometry=GeometryShape(),
+            geometry=GeometryShape(res_id),
             comments=list(comments),
             permissions=permissions,
         )
@@ -225,6 +226,20 @@ class RegionResource:
             A region resource with the customised shape.
         """
         self.geometry = self.geometry.customise_shape(line_width, color, status, type_)
+        return self
+
+    def add_shape_point(self, x: float, y: float) -> RegionResource:
+        self.geometry.points.append(GeometryPoint(x, y, self.res_id))
+        return self
+
+    def add_shape_point_optional(self, x: Any, y: Any) -> RegionResource:
+        if all([is_decimal(x), is_decimal(y)]):
+            self.geometry.points.append(GeometryPoint(x, y, self.res_id))
+        return self
+
+    def add_shape_point_multiple(self, points: list[tuple[float, float]]) -> RegionResource:
+        transformed_points = [GeometryPoint(val[0], val[1], self.res_id) for val in points]
+        self.geometry.points.extend(transformed_points)
         return self
 
     def add_comment(self, comment: str) -> RegionResource:

@@ -234,8 +234,7 @@ class RegionResource:
             point_one: first point of the rectangle represented as two numbers between 0 and 1 in the format (x, y)
             point_two: second point of the rectangle represented as two numbers between 0 and 1 in the format (x, y)
             line_width: A number in pixels between 1 - 5
-            color: A hexadecimal color value,
-                [see documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#color).
+            color: A hexadecimal color value which starts with a `#` followed by 3 or 6 numerals
                 The default value was chosen as it is distinguishable for most color-blind people.
             active: If set to `False` the region is marked as 'deleted'
 
@@ -271,8 +270,7 @@ class RegionResource:
         Args:
             points: list of tuples containing two numbers between 0 and 1 in the format (x, y)
             line_width: A number in pixels between 1 - 5
-            color: A hexadecimal color value,
-                [see documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#color).
+            color: A hexadecimal color value which starts with a `#` followed by 3 or 6 numerals
                 The default value was chosen as it is distinguishable for most color-blind people.
             active: If set to `False` the region is marked as 'deleted'
 
@@ -304,8 +302,7 @@ class RegionResource:
             center: center of the circle represented as two numbers between 0 and 1 in the format (x, y)
             radius: radius of the circle represented as two numbers between 0 and 1 in the format (x, y)
             line_width: A number in pixels between 1 - 5
-            color: A hexadecimal color value,
-                [see documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#color).
+            color: A hexadecimal color value which starts with a `#` followed by 3 or 6 numerals
                 The default value was chosen as it is distinguishable for most color-blind people.
             active: If set to `False` the region is marked as 'deleted'
 

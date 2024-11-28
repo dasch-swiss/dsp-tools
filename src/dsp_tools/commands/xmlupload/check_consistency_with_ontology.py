@@ -24,7 +24,8 @@ genericPrefixedOntology: Pattern[str] = regex.compile(r"^[\w\-]+:\w+$")
 KNORA_BASE_PROPERTIES = {
     "bitstream",
     "iiif-uri",
-    "isSegmentOf",
+    "isAudioSegmentOf",
+    "isVideoSegmentOf",
     "hasSegmentBounds",
     "hasTitle",
     "hasComment",

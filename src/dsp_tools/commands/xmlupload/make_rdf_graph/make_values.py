@@ -7,7 +7,6 @@ from rdflib import XSD
 from rdflib import BNode
 from rdflib import Graph
 from rdflib import Literal
-from rdflib import Namespace
 from rdflib import URIRef
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
@@ -115,11 +114,6 @@ def _make_one_prop_graph(prop: XMLProperty, res_bnode: BNode, lookups: Lookups) 
         case _:
             raise UserError(f"Unknown value type: {prop.valtype}")
     return properties_graph, prop_name
-
-
-def _get_link_prop_name(p: XMLProperty, namespaces: dict[str, Namespace]) -> URIRef:
-    prop = f"{p.name}Value"
-    return get_absolute_iri(prop, namespaces)
 
 
 def _make_simple_prop_graph(

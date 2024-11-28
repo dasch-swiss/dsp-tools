@@ -83,7 +83,7 @@ def test_get_properties_of_normal_resource() -> None:
 def test_get_properties_of_audio_segment() -> None:
     string = """
         <audio-segment>
-            <isSegmentOf>audio_thing_1</isSegmentOf>
+            <isAudioSegmentOf>audio_thing_1</isAudioSegmentOf>
             <hasSegmentBounds segment_start="10" segment_end="30"/>
             <hasTitle>Title</hasTitle>
             <hasComment>Comment</hasComment>
@@ -93,13 +93,40 @@ def test_get_properties_of_audio_segment() -> None:
         </audio-segment>
     """
     props_expected = [
-        XMLProperty("knora-api:isSegmentOf", "resptr", [XMLValue("audio_thing_1")]),
+        XMLProperty("knora-api:isAudioSegmentOf", "resptr", [XMLValue("audio_thing_1")]),
         XMLProperty("knora-api:hasSegmentBounds", "interval", [XMLValue("10:30")]),
         XMLProperty("knora-api:hasTitle", "text", [XMLValue("Title")]),
         XMLProperty("knora-api:hasComment", "text", [XMLValue(FormattedTextValue("Comment"))]),
         XMLProperty("knora-api:hasDescription", "text", [XMLValue(FormattedTextValue("Description"))]),
         XMLProperty("knora-api:hasKeyword", "text", [XMLValue("Keyword")]),
         XMLProperty("knora-api:relatesTo", "resptr", [XMLValue("video_segment_0")]),
+    ]
+    bitstream, iiif, props = XMLResource._get_properties(etree.fromstring(string), "rosetta")
+    assert not bitstream
+    assert not iiif
+    assert props == unordered(props_expected)
+
+
+def test_get_properties_of_video_segment() -> None:
+    string = """
+        <video-segment>
+            <isVideoSegmentOf>video_thing_1</isVideoSegmentOf>
+            <hasSegmentBounds segment_start="10" segment_end="30"/>
+            <hasTitle>Title</hasTitle>
+            <hasComment>Comment</hasComment>
+            <hasDescription>Description</hasDescription>
+            <hasKeyword>Keyword</hasKeyword>
+            <relatesTo>audio_thing_1</relatesTo>
+        </video-segment>
+    """
+    props_expected = [
+        XMLProperty("knora-api:isVideoSegmentOf", "resptr", [XMLValue("video_thing_1")]),
+        XMLProperty("knora-api:hasSegmentBounds", "interval", [XMLValue("10:30")]),
+        XMLProperty("knora-api:hasTitle", "text", [XMLValue("Title")]),
+        XMLProperty("knora-api:hasComment", "text", [XMLValue(FormattedTextValue("Comment"))]),
+        XMLProperty("knora-api:hasDescription", "text", [XMLValue(FormattedTextValue("Description"))]),
+        XMLProperty("knora-api:hasKeyword", "text", [XMLValue("Keyword")]),
+        XMLProperty("knora-api:relatesTo", "resptr", [XMLValue("audio_thing_1")]),
     ]
     bitstream, iiif, props = XMLResource._get_properties(etree.fromstring(string), "rosetta")
     assert not bitstream
@@ -117,7 +144,7 @@ def test_group_props() -> None:
     link_1 = XMLValue("other_res_1")
     link_2 = XMLValue("other_res_2")
     ungrouped = [
-        XMLProperty("knora-api:isSegmentOf", "resptr", [XMLValue("audio_thing_1")]),
+        XMLProperty("knora-api:isAudioSegmentOf", "resptr", [XMLValue("audio_thing_1")]),
         XMLProperty("knora-api:hasSegmentBounds", "interval", [XMLValue("10:30")]),
         XMLProperty("knora-api:hasTitle", "text", [XMLValue("Title")]),
         XMLProperty("knora-api:hasComment", "text", [comment_1]),
@@ -130,7 +157,7 @@ def test_group_props() -> None:
         XMLProperty("knora-api:relatesTo", "resptr", [link_2]),
     ]
     expected = [
-        XMLProperty("knora-api:isSegmentOf", "resptr", [XMLValue("audio_thing_1")]),
+        XMLProperty("knora-api:isAudioSegmentOf", "resptr", [XMLValue("audio_thing_1")]),
         XMLProperty("knora-api:hasSegmentBounds", "interval", [XMLValue("10:30")]),
         XMLProperty("knora-api:hasTitle", "text", [XMLValue("Title")]),
         XMLProperty("knora-api:hasComment", "text", [comment_1, comment_2]),

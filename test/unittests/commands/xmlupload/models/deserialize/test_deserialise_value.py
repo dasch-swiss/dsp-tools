@@ -30,8 +30,8 @@ class Test_XMLProperty:
         assert res == expected
 
     def test_get_name_special_tag(self) -> None:
-        res = XMLProperty._get_name(etree.fromstring("<isSegmentOf>foo</isSegmentOf>"), "rosetta")
-        assert res == "knora-api:isSegmentOf"
+        res = XMLProperty._get_name(etree.fromstring("<isViodeSegmentOf>foo</isViodeSegmentOf>"), "rosetta")
+        assert res == "knora-api:isViodeSegmentOf"
 
     def test_get_name_knora_base_prop_with_normal_tag(self) -> None:
         string = """<text-prop name="hasComment"><text encoding="xml">comment</text></text-prop>"""
@@ -76,7 +76,7 @@ class Test_XMLProperty:
             XMLProperty._get_values_from_normal_props(etree.fromstring(string), "uri")
 
     def test_get_value_from_knora_base_prop_with_all_attributes(self) -> None:
-        string = """<isSegmentOf permissions="open" comment="cmt">video_thing_1</isSegmentOf>"""
+        string = """<isViodeSegmentOf permissions="open" comment="cmt">video_thing_1</isViodeSegmentOf>"""
         expected = XMLValue("video_thing_1", permissions="open", comment="cmt")
         res = XMLProperty._get_value_from_knora_base_prop(etree.fromstring(string))
         assert res == expected

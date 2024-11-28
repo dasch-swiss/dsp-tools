@@ -55,7 +55,7 @@ def _create_info_from_xml_for_graph_from_one_resource(
             case "hasComment" | "hasDescription":
                 if xml_link := _create_text_link_object_from_special_tags(resource.attrib["id"], prop):
                     xml_links.append(xml_link)
-            case "isSegmentOf" | "relatesTo":
+            case "isAudioSegmentOf" | "isVideoSegmentOf" | "relatesTo":
                 if segment_link := _create_segmentOf_link_objects(resource.attrib["id"], prop):
                     resptr_links.append(segment_link)
     return resptr_links, xml_links

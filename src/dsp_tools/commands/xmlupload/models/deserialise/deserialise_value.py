@@ -202,17 +202,21 @@ class XMLBitstream:
     Attributes:
         value: The file path of the bitstream object
         permissions: Reference to the set of permissions for the bitstream object
+        copyright_id: Reference to the copyright information
+        license_id: Reference to the license information
     """
 
     value: str
     permissions: Optional[str] = None
+    copyright_id: str | None = None
+    license_id: str | None = None
 
     @staticmethod
     def from_node(node: etree._Element) -> XMLBitstream:
         """Factory that parses a bitstream node from the XML DOM"""
         if not node.text:
             raise XmlUploadError("Empty bitstream tag")
-        return XMLBitstream(node.text, node.get("permissions"))
+        return XMLBitstream(node.text, node.get("permissions"), node.get("copyright-attribution"), node.get("license"))
 
 
 @dataclass(frozen=True)
@@ -222,15 +226,19 @@ class IIIFUriInfo:
 
     Attributes:
         value: The IIIF URI of the object
-        permissions: Reference to the set of permissions for the IIIF URI
+        permissions: Reference to the set of permissions
+        copyright_id: Reference to the copyright information
+        license_id: Reference to the license information
     """
 
     value: str
     permissions: str | None = None
+    copyright_id: str | None = None
+    license_id: str | None = None
 
     @staticmethod
     def from_node(node: etree._Element) -> IIIFUriInfo:
         """Factory that parses an IIIF URI node from the XML DOM"""
         if not node.text:
             raise XmlUploadError("Empty IIIF URI tag")
-        return IIIFUriInfo(node.text, node.get("permissions"))
+        return IIIFUriInfo(node.text, node.get("permissions"), node.get("copyright-attribution"), node.get("license"))

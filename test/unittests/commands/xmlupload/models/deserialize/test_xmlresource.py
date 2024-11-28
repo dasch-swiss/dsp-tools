@@ -33,10 +33,32 @@ def test_get_properties_bitstream_only() -> None:
     assert not props
 
 
+def test_get_properties_bitstream_with_license_copyright() -> None:
+    string = """
+        <resource>
+            <bitstream license="license" copyright-attribution="copy">testdata/bitstreams/test.tif</bitstream>
+        </resource>"""
+    bitstream_expected = XMLBitstream("testdata/bitstreams/test.tif", None, "copy", "license")
+    bitstream, iiif, props = XMLResource._get_properties(etree.fromstring(string), "rosetta")
+    assert bitstream == bitstream_expected
+    assert not iiif
+    assert not props
+
+
 def test_get_properties_iiif_only() -> None:
-    iiif_uri = "https://iiif.dasch.swiss/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/837,530/0/default.jp2"
+    iiif_uri = "https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg"
     string = f"<resource><iiif-uri>{iiif_uri}</iiif-uri></resource>"
     iiif_expected = IIIFUriInfo(iiif_uri)
+    bitstream, iiif, props = XMLResource._get_properties(etree.fromstring(string), "rosetta")
+    assert not bitstream
+    assert iiif == iiif_expected
+    assert not props
+
+
+def test_get_properties_iiif_with_license_copyright() -> None:
+    iiif_uri = "https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg"
+    string = f'<resource><iiif-uri license="license" copyright-attribution="copy">{iiif_uri}</iiif-uri></resource>'
+    iiif_expected = IIIFUriInfo(iiif_uri, None, "copy", "license")
     bitstream, iiif, props = XMLResource._get_properties(etree.fromstring(string), "rosetta")
     assert not bitstream
     assert iiif == iiif_expected

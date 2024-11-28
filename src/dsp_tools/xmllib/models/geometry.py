@@ -14,8 +14,7 @@ from dsp_tools.xmllib.value_checkers import is_decimal
 class GeometryShape(Protocol):
     color: str
 
-    def to_json_string(self) -> str:
-        raise NotImplementedError
+    def to_json_string(self) -> str: ...
 
 
 @dataclass

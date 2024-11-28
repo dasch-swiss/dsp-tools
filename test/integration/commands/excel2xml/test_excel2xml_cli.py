@@ -98,7 +98,7 @@ class TestWarnings:
         file = f"{INVALID_EXCEL_DIRECTORY}/missing-resource-permissions.xlsx"
         expected_msg = "Missing permissions for resource 'person_0' (Excel row 2)"
         expected_xml_validation = regex.escape(
-            "Element 'resource', attribute 'permissions': " "'' is not a valid value of the atomic type 'xs:NCName'."
+            "Element 'resource', attribute 'permissions': " "'' is not a valid value of the atomic type 'xs:IDREF'."
         )
         _, catched_warnings = excel2xml_cli.excel2xml(file, "1234", "excel2xml-invalid")
         assert len(catched_warnings) == 2
@@ -124,7 +124,7 @@ class TestWarnings:
             " An attempt to deduce them from the resource permissions failed."
         )
         expected_xml_validation = regex.escape(
-            "Element 'bitstream', attribute 'permissions': " "'' is not a valid value of the atomic type 'xs:NCName'."
+            "Element 'bitstream', attribute 'permissions': " "'' is not a valid value of the atomic type 'xs:IDREF'."
         )
         _, catched_warnings = excel2xml_cli.excel2xml(file, "1234", "excel2xml-invalid")
         assert len(catched_warnings) == 3

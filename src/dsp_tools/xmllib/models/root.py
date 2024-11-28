@@ -120,7 +120,7 @@ class XMLRoot:
         Warning:
             if the XML is not valid according to the schema
         """
-        root = self._serialise()
+        root = self.serialise()
         etree.indent(root, space="    ")
         xml_string = etree.tostring(
             root,
@@ -141,6 +141,21 @@ class XMLRoot:
             )
             warnings.warn(DspToolsUserWarning(msg))
 
+    def serialise(self) -> etree._Element:
+        """
+        Create an `lxml.etree._Element` with the information in the root.
+        If you wish to create a file, we recommend using the `write_file` method instead.
+
+        Returns:
+            The `XMLRoot` serialised as XML
+        """
+        root = self._make_root()
+        permissions = XMLPermissions().serialise()
+        root.extend(permissions)
+        serialised_resources = [x.serialise() for x in self.resources]
+        root.extend(serialised_resources)
+        return root
+
     def _make_root(self) -> etree._Element:
         schema_url = (
             "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/data.xsd"
@@ -156,11 +171,3 @@ class XMLRoot:
             },
             nsmap=XML_NAMESPACE_MAP,
         )
-
-    def _serialise(self) -> etree._Element:
-        root = self._make_root()
-        permissions = XMLPermissions().serialise()
-        root.extend(permissions)
-        serialised_resources = [x.serialise() for x in self.resources]
-        root.extend(serialised_resources)
-        return root

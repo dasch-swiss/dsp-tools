@@ -5,6 +5,7 @@ from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XM
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLValue
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
+from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileValue
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryIIIFUri
 from dsp_tools.commands.xmlupload.models.intermediary.resource import MigrationMetadata
@@ -21,11 +22,13 @@ from dsp_tools.commands.xmlupload.models.intermediary.values import Intermediary
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryTime
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryUri
 from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookup
+from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_one_file_value
 from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_one_property
 from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_one_resource
 from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_one_value
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.utils.date_util import Date
 
 ONTO = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
 
@@ -48,7 +51,7 @@ class TestTransformResource:
         assert result.res_id == "id"
         assert result.type_iri == f"{ONTO}ResourceType"
         assert result.label == "lbl"
-        assert result.permissions == ""
+        assert isinstance(result.permissions, Permissions)
         assert len(result.values) == 0
         assert not result.file_value
         assert not result.migration_metadata
@@ -131,6 +134,7 @@ class TestTransformFileValue:
     ) -> None:
         result = _transform_one_file_value(bitstream_with_permission, lookups)
         assert isinstance(result, IntermediaryFileValue)
+        assert isinstance(result.metadata.permissions, Permissions)
 
     def test_iiif_uri(self, iiif_uri: IIIFUriInfo, lookups: IntermediaryLookup) -> None:
         result = _transform_one_file_value(iiif_uri, lookups)
@@ -139,6 +143,7 @@ class TestTransformFileValue:
     def test_iiif_uri_with_permission(self, iiif_uri_with_permission: IIIFUriInfo, lookups: IntermediaryLookup) -> None:
         result = _transform_one_file_value(iiif_uri_with_permission, lookups)
         assert isinstance(result, IntermediaryIIIFUri)
+        assert isinstance(result.metadata.permissions, Permissions)
 
 
 class TestTransformProperties:
@@ -147,8 +152,8 @@ class TestTransformProperties:
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryBoolean)
-        assert transformed.value == ""
-        assert transformed.prop_iri == ""
+        assert transformed.value == True
+        assert transformed.prop_iri == f"{ONTO}boolProp"
         assert not transformed.permissions
         assert not transformed.comment
 
@@ -157,8 +162,8 @@ class TestTransformProperties:
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryColor)
-        assert transformed.value == ""
-        assert transformed.prop_iri == ""
+        assert transformed.value == "#5d1f1e"
+        assert transformed.prop_iri == f"{ONTO}colorProp"
         assert not transformed.permissions
         assert not transformed.comment
 
@@ -167,8 +172,8 @@ class TestTransformProperties:
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryDate)
-        assert transformed.value == ""
-        assert transformed.prop_iri == ""
+        assert isinstance(transformed.value, Date)
+        assert transformed.prop_iri == f"{ONTO}dateProp"
         assert not transformed.permissions
         assert not transformed.comment
 
@@ -177,8 +182,8 @@ class TestTransformProperties:
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryDecimal)
-        assert transformed.value == ""
-        assert transformed.prop_iri == ""
+        assert transformed.value == 1.4
+        assert transformed.prop_iri == f"{ONTO}decimalProp"
         assert not transformed.permissions
         assert not transformed.comment
 
@@ -193,8 +198,8 @@ class TestTransformProperties:
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediarySimpleText)
-        assert transformed.value == ""
-        assert transformed.prop_iri == ""
+        assert transformed.value == "true"
+        assert transformed.prop_iri == f"{ONTO}simpleTextProp"
         assert not transformed.permissions
         assert not transformed.comment
 
@@ -203,8 +208,8 @@ class TestTransformProperties:
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryRichtext)
-        assert transformed.value == ""
-        assert transformed.prop_iri == ""
+        assert isinstance(transformed.value, FormattedTextValue)
+        assert transformed.prop_iri == f"{ONTO}richTextProp"
         assert not transformed.permissions
         assert not transformed.comment
 
@@ -213,8 +218,8 @@ class TestTransformProperties:
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryGeoname)
-        assert transformed.value == ""
-        assert transformed.prop_iri == ""
+        assert transformed.value == "5416656"
+        assert transformed.prop_iri == f"{ONTO}geonameProp"
         assert not transformed.permissions
         assert not transformed.comment
 
@@ -223,8 +228,8 @@ class TestTransformProperties:
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryInt)
-        assert transformed.value == ""
-        assert transformed.prop_iri == ""
+        assert transformed.value == 1
+        assert transformed.prop_iri == f"{ONTO}integerProp"
         assert not transformed.permissions
         assert not transformed.comment
 
@@ -233,8 +238,8 @@ class TestTransformProperties:
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryList)
-        assert transformed.value == ""
-        assert transformed.prop_iri == ""
+        assert transformed.value == "http://rdfh.ch/9999/node"
+        assert transformed.prop_iri == f"{ONTO}listProp"
         assert not transformed.permissions
         assert not transformed.comment
 
@@ -243,8 +248,8 @@ class TestTransformProperties:
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryLink)
-        assert transformed.value == ""
-        assert transformed.prop_iri == ""
+        assert transformed.value == "other_id"
+        assert transformed.prop_iri == f"{ONTO}linkProp"
         assert not transformed.permissions
         assert not transformed.comment
 
@@ -253,8 +258,8 @@ class TestTransformProperties:
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryTime)
-        assert transformed.value == ""
-        assert transformed.prop_iri == ""
+        assert transformed.value == "2019-10-23T13:45:12.01-14:00"
+        assert transformed.prop_iri == f"{ONTO}timeProp"
         assert not transformed.permissions
         assert not transformed.comment
 
@@ -263,8 +268,8 @@ class TestTransformProperties:
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryUri)
-        assert transformed.value == ""
-        assert transformed.prop_iri == ""
+        assert transformed.value == "https://dasch.swiss"
+        assert transformed.prop_iri == f"{ONTO}uriProp"
         assert not transformed.permissions
         assert not transformed.comment
 
@@ -276,10 +281,10 @@ class TestTransformValue:
         result = _transform_one_value(value_with_string_and_comment, ":prop", lookups)
         assert len(result) == 1
         transformed = result[0]
-        assert transformed.value == ""
-        assert transformed.prop_iri == ""
+        assert transformed.value == "true"
+        assert transformed.prop_iri == f"{ONTO}textProp"
         assert not transformed.permissions
-        assert not transformed.comment
+        assert transformed.comment == "comment"
 
     def test_value_with_string_and_permissions(
         self, value_with_string_and_permissions: XMLValue, lookups: IntermediaryLookup
@@ -287,18 +292,13 @@ class TestTransformValue:
         result = _transform_one_value(value_with_string_and_permissions, ":prop", lookups)
         assert len(result) == 1
         transformed = result[0]
-        assert transformed.value == ""
-        assert transformed.prop_iri == ""
-        assert not transformed.permissions
+        assert transformed.value == "true"
+        assert transformed.prop_iri == f"{ONTO}textProp"
+        assert isinstance(transformed.permissions, Permissions)
         assert not transformed.comment
 
     def test_value_with_string_and_non_existing_permissions(
         self, value_with_string_and_non_existing_permissions: XMLValue, lookups: IntermediaryLookup
     ) -> None:
-        result = _transform_one_value(value_with_string_and_non_existing_permissions, ":prop", lookups)
-        assert len(result) == 1
-        transformed = result[0]
-        assert transformed.value == ""
-        assert transformed.prop_iri == ""
-        assert not transformed.permissions
-        assert not transformed.comment
+        with pytest.raises(InputError):
+            _transform_one_value(value_with_string_and_non_existing_permissions, ":prop", lookups)

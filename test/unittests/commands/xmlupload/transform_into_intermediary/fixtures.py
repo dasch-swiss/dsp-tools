@@ -98,7 +98,7 @@ def list_prop() -> XMLProperty:
 
 @pytest.fixture
 def resptr_prop(value_with_string) -> XMLProperty:
-    return XMLProperty(name=":linkProp", valtype="resptr", values=[value_with_string])
+    return XMLProperty(name=":linkProp", valtype="resptr", values=[XMLValue("other_id")])
 
 
 @pytest.fixture

@@ -150,12 +150,11 @@ class AnnotationResource:
         if self.comments:
             res_ele.append(_serialise_has_comment(self.comments, self.res_id))
         else:
-            warnings.warn(
-                DspToolsUserWarning(
-                    f"The annotation with the ID '{self.res_id}' does not have any comments. "
-                    f"At least one comment must be provided, please note that an xmlupload will fail."
-                )
+            msg = (
+                f"The annotation with the ID '{self.res_id}' does not have any comments. "
+                f"At least one comment must be provided, please note that an xmlupload will fail."
             )
+            warnings.warn(DspToolsUserWarning(msg))
         return res_ele
 
     def _serialise_resource_element(self) -> etree._Element:
@@ -232,12 +231,12 @@ class RegionResource:
         [For a visual example see the XML documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geometry)
 
         Args:
-            point_one: first point of the rectangle represented as two numbers between 0 and 1 in the format (x, y)
-            point_two: second point of the rectangle represented as two numbers between 0 and 1 in the format (x, y)
+            point_one: first point of the rectangle, represented as two numbers between 0 and 1 in the format (x, y)
+            point_two: second point of the rectangle, represented as two numbers between 0 and 1 in the format (x, y)
             line_width: A number in pixels between 1 - 5
-            color: A hexadecimal color value which starts with a `#` followed by 3 or 6 numerals
+            color: A hexadecimal color value which starts with a `#` followed by 3 or 6 numerals.
                 The default value was chosen as it is distinguishable for most color-blind people.
-            active: If set to `False` the region is marked as 'deleted'
+            active: If set to `False`, the region is marked as 'deleted'
 
         Returns:
             Region with added rectangle
@@ -271,7 +270,7 @@ class RegionResource:
         Args:
             points: list of tuples containing two numbers between 0 and 1 in the format (x, y)
             line_width: A number in pixels between 1 - 5
-            color: A hexadecimal color value which starts with a `#` followed by 3 or 6 numerals
+            color: A hexadecimal color value which starts with a `#` followed by 3 or 6 numerals.
                 The default value was chosen as it is distinguishable for most color-blind people.
             active: If set to `False` the region is marked as 'deleted'
 
@@ -300,10 +299,10 @@ class RegionResource:
         **Please note that this cannot currently be displayed in the dsp-app.**
 
         Args:
-            center: center of the circle represented as two numbers between 0 and 1 in the format (x, y)
-            radius: radius of the circle represented as two numbers between 0 and 1 in the format (x, y)
+            center: center of the circle, represented as two numbers between 0 and 1 in the format (x, y)
+            radius: radius of the circle, represented as a 2-dimensional vector, i.e. two numbers between 0 and 1 in the format (x, y)
             line_width: A number in pixels between 1 - 5
-            color: A hexadecimal color value which starts with a `#` followed by 3 or 6 numerals
+            color: A hexadecimal color value which starts with a `#` followed by 3 or 6 numerals.
                 The default value was chosen as it is distinguishable for most color-blind people.
             active: If set to `False` the region is marked as 'deleted'
 
@@ -417,7 +416,7 @@ class RegionResource:
         if not self.geometry:
             warnings.warn(
                 DspToolsUserWarning(
-                    f"The region resource with the ID does not have a geometry '{self.res_id}', "
+                    f"The region resource with the ID '{self.res_id}' does not have a geometry, "
                     f"please note that an xmlupload will fail."
                 )
             )

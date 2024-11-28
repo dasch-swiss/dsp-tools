@@ -150,7 +150,7 @@ class XMLRoot:
             The original XMLRoot with the added copyright attribution.
         """
         if id_ in self.copyright_attributions.get_copyright_attribution_ids():
-            raise InputError(f"Copyright attribution with the ID '{id_}' already exists. All IDs must be unique.")
+            raise InputError(f"A copyright attribution with the ID '{id_}' already exists. All IDs must be unique.")
         self.copyright_attributions.copyright_attributions.append(CopyrightAttribution(id_, text))
         return self
 

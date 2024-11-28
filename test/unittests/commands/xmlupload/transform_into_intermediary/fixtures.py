@@ -3,15 +3,22 @@ import pytest
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLValue
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
+from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookup
+from dsp_tools.commands.xmlupload.models.permission import Permissions
+from dsp_tools.commands.xmlupload.models.permission import PermissionValue
+from dsp_tools.models.datetimestamp import DateTimeStamp
 
 
 @pytest.fixture
 def lookups() -> IntermediaryLookup:
     return IntermediaryLookup(
-        permissions={},
-        listnodes={},
-        namespaces={"knora-api": "", "onto": ""},
+        permissions={"open": Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})},
+        listnodes={"list:node": "http://rdfh.ch/9999/node"},
+        namespaces={
+            "knora-api": "http://api.knora.org/ontology/knora-api/v2#",
+            "onto": "http://0.0.0.0:3333/ontology/9999/onto/v2#",
+        },
     )
 
 
@@ -51,13 +58,20 @@ def decimal_prop() -> XMLProperty:
 
 
 @pytest.fixture
+def decimal_prop_with_two_values() -> XMLProperty:
+    return XMLProperty(name=":decimalProp", valtype="decimal", values=[XMLValue("1.0"), XMLValue("2.0")])
+
+
+@pytest.fixture
 def simple_text_prop(value_with_string) -> XMLProperty:
     return XMLProperty(name=":simpleTextProp", valtype="text", values=[value_with_string])
 
 
 @pytest.fixture
-def richtext_prop(value_with_string) -> XMLProperty:  # TODO
-    return XMLProperty(name=":richTextProp", valtype="text", values=[value_with_string])
+def richtext_prop(value_with_string) -> XMLProperty:
+    return XMLProperty(
+        name=":richTextProp", valtype="text", values=[XMLValue(FormattedTextValue("<text>this is text </text>"))]
+    )
 
 
 @pytest.fixture
@@ -91,7 +105,7 @@ def uri_prop() -> XMLProperty:
 
 
 @pytest.fixture
-def resource() -> XMLResource:
+def resource_one_prop(bool_prop: XMLProperty) -> XMLResource:
     return XMLResource(
         res_id="id",
         iri=None,
@@ -100,6 +114,70 @@ def resource() -> XMLResource:
         restype=":ResourceType",
         permissions=None,
         creation_date=None,
+        bitstream=None,
+        iiif_uri=None,
+        properties=[bool_prop],
+    )
+
+
+@pytest.fixture
+def resource_with_permissions() -> XMLResource:
+    return XMLResource(
+        res_id="id",
+        iri=None,
+        ark=None,
+        label="lbl",
+        restype=":ResourceType",
+        permissions="open",
+        creation_date=None,
+        bitstream=None,
+        iiif_uri=None,
+        properties=[],
+    )
+
+
+@pytest.fixture
+def resource_with_ark() -> XMLResource:
+    return XMLResource(
+        res_id="id",
+        iri=None,
+        ark="ark:/72163/4123-43xc6ivb931-a.2022829",
+        label="lbl",
+        restype=":ResourceType",
+        permissions=None,
+        creation_date=DateTimeStamp("1999-12-31T23:59:59.9999999+01:00"),
+        bitstream=None,
+        iiif_uri=None,
+        properties=[],
+    )
+
+
+@pytest.fixture
+def resource_with_iri() -> XMLResource:
+    return XMLResource(
+        res_id="id",
+        iri="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA",
+        ark=None,
+        label="lbl",
+        restype=":ResourceType",
+        permissions=None,
+        creation_date=DateTimeStamp("1999-12-31T23:59:59.9999999+01:00"),
+        bitstream=None,
+        iiif_uri=None,
+        properties=[],
+    )
+
+
+@pytest.fixture
+def resource_with_ark_and_iri() -> XMLResource:
+    return XMLResource(
+        res_id="id",
+        iri="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA",
+        ark="ark:/72163/4123-43xc6ivb931-a.2022829",
+        label="lbl",
+        restype=":ResourceType",
+        permissions=None,
+        creation_date=DateTimeStamp("1999-12-31T23:59:59.9999999+01:00"),
         bitstream=None,
         iiif_uri=None,
         properties=[],

@@ -74,7 +74,7 @@ class XMLRoot:
 
         Returns:
             Instance of `XMLRoot`
-        """
+        """  # noqa: E501 (Line too long)
         return XMLRoot(
             shortcode=shortcode,
             default_ontology=default_ontology,

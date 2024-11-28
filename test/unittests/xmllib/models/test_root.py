@@ -4,7 +4,7 @@ from dsp_tools.xmllib.models.resource import Resource
 from dsp_tools.xmllib.models.root import XMLRoot
 
 
-def test_root() -> None:
+def test_root_add_resources() -> None:
     xml_root = XMLRoot.create_new("0000", "test")
 
     # add_resource

@@ -26,6 +26,7 @@ from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _tr
 from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_one_property
 from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_one_resource
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.models.exceptions import PermissionNotExistsError
 from dsp_tools.utils.date_util import Date
 
 ONTO = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
@@ -200,7 +201,7 @@ class TestTransformProperties:
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediarySimpleText)
-        assert transformed.value == "true"
+        assert transformed.value == "text"
         assert transformed.prop_iri == f"{ONTO}simpleTextProp"
         assert not transformed.permissions
         assert not transformed.comment
@@ -276,27 +277,27 @@ class TestTransformProperties:
         assert not transformed.comment
 
     def test_bool_prop_with_comment(self, bool_prop_with_comment: XMLProperty, lookups: IntermediaryLookup) -> None:
-        result = _transform_one_property(bool_prop_with_comment, ":prop", lookups)
+        result = _transform_one_property(bool_prop_with_comment, lookups)
         assert len(result) == 1
         transformed = result[0]
-        assert transformed.value == "true"
-        assert transformed.prop_iri == f"{ONTO}textProp"
+        assert transformed.value == True
+        assert transformed.prop_iri == f"{ONTO}boolProp"
         assert not transformed.permissions
         assert transformed.comment == "comment"
 
     def test_bool_prop_with_permissions(
         self, bool_prop_with_permissions: XMLProperty, lookups: IntermediaryLookup
     ) -> None:
-        result = _transform_one_property(bool_prop_with_permissions, ":prop", lookups)
+        result = _transform_one_property(bool_prop_with_permissions, lookups)
         assert len(result) == 1
         transformed = result[0]
-        assert transformed.value == "true"
-        assert transformed.prop_iri == f"{ONTO}textProp"
+        assert transformed.value == True
+        assert transformed.prop_iri == f"{ONTO}boolProp"
         assert isinstance(transformed.permissions, Permissions)
         assert not transformed.comment
 
     def test_bool_prop_with_non_existing_permissions(
         self, bool_prop_with_non_existing_permissions: XMLProperty, lookups: IntermediaryLookup
     ) -> None:
-        with pytest.raises(InputError):
-            _transform_one_property(bool_prop_with_non_existing_permissions, ":prop", lookups)
+        with pytest.raises(PermissionNotExistsError):
+            _transform_one_property(bool_prop_with_non_existing_permissions, lookups)

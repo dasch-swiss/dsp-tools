@@ -69,7 +69,6 @@ class IntermediaryInterval(IntermediaryValue):
 @dataclass
 class IntermediaryLink(IntermediaryValue):
     value: str
-    resource_references: list[str]
 
 
 @dataclass
@@ -85,7 +84,7 @@ class IntermediarySimpleText(IntermediaryValue):
 @dataclass
 class IntermediaryRichtext(IntermediaryValue):
     value: FormattedTextValue
-    resource_references: list[str]
+    resource_references: set[str]
 
 
 @dataclass

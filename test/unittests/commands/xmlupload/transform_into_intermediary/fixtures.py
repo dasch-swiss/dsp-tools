@@ -26,84 +26,84 @@ def lookups() -> IntermediaryLookup:
 
 @pytest.fixture
 def bool_prop() -> XMLProperty:
-    return XMLProperty(name=":boolProp", valtype="bool", values=[XMLValue(value="true")])
+    return XMLProperty(name="onto:boolProp", valtype="bool", values=[XMLValue(value="true")])
 
 
 @pytest.fixture
 def bool_prop_with_permissions() -> XMLProperty:
-    return XMLProperty(name=":boolProp", valtype="bool", values=[XMLValue(value="true", permissions="open")])
+    return XMLProperty(name="onto:boolProp", valtype="bool", values=[XMLValue(value="true", permissions="open")])
 
 
 @pytest.fixture
 def bool_prop_with_non_existing_permissions() -> XMLProperty:
-    return XMLProperty(name=":boolProp", valtype="bool", values=[XMLValue(value="true", permissions="nonExisting")])
+    return XMLProperty(name="onto:boolProp", valtype="bool", values=[XMLValue(value="true", permissions="nonExisting")])
 
 
 @pytest.fixture
 def bool_prop_with_comment() -> XMLProperty:
-    return XMLProperty(name=":boolProp", valtype="bool", values=[XMLValue(value="true", comment="comment")])
+    return XMLProperty(name="onto:boolProp", valtype="bool", values=[XMLValue(value="true", comment="comment")])
 
 
 @pytest.fixture
 def color_prop() -> XMLProperty:
-    return XMLProperty(name=":colorProp", valtype="color", values=[XMLValue("#5d1f1e")])
+    return XMLProperty(name="onto:colorProp", valtype="color", values=[XMLValue("#5d1f1e")])
 
 
 @pytest.fixture
 def date_prop() -> XMLProperty:
-    return XMLProperty(name=":dateProp", valtype="date", values=[XMLValue("CE:1849:CE:1850")])
+    return XMLProperty(name="onto:dateProp", valtype="date", values=[XMLValue("CE:1849:CE:1850")])
 
 
 @pytest.fixture
 def decimal_prop() -> XMLProperty:
-    return XMLProperty(name=":decimalProp", valtype="decimal", values=[XMLValue("1.4")])
+    return XMLProperty(name="onto:decimalProp", valtype="decimal", values=[XMLValue("1.4")])
 
 
 @pytest.fixture
 def decimal_prop_with_two_values() -> XMLProperty:
-    return XMLProperty(name=":decimalProp", valtype="decimal", values=[XMLValue("1.0"), XMLValue("2.0")])
+    return XMLProperty(name="onto:decimalProp", valtype="decimal", values=[XMLValue("1.0"), XMLValue("2.0")])
 
 
 @pytest.fixture
 def simple_text_prop() -> XMLProperty:
-    return XMLProperty(name=":simpleTextProp", valtype="text", values=[XMLValue(value="text")])
+    return XMLProperty(name="onto:simpleTextProp", valtype="text", values=[XMLValue(value="text")])
 
 
 @pytest.fixture
 def richtext_prop() -> XMLProperty:
     return XMLProperty(
-        name=":richTextProp", valtype="text", values=[XMLValue(FormattedTextValue("<text>this is text</text>"))]
+        name="onto:richTextProp", valtype="text", values=[XMLValue(FormattedTextValue("<text>this is text</text>"))]
     )
 
 
 @pytest.fixture
 def geoname_prop() -> XMLProperty:
-    return XMLProperty(name=":geonameProp", valtype="geoname", values=[XMLValue("5416656")])
+    return XMLProperty(name="onto:geonameProp", valtype="geoname", values=[XMLValue("5416656")])
 
 
 @pytest.fixture
 def integer_prop() -> XMLProperty:
-    return XMLProperty(name=":integerProp", valtype="integer", values=[XMLValue("1")])
+    return XMLProperty(name="onto:integerProp", valtype="integer", values=[XMLValue("1")])
 
 
 @pytest.fixture
 def list_prop() -> XMLProperty:
-    return XMLProperty(name=":listProp", valtype="list", values=[XMLValue("list:node")])
+    return XMLProperty(name="onto:listProp", valtype="list", values=[XMLValue("list:node")])
 
 
 @pytest.fixture
 def resptr_prop() -> XMLProperty:
-    return XMLProperty(name=":linkProp", valtype="resptr", values=[XMLValue("other_id")])
+    return XMLProperty(name="onto:linkProp", valtype="resptr", values=[XMLValue("other_id")])
 
 
 @pytest.fixture
 def time_prop() -> XMLProperty:
-    return XMLProperty(name=":timeProp", valtype="time", values=[XMLValue("2019-10-23T13:45:12.01-14:00")])
+    return XMLProperty(name="onto:timeProp", valtype="time", values=[XMLValue("2019-10-23T13:45:12.01-14:00")])
 
 
 @pytest.fixture
 def uri_prop() -> XMLProperty:
-    return XMLProperty(name=":uriProp", valtype="uri", values=[XMLValue("https://dasch.swiss")])
+    return XMLProperty(name="onto:uriProp", valtype="uri", values=[XMLValue("https://dasch.swiss")])
 
 
 @pytest.fixture
@@ -133,7 +133,7 @@ def resource_one_prop(bool_prop: XMLProperty) -> XMLResource:
         iri=None,
         ark=None,
         label="lbl",
-        restype=":ResourceType",
+        restype="onto:ResourceType",
         permissions=None,
         creation_date=None,
         bitstream=None,
@@ -149,7 +149,7 @@ def resource_with_permissions() -> XMLResource:
         iri=None,
         ark=None,
         label="lbl",
-        restype=":ResourceType",
+        restype="onto:ResourceType",
         permissions="open",
         creation_date=None,
         bitstream=None,
@@ -165,7 +165,7 @@ def resource_with_iiif_uri(iiif_uri: IIIFUriInfo) -> XMLResource:
         iri=None,
         ark=None,
         label="lbl",
-        restype=":ResourceType",
+        restype="onto:ResourceType",
         permissions=None,
         creation_date=None,
         bitstream=None,
@@ -181,7 +181,7 @@ def resource_with_bitstream(bitstream: XMLBitstream) -> XMLResource:
         iri=None,
         ark=None,
         label="lbl",
-        restype=":ResourceType",
+        restype="onto:ResourceType",
         permissions=None,
         creation_date=None,
         bitstream=bitstream,
@@ -197,7 +197,7 @@ def resource_with_unknown_permissions() -> XMLResource:
         iri=None,
         ark=None,
         label="lbl",
-        restype=":ResourceType",
+        restype="onto:ResourceType",
         permissions="nonExisting",
         creation_date=None,
         bitstream=None,
@@ -213,7 +213,7 @@ def resource_with_ark() -> XMLResource:
         iri=None,
         ark="ark:/72163/4123-43xc6ivb931-a.2022829",
         label="lbl",
-        restype=":ResourceType",
+        restype="onto:ResourceType",
         permissions=None,
         creation_date=DateTimeStamp("1999-12-31T23:59:59.9999999+01:00"),
         bitstream=None,
@@ -229,7 +229,7 @@ def resource_with_iri() -> XMLResource:
         iri="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA",
         ark=None,
         label="lbl",
-        restype=":ResourceType",
+        restype="onto:ResourceType",
         permissions=None,
         creation_date=DateTimeStamp("1999-12-31T23:59:59.9999999+01:00"),
         bitstream=None,
@@ -245,7 +245,7 @@ def resource_with_ark_and_iri() -> XMLResource:
         iri="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA",
         ark="ark:/72163/4123-43xc6ivb931-a.2022829",
         label="lbl",
-        restype=":ResourceType",
+        restype="onto:ResourceType",
         permissions=None,
         creation_date=DateTimeStamp("1999-12-31T23:59:59.9999999+01:00"),
         bitstream=None,

@@ -17,6 +17,9 @@ from dsp_tools.commands.xmlupload.models.intermediary.values import Intermediary
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryInt
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryInterval
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryList
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediarySimpleText
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryTime
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryUri
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryValue
@@ -30,9 +33,11 @@ from dsp_tools.commands.xmlupload.transform_input_values import transform_decima
 from dsp_tools.commands.xmlupload.transform_input_values import transform_geometry
 from dsp_tools.commands.xmlupload.transform_input_values import transform_integer
 from dsp_tools.commands.xmlupload.transform_input_values import transform_interval
+from dsp_tools.models.exceptions import InputError
+from dsp_tools.models.exceptions import PermissionNotExistsError
 
 TYPE_TRANSFORMER_MAPPER = {
-    "boolean": (IntermediaryBoolean, transform_boolean),
+    "bool": (IntermediaryBoolean, transform_boolean),
     "color": (IntermediaryColor, assert_is_string),
     "decimal": (IntermediaryDecimal, transform_decimal),
     "date": (IntermediaryDate, transform_date),
@@ -95,12 +100,57 @@ def _transform_one_generic_value(
     prop_intermediary: Callable[[ValueTypes, str, str | None, Permissions | None], IntermediaryValue],
     transformer: Callable[[str | FormattedTextValue], ValueTypes],
 ) -> list[IntermediaryValue]:
-    pass
+    intermediary_values = []
+    prop_iri = _get_absolute_iri(prop.name, lookups.namespaces)
+    for val in prop.values:
+        transformed_value = transformer(val.value)
+        permission_val = _resolve_permission(val.permissions, lookups.permissions)
+        intermediary_values.append(prop_intermediary(transformed_value, prop_iri, val.comment, permission_val))
+    return intermediary_values
 
 
 def _transform_list_values(prop: XMLProperty, lookups: IntermediaryLookup) -> list[IntermediaryValue]:
-    pass
+    intermediary_values: list[IntermediaryValue] = []
+    prop_iri = _get_absolute_iri(prop.name, lookups.namespaces)
+    for val in prop.values:
+        if not (list_iri := lookups.listnodes.get(val.value)):
+            raise InputError(f"Could not find list iri for node: {list_iri}")
+        permission_val = _resolve_permission(val.permissions, lookups.permissions)
+        intermediary_values.append(IntermediaryList(list_iri, prop_iri, val.comment, permission_val))
+    return intermediary_values
 
 
 def _transform_text_values(prop: XMLProperty, lookups: IntermediaryLookup) -> list[IntermediaryValue]:
-    pass
+    intermediary_values: list[IntermediaryValue] = []
+    prop_iri = _get_absolute_iri(prop.name, lookups.namespaces)
+    for val in prop.values:
+        permission_val = _resolve_permission(val.permissions, lookups.permissions)
+        if isinstance(val.value, str):
+            intermediary_values.append(IntermediarySimpleText(val.value, prop_iri, val.comment, permission_val))
+        else:
+            intermediary_values.append(
+                IntermediaryRichtext(
+                    value=val.value,
+                    prop_iri=prop_iri,
+                    comment=val.comment,
+                    permissions=permission_val,
+                    resource_references=val.resrefs,
+                )
+            )
+    return intermediary_values
+
+
+def _get_absolute_iri(prefixed_iri: str, namespaces: dict[str, str]) -> str:
+    prefix, prop = prefixed_iri.split(":", maxsplit=1)
+    if not (namespace := namespaces.get(prefix)):
+        raise InputError(f"Could not find namespace for prefix: {prefix}")
+    return f"{namespace}{prop}"
+
+
+def _resolve_permission(permissions: str | None, permissions_lookup: dict[str, Permissions]) -> Permissions | None:
+    """Resolve the permission into a string that can be sent to the API."""
+    if permissions:
+        if not (per := permissions_lookup.get(permissions)):
+            raise PermissionNotExistsError(f"Could not find permissions for value: {permissions}")
+        return per
+    return None

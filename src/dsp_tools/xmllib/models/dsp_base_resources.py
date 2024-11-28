@@ -242,8 +242,8 @@ class RegionResource:
             Region with added rectangle
         """
         self.geometry = Rectangle(
-            point_one=GeometryPoint(point1[0], point1[1], self.res_id),
-            point_two=GeometryPoint(point2[0], point2[1], self.res_id),
+            point1=GeometryPoint(point1[0], point1[1], self.res_id),
+            point2=GeometryPoint(point2[0], point2[1], self.res_id),
             line_width=line_width,
             color=color,
             active=active,
@@ -300,7 +300,8 @@ class RegionResource:
 
         Args:
             center: center of the circle, represented as two numbers between 0 and 1 in the format (x, y)
-            radius: radius of the circle, represented as a 2-dimensional vector, i.e. two numbers between 0 and 1 in the format (x, y)
+            radius: radius of the circle, represented as a 2-dimensional vector,
+                i.e. two numbers between 0 and 1 in the format (x, y)
             line_width: A number in pixels between 1 - 5
             color: A hexadecimal color value which starts with a `#` followed by 3 or 6 numerals.
                 The default value was chosen as it is distinguishable for most color-blind people.
@@ -392,12 +393,11 @@ class RegionResource:
         if self.comments:
             res_ele.append(_serialise_has_comment(self.comments, self.res_id))
         else:
-            warnings.warn(
-                DspToolsUserWarning(
-                    f"The region with the ID '{self.res_id}' does not have any comments. "
-                    f"At least one comment must be provided, please note that an xmlupload will fail."
-                )
+            msg = (
+                f"The region with the ID '{self.res_id}' does not have any comments. "
+                f"At least one comment must be provided, please note that an xmlupload will fail."
             )
+            warnings.warn(DspToolsUserWarning(msg))
         return res_ele
 
     def _serialise_resource_element(self) -> etree._Element:
@@ -414,12 +414,12 @@ class RegionResource:
     def _serialise_geometry_shape(self) -> list[etree._Element]:
         prop_list: list[etree._Element] = []
         if not self.geometry:
-            warnings.warn(
-                DspToolsUserWarning(
-                    f"The region resource with the ID '{self.res_id}' does not have a geometry, "
-                    f"please note that an xmlupload will fail."
-                )
+            msg = (
+                f"The region resource with the ID '{self.res_id}' does not have a geometry, "
+                f"please note that an xmlupload will fail."
             )
+            warnings.warn(DspToolsUserWarning(msg))
+
             return prop_list
         geo_prop = etree.Element(f"{DASCH_SCHEMA}geometry-prop", name="hasGeometry", nsmap=XML_NAMESPACE_MAP)
         ele = etree.Element(f"{DASCH_SCHEMA}geometry", nsmap=XML_NAMESPACE_MAP)
@@ -544,12 +544,11 @@ class LinkResource:
         if self.comments:
             res_ele.append(_serialise_has_comment(self.comments, self.res_id))
         else:
-            warnings.warn(
-                DspToolsUserWarning(
-                    f"The link object with the ID '{self.res_id}' does not have any comments. "
-                    f"At least one comment must be provided, please note that an xmlupload will fail."
-                )
+            msg = (
+                f"The link object with the ID '{self.res_id}' does not have any comments. "
+                f"At least one comment must be provided, please note that an xmlupload will fail."
             )
+            warnings.warn(DspToolsUserWarning(msg))
         res_ele.append(self._serialise_links())
         return res_ele
 

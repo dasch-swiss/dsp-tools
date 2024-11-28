@@ -12,8 +12,8 @@ from dsp_tools.xmllib.models.geometry import Vector
 class TestGeometryShape:
     def test_rectangle_to_json_string_success(self) -> None:
         geom_obj = Rectangle(
-            point_one=GeometryPoint(0.1, 0.2, "res_id"),
-            point_two=GeometryPoint(0.2, 0.3, "res_id"),
+            point1=GeometryPoint(0.1, 0.2, "res_id"),
+            point2=GeometryPoint(0.2, 0.3, "res_id"),
             line_width=2,
             color="#5b24bf",
             active=True,

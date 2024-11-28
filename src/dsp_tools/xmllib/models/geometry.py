@@ -19,8 +19,8 @@ class GeometryShape(Protocol):
 
 @dataclass
 class Rectangle(GeometryShape):
-    point_one: GeometryPoint
-    point_two: GeometryPoint
+    point1: GeometryPoint
+    point2: GeometryPoint
     line_width: float
     color: str
     active: bool
@@ -30,15 +30,11 @@ class Rectangle(GeometryShape):
         _check_warn_shape_info(self.color, self.line_width, self.resource_id)
 
     def to_json_string(self) -> str:
-        points = [self.point_one.to_dict(), self.point_two.to_dict()]
-        status = "active"
-        if not self.active:
-            status = "deleted"
         json_dict = {
-            "status": status,
+            "status": "active" if self.active else "deleted",
             "type": "rectangle",
             "lineWidth": self.line_width,
-            "points": points,
+            "points": [self.point1.to_dict(), self.point2.to_dict()],
         }
         return json.dumps(json_dict)
 
@@ -62,15 +58,11 @@ class Polygon(GeometryShape):
             warnings.warn(DspToolsUserWarning(msg))
 
     def to_json_string(self) -> str:
-        points = [x.to_dict() for x in self.points]
-        status = "active"
-        if not self.active:
-            status = "deleted"
         json_dict = {
-            "status": status,
+            "status": "active" if self.active else "deleted",
             "type": "polygon",
             "lineWidth": self.line_width,
-            "points": points,
+            "points": [x.to_dict() for x in self.points],
         }
         return json.dumps(json_dict)
 
@@ -88,11 +80,8 @@ class Circle(GeometryShape):
         _check_warn_shape_info(self.color, self.line_width, self.resource_id)
 
     def to_json_string(self) -> str:
-        status = "active"
-        if not self.active:
-            status = "deleted"
         json_dict = {
-            "status": status,
+            "status": "active" if self.active else "deleted",
             "type": "circle",
             "lineWidth": self.line_width,
             "points": [self.center.to_dict()],

@@ -122,6 +122,16 @@ def bitstream() -> XMLBitstream:
 
 
 @pytest.fixture
+def iiif_uri_with_permission() -> IIIFUriInfo:
+    return IIIFUriInfo("https://this/is/a/uri.jpg", "open")
+
+
+@pytest.fixture
+def bitstream_with_permission() -> XMLBitstream:
+    return XMLBitstream("file.jpg", "open")
+
+
+@pytest.fixture
 def resource_one_prop(bool_prop: XMLProperty) -> XMLResource:
     return XMLResource(
         res_id="id",

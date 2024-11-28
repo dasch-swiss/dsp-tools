@@ -24,7 +24,7 @@ def _transform_migration_metadata(resource: XMLResource) -> MigrationMetadata:
     pass
 
 
-def _transform_one_file_value(value: XMLBitstream | IIIFUriInfo) -> IntermediaryAbstractFileValue:
+def _transform_one_file_value(value: XMLBitstream | IIIFUriInfo, lookups: IntermediaryLookup) -> IntermediaryAbstractFileValue:
     pass
 
 

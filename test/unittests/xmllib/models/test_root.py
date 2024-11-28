@@ -12,11 +12,7 @@ def test_root_add_resources() -> None:
     assert len(xml_root.resources) == 1
 
     # add_resource_multiple
-    many_resources = []
-    res1 = Resource.create_new("id1", ":Restype", "label")
-    many_resources.append(res1)
-    res2 = Resource.create_new("id2", ":Restype", "label")
-    many_resources.append(res2)
+    many_resources = [Resource.create_new("id1", ":Restype", "label"), Resource.create_new("id2", ":Restype", "label")]
     xml_root.add_resource_multiple(many_resources)
     assert len(xml_root.resources) == 3
 

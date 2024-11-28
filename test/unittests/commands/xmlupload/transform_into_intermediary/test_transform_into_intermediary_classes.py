@@ -217,6 +217,7 @@ class TestTransformProperties:
         assert transformed.prop_iri == f"{ONTO}richTextProp"
         assert not transformed.permissions
         assert not transformed.comment
+        assert transformed.resource_references == {"id"}
 
     def test_geoname_prop(self, geoname_prop: XMLProperty, lookups: IntermediaryLookup) -> None:
         result = _transform_one_property(geoname_prop, lookups)

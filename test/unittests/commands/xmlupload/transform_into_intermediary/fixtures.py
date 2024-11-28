@@ -72,7 +72,9 @@ def simple_text_prop() -> XMLProperty:
 @pytest.fixture
 def richtext_prop() -> XMLProperty:
     return XMLProperty(
-        name="onto:richTextProp", valtype="text", values=[XMLValue(FormattedTextValue("<text>this is text</text>"))]
+        name="onto:richTextProp",
+        valtype="text",
+        values=[XMLValue(FormattedTextValue("<text>this is text</text>"), resrefs={"id"})],
     )
 
 

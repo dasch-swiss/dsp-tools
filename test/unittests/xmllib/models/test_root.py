@@ -1,4 +1,3 @@
-
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.dsp_base_resources import AnnotationResource
 from dsp_tools.xmllib.models.resource import Resource
@@ -33,7 +32,7 @@ def test_root() -> None:
     xml_root.add_resource_optional(no_resource)
     assert len(xml_root.resources) == 3
 
-    serialised = xml_root._serialise()
+    serialised = xml_root.serialise()
     annotation = list(serialised.iterdescendants(tag="{https://dasch.swiss/schema}annotation"))
     assert len(annotation) == 1
     general_resources = list(serialised.iterdescendants(tag="{https://dasch.swiss/schema}resource"))

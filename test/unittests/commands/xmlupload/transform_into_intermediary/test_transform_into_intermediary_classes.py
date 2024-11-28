@@ -1,36 +1,107 @@
+import pytest
+
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import IIIFUriInfo
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLBitstream
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLValue
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
+from dsp_tools.commands.xmlupload.models.intermediary.resource import MigrationMetadata
 from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookup
 from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_one_file_value
 from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_one_property
 from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_one_resource
 from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_one_value
+from dsp_tools.models.exceptions import InputError
+
+ONTO = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
 
 
 class TestTransformResource:
-    def test_success(self, resource_with_permissions: XMLResource, lookups: IntermediaryLookup) -> None:
+
+    def test_resource_one_prop(self, resource_one_prop: XMLResource, lookups: IntermediaryLookup) -> None:
+        result = _transform_one_resource(resource_one_prop, lookups)
+        assert result.res_id == "id"
+        assert result.type_iri == f"{ONTO}ResourceType"
+        assert result.label == "lbl"
+        assert not result.permissions
+        assert len(result.values) == 1
+        assert not result.file_value
+        assert not result.migration_metadata
+
+    def test_resource_with_permissions(self, resource_with_permissions: XMLResource, lookups: IntermediaryLookup) -> None:
         result = _transform_one_resource(resource_with_permissions, lookups)
+        assert result.res_id == "id"
+        assert result.type_iri == f"{ONTO}ResourceType"
+        assert result.label == "lbl"
+        assert result.permissions == ""
+        assert len(result.values) == 0
+        assert not result.file_value
+        assert not result.migration_metadata
 
     def test_with_ark(self, resource_with_ark: XMLResource, lookups: IntermediaryLookup) -> None:
         result = _transform_one_resource(resource_with_ark, lookups)
+        assert result.res_id == "id"
+        assert result.type_iri == f"{ONTO}ResourceType"
+        assert result.label == "lbl"
+        assert not result.permissions
+        assert len(result.values) == 0
+        assert not result.file_value
+        metadata = result.migration_metadata
+        assert isinstance(metadata, MigrationMetadata)
+        assert metadata.iri_str == ""
+        assert metadata.creation_date == "1999-12-31T23:59:59.9999999+01:00"
 
     def test_with_iri(self, resource_with_iri: XMLResource, lookups: IntermediaryLookup) -> None:
         result = _transform_one_resource(resource_with_iri, lookups)
+        assert result.res_id == "id"
+        assert result.type_iri == f"{ONTO}ResourceType"
+        assert result.label == "lbl"
+        assert not result.permissions
+        assert len(result.values) == 0
+        assert not result.file_value
+        metadata = result.migration_metadata
+        assert isinstance(metadata, MigrationMetadata)
+        assert metadata.iri_str == "http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA"
+        assert metadata.creation_date == "1999-12-31T23:59:59.9999999+01:00"
+
+    def test_resource_with_ark_and_iri(self, resource_with_ark_and_iri: XMLResource, lookups: IntermediaryLookup) -> None:
+        result = _transform_one_resource(resource_with_ark_and_iri, lookups)
+        assert result.res_id == "id"
+        assert result.type_iri == f"{ONTO}ResourceType"
+        assert result.label == "lbl"
+        assert not result.permissions
+        assert len(result.values) == 0
+        assert not result.file_value
+        metadata = result.migration_metadata
+        assert isinstance(metadata, MigrationMetadata)
+        assert metadata.iri_str == ""
+        assert metadata.creation_date == "1999-12-31T23:59:59.9999999+01:00"
 
     def test_unknown_permission(
         self, resource_with_unknown_permissions: XMLResource, lookups: IntermediaryLookup
     ) -> None:
-        result = _transform_one_resource(resource_with_unknown_permissions, lookups)
+        with pytest.raises(InputError):
+            _transform_one_resource(resource_with_unknown_permissions, lookups)
 
     def test_bitstream(self, resource_with_bitstream: XMLResource, lookups: IntermediaryLookup) -> None:
         result = _transform_one_resource(resource_with_bitstream, lookups)
+        assert result.res_id == "id"
+        assert result.type_iri == f"{ONTO}ResourceType"
+        assert result.label == "lbl"
+        assert not result.permissions
+        assert len(result.values) == 0
+        assert not result.file_value
+        assert not result.migration_metadata
 
     def test_iiif_uri(self, resource_with_iiif_uri: XMLResource, lookups: IntermediaryLookup) -> None:
         result = _transform_one_resource(resource_with_iiif_uri, lookups)
-
+        assert result.res_id == "id"
+        assert result.type_iri == f"{ONTO}ResourceType"
+        assert result.label == "lbl"
+        assert not result.permissions
+        assert len(result.values) == 0
+        assert not result.file_value
+        assert not result.migration_metadata
 
 class TestTransformFileValue:
     def test_bitstream(self, bitstream: XMLBitstream, lookups: IntermediaryLookup) -> None:

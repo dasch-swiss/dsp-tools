@@ -4,9 +4,11 @@ from dataclasses import dataclass
 from typing import TypeAlias
 from typing import Union
 
+from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.permission import Permissions
+from dsp_tools.utils.date_util import Date
 
-ValueTypes: TypeAlias = Union[bool, str, float, int]
+ValueTypes: TypeAlias = Union[bool, str, float, int, FormattedTextValue, Date]
 
 
 @dataclass
@@ -42,7 +44,8 @@ class IntermediaryInt(IntermediaryValue): ...
 
 
 @dataclass
-class IntermediaryLink(IntermediaryValue): ...
+class IntermediaryLink(IntermediaryValue):
+    resource_references: list[str]
 
 
 @dataclass
@@ -54,7 +57,8 @@ class IntermediarySimpleText(IntermediaryValue): ...
 
 
 @dataclass
-class IntermediaryRichtext(IntermediaryValue): ...
+class IntermediaryRichtext(IntermediaryValue):
+    resource_references: list[str]
 
 
 @dataclass

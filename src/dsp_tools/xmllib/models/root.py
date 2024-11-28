@@ -144,7 +144,7 @@ class XMLRoot:
     def serialise(self) -> etree._Element:
         """
         Create an `lxml.etree._Element` with the information in the root.
-        If you wish to create a file, we recommend using the `write_file` function directly.
+        If you wish to create a file, we recommend using the `write_file` method instead.
 
         Returns:
             The `XMLRoot` serialised as XML

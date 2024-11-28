@@ -11,12 +11,16 @@ from lxml import etree
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.xmllib.models.config_options import Permissions
+from dsp_tools.xmllib.models.geometry import Circle
+from dsp_tools.xmllib.models.geometry import GeometryPoint
+from dsp_tools.xmllib.models.geometry import GeometryShape
+from dsp_tools.xmllib.models.geometry import Polygon
+from dsp_tools.xmllib.models.geometry import Rectangle
+from dsp_tools.xmllib.models.geometry import Vector
 from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
 from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import LinkValue
 from dsp_tools.xmllib.models.values import Richtext
-from dsp_tools.xmllib.value_checkers import find_geometry_problem
-from dsp_tools.xmllib.value_checkers import is_color
 from dsp_tools.xmllib.value_checkers import is_decimal
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_string_like
@@ -143,7 +147,14 @@ class AnnotationResource:
         self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
         res_ele = self._serialise_resource_element()
         res_ele.append(self._serialise_annotation_of())
-        res_ele.append(_serialise_has_comment(self.comments, self.res_id))
+        if self.comments:
+            res_ele.append(_serialise_has_comment(self.comments, self.res_id))
+        else:
+            msg = (
+                f"The annotation with the ID '{self.res_id}' does not have any comments. "
+                f"At least one comment must be provided, please note that an xmlupload will fail."
+            )
+            warnings.warn(DspToolsUserWarning(msg))
         return res_ele
 
     def _serialise_resource_element(self) -> etree._Element:
@@ -160,9 +171,8 @@ class AnnotationResource:
 class RegionResource:
     res_id: str
     label: str
-    color: str
     region_of: str
-    geometry: dict[str, Any]
+    geometry: GeometryShape | None
     comments: list[str]
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
@@ -170,23 +180,12 @@ class RegionResource:
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
         _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
-        if not is_color(self.color):
-            msg = (
-                f"The color value '{self.color}' for the resource with the ID: '{self.res_id}' failed validation. "
-                f"Please consult the documentation for details."
-            )
-            warnings.warn(DspToolsUserWarning(msg))
-        if fail_msg := find_geometry_problem(self.geometry):
-            msg = f"The geometry of the resource with the ID '{self.res_id}' failed validation.\n" + fail_msg
-            warnings.warn(DspToolsUserWarning(msg))
 
     @staticmethod
     def create_new(
         res_id: str,
         label: str,
-        color: str,
         region_of: str,
-        geometry: dict[str, Any],
         comments: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> RegionResource:
@@ -194,16 +193,15 @@ class RegionResource:
         Creates a new region resource.
         A region is a region of interest (ROI) in a StillImageRepresentation.
 
+        Exactly one geometry shape has to be added to the resource with one of the following methods:
+        `add_rectangle`, `add_polygon`, `add_circle` (see documentation below for more information).
+
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#region)
 
         Args:
             res_id: ID of this region resource
             label: label of this region resource
-            color: color of the region, as `#` followed by 3 or 6 hex numerals (cardinality 1)
-                   ([See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#color))
             region_of: ID of the image resource that this region refers to (cardinality 1)
-            geometry: geometry information of the region (cardinality 1)
-                      ([See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geometry))
             comments: comments to this region (cardinality 1-n)
             permissions: permissions of this region resource
 
@@ -213,12 +211,114 @@ class RegionResource:
         return RegionResource(
             res_id=res_id,
             label=label,
-            color=color,
             region_of=region_of,
-            geometry=geometry,
+            geometry=None,
             comments=list(comments),
             permissions=permissions,
         )
+
+    def add_rectangle(
+        self,
+        point1: tuple[float, float],
+        point2: tuple[float, float],
+        line_width: float = 2,
+        color: str = "#5b24bf",
+        active: bool = True,
+    ) -> RegionResource:
+        """
+        Add a rectangle shape to the region.
+
+        [For a visual example see the XML documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geometry)
+
+        Args:
+            point1: first point of the rectangle represented as two numbers between 0 and 1 in the format (x, y)
+            point2: second point of the rectangle represented as two numbers between 0 and 1 in the format (x, y)
+            line_width: A number in pixels between 1 - 5
+            color: A hexadecimal color value which starts with a `#` followed by 3 or 6 numerals.
+                The default value was chosen as it is distinguishable for most color-blind people.
+            active: If set to `False`, the region is marked as 'deleted'
+
+        Returns:
+            Region with added rectangle
+        """
+        self.geometry = Rectangle(
+            point1=GeometryPoint(point1[0], point1[1], self.res_id),
+            point2=GeometryPoint(point2[0], point2[1], self.res_id),
+            line_width=line_width,
+            color=color,
+            active=active,
+            resource_id=self.res_id,
+        )
+        return self
+
+    def add_polygon(
+        self,
+        points: list[tuple[float, float]],
+        line_width: float = 2,
+        color: str = "#5b24bf",
+        active: bool = True,
+    ) -> RegionResource:
+        """
+        Add a polygon shape to the region.
+        A polygon should have at least three points.
+        If you wish to create a rectangle, please use the designated `add_rectangle` method.
+
+        [For a visual example see the XML documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geometry)
+
+        **Please note that this cannot currently be displayed in the dsp-app.**
+
+        Args:
+            points: list of tuples containing two numbers between 0 and 1 in the format (x, y)
+            line_width: A number in pixels between 1 - 5
+            color: A hexadecimal color value which starts with a `#` followed by 3 or 6 numerals.
+                The default value was chosen as it is distinguishable for most color-blind people.
+            active: If set to `False` the region is marked as 'deleted'
+
+        Returns:
+            Region with added polygon
+        """
+        geom_points = [GeometryPoint(val[0], val[1], self.res_id) for val in points]
+        self.geometry = Polygon(
+            points=geom_points, line_width=line_width, color=color, active=active, resource_id=self.res_id
+        )
+        return self
+
+    def add_circle(
+        self,
+        center: tuple[float, float],
+        radius: tuple[float, float],
+        line_width: float = 2,
+        color: str = "#5b24bf",
+        active: bool = True,
+    ) -> RegionResource:
+        """
+        Add a circle shape to the region.
+
+        [For a visual example see the XML documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geometry)
+
+        **Please note that this cannot currently be displayed in the dsp-app.**
+
+        Args:
+            center: center of the circle, represented as two numbers between 0 and 1 in the format (x, y)
+            radius: radius of the circle, represented as a 2-dimensional vector,
+                i.e. two numbers between 0 and 1 in the format (x, y)
+            line_width: A number in pixels between 1 - 5
+            color: A hexadecimal color value which starts with a `#` followed by 3 or 6 numerals.
+                The default value was chosen as it is distinguishable for most color-blind people.
+            active: If set to `False` the region is marked as 'deleted'
+
+        Returns:
+            Region with added circle
+        """
+        self.geometry = Circle(
+            center=GeometryPoint(center[0], center[1], self.res_id),
+            radius=Vector(radius[0], radius[1], self.res_id),
+            line_width=line_width,
+            color=color,
+            active=active,
+            resource_id=self.res_id,
+        )
+        return self
 
     def add_comment(self, comment: str) -> RegionResource:
         """
@@ -288,10 +388,16 @@ class RegionResource:
     def serialise(self) -> etree._Element:
         self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
         res_ele = self._serialise_resource_element()
-        res_ele.append(self._serialise_geometry())
+        res_ele.extend(self._serialise_geometry_shape())
         res_ele.extend(self._serialise_values())
         if self.comments:
             res_ele.append(_serialise_has_comment(self.comments, self.res_id))
+        else:
+            msg = (
+                f"The region with the ID '{self.res_id}' does not have any comments. "
+                f"At least one comment must be provided, please note that an xmlupload will fail."
+            )
+            warnings.warn(DspToolsUserWarning(msg))
         return res_ele
 
     def _serialise_resource_element(self) -> etree._Element:
@@ -302,16 +408,28 @@ class RegionResource:
 
     def _serialise_values(self) -> list[etree._Element]:
         return [
-            ColorValue(value=self.color, prop_name="hasColor", resource_id=self.res_id).serialise(),
             LinkValue(value=self.region_of, prop_name="isRegionOf", resource_id=self.res_id).serialise(),
         ]
 
-    def _serialise_geometry(self) -> etree._Element:
+    def _serialise_geometry_shape(self) -> list[etree._Element]:
+        prop_list: list[etree._Element] = []
+        if not self.geometry:
+            msg = (
+                f"The region resource with the ID '{self.res_id}' does not have a geometry, "
+                f"please note that an xmlupload will fail."
+            )
+            warnings.warn(DspToolsUserWarning(msg))
+
+            return prop_list
         geo_prop = etree.Element(f"{DASCH_SCHEMA}geometry-prop", name="hasGeometry", nsmap=XML_NAMESPACE_MAP)
         ele = etree.Element(f"{DASCH_SCHEMA}geometry", nsmap=XML_NAMESPACE_MAP)
-        ele.text = str(self.geometry)
+        ele.text = self.geometry.to_json_string()
         geo_prop.append(ele)
-        return geo_prop
+        prop_list.append(geo_prop)
+        prop_list.append(
+            ColorValue(value=self.geometry.color, prop_name="hasColor", resource_id=self.res_id).serialise(),
+        )
+        return prop_list
 
 
 @dataclass
@@ -423,7 +541,14 @@ class LinkResource:
     def serialise(self) -> etree._Element:
         self._check_for_and_convert_unexpected_input()
         res_ele = self._serialise_resource_element()
-        res_ele.append(_serialise_has_comment(self.comments, self.res_id))
+        if self.comments:
+            res_ele.append(_serialise_has_comment(self.comments, self.res_id))
+        else:
+            msg = (
+                f"The link object with the ID '{self.res_id}' does not have any comments. "
+                f"At least one comment must be provided, please note that an xmlupload will fail."
+            )
+            warnings.warn(DspToolsUserWarning(msg))
         res_ele.append(self._serialise_links())
         return res_ele
 

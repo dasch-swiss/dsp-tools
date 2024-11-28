@@ -137,8 +137,8 @@ class Resource:
 
         Conversions:
          - The conversion is case-insensitive, meaning that the words can also be capitalised.
-         - "false", "0", "0.0", "no", "non", "nein" -> "false"
-         - "true", "1", "1.0", "yes", "oui", "ja" -> "true"
+         - `false`, `0`, `0.0`, `no`, `non`, `nein` -> `false`
+         - `true`, `1`, `1.0`, `yes`, `oui`, `ja` -> `true`
 
         Args:
             prop_name: name of the property
@@ -166,8 +166,8 @@ class Resource:
 
         Conversions:
          - The conversion is case-insensitive, meaning that the words can also be capitalised.
-         - "false", "0", "0.0", "no", "non", "nein" -> "false"
-         - "true", "1", "1.0", "yes", "oui", "ja" -> "true"
+         - `false`, `0`, `0.0`, `no`, `non`, `nein` -> `false`
+         - `true`, `1`, `1.0`, `yes`, `oui`, `ja` -> `true`
 
         Args:
             prop_name: name of the property

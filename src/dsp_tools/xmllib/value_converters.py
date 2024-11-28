@@ -9,14 +9,14 @@ def convert_to_bool_string(value: Any) -> str:
     It is case-insensitive, meaning that the words can also be capitalised.
 
     Accepted values:
-        - "false", "0", "0.0", "no", "non", "nein" -> "false"
-        - "true", "1", "1.0", "yes", "oui", "ja" -> "true"
+         - `false`, `0`, `0.0`, `no`, `non`, `nein` -> `false`
+         - `true`, `1`, `1.0`, `yes`, `oui`, `ja` -> `true`
 
     Args:
         value: value to transform
 
     Returns:
-        'true' or 'false' if it is an accepted value,
+        `"true"` or `"false"` if it is an accepted value,
         else it returns the original value as a string.
     """
     str_val = str(value).lower().strip()

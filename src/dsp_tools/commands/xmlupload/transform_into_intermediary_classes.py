@@ -34,11 +34,9 @@ def _transform_one_file_value(
     pass
 
 
-def _transform_one_property(
-    prop: XMLProperty, lookups: IntermediaryLookup, resource_type: str
-) -> list[IntermediaryValue]:
+def _transform_one_property(prop: XMLProperty, lookups: IntermediaryLookup) -> list[IntermediaryValue]:
     pass
 
 
-def _transform_one_value(value: XMLValue, lookups: IntermediaryLookup, resource_type: str) -> list[IntermediaryValue]:
+def _transform_one_value(value: XMLValue, lookups: IntermediaryLookup) -> list[IntermediaryValue]:
     pass

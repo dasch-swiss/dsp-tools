@@ -73,7 +73,7 @@
         <xs:attribute name="encoding" type="encoding_types" use="required"/>
         <xs:attribute name="resrefs" type="resrefs_type"/>
         <xs:attribute name="comment" type="xs:string"/>
-        <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+        <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
     </xs:complexType>
 
     <!-- xml encoding value type -->
@@ -84,7 +84,7 @@
         <xs:attribute name="encoding" fixed="xml" use="required"/>
         <xs:attribute name="resrefs" type="resrefs_type"/>
         <xs:attribute name="comment" type="xs:string"/>
-        <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+        <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
     </xs:complexType>
 
     <!-- formatted text type -->
@@ -93,7 +93,7 @@
             <xs:any processContents="skip" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute name="comment" type="xs:string"/>
-        <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+        <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
     </xs:complexType>
 
     <!-- unformatted text type -->
@@ -101,7 +101,7 @@
         <xs:simpleContent>
             <xs:extension base="nonEmptyString">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+                <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -111,7 +111,7 @@
         <xs:simpleContent>
             <xs:extension base="knoracolor_type">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+                <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -121,7 +121,7 @@
         <xs:simpleContent>
             <xs:extension base="knoradate_type">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+                <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -131,7 +131,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:float">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+                <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -141,7 +141,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+                <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -151,7 +151,7 @@
         <xs:simpleContent>
             <xs:extension base="nonEmptyString">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+                <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -161,7 +161,7 @@
         <xs:simpleContent>
             <xs:extension base="nonEmptyString">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+                <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -171,7 +171,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:integer">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+                <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -180,7 +180,7 @@
     <xs:complexType name="hasSegmentBounds_type">
         <xs:sequence />
         <xs:attribute name="comment" type="xs:string"/>
-        <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+        <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
         <xs:attribute name="segment_start" type="xs:double" use="required"/>
         <xs:attribute name="segment_end" type="xs:double" use="required"/>
     </xs:complexType>
@@ -190,7 +190,7 @@
         <xs:simpleContent>
             <xs:extension base="nonEmptyString">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+                <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -200,7 +200,7 @@
         <xs:simpleContent>
             <xs:extension base="nonEmptyString">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+                <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -210,7 +210,7 @@
         <xs:simpleContent>
             <xs:extension base="knoratime_type">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+                <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -220,7 +220,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:decimal">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+                <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -230,7 +230,7 @@
         <xs:simpleContent>
             <xs:extension base="knorauri_type">
                 <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+                <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -240,7 +240,7 @@
     <xs:simpleContent>
         <xs:extension base="xs:boolean">
             <xs:attribute name="comment" type="xs:string"/>
-            <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+            <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
         </xs:extension>
     </xs:simpleContent>
     </xs:complexType>
@@ -402,7 +402,9 @@
     <xs:complexType name="bitstream_type">
         <xs:simpleContent>
             <xs:extension base="nonEmptyString">
-                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+                <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
+                <xs:attribute name="license" type="xs:IDREF" use="optional"/>
+                <xs:attribute name="copyright-attribution" type="xs:IDREF" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -411,7 +413,9 @@
     <xs:complexType name="iiif_uri_type">
         <xs:simpleContent>
             <xs:extension base="nonEmptyString">
-                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+                <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
+                <xs:attribute name="license" type="xs:IDREF" use="optional"/>
+                <xs:attribute name="copyright-attribution" type="xs:IDREF" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -447,7 +451,7 @@
         </xs:attribute>
         <xs:attribute name="restype" type="xs:string" use="required"/>
         <xs:attribute name="id" type="xs:ID" use="required"/>
-        <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+        <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
         <xs:attribute name="iri" type="xs:string" use="optional"/>
         <xs:attribute name="ark" type="xs:string" use="optional"/>
         <xs:attribute name="creation_date" type="xs:dateTime" use="optional"/>
@@ -461,7 +465,7 @@
         </xs:all>
         <xs:attribute name="label" type="xs:string" use="required"/>
         <xs:attribute name="id" type="xs:ID" use="required"/>
-        <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+        <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
         <xs:attribute name="iri" type="xs:string" use="optional"/>
         <xs:attribute name="ark" type="xs:string" use="optional"/>
         <xs:attribute name="creation_date" type="xs:dateTime" use="optional"/>
@@ -477,7 +481,7 @@
         </xs:all>
         <xs:attribute name="label" type="xs:string" use="required"/>
         <xs:attribute name="id" type="xs:ID" use="required"/>
-        <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+        <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
         <xs:attribute name="iri" type="xs:string" use="optional"/>
         <xs:attribute name="ark" type="xs:string" use="optional"/>
         <xs:attribute name="creation_date" type="xs:dateTime" use="optional"/>
@@ -491,7 +495,7 @@
         </xs:all>
         <xs:attribute name="label" type="xs:string" use="required"/>
         <xs:attribute name="id" type="xs:ID" use="required"/>
-        <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+        <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
         <xs:attribute name="iri" type="xs:string" use="optional"/>
         <xs:attribute name="ark" type="xs:string" use="optional"/>
         <xs:attribute name="creation_date" type="xs:dateTime" use="optional"/>
@@ -510,7 +514,7 @@
         </xs:sequence>
         <xs:attribute name="label" type="xs:string" use="required"/>
         <xs:attribute name="id" type="xs:ID" use="required"/>
-        <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+        <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
         <xs:attribute name="creation_date" type="xs:dateTime" use="optional"/>
     </xs:complexType>
 
@@ -527,7 +531,7 @@
         </xs:sequence>
         <xs:attribute name="label" type="xs:string" use="required"/>
         <xs:attribute name="id" type="xs:ID" use="required"/>
-        <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+        <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
         <xs:attribute name="creation_date" type="xs:dateTime" use="optional"/>
     </xs:complexType>
 
@@ -566,11 +570,46 @@
         <xs:attribute name="id" type="xs:ID" use="required"/>
     </xs:complexType>
 
+    <!-- copyright-attribution tag -->
+    <xs:complexType name="copyright_attribution_type">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="id" type="xs:ID" use="required"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <!-- copyright-attributions tag -->
+    <xs:complexType name="copyright_attributions_type">
+        <xs:sequence>
+            <xs:element name="copyright-attribution" type="copyright_attribution_type" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- license tag -->
+    <xs:complexType name="license_type">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="id" type="xs:ID" use="required"/>
+                <xs:attribute name="uri" type="xs:string" use="optional"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <!-- licenses tag -->
+    <xs:complexType name="licenses_type">
+        <xs:sequence>
+            <xs:element name="license" type="license_type" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
     <!-- complete document -->
     <xs:element name="knora">
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="permissions" type="permissions_type" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element name="copyright-attributions" type="copyright_attributions_type" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element name="licenses" type="licenses_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:choice maxOccurs="unbounded">
                     <xs:element name="resource" type="resource_type" minOccurs="1" maxOccurs="unbounded">
                         <xs:unique name="UniqueNameAttr_Resource">
@@ -619,5 +658,23 @@
             <xs:selector xpath=".//*"/>
             <xs:field xpath="@ark"/>
         </xs:unique>
+        <!-- Define a key constraint for license IDs -->
+        <xs:key name="licenseIdKey">
+            <xs:selector xpath="knora/licenses/license"/>
+            <xs:field xpath="@id"/>
+        </xs:key>
+        <xs:keyref name="licenseIdRef" refer="licenseIdKey">
+            <xs:selector xpath="knora/resource/*"/>
+            <xs:field xpath="@license"/>
+        </xs:keyref>
+        <!-- Define a key constraint for copyright IDs -->
+        <xs:key name="copyright-attributionsIdKey">
+            <xs:selector xpath="knora/copyright-attributions/copyright-attribution"/>
+            <xs:field xpath="@id"/>
+        </xs:key>
+        <xs:keyref name="copyrightIdRef" refer="copyright-attributionsIdKey">
+            <xs:selector xpath="knora/resource/*"/>
+            <xs:field xpath="@copyright-attribution"/>
+        </xs:keyref>
     </xs:element>
 </xs:schema>

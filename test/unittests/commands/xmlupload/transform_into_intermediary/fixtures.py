@@ -1,5 +1,7 @@
 import pytest
 
+from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import IIIFUriInfo
+from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLBitstream
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLValue
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
@@ -110,6 +112,16 @@ def uri_prop() -> XMLProperty:
 
 
 @pytest.fixture
+def iiif_uri() -> IIIFUriInfo:
+    return IIIFUriInfo("https://this/is/a/uri.jpg")
+
+
+@pytest.fixture
+def bitstream() -> XMLBitstream:
+    return XMLBitstream("file.jpg")
+
+
+@pytest.fixture
 def resource_one_prop(bool_prop: XMLProperty) -> XMLResource:
     return XMLResource(
         res_id="id",
@@ -134,6 +146,54 @@ def resource_with_permissions() -> XMLResource:
         label="lbl",
         restype=":ResourceType",
         permissions="open",
+        creation_date=None,
+        bitstream=None,
+        iiif_uri=None,
+        properties=[],
+    )
+
+
+@pytest.fixture
+def resource_with_iiif_uri(iiif_uri: IIIFUriInfo) -> XMLResource:
+    return XMLResource(
+        res_id="id",
+        iri=None,
+        ark=None,
+        label="lbl",
+        restype=":ResourceType",
+        permissions=None,
+        creation_date=None,
+        bitstream=None,
+        iiif_uri=iiif_uri,
+        properties=[],
+    )
+
+
+@pytest.fixture
+def resource_with_bitstream(bitstream: XMLBitstream) -> XMLResource:
+    return XMLResource(
+        res_id="id",
+        iri=None,
+        ark=None,
+        label="lbl",
+        restype=":ResourceType",
+        permissions=None,
+        creation_date=None,
+        bitstream=bitstream,
+        iiif_uri=None,
+        properties=[],
+    )
+
+
+@pytest.fixture
+def resource_with_unknown_permissions() -> XMLResource:
+    return XMLResource(
+        res_id="id",
+        iri=None,
+        ark=None,
+        label="lbl",
+        restype=":ResourceType",
+        permissions="nonExisting",
         creation_date=None,
         bitstream=None,
         iiif_uri=None,

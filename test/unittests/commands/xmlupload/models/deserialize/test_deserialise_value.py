@@ -76,7 +76,7 @@ class Test_XMLProperty:
             XMLProperty._get_values_from_normal_props(etree.fromstring(string), "uri")
 
     def test_get_value_from_knora_base_prop_with_all_attributes(self) -> None:
-        string = """<isViodeSegmentOf permissions="open" comment="cmt">video_thing_1</isViodeSegmentOf>"""
+        string = """<isVideoSegmentOf permissions="open" comment="cmt">video_thing_1</isVideoSegmentOf>"""
         expected = XMLValue("video_thing_1", permissions="open", comment="cmt")
         res = XMLProperty._get_value_from_knora_base_prop(etree.fromstring(string))
         assert res == expected

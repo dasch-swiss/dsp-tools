@@ -220,8 +220,8 @@ class RegionResource:
 
     def add_rectangle(
         self,
-        point_one: tuple[float, float],
-        point_two: tuple[float, float],
+        point1: tuple[float, float],
+        point2: tuple[float, float],
         line_width: float = 2,
         color: str = "#5b24bf",
         active: bool = True,
@@ -232,8 +232,8 @@ class RegionResource:
         [For a visual example see the XML documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geometry)
 
         Args:
-            point_one: first point of the rectangle represented as two numbers between 0 and 1 in the format (x, y)
-            point_two: second point of the rectangle represented as two numbers between 0 and 1 in the format (x, y)
+            point1: first point of the rectangle represented as two numbers between 0 and 1 in the format (x, y)
+            point2: second point of the rectangle represented as two numbers between 0 and 1 in the format (x, y)
             line_width: A number in pixels between 1 - 5
             color: A hexadecimal color value which starts with a `#` followed by 3 or 6 numerals
                 The default value was chosen as it is distinguishable for most color-blind people.
@@ -243,8 +243,8 @@ class RegionResource:
             Region with added rectangle
         """
         self.geometry = Rectangle(
-            point_one=GeometryPoint(point_one[0], point_one[1], self.res_id),
-            point_two=GeometryPoint(point_two[0], point_two[1], self.res_id),
+            point_one=GeometryPoint(point1[0], point1[1], self.res_id),
+            point_two=GeometryPoint(point2[0], point2[1], self.res_id),
             line_width=line_width,
             color=color,
             active=active,

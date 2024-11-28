@@ -38,5 +38,5 @@ def _transform_one_property(prop: XMLProperty, lookups: IntermediaryLookup) -> l
     pass
 
 
-def _transform_one_value(value: XMLValue, lookups: IntermediaryLookup) -> list[IntermediaryValue]:
+def _transform_one_value(value: XMLValue, prop_name: str, lookups: IntermediaryLookup) -> list[IntermediaryValue]:
     pass

@@ -1,9 +1,13 @@
-from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import IIIFUriInfo, XMLProperty, XMLValue
+from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import IIIFUriInfo
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLBitstream
+from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
+from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLValue
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookup
 from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_one_file_value
-from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_one_resource, _transform_one_property, _transform_one_value
+from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_one_property
+from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_one_resource
+from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_one_value
 
 
 class TestTransformResource:
@@ -32,7 +36,9 @@ class TestTransformFileValue:
     def test_bitstream(self, bitstream: XMLBitstream, lookups: IntermediaryLookup) -> None:
         result = _transform_one_file_value(bitstream, lookups)
 
-    def test_bitstream_with_permissions(self, bitstream_with_permission: XMLBitstream, lookups: IntermediaryLookup) -> None:
+    def test_bitstream_with_permissions(
+        self, bitstream_with_permission: XMLBitstream, lookups: IntermediaryLookup
+    ) -> None:
         result = _transform_one_file_value(bitstream_with_permission, lookups)
 
     def test_iiif_uri(self, iiif_uri: IIIFUriInfo, lookups: IntermediaryLookup) -> None:
@@ -43,7 +49,6 @@ class TestTransformFileValue:
 
 
 class TestTransformProperties:
-
     def test_bool_prop(self, bool_prop: XMLProperty, lookups: IntermediaryLookup) -> None:
         result = _transform_one_property(bool_prop, lookups, ":ResourceType")
 
@@ -56,7 +61,9 @@ class TestTransformProperties:
     def test_decimal_prop(self, decimal_prop: XMLProperty, lookups: IntermediaryLookup) -> None:
         result = _transform_one_property(decimal_prop, lookups, ":ResourceType")
 
-    def test_decimal_prop_with_two_values(self, decimal_prop_with_two_values: XMLProperty, lookups: IntermediaryLookup) -> None:
+    def test_decimal_prop_with_two_values(
+        self, decimal_prop_with_two_values: XMLProperty, lookups: IntermediaryLookup
+    ) -> None:
         result = _transform_one_property(decimal_prop_with_two_values, lookups, ":ResourceType")
 
     def test_simple_text_prop(self, simple_text_prop: XMLProperty, lookups: IntermediaryLookup) -> None:
@@ -85,12 +92,17 @@ class TestTransformProperties:
 
 
 class TestTransformValue:
-
-    def test_value_with_string_and_comment(self, value_with_string_and_comment: XMLValue, lookups: IntermediaryLookup) -> None:
+    def test_value_with_string_and_comment(
+        self, value_with_string_and_comment: XMLValue, lookups: IntermediaryLookup
+    ) -> None:
         result = _transform_one_value(value_with_string_and_comment, lookups, ":ResourceType")
 
-    def test_value_with_string_and_permissions(self, value_with_string_and_permissions: XMLValue, lookups: IntermediaryLookup) -> None:
+    def test_value_with_string_and_permissions(
+        self, value_with_string_and_permissions: XMLValue, lookups: IntermediaryLookup
+    ) -> None:
         result = _transform_one_value(value_with_string_and_permissions, lookups, ":ResourceType")
 
-    def test_value_with_string_and_non_existing_permissions(self, value_with_string_and_non_existing_permissions: XMLValue, lookups: IntermediaryLookup) -> None:
+    def test_value_with_string_and_non_existing_permissions(
+        self, value_with_string_and_non_existing_permissions: XMLValue, lookups: IntermediaryLookup
+    ) -> None:
         result = _transform_one_value(value_with_string_and_non_existing_permissions, lookups, ":ResourceType")

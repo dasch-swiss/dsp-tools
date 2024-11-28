@@ -64,19 +64,9 @@ class XMLRoot:
         Create a new XML root, for one file.
 
         The following elements are added by default:
-            - `<permissions>` (with default permissions)
+            - `<permissions>` (with default permissions, see [Configuration options](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/config-options/#xmllib.models.config_options.Permissions) for details)
             - `<copyright-attributions>` (empty)
-            - `<licenses>` (with default licenses, see below)
-
-        The following licenses are included by default:
-            - `CC_BY` [Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/)
-            - `CC_BY_SA` [Attribution-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-sa/4.0/)
-            - `CC_BY_NC` [Attribution-NonCommercial 4.0 International](https://creativecommons.org/licenses/by-nc/4.0/)
-            - `CC_BY_NC_SA` [Attribution-NonCommercial-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-nc-sa/4.0/)
-            - `CC_BY_ND` [Attribution-NoDerivatives 4.0 International](https://creativecommons.org/licenses/by-nd/4.0/)
-            - `CC_BY_NC_ND` [Attribution-NonCommercial-NoDerivatives 4.0 International](https://creativecommons.org/licenses/by-nc-nd/4.0/)
-            - `CC0` [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/)
-            - `UNKNOWN` [Copyright Not Evaluated](http://rightsstatements.org/vocab/CNE/1.0/)
+            - `<licenses>` (with default licenses, see [Configuration options](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/config-options/#xmllib.models.config_options.PredefinedLicenses) for details)
 
         Args:
             shortcode: project shortcode

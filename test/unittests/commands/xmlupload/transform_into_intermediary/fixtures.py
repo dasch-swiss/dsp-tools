@@ -38,6 +38,11 @@ def value_with_string_and_permissions() -> XMLValue:
 
 
 @pytest.fixture
+def value_with_string_and_non_existing_permissions() -> XMLValue:
+    return XMLValue(value="true", permissions="nonExisting")
+
+
+@pytest.fixture
 def bool_prop(value_with_string) -> XMLProperty:
     return XMLProperty(name=":boolProp", valtype="bool", values=[value_with_string])
 
@@ -70,7 +75,7 @@ def simple_text_prop(value_with_string) -> XMLProperty:
 @pytest.fixture
 def richtext_prop(value_with_string) -> XMLProperty:
     return XMLProperty(
-        name=":richTextProp", valtype="text", values=[XMLValue(FormattedTextValue("<text>this is text </text>"))]
+        name=":richTextProp", valtype="text", values=[XMLValue(FormattedTextValue("<text>this is text</text>"))]
     )
 
 

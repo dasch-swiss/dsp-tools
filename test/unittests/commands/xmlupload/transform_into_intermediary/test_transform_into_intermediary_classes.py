@@ -147,24 +147,40 @@ class TestTransformProperties:
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryBoolean)
+        assert transformed.value == ""
+        assert transformed.prop_iri == ""
+        assert not transformed.permissions
+        assert not transformed.comment
 
     def test_color_prop(self, color_prop: XMLProperty, lookups: IntermediaryLookup) -> None:
         result = _transform_one_property(color_prop, lookups)
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryColor)
+        assert transformed.value == ""
+        assert transformed.prop_iri == ""
+        assert not transformed.permissions
+        assert not transformed.comment
 
     def test_date_prop(self, date_prop: XMLProperty, lookups: IntermediaryLookup) -> None:
         result = _transform_one_property(date_prop, lookups)
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryDate)
+        assert transformed.value == ""
+        assert transformed.prop_iri == ""
+        assert not transformed.permissions
+        assert not transformed.comment
 
     def test_decimal_prop(self, decimal_prop: XMLProperty, lookups: IntermediaryLookup) -> None:
         result = _transform_one_property(decimal_prop, lookups)
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryDecimal)
+        assert transformed.value == ""
+        assert transformed.prop_iri == ""
+        assert not transformed.permissions
+        assert not transformed.comment
 
     def test_decimal_prop_with_two_values(
         self, decimal_prop_with_two_values: XMLProperty, lookups: IntermediaryLookup
@@ -177,48 +193,80 @@ class TestTransformProperties:
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediarySimpleText)
+        assert transformed.value == ""
+        assert transformed.prop_iri == ""
+        assert not transformed.permissions
+        assert not transformed.comment
 
     def test_richtext_prop(self, richtext_prop: XMLProperty, lookups: IntermediaryLookup) -> None:
         result = _transform_one_property(richtext_prop, lookups)
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryRichtext)
+        assert transformed.value == ""
+        assert transformed.prop_iri == ""
+        assert not transformed.permissions
+        assert not transformed.comment
 
     def test_geoname_prop(self, geoname_prop: XMLProperty, lookups: IntermediaryLookup) -> None:
         result = _transform_one_property(geoname_prop, lookups)
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryGeoname)
+        assert transformed.value == ""
+        assert transformed.prop_iri == ""
+        assert not transformed.permissions
+        assert not transformed.comment
 
     def test_integer_prop(self, integer_prop: XMLProperty, lookups: IntermediaryLookup) -> None:
         result = _transform_one_property(integer_prop, lookups)
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryInt)
+        assert transformed.value == ""
+        assert transformed.prop_iri == ""
+        assert not transformed.permissions
+        assert not transformed.comment
 
     def test_list_prop(self, list_prop: XMLProperty, lookups: IntermediaryLookup) -> None:
         result = _transform_one_property(list_prop, lookups)
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryList)
+        assert transformed.value == ""
+        assert transformed.prop_iri == ""
+        assert not transformed.permissions
+        assert not transformed.comment
 
     def test_resptr_prop(self, resptr_prop: XMLProperty, lookups: IntermediaryLookup) -> None:
         result = _transform_one_property(resptr_prop, lookups)
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryLink)
+        assert transformed.value == ""
+        assert transformed.prop_iri == ""
+        assert not transformed.permissions
+        assert not transformed.comment
 
     def test_time_prop(self, time_prop: XMLProperty, lookups: IntermediaryLookup) -> None:
         result = _transform_one_property(time_prop, lookups)
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryTime)
+        assert transformed.value == ""
+        assert transformed.prop_iri == ""
+        assert not transformed.permissions
+        assert not transformed.comment
 
     def test_uri_prop(self, uri_prop: XMLProperty, lookups: IntermediaryLookup) -> None:
         result = _transform_one_property(uri_prop, lookups)
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryUri)
+        assert transformed.value == ""
+        assert transformed.prop_iri == ""
+        assert not transformed.permissions
+        assert not transformed.comment
 
 
 class TestTransformValue:
@@ -226,13 +274,31 @@ class TestTransformValue:
         self, value_with_string_and_comment: XMLValue, lookups: IntermediaryLookup
     ) -> None:
         result = _transform_one_value(value_with_string_and_comment, ":prop", lookups)
+        assert len(result) == 1
+        transformed = result[0]
+        assert transformed.value == ""
+        assert transformed.prop_iri == ""
+        assert not transformed.permissions
+        assert not transformed.comment
 
     def test_value_with_string_and_permissions(
         self, value_with_string_and_permissions: XMLValue, lookups: IntermediaryLookup
     ) -> None:
         result = _transform_one_value(value_with_string_and_permissions, ":prop", lookups)
+        assert len(result) == 1
+        transformed = result[0]
+        assert transformed.value == ""
+        assert transformed.prop_iri == ""
+        assert not transformed.permissions
+        assert not transformed.comment
 
     def test_value_with_string_and_non_existing_permissions(
         self, value_with_string_and_non_existing_permissions: XMLValue, lookups: IntermediaryLookup
     ) -> None:
         result = _transform_one_value(value_with_string_and_non_existing_permissions, ":prop", lookups)
+        assert len(result) == 1
+        transformed = result[0]
+        assert transformed.value == ""
+        assert transformed.prop_iri == ""
+        assert not transformed.permissions
+        assert not transformed.comment

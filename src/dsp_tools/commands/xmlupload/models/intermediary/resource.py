@@ -4,6 +4,8 @@ from dataclasses import dataclass
 
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryAbstractFileValue
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryValue
+from dsp_tools.commands.xmlupload.models.permission import Permissions
+from dsp_tools.models.datetimestamp import DateTimeStamp
 
 
 @dataclass
@@ -11,7 +13,7 @@ class IntermediaryResource:
     res_id: str
     type_iri: str
     label: str
-    permissions: str | None
+    permissions: Permissions | None
     values: list[IntermediaryValue]
     file_value: IntermediaryAbstractFileValue | None
     migration_metadata: MigrationMetadata | None
@@ -20,4 +22,4 @@ class IntermediaryResource:
 @dataclass
 class MigrationMetadata:
     iri_str: str
-    creation_date: str
+    creation_date: DateTimeStamp

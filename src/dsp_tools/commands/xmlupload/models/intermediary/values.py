@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Protocol
 from typing import TypeAlias
 from typing import Union
 
@@ -19,7 +20,7 @@ ValueTypes: TypeAlias = Union[bool, str, float, int, FormattedTextValue, Date, I
 
 
 @dataclass
-class IntermediaryValue:
+class IntermediaryValue(Protocol):
     value: ValueTypes
     prop_iri: str
     comment: str | None

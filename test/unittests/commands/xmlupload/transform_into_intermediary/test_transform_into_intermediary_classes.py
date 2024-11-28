@@ -135,6 +135,7 @@ class TestTransformFileValue:
         result = _transform_one_file_value(bitstream_with_permission, lookups)
         assert isinstance(result, IntermediaryFileValue)
         assert result.value == "file.jpg"
+        assert result.metadata
         assert isinstance(result.metadata.permissions, Permissions)
 
     def test_iiif_uri(self, iiif_uri: IIIFUriInfo, lookups: IntermediaryLookup) -> None:
@@ -146,6 +147,7 @@ class TestTransformFileValue:
         result = _transform_one_file_value(iiif_uri_with_permission, lookups)
         assert isinstance(result, IntermediaryIIIFUri)
         assert result.value == "https://this/is/a/uri.jpg"
+        assert result.metadata
         assert isinstance(result.metadata.permissions, Permissions)
 
 
@@ -155,7 +157,7 @@ class TestTransformProperties:
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryBoolean)
-        assert transformed.value
+        assert transformed.value == True  # noqa:E712 (Avoid equality comparisons)
         assert transformed.prop_iri == f"{ONTO}boolProp"
         assert not transformed.permissions
         assert not transformed.comment
@@ -280,7 +282,7 @@ class TestTransformProperties:
         result = _transform_one_property(bool_prop_with_comment, lookups)
         assert len(result) == 1
         transformed = result[0]
-        assert transformed.value == True
+        assert transformed.value == True  # noqa:E712 (Avoid equality comparisons)
         assert transformed.prop_iri == f"{ONTO}boolProp"
         assert not transformed.permissions
         assert transformed.comment == "comment"
@@ -291,7 +293,7 @@ class TestTransformProperties:
         result = _transform_one_property(bool_prop_with_permissions, lookups)
         assert len(result) == 1
         transformed = result[0]
-        assert transformed.value == True
+        assert transformed.value == True  # noqa:E712 (Avoid equality comparisons)
         assert transformed.prop_iri == f"{ONTO}boolProp"
         assert isinstance(transformed.permissions, Permissions)
         assert not transformed.comment

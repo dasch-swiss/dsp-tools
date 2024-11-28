@@ -51,9 +51,6 @@ TYPE_TRANSFORMER_MAPPER = {
 }
 
 
-# TODO: special: list / text
-
-
 def transform_into_intermediary_classes(
     resources: list[XMLResource], lookups: IntermediaryLookup
 ) -> list[IntermediaryResource]:
@@ -113,7 +110,8 @@ def _transform_list_values(prop: XMLProperty, lookups: IntermediaryLookup) -> li
     intermediary_values: list[IntermediaryValue] = []
     prop_iri = _get_absolute_iri(prop.name, lookups.namespaces)
     for val in prop.values:
-        if not (list_iri := lookups.listnodes.get(val.value)):
+        str_val = assert_is_string(val.value)
+        if not (list_iri := lookups.listnodes.get(str_val)):
             raise InputError(f"Could not find list iri for node: {list_iri}")
         permission_val = _resolve_permission(val.permissions, lookups.permissions)
         intermediary_values.append(IntermediaryList(list_iri, prop_iri, val.comment, permission_val))

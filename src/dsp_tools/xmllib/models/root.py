@@ -100,9 +100,7 @@ class XMLRoot:
             The original XMLRoot with the added license.
         """
         if id_ in self.licenses.get_license_ids():
-            raise InputError(
-                f"A license with the ID '{id_}' and the text '{text}' already exists. " f"All IDs must be unique."
-            )
+            raise InputError(f"A license with the ID '{id_}' already exists. All IDs must be unique.")
         new_uri = None
         if not pd.isna(uri):
             new_uri = uri
@@ -152,10 +150,7 @@ class XMLRoot:
             The original XMLRoot with the added copyright attribution.
         """
         if id_ in self.copyright_attributions.get_copyright_attribution_ids():
-            raise InputError(
-                f"Copyright attribution with the ID '{id_}' and the text '{text}' already exists. "
-                f"All IDs must be unique."
-            )
+            raise InputError(f"Copyright attribution with the ID '{id_}' already exists. All IDs must be unique.")
         self.copyright_attributions.copyright_attributions.append(CopyrightAttribution(id_, text))
         return self
 

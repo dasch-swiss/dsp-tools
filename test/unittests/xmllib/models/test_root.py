@@ -3,6 +3,7 @@ import pytest
 import regex
 
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.xmllib.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.models.copyright_attributions import CopyrightAttribution
 from dsp_tools.xmllib.models.copyright_attributions import CopyrightAttributions
 from dsp_tools.xmllib.models.dsp_base_resources import AnnotationResource
@@ -10,7 +11,6 @@ from dsp_tools.xmllib.models.licenses import License
 from dsp_tools.xmllib.models.licenses import Licenses
 from dsp_tools.xmllib.models.resource import Resource
 from dsp_tools.xmllib.models.root import XMLRoot
-from dsp_tools.xmllib.constants import DASCH_SCHEMA
 
 
 def test_root_add_resources() -> None:

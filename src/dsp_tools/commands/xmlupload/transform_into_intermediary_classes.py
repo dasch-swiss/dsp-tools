@@ -20,6 +20,10 @@ def _transform_one_resource(resource: XMLResource, lookups: IntermediaryLookup) 
     pass
 
 
+def _transform_segment(resource: XMLResource, lookups: IntermediaryLookup) -> IntermediaryResource:
+    pass
+
+
 def _transform_migration_metadata(resource: XMLResource) -> MigrationMetadata:
     pass
 

@@ -16,7 +16,7 @@ class IntermediaryFileMetadata:
 @dataclass
 class IntermediaryAbstractFileValue:
     value: str
-    metadata: IntermediaryFileMetadata
+    metadata: IntermediaryFileMetadata | None
 
 
 @dataclass

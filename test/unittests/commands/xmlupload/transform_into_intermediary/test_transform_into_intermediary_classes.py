@@ -17,7 +17,6 @@ ONTO = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
 
 
 class TestTransformResource:
-
     def test_resource_one_prop(self, resource_one_prop: XMLResource, lookups: IntermediaryLookup) -> None:
         result = _transform_one_resource(resource_one_prop, lookups)
         assert result.res_id == "id"
@@ -28,7 +27,9 @@ class TestTransformResource:
         assert not result.file_value
         assert not result.migration_metadata
 
-    def test_resource_with_permissions(self, resource_with_permissions: XMLResource, lookups: IntermediaryLookup) -> None:
+    def test_resource_with_permissions(
+        self, resource_with_permissions: XMLResource, lookups: IntermediaryLookup
+    ) -> None:
         result = _transform_one_resource(resource_with_permissions, lookups)
         assert result.res_id == "id"
         assert result.type_iri == f"{ONTO}ResourceType"
@@ -64,7 +65,9 @@ class TestTransformResource:
         assert metadata.iri_str == "http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA"
         assert metadata.creation_date == "1999-12-31T23:59:59.9999999+01:00"
 
-    def test_resource_with_ark_and_iri(self, resource_with_ark_and_iri: XMLResource, lookups: IntermediaryLookup) -> None:
+    def test_resource_with_ark_and_iri(
+        self, resource_with_ark_and_iri: XMLResource, lookups: IntermediaryLookup
+    ) -> None:
         result = _transform_one_resource(resource_with_ark_and_iri, lookups)
         assert result.res_id == "id"
         assert result.type_iri == f"{ONTO}ResourceType"
@@ -103,6 +106,7 @@ class TestTransformResource:
         assert not result.file_value
         assert not result.migration_metadata
 
+
 class TestTransformFileValue:
     def test_bitstream(self, bitstream: XMLBitstream, lookups: IntermediaryLookup) -> None:
         result = _transform_one_file_value(bitstream, lookups)
@@ -121,59 +125,59 @@ class TestTransformFileValue:
 
 class TestTransformProperties:
     def test_bool_prop(self, bool_prop: XMLProperty, lookups: IntermediaryLookup) -> None:
-        result = _transform_one_property(bool_prop, lookups, ":ResourceType")
+        result = _transform_one_property(bool_prop, lookups, "onto:ResourceType")
 
     def test_color_prop(self, color_prop: XMLProperty, lookups: IntermediaryLookup) -> None:
-        result = _transform_one_property(color_prop, lookups, ":ResourceType")
+        result = _transform_one_property(color_prop, lookups, "onto:ResourceType")
 
     def test_date_prop(self, date_prop: XMLProperty, lookups: IntermediaryLookup) -> None:
-        result = _transform_one_property(date_prop, lookups, ":ResourceType")
+        result = _transform_one_property(date_prop, lookups, "onto:ResourceType")
 
     def test_decimal_prop(self, decimal_prop: XMLProperty, lookups: IntermediaryLookup) -> None:
-        result = _transform_one_property(decimal_prop, lookups, ":ResourceType")
+        result = _transform_one_property(decimal_prop, lookups, "onto:ResourceType")
 
     def test_decimal_prop_with_two_values(
         self, decimal_prop_with_two_values: XMLProperty, lookups: IntermediaryLookup
     ) -> None:
-        result = _transform_one_property(decimal_prop_with_two_values, lookups, ":ResourceType")
+        result = _transform_one_property(decimal_prop_with_two_values, lookups, "onto:ResourceType")
 
     def test_simple_text_prop(self, simple_text_prop: XMLProperty, lookups: IntermediaryLookup) -> None:
-        result = _transform_one_property(simple_text_prop, lookups, ":ResourceType")
+        result = _transform_one_property(simple_text_prop, lookups, "onto:ResourceType")
 
     def test_richtext_prop(self, richtext_prop: XMLProperty, lookups: IntermediaryLookup) -> None:
-        result = _transform_one_property(richtext_prop, lookups, ":ResourceType")
+        result = _transform_one_property(richtext_prop, lookups, "onto:ResourceType")
 
     def test_geoname_prop(self, geoname_prop: XMLProperty, lookups: IntermediaryLookup) -> None:
-        result = _transform_one_property(geoname_prop, lookups, ":ResourceType")
+        result = _transform_one_property(geoname_prop, lookups, "onto:ResourceType")
 
     def test_integer_prop(self, integer_prop: XMLProperty, lookups: IntermediaryLookup) -> None:
-        result = _transform_one_property(integer_prop, lookups, ":ResourceType")
+        result = _transform_one_property(integer_prop, lookups, "onto:ResourceType")
 
     def test_list_prop(self, list_prop: XMLProperty, lookups: IntermediaryLookup) -> None:
-        result = _transform_one_property(list_prop, lookups, ":ResourceType")
+        result = _transform_one_property(list_prop, lookups, "onto:ResourceType")
 
     def test_resptr_prop(self, resptr_prop: XMLProperty, lookups: IntermediaryLookup) -> None:
-        result = _transform_one_property(resptr_prop, lookups, ":ResourceType")
+        result = _transform_one_property(resptr_prop, lookups, "onto:ResourceType")
 
     def test_time_prop(self, time_prop: XMLProperty, lookups: IntermediaryLookup) -> None:
-        result = _transform_one_property(time_prop, lookups, ":ResourceType")
+        result = _transform_one_property(time_prop, lookups, "onto:ResourceType")
 
     def test_uri_prop(self, uri_prop: XMLProperty, lookups: IntermediaryLookup) -> None:
-        result = _transform_one_property(uri_prop, lookups, ":ResourceType")
+        result = _transform_one_property(uri_prop, lookups, "onto:ResourceType")
 
 
 class TestTransformValue:
     def test_value_with_string_and_comment(
         self, value_with_string_and_comment: XMLValue, lookups: IntermediaryLookup
     ) -> None:
-        result = _transform_one_value(value_with_string_and_comment, lookups, ":ResourceType")
+        result = _transform_one_value(value_with_string_and_comment, lookups, "onto:ResourceType")
 
     def test_value_with_string_and_permissions(
         self, value_with_string_and_permissions: XMLValue, lookups: IntermediaryLookup
     ) -> None:
-        result = _transform_one_value(value_with_string_and_permissions, lookups, ":ResourceType")
+        result = _transform_one_value(value_with_string_and_permissions, lookups, "onto:ResourceType")
 
     def test_value_with_string_and_non_existing_permissions(
         self, value_with_string_and_non_existing_permissions: XMLValue, lookups: IntermediaryLookup
     ) -> None:
-        result = _transform_one_value(value_with_string_and_non_existing_permissions, lookups, ":ResourceType")
+        result = _transform_one_value(value_with_string_and_non_existing_permissions, lookups, "onto:ResourceType")

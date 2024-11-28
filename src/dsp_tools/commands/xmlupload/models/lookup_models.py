@@ -13,6 +13,13 @@ from dsp_tools.commands.xmlupload.models.permission import Permissions
 
 
 @dataclass
+class IntermediaryLookup:
+    permissions: dict[str, Permissions]
+    listnodes: dict[str, str]
+    namespaces: dict[str, str]
+
+
+@dataclass
 class Lookups:
     project_iri: str
     id_to_iri: IriResolver

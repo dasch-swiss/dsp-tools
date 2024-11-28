@@ -7,14 +7,16 @@ from dsp_tools.commands.xmlupload.models.intermediary.file_values import Interme
 from dsp_tools.commands.xmlupload.models.intermediary.resource import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.intermediary.resource import MigrationMetadata
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryValue
-from dsp_tools.commands.xmlupload.models.lookup_models import Lookups
+from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookup
 
 
-def transform_into_intermediary_classes(resources: list[XMLResource], lookups: Lookups) -> list[IntermediaryResource]:
+def transform_into_intermediary_classes(
+    resources: list[XMLResource], lookups: IntermediaryLookup
+) -> list[IntermediaryResource]:
     pass
 
 
-def _transform_one_resource(resource: XMLResource, lookups: Lookups) -> IntermediaryResource:
+def _transform_one_resource(resource: XMLResource, lookups: IntermediaryLookup) -> IntermediaryResource:
     pass
 
 
@@ -26,9 +28,11 @@ def _transform_one_file_value(value: XMLBitstream | IIIFUriInfo) -> Intermediary
     pass
 
 
-def _transform_one_property(prop: XMLProperty, lookups: Lookups, resource_type: str) -> list[IntermediaryValue]:
+def _transform_one_property(
+    prop: XMLProperty, lookups: IntermediaryLookup, resource_type: str
+) -> list[IntermediaryValue]:
     pass
 
 
-def _transform_one_value(value: XMLValue, lookups: Lookups, resource_type: str) -> list[IntermediaryValue]:
+def _transform_one_value(value: XMLValue, lookups: IntermediaryLookup, resource_type: str) -> list[IntermediaryValue]:
     pass

@@ -8,7 +8,14 @@ from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTe
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.utils.date_util import Date
 
-ValueTypes: TypeAlias = Union[bool, str, float, int, FormattedTextValue, Date]
+
+@dataclass
+class IntervalFloats:
+    start: float
+    end: float
+
+
+ValueTypes: TypeAlias = Union[bool, str, float, int, FormattedTextValue, Date, IntervalFloats]
 
 
 @dataclass
@@ -20,50 +27,72 @@ class IntermediaryValue:
 
 
 @dataclass
-class IntermediaryBoolean(IntermediaryValue): ...
+class IntermediaryBoolean(IntermediaryValue):
+    value: bool
 
 
 @dataclass
-class IntermediaryColor(IntermediaryValue): ...
+class IntermediaryColor(IntermediaryValue):
+    value: str
 
 
 @dataclass
-class IntermediaryDate(IntermediaryValue): ...
+class IntermediaryDate(IntermediaryValue):
+    value: Date
 
 
 @dataclass
-class IntermediaryDecimal(IntermediaryValue): ...
+class IntermediaryDecimal(IntermediaryValue):
+    value: float
 
 
 @dataclass
-class IntermediaryGeoname(IntermediaryValue): ...
+class IntermediaryGeoname(IntermediaryValue):
+    value: str
 
 
 @dataclass
-class IntermediaryInt(IntermediaryValue): ...
+class IntermediaryGeometry(IntermediaryValue):
+    value: str
+
+
+@dataclass
+class IntermediaryInt(IntermediaryValue):
+    value: int
+
+
+@dataclass
+class IntermediaryInterval(IntermediaryValue):
+    value: IntervalFloats
 
 
 @dataclass
 class IntermediaryLink(IntermediaryValue):
+    value: str
     resource_references: list[str]
 
 
 @dataclass
-class IntermediaryList(IntermediaryValue): ...
+class IntermediaryList(IntermediaryValue):
+    value: str
 
 
 @dataclass
-class IntermediarySimpleText(IntermediaryValue): ...
+class IntermediarySimpleText(IntermediaryValue):
+    value: str
 
 
 @dataclass
 class IntermediaryRichtext(IntermediaryValue):
+    value: FormattedTextValue
     resource_references: list[str]
 
 
 @dataclass
-class IntermediaryTime(IntermediaryValue): ...
+class IntermediaryTime(IntermediaryValue):
+    value: str
 
 
 @dataclass
-class IntermediaryUri(IntermediaryValue): ...
+class IntermediaryUri(IntermediaryValue):
+    value: str

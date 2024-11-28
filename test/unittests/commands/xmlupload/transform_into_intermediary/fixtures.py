@@ -25,28 +25,23 @@ def lookups() -> IntermediaryLookup:
 
 
 @pytest.fixture
-def value_with_string() -> XMLValue:
-    return XMLValue(value="true")
+def bool_prop() -> XMLProperty:
+    return XMLProperty(name=":boolProp", valtype="bool", values=[XMLValue(value="true")])
 
 
 @pytest.fixture
-def value_with_string_and_comment() -> XMLValue:
-    return XMLValue(value="true", comment="comment")
+def bool_prop_with_permissions() -> XMLProperty:
+    return XMLProperty(name=":boolProp", valtype="bool", values=[XMLValue(value="true", permissions="open")])
 
 
 @pytest.fixture
-def value_with_string_and_permissions() -> XMLValue:
-    return XMLValue(value="true", permissions="open")
+def bool_prop_with_non_existing_permissions() -> XMLProperty:
+    return XMLProperty(name=":boolProp", valtype="bool", values=[XMLValue(value="true", permissions="nonExisting")])
 
 
 @pytest.fixture
-def value_with_string_and_non_existing_permissions() -> XMLValue:
-    return XMLValue(value="true", permissions="nonExisting")
-
-
-@pytest.fixture
-def bool_prop(value_with_string) -> XMLProperty:
-    return XMLProperty(name=":boolProp", valtype="bool", values=[value_with_string])
+def bool_prop_with_comment() -> XMLProperty:
+    return XMLProperty(name=":boolProp", valtype="bool", values=[XMLValue(value="true", comment="comment")])
 
 
 @pytest.fixture
@@ -70,12 +65,12 @@ def decimal_prop_with_two_values() -> XMLProperty:
 
 
 @pytest.fixture
-def simple_text_prop(value_with_string) -> XMLProperty:
-    return XMLProperty(name=":simpleTextProp", valtype="text", values=[value_with_string])
+def simple_text_prop() -> XMLProperty:
+    return XMLProperty(name=":simpleTextProp", valtype="text", values=[XMLValue(value="text")])
 
 
 @pytest.fixture
-def richtext_prop(value_with_string) -> XMLProperty:
+def richtext_prop() -> XMLProperty:
     return XMLProperty(
         name=":richTextProp", valtype="text", values=[XMLValue(FormattedTextValue("<text>this is text</text>"))]
     )
@@ -97,7 +92,7 @@ def list_prop() -> XMLProperty:
 
 
 @pytest.fixture
-def resptr_prop(value_with_string) -> XMLProperty:
+def resptr_prop() -> XMLProperty:
     return XMLProperty(name=":linkProp", valtype="resptr", values=[XMLValue("other_id")])
 
 

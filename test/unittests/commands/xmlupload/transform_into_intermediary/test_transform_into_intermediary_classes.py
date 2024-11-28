@@ -3,7 +3,6 @@ import pytest
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import IIIFUriInfo
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLBitstream
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
-from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLValue
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileValue
@@ -26,7 +25,6 @@ from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_one_file_value
 from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_one_property
 from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_one_resource
-from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_one_value
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.date_util import Date
 
@@ -156,7 +154,7 @@ class TestTransformProperties:
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryBoolean)
-        assert transformed.value == True
+        assert transformed.value
         assert transformed.prop_iri == f"{ONTO}boolProp"
         assert not transformed.permissions
         assert not transformed.comment
@@ -277,12 +275,8 @@ class TestTransformProperties:
         assert not transformed.permissions
         assert not transformed.comment
 
-
-class TestTransformValue:
-    def test_value_with_string_and_comment(
-        self, value_with_string_and_comment: XMLValue, lookups: IntermediaryLookup
-    ) -> None:
-        result = _transform_one_value(value_with_string_and_comment, ":prop", lookups)
+    def test_bool_prop_with_comment(self, bool_prop_with_comment: XMLProperty, lookups: IntermediaryLookup) -> None:
+        result = _transform_one_property(bool_prop_with_comment, ":prop", lookups)
         assert len(result) == 1
         transformed = result[0]
         assert transformed.value == "true"
@@ -290,10 +284,10 @@ class TestTransformValue:
         assert not transformed.permissions
         assert transformed.comment == "comment"
 
-    def test_value_with_string_and_permissions(
-        self, value_with_string_and_permissions: XMLValue, lookups: IntermediaryLookup
+    def test_bool_prop_with_permissions(
+        self, bool_prop_with_permissions: XMLProperty, lookups: IntermediaryLookup
     ) -> None:
-        result = _transform_one_value(value_with_string_and_permissions, ":prop", lookups)
+        result = _transform_one_property(bool_prop_with_permissions, ":prop", lookups)
         assert len(result) == 1
         transformed = result[0]
         assert transformed.value == "true"
@@ -301,8 +295,8 @@ class TestTransformValue:
         assert isinstance(transformed.permissions, Permissions)
         assert not transformed.comment
 
-    def test_value_with_string_and_non_existing_permissions(
-        self, value_with_string_and_non_existing_permissions: XMLValue, lookups: IntermediaryLookup
+    def test_bool_prop_with_non_existing_permissions(
+        self, bool_prop_with_non_existing_permissions: XMLProperty, lookups: IntermediaryLookup
     ) -> None:
         with pytest.raises(InputError):
-            _transform_one_value(value_with_string_and_non_existing_permissions, ":prop", lookups)
+            _transform_one_property(bool_prop_with_non_existing_permissions, ":prop", lookups)

@@ -25,11 +25,8 @@ def test_get_restype_full() -> None:
 
 
 def test_get_properties_bitstream_only() -> None:
-    string = """
-        <resource>
-            <bitstream license="license" copyright-attribution="copy">testdata/bitstreams/test.tif</bitstream>
-        </resource>"""
-    bitstream_expected = XMLBitstream("testdata/bitstreams/test.tif", None, "copy", "license")
+    string = "<resource><bitstream>testdata/bitstreams/test.tif</bitstream></resource>"
+    bitstream_expected = XMLBitstream("testdata/bitstreams/test.tif")
     bitstream, iiif, props = XMLResource._get_properties(etree.fromstring(string), "rosetta")
     assert bitstream == bitstream_expected
     assert not iiif
@@ -37,8 +34,11 @@ def test_get_properties_bitstream_only() -> None:
 
 
 def test_get_properties_bitstream_with_license_copyright() -> None:
-    string = "<resource><bitstream>testdata/bitstreams/test.tif</bitstream></resource>"
-    bitstream_expected = XMLBitstream("testdata/bitstreams/test.tif")
+    string = """
+        <resource>
+            <bitstream license="license" copyright-attribution="copy">testdata/bitstreams/test.tif</bitstream>
+        </resource>"""
+    bitstream_expected = XMLBitstream("testdata/bitstreams/test.tif", None, "copy", "license")
     bitstream, iiif, props = XMLResource._get_properties(etree.fromstring(string), "rosetta")
     assert bitstream == bitstream_expected
     assert not iiif

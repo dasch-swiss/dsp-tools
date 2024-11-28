@@ -29,6 +29,37 @@
         <allow group="systematic-tp:testgroupEditors">M</allow>
     </permissions>
 
+    <copyright-attributions>
+        <copyright-attribution id="copyright_id">Copyright Text</copyright-attribution>
+    </copyright-attributions>
+
+    <licenses>
+        <license id="CC-BY" uri="https://creativecommons.org/licenses/by/4.0/">
+            CC BY 4.0
+        </license>
+        <license id="CC-BY-SA" uri="https://creativecommons.org/licenses/by-sa/4.0/">
+            CC BY-SA 4.0
+        </license>
+        <license id="CC-BY-NC" uri="https://creativecommons.org/licenses/by-nc/4.0/">
+            CC BY-NC 4.0
+        </license>
+        <license id="CC-BY-NC-SA" uri="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+            CC BY-NC-SA 4.0
+        </license>
+        <license id="CC-BY-ND" uri="https://creativecommons.org/licenses/by-nd/4.0/">
+            CC BY-ND 4.0
+        </license>
+        <license id="CC-BY-NC-ND" uri="https://creativecommons.org/licenses/by-nc-nd/4.0/">
+            CC BY-NC-ND 4.0
+        </license>
+        <license id="CC0" uri="https://creativecommons.org/publicdomain/zero/1.0/">
+            CC0 1.0
+        </license>
+         <license id="twoLineLicense">
+            First Line.
+            Second Line.
+        </license>
+    </licenses>
 
     <resource label="TestthingWithArk1"
               restype=":TestThing2"
@@ -281,6 +312,22 @@
         </text-prop>
     </resource>
 
+    <resource label="iiif-link with license / copyright"
+              restype=":ImageThing"
+              id="iiif-link-license-copyright"
+              permissions="open">
+        <iiif-uri
+                license="twoLineLicense"
+                copyright-attribution="copyright_id"
+        >https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg</iiif-uri>
+        <text-prop name=":hasSimpleText">
+            <text permissions="open" encoding="utf8">
+                Licence: Attribution-NonCommercial 4.0 International (CC BY-NC 4.0).
+                Credit: Zebrafish embryo. Source: Wellcome Collection.
+            </text>
+        </text-prop>
+    </resource>
+
     <resource label="iiif-link"
               restype=":ImageThing"
               id="iiif-link"
@@ -298,7 +345,10 @@
               restype=":ImageThing"
               id="image_thing_1"
               permissions="open">
-        <bitstream>testdata/bitstreams/test.tiff</bitstream>
+        <bitstream
+                license="CC-BY-NC"
+                copyright-attribution="copyright_id"
+        >testdata/bitstreams/test.tiff</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Imagething as TIFF</text>
         </text-prop>

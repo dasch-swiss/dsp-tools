@@ -43,7 +43,7 @@ def _make_values_dict_from_resource(
 ) -> dict[str, Any]:
     res_bnode = BNode()
 
-    properties_graph, last_prop_name = make_values(resource.properties, resource.restype, res_bnode, lookups)
+    properties_graph, last_prop_name = make_values(resource.properties, res_bnode, lookups)
 
     if resource.iiif_uri:
         resolved_permissions = resolve_permission(resource.iiif_uri.permissions, lookups.permissions)

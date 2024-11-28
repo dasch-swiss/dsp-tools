@@ -10,6 +10,7 @@ from dsp_tools.xmllib.models.licenses import License
 from dsp_tools.xmllib.models.licenses import Licenses
 from dsp_tools.xmllib.models.resource import Resource
 from dsp_tools.xmllib.models.root import XMLRoot
+from dsp_tools.xmllib.constants import DASCH_SCHEMA
 
 
 def test_root_add_resources() -> None:
@@ -34,9 +35,9 @@ def test_root_add_resources() -> None:
     assert len(xml_root.resources) == 3
 
     serialised = xml_root.serialise()
-    annotation = list(serialised.iterdescendants(tag="{https://dasch.swiss/schema}annotation"))
+    annotation = list(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}annotation"))
     assert len(annotation) == 1
-    general_resources = list(serialised.iterdescendants(tag="{https://dasch.swiss/schema}resource"))
+    general_resources = list(serialised.iterdescendants(tag=f"{DASCH_SCHEMA}resource"))
     assert len(general_resources) == 2
 
 

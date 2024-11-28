@@ -127,6 +127,7 @@ class TestTransformResource:
 class TestTransformFileValue:
     def test_bitstream(self, bitstream: XMLBitstream, lookups: IntermediaryLookup) -> None:
         result = _transform_one_file_value(bitstream, lookups)
+        assert result.value == "file.jpg"
         assert isinstance(result, IntermediaryFileValue)
 
     def test_bitstream_with_permissions(
@@ -134,15 +135,18 @@ class TestTransformFileValue:
     ) -> None:
         result = _transform_one_file_value(bitstream_with_permission, lookups)
         assert isinstance(result, IntermediaryFileValue)
+        assert result.value == "file.jpg"
         assert isinstance(result.metadata.permissions, Permissions)
 
     def test_iiif_uri(self, iiif_uri: IIIFUriInfo, lookups: IntermediaryLookup) -> None:
         result = _transform_one_file_value(iiif_uri, lookups)
+        assert result.value == "https://this/is/a/uri.jpg"
         assert isinstance(result, IntermediaryIIIFUri)
 
     def test_iiif_uri_with_permission(self, iiif_uri_with_permission: IIIFUriInfo, lookups: IntermediaryLookup) -> None:
         result = _transform_one_file_value(iiif_uri_with_permission, lookups)
         assert isinstance(result, IntermediaryIIIFUri)
+        assert result.value == "https://this/is/a/uri.jpg"
         assert isinstance(result.metadata.permissions, Permissions)
 
 

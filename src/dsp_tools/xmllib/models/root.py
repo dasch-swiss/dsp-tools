@@ -92,7 +92,7 @@ class XMLRoot:
                 or `<iiif-uri>` attribute, e.g. `<bitstream license="your_ID">`
             text: Text that should be displayed in the APP.
             uri: Optional URI linking to the license documentation.
-                If the URI value is not empty it will be added.
+                If the URI value is not empty, it will be added.
 
         Raises:
             InputError: If the id already exists
@@ -114,7 +114,7 @@ class XMLRoot:
         Args:
             licenses_dict: dictionary with the information for licenses.
                 It should have the following structure: `{ id: (text, uri) }`
-                If the URI value is not empty it will be added.
+                If the URI value is not empty, it will be added.
 
         Raises:
             InputError: If the id already exists

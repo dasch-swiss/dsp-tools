@@ -1098,10 +1098,8 @@ class Resource:
         Args:
             filename: path to the file
             permissions: optional permissions of this file
-            copyright_id:  ID of a copyright defined in the root.
-                You can only reference copyright IDs are added to the root.
-            license_id:  ID of a license defined in the root.
-                You can only reference license IDs are added to the root.
+            copyright_id:  ID of a copyright defined in the root
+            license_id:  ID of a license defined in the root
             comment: optional comment
 
         Raises:
@@ -1140,10 +1138,8 @@ class Resource:
         Args:
             iiif_uri: valid IIIF URI
             permissions: optional permissions of this value
-            copyright_id:  ID of a copyright defined in the root.
-                You can only reference copyright IDs are added to the root.
-            license_id:  ID of a license defined in the root.
-                You can only reference license IDs are added to the root.
+            copyright_id:  ID of a copyright defined in the root
+            license_id:  ID of a license defined in the root
             comment: optional comment
 
         Raises:

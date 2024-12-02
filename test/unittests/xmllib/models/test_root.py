@@ -64,11 +64,14 @@ class TestRootLicenses:
         with pytest.raises(InputError, match=msg):
             xml_root.add_license("id", "text", pd.NA)
 
-    def test_add_license_with_dict(self) -> None:
+    def test_add_license_multiple(self) -> None:
         xml_root = XMLRoot("0000", "test", CopyrightAttributions(), Licenses())
-        license_dict = {"id1": ("text1", "https://dasch.com/"), "id2": ("text2", None)}
-        xml_root.add_license_multiple(license_dict)
-        assert xml_root.licenses.get_ids() == set(license_dict.keys())
+        input_dict = {"id1": ("text1", "https://dasch.com/"), "id2": ("text2", None)}
+        xml_root.add_license_multiple(input_dict)
+        assert xml_root.licenses.get_ids() == set(input_dict.keys())
+        result_content = {x.id_: (x.text, x.uri) for x in xml_root.licenses.licenses}
+        assert result_content["id1"] == input_dict["id1"]
+        assert result_content["id2"] == input_dict["id2"]
 
 
 class TestRootCopyrightAttributions:
@@ -92,6 +95,9 @@ class TestRootCopyrightAttributions:
 
     def test_add_copyright_attribution_with_dict(self) -> None:
         xml_root = XMLRoot("0000", "test", CopyrightAttributions(), Licenses())
-        copy_dict = {"id1": "text1", "id2": "text2"}
-        xml_root.add_copyright_attribution_multiple(copy_dict)
-        assert xml_root.copyright_attributions.get_ids() == set(copy_dict.keys())
+        input_dict = {"id1": "text1", "id2": "text2"}
+        xml_root.add_copyright_attribution_multiple(input_dict)
+        assert xml_root.copyright_attributions.get_ids() == set(input_dict.keys())
+        result_content = {x.id_: x.text for x in xml_root.copyright_attributions.copyright_attributions}
+        assert result_content["id1"] == input_dict["id1"]
+        assert result_content["id2"] == input_dict["id2"]

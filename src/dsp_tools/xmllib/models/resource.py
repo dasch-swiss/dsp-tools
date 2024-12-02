@@ -850,9 +850,9 @@ class Resource:
         Returns:
             The original resource, with the added value
         """
-        # Because of the conversion, the richtext is converted to a string values such as `pd.NA`
-        # are not recognised as empty any more.
-        # Therefore, this additional check is required here.
+        # Because of the richtext conversions, the input value is cast as a string.
+        # Values such as str(`pd.NA`) result in a non-empy string.
+        # Therefore a check must occur before the conversion takes place.
         _check_richtext_before_conversion(value, self.res_id, prop_name)
         value = replace_newlines_with_tags(str(value), newline_replacement)
         self.values.append(Richtext(value, prop_name, permissions, comment, self.res_id))
@@ -888,9 +888,9 @@ class Resource:
         Returns:
             The original resource, with the added values
         """
-        # Because of the conversion, the richtext is converted to a string values such as `pd.NA`
-        # are not recognised as empty any more.
-        # Therefore, this additional check is required here.
+        # Because of the richtext conversions, the input value is cast as a string.
+        # Values such as str(`pd.NA`) result in a non-empy string.
+        # Therefore a check must occur before the conversion takes place.
         for val in values:
             _check_richtext_before_conversion(val, self.res_id, prop_name)
         values = [replace_newlines_with_tags(str(v), newline_replacement) for v in values]
@@ -1186,7 +1186,5 @@ class Resource:
 
 def _check_richtext_before_conversion(value: Any, res_id: str, prop_name: str) -> None:
     if not is_string_like(value):
-        msg = (
-            f"Resource '{res_id}' has a richtext value that is not a string: " f"Value: {value} | Property: {prop_name}"
-        )
+        msg = f"Resource '{res_id}' has a richtext value that is not a string: Value: {value} | Property: {prop_name}"
         warnings.warn(DspToolsUserWarning(msg))

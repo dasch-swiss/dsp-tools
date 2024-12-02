@@ -422,7 +422,7 @@ def create_list_from_string(string: str, separator: str) -> list[str]:
         InputError: If the input value is not a string.
     """
     if not isinstance(string, str):
-        raise InputError(f"The input for this function must be a string. Your input is a {type(string)}.")
+        raise InputError(f"The input for this function must be a string. Your input is a {type(string).__name__}.")
     return [strpd for x in string.split(separator) if (strpd := x.strip())]
 
 
@@ -446,5 +446,8 @@ def create_non_empty_list_from_string(string: str, separator: str) -> list[str]:
     """
     lst = create_list_from_string(string, separator)
     if len(lst) == 0:
-        raise InputError(f"The resulting list of the input string: {string} is empty.")
+        raise InputError(
+            f"The input for this function must result in a non empty list. "
+            f"Your input '{string}' results in an empty list."
+        )
     return lst

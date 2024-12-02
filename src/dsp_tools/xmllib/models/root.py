@@ -82,13 +82,13 @@ class XMLRoot:
             licenses=Licenses(PRE_DEFINED_LICENSES),
         )
 
-    def add_license(self, id_: str, text: str, uri: Any = None) -> XMLRoot:
+    def add_license(self, license_id: str, text: str, uri: Any = None) -> XMLRoot:
         """
         Add a new license.
         Please note that the id must be unique.
 
         Args:
-            id_: which can be referenced in a `<bitstream>`
+            license_id: which can be referenced in a `<bitstream>`
                 or `<iiif-uri>` attribute, e.g. `<bitstream license="your_ID">`
             text: Text that should be displayed in the APP.
             uri: Optional URI linking to the license documentation.
@@ -100,10 +100,10 @@ class XMLRoot:
         Returns:
             The original XMLRoot with the added license.
         """
-        if id_ in self.licenses.get_ids():
-            raise InputError(f"A license with the ID '{id_}' already exists. All IDs must be unique.")
+        if license_id in self.licenses.get_ids():
+            raise InputError(f"A license with the ID '{license_id}' already exists. All IDs must be unique.")
         new_uri = None if pd.isna(uri) else uri
-        self.licenses.licenses.append(License(id_, text, new_uri))
+        self.licenses.licenses.append(License(license_id, text, new_uri))
         return self
 
     def add_license_multiple(self, licenses_dict: dict[str, tuple[str, Any]]) -> XMLRoot:
@@ -131,13 +131,13 @@ class XMLRoot:
             self.licenses.licenses.append(License(license_id, info_tuple[0], new_uri))
         return self
 
-    def add_copyright_attribution(self, id_: str, text: str) -> XMLRoot:
+    def add_copyright_attribution(self, copyright_attribution_id: str, text: str) -> XMLRoot:
         """
         Add a new copyright attribution.
         Please note that the id must be unique.
 
         Args:
-            id_: which can be referenced in a `<bitstream>`
+            copyright_attribution_id: which can be referenced in a `<bitstream>`
                 or `<iiif-uri>` attribute, e.g. `<bitstream license="your_ID">`
             text: Text that should be displayed in the APP.
 
@@ -147,9 +147,12 @@ class XMLRoot:
         Returns:
             The original XMLRoot with the added copyright attribution.
         """
-        if id_ in self.copyright_attributions.get_ids():
-            raise InputError(f"A copyright attribution with the ID '{id_}' already exists. All IDs must be unique.")
-        self.copyright_attributions.copyright_attributions.append(CopyrightAttribution(id_, text))
+        if copyright_attribution_id in self.copyright_attributions.get_ids():
+            raise InputError(
+                f"A copyright attribution with the ID '{copyright_attribution_id}' already exists. "
+                f"All IDs must be unique."
+            )
+        self.copyright_attributions.copyright_attributions.append(CopyrightAttribution(copyright_attribution_id, text))
         return self
 
     def add_copyright_attribution_multiple(self, copyright_dict: dict[str, str]) -> XMLRoot:

@@ -22,9 +22,9 @@ class Licenses:
             attrib = {"id": one_license.id_}
             if one_license.uri:
                 attrib["uri"] = one_license.uri
-                ele = etree.Element(f"{DASCH_SCHEMA}license", attrib=attrib, nsmap=XML_NAMESPACE_MAP)
-                ele.text = one_license.text
-                licenses.append(ele)
+            ele = etree.Element(f"{DASCH_SCHEMA}license", attrib=attrib, nsmap=XML_NAMESPACE_MAP)
+            ele.text = one_license.text
+            licenses.append(ele)
         return licenses
 
 

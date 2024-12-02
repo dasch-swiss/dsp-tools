@@ -1,3 +1,4 @@
+import warnings
 from typing import Any
 
 import pandas as pd
@@ -359,19 +360,25 @@ class TestAddFiles:
 
 @pytest.mark.parametrize(
     ("input_val", "expected_val"),
-    [(1, [1]), (True, [True]), ("string", ["string"]), ([1, 2], [1, 2]), ((1, 2), (1, 2)), ({1, 2}, {1, 2})],
+    [(1, [1]), (True, [True]), ("string", ["string"]), ([1, 2], [1, 2]), ((1, 2), [1, 2]), ({1, 2}, [1, 2])],
 )
 def test_check_and_fix_collection_input_success(input_val: Any, expected_val: list[Any]) -> None:
-    assert _check_and_fix_collection_input(input_val, "id", "prop") == expected_val
+    assert _check_and_fix_collection_input(input_val, "id", "prop") == sorted(expected_val)
 
 
 def test_check_and_fix_collection_input_raises() -> None:
     msg = regex.escape(
-        "The list input of the resource with the ID 'id' and the property 'prop' is a dictionary. "
-        "Only collections (set, list, tuple) are permissible."
+        "The input value of the resource with the ID 'id' and the property 'prop'is a dictionary. "
+        "Only collections (list, set, tuple) are permissible."
     )
     with pytest.raises(InputError, match=msg):
         _check_and_fix_collection_input({1: 1}, "id", "prop")
+
+
+def test_check_and_fix_collection_input_warns() -> None:
+    with warnings.catch_warnings(record=True) as caught_warnings:
+        _check_and_fix_collection_input([], "id", "prop")
+        assert len(caught_warnings) == 1
 
 
 if __name__ == "__main__":

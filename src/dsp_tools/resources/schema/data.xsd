@@ -4,7 +4,10 @@
            targetNamespace="https://dasch.swiss/schema"
            elementFormDefault="qualified">
 
-    <!-- nonEmptyString-->
+    <!-- nonEmptyString
+        Data of type xs:string are not modified by the XML processor, 
+        so the xs:pattern is applied to the original string
+    -->
     <xs:simpleType name="nonEmptyString">
         <xs:restriction base="xs:string">
             <xs:minLength value="1"/>
@@ -12,16 +15,27 @@
         </xs:restriction>
     </xs:simpleType>
 
+    <!-- nonEmptyString_pretty_printed
+        xs:token is derived from string, but before the xs:pattern is applied, 
+        the XML processor removes line feeds, carriage returns, tabs, leading and trailing spaces, and multiple spaces.
+    -->
+    <xs:simpleType name="nonEmptyString_pretty_printed">
+        <xs:restriction base="xs:token">
+            <xs:minLength value="1"/>
+            <xs:pattern value=".*\S+.*"/>
+        </xs:restriction>
+    </xs:simpleType>
+
     <!-- data type for resrefs "ID|ID|..." -->
     <xs:simpleType name="resrefs_type">
-        <xs:restriction base="xs:token">
+        <xs:restriction base="xs:string">
             <xs:pattern value="([^|]+)(\|[^|]+)*"/>
         </xs:restriction>
     </xs:simpleType>
 
     <!-- group type for allow..." -->
     <xs:simpleType name="group_types">
-        <xs:restriction base="xs:token">
+        <xs:restriction base="xs:string">
             <xs:pattern
                 value="(UnknownUser|KnownUser|ProjectMember|Creator|ProjectAdmin|SystemAdmin|([\w\-]+)?:([\w\- ]+))"/>
         </xs:restriction>
@@ -29,7 +43,7 @@
 
     <!-- data type for knora date -->
     <xs:simpleType name="knoradate_type">
-        <xs:restriction base="xs:token">
+        <xs:restriction base="xs:string">
             <xs:pattern
                 value="(GREGORIAN:|JULIAN:|ISLAMIC:)?(CE:|BCE:|AD:|BC:)?(\d{1,4})(-\d{1,2})?(-\d{1,2})?((:CE|:BCE|:AD|:BC)?(:\d{1,4})(-\d{1,2})?(-\d{1,2})?)?"/>
         </xs:restriction>
@@ -37,7 +51,7 @@
 
     <!-- data type for knora time -->
     <xs:simpleType name="knoratime_type">
-        <xs:restriction base="xs:token">
+        <xs:restriction base="xs:string">
             <xs:pattern
                 value="\d{4}-[0-1]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(\.\d{1,12})?(Z|[+-][0-1]\d:[0-5]\d)"/>
         </xs:restriction>
@@ -45,7 +59,7 @@
 
     <!-- data type for knora color -->
     <xs:simpleType name="knoracolor_type">
-        <xs:restriction base="xs:token">
+        <xs:restriction base="xs:string">
             <xs:pattern value="#([0-9a-fA-F]{3}){1,2}"/>
         </xs:restriction>
     </xs:simpleType>
@@ -401,7 +415,7 @@
     <!-- bitstream tag -->
     <xs:complexType name="bitstream_type">
         <xs:simpleContent>
-            <xs:extension base="nonEmptyString">
+            <xs:extension base="nonEmptyString_pretty_printed">
                 <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
                 <xs:attribute name="license" type="xs:IDREF" use="optional"/>
                 <xs:attribute name="copyright-attribution" type="xs:IDREF" use="optional"/>
@@ -412,7 +426,7 @@
     <!-- iiif-uri tag -->
     <xs:complexType name="iiif_uri_type">
         <xs:simpleContent>
-            <xs:extension base="nonEmptyString">
+            <xs:extension base="nonEmptyString_pretty_printed">
                 <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
                 <xs:attribute name="license" type="xs:IDREF" use="optional"/>
                 <xs:attribute name="copyright-attribution" type="xs:IDREF" use="optional"/>
@@ -537,7 +551,7 @@
 
     <!-- data type for knora shortcode -->
     <xs:simpleType name="knorashortcode_type">
-        <xs:restriction base="xs:token">
+        <xs:restriction base="xs:string">
             <xs:pattern value="[0-9a-fA-F]{4}"/>
         </xs:restriction>
     </xs:simpleType>

@@ -92,7 +92,7 @@ def check_if_bitstreams_exist(root: etree._Element, imgdir: str) -> None:
     """
     multimedia_resources = [x for x in root if any((y.tag == "bitstream" for y in x.iter()))]
     for res in multimedia_resources:
-        pth = next(Path(x.text) for x in res.iter() if x.tag == "bitstream" and x.text)
+        pth = next(Path(x.text.strip()) for x in res.iter() if x.tag == "bitstream" and x.text)
         if not Path(imgdir / pth).is_file():
             raise UserError(
                 f"Bitstream '{pth!s}' of resource '{res.attrib['label']}' does not exist in the imgdir '{imgdir}'."

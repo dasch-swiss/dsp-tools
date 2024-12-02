@@ -161,7 +161,6 @@ class RegionResource:
             res_id: ID of this region resource
             label: label of this region resource
             region_of: ID of the image resource that this region refers to (cardinality 1)
-            comments: comments to this region (cardinality 0-n)
             permissions: permissions of this region resource
 
         Returns:
@@ -281,8 +280,10 @@ class RegionResource:
     def add_comment(self, comment: str) -> RegionResource:
         """
         Add a comment to the resource
+
         Args:
             comment: text
+
         Returns:
             The original resource, with the added comment
         """
@@ -292,8 +293,10 @@ class RegionResource:
     def add_comment_multiple(self, comments: Collection[str]) -> RegionResource:
         """
         Add several comments to the resource
+
         Args:
             comments: list of texts
+
         Returns:
             The original resource, with the added comments
         """

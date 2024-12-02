@@ -412,11 +412,11 @@ def create_list_from_string(string: str, separator: str) -> list[str]:
     Args:
         string: input string
         separator: The character that separates the different values in the string.
-            For example, a comma or newline
+            For example, a comma or newline.
 
     Returns:
         A list with the input.
-        If the original string is empty or consists only of whitespace characters, the resulting list will be empty.
+            If the original string is empty or consists only of whitespace characters, the resulting list will be empty.
 
     Raises:
         InputError: If the input value is not a string.
@@ -431,10 +431,12 @@ def create_non_empty_list_from_string(string: str, separator: str) -> list[str]:
     Creates a list from a string.
     Trailing and leading whitespaces are removed from the list items.
 
+    If the resulting list is empty it will raise an `InputError`.
+
     Args:
         string: input string
         separator: The character that separates the different values in the string.
-            For example, a comma or newline
+            For example, a comma or newline.
 
     Returns:
         A list with the input.

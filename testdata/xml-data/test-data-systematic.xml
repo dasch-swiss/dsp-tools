@@ -306,9 +306,7 @@
               restype=":ImageThing"
               id="image_thing_0"
               permissions="open">
-        <bitstream>
-            testdata/bitstreams/test.tif
-        </bitstream>
+        <bitstream>testdata/bitstreams/test.tif</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Imagething as TIF</text>
         </text-prop>
@@ -346,7 +344,9 @@
               restype=":ImageThing"
               id="image_thing_1"
               permissions="open">
-        <bitstream license="CC-BY-NC" copyright-attribution="copyright_id">testdata/bitstreams/test.tiff</bitstream>
+        <bitstream license="CC-BY-NC" copyright-attribution="copyright_id">
+            testdata/bitstreams/test.tiff
+        </bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Imagething as TIFF</text>
         </text-prop>

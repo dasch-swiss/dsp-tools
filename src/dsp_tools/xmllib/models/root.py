@@ -84,7 +84,7 @@ class XMLRoot:
 
     def add_license(self, id_: str, text: str, uri: Any = None) -> XMLRoot:
         """
-        Add a new license element.
+        Add a new license.
         Please note that the id must be unique.
 
         Args:
@@ -100,21 +100,19 @@ class XMLRoot:
         Returns:
             The original XMLRoot with the added license.
         """
-        if id_ in self.licenses.get_license_ids():
+        if id_ in self.licenses.get_ids():
             raise InputError(f"A license with the ID '{id_}' already exists. All IDs must be unique.")
-        new_uri = None
-        if not pd.isna(uri):
-            new_uri = uri
+        new_uri = None if pd.isna(uri) else uri
         self.licenses.licenses.append(License(id_, text, new_uri))
         return self
 
-    def add_license_with_dict(self, license_dict: dict[str, tuple[str, Any]]) -> XMLRoot:
+    def add_license_multiple(self, licenses_dict: dict[str, tuple[str, Any]]) -> XMLRoot:
         """
-        Add a new license element.
-        Please note that the id must be unique.
+        Add multiple new licenses.
+        Please note that the IDs must be unique.
 
         Args:
-            license_dict: dictionary with the information for license elements.
+            licenses_dict: dictionary with the information for licenses.
                 It should have the following structure: `{ id: (text, uri) }`
                 A `pd.isna()` check is done before adding the URI, therefore, any value is permissible.
 
@@ -124,20 +122,18 @@ class XMLRoot:
         Returns:
             The original XMLRoot with the added licenses.
         """
-        if ids_exist := set(license_dict.keys()).intersection(self.licenses.get_license_ids()):
+        if existing_ids := set(licenses_dict.keys()).intersection(self.licenses.get_ids()):
             raise InputError(
-                f"The following license IDs already exist: {", ".join(ids_exist)}. All IDs must be unique."
+                f"The following license IDs already exist: {", ".join(existing_ids)}. All IDs must be unique."
             )
-        for license_id, info_tuple in license_dict.items():
-            new_uri = None
-            if not pd.isna(info_tuple[1]):
-                new_uri = info_tuple[1]
+        for license_id, info_tuple in licenses_dict.items():
+            new_uri = None if pd.isna(info_tuple[1]) else info_tuple[1]
             self.licenses.licenses.append(License(license_id, info_tuple[0], new_uri))
         return self
 
     def add_copyright_attribution(self, id_: str, text: str) -> XMLRoot:
         """
-        Add a new copyright attribution element.
+        Add a new copyright attribution.
         Please note that the id must be unique.
 
         Args:
@@ -151,15 +147,15 @@ class XMLRoot:
         Returns:
             The original XMLRoot with the added copyright attribution.
         """
-        if id_ in self.copyright_attributions.get_copyright_attribution_ids():
+        if id_ in self.copyright_attributions.get_ids():
             raise InputError(f"A copyright attribution with the ID '{id_}' already exists. All IDs must be unique.")
         self.copyright_attributions.copyright_attributions.append(CopyrightAttribution(id_, text))
         return self
 
-    def add_copyright_attribution_with_dict(self, copyright_dict: dict[str, str]) -> XMLRoot:
+    def add_copyright_attribution_multiple(self, copyright_dict: dict[str, str]) -> XMLRoot:
         """
-        Add a several new copyright attribution elements from a dictionary.
-        Please note that the id must be unique.
+        Add multiple new copyright attributions.
+        Please note that the IDs must be unique.
 
         Args:
             copyright_dict: the dictionary should have the following structure: `{ id: text }`
@@ -170,11 +166,9 @@ class XMLRoot:
         Returns:
             The original XMLRoot with the added copyright attributions.
         """
-        if ids_exist := set(copyright_dict.keys()).intersection(
-            self.copyright_attributions.get_copyright_attribution_ids()
-        ):
+        if existing_ids := set(copyright_dict.keys()).intersection(self.copyright_attributions.get_ids()):
             raise InputError(
-                f"The following copyright IDs already exist: {", ".join(ids_exist)}. All IDs must be unique."
+                f"The following copyright IDs already exist: {", ".join(existing_ids)}. All IDs must be unique."
             )
         copyright_list = [CopyrightAttribution(k, v) for k, v in copyright_dict.items()]
         self.copyright_attributions.copyright_attributions.extend(copyright_list)

@@ -13,7 +13,7 @@ from dsp_tools.xmllib.constants import XML_NAMESPACE_MAP
 class Licenses:
     licenses: list[License] = field(default_factory=list)
 
-    def get_license_ids(self) -> set[str]:
+    def get_ids(self) -> set[str]:
         return {x.id_ for x in self.licenses}
 
     def serialise(self) -> etree._Element:

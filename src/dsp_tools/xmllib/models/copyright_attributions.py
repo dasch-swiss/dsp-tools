@@ -13,7 +13,7 @@ from dsp_tools.xmllib.constants import XML_NAMESPACE_MAP
 class CopyrightAttributions:
     copyright_attributions: list[CopyrightAttribution] = field(default_factory=list)
 
-    def get_copyright_attribution_ids(self) -> set[str]:
+    def get_ids(self) -> set[str]:
         return {x.id_ for x in self.copyright_attributions}
 
     def serialise(self) -> etree._Element:

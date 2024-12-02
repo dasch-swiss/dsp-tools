@@ -64,8 +64,8 @@ class TestRootLicenses:
     def test_add_license_with_dict(self) -> None:
         xml_root = XMLRoot("0000", "test", CopyrightAttributions(), Licenses())
         license_dict = {"id1": ("text1", "https://dasch.com/"), "id2": ("text2", None)}
-        xml_root.add_license_with_dict(license_dict)
-        assert xml_root.licenses.get_license_ids() == set(license_dict.keys())
+        xml_root.add_license_multiple(license_dict)
+        assert xml_root.licenses.get_ids() == set(license_dict.keys())
 
 
 class TestRootCopyrightAttributions:
@@ -90,5 +90,5 @@ class TestRootCopyrightAttributions:
     def test_add_copyright_attribution_with_dict(self) -> None:
         xml_root = XMLRoot("0000", "test", CopyrightAttributions(), Licenses())
         copy_dict = {"id1": "text1", "id2": "text2"}
-        xml_root.add_copyright_attribution_with_dict(copy_dict)
-        assert xml_root.copyright_attributions.get_copyright_attribution_ids() == set(copy_dict.keys())
+        xml_root.add_copyright_attribution_multiple(copy_dict)
+        assert xml_root.copyright_attributions.get_ids() == set(copy_dict.keys())

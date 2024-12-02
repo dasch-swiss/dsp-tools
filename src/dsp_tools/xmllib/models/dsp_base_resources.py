@@ -1116,7 +1116,10 @@ def _serialise_segment_children(segment: AudioSegmentResource | VideoSegmentReso
     segment_elements.append(
         etree.Element(
             f"{DASCH_SCHEMA}hasSegmentBounds",
-            attrib={"start": str(segment.segment_bounds.segment_start), "end": str(segment.segment_bounds.segment_end)},
+            attrib={
+                "segment_start": str(segment.segment_bounds.segment_start),
+                "segment_end": str(segment.segment_bounds.segment_end),
+            },
             nsmap=XML_NAMESPACE_MAP,
         )
     )

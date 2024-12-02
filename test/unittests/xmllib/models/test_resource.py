@@ -227,11 +227,20 @@ class TestAddValues:
         assert isinstance(res.values[0], Richtext)
         assert res.values[0].value == "A<br/>B"
 
-    def test_add_richtext_warns(self) -> None:
+    def test_add_richtext_warns_empty_string(self) -> None:
         with pytest.warns(
             DspToolsUserWarning, match=regex.escape("a 'string' does not conform to the expected format")
         ):
             Resource.create_new("res_id", "restype", "label").add_richtext("", "")
+
+    def test_add_richtext_warns_pd_na(self) -> None:
+        with pytest.warns(
+            DspToolsUserWarning,
+            match=regex.escape(
+                "Resource 'res_id' has a richtext value that is not a string: Value: <NA> | Property: :prop"
+            ),
+        ):
+            Resource.create_new("res_id", "restype", "label").add_richtext(":prop", pd.NA)  # type: ignore[arg-type]
 
     def test_add_richtext_no_replace(self) -> None:
         res = Resource.create_new("res_id", "restype", "label").add_richtext(

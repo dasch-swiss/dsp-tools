@@ -850,6 +850,12 @@ class Resource:
         Returns:
             The original resource, with the added value
         """
+        if not is_string_like(value):
+            msg = (
+                f"Resource '{self.res_id}' has a richtext value that is not a string: "
+                f"Value: {value} | Property: {prop_name}"
+            )
+            warnings.warn(DspToolsUserWarning(msg))
         value = replace_newlines_with_tags(str(value), newline_replacement)
         self.values.append(Richtext(value, prop_name, permissions, comment, self.res_id))
         return self

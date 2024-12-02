@@ -88,7 +88,8 @@ class XMLRoot:
         Please note that the id must be unique.
 
         Args:
-            id_: ID which is referenced in the attributes of the XML
+            id_: which can be referenced in a `<bitstream>`
+                or `<iiif-uri>` attribute, e.g. `<bitstream license="your_ID">`
             text: Text that should be displayed in the APP.
             uri: Optional URI liking to the license documentation.
                 A `pd.isna()` check is done before adding the URI, therefore any value is permissible.
@@ -140,7 +141,8 @@ class XMLRoot:
         Please note that the id must be unique.
 
         Args:
-            id_: ID which is referenced in the attributes of the XML
+            id_: which can be referenced in a `<bitstream>`
+                or `<iiif-uri>` attribute, e.g. `<bitstream license="your_ID">`
             text: Text that should be displayed in the APP.
 
         Raises:

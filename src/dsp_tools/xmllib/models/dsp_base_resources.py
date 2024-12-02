@@ -306,8 +306,10 @@ class RegionResource:
     def add_comment_optional(self, comment: Any) -> RegionResource:
         """
         If the value is not empty, add it as comment, otherwise return the resource unchanged.
+
         Args:
             comment: text or empty value
+
         Returns:
             The original resource, with the added comment
         """

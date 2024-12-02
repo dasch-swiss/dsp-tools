@@ -1,3 +1,5 @@
+from typing import Any
+
 import pandas as pd
 import pytest
 import regex
@@ -8,6 +10,7 @@ from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.file_values import FileValue
 from dsp_tools.xmllib.models.file_values import IIIFUri
 from dsp_tools.xmllib.models.resource import Resource
+from dsp_tools.xmllib.models.resource import _check_and_fix_collection_input
 from dsp_tools.xmllib.models.values import BooleanValue
 from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import DateValue
@@ -214,6 +217,11 @@ class TestAddValues:
         assert len(res.values) == 2
         assert all([isinstance(x, SimpleText) for x in res.values])
 
+    def test_add_simple_text_multiple_input_non_list(self) -> None:
+        res = Resource.create_new("res_id", "restype", "label").add_simpletext_multiple(":prop", "text1")
+        assert len(res.values) == 1
+        assert all([isinstance(x, SimpleText) for x in res.values])
+
     def test_add_simple_text_optional(self) -> None:
         res = Resource.create_new("res_id", "restype", "label").add_simpletext_optional(":prop", None)
         assert not res.values
@@ -347,6 +355,23 @@ class TestAddFiles:
         )
         with pytest.raises(InputError, match=msg):
             res.add_iiif_uri("new IIIF")
+
+
+@pytest.mark.parametrize(
+    ("input_val", "expected_val"),
+    [(1, [1]), (True, [True]), ("string", ["string"]), ([1, 2], [1, 2]), ((1, 2), (1, 2)), ({1, 2}, {1, 2})],
+)
+def test_check_and_fix_collection_input_success(input_val: Any, expected_val: list[Any]) -> None:
+    assert _check_and_fix_collection_input(input_val, "id", "prop") == expected_val
+
+
+def test_check_and_fix_collection_input_raises() -> None:
+    msg = regex.escape(
+        "The list input of the resource with the ID 'id' and the property 'prop' is a dictionary. "
+        "Only collections (set, list, tuple) are permissible."
+    )
+    with pytest.raises(InputError, match=msg):
+        _check_and_fix_collection_input({1: 1}, "id", "prop")
 
 
 if __name__ == "__main__":

@@ -1202,17 +1202,14 @@ def _check_richtext_before_conversion(value: Any, res_id: str, prop_name: str) -
 
 
 def _check_and_fix_collection_input(value: Any, res_id: str, prop_name: str) -> Collection[Any]:
-    if not isinstance(value, Collection):
-        value = [value]
-    problematic_values = []
-    for val in value:
-        if not is_nonempty_value(val):
-            problematic_values.append(val)
-    if problematic_values:
-        msg = (
-            f"The list given to the resource with the ID '{res_id}' and the property '{prop_name}' "
-            f"may only contain non empty values. "
-            f"The following values may be problematic: {', '.join(problematic_values)}"
-        )
-        warnings.warn(DspToolsUserWarning(msg))
-    return value
+    match value:
+        case set() | list() | tuple():
+            return value
+        case dict():
+            msg = (
+                f"The list input of the resource with the ID '{res_id}' and the property '{prop_name}' is a dictionary."
+                f" Only collections (set, list, tuple) are permissible."
+            )
+            raise InputError(msg)
+        case _:
+            return [value]

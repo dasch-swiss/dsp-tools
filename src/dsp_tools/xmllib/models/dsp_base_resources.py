@@ -133,7 +133,7 @@ class RegionResource:
     label: str
     region_of: str
     geometry: GeometryShape | None
-    comments: list[str]
+    comments: list[str] = field(default_factory=list)
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
 
@@ -146,7 +146,6 @@ class RegionResource:
         res_id: str,
         label: str,
         region_of: str,
-        comments: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> RegionResource:
         """
@@ -162,7 +161,7 @@ class RegionResource:
             res_id: ID of this region resource
             label: label of this region resource
             region_of: ID of the image resource that this region refers to (cardinality 1)
-            comments: comments to this region (cardinality 1-n)
+            comments: comments to this region (cardinality 0-n)
             permissions: permissions of this region resource
 
         Returns:
@@ -173,7 +172,7 @@ class RegionResource:
             label=label,
             region_of=region_of,
             geometry=None,
-            comments=list(comments),
+            comments=[],
             permissions=permissions,
         )
 
@@ -278,6 +277,40 @@ class RegionResource:
             active=active,
             resource_id=self.res_id,
         )
+        return self
+
+    def add_comment(self, comment: str) -> RegionResource:
+        """
+        Add a comment to the resource
+        Args:
+            comment: text
+        Returns:
+            The original resource, with the added comment
+        """
+        self.comments.append(comment)
+        return self
+
+    def add_comment_multiple(self, comments: Collection[str]) -> RegionResource:
+        """
+        Add several comments to the resource
+        Args:
+            comments: list of texts
+        Returns:
+            The original resource, with the added comments
+        """
+        self.comments.extend(comments)
+        return self
+
+    def add_comment_optional(self, comment: Any) -> RegionResource:
+        """
+        If the value is not empty, add it as comment, otherwise return the resource unchanged.
+        Args:
+            comment: text or empty value
+        Returns:
+            The original resource, with the added comment
+        """
+        if is_nonempty_value(comment):
+            self.comments.append(comment)
         return self
 
     def add_migration_metadata(

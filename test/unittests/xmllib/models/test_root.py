@@ -4,6 +4,7 @@ import regex
 
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.xmllib.constants import DASCH_SCHEMA
+from dsp_tools.xmllib.models.config_options import PredefinedLicenses
 from dsp_tools.xmllib.models.copyright_attributions import CopyrightAttribution
 from dsp_tools.xmllib.models.copyright_attributions import CopyrightAttributions
 from dsp_tools.xmllib.models.dsp_base_resources import AnnotationResource
@@ -44,7 +45,9 @@ def test_root_add_resources() -> None:
 class TestRootLicenses:
     def test_default(self) -> None:
         xml_root = XMLRoot.create_new("0000", "test")
-        assert len(xml_root.licenses.licenses) == 8
+        licenses_returned = set([x.id_ for x in xml_root.licenses.licenses])
+        licenses_in_config = {x.value for x in PredefinedLicenses}
+        assert licenses_returned == licenses_in_config
 
     def test_add_license_success(self) -> None:
         xml_root = XMLRoot("0000", "test", CopyrightAttributions(), Licenses())

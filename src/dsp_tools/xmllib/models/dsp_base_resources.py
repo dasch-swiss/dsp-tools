@@ -78,46 +78,6 @@ class AnnotationResource:
             permissions=permissions,
         )
 
-    def add_comment(self, comment: str) -> AnnotationResource:
-        """
-        Add a comment to the resource
-
-        Args:
-            comment: text
-
-        Returns:
-            The original resource, with the added comment
-        """
-        self.comments.append(comment)
-        return self
-
-    def add_comment_multiple(self, comments: Collection[str]) -> AnnotationResource:
-        """
-        Add several comments to the resource
-
-        Args:
-            comments: List of texts
-
-        Returns:
-            The original resource, with the added comments
-        """
-        self.comments.extend(comments)
-        return self
-
-    def add_comment_optional(self, comment: Any) -> AnnotationResource:
-        """
-        If the value is not empty, add it as comment, otherwise return the resource unchanged.
-
-        Args:
-            comment: text or empty value
-
-        Returns:
-            The original resource, with the added comment
-        """
-        if is_nonempty_value(comment):
-            self.comments.append(comment)
-        return self
-
     def add_migration_metadata(
         self, creation_date: str | None, iri: str | None = None, ark: str | None = None
     ) -> AnnotationResource:
@@ -173,7 +133,7 @@ class RegionResource:
     label: str
     region_of: str
     geometry: GeometryShape | None
-    comments: list[str]
+    comments: list[str] = field(default_factory=list)
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
 
@@ -186,7 +146,6 @@ class RegionResource:
         res_id: str,
         label: str,
         region_of: str,
-        comments: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> RegionResource:
         """
@@ -202,7 +161,6 @@ class RegionResource:
             res_id: ID of this region resource
             label: label of this region resource
             region_of: ID of the image resource that this region refers to (cardinality 1)
-            comments: comments to this region (cardinality 1-n)
             permissions: permissions of this region resource
 
         Returns:
@@ -213,7 +171,6 @@ class RegionResource:
             label=label,
             region_of=region_of,
             geometry=None,
-            comments=list(comments),
             permissions=permissions,
         )
 
@@ -392,12 +349,6 @@ class RegionResource:
         res_ele.extend(self._serialise_values())
         if self.comments:
             res_ele.append(_serialise_has_comment(self.comments, self.res_id))
-        else:
-            msg = (
-                f"The region with the ID '{self.res_id}' does not have any comments. "
-                f"At least one comment must be provided, please note that an xmlupload will fail."
-            )
-            warnings.warn(DspToolsUserWarning(msg))
         return res_ele
 
     def _serialise_resource_element(self) -> etree._Element:
@@ -472,46 +423,6 @@ class LinkResource:
             comments=list(comments),
             permissions=permissions,
         )
-
-    def add_comment(self, comment: str) -> LinkResource:
-        """
-        Add a comment to the resource
-
-        Args:
-            comment: text
-
-        Returns:
-            The original resource, with the added comment
-        """
-        self.comments.append(comment)
-        return self
-
-    def add_comment_multiple(self, comments: Collection[str]) -> LinkResource:
-        """
-        Add several comments to the resource
-
-        Args:
-            comments: list of texts
-
-        Returns:
-            The original resource, with the added comments
-        """
-        self.comments.extend(comments)
-        return self
-
-    def add_comment_optional(self, comment: Any) -> LinkResource:
-        """
-        If the value is not empty, add it as comment, otherwise return the resource unchanged.
-
-        Args:
-            comment: text or empty value
-
-        Returns:
-            The original resource, with the added comment
-        """
-        if is_nonempty_value(comment):
-            self.comments.append(comment)
-        return self
 
     def add_migration_metadata(
         self, creation_date: str | None, iri: str | None = None, ark: str | None = None
@@ -1205,7 +1116,10 @@ def _serialise_segment_children(segment: AudioSegmentResource | VideoSegmentReso
     segment_elements.append(
         etree.Element(
             f"{DASCH_SCHEMA}hasSegmentBounds",
-            attrib={"start": str(segment.segment_bounds.segment_start), "end": str(segment.segment_bounds.segment_end)},
+            attrib={
+                "segment_start": str(segment.segment_bounds.segment_start),
+                "segment_end": str(segment.segment_bounds.segment_end),
+            },
             nsmap=XML_NAMESPACE_MAP,
         )
     )

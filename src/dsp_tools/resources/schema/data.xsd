@@ -474,7 +474,7 @@
     <!-- region tag -->
     <xs:complexType name="region_type">
         <xs:all>
-            <xs:element name="text-prop" type="builtin_hasComment_prop_type" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="text-prop" type="builtin_hasComment_prop_type" minOccurs="0"/>
             <xs:element name="resptr-prop" type="builtin_isRegionOf_prop_type" minOccurs="1" maxOccurs="1"/>
             <xs:element name="geometry-prop" type="builtin_hasGeometry_prop_type" minOccurs="1" maxOccurs="1"/>
             <xs:element name="color-prop" type="builtin_hasColor_prop_type" minOccurs="1" maxOccurs="1"/>

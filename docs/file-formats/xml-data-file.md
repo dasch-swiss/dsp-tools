@@ -952,7 +952,7 @@ A `<region>` resource defines a region of interest (ROI) in an image. It must ha
 - `hasColor` (1)
 - `isRegionOf` (1)
 - `hasGeometry` (1)
-- `hasComment` (1-n)
+- `hasComment` (0-n)
 
 Example:
 

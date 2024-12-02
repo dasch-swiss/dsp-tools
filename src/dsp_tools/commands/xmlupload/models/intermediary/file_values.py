@@ -14,14 +14,12 @@ class IntermediaryFileMetadata:
 
 
 @dataclass
-class IntermediaryAbstractFileValue:
+class IntermediaryFileValue:
     value: str
     metadata: IntermediaryFileMetadata | None
 
 
 @dataclass
-class IntermediaryFileValue(IntermediaryAbstractFileValue): ...
-
-
-@dataclass
-class IntermediaryIIIFUri(IntermediaryAbstractFileValue): ...
+class IntermediaryIIIFUri:
+    value: str
+    metadata: IntermediaryFileMetadata | None

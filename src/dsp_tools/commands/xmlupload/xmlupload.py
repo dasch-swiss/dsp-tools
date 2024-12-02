@@ -164,7 +164,7 @@ def prepare_upload(
 
 
 def _validate_iiif_uris(root: etree._Element) -> None:
-    uris = [uri for node in root.iter(tag="iiif-uri") if (uri := node.text)]
+    uris = [uri.strip() for node in root.iter(tag="iiif-uri") if (uri := node.text)]
     if problems := IIIFUriValidator(uris).validate():
         msg = problems.get_msg()
         warnings.warn(DspToolsUserWarning(msg))

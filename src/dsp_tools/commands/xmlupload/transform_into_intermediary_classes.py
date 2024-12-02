@@ -54,15 +54,33 @@ TYPE_TRANSFORMER_MAPPER = {
 }
 
 
-def transform_into_intermediary_classes(
+def transform_into_intermediary_resources(
     resources: list[XMLResource], lookups: IntermediaryLookup
 ) -> list[IntermediaryResource]:
     pass
 
 
 def _transform_one_resource(resource: XMLResource, lookups: IntermediaryLookup) -> IntermediaryResource:
-    pass
-
+    all_values = _transform_all_properties(resource.properties, lookups)
+    permissions = _resolve_permission(resource.permissions, lookups.permissions)
+    migration_metadata, file_value, iiif_uri = None, None, None
+    if any([resource.ark, resource.creation_date, resource.iri]):
+        migration_metadata = _transform_migration_metadata(resource)
+    if resource.bitstream:
+        file_value = _transform_file_value(resource.bitstream, lookups)
+    elif resource.iiif_uri:
+        iiif_uri = _transform_iiif_uri_value(resource.iiif_uri, lookups)
+    type_iri = _get_absolute_iri(resource.restype, lookups.namespaces)
+    return IntermediaryResource(
+        res_id=resource.res_id,
+        type_iri=type_iri,
+        label=resource.label,
+        permissions=permissions,
+        values=all_values,
+        file_value=file_value,
+        iiif_uri=iiif_uri,
+        migration_metadata=migration_metadata,
+    )
 
 
 def _transform_migration_metadata(resource: XMLResource) -> MigrationMetadata:
@@ -84,6 +102,13 @@ def _transform_iiif_uri_value(iiif_uri: IIIFUriInfo, lookups: IntermediaryLookup
         _resolve_permission(iiif_uri.permissions, lookups.permissions), None, None, None
     )
     return IntermediaryIIIFUri(iiif_uri.value, metadata)
+
+
+def _transform_all_properties(properties: list[XMLProperty], lookups: IntermediaryLookup) -> list[IntermediaryValue]:
+    all_values = []
+    for prop in properties:
+        all_values.extend(_transform_one_property(prop, lookups))
+    return all_values
 
 
 def _transform_one_property(prop: XMLProperty, lookups: IntermediaryLookup) -> list[IntermediaryValue]:

@@ -122,7 +122,7 @@ class XMLResource:
                     bitstream = XMLBitstream.from_node(subnode)
                 case "iiif-uri":
                     iiif_uri = IIIFUriInfo.from_node(subnode)
-                case "isSegmentOf" | "relatesTo":
+                case "isAudioSegmentOf" | "isVideoSegmentOf" | "relatesTo":
                     ungrouped_properties.append(XMLProperty.from_node(subnode, "resptr", default_ontology))
                 case "hasSegmentBounds":
                     ungrouped_properties.append(XMLProperty.from_node(subnode, "interval", default_ontology))

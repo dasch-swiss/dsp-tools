@@ -55,7 +55,7 @@ class XMLProperty:
     def _get_name(node: etree._Element, default_ontology: str) -> str:
         # get the property name which is in format namespace:propertyname, p.ex. rosetta:hasName
         orig = node.attrib.get("name")
-        if not orig:  # tags like <isSegmentOf> don't have a name attribute
+        if not orig:  # tags like <isVideoSegmentOf> don't have a name attribute
             return f"knora-api:{node.tag}"
         elif ":" not in orig:
             return f"knora-api:{orig}"

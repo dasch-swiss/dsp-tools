@@ -874,11 +874,6 @@
     <region label="Circle in image"
             id="region_3"
             permissions="restricted-view">
-        <text-prop name="hasComment">
-            <text encoding="xml" permissions="open">
-                This is a circle-formed region of interest of an image. It is also displayed as Annotation.
-            </text>
-        </text-prop>
         <geometry-prop name="hasGeometry">
             <geometry permissions="open">
                 {

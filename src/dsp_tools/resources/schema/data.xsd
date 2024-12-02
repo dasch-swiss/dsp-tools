@@ -4,7 +4,10 @@
            targetNamespace="https://dasch.swiss/schema"
            elementFormDefault="qualified">
 
-    <!-- nonEmptyString-->
+    <!-- nonEmptyString
+        Data of type xs:string are not modified by the XML processor, 
+        so the xs:pattern is applied to the original string
+    -->
     <xs:simpleType name="nonEmptyString">
         <xs:restriction base="xs:string">
             <xs:minLength value="1"/>
@@ -13,8 +16,8 @@
     </xs:simpleType>
 
     <!-- nonEmptyString_pretty_printed
-        xs:token is derived from string, but before validating, 
-        it removes line feeds, carriage returns, tabs, leading and trailing spaces, and multiple spaces.
+        xs:token is derived from string, but before the xs:pattern is applied, 
+        the XML processor removes line feeds, carriage returns, tabs, leading and trailing spaces, and multiple spaces.
     -->
     <xs:simpleType name="nonEmptyString_pretty_printed">
         <xs:restriction base="xs:token">

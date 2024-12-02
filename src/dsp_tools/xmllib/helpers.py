@@ -402,3 +402,47 @@ def make_xsd_compatible_id_with_uuid(input_value: str | float | int) -> str:
     _uuid = uuid.uuid4()
     res = f"{res}_{_uuid}"
     return res
+
+
+def create_list_from_string(string: str, separator: str) -> list[str]:
+    """
+    Creates a list from a string.
+    Trailing and leading whitespaces are removed from the list items.
+
+    Args:
+        string: input string
+        separator: The character that separates the different values in the string.
+            For example, a comma or newline
+
+    Returns:
+        A list with the input.
+        If the original string is empty or consists only of whitespace characters, the resulting list will be empty.
+
+    Raises:
+        InputError: If the input value is not a string.
+    """
+    if not isinstance(string, str):
+        raise InputError(f"The input for this function must be a string. Your input is a {type(string)}.")
+    return [strpd for x in string.split(separator) if (strpd := x.strip())]
+
+
+def create_non_empty_list_from_string(string: str, separator: str) -> list[str]:
+    """
+    Creates a list from a string.
+    Trailing and leading whitespaces are removed from the list items.
+
+    Args:
+        string: input string
+        separator: The character that separates the different values in the string.
+            For example, a comma or newline
+
+    Returns:
+        A list with the input.
+
+    Raises:
+        InputError: If the resulting list is empty.
+    """
+    lst = create_list_from_string(string, separator)
+    if len(lst) == 0:
+        raise InputError(f"The resulting list of the input string: {string} is empty.")
+    return lst

@@ -850,12 +850,10 @@ class Resource:
         Returns:
             The original resource, with the added value
         """
-        if not is_string_like(value):
-            msg = (
-                f"Resource '{self.res_id}' has a richtext value that is not a string: "
-                f"Value: {value} | Property: {prop_name}"
-            )
-            warnings.warn(DspToolsUserWarning(msg))
+        # Because of the conversion, the richtext is converted to a string values such as `pd.NA`
+        # are not recognised as empty any more.
+        # Therefore, this additional check is required here.
+        _check_richtext_before_conversion(value, self.res_id, prop_name)
         value = replace_newlines_with_tags(str(value), newline_replacement)
         self.values.append(Richtext(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -890,6 +888,11 @@ class Resource:
         Returns:
             The original resource, with the added values
         """
+        # Because of the conversion, the richtext is converted to a string values such as `pd.NA`
+        # are not recognised as empty any more.
+        # Therefore, this additional check is required here.
+        for val in values:
+            _check_richtext_before_conversion(val, self.res_id, prop_name)
         values = [replace_newlines_with_tags(str(v), newline_replacement) for v in values]
         self.values.extend([Richtext(v, prop_name, permissions, comment, self.res_id) for v in values])
         return self
@@ -1179,3 +1182,11 @@ class Resource:
             )
         self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
         return self
+
+
+def _check_richtext_before_conversion(value: Any, res_id: str, prop_name: str) -> None:
+    if not is_string_like(value):
+        msg = (
+            f"Resource '{res_id}' has a richtext value that is not a string: " f"Value: {value} | Property: {prop_name}"
+        )
+        warnings.warn(DspToolsUserWarning(msg))

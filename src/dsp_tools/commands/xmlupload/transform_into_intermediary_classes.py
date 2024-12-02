@@ -1,5 +1,6 @@
 from typing import Callable
 
+from dsp_tools.commands.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import IIIFUriInfo
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLBitstream
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
@@ -68,7 +69,10 @@ def _transform_segment(resource: XMLResource, lookups: IntermediaryLookup) -> In
 
 
 def _transform_migration_metadata(resource: XMLResource) -> MigrationMetadata:
-    pass
+    res_iri = resource.iri
+    if resource.ark:
+        res_iri = convert_ark_v0_to_resource_iri(resource.ark)
+    return MigrationMetadata(res_iri, resource.creation_date)
 
 
 def _transform_file_value(bitstream: XMLBitstream, lookups: IntermediaryLookup) -> IntermediaryFileValue:

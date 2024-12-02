@@ -1087,7 +1087,7 @@ class Resource:
         filename: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         copyright_id: str | None = None,
-        license_id: str | None | PredefinedLicenses = None,
+        license_id: str | PredefinedLicenses| None  = None,
         comment: str | None = None,
     ) -> Resource:
         """
@@ -1127,7 +1127,7 @@ class Resource:
         iiif_uri: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         copyright_id: str | None = None,
-        license_id: str | None | PredefinedLicenses = None,
+        license_id: str | PredefinedLicenses| None  = None,
         comment: str | None = None,
     ) -> Resource:
         """

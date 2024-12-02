@@ -316,12 +316,14 @@ class TestRichtext:
             Richtext(None, ":richtextProp", resource_id="res_id", permissions=Permissions.OPEN)  # type: ignore[arg-type]
 
     def test_serialise(self) -> None:
-        v = Richtext("<p>Hello World</p>", ":richtextProp", resource_id="res_id", permissions=Permissions.OPEN)
+        v = Richtext(
+            "<otherTag>Hello World</otherTag>", ":richtextProp", resource_id="res_id", permissions=Permissions.OPEN
+        )
         expected = (
             b"<text-prop "
             b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'name=":richtextProp">'
-            b'<text encoding="xml" permissions="open">&lt;p&gt;Hello World&lt;/p&gt;</text>'
+            b'<text encoding="xml" permissions="open">&lt;otherTag&gt;Hello World&lt;/otherTag&gt;</text>'
             b"</text-prop>"
         )
         res_str = etree.tostring(v.serialise())
@@ -333,7 +335,7 @@ class TestRichtext:
             b"<text-prop "
             b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'name=":richtextProp">'
-            b'<text encoding="xml">&lt;p&gt;Hello World&lt;/p&gt;</text>'
+            b'<text encoding="xml"><p>Hello World</p></text>'
             b"</text-prop>"
         )
         res_str = etree.tostring(v.serialise())

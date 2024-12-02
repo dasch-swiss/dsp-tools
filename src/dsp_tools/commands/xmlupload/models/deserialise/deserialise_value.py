@@ -212,7 +212,7 @@ class XMLBitstream:
         """Factory that parses a bitstream node from the XML DOM"""
         if not node.text:
             raise XmlUploadError("Empty bitstream tag")
-        return XMLBitstream(node.text, node.get("permissions"))
+        return XMLBitstream(node.text.strip(), node.get("permissions"))
 
 
 @dataclass(frozen=True)
@@ -233,4 +233,4 @@ class IIIFUriInfo:
         """Factory that parses an IIIF URI node from the XML DOM"""
         if not node.text:
             raise XmlUploadError("Empty IIIF URI tag")
-        return IIIFUriInfo(node.text, node.get("permissions"))
+        return IIIFUriInfo(node.text.strip(), node.get("permissions"))

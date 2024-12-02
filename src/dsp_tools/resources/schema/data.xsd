@@ -8,15 +8,15 @@
     <xs:simpleType name="nonEmptyString">
         <xs:restriction base="xs:string">
             <xs:minLength value="1"/>
-            <xs:pattern value=".*\w*.*"/>
+            <xs:pattern value=".*\S+.*"/>
         </xs:restriction>
     </xs:simpleType>
 
     <!-- nonEmptyString_pretty_printed-->
     <xs:simpleType name="nonEmptyString_pretty_printed">
-        <xs:restriction base="xs:string">
+        <xs:restriction base="xs:token">
             <xs:minLength value="1"/>
-            <xs:pattern value=".*\w*.*"/>
+            <xs:pattern value=".*\S+.*"/>
         </xs:restriction>
     </xs:simpleType>
 

@@ -1087,7 +1087,7 @@ class Resource:
         filename: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         copyright_id: str | None = None,
-        license_id: str | PredefinedLicenses| None  = None,
+        license_id: str | PredefinedLicenses | None = None,
         comment: str | None = None,
     ) -> Resource:
         """
@@ -1098,8 +1098,10 @@ class Resource:
         Args:
             filename: path to the file
             permissions: optional permissions of this file
-            copyright_id: optional ID to the copyright information of this file
-            license_id: optional ID to the license information of this file
+            copyright_id:  ID of a copyright defined in the root.
+                You can only reference copyright IDs are added to the root.
+            license_id:  ID of a license defined in the root.
+                You can only reference license IDs are added to the root.
             comment: optional comment
 
         Raises:
@@ -1127,7 +1129,7 @@ class Resource:
         iiif_uri: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         copyright_id: str | None = None,
-        license_id: str | PredefinedLicenses| None  = None,
+        license_id: str | PredefinedLicenses | None = None,
         comment: str | None = None,
     ) -> Resource:
         """
@@ -1138,8 +1140,10 @@ class Resource:
         Args:
             iiif_uri: valid IIIF URI
             permissions: optional permissions of this value
-            copyright_id: optional ID to the copyright information of this image
-            license_id: optional ID to the license information of this image
+            copyright_id:  ID of a copyright defined in the root.
+                You can only reference copyright IDs are added to the root.
+            license_id:  ID of a license defined in the root.
+                You can only reference license IDs are added to the root.
             comment: optional comment
 
         Raises:

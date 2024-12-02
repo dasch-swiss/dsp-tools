@@ -9,7 +9,6 @@ from typing import Any
 from typing import TypeAlias
 from typing import Union
 
-import pandas as pd
 from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
@@ -29,6 +28,7 @@ from dsp_tools.xmllib.models.licenses import License
 from dsp_tools.xmllib.models.licenses import Licenses
 from dsp_tools.xmllib.models.permissions import XMLPermissions
 from dsp_tools.xmllib.models.resource import Resource
+from dsp_tools.xmllib.value_checkers import is_nonempty_value
 
 # ruff: noqa: D101
 
@@ -92,7 +92,7 @@ class XMLRoot:
                 or `<iiif-uri>` attribute, e.g. `<bitstream license="your_ID">`
             text: Text that should be displayed in the APP.
             uri: Optional URI linking to the license documentation.
-                A `pd.isna()` check is done before adding the URI, therefore any value is permissible.
+                If the URI value is not empty it will be added.
 
         Raises:
             InputError: If the id already exists
@@ -102,7 +102,7 @@ class XMLRoot:
         """
         if license_id in self.licenses.get_ids():
             raise InputError(f"A license with the ID '{license_id}' already exists. All IDs must be unique.")
-        new_uri = None if pd.isna(uri) else uri
+        new_uri = None if not is_nonempty_value(uri) else uri
         self.licenses.licenses.append(License(license_id, text, new_uri))
         return self
 
@@ -114,7 +114,7 @@ class XMLRoot:
         Args:
             licenses_dict: dictionary with the information for licenses.
                 It should have the following structure: `{ id: (text, uri) }`
-                A `pd.isna()` check is done before adding the URI, therefore, any value is permissible.
+                If the URI value is not empty it will be added.
 
         Raises:
             InputError: If the id already exists
@@ -127,7 +127,7 @@ class XMLRoot:
                 f"The following license IDs already exist: {", ".join(existing_ids)}. All IDs must be unique."
             )
         for license_id, info_tuple in licenses_dict.items():
-            new_uri = None if pd.isna(info_tuple[1]) else info_tuple[1]
+            new_uri = None if not is_nonempty_value(info_tuple[1]) else info_tuple[1]
             self.licenses.licenses.append(License(license_id, info_tuple[0], new_uri))
         return self
 

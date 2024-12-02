@@ -1201,7 +1201,7 @@ def _check_richtext_before_conversion(value: Any, res_id: str, prop_name: str) -
         warnings.warn(DspToolsUserWarning(msg))
 
 
-def _check_and_fix_collection_input(value: Any, res_id: str, prop_name: str) -> Collection[Any]:
+def _check_and_fix_collection_input(value: Any, res_id: str, prop_name: str) -> list[Any]:
     msg = f"The input value of the resource with the ID '{res_id}' and the property '{prop_name}'"
     match value:
         case set() | list() | tuple():

@@ -30,11 +30,10 @@ def convert_to_bool_string(value: Any) -> str:
 def replace_newlines_with_tags(text: str, converter_option: NewlineReplacement) -> str:
     """
     Converts the newlines in a string to XML tags.
-    The type of tags is specified through the converter_option enum.
 
     Args:
         text: string to convert
-        converter_option: tag options
+        converter_option: specifies what tag to use instead of the newline
 
     Returns:
         String with replaced values

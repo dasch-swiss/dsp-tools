@@ -10,6 +10,7 @@ from lxml import etree
 from namedentities.core import numeric_entities  # type: ignore[import-untyped]
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
+from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.uri_util import is_uri
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.value_checkers import check_richtext_syntax
@@ -393,7 +394,7 @@ class Richtext(Value):
             )
             msg += f"\nOriginal error message: {err.msg}"
             msg += f"\nEventual line/column numbers are relative to this text: {pseudo_xml}"
-            warnings.warn(DspToolsUserWarning(msg))
+            raise InputError(msg) from None
         new_element.text = parsed.text  # everything before the first child tag
         new_element.extend(list(parsed))  # all (nested) children of the pseudo-xml
         return new_element

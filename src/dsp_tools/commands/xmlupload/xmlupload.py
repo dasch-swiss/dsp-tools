@@ -361,7 +361,6 @@ def _upload_one_resource(
     except KeyboardInterrupt:
         _handle_keyboard_interrupt()
 
-
     iri = None
     try:
         serialised_resource = create_resource_with_values(

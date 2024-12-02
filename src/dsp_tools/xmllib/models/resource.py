@@ -1207,8 +1207,8 @@ def _check_and_fix_collection_input(value: Any, res_id: str, prop_name: str) -> 
             return value
         case dict():
             msg = (
-                f"The list input of the resource with the ID '{res_id}' and the property '{prop_name}' is a dictionary."
-                f" Only collections (set, list, tuple) are permissible."
+                f"The input of the resource with the ID '{res_id}' and the property '{prop_name}' is a dictionary."
+                f" Only collections (list, set, tuple) are permissible."
             )
             raise InputError(msg)
         case _:

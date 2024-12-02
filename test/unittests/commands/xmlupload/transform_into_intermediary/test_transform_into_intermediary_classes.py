@@ -26,6 +26,7 @@ from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _tr
 from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_iiif_uri_value
 from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_one_property
 from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_one_resource
+from dsp_tools.models.datetimestamp import DateTimeStamp
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import PermissionNotExistsError
 from dsp_tools.utils.date_util import Date
@@ -66,7 +67,7 @@ class TestTransformResource:
         assert not result.file_value
         metadata = result.migration_metadata
         assert isinstance(metadata, MigrationMetadata)
-        assert metadata.iri_str == ""
+        assert metadata.iri_str == "http://rdfh.ch/4123/5d5d1FKaUC2Wfl4zicggfg"
         assert metadata.creation_date == "1999-12-31T23:59:59.9999999+01:00"
 
     def test_with_iri(self, resource_with_iri: XMLResource, lookups: IntermediaryLookup) -> None:
@@ -80,7 +81,7 @@ class TestTransformResource:
         metadata = result.migration_metadata
         assert isinstance(metadata, MigrationMetadata)
         assert metadata.iri_str == "http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA"
-        assert metadata.creation_date == "1999-12-31T23:59:59.9999999+01:00"
+        assert not metadata.creation_date
 
     def test_resource_with_ark_and_iri(
         self, resource_with_ark_and_iri: XMLResource, lookups: IntermediaryLookup
@@ -94,8 +95,8 @@ class TestTransformResource:
         assert not result.file_value
         metadata = result.migration_metadata
         assert isinstance(metadata, MigrationMetadata)
-        assert metadata.iri_str == ""
-        assert metadata.creation_date == "1999-12-31T23:59:59.9999999+01:00"
+        assert metadata.iri_str == "http://rdfh.ch/4123/5d5d1FKaUC2Wfl4zicggfg"
+        assert metadata.creation_date == DateTimeStamp("1999-12-31T23:59:59.9999999+01:00")
 
     def test_unknown_permission(
         self, resource_with_unknown_permissions: XMLResource, lookups: IntermediaryLookup

@@ -61,15 +61,15 @@ def transform_into_intermediary_resources(
 
 
 def _transform_one_resource(resource: XMLResource, lookups: IntermediaryLookup) -> IntermediaryResource:
-    all_values = _transform_all_properties(resource.properties, lookups)
-    permissions = _resolve_permission(resource.permissions, lookups.permissions)
-    migration_metadata, file_value, iiif_uri = None, None, None
-    if any([resource.ark, resource.creation_date, resource.iri]):
-        migration_metadata = _transform_migration_metadata(resource)
+    file_value, iiif_uri, migration_metadata = None, None, None
     if resource.bitstream:
         file_value = _transform_file_value(resource.bitstream, lookups)
     elif resource.iiif_uri:
         iiif_uri = _transform_iiif_uri_value(resource.iiif_uri, lookups)
+    if any([resource.ark, resource.creation_date, resource.iri]):
+        migration_metadata = _transform_migration_metadata(resource)
+    all_values = _transform_all_properties(resource.properties, lookups)
+    permissions = _resolve_permission(resource.permissions, lookups.permissions)
     type_iri = _get_absolute_iri(resource.restype, lookups.namespaces)
     return IntermediaryResource(
         res_id=resource.res_id,

@@ -233,7 +233,7 @@ def resource_with_iri() -> XMLResource:
         label="lbl",
         restype="onto:ResourceType",
         permissions=None,
-        creation_date=DateTimeStamp("1999-12-31T23:59:59.9999999+01:00"),
+        creation_date=None,
         bitstream=None,
         iiif_uri=None,
         properties=[],

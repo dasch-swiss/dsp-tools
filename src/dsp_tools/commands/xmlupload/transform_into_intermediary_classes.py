@@ -5,6 +5,7 @@ from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XM
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
+from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileMetadata
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileValue
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryIIIFUri
 from dsp_tools.commands.xmlupload.models.intermediary.resource import IntermediaryResource
@@ -70,12 +71,18 @@ def _transform_migration_metadata(resource: XMLResource) -> MigrationMetadata:
     pass
 
 
-def _transform_file_value(value: XMLBitstream, lookups: IntermediaryLookup) -> IntermediaryFileValue:
-    pass
+def _transform_file_value(bitstream: XMLBitstream, lookups: IntermediaryLookup) -> IntermediaryFileValue:
+    metadata = IntermediaryFileMetadata(
+        _resolve_permission(bitstream.permissions, lookups.permissions), None, None, None
+    )
+    return IntermediaryFileValue(bitstream.value, metadata)
 
 
-def _transform_iiif_uri_value(value: IIIFUriInfo, lookups: IntermediaryLookup) -> IntermediaryIIIFUri:
-    pass
+def _transform_iiif_uri_value(iiif_uri: IIIFUriInfo, lookups: IntermediaryLookup) -> IntermediaryIIIFUri:
+    metadata = IntermediaryFileMetadata(
+        _resolve_permission(iiif_uri.permissions, lookups.permissions), None, None, None
+    )
+    return IntermediaryIIIFUri(iiif_uri.value, metadata)
 
 
 def _transform_one_property(prop: XMLProperty, lookups: IntermediaryLookup) -> list[IntermediaryValue]:

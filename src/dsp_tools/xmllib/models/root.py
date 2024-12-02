@@ -85,17 +85,17 @@ class XMLRoot:
     def add_license(self, license_id: str, text: str, uri: Any = None) -> XMLRoot:
         """
         Add a new license.
-        Please note that the id must be unique.
+        Please note that the ID must be unique.
 
         Args:
-            license_id: which can be referenced in a `<bitstream>`
+            license_id: ID which can be referenced in a `<bitstream>`
                 or `<iiif-uri>` attribute, e.g. `<bitstream license="your_ID">`
             text: Text that should be displayed in the APP.
             uri: Optional URI linking to the license documentation.
                 If the URI value is not empty, it will be added.
 
         Raises:
-            InputError: If the id already exists
+            InputError: If the ID already exists
 
         Returns:
             The original XMLRoot with the added license.
@@ -117,7 +117,7 @@ class XMLRoot:
                 If the URI value is not empty, it will be added.
 
         Raises:
-            InputError: If the id already exists
+            InputError: If the ID already exists
 
         Returns:
             The original XMLRoot with the added licenses.
@@ -131,28 +131,27 @@ class XMLRoot:
             self.licenses.licenses.append(License(license_id, info_tuple[0], new_uri))
         return self
 
-    def add_copyright_attribution(self, copyright_attribution_id: str, text: str) -> XMLRoot:
+    def add_copyright_attribution(self, copyright_id: str, text: str) -> XMLRoot:
         """
         Add a new copyright attribution.
-        Please note that the id must be unique.
+        Please note that the ID must be unique.
 
         Args:
-            copyright_attribution_id: which can be referenced in a `<bitstream>`
+            copyright_id: ID which can be referenced in a `<bitstream>`
                 or `<iiif-uri>` attribute, e.g. `<bitstream license="your_ID">`
             text: Text that should be displayed in the APP.
 
         Raises:
-            InputError: If the id already exists
+            InputError: If the ID already exists
 
         Returns:
             The original XMLRoot with the added copyright attribution.
         """
-        if copyright_attribution_id in self.copyright_attributions.get_ids():
+        if copyright_id in self.copyright_attributions.get_ids():
             raise InputError(
-                f"A copyright attribution with the ID '{copyright_attribution_id}' already exists. "
-                f"All IDs must be unique."
+                f"A copyright attribution with the ID '{copyright_id}' already exists. " f"All IDs must be unique."
             )
-        self.copyright_attributions.copyright_attributions.append(CopyrightAttribution(copyright_attribution_id, text))
+        self.copyright_attributions.copyright_attributions.append(CopyrightAttribution(copyright_id, text))
         return self
 
     def add_copyright_attribution_multiple(self, copyright_dict: dict[str, str]) -> XMLRoot:
@@ -164,7 +163,7 @@ class XMLRoot:
             copyright_dict: the dictionary should have the following structure: `{ id: text }`
 
         Raises:
-            InputError: If the id already exists
+            InputError: If the ID already exists
 
         Returns:
             The original XMLRoot with the added copyright attributions.

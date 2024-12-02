@@ -172,7 +172,6 @@ class RegionResource:
             label=label,
             region_of=region_of,
             geometry=None,
-            comments=[],
             permissions=permissions,
         )
 
@@ -345,12 +344,6 @@ class RegionResource:
         res_ele.extend(self._serialise_values())
         if self.comments:
             res_ele.append(_serialise_has_comment(self.comments, self.res_id))
-        else:
-            msg = (
-                f"The region with the ID '{self.res_id}' does not have any comments. "
-                f"At least one comment must be provided, please note that an xmlupload will fail."
-            )
-            warnings.warn(DspToolsUserWarning(msg))
         return res_ele
 
     def _serialise_resource_element(self) -> etree._Element:

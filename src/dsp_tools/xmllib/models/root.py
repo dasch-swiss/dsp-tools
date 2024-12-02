@@ -91,7 +91,7 @@ class XMLRoot:
             id_: which can be referenced in a `<bitstream>`
                 or `<iiif-uri>` attribute, e.g. `<bitstream license="your_ID">`
             text: Text that should be displayed in the APP.
-            uri: Optional URI liking to the license documentation.
+            uri: Optional URI linking to the license documentation.
                 A `pd.isna()` check is done before adding the URI, therefore any value is permissible.
 
         Raises:

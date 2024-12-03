@@ -96,7 +96,9 @@ class TestTransformResource:
         metadata = result.migration_metadata
         assert isinstance(metadata, MigrationMetadata)
         assert metadata.iri_str == "http://rdfh.ch/4123/5d5d1FKaUC2Wfl4zicggfg"
-        assert metadata.creation_date == DateTimeStamp("1999-12-31T23:59:59.9999999+01:00")
+        time_stamp = metadata.creation_date
+        assert isinstance(time_stamp, DateTimeStamp)
+        assert time_stamp == DateTimeStamp("1999-12-31T23:59:59.9999999+01:00")
 
     def test_unknown_permission(
         self, resource_with_unknown_permissions: XMLResource, lookups: IntermediaryLookup

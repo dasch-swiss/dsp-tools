@@ -8,7 +8,7 @@ from typing import runtime_checkable
 
 BOLD_RED = "\033[1;31m"  # 1 (bold) ; 31 (red) m (finish or the sequence)
 YELLOW = "\033[0;33m"  # 0 (normal font) ; 33 (yellow) m (finish or the sequence)
-RESET_TO_DEFAULT = "\033[0m"  # reset the previous setting to default of the console
+RESET_TO_DEFAULT = "\033[0m"  # reset the previous setting to the default of the console
 
 
 @runtime_checkable

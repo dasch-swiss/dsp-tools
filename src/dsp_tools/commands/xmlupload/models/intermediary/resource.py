@@ -35,5 +35,5 @@ class IntermediaryResource:
 
 @dataclass
 class MigrationMetadata:
-    iri_str: str
+    iri_str: str | None
     creation_date: DateTimeStamp | None

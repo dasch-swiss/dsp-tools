@@ -70,9 +70,6 @@ class TestCliDepsResources(unittest.TestCase):
         """Test if the resource file 'src/dsp_tools/resources/schema/data.xsd' can be accessed."""
         self._make_cli_call(["xmlupload", "--validate-only", str(self.test_data_minimal_file.absolute())])
 
-    def test_validate_data(self) -> None:
-        """Test if the resource file ''src/dsp_tools/resources/validate_data/api-shapes.ttl cab be accessed."""
-
     def _make_cli_call(self, args: list[str]) -> None:
         """
         Execute a CLI call to dsp-tools, capture its stdout and stderr,

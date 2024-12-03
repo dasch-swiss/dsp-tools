@@ -127,7 +127,7 @@ def _get_metadata(
 ) -> IntermediaryFileMetadata | None:
     perm = _resolve_permission(input_val.permissions, lookups.permissions)
     if perm:
-        return IntermediaryFileMetadata(perm, None, None, None)
+        return IntermediaryFileMetadata(perm)
     return None
 
 

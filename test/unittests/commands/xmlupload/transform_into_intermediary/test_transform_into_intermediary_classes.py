@@ -1,4 +1,3 @@
-
 import pytest
 
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import IIIFUriInfo

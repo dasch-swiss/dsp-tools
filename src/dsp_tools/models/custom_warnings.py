@@ -1,6 +1,13 @@
 from typing import Protocol
 from typing import runtime_checkable
 
+# These are ANSI escape codes which can be used to configure the print output on the terminal
+# https://en.wikipedia.org/wiki/ANSI_escape_code
+
+BOLD_RED = "\033[1;31m"
+YELLOW = "\033[0;33m"
+RESET_TO_DEFAULT = "\033[0m"
+
 
 @runtime_checkable
 class DspToolsWarning(Protocol):
@@ -17,8 +24,7 @@ class DspToolsUserWarning(Warning):
     @classmethod
     def showwarning(cls, message: str) -> None:
         """Print the warning, without context"""
-        red = "\033[0;31m"
-        print(red + f"WARNING: {message}" + red)
+        print(BOLD_RED + f"WARNING: {message}" + RESET_TO_DEFAULT)
 
 
 class DspToolsUserInfo(Warning):
@@ -27,8 +33,7 @@ class DspToolsUserInfo(Warning):
     @classmethod
     def showwarning(cls, message: str) -> None:
         """Print the warning, without context"""
-        yellow = "\033[1;33m"
-        print(yellow + f"INFO: {message}" + yellow)
+        print(YELLOW + f"INFO: {message}" + RESET_TO_DEFAULT)
 
 
 class DspToolsFutureWarning(FutureWarning):
@@ -37,5 +42,4 @@ class DspToolsFutureWarning(FutureWarning):
     @classmethod
     def showwarning(cls, message: str) -> None:
         """Print the warning, without context"""
-        red = "\033[0;31m"
-        print(red + f"DEPRECATION WARNING: {message}" + red)
+        print(BOLD_RED + f"DEPRECATION WARNING: {message}" + RESET_TO_DEFAULT)

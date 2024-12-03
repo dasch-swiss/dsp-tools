@@ -4,6 +4,7 @@ import pandas as pd
 import pytest
 import regex
 
+from dsp_tools.models.custom_warnings import DspToolsUserInfo
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
@@ -364,6 +365,11 @@ class TestAddFiles:
 )
 def test_check_and_fix_collection_input_success(input_val: Any, expected_val: list[Any]) -> None:
     assert _check_and_fix_collection_input(input_val, "id", "prop") == sorted(expected_val)
+
+
+def test_check_and_fix_collection_input_warns() -> None:
+    with pytest.warns(DspToolsUserInfo):
+        _check_and_fix_collection_input([], "id", "prop")
 
 
 def test_check_and_fix_collection_input_raises() -> None:

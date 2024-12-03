@@ -27,7 +27,6 @@ from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _tr
 from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_one_property
 from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_one_resource
 from dsp_tools.models.datetimestamp import DateTimeStamp
-from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import PermissionNotExistsError
 from dsp_tools.utils.date_util import Date
 
@@ -103,7 +102,7 @@ class TestTransformResource:
     def test_unknown_permission(
         self, resource_with_unknown_permissions: XMLResource, lookups: IntermediaryLookup
     ) -> None:
-        with pytest.raises(InputError):
+        with pytest.raises(PermissionNotExistsError):
             _transform_one_resource(resource_with_unknown_permissions, lookups)
 
     def test_bitstream(self, resource_with_bitstream: XMLResource, lookups: IntermediaryLookup) -> None:
@@ -113,7 +112,13 @@ class TestTransformResource:
         assert result.label == "lbl"
         assert not result.permissions
         assert len(result.values) == 0
-        assert not result.file_value
+        file_val = result.file_value
+        assert isinstance(file_val, IntermediaryFileValue)
+        assert file_val.value == "file.jpg"
+        assert not file_val.metadata.permissions
+        assert not file_val.metadata.copyright_text
+        assert not file_val.metadata.license_uri
+        assert not file_val.metadata.license_text
         assert not result.migration_metadata
 
     def test_iiif_uri(self, resource_with_iiif_uri: XMLResource, lookups: IntermediaryLookup) -> None:

@@ -9,7 +9,7 @@ from typing import runtime_checkable
 SEQUENCE_START = "\033["
 
 # the "m" at the end signals,
-# that the configuration code it finished and after that the string that should be printed starts
+# that the configuration code is finished and after that the string that should be printed starts
 SEQUENCE_END = "m"
 
 BOLD_RED = SEQUENCE_START + "1;31" + SEQUENCE_END  # 1 (bold) ; 31 (red)

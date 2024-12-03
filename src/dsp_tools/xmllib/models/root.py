@@ -13,7 +13,6 @@ from lxml import etree
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.xml_validation import validate_xml_file
-from dsp_tools.xmllib.models.dsp_base_resources import AnnotationResource
 from dsp_tools.xmllib.models.dsp_base_resources import AudioSegmentResource
 from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
@@ -26,9 +25,7 @@ from dsp_tools.xmllib.models.resource import Resource
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 
-AnyResource: TypeAlias = Union[
-    Resource, AnnotationResource, RegionResource, LinkResource, VideoSegmentResource, AudioSegmentResource
-]
+AnyResource: TypeAlias = Union[Resource, RegionResource, LinkResource, VideoSegmentResource, AudioSegmentResource]
 
 
 @dataclass
@@ -58,7 +55,6 @@ class XMLRoot:
         Args:
             resource: any one of:
                     `Resource`,
-                    `AnnotationResource`,
                     `RegionResource`,
                     `LinkResource`,
                     `VideoSegmentResource`,
@@ -77,7 +73,6 @@ class XMLRoot:
         Args:
             resources: a list of:
                     `Resource`,
-                    `AnnotationResource`,
                     `RegionResource`,
                     `LinkResource`,
                     `VideoSegmentResource`,
@@ -97,7 +92,6 @@ class XMLRoot:
         Args:
             resource: any one of:
                     `Resource`,
-                    `AnnotationResource`,
                     `RegionResource`,
                     `LinkResource`,
                     `VideoSegmentResource`,

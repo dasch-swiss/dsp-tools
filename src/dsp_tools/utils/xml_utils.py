@@ -14,9 +14,9 @@ def parse_and_clean_xml_file(input_file: Path) -> etree._Element:
     """
     Parse an XML file with DSP-conform data,
     remove namespace URI from the elements' names,
-    and transform the special tags `<annotation>`, `<region>`, `<link>`, `<video-segment>`, `<audio-segment>`
+    and transform the special tags `<region>`, `<link>`, `<video-segment>`, `<audio-segment>`
     to their technically correct form
-    `<resource restype="Annotation">`, `<resource restype="Region">`, `<resource restype="LinkObj">`,
+    `<resource restype="Region">`, `<resource restype="LinkObj">`,
     `<resource restype="VideoSegment">`, `<resource restype="AudioSegment">`.
 
     Args:
@@ -36,9 +36,9 @@ def parse_and_clean_xml_file(input_file: Path) -> etree._Element:
 def transform_special_tags_make_localname(input_tree: etree._Element) -> etree._Element:
     """
     This function removes the namespace URIs from the elements' names
-    and transforms the special tags `<annotation>`, `<region>`, `<link>`, `<video-segment>`, `<audio-segment>`
+    and transforms the special tags `<region>`, `<link>`, `<video-segment>`, `<audio-segment>`
     to their technically correct form
-    `<resource restype="Annotation">`, `<resource restype="Region">`, `<resource restype="LinkObj">`,
+    `<resource restype="Region">`, `<resource restype="LinkObj">`,
     `<resource restype="VideoSegment">`, `<resource restype="AudioSegment">`.
 
     Args:
@@ -54,10 +54,7 @@ def transform_special_tags_make_localname(input_tree: etree._Element) -> etree._
 def _transform_special_tags(tree: etree._Element) -> etree._Element:
     tree = deepcopy(tree)
     for elem in tree.iter():
-        if elem.tag == "annotation":
-            elem.attrib["restype"] = "Annotation"
-            elem.tag = "resource"
-        elif elem.tag == "link":
+        if elem.tag == "link":
             elem.attrib["restype"] = "LinkObj"
             elem.tag = "resource"
         elif elem.tag == "region":

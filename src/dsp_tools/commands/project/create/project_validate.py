@@ -336,7 +336,7 @@ def _collect_link_properties(project_definition: dict[Any, Any]) -> dict[str, li
         A (possibly empty) dictionary in the form {"rosetta:hasImage2D": ["rosetta:Image2D"], ...}
     """
     ontos = project_definition["project"]["ontologies"]
-    hasLinkTo_props = {"hasLinkTo", "isPartOf", "isRegionOf", "isAnnotationOf"}
+    hasLinkTo_props = {"hasLinkTo", "isPartOf", "isRegionOf"}
     link_properties: dict[str, list[str]] = {}
     for index, onto in enumerate(ontos):
         hasLinkTo_matches = []

@@ -12,7 +12,6 @@ import regex
 from lxml import etree
 
 from dsp_tools.commands.excel2xml.excel2xml_lib import append_permissions
-from dsp_tools.commands.excel2xml.excel2xml_lib import make_annotation
 from dsp_tools.commands.excel2xml.excel2xml_lib import make_bitstream_prop
 from dsp_tools.commands.excel2xml.excel2xml_lib import make_boolean_prop
 from dsp_tools.commands.excel2xml.excel2xml_lib import make_color_prop
@@ -205,14 +204,14 @@ def _append_bitstream_to_resource(
     return resource
 
 
-def _convert_resource_row_to_xml(  # noqa: PLR0912 (too-many-branches)
+def _convert_resource_row_to_xml(
     row_number: int,
     row: pd.Series[Any],
 ) -> etree._Element:
     """
     Convert a resource-row to an XML resource element.
     First, check if the mandatory cells are present.
-    Then, call the appropriate function, depending on the restype (Resource, LinkObj, Annotation, Region).
+    Then, call the appropriate function, depending on the restype (Resource, LinkObj, Region).
 
     Args:
         row_number: row number of the CSV/Excel sheet
@@ -262,10 +261,6 @@ def _convert_resource_row_to_xml(  # noqa: PLR0912 (too-many-branches)
         with warnings.catch_warnings():  # prevent dublette warnings: most problems were already checked above
             warnings.filterwarnings("ignore")
             resource = make_region(**kwargs_resource)
-    elif resource_restype == "Annotation":
-        with warnings.catch_warnings():  # prevent dublette warnings: most problems were already checked above
-            warnings.filterwarnings("ignore")
-            resource = make_annotation(**kwargs_resource)
     elif resource_restype == "LinkObj":
         with warnings.catch_warnings():  # prevent dublette warnings: most problems were already checked above
             warnings.filterwarnings("ignore")

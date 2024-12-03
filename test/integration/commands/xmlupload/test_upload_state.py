@@ -13,9 +13,9 @@ from dsp_tools.commands.xmlupload.xmlupload import _save_upload_state
 
 def test_save_upload_state(tmp_path: Path) -> None:
     resource_str = """
-    <resource label="Annotation to TestthingOhnePermissions" id="annotation_1" restype="foo:bar">
-        <text-prop name="hasComment">
-            <text encoding="xml" permissions="open">This is an annotation to TestthingOhnePermissions.</text>
+    <resource label="label" id="id" restype="foo:bar">
+        <text-prop name=":myprop">
+            <text encoding="xml" permissions="open">Some text</text>
         </text-prop>
     </resource>
     """

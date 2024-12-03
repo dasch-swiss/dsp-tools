@@ -921,30 +921,6 @@ must be used without prepended colon.
 See also [the related part of the JSON project documentation](./json-project/caveats.md#dsp-base-resources-and-base-properties-to-be-used-directly-in-the-xml-file)
 
 
-### `<annotation>`
-
-`<annotation>` is an annotation to another resource of any class. It must have the following predefined properties:
-
-- `hasComment` (1-n)
-- `isAnnotationOf` (1)
-
-Example:
-
-```xml
-<annotation label="Annotation to another resource" id="annotation_0" permissions="open">
-    <text-prop name="hasComment">
-        <text encoding="utf8" permissions="open">This is an annotation to a resource.</text>
-    </text-prop>
-    <resptr-prop name="isAnnotationOf">
-        <resptr permissions="open">img_1</resptr>
-    </resptr-prop>
-</annotation>
-```
-
-Technical note: An `<annotation>` is in fact a `<resource restype="Annotation">`. But it is mandatory to use the 
-shortcut, so that the XML file can be validated more precisely.
-
-
 ### `<region>`
 
 A `<region>` resource defines a region of interest (ROI) in an image. It must have the following predefined properties:

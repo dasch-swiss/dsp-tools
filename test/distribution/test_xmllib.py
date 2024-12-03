@@ -1,4 +1,4 @@
-from dsp_tools.xmllib.models.dsp_base_resources import AnnotationResource
+from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
 from dsp_tools.xmllib.models.resource import Resource
 from dsp_tools.xmllib.models.root import XMLRoot
 from dsp_tools.xmllib.value_checkers import is_bool_like
@@ -17,6 +17,6 @@ def test_xmllib() -> None:
     if is_bool_like("0"):
         my_res.add_bool("my_prop", convert_to_bool_string("0"))
     my_res.add_file("my_file")
-    annotation = AnnotationResource.create_new("res_id", "label", "annotation_of", ["comment1", "comment2"])
-    root.add_resource(annotation)
+    region = RegionResource.create_new("res_id", "label", "region_of")
+    root.add_resource(region)
     root.add_resource(my_res)

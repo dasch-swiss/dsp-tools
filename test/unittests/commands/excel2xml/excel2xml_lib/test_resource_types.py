@@ -13,39 +13,6 @@ from dsp_tools.models.exceptions import BaseError
 
 
 class TestResourceTypes(unittest.TestCase):
-    def test_make_annotation(self) -> None:
-        expected = '<annotation label="label" id="id" permissions="open"/>'
-        result = _strip_namespace(excel2xml.make_annotation("label", "id"))
-        self.assertEqual(expected, result)
-
-    def test_make_annotation_with_permission(self) -> None:
-        expected = '<annotation label="label" id="id" permissions="restricted"/>'
-        result = _strip_namespace(excel2xml.make_annotation("label", "id", "restricted"))
-        self.assertEqual(expected, result)
-
-    def test_make_annotation_with_ark(self) -> None:
-        expected = '<annotation label="label" id="id" permissions="open" ark="ark"/>'
-        result = _strip_namespace(excel2xml.make_annotation("label", "id", ark="ark"))
-        self.assertEqual(expected, result)
-
-    def test_make_annotation_with_iri(self) -> None:
-        expected = '<annotation label="label" id="id" permissions="open" iri="iri"/>'
-        result = _strip_namespace(excel2xml.make_annotation("label", "id", iri="iri"))
-        self.assertEqual(expected, result)
-
-    def test_make_annotation_with_creation_date(self) -> None:
-        expected = '<annotation label="label" id="id" permissions="open" creation_date="2019-10-23T13:45:12Z"/>'
-        result = _strip_namespace(excel2xml.make_annotation("label", "id", creation_date="2019-10-23T13:45:12Z"))
-        self.assertEqual(expected, result)
-
-    def test_warn_make_annotation_with_iri_and_ark(self) -> None:
-        with self.assertWarns(DspToolsUserWarning):
-            excel2xml.make_annotation("label", "id", ark="ark", iri="iri")
-
-    def test_fail_annotation_with_invalid_creation_date(self) -> None:
-        with self.assertRaisesRegex(BaseError, "invalid creation date"):
-            excel2xml.make_annotation("label", "id", creation_date="2019-10-23T13:45:12")
-
     def test_make_link(self) -> None:
         expected = '<link label="label" id="id" permissions="open"/>'
         result = _strip_namespace(excel2xml.make_link("label", "id"))

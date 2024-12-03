@@ -6,7 +6,6 @@ from lxml import etree
 
 from dsp_tools.commands.validate_data.models.data_deserialised import AbstractFileValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import AbstractResource
-from dsp_tools.commands.validate_data.models.data_deserialised import AnnotationDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import AudioSegmentDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import BitstreamDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import BooleanValueDeserialised
@@ -58,8 +57,6 @@ def _deserialise_all_resources(root: etree._Element) -> DataDeserialised:
         match res.tag:
             case "resource":
                 all_res.append(_deserialise_one_resource(res))
-            case "annotation":
-                all_res.append(AnnotationDeserialised(res_id, lbl))
             case "region":
                 all_res.append(RegionDeserialised(res_id, lbl))
             case "link":

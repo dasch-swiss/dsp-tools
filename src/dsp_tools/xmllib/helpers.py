@@ -443,7 +443,7 @@ def create_non_empty_list_from_string(
         prop_name: If the name of the property is provided, a better error message can be composed
 
     Returns:
-        A list with the input.
+        The list that results from splitting the input string.
 
     Raises:
         InputError: If the resulting list is empty.

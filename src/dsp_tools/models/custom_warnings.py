@@ -6,8 +6,8 @@ from typing import runtime_checkable
 # All codes must start with "\033"
 # The semicolon separates different configurations
 
-BOLD_RED = "\033[1;31m"  # 1 (bold) ; 31 (red) m (finish or the sequence)
-YELLOW = "\033[0;33m"  # 0 (normal font) ; 33 (yellow) m (finish or the sequence)
+BOLD_RED = "\033[1;31m"  # 1 (bold) ; 31 (red) m (finish of the sequence)
+YELLOW = "\033[0;33m"  # 0 (normal font) ; 33 (yellow) m (finish of the sequence)
 RESET_TO_DEFAULT = "\033[0m"  # reset the previous setting to the default of the console
 
 

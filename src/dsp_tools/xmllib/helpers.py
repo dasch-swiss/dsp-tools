@@ -402,3 +402,61 @@ def make_xsd_compatible_id_with_uuid(input_value: str | float | int) -> str:
     _uuid = uuid.uuid4()
     res = f"{res}_{_uuid}"
     return res
+
+
+def create_list_from_string(string: str, separator: str) -> list[str]:
+    """
+    Creates a list from a string.
+    Trailing and leading whitespaces are removed from the list items.
+
+    Args:
+        string: input string
+        separator: The character that separates the different values in the string.
+            For example, a comma or newline.
+
+    Returns:
+        The list that results from splitting the input string.
+            If the original string is empty or consists only of whitespace characters, the resulting list will be empty.
+
+    Raises:
+        InputError: If the input value is not a string.
+    """
+    if not isinstance(string, str):
+        raise InputError(f"The input for this function must be a string. Your input is a {type(string).__name__}.")
+    return [strpd for x in string.split(separator) if (strpd := x.strip())]
+
+
+def create_non_empty_list_from_string(
+    string: str, separator: str, resource_id: str | None = None, prop_name: str | None = None
+) -> list[str]:
+    """
+    Creates a list from a string.
+    Trailing and leading whitespaces are removed from the list items.
+
+    If the resulting list is empty it will raise an `InputError`.
+
+    Args:
+        string: input string
+        separator: The character that separates the different values in the string.
+            For example, a comma or newline.
+        resource_id: If the ID of the resource is provided, a better error message can be composed
+        prop_name: If the name of the property is provided, a better error message can be composed
+
+    Returns:
+        The list that results from splitting the input string.
+
+    Raises:
+        InputError: If the resulting list is empty.
+    """
+    lst = create_list_from_string(string, separator)
+    if len(lst) == 0:
+        msg = "The input for this function must result in a non-empty list. Your input"
+        details = []
+        if resource_id:
+            details.append(f"resource with the ID '{resource_id}'")
+        if prop_name:
+            details.append(f"property '{prop_name}'")
+        details_msg = "for the " + " and ".join(details) + " " if details else ""
+        msg += " " + details_msg + "results in an empty list."
+        raise InputError(msg)
+    return lst

@@ -1202,12 +1202,12 @@ def _check_richtext_before_conversion(value: Any, res_id: str, prop_name: str) -
 
 
 def _check_and_fix_collection_input(value: Any, res_id: str, prop_name: str) -> list[Any]:
-    msg = f"The input value of the resource with the ID '{res_id}' and the property '{prop_name}'"
+    msg = f"The input value of the resource with the ID '{res_id}' and the property '{prop_name}' "
     match value:
         case set() | list() | tuple():
             if len(value) == 0:
                 msg += "is empty. Please note that no values will be added to the resource."
-                warnings.warn(DspToolsUserWarning(msg))
+                print("\033[1;33m" + msg + "\033[1;33m")
             return list(value)
         case dict():
             msg += "is a dictionary. Only collections (list, set, tuple) are permissible."

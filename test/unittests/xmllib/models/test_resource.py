@@ -1,4 +1,3 @@
-import warnings
 from typing import Any
 
 import pandas as pd
@@ -373,12 +372,6 @@ def test_check_and_fix_collection_input_raises() -> None:
     )
     with pytest.raises(InputError, match=msg):
         _check_and_fix_collection_input({1: 1}, "id", "prop")
-
-
-def test_check_and_fix_collection_input_warns() -> None:
-    with warnings.catch_warnings(record=True) as caught_warnings:
-        _check_and_fix_collection_input([], "id", "prop")
-        assert len(caught_warnings) == 1
 
 
 if __name__ == "__main__":

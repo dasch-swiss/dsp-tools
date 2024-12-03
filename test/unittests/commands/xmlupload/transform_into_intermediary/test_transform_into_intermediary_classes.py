@@ -40,10 +40,18 @@ class TestTransformResources:
         resource_with_permissions: XMLResource,
         resource_one_prop: XMLResource,
         lookups: IntermediaryLookup,
-    ):
+    ) -> None:
         result = transform_into_intermediary_resources([resource_one_prop, resource_with_permissions], lookups)
         assert (len(result.resource_success)) == 2
         assert (len(result.resource_failure)) == 0
+
+    def test_failure(self, resource_with_unknown_permissions: XMLResource, lookups: IntermediaryLookup) -> None:
+        result = transform_into_intermediary_resources([resource_with_unknown_permissions], lookups)
+        assert len(result.resource_success) == 0
+        assert (len(result.resource_failure)) == 1
+        failure = result.resource_failure[0]
+        assert failure.resource_id == "id"
+        assert failure.failure_msg == "Could not find permissions for value: nonExisting"
 
 
 class TestTransformOneResource:

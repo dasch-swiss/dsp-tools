@@ -1,3 +1,5 @@
+from typing import cast
+
 import pytest
 
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import IIIFUriInfo
@@ -136,10 +138,7 @@ class TestTransformOneResource:
         file_val = result.file_value
         assert isinstance(file_val, IntermediaryFileValue)
         assert file_val.value == "file.jpg"
-        assert not file_val.metadata.permissions
-        assert not file_val.metadata.copyright_text
-        assert not file_val.metadata.license_uri
-        assert not file_val.metadata.license_text
+        assert not file_val.metadata
         assert not result.migration_metadata
 
     def test_iiif_uri(self, resource_with_iiif_uri: XMLResource, lookups: IntermediaryLookup) -> None:

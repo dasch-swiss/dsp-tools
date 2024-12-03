@@ -113,17 +113,24 @@ def _transform_migration_metadata(resource: XMLResource) -> MigrationMetadata:
 
 
 def _transform_file_value(bitstream: XMLBitstream, lookups: IntermediaryLookup) -> IntermediaryFileValue:
-    metadata = IntermediaryFileMetadata(
-        _resolve_permission(bitstream.permissions, lookups.permissions), None, None, None
-    )
+    metadata = _get_metadata(bitstream, lookups)
     return IntermediaryFileValue(bitstream.value, metadata)
 
 
 def _transform_iiif_uri_value(iiif_uri: IIIFUriInfo, lookups: IntermediaryLookup) -> IntermediaryIIIFUri:
-    metadata = IntermediaryFileMetadata(
-        _resolve_permission(iiif_uri.permissions, lookups.permissions), None, None, None
-    )
+    metadata = _get_metadata(iiif_uri, lookups)
     return IntermediaryIIIFUri(iiif_uri.value, metadata)
+
+
+def _get_metadata(
+    bitstream: XMLBitstream | IIIFUriInfo, lookups: IntermediaryLookup
+) -> IntermediaryFileMetadata | None:
+    meta = [_resolve_permission(bitstream.permissions, lookups.permissions), None, None, None]
+    if any(meta):
+        return IntermediaryFileMetadata(
+            _resolve_permission(bitstream.permissions, lookups.permissions), None, None, None
+        )
+    return None
 
 
 def _transform_all_properties(properties: list[XMLProperty], lookups: IntermediaryLookup) -> list[IntermediaryValue]:

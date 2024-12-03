@@ -43,10 +43,6 @@ class ResourceDeserialised(AbstractResource):
 
 
 @dataclass
-class AnnotationDeserialised(AbstractResource): ...
-
-
-@dataclass
 class RegionDeserialised(AbstractResource): ...
 
 

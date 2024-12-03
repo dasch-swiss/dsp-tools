@@ -7,7 +7,6 @@ from .helpers import make_xsd_compatible_id as make_xsd_compatible_id
 from .helpers import make_xsd_compatible_id_with_uuid as make_xsd_compatible_id_with_uuid
 from .models.config_options import NewlineReplacement as NewlineReplacement
 from .models.config_options import Permissions as Permissions
-from .models.dsp_base_resources import AnnotationResource as AnnotationResource
 from .models.dsp_base_resources import AudioSegmentResource as AudioSegmentResource
 from .models.dsp_base_resources import LinkResource as LinkResource
 from .models.dsp_base_resources import RegionResource as RegionResource

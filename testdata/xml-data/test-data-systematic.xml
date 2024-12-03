@@ -80,19 +80,6 @@
         </resptr-prop>
     </resource>
 
-    <annotation label="Annotation to TestthingOhnePermissions"
-                id="annotation_1"
-                permissions="discouraged-edge-cases"
-                creation_date="2005-10-23T13:45:12.01-14:00">
-        <text-prop name="hasComment">
-            <text encoding="xml" permissions="open">This is an annotation to TestthingOhnePermissions.</text>
-            <text encoding="xml" permissions="discouraged-edge-cases">Second comment</text>
-        </text-prop>
-        <resptr-prop name="isAnnotationOf">
-            <resptr permissions="open">test_thing_0</resptr>
-        </resptr-prop>
-    </annotation>
-
     <resource label="First Testthing"
               restype=":TestThing"
               id="test_thing_1"
@@ -189,7 +176,6 @@
             <resptr permissions="open">TestThing2Child1</resptr>
             <resptr permissions="open">TestThing2Child2</resptr>
             <resptr permissions="open">video_thing_1</resptr>
-            <resptr permissions="open">annotation_1</resptr>
             <resptr permissions="open">region_1</resptr>
             <resptr permissions="open">link_obj_1</resptr>
        </resptr-prop>

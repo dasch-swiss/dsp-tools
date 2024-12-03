@@ -221,6 +221,7 @@ class TestAddValues:
         res = Resource.create_new("res_id", "restype", "label").add_simpletext_multiple(":prop", "text1")
         assert len(res.values) == 1
         assert all([isinstance(x, SimpleText) for x in res.values])
+        assert res.values[0].value == "text1"
 
     def test_add_simple_text_optional(self) -> None:
         res = Resource.create_new("res_id", "restype", "label").add_simpletext_optional(":prop", None)
@@ -367,7 +368,7 @@ def test_check_and_fix_collection_input_success(input_val: Any, expected_val: li
 
 def test_check_and_fix_collection_input_raises() -> None:
     msg = regex.escape(
-        "The input value of the resource with the ID 'id' and the property 'prop'is a dictionary. "
+        "The input value of the resource with the ID 'id' and the property 'prop' is a dictionary. "
         "Only collections (list, set, tuple) are permissible."
     )
     with pytest.raises(InputError, match=msg):

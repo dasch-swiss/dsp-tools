@@ -166,7 +166,7 @@ class TestCreateListFromString:
     def test_create_list_from_string_empty(self) -> None:
         result = create_list_from_string(" , ", ",")
         assert isinstance(result, list)
-        assert not result
+        assert result == []
 
     def test_create_non_empty_list_from_string_ok(self) -> None:
         result = create_non_empty_list_from_string("ab, cd , ", ",")
@@ -174,7 +174,7 @@ class TestCreateListFromString:
 
     def test_create_non_empty_list_from_string_raises(self) -> None:
         msg = regex.escape(
-            "The input for this function must result in a non empty list. Your input ' , ' results in an empty list."
+            "The input for this function must result in a non-empty list. Your input results in an empty list."
         )
         with pytest.raises(InputError, match=msg):
             create_non_empty_list_from_string(" , ", ",")

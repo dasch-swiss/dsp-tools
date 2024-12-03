@@ -14,7 +14,7 @@ SEQUENCE_END = "m"
 
 BOLD_RED = SEQUENCE_START + "1;31" + SEQUENCE_END  # 1 (bold) ; 31 (red)
 YELLOW = SEQUENCE_START + "0;33" + SEQUENCE_END  # 0 (normal font) ; 33 (yellow)
-RESET_TO_DEFAULT = SEQUENCE_START + "0" + SEQUENCE_END  # reset the previous setting to the default of the console
+RESET_TO_DEFAULT = SEQUENCE_START + "0" + SEQUENCE_END  # reset to the default setting of the console
 
 
 @runtime_checkable

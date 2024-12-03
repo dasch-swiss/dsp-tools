@@ -175,7 +175,7 @@ def _transform_list_values(prop: XMLProperty, lookups: IntermediaryLookup) -> li
     for val in prop.values:
         str_val = assert_is_string(val.value)
         if not (list_iri := lookups.listnodes.get(str_val)):
-            raise InputError(f"Could not find list iri for node: {list_iri}")
+            raise InputError(f"Could not find list iri for node: {str_val}")
         permission_val = _resolve_permission(val.permissions, lookups.permissions)
         intermediary_values.append(IntermediaryList(list_iri, prop_iri, val.comment, permission_val))
     return intermediary_values

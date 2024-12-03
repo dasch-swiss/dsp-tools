@@ -8,6 +8,7 @@ def test_root_add_resources() -> None:
 
     # add_resource
     region_res = RegionResource.create_new("regionID", "label", "id1")
+    region_res.add_rectangle((0.1, 0.1), (0.2, 0.2))
     xml_root.add_resource(region_res)
     assert len(xml_root.resources) == 1
 

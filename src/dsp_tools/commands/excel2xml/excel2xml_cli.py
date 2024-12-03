@@ -204,7 +204,7 @@ def _append_bitstream_to_resource(
     return resource
 
 
-def _convert_resource_row_to_xml(  # noqa: PLR0912 (too-many-branches)
+def _convert_resource_row_to_xml(
     row_number: int,
     row: pd.Series[Any],
 ) -> etree._Element:

@@ -164,7 +164,7 @@ def prepare_upload(
 
 
 def _validate_iiif_uris(root: etree._Element) -> None:
-    uris = [uri for node in root.iter(tag="iiif-uri") if (uri := node.text)]
+    uris = [uri.strip() for node in root.iter(tag="iiif-uri") if (uri := node.text)]
     if problems := IIIFUriValidator(uris).validate():
         msg = problems.get_msg()
         warnings.warn(DspToolsUserWarning(msg))
@@ -361,12 +361,11 @@ def _upload_one_resource(
     except KeyboardInterrupt:
         _handle_keyboard_interrupt()
 
-    serialised_resource = create_resource_with_values(
-        resource=resource, bitstream_information=media_info, lookup=lookups
-    )
-
     iri = None
     try:
+        serialised_resource = create_resource_with_values(
+            resource=resource, bitstream_information=media_info, lookup=lookups
+        )
         logger.info(f"Attempting to create resource {resource.res_id} (label: {resource.label})...")
         iri = resource_create_client.create_resource(serialised_resource, bool(media_info))
     except (PermanentTimeOutError, KeyboardInterrupt) as err:

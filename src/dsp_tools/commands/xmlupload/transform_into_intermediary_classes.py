@@ -11,6 +11,8 @@ from dsp_tools.commands.xmlupload.models.intermediary.file_values import Interme
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryIIIFUri
 from dsp_tools.commands.xmlupload.models.intermediary.resource import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.intermediary.resource import MigrationMetadata
+from dsp_tools.commands.xmlupload.models.intermediary.resource import ResourceInputConversionFailure
+from dsp_tools.commands.xmlupload.models.intermediary.resource import ResourceTransformationOutput
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryBoolean
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryColor
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryDate
@@ -56,8 +58,27 @@ TYPE_TRANSFORMER_MAPPER = {
 
 def transform_into_intermediary_resources(
     resources: list[XMLResource], lookups: IntermediaryLookup
-) -> list[IntermediaryResource]:
-    pass
+) -> ResourceTransformationOutput:
+    """
+    Takes the XMLResources parsed from the XML file and converts them into the Intermediary format.
+    Permissions, relative IRIs, etc. are resolved in this step.
+
+    Args:
+        resources: list of resources
+        lookups: lookup for permissions, prefixes, etc.
+
+    Returns:
+        The transformed resources and those where the input could not be successfully transformed
+    """
+    transformed_resources = []
+    transformation_failures = []
+    for res in resources:
+        try:
+            transformed = _transform_one_resource(res, lookups)
+            transformed_resources.append(transformed)
+        except Exception as e:  # noqa: BLE001 (blind exception)
+            transformation_failures.append(ResourceInputConversionFailure(res.res_id, str(e)))
+    return ResourceTransformationOutput(transformed_resources, transformation_failures)
 
 
 def _transform_one_resource(resource: XMLResource, lookups: IntermediaryLookup) -> IntermediaryResource:

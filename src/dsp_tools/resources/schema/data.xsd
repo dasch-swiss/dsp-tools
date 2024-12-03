@@ -380,14 +380,6 @@
         <xs:attribute name="name" type="xs:string" use="required" fixed="hasGeometry"/>
     </xs:complexType>
 
-    <!-- builtin_isAnnotationOf_prop_type -->
-    <xs:complexType name="builtin_isAnnotationOf_prop_type">
-        <xs:sequence>
-            <xs:element name="resptr" type="resptr_type" minOccurs="1" maxOccurs="1"/>
-        </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required" fixed="isAnnotationOf"/>
-    </xs:complexType>
-
     <!-- builtin_isRegionOf_prop_type -->
     <xs:complexType name="builtin_isRegionOf_prop_type">
         <xs:sequence>
@@ -464,20 +456,6 @@
             </xs:simpleType>
         </xs:attribute>
         <xs:attribute name="restype" type="xs:string" use="required"/>
-        <xs:attribute name="id" type="xs:ID" use="required"/>
-        <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
-        <xs:attribute name="iri" type="xs:string" use="optional"/>
-        <xs:attribute name="ark" type="xs:string" use="optional"/>
-        <xs:attribute name="creation_date" type="xs:dateTime" use="optional"/>
-    </xs:complexType>
-
-    <!-- annotation tag -->
-    <xs:complexType name="annotation_type">
-        <xs:all>
-            <xs:element name="text-prop" type="builtin_hasComment_prop_type" minOccurs="1" maxOccurs="1"/>
-            <xs:element name="resptr-prop" type="builtin_isAnnotationOf_prop_type" minOccurs="1" maxOccurs="1"/>
-        </xs:all>
-        <xs:attribute name="label" type="xs:string" use="required"/>
         <xs:attribute name="id" type="xs:ID" use="required"/>
         <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
         <xs:attribute name="iri" type="xs:string" use="optional"/>
@@ -627,12 +605,6 @@
                 <xs:choice maxOccurs="unbounded">
                     <xs:element name="resource" type="resource_type" minOccurs="1" maxOccurs="unbounded">
                         <xs:unique name="UniqueNameAttr_Resource">
-                            <xs:selector xpath=".//*"/>
-                            <xs:field xpath="@name"/>
-                        </xs:unique>
-                    </xs:element>
-                    <xs:element name="annotation" type="annotation_type" minOccurs="0" maxOccurs="unbounded">
-                        <xs:unique name="UniqueNameAttr_Annotation">
                             <xs:selector xpath=".//*"/>
                             <xs:field xpath="@name"/>
                         </xs:unique>

@@ -7,7 +7,6 @@ from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.models.data_deserialised import AbstractFileValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import AbstractResource
-from dsp_tools.commands.validate_data.models.data_deserialised import AnnotationDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import AudioSegmentDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import BooleanValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ColorValueDeserialised
@@ -80,7 +79,6 @@ def _transform_one_resource(res: AbstractResource) -> list[RDFTriples]:
 
 def _transform_one_dsp_resource(res: AbstractResource) -> RDFTriples:
     res_type_mapper = {
-        AnnotationDeserialised: KNORA_API.Annotation,
         RegionDeserialised: KNORA_API.Region,
         LinkObjDeserialised: KNORA_API.LinkObj,
         VideoSegmentDeserialised: KNORA_API.VideoSegment,

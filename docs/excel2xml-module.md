@@ -185,7 +185,6 @@ There are several kinds of resources that can be created:
 | restype        | tag               | function               |
 | -------------- | ----------------- | ---------------------- |
 | `Resource`     | `<resource>`      | `make_resource()`      |
-| `Annotation`   | `<annotation>`    | `make_annotation()`    |
 | `Region`       | `<region>`        | `make_region()`        |
 | `LinkObj`      | `<link>`          | `make_link()`          |
 | `AudioSegment` | `<audio-segment>` | `make_audio_segment()` |

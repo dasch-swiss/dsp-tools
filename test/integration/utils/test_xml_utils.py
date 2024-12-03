@@ -34,19 +34,17 @@ def test_parse_and_clean_xml_file_same_regardless_of_input(data_systematic_uncle
     ), "The output must be equal, regardless if the input is a path or parsed."
 
 
-def test_annotations_regions_links_before(data_systematic_unclean: Path) -> None:
+def test_regions_links_before(data_systematic_unclean: Path) -> None:
     data = etree.parse(data_systematic_unclean)
-    annotations_regions_links_before = [e for e in data.iter() if regex.search("annotation|region|link", str(e.tag))]
-    assert len(annotations_regions_links_before) == 5
+    regions_links_before = [e for e in data.iter() if regex.search("region|link", str(e.tag))]
+    assert len(regions_links_before) == 4
 
 
-def test_annotations_regions_links_after(data_systematic_cleaned: etree._Element) -> None:
-    annotations_regions_links_after = [
-        e for e in data_systematic_cleaned.iter() if regex.search("annotation|region|link", str(e.tag))
-    ]
-    assert len(annotations_regions_links_after) == 0, (
-        "The tags <annotation>, <region>, and <link> must be transformed "
-        'to their technically correct form <resource restype="Annotation/Region/LinkObj">'
+def test_regions_links_after(data_systematic_cleaned: etree._Element) -> None:
+    regions_links_after = [e for e in data_systematic_cleaned.iter() if regex.search("region|link", str(e.tag))]
+    assert len(regions_links_after) == 0, (
+        "The tags <region> and <link> must be transformed "
+        'to their technically correct form <resource restype="Region/LinkObj">'
     )
 
 

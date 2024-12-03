@@ -131,12 +131,12 @@ def test_deserialize_ontology() -> None:
     test_json = [
         {
             "knora-api:isResourceClass": True,
-            "rdfs:label": "Annotation",
+            "rdfs:label": "Region",
             "knora-api:canBeInstantiated": True,
             "rdfs:subClassOf": [],
-            "rdfs:comment": "A generic class for representing annotations",
+            "rdfs:comment": "",
             "@type": "owl:Class",
-            "@id": "knora-api:Annotation",
+            "@id": "knora-api:Region",
         },
         {
             "rdfs:label": "has Link to",
@@ -152,14 +152,14 @@ def test_deserialize_ontology() -> None:
         },
     ]
     res_onto = _extract_classes_and_properties_from_onto(test_json)
-    assert res_onto.classes == ["Annotation"]
+    assert res_onto.classes == ["Region"]
     assert res_onto.properties == ["hasLinkTo"]
 
 
 def test_remove_prefixes_knora_classes() -> None:
-    test_elements = ["knora-api:Annotation", "knora-api:ArchiveFileValue", "knora-api:ArchiveRepresentation"]
+    test_elements = ["knora-api:Region", "knora-api:ArchiveFileValue", "knora-api:ArchiveRepresentation"]
     res = _remove_prefixes(test_elements)
-    assert unordered(res) == ["Annotation", "ArchiveFileValue", "ArchiveRepresentation"]
+    assert unordered(res) == ["Region", "ArchiveFileValue", "ArchiveRepresentation"]
 
 
 def test_remove_prefixes_knora_properties() -> None:
@@ -172,12 +172,12 @@ def test_get_all_text_value_types_properties_and_from_onto() -> None:
     test_json = [
         {
             "knora-api:isResourceClass": True,
-            "rdfs:label": "Annotation",
+            "rdfs:label": "Region",
             "knora-api:canBeInstantiated": True,
             "rdfs:subClassOf": [],
-            "rdfs:comment": "A generic class for representing annotations",
+            "rdfs:comment": "",
             "@type": "owl:Class",
-            "@id": "knora-api:Annotation",
+            "@id": "knora-api:Region",
         },
         {
             "rdfs:label": "Simple Text",
@@ -225,12 +225,12 @@ def test_get_all_text_value_types_properties_and_from_onto() -> None:
 def test_check_if_text_value_property_cls() -> None:
     test_dict = {
         "knora-api:isResourceClass": True,
-        "rdfs:label": "Annotation",
+        "rdfs:label": "Region",
         "knora-api:canBeInstantiated": True,
         "rdfs:subClassOf": [],
-        "rdfs:comment": "A generic class for representing annotations",
+        "rdfs:comment": "",
         "@type": "owl:Class",
-        "@id": "knora-api:Annotation",
+        "@id": "knora-api:Region",
     }
     res = _check_if_text_value_property(test_dict)
     assert not res

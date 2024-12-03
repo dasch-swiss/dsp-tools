@@ -13,7 +13,6 @@ from dsp_tools.models.exceptions import BaseError
 
 
 class TestResourceTypes(unittest.TestCase):
-
     def test_make_link(self) -> None:
         expected = '<link label="label" id="id" permissions="open"/>'
         result = _strip_namespace(excel2xml.make_link("label", "id"))

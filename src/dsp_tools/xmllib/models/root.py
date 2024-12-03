@@ -25,9 +25,7 @@ from dsp_tools.xmllib.models.resource import Resource
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 
-AnyResource: TypeAlias = Union[
-    Resource, RegionResource, LinkResource, VideoSegmentResource, AudioSegmentResource
-]
+AnyResource: TypeAlias = Union[Resource, RegionResource, LinkResource, VideoSegmentResource, AudioSegmentResource]
 
 
 @dataclass

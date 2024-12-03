@@ -1628,61 +1628,6 @@ def make_region(  # noqa: D417 (undocumented-param)
     )
 
 
-def make_annotation(  # noqa: D417 (undocumented-param)
-    label: str,
-    id: str,
-    permissions: str = "open",
-    ark: Optional[str] = None,
-    iri: Optional[str] = None,
-    creation_date: Optional[str] = None,
-) -> etree._Element:
-    """
-    Creates an empty annotation element, with the attributes as specified by the arguments.
-
-    Args:
-        The arguments correspond 1:1 to the attributes of the `<annotation>` element.
-
-    Raises:
-        Warning: if both an ARK and an IRI are provided
-        BaseError: if the creation date is invalid
-
-    Returns:
-        The annotation element, without any children, but with the attributes
-        `<annotation label=label id=id permissions=permissions ark=ark iri=iri></annotation>`
-
-    Examples:
-        >>> annotation = excel2xml.make_annotation("label", "id")
-        >>> annotation.append(excel2xml.make_text_prop("hasComment", "This is a comment"))
-        >>> annotation.append(excel2xml.make_resptr_prop("isAnnotationOf", "resource_0"))
-        >>> root.append(annotation)
-
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#annotation
-    """
-
-    kwargs = {"label": label, "id": id, "permissions": permissions, "nsmap": xml_namespace_map}
-    if ark:
-        kwargs["ark"] = ark
-    if iri:
-        kwargs["iri"] = iri
-    if ark and iri:
-        warning = f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI."
-        warnings.warn(DspToolsUserWarning(warning))
-    if creation_date:
-        try:
-            DateTimeStamp(creation_date)
-        except BaseError:
-            raise BaseError(
-                f"The annotation '{label}' (ID: {id}) has an invalid creation date '{creation_date}'. "
-                f"Did you perhaps forget the timezone?"
-            ) from None
-        kwargs["creation_date"] = creation_date
-
-    return etree.Element(
-        "{%s}annotation" % xml_namespace_map[None],
-        **kwargs,  # type: ignore[arg-type]
-    )
-
-
 def make_link(  # noqa: D417 (undocumented-param)
     label: str,
     id: str,

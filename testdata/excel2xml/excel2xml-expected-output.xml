@@ -50,14 +50,6 @@
             <uri permissions="open">https://www.ancestry.com/discoveryui-content/view/47577828:60525?ssrc=pt&amp;tid=109007397&amp;pid=410070328478</uri>
         </uri-prop>
     </resource>
-    <annotation label="Annotation to Homer" id="annotation_0" permissions="open">
-        <text-prop name="hasComment">
-            <text permissions="open" encoding="xml">This is an annotation to the resource Homer</text>
-        </text-prop>
-        <resptr-prop name="isAnnotationOf">
-            <resptr permissions="open">person_0</resptr>
-        </resptr-prop>
-    </annotation>
     <resource label="Iliad Prooem" restype=":Image2D" id="img_obj_6" permissions="open">
         <bitstream permissions="open">testdata/bitstreams/test.jpg</bitstream>
         <text-prop name=":hasTitle">

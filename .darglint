@@ -1,5 +1,5 @@
 [darglint]
 message_template={path}:{line} ({obj}): {msg_id} {msg}
-ignore_regex=(make_resource|make_annotation|make_link|make_region|_stash_circular_references|make_audio_segment|make_video_segment)
+ignore_regex=(make_resource|make_link|make_region|_stash_circular_references|make_audio_segment|make_video_segment)
 ignore=DAR402,DAR003
 strictness=short

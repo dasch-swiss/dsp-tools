@@ -14,8 +14,7 @@ The Excel/CSV file must be structured as in this image:
 
 Some notes:
 
-- The special tags `<annotation>`, `<link>`, and `<region>` are represented as resources of the type `Annotation`, 
-  `LinkObj`, and `Region`. 
+- The special tags `<link>` and `<region>` are represented as resources of the type `LinkObj` and `Region`. 
 - The columns `ark`, `iri`, and `creation_date` are only used for DaSCH internal data migration.
 - If `file` is provided, but no `file permissions`, an attempt will be started to deduce them from the resource 
   permissions. If this attempt is not 

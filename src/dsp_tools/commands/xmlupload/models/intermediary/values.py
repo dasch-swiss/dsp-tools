@@ -16,12 +16,12 @@ class IntervalFloats:
     end: float
 
 
-ValueTypes: TypeAlias = Union[bool, str, float, int, FormattedTextValue, Date, IntervalFloats]
+IntermediaryValueTypes: TypeAlias = Union[bool, str, float, int, FormattedTextValue, Date, IntervalFloats]
 
 
 @dataclass
 class IntermediaryValue(Protocol):
-    value: ValueTypes
+    value: IntermediaryValueTypes
     prop_iri: str
     comment: str | None
     permissions: Permissions | None

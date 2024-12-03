@@ -28,9 +28,10 @@ from dsp_tools.commands.xmlupload.models.intermediary.values import Intermediary
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryTime
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryUri
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryValue
-from dsp_tools.commands.xmlupload.models.intermediary.values import ValueTypes
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryValueTypes
 from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookup
 from dsp_tools.commands.xmlupload.models.permission import Permissions
+from dsp_tools.commands.xmlupload.transform_input_values import InputTypes
 from dsp_tools.commands.xmlupload.transform_input_values import assert_is_string
 from dsp_tools.commands.xmlupload.transform_input_values import transform_boolean
 from dsp_tools.commands.xmlupload.transform_input_values import transform_date
@@ -151,8 +152,8 @@ def _transform_one_property(prop: XMLProperty, lookups: IntermediaryLookup) -> l
 def _transform_one_generic_value(
     prop: XMLProperty,
     lookups: IntermediaryLookup,
-    prop_intermediary: Callable[[ValueTypes, str, str | None, Permissions | None], IntermediaryValue],
-    transformer: Callable[[str | FormattedTextValue], ValueTypes],
+    prop_intermediary: Callable[[InputTypes, str, str | None, Permissions | None], IntermediaryValue],
+    transformer: Callable[[str | FormattedTextValue], IntermediaryValueTypes],
 ) -> list[IntermediaryValue]:
     intermediary_values = []
     prop_iri = _get_absolute_iri(prop.name, lookups.namespaces)

@@ -426,7 +426,9 @@ def create_list_from_string(string: str, separator: str) -> list[str]:
     return [strpd for x in string.split(separator) if (strpd := x.strip())]
 
 
-def create_non_empty_list_from_string(string: str, separator: str) -> list[str]:
+def create_non_empty_list_from_string(
+    string: str, separator: str, resource_id: str | None = None, prop_name: str | None = None
+) -> list[str]:
     """
     Creates a list from a string.
     Trailing and leading whitespaces are removed from the list items.
@@ -437,6 +439,8 @@ def create_non_empty_list_from_string(string: str, separator: str) -> list[str]:
         string: input string
         separator: The character that separates the different values in the string.
             For example, a comma or newline.
+        resource_id: If the ID of the resource is provided, a better error message can be composed
+        prop_name: If the name of the property is provided, a better error message can be composed
 
     Returns:
         A list with the input.
@@ -446,8 +450,13 @@ def create_non_empty_list_from_string(string: str, separator: str) -> list[str]:
     """
     lst = create_list_from_string(string, separator)
     if len(lst) == 0:
-        raise InputError(
-            f"The input for this function must result in a non empty list. "
-            f"Your input '{string}' results in an empty list."
-        )
+        msg = "The input for this function must result in a non-empty list. Your input"
+        details = []
+        if resource_id:
+            details.append(f"resource with the ID '{resource_id}'")
+        if prop_name:
+            details.append(f"property '{prop_name}'")
+        details_msg = "for the " + " and ".join(details) + " " if details else ""
+        msg += " " + details_msg + "results in an empty list."
+        raise InputError(msg)
     return lst

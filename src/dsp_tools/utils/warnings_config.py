@@ -16,8 +16,8 @@ def initialize_warnings() -> None:
     def _custom_showwarning(
         message: Warning | str,
         category: type[Warning],
-        filename: str | None,
-        lineno: int | None,
+        filename: str,
+        lineno: int,
         file: TextIO | None = None,
         line: str | None = None,
     ) -> None:

@@ -157,9 +157,9 @@ def test_deserialize_ontology() -> None:
 
 
 def test_remove_prefixes_knora_classes() -> None:
-    test_elements = ["knora-api:Annotation", "knora-api:ArchiveFileValue", "knora-api:ArchiveRepresentation"]
+    test_elements = ["knora-api:Region", "knora-api:ArchiveFileValue", "knora-api:ArchiveRepresentation"]
     res = _remove_prefixes(test_elements)
-    assert unordered(res) == ["Annotation", "ArchiveFileValue", "ArchiveRepresentation"]
+    assert unordered(res) == ["Region", "ArchiveFileValue", "ArchiveRepresentation"]
 
 
 def test_remove_prefixes_knora_properties() -> None:

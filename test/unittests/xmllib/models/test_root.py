@@ -1,4 +1,4 @@
-from dsp_tools.xmllib.models.dsp_base_resources import AnnotationResource
+from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
 from dsp_tools.xmllib.models.resource import Resource
 from dsp_tools.xmllib.models.root import XMLRoot
 
@@ -7,8 +7,8 @@ def test_root_add_resources() -> None:
     xml_root = XMLRoot.create_new("0000", "test")
 
     # add_resource
-    anno_res = AnnotationResource("annoID", "label", "id1", ["comment"])
-    xml_root.add_resource(anno_res)
+    region_res = RegionResource.create_new("regionID", "label", "id1")
+    xml_root.add_resource(region_res)
     assert len(xml_root.resources) == 1
 
     # add_resource_multiple
@@ -25,7 +25,7 @@ def test_root_add_resources() -> None:
     assert len(xml_root.resources) == 3
 
     serialised = xml_root.serialise()
-    annotation = list(serialised.iterdescendants(tag="{https://dasch.swiss/schema}annotation"))
-    assert len(annotation) == 1
+    region = list(serialised.iterdescendants(tag="{https://dasch.swiss/schema}region"))
+    assert len(region) == 1
     general_resources = list(serialised.iterdescendants(tag="{https://dasch.swiss/schema}resource"))
     assert len(general_resources) == 2

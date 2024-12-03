@@ -88,7 +88,7 @@ def _construct_1_cardinality(onto_graph: Graph) -> Graph:
           owl:cardinality 1 .
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
       FILTER (?class NOT IN (
-            knora-api:Region, knora-api:Annotation, knora-api:AudioSegment, knora-api:VideoSegment, knora-api:LinkObj)
+            knora-api:Region, knora-api:AudioSegment, knora-api:VideoSegment, knora-api:LinkObj)
       )
     }
     """
@@ -127,7 +127,7 @@ def _construct_0_1_cardinality(onto_graph: Graph) -> Graph:
           owl:maxCardinality 1 .
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
       FILTER (?class NOT IN (
-            knora-api:Region, knora-api:Annotation, knora-api:AudioSegment, knora-api:VideoSegment, knora-api:LinkObj)
+            knora-api:Region, knora-api:AudioSegment, knora-api:VideoSegment, knora-api:LinkObj)
       )
     }
     """
@@ -165,7 +165,7 @@ def _construct_1_n_cardinality(onto_graph: Graph) -> Graph:
           owl:minCardinality 1 .
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
       FILTER (?class NOT IN (
-            knora-api:Region, knora-api:Annotation, knora-api:AudioSegment, knora-api:VideoSegment, knora-api:LinkObj)
+            knora-api:Region, knora-api:AudioSegment, knora-api:VideoSegment, knora-api:LinkObj)
       )
     }
     """
@@ -200,7 +200,7 @@ def _construct_0_n_cardinality(onto_graph: Graph) -> Graph:
           owl:minCardinality 0 .
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
       FILTER (?class NOT IN (
-            knora-api:Region, knora-api:Annotation, knora-api:AudioSegment, knora-api:VideoSegment, knora-api:LinkObj)
+            knora-api:Region, knora-api:AudioSegment, knora-api:VideoSegment, knora-api:LinkObj)
       )
     }
     """

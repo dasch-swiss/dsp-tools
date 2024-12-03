@@ -36,11 +36,6 @@ it is necessary to reference entities that are defined elsewhere. The following 
 From several DSP base resources, no subclasses can be created in a project ontology. 
 However, they can be used directly in the XML data file:
 
-- `Annotation` is an annotation to another resource of any class. 
-  It can be used in the XML file with the [&lt;annotation&gt; tag](../xml-data-file.md#annotation) and 
-  has the following predefined properties:
-    - `hasComment` (1-n)
-    - `isAnnotationOf` (1)
 - `LinkObj` is a resource linking together several other resources of different classes. 
   It can be used in the XML file with the [&lt;link&gt; tag](../xml-data-file.md#link) and 
   has the following predefined properties:
@@ -72,7 +67,3 @@ Subclasses can be created from some of them in the project ontology.
 - `isRegionOf`: A special variant of `hasLinkTo`. 
   It means that the given resource class is a region of interest in an image. 
     - must be used directly in the XML data file in the [&lt;region&gt; tag](../xml-data-file.md#region)
-- `isAnnotationOf`: A special variant of `hasLinkTo`. It means that the given resource class is an annotation to another
-  resource class. 
-    - must be used directly in the XML data file in the 
-  [&lt;annotation&gt; tag](../xml-data-file.md#annotation)

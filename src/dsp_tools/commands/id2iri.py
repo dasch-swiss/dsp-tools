@@ -75,7 +75,7 @@ def _replace_resptrs(
         a tuple of the modified copy of the XML tree, and the set of the IDs that have been replaced
     """
     modified_tree = copy.deepcopy(tree)
-    resptr_xpath = "|".join([f"/knora/{x}/resptr-prop/resptr" for x in ["resource", "annotation", "link", "region"]])
+    resptr_xpath = "|".join([f"/knora/{x}/resptr-prop/resptr" for x in ["resource", "link", "region"]])
     resptr_elems = modified_tree.xpath(resptr_xpath)
     resptr_elems_replaced = 0
     for resptr_elem in resptr_elems:
@@ -108,7 +108,7 @@ def _replace_salsah_links(
         a tuple of the modified copy of the XML tree, and the set of the IDs that have been replaced
     """
     modified_tree = copy.deepcopy(tree)
-    salsah_xpath = "|".join([f"/knora/{x}/text-prop/text//a" for x in ["resource", "annotation", "link", "region"]])
+    salsah_xpath = "|".join([f"/knora/{x}/text-prop/text//a" for x in ["resource", "link", "region"]])
     salsah_links = [x for x in modified_tree.xpath(salsah_xpath) if x.attrib.get("class") == "salsah-link"]
     salsah_links_replaced = 0
     for salsah_link in salsah_links:
@@ -175,7 +175,7 @@ def _remove_resources_if_id_in_mapping(
         a modified copy of the XML tree
     """
     modified_tree = copy.deepcopy(tree)
-    resources = modified_tree.xpath("|".join([f"/knora/{x}" for x in ["resource", "annotation", "link", "region"]]))
+    resources = modified_tree.xpath("|".join([f"/knora/{x}" for x in ["resource", "link", "region"]]))
     resources_to_remove = [x for x in resources if x.attrib.get("id") in mapping]
     for resource in resources_to_remove:
         resource.getparent().remove(resource)

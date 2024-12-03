@@ -355,10 +355,10 @@ def make_xsd_compatible_id(input_value: str | float | int) -> str:
     """
     An xsd:ID may not contain all types of special characters,
     and it must start with a letter or underscore.
-    Replace illegal characters with "_", and prepend a leading "_" if necessary.
+    Replace illegal characters with `_`, and prepend a leading `_` if necessary.
 
     The string must contain at least one Unicode letter (matching the regex ``\\p{L}``),
-    _, !, ?, or number, but must not be `None`, `<NA>`, `N/A`, or `-`.
+    `_`, `!`, `?`, or number, but must not be `None`, `<NA>`, `N/A`, or `-`.
 
     Args:
         input_value: input value
@@ -382,12 +382,12 @@ def make_xsd_compatible_id_with_uuid(input_value: str | float | int) -> str:
     """
     An xsd:ID may not contain all types of special characters,
     and it must start with a letter or underscore.
-    Replace illegal characters with "_", and prepend a leading "_" if necessary.
+    Replace illegal characters with `_`, and prepend a leading `_` if necessary.
     Additionally, add a UUID at the end.
     The UUID will be different each time the function is called.
 
     The string must contain at least one Unicode letter (matching the regex ``\\p{L}``),
-    _, !, ?, or number, but must not be `None`, `<NA>`, `N/A`, or `-`.
+    `_`, `!`, `?`, or number, but must not be `None`, `<NA>`, `N/A`, or `-`.
 
     Args:
         input_value: input value

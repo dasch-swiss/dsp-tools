@@ -415,7 +415,7 @@ def create_list_from_string(string: str, separator: str) -> list[str]:
             For example, a comma or newline.
 
     Returns:
-        A list with the input.
+        The list that results from splitting the input string.
             If the original string is empty or consists only of whitespace characters, the resulting list will be empty.
 
     Raises:

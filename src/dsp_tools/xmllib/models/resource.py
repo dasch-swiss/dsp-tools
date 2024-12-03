@@ -231,7 +231,8 @@ class Resource:
         Returns:
             The original resource, with the added values
         """
-        self.values.extend([ColorValue(v, prop_name, permissions, comment, self.res_id) for v in values])
+        vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
+        self.values.extend([ColorValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
     def add_color_optional(
@@ -307,7 +308,8 @@ class Resource:
         Returns:
             The original resource, with the added values
         """
-        self.values.extend([DateValue(v, prop_name, permissions, comment, self.res_id) for v in values])
+        vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
+        self.values.extend([DateValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
     def add_date_optional(
@@ -386,7 +388,8 @@ class Resource:
         Returns:
             The original resource, with the added values
         """
-        self.values.extend([DecimalValue(v, prop_name, permissions, comment, self.res_id) for v in values])
+        vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
+        self.values.extend([DecimalValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
     def add_decimal_optional(
@@ -469,7 +472,8 @@ class Resource:
         Returns:
             The original resource, with the added values
         """
-        self.values.extend([GeonameValue(v, prop_name, permissions, comment, self.res_id) for v in values])
+        vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
+        self.values.extend([GeonameValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
     def add_geoname_optional(
@@ -550,7 +554,8 @@ class Resource:
         Returns:
             The original resource, with the added values
         """
-        self.values.extend([IntValue(v, prop_name, permissions, comment, self.res_id) for v in values])
+        vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
+        self.values.extend([IntValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
     def add_integer_optional(
@@ -628,7 +633,8 @@ class Resource:
         Returns:
             The original resource, with the added values
         """
-        self.values.extend([LinkValue(v, prop_name, permissions, comment, self.res_id) for v in values])
+        vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
+        self.values.extend([LinkValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
     def add_link_optional(
@@ -710,7 +716,8 @@ class Resource:
         Returns:
             The original resource, with the added values
         """
-        self.values.extend([ListValue(v, list_name, prop_name, permissions, comment, self.res_id) for v in values])
+        vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
+        self.values.extend([ListValue(v, list_name, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
     def add_list_optional(
@@ -789,7 +796,8 @@ class Resource:
         Returns:
             The original resource, with the added values
         """
-        self.values.extend([SimpleText(v, prop_name, permissions, comment, self.res_id) for v in values])
+        vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
+        self.values.extend([SimpleText(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
     def add_simpletext_optional(
@@ -892,10 +900,11 @@ class Resource:
         # Because of the richtext conversions, the input value is cast as a string.
         # Values such as str(`pd.NA`) result in a non-empy string.
         # Therefore a check must occur before the conversion takes place.
-        for val in values:
+        new_vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
+        for val in new_vals:
             _check_richtext_before_conversion(val, self.res_id, prop_name)
-        values = [replace_newlines_with_tags(str(v), newline_replacement) for v in values]
-        self.values.extend([Richtext(v, prop_name, permissions, comment, self.res_id) for v in values])
+        replaced_vals = [replace_newlines_with_tags(str(v), newline_replacement) for v in new_vals]
+        self.values.extend([Richtext(v, prop_name, permissions, comment, self.res_id) for v in replaced_vals])
         return self
 
     def add_richtext_optional(
@@ -982,7 +991,8 @@ class Resource:
         Returns:
             The original resource, with the added values
         """
-        self.values.extend([TimeValue(v, prop_name, permissions, comment, self.res_id) for v in values])
+        vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
+        self.values.extend([TimeValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
     def add_time_optional(
@@ -1059,7 +1069,8 @@ class Resource:
         Returns:
             The original resource, with the added values
         """
-        self.values.extend([UriValue(v, prop_name, permissions, comment, self.res_id) for v in values])
+        vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
+        self.values.extend([UriValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
     def add_uri_optional(
@@ -1207,3 +1218,18 @@ def _check_richtext_before_conversion(value: Any, res_id: str, prop_name: str) -
     if not is_string_like(value):
         msg = f"Resource '{res_id}' has a richtext value that is not a string: Value: {value} | Property: {prop_name}"
         warnings.warn(DspToolsUserWarning(msg))
+
+
+def _check_and_fix_collection_input(value: Any, res_id: str, prop_name: str) -> list[Any]:
+    msg = f"The input value of the resource with the ID '{res_id}' and the property '{prop_name}' "
+    match value:
+        case set() | list() | tuple():
+            if len(value) == 0:
+                msg += "is empty. Please note that no values will be added to the resource."
+                print("\033[1;33m" + msg + "\033[1;33m")
+            return list(value)
+        case dict():
+            msg += "is a dictionary. Only collections (list, set, tuple) are permissible."
+            raise InputError(msg)
+        case _:
+            return [value]

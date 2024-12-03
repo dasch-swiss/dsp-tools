@@ -31,3 +31,30 @@ class NewlineReplacement(Enum):
     NONE = auto()
     PARAGRAPH = auto()
     LINEBREAK = auto()
+
+
+class PredefinedLicenses(Enum):
+    """
+    **Please note that this feature is still in development and not stable.
+    It is possible that the default licenses may change at a later point.**
+
+    Options for the pre-defined licenses:
+
+    - `CC_BY` [Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/)
+    - `CC_BY_SA` [Attribution-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-sa/4.0/)
+    - `CC_BY_NC` [Attribution-NonCommercial 4.0 International](https://creativecommons.org/licenses/by-nc/4.0/)
+    - `CC_BY_NC_SA` [Attribution-NonCommercial-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+    - `CC_BY_ND` [Attribution-NoDerivatives 4.0 International](https://creativecommons.org/licenses/by-nd/4.0/)
+    - `CC_BY_NC_ND` [Attribution-NonCommercial-NoDerivatives 4.0 International](https://creativecommons.org/licenses/by-nc-nd/4.0/)
+    - `CC0` [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/)
+    - `UNKNOWN` [Copyright Not Evaluated](http://rightsstatements.org/vocab/CNE/1.0/)
+    """
+
+    CC_BY = "CC_BY"
+    CC_BY_SA = "CC_BY_SA"
+    CC_BY_NC = "CC_BY_NC"
+    CC_BY_NC_SA = "CC_BY_NC_SA"
+    CC_BY_ND = "CC_BY_ND"
+    CC_BY_NC_ND = "CC_BY_NC_ND"
+    CC0 = "CC0"
+    UNKNOWN = "unknown"

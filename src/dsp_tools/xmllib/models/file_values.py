@@ -10,16 +10,30 @@ from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.utils.uri_util import is_iiif_uri
+from dsp_tools.xmllib.constants import DASCH_SCHEMA
+from dsp_tools.xmllib.constants import XML_NAMESPACE_MAP
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.value_checkers import is_string_like
 
-XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
-DASCH_SCHEMA = "{https://dasch.swiss/schema}"
+
+@dataclass
+class FileMetadata:
+    permissions: Permissions | None
+    copyright_attribution: str | None
+    license: str | None
+
+    def to_dict(self) -> dict[str, str]:
+        meta_dict = {"permissions": self.permissions.value} if self.permissions else {}
+        if self.copyright_attribution:
+            meta_dict["copyright"] = self.copyright_attribution
+        if self.license:
+            meta_dict["license"] = self.license
+        return meta_dict
 
 
 class AbstractFileValue(Protocol):
     value: str | Path
-    permissions: Permissions
+    metadata: FileMetadata
     comment: str | None = None
 
     def serialise(self) -> etree._Element:
@@ -29,7 +43,7 @@ class AbstractFileValue(Protocol):
 @dataclass
 class FileValue(AbstractFileValue):
     value: str | Path
-    permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
+    metadata: FileMetadata
     comment: str | None = None
     resource_id: str | None = None
 
@@ -38,11 +52,9 @@ class FileValue(AbstractFileValue):
             _warn_type_mismatch(expected_type="file name", value=self.value, res_id=self.resource_id)
 
     def serialise(self) -> etree._Element:
-        attribs = {}
-        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
-            attribs["permissions"] = self.permissions.value
-        if is_string_like(self.comment):
-            attribs["comment"] = str(self.comment)
+        attribs = self.metadata.to_dict()
+        if self.comment:
+            attribs["comment"] = self.comment
         ele = etree.Element(f"{DASCH_SCHEMA}bitstream", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
         ele.text = str(self.value)
         return ele
@@ -51,7 +63,7 @@ class FileValue(AbstractFileValue):
 @dataclass
 class IIIFUri(AbstractFileValue):
     value: str
-    permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
+    metadata: FileMetadata
     comment: str | None = None
     resource_id: str | None = None
 
@@ -60,11 +72,9 @@ class IIIFUri(AbstractFileValue):
             _warn_type_mismatch(expected_type="IIIF uri", value=self.value, res_id=self.resource_id)
 
     def serialise(self) -> etree._Element:
-        attribs = {}
-        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
-            attribs["permissions"] = self.permissions.value
-        if is_string_like(self.comment):
-            attribs["comment"] = str(self.comment)
+        attribs = self.metadata.to_dict()
+        if self.comment:
+            attribs["comment"] = self.comment
         ele = etree.Element(f"{DASCH_SCHEMA}iiif-uri", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
         ele.text = str(self.value)
         return ele

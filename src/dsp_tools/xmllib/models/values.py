@@ -12,6 +12,8 @@ from namedentities.core import numeric_entities  # type: ignore[import-untyped]
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.uri_util import is_uri
+from dsp_tools.xmllib.constants import DASCH_SCHEMA
+from dsp_tools.xmllib.constants import XML_NAMESPACE_MAP
 from dsp_tools.xmllib.helpers import escape_reserved_xml_characters
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.value_checkers import check_richtext_syntax
@@ -24,9 +26,6 @@ from dsp_tools.xmllib.value_checkers import is_integer
 from dsp_tools.xmllib.value_checkers import is_string_like
 from dsp_tools.xmllib.value_checkers import is_timestamp
 from dsp_tools.xmllib.value_converters import convert_to_bool_string
-
-XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
-DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 
 
 class Value(Protocol):

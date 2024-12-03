@@ -11,9 +11,13 @@ from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.xmllib.constants import DASCH_SCHEMA
+from dsp_tools.xmllib.constants import XML_NAMESPACE_MAP
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
+from dsp_tools.xmllib.models.config_options import PredefinedLicenses
 from dsp_tools.xmllib.models.file_values import AbstractFileValue
+from dsp_tools.xmllib.models.file_values import FileMetadata
 from dsp_tools.xmllib.models.file_values import FileValue
 from dsp_tools.xmllib.models.file_values import IIIFUri
 from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
@@ -35,9 +39,6 @@ from dsp_tools.xmllib.value_checkers import is_string_like
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
 # ruff: noqa: D101, D102
-
-XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
-DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 
 LIST_SEPARATOR = "\n    - "
 
@@ -1105,6 +1106,8 @@ class Resource:
         self,
         filename: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        copyright_id: str | None = None,
+        license_id: str | PredefinedLicenses | None = None,
         comment: str | None = None,
     ) -> Resource:
         """
@@ -1115,6 +1118,8 @@ class Resource:
         Args:
             filename: path to the file
             permissions: optional permissions of this file
+            copyright_id:  ID of a copyright defined in the root
+            license_id:  ID of a license defined in the root
             comment: optional comment
 
         Raises:
@@ -1129,13 +1134,20 @@ class Resource:
                 f"'{self.file_value.value}'.\n"
                 f"The new file with the name '{filename}' cannot be added."
             )
-        self.file_value = FileValue(filename, permissions, comment, self.res_id)
+        if isinstance(license_id, PredefinedLicenses):
+            license_val: str | None = license_id.value
+        else:
+            license_val = license_id
+        metadata = FileMetadata(permissions, copyright_id, license_val)
+        self.file_value = FileValue(filename, metadata, comment, self.res_id)
         return self
 
     def add_iiif_uri(
         self,
         iiif_uri: str,
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        copyright_id: str | None = None,
+        license_id: str | PredefinedLicenses | None = None,
         comment: str | None = None,
     ) -> Resource:
         """
@@ -1146,6 +1158,8 @@ class Resource:
         Args:
             iiif_uri: valid IIIF URI
             permissions: optional permissions of this value
+            copyright_id:  ID of a copyright defined in the root
+            license_id:  ID of a license defined in the root
             comment: optional comment
 
         Raises:
@@ -1160,7 +1174,12 @@ class Resource:
                 f"'{self.file_value.value}'.\n"
                 f"The new file with the name '{iiif_uri}' cannot be added."
             )
-        self.file_value = IIIFUri(iiif_uri, permissions, comment, self.res_id)
+        if isinstance(license_id, PredefinedLicenses):
+            license_val: str | None = license_id.value
+        else:
+            license_val = license_id
+        metadata = FileMetadata(permissions, copyright_id, license_val)
+        self.file_value = IIIFUri(iiif_uri, metadata, comment, self.res_id)
         return self
 
     #######################

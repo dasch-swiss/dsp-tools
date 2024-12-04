@@ -86,6 +86,26 @@ class Resource:
 
         Returns:
             Resource
+
+        Examples:
+            ```python
+            # resource with project specific permissions
+            resource = xmllib.Resource.create_new(
+                res_id="ID",
+                restype=":ResourceType",
+                label="label",
+            )
+            ```
+
+            ```python
+            # resource with custom permissions
+            resource = xmllib.Resource.create_new(
+                res_id="ID",
+                restype=":ResourceType",
+                label="label",
+                permissions=xmllib.Permissions.RESTRICTED,
+            )
+            ```
         """
         return Resource(
             res_id=res_id,
@@ -148,6 +168,14 @@ class Resource:
 
         Returns:
             The original resource, with the added value
+
+        Examples:
+            ```python
+            resource = resource.add_bool(
+                prop_name=":boolProp",
+                value=True
+            )
+            ```
         """
         self.values.append(BooleanValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -177,6 +205,21 @@ class Resource:
 
         Returns:
             The original resource, with the added value if it was not empty, else the unchanged original resource.
+
+        Examples:
+            ```python
+            resource = resource.add_bool_optional(
+                prop_name=":boolProp",
+                value=True
+            )
+            ```
+
+            ```python
+            resource = resource.add_bool_optional(
+                prop_name=":boolProp",
+                value=pd.NA
+            )
+            ```
         """
         if is_nonempty_value(value):
             self.values.append(BooleanValue(value, prop_name, permissions, comment, self.res_id))
@@ -206,6 +249,14 @@ class Resource:
 
         Returns:
             The original resource, with the added value
+
+        Examples:
+            ```python
+            resource = resource.add_color(
+                prop_name=":propName",
+                value="#00ff66",
+            )
+            ```
         """
         self.values.append(ColorValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -230,6 +281,14 @@ class Resource:
 
         Returns:
             The original resource, with the added values
+
+        Examples:
+            ```python
+            resource = resource.add_color_multiple(
+                prop_name=":Prop",
+                values=["#00ff66", "#00ff55"],
+            )
+            ```
         """
         vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
         self.values.extend([ColorValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
@@ -255,6 +314,21 @@ class Resource:
 
         Returns:
             The original resource, with the added value if it was not empty, else the unchanged original resource.
+
+        Examples:
+            ```python
+            resource = resource.add_color_optional(
+                prop_name=":propName",
+                value="#00ff66",
+            )
+            ```
+
+            ```python
+            resource = resource.add_color_optional(
+                prop_name=":propName",
+                value=None,
+            )
+            ```
         """
         if is_nonempty_value(value):
             self.values.append(ColorValue(value, prop_name, permissions, comment, self.res_id))
@@ -1186,6 +1260,21 @@ class Resource:
 
         Returns:
             The original resource, with the added migration metadata
+
+        Examples:
+            ```python
+            resource = resource.add_migration_metadata(
+                iri="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA",
+                creation_date="1999-12-31T23:59:59.9999999+01:00"
+            )
+            ```
+
+            ```python
+            resource = resource.add_migration_metadata(
+                ark="ark:/72163/4123-43xc6ivb931-a.2022829",
+                creation_date="1999-12-31T23:59:59.9999999+01:00"
+            )
+            ```
         """
         if self.migration_metadata:
             raise InputError(

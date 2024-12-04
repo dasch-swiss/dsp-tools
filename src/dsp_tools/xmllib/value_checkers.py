@@ -20,6 +20,22 @@ def is_nonempty_value(value: Any) -> bool:
 
     Returns:
         True if it is not empty
+
+    Examples:
+        ```python
+        result = xmllib.is_nonempty_value("Not Empty")
+        # result = True
+        ```
+
+        ```python
+        result = xmllib.is_nonempty_value("")
+        # result = False
+        ```
+
+        ```python
+        result = xmllib.is_nonempty_value(None)
+        # result = False
+        ```
     """
     if isinstance(value, str) and len(value) == 0:
         return False
@@ -36,6 +52,17 @@ def is_bool_like(value: Any) -> bool:
 
     Returns:
         True if it conforms
+
+    Examples:
+        ```python
+        result = xmllib.is_bool_like("yes")
+        # result = True
+        ```
+
+        ```python
+        result = xmllib.is_bool_like("Not like a bool")
+        # result = False
+        ```
     """
     value = str(value).lower().strip()
     if value in ("false", "0", "0.0", "no", "non", "nein"):
@@ -54,8 +81,18 @@ def is_color(value: Any) -> bool:
 
     Returns:
         True if it conforms
-    """
 
+    Examples:
+        ```python
+        result = xmllib.is_color("#00ff66")
+        # result = True
+        ```
+
+        ```python
+        result = xmllib.is_color("Not a color")
+        # result = False
+        ```
+    """
     return bool(regex.search(r"^#[0-9a-f]{6}$", str(value).strip(), flags=regex.IGNORECASE))
 
 
@@ -68,8 +105,18 @@ def is_date(value: Any) -> bool:
 
     Returns:
         True if it conforms
-    """
 
+    Examples:
+        ```python
+        result = xmllib.is_date("GREGORIAN:CE:2014-01-31:CE:2014-01-31")
+        # result = True
+        ```
+
+        ```python
+        result = xmllib.is_date("Not a date")
+        # result = False
+        ```
+    """
     calendar_optional = r"((GREGORIAN|JULIAN|ISLAMIC):)?"
     first_era_optional = r"((CE|BCE|BC|AD):)?"
     second_area_optional = r"(:(CE|BCE|BC|AD))?"
@@ -91,6 +138,17 @@ def is_geoname(value: Any) -> bool:
 
     Returns:
         True if it conforms
+
+    Examples:
+        ```python
+        result = xmllib.is_geoname("8879000")
+        # result = True
+        ```
+
+        ```python
+        result = xmllib.is_geoname("Not a geoname")
+        # result = False
+        ```
     """
     return is_integer(value)
 
@@ -104,6 +162,24 @@ def is_decimal(value: Any) -> bool:
 
     Returns:
         True if conforms to the above-mentioned criteria.
+
+    Examples:
+        ```python
+        result = xmllib.is_decimal("0.1")
+        # result = True
+        ```
+
+        ```python
+        # because this is equivalent to 9.0 it is accepted
+
+        result = xmllib.is_decimal(9)
+        # result = True
+        ```
+
+        ```python
+        result = xmllib.is_decimal("Not a decimal")
+        # result = False
+        ```
     """
     if pd.isna(value):
         return False
@@ -129,6 +205,22 @@ def is_integer(value: Any) -> bool:
 
     Returns:
         True if conforms to the above-mentioned criteria.
+
+    Examples:
+        ```python
+        result = xmllib.is_integer("1")
+        # result = True
+        ```
+
+        ```python
+        result = xmllib.is_integer(9.1)
+        # result = False
+        ```
+
+        ```python
+        result = xmllib.is_integer("Not an integer")
+        # result = False
+        ```
     """
     match value:
         case bool():

@@ -74,7 +74,7 @@ class RegionResource:
 
         Examples:
             ```python
-            region_resource = xmllib.RegionResource.create_new(
+            resource = xmllib.RegionResource.create_new(
                     res_id="ID",
                     label="Region label",
                     region_of="Image ID",
@@ -116,7 +116,7 @@ class RegionResource:
         Examples:
             ```python
             # with default display values
-            region_resource = region_resource.add_rectangle(
+            resource = resource.add_rectangle(
                 point1=(0.1, 0.1),
                 point2=(0.2, 0.2),
             )
@@ -124,7 +124,7 @@ class RegionResource:
 
             ```python
             # with custom display values
-            region_resource = region_resource.add_rectangle(
+            resource = resource.add_rectangle(
                 point1=(0.1, 0.1),
                 point2=(0.2, 0.2),
                 line_width=3,
@@ -170,15 +170,15 @@ class RegionResource:
 
         Examples:
             ```python
-            # with default values
-            region_resource = region_resource.add_polygon(
+            # with default display values
+            resource = resource.add_polygon(
                 points=[(0.1, 0.1), (0.2, 0.2), (0.3, 0.3)],
             )
             ```
 
             ```python
             # with custom display values
-            region_resource = region_resource.add_polygon(
+            resource = resource.add_polygon(
                 points=[(0.1, 0.1), (0.2, 0.2), (0.3, 0.3)],
                 line_width=3,
                 color="#32a873",
@@ -220,8 +220,8 @@ class RegionResource:
 
         Examples:
             ```python
-            # with default values
-            region_resource = region_resource.add_circle(
+            # with default display values
+            resource = resource.add_circle(
                 center=(0.1, 0.1),
                 radius=(0.2, 0.2),
             )
@@ -229,7 +229,7 @@ class RegionResource:
 
             ```python
             # with custom display values
-            region_resource = region_resource.add_circle(
+            resource = resource.add_circle(
                 center=(0.1, 0.1),
                 radius=(0.2, 0.2),
                 line_width=3,
@@ -258,7 +258,9 @@ class RegionResource:
             The original resource, with the added comment
 
         Examples:
-
+            ```python
+            resource = resource.add_comment("comment text")
+            ```
         """
         self.comments.append(comment)
         return self
@@ -272,6 +274,11 @@ class RegionResource:
 
         Returns:
             The original resource, with the added comments
+
+        Examples:
+            ```python
+            resource = resource.add_comment_multiple(["comment 1", "comment 2"])
+            ```
         """
         self.comments.extend(comments)
         return self
@@ -285,6 +292,15 @@ class RegionResource:
 
         Returns:
             The original resource, with the added comment
+
+        Examples:
+            ```python
+            resource = resource.add_comment_optional("comment text")
+            ```
+
+            ```python
+            resource = resource.add_comment_optional(None)
+            ```
         """
         if is_nonempty_value(comment):
             self.comments.append(comment)
@@ -306,6 +322,14 @@ class RegionResource:
 
         Returns:
             The original resource, with the added metadata
+
+        Examples:
+            ```python
+            resource = resource.add_migration_metadata(
+                iri="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA",
+                creation_date="1999-12-31T23:59:59.9999999+01:00"
+            )
+            ```
         """
         if self.migration_metadata:
             raise InputError(

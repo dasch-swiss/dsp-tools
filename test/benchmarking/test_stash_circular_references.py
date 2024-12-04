@@ -1,12 +1,13 @@
 from pathlib import Path
 
 import pytest
-from termcolor import cprint
 
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import identify_circular_references
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references
 from dsp_tools.commands.xmlupload.xmlupload import _extract_resources_from_xml
+from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.utils.ansi_colors import YELLOW
 from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
 
 
@@ -26,7 +27,7 @@ def test_get_length_ok_resources() -> None:
         f"Current Stash Size: {stashed_links}"
         f"\n---------------------\n"
     )
-    cprint(text=print_str, color="yellow", attrs=["bold"])
+    print(YELLOW + print_str + RESET_TO_DEFAULT)
     assert stashed_links <= previous_stash_size
 
 

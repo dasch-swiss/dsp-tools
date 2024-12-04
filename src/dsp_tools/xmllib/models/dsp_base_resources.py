@@ -857,6 +857,11 @@ class VideoSegmentResource:
 
         Returns:
             The original resource, with the added related resource
+
+        Examples:
+            ```python
+            resource = resource.add_relates_to("target_resource")
+            ```
         """
         self.relates_to.append(relates_to)
         return self
@@ -870,6 +875,11 @@ class VideoSegmentResource:
 
         Returns:
             The original resource, with the added related resources
+
+        Examples:
+            ```python
+            resource = resource.add_relates_to_multiple(["target_resource_1", "target_resource_2"])
+            ```
         """
         self.relates_to.extend(relates_to)
         return self
@@ -883,6 +893,15 @@ class VideoSegmentResource:
 
         Returns:
             The original resource, with the added related resources
+
+        Examples:
+            ```python
+            resource = resource.add_relates_to_optional("target_resource")
+            ```
+
+            ```python
+            resource = resource.add_relates_to_optional(None)
+            ```
         """
         if is_nonempty_value(relates_to):
             self.relates_to.append(relates_to)
@@ -1214,6 +1233,11 @@ class AudioSegmentResource:
 
         Returns:
             The original resource, with the added related resource
+
+        Examples:
+            ```python
+            resource = resource.add_relates_to("target_resource")
+            ```
         """
         self.relates_to.append(relates_to)
         return self
@@ -1227,6 +1251,11 @@ class AudioSegmentResource:
 
         Returns:
             The original resource, with the added related resources
+
+        Examples:
+            ```python
+            resource = resource.add_relates_to_multiple(["target_resource_1", "target_resource_2"])
+            ```
         """
         self.relates_to.extend(relates_to)
         return self
@@ -1240,6 +1269,15 @@ class AudioSegmentResource:
 
         Returns:
             The original resource, with the added related resources
+
+        Examples:
+            ```python
+            resource = resource.add_relates_to_optional("target_resource")
+            ```
+
+            ```python
+            resource = resource.add_relates_to_optional(None)
+            ```
         """
         if is_nonempty_value(relates_to):
             self.relates_to.append(relates_to)

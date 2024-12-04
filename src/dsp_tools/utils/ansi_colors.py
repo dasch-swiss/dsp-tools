@@ -14,10 +14,10 @@ RESET_TO_DEFAULT = f"{SEQUENCE_START}0{SEQUENCE_END}"
 
 # Colored Text
 BOLD_RED = f"{SEQUENCE_START}1;31{SEQUENCE_END}"  # 1 (bold) ; 31 (red)
-BOLD_CYAN = f"{SEQUENCE_START}1;36{SEQUENCE_END}"  # 1 (bold) ; 45 (cyan)
+BOLD_CYAN = f"{SEQUENCE_START}1;36{SEQUENCE_END}"  # 1 (bold) ; 36 (cyan)
 YELLOW = f"{SEQUENCE_START}0;33{SEQUENCE_END}"  # 0 (normal font) ; 33 (yellow)
 
 # Colored Background
 BACKGROUND_BOLD_MAGENTA = f"{SEQUENCE_START}1;45{SEQUENCE_END}"  # 1 (bold) ; 45 (background magenta)
-BACKGROUND_BOLD_YELLOW = f"{SEQUENCE_START}1;43{SEQUENCE_END}"  # 1 (bold) ; 45 (background yellow)
-BACKGROUND_BOLD_GREEN = f"{SEQUENCE_START}1;42{SEQUENCE_END}"  # 1 (bold) ; 45 (background green)
+BACKGROUND_BOLD_YELLOW = f"{SEQUENCE_START}1;43{SEQUENCE_END}"  # 1 (bold) ; 43 (background yellow)
+BACKGROUND_BOLD_GREEN = f"{SEQUENCE_START}1;42{SEQUENCE_END}"  # 1 (bold) ; 42 (background green)

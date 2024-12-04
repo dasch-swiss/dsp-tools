@@ -244,7 +244,7 @@ def is_string_like(value: Any) -> bool:
 
     Examples:
         ```python
-        result = xmllib.is_string_like("This is a string")
+        result = xmllib.is_string_like("this is a string")
         # result = True
         ```
 

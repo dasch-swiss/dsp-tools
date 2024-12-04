@@ -31,6 +31,8 @@ def convert_to_bool_string(value: Any) -> str:
         ```
 
         ```python
+        # because this is not an accepted value, it is returned as a string
+
         result = xmllib.convert_to_bool_string(None)
         # result = "None"
         ```

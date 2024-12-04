@@ -1,16 +1,28 @@
+from __future__ import annotations
+
 import json
+from dataclasses import dataclass
 from json.decoder import JSONDecodeError
+from typing import Callable
 from typing import TypeAlias
 from typing import Union
 from typing import assert_never
 
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryValue
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryValueTypes
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntervalFloats
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.date_util import Date
 from dsp_tools.utils.date_util import parse_date_string
 
 InputTypes: TypeAlias = Union[str, FormattedTextValue]
+
+
+@dataclass
+class TypeTransformerMapper:
+    val_type: type[IntermediaryValue]
+    val_transformer: Callable[[InputTypes], IntermediaryValueTypes]
 
 
 def transform_boolean(value: InputTypes) -> bool:

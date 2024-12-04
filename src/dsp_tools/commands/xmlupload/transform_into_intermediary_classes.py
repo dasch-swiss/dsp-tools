@@ -1,11 +1,8 @@
-from typing import Callable
-
 from dsp_tools.commands.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import IIIFUriInfo
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLBitstream
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
-from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileMetadata
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileValue
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryIIIFUri
@@ -28,11 +25,9 @@ from dsp_tools.commands.xmlupload.models.intermediary.values import Intermediary
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryTime
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryUri
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryValue
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryValueTypes
-from dsp_tools.commands.xmlupload.models.intermediary.values import TypeTransformerMapper
 from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookup
 from dsp_tools.commands.xmlupload.models.permission import Permissions
-from dsp_tools.commands.xmlupload.transform_input_values import InputTypes
+from dsp_tools.commands.xmlupload.transform_input_values import TypeTransformerMapper
 from dsp_tools.commands.xmlupload.transform_input_values import assert_is_string
 from dsp_tools.commands.xmlupload.transform_input_values import transform_boolean
 from dsp_tools.commands.xmlupload.transform_input_values import transform_date
@@ -146,28 +141,20 @@ def _transform_one_property(prop: XMLProperty, lookups: IntermediaryLookup) -> l
         case "text":
             return _transform_text_values(prop, lookups)
         case _ as val_type:
-            prop_type, transformer = TYPE_TRANSFORMER_MAPPER[val_type]
-            return _transform_one_generic_value(
-                prop=prop,
-                lookups=lookups,
-                intermediary_val_constructor=prop_type,
-                transformer=transformer,
-            )
+            transformation_mapper = TYPE_TRANSFORMER_MAPPER[val_type]
+            return _transform_one_generic_value(prop=prop, lookups=lookups, transformation_mapper=transformation_mapper)
 
 
 def _transform_one_generic_value(
-    prop: XMLProperty,
-    lookups: IntermediaryLookup,
-    intermediary_val_constructor: Callable[[InputTypes, str, str | None, Permissions | None], IntermediaryValue],
-    transformer: Callable[[str | FormattedTextValue], IntermediaryValueTypes],
+    prop: XMLProperty, lookups: IntermediaryLookup, transformation_mapper: TypeTransformerMapper
 ) -> list[IntermediaryValue]:
     intermediary_values = []
     prop_iri = _get_absolute_iri(prop.name, lookups.namespaces)
     for val in prop.values:
-        transformed_value = transformer(val.value)
+        transformed_value = transformation_mapper.val_transformer(val.value)
         permission_val = _resolve_permission(val.permissions, lookups.permissions)
         intermediary_values.append(
-            intermediary_val_constructor(transformed_value, prop_iri, val.comment, permission_val)
+            transformation_mapper.val_type(transformed_value, prop_iri, val.comment, permission_val)
         )
     return intermediary_values
 

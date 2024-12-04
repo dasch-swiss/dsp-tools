@@ -1,4 +1,3 @@
-import json
 import warnings
 from typing import Any
 
@@ -292,29 +291,6 @@ def is_timestamp(value: Any) -> bool:
     """
     validation_regex = r"^\d{4}-[0-1]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(\.\d{1,12})?(Z|[+-][0-1]\d:[0-5]\d)$"
     return bool(regex.search(validation_regex, str(value)))
-
-
-def find_geometry_problem(value: Any) -> str:
-    """
-    Validates if a value is a valid geometry object.
-
-    Args:
-        value: geometry object
-
-    Returns:
-        String with the validation message if it fails, else an empty string.
-    """
-    msg = ""
-    try:
-        value_as_dict = json.loads(str(value))
-        if value_as_dict["type"] not in ["rectangle", "circle", "polygon"]:
-            msg += "\nThe 'type' of the JSON geometry object must be 'rectangle', 'circle', or 'polygon'."
-
-        if not isinstance(value_as_dict["points"], list):
-            msg += "\nThe 'points' of the JSON geometry object must be a list of points."
-    except (json.JSONDecodeError, TypeError, IndexError, KeyError, AssertionError):
-        msg += f"\n'{value}' is not a valid JSON geometry object."
-    return msg
 
 
 def is_dsp_iri(value: Any) -> bool:

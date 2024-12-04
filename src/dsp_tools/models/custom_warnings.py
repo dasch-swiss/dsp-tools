@@ -1,7 +1,9 @@
 from typing import Protocol
 from typing import runtime_checkable
 
-from termcolor import cprint
+from dsp_tools.utils.ansi_colors import BOLD_RED
+from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.utils.ansi_colors import YELLOW
 
 
 @runtime_checkable
@@ -19,7 +21,16 @@ class DspToolsUserWarning(Warning):
     @classmethod
     def showwarning(cls, message: str) -> None:
         """Print the warning, without context"""
-        cprint(f"WARNING: {message}", color="red", attrs=["bold"])
+        print(BOLD_RED + f"WARNING: {message}" + RESET_TO_DEFAULT)
+
+
+class DspToolsUserInfo(Warning):
+    """Class for general user-facing warnings"""
+
+    @classmethod
+    def showwarning(cls, message: str) -> None:
+        """Print the information, without context"""
+        print(YELLOW + f"INFO: {message}" + RESET_TO_DEFAULT)
 
 
 class DspToolsFutureWarning(FutureWarning):
@@ -28,4 +39,4 @@ class DspToolsFutureWarning(FutureWarning):
     @classmethod
     def showwarning(cls, message: str) -> None:
         """Print the warning, without context"""
-        cprint(f"DEPRECATION WARNING: {message}", color="red", attrs=["bold"])
+        print(BOLD_RED + f"DEPRECATION WARNING: {message}" + RESET_TO_DEFAULT)

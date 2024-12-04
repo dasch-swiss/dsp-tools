@@ -2,7 +2,6 @@ import pickle
 import sys
 
 from loguru import logger
-from termcolor import colored
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.xmlupload.list_client import ListClient
@@ -16,6 +15,8 @@ from dsp_tools.commands.xmlupload.project_client import ProjectClient
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import execute_upload
+from dsp_tools.utils.ansi_colors import RED
+from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
 from dsp_tools.utils.connection_live import ConnectionLive
 
@@ -73,7 +74,7 @@ def _skip_first_resource(upload_state: UploadState) -> None:
         )
         resp = None
         while resp not in ["y", "n"]:
-            resp = input(colored(msg, color="red"))
+            resp = input(RED + msg + RESET_TO_DEFAULT)
         if resp == "n":
             sys.exit(1)
 

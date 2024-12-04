@@ -11,13 +11,14 @@ import regex
 import requests
 from loguru import logger
 from packaging.version import parse
-from termcolor import colored
 
 from dsp_tools.cli.call_action import call_requested_action
 from dsp_tools.cli.create_parsers import make_parser
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InternalError
 from dsp_tools.models.exceptions import UserError
+from dsp_tools.utils.ansi_colors import BOLD_RED
+from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.logger_config import logger_config
 from dsp_tools.utils.warnings_config import initialize_warnings
 
@@ -108,13 +109,13 @@ def _check_version() -> None:
         "Consider upgrading via 'pip3 install --upgrade dsp-tools'.\n"
     )
     if latest.base_version == installed.base_version:
-        print(colored(msg, color="red"))
+        print(BOLD_RED + msg + RESET_TO_DEFAULT)
         return
 
     msg += "Continue anyway? [y/n]"
     resp = None
     while resp not in ["y", "n"]:
-        resp = input(colored(msg, color="red"))
+        resp = input(BOLD_RED + msg + RESET_TO_DEFAULT)
     if resp == "y":
         return
     sys.exit(1)

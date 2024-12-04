@@ -7,7 +7,6 @@ from rdflib import RDF
 from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
-from termcolor import cprint
 
 from dsp_tools.commands.validate_data.api_clients import ListClient
 from dsp_tools.commands.validate_data.api_clients import OntologyClient
@@ -25,6 +24,11 @@ from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_
 from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_shapes_graphs
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_GREEN
+from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_MAGENTA
+from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_YELLOW
+from dsp_tools.utils.ansi_colors import BOLD_CYAN
+from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.xml_utils import parse_xml_file
 from dsp_tools.utils.xml_utils import remove_comments_from_element_tree
 from dsp_tools.utils.xml_utils import transform_into_localnames
@@ -32,6 +36,9 @@ from dsp_tools.utils.xml_validation import validate_xml
 
 LIST_SEPARATOR = "\n    - "
 KNORA_API = "http://api.knora.org/ontology/knora-api/v2#"
+
+
+VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_MAGENTA + "\n   Validation errors found!   " + RESET_TO_DEFAULT
 
 
 def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bool) -> bool:  # noqa: ARG001 (unused argument)
@@ -52,23 +59,22 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
     graphs = _get_parsed_graphs(api_con, filepath)
     if unknown_classes := _check_for_unknown_resource_classes(graphs):
         msg = unknown_classes.get_msg()
-        cprint("\n   Validation errors found!   ", color="light_red", attrs=["bold", "reverse"])
+        print(VALIDATION_ERRORS_FOUND_MSG)
         print(msg)
         return True
     report = _get_validation_result(graphs, api_con, filepath, save_graphs)
     if report.conforms:
-        cprint("\n   Validation passed!   ", color="green", attrs=["bold", "reverse"])
+        print(BACKGROUND_BOLD_GREEN + "\n   Validation passed!   " + RESET_TO_DEFAULT)
     else:
         reformatted = reformat_validation_graph(report)
         problem_msg = reformatted.get_msg(filepath)
-        cprint("\n   Validation errors found!   ", color="light_red", attrs=["bold", "reverse"])
+        print(VALIDATION_ERRORS_FOUND_MSG)
         print(problem_msg)
         if reformatted.unexpected_results:
             if save_graphs:
-                cprint(
-                    "\n   Unexpected violations were found! Consult the saved graphs for details.   ",
-                    color="yellow",
-                    attrs=["bold", "reverse"],
+                print(
+                    BACKGROUND_BOLD_YELLOW + "\n   Unexpected violations were found! "
+                    "Consult the saved graphs for details.   " + RESET_TO_DEFAULT
                 )
                 return True
             reformatted.unexpected_results.save_inform_user(
@@ -87,7 +93,7 @@ def _inform_about_experimental_feature() -> None:
         "If the value type used matches the ontology",
         "Content of the values",
     ]
-    cprint(LIST_SEPARATOR.join(what_is_validated), color="magenta", attrs=["bold"])
+    print(BOLD_CYAN + LIST_SEPARATOR.join(what_is_validated) + RESET_TO_DEFAULT)
 
 
 def _get_parsed_graphs(api_con: ApiConnection, filepath: Path) -> RDFGraphs:
@@ -177,7 +183,7 @@ def _save_graphs(filepath: Path, rdf_graphs: RDFGraphs) -> Path:
     parent_directory = filepath.parent
     new_directory = parent_directory / "graphs"
     new_directory.mkdir(exist_ok=True)
-    cprint(f"\n   Saving graphs to {new_directory}   ", color="light_blue", attrs=["bold", "reverse"])
+    print(BOLD_CYAN + f"\n   Saving graphs to {new_directory}   " + RESET_TO_DEFAULT)
     generic_filepath = new_directory / filepath.stem
     rdf_graphs.ontos.serialize(f"{generic_filepath}_ONTO.ttl")
     shacl_onto = rdf_graphs.content_shapes + rdf_graphs.cardinality_shapes + rdf_graphs.ontos

@@ -9,6 +9,7 @@ from typing import Any
 
 from lxml import etree
 
+from dsp_tools.models.custom_warnings import DspToolsUserInfo
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
@@ -1207,7 +1208,7 @@ def _check_and_fix_collection_input(value: Any, res_id: str, prop_name: str) -> 
         case set() | list() | tuple():
             if len(value) == 0:
                 msg += "is empty. Please note that no values will be added to the resource."
-                print("\033[1;33m" + msg + "\033[1;33m")
+                warnings.warn(DspToolsUserInfo(msg))
             return list(value)
         case dict():
             msg += "is a dictionary. Only collections (list, set, tuple) are permissible."

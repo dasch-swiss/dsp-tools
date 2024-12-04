@@ -1,4 +1,6 @@
 from .helpers import create_label_to_name_list_node_mapping as create_label_to_name_list_node_mapping
+from .helpers import create_list_from_string as create_list_from_string
+from .helpers import create_non_empty_list_from_string as create_non_empty_list_from_string
 from .helpers import escape_reserved_xml_characters as escape_reserved_xml_characters
 from .helpers import find_date_in_string as find_date_in_string
 from .helpers import make_xsd_compatible_id as make_xsd_compatible_id

@@ -172,7 +172,7 @@ class Resource:
         Examples:
             ```python
             resource = resource.add_bool(
-                prop_name=":boolProp",
+                prop_name=":propName",
                 value=True
             )
             ```
@@ -209,14 +209,14 @@ class Resource:
         Examples:
             ```python
             resource = resource.add_bool_optional(
-                prop_name=":boolProp",
+                prop_name=":propName",
                 value=True
             )
             ```
 
             ```python
             resource = resource.add_bool_optional(
-                prop_name=":boolProp",
+                prop_name=":propName",
                 value=pd.NA
             )
             ```
@@ -285,7 +285,7 @@ class Resource:
         Examples:
             ```python
             resource = resource.add_color_multiple(
-                prop_name=":Prop",
+                prop_name=":propName",
                 values=["#00ff66", "#00ff55"],
             )
             ```

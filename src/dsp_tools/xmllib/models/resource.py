@@ -357,6 +357,14 @@ class Resource:
 
         Returns:
             The original resource, with the added value
+
+        Examples:
+            ```python
+            resource = resource.add_date(
+                prop_name=":propName",
+                value="GREGORIAN:CE:2014-01-31:CE:2014-01-31",
+            )
+            ```
         """
         self.values.append(DateValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -381,6 +389,14 @@ class Resource:
 
         Returns:
             The original resource, with the added values
+
+        Examples:
+            ```python
+            resource = resource.add_date_multiple(
+                prop_name=":Prop",
+                values=["GREGORIAN:CE:2014-01-31:CE:2014-01-31", "CE:1849:CE:1850"],
+            )
+            ```
         """
         vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
         self.values.extend([DateValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
@@ -406,6 +422,21 @@ class Resource:
 
         Returns:
             The original resource, with the added value if it was not empty, else the unchanged original resource.
+
+        Examples:
+            ```python
+            resource = resource.add_date_optional(
+                prop_name=":propName",
+                value="CE:1849:CE:1850",
+            )
+            ```
+
+            ```python
+            resource = resource.add_date_optional(
+                prop_name=":propName",
+                value=None,
+            )
+            ```
         """
         if is_nonempty_value(value):
             self.values.append(DateValue(value, prop_name, permissions, comment, self.res_id))

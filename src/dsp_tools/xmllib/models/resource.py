@@ -467,6 +467,14 @@ class Resource:
 
         Returns:
             The original resource, with the added value
+
+        Examples:
+            ```python
+            resource = resource.add_decimal(
+                prop_name=":propName",
+                value=1.4,
+            )
+            ```
         """
         self.values.append(DecimalValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -492,6 +500,14 @@ class Resource:
 
         Returns:
             The original resource, with the added values
+
+        Examples:
+            ```python
+            resource = resource.add_decimal_multiple(
+                prop_name=":Prop",
+                values=[1.4, 2.9],
+            )
+            ```
         """
         vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
         self.values.extend([DecimalValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
@@ -518,6 +534,21 @@ class Resource:
 
         Returns:
             The original resource, with the added value if it was not empty, else the unchanged original resource.
+
+        Examples:
+            ```python
+            resource = resource.add_decimal_optional(
+                prop_name=":propName",
+                value=1.0,
+            )
+            ```
+
+            ```python
+            resource = resource.add_decimal_optional(
+                prop_name=":propName",
+                value=None,
+            )
+            ```
         """
         if is_nonempty_value(value):
             self.values.append(DecimalValue(value, prop_name, permissions, comment, self.res_id))

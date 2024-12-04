@@ -615,7 +615,7 @@ class Resource:
 
         Returns:
             The original resource, with the added values
-            
+
         Examples:
             ```python
             resource = resource.add_geoname_multiple(
@@ -806,6 +806,14 @@ class Resource:
 
         Returns:
             The original resource, with the added value
+
+        Examples:
+            ```python
+            resource = resource.add_link(
+                prop_name=":propName",
+                value="target_resource_id",
+            )
+            ```
         """
         self.values.append(LinkValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -830,6 +838,14 @@ class Resource:
 
         Returns:
             The original resource, with the added values
+
+        Examples:
+            ```python
+            resource = resource.add_link_multiple(
+                prop_name=":propName",
+                values=["target_resource_id_1", "target_resource_id_2"],
+            )
+            ```
         """
         vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
         self.values.extend([LinkValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
@@ -856,7 +872,22 @@ class Resource:
 
         Returns:
             The original resource, with the added value if it was not empty, else the unchanged original resource.
-        """
+
+        Examples:
+            ```python
+            resource = resource.add_link_optional(
+                prop_name=":propName",
+                value="target_resource_id",
+            )
+            ```
+
+            ```python
+            resource = resource.add_link_optional(
+                prop_name=":propName",
+                value=None,
+            )
+            ```
+"""
         if is_nonempty_value(value):
             self.values.append(LinkValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -887,6 +918,15 @@ class Resource:
 
         Returns:
             The original resource, with the added value
+
+        Examples:
+            ```python
+            resource = resource.add_list(
+                prop_name=":propName",
+                list_name="listName",
+                value="nodeName",
+            )
+            ```
         """
         self.values.append(ListValue(value, list_name, prop_name, permissions, comment, self.res_id))
         return self
@@ -913,6 +953,15 @@ class Resource:
 
         Returns:
             The original resource, with the added values
+
+        Examples:
+            ```python
+            resource = resource.add_list_multiple(
+                prop_name=":propName",
+                list_name="listName",
+                values=["nodeName_1", "nodeName_2"],
+            )
+            ```
         """
         vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
         self.values.extend([ListValue(v, list_name, prop_name, permissions, comment, self.res_id) for v in vals])
@@ -940,7 +989,24 @@ class Resource:
 
         Returns:
             The original resource, with the added value if it was not empty, else the unchanged original resource.
-        """
+
+        Examples:
+            ```python
+            resource = resource.add_list_optional(
+                prop_name=":propName",
+                list_name="listName",
+                value="nodeName",
+            )
+            ```
+
+            ```python
+            resource = resource.add_list_optional(
+                prop_name=":propName",
+                list_name="listName",
+                value=None,
+            )
+            ```
+"""
         if is_nonempty_value(value):
             self.values.append(ListValue(value, list_name, prop_name, permissions, comment, self.res_id))
         return self
@@ -969,6 +1035,14 @@ class Resource:
 
         Returns:
             The original resource, with the added value
+
+        Examples:
+            ```python
+            resource = resource.add_simpletext(
+                prop_name=":propName",
+                value="text",
+            )
+            ```
         """
         self.values.append(SimpleText(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -993,6 +1067,14 @@ class Resource:
 
         Returns:
             The original resource, with the added values
+
+        Examples:
+            ```python
+            resource = resource.add_simpletext_multiple(
+                prop_name=":propName",
+                values=["text 1", "text 2"],
+            )
+            ```
         """
         vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
         self.values.extend([SimpleText(v, prop_name, permissions, comment, self.res_id) for v in vals])
@@ -1018,7 +1100,22 @@ class Resource:
 
         Returns:
             The original resource, with the added value if it was not empty, else the unchanged original resource.
-        """
+
+        Examples:
+            ```python
+            resource = resource.add_simpletext_optional(
+                prop_name=":propName",
+                value="text",
+            )
+            ```
+
+            ```python
+            resource = resource.add_simpletext_optional(
+                prop_name=":propName",
+                value=None,
+            )
+            ```
+"""
         if is_nonempty_value(value):
             self.values.append(SimpleText(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -1056,6 +1153,22 @@ class Resource:
 
         Returns:
             The original resource, with the added value
+
+        Examples:
+            ```python
+            resource = resource.add_richtext(
+                prop_name=":propName",
+                value="<strong>Bold text</strong>",
+            )
+            ```
+
+            ```python
+            resource = resource.add_richtext(
+                prop_name=":propName",
+                value="line 1\nline 2",
+                newline_replacement=xmllib.NewlineReplacement.PARAGRAPH
+            )
+            ```
         """
         # Because of the richtext conversions, the input value is cast as a string.
         # Values such as str(`pd.NA`) result in a non-empy string.
@@ -1094,6 +1207,14 @@ class Resource:
 
         Returns:
             The original resource, with the added values
+
+        Examples:
+            ```python
+            resource = resource.add_richtext_multiple(
+                prop_name=":propName",
+                values=["<strong>Bold text</strong>", "text 2"],
+            )
+            ```
         """
         # Because of the richtext conversions, the input value is cast as a string.
         # Values such as str(`pd.NA`) result in a non-empy string.
@@ -1134,7 +1255,22 @@ class Resource:
 
         Returns:
             The original resource, with the added value if it was not empty, else the unchanged original resource.
-        """
+
+        Examples:
+            ```python
+            resource = resource.add_richtext_optional(
+                prop_name=":propName",
+                value="<strong>Bold text</strong>",
+            )
+            ```
+
+            ```python
+            resource = resource.add_richtext_optional(
+                prop_name=":propName",
+                value=None,
+            )
+            ```
+"""
         if is_nonempty_value(value):
             value = replace_newlines_with_tags(str(value), newline_replacement)
             self.values.append(Richtext(value, prop_name, permissions, comment, self.res_id))
@@ -1164,6 +1300,11 @@ class Resource:
 
         Returns:
             The original resource, with the added value
+
+        Examples:
+```python
+
+```
         """
         self.values.append(TimeValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -1188,6 +1329,11 @@ class Resource:
 
         Returns:
             The original resource, with the added values
+
+        Examples:
+```python
+
+```
         """
         vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
         self.values.extend([TimeValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
@@ -1213,7 +1359,16 @@ class Resource:
 
         Returns:
             The original resource, with the added value if it was not empty, else the unchanged original resource.
-        """
+
+        Examples:
+```python
+
+```
+
+```python
+
+```
+"""
         if is_nonempty_value(value):
             self.values.append(TimeValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -1242,6 +1397,11 @@ class Resource:
 
         Returns:
             The original resource, with the added value
+
+        Examples:
+```python
+
+```
         """
         self.values.append(UriValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -1266,6 +1426,11 @@ class Resource:
 
         Returns:
             The original resource, with the added values
+
+        Examples:
+```python
+
+```
         """
         vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
         self.values.extend([UriValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
@@ -1291,7 +1456,16 @@ class Resource:
 
         Returns:
             The original resource, with the added value if it was not empty, else the unchanged original resource.
-        """
+
+        Examples:
+```python
+
+```
+
+```python
+
+```
+"""
         if is_nonempty_value(value):
             self.values.append(UriValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -1321,6 +1495,11 @@ class Resource:
 
         Returns:
             The original resource, with the added value
+
+        Examples:
+```python
+
+```
         """
         if self.file_value:
             raise InputError(
@@ -1352,6 +1531,11 @@ class Resource:
 
         Returns:
             The original resource, with the added value
+
+        Examples:
+```python
+
+```
         """
         if self.file_value:
             raise InputError(

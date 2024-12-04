@@ -6,7 +6,7 @@ from typing import assert_never
 
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntervalFloats
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.date_util import Date
 from dsp_tools.utils.date_util import parse_date_string
 
@@ -21,7 +21,7 @@ def transform_boolean(value: InputTypes) -> bool:
         case "False" | "false" | "0" | 0 | False:
             return False
         case _:
-            raise BaseError(f"Could not parse boolean value: {value}")
+            raise InputError(f"Could not parse boolean value: {value}")
 
 
 def transform_date(input_value: InputTypes) -> Date:
@@ -47,11 +47,11 @@ def transform_interval(input_value: InputTypes) -> IntervalFloats:
     val = assert_is_string(input_value)
     split_val = [res for x in val.split(":", 1) if (res := x.strip())]
     if not len(split_val) == 2:
-        raise BaseError(f"Could not parse interval: {val}")
+        raise InputError(f"Could not parse interval: {val}")
     try:
         return IntervalFloats(float(split_val[0]), float(split_val[1]))
     except ValueError:
-        raise BaseError(f"Could not parse interval: {val}") from None
+        raise InputError(f"Could not parse interval: {val}") from None
 
 
 def transform_geometry(value: InputTypes) -> str:
@@ -60,7 +60,7 @@ def transform_geometry(value: InputTypes) -> str:
     try:
         return json.dumps(json.loads(str_val))
     except JSONDecodeError:
-        raise BaseError(f"Could not parse json value: {value}") from None
+        raise InputError(f"Could not parse json value: {value}") from None
 
 
 def assert_is_string(value: str | FormattedTextValue) -> str:
@@ -69,6 +69,6 @@ def assert_is_string(value: str | FormattedTextValue) -> str:
         case str() as s:
             return s
         case FormattedTextValue() as xml:
-            raise BaseError(f"Expected string value, but got XML value: {xml.as_xml()}")
+            raise InputError(f"Expected string value, but got XML value: {xml.as_xml()}")
         case _:
             assert_never(value)

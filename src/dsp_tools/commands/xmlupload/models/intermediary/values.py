@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Callable
 from typing import TypeAlias
 from typing import Union
 
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.permission import Permissions
+from dsp_tools.commands.xmlupload.transform_input_values import InputTypes
 from dsp_tools.utils.date_util import Date
 
 
@@ -20,7 +21,13 @@ IntermediaryValueTypes: TypeAlias = Union[bool, str, float, int, FormattedTextVa
 
 
 @dataclass
-class IntermediaryValue(Protocol):
+class TypeTransformerMapper:
+    val_type: Callable[[IntermediaryValueTypes, str, str | None, Permissions | None], IntermediaryValue]
+    val_transformer: Callable[[InputTypes], IntermediaryValueTypes]
+
+
+@dataclass
+class IntermediaryValue:
     value: IntermediaryValueTypes
     prop_iri: str
     comment: str | None

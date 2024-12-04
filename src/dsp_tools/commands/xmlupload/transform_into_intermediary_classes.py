@@ -29,6 +29,7 @@ from dsp_tools.commands.xmlupload.models.intermediary.values import Intermediary
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryUri
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryValue
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryValueTypes
+from dsp_tools.commands.xmlupload.models.intermediary.values import TypeTransformerMapper
 from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookup
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.transform_input_values import InputTypes
@@ -42,18 +43,18 @@ from dsp_tools.commands.xmlupload.transform_input_values import transform_interv
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import PermissionNotExistsError
 
-TYPE_TRANSFORMER_MAPPER = {
-    "bool": (IntermediaryBoolean, transform_boolean),
-    "color": (IntermediaryColor, assert_is_string),
-    "decimal": (IntermediaryDecimal, transform_decimal),
-    "date": (IntermediaryDate, transform_date),
-    "geometry": (IntermediaryGeometry, transform_geometry),
-    "geoname": (IntermediaryGeoname, assert_is_string),
-    "integer": (IntermediaryInt, transform_integer),
-    "interval": (IntermediaryInterval, transform_interval),
-    "resptr": (IntermediaryLink, assert_is_string),
-    "time": (IntermediaryTime, assert_is_string),
-    "uri": (IntermediaryUri, assert_is_string),
+TYPE_TRANSFORMER_MAPPER: dict[str, TypeTransformerMapper] = {
+    "bool": TypeTransformerMapper(IntermediaryBoolean, transform_boolean),
+    "color": TypeTransformerMapper(IntermediaryColor, assert_is_string),
+    "decimal": TypeTransformerMapper(IntermediaryDecimal, transform_decimal),
+    "date": TypeTransformerMapper(IntermediaryDate, transform_date),
+    "geometry": TypeTransformerMapper(IntermediaryGeometry, transform_geometry),
+    "geoname": TypeTransformerMapper(IntermediaryGeoname, assert_is_string),
+    "integer": TypeTransformerMapper(IntermediaryInt, transform_integer),
+    "interval": TypeTransformerMapper(IntermediaryInterval, transform_interval),
+    "resptr": TypeTransformerMapper(IntermediaryLink, assert_is_string),
+    "time": TypeTransformerMapper(IntermediaryTime, assert_is_string),
+    "uri": TypeTransformerMapper(IntermediaryUri, assert_is_string),
 }
 
 
@@ -149,7 +150,7 @@ def _transform_one_property(prop: XMLProperty, lookups: IntermediaryLookup) -> l
             return _transform_one_generic_value(
                 prop=prop,
                 lookups=lookups,
-                prop_intermediary=prop_type,
+                intermediary_val_constructor=prop_type,
                 transformer=transformer,
             )
 
@@ -157,7 +158,7 @@ def _transform_one_property(prop: XMLProperty, lookups: IntermediaryLookup) -> l
 def _transform_one_generic_value(
     prop: XMLProperty,
     lookups: IntermediaryLookup,
-    prop_intermediary: Callable[[InputTypes, str, str | None, Permissions | None], IntermediaryValue],
+    intermediary_val_constructor: Callable[[InputTypes, str, str | None, Permissions | None], IntermediaryValue],
     transformer: Callable[[str | FormattedTextValue], IntermediaryValueTypes],
 ) -> list[IntermediaryValue]:
     intermediary_values = []
@@ -165,7 +166,9 @@ def _transform_one_generic_value(
     for val in prop.values:
         transformed_value = transformer(val.value)
         permission_val = _resolve_permission(val.permissions, lookups.permissions)
-        intermediary_values.append(prop_intermediary(transformed_value, prop_iri, val.comment, permission_val))
+        intermediary_values.append(
+            intermediary_val_constructor(transformed_value, prop_iri, val.comment, permission_val)
+        )
     return intermediary_values
 
 

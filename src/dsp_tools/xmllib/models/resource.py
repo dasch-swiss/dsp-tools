@@ -887,7 +887,7 @@ class Resource:
                 value=None,
             )
             ```
-"""
+        """
         if is_nonempty_value(value):
             self.values.append(LinkValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -1006,7 +1006,7 @@ class Resource:
                 value=None,
             )
             ```
-"""
+        """
         if is_nonempty_value(value):
             self.values.append(ListValue(value, list_name, prop_name, permissions, comment, self.res_id))
         return self
@@ -1115,7 +1115,7 @@ class Resource:
                 value=None,
             )
             ```
-"""
+        """
         if is_nonempty_value(value):
             self.values.append(SimpleText(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -1270,7 +1270,7 @@ class Resource:
                 value=None,
             )
             ```
-"""
+        """
         if is_nonempty_value(value):
             value = replace_newlines_with_tags(str(value), newline_replacement)
             self.values.append(Richtext(value, prop_name, permissions, comment, self.res_id))
@@ -1380,7 +1380,7 @@ class Resource:
                 value=None,
             )
             ```
-"""
+        """
         if is_nonempty_value(value):
             self.values.append(TimeValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -1489,7 +1489,7 @@ class Resource:
                 value=None,
             )
             ```
-"""
+        """
         if is_nonempty_value(value):
             self.values.append(UriValue(value, prop_name, permissions, comment, self.res_id))
         return self

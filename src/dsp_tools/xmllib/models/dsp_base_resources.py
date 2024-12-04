@@ -71,6 +71,13 @@ class RegionResource:
 
         Returns:
             A region resource
+
+        Examples:
+            >>> region_resource = xmllib.RegionResource.create_new(
+                    res_id="ID",
+                    label="Region label",
+                    region_of="Image ID",
+                )
         """
         return RegionResource(
             res_id=res_id,
@@ -103,6 +110,21 @@ class RegionResource:
 
         Returns:
             Region with added rectangle
+
+        Examples:
+            >>>  # with default display values
+                region_resource = region_resource.add_rectangle(
+                    point1=(0.1, 0.1),
+                    point2=(0.2, 0.2),
+                )
+
+            >>> # with custom display values
+                region_resource = region_resource.add_rectangle(
+                    point1=(0.1, 0.1),
+                    point2=(0.2, 0.2),
+                    line_width=3,
+                    color="#32a873",
+                )
         """
         self.geometry = Rectangle(
             point1=GeometryPoint(point1[0], point1[1], self.res_id),
@@ -139,6 +161,19 @@ class RegionResource:
 
         Returns:
             Region with added polygon
+
+        Examples:
+            >>> # with default values
+                region_resource = region_resource.add_polygon(
+                points=[(0.1, 0.1), (0.2, 0.2), (0.3, 0.3)],
+                )
+
+            >>> # with custom display values
+                region_resource = region_resource.add_polygon(
+                points=[(0.1, 0.1), (0.2, 0.2), (0.3, 0.3)],
+                line_width=3,
+                color="#32a873",
+                )
         """
         geom_points = [GeometryPoint(val[0], val[1], self.res_id) for val in points]
         self.geometry = Polygon(
@@ -172,6 +207,21 @@ class RegionResource:
 
         Returns:
             Region with added circle
+
+        Examples:
+            >>> # with default values
+                region_resource = region_resource.add_circle(
+                center=(0.1, 0.1),
+                radius=(0.2, 0.2),
+                )
+
+            >>> # with custom display values
+                region_resource = region_resource.add_circle(
+                center=(0.1, 0.1),
+                radius=(0.2, 0.2),
+                line_width=3,
+                color="#32a873",
+                )
         """
         self.geometry = Circle(
             center=GeometryPoint(center[0], center[1], self.res_id),

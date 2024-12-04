@@ -436,7 +436,7 @@ class LinkResource:
 
         Returns:
             The original resource, with the added comment
-
+            
         Examples:
             ```python
             resource = resource.add_comment("comment text")

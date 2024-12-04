@@ -294,7 +294,7 @@ class LinkResource:
     res_id: str
     label: str
     link_to: list[str]
-    comments: list[str]
+    comments: list[str] = field(default_factory=list)
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
 
@@ -303,7 +303,6 @@ class LinkResource:
         res_id: str,
         label: str,
         link_to: Collection[str],
-        comments: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> LinkResource:
         """
@@ -316,7 +315,6 @@ class LinkResource:
             res_id: ID of this link resource
             label: label of this link resource
             link_to: IDs of the resources that should be linked together (cardinality 1-n)
-            comments: comments to this link (cardinality 1-n)
             permissions: permissions of this link resource
 
         Returns:
@@ -326,9 +324,48 @@ class LinkResource:
             res_id=res_id,
             label=label,
             link_to=list(link_to),
-            comments=list(comments),
             permissions=permissions,
         )
+
+    def add_comment(self, comment: str) -> LinkResource:
+        """
+        Add a comment to the resource
+
+        Args:
+            comment: text
+
+        Returns:
+            The original resource, with the added comment
+        """
+        self.comments.append(comment)
+        return self
+
+    def add_comment_multiple(self, comments: Collection[str]) -> LinkResource:
+        """
+        Add several comments to the resource
+
+        Args:
+            comments: list of texts
+
+        Returns:
+            The original resource, with the added comments
+        """
+        self.comments.extend(comments)
+        return self
+
+    def add_comment_optional(self, comment: Any) -> LinkResource:
+        """
+        If the value is not empty, add it as comment, otherwise return the resource unchanged.
+
+        Args:
+            comment: text or empty value
+
+        Returns:
+            The original resource, with the added comment
+        """
+        if is_nonempty_value(comment):
+            self.comments.append(comment)
+        return self
 
     def add_migration_metadata(
         self, creation_date: str | None, iri: str | None = None, ark: str | None = None

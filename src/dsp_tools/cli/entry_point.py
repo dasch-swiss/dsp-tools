@@ -17,15 +17,10 @@ from dsp_tools.cli.create_parsers import make_parser
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InternalError
 from dsp_tools.models.exceptions import UserError
+from dsp_tools.utils.ansi_colors import BOLD_RED
+from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.logger_config import logger_config
 from dsp_tools.utils.warnings_config import initialize_warnings
-
-# ANSI Colors
-SEQUENCE_START = "\u001b["
-SEQUENCE_END = "m"
-
-BOLD_RED = f"{SEQUENCE_START}1;31{SEQUENCE_END}"  # 1 (bold) ; 31 (red)
-RESET_TO_DEFAULT = f"{SEQUENCE_START}0{SEQUENCE_END}"  # reset to the default setting of the console
 
 
 def main() -> None:

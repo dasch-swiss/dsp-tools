@@ -24,6 +24,11 @@ from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_
 from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_shapes_graphs
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_GREEN
+from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_MAGENTA
+from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_YELLOW
+from dsp_tools.utils.ansi_colors import BOLD_CYAN
+from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.xml_utils import parse_xml_file
 from dsp_tools.utils.xml_utils import remove_comments_from_element_tree
 from dsp_tools.utils.xml_utils import transform_into_localnames
@@ -32,14 +37,6 @@ from dsp_tools.utils.xml_validation import validate_xml
 LIST_SEPARATOR = "\n    - "
 KNORA_API = "http://api.knora.org/ontology/knora-api/v2#"
 
-# ANSI Color (see custom_warnings.py for more details)
-SEQUENCE_START = "\u001b["
-SEQUENCE_END = "m"
-BACKGROUND_BOLD_MAGENTA = f"{SEQUENCE_START}1;45{SEQUENCE_END}"  # 1 (bold) ; 45 (background magenta)
-BACKGROUND_BOLD_YELLOW = f"{SEQUENCE_START}1;43{SEQUENCE_END}"  # 1 (bold) ; 45 (background yellow)
-BACKGROUND_BOLD_GREEN = f"{SEQUENCE_START}1;42{SEQUENCE_END}"  # 1 (bold) ; 45 (background green)
-BOLD_CYAN = f"{SEQUENCE_START}1;36{SEQUENCE_END}"  # 1 (bold) ; 45 (cyan)
-RESET_TO_DEFAULT = f"{SEQUENCE_START}0{SEQUENCE_END}"  # reset to the default setting of the console
 
 VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_MAGENTA + "\n   Validation errors found!   " + RESET_TO_DEFAULT
 

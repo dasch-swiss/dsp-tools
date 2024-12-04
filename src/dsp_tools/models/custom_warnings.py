@@ -1,20 +1,9 @@
 from typing import Protocol
 from typing import runtime_checkable
 
-# These are ANSI escape codes which can be used to configure the print output on the terminal
-# http://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html
-# The semicolon separates different configurations
-
-# All codes must start with an escape sequence, it may differ in different languages, in Python "\u001b[" works
-SEQUENCE_START = "\u001b["
-
-# the "m" at the end signals,
-# that the configuration code is finished and after that the string that should be printed starts
-SEQUENCE_END = "m"
-
-BOLD_RED = f"{SEQUENCE_START}1;31{SEQUENCE_END}"  # 1 (bold) ; 31 (red)
-YELLOW = f"{SEQUENCE_START}0;33{SEQUENCE_END}"  # 0 (normal font) ; 33 (yellow)
-RESET_TO_DEFAULT = f"{SEQUENCE_START}0{SEQUENCE_END}"  # reset to the default setting of the console
+from dsp_tools.utils.ansi_colors import BOLD_RED
+from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.utils.ansi_colors import YELLOW
 
 
 @runtime_checkable

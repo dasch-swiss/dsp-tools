@@ -6,13 +6,9 @@ from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import identify_circular_references
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references
 from dsp_tools.commands.xmlupload.xmlupload import _extract_resources_from_xml
+from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.utils.ansi_colors import YELLOW
 from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
-
-# ANSI Color (see custom_warnings.py for more details)
-SEQUENCE_START = "\u001b["
-SEQUENCE_END = "m"
-YELLOW = f"{SEQUENCE_START}1;33{SEQUENCE_END}"  # 1 (bold) ; 33 (yellow)
-RESET_TO_DEFAULT = f"{SEQUENCE_START}0{SEQUENCE_END}"  # reset to the default setting of the console
 
 
 def test_get_length_ok_resources() -> None:

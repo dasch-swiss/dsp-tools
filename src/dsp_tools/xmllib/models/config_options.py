@@ -11,6 +11,9 @@ class Permissions(Enum):
     - `RESTRICTED`: the resource/value is only visible for project members
     - `RESTRICTED_VIEW`: the resource/value is visible for everyone,
       but images are blurred/watermarked for non-project members
+
+    Examples:
+        >>> restricted_permissions = xmllib.Permissions.RESTRICTED
     """
 
     PROJECT_SPECIFIC_PERMISSIONS = ""
@@ -26,6 +29,9 @@ class NewlineReplacement(Enum):
     - `NONE`: don't modify the rich text (`\\n` will be lost, because it is meaningless in an XML file)
     - `PARAGRAPH`: replace `Start\\nEnd` with `<p>Start</p><p>End</p>`
     - `LINEBREAK`: replace `Start\\nEnd` with `Start<br/>End`
+
+    Examples:
+        >>> linebreak = xmllib.NewlineReplacement.LINEBREAK
     """
 
     NONE = auto()

@@ -12,6 +12,9 @@ SEQUENCE_END = "m"
 # reset to the default setting of the console
 RESET_TO_DEFAULT = f"{SEQUENCE_START}0{SEQUENCE_END}"
 
+# If you want to change for example both the text color and the background color you can combine the sequences
+# for example: BACKGROUND_BOLD_MAGENTA + YELLOW -> magenta background with yellow text
+
 # Colored Text
 BOLD_RED = f"{SEQUENCE_START}1;31{SEQUENCE_END}"  # 1 (bold) ; 31 (red)
 BOLD_CYAN = f"{SEQUENCE_START}1;36{SEQUENCE_END}"  # 1 (bold) ; 36 (cyan)

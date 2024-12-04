@@ -21,6 +21,7 @@ from dsp_tools.commands.xmlupload.models.deserialise.xmlpermission import XmlPer
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
+from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookup
 from dsp_tools.commands.xmlupload.models.lookup_models import Lookups
 from dsp_tools.commands.xmlupload.models.lookup_models import get_json_ld_context_for_project
 from dsp_tools.commands.xmlupload.models.lookup_models import make_namespace_dict_from_onto_names
@@ -93,9 +94,17 @@ def xmlupload(
     resources, permissions_lookup, stash = prepare_upload(root, ontology_client)
 
     clients = _get_live_clients(con, auth, creds, shortcode, imgdir)
+    intermediary_lookups = _create_intermediary_lookups(clients, permissions_lookup)
+
     state = UploadState(resources, stash, config, permissions_lookup)
 
     return execute_upload(clients, state)
+
+
+def _create_intermediary_lookups(clients: UploadClients, permissions: dict[str:Permissions]) -> IntermediaryLookup:
+    project_onto_dict = clients.project_client.get_ontology_name_dict()
+    listnode_lookup = clients.list_client.get_list_node_id_to_iri_lookup()
+    return IntermediaryLookup(permissions=permissions, listnodes=listnode_lookup, namespaces=project_onto_dict)
 
 
 def _parse_xml(imgdir: str, input_file: Path) -> tuple[str, etree._Element, str]:

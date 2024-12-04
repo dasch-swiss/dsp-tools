@@ -12,9 +12,9 @@ SEQUENCE_START = "\033["
 # that the configuration code is finished and after that the string that should be printed starts
 SEQUENCE_END = "m"
 
-BOLD_RED = SEQUENCE_START + "1;31" + SEQUENCE_END  # 1 (bold) ; 31 (red)
-YELLOW = SEQUENCE_START + "0;33" + SEQUENCE_END  # 0 (normal font) ; 33 (yellow)
-RESET_TO_DEFAULT = SEQUENCE_START + "0" + SEQUENCE_END  # reset to the default setting of the console
+BOLD_RED = f"{SEQUENCE_START}1;31{SEQUENCE_END}"       # 1 (bold) ; 31 (red)
+YELLOW = f"{SEQUENCE_START}0;33{SEQUENCE_END}"         # 0 (normal font) ; 33 (yellow)
+RESET_TO_DEFAULT = f"{SEQUENCE_START}0{SEQUENCE_END}"  # reset to the default setting of the console
 
 
 @runtime_checkable
@@ -40,7 +40,7 @@ class DspToolsUserInfo(Warning):
 
     @classmethod
     def showwarning(cls, message: str) -> None:
-        """Print the warning, without context"""
+        """Print the information, without context"""
         print(YELLOW + f"INFO: {message}" + RESET_TO_DEFAULT)
 
 

@@ -839,6 +839,10 @@ class VideoSegmentResource:
             ```python
             resource = resource.add_keyword_optional("Keyword")
             ```
+
+            ```python
+            resource = resource.add_keyword_optional(None)
+            ```
         """
         if is_nonempty_value(keyword):
             self.keywords.append(keyword)
@@ -1191,6 +1195,10 @@ class AudioSegmentResource:
         Examples:
             ```python
             resource = resource.add_keyword_optional("Keyword")
+            ```
+
+            ```python
+            resource = resource.add_keyword_optional(None)
             ```
         """
         if is_nonempty_value(keyword):

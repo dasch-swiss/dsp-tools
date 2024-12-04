@@ -77,7 +77,7 @@ def transform_into_intermediary_resources(
         try:
             transformed = _transform_one_resource(res, lookups)
             transformed_resources.append(transformed)
-        except Exception as e:  # noqa: BLE001 (blind exception)
+        except (PermissionNotExistsError, InputError) as e:
             transformation_failures.append(ResourceInputConversionFailure(res.res_id, str(e)))
     return ResourceTransformationOutput(transformed_resources, transformation_failures)
 

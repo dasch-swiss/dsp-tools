@@ -22,7 +22,7 @@ def is_nonempty_value(value: Any) -> bool:
 
     Examples:
         ```python
-        result = xmllib.is_nonempty_value("Not Empty")
+        result = xmllib.is_nonempty_value("not Empty")
         # result = True
         ```
 
@@ -59,7 +59,7 @@ def is_bool_like(value: Any) -> bool:
         ```
 
         ```python
-        result = xmllib.is_bool_like("Not like a bool")
+        result = xmllib.is_bool_like("not like a bool")
         # result = False
         ```
     """
@@ -88,7 +88,7 @@ def is_color(value: Any) -> bool:
         ```
 
         ```python
-        result = xmllib.is_color("Not a color")
+        result = xmllib.is_color("not a color")
         # result = False
         ```
     """
@@ -112,7 +112,7 @@ def is_date(value: Any) -> bool:
         ```
 
         ```python
-        result = xmllib.is_date("Not a date")
+        result = xmllib.is_date("not a date")
         # result = False
         ```
     """
@@ -145,7 +145,7 @@ def is_geoname(value: Any) -> bool:
         ```
 
         ```python
-        result = xmllib.is_geoname("Not a geoname")
+        result = xmllib.is_geoname("not a geoname")
         # result = False
         ```
     """
@@ -176,7 +176,7 @@ def is_decimal(value: Any) -> bool:
         ```
 
         ```python
-        result = xmllib.is_decimal("Not a decimal")
+        result = xmllib.is_decimal("not a decimal")
         # result = False
         ```
     """
@@ -217,7 +217,7 @@ def is_integer(value: Any) -> bool:
         ```
 
         ```python
-        result = xmllib.is_integer("Not an integer")
+        result = xmllib.is_integer("not an integer")
         # result = False
         ```
     """
@@ -285,7 +285,7 @@ def is_timestamp(value: Any) -> bool:
         ```
 
         ```python
-        result = xmllib.is_timestamp("Not a time stamp")
+        result = xmllib.is_timestamp("not a time stamp")
         # result = False
         ```
     """

@@ -22,7 +22,7 @@ def is_nonempty_value(value: Any) -> bool:
 
     Examples:
         ```python
-        result = xmllib.is_nonempty_value("not Empty")
+        result = xmllib.is_nonempty_value("not empty")
         # result = True
         ```
 
@@ -145,7 +145,7 @@ def is_geoname(value: Any) -> bool:
         ```
 
         ```python
-        result = xmllib.is_geoname("not a geoname")
+        result = xmllib.is_geoname("not a geoname code")
         # result = False
         ```
     """

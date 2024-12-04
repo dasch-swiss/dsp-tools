@@ -19,10 +19,15 @@ def convert_to_bool_string(value: Any) -> str:
         `"true"` or `"false"` if it is an accepted value,
         else it returns the original value as a string.
 
-        Examples:
+    Examples:
         ```python
         result = xmllib.convert_to_bool_string(1)
         # result = "true"
+        ```
+
+        ```python
+        result = xmllib.convert_to_bool_string("nein")
+        # result = "false"
         ```
     """
     str_val = str(value).lower().strip()

@@ -22,19 +22,19 @@ def convert_to_bool_string(value: Any) -> str:
     Examples:
         ```python
         result = xmllib.convert_to_bool_string(1)
-        # result = "true"
+        # -> "true"
         ```
 
         ```python
         result = xmllib.convert_to_bool_string("nein")
-        # result = "false"
+        # -> "false"
         ```
 
         ```python
         # because this is not an accepted value, it is returned as a string
 
         result = xmllib.convert_to_bool_string(None)
-        # result = "None"
+        # -> "None"
         ```
     """
     str_val = str(value).lower().strip()
@@ -64,21 +64,21 @@ def replace_newlines_with_tags(text: str, converter_option: NewlineReplacement) 
         result = xmllib.replace_newlines_with_tags(
             "Start\\nEnd", xmllib.NewlineReplacement.NONE
         )
-        # result = "Start\\nEnd"
+        # -> "Start\\nEnd"
         ```
 
         ```python
         result = xmllib.replace_newlines_with_tags(
             "Start\\nEnd", xmllib.NewlineReplacement.LINEBREAK
         )
-        # result = "Start<br/>End"
+        # -> "Start<br/>End"
         ```
 
         ```python
         result = xmllib.replace_newlines_with_tags(
             "Start\\n\\nEnd", xmllib.NewlineReplacement.PARAGRAPH
         )
-        # result = "<p>Start</p><p>End</p>"
+        # -> "<p>Start</p><p>End</p>"
         ```
     """
     match converter_option:
@@ -103,14 +103,14 @@ def replace_newlines_with_paragraph_tags(text: str) -> str:
     Examples:
         ```python
         result = xmllib.replace_newlines_with_paragraph_tags("Start\\nEnd")
-        # result = "<p>Start</p><p>End</p>"
+        # -> "<p>Start</p><p>End</p>"
         ```
 
         ```python
         # multiple consecutive newlines will be treated as one newline
 
         result = xmllib.replace_newlines_with_paragraph_tags("Start\\n\\nEnd")
-        # result = "<p>Start</p><p>End</p>"
+        # -> "<p>Start</p><p>End</p>"
         ```
     """
     splt = [x for x in text.split("\n") if x != ""]
@@ -131,14 +131,14 @@ def replace_newlines_with_br_tags(text: str) -> str:
     Examples:
         ```python
         result = xmllib.replace_newlines_with_br_tags("Start\\nEnd")
-        # result = "Start<br/>End"
+        # -> "Start<br/>End"
         ```
 
         ```python
         # multiple consecutive newlines will be converted into multiple break-lines
 
         result = xmllib.replace_newlines_with_br_tags("Start\\n\\nEnd")
-        # result = "Start<br/><br/>End"
+        # -> "Start<br/><br/>End"
         ```
     """
     return text.replace("\n", "<br/>")

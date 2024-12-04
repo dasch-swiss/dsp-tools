@@ -23,17 +23,17 @@ def is_nonempty_value(value: Any) -> bool:
     Examples:
         ```python
         result = xmllib.is_nonempty_value("not empty")
-        # result = True
+        # -> True
         ```
 
         ```python
         result = xmllib.is_nonempty_value("")
-        # result = False
+        # -> False
         ```
 
         ```python
         result = xmllib.is_nonempty_value(None)
-        # result = False
+        # -> False
         ```
     """
     if isinstance(value, str) and len(value) == 0:
@@ -55,12 +55,12 @@ def is_bool_like(value: Any) -> bool:
     Examples:
         ```python
         result = xmllib.is_bool_like("yes")
-        # result = True
+        # -> True
         ```
 
         ```python
         result = xmllib.is_bool_like("not like a bool")
-        # result = False
+        # -> False
         ```
     """
     value = str(value).lower().strip()
@@ -84,12 +84,12 @@ def is_color(value: Any) -> bool:
     Examples:
         ```python
         result = xmllib.is_color("#00ff66")
-        # result = True
+        # -> True
         ```
 
         ```python
         result = xmllib.is_color("not a color")
-        # result = False
+        # -> False
         ```
     """
     return bool(regex.search(r"^#[0-9a-f]{6}$", str(value).strip(), flags=regex.IGNORECASE))
@@ -108,12 +108,12 @@ def is_date(value: Any) -> bool:
     Examples:
         ```python
         result = xmllib.is_date("GREGORIAN:CE:2014-01-31:CE:2014-01-31")
-        # result = True
+        # -> True
         ```
 
         ```python
         result = xmllib.is_date("not a date")
-        # result = False
+        # -> False
         ```
     """
     calendar_optional = r"((GREGORIAN|JULIAN|ISLAMIC):)?"
@@ -141,12 +141,12 @@ def is_geoname(value: Any) -> bool:
     Examples:
         ```python
         result = xmllib.is_geoname("8879000")
-        # result = True
+        # -> True
         ```
 
         ```python
         result = xmllib.is_geoname("not a geoname code")
-        # result = False
+        # -> False
         ```
     """
     return is_integer(value)
@@ -165,19 +165,19 @@ def is_decimal(value: Any) -> bool:
     Examples:
         ```python
         result = xmllib.is_decimal("0.1")
-        # result = True
+        # -> True
         ```
 
         ```python
         # because this is equivalent to 9.0 it is accepted
 
         result = xmllib.is_decimal(9)
-        # result = True
+        # -> True
         ```
 
         ```python
         result = xmllib.is_decimal("not a decimal")
-        # result = False
+        # -> False
         ```
     """
     if pd.isna(value):
@@ -208,17 +208,17 @@ def is_integer(value: Any) -> bool:
     Examples:
         ```python
         result = xmllib.is_integer("1")
-        # result = True
+        # -> True
         ```
 
         ```python
         result = xmllib.is_integer(9.1)
-        # result = False
+        # -> False
         ```
 
         ```python
         result = xmllib.is_integer("not an integer")
-        # result = False
+        # -> False
         ```
     """
     match value:
@@ -245,19 +245,19 @@ def is_string_like(value: Any) -> bool:
     Examples:
         ```python
         result = xmllib.is_string_like("this is a string")
-        # result = True
+        # -> True
         ```
 
         ```python
         # because numbers, floats, etc. can be converted to strings they are accepted
 
         result = xmllib.is_string_like(1)
-        # result = True
+        # -> True
         ```
 
         ```python
         result = xmllib.is_string_like(None)
-        # result = False
+        # -> False
         ```
     """
     if pd.isna(value):
@@ -281,12 +281,12 @@ def is_timestamp(value: Any) -> bool:
     Examples:
         ```python
         result = xmllib.is_timestamp("2019-10-23T13:45:12Z")
-        # result = True
+        # -> True
         ```
 
         ```python
         result = xmllib.is_timestamp("not a time stamp")
-        # result = False
+        # -> False
         ```
     """
     validation_regex = r"^\d{4}-[0-1]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(\.\d{1,12})?(Z|[+-][0-1]\d:[0-5]\d)$"
@@ -306,12 +306,12 @@ def is_dsp_iri(value: Any) -> bool:
     Examples:
         ```python
         result = xmllib.is_dsp_iri("http://rdfh.ch/4123/54SYvWF0QUW6a")
-        # result = True
+        # -> True
         ```
 
         ```python
         result = xmllib.is_dsp_iri("http://dbpedia.org/resource/Internationalized_Resource_Identifier")
-        # result = False
+        # -> False
         ```
     """
     return bool(regex.search(r"^http://rdfh\.ch/\d{4}/", str(value)))
@@ -330,12 +330,12 @@ def is_dsp_ark(value: Any) -> bool:
     Examples:
         ```python
         result = xmllib.is_dsp_ark("ark:/72163/4123-31ec6eab334-a.2022829")
-        # result = True
+        # -> True
         ```
 
         ```python
         result = xmllib.is_dsp_ark("http://rdfh.ch/4123/54SYvWF0QUW6a")
-        # result = False
+        # -> False
         ```
     """
     return bool(regex.search(r"^ark:/", str(value)))

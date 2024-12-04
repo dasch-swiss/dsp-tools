@@ -421,6 +421,65 @@ class LinkResource:
             permissions=permissions,
         )
 
+    def add_comment(self, comment: str) -> LinkResource:
+        """
+        Add a comment to the resource
+
+        Args:
+            comment: text
+
+        Returns:
+            The original resource, with the added comment
+
+        Examples:
+            ```python
+            resource = resource.add_comment("comment text")
+            ```
+        """
+        self.comments.append(comment)
+        return self
+
+    def add_comment_multiple(self, comments: Collection[str]) -> LinkResource:
+        """
+        Add several comments to the resource
+
+        Args:
+            comments: list of texts
+
+        Returns:
+            The original resource, with the added comments
+
+        Examples:
+            ```python
+            resource = resource.add_comment_multiple(["comment 1", "comment 2"])
+            ```
+        """
+        self.comments.extend(comments)
+        return self
+
+    def add_comment_optional(self, comment: Any) -> LinkResource:
+        """
+        If the value is not empty, add it as comment, otherwise return the resource unchanged.
+
+        Args:
+            comment: text or empty value
+
+        Returns:
+            The original resource, with the added comment
+
+        Examples:
+            ```python
+            resource = resource.add_comment_optional("comment text")
+            ```
+
+            ```python
+            resource = resource.add_comment_optional(None)
+            ```
+        """
+        if is_nonempty_value(comment):
+            self.comments.append(comment)
+        return self
+
     def add_migration_metadata(
         self, creation_date: str | None, iri: str | None = None, ark: str | None = None
     ) -> LinkResource:

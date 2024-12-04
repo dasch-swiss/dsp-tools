@@ -76,8 +76,8 @@ class RegionResource:
             ```python
             resource = xmllib.RegionResource.create_new(
                 res_id="ID",
-                label="Label",
-                region_of="Image ID",
+                label="label",
+                region_of="image_id",
             )
             ```
         """
@@ -415,7 +415,7 @@ class LinkResource:
             ```python
             resource = xmllib.LinkResource.create_new(
                 res_id="ID",
-                label="Label",
+                label="label",
                 link_to=["target_resource_id1", "target_resource_id2"],
             )
             ```
@@ -616,7 +616,7 @@ class VideoSegmentResource:
             ```python
             resource = xmllib.VideoSegmentResource.create_new(
                 res_id="ID",
-                label="Label",
+                label="label",
                 segment_of="video_resource_id",
                 segment_start=1.2,
                 segment_end=3.4,
@@ -643,7 +643,7 @@ class VideoSegmentResource:
 
         Examples:
             ```python
-            resource = resource.add_title("Title of Segment")
+            resource = resource.add_title("segment title")
             ```
         """
         if self.title:
@@ -663,7 +663,7 @@ class VideoSegmentResource:
 
         Examples:
             ```python
-            resource = resource.add_title("Title of Segment")
+            resource = resource.add_title("segment title")
             ```
 
             ```python
@@ -747,7 +747,7 @@ class VideoSegmentResource:
 
         Examples:
             ```python
-            resource = resource.add_description("Description Text")
+            resource = resource.add_description("description text")
             ```
         """
         self.descriptions.append(description)
@@ -765,7 +765,7 @@ class VideoSegmentResource:
 
         Examples:
             ```python
-            resource = resource.add_description_multiple(["Description 1", "Description 2"])
+            resource = resource.add_description_multiple(["description 1", "description 2"])
             ```
         """
         self.descriptions.extend(descriptions)
@@ -783,7 +783,7 @@ class VideoSegmentResource:
 
         Examples:
             ```python
-            resource = resource.add_description_optional("Description Text")
+            resource = resource.add_description_optional("description text")
             ```
 
             ```python
@@ -806,7 +806,7 @@ class VideoSegmentResource:
 
         Examples:
             ```python
-            resource = resource.add_keyword("Keyword")
+            resource = resource.add_keyword("keyword")
             ```
         """
         self.keywords.append(keyword)
@@ -837,7 +837,7 @@ class VideoSegmentResource:
 
         Examples:
             ```python
-            resource = resource.add_keyword_optional("Keyword")
+            resource = resource.add_keyword_optional("keyword")
             ```
 
             ```python
@@ -1019,7 +1019,7 @@ class AudioSegmentResource:
 
         Examples:
             ```python
-            resource = resource.add_title("Title of Segment")
+            resource = resource.add_title("segment title")
             ```
         """
         if self.title:
@@ -1039,7 +1039,7 @@ class AudioSegmentResource:
 
         Examples:
             ```python
-            resource = resource.add_title("Title of Segment")
+            resource = resource.add_title("segment title")
             ```
 
             ```python
@@ -1123,7 +1123,7 @@ class AudioSegmentResource:
 
         Examples:
             ```python
-            resource = resource.add_description("Description Text")
+            resource = resource.add_description("description text")
             ```
         """
         self.descriptions.append(description)
@@ -1141,7 +1141,7 @@ class AudioSegmentResource:
 
         Examples:
             ```python
-            resource = resource.add_description_multiple(["Description 1", "Description 2"])
+            resource = resource.add_description_multiple(["description 1", "description 2"])
             ```
         """
         self.descriptions.extend(descriptions)
@@ -1159,7 +1159,7 @@ class AudioSegmentResource:
 
         Examples:
             ```python
-            resource = resource.add_description_optional("Description Text")
+            resource = resource.add_description_optional("description text")
             ```
 
             ```python
@@ -1182,7 +1182,7 @@ class AudioSegmentResource:
 
         Examples:
             ```python
-            resource = resource.add_keyword("Keyword")
+            resource = resource.add_keyword("keyword")
             ```
         """
         self.keywords.append(keyword)
@@ -1213,7 +1213,7 @@ class AudioSegmentResource:
 
         Examples:
             ```python
-            resource = resource.add_keyword_optional("Keyword")
+            resource = resource.add_keyword_optional("keyword")
             ```
 
             ```python

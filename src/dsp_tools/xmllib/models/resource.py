@@ -217,7 +217,7 @@ class Resource:
             ```python
             resource = resource.add_bool_optional(
                 prop_name=":propName",
-                value=pd.NA
+                value=None,
             )
             ```
         """
@@ -1158,16 +1158,18 @@ class Resource:
             ```python
             resource = resource.add_richtext(
                 prop_name=":propName",
-                value="<strong>Bold text</strong>",
+                value="line 1\\nline 2",
             )
+            # resulting string: "line 1<br/>line 2"
             ```
 
             ```python
             resource = resource.add_richtext(
                 prop_name=":propName",
-                value="line 1\nline 2",
-                newline_replacement=xmllib.NewlineReplacement.PARAGRAPH
+                value="line 1\\nline 2",
+                newline_replacement=xmllib.NewlineReplacement.PARAGRAPH,
             )
+            # resulting string: "<p>line 1</p><p>line 2</p>"
             ```
         """
         # Because of the richtext conversions, the input value is cast as a string.

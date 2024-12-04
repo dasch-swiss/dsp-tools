@@ -73,7 +73,9 @@ class XMLRoot:
 
         Examples:
             ```python
-            resource_1 = xmllib.Resource.create_new(res_id="ID", restype=":ResourceType", label="label")
+            resource = xmllib.Resource.create_new(
+                res_id="ID", restype=":ResourceType", label="label"
+            )
 
             root.add_resource(resource)
             ```
@@ -99,8 +101,12 @@ class XMLRoot:
 
         Examples:
             ```python
-            resource_1 = xmllib.Resource.create_new(res_id="ID_1", restype=":ResourceType", label="label 1")
-            resource_2 = xmllib.Resource.create_new(res_id="ID_2", restype=":ResourceType", label="label 2")
+            resource_1 = xmllib.Resource.create_new(
+                res_id="ID_1", restype=":ResourceType", label="label 1"
+            )
+            resource_2 = xmllib.Resource.create_new(
+                res_id="ID_2", restype=":ResourceType", label="label 2"
+            )
 
             root.add_resource_multiple([resource_1, resource_2])
             ```
@@ -125,7 +131,9 @@ class XMLRoot:
 
         Examples:
             ```python
-            resource = xmllib.Resource.create_new(res_id="ID", restype=":ResourceType", label="label")
+            resource = xmllib.Resource.create_new(
+                res_id="ID", restype=":ResourceType", label="label"
+            )
 
             root.add_resource_optional(resource)
             ```
@@ -149,6 +157,11 @@ class XMLRoot:
 
         Warning:
             if the XML is not valid according to the schema
+
+        Examples:
+            ```python
+            root.write_file("xml_file_name.xml")
+            ```
         """
         root = self.serialise()
         etree.indent(root, space="    ")

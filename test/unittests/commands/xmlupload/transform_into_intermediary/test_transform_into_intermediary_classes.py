@@ -9,6 +9,7 @@ from dsp_tools.commands.xmlupload.models.intermediary.file_values import Interme
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryIIIFUri
 from dsp_tools.commands.xmlupload.models.intermediary.resource import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.intermediary.resource import MigrationMetadata
+from dsp_tools.commands.xmlupload.models.intermediary.resource import ResourceInputConversionFailure
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryBoolean
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryColor
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryDate
@@ -48,8 +49,10 @@ class TestTransformResources:
     def test_failure(self, resource_with_unknown_permissions: XMLResource, lookups: IntermediaryLookup) -> None:
         result = transform_into_intermediary_resource(resource_with_unknown_permissions, lookups)
         assert not result.resource_success
-        assert result.resource_failure.resource_id == "id"
-        assert result.resource_failure.failure_msg == "Could not find permissions for value: nonExisting"
+        failure = result.resource_failure
+        assert isinstance(failure, ResourceInputConversionFailure)
+        assert failure.resource_id == "id"
+        assert failure.failure_msg == "Could not find permissions for value: nonExisting"
 
 
 class TestTransformOneResource:

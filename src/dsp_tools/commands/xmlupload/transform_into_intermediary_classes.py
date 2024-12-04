@@ -57,7 +57,7 @@ def transform_into_intermediary_resource(
     resource: XMLResource, lookups: IntermediaryLookup
 ) -> ResourceTransformationOutput:
     """
-    Takes the XMLResources parsed from the XML file and converts them into the Intermediary format.
+    Takes the XMLResource parsed from the XML file and converts them into the Intermediary format.
     Permissions, relative IRIs, etc. are resolved in this step.
 
     Args:
@@ -65,7 +65,7 @@ def transform_into_intermediary_resource(
         lookups: lookup for permissions, prefixes, etc.
 
     Returns:
-        The transformed resources and those where the input could not be successfully transformed
+        An object containing either the transformed resource or the information for the failure report
     """
     try:
         transformed = _transform_one_resource(resource, lookups)

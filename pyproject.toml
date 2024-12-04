@@ -31,7 +31,6 @@ dependencies = [
     "regex>=2024.9.11",
     "requests>=2.32.3",
     "rustworkx>=0.15.1",
-    "termcolor>=2.4.0",
     "tqdm>=4.66.5",
     "typing-extensions>=4.12.2",
 ]

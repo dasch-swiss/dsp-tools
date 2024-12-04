@@ -118,13 +118,9 @@ def _transform_iiif_uri_value(iiif_uri: IIIFUriInfo, lookups: IntermediaryLookup
     return IntermediaryIIIFUri(iiif_uri.value, metadata)
 
 
-def _get_metadata(
-    input_val: XMLBitstream | IIIFUriInfo, lookups: IntermediaryLookup
-) -> IntermediaryFileMetadata | None:
+def _get_metadata(input_val: XMLBitstream | IIIFUriInfo, lookups: IntermediaryLookup) -> IntermediaryFileMetadata:
     perm = _resolve_permission(input_val.permissions, lookups.permissions)
-    if perm:
-        return IntermediaryFileMetadata(perm)
-    return None
+    return IntermediaryFileMetadata(perm)
 
 
 def _transform_all_properties(properties: list[XMLProperty], lookups: IntermediaryLookup) -> list[IntermediaryValue]:

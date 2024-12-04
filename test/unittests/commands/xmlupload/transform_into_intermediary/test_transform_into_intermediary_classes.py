@@ -136,7 +136,7 @@ class TestTransformOneResource:
         file_val = result.file_value
         assert isinstance(file_val, IntermediaryFileValue)
         assert file_val.value == "file.jpg"
-        assert not file_val.metadata
+        assert not file_val.metadata.permissions
         assert not result.migration_metadata
 
     def test_iiif_uri(self, resource_with_iiif_uri: XMLResource, lookups: IntermediaryLookup) -> None:
@@ -155,6 +155,7 @@ class TestTransformFileValue:
         result = _transform_file_value(bitstream, lookups)
         assert result.value == "file.jpg"
         assert isinstance(result, IntermediaryFileValue)
+        assert not result.metadata.permissions
 
     def test_transform_file_value_with_permissions(
         self, bitstream_with_permission: XMLBitstream, lookups: IntermediaryLookup

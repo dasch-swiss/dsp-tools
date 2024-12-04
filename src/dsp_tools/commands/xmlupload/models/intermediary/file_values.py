@@ -13,10 +13,10 @@ class IntermediaryFileMetadata:
 @dataclass
 class IntermediaryFileValue:
     value: str
-    metadata: IntermediaryFileMetadata | None
+    metadata: IntermediaryFileMetadata
 
 
 @dataclass
 class IntermediaryIIIFUri:
     value: str
-    metadata: IntermediaryFileMetadata | None
+    metadata: IntermediaryFileMetadata

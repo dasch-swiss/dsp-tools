@@ -79,6 +79,17 @@ def escape_reserved_xml_characters(text: str) -> str:
 
     Returns:
         The escaped richtext string
+
+    Examples:
+        ```python
+        result = xmllib.escape_reserved_xml_characters("Text <note>")
+        # result = "Text &lt;note&gt;"
+        ```
+
+        ```python
+        result = xmllib.escape_reserved_xml_characters("Text <br/> text after")
+        # result = "Text <br/> text after"
+        ```
     """
     allowed_tags = [
         "a( [^>]+)?",  # <a> is the only tag that can have attributes
@@ -156,6 +167,17 @@ def find_date_in_string(string: str) -> str | None:
 
     Returns:
         DSP-formatted date string, or None
+
+    Examples:
+        ```python
+        result = xmllib.find_date_in_string("1849/1850")
+        # result = "GREGORIAN:CE:1849:CE:1850"
+        ```
+
+        ```python
+        result = xmllib.find_date_in_string("Text")
+        # result = None
+        ```
     """
 
     # sanitise input, just in case that the method was called on an empty or N/A cell

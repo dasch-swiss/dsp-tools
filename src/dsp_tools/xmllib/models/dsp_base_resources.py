@@ -115,7 +115,6 @@ class RegionResource:
 
         Examples:
             ```python
-            # with default display values
             resource = resource.add_rectangle(
                 point1=(0.1, 0.1),
                 point2=(0.2, 0.2),
@@ -170,7 +169,6 @@ class RegionResource:
 
         Examples:
             ```python
-            # with default display values
             resource = resource.add_polygon(
                 points=[(0.1, 0.1), (0.2, 0.2), (0.3, 0.3)],
             )
@@ -220,7 +218,6 @@ class RegionResource:
 
         Examples:
             ```python
-            # with default display values
             resource = resource.add_circle(
                 center=(0.1, 0.1),
                 radius=(0.2, 0.2),

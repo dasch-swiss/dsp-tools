@@ -75,9 +75,9 @@ class RegionResource:
         Examples:
             ```python
             resource = xmllib.RegionResource.create_new(
-                    res_id="ID",
-                    label="Region label",
-                    region_of="Image ID",
+                res_id="ID",
+                label="Region label",
+                region_of="Image ID",
             )
             ```
         """
@@ -437,6 +437,14 @@ class LinkResource:
 
         Returns:
             The original resource, with the added metadata
+
+        Examples:
+            ```python
+            resource = resource.add_migration_metadata(
+                iri="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA",
+                creation_date="1999-12-31T23:59:59.9999999+01:00"
+            )
+            ```
         """
         if self.migration_metadata:
             raise InputError(
@@ -587,6 +595,11 @@ class VideoSegmentResource:
 
         Returns:
             The original resource, with the added comment
+
+        Examples:
+            ```python
+            resource = resource.add_comment("comment text")
+            ```
         """
         self.comments.append(comment)
         return self
@@ -600,6 +613,11 @@ class VideoSegmentResource:
 
         Returns:
             The original resource, with the added comments
+
+        Examples:
+            ```python
+            resource = resource.add_comment_multiple(["comment 1", "comment 2"])
+            ```
         """
         self.comments.extend(comments)
         return self
@@ -613,6 +631,15 @@ class VideoSegmentResource:
 
         Returns:
             The original resource, with the added comment
+
+        Examples:
+            ```python
+            resource = resource.add_comment_optional("comment text")
+            ```
+
+            ```python
+            resource = resource.add_comment_optional(None)
+            ```
         """
         if is_nonempty_value(comment):
             self.comments.append(comment)
@@ -754,6 +781,14 @@ class VideoSegmentResource:
 
         Returns:
             The original resource, with the added metadata
+
+        Examples:
+            ```python
+            resource = resource.add_migration_metadata(
+                iri="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA",
+                creation_date="1999-12-31T23:59:59.9999999+01:00"
+            )
+            ```
         """
         if self.migration_metadata:
             raise InputError(
@@ -870,6 +905,11 @@ class AudioSegmentResource:
 
         Returns:
             The original resource, with the added comment
+
+        Examples:
+            ```python
+            resource = resource.add_comment("comment text")
+            ```
         """
         self.comments.append(comment)
         return self
@@ -883,6 +923,11 @@ class AudioSegmentResource:
 
         Returns:
             The original resource, with the added comments
+
+        Examples:
+            ```python
+            resource = resource.add_comment_multiple(["comment 1", "comment 2"])
+            ```
         """
         self.comments.extend(comments)
         return self
@@ -896,6 +941,15 @@ class AudioSegmentResource:
 
         Returns:
             The original resource, with the added comment
+
+        Examples:
+            ```python
+            resource = resource.add_comment_optional("comment text")
+            ```
+
+            ```python
+            resource = resource.add_comment_optional(None)
+            ```
         """
         if is_nonempty_value(comment):
             self.comments.append(comment)
@@ -1037,6 +1091,14 @@ class AudioSegmentResource:
 
         Returns:
             The original resource, with the added metadata
+
+        Examples:
+            ```python
+            resource = resource.add_migration_metadata(
+                iri="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA",
+                creation_date="1999-12-31T23:59:59.9999999+01:00"
+            )
+            ```
         """
         if self.migration_metadata:
             raise InputError(

@@ -53,29 +53,26 @@ TYPE_TRANSFORMER_MAPPER: dict[str, TypeTransformerMapper] = {
 }
 
 
-def transform_into_intermediary_resources(
-    resources: list[XMLResource], lookups: IntermediaryLookup
+def transform_into_intermediary_resource(
+    resource: XMLResource, lookups: IntermediaryLookup
 ) -> ResourceTransformationOutput:
     """
     Takes the XMLResources parsed from the XML file and converts them into the Intermediary format.
     Permissions, relative IRIs, etc. are resolved in this step.
 
     Args:
-        resources: list of resources
+        resource: resource
         lookups: lookup for permissions, prefixes, etc.
 
     Returns:
         The transformed resources and those where the input could not be successfully transformed
     """
-    transformed_resources = []
-    transformation_failures = []
-    for res in resources:
-        try:
-            transformed = _transform_one_resource(res, lookups)
-            transformed_resources.append(transformed)
-        except (PermissionNotExistsError, InputError) as e:
-            transformation_failures.append(ResourceInputConversionFailure(res.res_id, str(e)))
-    return ResourceTransformationOutput(transformed_resources, transformation_failures)
+    try:
+        transformed = _transform_one_resource(resource, lookups)
+        return ResourceTransformationOutput(transformed)
+    except (PermissionNotExistsError, InputError) as e:
+        transformation_failure = ResourceInputConversionFailure(resource.res_id, str(e))
+        return ResourceTransformationOutput(None, transformation_failure)
 
 
 def _transform_one_resource(resource: XMLResource, lookups: IntermediaryLookup) -> IntermediaryResource:

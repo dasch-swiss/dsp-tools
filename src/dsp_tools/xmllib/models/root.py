@@ -45,6 +45,14 @@ class XMLRoot:
 
         Returns:
             Instance of `XMLRoot`
+
+        Examples:
+            ```python
+            root = xmllib.XMLRoot.create_new(
+                shortcode="0000",
+                default_ontology="onto"
+            )
+            ```
         """
         return XMLRoot(shortcode=shortcode, default_ontology=default_ontology)
 
@@ -62,6 +70,13 @@ class XMLRoot:
 
         Returns:
             The original XMLRoot, with the added resource
+
+        Examples:
+            ```python
+            resource_1 = xmllib.Resource.create_new(res_id="ID", restype=":ResourceType", label="label")
+
+            root.add_resource(resource)
+            ```
         """
         self.resources.append(resource)
         return self
@@ -81,6 +96,14 @@ class XMLRoot:
 
         Returns:
             The original XMLRoot, with the added resource
+
+        Examples:
+            ```python
+            resource_1 = xmllib.Resource.create_new(res_id="ID_1", restype=":ResourceType", label="label 1")
+            resource_2 = xmllib.Resource.create_new(res_id="ID_2", restype=":ResourceType", label="label 2")
+
+            root.add_resource_multiple([resource_1, resource_2])
+            ```
         """
         self.resources.extend(resources)
         return self
@@ -99,6 +122,19 @@ class XMLRoot:
 
         Returns:
             The original XMLRoot, with the added value if it was not empty. Else the unchanged original XMLRoot.
+
+        Examples:
+            ```python
+            resource = xmllib.Resource.create_new(res_id="ID", restype=":ResourceType", label="label")
+
+            root.add_resource_optional(resource)
+            ```
+
+            ```python
+            resource = None
+
+            root.add_resource_optional(resource)
+            ```
         """
         if resource:
             self.resources.append(resource)

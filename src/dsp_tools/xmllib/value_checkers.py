@@ -242,6 +242,24 @@ def is_string_like(value: Any) -> bool:
 
     Returns:
         True if it is a string
+
+    Examples:
+        ```python
+        result = xmllib.is_string_like("This is a string")
+        # result = True
+        ```
+
+        ```python
+        # because numbers, floats, etc. can be converted to strings they are accepted
+
+        result = xmllib.is_string_like(1)
+        # result = True
+        ```
+
+        ```python
+        result = xmllib.is_string_like(None)
+        # result = False
+        ```
     """
     if pd.isna(value):
         return False
@@ -260,6 +278,17 @@ def is_timestamp(value: Any) -> bool:
 
     Returns:
         True if it conforms
+
+    Examples:
+        ```python
+        result = xmllib.is_timestamp("2019-10-23T13:45:12Z")
+        # result = True
+        ```
+
+        ```python
+        result = xmllib.is_timestamp("Not a time stamp")
+        # result = False
+        ```
     """
     validation_regex = r"^\d{4}-[0-1]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(\.\d{1,12})?(Z|[+-][0-1]\d:[0-5]\d)$"
     return bool(regex.search(validation_regex, str(value)))
@@ -297,6 +326,17 @@ def is_dsp_iri(value: Any) -> bool:
 
     Returns:
         True if it is valid, else false
+
+    Examples:
+        ```python
+        result = xmllib.is_dsp_iri("http://rdfh.ch/4123/54SYvWF0QUW6a")
+        # result = True
+        ```
+
+        ```python
+        result = xmllib.is_dsp_iri("http://dbpedia.org/resource/Internationalized_Resource_Identifier")
+        # result = False
+        ```
     """
     return bool(regex.search(r"^http://rdfh\.ch/\d{4}/", str(value)))
 
@@ -310,6 +350,17 @@ def is_dsp_ark(value: Any) -> bool:
 
     Returns:
         True if it is valid, else false
+
+    Examples:
+        ```python
+        result = xmllib.is_dsp_ark("ark:/72163/4123-31ec6eab334-a.2022829")
+        # result = True
+        ```
+
+        ```python
+        result = xmllib.is_dsp_ark("http://rdfh.ch/4123/54SYvWF0QUW6a")
+        # result = False
+        ```
     """
     return bool(regex.search(r"^ark:/", str(value)))
 

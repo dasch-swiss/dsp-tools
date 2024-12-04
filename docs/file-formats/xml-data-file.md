@@ -970,7 +970,7 @@ shortcut, so that the XML file can be validated more precisely.
 `<link>` is a resource linking together several other resources of different classes. It must have the following 
 predefined properties:
 
-- `hasComment` (1-n)
+- `hasComment` (0-n)
 - `hasLinkTo` (1-n)
 
 Example:

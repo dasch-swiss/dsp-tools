@@ -393,7 +393,7 @@ class Resource:
         Examples:
             ```python
             resource = resource.add_date_multiple(
-                prop_name=":Prop",
+                prop_name=":propName",
                 values=["GREGORIAN:CE:2014-01-31:CE:2014-01-31", "CE:1849:CE:1850"],
             )
             ```
@@ -504,7 +504,7 @@ class Resource:
         Examples:
             ```python
             resource = resource.add_decimal_multiple(
-                prop_name=":Prop",
+                prop_name=":propName",
                 values=[1.4, 2.9],
             )
             ```
@@ -581,6 +581,14 @@ class Resource:
 
         Returns:
             The original resource, with the added value
+
+        Examples:
+            ```python
+            resource = resource.add_geoname(
+                prop_name=":propName",
+                value="2761369",
+            )
+            ```
         """
         self.values.append(GeonameValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -607,6 +615,14 @@ class Resource:
 
         Returns:
             The original resource, with the added values
+            
+        Examples:
+            ```python
+            resource = resource.add_geoname_multiple(
+                prop_name=":propName",
+                values=["2761369", "2661604"],
+            )
+            ```
         """
         vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
         self.values.extend([GeonameValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
@@ -634,6 +650,21 @@ class Resource:
 
         Returns:
             The original resource, with the added value if it was not empty, else the unchanged original resource.
+
+        Examples:
+            ```python
+            resource = resource.add_geoname_optional(
+                prop_name=":propName",
+                value="2661604",
+            )
+            ```
+
+            ```python
+            resource = resource.add_geoname_optional(
+                prop_name=":propName",
+                value=None,
+            )
+            ```
         """
         if is_nonempty_value(value):
             self.values.append(GeonameValue(value, prop_name, permissions, comment, self.res_id))
@@ -664,6 +695,14 @@ class Resource:
 
         Returns:
             The original resource, with the added value
+
+        Examples:
+            ```python
+            resource = resource.add_integer(
+                prop_name=":propName",
+                value=399,
+            )
+            ```
         """
         self.values.append(IntValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -689,6 +728,14 @@ class Resource:
 
         Returns:
             The original resource, with the added values
+
+        Examples:
+            ```python
+            resource = resource.add_integer_multiple(
+                prop_name=":propName",
+                values=[24, "66"],
+            )
+            ```
         """
         vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
         self.values.extend([IntValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
@@ -715,6 +762,21 @@ class Resource:
 
         Returns:
             The original resource, with the added value if it was not empty, else the unchanged original resource.
+
+        Examples:
+            ```python
+            resource = resource.add_integer_optional(
+                prop_name=":propName",
+                value="2604",
+            )
+            ```
+
+            ```python
+            resource = resource.add_integer_optional(
+                prop_name=":propName",
+                value=None,
+            )
+            ```
         """
         if is_nonempty_value(value):
             self.values.append(IntValue(value, prop_name, permissions, comment, self.res_id))

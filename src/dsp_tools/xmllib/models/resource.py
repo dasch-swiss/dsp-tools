@@ -1302,9 +1302,12 @@ class Resource:
             The original resource, with the added value
 
         Examples:
-```python
-
-```
+            ```python
+            resource = resource.add_time(
+                prop_name=":propName",
+                value="2019-10-23T13:45:12Z",
+            )
+            ```
         """
         self.values.append(TimeValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -1331,9 +1334,12 @@ class Resource:
             The original resource, with the added values
 
         Examples:
-```python
-
-```
+            ```python
+            resource = resource.add_time_multiple(
+                prop_name=":propName",
+                values=["2019-10-23T13:45:12Z", "2009-10-10T12:00:00-05:00"],
+            )
+            ```
         """
         vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
         self.values.extend([TimeValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
@@ -1361,13 +1367,19 @@ class Resource:
             The original resource, with the added value if it was not empty, else the unchanged original resource.
 
         Examples:
-```python
+            ```python
+            resource = resource.add_time_optional(
+                prop_name=":propName",
+                value="2019-10-23T13:45:12Z",
+            )
+            ```
 
-```
-
-```python
-
-```
+            ```python
+            resource = resource.add_time_optional(
+                prop_name=":propName",
+                value=None,
+            )
+            ```
 """
         if is_nonempty_value(value):
             self.values.append(TimeValue(value, prop_name, permissions, comment, self.res_id))
@@ -1399,9 +1411,12 @@ class Resource:
             The original resource, with the added value
 
         Examples:
-```python
-
-```
+            ```python
+            resource = resource.add_uri(
+                prop_name=":propName",
+                value="http://dasch.swiss",
+            )
+            ```
         """
         self.values.append(UriValue(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -1428,9 +1443,12 @@ class Resource:
             The original resource, with the added values
 
         Examples:
-```python
-
-```
+            ```python
+            resource = resource.add_uri_multiple(
+                prop_name=":propName",
+                values=["http://dasch.swiss", "https://docs.dasch.swiss"],
+            )
+            ```
         """
         vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
         self.values.extend([UriValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
@@ -1458,13 +1476,19 @@ class Resource:
             The original resource, with the added value if it was not empty, else the unchanged original resource.
 
         Examples:
-```python
+            ```python
+            resource = resource.add_uri_optional(
+                prop_name=":propName",
+                value="http://dasch.swiss",
+            )
+            ```
 
-```
-
-```python
-
-```
+            ```python
+            resource = resource.add_uri_optional(
+                prop_name=":propName",
+                value=None,
+            )
+            ```
 """
         if is_nonempty_value(value):
             self.values.append(UriValue(value, prop_name, permissions, comment, self.res_id))

@@ -31,8 +31,8 @@ def convert_to_bool_string(value: Any) -> str:
         ```
 
         ```python
-        result = xmllib.convert_to_bool_string("unknown value")
-        # result = "unknown value"
+        result = xmllib.convert_to_bool_string(None)
+        # result = "None"
         ```
     """
     str_val = str(value).lower().strip()
@@ -57,21 +57,21 @@ def replace_newlines_with_tags(text: str, converter_option: NewlineReplacement) 
     Raises:
         InputError: If an invalid conversion option is given
 
-        Examples:
-            ```python
-            result = xmllib.replace_newlines_with_tags("Start\\nEnd", xmllib.NewlineReplacement.NONE)
-            # result = "Start\\nEnd"
-            ```
+    Examples:
+        ```python
+        result = xmllib.replace_newlines_with_tags("Start\\nEnd", xmllib.NewlineReplacement.NONE)
+        # result = "Start\\nEnd"
+        ```
 
-            ```python
-            result = xmllib.replace_newlines_with_tags("Start\\nEnd", xmllib.NewlineReplacement.LINEBREAK)
-            # result = "Start<br/>End"
-            ```
+        ```python
+        result = xmllib.replace_newlines_with_tags("Start\\nEnd", xmllib.NewlineReplacement.LINEBREAK)
+        # result = "Start<br/>End"
+        ```
 
-            ```python
-            result = xmllib.replace_newlines_with_tags("Start\\n\\nEnd", xmllib.NewlineReplacement.PARAGRAPH)
-            # result = "<p>Start</p><p>End</p>"
-            ```
+        ```python
+        result = xmllib.replace_newlines_with_tags("Start\\n\\nEnd", xmllib.NewlineReplacement.PARAGRAPH)
+        # result = "<p>Start</p><p>End</p>"
+        ```
     """
     match converter_option:
         case NewlineReplacement.NONE:

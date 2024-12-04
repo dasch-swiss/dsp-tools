@@ -21,6 +21,7 @@ from dsp_tools.commands.xmlupload.models.deserialise.xmlpermission import XmlPer
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
+from dsp_tools.commands.xmlupload.models.intermediary.resource import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookup
 from dsp_tools.commands.xmlupload.models.lookup_models import Lookups
 from dsp_tools.commands.xmlupload.models.lookup_models import get_json_ld_context_for_project
@@ -40,10 +41,12 @@ from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_c
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.commands.xmlupload.stash.upload_stashed_resptr_props import upload_stashed_resptr_props
 from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import upload_stashed_xml_texts
+from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import transform_into_intermediary_resources
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.write_diagnostic_info import write_id2iri_mapping
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.models.exceptions import PermanentTimeOutError
 from dsp_tools.models.exceptions import UserError
@@ -96,7 +99,13 @@ def xmlupload(
     clients = _get_live_clients(con, auth, creds, shortcode, imgdir)
     intermediary_lookups = _create_intermediary_lookups(clients, permissions_lookup)
 
-    state = UploadState(resources, stash, config, permissions_lookup)
+    transformation_results = transform_into_intermediary_resources(resources, intermediary_lookups)
+    if transformation_results.resource_failure:
+        failures = [f"Resource id: {x.resource_id} | {x.failure_msg}" for x in transformation_results.resource_failure]
+        msg = f"The following resources failed to resolve permissions or list names.\n-   {'\n-   '.join(failures)}"
+        raise InputError(msg)
+
+    state = UploadState(transformation_results.resource_success, stash, config, permissions_lookup)
 
     return execute_upload(clients, state)
 
@@ -348,17 +357,15 @@ def _extract_resources_from_xml(root: etree._Element, default_ontology: str) -> 
 
 def _upload_one_resource(
     upload_state: UploadState,
-    resource: XMLResource,
+    resource: IntermediaryResource,
     ingest_client: AssetClient,
     resource_create_client: ResourceCreateClient,
     lookups: Lookups,
     creation_attempts_of_this_round: int,
 ) -> None:
     try:
-        if resource.bitstream:
-            success, media_info = ingest_client.get_bitstream_info(
-                resource.bitstream, upload_state.permissions_lookup, resource.label, resource.res_id
-            )
+        if resource.file_value:
+            success, media_info = ingest_client.get_bitstream_info(resource.file_value, resource.label, resource.res_id)
         else:
             success, media_info = True, None
 

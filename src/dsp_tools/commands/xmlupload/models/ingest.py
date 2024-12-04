@@ -10,9 +10,8 @@ from requests import Session
 from requests.adapters import HTTPAdapter
 from requests.adapters import Retry
 
-from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLBitstream
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
-from dsp_tools.commands.xmlupload.models.permission import Permissions
+from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileValue
 from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.utils.authentication_client import AuthenticationClient
@@ -35,8 +34,7 @@ class AssetClient(Protocol):
 
     def get_bitstream_info(
         self,
-        bitstream: XMLBitstream,
-        permissions_lookup: dict[str, Permissions],
+        bitstream: IntermediaryFileValue,
         res_label: str,
         res_id: str,
     ) -> tuple[bool, None | BitstreamInfo]:
@@ -44,7 +42,6 @@ class AssetClient(Protocol):
 
         Args:
             bitstream: The bitstream to upload.
-            permissions_lookup: The permissions lookup.
             res_label: The resource label (for error message in failure case).
             res_id: The resource ID (for error message in failure case).
         """
@@ -127,8 +124,7 @@ class DspIngestClientLive(AssetClient):
 
     def get_bitstream_info(
         self,
-        bitstream: XMLBitstream,
-        permissions_lookup: dict[str, Permissions],
+        bitstream: IntermediaryFileValue,
         res_label: str,
         res_id: str,
     ) -> tuple[bool, None | BitstreamInfo]:
@@ -137,8 +133,7 @@ class DspIngestClientLive(AssetClient):
             res = self._ingest(Path(self.imgdir) / Path(bitstream.value))
             msg = f"Uploaded file '{bitstream.value}'"
             logger.info(msg)
-            permissions = permissions_lookup.get(bitstream.permissions) if bitstream.permissions else None
-            return True, BitstreamInfo(bitstream.value, res.internal_filename, permissions)
+            return True, BitstreamInfo(bitstream.value, res.internal_filename, bitstream.metadata.permissions)
         except PermanentConnectionError:
             msg = f"Unable to upload file '{bitstream.value}' of resource '{res_label}' ({res_id})"
             logger.opt(exception=True).warning(msg)
@@ -151,11 +146,9 @@ class BulkIngestedAssetClient(AssetClient):
 
     def get_bitstream_info(
         self,
-        bitstream: XMLBitstream,
-        permissions_lookup: dict[str, Permissions],
+        bitstream: IntermediaryFileValue,
         res_label: str,  # noqa: ARG002
         res_id: str,  # noqa: ARG002
     ) -> tuple[bool, BitstreamInfo | None]:
         """Returns the BitstreamInfo of the already ingested file based on the `XMLBitstream.value`."""
-        permissions = permissions_lookup.get(bitstream.permissions) if bitstream.permissions else None
-        return True, BitstreamInfo(bitstream.value, bitstream.value, permissions)
+        return True, BitstreamInfo(bitstream.value, bitstream.value, bitstream.metadata.permissions)

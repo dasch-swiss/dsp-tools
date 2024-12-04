@@ -89,7 +89,6 @@ class Resource:
 
         Examples:
             ```python
-            # resource with project specific permissions
             resource = xmllib.Resource.create_new(
                 res_id="ID",
                 restype=":ResourceType",
@@ -98,7 +97,7 @@ class Resource:
             ```
 
             ```python
-            # resource with custom permissions
+            # resource with restricted permissions
             resource = xmllib.Resource.create_new(
                 res_id="ID",
                 restype=":ResourceType",
@@ -1141,6 +1140,7 @@ class Resource:
         Conversions:
             By default, replace newline characters inside the text value with `<br/>`, which preserves the linebreak.
             Without this replacement, the newline would disappear, because `\\n` is meaningless in an XML file.
+            [See the function documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/value-converters/#xmllib.value_converters.replace_newlines_with_tags)
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text)
 
@@ -1160,7 +1160,6 @@ class Resource:
                 prop_name=":propName",
                 value="line 1\\nline 2",
             )
-            # resulting string: "line 1<br/>line 2"
             ```
 
             ```python
@@ -1169,7 +1168,6 @@ class Resource:
                 value="line 1\\nline 2",
                 newline_replacement=xmllib.NewlineReplacement.PARAGRAPH,
             )
-            # resulting string: "<p>line 1</p><p>line 2</p>"
             ```
         """
         # Because of the richtext conversions, the input value is cast as a string.
@@ -1197,6 +1195,7 @@ class Resource:
         Conversions:
             By default, replace newline characters inside the text value with `<br/>`, which preserves the linebreak.
             Without this replacement, the newline would disappear, because `\\n` is meaningless in an XML file.
+            [See the function documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/value-converters/#xmllib.value_converters.replace_newlines_with_tags)
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text)
 
@@ -1245,6 +1244,7 @@ class Resource:
         Conversions:
             By default, replace newline characters inside the text value with `<br/>`, which preserves the linebreak.
             Without this replacement, the newline would disappear, because `\\n` is meaningless in an XML file.
+            [See the function documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/value-converters/#xmllib.value_converters.replace_newlines_with_tags)
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text)
 
@@ -1416,7 +1416,7 @@ class Resource:
             ```python
             resource = resource.add_uri(
                 prop_name=":propName",
-                value="http://dasch.swiss",
+                value="https://dasch.swiss",
             )
             ```
         """
@@ -1448,7 +1448,7 @@ class Resource:
             ```python
             resource = resource.add_uri_multiple(
                 prop_name=":propName",
-                values=["http://dasch.swiss", "https://docs.dasch.swiss"],
+                values=["https://dasch.swiss", "https://docs.dasch.swiss"],
             )
             ```
         """
@@ -1481,7 +1481,7 @@ class Resource:
             ```python
             resource = resource.add_uri_optional(
                 prop_name=":propName",
-                value="http://dasch.swiss",
+                value="https://dasch.swiss",
             )
             ```
 

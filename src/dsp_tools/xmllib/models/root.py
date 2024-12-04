@@ -77,7 +77,7 @@ class XMLRoot:
                 res_id="ID", restype=":ResourceType", label="label"
             )
 
-            root.add_resource(resource)
+            root = root.add_resource(resource)
             ```
         """
         self.resources.append(resource)
@@ -108,7 +108,7 @@ class XMLRoot:
                 res_id="ID_2", restype=":ResourceType", label="label 2"
             )
 
-            root.add_resource_multiple([resource_1, resource_2])
+            root = root.add_resource_multiple([resource_1, resource_2])
             ```
         """
         self.resources.extend(resources)
@@ -135,13 +135,13 @@ class XMLRoot:
                 res_id="ID", restype=":ResourceType", label="label"
             )
 
-            root.add_resource_optional(resource)
+            root = root.add_resource_optional(resource)
             ```
 
             ```python
             resource = None
 
-            root.add_resource_optional(resource)
+            root = root.add_resource_optional(resource)
             ```
         """
         if resource:

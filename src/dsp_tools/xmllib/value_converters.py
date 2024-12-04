@@ -61,17 +61,23 @@ def replace_newlines_with_tags(text: str, converter_option: NewlineReplacement) 
 
     Examples:
         ```python
-        result = xmllib.replace_newlines_with_tags("Start\\nEnd", xmllib.NewlineReplacement.NONE)
+        result = xmllib.replace_newlines_with_tags(
+            "Start\\nEnd", xmllib.NewlineReplacement.NONE
+        )
         # result = "Start\\nEnd"
         ```
 
         ```python
-        result = xmllib.replace_newlines_with_tags("Start\\nEnd", xmllib.NewlineReplacement.LINEBREAK)
+        result = xmllib.replace_newlines_with_tags(
+            "Start\\nEnd", xmllib.NewlineReplacement.LINEBREAK
+        )
         # result = "Start<br/>End"
         ```
 
         ```python
-        result = xmllib.replace_newlines_with_tags("Start\\n\\nEnd", xmllib.NewlineReplacement.PARAGRAPH)
+        result = xmllib.replace_newlines_with_tags(
+            "Start\\n\\nEnd", xmllib.NewlineReplacement.PARAGRAPH
+        )
         # result = "<p>Start</p><p>End</p>"
         ```
     """
@@ -96,12 +102,12 @@ def replace_newlines_with_paragraph_tags(text: str) -> str:
 
     Examples:
         ```python
-        result = xmllib.replace_newlines_with_paragraph_tags("Start\\n\\nEnd")
+        result = xmllib.replace_newlines_with_paragraph_tags("Start\\nEnd")
         # result = "<p>Start</p><p>End</p>"
         ```
 
         ```python
-        # Multiple consecutive newlines will be treated as one newline
+        # multiple consecutive newlines will be treated as one newline
 
         result = xmllib.replace_newlines_with_paragraph_tags("Start\\n\\nEnd")
         # result = "<p>Start</p><p>End</p>"
@@ -129,7 +135,7 @@ def replace_newlines_with_br_tags(text: str) -> str:
         ```
 
         ```python
-        # Multiple consecutive newlines will be converted into multiple break-lines
+        # multiple consecutive newlines will be converted into multiple break-lines
 
         result = xmllib.replace_newlines_with_br_tags("Start\\n\\nEnd")
         # result = "Start<br/><br/>End"

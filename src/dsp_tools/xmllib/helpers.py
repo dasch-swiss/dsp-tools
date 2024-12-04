@@ -28,6 +28,47 @@ def create_label_to_name_list_node_mapping(
 
     Returns:
         a dictionary of the form {label: name}
+
+    Examples:
+        ```json
+        "lists": [
+            {
+                "name": "listName",
+                "labels": {
+                    "en": "List",
+                    "de": "Liste"
+                },
+                "comments": {
+                    "en": "This is a list"
+                },
+                "nodes": [
+                    {
+                        "name": "n1",
+                        "labels": {
+                            "en": "Node 1",
+                            "de": "Knoten 1"
+                        }
+                    },
+                    {
+                        "name": "n2",
+                        "labels": {
+                            "en": "Node 2",
+                            "de": "Knoten 2"
+                        }
+                    }
+                ]
+            }
+        ]
+        ```
+
+        ```python
+        result = xmllib.create_label_to_name_list_node_mapping(
+            project_json_path="project.json",
+            list_name="listName",
+            language_of_label="de",
+        )
+        # result = { "Knoten 1": "n1", "Knoten 2": "n2" }
+        ```
     """
     with open(project_json_path, encoding="utf-8") as f:
         json_file = json.load(f)
@@ -82,8 +123,8 @@ def escape_reserved_xml_characters(text: str) -> str:
 
     Examples:
         ```python
-        result = xmllib.escape_reserved_xml_characters("Text <note>")
-        # result = "Text &lt;note&gt;"
+        result = xmllib.escape_reserved_xml_characters("Text <unknownTag>")
+        # result = "Text &lt;unknownTag&gt;"
         ```
 
         ```python
@@ -175,7 +216,7 @@ def find_date_in_string(string: str) -> str | None:
         ```
 
         ```python
-        result = xmllib.find_date_in_string("Text")
+        result = xmllib.find_date_in_string("not a valid date")
         # result = None
         ```
     """
@@ -457,12 +498,12 @@ def create_list_from_string(string: str, separator: str) -> list[str]:
 
     Examples:
         ```python
-        result = xmllib.create_non_empty_list_from_string(" One,  Two\\n,", ",")
+        result = xmllib.create_non_empty_list_from_string(" One/  Two\\n/", "/")
         # result = ["One", "Two"]
         ```
 
         ```python
-        result = xmllib.create_list_from_string("   \\n,    ", ",")
+        result = xmllib.create_list_from_string("   \\n    ", "\\n")
         # result = [ ]
         ```
     """
@@ -500,7 +541,7 @@ def create_non_empty_list_from_string(
         ```
 
         ```python
-        result = xmllib.create_non_empty_list_from_string("   \\n,    ", ",")
+        result = xmllib.create_non_empty_list_from_string("   \\n/    ", "/")
         # raises InputError
         ```
     """

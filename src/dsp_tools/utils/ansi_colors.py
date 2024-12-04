@@ -19,6 +19,7 @@ RESET_TO_DEFAULT = f"{SEQUENCE_START}0{SEQUENCE_END}"
 BOLD_RED = f"{SEQUENCE_START}1;31{SEQUENCE_END}"  # 1 (bold) ; 31 (red)
 BOLD_CYAN = f"{SEQUENCE_START}1;36{SEQUENCE_END}"  # 1 (bold) ; 36 (cyan)
 YELLOW = f"{SEQUENCE_START}0;33{SEQUENCE_END}"  # 0 (normal font) ; 33 (yellow)
+RED = f"{SEQUENCE_START}0;31{SEQUENCE_END}"  # 0 (normal font) ; 31 (red)
 
 # Colored Background
 BACKGROUND_BOLD_MAGENTA = f"{SEQUENCE_START}1;45{SEQUENCE_END}"  # 1 (bold) ; 45 (background magenta)

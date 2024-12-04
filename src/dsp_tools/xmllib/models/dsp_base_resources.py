@@ -385,7 +385,7 @@ class LinkResource:
     res_id: str
     label: str
     link_to: list[str]
-    comments: list[str]
+    comments: list[str] = field(default_factory=list)
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
 
@@ -394,7 +394,6 @@ class LinkResource:
         res_id: str,
         label: str,
         link_to: Collection[str],
-        comments: Collection[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> LinkResource:
         """
@@ -407,7 +406,6 @@ class LinkResource:
             res_id: ID of this link resource
             label: label of this link resource
             link_to: IDs of the resources that should be linked together (cardinality 1-n)
-            comments: comments to this link (cardinality 1-n)
             permissions: permissions of this link resource
 
         Returns:
@@ -417,7 +415,6 @@ class LinkResource:
             res_id=res_id,
             label=label,
             link_to=list(link_to),
-            comments=list(comments),
             permissions=permissions,
         )
 

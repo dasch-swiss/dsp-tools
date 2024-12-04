@@ -410,6 +410,15 @@ class LinkResource:
 
         Returns:
             A link resource
+
+        Examples:
+            ```python
+            resource = xmllib.LinkResource.create_new(
+                res_id="ID",
+                label="Label",
+                link_to=["target_resource_id1", "target_resource_id2"],
+            )
+            ```
         """
         return LinkResource(
             res_id=res_id,
@@ -602,6 +611,17 @@ class VideoSegmentResource:
 
         Returns:
             A video segment resource
+
+        Examples:
+            ```python
+            resource = xmllib.VideoSegmentResource.create_new(
+                res_id="ID",
+                label="Label",
+                segment_of="video_resource_id",
+                segment_start=1.2,
+                segment_end=3.4,
+            )
+            ```
         """
         return VideoSegmentResource(
             res_id=res_id,
@@ -620,6 +640,11 @@ class VideoSegmentResource:
 
         Returns:
             The original resource, with the added title
+
+        Examples:
+            ```python
+            resource = resource.add_title("Title of Segment")
+            ```
         """
         if self.title:
             _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
@@ -635,6 +660,15 @@ class VideoSegmentResource:
 
         Returns:
             The original resource, with the added title
+
+        Examples:
+            ```python
+            resource = resource.add_title("Title of Segment")
+            ```
+
+            ```python
+            resource = resource.add_title(None)
+            ```
         """
         if is_nonempty_value(title):
             if self.title:
@@ -710,6 +744,11 @@ class VideoSegmentResource:
 
         Returns:
             The original resource, with the added description
+
+        Examples:
+            ```python
+            resource = resource.add_description("Description Text")
+            ```
         """
         self.descriptions.append(description)
         return self
@@ -723,6 +762,11 @@ class VideoSegmentResource:
 
         Returns:
             The original resource, with the added descriptions
+
+        Examples:
+            ```python
+            resource = resource.add_description_multiple(["Description 1", "Description 2"])
+            ```
         """
         self.descriptions.extend(descriptions)
         return self
@@ -736,6 +780,15 @@ class VideoSegmentResource:
 
         Returns:
             The original resource, with the added description
+
+        Examples:
+            ```python
+            resource = resource.add_description_optional("Description Text")
+            ```
+
+            ```python
+            resource = resource.add_description_optional(None)
+            ```
         """
         if is_nonempty_value(description):
             self.descriptions.append(description)
@@ -750,6 +803,11 @@ class VideoSegmentResource:
 
         Returns:
             The original resource, with the added keyword
+
+        Examples:
+            ```python
+            resource = resource.add_keyword("Keyword")
+            ```
         """
         self.keywords.append(keyword)
         return self
@@ -776,6 +834,11 @@ class VideoSegmentResource:
 
         Returns:
             The original resource, with the added keyword
+
+        Examples:
+            ```python
+            resource = resource.add_keyword_optional("Keyword")
+            ```
         """
         if is_nonempty_value(keyword):
             self.keywords.append(keyword)
@@ -930,6 +993,11 @@ class AudioSegmentResource:
 
         Returns:
             The original resource, with the added title
+
+        Examples:
+            ```python
+            resource = resource.add_title("Title of Segment")
+            ```
         """
         if self.title:
             _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
@@ -945,6 +1013,15 @@ class AudioSegmentResource:
 
         Returns:
             The original resource, with the added title
+
+        Examples:
+            ```python
+            resource = resource.add_title("Title of Segment")
+            ```
+
+            ```python
+            resource = resource.add_title(None)
+            ```
         """
         if is_nonempty_value(title):
             if self.title:
@@ -1020,6 +1097,11 @@ class AudioSegmentResource:
 
         Returns:
             The original resource, with the added description
+
+        Examples:
+            ```python
+            resource = resource.add_description("Description Text")
+            ```
         """
         self.descriptions.append(description)
         return self
@@ -1033,6 +1115,11 @@ class AudioSegmentResource:
 
         Returns:
             The original resource, with the added descriptions
+
+        Examples:
+            ```python
+            resource = resource.add_description_multiple(["Description 1", "Description 2"])
+            ```
         """
         self.descriptions.extend(descriptions)
         return self
@@ -1046,6 +1133,15 @@ class AudioSegmentResource:
 
         Returns:
             The original resource, with the added description
+
+        Examples:
+            ```python
+            resource = resource.add_description_optional("Description Text")
+            ```
+
+            ```python
+            resource = resource.add_description_optional(None)
+            ```
         """
         if is_nonempty_value(description):
             self.descriptions.append(description)
@@ -1060,6 +1156,11 @@ class AudioSegmentResource:
 
         Returns:
             The original resource, with the added keyword
+
+        Examples:
+            ```python
+            resource = resource.add_keyword("Keyword")
+            ```
         """
         self.keywords.append(keyword)
         return self
@@ -1086,6 +1187,11 @@ class AudioSegmentResource:
 
         Returns:
             The original resource, with the added keyword
+
+        Examples:
+            ```python
+            resource = resource.add_keyword_optional("Keyword")
+            ```
         """
         if is_nonempty_value(keyword):
             self.keywords.append(keyword)

@@ -1521,9 +1521,11 @@ class Resource:
             The original resource, with the added value
 
         Examples:
-```python
-
-```
+            ```python
+            resource = resource.add_file(
+                filename="images/dog.jpg"
+            )
+            ```
         """
         if self.file_value:
             raise InputError(
@@ -1557,9 +1559,11 @@ class Resource:
             The original resource, with the added value
 
         Examples:
-```python
-
-```
+            ```python
+            resource = resource.add_iiif_uri(
+                iiif_uri="https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg"
+            )
+            ```
         """
         if self.file_value:
             raise InputError(

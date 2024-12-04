@@ -2,11 +2,11 @@ from typing import Protocol
 from typing import runtime_checkable
 
 # These are ANSI escape codes which can be used to configure the print output on the terminal
-# https://en.wikipedia.org/wiki/ANSI_escape_code
+# http://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html
 # The semicolon separates different configurations
 
-# All codes must start with "\033["
-SEQUENCE_START = "\033["
+# All codes must start with an escape sequence, it may differ in different languages, in Python "\u001b[" works
+SEQUENCE_START = "\u001b["
 
 # the "m" at the end signals,
 # that the configuration code is finished and after that the string that should be printed starts

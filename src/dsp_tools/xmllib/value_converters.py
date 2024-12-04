@@ -29,6 +29,11 @@ def convert_to_bool_string(value: Any) -> str:
         result = xmllib.convert_to_bool_string("nein")
         # result = "false"
         ```
+
+        ```python
+        result = xmllib.convert_to_bool_string("unknown value")
+        # result = "unknown value"
+        ```
     """
     str_val = str(value).lower().strip()
     if str_val in ("false", "0", "0.0", "no", "non", "nein"):
@@ -95,6 +100,7 @@ def replace_newlines_with_paragraph_tags(text: str) -> str:
 
         ```python
         # Multiple consecutive newlines will be treated as one newline
+
         result = xmllib.replace_newlines_with_paragraph_tags("Start\\n\\nEnd")
         # result = "<p>Start</p><p>End</p>"
         ```
@@ -122,6 +128,7 @@ def replace_newlines_with_br_tags(text: str) -> str:
 
         ```python
         # Multiple consecutive newlines will be converted into multiple break-lines
+
         result = xmllib.replace_newlines_with_br_tags("Start\\n\\nEnd")
         # result = "Start<br/><br/>End"
         ```

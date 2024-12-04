@@ -76,7 +76,7 @@ class RegionResource:
             ```python
             resource = xmllib.RegionResource.create_new(
                 res_id="ID",
-                label="Region label",
+                label="Label",
                 region_of="Image ID",
             )
             ```

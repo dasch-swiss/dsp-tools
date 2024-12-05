@@ -330,6 +330,6 @@ def test_richtext_with_reference_not_found(lookups: IRILookup) -> None:
     prop = IntermediaryRichtext(
         FormattedTextValue(text), onto_str("hasRichtext"), None, None, resource_references=set("nonExisingReference")
     )
-    err_str = regex.escape(("Internal ID 'nonExisingReference' could not be resolved to an IRI"))
+    err_str = regex.escape("Internal ID 'nonExisingReference' could not be resolved to an IRI")
     with pytest.raises(BaseError, match=err_str):
         _make_one_prop_graph(prop, res_bn, lookups)

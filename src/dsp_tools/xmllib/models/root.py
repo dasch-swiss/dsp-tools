@@ -139,9 +139,7 @@ class XMLRoot:
             ```
 
             ```python
-            resource = None
-
-            root = root.add_resource_optional(resource)
+            root = root.add_resource_optional(None)
             ```
         """
         if resource:

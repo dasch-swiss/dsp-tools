@@ -1,3 +1,6 @@
+from typing import TypeAlias
+from typing import Union
+
 from rdflib import RDF
 from rdflib import XSD
 from rdflib import BNode
@@ -27,6 +30,7 @@ from dsp_tools.commands.xmlupload.models.intermediary.values import Intermediary
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryUri
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryValue
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookup
+from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import UserError
@@ -35,6 +39,18 @@ from dsp_tools.utils.date_util import SingleDate
 from dsp_tools.utils.date_util import StartEnd
 from dsp_tools.utils.iri_util import is_resource_iri
 from dsp_tools.utils.logger_config import WARNINGS_SAVEPATH
+
+LiteralValueTypesAlias: TypeAlias = Union[
+    IntermediaryBoolean,
+    IntermediaryColor,
+    IntermediaryDecimal,
+    IntermediaryGeoname,
+    IntermediaryGeometry,
+    IntermediaryInt,
+    IntermediarySimpleText,
+    IntermediaryTime,
+    IntermediaryUri,
+]
 
 
 def make_values(values: list[IntermediaryValue], res_bnode: BNode, lookups: IRILookup) -> tuple[Graph, URIRef | None]:
@@ -73,7 +89,7 @@ def _make_one_prop_graph(val: IntermediaryValue, res_bnode: BNode, iri_lookup: I
             | IntermediaryUri()
             | IntermediarySimpleText() as val_type
         ):
-            literal_info = RDF_LITERAL_PROP_TYPE_MAPPER[val_type]
+            literal_info = RDF_LITERAL_PROP_TYPE_MAPPER[type(val_type)]
             properties_graph = _make_value_graph_with_object_literals(
                 val=val,
                 res_bn=res_bnode,
@@ -124,17 +140,17 @@ def _make_base_value_graph(
     return val_bn, g
 
 
-def _add_optional_triples(val_bn: BNode, permissions: str | None, comment: str | None) -> Graph:
+def _add_optional_triples(val_bn: BNode, permissions: Permissions | None, comment: str | None) -> Graph:
     g = Graph()
     if permissions:
-        g.add((val_bn, KNORA_API.hasPermissions, Literal(permissions, datatype=XSD.string)))
+        g.add((val_bn, KNORA_API.hasPermissions, Literal(str(Permissions), datatype=XSD.string)))
     if comment:
         g.add((val_bn, KNORA_API.valueHasComment, Literal(comment, datatype=XSD.string)))
     return g
 
 
 def _make_value_graph_with_object_literals(
-    val: IntermediaryValue,
+    val: LiteralValueTypesAlias,
     prop_type_info: RDFPropTypeInfo,
     res_bn: BNode,
 ) -> Graph:
@@ -144,7 +160,7 @@ def _make_value_graph_with_object_literals(
 
 
 def _make_prop_graph_with_object_iri(
-    val: IntermediaryValue,
+    val: IntermediaryList,
     res_bn: BNode,
     prop_type_info: RDFPropTypeInfo,
 ) -> Graph:
@@ -154,7 +170,7 @@ def _make_prop_graph_with_object_iri(
 
 
 def _make_link_prop_graph(
-    val: IntermediaryValue,
+    val: IntermediaryLink,
     prop_type_info: RDFPropTypeInfo,
     res_bn: BNode,
     iri_resolver: IriResolver,
@@ -181,7 +197,7 @@ def _resolve_id_to_iri(value: str, iri_resolver: IriResolver) -> str:
 
 
 def _make_date_value_graph(
-    val: IntermediaryValue,
+    val: IntermediaryDate,
     res_bn: BNode,
 ) -> Graph:
     val_bn = BNode()
@@ -214,7 +230,7 @@ def _make_single_date_graph(val_bn: BNode, date: SingleDate, start_end: StartEnd
 
 
 def _make_interval_value_graph(
-    val: IntermediaryValue,
+    val: IntermediaryInterval,
     res_bn: BNode,
 ) -> Graph:
     val_bn = BNode()
@@ -227,7 +243,7 @@ def _make_interval_value_graph(
 
 
 def _make_richtext_value_graph(
-    val: IntermediaryValue,
+    val: IntermediaryRichtext,
     prop_type_info: RDFPropTypeInfo,
     res_bn: BNode,
     iri_resolver: IriResolver,

@@ -198,7 +198,9 @@ class TestMakeOnePropGraphSuccess:
 
     def test_richtext(self, lookups: IRILookup) -> None:
         res_bn = BNode()
-        prop = IntermediaryRichtext(FormattedTextValue("Text"), onto_str("hasRichtext"), None, None)
+        prop = IntermediaryRichtext(
+            FormattedTextValue("Text"), onto_str("hasRichtext"), None, None, resource_references=set()
+        )
         result, prop_name = _make_one_prop_graph(prop, res_bn, lookups)
         assert len(result) == 5
         assert prop_name == ONTO.hasRichtext
@@ -207,6 +209,30 @@ class TestMakeOnePropGraphSuccess:
         assert rdf_type == KNORA_API.TextValue
         value = next(result.objects(val_bn, KNORA_API.textValueAsXml))
         assert value == Literal('<?xml version="1.0" encoding="UTF-8"?>\n<text>Text</text>', datatype=XSD.string)
+        mapping = next(result.objects(val_bn, KNORA_API.textValueHasMapping))
+        assert mapping == URIRef("http://rdfh.ch/standoff/mappings/StandardMapping")
+        permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
+        assert permissions == PERMISSION_LITERAL
+
+    def test_richtext_with_reference(self, lookups: IRILookup) -> None:
+        res_bn = BNode()
+        text = 'Comment with <a class="salsah-link" href="IRI:res_one:IRI">link to res_one'
+        prop = IntermediaryRichtext(
+            FormattedTextValue(text), onto_str("hasRichtext"), None, None, resource_references=set("res_one")
+        )
+        result, prop_name = _make_one_prop_graph(prop, res_bn, lookups)
+        assert len(result) == 5
+        assert prop_name == ONTO.hasRichtext
+        val_bn = next(result.objects(res_bn, prop_name))
+        rdf_type = next(result.objects(val_bn, RDF.type))
+        assert rdf_type == KNORA_API.TextValue
+        value = next(result.objects(val_bn, KNORA_API.textValueAsXml))
+        expected_text = (
+            '<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<text>Comment with <a class="salsah-link" href="http://rdfh.ch/9999/res_one">'
+            "link to res_one</text>"
+        )
+        assert value == Literal(expected_text, datatype=XSD.string)
         mapping = next(result.objects(val_bn, KNORA_API.textValueHasMapping))
         assert mapping == URIRef("http://rdfh.ch/standoff/mappings/StandardMapping")
         permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))

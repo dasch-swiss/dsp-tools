@@ -26,22 +26,24 @@ def lookups() -> IntermediaryLookup:
 
 @pytest.fixture
 def bool_prop() -> XMLProperty:
-    return XMLProperty(name="onto:boolProp", valtype="bool", values=[XMLValue(value="true")])
+    return XMLProperty(name="onto:boolProp", valtype="boolean", values=[XMLValue(value="true")])
 
 
 @pytest.fixture
 def bool_prop_with_permissions() -> XMLProperty:
-    return XMLProperty(name="onto:boolProp", valtype="bool", values=[XMLValue(value="true", permissions="open")])
+    return XMLProperty(name="onto:boolProp", valtype="boolean", values=[XMLValue(value="true", permissions="open")])
 
 
 @pytest.fixture
 def bool_prop_with_non_existing_permissions() -> XMLProperty:
-    return XMLProperty(name="onto:boolProp", valtype="bool", values=[XMLValue(value="true", permissions="nonExisting")])
+    return XMLProperty(
+        name="onto:boolProp", valtype="boolean", values=[XMLValue(value="true", permissions="nonExisting")]
+    )
 
 
 @pytest.fixture
 def bool_prop_with_comment() -> XMLProperty:
-    return XMLProperty(name="onto:boolProp", valtype="bool", values=[XMLValue(value="true", comment="comment")])
+    return XMLProperty(name="onto:boolProp", valtype="boolean", values=[XMLValue(value="true", comment="comment")])
 
 
 @pytest.fixture

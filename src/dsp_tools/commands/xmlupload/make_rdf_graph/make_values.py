@@ -14,9 +14,7 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.constants import LIST_PROP_TYPE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import RDF_LITERAL_PROP_TYPE_MAPPER
 from dsp_tools.commands.xmlupload.make_rdf_graph.helpers import get_absolute_iri
 from dsp_tools.commands.xmlupload.make_rdf_graph.helpers import resolve_permission
-from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_interval
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
-from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLValue
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryBoolean
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryColor
@@ -115,10 +113,9 @@ def _make_one_prop_graph(val: IntermediaryValue, res_bnode: BNode, iri_lookup: I
             properties_graph = _make_date_value_graph(
                 val=val,
                 res_bn=res_bnode,
-                prop_name=prop_name,
             )
-        case "interval":
-            properties_graph = _make_interval_prop_graph(
+        case IntermediaryInterval():
+            properties_graph = _make_interval_value_graph(
                 prop=val,
                 res_bn=res_bnode,
                 prop_name=prop_name,
@@ -215,32 +212,16 @@ def _make_single_date_graph(val_bn: BNode, date: SingleDate, start_end: StartEnd
     return g
 
 
-def _make_interval_prop_graph(
-    prop: IntermediaryInterval,
-    res_bn: BNode,
-    prop_name: URIRef,
-    permissions_lookup: dict[str, Permissions],
-) -> Graph:
-    g = Graph()
-    for val in prop.values:
-        resolved_permission = resolve_permission(val.permissions, permissions_lookup)
-        g += _make_interval_value_graph(val, prop_name, resolved_permission, res_bn)
-    return g
-
-
 def _make_interval_value_graph(
-    val: XMLValue,
-    prop_name: URIRef,
-    resolved_permission: str | None,
+    val: IntermediaryInterval,
     res_bn: BNode,
 ) -> Graph:
-    interval = transform_interval(val.value)
     val_bn = BNode()
-    g = _add_optional_triples(val_bn, resolved_permission, val.comment)
-    g.add((res_bn, prop_name, val_bn))
+    g = _add_optional_triples(val_bn, val.permissions, val.comment)
+    g.add((res_bn, URIRef(val.prop_iri), val_bn))
     g.add((val_bn, RDF.type, KNORA_API.IntervalValue))
-    g.add((val_bn, KNORA_API.intervalValueHasStart, interval.start))
-    g.add((val_bn, KNORA_API.intervalValueHasEnd, interval.end))
+    g.add((val_bn, KNORA_API.intervalValueHasStart, Literal(val.value.start, datatype=XSD.float)))
+    g.add((val_bn, KNORA_API.intervalValueHasEnd, Literal(val.value.end, datatype=XSD.float)))
     return g
 
 

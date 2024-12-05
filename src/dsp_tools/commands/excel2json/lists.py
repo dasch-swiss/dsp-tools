@@ -149,7 +149,7 @@ def _get_values_from_excel(
     nodes: list[dict[str, Any]] = []
     currentnode: dict[str, Any] = {}
     base_file_ws: Worksheet = next(iter(base_file.values()))
-    cell: Cell = base_file_ws.cell(column=col, row=row)
+    cell: Cell = cast(Cell, base_file_ws.cell(column=col, row=row))
 
     for excelfile in excelfiles.values():
         if any((not excelfile["A1"].value, excelfile["B1"].value)):
@@ -189,7 +189,7 @@ def _get_values_from_excel(
 
         # go one row down and repeat loop if there is a value
         row += 1
-        cell = base_file_ws.cell(column=col, row=row)
+        cell = cast(Cell, base_file_ws.cell(column=col, row=row))
 
     if col > 1:
         preval.pop()

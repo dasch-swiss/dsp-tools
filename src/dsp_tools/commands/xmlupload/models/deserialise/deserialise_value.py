@@ -45,7 +45,7 @@ class XMLProperty:
             The DSP property
         """
         name = XMLProperty._get_name(node, default_ontology)
-        if node.tag.endswith("-prop"):
+        if str(node.tag).endswith("-prop"):
             values = XMLProperty._get_values_from_normal_props(node, valtype)
         else:
             values = [XMLProperty._get_value_from_knora_base_prop(node)]
@@ -56,7 +56,7 @@ class XMLProperty:
         # get the property name which is in format namespace:propertyname, p.ex. rosetta:hasName
         orig = node.attrib.get("name")
         if not orig:  # tags like <isVideoSegmentOf> don't have a name attribute
-            return f"knora-api:{node.tag}"
+            return f"knora-api:{node.tag!s}"
         elif ":" not in orig:
             return f"knora-api:{orig}"
         elif orig.startswith(":"):
@@ -74,15 +74,15 @@ class XMLProperty:
             if subnode.tag == valtype:  # the subnode must correspond to the expected value type
                 values.append(XMLValue.from_node(subnode, valtype, listname))
             else:
-                raise XmlUploadError(f"ERROR Unexpected tag: '{subnode.tag}'. Property may contain only value tags!")
+                raise XmlUploadError(f"ERROR Unexpected tag: '{subnode.tag!s}'. Property may contain only value tags!")
         return values
 
     @staticmethod
     def _get_value_from_knora_base_prop(node: etree._Element) -> XMLValue:
         resrefs = set()
-        if node.tag.endswith("hasSegmentBounds"):
+        if str(node.tag).endswith("hasSegmentBounds"):
             value: str | FormattedTextValue = f"{node.attrib["segment_start"]}:{node.attrib["segment_end"]}"
-        elif node.tag.endswith(("hasDescription", "hasComment")):
+        elif str(node.tag).endswith(("hasDescription", "hasComment")):
             value = _extract_formatted_text_from_node(node)
             resrefs = value.find_internal_ids()
         else:
@@ -132,7 +132,7 @@ class XMLValue:
 
 def _extract_formatted_text_from_node(node: etree._Element) -> FormattedTextValue:
     xmlstr = etree.tostring(node, encoding="unicode", method="xml")
-    xmlstr = regex.sub(f"<{node.tag}.*?>|</{node.tag}>", "", xmlstr)
+    xmlstr = regex.sub(f"<{node.tag!s}.*?>|</{node.tag!s}>", "", xmlstr)
     xmlstr = _cleanup_formatted_text(xmlstr)
     return FormattedTextValue(xmlstr)
 

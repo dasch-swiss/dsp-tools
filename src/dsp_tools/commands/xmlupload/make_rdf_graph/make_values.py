@@ -11,7 +11,6 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.constants import LINK_PROP_TYPE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import LIST_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import RDF_LITERAL_PROP_TYPE_MAPPER
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import RICHTEXT_PROP_TYPE_INFO
-from dsp_tools.commands.xmlupload.make_rdf_graph.helpers import get_absolute_iri
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryBoolean
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryColor
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryDate
@@ -85,7 +84,6 @@ def _make_one_prop_graph(val: IntermediaryValue, res_bnode: BNode, iri_lookup: I
                 val=val, res_bn=res_bnode, prop_type_info=LIST_PROP_TYPE_INFO
             )
         case IntermediaryLink():
-            prop_name = get_absolute_iri(f"{val.name}Value", iri_lookup.namespaces)
             properties_graph = _make_link_prop_graph(
                 val=val,
                 res_bn=res_bnode,
@@ -110,8 +108,8 @@ def _make_one_prop_graph(val: IntermediaryValue, res_bnode: BNode, iri_lookup: I
                 res_bn=res_bnode,
             )
         case _:
-            raise UserError(f"Unknown value type: {val.valtype}")
-    return properties_graph, prop_name
+            raise UserError(f"Unknown value type: {type(val).__name__}")
+    return properties_graph, URIRef(val.prop_iri)
 
 
 def _make_base_value_graph(

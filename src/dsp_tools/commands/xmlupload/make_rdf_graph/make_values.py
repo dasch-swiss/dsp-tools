@@ -22,6 +22,8 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import trans
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLValue
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryValue, IntermediaryDate, \
+    IntermediaryInterval, IntermediaryLink
 from dsp_tools.commands.xmlupload.models.lookup_models import Lookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
@@ -35,12 +37,12 @@ from dsp_tools.utils.iri_util import is_resource_iri
 from dsp_tools.utils.logger_config import WARNINGS_SAVEPATH
 
 
-def make_values(properties: list[XMLProperty], res_bnode: BNode, lookups: Lookups) -> tuple[Graph, URIRef | None]:
+def make_values(properties: list[IntermediaryValue], res_bnode: BNode, lookups: Lookups) -> tuple[Graph, URIRef | None]:
     """
     Serialise the values of a resource.
 
     Args:
-        properties: list of XMLProperty of the resource
+        properties: list of IntermediaryProperties of the resource
         res_bnode: blank node of the resource
         lookups: lookups to resolve, permissions, IRIs, etc.
 
@@ -58,7 +60,7 @@ def make_values(properties: list[XMLProperty], res_bnode: BNode, lookups: Lookup
     return properties_graph, last_prop_name
 
 
-def _make_one_prop_graph(prop: XMLProperty, res_bnode: BNode, lookups: Lookups) -> tuple[Graph, URIRef]:
+def _make_one_prop_graph(prop: IntermediaryValue, res_bnode: BNode, lookups: Lookups) -> tuple[Graph, URIRef]:
     prop_name = get_absolute_iri(prop.name, lookups.namespaces)
     match prop.valtype:
         case "boolean" | "color" | "decimal" | "geometry" | "geoname" | "integer" | "time" | "uri" as val_type:
@@ -117,7 +119,7 @@ def _make_one_prop_graph(prop: XMLProperty, res_bnode: BNode, lookups: Lookups) 
 
 
 def _make_simple_prop_graph(
-    prop: XMLProperty,
+    prop: IntermediaryValue,
     res_bn: BNode,
     prop_name: URIRef,
     prop_type_info: RDFPropTypeInfo,
@@ -177,7 +179,7 @@ def _make_list_prop_graph(
 
 
 def _make_date_prop_graph(
-    prop: XMLProperty,
+    prop: IntermediaryDate,
     res_bn: BNode,
     prop_name: URIRef,
     permissions_lookup: dict[str, Permissions],
@@ -225,7 +227,7 @@ def _make_single_date_graph(val_bn: BNode, date: SingleDate, start_end: StartEnd
 
 
 def _make_interval_prop_graph(
-    prop: XMLProperty,
+    prop: IntermediaryInterval,
     res_bn: BNode,
     prop_name: URIRef,
     permissions_lookup: dict[str, Permissions],
@@ -254,7 +256,7 @@ def _make_interval_value_graph(
 
 
 def _make_link_prop_graph(
-    prop: XMLProperty,
+    prop: IntermediaryLink,
     res_bn: BNode,
     prop_name: URIRef,
     permissions_lookup: dict[str, Permissions],

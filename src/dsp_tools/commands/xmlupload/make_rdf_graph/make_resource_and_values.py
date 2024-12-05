@@ -8,7 +8,6 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_fil
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_iiif_uri_value_graph
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import make_values
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
-from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.intermediary.resource import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.lookup_models import Lookups
 from dsp_tools.commands.xmlupload.models.rdf_models import AbstractFileValue
@@ -39,7 +38,7 @@ def create_resource_with_values(
 
 
 def _make_values_dict_from_resource(
-    resource: XMLResource, bitstream_information: BitstreamInfo | None, lookups: Lookups
+    resource: IntermediaryResource, bitstream_information: BitstreamInfo | None, lookups: Lookups
 ) -> dict[str, Any]:
     res_bnode = BNode()
 

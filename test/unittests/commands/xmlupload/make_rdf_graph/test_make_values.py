@@ -1,6 +1,5 @@
 import pytest
 import regex
-from lxml import etree
 from rdflib import RDF
 from rdflib import XSD
 from rdflib import BNode
@@ -11,21 +10,41 @@ from rdflib import URIRef
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import KNORA_API
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import _make_one_prop_graph
-from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
+from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryBoolean
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryColor
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryDate
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryDecimal
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryGeometry
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryGeoname
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryInt
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryInterval
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryList
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediarySimpleText
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryTime
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryUri
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntervalFloats
 from dsp_tools.commands.xmlupload.models.lookup_models import JSONLDContext
 from dsp_tools.commands.xmlupload.models.lookup_models import Lookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.exceptions import InputError
-from dsp_tools.models.exceptions import PermissionNotExistsError
-from dsp_tools.models.exceptions import UserError
+from dsp_tools.utils.date_util import Calendar
+from dsp_tools.utils.date_util import Date
+from dsp_tools.utils.date_util import Era
+from dsp_tools.utils.date_util import SingleDate
 
 ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
 namespaces = {"onto": ONTO, "knora-api": KNORA_API}
 
 PERMISSION_LITERAL = Literal("CR knora-admin:ProjectAdmin", datatype=XSD.string)
 RES_ONE_URI = URIRef("http://rdfh.ch/9999/res_one")
+
+
+def onto_str(prop: str) -> str:
+    return f"http://0.0.0.0:3333/ontology/9999/onto/v2#{prop}"
 
 
 @pytest.fixture
@@ -48,12 +67,7 @@ def lookups(permissions_lookup: dict[str, Permissions]) -> Lookups:
 class TestMakeOnePropGraphSuccess:
     def test_boolean(self, lookups: Lookups) -> None:
         res_bn = BNode()
-        xml_prop = etree.fromstring("""
-        <boolean-prop name=":isTrueOrFalse">
-            <boolean permissions="open">true</boolean>
-        </boolean-prop>
-        """)
-        prop = XMLProperty.from_node(xml_prop, "boolean", "onto")
+        prop = IntermediaryBoolean(True, onto_str("isTrueOrFalse"), None, None)
         result, prop_name = _make_one_prop_graph(prop, res_bn, lookups)
         assert len(result) == 4
         assert prop_name == ONTO.isTrueOrFalse
@@ -67,12 +81,7 @@ class TestMakeOnePropGraphSuccess:
 
     def test_color(self, lookups: Lookups) -> None:
         res_bn = BNode()
-        xml_prop = etree.fromstring("""
-        <color-prop name=":hasColor">
-            <color>#5d1f1e</color>
-        </color-prop>
-        """)
-        prop = XMLProperty.from_node(xml_prop, "color", "onto")
+        prop = IntermediaryColor("#5d1f1e", onto_str("hasColor"), None, None)
         result, prop_name = _make_one_prop_graph(prop, res_bn, lookups)
         assert len(result) == 3
         assert prop_name == ONTO.hasColor
@@ -84,12 +93,7 @@ class TestMakeOnePropGraphSuccess:
 
     def test_decimal(self, lookups: Lookups) -> None:
         res_bn = BNode()
-        xml_prop = etree.fromstring("""
-        <decimal-prop name=":hasDecimal">
-            <decimal comment="Eulersche Zahl">2.718281828459</decimal>
-        </decimal-prop>
-        """)
-        prop = XMLProperty.from_node(xml_prop, "decimal", "onto")
+        prop = IntermediaryDecimal(2.718281828459, onto_str("hasDecimal"), "Eulersche Zahl", None)
         result, prop_name = _make_one_prop_graph(prop, res_bn, lookups)
         assert len(result) == 4
         assert prop_name == ONTO.hasDecimal
@@ -103,22 +107,13 @@ class TestMakeOnePropGraphSuccess:
 
     def test_geometry(self, lookups: Lookups) -> None:
         res_bn = BNode()
-        xml_prop = etree.fromstring("""
-        <geometry-prop name=":hasGeometry">
-            <geometry>
-                {
-                    "status": "active",
-                    "type": "polygon",
-                    "lineWidth": 5,
-                    "points": [{"x": 0.4, "y": 0.6},
-                               {"x": 0.5, "y": 0.9},
-                               {"x": 0.8, "y": 0.9},
-                               {"x": 0.7, "y": 0.6}]
-                }
-            </geometry>
-        </geometry-prop>
-        """)
-        prop = XMLProperty.from_node(xml_prop, "geometry", "onto")
+        prop = IntermediaryGeometry(
+            '{"status": "active", "type": "polygon", "lineWidth": 5, '
+            '"points": [{"x": 0.4, "y": 0.6}, {"x": 0.5, "y": 0.9}, {"x": 0.8, "y": 0.9}, {"x": 0.7, "y": 0.6}]}',
+            onto_str("hasGeometry"),
+            None,
+            None,
+        )
         result, prop_name = _make_one_prop_graph(prop, res_bn, lookups)
         assert len(result) == 3
         assert prop_name == ONTO.hasGeometry
@@ -130,12 +125,7 @@ class TestMakeOnePropGraphSuccess:
 
     def test_geoname(self, lookups: Lookups) -> None:
         res_bn = BNode()
-        xml_prop = etree.fromstring("""
-        <geoname-prop name=":hasGeoname">
-            <geoname>5416656</geoname>
-        </geoname-prop>
-        """)
-        prop = XMLProperty.from_node(xml_prop, "geoname", "onto")
+        prop = IntermediaryGeoname("5416656", onto_str("hasGeoname"), None, None)
         result, prop_name = _make_one_prop_graph(prop, res_bn, lookups)
         assert len(result) == 3
         assert prop_name == ONTO.hasGeoname
@@ -147,35 +137,19 @@ class TestMakeOnePropGraphSuccess:
 
     def test_integer(self, lookups: Lookups) -> None:
         res_bn = BNode()
-        xml_prop = etree.fromstring("""
-        <integer-prop name=":hasInteger">
-            <integer comment="comment">1</integer>
-            <integer>2</integer>
-        </integer-prop>
-        """)
-        prop = XMLProperty.from_node(xml_prop, "integer", "onto")
+        prop = IntermediaryInt(1, onto_str("hasInteger"), "comment", None)
         result, prop_name = _make_one_prop_graph(prop, res_bn, lookups)
-        assert len(result) == 7
+        assert len(result) == 4
         assert prop_name == ONTO.hasInteger
-
-        val_one = next(result.subjects(KNORA_API.intValueAsInt, Literal("1", datatype=XSD.integer)))
-        assert next(result.objects(val_one, RDF.type)) == KNORA_API.IntValue
-        assert next(result.subjects(prop_name, val_one)) == res_bn
-        comment = next(result.objects(val_one, KNORA_API.valueHasComment))
+        val = next(result.subjects(KNORA_API.intValueAsInt, Literal("1", datatype=XSD.integer)))
+        assert next(result.objects(val, RDF.type)) == KNORA_API.IntValue
+        assert next(result.subjects(prop_name, val)) == res_bn
+        comment = next(result.objects(val, KNORA_API.valueHasComment))
         assert comment == Literal("comment", datatype=XSD.string)
-
-        val_two = next(result.subjects(KNORA_API.intValueAsInt, Literal("2", datatype=XSD.integer)))
-        assert next(result.objects(val_two, RDF.type)) == KNORA_API.IntValue
-        assert next(result.subjects(prop_name, val_two)) == res_bn
 
     def test_time(self, lookups: Lookups) -> None:
         res_bn = BNode()
-        xml_prop = etree.fromstring("""
-        <time-prop name=":hasTime">
-            <time>2019-10-23T13:45:12.01-14:00</time>
-        </time-prop>
-        """)
-        prop = XMLProperty.from_node(xml_prop, "time", "onto")
+        prop = IntermediaryTime("2019-10-23T13:45:12.01-14:00", onto_str("hasTime"), None, None)
         result, prop_name = _make_one_prop_graph(prop, res_bn, lookups)
         assert len(result) == 3
         assert prop_name == ONTO.hasTime
@@ -187,12 +161,7 @@ class TestMakeOnePropGraphSuccess:
 
     def test_uri(self, lookups: Lookups) -> None:
         res_bn = BNode()
-        xml_prop = etree.fromstring("""
-        <uri-prop name=":hasUri">
-            <uri>https://dasch.swiss</uri>
-        </uri-prop>
-        """)
-        prop = XMLProperty.from_node(xml_prop, "uri", "onto")
+        prop = IntermediaryUri("https://dasch.swiss", onto_str("hasUri"), None, None)
         result, prop_name = _make_one_prop_graph(prop, res_bn, lookups)
         assert len(result) == 3
         assert prop_name == ONTO.hasUri
@@ -204,12 +173,7 @@ class TestMakeOnePropGraphSuccess:
 
     def test_list(self, lookups: Lookups) -> None:
         res_bn = BNode()
-        xml_prop = etree.fromstring("""
-        <list-prop list="testlist" name=":hasListItem">
-            <list>node</list>
-        </list-prop>
-        """)
-        prop = XMLProperty.from_node(xml_prop, "list", "onto")
+        prop = IntermediaryList("http://rdfh.ch/9999/node", onto_str("hasListItem"), None, None)
         result, prop_name = _make_one_prop_graph(prop, res_bn, lookups)
         assert len(result) == 3
         assert prop_name == ONTO.hasListItem
@@ -221,12 +185,7 @@ class TestMakeOnePropGraphSuccess:
 
     def test_resptr(self, lookups: Lookups) -> None:
         res_bn = BNode()
-        xml_prop = etree.fromstring("""
-        <resptr-prop name=":hasResource">
-            <resptr>res_one</resptr>
-        </resptr-prop>
-        """)
-        prop = XMLProperty.from_node(xml_prop, "resptr", "onto")
+        prop = IntermediaryLink("res_one", onto_str("hasResource"), None, None)
         result, prop_name = _make_one_prop_graph(prop, res_bn, lookups)
         assert len(result) == 3
         assert prop_name == ONTO.hasResourceValue
@@ -238,12 +197,7 @@ class TestMakeOnePropGraphSuccess:
 
     def test_simpletext(self, lookups: Lookups) -> None:
         res_bn = BNode()
-        xml_prop = etree.fromstring("""
-        <text-prop name=":hasSimpleText">
-            <text encoding="utf8">Text</text>
-        </text-prop>
-        """)
-        prop = XMLProperty.from_node(xml_prop, "text", "onto")
+        prop = IntermediarySimpleText("Text", onto_str("hasSimpleText"), None, None)
         result, prop_name = _make_one_prop_graph(prop, res_bn, lookups)
         assert len(result) == 3
         assert prop_name == ONTO.hasSimpleText
@@ -255,12 +209,7 @@ class TestMakeOnePropGraphSuccess:
 
     def test_richtext(self, lookups: Lookups) -> None:
         res_bn = BNode()
-        xml_prop = etree.fromstring("""
-        <text-prop name=":hasRichtext">
-            <text permissions="open" encoding="xml">Text</text>
-        </text-prop>
-        """)
-        prop = XMLProperty.from_node(xml_prop, "text", "onto")
+        prop = IntermediaryRichtext(FormattedTextValue("Text"), onto_str("hasRichtext"), None, None)
         result, prop_name = _make_one_prop_graph(prop, res_bn, lookups)
         assert len(result) == 5
         assert prop_name == ONTO.hasRichtext
@@ -276,12 +225,12 @@ class TestMakeOnePropGraphSuccess:
 
     def test_date(self, lookups: Lookups) -> None:
         res_bn = BNode()
-        xml_prop = etree.fromstring("""
-        <date-prop name=":hasDate">
-            <date>GREGORIAN:AD:0476-09-04:0477</date>
-        </date-prop>
-        """)
-        prop = XMLProperty.from_node(xml_prop, "date", "onto")
+        date = Date(
+            calendar=Calendar.GREGORIAN,
+            start=SingleDate(era=Era.AD, year=476, month=9, day=4),
+            end=SingleDate(era=None, year=477, month=None, day=None),
+        )
+        prop = IntermediaryDate(date, onto_str("hasDate"), None, None)
         result, prop_name = _make_one_prop_graph(prop, res_bn, lookups)
         assert len(result) == 9
         assert prop_name == ONTO.hasDate
@@ -305,10 +254,8 @@ class TestMakeOnePropGraphSuccess:
 
     def test_interval(self, lookups: Lookups) -> None:
         res_bn = BNode()
-        xml_prop = etree.fromstring("""
-        <hasSegmentBounds segment_start="0.1" segment_end="0.234"/>
-        """)
-        prop = XMLProperty.from_node(xml_prop, "interval", "onto")
+        interval = IntervalFloats(0.1, 0.234)
+        prop = IntermediaryInterval(interval, "http://api.knora.org/ontology/knora-api/v2#hasSegmentBounds", None, None)
         result, prop_name = _make_one_prop_graph(prop, res_bn, lookups)
         assert len(result) == 4
         assert prop_name == KNORA_API.hasSegmentBounds
@@ -322,10 +269,7 @@ class TestMakeOnePropGraphSuccess:
 
     def test_segment_of_video(self, lookups: Lookups) -> None:
         res_bn = BNode()
-        xml_prop = etree.fromstring("""
-        <isVideoSegmentOf>res_one</isVideoSegmentOf>
-        """)
-        prop = XMLProperty.from_node(xml_prop, "resptr", "onto")
+        prop = IntermediaryLink("res_one", "http://api.knora.org/ontology/knora-api/v2#isVideoSegmentOf", None, None)
         result, prop_name = _make_one_prop_graph(prop, res_bn, lookups)
         assert len(result) == 3
         assert prop_name == KNORA_API.isVideoSegmentOfValue
@@ -337,10 +281,7 @@ class TestMakeOnePropGraphSuccess:
 
     def test_segment_of_audio(self, lookups: Lookups) -> None:
         res_bn = BNode()
-        xml_prop = etree.fromstring("""
-        <isAudioSegmentOf>res_one</isAudioSegmentOf>
-        """)
-        prop = XMLProperty.from_node(xml_prop, "resptr", "onto")
+        prop = IntermediaryLink("res_one", "http://api.knora.org/ontology/knora-api/v2#isAudioSegmentOf", None, None)
         result, prop_name = _make_one_prop_graph(prop, res_bn, lookups)
         assert len(result) == 3
         assert prop_name == KNORA_API.isAudioSegmentOfValue
@@ -351,74 +292,15 @@ class TestMakeOnePropGraphSuccess:
         assert value == RES_ONE_URI
 
 
-class TestMakeOnePropGraphRaises:
-    def test_permissions(self, lookups: Lookups) -> None:
-        res_bn = BNode()
-        xml_prop = etree.fromstring("""
-        <integer-prop name=":hasInteger">
-            <integer permissions="nonExistent">4711</integer>
-        </integer-prop>
-        """)
-        prop = XMLProperty.from_node(xml_prop, "integer", "onto")
-        err_str = regex.escape("Could not find permissions for value: nonExistent")
-        with pytest.raises(PermissionNotExistsError, match=err_str):
-            _make_one_prop_graph(prop, res_bn, lookups)
-
-    def test_unknown_type(self, lookups: Lookups) -> None:
-        res_bn = BNode()
-        xml_prop = etree.fromstring("""
-        <other-prop name=":hasInteger">
-            <other>4711</other>
-        </other-prop>
-        """)
-        prop = XMLProperty.from_node(xml_prop, "other", "onto")
-        err_str = regex.escape("Unknown value type: other")
-        with pytest.raises(UserError, match=err_str):
-            _make_one_prop_graph(prop, res_bn, lookups)
-
-    def test_unknown_prefix(self, lookups: Lookups) -> None:
-        res_bn = BNode()
-        xml_prop = etree.fromstring("""
-        <integer-prop name="other:hasInteger">
-            <integer>4711</integer>
-        </integer-prop>
-        """)
-        prop = XMLProperty.from_node(xml_prop, "integer", "onto")
-        err_str = regex.escape("Could not find namespace for prefix: other")
-        with pytest.raises(InputError, match=err_str):
-            _make_one_prop_graph(prop, res_bn, lookups)
-
-    def test_link_traget_not_found(self, lookups: Lookups) -> None:
-        res_bn = BNode()
-        xml_prop = etree.fromstring("""
-        <resptr-prop name=":hasResource">
-            <resptr>non_existing</resptr>
-        </resptr-prop>
-        """)
-        prop = XMLProperty.from_node(xml_prop, "resptr", "onto")
-        err_str = regex.escape(
-            (
-                "Could not find the ID non_existing in the id2iri mapping. "
-                "This is probably because the resource 'non_existing' could not be created. "
-                "See warnings.log for more information."
-            )
+def test_link_traget_not_found(lookups: Lookups) -> None:
+    res_bn = BNode()
+    prop = IntermediaryLink("non_existing", onto_str("hasResource"), None, None)
+    err_str = regex.escape(
+        (
+            "Could not find the ID non_existing in the id2iri mapping. "
+            "This is probably because the resource 'non_existing' could not be created. "
+            "See warnings.log for more information."
         )
-        with pytest.raises(BaseError, match=err_str):
-            _make_one_prop_graph(prop, res_bn, lookups)
-
-    def test_list_node_not_found(self, lookups: Lookups) -> None:
-        res_bn = BNode()
-        xml_prop = etree.fromstring("""
-        <list-prop list="testlist" name=":hasListItem">
-            <list>other</list>
-        </list-prop>
-        """)
-        prop = XMLProperty.from_node(xml_prop, "list", "onto")
-        err_str = regex.escape(
-            (
-                "Could not resolve list node ID 'testlist:other' to IRI. "
-                "This is probably because the list node 'testlist:other' does not exist on the server."
-            )
-        )
-        with pytest.raises(BaseError, match=err_str):
-            _make_one_prop_graph(prop, res_bn, lookups)
+    )
+    with pytest.raises(BaseError, match=err_str):
+        _make_one_prop_graph(prop, res_bn, lookups)

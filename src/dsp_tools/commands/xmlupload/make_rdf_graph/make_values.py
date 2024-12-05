@@ -22,8 +22,10 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import trans
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLValue
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryValue, IntermediaryDate, \
-    IntermediaryInterval, IntermediaryLink
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryDate
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryInterval
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryValue
 from dsp_tools.commands.xmlupload.models.lookup_models import Lookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo

@@ -90,11 +90,7 @@ def _check_resclasses(resclasses: list[dict[str, Any]]) -> None:
     assert res_1["@id"] == f"{ONTO_NAME}:ImageResource"
     assert res_1["rdfs:label"] == "Image Resource"
     cards_1 = res_1["rdfs:subClassOf"]
-    fileval_card = [
-        x
-        for x in cards_1
-        if x.get("owl:onProperty", {}).get("@id") == "http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue"
-    ]
+    fileval_card = [x for x in cards_1 if x.get("owl:onProperty", {}).get("@id") == "knora-api:hasStillImageFileValue"]
     assert len(fileval_card) == 1
     assert fileval_card[0].get("owl:cardinality") == 1
     hasText_card = [x for x in cards_1 if x.get("owl:onProperty", {}).get("@id") == f"{ONTO_NAME}:hasText"]
@@ -118,13 +114,11 @@ def _analyze_img_resources(img_resources: list[dict[str, Any]]) -> None:
     assert res_labels == ["Resource 1", "Resource 2"]
 
     res_1 = next(res for res in img_resources if res["rdfs:label"] == "Resource 1")
-    assert res_1.get("http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue")
+    assert res_1.get("knora-api:hasStillImageFileValue")
 
     res_2 = next(res for res in img_resources if res["rdfs:label"] == "Resource 2")
-    assert res_2.get("http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue")
-    res_2_text_vals = sorted(
-        [x["http://api.knora.org/ontology/knora-api/v2#valueAsString"] for x in res_2[f"{ONTO_NAME}:hasText"]]
-    )
+    assert res_2.get("knora-api:hasStillImageFileValue")
+    res_2_text_vals = sorted([x["knora-api:valueAsString"] for x in res_2[f"{ONTO_NAME}:hasText"]])
     assert res_2_text_vals == ["first text value", "second text value"]
 
 
@@ -132,4 +126,4 @@ def _analyze_pdf_resources(pdf_resources: list[dict[str, Any]]) -> None:
     res_labels = sorted([res["rdfs:label"] for res in pdf_resources])
     assert res_labels == ["Resource 3"]
     res_1 = next(res for res in pdf_resources if res["rdfs:label"] == "Resource 3")
-    assert res_1.get("http://api.knora.org/ontology/knora-api/v2#hasDocumentFileValue")
+    assert res_1.get("knora-api:hasDocumentFileValue")

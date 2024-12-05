@@ -61,7 +61,7 @@ class TestReplaceBitstreamPaths:
 
     def test_absolute_path(self) -> None:
         """
-        Ingest strips the leading slash of absolute paths, 
+        Ingest strips the leading slash of absolute paths,
         so that the mapping contains the path without leading slash.
         """
         path_in_xml = "/Volumes/images/Fluffy.jpg"

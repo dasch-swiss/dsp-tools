@@ -20,7 +20,7 @@ class IntermediaryLookup:
 
 
 @dataclass
-class Lookups:
+class IRILookup:
     project_iri: str
     id_to_iri: IriResolver
     jsonld_context: JSONLDContext

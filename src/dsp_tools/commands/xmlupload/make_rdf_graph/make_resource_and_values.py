@@ -9,7 +9,7 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_iii
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import make_values
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.intermediary.resource import IntermediaryResource
-from dsp_tools.commands.xmlupload.models.lookup_models import Lookups
+from dsp_tools.commands.xmlupload.models.lookup_models import IRILookup
 from dsp_tools.commands.xmlupload.models.rdf_models import AbstractFileValue
 from dsp_tools.commands.xmlupload.models.rdf_models import FileValueMetadata
 from dsp_tools.commands.xmlupload.models.serialise_resource import SerialiseMigrationMetadata
@@ -17,7 +17,7 @@ from dsp_tools.commands.xmlupload.models.serialise_resource import SerialiseReso
 
 
 def create_resource_with_values(
-    resource: IntermediaryResource, bitstream_information: BitstreamInfo | None, lookup: Lookups
+    resource: IntermediaryResource, bitstream_information: BitstreamInfo | None, lookup: IRILookup
 ) -> dict[str, Any]:
     """
     This function takes an XMLResource and serialises it into a json-ld type dict that can be sent to the API.
@@ -38,7 +38,7 @@ def create_resource_with_values(
 
 
 def _make_values_dict_from_resource(
-    resource: IntermediaryResource, bitstream_information: BitstreamInfo | None, lookups: Lookups
+    resource: IntermediaryResource, bitstream_information: BitstreamInfo | None, lookups: IRILookup
 ) -> dict[str, Any]:
     res_bnode = BNode()
 
@@ -60,7 +60,7 @@ def _make_values_dict_from_resource(
     return {}  # we allow resources without properties
 
 
-def _make_resource(resource: IntermediaryResource, lookup: Lookups) -> dict[str, Any]:
+def _make_resource(resource: IntermediaryResource, lookup: IRILookup) -> dict[str, Any]:
     migration_metadata = None
     if resource.migration_metadata:
         migration_metadata = SerialiseMigrationMetadata(

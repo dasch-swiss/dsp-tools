@@ -1,6 +1,4 @@
-from typing import Callable
 from typing import assert_never
-from typing import cast
 
 from rdflib import RDF
 from rdflib import XSD
@@ -11,22 +9,32 @@ from rdflib import URIRef
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import KNORA_API
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import RDF_LITERAL_TRANSFORMER_MAPPER
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import RDF_PROP_TYPE_MAPPER
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import LINK_PROP_TYPE_INFO
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import LIST_PROP_TYPE_INFO
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import RDF_LITERAL_PROP_TYPE_MAPPER
 from dsp_tools.commands.xmlupload.make_rdf_graph.helpers import get_absolute_iri
 from dsp_tools.commands.xmlupload.make_rdf_graph.helpers import resolve_permission
-from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import InputTypes
-from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import assert_is_string
 from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_date
 from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_interval
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLValue
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryBoolean
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryColor
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryDate
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryDecimal
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryGeometry
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryGeoname
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryInt
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryInterval
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryList
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediarySimpleText
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryTime
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryUri
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryValue
-from dsp_tools.commands.xmlupload.models.lookup_models import Lookups
+from dsp_tools.commands.xmlupload.models.lookup_models import IRILookup
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 from dsp_tools.commands.xmlupload.models.rdf_models import TransformedValue
@@ -39,7 +47,9 @@ from dsp_tools.utils.iri_util import is_resource_iri
 from dsp_tools.utils.logger_config import WARNINGS_SAVEPATH
 
 
-def make_values(properties: list[IntermediaryValue], res_bnode: BNode, lookups: Lookups) -> tuple[Graph, URIRef | None]:
+def make_values(
+    properties: list[IntermediaryValue], res_bnode: BNode, lookups: IRILookup
+) -> tuple[Graph, URIRef | None]:
     """
     Serialise the values of a resource.
 
@@ -56,127 +66,121 @@ def make_values(properties: list[IntermediaryValue], res_bnode: BNode, lookups: 
     last_prop_name = None
 
     for prop in properties:
-        single_prop_graph, last_prop_name = _make_one_prop_graph(prop=prop, res_bnode=res_bnode, lookups=lookups)
+        single_prop_graph, last_prop_name = _make_one_prop_graph(val=prop, res_bnode=res_bnode, iri_lookup=lookups)
         properties_graph += single_prop_graph
 
     return properties_graph, last_prop_name
 
 
-def _make_one_prop_graph(prop: IntermediaryValue, res_bnode: BNode, lookups: Lookups) -> tuple[Graph, URIRef]:
-    prop_name = get_absolute_iri(prop.name, lookups.namespaces)
-    match prop.valtype:
-        case "boolean" | "color" | "decimal" | "geometry" | "geoname" | "integer" | "time" | "uri" as val_type:
-            literal_info = RDF_PROP_TYPE_MAPPER[val_type]
-            transformer = RDF_LITERAL_TRANSFORMER_MAPPER[val_type]
-            properties_graph = _make_simple_prop_graph(
-                prop=prop,
+def _make_one_prop_graph(val: IntermediaryValue, res_bnode: BNode, iri_lookup: IRILookup) -> tuple[Graph, URIRef]:
+    prop_name = get_absolute_iri(val.name, iri_lookup.namespaces)
+    match val:
+        case (
+            IntermediaryBoolean()
+            | IntermediaryColor()
+            | IntermediaryDecimal()
+            | IntermediaryGeometry()
+            | IntermediaryGeoname()
+            | IntermediaryInt()
+            | IntermediaryTime()
+            | IntermediaryUri()
+            | IntermediarySimpleText() as val_type
+        ):
+            literal_info = RDF_LITERAL_PROP_TYPE_MAPPER[val_type]
+            properties_graph = _make_value_graph_with_object_literals(
+                val=val,
                 res_bn=res_bnode,
-                prop_name=prop_name,
                 prop_type_info=literal_info,
-                transformer=transformer,
-                permissions_lookup=lookups.permissions,
             )
-        case "list":
-            properties_graph = _make_list_prop_graph(
-                prop=prop,
-                res_bn=res_bnode,
-                prop_name=prop_name,
-                permissions_lookup=lookups.permissions,
-                listnode_lookup=lookups.listnodes,
+        case IntermediaryList():
+            properties_graph = _make_prop_graph_with_object_iri(
+                val=val, res_bn=res_bnode, prop_type_info=LIST_PROP_TYPE_INFO
             )
-        case "resptr":
-            prop_name = get_absolute_iri(f"{prop.name}Value", lookups.namespaces)
+        case IntermediaryLink():
+            prop_name = get_absolute_iri(f"{val.name}Value", iri_lookup.namespaces)
             properties_graph = _make_link_prop_graph(
-                prop=prop,
+                val=val,
                 res_bn=res_bnode,
-                prop_name=prop_name,
-                permissions_lookup=lookups.permissions,
-                iri_resolver=lookups.id_to_iri,
+                prop_type_info=LINK_PROP_TYPE_INFO,
+                iri_resolver=iri_lookup.id_to_iri,
             )
-        case "text":
+        case IntermediaryRichtext():
             properties_graph = _make_text_prop_graph(
-                prop=prop,
+                prop=val,
                 res_bn=res_bnode,
                 prop_name=prop_name,
-                permissions_lookup=lookups.permissions,
-                iri_resolver=lookups.id_to_iri,
+                permissions_lookup=iri_lookup.permissions,
+                iri_resolver=iri_lookup.id_to_iri,
             )
         case "date":
             properties_graph = _make_date_prop_graph(
-                prop=prop,
+                prop=val,
                 res_bn=res_bnode,
                 prop_name=prop_name,
-                permissions_lookup=lookups.permissions,
+                permissions_lookup=iri_lookup.permissions,
             )
         case "interval":
             properties_graph = _make_interval_prop_graph(
-                prop=prop,
+                prop=val,
                 res_bn=res_bnode,
                 prop_name=prop_name,
-                permissions_lookup=lookups.permissions,
+                permissions_lookup=iri_lookup.permissions,
             )
         case _:
-            raise UserError(f"Unknown value type: {prop.valtype}")
+            raise UserError(f"Unknown value type: {val.valtype}")
     return properties_graph, prop_name
 
 
-def _make_simple_prop_graph(
-    prop: IntermediaryValue,
-    res_bn: BNode,
-    prop_name: URIRef,
+def _make_base_value_graph(
+    val: IntermediaryValue,
     prop_type_info: RDFPropTypeInfo,
-    transformer: Callable[[InputTypes], Literal],
-    permissions_lookup: dict[str, Permissions],
-) -> Graph:
-    g = Graph()
-    for val in prop.values:
-        transformed_val = transformer(val.value)
-        resolved_permission = resolve_permission(val.permissions, permissions_lookup)
-        transformed = TransformedValue(
-            value=transformed_val, prop_name=prop_name, permissions=resolved_permission, comment=val.comment
-        )
-        g += _make_simple_value_graph(transformed, res_bn, prop_type_info)
-    return g
-
-
-def _make_simple_value_graph(
-    val: TransformedValue,
     res_bn: BNode,
-    prop_type_info: RDFPropTypeInfo,
-) -> Graph:
+) -> tuple[BNode, Graph]:
     val_bn = BNode()
     g = _add_optional_triples(val_bn, val.permissions, val.comment)
-    g.add((res_bn, val.prop_name, val_bn))
+    g.add((res_bn, URIRef(val.prop_iri), val_bn))
     g.add((val_bn, RDF.type, prop_type_info.knora_type))
-    g.add((val_bn, prop_type_info.knora_prop, val.value))
+    return val_bn, g
+
+
+def _add_optional_triples(val_bn: BNode, permissions: str | None, comment: str | None) -> Graph:
+    g = Graph()
+    if permissions:
+        g.add((val_bn, KNORA_API.hasPermissions, Literal(permissions, datatype=XSD.string)))
+    if comment:
+        g.add((val_bn, KNORA_API.valueHasComment, Literal(comment, datatype=XSD.string)))
     return g
 
 
-def _make_list_prop_graph(
-    prop: XMLProperty,
+def _make_value_graph_with_object_literals(
+    val: IntermediaryValue,
+    prop_type_info: RDFPropTypeInfo,
     res_bn: BNode,
-    prop_name: URIRef,
-    permissions_lookup: dict[str, Permissions],
-    listnode_lookup: dict[str, str],
 ) -> Graph:
-    g = Graph()
-    for val in prop.values:
-        s = assert_is_string(val.value)
-        if not (iri_str := listnode_lookup.get(s)):
-            msg = (
-                f"Could not resolve list node ID '{s}' to IRI. "
-                f"This is probably because the list node '{s}' does not exist on the server."
-            )
-            raise BaseError(msg)
+    val_bn, g = _make_base_value_graph(val, prop_type_info, res_bn)
+    g.add((val_bn, prop_type_info.knora_prop, Literal(val.value, datatype=prop_type_info.xsd_type)))
+    return g
 
-        resolved_permission = resolve_permission(val.permissions, permissions_lookup)
-        transformed = TransformedValue(
-            value=URIRef(iri_str),
-            prop_name=prop_name,
-            permissions=resolved_permission,
-            comment=val.comment,
-        )
-        g += _make_simple_value_graph(transformed, res_bn, RDF_PROP_TYPE_MAPPER["list"])
+
+def _make_prop_graph_with_object_iri(
+    val: IntermediaryValue,
+    res_bn: BNode,
+    prop_type_info: RDFPropTypeInfo,
+) -> Graph:
+    val_bn, g = _make_base_value_graph(val, prop_type_info, res_bn)
+    g.add((val_bn, prop_type_info.knora_prop, URIRef(val.value)))
+    return g
+
+
+def _make_link_prop_graph(
+    val: IntermediaryValue,
+    prop_type_info: RDFPropTypeInfo,
+    res_bn: BNode,
+    iri_resolver: IriResolver,
+) -> Graph:
+    val_bn, g = _make_base_value_graph(val, prop_type_info, res_bn)
+    iri_str = _resolve_id_to_iri(val.value, iri_resolver)
+    g.add((val_bn, prop_type_info.knora_prop, URIRef(iri_str)))
     return g
 
 
@@ -257,28 +261,6 @@ def _make_interval_value_graph(
     return g
 
 
-def _make_link_prop_graph(
-    prop: IntermediaryLink,
-    res_bn: BNode,
-    prop_name: URIRef,
-    permissions_lookup: dict[str, Permissions],
-    iri_resolver: IriResolver,
-) -> Graph:
-    g = Graph()
-    for val in prop.values:
-        str_val = assert_is_string(val.value)
-        iri_str = _resolve_id_to_iri(str_val, iri_resolver)
-        resolved_permission = resolve_permission(val.permissions, permissions_lookup)
-        transformed = TransformedValue(
-            value=URIRef(iri_str),
-            prop_name=prop_name,
-            permissions=resolved_permission,
-            comment=val.comment,
-        )
-        g += _make_simple_value_graph(transformed, res_bn, RDF_PROP_TYPE_MAPPER["link"])
-    return g
-
-
 def _resolve_id_to_iri(value: str, iri_resolver: IriResolver) -> str:
     if is_resource_iri(value):
         iri_str = value
@@ -312,8 +294,8 @@ def _make_text_prop_graph(
                     permissions=resolved_permission,
                     comment=val.comment,
                 )
-                g += _make_simple_value_graph(
-                    val=transformed, res_bn=res_bn, prop_type_info=RDF_PROP_TYPE_MAPPER["simpletext"]
+                g += _make_value_graph_with_object_literals(
+                    val=transformed, res_bn=res_bn, prop_type_info=RDF_LITERAL_PROP_TYPE_MAPPER["simpletext"]
                 )
             case FormattedTextValue():
                 g += _make_richtext_value_graph(
@@ -329,33 +311,14 @@ def _make_text_prop_graph(
 
 
 def _make_richtext_value_graph(
-    val: XMLValue,
-    prop_name: URIRef,
+    val: IntermediaryValue,
+    prop_type_info: RDFPropTypeInfo,
     res_bn: BNode,
-    permissions_lookup: dict[str, Permissions],
     iri_resolver: IriResolver,
 ) -> Graph:
-    val_bn = BNode()
-    resolved_permission = resolve_permission(val.permissions, permissions_lookup)
-    g = _add_optional_triples(val_bn, resolved_permission, val.comment)
-    xml_val = cast(FormattedTextValue, val.value)
-    val_str = _get_richtext_string(xml_val, iri_resolver)
-    g.add((res_bn, prop_name, val_bn))
-    g.add((val_bn, RDF.type, KNORA_API.TextValue))
-    g.add((val_bn, KNORA_API.textValueAsXml, Literal(val_str, datatype=XSD.string)))
+    val_bn, g = _make_base_value_graph(val, prop_type_info, res_bn)
+    xml_with_iris = val.value.with_iris(iri_resolver)
+    val_str = xml_with_iris.as_xml()
+    g.add((val_bn, prop_type_info.knora_prop, Literal(val_str, datatype=XSD.string)))
     g.add((val_bn, KNORA_API.textValueHasMapping, URIRef("http://rdfh.ch/standoff/mappings/StandardMapping")))
-    return g
-
-
-def _get_richtext_string(xml_val: FormattedTextValue, iri_resolver: IriResolver) -> str:
-    xml_with_iris = xml_val.with_iris(iri_resolver)
-    return xml_with_iris.as_xml()
-
-
-def _add_optional_triples(val_bn: BNode, permissions: str | None, comment: str | None) -> Graph:
-    g = Graph()
-    if permissions:
-        g.add((val_bn, KNORA_API.hasPermissions, Literal(permissions, datatype=XSD.string)))
-    if comment:
-        g.add((val_bn, KNORA_API.valueHasComment, Literal(comment, datatype=XSD.string)))
     return g

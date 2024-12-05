@@ -26,6 +26,7 @@ from dsp_tools.commands.xmlupload.models.intermediary.resource import Intermedia
 from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookup
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookup
 from dsp_tools.commands.xmlupload.models.lookup_models import get_json_ld_context_for_project
+from dsp_tools.commands.xmlupload.models.lookup_models import make_namespace_dict_from_onto_names
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
@@ -249,6 +250,7 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
     project_onto_dict = clients.project_client.get_ontology_name_dict()
     listnode_lookup = clients.list_client.get_list_node_id_to_iri_lookup()
     project_context = get_json_ld_context_for_project(project_onto_dict)
+    namespaces = make_namespace_dict_from_onto_names(project_onto_dict)
 
     iri_lookup = IRILookup(
         project_iri=project_iri,
@@ -262,7 +264,7 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
         media_previously_ingested=upload_state.config.media_previously_uploaded,
     )
     intermediary_lookups = IntermediaryLookup(
-        permissions=upload_state.permissions_lookup, listnodes=listnode_lookup, namespaces=project_onto_dict
+        permissions=upload_state.permissions_lookup, listnodes=listnode_lookup, namespaces=namespaces
     )
 
     progress_bar = tqdm(upload_state.pending_resources.copy(), desc="Creating Resources", dynamic_ncols=True)

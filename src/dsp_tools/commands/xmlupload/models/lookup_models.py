@@ -23,9 +23,6 @@ class IntermediaryLookup:
 class Lookups:
     project_iri: str
     id_to_iri: IriResolver
-    permissions: dict[str, Permissions]
-    listnodes: dict[str, str]
-    namespaces: dict[str, Namespace]
     jsonld_context: JSONLDContext
 
 

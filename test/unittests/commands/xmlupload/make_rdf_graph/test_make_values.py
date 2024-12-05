@@ -28,8 +28,6 @@ from dsp_tools.commands.xmlupload.models.intermediary.values import Intermediary
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntervalFloats
 from dsp_tools.commands.xmlupload.models.lookup_models import JSONLDContext
 from dsp_tools.commands.xmlupload.models.lookup_models import Lookups
-from dsp_tools.commands.xmlupload.models.permission import Permissions
-from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.date_util import Calendar
 from dsp_tools.utils.date_util import Date
@@ -37,7 +35,6 @@ from dsp_tools.utils.date_util import Era
 from dsp_tools.utils.date_util import SingleDate
 
 ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
-namespaces = {"onto": ONTO, "knora-api": KNORA_API}
 
 PERMISSION_LITERAL = Literal("CR knora-admin:ProjectAdmin", datatype=XSD.string)
 RES_ONE_URI = URIRef("http://rdfh.ch/9999/res_one")
@@ -48,18 +45,10 @@ def onto_str(prop: str) -> str:
 
 
 @pytest.fixture
-def permissions_lookup() -> dict[str, Permissions]:
-    return {"open": Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})}
-
-
-@pytest.fixture
-def lookups(permissions_lookup: dict[str, Permissions]) -> Lookups:
+def lookups() -> Lookups:
     return Lookups(
         project_iri="http://rdfh.ch/9999/project",
         id_to_iri=IriResolver({"res_one": "http://rdfh.ch/9999/res_one"}),
-        permissions=permissions_lookup,
-        listnodes={"testlist:node": "http://rdfh.ch/9999/node"},
-        namespaces=namespaces,
         jsonld_context=JSONLDContext({}),
     )
 
@@ -292,7 +281,7 @@ class TestMakeOnePropGraphSuccess:
         assert value == RES_ONE_URI
 
 
-def test_link_traget_not_found(lookups: Lookups) -> None:
+def test_link_target_not_found(lookups: Lookups) -> None:
     res_bn = BNode()
     prop = IntermediaryLink("non_existing", onto_str("hasResource"), None, None)
     err_str = regex.escape(

@@ -1163,6 +1163,7 @@ class Resource:
             ```
 
             ```python
+            # changing the replacement options for newlines `\\n`
             resource = resource.add_richtext(
                 prop_name=":propName",
                 value="line 1\\nline 2",

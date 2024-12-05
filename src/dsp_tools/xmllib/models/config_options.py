@@ -39,7 +39,12 @@ class NewlineReplacement(Enum):
 
     Examples:
         ```python
-        linebreak = xmllib.NewlineReplacement.LINEBREAK
+            # changing the replacement options for newlines `\\n`
+            resource = resource.add_richtext(
+                prop_name=":propName",
+                value="Start\\n\\nEnd",
+                newline_replacement=xmllib.NewlineReplacement.PARAGRAPH
+            )
         ```
     """
 

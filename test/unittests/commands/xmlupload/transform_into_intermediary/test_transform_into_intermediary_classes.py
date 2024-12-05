@@ -7,7 +7,9 @@ from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResou
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileValue
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryIIIFUri
+from dsp_tools.commands.xmlupload.models.intermediary.resource import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.intermediary.resource import MigrationMetadata
+from dsp_tools.commands.xmlupload.models.intermediary.resource import ResourceInputConversionFailure
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryBoolean
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryColor
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryDate
@@ -26,7 +28,7 @@ from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _tr
 from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_iiif_uri_value
 from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_one_property
 from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_one_resource
-from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import transform_into_intermediary_resources
+from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import transform_into_intermediary_resource
 from dsp_tools.models.datetimestamp import DateTimeStamp
 from dsp_tools.models.exceptions import PermissionNotExistsError
 from dsp_tools.utils.date_util import Date
@@ -37,19 +39,18 @@ ONTO = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
 class TestTransformResources:
     def test_success(
         self,
-        resource_with_permissions: XMLResource,
         resource_one_prop: XMLResource,
         lookups: IntermediaryLookup,
     ) -> None:
-        result = transform_into_intermediary_resources([resource_one_prop, resource_with_permissions], lookups)
-        assert (len(result.resource_success)) == 2
-        assert (len(result.resource_failure)) == 0
+        result = transform_into_intermediary_resource(resource_one_prop, lookups)
+        assert isinstance(result.resource_success, IntermediaryResource)
+        assert not result.resource_failure
 
     def test_failure(self, resource_with_unknown_permissions: XMLResource, lookups: IntermediaryLookup) -> None:
-        result = transform_into_intermediary_resources([resource_with_unknown_permissions], lookups)
-        assert len(result.resource_success) == 0
-        assert (len(result.resource_failure)) == 1
-        failure = result.resource_failure[0]
+        result = transform_into_intermediary_resource(resource_with_unknown_permissions, lookups)
+        assert not result.resource_success
+        failure = result.resource_failure
+        assert isinstance(failure, ResourceInputConversionFailure)
         assert failure.resource_id == "id"
         assert failure.failure_msg == "Could not find permissions for value: nonExisting"
 
@@ -136,7 +137,7 @@ class TestTransformOneResource:
         file_val = result.file_value
         assert isinstance(file_val, IntermediaryFileValue)
         assert file_val.value == "file.jpg"
-        assert not file_val.metadata
+        assert not file_val.metadata.permissions
         assert not result.migration_metadata
 
     def test_iiif_uri(self, resource_with_iiif_uri: XMLResource, lookups: IntermediaryLookup) -> None:
@@ -155,6 +156,7 @@ class TestTransformFileValue:
         result = _transform_file_value(bitstream, lookups)
         assert result.value == "file.jpg"
         assert isinstance(result, IntermediaryFileValue)
+        assert not result.metadata.permissions
 
     def test_transform_file_value_with_permissions(
         self, bitstream_with_permission: XMLBitstream, lookups: IntermediaryLookup

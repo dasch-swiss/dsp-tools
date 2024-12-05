@@ -413,7 +413,7 @@ class LinkResource:
             link_resource = xmllib.LinkResource.create_new(
                 res_id="ID",
                 label="label",
-                link_to=["target_resource_id1", "target_resource_id2"],
+                link_to=["target_resource_id_1", "target_resource_id_2"],
             )
             ```
         """
@@ -862,7 +862,7 @@ class VideoSegmentResource:
 
         Examples:
             ```python
-            video_segment = video_segment.add_relates_to("target_resource")
+            video_segment = video_segment.add_relates_to("target_resource_id")
             ```
         """
         self.relates_to.append(relates_to)
@@ -880,7 +880,7 @@ class VideoSegmentResource:
 
         Examples:
             ```python
-            video_segment = video_segment.add_relates_to_multiple(["target_resource_1", "target_resource_2"])
+            video_segment = video_segment.add_relates_to_multiple(["target_resource_id_1", "target_resource_id_2"])
             ```
         """
         self.relates_to.extend(relates_to)
@@ -898,7 +898,7 @@ class VideoSegmentResource:
 
         Examples:
             ```python
-            video_segment = video_segment.add_relates_to_optional("target_resource")
+            video_segment = video_segment.add_relates_to_optional("target_resource_id")
             ```
 
             ```python
@@ -1243,7 +1243,7 @@ class AudioSegmentResource:
 
         Examples:
             ```python
-            audio_segment = audio_segment.add_relates_to("target_resource")
+            audio_segment = audio_segment.add_relates_to("target_resource_id")
             ```
         """
         self.relates_to.append(relates_to)
@@ -1261,7 +1261,7 @@ class AudioSegmentResource:
 
         Examples:
             ```python
-            audio_segment = audio_segment.add_relates_to_multiple(["target_resource_1", "target_resource_2"])
+            audio_segment = audio_segment.add_relates_to_multiple(["target_resource_id_1", "target_resource_id_2"])
             ```
         """
         self.relates_to.extend(relates_to)
@@ -1279,7 +1279,7 @@ class AudioSegmentResource:
 
         Examples:
             ```python
-            audio_segment = audio_segment.add_relates_to_optional("target_resource")
+            audio_segment = audio_segment.add_relates_to_optional("target_resource_id")
             ```
 
             ```python

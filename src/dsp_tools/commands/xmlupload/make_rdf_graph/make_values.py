@@ -14,7 +14,6 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.constants import LIST_PROP_TYPE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import RDF_LITERAL_PROP_TYPE_MAPPER
 from dsp_tools.commands.xmlupload.make_rdf_graph.helpers import get_absolute_iri
 from dsp_tools.commands.xmlupload.make_rdf_graph.helpers import resolve_permission
-from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_date
 from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_interval
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLValue
@@ -112,12 +111,11 @@ def _make_one_prop_graph(val: IntermediaryValue, res_bnode: BNode, iri_lookup: I
                 permissions_lookup=iri_lookup.permissions,
                 iri_resolver=iri_lookup.id_to_iri,
             )
-        case "date":
-            properties_graph = _make_date_prop_graph(
-                prop=val,
+        case IntermediaryDate():
+            properties_graph = _make_date_value_graph(
+                val=val,
                 res_bn=res_bnode,
                 prop_name=prop_name,
-                permissions_lookup=iri_lookup.permissions,
             )
         case "interval":
             properties_graph = _make_interval_prop_graph(
@@ -184,29 +182,14 @@ def _make_link_prop_graph(
     return g
 
 
-def _make_date_prop_graph(
-    prop: IntermediaryDate,
-    res_bn: BNode,
-    prop_name: URIRef,
-    permissions_lookup: dict[str, Permissions],
-) -> Graph:
-    g = Graph()
-    for val in prop.values:
-        resolved_permission = resolve_permission(val.permissions, permissions_lookup)
-        g += _make_date_value_graph(val, prop_name, resolved_permission, res_bn)
-    return g
-
-
 def _make_date_value_graph(
-    val: XMLValue,
-    prop_name: URIRef,
-    resolved_permission: str | None,
+    val: IntermediaryValue,
     res_bn: BNode,
 ) -> Graph:
-    date = transform_date(val.value)
     val_bn = BNode()
-    g = _add_optional_triples(val_bn, resolved_permission, val.comment)
-    g.add((res_bn, prop_name, val_bn))
+    date = val.value
+    g = _add_optional_triples(val_bn, val.permissions, val.comment)
+    g.add((res_bn, URIRef(val.prop_iri), val_bn))
     g.add((val_bn, RDF.type, KNORA_API.DateValue))
     if cal := date.calendar.value:
         g.add((val_bn, KNORA_API.dateValueHasCalendar, Literal(cal, datatype=XSD.string)))

@@ -1,4 +1,3 @@
-from typing import assert_never
 
 from rdflib import RDF
 from rdflib import XSD
@@ -12,10 +11,8 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.constants import KNORA_API
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import LINK_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import LIST_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import RDF_LITERAL_PROP_TYPE_MAPPER
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import RICHTEXT_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.helpers import get_absolute_iri
-from dsp_tools.commands.xmlupload.make_rdf_graph.helpers import resolve_permission
-from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
-from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryBoolean
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryColor
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryDate
@@ -32,9 +29,7 @@ from dsp_tools.commands.xmlupload.models.intermediary.values import Intermediary
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryUri
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryValue
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookup
-from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
-from dsp_tools.commands.xmlupload.models.rdf_models import TransformedValue
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.date_util import DayMonthYearEra
@@ -102,11 +97,10 @@ def _make_one_prop_graph(val: IntermediaryValue, res_bnode: BNode, iri_lookup: I
                 iri_resolver=iri_lookup.id_to_iri,
             )
         case IntermediaryRichtext():
-            properties_graph = _make_text_prop_graph(
-                prop=val,
+            properties_graph = _make_richtext_value_graph(
+                val=val,
                 res_bn=res_bnode,
-                prop_name=prop_name,
-                permissions_lookup=iri_lookup.permissions,
+                prop_type_info=RICHTEXT_PROP_TYPE_INFO,
                 iri_resolver=iri_lookup.id_to_iri,
             )
         case IntermediaryDate():
@@ -116,10 +110,8 @@ def _make_one_prop_graph(val: IntermediaryValue, res_bnode: BNode, iri_lookup: I
             )
         case IntermediaryInterval():
             properties_graph = _make_interval_value_graph(
-                prop=val,
+                val=val,
                 res_bn=res_bnode,
-                prop_name=prop_name,
-                permissions_lookup=iri_lookup.permissions,
             )
         case _:
             raise UserError(f"Unknown value type: {val.valtype}")
@@ -179,6 +171,21 @@ def _make_link_prop_graph(
     return g
 
 
+def _resolve_id_to_iri(value: str, iri_resolver: IriResolver) -> str:
+    if is_resource_iri(value):
+        iri_str = value
+    elif resolved_iri := iri_resolver.get(value):
+        iri_str = resolved_iri
+    else:
+        msg = (
+            f"Could not find the ID {value} in the id2iri mapping. "
+            f"This is probably because the resource '{value}' could not be created. "
+            f"See {WARNINGS_SAVEPATH} for more information."
+        )
+        raise BaseError(msg)
+    return iri_str
+
+
 def _make_date_value_graph(
     val: IntermediaryValue,
     res_bn: BNode,
@@ -213,7 +220,7 @@ def _make_single_date_graph(val_bn: BNode, date: SingleDate, start_end: StartEnd
 
 
 def _make_interval_value_graph(
-    val: IntermediaryInterval,
+    val: IntermediaryValue,
     res_bn: BNode,
 ) -> Graph:
     val_bn = BNode()
@@ -222,55 +229,6 @@ def _make_interval_value_graph(
     g.add((val_bn, RDF.type, KNORA_API.IntervalValue))
     g.add((val_bn, KNORA_API.intervalValueHasStart, Literal(val.value.start, datatype=XSD.float)))
     g.add((val_bn, KNORA_API.intervalValueHasEnd, Literal(val.value.end, datatype=XSD.float)))
-    return g
-
-
-def _resolve_id_to_iri(value: str, iri_resolver: IriResolver) -> str:
-    if is_resource_iri(value):
-        iri_str = value
-    elif resolved_iri := iri_resolver.get(value):
-        iri_str = resolved_iri
-    else:
-        msg = (
-            f"Could not find the ID {value} in the id2iri mapping. "
-            f"This is probably because the resource '{value}' could not be created. "
-            f"See {WARNINGS_SAVEPATH} for more information."
-        )
-        raise BaseError(msg)
-    return iri_str
-
-
-def _make_text_prop_graph(
-    prop: XMLProperty,
-    res_bn: BNode,
-    prop_name: URIRef,
-    permissions_lookup: dict[str, Permissions],
-    iri_resolver: IriResolver,
-) -> Graph:
-    g = Graph()
-    for val in prop.values:
-        resolved_permission = resolve_permission(val.permissions, permissions_lookup)
-        match val.value:
-            case str():
-                transformed = TransformedValue(
-                    value=Literal(val.value, datatype=XSD.string),
-                    prop_name=prop_name,
-                    permissions=resolved_permission,
-                    comment=val.comment,
-                )
-                g += _make_value_graph_with_object_literals(
-                    val=transformed, res_bn=res_bn, prop_type_info=RDF_LITERAL_PROP_TYPE_MAPPER["simpletext"]
-                )
-            case FormattedTextValue():
-                g += _make_richtext_value_graph(
-                    val=val,
-                    prop_name=prop_name,
-                    res_bn=res_bn,
-                    permissions_lookup=permissions_lookup,
-                    iri_resolver=iri_resolver,
-                )
-            case _:
-                assert_never(val.value)
     return g
 
 

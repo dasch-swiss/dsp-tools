@@ -1,4 +1,3 @@
-
 from rdflib import RDF
 from rdflib import XSD
 from rdflib import BNode
@@ -39,16 +38,14 @@ from dsp_tools.utils.iri_util import is_resource_iri
 from dsp_tools.utils.logger_config import WARNINGS_SAVEPATH
 
 
-def make_values(
-    properties: list[IntermediaryValue], res_bnode: BNode, lookups: IRILookup
-) -> tuple[Graph, URIRef | None]:
+def make_values(values: list[IntermediaryValue], res_bnode: BNode, lookups: IRILookup) -> tuple[Graph, URIRef | None]:
     """
     Serialise the values of a resource.
 
     Args:
-        properties: list of IntermediaryProperties of the resource
+        values: list of IntermediaryValues of the resource
         res_bnode: blank node of the resource
-        lookups: lookups to resolve, permissions, IRIs, etc.
+        lookups: lookups to resolve IRIs
 
     Returns:
         Graph with the values and the last property name
@@ -57,7 +54,7 @@ def make_values(
     # To frame the json-ld correctly, we need one property used in the graph. It does not matter which.
     last_prop_name = None
 
-    for prop in properties:
+    for prop in values:
         single_prop_graph, last_prop_name = _make_one_prop_graph(val=prop, res_bnode=res_bnode, iri_lookup=lookups)
         properties_graph += single_prop_graph
 
@@ -65,7 +62,6 @@ def make_values(
 
 
 def _make_one_prop_graph(val: IntermediaryValue, res_bnode: BNode, iri_lookup: IRILookup) -> tuple[Graph, URIRef]:
-    prop_name = get_absolute_iri(val.name, iri_lookup.namespaces)
     match val:
         case (
             IntermediaryBoolean()

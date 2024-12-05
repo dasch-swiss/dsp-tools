@@ -502,7 +502,7 @@ def create_list_from_string(string: str, separator: str) -> list[str]:
 
         ```python
         result = xmllib.create_list_from_string("   \\n    ", "\\n")
-        # result == [ ]
+        # result == []
         ```
     """
     if not isinstance(string, str):

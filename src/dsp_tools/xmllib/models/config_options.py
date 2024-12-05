@@ -14,7 +14,12 @@ class Permissions(Enum):
 
     Examples:
         ```python
-        restricted_permissions = xmllib.Permissions.RESTRICTED
+        resource = xmllib.Resource.create_new(
+            res_id="ID",
+            restype=":ResourceType",
+            label="label",
+            permissions=xmllib.Permissions.RESTRICTED,
+        )
         ```
     """
 

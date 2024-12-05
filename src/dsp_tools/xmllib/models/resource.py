@@ -1528,6 +1528,14 @@ class Resource:
                 filename="images/dog.jpg"
             )
             ```
+
+            ```python
+            # a file with restricted view permissions
+            resource = resource.add_file(
+                filename="images/dog.jpg",
+                permissions=xmllib.Permissions.RESTRICTED_VIEW
+            )
+            ```
         """
         if self.file_value:
             raise InputError(

@@ -286,7 +286,7 @@ class TestTransformProperties:
         transformed = result[0]
         assert isinstance(transformed, IntermediaryLink)
         assert transformed.value == "other_id"
-        assert transformed.prop_iri == f"{ONTO}linkProp"
+        assert transformed.prop_iri == f"{ONTO}linkPropValue"
         assert not transformed.permissions
         assert not transformed.comment
 

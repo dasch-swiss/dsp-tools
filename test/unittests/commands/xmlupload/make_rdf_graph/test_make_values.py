@@ -28,6 +28,8 @@ from dsp_tools.commands.xmlupload.models.intermediary.values import Intermediary
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntervalFloats
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookup
 from dsp_tools.commands.xmlupload.models.lookup_models import JSONLDContext
+from dsp_tools.commands.xmlupload.models.permission import Permissions
+from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.date_util import Calendar
 from dsp_tools.utils.date_util import Date
@@ -38,6 +40,9 @@ ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
 
 PERMISSION_LITERAL = Literal("CR knora-admin:ProjectAdmin", datatype=XSD.string)
 RES_ONE_URI = URIRef("http://rdfh.ch/9999/res_one")
+
+
+OPEN_PERMISSION = Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})
 
 
 def onto_str(prop: str) -> str:
@@ -56,7 +61,7 @@ def lookups() -> IRILookup:
 class TestMakeOnePropGraphSuccess:
     def test_boolean(self, lookups: IRILookup) -> None:
         res_bn = BNode()
-        prop = IntermediaryBoolean(True, onto_str("isTrueOrFalse"), None, None)
+        prop = IntermediaryBoolean(True, onto_str("isTrueOrFalse"), None, OPEN_PERMISSION)
         result, prop_name = _make_one_prop_graph(prop, res_bn, lookups)
         assert len(result) == 4
         assert prop_name == ONTO.isTrueOrFalse
@@ -199,7 +204,7 @@ class TestMakeOnePropGraphSuccess:
     def test_richtext(self, lookups: IRILookup) -> None:
         res_bn = BNode()
         prop = IntermediaryRichtext(
-            FormattedTextValue("Text"), onto_str("hasRichtext"), None, None, resource_references=set()
+            FormattedTextValue("Text"), onto_str("hasRichtext"), None, OPEN_PERMISSION, resource_references=set()
         )
         result, prop_name = _make_one_prop_graph(prop, res_bn, lookups)
         assert len(result) == 5
@@ -221,7 +226,7 @@ class TestMakeOnePropGraphSuccess:
             FormattedTextValue(text), onto_str("hasRichtext"), None, None, resource_references=set("res_one")
         )
         result, prop_name = _make_one_prop_graph(prop, res_bn, lookups)
-        assert len(result) == 5
+        assert len(result) == 4
         assert prop_name == ONTO.hasRichtext
         val_bn = next(result.objects(res_bn, prop_name))
         rdf_type = next(result.objects(val_bn, RDF.type))
@@ -235,8 +240,6 @@ class TestMakeOnePropGraphSuccess:
         assert value == Literal(expected_text, datatype=XSD.string)
         mapping = next(result.objects(val_bn, KNORA_API.textValueHasMapping))
         assert mapping == URIRef("http://rdfh.ch/standoff/mappings/StandardMapping")
-        permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
-        assert permissions == PERMISSION_LITERAL
 
     def test_date(self, lookups: IRILookup) -> None:
         res_bn = BNode()

@@ -143,7 +143,7 @@ def _make_base_value_graph(
 def _add_optional_triples(val_bn: BNode, permissions: Permissions | None, comment: str | None) -> Graph:
     g = Graph()
     if permissions:
-        g.add((val_bn, KNORA_API.hasPermissions, Literal(str(Permissions), datatype=XSD.string)))
+        g.add((val_bn, KNORA_API.hasPermissions, Literal(str(permissions), datatype=XSD.string)))
     if comment:
         g.add((val_bn, KNORA_API.valueHasComment, Literal(comment, datatype=XSD.string)))
     return g
@@ -237,8 +237,8 @@ def _make_interval_value_graph(
     g = _add_optional_triples(val_bn, val.permissions, val.comment)
     g.add((res_bn, URIRef(val.prop_iri), val_bn))
     g.add((val_bn, RDF.type, KNORA_API.IntervalValue))
-    g.add((val_bn, KNORA_API.intervalValueHasStart, Literal(val.value.start, datatype=XSD.float)))
-    g.add((val_bn, KNORA_API.intervalValueHasEnd, Literal(val.value.end, datatype=XSD.float)))
+    g.add((val_bn, KNORA_API.intervalValueHasStart, Literal(val.value.start, datatype=XSD.decimal)))
+    g.add((val_bn, KNORA_API.intervalValueHasEnd, Literal(val.value.end, datatype=XSD.decimal)))
     return g
 
 

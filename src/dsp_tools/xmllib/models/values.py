@@ -15,7 +15,6 @@ from dsp_tools.utils.uri_util import is_uri
 from dsp_tools.xmllib.helpers import escape_reserved_xml_characters
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.value_checkers import check_richtext_syntax
-from dsp_tools.xmllib.value_checkers import is_bool_like
 from dsp_tools.xmllib.value_checkers import is_color
 from dsp_tools.xmllib.value_checkers import is_date
 from dsp_tools.xmllib.value_checkers import is_decimal
@@ -23,7 +22,7 @@ from dsp_tools.xmllib.value_checkers import is_geoname
 from dsp_tools.xmllib.value_checkers import is_integer
 from dsp_tools.xmllib.value_checkers import is_string_like
 from dsp_tools.xmllib.value_checkers import is_timestamp
-from dsp_tools.xmllib.value_converters import convert_to_bool_string
+from dsp_tools.xmllib.value_converters import convert_to_bool
 
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
@@ -55,11 +54,14 @@ class BooleanValue(Value):
     resource_id: str | None = None
 
     def __post_init__(self) -> None:
-        if not is_bool_like(self.value):
+        try:
+            converted_bool = convert_to_bool(self.value)
+            self.value = str(converted_bool).lower()
+        except InputError:
             _warn_type_mismatch(
                 expected_type="bool", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
-        self.value = convert_to_bool_string(self.value)
+            self.value = str(self.value)
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()

@@ -24,7 +24,7 @@ from .value_checkers import is_integer as is_integer
 from .value_checkers import is_nonempty_value as is_nonempty_value
 from .value_checkers import is_string_like as is_string_like
 from .value_checkers import is_timestamp as is_timestamp
-from .value_converters import convert_to_bool_string as convert_to_bool_string
+from .value_converters import convert_to_bool as convert_to_bool_string
 from .value_converters import replace_newlines_with_br_tags as replace_newlines_with_br_tags
 from .value_converters import replace_newlines_with_paragraph_tags as replace_newlines_with_paragraph_tags
 from .value_converters import replace_newlines_with_tags as replace_newlines_with_tags

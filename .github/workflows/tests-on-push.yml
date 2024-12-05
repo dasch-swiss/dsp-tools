@@ -28,7 +28,7 @@ jobs:
       - name: markdownlint
         run: just markdownlint
       - name: check examples in docstrings
-        run: pytest src/dsp_tools/xmllib/ --doctest-modules
+        run: uv run pytest src/dsp_tools/xmllib/ --doctest-modules
 
 
   lint:

@@ -517,8 +517,8 @@ def create_non_empty_list_from_string(
         ['One', 'Two']
         >>> create_non_empty_list_from_string("   \\n/    ", "/")  # doctest: +NORMALIZE_WHITESPACE
         Traceback (most recent call last):
-        dsp_tools.models.exceptions.InputError: 
-        The input for this function must result in a non-empty list. 
+        dsp_tools.models.exceptions.InputError:
+        The input for this function must result in a non-empty list.
         Your input results in an empty list.
     """
     lst = create_list_from_string(string, separator)

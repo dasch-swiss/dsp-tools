@@ -1,48 +1,51 @@
 from typing import Any
 
+from dsp_tools.models.exceptions import InputError
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 
 
-def convert_to_bool_string(value: Any) -> str:
+def convert_to_bool(value: Any) -> bool:
     """
     Turns a value into a bool string, suitable for an XML.
     It is case-insensitive, meaning that the words can also be capitalised.
 
     Accepted values:
-         - `false`, `0`, `0.0`, `no`, `non`, `nein` -> `false`
-         - `true`, `1`, `1.0`, `yes`, `oui`, `ja` -> `true`
+         - `false`, `0`, `0.0`, `no`, `non`, `nein` -> `False`
+         - `true`, `1`, `1.0`, `yes`, `oui`, `ja` -> `True`
 
     Args:
         value: value to transform
 
     Returns:
-        `"true"` or `"false"` if it is an accepted value,
-        else it returns the original value as a string.
+        `True` or `False` if it is an accepted value.
+
+    Raises:
+        InputError: If the value is not convertable to a boolean
 
     Examples:
         ```python
         result = xmllib.convert_to_bool_string(1)
-        # result == "true"
+        # result == True
         ```
 
         ```python
         result = xmllib.convert_to_bool_string("nein")
-        # result == "false"
+        # result == False
         ```
 
         ```python
         # because this is not an accepted value, it is returned as a string
 
         result = xmllib.convert_to_bool_string(None)
-        # result == "None"
+        # raises InputError
         ```
     """
     str_val = str(value).lower().strip()
     if str_val in ("false", "0", "0.0", "no", "non", "nein"):
-        return "false"
+        return False
     elif str_val in ("true", "1", "1.0", "yes", "oui", "ja"):
-        return "true"
-    return str(value)
+        return True
+    raise InputError(f"The entered value '{value}' cannot be converted to a bool.")
 
 
 def replace_newlines_with_tags(text: str, converter_option: NewlineReplacement) -> str:

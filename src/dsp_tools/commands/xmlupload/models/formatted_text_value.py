@@ -31,5 +31,5 @@ class FormattedTextValue:
             if iri := iri_resolver.get(internal_id):
                 s = s.replace(f'href="IRI:{internal_id}:IRI"', f'href="{iri}"')
             else:
-                raise BaseError(f"Internal ID {internal_id} could not be resolved to an IRI")
+                raise BaseError(f"Internal ID '{internal_id}' could not be resolved to an IRI")
         return FormattedTextValue(s)

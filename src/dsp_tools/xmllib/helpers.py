@@ -28,6 +28,45 @@ def create_label_to_name_list_node_mapping(
 
     Returns:
         a dictionary of the form {label: name}
+
+    Examples:
+        ```json
+        "lists": [
+            {
+                "name": "listName",
+                "labels": {
+                    "en": "List",
+                    "de": "Liste"
+                },
+                "comments": { ... },
+                "nodes": [
+                    {
+                        "name": "n1",
+                        "labels": {
+                            "en": "Node 1",
+                            "de": "Knoten 1"
+                        }
+                    },
+                    {
+                        "name": "n2",
+                        "labels": {
+                            "en": "Node 2",
+                            "de": "Knoten 2"
+                        }
+                    }
+                ]
+            }
+        ]
+        ```
+
+        ```python
+        result = xmllib.create_label_to_name_list_node_mapping(
+            project_json_path="project.json",
+            list_name="listName",
+            language_of_label="de",
+        )
+        # result == {"Knoten 1": "n1", "knoten 1": "n1", "Knoten 2": "n2", "knoten 2": "n2"}
+        ```
     """
     with open(project_json_path, encoding="utf-8") as f:
         json_file = json.load(f)
@@ -79,6 +118,17 @@ def escape_reserved_xml_characters(text: str) -> str:
 
     Returns:
         The escaped richtext string
+
+    Examples:
+        ```python
+        result = xmllib.escape_reserved_xml_characters("Text <unknownTag>")
+        # result == "Text &lt;unknownTag&gt;"
+        ```
+
+        ```python
+        result = xmllib.escape_reserved_xml_characters("Text <br/> text after")
+        # result == "Text <br/> text after"
+        ```
     """
     allowed_tags = [
         "a( [^>]+)?",  # <a> is the only tag that can have attributes
@@ -156,6 +206,17 @@ def find_date_in_string(string: str) -> str | None:
 
     Returns:
         DSP-formatted date string, or None
+
+    Examples:
+        ```python
+        result = xmllib.find_date_in_string("1849/1850")
+        # result == "GREGORIAN:CE:1849:CE:1850"
+        ```
+
+        ```python
+        result = xmllib.find_date_in_string("not a valid date")
+        # result == None
+        ```
     """
 
     # sanitise input, just in case that the method was called on an empty or N/A cell
@@ -368,6 +429,12 @@ def make_xsd_compatible_id(input_value: str | float | int) -> str:
 
     Returns:
         An xsd ID compatible string based on the input value
+
+    Examples:
+        ```python
+        result = xmllib.make_xsd_compatible_id("0_Universität_Basel")
+        # result == "_0_Universit_t_Basel"
+        ```
     """
     if not is_nonempty_value(input_value):
         raise InputError(f"The input '{input_value}' cannot be transformed to an xsd:ID")
@@ -397,6 +464,12 @@ def make_xsd_compatible_id_with_uuid(input_value: str | float | int) -> str:
 
     Returns:
         an xsd ID based on the input value, with a UUID attached.
+
+    Examples:
+        ```python
+        result = xmllib.make_xsd_compatible_id_with_uuid("Universität_Basel")
+        # result == "Universit_t_Basel_88f5cd0b-f333-4174-9030-65900b17773d"
+        ```
     """
     res = make_xsd_compatible_id(input_value)
     _uuid = uuid.uuid4()
@@ -420,6 +493,17 @@ def create_list_from_string(string: str, separator: str) -> list[str]:
 
     Raises:
         InputError: If the input value is not a string.
+
+    Examples:
+        ```python
+        result = xmllib.create_non_empty_list_from_string(" One/  Two\\n/", "/")
+        # result == ["One", "Two"]
+        ```
+
+        ```python
+        result = xmllib.create_list_from_string("   \\n    ", "\\n")
+        # result == []
+        ```
     """
     if not isinstance(string, str):
         raise InputError(f"The input for this function must be a string. Your input is a {type(string).__name__}.")
@@ -447,6 +531,17 @@ def create_non_empty_list_from_string(
 
     Raises:
         InputError: If the resulting list is empty.
+
+    Examples:
+        ```python
+        result = xmllib.create_non_empty_list_from_string("One\\nTwo   ", "\\n")
+        # result == ["One", "Two"]
+        ```
+
+        ```python
+        result = xmllib.create_non_empty_list_from_string("   \\n/    ", "/")
+        # raises InputError
+        ```
     """
     lst = create_list_from_string(string, separator)
     if len(lst) == 0:

@@ -1140,7 +1140,7 @@ class Resource:
         Conversions:
             By default, replace newline characters inside the text value with `<br/>`, which preserves the linebreak.
             Without this replacement, the newline would disappear, because `\\n` is meaningless in an XML file.
-            [See the function documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/value-converters/#xmllib.value_converters.replace_newlines_with_tags)
+            [Click here for more details](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/value-converters/#xmllib.value_converters.replace_newlines_with_tags)
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text)
 
@@ -1196,7 +1196,7 @@ class Resource:
         Conversions:
             By default, replace newline characters inside the text value with `<br/>`, which preserves the linebreak.
             Without this replacement, the newline would disappear, because `\\n` is meaningless in an XML file.
-            [See the function documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/value-converters/#xmllib.value_converters.replace_newlines_with_tags)
+            [Click here for more details](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/value-converters/#xmllib.value_converters.replace_newlines_with_tags)
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text)
 
@@ -1245,7 +1245,7 @@ class Resource:
         Conversions:
             By default, replace newline characters inside the text value with `<br/>`, which preserves the linebreak.
             Without this replacement, the newline would disappear, because `\\n` is meaningless in an XML file.
-            [See the function documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/value-converters/#xmllib.value_converters.replace_newlines_with_tags)
+            [Click here for more details](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/value-converters/#xmllib.value_converters.replace_newlines_with_tags)
 
         [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text)
 

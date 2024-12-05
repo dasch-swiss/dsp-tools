@@ -322,3 +322,20 @@ def test_link_target_not_found(lookups: IRILookup) -> None:
     )
     with pytest.raises(BaseError, match=err_str):
         _make_one_prop_graph(prop, res_bn, lookups)
+
+
+def test_richtext_with_reference_not_found(lookups: IRILookup) -> None:
+    res_bn = BNode()
+    text = 'Comment with <a class="salsah-link" href="IRI:nonExisingReference:IRI">link to res_one'
+    prop = IntermediaryRichtext(
+        FormattedTextValue(text), onto_str("hasRichtext"), None, None, resource_references=set("nonExisingReference")
+    )
+    err_str = regex.escape(
+        (
+            "Could not find the ID non_existing in the id2iri mapping. "
+            "This is probably because the resource 'non_existing' could not be created. "
+            "See warnings.log for more information."
+        )
+    )
+    with pytest.raises(BaseError, match=err_str):
+        _make_one_prop_graph(prop, res_bn, lookups)

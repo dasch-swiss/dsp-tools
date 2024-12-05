@@ -90,7 +90,11 @@ def _check_resclasses(resclasses: list[dict[str, Any]]) -> None:
     assert res_1["@id"] == f"{ONTO_NAME}:ImageResource"
     assert res_1["rdfs:label"] == "Image Resource"
     cards_1 = res_1["rdfs:subClassOf"]
-    fileval_card = [x for x in cards_1 if x.get("owl:onProperty", {}).get("@id") == "http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue"]
+    fileval_card = [
+        x
+        for x in cards_1
+        if x.get("owl:onProperty", {}).get("@id") == "http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue"
+    ]
     assert len(fileval_card) == 1
     assert fileval_card[0].get("owl:cardinality") == 1
     hasText_card = [x for x in cards_1 if x.get("owl:onProperty", {}).get("@id") == f"{ONTO_NAME}:hasText"]
@@ -118,7 +122,9 @@ def _analyze_img_resources(img_resources: list[dict[str, Any]]) -> None:
 
     res_2 = next(res for res in img_resources if res["rdfs:label"] == "Resource 2")
     assert res_2.get("http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue")
-    res_2_text_vals = sorted([x["http://api.knora.org/ontology/knora-api/v2#valueAsString"] for x in res_2[f"{ONTO_NAME}:hasText"]])
+    res_2_text_vals = sorted(
+        [x["http://api.knora.org/ontology/knora-api/v2#valueAsString"] for x in res_2[f"{ONTO_NAME}:hasText"]]
+    )
     assert res_2_text_vals == ["first text value", "second text value"]
 
 

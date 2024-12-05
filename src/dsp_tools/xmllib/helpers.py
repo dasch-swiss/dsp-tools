@@ -38,9 +38,7 @@ def create_label_to_name_list_node_mapping(
                     "en": "List",
                     "de": "Liste"
                 },
-                "comments": {
-                    "en": "This is a list"
-                },
+                "comments": { ... },
                 "nodes": [
                     {
                         "name": "n1",
@@ -67,7 +65,7 @@ def create_label_to_name_list_node_mapping(
             list_name="listName",
             language_of_label="de",
         )
-        # -> { "Knoten 1": "n1", "Knoten 2": "n2" }
+        # -> {"Knoten 1": "n1", "knoten 1": "n1", "Knoten 2": "n2", "knoten 2": "n2"}
         ```
     """
     with open(project_json_path, encoding="utf-8") as f:

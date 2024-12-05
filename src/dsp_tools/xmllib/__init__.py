@@ -13,7 +13,6 @@ from .models.dsp_base_resources import RegionResource as RegionResource
 from .models.dsp_base_resources import VideoSegmentResource as VideoSegmentResource
 from .models.resource import Resource as Resource
 from .models.root import XMLRoot as XMLRoot
-from .value_checkers import find_geometry_problem as find_geometry_problem
 from .value_checkers import is_bool_like as is_bool_like
 from .value_checkers import is_color as is_color
 from .value_checkers import is_date as is_date

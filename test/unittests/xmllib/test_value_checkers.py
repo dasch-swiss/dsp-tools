@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from dsp_tools.xmllib.value_checkers import find_geometry_problem
 from dsp_tools.xmllib.value_checkers import is_bool_like
 from dsp_tools.xmllib.value_checkers import is_color
 from dsp_tools.xmllib.value_checkers import is_date
@@ -142,24 +141,6 @@ def test_is_timestamp_correct(val: Any) -> None:
 )
 def test_is_timestamp_wrong(val: Any) -> None:
     assert not is_timestamp(val)
-
-
-@pytest.mark.parametrize(
-    "val",
-    [
-        '{"type": "rectangle", "lineColor": "#ff3333", "lineWidth": 2, '
-        '"points": [{"x": 0.08, "y": 0.16}, {"x": 0.73, "y": 0.72}], "original_index": 0}',
-        '{"type": "rectangle", "lineColor": "#000000", "lineWidth": 1, '
-        '"points": [{"x": 0.10, "y": 0.10}, {"x": 0.10, "y": 0.10}], "original_index": 1}',
-    ],
-)
-def test_is_geometry_correct(val: Any) -> None:
-    assert not find_geometry_problem(val)
-
-
-@pytest.mark.parametrize("val", ["100", 100, [0], '{"type": "polygon"}'])
-def test_is_geometry_wrong(val: Any) -> None:
-    assert find_geometry_problem(val)
 
 
 @pytest.mark.parametrize("val", ["http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA"])

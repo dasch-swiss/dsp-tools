@@ -71,6 +71,15 @@ class RegionResource:
 
         Returns:
             A region resource
+
+        Examples:
+            ```python
+            region = xmllib.RegionResource.create_new(
+                res_id="ID",
+                label="label",
+                region_of="image_id",
+            )
+            ```
         """
         return RegionResource(
             res_id=res_id,
@@ -103,6 +112,24 @@ class RegionResource:
 
         Returns:
             Region with added rectangle
+
+        Examples:
+            ```python
+            region = region.add_rectangle(
+                point1=(0.1, 0.1),
+                point2=(0.2, 0.2),
+            )
+            ```
+
+            ```python
+            # with custom display values
+            region = region.add_rectangle(
+                point1=(0.1, 0.1),
+                point2=(0.2, 0.2),
+                line_width=3,
+                color="#32a873",
+            )
+            ```
         """
         self.geometry = Rectangle(
             point1=GeometryPoint(point1[0], point1[1], self.res_id),
@@ -139,6 +166,22 @@ class RegionResource:
 
         Returns:
             Region with added polygon
+
+        Examples:
+            ```python
+            region = region.add_polygon(
+                points=[(0.1, 0.1), (0.2, 0.2), (0.3, 0.3)],
+            )
+            ```
+
+            ```python
+            # with custom display values
+            region = region.add_polygon(
+                points=[(0.1, 0.1), (0.2, 0.2), (0.3, 0.3)],
+                line_width=3,
+                color="#32a873",
+            )
+            ```
         """
         geom_points = [GeometryPoint(val[0], val[1], self.res_id) for val in points]
         self.geometry = Polygon(
@@ -172,6 +215,24 @@ class RegionResource:
 
         Returns:
             Region with added circle
+
+        Examples:
+            ```python
+            region = region.add_circle(
+                center=(0.1, 0.1),
+                radius=(0.2, 0.2),
+            )
+            ```
+
+            ```python
+            # with custom display values
+            region = region.add_circle(
+                center=(0.1, 0.1),
+                radius=(0.2, 0.2),
+                line_width=3,
+                color="#32a873",
+            )
+            ```
         """
         self.geometry = Circle(
             center=GeometryPoint(center[0], center[1], self.res_id),
@@ -185,39 +246,58 @@ class RegionResource:
 
     def add_comment(self, comment: str) -> RegionResource:
         """
-        Add a comment to the resource
+        Add a comment to the region
 
         Args:
             comment: text
 
         Returns:
-            The original resource, with the added comment
+            The original region, with the added comment
+
+        Examples:
+            ```python
+            region = region.add_comment("comment text")
+            ```
         """
         self.comments.append(comment)
         return self
 
     def add_comment_multiple(self, comments: Collection[str]) -> RegionResource:
         """
-        Add several comments to the resource
+        Add several comments to the region
 
         Args:
             comments: list of texts
 
         Returns:
-            The original resource, with the added comments
+            The original region, with the added comments
+
+        Examples:
+            ```python
+            region = region.add_comment_multiple(["comment 1", "comment 2"])
+            ```
         """
         self.comments.extend(comments)
         return self
 
     def add_comment_optional(self, comment: Any) -> RegionResource:
         """
-        If the value is not empty, add it as comment, otherwise return the resource unchanged.
+        If the value is not empty, add it as comment, otherwise return the region unchanged.
 
         Args:
             comment: text or empty value
 
         Returns:
-            The original resource, with the added comment
+            The original region, with the added comment
+
+        Examples:
+            ```python
+            region = region.add_comment_optional("comment text")
+            ```
+
+            ```python
+            region = region.add_comment_optional(None)
+            ```
         """
         if is_nonempty_value(comment):
             self.comments.append(comment)
@@ -230,7 +310,7 @@ class RegionResource:
         Add metadata from a SALSAH migration.
 
         Args:
-            creation_date: creation date of the resource in SALSAH
+            creation_date: creation date of the region in SALSAH
             iri: Original IRI in SALSAH
             ark: Original ARK in SALSAH
 
@@ -238,7 +318,15 @@ class RegionResource:
             InputError: if metadata already exists
 
         Returns:
-            The original resource, with the added metadata
+            The original region, with the added metadata
+
+        Examples:
+            ```python
+            region = region.add_migration_metadata(
+                iri="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA",
+                creation_date="1999-12-31T23:59:59.9999999+01:00"
+            )
+            ```
         """
         if self.migration_metadata:
             raise InputError(
@@ -319,6 +407,15 @@ class LinkResource:
 
         Returns:
             A link resource
+
+        Examples:
+            ```python
+            link_resource = xmllib.LinkResource.create_new(
+                res_id="ID",
+                label="label",
+                link_to=["target_resource_id_1", "target_resource_id_2"],
+            )
+            ```
         """
         return LinkResource(
             res_id=res_id,
@@ -336,6 +433,11 @@ class LinkResource:
 
         Returns:
             The original resource, with the added comment
+
+        Examples:
+            ```python
+            link_resource = link_resource.add_comment("comment text")
+            ```
         """
         self.comments.append(comment)
         return self
@@ -349,6 +451,11 @@ class LinkResource:
 
         Returns:
             The original resource, with the added comments
+
+        Examples:
+            ```python
+            link_resource = link_resource.add_comment_multiple(["comment 1", "comment 2"])
+            ```
         """
         self.comments.extend(comments)
         return self
@@ -362,6 +469,15 @@ class LinkResource:
 
         Returns:
             The original resource, with the added comment
+
+        Examples:
+            ```python
+            link_resource = link_resource.add_comment_optional("comment text")
+            ```
+
+            ```python
+            link_resource = link_resource.add_comment_optional(None)
+            ```
         """
         if is_nonempty_value(comment):
             self.comments.append(comment)
@@ -383,6 +499,14 @@ class LinkResource:
 
         Returns:
             The original resource, with the added metadata
+
+        Examples:
+            ```python
+            link_resource = link_resource.add_migration_metadata(
+                iri="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA",
+                creation_date="1999-12-31T23:59:59.9999999+01:00"
+            )
+            ```
         """
         if self.migration_metadata:
             raise InputError(
@@ -484,6 +608,17 @@ class VideoSegmentResource:
 
         Returns:
             A video segment resource
+
+        Examples:
+            ```python
+            video_segment = xmllib.VideoSegmentResource.create_new(
+                res_id="ID",
+                label="label",
+                segment_of="video_resource_id",
+                segment_start=1.2,
+                segment_end=3.4,
+            )
+            ```
         """
         return VideoSegmentResource(
             res_id=res_id,
@@ -502,6 +637,11 @@ class VideoSegmentResource:
 
         Returns:
             The original resource, with the added title
+
+        Examples:
+            ```python
+            video_segment = video_segment.add_title("segment title")
+            ```
         """
         if self.title:
             _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
@@ -517,6 +657,15 @@ class VideoSegmentResource:
 
         Returns:
             The original resource, with the added title
+
+        Examples:
+            ```python
+            video_segment = video_segment.add_title("segment title")
+            ```
+
+            ```python
+            video_segment = video_segment.add_title(None)
+            ```
         """
         if is_nonempty_value(title):
             if self.title:
@@ -533,6 +682,11 @@ class VideoSegmentResource:
 
         Returns:
             The original resource, with the added comment
+
+        Examples:
+            ```python
+            video_segment = video_segment.add_comment("comment text")
+            ```
         """
         self.comments.append(comment)
         return self
@@ -546,6 +700,11 @@ class VideoSegmentResource:
 
         Returns:
             The original resource, with the added comments
+
+        Examples:
+            ```python
+            video_segment = video_segment.add_comment_multiple(["comment 1", "comment 2"])
+            ```
         """
         self.comments.extend(comments)
         return self
@@ -559,6 +718,15 @@ class VideoSegmentResource:
 
         Returns:
             The original resource, with the added comment
+
+        Examples:
+            ```python
+            video_segment = video_segment.add_comment_optional("comment text")
+            ```
+
+            ```python
+            video_segment = video_segment.add_comment_optional(None)
+            ```
         """
         if is_nonempty_value(comment):
             self.comments.append(comment)
@@ -573,6 +741,11 @@ class VideoSegmentResource:
 
         Returns:
             The original resource, with the added description
+
+        Examples:
+            ```python
+            video_segment = video_segment.add_description("description text")
+            ```
         """
         self.descriptions.append(description)
         return self
@@ -586,6 +759,11 @@ class VideoSegmentResource:
 
         Returns:
             The original resource, with the added descriptions
+
+        Examples:
+            ```python
+            video_segment = video_segment.add_description_multiple(["description 1", "description 2"])
+            ```
         """
         self.descriptions.extend(descriptions)
         return self
@@ -599,6 +777,15 @@ class VideoSegmentResource:
 
         Returns:
             The original resource, with the added description
+
+        Examples:
+            ```python
+            video_segment = video_segment.add_description_optional("description text")
+            ```
+
+            ```python
+            video_segment = video_segment.add_description_optional(None)
+            ```
         """
         if is_nonempty_value(description):
             self.descriptions.append(description)
@@ -613,6 +800,11 @@ class VideoSegmentResource:
 
         Returns:
             The original resource, with the added keyword
+
+        Examples:
+            ```python
+            video_segment = video_segment.add_keyword("keyword")
+            ```
         """
         self.keywords.append(keyword)
         return self
@@ -626,6 +818,11 @@ class VideoSegmentResource:
 
         Returns:
             The original resource, with the added keywords
+
+        Examples:
+            ```python
+            video_segment = video_segment.add_keyword_multiple(["keyword 1", "keyword 2"])
+            ```
         """
         self.keywords.extend(keywords)
         return self
@@ -639,6 +836,15 @@ class VideoSegmentResource:
 
         Returns:
             The original resource, with the added keyword
+
+        Examples:
+            ```python
+            video_segment = video_segment.add_keyword_optional("keyword")
+            ```
+
+            ```python
+            video_segment = video_segment.add_keyword_optional(None)
+            ```
         """
         if is_nonempty_value(keyword):
             self.keywords.append(keyword)
@@ -653,6 +859,11 @@ class VideoSegmentResource:
 
         Returns:
             The original resource, with the added related resource
+
+        Examples:
+            ```python
+            video_segment = video_segment.add_relates_to("target_resource_id")
+            ```
         """
         self.relates_to.append(relates_to)
         return self
@@ -666,6 +877,11 @@ class VideoSegmentResource:
 
         Returns:
             The original resource, with the added related resources
+
+        Examples:
+            ```python
+            video_segment = video_segment.add_relates_to_multiple(["target_resource_id_1", "target_resource_id_2"])
+            ```
         """
         self.relates_to.extend(relates_to)
         return self
@@ -679,6 +895,15 @@ class VideoSegmentResource:
 
         Returns:
             The original resource, with the added related resources
+
+        Examples:
+            ```python
+            video_segment = video_segment.add_relates_to_optional("target_resource_id")
+            ```
+
+            ```python
+            video_segment = video_segment.add_relates_to_optional(None)
+            ```
         """
         if is_nonempty_value(relates_to):
             self.relates_to.append(relates_to)
@@ -700,6 +925,14 @@ class VideoSegmentResource:
 
         Returns:
             The original resource, with the added metadata
+
+        Examples:
+            ```python
+            video_segment = video_segment.add_migration_metadata(
+                iri="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA",
+                creation_date="1999-12-31T23:59:59.9999999+01:00"
+            )
+            ```
         """
         if self.migration_metadata:
             raise InputError(
@@ -785,6 +1018,11 @@ class AudioSegmentResource:
 
         Returns:
             The original resource, with the added title
+
+        Examples:
+            ```python
+            audio_segment = audio_segment.add_title("segment title")
+            ```
         """
         if self.title:
             _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
@@ -800,6 +1038,15 @@ class AudioSegmentResource:
 
         Returns:
             The original resource, with the added title
+
+        Examples:
+            ```python
+            audio_segment = audio_segment.add_title("segment title")
+            ```
+
+            ```python
+            audio_segment = audio_segment.add_title(None)
+            ```
         """
         if is_nonempty_value(title):
             if self.title:
@@ -816,6 +1063,11 @@ class AudioSegmentResource:
 
         Returns:
             The original resource, with the added comment
+
+        Examples:
+            ```python
+            audio_segment = audio_segment.add_comment("comment text")
+            ```
         """
         self.comments.append(comment)
         return self
@@ -829,6 +1081,11 @@ class AudioSegmentResource:
 
         Returns:
             The original resource, with the added comments
+
+        Examples:
+            ```python
+            audio_segment = audio_segment.add_comment_multiple(["comment 1", "comment 2"])
+            ```
         """
         self.comments.extend(comments)
         return self
@@ -842,6 +1099,15 @@ class AudioSegmentResource:
 
         Returns:
             The original resource, with the added comment
+
+        Examples:
+            ```python
+            audio_segment = audio_segment.add_comment_optional("comment text")
+            ```
+
+            ```python
+            audio_segment = audio_segment.add_comment_optional(None)
+            ```
         """
         if is_nonempty_value(comment):
             self.comments.append(comment)
@@ -856,6 +1122,11 @@ class AudioSegmentResource:
 
         Returns:
             The original resource, with the added description
+
+        Examples:
+            ```python
+            audio_segment = audio_segment.add_description("description text")
+            ```
         """
         self.descriptions.append(description)
         return self
@@ -869,6 +1140,11 @@ class AudioSegmentResource:
 
         Returns:
             The original resource, with the added descriptions
+
+        Examples:
+            ```python
+            audio_segment = audio_segment.add_description_multiple(["description 1", "description 2"])
+            ```
         """
         self.descriptions.extend(descriptions)
         return self
@@ -882,6 +1158,15 @@ class AudioSegmentResource:
 
         Returns:
             The original resource, with the added description
+
+        Examples:
+            ```python
+            audio_segment = audio_segment.add_description_optional("description text")
+            ```
+
+            ```python
+            audio_segment = audio_segment.add_description_optional(None)
+            ```
         """
         if is_nonempty_value(description):
             self.descriptions.append(description)
@@ -896,6 +1181,11 @@ class AudioSegmentResource:
 
         Returns:
             The original resource, with the added keyword
+
+        Examples:
+            ```python
+            audio_segment = audio_segment.add_keyword("keyword")
+            ```
         """
         self.keywords.append(keyword)
         return self
@@ -909,6 +1199,11 @@ class AudioSegmentResource:
 
         Returns:
             The original resource, with the added keywords
+
+        Examples:
+            ```python
+            audio_segment = audio_segment.add_keyword_multiple(["keyword 1", "keyword 2"])
+            ```
         """
         self.keywords.extend(keywords)
         return self
@@ -922,6 +1217,15 @@ class AudioSegmentResource:
 
         Returns:
             The original resource, with the added keyword
+
+        Examples:
+            ```python
+            audio_segment = audio_segment.add_keyword_optional("keyword")
+            ```
+
+            ```python
+            audio_segment = audio_segment.add_keyword_optional(None)
+            ```
         """
         if is_nonempty_value(keyword):
             self.keywords.append(keyword)
@@ -936,6 +1240,11 @@ class AudioSegmentResource:
 
         Returns:
             The original resource, with the added related resource
+
+        Examples:
+            ```python
+            audio_segment = audio_segment.add_relates_to("target_resource_id")
+            ```
         """
         self.relates_to.append(relates_to)
         return self
@@ -949,6 +1258,11 @@ class AudioSegmentResource:
 
         Returns:
             The original resource, with the added related resources
+
+        Examples:
+            ```python
+            audio_segment = audio_segment.add_relates_to_multiple(["target_resource_id_1", "target_resource_id_2"])
+            ```
         """
         self.relates_to.extend(relates_to)
         return self
@@ -962,6 +1276,15 @@ class AudioSegmentResource:
 
         Returns:
             The original resource, with the added related resources
+
+        Examples:
+            ```python
+            audio_segment = audio_segment.add_relates_to_optional("target_resource_id")
+            ```
+
+            ```python
+            audio_segment = audio_segment.add_relates_to_optional(None)
+            ```
         """
         if is_nonempty_value(relates_to):
             self.relates_to.append(relates_to)
@@ -983,6 +1306,14 @@ class AudioSegmentResource:
 
         Returns:
             The original resource, with the added metadata
+
+        Examples:
+            ```python
+            audio_segment = audio_segment.add_migration_metadata(
+                iri="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA",
+                creation_date="1999-12-31T23:59:59.9999999+01:00"
+            )
+            ```
         """
         if self.migration_metadata:
             raise InputError(

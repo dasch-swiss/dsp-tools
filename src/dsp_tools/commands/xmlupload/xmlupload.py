@@ -21,6 +21,7 @@ from dsp_tools.commands.xmlupload.models.deserialise.xmlpermission import XmlPer
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
+from dsp_tools.commands.xmlupload.models.intermediary.resource import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookup
 from dsp_tools.commands.xmlupload.models.lookup_models import Lookups
 from dsp_tools.commands.xmlupload.models.lookup_models import get_json_ld_context_for_project
@@ -352,6 +353,13 @@ def _upload_one_resource(
     intermediary_lookups: IntermediaryLookup,
     creation_attempts_of_this_round: int,
 ) -> None:
+    transformation_result = transform_into_intermediary_resource(resource, intermediary_lookups)
+    if transformation_result.resource_failure:
+        _handle_resource_creation_failure(resource, transformation_result.resource_failure.failure_msg)
+        return None
+
+    transformed_resource: IntermediaryResource = transformation_result.resource_success
+
     try:
         if resource.bitstream:
             success, media_info = ingest_client.get_bitstream_info(
@@ -368,12 +376,10 @@ def _upload_one_resource(
     except KeyboardInterrupt:
         _handle_keyboard_interrupt()
 
-    transformation_result = transform_into_intermediary_resource(resource, intermediary_lookups)
-
     iri = None
     try:
         serialised_resource = create_resource_with_values(
-            resource=resource, bitstream_information=media_info, lookup=lookups
+            resource=transformed_resource, bitstream_information=media_info, lookup=lookups
         )
         logger.info(f"Attempting to create resource {resource.res_id} (label: {resource.label})...")
         iri = resource_create_client.create_resource(serialised_resource, bool(media_info))

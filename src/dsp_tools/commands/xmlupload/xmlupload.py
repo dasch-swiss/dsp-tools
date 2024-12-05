@@ -6,6 +6,7 @@ import warnings
 from datetime import datetime
 from pathlib import Path
 from typing import Never
+from typing import cast
 
 from loguru import logger
 from lxml import etree
@@ -353,7 +354,7 @@ def _upload_one_resource(
         _handle_resource_creation_failure(resource, transformation_result.resource_failure.failure_msg)
         return None
 
-    transformed_resource: IntermediaryResource = transformation_result.resource_success
+    transformed_resource = cast(IntermediaryResource, transformation_result.resource_success)
 
     try:
         if resource.bitstream:

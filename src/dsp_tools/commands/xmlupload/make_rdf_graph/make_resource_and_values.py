@@ -2,7 +2,6 @@ from typing import Any
 
 from rdflib import BNode
 
-from dsp_tools.commands.xmlupload.make_rdf_graph.helpers import resolve_permission
 from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_serialiser import serialise_property_graph
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_file_value_graph
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_iiif_uri_value_graph
@@ -42,11 +41,13 @@ def _make_values_dict_from_resource(
 ) -> dict[str, Any]:
     res_bnode = BNode()
 
-    properties_graph, last_prop_name = make_values(resource.properties, res_bnode, lookups)
+    properties_graph, last_prop_name = make_values(resource.values, res_bnode, lookups)
 
     if resource.iiif_uri:
-        resolved_permissions = resolve_permission(resource.iiif_uri.permissions, lookups.permissions)
-        metadata = FileValueMetadata(resolved_permissions)
+        permissions = None
+        if found := resource.iiif_uri.metadata.permissions:
+            permissions = str(found)
+        metadata = FileValueMetadata(permissions)
         iiif_val = AbstractFileValue(resource.iiif_uri.value, metadata)
         iiif_g, last_prop_name = make_iiif_uri_value_graph(iiif_val, res_bnode)
         properties_graph += iiif_g
@@ -67,11 +68,14 @@ def _make_resource(resource: IntermediaryResource, lookup: IRILookup) -> dict[st
             iri=resource.migration_metadata.iri_str,
             creation_date=resource.migration_metadata.creation_date,
         )
+    permissions = None
+    if resource.permissions:
+        permissions = str(resource.permissions)
     serialise_resource = SerialiseResource(
         res_id=resource.res_id,
         res_type=resource.type_iri,
         label=resource.label,
-        permissions=resource.permissions,
+        permissions=permissions,
         project_iri=lookup.project_iri,
         migration_metadata=migration_metadata,
     )

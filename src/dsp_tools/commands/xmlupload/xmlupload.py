@@ -21,6 +21,7 @@ from dsp_tools.commands.xmlupload.models.deserialise.xmlpermission import XmlPer
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
+from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookup
 from dsp_tools.commands.xmlupload.models.lookup_models import Lookups
 from dsp_tools.commands.xmlupload.models.lookup_models import get_json_ld_context_for_project
 from dsp_tools.commands.xmlupload.models.lookup_models import make_namespace_dict_from_onto_names
@@ -39,6 +40,7 @@ from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_c
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.commands.xmlupload.stash.upload_stashed_resptr_props import upload_stashed_resptr_props
 from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import upload_stashed_xml_texts
+from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import transform_into_intermediary_resource
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.write_diagnostic_info import write_id2iri_mapping
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
@@ -262,6 +264,9 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
         project_iri=project_iri,
         media_previously_ingested=upload_state.config.media_previously_uploaded,
     )
+    intermediary_lookups = IntermediaryLookup(
+        permissions=upload_state.permissions_lookup, listnodes=listnode_lookup, namespaces=project_onto_dict
+    )
 
     progress_bar = tqdm(upload_state.pending_resources.copy(), desc="Creating Resources", dynamic_ncols=True)
     try:
@@ -272,6 +277,7 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
                 ingest_client=clients.asset_client,
                 resource_create_client=resource_create_client,
                 lookups=lookups,
+                intermediary_lookups=intermediary_lookups,
                 creation_attempts_of_this_round=creation_attempts_of_this_round,
             )
             progress_bar.set_description(f"Creating Resources (failed: {len(upload_state.failed_uploads)})")
@@ -343,6 +349,7 @@ def _upload_one_resource(
     ingest_client: AssetClient,
     resource_create_client: ResourceCreateClient,
     lookups: Lookups,
+    intermediary_lookups: IntermediaryLookup,
     creation_attempts_of_this_round: int,
 ) -> None:
     try:
@@ -360,6 +367,8 @@ def _upload_one_resource(
         _handle_permanent_connection_error(err)
     except KeyboardInterrupt:
         _handle_keyboard_interrupt()
+
+    transformation_result = transform_into_intermediary_resource(resource, intermediary_lookups)
 
     iri = None
     try:

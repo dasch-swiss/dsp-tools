@@ -46,6 +46,7 @@ class TestProjectClientLive:
         expected = {
             "a.1": "http://www.example.org/ontologies/a.1/v2",
             "a.2": "http://www.example.org/ontologies/a.2/v2",
+            "knora-api": "http://api.knora.org/ontology/knora-api/v2#",
         }
         assert ontology_name_dict == expected
 

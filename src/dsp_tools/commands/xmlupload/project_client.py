@@ -49,7 +49,7 @@ class ProjectClientLive:
         if not self.project_info:
             self.project_info = _get_project_info_from_server(self.con, self.shortcode)
         onto_dict = {_extract_name_from_onto_iri(iri): iri for iri in self.project_info.ontology_iris}
-        onto_dict["knora-api"] = "http://api.knora.org/ontology/knora-api/v2#"
+        onto_dict["knora-api"] = "http://api.knora.org/ontology/knora-api/v2"
         return onto_dict
 
 

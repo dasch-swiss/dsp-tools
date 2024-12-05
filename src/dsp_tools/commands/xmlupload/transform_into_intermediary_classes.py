@@ -39,7 +39,7 @@ from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import PermissionNotExistsError
 
 TYPE_TRANSFORMER_MAPPER: dict[str, TypeTransformerMapper] = {
-    "bool": TypeTransformerMapper(IntermediaryBoolean, transform_boolean),
+    "boolean": TypeTransformerMapper(IntermediaryBoolean, transform_boolean),
     "color": TypeTransformerMapper(IntermediaryColor, assert_is_string),
     "decimal": TypeTransformerMapper(IntermediaryDecimal, transform_decimal),
     "date": TypeTransformerMapper(IntermediaryDate, transform_date),

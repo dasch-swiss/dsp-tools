@@ -90,17 +90,15 @@ def _make_one_prop_graph(val: IntermediaryValue, res_bnode: BNode, iri_lookup: I
             | IntermediarySimpleText() as val_type
         ):
             literal_info = RDF_LITERAL_PROP_TYPE_MAPPER[type(val_type)]
-            properties_graph = _make_value_graph_with_object_literals(
+            properties_graph = _make_value_graph_with_literal_object(
                 val=val,
                 res_bn=res_bnode,
                 prop_type_info=literal_info,
             )
         case IntermediaryList():
-            properties_graph = _make_prop_graph_with_object_iri(
-                val=val, res_bn=res_bnode, prop_type_info=LIST_PROP_TYPE_INFO
-            )
+            properties_graph = _make_list_value_graph(val=val, res_bn=res_bnode, prop_type_info=LIST_PROP_TYPE_INFO)
         case IntermediaryLink():
-            properties_graph = _make_link_prop_graph(
+            properties_graph = _make_link_value_graph(
                 val=val,
                 res_bn=res_bnode,
                 prop_type_info=LINK_PROP_TYPE_INFO,
@@ -149,7 +147,7 @@ def _add_optional_triples(val_bn: BNode, permissions: Permissions | None, commen
     return g
 
 
-def _make_value_graph_with_object_literals(
+def _make_value_graph_with_literal_object(
     val: LiteralValueTypesAlias,
     prop_type_info: RDFPropTypeInfo,
     res_bn: BNode,
@@ -159,7 +157,7 @@ def _make_value_graph_with_object_literals(
     return g
 
 
-def _make_prop_graph_with_object_iri(
+def _make_list_value_graph(
     val: IntermediaryList,
     res_bn: BNode,
     prop_type_info: RDFPropTypeInfo,
@@ -169,7 +167,7 @@ def _make_prop_graph_with_object_iri(
     return g
 
 
-def _make_link_prop_graph(
+def _make_link_value_graph(
     val: IntermediaryLink,
     prop_type_info: RDFPropTypeInfo,
     res_bn: BNode,

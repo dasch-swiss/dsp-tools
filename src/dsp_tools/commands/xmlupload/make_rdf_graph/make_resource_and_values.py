@@ -2,7 +2,6 @@ from typing import Any
 
 from rdflib import BNode
 
-from dsp_tools.commands.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
 from dsp_tools.commands.xmlupload.make_rdf_graph.helpers import resolve_permission
 from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_serialiser import serialise_property_graph
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_file_value_graph
@@ -10,6 +9,7 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_iii
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import make_values
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
+from dsp_tools.commands.xmlupload.models.intermediary.resource import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.lookup_models import Lookups
 from dsp_tools.commands.xmlupload.models.rdf_models import AbstractFileValue
 from dsp_tools.commands.xmlupload.models.rdf_models import FileValueMetadata
@@ -18,7 +18,7 @@ from dsp_tools.commands.xmlupload.models.serialise_resource import SerialiseReso
 
 
 def create_resource_with_values(
-    resource: XMLResource, bitstream_information: BitstreamInfo | None, lookup: Lookups
+    resource: IntermediaryResource, bitstream_information: BitstreamInfo | None, lookup: Lookups
 ) -> dict[str, Any]:
     """
     This function takes an XMLResource and serialises it into a json-ld type dict that can be sent to the API.
@@ -61,20 +61,18 @@ def _make_values_dict_from_resource(
     return {}  # we allow resources without properties
 
 
-def _make_resource(resource: XMLResource, lookup: Lookups) -> dict[str, Any]:
+def _make_resource(resource: IntermediaryResource, lookup: Lookups) -> dict[str, Any]:
     migration_metadata = None
-    res_iri = resource.iri
-    creation_date = resource.creation_date
-    if resource.ark:
-        res_iri = convert_ark_v0_to_resource_iri(resource.ark)
-    if any([creation_date, res_iri]):
-        migration_metadata = SerialiseMigrationMetadata(iri=res_iri, creation_date=resource.creation_date)
-    resolved_permission = resolve_permission(resource.permissions, lookup.permissions)
+    if resource.migration_metadata:
+        migration_metadata = SerialiseMigrationMetadata(
+            iri=resource.migration_metadata.iri_str,
+            creation_date=resource.migration_metadata.creation_date,
+        )
     serialise_resource = SerialiseResource(
         res_id=resource.res_id,
-        res_type=resource.restype,
+        res_type=resource.type_iri,
         label=resource.label,
-        permissions=resolved_permission,
+        permissions=resource.permissions,
         project_iri=lookup.project_iri,
         migration_metadata=migration_metadata,
     )

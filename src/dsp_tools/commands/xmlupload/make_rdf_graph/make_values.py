@@ -205,8 +205,8 @@ def _make_date_value_graph(
     g = _add_optional_triples(val_bn, val.permissions, val.comment)
     g.add((res_bn, URIRef(val.prop_iri), val_bn))
     g.add((val_bn, RDF.type, KNORA_API.DateValue))
-    if cal := date.calendar.value:
-        g.add((val_bn, KNORA_API.dateValueHasCalendar, Literal(cal, datatype=XSD.string)))
+    if cal := date.calendar:
+        g.add((val_bn, KNORA_API.dateValueHasCalendar, Literal(cal.value, datatype=XSD.string)))
     g += _make_single_date_graph(val_bn, date.start, StartEnd.START)
     if date.end:
         g += _make_single_date_graph(val_bn, date.end, StartEnd.END)

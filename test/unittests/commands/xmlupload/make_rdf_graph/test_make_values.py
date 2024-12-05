@@ -246,7 +246,7 @@ class TestMakeOnePropGraphSuccess:
         date = Date(
             calendar=Calendar.GREGORIAN,
             start=SingleDate(era=Era.AD, year=476, month=9, day=4),
-            end=SingleDate(era=None, year=477, month=None, day=None),
+            end=SingleDate(era=Era.AD, year=477, month=None, day=None),
         )
         prop = IntermediaryDate(date, onto_str("hasDate"), None, None)
         result, prop_name = _make_one_prop_graph(prop, res_bn, lookups)

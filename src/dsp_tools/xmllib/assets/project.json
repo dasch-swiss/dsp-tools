@@ -1,0 +1,70 @@
+{
+    "$schema": "../../src/dsp_tools/resources/schema/project.json",
+    "project": {
+        "shortcode": "4124",
+        "shortname": "minimal-tp",
+        "longname": "minimal test project",
+        "descriptions": {
+            "en": "A minimal test project"
+        },
+        "keywords": [
+            "minimal"
+        ],
+        "lists": [
+            {
+                "name": "listName",
+                "labels": {
+                    "en": "List",
+                    "de": "Liste"
+                },
+                "comments": {
+                    "en": "This is a list"
+                },
+                "nodes": [
+                    {
+                        "name": "n1",
+                        "labels": {
+                            "en": "Node 1",
+                            "de": "Knoten 1"
+                        }
+                    },
+                    {
+                        "name": "n2",
+                        "labels": {
+                            "en": "Node 2",
+                            "de": "Knoten 2"
+                        }
+                    }
+                ]
+            }
+        ],
+        "ontologies": [
+            {
+                "name": "testonto",
+                "label": "Test ontology",
+                "properties": [
+                    {
+                        "name": "hasText",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "Text"
+                        },
+                        "gui_element": "SimpleText"
+                    }
+                ],
+                "resources": [
+                    {
+                        "name": "minimalResource",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "Minimal Resource"
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}

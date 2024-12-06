@@ -33,7 +33,7 @@ def ingest_files(creds: ServerCredentials, shortcode: str) -> bool:
 
 
 def _retrieve_mapping(bulk_ingest_client: BulkIngestClient) -> str:
-    sleeping_time = 10
+    sleeping_time = 60
     desc = f"Wait until mapping CSV is ready. Ask server every {sleeping_time} seconds "
     progress_bar = tqdm(
         bulk_ingest_client.retrieve_mapping_generator(), desc=desc, bar_format="{desc}{elapsed}", dynamic_ncols=True

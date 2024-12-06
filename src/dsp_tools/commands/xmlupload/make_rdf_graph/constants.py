@@ -1,42 +1,35 @@
 from __future__ import annotations
 
+from rdflib import XSD
 from rdflib import Namespace
 
-from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_geometry
-from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_xsd_any_uri
-from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_xsd_boolean
-from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_xsd_date_time
-from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_xsd_decimal
-from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_xsd_integer
-from dsp_tools.commands.xmlupload.make_rdf_graph.value_transformers import transform_xsd_string
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryBoolean
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryColor
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryDecimal
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryGeometry
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryGeoname
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryInt
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediarySimpleText
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryTime
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryUri
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
 
-RDF_LITERAL_TRANSFORMER_MAPPER = {
-    "boolean": transform_xsd_boolean,
-    "color": transform_xsd_string,
-    "decimal": transform_xsd_decimal,
-    "geometry": transform_geometry,
-    "geoname": transform_xsd_string,
-    "integer": transform_xsd_integer,
-    "time": transform_xsd_date_time,
-    "uri": transform_xsd_any_uri,
-}
+LIST_PROP_TYPE_INFO = RDFPropTypeInfo(KNORA_API.ListValue, KNORA_API.listValueAsListNode)
+LINK_PROP_TYPE_INFO = RDFPropTypeInfo(KNORA_API.LinkValue, KNORA_API.linkValueHasTargetIri)
+RICHTEXT_PROP_TYPE_INFO = RDFPropTypeInfo(KNORA_API.TextValue, KNORA_API.textValueAsXml)
 
-
-RDF_PROP_TYPE_MAPPER = {
-    "boolean": RDFPropTypeInfo(KNORA_API.BooleanValue, KNORA_API.booleanValueAsBoolean),
-    "color": RDFPropTypeInfo(KNORA_API.ColorValue, KNORA_API.colorValueAsColor),
-    "decimal": RDFPropTypeInfo(KNORA_API.DecimalValue, KNORA_API.decimalValueAsDecimal),
-    "geometry": RDFPropTypeInfo(KNORA_API.GeomValue, KNORA_API.geometryValueAsGeometry),
-    "geoname": RDFPropTypeInfo(KNORA_API.GeonameValue, KNORA_API.geonameValueAsGeonameCode),
-    "integer": RDFPropTypeInfo(KNORA_API.IntValue, KNORA_API.intValueAsInt),
-    "link": RDFPropTypeInfo(KNORA_API.LinkValue, KNORA_API.linkValueHasTargetIri),
-    "list": RDFPropTypeInfo(KNORA_API.ListValue, KNORA_API.listValueAsListNode),
-    "simpletext": RDFPropTypeInfo(KNORA_API.TextValue, KNORA_API.valueAsString),
-    "time": RDFPropTypeInfo(KNORA_API.TimeValue, KNORA_API.timeValueAsTimeStamp),
-    "uri": RDFPropTypeInfo(KNORA_API.UriValue, KNORA_API.uriValueAsUri),
+RDF_LITERAL_PROP_TYPE_MAPPER = {
+    IntermediaryBoolean: RDFPropTypeInfo(KNORA_API.BooleanValue, KNORA_API.booleanValueAsBoolean, XSD.boolean),
+    IntermediaryColor: RDFPropTypeInfo(KNORA_API.ColorValue, KNORA_API.colorValueAsColor, XSD.string),
+    IntermediaryDecimal: RDFPropTypeInfo(KNORA_API.DecimalValue, KNORA_API.decimalValueAsDecimal, XSD.decimal),
+    IntermediaryGeometry: RDFPropTypeInfo(KNORA_API.GeomValue, KNORA_API.geometryValueAsGeometry, XSD.string),
+    IntermediaryGeoname: RDFPropTypeInfo(KNORA_API.GeonameValue, KNORA_API.geonameValueAsGeonameCode, XSD.string),
+    IntermediaryInt: RDFPropTypeInfo(KNORA_API.IntValue, KNORA_API.intValueAsInt, XSD.integer),
+    IntermediarySimpleText: RDFPropTypeInfo(KNORA_API.TextValue, KNORA_API.valueAsString, XSD.string),
+    IntermediaryTime: RDFPropTypeInfo(KNORA_API.TimeValue, KNORA_API.timeValueAsTimeStamp, XSD.dateTimeStamp),
+    IntermediaryUri: RDFPropTypeInfo(KNORA_API.UriValue, KNORA_API.uriValueAsUri, XSD.anyURI),
 }
 
 

@@ -85,7 +85,7 @@ def test_one_resource_without_links(ingest_client_mock: AssetClient) -> None:
     expected = {
         "route": "/v2/resources",
         "data": {
-            "@type": "my_onto:foo_1_type",
+            "@type": "http://0.0.0.0:3333/ontology/9999/onto/v2#foo_1_type",
             "rdfs:label": "foo_1_label",
             "knora-api:attachedToProject": {"@id": "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"},
             "@context": {},
@@ -131,7 +131,7 @@ def test_one_resource_with_link_to_existing_resource(ingest_client_mock: AssetCl
     expected = {
         "route": "/v2/resources",
         "data": {
-            "@type": "my_onto:foo_1_type",
+            "@type": "http://0.0.0.0:3333/ontology/9999/onto/v2#foo_1_type",
             "rdfs:label": "foo_1_label",
             "knora-api:attachedToProject": {"@id": "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"},
             "@context": {},

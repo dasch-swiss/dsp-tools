@@ -181,17 +181,15 @@ def _make_link_value_graph(
 
 def _resolve_id_to_iri(value: str, iri_resolver: IriResolver) -> str:
     if is_resource_iri(value):
-        iri_str = value
+        return value
     elif resolved_iri := iri_resolver.get(value):
-        iri_str = resolved_iri
-    else:
-        msg = (
-            f"Could not find the ID {value} in the id2iri mapping. "
-            f"This is probably because the resource '{value}' could not be created. "
-            f"See {WARNINGS_SAVEPATH} for more information."
-        )
-        raise BaseError(msg)
-    return iri_str
+        return resolved_iri
+    msg = (
+        f"Could not find the ID {value} in the id2iri mapping. "
+        f"This is probably because the resource '{value}' could not be created. "
+        f"See {WARNINGS_SAVEPATH} for more information."
+    )
+    raise BaseError(msg)
 
 
 def _make_date_value_graph(

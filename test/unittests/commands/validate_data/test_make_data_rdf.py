@@ -278,7 +278,7 @@ class TestTransformFileValue:
         assert result.value == Literal(bitstream.value)
 
     @pytest.mark.parametrize("extension", ["mp3", "wav"])
-    def test_audio_file(self, extension: str):
+    def test_audio_file(self, extension: str) -> None:
         bitstream = BitstreamDeserialised("id", f"test.{extension}")
         result = _transform_file_value(bitstream)
         assert isinstance(result, FileValueRDF)

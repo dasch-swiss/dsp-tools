@@ -284,6 +284,11 @@ class TestTransformFileValue:
         assert isinstance(result, FileValueRDF)
         assert result.prop_type_info.knora_type == KNORA_API.AudioFileValue
         assert result.value == Literal(bitstream.value)
+        bitstream = BitstreamDeserialised("id", f"test.{extension.upper()}")
+        result = _transform_file_value(bitstream)
+        assert isinstance(result, FileValueRDF)
+        assert result.prop_type_info.knora_type == KNORA_API.AudioFileValue
+        assert result.value == Literal(bitstream.value)
 
     def test_other(self) -> None:
         bitstream = BitstreamDeserialised("id", "test.other")

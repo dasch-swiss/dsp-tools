@@ -18,10 +18,15 @@
         <bitstream>this/is/filepath/file.mp3</bitstream>
     </resource>
 
+    <!--
     <resource label="TestAudioRepresentation" restype=":TestAudioRepresentation" id="id_audio_wav">
         <bitstream>this/is/filepath/file.wav</bitstream>
     </resource>
 
+    <resource label="TestAudioRepresentation" restype=":TestAudioRepresentation" id="id_audio_wav_capitalised">
+        <bitstream>this/is/filepath/file.WAV</bitstream>
+    </resource>
+-->
     <!-- DocumentRepresentation -->
 
     <resource label="TestDocumentRepresentation" restype=":TestDocumentRepresentation" id="id_document">
@@ -32,6 +37,11 @@
 
     <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="id_video">
         <bitstream>this/is/filepath/file.mp4</bitstream>
+    </resource>
+
+
+    <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="id_video_capitalised">
+        <bitstream>this/is/filepath/file.MP4</bitstream>
     </resource>
 
     <!-- StillImageRepresentation -->

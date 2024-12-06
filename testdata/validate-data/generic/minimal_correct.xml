@@ -6,6 +6,23 @@
        shortcode="9999"
        default-ontology="onto">
 
+    <permissions id="open">
+        <allow group="UnknownUser">V</allow>
+        <allow group="KnownUser">V</allow>
+        <allow group="ProjectMember">D</allow>
+        <allow group="ProjectAdmin">CR</allow>
+    </permissions>
+    <permissions id="restricted-view">
+        <allow group="UnknownUser">RV</allow>
+        <allow group="KnownUser">RV</allow>
+        <allow group="ProjectMember">D</allow>
+        <allow group="ProjectAdmin">CR</allow>
+    </permissions>
+    <permissions id="restricted">
+        <allow group="ProjectMember">D</allow>
+        <allow group="ProjectAdmin">CR</allow>
+    </permissions>
+
     <resource label="Empty" restype=":ClassWithEverything" id="id_empty"/>
 
     <resource label="Bool" restype=":ClassWithEverything" id="id_bool">
@@ -82,7 +99,7 @@
     </resource>
 
     <resource label="Image" restype=":TestStillImageRepresentation" id="id_image">
-        <bitstream>this/is/filepath/img.jpg</bitstream>
+        <bitstream>testdata/bitstreams/test.png</bitstream>
     </resource>
 
     <resource label="Class of second ontology" restype="second-onto:SecondOntoClass" id="second_onto_class">
@@ -99,7 +116,7 @@
             <color permissions="restricted">#5d1f1e</color>
         </color-prop>
         <resptr-prop name="isRegionOf">
-            <resptr permissions="open">image_thing_0</resptr>
+            <resptr permissions="open">id_image</resptr>
         </resptr-prop>
         <geometry-prop name="hasGeometry">
             <geometry permissions="open">

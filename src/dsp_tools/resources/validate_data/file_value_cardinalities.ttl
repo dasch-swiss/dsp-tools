@@ -22,8 +22,30 @@
 # AudioRepresentation
 ###########################
 
-# knora-api:AudioFileValue -> knora-api:hasAudioFileValue
+api-shapes:hasAudioFileValue_PropShape
+  a           sh:PropertyShape ;
+  sh:path     knora-api:hasAudioFileValue ;
+  sh:minCount 1 ;
+  sh:maxCount 1 ;
+  sh:message  "An AudioRepresentation requires a file with one of the following extensions 'mp3', 'wav'." ;
+  sh:node     api-shapes:AudioFileValue_ClassShape .
 
+api-shapes:AudioFileValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "AudioFileValue" ;
+  sh:class    knora-api:AudioFileValue ;
+  sh:property [
+                a           sh:PropertyShape ;
+                sh:path     knora-api:fileValueHasFilename ;
+                sh:minCount 1 ;
+                sh:maxCount 1 ;
+                sh:pattern  ".+\\.(mp3|wav)$" ;
+                sh:flags "i" ; # case insensitive
+                sh:severity sh:Violation ;
+                sh:message  "An AudioRepresentation requires a file with one of the following extensions 'mp3', 'wav'." ;
+              ] ;
+  sh:severity sh:Violation .
 
 ###########################
 # DocumentRepresentation
@@ -55,6 +77,7 @@ api-shapes:MovingImageFileValue_ClassShape
                 sh:minCount 1 ;
                 sh:maxCount 1 ;
                 sh:pattern  ".+\\.mp4$" ;
+                sh:flags "i" ; # case insensitive
                 sh:severity sh:Violation ;
                 sh:message  "A MovingImageRepresentation requires a file with the extension 'mp4'." ;
               ] ;

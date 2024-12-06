@@ -392,7 +392,12 @@ class TestReformatValidationGraph:
 
     def test_reformat_file_value_violation(self, file_value_violation: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(file_value_violation)
-        expected_info_tuples = ["id_video_missing", "id_video_wrong_extension"]
+        expected_info_tuples = [
+            "id_audio_missing",
+            "id_audio_wrong_extension",
+            "id_video_missing",
+            "id_video_wrong_extension",
+        ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)

@@ -25,16 +25,17 @@ from dsp_tools.commands.validate_data.models.data_rdf import BooleanValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import ColorValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import DateValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import DecimalValueRDF
+from dsp_tools.commands.validate_data.models.data_rdf import FileValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import GeonameValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import IntValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import LinkValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import ListValueRDF
-from dsp_tools.commands.validate_data.models.data_rdf import MovingImageFileValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import ResourceRDF
 from dsp_tools.commands.validate_data.models.data_rdf import RichtextRDF
 from dsp_tools.commands.validate_data.models.data_rdf import SimpleTextRDF
 from dsp_tools.commands.validate_data.models.data_rdf import TimeValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import UriValueRDF
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import KNORA_API
 from test.unittests.commands.validate_data.constants import DATA
 
 
@@ -272,7 +273,8 @@ class TestTransformFileValue:
     def test_moving_image(self) -> None:
         bitstream = BitstreamDeserialised("id", "test.mp4")
         result = _transform_file_value(bitstream)
-        assert isinstance(result, MovingImageFileValueRDF)
+        assert isinstance(result, FileValueRDF)
+        assert result.prop_type_info.knora_type == KNORA_API.MovingImageFileValue
         assert result.value == Literal(bitstream.value)
 
     def test_other(self) -> None:

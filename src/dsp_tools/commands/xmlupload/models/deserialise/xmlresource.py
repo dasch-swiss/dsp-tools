@@ -133,7 +133,7 @@ class XMLResource:
                     prop_type, _ = subnode.tag.split("-")
                     ungrouped_properties.append(XMLProperty.from_node(subnode, prop_type, default_ontology))
                 case _:
-                    raise XmlUploadError(f"Unexpected tag '{subnode.tag}'")
+                    raise XmlUploadError(f"Unexpected tag '{subnode.tag!s}'")
         grouped_properties = XMLResource._group_props(ungrouped_properties)
         return bitstream, iiif_uri, grouped_properties
 

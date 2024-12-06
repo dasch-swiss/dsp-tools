@@ -241,7 +241,8 @@ class TestAddValues:
         with pytest.warns(
             DspToolsUserWarning, match=regex.escape("a 'string' does not conform to the expected format")
         ):
-            Resource.create_new("res_id", "restype", "label").add_richtext("", "")
+            with pytest.warns(DspToolsUserWarning, match=regex.escape("has a richtext value that is not a string")):
+                Resource.create_new("res_id", "restype", "label").add_richtext("", "")
 
     def test_add_richtext_warns_pd_na(self) -> None:
         with pytest.warns(

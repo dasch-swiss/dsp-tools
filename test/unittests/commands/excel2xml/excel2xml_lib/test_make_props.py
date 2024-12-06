@@ -437,19 +437,19 @@ class TestTextProp:
 class TestBitstreamProp:
     def test_make_bitstream_prop_from_string(self) -> None:
         res = excel2xml.make_bitstream_prop("foo/bar/baz.txt")
-        assert res.tag.endswith("bitstream")
+        assert str(res.tag).endswith("bitstream")
         assert res.attrib["permissions"] == "open"
         assert res.text == "foo/bar/baz.txt"
 
     def test_make_bitstream_prop_from_path(self) -> None:
         res = excel2xml.make_bitstream_prop(Path("foo/bar/baz.txt"))
-        assert res.tag.endswith("bitstream")
+        assert str(res.tag).endswith("bitstream")
         assert res.attrib["permissions"] == "open"
         assert res.text == "foo/bar/baz.txt"
 
     def test_make_bitstream_prop_custom_permissions(self) -> None:
         res = excel2xml.make_bitstream_prop("foo/bar/baz.txt", "restricted")
-        assert res.tag.endswith("bitstream")
+        assert str(res.tag).endswith("bitstream")
         assert res.attrib["permissions"] == "restricted"
         assert res.text == "foo/bar/baz.txt"
 
@@ -460,14 +460,14 @@ class TestBitstreamProp:
                 res = excel2xml.make_bitstream_prop("testdata/bitstreams/test.jpg", check=True)
             except UserWarning as e:
                 raise AssertionError from e
-        assert res.tag.endswith("bitstream")
+        assert str(res.tag).endswith("bitstream")
         assert res.attrib["permissions"] == "open"
         assert res.text == "testdata/bitstreams/test.jpg"
 
     def test_make_bitstream_prop_invalid_file(self) -> None:
         with pytest.warns(DspToolsUserWarning, match=".*Failed validation in bitstream tag.*"):
             res = excel2xml.make_bitstream_prop("foo/bar/baz.txt", check=True)
-        assert res.tag.endswith("bitstream")
+        assert str(res.tag).endswith("bitstream")
         assert res.attrib["permissions"] == "open"
         assert res.text == "foo/bar/baz.txt"
 
@@ -479,14 +479,14 @@ class TestBitstreamProp:
 class Test_isSegmentOf_and_relatesTo_Prop:
     def test_defaults(self, tag: str, func: Callable[..., etree._Element]) -> None:
         res = func("target_id")
-        assert res.tag.endswith(tag)
+        assert str(res.tag).endswith(tag)
         assert res.attrib["permissions"] == "open"
         assert "comment" not in res.attrib
         assert res.text == "target_id"
 
     def test_custom_params(self, tag: str, func: Callable[..., etree._Element]) -> None:
         res = func("target_id", "restricted", "my comment")
-        assert res.tag.endswith(tag)
+        assert str(res.tag).endswith(tag)
         assert res.attrib["permissions"] == "restricted"
         assert res.attrib["comment"] == "my comment"
         assert res.text == "target_id"
@@ -494,7 +494,7 @@ class Test_isSegmentOf_and_relatesTo_Prop:
     def test_invalid(self, tag: str, func: Callable[..., etree._Element]) -> None:
         with pytest.warns(DspToolsUserWarning):
             res = func("<NA>")
-        assert res.tag.endswith(tag)
+        assert str(res.tag).endswith(tag)
         assert res.attrib["permissions"] == "open"
         assert "comment" not in res.attrib
         assert res.text == "<NA>"
@@ -503,7 +503,7 @@ class Test_isSegmentOf_and_relatesTo_Prop:
 class Test_hasSegmentBounds_Prop:
     def test_defaults(self) -> None:
         res = excel2xml.make_hasSegmentBounds_prop(100, 200)
-        assert res.tag.endswith("hasSegmentBounds")
+        assert str(res.tag).endswith("hasSegmentBounds")
         assert res.attrib["permissions"] == "open"
         assert "comment" not in res.attrib
         assert res.attrib["segment_start"] == "100"
@@ -512,7 +512,7 @@ class Test_hasSegmentBounds_Prop:
 
     def test_custom_params(self) -> None:
         res = excel2xml.make_hasSegmentBounds_prop(10, 20, "restricted", "my comment")
-        assert res.tag.endswith("hasSegmentBounds")
+        assert str(res.tag).endswith("hasSegmentBounds")
         assert res.attrib["permissions"] == "restricted"
         assert res.attrib["comment"] == "my comment"
         assert res.attrib["segment_start"] == "10"
@@ -521,7 +521,7 @@ class Test_hasSegmentBounds_Prop:
 
     def test_floats(self) -> None:
         res = excel2xml.make_hasSegmentBounds_prop(1.2, 3.4)
-        assert res.tag.endswith("hasSegmentBounds")
+        assert str(res.tag).endswith("hasSegmentBounds")
         assert res.attrib["permissions"] == "open"
         assert "comment" not in res.attrib
         assert res.attrib["segment_start"] == "1.2"
@@ -530,7 +530,7 @@ class Test_hasSegmentBounds_Prop:
 
     def test_nums_as_strings(self) -> None:
         res = excel2xml.make_hasSegmentBounds_prop("1.2", "3")  # type: ignore[arg-type]
-        assert res.tag.endswith("hasSegmentBounds")
+        assert str(res.tag).endswith("hasSegmentBounds")
         assert res.attrib["permissions"] == "open"
         assert "comment" not in res.attrib
         assert res.attrib["segment_start"] == "1.2"
@@ -540,7 +540,7 @@ class Test_hasSegmentBounds_Prop:
     def test_start_less_than_end(self) -> None:
         with pytest.warns(DspToolsUserWarning, match="must be less than"):
             res = excel2xml.make_hasSegmentBounds_prop(5, 3)
-        assert res.tag.endswith("hasSegmentBounds")
+        assert str(res.tag).endswith("hasSegmentBounds")
         assert res.attrib["permissions"] == "open"
         assert "comment" not in res.attrib
         assert res.attrib["segment_start"] == "5"
@@ -550,7 +550,7 @@ class Test_hasSegmentBounds_Prop:
     def test_not_a_number(self) -> None:
         with pytest.warns(DspToolsUserWarning, match="must be integers or floats"):
             res = excel2xml.make_hasSegmentBounds_prop(segment_start="foo", segment_end=2)  # type: ignore[arg-type]
-        assert res.tag.endswith("hasSegmentBounds")
+        assert str(res.tag).endswith("hasSegmentBounds")
         assert res.attrib["permissions"] == "open"
         assert "comment" not in res.attrib
         assert res.attrib["segment_start"] == "foo"
@@ -565,14 +565,14 @@ class Test_hasSegmentBounds_Prop:
 class Test_hasTitle_hasKeyword:
     def test_defaults(self, tag: str, func: Callable[..., etree._Element]) -> None:
         res = func("my text ...")
-        assert res.tag.endswith(tag)
+        assert str(res.tag).endswith(tag)
         assert res.attrib["permissions"] == "open"
         assert "comment" not in res.attrib
         assert res.text == "my text ..."
 
     def test_custom_params(self, tag: str, func: Callable[..., etree._Element]) -> None:
         res = func("my text ...", "restricted", "my comment")
-        assert res.tag.endswith(tag)
+        assert str(res.tag).endswith(tag)
         assert res.attrib["permissions"] == "restricted"
         assert res.attrib["comment"] == "my comment"
         assert res.text == "my text ..."
@@ -580,7 +580,7 @@ class Test_hasTitle_hasKeyword:
     def test_invalid(self, tag: str, func: Callable[..., etree._Element]) -> None:
         with pytest.warns(DspToolsUserWarning):
             res = func("<NA>")
-        assert res.tag.endswith(tag)
+        assert str(res.tag).endswith(tag)
         assert res.attrib["permissions"] == "open"
         assert "comment" not in res.attrib
         assert res.text == "<NA>"
@@ -593,14 +593,14 @@ class Test_hasTitle_hasKeyword:
 class Test_hasComment_hasDescription:
     def test_defaults(self, tag: str, func: Callable[..., etree._Element]) -> None:
         res = func("my text ...")
-        assert res.tag.endswith(tag)
+        assert str(res.tag).endswith(tag)
         assert res.attrib["permissions"] == "open"
         assert "comment" not in res.attrib
         assert res.text == "my text ..."
 
     def test_custom_params(self, tag: str, func: Callable[..., etree._Element]) -> None:
         res = func("my text ...", "restricted", "my comment")
-        assert res.tag.endswith(tag)
+        assert str(res.tag).endswith(tag)
         assert res.attrib["permissions"] == "restricted"
         assert res.attrib["comment"] == "my comment"
         assert res.text == "my text ..."
@@ -608,7 +608,7 @@ class Test_hasComment_hasDescription:
     def test_invalid(self, tag: str, func: Callable[..., etree._Element]) -> None:
         with pytest.warns(DspToolsUserWarning):
             res = func("<NA>")
-        assert res.tag.endswith(tag)
+        assert str(res.tag).endswith(tag)
         assert res.attrib["permissions"] == "open"
         assert "comment" not in res.attrib
         assert res.text == "<NA>"
@@ -616,7 +616,7 @@ class Test_hasComment_hasDescription:
     def test_richtext(self, tag: str, func: Callable[..., etree._Element]) -> None:
         text = "<p>my <strong>bold <em>and italiziced</em></strong> text ...</p>"
         res = func(text)
-        assert res.tag.endswith(tag)
+        assert str(res.tag).endswith(tag)
         assert res.attrib["permissions"] == "open"
         assert "comment" not in res.attrib
         serialized_text = regex.sub(rf"<ns0:{tag} .+?>|</ns0:{tag}>", "", etree.tostring(res, encoding="unicode"))

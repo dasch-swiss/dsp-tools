@@ -45,7 +45,7 @@ RES_ONE_URI = URIRef("http://rdfh.ch/9999/res_one")
 OPEN_PERMISSION = Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})
 
 
-def onto_str(prop: str) -> str:
+def absolute_iri(prop: str) -> str:
     return f"http://0.0.0.0:3333/ontology/9999/onto/v2#{prop}"
 
 
@@ -61,7 +61,7 @@ def lookups() -> IRILookups:
 class TestMakeOneValueGraphSuccess:
     def test_boolean(self, lookups: IRILookups) -> None:
         res_bn = BNode()
-        prop = IntermediaryBoolean(True, onto_str("isTrueOrFalse"), None, OPEN_PERMISSION)
+        prop = IntermediaryBoolean(True, absolute_iri("isTrueOrFalse"), None, OPEN_PERMISSION)
         result, prop_name = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 4
         assert prop_name == ONTO.isTrueOrFalse
@@ -75,7 +75,7 @@ class TestMakeOneValueGraphSuccess:
 
     def test_color(self, lookups: IRILookups) -> None:
         res_bn = BNode()
-        prop = IntermediaryColor("#5d1f1e", onto_str("hasColor"), None, None)
+        prop = IntermediaryColor("#5d1f1e", absolute_iri("hasColor"), None, None)
         result, prop_name = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 3
         assert prop_name == ONTO.hasColor
@@ -87,7 +87,7 @@ class TestMakeOneValueGraphSuccess:
 
     def test_decimal(self, lookups: IRILookups) -> None:
         res_bn = BNode()
-        prop = IntermediaryDecimal(2.718281828459, onto_str("hasDecimal"), "Eulersche Zahl", None)
+        prop = IntermediaryDecimal(2.718281828459, absolute_iri("hasDecimal"), "Eulersche Zahl", None)
         result, prop_name = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 4
         assert prop_name == ONTO.hasDecimal
@@ -104,7 +104,7 @@ class TestMakeOneValueGraphSuccess:
         prop = IntermediaryGeometry(
             '{"status": "active", "type": "polygon", "lineWidth": 5, '
             '"points": [{"x": 0.4, "y": 0.6}, {"x": 0.5, "y": 0.9}, {"x": 0.8, "y": 0.9}, {"x": 0.7, "y": 0.6}]}',
-            onto_str("hasGeometry"),
+            absolute_iri("hasGeometry"),
             None,
             None,
         )
@@ -119,7 +119,7 @@ class TestMakeOneValueGraphSuccess:
 
     def test_geoname(self, lookups: IRILookups) -> None:
         res_bn = BNode()
-        prop = IntermediaryGeoname("5416656", onto_str("hasGeoname"), None, None)
+        prop = IntermediaryGeoname("5416656", absolute_iri("hasGeoname"), None, None)
         result, prop_name = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 3
         assert prop_name == ONTO.hasGeoname
@@ -131,7 +131,7 @@ class TestMakeOneValueGraphSuccess:
 
     def test_integer(self, lookups: IRILookups) -> None:
         res_bn = BNode()
-        prop = IntermediaryInt(1, onto_str("hasInteger"), "comment", None)
+        prop = IntermediaryInt(1, absolute_iri("hasInteger"), "comment", None)
         result, prop_name = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 4
         assert prop_name == ONTO.hasInteger
@@ -143,7 +143,7 @@ class TestMakeOneValueGraphSuccess:
 
     def test_time(self, lookups: IRILookups) -> None:
         res_bn = BNode()
-        prop = IntermediaryTime("2019-10-23T13:45:12.01-14:00", onto_str("hasTime"), None, None)
+        prop = IntermediaryTime("2019-10-23T13:45:12.01-14:00", absolute_iri("hasTime"), None, None)
         result, prop_name = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 3
         assert prop_name == ONTO.hasTime
@@ -155,7 +155,7 @@ class TestMakeOneValueGraphSuccess:
 
     def test_uri(self, lookups: IRILookups) -> None:
         res_bn = BNode()
-        prop = IntermediaryUri("https://dasch.swiss", onto_str("hasUri"), None, None)
+        prop = IntermediaryUri("https://dasch.swiss", absolute_iri("hasUri"), None, None)
         result, prop_name = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 3
         assert prop_name == ONTO.hasUri
@@ -167,7 +167,7 @@ class TestMakeOneValueGraphSuccess:
 
     def test_list(self, lookups: IRILookups) -> None:
         res_bn = BNode()
-        prop = IntermediaryList("http://rdfh.ch/9999/node", onto_str("hasListItem"), None, None)
+        prop = IntermediaryList("http://rdfh.ch/9999/node", absolute_iri("hasListItem"), None, None)
         result, prop_name = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 3
         assert prop_name == ONTO.hasListItem
@@ -179,7 +179,7 @@ class TestMakeOneValueGraphSuccess:
 
     def test_resptr(self, lookups: IRILookups) -> None:
         res_bn = BNode()
-        prop = IntermediaryLink("res_one", onto_str("hasResource"), None, None)
+        prop = IntermediaryLink("res_one", absolute_iri("hasResource"), None, None)
         result, prop_name = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 3
         assert prop_name == ONTO.hasResourceValue
@@ -191,7 +191,7 @@ class TestMakeOneValueGraphSuccess:
 
     def test_simpletext(self, lookups: IRILookups) -> None:
         res_bn = BNode()
-        prop = IntermediarySimpleText("Text", onto_str("hasSimpleText"), None, None)
+        prop = IntermediarySimpleText("Text", absolute_iri("hasSimpleText"), None, None)
         result, prop_name = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 3
         assert prop_name == ONTO.hasSimpleText
@@ -204,7 +204,7 @@ class TestMakeOneValueGraphSuccess:
     def test_richtext(self, lookups: IRILookups) -> None:
         res_bn = BNode()
         prop = IntermediaryRichtext(
-            FormattedTextValue("Text"), onto_str("hasRichtext"), None, OPEN_PERMISSION, resource_references=set()
+            FormattedTextValue("Text"), absolute_iri("hasRichtext"), None, OPEN_PERMISSION, resource_references=set()
         )
         result, prop_name = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 5
@@ -224,7 +224,7 @@ class TestMakeOneValueGraphSuccess:
         res_bn = BNode()
         text = 'Comment with <a class="salsah-link" href="IRI:res_one:IRI">link to res_one'
         prop = IntermediaryRichtext(
-            FormattedTextValue(text), onto_str("hasRichtext"), None, None, resource_references=set("res_one")
+            FormattedTextValue(text), absolute_iri("hasRichtext"), None, None, resource_references=set("res_one")
         )
         result, prop_name = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 4
@@ -249,7 +249,7 @@ class TestMakeOneValueGraphSuccess:
             start=SingleDate(era=Era.AD, year=476, month=9, day=4),
             end=SingleDate(era=Era.AD, year=477, month=None, day=None),
         )
-        prop = IntermediaryDate(date, onto_str("hasDate"), None, None)
+        prop = IntermediaryDate(date, absolute_iri("hasDate"), None, None)
         result, prop_name = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 9
         assert prop_name == ONTO.hasDate
@@ -313,7 +313,7 @@ class TestMakeOneValueGraphSuccess:
 
 def test_link_target_not_found(lookups: IRILookups) -> None:
     res_bn = BNode()
-    prop = IntermediaryLink("non_existing", onto_str("hasResource"), None, None)
+    prop = IntermediaryLink("non_existing", absolute_iri("hasResource"), None, None)
     err_str = regex.escape(
         (
             "Could not find the ID non_existing in the id2iri mapping. "
@@ -329,7 +329,7 @@ def test_richtext_with_reference_not_found(lookups: IRILookups) -> None:
     res_bn = BNode()
     text = 'Comment with <a class="salsah-link" href="IRI:nonExisingReference:IRI">link to res_one'
     prop = IntermediaryRichtext(
-        FormattedTextValue(text), onto_str("hasRichtext"), None, None, resource_references=set("nonExisingReference")
+        FormattedTextValue(text), absolute_iri("hasRichtext"), None, None, resource_references=set("nonExisingReference")
     )
     err_str = regex.escape("Internal ID 'nonExisingReference' could not be resolved to an IRI")
     with pytest.raises(BaseError, match=err_str):

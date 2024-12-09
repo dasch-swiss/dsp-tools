@@ -10,6 +10,7 @@ from dsp_tools.commands.xmlupload.models.intermediary.resource import Intermedia
 from dsp_tools.commands.xmlupload.models.intermediary.resource import MigrationMetadata
 from dsp_tools.commands.xmlupload.models.intermediary.resource import ResourceInputConversionFailure
 from dsp_tools.commands.xmlupload.models.intermediary.resource import ResourceTransformationOutput
+from dsp_tools.commands.xmlupload.models.intermediary.resource import ResourceTransformationResults
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryBoolean
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryColor
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryDate
@@ -51,6 +52,32 @@ TYPE_TRANSFORMER_MAPPER: dict[str, TypeTransformerMapper] = {
     "time": TypeTransformerMapper(IntermediaryTime, assert_is_string),
     "uri": TypeTransformerMapper(IntermediaryUri, assert_is_string),
 }
+
+
+def transform_all_resources_into_intermediary_format(
+    resources: list[XMLResource], lookups: IntermediaryLookups
+) -> ResourceTransformationResults:
+    """
+    Takes all XMLResources parsed from the XML file and converts them into the Intermediary format.
+    Permissions, relative IRIs, etc. are resolved in this step.
+
+    Args:
+        resources: list of resources
+        lookups: lookup for permissions, prefixes, etc.
+
+    Returns:
+        An object containing the transformation successes and failures
+    """
+    successes = []
+    failures = []
+    for res in resources:
+        try:
+            transformed = _transform_one_resource(res, lookups)
+            successes.append(transformed)
+        except (PermissionNotExistsError, InputError) as e:
+            transformation_failure = ResourceInputConversionFailure(res.res_id, str(e))
+            failures.append(transformation_failure)
+    return ResourceTransformationResults(successes, failures)
 
 
 def transform_into_intermediary_resource(

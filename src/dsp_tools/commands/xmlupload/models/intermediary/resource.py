@@ -16,6 +16,12 @@ class ResourceTransformationOutput:
 
 
 @dataclass
+class ResourceTransformationResults:
+    resource_successes: list[IntermediaryResource]
+    resource_failures: list[ResourceInputConversionFailure]
+
+
+@dataclass
 class ResourceInputConversionFailure:
     resource_id: str
     failure_msg: str

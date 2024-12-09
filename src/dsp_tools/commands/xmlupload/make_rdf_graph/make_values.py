@@ -69,14 +69,14 @@ def make_values(values: list[IntermediaryValue], res_bnode: BNode, lookups: IRIL
     # To frame the json-ld correctly, we need one property used in the graph. It does not matter which.
     last_prop_name = None
 
-    for prop in values:
-        single_prop_graph, last_prop_name = _make_one_prop_graph(val=prop, res_bnode=res_bnode, iri_lookup=lookups)
+    for val in values:
+        single_prop_graph, last_prop_name = _make_one_value_graph(val=val, res_bnode=res_bnode, iri_lookup=lookups)
         properties_graph += single_prop_graph
 
     return properties_graph, last_prop_name
 
 
-def _make_one_prop_graph(val: IntermediaryValue, res_bnode: BNode, iri_lookup: IRILookups) -> tuple[Graph, URIRef]:
+def _make_one_value_graph(val: IntermediaryValue, res_bnode: BNode, iri_lookup: IRILookups) -> tuple[Graph, URIRef]:
     match val:
         case (
             IntermediaryBoolean()
@@ -87,9 +87,9 @@ def _make_one_prop_graph(val: IntermediaryValue, res_bnode: BNode, iri_lookup: I
             | IntermediaryInt()
             | IntermediaryTime()
             | IntermediaryUri()
-            | IntermediarySimpleText() as val_type
+            | IntermediarySimpleText()
         ):
-            literal_info = RDF_LITERAL_PROP_TYPE_MAPPER[type(val_type)]
+            literal_info = RDF_LITERAL_PROP_TYPE_MAPPER[type(val)]
             properties_graph = _make_value_graph_with_literal_object(
                 val=val,
                 res_bn=res_bnode,
@@ -123,6 +123,7 @@ def _make_one_prop_graph(val: IntermediaryValue, res_bnode: BNode, iri_lookup: I
             )
         case _:
             raise UserError(f"Unknown value type: {type(val).__name__}")
+    # This turns the property IRI as string into a rdflib variable, suitable for framing the JSON
     return properties_graph, URIRef(val.prop_iri)
 
 

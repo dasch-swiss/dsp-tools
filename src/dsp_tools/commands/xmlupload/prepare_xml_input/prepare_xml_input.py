@@ -47,7 +47,7 @@ def _parse_xml(imgdir: str, input_file: Path) -> tuple[str, etree._Element, str]
     return default_ontology, root, shortcode
 
 
-def prepare_upload(
+def prepare_upload_from_root(
     root: etree._Element,
     ontology_client: OntologyClient,
 ) -> tuple[list[XMLResource], dict[str, Permissions], Stash | None]:

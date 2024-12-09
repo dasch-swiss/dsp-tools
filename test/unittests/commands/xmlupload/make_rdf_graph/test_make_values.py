@@ -213,7 +213,8 @@ class TestMakeOneValueGraphSuccess:
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.TextValue
         value = next(result.objects(val_bn, KNORA_API.textValueAsXml))
-        assert value == Literal('<?xml version="1.0" encoding="UTF-8"?><text>Text</text>', datatype=XSD.string)
+        # FormattedTextValue adds a newline after the xml declaration
+        assert value == Literal('<?xml version="1.0" encoding="UTF-8"?>\n<text>Text</text>', datatype=XSD.string)
         mapping = next(result.objects(val_bn, KNORA_API.textValueHasMapping))
         assert mapping == URIRef("http://rdfh.ch/standoff/mappings/StandardMapping")
         permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
@@ -233,7 +234,7 @@ class TestMakeOneValueGraphSuccess:
         assert rdf_type == KNORA_API.TextValue
         value = next(result.objects(val_bn, KNORA_API.textValueAsXml))
         expected_text = (
-            '<?xml version="1.0" encoding="UTF-8"?>'
+            '<?xml version="1.0" encoding="UTF-8"?>\n'  # FormattedTextValue adds a newline after the xml declaration
             '<text>Comment with <a class="salsah-link" href="http://rdfh.ch/9999/res_one">'
             "link to res_one</text>"
         )

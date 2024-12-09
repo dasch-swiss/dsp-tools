@@ -5,8 +5,8 @@ import pytest
 from requests import RequestException
 from requests import Response
 
-from dsp_tools.commands.xmlupload.iiif_uri_validator import IIIFUriValidator
 from dsp_tools.commands.xmlupload.models.input_problems import IIIFUriProblem
+from dsp_tools.commands.xmlupload.prepare_xml_input.iiif_uri_validator import IIIFUriValidator
 
 
 @pytest.fixture

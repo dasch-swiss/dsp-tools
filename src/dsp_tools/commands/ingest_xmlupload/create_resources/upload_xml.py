@@ -13,11 +13,11 @@ from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClientLive
+from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import prepare_upload
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import validate_and_parse
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import execute_upload
-from dsp_tools.commands.xmlupload.xmlupload import prepare_upload
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
 from dsp_tools.utils.connection import Connection

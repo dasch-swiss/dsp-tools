@@ -23,8 +23,8 @@ from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResou
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
 from dsp_tools.commands.xmlupload.models.intermediary.resource import IntermediaryResource
-from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookup
-from dsp_tools.commands.xmlupload.models.lookup_models import IRILookup
+from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookups
+from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.lookup_models import get_json_ld_context_for_project
 from dsp_tools.commands.xmlupload.models.lookup_models import make_namespace_dict_from_onto_names
 from dsp_tools.commands.xmlupload.models.permission import Permissions
@@ -252,7 +252,7 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
     project_context = get_json_ld_context_for_project(project_onto_dict)
     namespaces = make_namespace_dict_from_onto_names(project_onto_dict)
 
-    iri_lookup = IRILookup(
+    iri_lookup = IRILookups(
         project_iri=project_iri,
         id_to_iri=upload_state.iri_resolver,
         jsonld_context=project_context,
@@ -263,7 +263,7 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
         project_iri=project_iri,
         media_previously_ingested=upload_state.config.media_previously_uploaded,
     )
-    intermediary_lookups = IntermediaryLookup(
+    intermediary_lookups = IntermediaryLookups(
         permissions=upload_state.permissions_lookup, listnodes=listnode_lookup, namespaces=namespaces
     )
 
@@ -347,8 +347,8 @@ def _upload_one_resource(
     resource: XMLResource,
     ingest_client: AssetClient,
     resource_create_client: ResourceCreateClient,
-    iri_lookup: IRILookup,
-    intermediary_lookups: IntermediaryLookup,
+    iri_lookup: IRILookups,
+    intermediary_lookups: IntermediaryLookups,
     creation_attempts_of_this_round: int,
 ) -> None:
     transformation_result = transform_into_intermediary_resource(resource, intermediary_lookups)

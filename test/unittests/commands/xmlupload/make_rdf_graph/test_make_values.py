@@ -26,7 +26,7 @@ from dsp_tools.commands.xmlupload.models.intermediary.values import Intermediary
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryTime
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryUri
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntervalFloats
-from dsp_tools.commands.xmlupload.models.lookup_models import IRILookup
+from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.lookup_models import JSONLDContext
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
@@ -50,8 +50,8 @@ def onto_str(prop: str) -> str:
 
 
 @pytest.fixture
-def lookups() -> IRILookup:
-    return IRILookup(
+def lookups() -> IRILookups:
+    return IRILookups(
         project_iri="http://rdfh.ch/9999/project",
         id_to_iri=IriResolver({"res_one": "http://rdfh.ch/9999/res_one"}),
         jsonld_context=JSONLDContext({}),
@@ -59,7 +59,7 @@ def lookups() -> IRILookup:
 
 
 class TestMakeOnePropGraphSuccess:
-    def test_boolean(self, lookups: IRILookup) -> None:
+    def test_boolean(self, lookups: IRILookups) -> None:
         res_bn = BNode()
         prop = IntermediaryBoolean(True, onto_str("isTrueOrFalse"), None, OPEN_PERMISSION)
         result, prop_name = _make_one_prop_graph(prop, res_bn, lookups)
@@ -73,7 +73,7 @@ class TestMakeOnePropGraphSuccess:
         permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
         assert permissions == PERMISSION_LITERAL
 
-    def test_color(self, lookups: IRILookup) -> None:
+    def test_color(self, lookups: IRILookups) -> None:
         res_bn = BNode()
         prop = IntermediaryColor("#5d1f1e", onto_str("hasColor"), None, None)
         result, prop_name = _make_one_prop_graph(prop, res_bn, lookups)
@@ -85,7 +85,7 @@ class TestMakeOnePropGraphSuccess:
         value = next(result.objects(val_bn, KNORA_API.colorValueAsColor))
         assert value == Literal("#5d1f1e", datatype=XSD.string)
 
-    def test_decimal(self, lookups: IRILookup) -> None:
+    def test_decimal(self, lookups: IRILookups) -> None:
         res_bn = BNode()
         prop = IntermediaryDecimal(2.718281828459, onto_str("hasDecimal"), "Eulersche Zahl", None)
         result, prop_name = _make_one_prop_graph(prop, res_bn, lookups)
@@ -99,7 +99,7 @@ class TestMakeOnePropGraphSuccess:
         comment = next(result.objects(val_bn, KNORA_API.valueHasComment))
         assert comment == Literal("Eulersche Zahl", datatype=XSD.string)
 
-    def test_geometry(self, lookups: IRILookup) -> None:
+    def test_geometry(self, lookups: IRILookups) -> None:
         res_bn = BNode()
         prop = IntermediaryGeometry(
             '{"status": "active", "type": "polygon", "lineWidth": 5, '
@@ -117,7 +117,7 @@ class TestMakeOnePropGraphSuccess:
         value = next(result.objects(val_bn, KNORA_API.geometryValueAsGeometry))
         assert isinstance(value, Literal)
 
-    def test_geoname(self, lookups: IRILookup) -> None:
+    def test_geoname(self, lookups: IRILookups) -> None:
         res_bn = BNode()
         prop = IntermediaryGeoname("5416656", onto_str("hasGeoname"), None, None)
         result, prop_name = _make_one_prop_graph(prop, res_bn, lookups)
@@ -129,7 +129,7 @@ class TestMakeOnePropGraphSuccess:
         value = next(result.objects(val_bn, KNORA_API.geonameValueAsGeonameCode))
         assert value == Literal("5416656", datatype=XSD.string)
 
-    def test_integer(self, lookups: IRILookup) -> None:
+    def test_integer(self, lookups: IRILookups) -> None:
         res_bn = BNode()
         prop = IntermediaryInt(1, onto_str("hasInteger"), "comment", None)
         result, prop_name = _make_one_prop_graph(prop, res_bn, lookups)
@@ -141,7 +141,7 @@ class TestMakeOnePropGraphSuccess:
         comment = next(result.objects(val, KNORA_API.valueHasComment))
         assert comment == Literal("comment", datatype=XSD.string)
 
-    def test_time(self, lookups: IRILookup) -> None:
+    def test_time(self, lookups: IRILookups) -> None:
         res_bn = BNode()
         prop = IntermediaryTime("2019-10-23T13:45:12.01-14:00", onto_str("hasTime"), None, None)
         result, prop_name = _make_one_prop_graph(prop, res_bn, lookups)
@@ -153,7 +153,7 @@ class TestMakeOnePropGraphSuccess:
         value = next(result.objects(val_bn, KNORA_API.timeValueAsTimeStamp))
         assert value == Literal("2019-10-23T13:45:12.01-14:00", datatype=XSD.dateTimeStamp)
 
-    def test_uri(self, lookups: IRILookup) -> None:
+    def test_uri(self, lookups: IRILookups) -> None:
         res_bn = BNode()
         prop = IntermediaryUri("https://dasch.swiss", onto_str("hasUri"), None, None)
         result, prop_name = _make_one_prop_graph(prop, res_bn, lookups)
@@ -165,7 +165,7 @@ class TestMakeOnePropGraphSuccess:
         value = next(result.objects(val_bn, KNORA_API.uriValueAsUri))
         assert value == Literal("https://dasch.swiss", datatype=XSD.anyURI)
 
-    def test_list(self, lookups: IRILookup) -> None:
+    def test_list(self, lookups: IRILookups) -> None:
         res_bn = BNode()
         prop = IntermediaryList("http://rdfh.ch/9999/node", onto_str("hasListItem"), None, None)
         result, prop_name = _make_one_prop_graph(prop, res_bn, lookups)
@@ -177,7 +177,7 @@ class TestMakeOnePropGraphSuccess:
         value = next(result.objects(val_bn, KNORA_API.listValueAsListNode))
         assert value == URIRef("http://rdfh.ch/9999/node")
 
-    def test_resptr(self, lookups: IRILookup) -> None:
+    def test_resptr(self, lookups: IRILookups) -> None:
         res_bn = BNode()
         prop = IntermediaryLink("res_one", onto_str("hasResource"), None, None)
         result, prop_name = _make_one_prop_graph(prop, res_bn, lookups)
@@ -189,7 +189,7 @@ class TestMakeOnePropGraphSuccess:
         value = next(result.objects(val_bn, KNORA_API.linkValueHasTargetIri))
         assert value == RES_ONE_URI
 
-    def test_simpletext(self, lookups: IRILookup) -> None:
+    def test_simpletext(self, lookups: IRILookups) -> None:
         res_bn = BNode()
         prop = IntermediarySimpleText("Text", onto_str("hasSimpleText"), None, None)
         result, prop_name = _make_one_prop_graph(prop, res_bn, lookups)
@@ -201,7 +201,7 @@ class TestMakeOnePropGraphSuccess:
         value = next(result.objects(val_bn, KNORA_API.valueAsString))
         assert value == Literal("Text", datatype=XSD.string)
 
-    def test_richtext(self, lookups: IRILookup) -> None:
+    def test_richtext(self, lookups: IRILookups) -> None:
         res_bn = BNode()
         prop = IntermediaryRichtext(
             FormattedTextValue("Text"), onto_str("hasRichtext"), None, OPEN_PERMISSION, resource_references=set()
@@ -219,7 +219,7 @@ class TestMakeOnePropGraphSuccess:
         permissions = next(result.objects(val_bn, KNORA_API.hasPermissions))
         assert permissions == PERMISSION_LITERAL
 
-    def test_richtext_with_reference(self, lookups: IRILookup) -> None:
+    def test_richtext_with_reference(self, lookups: IRILookups) -> None:
         res_bn = BNode()
         text = 'Comment with <a class="salsah-link" href="IRI:res_one:IRI">link to res_one'
         prop = IntermediaryRichtext(
@@ -241,7 +241,7 @@ class TestMakeOnePropGraphSuccess:
         mapping = next(result.objects(val_bn, KNORA_API.textValueHasMapping))
         assert mapping == URIRef("http://rdfh.ch/standoff/mappings/StandardMapping")
 
-    def test_date(self, lookups: IRILookup) -> None:
+    def test_date(self, lookups: IRILookups) -> None:
         res_bn = BNode()
         date = Date(
             calendar=Calendar.GREGORIAN,
@@ -270,7 +270,7 @@ class TestMakeOnePropGraphSuccess:
         start_era = next(result.objects(val_bn, KNORA_API.dateValueHasEndEra))
         assert start_era == Literal("AD", datatype=XSD.string)
 
-    def test_interval(self, lookups: IRILookup) -> None:
+    def test_interval(self, lookups: IRILookups) -> None:
         res_bn = BNode()
         interval = IntervalFloats(0.1, 0.234)
         prop = IntermediaryInterval(interval, "http://api.knora.org/ontology/knora-api/v2#hasSegmentBounds", None, None)
@@ -285,7 +285,7 @@ class TestMakeOnePropGraphSuccess:
         end = next(result.objects(val_bn, KNORA_API.intervalValueHasEnd))
         assert end == Literal("0.234", datatype=XSD.decimal)
 
-    def test_segment_of_video(self, lookups: IRILookup) -> None:
+    def test_segment_of_video(self, lookups: IRILookups) -> None:
         res_bn = BNode()
         prop = IntermediaryLink("res_one", "http://api.knora.org/ontology/knora-api/v2#isVideoSegmentOf", None, None)
         result, prop_name = _make_one_prop_graph(prop, res_bn, lookups)
@@ -297,7 +297,7 @@ class TestMakeOnePropGraphSuccess:
         value = next(result.objects(val_bn, KNORA_API.linkValueHasTargetIri))
         assert value == RES_ONE_URI
 
-    def test_segment_of_audio(self, lookups: IRILookup) -> None:
+    def test_segment_of_audio(self, lookups: IRILookups) -> None:
         res_bn = BNode()
         prop = IntermediaryLink("res_one", "http://api.knora.org/ontology/knora-api/v2#isAudioSegmentOf", None, None)
         result, prop_name = _make_one_prop_graph(prop, res_bn, lookups)
@@ -310,7 +310,7 @@ class TestMakeOnePropGraphSuccess:
         assert value == RES_ONE_URI
 
 
-def test_link_target_not_found(lookups: IRILookup) -> None:
+def test_link_target_not_found(lookups: IRILookups) -> None:
     res_bn = BNode()
     prop = IntermediaryLink("non_existing", onto_str("hasResource"), None, None)
     err_str = regex.escape(
@@ -324,7 +324,7 @@ def test_link_target_not_found(lookups: IRILookup) -> None:
         _make_one_prop_graph(prop, res_bn, lookups)
 
 
-def test_richtext_with_reference_not_found(lookups: IRILookup) -> None:
+def test_richtext_with_reference_not_found(lookups: IRILookups) -> None:
     res_bn = BNode()
     text = 'Comment with <a class="salsah-link" href="IRI:nonExisingReference:IRI">link to res_one'
     prop = IntermediaryRichtext(

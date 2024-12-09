@@ -29,7 +29,7 @@ from dsp_tools.commands.xmlupload.models.intermediary.values import Intermediary
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryTime
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryUri
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryValue
-from dsp_tools.commands.xmlupload.models.lookup_models import IRILookup
+from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 from dsp_tools.models.exceptions import BaseError
@@ -53,7 +53,7 @@ LiteralValueTypesAlias: TypeAlias = Union[
 ]
 
 
-def make_values(values: list[IntermediaryValue], res_bnode: BNode, lookups: IRILookup) -> tuple[Graph, URIRef | None]:
+def make_values(values: list[IntermediaryValue], res_bnode: BNode, lookups: IRILookups) -> tuple[Graph, URIRef | None]:
     """
     Serialise the values of a resource.
 
@@ -76,7 +76,7 @@ def make_values(values: list[IntermediaryValue], res_bnode: BNode, lookups: IRIL
     return properties_graph, last_prop_name
 
 
-def _make_one_prop_graph(val: IntermediaryValue, res_bnode: BNode, iri_lookup: IRILookup) -> tuple[Graph, URIRef]:
+def _make_one_prop_graph(val: IntermediaryValue, res_bnode: BNode, iri_lookup: IRILookups) -> tuple[Graph, URIRef]:
     match val:
         case (
             IntermediaryBoolean()

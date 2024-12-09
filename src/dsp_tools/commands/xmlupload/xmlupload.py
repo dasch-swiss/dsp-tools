@@ -156,6 +156,7 @@ def prepare_upload(
 ) -> tuple[list[XMLResource], dict[str, Permissions], Stash | None]:
     """Do the consistency check, resolve circular references, and return the resources and permissions."""
     do_xml_consistency_check_with_ontology(onto_client=ontology_client, root=root)
+    # TODO: transform into intermediary classes here
     return _resolve_circular_references(
         root=root,
         con=ontology_client.con,

@@ -329,7 +329,11 @@ def test_richtext_with_reference_not_found(lookups: IRILookups) -> None:
     res_bn = BNode()
     text = 'Comment with <a class="salsah-link" href="IRI:nonExisingReference:IRI">link to res_one'
     prop = IntermediaryRichtext(
-        FormattedTextValue(text), absolute_iri("hasRichtext"), None, None, resource_references=set("nonExisingReference")
+        FormattedTextValue(text),
+        absolute_iri("hasRichtext"),
+        None,
+        None,
+        resource_references=set("nonExisingReference"),
     )
     err_str = regex.escape("Internal ID 'nonExisingReference' could not be resolved to an IRI")
     with pytest.raises(BaseError, match=err_str):

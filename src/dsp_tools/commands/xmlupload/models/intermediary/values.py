@@ -70,6 +70,9 @@ class IntermediaryInterval(IntermediaryValue):
 class IntermediaryLink(IntermediaryValue):
     value: str
 
+    def __post_init__(self) -> None:
+        self.prop_iri = f"{self.prop_iri}Value"
+
 
 @dataclass
 class IntermediaryList(IntermediaryValue):

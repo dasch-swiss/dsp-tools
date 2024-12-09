@@ -13,8 +13,6 @@ from lxml import etree
 from tqdm import tqdm
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.commands.xmlupload.list_client import ListClient
-from dsp_tools.commands.xmlupload.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import create_resource_with_values
 from dsp_tools.commands.xmlupload.models.deserialise.xmlpermission import XmlPermission
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
@@ -28,16 +26,18 @@ from dsp_tools.commands.xmlupload.models.lookup_models import make_namespace_dic
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
-from dsp_tools.commands.xmlupload.ontology_client import OntologyClient
-from dsp_tools.commands.xmlupload.ontology_client import OntologyClientLive
 from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontology import (
     do_xml_consistency_check_with_ontology,
 )
 from dsp_tools.commands.xmlupload.prepare_xml_input.iiif_uri_validator import IIIFUriValidator
+from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClient
+from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClientLive
+from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClient
+from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClientLive
+from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import check_if_bitstreams_exist
+from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import validate_and_parse
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
-from dsp_tools.commands.xmlupload.read_validate_xml_file import check_if_bitstreams_exist
-from dsp_tools.commands.xmlupload.read_validate_xml_file import validate_and_parse
 from dsp_tools.commands.xmlupload.resource_create_client import ResourceCreateClient
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import identify_circular_references
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references

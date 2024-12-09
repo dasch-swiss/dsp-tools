@@ -6,15 +6,15 @@ from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XM
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLValue
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
-from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookup
+from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.models.datetimestamp import DateTimeStamp
 
 
 @pytest.fixture
-def lookups() -> IntermediaryLookup:
-    return IntermediaryLookup(
+def lookups() -> IntermediaryLookups:
+    return IntermediaryLookups(
         permissions={"open": Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})},
         listnodes={"list:node": "http://rdfh.ch/9999/node"},
         namespaces={
@@ -26,22 +26,24 @@ def lookups() -> IntermediaryLookup:
 
 @pytest.fixture
 def bool_prop() -> XMLProperty:
-    return XMLProperty(name="onto:boolProp", valtype="bool", values=[XMLValue(value="true")])
+    return XMLProperty(name="onto:boolProp", valtype="boolean", values=[XMLValue(value="true")])
 
 
 @pytest.fixture
 def bool_prop_with_permissions() -> XMLProperty:
-    return XMLProperty(name="onto:boolProp", valtype="bool", values=[XMLValue(value="true", permissions="open")])
+    return XMLProperty(name="onto:boolProp", valtype="boolean", values=[XMLValue(value="true", permissions="open")])
 
 
 @pytest.fixture
 def bool_prop_with_non_existing_permissions() -> XMLProperty:
-    return XMLProperty(name="onto:boolProp", valtype="bool", values=[XMLValue(value="true", permissions="nonExisting")])
+    return XMLProperty(
+        name="onto:boolProp", valtype="boolean", values=[XMLValue(value="true", permissions="nonExisting")]
+    )
 
 
 @pytest.fixture
 def bool_prop_with_comment() -> XMLProperty:
-    return XMLProperty(name="onto:boolProp", valtype="bool", values=[XMLValue(value="true", comment="comment")])
+    return XMLProperty(name="onto:boolProp", valtype="boolean", values=[XMLValue(value="true", comment="comment")])
 
 
 @pytest.fixture

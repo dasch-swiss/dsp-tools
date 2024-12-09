@@ -6,6 +6,7 @@ import warnings
 from datetime import datetime
 from pathlib import Path
 from typing import Never
+from typing import cast
 
 from loguru import logger
 from lxml import etree
@@ -21,7 +22,9 @@ from dsp_tools.commands.xmlupload.models.deserialise.xmlpermission import XmlPer
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
-from dsp_tools.commands.xmlupload.models.lookup_models import Lookups
+from dsp_tools.commands.xmlupload.models.intermediary.resource import IntermediaryResource
+from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookups
+from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.lookup_models import get_json_ld_context_for_project
 from dsp_tools.commands.xmlupload.models.lookup_models import make_namespace_dict_from_onto_names
 from dsp_tools.commands.xmlupload.models.permission import Permissions
@@ -39,6 +42,7 @@ from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_c
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.commands.xmlupload.stash.upload_stashed_resptr_props import upload_stashed_resptr_props
 from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import upload_stashed_xml_texts
+from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import transform_into_intermediary_resource
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.write_diagnostic_info import write_id2iri_mapping
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
@@ -249,12 +253,9 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
     project_context = get_json_ld_context_for_project(project_onto_dict)
     namespaces = make_namespace_dict_from_onto_names(project_onto_dict)
 
-    lookups = Lookups(
+    iri_lookup = IRILookups(
         project_iri=project_iri,
         id_to_iri=upload_state.iri_resolver,
-        permissions=upload_state.permissions_lookup,
-        listnodes=listnode_lookup,
-        namespaces=namespaces,
         jsonld_context=project_context,
     )
 
@@ -262,6 +263,9 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
         con=clients.project_client.con,
         project_iri=project_iri,
         media_previously_ingested=upload_state.config.media_previously_uploaded,
+    )
+    intermediary_lookups = IntermediaryLookups(
+        permissions=upload_state.permissions_lookup, listnodes=listnode_lookup, namespaces=namespaces
     )
 
     progress_bar = tqdm(upload_state.pending_resources.copy(), desc="Creating Resources", dynamic_ncols=True)
@@ -272,7 +276,8 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
                 resource=resource,
                 ingest_client=clients.asset_client,
                 resource_create_client=resource_create_client,
-                lookups=lookups,
+                iri_lookup=iri_lookup,
+                intermediary_lookups=intermediary_lookups,
                 creation_attempts_of_this_round=creation_attempts_of_this_round,
             )
             progress_bar.set_description(f"Creating Resources (failed: {len(upload_state.failed_uploads)})")
@@ -343,9 +348,17 @@ def _upload_one_resource(
     resource: XMLResource,
     ingest_client: AssetClient,
     resource_create_client: ResourceCreateClient,
-    lookups: Lookups,
+    iri_lookup: IRILookups,
+    intermediary_lookups: IntermediaryLookups,
     creation_attempts_of_this_round: int,
 ) -> None:
+    transformation_result = transform_into_intermediary_resource(resource, intermediary_lookups)
+    if transformation_result.resource_failure:
+        _handle_resource_creation_failure(resource, transformation_result.resource_failure.failure_msg)
+        return
+
+    transformed_resource = cast(IntermediaryResource, transformation_result.resource_success)
+
     try:
         if resource.bitstream:
             success, media_info = ingest_client.get_bitstream_info(
@@ -365,7 +378,7 @@ def _upload_one_resource(
     iri = None
     try:
         serialised_resource = create_resource_with_values(
-            resource=resource, bitstream_information=media_info, lookup=lookups
+            resource=transformed_resource, bitstream_information=media_info, lookup=iri_lookup
         )
         logger.info(f"Attempting to create resource {resource.res_id} (label: {resource.label})...")
         iri = resource_create_client.create_resource(serialised_resource, bool(media_info))

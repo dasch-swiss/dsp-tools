@@ -26,9 +26,9 @@ from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClient
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClientLive
-from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import _parse_xml
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import _validate_iiif_uris
-from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import prepare_upload
+from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import prepare_upload_from_root
+from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import prepare_input_xml_file
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 from dsp_tools.commands.xmlupload.resource_create_client import ResourceCreateClient
@@ -74,17 +74,17 @@ def xmlupload(
         uploaded because there is an error in it
     """
 
-    default_ontology, root, shortcode = _parse_xml(input_file=input_file, imgdir=imgdir)
-
-    if not config.skip_iiif_validation:
-        _validate_iiif_uris(root)
+    root, shortcode, default_ontology = prepare_input_xml_file(input_file, imgdir)
 
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
     con = ConnectionLive(creds.server, auth)
     config = config.with_server_info(server=creds.server, shortcode=shortcode)
 
+    if not config.skip_iiif_validation:
+        _validate_iiif_uris(root)
+
     ontology_client = OntologyClientLive(con=con, shortcode=shortcode, default_ontology=default_ontology)
-    resources, permissions_lookup, stash = prepare_upload(root, ontology_client)
+    resources, permissions_lookup, stash = prepare_upload_from_root(root, ontology_client)
 
     clients = _get_live_clients(con, auth, creds, shortcode, imgdir)
     state = UploadState(resources, stash, config, permissions_lookup)

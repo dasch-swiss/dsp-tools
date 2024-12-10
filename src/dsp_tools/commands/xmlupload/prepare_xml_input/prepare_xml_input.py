@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import warnings
 from datetime import datetime
-from pathlib import Path
 
 from loguru import logger
 from lxml import etree
@@ -15,8 +14,6 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontol
 )
 from dsp_tools.commands.xmlupload.prepare_xml_input.iiif_uri_validator import IIIFUriValidator
 from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClient
-from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import check_if_bitstreams_exist
-from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import validate_and_parse
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import identify_circular_references
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
@@ -25,26 +22,6 @@ from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.models.projectContext import ProjectContext
 from dsp_tools.utils.connection import Connection
-
-
-def _parse_xml(imgdir: str, input_file: Path) -> tuple[str, etree._Element, str]:
-    """
-    This function takes a path to an XML file.
-    It validates the file against the XML schema.
-    It checks if all the mentioned bitstream files are in the specified location.
-    It retrieves the shortcode and default ontology from the XML file.
-
-    Args:
-        imgdir: directory to the bitstream files
-        input_file: file that will be pased
-
-    Returns:
-        The ontology name, the parsed XML file and the shortcode of the project
-    """
-    root, shortcode, default_ontology = validate_and_parse(input_file)
-    check_if_bitstreams_exist(root=root, imgdir=imgdir)
-    logger.info(f"Validated and parsed the XML file. {shortcode=:} and {default_ontology=:}")
-    return default_ontology, root, shortcode
 
 
 def prepare_upload_from_root(

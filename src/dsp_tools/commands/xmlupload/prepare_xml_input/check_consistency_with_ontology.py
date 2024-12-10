@@ -15,7 +15,7 @@ from dsp_tools.commands.xmlupload.models.lookup_models import get_text_value_typ
 from dsp_tools.commands.xmlupload.models.lookup_models import make_project_onto_information
 from dsp_tools.commands.xmlupload.models.ontology_problem_models import InvalidOntologyElementsInData
 from dsp_tools.commands.xmlupload.models.ontology_problem_models import InvalidTextValueEncodings
-from dsp_tools.commands.xmlupload.ontology_client import OntologyClient
+from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClient
 from dsp_tools.models.exceptions import InputError
 
 defaultOntologyColon: Pattern[str] = regex.compile(r"^:\w+$")

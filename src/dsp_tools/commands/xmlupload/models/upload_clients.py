@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-from dsp_tools.commands.xmlupload.list_client import ListClient
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
+from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClient
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
 
 

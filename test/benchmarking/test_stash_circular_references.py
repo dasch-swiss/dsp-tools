@@ -3,9 +3,9 @@ from pathlib import Path
 import pytest
 
 from dsp_tools.commands.xmlupload.models.permission import Permissions
+from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import _extract_resources_from_xml
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import identify_circular_references
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references
-from dsp_tools.commands.xmlupload.xmlupload import _extract_resources_from_xml
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.ansi_colors import YELLOW
 from dsp_tools.utils.xml_utils import parse_and_clean_xml_file

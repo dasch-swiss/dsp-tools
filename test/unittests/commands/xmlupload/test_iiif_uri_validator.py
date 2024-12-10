@@ -74,7 +74,7 @@ def test_make_info_json_uri_correct(empty_validator: IIIFUriValidator, uri: str,
     assert empty_validator._make_info_json_uri(uri) == expected
 
 
-@patch("dsp_tools.commands.xmlupload.iiif_uri_validator.IIIFUriValidator._make_network_call")
+@patch("dsp_tools.commands.xmlupload.prepare_xml_input.iiif_uri_validator.IIIFUriValidator._make_network_call")
 def test_validate_with_exception(
     mock_network_call: Mock, request_exception: RequestException, empty_validator: IIIFUriValidator
 ) -> None:
@@ -88,7 +88,7 @@ def test_validate_with_exception(
     assert result.raised_exception_name == "RequestException"
 
 
-@patch("dsp_tools.commands.xmlupload.iiif_uri_validator.IIIFUriValidator._make_network_call")
+@patch("dsp_tools.commands.xmlupload.prepare_xml_input.iiif_uri_validator.IIIFUriValidator._make_network_call")
 def test_validate_with_bad_status_code(
     mock_network_call: Mock, response_404: Response, empty_validator: IIIFUriValidator
 ) -> None:
@@ -102,7 +102,7 @@ def test_validate_with_bad_status_code(
     assert not result.raised_exception_name
 
 
-@patch("dsp_tools.commands.xmlupload.iiif_uri_validator.IIIFUriValidator._make_network_call")
+@patch("dsp_tools.commands.xmlupload.prepare_xml_input.iiif_uri_validator.IIIFUriValidator._make_network_call")
 def test_validate_with_good_status_code(
     mock_network_call: Mock, response_200: Response, empty_validator: IIIFUriValidator
 ) -> None:
@@ -113,7 +113,7 @@ def test_validate_with_good_status_code(
     assert not result
 
 
-@patch("dsp_tools.commands.xmlupload.iiif_uri_validator.IIIFUriValidator._make_network_call")
+@patch("dsp_tools.commands.xmlupload.prepare_xml_input.iiif_uri_validator.IIIFUriValidator._make_network_call")
 def test_validate_with_failed_regex_good_status_code(
     mock_network_call: Mock, response_200: Response, empty_validator: IIIFUriValidator
 ) -> None:

@@ -27,17 +27,16 @@ from dsp_tools.commands.validate_data.models.data_deserialised import TimeValueD
 from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import VideoSegmentDeserialised
-from dsp_tools.commands.validate_data.models.data_rdf import AbstractFileValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import BooleanValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import ColorValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import DataRDF
 from dsp_tools.commands.validate_data.models.data_rdf import DateValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import DecimalValueRDF
+from dsp_tools.commands.validate_data.models.data_rdf import FileValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import GeonameValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import IntValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import LinkValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import ListValueRDF
-from dsp_tools.commands.validate_data.models.data_rdf import MovingImageFileValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import RDFTriples
 from dsp_tools.commands.validate_data.models.data_rdf import ResourceRDF
 from dsp_tools.commands.validate_data.models.data_rdf import RichtextRDF
@@ -45,6 +44,8 @@ from dsp_tools.commands.validate_data.models.data_rdf import SimpleTextRDF
 from dsp_tools.commands.validate_data.models.data_rdf import TimeValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import UriValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import ValueRDF
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import AUDIO_FILE_VALUE
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import MOVING_IMAGE_FILE_VALUE
 from dsp_tools.models.exceptions import InternalError
 
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
@@ -205,21 +206,24 @@ def _transform_uri_value(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
     return UriValueRDF(URIRef(val.prop_name), content, res_iri)
 
 
-def _transform_file_value(val: AbstractFileValueDeserialised) -> AbstractFileValueRDF | None:
+def _transform_file_value(val: AbstractFileValueDeserialised) -> FileValueRDF | None:
     if isinstance(val, IIIFUriDeserialised):
         return None
     return _map_into_correct_file_value(val)
 
 
-def _map_into_correct_file_value(val: AbstractFileValueDeserialised) -> AbstractFileValueRDF | None:
+def _map_into_correct_file_value(val: AbstractFileValueDeserialised) -> FileValueRDF | None:
     res_iri = DATA[val.res_id]
     file_literal = Literal(val.value)
     file_extension = _get_file_extension(val.value)
     match file_extension:
+        case "mp3" | "wav":
+            file_type = AUDIO_FILE_VALUE
         case "mp4":
-            return MovingImageFileValueRDF(res_iri=res_iri, value=file_literal)
+            file_type = MOVING_IMAGE_FILE_VALUE
         case _:
             return None
+    return FileValueRDF(res_iri=res_iri, value=file_literal, prop_type_info=file_type)
 
 
 def _get_file_extension(value: str | None) -> str:

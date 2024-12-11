@@ -16,6 +16,14 @@
         <bitstream>this/is/filepath/file.other</bitstream>
     </resource>
 
+    <!-- MovingImageRepresentation -->
+
+    <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="id_video_missing"/>
+
+    <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="id_video_unknown_extension">
+        <bitstream>this/is/filepath/file.unknown</bitstream>
+    </resource>
+
     <!-- StillImageRepresentation -->
 
     <resource label="TestStillImageRepresentation File unknown" restype=":TestStillImageRepresentation" id="id_still_image_unknown_extension">
@@ -24,20 +32,12 @@
 
     <resource label="TestStillImageRepresentation File missing" restype=":TestStillImageRepresentation" id="id_still_image_missing"/>
 
-    <resource label="TestStillImageRepresentation File jpeg" restype=":TestStillImageRepresentation" id="id_still_image_video_extension">
+    <resource label="TestStillImageRepresentation File mp4" restype=":TestStillImageRepresentation" id="id_still_image_video_extension">
         <bitstream>this/is/filepath/file.mp4</bitstream>
     </resource>
 
     <resource label="TestStillImageRepresentation IIIF wrong" restype=":TestStillImageRepresentation" id="id_still_image_iiif_not_a_uri">
         <iiif-uri>wrong</iiif-uri>
-    </resource>
-
-    <!-- MovingImageRepresentation -->
-
-    <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="id_video_missing"/>
-
-    <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="id_video_unknown_extension">
-        <bitstream>this/is/filepath/file.unknown</bitstream>
     </resource>
 
 </knora>

@@ -47,6 +47,7 @@ api-shapes:AudioFileValue_ClassShape
               ] ;
   sh:severity sh:Violation .
 
+
 ###########################
 # DocumentRepresentation
 ###########################
@@ -82,6 +83,7 @@ api-shapes:MovingImageFileValue_ClassShape
                 sh:message  "A MovingImageRepresentation requires a file with the extension 'mp4'." ;
               ] ;
   sh:severity sh:Violation .
+
 
 ###########################
 # StillImageRepresentation
@@ -119,8 +121,8 @@ api-shapes:StillImageFileValue_ClassShape
                 sh:datatype xsd:string ;
                 sh:severity sh:Violation ;
                 sh:message  """
-                            A StillImageRepresentation requires a file with one of the extensions:
-                            'jpg', 'jpeg', 'png', 'tif', 'tiff', 'jp2' or an external IIIF-URI.
+                            A StillImageFileValue requires a file with one of the extensions:
+                            'jpg', 'jpeg', 'png', 'tif', 'tiff', 'jp2'.
                             """ ;
               ] ;
   sh:severity sh:Violation .
@@ -141,7 +143,7 @@ api-shapes:StillImageExternalFileValue_ClassShape
                 sh:maxCount 1 ;
                 sh:datatype xsd:anyURI ;
                 sh:severity sh:Violation ;
-                sh:message  "The provided IIIF-URI is not a valid URI." ;
+                sh:message  "StillImageExternalFileValue requires an external IIIF-URI" ;
               ] ;
   sh:severity sh:Violation .
 

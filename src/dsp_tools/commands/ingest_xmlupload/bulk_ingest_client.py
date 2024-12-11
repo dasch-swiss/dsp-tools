@@ -57,35 +57,11 @@ class BulkIngestClient:
     def upload_file(
         self,
         filepath: Path,
-    ) -> UploadFailure | None:
+    ) -> None:
         """Uploads a file to the ingest server."""
-        try:
-            with open(self.imgdir / filepath, "rb") as binary_io:
-                content = binary_io.read()
-        except OSError as e:
-            err_msg = f"Cannot bulk-ingest {filepath}, because the file could not be opened/read: {e.strerror}"
-            logger.error(err_msg)
-            return UploadFailure(filepath, err_msg)
-        url = self._build_url_for_bulk_ingest_ingest_route(filepath)
-        headers = {"Content-Type": "application/octet-stream"}
-        timeout = 600
-        err_msg = f"Failed to upload '{filepath}' to '{url}'."
-        try:
-            logger.debug(f"REQUEST: POST to {url}, timeout: {timeout}, headers: {headers}")
-            res = self.session.post(
-                url=url,
-                headers=headers,
-                data=content,
-                timeout=timeout,
-            )
-            logger.debug(f"RESPONSE: {res.status_code}")
-        except RequestException as e:
-            logger.error(err_msg)
-            return UploadFailure(filepath, f"Exception of requests library: {e}")
-        if res.status_code != STATUS_OK:
-            logger.error(err_msg)
-            return UploadFailure(filepath, res.reason, res.status_code, res.text)
-        return None
+        filepath_rel = filepath.relative_to("/") if filepath.is_absolute() else filepath
+        target_base = Path("/Volumes/LHTT/dsp-api/sipi/tmp-dsp-ingest/import/0820")
+        (target_base / filepath_rel).symlink_to(filepath)
 
     def _build_url_for_bulk_ingest_ingest_route(self, filepath: Path) -> str:
         """

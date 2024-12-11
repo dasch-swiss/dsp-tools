@@ -42,9 +42,7 @@ def upload_files(
     failures: list[UploadFailure] = []
     progress_bar = tqdm(paths, desc="Uploading files", unit="file(s)", dynamic_ncols=True)
     for path in progress_bar:
-        if res := ingest_client.upload_file(path):
-            failures.append(res)
-            progress_bar.set_description(f"Uploading files (failed: {len(failures)})")
+        ingest_client.upload_file(path)
     if failures:
         aggregated_failures = UploadFailures(failures, len(paths), shortcode, creds.dsp_ingest_url)
         msg = aggregated_failures.execute_error_protocol()

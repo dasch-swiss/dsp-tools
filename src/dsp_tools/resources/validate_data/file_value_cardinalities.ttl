@@ -64,7 +64,19 @@ api-shapes:MovingImageFileValue_ClassShape
 # StillImageRepresentation
 ###########################
 
-# knora-api:hasStillImageFileValue
+api-shapes:hasStillImageFileValue_PropShape
+  a           sh:PropertyShape ;
+  sh:path     knora-api:hasStillImageFileValue ;
+  sh:minCount 1 ;
+  sh:maxCount 1 ;
+  sh:message  """
+              A StillImageRepresentation requires a file with one of the extensions:
+              'jpg', 'jpeg', 'png', 'tif', 'tiff', 'jp2' or an external IIIF-URI.
+              """ ;
+  sh:or       (
+                [ sh:node api-shapes:StillImageFileValue_ClassShape ]
+                [ sh:node api-shapes:StillImageExternalFileValue_ClassShape ]
+              ) .
 
 ###
 # StillImageFileValue
@@ -79,13 +91,13 @@ api-shapes:StillImageFileValue_ClassShape
                 sh:path     knora-api:fileValueHasFilename ;
                 sh:minCount 1 ;
                 sh:maxCount 1 ;
-                sh:pattern  ".+\\.(jpg|jpeg|png|tif|tiff|jp2|jpx)$" ;
+                sh:pattern  ".+\\.(jpg|jpeg|png|tif|tiff|jp2|jpx)$" ; # jpx is the extension of the files returned by dsp-ingest
                 sh:flags "i" ; # case insensitive
                 sh:datatype xsd:string ;
                 sh:severity sh:Violation ;
                 sh:message  """
                             A StillImageRepresentation requires a file with one of the extensions:
-                            jpg, jpeg, png, tif, tiff, jp2 or an external IIIF-URI.
+                            'jpg', 'jpeg', 'png', 'tif', 'tiff', 'jp2' or an external IIIF-URI.
                             """ ;
               ] ;
   sh:severity sh:Violation .
@@ -106,7 +118,7 @@ api-shapes:StillImageExternalFileValue_ClassShape
                 sh:maxCount 1 ;
                 sh:datatype xsd:anyURI ;
                 sh:severity sh:Violation ;
-                sh:message  """The provided IIIF-URI is not a valid URI.""" ;
+                sh:message  "The provided IIIF-URI is not a valid URI." ;
               ] ;
   sh:severity sh:Violation .
 

@@ -184,9 +184,9 @@ def _query_one_without_detail(
 
 
 def _query_for_non_existent_cardinality_violation(base_info: ValidationResultBaseInfo) -> ValidationResult | None:
-    # If a class is for example, an AudioRepresentation, but a jpg file is used, the created value is of type
-    # StillImageFileValue.
-    # This creates a min cardinality violation and a closed constraint.
+    # If a class is for example, an AudioRepresentation, but a jpg file is used,
+    # the created value is of type StillImageFileValue.
+    # This creates a min cardinality and a closed constraint violation.
     # The closed constraint we ignore, because the problem is communicated through the min cardinality violation.
     file_value_properties = {
         KNORA_API.hasAudioFileValue,

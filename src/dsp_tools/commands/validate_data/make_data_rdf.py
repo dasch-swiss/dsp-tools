@@ -48,6 +48,7 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.constants import AUDIO_FILE_VAL
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import IIIF_URI_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import MOVING_IMAGE_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import STILL_IMAGE_FILE_VALUE
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import MOVING_IMAGE_FILE_VALUE
 from dsp_tools.models.exceptions import InternalError
 
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")

@@ -36,6 +36,10 @@
         <bitstream>this/is/filepath/file.7z</bitstream>
     </resource>
 
+    <resource label="TestArchiveRepresentation ZIP" restype=":TestArchiveRepresentation" id="id_archive_zip_capitalised">
+        <bitstream>this/is/filepath/file.ZIP</bitstream>
+    </resource>
+
     <!-- AudioRepresentation -->
 
     <resource label="TestAudioRepresentation" restype=":TestAudioRepresentation" id="id_audio_mp3">
@@ -52,8 +56,36 @@
 
     <!-- DocumentRepresentation -->
 
-    <resource label="TestDocumentRepresentation" restype=":TestDocumentRepresentation" id="id_document">
+    <resource label="TestDocumentRepresentation pdf" restype=":TestDocumentRepresentation" id="id_document_pdf">
         <bitstream>this/is/filepath/file.pdf</bitstream>
+    </resource>
+
+    <resource label="TestDocumentRepresentation doc" restype=":TestDocumentRepresentation" id="id_document_doc">
+        <bitstream>this/is/filepath/file.doc</bitstream>
+    </resource>
+
+    <resource label="TestDocumentRepresentation docx" restype=":TestDocumentRepresentation" id="id_document_docx">
+        <bitstream>this/is/filepath/file.docx</bitstream>
+    </resource>
+
+    <resource label="TestDocumentRepresentation xls" restype=":TestDocumentRepresentation" id="id_document_xls">
+        <bitstream>this/is/filepath/file.xls</bitstream>
+    </resource>
+
+    <resource label="TestDocumentRepresentation xlsx" restype=":TestDocumentRepresentation" id="id_document_xlsx">
+        <bitstream>this/is/filepath/file.xlsx</bitstream>
+    </resource>
+
+    <resource label="TestDocumentRepresentation ppt" restype=":TestDocumentRepresentation" id="id_document_ppt">
+        <bitstream>this/is/filepath/file.ppt</bitstream>
+    </resource>
+
+    <resource label="TestDocumentRepresentation pptx" restype=":TestDocumentRepresentation" id="id_document_pptx">
+        <bitstream>this/is/filepath/file.pptx</bitstream>
+    </resource>
+
+    <resource label="TestDocumentRepresentation pdf" restype=":TestDocumentRepresentation" id="id_document_pdf_capitalised">
+        <bitstream>this/is/filepath/file.PDF</bitstream>
     </resource>
 
     <!-- MovingImageRepresentation -->

@@ -6,7 +6,15 @@
        shortcode="9999"
        default-ontology="onto">
 
-    <!-- 4 Violations -->
+    <!-- 10 Violations -->
+
+    <!-- ArchiveRepresentation -->
+
+    <resource label="TestArchiveRepresentation" restype=":TestArchiveRepresentation" id="id_archive_missing"/>
+
+    <resource label="TestArchiveRepresentation unknown" restype=":TestArchiveRepresentation" id="id_archive_unknown">
+        <bitstream>this/is/filepath/file.unknown</bitstream>
+    </resource>
 
     <!-- AudioRepresentation -->
 
@@ -16,11 +24,27 @@
         <bitstream>this/is/filepath/file.other</bitstream>
     </resource>
 
+    <!-- DocumentRepresentation -->
+
+    <resource label="TestDocumentRepresentation" restype=":TestDocumentRepresentation" id="id_document_missing"/>
+
+    <resource label="TestDocumentRepresentation unknown" restype=":TestDocumentRepresentation" id="id_document_unknown">
+        <bitstream>this/is/filepath/file.unknown</bitstream>
+    </resource>
+
     <!-- MovingImageRepresentation -->
 
     <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="id_video_missing"/>
 
     <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="id_video_wrong_extension">
+        <bitstream>this/is/filepath/file.other</bitstream>
+    </resource>
+
+    <!-- TextRepresentation -->
+
+    <resource label="TestTextRepresentation" restype=":TestTextRepresentation" id="id_text_missing"/>
+
+    <resource label="TestTextRepresentation" restype=":TestTextRepresentation" id="id_text_unknown">
         <bitstream>this/is/filepath/file.other</bitstream>
     </resource>
 

@@ -45,7 +45,7 @@ from dsp_tools.commands.validate_data.models.data_rdf import TimeValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import UriValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import ValueRDF
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import AUDIO_FILE_VALUE
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import MOVING_IMAGE_FILE_VALUE
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import MOVING_IMAGE_FILE_VALUE, STILL_IMAGE_FILE_VALUE
 from dsp_tools.models.exceptions import InternalError
 
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
@@ -221,6 +221,9 @@ def _map_into_correct_file_value(val: AbstractFileValueDeserialised) -> FileValu
             file_type = AUDIO_FILE_VALUE
         case "mp4":
             file_type = MOVING_IMAGE_FILE_VALUE
+        # jpx is the extension of the files returned by dsp-ingest
+        case "jpg" | "jpeg" | "jp2" | "png" | "tif" | "tiff" | "jpx":
+            file_type = STILL_IMAGE_FILE_VALUE
         case _:
             return None
     return FileValueRDF(res_iri=res_iri, value=file_literal, prop_type_info=file_type)

@@ -48,7 +48,6 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.constants import ARCHIVE_FILE_V
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import AUDIO_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import DOCUMENT_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import MOVING_IMAGE_FILE_VALUE
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import STILL_IMAGE_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import TEXT_FILE_VALUE
 from dsp_tools.models.exceptions import InternalError
 
@@ -229,9 +228,6 @@ def _map_into_correct_file_value(val: AbstractFileValueDeserialised) -> FileValu
             file_type = DOCUMENT_FILE_VALUE
         case "mp4":
             file_type = MOVING_IMAGE_FILE_VALUE
-        # jpx is the extension of the files returned by dsp-ingest
-        case "jpg" | "jpeg" | "jp2" | "png" | "tif" | "tiff" | "jpx":
-            file_type = STILL_IMAGE_FILE_VALUE
         case "odd" | "rng" | "txt" | "xml" | "xsd" | "xsl" | "csv" | "json":
             file_type = TEXT_FILE_VALUE
         case _:

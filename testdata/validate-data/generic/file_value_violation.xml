@@ -20,8 +20,8 @@
 
     <resource label="TestAudioRepresentation" restype=":TestAudioRepresentation" id="id_audio_missing"/>
 
-    <resource label="TestAudioRepresentation" restype=":TestAudioRepresentation" id="id_audio_wrong_extension">
-        <bitstream>this/is/filepath/file.other</bitstream>
+    <resource label="TestAudioRepresentation" restype=":TestAudioRepresentation" id="id_audio_unknown">
+        <bitstream>this/is/filepath/file.unknown</bitstream>
     </resource>
 
     <!-- DocumentRepresentation -->
@@ -36,8 +36,8 @@
 
     <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="id_video_missing"/>
 
-    <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="id_video_wrong_extension">
-        <bitstream>this/is/filepath/file.other</bitstream>
+    <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="id_video_unknown">
+        <bitstream>this/is/filepath/file.unknown</bitstream>
     </resource>
 
     <!-- TextRepresentation -->

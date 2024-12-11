@@ -396,13 +396,13 @@ class TestReformatValidationGraph:
             "id_archive_missing",
             "id_archive_unknown",
             "id_audio_missing",
-            "id_audio_wrong_extension",
+            "id_audio_unknown",
             "id_document_missing",
             "id_document_unknown",
             "id_text_missing",
             "id_text_unknown",
             "id_video_missing",
-            "id_video_wrong_extension",
+            "id_video_unknown",
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)

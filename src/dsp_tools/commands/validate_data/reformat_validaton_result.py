@@ -140,9 +140,6 @@ def _extract_one_base_info(info: QueryInfo, results_and_onto: Graph) -> Validati
     )
 
 
-# TODO: check for closed constraint exclude knora properties
-
-
 def _query_all_without_detail(
     all_base_info: list[ValidationResultBaseInfo], results_and_onto: Graph
 ) -> tuple[list[ValidationResult], list[UnexpectedComponent]]:
@@ -151,7 +148,9 @@ def _query_all_without_detail(
 
     for base_info in all_base_info:
         res = _query_one_without_detail(base_info, results_and_onto)
-        if isinstance(res, UnexpectedComponent):
+        if res is None:
+            pass
+        elif isinstance(res, UnexpectedComponent):
             unexpected_components.append(res)
         else:
             extracted_results.append(res)
@@ -185,6 +184,17 @@ def _query_one_without_detail(
 
 
 def _query_for_non_existent_cardinality_violation(base_info: ValidationResultBaseInfo):
+    # If a class is for example, an AudioRepresentation, but a jpg file is used, the created value is of type
+    # StillImageFileValue.
+    # This creates a min cardinality violation and a closed constraint.
+    # The closed constraint we ignore, because the problem is communicated through the min cardinality violation.
+    file_value_properties = {
+        KNORA_API.hasAudioFileValue,
+        KNORA_API.hasMovingImageFileValue,
+        KNORA_API.hasStillImageFileValue,
+    }
+    if base_info.result_path in file_value_properties:
+        return None
     return ResultNonExistentCardinalityViolation(
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,

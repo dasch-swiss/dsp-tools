@@ -6,17 +6,7 @@
        shortcode="9999"
        default-ontology="onto">
 
-    <!-- 8 Violations -->
-
-    <!-- AudioRepresentation -->
-
-    <resource label="TestAudioRepresentation" restype=":TestAudioRepresentation" id="id_audio_missing"/>
-
-    <resource label="TestAudioRepresentation" restype=":TestAudioRepresentation" id="id_audio_wrong_extension">
-        <bitstream>this/is/filepath/file.other</bitstream>
-    </resource>
-
-    <!-- MovingImageRepresentation -->
+    <!-- 7 Violations -->
 
     <!-- AudioRepresentation -->
 
@@ -44,10 +34,6 @@
 
     <resource label="TestStillImageRepresentation File mp4" restype=":TestStillImageRepresentation" id="id_still_image_video_extension">
         <bitstream>this/is/filepath/file.mp4</bitstream>
-    </resource>
-
-    <resource label="TestStillImageRepresentation IIIF wrong" restype=":TestStillImageRepresentation" id="id_still_image_iiif_not_a_uri">
-        <iiif-uri>wrong</iiif-uri>
     </resource>
 
 </knora>

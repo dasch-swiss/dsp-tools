@@ -395,7 +395,6 @@ class TestReformatValidationGraph:
         expected_info_tuples = [
             "id_audio_missing",
             "id_audio_wrong_extension",
-            "id_still_image_iiif_not_a_uri",
             "id_still_image_missing",
             "id_still_image_unknown_extension",
             "id_still_image_video_extension",

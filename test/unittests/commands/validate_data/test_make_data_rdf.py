@@ -275,7 +275,7 @@ class TestTransformFileValue:
         result = _transform_file_value(bitstream)
         assert isinstance(result, FileValueRDF)
         assert result.prop_type_info.knora_type == KNORA_API.MovingImageFileValue
-        assert result.value == Literal(bitstream.value)
+        assert result.value == Literal(bitstream.value, datatype=XSD.string)
 
     @pytest.mark.parametrize("extension", ["mp3", "wav"])
     def test_audio_file(self, extension: str) -> None:
@@ -283,12 +283,12 @@ class TestTransformFileValue:
         result = _transform_file_value(bitstream)
         assert isinstance(result, FileValueRDF)
         assert result.prop_type_info.knora_type == KNORA_API.AudioFileValue
-        assert result.value == Literal(bitstream.value)
+        assert result.value == Literal(bitstream.value, datatype=XSD.string)
         bitstream = BitstreamDeserialised("id", f"test.{extension.upper()}")
         result = _transform_file_value(bitstream)
         assert isinstance(result, FileValueRDF)
         assert result.prop_type_info.knora_type == KNORA_API.AudioFileValue
-        assert result.value == Literal(bitstream.value)
+        assert result.value == Literal(bitstream.value, datatype=XSD.string)
 
     def test_other(self) -> None:
         bitstream = BitstreamDeserialised("id", "test.other")

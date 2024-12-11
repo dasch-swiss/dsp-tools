@@ -63,7 +63,7 @@ class BulkIngestClient:
         link_source_base = Path("/Volumes/LHTT/dsp-api/sipi/tmp-dsp-ingest/import/0820")
         link_source = link_source_base / filepath_rel
         link_source.parent.mkdir(parents=True, exist_ok=True)
-        link_source.symlink_to(filepath)
+        link_source.hardlink_to(filepath)
 
     def _build_url_for_bulk_ingest_ingest_route(self, filepath: Path) -> str:
         """

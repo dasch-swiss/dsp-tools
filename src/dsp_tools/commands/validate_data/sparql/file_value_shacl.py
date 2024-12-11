@@ -15,6 +15,7 @@ def construct_file_value_cardinality(onto: Graph) -> Graph:
         Graph with file cardinalities
     """
     val_prop_mapper = {
+        "ArchiveRepresentation": "hasArchiveFileValue",
         "AudioRepresentation": "hasAudioFileValue",
         "MovingImageRepresentation": "hasMovingImageFileValue",
         "TextRepresentation": "hasTextFileValue",

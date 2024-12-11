@@ -15,7 +15,36 @@
 # ArchiveRepresentation
 ###########################
 
-# knora-api:ArchiveFileValue -> knora-api:hasArchiveFileValue
+api-shapes:hasArchiveFileValue_PropShape
+  a           sh:PropertyShape ;
+  sh:path     knora-api:hasArchiveFileValue ;
+  sh:minCount 1 ;
+  sh:maxCount 1 ;
+  sh:message  """
+              An ArchiveRepresentation requires a file with one of the following extensions
+              'zip', 'tar', 'gz', 'z', 'tgz', 'gzip', '7z'.
+              """ ;
+  sh:node     api-shapes:ArchiveFileValue_ClassShape .
+
+api-shapes:ArchiveFileValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "ArchiveFileValue" ;
+  sh:class    knora-api:ArchiveFileValue ;
+  sh:property [
+                a           sh:PropertyShape ;
+                sh:path     knora-api:fileValueHasFilename ;
+                sh:minCount 1 ;
+                sh:maxCount 1 ;
+                sh:pattern  ".+\\.(zip|tar|gz|z|tgz|gzip|7z)$" ;
+                sh:flags "i" ; # case insensitive
+                sh:severity sh:Violation ;
+                sh:message  """
+                            An ArchiveRepresentation requires a file with one of the following extensions
+                            'zip', 'tar', 'gz', 'z', 'tgz', 'gzip', '7z'.
+                            """ ;
+              ] ;
+  sh:severity sh:Violation .
 
 
 ###########################

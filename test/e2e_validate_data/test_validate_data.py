@@ -393,8 +393,14 @@ class TestReformatValidationGraph:
     def test_reformat_file_value_violation(self, file_value_violation: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(file_value_violation)
         expected_info_tuples = [
+            "id_archive_missing",
+            "id_archive_unknown",
             "id_audio_missing",
             "id_audio_wrong_extension",
+            "id_document_missing",
+            "id_document_unknown",
+            "id_text_missing",
+            "id_text_unknown",
             "id_video_missing",
             "id_video_wrong_extension",
         ]

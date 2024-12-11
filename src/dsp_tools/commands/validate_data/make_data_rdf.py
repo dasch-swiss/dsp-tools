@@ -45,7 +45,9 @@ from dsp_tools.commands.validate_data.models.data_rdf import TimeValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import UriValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import ValueRDF
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import AUDIO_FILE_VALUE
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import MOVING_IMAGE_FILE_VALUE, STILL_IMAGE_FILE_VALUE
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import IIIF_URI_VALUE
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import MOVING_IMAGE_FILE_VALUE
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import STILL_IMAGE_FILE_VALUE
 from dsp_tools.models.exceptions import InternalError
 
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
@@ -208,7 +210,12 @@ def _transform_uri_value(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
 
 def _transform_file_value(val: AbstractFileValueDeserialised) -> FileValueRDF | None:
     if isinstance(val, IIIFUriDeserialised):
-        return None
+        return FileValueRDF(
+            res_iri=DATA[val.res_id],
+            value=Literal(val.value),
+            prop_type_info=IIIF_URI_VALUE,
+            prop_to_value=KNORA_API.fileValueHasExternalUrl,
+        )
     return _map_into_correct_file_value(val)
 
 

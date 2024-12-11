@@ -177,15 +177,20 @@ def _query_one_without_detail(
                 results_message=msg,
             )
         case DASH.ClosedByTypesConstraintComponent:
-            return ResultNonExistentCardinalityViolation(
-                res_iri=base_info.resource_iri,
-                res_class=base_info.res_class_type,
-                property=base_info.result_path,
-            )
+            return _query_for_non_existent_cardinality_violation(base_info)
         case SH.SPARQLConstraintComponent:
             return _query_for_unique_value_violation(base_info, results_and_onto)
         case _:
             return UnexpectedComponent(str(component))
+
+
+def _query_for_non_existent_cardinality_violation(base_info: ValidationResultBaseInfo):
+
+    return ResultNonExistentCardinalityViolation(
+        res_iri=base_info.resource_iri,
+        res_class=base_info.res_class_type,
+        property=base_info.result_path,
+    )
 
 
 def _query_all_with_detail(

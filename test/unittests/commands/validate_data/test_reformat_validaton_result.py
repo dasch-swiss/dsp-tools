@@ -294,6 +294,13 @@ class TestQueryFileValueViolations:
         assert result.property == KNORA_API.hasMovingImageFileValue
         assert result.results_message == "A MovingImageRepresentation requires a file with the extension 'mp4'."
 
+    def test_file_value_cardinality_to_ignore(
+        self, file_value_cardinality_to_ignore: tuple[Graph, Graph, ValidationResultBaseInfo]
+    ) -> None:
+        res, _, info = file_value_cardinality_to_ignore
+        result = _query_one_without_detail(info, res)
+        assert result is None
+
 
 class TestReformatResult:
     def test_min(self, extracted_min_card: ResultMinCardinalityViolation) -> None:

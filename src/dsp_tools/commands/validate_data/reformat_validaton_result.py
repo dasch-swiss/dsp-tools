@@ -159,7 +159,7 @@ def _query_all_without_detail(
 
 def _query_one_without_detail(
     base_info: ValidationResultBaseInfo, results_and_onto: Graph
-) -> ValidationResult | UnexpectedComponent:
+) -> ValidationResult | UnexpectedComponent | None:
     msg = str(next(results_and_onto.objects(base_info.result_bn, SH.resultMessage)))
     msg = _remove_whitespaces_from_string(msg)
     component = next(results_and_onto.objects(base_info.result_bn, SH.sourceConstraintComponent))
@@ -183,7 +183,7 @@ def _query_one_without_detail(
             return UnexpectedComponent(str(component))
 
 
-def _query_for_non_existent_cardinality_violation(base_info: ValidationResultBaseInfo):
+def _query_for_non_existent_cardinality_violation(base_info: ValidationResultBaseInfo) -> ValidationResult | None:
     # If a class is for example, an AudioRepresentation, but a jpg file is used, the created value is of type
     # StillImageFileValue.
     # This creates a min cardinality violation and a closed constraint.

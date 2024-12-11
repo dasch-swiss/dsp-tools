@@ -14,7 +14,10 @@ def construct_file_value_cardinality(onto: Graph) -> Graph:
     Returns:
         Graph with file cardinalities
     """
-    val_prop_mapper = {"MovingImageRepresentation": "hasMovingImageFileValue"}
+    val_prop_mapper = {
+        "AudioRepresentation": "hasAudioFileValue",
+        "MovingImageRepresentation": "hasMovingImageFileValue",
+    }
 
     def as_class_type_and_shacl_shape(cls_name: str) -> tuple[str, str]:
         return f"knora-api:{cls_name}", f"api-shapes:{val_prop_mapper[cls_name]}_PropShape"

@@ -306,7 +306,10 @@ def _query_for_min_cardinality_violation(
     results_and_onto: Graph,
 ) -> ValidationResult:
     source_shape = next(results_and_onto.objects(base_info.result_bn, SH.sourceShape))
-    file_shapes = {API_SHAPES.hasMovingImageFileValue_PropShape}
+    file_shapes = {
+        API_SHAPES.hasAudioFileValue_PropShape,
+        API_SHAPES.hasMovingImageFileValue_PropShape,
+    }
     if source_shape in file_shapes:
         return ResultFileValueViolation(
             res_iri=base_info.resource_iri,

@@ -8,8 +8,32 @@
 
     <!-- ArchiveRepresentation -->
 
-    <resource label="TestArchiveRepresentation" restype=":TestArchiveRepresentation" id="id_archive_zip">
+    <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="id_archive_zip">
         <bitstream>this/is/filepath/file.zip</bitstream>
+    </resource>
+
+    <resource label="TestArchiveRepresentation tar" restype=":TestArchiveRepresentation" id="id_archive_tar">
+        <bitstream>this/is/filepath/file.tar</bitstream>
+    </resource>
+
+    <resource label="TestArchiveRepresentation gz" restype=":TestArchiveRepresentation" id="id_archive_gz">
+        <bitstream>this/is/filepath/file.gz</bitstream>
+    </resource>
+
+    <resource label="TestArchiveRepresentation z" restype=":TestArchiveRepresentation" id="id_archive_z">
+        <bitstream>this/is/filepath/file.z</bitstream>
+    </resource>
+
+    <resource label="TestArchiveRepresentation tgz" restype=":TestArchiveRepresentation" id="id_archive_tgz">
+        <bitstream>this/is/filepath/file.tgz</bitstream>
+    </resource>
+
+    <resource label="TestArchiveRepresentation gzip" restype=":TestArchiveRepresentation" id="id_archive_gzip">
+        <bitstream>this/is/filepath/file.gzip</bitstream>
+    </resource>
+
+    <resource label="TestArchiveRepresentation 7z" restype=":TestArchiveRepresentation" id="id_archive_7z">
+        <bitstream>this/is/filepath/file.7z</bitstream>
     </resource>
 
     <!-- AudioRepresentation -->

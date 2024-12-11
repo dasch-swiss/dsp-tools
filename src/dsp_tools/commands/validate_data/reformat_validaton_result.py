@@ -244,7 +244,6 @@ def _query_for_value_type_violation(
 ) -> ResultValueTypeViolation:
     detail_info = cast(DetailBaseInfo, base_info.detail)
     msg = next(results_and_onto.objects(detail_info.detail_bn, SH.resultMessage))
-    msg = _remove_whitespaces_from_string(msg)
     val = next(results_and_onto.objects(base_info.result_bn, SH.value))
     val_type = next(data_graph.objects(val, RDF.type))
     return ResultValueTypeViolation(

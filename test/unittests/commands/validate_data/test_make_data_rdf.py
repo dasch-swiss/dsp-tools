@@ -13,6 +13,7 @@ from dsp_tools.commands.validate_data.models.data_deserialised import ColorValue
 from dsp_tools.commands.validate_data.models.data_deserialised import DateValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DecimalValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import GeonameValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import IIIFUriDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import IntValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import LinkValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ListValueDeserialised
@@ -289,6 +290,28 @@ class TestTransformFileValue:
         assert isinstance(result, FileValueRDF)
         assert result.prop_type_info.knora_type == KNORA_API.AudioFileValue
         assert result.value == Literal(bitstream.value, datatype=XSD.string)
+
+    @pytest.mark.parametrize("extension", ["jpg", "jpeg", "png", "tif", "tiff", "jp2"])
+    def test_still_image_file(self, extension: str) -> None:
+        bitstream = BitstreamDeserialised("id", f"test.{extension}")
+        result = _transform_file_value(bitstream)
+        assert isinstance(result, FileValueRDF)
+        assert result.prop_type_info.knora_type == KNORA_API.StillImageFileValue
+        assert result.value == Literal(bitstream.value, datatype=XSD.string)
+        bitstream = BitstreamDeserialised("id", f"test.{extension.upper()}")
+        result = _transform_file_value(bitstream)
+        assert isinstance(result, FileValueRDF)
+        assert result.prop_type_info.knora_type == KNORA_API.StillImageFileValue
+        assert result.value == Literal(bitstream.value, datatype=XSD.string)
+
+    def test_still_image_iiif(self) -> None:
+        iiif = IIIFUriDeserialised(
+            "id", "https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg"
+        )
+        result = _transform_file_value(iiif)
+        assert isinstance(result, FileValueRDF)
+        assert result.prop_type_info.knora_type == KNORA_API.StillImageExternalFileValue
+        assert result.value == Literal(iiif.value, datatype=XSD.anyURI)
 
     def test_other(self) -> None:
         bitstream = BitstreamDeserialised("id", "test.other")

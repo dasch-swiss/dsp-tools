@@ -212,7 +212,7 @@ def _transform_file_value(val: AbstractFileValueDeserialised) -> FileValueRDF | 
     if isinstance(val, IIIFUriDeserialised):
         return FileValueRDF(
             res_iri=DATA[val.res_id],
-            value=Literal(val.value),
+            value=Literal(val.value, datatype=XSD.anyURI),
             prop_type_info=IIIF_URI_VALUE,
             prop_to_value=KNORA_API.fileValueHasExternalUrl,
         )
@@ -221,7 +221,7 @@ def _transform_file_value(val: AbstractFileValueDeserialised) -> FileValueRDF | 
 
 def _map_into_correct_file_value(val: AbstractFileValueDeserialised) -> FileValueRDF | None:
     res_iri = DATA[val.res_id]
-    file_literal = Literal(val.value)
+    file_literal = Literal(val.value, datatype=XSD.string)
     file_extension = _get_file_extension(val.value)
     match file_extension:
         case "mp3" | "wav":

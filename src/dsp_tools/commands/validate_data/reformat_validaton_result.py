@@ -185,7 +185,6 @@ def _query_one_without_detail(
 
 
 def _query_for_non_existent_cardinality_violation(base_info: ValidationResultBaseInfo):
-
     return ResultNonExistentCardinalityViolation(
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,

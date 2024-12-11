@@ -399,7 +399,7 @@ class TestReformatValidationGraph:
             "id_still_image_unknown_extension",
             "id_still_image_video_extension",
             "id_video_missing",
-            "id_video_wrong_extension",
+            "id_video_unknown_extension",
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)

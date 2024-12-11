@@ -93,8 +93,8 @@ api-shapes:hasStillImageFileValue_PropShape
   sh:minCount 1 ;
   sh:maxCount 1 ;
   sh:message  """
-              A StillImageRepresentation requires a file with one of the extensions:
-              'jpg', 'jpeg', 'png', 'tif', 'tiff', 'jp2' or an external IIIF-URI.
+              A StillImageRepresentation requires an external IIIF-URI or a file with one of the extensions:
+              'jpg', 'jpeg', 'png', 'tif', 'tiff', 'jp2'.
               """ ;
   sh:or       (
                 [ sh:node api-shapes:StillImageFileValue_ClassShape ]

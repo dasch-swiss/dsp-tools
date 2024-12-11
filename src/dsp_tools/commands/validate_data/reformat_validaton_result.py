@@ -159,6 +159,7 @@ def _query_one_without_detail(
     base_info: ValidationResultBaseInfo, results_and_onto: Graph
 ) -> ValidationResult | UnexpectedComponent:
     msg = str(next(results_and_onto.objects(base_info.result_bn, SH.resultMessage)))
+    msg = _remove_whitespaces_from_string(msg)
     component = next(results_and_onto.objects(base_info.result_bn, SH.sourceConstraintComponent))
     match component:
         case SH.PatternConstraintComponent:
@@ -243,6 +244,7 @@ def _query_for_value_type_violation(
 ) -> ResultValueTypeViolation:
     detail_info = cast(DetailBaseInfo, base_info.detail)
     msg = next(results_and_onto.objects(detail_info.detail_bn, SH.resultMessage))
+    msg = _remove_whitespaces_from_string(msg)
     val = next(results_and_onto.objects(base_info.result_bn, SH.value))
     val_type = next(data_graph.objects(val, RDF.type))
     return ResultValueTypeViolation(
@@ -259,6 +261,7 @@ def _query_pattern_constraint_component_violation(
 ) -> ResultPatternViolation:
     val = next(results_and_onto.objects(bn_with_info, SH.value))
     msg = str(next(results_and_onto.objects(bn_with_info, SH.resultMessage)))
+    msg = _remove_whitespaces_from_string(msg)
     return ResultPatternViolation(
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
@@ -272,6 +275,7 @@ def _query_generic_violation(base_info: ValidationResultBaseInfo, results_and_on
     detail_info = cast(DetailBaseInfo, base_info.detail)
     val = next(results_and_onto.objects(detail_info.detail_bn, SH.value))
     msg = str(next(results_and_onto.objects(detail_info.detail_bn, SH.resultMessage)))
+    msg = _remove_whitespaces_from_string(msg)
     return ResultGenericViolation(
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
@@ -464,3 +468,9 @@ def _reformat_main_iris(result: ValidationResult) -> ReformattedIRI:
     prop_name = reformat_onto_iri(result.property)
     res_type = reformat_onto_iri(result.res_class)
     return ReformattedIRI(res_id=subject_id, res_type=res_type, prop_name=prop_name)
+
+
+def _remove_whitespaces_from_string(msg: str) -> str:
+    splt = msg.split(" ")
+    splt = [found for x in splt if (found := x.strip())]
+    return " ".join(splt)

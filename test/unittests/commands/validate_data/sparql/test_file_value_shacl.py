@@ -13,7 +13,7 @@ def file_value_shacl(onto_graph: Graph) -> Graph:
 
 
 def test_construct_file_value_cardinality(file_value_shacl: Graph) -> None:
-    number_of_classes_implemented = 2
+    number_of_classes_implemented = 5
     assert len(list(file_value_shacl.subjects(SH.property))) == number_of_classes_implemented
 
 

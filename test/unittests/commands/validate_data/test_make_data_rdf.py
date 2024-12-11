@@ -270,11 +270,17 @@ class TestUriValue:
 
 
 class TestTransformFileValue:
-    def test_moving_image(self) -> None:
-        bitstream = BitstreamDeserialised("id", "test.mp4")
+    @pytest.mark.parametrize("extension", ["zip", "tar", "gz", "z", "tgz", "gzip", "7z"])
+    def test_archive_file(self, extension: str) -> None:
+        bitstream = BitstreamDeserialised("id", f"test.{extension}")
         result = _transform_file_value(bitstream)
         assert isinstance(result, FileValueRDF)
-        assert result.prop_type_info.knora_type == KNORA_API.MovingImageFileValue
+        assert result.prop_type_info.knora_type == KNORA_API.ArchiveFileValue
+        assert result.value == Literal(bitstream.value)
+        bitstream = BitstreamDeserialised("id", f"test.{extension.upper()}")
+        result = _transform_file_value(bitstream)
+        assert isinstance(result, FileValueRDF)
+        assert result.prop_type_info.knora_type == KNORA_API.ArchiveFileValue
         assert result.value == Literal(bitstream.value)
 
     @pytest.mark.parametrize("extension", ["mp3", "wav"])
@@ -288,6 +294,39 @@ class TestTransformFileValue:
         result = _transform_file_value(bitstream)
         assert isinstance(result, FileValueRDF)
         assert result.prop_type_info.knora_type == KNORA_API.AudioFileValue
+        assert result.value == Literal(bitstream.value)
+
+    @pytest.mark.parametrize("extension", ["pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx"])
+    def test_document_file(self, extension: str) -> None:
+        bitstream = BitstreamDeserialised("id", f"test.{extension}")
+        result = _transform_file_value(bitstream)
+        assert isinstance(result, FileValueRDF)
+        assert result.prop_type_info.knora_type == KNORA_API.DocumentFileValue
+        assert result.value == Literal(bitstream.value)
+        bitstream = BitstreamDeserialised("id", f"test.{extension.upper()}")
+        result = _transform_file_value(bitstream)
+        assert isinstance(result, FileValueRDF)
+        assert result.prop_type_info.knora_type == KNORA_API.DocumentFileValue
+        assert result.value == Literal(bitstream.value)
+
+    def test_moving_image(self) -> None:
+        bitstream = BitstreamDeserialised("id", "test.mp4")
+        result = _transform_file_value(bitstream)
+        assert isinstance(result, FileValueRDF)
+        assert result.prop_type_info.knora_type == KNORA_API.MovingImageFileValue
+        assert result.value == Literal(bitstream.value)
+
+    @pytest.mark.parametrize("extension", ["odd", "rng", "txt", "xml", "xsd", "xsl", "csv", "json"])
+    def test_text_file(self, extension: str) -> None:
+        bitstream = BitstreamDeserialised("id", f"test.{extension}")
+        result = _transform_file_value(bitstream)
+        assert isinstance(result, FileValueRDF)
+        assert result.prop_type_info.knora_type == KNORA_API.TextFileValue
+        assert result.value == Literal(bitstream.value)
+        bitstream = BitstreamDeserialised("id", f"test.{extension.upper()}")
+        result = _transform_file_value(bitstream)
+        assert isinstance(result, FileValueRDF)
+        assert result.prop_type_info.knora_type == KNORA_API.TextFileValue
         assert result.value == Literal(bitstream.value)
 
     def test_other(self) -> None:

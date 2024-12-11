@@ -111,8 +111,40 @@
 
     <!-- TextRepresentation -->
 
-    <resource label="TestTextRepresentation" restype=":TestTextRepresentation" id="id_text">
+    <resource label="TestTextRepresentation odd" restype=":TestTextRepresentation" id="id_text_odd">
+        <bitstream>this/is/filepath/file.odd</bitstream>
+    </resource>
+
+    <resource label="TestTextRepresentation rng" restype=":TestTextRepresentation" id="id_text_rng">
+        <bitstream>this/is/filepath/file.rng</bitstream>
+    </resource>
+
+    <resource label="TestTextRepresentation txt" restype=":TestTextRepresentation" id="id_text_txt">
+        <bitstream>this/is/filepath/file.txt</bitstream>
+    </resource>
+
+    <resource label="TestTextRepresentation xml" restype=":TestTextRepresentation" id="id_text_xml">
         <bitstream>this/is/filepath/file.xml</bitstream>
+    </resource>
+
+    <resource label="TestTextRepresentation xsd" restype=":TestTextRepresentation" id="id_text_xsd">
+        <bitstream>this/is/filepath/file.xsd</bitstream>
+    </resource>
+
+    <resource label="TestTextRepresentation xsl" restype=":TestTextRepresentation" id="id_text_xsl">
+        <bitstream>this/is/filepath/file.xsl</bitstream>
+    </resource>
+
+    <resource label="TestTextRepresentation csv" restype=":TestTextRepresentation" id="id_text_csv">
+        <bitstream>this/is/filepath/file.csv</bitstream>
+    </resource>
+
+    <resource label="TestTextRepresentation json" restype=":TestTextRepresentation" id="id_text_json">
+        <bitstream>this/is/filepath/file.json</bitstream>
+    </resource>
+
+    <resource label="TestTextRepresentation JSON" restype=":TestTextRepresentation" id="id_text_json_capitalised">
+        <bitstream>this/is/filepath/file.JSON</bitstream>
     </resource>
 
 </knora>

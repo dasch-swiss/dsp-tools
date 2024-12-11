@@ -76,11 +76,41 @@ api-shapes:AudioFileValue_ClassShape
               ] ;
   sh:severity sh:Violation .
 
+
 ###########################
 # DocumentRepresentation
 ###########################
 
-# knora-api:DocumentFileValue -> knora-api:hasDocumentFileValue
+api-shapes:hasDocumentFileValue_PropShape
+  a           sh:PropertyShape ;
+  sh:path     knora-api:hasDocumentFileValue ;
+  sh:minCount 1 ;
+  sh:maxCount 1 ;
+  sh:message  """
+              A DocumentRepresentation requires a file with one of the following extensions
+              'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'.
+              """ ;
+  sh:node     api-shapes:DocumentFileValue_ClassShape .
+
+api-shapes:DocumentFileValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "DocumentFileValue" ;
+  sh:class    knora-api:DocumentFileValue ;
+  sh:property [
+                a           sh:PropertyShape ;
+                sh:path     knora-api:fileValueHasFilename ;
+                sh:minCount 1 ;
+                sh:maxCount 1 ;
+                sh:pattern  ".+\\.(pdf|doc|docx|xls|xlsx|ppt|pptx)$" ;
+                sh:flags "i" ; # case insensitive
+                sh:severity sh:Violation ;
+                sh:message  """
+                            A DocumentRepresentation requires a file with one of the following extensions
+                            'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'.
+                            """ ;
+              ] ;
+  sh:severity sh:Violation .
 
 
 ###########################

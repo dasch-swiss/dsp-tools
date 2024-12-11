@@ -17,6 +17,7 @@ def construct_file_value_cardinality(onto: Graph) -> Graph:
     val_prop_mapper = {
         "ArchiveRepresentation": "hasArchiveFileValue",
         "AudioRepresentation": "hasAudioFileValue",
+        "DocumentFileValue": "hasDocumentFileValue",
         "MovingImageRepresentation": "hasMovingImageFileValue",
         "TextRepresentation": "hasTextFileValue",
     }

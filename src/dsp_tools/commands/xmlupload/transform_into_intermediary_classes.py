@@ -1,4 +1,3 @@
-from dsp_tools.commands.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import IIIFUriInfo
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLBitstream
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
@@ -25,8 +24,9 @@ from dsp_tools.commands.xmlupload.models.intermediary.values import Intermediary
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryTime
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryUri
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryValue
-from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookup
+from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
+from dsp_tools.commands.xmlupload.prepare_xml_input.ark2iri import convert_ark_v0_to_resource_iri
 from dsp_tools.commands.xmlupload.transform_input_values import TypeTransformerMapper
 from dsp_tools.commands.xmlupload.transform_input_values import assert_is_string
 from dsp_tools.commands.xmlupload.transform_input_values import transform_boolean
@@ -39,7 +39,7 @@ from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import PermissionNotExistsError
 
 TYPE_TRANSFORMER_MAPPER: dict[str, TypeTransformerMapper] = {
-    "bool": TypeTransformerMapper(IntermediaryBoolean, transform_boolean),
+    "boolean": TypeTransformerMapper(IntermediaryBoolean, transform_boolean),
     "color": TypeTransformerMapper(IntermediaryColor, assert_is_string),
     "decimal": TypeTransformerMapper(IntermediaryDecimal, transform_decimal),
     "date": TypeTransformerMapper(IntermediaryDate, transform_date),
@@ -54,7 +54,7 @@ TYPE_TRANSFORMER_MAPPER: dict[str, TypeTransformerMapper] = {
 
 
 def transform_into_intermediary_resource(
-    resource: XMLResource, lookups: IntermediaryLookup
+    resource: XMLResource, lookups: IntermediaryLookups
 ) -> ResourceTransformationOutput:
     """
     Takes the XMLResource parsed from the XML file and converts them into the Intermediary format.
@@ -75,7 +75,7 @@ def transform_into_intermediary_resource(
         return ResourceTransformationOutput(None, transformation_failure)
 
 
-def _transform_one_resource(resource: XMLResource, lookups: IntermediaryLookup) -> IntermediaryResource:
+def _transform_one_resource(resource: XMLResource, lookups: IntermediaryLookups) -> IntermediaryResource:
     file_value, iiif_uri, migration_metadata = None, None, None
     if resource.bitstream:
         file_value = _transform_file_value(resource.bitstream, lookups)
@@ -105,29 +105,29 @@ def _transform_migration_metadata(resource: XMLResource) -> MigrationMetadata:
     return MigrationMetadata(res_iri, resource.creation_date)
 
 
-def _transform_file_value(bitstream: XMLBitstream, lookups: IntermediaryLookup) -> IntermediaryFileValue:
+def _transform_file_value(bitstream: XMLBitstream, lookups: IntermediaryLookups) -> IntermediaryFileValue:
     metadata = _get_metadata(bitstream, lookups)
     return IntermediaryFileValue(bitstream.value, metadata)
 
 
-def _transform_iiif_uri_value(iiif_uri: IIIFUriInfo, lookups: IntermediaryLookup) -> IntermediaryIIIFUri:
+def _transform_iiif_uri_value(iiif_uri: IIIFUriInfo, lookups: IntermediaryLookups) -> IntermediaryIIIFUri:
     metadata = _get_metadata(iiif_uri, lookups)
     return IntermediaryIIIFUri(iiif_uri.value, metadata)
 
 
-def _get_metadata(input_val: XMLBitstream | IIIFUriInfo, lookups: IntermediaryLookup) -> IntermediaryFileMetadata:
+def _get_metadata(input_val: XMLBitstream | IIIFUriInfo, lookups: IntermediaryLookups) -> IntermediaryFileMetadata:
     perm = _resolve_permission(input_val.permissions, lookups.permissions)
     return IntermediaryFileMetadata(perm)
 
 
-def _transform_all_properties(properties: list[XMLProperty], lookups: IntermediaryLookup) -> list[IntermediaryValue]:
+def _transform_all_properties(properties: list[XMLProperty], lookups: IntermediaryLookups) -> list[IntermediaryValue]:
     all_values = []
     for prop in properties:
         all_values.extend(_transform_one_property(prop, lookups))
     return all_values
 
 
-def _transform_one_property(prop: XMLProperty, lookups: IntermediaryLookup) -> list[IntermediaryValue]:
+def _transform_one_property(prop: XMLProperty, lookups: IntermediaryLookups) -> list[IntermediaryValue]:
     match prop.valtype:
         case "list":
             return _transform_list_values(prop, lookups)
@@ -139,7 +139,7 @@ def _transform_one_property(prop: XMLProperty, lookups: IntermediaryLookup) -> l
 
 
 def _transform_one_generic_value(
-    prop: XMLProperty, lookups: IntermediaryLookup, transformation_mapper: TypeTransformerMapper
+    prop: XMLProperty, lookups: IntermediaryLookups, transformation_mapper: TypeTransformerMapper
 ) -> list[IntermediaryValue]:
     intermediary_values = []
     prop_iri = _get_absolute_iri(prop.name, lookups.namespaces)
@@ -152,7 +152,7 @@ def _transform_one_generic_value(
     return intermediary_values
 
 
-def _transform_list_values(prop: XMLProperty, lookups: IntermediaryLookup) -> list[IntermediaryValue]:
+def _transform_list_values(prop: XMLProperty, lookups: IntermediaryLookups) -> list[IntermediaryValue]:
     intermediary_values: list[IntermediaryValue] = []
     prop_iri = _get_absolute_iri(prop.name, lookups.namespaces)
     for val in prop.values:
@@ -164,7 +164,7 @@ def _transform_list_values(prop: XMLProperty, lookups: IntermediaryLookup) -> li
     return intermediary_values
 
 
-def _transform_text_values(prop: XMLProperty, lookups: IntermediaryLookup) -> list[IntermediaryValue]:
+def _transform_text_values(prop: XMLProperty, lookups: IntermediaryLookups) -> list[IntermediaryValue]:
     intermediary_values: list[IntermediaryValue] = []
     prop_iri = _get_absolute_iri(prop.name, lookups.namespaces)
     for val in prop.values:

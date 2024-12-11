@@ -24,6 +24,7 @@ class Interval:
 class RDFPropTypeInfo:
     knora_type: URIRef
     knora_prop: URIRef
+    xsd_type: URIRef | None = None
 
 
 @dataclass

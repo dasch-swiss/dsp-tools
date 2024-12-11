@@ -6,48 +6,42 @@ import warnings
 from datetime import datetime
 from pathlib import Path
 from typing import Never
+from typing import cast
 
 from loguru import logger
-from lxml import etree
 from tqdm import tqdm
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.commands.xmlupload.check_consistency_with_ontology import do_xml_consistency_check_with_ontology
-from dsp_tools.commands.xmlupload.iiif_uri_validator import IIIFUriValidator
-from dsp_tools.commands.xmlupload.list_client import ListClient
-from dsp_tools.commands.xmlupload.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import create_resource_with_values
-from dsp_tools.commands.xmlupload.models.deserialise.xmlpermission import XmlPermission
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
-from dsp_tools.commands.xmlupload.models.lookup_models import Lookups
+from dsp_tools.commands.xmlupload.models.intermediary.resource import IntermediaryResource
+from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookups
+from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.lookup_models import get_json_ld_context_for_project
 from dsp_tools.commands.xmlupload.models.lookup_models import make_namespace_dict_from_onto_names
-from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
-from dsp_tools.commands.xmlupload.ontology_client import OntologyClient
-from dsp_tools.commands.xmlupload.ontology_client import OntologyClientLive
+from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClient
+from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClientLive
+from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClientLive
+from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import _validate_iiif_uris
+from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import prepare_upload_from_root
+from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import prepare_input_xml_file
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
-from dsp_tools.commands.xmlupload.read_validate_xml_file import check_if_bitstreams_exist
-from dsp_tools.commands.xmlupload.read_validate_xml_file import validate_and_parse
 from dsp_tools.commands.xmlupload.resource_create_client import ResourceCreateClient
-from dsp_tools.commands.xmlupload.stash.stash_circular_references import identify_circular_references
-from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references
-from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.commands.xmlupload.stash.upload_stashed_resptr_props import upload_stashed_resptr_props
 from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import upload_stashed_xml_texts
+from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import transform_into_intermediary_resource
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.write_diagnostic_info import write_id2iri_mapping
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.models.exceptions import PermanentTimeOutError
-from dsp_tools.models.exceptions import UserError
 from dsp_tools.models.exceptions import XmlUploadInterruptedError
-from dsp_tools.models.projectContext import ProjectContext
 from dsp_tools.utils.authentication_client import AuthenticationClient
 from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
 from dsp_tools.utils.connection import Connection
@@ -80,42 +74,22 @@ def xmlupload(
         uploaded because there is an error in it
     """
 
-    default_ontology, root, shortcode = _parse_xml(input_file=input_file, imgdir=imgdir)
-
-    if not config.skip_iiif_validation:
-        _validate_iiif_uris(root)
+    root, shortcode, default_ontology = prepare_input_xml_file(input_file, imgdir)
 
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
     con = ConnectionLive(creds.server, auth)
     config = config.with_server_info(server=creds.server, shortcode=shortcode)
 
+    if not config.skip_iiif_validation:
+        _validate_iiif_uris(root)
+
     ontology_client = OntologyClientLive(con=con, shortcode=shortcode, default_ontology=default_ontology)
-    resources, permissions_lookup, stash = prepare_upload(root, ontology_client)
+    resources, permissions_lookup, stash = prepare_upload_from_root(root, ontology_client)
 
     clients = _get_live_clients(con, auth, creds, shortcode, imgdir)
     state = UploadState(resources, stash, config, permissions_lookup)
 
     return execute_upload(clients, state)
-
-
-def _parse_xml(imgdir: str, input_file: Path) -> tuple[str, etree._Element, str]:
-    """
-    This function takes a path to an XML file.
-    It validates the file against the XML schema.
-    It checks if all the mentioned bitstream files are in the specified location.
-    It retrieves the shortcode and default ontology from the XML file.
-
-    Args:
-        imgdir: directory to the bitstream files
-        input_file: file that will be pased
-
-    Returns:
-        The ontology name, the parsed XML file and the shortcode of the project
-    """
-    root, shortcode, default_ontology = validate_and_parse(input_file)
-    check_if_bitstreams_exist(root=root, imgdir=imgdir)
-    logger.info(f"Validated and parsed the XML file. {shortcode=:} and {default_ontology=:}")
-    return default_ontology, root, shortcode
 
 
 def _get_live_clients(
@@ -148,27 +122,6 @@ def execute_upload(clients: UploadClients, upload_state: UploadState) -> bool:
     """
     _upload_resources(clients, upload_state)
     return _cleanup_upload(upload_state)
-
-
-def prepare_upload(
-    root: etree._Element,
-    ontology_client: OntologyClient,
-) -> tuple[list[XMLResource], dict[str, Permissions], Stash | None]:
-    """Do the consistency check, resolve circular references, and return the resources and permissions."""
-    do_xml_consistency_check_with_ontology(onto_client=ontology_client, root=root)
-    return _resolve_circular_references(
-        root=root,
-        con=ontology_client.con,
-        default_ontology=ontology_client.default_ontology,
-    )
-
-
-def _validate_iiif_uris(root: etree._Element) -> None:
-    uris = [uri.strip() for node in root.iter(tag="iiif-uri") if (uri := node.text)]
-    if problems := IIIFUriValidator(uris).validate():
-        msg = problems.get_msg()
-        warnings.warn(DspToolsUserWarning(msg))
-        logger.warning(msg)
 
 
 def _cleanup_upload(upload_state: UploadState) -> bool:
@@ -206,28 +159,6 @@ def _cleanup_upload(upload_state: UploadState) -> bool:
     return success
 
 
-def _resolve_circular_references(
-    root: etree._Element,
-    con: Connection,
-    default_ontology: str,
-) -> tuple[list[XMLResource], dict[str, Permissions], Stash | None]:
-    logger.info("Checking resources for circular references...")
-    print(f"{datetime.now()}: Checking resources for circular references...")
-    stash_lookup, upload_order = identify_circular_references(root)
-    logger.info("Get data from XML...")
-    resources, permissions_lookup = _get_data_from_xml(
-        con=con,
-        root=root,
-        default_ontology=default_ontology,
-    )
-    sorting_lookup = {res.res_id: res for res in resources}
-    resources = [sorting_lookup[res_id] for res_id in upload_order]
-    logger.info("Stashing circular references...")
-    print(f"{datetime.now()}: Stashing circular references...")
-    stash = stash_circular_references(resources, stash_lookup, permissions_lookup)
-    return resources, permissions_lookup, stash
-
-
 def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None:
     """
     Iterates through all resources and tries to upload them to DSP.
@@ -248,12 +179,9 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
     project_context = get_json_ld_context_for_project(project_onto_dict)
     namespaces = make_namespace_dict_from_onto_names(project_onto_dict)
 
-    lookups = Lookups(
+    iri_lookup = IRILookups(
         project_iri=project_iri,
         id_to_iri=upload_state.iri_resolver,
-        permissions=upload_state.permissions_lookup,
-        listnodes=listnode_lookup,
-        namespaces=namespaces,
         jsonld_context=project_context,
     )
 
@@ -261,6 +189,9 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
         con=clients.project_client.con,
         project_iri=project_iri,
         media_previously_ingested=upload_state.config.media_previously_uploaded,
+    )
+    intermediary_lookups = IntermediaryLookups(
+        permissions=upload_state.permissions_lookup, listnodes=listnode_lookup, namespaces=namespaces
     )
 
     progress_bar = tqdm(upload_state.pending_resources.copy(), desc="Creating Resources", dynamic_ncols=True)
@@ -271,7 +202,8 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
                 resource=resource,
                 ingest_client=clients.asset_client,
                 resource_create_client=resource_create_client,
-                lookups=lookups,
+                iri_lookup=iri_lookup,
+                intermediary_lookups=intermediary_lookups,
                 creation_attempts_of_this_round=creation_attempts_of_this_round,
             )
             progress_bar.set_description(f"Creating Resources (failed: {len(upload_state.failed_uploads)})")
@@ -279,18 +211,6 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
             _upload_stash(upload_state, clients.project_client)
     except XmlUploadInterruptedError as err:
         _handle_upload_error(err, upload_state)
-
-
-def _get_data_from_xml(
-    con: Connection,
-    root: etree._Element,
-    default_ontology: str,
-) -> tuple[list[XMLResource], dict[str, Permissions]]:
-    proj_context = _get_project_context_from_server(connection=con, shortcode=root.attrib["shortcode"])
-    permissions = _extract_permissions_from_xml(root, proj_context)
-    resources = _extract_resources_from_xml(root, default_ontology)
-    permissions_lookup = {name: perm.get_permission_instance() for name, perm in permissions.items()}
-    return resources, permissions_lookup
 
 
 def _upload_stash(
@@ -304,47 +224,22 @@ def _upload_stash(
         upload_stashed_resptr_props(upload_state, project_client.con, context)
 
 
-def _get_project_context_from_server(connection: Connection, shortcode: str) -> ProjectContext:
-    """
-    This function retrieves the project context previously uploaded on the server (json file)
-
-    Args:
-        connection: connection to the server
-        shortcode: shortcode of the project
-
-    Returns:
-        Project context
-
-    Raises:
-        UserError: If the project was not previously uploaded on the server
-    """
-    try:
-        proj_context = ProjectContext(con=connection, shortcode=shortcode)
-    except BaseError:
-        logger.opt(exception=True).error("Unable to retrieve project context from DSP server")
-        raise UserError("Unable to retrieve project context from DSP server") from None
-    return proj_context
-
-
-def _extract_permissions_from_xml(root: etree._Element, proj_context: ProjectContext) -> dict[str, XmlPermission]:
-    permission_ele = list(root.iter(tag="permissions"))
-    permissions = [XmlPermission(permission, proj_context) for permission in permission_ele]
-    return {permission.permission_id: permission for permission in permissions}
-
-
-def _extract_resources_from_xml(root: etree._Element, default_ontology: str) -> list[XMLResource]:
-    resources = list(root.iter(tag="resource"))
-    return [XMLResource.from_node(res, default_ontology) for res in resources]
-
-
 def _upload_one_resource(
     upload_state: UploadState,
     resource: XMLResource,
     ingest_client: AssetClient,
     resource_create_client: ResourceCreateClient,
-    lookups: Lookups,
+    iri_lookup: IRILookups,
+    intermediary_lookups: IntermediaryLookups,
     creation_attempts_of_this_round: int,
 ) -> None:
+    transformation_result = transform_into_intermediary_resource(resource, intermediary_lookups)
+    if transformation_result.resource_failure:
+        _handle_resource_creation_failure(resource, transformation_result.resource_failure.failure_msg)
+        return
+
+    transformed_resource = cast(IntermediaryResource, transformation_result.resource_success)
+
     try:
         if resource.bitstream:
             success, media_info = ingest_client.get_bitstream_info(
@@ -364,7 +259,7 @@ def _upload_one_resource(
     iri = None
     try:
         serialised_resource = create_resource_with_values(
-            resource=resource, bitstream_information=media_info, lookup=lookups
+            resource=transformed_resource, bitstream_information=media_info, lookup=iri_lookup
         )
         logger.info(f"Attempting to create resource {resource.res_id} (label: {resource.label})...")
         iri = resource_create_client.create_resource(serialised_resource, bool(media_info))

@@ -139,6 +139,7 @@ def _extract_one_base_info(info: QueryInfo, results_and_onto: Graph) -> Validati
         detail=detail,
     )
 
+
 # TODO: check for closed constraint exclude knora properties
 
 
@@ -314,7 +315,7 @@ def _query_for_min_cardinality_violation(
     file_shapes = {
         API_SHAPES.hasAudioFileValue_PropShape,
         API_SHAPES.hasMovingImageFileValue_PropShape,
-        API_SHAPES.hasStillImageFileValue_PropShape
+        API_SHAPES.hasStillImageFileValue_PropShape,
     }
     if source_shape in file_shapes:
         return ResultFileValueViolation(

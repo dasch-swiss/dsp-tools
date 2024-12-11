@@ -214,7 +214,7 @@ def _transform_file_value(val: AbstractFileValueDeserialised) -> FileValueRDF | 
             res_iri=DATA[val.res_id],
             value=Literal(val.value, datatype=XSD.anyURI),
             prop_type_info=IIIF_URI_VALUE,
-            prop_to_value=KNORA_API.fileValueHasExternalUrl,
+            prop_to_value=KNORA_API.stillImageFileValueHasExternalUrl,
         )
     return _map_into_correct_file_value(val)
 

@@ -136,7 +136,7 @@ api-shapes:StillImageExternalFileValue_ClassShape
   sh:class    knora-api:StillImageExternalFileValue ;
   sh:property [
                 a           sh:PropertyShape ;
-                sh:path     knora-api:fileValueHasExternalUrl ;
+                sh:path     knora-api:stillImageFileValueHasExternalUrl ;
                 sh:minCount 1 ;
                 sh:maxCount 1 ;
                 sh:datatype xsd:anyURI ;

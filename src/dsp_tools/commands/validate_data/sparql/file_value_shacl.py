@@ -17,6 +17,7 @@ def construct_file_value_cardinality(onto: Graph) -> Graph:
     val_prop_mapper = {
         "AudioRepresentation": "hasAudioFileValue",
         "MovingImageRepresentation": "hasMovingImageFileValue",
+        "StillImageRepresentation": "hasStillImageFileValue"
     }
 
     def as_class_type_and_shacl_shape(cls_name: str) -> tuple[str, str]:

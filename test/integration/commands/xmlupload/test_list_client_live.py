@@ -3,11 +3,11 @@ from typing import Any
 
 import pytest
 
-from dsp_tools.commands.xmlupload.list_client import List
-from dsp_tools.commands.xmlupload.list_client import ListClientLive
-from dsp_tools.commands.xmlupload.list_client import ListNode
-from dsp_tools.commands.xmlupload.list_client import _get_list_from_server
-from dsp_tools.commands.xmlupload.list_client import _get_list_iris_from_server
+from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import List
+from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClientLive
+from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListNode
+from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import _get_list_from_server
+from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import _get_list_iris_from_server
 from test.integration.commands.xmlupload.connection_mock import ConnectionMockBase
 
 

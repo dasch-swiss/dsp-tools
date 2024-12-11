@@ -67,7 +67,7 @@
     <!-- data type for knora uri -->
     <xs:simpleType name="knorauri_type">
         <xs:restriction base="xs:string">
-            <xs:pattern value="([a-z][a-z0-9+.\-]*):(//([\w_.\-~:\[\]]+)(:\d{0,6})?)(/[\w_.\-:~%()!@,;/=*&amp;]*)*(\?[\w_.\-:~%()!@,;/=*&amp;]+)*(#[\w_.\-:~%()!@,;/=*&amp;]*)?"/>
+            <xs:pattern value="([a-z][a-z0-9+.\-]*):(//([\w_.\-~:\[\]]+)(:\d{0,6})?)(/[\w_.\-:~%()!@,;/=*&amp;'+]*)*(\?[\w_.\-:~%()!@,;/=*&amp;'+]+)*(#[\w_.\-:~%()!@,;/=*&amp;'+]*)?"/>
         </xs:restriction>
     </xs:simpleType>
 

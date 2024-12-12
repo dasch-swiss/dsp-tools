@@ -31,6 +31,7 @@ from test.unittests.commands.validate_data.constants import PREFIXES
 def onto_graph() -> Graph:
     g = Graph()
     g.parse("testdata/validate-data/onto.ttl")
+    g.parse("testdata/validate-data/knora-api-subset.ttl")
     return g
 
 

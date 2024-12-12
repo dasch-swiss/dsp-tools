@@ -194,13 +194,16 @@ def _query_for_non_existent_cardinality_violation(
     # This creates a min cardinality and a closed constraint violation.
     # The closed constraint we ignore, because the problem is communicated through the min cardinality violation.
     file_value_properties = {
+        KNORA_API.hasArchiveFileValue,
         KNORA_API.hasAudioFileValue,
+        KNORA_API.hasDocumentFileValue,
         KNORA_API.hasMovingImageFileValue,
+        KNORA_API.hasTextFileValue,
         KNORA_API.hasStillImageFileValue,
     }
     if base_info.result_path in file_value_properties:
-        knora_type = list(results_and_onto.transitive_subjects(base_info.res_class_type, RDFS.subClassOf))
-        if knora_type == KNORA_API.Resource:
+        knora_types = list(results_and_onto.transitive_objects(base_info.res_class_type, RDFS.subClassOf))
+        if KNORA_API.Representation in knora_types:
             return None
         return ResultFileValueNotAllowedViolation(
             res_iri=base_info.resource_iri,

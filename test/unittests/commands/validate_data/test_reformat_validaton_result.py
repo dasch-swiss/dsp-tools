@@ -22,6 +22,7 @@ from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetV
 from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMinCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultNonExistentCardinalityViolation
+from dsp_tools.commands.validate_data.models.validation import ResultNonExistentFileValueViolation
 from dsp_tools.commands.validate_data.models.validation import ResultPatternViolation
 from dsp_tools.commands.validate_data.models.validation import ResultUniqueValueViolation
 from dsp_tools.commands.validate_data.models.validation import ResultValueTypeViolation
@@ -300,6 +301,16 @@ class TestQueryFileValueViolations:
         res, _, info = file_value_cardinality_to_ignore
         result = _query_one_without_detail(info, res)
         assert result is None
+
+    def test_file_value_for_resource_without_representation(
+        self, file_value_for_resource_without_representation: tuple[Graph, Graph, ValidationResultBaseInfo]
+    ) -> None:
+        res, _, info = file_value_for_resource_without_representation
+        result = _query_one_without_detail(info, res)
+        assert isinstance(result, ResultNonExistentFileValueViolation)
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
+        assert result.property == KNORA_API.hasMovingImageFileValue
 
 
 class TestReformatResult:

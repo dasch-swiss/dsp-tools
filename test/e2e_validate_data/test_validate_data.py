@@ -412,8 +412,8 @@ class TestReformatValidationGraph:
         assert len(result.problems) == len(expected_info_tuples)
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
-            assert isinstance(one_result, FileValueProblem)
-            assert one_result.res_id == expected_info
+            assert isinstance(one_result, expected_info[1])
+            assert one_result.res_id == expected_info[0]
 
     def test_reformat_special_characters_violation(self, special_characters_violation: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(special_characters_violation)

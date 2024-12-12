@@ -93,7 +93,7 @@ def report_min_card(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBa
 
 
 @pytest.fixture
-def file_value_cardinality_to_ignore(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
+def file_value_cardinality_to_ignore(onto_graph: Graph) -> tuple[Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
 [   a sh:ValidationResult ;
     sh:focusNode <http://data/id_wrong_file_type> ;
@@ -104,17 +104,16 @@ def file_value_cardinality_to_ignore(onto_graph: Graph) -> tuple[Graph, Graph, V
     sh:sourceShape <http://0.0.0.0:3333/ontology/9999/onto/v2#TestStillImageRepresentation> ;
     sh:value <http://data/fileValueBn> ] .
     """
-    validation_g = Graph()
-    validation_g.parse(data=validation_str, format="ttl")
     data_str = f"""{PREFIXES}
     <http://data/id_wrong_file_type> a onto:TestStillImageRepresentation ;
         rdfs:label "TestStillImageRepresentation File mp4"^^xsd:string ;
         knora-api:hasMovingImageFileValue <http://data/fileValueBn> .
     """
-    onto_data_g = Graph()
-    onto_data_g += onto_graph
-    onto_data_g.parse(data=data_str, format="ttl")
-    val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+    graphs = Graph()
+    graphs.parse(data=validation_str, format="ttl")
+    graphs.parse(data=data_str, format="ttl")
+    graphs += onto_graph
+    val_bn = next(graphs.subjects(RDF.type, SH.ValidationResult))
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=DASH.ClosedByTypesConstraintComponent,
@@ -122,11 +121,11 @@ def file_value_cardinality_to_ignore(onto_graph: Graph) -> tuple[Graph, Graph, V
         res_class_type=ONTO.TestStillImageRepresentation,
         result_path=KNORA_API.hasMovingImageFileValue,
     )
-    return validation_g, onto_data_g, base_info
+    return graphs, base_info
 
 
 @pytest.fixture
-def file_value_for_resource_without_representation(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
+def file_value_for_resource_without_representation(onto_graph: Graph) -> tuple[Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
 [ a sh:ValidationResult ;
     sh:focusNode <http://data/id_resource_without_representation> ;
@@ -137,18 +136,16 @@ def file_value_for_resource_without_representation(onto_graph: Graph) -> tuple[G
     sh:sourceShape <http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything> ;
     sh:value <http://data/fileBn> ] .
     """
-    validation_g = Graph()
-    validation_g.parse(data=validation_str, format="ttl")
     data_str = f"""{PREFIXES}
     <http://data/id_resource_without_representation> a <http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything> ;
         rdfs:label "Resource Without Representation"^^xsd:string ;
         knora-api:hasMovingImageFileValue <http://data/fileBn> .
-
     """
-    onto_data_g = Graph()
-    onto_data_g += onto_graph
-    onto_data_g.parse(data=data_str, format="ttl")
-    val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+    graphs = Graph()
+    graphs.parse(data=validation_str, format="ttl")
+    graphs.parse(data=data_str, format="ttl")
+    graphs += onto_graph
+    val_bn = next(graphs.subjects(RDF.type, SH.ValidationResult))
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=DASH.ClosedByTypesConstraintComponent,
@@ -156,7 +153,7 @@ def file_value_for_resource_without_representation(onto_graph: Graph) -> tuple[G
         res_class_type=ONTO.ClassWithEverything,
         result_path=KNORA_API.hasMovingImageFileValue,
     )
-    return validation_g, onto_data_g, base_info
+    return graphs, base_info
 
 
 @pytest.fixture

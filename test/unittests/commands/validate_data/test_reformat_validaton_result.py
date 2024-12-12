@@ -297,17 +297,17 @@ class TestQueryFileValueViolations:
         assert result.results_message == "A MovingImageRepresentation requires a file with the extension 'mp4'."
 
     def test_file_value_cardinality_to_ignore(
-        self, file_value_cardinality_to_ignore: tuple[Graph, Graph, ValidationResultBaseInfo]
+        self, file_value_cardinality_to_ignore: tuple[Graph, ValidationResultBaseInfo]
     ) -> None:
-        res, _, info = file_value_cardinality_to_ignore
-        result = _query_one_without_detail(info, res)
+        graphs, info = file_value_cardinality_to_ignore
+        result = _query_one_without_detail(info, graphs)
         assert result is None
 
     def test_file_value_for_resource_without_representation(
-        self, file_value_for_resource_without_representation: tuple[Graph, Graph, ValidationResultBaseInfo]
+        self, file_value_for_resource_without_representation: tuple[Graph, ValidationResultBaseInfo]
     ) -> None:
-        res, _, info = file_value_for_resource_without_representation
-        result = _query_one_without_detail(info, res)
+        graphs, info = file_value_for_resource_without_representation
+        result = _query_one_without_detail(info, graphs)
         assert isinstance(result, ResultFileValueNotAllowedViolation)
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type

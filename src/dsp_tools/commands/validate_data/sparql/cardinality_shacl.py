@@ -90,6 +90,11 @@ def _construct_1_cardinality(onto_graph: Graph) -> Graph:
       FILTER (?class NOT IN (
             knora-api:Region, knora-api:AudioSegment, knora-api:VideoSegment, knora-api:LinkObj)
       )
+      FILTER (?propRestriction NOT IN (
+             knora-api:hasArchiveFileValue, knora-api:hasAudioFileValue, knora-api:hasDocumentFileValue, 
+             knora-api:hasMovingImageFileValue, knora-api:hasStillImageFileValue, knora-api:hasTextFileValue
+             )
+      )
     }
     """
     if results_graph := onto_graph.query(query_s).graph:

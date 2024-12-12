@@ -15,9 +15,12 @@ def construct_file_value_cardinality(onto: Graph) -> Graph:
         Graph with file cardinalities
     """
     val_prop_mapper = {
+        "ArchiveRepresentation": "hasArchiveFileValue",
         "AudioRepresentation": "hasAudioFileValue",
+        "DocumentRepresentation": "hasDocumentFileValue",
         "MovingImageRepresentation": "hasMovingImageFileValue",
         "StillImageRepresentation": "hasStillImageFileValue",
+        "TextRepresentation": "hasTextFileValue",
     }
 
     def as_class_type_and_shacl_shape(cls_name: str) -> tuple[str, str]:

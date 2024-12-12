@@ -6,42 +6,66 @@
        shortcode="9999"
        default-ontology="onto">
 
-    <!-- 8 Violations -->
-
+    <!-- 14 Violations -->
+  
     <!-- Resource Without Representation -->
 
     <resource label="Resource Without Representation" restype=":ClassWithEverything" id="id_resource_without_representation">
         <bitstream>this/is/filepath/file.mp4</bitstream>
     </resource>
 
-    <!-- Resource with wrong extension -->
+    <!-- Wrong file type -->
 
-    <resource label="TestStillImageRepresentation File mp4" restype=":TestStillImageRepresentation" id="id_still_image_video_extension">
+    <resource label="TestStillImageRepresentation File mp4" restype=":TestStillImageRepresentation" id="id_wrong_file_type">
         <bitstream>this/is/filepath/file.mp4</bitstream>
+    </resource>
+
+    <!-- ArchiveRepresentation -->
+
+    <resource label="TestArchiveRepresentation" restype=":TestArchiveRepresentation" id="id_archive_missing"/>
+
+    <resource label="TestArchiveRepresentation unknown" restype=":TestArchiveRepresentation" id="id_archive_unknown">
+        <bitstream>this/is/filepath/file.unknown</bitstream>
     </resource>
 
     <!-- AudioRepresentation -->
 
     <resource label="TestAudioRepresentation" restype=":TestAudioRepresentation" id="id_audio_missing"/>
 
-    <resource label="TestAudioRepresentation" restype=":TestAudioRepresentation" id="id_audio_wrong_extension">
-        <bitstream>this/is/filepath/file.other</bitstream>
+    <resource label="TestAudioRepresentation" restype=":TestAudioRepresentation" id="id_audio_unknown">
+        <bitstream>this/is/filepath/file.unknown</bitstream>
+    </resource>
+
+    <!-- DocumentRepresentation -->
+
+    <resource label="TestDocumentRepresentation" restype=":TestDocumentRepresentation" id="id_document_missing"/>
+
+    <resource label="TestDocumentRepresentation unknown" restype=":TestDocumentRepresentation" id="id_document_unknown">
+        <bitstream>this/is/filepath/file.unknown</bitstream>
     </resource>
 
     <!-- MovingImageRepresentation -->
 
     <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="id_video_missing"/>
 
-    <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="id_video_unknown_extension">
+    <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="id_video_unknown">
+        <bitstream>this/is/filepath/file.unknown</bitstream>
+    </resource>
+
+    <!-- TextRepresentation -->
+
+    <resource label="TestTextRepresentation" restype=":TestTextRepresentation" id="id_text_missing"/>
+
+    <resource label="TestTextRepresentation" restype=":TestTextRepresentation" id="id_text_unknown">
         <bitstream>this/is/filepath/file.unknown</bitstream>
     </resource>
 
     <!-- StillImageRepresentation -->
 
-    <resource label="TestStillImageRepresentation File unknown" restype=":TestStillImageRepresentation" id="id_still_image_unknown_extension">
+    <resource label="TestStillImageRepresentation File missing" restype=":TestStillImageRepresentation" id="id_still_image_missing"/>
+
+    <resource label="TestStillImageRepresentation File unknown" restype=":TestStillImageRepresentation" id="id_still_image_unknown">
         <bitstream>this/is/filepath/file.unknown</bitstream>
     </resource>
-
-    <resource label="TestStillImageRepresentation File missing" restype=":TestStillImageRepresentation" id="id_still_image_missing"/>
 
 </knora>

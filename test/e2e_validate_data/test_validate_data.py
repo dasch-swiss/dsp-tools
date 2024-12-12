@@ -393,13 +393,19 @@ class TestReformatValidationGraph:
     def test_reformat_file_value_violation(self, file_value_violation: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(file_value_violation)
         expected_info_tuples = [
+            "id_archive_missing",
+            "id_archive_unknown",
             "id_audio_missing",
-            "id_audio_wrong_extension",
+            "id_audio_unknown",
+            "id_document_missing",
+            "id_document_unknown",
             "id_still_image_missing",
-            "id_still_image_unknown_extension",
-            "id_still_image_video_extension",
+            "id_still_image_unknown",
+            "id_text_missing",
+            "id_text_unknown",
             "id_video_missing",
-            "id_video_unknown_extension",
+            "id_video_unknown",
+            "id_wrong_file_type",
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)

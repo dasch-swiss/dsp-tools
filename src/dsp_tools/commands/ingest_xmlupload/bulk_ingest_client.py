@@ -61,7 +61,7 @@ class BulkIngestClient:
         """Uploads a file to the ingest server."""
         url = self._build_url_for_bulk_ingest_ingest_route(filepath)
         headers = {"Content-Type": "application/octet-stream"}
-        timeout = 600
+        timeout = 1000
         err_msg = f"Failed to upload '{filepath}' to '{url}'."
         try:
             logger.debug(f"REQUEST: POST to {url}, timeout: {timeout}, headers: {headers}")

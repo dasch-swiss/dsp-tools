@@ -4,7 +4,7 @@ import regex
 def is_uri(s: str) -> bool:
     """Checks if the given string is a valid URI."""
     # URI = scheme ":" ["//" host [":" port]] path ["?" query] ["#" fragment]
-    chars_for_path_query_fragment = r"\w_.\-:~%()!@,;/=*&"
+    chars_for_path_query_fragment = r"\w_.\-:~%()!@,;/=*&'+"
     scheme = r"(?<scheme>[a-z][a-z0-9+.\-]*)"
     host = r"(?<host>[\w_.\-:~\[\]]+)"
     port = r"(?<port>:\d{0,6})"

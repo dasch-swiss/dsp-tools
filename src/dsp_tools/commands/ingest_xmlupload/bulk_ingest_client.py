@@ -73,13 +73,13 @@ class BulkIngestClient:
                     timeout=timeout,
                 )
             logger.debug(f"RESPONSE: {res.status_code}")
+        except RequestException as e:
+            logger.error(err_msg)
+            return UploadFailure(filepath, f"Exception of requests library: {e}")
         except OSError as e:
             err_msg = f"Cannot bulk-ingest {filepath}, because the file could not be opened/read: {e.strerror}"
             logger.error(err_msg)
             return UploadFailure(filepath, err_msg)
-        except RequestException as e:
-            logger.error(err_msg)
-            return UploadFailure(filepath, f"Exception of requests library: {e}")
         if res.status_code != STATUS_OK:
             logger.error(err_msg)
             return UploadFailure(filepath, res.reason, res.status_code, res.text)

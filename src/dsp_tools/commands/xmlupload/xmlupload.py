@@ -236,6 +236,7 @@ def _upload_one_resource(
     transformation_result = transform_into_intermediary_resource(resource, intermediary_lookups)
     if transformation_result.resource_failure:
         _handle_resource_creation_failure(resource, transformation_result.resource_failure.failure_msg)
+        upload_state.failed_uploads.append(resource.res_id)
         return
 
     transformed_resource = cast(IntermediaryResource, transformation_result.resource_success)

@@ -6,7 +6,7 @@
        shortcode="9999"
        default-ontology="onto">
 
-    <!-- 4 Violations -->
+    <!-- 7 Violations -->
 
     <!-- AudioRepresentation -->
 
@@ -20,8 +20,20 @@
 
     <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="id_video_missing"/>
 
-    <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="id_video_wrong_extension">
-        <bitstream>this/is/filepath/file.other</bitstream>
+    <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="id_video_unknown_extension">
+        <bitstream>this/is/filepath/file.unknown</bitstream>
+    </resource>
+
+    <!-- StillImageRepresentation -->
+
+    <resource label="TestStillImageRepresentation File unknown" restype=":TestStillImageRepresentation" id="id_still_image_unknown_extension">
+        <bitstream>this/is/filepath/file.unknown</bitstream>
+    </resource>
+
+    <resource label="TestStillImageRepresentation File missing" restype=":TestStillImageRepresentation" id="id_still_image_missing"/>
+
+    <resource label="TestStillImageRepresentation File mp4" restype=":TestStillImageRepresentation" id="id_still_image_video_extension">
+        <bitstream>this/is/filepath/file.mp4</bitstream>
     </resource>
 
 </knora>

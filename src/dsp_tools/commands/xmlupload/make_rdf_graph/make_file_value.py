@@ -33,7 +33,7 @@ def make_iiif_uri_value_graph(iiif_uri: AbstractFileValue, res_bn: BNode) -> tup
     Returns:
         Graph with the IIIF-URI Value
     """
-    g = _make_abstract_file_value_graph(iiif_uri, IIIF_URI_VALUE, res_bn, KNORA_API.fileValueHasExternalUrl)
+    g = _make_abstract_file_value_graph(iiif_uri, IIIF_URI_VALUE, res_bn, KNORA_API.stillImageFileValueHasExternalUrl)
     return g, KNORA_API.hasStillImageFileValue
 
 

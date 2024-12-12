@@ -91,6 +91,39 @@ def report_min_card(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBa
 
 
 @pytest.fixture
+def file_value_cardinality_to_ignore(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
+    validation_str = f"""{PREFIXES}
+[   a sh:ValidationResult ;
+    sh:focusNode <http://data/id_still_image_video_extension> ;
+    sh:resultMessage "Property knora-api:hasMovingImageFileValue is not among those permitted for any of the types" ;
+    sh:resultPath <http://api.knora.org/ontology/knora-api/v2#hasMovingImageFileValue> ;
+    sh:resultSeverity sh:Violation ;
+    sh:sourceConstraintComponent <http://datashapes.org/dash#ClosedByTypesConstraintComponent> ;
+    sh:sourceShape <http://0.0.0.0:3333/ontology/9999/onto/v2#TestStillImageRepresentation> ;
+    sh:value <http://data/fileValueBn> ] .
+    """
+    validation_g = Graph()
+    validation_g.parse(data=validation_str, format="ttl")
+    data_str = f"""{PREFIXES}
+    <http://data/id_still_image_video_extension> a onto:TestStillImageRepresentation ;
+        rdfs:label "TestStillImageRepresentation File mp4"^^xsd:string ;
+        knora-api:hasMovingImageFileValue <http://data/fileValueBn> .
+    """
+    onto_data_g = Graph()
+    onto_data_g += onto_graph
+    onto_data_g.parse(data=data_str, format="ttl")
+    val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=DASH.ClosedByTypesConstraintComponent,
+        resource_iri=DATA.id_still_image_video_extension,
+        res_class_type=ONTO.TestStillImageRepresentation,
+        result_path=KNORA_API.hasMovingImageFileValue,
+    )
+    return validation_g, onto_data_g, base_info
+
+
+@pytest.fixture
 def extracted_min_card() -> ResultMinCardinalityViolation:
     return ResultMinCardinalityViolation(
         res_iri=DATA.id_card_one,

@@ -151,7 +151,9 @@ def _query_all_without_detail(
 
     for base_info in all_base_info:
         res = _query_one_without_detail(base_info, results_and_onto)
-        if isinstance(res, UnexpectedComponent):
+        if res is None:
+            pass
+        elif isinstance(res, UnexpectedComponent):
             unexpected_components.append(res)
         else:
             extracted_results.append(res)
@@ -160,8 +162,9 @@ def _query_all_without_detail(
 
 def _query_one_without_detail(
     base_info: ValidationResultBaseInfo, results_and_onto: Graph
-) -> ValidationResult | UnexpectedComponent:
+) -> ValidationResult | UnexpectedComponent | None:
     msg = str(next(results_and_onto.objects(base_info.result_bn, SH.resultMessage)))
+    msg = _remove_whitespaces_from_string(msg)
     component = next(results_and_onto.objects(base_info.result_bn, SH.sourceConstraintComponent))
     match component:
         case SH.PatternConstraintComponent:

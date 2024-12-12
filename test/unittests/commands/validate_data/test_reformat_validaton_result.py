@@ -165,9 +165,9 @@ class TestQueryWithoutDetail:
         assert result.property == ONTO.testHasLinkToCardOneResource
         assert result.results_message == "1"
 
-    def test_result_empty_label(self, report_empty_label: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
-        res, _, info = report_empty_label
-        result = _query_one_without_detail(info, res)
+    def test_result_empty_label(self, report_empty_label: tuple[Graph, ValidationResultBaseInfo]) -> None:
+        graphs, info = report_empty_label
+        result = _query_one_without_detail(info, graphs)
         assert isinstance(result, ResultPatternViolation)
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
@@ -195,9 +195,9 @@ class TestQueryWithoutDetail:
         assert result.property == ONTO.testHasLinkTo
         assert result.actual_value == DATA.link_valueTarget_id
 
-    def test_unknown(self, result_unknown_component: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
-        res, _, info = result_unknown_component
-        result = _query_one_without_detail(info, res)
+    def test_unknown(self, result_unknown_component: tuple[Graph, ValidationResultBaseInfo]) -> None:
+        graphs, info = result_unknown_component
+        result = _query_one_without_detail(info, graphs)
         assert isinstance(result, UnexpectedComponent)
         assert result.component_type == str(SH.UniqueLangConstraintComponent)
 

@@ -589,7 +589,7 @@ def extracted_max_card() -> ResultMaxCardinalityViolation:
 
 
 @pytest.fixture
-def report_empty_label(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
+def report_empty_label(onto_graph: Graph) -> tuple[Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
         sh:focusNode <http://data/empty_label> ;
@@ -600,16 +600,15 @@ def report_empty_label(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResul
         sh:sourceShape api-shapes:rdfsLabel_Shape ;
         sh:value " " ] .
     """
-    validation_g = Graph()
-    validation_g.parse(data=validation_str, format="ttl")
     data_str = f"""{PREFIXES}
         <http://data/empty_label> a onto:ClassWithEverything ;
             rdfs:label " "^^xsd:string .
     """
-    onto_data_g = Graph()
-    onto_data_g += onto_graph
-    onto_data_g.parse(data=data_str, format="ttl")
-    val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+    graphs = Graph()
+    graphs.parse(data=validation_str, format="ttl")
+    graphs.parse(data=data_str, format="ttl")
+    graphs += onto_graph
+    val_bn = next(graphs.subjects(RDF.type, SH.ValidationResult))
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.PatternConstraintComponent,
@@ -617,7 +616,7 @@ def report_empty_label(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResul
         res_class_type=ONTO.ClassWithEverything,
         result_path=RDFS.label,
     )
-    return validation_g, onto_data_g, base_info
+    return graphs, base_info
 
 
 @pytest.fixture
@@ -874,7 +873,7 @@ def extracted_missing_file_value() -> ResultFileValueViolation:
 
 
 @pytest.fixture
-def result_unknown_component(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
+def result_unknown_component(onto_graph: Graph) -> tuple[Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
         sh:focusNode <http://data/empty_label> ;
@@ -885,16 +884,15 @@ def result_unknown_component(onto_graph: Graph) -> tuple[Graph, Graph, Validatio
         sh:sourceShape api-shapes:rdfsLabel_Shape ;
         sh:value " " ] .
     """
-    validation_g = Graph()
-    validation_g.parse(data=validation_str, format="ttl")
     data_str = f"""{PREFIXES}
         <http://data/empty_label> a onto:ClassWithEverything ;
             rdfs:label " "^^xsd:string .
     """
-    onto_data_g = Graph()
-    onto_data_g += onto_graph
-    onto_data_g.parse(data=data_str, format="ttl")
-    val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+    graphs = Graph()
+    graphs.parse(data=validation_str, format="ttl")
+    graphs.parse(data=data_str, format="ttl")
+    graphs += onto_graph
+    val_bn = next(graphs.subjects(RDF.type, SH.ValidationResult))
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.PatternConstraintComponent,
@@ -902,4 +900,4 @@ def result_unknown_component(onto_graph: Graph) -> tuple[Graph, Graph, Validatio
         res_class_type=ONTO.ClassWithEverything,
         result_path=RDFS.label,
     )
-    return validation_g, onto_data_g, base_info
+    return graphs, base_info

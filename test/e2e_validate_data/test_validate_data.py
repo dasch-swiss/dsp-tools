@@ -405,6 +405,7 @@ class TestReformatValidationGraph:
             "id_text_unknown",
             "id_video_missing",
             "id_video_unknown",
+            "id_wrong_file_type"
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)

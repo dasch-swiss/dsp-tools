@@ -6,12 +6,18 @@
        shortcode="9999"
        default-ontology="onto">
 
-    <!-- 5 Violations -->
+    <!-- 6 Violations -->
 
     <!-- Resource Without Representation -->
 
     <resource label="Resource Without Representation" restype=":ClassWithEverything" id="id_resource_without_representation">
         <bitstream>this/is/filepath/file.mp4</bitstream>
+    </resource>
+
+    <!-- Resource with wrong extension -->
+
+    <resource label="TestAudioRepresentation jpg" restype=":TestAudioRepresentation" id="id_audio_image_extension">
+        <bitstream>this/is/filepath/file.jpg</bitstream>
     </resource>
 
     <!-- AudioRepresentation -->

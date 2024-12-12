@@ -11,6 +11,7 @@ from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.validate_data.api_connection import ApiConnection
 from dsp_tools.commands.validate_data.models.input_problems import ContentRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
+from dsp_tools.commands.validate_data.models.input_problems import FileValueNotAllowedProblem
 from dsp_tools.commands.validate_data.models.input_problems import FileValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import GenericProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
@@ -399,7 +400,7 @@ class TestReformatValidationGraph:
             ("id_audio_unknown", FileValueProblem),
             ("id_document_missing", FileValueProblem),
             ("id_document_unknown", FileValueProblem),
-            ("id_resource_without_representation", NonExistentCardinalityProblem),
+            ("id_resource_without_representation", FileValueNotAllowedProblem),
             ("id_still_image_missing", FileValueProblem),
             ("id_still_image_unknown", FileValueProblem),
             ("id_text_missing", FileValueProblem),

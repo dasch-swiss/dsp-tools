@@ -8,7 +8,6 @@
 
     <!-- 13 Violations -->
 
-
     <!-- Wrong file type -->
 
     <resource label="TestStillImageRepresentation File mp4" restype=":TestStillImageRepresentation" id="id_wrong_file_type">
@@ -51,16 +50,16 @@
 
     <resource label="TestTextRepresentation" restype=":TestTextRepresentation" id="id_text_missing"/>
 
-    <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="id_video_unknown_extension">
+    <resource label="TestTextRepresentation" restype=":TestTextRepresentation" id="id_text_unknown">
         <bitstream>this/is/filepath/file.unknown</bitstream>
     </resource>
 
     <!-- StillImageRepresentation -->
 
-    <resource label="TestStillImageRepresentation File unknown" restype=":TestStillImageRepresentation" id="id_still_image_unknown_extension">
+    <resource label="TestStillImageRepresentation File missing" restype=":TestStillImageRepresentation" id="id_still_image_missing"/>
+
+    <resource label="TestStillImageRepresentation File unknown" restype=":TestStillImageRepresentation" id="id_still_image_unknown">
         <bitstream>this/is/filepath/file.unknown</bitstream>
     </resource>
-
-    <resource label="TestStillImageRepresentation File missing" restype=":TestStillImageRepresentation" id="id_still_image_missing"/>
 
 </knora>

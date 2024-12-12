@@ -46,8 +46,8 @@ from dsp_tools.commands.validate_data.models.data_rdf import UriValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import ValueRDF
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import ARCHIVE_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import AUDIO_FILE_VALUE
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import IIIF_URI_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import DOCUMENT_FILE_VALUE
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import IIIF_URI_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import MOVING_IMAGE_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import STILL_IMAGE_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import TEXT_FILE_VALUE

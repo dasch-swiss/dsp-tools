@@ -339,7 +339,6 @@ class TestTransformFileValue:
         assert result.prop_type_info.knora_type == KNORA_API.StillImageExternalFileValue
         assert result.value == Literal(iiif.value, datatype=XSD.anyURI)
 
-
     @pytest.mark.parametrize("extension", ["odd", "rng", "txt", "xml", "xsd", "xsl", "csv", "json"])
     def test_text_file(self, extension: str) -> None:
         bitstream = BitstreamDeserialised("id", f"test.{extension}")

@@ -399,6 +399,8 @@ class TestReformatValidationGraph:
             "id_audio_unknown",
             "id_document_missing",
             "id_document_unknown",
+            "id_still_image_missing",
+            "id_still_image_unknown",
             "id_text_missing",
             "id_text_unknown",
             "id_video_missing",

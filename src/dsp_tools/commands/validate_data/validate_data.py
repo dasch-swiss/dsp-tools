@@ -89,7 +89,7 @@ def _inform_about_experimental_feature() -> None:
     what_is_validated = [
         "This is an experimental feature, it will change and be extended continuously. "
         "Please note that special characters may not be rendered correctly in the validation result. "
-        "This however has not influence on the validation itself."
+        "This however has no influence on the validation itself."
         "The following information of your data is being validated:",
         "Cardinalities",
         "If the value type used matches the ontology",

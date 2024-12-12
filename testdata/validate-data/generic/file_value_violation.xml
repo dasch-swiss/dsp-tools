@@ -6,8 +6,7 @@
        shortcode="9999"
        default-ontology="onto">
 
-    <!-- 7 Violations -->
-    <!-- 6 Violations -->
+    <!-- 8 Violations -->
 
     <!-- Resource Without Representation -->
 
@@ -17,8 +16,8 @@
 
     <!-- Resource with wrong extension -->
 
-    <resource label="TestAudioRepresentation jpg" restype=":TestAudioRepresentation" id="id_audio_image_extension">
-        <bitstream>this/is/filepath/file.jpg</bitstream>
+    <resource label="TestStillImageRepresentation File mp4" restype=":TestStillImageRepresentation" id="id_still_image_video_extension">
+        <bitstream>this/is/filepath/file.mp4</bitstream>
     </resource>
 
     <!-- AudioRepresentation -->
@@ -44,11 +43,5 @@
     </resource>
 
     <resource label="TestStillImageRepresentation File missing" restype=":TestStillImageRepresentation" id="id_still_image_missing"/>
-
-    <resource label="TestStillImageRepresentation File mp4" restype=":TestStillImageRepresentation" id="id_still_image_video_extension">
-        <bitstream>this/is/filepath/file.mp4</bitstream>
-    </resource>
-
-
 
 </knora>

@@ -254,7 +254,7 @@ class NonExistentCardinalityProblem(InputProblem):
 
 
 @dataclass
-class NonExistentFileValueProblem(InputProblem):
+class FileValueNotAllowedProblem(InputProblem):
     @property
     def problem(self) -> str:
         return "A file was added to the resource. This resource type must not have a file."

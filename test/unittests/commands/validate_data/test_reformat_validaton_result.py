@@ -7,6 +7,7 @@ from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.models.input_problems import ContentRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
+from dsp_tools.commands.validate_data.models.input_problems import FileValueNotAllowedProblem
 from dsp_tools.commands.validate_data.models.input_problems import FileValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import GenericProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
@@ -16,13 +17,13 @@ from dsp_tools.commands.validate_data.models.input_problems import MinCardinalit
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProblem
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
+from dsp_tools.commands.validate_data.models.validation import ResultFileValueNotAllowedViolation
 from dsp_tools.commands.validate_data.models.validation import ResultFileValueViolation
 from dsp_tools.commands.validate_data.models.validation import ResultGenericViolation
 from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMinCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultNonExistentCardinalityViolation
-from dsp_tools.commands.validate_data.models.validation import ResultNonExistentFileValueViolation
 from dsp_tools.commands.validate_data.models.validation import ResultPatternViolation
 from dsp_tools.commands.validate_data.models.validation import ResultUniqueValueViolation
 from dsp_tools.commands.validate_data.models.validation import ResultValueTypeViolation
@@ -307,7 +308,7 @@ class TestQueryFileValueViolations:
     ) -> None:
         res, _, info = file_value_for_resource_without_representation
         result = _query_one_without_detail(info, res)
-        assert isinstance(result, ResultNonExistentFileValueViolation)
+        assert isinstance(result, ResultFileValueNotAllowedViolation)
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == KNORA_API.hasMovingImageFileValue
@@ -432,6 +433,15 @@ class TestReformatResult:
         assert result.res_type == "onto:TestMovingImageRepresentation"
         assert result.prop_name == "bitstream / iiif-uri"
         assert result.expected == "A MovingImageRepresentation requires a file with the extension 'mp4'."
+
+    def test_file_value_for_resource_without_representation(
+        self, extracted_file_value_for_resource_without_representation: ResultFileValueNotAllowedViolation
+    ) -> None:
+        result = _reformat_one_validation_result(extracted_file_value_for_resource_without_representation)
+        assert isinstance(result, FileValueNotAllowedProblem)
+        assert result.res_id == "id_resource_without_representation"
+        assert result.res_type == "onto:ClassWithEverything"
+        assert result.prop_name == "bitstream / iiif-uri"
 
 
 if __name__ == "__main__":

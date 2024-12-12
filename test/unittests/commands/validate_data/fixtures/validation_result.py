@@ -8,6 +8,7 @@ from rdflib import Graph
 from rdflib import Literal
 
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
+from dsp_tools.commands.validate_data.models.validation import ResultFileValueNotAllowedViolation
 from dsp_tools.commands.validate_data.models.validation import ResultFileValueViolation
 from dsp_tools.commands.validate_data.models.validation import ResultGenericViolation
 from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
@@ -155,6 +156,15 @@ def file_value_for_resource_without_representation(onto_graph: Graph) -> tuple[G
         result_path=KNORA_API.hasMovingImageFileValue,
     )
     return validation_g, onto_data_g, base_info
+
+
+@pytest.fixture
+def extracted_file_value_for_resource_without_representation() -> ResultFileValueNotAllowedViolation:
+    return ResultFileValueNotAllowedViolation(
+        res_iri=DATA.id_resource_without_representation,
+        res_class=ONTO.ClassWithEverything,
+        property=ONTO.hasMovingImageFileValue,
+    )
 
 
 @pytest.fixture

@@ -13,6 +13,7 @@ from rdflib.term import Node
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import ContentRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
+from dsp_tools.commands.validate_data.models.input_problems import FileValueNotAllowedProblem
 from dsp_tools.commands.validate_data.models.input_problems import FileValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import GenericProblem
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
@@ -21,19 +22,18 @@ from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTyp
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityProblem
-from dsp_tools.commands.validate_data.models.input_problems import NonExistentFileValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import UnexpectedResults
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProblem
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import QueryInfo
 from dsp_tools.commands.validate_data.models.validation import ReformattedIRI
+from dsp_tools.commands.validate_data.models.validation import ResultFileValueNotAllowedViolation
 from dsp_tools.commands.validate_data.models.validation import ResultFileValueViolation
 from dsp_tools.commands.validate_data.models.validation import ResultGenericViolation
 from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMinCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultNonExistentCardinalityViolation
-from dsp_tools.commands.validate_data.models.validation import ResultNonExistentFileValueViolation
 from dsp_tools.commands.validate_data.models.validation import ResultPatternViolation
 from dsp_tools.commands.validate_data.models.validation import ResultUniqueValueViolation
 from dsp_tools.commands.validate_data.models.validation import ResultValueTypeViolation
@@ -202,7 +202,7 @@ def _query_for_non_existent_cardinality_violation(
         knora_type = list(results_and_onto.transitive_subjects(base_info.res_class_type, RDFS.subClassOf))
         if knora_type == KNORA_API.Resource:
             return None
-        return ResultNonExistentFileValueViolation(
+        return ResultFileValueNotAllowedViolation(
             res_iri=base_info.resource_iri,
             res_class=base_info.res_class_type,
             property=base_info.result_path,
@@ -391,9 +391,9 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
                 res_type=iris.res_type,
                 prop_name=iris.prop_name,
             )
-        case ResultNonExistentFileValueViolation():
+        case ResultFileValueNotAllowedViolation():
             iris = _reformat_main_iris(validation_result)
-            return NonExistentFileValueProblem(
+            return FileValueNotAllowedProblem(
                 res_id=iris.res_id,
                 res_type=iris.res_type,
                 prop_name="bitstream / iiif-uri",

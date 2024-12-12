@@ -287,9 +287,9 @@ class TestQueryWithDetail:
 
 
 class TestQueryFileValueViolations:
-    def test_missing_file_value(self, report_missing_file_value: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
-        res, _, info = report_missing_file_value
-        result = _query_one_without_detail(info, res)
+    def test_missing_file_value(self, report_missing_file_value: tuple[Graph, ValidationResultBaseInfo]) -> None:
+        graphs, info = report_missing_file_value
+        result = _query_one_without_detail(info, graphs)
         assert isinstance(result, ResultFileValueViolation)
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type

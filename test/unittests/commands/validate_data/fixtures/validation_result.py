@@ -833,7 +833,7 @@ def extracted_unknown_list_name() -> ResultGenericViolation:
 
 
 @pytest.fixture
-def report_missing_file_value(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
+def report_missing_file_value(onto_graph: Graph) -> tuple[Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
             sh:focusNode <http://data/id_video_missing> ;
@@ -844,16 +844,15 @@ def report_missing_file_value(onto_graph: Graph) -> tuple[Graph, Graph, Validati
             sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#hasMovingImageFileValue_PropShape> 
     ] .
     """
-    validation_g = Graph()
-    validation_g.parse(data=validation_str, format="ttl")
     data_str = f"""{PREFIXES}
     <http://data/id_video_missing> a <http://0.0.0.0:3333/ontology/9999/onto/v2#TestMovingImageRepresentation> ;
         rdfs:label "TestMovingImageRepresentation"^^xsd:string .
     """
-    onto_data_g = Graph()
-    onto_data_g += onto_graph
-    onto_data_g.parse(data=data_str, format="ttl")
-    val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+    graphs = Graph()
+    graphs.parse(data=validation_str, format="ttl")
+    graphs.parse(data=data_str, format="ttl")
+    graphs += onto_graph
+    val_bn = next(graphs.subjects(RDF.type, SH.ValidationResult))
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.MinCountConstraintComponent,
@@ -861,7 +860,7 @@ def report_missing_file_value(onto_graph: Graph) -> tuple[Graph, Graph, Validati
         res_class_type=ONTO.TestMovingImageRepresentation,
         result_path=KNORA_API.hasMovingImageFileValue,
     )
-    return validation_g, onto_data_g, base_info
+    return graphs, base_info
 
 
 @pytest.fixture

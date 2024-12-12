@@ -55,7 +55,7 @@ class TestIIIFURI:
         assert len(g) == 4
         val_bn = next(g.objects(res_bn, KNORA_API.hasStillImageFileValue))
         assert next(g.objects(val_bn, RDF.type)) == KNORA_API.StillImageExternalFileValue
-        value = next(g.objects(val_bn, KNORA_API.fileValueHasExternalUrl))
+        value = next(g.objects(val_bn, KNORA_API.stillImageFileValueHasExternalUrl))
         assert value == Literal("value", datatype=XSD.string)
         permissions = next(g.objects(val_bn, KNORA_API.hasPermissions))
         assert permissions == Literal("permissions", datatype=XSD.string)
@@ -66,7 +66,7 @@ class TestIIIFURI:
         assert len(g) == 3
         val_bn = next(g.objects(res_bn, KNORA_API.hasStillImageFileValue))
         assert next(g.objects(val_bn, RDF.type)) == KNORA_API.StillImageExternalFileValue
-        value = next(g.objects(val_bn, KNORA_API.fileValueHasExternalUrl))
+        value = next(g.objects(val_bn, KNORA_API.stillImageFileValueHasExternalUrl))
         assert value == Literal("value", datatype=XSD.string)
 
 

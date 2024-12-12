@@ -46,8 +46,10 @@ from dsp_tools.commands.validate_data.models.data_rdf import UriValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import ValueRDF
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import ARCHIVE_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import AUDIO_FILE_VALUE
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import IIIF_URI_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import DOCUMENT_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import MOVING_IMAGE_FILE_VALUE
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import STILL_IMAGE_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import TEXT_FILE_VALUE
 from dsp_tools.models.exceptions import InternalError
 
@@ -211,13 +213,18 @@ def _transform_uri_value(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
 
 def _transform_file_value(val: AbstractFileValueDeserialised) -> FileValueRDF | None:
     if isinstance(val, IIIFUriDeserialised):
-        return None
+        return FileValueRDF(
+            res_iri=DATA[val.res_id],
+            value=Literal(val.value, datatype=XSD.anyURI),
+            prop_type_info=IIIF_URI_VALUE,
+            prop_to_value=KNORA_API.stillImageFileValueHasExternalUrl,
+        )
     return _map_into_correct_file_value(val)
 
 
 def _map_into_correct_file_value(val: AbstractFileValueDeserialised) -> FileValueRDF | None:
     res_iri = DATA[val.res_id]
-    file_literal = Literal(val.value)
+    file_literal = Literal(val.value, datatype=XSD.string)
     file_extension = _get_file_extension(val.value)
     match file_extension:
         case "zip" | "tar" | "gz" | "z" | "tgz" | "gzip" | "7z":
@@ -230,6 +237,9 @@ def _map_into_correct_file_value(val: AbstractFileValueDeserialised) -> FileValu
             file_type = MOVING_IMAGE_FILE_VALUE
         case "odd" | "rng" | "txt" | "xml" | "xsd" | "xsl" | "csv" | "json":
             file_type = TEXT_FILE_VALUE
+        # jpx is the extension of the files returned by dsp-ingest
+        case "jpg" | "jpeg" | "jp2" | "png" | "tif" | "tiff" | "jpx":
+            file_type = STILL_IMAGE_FILE_VALUE
         case _:
             return None
     return FileValueRDF(res_iri=res_iri, value=file_literal, prop_type_info=file_type)

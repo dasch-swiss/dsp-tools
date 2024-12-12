@@ -19,6 +19,7 @@ def construct_file_value_cardinality(onto: Graph) -> Graph:
         "AudioRepresentation": "hasAudioFileValue",
         "DocumentRepresentation": "hasDocumentFileValue",
         "MovingImageRepresentation": "hasMovingImageFileValue",
+        "StillImageRepresentation": "hasStillImageFileValue",
         "TextRepresentation": "hasTextFileValue",
     }
 

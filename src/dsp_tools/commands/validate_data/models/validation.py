@@ -125,6 +125,10 @@ class ResultNonExistentCardinalityViolation(ValidationResult): ...
 
 
 @dataclass
+class ResultNonExistentFileValueViolation(ValidationResult): ...
+
+
+@dataclass
 class ResultFileValueViolation(ValidationResult):
     results_message: str
 

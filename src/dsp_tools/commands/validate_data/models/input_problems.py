@@ -253,6 +253,22 @@ class NonExistentCardinalityProblem(InputProblem):
         return self.prop_name
 
 
+@dataclass
+class NonExistentFileValueProblem(InputProblem):
+    @property
+    def problem(self) -> str:
+        return "A file was added to the resource. This resource type must not have a file."
+
+    def get_msg(self) -> str:
+        return self.problem
+
+    def to_dict(self) -> dict[str, str]:
+        return self._base_dict()
+
+    def sort_value(self) -> str:
+        return self.prop_name
+
+
 #######################
 # Value Type Violation
 

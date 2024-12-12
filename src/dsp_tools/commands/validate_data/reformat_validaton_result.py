@@ -3,6 +3,7 @@ from typing import cast
 
 import regex
 from rdflib import RDF
+from rdflib import RDFS
 from rdflib import SH
 from rdflib import Graph
 from rdflib import Literal
@@ -20,6 +21,7 @@ from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTyp
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityProblem
+from dsp_tools.commands.validate_data.models.input_problems import NonExistentFileValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import UnexpectedResults
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProblem
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
@@ -31,6 +33,7 @@ from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetV
 from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMinCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultNonExistentCardinalityViolation
+from dsp_tools.commands.validate_data.models.validation import ResultNonExistentFileValueViolation
 from dsp_tools.commands.validate_data.models.validation import ResultPatternViolation
 from dsp_tools.commands.validate_data.models.validation import ResultUniqueValueViolation
 from dsp_tools.commands.validate_data.models.validation import ResultValueTypeViolation
@@ -173,15 +176,39 @@ def _query_one_without_detail(
                 results_message=msg,
             )
         case DASH.ClosedByTypesConstraintComponent:
-            return ResultNonExistentCardinalityViolation(
-                res_iri=base_info.resource_iri,
-                res_class=base_info.res_class_type,
-                property=base_info.result_path,
-            )
+            return _query_for_non_existent_cardinality_violation(base_info, results_and_onto)
         case SH.SPARQLConstraintComponent:
             return _query_for_unique_value_violation(base_info, results_and_onto)
         case _:
             return UnexpectedComponent(str(component))
+
+
+def _query_for_non_existent_cardinality_violation(
+    base_info: ValidationResultBaseInfo, results_and_onto: Graph
+) -> ValidationResult | None:
+    # If a class is for example, an AudioRepresentation, but a jpg file is used,
+    # the created value is of type StillImageFileValue.
+    # This creates a min cardinality and a closed constraint violation.
+    # The closed constraint we ignore, because the problem is communicated through the min cardinality violation.
+    file_value_properties = {
+        KNORA_API.hasAudioFileValue,
+        KNORA_API.hasMovingImageFileValue,
+        KNORA_API.hasStillImageFileValue,
+    }
+    if base_info.result_path in file_value_properties:
+        knora_type = list(results_and_onto.transitive_subjects(base_info.res_class_type, RDFS.subClassOf))
+        if knora_type == KNORA_API.Resource:
+            return None
+        return ResultNonExistentFileValueViolation(
+            res_iri=base_info.resource_iri,
+            res_class=base_info.res_class_type,
+            property=base_info.result_path,
+        )
+    return ResultNonExistentCardinalityViolation(
+        res_iri=base_info.resource_iri,
+        res_class=base_info.res_class_type,
+        property=base_info.result_path,
+    )
 
 
 def _query_all_with_detail(
@@ -259,6 +286,7 @@ def _query_pattern_constraint_component_violation(
 ) -> ResultPatternViolation:
     val = next(results_and_onto.objects(bn_with_info, SH.value))
     msg = str(next(results_and_onto.objects(bn_with_info, SH.resultMessage)))
+    msg = _remove_whitespaces_from_string(msg)
     return ResultPatternViolation(
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
@@ -272,6 +300,7 @@ def _query_generic_violation(base_info: ValidationResultBaseInfo, results_and_on
     detail_info = cast(DetailBaseInfo, base_info.detail)
     val = next(results_and_onto.objects(detail_info.detail_bn, SH.value))
     msg = str(next(results_and_onto.objects(detail_info.detail_bn, SH.resultMessage)))
+    msg = _remove_whitespaces_from_string(msg)
     return ResultGenericViolation(
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
@@ -309,6 +338,7 @@ def _query_for_min_cardinality_violation(
     file_shapes = {
         API_SHAPES.hasAudioFileValue_PropShape,
         API_SHAPES.hasMovingImageFileValue_PropShape,
+        API_SHAPES.hasStillImageFileValue_PropShape,
     }
     if source_shape in file_shapes:
         return ResultFileValueViolation(
@@ -354,6 +384,13 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
                 res_id=iris.res_id,
                 res_type=iris.res_type,
                 prop_name=iris.prop_name,
+            )
+        case ResultNonExistentFileValueViolation():
+            iris = _reformat_main_iris(validation_result)
+            return NonExistentFileValueProblem(
+                res_id=iris.res_id,
+                res_type=iris.res_type,
+                prop_name="bitstream / iiif-uri",
             )
         case ResultGenericViolation():
             iris = _reformat_main_iris(validation_result)
@@ -464,3 +501,9 @@ def _reformat_main_iris(result: ValidationResult) -> ReformattedIRI:
     prop_name = reformat_onto_iri(result.property)
     res_type = reformat_onto_iri(result.res_class)
     return ReformattedIRI(res_id=subject_id, res_type=res_type, prop_name=prop_name)
+
+
+def _remove_whitespaces_from_string(msg: str) -> str:
+    splt = msg.split(" ")
+    splt = [found for x in splt if (found := x.strip())]
+    return " ".join(splt)

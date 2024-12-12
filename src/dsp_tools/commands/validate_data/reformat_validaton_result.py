@@ -202,8 +202,8 @@ def _query_for_non_existent_cardinality_violation(
         KNORA_API.hasStillImageFileValue,
     }
     if base_info.result_path in file_value_properties:
-        knora_types = list(results_and_onto.transitive_objects(base_info.res_class_type, RDFS.subClassOf))
-        if KNORA_API.Representation in knora_types:
+        sub_classes = list(results_and_onto.transitive_objects(base_info.res_class_type, RDFS.subClassOf))
+        if KNORA_API.Representation in sub_classes:
             return None
         return ResultFileValueNotAllowedViolation(
             res_iri=base_info.resource_iri,

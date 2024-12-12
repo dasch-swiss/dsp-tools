@@ -1,3 +1,4 @@
+import shutil
 import urllib.parse
 from dataclasses import dataclass
 from dataclasses import field
@@ -60,10 +61,10 @@ class BulkIngestClient:
     ) -> None:
         """Uploads a file to the ingest server."""
         filepath_rel = filepath.relative_to("/") if filepath.is_absolute() else filepath
-        link_source_base = Path("/Volumes/LHTT/dsp-api/sipi/tmp-dsp-ingest/import/0820")
-        link_source = link_source_base / filepath_rel
-        link_source.parent.mkdir(parents=True, exist_ok=True)
-        link_source.hardlink_to(filepath)
+        target_base = Path("/Volumes/LHTT/dsp-api/sipi/tmp-dsp-ingest/import/0820")
+        target = target_base / filepath_rel
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy(filepath, target)
 
     def _build_url_for_bulk_ingest_ingest_route(self, filepath: Path) -> str:
         """

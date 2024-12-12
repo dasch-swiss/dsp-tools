@@ -15,7 +15,36 @@
 # ArchiveRepresentation
 ###########################
 
-# knora-api:ArchiveFileValue -> knora-api:hasArchiveFileValue
+api-shapes:hasArchiveFileValue_PropShape
+  a           sh:PropertyShape ;
+  sh:path     knora-api:hasArchiveFileValue ;
+  sh:minCount 1 ;
+  sh:maxCount 1 ;
+  sh:message  """
+              An ArchiveRepresentation requires a file with one of the following extensions
+              'zip', 'tar', 'gz', 'z', 'tgz', 'gzip', '7z'.
+              """ ;
+  sh:node     api-shapes:ArchiveFileValue_ClassShape .
+
+api-shapes:ArchiveFileValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "ArchiveFileValue" ;
+  sh:class    knora-api:ArchiveFileValue ;
+  sh:property [
+                a           sh:PropertyShape ;
+                sh:path     knora-api:fileValueHasFilename ;
+                sh:minCount 1 ;
+                sh:maxCount 1 ;
+                sh:pattern  ".+\\.(zip|tar|gz|z|tgz|gzip|7z)$" ;
+                sh:flags "i" ; # case insensitive
+                sh:severity sh:Violation ;
+                sh:message  """
+                            An ArchiveRepresentation requires a file with one of the following extensions
+                            'zip', 'tar', 'gz', 'z', 'tgz', 'gzip', '7z'.
+                            """ ;
+              ] ;
+  sh:severity sh:Violation .
 
 
 ###########################
@@ -52,7 +81,36 @@ api-shapes:AudioFileValue_ClassShape
 # DocumentRepresentation
 ###########################
 
-# knora-api:DocumentFileValue -> knora-api:hasDocumentFileValue
+api-shapes:hasDocumentFileValue_PropShape
+  a           sh:PropertyShape ;
+  sh:path     knora-api:hasDocumentFileValue ;
+  sh:minCount 1 ;
+  sh:maxCount 1 ;
+  sh:message  """
+              A DocumentRepresentation requires a file with one of the following extensions
+              'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'.
+              """ ;
+  sh:node     api-shapes:DocumentFileValue_ClassShape .
+
+api-shapes:DocumentFileValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "DocumentFileValue" ;
+  sh:class    knora-api:DocumentFileValue ;
+  sh:property [
+                a           sh:PropertyShape ;
+                sh:path     knora-api:fileValueHasFilename ;
+                sh:minCount 1 ;
+                sh:maxCount 1 ;
+                sh:pattern  ".+\\.(pdf|doc|docx|xls|xlsx|ppt|pptx)$" ;
+                sh:flags "i" ; # case insensitive
+                sh:severity sh:Violation ;
+                sh:message  """
+                            A DocumentRepresentation requires a file with one of the following extensions
+                            'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'.
+                            """ ;
+              ] ;
+  sh:severity sh:Violation .
 
 
 ###########################
@@ -152,4 +210,33 @@ api-shapes:StillImageExternalFileValue_ClassShape
 # TextRepresentation
 ###########################
 
-# knora-api:TextFileValue -> knora-api:hasTextFileValue
+api-shapes:hasTextFileValue_PropShape
+  a           sh:PropertyShape ;
+  sh:path     knora-api:hasTextFileValue ;
+  sh:minCount 1 ;
+  sh:maxCount 1 ;
+  sh:message  """
+              A TextRepresentation requires a file with one of the following extensions
+              'odd', 'rng', 'txt', 'xml', 'xsd', 'xsl', 'csv', 'json'.
+              """ ;
+  sh:node     api-shapes:TextFileValue_ClassShape .
+
+api-shapes:TextFileValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "TextFileValue" ;
+  sh:class    knora-api:TextFileValue ;
+  sh:property [
+                a           sh:PropertyShape ;
+                sh:path     knora-api:fileValueHasFilename ;
+                sh:minCount 1 ;
+                sh:maxCount 1 ;
+                sh:pattern  ".+\\.(odd|rng|txt|xml|xsd|xsl|csv|json)$" ;
+                sh:flags "i" ; # case insensitive
+                sh:severity sh:Violation ;
+                sh:message  """
+                            A TextRepresentation requires a file with one of the following extensions
+                            'odd', 'rng', 'txt', 'xml', 'xsd', 'xsl', 'csv', 'json'.
+                            """ ;
+              ] ;
+  sh:severity sh:Violation .

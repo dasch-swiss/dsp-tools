@@ -327,8 +327,11 @@ def _query_for_min_cardinality_violation(
 ) -> ValidationResult:
     source_shape = next(results_and_onto.objects(base_info.result_bn, SH.sourceShape))
     file_shapes = {
+        API_SHAPES.hasArchiveFileValue_PropShape,
         API_SHAPES.hasAudioFileValue_PropShape,
+        API_SHAPES.hasDocumentFileValue_PropShape,
         API_SHAPES.hasMovingImageFileValue_PropShape,
+        API_SHAPES.hasTextFileValue_PropShape,
         API_SHAPES.hasStillImageFileValue_PropShape,
     }
     if source_shape in file_shapes:

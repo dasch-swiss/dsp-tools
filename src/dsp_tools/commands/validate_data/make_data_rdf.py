@@ -44,10 +44,13 @@ from dsp_tools.commands.validate_data.models.data_rdf import SimpleTextRDF
 from dsp_tools.commands.validate_data.models.data_rdf import TimeValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import UriValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import ValueRDF
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import ARCHIVE_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import AUDIO_FILE_VALUE
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import DOCUMENT_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import IIIF_URI_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import MOVING_IMAGE_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import STILL_IMAGE_FILE_VALUE
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import TEXT_FILE_VALUE
 from dsp_tools.models.exceptions import InternalError
 
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
@@ -224,10 +227,16 @@ def _map_into_correct_file_value(val: AbstractFileValueDeserialised) -> FileValu
     file_literal = Literal(val.value, datatype=XSD.string)
     file_extension = _get_file_extension(val.value)
     match file_extension:
+        case "zip" | "tar" | "gz" | "z" | "tgz" | "gzip" | "7z":
+            file_type = ARCHIVE_FILE_VALUE
         case "mp3" | "wav":
             file_type = AUDIO_FILE_VALUE
+        case "pdf" | "doc" | "docx" | "xls" | "xlsx" | "ppt" | "pptx":
+            file_type = DOCUMENT_FILE_VALUE
         case "mp4":
             file_type = MOVING_IMAGE_FILE_VALUE
+        case "odd" | "rng" | "txt" | "xml" | "xsd" | "xsl" | "csv" | "json":
+            file_type = TEXT_FILE_VALUE
         # jpx is the extension of the files returned by dsp-ingest
         case "jpg" | "jpeg" | "jp2" | "png" | "tif" | "tiff" | "jpx":
             file_type = STILL_IMAGE_FILE_VALUE

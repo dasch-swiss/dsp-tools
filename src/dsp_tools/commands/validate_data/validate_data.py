@@ -94,7 +94,8 @@ def _inform_about_experimental_feature() -> None:
         "Cardinalities",
         "If the value type used matches the ontology",
         "Content of the values",
-        "Missing or wrong files",
+        "Missing files",
+        "If the file type matches the ontology"
     ]
     print(BOLD_CYAN + LIST_SEPARATOR.join(what_is_validated) + RESET_TO_DEFAULT)
 

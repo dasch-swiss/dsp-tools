@@ -88,10 +88,14 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
 def _inform_about_experimental_feature() -> None:
     what_is_validated = [
         "This is an experimental feature, it will change and be extended continuously. "
+        "Please note that special characters may not be rendered correctly in the validation result. "
+        "This however has no influence on the validation itself."
         "The following information of your data is being validated:",
         "Cardinalities",
         "If the value type used matches the ontology",
         "Content of the values",
+        "Missing files",
+        "If the file type matches the ontology",
     ]
     print(BOLD_CYAN + LIST_SEPARATOR.join(what_is_validated) + RESET_TO_DEFAULT)
 
@@ -202,7 +206,7 @@ def _validate(validator: ShaclValidator) -> ValidationReportGraphs:
         conforms=validation_results.conforms,
         validation_graph=validation_results.validation_graph,
         shacl_graph=validator.rdf_graphs.cardinality_shapes + validator.rdf_graphs.content_shapes,
-        onto_graph=validator.rdf_graphs.ontos,
+        onto_graph=validator.rdf_graphs.ontos + validator.rdf_graphs.knora_api,
         data_graph=validator.rdf_graphs.data,
     )
 

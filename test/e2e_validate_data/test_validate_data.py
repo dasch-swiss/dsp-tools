@@ -11,6 +11,7 @@ from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.validate_data.api_connection import ApiConnection
 from dsp_tools.commands.validate_data.models.input_problems import ContentRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
+from dsp_tools.commands.validate_data.models.input_problems import FileValueNotAllowedProblem
 from dsp_tools.commands.validate_data.models.input_problems import FileValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import GenericProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
@@ -393,26 +394,27 @@ class TestReformatValidationGraph:
     def test_reformat_file_value_violation(self, file_value_violation: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(file_value_violation)
         expected_info_tuples = [
-            "id_archive_missing",
-            "id_archive_unknown",
-            "id_audio_missing",
-            "id_audio_unknown",
-            "id_document_missing",
-            "id_document_unknown",
-            "id_still_image_missing",
-            "id_still_image_unknown",
-            "id_text_missing",
-            "id_text_unknown",
-            "id_video_missing",
-            "id_video_unknown",
-            "id_wrong_file_type",
+            ("id_archive_missing", FileValueProblem),
+            ("id_archive_unknown", FileValueProblem),
+            ("id_audio_missing", FileValueProblem),
+            ("id_audio_unknown", FileValueProblem),
+            ("id_document_missing", FileValueProblem),
+            ("id_document_unknown", FileValueProblem),
+            ("id_resource_without_representation", FileValueNotAllowedProblem),
+            ("id_still_image_missing", FileValueProblem),
+            ("id_still_image_unknown", FileValueProblem),
+            ("id_text_missing", FileValueProblem),
+            ("id_text_unknown", FileValueProblem),
+            ("id_video_missing", FileValueProblem),
+            ("id_video_unknown", FileValueProblem),
+            ("id_wrong_file_type", FileValueProblem),
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
-            assert isinstance(one_result, FileValueProblem)
-            assert one_result.res_id == expected_info
+            assert isinstance(one_result, expected_info[1])
+            assert one_result.res_id == expected_info[0]
 
     def test_reformat_special_characters_violation(self, special_characters_violation: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(special_characters_violation)

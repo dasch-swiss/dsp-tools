@@ -30,6 +30,8 @@ from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDe
 from dsp_tools.commands.validate_data.models.data_deserialised import ValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import VideoSegmentDeserialised
 
+KNORA_API = "http://api.knora.org/ontology/knora-api/v2#"
+
 
 def deserialise_xml(root: etree._Element) -> ProjectDeserialised:
     """
@@ -54,19 +56,17 @@ def _deserialise_all_resources(root: etree._Element) -> DataDeserialised:
     for res in root.iterchildren():
         res_id = res.attrib["id"]
         lbl = cast(str, res.attrib.get("label"))
-        match res.tag:
-            case "resource":
-                all_res.append(_deserialise_one_resource(res))
-            case "region":
+        match res.attrib["restype"]:
+            case "http://api.knora.org/ontology/knora-api/v2#region":
                 all_res.append(RegionDeserialised(res_id, lbl))
-            case "link":
+            case "http://api.knora.org/ontology/knora-api/v2#link":
                 all_res.append(LinkObjDeserialised(res_id, lbl))
-            case "video-segment":
+            case "http://api.knora.org/ontology/knora-api/v2#video-segment":
                 all_res.append(VideoSegmentDeserialised(res_id, lbl))
-            case "audio-segment":
+            case "http://api.knora.org/ontology/knora-api/v2#audio-segment":
                 all_res.append(AudioSegmentDeserialised(res_id, lbl))
             case _:
-                pass
+                all_res.append(_deserialise_one_resource(res))
     file_values = _deserialise_file_value(root)
     return DataDeserialised(all_res, file_values)
 

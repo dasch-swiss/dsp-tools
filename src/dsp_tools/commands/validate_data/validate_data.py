@@ -31,7 +31,7 @@ from dsp_tools.utils.ansi_colors import BOLD_CYAN
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.xml_utils import parse_xml_file
 from dsp_tools.utils.xml_utils import remove_comments_from_element_tree
-from dsp_tools.utils.xml_utils import transform_into_localnames
+from dsp_tools.utils.xml_utils import transform_special_tags_make_localname
 from dsp_tools.utils.xml_validation import validate_xml
 
 LIST_SEPARATOR = "\n    - "
@@ -222,7 +222,7 @@ def _parse_and_clean_file(file: Path, api_url: str) -> XMLProject:
     root = parse_xml_file(file)
     root = remove_comments_from_element_tree(root)
     validate_xml(root)
-    root = transform_into_localnames(root)
+    root = transform_special_tags_make_localname(root)
     return _replace_namespaces(root, api_url)
 
 

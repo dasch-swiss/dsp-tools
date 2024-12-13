@@ -54,7 +54,7 @@ def test_make_resource_mandatory_only(lookups: IRILookups) -> None:
     )
     res_bn = BNode()
     res_graph = _make_resource(res, res_bn, lookups)
-    assert len(res_graph) == 0
+    assert len(res_graph) == 3
     assert next(res_graph.objects(res_bn, RDF.type)) == RESOURCE_TYPE
     assert next(res_graph.objects(res_bn, RDFS.label)) == LABEL
     assert next(res_graph.objects(res_bn, KNORA_API.attachedToProject)) == PROJECT_IRI
@@ -73,13 +73,12 @@ def test_make_resource_permissions(lookups: IRILookups) -> None:
     )
     res_bn = BNode()
     res_graph = _make_resource(res, res_bn, lookups)
-    assert len(res_graph) == 0
+    assert len(res_graph) == 4
     assert next(res_graph.objects(res_bn, RDF.type)) == RESOURCE_TYPE
     assert next(res_graph.objects(res_bn, RDFS.label)) == LABEL
     assert next(res_graph.objects(res_bn, KNORA_API.attachedToProject)) == PROJECT_IRI
-    assert next(res_graph.objects(res_bn, KNORA_API.hasPermissions)) == Literal(
-        "CR knora-admin:ProjectAdmin", datatype=XSD.string
-    )
+    permissions = next(res_graph.objects(res_bn, KNORA_API.hasPermissions))
+    assert permissions == Literal("CR knora-admin:ProjectAdmin", datatype=XSD.string)
 
 
 def test_make_resource_migration_metadata(lookups: IRILookups, migration_metadata: MigrationMetadata) -> None:
@@ -95,7 +94,7 @@ def test_make_resource_migration_metadata(lookups: IRILookups, migration_metadat
     )
     res_iri = URIRef("http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA")
     res_graph = _make_resource(res, res_iri, lookups)
-    assert len(res_graph) == 0
+    assert len(res_graph) == 3
     assert next(res_graph.objects(res_iri, RDF.type)) == RESOURCE_TYPE
     assert next(res_graph.objects(res_iri, RDFS.label)) == LABEL
     assert next(res_graph.objects(res_iri, KNORA_API.attachedToProject)) == PROJECT_IRI
@@ -104,6 +103,6 @@ def test_make_resource_migration_metadata(lookups: IRILookups, migration_metadat
 def test_make_migration_metadata(migration_metadata: MigrationMetadata) -> None:
     graph = _make_migration_metadata(migration_metadata)
     res_iri = URIRef("http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA")
-    assert len(graph) == 0
+    assert len(graph) == 1
     creation_date = next(graph.objects(res_iri, KNORA_API.creationDate))
     assert creation_date == Literal("1999-12-31T23:59:59.9999999+01:00", datatype=XSD.dateTimeStamp)

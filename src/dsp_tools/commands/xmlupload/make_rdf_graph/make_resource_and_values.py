@@ -4,6 +4,7 @@ from rdflib import XSD
 from rdflib import BNode
 from rdflib import Graph
 from rdflib import Literal
+from rdflib import Namespace
 from rdflib import URIRef
 
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_file_value_graph
@@ -15,7 +16,8 @@ from dsp_tools.commands.xmlupload.models.intermediary.resource import MigrationM
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.rdf_models import AbstractFileValue
 from dsp_tools.commands.xmlupload.models.rdf_models import FileValueMetadata
-from test.unittests.commands.validate_data.constants import KNORA_API
+
+KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
 
 
 def create_resource_with_values(

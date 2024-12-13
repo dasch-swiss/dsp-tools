@@ -1,6 +1,8 @@
 from typing import Any
 
 from rdflib import BNode
+from rdflib import Graph
+from rdflib import URIRef
 
 from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_serialiser import serialise_property_graph
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_file_value_graph
@@ -8,6 +10,7 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_iii
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import make_values
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.intermediary.resource import IntermediaryResource
+from dsp_tools.commands.xmlupload.models.intermediary.resource import MigrationMetadata
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.rdf_models import AbstractFileValue
 from dsp_tools.commands.xmlupload.models.rdf_models import FileValueMetadata
@@ -29,19 +32,20 @@ def create_resource_with_values(
     Returns:
         A resource serialised in json-ld type format.
     """
-
-    res = _make_resource(resource=resource, lookup=lookup)
+    res_bn = BNode()
+    res = _make_resource(resource=resource, res_bn=res_bn, lookup=lookup)
     res.update(_make_values_dict_from_resource(resource, bitstream_information, lookup))
     res.update(lookup.jsonld_context.serialise())
     return res
 
 
 def _make_values_dict_from_resource(
-    resource: IntermediaryResource, bitstream_information: BitstreamInfo | None, lookups: IRILookups
+    resource: IntermediaryResource,
+    res_bn: BNode | URIRef,
+    bitstream_information: BitstreamInfo | None,
+    lookups: IRILookups,
 ) -> dict[str, Any]:
-    res_bnode = BNode()
-
-    properties_graph, last_prop_name = make_values(resource.values, res_bnode, lookups)
+    properties_graph, last_prop_name = make_values(resource.values, res_bn, lookups)
 
     if resource.iiif_uri:
         permissions = None
@@ -49,11 +53,11 @@ def _make_values_dict_from_resource(
             permissions = str(found)
         metadata = FileValueMetadata(permissions)
         iiif_val = AbstractFileValue(resource.iiif_uri.value, metadata)
-        iiif_g, last_prop_name = make_iiif_uri_value_graph(iiif_val, res_bnode)
+        iiif_g, last_prop_name = make_iiif_uri_value_graph(iiif_val, res_bn)
         properties_graph += iiif_g
 
     elif bitstream_information:
-        file_g, last_prop_name = make_file_value_graph(bitstream_information, res_bnode)
+        file_g, last_prop_name = make_file_value_graph(bitstream_information, res_bn)
         properties_graph += file_g
 
     if last_prop_name:
@@ -61,7 +65,7 @@ def _make_values_dict_from_resource(
     return {}  # we allow resources without properties
 
 
-def _make_resource(resource: IntermediaryResource, lookup: IRILookups) -> dict[str, Any]:
+def _make_resource(resource: IntermediaryResource, res_bn: BNode | URIRef, lookup: IRILookups) -> Graph:
     migration_metadata = None
     if resource.migration_metadata:
         migration_metadata = SerialiseMigrationMetadata(
@@ -80,3 +84,7 @@ def _make_resource(resource: IntermediaryResource, lookup: IRILookups) -> dict[s
         migration_metadata=migration_metadata,
     )
     return serialise_resource.serialise()
+
+
+def _make_migration_metadata(migration_metadata: MigrationMetadata) -> Graph:
+    pass

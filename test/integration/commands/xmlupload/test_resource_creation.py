@@ -86,8 +86,10 @@ def test_one_resource_without_links(ingest_client_mock: AssetClient) -> None:
         "route": "/v2/resources",
         "data": {
             "@type": "http://0.0.0.0:3333/ontology/9999/onto/v2#foo_1_type",
-            "rdfs:label": "foo_1_label",
-            "knora-api:attachedToProject": {"@id": "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"},
+            "http://www.w3.org/2000/01/rdf-schema#label": "foo_1_label",
+            "http://api.knora.org/ontology/knora-api/v2#attachedToProject": {
+                "@id": "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"
+            },
             "@context": {},
             prop_name: {
                 "@type": "http://api.knora.org/ontology/knora-api/v2#TextValue",
@@ -98,8 +100,14 @@ def test_one_resource_without_links(ingest_client_mock: AssetClient) -> None:
     assert post_call_args["route"] == expected["route"]
     assert not post_call_args["headers"]
     assert post_call_args["data"][prop_name] == expected["data"][prop_name]  # type: ignore[index]
-    assert post_call_args["data"]["knora-api:attachedToProject"] == expected["data"]["knora-api:attachedToProject"]  # type: ignore[index]
-    assert post_call_args["data"]["rdfs:label"] == expected["data"]["rdfs:label"]  # type: ignore[index]
+    assert (
+        post_call_args["data"]["http://api.knora.org/ontology/knora-api/v2#attachedToProject"]
+        == expected["data"]["http://api.knora.org/ontology/knora-api/v2#attachedToProject"]
+    )  # type: ignore[index]
+    assert (
+        post_call_args["data"]["http://www.w3.org/2000/01/rdf-schema#label"]
+        == expected["data"]["http://www.w3.org/2000/01/rdf-schema#label"]
+    )  # type: ignore[index]
     assert post_call_args["data"]["@type"] == expected["data"]["@type"]  # type: ignore[index]
     assert not upload_state.pending_resources
     assert not upload_state.failed_uploads
@@ -132,8 +140,10 @@ def test_one_resource_with_link_to_existing_resource(ingest_client_mock: AssetCl
         "route": "/v2/resources",
         "data": {
             "@type": "http://0.0.0.0:3333/ontology/9999/onto/v2#foo_1_type",
-            "rdfs:label": "foo_1_label",
-            "knora-api:attachedToProject": {"@id": "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"},
+            "http://www.w3.org/2000/01/rdf-schema#label": "foo_1_label",
+            "http://api.knora.org/ontology/knora-api/v2#attachedToProject": {
+                "@id": "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"
+            },
             "@context": {},
             prop_name: {
                 "@type": "http://api.knora.org/ontology/knora-api/v2#LinkValue",
@@ -144,8 +154,14 @@ def test_one_resource_with_link_to_existing_resource(ingest_client_mock: AssetCl
     assert post_call_args["route"] == expected["route"]
     assert not post_call_args["headers"]
     assert post_call_args["data"][prop_name] == expected["data"][prop_name]  # type: ignore[index]
-    assert post_call_args["data"]["knora-api:attachedToProject"] == expected["data"]["knora-api:attachedToProject"]  # type: ignore[index]
-    assert post_call_args["data"]["rdfs:label"] == expected["data"]["rdfs:label"]  # type: ignore[index]
+    assert (
+        post_call_args["data"]["http://api.knora.org/ontology/knora-api/v2#attachedToProject"]
+        == expected["data"]["http://api.knora.org/ontology/knora-api/v2#attachedToProject"]
+    )  # type: ignore[index]
+    assert (
+        post_call_args["data"]["http://www.w3.org/2000/01/rdf-schema#label"]
+        == expected["data"]["http://www.w3.org/2000/01/rdf-schema#label"]
+    )  # type: ignore[index]
     assert post_call_args["data"]["@type"] == expected["data"]["@type"]  # type: ignore[index]
     assert not upload_state.pending_resources
     assert not upload_state.failed_uploads

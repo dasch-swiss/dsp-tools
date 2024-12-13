@@ -51,7 +51,7 @@ class TestIIIFURI:
         self, abstract_file_with_permissions: AbstractFileValue
     ) -> None:
         res_bn = BNode()
-        g, _ = make_iiif_uri_value_graph(abstract_file_with_permissions, res_bn)
+        g = make_iiif_uri_value_graph(abstract_file_with_permissions, res_bn)
         assert len(g) == 4
         val_bn = next(g.objects(res_bn, KNORA_API.hasStillImageFileValue))
         assert next(g.objects(val_bn, RDF.type)) == KNORA_API.StillImageExternalFileValue

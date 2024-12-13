@@ -1,4 +1,3 @@
-
 from rdflib import RDF
 from rdflib import RDFS
 from rdflib import XSD

@@ -1,3 +1,5 @@
+from rdflib import RDF
+from rdflib import RDFS
 from rdflib import XSD
 from rdflib import BNode
 from rdflib import Graph
@@ -14,8 +16,6 @@ from dsp_tools.commands.xmlupload.models.intermediary.resource import MigrationM
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.rdf_models import AbstractFileValue
 from dsp_tools.commands.xmlupload.models.rdf_models import FileValueMetadata
-from dsp_tools.commands.xmlupload.models.serialise_resource import SerialiseMigrationMetadata
-from dsp_tools.commands.xmlupload.models.serialise_resource import SerialiseResource
 
 
 def create_resource_with_values(
@@ -75,25 +75,14 @@ def _make_values_graph_from_resource(
     return properties_graph
 
 
-def _make_resource(resource: IntermediaryResource, res_node: BNode | URIRef, lookup: IRILookups) -> Graph:
-    migration_metadata = None
-    if resource.migration_metadata:
-        migration_metadata = SerialiseMigrationMetadata(
-            iri=resource.migration_metadata.iri_str,
-            creation_date=resource.migration_metadata.creation_date,
-        )
-    permissions = None
+def _make_resource(resource: IntermediaryResource, res_node: BNode | URIRef, project_iri: URIRef) -> Graph:
+    g = Graph()
+    g.add((res_node, RDF.type, URIRef(resource.type_iri)))
+    g.add((res_node, RDFS.label, Literal(resource.label, datatype=XSD.string)))
+    g.add((res_node, KNORA_API.attachedToProject, project_iri))
     if resource.permissions:
-        permissions = str(resource.permissions)
-    serialise_resource = SerialiseResource(
-        res_id=resource.res_id,
-        res_type=resource.type_iri,
-        label=resource.label,
-        permissions=permissions,
-        project_iri=lookup.project_iri,
-        migration_metadata=migration_metadata,
-    )
-    return serialise_resource.serialise()
+        g.add((res_node, KNORA_API.hasPermissions, Literal(str(resource.permissions), datatype=XSD.string)))
+    return g
 
 
 def _make_migration_metadata(migration_metadata: MigrationMetadata, res_node: BNode | URIRef) -> Graph:

@@ -28,7 +28,7 @@ PROJECT_IRI = URIRef("http://rdfh.ch/9999/project")
 @pytest.fixture
 def lookups() -> IRILookups:
     return IRILookups(
-        project_iri="http://rdfh.ch/9999/project",
+        project_iri=PROJECT_IRI,
         id_to_iri=IriResolver({"res_one": "http://rdfh.ch/9999/res_one"}),
         jsonld_context=JSONLDContext({}),
     )

@@ -9,6 +9,7 @@ from typing import Never
 from typing import cast
 
 from loguru import logger
+from rdflib import URIRef
 from tqdm import tqdm
 
 from dsp_tools.cli.args import ServerCredentials
@@ -180,14 +181,13 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
     namespaces = make_namespace_dict_from_onto_names(project_onto_dict)
 
     iri_lookup = IRILookups(
-        project_iri=project_iri,
+        project_iri=URIRef(project_iri),
         id_to_iri=upload_state.iri_resolver,
         jsonld_context=project_context,
     )
 
     resource_create_client = ResourceCreateClient(
         con=clients.project_client.con,
-        project_iri=project_iri,
         media_previously_ingested=upload_state.config.media_previously_uploaded,
     )
     intermediary_lookups = IntermediaryLookups(

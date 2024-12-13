@@ -52,7 +52,7 @@ def absolute_iri(prop: str) -> str:
 @pytest.fixture
 def lookups() -> IRILookups:
     return IRILookups(
-        project_iri="http://rdfh.ch/9999/project",
+        project_iri=URIRef("http://rdfh.ch/9999/project"),
         id_to_iri=IriResolver({"res_one": "http://rdfh.ch/9999/res_one"}),
         jsonld_context=JSONLDContext({}),
     )

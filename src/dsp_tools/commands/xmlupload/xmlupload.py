@@ -188,7 +188,6 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
 
     resource_create_client = ResourceCreateClient(
         con=clients.project_client.con,
-        media_previously_ingested=upload_state.config.media_previously_uploaded,
     )
     intermediary_lookups = IntermediaryLookups(
         permissions=upload_state.permissions_lookup, listnodes=listnode_lookup, namespaces=namespaces

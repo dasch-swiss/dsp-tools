@@ -14,7 +14,6 @@ class ResourceCreateClient:
     """client class that creates resources on a DSP server."""
 
     con: Connection
-    media_previously_ingested: bool = False
 
     def create_resource(
         self,

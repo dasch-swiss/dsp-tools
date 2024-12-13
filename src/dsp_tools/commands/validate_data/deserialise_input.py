@@ -52,7 +52,7 @@ def deserialise_xml(root: etree._Element) -> ProjectDeserialised:
 
 def _deserialise_all_resources(root: etree._Element) -> DataDeserialised:
     all_res: list[ResourceDeserialised] = []
-    for res in root.iterchildren():
+    for res in root.iterdescendants(tag="resource"):
         res_id = res.attrib["id"]
         lbl = cast(str, res.attrib.get("label"))
         dsp_type = None

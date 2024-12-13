@@ -100,14 +100,10 @@ def test_one_resource_without_links(ingest_client_mock: AssetClient) -> None:
     assert post_call_args["route"] == expected["route"]
     assert not post_call_args["headers"]
     assert post_call_args["data"][prop_name] == expected["data"][prop_name]  # type: ignore[index]
-    assert (
-        post_call_args["data"]["http://api.knora.org/ontology/knora-api/v2#attachedToProject"]
-        == expected["data"]["http://api.knora.org/ontology/knora-api/v2#attachedToProject"]
-    )  # type: ignore[index]
-    assert (
-        post_call_args["data"]["http://www.w3.org/2000/01/rdf-schema#label"]
-        == expected["data"]["http://www.w3.org/2000/01/rdf-schema#label"]
-    )  # type: ignore[index]
+    expected_project = expected["data"]["http://api.knora.org/ontology/knora-api/v2#attachedToProject"]  # type: ignore[index]
+    assert post_call_args["data"]["http://api.knora.org/ontology/knora-api/v2#attachedToProject"] == expected_project
+    expected_label = expected["data"]["http://www.w3.org/2000/01/rdf-schema#label"]  # type: ignore[index]
+    assert post_call_args["data"]["http://www.w3.org/2000/01/rdf-schema#label"] == expected_label
     assert post_call_args["data"]["@type"] == expected["data"]["@type"]  # type: ignore[index]
     assert not upload_state.pending_resources
     assert not upload_state.failed_uploads
@@ -154,14 +150,10 @@ def test_one_resource_with_link_to_existing_resource(ingest_client_mock: AssetCl
     assert post_call_args["route"] == expected["route"]
     assert not post_call_args["headers"]
     assert post_call_args["data"][prop_name] == expected["data"][prop_name]  # type: ignore[index]
-    assert (
-        post_call_args["data"]["http://api.knora.org/ontology/knora-api/v2#attachedToProject"]
-        == expected["data"]["http://api.knora.org/ontology/knora-api/v2#attachedToProject"]
-    )  # type: ignore[index]
-    assert (
-        post_call_args["data"]["http://www.w3.org/2000/01/rdf-schema#label"]
-        == expected["data"]["http://www.w3.org/2000/01/rdf-schema#label"]
-    )  # type: ignore[index]
+    expected_project = expected["data"]["http://api.knora.org/ontology/knora-api/v2#attachedToProject"]  # type: ignore[index]
+    assert post_call_args["data"]["http://api.knora.org/ontology/knora-api/v2#attachedToProject"] == expected_project
+    expected_label = expected["data"]["http://www.w3.org/2000/01/rdf-schema#label"]  # type: ignore[index]
+    assert post_call_args["data"]["http://www.w3.org/2000/01/rdf-schema#label"] == expected_label
     assert post_call_args["data"]["@type"] == expected["data"]["@type"]  # type: ignore[index]
     assert not upload_state.pending_resources
     assert not upload_state.failed_uploads

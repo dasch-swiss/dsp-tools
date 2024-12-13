@@ -21,7 +21,7 @@ def resource_graph() -> Graph:
     res = IntermediaryResource(
         res_id="resource_id",
         type_iri="http://0.0.0.0:3333/ontology/9999/onto/v2#TestResource",
-        label="Resource Label",
+        label="Special Characters: äöüéèà",
         permissions=None,
         values=[IntermediaryBoolean(True, "http://0.0.0.0:3333/ontology/9999/onto/v2#isTrueOrFalse", None, None)],
         file_value=None,
@@ -40,6 +40,6 @@ def test_frame_json(resource_graph: Graph) -> None:
             "http://api.knora.org/ontology/knora-api/v2#booleanValueAsBoolean": True,
         },
         "http://api.knora.org/ontology/knora-api/v2#attachedToProject": {"@id": "http://rdfh.ch/9999/project"},
-        "http://www.w3.org/2000/01/rdf-schema#label": "Resource Label",
+        "http://www.w3.org/2000/01/rdf-schema#label": "Special Characters: äöüéèà",
     }
     assert result_json == expected

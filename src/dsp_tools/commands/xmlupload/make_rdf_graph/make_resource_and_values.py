@@ -1,8 +1,9 @@
-from typing import Any
-
+from rdflib import XSD
 from rdflib import BNode
 from rdflib import Graph
+from rdflib import Literal
 from rdflib import URIRef
+from unittests.commands.validate_data.constants import KNORA_API
 
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_file_value_graph
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_iiif_uri_value_graph
@@ -18,32 +19,39 @@ from dsp_tools.commands.xmlupload.models.serialise_resource import SerialiseReso
 
 
 def create_resource_with_values(
-    resource: IntermediaryResource, bitstream_information: BitstreamInfo | None, lookup: IRILookups
-) -> dict[str, Any]:
+    resource: IntermediaryResource,
+    bitstream_information: BitstreamInfo | None,
+    lookups: IRILookups,
+) -> Graph:
     """
     This function takes an XMLResource and serialises it into a json-ld type dict that can be sent to the API.
 
     Args:
         resource: XMLResource
         bitstream_information: if the resource has a FileValue
-        lookup: Lookups to resolve IRIs, etc.
+        lookups: Lookups to resolve IRIs, etc.
 
     Returns:
-        A resource serialised in json-ld type format.
+        A resource as a graph
     """
+
+    graph = Graph()
+
     res_node: BNode | URIRef = BNode()
     if migration := resource.migration_metadata:
         if migration.iri_str:
             res_node = URIRef(migration.iri_str)
+        graph += _make_migration_metadata(migration, res_node)
 
-    graph = _make_resource(resource=resource, res_node=res_node, lookup=lookup)
+    graph += _make_resource(resource=resource, res_node=res_node, lookup=lookups)
 
-    res.update(_make_values_dict_from_resource(resource, bitstream_information, lookup))
-    res.update(lookup.jsonld_context.serialise())
-    return res
+    graph += _make_values_graph_from_resource(
+        resource=resource, res_node=res_node, bitstream_information=bitstream_information, lookups=lookups
+    )
+    return graph
 
 
-def _make_values_dict_from_resource(
+def _make_values_graph_from_resource(
     resource: IntermediaryResource,
     res_node: BNode | URIRef,
     bitstream_information: BitstreamInfo | None,
@@ -88,5 +96,8 @@ def _make_resource(resource: IntermediaryResource, res_node: BNode | URIRef, loo
     return serialise_resource.serialise()
 
 
-def _make_migration_metadata(migration_metadata: MigrationMetadata) -> Graph:
-    pass
+def _make_migration_metadata(migration_metadata: MigrationMetadata, res_node: BNode | URIRef) -> Graph:
+    g = Graph()
+    if date := migration_metadata.creation_date:
+        g.add((res_node, KNORA_API.creationDate, Literal(str(date), datatype=XSD.dateTimeStamp)))
+    return g

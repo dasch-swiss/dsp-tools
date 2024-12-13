@@ -100,9 +100,16 @@ def test_make_resource_migration_metadata(lookups: IRILookups, migration_metadat
     assert next(res_graph.objects(res_iri, KNORA_API.attachedToProject)) == PROJECT_IRI
 
 
-def test_make_migration_metadata(migration_metadata: MigrationMetadata) -> None:
-    graph = _make_migration_metadata(migration_metadata)
+def test_make_migration_metadata_with_date(migration_metadata: MigrationMetadata) -> None:
     res_iri = URIRef("http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA")
+    graph = _make_migration_metadata(migration_metadata, res_iri)
     assert len(graph) == 1
     creation_date = next(graph.objects(res_iri, KNORA_API.creationDate))
     assert creation_date == Literal("1999-12-31T23:59:59.9999999+01:00", datatype=XSD.dateTimeStamp)
+
+
+def test_make_migration_metadata_no_date() -> None:
+    res_iri = URIRef("http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA")
+    migration_data = MigrationMetadata("http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA", None)
+    graph = _make_migration_metadata(migration_data, res_iri)
+    assert len(graph) == 0

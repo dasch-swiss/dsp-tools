@@ -53,9 +53,7 @@ LiteralValueTypesAlias: TypeAlias = Union[
 ]
 
 
-def make_values(
-    values: list[IntermediaryValue], res_node: BNode | URIRef | URIRef, lookups: IRILookups
-) -> tuple[Graph, URIRef | None]:
+def make_values(values: list[IntermediaryValue], res_node: BNode | URIRef | URIRef, lookups: IRILookups) -> Graph:
     """
     Serialise the values of a resource.
 
@@ -65,14 +63,12 @@ def make_values(
         lookups: lookups to resolve IRIs
 
     Returns:
-        Graph with the values and the last property name
+        Graph with the values
     """
     properties_graph = Graph()
-
     for val in values:
         single_prop_graph, last_prop_name = _make_one_value_graph(val=val, res_node=res_node, iri_lookup=lookups)
         properties_graph += single_prop_graph
-
     return properties_graph
 
 

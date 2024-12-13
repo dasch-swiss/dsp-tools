@@ -5,8 +5,6 @@ from typing import cast
 from lxml import etree
 
 from dsp_tools.commands.validate_data.models.data_deserialised import AbstractFileValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import AbstractResource
-from dsp_tools.commands.validate_data.models.data_deserialised import AudioSegmentDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import BitstreamDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import BooleanValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ColorValueDeserialised
@@ -16,21 +14,22 @@ from dsp_tools.commands.validate_data.models.data_deserialised import DecimalVal
 from dsp_tools.commands.validate_data.models.data_deserialised import GeonameValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import IIIFUriDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import IntValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import LinkObjDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import LinkValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ListValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ProjectDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ProjectInformation
-from dsp_tools.commands.validate_data.models.data_deserialised import RegionDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import RichtextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import SimpleTextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TimeValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import VideoSegmentDeserialised
 
 KNORA_API = "http://api.knora.org/ontology/knora-api/v2#"
+REGION_RESOURCE = KNORA_API + "Region"
+LINKOBJ_RESOURCE = KNORA_API + "LinkObj"
+VIDEO_SEGMENT_RESOURCE = KNORA_API + "VideoSegment"
+AUDIO_SEGMENT_RESOURCE = KNORA_API + "AudioSegment"
 
 
 def deserialise_xml(root: etree._Element) -> ProjectDeserialised:
@@ -52,21 +51,24 @@ def deserialise_xml(root: etree._Element) -> ProjectDeserialised:
 
 
 def _deserialise_all_resources(root: etree._Element) -> DataDeserialised:
-    all_res: list[AbstractResource] = []
+    all_res: list[ResourceDeserialised] = []
     for res in root.iterchildren():
         res_id = res.attrib["id"]
         lbl = cast(str, res.attrib.get("label"))
-        match res.attrib["restype"]:
-            case "http://api.knora.org/ontology/knora-api/v2#region":
-                all_res.append(RegionDeserialised(res_id, lbl))
-            case "http://api.knora.org/ontology/knora-api/v2#link":
-                all_res.append(LinkObjDeserialised(res_id, lbl))
-            case "http://api.knora.org/ontology/knora-api/v2#video-segment":
-                all_res.append(VideoSegmentDeserialised(res_id, lbl))
-            case "http://api.knora.org/ontology/knora-api/v2#audio-segment":
-                all_res.append(AudioSegmentDeserialised(res_id, lbl))
-            case _:
-                all_res.append(_deserialise_one_resource(res))
+        dsp_type = None
+        res_type = res.attrib["restype"]
+        if res_type == REGION_RESOURCE:
+            dsp_type = REGION_RESOURCE
+        elif res_type == LINKOBJ_RESOURCE:
+            dsp_type = LINKOBJ_RESOURCE
+        elif res_type == VIDEO_SEGMENT_RESOURCE:
+            dsp_type = VIDEO_SEGMENT_RESOURCE
+        elif res_type == AUDIO_SEGMENT_RESOURCE:
+            dsp_type = AUDIO_SEGMENT_RESOURCE
+        if dsp_type:
+            all_res.append(ResourceDeserialised(res_id, lbl, dsp_type, []))
+        else:
+            all_res.append(_deserialise_one_resource(res))
     file_values = _deserialise_file_value(root)
     return DataDeserialised(all_res, file_values)
 

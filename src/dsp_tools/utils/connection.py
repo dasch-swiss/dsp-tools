@@ -27,7 +27,7 @@ class Connection(Protocol):
     def post(
         self,
         route: str,
-        data: dict[str, Any] | None = None,
+        data: dict[str, Any] | list[dict[str, Any]] | None = None,
         files: dict[str, tuple[str, Any]] | None = None,
         headers: dict[str, str] | None = None,
         timeout: int | None = None,

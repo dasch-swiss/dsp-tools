@@ -5,7 +5,6 @@ from rdflib import BNode
 from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
-from unittests.commands.validate_data.constants import KNORA_API
 
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_file_value_graph
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_iiif_uri_value_graph
@@ -16,6 +15,7 @@ from dsp_tools.commands.xmlupload.models.intermediary.resource import MigrationM
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.rdf_models import AbstractFileValue
 from dsp_tools.commands.xmlupload.models.rdf_models import FileValueMetadata
+from test.unittests.commands.validate_data.constants import KNORA_API
 
 
 def create_resource_with_values(
@@ -43,7 +43,7 @@ def create_resource_with_values(
             res_node = URIRef(migration.iri_str)
         graph += _make_migration_metadata(migration, res_node)
 
-    graph += _make_resource(resource=resource, res_node=res_node, lookup=lookups)
+    graph += _make_resource(resource=resource, res_node=res_node, project_iri=lookups.project_iri)
 
     graph += _make_values_graph_from_resource(
         resource=resource, res_node=res_node, bitstream_information=bitstream_information, lookups=lookups

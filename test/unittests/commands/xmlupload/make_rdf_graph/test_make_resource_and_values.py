@@ -7,14 +7,11 @@ from rdflib import Literal
 from rdflib import Namespace
 from rdflib import URIRef
 
-from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import KNORA_API
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import _make_migration_metadata
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import _make_resource
 from dsp_tools.commands.xmlupload.models.intermediary.resource import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.intermediary.resource import MigrationMetadata
-from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
-from dsp_tools.commands.xmlupload.models.lookup_models import JSONLDContext
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.models.datetimestamp import DateTimeStamp
@@ -26,22 +23,13 @@ PROJECT_IRI = URIRef("http://rdfh.ch/9999/project")
 
 
 @pytest.fixture
-def lookups() -> IRILookups:
-    return IRILookups(
-        project_iri=PROJECT_IRI,
-        id_to_iri=IriResolver({"res_one": "http://rdfh.ch/9999/res_one"}),
-        jsonld_context=JSONLDContext({}),
-    )
-
-
-@pytest.fixture
 def migration_metadata() -> MigrationMetadata:
     return MigrationMetadata(
         "http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA", DateTimeStamp("1999-12-31T23:59:59.9999999+01:00")
     )
 
 
-def test_make_resource_mandatory_only(lookups: IRILookups) -> None:
+def test_make_resource_mandatory_only() -> None:
     res = IntermediaryResource(
         res_id="resource_id",
         type_iri="http://0.0.0.0:3333/ontology/9999/onto/v2#TestResource",
@@ -53,14 +41,14 @@ def test_make_resource_mandatory_only(lookups: IRILookups) -> None:
         migration_metadata=None,
     )
     res_bn = BNode()
-    res_graph = _make_resource(res, res_bn, lookups)
+    res_graph = _make_resource(res, res_bn, PROJECT_IRI)
     assert len(res_graph) == 3
     assert next(res_graph.objects(res_bn, RDF.type)) == RESOURCE_TYPE
     assert next(res_graph.objects(res_bn, RDFS.label)) == LABEL
     assert next(res_graph.objects(res_bn, KNORA_API.attachedToProject)) == PROJECT_IRI
 
 
-def test_make_resource_permissions(lookups: IRILookups) -> None:
+def test_make_resource_permissions() -> None:
     res = IntermediaryResource(
         res_id="resource_id",
         type_iri="http://0.0.0.0:3333/ontology/9999/onto/v2#TestResource",
@@ -72,7 +60,7 @@ def test_make_resource_permissions(lookups: IRILookups) -> None:
         migration_metadata=None,
     )
     res_bn = BNode()
-    res_graph = _make_resource(res, res_bn, lookups)
+    res_graph = _make_resource(res, res_bn, PROJECT_IRI)
     assert len(res_graph) == 4
     assert next(res_graph.objects(res_bn, RDF.type)) == RESOURCE_TYPE
     assert next(res_graph.objects(res_bn, RDFS.label)) == LABEL
@@ -81,7 +69,7 @@ def test_make_resource_permissions(lookups: IRILookups) -> None:
     assert permissions == Literal("CR knora-admin:ProjectAdmin", datatype=XSD.string)
 
 
-def test_make_resource_migration_metadata(lookups: IRILookups, migration_metadata: MigrationMetadata) -> None:
+def test_make_resource_migration_metadata(migration_metadata: MigrationMetadata) -> None:
     res = IntermediaryResource(
         res_id="resource_id",
         type_iri="http://0.0.0.0:3333/ontology/9999/onto/v2#TestResource",
@@ -93,7 +81,7 @@ def test_make_resource_migration_metadata(lookups: IRILookups, migration_metadat
         migration_metadata=migration_metadata,
     )
     res_iri = URIRef("http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA")
-    res_graph = _make_resource(res, res_iri, lookups)
+    res_graph = _make_resource(res, res_iri, PROJECT_IRI)
     assert len(res_graph) == 3
     assert next(res_graph.objects(res_iri, RDF.type)) == RESOURCE_TYPE
     assert next(res_graph.objects(res_iri, RDFS.label)) == LABEL

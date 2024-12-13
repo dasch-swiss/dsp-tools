@@ -62,7 +62,7 @@ class TestIIIFURI:
 
     def test_make_iiif_uri_value_graph_no_permissions(self, abstract_file_no_permissions: AbstractFileValue) -> None:
         res_bn = BNode()
-        g, _ = make_iiif_uri_value_graph(abstract_file_no_permissions, res_bn)
+        g = make_iiif_uri_value_graph(abstract_file_no_permissions, res_bn)
         assert len(g) == 3
         val_bn = next(g.objects(res_bn, KNORA_API.hasStillImageFileValue))
         assert next(g.objects(val_bn, RDF.type)) == KNORA_API.StillImageExternalFileValue
@@ -78,9 +78,8 @@ class TestMakeBitstreamFileGraph:
             permissions=Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]}),
         )
         res_bn = BNode()
-        g, file_prop = make_file_value_graph(bitstream, res_bn)
-        assert file_prop == KNORA_API.hasTextFileValue
-        file_bn = next(g.objects(res_bn, file_prop))
+        g = make_file_value_graph(bitstream, res_bn)
+        file_bn = next(g.objects(res_bn, KNORA_API.hasTextFileValue))
         assert next(g.objects(file_bn, RDF.type)) == KNORA_API.TextFileValue
         file_id = next(g.objects(file_bn, KNORA_API.fileValueHasFilename))
         assert file_id == Literal("FileID", datatype=XSD.string)
@@ -94,9 +93,8 @@ class TestMakeBitstreamFileGraph:
             permissions=None,
         )
         res_bn = BNode()
-        g, file_prop = make_file_value_graph(bitstream, res_bn)
-        assert file_prop == KNORA_API.hasTextFileValue
-        file_bn = next(g.objects(res_bn, file_prop))
+        g = make_file_value_graph(bitstream, res_bn)
+        file_bn = next(g.objects(res_bn, KNORA_API.hasTextFileValue))
         assert next(g.objects(file_bn, RDF.type)) == KNORA_API.TextFileValue
         file_id = next(g.objects(file_bn, KNORA_API.fileValueHasFilename))
         assert file_id == Literal("FileID", datatype=XSD.string)

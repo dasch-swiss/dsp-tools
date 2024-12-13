@@ -67,7 +67,7 @@ def make_values(values: list[IntermediaryValue], res_node: BNode | URIRef | URIR
     """
     properties_graph = Graph()
     for val in values:
-        single_prop_graph, last_prop_name = _make_one_value_graph(val=val, res_node=res_node, iri_lookup=lookups)
+        single_prop_graph = _make_one_value_graph(val=val, res_node=res_node, iri_lookup=lookups)
         properties_graph += single_prop_graph
     return properties_graph
 

@@ -6,7 +6,13 @@
        shortcode="9999"
        default-ontology="onto">
 
-    <!-- 13 Violations -->
+    <!-- 14 Violations -->
+  
+    <!-- Resource Without Representation -->
+
+    <resource label="Resource Without Representation" restype=":ClassWithEverything" id="id_resource_without_representation">
+        <bitstream>this/is/filepath/file.mp4</bitstream>
+    </resource>
 
     <!-- Wrong file type -->
 

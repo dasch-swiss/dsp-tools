@@ -3,6 +3,7 @@ from typing import cast
 
 import regex
 from rdflib import RDF
+from rdflib import RDFS
 from rdflib import SH
 from rdflib import Graph
 from rdflib import Literal
@@ -12,6 +13,7 @@ from rdflib.term import Node
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import ContentRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
+from dsp_tools.commands.validate_data.models.input_problems import FileValueNotAllowedProblem
 from dsp_tools.commands.validate_data.models.input_problems import FileValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import GenericProblem
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
@@ -25,6 +27,7 @@ from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProb
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import QueryInfo
 from dsp_tools.commands.validate_data.models.validation import ReformattedIRI
+from dsp_tools.commands.validate_data.models.validation import ResultFileValueNotAllowedViolation
 from dsp_tools.commands.validate_data.models.validation import ResultFileValueViolation
 from dsp_tools.commands.validate_data.models.validation import ResultGenericViolation
 from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
@@ -176,25 +179,37 @@ def _query_one_without_detail(
                 results_message=msg,
             )
         case DASH.ClosedByTypesConstraintComponent:
-            return _query_for_non_existent_cardinality_violation(base_info)
+            return _query_for_non_existent_cardinality_violation(base_info, results_and_onto)
         case SH.SPARQLConstraintComponent:
             return _query_for_unique_value_violation(base_info, results_and_onto)
         case _:
             return UnexpectedComponent(str(component))
 
 
-def _query_for_non_existent_cardinality_violation(base_info: ValidationResultBaseInfo) -> ValidationResult | None:
+def _query_for_non_existent_cardinality_violation(
+    base_info: ValidationResultBaseInfo, results_and_onto: Graph
+) -> ValidationResult | None:
     # If a class is for example, an AudioRepresentation, but a jpg file is used,
     # the created value is of type StillImageFileValue.
     # This creates a min cardinality and a closed constraint violation.
     # The closed constraint we ignore, because the problem is communicated through the min cardinality violation.
     file_value_properties = {
+        KNORA_API.hasArchiveFileValue,
         KNORA_API.hasAudioFileValue,
+        KNORA_API.hasDocumentFileValue,
         KNORA_API.hasMovingImageFileValue,
+        KNORA_API.hasTextFileValue,
         KNORA_API.hasStillImageFileValue,
     }
     if base_info.result_path in file_value_properties:
-        return None
+        sub_classes = list(results_and_onto.transitive_objects(base_info.res_class_type, RDFS.subClassOf))
+        if KNORA_API.Representation in sub_classes:
+            return None
+        return ResultFileValueNotAllowedViolation(
+            res_iri=base_info.resource_iri,
+            res_class=base_info.res_class_type,
+            property=base_info.result_path,
+        )
     return ResultNonExistentCardinalityViolation(
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
@@ -378,6 +393,13 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
                 res_id=iris.res_id,
                 res_type=iris.res_type,
                 prop_name=iris.prop_name,
+            )
+        case ResultFileValueNotAllowedViolation():
+            iris = _reformat_main_iris(validation_result)
+            return FileValueNotAllowedProblem(
+                res_id=iris.res_id,
+                res_type=iris.res_type,
+                prop_name="bitstream / iiif-uri",
             )
         case ResultGenericViolation():
             iris = _reformat_main_iris(validation_result)

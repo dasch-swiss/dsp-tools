@@ -1,4 +1,3 @@
-from typing import Any
 
 from rdflib import RDF
 from rdflib import RDFS
@@ -24,7 +23,7 @@ def create_resource_with_values(
     resource: IntermediaryResource,
     bitstream_information: BitstreamInfo | None,
     lookups: IRILookups,
-) -> dict[str, Any]:
+) -> Graph:
     """
     This function takes an XMLResource and serialises it into a json-ld type dict that can be sent to the API.
 

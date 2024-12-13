@@ -53,7 +53,7 @@ LiteralValueTypesAlias: TypeAlias = Union[
 ]
 
 
-def make_values(values: list[IntermediaryValue], res_node: BNode | URIRef | URIRef, lookups: IRILookups) -> Graph:
+def make_values(values: list[IntermediaryValue], res_node: BNode | URIRef, lookups: IRILookups) -> Graph:
     """
     Serialise the values of a resource.
 
@@ -72,7 +72,7 @@ def make_values(values: list[IntermediaryValue], res_node: BNode | URIRef | URIR
     return properties_graph
 
 
-def _make_one_value_graph(val: IntermediaryValue, res_node: BNode | URIRef | URIRef, iri_lookup: IRILookups) -> Graph:
+def _make_one_value_graph(val: IntermediaryValue, res_node: BNode | URIRef, iri_lookup: IRILookups) -> Graph:
     match val:
         case (
             IntermediaryBoolean()

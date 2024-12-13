@@ -4,7 +4,6 @@ from rdflib import BNode
 from rdflib import Graph
 from rdflib import URIRef
 
-from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_serialiser import serialise_property_graph
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_file_value_graph
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_iiif_uri_value_graph
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import make_values
@@ -37,7 +36,8 @@ def create_resource_with_values(
         if migration.iri_str:
             res_node = URIRef(migration.iri_str)
 
-    res = _make_resource(resource=resource, res_node=res_node, lookup=lookup)
+    graph = _make_resource(resource=resource, res_node=res_node, lookup=lookup)
+
     res.update(_make_values_dict_from_resource(resource, bitstream_information, lookup))
     res.update(lookup.jsonld_context.serialise())
     return res
@@ -48,8 +48,8 @@ def _make_values_dict_from_resource(
     res_node: BNode | URIRef,
     bitstream_information: BitstreamInfo | None,
     lookups: IRILookups,
-) -> dict[str, Any]:
-    properties_graph, last_prop_name = make_values(resource.values, res_node, lookups)
+) -> Graph:
+    properties_graph = make_values(resource.values, res_node, lookups)
 
     if resource.iiif_uri:
         permissions = None
@@ -57,16 +57,14 @@ def _make_values_dict_from_resource(
             permissions = str(found)
         metadata = FileValueMetadata(permissions)
         iiif_val = AbstractFileValue(resource.iiif_uri.value, metadata)
-        iiif_g, last_prop_name = make_iiif_uri_value_graph(iiif_val, res_node)
+        iiif_g = make_iiif_uri_value_graph(iiif_val, res_node)
         properties_graph += iiif_g
 
     elif bitstream_information:
-        file_g, last_prop_name = make_file_value_graph(bitstream_information, res_node)
+        file_g = make_file_value_graph(bitstream_information, res_node)
         properties_graph += file_g
 
-    if last_prop_name:
-        return serialise_property_graph(properties_graph, last_prop_name)
-    return {}  # we allow resources without properties
+    return properties_graph
 
 
 def _make_resource(resource: IntermediaryResource, res_node: BNode | URIRef, lookup: IRILookups) -> Graph:

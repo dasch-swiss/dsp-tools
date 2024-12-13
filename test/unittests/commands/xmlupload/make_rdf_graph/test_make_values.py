@@ -62,10 +62,9 @@ class TestMakeOneValueGraphSuccess:
     def test_boolean(self, lookups: IRILookups) -> None:
         res_bn = BNode()
         prop = IntermediaryBoolean(True, absolute_iri("isTrueOrFalse"), None, OPEN_PERMISSION)
-        result, prop_name = _make_one_value_graph(prop, res_bn, lookups)
+        result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 4
-        assert prop_name == ONTO.isTrueOrFalse
-        val_bn = next(result.objects(res_bn, prop_name))
+        val_bn = next(result.objects(res_bn, ONTO.isTrueOrFalse))
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.BooleanValue
         value = next(result.objects(val_bn, KNORA_API.booleanValueAsBoolean))
@@ -76,10 +75,9 @@ class TestMakeOneValueGraphSuccess:
     def test_color(self, lookups: IRILookups) -> None:
         res_bn = BNode()
         prop = IntermediaryColor("#5d1f1e", absolute_iri("hasColor"), None, None)
-        result, prop_name = _make_one_value_graph(prop, res_bn, lookups)
+        result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 3
-        assert prop_name == ONTO.hasColor
-        val_bn = next(result.objects(res_bn, prop_name))
+        val_bn = next(result.objects(res_bn, ONTO.hasColor))
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.ColorValue
         value = next(result.objects(val_bn, KNORA_API.colorValueAsColor))
@@ -88,10 +86,9 @@ class TestMakeOneValueGraphSuccess:
     def test_decimal(self, lookups: IRILookups) -> None:
         res_bn = BNode()
         prop = IntermediaryDecimal(2.718281828459, absolute_iri("hasDecimal"), "Eulersche Zahl", None)
-        result, prop_name = _make_one_value_graph(prop, res_bn, lookups)
+        result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 4
-        assert prop_name == ONTO.hasDecimal
-        val_bn = next(result.objects(res_bn, prop_name))
+        val_bn = next(result.objects(res_bn, ONTO.hasDecimal))
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.DecimalValue
         value = next(result.objects(val_bn, KNORA_API.decimalValueAsDecimal))
@@ -108,10 +105,9 @@ class TestMakeOneValueGraphSuccess:
             None,
             None,
         )
-        result, prop_name = _make_one_value_graph(prop, res_bn, lookups)
+        result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 3
-        assert prop_name == ONTO.hasGeometry
-        val_bn = next(result.objects(res_bn, prop_name))
+        val_bn = next(result.objects(res_bn, ONTO.hasGeometry))
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.GeomValue
         value = next(result.objects(val_bn, KNORA_API.geometryValueAsGeometry))
@@ -120,10 +116,9 @@ class TestMakeOneValueGraphSuccess:
     def test_geoname(self, lookups: IRILookups) -> None:
         res_bn = BNode()
         prop = IntermediaryGeoname("5416656", absolute_iri("hasGeoname"), None, None)
-        result, prop_name = _make_one_value_graph(prop, res_bn, lookups)
+        result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 3
-        assert prop_name == ONTO.hasGeoname
-        val_bn = next(result.objects(res_bn, prop_name))
+        val_bn = next(result.objects(res_bn, ONTO.hasGeoname))
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.GeonameValue
         value = next(result.objects(val_bn, KNORA_API.geonameValueAsGeonameCode))
@@ -132,22 +127,20 @@ class TestMakeOneValueGraphSuccess:
     def test_integer(self, lookups: IRILookups) -> None:
         res_bn = BNode()
         prop = IntermediaryInt(1, absolute_iri("hasInteger"), "comment", None)
-        result, prop_name = _make_one_value_graph(prop, res_bn, lookups)
+        result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 4
-        assert prop_name == ONTO.hasInteger
         val = next(result.subjects(KNORA_API.intValueAsInt, Literal("1", datatype=XSD.integer)))
         assert next(result.objects(val, RDF.type)) == KNORA_API.IntValue
-        assert next(result.subjects(prop_name, val)) == res_bn
+        assert next(result.subjects(ONTO.hasInteger, val)) == res_bn
         comment = next(result.objects(val, KNORA_API.valueHasComment))
         assert comment == Literal("comment", datatype=XSD.string)
 
     def test_time(self, lookups: IRILookups) -> None:
         res_bn = BNode()
         prop = IntermediaryTime("2019-10-23T13:45:12.01-14:00", absolute_iri("hasTime"), None, None)
-        result, prop_name = _make_one_value_graph(prop, res_bn, lookups)
+        result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 3
-        assert prop_name == ONTO.hasTime
-        val_bn = next(result.objects(res_bn, prop_name))
+        val_bn = next(result.objects(res_bn, ONTO.hasTime))
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.TimeValue
         value = next(result.objects(val_bn, KNORA_API.timeValueAsTimeStamp))
@@ -156,10 +149,9 @@ class TestMakeOneValueGraphSuccess:
     def test_uri(self, lookups: IRILookups) -> None:
         res_bn = BNode()
         prop = IntermediaryUri("https://dasch.swiss", absolute_iri("hasUri"), None, None)
-        result, prop_name = _make_one_value_graph(prop, res_bn, lookups)
+        result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 3
-        assert prop_name == ONTO.hasUri
-        val_bn = next(result.objects(res_bn, prop_name))
+        val_bn = next(result.objects(res_bn, ONTO.hasUri))
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.UriValue
         value = next(result.objects(val_bn, KNORA_API.uriValueAsUri))
@@ -168,10 +160,9 @@ class TestMakeOneValueGraphSuccess:
     def test_list(self, lookups: IRILookups) -> None:
         res_bn = BNode()
         prop = IntermediaryList("http://rdfh.ch/9999/node", absolute_iri("hasListItem"), None, None)
-        result, prop_name = _make_one_value_graph(prop, res_bn, lookups)
+        result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 3
-        assert prop_name == ONTO.hasListItem
-        val_bn = next(result.objects(res_bn, prop_name))
+        val_bn = next(result.objects(res_bn, ONTO.hasListItem))
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.ListValue
         value = next(result.objects(val_bn, KNORA_API.listValueAsListNode))
@@ -180,10 +171,9 @@ class TestMakeOneValueGraphSuccess:
     def test_resptr(self, lookups: IRILookups) -> None:
         res_bn = BNode()
         prop = IntermediaryLink("res_one", absolute_iri("hasResource"), None, None)
-        result, prop_name = _make_one_value_graph(prop, res_bn, lookups)
+        result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 3
-        assert prop_name == ONTO.hasResourceValue
-        val_bn = next(result.objects(res_bn, prop_name))
+        val_bn = next(result.objects(res_bn, ONTO.hasResourceValue))
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.LinkValue
         value = next(result.objects(val_bn, KNORA_API.linkValueHasTargetIri))
@@ -192,10 +182,9 @@ class TestMakeOneValueGraphSuccess:
     def test_simpletext(self, lookups: IRILookups) -> None:
         res_bn = BNode()
         prop = IntermediarySimpleText("Text", absolute_iri("hasSimpleText"), None, None)
-        result, prop_name = _make_one_value_graph(prop, res_bn, lookups)
+        result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 3
-        assert prop_name == ONTO.hasSimpleText
-        val_bn = next(result.objects(res_bn, prop_name))
+        val_bn = next(result.objects(res_bn, ONTO.hasSimpleText))
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.TextValue
         value = next(result.objects(val_bn, KNORA_API.valueAsString))
@@ -206,10 +195,9 @@ class TestMakeOneValueGraphSuccess:
         prop = IntermediaryRichtext(
             FormattedTextValue("Text"), absolute_iri("hasRichtext"), None, OPEN_PERMISSION, resource_references=set()
         )
-        result, prop_name = _make_one_value_graph(prop, res_bn, lookups)
+        result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 5
-        assert prop_name == ONTO.hasRichtext
-        val_bn = next(result.objects(res_bn, prop_name))
+        val_bn = next(result.objects(res_bn, ONTO.hasRichtext))
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.TextValue
         value = next(result.objects(val_bn, KNORA_API.textValueAsXml))
@@ -226,10 +214,9 @@ class TestMakeOneValueGraphSuccess:
         prop = IntermediaryRichtext(
             FormattedTextValue(text), absolute_iri("hasRichtext"), None, None, resource_references=set("res_one")
         )
-        result, prop_name = _make_one_value_graph(prop, res_bn, lookups)
+        result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 4
-        assert prop_name == ONTO.hasRichtext
-        val_bn = next(result.objects(res_bn, prop_name))
+        val_bn = next(result.objects(res_bn, ONTO.hasRichtext))
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.TextValue
         value = next(result.objects(val_bn, KNORA_API.textValueAsXml))
@@ -250,10 +237,9 @@ class TestMakeOneValueGraphSuccess:
             end=SingleDate(era=Era.AD, year=477, month=None, day=None),
         )
         prop = IntermediaryDate(date, absolute_iri("hasDate"), None, None)
-        result, prop_name = _make_one_value_graph(prop, res_bn, lookups)
+        result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 9
-        assert prop_name == ONTO.hasDate
-        val_bn = next(result.objects(res_bn, prop_name))
+        val_bn = next(result.objects(res_bn, ONTO.hasDate))
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.DateValue
         calendar = next(result.objects(val_bn, KNORA_API.dateValueHasCalendar))
@@ -275,10 +261,9 @@ class TestMakeOneValueGraphSuccess:
         res_bn = BNode()
         interval = IntervalFloats(0.1, 0.234)
         prop = IntermediaryInterval(interval, "http://api.knora.org/ontology/knora-api/v2#hasSegmentBounds", None, None)
-        result, prop_name = _make_one_value_graph(prop, res_bn, lookups)
+        result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 4
-        assert prop_name == KNORA_API.hasSegmentBounds
-        val_bn = next(result.objects(res_bn, prop_name))
+        val_bn = next(result.objects(res_bn, KNORA_API.hasSegmentBounds))
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.IntervalValue
         start = next(result.objects(val_bn, KNORA_API.intervalValueHasStart))
@@ -289,10 +274,9 @@ class TestMakeOneValueGraphSuccess:
     def test_segment_of_video(self, lookups: IRILookups) -> None:
         res_bn = BNode()
         prop = IntermediaryLink("res_one", "http://api.knora.org/ontology/knora-api/v2#isVideoSegmentOf", None, None)
-        result, prop_name = _make_one_value_graph(prop, res_bn, lookups)
+        result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 3
-        assert prop_name == KNORA_API.isVideoSegmentOfValue
-        val_bn = next(result.objects(res_bn, prop_name))
+        val_bn = next(result.objects(res_bn, KNORA_API.isVideoSegmentOfValue))
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.LinkValue
         value = next(result.objects(val_bn, KNORA_API.linkValueHasTargetIri))
@@ -301,10 +285,9 @@ class TestMakeOneValueGraphSuccess:
     def test_segment_of_audio(self, lookups: IRILookups) -> None:
         res_bn = BNode()
         prop = IntermediaryLink("res_one", "http://api.knora.org/ontology/knora-api/v2#isAudioSegmentOf", None, None)
-        result, prop_name = _make_one_value_graph(prop, res_bn, lookups)
+        result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 3
-        assert prop_name == KNORA_API.isAudioSegmentOfValue
-        val_bn = next(result.objects(res_bn, prop_name))
+        val_bn = next(result.objects(res_bn, KNORA_API.isAudioSegmentOfValue))
         rdf_type = next(result.objects(val_bn, RDF.type))
         assert rdf_type == KNORA_API.LinkValue
         value = next(result.objects(val_bn, KNORA_API.linkValueHasTargetIri))

@@ -68,19 +68,15 @@ def make_values(
         Graph with the values and the last property name
     """
     properties_graph = Graph()
-    # To frame the json-ld correctly, we need one property used in the graph. It does not matter which.
-    last_prop_name = None
 
     for val in values:
         single_prop_graph, last_prop_name = _make_one_value_graph(val=val, res_node=res_node, iri_lookup=lookups)
         properties_graph += single_prop_graph
 
-    return properties_graph, last_prop_name
+    return properties_graph
 
 
-def _make_one_value_graph(
-    val: IntermediaryValue, res_node: BNode | URIRef | URIRef, iri_lookup: IRILookups
-) -> tuple[Graph, URIRef]:
+def _make_one_value_graph(val: IntermediaryValue, res_node: BNode | URIRef | URIRef, iri_lookup: IRILookups) -> Graph:
     match val:
         case (
             IntermediaryBoolean()
@@ -127,8 +123,7 @@ def _make_one_value_graph(
             )
         case _:
             raise UserError(f"Unknown value type: {type(val).__name__}")
-    # This turns the property IRI as string into a rdflib variable, suitable for framing the JSON
-    return properties_graph, URIRef(val.prop_iri)
+    return properties_graph
 
 
 def _make_base_value_graph(

@@ -111,6 +111,12 @@
         </text-prop>
     </resource>
 
+    <link label="Link object" id="link_obj_no_comment">
+        <resptr-prop name="hasLinkTo">
+            <resptr>region_1</resptr>
+        </resptr-prop>
+    </link>
+
     <region label="Region" id="region_1">
         <color-prop name="hasColor">
             <color permissions="restricted">#5d1f1e</color>

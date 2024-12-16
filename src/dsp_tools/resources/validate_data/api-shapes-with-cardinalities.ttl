@@ -266,6 +266,13 @@ api-shapes:LinkObj_ResourceShape
                      ] ,
                      [
                         a sh:PropertyShape ;
+                        sh:path rdfs:label ;
+                        sh:minCount 1 ;
+                        sh:maxCount 1 ;
+                        sh:message "A LinkObj requires one label."
+                     ] ,
+                     [
+                        a sh:PropertyShape ;
                         sh:path knora-api:hasComment
                      ] ;
   sh:severity        sh:Violation .

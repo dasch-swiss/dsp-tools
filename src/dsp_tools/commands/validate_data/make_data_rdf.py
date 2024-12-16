@@ -6,8 +6,6 @@ from rdflib import Namespace
 from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.models.data_deserialised import AbstractFileValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import AbstractResource
-from dsp_tools.commands.validate_data.models.data_deserialised import AudioSegmentDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import BooleanValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ColorValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DataDeserialised
@@ -16,17 +14,14 @@ from dsp_tools.commands.validate_data.models.data_deserialised import DecimalVal
 from dsp_tools.commands.validate_data.models.data_deserialised import GeonameValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import IIIFUriDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import IntValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import LinkObjDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import LinkValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ListValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import RegionDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import RichtextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import SimpleTextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TimeValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import VideoSegmentDeserialised
 from dsp_tools.commands.validate_data.models.data_rdf import BooleanValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import ColorValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import DataRDF
@@ -77,25 +72,7 @@ def make_data_rdf(data_deserialised: DataDeserialised) -> DataRDF:
     return DataRDF(all_triples)
 
 
-def _transform_one_resource(res: AbstractResource) -> list[RDFTriples]:
-    if isinstance(res, ResourceDeserialised):
-        return _transform_one_project_resource(res)
-    return [_transform_one_dsp_resource(res)]
-
-
-def _transform_one_dsp_resource(res: AbstractResource) -> RDFTriples:
-    res_type_mapper = {
-        RegionDeserialised: KNORA_API.Region,
-        LinkObjDeserialised: KNORA_API.LinkObj,
-        VideoSegmentDeserialised: KNORA_API.VideoSegment,
-        AudioSegmentDeserialised: KNORA_API.AudioSegment,
-    }
-    return ResourceRDF(
-        res_iri=DATA[res.res_id], res_class=res_type_mapper[type(res)], label=Literal(res.label, datatype=XSD.string)
-    )
-
-
-def _transform_one_project_resource(res: ResourceDeserialised) -> list[RDFTriples]:
+def _transform_one_resource(res: ResourceDeserialised) -> list[RDFTriples]:
     res_iri = DATA[res.res_id]
     all_triples: list[RDFTriples] = [
         ResourceRDF(res_iri=res_iri, res_class=URIRef(res.res_class), label=Literal(res.label, datatype=XSD.string))

@@ -67,12 +67,12 @@ def make_values(values: list[IntermediaryValue], res_node: BNode | URIRef, looku
     """
     properties_graph = Graph()
     for val in values:
-        single_prop_graph = _make_one_value_graph(val=val, res_node=res_node, iri_lookup=lookups)
+        single_prop_graph = _make_one_value_graph(val=val, res_node=res_node, iri_lookups=lookups)
         properties_graph += single_prop_graph
     return properties_graph
 
 
-def _make_one_value_graph(val: IntermediaryValue, res_node: BNode | URIRef, iri_lookup: IRILookups) -> Graph:
+def _make_one_value_graph(val: IntermediaryValue, res_node: BNode | URIRef, iri_lookups: IRILookups) -> Graph:
     match val:
         case (
             IntermediaryBoolean()
@@ -98,14 +98,14 @@ def _make_one_value_graph(val: IntermediaryValue, res_node: BNode | URIRef, iri_
                 val=val,
                 res_node=res_node,
                 prop_type_info=LINK_PROP_TYPE_INFO,
-                iri_resolver=iri_lookup.id_to_iri,
+                iri_resolver=iri_lookups.id_to_iri,
             )
         case IntermediaryRichtext():
             properties_graph = _make_richtext_value_graph(
                 val=val,
                 res_node=res_node,
                 prop_type_info=RICHTEXT_PROP_TYPE_INFO,
-                iri_resolver=iri_lookup.id_to_iri,
+                iri_resolver=iri_lookups.id_to_iri,
             )
         case IntermediaryDate():
             properties_graph = _make_date_value_graph(

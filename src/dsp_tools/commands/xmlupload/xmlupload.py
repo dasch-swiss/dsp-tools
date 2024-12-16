@@ -201,7 +201,7 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
                 resource=resource,
                 ingest_client=clients.asset_client,
                 resource_create_client=resource_create_client,
-                iri_lookup=iri_lookup,
+                iri_lookups=iri_lookup,
                 intermediary_lookups=intermediary_lookups,
                 creation_attempts_of_this_round=creation_attempts_of_this_round,
             )
@@ -228,7 +228,7 @@ def _upload_one_resource(
     resource: XMLResource,
     ingest_client: AssetClient,
     resource_create_client: ResourceCreateClient,
-    iri_lookup: IRILookups,
+    iri_lookups: IRILookups,
     intermediary_lookups: IntermediaryLookups,
     creation_attempts_of_this_round: int,
 ) -> None:
@@ -259,7 +259,7 @@ def _upload_one_resource(
     iri = None
     try:
         serialised_resource = create_resource_with_values(
-            resource=transformed_resource, bitstream_information=media_info, lookups=iri_lookup
+            resource=transformed_resource, bitstream_information=media_info, lookups=iri_lookups
         )
         logger.info(f"Attempting to create resource {resource.res_id} (label: {resource.label})...")
         iri = resource_create_client.create_resource(serialised_resource, bool(media_info))

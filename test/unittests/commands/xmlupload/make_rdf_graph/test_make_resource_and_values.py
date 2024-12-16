@@ -69,7 +69,7 @@ def test_make_resource_permissions() -> None:
     assert permissions == Literal("CR knora-admin:ProjectAdmin", datatype=XSD.string)
 
 
-def test_make_resource_migration_metadata(migration_metadata: MigrationMetadata) -> None:
+def test_make_resource_migration_metadata() -> None:
     res = IntermediaryResource(
         res_id="resource_id",
         type_iri="http://0.0.0.0:3333/ontology/9999/onto/v2#TestResource",
@@ -78,7 +78,7 @@ def test_make_resource_migration_metadata(migration_metadata: MigrationMetadata)
         values=[],
         file_value=None,
         iiif_uri=None,
-        migration_metadata=migration_metadata,
+        migration_metadata=None,
     )
     res_iri = URIRef("http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA")
     res_graph = _make_resource(res, res_iri, PROJECT_IRI)

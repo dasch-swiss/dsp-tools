@@ -34,6 +34,17 @@ def _make_json(rdf_graph: Graph) -> dict[str, Any]:
 
 
 def _frame_graph(serialised_json: list[dict[str, Any]]) -> dict[str, Any]:
+    """
+    The result of the serialisation is a list.
+    Although the API would accept that, our connection has the payload typed as `dict[str, Any]`.
+    If the typing of the connection was changed or a different class was used, this step can be removed.
+
+    Args:
+        serialised_json: graph serialised as json-ld
+
+    Returns:
+        graph in a specific json-ld format
+    """
     json_frame: dict[str, Any] = {"http://api.knora.org/ontology/knora-api/v2#attachedToProject": {}}
     framed: dict[str, Any] = jsonld.frame(serialised_json, json_frame)
     return framed

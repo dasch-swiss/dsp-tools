@@ -247,12 +247,34 @@ api-shapes:UriValue_ClassShape
   sh:message  "UriValue" ;
   sh:class    knora-api:UriValue ;
   sh:severity sh:Violation .
-
-
 #########################################
 # KNORA-API IN-BUILT PROPERTIES
 #########################################
 
+### knora-api:hasLinkTo
+
+api-shapes:hasLinkTo_PropertyShape
+  a       sh:PropertyShape ;
+  sh:path knora-api:hasLinkTo ;
+  sh:node api-shapes:LinkValue_ClassShape, api-shapes:hasLinkTo_NodeShape .
+
+api-shapes:hasLinkTo_NodeShape
+  a           sh:NodeShape ;
+  sh:name     "This ensures that the target of the property is of type Resource, i.e. exists in the graph." ;
+  sh:property [
+                a          sh:PropertyShape ;
+                sh:class   knora-api:Resource ;
+                sh:message knora-api:Resource ;
+                sh:path    api-shapes:linkValueHasTargetID ;
+              ] ;
+  sh:severity sh:Violation .
+
+
+### knora-api:hasComment
+
+api-shapes:hasComment_PropertyShape a sh:PropertyShape ;
+    sh:node api-shapes:FormattedTextValue_ClassShape ;
+    sh:path knora-api:hasComment .
 
 #########################################
 # DSP BUILT IN RESOURCES
@@ -268,6 +290,12 @@ api-shapes:UriValue_ClassShape
 # LinkObj
 ###########################
 
+api-shapes:LinkObj_ResourceShape
+  a                  sh:NodeShape ;
+  sh:name            "Validates the LinkObj resource" ;
+  sh:class           knora-api:LinkObj ;
+  sh:property        api-shapes:hasLinkTo_PropertyShape , api-shapes:hasComment_PropertyShape ;
+  sh:severity        sh:Violation .
 
 ###########################
 # VideoSegment

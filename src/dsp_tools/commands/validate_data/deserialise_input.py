@@ -59,8 +59,6 @@ def _deserialise_all_resources(root: etree._Element) -> DataDeserialised:
         res_type = res.attrib["restype"]
         if res_type == REGION_RESOURCE:
             dsp_type = REGION_RESOURCE
-        elif res_type == LINKOBJ_RESOURCE:
-            dsp_type = LINKOBJ_RESOURCE
         elif res_type == VIDEO_SEGMENT_RESOURCE:
             dsp_type = VIDEO_SEGMENT_RESOURCE
         elif res_type == AUDIO_SEGMENT_RESOURCE:

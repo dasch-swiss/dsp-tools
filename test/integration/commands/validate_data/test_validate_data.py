@@ -8,6 +8,7 @@ def test_to_data_rdf(data_xml: etree._Element) -> None:
         "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything",
         "http://0.0.0.0:3333/ontology/9999/onto/v2#TestStillImageRepresentation",
         "http://0.0.0.0:3333/ontology/9999/second-onto/v2#SecondOntoClass",
+        "http://api.knora.org/ontology/knora-api/v2#Region",
     }
     expected_names = {
         "http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean",

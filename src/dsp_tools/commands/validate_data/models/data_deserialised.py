@@ -26,36 +26,16 @@ class ProjectInformation:
 
 @dataclass
 class DataDeserialised:
-    resources: list[AbstractResource]
+    resources: list[ResourceDeserialised]
     file_values: list[AbstractFileValueDeserialised]
 
 
 @dataclass
-class AbstractResource:
+class ResourceDeserialised:
     res_id: str
     label: str
-
-
-@dataclass
-class ResourceDeserialised(AbstractResource):
     res_class: str
     values: list[ValueDeserialised]
-
-
-@dataclass
-class RegionDeserialised(AbstractResource): ...
-
-
-@dataclass
-class LinkObjDeserialised(AbstractResource): ...
-
-
-@dataclass
-class VideoSegmentDeserialised(AbstractResource): ...
-
-
-@dataclass
-class AudioSegmentDeserialised(AbstractResource): ...
 
 
 @dataclass

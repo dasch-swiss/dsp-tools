@@ -31,7 +31,7 @@ def root_resource_with_props() -> etree._Element:
 def root_resource_region() -> etree._Element:
     return etree.fromstring("""
     <knora>
-        <region restype="http://api.knora.org/ontology/knora-api/v2#Region" label="Region" id="region_1">
+        <resource restype="http://api.knora.org/ontology/knora-api/v2#Region" label="Region" id="region_1">
             <color-prop name="http://api.knora.org/ontology/knora-api/v2#hasColor">
                 <color>#5d1f1e</color>
             </color-prop>
@@ -56,7 +56,7 @@ def root_resource_region() -> etree._Element:
                     This is a polygon-formed region of interest of an image. It is also displayed as Annotation.
                 </text>
             </text-prop>
-        </region>
+        </resource>
     </knora>
     """)
 

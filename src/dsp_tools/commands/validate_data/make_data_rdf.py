@@ -148,6 +148,8 @@ def _transform_list_value(val: ListValueDeserialised, res_iri: URIRef) -> Graph:
 
 
 def _transform_file_value(val: AbstractFileValueDeserialised) -> Graph:
+    if val.value is None:
+        return Graph()
     if isinstance(val, IIIFUriDeserialised):
         return _make_file_value_graph(val, IIIF_URI_VALUE, KNORA_API.stillImageFileValueHasExternalUrl)
     try:

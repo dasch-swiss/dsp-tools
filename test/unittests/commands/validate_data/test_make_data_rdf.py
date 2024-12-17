@@ -277,6 +277,11 @@ class TestTransformFileValue:
             uri, datatype=XSD.anyURI
         )
 
+    def test_none(self) -> None:
+        bitstream = BitstreamDeserialised("id", None)
+        result = _transform_file_value(bitstream)
+        assert len(result) == 0
+
     def test_other(self) -> None:
         bitstream = BitstreamDeserialised("id", "test.other")
         result = _transform_file_value(bitstream)

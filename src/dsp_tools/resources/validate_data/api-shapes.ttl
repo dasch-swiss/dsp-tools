@@ -264,7 +264,7 @@ api-shapes:hasLinkTo_NodeShape
   sh:property [
                 a          sh:PropertyShape ;
                 sh:class   knora-api:Resource ;
-                sh:message knora-api:Resource ;
+                sh:message "Range is knora-api:Resource or a subclass." ;
                 sh:path    api-shapes:linkValueHasTargetID ;
               ] ;
   sh:severity sh:Violation .

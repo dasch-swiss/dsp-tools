@@ -19,7 +19,7 @@ KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
 # values that need special considerations during the graph construction
 LIST_PROP_TYPE_INFO = RDFPropTypeInfo(KNORA_API.ListValue, KNORA_API.listValueAsListNode)
 LINK_PROP_TYPE_INFO = RDFPropTypeInfo(KNORA_API.LinkValue, KNORA_API.linkValueHasTargetIri)
-RICHTEXT_PROP_TYPE_INFO = RDFPropTypeInfo(KNORA_API.TextValue, KNORA_API.textValueAsXml)
+RICHTEXT_PROP_TYPE_INFO = RDFPropTypeInfo(KNORA_API.TextValue, KNORA_API.textValueAsXml, XSD.string)
 
 # values suitable for the generic lookup
 BOOLEAN_PROP_TYPE_INFO = RDFPropTypeInfo(KNORA_API.BooleanValue, KNORA_API.booleanValueAsBoolean, XSD.boolean)

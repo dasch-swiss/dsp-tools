@@ -16,7 +16,6 @@ from dsp_tools.commands.validate_data.deserialise_input import deserialise_xml
 from dsp_tools.commands.validate_data.make_data_rdf import make_data_rdf
 from dsp_tools.commands.validate_data.models.data_deserialised import ProjectDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import XMLProject
-from dsp_tools.commands.validate_data.models.data_rdf import DataRDF
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
@@ -146,7 +145,7 @@ def _get_validation_result(
     return report
 
 
-def _create_graphs(onto_client: OntologyClient, list_client: ListClient, data_rdf: DataRDF) -> RDFGraphs:
+def _create_graphs(onto_client: OntologyClient, list_client: ListClient, data_rdf: Graph) -> RDFGraphs:
     ontologies = _get_project_ontos(onto_client)
     all_lists = list_client.get_lists()
     knora_ttl = onto_client.get_knora_api()
@@ -164,9 +163,8 @@ def _create_graphs(onto_client: OntologyClient, list_client: ListClient, data_rd
     file_shapes.parse(str(file_shapes_path))
     content_shapes = shapes.content + api_shapes
     card_shapes = shapes.cardinality + file_shapes
-    data = data_rdf.make_graph()
     return RDFGraphs(
-        data=data,
+        data=data_rdf,
         ontos=ontologies,
         cardinality_shapes=card_shapes,
         content_shapes=content_shapes,
@@ -212,10 +210,10 @@ def _validate(validator: ShaclValidator) -> ValidationReportGraphs:
     )
 
 
-def _get_data_info_from_file(file: Path, api_url: str) -> tuple[DataRDF, str]:
+def _get_data_info_from_file(file: Path, api_url: str) -> tuple[Graph, str]:
     xml_project = _parse_and_clean_file(file, api_url)
     deserialised: ProjectDeserialised = deserialise_xml(xml_project.root)
-    rdf_data: DataRDF = make_data_rdf(deserialised.data)
+    rdf_data = make_data_rdf(deserialised.data)
     return rdf_data, deserialised.info.shortcode
 
 

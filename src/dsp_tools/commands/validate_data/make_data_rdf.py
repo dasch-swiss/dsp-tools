@@ -2,6 +2,7 @@ from typing import Callable
 from uuid import uuid4
 
 from rdflib import RDF
+from rdflib import RDFS
 from rdflib import XSD
 from rdflib import Graph
 from rdflib import Literal
@@ -13,7 +14,6 @@ from dsp_tools.commands.validate_data.models.data_deserialised import AbstractFi
 from dsp_tools.commands.validate_data.models.data_deserialised import BooleanValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ColorValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DataDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import DateValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DecimalValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import GeonameValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import IIIFUriDeserialised
@@ -27,19 +27,10 @@ from dsp_tools.commands.validate_data.models.data_deserialised import TimeValueD
 from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ValueDeserialised
 from dsp_tools.commands.validate_data.models.data_rdf import BooleanValueRDF
-from dsp_tools.commands.validate_data.models.data_rdf import ColorValueRDF
-from dsp_tools.commands.validate_data.models.data_rdf import DataRDF
-from dsp_tools.commands.validate_data.models.data_rdf import DateValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import DecimalValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import FileValueRDF
-from dsp_tools.commands.validate_data.models.data_rdf import GeonameValueRDF
-from dsp_tools.commands.validate_data.models.data_rdf import IntValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import LinkValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import ListValueRDF
-from dsp_tools.commands.validate_data.models.data_rdf import RDFTriples
-from dsp_tools.commands.validate_data.models.data_rdf import ResourceRDF
-from dsp_tools.commands.validate_data.models.data_rdf import RichtextRDF
-from dsp_tools.commands.validate_data.models.data_rdf import SimpleTextRDF
 from dsp_tools.commands.validate_data.models.data_rdf import TimeValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import UriValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import ValueRDF
@@ -52,7 +43,6 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.constants import DOCUMENT_FILE_
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import GEONAME_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import IIIF_URI_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import INT_PROP_TYPE_INFO
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import LIST_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import MOVING_IMAGE_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import RICHTEXT_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import SIMPLE_TEXT_PROP_TYPE_INFO
@@ -69,7 +59,6 @@ RDF_LITERAL_PROP_TYPE_MAPPER = {
     DecimalValueDeserialised: DECIMAL_PROP_TYPE_INFO,
     GeonameValueDeserialised: GEONAME_PROP_TYPE_INFO,
     IntValueDeserialised: INT_PROP_TYPE_INFO,
-    ListValueDeserialised: LIST_PROP_TYPE_INFO,
     SimpleTextDeserialised: SIMPLE_TEXT_PROP_TYPE_INFO,
     RichtextDeserialised: RICHTEXT_PROP_TYPE_INFO,
     TimeValueDeserialised: TIME_PROP_TYPE_INFO,
@@ -77,7 +66,7 @@ RDF_LITERAL_PROP_TYPE_MAPPER = {
 }
 
 
-def make_data_rdf(data_deserialised: DataDeserialised) -> DataRDF:
+def make_data_rdf(data_deserialised: DataDeserialised) -> Graph:
     """
     Transforms the deserialised data into instances that can produce a RDF graph.
 
@@ -85,59 +74,44 @@ def make_data_rdf(data_deserialised: DataDeserialised) -> DataRDF:
         data_deserialised: Deserialised Data
 
     Returns:
-        Instance with the data
+        Graph with the data
     """
-    all_triples: list[RDFTriples] = []
+    g = Graph()
     for r in data_deserialised.resources:
-        all_triples.extend(_transform_one_resource(r))
-    file_values: list[RDFTriples] = [
-        transformed for x in data_deserialised.file_values if (transformed := _transform_file_value(x))
-    ]
-    all_triples.extend(file_values)
-    return DataRDF(all_triples)
+        g += _make_one_resource(r)
+    for f in data_deserialised.file_values:
+        g += _transform_file_value(f)
+    return g
 
 
-def _transform_one_resource(res: ResourceDeserialised) -> list[RDFTriples]:
+def _make_one_resource(res: ResourceDeserialised) -> Graph:
     res_iri = DATA[res.res_id]
-    all_triples: list[RDFTriples] = [
-        ResourceRDF(res_iri=res_iri, res_class=URIRef(res.res_class), label=Literal(res.label, datatype=XSD.string))
-    ]
-    all_triples.extend([_transform_one_value(v, res_iri) for v in res.values])
-    return all_triples
+    g = Graph()
+    g.add((res_iri, RDF.type, URIRef(res.res_class)))
+    g.add((res_iri, RDFS.label, Literal(res.label, datatype=XSD.string)))
+    for v in res.values:
+        g += _make_one_value(v, res_iri)
+    return g
 
 
-def _transform_one_value(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:  # noqa: PLR0911 (too many return statements)
-    func_mapper = {
-        ColorValueDeserialised: ColorValueRDF,
-        DateValueDeserialised: DateValueRDF,
-        GeonameValueDeserialised: GeonameValueRDF,
-        IntValueDeserialised: IntValueRDF,
-        SimpleTextDeserialised: SimpleTextRDF,
-        RichtextDeserialised: RichtextRDF,
-    }
+def _make_one_value(val: ValueDeserialised, res_iri: URIRef) -> Graph:
     match val:
         case (
-            ColorValueDeserialised()
-            | DateValueDeserialised()
+            BooleanValueDeserialised()
+            | ColorValueDeserialised()
+            | DecimalValueDeserialised()
             | GeonameValueDeserialised()
+            | IntValueDeserialised()
             | SimpleTextDeserialised()
             | RichtextDeserialised()
+            | TimeValueDeserialised()
+            | UriValueDeserialised()
         ):
-            return _transform_into_xsd_string(val, res_iri, func_mapper[type(val)])
-        case IntValueDeserialised():
-            return _transform_into_xsd_integer(val, res_iri, func_mapper[type(val)])
-        case BooleanValueDeserialised():
-            return _transform_into_bool(val, res_iri)
-        case DecimalValueDeserialised():
-            return _transform_decimal_value(val, res_iri)
+            return _transform_into_xsd_string(val, res_iri, RDF_LITERAL_PROP_TYPE_MAPPER[type(val)])
         case LinkValueDeserialised():
             return _transform_link_value(val, res_iri)
         case ListValueDeserialised():
             return _transform_list_value(val, res_iri)
-        case TimeValueDeserialised():
-            return _transform_time_value(val, res_iri)
-        case UriValueDeserialised():
-            return _transform_uri_value(val, res_iri)
         case _:
             raise InternalError(f"Unknown Value Type: {type(val)}")
 
@@ -228,18 +202,18 @@ def _transform_uri_value(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
     return UriValueRDF(URIRef(val.prop_name), content, res_iri)
 
 
-def _transform_file_value(val: AbstractFileValueDeserialised) -> FileValueRDF | None:
+def _transform_file_value(val: AbstractFileValueDeserialised) -> Graph:
     if isinstance(val, IIIFUriDeserialised):
         return FileValueRDF(
             res_iri=DATA[val.res_id],
             value=Literal(val.value, datatype=XSD.anyURI),
             prop_type_info=IIIF_URI_VALUE,
             prop_to_value=KNORA_API.stillImageFileValueHasExternalUrl,
-        )
+        ).make_graph()
     return _map_into_correct_file_value(val)
 
 
-def _map_into_correct_file_value(val: AbstractFileValueDeserialised) -> FileValueRDF | None:
+def _map_into_correct_file_value(val: AbstractFileValueDeserialised) -> Graph:
     res_iri = DATA[val.res_id]
     file_literal = Literal(val.value, datatype=XSD.string)
     file_extension = _get_file_extension(val.value)
@@ -258,8 +232,8 @@ def _map_into_correct_file_value(val: AbstractFileValueDeserialised) -> FileValu
         case "jpg" | "jpeg" | "jp2" | "png" | "tif" | "tiff" | "jpx":
             file_type = STILL_IMAGE_FILE_VALUE
         case _:
-            return None
-    return FileValueRDF(res_iri=res_iri, value=file_literal, prop_type_info=file_type)
+            return Graph()
+    return FileValueRDF(res_iri=res_iri, value=file_literal, prop_type_info=file_type).make_graph()
 
 
 def _get_file_extension(value: str | None) -> str:

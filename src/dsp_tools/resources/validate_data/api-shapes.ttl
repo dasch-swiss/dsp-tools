@@ -284,12 +284,10 @@ api-shapes:hasComment_PropertyShape
 
 ###########################
 # Region
-###########################
 
 
 ###########################
 # LinkObj
-###########################
 
 api-shapes:LinkObj_ResourceShape
   a                  sh:NodeShape ;
@@ -300,11 +298,10 @@ api-shapes:LinkObj_ResourceShape
                      api-shapes:hasComment_PropertyShape ;
   sh:severity        sh:Violation .
 
+
 ###########################
 # VideoSegment
-###########################
 
 
 ###########################
 # AudioSegment
-###########################

@@ -96,7 +96,7 @@ def _inform_about_experimental_feature() -> None:
         "Content of the values",
         "Missing files",
         "If the file type matches the ontology",
-        "DSP in-built resources: link (LinkObj)"
+        "DSP in-built resources: link (LinkObj)",
     ]
     print(BOLD_CYAN + LIST_SEPARATOR.join(what_is_validated) + RESET_TO_DEFAULT)
 

@@ -7,6 +7,7 @@ from rdflib import Literal
 from dsp_tools.commands.validate_data.make_data_rdf import _get_file_extension
 from dsp_tools.commands.validate_data.make_data_rdf import _make_one_resource
 from dsp_tools.commands.validate_data.make_data_rdf import _make_one_value
+from dsp_tools.commands.validate_data.make_data_rdf import _map_into_correct_file_value
 from dsp_tools.commands.validate_data.make_data_rdf import _transform_file_value
 from dsp_tools.commands.validate_data.models.data_deserialised import BitstreamDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import BooleanValueDeserialised
@@ -24,6 +25,7 @@ from dsp_tools.commands.validate_data.models.data_deserialised import SimpleText
 from dsp_tools.commands.validate_data.models.data_deserialised import TimeValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDeserialised
 from dsp_tools.commands.validate_data.models.data_rdf import FileValueRDF
+from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 from test.unittests.commands.validate_data.constants import API_SHAPES
 from test.unittests.commands.validate_data.constants import DATA
 from test.unittests.commands.validate_data.constants import KNORA_API
@@ -263,61 +265,53 @@ class TestTransformFileValue:
     @pytest.mark.parametrize("extension", ["zip", "tar", "gz", "z", "tgz", "gzip", "7z"])
     def test_archive_file(self, extension: str) -> None:
         bitstream = BitstreamDeserialised("id", f"test.{extension}")
-        result = _transform_file_value(bitstream)
-        assert isinstance(result, FileValueRDF)
-        assert result.prop_type_info.knora_type == KNORA_API.ArchiveFileValue
-        assert result.value == Literal(bitstream.value, datatype=XSD.string)
+        result = _map_into_correct_file_value(bitstream)
+        assert isinstance(result, RDFPropTypeInfo)
+        assert result.knora_type == KNORA_API.ArchiveFileValue
         bitstream = BitstreamDeserialised("id", f"test.{extension.upper()}")
-        result = _transform_file_value(bitstream)
-        assert isinstance(result, FileValueRDF)
-        assert result.prop_type_info.knora_type == KNORA_API.ArchiveFileValue
-        assert result.value == Literal(bitstream.value, datatype=XSD.string)
+        result = _map_into_correct_file_value(bitstream)
+        assert isinstance(result, RDFPropTypeInfo)
+        assert result.knora_type == KNORA_API.ArchiveFileValue
 
     @pytest.mark.parametrize("extension", ["mp3", "wav"])
     def test_audio_file(self, extension: str) -> None:
         bitstream = BitstreamDeserialised("id", f"test.{extension}")
-        result = _transform_file_value(bitstream)
-        assert isinstance(result, FileValueRDF)
-        assert result.prop_type_info.knora_type == KNORA_API.AudioFileValue
-        assert result.value == Literal(bitstream.value, datatype=XSD.string)
+        result = _map_into_correct_file_value(bitstream)
+        assert isinstance(result, RDFPropTypeInfo)
+        assert result.knora_type == KNORA_API.AudioFileValue
         bitstream = BitstreamDeserialised("id", f"test.{extension.upper()}")
-        result = _transform_file_value(bitstream)
-        assert isinstance(result, FileValueRDF)
-        assert result.prop_type_info.knora_type == KNORA_API.AudioFileValue
-        assert result.value == Literal(bitstream.value, datatype=XSD.string)
+        result = _map_into_correct_file_value(bitstream)
+        assert isinstance(result, RDFPropTypeInfo)
+        assert result.knora_type == KNORA_API.AudioFileValue
 
     @pytest.mark.parametrize("extension", ["pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx"])
     def test_document_file(self, extension: str) -> None:
         bitstream = BitstreamDeserialised("id", f"test.{extension}")
-        result = _transform_file_value(bitstream)
-        assert isinstance(result, FileValueRDF)
-        assert result.prop_type_info.knora_type == KNORA_API.DocumentFileValue
-        assert result.value == Literal(bitstream.value, datatype=XSD.string)
+        result = _map_into_correct_file_value(bitstream)
+        assert isinstance(result, RDFPropTypeInfo)
+        assert result.knora_type == KNORA_API.DocumentFileValue
         bitstream = BitstreamDeserialised("id", f"test.{extension.upper()}")
-        result = _transform_file_value(bitstream)
-        assert isinstance(result, FileValueRDF)
-        assert result.prop_type_info.knora_type == KNORA_API.DocumentFileValue
-        assert result.value == Literal(bitstream.value, datatype=XSD.string)
+        result = _map_into_correct_file_value(bitstream)
+        assert isinstance(result, RDFPropTypeInfo)
+        assert result.knora_type == KNORA_API.DocumentFileValue
 
     def test_moving_image(self) -> None:
         bitstream = BitstreamDeserialised("id", "test.mp4")
         result = _transform_file_value(bitstream)
-        assert isinstance(result, FileValueRDF)
-        assert result.prop_type_info.knora_type == KNORA_API.MovingImageFileValue
-        assert result.value == Literal(bitstream.value, datatype=XSD.string)
+        result = _map_into_correct_file_value(bitstream)
+        assert isinstance(result, RDFPropTypeInfo)
+        assert result.knora_type == KNORA_API.MovingImageFileValue
 
     @pytest.mark.parametrize("extension", ["jpg", "jpeg", "png", "tif", "tiff", "jp2"])
     def test_still_image_file(self, extension: str) -> None:
         bitstream = BitstreamDeserialised("id", f"test.{extension}")
-        result = _transform_file_value(bitstream)
-        assert isinstance(result, FileValueRDF)
-        assert result.prop_type_info.knora_type == KNORA_API.StillImageFileValue
-        assert result.value == Literal(bitstream.value, datatype=XSD.string)
+        result = _map_into_correct_file_value(bitstream)
+        assert isinstance(result, RDFPropTypeInfo)
+        assert result.knora_type == KNORA_API.StillImageFileValue
         bitstream = BitstreamDeserialised("id", f"test.{extension.upper()}")
-        result = _transform_file_value(bitstream)
-        assert isinstance(result, FileValueRDF)
-        assert result.prop_type_info.knora_type == KNORA_API.StillImageFileValue
-        assert result.value == Literal(bitstream.value, datatype=XSD.string)
+        result = _map_into_correct_file_value(bitstream)
+        assert isinstance(result, RDFPropTypeInfo)
+        assert result.knora_type == KNORA_API.StillImageFileValue
 
     def test_still_image_iiif(self) -> None:
         iiif = IIIFUriDeserialised(
@@ -331,19 +325,17 @@ class TestTransformFileValue:
     @pytest.mark.parametrize("extension", ["odd", "rng", "txt", "xml", "xsd", "xsl", "csv", "json"])
     def test_text_file(self, extension: str) -> None:
         bitstream = BitstreamDeserialised("id", f"test.{extension}")
-        result = _transform_file_value(bitstream)
-        assert isinstance(result, FileValueRDF)
-        assert result.prop_type_info.knora_type == KNORA_API.TextFileValue
-        assert result.value == Literal(bitstream.value, datatype=XSD.string)
+        result = _map_into_correct_file_value(bitstream)
+        assert isinstance(result, RDFPropTypeInfo)
+        assert result.knora_type == KNORA_API.TextFileValue
         bitstream = BitstreamDeserialised("id", f"test.{extension.upper()}")
-        result = _transform_file_value(bitstream)
-        assert isinstance(result, FileValueRDF)
-        assert result.prop_type_info.knora_type == KNORA_API.TextFileValue
-        assert result.value == Literal(bitstream.value, datatype=XSD.string)
+        result = _map_into_correct_file_value(bitstream)
+        assert isinstance(result, RDFPropTypeInfo)
+        assert result.knora_type == KNORA_API.TextFileValue
 
     def test_other(self) -> None:
         bitstream = BitstreamDeserialised("id", "test.other")
-        result = _transform_file_value(bitstream)
+        result = _map_into_correct_file_value(bitstream)
         assert not result
 
 

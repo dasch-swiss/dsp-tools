@@ -160,30 +160,30 @@ def _transform_file_value(val: AbstractFileValueDeserialised) -> Graph:
             prop_type_info=IIIF_URI_VALUE,
             prop_to_value=KNORA_API.stillImageFileValueHasExternalUrl,
         ).make_graph()
-    return _map_into_correct_file_value(val)
-
-
-def _map_into_correct_file_value(val: AbstractFileValueDeserialised) -> Graph:
-    res_iri = DATA[val.res_id]
+    file_type = _map_into_correct_file_value(val.value)
     file_literal = Literal(val.value, datatype=XSD.string)
+    file_extension = _get_file_extension(val.value)
+    return FileValueRDF(res_iri=DATA[val.res_id], value=file_literal, prop_type_info=file_type).make_graph()
+
+
+def _map_into_correct_file_value(val: AbstractFileValueDeserialised) -> RDFPropTypeInfo | None:
     file_extension = _get_file_extension(val.value)
     match file_extension:
         case "zip" | "tar" | "gz" | "z" | "tgz" | "gzip" | "7z":
-            file_type = ARCHIVE_FILE_VALUE
+            return ARCHIVE_FILE_VALUE
         case "mp3" | "wav":
-            file_type = AUDIO_FILE_VALUE
+            return AUDIO_FILE_VALUE
         case "pdf" | "doc" | "docx" | "xls" | "xlsx" | "ppt" | "pptx":
-            file_type = DOCUMENT_FILE_VALUE
+            return DOCUMENT_FILE_VALUE
         case "mp4":
-            file_type = MOVING_IMAGE_FILE_VALUE
+            return MOVING_IMAGE_FILE_VALUE
         case "odd" | "rng" | "txt" | "xml" | "xsd" | "xsl" | "csv" | "json":
-            file_type = TEXT_FILE_VALUE
+            return TEXT_FILE_VALUE
         # jpx is the extension of the files returned by dsp-ingest
         case "jpg" | "jpeg" | "jp2" | "png" | "tif" | "tiff" | "jpx":
-            file_type = STILL_IMAGE_FILE_VALUE
+            return STILL_IMAGE_FILE_VALUE
         case _:
-            return Graph()
-    return FileValueRDF(res_iri=res_iri, value=file_literal, prop_type_info=file_type).make_graph()
+            return None
 
 
 def _get_file_extension(value: str | None) -> str:

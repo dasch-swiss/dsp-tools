@@ -25,10 +25,10 @@ from dsp_tools.commands.validate_data.models.data_deserialised import SimpleText
 from dsp_tools.commands.validate_data.models.data_deserialised import TimeValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDeserialised
 from dsp_tools.commands.validate_data.models.data_rdf import FileValueRDF
-from dsp_tools.commands.validate_data.models.data_rdf import LinkValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import ListValueRDF
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import KNORA_API
+from test.unittests.commands.validate_data.constants import API_SHAPES
 from test.unittests.commands.validate_data.constants import DATA
+from test.unittests.commands.validate_data.constants import KNORA_API
 from test.unittests.commands.validate_data.constants import ONTO
 
 RES_IRI = DATA["id"]
@@ -165,26 +165,16 @@ class TestLinkValue:
     def test_corr(self, link_value_deserialised_corr: LinkValueDeserialised) -> None:
         val_g = _make_one_value(link_value_deserialised_corr, RES_IRI)
         assert len(val_g) == 3
-        bn = next(val_g.objects(RES_IRI, ONTO))
-        assert next(val_g.objects(bn, RDF.type)) == KNORA_API
-        assert next(val_g.objects(bn, KNORA_API)) == Literal("", datatype=XSD.string)
-
-        assert isinstance(val_g, LinkValueRDF)
-        assert val_g.res_iri == RES_IRI
-        assert val_g.prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo")
-        assert val_g.object_value == DATA["link-id"]
+        bn = next(val_g.objects(RES_IRI, ONTO.testHasLinkTo))
+        assert next(val_g.objects(bn, RDF.type)) == KNORA_API.LinkValue
+        assert next(val_g.objects(bn, API_SHAPES.linkValueHasTargetID)) == DATA["link-id"]
 
     def test_none(self, link_value_deserialised_none: LinkValueDeserialised) -> None:
         val_g = _make_one_value(link_value_deserialised_none, RES_IRI)
         assert len(val_g) == 3
-        bn = next(val_g.objects(RES_IRI, ONTO))
-        assert next(val_g.objects(bn, RDF.type)) == KNORA_API
-        assert next(val_g.objects(bn, KNORA_API)) == Literal("", datatype=XSD.string)
-
-        assert isinstance(val_g, LinkValueRDF)
-        assert val_g.res_iri == RES_IRI
-        assert val_g.prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo")
-        assert val_g.object_value == DATA[""]
+        bn = next(val_g.objects(RES_IRI, ONTO.testHasLinkTo))
+        assert next(val_g.objects(bn, RDF.type)) == KNORA_API.LinkValue
+        assert next(val_g.objects(bn, API_SHAPES.linkValueHasTargetID)) == DATA[""]
 
 
 class TestListValue:

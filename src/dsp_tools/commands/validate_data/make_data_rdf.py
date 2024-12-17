@@ -132,11 +132,11 @@ def _make_one_value_with_xsd_data_type(
 
 
 def _transform_link_value(val: ValueDeserialised, res_iri: URIRef) -> Graph:
-    object_value = URIRef(val.object_value) if val.object_value is not None else Literal("", datatype=XSD.string)
+    object_value = val.object_value if val.object_value is not None else ""
     g = Graph()
     val_iri = DATA[str(uuid4())]
     g.add((val_iri, RDF.type, KNORA_API.LinkValue))
-    g.add((val_iri, API_SHAPES.linkValueHasTargetID, object_value))
+    g.add((val_iri, API_SHAPES.linkValueHasTargetID, DATA[object_value]))
     g.add((res_iri, URIRef(val.prop_name), val_iri))
     return g
 

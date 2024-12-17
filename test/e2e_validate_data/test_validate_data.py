@@ -140,6 +140,14 @@ def file_value_violation(_create_project_generic: Iterator[None], api_con: ApiCo
 
 @lru_cache(maxsize=None)
 @pytest.fixture
+def dsp_inbuilt_correct(_create_project_generic: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+    file = Path("testdata/validate-data/generic/dsp_inbuilt_correct.xml")
+    graphs = _get_parsed_graphs(api_con, file)
+    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+
+
+@lru_cache(maxsize=None)
+@pytest.fixture
 def dsp_inbuilt_violation(_create_project_generic: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/dsp_inbuilt_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
@@ -264,6 +272,9 @@ class TestCheckConforms:
 
     def test_file_value_cardinality_violation(self, file_value_violation: ValidationReportGraphs) -> None:
         assert not file_value_violation.conforms
+
+    def test_dsp_inbuilt_correct(self, dsp_inbuilt_correct: ValidationReportGraphs) -> None:
+        assert dsp_inbuilt_correct.conforms
 
     def test_dsp_inbuilt_violation(self, dsp_inbuilt_violation: ValidationReportGraphs) -> None:
         assert not dsp_inbuilt_violation.conforms

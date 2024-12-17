@@ -113,13 +113,6 @@
 
     <!-- DSP in-built resources -->
 
-    <link label="Link object" id="link_obj_no_comment">
-        <resptr-prop name="hasLinkTo">
-            <resptr>region_1</resptr>
-            <resptr>second_onto_class</resptr>
-        </resptr-prop>
-    </link>
-
     <link label="Link object" id="link_obj_with_comment">
         <text-prop name="hasComment">
             <text encoding="xml">Comment Text</text>

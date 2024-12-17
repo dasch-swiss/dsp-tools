@@ -23,11 +23,13 @@
         <allow group="ProjectAdmin">CR</allow>
     </permissions>
 
+    <resource label="Empty" restype=":ClassWithEverything" id="resource_1"/>
+    <resource label="Empty" restype=":ClassWithEverything" id="resource_2"/>
 
     <link label="Link object" id="link_obj_no_comment">
         <resptr-prop name="hasLinkTo">
-            <resptr>region_1</resptr>
-            <resptr>second_onto_class</resptr>
+            <resptr>resource_1</resptr>
+            <resptr>resource_2</resptr>
         </resptr-prop>
     </link>
 
@@ -36,8 +38,8 @@
             <text encoding="xml">Comment Text</text>
         </text-prop>
         <resptr-prop name="hasLinkTo">
-            <resptr>region_1</resptr>
-            <resptr>second_onto_class</resptr>
+            <resptr>resource_1</resptr>
+            <resptr>resource_2</resptr>
         </resptr-prop>
     </link>
 

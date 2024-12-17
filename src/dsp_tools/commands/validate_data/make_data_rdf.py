@@ -1,6 +1,9 @@
 from typing import Callable
+from uuid import uuid4
 
+from rdflib import RDF
 from rdflib import XSD
+from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
 
@@ -42,12 +45,36 @@ from dsp_tools.commands.validate_data.models.data_rdf import UriValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import ValueRDF
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import ARCHIVE_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import AUDIO_FILE_VALUE
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import BOOLEAN_PROP_TYPE_INFO
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import COLOR_PROP_TYPE_INFO
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import DECIMAL_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import DOCUMENT_FILE_VALUE
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import GEONAME_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import IIIF_URI_VALUE
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import INT_PROP_TYPE_INFO
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import LIST_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import MOVING_IMAGE_FILE_VALUE
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import RICHTEXT_PROP_TYPE_INFO
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import SIMPLE_TEXT_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import STILL_IMAGE_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import TEXT_FILE_VALUE
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import TIME_PROP_TYPE_INFO
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import URI_PROP_TYPE_INFO
+from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 from dsp_tools.models.exceptions import InternalError
+
+RDF_LITERAL_PROP_TYPE_MAPPER = {
+    BooleanValueDeserialised: BOOLEAN_PROP_TYPE_INFO,
+    ColorValueDeserialised: COLOR_PROP_TYPE_INFO,
+    DecimalValueDeserialised: DECIMAL_PROP_TYPE_INFO,
+    GeonameValueDeserialised: GEONAME_PROP_TYPE_INFO,
+    IntValueDeserialised: INT_PROP_TYPE_INFO,
+    ListValueDeserialised: LIST_PROP_TYPE_INFO,
+    SimpleTextDeserialised: SIMPLE_TEXT_PROP_TYPE_INFO,
+    RichtextDeserialised: RICHTEXT_PROP_TYPE_INFO,
+    TimeValueDeserialised: TIME_PROP_TYPE_INFO,
+    UriValueDeserialised: URI_PROP_TYPE_INFO,
+}
 
 
 def make_data_rdf(data_deserialised: DataDeserialised) -> DataRDF:
@@ -113,6 +140,21 @@ def _transform_one_value(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:  
             return _transform_uri_value(val, res_iri)
         case _:
             raise InternalError(f"Unknown Value Type: {type(val)}")
+
+
+def _make_one_value_with_xsd_data_type(
+    val: ValueDeserialised, res_iri: URIRef, prop_type_info: RDFPropTypeInfo
+) -> Graph:
+    g = Graph()
+    val_iri = DATA[str(uuid4())]
+    g.add((val_iri, RDF.type, prop_type_info.knora_type))
+    if val.object_value:
+        literal_value = Literal(val.object_value, datatype=prop_type_info.xsd_type)
+    else:
+        literal_value = Literal("", datatype=XSD.string)
+    g.add((val_iri, prop_type_info.knora_prop, literal_value))
+    g.add((res_iri, URIRef(val.prop_name), val_iri))
+    return g
 
 
 def _transform_into_xsd_string(

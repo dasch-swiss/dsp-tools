@@ -9,14 +9,12 @@ from rdflib import RDF
 from rdflib import RDFS
 from rdflib import Graph
 from rdflib import Literal
-from rdflib import Namespace
 from rdflib import URIRef
 
+from dsp_tools.commands.validate_data.constants import API_SHAPES
+from dsp_tools.commands.validate_data.constants import DATA
+from dsp_tools.commands.validate_data.constants import KNORA_API
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
-
-KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
-API_SHAPES = Namespace("http://api.knora.org/ontology/knora-api/shapes/v2#")
-DATA = Namespace("http://data/")
 
 
 @dataclass

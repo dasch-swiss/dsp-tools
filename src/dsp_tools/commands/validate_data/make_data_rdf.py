@@ -2,9 +2,10 @@ from typing import Callable
 
 from rdflib import XSD
 from rdflib import Literal
-from rdflib import Namespace
 from rdflib import URIRef
 
+from dsp_tools.commands.validate_data.constants import DATA
+from dsp_tools.commands.validate_data.constants import KNORA_API
 from dsp_tools.commands.validate_data.models.data_deserialised import AbstractFileValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import BooleanValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ColorValueDeserialised
@@ -47,9 +48,6 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.constants import MOVING_IMAGE_F
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import STILL_IMAGE_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import TEXT_FILE_VALUE
 from dsp_tools.models.exceptions import InternalError
-
-KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
-DATA = Namespace("http://data/")
 
 
 def make_data_rdf(data_deserialised: DataDeserialised) -> DataRDF:

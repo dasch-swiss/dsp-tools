@@ -1,7 +1,4 @@
 from rdflib import Graph
-from rdflib import Namespace
-
-API_SHAPES = Namespace("http://api.knora.org/ontology/knora-api/shapes/v2#")
 
 
 def construct_file_value_cardinality(onto: Graph) -> Graph:

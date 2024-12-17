@@ -262,7 +262,7 @@ class TestTransformFileValue:
         bitstream = BitstreamDeserialised("id", "test.zip")
         file_g = _transform_file_value(bitstream)
         assert len(file_g) == 3
-        bn = next(file_g.objects(RES_IRI, ONTO.hasArchiveFileValue))
+        bn = next(file_g.objects(RES_IRI, KNORA_API.hasArchiveFileValue))
         assert next(file_g.objects(bn, RDF.type)) == KNORA_API.ArchiveFileValue
         assert next(file_g.objects(bn, KNORA_API.fileValueHasFilename)) == Literal("test.zip", datatype=XSD.string)
 
@@ -271,7 +271,7 @@ class TestTransformFileValue:
         iiif = IIIFUriDeserialised("id", uri)
         file_g = _transform_file_value(iiif)
         assert len(file_g) == 3
-        bn = next(file_g.objects(RES_IRI, ONTO.hasStillImageFileValue))
+        bn = next(file_g.objects(RES_IRI, KNORA_API.hasStillImageFileValue))
         assert next(file_g.objects(bn, RDF.type)) == KNORA_API.StillImageExternalFileValue
         assert next(file_g.objects(bn, KNORA_API.stillImageFileValueHasExternalUrl)) == Literal(
             uri, datatype=XSD.anyURI

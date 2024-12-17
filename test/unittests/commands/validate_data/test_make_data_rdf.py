@@ -1,4 +1,6 @@
 import pytest
+from rdflib import RDF
+from rdflib import RDFS
 from rdflib import XSD
 from rdflib import Literal
 from rdflib import URIRef
@@ -31,35 +33,29 @@ from dsp_tools.commands.validate_data.models.data_rdf import GeonameValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import IntValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import LinkValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import ListValueRDF
-from dsp_tools.commands.validate_data.models.data_rdf import ResourceRDF
 from dsp_tools.commands.validate_data.models.data_rdf import RichtextRDF
 from dsp_tools.commands.validate_data.models.data_rdf import SimpleTextRDF
 from dsp_tools.commands.validate_data.models.data_rdf import TimeValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import UriValueRDF
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import KNORA_API
 from test.unittests.commands.validate_data.constants import DATA
+from test.unittests.commands.validate_data.constants import ONTO
 
 
 class TestResource:
     def test_empty(self, resource_deserialised_no_values: ResourceDeserialised) -> None:
-        res_li = _make_one_resource(resource_deserialised_no_values)
-        assert len(res_li) == 1
-        res = res_li[0]
-        assert isinstance(res, ResourceRDF)
-        assert res.res_iri == DATA["id"]
-        assert res.res_class == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything")
-        assert res.label == Literal("lbl", datatype=XSD.string)
+        res_g = _make_one_resource(resource_deserialised_no_values)
+        assert len(res_g) == 2
+        assert next(res_g.objects(DATA["id"], RDF.type)) == ONTO.ClassWithEverything
+        assert next(res_g.objects(DATA["id"], RDFS.label)) == Literal("lbl", datatype=XSD.string)
 
     def test_with_props(self, resource_deserialised_with_values: ResourceDeserialised) -> None:
-        res_list = _make_one_resource(resource_deserialised_with_values)
-        assert len(res_list) == 2
-        res = res_list[0]
-        assert isinstance(res, ResourceRDF)
-        assert res.res_iri == DATA["id"]
-        assert res.res_class == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything")
-        assert res.label == Literal("lbl", datatype=XSD.string)
-        val = res_list[1]
-        assert isinstance(val, BooleanValueRDF)
+        res_g = _make_one_resource(resource_deserialised_with_values)
+        assert len(res_g) == 5
+        assert next(res_g.objects(DATA["id"], RDF.type)) == ONTO.ClassWithEverything
+        assert next(res_g.objects(DATA["id"], RDFS.label)) == Literal("lbl", datatype=XSD.string)
+        bool_bn = next(res_g.objects(DATA["id"], ONTO.testBoolean))
+        assert next(res_g.objects(bool_bn, KNORA_API.booleanValueAsBoolean)) == Literal(False, datatype=XSD.boolean)
 
 
 class TestBooleanValue:

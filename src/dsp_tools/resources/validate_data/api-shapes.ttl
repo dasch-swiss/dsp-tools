@@ -272,9 +272,10 @@ api-shapes:hasLinkTo_NodeShape
 
 ### knora-api:hasComment
 
-api-shapes:hasComment_PropertyShape a sh:PropertyShape ;
-    sh:node api-shapes:FormattedTextValue_ClassShape ;
-    sh:path knora-api:hasComment .
+api-shapes:hasComment_PropertyShape
+  a       sh:PropertyShape ;
+  sh:node api-shapes:FormattedTextValue_ClassShape ;
+  sh:path knora-api:hasComment .
 
 #########################################
 # DSP BUILT IN RESOURCES

@@ -43,7 +43,9 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.constants import STILL_IMAGE_FI
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import TEXT_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import TIME_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import URI_PROP_TYPE_INFO
+from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import get_file_type_info
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
+from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InternalError
 
 RDF_LITERAL_PROP_TYPE_MAPPER = {
@@ -154,8 +156,11 @@ def _transform_list_value(val: ListValueDeserialised, res_iri: URIRef) -> Graph:
 def _transform_file_value(val: AbstractFileValueDeserialised) -> Graph:
     if isinstance(val, IIIFUriDeserialised):
         return _make_file_value_graph(val, IIIF_URI_VALUE, KNORA_API.stillImageFileValueHasExternalUrl)
-    file_type = _map_into_correct_file_value(val.value)
-    return _make_file_value_graph(val, file_type)
+    try:
+        file_type = get_file_type_info(val.value)
+        return _make_file_value_graph(val, file_type)
+    except BaseError:
+        return Graph()
 
 
 def _make_file_value_graph(

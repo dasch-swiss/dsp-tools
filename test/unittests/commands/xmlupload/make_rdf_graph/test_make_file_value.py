@@ -13,8 +13,8 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.constants import MOVING_IMAGE_F
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import STILL_IMAGE_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import TEXT_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import _add_metadata
-from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import _get_file_type_info
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import _make_abstract_file_value_graph
+from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import get_file_type_info
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_file_value_graph
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_iiif_uri_value_graph
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
@@ -151,30 +151,30 @@ class TestFileTypeInfo:
         "file_name", ["test.zip", "test.tar", "test.gz", "test.z", "test.tgz", "test.gzip", "test.7z"]
     )
     def test_archive(self, file_name: str) -> None:
-        result = _get_file_type_info(file_name)
+        result = get_file_type_info(file_name)
         assert result.knora_type == KNORA_API.ArchiveFileValue
 
     @pytest.mark.parametrize("file_name", ["test.mp3", "test.wav"])
     def test_audio(self, file_name: str) -> None:
-        result = _get_file_type_info(file_name)
+        result = get_file_type_info(file_name)
         assert result.knora_type == KNORA_API.AudioFileValue
 
     @pytest.mark.parametrize(
         "file_name", ["test.pdf", "test.doc", "test.docx", "test.xls", "test.xlsx", "test.ppt", "test.pptx"]
     )
     def test_document(self, file_name: str) -> None:
-        result = _get_file_type_info(file_name)
+        result = get_file_type_info(file_name)
         assert result.knora_type == KNORA_API.DocumentFileValue
 
     def test_moving_image(self) -> None:
-        result = _get_file_type_info("test.mp4")
+        result = get_file_type_info("test.mp4")
         assert result.knora_type == KNORA_API.MovingImageFileValue
 
     @pytest.mark.parametrize(
         "file_name", ["test.jpg", "test.jpeg", "path/test.jp2", "test.png", "test.tif", "test.tiff", "test.jpx"]
     )
     def test_still_image(self, file_name: str) -> None:
-        result = _get_file_type_info(file_name)
+        result = get_file_type_info(file_name)
         assert result.knora_type == KNORA_API.StillImageFileValue
 
     @pytest.mark.parametrize(
@@ -182,14 +182,14 @@ class TestFileTypeInfo:
         ["path/test.odd", "test.rng", "test.txt", "test.xml", "test.xsd", "test.xsl", "test.csv", "test.json"],
     )
     def test_text(self, file_name: str) -> None:
-        result = _get_file_type_info(file_name)
+        result = get_file_type_info(file_name)
         assert result.knora_type == KNORA_API.TextFileValue
 
     @pytest.mark.parametrize(("file_name", "ending"), [("test.", ""), ("test", ""), ("test.other", "other")])
     def test_raises(self, file_name: str, ending: str) -> None:
         msg = regex.escape(f"Unknown file ending '{ending}' for file '{file_name}'")
         with pytest.raises(BaseError, match=msg):
-            _get_file_type_info(file_name)
+            get_file_type_info(file_name)
 
 
 class TestAddMetadata:

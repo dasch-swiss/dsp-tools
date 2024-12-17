@@ -27,8 +27,6 @@ from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDe
 from dsp_tools.commands.validate_data.models.data_rdf import FileValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import LinkValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import ListValueRDF
-from dsp_tools.commands.validate_data.models.data_rdf import TimeValueRDF
-from dsp_tools.commands.validate_data.models.data_rdf import UriValueRDF
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import KNORA_API
 from test.unittests.commands.validate_data.constants import DATA
 from test.unittests.commands.validate_data.constants import ONTO
@@ -253,52 +251,34 @@ class TestTimeValue:
     def test_corr(self, time_value_deserialised_corr: TimeValueDeserialised) -> None:
         val_g = _make_one_value(time_value_deserialised_corr, RES_IRI)
         assert len(val_g) == 3
-        bn = next(val_g.objects(RES_IRI, ONTO))
-        assert next(val_g.objects(bn, RDF.type)) == KNORA_API
-        assert next(val_g.objects(bn, KNORA_API)) == Literal("", datatype=XSD.string)
-
-        assert isinstance(val_g, TimeValueRDF)
-        assert val_g.res_iri == RES_IRI
-        assert val_g.prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testTimeValue")
-        assert val_g.object_value == Literal("2019-10-23T13:45:12.01-14:00", datatype=XSD.dateTimeStamp)
+        bn = next(val_g.objects(RES_IRI, ONTO.testTimeValue))
+        assert next(val_g.objects(bn, RDF.type)) == KNORA_API.TimeValue
+        assert next(val_g.objects(bn, KNORA_API.timeValueAsTimeStamp)) == Literal(
+            "2019-10-23T13:45:12.01-14:00", datatype=XSD.dateTimeStamp
+        )
 
     def test_none(self, time_value_deserialised_none: TimeValueDeserialised) -> None:
         val_g = _make_one_value(time_value_deserialised_none, RES_IRI)
         assert len(val_g) == 3
-        bn = next(val_g.objects(RES_IRI, ONTO))
-        assert next(val_g.objects(bn, RDF.type)) == KNORA_API
-        assert next(val_g.objects(bn, KNORA_API)) == Literal("", datatype=XSD.string)
-
-        assert isinstance(val_g, TimeValueRDF)
-        assert val_g.res_iri == RES_IRI
-        assert val_g.prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testTimeValue")
-        assert val_g.object_value == Literal("", datatype=XSD.string)
+        bn = next(val_g.objects(RES_IRI, ONTO.testTimeValue))
+        assert next(val_g.objects(bn, RDF.type)) == KNORA_API.TimeValue
+        assert next(val_g.objects(bn, KNORA_API.timeValueAsTimeStamp)) == Literal("", datatype=XSD.string)
 
 
 class TestUriValue:
     def test_corr(self, uri_value_deserialised_corr: UriValueDeserialised) -> None:
         val_g = _make_one_value(uri_value_deserialised_corr, RES_IRI)
         assert len(val_g) == 3
-        bn = next(val_g.objects(RES_IRI, ONTO))
-        assert next(val_g.objects(bn, RDF.type)) == KNORA_API
-        assert next(val_g.objects(bn, KNORA_API)) == Literal("", datatype=XSD.string)
-
-        assert isinstance(val_g, UriValueRDF)
-        assert val_g.res_iri == RES_IRI
-        assert val_g.prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testUriValue")
-        assert val_g.object_value == Literal("https://dasch.swiss", datatype=XSD.anyURI)
+        bn = next(val_g.objects(RES_IRI, ONTO.testUriValue))
+        assert next(val_g.objects(bn, RDF.type)) == KNORA_API.UriValue
+        assert next(val_g.objects(bn, KNORA_API.uriValueAsUri)) == Literal("https://dasch.swiss", datatype=XSD.anyURI)
 
     def test_none(self, uri_value_deserialised_none: UriValueDeserialised) -> None:
         val_g = _make_one_value(uri_value_deserialised_none, RES_IRI)
         assert len(val_g) == 3
-        bn = next(val_g.objects(RES_IRI, ONTO))
-        assert next(val_g.objects(bn, RDF.type)) == KNORA_API
-        assert next(val_g.objects(bn, KNORA_API)) == Literal("", datatype=XSD.string)
-
-        assert isinstance(val_g, UriValueRDF)
-        assert val_g.res_iri == RES_IRI
-        assert val_g.prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testUriValue")
-        assert val_g.object_value == Literal("", datatype=XSD.string)
+        bn = next(val_g.objects(RES_IRI, ONTO.testUriValue))
+        assert next(val_g.objects(bn, RDF.type)) == KNORA_API.UriValue
+        assert next(val_g.objects(bn, KNORA_API.uriValueAsUri)) == Literal("", datatype=XSD.string)
 
 
 class TestTransformFileValue:

@@ -27,7 +27,6 @@ from dsp_tools.commands.validate_data.models.data_deserialised import SimpleText
 from dsp_tools.commands.validate_data.models.data_deserialised import TimeValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ValueDeserialised
-from dsp_tools.commands.validate_data.models.data_rdf import FileValueRDF
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import ARCHIVE_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import AUDIO_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import BOOLEAN_PROP_TYPE_INFO
@@ -154,20 +153,27 @@ def _transform_list_value(val: ListValueDeserialised, res_iri: URIRef) -> Graph:
 
 def _transform_file_value(val: AbstractFileValueDeserialised) -> Graph:
     if isinstance(val, IIIFUriDeserialised):
-        return FileValueRDF(
-            res_iri=DATA[val.res_id],
-            value=Literal(val.value, datatype=XSD.anyURI),
-            prop_type_info=IIIF_URI_VALUE,
-            prop_to_value=KNORA_API.stillImageFileValueHasExternalUrl,
-        ).make_graph()
+        return _make_file_value_graph(val, IIIF_URI_VALUE, KNORA_API.stillImageFileValueHasExternalUrl)
     file_type = _map_into_correct_file_value(val.value)
-    file_literal = Literal(val.value, datatype=XSD.string)
-    file_extension = _get_file_extension(val.value)
-    return FileValueRDF(res_iri=DATA[val.res_id], value=file_literal, prop_type_info=file_type).make_graph()
+    return _make_file_value_graph(val, file_type)
 
 
-def _map_into_correct_file_value(val: AbstractFileValueDeserialised) -> RDFPropTypeInfo | None:
-    file_extension = _get_file_extension(val.value)
+def _make_file_value_graph(
+    val: AbstractFileValueDeserialised,
+    prop_type_info: RDFPropTypeInfo,
+    prop_to_value: URIRef = KNORA_API.fileValueHasFilename,
+) -> Graph:
+    g = Graph()
+    res_iri = DATA[val.res_id]
+    val_iri = DATA[str(uuid4())]
+    g.add((res_iri, prop_type_info.knora_prop, val_iri))
+    g.add((val_iri, RDF.type, prop_type_info.knora_type))
+    g.add((val_iri, prop_to_value, Literal(val.value, datatype=prop_type_info.xsd_type)))
+    return g
+
+
+def _map_into_correct_file_value(file_name: str | None) -> RDFPropTypeInfo | None:  # noqa: PLR0911 (Too many return statements)
+    file_extension = _get_file_extension(file_name)
     match file_extension:
         case "zip" | "tar" | "gz" | "z" | "tgz" | "gzip" | "7z":
             return ARCHIVE_FILE_VALUE

@@ -1,4 +1,3 @@
-from typing import Callable
 from uuid import uuid4
 
 from rdflib import RDF
@@ -26,13 +25,9 @@ from dsp_tools.commands.validate_data.models.data_deserialised import SimpleText
 from dsp_tools.commands.validate_data.models.data_deserialised import TimeValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ValueDeserialised
-from dsp_tools.commands.validate_data.models.data_rdf import BooleanValueRDF
-from dsp_tools.commands.validate_data.models.data_rdf import DecimalValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import FileValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import LinkValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import ListValueRDF
-from dsp_tools.commands.validate_data.models.data_rdf import TimeValueRDF
-from dsp_tools.commands.validate_data.models.data_rdf import UriValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import ValueRDF
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import ARCHIVE_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import AUDIO_FILE_VALUE
@@ -107,7 +102,7 @@ def _make_one_value(val: ValueDeserialised, res_iri: URIRef) -> Graph:
             | TimeValueDeserialised()
             | UriValueDeserialised()
         ):
-            return _transform_into_xsd_string(val, res_iri, RDF_LITERAL_PROP_TYPE_MAPPER[type(val)])
+            return _make_one_value_with_xsd_data_type(val, res_iri, RDF_LITERAL_PROP_TYPE_MAPPER[type(val)])
         case LinkValueDeserialised():
             return _transform_link_value(val, res_iri)
         case ListValueDeserialised():
@@ -131,44 +126,6 @@ def _make_one_value_with_xsd_data_type(
     return g
 
 
-def _transform_into_xsd_string(
-    val: ValueDeserialised, res_iri: URIRef, func: Callable[[URIRef, Literal, URIRef], ValueRDF]
-) -> ValueRDF:
-    new_str = val.object_value if val.object_value is not None else ""
-    return func(URIRef(val.prop_name), Literal(new_str, datatype=XSD.string), res_iri)
-
-
-def _transform_into_xsd_integer(
-    val: ValueDeserialised, res_iri: URIRef, func: Callable[[URIRef, Literal, URIRef], ValueRDF]
-) -> ValueRDF:
-    content = (
-        Literal(val.object_value, datatype=XSD.integer)
-        if val.object_value is not None
-        else Literal("", datatype=XSD.string)
-    )
-    return func(URIRef(val.prop_name), content, res_iri)
-
-
-def _transform_into_bool(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
-    match val.object_value:
-        case "1" | "true":
-            content = Literal(True, datatype=XSD.boolean)
-        case "0" | "false":
-            content = Literal(False, datatype=XSD.boolean)
-        case _:
-            content = Literal("", datatype=XSD.string)
-    return BooleanValueRDF(URIRef(val.prop_name), content, res_iri)
-
-
-def _transform_decimal_value(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
-    content = (
-        Literal(val.object_value, datatype=XSD.decimal)
-        if val.object_value is not None
-        else Literal("", datatype=XSD.string)
-    )
-    return DecimalValueRDF(URIRef(val.prop_name), content, res_iri)
-
-
 def _transform_link_value(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
     content = val.object_value if val.object_value is not None else ""
     return LinkValueRDF(URIRef(val.prop_name), DATA[content], res_iri)
@@ -182,24 +139,6 @@ def _transform_list_value(val: ListValueDeserialised, res_iri: URIRef) -> ValueR
         list_name=Literal(val.list_name, datatype=XSD.string),
         res_iri=res_iri,
     )
-
-
-def _transform_time_value(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
-    content = (
-        Literal(val.object_value, datatype=XSD.dateTimeStamp)
-        if val.object_value is not None
-        else Literal("", datatype=XSD.string)
-    )
-    return TimeValueRDF(URIRef(val.prop_name), content, res_iri)
-
-
-def _transform_uri_value(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
-    content = (
-        Literal(val.object_value, datatype=XSD.anyURI)
-        if val.object_value is not None
-        else Literal("", datatype=XSD.string)
-    )
-    return UriValueRDF(URIRef(val.prop_name), content, res_iri)
 
 
 def _transform_file_value(val: AbstractFileValueDeserialised) -> Graph:

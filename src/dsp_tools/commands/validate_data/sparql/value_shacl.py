@@ -153,7 +153,7 @@ def _construct_link_value_node_shape(onto: Graph) -> Graph:
                                 a            sh:PropertyShape ;
                                 sh:path      api-shapes:linkValueHasTargetID ;
                                 sh:class     ?rangeClass ;
-                                sh:message   ?rangeClass ;
+                                sh:message   ?msg ;
                             ] ;
             sh:severity    sh:Violation .
 
@@ -164,6 +164,7 @@ def _construct_link_value_node_shape(onto: Graph) -> Graph:
                 knora-api:objectType ?rangeClass .
 
         BIND(IRI(CONCAT(str(?prop), "_NodeShape")) AS ?nodeShapeIRI)
+        BIND(CONCAT("Range is ", str(?rangeClass), " or a subclass.") AS ?msg)
     }
     """
     if results_graph := onto.query(query_s).graph:

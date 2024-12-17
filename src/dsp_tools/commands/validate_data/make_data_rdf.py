@@ -102,7 +102,7 @@ def _make_one_value(val: ValueDeserialised, res_iri: URIRef) -> Graph:
             | TimeValueDeserialised()
             | UriValueDeserialised()
         ):
-            return _make_one_value_with_xsd_data_type(val, res_iri, RDF_LITERAL_PROP_TYPE_MAPPER[type(val)])
+            return _make_one_value_with_xsd_data_type(val=val, res_iri=res_iri, prop_type_info=RDF_LITERAL_PROP_TYPE_MAPPER[type(val)])
         case LinkValueDeserialised():
             return _transform_link_value(val, res_iri)
         case ListValueDeserialised():

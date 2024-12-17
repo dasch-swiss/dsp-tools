@@ -27,20 +27,14 @@ from dsp_tools.commands.validate_data.models.data_deserialised import SimpleText
 from dsp_tools.commands.validate_data.models.data_deserialised import TimeValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ValueDeserialised
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import ARCHIVE_FILE_VALUE
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import AUDIO_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import BOOLEAN_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import COLOR_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import DECIMAL_PROP_TYPE_INFO
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import DOCUMENT_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import GEONAME_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import IIIF_URI_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import INT_PROP_TYPE_INFO
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import MOVING_IMAGE_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import RICHTEXT_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import SIMPLE_TEXT_PROP_TYPE_INFO
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import STILL_IMAGE_FILE_VALUE
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import TEXT_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import TIME_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import URI_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import get_file_type_info
@@ -175,30 +169,3 @@ def _make_file_value_graph(
     g.add((val_iri, RDF.type, prop_type_info.knora_type))
     g.add((val_iri, prop_to_value, Literal(val.value, datatype=prop_type_info.xsd_type)))
     return g
-
-
-def _map_into_correct_file_value(file_name: str | None) -> RDFPropTypeInfo | None:  # noqa: PLR0911 (Too many return statements)
-    file_extension = _get_file_extension(file_name)
-    match file_extension:
-        case "zip" | "tar" | "gz" | "z" | "tgz" | "gzip" | "7z":
-            return ARCHIVE_FILE_VALUE
-        case "mp3" | "wav":
-            return AUDIO_FILE_VALUE
-        case "pdf" | "doc" | "docx" | "xls" | "xlsx" | "ppt" | "pptx":
-            return DOCUMENT_FILE_VALUE
-        case "mp4":
-            return MOVING_IMAGE_FILE_VALUE
-        case "odd" | "rng" | "txt" | "xml" | "xsd" | "xsl" | "csv" | "json":
-            return TEXT_FILE_VALUE
-        # jpx is the extension of the files returned by dsp-ingest
-        case "jpg" | "jpeg" | "jp2" | "png" | "tif" | "tiff" | "jpx":
-            return STILL_IMAGE_FILE_VALUE
-        case _:
-            return None
-
-
-def _get_file_extension(value: str | None) -> str:
-    file_extension = ""
-    if value and "." in value:
-        file_extension = value.split(".")[-1].lower()
-    return file_extension

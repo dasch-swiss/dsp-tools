@@ -158,7 +158,7 @@ class TestIntValue:
         assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO.testIntegerSimpleText))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API.IntValue
-        assert next(val_g.objects(bn, KNORA_API)) == Literal("", datatype=XSD.string)
+        assert next(val_g.objects(bn, KNORA_API.intValueAsInt)) == Literal("", datatype=XSD.string)
 
 
 class TestLinkValue:

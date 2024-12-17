@@ -91,33 +91,24 @@ class TestBooleanValue:
 class TestColorValue:
     def test_corr(self, color_value_deserialised_corr: ColorValueDeserialised) -> None:
         val_g = _make_one_value(color_value_deserialised_corr, RES_IRI)
-        assert len(val_g) == 0
-        bn = next(val_g.objects(RES_IRI, ONTO))
-        assert next(val_g.objects(bn, RDF.type)) == KNORA_API
-        assert next(val_g.objects(bn, )) == Literal()
+        assert len(val_g) == 3
+        bn = next(val_g.objects(RES_IRI, ONTO.testColor))
+        assert next(val_g.objects(bn, RDF.type)) == KNORA_API.ColorValue
+        assert next(val_g.objects(bn, KNORA_API.colorValueAsColor)) == Literal("#00ff00", datatype=XSD.string)
 
-        assert isinstance(val_g, ColorValueRDF)
-        assert val_g.res_iri == RES_IRI
-        assert val_g.prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testColor")
-        assert val_g.object_value == Literal("#00ff00", datatype=XSD.string)
 
     def test_none(self, color_value_deserialised_none: ColorValueDeserialised) -> None:
         val_g = _make_one_value(color_value_deserialised_none, RES_IRI)
-        assert len(val_g) == 0
-        bn = next(val_g.objects(RES_IRI, ONTO))
-        assert next(val_g.objects(bn, RDF.type)) == KNORA_API
-        assert next(val_g.objects(bn, )) == Literal()
-
-        assert isinstance(val_g, ColorValueRDF)
-        assert val_g.res_iri == RES_IRI
-        assert val_g.prop_name == URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#testColor")
-        assert val_g.object_value == Literal("", datatype=XSD.string)
+        assert len(val_g) == 3
+        bn = next(val_g.objects(RES_IRI, ONTO.testColor))
+        assert next(val_g.objects(bn, RDF.type)) == KNORA_API.ColorValue
+        assert next(val_g.objects(bn, KNORA_API.colorValueAsColor)) == Literal("", datatype=XSD.string)
 
 
 class TestDateValue:
     def test_corr(self, date_value_deserialised_corr: DateValueDeserialised) -> None:
         val_g = _make_one_value(date_value_deserialised_corr, RES_IRI)
-        assert len(val_g) == 0
+        assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API
         assert next(val_g.objects(bn, )) == Literal()
@@ -129,7 +120,7 @@ class TestDateValue:
 
     def test_none(self, date_value_deserialised_none: DateValueDeserialised) -> None:
         val_g = _make_one_value(date_value_deserialised_none, RES_IRI)
-        assert len(val_g) == 0
+        assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API
         assert next(val_g.objects(bn, )) == Literal()
@@ -143,7 +134,7 @@ class TestDateValue:
 class TestDecimalValue:
     def test_corr(self, decimal_value_deserialised_corr: DecimalValueDeserialised) -> None:
         val_g = _make_one_value(decimal_value_deserialised_corr, RES_IRI)
-        assert len(val_g) == 0
+        assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API
         assert next(val_g.objects(bn, )) == Literal()
@@ -155,7 +146,7 @@ class TestDecimalValue:
 
     def test_none(self, decimal_value_deserialised_none: DecimalValueDeserialised) -> None:
         val_g = _make_one_value(decimal_value_deserialised_none, RES_IRI)
-        assert len(val_g) == 0
+        assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API
         assert next(val_g.objects(bn, )) == Literal()
@@ -169,7 +160,7 @@ class TestDecimalValue:
 class TestGeonameValue:
     def test_corr(self, geoname_value_deserialised_corr: GeonameValueDeserialised) -> None:
         val_g = _make_one_value(geoname_value_deserialised_corr, RES_IRI)
-        assert len(val_g) == 0
+        assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API
         assert next(val_g.objects(bn, )) == Literal()
@@ -181,7 +172,7 @@ class TestGeonameValue:
 
     def test_none(self, geoname_value_deserialised_none: GeonameValueDeserialised) -> None:
         val_g = _make_one_value(geoname_value_deserialised_none, RES_IRI)
-        assert len(val_g) == 0
+        assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API
         assert next(val_g.objects(bn, )) == Literal()
@@ -195,7 +186,7 @@ class TestGeonameValue:
 class TestIntValue:
     def test_corr(self, int_value_deserialised_corr: IntValueDeserialised) -> None:
         val_g = _make_one_value(int_value_deserialised_corr, RES_IRI)
-        assert len(val_g) == 0
+        assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API
         assert next(val_g.objects(bn, )) == Literal()
@@ -207,7 +198,7 @@ class TestIntValue:
 
     def test_none(self, int_value_deserialised_none: IntValueDeserialised) -> None:
         val_g = _make_one_value(int_value_deserialised_none, RES_IRI)
-        assert len(val_g) == 0
+        assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API
         assert next(val_g.objects(bn, )) == Literal()
@@ -221,7 +212,7 @@ class TestIntValue:
 class TestLinkValue:
     def test_corr(self, link_value_deserialised_corr: LinkValueDeserialised) -> None:
         val_g = _make_one_value(link_value_deserialised_corr, RES_IRI)
-        assert len(val_g) == 0
+        assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API
         assert next(val_g.objects(bn, )) == Literal()
@@ -233,7 +224,7 @@ class TestLinkValue:
 
     def test_none(self, link_value_deserialised_none: LinkValueDeserialised) -> None:
         val_g = _make_one_value(link_value_deserialised_none, RES_IRI)
-        assert len(val_g) == 0
+        assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API
         assert next(val_g.objects(bn, )) == Literal()
@@ -247,7 +238,7 @@ class TestLinkValue:
 class TestListValue:
     def test_corr(self, list_value_deserialised_corr: ListValueDeserialised) -> None:
         val_g = _make_one_value(list_value_deserialised_corr, RES_IRI)
-        assert len(val_g) == 0
+        assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API
         assert next(val_g.objects(bn, )) == Literal()
@@ -260,7 +251,7 @@ class TestListValue:
 
     def test_none(self, list_value_deserialised_none: ListValueDeserialised) -> None:
         val_g = _make_one_value(list_value_deserialised_none, RES_IRI)
-        assert len(val_g) == 0
+        assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API
         assert next(val_g.objects(bn, )) == Literal()
@@ -275,7 +266,7 @@ class TestListValue:
 class TestSimpleTextValue:
     def test_corr(self, simple_text_deserialised_corr: SimpleTextDeserialised) -> None:
         val_g = _make_one_value(simple_text_deserialised_corr, RES_IRI)
-        assert len(val_g) == 0
+        assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API
         assert next(val_g.objects(bn, )) == Literal()
@@ -287,7 +278,7 @@ class TestSimpleTextValue:
 
     def test_none(self, simple_text_deserialised_none: SimpleTextDeserialised) -> None:
         val_g = _make_one_value(simple_text_deserialised_none, RES_IRI)
-        assert len(val_g) == 0
+        assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API
         assert next(val_g.objects(bn, )) == Literal()
@@ -301,7 +292,7 @@ class TestSimpleTextValue:
 class TestRichtextValue:
     def test_corr(self, richtext_deserialised_corr: RichtextDeserialised) -> None:
         val_g = _make_one_value(richtext_deserialised_corr, RES_IRI)
-        assert len(val_g) == 0
+        assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API
         assert next(val_g.objects(bn, )) == Literal()
@@ -313,7 +304,7 @@ class TestRichtextValue:
 
     def test_none(self, richtext_deserialised_none: RichtextDeserialised) -> None:
         val_g = _make_one_value(richtext_deserialised_none, RES_IRI)
-        assert len(val_g) == 0
+        assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API
         assert next(val_g.objects(bn, )) == Literal()
@@ -327,7 +318,7 @@ class TestRichtextValue:
 class TestTimeValue:
     def test_corr(self, time_value_deserialised_corr: TimeValueDeserialised) -> None:
         val_g = _make_one_value(time_value_deserialised_corr, RES_IRI)
-        assert len(val_g) == 0
+        assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API
         assert next(val_g.objects(bn, )) == Literal()
@@ -339,7 +330,7 @@ class TestTimeValue:
 
     def test_none(self, time_value_deserialised_none: TimeValueDeserialised) -> None:
         val_g = _make_one_value(time_value_deserialised_none, RES_IRI)
-        assert len(val_g) == 0
+        assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API
         assert next(val_g.objects(bn, )) == Literal()
@@ -353,7 +344,7 @@ class TestTimeValue:
 class TestUriValue:
     def test_corr(self, uri_value_deserialised_corr: UriValueDeserialised) -> None:
         val_g = _make_one_value(uri_value_deserialised_corr, RES_IRI)
-        assert len(val_g) == 0
+        assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API
         assert next(val_g.objects(bn, )) == Literal()
@@ -365,7 +356,7 @@ class TestUriValue:
 
     def test_none(self, uri_value_deserialised_none: UriValueDeserialised) -> None:
         val_g = _make_one_value(uri_value_deserialised_none, RES_IRI)
-        assert len(val_g) == 0
+        assert len(val_g) == 3
         bn = next(val_g.objects(RES_IRI, ONTO))
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API
         assert next(val_g.objects(bn, )) == Literal()

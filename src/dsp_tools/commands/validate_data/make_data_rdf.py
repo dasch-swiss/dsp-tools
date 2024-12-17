@@ -70,7 +70,7 @@ def make_data_rdf(data_deserialised: DataDeserialised) -> Graph:
     for r in data_deserialised.resources:
         g += _make_one_resource(r)
     for f in data_deserialised.file_values:
-        g += _transform_file_value(f)
+        g += _make_file_value(f)
     return g
 
 
@@ -104,9 +104,9 @@ def _make_one_value(val: ValueDeserialised, res_iri: URIRef) -> Graph:
                 prop_type_info=RDF_LITERAL_PROP_TYPE_MAPPER[type(val)],
             )
         case LinkValueDeserialised():
-            return _transform_link_value(val, res_iri)
+            return _make_link_value(val, res_iri)
         case ListValueDeserialised():
-            return _transform_list_value(val, res_iri)
+            return _make_list_value(val, res_iri)
         case _:
             raise InternalError(f"Unknown Value Type: {type(val)}")
 
@@ -126,7 +126,7 @@ def _make_one_value_with_xsd_data_type(
     return g
 
 
-def _transform_link_value(val: ValueDeserialised, res_iri: URIRef) -> Graph:
+def _make_link_value(val: ValueDeserialised, res_iri: URIRef) -> Graph:
     object_value = val.object_value if val.object_value is not None else ""
     g = Graph()
     val_iri = DATA[str(uuid4())]
@@ -136,7 +136,7 @@ def _transform_link_value(val: ValueDeserialised, res_iri: URIRef) -> Graph:
     return g
 
 
-def _transform_list_value(val: ListValueDeserialised, res_iri: URIRef) -> Graph:
+def _make_list_value(val: ListValueDeserialised, res_iri: URIRef) -> Graph:
     node_name = val.object_value if val.object_value is not None else ""
     g = Graph()
     val_iri = DATA[str(uuid4())]
@@ -147,7 +147,7 @@ def _transform_list_value(val: ListValueDeserialised, res_iri: URIRef) -> Graph:
     return g
 
 
-def _transform_file_value(val: AbstractFileValueDeserialised) -> Graph:
+def _make_file_value(val: AbstractFileValueDeserialised) -> Graph:
     if val.value is None:
         return Graph()
     if isinstance(val, IIIFUriDeserialised):

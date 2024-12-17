@@ -4,9 +4,9 @@ from rdflib import RDFS
 from rdflib import XSD
 from rdflib import Literal
 
+from dsp_tools.commands.validate_data.make_data_rdf import _make_file_value
 from dsp_tools.commands.validate_data.make_data_rdf import _make_one_resource
 from dsp_tools.commands.validate_data.make_data_rdf import _make_one_value
-from dsp_tools.commands.validate_data.make_data_rdf import _transform_file_value
 from dsp_tools.commands.validate_data.models.data_deserialised import BitstreamDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import BooleanValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ColorValueDeserialised
@@ -260,7 +260,7 @@ class TestUriValue:
 class TestTransformFileValue:
     def test_make_file_value_graph_real_file(self) -> None:
         bitstream = BitstreamDeserialised("id", "test.zip")
-        file_g = _transform_file_value(bitstream)
+        file_g = _make_file_value(bitstream)
         assert len(file_g) == 3
         bn = next(file_g.objects(RES_IRI, KNORA_API.hasArchiveFileValue))
         assert next(file_g.objects(bn, RDF.type)) == KNORA_API.ArchiveFileValue
@@ -269,7 +269,7 @@ class TestTransformFileValue:
     def test_make_file_value_graph_iiif_uri(self) -> None:
         uri = "https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg"
         iiif = IIIFUriDeserialised("id", uri)
-        file_g = _transform_file_value(iiif)
+        file_g = _make_file_value(iiif)
         assert len(file_g) == 3
         bn = next(file_g.objects(RES_IRI, KNORA_API.hasStillImageFileValue))
         assert next(file_g.objects(bn, RDF.type)) == KNORA_API.StillImageExternalFileValue
@@ -279,12 +279,12 @@ class TestTransformFileValue:
 
     def test_none(self) -> None:
         bitstream = BitstreamDeserialised("id", None)
-        result = _transform_file_value(bitstream)
+        result = _make_file_value(bitstream)
         assert len(result) == 0
 
     def test_other(self) -> None:
         bitstream = BitstreamDeserialised("id", "test.other")
-        result = _transform_file_value(bitstream)
+        result = _make_file_value(bitstream)
         assert len(result) == 0
 
 

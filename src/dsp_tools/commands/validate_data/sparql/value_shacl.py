@@ -4,16 +4,14 @@ from rdflib import XSD
 from rdflib import BNode
 from rdflib import Graph
 from rdflib import Literal
-from rdflib import Namespace
 from rdflib import URIRef
 from rdflib.collection import Collection
 from rdflib.term import Node
 
+from dsp_tools.commands.validate_data.constants import API_SHAPES
 from dsp_tools.commands.validate_data.models.api_responses import AllProjectLists
 from dsp_tools.commands.validate_data.models.api_responses import OneList
 from dsp_tools.commands.validate_data.models.api_responses import SHACLListInfo
-
-API_SHAPES = Namespace("http://api.knora.org/ontology/knora-api/shapes/v2#")
 
 
 def construct_property_shapes(onto: Graph, project_lists: AllProjectLists) -> Graph:

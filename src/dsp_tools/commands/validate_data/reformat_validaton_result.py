@@ -7,9 +7,11 @@ from rdflib import RDFS
 from rdflib import SH
 from rdflib import Graph
 from rdflib import Literal
-from rdflib import Namespace
 from rdflib.term import Node
 
+from dsp_tools.commands.validate_data.constants import API_SHAPES
+from dsp_tools.commands.validate_data.constants import DASH
+from dsp_tools.commands.validate_data.constants import KNORA_API
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import ContentRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
@@ -44,10 +46,6 @@ from dsp_tools.commands.validate_data.models.validation import ValidationResultB
 from dsp_tools.commands.validate_data.utils import reformat_data_iri
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.models.exceptions import BaseError
-
-DASH = Namespace("http://datashapes.org/dash#")
-KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
-API_SHAPES = Namespace("http://api.knora.org/ontology/knora-api/shapes/v2#")
 
 result_to_problem_mapper = {
     ResultMaxCardinalityViolation: MaxCardinalityProblem,

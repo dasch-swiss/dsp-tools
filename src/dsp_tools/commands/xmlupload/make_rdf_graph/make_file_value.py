@@ -49,7 +49,7 @@ def make_file_value_graph(bitstream_info: BitstreamInfo, res_node: BNode | URIRe
     Returns:
         Graph with the File Value
     """
-    file_type = _get_file_type_info(bitstream_info.local_file)
+    file_type = get_file_type_info(bitstream_info.local_file)
     internal_filename = bitstream_info.internal_file_name
     bitstream_permissions = None
     if bitstream_info.permissions:
@@ -59,7 +59,19 @@ def make_file_value_graph(bitstream_info: BitstreamInfo, res_node: BNode | URIRe
     return _make_abstract_file_value_graph(file_value, file_type, res_node)
 
 
-def _get_file_type_info(local_file: str) -> RDFPropTypeInfo:
+def get_file_type_info(local_file: str) -> RDFPropTypeInfo:
+    """
+    Takes path of a file and returns the correct file value type.
+
+    Args:
+        local_file: filepath
+
+    Returns:
+        File type info to construct the graph
+
+    Raises:
+        BaseError: in case the extension is unknown
+    """
     file_ending = Path(local_file).suffix[1:].lower()
     match file_ending:
         case "zip" | "tar" | "gz" | "z" | "tgz" | "gzip" | "7z":

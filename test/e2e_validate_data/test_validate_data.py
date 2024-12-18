@@ -140,18 +140,14 @@ def dsp_inbuilt_violation(_create_projects: Iterator[None], api_con: ApiConnecti
 
 
 @pytest.fixture(scope="module")
-def special_characters_correct(
-    _create_projects: Iterator[None], api_con: ApiConnection
-) -> ValidationReportGraphs:
+def special_characters_correct(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/special_characters/special_characters_correct.xml")
     graphs = _get_parsed_graphs(api_con, file)
     return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
 
 
 @pytest.fixture(scope="module")
-def special_characters_violation(
-    _create_projects: Iterator[None], api_con: ApiConnection
-) -> ValidationReportGraphs:
+def special_characters_violation(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/special_characters/special_characters_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
     return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
@@ -165,9 +161,7 @@ def inheritance_correct(_create_projects: Iterator[None], api_con: ApiConnection
 
 
 @pytest.fixture(scope="module")
-def inheritance_violation(
-    _create_projects: Iterator[None], api_con: ApiConnection
-) -> ValidationReportGraphs:
+def inheritance_violation(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/inheritance/inheritance_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
     return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)

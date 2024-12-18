@@ -86,14 +86,20 @@ def test_one_resource_without_links(ingest_client_mock: AssetClient) -> None:
         "route": "/v2/resources",
         "data": {
             "@type": "http://0.0.0.0:3333/ontology/9999/onto/v2#foo_1_type",
-            "http://www.w3.org/2000/01/rdf-schema#label": "foo_1_label",
+            "http://www.w3.org/2000/01/rdf-schema#label": {
+                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                "@value": "foo_1_label",
+            },
             "http://api.knora.org/ontology/knora-api/v2#attachedToProject": {
                 "@id": "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"
             },
             "@context": {},
             prop_name: {
                 "@type": "http://api.knora.org/ontology/knora-api/v2#TextValue",
-                "http://api.knora.org/ontology/knora-api/v2#valueAsString": "foo_1 text",
+                "http://api.knora.org/ontology/knora-api/v2#valueAsString": {
+                    "@type": "http://www.w3.org/2001/XMLSchema#string",
+                    "@value": "foo_1 text",
+                },
             },
         },
     }
@@ -136,7 +142,10 @@ def test_one_resource_with_link_to_existing_resource(ingest_client_mock: AssetCl
         "route": "/v2/resources",
         "data": {
             "@type": "http://0.0.0.0:3333/ontology/9999/onto/v2#foo_1_type",
-            "http://www.w3.org/2000/01/rdf-schema#label": "foo_1_label",
+            "http://www.w3.org/2000/01/rdf-schema#label": {
+                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                "@value": "foo_1_label",
+            },
             "http://api.knora.org/ontology/knora-api/v2#attachedToProject": {
                 "@id": "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"
             },

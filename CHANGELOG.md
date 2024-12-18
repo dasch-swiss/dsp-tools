@@ -1,5 +1,71 @@
 # Changelog
 
+## [10.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v9.2.0...v10.0.0) (2024-12-18)
+
+
+### ⚠ BREAKING CHANGES
+
+* remove support for knora-base:Annotation (DEV-4430) ([#1314](https://github.com/dasch-swiss/dsp-tools/issues/1314))
+
+### Enhancements
+
+* remove support for knora-base:Annotation (DEV-4430) ([#1314](https://github.com/dasch-swiss/dsp-tools/issues/1314)) ([469473a](https://github.com/dasch-swiss/dsp-tools/commit/469473a66be630423b85a947dbd6dcbe4e903287))
+* **validate-data:** `knora-api:LinkObj` (DEV-4463) ([#1342](https://github.com/dasch-swiss/dsp-tools/issues/1342)) ([f9dee0f](https://github.com/dasch-swiss/dsp-tools/commit/f9dee0f220be4c279d93c1c2f0895860a04d28f6))
+* **validate-data:** change message for files added to resources without representation (DEV-4453) ([#1333](https://github.com/dasch-swiss/dsp-tools/issues/1333)) ([738ad7f](https://github.com/dasch-swiss/dsp-tools/commit/738ad7f867c2b8743898ddc2be84919269219c67))
+* **validate-data:** validate `DocumentRepresentation`, `ArchiveRepresentation`, `TextRepresentation` (DEV-4334) ([#1331](https://github.com/dasch-swiss/dsp-tools/issues/1331)) ([c3d69d2](https://github.com/dasch-swiss/dsp-tools/commit/c3d69d2fefb8eabe5ac06b3878ff8e1e3651c2e6))
+* **validate-data:** validate `StillImageRepresentation` (DEV-4336) ([#1330](https://github.com/dasch-swiss/dsp-tools/issues/1330)) ([15cdf26](https://github.com/dasch-swiss/dsp-tools/commit/15cdf2658c10f7cee3aeb636067b3c9631ea5a7f))
+* **validate-data:** validate AudioFileValue (DEV-4332) ([#1326](https://github.com/dasch-swiss/dsp-tools/issues/1326)) ([e0988c6](https://github.com/dasch-swiss/dsp-tools/commit/e0988c6a5d99b50190372ce0f23ade810eafe92b))
+* **xmllib:** add examples to docstrings (DEV-4423) ([#1316](https://github.com/dasch-swiss/dsp-tools/issues/1316)) ([bfbc2ed](https://github.com/dasch-swiss/dsp-tools/commit/bfbc2edefa05589f3de32a57a97a429d5ab7820d))
+* **xmllib:** ensure that non-empty lists are found during add multiple values (DEV-4421) ([#1311](https://github.com/dasch-swiss/dsp-tools/issues/1311)) ([44b1418](https://github.com/dasch-swiss/dsp-tools/commit/44b1418f3fb7e340055fd1ff5beaf7c5bb716799))
+* **xmllib:** expose lib through init and enable colored printing (RDU-39) ([#1315](https://github.com/dasch-swiss/dsp-tools/issues/1315)) ([c5f594d](https://github.com/dasch-swiss/dsp-tools/commit/c5f594d202ffda3ff3294638386b870ab76e927b))
+* **xmllib:** remove `add_comment` method from base resources if they are mandatory (DEV-4415) ([#1307](https://github.com/dasch-swiss/dsp-tools/issues/1307)) ([fc0f143](https://github.com/dasch-swiss/dsp-tools/commit/fc0f143ee472b5d14202873e13660a270a6b07ba))
+* **xmllib:** simplify creation of geometry-prop with classes (RDU-55) ([#1300](https://github.com/dasch-swiss/dsp-tools/issues/1300)) ([b8fb42f](https://github.com/dasch-swiss/dsp-tools/commit/b8fb42f84d87a2ffcd5d5c6c8445ea16b13e9d72))
+* **xmlupload:** add license / copyright as optional attributes in `iiif-uri` and `bitstream` (DEV-4355) ([#1293](https://github.com/dasch-swiss/dsp-tools/issues/1293)) ([d401a49](https://github.com/dasch-swiss/dsp-tools/commit/d401a4927fa11d13742834973503667512df487d))
+
+
+### Bug Fixes
+
+* **ingest-xmlupload:** remove leading slash ([#1321](https://github.com/dasch-swiss/dsp-tools/issues/1321)) ([ca3b2aa](https://github.com/dasch-swiss/dsp-tools/commit/ca3b2aa510e9354c23564f50a48cc8cb3ceaffa6))
+* remove wrong min cardinality for `hasComment` in `LinkObj`(DEV-4465) ([#1343](https://github.com/dasch-swiss/dsp-tools/issues/1343)) ([0f0aa2e](https://github.com/dasch-swiss/dsp-tools/commit/0f0aa2e2ef603c97dfc7a873e9cc5f4bd3e08386))
+* **start-stack:** allow erasing project on localhost (DEV-4422) ([#1338](https://github.com/dasch-swiss/dsp-tools/issues/1338)) ([0783bde](https://github.com/dasch-swiss/dsp-tools/commit/0783bdebe67588cb70b47997ed6d61086c09d815))
+* **validate-data:** ensure turtle files are in the distribution (DEV-4423) ([#1313](https://github.com/dasch-swiss/dsp-tools/issues/1313)) ([37846cf](https://github.com/dasch-swiss/dsp-tools/commit/37846cfbabcba197375b956521fffe721318842e))
+* **validate-data:** message of LinkValue in SHACL (DEV-4471) ([#1344](https://github.com/dasch-swiss/dsp-tools/issues/1344)) ([b90f043](https://github.com/dasch-swiss/dsp-tools/commit/b90f043a90c14ef870dc1d94ed57fdf87adff0a8))
+* **xmllib:** allow single quotes and plus in URI ([#1332](https://github.com/dasch-swiss/dsp-tools/issues/1332)) ([8285bb3](https://github.com/dasch-swiss/dsp-tools/commit/8285bb336a19577cad8a4c4610ac9d3aed77c397))
+* **xmllib:** check if richtext input is string like before value conversion (DEV-4418) ([#1308](https://github.com/dasch-swiss/dsp-tools/issues/1308)) ([5d35058](https://github.com/dasch-swiss/dsp-tools/commit/5d350587122c9ca8f4068ed0b3697642bcc9db87))
+* **xmllib:** correct `LinkObj` cardinalities according to `knora-base` (DEV-4434) ([#1317](https://github.com/dasch-swiss/dsp-tools/issues/1317)) ([144d779](https://github.com/dasch-swiss/dsp-tools/commit/144d779298b2a1135030a348e51fb53c6217af16))
+* **xmllib:** don't crash if comment input is `nan` (DEV-4399) ([#1297](https://github.com/dasch-swiss/dsp-tools/issues/1297)) ([d16769f](https://github.com/dasch-swiss/dsp-tools/commit/d16769f206353d56801e317fd5aa246c3a56bc56))
+* **xmllib:** parse richtext correctly (DEV-4419) ([#1309](https://github.com/dasch-swiss/dsp-tools/issues/1309)) ([5a9d9e7](https://github.com/dasch-swiss/dsp-tools/commit/5a9d9e7fbe3998efb6b865eea17dbc4d11472723))
+* **xmllib:** remove outdated information in docstring (RDU-66) ([#1347](https://github.com/dasch-swiss/dsp-tools/issues/1347)) ([ac36864](https://github.com/dasch-swiss/dsp-tools/commit/ac36864821b322ddb5f4c65a331db98ee69df64e))
+* **xmlupload:** inform user if resource transformation failed (DEV-4456) ([#1336](https://github.com/dasch-swiss/dsp-tools/issues/1336)) ([c797d78](https://github.com/dasch-swiss/dsp-tools/commit/c797d787153737b8f74a111fc26f160f1f5f8325))
+* **xmlupload:** stop complete crash if an error ocurrs during serialisation (DEV-4419) ([#1310](https://github.com/dasch-swiss/dsp-tools/issues/1310)) ([88b8350](https://github.com/dasch-swiss/dsp-tools/commit/88b83506f836d34f13fefc79ead92d70d6092be6))
+
+
+### Maintenance
+
+* bump start-stack to 2024.12.01 ([#1329](https://github.com/dasch-swiss/dsp-tools/issues/1329)) ([502b9f9](https://github.com/dasch-swiss/dsp-tools/commit/502b9f9b8515afb53b471367cabad23b2b6f11eb))
+* **just:** `just clean`: ignore errors ([#1334](https://github.com/dasch-swiss/dsp-tools/issues/1334)) ([4c0df87](https://github.com/dasch-swiss/dsp-tools/commit/4c0df8729de6f40d98a1f518ac61e3f64a4a1c8a))
+* upgrade deps / fix new typing errors of types-lxml / resolve 1 warning ([#1323](https://github.com/dasch-swiss/dsp-tools/issues/1323)) ([7253422](https://github.com/dasch-swiss/dsp-tools/commit/725342219460682fdc1d4be8624b74668ee6fafe))
+* **validate-data:** change deserialisation in preparation for dsp in-built resource validation ([#1340](https://github.com/dasch-swiss/dsp-tools/issues/1340)) ([fd92906](https://github.com/dasch-swiss/dsp-tools/commit/fd929067d22d42ee35896a7529791f71d3f5ef6a))
+* **validate-data:** change exclusion of properties from gui-order to `isEditable` (DEV-4281) ([#1337](https://github.com/dasch-swiss/dsp-tools/issues/1337)) ([d8867cd](https://github.com/dasch-swiss/dsp-tools/commit/d8867cd0c1c24772daf6e2e6188215d84fe8c5d2))
+* **validate-data:** change graph creation ([#1346](https://github.com/dasch-swiss/dsp-tools/issues/1346)) ([c0435bd](https://github.com/dasch-swiss/dsp-tools/commit/c0435bd298c4da41c356357eca46c018acba8639))
+* **validate-data:** rename cardinality turtle file ([#1341](https://github.com/dasch-swiss/dsp-tools/issues/1341)) ([acfd1f1](https://github.com/dasch-swiss/dsp-tools/commit/acfd1f11d4da3e9ad87ea7029222cec96bafbb4a))
+* **xmllib:** change boolean conversion ([#1324](https://github.com/dasch-swiss/dsp-tools/issues/1324)) ([363fbb6](https://github.com/dasch-swiss/dsp-tools/commit/363fbb6e02d8f859764c50cfe5626dee886458ff))
+* **xmlupload:** adapt intermediary resource transformation ([#1319](https://github.com/dasch-swiss/dsp-tools/issues/1319)) ([087ac5e](https://github.com/dasch-swiss/dsp-tools/commit/087ac5ec87a557055ab5dabd1bdb2f29344e4aee))
+* **xmlupload:** allow pretty printing bitstream and iiif-uri (DEV-4404) ([#1306](https://github.com/dasch-swiss/dsp-tools/issues/1306)) ([0e46387](https://github.com/dasch-swiss/dsp-tools/commit/0e46387579f3feaa7d13ff065640f88361f058f2))
+* **xmlupload:** correct `isSegmentOf` into the correct property name when parsing the XML ([#1305](https://github.com/dasch-swiss/dsp-tools/issues/1305)) ([a8098e8](https://github.com/dasch-swiss/dsp-tools/commit/a8098e837590f112217429df82f30725bfd251bb))
+* **xmlupload:** create intermediary class structure for data ([#1304](https://github.com/dasch-swiss/dsp-tools/issues/1304)) ([207a04f](https://github.com/dasch-swiss/dsp-tools/commit/207a04f54014b9b08f003ed8741020652521ee3d))
+* **xmlupload:** create resource with rdflib ([#1339](https://github.com/dasch-swiss/dsp-tools/issues/1339)) ([f5d66a5](https://github.com/dasch-swiss/dsp-tools/commit/f5d66a5a180b8b8563fe624623cdb2a47988c44c))
+* **xmlupload:** group file for the preparation of an upload ([#1328](https://github.com/dasch-swiss/dsp-tools/issues/1328)) ([78717d3](https://github.com/dasch-swiss/dsp-tools/commit/78717d3ee39c8f20b3654918a671bbe0199dcf36))
+* **xmlupload:** integrate intermediary class structure into upload ([#1320](https://github.com/dasch-swiss/dsp-tools/issues/1320)) ([9889219](https://github.com/dasch-swiss/dsp-tools/commit/9889219bb8b5262064c2e7f6d8c220a27e374055))
+* **xmlupload:** serialise file values with rdflib ([#1288](https://github.com/dasch-swiss/dsp-tools/issues/1288)) ([e47d38c](https://github.com/dasch-swiss/dsp-tools/commit/e47d38c818fc221a1b9252564c369374f3ce0c2b))
+
+
+### Documentation
+
+* fix indentation and content of ingest-xmlupload ([#1301](https://github.com/dasch-swiss/dsp-tools/issues/1301)) ([d61d83f](https://github.com/dasch-swiss/dsp-tools/commit/d61d83f0c7b986aae2f1d0b0649258b1993e6d1c))
+* **xmllib:** alphabetical ordering for non-classes ([#1292](https://github.com/dasch-swiss/dsp-tools/issues/1292)) ([09cda09](https://github.com/dasch-swiss/dsp-tools/commit/09cda093b7fbdb942492b8ed5e7057123d23b58d))
+* **xmllib:** fix small mistakes ([#1312](https://github.com/dasch-swiss/dsp-tools/issues/1312)) ([6f8f526](https://github.com/dasch-swiss/dsp-tools/commit/6f8f526bf8fdaa5510805ca5a74353f35710b80a))
+
 ## [9.2.0](https://github.com/dasch-swiss/dsp-tools/compare/v9.1.0...v9.2.0) (2024-11-25)
 
 

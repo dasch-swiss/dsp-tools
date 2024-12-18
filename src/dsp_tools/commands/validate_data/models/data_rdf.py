@@ -12,6 +12,8 @@ from rdflib import Literal
 from rdflib import Namespace
 from rdflib import URIRef
 
+from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
+
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
 API_SHAPES = Namespace("http://api.knora.org/ontology/knora-api/shapes/v2#")
 DATA = Namespace("http://data/")
@@ -216,20 +218,16 @@ class UriValueRDF(ValueRDF):
 
 
 @dataclass
-class AbstractFileValueRDF(RDFTriples):
+class FileValueRDF(RDFTriples):
     res_iri: URIRef
     value: Literal
+    prop_type_info: RDFPropTypeInfo
+    prop_to_value: URIRef = KNORA_API.fileValueHasFilename
 
-    @abstractmethod
-    def make_graph(self) -> Graph: ...
-
-
-@dataclass
-class MovingImageFileValueRDF(AbstractFileValueRDF):
     def make_graph(self) -> Graph:
         g = Graph()
         val_iri = DATA[str(uuid4())]
-        g.add((val_iri, RDF.type, KNORA_API.MovingImageFileValue))
-        g.add((val_iri, KNORA_API.fileValueHasFilename, self.value))
-        g.add((self.res_iri, KNORA_API.hasMovingImageFileValue, val_iri))
+        g.add((val_iri, RDF.type, self.prop_type_info.knora_type))
+        g.add((val_iri, self.prop_to_value, self.value))
+        g.add((self.res_iri, self.prop_type_info.knora_prop, val_iri))
         return g

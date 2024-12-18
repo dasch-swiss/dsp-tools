@@ -31,7 +31,7 @@ from dsp_tools.utils.ansi_colors import BOLD_CYAN
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.xml_utils import parse_xml_file
 from dsp_tools.utils.xml_utils import remove_comments_from_element_tree
-from dsp_tools.utils.xml_utils import transform_into_localnames
+from dsp_tools.utils.xml_utils import transform_special_tags_make_localname
 from dsp_tools.utils.xml_validation import validate_xml
 
 LIST_SEPARATOR = "\n    - "
@@ -88,10 +88,15 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
 def _inform_about_experimental_feature() -> None:
     what_is_validated = [
         "This is an experimental feature, it will change and be extended continuously. "
+        "Please note that special characters may not be rendered correctly in the validation result. "
+        "This however has no influence on the validation itself."
         "The following information of your data is being validated:",
         "Cardinalities",
         "If the value type used matches the ontology",
         "Content of the values",
+        "Missing files",
+        "If the file type matches the ontology",
+        "DSP in-built resources: link (LinkObj)",
     ]
     print(BOLD_CYAN + LIST_SEPARATOR.join(what_is_validated) + RESET_TO_DEFAULT)
 
@@ -154,7 +159,7 @@ def _create_graphs(onto_client: OntologyClient, list_client: ListClient, data_rd
     api_shapes.parse(str(api_shapes_path))
     file_shapes = Graph()
     file_shapes_path = importlib.resources.files("dsp_tools").joinpath(
-        "resources/validate_data/file_value_cardinalities.ttl"
+        "resources/validate_data/api-shapes-with-cardinalities.ttl"
     )
     file_shapes.parse(str(file_shapes_path))
     content_shapes = shapes.content + api_shapes
@@ -202,7 +207,7 @@ def _validate(validator: ShaclValidator) -> ValidationReportGraphs:
         conforms=validation_results.conforms,
         validation_graph=validation_results.validation_graph,
         shacl_graph=validator.rdf_graphs.cardinality_shapes + validator.rdf_graphs.content_shapes,
-        onto_graph=validator.rdf_graphs.ontos,
+        onto_graph=validator.rdf_graphs.ontos + validator.rdf_graphs.knora_api,
         data_graph=validator.rdf_graphs.data,
     )
 
@@ -218,7 +223,7 @@ def _parse_and_clean_file(file: Path, api_url: str) -> XMLProject:
     root = parse_xml_file(file)
     root = remove_comments_from_element_tree(root)
     validate_xml(root)
-    root = transform_into_localnames(root)
+    root = transform_special_tags_make_localname(root)
     return _replace_namespaces(root, api_url)
 
 

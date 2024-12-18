@@ -6,32 +6,169 @@
        shortcode="9999"
        default-ontology="onto">
 
-    <resource label="TestArchiveRepresentation" restype=":TestArchiveRepresentation" id="id_archive">
+    <!-- ArchiveRepresentation -->
+
+    <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="id_archive_zip">
         <bitstream>this/is/filepath/file.zip</bitstream>
     </resource>
 
-    <resource label="TestAudioRepresentation" restype=":TestAudioRepresentation" id="id_audio">
+    <resource label="TestArchiveRepresentation tar" restype=":TestArchiveRepresentation" id="id_archive_tar">
+        <bitstream>this/is/filepath/file.tar</bitstream>
+    </resource>
+
+    <resource label="TestArchiveRepresentation gz" restype=":TestArchiveRepresentation" id="id_archive_gz">
+        <bitstream>this/is/filepath/file.gz</bitstream>
+    </resource>
+
+    <resource label="TestArchiveRepresentation z" restype=":TestArchiveRepresentation" id="id_archive_z">
+        <bitstream>this/is/filepath/file.z</bitstream>
+    </resource>
+
+    <resource label="TestArchiveRepresentation tgz" restype=":TestArchiveRepresentation" id="id_archive_tgz">
+        <bitstream>this/is/filepath/file.tgz</bitstream>
+    </resource>
+
+    <resource label="TestArchiveRepresentation gzip" restype=":TestArchiveRepresentation" id="id_archive_gzip">
+        <bitstream>this/is/filepath/file.gzip</bitstream>
+    </resource>
+
+    <resource label="TestArchiveRepresentation 7z" restype=":TestArchiveRepresentation" id="id_archive_7z">
+        <bitstream>this/is/filepath/file.7z</bitstream>
+    </resource>
+
+    <resource label="TestArchiveRepresentation ZIP" restype=":TestArchiveRepresentation" id="id_archive_zip_capitalised">
+        <bitstream>this/is/filepath/file.ZIP</bitstream>
+    </resource>
+
+    <!-- AudioRepresentation -->
+
+    <resource label="TestAudioRepresentation" restype=":TestAudioRepresentation" id="id_audio_mp3">
         <bitstream>this/is/filepath/file.mp3</bitstream>
     </resource>
 
-    <resource label="TestDocumentRepresentation" restype=":TestDocumentRepresentation" id="id_document">
+    <resource label="TestAudioRepresentation" restype=":TestAudioRepresentation" id="id_audio_wav">
+        <bitstream>this/is/filepath/file.wav</bitstream>
+    </resource>
+
+    <resource label="TestAudioRepresentation" restype=":TestAudioRepresentation" id="id_audio_wav_capitalised">
+        <bitstream>this/is/filepath/file.WAV</bitstream>
+    </resource>
+
+    <!-- DocumentRepresentation -->
+
+    <resource label="TestDocumentRepresentation pdf" restype=":TestDocumentRepresentation" id="id_document_pdf">
         <bitstream>this/is/filepath/file.pdf</bitstream>
     </resource>
+
+    <resource label="TestDocumentRepresentation doc" restype=":TestDocumentRepresentation" id="id_document_doc">
+        <bitstream>this/is/filepath/file.doc</bitstream>
+    </resource>
+
+    <resource label="TestDocumentRepresentation docx" restype=":TestDocumentRepresentation" id="id_document_docx">
+        <bitstream>this/is/filepath/file.docx</bitstream>
+    </resource>
+
+    <resource label="TestDocumentRepresentation xls" restype=":TestDocumentRepresentation" id="id_document_xls">
+        <bitstream>this/is/filepath/file.xls</bitstream>
+    </resource>
+
+    <resource label="TestDocumentRepresentation xlsx" restype=":TestDocumentRepresentation" id="id_document_xlsx">
+        <bitstream>this/is/filepath/file.xlsx</bitstream>
+    </resource>
+
+    <resource label="TestDocumentRepresentation ppt" restype=":TestDocumentRepresentation" id="id_document_ppt">
+        <bitstream>this/is/filepath/file.ppt</bitstream>
+    </resource>
+
+    <resource label="TestDocumentRepresentation pptx" restype=":TestDocumentRepresentation" id="id_document_pptx">
+        <bitstream>this/is/filepath/file.pptx</bitstream>
+    </resource>
+
+    <resource label="TestDocumentRepresentation pdf" restype=":TestDocumentRepresentation" id="id_document_pdf_capitalised">
+        <bitstream>this/is/filepath/file.PDF</bitstream>
+    </resource>
+
+    <!-- MovingImageRepresentation -->
 
     <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="id_video">
         <bitstream>this/is/filepath/file.mp4</bitstream>
     </resource>
 
-    <resource label="TestStillImageRepresentation File" restype=":TestStillImageRepresentation" id="id_still_image_file">
+
+    <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="id_video_capitalised">
+        <bitstream>this/is/filepath/file.MP4</bitstream>
+    </resource>
+
+    <!-- StillImageRepresentation -->
+
+    <resource label="TestStillImageRepresentation File jpg" restype=":TestStillImageRepresentation" id="id_still_image_jpg">
         <bitstream>this/is/filepath/file.jpg</bitstream>
+    </resource>
+
+    <resource label="TestStillImageRepresentation File jpeg" restype=":TestStillImageRepresentation" id="id_still_image_jpeg">
+        <bitstream>this/is/filepath/file.jpeg</bitstream>
+    </resource>
+
+    <resource label="TestStillImageRepresentation File png" restype=":TestStillImageRepresentation" id="id_still_image_png">
+        <bitstream>this/is/filepath/file.png</bitstream>
+    </resource>
+
+    <resource label="TestStillImageRepresentation File tif" restype=":TestStillImageRepresentation" id="id_still_image_tif">
+        <bitstream>this/is/filepath/file.tif</bitstream>
+    </resource>
+
+    <resource label="TestStillImageRepresentation File tiff" restype=":TestStillImageRepresentation" id="id_still_image_tiff">
+        <bitstream>this/is/filepath/file.tiff</bitstream>
+    </resource>
+
+    <resource label="TestStillImageRepresentation File jp2" restype=":TestStillImageRepresentation" id="id_still_image_jp2">
+        <bitstream>this/is/filepath/file.jp2</bitstream>
+    </resource>
+
+    <resource label="TestStillImageRepresentation File JPG Capitalised" restype=":TestStillImageRepresentation" id="id_still_image_JPG_capitalised">
+        <bitstream>this/is/filepath/file.JPG</bitstream>
     </resource>
 
     <resource label="TestStillImageRepresentation IIIF" restype=":TestStillImageRepresentation" id="id_still_image_iiif">
         <iiif-uri>https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg</iiif-uri>
     </resource>
 
-    <resource label="TestTextRepresentation" restype=":TestTextRepresentation" id="id_text">
+    <!-- TextRepresentation -->
+
+    <resource label="TestTextRepresentation odd" restype=":TestTextRepresentation" id="id_text_odd">
+        <bitstream>this/is/filepath/file.odd</bitstream>
+    </resource>
+
+    <resource label="TestTextRepresentation rng" restype=":TestTextRepresentation" id="id_text_rng">
+        <bitstream>this/is/filepath/file.rng</bitstream>
+    </resource>
+
+    <resource label="TestTextRepresentation txt" restype=":TestTextRepresentation" id="id_text_txt">
+        <bitstream>this/is/filepath/file.txt</bitstream>
+    </resource>
+
+    <resource label="TestTextRepresentation xml" restype=":TestTextRepresentation" id="id_text_xml">
         <bitstream>this/is/filepath/file.xml</bitstream>
+    </resource>
+
+    <resource label="TestTextRepresentation xsd" restype=":TestTextRepresentation" id="id_text_xsd">
+        <bitstream>this/is/filepath/file.xsd</bitstream>
+    </resource>
+
+    <resource label="TestTextRepresentation xsl" restype=":TestTextRepresentation" id="id_text_xsl">
+        <bitstream>this/is/filepath/file.xsl</bitstream>
+    </resource>
+
+    <resource label="TestTextRepresentation csv" restype=":TestTextRepresentation" id="id_text_csv">
+        <bitstream>this/is/filepath/file.csv</bitstream>
+    </resource>
+
+    <resource label="TestTextRepresentation json" restype=":TestTextRepresentation" id="id_text_json">
+        <bitstream>this/is/filepath/file.json</bitstream>
+    </resource>
+
+    <resource label="TestTextRepresentation JSON" restype=":TestTextRepresentation" id="id_text_json_capitalised">
+        <bitstream>this/is/filepath/file.JSON</bitstream>
     </resource>
 
 </knora>

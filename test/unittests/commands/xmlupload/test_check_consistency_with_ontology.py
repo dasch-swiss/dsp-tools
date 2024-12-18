@@ -4,30 +4,44 @@ import pytest
 from lxml import etree
 from pytest_unordered import unordered
 
-from dsp_tools.commands.xmlupload.check_consistency_with_ontology import _check_all_classes_and_properties_in_onto
-from dsp_tools.commands.xmlupload.check_consistency_with_ontology import _check_correctness_all_text_value_encodings
-from dsp_tools.commands.xmlupload.check_consistency_with_ontology import _check_correctness_of_one_prop
-from dsp_tools.commands.xmlupload.check_consistency_with_ontology import _find_all_class_types_in_onto
-from dsp_tools.commands.xmlupload.check_consistency_with_ontology import _find_all_properties_in_onto
-from dsp_tools.commands.xmlupload.check_consistency_with_ontology import _find_one_class_type_in_onto
-from dsp_tools.commands.xmlupload.check_consistency_with_ontology import _find_one_property_in_onto
-from dsp_tools.commands.xmlupload.check_consistency_with_ontology import _get_all_class_types_and_ids_from_data
-from dsp_tools.commands.xmlupload.check_consistency_with_ontology import _get_all_classes_and_properties_from_data
-from dsp_tools.commands.xmlupload.check_consistency_with_ontology import _get_all_ids_and_props_and_encodings_from_root
-from dsp_tools.commands.xmlupload.check_consistency_with_ontology import (
-    _get_all_property_names_and_resource_ids_one_resource,
-)
-from dsp_tools.commands.xmlupload.check_consistency_with_ontology import (
-    _get_id_and_props_and_encodings_from_one_resource,
-)
-from dsp_tools.commands.xmlupload.check_consistency_with_ontology import _get_prop_and_encoding_from_one_property
-from dsp_tools.commands.xmlupload.check_consistency_with_ontology import (
-    _get_separate_prefix_and_iri_from_onto_prop_or_cls,
-)
 from dsp_tools.commands.xmlupload.models.lookup_models import OntoInfo
 from dsp_tools.commands.xmlupload.models.lookup_models import ProjectOntosInformation
 from dsp_tools.commands.xmlupload.models.lookup_models import PropertyTextValueTypes
 from dsp_tools.commands.xmlupload.models.lookup_models import TextValueData
+from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontology import (
+    _check_all_classes_and_properties_in_onto,
+)
+from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontology import (
+    _check_correctness_all_text_value_encodings,
+)
+from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontology import (
+    _check_correctness_of_one_prop,
+)
+from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontology import _find_all_class_types_in_onto
+from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontology import _find_all_properties_in_onto
+from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontology import _find_one_class_type_in_onto
+from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontology import _find_one_property_in_onto
+from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontology import (
+    _get_all_class_types_and_ids_from_data,
+)
+from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontology import (
+    _get_all_classes_and_properties_from_data,
+)
+from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontology import (
+    _get_all_ids_and_props_and_encodings_from_root,
+)
+from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontology import (
+    _get_all_property_names_and_resource_ids_one_resource,
+)
+from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontology import (
+    _get_id_and_props_and_encodings_from_one_resource,
+)
+from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontology import (
+    _get_prop_and_encoding_from_one_property,
+)
+from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontology import (
+    _get_separate_prefix_and_iri_from_onto_prop_or_cls,
+)
 
 
 class TestFindClassType:

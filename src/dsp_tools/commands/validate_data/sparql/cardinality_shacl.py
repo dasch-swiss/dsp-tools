@@ -63,7 +63,6 @@ def _construct_1_cardinality(onto_graph: Graph) -> Graph:
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    PREFIX salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#> 
     PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
     PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
     PREFIX dash: <http://datashapes.org/dash#>
@@ -84,11 +83,17 @@ def _construct_1_cardinality(onto_graph: Graph) -> Graph:
           rdfs:subClassOf ?restriction .
       ?restriction a owl:Restriction ;
           owl:onProperty ?propRestriction ;
-          salsah-gui:guiOrder ?order ;
           owl:cardinality 1 .
+          
+      ?propRestriction knora-api:isEditable true .
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
       FILTER (?class NOT IN (
-            knora-api:Region, knora-api:AudioSegment, knora-api:VideoSegment, knora-api:LinkObj)
+            knora-api:Region, knora-api:AudioSegment, knora-api:VideoSegment)
+      )
+      FILTER (?propRestriction NOT IN (
+             knora-api:hasArchiveFileValue, knora-api:hasAudioFileValue, knora-api:hasDocumentFileValue, 
+             knora-api:hasMovingImageFileValue, knora-api:hasStillImageFileValue, knora-api:hasTextFileValue
+             )
       )
     }
     """
@@ -102,7 +107,6 @@ def _construct_0_1_cardinality(onto_graph: Graph) -> Graph:
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    PREFIX salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#> 
     PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
     PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
     PREFIX dash: <http://datashapes.org/dash#>
@@ -123,11 +127,12 @@ def _construct_0_1_cardinality(onto_graph: Graph) -> Graph:
           rdfs:subClassOf ?restriction .
       ?restriction a owl:Restriction ;
           owl:onProperty ?propRestriction ;
-          salsah-gui:guiOrder ?order ;
           owl:maxCardinality 1 .
+          
+      ?propRestriction knora-api:isEditable true .
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
       FILTER (?class NOT IN (
-            knora-api:Region, knora-api:AudioSegment, knora-api:VideoSegment, knora-api:LinkObj)
+            knora-api:Region, knora-api:AudioSegment, knora-api:VideoSegment)
       )
     }
     """
@@ -141,7 +146,6 @@ def _construct_1_n_cardinality(onto_graph: Graph) -> Graph:
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    PREFIX salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#> 
     PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
     PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
     PREFIX dash: <http://datashapes.org/dash#>
@@ -161,11 +165,12 @@ def _construct_1_n_cardinality(onto_graph: Graph) -> Graph:
           rdfs:subClassOf ?restriction .
       ?restriction a owl:Restriction ;
           owl:onProperty ?propRestriction ;
-          salsah-gui:guiOrder ?order ;
           owl:minCardinality 1 .
+          
+      ?propRestriction knora-api:isEditable true .
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
       FILTER (?class NOT IN (
-            knora-api:Region, knora-api:AudioSegment, knora-api:VideoSegment, knora-api:LinkObj)
+            knora-api:Region, knora-api:AudioSegment, knora-api:VideoSegment)
       )
     }
     """
@@ -179,7 +184,6 @@ def _construct_0_n_cardinality(onto_graph: Graph) -> Graph:
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    PREFIX salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#> 
     PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
     PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
     PREFIX dash: <http://datashapes.org/dash#>
@@ -196,11 +200,12 @@ def _construct_0_n_cardinality(onto_graph: Graph) -> Graph:
           rdfs:subClassOf ?restriction .
       ?restriction a owl:Restriction ;
           owl:onProperty ?propRestriction ;
-          salsah-gui:guiOrder ?order ;
           owl:minCardinality 0 .
+          
+      ?propRestriction knora-api:isEditable true .
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
       FILTER (?class NOT IN (
-            knora-api:Region, knora-api:AudioSegment, knora-api:VideoSegment, knora-api:LinkObj)
+            knora-api:Region, knora-api:AudioSegment, knora-api:VideoSegment)
       )
     }
     """

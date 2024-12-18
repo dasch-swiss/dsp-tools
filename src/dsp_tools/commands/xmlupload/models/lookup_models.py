@@ -6,6 +6,7 @@ from typing import Any
 from typing import Literal
 
 import regex
+from rdflib import URIRef
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.permission import Permissions
@@ -20,7 +21,7 @@ class IntermediaryLookups:
 
 @dataclass
 class IRILookups:
-    project_iri: str
+    project_iri: URIRef
     id_to_iri: IriResolver
     jsonld_context: JSONLDContext
 

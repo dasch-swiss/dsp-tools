@@ -253,7 +253,7 @@ class TestCheckConforms:
         assert content_correct.conforms
 
     def test_content_violation(self, content_violation: ValidationReportGraphs) -> None:
-        assert content_violation.conforms
+        assert not content_violation.conforms
 
     def test_every_combination_once(self, every_combination_once: ValidationReportGraphs) -> None:
         assert not every_combination_once.conforms

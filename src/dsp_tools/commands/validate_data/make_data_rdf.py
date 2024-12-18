@@ -6,8 +6,6 @@ from rdflib import Namespace
 from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.models.data_deserialised import AbstractFileValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import AbstractResource
-from dsp_tools.commands.validate_data.models.data_deserialised import AudioSegmentDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import BooleanValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ColorValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DataDeserialised
@@ -16,28 +14,24 @@ from dsp_tools.commands.validate_data.models.data_deserialised import DecimalVal
 from dsp_tools.commands.validate_data.models.data_deserialised import GeonameValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import IIIFUriDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import IntValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import LinkObjDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import LinkValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ListValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import RegionDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import RichtextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import SimpleTextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TimeValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import VideoSegmentDeserialised
-from dsp_tools.commands.validate_data.models.data_rdf import AbstractFileValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import BooleanValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import ColorValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import DataRDF
 from dsp_tools.commands.validate_data.models.data_rdf import DateValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import DecimalValueRDF
+from dsp_tools.commands.validate_data.models.data_rdf import FileValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import GeonameValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import IntValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import LinkValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import ListValueRDF
-from dsp_tools.commands.validate_data.models.data_rdf import MovingImageFileValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import RDFTriples
 from dsp_tools.commands.validate_data.models.data_rdf import ResourceRDF
 from dsp_tools.commands.validate_data.models.data_rdf import RichtextRDF
@@ -45,6 +39,13 @@ from dsp_tools.commands.validate_data.models.data_rdf import SimpleTextRDF
 from dsp_tools.commands.validate_data.models.data_rdf import TimeValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import UriValueRDF
 from dsp_tools.commands.validate_data.models.data_rdf import ValueRDF
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import ARCHIVE_FILE_VALUE
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import AUDIO_FILE_VALUE
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import DOCUMENT_FILE_VALUE
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import IIIF_URI_VALUE
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import MOVING_IMAGE_FILE_VALUE
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import STILL_IMAGE_FILE_VALUE
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import TEXT_FILE_VALUE
 from dsp_tools.models.exceptions import InternalError
 
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
@@ -71,25 +72,7 @@ def make_data_rdf(data_deserialised: DataDeserialised) -> DataRDF:
     return DataRDF(all_triples)
 
 
-def _transform_one_resource(res: AbstractResource) -> list[RDFTriples]:
-    if isinstance(res, ResourceDeserialised):
-        return _transform_one_project_resource(res)
-    return [_transform_one_dsp_resource(res)]
-
-
-def _transform_one_dsp_resource(res: AbstractResource) -> RDFTriples:
-    res_type_mapper = {
-        RegionDeserialised: KNORA_API.Region,
-        LinkObjDeserialised: KNORA_API.LinkObj,
-        VideoSegmentDeserialised: KNORA_API.VideoSegment,
-        AudioSegmentDeserialised: KNORA_API.AudioSegment,
-    }
-    return ResourceRDF(
-        res_iri=DATA[res.res_id], res_class=res_type_mapper[type(res)], label=Literal(res.label, datatype=XSD.string)
-    )
-
-
-def _transform_one_project_resource(res: ResourceDeserialised) -> list[RDFTriples]:
+def _transform_one_resource(res: ResourceDeserialised) -> list[RDFTriples]:
     res_iri = DATA[res.res_id]
     all_triples: list[RDFTriples] = [
         ResourceRDF(res_iri=res_iri, res_class=URIRef(res.res_class), label=Literal(res.label, datatype=XSD.string))
@@ -205,21 +188,38 @@ def _transform_uri_value(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
     return UriValueRDF(URIRef(val.prop_name), content, res_iri)
 
 
-def _transform_file_value(val: AbstractFileValueDeserialised) -> AbstractFileValueRDF | None:
+def _transform_file_value(val: AbstractFileValueDeserialised) -> FileValueRDF | None:
     if isinstance(val, IIIFUriDeserialised):
-        return None
+        return FileValueRDF(
+            res_iri=DATA[val.res_id],
+            value=Literal(val.value, datatype=XSD.anyURI),
+            prop_type_info=IIIF_URI_VALUE,
+            prop_to_value=KNORA_API.stillImageFileValueHasExternalUrl,
+        )
     return _map_into_correct_file_value(val)
 
 
-def _map_into_correct_file_value(val: AbstractFileValueDeserialised) -> AbstractFileValueRDF | None:
+def _map_into_correct_file_value(val: AbstractFileValueDeserialised) -> FileValueRDF | None:
     res_iri = DATA[val.res_id]
-    file_literal = Literal(val.value)
+    file_literal = Literal(val.value, datatype=XSD.string)
     file_extension = _get_file_extension(val.value)
     match file_extension:
+        case "zip" | "tar" | "gz" | "z" | "tgz" | "gzip" | "7z":
+            file_type = ARCHIVE_FILE_VALUE
+        case "mp3" | "wav":
+            file_type = AUDIO_FILE_VALUE
+        case "pdf" | "doc" | "docx" | "xls" | "xlsx" | "ppt" | "pptx":
+            file_type = DOCUMENT_FILE_VALUE
         case "mp4":
-            return MovingImageFileValueRDF(res_iri=res_iri, value=file_literal)
+            file_type = MOVING_IMAGE_FILE_VALUE
+        case "odd" | "rng" | "txt" | "xml" | "xsd" | "xsl" | "csv" | "json":
+            file_type = TEXT_FILE_VALUE
+        # jpx is the extension of the files returned by dsp-ingest
+        case "jpg" | "jpeg" | "jp2" | "png" | "tif" | "tiff" | "jpx":
+            file_type = STILL_IMAGE_FILE_VALUE
         case _:
             return None
+    return FileValueRDF(res_iri=res_iri, value=file_literal, prop_type_info=file_type)
 
 
 def _get_file_extension(value: str | None) -> str:

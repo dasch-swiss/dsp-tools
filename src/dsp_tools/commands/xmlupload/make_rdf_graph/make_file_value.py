@@ -22,28 +22,29 @@ from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 from dsp_tools.models.exceptions import BaseError
 
 
-def make_iiif_uri_value_graph(iiif_uri: AbstractFileValue, res_bn: BNode) -> tuple[Graph, URIRef]:
+def make_iiif_uri_value_graph(iiif_uri: AbstractFileValue, res_node: BNode | URIRef) -> Graph:
     """
     Creates a graph with the IIIF-URI Link
 
     Args:
         iiif_uri: Information about the IIIF URI
-        res_bn: Blank-node of the resource
+        res_node: Node of the resource
 
     Returns:
         Graph with the IIIF-URI Value
     """
-    g = _make_abstract_file_value_graph(iiif_uri, IIIF_URI_VALUE, res_bn, KNORA_API.stillImageFileValueHasExternalUrl)
-    return g, KNORA_API.hasStillImageFileValue
+    return _make_abstract_file_value_graph(
+        iiif_uri, IIIF_URI_VALUE, res_node, KNORA_API.stillImageFileValueHasExternalUrl
+    )
 
 
-def make_file_value_graph(bitstream_info: BitstreamInfo, res_bn: BNode) -> tuple[Graph, URIRef]:
+def make_file_value_graph(bitstream_info: BitstreamInfo, res_node: BNode | URIRef) -> Graph:
     """
     Creates a graph with the File Value information.
 
     Args:
         bitstream_info: Information about the previously uploaded file
-        res_bn: Blank-node of the resource
+        res_node: Node of the resource
 
     Returns:
         Graph with the File Value
@@ -55,7 +56,7 @@ def make_file_value_graph(bitstream_info: BitstreamInfo, res_bn: BNode) -> tuple
         bitstream_permissions = str(bitstream_info.permissions)
     metadata = FileValueMetadata(bitstream_permissions)
     file_value = AbstractFileValue(internal_filename, metadata)
-    return _make_abstract_file_value_graph(file_value, file_type, res_bn), file_type.knora_prop
+    return _make_abstract_file_value_graph(file_value, file_type, res_node)
 
 
 def _get_file_type_info(local_file: str) -> RDFPropTypeInfo:
@@ -81,12 +82,12 @@ def _get_file_type_info(local_file: str) -> RDFPropTypeInfo:
 def _make_abstract_file_value_graph(
     file_value: AbstractFileValue,
     type_info: RDFPropTypeInfo,
-    res_bn: BNode,
+    res_node: BNode | URIRef,
     has_file_name_prop: URIRef = KNORA_API.fileValueHasFilename,
 ) -> Graph:
     file_bn = BNode()
     g = _add_metadata(file_bn, file_value.metadata)
-    g.add((res_bn, type_info.knora_prop, file_bn))
+    g.add((res_node, type_info.knora_prop, file_bn))
     g.add((file_bn, RDF.type, type_info.knora_type))
     g.add((file_bn, has_file_name_prop, Literal(file_value.value, datatype=XSD.string)))
     return g

@@ -1,4 +1,3 @@
-from functools import lru_cache
 from pathlib import Path
 from typing import Iterator
 
@@ -36,8 +35,7 @@ LOCAL_API = "http://0.0.0.0:3333"
 DONT_SAVE_GRAPHS = False
 
 
-@lru_cache(maxsize=None)
-@pytest.fixture
+@pytest.fixture(scope="module")
 def _create_project_generic() -> Iterator[None]:
     with get_containers():
         success = create_project(Path("testdata/validate-data/generic/project.json"), CREDS)
@@ -45,117 +43,102 @@ def _create_project_generic() -> Iterator[None]:
         yield
 
 
-@lru_cache(maxsize=None)
-@pytest.fixture
+@pytest.fixture(scope="module")
 def api_con() -> ApiConnection:
     return ApiConnection(LOCAL_API)
 
 
-@lru_cache(maxsize=None)
-@pytest.fixture
+@pytest.fixture(scope="module")
 def cardinality_correct(_create_project_generic: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/cardinality_correct.xml")
     graphs = _get_parsed_graphs(api_con, file)
     return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
 
 
-@lru_cache(maxsize=None)
-@pytest.fixture
+@pytest.fixture(scope="module")
 def unknown_classes_graphs(_create_project_generic: Iterator[None], api_con: ApiConnection) -> RDFGraphs:
     file = Path("testdata/validate-data/generic/unknown_classes.xml")
     return _get_parsed_graphs(api_con, file)
 
 
-@lru_cache(maxsize=None)
-@pytest.fixture
+@pytest.fixture(scope="module")
 def cardinality_violation(_create_project_generic: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/cardinality_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
     return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
 
 
-@lru_cache(maxsize=None)
-@pytest.fixture
+@pytest.fixture(scope="module")
 def content_correct(_create_project_generic: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/content_correct.xml")
     graphs = _get_parsed_graphs(api_con, file)
     return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
 
 
-@lru_cache(maxsize=None)
-@pytest.fixture
+@pytest.fixture(scope="module")
 def content_violation(_create_project_generic: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/content_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
     return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
 
 
-@lru_cache(maxsize=None)
-@pytest.fixture
+@pytest.fixture(scope="module")
 def every_combination_once(_create_project_generic: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/every_combination_once.xml")
     graphs = _get_parsed_graphs(api_con, file)
     return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
 
 
-@lru_cache(maxsize=None)
-@pytest.fixture
+@pytest.fixture(scope="module")
 def minimal_correct(_create_project_generic: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/minimal_correct.xml")
     graphs = _get_parsed_graphs(api_con, file)
     return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
 
 
-@lru_cache(maxsize=None)
-@pytest.fixture
+@pytest.fixture(scope="module")
 def value_type_violation(_create_project_generic: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/value_type_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
     return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
 
 
-@lru_cache(maxsize=None)
-@pytest.fixture
+@pytest.fixture(scope="module")
 def unique_value_violation(_create_project_generic: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/unique_value_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
     return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
 
 
-@lru_cache(maxsize=None)
-@pytest.fixture
+@pytest.fixture(scope="module")
 def file_value_correct(_create_project_generic: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/file_value_correct.xml")
     graphs = _get_parsed_graphs(api_con, file)
     return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
 
 
-@lru_cache(maxsize=None)
-@pytest.fixture
+@pytest.fixture(scope="module")
 def file_value_violation(_create_project_generic: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/file_value_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
     return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
 
 
-@lru_cache(maxsize=None)
-@pytest.fixture
+@pytest.fixture(scope="module")
 def dsp_inbuilt_correct(_create_project_generic: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/dsp_inbuilt_correct.xml")
     graphs = _get_parsed_graphs(api_con, file)
     return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
 
 
-@lru_cache(maxsize=None)
-@pytest.fixture
+@pytest.fixture(scope="module")
 def dsp_inbuilt_violation(_create_project_generic: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/dsp_inbuilt_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
     return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
 
 
-@lru_cache(maxsize=None)
-@pytest.fixture
+@pytest.fixture(scope="module")
 def _create_project_special() -> Iterator[None]:
     with get_containers():
         success = create_project(
@@ -165,8 +148,7 @@ def _create_project_special() -> Iterator[None]:
         yield
 
 
-@lru_cache(maxsize=None)
-@pytest.fixture
+@pytest.fixture(scope="module")
 def special_characters_correct(
     _create_project_special: Iterator[None], api_con: ApiConnection
 ) -> ValidationReportGraphs:
@@ -175,8 +157,7 @@ def special_characters_correct(
     return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
 
 
-@lru_cache(maxsize=None)
-@pytest.fixture
+@pytest.fixture(scope="module")
 def special_characters_violation(
     _create_project_special: Iterator[None], api_con: ApiConnection
 ) -> ValidationReportGraphs:
@@ -185,8 +166,7 @@ def special_characters_violation(
     return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
 
 
-@lru_cache(maxsize=None)
-@pytest.fixture
+@pytest.fixture(scope="module")
 def _create_project_inheritance() -> Iterator[None]:
     with get_containers():
         success = create_project(Path("testdata/validate-data/inheritance/project_inheritance.json"), CREDS)
@@ -194,16 +174,14 @@ def _create_project_inheritance() -> Iterator[None]:
         yield
 
 
-@lru_cache(maxsize=None)
-@pytest.fixture
+@pytest.fixture(scope="module")
 def inheritance_correct(_create_project_inheritance: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/inheritance/inheritance_correct.xml")
     graphs = _get_parsed_graphs(api_con, file)
     return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
 
 
-@lru_cache(maxsize=None)
-@pytest.fixture
+@pytest.fixture(scope="module")
 def inheritance_violation(
     _create_project_inheritance: Iterator[None], api_con: ApiConnection
 ) -> ValidationReportGraphs:

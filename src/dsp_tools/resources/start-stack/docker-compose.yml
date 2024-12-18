@@ -3,7 +3,7 @@ services:
   api:
     # on the verge of every deployment (fortnightly), update the "image" value from the "api" value of
     # https://github.com/dasch-swiss/ops-deploy/blob/main/versions/RELEASE.json
-    image: daschswiss/knora-api:v31.0.0
+    image: daschswiss/knora-api:v31.1.0
     depends_on:
       - sipi
       - db
@@ -28,7 +28,7 @@ services:
 
   sipi:
     # on the verge of every deployment (fortnightly), take the same tag as DSP-API
-    image: daschswiss/knora-sipi:v31.0.0
+    image: daschswiss/knora-sipi:v31.1.0
     ports:
       - "1024:1024"
     volumes:
@@ -44,7 +44,9 @@ services:
   app:
     # on the verge of every deployment (fortnightly), update the "image" value from the "app" value of
     # https://github.com/dasch-swiss/ops-deploy/blob/main/versions/RELEASE.json
-    image: daschswiss/dsp-app:v11.22.3
+    image: daschswiss/dsp-app:v11.22.4
+    volumes:
+      - ./dsp-app-config.json:/public/config/config.prod.json
     ports:
       - "4200:4200"
 
@@ -62,7 +64,7 @@ services:
   ingest:
     # on the verge of every deployment (fortnightly), update the "image" value from the "ingest" value of
     # https://github.com/dasch-swiss/ops-deploy/blob/main/versions/RELEASE.json
-    image: daschswiss/dsp-ingest:v0.15.1
+    image: daschswiss/dsp-ingest:v0.16.0
     ports:
       - "3340:3340"
     volumes:

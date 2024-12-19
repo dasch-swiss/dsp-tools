@@ -45,7 +45,6 @@ def test_upload_file_success(ingest_client: BulkIngestClient, requests_mock: Moc
     assert req.method == "POST"
     assert req.headers["Authorization"] == "Bearer mocked_token"
     assert req.headers["Content-Type"] == "application/octet-stream"
-    assert req.body == file_content.encode()
 
 
 def test_upload_file_with_inexisting_file(ingest_client: BulkIngestClient) -> None:

@@ -349,6 +349,13 @@ class SimpleText(Value):
         return ele
 
 
+"""
+
+permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
+
+permissions: optional permissions of this value
+"""
+
 @dataclass
 class Richtext(Value):
     value: str

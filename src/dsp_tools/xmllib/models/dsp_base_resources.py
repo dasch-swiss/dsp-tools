@@ -24,6 +24,7 @@ from dsp_tools.xmllib.models.values import Richtext
 from dsp_tools.xmllib.value_checkers import is_decimal
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_string_like
+from dsp_tools.xmllib.internal_helpers import add_richtext_with_checks
 
 # ruff: noqa: D101, D102
 
@@ -96,6 +97,7 @@ class RegionResource:
         line_width: float = 2,
         color: str = "#5b24bf",
         active: bool = True,
+            permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> RegionResource:
         """
         Add a rectangle shape to the region.
@@ -109,6 +111,7 @@ class RegionResource:
             color: A hexadecimal color value which starts with a `#` followed by 3 or 6 numerals.
                 The default value was chosen as it is distinguishable for most color-blind people.
             active: If set to `False`, the region is marked as 'deleted'
+            permissions: optional permissions of this value
 
         Returns:
             Region with added rectangle
@@ -147,6 +150,7 @@ class RegionResource:
         line_width: float = 2,
         color: str = "#5b24bf",
         active: bool = True,
+permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> RegionResource:
         """
         Add a polygon shape to the region.
@@ -163,6 +167,7 @@ class RegionResource:
             color: A hexadecimal color value which starts with a `#` followed by 3 or 6 numerals.
                 The default value was chosen as it is distinguishable for most color-blind people.
             active: If set to `False` the region is marked as 'deleted'
+permissions: optional permissions of this value
 
         Returns:
             Region with added polygon
@@ -196,6 +201,7 @@ class RegionResource:
         line_width: float = 2,
         color: str = "#5b24bf",
         active: bool = True,
+permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> RegionResource:
         """
         Add a circle shape to the region.
@@ -212,6 +218,7 @@ class RegionResource:
             color: A hexadecimal color value which starts with a `#` followed by 3 or 6 numerals.
                 The default value was chosen as it is distinguishable for most color-blind people.
             active: If set to `False` the region is marked as 'deleted'
+permissions: optional permissions of this value
 
         Returns:
             Region with added circle

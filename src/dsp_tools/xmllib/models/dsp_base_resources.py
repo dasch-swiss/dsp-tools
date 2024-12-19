@@ -535,7 +535,18 @@ class LinkResource:
             ```
         """
         vals = check_and_fix_collection_input(comments, "hasComment", self.res_id)
-        self.comments.extend(vals)
+        comnts = [
+            create_richtext_with_checks(
+                value=c,
+                prop_name="comment",
+                permissions=permissions,
+                comment=None,
+                newline_replacement=newline_replacement,
+                res_id=self.res_id,
+            )
+            for c in vals
+        ]
+        self.comments.extend(comnts)
         return self
 
     def add_comment_optional(
@@ -722,15 +733,12 @@ class VideoSegmentResource:
             permissions=permissions,
         )
 
-    def add_title(
-        self, title: str, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
-    ) -> VideoSegmentResource:
+    def add_title(self, title: str) -> VideoSegmentResource:
         """
         Add a title to the resource.
 
         Args:
             title: text
-            permissions: optional permissions of this value
 
         Returns:
             The original resource, with the added title
@@ -745,15 +753,12 @@ class VideoSegmentResource:
         self.title = title
         return self
 
-    def add_title_optional(
-        self, title: Any, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
-    ) -> VideoSegmentResource:
+    def add_title_optional(self, title: Any) -> VideoSegmentResource:
         """
         If the value is not empty, add it as title, otherwise return the resource unchanged.
 
         Args:
             title: text or empty value
-            permissions: optional permissions of this value
 
         Returns:
             The original resource, with the added title
@@ -842,15 +847,12 @@ class VideoSegmentResource:
             self.comments.append(comment)
         return self
 
-    def add_description(
-        self, description: str, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
-    ) -> VideoSegmentResource:
+    def add_description(self, description: str) -> VideoSegmentResource:
         """
         Add a description to the resource
 
         Args:
             description: text
-            permissions: optional permissions of this value
 
         Returns:
             The original resource, with the added description
@@ -863,15 +865,12 @@ class VideoSegmentResource:
         self.descriptions.append(description)
         return self
 
-    def add_description_multiple(
-        self, descriptions: Collection[str], permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
-    ) -> VideoSegmentResource:
+    def add_description_multiple(self, descriptions: Collection[str]) -> VideoSegmentResource:
         """
         Add several descriptions to the resource
 
         Args:
             descriptions: list of texts
-            permissions: optional permissions of these values
 
         Returns:
             The original resource, with the added descriptions
@@ -885,15 +884,12 @@ class VideoSegmentResource:
         self.descriptions.extend(vals)
         return self
 
-    def add_description_optional(
-        self, description: Any, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
-    ) -> VideoSegmentResource:
+    def add_description_optional(self, description: Any) -> VideoSegmentResource:
         """
         If the value is not empty, add it as description, otherwise return the resource unchanged.
 
         Args:
             description: text or empty value
-            permissions: optional permissions of this value
 
         Returns:
             The original resource, with the added description
@@ -911,15 +907,12 @@ class VideoSegmentResource:
             self.descriptions.append(description)
         return self
 
-    def add_keyword(
-        self, keyword: str, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
-    ) -> VideoSegmentResource:
+    def add_keyword(self, keyword: str) -> VideoSegmentResource:
         """
         Add a keyword to the resource
 
         Args:
             keyword: text
-            permissions: optional permissions of this value
 
         Returns:
             The original resource, with the added keyword
@@ -932,15 +925,12 @@ class VideoSegmentResource:
         self.keywords.append(keyword)
         return self
 
-    def add_keyword_multiple(
-        self, keywords: Collection[str], permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
-    ) -> VideoSegmentResource:
+    def add_keyword_multiple(self, keywords: Collection[str]) -> VideoSegmentResource:
         """
         Add several keywords to the resource
 
         Args:
             keywords: list of texts
-            permissions: optional permissions of this value
 
         Returns:
             The original resource, with the added keywords
@@ -954,15 +944,12 @@ class VideoSegmentResource:
         self.keywords.extend(vals)
         return self
 
-    def add_keyword_optional(
-        self, keyword: Any, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
-    ) -> VideoSegmentResource:
+    def add_keyword_optional(self, keyword: Any) -> VideoSegmentResource:
         """
         If the value is not empty, add it as keyword, otherwise return the resource unchanged.
 
         Args:
             keyword: text or empty value
-            permissions: optional permissions of this value
 
         Returns:
             The original resource, with the added keyword
@@ -980,15 +967,12 @@ class VideoSegmentResource:
             self.keywords.append(keyword)
         return self
 
-    def add_relates_to(
-        self, relates_to: str, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
-    ) -> VideoSegmentResource:
+    def add_relates_to(self, relates_to: str) -> VideoSegmentResource:
         """
         Add a link to a related resource
 
         Args:
             relates_to: ID of the related resource
-            permissions: optional permissions of this value
 
         Returns:
             The original resource, with the added related resource
@@ -1001,15 +985,12 @@ class VideoSegmentResource:
         self.relates_to.append(relates_to)
         return self
 
-    def add_relates_to_multiple(
-        self, relates_to: Collection[str], permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
-    ) -> VideoSegmentResource:
+    def add_relates_to_multiple(self, relates_to: Collection[str]) -> VideoSegmentResource:
         """
         Add several links to related resources
 
         Args:
             relates_to: list of IDs of the related resources
-            permissions: optional permissions of these values
 
         Returns:
             The original resource, with the added related resources
@@ -1023,15 +1004,12 @@ class VideoSegmentResource:
         self.relates_to.extend(vals)
         return self
 
-    def add_relates_to_optional(
-        self, relates_to: Any, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
-    ) -> VideoSegmentResource:
+    def add_relates_to_optional(self, relates_to: Any) -> VideoSegmentResource:
         """
         If the value is not empty, add it as related resource, otherwise return the resource unchanged.
 
         Args:
             relates_to: ID or the related resource or empty value
-            permissions: optional permissions of this value
 
         Returns:
             The original resource, with the added related resources
@@ -1149,15 +1127,12 @@ class AudioSegmentResource:
             permissions=permissions,
         )
 
-    def add_title(
-        self, title: str, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
-    ) -> AudioSegmentResource:
+    def add_title(self, title: str) -> AudioSegmentResource:
         """
         Add a title to the resource.
 
         Args:
             title: text
-            permissions: optional permissions of this value
 
         Returns:
             The original resource, with the added title
@@ -1172,15 +1147,12 @@ class AudioSegmentResource:
         self.title = title
         return self
 
-    def add_title_optional(
-        self, title: Any, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
-    ) -> AudioSegmentResource:
+    def add_title_optional(self, title: Any) -> AudioSegmentResource:
         """
         If the value is not empty, add it as title, otherwise return the resource unchanged.
 
         Args:
             title: text or empty value
-            permissions: optional permissions of this value
 
         Returns:
             The original resource, with the added title

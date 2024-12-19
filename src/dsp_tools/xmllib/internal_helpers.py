@@ -6,8 +6,39 @@ from typing import Any
 from dsp_tools.models.custom_warnings import DspToolsUserInfo
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.xmllib import NewlineReplacement
+from dsp_tools.xmllib import Permissions
 from dsp_tools.xmllib import is_string_like
+from dsp_tools.xmllib import replace_newlines_with_tags
+from dsp_tools.xmllib.models.values import Richtext
 
+
+
+def add_richtext_with_checks(
+    value: str, res_id: str, prop_name: str, permissions: Permissions, newline_replacement: NewlineReplacement
+) -> Richtext:
+    """
+    Creates a RichtextValue with checks and optional conversions
+
+    Args:
+        value: richttext value
+        res_id: id of the calling resource
+        prop_name: name of the property
+        permissions: permissions of the value
+        newline_replacement: the replacement for the newlines in the string
+
+    Returns:
+        A richtext value
+
+    Raises:
+        Input Error if the input is a dictionary
+    """
+    # Because of the richtext conversions, the input value is cast as a string.
+    # Values such as str(`pd.NA`) result in a non-empy string.
+    # Therefore, a check must occur before the conversion takes place.
+    check_richtext_before_conversion(value, res_id, prop_name)
+    value = replace_newlines_with_tags(str(value), newline_replacement)
+    return Richtext(value, prop_name, permissions, value, res_id)
 
 def check_richtext_before_conversion(value: Any, res_id: str, prop_name: str) -> None:
     """

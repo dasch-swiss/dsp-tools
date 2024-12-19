@@ -62,9 +62,10 @@ def serialise_values(values: list[Value]) -> list[etree._Element]:
             case "simpletext":
                 serialised.append(_make_complete_simple_text_prop(cast(list[SimpleText], prop_values), prop_name))
             case "richtext":
-                serialised.append(_make_complete_richtext_prop(cast(list[Richtext], values), prop_name))
+                serialised.append(_make_complete_richtext_prop(cast(list[Richtext], prop_values), prop_name))
             case _:
-                serialised.append(_make_complete_generic_prop(values, prop_name, prop_type))
+                result = _make_complete_generic_prop(prop_values, prop_name, prop_type)
+                serialised.append(result)
     return serialised
 
 

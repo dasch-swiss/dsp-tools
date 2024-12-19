@@ -219,5 +219,77 @@ def test_value_with_default_permission() -> None:
     assert res_str == expected
 
 
+def test_several_values_different_generic_property() -> None:
+    v: list[Value] = [
+        LinkValue("res_link", ":linkProp", resource_id="res_id"),
+        SimpleText("Hello World", ":simpleTextProp", resource_id="res_id"),
+    ]
+    result = serialise_values(v)
+    assert len(result) == 2
+    expected = (
+        b"<resptr-prop "
+        b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+        b'name=":linkProp"><resptr>res_link</resptr>'
+        b"</resptr-prop>"
+    )
+    res_str = etree.tostring(result.pop(0))
+    assert res_str == expected
+    expected = (
+        b"<text-prop "
+        b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+        b'name=":simpleTextProp">'
+        b'<text encoding="utf8">Hello World</text>'
+        b"</text-prop>"
+    )
+    res_str = etree.tostring(result.pop(0))
+    assert res_str == expected
+
+
+def test_several_values_different_property() -> None:
+    v: list[Value] = [
+        BooleanValue("0", ":booleanProp", resource_id="res_id"),
+        LinkValue("res_link", ":linkProp", resource_id="res_id"),
+    ]
+    result = serialise_values(v)
+    assert len(result) == 2
+    expected = (
+        b'<boolean-prop xmlns="https://dasch.swiss/schema" '
+        b'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+        b'name=":booleanProp">'
+        b"<boolean>false</boolean>"
+        b"</boolean-prop>"
+    )
+    res_str = etree.tostring(result.pop(0))
+    assert res_str == expected
+    expected = (
+        b"<resptr-prop "
+        b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+        b'name=":linkProp">'
+        b"<resptr>res_link</resptr>"
+        b"</resptr-prop>"
+    )
+    res_str = etree.tostring(result.pop(0))
+    assert res_str == expected
+
+
+def test_several_values_same_property() -> None:
+    v: list[Value] = [
+        LinkValue("open_permission", ":linkProp", resource_id="res_id", permissions=Permissions.OPEN),
+        LinkValue("default_permission", ":linkProp", resource_id="res_id"),
+    ]
+    result = serialise_values(v)
+    assert len(result) == 1
+    expected = (
+        b'<resptr-prop xmlns="https://dasch.swiss/schema" '
+        b'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+        b'name=":linkProp">'
+        b'<resptr permissions="open">open_permission</resptr>'
+        b"<resptr>default_permission</resptr>"
+        b"</resptr-prop>"
+    )
+    res_str = etree.tostring(result.pop(0))
+    assert res_str == expected
+
+
 if __name__ == "__main__":
     pytest.main([__file__])

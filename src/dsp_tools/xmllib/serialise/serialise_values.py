@@ -1,4 +1,5 @@
 from collections import defaultdict
+from typing import cast
 
 from lxml import etree
 
@@ -53,9 +54,11 @@ def serialise_values(values: list[Value]) -> list[etree._Element]:
         prop_type = type_lookup[prop_name]
         match prop_type:
             case "list":
-                serialised.append(_make_complete_list_prop(prop_values, prop_name))
+                serialised.append(_make_complete_list_prop(cast(list[ListValue], prop_values), prop_name))
             case "xml" | "utf8":
-                serialised.append(_make_complete_text_prop(values, prop_name, prop_type))
+                serialised.append(
+                    _make_complete_text_prop(cast(list[SimpleText | Richtext], prop_values), prop_name, prop_type)
+                )
             case _:
                 serialised.append(_make_complete_generic_prop(values, prop_name, prop_type))
     return serialised
@@ -70,7 +73,7 @@ def _group_properties(values: list[Value]) -> tuple[dict[str, list[Value]], dict
     return grouped, name_type_lookup
 
 
-def _make_complete_generic_prop(values: list[ListValue], prop_name: str, prop_type: str) -> etree._Element:
+def _make_complete_generic_prop(values: list[Value], prop_name: str, prop_type: str) -> etree._Element:
     prop = _make_generic_prop(prop_name, prop_type)
     for val in values:
         val_ele = _make_generic_element(val, prop_type)

@@ -58,13 +58,13 @@ def serialise_values(all_values: list[Value]) -> list[etree._Element]:
         prop_type = type_lookup[prop_name]
         match prop_type:
             case "list":
-                serialised.append(_make_complete_list_prop(cast(list[ListValue], prop_values), prop_name))
+                serialised.append(_serialise_complete_list_prop(cast(list[ListValue], prop_values), prop_name))
             case "simpletext":
-                serialised.append(_make_complete_simple_text_prop(cast(list[SimpleText], prop_values), prop_name))
+                serialised.append(_serialise_complete_simple_text_prop(cast(list[SimpleText], prop_values), prop_name))
             case "richtext":
-                serialised.append(_make_complete_richtext_prop(cast(list[Richtext], prop_values), prop_name))
+                serialised.append(_serialise_complete_richtext_prop(cast(list[Richtext], prop_values), prop_name))
             case _:
-                serialised.append(_make_complete_generic_prop(prop_values, prop_name, prop_type))
+                serialised.append(_serialise_complete_generic_prop(prop_values, prop_name, prop_type))
     return serialised
 
 
@@ -77,19 +77,19 @@ def _group_properties(values: list[Value]) -> tuple[dict[str, list[Value]], dict
     return grouped, name_type_lookup
 
 
-def _make_complete_generic_prop(values: list[Value], prop_name: str, prop_type: str) -> etree._Element:
-    prop = _make_generic_prop(prop_name, prop_type)
+def _serialise_complete_generic_prop(values: list[Value], prop_name: str, prop_type: str) -> etree._Element:
+    prop = _serialise_generic_prop(prop_name, prop_type)
     for val in values:
-        val_ele = _make_generic_element(val, prop_type)
+        val_ele = _serialise_generic_element(val, prop_type)
         prop.append(val_ele)
     return prop
 
 
-def _make_generic_prop(prop_name: str, prop_type: str) -> etree._Element:
+def _serialise_generic_prop(prop_name: str, prop_type: str) -> etree._Element:
     return etree.Element(f"{DASCH_SCHEMA}{prop_type}-prop", name=prop_name, nsmap=XML_NAMESPACE_MAP)
 
 
-def _make_generic_element(value: Value, prop_type: str) -> etree._Element:
+def _serialise_generic_element(value: Value, prop_type: str) -> etree._Element:
     attribs = {}
     if value.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
         attribs["permissions"] = value.permissions.value
@@ -100,27 +100,27 @@ def _make_generic_element(value: Value, prop_type: str) -> etree._Element:
     return ele
 
 
-def _make_complete_list_prop(values: list[ListValue], prop_name: str) -> etree._Element:
+def _serialise_complete_list_prop(values: list[ListValue], prop_name: str) -> etree._Element:
     list_name = next(iter(values)).list_name
     prop = etree.Element(f"{DASCH_SCHEMA}list-prop", name=prop_name, list=list_name, nsmap=XML_NAMESPACE_MAP)
     for val in values:
-        prop.append(_make_generic_element(val, "list"))
+        prop.append(_serialise_generic_element(val, "list"))
     return prop
 
 
-def _make_complete_simple_text_prop(values: list[SimpleText], prop_name: str) -> etree._Element:
-    prop = _make_generic_prop(prop_name, "text")
+def _serialise_complete_simple_text_prop(values: list[SimpleText], prop_name: str) -> etree._Element:
+    prop = _serialise_generic_prop(prop_name, "text")
     for val in values:
-        val_ele = _make_generic_element(val, "text")
+        val_ele = _serialise_generic_element(val, "text")
         val_ele.attrib["encoding"] = "utf8"
         prop.append(val_ele)
     return prop
 
 
-def _make_complete_richtext_prop(values: list[Richtext], prop_name: str) -> etree._Element:
-    prop = _make_generic_prop(prop_name, "text")
+def _serialise_complete_richtext_prop(values: list[Richtext], prop_name: str) -> etree._Element:
+    prop = _serialise_generic_prop(prop_name, "text")
     for val in values:
-        val_ele = _make_generic_element(val, "text")
+        val_ele = _serialise_generic_element(val, "text")
         val_ele.attrib["encoding"] = "xml"
         prop.append(_create_richtext_elements_from_string(val, val_ele))
     return prop

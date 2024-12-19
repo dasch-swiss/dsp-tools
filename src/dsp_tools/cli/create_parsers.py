@@ -82,7 +82,7 @@ def _add_suppress_update_prompt(subparsers: _SubParsersAction[ArgumentParser]) -
         "don't prompt when using an outdated version of DSP-TOOLS "
         "(useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)"
     )
-    for sp in subparsers.choices.values():
+    for sp in subparsers.choices.comments():
         sp.add_argument("--suppress-update-prompt", action="store_true", help=outdated_help_text)
 
 

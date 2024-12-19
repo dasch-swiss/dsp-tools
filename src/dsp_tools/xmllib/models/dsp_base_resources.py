@@ -24,6 +24,7 @@ from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
 from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import LinkValue
 from dsp_tools.xmllib.models.values import Richtext
+from dsp_tools.xmllib.models.values import Value
 from dsp_tools.xmllib.value_checkers import is_decimal
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_string_like
@@ -40,9 +41,8 @@ LIST_SEPARATOR = "\n    - "
 class RegionResource:
     res_id: str
     label: str
-    region_of: str
     geometry: GeometryShape | None
-    comments: list[Richtext] = field(default_factory=list)
+    values: list[Value] = field(default_factory=list)
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
 
@@ -87,7 +87,7 @@ class RegionResource:
         return RegionResource(
             res_id=res_id,
             label=label,
-            region_of=region_of,
+            values=[LinkValue(value=region_of, prop_name="isRegionOf", resource_id=res_id)],
             geometry=None,
             permissions=permissions,
         )
@@ -275,10 +275,10 @@ class RegionResource:
             region = region.add_comment(text="comment text", comment="Comment for the value.")
             ```
         """
-        self.comments.append(
+        self.values.append(
             create_richtext_with_checks(
                 value=text,
-                prop_name="comment",
+                prop_name="hasComment",
                 permissions=permissions,
                 comment=comment,
                 newline_replacement=newline_replacement,
@@ -315,7 +315,7 @@ class RegionResource:
         comnts = [
             create_richtext_with_checks(
                 value=c,
-                prop_name="comment",
+                prop_name="hasComment",
                 permissions=permissions,
                 comment=comment,
                 newline_replacement=newline_replacement,
@@ -323,7 +323,7 @@ class RegionResource:
             )
             for c in vals
         ]
-        self.comments.extend(comnts)
+        self.values.extend(comnts)
         return self
 
     def add_comment_optional(
@@ -355,10 +355,10 @@ class RegionResource:
             ```
         """
         if is_nonempty_value(text):
-            self.comments.append(
+            self.values.append(
                 create_richtext_with_checks(
                     value=text,
-                    prop_name="comment",
+                    prop_name="hasComment",
                     permissions=permissions,
                     comment=comment,
                     newline_replacement=newline_replacement,
@@ -404,8 +404,6 @@ class RegionResource:
         res_ele = self._serialise_resource_element()
         res_ele.extend(self._serialise_geometry_shape())
         res_ele.extend(self._serialise_values())
-        for cmnt in self.comments:
-            res_ele.append(cmnt.serialise())
         return res_ele
 
     def _serialise_resource_element(self) -> etree._Element:
@@ -415,9 +413,7 @@ class RegionResource:
         return etree.Element(f"{DASCH_SCHEMA}region", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
 
     def _serialise_values(self) -> list[etree._Element]:
-        return [
-            LinkValue(value=self.region_of, prop_name="isRegionOf", resource_id=self.res_id).serialise(),
-        ]
+        return [v.serialise() for v in self.values]
 
     def _serialise_geometry_shape(self) -> list[etree._Element]:
         prop_list: list[etree._Element] = []
@@ -444,7 +440,7 @@ class RegionResource:
 class LinkResource:
     res_id: str
     label: str
-    link_to: list[str]
+    link_to: list[LinkValue]
     comments: list[Richtext] = field(default_factory=list)
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
@@ -480,10 +476,12 @@ class LinkResource:
             )
             ```
         """
+        links_to = check_and_fix_collection_input(link_to, "hasLinkTo", res_id)
+        link_vals = [LinkValue(value=x, prop_name="hasLinkTo", resource_id=res_id) for x in links_to]
         return LinkResource(
             res_id=res_id,
             label=label,
-            link_to=list(link_to),
+            link_to=link_vals,
             permissions=permissions,
         )
 
@@ -518,7 +516,7 @@ class LinkResource:
         self.comments.append(
             create_richtext_with_checks(
                 value=text,
-                prop_name="comment",
+                prop_name="hasComment",
                 permissions=permissions,
                 comment=comment,
                 newline_replacement=newline_replacement,
@@ -555,7 +553,7 @@ class LinkResource:
         comnts = [
             create_richtext_with_checks(
                 value=c,
-                prop_name="comment",
+                prop_name="hasComment",
                 permissions=permissions,
                 comment=comment,
                 newline_replacement=newline_replacement,
@@ -598,7 +596,7 @@ class LinkResource:
             self.comments.append(
                 create_richtext_with_checks(
                     value=text,
-                    prop_name="comment",
+                    prop_name="hasComment",
                     permissions=permissions,
                     comment=comment,
                     newline_replacement=newline_replacement,
@@ -643,14 +641,14 @@ class LinkResource:
     def serialise(self) -> etree._Element:
         self._check_for_and_convert_unexpected_input()
         res_ele = self._serialise_resource_element()
-        for cmnt in self.comments:
-            res_ele.append(cmnt.serialise())
-        msg = (
-            f"The link object with the ID '{self.res_id}' does not have any comments. "
-            f"At least one comment must be provided, please note that an xmlupload will fail."
-        )
-        warnings.warn(DspToolsUserWarning(msg))
-        res_ele.append(self._serialise_links())
+        res_ele.extend([c.serialise() for c in self.comments])
+        if not self.comments:
+            msg = (
+                f"The link object with the ID '{self.res_id}' does not have any comments. "
+                f"At least one comment must be provided, please note that an xmlupload will fail."
+            )
+            warnings.warn(DspToolsUserWarning(msg))
+        res_ele.extend([lnk.serialise() for lnk in self.link_to])
         return res_ele
 
     def _check_for_and_convert_unexpected_input(self) -> None:
@@ -662,12 +660,6 @@ class LinkResource:
         if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
             attribs["permissions"] = self.permissions.value
         return etree.Element(f"{DASCH_SCHEMA}link", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
-
-    def _serialise_links(self) -> etree._Element:
-        prop_ele = etree.Element(f"{DASCH_SCHEMA}resptr-prop", name="hasLinkTo", nsmap=XML_NAMESPACE_MAP)
-        vals = [LinkValue(value=x, prop_name="hasLinkTo", resource_id=self.res_id) for x in self.link_to]
-        prop_ele.extend([v.make_element() for v in vals])
-        return prop_ele
 
 
 @dataclass

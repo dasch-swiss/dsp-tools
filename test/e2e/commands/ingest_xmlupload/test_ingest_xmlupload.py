@@ -75,4 +75,4 @@ def _test_xmlupload_step() -> None:
     id2iri_file = list(Path.cwd().glob("*_id2iri_mapping_localhost.json"))[-1]  # choose the most recent one
     id2iri_mapping = json.loads(id2iri_file.read_text(encoding="utf-8"))
     assert sorted(id2iri_mapping.keys()) == ["resource_1", "resource_2", "resource_3"]
-    assert all(x.startswith(f"http://rdfh.ch/{SHORTCODE}/") for x in id2iri_mapping.values())
+    assert all(x.startswith(f"http://rdfh.ch/{SHORTCODE}/") for x in id2iri_mapping.comments())

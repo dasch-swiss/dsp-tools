@@ -24,7 +24,6 @@ from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
 from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import LinkValue
 from dsp_tools.xmllib.models.values import Richtext
-from dsp_tools.xmllib.models.values import Value
 from dsp_tools.xmllib.value_checkers import is_decimal
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_string_like
@@ -41,14 +40,11 @@ LIST_SEPARATOR = "\n    - "
 class RegionResource:
     res_id: str
     label: str
+    region_of: LinkValue
     geometry: GeometryShape | None
-    values: list[Value] = field(default_factory=list)
+    comments: list[Richtext] = field(default_factory=list)
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
-
-    def __post_init__(self) -> None:
-        _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
-        _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
 
     @staticmethod
     def create_new(
@@ -86,10 +82,11 @@ class RegionResource:
         """
         _check_strings(string_to_check=res_id, res_id=res_id, field_name="Resource ID")
         _check_strings(string_to_check=label, res_id=res_id, field_name="Label")
+        _check_strings(string_to_check=region_of, res_id=res_id, field_name="isRegionOf")
         return RegionResource(
             res_id=res_id,
             label=label,
-            values=[LinkValue(value=region_of, prop_name="isRegionOf", resource_id=res_id)],
+            region_of=LinkValue(value=region_of, prop_name="isRegionOf", resource_id=res_id),
             geometry=None,
             permissions=permissions,
         )
@@ -277,7 +274,7 @@ class RegionResource:
             region = region.add_comment(text="comment text", comment="Comment for the value.")
             ```
         """
-        self.values.append(
+        self.comments.append(
             create_richtext_with_checks(
                 value=text,
                 prop_name="hasComment",
@@ -325,7 +322,7 @@ class RegionResource:
             )
             for c in vals
         ]
-        self.values.extend(comnts)
+        self.comments.extend(comnts)
         return self
 
     def add_comment_optional(
@@ -357,7 +354,7 @@ class RegionResource:
             ```
         """
         if is_nonempty_value(text):
-            self.values.append(
+            self.comments.append(
                 create_richtext_with_checks(
                     value=text,
                     prop_name="hasComment",

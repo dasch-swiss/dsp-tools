@@ -10,6 +10,7 @@ from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.geometry import Circle
 from dsp_tools.xmllib.models.geometry import GeometryPoint
@@ -289,7 +290,8 @@ class RegionResource:
             region = region.add_comment_multiple(["comment 1", "comment 2"])
             ```
         """
-        self.comments.extend(comments)
+        vals = check_and_fix_collection_input(comments, "hasComment", self.res_id)
+        self.comments.extend(vals)
         return self
 
     def add_comment_optional(
@@ -478,7 +480,8 @@ class LinkResource:
             link_resource = link_resource.add_comment_multiple(["comment 1", "comment 2"])
             ```
         """
-        self.comments.extend(comments)
+        vals = check_and_fix_collection_input(comments, "hasComment", self.res_id)
+        self.comments.extend(vals)
         return self
 
     def add_comment_optional(
@@ -742,7 +745,8 @@ class VideoSegmentResource:
             video_segment = video_segment.add_comment_multiple(["comment 1", "comment 2"])
             ```
         """
-        self.comments.extend(comments)
+        vals = check_and_fix_collection_input(comments, "hasComment", self.res_id)
+        self.comments.extend(vals)
         return self
 
     def add_comment_optional(
@@ -810,7 +814,8 @@ class VideoSegmentResource:
             video_segment = video_segment.add_description_multiple(["description 1", "description 2"])
             ```
         """
-        self.descriptions.extend(descriptions)
+        vals = check_and_fix_collection_input(descriptions, "description", self.res_id)
+        self.descriptions.extend(vals)
         return self
 
     def add_description_optional(
@@ -878,7 +883,8 @@ class VideoSegmentResource:
             video_segment = video_segment.add_keyword_multiple(["keyword 1", "keyword 2"])
             ```
         """
-        self.keywords.extend(keywords)
+        vals = check_and_fix_collection_input(keywords, "keywords", self.res_id)
+        self.keywords.extend(vals)
         return self
 
     def add_keyword_optional(
@@ -946,7 +952,8 @@ class VideoSegmentResource:
             video_segment = video_segment.add_relates_to_multiple(["target_resource_id_1", "target_resource_id_2"])
             ```
         """
-        self.relates_to.extend(relates_to)
+        vals = check_and_fix_collection_input(relates_to, "relatesTo", self.res_id)
+        self.relates_to.extend(vals)
         return self
 
     def add_relates_to_optional(
@@ -1165,7 +1172,8 @@ class AudioSegmentResource:
             audio_segment = audio_segment.add_comment_multiple(["comment 1", "comment 2"])
             ```
         """
-        self.comments.extend(comments)
+        vals = check_and_fix_collection_input(comments, "hasComment", self.res_id)
+        self.comments.extend(vals)
         return self
 
     def add_comment_optional(
@@ -1233,7 +1241,8 @@ class AudioSegmentResource:
             audio_segment = audio_segment.add_description_multiple(["description 1", "description 2"])
             ```
         """
-        self.descriptions.extend(descriptions)
+        vals = check_and_fix_collection_input(descriptions, "description", self.res_id)
+        self.descriptions.extend(vals)
         return self
 
     def add_description_optional(
@@ -1301,7 +1310,8 @@ class AudioSegmentResource:
             audio_segment = audio_segment.add_keyword_multiple(["keyword 1", "keyword 2"])
             ```
         """
-        self.keywords.extend(keywords)
+        vals = check_and_fix_collection_input(keywords, "keywords", self.res_id)
+        self.keywords.extend(vals)
         return self
 
     def add_keyword_optional(
@@ -1369,7 +1379,8 @@ class AudioSegmentResource:
             audio_segment = audio_segment.add_relates_to_multiple(["target_resource_id_1", "target_resource_id_2"])
             ```
         """
-        self.relates_to.extend(relates_to)
+        vals = check_and_fix_collection_input(relates_to, "relatesTo", self.res_id)
+        self.relates_to.extend(vals)
         return self
 
     def add_relates_to_optional(

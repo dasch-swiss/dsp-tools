@@ -6,11 +6,11 @@ from typing import Any
 from dsp_tools.models.custom_warnings import DspToolsUserInfo
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
-from dsp_tools.xmllib import NewlineReplacement
-from dsp_tools.xmllib import Permissions
-from dsp_tools.xmllib import is_string_like
-from dsp_tools.xmllib import replace_newlines_with_tags
+from dsp_tools.xmllib.models.config_options import NewlineReplacement
+from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.values import Richtext
+from dsp_tools.xmllib.value_checkers import is_string_like
+from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
 
 def create_richtext_with_checks(
@@ -74,7 +74,7 @@ def check_and_fix_collection_input(value: Any, prop_name: str, res_id: str) -> l
         The input as a list
 
     Raises:
-        Input Error if the input is a dictionary
+        InputError: if the input is a dictionary
     """
     msg = f"The input value of the resource with the ID '{res_id}' and the property '{prop_name}' "
     match value:

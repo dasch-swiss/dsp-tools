@@ -365,12 +365,12 @@ class TestAddFiles:
     [(1, [1]), (True, [True]), ("string", ["string"]), ([1, 2], [1, 2]), ((1, 2), [1, 2]), ({1, 2}, [1, 2])],
 )
 def test_check_and_fix_collection_input_success(input_val: Any, expected_val: list[Any]) -> None:
-    assert check_and_fix_collection_input(input_val, "id", "prop") == sorted(expected_val)
+    assert check_and_fix_collection_input(input_val, "prop", "id") == sorted(expected_val)
 
 
 def test_check_and_fix_collection_input_warns() -> None:
     with pytest.warns(DspToolsUserInfo):
-        check_and_fix_collection_input([], "id", "prop")
+        check_and_fix_collection_input([], "prop", "id")
 
 
 def test_check_and_fix_collection_input_raises() -> None:
@@ -379,7 +379,7 @@ def test_check_and_fix_collection_input_raises() -> None:
         "Only collections (list, set, tuple) are permissible."
     )
     with pytest.raises(InputError, match=msg):
-        check_and_fix_collection_input({1: 1}, "id", "prop")
+        check_and_fix_collection_input({1: 1}, "prop", "id")
 
 
 if __name__ == "__main__":

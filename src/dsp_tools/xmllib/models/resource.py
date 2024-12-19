@@ -288,7 +288,7 @@ class Resource:
             )
             ```
         """
-        vals = check_and_fix_collection_input(values, self.res_id, prop_name)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
         self.values.extend([ColorValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
@@ -396,7 +396,7 @@ class Resource:
             )
             ```
         """
-        vals = check_and_fix_collection_input(values, self.res_id, prop_name)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
         self.values.extend([DateValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
@@ -507,7 +507,7 @@ class Resource:
             )
             ```
         """
-        vals = check_and_fix_collection_input(values, self.res_id, prop_name)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
         self.values.extend([DecimalValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
@@ -622,7 +622,7 @@ class Resource:
             )
             ```
         """
-        vals = check_and_fix_collection_input(values, self.res_id, prop_name)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
         self.values.extend([GeonameValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
@@ -735,7 +735,7 @@ class Resource:
             )
             ```
         """
-        vals = check_and_fix_collection_input(values, self.res_id, prop_name)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
         self.values.extend([IntValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
@@ -845,7 +845,7 @@ class Resource:
             )
             ```
         """
-        vals = check_and_fix_collection_input(values, self.res_id, prop_name)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
         self.values.extend([LinkValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
@@ -961,7 +961,7 @@ class Resource:
             )
             ```
         """
-        vals = check_and_fix_collection_input(values, self.res_id, prop_name)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
         self.values.extend([ListValue(v, list_name, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
@@ -1074,7 +1074,7 @@ class Resource:
             )
             ```
         """
-        vals = check_and_fix_collection_input(values, self.res_id, prop_name)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
         self.values.extend([SimpleText(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
@@ -1221,6 +1221,7 @@ class Resource:
             )
             ```
         """
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
         richtexts = [
             create_richtext_with_checks(
                 value=v,
@@ -1230,7 +1231,7 @@ class Resource:
                 newline_replacement=newline_replacement,
                 res_id=self.res_id,
             )
-            for v in values
+            for v in vals
         ]
         self.values.extend(richtexts)
         return self
@@ -1359,7 +1360,7 @@ class Resource:
             )
             ```
         """
-        vals = check_and_fix_collection_input(values, self.res_id, prop_name)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
         self.values.extend([TimeValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
@@ -1468,7 +1469,7 @@ class Resource:
             )
             ```
         """
-        vals = check_and_fix_collection_input(values, self.res_id, prop_name)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
         self.values.extend([UriValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 

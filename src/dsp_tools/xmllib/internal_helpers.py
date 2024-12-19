@@ -46,29 +46,29 @@ def create_richtext_with_checks(
     return Richtext(value, prop_name, permissions, comment, res_id)
 
 
-def check_richtext_before_conversion(value: Any, res_id: str, prop_name: str) -> None:
+def check_richtext_before_conversion(value: Any, prop_name: str, res_id: str) -> None:
     """
     Checks if the input which is expected to be richtext is a string.
 
     Args:
         value: Input value
-        res_id: Resource ID
         prop_name: Property name
+        res_id: Resource ID
     """
     if not is_string_like(value):
         msg = f"Resource '{res_id}' has a richtext value that is not a string: Value: {value} | Property: {prop_name}"
         warnings.warn(DspToolsUserWarning(msg))
 
 
-def check_and_fix_collection_input(value: Any, res_id: str, prop_name: str) -> list[Any]:
+def check_and_fix_collection_input(value: Any, prop_name: str, res_id: str) -> list[Any]:
     """
     To allow varied input but ensure consistent typing internally, collections are converted.
     As collections are expected to be non-empty a warning is emitted for the user.
 
     Args:
         value: Input value
-        res_id: Resource ID
         prop_name: Property name
+        res_id: Resource ID
 
     Returns:
         The input as a list

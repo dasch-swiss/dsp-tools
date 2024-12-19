@@ -29,23 +29,60 @@ PROP_TYPE_LOOKUP = {
     GeonameValue: "geoname",
     IntValue: "integer",
     LinkValue: "resptr",
+    ListValue: "list",
     TimeValue: "time",
     UriValue: "uri",
+    Richtext: "xml",
+    SimpleText: "utf8",
 }
 
 
-def _group_properties(values: list[Value]) -> dict[str, list[Value]]:
+def serialise_values(values: list[Value]) -> list[etree._Element]:
+    """
+    Serialise a list of values for a resource.
+
+    Args:
+        values: List of Values
+
+    Returns:
+        list of serialised values
+    """
+    prop_groups, type_lookup = _group_properties(values)
+    serialised = []
+    for prop_name, prop_values in prop_groups.items():
+        prop_type = type_lookup[prop_name]
+        match prop_type:
+            case "list":
+                serialised.append(_make_complete_list_prop(prop_values, prop_name))
+            case "xml" | "utf8":
+                serialised.append(_make_complete_text_prop(values, prop_name, prop_type))
+            case _:
+                serialised.append(_make_complete_generic_prop(values, prop_name, prop_type))
+    return serialised
+
+
+def _group_properties(values: list[Value]) -> tuple[dict[str, list[Value]], dict[str, str]]:
     grouped = defaultdict(list)
+    name_type_lookup = {}
     for val in values:
         grouped[val.prop_name].append(val)
-    return grouped
+        name_type_lookup[val.prop_name] = PROP_TYPE_LOOKUP[type(val)]
+    return grouped, name_type_lookup
+
+
+def _make_complete_generic_prop(values: list[ListValue], prop_name: str, prop_type: str) -> etree._Element:
+    prop = _make_generic_prop(prop_name, prop_type)
+    for val in values:
+        val_ele = _make_generic_element(val, prop_type)
+        prop.append(val_ele)
+    return prop
 
 
 def _make_generic_prop(prop_name: str, prop_type: str) -> etree._Element:
     return etree.Element(f"{DASCH_SCHEMA}{prop_type}-prop", name=prop_name, nsmap=XML_NAMESPACE_MAP)
 
 
-def _make_list_prop(values: list[ListValue], prop_name: str) -> etree._Element:
+def _make_complete_list_prop(values: list[ListValue], prop_name: str) -> etree._Element:
     list_name = next(iter(values)).list_name
     prop = etree.Element(f"{DASCH_SCHEMA}list-prop", name=prop_name, list=list_name, nsmap=XML_NAMESPACE_MAP)
     for val in values:
@@ -53,7 +90,7 @@ def _make_list_prop(values: list[ListValue], prop_name: str) -> etree._Element:
     return prop
 
 
-def _make_text_prop(values: list[Richtext | SimpleText], prop_name: str, text_encoding: str) -> etree._Element:
+def _make_complete_text_prop(values: list[Richtext | SimpleText], prop_name: str, text_encoding: str) -> etree._Element:
     prop = _make_generic_prop(prop_name, "text")
     for val in values:
         val_ele = _make_generic_element(val, "text")

@@ -41,7 +41,7 @@ def create_richtext_with_checks(
     # Because of the richtext conversions, the input value is cast as a string.
     # Values such as str(`pd.NA`) result in a non-empy string.
     # Therefore, a check must occur before the conversion takes place.
-    check_richtext_before_conversion(value, res_id, prop_name)
+    check_richtext_before_conversion(value, prop_name, res_id)
     value = replace_newlines_with_tags(str(value), newline_replacement)
     return Richtext(value, prop_name, permissions, comment, res_id)
 

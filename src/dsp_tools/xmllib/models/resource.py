@@ -9,9 +9,10 @@ from typing import Any
 
 from lxml import etree
 
-from dsp_tools.models.custom_warnings import DspToolsUserInfo
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
+from dsp_tools.xmllib.internal_helpers import check_richtext_before_conversion
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.file_values import AbstractFileValue
@@ -289,7 +290,7 @@ class Resource:
             )
             ```
         """
-        vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
+        vals = check_and_fix_collection_input(values, self.res_id, prop_name)
         self.values.extend([ColorValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
@@ -397,7 +398,7 @@ class Resource:
             )
             ```
         """
-        vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
+        vals = check_and_fix_collection_input(values, self.res_id, prop_name)
         self.values.extend([DateValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
@@ -508,7 +509,7 @@ class Resource:
             )
             ```
         """
-        vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
+        vals = check_and_fix_collection_input(values, self.res_id, prop_name)
         self.values.extend([DecimalValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
@@ -623,7 +624,7 @@ class Resource:
             )
             ```
         """
-        vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
+        vals = check_and_fix_collection_input(values, self.res_id, prop_name)
         self.values.extend([GeonameValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
@@ -736,7 +737,7 @@ class Resource:
             )
             ```
         """
-        vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
+        vals = check_and_fix_collection_input(values, self.res_id, prop_name)
         self.values.extend([IntValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
@@ -846,7 +847,7 @@ class Resource:
             )
             ```
         """
-        vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
+        vals = check_and_fix_collection_input(values, self.res_id, prop_name)
         self.values.extend([LinkValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
@@ -962,7 +963,7 @@ class Resource:
             )
             ```
         """
-        vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
+        vals = check_and_fix_collection_input(values, self.res_id, prop_name)
         self.values.extend([ListValue(v, list_name, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
@@ -1075,7 +1076,7 @@ class Resource:
             )
             ```
         """
-        vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
+        vals = check_and_fix_collection_input(values, self.res_id, prop_name)
         self.values.extend([SimpleText(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
@@ -1174,7 +1175,7 @@ class Resource:
         # Because of the richtext conversions, the input value is cast as a string.
         # Values such as str(`pd.NA`) result in a non-empy string.
         # Therefore a check must occur before the conversion takes place.
-        _check_richtext_before_conversion(value, self.res_id, prop_name)
+        check_richtext_before_conversion(value, self.res_id, prop_name)
         value = replace_newlines_with_tags(str(value), newline_replacement)
         self.values.append(Richtext(value, prop_name, permissions, comment, self.res_id))
         return self
@@ -1221,9 +1222,9 @@ class Resource:
         # Because of the richtext conversions, the input value is cast as a string.
         # Values such as str(`pd.NA`) result in a non-empy string.
         # Therefore a check must occur before the conversion takes place.
-        new_vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
+        new_vals = check_and_fix_collection_input(values, self.res_id, prop_name)
         for val in new_vals:
-            _check_richtext_before_conversion(val, self.res_id, prop_name)
+            check_richtext_before_conversion(val, self.res_id, prop_name)
         replaced_vals = [replace_newlines_with_tags(str(v), newline_replacement) for v in new_vals]
         self.values.extend([Richtext(v, prop_name, permissions, comment, self.res_id) for v in replaced_vals])
         return self
@@ -1344,7 +1345,7 @@ class Resource:
             )
             ```
         """
-        vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
+        vals = check_and_fix_collection_input(values, self.res_id, prop_name)
         self.values.extend([TimeValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
@@ -1453,7 +1454,7 @@ class Resource:
             )
             ```
         """
-        vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
+        vals = check_and_fix_collection_input(values, self.res_id, prop_name)
         self.values.extend([UriValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
@@ -1630,24 +1631,3 @@ class Resource:
             )
         self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
         return self
-
-
-def _check_richtext_before_conversion(value: Any, res_id: str, prop_name: str) -> None:
-    if not is_string_like(value):
-        msg = f"Resource '{res_id}' has a richtext value that is not a string: Value: {value} | Property: {prop_name}"
-        warnings.warn(DspToolsUserWarning(msg))
-
-
-def _check_and_fix_collection_input(value: Any, res_id: str, prop_name: str) -> list[Any]:
-    msg = f"The input value of the resource with the ID '{res_id}' and the property '{prop_name}' "
-    match value:
-        case set() | list() | tuple():
-            if len(value) == 0:
-                msg += "is empty. Please note that no values will be added to the resource."
-                warnings.warn(DspToolsUserInfo(msg))
-            return list(value)
-        case dict():
-            msg += "is a dictionary. Only collections (list, set, tuple) are permissible."
-            raise InputError(msg)
-        case _:
-            return [value]

@@ -7,11 +7,11 @@ import regex
 from dsp_tools.models.custom_warnings import DspToolsUserInfo
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.file_values import FileValue
 from dsp_tools.xmllib.models.file_values import IIIFUri
 from dsp_tools.xmllib.models.resource import Resource
-from dsp_tools.xmllib.models.resource import _check_and_fix_collection_input
 from dsp_tools.xmllib.models.values import BooleanValue
 from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import DateValue
@@ -365,12 +365,12 @@ class TestAddFiles:
     [(1, [1]), (True, [True]), ("string", ["string"]), ([1, 2], [1, 2]), ((1, 2), [1, 2]), ({1, 2}, [1, 2])],
 )
 def test_check_and_fix_collection_input_success(input_val: Any, expected_val: list[Any]) -> None:
-    assert _check_and_fix_collection_input(input_val, "id", "prop") == sorted(expected_val)
+    assert check_and_fix_collection_input(input_val, "id", "prop") == sorted(expected_val)
 
 
 def test_check_and_fix_collection_input_warns() -> None:
     with pytest.warns(DspToolsUserInfo):
-        _check_and_fix_collection_input([], "id", "prop")
+        check_and_fix_collection_input([], "id", "prop")
 
 
 def test_check_and_fix_collection_input_raises() -> None:
@@ -379,7 +379,7 @@ def test_check_and_fix_collection_input_raises() -> None:
         "Only collections (list, set, tuple) are permissible."
     )
     with pytest.raises(InputError, match=msg):
-        _check_and_fix_collection_input({1: 1}, "id", "prop")
+        check_and_fix_collection_input({1: 1}, "id", "prop")
 
 
 if __name__ == "__main__":

@@ -405,7 +405,8 @@ class RegionResource:
     def serialise(self) -> etree._Element:
         res_ele = self._serialise_resource_element()
         res_ele.extend(self._serialise_geometry_shape())
-        res_ele.append(serialise_values_of_the_same_property(cast(list[Value], self.comments)))
+        if self.comments:
+            res_ele.append(serialise_values_of_the_same_property(cast(list[Value], self.comments)))
         return res_ele
 
     def _serialise_resource_element(self) -> etree._Element:
@@ -641,15 +642,23 @@ class LinkResource:
 
     def serialise(self) -> etree._Element:
         res_ele = self._serialise_resource_element()
-        if not self.comments:
-            msg = (
-                f"The link object with the ID '{self.res_id}' does not have any comments. "
-                f"At least one comment must be provided, please note that an xmlupload will fail."
-            )
-            warnings.warn(DspToolsUserWarning(msg))
-        res_ele.append(serialise_values_of_the_same_property(cast(list[Value], self.comments)))
-        res_ele.append(serialise_values_of_the_same_property(cast(list[Value], self.link_to)))
+        self._final_checks()
+        if self.comments:
+            res_ele.append(serialise_values_of_the_same_property(cast(list[Value], self.comments)))
+        if self.link_to:
+            res_ele.append(serialise_values_of_the_same_property(cast(list[Value], self.link_to)))
         return res_ele
+
+    def _final_checks(self) -> None:
+        problem = []
+        if not self.comments:
+            problem.append("at least one comment")
+        if not self.link_to:
+            problem.append("at least two links")
+        if problem:
+            msg = f"The link object with the ID '{self.res_id}' requires: {' and '.join(problem)} "
+            "Please note that an xmlupload will fail."
+            warnings.warn(DspToolsUserWarning(msg))
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}

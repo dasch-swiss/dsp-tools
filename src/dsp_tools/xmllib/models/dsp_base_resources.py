@@ -11,6 +11,8 @@ from lxml import etree
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
+from dsp_tools.xmllib.internal_helpers import create_richtext_with_checks
+from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.geometry import Circle
 from dsp_tools.xmllib.models.geometry import GeometryPoint
@@ -40,7 +42,7 @@ class RegionResource:
     label: str
     region_of: str
     geometry: GeometryShape | None
-    comments: list[str] = field(default_factory=list)
+    comments: list[Richtext] = field(default_factory=list)
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
 
@@ -246,7 +248,10 @@ class RegionResource:
         return self
 
     def add_comment(
-        self, comment: str, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
+        self,
+        comment: str,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> RegionResource:
         """
         Add a comment to the region
@@ -254,6 +259,7 @@ class RegionResource:
         Args:
             comment: text
             permissions: optional permissions of this value
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original region, with the added comment
@@ -263,11 +269,23 @@ class RegionResource:
             region = region.add_comment("comment text")
             ```
         """
-        self.comments.append(comment)
+        self.comments.append(
+            create_richtext_with_checks(
+                value=comment,
+                prop_name="comment",
+                permissions=permissions,
+                comment=None,
+                newline_replacement=newline_replacement,
+                res_id=self.res_id,
+            )
+        )
         return self
 
     def add_comment_multiple(
-        self, comments: Collection[str], permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
+        self,
+        comments: Collection[str],
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> RegionResource:
         """
         Add several comments to the region
@@ -275,6 +293,7 @@ class RegionResource:
         Args:
             comments: list of texts
             permissions: optional permissions of these values
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original region, with the added comments
@@ -285,11 +304,25 @@ class RegionResource:
             ```
         """
         vals = check_and_fix_collection_input(comments, "hasComment", self.res_id)
-        self.comments.extend(vals)
+        comnts = [
+            create_richtext_with_checks(
+                value=c,
+                prop_name="comment",
+                permissions=permissions,
+                comment=None,
+                newline_replacement=newline_replacement,
+                res_id=self.res_id,
+            )
+            for c in vals
+        ]
+        self.comments.extend(comnts)
         return self
 
     def add_comment_optional(
-        self, comment: Any, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
+        self,
+        comment: Any,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> RegionResource:
         """
         If the value is not empty, add it as comment, otherwise return the region unchanged.
@@ -297,6 +330,7 @@ class RegionResource:
         Args:
             comment: text or empty value
             permissions: optional permissions of this value
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original region, with the added comment
@@ -311,7 +345,16 @@ class RegionResource:
             ```
         """
         if is_nonempty_value(comment):
-            self.comments.append(comment)
+            self.comments.append(
+                create_richtext_with_checks(
+                    value=comment,
+                    prop_name="comment",
+                    permissions=permissions,
+                    comment=None,
+                    newline_replacement=newline_replacement,
+                    res_id=self.res_id,
+                )
+            )
         return self
 
     def add_migration_metadata(
@@ -393,7 +436,7 @@ class LinkResource:
     res_id: str
     label: str
     link_to: list[str]
-    comments: list[str] = field(default_factory=list)
+    comments: list[Richtext] = field(default_factory=list)
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
 
@@ -436,7 +479,10 @@ class LinkResource:
         )
 
     def add_comment(
-        self, comment: str, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
+        self,
+        comment: str,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> LinkResource:
         """
         Add a comment to the resource
@@ -444,6 +490,7 @@ class LinkResource:
         Args:
             comment: text
             permissions: optional permissions of this value
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added comment
@@ -453,11 +500,23 @@ class LinkResource:
             link_resource = link_resource.add_comment("comment text")
             ```
         """
-        self.comments.append(comment)
+        self.comments.append(
+            create_richtext_with_checks(
+                value=comment,
+                prop_name="comment",
+                permissions=permissions,
+                comment=None,
+                newline_replacement=newline_replacement,
+                res_id=self.res_id,
+            )
+        )
         return self
 
     def add_comment_multiple(
-        self, comments: Collection[str], permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
+        self,
+        comments: Collection[str],
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> LinkResource:
         """
         Add several comments to the resource
@@ -465,6 +524,7 @@ class LinkResource:
         Args:
             comments: list of texts
             permissions: optional permissions of these values
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added comments
@@ -479,7 +539,10 @@ class LinkResource:
         return self
 
     def add_comment_optional(
-        self, comment: Any, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
+        self,
+        comment: Any,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
     ) -> LinkResource:
         """
         If the value is not empty, add it as comment, otherwise return the resource unchanged.
@@ -487,6 +550,7 @@ class LinkResource:
         Args:
             comment: text or empty value
             permissions: optional permissions of this value
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added comment
@@ -501,7 +565,16 @@ class LinkResource:
             ```
         """
         if is_nonempty_value(comment):
-            self.comments.append(comment)
+            self.comments.append(
+                create_richtext_with_checks(
+                    value=comment,
+                    prop_name="comment",
+                    permissions=permissions,
+                    comment=None,
+                    newline_replacement=newline_replacement,
+                    res_id=self.res_id,
+                )
+            )
         return self
 
     def add_migration_metadata(
@@ -701,14 +774,14 @@ class VideoSegmentResource:
         return self
 
     def add_comment(
-        self, comment: str, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
+        self,
+        comment: str,
     ) -> VideoSegmentResource:
         """
         Add a comment to the resource
 
         Args:
             comment: text
-            permissions: optional permissions of this value
 
         Returns:
             The original resource, with the added comment
@@ -722,14 +795,14 @@ class VideoSegmentResource:
         return self
 
     def add_comment_multiple(
-        self, comments: Collection[str], permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
+        self,
+        comments: Collection[str],
     ) -> VideoSegmentResource:
         """
         Add several comments to the resource
 
         Args:
             comments: list of texts
-            permissions: optional permissions of this value
 
         Returns:
             The original resource, with the added comments
@@ -744,14 +817,14 @@ class VideoSegmentResource:
         return self
 
     def add_comment_optional(
-        self, comment: Any, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
+        self,
+        comment: Any,
     ) -> VideoSegmentResource:
         """
         If the value is not empty, add it as comment, otherwise return the resource unchanged.
 
         Args:
             comment: text or empty value
-            permissions: optional permissions of this value
 
         Returns:
             The original resource, with the added comment

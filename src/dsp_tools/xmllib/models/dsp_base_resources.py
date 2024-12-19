@@ -405,7 +405,7 @@ class RegionResource:
     def serialise(self) -> etree._Element:
         res_ele = self._serialise_resource_element()
         res_ele.extend(self._serialise_geometry_shape())
-        res_ele.extend(self._serialise_values())
+        res_ele.extend([v.serialise() for v in self.values])
         return res_ele
 
     def _serialise_resource_element(self) -> etree._Element:
@@ -413,9 +413,6 @@ class RegionResource:
         if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
             attribs["permissions"] = self.permissions.value
         return etree.Element(f"{DASCH_SCHEMA}region", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
-
-    def _serialise_values(self) -> list[etree._Element]:
-        return [v.serialise() for v in self.values]
 
     def _serialise_geometry_shape(self) -> list[etree._Element]:
         prop_list: list[etree._Element] = []

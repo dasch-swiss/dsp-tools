@@ -1507,14 +1507,6 @@ def _make_element_with_text(tag_name: str, text_content: str) -> etree._Element:
     return ele
 
 
-def _warn_unexpected_value(*, value: Any, prop_name: str, res_id: str | None) -> None:
-    msg = (
-        f"The resource: {res_id} should have a list of strings for the field '{prop_name}'. "
-        f"Your input: '{value}' is of type {type(value)}."
-    )
-    warnings.warn(DspToolsUserWarning(msg))
-
-
 def _warn_value_exists(*, old_value: Any, new_value: Any, value_field: str, res_id: str | None) -> None:
     """Emits a warning if a values is not in the expected format."""
     msg = (

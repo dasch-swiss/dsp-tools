@@ -11,8 +11,8 @@ from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.xmllib.internal_helpers import add_richtext_with_checks
 from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
-from dsp_tools.xmllib.internal_helpers import check_richtext_before_conversion
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.file_values import AbstractFileValue
@@ -27,14 +27,12 @@ from dsp_tools.xmllib.models.values import GeonameValue
 from dsp_tools.xmllib.models.values import IntValue
 from dsp_tools.xmllib.models.values import LinkValue
 from dsp_tools.xmllib.models.values import ListValue
-from dsp_tools.xmllib.models.values import Richtext
 from dsp_tools.xmllib.models.values import SimpleText
 from dsp_tools.xmllib.models.values import TimeValue
 from dsp_tools.xmllib.models.values import UriValue
 from dsp_tools.xmllib.models.values import Value
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_string_like
-from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
 # ruff: noqa: D101, D102
 
@@ -1172,12 +1170,16 @@ class Resource:
             )
             ```
         """
-        # Because of the richtext conversions, the input value is cast as a string.
-        # Values such as str(`pd.NA`) result in a non-empy string.
-        # Therefore a check must occur before the conversion takes place.
-        check_richtext_before_conversion(value, self.res_id, prop_name)
-        value = replace_newlines_with_tags(str(value), newline_replacement)
-        self.values.append(Richtext(value, prop_name, permissions, comment, self.res_id))
+        self.values.append(
+            add_richtext_with_checks(
+                value=value,
+                prop_name=prop_name,
+                permissions=permissions,
+                comment=comment,
+                newline_replacement=newline_replacement,
+                res_id=self.res_id,
+            )
+        )
         return self
 
     def add_richtext_multiple(
@@ -1219,14 +1221,18 @@ class Resource:
             )
             ```
         """
-        # Because of the richtext conversions, the input value is cast as a string.
-        # Values such as str(`pd.NA`) result in a non-empy string.
-        # Therefore a check must occur before the conversion takes place.
-        new_vals = check_and_fix_collection_input(values, self.res_id, prop_name)
-        for val in new_vals:
-            check_richtext_before_conversion(val, self.res_id, prop_name)
-        replaced_vals = [replace_newlines_with_tags(str(v), newline_replacement) for v in new_vals]
-        self.values.extend([Richtext(v, prop_name, permissions, comment, self.res_id) for v in replaced_vals])
+        richtexts = [
+            add_richtext_with_checks(
+                value=v,
+                prop_name=prop_name,
+                permissions=permissions,
+                comment=comment,
+                newline_replacement=newline_replacement,
+                res_id=self.res_id,
+            )
+            for v in values
+        ]
+        self.values.extend(richtexts)
         return self
 
     def add_richtext_optional(
@@ -1276,8 +1282,16 @@ class Resource:
             ```
         """
         if is_nonempty_value(value):
-            value = replace_newlines_with_tags(str(value), newline_replacement)
-            self.values.append(Richtext(value, prop_name, permissions, comment, self.res_id))
+            self.values.append(
+                add_richtext_with_checks(
+                    value=value,
+                    prop_name=prop_name,
+                    permissions=permissions,
+                    comment=comment,
+                    newline_replacement=newline_replacement,
+                    res_id=self.res_id,
+                )
+            )
         return self
 
     #######################

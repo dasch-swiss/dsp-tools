@@ -13,19 +13,24 @@ from dsp_tools.xmllib import replace_newlines_with_tags
 from dsp_tools.xmllib.models.values import Richtext
 
 
-
 def add_richtext_with_checks(
-    value: str, res_id: str, prop_name: str, permissions: Permissions, newline_replacement: NewlineReplacement
+    value: str,
+    prop_name: str,
+    permissions: Permissions,
+    comment: str | None,
+    newline_replacement: NewlineReplacement,
+    res_id: str,
 ) -> Richtext:
     """
     Creates a RichtextValue with checks and optional conversions
 
     Args:
         value: richttext value
-        res_id: id of the calling resource
         prop_name: name of the property
         permissions: permissions of the value
+        comment: comment for the value
         newline_replacement: the replacement for the newlines in the string
+        res_id: id of the calling resource
 
     Returns:
         A richtext value
@@ -38,7 +43,8 @@ def add_richtext_with_checks(
     # Therefore, a check must occur before the conversion takes place.
     check_richtext_before_conversion(value, res_id, prop_name)
     value = replace_newlines_with_tags(str(value), newline_replacement)
-    return Richtext(value, prop_name, permissions, value, res_id)
+    return Richtext(value, prop_name, permissions, comment, res_id)
+
 
 def check_richtext_before_conversion(value: Any, res_id: str, prop_name: str) -> None:
     """

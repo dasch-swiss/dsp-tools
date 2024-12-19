@@ -84,6 +84,8 @@ class RegionResource:
             )
             ```
         """
+        _check_strings(string_to_check=res_id, res_id=res_id, field_name="Resource ID")
+        _check_strings(string_to_check=label, res_id=res_id, field_name="Label")
         return RegionResource(
             res_id=res_id,
             label=label,
@@ -476,6 +478,8 @@ class LinkResource:
             )
             ```
         """
+        _check_strings(string_to_check=res_id, res_id=res_id, field_name="Resource ID")
+        _check_strings(string_to_check=label, res_id=res_id, field_name="Label")
         links_to = check_and_fix_collection_input(link_to, "hasLinkTo", res_id)
         link_vals = [LinkValue(value=x, prop_name="hasLinkTo", resource_id=res_id) for x in links_to]
         return LinkResource(
@@ -639,7 +643,6 @@ class LinkResource:
         return self
 
     def serialise(self) -> etree._Element:
-        self._check_for_and_convert_unexpected_input()
         res_ele = self._serialise_resource_element()
         res_ele.extend([c.serialise() for c in self.comments])
         if not self.comments:
@@ -650,10 +653,6 @@ class LinkResource:
             warnings.warn(DspToolsUserWarning(msg))
         res_ele.extend([lnk.serialise() for lnk in self.link_to])
         return res_ele
-
-    def _check_for_and_convert_unexpected_input(self) -> None:
-        _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
-        _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}
@@ -733,6 +732,9 @@ class VideoSegmentResource:
             )
             ```
         """
+        _check_strings(string_to_check=res_id, res_id=res_id, field_name="Resource ID")
+        _check_strings(string_to_check=label, res_id=res_id, field_name="Label")
+        _check_strings(string_to_check=segment_of, res_id=res_id, field_name="segment of")
         return VideoSegmentResource(
             res_id=res_id,
             label=label,
@@ -1119,6 +1121,9 @@ class AudioSegmentResource:
         Returns:
             An audio segment resource
         """
+        _check_strings(string_to_check=res_id, res_id=res_id, field_name="Resource ID")
+        _check_strings(string_to_check=label, res_id=res_id, field_name="Label")
+        _check_strings(string_to_check=segment_of, res_id=res_id, field_name="segment of")
         return AudioSegmentResource(
             res_id=res_id,
             label=label,

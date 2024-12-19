@@ -734,7 +734,7 @@ class VideoSegmentResource:
         """
         _check_strings(string_to_check=res_id, res_id=res_id, field_name="Resource ID")
         _check_strings(string_to_check=label, res_id=res_id, field_name="Label")
-        _check_strings(string_to_check=segment_of, res_id=res_id, field_name="segment of")
+        _check_strings(string_to_check=segment_of, res_id=res_id, field_name="isSegmentOf")
         return VideoSegmentResource(
             res_id=res_id,
             label=label,
@@ -1123,7 +1123,7 @@ class AudioSegmentResource:
         """
         _check_strings(string_to_check=res_id, res_id=res_id, field_name="Resource ID")
         _check_strings(string_to_check=label, res_id=res_id, field_name="Label")
-        _check_strings(string_to_check=segment_of, res_id=res_id, field_name="segment of")
+        _check_strings(string_to_check=segment_of, res_id=res_id, field_name="isSegmentOf")
         return AudioSegmentResource(
             res_id=res_id,
             label=label,

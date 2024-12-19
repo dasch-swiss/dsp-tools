@@ -918,7 +918,7 @@ def _rectify_hlist_of_properties(
 
         deduced_list_name = None
         for root_node in lists:
-            if prop["gui_attributes"]["hlist"] in root_node["labels"].comments():
+            if prop["gui_attributes"]["hlist"] in root_node["labels"].values():
                 deduced_list_name = cast(str, root_node["name"])
         if deduced_list_name:
             msg = (

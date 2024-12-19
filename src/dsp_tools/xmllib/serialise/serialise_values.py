@@ -42,17 +42,17 @@ PROP_TYPE_LOOKUP = {
 }
 
 
-def serialise_values(values: list[Value]) -> list[etree._Element]:
+def serialise_values(all_values: list[Value]) -> list[etree._Element]:
     """
     Serialise a list of values for a resource.
 
     Args:
-        values: List of Values
+        all_values: List of Values
 
     Returns:
         list of serialised values
     """
-    prop_groups, type_lookup = _group_properties(values)
+    prop_groups, type_lookup = _group_properties(all_values)
     serialised = []
     for prop_name, prop_values in prop_groups.items():
         prop_type = type_lookup[prop_name]
@@ -64,8 +64,7 @@ def serialise_values(values: list[Value]) -> list[etree._Element]:
             case "richtext":
                 serialised.append(_make_complete_richtext_prop(cast(list[Richtext], prop_values), prop_name))
             case _:
-                result = _make_complete_generic_prop(prop_values, prop_name, prop_type)
-                serialised.append(result)
+                serialised.append(_make_complete_generic_prop(prop_values, prop_name, prop_type))
     return serialised
 
 

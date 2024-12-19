@@ -22,6 +22,7 @@ from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
 from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import LinkValue
 from dsp_tools.xmllib.models.values import Richtext
+from dsp_tools.xmllib.models.values import Value
 from dsp_tools.xmllib.serialise.serialise_values import serialise_values
 from dsp_tools.xmllib.value_checkers import is_decimal
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
@@ -345,7 +346,7 @@ class RegionResource:
         res_ele.extend(self._serialise_geometry_shape())
         res_ele.extend(self._serialise_values())
         if self.comments:
-            res_ele.append(_serialise_has_comment(self.comments, self.res_id))
+            res_ele.extend(_serialise_has_comment(self.comments, self.res_id))
         return res_ele
 
     def _serialise_resource_element(self) -> etree._Element:
@@ -524,14 +525,14 @@ class LinkResource:
         self._check_for_and_convert_unexpected_input()
         res_ele = self._serialise_resource_element()
         if self.comments:
-            res_ele.append(_serialise_has_comment(self.comments, self.res_id))
+            res_ele.extend(_serialise_has_comment(self.comments, self.res_id))
         else:
             msg = (
                 f"The link object with the ID '{self.res_id}' does not have any comments. "
                 f"At least one comment must be provided, please note that an xmlupload will fail."
             )
             warnings.warn(DspToolsUserWarning(msg))
-        res_ele.append(self._serialise_links())
+        res_ele.extend(self._serialise_links())
         return res_ele
 
     def _check_for_and_convert_unexpected_input(self) -> None:
@@ -546,8 +547,8 @@ class LinkResource:
             attribs["permissions"] = self.permissions.value
         return etree.Element(f"{DASCH_SCHEMA}link", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
 
-    def _serialise_links(self) -> etree._Element:
-        vals = [LinkValue(value=x, prop_name="hasLinkTo", resource_id=self.res_id) for x in self.link_to]
+    def _serialise_links(self) -> list[etree._Element]:
+        vals: list[Value] = [LinkValue(value=x, prop_name="hasLinkTo", resource_id=self.res_id) for x in self.link_to]
         return serialise_values(vals)
 
 
@@ -1362,8 +1363,8 @@ def _check_strings(string_to_check: str, res_id: str, field_name: str) -> None:
         warnings.warn(DspToolsUserWarning(msg))
 
 
-def _serialise_has_comment(comments: list[str], res_id: str) -> etree._Element:
-    cmts = [Richtext(value=x, prop_name="hasComment", resource_id=res_id) for x in comments]
+def _serialise_has_comment(comments: list[str], res_id: str) -> list[etree._Element]:
+    cmts: list[Value] = [Richtext(value=x, prop_name="hasComment", resource_id=res_id) for x in comments]
     return serialise_values(cmts)
 
 

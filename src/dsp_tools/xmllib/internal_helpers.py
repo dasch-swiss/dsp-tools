@@ -29,12 +29,15 @@ def check_and_fix_collection_input(value: Any, res_id: str, prop_name: str) -> l
     As collections are expected to be non-empty a warning is emitted for the user.
 
     Args:
-        value:
-        res_id:
-        prop_name:
+        value: Input value
+        res_id: Resource ID
+        prop_name: Property name
 
     Returns:
+        The input as a list
 
+    Raises:
+        Input Error if the input is a dictionary
     """
     msg = f"The input value of the resource with the ID '{res_id}' and the property '{prop_name}' "
     match value:

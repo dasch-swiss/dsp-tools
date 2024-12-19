@@ -5,6 +5,7 @@ from collections.abc import Collection
 from dataclasses import dataclass
 from dataclasses import field
 from typing import Any
+from typing import cast
 
 from lxml import etree
 
@@ -12,6 +13,7 @@ from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
 from dsp_tools.xmllib.internal_helpers import create_richtext_with_checks
+from dsp_tools.xmllib.internal_helpers import serialise_values_of_the_same_property
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.geometry import Circle
@@ -24,6 +26,7 @@ from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
 from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import LinkValue
 from dsp_tools.xmllib.models.values import Richtext
+from dsp_tools.xmllib.models.values import Value
 from dsp_tools.xmllib.value_checkers import is_decimal
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_string_like
@@ -402,7 +405,7 @@ class RegionResource:
     def serialise(self) -> etree._Element:
         res_ele = self._serialise_resource_element()
         res_ele.extend(self._serialise_geometry_shape())
-        res_ele.extend([v.serialise() for v in self.values])
+        res_ele.append(serialise_values_of_the_same_property(cast(list[Value], self.comments)))
         return res_ele
 
     def _serialise_resource_element(self) -> etree._Element:
@@ -638,14 +641,14 @@ class LinkResource:
 
     def serialise(self) -> etree._Element:
         res_ele = self._serialise_resource_element()
-        res_ele.extend([c.serialise() for c in self.comments])
         if not self.comments:
             msg = (
                 f"The link object with the ID '{self.res_id}' does not have any comments. "
                 f"At least one comment must be provided, please note that an xmlupload will fail."
             )
             warnings.warn(DspToolsUserWarning(msg))
-        res_ele.extend([lnk.serialise() for lnk in self.link_to])
+        res_ele.append(serialise_values_of_the_same_property(cast(list[Value], self.comments)))
+        res_ele.append(serialise_values_of_the_same_property(cast(list[Value], self.link_to)))
         return res_ele
 
     def _serialise_resource_element(self) -> etree._Element:

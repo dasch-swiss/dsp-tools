@@ -97,7 +97,6 @@ class RegionResource:
         line_width: float = 2,
         color: str = "#5b24bf",
         active: bool = True,
-        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> RegionResource:
         """
         Add a rectangle shape to the region.
@@ -111,7 +110,6 @@ class RegionResource:
             color: A hexadecimal color value which starts with a `#` followed by 3 or 6 numerals.
                 The default value was chosen as it is distinguishable for most color-blind people.
             active: If set to `False`, the region is marked as 'deleted'
-            permissions: optional permissions of this value
 
         Returns:
             Region with added rectangle
@@ -150,7 +148,6 @@ class RegionResource:
         line_width: float = 2,
         color: str = "#5b24bf",
         active: bool = True,
-        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> RegionResource:
         """
         Add a polygon shape to the region.
@@ -167,7 +164,6 @@ class RegionResource:
             color: A hexadecimal color value which starts with a `#` followed by 3 or 6 numerals.
                 The default value was chosen as it is distinguishable for most color-blind people.
             active: If set to `False` the region is marked as 'deleted'
-            permissions: optional permissions of this value
 
         Returns:
             Region with added polygon
@@ -201,7 +197,6 @@ class RegionResource:
         line_width: float = 2,
         color: str = "#5b24bf",
         active: bool = True,
-        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> RegionResource:
         """
         Add a circle shape to the region.
@@ -218,7 +213,6 @@ class RegionResource:
             color: A hexadecimal color value which starts with a `#` followed by 3 or 6 numerals.
                 The default value was chosen as it is distinguishable for most color-blind people.
             active: If set to `False` the region is marked as 'deleted'
-            permissions: optional permissions of this value
 
         Returns:
             Region with added circle
@@ -280,7 +274,7 @@ class RegionResource:
 
         Args:
             comments: list of texts
-                    permissions: optional permissions of these values
+            permissions: optional permissions of these values
 
         Returns:
             The original region, with the added comments
@@ -1133,15 +1127,12 @@ class AudioSegmentResource:
             self.title = title
         return self
 
-    def add_comment(
-        self, comment: str, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
-    ) -> AudioSegmentResource:
+    def add_comment(self, comment: str) -> AudioSegmentResource:
         """
         Add a comment to the resource
 
         Args:
             comment: text
-            permissions: optional permissions of this value
 
         Returns:
             The original resource, with the added comment
@@ -1154,15 +1145,12 @@ class AudioSegmentResource:
         self.comments.append(comment)
         return self
 
-    def add_comment_multiple(
-        self, comments: Collection[str], permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
-    ) -> AudioSegmentResource:
+    def add_comment_multiple(self, comments: Collection[str]) -> AudioSegmentResource:
         """
         Add several comments to the resource
 
         Args:
             comments: list of texts
-            permissions: optional permissions of these values
 
         Returns:
             The original resource, with the added comments
@@ -1176,15 +1164,12 @@ class AudioSegmentResource:
         self.comments.extend(vals)
         return self
 
-    def add_comment_optional(
-        self, comment: Any, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
-    ) -> AudioSegmentResource:
+    def add_comment_optional(self, comment: Any) -> AudioSegmentResource:
         """
         If the value is not empty, add it as comment, otherwise return the resource unchanged.
 
         Args:
             comment: text or empty value
-            permissions: optional permissions of this value
 
         Returns:
             The original resource, with the added comment
@@ -1202,15 +1187,12 @@ class AudioSegmentResource:
             self.comments.append(comment)
         return self
 
-    def add_description(
-        self, description: str, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
-    ) -> AudioSegmentResource:
+    def add_description(self, description: str) -> AudioSegmentResource:
         """
         Add a description to the resource
 
         Args:
             description: text
-            permissions: optional permissions of this value
 
         Returns:
             The original resource, with the added description
@@ -1223,15 +1205,12 @@ class AudioSegmentResource:
         self.descriptions.append(description)
         return self
 
-    def add_description_multiple(
-        self, descriptions: Collection[str], permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
-    ) -> AudioSegmentResource:
+    def add_description_multiple(self, descriptions: Collection[str]) -> AudioSegmentResource:
         """
         Add several descriptions to the resource
 
         Args:
             descriptions: list of texts
-            permissions: optional permissions of these values
 
         Returns:
             The original resource, with the added descriptions
@@ -1245,15 +1224,12 @@ class AudioSegmentResource:
         self.descriptions.extend(vals)
         return self
 
-    def add_description_optional(
-        self, description: Any, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
-    ) -> AudioSegmentResource:
+    def add_description_optional(self, description: Any) -> AudioSegmentResource:
         """
         If the value is not empty, add it as description, otherwise return the resource unchanged.
 
         Args:
             description: text or empty value
-            permissions: optional permissions of this value
 
         Returns:
             The original resource, with the added description
@@ -1271,15 +1247,12 @@ class AudioSegmentResource:
             self.descriptions.append(description)
         return self
 
-    def add_keyword(
-        self, keyword: str, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
-    ) -> AudioSegmentResource:
+    def add_keyword(self, keyword: str) -> AudioSegmentResource:
         """
         Add a keyword to the resource
 
         Args:
             keyword: text
-            permissions: optional permissions of this value
 
         Returns:
             The original resource, with the added keyword
@@ -1292,15 +1265,12 @@ class AudioSegmentResource:
         self.keywords.append(keyword)
         return self
 
-    def add_keyword_multiple(
-        self, keywords: Collection[str], permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
-    ) -> AudioSegmentResource:
+    def add_keyword_multiple(self, keywords: Collection[str]) -> AudioSegmentResource:
         """
         Add several keywords to the resource
 
         Args:
             keywords: list of texts
-            permissions: optional permissions of these values
 
         Returns:
             The original resource, with the added keywords
@@ -1314,15 +1284,12 @@ class AudioSegmentResource:
         self.keywords.extend(vals)
         return self
 
-    def add_keyword_optional(
-        self, keyword: Any, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
-    ) -> AudioSegmentResource:
+    def add_keyword_optional(self, keyword: Any) -> AudioSegmentResource:
         """
         If the value is not empty, add it as keyword, otherwise return the resource unchanged.
 
         Args:
             keyword: text or empty value
-            permissions: optional permissions of this value
 
         Returns:
             The original resource, with the added keyword
@@ -1340,15 +1307,12 @@ class AudioSegmentResource:
             self.keywords.append(keyword)
         return self
 
-    def add_relates_to(
-        self, relates_to: str, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
-    ) -> AudioSegmentResource:
+    def add_relates_to(self, relates_to: str) -> AudioSegmentResource:
         """
         Add a link to a related resource
 
         Args:
             relates_to: ID of the related resource
-            permissions: optional permissions of this value
 
         Returns:
             The original resource, with the added related resource
@@ -1361,15 +1325,12 @@ class AudioSegmentResource:
         self.relates_to.append(relates_to)
         return self
 
-    def add_relates_to_multiple(
-        self, relates_to: Collection[str], permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
-    ) -> AudioSegmentResource:
+    def add_relates_to_multiple(self, relates_to: Collection[str]) -> AudioSegmentResource:
         """
         Add several links to related resources
 
         Args:
             relates_to: list of IDs of the related resources
-            permissions: optional permissions of these values
 
         Returns:
             The original resource, with the added related resources
@@ -1383,15 +1344,12 @@ class AudioSegmentResource:
         self.relates_to.extend(vals)
         return self
 
-    def add_relates_to_optional(
-        self, relates_to: Any, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
-    ) -> AudioSegmentResource:
+    def add_relates_to_optional(self, relates_to: Any) -> AudioSegmentResource:
         """
         If the value is not empty, add it as related resource, otherwise return the resource unchanged.
 
         Args:
             relates_to: ID of the related resource or empty value
-            permissions: optional permissions of this value
 
         Returns:
             The original resource, with the added related resources

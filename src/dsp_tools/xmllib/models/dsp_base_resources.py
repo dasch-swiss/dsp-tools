@@ -152,40 +152,40 @@ class RegionResource:
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
     ) -> RegionResource:
         """
-                Add a polygon shape to the region.
-                A polygon should have at least three points.
-                If you wish to create a rectangle, please use the designated `add_rectangle` method.
+        Add a polygon shape to the region.
+        A polygon should have at least three points.
+        If you wish to create a rectangle, please use the designated `add_rectangle` method.
 
-                [For a visual example see the XML documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geometry)
+        [For a visual example see the XML documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#geometry)
 
-                **Please note that this cannot currently be displayed in the dsp-app.**
+        **Please note that this cannot currently be displayed in the dsp-app.**
 
-                Args:
-                    points: list of tuples containing two numbers between 0 and 1 in the format (x, y)
-                    line_width: A number in pixels between 1 - 5
-                    color: A hexadecimal color value which starts with a `#` followed by 3 or 6 numerals.
-                        The default value was chosen as it is distinguishable for most color-blind people.
-                    active: If set to `False` the region is marked as 'deleted'
-        permissions: optional permissions of this value
+        Args:
+            points: list of tuples containing two numbers between 0 and 1 in the format (x, y)
+            line_width: A number in pixels between 1 - 5
+            color: A hexadecimal color value which starts with a `#` followed by 3 or 6 numerals.
+                The default value was chosen as it is distinguishable for most color-blind people.
+            active: If set to `False` the region is marked as 'deleted'
+            permissions: optional permissions of this value
 
-                Returns:
-                    Region with added polygon
+        Returns:
+            Region with added polygon
 
-                Examples:
-                    ```python
-                    region = region.add_polygon(
-                        points=[(0.1, 0.1), (0.2, 0.2), (0.3, 0.3)],
-                    )
-                    ```
+        Examples:
+            ```python
+            region = region.add_polygon(
+                points=[(0.1, 0.1), (0.2, 0.2), (0.3, 0.3)],
+            )
+            ```
 
-                    ```python
-                    # with custom display values
-                    region = region.add_polygon(
-                        points=[(0.1, 0.1), (0.2, 0.2), (0.3, 0.3)],
-                        line_width=3,
-                        color="#32a873",
-                    )
-                    ```
+            ```python
+            # with custom display values
+            region = region.add_polygon(
+                points=[(0.1, 0.1), (0.2, 0.2), (0.3, 0.3)],
+                line_width=3,
+                color="#32a873",
+            )
+            ```
         """
         geom_points = [GeometryPoint(val[0], val[1], self.res_id) for val in points]
         self.geometry = Polygon(

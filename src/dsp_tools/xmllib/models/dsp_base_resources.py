@@ -374,8 +374,8 @@ class RegionResource:
         ele.text = self.geometry.to_json_string()
         geo_prop.append(ele)
         prop_list.append(geo_prop)
-        prop_list.append(
-            ColorValue(value=self.geometry.color, prop_name="hasColor", resource_id=self.res_id).serialise(),
+        prop_list.extend(
+            serialise_values([ColorValue(value=self.geometry.color, prop_name="hasColor", resource_id=self.res_id)]),
         )
         return prop_list
 

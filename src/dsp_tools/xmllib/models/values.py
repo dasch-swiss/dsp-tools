@@ -1,18 +1,13 @@
 from __future__ import annotations
 
 import warnings
-from copy import deepcopy
 from dataclasses import dataclass
 from typing import Any
 from typing import Protocol
 
-from lxml import etree
-from namedentities.core import numeric_entities  # type: ignore[import-untyped]
-
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.uri_util import is_uri
-from dsp_tools.xmllib.helpers import escape_reserved_xml_characters
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.value_checkers import check_richtext_syntax
 from dsp_tools.xmllib.value_checkers import is_color
@@ -68,24 +63,6 @@ class ColorValue(Value):
             _warn_type_mismatch(
                 expected_type="color", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
-
-    def serialise(self) -> etree._Element:
-        ele = self.make_prop()
-        ele.append(self.make_element())
-        return ele
-
-    def make_prop(self) -> etree._Element:
-        return etree.Element(f"{DASCH_SCHEMA}color-prop", name=self.prop_name, nsmap=XML_NAMESPACE_MAP)
-
-    def make_element(self) -> etree._Element:
-        attribs = {}
-        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
-            attribs["permissions"] = self.permissions.value
-        if is_string_like(self.comment):
-            attribs["comment"] = str(self.comment)
-        ele = etree.Element(f"{DASCH_SCHEMA}color", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
-        ele.text = str(self.value)
-        return ele
 
 
 @dataclass
@@ -162,24 +139,6 @@ class LinkValue(Value):
                 expected_type="string", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
 
-    def serialise(self) -> etree._Element:
-        ele = self.make_prop()
-        ele.append(self.make_element())
-        return ele
-
-    def make_prop(self) -> etree._Element:
-        return etree.Element(f"{DASCH_SCHEMA}resptr-prop", name=self.prop_name, nsmap=XML_NAMESPACE_MAP)
-
-    def make_element(self) -> etree._Element:
-        attribs = {}
-        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
-            attribs["permissions"] = self.permissions.value
-        if is_string_like(self.comment):
-            attribs["comment"] = str(self.comment)
-        ele = etree.Element(f"{DASCH_SCHEMA}resptr", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
-        ele.text = str(self.value)
-        return ele
-
 
 @dataclass
 class ListValue(Value):
@@ -226,43 +185,6 @@ class Richtext(Value):
                 expected_type="string", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
         check_richtext_syntax(self.value)
-
-    def serialise(self) -> etree._Element:
-        ele = self.make_prop()
-        ele.append(self.make_element())
-        return ele
-
-    def make_prop(self) -> etree._Element:
-        return etree.Element(f"{DASCH_SCHEMA}text-prop", name=self.prop_name, nsmap=XML_NAMESPACE_MAP)
-
-    def make_element(self) -> etree._Element:
-        attribs = {"encoding": "xml"}
-        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
-            attribs["permissions"] = self.permissions.value
-        if is_string_like(self.comment):
-            attribs["comment"] = str(self.comment)
-        ele = etree.Element(f"{DASCH_SCHEMA}text", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
-        return self._create_richtext_elements_from_string(ele)
-
-    def _create_richtext_elements_from_string(self, text_element: etree._Element) -> etree._Element:
-        new_element = deepcopy(text_element)
-        escaped_text = escape_reserved_xml_characters(self.value)
-        # transform named entities (=character references) to numeric entities, e.g. &nbsp; -> &#160;
-        num_ent = numeric_entities(escaped_text)
-        pseudo_xml = f"<ignore-this>{num_ent}</ignore-this>"
-        try:
-            parsed = etree.fromstring(pseudo_xml)
-        except etree.XMLSyntaxError as err:
-            msg = (
-                f"The resource with the ID '{self.resource_id}' and the property '{self.prop_name}' "
-                f"contains richtext that is invalid XMl."
-            )
-            msg += f"\nOriginal error message: {err.msg}"
-            msg += f"\nEventual line/column numbers are relative to this text: {pseudo_xml}"
-            raise InputError(msg) from None
-        new_element.text = parsed.text  # everything before the first child tag
-        new_element.extend(list(parsed))  # all (nested) children of the pseudo-xml
-        return new_element
 
 
 @dataclass

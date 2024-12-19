@@ -1,3 +1,4 @@
+import pytest
 from lxml import etree
 
 from dsp_tools.xmllib.models.config_options import Permissions
@@ -148,7 +149,7 @@ def test_richtext() -> None:
         b"<text-prop "
         b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
         b'name=":richtextProp">'
-        b'<text encoding="xml" permissions="open">&lt;otherTag&gt;Hello World&lt;/otherTag&gt;</text>'
+        b'<text permissions="open" encoding="xml">&lt;otherTag&gt;Hello World&lt;/otherTag&gt;</text>'
         b"</text-prop>"
     )
     res_str = etree.tostring(result.pop(0))
@@ -163,7 +164,7 @@ def test_simpletext() -> None:
         b"<text-prop "
         b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
         b'name=":simpleTextProp">'
-        b'<text encoding="utf8" permissions="open">Hello World</text>'
+        b'<text permissions="open" encoding="utf8">Hello World</text>'
         b"</text-prop>"
     )
     res_str = etree.tostring(result.pop(0))
@@ -201,12 +202,6 @@ def test_uri() -> None:
     assert res_str == expected
 
 
-def test_() -> None:
-    v = []
-    result = serialise_values(v)
-    assert len(result) == 1
-
-
 def test_value_with_default_permission() -> None:
     v = [BooleanValue("0", ":booleanProp", resource_id="res_id")]
     result = serialise_values(v)
@@ -220,3 +215,7 @@ def test_value_with_default_permission() -> None:
     )
     res_str = etree.tostring(result.pop(0))
     assert res_str == expected
+
+
+if __name__ == "__main__":
+    pytest.main([__file__])

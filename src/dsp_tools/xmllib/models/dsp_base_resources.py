@@ -391,12 +391,11 @@ class RegionResource:
         return self
 
     def serialise(self) -> etree._Element:
-        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
         res_ele = self._serialise_resource_element()
         res_ele.extend(self._serialise_geometry_shape())
         res_ele.extend(self._serialise_values())
-        if self.comments:
-            res_ele.append(_serialise_has_comment(self.comments, self.res_id))
+        for cmnt in self.comments:
+            res_ele.append(cmnt.serialise())
         return res_ele
 
     def _serialise_resource_element(self) -> etree._Element:
@@ -624,14 +623,13 @@ class LinkResource:
     def serialise(self) -> etree._Element:
         self._check_for_and_convert_unexpected_input()
         res_ele = self._serialise_resource_element()
-        if self.comments:
-            res_ele.append(_serialise_has_comment(self.comments, self.res_id))
-        else:
-            msg = (
-                f"The link object with the ID '{self.res_id}' does not have any comments. "
-                f"At least one comment must be provided, please note that an xmlupload will fail."
-            )
-            warnings.warn(DspToolsUserWarning(msg))
+        for cmnt in self.comments:
+            res_ele.append(cmnt.serialise())
+        msg = (
+            f"The link object with the ID '{self.res_id}' does not have any comments. "
+            f"At least one comment must be provided, please note that an xmlupload will fail."
+        )
+        warnings.warn(DspToolsUserWarning(msg))
         res_ele.append(self._serialise_links())
         return res_ele
 
@@ -1472,13 +1470,6 @@ def _check_strings(string_to_check: str, res_id: str, field_name: str) -> None:
             f"Field: {field_name} | Value: {string_to_check}"
         )
         warnings.warn(DspToolsUserWarning(msg))
-
-
-def _serialise_has_comment(comments: list[str], res_id: str) -> etree._Element:
-    cmts = [Richtext(value=x, prop_name="hasComment", resource_id=res_id) for x in comments]
-    cmt_prop = cmts[0].make_prop()
-    cmt_prop.extend([cmt.make_element() for cmt in cmts])
-    return cmt_prop
 
 
 def _validate_segment(segment: AudioSegmentResource | VideoSegmentResource) -> None:

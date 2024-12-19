@@ -254,19 +254,19 @@ class RegionResource:
         self, comment: str, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> RegionResource:
         """
-                Add a comment to the region
+        Add a comment to the region
 
-                Args:
-                    comment: text
-        permissions: optional permissions of this value
+        Args:
+            comment: text
+            permissions: optional permissions of this value
 
-                Returns:
-                    The original region, with the added comment
+        Returns:
+            The original region, with the added comment
 
-                Examples:
-                    ```python
-                    region = region.add_comment("comment text")
-                    ```
+        Examples:
+            ```python
+            region = region.add_comment("comment text")
+            ```
         """
         self.comments.append(comment)
         return self
@@ -275,19 +275,19 @@ class RegionResource:
         self, comments: Collection[str], permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> RegionResource:
         """
-                Add several comments to the region
+        Add several comments to the region
 
-                Args:
-                    comments: list of texts
-        permissions: optional permissions of these values
+        Args:
+            comments: list of texts
+                    permissions: optional permissions of these values
 
-                Returns:
-                    The original region, with the added comments
+        Returns:
+            The original region, with the added comments
 
-                Examples:
-                    ```python
-                    region = region.add_comment_multiple(["comment 1", "comment 2"])
-                    ```
+        Examples:
+            ```python
+            region = region.add_comment_multiple(["comment 1", "comment 2"])
+            ```
         """
         self.comments.extend(comments)
         return self
@@ -296,23 +296,23 @@ class RegionResource:
         self, comment: Any, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> RegionResource:
         """
-                If the value is not empty, add it as comment, otherwise return the region unchanged.
+        If the value is not empty, add it as comment, otherwise return the region unchanged.
 
-                Args:
-                    comment: text or empty value
-        permissions: optional permissions of this value
+        Args:
+            comment: text or empty value
+            permissions: optional permissions of this value
 
-                Returns:
-                    The original region, with the added comment
+        Returns:
+            The original region, with the added comment
 
-                Examples:
-                    ```python
-                    region = region.add_comment_optional("comment text")
-                    ```
+        Examples:
+            ```python
+            region = region.add_comment_optional("comment text")
+            ```
 
-                    ```python
-                    region = region.add_comment_optional(None)
-                    ```
+            ```python
+            region = region.add_comment_optional(None)
+            ```
         """
         if is_nonempty_value(comment):
             self.comments.append(comment)
@@ -443,19 +443,19 @@ class LinkResource:
         self, comment: str, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> LinkResource:
         """
-                Add a comment to the resource
+        Add a comment to the resource
 
-                Args:
-                    comment: text
-        permissions: optional permissions of this value
+        Args:
+            comment: text
+            permissions: optional permissions of this value
 
-                Returns:
-                    The original resource, with the added comment
+        Returns:
+            The original resource, with the added comment
 
-                Examples:
-                    ```python
-                    link_resource = link_resource.add_comment("comment text")
-                    ```
+        Examples:
+            ```python
+            link_resource = link_resource.add_comment("comment text")
+            ```
         """
         self.comments.append(comment)
         return self
@@ -464,19 +464,19 @@ class LinkResource:
         self, comments: Collection[str], permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> LinkResource:
         """
-                Add several comments to the resource
+        Add several comments to the resource
 
-                Args:
-                    comments: list of texts
-        permissions: optional permissions of these values
+        Args:
+            comments: list of texts
+            permissions: optional permissions of these values
 
-                Returns:
-                    The original resource, with the added comments
+        Returns:
+            The original resource, with the added comments
 
-                Examples:
-                    ```python
-                    link_resource = link_resource.add_comment_multiple(["comment 1", "comment 2"])
-                    ```
+        Examples:
+            ```python
+            link_resource = link_resource.add_comment_multiple(["comment 1", "comment 2"])
+            ```
         """
         self.comments.extend(comments)
         return self
@@ -485,23 +485,23 @@ class LinkResource:
         self, comment: Any, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> LinkResource:
         """
-                If the value is not empty, add it as comment, otherwise return the resource unchanged.
+        If the value is not empty, add it as comment, otherwise return the resource unchanged.
 
-                Args:
-                    comment: text or empty value
-        permissions: optional permissions of this value
+        Args:
+            comment: text or empty value
+            permissions: optional permissions of this value
 
-                Returns:
-                    The original resource, with the added comment
+        Returns:
+            The original resource, with the added comment
 
-                Examples:
-                    ```python
-                    link_resource = link_resource.add_comment_optional("comment text")
-                    ```
+        Examples:
+            ```python
+            link_resource = link_resource.add_comment_optional("comment text")
+            ```
 
-                    ```python
-                    link_resource = link_resource.add_comment_optional(None)
-                    ```
+            ```python
+            link_resource = link_resource.add_comment_optional(None)
+            ```
         """
         if is_nonempty_value(comment):
             self.comments.append(comment)
@@ -656,19 +656,19 @@ class VideoSegmentResource:
         self, title: str, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> VideoSegmentResource:
         """
-                Add a title to the resource.
+        Add a title to the resource.
 
-                Args:
-                    title: text
-        permissions: optional permissions of this value
+        Args:
+            title: text
+            permissions: optional permissions of this value
 
-                Returns:
-                    The original resource, with the added title
+        Returns:
+            The original resource, with the added title
 
-                Examples:
-                    ```python
-                    video_segment = video_segment.add_title("segment title")
-                    ```
+        Examples:
+            ```python
+            video_segment = video_segment.add_title("segment title")
+            ```
         """
         if self.title:
             _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
@@ -679,23 +679,23 @@ class VideoSegmentResource:
         self, title: Any, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> VideoSegmentResource:
         """
-                If the value is not empty, add it as title, otherwise return the resource unchanged.
+        If the value is not empty, add it as title, otherwise return the resource unchanged.
 
-                Args:
-                    title: text or empty value
-        permissions: optional permissions of this value
+        Args:
+            title: text or empty value
+            permissions: optional permissions of this value
 
-                Returns:
-                    The original resource, with the added title
+        Returns:
+            The original resource, with the added title
 
-                Examples:
-                    ```python
-                    video_segment = video_segment.add_title("segment title")
-                    ```
+        Examples:
+            ```python
+            video_segment = video_segment.add_title("segment title")
+            ```
 
-                    ```python
-                    video_segment = video_segment.add_title(None)
-                    ```
+            ```python
+            video_segment = video_segment.add_title(None)
+            ```
         """
         if is_nonempty_value(title):
             if self.title:
@@ -707,19 +707,19 @@ class VideoSegmentResource:
         self, comment: str, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> VideoSegmentResource:
         """
-                Add a comment to the resource
+        Add a comment to the resource
 
-                Args:
-                    comment: text
-        permissions: optional permissions of this value
+        Args:
+            comment: text
+            permissions: optional permissions of this value
 
-                Returns:
-                    The original resource, with the added comment
+        Returns:
+            The original resource, with the added comment
 
-                Examples:
-                    ```python
-                    video_segment = video_segment.add_comment("comment text")
-                    ```
+        Examples:
+            ```python
+            video_segment = video_segment.add_comment("comment text")
+            ```
         """
         self.comments.append(comment)
         return self
@@ -728,19 +728,19 @@ class VideoSegmentResource:
         self, comments: Collection[str], permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> VideoSegmentResource:
         """
-                Add several comments to the resource
+        Add several comments to the resource
 
-                Args:
-                    comments: list of texts
-        permissions: optional permissions of this value
+        Args:
+            comments: list of texts
+            permissions: optional permissions of this value
 
-                Returns:
-                    The original resource, with the added comments
+        Returns:
+            The original resource, with the added comments
 
-                Examples:
-                    ```python
-                    video_segment = video_segment.add_comment_multiple(["comment 1", "comment 2"])
-                    ```
+        Examples:
+            ```python
+            video_segment = video_segment.add_comment_multiple(["comment 1", "comment 2"])
+            ```
         """
         self.comments.extend(comments)
         return self
@@ -749,23 +749,23 @@ class VideoSegmentResource:
         self, comment: Any, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> VideoSegmentResource:
         """
-                If the value is not empty, add it as comment, otherwise return the resource unchanged.
+        If the value is not empty, add it as comment, otherwise return the resource unchanged.
 
-                Args:
-                    comment: text or empty value
-        permissions: optional permissions of this value
+        Args:
+            comment: text or empty value
+            permissions: optional permissions of this value
 
-                Returns:
-                    The original resource, with the added comment
+        Returns:
+            The original resource, with the added comment
 
-                Examples:
-                    ```python
-                    video_segment = video_segment.add_comment_optional("comment text")
-                    ```
+        Examples:
+            ```python
+            video_segment = video_segment.add_comment_optional("comment text")
+            ```
 
-                    ```python
-                    video_segment = video_segment.add_comment_optional(None)
-                    ```
+            ```python
+            video_segment = video_segment.add_comment_optional(None)
+            ```
         """
         if is_nonempty_value(comment):
             self.comments.append(comment)
@@ -775,19 +775,19 @@ class VideoSegmentResource:
         self, description: str, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> VideoSegmentResource:
         """
-                Add a description to the resource
+        Add a description to the resource
 
-                Args:
-                    description: text
-        permissions: optional permissions of this value
+        Args:
+            description: text
+            permissions: optional permissions of this value
 
-                Returns:
-                    The original resource, with the added description
+        Returns:
+            The original resource, with the added description
 
-                Examples:
-                    ```python
-                    video_segment = video_segment.add_description("description text")
-                    ```
+        Examples:
+            ```python
+            video_segment = video_segment.add_description("description text")
+            ```
         """
         self.descriptions.append(description)
         return self
@@ -796,19 +796,19 @@ class VideoSegmentResource:
         self, descriptions: Collection[str], permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> VideoSegmentResource:
         """
-                Add several descriptions to the resource
+        Add several descriptions to the resource
 
-                Args:
-                    descriptions: list of texts
-        permissions: optional permissions of these values
+        Args:
+            descriptions: list of texts
+            permissions: optional permissions of these values
 
-                Returns:
-                    The original resource, with the added descriptions
+        Returns:
+            The original resource, with the added descriptions
 
-                Examples:
-                    ```python
-                    video_segment = video_segment.add_description_multiple(["description 1", "description 2"])
-                    ```
+        Examples:
+            ```python
+            video_segment = video_segment.add_description_multiple(["description 1", "description 2"])
+            ```
         """
         self.descriptions.extend(descriptions)
         return self
@@ -817,23 +817,23 @@ class VideoSegmentResource:
         self, description: Any, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> VideoSegmentResource:
         """
-                If the value is not empty, add it as description, otherwise return the resource unchanged.
+        If the value is not empty, add it as description, otherwise return the resource unchanged.
 
-                Args:
-                    description: text or empty value
-        permissions: optional permissions of this value
+        Args:
+            description: text or empty value
+            permissions: optional permissions of this value
 
-                Returns:
-                    The original resource, with the added description
+        Returns:
+            The original resource, with the added description
 
-                Examples:
-                    ```python
-                    video_segment = video_segment.add_description_optional("description text")
-                    ```
+        Examples:
+            ```python
+            video_segment = video_segment.add_description_optional("description text")
+            ```
 
-                    ```python
-                    video_segment = video_segment.add_description_optional(None)
-                    ```
+            ```python
+            video_segment = video_segment.add_description_optional(None)
+            ```
         """
         if is_nonempty_value(description):
             self.descriptions.append(description)
@@ -843,19 +843,19 @@ class VideoSegmentResource:
         self, keyword: str, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> VideoSegmentResource:
         """
-                Add a keyword to the resource
+        Add a keyword to the resource
 
-                Args:
-                    keyword: text
-        permissions: optional permissions of this value
+        Args:
+            keyword: text
+            permissions: optional permissions of this value
 
-                Returns:
-                    The original resource, with the added keyword
+        Returns:
+            The original resource, with the added keyword
 
-                Examples:
-                    ```python
-                    video_segment = video_segment.add_keyword("keyword")
-                    ```
+        Examples:
+            ```python
+            video_segment = video_segment.add_keyword("keyword")
+            ```
         """
         self.keywords.append(keyword)
         return self
@@ -864,19 +864,19 @@ class VideoSegmentResource:
         self, keywords: Collection[str], permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> VideoSegmentResource:
         """
-                Add several keywords to the resource
+        Add several keywords to the resource
 
-                Args:
-                    keywords: list of texts
-        permissions: optional permissions of this value
+        Args:
+            keywords: list of texts
+            permissions: optional permissions of this value
 
-                Returns:
-                    The original resource, with the added keywords
+        Returns:
+            The original resource, with the added keywords
 
-                Examples:
-                    ```python
-                    video_segment = video_segment.add_keyword_multiple(["keyword 1", "keyword 2"])
-                    ```
+        Examples:
+            ```python
+            video_segment = video_segment.add_keyword_multiple(["keyword 1", "keyword 2"])
+            ```
         """
         self.keywords.extend(keywords)
         return self
@@ -885,23 +885,23 @@ class VideoSegmentResource:
         self, keyword: Any, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> VideoSegmentResource:
         """
-                If the value is not empty, add it as keyword, otherwise return the resource unchanged.
+        If the value is not empty, add it as keyword, otherwise return the resource unchanged.
 
-                Args:
-                    keyword: text or empty value
-        permissions: optional permissions of this value
+        Args:
+            keyword: text or empty value
+            permissions: optional permissions of this value
 
-                Returns:
-                    The original resource, with the added keyword
+        Returns:
+            The original resource, with the added keyword
 
-                Examples:
-                    ```python
-                    video_segment = video_segment.add_keyword_optional("keyword")
-                    ```
+        Examples:
+            ```python
+            video_segment = video_segment.add_keyword_optional("keyword")
+            ```
 
-                    ```python
-                    video_segment = video_segment.add_keyword_optional(None)
-                    ```
+            ```python
+            video_segment = video_segment.add_keyword_optional(None)
+            ```
         """
         if is_nonempty_value(keyword):
             self.keywords.append(keyword)
@@ -911,19 +911,19 @@ class VideoSegmentResource:
         self, relates_to: str, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> VideoSegmentResource:
         """
-                Add a link to a related resource
+        Add a link to a related resource
 
-                Args:
-                    relates_to: ID of the related resource
-        permissions: optional permissions of this value
+        Args:
+            relates_to: ID of the related resource
+            permissions: optional permissions of this value
 
-                Returns:
-                    The original resource, with the added related resource
+        Returns:
+            The original resource, with the added related resource
 
-                Examples:
-                    ```python
-                    video_segment = video_segment.add_relates_to("target_resource_id")
-                    ```
+        Examples:
+            ```python
+            video_segment = video_segment.add_relates_to("target_resource_id")
+            ```
         """
         self.relates_to.append(relates_to)
         return self
@@ -932,19 +932,19 @@ class VideoSegmentResource:
         self, relates_to: Collection[str], permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> VideoSegmentResource:
         """
-                Add several links to related resources
+        Add several links to related resources
 
-                Args:
-                    relates_to: list of IDs of the related resources
-        permissions: optional permissions of these values
+        Args:
+            relates_to: list of IDs of the related resources
+            permissions: optional permissions of these values
 
-                Returns:
-                    The original resource, with the added related resources
+        Returns:
+            The original resource, with the added related resources
 
-                Examples:
-                    ```python
-                    video_segment = video_segment.add_relates_to_multiple(["target_resource_id_1", "target_resource_id_2"])
-                    ```
+        Examples:
+            ```python
+            video_segment = video_segment.add_relates_to_multiple(["target_resource_id_1", "target_resource_id_2"])
+            ```
         """
         self.relates_to.extend(relates_to)
         return self
@@ -953,23 +953,23 @@ class VideoSegmentResource:
         self, relates_to: Any, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> VideoSegmentResource:
         """
-                If the value is not empty, add it as related resource, otherwise return the resource unchanged.
+        If the value is not empty, add it as related resource, otherwise return the resource unchanged.
 
-                Args:
-                    relates_to: ID or the related resource or empty value
-        permissions: optional permissions of this value
+        Args:
+            relates_to: ID or the related resource or empty value
+            permissions: optional permissions of this value
 
-                Returns:
-                    The original resource, with the added related resources
+        Returns:
+            The original resource, with the added related resources
 
-                Examples:
-                    ```python
-                    video_segment = video_segment.add_relates_to_optional("target_resource_id")
-                    ```
+        Examples:
+            ```python
+            video_segment = video_segment.add_relates_to_optional("target_resource_id")
+            ```
 
-                    ```python
-                    video_segment = video_segment.add_relates_to_optional(None)
-                    ```
+            ```python
+            video_segment = video_segment.add_relates_to_optional(None)
+            ```
         """
         if is_nonempty_value(relates_to):
             self.relates_to.append(relates_to)
@@ -1079,19 +1079,19 @@ class AudioSegmentResource:
         self, title: str, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> AudioSegmentResource:
         """
-                Add a title to the resource.
+        Add a title to the resource.
 
-                Args:
-                    title: text
-        permissions: optional permissions of this value
+        Args:
+            title: text
+            permissions: optional permissions of this value
 
-                Returns:
-                    The original resource, with the added title
+        Returns:
+            The original resource, with the added title
 
-                Examples:
-                    ```python
-                    audio_segment = audio_segment.add_title("segment title")
-                    ```
+        Examples:
+            ```python
+            audio_segment = audio_segment.add_title("segment title")
+            ```
         """
         if self.title:
             _warn_value_exists(old_value=self.title, new_value=title, value_field="title", res_id=self.res_id)
@@ -1102,23 +1102,23 @@ class AudioSegmentResource:
         self, title: Any, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> AudioSegmentResource:
         """
-                If the value is not empty, add it as title, otherwise return the resource unchanged.
+        If the value is not empty, add it as title, otherwise return the resource unchanged.
 
-                Args:
-                    title: text or empty value
-        permissions: optional permissions of this value
+        Args:
+            title: text or empty value
+            permissions: optional permissions of this value
 
-                Returns:
-                    The original resource, with the added title
+        Returns:
+            The original resource, with the added title
 
-                Examples:
-                    ```python
-                    audio_segment = audio_segment.add_title("segment title")
-                    ```
+        Examples:
+            ```python
+            audio_segment = audio_segment.add_title("segment title")
+            ```
 
-                    ```python
-                    audio_segment = audio_segment.add_title(None)
-                    ```
+            ```python
+            audio_segment = audio_segment.add_title(None)
+            ```
         """
         if is_nonempty_value(title):
             if self.title:
@@ -1130,19 +1130,19 @@ class AudioSegmentResource:
         self, comment: str, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> AudioSegmentResource:
         """
-                Add a comment to the resource
+        Add a comment to the resource
 
-                Args:
-                    comment: text
-        permissions: optional permissions of this value
+        Args:
+            comment: text
+            permissions: optional permissions of this value
 
-                Returns:
-                    The original resource, with the added comment
+        Returns:
+            The original resource, with the added comment
 
-                Examples:
-                    ```python
-                    audio_segment = audio_segment.add_comment("comment text")
-                    ```
+        Examples:
+            ```python
+            audio_segment = audio_segment.add_comment("comment text")
+            ```
         """
         self.comments.append(comment)
         return self
@@ -1151,19 +1151,19 @@ class AudioSegmentResource:
         self, comments: Collection[str], permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> AudioSegmentResource:
         """
-                Add several comments to the resource
+        Add several comments to the resource
 
-                Args:
-                    comments: list of texts
-        permissions: optional permissions of these values
+        Args:
+            comments: list of texts
+            permissions: optional permissions of these values
 
-                Returns:
-                    The original resource, with the added comments
+        Returns:
+            The original resource, with the added comments
 
-                Examples:
-                    ```python
-                    audio_segment = audio_segment.add_comment_multiple(["comment 1", "comment 2"])
-                    ```
+        Examples:
+            ```python
+            audio_segment = audio_segment.add_comment_multiple(["comment 1", "comment 2"])
+            ```
         """
         self.comments.extend(comments)
         return self
@@ -1172,23 +1172,23 @@ class AudioSegmentResource:
         self, comment: Any, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> AudioSegmentResource:
         """
-                If the value is not empty, add it as comment, otherwise return the resource unchanged.
+        If the value is not empty, add it as comment, otherwise return the resource unchanged.
 
-                Args:
-                    comment: text or empty value
-        permissions: optional permissions of this value
+        Args:
+            comment: text or empty value
+            permissions: optional permissions of this value
 
-                Returns:
-                    The original resource, with the added comment
+        Returns:
+            The original resource, with the added comment
 
-                Examples:
-                    ```python
-                    audio_segment = audio_segment.add_comment_optional("comment text")
-                    ```
+        Examples:
+            ```python
+            audio_segment = audio_segment.add_comment_optional("comment text")
+            ```
 
-                    ```python
-                    audio_segment = audio_segment.add_comment_optional(None)
-                    ```
+            ```python
+            audio_segment = audio_segment.add_comment_optional(None)
+            ```
         """
         if is_nonempty_value(comment):
             self.comments.append(comment)
@@ -1198,19 +1198,19 @@ class AudioSegmentResource:
         self, description: str, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> AudioSegmentResource:
         """
-                Add a description to the resource
+        Add a description to the resource
 
-                Args:
-                    description: text
-        permissions: optional permissions of this value
+        Args:
+            description: text
+            permissions: optional permissions of this value
 
-                Returns:
-                    The original resource, with the added description
+        Returns:
+            The original resource, with the added description
 
-                Examples:
-                    ```python
-                    audio_segment = audio_segment.add_description("description text")
-                    ```
+        Examples:
+            ```python
+            audio_segment = audio_segment.add_description("description text")
+            ```
         """
         self.descriptions.append(description)
         return self
@@ -1219,19 +1219,19 @@ class AudioSegmentResource:
         self, descriptions: Collection[str], permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> AudioSegmentResource:
         """
-                Add several descriptions to the resource
+        Add several descriptions to the resource
 
-                Args:
-                    descriptions: list of texts
-        permissions: optional permissions of these values
+        Args:
+            descriptions: list of texts
+            permissions: optional permissions of these values
 
-                Returns:
-                    The original resource, with the added descriptions
+        Returns:
+            The original resource, with the added descriptions
 
-                Examples:
-                    ```python
-                    audio_segment = audio_segment.add_description_multiple(["description 1", "description 2"])
-                    ```
+        Examples:
+            ```python
+            audio_segment = audio_segment.add_description_multiple(["description 1", "description 2"])
+            ```
         """
         self.descriptions.extend(descriptions)
         return self
@@ -1240,23 +1240,23 @@ class AudioSegmentResource:
         self, description: Any, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> AudioSegmentResource:
         """
-                If the value is not empty, add it as description, otherwise return the resource unchanged.
+        If the value is not empty, add it as description, otherwise return the resource unchanged.
 
-                Args:
-                    description: text or empty value
-        permissions: optional permissions of this value
+        Args:
+            description: text or empty value
+            permissions: optional permissions of this value
 
-                Returns:
-                    The original resource, with the added description
+        Returns:
+            The original resource, with the added description
 
-                Examples:
-                    ```python
-                    audio_segment = audio_segment.add_description_optional("description text")
-                    ```
+        Examples:
+            ```python
+            audio_segment = audio_segment.add_description_optional("description text")
+            ```
 
-                    ```python
-                    audio_segment = audio_segment.add_description_optional(None)
-                    ```
+            ```python
+            audio_segment = audio_segment.add_description_optional(None)
+            ```
         """
         if is_nonempty_value(description):
             self.descriptions.append(description)
@@ -1266,19 +1266,19 @@ class AudioSegmentResource:
         self, keyword: str, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> AudioSegmentResource:
         """
-                Add a keyword to the resource
+        Add a keyword to the resource
 
-                Args:
-                    keyword: text
-        permissions: optional permissions of this value
+        Args:
+            keyword: text
+            permissions: optional permissions of this value
 
-                Returns:
-                    The original resource, with the added keyword
+        Returns:
+            The original resource, with the added keyword
 
-                Examples:
-                    ```python
-                    audio_segment = audio_segment.add_keyword("keyword")
-                    ```
+        Examples:
+            ```python
+            audio_segment = audio_segment.add_keyword("keyword")
+            ```
         """
         self.keywords.append(keyword)
         return self
@@ -1287,19 +1287,19 @@ class AudioSegmentResource:
         self, keywords: Collection[str], permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> AudioSegmentResource:
         """
-                Add several keywords to the resource
+        Add several keywords to the resource
 
-                Args:
-                    keywords: list of texts
-        permissions: optional permissions of these values
+        Args:
+            keywords: list of texts
+            permissions: optional permissions of these values
 
-                Returns:
-                    The original resource, with the added keywords
+        Returns:
+            The original resource, with the added keywords
 
-                Examples:
-                    ```python
-                    audio_segment = audio_segment.add_keyword_multiple(["keyword 1", "keyword 2"])
-                    ```
+        Examples:
+            ```python
+            audio_segment = audio_segment.add_keyword_multiple(["keyword 1", "keyword 2"])
+            ```
         """
         self.keywords.extend(keywords)
         return self
@@ -1308,23 +1308,23 @@ class AudioSegmentResource:
         self, keyword: Any, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> AudioSegmentResource:
         """
-                If the value is not empty, add it as keyword, otherwise return the resource unchanged.
+        If the value is not empty, add it as keyword, otherwise return the resource unchanged.
 
-                Args:
-                    keyword: text or empty value
-        permissions: optional permissions of this value
+        Args:
+            keyword: text or empty value
+            permissions: optional permissions of this value
 
-                Returns:
-                    The original resource, with the added keyword
+        Returns:
+            The original resource, with the added keyword
 
-                Examples:
-                    ```python
-                    audio_segment = audio_segment.add_keyword_optional("keyword")
-                    ```
+        Examples:
+            ```python
+            audio_segment = audio_segment.add_keyword_optional("keyword")
+            ```
 
-                    ```python
-                    audio_segment = audio_segment.add_keyword_optional(None)
-                    ```
+            ```python
+            audio_segment = audio_segment.add_keyword_optional(None)
+            ```
         """
         if is_nonempty_value(keyword):
             self.keywords.append(keyword)
@@ -1334,19 +1334,19 @@ class AudioSegmentResource:
         self, relates_to: str, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> AudioSegmentResource:
         """
-                Add a link to a related resource
+        Add a link to a related resource
 
-                Args:
-                    relates_to: ID of the related resource
-        permissions: optional permissions of this value
+        Args:
+            relates_to: ID of the related resource
+            permissions: optional permissions of this value
 
-                Returns:
-                    The original resource, with the added related resource
+        Returns:
+            The original resource, with the added related resource
 
-                Examples:
-                    ```python
-                    audio_segment = audio_segment.add_relates_to("target_resource_id")
-                    ```
+        Examples:
+            ```python
+            audio_segment = audio_segment.add_relates_to("target_resource_id")
+            ```
         """
         self.relates_to.append(relates_to)
         return self
@@ -1355,19 +1355,19 @@ class AudioSegmentResource:
         self, relates_to: Collection[str], permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> AudioSegmentResource:
         """
-                Add several links to related resources
+        Add several links to related resources
 
-                Args:
-                    relates_to: list of IDs of the related resources
-        permissions: optional permissions of these values
+        Args:
+            relates_to: list of IDs of the related resources
+            permissions: optional permissions of these values
 
-                Returns:
-                    The original resource, with the added related resources
+        Returns:
+            The original resource, with the added related resources
 
-                Examples:
-                    ```python
-                    audio_segment = audio_segment.add_relates_to_multiple(["target_resource_id_1", "target_resource_id_2"])
-                    ```
+        Examples:
+            ```python
+            audio_segment = audio_segment.add_relates_to_multiple(["target_resource_id_1", "target_resource_id_2"])
+            ```
         """
         self.relates_to.extend(relates_to)
         return self
@@ -1376,23 +1376,23 @@ class AudioSegmentResource:
         self, relates_to: Any, permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     ) -> AudioSegmentResource:
         """
-                If the value is not empty, add it as related resource, otherwise return the resource unchanged.
+        If the value is not empty, add it as related resource, otherwise return the resource unchanged.
 
-                Args:
-                    relates_to: ID of the related resource or empty value
-        permissions: optional permissions of this value
+        Args:
+            relates_to: ID of the related resource or empty value
+            permissions: optional permissions of this value
 
-                Returns:
-                    The original resource, with the added related resources
+        Returns:
+            The original resource, with the added related resources
 
-                Examples:
-                    ```python
-                    audio_segment = audio_segment.add_relates_to_optional("target_resource_id")
-                    ```
+        Examples:
+            ```python
+            audio_segment = audio_segment.add_relates_to_optional("target_resource_id")
+            ```
 
-                    ```python
-                    audio_segment = audio_segment.add_relates_to_optional(None)
-                    ```
+            ```python
+            audio_segment = audio_segment.add_relates_to_optional(None)
+            ```
         """
         if is_nonempty_value(relates_to):
             self.relates_to.append(relates_to)

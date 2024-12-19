@@ -1,8 +1,12 @@
 from collections import defaultdict
+from copy import deepcopy
 from typing import cast
 
 from lxml import etree
+from namedentities.core import numeric_entities  # type: ignore[import-untyped]
 
+from dsp_tools.models.exceptions import InputError
+from dsp_tools.xmllib.helpers import escape_reserved_xml_characters
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.values import BooleanValue
 from dsp_tools.xmllib.models.values import ColorValue
@@ -33,8 +37,8 @@ PROP_TYPE_LOOKUP = {
     ListValue: "list",
     TimeValue: "time",
     UriValue: "uri",
-    Richtext: "xml",
-    SimpleText: "utf8",
+    Richtext: "richtext",
+    SimpleText: "simpletext",
 }
 
 
@@ -55,10 +59,10 @@ def serialise_values(values: list[Value]) -> list[etree._Element]:
         match prop_type:
             case "list":
                 serialised.append(_make_complete_list_prop(cast(list[ListValue], prop_values), prop_name))
-            case "xml" | "utf8":
-                serialised.append(
-                    _make_complete_text_prop(cast(list[SimpleText | Richtext], prop_values), prop_name, prop_type)
-                )
+            case "simpletext":
+                serialised.append(_make_complete_simple_text_prop(cast(list[SimpleText], prop_values), prop_name))
+            case "richtext":
+                serialised.append(_make_complete_richtext_prop(cast(list[Richtext], values), prop_name))
             case _:
                 serialised.append(_make_complete_generic_prop(values, prop_name, prop_type))
     return serialised
@@ -85,23 +89,6 @@ def _make_generic_prop(prop_name: str, prop_type: str) -> etree._Element:
     return etree.Element(f"{DASCH_SCHEMA}{prop_type}-prop", name=prop_name, nsmap=XML_NAMESPACE_MAP)
 
 
-def _make_complete_list_prop(values: list[ListValue], prop_name: str) -> etree._Element:
-    list_name = next(iter(values)).list_name
-    prop = etree.Element(f"{DASCH_SCHEMA}list-prop", name=prop_name, list=list_name, nsmap=XML_NAMESPACE_MAP)
-    for val in values:
-        prop.append(_make_generic_element(val, "list"))
-    return prop
-
-
-def _make_complete_text_prop(values: list[Richtext | SimpleText], prop_name: str, text_encoding: str) -> etree._Element:
-    prop = _make_generic_prop(prop_name, "text")
-    for val in values:
-        val_ele = _make_generic_element(val, "text")
-        val_ele.attrib["encoding"] = text_encoding
-        prop.append(val_ele)
-    return prop
-
-
 def _make_generic_element(value: Value, prop_type: str) -> etree._Element:
     attribs = {}
     if value.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
@@ -111,3 +98,50 @@ def _make_generic_element(value: Value, prop_type: str) -> etree._Element:
     ele = etree.Element(f"{DASCH_SCHEMA}{prop_type}", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
     ele.text = str(value.value)
     return ele
+
+
+def _make_complete_list_prop(values: list[ListValue], prop_name: str) -> etree._Element:
+    list_name = next(iter(values)).list_name
+    prop = etree.Element(f"{DASCH_SCHEMA}list-prop", name=prop_name, list=list_name, nsmap=XML_NAMESPACE_MAP)
+    for val in values:
+        prop.append(_make_generic_element(val, "list"))
+    return prop
+
+
+def _make_complete_simple_text_prop(values: list[SimpleText], prop_name: str) -> etree._Element:
+    prop = _make_generic_prop(prop_name, "text")
+    for val in values:
+        val_ele = _make_generic_element(val, "text")
+        val_ele.attrib["encoding"] = "utf8"
+        prop.append(val_ele)
+    return prop
+
+
+def _make_complete_richtext_prop(values: list[Richtext], prop_name: str) -> etree._Element:
+    prop = _make_generic_prop(prop_name, "text")
+    for val in values:
+        val_ele = _make_generic_element(val, "text")
+        val_ele.attrib["encoding"] = "xml"
+        prop.append(_create_richtext_elements_from_string(val, val_ele))
+    return prop
+
+
+def _create_richtext_elements_from_string(value: Richtext, text_element: etree._Element) -> etree._Element:
+    new_element = deepcopy(text_element)
+    escaped_text = escape_reserved_xml_characters(value.value)
+    # transform named entities (=character references) to numeric entities, e.g. &nbsp; -> &#160;
+    num_ent = numeric_entities(escaped_text)
+    pseudo_xml = f"<ignore-this>{num_ent}</ignore-this>"
+    try:
+        parsed = etree.fromstring(pseudo_xml)
+    except etree.XMLSyntaxError as err:
+        msg = (
+            f"The resource with the ID '{value.resource_id}' and the property '{value.prop_name}' "
+            f"contains richtext that is invalid XMl."
+        )
+        msg += f"\nOriginal error message: {err.msg}"
+        msg += f"\nEventual line/column numbers are relative to this text: {pseudo_xml}"
+        raise InputError(msg) from None
+    new_element.text = parsed.text  # everything before the first child tag
+    new_element.extend(list(parsed))  # all (nested) children of the pseudo-xml
+    return new_element

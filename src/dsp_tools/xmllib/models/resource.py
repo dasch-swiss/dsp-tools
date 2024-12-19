@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import warnings
-from collections import defaultdict
 from collections.abc import Collection
 from dataclasses import dataclass
 from dataclasses import field
@@ -31,6 +30,7 @@ from dsp_tools.xmllib.models.values import SimpleText
 from dsp_tools.xmllib.models.values import TimeValue
 from dsp_tools.xmllib.models.values import UriValue
 from dsp_tools.xmllib.models.values import Value
+from dsp_tools.xmllib.serialise.serialise_values import serialise_values
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_string_like
 
@@ -116,7 +116,7 @@ class Resource:
         res_ele = self._serialise_resource_element()
         if self.file_value:
             res_ele.append(self.file_value.serialise())
-        res_ele.extend(self._serialise_values())
+        res_ele.extend(serialise_values(self.values))
         return res_ele
 
     def _serialise_resource_element(self) -> etree._Element:
@@ -124,18 +124,6 @@ class Resource:
         if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
             attribs["permissions"] = self.permissions.value
         return etree.Element(f"{DASCH_SCHEMA}resource", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
-
-    def _serialise_values(self) -> list[etree._Element]:
-        grouped = defaultdict(list)
-        for val in self.values:
-            grouped[val.prop_name].append(val)
-        return [self._combine_values(prop_values) for prop_values in grouped.values()]
-
-    def _combine_values(self, prop_values: list[Value]) -> etree._Element:
-        prop_ = prop_values[0].make_prop()
-        prop_eles = [x.make_element() for x in prop_values]
-        prop_.extend(prop_eles)
-        return prop_
 
     #######################
     # BooleanValue

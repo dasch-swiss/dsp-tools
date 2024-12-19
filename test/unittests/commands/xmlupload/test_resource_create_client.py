@@ -37,9 +37,15 @@ def test_frame_json(resource_graph: Graph) -> None:
         "@type": "http://0.0.0.0:3333/ontology/9999/onto/v2#TestResource",
         "http://0.0.0.0:3333/ontology/9999/onto/v2#isTrueOrFalse": {
             "@type": "http://api.knora.org/ontology/knora-api/v2#BooleanValue",
-            "http://api.knora.org/ontology/knora-api/v2#booleanValueAsBoolean": True,
+            "http://api.knora.org/ontology/knora-api/v2#booleanValueAsBoolean": {
+                "@type": "http://www.w3.org/2001/XMLSchema#boolean",
+                "@value": True,
+            },
         },
         "http://api.knora.org/ontology/knora-api/v2#attachedToProject": {"@id": "http://rdfh.ch/9999/project"},
-        "http://www.w3.org/2000/01/rdf-schema#label": "Special Characters: äöüéèà",
+        "http://www.w3.org/2000/01/rdf-schema#label": {
+            "@type": "http://www.w3.org/2001/XMLSchema#string",
+            "@value": "Special Characters: äöüéèà",
+        },
     }
     assert result_json == expected

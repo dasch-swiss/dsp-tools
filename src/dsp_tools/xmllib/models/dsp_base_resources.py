@@ -636,8 +636,6 @@ class LinkResource:
     def _check_for_and_convert_unexpected_input(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
         _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
-        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
-        self.link_to = _transform_unexpected_input(self.link_to, "link_to", self.res_id)
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}
@@ -1059,17 +1057,9 @@ class VideoSegmentResource:
         return self
 
     def serialise(self) -> etree._Element:
-        self._check_for_and_convert_unexpected_input()
         res_ele = self._serialise_resource_element()
         res_ele.extend(_serialise_segment_children(self))
         return res_ele
-
-    def _check_for_and_convert_unexpected_input(self) -> None:
-        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
-        self.descriptions = _transform_unexpected_input(self.descriptions, "descriptions", self.res_id)
-        self.keywords = _transform_unexpected_input(self.keywords, "keywords", self.res_id)
-        self.relates_to = _transform_unexpected_input(self.relates_to, "relates_to", self.res_id)
-        _validate_segment(self)
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}
@@ -1444,17 +1434,9 @@ class AudioSegmentResource:
         return self
 
     def serialise(self) -> etree._Element:
-        self._check_for_and_convert_unexpected_input()
         res_ele = self._serialise_resource_element()
         res_ele.extend(_serialise_segment_children(self))
         return res_ele
-
-    def _check_for_and_convert_unexpected_input(self) -> None:
-        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
-        self.descriptions = _transform_unexpected_input(self.descriptions, "descriptions", self.res_id)
-        self.keywords = _transform_unexpected_input(self.keywords, "keywords", self.res_id)
-        self.relates_to = _transform_unexpected_input(self.relates_to, "relates_to", self.res_id)
-        _validate_segment(self)
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}
@@ -1523,19 +1505,6 @@ def _make_element_with_text(tag_name: str, text_content: str) -> etree._Element:
     ele = etree.Element(f"{DASCH_SCHEMA}{tag_name}", nsmap=XML_NAMESPACE_MAP)
     ele.text = text_content
     return ele
-
-
-def _transform_unexpected_input(value: Any, prop_name: str, res_id: str) -> list[str]:
-    match value:
-        case list():
-            return value
-        case set() | tuple():
-            return list(value)
-        case str():
-            return [value]
-        case _:
-            _warn_unexpected_value(value=value, prop_name=prop_name, res_id=res_id)
-            return [str(value)]
 
 
 def _warn_unexpected_value(*, value: Any, prop_name: str, res_id: str | None) -> None:

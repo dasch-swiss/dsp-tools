@@ -27,6 +27,8 @@ from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import LinkValue
 from dsp_tools.xmllib.models.values import Richtext
 from dsp_tools.xmllib.models.values import Value
+from dsp_tools.xmllib.models.values import Value
+from dsp_tools.xmllib.serialise.serialise_values import serialise_values
 from dsp_tools.xmllib.value_checkers import is_decimal
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_string_like
@@ -415,6 +417,11 @@ class RegionResource:
             attribs["permissions"] = self.permissions.value
         return etree.Element(f"{DASCH_SCHEMA}region", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
 
+    def _serialise_values(self) -> list[etree._Element]:
+        return serialise_values(
+            [self.region_of],
+        )
+
     def _serialise_geometry_shape(self) -> list[etree._Element]:
         prop_list: list[etree._Element] = []
         if not self.geometry:
@@ -430,8 +437,8 @@ class RegionResource:
         ele.text = self.geometry.to_json_string()
         geo_prop.append(ele)
         prop_list.append(geo_prop)
-        prop_list.append(
-            ColorValue(value=self.geometry.color, prop_name="hasColor", resource_id=self.res_id).serialise(),
+        prop_list.extend(
+            serialise_values([ColorValue(value=self.geometry.color, prop_name="hasColor", resource_id=self.res_id)]),
         )
         return prop_list
 

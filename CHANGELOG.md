@@ -1,5 +1,17 @@
 # Changelog
 
+## [10.1.0](https://github.com/dasch-swiss/dsp-tools/compare/v10.0.0...v10.1.0) (2024-12-19)
+
+
+### Enhancements
+
+* **xmllib:** make checks for non-empty input consistent (DEV-4435) ([#1353](https://github.com/dasch-swiss/dsp-tools/issues/1353)) ([0acc6dd](https://github.com/dasch-swiss/dsp-tools/commit/0acc6ddcb480ca1c0b3fcd1a092dbaf73bf60403))
+
+
+### Maintenance
+
+* upgrade `rdflib` dependency ([#1351](https://github.com/dasch-swiss/dsp-tools/issues/1351)) ([58ff473](https://github.com/dasch-swiss/dsp-tools/commit/58ff47380337dc66021d0a34bfddadbbf88eb8c3))
+
 ## [10.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v9.2.0...v10.0.0) (2024-12-18)
 
 

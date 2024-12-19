@@ -13,7 +13,7 @@ from dsp_tools.xmllib import replace_newlines_with_tags
 from dsp_tools.xmllib.models.values import Richtext
 
 
-def add_richtext_with_checks(
+def create_richtext_with_checks(
     value: str,
     prop_name: str,
     permissions: Permissions,

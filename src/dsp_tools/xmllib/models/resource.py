@@ -11,8 +11,8 @@ from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
-from dsp_tools.xmllib.internal_helpers import add_richtext_with_checks
 from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
+from dsp_tools.xmllib.internal_helpers import create_richtext_with_checks
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.file_values import AbstractFileValue
@@ -1171,7 +1171,7 @@ class Resource:
             ```
         """
         self.values.append(
-            add_richtext_with_checks(
+            create_richtext_with_checks(
                 value=value,
                 prop_name=prop_name,
                 permissions=permissions,
@@ -1222,7 +1222,7 @@ class Resource:
             ```
         """
         richtexts = [
-            add_richtext_with_checks(
+            create_richtext_with_checks(
                 value=v,
                 prop_name=prop_name,
                 permissions=permissions,
@@ -1283,7 +1283,7 @@ class Resource:
         """
         if is_nonempty_value(value):
             self.values.append(
-                add_richtext_with_checks(
+                create_richtext_with_checks(
                     value=value,
                     prop_name=prop_name,
                     permissions=permissions,

@@ -13,7 +13,6 @@ from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
 from dsp_tools.xmllib.internal_helpers import create_richtext_with_checks
-from dsp_tools.xmllib.internal_helpers import serialise_values_of_the_same_property
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.geometry import Circle
@@ -407,7 +406,7 @@ class RegionResource:
         res_ele = self._serialise_resource_element()
         res_ele.extend(self._serialise_geometry_shape())
         if self.comments:
-            res_ele.append(serialise_values_of_the_same_property(cast(list[Value], self.comments)))
+            res_ele.extend(serialise_values(cast(list[Value], self.comments)))
         return res_ele
 
     def _serialise_resource_element(self) -> etree._Element:
@@ -649,10 +648,8 @@ class LinkResource:
     def serialise(self) -> etree._Element:
         res_ele = self._serialise_resource_element()
         self._final_checks()
-        if self.comments:
-            res_ele.append(serialise_values_of_the_same_property(cast(list[Value], self.comments)))
-        if self.link_to:
-            res_ele.append(serialise_values_of_the_same_property(cast(list[Value], self.link_to)))
+        generic_vals = self.comments + self.link_to
+        res_ele.extend(serialise_values(cast(list[Value], generic_vals)))
         return res_ele
 
     def _final_checks(self) -> None:

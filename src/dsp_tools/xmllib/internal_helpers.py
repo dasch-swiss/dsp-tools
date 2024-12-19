@@ -3,15 +3,12 @@ from __future__ import annotations
 import warnings
 from typing import Any
 
-from lxml import etree
-
 from dsp_tools.models.custom_warnings import DspToolsUserInfo
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.values import Richtext
-from dsp_tools.xmllib.models.values import Value
 from dsp_tools.xmllib.value_checkers import is_string_like
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
@@ -91,18 +88,3 @@ def check_and_fix_collection_input(value: Any, prop_name: str, res_id: str) -> l
             raise InputError(msg)
         case _:
             return [value]
-
-
-def serialise_values_of_the_same_property(values: list[Value]) -> etree._Element:
-    """
-    Takes a list of values with the same property name and serialises them as one element.
-
-    Args:
-        values: List of values to serialise
-
-    Returns:
-        etree Element to add to the resource
-    """
-    main_prop = values[0].make_prop()
-    main_prop.extend([prop.make_element() for prop in values])
-    return main_prop

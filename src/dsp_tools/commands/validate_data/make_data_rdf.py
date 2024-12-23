@@ -1,13 +1,16 @@
-from typing import Callable
+from uuid import uuid4
 
+from rdflib import RDF
+from rdflib import RDFS
 from rdflib import XSD
+from rdflib import Graph
 from rdflib import Literal
-from rdflib import Namespace
 from rdflib import URIRef
 
+from dsp_tools.commands.validate_data.constants import API_SHAPES
+from dsp_tools.commands.validate_data.constants import DATA
+from dsp_tools.commands.validate_data.constants import KNORA_API
 from dsp_tools.commands.validate_data.models.data_deserialised import AbstractFileValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import AbstractResource
-from dsp_tools.commands.validate_data.models.data_deserialised import AudioSegmentDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import BooleanValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ColorValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DataDeserialised
@@ -16,48 +19,44 @@ from dsp_tools.commands.validate_data.models.data_deserialised import DecimalVal
 from dsp_tools.commands.validate_data.models.data_deserialised import GeonameValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import IIIFUriDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import IntValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import LinkObjDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import LinkValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ListValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import RegionDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import RichtextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import SimpleTextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TimeValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import VideoSegmentDeserialised
-from dsp_tools.commands.validate_data.models.data_rdf import BooleanValueRDF
-from dsp_tools.commands.validate_data.models.data_rdf import ColorValueRDF
-from dsp_tools.commands.validate_data.models.data_rdf import DataRDF
-from dsp_tools.commands.validate_data.models.data_rdf import DateValueRDF
-from dsp_tools.commands.validate_data.models.data_rdf import DecimalValueRDF
-from dsp_tools.commands.validate_data.models.data_rdf import FileValueRDF
-from dsp_tools.commands.validate_data.models.data_rdf import GeonameValueRDF
-from dsp_tools.commands.validate_data.models.data_rdf import IntValueRDF
-from dsp_tools.commands.validate_data.models.data_rdf import LinkValueRDF
-from dsp_tools.commands.validate_data.models.data_rdf import ListValueRDF
-from dsp_tools.commands.validate_data.models.data_rdf import RDFTriples
-from dsp_tools.commands.validate_data.models.data_rdf import ResourceRDF
-from dsp_tools.commands.validate_data.models.data_rdf import RichtextRDF
-from dsp_tools.commands.validate_data.models.data_rdf import SimpleTextRDF
-from dsp_tools.commands.validate_data.models.data_rdf import TimeValueRDF
-from dsp_tools.commands.validate_data.models.data_rdf import UriValueRDF
-from dsp_tools.commands.validate_data.models.data_rdf import ValueRDF
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import ARCHIVE_FILE_VALUE
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import AUDIO_FILE_VALUE
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import DOCUMENT_FILE_VALUE
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import BOOLEAN_PROP_TYPE_INFO
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import COLOR_PROP_TYPE_INFO
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import DECIMAL_PROP_TYPE_INFO
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import GEONAME_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import IIIF_URI_VALUE
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import MOVING_IMAGE_FILE_VALUE
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import STILL_IMAGE_FILE_VALUE
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import TEXT_FILE_VALUE
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import INT_PROP_TYPE_INFO
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import RICHTEXT_PROP_TYPE_INFO
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import SIMPLE_TEXT_PROP_TYPE_INFO
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import TIME_PROP_TYPE_INFO
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import URI_PROP_TYPE_INFO
+from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import get_file_type_info
+from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
+from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InternalError
 
-KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
-DATA = Namespace("http://data/")
+RDF_LITERAL_PROP_TYPE_MAPPER = {
+    BooleanValueDeserialised: BOOLEAN_PROP_TYPE_INFO,
+    ColorValueDeserialised: COLOR_PROP_TYPE_INFO,
+    DateValueDeserialised: RDFPropTypeInfo(KNORA_API.DateValue, KNORA_API.valueAsString, XSD.string),
+    DecimalValueDeserialised: DECIMAL_PROP_TYPE_INFO,
+    GeonameValueDeserialised: GEONAME_PROP_TYPE_INFO,
+    IntValueDeserialised: INT_PROP_TYPE_INFO,
+    SimpleTextDeserialised: SIMPLE_TEXT_PROP_TYPE_INFO,
+    RichtextDeserialised: RICHTEXT_PROP_TYPE_INFO,
+    TimeValueDeserialised: TIME_PROP_TYPE_INFO,
+    UriValueDeserialised: URI_PROP_TYPE_INFO,
+}
 
 
-def make_data_rdf(data_deserialised: DataDeserialised) -> DataRDF:
+def make_data_rdf(data_deserialised: DataDeserialised) -> Graph:
     """
     Transforms the deserialised data into instances that can produce a RDF graph.
 
@@ -65,188 +64,110 @@ def make_data_rdf(data_deserialised: DataDeserialised) -> DataRDF:
         data_deserialised: Deserialised Data
 
     Returns:
-        Instance with the data
+        Graph with the data
     """
-    all_triples: list[RDFTriples] = []
+    g = Graph()
     for r in data_deserialised.resources:
-        all_triples.extend(_transform_one_resource(r))
-    file_values: list[RDFTriples] = [
-        transformed for x in data_deserialised.file_values if (transformed := _transform_file_value(x))
-    ]
-    all_triples.extend(file_values)
-    return DataRDF(all_triples)
+        g += _make_one_resource(r)
+    for f in data_deserialised.file_values:
+        g += _make_file_value(f)
+    return g
 
 
-def _transform_one_resource(res: AbstractResource) -> list[RDFTriples]:
-    if isinstance(res, ResourceDeserialised):
-        return _transform_one_project_resource(res)
-    return [_transform_one_dsp_resource(res)]
-
-
-def _transform_one_dsp_resource(res: AbstractResource) -> RDFTriples:
-    res_type_mapper = {
-        RegionDeserialised: KNORA_API.Region,
-        LinkObjDeserialised: KNORA_API.LinkObj,
-        VideoSegmentDeserialised: KNORA_API.VideoSegment,
-        AudioSegmentDeserialised: KNORA_API.AudioSegment,
-    }
-    return ResourceRDF(
-        res_iri=DATA[res.res_id], res_class=res_type_mapper[type(res)], label=Literal(res.label, datatype=XSD.string)
-    )
-
-
-def _transform_one_project_resource(res: ResourceDeserialised) -> list[RDFTriples]:
+def _make_one_resource(res: ResourceDeserialised) -> Graph:
     res_iri = DATA[res.res_id]
-    all_triples: list[RDFTriples] = [
-        ResourceRDF(res_iri=res_iri, res_class=URIRef(res.res_class), label=Literal(res.label, datatype=XSD.string))
-    ]
-    all_triples.extend([_transform_one_value(v, res_iri) for v in res.values])
-    return all_triples
+    g = Graph()
+    g.add((res_iri, RDF.type, URIRef(res.res_class)))
+    g.add((res_iri, RDFS.label, Literal(res.label, datatype=XSD.string)))
+    for v in res.values:
+        g += _make_one_value(v, res_iri)
+    return g
 
 
-def _transform_one_value(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:  # noqa: PLR0911 (too many return statements)
-    func_mapper = {
-        ColorValueDeserialised: ColorValueRDF,
-        DateValueDeserialised: DateValueRDF,
-        GeonameValueDeserialised: GeonameValueRDF,
-        IntValueDeserialised: IntValueRDF,
-        SimpleTextDeserialised: SimpleTextRDF,
-        RichtextDeserialised: RichtextRDF,
-    }
+def _make_one_value(val: ValueDeserialised, res_iri: URIRef) -> Graph:
     match val:
         case (
-            ColorValueDeserialised()
+            BooleanValueDeserialised()
+            | ColorValueDeserialised()
             | DateValueDeserialised()
+            | DecimalValueDeserialised()
             | GeonameValueDeserialised()
+            | IntValueDeserialised()
             | SimpleTextDeserialised()
             | RichtextDeserialised()
+            | TimeValueDeserialised()
+            | UriValueDeserialised()
         ):
-            return _transform_into_xsd_string(val, res_iri, func_mapper[type(val)])
-        case IntValueDeserialised():
-            return _transform_into_xsd_integer(val, res_iri, func_mapper[type(val)])
-        case BooleanValueDeserialised():
-            return _transform_into_bool(val, res_iri)
-        case DecimalValueDeserialised():
-            return _transform_decimal_value(val, res_iri)
+            return _make_one_value_with_xsd_data_type(
+                val=val,
+                res_iri=res_iri,
+                prop_type_info=RDF_LITERAL_PROP_TYPE_MAPPER[type(val)],
+            )
         case LinkValueDeserialised():
-            return _transform_link_value(val, res_iri)
+            return _make_link_value(val, res_iri)
         case ListValueDeserialised():
-            return _transform_list_value(val, res_iri)
-        case TimeValueDeserialised():
-            return _transform_time_value(val, res_iri)
-        case UriValueDeserialised():
-            return _transform_uri_value(val, res_iri)
+            return _make_list_value(val, res_iri)
         case _:
             raise InternalError(f"Unknown Value Type: {type(val)}")
 
 
-def _transform_into_xsd_string(
-    val: ValueDeserialised, res_iri: URIRef, func: Callable[[URIRef, Literal, URIRef], ValueRDF]
-) -> ValueRDF:
-    new_str = val.object_value if val.object_value is not None else ""
-    return func(URIRef(val.prop_name), Literal(new_str, datatype=XSD.string), res_iri)
+def _make_one_value_with_xsd_data_type(
+    val: ValueDeserialised, res_iri: URIRef, prop_type_info: RDFPropTypeInfo
+) -> Graph:
+    g = Graph()
+    val_iri = DATA[str(uuid4())]
+    g.add((val_iri, RDF.type, prop_type_info.knora_type))
+    if val.object_value:
+        literal_value = Literal(val.object_value, datatype=prop_type_info.xsd_type)
+    else:
+        literal_value = Literal("", datatype=XSD.string)
+    g.add((val_iri, prop_type_info.knora_prop, literal_value))
+    g.add((res_iri, URIRef(val.prop_name), val_iri))
+    return g
 
 
-def _transform_into_xsd_integer(
-    val: ValueDeserialised, res_iri: URIRef, func: Callable[[URIRef, Literal, URIRef], ValueRDF]
-) -> ValueRDF:
-    content = (
-        Literal(val.object_value, datatype=XSD.integer)
-        if val.object_value is not None
-        else Literal("", datatype=XSD.string)
-    )
-    return func(URIRef(val.prop_name), content, res_iri)
+def _make_link_value(val: ValueDeserialised, res_iri: URIRef) -> Graph:
+    object_value = val.object_value if val.object_value is not None else ""
+    g = Graph()
+    val_iri = DATA[str(uuid4())]
+    g.add((val_iri, RDF.type, KNORA_API.LinkValue))
+    g.add((val_iri, API_SHAPES.linkValueHasTargetID, DATA[object_value]))
+    g.add((res_iri, URIRef(val.prop_name), val_iri))
+    return g
 
 
-def _transform_into_bool(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
-    match val.object_value:
-        case "1" | "true":
-            content = Literal(True, datatype=XSD.boolean)
-        case "0" | "false":
-            content = Literal(False, datatype=XSD.boolean)
-        case _:
-            content = Literal("", datatype=XSD.string)
-    return BooleanValueRDF(URIRef(val.prop_name), content, res_iri)
-
-
-def _transform_decimal_value(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
-    content = (
-        Literal(val.object_value, datatype=XSD.decimal)
-        if val.object_value is not None
-        else Literal("", datatype=XSD.string)
-    )
-    return DecimalValueRDF(URIRef(val.prop_name), content, res_iri)
-
-
-def _transform_link_value(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
-    content = val.object_value if val.object_value is not None else ""
-    return LinkValueRDF(URIRef(val.prop_name), DATA[content], res_iri)
-
-
-def _transform_list_value(val: ListValueDeserialised, res_iri: URIRef) -> ValueRDF:
+def _make_list_value(val: ListValueDeserialised, res_iri: URIRef) -> Graph:
     node_name = val.object_value if val.object_value is not None else ""
-    return ListValueRDF(
-        prop_name=URIRef(val.prop_name),
-        object_value=Literal(node_name, datatype=XSD.string),
-        list_name=Literal(val.list_name, datatype=XSD.string),
-        res_iri=res_iri,
-    )
+    g = Graph()
+    val_iri = DATA[str(uuid4())]
+    g.add((val_iri, RDF.type, KNORA_API.ListValue))
+    g.add((val_iri, API_SHAPES.listNodeAsString, Literal(node_name, datatype=XSD.string)))
+    g.add((val_iri, API_SHAPES.listNameAsString, Literal(val.list_name, datatype=XSD.string)))
+    g.add((res_iri, URIRef(val.prop_name), val_iri))
+    return g
 
 
-def _transform_time_value(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
-    content = (
-        Literal(val.object_value, datatype=XSD.dateTimeStamp)
-        if val.object_value is not None
-        else Literal("", datatype=XSD.string)
-    )
-    return TimeValueRDF(URIRef(val.prop_name), content, res_iri)
-
-
-def _transform_uri_value(val: ValueDeserialised, res_iri: URIRef) -> ValueRDF:
-    content = (
-        Literal(val.object_value, datatype=XSD.anyURI)
-        if val.object_value is not None
-        else Literal("", datatype=XSD.string)
-    )
-    return UriValueRDF(URIRef(val.prop_name), content, res_iri)
-
-
-def _transform_file_value(val: AbstractFileValueDeserialised) -> FileValueRDF | None:
+def _make_file_value(val: AbstractFileValueDeserialised) -> Graph:
+    if val.value is None:
+        return Graph()
     if isinstance(val, IIIFUriDeserialised):
-        return FileValueRDF(
-            res_iri=DATA[val.res_id],
-            value=Literal(val.value, datatype=XSD.anyURI),
-            prop_type_info=IIIF_URI_VALUE,
-            prop_to_value=KNORA_API.stillImageFileValueHasExternalUrl,
-        )
-    return _map_into_correct_file_value(val)
+        return _make_file_value_graph(val, IIIF_URI_VALUE, KNORA_API.stillImageFileValueHasExternalUrl)
+    try:
+        file_type = get_file_type_info(val.value)
+        return _make_file_value_graph(val, file_type)
+    except BaseError:
+        return Graph()
 
 
-def _map_into_correct_file_value(val: AbstractFileValueDeserialised) -> FileValueRDF | None:
+def _make_file_value_graph(
+    val: AbstractFileValueDeserialised,
+    prop_type_info: RDFPropTypeInfo,
+    prop_to_value: URIRef = KNORA_API.fileValueHasFilename,
+) -> Graph:
+    g = Graph()
     res_iri = DATA[val.res_id]
-    file_literal = Literal(val.value, datatype=XSD.string)
-    file_extension = _get_file_extension(val.value)
-    match file_extension:
-        case "zip" | "tar" | "gz" | "z" | "tgz" | "gzip" | "7z":
-            file_type = ARCHIVE_FILE_VALUE
-        case "mp3" | "wav":
-            file_type = AUDIO_FILE_VALUE
-        case "pdf" | "doc" | "docx" | "xls" | "xlsx" | "ppt" | "pptx":
-            file_type = DOCUMENT_FILE_VALUE
-        case "mp4":
-            file_type = MOVING_IMAGE_FILE_VALUE
-        case "odd" | "rng" | "txt" | "xml" | "xsd" | "xsl" | "csv" | "json":
-            file_type = TEXT_FILE_VALUE
-        # jpx is the extension of the files returned by dsp-ingest
-        case "jpg" | "jpeg" | "jp2" | "png" | "tif" | "tiff" | "jpx":
-            file_type = STILL_IMAGE_FILE_VALUE
-        case _:
-            return None
-    return FileValueRDF(res_iri=res_iri, value=file_literal, prop_type_info=file_type)
-
-
-def _get_file_extension(value: str | None) -> str:
-    file_extension = ""
-    if value and "." in value:
-        file_extension = value.split(".")[-1].lower()
-    return file_extension
+    val_iri = DATA[str(uuid4())]
+    g.add((res_iri, prop_type_info.knora_prop, val_iri))
+    g.add((val_iri, RDF.type, prop_type_info.knora_type))
+    g.add((val_iri, prop_to_value, Literal(val.value, datatype=prop_type_info.xsd_type)))
+    return g

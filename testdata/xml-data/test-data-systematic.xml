@@ -807,6 +807,13 @@
         </resptr-prop>
     </link>
 
+    <link label="Link between 'Second Testthing', and 'Partofthing-1' without comment" id="link_obj_2">
+        <resptr-prop name="hasLinkTo">
+            <resptr permissions="open">test_thing_2</resptr>
+            <resptr permissions="open">partof_thing_1</resptr>
+        </resptr-prop>
+    </link>
+
     <resource label="TestThing2Child1" 
               restype=":TestThing2Child1" 
               id="TestThing2Child1">

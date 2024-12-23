@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import warnings
-from collections import defaultdict
 from collections.abc import Collection
 from dataclasses import dataclass
 from dataclasses import field
@@ -9,9 +8,10 @@ from typing import Any
 
 from lxml import etree
 
-from dsp_tools.models.custom_warnings import DspToolsUserInfo
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
+from dsp_tools.xmllib.internal_helpers import create_richtext_with_checks
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.file_values import AbstractFileValue
@@ -26,14 +26,13 @@ from dsp_tools.xmllib.models.values import GeonameValue
 from dsp_tools.xmllib.models.values import IntValue
 from dsp_tools.xmllib.models.values import LinkValue
 from dsp_tools.xmllib.models.values import ListValue
-from dsp_tools.xmllib.models.values import Richtext
 from dsp_tools.xmllib.models.values import SimpleText
 from dsp_tools.xmllib.models.values import TimeValue
 from dsp_tools.xmllib.models.values import UriValue
 from dsp_tools.xmllib.models.values import Value
+from dsp_tools.xmllib.serialise.serialise_values import serialise_values
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_string_like
-from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
 # ruff: noqa: D101, D102
 
@@ -117,7 +116,7 @@ class Resource:
         res_ele = self._serialise_resource_element()
         if self.file_value:
             res_ele.append(self.file_value.serialise())
-        res_ele.extend(self._serialise_values())
+        res_ele.extend(serialise_values(self.values))
         return res_ele
 
     def _serialise_resource_element(self) -> etree._Element:
@@ -125,18 +124,6 @@ class Resource:
         if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
             attribs["permissions"] = self.permissions.value
         return etree.Element(f"{DASCH_SCHEMA}resource", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
-
-    def _serialise_values(self) -> list[etree._Element]:
-        grouped = defaultdict(list)
-        for val in self.values:
-            grouped[val.prop_name].append(val)
-        return [self._combine_values(prop_values) for prop_values in grouped.values()]
-
-    def _combine_values(self, prop_values: list[Value]) -> etree._Element:
-        prop_ = prop_values[0].make_prop()
-        prop_eles = [x.make_element() for x in prop_values]
-        prop_.extend(prop_eles)
-        return prop_
 
     #######################
     # BooleanValue
@@ -289,7 +276,7 @@ class Resource:
             )
             ```
         """
-        vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
         self.values.extend([ColorValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
@@ -397,7 +384,7 @@ class Resource:
             )
             ```
         """
-        vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
         self.values.extend([DateValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
@@ -508,7 +495,7 @@ class Resource:
             )
             ```
         """
-        vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
         self.values.extend([DecimalValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
@@ -623,7 +610,7 @@ class Resource:
             )
             ```
         """
-        vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
         self.values.extend([GeonameValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
@@ -736,7 +723,7 @@ class Resource:
             )
             ```
         """
-        vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
         self.values.extend([IntValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
@@ -846,7 +833,7 @@ class Resource:
             )
             ```
         """
-        vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
         self.values.extend([LinkValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
@@ -962,7 +949,7 @@ class Resource:
             )
             ```
         """
-        vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
         self.values.extend([ListValue(v, list_name, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
@@ -1075,7 +1062,7 @@ class Resource:
             )
             ```
         """
-        vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
         self.values.extend([SimpleText(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
@@ -1171,12 +1158,16 @@ class Resource:
             )
             ```
         """
-        # Because of the richtext conversions, the input value is cast as a string.
-        # Values such as str(`pd.NA`) result in a non-empy string.
-        # Therefore a check must occur before the conversion takes place.
-        _check_richtext_before_conversion(value, self.res_id, prop_name)
-        value = replace_newlines_with_tags(str(value), newline_replacement)
-        self.values.append(Richtext(value, prop_name, permissions, comment, self.res_id))
+        self.values.append(
+            create_richtext_with_checks(
+                value=value,
+                prop_name=prop_name,
+                permissions=permissions,
+                comment=comment,
+                newline_replacement=newline_replacement,
+                res_id=self.res_id,
+            )
+        )
         return self
 
     def add_richtext_multiple(
@@ -1218,14 +1209,19 @@ class Resource:
             )
             ```
         """
-        # Because of the richtext conversions, the input value is cast as a string.
-        # Values such as str(`pd.NA`) result in a non-empy string.
-        # Therefore a check must occur before the conversion takes place.
-        new_vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
-        for val in new_vals:
-            _check_richtext_before_conversion(val, self.res_id, prop_name)
-        replaced_vals = [replace_newlines_with_tags(str(v), newline_replacement) for v in new_vals]
-        self.values.extend([Richtext(v, prop_name, permissions, comment, self.res_id) for v in replaced_vals])
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
+        richtexts = [
+            create_richtext_with_checks(
+                value=v,
+                prop_name=prop_name,
+                permissions=permissions,
+                comment=comment,
+                newline_replacement=newline_replacement,
+                res_id=self.res_id,
+            )
+            for v in vals
+        ]
+        self.values.extend(richtexts)
         return self
 
     def add_richtext_optional(
@@ -1275,8 +1271,16 @@ class Resource:
             ```
         """
         if is_nonempty_value(value):
-            value = replace_newlines_with_tags(str(value), newline_replacement)
-            self.values.append(Richtext(value, prop_name, permissions, comment, self.res_id))
+            self.values.append(
+                create_richtext_with_checks(
+                    value=value,
+                    prop_name=prop_name,
+                    permissions=permissions,
+                    comment=comment,
+                    newline_replacement=newline_replacement,
+                    res_id=self.res_id,
+                )
+            )
         return self
 
     #######################
@@ -1344,7 +1348,7 @@ class Resource:
             )
             ```
         """
-        vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
         self.values.extend([TimeValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
@@ -1453,7 +1457,7 @@ class Resource:
             )
             ```
         """
-        vals = _check_and_fix_collection_input(values, self.res_id, prop_name)
+        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
         self.values.extend([UriValue(v, prop_name, permissions, comment, self.res_id) for v in vals])
         return self
 
@@ -1630,24 +1634,3 @@ class Resource:
             )
         self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
         return self
-
-
-def _check_richtext_before_conversion(value: Any, res_id: str, prop_name: str) -> None:
-    if not is_string_like(value):
-        msg = f"Resource '{res_id}' has a richtext value that is not a string: Value: {value} | Property: {prop_name}"
-        warnings.warn(DspToolsUserWarning(msg))
-
-
-def _check_and_fix_collection_input(value: Any, res_id: str, prop_name: str) -> list[Any]:
-    msg = f"The input value of the resource with the ID '{res_id}' and the property '{prop_name}' "
-    match value:
-        case set() | list() | tuple():
-            if len(value) == 0:
-                msg += "is empty. Please note that no values will be added to the resource."
-                warnings.warn(DspToolsUserInfo(msg))
-            return list(value)
-        case dict():
-            msg += "is a dictionary. Only collections (list, set, tuple) are permissible."
-            raise InputError(msg)
-        case _:
-            return [value]

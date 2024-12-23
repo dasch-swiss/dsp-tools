@@ -10,6 +10,7 @@ from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.geometry import Circle
 from dsp_tools.xmllib.models.geometry import GeometryPoint
@@ -21,6 +22,8 @@ from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
 from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import LinkValue
 from dsp_tools.xmllib.models.values import Richtext
+from dsp_tools.xmllib.models.values import Value
+from dsp_tools.xmllib.serialise.serialise_values import serialise_values
 from dsp_tools.xmllib.value_checkers import is_decimal
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_string_like
@@ -277,7 +280,8 @@ class RegionResource:
             region = region.add_comment_multiple(["comment 1", "comment 2"])
             ```
         """
-        self.comments.extend(comments)
+        vals = check_and_fix_collection_input(comments, "hasComment", self.res_id)
+        self.comments.extend(vals)
         return self
 
     def add_comment_optional(self, comment: Any) -> RegionResource:
@@ -342,7 +346,7 @@ class RegionResource:
         res_ele.extend(self._serialise_geometry_shape())
         res_ele.extend(self._serialise_values())
         if self.comments:
-            res_ele.append(_serialise_has_comment(self.comments, self.res_id))
+            res_ele.extend(_serialise_has_comment(self.comments, self.res_id))
         return res_ele
 
     def _serialise_resource_element(self) -> etree._Element:
@@ -352,9 +356,9 @@ class RegionResource:
         return etree.Element(f"{DASCH_SCHEMA}region", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
 
     def _serialise_values(self) -> list[etree._Element]:
-        return [
-            LinkValue(value=self.region_of, prop_name="isRegionOf", resource_id=self.res_id).serialise(),
-        ]
+        return serialise_values(
+            [LinkValue(value=self.region_of, prop_name="isRegionOf", resource_id=self.res_id)],
+        )
 
     def _serialise_geometry_shape(self) -> list[etree._Element]:
         prop_list: list[etree._Element] = []
@@ -371,8 +375,8 @@ class RegionResource:
         ele.text = self.geometry.to_json_string()
         geo_prop.append(ele)
         prop_list.append(geo_prop)
-        prop_list.append(
-            ColorValue(value=self.geometry.color, prop_name="hasColor", resource_id=self.res_id).serialise(),
+        prop_list.extend(
+            serialise_values([ColorValue(value=self.geometry.color, prop_name="hasColor", resource_id=self.res_id)]),
         )
         return prop_list
 
@@ -457,7 +461,8 @@ class LinkResource:
             link_resource = link_resource.add_comment_multiple(["comment 1", "comment 2"])
             ```
         """
-        self.comments.extend(comments)
+        vals = check_and_fix_collection_input(comments, "hasComment", self.res_id)
+        self.comments.extend(vals)
         return self
 
     def add_comment_optional(self, comment: Any) -> LinkResource:
@@ -520,14 +525,14 @@ class LinkResource:
         self._check_for_and_convert_unexpected_input()
         res_ele = self._serialise_resource_element()
         if self.comments:
-            res_ele.append(_serialise_has_comment(self.comments, self.res_id))
+            res_ele.extend(_serialise_has_comment(self.comments, self.res_id))
         else:
             msg = (
                 f"The link object with the ID '{self.res_id}' does not have any comments. "
                 f"At least one comment must be provided, please note that an xmlupload will fail."
             )
             warnings.warn(DspToolsUserWarning(msg))
-        res_ele.append(self._serialise_links())
+        res_ele.extend(self._serialise_links())
         return res_ele
 
     def _check_for_and_convert_unexpected_input(self) -> None:
@@ -542,11 +547,9 @@ class LinkResource:
             attribs["permissions"] = self.permissions.value
         return etree.Element(f"{DASCH_SCHEMA}link", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
 
-    def _serialise_links(self) -> etree._Element:
-        prop_ele = etree.Element(f"{DASCH_SCHEMA}resptr-prop", name="hasLinkTo", nsmap=XML_NAMESPACE_MAP)
-        vals = [LinkValue(value=x, prop_name="hasLinkTo", resource_id=self.res_id) for x in self.link_to]
-        prop_ele.extend([v.make_element() for v in vals])
-        return prop_ele
+    def _serialise_links(self) -> list[etree._Element]:
+        vals: list[Value] = [LinkValue(value=x, prop_name="hasLinkTo", resource_id=self.res_id) for x in self.link_to]
+        return serialise_values(vals)
 
 
 @dataclass
@@ -706,7 +709,8 @@ class VideoSegmentResource:
             video_segment = video_segment.add_comment_multiple(["comment 1", "comment 2"])
             ```
         """
-        self.comments.extend(comments)
+        vals = check_and_fix_collection_input(comments, "hasComment", self.res_id)
+        self.comments.extend(vals)
         return self
 
     def add_comment_optional(self, comment: Any) -> VideoSegmentResource:
@@ -765,7 +769,8 @@ class VideoSegmentResource:
             video_segment = video_segment.add_description_multiple(["description 1", "description 2"])
             ```
         """
-        self.descriptions.extend(descriptions)
+        vals = check_and_fix_collection_input(descriptions, "description", self.res_id)
+        self.descriptions.extend(vals)
         return self
 
     def add_description_optional(self, description: Any) -> VideoSegmentResource:
@@ -824,7 +829,8 @@ class VideoSegmentResource:
             video_segment = video_segment.add_keyword_multiple(["keyword 1", "keyword 2"])
             ```
         """
-        self.keywords.extend(keywords)
+        vals = check_and_fix_collection_input(keywords, "keywords", self.res_id)
+        self.keywords.extend(vals)
         return self
 
     def add_keyword_optional(self, keyword: Any) -> VideoSegmentResource:
@@ -883,7 +889,8 @@ class VideoSegmentResource:
             video_segment = video_segment.add_relates_to_multiple(["target_resource_id_1", "target_resource_id_2"])
             ```
         """
-        self.relates_to.extend(relates_to)
+        vals = check_and_fix_collection_input(relates_to, "relatesTo", self.res_id)
+        self.relates_to.extend(vals)
         return self
 
     def add_relates_to_optional(self, relates_to: Any) -> VideoSegmentResource:
@@ -1087,7 +1094,8 @@ class AudioSegmentResource:
             audio_segment = audio_segment.add_comment_multiple(["comment 1", "comment 2"])
             ```
         """
-        self.comments.extend(comments)
+        vals = check_and_fix_collection_input(comments, "hasComment", self.res_id)
+        self.comments.extend(vals)
         return self
 
     def add_comment_optional(self, comment: Any) -> AudioSegmentResource:
@@ -1146,7 +1154,8 @@ class AudioSegmentResource:
             audio_segment = audio_segment.add_description_multiple(["description 1", "description 2"])
             ```
         """
-        self.descriptions.extend(descriptions)
+        vals = check_and_fix_collection_input(descriptions, "description", self.res_id)
+        self.descriptions.extend(vals)
         return self
 
     def add_description_optional(self, description: Any) -> AudioSegmentResource:
@@ -1205,7 +1214,8 @@ class AudioSegmentResource:
             audio_segment = audio_segment.add_keyword_multiple(["keyword 1", "keyword 2"])
             ```
         """
-        self.keywords.extend(keywords)
+        vals = check_and_fix_collection_input(keywords, "keywords", self.res_id)
+        self.keywords.extend(vals)
         return self
 
     def add_keyword_optional(self, keyword: Any) -> AudioSegmentResource:
@@ -1264,7 +1274,8 @@ class AudioSegmentResource:
             audio_segment = audio_segment.add_relates_to_multiple(["target_resource_id_1", "target_resource_id_2"])
             ```
         """
-        self.relates_to.extend(relates_to)
+        vals = check_and_fix_collection_input(relates_to, "relatesTo", self.res_id)
+        self.relates_to.extend(vals)
         return self
 
     def add_relates_to_optional(self, relates_to: Any) -> AudioSegmentResource:
@@ -1352,11 +1363,9 @@ def _check_strings(string_to_check: str, res_id: str, field_name: str) -> None:
         warnings.warn(DspToolsUserWarning(msg))
 
 
-def _serialise_has_comment(comments: list[str], res_id: str) -> etree._Element:
-    cmts = [Richtext(value=x, prop_name="hasComment", resource_id=res_id) for x in comments]
-    cmt_prop = cmts[0].make_prop()
-    cmt_prop.extend([cmt.make_element() for cmt in cmts])
-    return cmt_prop
+def _serialise_has_comment(comments: list[str], res_id: str) -> list[etree._Element]:
+    cmts: list[Value] = [Richtext(value=x, prop_name="hasComment", resource_id=res_id) for x in comments]
+    return serialise_values(cmts)
 
 
 def _validate_segment(segment: AudioSegmentResource | VideoSegmentResource) -> None:

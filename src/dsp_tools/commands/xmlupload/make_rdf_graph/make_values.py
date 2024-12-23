@@ -53,30 +53,26 @@ LiteralValueTypesAlias: TypeAlias = Union[
 ]
 
 
-def make_values(values: list[IntermediaryValue], res_bnode: BNode, lookups: IRILookups) -> tuple[Graph, URIRef | None]:
+def make_values(values: list[IntermediaryValue], res_node: BNode | URIRef, lookups: IRILookups) -> Graph:
     """
     Serialise the values of a resource.
 
     Args:
         values: list of IntermediaryValues of the resource
-        res_bnode: blank node of the resource
+        res_node: node of the resource
         lookups: lookups to resolve IRIs
 
     Returns:
-        Graph with the values and the last property name
+        Graph with the values
     """
     properties_graph = Graph()
-    # To frame the json-ld correctly, we need one property used in the graph. It does not matter which.
-    last_prop_name = None
-
     for val in values:
-        single_prop_graph, last_prop_name = _make_one_value_graph(val=val, res_bnode=res_bnode, iri_lookup=lookups)
+        single_prop_graph = _make_one_value_graph(val=val, res_node=res_node, iri_lookups=lookups)
         properties_graph += single_prop_graph
+    return properties_graph
 
-    return properties_graph, last_prop_name
 
-
-def _make_one_value_graph(val: IntermediaryValue, res_bnode: BNode, iri_lookup: IRILookups) -> tuple[Graph, URIRef]:
+def _make_one_value_graph(val: IntermediaryValue, res_node: BNode | URIRef, iri_lookups: IRILookups) -> Graph:
     match val:
         case (
             IntermediaryBoolean()
@@ -92,49 +88,48 @@ def _make_one_value_graph(val: IntermediaryValue, res_bnode: BNode, iri_lookup: 
             literal_info = RDF_LITERAL_PROP_TYPE_MAPPER[type(val)]
             properties_graph = _make_value_graph_with_literal_object(
                 val=val,
-                res_bn=res_bnode,
+                res_node=res_node,
                 prop_type_info=literal_info,
             )
         case IntermediaryList():
-            properties_graph = _make_list_value_graph(val=val, res_bn=res_bnode, prop_type_info=LIST_PROP_TYPE_INFO)
+            properties_graph = _make_list_value_graph(val=val, res_node=res_node, prop_type_info=LIST_PROP_TYPE_INFO)
         case IntermediaryLink():
             properties_graph = _make_link_value_graph(
                 val=val,
-                res_bn=res_bnode,
+                res_node=res_node,
                 prop_type_info=LINK_PROP_TYPE_INFO,
-                iri_resolver=iri_lookup.id_to_iri,
+                iri_resolver=iri_lookups.id_to_iri,
             )
         case IntermediaryRichtext():
             properties_graph = _make_richtext_value_graph(
                 val=val,
-                res_bn=res_bnode,
+                res_node=res_node,
                 prop_type_info=RICHTEXT_PROP_TYPE_INFO,
-                iri_resolver=iri_lookup.id_to_iri,
+                iri_resolver=iri_lookups.id_to_iri,
             )
         case IntermediaryDate():
             properties_graph = _make_date_value_graph(
                 val=val,
-                res_bn=res_bnode,
+                res_node=res_node,
             )
         case IntermediaryInterval():
             properties_graph = _make_interval_value_graph(
                 val=val,
-                res_bn=res_bnode,
+                res_node=res_node,
             )
         case _:
             raise UserError(f"Unknown value type: {type(val).__name__}")
-    # This turns the property IRI as string into a rdflib variable, suitable for framing the JSON
-    return properties_graph, URIRef(val.prop_iri)
+    return properties_graph
 
 
 def _make_base_value_graph(
     val: IntermediaryValue,
     prop_type_info: RDFPropTypeInfo,
-    res_bn: BNode,
+    res_node: BNode | URIRef,
 ) -> tuple[BNode, Graph]:
     val_bn = BNode()
     g = _add_optional_triples(val_bn, val.permissions, val.comment)
-    g.add((res_bn, URIRef(val.prop_iri), val_bn))
+    g.add((res_node, URIRef(val.prop_iri), val_bn))
     g.add((val_bn, RDF.type, prop_type_info.knora_type))
     return val_bn, g
 
@@ -151,19 +146,19 @@ def _add_optional_triples(val_bn: BNode, permissions: Permissions | None, commen
 def _make_value_graph_with_literal_object(
     val: LiteralValueTypesAlias,
     prop_type_info: RDFPropTypeInfo,
-    res_bn: BNode,
+    res_node: BNode | URIRef,
 ) -> Graph:
-    val_bn, g = _make_base_value_graph(val, prop_type_info, res_bn)
+    val_bn, g = _make_base_value_graph(val, prop_type_info, res_node)
     g.add((val_bn, prop_type_info.knora_prop, Literal(val.value, datatype=prop_type_info.xsd_type)))
     return g
 
 
 def _make_list_value_graph(
     val: IntermediaryList,
-    res_bn: BNode,
+    res_node: BNode | URIRef,
     prop_type_info: RDFPropTypeInfo,
 ) -> Graph:
-    val_bn, g = _make_base_value_graph(val, prop_type_info, res_bn)
+    val_bn, g = _make_base_value_graph(val, prop_type_info, res_node)
     g.add((val_bn, prop_type_info.knora_prop, URIRef(val.value)))
     return g
 
@@ -171,10 +166,10 @@ def _make_list_value_graph(
 def _make_link_value_graph(
     val: IntermediaryLink,
     prop_type_info: RDFPropTypeInfo,
-    res_bn: BNode,
+    res_node: BNode | URIRef,
     iri_resolver: IriResolver,
 ) -> Graph:
-    val_bn, g = _make_base_value_graph(val, prop_type_info, res_bn)
+    val_bn, g = _make_base_value_graph(val, prop_type_info, res_node)
     iri_str = _resolve_id_to_iri(val.value, iri_resolver)
     g.add((val_bn, prop_type_info.knora_prop, URIRef(iri_str)))
     return g
@@ -195,12 +190,12 @@ def _resolve_id_to_iri(value: str, iri_resolver: IriResolver) -> str:
 
 def _make_date_value_graph(
     val: IntermediaryDate,
-    res_bn: BNode,
+    res_node: BNode | URIRef,
 ) -> Graph:
     val_bn = BNode()
     date = val.value
     g = _add_optional_triples(val_bn, val.permissions, val.comment)
-    g.add((res_bn, URIRef(val.prop_iri), val_bn))
+    g.add((res_node, URIRef(val.prop_iri), val_bn))
     g.add((val_bn, RDF.type, KNORA_API.DateValue))
     if cal := date.calendar:
         g.add((val_bn, KNORA_API.dateValueHasCalendar, Literal(cal.value, datatype=XSD.string)))
@@ -228,11 +223,11 @@ def _make_single_date_graph(val_bn: BNode, date: SingleDate, start_end: StartEnd
 
 def _make_interval_value_graph(
     val: IntermediaryInterval,
-    res_bn: BNode,
+    res_node: BNode | URIRef,
 ) -> Graph:
     val_bn = BNode()
     g = _add_optional_triples(val_bn, val.permissions, val.comment)
-    g.add((res_bn, URIRef(val.prop_iri), val_bn))
+    g.add((res_node, URIRef(val.prop_iri), val_bn))
     g.add((val_bn, RDF.type, KNORA_API.IntervalValue))
     g.add((val_bn, KNORA_API.intervalValueHasStart, Literal(val.value.start, datatype=XSD.decimal)))
     g.add((val_bn, KNORA_API.intervalValueHasEnd, Literal(val.value.end, datatype=XSD.decimal)))
@@ -242,10 +237,10 @@ def _make_interval_value_graph(
 def _make_richtext_value_graph(
     val: IntermediaryRichtext,
     prop_type_info: RDFPropTypeInfo,
-    res_bn: BNode,
+    res_node: BNode | URIRef,
     iri_resolver: IriResolver,
 ) -> Graph:
-    val_bn, g = _make_base_value_graph(val, prop_type_info, res_bn)
+    val_bn, g = _make_base_value_graph(val, prop_type_info, res_node)
     xml_with_iris = val.value.with_iris(iri_resolver)
     val_str = xml_with_iris.as_xml()
     g.add((val_bn, prop_type_info.knora_prop, Literal(val_str, datatype=XSD.string)))

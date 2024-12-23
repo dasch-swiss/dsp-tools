@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="9999"
+       default-ontology="onto">
+
+    <permissions id="open">
+        <allow group="UnknownUser">V</allow>
+        <allow group="KnownUser">V</allow>
+        <allow group="ProjectMember">D</allow>
+        <allow group="ProjectAdmin">CR</allow>
+    </permissions>
+    <permissions id="restricted-view">
+        <allow group="UnknownUser">RV</allow>
+        <allow group="KnownUser">RV</allow>
+        <allow group="ProjectMember">D</allow>
+        <allow group="ProjectAdmin">CR</allow>
+    </permissions>
+    <permissions id="restricted">
+        <allow group="ProjectMember">D</allow>
+        <allow group="ProjectAdmin">CR</allow>
+    </permissions>
+
+
+    <!-- 1 Violations -->
+
+    <!-- link target does not exist -->
+
+    <link label="Link object" id="link_obj_target_non_existent">
+        <resptr-prop name="hasLinkTo">
+            <resptr>non_existing_link_target</resptr>
+        </resptr-prop>
+    </link>
+
+</knora>

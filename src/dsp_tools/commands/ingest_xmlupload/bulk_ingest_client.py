@@ -62,6 +62,8 @@ class BulkIngestClient:
         Uploads a file to the ingest server.
         The load balancer on DSP servers currently has a timeout of 60s, so we need to use a timeout of 58s.
         See https://github.com/dasch-swiss/dsp-tools/pull/1335/files#r1882508057
+        # noqa: DAR101
+        # noqa: DAR201
         """
         timeout = 58
         url = self._build_url_for_bulk_ingest_ingest_route(filepath)

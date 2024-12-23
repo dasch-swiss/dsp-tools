@@ -1,5 +1,19 @@
 # Changelog
 
+## [10.1.0](https://github.com/dasch-swiss/dsp-tools/compare/v10.0.0...v10.1.0) (2024-12-23)
+
+
+### Enhancements
+
+* **xmllib:** make checks for non-empty input consistent (DEV-4435) ([#1353](https://github.com/dasch-swiss/dsp-tools/issues/1353)) ([0acc6dd](https://github.com/dasch-swiss/dsp-tools/commit/0acc6ddcb480ca1c0b3fcd1a092dbaf73bf60403))
+
+
+### Maintenance
+
+* upgrade `rdflib` dependency ([#1351](https://github.com/dasch-swiss/dsp-tools/issues/1351)) ([58ff473](https://github.com/dasch-swiss/dsp-tools/commit/58ff47380337dc66021d0a34bfddadbbf88eb8c3))
+* **upload-files:** stream big files (DEV-4469) ([#1335](https://github.com/dasch-swiss/dsp-tools/issues/1335)) ([201c515](https://github.com/dasch-swiss/dsp-tools/commit/201c51541ff9c0cd638532d8f5043385c4d284c0))
+* **xmllib:** simplify serialisation of values ([#1355](https://github.com/dasch-swiss/dsp-tools/issues/1355)) ([895274b](https://github.com/dasch-swiss/dsp-tools/commit/895274b9a6a634b728946851a952b157812cc262))
+
 ## [10.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v9.2.0...v10.0.0) (2024-12-18)
 
 

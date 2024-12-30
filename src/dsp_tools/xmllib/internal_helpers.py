@@ -25,7 +25,7 @@ def create_richtext_with_checks(
     Creates a RichtextValue with checks and optional conversions
 
     Args:
-        value: richttext value
+        value: richtext value
         prop_name: name of the property
         permissions: permissions of the value
         comment: comment for the value
@@ -63,7 +63,7 @@ def check_richtext_before_conversion(value: Any, prop_name: str, res_id: str) ->
 def check_and_fix_collection_input(value: Any, prop_name: str, res_id: str) -> list[Any]:
     """
     To allow varied input but ensure consistent typing internally, collections are converted.
-    As collections are expected to be non-empty a warning is emitted for the user.
+    If a collection is empty, a warning is emitted for the user.
 
     Args:
         value: Input value

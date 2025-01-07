@@ -422,7 +422,7 @@
               restype=":ImageThing"
               id="image_thing_10"
               permissions="open">
-        <bitstream>testdata/bitstreams/test with special chars àéèêëôû äöüß 0123456789 _-'()[]+=!?&lt;&gt;| 漢が글ርبيةб中.png</bitstream>
+        <bitstream>testdata/bitstreams/test with special chars àéèêëôû äöüß 0123456789 _-'()[]{}+=!&lt;&gt;| 漢が글ርبيةб中.png</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Imagething, the name contains special chars</text>
         </text-prop>

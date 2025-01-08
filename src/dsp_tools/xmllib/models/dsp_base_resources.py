@@ -407,6 +407,7 @@ class RegionResource:
     def serialise(self) -> etree._Element:
         res_ele = self._serialise_resource_element()
         res_ele.extend(self._serialise_geometry_shape())
+        res_ele.extend(self._serialise_values())
         if self.comments:
             res_ele.extend(serialise_values(cast(list[Value], self.comments)))
 
@@ -664,8 +665,10 @@ class LinkResource:
         if not self.link_to:
             problem.append("at least two links")
         if problem:
-            msg = f"The link object with the ID '{self.res_id}' requires: {' and '.join(problem)} "
-            "Please note that an xmlupload will fail."
+            msg = (
+                f"The link object with the ID '{self.res_id}' requires: {' and '.join(problem)} "
+                f"Please note that an xmlupload will fail."
+            )
             warnings.warn(DspToolsUserWarning(msg))
 
     def _serialise_resource_element(self) -> etree._Element:

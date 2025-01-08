@@ -409,6 +409,7 @@ class RegionResource:
         res_ele.extend(self._serialise_geometry_shape())
         if self.comments:
             res_ele.extend(serialise_values(cast(list[Value], self.comments)))
+
         return res_ele
 
     def _serialise_resource_element(self) -> etree._Element:

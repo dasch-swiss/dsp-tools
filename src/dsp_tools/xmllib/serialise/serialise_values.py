@@ -120,9 +120,9 @@ def _serialise_complete_simple_text_prop(values: list[SimpleText], prop_name: st
 def _serialise_complete_richtext_prop(values: list[Richtext], prop_name: str) -> etree._Element:
     prop = _serialise_generic_prop(prop_name, "text")
     for val in values:
-        val_ele = _serialise_generic_element(val, "text")
+        val_ele = _serialise_generic_element(val, "text")  # produces wrong text content
         val_ele.attrib["encoding"] = "xml"
-        prop.append(_create_richtext_elements_from_string(val, val_ele))
+        prop.append(_create_richtext_elements_from_string(val, val_ele))  # overwrite the wrong text content
     return prop
 
 
@@ -137,10 +137,10 @@ def _create_richtext_elements_from_string(value: Richtext, text_element: etree._
     except etree.XMLSyntaxError as err:
         msg = (
             f"The resource with the ID '{value.resource_id}' and the property '{value.prop_name}' "
-            f"contains richtext that is invalid XMl."
+            f"contains richtext which is not in correct XML syntax."
         )
         msg += f"\nOriginal error message: {err.msg}"
-        msg += f"\nEventual line/column numbers are relative to this text: {pseudo_xml}"
+        msg += f"\nPotential line/column numbers are relative to this text: {pseudo_xml}"
         raise InputError(msg) from None
     new_element.text = parsed.text  # everything before the first child tag
     new_element.extend(list(parsed))  # all (nested) children of the pseudo-xml

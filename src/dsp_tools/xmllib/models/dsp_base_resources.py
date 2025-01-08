@@ -262,9 +262,9 @@ class RegionResource:
         Add a comment to the region
 
         Args:
-            text: text
+            text: text of the comment
             permissions: optional permissions of this value
-            comment: optional comment for the value
+            comment: optional comment about this comment
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
@@ -276,7 +276,7 @@ class RegionResource:
             ```
 
             ```python
-            region = region.add_comment(text="comment text", comment="Comment for the value.")
+            region = region.add_comment(text="comment text", comment="Comment about the comment.")
             ```
         """
         self.comments.append(
@@ -304,7 +304,7 @@ class RegionResource:
         Args:
             texts: list of texts
             permissions: optional permissions of these values
-            comment: optional comment for the value
+            comment: optional comment about these comments
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
@@ -341,9 +341,9 @@ class RegionResource:
         If the value is not empty, add it as comment, otherwise return the region unchanged.
 
         Args:
-            text: text or empty value
+            text: text of the comment (or empty value)
             permissions: optional permissions of this value
-            comment: optional comment for the value
+            comment: optional comment about this comment
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
@@ -509,9 +509,9 @@ class LinkResource:
         Add a comment to the resource
 
         Args:
-            text: text
+            text: text of the comment
             permissions: optional permissions of this value
-            comment: optional comment for the value
+            comment: optional comment about this comment
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
@@ -523,7 +523,7 @@ class LinkResource:
             ```
 
             ```python
-            link_resource = link_resource.add_comment(text="comment text", comment="Comment for the value.")
+            link_resource = link_resource.add_comment(text="comment text", comment="Comment about the comment.")
             ```
         """
         self.comments.append(
@@ -551,7 +551,7 @@ class LinkResource:
         Args:
             texts: list of texts
             permissions: optional permissions of these values
-            comment: optional comment for the value
+            comment: optional comment about this comment
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
@@ -588,9 +588,9 @@ class LinkResource:
         If the value is not empty, add it as comment, otherwise return the resource unchanged.
 
         Args:
-            text: text or empty value
+            text: text of the comment (or empty value)
             permissions: optional permissions of this value
-            comment: optional comment for the value
+            comment: optional comment about this comment
             newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
@@ -858,7 +858,7 @@ class VideoSegmentResource:
         If the value is not empty, add it as comment, otherwise return the resource unchanged.
 
         Args:
-            text: text or empty value
+            text: text of the comment (or empty value)
 
         Returns:
             The original resource, with the added comment
@@ -1203,7 +1203,7 @@ class AudioSegmentResource:
         Add a comment to the resource
 
         Args:
-            text: text
+            text: text of the comment
 
         Returns:
             The original resource, with the added comment
@@ -1240,7 +1240,7 @@ class AudioSegmentResource:
         If the value is not empty, add it as comment, otherwise return the resource unchanged.
 
         Args:
-            text: text or empty value
+            text: text of the comment (or empty value)
 
         Returns:
             The original resource, with the added comment

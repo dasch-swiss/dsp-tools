@@ -49,6 +49,11 @@ class RegionResource:
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
 
+    def __post_init__(self) -> None:
+        _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
+        _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
+        _check_strings(string_to_check=self.region_of.value, res_id=self.res_id, field_name="isRegionOf")
+
     @staticmethod
     def create_new(
         res_id: str,
@@ -83,9 +88,6 @@ class RegionResource:
             )
             ```
         """
-        _check_strings(string_to_check=res_id, res_id=res_id, field_name="Resource ID")
-        _check_strings(string_to_check=label, res_id=res_id, field_name="Label")
-        _check_strings(string_to_check=region_of, res_id=res_id, field_name="isRegionOf")
         return RegionResource(
             res_id=res_id,
             label=label,
@@ -450,6 +452,10 @@ class LinkResource:
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
 
+    def __post_init__(self) -> None:
+        _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
+        _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
+
     @staticmethod
     def create_new(
         res_id: str,
@@ -481,8 +487,6 @@ class LinkResource:
             )
             ```
         """
-        _check_strings(string_to_check=res_id, res_id=res_id, field_name="Resource ID")
-        _check_strings(string_to_check=label, res_id=res_id, field_name="Label")
         links_to = check_and_fix_collection_input(link_to, "hasLinkTo", res_id)
         link_vals = [LinkValue(value=x, prop_name="hasLinkTo", resource_id=res_id) for x in links_to]
         return LinkResource(
@@ -705,6 +709,11 @@ class VideoSegmentResource:
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
 
+    def __post_init__(self) -> None:
+        _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
+        _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
+        _check_strings(string_to_check=self.segment_of, res_id=self.res_id, field_name="isSegmentOf")
+
     @staticmethod
     def create_new(
         res_id: str,
@@ -741,9 +750,6 @@ class VideoSegmentResource:
             )
             ```
         """
-        _check_strings(string_to_check=res_id, res_id=res_id, field_name="Resource ID")
-        _check_strings(string_to_check=label, res_id=res_id, field_name="Label")
-        _check_strings(string_to_check=segment_of, res_id=res_id, field_name="isSegmentOf")
         return VideoSegmentResource(
             res_id=res_id,
             label=label,
@@ -1105,6 +1111,11 @@ class AudioSegmentResource:
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
 
+    def __post_init__(self) -> None:
+        _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
+        _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
+        _check_strings(string_to_check=self.segment_of, res_id=self.res_id, field_name="isSegmentOf")
+
     @staticmethod
     def create_new(
         res_id: str,
@@ -1130,9 +1141,6 @@ class AudioSegmentResource:
         Returns:
             An audio segment resource
         """
-        _check_strings(string_to_check=res_id, res_id=res_id, field_name="Resource ID")
-        _check_strings(string_to_check=label, res_id=res_id, field_name="Label")
-        _check_strings(string_to_check=segment_of, res_id=res_id, field_name="isSegmentOf")
         return AudioSegmentResource(
             res_id=res_id,
             label=label,

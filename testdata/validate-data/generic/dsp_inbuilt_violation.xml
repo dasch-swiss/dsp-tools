@@ -108,6 +108,34 @@
     </resource>
 
 
+    <!-- direct usage of knora-api seqnum/isPartOf: negative sequence -->
+
+    <resource label="Image with sequence" restype=":TestStillImageRepresentationWithSeqnum"
+              id="seqnum_isPartOf_direct_usage_negative_sequence">
+        <bitstream>this/is/filepath/file.jpg</bitstream>
+        <resptr-prop name="isPartOf">
+            <resptr>target_res_without_representation_1</resptr>
+        </resptr-prop>
+        <integer-prop name="seqnum">
+            <integer>-1</integer>
+        </integer-prop>
+    </resource>
+
+
+    <!-- sub-property usage of knora-api seqnum/isPartOf: negative sequence -->
+
+    <resource label="Image with sequence" restype=":TestStillImageRepresentationWithInheritedSeqnum"
+              id="seqnum_isPartOf_sub_prop_usage_negative_sequence">
+        <bitstream>this/is/filepath/file.jpg</bitstream>
+        <resptr-prop name=":testIsPartOf">
+            <resptr>target_res_without_representation_1</resptr>
+        </resptr-prop>
+        <integer-prop name=":testSeqnum">
+            <integer>-1</integer>
+        </integer-prop>
+    </resource>
+
+
     <!--
         The API erroneously allows 0-n cardinalities for seqnum/isPartOf.
         Therefore, we cannot rely on the ontology to get it correct.

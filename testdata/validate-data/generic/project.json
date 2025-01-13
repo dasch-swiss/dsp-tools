@@ -569,7 +569,7 @@
             "name": "SecondOntoClass",
             "super": "Resource",
             "labels": {
-              "en": "Resource with all cardinality options"
+              "en": "Resource"
             },
             "cardinalities": [
               {
@@ -581,6 +581,112 @@
                 "propname": "onto:testSimpleText",
                 "cardinality": "0-n",
                 "gui_order": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "built-in",
+        "label": "Built-in",
+        "comment": "Ontology focusing on knora-api built-in properties and classes",
+        "properties": [
+          {
+            "name": "testHasRepresentation",
+            "super": [
+              "hasRepresentation"
+            ],
+            "object": "Representation",
+            "labels": {
+              "en": "Target is any Representation"
+            },
+            "gui_element": "Searchbox"
+          },
+          {
+            "name": "testHasRepresentationImage",
+            "super": [
+              "hasRepresentation"
+            ],
+            "object": ":TestStillImageRepresentationWithSeqnum",
+            "labels": {
+              "en": "Target must be a StillImageRepresentation"
+            },
+            "gui_element": "Searchbox"
+          },
+          {
+            "name": "testIsPartOf",
+            "super": [
+              "isPartOf"
+            ],
+            "object": ":TestNormalResource",
+            "labels": {
+              "en": "is part of"
+            },
+            "gui_element": "Searchbox"
+          },
+          {
+            "name": "testSeqnum",
+            "super": [
+              "seqnum"
+            ],
+            "object": "IntValue",
+            "labels": {
+              "en": "has sequence Number"
+            },
+            "gui_element": "SimpleText"
+          }
+        ],
+        "resources": [
+          {
+            "name": "TestNormalResource",
+            "super": "Resource",
+            "labels": {
+              "en": "Resource"
+            },
+            "cardinalities": [
+              {
+                "propname": ":testHasRepresentation",
+                "cardinality": "0-n",
+                "gui_order": 0
+              },
+              {
+                "propname": ":testHasRepresentationImage",
+                "cardinality": "0-n",
+                "gui_order": 1
+              }
+            ]
+          },
+          {
+            "name": "TestStillImageRepresentationWithSeqnum",
+            "super": "StillImageRepresentation",
+            "labels": {
+              "en": "Resource"
+            },
+            "cardinalities": [
+              {
+                "propname": "isPartOf",
+                "cardinality": "0-1"
+              },
+              {
+                "propname": "seqnum",
+                "cardinality": "0-1"
+              }
+            ]
+          },
+          {
+            "name": "TestStillImageRepresentationWithInheritedSeqnum",
+            "super": "StillImageRepresentation",
+            "labels": {
+              "en": "Resource"
+            },
+            "cardinalities": [
+              {
+                "propname": ":testIsPartOf",
+                "cardinality": "0-1"
+              },
+              {
+                "propname": ":testSeqnum",
+                "cardinality": "0-1"
               }
             ]
           }

@@ -65,11 +65,23 @@ def _deserialise_all_resources(root: etree._Element) -> DataDeserialised:
         elif res_type == AUDIO_SEGMENT_RESOURCE:
             dsp_type = AUDIO_SEGMENT_RESOURCE
         if dsp_type:
-            all_res.append(ResourceDeserialised(res_id, lbl, dsp_type, []))
+            all_res.append(_deserialise_one_in_built(res, dsp_type))
         else:
             all_res.append(_deserialise_one_resource(res))
     file_values = _deserialise_file_value(root)
     return DataDeserialised(all_res, file_values)
+
+
+def _deserialise_one_in_built(resource: etree._Element, res_type: str) -> ResourceDeserialised:
+    lbl = UnreifiedTripleObject(RDFS_LABEL_STR, resource.attrib["label"], DataTypes.string)
+    rdf_type = UnreifiedTripleObject(RDF_TYPE_STR, res_type, DataTypes.iri)
+    return ResourceDeserialised(
+        res_id=resource.attrib["id"],
+        label=resource.attrib["label"],
+        res_class=res_type,
+        unreified_triples=[lbl, rdf_type],
+        values=[],
+    )
 
 
 def _deserialise_one_resource(resource: etree._Element) -> ResourceDeserialised:

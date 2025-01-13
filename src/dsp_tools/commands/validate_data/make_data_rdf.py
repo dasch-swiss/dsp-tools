@@ -14,6 +14,7 @@ from dsp_tools.commands.validate_data.models.data_deserialised import AbstractFi
 from dsp_tools.commands.validate_data.models.data_deserialised import BooleanValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ColorValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DataDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import DataTypes
 from dsp_tools.commands.validate_data.models.data_deserialised import DateValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DecimalValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import GeonameValueDeserialised
@@ -89,7 +90,7 @@ def _make_one_resource(res: ResourceDeserialised) -> Graph:
 def _make_one_rdflib_object(triple_object: UnreifiedTripleObject) -> Literal | URIRef:
     if not triple_object.object_value:
         return Literal("", datatype=XSD.string)
-    if triple_object.data_type.iri:
+    if triple_object.data_type == DataTypes.iri:
         return URIRef(triple_object.object_value)
     return Literal(triple_object.object_value, datatype=DATATYPES_TO_XSD[triple_object.data_type])
 

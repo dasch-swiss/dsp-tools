@@ -1,7 +1,10 @@
 import pytest
 
+from dsp_tools.commands.validate_data.constants import RDF_TYPE_STR
+from dsp_tools.commands.validate_data.constants import RDFS_LABEL_STR
 from dsp_tools.commands.validate_data.models.data_deserialised import BooleanValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ColorValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import DataTypes
 from dsp_tools.commands.validate_data.models.data_deserialised import DateValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DecimalValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import GeonameValueDeserialised
@@ -12,7 +15,15 @@ from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDe
 from dsp_tools.commands.validate_data.models.data_deserialised import RichtextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import SimpleTextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TimeValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import UnreifiedTripleObject
 from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDeserialised
+
+LABEL_TRIPLE = UnreifiedTripleObject(RDFS_LABEL_STR, "lbl", DataTypes.string)
+TYPE_TRIPLE = UnreifiedTripleObject(
+    RDF_TYPE_STR, "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything", DataTypes.iri
+)
+
+UNREIFIED_TRIPLE_OBJECTS = [LABEL_TRIPLE, TYPE_TRIPLE]
 
 
 @pytest.fixture
@@ -23,6 +34,7 @@ def resource_deserialised_with_values(
         res_id="id",
         res_class="http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything",
         label="lbl",
+        unreified_triples=UNREIFIED_TRIPLE_OBJECTS,
         values=[boolean_value_deserialised_corr],
     )
 
@@ -30,7 +42,11 @@ def resource_deserialised_with_values(
 @pytest.fixture
 def resource_deserialised_no_values() -> ResourceDeserialised:
     return ResourceDeserialised(
-        res_id="id", res_class="http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything", label="lbl", values=[]
+        res_id="id",
+        res_class="http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything",
+        label="lbl",
+        unreified_triples=UNREIFIED_TRIPLE_OBJECTS,
+        values=[],
     )
 
 

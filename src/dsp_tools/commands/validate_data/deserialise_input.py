@@ -4,6 +4,9 @@ from typing import cast
 
 from lxml import etree
 
+from dsp_tools.commands.validate_data.constants import AUDIO_SEGMENT_RESOURCE
+from dsp_tools.commands.validate_data.constants import REGION_RESOURCE
+from dsp_tools.commands.validate_data.constants import VIDEO_SEGMENT_RESOURCE
 from dsp_tools.commands.validate_data.models.data_deserialised import AbstractFileValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import BitstreamDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import BooleanValueDeserialised
@@ -24,12 +27,6 @@ from dsp_tools.commands.validate_data.models.data_deserialised import SimpleText
 from dsp_tools.commands.validate_data.models.data_deserialised import TimeValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ValueDeserialised
-
-KNORA_API = "http://api.knora.org/ontology/knora-api/v2#"
-REGION_RESOURCE = KNORA_API + "Region"
-LINKOBJ_RESOURCE = KNORA_API + "LinkObj"
-VIDEO_SEGMENT_RESOURCE = KNORA_API + "VideoSegment"
-AUDIO_SEGMENT_RESOURCE = KNORA_API + "AudioSegment"
 
 
 def deserialise_xml(root: etree._Element) -> ProjectDeserialised:

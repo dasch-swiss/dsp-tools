@@ -660,7 +660,7 @@
             "name": "TestStillImageRepresentationWithSeqnum",
             "super": "StillImageRepresentation",
             "labels": {
-              "en": "Resource"
+              "en": "StillImageRepresentation with knora-api:seqnum"
             },
             "cardinalities": [
               {
@@ -677,7 +677,7 @@
             "name": "TestStillImageRepresentationWithInheritedSeqnum",
             "super": "StillImageRepresentation",
             "labels": {
-              "en": "Resource"
+              "en": "StillImageRepresentation using sub-properties of seqnum"
             },
             "cardinalities": [
               {

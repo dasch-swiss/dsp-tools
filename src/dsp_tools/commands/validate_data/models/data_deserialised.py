@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from enum import Enum
 
 from lxml import etree
 
@@ -36,6 +37,30 @@ class ResourceDeserialised:
     label: str
     res_class: str
     values: list[ValueDeserialised]
+    triples: list[UnreifiedTriple]
+
+
+@dataclass
+class ReifiedTriple:
+    prop_name: str
+    triples: list[UnreifiedTriple]
+
+
+@dataclass
+class UnreifiedTriple:
+    prop_name: str
+    object_value: str | None
+    data_type: DataTypes
+
+
+class DataTypes(Enum):
+    string = "string"
+    int = "int"
+    decimal = "decimal"
+    bool = "boolean"
+    datetime = "datetime"
+    uri = "uri"
+    iri = "iri"
 
 
 @dataclass

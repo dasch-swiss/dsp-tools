@@ -37,30 +37,30 @@ class ResourceDeserialised:
     label: str
     res_class: str
     values: list[ValueDeserialised]
-    triples: list[UnreifiedTriple]
+    triples: list[UnreifiedTripleObject]
 
 
 @dataclass
-class ReifiedTriple:
+class ReifiedTripleObject:
     prop_name: str
-    triples: list[UnreifiedTriple]
+    triples: list[UnreifiedTripleObject]
 
 
 @dataclass
-class UnreifiedTriple:
+class UnreifiedTripleObject:
     prop_name: str
     object_value: str | None
     data_type: DataTypes
 
 
 class DataTypes(Enum):
-    string = "string"
-    integer = "integer"
-    decimal = "decimal"
     boolean = "boolean"
     datetime = "datetime"
-    uri = "uri"
+    decimal = "decimal"
+    integer = "integer"
     iri = "iri"
+    string = "string"
+    uri = "uri"
 
 
 @dataclass

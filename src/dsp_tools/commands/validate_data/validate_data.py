@@ -12,6 +12,7 @@ from dsp_tools.commands.validate_data.api_clients import ListClient
 from dsp_tools.commands.validate_data.api_clients import OntologyClient
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
 from dsp_tools.commands.validate_data.api_connection import ApiConnection
+from dsp_tools.commands.validate_data.constants import KNORA_API_STR
 from dsp_tools.commands.validate_data.deserialise_input import deserialise_xml
 from dsp_tools.commands.validate_data.make_data_rdf import make_data_rdf
 from dsp_tools.commands.validate_data.models.data_deserialised import ProjectDeserialised
@@ -34,7 +35,6 @@ from dsp_tools.utils.xml_utils import transform_special_tags_make_localname
 from dsp_tools.utils.xml_validation import validate_xml
 
 LIST_SEPARATOR = "\n    - "
-KNORA_API = "http://api.knora.org/ontology/knora-api/v2#"
 
 
 VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_MAGENTA + "\n   Validation errors found!   " + RESET_TO_DEFAULT
@@ -123,10 +123,10 @@ def _get_all_used_classes(data_graph: Graph) -> set[str]:
 
 
 def _get_all_onto_classes(ontos: Graph) -> tuple[set[str], set[str]]:
-    is_resource_iri = URIRef(KNORA_API + "isResourceClass")
+    is_resource_iri = URIRef(KNORA_API_STR + "isResourceClass")
     resource_classes = set(ontos.subjects(is_resource_iri, Literal(True)))
     res_cls = {reformat_onto_iri(x) for x in resource_classes}
-    is_value_iri = URIRef(KNORA_API + "isValueClass")
+    is_value_iri = URIRef(KNORA_API_STR + "isValueClass")
     value_classes = set(ontos.subjects(is_value_iri, Literal(True)))
     value_cls = {reformat_onto_iri(x) for x in value_classes}
     return res_cls, value_cls
@@ -234,7 +234,7 @@ def _replace_namespaces(root: etree._Element, api_url: str) -> XMLProject:
         if (found := ele.attrib.get("restype")) or (found := ele.attrib.get("name")):
             split_found = found.split(":")
             if len(split_found) == 1:
-                ele.set("restype" if "restype" in ele.attrib else "name", f"{KNORA_API}{found}")
+                ele.set("restype" if "restype" in ele.attrib else "name", f"{KNORA_API_STR}{found}")
             elif len(split_found) == 2:
                 if len(split_found[0]) == 0:
                     found_namespace = namespace_lookup[default_ontology]
@@ -257,7 +257,7 @@ def _replace_namespaces(root: etree._Element, api_url: str) -> XMLProject:
 
 
 def _make_namespace_lookup(api_url: str, shortcode: str, default_onto: str) -> dict[str, str]:
-    return {default_onto: _construct_namespace(api_url, shortcode, default_onto), "knora-api": KNORA_API}
+    return {default_onto: _construct_namespace(api_url, shortcode, default_onto), "knora-api": KNORA_API_STR}
 
 
 def _construct_namespace(api_url: str, shortcode: str, onto_name: str) -> str:

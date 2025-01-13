@@ -23,7 +23,7 @@
         <allow group="ProjectAdmin">CR</allow>
     </permissions>
 
-    <!-- Target Resource for Links -->
+    <!-- Target Resources for Links -->
 
     <resource label="Empty 1" restype=":TestNormalResource" id="target_empty_1"/>
     <resource label="Empty 2" restype=":TestNormalResource" id="target_empty_2"/>

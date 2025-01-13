@@ -4,7 +4,7 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
        shortcode="9999"
-       default-ontology="onto">
+       default-ontology="in-built">
 
     <permissions id="open">
         <allow group="UnknownUser">V</allow>
@@ -23,8 +23,16 @@
         <allow group="ProjectAdmin">CR</allow>
     </permissions>
 
-
     <!-- 1 Violations -->
+
+    <!-- Target Resources for Links -->
+
+    <resource label="Resource without Representation" restype=":TestNormalResource"
+              id="target_res_without_representation"/>
+
+    <resource label="Target Movie" restype="onto:TestMovingImageRepresentation" id="target_empty_movie">
+        <bitstream>this/is/filepath/file.mp4</bitstream>
+    </resource>
 
     <!-- link target does not exist -->
 
@@ -33,5 +41,67 @@
             <resptr>non_existing_link_target</resptr>
         </resptr-prop>
     </link>
+
+
+    <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
+    <!-- 6 Violations but not implemented yet -->
+
+    <!-- hasRepresentation target is not a representation -->
+
+    <resource label="Target is not a representation" restype=":TestNormalResource"
+              id="target_must_be_a_representation">
+        <resptr-prop name=":testHasRepresentation">
+            <resptr>target_res_without_representation</resptr>
+        </resptr-prop>
+    </resource>
+
+
+    <!-- hasRepresentation target must be an image but is a movie -->
+
+    <resource label="Target is image representation" restype=":TestNormalResource"
+              id="target_must_be_a_image_representation">
+        <resptr-prop name=":testHasRepresentationImage">
+            <resptr>target_empty_movie</resptr>
+        </resptr-prop>
+    </resource>
+
+
+    <!-- direct usage of knora-api seqnum/isPartOf -->
+
+    <resource label="Image with sequence" restype=":TestStillImageRepresentationWithSeqnum"
+              id="missing_seqnum">
+        <bitstream>this/is/filepath/file.jpg</bitstream>
+        <resptr-prop name="isPartOf">
+            <resptr>target_res_without_representation</resptr>
+        </resptr-prop>
+    </resource>
+
+    <resource label="Image with sequence" restype=":TestStillImageRepresentationWithSeqnum"
+              id="missing_isPartOf">
+        <bitstream>this/is/filepath/file.jpg</bitstream>
+        <integer-prop name="seqnum">
+            <integer>1</integer>
+        </integer-prop>
+    </resource>
+
+
+    <!-- sub-property usage of knora-api seqnum/isPartOf -->
+
+    <resource label="Image with sequence" restype=":TestStillImageRepresentationWithInheritedSeqnum"
+              id="seqnum_sub_prop_missing">
+        <bitstream>this/is/filepath/file.jpg</bitstream>
+        <resptr-prop name=":testIsPartOf">
+            <resptr>target_res_without_representation</resptr>
+        </resptr-prop>
+    </resource>
+
+    <resource label="Image with sequence" restype=":TestStillImageRepresentationWithInheritedSeqnum"
+              id="isPartOf_sub_prop_missing">
+        <bitstream>this/is/filepath/file.jpg</bitstream>
+        <integer-prop name=":testSeqnum">
+            <integer>1</integer>
+        </integer-prop>
+    </resource>
+
 
 </knora>

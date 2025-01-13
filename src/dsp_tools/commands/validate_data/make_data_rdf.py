@@ -1,7 +1,6 @@
 from uuid import uuid4
 
 from rdflib import RDF
-from rdflib import RDFS
 from rdflib import XSD
 from rdflib import Graph
 from rdflib import Literal
@@ -9,6 +8,7 @@ from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.constants import API_SHAPES
 from dsp_tools.commands.validate_data.constants import DATA
+from dsp_tools.commands.validate_data.constants import DATATYPES_TO_XSD
 from dsp_tools.commands.validate_data.constants import KNORA_API
 from dsp_tools.commands.validate_data.models.data_deserialised import AbstractFileValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import BooleanValueDeserialised
@@ -25,6 +25,7 @@ from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDe
 from dsp_tools.commands.validate_data.models.data_deserialised import RichtextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import SimpleTextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TimeValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import UnreifiedTripleObject
 from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ValueDeserialised
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import BOOLEAN_PROP_TYPE_INFO
@@ -77,11 +78,20 @@ def make_data_rdf(data_deserialised: DataDeserialised) -> Graph:
 def _make_one_resource(res: ResourceDeserialised) -> Graph:
     res_iri = DATA[res.res_id]
     g = Graph()
-    g.add((res_iri, RDF.type, URIRef(res.res_class)))
-    g.add((res_iri, RDFS.label, Literal(res.label, datatype=XSD.string)))
+    for trpl in res.unreified_triples:
+        object_val = _make_one_rdflib_object(trpl)
+        g.add((res_iri, URIRef(trpl.prop_name), object_val))
     for v in res.values:
         g += _make_one_value(v, res_iri)
     return g
+
+
+def _make_one_rdflib_object(triple_object: UnreifiedTripleObject) -> Literal | URIRef:
+    if not triple_object.object_value:
+        return Literal("", datatype=XSD.string)
+    if triple_object.data_type.iri:
+        return URIRef(triple_object.object_value)
+    return Literal(triple_object.object_value, datatype=DATATYPES_TO_XSD[triple_object.data_type])
 
 
 def _make_one_value(val: ValueDeserialised, res_iri: URIRef) -> Graph:

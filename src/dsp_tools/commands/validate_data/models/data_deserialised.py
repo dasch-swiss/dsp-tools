@@ -36,6 +36,7 @@ class ResourceDeserialised:
     res_id: str
     label: str
     res_class: str
+    unreified_triples: list[UnreifiedTripleObject]
     values: list[ValueDeserialised]
 
 

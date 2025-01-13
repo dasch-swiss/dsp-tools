@@ -1,3 +1,4 @@
+from rdflib import XSD
 from rdflib import Namespace
 
 from dsp_tools.commands.validate_data.models.data_deserialised import DataTypes
@@ -101,3 +102,15 @@ RICH_TEXT_PROP = KnoraTypePropInfo(
     knora_prop=f"{KNORA_API_STR}textValueAsXml",
     data_type=DataTypes.string,
 )
+
+
+DATATYPES_TO_XSD = {
+    DataTypes.boolean: XSD.boolean,
+    DataTypes.datetime: XSD.dateTimeStamp,
+    DataTypes.decimal: XSD.decimal,
+    DataTypes.integer: XSD.integer,
+    DataTypes.string: XSD.string,
+    DataTypes.uri: XSD.anyURI,
+}
+
+# TODO: DataTypes.iri

@@ -5,6 +5,8 @@ from typing import cast
 from lxml import etree
 
 from dsp_tools.commands.validate_data.constants import AUDIO_SEGMENT_RESOURCE
+from dsp_tools.commands.validate_data.constants import RDF_TYPE_STR
+from dsp_tools.commands.validate_data.constants import RDFS_LABEL_STR
 from dsp_tools.commands.validate_data.constants import REGION_RESOURCE
 from dsp_tools.commands.validate_data.constants import VIDEO_SEGMENT_RESOURCE
 from dsp_tools.commands.validate_data.models.data_deserialised import AbstractFileValueDeserialised
@@ -12,6 +14,7 @@ from dsp_tools.commands.validate_data.models.data_deserialised import BitstreamD
 from dsp_tools.commands.validate_data.models.data_deserialised import BooleanValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ColorValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DataDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import DataTypes
 from dsp_tools.commands.validate_data.models.data_deserialised import DateValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DecimalValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import GeonameValueDeserialised
@@ -25,6 +28,7 @@ from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDe
 from dsp_tools.commands.validate_data.models.data_deserialised import RichtextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import SimpleTextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TimeValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import UnreifiedTripleObject
 from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ValueDeserialised
 
@@ -72,9 +76,12 @@ def _deserialise_one_resource(resource: etree._Element) -> ResourceDeserialised:
     values: list[ValueDeserialised] = []
     for val in resource.iterchildren():
         values.extend(_deserialise_one_property(val))
+    lbl = UnreifiedTripleObject(RDFS_LABEL_STR, resource.attrib["label"], DataTypes.string)
+    rdf_type = UnreifiedTripleObject(RDF_TYPE_STR, resource.attrib["restype"], DataTypes.iri)
     return ResourceDeserialised(
         res_id=resource.attrib["id"],
         res_class=resource.attrib["restype"],
+        unreified_triples=[lbl, rdf_type],
         label=resource.attrib["label"],
         values=values,
     )

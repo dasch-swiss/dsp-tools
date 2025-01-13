@@ -20,26 +20,50 @@ DATA = Namespace("http://data/")
 
 PROP_TYPE_MAPPER = {
     "boolean-prop": KnoraTypePropInfo(
-        f"{KNORA_API_STR}BooleanValue", f"{KNORA_API_STR}booleanValueAsBoolean", DataTypes.boolean
+        value_type=f"{KNORA_API_STR}BooleanValue",
+        knora_prop=f"{KNORA_API_STR}booleanValueAsBoolean",
+        data_type=DataTypes.boolean,
     ),
     "color-prop": KnoraTypePropInfo(
-        f"{KNORA_API_STR}ColorValue", f"{KNORA_API_STR}colorValueAsColor", DataTypes.string
+        value_type=f"{KNORA_API_STR}ColorValue",
+        knora_prop=f"{KNORA_API_STR}colorValueAsColor",
+        data_type=DataTypes.string,
     ),
-    "date-prop": KnoraTypePropInfo(f"{KNORA_API_STR}DateValue", f"{KNORA_API_STR}valueAsString", DataTypes.string),
+    "date-prop": KnoraTypePropInfo(
+        value_type=f"{KNORA_API_STR}DateValue",
+        knora_prop=f"{KNORA_API_STR}valueAsString",
+        data_type=DataTypes.string,
+    ),
     "decimal-prop": KnoraTypePropInfo(
-        f"{KNORA_API_STR}DecimalValue", f"{KNORA_API_STR}decimalValueAsDecimal", DataTypes.decimal
+        value_type=f"{KNORA_API_STR}DecimalValue",
+        knora_prop=f"{KNORA_API_STR}decimalValueAsDecimal",
+        data_type=DataTypes.decimal,
     ),
     "geoname-prop": KnoraTypePropInfo(
-        f"{KNORA_API_STR}GeonameValue", f"{KNORA_API_STR}geonameValueAsGeonameCode", DataTypes.string
+        value_type=f"{KNORA_API_STR}GeonameValue",
+        knora_prop=f"{KNORA_API_STR}geonameValueAsGeonameCode",
+        data_type=DataTypes.string,
     ),
-    "integer-prop": KnoraTypePropInfo(f"{KNORA_API_STR}IntValue", f"{KNORA_API_STR}intValueAsInt", DataTypes.integer),
+    "integer-prop": KnoraTypePropInfo(
+        value_type=f"{KNORA_API_STR}IntValue",
+        knora_prop=f"{KNORA_API_STR}intValueAsInt",
+        data_type=DataTypes.integer,
+    ),
     "resptr-prop": KnoraTypePropInfo(
-        f"{KNORA_API_STR}LinkValue", f"{KNORA_API_STR}linkValueHasTargetIri", DataTypes.iri
+        value_type=f"{KNORA_API_STR}LinkValue",
+        knora_prop=f"{KNORA_API_STR}linkValueHasTargetIri",
+        data_type=DataTypes.iri,
     ),
     "time-prop": KnoraTypePropInfo(
-        f"{KNORA_API_STR}TimeValue", f"{KNORA_API_STR}timeValueAsTimeStamp", DataTypes.datetime
+        value_type=f"{KNORA_API_STR}TimeValue",
+        knora_prop=f"{KNORA_API_STR}timeValueAsTimeStamp",
+        data_type=DataTypes.datetime,
     ),
-    "uri-prop": KnoraTypePropInfo(f"{KNORA_API_STR}UriValue", f"{KNORA_API_STR}uriValueAsUri", DataTypes.uri),
+    "uri-prop": KnoraTypePropInfo(
+        value_type=f"{KNORA_API_STR}UriValue",
+        knora_prop=f"{KNORA_API_STR}uriValueAsUri",
+        data_type=DataTypes.uri,
+    ),
 }
 
 # TODO: "text-prop", "list-prop"

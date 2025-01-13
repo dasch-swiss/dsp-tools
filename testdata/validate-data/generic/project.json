@@ -587,9 +587,9 @@
         ]
       },
       {
-        "name": "built-in",
-        "label": "Built-in",
-        "comment": "Ontology focusing on knora-api built-in properties and classes",
+        "name": "in-built",
+        "label": "in-built",
+        "comment": "Ontology focusing on knora-api in-built properties and classes",
         "properties": [
           {
             "name": "testHasRepresentation",

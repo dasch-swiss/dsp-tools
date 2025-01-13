@@ -55,12 +55,19 @@ class UnreifiedTriple:
 
 class DataTypes(Enum):
     string = "string"
-    int = "int"
+    integer = "integer"
     decimal = "decimal"
-    bool = "boolean"
+    boolean = "boolean"
     datetime = "datetime"
     uri = "uri"
     iri = "iri"
+
+
+@dataclass
+class KnoraTypePropInfo:
+    value_type: str
+    knora_prop: str
+    data_type: DataTypes
 
 
 @dataclass

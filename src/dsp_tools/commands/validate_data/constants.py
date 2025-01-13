@@ -3,22 +3,27 @@ from rdflib import Namespace
 from dsp_tools.commands.validate_data.models.data_deserialised import DataTypes
 from dsp_tools.commands.validate_data.models.data_deserialised import KnoraTypePropInfo
 
+# Namespaces as string
 KNORA_API_STR = "http://api.knora.org/ontology/knora-api/v2#"
 API_SHAPES_STR = "http://api.knora.org/ontology/knora-api/shapes/v2#"
+
+# IRIs as string
+RDF_TYPE_STR = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+RDFS_LABEL_STR = "http://www.w3.org/2000/01/rdf-schema#label"
 
 REGION_RESOURCE = KNORA_API_STR + "Region"
 LINKOBJ_RESOURCE = KNORA_API_STR + "LinkObj"
 VIDEO_SEGMENT_RESOURCE = KNORA_API_STR + "VideoSegment"
 AUDIO_SEGMENT_RESOURCE = KNORA_API_STR + "AudioSegment"
 
-
+# rdflib Namespaces
 DASH = Namespace("http://datashapes.org/dash#")
-
 KNORA_API = Namespace(KNORA_API_STR)
 API_SHAPES = Namespace(API_SHAPES_STR)
 
 DATA = Namespace("http://data/")
 
+# prop-type mapper info
 BOOLEAN_PROP = KnoraTypePropInfo(
     value_type=f"{KNORA_API_STR}BooleanValue",
     knora_prop=f"{KNORA_API_STR}booleanValueAsBoolean",
@@ -79,7 +84,6 @@ PROP_TYPE_MAPPER = {
     "time-prop": TIME_PROP,
     "uri-prop": URI_PROP,
 }
-
 
 LIST_PROP = KnoraTypePropInfo(
     value_type=f"{KNORA_API_STR}ListValue",

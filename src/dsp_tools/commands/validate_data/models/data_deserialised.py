@@ -37,7 +37,6 @@ class ResourceDeserialised:
     label: str
     res_class: str
     values: list[ValueDeserialised]
-    triples: list[UnreifiedTripleObject]
 
 
 @dataclass
@@ -53,6 +52,13 @@ class UnreifiedTripleObject:
     data_type: DataTypes
 
 
+@dataclass
+class KnoraTypePropInfo:
+    value_type: str
+    knora_prop: str
+    data_type: DataTypes
+
+
 class DataTypes(Enum):
     boolean = "boolean"
     datetime = "datetime"
@@ -61,13 +67,6 @@ class DataTypes(Enum):
     iri = "iri"
     string = "string"
     uri = "uri"
-
-
-@dataclass
-class KnoraTypePropInfo:
-    value_type: str
-    knora_prop: str
-    data_type: DataTypes
 
 
 @dataclass

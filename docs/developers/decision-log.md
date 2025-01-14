@@ -18,9 +18,12 @@ Below are graphs to illustrate where the information contained in the classes wi
 
 **`PropertyObject`**
 
+This represents the property and object of a triple.
+It may be user facing (e.g. the label) or metadata (e.g. permissions).
+
 ```mermaid
 flowchart TD
-    A(Resource or Value) -->|:RDF/RDFS/knora Property| B(object Value)
+    A(:Resource or :Value) -->|:RDF/RDFS/knora Property| B(object Value)
 ```
 
 With the enum `TripleObjectType` we can specify the data type of the value or if it is an IRI.
@@ -28,9 +31,13 @@ With the enum `TripleObjectType` we can specify the data type of the value or if
 
 **`ValueInformation`**
 
+This represents a reified knora Value, e.g. `BooleanValue`.
+A knora value itself contains further `PropertyObject`s,
+containing user-facing data (e.g. the boolean itself) or metadata (e.g. permissions).
+
 ```mermaid
 flowchart TD
-    C(Resource) -->|:ontologyProperty| D(PropertyObject)
+    C(:Resource) -->|:ontologyProperty| D(PropertyObject)
 ```
 
 With the enum class `KnoraValueType` we can specify the knora value type.

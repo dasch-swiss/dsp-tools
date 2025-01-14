@@ -23,6 +23,7 @@ class TestResource:
     def test_empty(self, resource_empty: etree._Element) -> None:
         res = _deserialise_one_resource(resource_empty)
         assert res.res_id == "one"
+        # TODO: fix tests
         assert res.res_class == "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"
         assert res.label == "lbl"
         assert len(res.values) == 0

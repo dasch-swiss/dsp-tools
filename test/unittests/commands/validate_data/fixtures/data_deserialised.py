@@ -32,8 +32,6 @@ def resource_deserialised_with_values(
 ) -> ResourceDeserialised:
     return ResourceDeserialised(
         res_id="id",
-        res_class="http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything",
-        label="lbl",
         unreified_triples=UNREIFIED_TRIPLE_OBJECTS,
         values=[boolean_value_deserialised_corr],
     )
@@ -43,8 +41,6 @@ def resource_deserialised_with_values(
 def resource_deserialised_no_values() -> ResourceDeserialised:
     return ResourceDeserialised(
         res_id="id",
-        res_class="http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything",
-        label="lbl",
         unreified_triples=UNREIFIED_TRIPLE_OBJECTS,
         values=[],
     )

@@ -1,6 +1,5 @@
 from typing import Callable
 from typing import Sequence
-from typing import cast
 
 from lxml import etree
 
@@ -54,8 +53,6 @@ def deserialise_xml(root: etree._Element) -> ProjectDeserialised:
 def _deserialise_all_resources(root: etree._Element) -> DataDeserialised:
     all_res: list[ResourceDeserialised] = []
     for res in root.iterdescendants(tag="resource"):
-        res_id = res.attrib["id"]
-        lbl = cast(str, res.attrib.get("label"))
         dsp_type = None
         res_type = res.attrib["restype"]
         if res_type == REGION_RESOURCE:
@@ -77,9 +74,7 @@ def _deserialise_one_in_built(resource: etree._Element, res_type: str) -> Resour
     rdf_type = UnreifiedTripleObject(RDF_TYPE_STR, res_type, DataTypes.iri)
     return ResourceDeserialised(
         res_id=resource.attrib["id"],
-        label=resource.attrib["label"],
-        res_class=res_type,
-        unreified_triples=[lbl, rdf_type],
+        unreified_triples=[rdf_type, lbl],
         values=[],
     )
 
@@ -92,9 +87,7 @@ def _deserialise_one_resource(resource: etree._Element) -> ResourceDeserialised:
     rdf_type = UnreifiedTripleObject(RDF_TYPE_STR, resource.attrib["restype"], DataTypes.iri)
     return ResourceDeserialised(
         res_id=resource.attrib["id"],
-        res_class=resource.attrib["restype"],
-        unreified_triples=[lbl, rdf_type],
-        label=resource.attrib["label"],
+        unreified_triples=[rdf_type, lbl],
         values=values,
     )
 

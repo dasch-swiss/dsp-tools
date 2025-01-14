@@ -42,7 +42,7 @@ class ResourceDeserialised:
         property_objects: A list of properties and objects where the subject is the resource itself.
             They are non-reified triples (not values).
             For example, the label of a resource is here.
-        values: a list of user-facing values (eg. BooleanValue)
+        values: a list of user-facing values (e.g. BooleanValue)
     """
 
     res_id: str

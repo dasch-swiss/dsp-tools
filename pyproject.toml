@@ -61,6 +61,7 @@ dev-dependencies = [
     "mkdocs-material>=9.5.34",
     "mkdocs>=1.6.1",
     "mkdocstrings[python]>=0.26.2",
+    "mkdocs-mermaid2-plugin>=1.2.1",
     "mypy>=1.11.2",
     "pandas-stubs>=2.2.2.240909",
     "pre-commit>=3.8.0",

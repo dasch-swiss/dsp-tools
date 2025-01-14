@@ -9,10 +9,10 @@ Changing the internal Python representation of the data.
 A Python dataclass structure between the input XML and the data as an `rdflib` graph is added
 that is agnostic to both the specifications of the XML and the data structure required by the API.
 
-The structure of the main Python classes `PropertyObject` and `ReifiedPropertyObject` are generic
+The structure of the main Python classes `PropertyObject` and `ValueInformation` are generic
 and do not rely on a specific property, object or object data type.
 Both of these classes represent a part of an RDF triple,
-the subject of the triple is the dataclass which contains the `PropertyObject` and `ReifiedPropertyObject`.
+the subject of the triple is the dataclass which contains the `PropertyObject` and `ValueInformation`.
 
 Below are graphs to illustrate where the information contained in the classes will be located in the final graph.
 
@@ -23,8 +23,10 @@ flowchart TD
     A(Resource or Value) -->|:RDF/RDFS/knora Property| B(object Value)
 ```
 
+With the enum `TripleObjectType` we can specify the data type of the value or if it is an IRI.
 
-**`ReifiedPropertyObject`**
+
+**`ValueInformation`**
 
 ```mermaid
 flowchart TD
@@ -32,4 +34,4 @@ flowchart TD
     D -->|:RDF/RDFS/knora Property| E(object Value)
 ```
 
-With the enum class `ObjectType` we can specify if object is an RDF literal or an IRI.
+With the enum class `KnoraValueType` we can specify the knora value type.

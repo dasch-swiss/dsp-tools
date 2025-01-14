@@ -271,7 +271,7 @@ class TestQueryWithDetail:
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testListProp
         assert result.results_message == "The list that should be used with this property is 'firstList'."
-        assert result.actual_value == "other"
+        assert result.actual_value == "other (list name : node name)"
 
     def test_report_unknown_list_node(
         self, report_unknown_list_node: tuple[Graph, Graph, ValidationResultBaseInfo]
@@ -283,7 +283,7 @@ class TestQueryWithDetail:
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testListProp
         assert result.results_message == "Unknown list node for list 'firstList'."
-        assert result.actual_value == "other"
+        assert result.actual_value == "other (list name : node name)"
 
 
 class TestQueryFileValueViolations:

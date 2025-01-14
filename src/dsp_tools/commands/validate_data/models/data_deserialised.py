@@ -90,10 +90,10 @@ class TriplePropertyType(Enum):
     For example: comment -> knora-api:hasComment
     """
 
-    rdfs_label = auto()
-    rdf_type = auto()
-    knora_permissions = auto()
-    knora_comment = auto()
+    RDFS_LABEL = auto()
+    RDF_TYPE = auto()
+    KNORA_PERMISSIONS = auto()
+    KNORA_COMMENT = auto()
 
 
 class TripleObjectType(Enum):
@@ -102,28 +102,28 @@ class TripleObjectType(Enum):
     Or Indicates that it is an IRI, in which case it is not an RDF Literal
     """
 
-    boolean = auto()
-    datetime = auto()
-    decimal = auto()
-    integer = auto()
-    iri = auto()
-    string = auto()
-    uri = auto()
+    BOOLEAN = auto()
+    DATETIME = auto()
+    DECIMAL = auto()
+    INTEGER = auto()
+    IRI = auto()
+    STRING = auto()
+    URI = auto()
 
 
 class KnoraValueType(Enum):
-    BooleanValue = auto()
-    ColorValue = auto()
-    DateValue = auto()
-    DecimalValue = auto()
-    GeonameValue = auto()
-    IntValue = auto()
-    LinkValue = auto()
-    ListValue = auto()
-    SimpleTextValue = auto()
-    RichtextValue = auto()
-    TimeValue = auto()
-    UriValue = auto()
+    BOOLEAN_VALUE = auto()
+    COLOR_VALUE = auto()
+    DATE_VALUE = auto()
+    DECIMAL_VALUE = auto()
+    GEONAME_VALUE = auto()
+    INT_VALUE = auto()
+    LINK_VALUE = auto()
+    LIST_VALUE = auto()
+    SIMPLETEXT_VALUE = auto()
+    RICHTEXT_VALUE = auto()
+    TIME_VALUE = auto()
+    URI_VALUE = auto()
 
 
 @dataclass

@@ -85,7 +85,7 @@ def _deserialise_one_resource(resource: etree._Element) -> ResourceDeserialised:
     )
 
 
-def _deserialise_one_property(prop_ele: etree._Element) -> Sequence[ValueDeserialised]:
+def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueInformation]:
     match prop_ele.tag:
         case (
             (

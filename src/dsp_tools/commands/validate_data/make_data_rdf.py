@@ -91,7 +91,7 @@ def _make_one_resource(res: ResourceDeserialised) -> Graph:
 def _make_one_rdflib_object(property_object: PropertyObject) -> Literal | URIRef:
     if not property_object.object_value:
         return Literal("", datatype=XSD.string)
-    if property_object.object_type == TripleObjectType.iri:
+    if property_object.object_type == TripleObjectType.IRI:
         return URIRef(property_object.object_value)
     return Literal(property_object.object_value, datatype=TRIPLE_OBJECT_TYPE_TO_XSD[property_object.object_type])
 

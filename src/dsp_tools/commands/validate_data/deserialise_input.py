@@ -1,4 +1,3 @@
-from typing import assert_never
 
 from lxml import etree
 
@@ -17,8 +16,8 @@ from dsp_tools.commands.validate_data.models.data_deserialised import PropertyOb
 from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TripleObjectType
 from dsp_tools.commands.validate_data.models.data_deserialised import TriplePropertyType
-from dsp_tools.commands.validate_data.models.data_deserialised import ValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ValueInformation
+from dsp_tools.models.exceptions import BaseError
 
 
 def deserialise_xml(root: etree._Element) -> ProjectDeserialised:
@@ -69,7 +68,7 @@ def _deserialise_one_in_built(resource: etree._Element, res_type: str) -> Resour
 
 
 def _deserialise_one_resource(resource: etree._Element) -> ResourceDeserialised:
-    values: list[ValueDeserialised] = []
+    values = []
     for val in resource.iterchildren():
         values.extend(_deserialise_one_property(val))
     lbl = PropertyObject(TriplePropertyType.RDFS_LABEL, resource.attrib["label"], TripleObjectType.STRING)
@@ -121,13 +120,14 @@ def _extract_text_value_information(prop: etree._Element) -> list[ValueInformati
     prop_name = prop.attrib["name"]
     all_vals = []
     for val in prop.iterchildren():
-        match val.attrib["encoding"]:
+        encoding = val.attrib["encoding"]
+        match encoding:
             case "utf8":
                 val_type = KnoraValueType.SIMPLETEXT_VALUE
             case "xml":
                 val_type = KnoraValueType.RICHTEXT_VALUE
             case _:
-                assert_never()
+                raise BaseError(f"Unknown encoding: {encoding}.")
         all_vals.append(
             ValueInformation(
                 user_facing_prop=prop_name,

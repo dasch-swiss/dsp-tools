@@ -20,7 +20,7 @@ from dsp_tools.commands.validate_data.models.data_deserialised import IIIFUriDes
 from dsp_tools.commands.validate_data.models.data_deserialised import IntValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import LinkValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ListValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import ObjectTypes
+from dsp_tools.commands.validate_data.models.data_deserialised import ObjectType
 from dsp_tools.commands.validate_data.models.data_deserialised import ProjectDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ProjectInformation
 from dsp_tools.commands.validate_data.models.data_deserialised import PropertyObject
@@ -70,8 +70,8 @@ def _deserialise_all_resources(root: etree._Element) -> DataDeserialised:
 
 
 def _deserialise_one_in_built(resource: etree._Element, res_type: str) -> ResourceDeserialised:
-    lbl = PropertyObject(RDFS_LABEL_STR, resource.attrib["label"], ObjectTypes.string)
-    rdf_type = PropertyObject(RDF_TYPE_STR, res_type, ObjectTypes.iri)
+    lbl = PropertyObject(RDFS_LABEL_STR, resource.attrib["label"], ObjectType.string)
+    rdf_type = PropertyObject(RDF_TYPE_STR, res_type, ObjectType.iri)
     return ResourceDeserialised(
         res_id=resource.attrib["id"],
         property_objects=[rdf_type, lbl],
@@ -83,8 +83,8 @@ def _deserialise_one_resource(resource: etree._Element) -> ResourceDeserialised:
     values: list[ValueDeserialised] = []
     for val in resource.iterchildren():
         values.extend(_deserialise_one_property(val))
-    lbl = PropertyObject(RDFS_LABEL_STR, resource.attrib["label"], ObjectTypes.string)
-    rdf_type = PropertyObject(RDF_TYPE_STR, resource.attrib["restype"], ObjectTypes.iri)
+    lbl = PropertyObject(RDFS_LABEL_STR, resource.attrib["label"], ObjectType.string)
+    rdf_type = PropertyObject(RDF_TYPE_STR, resource.attrib["restype"], ObjectType.iri)
     return ResourceDeserialised(
         res_id=resource.attrib["id"],
         property_objects=[rdf_type, lbl],

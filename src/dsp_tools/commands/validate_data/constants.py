@@ -2,7 +2,7 @@ from rdflib import XSD
 from rdflib import Namespace
 
 from dsp_tools.commands.validate_data.models.data_deserialised import KnoraTypePropInfo
-from dsp_tools.commands.validate_data.models.data_deserialised import ObjectTypes
+from dsp_tools.commands.validate_data.models.data_deserialised import ObjectType
 
 # Namespaces as string
 KNORA_API_STR = "http://api.knora.org/ontology/knora-api/v2#"
@@ -28,50 +28,50 @@ DATA = Namespace("http://data/")
 BOOLEAN_PROP = KnoraTypePropInfo(
     knora_value_type=f"{KNORA_API_STR}BooleanValue",
     knora_prop=f"{KNORA_API_STR}booleanValueAsBoolean",
-    object_type=ObjectTypes.boolean,
+    object_type=ObjectType.boolean,
 )
 COLOR_PROP = KnoraTypePropInfo(
     knora_value_type=f"{KNORA_API_STR}ColorValue",
     knora_prop=f"{KNORA_API_STR}colorValueAsColor",
-    object_type=ObjectTypes.string,
+    object_type=ObjectType.string,
 )
 DATE_PROP = KnoraTypePropInfo(
     knora_value_type=f"{KNORA_API_STR}DateValue",
     knora_prop=f"{KNORA_API_STR}valueAsString",
-    object_type=ObjectTypes.string,
+    object_type=ObjectType.string,
 )
 
 DECIMAL_PROP = KnoraTypePropInfo(
     knora_value_type=f"{KNORA_API_STR}DecimalValue",
     knora_prop=f"{KNORA_API_STR}decimalValueAsDecimal",
-    object_type=ObjectTypes.decimal,
+    object_type=ObjectType.decimal,
 )
 
 GEONAME_PROP = KnoraTypePropInfo(
     knora_value_type=f"{KNORA_API_STR}GeonameValue",
     knora_prop=f"{KNORA_API_STR}geonameValueAsGeonameCode",
-    object_type=ObjectTypes.string,
+    object_type=ObjectType.string,
 )
 INTEGER_PROP = KnoraTypePropInfo(
     knora_value_type=f"{KNORA_API_STR}IntValue",
     knora_prop=f"{KNORA_API_STR}intValueAsInt",
-    object_type=ObjectTypes.integer,
+    object_type=ObjectType.integer,
 )
 
 LINK_PROP = KnoraTypePropInfo(
     knora_value_type=f"{KNORA_API_STR}LinkValue",
     knora_prop=f"{API_SHAPES_STR}linkValueHasTargetID",
-    object_type=ObjectTypes.iri,
+    object_type=ObjectType.iri,
 )
 TIME_PROP = KnoraTypePropInfo(
     knora_value_type=f"{KNORA_API_STR}TimeValue",
     knora_prop=f"{KNORA_API_STR}timeValueAsTimeStamp",
-    object_type=ObjectTypes.datetime,
+    object_type=ObjectType.datetime,
 )
 URI_PROP = KnoraTypePropInfo(
     knora_value_type=f"{KNORA_API_STR}UriValue",
     knora_prop=f"{KNORA_API_STR}uriValueAsUri",
-    object_type=ObjectTypes.uri,
+    object_type=ObjectType.uri,
 )
 
 PROP_TYPE_MAPPER = {
@@ -89,26 +89,26 @@ PROP_TYPE_MAPPER = {
 LIST_PROP = KnoraTypePropInfo(
     knora_value_type=f"{KNORA_API_STR}ListValue",
     knora_prop=f"{API_SHAPES_STR}listNodeAsString",
-    object_type=ObjectTypes.string,
+    object_type=ObjectType.string,
 )
 
 SIMPLE_TEXT_PROP = KnoraTypePropInfo(
     knora_value_type=f"{KNORA_API_STR}TextValue",
     knora_prop=f"{KNORA_API_STR}valueAsString",
-    object_type=ObjectTypes.string,
+    object_type=ObjectType.string,
 )
 RICH_TEXT_PROP = KnoraTypePropInfo(
     knora_value_type=f"{KNORA_API_STR}TextValue",
     knora_prop=f"{KNORA_API_STR}textValueAsXml",
-    object_type=ObjectTypes.string,
+    object_type=ObjectType.string,
 )
 
 
 DATATYPES_TO_XSD = {
-    ObjectTypes.boolean: XSD.boolean,
-    ObjectTypes.datetime: XSD.dateTimeStamp,
-    ObjectTypes.decimal: XSD.decimal,
-    ObjectTypes.integer: XSD.integer,
-    ObjectTypes.string: XSD.string,
-    ObjectTypes.uri: XSD.anyURI,
+    ObjectType.boolean: XSD.boolean,
+    ObjectType.datetime: XSD.dateTimeStamp,
+    ObjectType.decimal: XSD.decimal,
+    ObjectType.integer: XSD.integer,
+    ObjectType.string: XSD.string,
+    ObjectType.uri: XSD.anyURI,
 }

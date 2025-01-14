@@ -15,7 +15,7 @@ from dsp_tools.commands.validate_data.models.data_deserialised import GeonameVal
 from dsp_tools.commands.validate_data.models.data_deserialised import IntValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import LinkValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ListValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import ObjectTypes
+from dsp_tools.commands.validate_data.models.data_deserialised import ObjectType
 from dsp_tools.commands.validate_data.models.data_deserialised import PropertyObject
 from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import RichtextDeserialised
@@ -37,9 +37,9 @@ class TestResource:
         assert len(res.property_objects) == 2
         lbl, rdf_type = _get_label_and_type(res)
         assert lbl.object_value == "lbl"
-        assert lbl.object_type == ObjectTypes.string
+        assert lbl.object_type == ObjectType.string
         assert rdf_type.object_value == "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"
-        assert rdf_type.object_type == ObjectTypes.iri
+        assert rdf_type.object_type == ObjectType.iri
         assert len(res.values) == 0
 
     def test_with_props(self, root_resource_with_props: etree._Element) -> None:
@@ -50,9 +50,9 @@ class TestResource:
         assert len(res.property_objects) == 2
         lbl, rdf_type = _get_label_and_type(res)
         assert lbl.object_value == "lbl"
-        assert lbl.object_type == ObjectTypes.string
+        assert lbl.object_type == ObjectType.string
         assert rdf_type.object_value == "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"
-        assert rdf_type.object_type == ObjectTypes.iri
+        assert rdf_type.object_type == ObjectType.iri
         assert len(res.values) == 3
 
     def test_region(self, root_resource_region: etree._Element) -> None:
@@ -62,9 +62,9 @@ class TestResource:
         assert len(res.property_objects) == 2
         lbl, rdf_type = _get_label_and_type(res)
         assert lbl.object_value == "Region"
-        assert lbl.object_type == ObjectTypes.string
+        assert lbl.object_type == ObjectType.string
         assert rdf_type.object_value == "http://api.knora.org/ontology/knora-api/v2#Region"
-        assert rdf_type.object_type == ObjectTypes.iri
+        assert rdf_type.object_type == ObjectType.iri
         assert len(res.values) == 0
 
 

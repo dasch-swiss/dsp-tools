@@ -41,24 +41,24 @@ class ResourceDeserialised:
 @dataclass
 class ReifiedPropertyObject:
     prop_name: str
-    prop_object: list[PropertyObject]
+    prop_objects: list[PropertyObject]
 
 
 @dataclass
 class PropertyObject:
     prop_name: str
     object_value: str | None
-    object_type: ObjectTypes
+    object_type: ObjectType
 
 
 @dataclass
 class KnoraTypePropInfo:
     knora_value_type: str
     knora_prop: str
-    object_type: ObjectTypes
+    object_type: ObjectType
 
 
-class ObjectTypes(Enum):
+class ObjectType(Enum):
     boolean = "boolean"
     datetime = "datetime"
     decimal = "decimal"

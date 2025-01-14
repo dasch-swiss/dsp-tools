@@ -21,7 +21,7 @@ from dsp_tools.commands.validate_data.models.data_deserialised import IIIFUriDes
 from dsp_tools.commands.validate_data.models.data_deserialised import IntValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import LinkValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ListValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import ObjectTypes
+from dsp_tools.commands.validate_data.models.data_deserialised import ObjectType
 from dsp_tools.commands.validate_data.models.data_deserialised import PropertyObject
 from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import RichtextDeserialised
@@ -90,7 +90,7 @@ def _make_one_resource(res: ResourceDeserialised) -> Graph:
 def _make_one_rdflib_object(property_object: PropertyObject) -> Literal | URIRef:
     if not property_object.object_value:
         return Literal("", datatype=XSD.string)
-    if property_object.object_type == ObjectTypes.iri:
+    if property_object.object_type == ObjectType.iri:
         return URIRef(property_object.object_value)
     return Literal(property_object.object_value, datatype=DATATYPES_TO_XSD[property_object.object_type])
 

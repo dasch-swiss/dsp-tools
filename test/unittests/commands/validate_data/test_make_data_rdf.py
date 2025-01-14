@@ -20,7 +20,7 @@ from dsp_tools.commands.validate_data.models.data_deserialised import IIIFUriDes
 from dsp_tools.commands.validate_data.models.data_deserialised import IntValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import LinkValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ListValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import ObjectTypes
+from dsp_tools.commands.validate_data.models.data_deserialised import ObjectType
 from dsp_tools.commands.validate_data.models.data_deserialised import PropertyObject
 from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import RichtextDeserialised
@@ -39,39 +39,39 @@ RES_IRI = DATA["id"]
     ("property_object", "expected"),
     [
         (
-            PropertyObject("", "true", ObjectTypes.boolean),
+            PropertyObject("", "true", ObjectType.boolean),
             Literal("true", datatype=XSD.boolean),
         ),
         (
-            PropertyObject("", "2019-10-23T13:45:12.01-14:00", ObjectTypes.datetime),
+            PropertyObject("", "2019-10-23T13:45:12.01-14:00", ObjectType.datetime),
             Literal("2019-10-23T13:45:12.01-14:00", datatype=XSD.dateTimeStamp),
         ),
         (
-            PropertyObject("", "1.5", ObjectTypes.decimal),
+            PropertyObject("", "1.5", ObjectType.decimal),
             Literal("1.5", datatype=XSD.decimal),
         ),
         (
-            PropertyObject("", "1", ObjectTypes.integer),
+            PropertyObject("", "1", ObjectType.integer),
             Literal("1", datatype=XSD.integer),
         ),
         (
-            PropertyObject("", "string", ObjectTypes.string),
+            PropertyObject("", "string", ObjectType.string),
             Literal("string", datatype=XSD.string),
         ),
         (
-            PropertyObject("", "https://dasch.swiss", ObjectTypes.uri),
+            PropertyObject("", "https://dasch.swiss", ObjectType.uri),
             Literal("https://dasch.swiss", datatype=XSD.anyURI),
         ),
         (
-            PropertyObject("", RES_IRI, ObjectTypes.iri),
+            PropertyObject("", RES_IRI, ObjectType.iri),
             URIRef(RES_IRI),
         ),
         (  # rdflib accepts this, testing to ensure this continues
-            PropertyObject("", "unexpectedIRIType", ObjectTypes.iri),
+            PropertyObject("", "unexpectedIRIType", ObjectType.iri),
             URIRef("unexpectedIRIType"),
         ),
         (
-            PropertyObject("", None, ObjectTypes.boolean),
+            PropertyObject("", None, ObjectType.boolean),
             Literal("", datatype=XSD.string),
         ),
     ],

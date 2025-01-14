@@ -228,7 +228,7 @@ def _construct_one_list_node_shape(one_list: OneList) -> Graph:
     node_prop_info = SHACLListInfo(
         list_iri=list_iri,
         sh_path=API_SHAPES.listNodeAsString,
-        sh_message=f"Unknown list node for list: {one_list.list_name}.",
+        sh_message=f"A valid node from the list '{one_list.list_name}' must be used with this property.",
         sh_in=list_name_and_node,
     )
     g += _construct_one_list_property_shape_with_collection(node_prop_info)

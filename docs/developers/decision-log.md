@@ -31,7 +31,6 @@ With the enum `TripleObjectType` we can specify the data type of the value or if
 ```mermaid
 flowchart TD
     C(Resource) -->|:ontologyProperty| D(PropertyObject)
-    D -->|:RDF/RDFS/knora Property| E(object Value)
 ```
 
 With the enum class `KnoraValueType` we can specify the knora value type.

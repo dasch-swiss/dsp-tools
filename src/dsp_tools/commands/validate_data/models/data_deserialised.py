@@ -42,7 +42,7 @@ class ResourceDeserialised:
         property_objects: A list of properties and objects where the subject is the resource itself.
             They are non-reified triples (not values).
             For example, the label of a resource is here.
-        values: a list of user-facing values (eg. BooleanValue)
+        values: a list of user-facing values (e.g. BooleanValue)
     """
 
     res_id: str
@@ -57,8 +57,8 @@ class PropertyObject:
 
     Args:
         property_type: maps to a specific knora-api or rdf(s) property
-        object_value: object of the triple, may be user facing (eg. label) or metadata (eg. permissions)
-        object_type: datatype for literals (eg. boolean) or that it is an IRI (not a literal)
+        object_value: object of the triple, may be user facing (e.g. label) or metadata (e.g. permissions)
+        object_type: datatype for literals (e.g. boolean) or that it is an IRI (not a literal)
     """
 
     property_type: TriplePropertyType
@@ -74,7 +74,7 @@ class ValueInformation:
     Args:
         user_facing_prop: Absolute IRI of the property as defined in the ontology
         user_facing_value: User-facing value, for example a number
-        knora_type: Maps to a knora value type (eg. BooleanValue)
+        knora_type: Maps to a knora value type (e.g. BooleanValue)
         value_metadata: metadata of the value for example permissions, comments, etc.
     """
 

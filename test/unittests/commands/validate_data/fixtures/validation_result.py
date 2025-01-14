@@ -785,11 +785,11 @@ def report_unknown_list_name(onto_graph: Graph) -> tuple[Graph, Graph, Validatio
     sh:resultSeverity sh:Violation ;
     sh:sourceConstraintComponent sh:NodeConstraintComponent ;
     sh:sourceShape <http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp_PropShape> ;
-    sh:value <http://data/2ccf4d39-c027-46bf-b310-5e47246e1169> ] .
+    sh:value <http://data/value_list_name_non_existent> ] .
 
 _:bn_list_name_non_existent a sh:ValidationResult ;
-    sh:focusNode <http://data/2ccf4d39-c027-46bf-b310-5e47246e1169> ;
-    sh:resultMessage "Unknown list node for list: firstList." ;
+    sh:focusNode <http://data/value_list_name_non_existent> ;
+    sh:resultMessage "A valid node from the list 'firstList' must be used with this property." ;
     sh:resultPath <http://api.knora.org/ontology/knora-api/shapes/v2#listNodeAsString> ;
     sh:resultSeverity sh:Violation ;
     sh:sourceConstraintComponent sh:InConstraintComponent ;
@@ -827,7 +827,7 @@ def extracted_unknown_list_name() -> ResultGenericViolation:
         res_iri=DATA.list_name_non_existent,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testListProp,
-        results_message="The list that should be used with this property is 'firstList'.",
+        results_message="A valid node from the list 'firstList' must be used with this property.",
         actual_value="other : n1",
     )
 

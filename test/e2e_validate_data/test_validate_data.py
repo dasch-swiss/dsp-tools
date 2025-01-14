@@ -408,13 +408,29 @@ class TestReformatValidationGraph:
     def test_reformat_special_characters_violation(self, special_characters_violation: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(special_characters_violation)
         expected_tuples = [
-            ("node_backslash", "Unknown list node for list: list \\ ' space.", "other \\ backslash"),
-            ("node_double_quote", "Unknown list node for list: list \\ ' space.", 'other double quote "'),
-            ("node_single_quote", "Unknown list node for list: list \\ ' space.", "other single quote '"),
+            (
+                "node_backslash",
+                "A valid node from the list 'list \\ ' space' must be used with this property.",
+                "list \ ' space : other \ backslash (list name : node name)",
+            ),
+            (
+                "node_double_quote",
+                "A valid node from the list 'list \\ ' space' must be used with this property.",
+                """list \ ' space : other double quote " (list name : node name)""",
+            ),
+            (
+                "node_single_quote",
+                "A valid node from the list 'list \\ ' space' must be used with this property.",
+                "list \\ ' space : other single quote  (list name : node name)",
+            ),
             ("non_ascii_latin_alphabet", "", ""),
             ("non_ascii_other_alphabet", "", ""),
             ("special_char", "", ""),
-            ("wrong_list_name", "The list that should be used with this property is: list \\ ' space.", "other"),
+            (
+                "wrong_list_name",
+                "A valid node from the list 'list \\ ' space' must be used with this property.",
+                "other :  \\ backslash (list name : node name)",
+            ),
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_tuples)

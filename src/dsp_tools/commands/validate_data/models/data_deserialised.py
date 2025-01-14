@@ -74,7 +74,7 @@ class ValueInformation:
     Args:
         user_facing_prop: Absolute IRI of the property as defined in the ontology
         user_facing_value: User-facing value, for example a number
-        knora_type: Maps to a knora value type (eg. BooleanValue)
+        knora_type: Maps to a knora value type (e.g. BooleanValue)
         value_metadata: metadata of the value for example permissions, comments, etc.
     """
 

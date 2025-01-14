@@ -24,8 +24,8 @@ from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDe
 
 
 def _get_label_and_type(resource: ResourceDeserialised) -> tuple[PropertyObject, PropertyObject]:
-    lbl = next(x for x in resource.property_objects if x.property_type == TriplePropertyType.rdfs_label)
-    rdf_type = next(x for x in resource.property_objects if x.property_type == TriplePropertyType.rdf_type)
+    lbl = next(x for x in resource.property_objects if x.property_type == TriplePropertyType.RDFS_LABEL)
+    rdf_type = next(x for x in resource.property_objects if x.property_type == TriplePropertyType.RDF_TYPE)
     return lbl, rdf_type
 
 
@@ -36,9 +36,9 @@ class TestResource:
         assert len(res.property_objects) == 2
         lbl, rdf_type = _get_label_and_type(res)
         assert lbl.object_value == "lbl"
-        assert lbl.object_type == TripleObjectType.string
+        assert lbl.object_type == TripleObjectType.STRING
         assert rdf_type.object_value == "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"
-        assert rdf_type.object_type == TripleObjectType.iri
+        assert rdf_type.object_type == TripleObjectType.IRI
         assert len(res.values) == 0
 
     def test_with_props(self, root_resource_with_props: etree._Element) -> None:
@@ -49,9 +49,9 @@ class TestResource:
         assert len(res.property_objects) == 2
         lbl, rdf_type = _get_label_and_type(res)
         assert lbl.object_value == "lbl"
-        assert lbl.object_type == TripleObjectType.string
+        assert lbl.object_type == TripleObjectType.STRING
         assert rdf_type.object_value == "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"
-        assert rdf_type.object_type == TripleObjectType.iri
+        assert rdf_type.object_type == TripleObjectType.IRI
         assert len(res.values) == 3
 
     def test_region(self, root_resource_region: etree._Element) -> None:
@@ -61,9 +61,9 @@ class TestResource:
         assert len(res.property_objects) == 2
         lbl, rdf_type = _get_label_and_type(res)
         assert lbl.object_value == "Region"
-        assert lbl.object_type == TripleObjectType.string
+        assert lbl.object_type == TripleObjectType.STRING
         assert rdf_type.object_value == "http://api.knora.org/ontology/knora-api/v2#Region"
-        assert rdf_type.object_type == TripleObjectType.iri
+        assert rdf_type.object_type == TripleObjectType.IRI
         assert len(res.values) == 0
 
 

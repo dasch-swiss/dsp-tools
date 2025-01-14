@@ -42,7 +42,7 @@ class TestListNode(unittest.TestCase):
         node = ListNode(con=self.con, iri=self.otherTreeList).read()
         self.assertEqual(node.iri, self.otherTreeList)
         self.assertEqual(node.project, self.project)
-        self.assertEqual(node.rdfs_label["en"], "Tree list root")
+        self.assertEqual(node.label["en"], "Tree list root")
         self.assertTrue(node.isRootNode)
         self.assertEqual(node.children, [])
 

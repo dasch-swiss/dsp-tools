@@ -22,6 +22,7 @@ nav:
   - Running DSP locally: start-stack.md
   - Information for developers:
       - Developers documentation: developers/index.md
+      - Architectural Decision Records: developers/decision-log.md
       - Dependencies, packaging & distribution: developers/packaging.md
       - User data: developers/user-data.md
       - MkDocs and markdown-link-validator: developers/mkdocs.md
@@ -72,6 +73,7 @@ extra_css:
 
 plugins:
   - search
+  - mermaid2
   - include-markdown
   - mkdocstrings:
       handlers:

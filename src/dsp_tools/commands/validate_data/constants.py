@@ -23,15 +23,15 @@ API_SHAPES = Namespace(API_SHAPES_STR)
 DATA = Namespace("http://data/")
 
 TRIPLE_PROP_TYPE_TO_IRI_MAPPER = {
-    TriplePropertyType.rdf_type: RDF.type,
-    TriplePropertyType.rdfs_label: RDFS.label,
+    TriplePropertyType.RDF_TYPE: RDF.type,
+    TriplePropertyType.RDFS_LABEL: RDFS.label,
 }
 
 TRIPLE_OBJECT_TYPE_TO_XSD = {
-    TripleObjectType.boolean: XSD.boolean,
-    TripleObjectType.datetime: XSD.dateTimeStamp,
-    TripleObjectType.decimal: XSD.decimal,
-    TripleObjectType.integer: XSD.integer,
-    TripleObjectType.string: XSD.string,
-    TripleObjectType.uri: XSD.anyURI,
+    TripleObjectType.BOOLEAN: XSD.boolean,
+    TripleObjectType.DATETIME: XSD.dateTimeStamp,
+    TripleObjectType.DECIMAL: XSD.decimal,
+    TripleObjectType.INTEGER: XSD.integer,
+    TripleObjectType.STRING: XSD.string,
+    TripleObjectType.URI: XSD.anyURI,
 }

@@ -121,10 +121,7 @@ def _extract_list_value_information(prop: etree._Element) -> list[ValueInformati
     list_name = prop.attrib["list"]
     all_vals = []
     for val in prop.iterchildren():
-        if not val.text:
-            found_value = None
-        else:
-            found_value = f"{list_name} : {val.text}"
+        found_value = f"{list_name} : {val.text}" if val.text else None
         all_vals.append(
             ValueInformation(
                 user_facing_prop=prop_name,

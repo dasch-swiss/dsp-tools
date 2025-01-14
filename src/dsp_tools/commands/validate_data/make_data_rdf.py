@@ -13,47 +13,15 @@ from dsp_tools.commands.validate_data.constants import TRIPLE_PROP_TYPE_TO_IRI_M
 from dsp_tools.commands.validate_data.constants import VALUE_INFO_TO_RDF_MAPPER
 from dsp_tools.commands.validate_data.constants import VALUE_INFO_TRIPLE_OBJECT_TYPE
 from dsp_tools.commands.validate_data.models.data_deserialised import AbstractFileValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import BooleanValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import ColorValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DataDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import DateValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import DecimalValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import GeonameValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import IIIFUriDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import IntValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import RichtextDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import SimpleTextDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import TimeValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TripleObjectType
-from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ValueInformation
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import BOOLEAN_PROP_TYPE_INFO
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import COLOR_PROP_TYPE_INFO
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import DECIMAL_PROP_TYPE_INFO
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import GEONAME_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import IIIF_URI_VALUE
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import INT_PROP_TYPE_INFO
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import RICHTEXT_PROP_TYPE_INFO
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import SIMPLE_TEXT_PROP_TYPE_INFO
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import TIME_PROP_TYPE_INFO
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import URI_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import get_file_type_info
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 from dsp_tools.models.exceptions import BaseError
-
-RDF_LITERAL_PROP_TYPE_MAPPER = {
-    BooleanValueDeserialised: BOOLEAN_PROP_TYPE_INFO,
-    ColorValueDeserialised: COLOR_PROP_TYPE_INFO,
-    DateValueDeserialised: RDFPropTypeInfo(KNORA_API.DateValue, KNORA_API.valueAsString, XSD.string),
-    DecimalValueDeserialised: DECIMAL_PROP_TYPE_INFO,
-    GeonameValueDeserialised: GEONAME_PROP_TYPE_INFO,
-    IntValueDeserialised: INT_PROP_TYPE_INFO,
-    SimpleTextDeserialised: SIMPLE_TEXT_PROP_TYPE_INFO,
-    RichtextDeserialised: RICHTEXT_PROP_TYPE_INFO,
-    TimeValueDeserialised: TIME_PROP_TYPE_INFO,
-    UriValueDeserialised: URI_PROP_TYPE_INFO,
-}
 
 
 def make_data_rdf(data_deserialised: DataDeserialised) -> Graph:

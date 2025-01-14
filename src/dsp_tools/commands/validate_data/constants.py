@@ -33,10 +33,8 @@ API_SHAPES = Namespace(API_SHAPES_STR)
 
 DATA = Namespace("http://data/")
 
-TRIPLE_PROP_TYPE_TO_IRI_MAPPER = {
-    TriplePropertyType.RDF_TYPE: RDF.type,
-    TriplePropertyType.RDFS_LABEL: RDFS.label,
-}
+
+# Mappers from XML to internal representation
 
 XML_TAG_TO_VALUE_TYPE_MAPPER = {
     "boolean-prop": KnoraValueType.BOOLEAN_VALUE,
@@ -49,6 +47,14 @@ XML_TAG_TO_VALUE_TYPE_MAPPER = {
     "resptr-prop": KnoraValueType.LINK_VALUE,
     "time-prop": KnoraValueType.TIME_VALUE,
     "uri-prop": KnoraValueType.URI_VALUE,
+}
+
+
+# Mappers from internal representation to API information
+
+TRIPLE_PROP_TYPE_TO_IRI_MAPPER = {
+    TriplePropertyType.RDF_TYPE: RDF.type,
+    TriplePropertyType.RDFS_LABEL: RDFS.label,
 }
 
 VALUE_INFO_TO_RDF_MAPPER = {

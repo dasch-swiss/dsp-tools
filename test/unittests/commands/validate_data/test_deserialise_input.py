@@ -51,7 +51,7 @@ class TestResource:
         lbl, rdf_type = _get_label_and_type(res)
         assert lbl.object_value == "Region"
         assert lbl.object_type == TripleObjectType.STRING
-        assert rdf_type.object_type == "http://api.knora.org/ontology/knora-api/v2#Region"
+        assert rdf_type.object_value == "http://api.knora.org/ontology/knora-api/v2#Region"
         assert rdf_type.object_type == TripleObjectType.IRI
         assert len(res.values) == 0
 

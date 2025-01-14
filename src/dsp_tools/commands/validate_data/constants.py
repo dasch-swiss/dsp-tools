@@ -34,7 +34,7 @@ XML_TAG_TO_VALUE_TYPE_MAPPER = {
     "date-prop": KnoraValueType.DATE_VALUE,
     "decimal-prop": KnoraValueType.DECIMAL_VALUE,
     "geoname-prop": KnoraValueType.GEONAME_VALUE,
-"list-prop": KnoraValueType.LIST_VALUE,
+    "list-prop": KnoraValueType.LIST_VALUE,
     "integer-prop": KnoraValueType.INT_VALUE,
     "resptr-prop": KnoraValueType.LINK_VALUE,
     "time-prop": KnoraValueType.TIME_VALUE,

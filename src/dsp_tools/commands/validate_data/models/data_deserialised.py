@@ -47,7 +47,7 @@ class ResourceDeserialised:
 
     res_id: str
     property_objects: list[PropertyObject]
-    values: list[ValueDeserialised]
+    values: list[ValueInformation]
 
 
 @dataclass

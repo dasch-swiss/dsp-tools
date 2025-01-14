@@ -127,7 +127,7 @@ def _extract_text_value_information(prop: etree._Element) -> list[ValueInformati
             case "xml":
                 val_type = KnoraValueType.RICHTEXT_VALUE
             case _:
-                assert_never(val.attrib["encoding"])
+                assert_never()
         all_vals.append(
             ValueInformation(
                 user_facing_prop=prop_name,

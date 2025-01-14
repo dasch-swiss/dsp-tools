@@ -793,7 +793,7 @@ _:bn_list_name_non_existent a sh:ValidationResult ;
     sh:resultPath <http://api.knora.org/ontology/knora-api/shapes/v2#listNodeAsString> ;
     sh:resultSeverity sh:Violation ;
     sh:sourceConstraintComponent sh:InConstraintComponent ;
-    sh:sourceShape _:nb4de6af77630456da792951d652f856db13 ;
+    sh:sourceShape _:bn_source ;
     sh:value "other : n1" .
     """
     validation_g = Graph()

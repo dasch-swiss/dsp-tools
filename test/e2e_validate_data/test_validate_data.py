@@ -411,12 +411,12 @@ class TestReformatValidationGraph:
             (
                 "node_backslash",
                 "A valid node from the list 'list \\ ' space' must be used with this property.",
-                "list \ ' space : other \ backslash (list name : node name)",
+                "list \\ ' space : other \\ backslash (list name : node name)",
             ),
             (
                 "node_double_quote",
                 "A valid node from the list 'list \\ ' space' must be used with this property.",
-                """list \ ' space : other double quote " (list name : node name)""",
+                """list \\ ' space : other double quote " (list name : node name)""",
             ),
             (
                 "node_single_quote",

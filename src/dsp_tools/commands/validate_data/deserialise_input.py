@@ -69,8 +69,8 @@ def _deserialise_all_resources(root: etree._Element) -> DataDeserialised:
 
 
 def _deserialise_one_in_built(resource: etree._Element, res_type: str) -> ResourceDeserialised:
-    lbl = PropertyObject(TriplePropertyType.rdfs_label, resource.attrib["label"], TripleObjectType.string)
-    rdf_type = PropertyObject(TriplePropertyType.rdf_type, res_type, TripleObjectType.iri)
+    lbl = PropertyObject(TriplePropertyType.RDFS_LABEL, resource.attrib["label"], TripleObjectType.STRING)
+    rdf_type = PropertyObject(TriplePropertyType.RDF_TYPE, res_type, TripleObjectType.IRI)
     return ResourceDeserialised(
         res_id=resource.attrib["id"],
         property_objects=[rdf_type, lbl],
@@ -82,8 +82,8 @@ def _deserialise_one_resource(resource: etree._Element) -> ResourceDeserialised:
     values: list[ValueDeserialised] = []
     for val in resource.iterchildren():
         values.extend(_deserialise_one_property(val))
-    lbl = PropertyObject(TriplePropertyType.rdfs_label, resource.attrib["label"], TripleObjectType.string)
-    rdf_type = PropertyObject(TriplePropertyType.rdf_type, resource.attrib["restype"], TripleObjectType.iri)
+    lbl = PropertyObject(TriplePropertyType.RDFS_LABEL, resource.attrib["label"], TripleObjectType.STRING)
+    rdf_type = PropertyObject(TriplePropertyType.RDF_TYPE, resource.attrib["restype"], TripleObjectType.IRI)
     return ResourceDeserialised(
         res_id=resource.attrib["id"],
         property_objects=[rdf_type, lbl],

@@ -81,7 +81,7 @@ class ValueInformation:
     user_facing_prop: str
     user_facing_value: str | None
     knora_type: KnoraValueType
-    value_metadata: list[TriplePropertyType]
+    value_metadata: list[PropertyObject]
 
 
 class TriplePropertyType(Enum):
@@ -92,8 +92,8 @@ class TriplePropertyType(Enum):
 
     rdfs_label = auto()
     rdf_type = auto()
-    permissions = auto()
-    comment = auto()
+    knora_permissions = auto()
+    knora_comment = auto()
 
 
 class TripleObjectType(Enum):

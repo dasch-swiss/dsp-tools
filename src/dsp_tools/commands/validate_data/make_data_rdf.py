@@ -8,8 +8,9 @@ from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.constants import API_SHAPES
 from dsp_tools.commands.validate_data.constants import DATA
-from dsp_tools.commands.validate_data.constants import DATATYPES_TO_XSD
 from dsp_tools.commands.validate_data.constants import KNORA_API
+from dsp_tools.commands.validate_data.constants import TRIPLE_OBJECT_TYPE_TO_XSD
+from dsp_tools.commands.validate_data.constants import TRIPLE_PROP_TYPE_TO_IRI_MAPPER
 from dsp_tools.commands.validate_data.models.data_deserialised import AbstractFileValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import BooleanValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ColorValueDeserialised
@@ -81,7 +82,7 @@ def _make_one_resource(res: ResourceDeserialised) -> Graph:
     g = Graph()
     for trpl in res.property_objects:
         object_val = _make_one_rdflib_object(trpl)
-        g.add((res_iri, URIRef(trpl.prop_name), object_val))
+        g.add((res_iri, TRIPLE_PROP_TYPE_TO_IRI_MAPPER[trpl.property_type], object_val))
     for v in res.values:
         g += _make_one_value(v, res_iri)
     return g
@@ -92,7 +93,7 @@ def _make_one_rdflib_object(property_object: PropertyObject) -> Literal | URIRef
         return Literal("", datatype=XSD.string)
     if property_object.object_type == TripleObjectType.iri:
         return URIRef(property_object.object_value)
-    return Literal(property_object.object_value, datatype=DATATYPES_TO_XSD[property_object.object_type])
+    return Literal(property_object.object_value, datatype=TRIPLE_OBJECT_TYPE_TO_XSD[property_object.object_type])
 
 
 def _make_one_value(val: ValueDeserialised, res_iri: URIRef) -> Graph:

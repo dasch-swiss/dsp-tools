@@ -4,8 +4,6 @@ from typing import Sequence
 from lxml import etree
 
 from dsp_tools.commands.validate_data.constants import AUDIO_SEGMENT_RESOURCE
-from dsp_tools.commands.validate_data.constants import RDF_TYPE_STR
-from dsp_tools.commands.validate_data.constants import RDFS_LABEL_STR
 from dsp_tools.commands.validate_data.constants import REGION_RESOURCE
 from dsp_tools.commands.validate_data.constants import VIDEO_SEGMENT_RESOURCE
 from dsp_tools.commands.validate_data.models.data_deserialised import AbstractFileValueDeserialised
@@ -28,6 +26,7 @@ from dsp_tools.commands.validate_data.models.data_deserialised import RichtextDe
 from dsp_tools.commands.validate_data.models.data_deserialised import SimpleTextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TimeValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TripleObjectType
+from dsp_tools.commands.validate_data.models.data_deserialised import TriplePropertyType
 from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ValueDeserialised
 
@@ -70,8 +69,8 @@ def _deserialise_all_resources(root: etree._Element) -> DataDeserialised:
 
 
 def _deserialise_one_in_built(resource: etree._Element, res_type: str) -> ResourceDeserialised:
-    lbl = PropertyObject(RDFS_LABEL_STR, resource.attrib["label"], TripleObjectType.string)
-    rdf_type = PropertyObject(RDF_TYPE_STR, res_type, TripleObjectType.iri)
+    lbl = PropertyObject(TriplePropertyType.rdfs_label, resource.attrib["label"], TripleObjectType.string)
+    rdf_type = PropertyObject(TriplePropertyType.rdf_type, res_type, TripleObjectType.iri)
     return ResourceDeserialised(
         res_id=resource.attrib["id"],
         property_objects=[rdf_type, lbl],
@@ -83,8 +82,8 @@ def _deserialise_one_resource(resource: etree._Element) -> ResourceDeserialised:
     values: list[ValueDeserialised] = []
     for val in resource.iterchildren():
         values.extend(_deserialise_one_property(val))
-    lbl = PropertyObject(RDFS_LABEL_STR, resource.attrib["label"], TripleObjectType.string)
-    rdf_type = PropertyObject(RDF_TYPE_STR, resource.attrib["restype"], TripleObjectType.iri)
+    lbl = PropertyObject(TriplePropertyType.rdfs_label, resource.attrib["label"], TripleObjectType.string)
+    rdf_type = PropertyObject(TriplePropertyType.rdf_type, resource.attrib["restype"], TripleObjectType.iri)
     return ResourceDeserialised(
         res_id=resource.attrib["id"],
         property_objects=[rdf_type, lbl],

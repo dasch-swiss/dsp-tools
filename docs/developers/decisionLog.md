@@ -3,7 +3,7 @@
 
 ## Python class structure in `validate-data`
 
-PR: https://github.com/dasch-swiss/dsp-tools/pull/1360
+[PR: https://github.com/dasch-swiss/dsp-tools/pull/1360](https://github.com/dasch-swiss/dsp-tools/pull/1360)
 
 Changing the internal Python representation of the data.
 A Python dataclass structure between the input XML and the data as an `rdflib` graph is added
@@ -31,3 +31,5 @@ flowchart TD
     C(Resource) -->|:ontologyProperty| D(PropertyObject)
     D -->|:RDF/RDFS/knora Property| E(object Value)
 ```
+
+With the enum class `ObjectType` we can specify if object is an RDF literal or an IRI.

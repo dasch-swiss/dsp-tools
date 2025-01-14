@@ -312,7 +312,11 @@ class TestReformatValidationGraph:
                 "onto:testListProp",
                 "A valid node from the list 'firstList' must be used with this property.",
             ),
-            ("list_node_non_existent", "onto:testListProp", "Unknown list node for list: firstList."),
+            (
+                "list_node_non_existent",
+                "onto:testListProp",
+                "A valid node from the list 'firstList' must be used with this property.",
+            ),
             ("text_only_whitespace_simple", "onto:testTextarea", "The value must be a non-empty string"),
         ]
         assert len(result.problems) == len(expected_info_tuples)

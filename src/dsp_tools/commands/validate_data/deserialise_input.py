@@ -1,5 +1,4 @@
-from typing import Callable
-from typing import Sequence
+from typing import assert_never
 
 from lxml import etree
 
@@ -12,13 +11,10 @@ from dsp_tools.commands.validate_data.models.data_deserialised import BitstreamD
 from dsp_tools.commands.validate_data.models.data_deserialised import DataDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import IIIFUriDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import KnoraValueType
-from dsp_tools.commands.validate_data.models.data_deserialised import ListValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ProjectDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ProjectInformation
 from dsp_tools.commands.validate_data.models.data_deserialised import PropertyObject
 from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import RichtextDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import SimpleTextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TripleObjectType
 from dsp_tools.commands.validate_data.models.data_deserialised import TriplePropertyType
 from dsp_tools.commands.validate_data.models.data_deserialised import ValueDeserialised
@@ -94,6 +90,7 @@ def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueInformation
                 | "date-prop"
                 | "decimal-prop"
                 | "geoname-prop"
+                | "list-prop"
                 | "integer-prop"
                 | "resptr-prop"
                 | "time-prop"
@@ -101,10 +98,8 @@ def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueInformation
             ) as prop_tag
         ):
             return _extract_generic_value_information(prop_ele, XML_TAG_TO_VALUE_TYPE_MAPPER[prop_tag])
-        case "list-prop":  # TODO: list-prop separate
-            return _deserialise_list_prop(prop_ele)
-        case "text-prop":  # TODO: text-prop separately
-            return _deserialise_text_prop(prop_ele)
+        case "text-prop":
+            return _extract_text_value_information(prop_ele)
         case _:
             return []
 
@@ -122,28 +117,25 @@ def _extract_generic_value_information(prop: etree._Element, value_type: KnoraVa
     ]
 
 
-def _deserialise_one_value(
-    prop: etree._Element, func: Callable[[str, str | None], ValueDeserialised]
-) -> Sequence[ValueDeserialised]:
+def _extract_text_value_information(prop: etree._Element) -> list[ValueInformation]:
     prop_name = prop.attrib["name"]
-    return [func(prop_name, x.text) for x in prop.iterchildren()]
-
-
-def _deserialise_list_prop(prop: etree._Element) -> list[ListValueDeserialised]:
-    prop_name = prop.attrib["name"]
-    list_name = prop.attrib["list"]
-    return [ListValueDeserialised(prop_name, x.text, list_name) for x in prop.iterchildren()]
-
-
-def _deserialise_text_prop(prop: etree._Element) -> list[SimpleTextDeserialised | RichtextDeserialised]:
-    prop_name = prop.attrib["name"]
-    all_vals: list[SimpleTextDeserialised | RichtextDeserialised] = []
+    all_vals = []
     for val in prop.iterchildren():
         match val.attrib["encoding"]:
             case "utf8":
-                all_vals.append(SimpleTextDeserialised(prop_name, _get_text_as_string(val)))
+                val_type = KnoraValueType.SIMPLETEXT_VALUE
             case "xml":
-                all_vals.append(RichtextDeserialised(prop_name, _get_text_as_string(val)))
+                val_type = KnoraValueType.RICHTEXT_VALUE
+            case _:
+                assert_never(val.attrib["encoding"])
+        all_vals.append(
+            ValueInformation(
+                user_facing_prop=prop_name,
+                user_facing_value=_get_text_as_string(val),
+                knora_type=val_type,
+                value_metadata=[],
+            )
+        )
     return all_vals
 
 

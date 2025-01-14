@@ -1,7 +1,9 @@
-# Change Log: validate-data
+# Decision Log
 
 
-## PR: https://github.com/dasch-swiss/dsp-tools/pull/1360
+## Python class structure in `validate-data`
+
+PR: https://github.com/dasch-swiss/dsp-tools/pull/1360
 
 Changing the internal Python representation of the data.
 A Python dataclass structure between the input XML and the data as an `rdflib` graph is added
@@ -16,16 +18,16 @@ Below are graphs to illustrate where the information contained in the classes wi
 
 **`PropertyObject`**
 
-```
+```mermaid
 flowchart TD
-    A(Resource or Value) -->|:RDF/RDFS/knora Property| B[object Value]
+    A(Resource or Value) -->|:RDF/RDFS/knora Property| B(object Value)
 ```
 
 
 **`ReifiedPropertyObject`**
 
-```
+```mermaid
 flowchart TD
-    C(Resource) -->|:ontologyProperty| D[PropertyObject]
-    D -->|:RDF/RDFS/knora Property| E[object Value]
+    C(Resource) -->|:ontologyProperty| D(PropertyObject)
+    D -->|:RDF/RDFS/knora Property| E(object Value)
 ```

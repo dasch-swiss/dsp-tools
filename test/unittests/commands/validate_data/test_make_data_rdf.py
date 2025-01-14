@@ -40,7 +40,7 @@ RES_IRI = DATA["id"]
     ("property_object", "expected"),
     [
         (
-            PropertyObject(TriplePropertyType.rdfs_label, "label", TripleObjectType.string),
+            PropertyObject(TriplePropertyType.RDFS_LABEL, "label", TripleObjectType.STRING),
             Literal("label", datatype=XSD.string),
         ),
         (
@@ -52,7 +52,7 @@ RES_IRI = DATA["id"]
             URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"),
         ),
         (
-            PropertyObject(TriplePropertyType.rdf_type, None, TripleObjectType.iri),
+            PropertyObject(TriplePropertyType.RDF_TYPE, None, TripleObjectType.IRI),
             Literal("", datatype=XSD.string),
         ),
     ],

@@ -87,12 +87,12 @@ def _make_one_resource(res: ResourceDeserialised) -> Graph:
     return g
 
 
-def _make_one_rdflib_object(triple_object: PropertyObject) -> Literal | URIRef:
-    if not triple_object.object_value:
+def _make_one_rdflib_object(property_object: PropertyObject) -> Literal | URIRef:
+    if not property_object.object_value:
         return Literal("", datatype=XSD.string)
-    if triple_object.object_type == ObjectTypes.iri:
-        return URIRef(triple_object.object_value)
-    return Literal(triple_object.object_value, datatype=DATATYPES_TO_XSD[triple_object.object_type])
+    if property_object.object_type == ObjectTypes.iri:
+        return URIRef(property_object.object_value)
+    return Literal(property_object.object_value, datatype=DATATYPES_TO_XSD[property_object.object_type])
 
 
 def _make_one_value(val: ValueDeserialised, res_iri: URIRef) -> Graph:

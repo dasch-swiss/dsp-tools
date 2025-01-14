@@ -3,8 +3,11 @@ from rdflib import RDF
 from rdflib import RDFS
 from rdflib import XSD
 from rdflib import Literal
+from rdflib import URIRef
+from rdflib.term import Node
 
 from dsp_tools.commands.validate_data.make_data_rdf import _make_file_value
+from dsp_tools.commands.validate_data.make_data_rdf import _make_one_rdflib_object
 from dsp_tools.commands.validate_data.make_data_rdf import _make_one_resource
 from dsp_tools.commands.validate_data.make_data_rdf import _make_one_value
 from dsp_tools.commands.validate_data.models.data_deserialised import BitstreamDeserialised
@@ -17,6 +20,8 @@ from dsp_tools.commands.validate_data.models.data_deserialised import IIIFUriDes
 from dsp_tools.commands.validate_data.models.data_deserialised import IntValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import LinkValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ListValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import ObjectTypes
+from dsp_tools.commands.validate_data.models.data_deserialised import PropertyObject
 from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import RichtextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import SimpleTextDeserialised
@@ -28,6 +33,48 @@ from test.unittests.commands.validate_data.constants import KNORA_API
 from test.unittests.commands.validate_data.constants import ONTO
 
 RES_IRI = DATA["id"]
+
+
+@pytest.mark.parametrize(
+    "property_object, expected",
+    [
+        (
+            PropertyObject("", "true", ObjectTypes.boolean),
+            Literal("true", datatype=XSD.boolean),
+        ),
+        (
+            PropertyObject("", "2019-10-23T13:45:12.01-14:00", ObjectTypes.datetime),
+            Literal("2019-10-23T13:45:12.01-14:00", datatype=XSD.dateTimeStamp),
+        ),
+        (
+            PropertyObject("", "1.5", ObjectTypes.decimal),
+            Literal("1.5", datatype=XSD.decimal),
+        ),
+        (
+            PropertyObject("", "1", ObjectTypes.integer),
+            Literal("1", datatype=XSD.integer),
+        ),
+        (
+            PropertyObject("", "string", ObjectTypes.string),
+            Literal("string", datatype=XSD.string),
+        ),
+        (
+            PropertyObject("", "https://dasch.swiss", ObjectTypes.uri),
+            Literal("https://dasch.swiss", datatype=XSD.anyURI),
+        ),
+        (
+            PropertyObject("", RES_IRI, ObjectTypes.iri),
+            URIRef(RES_IRI),
+        ),
+        (
+            PropertyObject("", None, ObjectTypes.boolean),
+            Literal("", datatype=XSD.string),
+        ),
+    ],
+)
+def test_make_one_rdflib_object(property_object: PropertyObject, expected: Node) -> None:
+    result = _make_one_rdflib_object(property_object)
+    assert result == expected
 
 
 class TestResource:

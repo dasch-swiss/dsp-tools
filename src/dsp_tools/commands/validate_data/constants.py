@@ -112,5 +112,3 @@ DATATYPES_TO_XSD = {
     ObjectTypes.string: XSD.string,
     ObjectTypes.uri: XSD.anyURI,
 }
-
-# TODO: DataTypes.iri

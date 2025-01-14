@@ -10,17 +10,17 @@ from dsp_tools.commands.validate_data.models.data_deserialised import GeonameVal
 from dsp_tools.commands.validate_data.models.data_deserialised import IntValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import LinkValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ListValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import ObjectType
 from dsp_tools.commands.validate_data.models.data_deserialised import PropertyObject
 from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import RichtextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import SimpleTextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TimeValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import TripleObjectType
 from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDeserialised
 
-LABEL_TRIPLE = PropertyObject(RDFS_LABEL_STR, "lbl", ObjectType.string)
+LABEL_TRIPLE = PropertyObject(RDFS_LABEL_STR, "lbl", TripleObjectType.string)
 TYPE_TRIPLE = PropertyObject(
-    RDF_TYPE_STR, "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything", ObjectType.iri
+    RDF_TYPE_STR, "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything", TripleObjectType.iri
 )
 
 UNREIFIED_TRIPLE_OBJECTS = [LABEL_TRIPLE, TYPE_TRIPLE]

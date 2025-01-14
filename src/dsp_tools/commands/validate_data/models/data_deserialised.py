@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
+from enum import auto
 
 from lxml import etree
 
@@ -33,39 +34,96 @@ class DataDeserialised:
 
 @dataclass
 class ResourceDeserialised:
+    """
+    Represents a user facing project specific resource.
+
+    Args:
+        res_id: resource ID provided by the user in the XML
+        property_objects: A list of properties and objects where the subject is the resource itself.
+            They are non-reified triples (not values).
+            For example, the label of a resource is here.
+        values: a list of user-facing values (eg. BooleanValue)
+    """
+
     res_id: str
     property_objects: list[PropertyObject]
     values: list[ValueDeserialised]
 
 
 @dataclass
-class ReifiedPropertyObject:
-    prop_name: str
-    prop_objects: list[PropertyObject]
-
-
-@dataclass
 class PropertyObject:
-    prop_name: str
+    """
+    Property and object of a triple.
+
+    Args:
+        property_type: maps to a specific knora-api or rdf(s) property
+        object_value: object of the triple, may be user facing (eg. label) or metadata (eg. permissions)
+        object_type: datatype for literals (eg. boolean) or that it is an IRI (not a literal)
+    """
+
+    property_type: TriplePropertyType
     object_value: str | None
-    object_type: ObjectType
+    object_type: TripleObjectType
 
 
 @dataclass
-class KnoraTypePropInfo:
-    knora_value_type: str
-    knora_prop: str
-    object_type: ObjectType
+class ValueInformation:
+    """
+    Contains information about a user-facing value, for example BooleanValue.
+
+    Args:
+        user_facing_prop: Absolute IRI of the property as defined in the ontology
+        user_facing_value: User-facing value, for example a number
+        knora_type: Maps to a knora value type (eg. BooleanValue)
+        value_metadata: metadata of the value for example permissions, comments, etc.
+    """
+
+    user_facing_prop: str
+    user_facing_value: str | None
+    knora_type: KnoraValueType
+    value_metadata: list[TriplePropertyType]
 
 
-class ObjectType(Enum):
-    boolean = "boolean"
-    datetime = "datetime"
-    decimal = "decimal"
-    integer = "integer"
-    iri = "iri"
-    string = "string"
-    uri = "uri"
+class TriplePropertyType(Enum):
+    """
+    Maps to a specific knora-api or rdf(s) property.
+    For example: comment -> knora-api:hasComment
+    """
+
+    rdfs_label = auto()
+    rdf_type = auto()
+    permissions = auto()
+    comment = auto()
+
+
+class TripleObjectType(Enum):
+    """
+    Maps to an xsd data type in case of literals, for example: boolean -> xsd:boolean
+    Or Indicates that it is an IRI, in which case it is not an RDF Literal
+    """
+
+    boolean = auto()
+    datetime = auto()
+    decimal = auto()
+    integer = auto()
+    iri = auto()
+    string = auto()
+    uri = auto()
+
+
+class KnoraValueType(Enum):
+    BooleanValue = auto()
+    ColorValue = auto()
+    DateValue = auto()
+    DecimalValue = auto()
+    GeonameValue = auto()
+    IntValue = auto()
+    LinkValue = auto()
+    ListValue = auto()
+    SimpleTextValue = auto()
+    RichtextValue = auto()
+    TimeValue = auto()
+    UriValue = auto()
 
 
 @dataclass

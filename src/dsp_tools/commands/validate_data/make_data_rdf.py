@@ -6,11 +6,12 @@ from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
 
-from dsp_tools.commands.validate_data.constants import API_SHAPES
 from dsp_tools.commands.validate_data.constants import DATA
 from dsp_tools.commands.validate_data.constants import KNORA_API
 from dsp_tools.commands.validate_data.constants import TRIPLE_OBJECT_TYPE_TO_XSD
 from dsp_tools.commands.validate_data.constants import TRIPLE_PROP_TYPE_TO_IRI_MAPPER
+from dsp_tools.commands.validate_data.constants import VALUE_INFO_TO_RDF_MAPPER
+from dsp_tools.commands.validate_data.constants import VALUE_INFO_TRIPLE_OBJECT_TYPE
 from dsp_tools.commands.validate_data.models.data_deserialised import AbstractFileValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import BooleanValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ColorValueDeserialised
@@ -20,16 +21,13 @@ from dsp_tools.commands.validate_data.models.data_deserialised import DecimalVal
 from dsp_tools.commands.validate_data.models.data_deserialised import GeonameValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import IIIFUriDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import IntValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import LinkValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import ListValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import PropertyObject
 from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import RichtextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import SimpleTextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TimeValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TripleObjectType
 from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import ValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import ValueInformation
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import BOOLEAN_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import COLOR_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import DECIMAL_PROP_TYPE_INFO
@@ -43,7 +41,6 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.constants import URI_PROP_TYPE_
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import get_file_type_info
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.exceptions import InternalError
 
 RDF_LITERAL_PROP_TYPE_MAPPER = {
     BooleanValueDeserialised: BOOLEAN_PROP_TYPE_INFO,
@@ -81,82 +78,31 @@ def _make_one_resource(res: ResourceDeserialised) -> Graph:
     res_iri = DATA[res.res_id]
     g = Graph()
     for trpl in res.property_objects:
-        object_val = _make_one_rdflib_object(trpl)
+        object_val = _make_one_rdflib_object(trpl.object_value, trpl.object_type)
         g.add((res_iri, TRIPLE_PROP_TYPE_TO_IRI_MAPPER[trpl.property_type], object_val))
     for v in res.values:
         g += _make_one_value(v, res_iri)
     return g
 
 
-def _make_one_rdflib_object(property_object: PropertyObject) -> Literal | URIRef:
-    if not property_object.object_value:
-        return Literal("", datatype=XSD.string)
-    if property_object.object_type == TripleObjectType.IRI:
-        return URIRef(property_object.object_value)
-    return Literal(property_object.object_value, datatype=TRIPLE_OBJECT_TYPE_TO_XSD[property_object.object_type])
+def _make_one_value(val: ValueInformation, res_iri: URIRef) -> Graph:
+    triple_object = _make_one_rdflib_object(val.user_facing_value, VALUE_INFO_TRIPLE_OBJECT_TYPE[val.knora_type])
+    prop_type_info = VALUE_INFO_TO_RDF_MAPPER[val.knora_type]
 
-
-def _make_one_value(val: ValueDeserialised, res_iri: URIRef) -> Graph:
-    match val:
-        case (
-            BooleanValueDeserialised()
-            | ColorValueDeserialised()
-            | DateValueDeserialised()
-            | DecimalValueDeserialised()
-            | GeonameValueDeserialised()
-            | IntValueDeserialised()
-            | SimpleTextDeserialised()
-            | RichtextDeserialised()
-            | TimeValueDeserialised()
-            | UriValueDeserialised()
-        ):
-            return _make_one_value_with_xsd_data_type(
-                val=val,
-                res_iri=res_iri,
-                prop_type_info=RDF_LITERAL_PROP_TYPE_MAPPER[type(val)],
-            )
-        case LinkValueDeserialised():
-            return _make_link_value(val, res_iri)
-        case ListValueDeserialised():
-            return _make_list_value(val, res_iri)
-        case _:
-            raise InternalError(f"Unknown Value Type: {type(val)}")
-
-
-def _make_one_value_with_xsd_data_type(
-    val: ValueDeserialised, res_iri: URIRef, prop_type_info: RDFPropTypeInfo
-) -> Graph:
     g = Graph()
     val_iri = DATA[str(uuid4())]
+    g.add((res_iri, URIRef(val.user_facing_prop), val_iri))
     g.add((val_iri, RDF.type, prop_type_info.knora_type))
-    if val.object_value:
-        literal_value = Literal(val.object_value, datatype=prop_type_info.xsd_type)
-    else:
-        literal_value = Literal("", datatype=XSD.string)
-    g.add((val_iri, prop_type_info.knora_prop, literal_value))
-    g.add((res_iri, URIRef(val.prop_name), val_iri))
+    g.add((val_iri, prop_type_info.knora_prop, triple_object))
     return g
 
 
-def _make_link_value(val: ValueDeserialised, res_iri: URIRef) -> Graph:
-    object_value = val.object_value if val.object_value is not None else ""
-    g = Graph()
-    val_iri = DATA[str(uuid4())]
-    g.add((val_iri, RDF.type, KNORA_API.LinkValue))
-    g.add((val_iri, API_SHAPES.linkValueHasTargetID, DATA[object_value]))
-    g.add((res_iri, URIRef(val.prop_name), val_iri))
-    return g
-
-
-def _make_list_value(val: ListValueDeserialised, res_iri: URIRef) -> Graph:
-    node_name = val.object_value if val.object_value is not None else ""
-    g = Graph()
-    val_iri = DATA[str(uuid4())]
-    g.add((val_iri, RDF.type, KNORA_API.ListValue))
-    g.add((val_iri, API_SHAPES.listNodeAsString, Literal(node_name, datatype=XSD.string)))
-    g.add((val_iri, API_SHAPES.listNameAsString, Literal(val.list_name, datatype=XSD.string)))
-    g.add((res_iri, URIRef(val.prop_name), val_iri))
-    return g
+def _make_one_rdflib_object(object_value: str | None, object_type: TripleObjectType) -> Literal | URIRef:
+    if not object_value:
+        return Literal("", datatype=XSD.string)
+    if object_type == TripleObjectType.IRI:
+        return URIRef(object_value)
+    return Literal(object_value, datatype=TRIPLE_OBJECT_TYPE_TO_XSD[object_type])
 
 
 def _make_file_value(val: AbstractFileValueDeserialised) -> Graph:

@@ -173,7 +173,7 @@ class TestListValue:
         assert len(res_list) == 1
         res = res_list[0]
         assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp"
-        assert res.user_facing_value == "n1"
+        assert res.user_facing_value == "firstList : n1"
         assert res.knora_type == KnoraValueType.LIST_VALUE
         assert not res.value_metadata
 
@@ -182,8 +182,8 @@ class TestListValue:
         assert len(res) == 2
         one = res[0]
         assert one.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp"
-        assert res[0].user_facing_value == "n1"
-        assert res[1].user_facing_value == "n2"
+        assert res[0].user_facing_value == "firstList : n1"
+        assert res[1].user_facing_value == "firstList : n2"
         assert res[0].knora_type == KnoraValueType.LIST_VALUE
         assert res[1].knora_type == KnoraValueType.LIST_VALUE
 

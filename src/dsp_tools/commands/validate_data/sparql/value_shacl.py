@@ -224,18 +224,12 @@ def _construct_one_list_node_shape(one_list: OneList) -> Graph:
     list_iri = URIRef(one_list.list_iri)
     g.add((list_iri, RDF.type, SH.NodeShape))
     g.add((list_iri, SH.severity, SH.Violation))
-    list_prop_info = SHACLListInfo(
-        list_iri=list_iri,
-        sh_path=API_SHAPES.listNameAsString,
-        sh_message=f"The list that should be used with this property is: {one_list.list_name}.",
-        sh_in=[one_list.list_name],
-    )
-    g += _construct_one_list_property_shape_with_collection(list_prop_info)
+    list_name_and_node = [f"{one_list.list_name} : {x}" for x in one_list.nodes]
     node_prop_info = SHACLListInfo(
         list_iri=list_iri,
         sh_path=API_SHAPES.listNodeAsString,
         sh_message=f"Unknown list node for list: {one_list.list_name}.",
-        sh_in=one_list.nodes,
+        sh_in=list_name_and_node,
     )
     g += _construct_one_list_property_shape_with_collection(node_prop_info)
     return g

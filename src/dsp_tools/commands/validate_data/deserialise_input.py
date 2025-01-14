@@ -88,7 +88,6 @@ def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueInformation
                 | "date-prop"
                 | "decimal-prop"
                 | "geoname-prop"
-                | "list-prop"
                 | "integer-prop"
                 | "resptr-prop"
                 | "time-prop"
@@ -96,6 +95,8 @@ def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueInformation
             ) as prop_tag
         ):
             return _extract_generic_value_information(prop_ele, XML_TAG_TO_VALUE_TYPE_MAPPER[prop_tag])
+        case "list-prop":
+            return _extract_list_value_information(prop_ele)
         case "text-prop":
             return _extract_text_value_information(prop_ele)
         case _:
@@ -113,6 +114,26 @@ def _extract_generic_value_information(prop: etree._Element, value_type: KnoraVa
         )
         for x in prop.iterchildren()
     ]
+
+
+def _extract_list_value_information(prop: etree._Element) -> list[ValueInformation]:
+    prop_name = prop.attrib["name"]
+    list_name = prop.attrib["list"]
+    all_vals = []
+    for val in prop.iterchildren():
+        if not val.text:
+            found_value = None
+        else:
+            found_value = f"{list_name} : {val.text}"
+        all_vals.append(
+            ValueInformation(
+                user_facing_prop=prop_name,
+                user_facing_value=found_value,
+                knora_type=KnoraValueType.LIST_VALUE,
+                value_metadata=[],
+            )
+        )
+    return all_vals
 
 
 def _extract_text_value_information(prop: etree._Element) -> list[ValueInformation]:

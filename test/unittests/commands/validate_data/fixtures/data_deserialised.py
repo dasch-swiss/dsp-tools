@@ -1,7 +1,5 @@
 import pytest
 
-from dsp_tools.commands.validate_data.constants import RDF_TYPE_STR
-from dsp_tools.commands.validate_data.constants import RDFS_LABEL_STR
 from dsp_tools.commands.validate_data.models.data_deserialised import BooleanValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ColorValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DateValueDeserialised
@@ -16,11 +14,12 @@ from dsp_tools.commands.validate_data.models.data_deserialised import RichtextDe
 from dsp_tools.commands.validate_data.models.data_deserialised import SimpleTextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TimeValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TripleObjectType
+from dsp_tools.commands.validate_data.models.data_deserialised import TriplePropertyType
 from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDeserialised
 
-LABEL_TRIPLE = PropertyObject(RDFS_LABEL_STR, "lbl", TripleObjectType.string)
+LABEL_TRIPLE = PropertyObject(TriplePropertyType.rdfs_label, "lbl", TripleObjectType.string)
 TYPE_TRIPLE = PropertyObject(
-    RDF_TYPE_STR, "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything", TripleObjectType.iri
+    TriplePropertyType.rdf_type, "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything", TripleObjectType.iri
 )
 
 UNREIFIED_TRIPLE_OBJECTS = [LABEL_TRIPLE, TYPE_TRIPLE]

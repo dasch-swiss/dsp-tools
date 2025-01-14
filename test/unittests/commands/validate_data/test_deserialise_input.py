@@ -1,7 +1,6 @@
 import pytest
 from lxml import etree
 
-from dsp_tools.commands.validate_data.constants import TriplePropertyType
 from dsp_tools.commands.validate_data.deserialise_input import _deserialise_all_resources
 from dsp_tools.commands.validate_data.deserialise_input import _deserialise_one_property
 from dsp_tools.commands.validate_data.deserialise_input import _deserialise_one_resource
@@ -20,6 +19,7 @@ from dsp_tools.commands.validate_data.models.data_deserialised import RichtextDe
 from dsp_tools.commands.validate_data.models.data_deserialised import SimpleTextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TimeValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TripleObjectType
+from dsp_tools.commands.validate_data.models.data_deserialised import TriplePropertyType
 from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDeserialised
 
 

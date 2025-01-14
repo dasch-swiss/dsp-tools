@@ -10,10 +10,6 @@ from dsp_tools.commands.validate_data.models.data_deserialised import TripleProp
 KNORA_API_STR = "http://api.knora.org/ontology/knora-api/v2#"
 API_SHAPES_STR = "http://api.knora.org/ontology/knora-api/shapes/v2#"
 
-# IRIs as string
-RDF_TYPE_STR = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-RDFS_LABEL_STR = "http://www.w3.org/2000/01/rdf-schema#label"
-
 REGION_RESOURCE = KNORA_API_STR + "Region"
 LINKOBJ_RESOURCE = KNORA_API_STR + "LinkObj"
 VIDEO_SEGMENT_RESOURCE = KNORA_API_STR + "VideoSegment"

@@ -1,5 +1,6 @@
 import pytest
 
+from dsp_tools.commands.validate_data.models.data_deserialised import KnoraValueType
 from dsp_tools.commands.validate_data.models.data_deserialised import PropertyObject
 from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TripleObjectType
@@ -36,129 +37,139 @@ def resource_deserialised_no_values() -> ResourceDeserialised:
 
 @pytest.fixture
 def boolean_value_deserialised_corr() -> ValueInformation:
-    return ValueInformation("http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean", "false")
+    return ValueInformation(
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean",
+        "false",
+        KnoraValueType.BOOLEAN_VALUE,
+        [],
+    )
 
 
 @pytest.fixture
 def boolean_value_deserialised_zero() -> ValueInformation:
-    return ValueInformation("http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean", "0")
+    return ValueInformation(
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean",
+        "0",
+        KnoraValueType.BOOLEAN_VALUE,
+        [],
+    )
 
 
 @pytest.fixture
 def boolean_value_deserialised_one() -> ValueInformation:
-    return ValueInformation("http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean", "1")
-
-
-@pytest.fixture
-def boolean_value_deserialised_none() -> ValueInformation:
-    return ValueInformation("http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean", None)
+    return ValueInformation(
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean",
+        "1",
+        KnoraValueType.BOOLEAN_VALUE,
+        [],
+    )
 
 
 @pytest.fixture
 def color_value_deserialised_corr() -> ValueInformation:
-    return ValueInformation("http://0.0.0.0:3333/ontology/9999/onto/v2#testColor", "#00ff00")
-
-
-@pytest.fixture
-def color_value_deserialised_none() -> ValueInformation:
-    return ValueInformation("http://0.0.0.0:3333/ontology/9999/onto/v2#testColor", None)
+    return ValueInformation(
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testColor",
+        "#00ff00",
+        KnoraValueType.COLOR_VALUE,
+        [],
+    )
 
 
 @pytest.fixture
 def date_value_deserialised_corr() -> ValueInformation:
-    return ValueInformation("http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate1", "JULIAN:BCE:0700:BCE:0600")
-
-
-@pytest.fixture
-def date_value_deserialised_none() -> ValueInformation:
-    return ValueInformation("http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate1", None)
+    return ValueInformation(
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate1",
+        "JULIAN:BCE:0700:BCE:0600",
+        KnoraValueType.DATE_VALUE,
+        [],
+    )
 
 
 @pytest.fixture
 def decimal_value_deserialised_corr() -> ValueInformation:
-    return ValueInformation("http://0.0.0.0:3333/ontology/9999/onto/v2#testDecimalSimpleText", "1.2")
-
-
-@pytest.fixture
-def decimal_value_deserialised_none() -> ValueInformation:
-    return ValueInformation("http://0.0.0.0:3333/ontology/9999/onto/v2#testDecimalSimpleText", None)
+    return ValueInformation(
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testDecimalSimpleText",
+        "1.2",
+        KnoraValueType.DECIMAL_VALUE,
+        [],
+    )
 
 
 @pytest.fixture
 def geoname_value_deserialised_corr() -> ValueInformation:
-    return ValueInformation("http://0.0.0.0:3333/ontology/9999/onto/v2#testGeoname", "1241345")
-
-
-@pytest.fixture
-def geoname_value_deserialised_none() -> ValueInformation:
-    return ValueInformation("http://0.0.0.0:3333/ontology/9999/onto/v2#testGeoname", None)
+    return ValueInformation(
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testGeoname",
+        "1241345",
+        KnoraValueType.GEONAME_VALUE,
+        [],
+    )
 
 
 @pytest.fixture
 def int_value_deserialised_corr() -> ValueInformation:
-    return ValueInformation("http://0.0.0.0:3333/ontology/9999/onto/v2#testIntegerSimpleText", "1")
-
-
-@pytest.fixture
-def int_value_deserialised_none() -> ValueInformation:
-    return ValueInformation("http://0.0.0.0:3333/ontology/9999/onto/v2#testIntegerSimpleText", None)
+    return ValueInformation(
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testIntegerSimpleText",
+        "1",
+        KnoraValueType.INT_VALUE,
+        [],
+    )
 
 
 @pytest.fixture
 def link_value_deserialised_corr() -> ValueInformation:
-    return ValueInformation("http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo", "link-id")
-
-
-@pytest.fixture
-def link_value_deserialised_none() -> ValueInformation:
-    return ValueInformation("http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo", None)
+    return ValueInformation(
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo",
+        "link-id",
+        KnoraValueType.LINK_VALUE,
+        [],
+    )
 
 
 @pytest.fixture
 def list_value_deserialised_corr() -> ValueInformation:
-    return ValueInformation("http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp", "n1", "firstList")
-
-
-@pytest.fixture
-def list_value_deserialised_none() -> ValueInformation:
-    return ValueInformation("http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp", None, "firstList")
+    return ValueInformation(
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp",
+        "n1",
+        KnoraValueType.LIST_VALUE,
+        [],
+    )
 
 
 @pytest.fixture
 def simple_text_deserialised_corr() -> ValueInformation:
-    return ValueInformation("http://0.0.0.0:3333/ontology/9999/onto/v2#testTextarea", "simple text")
-
-
-@pytest.fixture
-def simple_text_deserialised_none() -> ValueInformation:
-    return ValueInformation("http://0.0.0.0:3333/ontology/9999/onto/v2#testTextarea", None)
+    return ValueInformation(
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testTextarea",
+        "simple text",
+        KnoraValueType.SIMPLETEXT_VALUE,
+        [],
+    )
 
 
 @pytest.fixture
 def richtext_deserialised_corr() -> ValueInformation:
-    return ValueInformation("http://0.0.0.0:3333/ontology/9999/onto/v2#testRichtext", "rich text")
-
-
-@pytest.fixture
-def richtext_deserialised_none() -> ValueInformation:
-    return ValueInformation("http://0.0.0.0:3333/ontology/9999/onto/v2#testRichtext", None)
+    return ValueInformation(
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testRichtext",
+        "rich text",
+        KnoraValueType.RICHTEXT_VALUE,
+        [],
+    )
 
 
 @pytest.fixture
 def time_value_deserialised_corr() -> ValueInformation:
-    return ValueInformation("http://0.0.0.0:3333/ontology/9999/onto/v2#testTimeValue", "2019-10-23T13:45:12.01-14:00")
-
-
-@pytest.fixture
-def time_value_deserialised_none() -> ValueInformation:
-    return ValueInformation("http://0.0.0.0:3333/ontology/9999/onto/v2#testTimeValue", None)
+    return ValueInformation(
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testTimeValue",
+        "2019-10-23T13:45:12.01-14:00",
+        KnoraValueType.TIME_VALUE,
+        [],
+    )
 
 
 @pytest.fixture
 def uri_value_deserialised_corr() -> ValueInformation:
-    return ValueInformation("http://0.0.0.0:3333/ontology/9999/onto/v2#testUriValue", "https://dasch.swiss")
-
-
-@pytest.fixture
-def uri_value_deserialised_none() -> ValueInformation:
-    return ValueInformation("http://0.0.0.0:3333/ontology/9999/onto/v2#testUriValue", None)
+    return ValueInformation(
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testUriValue",
+        "https://dasch.swiss",
+        KnoraValueType.URI_VALUE,
+        [],
+    )

@@ -15,6 +15,7 @@ from dsp_tools.commands.validate_data.constants import VALUE_INFO_TRIPLE_OBJECT_
 from dsp_tools.commands.validate_data.models.data_deserialised import AbstractFileValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DataDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import IIIFUriDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import KnoraValueType
 from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TripleObjectType
 from dsp_tools.commands.validate_data.models.data_deserialised import ValueInformation
@@ -54,7 +55,10 @@ def _make_one_resource(res: ResourceDeserialised) -> Graph:
 
 
 def _make_one_value(val: ValueInformation, res_iri: URIRef) -> Graph:
-    triple_object = _make_one_rdflib_object(val.user_facing_value, VALUE_INFO_TRIPLE_OBJECT_TYPE[val.knora_type])
+    if val.knora_type == KnoraValueType.LINK_VALUE and val.user_facing_value:
+        triple_object = DATA[val.user_facing_value]
+    else:
+        triple_object = _make_one_rdflib_object(val.user_facing_value, VALUE_INFO_TRIPLE_OBJECT_TYPE[val.knora_type])
     prop_type_info = VALUE_INFO_TO_RDF_MAPPER[val.knora_type]
 
     g = Graph()

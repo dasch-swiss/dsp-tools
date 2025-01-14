@@ -66,6 +66,10 @@ RES_IRI = DATA["id"]
             PropertyObject("", RES_IRI, ObjectTypes.iri),
             URIRef(RES_IRI),
         ),
+        (  # rdflib accepts this, testing to ensure this continues
+            PropertyObject("", "unexpectedIRIType", ObjectTypes.iri),
+            URIRef("unexpectedIRIType"),
+        ),
         (
             PropertyObject("", None, ObjectTypes.boolean),
             Literal("", datatype=XSD.string),

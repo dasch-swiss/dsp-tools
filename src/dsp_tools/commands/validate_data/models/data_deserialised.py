@@ -57,8 +57,8 @@ class PropertyObject:
 
     Args:
         property_type: maps to a specific knora-api or rdf(s) property
-        object_value: object of the triple, may be user facing (eg. label) or metadata (eg. permissions)
-        object_type: datatype for literals (eg. boolean) or that it is an IRI (not a literal)
+        object_value: object of the triple, may be user facing (e.g. label) or metadata (e.g. permissions)
+        object_type: datatype for literals (e.g. boolean) or that it is an IRI (not a literal)
     """
 
     property_type: TriplePropertyType

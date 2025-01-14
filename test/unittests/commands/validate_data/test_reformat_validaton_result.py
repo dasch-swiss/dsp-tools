@@ -270,8 +270,8 @@ class TestQueryWithDetail:
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testListProp
-        assert result.results_message == "The list that should be used with this property is 'firstList'."
-        assert result.actual_value == "other (list name : node name)"
+        assert result.results_message == "A valid node from the list 'firstList' must be used with this property."
+        assert result.actual_value == "other : n1 (list name : node name)"
 
     def test_report_unknown_list_node(
         self, report_unknown_list_node: tuple[Graph, Graph, ValidationResultBaseInfo]
@@ -282,8 +282,8 @@ class TestQueryWithDetail:
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testListProp
-        assert result.results_message == "Unknown list node for list 'firstList'."
-        assert result.actual_value == "other (list name : node name)"
+        assert result.results_message == "A valid node from the list 'firstList' must be used with this property."
+        assert result.actual_value == "firstList : other (list name : node name)"
 
 
 class TestQueryFileValueViolations:
@@ -414,8 +414,8 @@ class TestReformatResult:
         assert result.res_id == "list_node_non_existent"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testListProp"
-        assert result.results_message == "Unknown list node for list 'firstList'."
-        assert result.actual_content == "other"
+        assert result.results_message == "A valid node from the list 'firstList' must be used with this property."
+        assert result.actual_content == "firstList : other"
 
     def test_unknown_list_name(self, extracted_unknown_list_name: ResultGenericViolation) -> None:
         result = _reformat_one_validation_result(extracted_unknown_list_name)
@@ -423,8 +423,8 @@ class TestReformatResult:
         assert result.res_id == "list_name_non_existent"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testListProp"
-        assert result.results_message == "The list that should be used with this property is 'firstList'."
-        assert result.actual_content == "other"
+        assert result.results_message == "A valid node from the list 'firstList' must be used with this property."
+        assert result.actual_content == "other : n1"
 
     def test_missing_file_value(self, extracted_missing_file_value: ResultFileValueViolation) -> None:
         result = _reformat_one_validation_result(extracted_missing_file_value)

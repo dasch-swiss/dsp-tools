@@ -142,6 +142,13 @@ class TestLinkValue:
         assert next(val_g.objects(bn, RDF.type)) == KNORA_API.LinkValue
         assert next(val_g.objects(bn, API_SHAPES.linkValueHasTargetID)) == DATA["link-id"]
 
+    def test_none(self, link_value_deserialised_none: ValueInformation) -> None:
+        val_g = _make_one_value(link_value_deserialised_none, RES_IRI)
+        assert len(val_g) == 3
+        bn = next(val_g.objects(RES_IRI, ONTO.testHasLinkTo))
+        assert next(val_g.objects(bn, RDF.type)) == KNORA_API.LinkValue
+        assert next(val_g.objects(bn, API_SHAPES.linkValueHasTargetID)) == DATA[""]
+
 
 class TestListValue:
     def test_corr(self, list_value_deserialised_corr: ValueInformation) -> None:

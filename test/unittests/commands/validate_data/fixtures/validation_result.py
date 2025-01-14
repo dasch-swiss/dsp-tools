@@ -730,7 +730,7 @@ sh:value <http://data/value_list_node_non_existent> ] .
     
     _:bn_list_node_non_existent a sh:ValidationResult ;
     sh:focusNode <http://data/value_list_node_non_existent> ;
-    sh:resultMessage "Unknown list node for list 'firstList'." ;
+    sh:resultMessage "A valid node from the list 'firstList' must be used with this property." ;
     sh:resultPath api-shapes:listNodeAsString ;
     sh:resultSeverity sh:Violation ;
     sh:sourceConstraintComponent sh:InConstraintComponent ;
@@ -768,7 +768,7 @@ def extracted_unknown_list_node() -> ResultGenericViolation:
         res_iri=DATA.list_node_non_existent,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testListProp,
-        results_message="Unknown list node for list 'firstList'.",
+        results_message="A valid node from the list 'firstList' must be used with this property.",
         actual_value="firstList : other",
     )
 

@@ -26,6 +26,7 @@ from dsp_tools.commands.validate_data.models.data_deserialised import RichtextDe
 from dsp_tools.commands.validate_data.models.data_deserialised import SimpleTextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TimeValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TripleObjectType
+from dsp_tools.commands.validate_data.models.data_deserialised import TriplePropertyType
 from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDeserialised
 from test.unittests.commands.validate_data.constants import API_SHAPES
 from test.unittests.commands.validate_data.constants import DATA
@@ -39,39 +40,19 @@ RES_IRI = DATA["id"]
     ("property_object", "expected"),
     [
         (
-            PropertyObject("", "true", TripleObjectType.boolean),
-            Literal("true", datatype=XSD.boolean),
+            PropertyObject(TriplePropertyType.rdfs_label, "label", TripleObjectType.string),
+            Literal("label", datatype=XSD.string),
         ),
         (
-            PropertyObject("", "2019-10-23T13:45:12.01-14:00", TripleObjectType.datetime),
-            Literal("2019-10-23T13:45:12.01-14:00", datatype=XSD.dateTimeStamp),
+            PropertyObject(
+                TriplePropertyType.rdf_type,
+                "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything",
+                TripleObjectType.iri,
+            ),
+            URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"),
         ),
         (
-            PropertyObject("", "1.5", TripleObjectType.decimal),
-            Literal("1.5", datatype=XSD.decimal),
-        ),
-        (
-            PropertyObject("", "1", TripleObjectType.integer),
-            Literal("1", datatype=XSD.integer),
-        ),
-        (
-            PropertyObject("", "string", TripleObjectType.string),
-            Literal("string", datatype=XSD.string),
-        ),
-        (
-            PropertyObject("", "https://dasch.swiss", TripleObjectType.uri),
-            Literal("https://dasch.swiss", datatype=XSD.anyURI),
-        ),
-        (
-            PropertyObject("", RES_IRI, TripleObjectType.iri),
-            URIRef(RES_IRI),
-        ),
-        (  # rdflib accepts this, testing to ensure this continues
-            PropertyObject("", "unexpectedIRIType", TripleObjectType.iri),
-            URIRef("unexpectedIRIType"),
-        ),
-        (
-            PropertyObject("", None, TripleObjectType.boolean),
+            PropertyObject(TriplePropertyType.rdf_type, None, TripleObjectType.iri),
             Literal("", datatype=XSD.string),
         ),
     ],

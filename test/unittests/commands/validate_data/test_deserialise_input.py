@@ -1,6 +1,8 @@
 import pytest
 from lxml import etree
 
+from dsp_tools.commands.validate_data.constants import RDF_TYPE_STR
+from dsp_tools.commands.validate_data.constants import RDFS_LABEL_STR
 from dsp_tools.commands.validate_data.deserialise_input import _deserialise_all_resources
 from dsp_tools.commands.validate_data.deserialise_input import _deserialise_one_property
 from dsp_tools.commands.validate_data.deserialise_input import _deserialise_one_resource
@@ -13,19 +15,31 @@ from dsp_tools.commands.validate_data.models.data_deserialised import GeonameVal
 from dsp_tools.commands.validate_data.models.data_deserialised import IntValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import LinkValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ListValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import ObjectTypes
+from dsp_tools.commands.validate_data.models.data_deserialised import PropertyObject
+from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import RichtextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import SimpleTextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TimeValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDeserialised
 
 
+def _get_label_and_type(resource: ResourceDeserialised) -> tuple[PropertyObject, PropertyObject]:
+    lbl = next(x for x in resource.unreified_triples if x.prop_name == RDFS_LABEL_STR)
+    rdf_type = next(x for x in resource.unreified_triples if x.prop_name == RDF_TYPE_STR)
+    return lbl, rdf_type
+
+
 class TestResource:
     def test_empty(self, resource_empty: etree._Element) -> None:
         res = _deserialise_one_resource(resource_empty)
         assert res.res_id == "one"
-        # TODO: fix tests
-        assert res.res_class == "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"
-        assert res.label == "lbl"
+        assert len(res.unreified_triples) == 2
+        lbl, rdf_type = _get_label_and_type(res)
+        assert lbl.object_value == "lbl"
+        assert lbl.object_type == ObjectTypes.string
+        assert rdf_type.object_value == "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"
+        assert rdf_type.object_type == ObjectTypes.iri
         assert len(res.values) == 0
 
     def test_with_props(self, root_resource_with_props: etree._Element) -> None:
@@ -33,16 +47,24 @@ class TestResource:
         assert len(res_list) == 1
         res = res_list[0]
         assert res.res_id == "one"
-        assert res.res_class == "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"
-        assert res.label == "lbl"
+        assert len(res.unreified_triples) == 2
+        lbl, rdf_type = _get_label_and_type(res)
+        assert lbl.object_value == "lbl"
+        assert lbl.object_type == ObjectTypes.string
+        assert rdf_type.object_value == "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"
+        assert rdf_type.object_type == ObjectTypes.iri
         assert len(res.values) == 3
 
     def test_region(self, root_resource_region: etree._Element) -> None:
         res_list = _deserialise_all_resources(root_resource_region).resources
         res = res_list[0]
         assert res.res_id == "region_1"
-        assert res.res_class == "http://api.knora.org/ontology/knora-api/v2#Region"
-        assert res.label == "Region"
+        assert len(res.unreified_triples) == 2
+        lbl, rdf_type = _get_label_and_type(res)
+        assert lbl.object_value == "Region"
+        assert lbl.object_type == ObjectTypes.string
+        assert rdf_type.object_value == "http://api.knora.org/ontology/knora-api/v2#Region"
+        assert rdf_type.object_type == ObjectTypes.iri
         assert len(res.values) == 0
 
 

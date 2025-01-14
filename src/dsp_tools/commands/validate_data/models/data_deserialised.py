@@ -34,31 +34,31 @@ class DataDeserialised:
 @dataclass
 class ResourceDeserialised:
     res_id: str
-    unreified_triples: list[UnreifiedTripleObject]
+    unreified_triples: list[PropertyObject]
     values: list[ValueDeserialised]
 
 
 @dataclass
-class ReifiedTripleObject:
+class ReifiedPropertyObject:
     prop_name: str
-    triples: list[UnreifiedTripleObject]
+    prop_object: list[PropertyObject]
 
 
 @dataclass
-class UnreifiedTripleObject:
+class PropertyObject:
     prop_name: str
     object_value: str | None
-    data_type: DataTypes
+    object_type: ObjectTypes
 
 
 @dataclass
 class KnoraTypePropInfo:
-    value_type: str
+    knora_value_type: str
     knora_prop: str
-    data_type: DataTypes
+    object_type: ObjectTypes
 
 
-class DataTypes(Enum):
+class ObjectTypes(Enum):
     boolean = "boolean"
     datetime = "datetime"
     decimal = "decimal"

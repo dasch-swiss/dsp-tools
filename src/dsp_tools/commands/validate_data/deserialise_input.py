@@ -13,7 +13,6 @@ from dsp_tools.commands.validate_data.models.data_deserialised import BitstreamD
 from dsp_tools.commands.validate_data.models.data_deserialised import BooleanValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ColorValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DataDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import DataTypes
 from dsp_tools.commands.validate_data.models.data_deserialised import DateValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DecimalValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import GeonameValueDeserialised
@@ -21,13 +20,14 @@ from dsp_tools.commands.validate_data.models.data_deserialised import IIIFUriDes
 from dsp_tools.commands.validate_data.models.data_deserialised import IntValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import LinkValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ListValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import ObjectTypes
 from dsp_tools.commands.validate_data.models.data_deserialised import ProjectDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ProjectInformation
+from dsp_tools.commands.validate_data.models.data_deserialised import PropertyObject
 from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import RichtextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import SimpleTextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TimeValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import UnreifiedTripleObject
 from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ValueDeserialised
 
@@ -70,8 +70,8 @@ def _deserialise_all_resources(root: etree._Element) -> DataDeserialised:
 
 
 def _deserialise_one_in_built(resource: etree._Element, res_type: str) -> ResourceDeserialised:
-    lbl = UnreifiedTripleObject(RDFS_LABEL_STR, resource.attrib["label"], DataTypes.string)
-    rdf_type = UnreifiedTripleObject(RDF_TYPE_STR, res_type, DataTypes.iri)
+    lbl = PropertyObject(RDFS_LABEL_STR, resource.attrib["label"], ObjectTypes.string)
+    rdf_type = PropertyObject(RDF_TYPE_STR, res_type, ObjectTypes.iri)
     return ResourceDeserialised(
         res_id=resource.attrib["id"],
         unreified_triples=[rdf_type, lbl],
@@ -83,8 +83,8 @@ def _deserialise_one_resource(resource: etree._Element) -> ResourceDeserialised:
     values: list[ValueDeserialised] = []
     for val in resource.iterchildren():
         values.extend(_deserialise_one_property(val))
-    lbl = UnreifiedTripleObject(RDFS_LABEL_STR, resource.attrib["label"], DataTypes.string)
-    rdf_type = UnreifiedTripleObject(RDF_TYPE_STR, resource.attrib["restype"], DataTypes.iri)
+    lbl = PropertyObject(RDFS_LABEL_STR, resource.attrib["label"], ObjectTypes.string)
+    rdf_type = PropertyObject(RDF_TYPE_STR, resource.attrib["restype"], ObjectTypes.iri)
     return ResourceDeserialised(
         res_id=resource.attrib["id"],
         unreified_triples=[rdf_type, lbl],

@@ -1,8 +1,8 @@
 from rdflib import XSD
 from rdflib import Namespace
 
-from dsp_tools.commands.validate_data.models.data_deserialised import DataTypes
 from dsp_tools.commands.validate_data.models.data_deserialised import KnoraTypePropInfo
+from dsp_tools.commands.validate_data.models.data_deserialised import ObjectTypes
 
 # Namespaces as string
 KNORA_API_STR = "http://api.knora.org/ontology/knora-api/v2#"
@@ -26,52 +26,52 @@ DATA = Namespace("http://data/")
 
 # prop-type mapper info
 BOOLEAN_PROP = KnoraTypePropInfo(
-    value_type=f"{KNORA_API_STR}BooleanValue",
+    knora_value_type=f"{KNORA_API_STR}BooleanValue",
     knora_prop=f"{KNORA_API_STR}booleanValueAsBoolean",
-    data_type=DataTypes.boolean,
+    object_type=ObjectTypes.boolean,
 )
 COLOR_PROP = KnoraTypePropInfo(
-    value_type=f"{KNORA_API_STR}ColorValue",
+    knora_value_type=f"{KNORA_API_STR}ColorValue",
     knora_prop=f"{KNORA_API_STR}colorValueAsColor",
-    data_type=DataTypes.string,
+    object_type=ObjectTypes.string,
 )
 DATE_PROP = KnoraTypePropInfo(
-    value_type=f"{KNORA_API_STR}DateValue",
+    knora_value_type=f"{KNORA_API_STR}DateValue",
     knora_prop=f"{KNORA_API_STR}valueAsString",
-    data_type=DataTypes.string,
+    object_type=ObjectTypes.string,
 )
 
 DECIMAL_PROP = KnoraTypePropInfo(
-    value_type=f"{KNORA_API_STR}DecimalValue",
+    knora_value_type=f"{KNORA_API_STR}DecimalValue",
     knora_prop=f"{KNORA_API_STR}decimalValueAsDecimal",
-    data_type=DataTypes.decimal,
+    object_type=ObjectTypes.decimal,
 )
 
 GEONAME_PROP = KnoraTypePropInfo(
-    value_type=f"{KNORA_API_STR}GeonameValue",
+    knora_value_type=f"{KNORA_API_STR}GeonameValue",
     knora_prop=f"{KNORA_API_STR}geonameValueAsGeonameCode",
-    data_type=DataTypes.string,
+    object_type=ObjectTypes.string,
 )
 INTEGER_PROP = KnoraTypePropInfo(
-    value_type=f"{KNORA_API_STR}IntValue",
+    knora_value_type=f"{KNORA_API_STR}IntValue",
     knora_prop=f"{KNORA_API_STR}intValueAsInt",
-    data_type=DataTypes.integer,
+    object_type=ObjectTypes.integer,
 )
 
 LINK_PROP = KnoraTypePropInfo(
-    value_type=f"{KNORA_API_STR}LinkValue",
+    knora_value_type=f"{KNORA_API_STR}LinkValue",
     knora_prop=f"{KNORA_API_STR}linkValueHasTargetIri",  # TODO: change to the shacl one
-    data_type=DataTypes.iri,
+    object_type=ObjectTypes.iri,
 )
 TIME_PROP = KnoraTypePropInfo(
-    value_type=f"{KNORA_API_STR}TimeValue",
+    knora_value_type=f"{KNORA_API_STR}TimeValue",
     knora_prop=f"{KNORA_API_STR}timeValueAsTimeStamp",
-    data_type=DataTypes.datetime,
+    object_type=ObjectTypes.datetime,
 )
 URI_PROP = KnoraTypePropInfo(
-    value_type=f"{KNORA_API_STR}UriValue",
+    knora_value_type=f"{KNORA_API_STR}UriValue",
     knora_prop=f"{KNORA_API_STR}uriValueAsUri",
-    data_type=DataTypes.uri,
+    object_type=ObjectTypes.uri,
 )
 
 PROP_TYPE_MAPPER = {
@@ -87,30 +87,30 @@ PROP_TYPE_MAPPER = {
 }
 
 LIST_PROP = KnoraTypePropInfo(
-    value_type=f"{KNORA_API_STR}ListValue",
+    knora_value_type=f"{KNORA_API_STR}ListValue",
     knora_prop=f"{KNORA_API_STR}valueAsString",  # TODO: need to change to other prop
-    data_type=DataTypes.string,
+    object_type=ObjectTypes.string,
 )
 
 SIMPLE_TEXT_PROP = KnoraTypePropInfo(
-    value_type=f"{KNORA_API_STR}TextValue",
+    knora_value_type=f"{KNORA_API_STR}TextValue",
     knora_prop=f"{KNORA_API_STR}valueAsString",
-    data_type=DataTypes.string,
+    object_type=ObjectTypes.string,
 )
 RICH_TEXT_PROP = KnoraTypePropInfo(
-    value_type=f"{KNORA_API_STR}TextValue",
+    knora_value_type=f"{KNORA_API_STR}TextValue",
     knora_prop=f"{KNORA_API_STR}textValueAsXml",
-    data_type=DataTypes.string,
+    object_type=ObjectTypes.string,
 )
 
 
 DATATYPES_TO_XSD = {
-    DataTypes.boolean: XSD.boolean,
-    DataTypes.datetime: XSD.dateTimeStamp,
-    DataTypes.decimal: XSD.decimal,
-    DataTypes.integer: XSD.integer,
-    DataTypes.string: XSD.string,
-    DataTypes.uri: XSD.anyURI,
+    ObjectTypes.boolean: XSD.boolean,
+    ObjectTypes.datetime: XSD.dateTimeStamp,
+    ObjectTypes.decimal: XSD.decimal,
+    ObjectTypes.integer: XSD.integer,
+    ObjectTypes.string: XSD.string,
+    ObjectTypes.uri: XSD.anyURI,
 }
 
 # TODO: DataTypes.iri

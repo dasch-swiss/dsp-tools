@@ -4,23 +4,23 @@ from dsp_tools.commands.validate_data.constants import RDF_TYPE_STR
 from dsp_tools.commands.validate_data.constants import RDFS_LABEL_STR
 from dsp_tools.commands.validate_data.models.data_deserialised import BooleanValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ColorValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import DataTypes
 from dsp_tools.commands.validate_data.models.data_deserialised import DateValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DecimalValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import GeonameValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import IntValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import LinkValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ListValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import ObjectTypes
+from dsp_tools.commands.validate_data.models.data_deserialised import PropertyObject
 from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import RichtextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import SimpleTextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TimeValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import UnreifiedTripleObject
 from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDeserialised
 
-LABEL_TRIPLE = UnreifiedTripleObject(RDFS_LABEL_STR, "lbl", DataTypes.string)
-TYPE_TRIPLE = UnreifiedTripleObject(
-    RDF_TYPE_STR, "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything", DataTypes.iri
+LABEL_TRIPLE = PropertyObject(RDFS_LABEL_STR, "lbl", ObjectTypes.string)
+TYPE_TRIPLE = PropertyObject(
+    RDF_TYPE_STR, "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything", ObjectTypes.iri
 )
 
 UNREIFIED_TRIPLE_OBJECTS = [LABEL_TRIPLE, TYPE_TRIPLE]

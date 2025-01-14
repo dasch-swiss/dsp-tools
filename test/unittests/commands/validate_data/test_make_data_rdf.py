@@ -45,9 +45,9 @@ RES_IRI = DATA["id"]
         ),
         (
             PropertyObject(
-                TriplePropertyType.rdf_type,
+                TriplePropertyType.RDF_TYPE,
                 "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything",
-                TripleObjectType.iri,
+                TripleObjectType.IRI,
             ),
             URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"),
         ),

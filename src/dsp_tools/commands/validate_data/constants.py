@@ -60,7 +60,7 @@ INTEGER_PROP = KnoraTypePropInfo(
 
 LINK_PROP = KnoraTypePropInfo(
     knora_value_type=f"{KNORA_API_STR}LinkValue",
-    knora_prop=f"{KNORA_API_STR}linkValueHasTargetIri",  # TODO: change to the shacl one
+    knora_prop=f"{API_SHAPES_STR}linkValueHasTargetID",
     object_type=ObjectTypes.iri,
 )
 TIME_PROP = KnoraTypePropInfo(
@@ -88,7 +88,7 @@ PROP_TYPE_MAPPER = {
 
 LIST_PROP = KnoraTypePropInfo(
     knora_value_type=f"{KNORA_API_STR}ListValue",
-    knora_prop=f"{KNORA_API_STR}valueAsString",  # TODO: need to change to other prop
+    knora_prop=f"{API_SHAPES_STR}listNodeAsString",
     object_type=ObjectTypes.string,
 )
 

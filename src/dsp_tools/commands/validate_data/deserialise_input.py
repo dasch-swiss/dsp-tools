@@ -74,7 +74,7 @@ def _deserialise_one_in_built(resource: etree._Element, res_type: str) -> Resour
     rdf_type = PropertyObject(RDF_TYPE_STR, res_type, ObjectTypes.iri)
     return ResourceDeserialised(
         res_id=resource.attrib["id"],
-        unreified_triples=[rdf_type, lbl],
+        property_objects=[rdf_type, lbl],
         values=[],
     )
 
@@ -87,7 +87,7 @@ def _deserialise_one_resource(resource: etree._Element) -> ResourceDeserialised:
     rdf_type = PropertyObject(RDF_TYPE_STR, resource.attrib["restype"], ObjectTypes.iri)
     return ResourceDeserialised(
         res_id=resource.attrib["id"],
-        unreified_triples=[rdf_type, lbl],
+        property_objects=[rdf_type, lbl],
         values=values,
     )
 

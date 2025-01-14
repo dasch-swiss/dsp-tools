@@ -36,7 +36,7 @@ RES_IRI = DATA["id"]
 
 
 @pytest.mark.parametrize(
-    "property_object, expected",
+    ("property_object", "expected"),
     [
         (
             PropertyObject("", "true", ObjectTypes.boolean),

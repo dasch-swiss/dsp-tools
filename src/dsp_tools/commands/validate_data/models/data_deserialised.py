@@ -34,7 +34,7 @@ class DataDeserialised:
 @dataclass
 class ResourceDeserialised:
     res_id: str
-    unreified_triples: list[PropertyObject]
+    property_objects: list[PropertyObject]
     values: list[ValueDeserialised]
 
 

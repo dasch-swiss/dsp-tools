@@ -25,8 +25,8 @@ from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDe
 
 
 def _get_label_and_type(resource: ResourceDeserialised) -> tuple[PropertyObject, PropertyObject]:
-    lbl = next(x for x in resource.unreified_triples if x.prop_name == RDFS_LABEL_STR)
-    rdf_type = next(x for x in resource.unreified_triples if x.prop_name == RDF_TYPE_STR)
+    lbl = next(x for x in resource.property_objects if x.prop_name == RDFS_LABEL_STR)
+    rdf_type = next(x for x in resource.property_objects if x.prop_name == RDF_TYPE_STR)
     return lbl, rdf_type
 
 
@@ -34,7 +34,7 @@ class TestResource:
     def test_empty(self, resource_empty: etree._Element) -> None:
         res = _deserialise_one_resource(resource_empty)
         assert res.res_id == "one"
-        assert len(res.unreified_triples) == 2
+        assert len(res.property_objects) == 2
         lbl, rdf_type = _get_label_and_type(res)
         assert lbl.object_value == "lbl"
         assert lbl.object_type == ObjectTypes.string
@@ -47,7 +47,7 @@ class TestResource:
         assert len(res_list) == 1
         res = res_list[0]
         assert res.res_id == "one"
-        assert len(res.unreified_triples) == 2
+        assert len(res.property_objects) == 2
         lbl, rdf_type = _get_label_and_type(res)
         assert lbl.object_value == "lbl"
         assert lbl.object_type == ObjectTypes.string
@@ -59,7 +59,7 @@ class TestResource:
         res_list = _deserialise_all_resources(root_resource_region).resources
         res = res_list[0]
         assert res.res_id == "region_1"
-        assert len(res.unreified_triples) == 2
+        assert len(res.property_objects) == 2
         lbl, rdf_type = _get_label_and_type(res)
         assert lbl.object_value == "Region"
         assert lbl.object_type == ObjectTypes.string

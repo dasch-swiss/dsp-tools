@@ -79,7 +79,7 @@ def make_data_rdf(data_deserialised: DataDeserialised) -> Graph:
 def _make_one_resource(res: ResourceDeserialised) -> Graph:
     res_iri = DATA[res.res_id]
     g = Graph()
-    for trpl in res.unreified_triples:
+    for trpl in res.property_objects:
         object_val = _make_one_rdflib_object(trpl)
         g.add((res_iri, URIRef(trpl.prop_name), object_val))
     for v in res.values:

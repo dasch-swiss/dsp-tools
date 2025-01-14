@@ -32,7 +32,7 @@ def resource_deserialised_with_values(
 ) -> ResourceDeserialised:
     return ResourceDeserialised(
         res_id="id",
-        unreified_triples=UNREIFIED_TRIPLE_OBJECTS,
+        property_objects=UNREIFIED_TRIPLE_OBJECTS,
         values=[boolean_value_deserialised_corr],
     )
 
@@ -41,7 +41,7 @@ def resource_deserialised_with_values(
 def resource_deserialised_no_values() -> ResourceDeserialised:
     return ResourceDeserialised(
         res_id="id",
-        unreified_triples=UNREIFIED_TRIPLE_OBJECTS,
+        property_objects=UNREIFIED_TRIPLE_OBJECTS,
         values=[],
     )
 

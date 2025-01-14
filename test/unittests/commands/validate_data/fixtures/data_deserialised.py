@@ -17,9 +17,9 @@ from dsp_tools.commands.validate_data.models.data_deserialised import TripleObje
 from dsp_tools.commands.validate_data.models.data_deserialised import TriplePropertyType
 from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDeserialised
 
-LABEL_TRIPLE = PropertyObject(TriplePropertyType.rdfs_label, "lbl", TripleObjectType.string)
+LABEL_TRIPLE = PropertyObject(TriplePropertyType.RDFS_LABEL, "lbl", TripleObjectType.STRING)
 TYPE_TRIPLE = PropertyObject(
-    TriplePropertyType.rdf_type, "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything", TripleObjectType.iri
+    TriplePropertyType.RDF_TYPE, "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything", TripleObjectType.IRI
 )
 
 UNREIFIED_TRIPLE_OBJECTS = [LABEL_TRIPLE, TYPE_TRIPLE]

@@ -1,8 +1,7 @@
 import pytest
 from lxml import etree
 
-from dsp_tools.commands.validate_data.constants import RDF_TYPE_STR
-from dsp_tools.commands.validate_data.constants import RDFS_LABEL_STR
+from dsp_tools.commands.validate_data.constants import TriplePropertyType
 from dsp_tools.commands.validate_data.deserialise_input import _deserialise_all_resources
 from dsp_tools.commands.validate_data.deserialise_input import _deserialise_one_property
 from dsp_tools.commands.validate_data.deserialise_input import _deserialise_one_resource
@@ -25,8 +24,8 @@ from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDe
 
 
 def _get_label_and_type(resource: ResourceDeserialised) -> tuple[PropertyObject, PropertyObject]:
-    lbl = next(x for x in resource.property_objects if x.prop_name == RDFS_LABEL_STR)
-    rdf_type = next(x for x in resource.property_objects if x.prop_name == RDF_TYPE_STR)
+    lbl = next(x for x in resource.property_objects if x.property_type == TriplePropertyType.rdfs_label)
+    rdf_type = next(x for x in resource.property_objects if x.property_type == TriplePropertyType.rdf_type)
     return lbl, rdf_type
 
 
@@ -74,8 +73,8 @@ class TestBooleanValue:
         assert len(res_list) == 1
         res = res_list[0]
         assert isinstance(res, BooleanValueDeserialised)
-        assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean"
-        assert res.user_facing_value == "true"
+        assert res.prop_name == "http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean"
+        assert res.object_value == "true"
 
 
 class TestColorValue:
@@ -84,16 +83,16 @@ class TestColorValue:
         assert len(res_list) == 1
         res = res_list[0]
         assert isinstance(res, ColorValueDeserialised)
-        assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testColor"
-        assert res.user_facing_value == "#00ff00"
+        assert res.prop_name == "http://0.0.0.0:3333/ontology/9999/onto/v2#testColor"
+        assert res.object_value == "#00ff00"
 
     def test_several(self, color_value_corr_several: etree._Element) -> None:
         res = _deserialise_one_property(color_value_corr_several)
         assert len(res) == 2
         assert all([isinstance(x, ColorValueDeserialised) for x in res])
-        assert res[0].user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testColor"
-        assert res[0].user_facing_value == "#00ff00"
-        assert res[1].user_facing_value == "#00ff11"
+        assert res[0].prop_name == "http://0.0.0.0:3333/ontology/9999/onto/v2#testColor"
+        assert res[0].object_value == "#00ff00"
+        assert res[1].object_value == "#00ff11"
 
 
 class TestDateValue:
@@ -102,16 +101,16 @@ class TestDateValue:
         assert len(res_list) == 1
         res = res_list[0]
         assert isinstance(res, DateValueDeserialised)
-        assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate1"
-        assert res.user_facing_value == "JULIAN:BCE:0700:BCE:0600"
+        assert res.prop_name == "http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate1"
+        assert res.object_value == "JULIAN:BCE:0700:BCE:0600"
 
     def test_several(self, date_value_corr_several: etree._Element) -> None:
         res = _deserialise_one_property(date_value_corr_several)
         assert len(res) == 2
         assert all([isinstance(x, DateValueDeserialised) for x in res])
-        assert res[0].user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate1"
-        assert res[0].user_facing_value == "JULIAN:BCE:0700:BCE:0600"
-        assert res[1].user_facing_value == "ISLAMIC:BCE:0700:BCE:0600"
+        assert res[0].prop_name == "http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate1"
+        assert res[0].object_value == "JULIAN:BCE:0700:BCE:0600"
+        assert res[1].object_value == "ISLAMIC:BCE:0700:BCE:0600"
 
 
 class TestDecimalValue:
@@ -120,16 +119,16 @@ class TestDecimalValue:
         assert len(res_list) == 1
         res = res_list[0]
         assert isinstance(res, DecimalValueDeserialised)
-        assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testDecimalSimpleText"
-        assert res.user_facing_value == "2.71"
+        assert res.prop_name == "http://0.0.0.0:3333/ontology/9999/onto/v2#testDecimalSimpleText"
+        assert res.object_value == "2.71"
 
     def test_several(self, decimal_value_corr_several: etree._Element) -> None:
         res = _deserialise_one_property(decimal_value_corr_several)
         assert len(res) == 2
         assert all([isinstance(x, DecimalValueDeserialised) for x in res])
-        assert res[0].user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testDecimalSimpleText"
-        assert res[0].user_facing_value == "1.0"
-        assert res[1].user_facing_value == "2.0"
+        assert res[0].prop_name == "http://0.0.0.0:3333/ontology/9999/onto/v2#testDecimalSimpleText"
+        assert res[0].object_value == "1.0"
+        assert res[1].object_value == "2.0"
 
 
 class TestGeonameValue:
@@ -138,16 +137,16 @@ class TestGeonameValue:
         assert len(res_list) == 1
         res = res_list[0]
         assert isinstance(res, GeonameValueDeserialised)
-        assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testGeoname"
-        assert res.user_facing_value == "1111111"
+        assert res.prop_name == "http://0.0.0.0:3333/ontology/9999/onto/v2#testGeoname"
+        assert res.object_value == "1111111"
 
     def test_several(self, geoname_value_corr_several: etree._Element) -> None:
         res = _deserialise_one_property(geoname_value_corr_several)
         assert len(res) == 2
         assert all([isinstance(x, GeonameValueDeserialised) for x in res])
-        assert res[0].user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testGeoname"
-        assert res[0].user_facing_value == "1111111"
-        assert res[1].user_facing_value == "2222222"
+        assert res[0].prop_name == "http://0.0.0.0:3333/ontology/9999/onto/v2#testGeoname"
+        assert res[0].object_value == "1111111"
+        assert res[1].object_value == "2222222"
 
 
 class TestIntValue:
@@ -156,16 +155,16 @@ class TestIntValue:
         assert len(res_list) == 1
         res = res_list[0]
         assert isinstance(res, IntValueDeserialised)
-        assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testIntegerSimpleText"
-        assert res.user_facing_value == "1"
+        assert res.prop_name == "http://0.0.0.0:3333/ontology/9999/onto/v2#testIntegerSimpleText"
+        assert res.object_value == "1"
 
     def test_several(self, integer_value_corr_several: etree._Element) -> None:
         res = _deserialise_one_property(integer_value_corr_several)
         assert len(res) == 2
         assert all([isinstance(x, IntValueDeserialised) for x in res])
-        assert res[0].user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testIntegerSimpleText"
-        assert res[0].user_facing_value == "1"
-        assert res[1].user_facing_value == "2"
+        assert res[0].prop_name == "http://0.0.0.0:3333/ontology/9999/onto/v2#testIntegerSimpleText"
+        assert res[0].object_value == "1"
+        assert res[1].object_value == "2"
 
 
 class TestListValue:
@@ -174,9 +173,9 @@ class TestListValue:
         assert len(res_list) == 1
         res = res_list[0]
         assert isinstance(res, ListValueDeserialised)
-        assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp"
+        assert res.prop_name == "http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp"
         assert res.list_name == "firstList"
-        assert res.user_facing_value == "n1"
+        assert res.object_value == "n1"
 
     def test_several(self, list_value_corr_several: etree._Element) -> None:
         res = _deserialise_one_property(list_value_corr_several)
@@ -184,10 +183,10 @@ class TestListValue:
         assert all([isinstance(x, ListValueDeserialised) for x in res])
         one = res[0]
         assert isinstance(one, ListValueDeserialised)
-        assert one.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp"
+        assert one.prop_name == "http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp"
         assert one.list_name == "firstList"
-        assert res[0].user_facing_value == "n1"
-        assert res[1].user_facing_value == "n2"
+        assert res[0].object_value == "n1"
+        assert res[1].object_value == "n2"
 
 
 class TestSimpleTextValue:
@@ -196,24 +195,24 @@ class TestSimpleTextValue:
         assert len(res_list) == 1
         res = res_list[0]
         assert isinstance(res, SimpleTextDeserialised)
-        assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testTextarea"
-        assert res.user_facing_value == "Text"
+        assert res.prop_name == "http://0.0.0.0:3333/ontology/9999/onto/v2#testTextarea"
+        assert res.object_value == "Text"
 
     def test_several(self, text_simpletext_value_corr_several: etree._Element) -> None:
         res = _deserialise_one_property(text_simpletext_value_corr_several)
         assert len(res) == 2
         assert all([isinstance(x, SimpleTextDeserialised) for x in res])
-        assert res[0].user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testSimpleText"
-        assert res[0].user_facing_value == "Text 1"
-        assert res[1].user_facing_value == "Text 2"
+        assert res[0].prop_name == "http://0.0.0.0:3333/ontology/9999/onto/v2#testSimpleText"
+        assert res[0].object_value == "Text 1"
+        assert res[1].object_value == "Text 2"
 
     def test_wrong(self, text_simpletext_value_wrong: etree._Element) -> None:
         res_list = _deserialise_one_property(text_simpletext_value_wrong)
         assert len(res_list) == 1
         res = res_list[0]
         assert isinstance(res, SimpleTextDeserialised)
-        assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testSimpleText"
-        assert not res.user_facing_value
+        assert res.prop_name == "http://0.0.0.0:3333/ontology/9999/onto/v2#testSimpleText"
+        assert not res.object_value
 
 
 class TestRichtextValue:
@@ -222,16 +221,16 @@ class TestRichtextValue:
         assert len(res_list) == 1
         res = res_list[0]
         assert isinstance(res, RichtextDeserialised)
-        assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testRichtext"
-        assert res.user_facing_value == "<p>Text</p>"
+        assert res.prop_name == "http://0.0.0.0:3333/ontology/9999/onto/v2#testRichtext"
+        assert res.object_value == "<p>Text</p>"
 
     def test_several(self, text_richtext_value_corr_several: etree._Element) -> None:
         res = _deserialise_one_property(text_richtext_value_corr_several)
         assert len(res) == 2
         assert all([isinstance(x, RichtextDeserialised) for x in res])
-        assert res[0].user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testRichtext"
-        assert res[0].user_facing_value == "Text 1"
-        assert res[1].user_facing_value == "Text 2"
+        assert res[0].prop_name == "http://0.0.0.0:3333/ontology/9999/onto/v2#testRichtext"
+        assert res[0].object_value == "Text 1"
+        assert res[1].object_value == "Text 2"
 
 
 class TestTimeValue:
@@ -240,16 +239,16 @@ class TestTimeValue:
         assert len(res_list) == 1
         res = res_list[0]
         assert isinstance(res, TimeValueDeserialised)
-        assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testTimeValue"
-        assert res.user_facing_value == "2019-10-23T13:45:12.01-14:00"
+        assert res.prop_name == "http://0.0.0.0:3333/ontology/9999/onto/v2#testTimeValue"
+        assert res.object_value == "2019-10-23T13:45:12.01-14:00"
 
     def test_several(self, time_value_corr_several: etree._Element) -> None:
         res = _deserialise_one_property(time_value_corr_several)
         assert len(res) == 2
         assert all([isinstance(x, TimeValueDeserialised) for x in res])
-        assert res[0].user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testTimeValue"
-        assert res[0].user_facing_value == "2019-10-23T13:45:12.01-14:00"
-        assert res[1].user_facing_value == "2019-10-23T13:45:12.01-08:00"
+        assert res[0].prop_name == "http://0.0.0.0:3333/ontology/9999/onto/v2#testTimeValue"
+        assert res[0].object_value == "2019-10-23T13:45:12.01-14:00"
+        assert res[1].object_value == "2019-10-23T13:45:12.01-08:00"
 
 
 class TestUriValue:
@@ -258,16 +257,16 @@ class TestUriValue:
         assert len(res_list) == 1
         res = res_list[0]
         assert isinstance(res, UriValueDeserialised)
-        assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testUriValue"
-        assert res.user_facing_value == "https://dasch.swiss"
+        assert res.prop_name == "http://0.0.0.0:3333/ontology/9999/onto/v2#testUriValue"
+        assert res.object_value == "https://dasch.swiss"
 
     def test_several(self, uri_value_corr_several: etree._Element) -> None:
         res = _deserialise_one_property(uri_value_corr_several)
         assert len(res) == 2
         assert all([isinstance(x, UriValueDeserialised) for x in res])
-        assert res[0].user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testUriValue"
-        assert res[0].user_facing_value == "https://dasch.swiss"
-        assert res[1].user_facing_value == "https://app.dasch.swiss"
+        assert res[0].prop_name == "http://0.0.0.0:3333/ontology/9999/onto/v2#testUriValue"
+        assert res[0].object_value == "https://dasch.swiss"
+        assert res[1].object_value == "https://app.dasch.swiss"
 
 
 class TestLinkValue:
@@ -276,16 +275,16 @@ class TestLinkValue:
         assert len(res_list) == 1
         res = res_list[0]
         assert isinstance(res, LinkValueDeserialised)
-        assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo"
-        assert res.user_facing_value == "id_1"
+        assert res.prop_name == "http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo"
+        assert res.object_value == "id_1"
 
     def test_several(self, resptr_value_corr_several: etree._Element) -> None:
         res = _deserialise_one_property(resptr_value_corr_several)
         assert len(res) == 2
         assert all([isinstance(x, LinkValueDeserialised) for x in res])
-        assert res[0].user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo"
-        assert res[0].user_facing_value == "id_1"
-        assert res[1].user_facing_value == "id_2"
+        assert res[0].prop_name == "http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo"
+        assert res[0].object_value == "id_1"
+        assert res[1].object_value == "id_2"
 
 
 @pytest.mark.parametrize(

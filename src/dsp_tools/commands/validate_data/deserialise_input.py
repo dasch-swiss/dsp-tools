@@ -172,11 +172,17 @@ def _deserialise_file_values(value: etree._Element, tag_name: str) -> list[Value
     if not (file_str := value.text):
         return []
     if tag_name == "iiif-uri":
-        file_type, prop_str = KnoraValueType.STILL_IMAGE_IIIF, f"{KNORA_API_STR}hasStillImageFileValue"
-    else:
-        file_type, prop_str = _get_file_value_type(file_str)
-        if not file_type:
-            return []
+        return [
+            ValueInformation(
+                user_facing_prop=f"{KNORA_API_STR}hasStillImageFileValue",
+                user_facing_value=file_str,
+                knora_type=KnoraValueType.STILL_IMAGE_IIIF,
+                value_metadata=[],
+            )
+        ]
+    file_type, prop_str = _get_file_value_type(file_str)
+    if not file_type:
+        return []
     return [
         ValueInformation(
             user_facing_prop=prop_str,
@@ -187,7 +193,7 @@ def _deserialise_file_values(value: etree._Element, tag_name: str) -> list[Value
     ]
 
 
-def _get_file_value_type(file_name: str) -> tuple[KnoraValueType | None, str | None]:  # noqa:PLR0911 (Too many return statements)
+def _get_file_value_type(file_name: str) -> tuple[KnoraValueType | None, str]:  # noqa:PLR0911 (Too many return statements)
     file_ending = Path(file_name).suffix[1:].lower()
     match file_ending:
         case "zip" | "tar" | "gz" | "z" | "tgz" | "gzip" | "7z":
@@ -204,4 +210,4 @@ def _get_file_value_type(file_name: str) -> tuple[KnoraValueType | None, str | N
         case "odd" | "rng" | "txt" | "xml" | "xsd" | "xsl" | "csv" | "json":
             return KnoraValueType.TEXT_FILE, f"{KNORA_API_STR}hasTextFileValue"
         case _:
-            return None, None
+            return None, ""

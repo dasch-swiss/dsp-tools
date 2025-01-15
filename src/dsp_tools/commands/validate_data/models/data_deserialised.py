@@ -135,17 +135,3 @@ class KnoraValueType(Enum):
     STILL_IMAGE_FILE = auto()
     STILL_IMAGE_IIIF = auto()
     TEXT_FILE = auto()
-
-
-@dataclass
-class AbstractFileValueDeserialised:
-    res_id: str
-    value: str | None
-
-
-@dataclass
-class BitstreamDeserialised(AbstractFileValueDeserialised): ...
-
-
-@dataclass
-class IIIFUriDeserialised(AbstractFileValueDeserialised): ...

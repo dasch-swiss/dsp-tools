@@ -34,7 +34,7 @@ class TestInvalidTextValueEncodings:
             }
         )
         res = _make_msg_for_one_resource("id1", test_df)
-        expected = "Resource ID: 'id1'\n" "    - Property Name: ':rich'\n" "    - Property Name: ':simple'"
+        expected = "Resource ID: 'id1'\n    - Property Name: ':rich'\n    - Property Name: ':simple'"
         assert res == expected
 
     def test_make_msg_from_df(self) -> None:

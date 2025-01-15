@@ -75,8 +75,7 @@ def _create_project_on_server(
         project_remote = project_local.create()
     except BaseError:
         err_msg = (
-            f"Cannot create project '{project_definition.shortname}' "
-            f"({project_definition.shortcode}) on DSP server."
+            f"Cannot create project '{project_definition.shortname}' ({project_definition.shortcode}) on DSP server."
         )
         logger.opt(exception=True).error(err_msg)
         raise UserError(err_msg) from None
@@ -437,7 +436,7 @@ def _sort_resources(
             parent_classes_ok = [not p.startswith(onto_name) or p in ok_resource_names for p in parent_classes]
             if all(parent_classes_ok):
                 sorted_resources.append(res)
-                res_name = f'{onto_name}:{res["name"]}'
+                res_name = f"{onto_name}:{res['name']}"
                 ok_resource_names.append(res_name)
                 resources_to_sort.remove(res)
     return sorted_resources
@@ -466,7 +465,7 @@ def _sort_prop_classes(
     while prop_classes_to_sort:
         # inside the for loop, resources_to_sort is modified, so a copy must be made to iterate over
         for prop in prop_classes_to_sort.copy():
-            prop_name = f'{onto_name}:{prop["name"]}'
+            prop_name = f"{onto_name}:{prop['name']}"
             parent_classes = prop.get("super", "hasValue")
             if isinstance(parent_classes, str):
                 parent_classes = [parent_classes]

@@ -1,5 +1,5 @@
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
-from dsp_tools.xmllib.models.resource import Resource
+from dsp_tools.xmllib.models.res import Resource
 from dsp_tools.xmllib.models.root import XMLRoot
 
 

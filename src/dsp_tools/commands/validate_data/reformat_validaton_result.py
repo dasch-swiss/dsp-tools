@@ -13,12 +13,12 @@ from dsp_tools.commands.validate_data.constants import API_SHAPES
 from dsp_tools.commands.validate_data.constants import DASH
 from dsp_tools.commands.validate_data.constants import KNORA_API
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
-from dsp_tools.commands.validate_data.models.input_problems import ContentRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import FileValueNotAllowedProblem
 from dsp_tools.commands.validate_data.models.input_problems import FileValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import GenericProblem
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
+from dsp_tools.commands.validate_data.models.input_problems import InputRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
@@ -406,7 +406,7 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
                 res_type=iris.res_type,
                 prop_name=iris.prop_name,
                 results_message=validation_result.results_message,
-                actual_content=validation_result.actual_value,
+                actual_input=validation_result.actual_value,
             )
         case ResultValueTypeViolation():
             return _reformat_value_type_violation_result(validation_result)
@@ -453,17 +453,17 @@ def _reformat_value_type_violation_result(result: ResultValueTypeViolation) -> V
     )
 
 
-def _reformat_pattern_violation_result(result: ResultPatternViolation) -> ContentRegexProblem:
+def _reformat_pattern_violation_result(result: ResultPatternViolation) -> InputRegexProblem:
     iris = _reformat_main_iris(result)
     val: str | None = result.actual_value
     if val and not regex.search(r"\S+", val):
         val = None
-    return ContentRegexProblem(
+    return InputRegexProblem(
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
         expected_format=result.results_message,
-        actual_content=val,
+        actual_input=val,
     )
 
 
@@ -499,7 +499,7 @@ def _reformat_unique_value_violation_result(result: ResultUniqueValueViolation) 
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
-        actual_content=actual_value,
+        actual_input=actual_value,
     )
 
 

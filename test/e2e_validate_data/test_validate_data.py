@@ -414,26 +414,38 @@ class TestReformatValidationGraph:
         expected_tuples = [
             (
                 "node_backslash",
-                "A valid node from the list 'list \\ ' space' must be used with this property.",
-                "list \\ ' space : other \\ backslash (list name : node name)",
+                (
+                    "A valid node from the list 'list \\ ' space' must be used with this property "
+                    "(input displayed in format 'listName / NodeName')."
+                ),
+                "list \\ ' space : other \\ backslash",
             ),
             (
                 "node_double_quote",
-                "A valid node from the list 'list \\ ' space' must be used with this property.",
-                """list \\ ' space : other double quote " (list name : node name)""",
+                (
+                    "A valid node from the list 'list \\ ' space' must be used with this property "
+                    "(input displayed in format 'listName / NodeName')."
+                ),
+                '''list \\ ' space : other double quote "''',
             ),
             (
                 "node_single_quote",
-                "A valid node from the list 'list \\ ' space' must be used with this property.",
-                "list \\ ' space : other single quote ' (list name : node name)",
+                (
+                    "A valid node from the list 'list \\ ' space' must be used with this property "
+                    "(input displayed in format 'listName / NodeName')."
+                ),
+                "list \\ ' space : other single quote '",
             ),
             ("non_ascii_latin_alphabet", "", ""),
             ("non_ascii_other_alphabet", "", ""),
             ("special_char", "", ""),
             (
                 "wrong_list_name",
-                "A valid node from the list 'list \\ ' space' must be used with this property.",
-                "other :  \\ backslash (list name : node name)",
+                (
+                    "A valid node from the list 'list \\ ' space' must be used with this property "
+                    "(input displayed in format 'listName / NodeName')."
+                ),
+                "other :  \\ backslash",
             ),
         ]
         assert not result.unexpected_results

@@ -47,9 +47,11 @@ check-links:
 [no-exit-message]
 markdownlint:
     docker run \
-    -v $PWD:/workdir ghcr.io/igorshubovych/markdownlint-cli:v0.42.0 \
+    -v $PWD:/workdir \
+    ghcr.io/igorshubovych/markdownlint-cli:v0.42.0 \
     --config .markdownlint.yml \
-    --ignore CHANGELOG.md "**/*.md"
+    --ignore CHANGELOG.md \
+    "**/*.md"
 
 
 # Run the unit tests

@@ -415,7 +415,7 @@ class TestReformatResult:
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testListProp"
         assert result.results_message == "A valid node from the list 'firstList' must be used with this property."
-        assert result.actual_content == "firstList : other"
+        assert result.actual_input == "firstList / other"
 
     def test_unknown_list_name(self, extracted_unknown_list_name: ResultGenericViolation) -> None:
         result = _reformat_one_validation_result(extracted_unknown_list_name)
@@ -423,8 +423,8 @@ class TestReformatResult:
         assert result.res_id == "list_name_non_existent"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testListProp"
-        assert result.results_message == "The list that should be used with this property is 'firstList'."
-        assert result.actual_input == "other"
+        assert result.results_message == "A valid node from the list 'firstList' must be used with this property."
+        assert result.actual_input == "other / n1"
 
     def test_missing_file_value(self, extracted_missing_file_value: ResultFileValueViolation) -> None:
         result = _reformat_one_validation_result(extracted_missing_file_value)

@@ -242,9 +242,7 @@ def _query_one_with_detail(
         case SH.ClassConstraintComponent:
             return _query_class_constraint_component_violation(base_info, results_and_onto, data_graph)
         case SH.InConstraintComponent:
-            generic = _query_generic_violation(base_info, results_and_onto)
-            generic.actual_value = f"{generic.actual_value} (list name : node name)"
-            return generic
+            return _query_generic_violation(base_info, results_and_onto)
         case _:
             return UnexpectedComponent(str(detail_info.source_constraint_component))
 

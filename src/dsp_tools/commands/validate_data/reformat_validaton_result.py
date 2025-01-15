@@ -7,7 +7,7 @@ from rdflib import RDFS
 from rdflib import SH
 from rdflib import Graph
 from rdflib import Literal
-from rdflib.term import Node
+from rdflib.graph import _SubjectType
 
 from dsp_tools.commands.validate_data.constants import API_SHAPES
 from dsp_tools.commands.validate_data.constants import DASH
@@ -286,7 +286,7 @@ def _query_for_value_type_violation(
 
 
 def _query_pattern_constraint_component_violation(
-    bn_with_info: Node, base_info: ValidationResultBaseInfo, results_and_onto: Graph
+    bn_with_info: _SubjectType, base_info: ValidationResultBaseInfo, results_and_onto: Graph
 ) -> ResultPatternViolation:
     val = next(results_and_onto.objects(bn_with_info, SH.value))
     msg = str(next(results_and_onto.objects(bn_with_info, SH.resultMessage)))
@@ -319,7 +319,7 @@ def _query_for_link_value_target_violation(
 ) -> ResultLinkTargetViolation:
     detail_info = cast(DetailBaseInfo, base_info.detail)
     target_iri = next(results_and_onto.objects(detail_info.detail_bn, SH.value))
-    target_rdf_type: Node | None = None
+    target_rdf_type: _SubjectType | None = None
     if target_type := list(data_graph.objects(target_iri, RDF.type)):
         target_rdf_type = target_type[0]
     expected_type = next(results_and_onto.objects(detail_info.detail_bn, SH.resultMessage))

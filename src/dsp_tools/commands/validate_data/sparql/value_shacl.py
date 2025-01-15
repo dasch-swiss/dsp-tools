@@ -6,7 +6,9 @@ from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
 from rdflib.collection import Collection
-from rdflib.term import Node
+from rdflib.graph import _ObjectType
+from rdflib.graph import _PredicateType
+from rdflib.graph import _SubjectType
 
 from dsp_tools.commands.validate_data.constants import API_SHAPES
 from dsp_tools.commands.validate_data.models.api_responses import AllProjectLists
@@ -241,15 +243,15 @@ def _construct_one_list_node_shape(one_list: OneList) -> Graph:
 def _construct_one_list_property_shape_with_collection(shacl_info: SHACLListInfo) -> Graph:
     g = Graph()
     collection_bn = BNode()
-    collection_literals: list[Node] = [Literal(lit, datatype=XSD.string) for lit in shacl_info.sh_in]
+    collection_literals: list[_SubjectType] = [Literal(lit, datatype=XSD.string) for lit in shacl_info.sh_in]
     Collection(g, collection_bn, collection_literals)
-    prop_shape = [
+    prop_shape: list[tuple[_PredicateType, _ObjectType]] = [
         (RDF.type, SH.PropertyShape),
         (SH.path, shacl_info.sh_path),
         (URIRef("http://www.w3.org/ns/shacl#in"), collection_bn),
         (SH.message, Literal(shacl_info.sh_message, datatype=XSD.string)),
     ]
-    prop_bn = BNode()
+    prop_bn: _SubjectType = BNode()
     for prop, obj in prop_shape:
         g.add((prop_bn, prop, obj))
     g.add((shacl_info.list_iri, SH.property, prop_bn))

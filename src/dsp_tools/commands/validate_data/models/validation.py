@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from rdflib import Graph
-from rdflib.term import Node
+from rdflib.graph import _SubjectType
 
 
 @dataclass
@@ -47,9 +47,9 @@ class ValidationReportGraphs:
 
 @dataclass
 class QueryInfo:
-    validation_bn: Node
-    focus_iri: Node
-    focus_rdf_type: Node
+    validation_bn: _SubjectType
+    focus_iri: _SubjectType
+    focus_rdf_type: _SubjectType
 
 
 @dataclass
@@ -59,36 +59,36 @@ class UnexpectedComponent:
 
 @dataclass
 class ValidationResultBaseInfo:
-    result_bn: Node
-    source_constraint_component: Node
-    resource_iri: Node
-    res_class_type: Node
-    result_path: Node
+    result_bn: _SubjectType
+    source_constraint_component: _SubjectType
+    resource_iri: _SubjectType
+    res_class_type: _SubjectType
+    result_path: _SubjectType
     detail: DetailBaseInfo | None = None
 
 
 @dataclass
 class DetailBaseInfo:
-    detail_bn: Node
-    source_constraint_component: Node
+    detail_bn: _SubjectType
+    source_constraint_component: _SubjectType
 
 
 @dataclass
 class ValidationResult:
-    res_iri: Node
-    res_class: Node
-    property: Node
+    res_iri: _SubjectType
+    res_class: _SubjectType
+    property: _SubjectType
 
 
 @dataclass
 class ResultUniqueValueViolation(ValidationResult):
-    actual_value: Node
+    actual_value: _SubjectType
 
 
 @dataclass
 class ResultValueTypeViolation(ValidationResult):
     results_message: str
-    actual_value_type: Node
+    actual_value_type: _SubjectType
 
 
 @dataclass
@@ -105,9 +105,9 @@ class ResultGenericViolation(ValidationResult):
 
 @dataclass
 class ResultLinkTargetViolation(ValidationResult):
-    expected_type: Node
-    target_iri: Node
-    target_resource_type: Node | None
+    expected_type: _SubjectType
+    target_iri: _SubjectType
+    target_resource_type: _SubjectType | None
 
 
 @dataclass

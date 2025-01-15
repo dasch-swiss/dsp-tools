@@ -607,7 +607,7 @@
             "super": [
               "hasRepresentation"
             ],
-            "object": ":TestStillImageRepresentationWithSeqnum",
+            "object": "StillImageRepresentation",
             "labels": {
               "en": "Target must be a StillImageRepresentation"
             },

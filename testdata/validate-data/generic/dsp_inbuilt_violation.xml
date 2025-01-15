@@ -23,7 +23,7 @@
         <allow group="ProjectAdmin">CR</allow>
     </permissions>
 
-    <!-- 1 Violations -->
+    <!-- 3 Violations -->
 
     <!-- Target Resources for Links -->
 
@@ -46,10 +46,6 @@
         </resptr-prop>
     </link>
 
-
-    <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-    <!-- 8 Violations but not implemented yet -->
-
     <!-- hasRepresentation target is not a representation -->
 
     <resource label="Target is not a representation" restype=":TestNormalResource"
@@ -58,7 +54,6 @@
             <resptr>target_res_without_representation_1</resptr>
         </resptr-prop>
     </resource>
-
 
     <!-- hasRepresentation target must be an image but is a movie -->
 
@@ -69,6 +64,9 @@
         </resptr-prop>
     </resource>
 
+
+    <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
+    <!-- 6 Violations but not implemented yet -->
 
     <!-- direct usage of knora-api seqnum/isPartOf one prop missing -->
 

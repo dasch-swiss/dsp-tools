@@ -735,7 +735,7 @@ sh:value <http://data/value_list_node_non_existent> ] .
     sh:resultSeverity sh:Violation ;
     sh:sourceConstraintComponent sh:InConstraintComponent ;
     sh:sourceShape [ ] ;
-    sh:value "firstList : other" .
+    sh:value "firstList / other" .
     """
     validation_g = Graph()
     validation_g.parse(data=validation_str, format="ttl")
@@ -794,7 +794,7 @@ _:bn_list_name_non_existent a sh:ValidationResult ;
     sh:resultSeverity sh:Violation ;
     sh:sourceConstraintComponent sh:InConstraintComponent ;
     sh:sourceShape _:bn_source ;
-    sh:value "other : n1" .
+    sh:value "other / n1" .
     """
     validation_g = Graph()
     validation_g.parse(data=validation_str, format="ttl")

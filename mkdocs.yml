@@ -73,7 +73,6 @@ extra_css:
 
 plugins:
   - search
-  - mermaid2
   - include-markdown
   - mkdocstrings:
       handlers:
@@ -92,9 +91,8 @@ markdown_extensions:
   - pymdownx.details
   - pymdownx.superfences:
       custom_fences:
-        # Necessary for the mermaid diagrams, see https://mkdocs-mermaid2.readthedocs.io/en/latest/superfences/.
         # By default, superfences will highlight the mermaid code instead of rendering it.
         # To prevent this, make a reference to the Python funcion that renders the mermaid code.
         - name: mermaid
           class: mermaid
-          format: !!python/name:mermaid2.fence_mermaid_custom
+          format: !!python/name:pymdownx.superfences.fence_code_format

@@ -66,7 +66,7 @@ def _deserialise_one_in_built(resource: etree._Element, res_type: str) -> Resour
 
 
 def _deserialise_one_resource(resource: etree._Element) -> ResourceDeserialised:
-    values: list[ValueInformation] = []
+    values = []
     for val in resource.iterchildren():
         values.extend(_deserialise_one_property(val))
     lbl = PropertyObject(TriplePropertyType.RDFS_LABEL, resource.attrib["label"], TripleObjectType.STRING)

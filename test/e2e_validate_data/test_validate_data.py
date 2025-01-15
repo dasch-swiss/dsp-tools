@@ -427,7 +427,7 @@ class TestReformatValidationGraph:
                     "A valid node from the list 'list \\ ' space' must be used with this property "
                     "(input displayed in format 'listName / NodeName')."
                 ),
-                "list \\ ' space : other \\ backslash",
+                "list \\ ' space / other \\ backslash",
             ),
             (
                 "node_double_quote",
@@ -435,7 +435,7 @@ class TestReformatValidationGraph:
                     "A valid node from the list 'list \\ ' space' must be used with this property "
                     "(input displayed in format 'listName / NodeName')."
                 ),
-                '''list \\ ' space : other double quote "''',
+                '''list \\ ' space / other double quote "''',
             ),
             (
                 "node_single_quote",
@@ -443,7 +443,7 @@ class TestReformatValidationGraph:
                     "A valid node from the list 'list \\ ' space' must be used with this property "
                     "(input displayed in format 'listName / NodeName')."
                 ),
-                "list \\ ' space : other single quote '",
+                "list \\ ' space / other single quote '",
             ),
             ("non_ascii_latin_alphabet", "", ""),
             ("non_ascii_other_alphabet", "", ""),
@@ -454,7 +454,7 @@ class TestReformatValidationGraph:
                     "A valid node from the list 'list \\ ' space' must be used with this property "
                     "(input displayed in format 'listName / NodeName')."
                 ),
-                "other :  \\ backslash",
+                "other /  \\ backslash",
             ),
         ]
         assert not result.unexpected_results

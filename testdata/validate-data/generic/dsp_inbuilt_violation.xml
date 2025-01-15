@@ -58,7 +58,7 @@
     <!-- hasRepresentation target must be an image but is a movie -->
 
     <resource label="Target is image representation" restype=":TestNormalResource"
-              id="target_must_be_a_image_representation">
+              id="target_must_be_an_image_representation">
         <resptr-prop name=":testHasRepresentationImage">
             <resptr>target_empty_movie</resptr>
         </resptr-prop>

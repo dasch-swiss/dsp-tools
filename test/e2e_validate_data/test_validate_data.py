@@ -410,6 +410,8 @@ class TestReformatValidationGraph:
         result = reformat_validation_graph(dsp_inbuilt_violation)
         expected_info_tuples = [
             ("link_obj_target_non_existent", LinkedResourceDoesNotExistProblem),
+            ("target_must_be_a_representation", LinkTargetTypeMismatchProblem),
+            ("target_must_be_an_image_representation", LinkTargetTypeMismatchProblem),
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)

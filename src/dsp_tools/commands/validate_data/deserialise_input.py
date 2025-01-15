@@ -4,7 +4,8 @@ from dsp_tools.commands.validate_data.constants import AUDIO_SEGMENT_RESOURCE
 from dsp_tools.commands.validate_data.constants import REGION_RESOURCE
 from dsp_tools.commands.validate_data.constants import VIDEO_SEGMENT_RESOURCE
 from dsp_tools.commands.validate_data.constants import XML_TAG_TO_VALUE_TYPE_MAPPER
-from dsp_tools.commands.validate_data.models.data_deserialised import AbstractFileValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import AbstractFileValueDeserialised, \
+    FileValueInformation
 from dsp_tools.commands.validate_data.models.data_deserialised import BitstreamDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DataDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import IIIFUriDeserialised
@@ -165,6 +166,10 @@ def _get_text_as_string(value: etree._Element) -> str | None:
         return "".join(text_list).strip()
     else:
         return value.text
+
+
+def _deserialise_file_values(value: etree._Element, tag_name: str) -> list[FileValueInformation]:
+    return FileValueInformation()
 
 
 def _deserialise_file_value(root: etree._Element) -> list[AbstractFileValueDeserialised]:

@@ -131,6 +131,23 @@ class KnoraValueType(Enum):
 
 
 @dataclass
+class FileValueInformation:
+    file_value_str: str | None
+    knora_type: KnoraFileValueType
+    value_metadata: list[PropertyObject]
+
+
+class KnoraFileValueType(Enum):
+    ARCHIVE = auto()
+    AUDIO = auto()
+    DOCUMENT = auto()
+    MOVING_IMAGE = auto()
+    STILL_IMAGE_FILE = auto()
+    STILL_IMAGE_IIIF = auto()
+    TEXT = auto()
+
+
+@dataclass
 class AbstractFileValueDeserialised:
     res_id: str
     value: str | None

@@ -3,7 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from rdflib import Graph
-from rdflib.graph import _SubjectType
+
+from dsp_tools.commands.validate_data.constants import SubjectObjectTypeAlias
 
 
 @dataclass
@@ -47,9 +48,9 @@ class ValidationReportGraphs:
 
 @dataclass
 class QueryInfo:
-    validation_bn: _SubjectType
-    focus_iri: _SubjectType
-    focus_rdf_type: _SubjectType
+    validation_bn: SubjectObjectTypeAlias
+    focus_iri: SubjectObjectTypeAlias
+    focus_rdf_type: SubjectObjectTypeAlias
 
 
 @dataclass
@@ -59,36 +60,36 @@ class UnexpectedComponent:
 
 @dataclass
 class ValidationResultBaseInfo:
-    result_bn: _SubjectType
-    source_constraint_component: _SubjectType
-    resource_iri: _SubjectType
-    res_class_type: _SubjectType
-    result_path: _SubjectType
+    result_bn: SubjectObjectTypeAlias
+    source_constraint_component: SubjectObjectTypeAlias
+    resource_iri: SubjectObjectTypeAlias
+    res_class_type: SubjectObjectTypeAlias
+    result_path: SubjectObjectTypeAlias
     detail: DetailBaseInfo | None = None
 
 
 @dataclass
 class DetailBaseInfo:
-    detail_bn: _SubjectType
-    source_constraint_component: _SubjectType
+    detail_bn: SubjectObjectTypeAlias
+    source_constraint_component: SubjectObjectTypeAlias
 
 
 @dataclass
 class ValidationResult:
-    res_iri: _SubjectType
-    res_class: _SubjectType
-    property: _SubjectType
+    res_iri: SubjectObjectTypeAlias
+    res_class: SubjectObjectTypeAlias
+    property: SubjectObjectTypeAlias
 
 
 @dataclass
 class ResultUniqueValueViolation(ValidationResult):
-    actual_value: _SubjectType
+    actual_value: SubjectObjectTypeAlias
 
 
 @dataclass
 class ResultValueTypeViolation(ValidationResult):
     results_message: str
-    actual_value_type: _SubjectType
+    actual_value_type: SubjectObjectTypeAlias
 
 
 @dataclass
@@ -105,9 +106,9 @@ class ResultGenericViolation(ValidationResult):
 
 @dataclass
 class ResultLinkTargetViolation(ValidationResult):
-    expected_type: _SubjectType
-    target_iri: _SubjectType
-    target_resource_type: _SubjectType | None
+    expected_type: SubjectObjectTypeAlias
+    target_iri: SubjectObjectTypeAlias
+    target_resource_type: SubjectObjectTypeAlias | None
 
 
 @dataclass

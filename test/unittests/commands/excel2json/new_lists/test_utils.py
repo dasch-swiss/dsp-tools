@@ -89,7 +89,7 @@ class TestGetPreferredLanguageForId:
     def test_get_preferred_language_for_id_raises(self) -> None:
         columns = pd.Index(["es_1"])
         msg = regex.escape(
-            "The columns may only contain the languages: 'en', 'de', 'fr', 'it', 'rm'.\n" "The columns are: es_1"
+            "The columns may only contain the languages: 'en', 'de', 'fr', 'it', 'rm'.\nThe columns are: es_1"
         )
         with pytest.raises(InputError, match=msg):
             get_preferred_language_from_columns(columns, "1")

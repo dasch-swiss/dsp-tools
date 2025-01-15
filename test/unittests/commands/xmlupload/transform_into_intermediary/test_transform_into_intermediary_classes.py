@@ -7,9 +7,9 @@ from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResou
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileValue
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryIIIFUri
-from dsp_tools.commands.xmlupload.models.intermediary.resource import IntermediaryResource
-from dsp_tools.commands.xmlupload.models.intermediary.resource import MigrationMetadata
-from dsp_tools.commands.xmlupload.models.intermediary.resource import ResourceInputConversionFailure
+from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
+from dsp_tools.commands.xmlupload.models.intermediary.res import MigrationMetadata
+from dsp_tools.commands.xmlupload.models.intermediary.res import ResourceInputConversionFailure
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryBoolean
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryColor
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryDate

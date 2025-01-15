@@ -79,7 +79,7 @@ class ConnectionLive(Connection):
     timeout_get: int = field(init=False, default=20)
 
     def __post_init__(self) -> None:
-        self.session.headers["User-Agent"] = f'DSP-TOOLS/{version("dsp-tools")}'
+        self.session.headers["User-Agent"] = f"DSP-TOOLS/{version('dsp-tools')}"
         if self.server.endswith("/"):
             self.server = self.server[:-1]
         if self.authenticationClient and (token := self.authenticationClient.get_token()):
@@ -232,7 +232,7 @@ class ConnectionLive(Connection):
         else:
             msg = "Permanently unable to execute the network action. "
             if original_str := regex.search(r'{"knora-api:error":"dsp\.errors\.(.*)","@context', str(response.content)):
-                msg += f"\n{' '*37}Original Message: {original_str.group(1)}\n"
+                msg += f"\n{' ' * 37}Original Message: {original_str.group(1)}\n"
                 if original_str.group(1).startswith("OntologyConstraintException"):
                     msg += f"See {WARNINGS_SAVEPATH} for more information."
                     raise InvalidInputError(msg)
@@ -242,12 +242,12 @@ class ConnectionLive(Connection):
     def _renew_session(self) -> None:
         self.session.close()
         self.session = Session()
-        self.session.headers["User-Agent"] = f'DSP-TOOLS/{version("dsp-tools")}'
+        self.session.headers["User-Agent"] = f"DSP-TOOLS/{version('dsp-tools')}"
         if self.authenticationClient and (token := self.authenticationClient.get_token()):
             self.session.headers["Authorization"] = f"Bearer {token}"
 
     def _log_and_sleep(self, reason: str, retry_counter: int, exc_info: bool) -> None:
-        msg = f"{reason}: Try reconnecting to DSP server, next attempt in {2 ** retry_counter} seconds..."
+        msg = f"{reason}: Try reconnecting to DSP server, next attempt in {2**retry_counter} seconds..."
         print(f"{datetime.now()}: {msg}")
         if exc_info:
             logger.opt(exception=True).error(f"{msg} ({retry_counter=:})")

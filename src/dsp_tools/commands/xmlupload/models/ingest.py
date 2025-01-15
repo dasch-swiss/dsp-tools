@@ -104,7 +104,7 @@ class DspIngestClientLive(AssetClient):
         err = f"Failed to ingest {filepath} to '{url}'."
         with open(filepath, "rb") as binary_io:
             try:
-                logger.debug(f"REQUEST: POST to {url}, timeout: {timeout}, headers: {headers | {"Authorization": "*"}}")
+                logger.debug(f"REQUEST: POST to {url}, timeout: {timeout}, headers: {headers | {'Authorization': '*'}}")
                 res = self.session.post(
                     url=url,
                     headers=headers,

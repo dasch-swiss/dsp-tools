@@ -34,7 +34,7 @@ class AuthenticationClientLive(AuthenticationClient):
         url = f"{self.server}/v2/authentication"
         payload = {"email": self.email, "password": self.password}
         logger.debug(f"REQUEST: Requesting token from url '{url}' for user '{self.email}'.")
-        headers = {"User-Agent": f'DSP-TOOLS/{version("dsp-tools")}'}
+        headers = {"User-Agent": f"DSP-TOOLS/{version('dsp-tools')}"}
         try:
             response = requests.post(url, json=payload, headers=headers, timeout=10)
             logger.debug(f"RESPONSE: Requesting token responded with status {response.status_code}")

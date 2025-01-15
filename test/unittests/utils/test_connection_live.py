@@ -318,9 +318,9 @@ def test_log_response() -> None:
 
 def test_renew_session() -> None:
     con = ConnectionLive("http://example.com/")
-    assert con.session.headers["User-Agent"] == f'DSP-TOOLS/{version("dsp-tools")}'
+    assert con.session.headers["User-Agent"] == f"DSP-TOOLS/{version('dsp-tools')}"
     con._renew_session()
-    assert con.session.headers["User-Agent"] == f'DSP-TOOLS/{version("dsp-tools")}'
+    assert con.session.headers["User-Agent"] == f"DSP-TOOLS/{version('dsp-tools')}"
 
 
 if __name__ == "__main__":

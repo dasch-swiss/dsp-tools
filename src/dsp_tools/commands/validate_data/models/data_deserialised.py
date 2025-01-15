@@ -35,7 +35,7 @@ class DataDeserialised:
 @dataclass
 class ResourceDeserialised:
     """
-    Represents a user facing project specific resource.
+    Represents a user facing project-specific resource.
 
     Args:
         res_id: resource ID provided by the user in the XML
@@ -47,7 +47,7 @@ class ResourceDeserialised:
 
     res_id: str
     property_objects: list[PropertyObject]
-    values: list[ValueDeserialised]
+    values: list[ValueInformation]
 
 
 @dataclass
@@ -87,7 +87,7 @@ class ValueInformation:
 class TriplePropertyType(Enum):
     """
     Maps to a specific knora-api or rdf(s) property.
-    For example: comment -> knora-api:hasComment
+    For example: KNORA_COMMENT -> knora-api:hasComment
     """
 
     RDFS_LABEL = auto()
@@ -98,7 +98,7 @@ class TriplePropertyType(Enum):
 
 class TripleObjectType(Enum):
     """
-    Maps to an xsd data type in case of literals, for example: boolean -> xsd:boolean
+    Maps to an xsd data type in case of literals, for example: BOOLEAN -> xsd:boolean
     Or Indicates that it is an IRI, in which case it is not an RDF Literal
     """
 
@@ -112,6 +112,10 @@ class TripleObjectType(Enum):
 
 
 class KnoraValueType(Enum):
+    """
+    Maps to a knora value type, for example: BOOLEAN_VALUE -> knora-api:BooleanValue
+    """
+
     BOOLEAN_VALUE = auto()
     COLOR_VALUE = auto()
     DATE_VALUE = auto()
@@ -124,61 +128,6 @@ class KnoraValueType(Enum):
     RICHTEXT_VALUE = auto()
     TIME_VALUE = auto()
     URI_VALUE = auto()
-
-
-@dataclass
-class ValueDeserialised:
-    prop_name: str
-    object_value: str | None
-
-
-@dataclass
-class BooleanValueDeserialised(ValueDeserialised): ...
-
-
-@dataclass
-class ColorValueDeserialised(ValueDeserialised): ...
-
-
-@dataclass
-class DateValueDeserialised(ValueDeserialised): ...
-
-
-@dataclass
-class DecimalValueDeserialised(ValueDeserialised): ...
-
-
-@dataclass
-class GeonameValueDeserialised(ValueDeserialised): ...
-
-
-@dataclass
-class IntValueDeserialised(ValueDeserialised): ...
-
-
-@dataclass
-class LinkValueDeserialised(ValueDeserialised): ...
-
-
-@dataclass
-class ListValueDeserialised(ValueDeserialised):
-    list_name: str
-
-
-@dataclass
-class SimpleTextDeserialised(ValueDeserialised): ...
-
-
-@dataclass
-class RichtextDeserialised(ValueDeserialised): ...
-
-
-@dataclass
-class TimeValueDeserialised(ValueDeserialised): ...
-
-
-@dataclass
-class UriValueDeserialised(ValueDeserialised): ...
 
 
 @dataclass

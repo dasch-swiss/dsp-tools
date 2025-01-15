@@ -1,34 +1,22 @@
-from typing import Callable
-from typing import Sequence
-
 from lxml import etree
 
 from dsp_tools.commands.validate_data.constants import AUDIO_SEGMENT_RESOURCE
 from dsp_tools.commands.validate_data.constants import REGION_RESOURCE
 from dsp_tools.commands.validate_data.constants import VIDEO_SEGMENT_RESOURCE
+from dsp_tools.commands.validate_data.constants import XML_TAG_TO_VALUE_TYPE_MAPPER
 from dsp_tools.commands.validate_data.models.data_deserialised import AbstractFileValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import BitstreamDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import BooleanValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import ColorValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DataDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import DateValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import DecimalValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import GeonameValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import IIIFUriDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import IntValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import LinkValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import ListValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import KnoraValueType
 from dsp_tools.commands.validate_data.models.data_deserialised import ProjectDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ProjectInformation
 from dsp_tools.commands.validate_data.models.data_deserialised import PropertyObject
 from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import RichtextDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import SimpleTextDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import TimeValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TripleObjectType
 from dsp_tools.commands.validate_data.models.data_deserialised import TriplePropertyType
-from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import ValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import ValueInformation
+from dsp_tools.models.exceptions import BaseError
 
 
 def deserialise_xml(root: etree._Element) -> ProjectDeserialised:
@@ -79,7 +67,7 @@ def _deserialise_one_in_built(resource: etree._Element, res_type: str) -> Resour
 
 
 def _deserialise_one_resource(resource: etree._Element) -> ResourceDeserialised:
-    values: list[ValueDeserialised] = []
+    values = []
     for val in resource.iterchildren():
         values.extend(_deserialise_one_property(val))
     lbl = PropertyObject(TriplePropertyType.RDFS_LABEL, resource.attrib["label"], TripleObjectType.STRING)
@@ -91,56 +79,80 @@ def _deserialise_one_resource(resource: etree._Element) -> ResourceDeserialised:
     )
 
 
-def _deserialise_one_property(prop_ele: etree._Element) -> Sequence[ValueDeserialised]:  # noqa: PLR0911 (too-many-branches, return statements)
+def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueInformation]:
     match prop_ele.tag:
-        case "boolean-prop":
-            return _deserialise_one_value(prop_ele, BooleanValueDeserialised)
-        case "color-prop":
-            return _deserialise_one_value(prop_ele, ColorValueDeserialised)
-        case "date-prop":
-            return _deserialise_one_value(prop_ele, DateValueDeserialised)
-        case "decimal-prop":
-            return _deserialise_one_value(prop_ele, DecimalValueDeserialised)
-        case "geoname-prop":
-            return _deserialise_one_value(prop_ele, GeonameValueDeserialised)
+        case (
+            (
+                "boolean-prop"
+                | "color-prop"
+                | "date-prop"
+                | "decimal-prop"
+                | "geoname-prop"
+                | "integer-prop"
+                | "resptr-prop"
+                | "time-prop"
+                | "uri-prop"
+            ) as prop_tag
+        ):
+            return _extract_generic_value_information(prop_ele, XML_TAG_TO_VALUE_TYPE_MAPPER[prop_tag])
         case "list-prop":
-            return _deserialise_list_prop(prop_ele)
-        case "integer-prop":
-            return _deserialise_one_value(prop_ele, IntValueDeserialised)
-        case "resptr-prop":
-            return _deserialise_one_value(prop_ele, LinkValueDeserialised)
+            return _extract_list_value_information(prop_ele)
         case "text-prop":
-            return _deserialise_text_prop(prop_ele)
-        case "time-prop":
-            return _deserialise_one_value(prop_ele, TimeValueDeserialised)
-        case "uri-prop":
-            return _deserialise_one_value(prop_ele, UriValueDeserialised)
+            return _extract_text_value_information(prop_ele)
         case _:
             return []
 
 
-def _deserialise_one_value(
-    prop: etree._Element, func: Callable[[str, str | None], ValueDeserialised]
-) -> Sequence[ValueDeserialised]:
+def _extract_generic_value_information(prop: etree._Element, value_type: KnoraValueType) -> list[ValueInformation]:
     prop_name = prop.attrib["name"]
-    return [func(prop_name, x.text) for x in prop.iterchildren()]
+    return [
+        ValueInformation(
+            user_facing_prop=prop_name,
+            user_facing_value=x.text,
+            knora_type=value_type,
+            value_metadata=[],
+        )
+        for x in prop.iterchildren()
+    ]
 
 
-def _deserialise_list_prop(prop: etree._Element) -> list[ListValueDeserialised]:
+def _extract_list_value_information(prop: etree._Element) -> list[ValueInformation]:
     prop_name = prop.attrib["name"]
     list_name = prop.attrib["list"]
-    return [ListValueDeserialised(prop_name, x.text, list_name) for x in prop.iterchildren()]
-
-
-def _deserialise_text_prop(prop: etree._Element) -> list[SimpleTextDeserialised | RichtextDeserialised]:
-    prop_name = prop.attrib["name"]
-    all_vals: list[SimpleTextDeserialised | RichtextDeserialised] = []
+    all_vals = []
     for val in prop.iterchildren():
-        match val.attrib["encoding"]:
+        found_value = f"{list_name} / {val.text}" if val.text else None
+        all_vals.append(
+            ValueInformation(
+                user_facing_prop=prop_name,
+                user_facing_value=found_value,
+                knora_type=KnoraValueType.LIST_VALUE,
+                value_metadata=[],
+            )
+        )
+    return all_vals
+
+
+def _extract_text_value_information(prop: etree._Element) -> list[ValueInformation]:
+    prop_name = prop.attrib["name"]
+    all_vals = []
+    for val in prop.iterchildren():
+        encoding = val.attrib["encoding"]
+        match encoding:
             case "utf8":
-                all_vals.append(SimpleTextDeserialised(prop_name, _get_text_as_string(val)))
+                val_type = KnoraValueType.SIMPLETEXT_VALUE
             case "xml":
-                all_vals.append(RichtextDeserialised(prop_name, _get_text_as_string(val)))
+                val_type = KnoraValueType.RICHTEXT_VALUE
+            case _:
+                raise BaseError(f"Unknown encoding: {encoding}.")
+        all_vals.append(
+            ValueInformation(
+                user_facing_prop=prop_name,
+                user_facing_value=_get_text_as_string(val),
+                knora_type=val_type,
+                value_metadata=[],
+            )
+        )
     return all_vals
 
 

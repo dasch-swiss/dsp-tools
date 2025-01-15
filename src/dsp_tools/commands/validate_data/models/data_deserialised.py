@@ -132,7 +132,7 @@ class KnoraValueType(Enum):
 
 @dataclass
 class FileValueInformation:
-    file_value_str: str | None
+    file_value_str: str
     knora_type: KnoraFileValueType
     value_metadata: list[PropertyObject]
 

@@ -1,14 +1,17 @@
+from pathlib import Path
+
 from lxml import etree
 
 from dsp_tools.commands.validate_data.constants import AUDIO_SEGMENT_RESOURCE
 from dsp_tools.commands.validate_data.constants import REGION_RESOURCE
 from dsp_tools.commands.validate_data.constants import VIDEO_SEGMENT_RESOURCE
 from dsp_tools.commands.validate_data.constants import XML_TAG_TO_VALUE_TYPE_MAPPER
-from dsp_tools.commands.validate_data.models.data_deserialised import AbstractFileValueDeserialised, \
-    FileValueInformation
+from dsp_tools.commands.validate_data.models.data_deserialised import AbstractFileValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import BitstreamDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DataDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import FileValueInformation
 from dsp_tools.commands.validate_data.models.data_deserialised import IIIFUriDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import KnoraFileValueType
 from dsp_tools.commands.validate_data.models.data_deserialised import KnoraValueType
 from dsp_tools.commands.validate_data.models.data_deserialised import ProjectDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ProjectInformation
@@ -80,7 +83,7 @@ def _deserialise_one_resource(resource: etree._Element) -> ResourceDeserialised:
     )
 
 
-def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueInformation]:
+def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueInformation | FileValueInformation]:
     match prop_ele.tag:
         case (
             (
@@ -100,6 +103,8 @@ def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueInformation
             return _extract_list_value_information(prop_ele)
         case "text-prop":
             return _extract_text_value_information(prop_ele)
+        case "iiif-uri" | "bitstream" as file_tag:
+            return _deserialise_file_values(prop_ele, file_tag)
         case _:
             return []
 
@@ -169,7 +174,33 @@ def _get_text_as_string(value: etree._Element) -> str | None:
 
 
 def _deserialise_file_values(value: etree._Element, tag_name: str) -> list[FileValueInformation]:
-    return FileValueInformation()
+    if not (file_str := value.text):
+        return []
+    if tag_name == "iiif-uri":
+        file_type = KnoraFileValueType.STILL_IMAGE_IIIF
+    elif not (file_type := _get_file_value_type(file_str)):
+        return []
+    return [FileValueInformation(file_value_str=file_str, knora_type=file_type, value_metadata=[])]
+
+
+def _get_file_value_type(file_name: str) -> KnoraFileValueType | None:  # noqa:PLR0911 (Too many return statements)
+    file_ending = Path(file_name).suffix[1:].lower()
+    match file_ending:
+        case "zip" | "tar" | "gz" | "z" | "tgz" | "gzip" | "7z":
+            return KnoraFileValueType.ARCHIVE
+        case "mp3" | "wav":
+            return KnoraFileValueType.AUDIO
+        case "pdf" | "doc" | "docx" | "xls" | "xlsx" | "ppt" | "pptx":
+            return KnoraFileValueType.DOCUMENT
+        case "mp4":
+            return KnoraFileValueType.MOVING_IMAGE
+        # jpx is the extension of the files returned by dsp-ingest
+        case "jpg" | "jpeg" | "jp2" | "png" | "tif" | "tiff" | "jpx":
+            return KnoraFileValueType.STILL_IMAGE_FILE
+        case "odd" | "rng" | "txt" | "xml" | "xsd" | "xsl" | "csv" | "json":
+            return KnoraFileValueType.TEXT
+        case _:
+            return None
 
 
 def _deserialise_file_value(root: etree._Element) -> list[AbstractFileValueDeserialised]:

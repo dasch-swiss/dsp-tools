@@ -5,11 +5,11 @@ from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
 
-from dsp_tools.commands.validate_data.models.input_problems import ContentRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import FileValueNotAllowedProblem
 from dsp_tools.commands.validate_data.models.input_problems import FileValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import GenericProblem
+from dsp_tools.commands.validate_data.models.input_problems import InputRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
@@ -333,12 +333,12 @@ class TestReformatResult:
 
     def test_violation_empty_label(self, extracted_empty_label: ResultPatternViolation) -> None:
         result = _reformat_one_validation_result(extracted_empty_label)
-        assert isinstance(result, ContentRegexProblem)
+        assert isinstance(result, InputRegexProblem)
         assert result.res_id == "empty_label"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "rdfs:label"
         assert result.expected_format == "The label must be a non-empty string"
-        assert not result.actual_content
+        assert not result.actual_input
 
     def test_closed(self, extracted_closed_constraint: ResultNonExistentCardinalityViolation) -> None:
         result = _reformat_one_validation_result(extracted_closed_constraint)
@@ -367,12 +367,12 @@ class TestReformatResult:
 
     def test_violation_regex(self, extracted_regex: ResultPatternViolation) -> None:
         result = _reformat_one_validation_result(extracted_regex)
-        assert isinstance(result, ContentRegexProblem)
+        assert isinstance(result, InputRegexProblem)
         assert result.res_id == "geoname_not_number"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testGeoname"
         assert result.expected_format == "The value must be a valid geoname code"
-        assert result.actual_content == "this-is-not-a-valid-code"
+        assert result.actual_input == "this-is-not-a-valid-code"
 
     def test_link_target_non_existent(self, extracted_link_target_non_existent: ResultLinkTargetViolation) -> None:
         result = _reformat_one_validation_result(extracted_link_target_non_existent)
@@ -398,7 +398,7 @@ class TestReformatResult:
         assert result.res_id == "identical_values_valueHas"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testGeoname"
-        assert result.actual_content == "00111111"
+        assert result.actual_input == "00111111"
 
     def test_unique_value_iri(self, extracted_unique_value_iri: ResultUniqueValueViolation) -> None:
         result = _reformat_one_validation_result(extracted_unique_value_iri)
@@ -406,7 +406,7 @@ class TestReformatResult:
         assert result.res_id == "identical_values_LinkValue"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testHasLinkTo"
-        assert result.actual_content == "link_valueTarget_id"
+        assert result.actual_input == "link_valueTarget_id"
 
     def test_unknown_list_node(self, extracted_unknown_list_node: ResultGenericViolation) -> None:
         result = _reformat_one_validation_result(extracted_unknown_list_node)
@@ -415,7 +415,7 @@ class TestReformatResult:
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testListProp"
         assert result.results_message == "A valid node from the list 'firstList' must be used with this property."
-        assert result.actual_content == "firstList : other"
+        assert result.actual_input == "firstList / other"
 
     def test_unknown_list_name(self, extracted_unknown_list_name: ResultGenericViolation) -> None:
         result = _reformat_one_validation_result(extracted_unknown_list_name)
@@ -424,7 +424,7 @@ class TestReformatResult:
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testListProp"
         assert result.results_message == "A valid node from the list 'firstList' must be used with this property."
-        assert result.actual_content == "other : n1"
+        assert result.actual_input == "other / n1"
 
     def test_missing_file_value(self, extracted_missing_file_value: ResultFileValueViolation) -> None:
         result = _reformat_one_validation_result(extracted_missing_file_value)

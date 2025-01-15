@@ -22,6 +22,7 @@ nav:
   - Running DSP locally: start-stack.md
   - Information for developers:
       - Developers documentation: developers/index.md
+      - Architectural Decision Records: developers/decision-log.md
       - Dependencies, packaging & distribution: developers/packaging.md
       - User data: developers/user-data.md
       - MkDocs and markdown-link-validator: developers/mkdocs.md
@@ -88,4 +89,10 @@ plugins:
 markdown_extensions:
   - admonition
   - pymdownx.details
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        # By default, superfences will highlight the mermaid code instead of rendering it.
+        # To prevent this, make a reference to the Python funcion that renders the mermaid code.
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format

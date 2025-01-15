@@ -1,5 +1,40 @@
 # Changelog
 
+## [10.1.1](https://github.com/dasch-swiss/dsp-tools/compare/v10.1.0...v10.1.1) (2025-01-15)
+
+
+### Maintenance
+
+* **validate-data:** simplify internal Python representation of values ([#1362](https://github.com/dasch-swiss/dsp-tools/issues/1362)) ([3058055](https://github.com/dasch-swiss/dsp-tools/commit/305805567f52f90ad11fc0f1d2995f4f0f4bd807))
+
+
+### Documentation
+
+* remove mermaid2 plugin ([#1365](https://github.com/dasch-swiss/dsp-tools/issues/1365)) ([c126b13](https://github.com/dasch-swiss/dsp-tools/commit/c126b138b708bcd5fef2152626fc2561d5756fa5))
+
+## [10.1.0](https://github.com/dasch-swiss/dsp-tools/compare/v10.0.0...v10.1.0) (2025-01-15)
+
+
+### Enhancements
+
+* **xmllib:** dsp-base resources: add checks and improve robustness of serialisation (DEV-4485) ([#1354](https://github.com/dasch-swiss/dsp-tools/issues/1354)) ([5b20bc0](https://github.com/dasch-swiss/dsp-tools/commit/5b20bc091be4bef06d642ab4f2d3baea1255c003))
+* **xmllib:** make checks for non-empty input consistent (DEV-4435) ([#1353](https://github.com/dasch-swiss/dsp-tools/issues/1353)) ([0acc6dd](https://github.com/dasch-swiss/dsp-tools/commit/0acc6ddcb480ca1c0b3fcd1a092dbaf73bf60403))
+
+
+### Maintenance
+
+* bump start-stack to 2025.01.01 ([#1364](https://github.com/dasch-swiss/dsp-tools/issues/1364)) ([35d0e8f](https://github.com/dasch-swiss/dsp-tools/commit/35d0e8ffe1c48e99e56dfcc95129e08134ae60f3))
+* upgrade `rdflib` dependency ([#1351](https://github.com/dasch-swiss/dsp-tools/issues/1351)) ([58ff473](https://github.com/dasch-swiss/dsp-tools/commit/58ff47380337dc66021d0a34bfddadbbf88eb8c3))
+* **upload-files:** stream big files (DEV-4469) ([#1335](https://github.com/dasch-swiss/dsp-tools/issues/1335)) ([201c515](https://github.com/dasch-swiss/dsp-tools/commit/201c51541ff9c0cd638532d8f5043385c4d284c0))
+* **validate-data:** consolidate constants ([#1358](https://github.com/dasch-swiss/dsp-tools/issues/1358)) ([b60a40f](https://github.com/dasch-swiss/dsp-tools/commit/b60a40f11054ec45d024d12131bfc588c644c1a3))
+* **validate-data:** make structure of deserialised dataclasses more generic ([#1360](https://github.com/dasch-swiss/dsp-tools/issues/1360)) ([5563ee0](https://github.com/dasch-swiss/dsp-tools/commit/5563ee0558c585949369af9bf31b1b219ba63fd6))
+* **xmllib:** simplify serialisation of values ([#1355](https://github.com/dasch-swiss/dsp-tools/issues/1355)) ([895274b](https://github.com/dasch-swiss/dsp-tools/commit/895274b9a6a634b728946851a952b157812cc262))
+
+
+### Documentation
+
+* fix mermaid rendering ([#1361](https://github.com/dasch-swiss/dsp-tools/issues/1361)) ([d1eaed6](https://github.com/dasch-swiss/dsp-tools/commit/d1eaed6a0ba339e11bd28db46300cfc1d6877557))
+
 ## [10.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v9.2.0...v10.0.0) (2024-12-18)
 
 

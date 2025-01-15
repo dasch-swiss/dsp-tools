@@ -8,11 +8,11 @@ from rdflib import URIRef
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.validate_data.api_connection import ApiConnection
-from dsp_tools.commands.validate_data.models.input_problems import ContentRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import FileValueNotAllowedProblem
 from dsp_tools.commands.validate_data.models.input_problems import FileValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import GenericProblem
+from dsp_tools.commands.validate_data.models.input_problems import InputRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
@@ -305,21 +305,34 @@ class TestReformatValidationGraph:
             (
                 "list_name_attrib_empty",
                 "onto:testListProp",
-                "The list that should be used with this property is: firstList.",
+                (
+                    "A valid node from the list 'firstList' must be used with this property "
+                    "(input displayed in format 'listName / NodeName')."
+                ),
             ),
             (
                 "list_name_non_existent",
                 "onto:testListProp",
-                "The list that should be used with this property is: firstList.",
+                (
+                    "A valid node from the list 'firstList' must be used with this property "
+                    "(input displayed in format 'listName / NodeName')."
+                ),
             ),
-            ("list_node_non_existent", "onto:testListProp", "Unknown list node for list: firstList."),
+            (
+                "list_node_non_existent",
+                "onto:testListProp",
+                (
+                    "A valid node from the list 'firstList' must be used with this property "
+                    "(input displayed in format 'listName / NodeName')."
+                ),
+            ),
             ("text_only_whitespace_simple", "onto:testTextarea", "The value must be a non-empty string"),
         ]
         assert len(result.problems) == len(expected_info_tuples)
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
             assert one_result.res_id == expected_info[0]
             assert one_result.prop_name == expected_info[1]
-            if isinstance(one_result, ContentRegexProblem):
+            if isinstance(one_result, InputRegexProblem):
                 assert one_result.expected_format == expected_info[2]
             elif isinstance(one_result, GenericProblem):
                 assert one_result.results_message == expected_info[2]
@@ -333,8 +346,8 @@ class TestReformatValidationGraph:
     def test_reformat_every_constraint_once(self, every_combination_once: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(every_combination_once)
         expected_info_tuples = [
-            ("empty_label", ContentRegexProblem),
-            ("geoname_not_number", ContentRegexProblem),
+            ("empty_label", InputRegexProblem),
+            ("geoname_not_number", InputRegexProblem),
             ("id_card_one", MinCardinalityProblem),
             ("id_closed_constraint", NonExistentCardinalityProblem),
             ("id_max_card", MaxCardinalityProblem),
@@ -408,13 +421,41 @@ class TestReformatValidationGraph:
     def test_reformat_special_characters_violation(self, special_characters_violation: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(special_characters_violation)
         expected_tuples = [
-            ("node_backslash", "Unknown list node for list: list \\ ' space.", "other \\ backslash"),
-            ("node_double_quote", "Unknown list node for list: list \\ ' space.", 'other double quote "'),
-            ("node_single_quote", "Unknown list node for list: list \\ ' space.", "other single quote '"),
+            (
+                "node_backslash",
+                (
+                    "A valid node from the list 'list \\ ' space' must be used with this property "
+                    "(input displayed in format 'listName / NodeName')."
+                ),
+                "list \\ ' space / other \\ backslash",
+            ),
+            (
+                "node_double_quote",
+                (
+                    "A valid node from the list 'list \\ ' space' must be used with this property "
+                    "(input displayed in format 'listName / NodeName')."
+                ),
+                '''list \\ ' space / other double quote "''',
+            ),
+            (
+                "node_single_quote",
+                (
+                    "A valid node from the list 'list \\ ' space' must be used with this property "
+                    "(input displayed in format 'listName / NodeName')."
+                ),
+                "list \\ ' space / other single quote '",
+            ),
             ("non_ascii_latin_alphabet", "", ""),
             ("non_ascii_other_alphabet", "", ""),
             ("special_char", "", ""),
-            ("wrong_list_name", "The list that should be used with this property is: list \\ ' space.", "other"),
+            (
+                "wrong_list_name",
+                (
+                    "A valid node from the list 'list \\ ' space' must be used with this property "
+                    "(input displayed in format 'listName / NodeName')."
+                ),
+                "other /  \\ backslash",
+            ),
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_tuples)
@@ -423,8 +464,8 @@ class TestReformatValidationGraph:
             if isinstance(prblm, GenericProblem):
                 assert prblm.res_id == expected[0]
                 assert prblm.problem == expected[1]
-                assert prblm.actual_content == expected[2]
-            elif isinstance(prblm, ContentRegexProblem):
+                assert prblm.actual_input == expected[2]
+            elif isinstance(prblm, InputRegexProblem):
                 assert prblm.res_id == expected[0]
 
     def test_reformat_inheritance_violation(self, inheritance_violation: ValidationReportGraphs) -> None:

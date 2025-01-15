@@ -205,7 +205,7 @@ def _create_all_cardinalities(class_name: str, class_df_with_cardinalities: pd.D
 
 def _make_one_cardinality(detail_row: pd.Series[str | int]) -> ResourceCardinality:
     return ResourceCardinality(
-        f":{detail_row["property"]}", str(detail_row["cardinality"]).lower(), int(detail_row["gui_order"])
+        f":{detail_row['property']}", str(detail_row["cardinality"]).lower(), int(detail_row["gui_order"])
     )
 
 

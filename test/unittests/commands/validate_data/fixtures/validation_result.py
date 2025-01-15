@@ -730,12 +730,12 @@ sh:value <http://data/value_list_node_non_existent> ] .
     
     _:bn_list_node_non_existent a sh:ValidationResult ;
     sh:focusNode <http://data/value_list_node_non_existent> ;
-    sh:resultMessage "Unknown list node for list 'firstList'." ;
+    sh:resultMessage "A valid node from the list 'firstList' must be used with this property." ;
     sh:resultPath api-shapes:listNodeAsString ;
     sh:resultSeverity sh:Violation ;
     sh:sourceConstraintComponent sh:InConstraintComponent ;
     sh:sourceShape [ ] ;
-    sh:value "other" .
+    sh:value "firstList / other" .
     """
     validation_g = Graph()
     validation_g.parse(data=validation_str, format="ttl")
@@ -768,32 +768,33 @@ def extracted_unknown_list_node() -> ResultGenericViolation:
         res_iri=DATA.list_node_non_existent,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testListProp,
-        results_message="Unknown list node for list 'firstList'.",
-        actual_value="other",
+        results_message="A valid node from the list 'firstList' must be used with this property.",
+        actual_value="firstList / other",
     )
 
 
 @pytest.fixture
 def report_unknown_list_name(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
-[ a sh:ValidationResult ;
-sh:detail _:bn_list_name_non_existent ;
-sh:focusNode <http://data/list_name_non_existent> ;
-sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#firstList_NodeShape>" ;
-sh:resultPath onto:testListProp ;
-sh:resultSeverity sh:Violation ;
-sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-sh:sourceShape onto:testListProp_PropShape ;
-sh:value <http://data/value_list_name_non_existent> ] .
+[
+    a sh:ValidationResult ;
+    sh:detail _:bn_list_name_non_existent ;
+    sh:focusNode <http://data/list_name_non_existent> ;
+    sh:resultMessage "Value does not have shape <http://rdfh.ch/lists/9999/b7p3ucDWQ5CZuKpVo-im7Q>" ;
+    sh:resultPath <http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp> ;
+    sh:resultSeverity sh:Violation ;
+    sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+    sh:sourceShape <http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp_PropShape> ;
+    sh:value <http://data/value_list_name_non_existent> ] .
 
 _:bn_list_name_non_existent a sh:ValidationResult ;
     sh:focusNode <http://data/value_list_name_non_existent> ;
-    sh:resultMessage "The list that should be used with this property is 'firstList'." ;
-    sh:resultPath api-shapes:listNameAsString ;
+    sh:resultMessage "A valid node from the list 'firstList' must be used with this property." ;
+    sh:resultPath <http://api.knora.org/ontology/knora-api/shapes/v2#listNodeAsString> ;
     sh:resultSeverity sh:Violation ;
     sh:sourceConstraintComponent sh:InConstraintComponent ;
     sh:sourceShape _:bn_source ;
-    sh:value "other" .
+    sh:value "other / n1" .
     """
     validation_g = Graph()
     validation_g.parse(data=validation_str, format="ttl")
@@ -826,8 +827,8 @@ def extracted_unknown_list_name() -> ResultGenericViolation:
         res_iri=DATA.list_name_non_existent,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testListProp,
-        results_message="The list that should be used with this property is 'firstList'.",
-        actual_value="other",
+        results_message="A valid node from the list 'firstList' must be used with this property.",
+        actual_value="other / n1",
     )
 
 

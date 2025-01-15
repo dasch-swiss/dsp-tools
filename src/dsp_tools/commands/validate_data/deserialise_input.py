@@ -1,32 +1,22 @@
-from typing import Callable
-from typing import Sequence
-from typing import cast
+from pathlib import Path
 
 from lxml import etree
 
 from dsp_tools.commands.validate_data.constants import AUDIO_SEGMENT_RESOURCE
+from dsp_tools.commands.validate_data.constants import KNORA_API_STR
 from dsp_tools.commands.validate_data.constants import REGION_RESOURCE
 from dsp_tools.commands.validate_data.constants import VIDEO_SEGMENT_RESOURCE
-from dsp_tools.commands.validate_data.models.data_deserialised import AbstractFileValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import BitstreamDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import BooleanValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import ColorValueDeserialised
+from dsp_tools.commands.validate_data.constants import XML_TAG_TO_VALUE_TYPE_MAPPER
 from dsp_tools.commands.validate_data.models.data_deserialised import DataDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import DateValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import DecimalValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import GeonameValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import IIIFUriDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import IntValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import LinkValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import ListValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import KnoraValueType
 from dsp_tools.commands.validate_data.models.data_deserialised import ProjectDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ProjectInformation
+from dsp_tools.commands.validate_data.models.data_deserialised import PropertyObject
 from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import RichtextDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import SimpleTextDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import TimeValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import ValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import TripleObjectType
+from dsp_tools.commands.validate_data.models.data_deserialised import TriplePropertyType
+from dsp_tools.commands.validate_data.models.data_deserialised import ValueInformation
+from dsp_tools.models.exceptions import BaseError
 
 
 def deserialise_xml(root: etree._Element) -> ProjectDeserialised:
@@ -50,8 +40,6 @@ def deserialise_xml(root: etree._Element) -> ProjectDeserialised:
 def _deserialise_all_resources(root: etree._Element) -> DataDeserialised:
     all_res: list[ResourceDeserialised] = []
     for res in root.iterdescendants(tag="resource"):
-        res_id = res.attrib["id"]
-        lbl = cast(str, res.attrib.get("label"))
         dsp_type = None
         res_type = res.attrib["restype"]
         if res_type == REGION_RESOURCE:
@@ -61,75 +49,111 @@ def _deserialise_all_resources(root: etree._Element) -> DataDeserialised:
         elif res_type == AUDIO_SEGMENT_RESOURCE:
             dsp_type = AUDIO_SEGMENT_RESOURCE
         if dsp_type:
-            all_res.append(ResourceDeserialised(res_id, lbl, dsp_type, []))
+            all_res.append(_deserialise_one_in_built(res, dsp_type))
         else:
             all_res.append(_deserialise_one_resource(res))
-    file_values = _deserialise_file_value(root)
-    return DataDeserialised(all_res, file_values)
+    return DataDeserialised(all_res)
+
+
+def _deserialise_one_in_built(resource: etree._Element, res_type: str) -> ResourceDeserialised:
+    lbl = PropertyObject(TriplePropertyType.RDFS_LABEL, resource.attrib["label"], TripleObjectType.STRING)
+    rdf_type = PropertyObject(TriplePropertyType.RDF_TYPE, res_type, TripleObjectType.IRI)
+    return ResourceDeserialised(
+        res_id=resource.attrib["id"],
+        property_objects=[rdf_type, lbl],
+        values=[],
+    )
 
 
 def _deserialise_one_resource(resource: etree._Element) -> ResourceDeserialised:
-    values: list[ValueDeserialised] = []
+    values = []
     for val in resource.iterchildren():
         values.extend(_deserialise_one_property(val))
+    lbl = PropertyObject(TriplePropertyType.RDFS_LABEL, resource.attrib["label"], TripleObjectType.STRING)
+    rdf_type = PropertyObject(TriplePropertyType.RDF_TYPE, resource.attrib["restype"], TripleObjectType.IRI)
     return ResourceDeserialised(
         res_id=resource.attrib["id"],
-        res_class=resource.attrib["restype"],
-        label=resource.attrib["label"],
+        property_objects=[rdf_type, lbl],
         values=values,
     )
 
 
-def _deserialise_one_property(prop_ele: etree._Element) -> Sequence[ValueDeserialised]:  # noqa: PLR0911 (too-many-branches, return statements)
+def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueInformation]:
     match prop_ele.tag:
-        case "boolean-prop":
-            return _deserialise_one_value(prop_ele, BooleanValueDeserialised)
-        case "color-prop":
-            return _deserialise_one_value(prop_ele, ColorValueDeserialised)
-        case "date-prop":
-            return _deserialise_one_value(prop_ele, DateValueDeserialised)
-        case "decimal-prop":
-            return _deserialise_one_value(prop_ele, DecimalValueDeserialised)
-        case "geoname-prop":
-            return _deserialise_one_value(prop_ele, GeonameValueDeserialised)
+        case (
+            (
+                "boolean-prop"
+                | "color-prop"
+                | "date-prop"
+                | "decimal-prop"
+                | "geoname-prop"
+                | "integer-prop"
+                | "resptr-prop"
+                | "time-prop"
+                | "uri-prop"
+            ) as prop_tag
+        ):
+            return _extract_generic_value_information(prop_ele, XML_TAG_TO_VALUE_TYPE_MAPPER[prop_tag])
         case "list-prop":
-            return _deserialise_list_prop(prop_ele)
-        case "integer-prop":
-            return _deserialise_one_value(prop_ele, IntValueDeserialised)
-        case "resptr-prop":
-            return _deserialise_one_value(prop_ele, LinkValueDeserialised)
+            return _extract_list_value_information(prop_ele)
         case "text-prop":
-            return _deserialise_text_prop(prop_ele)
-        case "time-prop":
-            return _deserialise_one_value(prop_ele, TimeValueDeserialised)
-        case "uri-prop":
-            return _deserialise_one_value(prop_ele, UriValueDeserialised)
+            return _extract_text_value_information(prop_ele)
+        case "iiif-uri" | "bitstream" as file_tag:
+            return _deserialise_file_values(prop_ele, file_tag)
         case _:
             return []
 
 
-def _deserialise_one_value(
-    prop: etree._Element, func: Callable[[str, str | None], ValueDeserialised]
-) -> Sequence[ValueDeserialised]:
+def _extract_generic_value_information(prop: etree._Element, value_type: KnoraValueType) -> list[ValueInformation]:
     prop_name = prop.attrib["name"]
-    return [func(prop_name, x.text) for x in prop.iterchildren()]
+    return [
+        ValueInformation(
+            user_facing_prop=prop_name,
+            user_facing_value=x.text,
+            knora_type=value_type,
+            value_metadata=[],
+        )
+        for x in prop.iterchildren()
+    ]
 
 
-def _deserialise_list_prop(prop: etree._Element) -> list[ListValueDeserialised]:
+def _extract_list_value_information(prop: etree._Element) -> list[ValueInformation]:
     prop_name = prop.attrib["name"]
     list_name = prop.attrib["list"]
-    return [ListValueDeserialised(prop_name, x.text, list_name) for x in prop.iterchildren()]
-
-
-def _deserialise_text_prop(prop: etree._Element) -> list[SimpleTextDeserialised | RichtextDeserialised]:
-    prop_name = prop.attrib["name"]
-    all_vals: list[SimpleTextDeserialised | RichtextDeserialised] = []
+    all_vals = []
     for val in prop.iterchildren():
-        match val.attrib["encoding"]:
+        found_value = f"{list_name} / {val.text}" if val.text else None
+        all_vals.append(
+            ValueInformation(
+                user_facing_prop=prop_name,
+                user_facing_value=found_value,
+                knora_type=KnoraValueType.LIST_VALUE,
+                value_metadata=[],
+            )
+        )
+    return all_vals
+
+
+def _extract_text_value_information(prop: etree._Element) -> list[ValueInformation]:
+    prop_name = prop.attrib["name"]
+    all_vals = []
+    for val in prop.iterchildren():
+        encoding = val.attrib["encoding"]
+        match encoding:
             case "utf8":
-                all_vals.append(SimpleTextDeserialised(prop_name, _get_text_as_string(val)))
+                val_type = KnoraValueType.SIMPLETEXT_VALUE
             case "xml":
-                all_vals.append(RichtextDeserialised(prop_name, _get_text_as_string(val)))
+                val_type = KnoraValueType.RICHTEXT_VALUE
+            case _:
+                raise BaseError(f"Unknown encoding: {encoding}.")
+        all_vals.append(
+            ValueInformation(
+                user_facing_prop=prop_name,
+                user_facing_value=_get_text_as_string(val),
+                knora_type=val_type,
+                value_metadata=[],
+            )
+        )
     return all_vals
 
 
@@ -144,12 +168,46 @@ def _get_text_as_string(value: etree._Element) -> str | None:
         return value.text
 
 
-def _deserialise_file_value(root: etree._Element) -> list[AbstractFileValueDeserialised]:
-    file_values: list[AbstractFileValueDeserialised] = []
-    for res in root.iterchildren(tag="resource"):
-        res_id = res.attrib["id"]
-        if (bitstream := res.find("bitstream")) is not None:
-            file_values.append(BitstreamDeserialised(res_id, bitstream.text))
-        elif (iiif_uri := res.find("iiif-uri")) is not None:
-            file_values.append(IIIFUriDeserialised(res_id, iiif_uri.text))
-    return file_values
+def _deserialise_file_values(value: etree._Element, tag_name: str) -> list[ValueInformation]:
+    if not (file_str := value.text):
+        return []
+    if tag_name == "iiif-uri":
+        return [
+            ValueInformation(
+                user_facing_prop=f"{KNORA_API_STR}hasStillImageFileValue",
+                user_facing_value=file_str,
+                knora_type=KnoraValueType.STILL_IMAGE_IIIF,
+                value_metadata=[],
+            )
+        ]
+    file_type, prop_str = _get_file_value_type(file_str)
+    if not file_type:
+        return []
+    return [
+        ValueInformation(
+            user_facing_prop=prop_str,
+            user_facing_value=file_str,
+            knora_type=file_type,
+            value_metadata=[],
+        )
+    ]
+
+
+def _get_file_value_type(file_name: str) -> tuple[KnoraValueType | None, str]:  # noqa:PLR0911 (Too many return statements)
+    file_ending = Path(file_name).suffix[1:].lower()
+    match file_ending:
+        case "zip" | "tar" | "gz" | "z" | "tgz" | "gzip" | "7z":
+            return KnoraValueType.ARCHIVE_FILE, f"{KNORA_API_STR}hasArchiveFileValue"
+        case "mp3" | "wav":
+            return KnoraValueType.AUDIO_FILE, f"{KNORA_API_STR}hasAudioFileValue"
+        case "pdf" | "doc" | "docx" | "xls" | "xlsx" | "ppt" | "pptx":
+            return KnoraValueType.DOCUMENT_FILE, f"{KNORA_API_STR}hasDocumentFileValue"
+        case "mp4":
+            return KnoraValueType.MOVING_IMAGE_FILE, f"{KNORA_API_STR}hasMovingImageFileValue"
+        # jpx is the extension of the files returned by dsp-ingest
+        case "jpg" | "jpeg" | "jp2" | "png" | "tif" | "tiff" | "jpx":
+            return KnoraValueType.STILL_IMAGE_FILE, f"{KNORA_API_STR}hasStillImageFileValue"
+        case "odd" | "rng" | "txt" | "xml" | "xsd" | "xsl" | "csv" | "json":
+            return KnoraValueType.TEXT_FILE, f"{KNORA_API_STR}hasTextFileValue"
+        case _:
+            return None, ""

@@ -44,7 +44,7 @@ def _write_new_version_into_pyproject_toml(old_version: str, new_version: str) -
     pyproject_pth = Path("pyproject.toml")
     pyproject = tomlkit.parse(pyproject_pth.read_text(encoding="utf-8"))
     if pyproject["project"]["version"] != old_version:  # type: ignore[index]
-        msg = f"Version in pyproject.toml is '{pyproject["project"]["version"]}', but expected {old_version}"  # type: ignore[index]
+        msg = f"Version in pyproject.toml is '{pyproject['project']['version']}', but expected {old_version}"  # type: ignore[index]
         raise ValueError(msg)
     pyproject["project"]["version"] = new_version  # type: ignore[index]
     pyproject_pth.write_text(tomlkit.dumps(pyproject), encoding="utf-8")

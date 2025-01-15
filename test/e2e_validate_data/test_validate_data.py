@@ -8,11 +8,11 @@ from rdflib import URIRef
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.validate_data.api_connection import ApiConnection
-from dsp_tools.commands.validate_data.models.input_problems import ContentRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import FileValueNotAllowedProblem
 from dsp_tools.commands.validate_data.models.input_problems import FileValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import GenericProblem
+from dsp_tools.commands.validate_data.models.input_problems import InputRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
@@ -332,7 +332,7 @@ class TestReformatValidationGraph:
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
             assert one_result.res_id == expected_info[0]
             assert one_result.prop_name == expected_info[1]
-            if isinstance(one_result, ContentRegexProblem):
+            if isinstance(one_result, InputRegexProblem):
                 assert one_result.expected_format == expected_info[2]
             elif isinstance(one_result, GenericProblem):
                 assert one_result.results_message == expected_info[2]
@@ -346,8 +346,8 @@ class TestReformatValidationGraph:
     def test_reformat_every_constraint_once(self, every_combination_once: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(every_combination_once)
         expected_info_tuples = [
-            ("empty_label", ContentRegexProblem),
-            ("geoname_not_number", ContentRegexProblem),
+            ("empty_label", InputRegexProblem),
+            ("geoname_not_number", InputRegexProblem),
             ("id_card_one", MinCardinalityProblem),
             ("id_closed_constraint", NonExistentCardinalityProblem),
             ("id_max_card", MaxCardinalityProblem),
@@ -464,8 +464,8 @@ class TestReformatValidationGraph:
             if isinstance(prblm, GenericProblem):
                 assert prblm.res_id == expected[0]
                 assert prblm.problem == expected[1]
-                assert prblm.actual_content == expected[2]
-            elif isinstance(prblm, ContentRegexProblem):
+                assert prblm.actual_input == expected[2]
+            elif isinstance(prblm, InputRegexProblem):
                 assert prblm.res_id == expected[0]
 
     def test_reformat_inheritance_violation(self, inheritance_violation: ValidationReportGraphs) -> None:

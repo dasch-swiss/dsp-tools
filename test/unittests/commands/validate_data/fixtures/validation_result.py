@@ -769,7 +769,7 @@ def extracted_unknown_list_node() -> ResultGenericViolation:
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testListProp,
         results_message="A valid node from the list 'firstList' must be used with this property.",
-        actual_value="firstList : other",
+        actual_value="firstList / other",
     )
 
 
@@ -828,7 +828,7 @@ def extracted_unknown_list_name() -> ResultGenericViolation:
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testListProp,
         results_message="A valid node from the list 'firstList' must be used with this property.",
-        actual_value="other : n1",
+        actual_value="other / n1",
     )
 
 

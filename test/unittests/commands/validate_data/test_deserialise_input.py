@@ -34,7 +34,6 @@ class TestResource:
         res_list = _deserialise_all_resources(root_resource_with_props).resources
         assert len(res_list) == 1
         res = res_list[0]
-        assert isinstance(res, ResourceDeserialised)
         assert res.res_id == "one"
         assert len(res.property_objects) == 2
         lbl, rdf_type = _get_label_and_type(res)

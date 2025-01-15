@@ -305,17 +305,26 @@ class TestReformatValidationGraph:
             (
                 "list_name_attrib_empty",
                 "onto:testListProp",
-                "A valid node from the list 'firstList' must be used with this property.",
+                (
+                    "A valid node from the list 'firstList' must be used with this property "
+                    "(input displayed in format 'listName / NodeName')."
+                ),
             ),
             (
                 "list_name_non_existent",
                 "onto:testListProp",
-                "A valid node from the list 'firstList' must be used with this property.",
+                (
+                    "A valid node from the list 'firstList' must be used with this property "
+                    "(input displayed in format 'listName / NodeName')."
+                ),
             ),
             (
                 "list_node_non_existent",
                 "onto:testListProp",
-                "A valid node from the list 'firstList' must be used with this property.",
+                (
+                    "A valid node from the list 'firstList' must be used with this property "
+                    "(input displayed in format 'listName / NodeName')."
+                ),
             ),
             ("text_only_whitespace_simple", "onto:testTextarea", "The value must be a non-empty string"),
         ]

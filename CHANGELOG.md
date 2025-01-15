@@ -1,5 +1,17 @@
 # Changelog
 
+## [10.1.1](https://github.com/dasch-swiss/dsp-tools/compare/v10.1.0...v10.1.1) (2025-01-15)
+
+
+### Maintenance
+
+* **validate-data:** simplify internal Python representation of values ([#1362](https://github.com/dasch-swiss/dsp-tools/issues/1362)) ([3058055](https://github.com/dasch-swiss/dsp-tools/commit/305805567f52f90ad11fc0f1d2995f4f0f4bd807))
+
+
+### Documentation
+
+* remove mermaid2 plugin ([#1365](https://github.com/dasch-swiss/dsp-tools/issues/1365)) ([c126b13](https://github.com/dasch-swiss/dsp-tools/commit/c126b138b708bcd5fef2152626fc2561d5756fa5))
+
 ## [10.1.0](https://github.com/dasch-swiss/dsp-tools/compare/v10.0.0...v10.1.0) (2025-01-15)
 
 

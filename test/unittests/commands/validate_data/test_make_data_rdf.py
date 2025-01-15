@@ -3,8 +3,11 @@ from rdflib import RDF
 from rdflib import RDFS
 from rdflib import XSD
 from rdflib import Literal
+from rdflib import URIRef
+from rdflib.term import Node
 
 from dsp_tools.commands.validate_data.make_data_rdf import _make_file_value
+from dsp_tools.commands.validate_data.make_data_rdf import _make_one_rdflib_object
 from dsp_tools.commands.validate_data.make_data_rdf import _make_one_resource
 from dsp_tools.commands.validate_data.make_data_rdf import _make_one_value
 from dsp_tools.commands.validate_data.models.data_deserialised import BitstreamDeserialised
@@ -17,10 +20,13 @@ from dsp_tools.commands.validate_data.models.data_deserialised import IIIFUriDes
 from dsp_tools.commands.validate_data.models.data_deserialised import IntValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import LinkValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ListValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import PropertyObject
 from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import RichtextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import SimpleTextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TimeValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import TripleObjectType
+from dsp_tools.commands.validate_data.models.data_deserialised import TriplePropertyType
 from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDeserialised
 from test.unittests.commands.validate_data.constants import API_SHAPES
 from test.unittests.commands.validate_data.constants import DATA
@@ -28,6 +34,32 @@ from test.unittests.commands.validate_data.constants import KNORA_API
 from test.unittests.commands.validate_data.constants import ONTO
 
 RES_IRI = DATA["id"]
+
+
+@pytest.mark.parametrize(
+    ("property_object", "expected"),
+    [
+        (
+            PropertyObject(TriplePropertyType.RDFS_LABEL, "label", TripleObjectType.STRING),
+            Literal("label", datatype=XSD.string),
+        ),
+        (
+            PropertyObject(
+                TriplePropertyType.RDF_TYPE,
+                "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything",
+                TripleObjectType.IRI,
+            ),
+            URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"),
+        ),
+        (
+            PropertyObject(TriplePropertyType.RDF_TYPE, None, TripleObjectType.IRI),
+            Literal("", datatype=XSD.string),
+        ),
+    ],
+)
+def test_make_one_rdflib_object(property_object: PropertyObject, expected: Node) -> None:
+    result = _make_one_rdflib_object(property_object)
+    assert result == expected
 
 
 class TestResource:

@@ -1,7 +1,6 @@
 from uuid import uuid4
 
 from rdflib import RDF
-from rdflib import RDFS
 from rdflib import XSD
 from rdflib import Graph
 from rdflib import Literal
@@ -10,6 +9,8 @@ from rdflib import URIRef
 from dsp_tools.commands.validate_data.constants import API_SHAPES
 from dsp_tools.commands.validate_data.constants import DATA
 from dsp_tools.commands.validate_data.constants import KNORA_API
+from dsp_tools.commands.validate_data.constants import TRIPLE_OBJECT_TYPE_TO_XSD
+from dsp_tools.commands.validate_data.constants import TRIPLE_PROP_TYPE_TO_IRI_MAPPER
 from dsp_tools.commands.validate_data.models.data_deserialised import AbstractFileValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import BooleanValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ColorValueDeserialised
@@ -21,10 +22,12 @@ from dsp_tools.commands.validate_data.models.data_deserialised import IIIFUriDes
 from dsp_tools.commands.validate_data.models.data_deserialised import IntValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import LinkValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ListValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import PropertyObject
 from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import RichtextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import SimpleTextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TimeValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import TripleObjectType
 from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ValueDeserialised
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import BOOLEAN_PROP_TYPE_INFO
@@ -77,11 +80,20 @@ def make_data_rdf(data_deserialised: DataDeserialised) -> Graph:
 def _make_one_resource(res: ResourceDeserialised) -> Graph:
     res_iri = DATA[res.res_id]
     g = Graph()
-    g.add((res_iri, RDF.type, URIRef(res.res_class)))
-    g.add((res_iri, RDFS.label, Literal(res.label, datatype=XSD.string)))
+    for trpl in res.property_objects:
+        object_val = _make_one_rdflib_object(trpl)
+        g.add((res_iri, TRIPLE_PROP_TYPE_TO_IRI_MAPPER[trpl.property_type], object_val))
     for v in res.values:
         g += _make_one_value(v, res_iri)
     return g
+
+
+def _make_one_rdflib_object(property_object: PropertyObject) -> Literal | URIRef:
+    if not property_object.object_value:
+        return Literal("", datatype=XSD.string)
+    if property_object.object_type == TripleObjectType.IRI:
+        return URIRef(property_object.object_value)
+    return Literal(property_object.object_value, datatype=TRIPLE_OBJECT_TYPE_TO_XSD[property_object.object_type])
 
 
 def _make_one_value(val: ValueDeserialised, res_iri: URIRef) -> Graph:

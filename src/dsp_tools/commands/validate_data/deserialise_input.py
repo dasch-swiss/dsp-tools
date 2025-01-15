@@ -1,9 +1,11 @@
 from typing import Callable
 from typing import Sequence
-from typing import cast
 
 from lxml import etree
 
+from dsp_tools.commands.validate_data.constants import AUDIO_SEGMENT_RESOURCE
+from dsp_tools.commands.validate_data.constants import REGION_RESOURCE
+from dsp_tools.commands.validate_data.constants import VIDEO_SEGMENT_RESOURCE
 from dsp_tools.commands.validate_data.models.data_deserialised import AbstractFileValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import BitstreamDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import BooleanValueDeserialised
@@ -18,18 +20,15 @@ from dsp_tools.commands.validate_data.models.data_deserialised import LinkValueD
 from dsp_tools.commands.validate_data.models.data_deserialised import ListValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ProjectDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ProjectInformation
+from dsp_tools.commands.validate_data.models.data_deserialised import PropertyObject
 from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import RichtextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import SimpleTextDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TimeValueDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import TripleObjectType
+from dsp_tools.commands.validate_data.models.data_deserialised import TriplePropertyType
 from dsp_tools.commands.validate_data.models.data_deserialised import UriValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ValueDeserialised
-
-KNORA_API = "http://api.knora.org/ontology/knora-api/v2#"
-REGION_RESOURCE = KNORA_API + "Region"
-LINKOBJ_RESOURCE = KNORA_API + "LinkObj"
-VIDEO_SEGMENT_RESOURCE = KNORA_API + "VideoSegment"
-AUDIO_SEGMENT_RESOURCE = KNORA_API + "AudioSegment"
 
 
 def deserialise_xml(root: etree._Element) -> ProjectDeserialised:
@@ -53,8 +52,6 @@ def deserialise_xml(root: etree._Element) -> ProjectDeserialised:
 def _deserialise_all_resources(root: etree._Element) -> DataDeserialised:
     all_res: list[ResourceDeserialised] = []
     for res in root.iterdescendants(tag="resource"):
-        res_id = res.attrib["id"]
-        lbl = cast(str, res.attrib.get("label"))
         dsp_type = None
         res_type = res.attrib["restype"]
         if res_type == REGION_RESOURCE:
@@ -64,21 +61,32 @@ def _deserialise_all_resources(root: etree._Element) -> DataDeserialised:
         elif res_type == AUDIO_SEGMENT_RESOURCE:
             dsp_type = AUDIO_SEGMENT_RESOURCE
         if dsp_type:
-            all_res.append(ResourceDeserialised(res_id, lbl, dsp_type, []))
+            all_res.append(_deserialise_one_in_built(res, dsp_type))
         else:
             all_res.append(_deserialise_one_resource(res))
     file_values = _deserialise_file_value(root)
     return DataDeserialised(all_res, file_values)
 
 
+def _deserialise_one_in_built(resource: etree._Element, res_type: str) -> ResourceDeserialised:
+    lbl = PropertyObject(TriplePropertyType.RDFS_LABEL, resource.attrib["label"], TripleObjectType.STRING)
+    rdf_type = PropertyObject(TriplePropertyType.RDF_TYPE, res_type, TripleObjectType.IRI)
+    return ResourceDeserialised(
+        res_id=resource.attrib["id"],
+        property_objects=[rdf_type, lbl],
+        values=[],
+    )
+
+
 def _deserialise_one_resource(resource: etree._Element) -> ResourceDeserialised:
     values: list[ValueDeserialised] = []
     for val in resource.iterchildren():
         values.extend(_deserialise_one_property(val))
+    lbl = PropertyObject(TriplePropertyType.RDFS_LABEL, resource.attrib["label"], TripleObjectType.STRING)
+    rdf_type = PropertyObject(TriplePropertyType.RDF_TYPE, resource.attrib["restype"], TripleObjectType.IRI)
     return ResourceDeserialised(
         res_id=resource.attrib["id"],
-        res_class=resource.attrib["restype"],
-        label=resource.attrib["label"],
+        property_objects=[rdf_type, lbl],
         values=values,
     )
 

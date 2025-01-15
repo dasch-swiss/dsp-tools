@@ -5,12 +5,15 @@ from collections.abc import Collection
 from dataclasses import dataclass
 from dataclasses import field
 from typing import Any
+from typing import cast
 
 from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
+from dsp_tools.xmllib.internal_helpers import create_richtext_with_checks
+from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.geometry import Circle
 from dsp_tools.xmllib.models.geometry import GeometryPoint
@@ -40,15 +43,16 @@ LIST_SEPARATOR = "\n    - "
 class RegionResource:
     res_id: str
     label: str
-    region_of: str
+    region_of: LinkValue
     geometry: GeometryShape | None
-    comments: list[str] = field(default_factory=list)
+    comments: list[Richtext] = field(default_factory=list)
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
 
     def __post_init__(self) -> None:
         _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
         _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
+        _check_strings(string_to_check=self.region_of.value, res_id=self.res_id, field_name="isRegionOf")
 
     @staticmethod
     def create_new(
@@ -87,7 +91,7 @@ class RegionResource:
         return RegionResource(
             res_id=res_id,
             label=label,
-            region_of=region_of,
+            region_of=LinkValue(value=region_of, prop_name="isRegionOf", resource_id=res_id),
             geometry=None,
             permissions=permissions,
         )
@@ -247,12 +251,21 @@ class RegionResource:
         )
         return self
 
-    def add_comment(self, comment: str) -> RegionResource:
+    def add_comment(
+        self,
+        text: str,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+    ) -> RegionResource:
         """
         Add a comment to the region
 
         Args:
-            comment: text
+            text: text of the comment
+            permissions: optional permissions of this value
+            comment: optional comment about this comment
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original region, with the added comment
@@ -261,16 +274,38 @@ class RegionResource:
             ```python
             region = region.add_comment("comment text")
             ```
+
+            ```python
+            region = region.add_comment(text="comment text", comment="Comment about the comment.")
+            ```
         """
-        self.comments.append(comment)
+        self.comments.append(
+            create_richtext_with_checks(
+                value=text,
+                prop_name="hasComment",
+                permissions=permissions,
+                comment=comment,
+                newline_replacement=newline_replacement,
+                res_id=self.res_id,
+            )
+        )
         return self
 
-    def add_comment_multiple(self, comments: Collection[str]) -> RegionResource:
+    def add_comment_multiple(
+        self,
+        texts: Collection[str],
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+    ) -> RegionResource:
         """
         Add several comments to the region
 
         Args:
-            comments: list of texts
+            texts: list of texts
+            permissions: optional permissions of these values
+            comment: optional comment about these comments
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original region, with the added comments
@@ -280,16 +315,36 @@ class RegionResource:
             region = region.add_comment_multiple(["comment 1", "comment 2"])
             ```
         """
-        vals = check_and_fix_collection_input(comments, "hasComment", self.res_id)
-        self.comments.extend(vals)
+        vals = check_and_fix_collection_input(texts, "hasComment", self.res_id)
+        comnts = [
+            create_richtext_with_checks(
+                value=c,
+                prop_name="hasComment",
+                permissions=permissions,
+                comment=comment,
+                newline_replacement=newline_replacement,
+                res_id=self.res_id,
+            )
+            for c in vals
+        ]
+        self.comments.extend(comnts)
         return self
 
-    def add_comment_optional(self, comment: Any) -> RegionResource:
+    def add_comment_optional(
+        self,
+        text: Any,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+    ) -> RegionResource:
         """
         If the value is not empty, add it as comment, otherwise return the region unchanged.
 
         Args:
-            comment: text or empty value
+            text: text of the comment (or empty value)
+            permissions: optional permissions of this value
+            comment: optional comment about this comment
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original region, with the added comment
@@ -303,8 +358,17 @@ class RegionResource:
             region = region.add_comment_optional(None)
             ```
         """
-        if is_nonempty_value(comment):
-            self.comments.append(comment)
+        if is_nonempty_value(text):
+            self.comments.append(
+                create_richtext_with_checks(
+                    value=text,
+                    prop_name="hasComment",
+                    permissions=permissions,
+                    comment=comment,
+                    newline_replacement=newline_replacement,
+                    res_id=self.res_id,
+                )
+            )
         return self
 
     def add_migration_metadata(
@@ -341,12 +405,12 @@ class RegionResource:
         return self
 
     def serialise(self) -> etree._Element:
-        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
         res_ele = self._serialise_resource_element()
         res_ele.extend(self._serialise_geometry_shape())
         res_ele.extend(self._serialise_values())
         if self.comments:
-            res_ele.extend(_serialise_has_comment(self.comments, self.res_id))
+            res_ele.extend(serialise_values(cast(list[Value], self.comments)))
+
         return res_ele
 
     def _serialise_resource_element(self) -> etree._Element:
@@ -357,7 +421,7 @@ class RegionResource:
 
     def _serialise_values(self) -> list[etree._Element]:
         return serialise_values(
-            [LinkValue(value=self.region_of, prop_name="isRegionOf", resource_id=self.res_id)],
+            [self.region_of],
         )
 
     def _serialise_geometry_shape(self) -> list[etree._Element]:
@@ -385,10 +449,14 @@ class RegionResource:
 class LinkResource:
     res_id: str
     label: str
-    link_to: list[str]
-    comments: list[str] = field(default_factory=list)
+    link_to: list[LinkValue]
+    comments: list[Richtext] = field(default_factory=list)
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
+
+    def __post_init__(self) -> None:
+        _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
+        _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
 
     @staticmethod
     def create_new(
@@ -421,19 +489,30 @@ class LinkResource:
             )
             ```
         """
+        links_to = check_and_fix_collection_input(link_to, "hasLinkTo", res_id)
+        link_vals = [LinkValue(value=x, prop_name="hasLinkTo", resource_id=res_id) for x in links_to]
         return LinkResource(
             res_id=res_id,
             label=label,
-            link_to=list(link_to),
+            link_to=link_vals,
             permissions=permissions,
         )
 
-    def add_comment(self, comment: str) -> LinkResource:
+    def add_comment(
+        self,
+        text: str,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+    ) -> LinkResource:
         """
         Add a comment to the resource
 
         Args:
-            comment: text
+            text: text of the comment
+            permissions: optional permissions of this value
+            comment: optional comment about this comment
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added comment
@@ -442,16 +521,38 @@ class LinkResource:
             ```python
             link_resource = link_resource.add_comment("comment text")
             ```
+
+            ```python
+            link_resource = link_resource.add_comment(text="comment text", comment="Comment about the comment.")
+            ```
         """
-        self.comments.append(comment)
+        self.comments.append(
+            create_richtext_with_checks(
+                value=text,
+                prop_name="hasComment",
+                permissions=permissions,
+                comment=comment,
+                newline_replacement=newline_replacement,
+                res_id=self.res_id,
+            )
+        )
         return self
 
-    def add_comment_multiple(self, comments: Collection[str]) -> LinkResource:
+    def add_comment_multiple(
+        self,
+        texts: Collection[str],
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+    ) -> LinkResource:
         """
         Add several comments to the resource
 
         Args:
-            comments: list of texts
+            texts: list of texts
+            permissions: optional permissions of these values
+            comment: optional comment about this comment
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added comments
@@ -461,16 +562,36 @@ class LinkResource:
             link_resource = link_resource.add_comment_multiple(["comment 1", "comment 2"])
             ```
         """
-        vals = check_and_fix_collection_input(comments, "hasComment", self.res_id)
-        self.comments.extend(vals)
+        vals = check_and_fix_collection_input(texts, "hasComment", self.res_id)
+        comnts = [
+            create_richtext_with_checks(
+                value=c,
+                prop_name="hasComment",
+                permissions=permissions,
+                comment=comment,
+                newline_replacement=newline_replacement,
+                res_id=self.res_id,
+            )
+            for c in vals
+        ]
+        self.comments.extend(comnts)
         return self
 
-    def add_comment_optional(self, comment: Any) -> LinkResource:
+    def add_comment_optional(
+        self,
+        text: Any,
+        permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
+        comment: str | None = None,
+        newline_replacement: NewlineReplacement = NewlineReplacement.LINEBREAK,
+    ) -> LinkResource:
         """
         If the value is not empty, add it as comment, otherwise return the resource unchanged.
 
         Args:
-            comment: text or empty value
+            text: text of the comment (or empty value)
+            permissions: optional permissions of this value
+            comment: optional comment about this comment
+            newline_replacement: options how to deal with `\\n` inside the text value. Default: replace with `<br/>`
 
         Returns:
             The original resource, with the added comment
@@ -484,8 +605,17 @@ class LinkResource:
             link_resource = link_resource.add_comment_optional(None)
             ```
         """
-        if is_nonempty_value(comment):
-            self.comments.append(comment)
+        if is_nonempty_value(text):
+            self.comments.append(
+                create_richtext_with_checks(
+                    value=text,
+                    prop_name="hasComment",
+                    permissions=permissions,
+                    comment=comment,
+                    newline_replacement=newline_replacement,
+                    res_id=self.res_id,
+                )
+            )
         return self
 
     def add_migration_metadata(
@@ -522,34 +652,30 @@ class LinkResource:
         return self
 
     def serialise(self) -> etree._Element:
-        self._check_for_and_convert_unexpected_input()
         res_ele = self._serialise_resource_element()
-        if self.comments:
-            res_ele.extend(_serialise_has_comment(self.comments, self.res_id))
-        else:
-            msg = (
-                f"The link object with the ID '{self.res_id}' does not have any comments. "
-                f"At least one comment must be provided, please note that an xmlupload will fail."
-            )
-            warnings.warn(DspToolsUserWarning(msg))
-        res_ele.extend(self._serialise_links())
+        self._final_checks()
+        generic_vals = self.comments + self.link_to
+        res_ele.extend(serialise_values(cast(list[Value], generic_vals)))
         return res_ele
 
-    def _check_for_and_convert_unexpected_input(self) -> None:
-        _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
-        _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
-        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
-        self.link_to = _transform_unexpected_input(self.link_to, "link_to", self.res_id)
+    def _final_checks(self) -> None:
+        problem = []
+        if not self.comments:
+            problem.append("at least one comment")
+        if not self.link_to:
+            problem.append("at least two links")
+        if problem:
+            msg = (
+                f"The link object with the ID '{self.res_id}' requires: {' and '.join(problem)} "
+                f"Please note that an xmlupload will fail."
+            )
+            warnings.warn(DspToolsUserWarning(msg))
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}
         if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
             attribs["permissions"] = self.permissions.value
         return etree.Element(f"{DASCH_SCHEMA}link", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
-
-    def _serialise_links(self) -> list[etree._Element]:
-        vals: list[Value] = [LinkValue(value=x, prop_name="hasLinkTo", resource_id=self.res_id) for x in self.link_to]
-        return serialise_values(vals)
 
 
 @dataclass
@@ -586,6 +712,11 @@ class VideoSegmentResource:
     relates_to: list[str] = field(default_factory=list)
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
+
+    def __post_init__(self) -> None:
+        _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
+        _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
+        _check_strings(string_to_check=self.segment_of, res_id=self.res_id, field_name="isSegmentOf")
 
     @staticmethod
     def create_new(
@@ -676,12 +807,15 @@ class VideoSegmentResource:
             self.title = title
         return self
 
-    def add_comment(self, comment: str) -> VideoSegmentResource:
+    def add_comment(
+        self,
+        text: str,
+    ) -> VideoSegmentResource:
         """
         Add a comment to the resource
 
         Args:
-            comment: text
+            text: text
 
         Returns:
             The original resource, with the added comment
@@ -691,15 +825,18 @@ class VideoSegmentResource:
             video_segment = video_segment.add_comment("comment text")
             ```
         """
-        self.comments.append(comment)
+        self.comments.append(text)
         return self
 
-    def add_comment_multiple(self, comments: Collection[str]) -> VideoSegmentResource:
+    def add_comment_multiple(
+        self,
+        texts: Collection[str],
+    ) -> VideoSegmentResource:
         """
         Add several comments to the resource
 
         Args:
-            comments: list of texts
+            texts: list of texts
 
         Returns:
             The original resource, with the added comments
@@ -709,16 +846,19 @@ class VideoSegmentResource:
             video_segment = video_segment.add_comment_multiple(["comment 1", "comment 2"])
             ```
         """
-        vals = check_and_fix_collection_input(comments, "hasComment", self.res_id)
+        vals = check_and_fix_collection_input(texts, "hasComment", self.res_id)
         self.comments.extend(vals)
         return self
 
-    def add_comment_optional(self, comment: Any) -> VideoSegmentResource:
+    def add_comment_optional(
+        self,
+        text: Any,
+    ) -> VideoSegmentResource:
         """
         If the value is not empty, add it as comment, otherwise return the resource unchanged.
 
         Args:
-            comment: text or empty value
+            text: text of the comment (or empty value)
 
         Returns:
             The original resource, with the added comment
@@ -732,8 +872,8 @@ class VideoSegmentResource:
             video_segment = video_segment.add_comment_optional(None)
             ```
         """
-        if is_nonempty_value(comment):
-            self.comments.append(comment)
+        if is_nonempty_value(text):
+            self.comments.append(text)
         return self
 
     def add_description(self, description: str) -> VideoSegmentResource:
@@ -950,17 +1090,9 @@ class VideoSegmentResource:
         return self
 
     def serialise(self) -> etree._Element:
-        self._check_for_and_convert_unexpected_input()
         res_ele = self._serialise_resource_element()
         res_ele.extend(_serialise_segment_children(self))
         return res_ele
-
-    def _check_for_and_convert_unexpected_input(self) -> None:
-        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
-        self.descriptions = _transform_unexpected_input(self.descriptions, "descriptions", self.res_id)
-        self.keywords = _transform_unexpected_input(self.keywords, "keywords", self.res_id)
-        self.relates_to = _transform_unexpected_input(self.relates_to, "relates_to", self.res_id)
-        _validate_segment(self)
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}
@@ -982,6 +1114,11 @@ class AudioSegmentResource:
     relates_to: list[str] = field(default_factory=list)
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     migration_metadata: MigrationMetadata | None = None
+
+    def __post_init__(self) -> None:
+        _check_strings(string_to_check=self.res_id, res_id=self.res_id, field_name="Resource ID")
+        _check_strings(string_to_check=self.label, res_id=self.res_id, field_name="Label")
+        _check_strings(string_to_check=self.segment_of, res_id=self.res_id, field_name="isSegmentOf")
 
     @staticmethod
     def create_new(
@@ -1061,12 +1198,12 @@ class AudioSegmentResource:
             self.title = title
         return self
 
-    def add_comment(self, comment: str) -> AudioSegmentResource:
+    def add_comment(self, text: str) -> AudioSegmentResource:
         """
         Add a comment to the resource
 
         Args:
-            comment: text
+            text: text of the comment
 
         Returns:
             The original resource, with the added comment
@@ -1076,15 +1213,15 @@ class AudioSegmentResource:
             audio_segment = audio_segment.add_comment("comment text")
             ```
         """
-        self.comments.append(comment)
+        self.comments.append(text)
         return self
 
-    def add_comment_multiple(self, comments: Collection[str]) -> AudioSegmentResource:
+    def add_comment_multiple(self, texts: Collection[str]) -> AudioSegmentResource:
         """
         Add several comments to the resource
 
         Args:
-            comments: list of texts
+            texts: list of texts
 
         Returns:
             The original resource, with the added comments
@@ -1094,16 +1231,16 @@ class AudioSegmentResource:
             audio_segment = audio_segment.add_comment_multiple(["comment 1", "comment 2"])
             ```
         """
-        vals = check_and_fix_collection_input(comments, "hasComment", self.res_id)
+        vals = check_and_fix_collection_input(texts, "hasComment", self.res_id)
         self.comments.extend(vals)
         return self
 
-    def add_comment_optional(self, comment: Any) -> AudioSegmentResource:
+    def add_comment_optional(self, text: Any) -> AudioSegmentResource:
         """
         If the value is not empty, add it as comment, otherwise return the resource unchanged.
 
         Args:
-            comment: text or empty value
+            text: text of the comment (or empty value)
 
         Returns:
             The original resource, with the added comment
@@ -1117,8 +1254,8 @@ class AudioSegmentResource:
             audio_segment = audio_segment.add_comment_optional(None)
             ```
         """
-        if is_nonempty_value(comment):
-            self.comments.append(comment)
+        if is_nonempty_value(text):
+            self.comments.append(text)
         return self
 
     def add_description(self, description: str) -> AudioSegmentResource:
@@ -1335,17 +1472,9 @@ class AudioSegmentResource:
         return self
 
     def serialise(self) -> etree._Element:
-        self._check_for_and_convert_unexpected_input()
         res_ele = self._serialise_resource_element()
         res_ele.extend(_serialise_segment_children(self))
         return res_ele
-
-    def _check_for_and_convert_unexpected_input(self) -> None:
-        self.comments = _transform_unexpected_input(self.comments, "comments", self.res_id)
-        self.descriptions = _transform_unexpected_input(self.descriptions, "descriptions", self.res_id)
-        self.keywords = _transform_unexpected_input(self.keywords, "keywords", self.res_id)
-        self.relates_to = _transform_unexpected_input(self.relates_to, "relates_to", self.res_id)
-        _validate_segment(self)
 
     def _serialise_resource_element(self) -> etree._Element:
         attribs = {"label": self.label, "id": self.res_id}
@@ -1361,11 +1490,6 @@ def _check_strings(string_to_check: str, res_id: str, field_name: str) -> None:
             f"Field: {field_name} | Value: {string_to_check}"
         )
         warnings.warn(DspToolsUserWarning(msg))
-
-
-def _serialise_has_comment(comments: list[str], res_id: str) -> list[etree._Element]:
-    cmts: list[Value] = [Richtext(value=x, prop_name="hasComment", resource_id=res_id) for x in comments]
-    return serialise_values(cmts)
 
 
 def _validate_segment(segment: AudioSegmentResource | VideoSegmentResource) -> None:
@@ -1419,27 +1543,6 @@ def _make_element_with_text(tag_name: str, text_content: str) -> etree._Element:
     ele = etree.Element(f"{DASCH_SCHEMA}{tag_name}", nsmap=XML_NAMESPACE_MAP)
     ele.text = text_content
     return ele
-
-
-def _transform_unexpected_input(value: Any, prop_name: str, res_id: str) -> list[str]:
-    match value:
-        case list():
-            return value
-        case set() | tuple():
-            return list(value)
-        case str():
-            return [value]
-        case _:
-            _warn_unexpected_value(value=value, prop_name=prop_name, res_id=res_id)
-            return [str(value)]
-
-
-def _warn_unexpected_value(*, value: Any, prop_name: str, res_id: str | None) -> None:
-    msg = (
-        f"The resource: {res_id} should have a list of strings for the field '{prop_name}'. "
-        f"Your input: '{value}' is of type {type(value)}."
-    )
-    warnings.warn(DspToolsUserWarning(msg))
 
 
 def _warn_value_exists(*, old_value: Any, new_value: Any, value_field: str, res_id: str | None) -> None:

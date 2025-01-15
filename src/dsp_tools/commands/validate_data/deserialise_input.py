@@ -3,15 +3,14 @@ from pathlib import Path
 from lxml import etree
 
 from dsp_tools.commands.validate_data.constants import AUDIO_SEGMENT_RESOURCE
+from dsp_tools.commands.validate_data.constants import KNORA_API_STR
 from dsp_tools.commands.validate_data.constants import REGION_RESOURCE
 from dsp_tools.commands.validate_data.constants import VIDEO_SEGMENT_RESOURCE
 from dsp_tools.commands.validate_data.constants import XML_TAG_TO_VALUE_TYPE_MAPPER
 from dsp_tools.commands.validate_data.models.data_deserialised import AbstractFileValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import BitstreamDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DataDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import FileValueInformation
 from dsp_tools.commands.validate_data.models.data_deserialised import IIIFUriDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import KnoraFileValueType
 from dsp_tools.commands.validate_data.models.data_deserialised import KnoraValueType
 from dsp_tools.commands.validate_data.models.data_deserialised import ProjectDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ProjectInformation
@@ -56,8 +55,7 @@ def _deserialise_all_resources(root: etree._Element) -> DataDeserialised:
             all_res.append(_deserialise_one_in_built(res, dsp_type))
         else:
             all_res.append(_deserialise_one_resource(res))
-    file_values = _deserialise_file_value(root)
-    return DataDeserialised(all_res, file_values)
+    return DataDeserialised(all_res)
 
 
 def _deserialise_one_in_built(resource: etree._Element, res_type: str) -> ResourceDeserialised:
@@ -71,7 +69,7 @@ def _deserialise_one_in_built(resource: etree._Element, res_type: str) -> Resour
 
 
 def _deserialise_one_resource(resource: etree._Element) -> ResourceDeserialised:
-    values = []
+    values: list[ValueInformation] = []
     for val in resource.iterchildren():
         values.extend(_deserialise_one_property(val))
     lbl = PropertyObject(TriplePropertyType.RDFS_LABEL, resource.attrib["label"], TripleObjectType.STRING)
@@ -83,7 +81,7 @@ def _deserialise_one_resource(resource: etree._Element) -> ResourceDeserialised:
     )
 
 
-def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueInformation | FileValueInformation]:
+def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueInformation]:
     match prop_ele.tag:
         case (
             (
@@ -173,34 +171,43 @@ def _get_text_as_string(value: etree._Element) -> str | None:
         return value.text
 
 
-def _deserialise_file_values(value: etree._Element, tag_name: str) -> list[FileValueInformation]:
+def _deserialise_file_values(value: etree._Element, tag_name: str) -> list[ValueInformation]:
     if not (file_str := value.text):
         return []
     if tag_name == "iiif-uri":
-        file_type = KnoraFileValueType.STILL_IMAGE_IIIF
-    elif not (file_type := _get_file_value_type(file_str)):
-        return []
-    return [FileValueInformation(file_value_str=file_str, knora_type=file_type, value_metadata=[])]
+        file_type, prop_str = KnoraValueType.STILL_IMAGE_IIIF, f"{KNORA_API_STR}hasStillImageFileValue"
+    else:
+        file_type, prop_str = _get_file_value_type(file_str)
+        if not file_type:
+            return []
+    return [
+        ValueInformation(
+            user_facing_prop=prop_str,
+            user_facing_value=file_str,
+            knora_type=file_type,
+            value_metadata=[],
+        )
+    ]
 
 
-def _get_file_value_type(file_name: str) -> KnoraFileValueType | None:  # noqa:PLR0911 (Too many return statements)
+def _get_file_value_type(file_name: str) -> tuple[KnoraValueType | None, str | None]:  # noqa:PLR0911 (Too many return statements)
     file_ending = Path(file_name).suffix[1:].lower()
     match file_ending:
         case "zip" | "tar" | "gz" | "z" | "tgz" | "gzip" | "7z":
-            return KnoraFileValueType.ARCHIVE
+            return KnoraValueType.ARCHIVE_FILE, f"{KNORA_API_STR}hasArchiveFileValue"
         case "mp3" | "wav":
-            return KnoraFileValueType.AUDIO
+            return KnoraValueType.AUDIO_FILE, f"{KNORA_API_STR}hasAudioFileValue"
         case "pdf" | "doc" | "docx" | "xls" | "xlsx" | "ppt" | "pptx":
-            return KnoraFileValueType.DOCUMENT
+            return KnoraValueType.DOCUMENT_FILE, f"{KNORA_API_STR}hasDocumentFileValue"
         case "mp4":
-            return KnoraFileValueType.MOVING_IMAGE
+            return KnoraValueType.MOVING_IMAGE_FILE, f"{KNORA_API_STR}hasMovingImageFileValue"
         # jpx is the extension of the files returned by dsp-ingest
         case "jpg" | "jpeg" | "jp2" | "png" | "tif" | "tiff" | "jpx":
-            return KnoraFileValueType.STILL_IMAGE_FILE
+            return KnoraValueType.STILL_IMAGE_FILE, f"{KNORA_API_STR}hasStillImageFileValue"
         case "odd" | "rng" | "txt" | "xml" | "xsd" | "xsl" | "csv" | "json":
-            return KnoraFileValueType.TEXT
+            return KnoraValueType.TEXT_FILE, f"{KNORA_API_STR}hasTextFileValue"
         case _:
-            return None
+            return None, None
 
 
 def _deserialise_file_value(root: etree._Element) -> list[AbstractFileValueDeserialised]:

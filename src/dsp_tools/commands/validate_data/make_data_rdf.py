@@ -38,8 +38,6 @@ def make_data_rdf(data_deserialised: DataDeserialised) -> Graph:
     g = Graph()
     for r in data_deserialised.resources:
         g += _make_one_resource(r)
-    for f in data_deserialised.file_values:
-        g += _make_file_value(f)
     return g
 
 
@@ -79,6 +77,7 @@ def _make_one_rdflib_object(object_value: str | None, object_type: TripleObjectT
 
 
 def _make_file_value(val: AbstractFileValueDeserialised) -> Graph:
+    # TODO: replace
     if val.value is None:
         return Graph()
     if isinstance(val, IIIFUriDeserialised):

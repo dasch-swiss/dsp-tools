@@ -10,6 +10,7 @@ from dsp_tools.commands.validate_data.models.data_deserialised import PropertyOb
 from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TripleObjectType
 from dsp_tools.commands.validate_data.models.data_deserialised import TriplePropertyType
+from dsp_tools.commands.validate_data.models.data_deserialised import ValueInformation
 
 
 def _get_label_and_type(resource: ResourceDeserialised) -> tuple[PropertyObject, PropertyObject]:
@@ -34,6 +35,7 @@ class TestResource:
         res_list = _deserialise_all_resources(root_resource_with_props).resources
         assert len(res_list) == 1
         res = res_list[0]
+        assert isinstance(res, ResourceDeserialised)
         assert res.res_id == "one"
         assert len(res.property_objects) == 2
         lbl, rdf_type = _get_label_and_type(res)
@@ -61,6 +63,7 @@ class TestBooleanValue:
         res_list = _deserialise_one_property(boolean_value_corr)
         assert len(res_list) == 1
         res = res_list[0]
+        assert isinstance(res, ValueInformation)
         assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean"
         assert res.user_facing_value == "true"
         assert res.knora_type == KnoraValueType.BOOLEAN_VALUE
@@ -72,6 +75,7 @@ class TestColorValue:
         res_list = _deserialise_one_property(color_value_corr)
         assert len(res_list) == 1
         res = res_list[0]
+        assert isinstance(res, ValueInformation)
         assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testColor"
         assert res.user_facing_value == "#00ff00"
         assert res.knora_type == KnoraValueType.COLOR_VALUE
@@ -80,11 +84,19 @@ class TestColorValue:
     def test_several(self, color_value_corr_several: etree._Element) -> None:
         res = _deserialise_one_property(color_value_corr_several)
         assert len(res) == 2
-        assert res[0].user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testColor"
-        assert res[0].user_facing_value == "#00ff00"
-        assert res[1].user_facing_value == "#00ff11"
-        assert res[0].knora_type == KnoraValueType.COLOR_VALUE
-        assert res[1].knora_type == KnoraValueType.COLOR_VALUE
+        res_1 = res[0]
+        assert isinstance(res_1, ValueInformation)
+        res_2 = res[1]
+        assert isinstance(res_2, ValueInformation)
+        res_1 = res[0]
+        assert isinstance(res_1, ValueInformation)
+        res_2 = res[1]
+        assert isinstance(res_2, ValueInformation)
+        assert res_1.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testColor"
+        assert res_1.user_facing_value == "#00ff00"
+        assert res_2.user_facing_value == "#00ff11"
+        assert res_1.knora_type == KnoraValueType.COLOR_VALUE
+        assert res_2.knora_type == KnoraValueType.COLOR_VALUE
 
 
 class TestDateValue:
@@ -92,6 +104,7 @@ class TestDateValue:
         res_list = _deserialise_one_property(date_value_corr)
         assert len(res_list) == 1
         res = res_list[0]
+        assert isinstance(res, ValueInformation)
         assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate1"
         assert res.user_facing_value == "JULIAN:BCE:0700:BCE:0600"
         assert res.knora_type == KnoraValueType.DATE_VALUE
@@ -100,11 +113,15 @@ class TestDateValue:
     def test_several(self, date_value_corr_several: etree._Element) -> None:
         res = _deserialise_one_property(date_value_corr_several)
         assert len(res) == 2
-        assert res[0].user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate1"
-        assert res[0].user_facing_value == "JULIAN:BCE:0700:BCE:0600"
-        assert res[1].user_facing_value == "ISLAMIC:BCE:0700:BCE:0600"
-        assert res[0].knora_type == KnoraValueType.DATE_VALUE
-        assert res[1].knora_type == KnoraValueType.DATE_VALUE
+        res_1 = res[0]
+        assert isinstance(res_1, ValueInformation)
+        res_2 = res[1]
+        assert isinstance(res_2, ValueInformation)
+        assert res_1.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate1"
+        assert res_1.user_facing_value == "JULIAN:BCE:0700:BCE:0600"
+        assert res_2.user_facing_value == "ISLAMIC:BCE:0700:BCE:0600"
+        assert res_1.knora_type == KnoraValueType.DATE_VALUE
+        assert res_2.knora_type == KnoraValueType.DATE_VALUE
 
 
 class TestDecimalValue:
@@ -112,6 +129,7 @@ class TestDecimalValue:
         res_list = _deserialise_one_property(decimal_value_corr)
         assert len(res_list) == 1
         res = res_list[0]
+        assert isinstance(res, ValueInformation)
         assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testDecimalSimpleText"
         assert res.user_facing_value == "2.71"
         assert res.knora_type == KnoraValueType.DECIMAL_VALUE
@@ -120,11 +138,15 @@ class TestDecimalValue:
     def test_several(self, decimal_value_corr_several: etree._Element) -> None:
         res = _deserialise_one_property(decimal_value_corr_several)
         assert len(res) == 2
-        assert res[0].user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testDecimalSimpleText"
-        assert res[0].user_facing_value == "1.0"
-        assert res[1].user_facing_value == "2.0"
-        assert res[0].knora_type == KnoraValueType.DECIMAL_VALUE
-        assert res[1].knora_type == KnoraValueType.DECIMAL_VALUE
+        res_1 = res[0]
+        assert isinstance(res_1, ValueInformation)
+        res_2 = res[1]
+        assert isinstance(res_2, ValueInformation)
+        assert res_1.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testDecimalSimpleText"
+        assert res_1.user_facing_value == "1.0"
+        assert res_2.user_facing_value == "2.0"
+        assert res_1.knora_type == KnoraValueType.DECIMAL_VALUE
+        assert res_2.knora_type == KnoraValueType.DECIMAL_VALUE
 
 
 class TestGeonameValue:
@@ -132,6 +154,7 @@ class TestGeonameValue:
         res_list = _deserialise_one_property(geoname_value_corr)
         assert len(res_list) == 1
         res = res_list[0]
+        assert isinstance(res, ValueInformation)
         assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testGeoname"
         assert res.user_facing_value == "1111111"
         assert res.knora_type == KnoraValueType.GEONAME_VALUE
@@ -140,11 +163,15 @@ class TestGeonameValue:
     def test_several(self, geoname_value_corr_several: etree._Element) -> None:
         res = _deserialise_one_property(geoname_value_corr_several)
         assert len(res) == 2
-        assert res[0].user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testGeoname"
-        assert res[0].user_facing_value == "1111111"
-        assert res[1].user_facing_value == "2222222"
-        assert res[0].knora_type == KnoraValueType.GEONAME_VALUE
-        assert res[1].knora_type == KnoraValueType.GEONAME_VALUE
+        res_1 = res[0]
+        assert isinstance(res_1, ValueInformation)
+        res_2 = res[1]
+        assert isinstance(res_2, ValueInformation)
+        assert res_1.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testGeoname"
+        assert res_1.user_facing_value == "1111111"
+        assert res_2.user_facing_value == "2222222"
+        assert res_1.knora_type == KnoraValueType.GEONAME_VALUE
+        assert res_2.knora_type == KnoraValueType.GEONAME_VALUE
 
 
 class TestIntValue:
@@ -152,6 +179,7 @@ class TestIntValue:
         res_list = _deserialise_one_property(integer_value_corr)
         assert len(res_list) == 1
         res = res_list[0]
+        assert isinstance(res, ValueInformation)
         assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testIntegerSimpleText"
         assert res.user_facing_value == "1"
         assert res.knora_type == KnoraValueType.INT_VALUE
@@ -160,11 +188,15 @@ class TestIntValue:
     def test_several(self, integer_value_corr_several: etree._Element) -> None:
         res = _deserialise_one_property(integer_value_corr_several)
         assert len(res) == 2
-        assert res[0].user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testIntegerSimpleText"
-        assert res[0].user_facing_value == "1"
-        assert res[1].user_facing_value == "2"
-        assert res[0].knora_type == KnoraValueType.INT_VALUE
-        assert res[1].knora_type == KnoraValueType.INT_VALUE
+        res_1 = res[0]
+        assert isinstance(res_1, ValueInformation)
+        res_2 = res[1]
+        assert isinstance(res_2, ValueInformation)
+        assert res_1.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testIntegerSimpleText"
+        assert res_1.user_facing_value == "1"
+        assert res_2.user_facing_value == "2"
+        assert res_1.knora_type == KnoraValueType.INT_VALUE
+        assert res_2.knora_type == KnoraValueType.INT_VALUE
 
 
 class TestListValue:
@@ -172,6 +204,7 @@ class TestListValue:
         res_list = _deserialise_one_property(list_value_corr)
         assert len(res_list) == 1
         res = res_list[0]
+        assert isinstance(res, ValueInformation)
         assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp"
         assert res.user_facing_value == "firstList / n1"
         assert res.knora_type == KnoraValueType.LIST_VALUE
@@ -180,12 +213,16 @@ class TestListValue:
     def test_several(self, list_value_corr_several: etree._Element) -> None:
         res = _deserialise_one_property(list_value_corr_several)
         assert len(res) == 2
+        res_1 = res[0]
+        assert isinstance(res_1, ValueInformation)
+        res_2 = res[1]
+        assert isinstance(res_2, ValueInformation)
         one = res[0]
         assert one.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp"
-        assert res[0].user_facing_value == "firstList / n1"
-        assert res[1].user_facing_value == "firstList / n2"
-        assert res[0].knora_type == KnoraValueType.LIST_VALUE
-        assert res[1].knora_type == KnoraValueType.LIST_VALUE
+        assert res_1.user_facing_value == "firstList / n1"
+        assert res_2.user_facing_value == "firstList / n2"
+        assert res_1.knora_type == KnoraValueType.LIST_VALUE
+        assert res_2.knora_type == KnoraValueType.LIST_VALUE
 
 
 class TestSimpleTextValue:
@@ -193,6 +230,7 @@ class TestSimpleTextValue:
         res_list = _deserialise_one_property(text_simpletext_value_corr)
         assert len(res_list) == 1
         res = res_list[0]
+        assert isinstance(res, ValueInformation)
         assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testTextarea"
         assert res.user_facing_value == "Text"
         assert res.knora_type == KnoraValueType.SIMPLETEXT_VALUE
@@ -201,16 +239,21 @@ class TestSimpleTextValue:
     def test_several(self, text_simpletext_value_corr_several: etree._Element) -> None:
         res = _deserialise_one_property(text_simpletext_value_corr_several)
         assert len(res) == 2
-        assert res[0].user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testSimpleText"
-        assert res[0].user_facing_value == "Text 1"
-        assert res[1].user_facing_value == "Text 2"
-        assert res[0].knora_type == KnoraValueType.SIMPLETEXT_VALUE
-        assert res[1].knora_type == KnoraValueType.SIMPLETEXT_VALUE
+        res_1 = res[0]
+        assert isinstance(res_1, ValueInformation)
+        res_2 = res[1]
+        assert isinstance(res_2, ValueInformation)
+        assert res_1.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testSimpleText"
+        assert res_1.user_facing_value == "Text 1"
+        assert res_2.user_facing_value == "Text 2"
+        assert res_1.knora_type == KnoraValueType.SIMPLETEXT_VALUE
+        assert res_2.knora_type == KnoraValueType.SIMPLETEXT_VALUE
 
     def test_wrong(self, text_simpletext_value_wrong: etree._Element) -> None:
         res_list = _deserialise_one_property(text_simpletext_value_wrong)
         assert len(res_list) == 1
         res = res_list[0]
+        assert isinstance(res, ValueInformation)
         assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testSimpleText"
         assert not res.user_facing_value
         assert res.knora_type == KnoraValueType.SIMPLETEXT_VALUE
@@ -222,6 +265,7 @@ class TestRichtextValue:
         res_list = _deserialise_one_property(text_richtext_value_corr)
         assert len(res_list) == 1
         res = res_list[0]
+        assert isinstance(res, ValueInformation)
         assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testRichtext"
         assert res.user_facing_value == "<p>Text</p>"
         assert res.knora_type == KnoraValueType.RICHTEXT_VALUE
@@ -230,11 +274,15 @@ class TestRichtextValue:
     def test_several(self, text_richtext_value_corr_several: etree._Element) -> None:
         res = _deserialise_one_property(text_richtext_value_corr_several)
         assert len(res) == 2
-        assert res[0].user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testRichtext"
-        assert res[0].user_facing_value == "Text 1"
-        assert res[1].user_facing_value == "Text 2"
-        assert res[0].knora_type == KnoraValueType.RICHTEXT_VALUE
-        assert res[1].knora_type == KnoraValueType.RICHTEXT_VALUE
+        res_1 = res[0]
+        assert isinstance(res_1, ValueInformation)
+        res_2 = res[1]
+        assert isinstance(res_2, ValueInformation)
+        assert res_1.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testRichtext"
+        assert res_1.user_facing_value == "Text 1"
+        assert res_2.user_facing_value == "Text 2"
+        assert res_1.knora_type == KnoraValueType.RICHTEXT_VALUE
+        assert res_2.knora_type == KnoraValueType.RICHTEXT_VALUE
 
 
 class TestTimeValue:
@@ -242,6 +290,7 @@ class TestTimeValue:
         res_list = _deserialise_one_property(time_value_corr)
         assert len(res_list) == 1
         res = res_list[0]
+        assert isinstance(res, ValueInformation)
         assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testTimeValue"
         assert res.user_facing_value == "2019-10-23T13:45:12.01-14:00"
         assert res.knora_type == KnoraValueType.TIME_VALUE
@@ -250,11 +299,15 @@ class TestTimeValue:
     def test_several(self, time_value_corr_several: etree._Element) -> None:
         res = _deserialise_one_property(time_value_corr_several)
         assert len(res) == 2
-        assert res[0].user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testTimeValue"
-        assert res[0].user_facing_value == "2019-10-23T13:45:12.01-14:00"
-        assert res[1].user_facing_value == "2019-10-23T13:45:12.01-08:00"
-        assert res[0].knora_type == KnoraValueType.TIME_VALUE
-        assert res[1].knora_type == KnoraValueType.TIME_VALUE
+        res_1 = res[0]
+        assert isinstance(res_1, ValueInformation)
+        res_2 = res[1]
+        assert isinstance(res_2, ValueInformation)
+        assert res_1.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testTimeValue"
+        assert res_1.user_facing_value == "2019-10-23T13:45:12.01-14:00"
+        assert res_2.user_facing_value == "2019-10-23T13:45:12.01-08:00"
+        assert res_1.knora_type == KnoraValueType.TIME_VALUE
+        assert res_2.knora_type == KnoraValueType.TIME_VALUE
 
 
 class TestUriValue:
@@ -262,6 +315,7 @@ class TestUriValue:
         res_list = _deserialise_one_property(uri_value_corr)
         assert len(res_list) == 1
         res = res_list[0]
+        assert isinstance(res, ValueInformation)
         assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testUriValue"
         assert res.user_facing_value == "https://dasch.swiss"
         assert res.knora_type == KnoraValueType.URI_VALUE
@@ -270,11 +324,15 @@ class TestUriValue:
     def test_several(self, uri_value_corr_several: etree._Element) -> None:
         res = _deserialise_one_property(uri_value_corr_several)
         assert len(res) == 2
-        assert res[0].user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testUriValue"
-        assert res[0].user_facing_value == "https://dasch.swiss"
-        assert res[1].user_facing_value == "https://app.dasch.swiss"
-        assert res[0].knora_type == KnoraValueType.URI_VALUE
-        assert res[1].knora_type == KnoraValueType.URI_VALUE
+        res_1 = res[0]
+        assert isinstance(res_1, ValueInformation)
+        res_2 = res[1]
+        assert isinstance(res_2, ValueInformation)
+        assert res_1.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testUriValue"
+        assert res_1.user_facing_value == "https://dasch.swiss"
+        assert res_2.user_facing_value == "https://app.dasch.swiss"
+        assert res_1.knora_type == KnoraValueType.URI_VALUE
+        assert res_2.knora_type == KnoraValueType.URI_VALUE
 
 
 class TestLinkValue:
@@ -282,6 +340,7 @@ class TestLinkValue:
         res_list = _deserialise_one_property(resptr_value_corr)
         assert len(res_list) == 1
         res = res_list[0]
+        assert isinstance(res, ValueInformation)
         assert res.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo"
         assert res.user_facing_value == "id_1"
         assert res.knora_type == KnoraValueType.LINK_VALUE
@@ -290,11 +349,15 @@ class TestLinkValue:
     def test_several(self, resptr_value_corr_several: etree._Element) -> None:
         res = _deserialise_one_property(resptr_value_corr_several)
         assert len(res) == 2
-        assert res[0].user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo"
-        assert res[0].user_facing_value == "id_1"
-        assert res[1].user_facing_value == "id_2"
-        assert res[0].knora_type == KnoraValueType.LINK_VALUE
-        assert res[1].knora_type == KnoraValueType.LINK_VALUE
+        res_1 = res[0]
+        assert isinstance(res_1, ValueInformation)
+        res_2 = res[1]
+        assert isinstance(res_2, ValueInformation)
+        assert res_1.user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo"
+        assert res_1.user_facing_value == "id_1"
+        assert res_2.user_facing_value == "id_2"
+        assert res_1.knora_type == KnoraValueType.LINK_VALUE
+        assert res_2.knora_type == KnoraValueType.LINK_VALUE
 
 
 @pytest.mark.parametrize(

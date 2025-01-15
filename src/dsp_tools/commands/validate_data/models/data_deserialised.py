@@ -29,7 +29,6 @@ class ProjectInformation:
 @dataclass
 class DataDeserialised:
     resources: list[ResourceDeserialised]
-    file_values: list[AbstractFileValueDeserialised]
 
 
 @dataclass
@@ -129,22 +128,13 @@ class KnoraValueType(Enum):
     TIME_VALUE = auto()
     URI_VALUE = auto()
 
-
-@dataclass
-class FileValueInformation:
-    file_value_str: str
-    knora_type: KnoraFileValueType
-    value_metadata: list[PropertyObject]
-
-
-class KnoraFileValueType(Enum):
-    ARCHIVE = auto()
-    AUDIO = auto()
-    DOCUMENT = auto()
-    MOVING_IMAGE = auto()
+    ARCHIVE_FILE = auto()
+    AUDIO_FILE = auto()
+    DOCUMENT_FILE = auto()
+    MOVING_IMAGE_FILE = auto()
     STILL_IMAGE_FILE = auto()
     STILL_IMAGE_IIIF = auto()
-    TEXT = auto()
+    TEXT_FILE = auto()
 
 
 @dataclass

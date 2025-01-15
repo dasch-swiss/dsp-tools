@@ -278,7 +278,7 @@ requires-dist = [
     { name = "pandas", extras = ["excel"], specifier = ">=2.2.2" },
     { name = "pyld", specifier = ">=2.0.4" },
     { name = "pyyaml", specifier = ">=6.0.2" },
-    { name = "rdflib", specifier = ">=7.1.1" },
+    { name = "rdflib", specifier = "==7.1.1" },
     { name = "regex", specifier = ">=2024.9.11" },
     { name = "requests", specifier = ">=2.32.3" },
     { name = "rustworkx", specifier = ">=0.15.1" },
@@ -1154,14 +1154,14 @@ wheels = [
 
 [[package]]
 name = "rdflib"
-version = "7.1.2"
+version = "7.1.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pyparsing" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d4/0b/b6ba1bd99f028df962a55c9a2a28c9248f046fac4a82b565c8e2c87fc9ce/rdflib-7.1.2.tar.gz", hash = "sha256:4fc8f6d50b199dc38fbc5256370f038c1cedca6102ccbde4e37c0fd2b7f36e65", size = 505897 }
+sdist = { url = "https://files.pythonhosted.org/packages/62/b6/4cee25689c7a3dfafeb481d358e74696fe3a8543da4cb2c1b71c0cb6583d/rdflib-7.1.1.tar.gz", hash = "sha256:164de86bd3564558802ca983d84f6616a4a1a420c7a17a8152f5016076b2913e", size = 4864216 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/3b/2f/064ebe3bf5d561fcf9f16d29517becdac5ad0a25ed2f3ad391977ca51a2d/rdflib-7.1.2-py3-none-any.whl", hash = "sha256:5a694a64f48a751079999c37dccf91a6210077d845d09adf7c3ce23a876265a7", size = 567031 },
+    { url = "https://files.pythonhosted.org/packages/d2/7d/9add7b22a4e695c4f3011ed084ecf725e1f03954b9fa071f1766890b4989/rdflib-7.1.1-py3-none-any.whl", hash = "sha256:e590fa9a2c34ba33a667818b5a84be3fb8a4d85868f8038f17912ec84f912a25", size = 562443 },
 ]
 
 [[package]]

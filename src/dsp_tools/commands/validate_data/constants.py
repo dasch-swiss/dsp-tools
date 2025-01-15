@@ -67,6 +67,18 @@ TRIPLE_PROP_TYPE_TO_IRI_MAPPER = {
     TriplePropertyType.RDFS_LABEL: RDFS.label,
 }
 
+
+ARCHIVE_FILE_VALUE = RDFPropTypeInfo(KNORA_API.ArchiveFileValue, KNORA_API.fileValueHasFilename, XSD.string)
+AUDIO_FILE_VALUE = RDFPropTypeInfo(KNORA_API.AudioFileValue, KNORA_API.fileValueHasFilename, XSD.string)
+DOCUMENT_FILE_VALUE = RDFPropTypeInfo(KNORA_API.DocumentFileValue, KNORA_API.fileValueHasFilename, XSD.string)
+MOVING_IMAGE_FILE_VALUE = RDFPropTypeInfo(KNORA_API.MovingImageFileValue, KNORA_API.fileValueHasFilename, XSD.string)
+STILL_IMAGE_FILE_VALUE = RDFPropTypeInfo(KNORA_API.StillImageFileValue, KNORA_API.fileValueHasFilename, XSD.string)
+TEXT_FILE_VALUE = RDFPropTypeInfo(KNORA_API.TextFileValue, KNORA_API.fileValueHasFilename, XSD.string)
+IIIF_URI_VALUE = RDFPropTypeInfo(
+    KNORA_API.StillImageExternalFileValue, KNORA_API.stillImageFileValueHasExternalUrl, XSD.anyURI
+)
+
+
 VALUE_INFO_TO_RDF_MAPPER = {
     KnoraValueType.BOOLEAN_VALUE: BOOLEAN_PROP_TYPE_INFO,
     KnoraValueType.COLOR_VALUE: COLOR_PROP_TYPE_INFO,
@@ -80,6 +92,13 @@ VALUE_INFO_TO_RDF_MAPPER = {
     KnoraValueType.RICHTEXT_VALUE: RICHTEXT_PROP_TYPE_INFO,
     KnoraValueType.TIME_VALUE: TIME_PROP_TYPE_INFO,
     KnoraValueType.URI_VALUE: URI_PROP_TYPE_INFO,
+    KnoraValueType.ARCHIVE_FILE: ARCHIVE_FILE_VALUE,
+    KnoraValueType.AUDIO_FILE: AUDIO_FILE_VALUE,
+    KnoraValueType.DOCUMENT_FILE: DOCUMENT_FILE_VALUE,
+    KnoraValueType.MOVING_IMAGE_FILE: MOVING_IMAGE_FILE_VALUE,
+    KnoraValueType.STILL_IMAGE_FILE: STILL_IMAGE_FILE_VALUE,
+    KnoraValueType.STILL_IMAGE_IIIF: IIIF_URI_VALUE,
+    KnoraValueType.TEXT_FILE: TEXT_FILE_VALUE,
 }
 
 VALUE_INFO_TRIPLE_OBJECT_TYPE = {
@@ -95,6 +114,13 @@ VALUE_INFO_TRIPLE_OBJECT_TYPE = {
     KnoraValueType.RICHTEXT_VALUE: TripleObjectType.STRING,
     KnoraValueType.TIME_VALUE: TripleObjectType.DATETIME,
     KnoraValueType.URI_VALUE: TripleObjectType.URI,
+    KnoraValueType.ARCHIVE_FILE: TripleObjectType.STRING,
+    KnoraValueType.AUDIO_FILE: TripleObjectType.STRING,
+    KnoraValueType.DOCUMENT_FILE: TripleObjectType.STRING,
+    KnoraValueType.MOVING_IMAGE_FILE: TripleObjectType.STRING,
+    KnoraValueType.STILL_IMAGE_FILE: TripleObjectType.STRING,
+    KnoraValueType.STILL_IMAGE_IIIF: TripleObjectType.URI,
+    KnoraValueType.TEXT_FILE: TripleObjectType.STRING,
 }
 
 TRIPLE_OBJECT_TYPE_TO_XSD = {

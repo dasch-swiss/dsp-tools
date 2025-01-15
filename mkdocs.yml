@@ -90,9 +90,9 @@ markdown_extensions:
   - admonition
   - pymdownx.details
   - pymdownx.superfences:
-      # By default, superfences will highlight the mermaid code instead of rendering it.
-      # To prevent this, make a reference to the Python funcion that renders the mermaid code.
       custom_fences:
+        # By default, superfences will highlight the mermaid code instead of rendering it.
+        # To prevent this, make a reference to the Python funcion that renders the mermaid code.
         - name: mermaid
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format

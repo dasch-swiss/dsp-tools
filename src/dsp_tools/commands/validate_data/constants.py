@@ -6,13 +6,20 @@ from rdflib import Namespace
 from dsp_tools.commands.validate_data.models.data_deserialised import KnoraValueType
 from dsp_tools.commands.validate_data.models.data_deserialised import TripleObjectType
 from dsp_tools.commands.validate_data.models.data_deserialised import TriplePropertyType
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import ARCHIVE_FILE_VALUE
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import AUDIO_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import BOOLEAN_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import COLOR_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import DECIMAL_PROP_TYPE_INFO
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import DOCUMENT_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import GEONAME_PROP_TYPE_INFO
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import IIIF_URI_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import INT_PROP_TYPE_INFO
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import MOVING_IMAGE_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import RICHTEXT_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import SIMPLE_TEXT_PROP_TYPE_INFO
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import STILL_IMAGE_FILE_VALUE
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import TEXT_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import TIME_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import URI_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
@@ -70,6 +77,13 @@ VALUE_INFO_TO_RDF_MAPPER = {
     KnoraValueType.RICHTEXT_VALUE: RICHTEXT_PROP_TYPE_INFO,
     KnoraValueType.TIME_VALUE: TIME_PROP_TYPE_INFO,
     KnoraValueType.URI_VALUE: URI_PROP_TYPE_INFO,
+    KnoraValueType.ARCHIVE_FILE: ARCHIVE_FILE_VALUE,
+    KnoraValueType.AUDIO_FILE: AUDIO_FILE_VALUE,
+    KnoraValueType.DOCUMENT_FILE: DOCUMENT_FILE_VALUE,
+    KnoraValueType.MOVING_IMAGE_FILE: MOVING_IMAGE_FILE_VALUE,
+    KnoraValueType.STILL_IMAGE_FILE: STILL_IMAGE_FILE_VALUE,
+    KnoraValueType.STILL_IMAGE_IIIF: IIIF_URI_VALUE,
+    KnoraValueType.TEXT_FILE: TEXT_FILE_VALUE,
 }
 
 VALUE_INFO_TRIPLE_OBJECT_TYPE = {
@@ -85,6 +99,13 @@ VALUE_INFO_TRIPLE_OBJECT_TYPE = {
     KnoraValueType.RICHTEXT_VALUE: TripleObjectType.STRING,
     KnoraValueType.TIME_VALUE: TripleObjectType.DATETIME,
     KnoraValueType.URI_VALUE: TripleObjectType.URI,
+    KnoraValueType.ARCHIVE_FILE: TripleObjectType.STRING,
+    KnoraValueType.AUDIO_FILE: TripleObjectType.STRING,
+    KnoraValueType.DOCUMENT_FILE: TripleObjectType.STRING,
+    KnoraValueType.MOVING_IMAGE_FILE: TripleObjectType.STRING,
+    KnoraValueType.STILL_IMAGE_FILE: TripleObjectType.STRING,
+    KnoraValueType.STILL_IMAGE_IIIF: TripleObjectType.URI,
+    KnoraValueType.TEXT_FILE: TripleObjectType.STRING,
 }
 
 TRIPLE_OBJECT_TYPE_TO_XSD = {

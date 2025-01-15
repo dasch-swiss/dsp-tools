@@ -7,10 +7,7 @@ from dsp_tools.commands.validate_data.constants import KNORA_API_STR
 from dsp_tools.commands.validate_data.constants import REGION_RESOURCE
 from dsp_tools.commands.validate_data.constants import VIDEO_SEGMENT_RESOURCE
 from dsp_tools.commands.validate_data.constants import XML_TAG_TO_VALUE_TYPE_MAPPER
-from dsp_tools.commands.validate_data.models.data_deserialised import AbstractFileValueDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import BitstreamDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DataDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import IIIFUriDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import KnoraValueType
 from dsp_tools.commands.validate_data.models.data_deserialised import ProjectDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import ProjectInformation
@@ -208,14 +205,3 @@ def _get_file_value_type(file_name: str) -> tuple[KnoraValueType | None, str | N
             return KnoraValueType.TEXT_FILE, f"{KNORA_API_STR}hasTextFileValue"
         case _:
             return None, None
-
-
-def _deserialise_file_value(root: etree._Element) -> list[AbstractFileValueDeserialised]:
-    file_values: list[AbstractFileValueDeserialised] = []
-    for res in root.iterchildren(tag="resource"):
-        res_id = res.attrib["id"]
-        if (bitstream := res.find("bitstream")) is not None:
-            file_values.append(BitstreamDeserialised(res_id, bitstream.text))
-        elif (iiif_uri := res.find("iiif-uri")) is not None:
-            file_values.append(IIIFUriDeserialised(res_id, iiif_uri.text))
-    return file_values

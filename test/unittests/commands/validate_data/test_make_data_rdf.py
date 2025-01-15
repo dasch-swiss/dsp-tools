@@ -6,12 +6,11 @@ from rdflib import Literal
 from rdflib import URIRef
 from rdflib.term import Node
 
-from dsp_tools.commands.validate_data.make_data_rdf import _make_file_value
+from dsp_tools.commands.validate_data.constants import KNORA_API_STR
 from dsp_tools.commands.validate_data.make_data_rdf import _make_one_rdflib_object
 from dsp_tools.commands.validate_data.make_data_rdf import _make_one_resource
 from dsp_tools.commands.validate_data.make_data_rdf import _make_one_value
-from dsp_tools.commands.validate_data.models.data_deserialised import BitstreamDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import IIIFUriDeserialised
+from dsp_tools.commands.validate_data.models.data_deserialised import KnoraValueType
 from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TripleObjectType
 from dsp_tools.commands.validate_data.models.data_deserialised import ValueInformation
@@ -199,8 +198,13 @@ class TestUriValue:
 
 class TestTransformFileValue:
     def test_make_file_value_graph_real_file(self) -> None:
-        bitstream = BitstreamDeserialised("id", "test.zip")
-        file_g = _make_file_value(bitstream)
+        file_value = ValueInformation(
+            user_facing_prop=f"{KNORA_API_STR}hasArchiveFileValue",
+            user_facing_value="test.zip",
+            knora_type=KnoraValueType.ARCHIVE_FILE,
+            value_metadata=[],
+        )
+        file_g = _make_one_value(file_value, RES_IRI)
         assert len(file_g) == 3
         bn = next(file_g.objects(RES_IRI, KNORA_API.hasArchiveFileValue))
         assert next(file_g.objects(bn, RDF.type)) == KNORA_API.ArchiveFileValue
@@ -208,24 +212,19 @@ class TestTransformFileValue:
 
     def test_make_file_value_graph_iiif_uri(self) -> None:
         uri = "https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg"
-        iiif = IIIFUriDeserialised("id", uri)
-        file_g = _make_file_value(iiif)
+        file_value = ValueInformation(
+            user_facing_prop=f"{KNORA_API_STR}hasStillImageFileValue",
+            user_facing_value=uri,
+            knora_type=KnoraValueType.STILL_IMAGE_IIIF,
+            value_metadata=[],
+        )
+        file_g = _make_one_value(file_value, RES_IRI)
         assert len(file_g) == 3
         bn = next(file_g.objects(RES_IRI, KNORA_API.hasStillImageFileValue))
         assert next(file_g.objects(bn, RDF.type)) == KNORA_API.StillImageExternalFileValue
         assert next(file_g.objects(bn, KNORA_API.stillImageFileValueHasExternalUrl)) == Literal(
             uri, datatype=XSD.anyURI
         )
-
-    def test_none(self) -> None:
-        bitstream = BitstreamDeserialised("id", None)
-        result = _make_file_value(bitstream)
-        assert len(result) == 0
-
-    def test_other(self) -> None:
-        bitstream = BitstreamDeserialised("id", "test.other")
-        result = _make_file_value(bitstream)
-        assert len(result) == 0
 
 
 if __name__ == "__main__":

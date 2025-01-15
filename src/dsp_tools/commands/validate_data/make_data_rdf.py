@@ -7,22 +7,15 @@ from rdflib import Literal
 from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.constants import DATA
-from dsp_tools.commands.validate_data.constants import KNORA_API
 from dsp_tools.commands.validate_data.constants import TRIPLE_OBJECT_TYPE_TO_XSD
 from dsp_tools.commands.validate_data.constants import TRIPLE_PROP_TYPE_TO_IRI_MAPPER
 from dsp_tools.commands.validate_data.constants import VALUE_INFO_TO_RDF_MAPPER
 from dsp_tools.commands.validate_data.constants import VALUE_INFO_TRIPLE_OBJECT_TYPE
-from dsp_tools.commands.validate_data.models.data_deserialised import AbstractFileValueDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import DataDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import IIIFUriDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import KnoraValueType
 from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TripleObjectType
 from dsp_tools.commands.validate_data.models.data_deserialised import ValueInformation
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import IIIF_URI_VALUE
-from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import get_file_type_info
-from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
-from dsp_tools.models.exceptions import BaseError
 
 
 def make_data_rdf(data_deserialised: DataDeserialised) -> Graph:
@@ -74,30 +67,3 @@ def _make_one_rdflib_object(object_value: str | None, object_type: TripleObjectT
     if object_type == TripleObjectType.IRI:
         return URIRef(object_value)
     return Literal(object_value, datatype=TRIPLE_OBJECT_TYPE_TO_XSD[object_type])
-
-
-def _make_file_value(val: AbstractFileValueDeserialised) -> Graph:
-    # TODO: replace
-    if val.value is None:
-        return Graph()
-    if isinstance(val, IIIFUriDeserialised):
-        return _make_file_value_graph(val, IIIF_URI_VALUE, KNORA_API.stillImageFileValueHasExternalUrl)
-    try:
-        file_type = get_file_type_info(val.value)
-        return _make_file_value_graph(val, file_type)
-    except BaseError:
-        return Graph()
-
-
-def _make_file_value_graph(
-    val: AbstractFileValueDeserialised,
-    prop_type_info: RDFPropTypeInfo,
-    prop_to_value: URIRef = KNORA_API.fileValueHasFilename,
-) -> Graph:
-    g = Graph()
-    res_iri = DATA[val.res_id]
-    val_iri = DATA[str(uuid4())]
-    g.add((res_iri, prop_type_info.knora_prop, val_iri))
-    g.add((val_iri, RDF.type, prop_type_info.knora_type))
-    g.add((val_iri, prop_to_value, Literal(val.value, datatype=prop_type_info.xsd_type)))
-    return g

@@ -119,4 +119,10 @@
         </uri-prop>
     </resource>
 
+    <resource label="Comment on Value" restype=":ClassWithEverything" id="comment_on_value">
+        <uri-prop name=":testUriValue">
+            <uri comment="This is a comment to the value">https://dasch.swiss</uri>
+        </uri-prop>
+    </resource>
+
 </knora>

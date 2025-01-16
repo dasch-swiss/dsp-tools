@@ -306,7 +306,7 @@ api-shapes:valueHasComment_Shape
 
 ### knora-api:seqnum
 
-api-shapes:seqnum_Shape
+api-shapes:seqnum_PropShape
   a                 sh:PropertyShape ;
   sh:message        "The property seqnum must be used together with isPartOf" ;
   sh:path           knora-api:seqnum ;
@@ -316,7 +316,7 @@ api-shapes:seqnum_Shape
 
 ### knora-api:isPartOf
 
-api-shapes:isPartOf_Shape
+api-shapes:isPartOf_PropShape
   a                 sh:PropertyShape ;
   sh:message        "The property isPartOf must be used together with seqnum" ;
   sh:path           knora-api:isPartOf ;

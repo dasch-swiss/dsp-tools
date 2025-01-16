@@ -107,7 +107,7 @@ def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueInformation
 
 def _extract_metadata_of_value(value: etree._Element) -> list[PropertyObject]:
     property_objects = []
-    for k, v in value.attrib:
+    for k, v in value.attrib.items():
         if not (knora_prop := XML_ATTRIB_TO_PROP_TYPE_MAPPER.get(k)):
             continue
         property_objects.append(

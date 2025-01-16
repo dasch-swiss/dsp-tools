@@ -6,7 +6,7 @@
        shortcode="9999"
        default-ontology="in-built">
 
-    <!-- 3 Violations -->
+    <!-- 5 Violations -->
 
     <!-- Target Resources for Links -->
 
@@ -47,10 +47,6 @@
         </resptr-prop>
     </resource>
 
-
-    <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-    <!-- 6 Violations but not yet implemented -->
-
     <!-- direct usage of knora-api seqnum/isPartOf one prop missing -->
 
     <resource label="Image with sequence" restype=":TestStillImageRepresentationWithSeqnum"
@@ -68,6 +64,10 @@
             <integer>1</integer>
         </integer-prop>
     </resource>
+
+
+    <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
+    <!-- 4 Violations but not yet implemented -->
 
 
     <!-- sub-property usage of knora-api seqnum/isPartOf one prop missing -->

@@ -46,6 +46,10 @@ DATA = Namespace("http://data/")
 
 # Mapper from XML to internal representation
 
+XML_ATTRIB_TO_PROP_TYPE_MAPPER = {
+    "comment": TriplePropertyType.KNORA_COMMENT_ON_VALUE,
+}
+
 XML_TAG_TO_VALUE_TYPE_MAPPER = {
     "boolean-prop": KnoraValueType.BOOLEAN_VALUE,
     "color-prop": KnoraValueType.COLOR_VALUE,
@@ -65,6 +69,7 @@ XML_TAG_TO_VALUE_TYPE_MAPPER = {
 TRIPLE_PROP_TYPE_TO_IRI_MAPPER = {
     TriplePropertyType.RDF_TYPE: RDF.type,
     TriplePropertyType.RDFS_LABEL: RDFS.label,
+    TriplePropertyType.KNORA_COMMENT_ON_VALUE: KNORA_API.valueHasComment,
 }
 
 

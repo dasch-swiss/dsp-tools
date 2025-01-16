@@ -71,6 +71,27 @@ def boolean_value_corr() -> etree._Element:
 
 
 @pytest.fixture
+def boolean_value_no_attrib() -> etree._Element:
+    return etree.fromstring("""
+    <boolean>true</boolean>
+    """)
+
+
+@pytest.fixture
+def boolean_value_comment() -> etree._Element:
+    return etree.fromstring("""
+    <boolean comment="Comment on Value">true</boolean>
+    """)
+
+
+@pytest.fixture
+def boolean_value_permissions() -> etree._Element:
+    return etree.fromstring("""
+    <boolean permissions="open">true</boolean>
+    """)
+
+
+@pytest.fixture
 def color_value_corr() -> etree._Element:
     return etree.fromstring("""
         <color-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testColor">

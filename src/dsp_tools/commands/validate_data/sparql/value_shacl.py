@@ -300,7 +300,7 @@ def _construct_generic_prop_shape_link_of_restriction(onto: Graph, prop_str: str
     PREFIX salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#>
 
     CONSTRUCT {
-        ?resourceClass sh:property api-shapes:%(prop_str)s_Shape .
+        ?resourceClass sh:property api-shapes:%(prop_str)s_PropShape .
     } WHERE {
         ?resourceClass rdfs:subClassOf ?restriction .
         ?restriction a owl:Restriction ;

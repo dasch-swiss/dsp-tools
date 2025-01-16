@@ -297,6 +297,18 @@ class TestLinkValue:
         assert res[1].knora_type == KnoraValueType.LINK_VALUE
 
 
+class TestExtractMetadataOfValue:
+    # TODO:
+    def test_none(self) -> None:
+        pass
+
+    def test_comment(self) -> None:
+        pass
+
+    def test_permissions(self) -> None:
+        pass
+
+
 @pytest.mark.parametrize(
     ("input_str", "expected"),
     [

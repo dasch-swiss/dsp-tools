@@ -37,7 +37,7 @@ def make_data_rdf(data_deserialised: DataDeserialised) -> Graph:
 
 def _make_one_resource(res: ResourceDeserialised) -> Graph:
     res_iri = DATA[res.res_id]
-    g = _make_property_objects(res.property_objects, res_iri)
+    g = _make_property_objects_graph(res.property_objects, res_iri)
     for v in res.values:
         g += _make_one_value(v, res_iri)
     return g
@@ -52,14 +52,14 @@ def _make_one_value(val: ValueInformation, res_iri: URIRef) -> Graph:
     prop_type_info = VALUE_INFO_TO_RDF_MAPPER[val.knora_type]
 
     val_iri = DATA[str(uuid4())]
-    g = _make_property_objects(val.value_metadata, val_iri)
+    g = _make_property_objects_graph(val.value_metadata, val_iri)
     g.add((res_iri, URIRef(val.user_facing_prop), val_iri))
     g.add((val_iri, RDF.type, prop_type_info.knora_type))
     g.add((val_iri, prop_type_info.knora_prop, triple_object))
     return g
 
 
-def _make_property_objects(property_objects: list[PropertyObject], subject_iri: URIRef) -> Graph:
+def _make_property_objects_graph(property_objects: list[PropertyObject], subject_iri: URIRef) -> Graph:
     g = Graph()
     for trpl in property_objects:
         object_val = _make_one_rdflib_object(trpl.object_value, trpl.object_type)

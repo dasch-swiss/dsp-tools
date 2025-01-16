@@ -86,13 +86,13 @@ class ValueInformation:
 class TriplePropertyType(Enum):
     """
     Maps to a specific knora-api or rdf(s) property.
-    For example: KNORA_COMMENT -> knora-api:hasComment
+    For example: KNORA_COMMENT_ON_VALUE -> knora-api:valueHasComment
     """
 
     RDFS_LABEL = auto()
     RDF_TYPE = auto()
     KNORA_PERMISSIONS = auto()
-    KNORA_COMMENT = auto()
+    KNORA_COMMENT_ON_VALUE = auto()
 
 
 class TripleObjectType(Enum):

@@ -6,6 +6,7 @@ from dsp_tools.commands.validate_data.constants import AUDIO_SEGMENT_RESOURCE
 from dsp_tools.commands.validate_data.constants import KNORA_API_STR
 from dsp_tools.commands.validate_data.constants import REGION_RESOURCE
 from dsp_tools.commands.validate_data.constants import VIDEO_SEGMENT_RESOURCE
+from dsp_tools.commands.validate_data.constants import XML_ATTRIB_TO_PROP_TYPE_MAPPER
 from dsp_tools.commands.validate_data.constants import XML_TAG_TO_VALUE_TYPE_MAPPER
 from dsp_tools.commands.validate_data.models.data_deserialised import DataDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import KnoraValueType
@@ -104,16 +105,27 @@ def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueInformation
             return []
 
 
+def _extract_metadata_of_value(value: etree._Element) -> list[PropertyObject]:
+    property_objects = []
+    for k, v in value.attrib:
+        if not (knora_prop := XML_ATTRIB_TO_PROP_TYPE_MAPPER.get(k)):
+            continue
+        property_objects.append(
+            PropertyObject(property_type=knora_prop, object_value=v, object_type=TripleObjectType.STRING)
+        )
+    return property_objects
+
+
 def _extract_generic_value_information(prop: etree._Element, value_type: KnoraValueType) -> list[ValueInformation]:
     prop_name = prop.attrib["name"]
     return [
         ValueInformation(
             user_facing_prop=prop_name,
-            user_facing_value=x.text,
+            user_facing_value=val.text,
             knora_type=value_type,
-            value_metadata=[],
+            value_metadata=_extract_metadata_of_value(val),
         )
-        for x in prop.iterchildren()
+        for val in prop.iterchildren()
     ]
 
 
@@ -128,7 +140,7 @@ def _extract_list_value_information(prop: etree._Element) -> list[ValueInformati
                 user_facing_prop=prop_name,
                 user_facing_value=found_value,
                 knora_type=KnoraValueType.LIST_VALUE,
-                value_metadata=[],
+                value_metadata=_extract_metadata_of_value(val),
             )
         )
     return all_vals
@@ -151,7 +163,7 @@ def _extract_text_value_information(prop: etree._Element) -> list[ValueInformati
                 user_facing_prop=prop_name,
                 user_facing_value=_get_text_as_string(val),
                 knora_type=val_type,
-                value_metadata=[],
+                value_metadata=_extract_metadata_of_value(val),
             )
         )
     return all_vals

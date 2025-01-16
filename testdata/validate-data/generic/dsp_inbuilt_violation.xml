@@ -6,23 +6,6 @@
        shortcode="9999"
        default-ontology="in-built">
 
-    <permissions id="open">
-        <allow group="UnknownUser">V</allow>
-        <allow group="KnownUser">V</allow>
-        <allow group="ProjectMember">D</allow>
-        <allow group="ProjectAdmin">CR</allow>
-    </permissions>
-    <permissions id="restricted-view">
-        <allow group="UnknownUser">RV</allow>
-        <allow group="KnownUser">RV</allow>
-        <allow group="ProjectMember">D</allow>
-        <allow group="ProjectAdmin">CR</allow>
-    </permissions>
-    <permissions id="restricted">
-        <allow group="ProjectMember">D</allow>
-        <allow group="ProjectAdmin">CR</allow>
-    </permissions>
-
     <!-- 3 Violations -->
 
     <!-- Target Resources for Links -->

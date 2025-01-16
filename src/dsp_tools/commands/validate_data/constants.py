@@ -1,7 +1,13 @@
+from typing import TypeAlias
+from typing import Union
+
 from rdflib import RDF
 from rdflib import RDFS
 from rdflib import XSD
 from rdflib import Namespace
+from rdflib.term import IdentifiedNode
+from rdflib.term import Literal
+from rdflib.term import Variable
 
 from dsp_tools.commands.validate_data.models.data_deserialised import KnoraValueType
 from dsp_tools.commands.validate_data.models.data_deserialised import TripleObjectType
@@ -16,6 +22,10 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.constants import SIMPLE_TEXT_PR
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import TIME_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import URI_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
+
+# rdflib typing
+PropertyTypeAlias: TypeAlias = Union[IdentifiedNode, Variable]
+SubjectObjectTypeAlias: TypeAlias = Union[IdentifiedNode, Literal, Variable]
 
 # Namespaces as string
 KNORA_API_STR = "http://api.knora.org/ontology/knora-api/v2#"

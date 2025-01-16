@@ -3,7 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from rdflib import Graph
-from rdflib.term import Node
+
+from dsp_tools.commands.validate_data.constants import SubjectObjectTypeAlias
 
 
 @dataclass
@@ -47,9 +48,9 @@ class ValidationReportGraphs:
 
 @dataclass
 class QueryInfo:
-    validation_bn: Node
-    focus_iri: Node
-    focus_rdf_type: Node
+    validation_bn: SubjectObjectTypeAlias
+    focus_iri: SubjectObjectTypeAlias
+    focus_rdf_type: SubjectObjectTypeAlias
 
 
 @dataclass
@@ -59,36 +60,36 @@ class UnexpectedComponent:
 
 @dataclass
 class ValidationResultBaseInfo:
-    result_bn: Node
-    source_constraint_component: Node
-    resource_iri: Node
-    res_class_type: Node
-    result_path: Node
+    result_bn: SubjectObjectTypeAlias
+    source_constraint_component: SubjectObjectTypeAlias
+    resource_iri: SubjectObjectTypeAlias
+    res_class_type: SubjectObjectTypeAlias
+    result_path: SubjectObjectTypeAlias
     detail: DetailBaseInfo | None = None
 
 
 @dataclass
 class DetailBaseInfo:
-    detail_bn: Node
-    source_constraint_component: Node
+    detail_bn: SubjectObjectTypeAlias
+    source_constraint_component: SubjectObjectTypeAlias
 
 
 @dataclass
 class ValidationResult:
-    res_iri: Node
-    res_class: Node
-    property: Node
+    res_iri: SubjectObjectTypeAlias
+    res_class: SubjectObjectTypeAlias
+    property: SubjectObjectTypeAlias
 
 
 @dataclass
 class ResultUniqueValueViolation(ValidationResult):
-    actual_value: Node
+    actual_value: SubjectObjectTypeAlias
 
 
 @dataclass
 class ResultValueTypeViolation(ValidationResult):
     results_message: str
-    actual_value_type: Node
+    actual_value_type: SubjectObjectTypeAlias
 
 
 @dataclass
@@ -105,9 +106,9 @@ class ResultGenericViolation(ValidationResult):
 
 @dataclass
 class ResultLinkTargetViolation(ValidationResult):
-    expected_type: Node
-    target_iri: Node
-    target_resource_type: Node | None
+    expected_type: SubjectObjectTypeAlias
+    target_iri: SubjectObjectTypeAlias
+    target_resource_type: SubjectObjectTypeAlias | None
 
 
 @dataclass

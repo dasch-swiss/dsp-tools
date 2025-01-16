@@ -9,6 +9,7 @@ from typing import Never
 from typing import cast
 
 from loguru import logger
+from rdflib import URIRef
 from tqdm import tqdm
 
 from dsp_tools.cli.args import ServerCredentials
@@ -16,7 +17,7 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
-from dsp_tools.commands.xmlupload.models.intermediary.resource import IntermediaryResource
+from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookups
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.lookup_models import get_json_ld_context_for_project
@@ -180,15 +181,13 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
     namespaces = make_namespace_dict_from_onto_names(project_onto_dict)
 
     iri_lookup = IRILookups(
-        project_iri=project_iri,
+        project_iri=URIRef(project_iri),
         id_to_iri=upload_state.iri_resolver,
         jsonld_context=project_context,
     )
 
     resource_create_client = ResourceCreateClient(
         con=clients.project_client.con,
-        project_iri=project_iri,
-        media_previously_ingested=upload_state.config.media_previously_uploaded,
     )
     intermediary_lookups = IntermediaryLookups(
         permissions=upload_state.permissions_lookup, listnodes=listnode_lookup, namespaces=namespaces
@@ -202,7 +201,7 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
                 resource=resource,
                 ingest_client=clients.asset_client,
                 resource_create_client=resource_create_client,
-                iri_lookup=iri_lookup,
+                iri_lookups=iri_lookup,
                 intermediary_lookups=intermediary_lookups,
                 creation_attempts_of_this_round=creation_attempts_of_this_round,
             )
@@ -229,13 +228,14 @@ def _upload_one_resource(
     resource: XMLResource,
     ingest_client: AssetClient,
     resource_create_client: ResourceCreateClient,
-    iri_lookup: IRILookups,
+    iri_lookups: IRILookups,
     intermediary_lookups: IntermediaryLookups,
     creation_attempts_of_this_round: int,
 ) -> None:
     transformation_result = transform_into_intermediary_resource(resource, intermediary_lookups)
     if transformation_result.resource_failure:
         _handle_resource_creation_failure(resource, transformation_result.resource_failure.failure_msg)
+        upload_state.failed_uploads.append(resource.res_id)
         return
 
     transformed_resource = cast(IntermediaryResource, transformation_result.resource_success)
@@ -259,7 +259,7 @@ def _upload_one_resource(
     iri = None
     try:
         serialised_resource = create_resource_with_values(
-            resource=transformed_resource, bitstream_information=media_info, lookup=iri_lookup
+            resource=transformed_resource, bitstream_information=media_info, lookups=iri_lookups
         )
         logger.info(f"Attempting to create resource {resource.res_id} (label: {resource.label})...")
         iri = resource_create_client.create_resource(serialised_resource, bool(media_info))

@@ -72,7 +72,7 @@ class IngestInformation:
                 "The data XML file contains references to multimedia files "
                 "which were not previously uploaded through dsp-ingest:\n"
                 f"    The file with the resource IDs and problematic filenames was saved at "
-                f"'{Path(self.csv_directory_path/self.mediafiles_no_id_csv)}'."
+                f"'{Path(self.csv_directory_path / self.mediafiles_no_id_csv)}'."
             )
         return None
 
@@ -87,7 +87,7 @@ class IngestInformation:
                 "The data XML file does not reference all the multimedia files which were previously "
                 "uploaded through dsp-ingest.\n"
                 f"    The file with the unused filenames was saved at "
-                f"'{Path(self.csv_directory_path/self.unused_mediafiles_csv)}'."
+                f"'{Path(self.csv_directory_path / self.unused_mediafiles_csv)}'."
             )
         return None
 

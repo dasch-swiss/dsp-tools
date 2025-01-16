@@ -12,11 +12,11 @@ from dsp_tools.commands.validate_data.api_clients import ListClient
 from dsp_tools.commands.validate_data.api_clients import OntologyClient
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
 from dsp_tools.commands.validate_data.api_connection import ApiConnection
+from dsp_tools.commands.validate_data.constants import KNORA_API_STR
 from dsp_tools.commands.validate_data.deserialise_input import deserialise_xml
 from dsp_tools.commands.validate_data.make_data_rdf import make_data_rdf
 from dsp_tools.commands.validate_data.models.data_deserialised import ProjectDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import XMLProject
-from dsp_tools.commands.validate_data.models.data_rdf import DataRDF
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
@@ -31,11 +31,10 @@ from dsp_tools.utils.ansi_colors import BOLD_CYAN
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.xml_utils import parse_xml_file
 from dsp_tools.utils.xml_utils import remove_comments_from_element_tree
-from dsp_tools.utils.xml_utils import transform_into_localnames
+from dsp_tools.utils.xml_utils import transform_special_tags_make_localname
 from dsp_tools.utils.xml_validation import validate_xml
 
 LIST_SEPARATOR = "\n    - "
-KNORA_API = "http://api.knora.org/ontology/knora-api/v2#"
 
 
 VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_MAGENTA + "\n   Validation errors found!   " + RESET_TO_DEFAULT
@@ -88,10 +87,15 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
 def _inform_about_experimental_feature() -> None:
     what_is_validated = [
         "This is an experimental feature, it will change and be extended continuously. "
+        "Please note that special characters may not be rendered correctly in the validation result. "
+        "This however has no influence on the validation itself."
         "The following information of your data is being validated:",
         "Cardinalities",
         "If the value type used matches the ontology",
         "Content of the values",
+        "Missing files",
+        "If the file type matches the ontology",
+        "DSP in-built resources: link (LinkObj)",
     ]
     print(BOLD_CYAN + LIST_SEPARATOR.join(what_is_validated) + RESET_TO_DEFAULT)
 
@@ -119,10 +123,10 @@ def _get_all_used_classes(data_graph: Graph) -> set[str]:
 
 
 def _get_all_onto_classes(ontos: Graph) -> tuple[set[str], set[str]]:
-    is_resource_iri = URIRef(KNORA_API + "isResourceClass")
+    is_resource_iri = URIRef(KNORA_API_STR + "isResourceClass")
     resource_classes = set(ontos.subjects(is_resource_iri, Literal(True)))
     res_cls = {reformat_onto_iri(x) for x in resource_classes}
-    is_value_iri = URIRef(KNORA_API + "isValueClass")
+    is_value_iri = URIRef(KNORA_API_STR + "isValueClass")
     value_classes = set(ontos.subjects(is_value_iri, Literal(True)))
     value_cls = {reformat_onto_iri(x) for x in value_classes}
     return res_cls, value_cls
@@ -141,7 +145,7 @@ def _get_validation_result(
     return report
 
 
-def _create_graphs(onto_client: OntologyClient, list_client: ListClient, data_rdf: DataRDF) -> RDFGraphs:
+def _create_graphs(onto_client: OntologyClient, list_client: ListClient, data_rdf: Graph) -> RDFGraphs:
     ontologies = _get_project_ontos(onto_client)
     all_lists = list_client.get_lists()
     knora_ttl = onto_client.get_knora_api()
@@ -154,14 +158,13 @@ def _create_graphs(onto_client: OntologyClient, list_client: ListClient, data_rd
     api_shapes.parse(str(api_shapes_path))
     file_shapes = Graph()
     file_shapes_path = importlib.resources.files("dsp_tools").joinpath(
-        "resources/validate_data/file_value_cardinalities.ttl"
+        "resources/validate_data/api-shapes-with-cardinalities.ttl"
     )
     file_shapes.parse(str(file_shapes_path))
     content_shapes = shapes.content + api_shapes
     card_shapes = shapes.cardinality + file_shapes
-    data = data_rdf.make_graph()
     return RDFGraphs(
-        data=data,
+        data=data_rdf,
         ontos=ontologies,
         cardinality_shapes=card_shapes,
         content_shapes=content_shapes,
@@ -202,15 +205,15 @@ def _validate(validator: ShaclValidator) -> ValidationReportGraphs:
         conforms=validation_results.conforms,
         validation_graph=validation_results.validation_graph,
         shacl_graph=validator.rdf_graphs.cardinality_shapes + validator.rdf_graphs.content_shapes,
-        onto_graph=validator.rdf_graphs.ontos,
+        onto_graph=validator.rdf_graphs.ontos + validator.rdf_graphs.knora_api,
         data_graph=validator.rdf_graphs.data,
     )
 
 
-def _get_data_info_from_file(file: Path, api_url: str) -> tuple[DataRDF, str]:
+def _get_data_info_from_file(file: Path, api_url: str) -> tuple[Graph, str]:
     xml_project = _parse_and_clean_file(file, api_url)
     deserialised: ProjectDeserialised = deserialise_xml(xml_project.root)
-    rdf_data: DataRDF = make_data_rdf(deserialised.data)
+    rdf_data = make_data_rdf(deserialised.data)
     return rdf_data, deserialised.info.shortcode
 
 
@@ -218,7 +221,7 @@ def _parse_and_clean_file(file: Path, api_url: str) -> XMLProject:
     root = parse_xml_file(file)
     root = remove_comments_from_element_tree(root)
     validate_xml(root)
-    root = transform_into_localnames(root)
+    root = transform_special_tags_make_localname(root)
     return _replace_namespaces(root, api_url)
 
 
@@ -231,7 +234,7 @@ def _replace_namespaces(root: etree._Element, api_url: str) -> XMLProject:
         if (found := ele.attrib.get("restype")) or (found := ele.attrib.get("name")):
             split_found = found.split(":")
             if len(split_found) == 1:
-                ele.set("restype" if "restype" in ele.attrib else "name", f"{KNORA_API}{found}")
+                ele.set("restype" if "restype" in ele.attrib else "name", f"{KNORA_API_STR}{found}")
             elif len(split_found) == 2:
                 if len(split_found[0]) == 0:
                     found_namespace = namespace_lookup[default_ontology]
@@ -254,7 +257,7 @@ def _replace_namespaces(root: etree._Element, api_url: str) -> XMLProject:
 
 
 def _make_namespace_lookup(api_url: str, shortcode: str, default_onto: str) -> dict[str, str]:
-    return {default_onto: _construct_namespace(api_url, shortcode, default_onto), "knora-api": KNORA_API}
+    return {default_onto: _construct_namespace(api_url, shortcode, default_onto), "knora-api": KNORA_API_STR}
 
 
 def _construct_namespace(api_url: str, shortcode: str, onto_name: str) -> str:

@@ -175,18 +175,18 @@ class InputProblem(ABC):
 @dataclass
 class GenericProblem(InputProblem):
     results_message: str
-    actual_content: str
+    actual_input: str
 
     @property
     def problem(self) -> str:
         return self.results_message
 
     def get_msg(self) -> str:
-        return f"{self.problem} | Content: '{self.actual_content}'"
+        return f"{self.problem} | Your Input '{self.actual_input}'"
 
     def to_dict(self) -> dict[str, str]:
         problm_dict = self._base_dict()
-        problm_dict["Actual"] = self.actual_content
+        problm_dict["Actual"] = self.actual_input
         return problm_dict
 
     def sort_value(self) -> str:
@@ -253,6 +253,22 @@ class NonExistentCardinalityProblem(InputProblem):
         return self.prop_name
 
 
+@dataclass
+class FileValueNotAllowedProblem(InputProblem):
+    @property
+    def problem(self) -> str:
+        return "A file was added to the resource. This resource type must not have a file."
+
+    def get_msg(self) -> str:
+        return self.problem
+
+    def to_dict(self) -> dict[str, str]:
+        return self._base_dict()
+
+    def sort_value(self) -> str:
+        return self.prop_name
+
+
 #######################
 # Value Type Violation
 
@@ -280,37 +296,37 @@ class ValueTypeProblem(InputProblem):
 
 
 #######################
-# Content Violation
+# Input Violation
 
 
 @dataclass
-class ContentRegexProblem(InputProblem):
+class InputRegexProblem(InputProblem):
     expected_format: str
-    actual_content: str | None
+    actual_input: str | None
 
     @property
     def problem(self) -> str:
-        return "Wrong Content Format"
+        return "Wrong Format of Input"
 
     def get_msg(self) -> str:
         msg = f"{self.problem}, Expected Format: {self.expected_format}"
-        if self.actual_content:
-            msg += f" | Content: '{self._short_content()}'"
+        if self.actual_input:
+            msg += f" | Your Input '{self._shorten_input()}'"
         return msg
 
     def to_dict(self) -> dict[str, str]:
         problm_dict = self._base_dict()
         problm_dict["Expected"] = self.expected_format
-        if self.actual_content:
-            problm_dict["Content"] = self._short_content()
+        if self.actual_input:
+            problm_dict["Your Input"] = self._shorten_input()
         return problm_dict
 
-    def _short_content(self) -> str:
-        if not self.actual_content:
+    def _shorten_input(self) -> str:
+        if not self.actual_input:
             return ""
-        if len(self.actual_content) > 15:
-            return f"{self.actual_content[:15]}[...]"
-        return self.actual_content
+        if len(self.actual_input) > 15:
+            return f"{self.actual_input[:15]}[...]"
+        return self.actual_input
 
     def sort_value(self) -> str:
         return self.prop_name
@@ -336,7 +352,7 @@ class LinkTargetTypeMismatchProblem(InputProblem):
         problm_dict = self._base_dict()
         problm_dict["Expected"] = self.expected_type
         problm_dict["Actual"] = self.actual_type
-        problm_dict["Content"] = self.link_target_id
+        problm_dict["Your Input"] = self.link_target_id
         return problm_dict
 
     def sort_value(self) -> str:
@@ -365,18 +381,18 @@ class LinkedResourceDoesNotExistProblem(InputProblem):
 
 @dataclass
 class DuplicateValueProblem(InputProblem):
-    actual_content: str
+    actual_input: str
 
     @property
     def problem(self) -> str:
         return "Value is duplicated"
 
     def get_msg(self) -> str:
-        return f"{self.problem}, Content: '{self.actual_content}'"
+        return f"{self.problem}, Your Input: '{self.actual_input}'"
 
     def to_dict(self) -> dict[str, str]:
         problm_dict = self._base_dict()
-        problm_dict["Content"] = self.actual_content
+        problm_dict["Your Input"] = self.actual_input
         return problm_dict
 
     def sort_value(self) -> str:

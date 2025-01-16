@@ -46,6 +46,10 @@ def is_bool_like(value: Any) -> bool:
     Checks if a value is a bool or can be converted into a bool.
     It is case-insensitive, meaning that the words can also be capitalised.
 
+    Accepted values:
+         - `false`, `0`, `0.0`, `no`, `non`, `nein` -> `False`
+         - `true`, `1`, `1.0`, `yes`, `oui`, `ja` -> `True`
+
     Args:
         value: value to check
 

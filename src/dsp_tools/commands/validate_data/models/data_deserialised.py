@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from enum import Enum
+from enum import auto
 
 from lxml import etree
 
@@ -26,102 +28,110 @@ class ProjectInformation:
 
 @dataclass
 class DataDeserialised:
-    resources: list[AbstractResource]
-    file_values: list[AbstractFileValueDeserialised]
+    resources: list[ResourceDeserialised]
 
 
 @dataclass
-class AbstractResource:
+class ResourceDeserialised:
+    """
+    Represents a user facing project-specific resource.
+
+    Args:
+        res_id: resource ID provided by the user in the XML
+        property_objects: A list of properties and objects where the subject is the resource itself.
+            They are non-reified triples (not values).
+            For example, the label of a resource is here.
+        values: a list of user-facing values (e.g. BooleanValue)
+    """
+
     res_id: str
-    label: str
+    property_objects: list[PropertyObject]
+    values: list[ValueInformation]
 
 
 @dataclass
-class ResourceDeserialised(AbstractResource):
-    res_class: str
-    values: list[ValueDeserialised]
+class PropertyObject:
+    """
+    Property and object of a triple.
 
+    Args:
+        property_type: maps to a specific knora-api or rdf(s) property
+        object_value: object of the triple, may be user facing (e.g. label) or metadata (e.g. permissions)
+        object_type: datatype for literals (e.g. boolean) or that it is an IRI (not a literal)
+    """
 
-@dataclass
-class RegionDeserialised(AbstractResource): ...
-
-
-@dataclass
-class LinkObjDeserialised(AbstractResource): ...
-
-
-@dataclass
-class VideoSegmentDeserialised(AbstractResource): ...
-
-
-@dataclass
-class AudioSegmentDeserialised(AbstractResource): ...
-
-
-@dataclass
-class ValueDeserialised:
-    prop_name: str
+    property_type: TriplePropertyType
     object_value: str | None
+    object_type: TripleObjectType
 
 
 @dataclass
-class BooleanValueDeserialised(ValueDeserialised): ...
+class ValueInformation:
+    """
+    Contains information about a user-facing value, for example BooleanValue.
+
+    Args:
+        user_facing_prop: Absolute IRI of the property as defined in the ontology
+        user_facing_value: User-facing value, for example a number
+        knora_type: Maps to a knora value type (e.g. BooleanValue)
+        value_metadata: metadata of the value for example permissions, comments, etc.
+    """
+
+    user_facing_prop: str
+    user_facing_value: str | None
+    knora_type: KnoraValueType
+    value_metadata: list[PropertyObject]
 
 
-@dataclass
-class ColorValueDeserialised(ValueDeserialised): ...
+class TriplePropertyType(Enum):
+    """
+    Maps to a specific knora-api or rdf(s) property.
+    For example: KNORA_COMMENT -> knora-api:hasComment
+    """
+
+    RDFS_LABEL = auto()
+    RDF_TYPE = auto()
+    KNORA_PERMISSIONS = auto()
+    KNORA_COMMENT = auto()
 
 
-@dataclass
-class DateValueDeserialised(ValueDeserialised): ...
+class TripleObjectType(Enum):
+    """
+    Maps to an xsd data type in case of literals, for example: BOOLEAN -> xsd:boolean
+    Or Indicates that it is an IRI, in which case it is not an RDF Literal
+    """
+
+    BOOLEAN = auto()
+    DATETIME = auto()
+    DECIMAL = auto()
+    INTEGER = auto()
+    IRI = auto()
+    STRING = auto()
+    URI = auto()
 
 
-@dataclass
-class DecimalValueDeserialised(ValueDeserialised): ...
+class KnoraValueType(Enum):
+    """
+    Maps to a knora value type, for example: BOOLEAN_VALUE -> knora-api:BooleanValue
+    """
 
+    BOOLEAN_VALUE = auto()
+    COLOR_VALUE = auto()
+    DATE_VALUE = auto()
+    DECIMAL_VALUE = auto()
+    GEONAME_VALUE = auto()
+    INT_VALUE = auto()
+    LINK_VALUE = auto()
+    LIST_VALUE = auto()
+    SIMPLETEXT_VALUE = auto()
+    RICHTEXT_VALUE = auto()
+    TIME_VALUE = auto()
+    URI_VALUE = auto()
 
-@dataclass
-class GeonameValueDeserialised(ValueDeserialised): ...
-
-
-@dataclass
-class IntValueDeserialised(ValueDeserialised): ...
-
-
-@dataclass
-class LinkValueDeserialised(ValueDeserialised): ...
-
-
-@dataclass
-class ListValueDeserialised(ValueDeserialised):
-    list_name: str
-
-
-@dataclass
-class SimpleTextDeserialised(ValueDeserialised): ...
-
-
-@dataclass
-class RichtextDeserialised(ValueDeserialised): ...
-
-
-@dataclass
-class TimeValueDeserialised(ValueDeserialised): ...
-
-
-@dataclass
-class UriValueDeserialised(ValueDeserialised): ...
-
-
-@dataclass
-class AbstractFileValueDeserialised:
-    res_id: str
-    value: str | None
-
-
-@dataclass
-class BitstreamDeserialised(AbstractFileValueDeserialised): ...
-
-
-@dataclass
-class IIIFUriDeserialised(AbstractFileValueDeserialised): ...
+    ARCHIVE_FILE = auto()
+    AUDIO_FILE = auto()
+    DOCUMENT_FILE = auto()
+    MOVING_IMAGE_FILE = auto()
+    STILL_IMAGE_FILE = auto()
+    STILL_IMAGE_IIIF = auto()
+    TEXT_FILE = auto()

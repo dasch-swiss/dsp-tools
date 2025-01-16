@@ -4,16 +4,14 @@ from rdflib import XSD
 from rdflib import BNode
 from rdflib import Graph
 from rdflib import Literal
-from rdflib import Namespace
 from rdflib import URIRef
 from rdflib.collection import Collection
 from rdflib.term import Node
 
+from dsp_tools.commands.validate_data.constants import API_SHAPES
 from dsp_tools.commands.validate_data.models.api_responses import AllProjectLists
 from dsp_tools.commands.validate_data.models.api_responses import OneList
 from dsp_tools.commands.validate_data.models.api_responses import SHACLListInfo
-
-API_SHAPES = Namespace("http://api.knora.org/ontology/knora-api/shapes/v2#")
 
 
 def construct_property_shapes(onto: Graph, project_lists: AllProjectLists) -> Graph:
@@ -41,7 +39,6 @@ def _add_property_shapes_to_class_shapes(onto: Graph) -> Graph:
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    PREFIX salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#> 
     PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
     PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
 
@@ -58,8 +55,9 @@ def _add_property_shapes_to_class_shapes(onto: Graph) -> Graph:
           knora-api:canBeInstantiated true ;
           rdfs:subClassOf ?restriction .
       ?restriction a owl:Restriction ;          
-          owl:onProperty ?propRestriction ;
-          salsah-gui:guiOrder ?order .
+          owl:onProperty ?propRestriction .
+          
+      ?propRestriction knora-api:isEditable true .
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
 
       BIND(IRI(CONCAT(str(?propRestriction), "_PropShape")) AS ?propShapesIRI)
@@ -153,7 +151,7 @@ def _construct_link_value_node_shape(onto: Graph) -> Graph:
                                 a            sh:PropertyShape ;
                                 sh:path      api-shapes:linkValueHasTargetID ;
                                 sh:class     ?rangeClass ;
-                                sh:message   ?rangeClass ;
+                                sh:message   ?msg ;
                             ] ;
             sh:severity    sh:Violation .
 
@@ -164,6 +162,7 @@ def _construct_link_value_node_shape(onto: Graph) -> Graph:
                 knora-api:objectType ?rangeClass .
 
         BIND(IRI(CONCAT(str(?prop), "_NodeShape")) AS ?nodeShapeIRI)
+        BIND(CONCAT("Range is ", str(?rangeClass), " or a subclass.") AS ?msg)
     }
     """
     if results_graph := onto.query(query_s).graph:
@@ -225,18 +224,15 @@ def _construct_one_list_node_shape(one_list: OneList) -> Graph:
     list_iri = URIRef(one_list.list_iri)
     g.add((list_iri, RDF.type, SH.NodeShape))
     g.add((list_iri, SH.severity, SH.Violation))
-    list_prop_info = SHACLListInfo(
-        list_iri=list_iri,
-        sh_path=API_SHAPES.listNameAsString,
-        sh_message=f"The list that should be used with this property is: {one_list.list_name}.",
-        sh_in=[one_list.list_name],
-    )
-    g += _construct_one_list_property_shape_with_collection(list_prop_info)
+    list_name_and_node = [f"{one_list.list_name} / {x}" for x in one_list.nodes]
     node_prop_info = SHACLListInfo(
         list_iri=list_iri,
         sh_path=API_SHAPES.listNodeAsString,
-        sh_message=f"Unknown list node for list: {one_list.list_name}.",
-        sh_in=one_list.nodes,
+        sh_message=(
+            f"A valid node from the list '{one_list.list_name}' must be used with this property "
+            f"(input displayed in format 'listName / NodeName')."
+        ),
+        sh_in=list_name_and_node,
     )
     g += _construct_one_list_property_shape_with_collection(node_prop_info)
     return g

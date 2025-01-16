@@ -5,10 +5,11 @@ from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
 
-from dsp_tools.commands.validate_data.models.input_problems import ContentRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
+from dsp_tools.commands.validate_data.models.input_problems import FileValueNotAllowedProblem
 from dsp_tools.commands.validate_data.models.input_problems import FileValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import GenericProblem
+from dsp_tools.commands.validate_data.models.input_problems import InputRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
@@ -16,6 +17,7 @@ from dsp_tools.commands.validate_data.models.input_problems import MinCardinalit
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProblem
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
+from dsp_tools.commands.validate_data.models.validation import ResultFileValueNotAllowedViolation
 from dsp_tools.commands.validate_data.models.validation import ResultFileValueViolation
 from dsp_tools.commands.validate_data.models.validation import ResultGenericViolation
 from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
@@ -163,9 +165,9 @@ class TestQueryWithoutDetail:
         assert result.property == ONTO.testHasLinkToCardOneResource
         assert result.results_message == "1"
 
-    def test_result_empty_label(self, report_empty_label: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
-        res, _, info = report_empty_label
-        result = _query_one_without_detail(info, res)
+    def test_result_empty_label(self, report_empty_label: tuple[Graph, ValidationResultBaseInfo]) -> None:
+        graphs, info = report_empty_label
+        result = _query_one_without_detail(info, graphs)
         assert isinstance(result, ResultPatternViolation)
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
@@ -193,9 +195,9 @@ class TestQueryWithoutDetail:
         assert result.property == ONTO.testHasLinkTo
         assert result.actual_value == DATA.link_valueTarget_id
 
-    def test_unknown(self, result_unknown_component: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
-        res, _, info = result_unknown_component
-        result = _query_one_without_detail(info, res)
+    def test_unknown(self, result_unknown_component: tuple[Graph, ValidationResultBaseInfo]) -> None:
+        graphs, info = result_unknown_component
+        result = _query_one_without_detail(info, graphs)
         assert isinstance(result, UnexpectedComponent)
         assert result.component_type == str(SH.UniqueLangConstraintComponent)
 
@@ -268,8 +270,8 @@ class TestQueryWithDetail:
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testListProp
-        assert result.results_message == "The list that should be used with this property is 'firstList'."
-        assert result.actual_value == "other"
+        assert result.results_message == "A valid node from the list 'firstList' must be used with this property."
+        assert result.actual_value == "other / n1"
 
     def test_report_unknown_list_node(
         self, report_unknown_list_node: tuple[Graph, Graph, ValidationResultBaseInfo]
@@ -280,19 +282,36 @@ class TestQueryWithDetail:
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testListProp
-        assert result.results_message == "Unknown list node for list 'firstList'."
-        assert result.actual_value == "other"
+        assert result.results_message == "A valid node from the list 'firstList' must be used with this property."
+        assert result.actual_value == "firstList / other"
 
 
 class TestQueryFileValueViolations:
-    def test_missing_file_value(self, report_missing_file_value: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
-        res, _, info = report_missing_file_value
-        result = _query_one_without_detail(info, res)
+    def test_missing_file_value(self, report_missing_file_value: tuple[Graph, ValidationResultBaseInfo]) -> None:
+        graphs, info = report_missing_file_value
+        result = _query_one_without_detail(info, graphs)
         assert isinstance(result, ResultFileValueViolation)
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == KNORA_API.hasMovingImageFileValue
         assert result.results_message == "A MovingImageRepresentation requires a file with the extension 'mp4'."
+
+    def test_file_value_cardinality_to_ignore(
+        self, file_value_cardinality_to_ignore: tuple[Graph, ValidationResultBaseInfo]
+    ) -> None:
+        graphs, info = file_value_cardinality_to_ignore
+        result = _query_one_without_detail(info, graphs)
+        assert result is None
+
+    def test_file_value_for_resource_without_representation(
+        self, file_value_for_resource_without_representation: tuple[Graph, ValidationResultBaseInfo]
+    ) -> None:
+        graphs, info = file_value_for_resource_without_representation
+        result = _query_one_without_detail(info, graphs)
+        assert isinstance(result, ResultFileValueNotAllowedViolation)
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
+        assert result.property == KNORA_API.hasMovingImageFileValue
 
 
 class TestReformatResult:
@@ -314,12 +333,12 @@ class TestReformatResult:
 
     def test_violation_empty_label(self, extracted_empty_label: ResultPatternViolation) -> None:
         result = _reformat_one_validation_result(extracted_empty_label)
-        assert isinstance(result, ContentRegexProblem)
+        assert isinstance(result, InputRegexProblem)
         assert result.res_id == "empty_label"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "rdfs:label"
         assert result.expected_format == "The label must be a non-empty string"
-        assert not result.actual_content
+        assert not result.actual_input
 
     def test_closed(self, extracted_closed_constraint: ResultNonExistentCardinalityViolation) -> None:
         result = _reformat_one_validation_result(extracted_closed_constraint)
@@ -348,12 +367,12 @@ class TestReformatResult:
 
     def test_violation_regex(self, extracted_regex: ResultPatternViolation) -> None:
         result = _reformat_one_validation_result(extracted_regex)
-        assert isinstance(result, ContentRegexProblem)
+        assert isinstance(result, InputRegexProblem)
         assert result.res_id == "geoname_not_number"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testGeoname"
         assert result.expected_format == "The value must be a valid geoname code"
-        assert result.actual_content == "this-is-not-a-valid-code"
+        assert result.actual_input == "this-is-not-a-valid-code"
 
     def test_link_target_non_existent(self, extracted_link_target_non_existent: ResultLinkTargetViolation) -> None:
         result = _reformat_one_validation_result(extracted_link_target_non_existent)
@@ -379,7 +398,7 @@ class TestReformatResult:
         assert result.res_id == "identical_values_valueHas"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testGeoname"
-        assert result.actual_content == "00111111"
+        assert result.actual_input == "00111111"
 
     def test_unique_value_iri(self, extracted_unique_value_iri: ResultUniqueValueViolation) -> None:
         result = _reformat_one_validation_result(extracted_unique_value_iri)
@@ -387,7 +406,7 @@ class TestReformatResult:
         assert result.res_id == "identical_values_LinkValue"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testHasLinkTo"
-        assert result.actual_content == "link_valueTarget_id"
+        assert result.actual_input == "link_valueTarget_id"
 
     def test_unknown_list_node(self, extracted_unknown_list_node: ResultGenericViolation) -> None:
         result = _reformat_one_validation_result(extracted_unknown_list_node)
@@ -395,8 +414,8 @@ class TestReformatResult:
         assert result.res_id == "list_node_non_existent"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testListProp"
-        assert result.results_message == "Unknown list node for list 'firstList'."
-        assert result.actual_content == "other"
+        assert result.results_message == "A valid node from the list 'firstList' must be used with this property."
+        assert result.actual_input == "firstList / other"
 
     def test_unknown_list_name(self, extracted_unknown_list_name: ResultGenericViolation) -> None:
         result = _reformat_one_validation_result(extracted_unknown_list_name)
@@ -404,8 +423,8 @@ class TestReformatResult:
         assert result.res_id == "list_name_non_existent"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testListProp"
-        assert result.results_message == "The list that should be used with this property is 'firstList'."
-        assert result.actual_content == "other"
+        assert result.results_message == "A valid node from the list 'firstList' must be used with this property."
+        assert result.actual_input == "other / n1"
 
     def test_missing_file_value(self, extracted_missing_file_value: ResultFileValueViolation) -> None:
         result = _reformat_one_validation_result(extracted_missing_file_value)
@@ -414,6 +433,15 @@ class TestReformatResult:
         assert result.res_type == "onto:TestMovingImageRepresentation"
         assert result.prop_name == "bitstream / iiif-uri"
         assert result.expected == "A MovingImageRepresentation requires a file with the extension 'mp4'."
+
+    def test_file_value_for_resource_without_representation(
+        self, extracted_file_value_for_resource_without_representation: ResultFileValueNotAllowedViolation
+    ) -> None:
+        result = _reformat_one_validation_result(extracted_file_value_for_resource_without_representation)
+        assert isinstance(result, FileValueNotAllowedProblem)
+        assert result.res_id == "id_resource_without_representation"
+        assert result.res_type == "onto:ClassWithEverything"
+        assert result.prop_name == "bitstream / iiif-uri"
 
 
 if __name__ == "__main__":

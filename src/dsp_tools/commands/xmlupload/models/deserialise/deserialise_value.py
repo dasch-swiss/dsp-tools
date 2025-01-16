@@ -81,7 +81,7 @@ class XMLProperty:
     def _get_value_from_knora_base_prop(node: etree._Element) -> XMLValue:
         resrefs = set()
         if str(node.tag).endswith("hasSegmentBounds"):
-            value: str | FormattedTextValue = f"{node.attrib["segment_start"]}:{node.attrib["segment_end"]}"
+            value: str | FormattedTextValue = f"{node.attrib['segment_start']}:{node.attrib['segment_end']}"
         elif str(node.tag).endswith(("hasDescription", "hasComment")):
             value = _extract_formatted_text_from_node(node)
             resrefs = value.find_internal_ids()

@@ -422,7 +422,7 @@
               restype=":ImageThing"
               id="image_thing_10"
               permissions="open">
-        <bitstream>testdata/bitstreams/test with special chars àéèêëôû äöüß 0123456789 _-'()+=!?&lt;&gt;| 漢が글ርبيةб中.png</bitstream>
+        <bitstream>testdata/bitstreams/test with special chars àéèêëôû äöüß 0123456789 _-'()[]{}+=!&lt;&gt;| 漢が글ርبيةб中.png</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Imagething, the name contains special chars</text>
         </text-prop>
@@ -803,6 +803,13 @@
         <resptr-prop name="hasLinkTo">
             <resptr permissions="open">test_thing_2</resptr>
             <resptr permissions="open">compound_thing_0</resptr>
+            <resptr permissions="open">partof_thing_1</resptr>
+        </resptr-prop>
+    </link>
+
+    <link label="Link between 'Second Testthing', and 'Partofthing-1' without comment" id="link_obj_2">
+        <resptr-prop name="hasLinkTo">
+            <resptr permissions="open">test_thing_2</resptr>
             <resptr permissions="open">partof_thing_1</resptr>
         </resptr-prop>
     </link>

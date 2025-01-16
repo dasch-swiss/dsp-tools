@@ -29,15 +29,15 @@ def test_parse_and_clean_xml_file_same_regardless_of_input(data_systematic_uncle
     from_file = parse_and_clean_xml_file(Path("testdata/xml-data/test-data-systematic.xml"))
     cleaned_from_file = clean_resulting_tree(from_file)
     cleaned_from_tree = clean_resulting_tree(from_tree)
-    assert (
-        cleaned_from_file == cleaned_from_tree
-    ), "The output must be equal, regardless if the input is a path or parsed."
+    assert cleaned_from_file == cleaned_from_tree, (
+        "The output must be equal, regardless if the input is a path or parsed."
+    )
 
 
 def test_regions_links_before(data_systematic_unclean: Path) -> None:
     data = etree.parse(data_systematic_unclean)
     regions_links_before = [e for e in data.iter() if regex.search("region|link", str(e.tag))]
-    assert len(regions_links_before) == 4
+    assert len(regions_links_before) == 5
 
 
 def test_regions_links_after(data_systematic_cleaned: etree._Element) -> None:

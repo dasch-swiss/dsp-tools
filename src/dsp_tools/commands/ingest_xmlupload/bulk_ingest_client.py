@@ -59,9 +59,15 @@ class BulkIngestClient:
         self,
         filepath: Path,
     ) -> None:
-        """Uploads a file to the ingest server."""
+        """
+        Uploads a file to the ingest server.
+        The load balancer on DSP servers currently has a timeout of 60s, so we need to use a timeout of 58s.
+        See https://github.com/dasch-swiss/dsp-tools/pull/1335/files#r1882508057
+        # noqa: DAR101
+        # noqa: DAR201
+        """
         filepath_rel = filepath.relative_to("/") if filepath.is_absolute() else filepath
-        target_base = Path("/Volumes/LHTT/dsp-api/sipi/tmp-dsp-ingest/import/0820")
+        target_base = Path("/Volumes/Salsah/LHTT/dsp-api/sipi/tmp-dsp-ingest/import/0820")
         target = target_base / filepath_rel
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy(filepath, target)

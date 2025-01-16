@@ -383,6 +383,4 @@ class PropertyProblem:
             message for the error
         """
         all_problems = [x.execute_error_protocol() for x in self.problems]
-        return (
-            f"The property '{self.prop_name}' has the following problem(s):\n" f"{medium_separator.join(all_problems)}"
-        )
+        return f"The property '{self.prop_name}' has the following problem(s):\n{medium_separator.join(all_problems)}"

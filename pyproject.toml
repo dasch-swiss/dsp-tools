@@ -2,7 +2,7 @@
 
 [project]
 name = "dsp-tools"
-version = "9.2.0"
+version = "10.1.1"
 description = "DSP-TOOLS is a Python package with a command line interface that helps you interact with a DaSCH service platform (DSP) server."
 authors = [{name = "DaSCH - Swiss National Data and Service Center for the Humanities", email = "info@dasch.swiss"}]
 readme = "docs/index.md"
@@ -26,8 +26,7 @@ dependencies = [
     # pandas: "excel" is an extra that contains xlrd that is necessary for reading old .xls Excel files
     "pyld>=2.0.4",
     "pyyaml>=6.0.2",
-    "rdflib==7.0.0",
-    # rdflib: don't upgrade until backend allows parsing of different types of json-ld formats
+    "rdflib==7.1.1",
     "regex>=2024.9.11",
     "requests>=2.32.3",
     "rustworkx>=0.15.1",

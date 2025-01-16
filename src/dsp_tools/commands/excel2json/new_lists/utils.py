@@ -76,6 +76,6 @@ def get_preferred_language_from_columns(columns: pd.Index[str], ending: str = r"
         return "rm"
     msg = (
         f"The columns may only contain the languages: 'en', 'de', 'fr', 'it', 'rm'.\n"
-        f"The columns are: {" ".join(columns)}"
+        f"The columns are: {' '.join(columns)}"
     )
     raise InputError(msg)

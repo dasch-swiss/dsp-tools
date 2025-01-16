@@ -1,4 +1,5 @@
 @prefix sh:         <http://www.w3.org/ns/shacl#> .
+@prefix dash:       <http://datashapes.org/dash#> .
 @prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
 @prefix owl:        <http://www.w3.org/2002/07/owl#> .
@@ -301,6 +302,26 @@ api-shapes:valueHasComment_Shape
   sh:pattern  "\\s*\\S+\\s*" ;
   sh:datatype xsd:string ;
   sh:severity sh:Violation .
+
+
+### knora-api:seqnum
+
+api-shapes:seqnum_Shape
+  a                 sh:PropertyShape ;
+  sh:message        "The property seqnum must be used together with isPartOf" ;
+  sh:path           knora-api:seqnum ;
+  dash:coExistsWith knora-api:isPartOf ;
+  sh:severity       sh:Violation .
+
+
+### knora-api:isPartOf
+
+api-shapes:isPartOf_Shape
+  a                 sh:PropertyShape ;
+  sh:message        "The property isPartOf must be used together with seqnum" ;
+  sh:path           knora-api:isPartOf ;
+  dash:coExistsWith knora-api:seqnum ;
+  sh:severity       sh:Violation .
 
 
 #########################################

@@ -285,12 +285,6 @@ def _construct_one_list_property_shape(onto: Graph, one_list: OneList) -> Graph:
 
 
 def _construct_seqnum_is_part_of_prop_shape(onto: Graph) -> Graph:
-    g = _construct_generic_prop_shape_link_of_restriction(onto, "seqnum")
-    g += _construct_generic_prop_shape_link_of_restriction(onto, "isPartOf")
-    return g
-
-
-def _construct_generic_prop_shape_link_of_restriction(onto: Graph, prop_str: str) -> Graph:
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -300,13 +294,21 @@ def _construct_generic_prop_shape_link_of_restriction(onto: Graph, prop_str: str
     PREFIX salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#>
 
     CONSTRUCT {
-        ?resourceClass sh:property api-shapes:%(prop_str)s_PropShape .
+        ?resourceClass sh:property api-shapes:seqnum_PropShape .
     } WHERE {
         ?resourceClass rdfs:subClassOf ?restriction .
-        ?restriction a owl:Restriction ;
-                     owl:onProperty knora-api:%(prop_str)s .
+        ?restriction a owl:Restriction .
+        {
+            ?restriction owl:onProperty knora-api:seqnum .
+        }
+        UNION
+        {
+            ?restriction owl:onProperty knora-api:isPartOf .
+        }
     }
-    """ % {"prop_str": prop_str}  # noqa: UP031 (printf-string-formatting)
+    """ % {}  # noqa: UP031 (printf-string-formatting)
+    # The API allows the ontology to declare cardinalities for seqnum without isPartOf and vice versa.
+    # Therefore we have a union query.
     if results_graph := onto.query(query_s).graph:
         return results_graph
     return Graph()

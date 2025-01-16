@@ -304,23 +304,14 @@ api-shapes:valueHasComment_Shape
   sh:severity sh:Violation .
 
 
-### knora-api:seqnum
+### knora-api:seqnum and knora-api:isPartOf
 
+# dash:coExistsWith ensures that isPartOf also needs seqnum. There is no need for a second shape.
 api-shapes:seqnum_PropShape
   a                 sh:PropertyShape ;
   sh:message        "The property seqnum must be used together with isPartOf" ;
   sh:path           knora-api:seqnum ;
   dash:coExistsWith knora-api:isPartOf ;
-  sh:severity       sh:Violation .
-
-
-### knora-api:isPartOf
-
-api-shapes:isPartOf_PropShape
-  a                 sh:PropertyShape ;
-  sh:message        "The property isPartOf must be used together with seqnum" ;
-  sh:path           knora-api:isPartOf ;
-  dash:coExistsWith knora-api:seqnum ;
   sh:severity       sh:Violation .
 
 

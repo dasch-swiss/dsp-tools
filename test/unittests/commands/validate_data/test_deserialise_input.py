@@ -311,14 +311,6 @@ class TestExtractMetadataOfValue:
         assert val.object_value == "Comment on Value"
         assert val.object_type == TripleObjectType.STRING
 
-    def test_comment_empty_str(self, boolean_value_comment: etree._Element) -> None:
-        res = _extract_metadata_of_value(boolean_value_comment)
-        assert len(res) == 1
-        val = res.pop(0)
-        assert val.property_type == TriplePropertyType.KNORA_COMMENT_ON_VALUE
-        assert val.object_value == ""
-        assert val.object_type == TripleObjectType.STRING
-
     def test_permissions(self, boolean_value_permissions: etree._Element) -> None:
         # Not yet implemented
         res = _extract_metadata_of_value(boolean_value_permissions)

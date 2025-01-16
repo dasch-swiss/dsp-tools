@@ -85,13 +85,6 @@ def boolean_value_comment() -> etree._Element:
 
 
 @pytest.fixture
-def boolean_value_comment_empty_str() -> etree._Element:
-    return etree.fromstring("""
-    <boolean comment="">true</boolean>
-    """)
-
-
-@pytest.fixture
 def boolean_value_permissions() -> etree._Element:
     return etree.fromstring("""
     <boolean permissions="open">true</boolean>

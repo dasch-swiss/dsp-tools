@@ -8,12 +8,12 @@ from rdflib import Graph
 from rdflib import Literal
 
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
-from dsp_tools.commands.validate_data.models.validation import ResultCoExistWithViolation
 from dsp_tools.commands.validate_data.models.validation import ResultFileValueNotAllowedViolation
 from dsp_tools.commands.validate_data.models.validation import ResultFileValueViolation
 from dsp_tools.commands.validate_data.models.validation import ResultGenericViolation
 from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
+from dsp_tools.commands.validate_data.models.validation import ResultMessageOnly
 from dsp_tools.commands.validate_data.models.validation import ResultMinCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultNonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultPatternViolation
@@ -750,11 +750,12 @@ def report_coexist_with(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResu
 
 
 @pytest.fixture
-def extracted_coexist_with() -> ResultCoExistWithViolation:
-    return ResultCoExistWithViolation(
+def extracted_coexist_with() -> ResultMessageOnly:
+    return ResultMessageOnly(
         res_iri=DATA.missing_seqnum,
         res_class=IN_BUILT_ONTO.TestStillImageRepresentationWithSeqnum,
-        property=KNORA_API.isPartOf,
+        results_message="Coexist with Message",
+        property=None,
     )
 
 

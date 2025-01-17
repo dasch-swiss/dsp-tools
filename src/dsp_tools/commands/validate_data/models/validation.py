@@ -78,7 +78,13 @@ class DetailBaseInfo:
 class ValidationResult:
     res_iri: SubjectObjectTypeAlias
     res_class: SubjectObjectTypeAlias
-    property: SubjectObjectTypeAlias
+    property: SubjectObjectTypeAlias | None
+
+
+@dataclass
+class ResultMessageOnly(ValidationResult):
+    results_message: str
+    property: None = None
 
 
 @dataclass
@@ -119,10 +125,6 @@ class ResultMaxCardinalityViolation(ValidationResult):
 @dataclass
 class ResultMinCardinalityViolation(ValidationResult):
     results_message: str
-
-
-@dataclass
-class ResultCoExistWithViolation(ValidationResult): ...
 
 
 @dataclass

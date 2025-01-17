@@ -34,6 +34,7 @@ from dsp_tools.commands.validate_data.models.validation import ResultFileValueVi
 from dsp_tools.commands.validate_data.models.validation import ResultGenericViolation
 from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
+from dsp_tools.commands.validate_data.models.validation import ResultMessageOnly
 from dsp_tools.commands.validate_data.models.validation import ResultMinCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultNonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultPatternViolation
@@ -159,7 +160,7 @@ def _query_all_without_detail(
 
 
 def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
-    base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_and_onto: Graph
+    base_info: ValidationResultBaseInfo, results_and_onto: Graph
 ) -> ValidationResult | UnexpectedComponent | None:
     msg = str(next(results_and_onto.objects(base_info.result_bn, SH.resultMessage)))
     msg = _remove_whitespaces_from_string(msg)
@@ -181,13 +182,13 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
         case SH.SPARQLConstraintComponent:
             return _query_for_unique_value_violation(base_info, results_and_onto)
         case DASH.CoExistsWithConstraintComponent:
-            return _query_for_co_exists_with_violation(base_info, data_and_onto)
+            return ResultMessageOnly(
+                res_iri=base_info.resource_iri,
+                res_class=base_info.res_class_type,
+                results_message=msg,
+            )
         case _:
             return UnexpectedComponent(str(component))
-
-
-def _query_for_co_exists_with_violation(base_info: ValidationResultBaseInfo, data_and_onto: Graph) -> ValidationResult:
-    pass
 
 
 def _query_for_non_existent_cardinality_violation(

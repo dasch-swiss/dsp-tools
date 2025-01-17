@@ -144,7 +144,7 @@ class ResourceProblemCollection:
 class InputProblem(ABC):
     res_id: str
     res_type: str
-    prop_name: str | None
+    prop_name: str
 
     @property
     @abstractmethod
@@ -157,12 +157,14 @@ class InputProblem(ABC):
     def to_dict(self) -> dict[str, str]: ...
 
     def _base_dict(self) -> dict[str, str]:
-        return {
+        base_dict = {
             "Resource Type": self.res_type,
             "Resource ID": self.res_id,
-            "Property": self.prop_name,
             "Problem": self.problem,
         }
+        if self.prop_name:
+            base_dict["Property"] = self.prop_name
+        return base_dict
 
     @abstractmethod
     def sort_value(self) -> str: ...

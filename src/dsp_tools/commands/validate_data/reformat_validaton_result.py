@@ -84,7 +84,7 @@ def _query_all_results(
     extracted_results: list[ValidationResult] = []
     unexpected_components: list[UnexpectedComponent] = []
 
-    no_detail_extracted, no_detail_unexpected = _query_all_without_detail(no_details, results_and_onto, data_onto_graph)
+    no_detail_extracted, no_detail_unexpected = _query_all_without_detail(no_details, results_and_onto)
     extracted_results.extend(no_detail_extracted)
     unexpected_components.extend(no_detail_unexpected)
 
@@ -144,13 +144,13 @@ def _extract_one_base_info(info: QueryInfo, results_and_onto: Graph) -> Validati
 
 
 def _query_all_without_detail(
-    all_base_info: list[ValidationResultBaseInfo], results_and_onto: Graph, data_and_onto: Graph
+    all_base_info: list[ValidationResultBaseInfo], results_and_onto: Graph
 ) -> tuple[list[ValidationResult], list[UnexpectedComponent]]:
     extracted_results: list[ValidationResult] = []
     unexpected_components: list[UnexpectedComponent] = []
 
     for base_info in all_base_info:
-        res = _query_one_without_detail(base_info, results_and_onto, data_and_onto)
+        res = _query_one_without_detail(base_info, results_and_onto)
         if res is None:
             pass
         elif isinstance(res, UnexpectedComponent):
@@ -184,7 +184,10 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
             return _query_for_unique_value_violation(base_info, results_and_onto)
         case DASH.CoExistsWithConstraintComponent:
             return ResultMessageOnly(
-                res_iri=base_info.resource_iri, res_class=base_info.res_class_type, results_message=msg, property=None
+                res_iri=base_info.resource_iri,
+                res_class=base_info.res_class_type,
+                results_message=msg,
+                property=None,
             )
         case _:
             return UnexpectedComponent(str(component))
@@ -519,7 +522,7 @@ def _reformat_unique_value_violation_result(result: ResultUniqueValueViolation) 
 
 def _reformat_main_iris(result: ValidationResult) -> ReformattedIRI:
     subject_id = reformat_data_iri(result.res_iri)
-    prop_name = reformat_onto_iri(result.property) if result.property else None
+    prop_name = reformat_onto_iri(result.property) if result.property else ""
     res_type = reformat_onto_iri(result.res_class)
     return ReformattedIRI(res_id=subject_id, res_type=res_type, prop_name=prop_name)
 

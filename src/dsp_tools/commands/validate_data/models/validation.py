@@ -84,7 +84,6 @@ class ValidationResult:
 @dataclass
 class ResultMessageOnly(ValidationResult):
     results_message: str
-    property: None
 
 
 @dataclass
@@ -107,7 +106,7 @@ class ResultPatternViolation(ValidationResult):
 @dataclass
 class ResultGenericViolation(ValidationResult):
     results_message: str
-    actual_value: str | None
+    actual_value: str
 
 
 @dataclass

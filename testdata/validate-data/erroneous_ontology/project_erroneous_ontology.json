@@ -95,6 +95,25 @@
             ]
           },
           {
+            "name": "ImageWithKnoraProp_MixedValidCards",
+            "super": "StillImageRepresentation",
+            "labels": {
+              "en": "ImageWithKnoraProp_MixedValidCards"
+            },
+            "cardinalities": [
+              {
+                "propname": "isPartOf",
+                "gui_order": 1,
+                "cardinality": "1"
+              },
+              {
+                "propname": "seqnum",
+                "gui_order": 2,
+                "cardinality": "0-1"
+              }
+            ]
+          },
+          {
             "name": "ImageWithKnoraProp_AllGood",
             "super": "StillImageRepresentation",
             "labels": {
@@ -161,16 +180,16 @@
             ]
           },
           {
-            "name": "ImageWithSubProp_AllGood",
+            "name": "ImageWithSubProp_MixedValidCards",
             "super": "StillImageRepresentation",
             "labels": {
-              "en": "ImageWithSubProp_AllGood"
+              "en": "ImageWithSubProp_MixedValidCards"
             },
             "cardinalities": [
               {
                 "propname": ":testIsPartOf",
                 "gui_order": 1,
-                "cardinality": "1"
+                "cardinality": "0-1"
               },
               {
                 "propname": ":testSeqnum",

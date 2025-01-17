@@ -71,7 +71,7 @@
         </resource>
 
         <!--
-        Our Violation Type            ResultMessageOnlyViolation
+        Our Violation Type            SeqnumIsPartOfViolation
         sh:sourceConstraintComponent  dash:CoExistsWithConstraintComponent
         sh:detail                     -
         -->

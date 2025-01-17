@@ -35,12 +35,12 @@ from dsp_tools.commands.validate_data.models.validation import ResultFileValueVi
 from dsp_tools.commands.validate_data.models.validation import ResultGenericViolation
 from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
-from dsp_tools.commands.validate_data.models.validation import ResultMessageOnlyViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMinCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultNonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultPatternViolation
 from dsp_tools.commands.validate_data.models.validation import ResultUniqueValueViolation
 from dsp_tools.commands.validate_data.models.validation import ResultValueTypeViolation
+from dsp_tools.commands.validate_data.models.validation import SeqnumIsPartOfViolation
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationResult
@@ -183,7 +183,7 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
         case SH.SPARQLConstraintComponent:
             return _query_for_unique_value_violation(base_info, results_and_onto)
         case DASH.CoExistsWithConstraintComponent:
-            return ResultMessageOnlyViolation(
+            return SeqnumIsPartOfViolation(
                 res_iri=base_info.resource_iri,
                 res_class=base_info.res_class_type,
                 results_message=msg,
@@ -417,12 +417,12 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
                 results_message=validation_result.results_message,
                 actual_input=validation_result.actual_value,
             )
-        case ResultMessageOnlyViolation():
+        case SeqnumIsPartOfViolation():
             iris = _reformat_main_iris(validation_result)
             return GenericProblemWithMessage(
                 res_id=iris.res_id,
                 res_type=iris.res_type,
-                prop_name=iris.prop_name,
+                prop_name="seqnum or isPartOf",
                 results_message=validation_result.results_message,
             )
         case ResultValueTypeViolation():

@@ -13,12 +13,12 @@ from dsp_tools.commands.validate_data.models.validation import ResultFileValueVi
 from dsp_tools.commands.validate_data.models.validation import ResultGenericViolation
 from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
-from dsp_tools.commands.validate_data.models.validation import ResultMessageOnlyViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMinCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultNonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultPatternViolation
 from dsp_tools.commands.validate_data.models.validation import ResultUniqueValueViolation
 from dsp_tools.commands.validate_data.models.validation import ResultValueTypeViolation
+from dsp_tools.commands.validate_data.models.validation import SeqnumIsPartOfViolation
 from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
 from test.unittests.commands.validate_data.constants import DASH
 from test.unittests.commands.validate_data.constants import DATA
@@ -750,8 +750,8 @@ def report_coexist_with(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResu
 
 
 @pytest.fixture
-def extracted_coexist_with() -> ResultMessageOnlyViolation:
-    return ResultMessageOnlyViolation(
+def extracted_coexist_with() -> SeqnumIsPartOfViolation:
+    return SeqnumIsPartOfViolation(
         res_iri=DATA.missing_seqnum,
         res_class=IN_BUILT_ONTO.TestStillImageRepresentationWithSeqnum,
         results_message="Coexist message from knora-api turtle",

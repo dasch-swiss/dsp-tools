@@ -82,7 +82,7 @@ class ValidationResult:
 
 
 @dataclass
-class ResultMessageOnlyViolation(ValidationResult):
+class SeqnumIsPartOfViolation(ValidationResult):
     results_message: str
 
 

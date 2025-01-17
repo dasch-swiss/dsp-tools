@@ -7,7 +7,7 @@ from test.unittests.commands.validate_data.constants import PREFIXES
 @pytest.fixture
 def onto_for_cardinality() -> Graph:
     g = Graph()
-    g.parse("testdata/validate-data/onto_for_cardinality.ttl")
+    g.parse("testdata/validate-data/onto_for_cardinality_checks.ttl")
     return g
 
 

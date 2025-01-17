@@ -440,21 +440,3 @@ class FileValueProblem(InputProblem):
 
     def sort_value(self) -> str:
         return self.prop_name
-
-
-@dataclass
-class SeqnumIsPartOf(InputProblem):
-    prop_name: str = "seqnum / isPartOf"
-
-    @property
-    def problem(self) -> str:
-        return self.get_msg()
-
-    def get_msg(self) -> str:
-        return "seqnum and isPartOf must be used together. Only one of the properties was used in this resource."
-
-    def to_dict(self) -> dict[str, str]:
-        return self._base_dict()
-
-    def sort_value(self) -> str:
-        return self.prop_name

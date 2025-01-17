@@ -197,7 +197,7 @@ class TestQueryWithoutDetail:
         assert result.actual_value == DATA.link_valueTarget_id
 
     def test_coexist_with(self, report_coexist_with: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
-        validation_g, onto_data_g, info = report_coexist_with
+        validation_g, _, info = report_coexist_with
         result = _query_one_without_detail(info, validation_g)
         assert isinstance(result, ResultMessageOnly)
         assert result.res_iri == info.resource_iri

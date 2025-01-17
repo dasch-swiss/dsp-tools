@@ -168,7 +168,7 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
     match component:
         case SH.PatternConstraintComponent:
             return _query_pattern_constraint_component_violation(base_info.result_bn, base_info, results_and_onto)
-        case SH.MinCountConstraintComponent | DASH.CoExistsWithConstraintComponent:
+        case SH.MinCountConstraintComponent:
             return _query_for_min_cardinality_violation(base_info, msg, results_and_onto)
         case SH.MaxCountConstraintComponent:
             return ResultMaxCardinalityViolation(
@@ -183,9 +183,7 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
             return _query_for_unique_value_violation(base_info, results_and_onto)
         case DASH.CoExistsWithConstraintComponent:
             return ResultMessageOnly(
-                res_iri=base_info.resource_iri,
-                res_class=base_info.res_class_type,
-                results_message=msg,
+                res_iri=base_info.resource_iri, res_class=base_info.res_class_type, results_message=msg, property=None
             )
         case _:
             return UnexpectedComponent(str(component))

@@ -730,7 +730,7 @@ def report_coexist_with(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResu
     validation_g = Graph()
     validation_g.parse(data=validation_str, format="ttl")
     data_str = f"""{PREFIXES}
-    <http://data/missing_seqnum> a ns2:TestStillImageRepresentationWithSeqnum ;
+    <http://data/missing_seqnum> a in-built:TestStillImageRepresentationWithSeqnum ;
         rdfs:label "Image with sequence"^^xsd:string ;
         knora-api:hasStillImageFileValue <http://data/file_value> ;
         knora-api:isPartOf <http://data/is_part_of_value> .

@@ -84,7 +84,7 @@ class ValidationResult:
 @dataclass
 class ResultMessageOnly(ValidationResult):
     results_message: str
-    property: None = None
+    property: None
 
 
 @dataclass

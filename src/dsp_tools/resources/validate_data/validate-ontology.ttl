@@ -18,13 +18,13 @@ api-shapes:FindMissingMaxCardinality_IsPartOf_OntologyShape
                     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
                     PREFIX knora-api: <http://api.knora.org/ontology/knora-api/v2#>
 
-                    SELECT $this WHERE {
+                    SELECT $this ?path WHERE {
                         $this a owl:Class ;
                               rdfs:subClassOf ?restriction .
                         ?restriction a owl:Restriction ;
-                                     owl:onProperty ?propName .
+                                     owl:onProperty ?path .
 
-                        ?propName rdfs:subPropertyOf* knora-api:isPartOf
+                        ?path rdfs:subPropertyOf* knora-api:isPartOf
 
                         FILTER NOT EXISTS {
                             ?restriction owl:maxCardinality|owl:cardinality 1
@@ -47,13 +47,13 @@ api-shapes:FindMissingMaxCardinality_Seqnum_OntologyShape
                     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
                     PREFIX knora-api: <http://api.knora.org/ontology/knora-api/v2#>
 
-                    SELECT $this WHERE {
+                    SELECT $this ?path WHERE {
                         $this a owl:Class ;
                               rdfs:subClassOf ?restriction .
                         ?restriction a owl:Restriction ;
-                                     owl:onProperty ?propName .
+                                     owl:onProperty ?path .
 
-                        ?propName rdfs:subPropertyOf* knora-api:seqnum .
+                        ?path rdfs:subPropertyOf* knora-api:seqnum .
 
                         FILTER NOT EXISTS {
                             ?restriction owl:maxCardinality|owl:cardinality 1
@@ -76,13 +76,13 @@ api-shapes:FindMissingSeqnum_OntologyShape
                     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
                     PREFIX knora-api: <http://api.knora.org/ontology/knora-api/v2#>
 
-                    SELECT $this WHERE {
+                    SELECT $this ?path WHERE {
 
                         $this a owl:Class ;
                               rdfs:subClassOf ?restrictionisPartOf .
                         ?restrictionisPartOf a owl:Restriction ;
-                                             owl:onProperty ?isPartOfProp .
-                        ?isPartOfProp rdfs:subPropertyOf* knora-api:isPartOf .
+                                             owl:onProperty ?path .
+                        ?path rdfs:subPropertyOf* knora-api:isPartOf .
 
                         FILTER NOT EXISTS {
                           $this a owl:Class ;
@@ -109,13 +109,13 @@ api-shapes:FindMissingIsPartOf_OntologyShape
                     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
                     PREFIX knora-api: <http://api.knora.org/ontology/knora-api/v2#>
 
-                    SELECT $this WHERE {
+                    SELECT $this ?path WHERE {
 
                         $this a owl:Class ;
                               rdfs:subClassOf ?restrictionSeqnum .
                         ?restrictionSeqnum a owl:Restriction ;
-                                           owl:onProperty ?seqnumProp .
-                        ?seqnumProp rdfs:subPropertyOf* knora-api:seqnum .
+                                           owl:onProperty ?path .
+                        ?path rdfs:subPropertyOf* knora-api:seqnum .
 
                         FILTER NOT EXISTS {
                           $this a owl:Class ;

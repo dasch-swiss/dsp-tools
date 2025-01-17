@@ -754,7 +754,7 @@ def extracted_coexist_with() -> ResultMessageOnly:
     return ResultMessageOnly(
         res_iri=DATA.missing_seqnum,
         res_class=IN_BUILT_ONTO.TestStillImageRepresentationWithSeqnum,
-        results_message="Coexist with Message",
+        results_message="Coexist message from knora-api turtle",
         property=None,
     )
 

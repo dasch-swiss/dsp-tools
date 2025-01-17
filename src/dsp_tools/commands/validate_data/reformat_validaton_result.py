@@ -16,7 +16,8 @@ from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import FileValueNotAllowedProblem
 from dsp_tools.commands.validate_data.models.input_problems import FileValueProblem
-from dsp_tools.commands.validate_data.models.input_problems import GenericProblem
+from dsp_tools.commands.validate_data.models.input_problems import GenericProblemWithInput
+from dsp_tools.commands.validate_data.models.input_problems import GenericProblemWithMessage
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import InputRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
@@ -406,12 +407,20 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
             )
         case ResultGenericViolation():
             iris = _reformat_main_iris(validation_result)
-            return GenericProblem(
+            return GenericProblemWithInput(
                 res_id=iris.res_id,
                 res_type=iris.res_type,
                 prop_name=iris.prop_name,
                 results_message=validation_result.results_message,
                 actual_input=validation_result.actual_value,
+            )
+        case ResultMessageOnly():
+            iris = _reformat_main_iris(validation_result)
+            return GenericProblemWithMessage(
+                res_id=iris.res_id,
+                res_type=iris.res_type,
+                prop_name=iris.prop_name,
+                results_message=validation_result.results_message,
             )
         case ResultValueTypeViolation():
             return _reformat_value_type_violation_result(validation_result)
@@ -510,7 +519,7 @@ def _reformat_unique_value_violation_result(result: ResultUniqueValueViolation) 
 
 def _reformat_main_iris(result: ValidationResult) -> ReformattedIRI:
     subject_id = reformat_data_iri(result.res_iri)
-    prop_name = reformat_onto_iri(result.property)
+    prop_name = reformat_onto_iri(result.property) if result.property else None
     res_type = reformat_onto_iri(result.res_class)
     return ReformattedIRI(res_id=subject_id, res_type=res_type, prop_name=prop_name)
 

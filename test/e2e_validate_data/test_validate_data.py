@@ -11,7 +11,7 @@ from dsp_tools.commands.validate_data.api_connection import ApiConnection
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import FileValueNotAllowedProblem
 from dsp_tools.commands.validate_data.models.input_problems import FileValueProblem
-from dsp_tools.commands.validate_data.models.input_problems import GenericProblem
+from dsp_tools.commands.validate_data.models.input_problems import GenericProblemWithInput
 from dsp_tools.commands.validate_data.models.input_problems import InputRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
@@ -344,7 +344,7 @@ class TestReformatValidationGraph:
             assert one_result.prop_name == expected_info[1]
             if isinstance(one_result, InputRegexProblem):
                 assert one_result.expected_format == expected_info[2]
-            elif isinstance(one_result, GenericProblem):
+            elif isinstance(one_result, GenericProblemWithInput):
                 assert one_result.results_message == expected_info[2]
             elif isinstance(one_result, LinkTargetTypeMismatchProblem):
                 assert one_result.link_target_id == expected_info[2]
@@ -367,7 +367,7 @@ class TestReformatValidationGraph:
             ("identical_values", DuplicateValueProblem),
             ("link_target_non_existent", LinkedResourceDoesNotExistProblem),
             ("link_target_wrong_class", LinkTargetTypeMismatchProblem),
-            ("list_node_non_existent", GenericProblem),
+            ("list_node_non_existent", GenericProblemWithInput),
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)
@@ -473,7 +473,7 @@ class TestReformatValidationGraph:
         assert len(result.problems) == len(expected_tuples)
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         for prblm, expected in zip(sorted_problems, expected_tuples):
-            if isinstance(prblm, GenericProblem):
+            if isinstance(prblm, GenericProblemWithInput):
                 assert prblm.res_id == expected[0]
                 assert prblm.problem == expected[1]
                 assert prblm.actual_input == expected[2]

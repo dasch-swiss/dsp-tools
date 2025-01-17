@@ -8,7 +8,8 @@ from rdflib import URIRef
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import FileValueNotAllowedProblem
 from dsp_tools.commands.validate_data.models.input_problems import FileValueProblem
-from dsp_tools.commands.validate_data.models.input_problems import GenericProblem
+from dsp_tools.commands.validate_data.models.input_problems import GenericProblemWithInput
+from dsp_tools.commands.validate_data.models.input_problems import GenericProblemWithMessage
 from dsp_tools.commands.validate_data.models.input_problems import InputRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
@@ -420,7 +421,7 @@ class TestReformatResult:
 
     def test_unknown_list_node(self, extracted_unknown_list_node: ResultGenericViolation) -> None:
         result = _reformat_one_validation_result(extracted_unknown_list_node)
-        assert isinstance(result, GenericProblem)
+        assert isinstance(result, GenericProblemWithInput)
         assert result.res_id == "list_node_non_existent"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testListProp"
@@ -429,7 +430,7 @@ class TestReformatResult:
 
     def test_unknown_list_name(self, extracted_unknown_list_name: ResultGenericViolation) -> None:
         result = _reformat_one_validation_result(extracted_unknown_list_name)
-        assert isinstance(result, GenericProblem)
+        assert isinstance(result, GenericProblemWithInput)
         assert result.res_id == "list_name_non_existent"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testListProp"
@@ -452,6 +453,14 @@ class TestReformatResult:
         assert result.res_id == "id_resource_without_representation"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "bitstream / iiif-uri"
+
+    def test_message_only(self, extracted_coexist_with: ResultMessageOnly) -> None:
+        result = _reformat_one_validation_result(extracted_coexist_with)
+        assert isinstance(result, GenericProblemWithMessage)
+        assert result.res_id == "missing_seqnum"
+        assert result.res_type == "in-built:TestStillImageRepresentationWithSeqnum"
+        assert not result.prop_name
+        assert result.results_message == "Coexist message from knora-api turtle"
 
 
 if __name__ == "__main__":

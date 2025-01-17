@@ -144,7 +144,7 @@ class ResourceProblemCollection:
 class InputProblem(ABC):
     res_id: str
     res_type: str
-    prop_name: str
+    prop_name: str | None
 
     @property
     @abstractmethod
@@ -169,11 +169,11 @@ class InputProblem(ABC):
 
 
 #######################
-# Generic Problem
+# Generic Problem with Input
 
 
 @dataclass
-class GenericProblem(InputProblem):
+class GenericProblemWithInput(InputProblem):
     results_message: str
     actual_input: str
 
@@ -187,6 +187,29 @@ class GenericProblem(InputProblem):
     def to_dict(self) -> dict[str, str]:
         problm_dict = self._base_dict()
         problm_dict["Actual"] = self.actual_input
+        return problm_dict
+
+    def sort_value(self) -> str:
+        return self.prop_name
+
+
+#######################
+# Generic Problem
+
+
+@dataclass
+class GenericProblemWithMessage(InputProblem):
+    results_message: str
+
+    @property
+    def problem(self) -> str:
+        return self.results_message
+
+    def get_msg(self) -> str:
+        return self.results_message
+
+    def to_dict(self) -> dict[str, str]:
+        problm_dict = self._base_dict()
         return problm_dict
 
     def sort_value(self) -> str:

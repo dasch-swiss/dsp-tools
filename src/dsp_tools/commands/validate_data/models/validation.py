@@ -107,7 +107,7 @@ class ResultPatternViolation(ValidationResult):
 @dataclass
 class ResultGenericViolation(ValidationResult):
     results_message: str
-    actual_value: str
+    actual_value: str | None
 
 
 @dataclass

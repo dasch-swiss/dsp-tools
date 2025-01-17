@@ -459,7 +459,7 @@ class TestReformatResult:
         assert isinstance(result, GenericProblemWithMessage)
         assert result.res_id == "missing_seqnum"
         assert result.res_type == "in-built:TestStillImageRepresentationWithSeqnum"
-        assert not result.prop_name
+        assert result.prop_name == "seqnum or isPartOf"
         assert result.results_message == "Coexist message from knora-api turtle"
 
 

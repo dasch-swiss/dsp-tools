@@ -7,13 +7,12 @@
 @prefix api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#> .
 
 
-api-shapes:FindMissingMaxCardinality_SeqnumIsPartOf_OntologyShape
+api-shapes:FindMissingMaxCardinality_IsPartOf_OntologyShape
   a              sh:NodeShape ;
   sh:targetClass owl:Class ;
   sh:sparql      [
                    a          sh:SPARQLConstraint ;
-                   sh:message """seqnum and isPartOf must have either cardinality 1 or 0-1.
-                                 They may not be used more than once for a resource.""" ;
+                   sh:message "isPartOf and its sub-properties must either have cardinality 1 or 0-1." ;
                    sh:select  """
                     PREFIX owl: <http://www.w3.org/2002/07/owl#>
                     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -21,13 +20,40 @@ api-shapes:FindMissingMaxCardinality_SeqnumIsPartOf_OntologyShape
 
                     SELECT $this WHERE {
                         $this a owl:Class ;
-                                     rdfs:subClassOf ?restriction .
+                              rdfs:subClassOf ?restriction .
                         ?restriction a owl:Restriction ;
                                      owl:onProperty ?propName .
 
-                        { ?propName rdfs:subPropertyOf* knora-api:isPartOf }
-                        UNION
-                        { ?propName rdfs:subPropertyOf* knora-api:seqnum  }
+                        ?propName rdfs:subPropertyOf* knora-api:isPartOf
+
+                        FILTER NOT EXISTS {
+                            ?restriction owl:maxCardinality|owl:cardinality 1
+                        }
+                    }
+                    """ ;
+                 ] ;
+  sh:severity    sh:Violation .
+
+
+
+api-shapes:FindMissingMaxCardinality_Seqnum_OntologyShape
+  a              sh:NodeShape ;
+  sh:targetClass owl:Class ;
+  sh:sparql      [
+                   a          sh:SPARQLConstraint ;
+                   sh:message "seqnum and its sub-properties must either have cardinality 1 or 0-1." ;
+                   sh:select  """
+                    PREFIX owl: <http://www.w3.org/2002/07/owl#>
+                    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                    PREFIX knora-api: <http://api.knora.org/ontology/knora-api/v2#>
+
+                    SELECT $this WHERE {
+                        $this a owl:Class ;
+                              rdfs:subClassOf ?restriction .
+                        ?restriction a owl:Restriction ;
+                                     owl:onProperty ?propName .
+
+                        ?propName rdfs:subPropertyOf* knora-api:seqnum .
 
                         FILTER NOT EXISTS {
                             ?restriction owl:maxCardinality|owl:cardinality 1
@@ -53,14 +79,14 @@ api-shapes:FindMissingSeqnum_OntologyShape
                     SELECT $this WHERE {
 
                         $this a owl:Class ;
-                                     rdfs:subClassOf ?restrictionisPartOf .
+                              rdfs:subClassOf ?restrictionisPartOf .
                         ?restrictionisPartOf a owl:Restriction ;
                                              owl:onProperty ?isPartOfProp .
                         ?isPartOfProp rdfs:subPropertyOf* knora-api:isPartOf .
 
                         FILTER NOT EXISTS {
                           $this a owl:Class ;
-                                       rdfs:subClassOf ?restrictionSeqnum .
+                                rdfs:subClassOf ?restrictionSeqnum .
                           ?restrictionSeqnum a owl:Restriction ;
                                              owl:onProperty ?seqnumProp .
                           ?seqnumProp rdfs:subPropertyOf* knora-api:seqnum .
@@ -86,14 +112,14 @@ api-shapes:FindMissingIsPartOf_OntologyShape
                     SELECT $this WHERE {
 
                         $this a owl:Class ;
-                                     rdfs:subClassOf ?restrictionSeqnum .
+                              rdfs:subClassOf ?restrictionSeqnum .
                         ?restrictionSeqnum a owl:Restriction ;
                                            owl:onProperty ?seqnumProp .
                         ?seqnumProp rdfs:subPropertyOf* knora-api:seqnum .
 
                         FILTER NOT EXISTS {
                           $this a owl:Class ;
-                                       rdfs:subClassOf ?restrictionisPartOf .
+                                rdfs:subClassOf ?restrictionisPartOf .
                           ?restrictionisPartOf a owl:Restriction ;
                                                owl:onProperty ?isPartOfProp .
                           ?isPartOfProp rdfs:subPropertyOf* knora-api:isPartOf .

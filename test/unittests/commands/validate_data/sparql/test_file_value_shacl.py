@@ -8,8 +8,8 @@ from test.unittests.commands.validate_data.constants import ONTO
 
 
 @pytest.fixture
-def file_value_shacl(onto_graph: Graph) -> Graph:
-    return construct_file_value_cardinality(onto_graph)
+def file_value_shacl(onto_for_cardinality: Graph) -> Graph:
+    return construct_file_value_cardinality(onto_for_cardinality)
 
 
 def test_construct_file_value_cardinality(file_value_shacl: Graph) -> None:

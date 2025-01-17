@@ -18,9 +18,11 @@ from dsp_tools.commands.validate_data.models.validation import ResultNonExistent
 from dsp_tools.commands.validate_data.models.validation import ResultPatternViolation
 from dsp_tools.commands.validate_data.models.validation import ResultUniqueValueViolation
 from dsp_tools.commands.validate_data.models.validation import ResultValueTypeViolation
+from dsp_tools.commands.validate_data.models.validation import SeqnumIsPartOfViolation
 from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
 from test.unittests.commands.validate_data.constants import DASH
 from test.unittests.commands.validate_data.constants import DATA
+from test.unittests.commands.validate_data.constants import IN_BUILT_ONTO
 from test.unittests.commands.validate_data.constants import KNORA_API
 from test.unittests.commands.validate_data.constants import ONTO
 from test.unittests.commands.validate_data.constants import PREFIXES
@@ -711,6 +713,49 @@ def extracted_unique_value_iri() -> ResultUniqueValueViolation:
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testHasLinkTo,
         actual_value=DATA.link_valueTarget_id,
+    )
+
+
+@pytest.fixture
+def report_coexist_with(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
+    validation_str = f"""{PREFIXES}
+    [ a sh:ValidationResult ;
+        sh:focusNode <http://data/missing_seqnum> ;
+        sh:resultMessage "The property seqnum must be used together with isPartOf" ;
+        sh:resultPath <http://api.knora.org/ontology/knora-api/v2#seqnum> ;
+        sh:resultSeverity sh:Violation ;
+        sh:sourceConstraintComponent <http://datashapes.org/dash#CoExistsWithConstraintComponent> ;
+        sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#seqnum_PropShape> ] .
+    """
+    validation_g = Graph()
+    validation_g.parse(data=validation_str, format="ttl")
+    data_str = f"""{PREFIXES}
+    <http://data/missing_seqnum> a in-built:TestStillImageRepresentationWithSeqnum ;
+        rdfs:label "Image with sequence"^^xsd:string ;
+        knora-api:hasStillImageFileValue <http://data/file_value> ;
+        knora-api:isPartOf <http://data/is_part_of_value> .
+    """
+    onto_data_g = Graph()
+    onto_data_g += onto_graph
+    onto_data_g.parse(data=data_str, format="ttl")
+    val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=DASH.CoExistsWithConstraintComponent,
+        resource_iri=DATA.missing_seqnum,
+        res_class_type=IN_BUILT_ONTO.TestStillImageRepresentationWithSeqnum,
+        result_path=KNORA_API.seqnum,
+    )
+    return validation_g, onto_data_g, base_info
+
+
+@pytest.fixture
+def extracted_coexist_with() -> SeqnumIsPartOfViolation:
+    return SeqnumIsPartOfViolation(
+        res_iri=DATA.missing_seqnum,
+        res_class=IN_BUILT_ONTO.TestStillImageRepresentationWithSeqnum,
+        results_message="Coexist message from knora-api turtle",
+        property=None,
     )
 
 

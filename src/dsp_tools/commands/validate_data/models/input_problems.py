@@ -157,14 +157,12 @@ class InputProblem(ABC):
     def to_dict(self) -> dict[str, str]: ...
 
     def _base_dict(self) -> dict[str, str]:
-        base_dict = {
+        return {
             "Resource Type": self.res_type,
             "Resource ID": self.res_id,
+            "Property": self.prop_name,
             "Problem": self.problem,
         }
-        if self.prop_name:
-            base_dict["Property"] = self.prop_name
-        return base_dict
 
     @abstractmethod
     def sort_value(self) -> str: ...

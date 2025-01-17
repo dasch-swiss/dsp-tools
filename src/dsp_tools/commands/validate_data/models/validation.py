@@ -122,6 +122,10 @@ class ResultMinCardinalityViolation(ValidationResult):
 
 
 @dataclass
+class ResultCoExistWithViolation(ValidationResult): ...
+
+
+@dataclass
 class ResultNonExistentCardinalityViolation(ValidationResult): ...
 
 

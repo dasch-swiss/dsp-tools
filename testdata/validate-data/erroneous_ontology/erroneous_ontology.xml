@@ -12,6 +12,8 @@
         We have to treat it as a special case.
     -->
 
+    <!-- 7 Violations -->
+
     <!-- Target Resources for Links -->
 
     <resource label="Resource without Representation" restype=":TargetResource"
@@ -21,8 +23,6 @@
     <resource label="Resource without Representation" restype=":TargetResource"
               id="target_res_without_representation_2"/>
 
-
-    <!-- 6 Violations -->
 
     <!-- usage of knora-api seqnum/isPartOf: multiple usage -->
 
@@ -93,6 +93,25 @@
         <resptr-prop name=":testIsPartOf">
             <resptr>target_res_without_representation_1</resptr>
         </resptr-prop>
+    </resource>
+
+    <!-- This uses both the knora props and sub-props of them -->
+
+    <resource label="Image with sequence" restype=":ImageUsingKnoraPropsAndSubProps"
+              id="using_both_knora_and_sub_props">
+        <bitstream>testdata/bitstreams/test.jpeg</bitstream>
+        <resptr-prop name=":testIsPartOf">
+            <resptr>target_res_without_representation_1</resptr>
+        </resptr-prop>
+        <integer-prop name=":testSeqnum">
+            <integer>1</integer>
+        </integer-prop>
+        <resptr-prop name="isPartOf">
+            <resptr>target_res_without_representation_2</resptr>
+        </resptr-prop>
+        <integer-prop name="seqnum">
+            <integer>2</integer>
+        </integer-prop>
     </resource>
 
 </knora>

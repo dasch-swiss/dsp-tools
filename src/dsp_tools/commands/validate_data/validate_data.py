@@ -23,7 +23,6 @@ from dsp_tools.commands.validate_data.models.validation import ValidationReportG
 from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_shapes_graphs
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
-from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_GREEN
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_MAGENTA
@@ -61,10 +60,6 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
         msg = unknown_classes.get_msg()
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(msg)
-        return True
-    if ontology_problems := validate_ontology(graphs.ontos, api_con):
-        print(VALIDATION_ERRORS_FOUND_MSG)
-        print(ontology_problems.get_msg())
         return True
     report = _get_validation_result(graphs, api_con, filepath, save_graphs)
     if report.conforms:
@@ -166,11 +161,17 @@ def _create_graphs(onto_client: OntologyClient, list_client: ListClient, data_rd
         "resources/validate_data/api-shapes-with-cardinalities.ttl"
     )
     file_shapes.parse(str(file_shapes_path))
+    onto_shacl = importlib.resources.files("dsp_tools").joinpath(
+        "src/dsp_tools/resources/validate_data/validate-ontology.ttl"
+    )
+    onto_shacl_g = Graph()
+    onto_shacl_g.parse(str(onto_shacl))
     content_shapes = shapes.content + api_shapes
     card_shapes = shapes.cardinality + file_shapes
     return RDFGraphs(
         data=data_rdf,
         ontos=ontologies,
+        ontology_shacl=onto_shacl_g,
         cardinality_shapes=card_shapes,
         content_shapes=content_shapes,
         knora_api=knora_api,

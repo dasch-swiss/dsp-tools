@@ -17,6 +17,7 @@ class SHACLGraphs:
 class RDFGraphs:
     data: Graph
     ontos: Graph
+    ontology_shacl: Graph
     cardinality_shapes: Graph
     content_shapes: Graph
     knora_api: Graph

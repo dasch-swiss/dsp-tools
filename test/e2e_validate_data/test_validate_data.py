@@ -19,7 +19,6 @@ from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTyp
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityProblem
-from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProblem
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
@@ -30,7 +29,6 @@ from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_
 from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validate_data import _get_parsed_graphs
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
-from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
 from test.e2e_validate_data.setup_testcontainers import get_containers
 
 CREDS = ServerCredentials("root@example.com", "test", "http://0.0.0.0:3333")
@@ -171,21 +169,11 @@ def inheritance_violation(_create_projects: Iterator[None], api_con: ApiConnecti
     return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
 
 
-@pytest.mark.usefixtures("_create_projects")
-def test_validate_ontology_correct(api_con: ApiConnection) -> None:
-    file = Path("testdata/validate-data/generic/content_correct.xml")
-    graphs = _get_parsed_graphs(api_con, file)
-    result = validate_ontology(graphs.ontos, api_con)
-    assert not result
-
-
-@pytest.mark.usefixtures("_create_projects")
-def test_validate_ontology_violation(api_con: ApiConnection) -> None:
+@pytest.fixture(scope="module")
+def validate_ontology_violation(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/erroneous_ontology/erroneous_ontology.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    result = validate_ontology(graphs.ontos, api_con)
-    assert isinstance(result, OntologyValidationProblem)
-    assert len(result.problems) == 1000
+    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
 
 
 def test_extract_identifiers_of_resource_results(every_combination_once: ValidationReportGraphs) -> None:
@@ -267,6 +255,9 @@ class TestCheckConforms:
 
     def test_inheritance_violation(self, inheritance_violation: ValidationReportGraphs) -> None:
         assert not inheritance_violation.conforms
+
+    def test_validate_ontology_violation(self, validate_ontology_violation: ValidationReportGraphs) -> None:
+        assert not validate_ontology_violation.conforms
 
 
 class TestReformatValidationGraph:

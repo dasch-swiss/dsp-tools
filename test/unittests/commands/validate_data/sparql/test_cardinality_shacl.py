@@ -18,39 +18,39 @@ from test.unittests.commands.validate_data.constants import ONTO
 
 
 class TestCheckTripleNumbersOnto:
-    def test_nodeshape(self, onto_graph: Graph) -> None:
-        result = _construct_resource_nodeshape(onto_graph)
+    def test_nodeshape(self, onto_for_cardinality: Graph) -> None:
+        result = _construct_resource_nodeshape(onto_for_cardinality)
         number_of_resource_classes = 12
         triples_cls_nodeshape = 9 * number_of_resource_classes
         assert len(result) == triples_cls_nodeshape
 
-    def test_cardinality_1(self, onto_graph: Graph) -> None:
-        result = _construct_1_cardinality(onto_graph)
+    def test_cardinality_1(self, onto_for_cardinality: Graph) -> None:
+        result = _construct_1_cardinality(onto_for_cardinality)
         number_of_occurrences_in_onto = 2
         triples_card_1 = 7 * number_of_occurrences_in_onto
         assert len(result) == triples_card_1
 
-    def test_cardinality_0_1(self, onto_graph: Graph) -> None:
-        result = _construct_0_1_cardinality(onto_graph)
+    def test_cardinality_0_1(self, onto_for_cardinality: Graph) -> None:
+        result = _construct_0_1_cardinality(onto_for_cardinality)
         number_of_occurrences_in_onto = 5
         triples_card_0_1 = 7 * number_of_occurrences_in_onto
         assert len(result) == triples_card_0_1
 
-    def test_cardinality_0_n(self, onto_graph: Graph) -> None:
-        result = _construct_0_n_cardinality(onto_graph)
+    def test_cardinality_0_n(self, onto_for_cardinality: Graph) -> None:
+        result = _construct_0_n_cardinality(onto_for_cardinality)
         number_of_occurrences_in_onto = 22  # Inheritance included
         triples_card_0_n = 3 * number_of_occurrences_in_onto
         assert len(result) == triples_card_0_n
 
-    def test_cardinality_1_n(self, onto_graph: Graph) -> None:
-        result = _construct_1_n_cardinality(onto_graph)
+    def test_cardinality_1_n(self, onto_for_cardinality: Graph) -> None:
+        result = _construct_1_n_cardinality(onto_for_cardinality)
         number_of_occurrences_in_onto = 1
         triples_card_1_n = 6 * number_of_occurrences_in_onto
         assert len(result) == triples_card_1_n
 
 
-def test_construct_cardinality_node_shapes(onto_graph: Graph) -> None:
-    result = construct_cardinality_node_shapes(onto_graph)
+def test_construct_cardinality_node_shapes(onto_for_cardinality: Graph) -> None:
+    result = construct_cardinality_node_shapes(onto_for_cardinality)
     expected_classes = {
         ONTO.ClassInheritedCardinality,
         ONTO.ClassMixedCard,

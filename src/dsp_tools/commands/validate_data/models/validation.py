@@ -78,7 +78,12 @@ class DetailBaseInfo:
 class ValidationResult:
     res_iri: SubjectObjectTypeAlias
     res_class: SubjectObjectTypeAlias
-    property: SubjectObjectTypeAlias
+    property: SubjectObjectTypeAlias | None
+
+
+@dataclass
+class SeqnumIsPartOfViolation(ValidationResult):
+    results_message: str
 
 
 @dataclass

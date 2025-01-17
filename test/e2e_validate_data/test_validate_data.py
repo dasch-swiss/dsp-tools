@@ -11,7 +11,8 @@ from dsp_tools.commands.validate_data.api_connection import ApiConnection
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import FileValueNotAllowedProblem
 from dsp_tools.commands.validate_data.models.input_problems import FileValueProblem
-from dsp_tools.commands.validate_data.models.input_problems import GenericProblem
+from dsp_tools.commands.validate_data.models.input_problems import GenericProblemWithInput
+from dsp_tools.commands.validate_data.models.input_problems import GenericProblemWithMessage
 from dsp_tools.commands.validate_data.models.input_problems import InputRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
@@ -185,6 +186,7 @@ def test_extract_identifiers_of_resource_results(every_combination_once: Validat
         (URIRef("http://data/link_target_non_existent"), BNode),
         (URIRef("http://data/link_target_wrong_class"), BNode),
         (URIRef("http://data/list_node_non_existent"), BNode),
+        (URIRef("http://data/missing_seqnum"), None),
     ]
     assert len(result) == len(expected_iris)
     for result_info, expected_iri in zip(result_sorted, expected_iris):
@@ -344,7 +346,7 @@ class TestReformatValidationGraph:
             assert one_result.prop_name == expected_info[1]
             if isinstance(one_result, InputRegexProblem):
                 assert one_result.expected_format == expected_info[2]
-            elif isinstance(one_result, GenericProblem):
+            elif isinstance(one_result, GenericProblemWithInput):
                 assert one_result.results_message == expected_info[2]
             elif isinstance(one_result, LinkTargetTypeMismatchProblem):
                 assert one_result.link_target_id == expected_info[2]
@@ -367,7 +369,8 @@ class TestReformatValidationGraph:
             ("identical_values", DuplicateValueProblem),
             ("link_target_non_existent", LinkedResourceDoesNotExistProblem),
             ("link_target_wrong_class", LinkTargetTypeMismatchProblem),
-            ("list_node_non_existent", GenericProblem),
+            ("list_node_non_existent", GenericProblemWithInput),
+            ("missing_seqnum", GenericProblemWithMessage),
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)
@@ -420,6 +423,8 @@ class TestReformatValidationGraph:
         result = reformat_validation_graph(dsp_inbuilt_violation)
         expected_info_tuples = [
             ("link_obj_target_non_existent", LinkedResourceDoesNotExistProblem),
+            ("missing_isPartOf", GenericProblemWithMessage),
+            ("missing_seqnum", GenericProblemWithMessage),
             ("target_must_be_a_representation", LinkTargetTypeMismatchProblem),
             ("target_must_be_an_image_representation", LinkTargetTypeMismatchProblem),
         ]
@@ -473,7 +478,7 @@ class TestReformatValidationGraph:
         assert len(result.problems) == len(expected_tuples)
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         for prblm, expected in zip(sorted_problems, expected_tuples):
-            if isinstance(prblm, GenericProblem):
+            if isinstance(prblm, GenericProblemWithInput):
                 assert prblm.res_id == expected[0]
                 assert prblm.problem == expected[1]
                 assert prblm.actual_input == expected[2]

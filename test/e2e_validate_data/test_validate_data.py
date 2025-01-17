@@ -19,6 +19,7 @@ from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTyp
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityProblem
+from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProblem
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
@@ -29,6 +30,7 @@ from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_
 from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validate_data import _get_parsed_graphs
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
+from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
 from test.e2e_validate_data.setup_testcontainers import get_containers
 
 CREDS = ServerCredentials("root@example.com", "test", "http://0.0.0.0:3333")
@@ -42,6 +44,7 @@ def _create_projects() -> Iterator[None]:
         assert create_project(Path("testdata/validate-data/generic/project.json"), CREDS)
         assert create_project(Path("testdata/validate-data/special_characters/project_special_characters.json"), CREDS)
         assert create_project(Path("testdata/validate-data/inheritance/project_inheritance.json"), CREDS)
+        assert create_project(Path("testdata/validate-data/erroneous_ontology/project_erroneous_ontology.json"), CREDS)
         yield
 
 
@@ -166,6 +169,21 @@ def inheritance_violation(_create_projects: Iterator[None], api_con: ApiConnecti
     file = Path("testdata/validate-data/inheritance/inheritance_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
     return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+
+@pytest.mark.usefixtures
+def test_validate_ontology_correct(_create_projects: Iterator[None], api_con: ApiConnection) -> None:
+    file = Path("testdata/validate-data/generic/content_correct.xml")
+    graphs = _get_parsed_graphs(api_con, file)
+    result = validate_ontology(graphs.ontos, api_con)
+    assert not result
+
+@pytest.mark.usefixtures
+def test_validate_ontology_violation(_create_projects: Iterator[None], api_con: ApiConnection) -> None:
+    file = Path("testdata/validate-data/erroneous_ontology/erroneous_ontology.xml")
+    graphs = _get_parsed_graphs(api_con, file)
+    result = validate_ontology(graphs.ontos, api_con)
+    assert isinstance(result, OntologyValidationProblem)
+    assert len(result.problems) == 1000
 
 
 def test_extract_identifiers_of_resource_results(every_combination_once: ValidationReportGraphs) -> None:

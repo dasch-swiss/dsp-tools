@@ -75,7 +75,7 @@
         sh:sourceConstraintComponent  dash:CoExistsWithConstraintComponent
         sh:detail                     -
         -->
-        <resource label="Image with sequence" restype=":TestStillImageRepresentationWithSeqnum"
+        <resource label="Image with sequence" restype="in-built:TestStillImageRepresentationWithSeqnum"
                   id="missing_seqnum">
             <bitstream>this/is/filepath/file.jpg</bitstream>
             <resptr-prop name="isPartOf">

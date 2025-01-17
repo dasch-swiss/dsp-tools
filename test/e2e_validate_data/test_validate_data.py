@@ -12,6 +12,7 @@ from dsp_tools.commands.validate_data.models.input_problems import DuplicateValu
 from dsp_tools.commands.validate_data.models.input_problems import FileValueNotAllowedProblem
 from dsp_tools.commands.validate_data.models.input_problems import FileValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import GenericProblemWithInput
+from dsp_tools.commands.validate_data.models.input_problems import GenericProblemWithMessage
 from dsp_tools.commands.validate_data.models.input_problems import InputRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
@@ -368,6 +369,7 @@ class TestReformatValidationGraph:
             ("link_target_non_existent", LinkedResourceDoesNotExistProblem),
             ("link_target_wrong_class", LinkTargetTypeMismatchProblem),
             ("list_node_non_existent", GenericProblemWithInput),
+            ("missing_seqnum", GenericProblemWithMessage),
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)

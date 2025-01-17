@@ -4,19 +4,240 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<http://0.0.0.0:3333/ontology/9999/onto/v2> a owl:Ontology ;
-    rdfs:label "Ontology" ;
-    ns1:attachedToProject <http://rdfh.ch/projects/HrNfSGtMTpCNex5If9WD6A> ;
-    ns1:lastModificationDate "2024-11-11T13:46:43.925418500Z"^^xsd:dateTimeStamp .
+<http://0.0.0.0:3333/ontology/9999/in-built/v2> a owl:Ontology ;
+    rdfs:label "in-built" ;
+    ns1:attachedToProject <http://rdfh.ch/projects/OLjYtDHDTn61ZkicH8LXew> ;
+    ns1:lastModificationDate "2025-01-16T14:30:11.397268550Z"^^xsd:dateTimeStamp ;
+    rdfs:comment "Ontology focusing on knora-api in-built properties and classes" .
 
-<http://0.0.0.0:3333/ontology/9999/onto/v2#ClassInheritedCardinality> a owl:Class ;
-    rdfs:label "Subclass Resource" ;
+<http://0.0.0.0:3333/ontology/9999/in-built/v2#TestStillImageRepresentationWithInheritedSeqnum> a owl:Class ;
+    rdfs:label "StillImageRepresentation using sub-properties of seqnum" ;
     ns1:canBeInstantiated true ;
     ns1:isResourceClass true ;
     rdfs:subClassOf [ a owl:Restriction ;
-            ns2:guiOrder 0 ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:creationDate ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testIsPartOf> ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:versionDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty rdfs:label ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deletedBy ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deleteDate ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testIsPartOfValue> ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:attachedToProject ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:isDeleted ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:lastModificationDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testSimpleText> ],
+            owl:onProperty ns1:hasStandoffLinkTo ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasStandoffLinkToValue ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testSeqnum> ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:hasPermissions ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasIncomingLinkValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:attachedToUser ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:userHasPermission ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:hasStillImageFileValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:versionArkUrl ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deleteComment ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:arkUrl ],
+        ns1:StillImageRepresentation .
+
+<http://0.0.0.0:3333/ontology/9999/in-built/v2#TestStillImageRepresentationWithInheritedSeqnumErroneousCard> a owl:Class ;
+    rdfs:label "StillImageRepresentation using sub-properties of seqnum and erroneous cardinality" ;
+    ns1:canBeInstantiated true ;
+    ns1:isResourceClass true ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deleteDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:creationDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasStandoffLinkTo ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasStandoffLinkToValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:userHasPermission ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:isDeleted ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deletedBy ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty rdfs:label ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testSeqnum> ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasIncomingLinkValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:lastModificationDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:hasPermissions ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deleteComment ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:attachedToUser ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:versionDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:attachedToProject ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testIsPartOf> ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:versionArkUrl ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:arkUrl ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:hasStillImageFileValue ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testIsPartOfValue> ],
+        ns1:StillImageRepresentation .
+
+<http://0.0.0.0:3333/ontology/9999/in-built/v2#TestStillImageRepresentationWithSeqnum> a owl:Class ;
+    rdfs:label "StillImageRepresentation with knora-api:seqnum" ;
+    ns1:canBeInstantiated true ;
+    ns1:isResourceClass true ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deletedBy ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:lastModificationDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:creationDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasStandoffLinkToValue ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:isPartOf ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:attachedToProject ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:attachedToUser ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deleteDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deleteComment ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasStandoffLinkTo ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:hasStillImageFileValue ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:seqnum ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasIncomingLinkValue ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:maxCardinality 1 ;
@@ -27,16 +248,149 @@
             owl:onProperty ns1:arkUrl ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:versionArkUrl ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty rdfs:label ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:isPartOfValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:versionDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:userHasPermission ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:hasPermissions ],
+        ns1:StillImageRepresentation .
+
+<http://0.0.0.0:3333/ontology/9999/in-built/v2#TestStillImageRepresentationWithSeqnumErroneousCard> a owl:Class ;
+    rdfs:label "StillImageRepresentation with knora-api:seqnum and erroneous cardinality" ;
+    ns1:canBeInstantiated true ;
+    ns1:isResourceClass true ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:attachedToUser ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:isPartOfValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
             owl:minCardinality 0 ;
             owl:onProperty ns1:hasIncomingLinkValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:attachedToProject ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:hasPermissions ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasStandoffLinkToValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty rdfs:label ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:seqnum ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deletedBy ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasStandoffLinkTo ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:lastModificationDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:arkUrl ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:isPartOf ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:creationDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deleteDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:versionArkUrl ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:userHasPermission ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:versionDate ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:maxCardinality 1 ;
             owl:onProperty ns1:deleteComment ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:hasStillImageFileValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:isDeleted ],
+        ns1:StillImageRepresentation .
+
+<http://0.0.0.0:3333/ontology/9999/onto/v2> a owl:Ontology ;
+    rdfs:label "Ontology" ;
+    ns1:attachedToProject <http://rdfh.ch/projects/OLjYtDHDTn61ZkicH8LXew> ;
+    ns1:lastModificationDate "2025-01-16T14:30:10.260885674Z"^^xsd:dateTimeStamp .
+
+<http://0.0.0.0:3333/ontology/9999/onto/v2#ClassInheritedCardinality> a owl:Class ;
+    rdfs:label "Subclass Resource" ;
+    ns1:canBeInstantiated true ;
+    ns1:isResourceClass true ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:attachedToUser ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkToValue ],
+            owl:onProperty ns1:hasStandoffLinkTo ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:creationDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:arkUrl ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deleteComment ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:userHasPermission ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
@@ -51,45 +405,45 @@
             owl:onProperty ns1:lastModificationDate ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:versionDate ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteDate ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:versionArkUrl ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToProject ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:creationDate ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToUser ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkTo ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
             ns2:guiOrder 0 ;
             owl:maxCardinality 1 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean> ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:userHasPermission ],
+            owl:onProperty ns1:attachedToProject ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasStandoffLinkToValue ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
             owl:onProperty ns1:hasPermissions ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:versionDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:isDeleted ],
+        [ a owl:Restriction ;
+            ns2:guiOrder 0 ;
+            owl:minCardinality 0 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testSimpleText> ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:versionArkUrl ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deleteDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasIncomingLinkValue ],
         <http://0.0.0.0:3333/ontology/9999/onto/v2#CardOneResource> .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#ClassInheritedCardinalityOverwriting> a owl:Class ;
@@ -98,28 +452,24 @@
     ns1:isResourceClass true ;
     rdfs:subClassOf [ a owl:Restriction ;
             ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteDate ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:versionDate ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:hasPermissions ],
+            owl:onProperty ns1:arkUrl ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
             owl:onProperty ns1:creationDate ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
-            owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkTo ],
+            owl:cardinality 1 ;
+            owl:onProperty ns1:attachedToUser ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:versionArkUrl ],
+            owl:onProperty ns1:hasPermissions ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deleteComment ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:minCardinality 0 ;
@@ -131,15 +481,39 @@
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:isDeleted ],
+            owl:onProperty ns1:deletedBy ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deletedBy ],
+            owl:onProperty ns1:lastModificationDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasStandoffLinkTo ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:versionDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deleteDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty rdfs:label ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:minCardinality 0 ;
             owl:onProperty ns1:hasIncomingLinkValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:isDeleted ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:attachedToProject ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
@@ -147,27 +521,7 @@
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:arkUrl ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty rdfs:label ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToUser ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToProject ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteComment ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:lastModificationDate ],
+            owl:onProperty ns1:versionArkUrl ],
         <http://0.0.0.0:3333/ontology/9999/onto/v2#CardOneResource> .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#ClassMixedCard> a owl:Class ;
@@ -177,15 +531,39 @@
     rdfs:subClassOf [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty rdfs:label ],
+            owl:onProperty ns1:attachedToProject ],
+        [ a owl:Restriction ;
+            ns2:guiOrder 2 ;
+            owl:minCardinality 1 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testGeoname> ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:arkUrl ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasStandoffLinkToValue ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:versionDate ],
+            owl:onProperty ns1:deleteComment ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:lastModificationDate ],
+            owl:cardinality 1 ;
+            owl:onProperty ns1:userHasPermission ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:versionArkUrl ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:hasPermissions ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:creationDate ],
         [ a owl:Restriction ;
             ns2:guiOrder 1 ;
             owl:cardinality 1 ;
@@ -195,33 +573,17 @@
             owl:minCardinality 0 ;
             owl:onProperty ns1:hasStandoffLinkTo ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:versionArkUrl ],
-        [ a owl:Restriction ;
-            ns2:guiOrder 0 ;
-            owl:maxCardinality 1 ;
-            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean> ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:userHasPermission ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:hasPermissions ],
-        [ a owl:Restriction ;
             ns2:guiOrder 1 ;
             owl:cardinality 1 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkToCardOneResourceValue> ],
         [ a owl:Restriction ;
-            ns2:guiOrder 2 ;
-            owl:minCardinality 1 ;
-            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testGeoname> ],
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:isDeleted ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:creationDate ],
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:lastModificationDate ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:maxCardinality 1 ;
@@ -229,39 +591,31 @@
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToProject ],
+            owl:onProperty ns1:attachedToUser ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
+            ns2:guiOrder 0 ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteDate ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:isDeleted ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkToValue ],
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean> ],
         [ a owl:Restriction ;
             ns2:guiOrder 3 ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testSimpleText> ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:versionDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
             owl:minCardinality 0 ;
             owl:onProperty ns1:hasIncomingLinkValue ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty rdfs:label ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteComment ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToUser ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:arkUrl ],
+            owl:onProperty ns1:deleteDate ],
         ns1:Resource .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything> a owl:Class ;
@@ -269,21 +623,21 @@
     ns1:canBeInstantiated true ;
     ns1:isResourceClass true ;
     rdfs:subClassOf [ a owl:Restriction ;
-            ns2:guiOrder 19 ;
-            owl:minCardinality 0 ;
-            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testIsPartOf> ],
-        [ a owl:Restriction ;
-            ns2:guiOrder 0 ;
-            owl:maxCardinality 1 ;
-            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean> ],
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:arkUrl ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:creationDate ],
+            owl:onProperty ns1:hasPermissions ],
         [ a owl:Restriction ;
-            ns2:guiOrder 14 ;
+            ns2:guiOrder 13 ;
             owl:minCardinality 0 ;
-            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testUriValue> ],
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testTimeValue> ],
+        [ a owl:Restriction ;
+            ns2:guiOrder 1 ;
+            owl:minCardinality 0 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testColor> ],
         [ a owl:Restriction ;
             ns2:guiOrder 16 ;
             owl:minCardinality 0 ;
@@ -291,83 +645,35 @@
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:versionArkUrl ],
+            owl:onProperty rdfs:label ],
         [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteDate ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:lastModificationDate ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToUser ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteComment ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:arkUrl ],
-        [ a owl:Restriction ;
-            ns2:guiOrder 10 ;
+            ns2:guiOrder 2 ;
             owl:minCardinality 0 ;
-            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testSimpleText> ],
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate1> ],
         [ a owl:Restriction ;
-            ns2:guiOrder 16 ;
-            owl:minCardinality 0 ;
-            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo> ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
+            ns2:guiOrder 0 ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:isDeleted ],
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean> ],
         [ a owl:Restriction ;
             ns2:guiOrder 18 ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testHasRepresentation> ],
         [ a owl:Restriction ;
-            ns2:guiOrder 9 ;
-            owl:minCardinality 0 ;
-            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp> ],
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:versionDate ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
             owl:onProperty ns1:attachedToProject ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
-            owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkTo ],
-        [ a owl:Restriction ;
-            ns2:guiOrder 12 ;
-            owl:minCardinality 0 ;
-            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testRichtext> ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:minCardinality 0 ;
-            owl:onProperty ns1:hasIncomingLinkValue ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deletedBy ],
+            owl:onProperty ns1:deleteDate ],
         [ a owl:Restriction ;
-            ns2:guiOrder 1 ;
+            ns1:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testColor> ],
-        [ a owl:Restriction ;
-            ns2:guiOrder 5 ;
-            owl:minCardinality 0 ;
-            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testDecimalSpinbox> ],
-        [ a owl:Restriction ;
-            ns2:guiOrder 15 ;
-            owl:minCardinality 0 ;
-            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testHasComment> ],
-        [ a owl:Restriction ;
-            ns2:guiOrder 7 ;
-            owl:minCardinality 0 ;
-            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testIntegerSimpleText> ],
+            owl:onProperty ns1:hasStandoffLinkToValue ],
         [ a owl:Restriction ;
             ns2:guiOrder 18 ;
             owl:minCardinality 0 ;
@@ -377,61 +683,109 @@
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testGeoname> ],
         [ a owl:Restriction ;
-            ns2:guiOrder 3 ;
-            owl:minCardinality 0 ;
-            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate2> ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkToValue ],
-        [ a owl:Restriction ;
-            ns2:guiOrder 17 ;
-            owl:minCardinality 0 ;
-            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkToCardOneResource> ],
-        [ a owl:Restriction ;
-            ns2:guiOrder 13 ;
-            owl:minCardinality 0 ;
-            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testTimeValue> ],
-        [ a owl:Restriction ;
-            ns2:guiOrder 19 ;
-            owl:minCardinality 0 ;
-            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testIsPartOfValue> ],
-        [ a owl:Restriction ;
-            ns2:guiOrder 8 ;
-            owl:minCardinality 0 ;
-            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testIntegerSpinbox> ],
-        [ a owl:Restriction ;
-            ns2:guiOrder 2 ;
-            owl:minCardinality 0 ;
-            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate1> ],
-        [ a owl:Restriction ;
             ns2:guiOrder 4 ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testDecimalSimpleText> ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:hasPermissions ],
+            owl:onProperty ns1:userHasPermission ],
         [ a owl:Restriction ;
-            ns2:guiOrder 11 ;
+            ns2:guiOrder 3 ;
             owl:minCardinality 0 ;
-            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testTextarea> ],
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate2> ],
+        [ a owl:Restriction ;
+            ns2:guiOrder 14 ;
+            owl:minCardinality 0 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testUriValue> ],
+        [ a owl:Restriction ;
+            ns2:guiOrder 8 ;
+            owl:minCardinality 0 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testIntegerSpinbox> ],
+        [ a owl:Restriction ;
+            ns2:guiOrder 10 ;
+            owl:minCardinality 0 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testSimpleText> ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty rdfs:label ],
+            owl:onProperty ns1:creationDate ],
+        [ a owl:Restriction ;
+            ns2:guiOrder 19 ;
+            owl:minCardinality 0 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testIsPartOf> ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:versionDate ],
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasStandoffLinkTo ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasIncomingLinkValue ],
         [ a owl:Restriction ;
             ns2:guiOrder 17 ;
             owl:minCardinality 0 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkToCardOneResourceValue> ],
         [ a owl:Restriction ;
+            ns2:guiOrder 16 ;
+            owl:minCardinality 0 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo> ],
+        [ a owl:Restriction ;
+            ns2:guiOrder 17 ;
+            owl:minCardinality 0 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkToCardOneResource> ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:isDeleted ],
+        [ a owl:Restriction ;
+            ns2:guiOrder 19 ;
+            owl:minCardinality 0 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testIsPartOfValue> ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deleteComment ],
+        [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:userHasPermission ],
+            owl:onProperty ns1:versionArkUrl ],
+        [ a owl:Restriction ;
+            ns2:guiOrder 15 ;
+            owl:minCardinality 0 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testHasComment> ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:lastModificationDate ],
+        [ a owl:Restriction ;
+            ns2:guiOrder 12 ;
+            owl:minCardinality 0 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testRichtext> ],
+        [ a owl:Restriction ;
+            ns2:guiOrder 5 ;
+            owl:minCardinality 0 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testDecimalSpinbox> ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:attachedToUser ],
+        [ a owl:Restriction ;
+            ns2:guiOrder 11 ;
+            owl:minCardinality 0 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testTextarea> ],
+        [ a owl:Restriction ;
+            ns2:guiOrder 7 ;
+            owl:minCardinality 0 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testIntegerSimpleText> ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deletedBy ],
+        [ a owl:Restriction ;
+            ns2:guiOrder 9 ;
+            owl:minCardinality 0 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp> ],
         ns1:Resource .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#TestArchiveRepresentation> a owl:Class ;
@@ -441,7 +795,31 @@
     rdfs:subClassOf [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteDate ],
+            owl:onProperty ns1:deletedBy ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:attachedToUser ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:userHasPermission ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasStandoffLinkTo ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:lastModificationDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty rdfs:label ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasStandoffLinkToValue ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
@@ -449,31 +827,7 @@
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:lastModificationDate ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:minCardinality 0 ;
-            owl:onProperty ns1:hasIncomingLinkValue ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToUser ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteComment ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:arkUrl ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:hasPermissions ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:deletedBy ],
+            owl:onProperty ns1:isDeleted ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
@@ -481,35 +835,35 @@
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:isDeleted ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkTo ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:creationDate ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:versionDate ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty rdfs:label ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:userHasPermission ],
+            owl:onProperty ns1:deleteComment ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
             owl:onProperty ns1:versionArkUrl ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:hasPermissions ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:creationDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkToValue ],
+            owl:onProperty ns1:hasIncomingLinkValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deleteDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:arkUrl ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:versionDate ],
         ns1:ArchiveRepresentation .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#TestAudioRepresentation> a owl:Class ;
@@ -518,48 +872,8 @@
     ns1:isResourceClass true ;
     rdfs:subClassOf [ a owl:Restriction ;
             ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:versionDate ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:versionArkUrl ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:userHasPermission ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty rdfs:label ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkTo ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToUser ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:lastModificationDate ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteComment ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:deletedBy ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToProject ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:arkUrl ],
+            owl:onProperty ns1:creationDate ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:minCardinality 0 ;
@@ -567,7 +881,11 @@
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:hasAudioFileValue ],
+            owl:onProperty ns1:userHasPermission ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:versionDate ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:maxCardinality 1 ;
@@ -575,19 +893,55 @@
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:hasPermissions ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:isDeleted ],
+            owl:onProperty ns1:attachedToProject ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:creationDate ],
+            owl:onProperty ns1:hasAudioFileValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:lastModificationDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty rdfs:label ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:arkUrl ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:hasPermissions ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:versionArkUrl ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deletedBy ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:attachedToUser ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:minCardinality 0 ;
             owl:onProperty ns1:hasIncomingLinkValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deleteComment ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasStandoffLinkTo ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:isDeleted ],
         ns1:AudioRepresentation .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#TestDocumentRepresentation> a owl:Class ;
@@ -597,6 +951,38 @@
     rdfs:subClassOf [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
+            owl:onProperty ns1:arkUrl ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:hasDocumentFileValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:attachedToProject ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:versionArkUrl ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasStandoffLinkToValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deleteComment ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:userHasPermission ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasIncomingLinkValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
             owl:onProperty rdfs:label ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
@@ -608,20 +994,8 @@
             owl:onProperty ns1:deleteDate ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:userHasPermission ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToProject ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:isDeleted ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:creationDate ],
+            owl:onProperty ns1:deletedBy ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:minCardinality 0 ;
@@ -629,43 +1003,23 @@
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:hasDocumentFileValue ],
+            owl:onProperty ns1:hasPermissions ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:arkUrl ],
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:isDeleted ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
             owl:onProperty ns1:attachedToUser ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:creationDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
             owl:maxCardinality 1 ;
             owl:onProperty ns1:lastModificationDate ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkToValue ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteComment ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:deletedBy ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:minCardinality 0 ;
-            owl:onProperty ns1:hasIncomingLinkValue ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:hasPermissions ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:versionArkUrl ],
         ns1:DocumentRepresentation .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#TestMovingImageRepresentation> a owl:Class ;
@@ -674,48 +1028,12 @@
     ns1:isResourceClass true ;
     rdfs:subClassOf [ a owl:Restriction ;
             ns1:isInherited true ;
-            owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkTo ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:arkUrl ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:hasMovingImageFileValue ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:creationDate ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToUser ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:isDeleted ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteComment ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteDate ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:minCardinality 0 ;
-            owl:onProperty ns1:hasIncomingLinkValue ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:deletedBy ],
+            owl:onProperty ns1:lastModificationDate ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty rdfs:label ],
+            owl:onProperty ns1:versionArkUrl ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:maxCardinality 1 ;
@@ -723,19 +1041,39 @@
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:hasPermissions ],
+            owl:onProperty ns1:creationDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasIncomingLinkValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasStandoffLinkTo ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
             owl:onProperty ns1:userHasPermission ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:isDeleted ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:versionArkUrl ],
+            owl:onProperty ns1:hasPermissions ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
             owl:onProperty ns1:attachedToProject ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deleteComment ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:arkUrl ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:minCardinality 0 ;
@@ -743,7 +1081,23 @@
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:lastModificationDate ],
+            owl:onProperty ns1:deleteDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deletedBy ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:hasMovingImageFileValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty rdfs:label ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:attachedToUser ],
         ns1:MovingImageRepresentation .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#TestTextRepresentation> a owl:Class ;
@@ -752,12 +1106,52 @@
     ns1:isResourceClass true ;
     rdfs:subClassOf [ a owl:Restriction ;
             ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deleteComment ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deletedBy ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkTo ],
+            owl:onProperty ns1:hasIncomingLinkValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:attachedToUser ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:hasTextFileValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:isDeleted ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
             owl:onProperty ns1:attachedToProject ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:lastModificationDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:arkUrl ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasStandoffLinkToValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty rdfs:label ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:userHasPermission ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:maxCardinality 1 ;
@@ -768,60 +1162,20 @@
             owl:onProperty ns1:hasPermissions ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
-            owl:minCardinality 0 ;
-            owl:onProperty ns1:hasIncomingLinkValue ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
             owl:maxCardinality 1 ;
             owl:onProperty ns1:deleteDate ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:isDeleted ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty rdfs:label ],
+            owl:onProperty ns1:creationDate ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
             owl:onProperty ns1:versionArkUrl ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:hasTextFileValue ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkToValue ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToUser ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:lastModificationDate ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:userHasPermission ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:deletedBy ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteComment ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:arkUrl ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:creationDate ],
+            owl:onProperty ns1:hasStandoffLinkTo ],
         ns1:TextRepresentation .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#testSeqnum> a owl:ObjectProperty ;
@@ -834,25 +1188,53 @@
 
 <http://0.0.0.0:3333/ontology/9999/second-onto/v2> a owl:Ontology ;
     rdfs:label "Second Ontology" ;
-    ns1:attachedToProject <http://rdfh.ch/projects/HrNfSGtMTpCNex5If9WD6A> ;
-    ns1:lastModificationDate "2024-11-11T13:46:44.162140084Z"^^xsd:dateTimeStamp .
+    ns1:attachedToProject <http://rdfh.ch/projects/OLjYtDHDTn61ZkicH8LXew> ;
+    ns1:lastModificationDate "2025-01-16T14:30:10.489304632Z"^^xsd:dateTimeStamp .
 
 <http://0.0.0.0:3333/ontology/9999/second-onto/v2#SecondOntoClass> a owl:Class ;
-    rdfs:label "Resource with all cardinality options" ;
+    rdfs:label "Resource" ;
     ns1:canBeInstantiated true ;
     ns1:isResourceClass true ;
     rdfs:subClassOf [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deleteDate ],
+        [ a owl:Restriction ;
+            ns2:guiOrder 1 ;
+            owl:minCardinality 0 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testSimpleText> ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty rdfs:label ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deletedBy ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:userHasPermission ],
+        [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
             owl:onProperty ns1:attachedToUser ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:creationDate ],
+            owl:onProperty ns1:hasPermissions ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteComment ],
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasStandoffLinkToValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:arkUrl ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasIncomingLinkValue ],
         [ a owl:Restriction ;
             ns2:guiOrder 0 ;
             owl:maxCardinality 1 ;
@@ -860,51 +1242,15 @@
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToProject ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:versionDate ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:deletedBy ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty rdfs:label ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:versionArkUrl ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteDate ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:lastModificationDate ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:hasPermissions ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:userHasPermission ],
-        [ a owl:Restriction ;
-            ns2:guiOrder 1 ;
-            owl:minCardinality 0 ;
-            owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testSimpleText> ],
+            owl:onProperty ns1:creationDate ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:maxCardinality 1 ;
             owl:onProperty ns1:isDeleted ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
-            owl:minCardinality 0 ;
-            owl:onProperty ns1:hasIncomingLinkValue ],
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:lastModificationDate ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:minCardinality 0 ;
@@ -912,29 +1258,11 @@
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:arkUrl ],
+            owl:onProperty ns1:attachedToProject ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
-            owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkToValue ],
-        ns1:Resource .
-
-<http://0.0.0.0:3333/ontology/9999/onto/v2#TestStillImageRepresentation> a owl:Class ;
-    rdfs:label "StillImageRepresentation" ;
-    ns1:canBeInstantiated true ;
-    ns1:isResourceClass true ;
-    rdfs:subClassOf [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToUser ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkToValue ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:hasStillImageFileValue ],
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:versionDate ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:maxCardinality 1 ;
@@ -942,19 +1270,89 @@
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:arkUrl ],
+            owl:onProperty ns1:versionArkUrl ],
+        ns1:Resource .
+
+<http://0.0.0.0:3333/ontology/9999/in-built/v2#TestNormalResource> a owl:Class ;
+    rdfs:label "Resource" ;
+    ns1:canBeInstantiated true ;
+    ns1:isResourceClass true ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deletedBy ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:attachedToUser ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:attachedToProject ],
+        [ a owl:Restriction ;
+            ns2:guiOrder 0 ;
+            owl:minCardinality 0 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasRepresentation> ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:creationDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:isDeleted ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:lastModificationDate ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
             owl:onProperty ns1:userHasPermission ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:deletedBy ],
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasIncomingLinkValue ],
+        [ a owl:Restriction ;
+            ns2:guiOrder 0 ;
+            owl:minCardinality 0 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasRepresentationValue> ],
+        [ a owl:Restriction ;
+            ns2:guiOrder 1 ;
+            owl:minCardinality 0 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasRepresentationImage> ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:hasPermissions ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:arkUrl ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty rdfs:label ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasStandoffLinkToValue ],
+        [ a owl:Restriction ;
+            ns2:guiOrder 1 ;
+            owl:minCardinality 0 ;
+            owl:onProperty <http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasRepresentationImageValue> ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:lastModificationDate ],
+            owl:onProperty ns1:deleteComment ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:versionDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasStandoffLinkTo ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:maxCardinality 1 ;
@@ -962,27 +1360,89 @@
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:creationDate ],
+            owl:onProperty ns1:versionArkUrl ],
+        ns1:Resource .
+
+<http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasRepresentation> a owl:ObjectProperty ;
+    rdfs:label "Target is any Representation" ;
+    ns1:isEditable true ;
+    ns1:isLinkProperty true ;
+    ns1:isResourceProperty true ;
+    ns1:objectType ns1:Representation ;
+    ns2:guiElement ns2:Searchbox ;
+    rdfs:subPropertyOf ns1:hasRepresentation .
+
+<http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasRepresentationImage> a owl:ObjectProperty ;
+    rdfs:label "Target must be a StillImageRepresentation" ;
+    ns1:isEditable true ;
+    ns1:isLinkProperty true ;
+    ns1:isResourceProperty true ;
+    ns1:objectType ns1:StillImageRepresentation ;
+    ns2:guiElement ns2:Searchbox ;
+    rdfs:subPropertyOf ns1:hasRepresentation .
+
+<http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasRepresentationImageValue> a owl:ObjectProperty ;
+    rdfs:label "Target must be a StillImageRepresentation" ;
+    ns1:isEditable true ;
+    ns1:isLinkValueProperty true ;
+    ns1:isResourceProperty true ;
+    ns1:objectType ns1:LinkValue ;
+    ns2:guiElement ns2:Searchbox ;
+    rdfs:subPropertyOf ns1:hasRepresentationValue .
+
+<http://0.0.0.0:3333/ontology/9999/in-built/v2#testHasRepresentationValue> a owl:ObjectProperty ;
+    rdfs:label "Target is any Representation" ;
+    ns1:isEditable true ;
+    ns1:isLinkValueProperty true ;
+    ns1:isResourceProperty true ;
+    ns1:objectType ns1:LinkValue ;
+    ns2:guiElement ns2:Searchbox ;
+    rdfs:subPropertyOf ns1:hasRepresentationValue .
+
+<http://0.0.0.0:3333/ontology/9999/onto/v2#TestStillImageRepresentation> a owl:Class ;
+    rdfs:label "StillImageRepresentation" ;
+    ns1:canBeInstantiated true ;
+    ns1:isResourceClass true ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:versionDate ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToProject ],
+            owl:onProperty ns1:userHasPermission ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkTo ],
+            owl:onProperty ns1:hasStandoffLinkToValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:attachedToUser ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deleteComment ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deletedBy ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deleteDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:isDeleted ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:minCardinality 0 ;
             owl:onProperty ns1:hasIncomingLinkValue ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:hasPermissions ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:versionDate ],
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasStandoffLinkTo ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
@@ -990,11 +1450,31 @@
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:isDeleted ],
+            owl:onProperty ns1:lastModificationDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:arkUrl ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:hasPermissions ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:attachedToProject ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:hasStillImageFileValue ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
             owl:onProperty rdfs:label ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:creationDate ],
         ns1:StillImageRepresentation .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#testColor> a owl:ObjectProperty ;
@@ -1108,7 +1588,7 @@
     ns1:isEditable true ;
     ns1:isResourceProperty true ;
     ns1:objectType ns1:ListValue ;
-    ns2:guiAttribute "hlist=<http://rdfh.ch/lists/9999/BRI8Xh_4Sm-2HH_OOYm7qQ>" ;
+    ns2:guiAttribute "hlist=<http://rdfh.ch/lists/9999/UHGpV4eZRhSropBDy4EyQA>" ;
     ns2:guiElement ns2:List ;
     rdfs:subPropertyOf ns1:hasValue .
 
@@ -1170,6 +1650,32 @@
     ns2:guiElement ns2:Checkbox ;
     rdfs:subPropertyOf ns1:hasValue .
 
+<http://0.0.0.0:3333/ontology/9999/in-built/v2#testIsPartOf> a owl:ObjectProperty ;
+    rdfs:label "is part of" ;
+    ns1:isEditable true ;
+    ns1:isLinkProperty true ;
+    ns1:isResourceProperty true ;
+    ns1:objectType <http://0.0.0.0:3333/ontology/9999/in-built/v2#TestNormalResource> ;
+    ns2:guiElement ns2:Searchbox ;
+    rdfs:subPropertyOf ns1:isPartOf .
+
+<http://0.0.0.0:3333/ontology/9999/in-built/v2#testIsPartOfValue> a owl:ObjectProperty ;
+    rdfs:label "is part of" ;
+    ns1:isEditable true ;
+    ns1:isLinkValueProperty true ;
+    ns1:isResourceProperty true ;
+    ns1:objectType ns1:LinkValue ;
+    ns2:guiElement ns2:Searchbox ;
+    rdfs:subPropertyOf ns1:isPartOfValue .
+
+<http://0.0.0.0:3333/ontology/9999/in-built/v2#testSeqnum> a owl:ObjectProperty ;
+    rdfs:label "has sequence Number" ;
+    ns1:isEditable true ;
+    ns1:isResourceProperty true ;
+    ns1:objectType ns1:IntValue ;
+    ns2:guiElement ns2:SimpleText ;
+    rdfs:subPropertyOf ns1:seqnum .
+
 <http://0.0.0.0:3333/ontology/9999/onto/v2#testGeoname> a owl:ObjectProperty ;
     rdfs:label "Test Geoname" ;
     ns1:isEditable true ;
@@ -1210,32 +1716,8 @@
     ns1:isResourceClass true ;
     rdfs:subClassOf [ a owl:Restriction ;
             ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:lastModificationDate ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:versionDate ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteDate ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:deleteComment ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:minCardinality 0 ;
-            owl:onProperty ns1:hasIncomingLinkValue ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:maxCardinality 1 ;
-            owl:onProperty ns1:deletedBy ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:userHasPermission ],
+            owl:onProperty ns1:arkUrl ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:minCardinality 0 ;
@@ -1243,19 +1725,11 @@
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:maxCardinality 1 ;
-            owl:onProperty ns1:isDeleted ],
+            owl:onProperty ns1:deletedBy ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:attachedToProject ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:minCardinality 0 ;
-            owl:onProperty ns1:hasStandoffLinkToValue ],
-        [ a owl:Restriction ;
-            ns1:isInherited true ;
-            owl:cardinality 1 ;
-            owl:onProperty ns1:creationDate ],
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deleteComment ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
@@ -1263,7 +1737,11 @@
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:arkUrl ],
+            owl:onProperty ns1:attachedToProject ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:versionDate ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
             owl:cardinality 1 ;
@@ -1273,13 +1751,41 @@
             owl:cardinality 1 ;
             owl:onProperty ns1:attachedToUser ],
         [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasStandoffLinkToValue ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:isDeleted ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:versionArkUrl ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:deleteDate ],
+        [ a owl:Restriction ;
             ns2:guiOrder 0 ;
             owl:maxCardinality 1 ;
             owl:onProperty <http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean> ],
         [ a owl:Restriction ;
             ns1:isInherited true ;
+            owl:maxCardinality 1 ;
+            owl:onProperty ns1:lastModificationDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
             owl:cardinality 1 ;
-            owl:onProperty ns1:versionArkUrl ],
+            owl:onProperty ns1:userHasPermission ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:cardinality 1 ;
+            owl:onProperty ns1:creationDate ],
+        [ a owl:Restriction ;
+            ns1:isInherited true ;
+            owl:minCardinality 0 ;
+            owl:onProperty ns1:hasIncomingLinkValue ],
         ns1:Resource .
 
 <http://0.0.0.0:3333/ontology/9999/onto/v2#testSimpleText> a owl:ObjectProperty ;

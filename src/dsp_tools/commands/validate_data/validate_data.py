@@ -161,9 +161,7 @@ def _create_graphs(onto_client: OntologyClient, list_client: ListClient, data_rd
         "resources/validate_data/api-shapes-with-cardinalities.ttl"
     )
     file_shapes.parse(str(file_shapes_path))
-    onto_shacl = importlib.resources.files("dsp_tools").joinpath(
-        "src/dsp_tools/resources/validate_data/validate-ontology.ttl"
-    )
+    onto_shacl = importlib.resources.files("dsp_tools").joinpath("resources/validate_data/validate-ontology.ttl")
     onto_shacl_g = Graph()
     onto_shacl_g.parse(str(onto_shacl))
     content_shapes = shapes.content + api_shapes
@@ -176,6 +174,9 @@ def _create_graphs(onto_client: OntologyClient, list_client: ListClient, data_rd
         content_shapes=content_shapes,
         knora_api=knora_api,
     )
+
+
+# TODO: separate ontology validation from the other, change the result construction
 
 
 def _get_project_ontos(onto_client: OntologyClient) -> Graph:

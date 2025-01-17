@@ -170,15 +170,17 @@ def inheritance_violation(_create_projects: Iterator[None], api_con: ApiConnecti
     graphs = _get_parsed_graphs(api_con, file)
     return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
 
-@pytest.mark.usefixtures
-def test_validate_ontology_correct(_create_projects: Iterator[None], api_con: ApiConnection) -> None:
+
+@pytest.mark.usefixtures("_create_projects")
+def test_validate_ontology_correct(api_con: ApiConnection) -> None:
     file = Path("testdata/validate-data/generic/content_correct.xml")
     graphs = _get_parsed_graphs(api_con, file)
     result = validate_ontology(graphs.ontos, api_con)
     assert not result
 
-@pytest.mark.usefixtures
-def test_validate_ontology_violation(_create_projects: Iterator[None], api_con: ApiConnection) -> None:
+
+@pytest.mark.usefixtures("_create_projects")
+def test_validate_ontology_violation(api_con: ApiConnection) -> None:
     file = Path("testdata/validate-data/erroneous_ontology/erroneous_ontology.xml")
     graphs = _get_parsed_graphs(api_con, file)
     result = validate_ontology(graphs.ontos, api_con)

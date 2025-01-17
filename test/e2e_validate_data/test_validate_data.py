@@ -422,6 +422,8 @@ class TestReformatValidationGraph:
         result = reformat_validation_graph(dsp_inbuilt_violation)
         expected_info_tuples = [
             ("link_obj_target_non_existent", LinkedResourceDoesNotExistProblem),
+            ("missing_isPartOf", GenericProblemWithMessage),
+            ("missing_seqnum", GenericProblemWithMessage),
             ("target_must_be_a_representation", LinkTargetTypeMismatchProblem),
             ("target_must_be_an_image_representation", LinkTargetTypeMismatchProblem),
         ]

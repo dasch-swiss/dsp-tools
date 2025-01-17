@@ -84,11 +84,11 @@ api-shapes:FindMissingSeqnum_OntologyShape
                         ?path rdfs:subPropertyOf* knora-api:isPartOf .
 
                         FILTER NOT EXISTS {
-                          $this a owl:Class ;
-                                rdfs:subClassOf ?restrictionSeqnum .
-                          ?restrictionSeqnum a owl:Restriction ;
-                                             owl:onProperty ?seqnumProp .
-                          ?seqnumProp rdfs:subPropertyOf* knora-api:seqnum .
+                            $this a owl:Class ;
+                                  rdfs:subClassOf ?restrictionSeqnum .
+                            ?restrictionSeqnum a owl:Restriction ;
+                                               owl:onProperty ?seqnumProp .
+                            ?seqnumProp rdfs:subPropertyOf* knora-api:seqnum .
                         }
                     }
                     """ ;
@@ -117,11 +117,11 @@ api-shapes:FindMissingIsPartOf_OntologyShape
                         ?path rdfs:subPropertyOf* knora-api:seqnum .
 
                         FILTER NOT EXISTS {
-                          $this a owl:Class ;
-                                rdfs:subClassOf ?restrictionisPartOf .
-                          ?restrictionisPartOf a owl:Restriction ;
-                                               owl:onProperty ?isPartOfProp .
-                          ?isPartOfProp rdfs:subPropertyOf* knora-api:isPartOf .
+                            $this a owl:Class ;
+                                  rdfs:subClassOf ?restrictionisPartOf .
+                            ?restrictionisPartOf a owl:Restriction ;
+                                                 owl:onProperty ?isPartOfProp .
+                            ?isPartOfProp rdfs:subPropertyOf* knora-api:isPartOf .
                         }
                     }
                     """ ;

@@ -12,6 +12,13 @@ def onto_graph() -> Graph:
 
 
 @pytest.fixture
+def onto_for_cardinality() -> Graph:
+    g = Graph()
+    g.parse("testdata/validate-data/onto_for_cardinality.ttl")
+    return g
+
+
+@pytest.fixture
 def one_res_one_prop() -> Graph:
     ttl = f"""{PREFIXES}
     onto:CardOneResource a owl:Class ;

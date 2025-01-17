@@ -1,0 +1,28 @@
+# TODO: implement as SHACL
+
+
+
+
+    # THis checks that seqnum / isPartOf has a max cardinality of 1
+
+    """
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX knora-api: <http://www.knora.org/ontology/knora-base#>
+
+SELECT * WHERE {
+    ?targetClass a owl:Class ;
+                 rdfs:subClassOf ?restriction .
+    ?restriction a owl:Restriction ;
+                 owl:onProperty ?propName .
+
+    { ?propName rdfs:subPropertyOf* knora-api:isPartOf }
+    UNION
+    { ?propName rdfs:subPropertyOf* knora-api:seqnum  }
+
+    FILTER NOT EXISTS {
+        ?restriction owl:maxCardinality|owl:cardinality 1
+    }
+}
+
+"""

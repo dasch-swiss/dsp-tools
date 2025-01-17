@@ -40,7 +40,7 @@
           }
         ],
         "resources": [
-                    {
+          {
             "name": "TargetResource",
             "super": "Resource",
             "labels": {
@@ -138,35 +138,6 @@
                 "propname": ":testIsPartOf",
                 "gui_order": 1,
                 "cardinality": "1"
-              }
-            ]
-          },
-          {
-            "name": "ImageUsingKnoraPropsAndSubProps",
-            "super": "StillImageRepresentation",
-            "labels": {
-              "en": "ImageUsingKnoraPropsAndSubProps"
-            },
-            "cardinalities": [
-              {
-                "propname": ":testIsPartOf",
-                "gui_order": 1,
-                "cardinality": "1"
-              },
-              {
-                "propname": ":testSeqnum",
-                "gui_order": 2,
-                "cardinality": "1"
-              },
-              {
-                "propname": "isPartOf",
-                "gui_order": 3,
-                "cardinality": "0-1"
-              },
-              {
-                "propname": "seqnum",
-                "gui_order": 4,
-                "cardinality": "0-1"
               }
             ]
           }

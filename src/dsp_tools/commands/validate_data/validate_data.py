@@ -23,6 +23,7 @@ from dsp_tools.commands.validate_data.models.validation import ValidationReportG
 from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_shapes_graphs
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
+from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_GREEN
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_MAGENTA
@@ -60,6 +61,10 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
         msg = unknown_classes.get_msg()
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(msg)
+        return True
+    if ontology_problems := validate_ontology(graphs.ontos, api_con):
+        print(VALIDATION_ERRORS_FOUND_MSG)
+        print(ontology_problems.get_msg())
         return True
     report = _get_validation_result(graphs, api_con, filepath, save_graphs)
     if report.conforms:

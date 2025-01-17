@@ -71,6 +71,19 @@
         </resource>
 
         <!--
+        Our Violation Type            ResultMessageOnlyViolation
+        sh:sourceConstraintComponent  dash:CoExistsWithConstraintComponent
+        sh:detail                     -
+        -->
+        <resource label="Image with sequence" restype=":TestStillImageRepresentationWithSeqnum"
+                  id="missing_seqnum">
+            <bitstream>this/is/filepath/file.jpg</bitstream>
+            <resptr-prop name="isPartOf">
+                <resptr>target_res_without_representation_1</resptr>
+            </resptr-prop>
+        </resource>
+
+        <!--
         Our Violation Type            ContentRegexViolation
         sh:sourceConstraintComponent  sh:NodeConstraintComponent
         sh:detail                     sh:PatternConstraintComponent

@@ -82,7 +82,7 @@ class ValidationResult:
 
 
 @dataclass
-class ResultMessageOnly(ValidationResult):
+class ResultMessageOnlyViolation(ValidationResult):
     results_message: str
 
 

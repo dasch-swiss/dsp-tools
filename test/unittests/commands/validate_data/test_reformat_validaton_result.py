@@ -23,7 +23,7 @@ from dsp_tools.commands.validate_data.models.validation import ResultFileValueVi
 from dsp_tools.commands.validate_data.models.validation import ResultGenericViolation
 from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
-from dsp_tools.commands.validate_data.models.validation import ResultMessageOnly
+from dsp_tools.commands.validate_data.models.validation import ResultMessageOnlyViolation
 from dsp_tools.commands.validate_data.models.validation import ResultMinCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultNonExistentCardinalityViolation
 from dsp_tools.commands.validate_data.models.validation import ResultPatternViolation
@@ -200,7 +200,7 @@ class TestQueryWithoutDetail:
     def test_coexist_with(self, report_coexist_with: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         validation_g, _, info = report_coexist_with
         result = _query_one_without_detail(info, validation_g)
-        assert isinstance(result, ResultMessageOnly)
+        assert isinstance(result, ResultMessageOnlyViolation)
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.results_message == "The property seqnum must be used together with isPartOf"
@@ -454,7 +454,7 @@ class TestReformatResult:
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "bitstream / iiif-uri"
 
-    def test_message_only(self, extracted_coexist_with: ResultMessageOnly) -> None:
+    def test_message_only(self, extracted_coexist_with: ResultMessageOnlyViolation) -> None:
         result = _reformat_one_validation_result(extracted_coexist_with)
         assert isinstance(result, GenericProblemWithMessage)
         assert result.res_id == "missing_seqnum"

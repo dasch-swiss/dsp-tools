@@ -35,7 +35,6 @@ api-shapes:FindMissingMaxCardinality_IsPartOf_OntologyShape
   sh:severity    sh:Violation .
 
 
-
 api-shapes:FindMissingMaxCardinality_Seqnum_OntologyShape
   a              sh:NodeShape ;
   sh:targetClass owl:Class ;

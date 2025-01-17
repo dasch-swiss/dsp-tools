@@ -186,6 +186,7 @@ def test_extract_identifiers_of_resource_results(every_combination_once: Validat
         (URIRef("http://data/link_target_non_existent"), BNode),
         (URIRef("http://data/link_target_wrong_class"), BNode),
         (URIRef("http://data/list_node_non_existent"), BNode),
+        (URIRef("http://data/missing_seqnum"), None),
     ]
     assert len(result) == len(expected_iris)
     for result_info, expected_iri in zip(result_sorted, expected_iris):

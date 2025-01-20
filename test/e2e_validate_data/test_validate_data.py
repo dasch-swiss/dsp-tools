@@ -207,10 +207,12 @@ def inheritance_violation(
 
 
 @pytest.fixture(scope="module")
-def validate_ontology_violation(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+def validate_ontology_violation(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/erroneous_ontology/erroneous_ontology.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 def test_extract_identifiers_of_resource_results(every_combination_once: ValidationReportGraphs) -> None:

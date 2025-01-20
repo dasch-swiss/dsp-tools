@@ -169,8 +169,8 @@ class ShaclValidator:
 
         return SHACLValidationReport(conforms=conforms, validation_graph=result_graph)
 
-    def validate_ontology(self) -> SHACLValidationReport:
-        post_files = self._prepare_validation_files_for_request(self.rdf_graphs.ontos, self.rdf_graphs.ontology_shacl)
+    def validate_ontology(self, onto_graph: Graph, onto_shacl: Graph) -> SHACLValidationReport:
+        post_files = self._prepare_validation_files_for_request(onto_graph, onto_shacl)
         response = self.api_con.post_files(endpoint="shacl/validate", files=post_files)
         if not response.ok:
             msg = (

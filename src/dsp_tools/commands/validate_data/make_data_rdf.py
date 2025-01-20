@@ -1,5 +1,6 @@
 from uuid import uuid4
 
+from loguru import logger
 from rdflib import RDF
 from rdflib import XSD
 from rdflib import Graph
@@ -17,7 +18,7 @@ from dsp_tools.commands.validate_data.models.data_deserialised import PropertyOb
 from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TripleObjectType
 from dsp_tools.commands.validate_data.models.data_deserialised import ValueInformation
-from loguru import logger
+
 
 def make_data_rdf(data_deserialised: DataDeserialised) -> Graph:
     """

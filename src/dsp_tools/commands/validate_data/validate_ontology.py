@@ -48,4 +48,5 @@ def _get_one_problem(val_g: Graph, result_bn: BNode) -> OntologyResourceProblem:
     iri = next(val_g.objects(result_bn, SH.focusNode))
     iri_str = reformat_onto_iri(iri)
     msg = str(next(val_g.objects(result_bn, SH.resultMessage)))
-    return OntologyResourceProblem(iri_str, msg)
+    splt = [x.strip() for x in msg.split("\n")]
+    return OntologyResourceProblem(iri_str, " ".join(splt))

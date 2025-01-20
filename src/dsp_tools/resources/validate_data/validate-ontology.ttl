@@ -12,7 +12,7 @@ api-shapes:FindMissingMaxCardinality_IsPartOf_OntologyShape
   sh:targetClass owl:Class ;
   sh:sparql      [
                    a          sh:SPARQLConstraint ;
-                   sh:message "isPartOf and its sub-properties must either have cardinality 1 or 0-1." ;
+                   sh:message "isPartOf must either have cardinality 1 or 0-1." ;
                    sh:select  """
                     PREFIX owl: <http://www.w3.org/2002/07/owl#>
                     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -40,7 +40,7 @@ api-shapes:FindMissingMaxCardinality_Seqnum_OntologyShape
   sh:targetClass owl:Class ;
   sh:sparql      [
                    a          sh:SPARQLConstraint ;
-                   sh:message "seqnum and its sub-properties must either have cardinality 1 or 0-1." ;
+                   sh:message "seqnum must either have cardinality 1 or 0-1." ;
                    sh:select  """
                     PREFIX owl: <http://www.w3.org/2002/07/owl#>
                     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -68,8 +68,7 @@ api-shapes:FindMissingSeqnum_OntologyShape
   sh:targetClass owl:Class ;
   sh:sparql      [
                    a          sh:SPARQLConstraint ;
-                   sh:message """A class with a cardinality for isPartOf also requires a cardinality for seqnum.
-                                 Or respective sup-properties of both.""" ;
+                   sh:message "A class with a cardinality for isPartOf also requires a cardinality for seqnum." ;
                    sh:select  """
                     PREFIX owl: <http://www.w3.org/2002/07/owl#>
                     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -101,8 +100,7 @@ api-shapes:FindMissingIsPartOf_OntologyShape
   sh:targetClass owl:Class ;
   sh:sparql      [
                    a          sh:SPARQLConstraint ;
-                   sh:message """A class with a cardinality for seqnum also requires a cardinality for isPartOf.
-                                 Or respective sup-properties of both.""" ;
+                   sh:message "A class with a cardinality for seqnum also requires a cardinality for isPartOf." ;
                    sh:select  """
                     PREFIX owl: <http://www.w3.org/2002/07/owl#>
                     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -134,8 +132,7 @@ api-shapes:FindCardinalityMismatchSeqnum_OntologyShape
   sh:targetClass owl:Class ;
   sh:sparql      [
                    a          sh:SPARQLConstraint ;
-                   sh:message """A class with a cardinality for isPartOf also requires a cardinality for seqnum.
-                                 Or respective sup-properties of both.""" ;
+                   sh:message "A class with a cardinality for isPartOf also requires a cardinality for seqnum." ;
                    sh:select  """
                     PREFIX owl: <http://www.w3.org/2002/07/owl#>
                     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -169,8 +166,7 @@ api-shapes:FindCardinalityMismatchIsPartOf_OntologyShape
   sh:targetClass owl:Class ;
   sh:sparql      [
                    a          sh:SPARQLConstraint ;
-                   sh:message """A class with a cardinality for seqnum also requires a cardinality for isPartOf.
-                                 Or respective sup-properties of both.""" ;
+                   sh:message "A class with a cardinality for seqnum also requires a cardinality for isPartOf." ;
                    sh:select  """
                     PREFIX owl: <http://www.w3.org/2002/07/owl#>
                     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>

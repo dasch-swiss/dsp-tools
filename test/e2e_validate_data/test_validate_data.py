@@ -553,13 +553,13 @@ class TestReformatValidationGraph:
     def test_validate_ontology_violation(self, validate_ontology_violation: ValidationReportGraphs) -> None:
         assert isinstance(validate_ontology_violation, OntologyValidationProblem)
         expected_results = [
-            ("error:ImageWithKnoraProp_ErroneousCards_isPartOf", ""),
-            ("error:ImageWithKnoraProp_ErroneousCards_seqnum", ""),
+            ("error:ImageWithKnoraProp_ErroneousCard_isPartOf", ""),
+            ("error:ImageWithKnoraProp_ErroneousCard_seqnum", ""),
             ("error:ImageWithKnoraProp_MissingIsPartOf", ""),
             ("error:ImageWithKnoraProp_MissingSeqnum", ""),
             ("error:ImageWithKnoraProp_MixedValidCards", ""),
-            ("error:ImageWithSubProp_ErroneousCards_isPartOf", ""),
-            ("error:ImageWithSubProp_ErroneousCards_seqnum", ""),
+            ("error:ImageWithSubProp_ErroneousCard_isPartOf", ""),
+            ("error:ImageWithSubProp_ErroneousCard_seqnum", ""),
             ("error:ImageWithSubProp_MissingIsPartOf", ""),
             ("error:ImageWithSubProp_MissingSeqnum", ""),
             ("error:ImageWithSubProp_MixedValidCards", ""),

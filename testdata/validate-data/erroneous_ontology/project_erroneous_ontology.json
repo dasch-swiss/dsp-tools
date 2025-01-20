@@ -48,10 +48,10 @@
             }
           },
           {
-            "name": "ImageWithKnoraProp_ErroneousCards_seqnum",
+            "name": "ImageWithKnoraProp_ErroneousCard_seqnum",
             "super": "StillImageRepresentation",
             "labels": {
-              "en": "ImageWithKnoraProp_ErroneousCards"
+              "en": "ImageWithKnoraProp_ErroneousCard"
             },
             "cardinalities": [
               {
@@ -67,10 +67,10 @@
             ]
           },
           {
-            "name": "ImageWithKnoraProp_ErroneousCards_isPartOf",
+            "name": "ImageWithKnoraProp_ErroneousCard_isPartOf",
             "super": "StillImageRepresentation",
             "labels": {
-              "en": "ImageWithKnoraProp_ErroneousCards"
+              "en": "ImageWithKnoraProp_ErroneousCard"
             },
             "cardinalities": [
               {
@@ -152,10 +152,10 @@
             ]
           },
           {
-            "name": "ImageWithSubProp_ErroneousCards_isPartOf",
+            "name": "ImageWithSubProp_ErroneousCard_isPartOf",
             "super": "StillImageRepresentation",
             "labels": {
-              "en": "ImageWithSubProp_ErroneousCards"
+              "en": "ImageWithSubProp_ErroneousCard"
             },
             "cardinalities": [
               {
@@ -171,10 +171,10 @@
             ]
           },
           {
-            "name": "ImageWithSubProp_ErroneousCards_seqnum",
+            "name": "ImageWithSubProp_ErroneousCard_seqnum",
             "super": "StillImageRepresentation",
             "labels": {
-              "en": "ImageWithSubProp_ErroneousCards"
+              "en": "ImageWithSubProp_ErroneousCard"
             },
             "cardinalities": [
               {

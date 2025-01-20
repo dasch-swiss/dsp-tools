@@ -20,6 +20,7 @@ from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTyp
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityProblem
+from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProblem
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
@@ -30,6 +31,7 @@ from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_
 from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validate_data import _get_parsed_graphs
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
+from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
 from test.e2e_validate_data.setup_testcontainers import get_containers
 
 CREDS = ServerCredentials("root@example.com", "test", "http://0.0.0.0:3333")
@@ -42,6 +44,7 @@ def _create_projects() -> Iterator[None]:
         assert create_project(Path("testdata/validate-data/generic/project.json"), CREDS)
         assert create_project(Path("testdata/validate-data/special_characters/project_special_characters.json"), CREDS)
         assert create_project(Path("testdata/validate-data/inheritance/project_inheritance.json"), CREDS)
+        assert create_project(Path("testdata/validate-data/erroneous_ontology/project_erroneous_ontology.json"), CREDS)
         yield
 
 
@@ -203,6 +206,15 @@ def inheritance_violation(
     file = Path("testdata/validate-data/inheritance/inheritance_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
     return _get_validation_result(graphs, shacl_validator, None)
+
+
+@pytest.fixture(scope="module")
+def validate_ontology_violation(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> OntologyValidationProblem | None:
+    file = Path("testdata/validate-data/erroneous_ontology/erroneous_ontology.xml")
+    graphs = _get_parsed_graphs(api_con, file)
+    return validate_ontology(graphs.ontos, shacl_validator, None)
 
 
 def test_extract_identifiers_of_resource_results(every_combination_once: ValidationReportGraphs) -> None:
@@ -537,6 +549,33 @@ class TestReformatValidationGraph:
             assert isinstance(one_result, NonExistentCardinalityProblem)
             assert one_result.res_id == expected[0]
             assert one_result.prop_name in expected[1]
+
+    def test_validate_ontology_violation(self, validate_ontology_violation: ValidationReportGraphs | None) -> None:
+        assert isinstance(validate_ontology_violation, OntologyValidationProblem)
+        erroneous_cards_msg = {
+            "isPartOf must either have cardinality 1 or 0-1.",
+            "seqnum must either have cardinality 1 or 0-1.",
+        }
+        missing_is_part_of = {"A class with a cardinality for seqnum also requires a cardinality for isPartOf."}
+        missing_seqnum = {"A class with a cardinality for isPartOf also requires a cardinality for seqnum."}
+        mixed_cards = {"The cardinalities for seqnum and isPartOf must be identical within one resource class."}
+        expected_results = [
+            ("error:ImageWithKnoraProp_ErroneousCards", erroneous_cards_msg),
+            ("error:ImageWithKnoraProp_ErroneousCards", erroneous_cards_msg),
+            ("error:ImageWithKnoraProp_MissingIsPartOf", missing_is_part_of),
+            ("error:ImageWithKnoraProp_MissingSeqnum", missing_seqnum),
+            ("error:ImageWithKnoraProp_MixedValidCards", mixed_cards),
+            ("error:ImageWithSubProp_ErroneousCards", erroneous_cards_msg),
+            ("error:ImageWithSubProp_ErroneousCards", erroneous_cards_msg),
+            ("error:ImageWithSubProp_MissingIsPartOf", missing_is_part_of),
+            ("error:ImageWithSubProp_MissingSeqnum", missing_seqnum),
+            ("error:ImageWithSubProp_MixedValidCards", mixed_cards),
+        ]
+        sorted_problems = sorted(validate_ontology_violation.problems, key=lambda x: x.res_iri)
+        assert len(validate_ontology_violation.problems) == len(expected_results)
+        for one_result, expected in zip(sorted_problems, expected_results):
+            assert one_result.res_iri == expected[0]
+            assert one_result.msg in expected[1]
 
 
 def test_check_for_unknown_resource_classes(unknown_classes_graphs: RDFGraphs) -> None:

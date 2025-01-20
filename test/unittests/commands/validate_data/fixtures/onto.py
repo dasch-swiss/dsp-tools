@@ -266,3 +266,39 @@ def link_prop_card_01() -> Graph:
     g = Graph()
     g.parse(data=ttl, format="ttl")
     return g
+
+
+@pytest.fixture
+def seqnum_ispartof() -> Graph:
+    ttl = f"""{PREFIXES}
+    onto:TestStillImageRepresentationWithMixedSeqnum a owl:Class ;
+        rdfs:label "StillImageRepresentation using sub-properties of seqnum" ;
+        knora-api:canBeInstantiated true ;
+        knora-api:isResourceClass true ;
+        rdfs:subClassOf [ 
+                a owl:Restriction ;
+                salsah-gui:guiOrder 1 ;
+                owl:maxCardinality 1 ;
+                owl:onProperty onto:testIsPartOf 
+                ] ,
+                [ a owl:Restriction ;
+                salsah-gui:guiOrder 1 ;
+                owl:maxCardinality 1 ;
+                owl:onProperty knora-api:seqnum 
+                ] .
+
+    onto:testIsPartOf a owl:ObjectProperty ;
+        rdfs:label "is part of" ;
+        knora-api:isEditable true ;
+        knora-api:isLinkProperty true ;
+        knora-api:isResourceProperty true ;
+        knora-api:objectType onto:TestNormalResource ;
+        salsah-gui:guiElement salsah-gui:Searchbox ;
+        rdfs:subPropertyOf knora-api:isPartOf .
+        
+    knora-api:seqnum a owl:ObjectProperty .
+    knora-api:isPartOf a owl:ObjectProperty .
+    """
+    g = Graph()
+    g.parse(data=ttl, format="ttl")
+    return g

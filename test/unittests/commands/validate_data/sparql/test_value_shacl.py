@@ -3,6 +3,8 @@ from rdflib import RDF
 from rdflib import SH
 from rdflib import Graph
 from rdflib import URIRef
+from unittests.commands.validate_data.constants import DASH
+from unittests.commands.validate_data.constants import KNORA_API
 
 from dsp_tools.commands.validate_data.models.api_responses import OneList
 from dsp_tools.commands.validate_data.models.api_responses import SHACLListInfo
@@ -12,6 +14,7 @@ from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_l
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_list_property_shape_with_collection
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_property_type_shape_based_on_object_type
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_property_type_text_value
+from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_seqnum_is_part_of_prop_shape
 from test.unittests.commands.validate_data.constants import API_SHAPES
 from test.unittests.commands.validate_data.constants import ONTO
 
@@ -52,6 +55,16 @@ def test_add_property_shapes_to_class_shapes(card_1: Graph) -> None:
     assert len(res) == 3
     expected_props = {ONTO.testBoolean_PropShape, API_SHAPES.rdfsLabel_Shape}
     assert set(res.objects(ONTO.ClassMixedCard, SH.property)) == expected_props
+
+
+def test_construct_seqnum_is_part_of_prop_shape(seqnum_ispartof: Graph) -> None:
+    res = _construct_seqnum_is_part_of_prop_shape(seqnum_ispartof)
+    assert len(res) == 5
+    bn = next(res.subjects(RDF.type, SH.PropertyShape))
+    assert next(res.objects(bn, SH.path)) == KNORA_API.seqnum
+    assert next(res.objects(bn, DASH.coExistsWith)) == ONTO.testIsPartOf
+    msg = "The properties seqnum and isPartOf must be used together. This resource used only one of the properties."
+    assert str(next(res.objects(bn, SH.message))) == msg
 
 
 class TestConstructListNode:

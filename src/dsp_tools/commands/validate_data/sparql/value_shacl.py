@@ -34,7 +34,7 @@ def construct_property_shapes(onto: Graph, project_lists: AllProjectLists) -> Gr
     g += _construct_link_value_node_shape(onto)
     g += _construct_property_type_text_value(onto)
     g += _construct_list_shapes(onto, project_lists)
-    g += _construct_seqnum_is_part_of_prop_shape(onto)
+    # g += _construct_seqnum_is_part_of_prop_shape(onto)
     return g + _add_property_shapes_to_class_shapes(onto)
 
 
@@ -291,6 +291,30 @@ def _construct_one_list_property_shape(onto: Graph, one_list: OneList) -> Graph:
     if results_graph := onto.query(query_s).graph:
         return results_graph
     return Graph()
+
+
+def _get_seqnum_is_part_of_cards(onto_graph: Graph):
+    query_s = """
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
+    PREFIX dash: <http://datashapes.org/dash#>
+    
+    SELECT ?targetClass ?isPartOfProp ?seqnumProp WHERE {
+  
+    ?targetClass a owl:Class ;
+                rdfs:subClassOf ?restrictionIsPartOf .
+    ?restrictionIsPartOf a owl:Restriction ;
+                         owl:onProperty ?isPartOfProp .
+    ?isPartOfProp rdfs:subPropertyOf* knora-api:isPartOf .
+ 
+    ?targetClass a owl:Class ;
+                  rdfs:subClassOf ?restrictionSeqnum .
+    ?restrictionSeqnum a owl:Restriction ;
+                           owl:onProperty ?seqnumProp .
+    ?seqnumProp rdfs:subPropertyOf* knora-api:seqnum .
+    }
+    """
 
 
 def _construct_seqnum_is_part_of_prop_shape(onto_graph: Graph) -> Graph:

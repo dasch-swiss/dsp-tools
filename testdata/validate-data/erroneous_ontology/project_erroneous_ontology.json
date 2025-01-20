@@ -48,7 +48,26 @@
             }
           },
           {
-            "name": "ImageWithKnoraProp_ErroneousCards",
+            "name": "ImageWithKnoraProp_ErroneousCards_seqnum",
+            "super": "StillImageRepresentation",
+            "labels": {
+              "en": "ImageWithKnoraProp_ErroneousCards"
+            },
+            "cardinalities": [
+              {
+                "propname": "isPartOf",
+                "gui_order": 1,
+                "cardinality": "0-1"
+              },
+              {
+                "propname": "seqnum",
+                "gui_order": 2,
+                "cardinality": "1-n"
+              }
+            ]
+          },
+          {
+            "name": "ImageWithKnoraProp_ErroneousCards_isPartOf",
             "super": "StillImageRepresentation",
             "labels": {
               "en": "ImageWithKnoraProp_ErroneousCards"
@@ -62,7 +81,7 @@
               {
                 "propname": "seqnum",
                 "gui_order": 2,
-                "cardinality": "1-n"
+                "cardinality": "0-1"
               }
             ]
           },
@@ -133,7 +152,7 @@
             ]
           },
           {
-            "name": "ImageWithSubProp_ErroneousCards",
+            "name": "ImageWithSubProp_ErroneousCards_isPartOf",
             "super": "StillImageRepresentation",
             "labels": {
               "en": "ImageWithSubProp_ErroneousCards"
@@ -142,7 +161,26 @@
               {
                 "propname": ":testIsPartOf",
                 "gui_order": 1,
-                "cardinality": "0-n"
+                "cardinality": "0-1"
+              },
+              {
+                "propname": ":testSeqnum",
+                "gui_order": 2,
+                "cardinality": "1-n"
+              }
+            ]
+          },
+          {
+            "name": "ImageWithSubProp_ErroneousCards_seqnum",
+            "super": "StillImageRepresentation",
+            "labels": {
+              "en": "ImageWithSubProp_ErroneousCards"
+            },
+            "cardinalities": [
+              {
+                "propname": ":testIsPartOf",
+                "gui_order": 1,
+                "cardinality": "0-1"
               },
               {
                 "propname": ":testSeqnum",

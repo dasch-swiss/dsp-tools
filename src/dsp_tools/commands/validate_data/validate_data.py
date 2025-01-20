@@ -23,6 +23,7 @@ from dsp_tools.commands.validate_data.models.validation import ValidationReportG
 from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_shapes_graphs
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
+from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_GREEN
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_MAGENTA
@@ -139,6 +140,9 @@ def _get_validation_result(
     if save_graphs:
         generic_filepath = _save_graphs(filepath, rdf_graphs)
     val = ShaclValidator(api_con, rdf_graphs)
+
+    ontology_validation = validate_ontology(val)
+
     report = _validate(val)
     if save_graphs:
         report.validation_graph.serialize(f"{generic_filepath}_VALIDATION_REPORT.ttl")

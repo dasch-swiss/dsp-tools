@@ -155,10 +155,6 @@ class ShaclValidator:
         result_graph = Graph()
         conforms = True
 
-        ontology_validation = self._validate_ontology()
-        if not ontology_validation.conforms:
-            return ontology_validation
-
         card_result = self._validate_cardinality()
         if not card_result.conforms:
             result_graph += card_result.validation_graph
@@ -171,7 +167,7 @@ class ShaclValidator:
 
         return SHACLValidationReport(conforms=conforms, validation_graph=result_graph)
 
-    def _validate_ontology(self) -> SHACLValidationReport:
+    def validate_ontology(self) -> SHACLValidationReport:
         post_files = self._prepare_validation_files_for_request(self.rdf_graphs.ontos, self.rdf_graphs.ontology_shacl)
         response = self.api_con.post_files(endpoint="shacl/validate", files=post_files)
         if not response.ok:

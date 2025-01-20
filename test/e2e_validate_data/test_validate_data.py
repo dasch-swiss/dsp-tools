@@ -7,6 +7,7 @@ from rdflib import URIRef
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create import create_project
+from dsp_tools.commands.validate_data.api_clients import ShaclValidator
 from dsp_tools.commands.validate_data.api_connection import ApiConnection
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import FileValueNotAllowedProblem
@@ -33,7 +34,6 @@ from test.e2e_validate_data.setup_testcontainers import get_containers
 
 CREDS = ServerCredentials("root@example.com", "test", "http://0.0.0.0:3333")
 LOCAL_API = "http://0.0.0.0:3333"
-DONT_SAVE_GRAPHS = False
 
 
 @pytest.fixture(scope="module")
@@ -51,10 +51,17 @@ def api_con() -> ApiConnection:
 
 
 @pytest.fixture(scope="module")
-def cardinality_correct(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+def shacl_validator(api_con: ApiConnection) -> ShaclValidator:
+    return ShaclValidator(api_con)
+
+
+@pytest.fixture(scope="module")
+def cardinality_correct(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/cardinality_correct.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
@@ -64,108 +71,138 @@ def unknown_classes_graphs(_create_projects: Iterator[None], api_con: ApiConnect
 
 
 @pytest.fixture(scope="module")
-def cardinality_violation(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+def cardinality_violation(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/cardinality_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
-def content_correct(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+def content_correct(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/content_correct.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
-def content_violation(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+def content_violation(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/content_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
-def every_combination_once(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+def every_combination_once(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/every_combination_once.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
-def minimal_correct(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+def minimal_correct(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/minimal_correct.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
-def value_type_violation(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+def value_type_violation(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/value_type_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
-def unique_value_violation(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+def unique_value_violation(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/unique_value_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
-def file_value_correct(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+def file_value_correct(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/file_value_correct.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
-def file_value_violation(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+def file_value_violation(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/file_value_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
-def dsp_inbuilt_correct(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+def dsp_inbuilt_correct(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/dsp_inbuilt_correct.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
-def dsp_inbuilt_violation(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+def dsp_inbuilt_violation(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/dsp_inbuilt_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
-def special_characters_correct(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+def special_characters_correct(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/special_characters/special_characters_correct.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
-def special_characters_violation(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+def special_characters_violation(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/special_characters/special_characters_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
-def inheritance_correct(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+def inheritance_correct(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/inheritance/inheritance_correct.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
-def inheritance_violation(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+def inheritance_violation(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/inheritance/inheritance_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 def test_extract_identifiers_of_resource_results(every_combination_once: ValidationReportGraphs) -> None:

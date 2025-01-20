@@ -61,7 +61,13 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(msg)
         return True
-    report = _get_validation_result(graphs, api_con, filepath, save_graphs)
+
+    shacl_validator = ShaclValidator(api_con)
+    save_path = None
+    if save_graphs:
+        save_path = _get_save_directory(filepath)
+
+    report = _get_validation_result(graphs, shacl_validator, save_path)
     if report.conforms:
         print(BACKGROUND_BOLD_GREEN + "\n   Validation passed!   " + RESET_TO_DEFAULT)
     else:
@@ -82,6 +88,13 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
                 data=report.data_graph,
             )
     return True
+
+
+def _get_save_directory(filepath: Path) -> Path:
+    parent_directory = filepath.parent
+    new_directory = parent_directory / "graphs"
+    new_directory.mkdir(exist_ok=True)
+    return new_directory / filepath.stem
 
 
 def _inform_about_experimental_feature() -> None:
@@ -133,16 +146,26 @@ def _get_all_onto_classes(ontos: Graph) -> tuple[set[str], set[str]]:
 
 
 def _get_validation_result(
-    rdf_graphs: RDFGraphs, api_con: ApiConnection, filepath: Path, save_graphs: bool
+    rdf_graphs: RDFGraphs, shacl_validator: ShaclValidator, save_path: Path | None
 ) -> ValidationReportGraphs:
-    generic_filepath = Path()
-    if save_graphs:
-        generic_filepath = _save_graphs(filepath, rdf_graphs)
-    val = ShaclValidator(api_con, rdf_graphs)
-    report = _validate(val)
-    if save_graphs:
-        report.validation_graph.serialize(f"{generic_filepath}_VALIDATION_REPORT.ttl")
+    if save_path:
+        _save_graphs(save_path, rdf_graphs)
+    report = _validate(shacl_validator, rdf_graphs)
+    if save_path:
+        report.validation_graph.serialize(f"{save_path}_VALIDATION_REPORT.ttl")
     return report
+
+
+def _save_graphs(save_path: Path, rdf_graphs: RDFGraphs) -> None:
+    print(BOLD_CYAN + f"\n   Saving graphs to {save_path}   " + RESET_TO_DEFAULT)
+    rdf_graphs.ontos.serialize(f"{save_path}_ONTO.ttl")
+    shacl_onto = rdf_graphs.content_shapes + rdf_graphs.cardinality_shapes + rdf_graphs.ontos
+    shacl_onto.serialize(f"{save_path}_SHACL_ONTO.ttl")
+    rdf_graphs.cardinality_shapes.serialize(f"{save_path}_SHACL_CARD.ttl")
+    rdf_graphs.content_shapes.serialize(f"{save_path}_SHACL_CONTENT.ttl")
+    rdf_graphs.data.serialize(f"{save_path}_DATA.ttl")
+    onto_data = rdf_graphs.data + rdf_graphs.ontos
+    onto_data.serialize(f"{save_path}_ONTO_DATA.ttl")
 
 
 def _create_graphs(onto_client: OntologyClient, list_client: ListClient, data_rdf: Graph) -> RDFGraphs:
@@ -182,31 +205,14 @@ def _get_project_ontos(onto_client: OntologyClient) -> Graph:
     return onto_g
 
 
-def _save_graphs(filepath: Path, rdf_graphs: RDFGraphs) -> Path:
-    parent_directory = filepath.parent
-    new_directory = parent_directory / "graphs"
-    new_directory.mkdir(exist_ok=True)
-    print(BOLD_CYAN + f"\n   Saving graphs to {new_directory}   " + RESET_TO_DEFAULT)
-    generic_filepath = new_directory / filepath.stem
-    rdf_graphs.ontos.serialize(f"{generic_filepath}_ONTO.ttl")
-    shacl_onto = rdf_graphs.content_shapes + rdf_graphs.cardinality_shapes + rdf_graphs.ontos
-    shacl_onto.serialize(f"{generic_filepath}_SHACL_ONTO.ttl")
-    rdf_graphs.cardinality_shapes.serialize(f"{generic_filepath}_SHACL_CARD.ttl")
-    rdf_graphs.content_shapes.serialize(f"{generic_filepath}_SHACL_CONTENT.ttl")
-    rdf_graphs.data.serialize(f"{generic_filepath}_DATA.ttl")
-    onto_data = rdf_graphs.data + rdf_graphs.ontos
-    onto_data.serialize(f"{generic_filepath}_ONTO_DATA.ttl")
-    return generic_filepath
-
-
-def _validate(validator: ShaclValidator) -> ValidationReportGraphs:
-    validation_results = validator.validate()
+def _validate(validator: ShaclValidator, rdf_graphs: RDFGraphs) -> ValidationReportGraphs:
+    validation_results = validator.validate(rdf_graphs)
     return ValidationReportGraphs(
         conforms=validation_results.conforms,
         validation_graph=validation_results.validation_graph,
-        shacl_graph=validator.rdf_graphs.cardinality_shapes + validator.rdf_graphs.content_shapes,
-        onto_graph=validator.rdf_graphs.ontos + validator.rdf_graphs.knora_api,
-        data_graph=validator.rdf_graphs.data,
+        shacl_graph=rdf_graphs.cardinality_shapes + rdf_graphs.content_shapes,
+        onto_graph=rdf_graphs.ontos + rdf_graphs.knora_api,
+        data_graph=rdf_graphs.data,
     )
 
 

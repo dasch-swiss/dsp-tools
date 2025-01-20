@@ -211,7 +211,7 @@ def inheritance_violation(
 @pytest.fixture(scope="module")
 def validate_ontology_violation(
     _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
-) -> OntologyValidationProblem:
+) -> OntologyValidationProblem | None:
     file = Path("testdata/validate-data/erroneous_ontology/erroneous_ontology.xml")
     graphs = _get_parsed_graphs(api_con, file)
     return validate_ontology(graphs.ontos, shacl_validator, None)
@@ -550,7 +550,7 @@ class TestReformatValidationGraph:
             assert one_result.res_id == expected[0]
             assert one_result.prop_name in expected[1]
 
-    def test_validate_ontology_violation(self, validate_ontology_violation: ValidationReportGraphs) -> None:
+    def test_validate_ontology_violation(self, validate_ontology_violation: ValidationReportGraphs | None) -> None:
         assert isinstance(validate_ontology_violation, OntologyValidationProblem)
         erroneous_cards_msg = {
             "isPartOf must either have cardinality 1 or 0-1.",

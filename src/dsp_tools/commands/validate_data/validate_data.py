@@ -155,7 +155,7 @@ def _get_validation_result(
     return report
 
 
-def _save_graphs(save_dir: Path, rdf_graphs: RDFGraphs) -> Path:
+def _save_graphs(save_dir: Path, rdf_graphs: RDFGraphs) -> None:
     rdf_graphs.ontos.serialize(f"{save_dir}_ONTO.ttl")
     shacl_onto = rdf_graphs.content_shapes + rdf_graphs.cardinality_shapes + rdf_graphs.ontos
     shacl_onto.serialize(f"{save_dir}_SHACL_ONTO.ttl")

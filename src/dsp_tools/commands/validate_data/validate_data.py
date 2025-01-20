@@ -62,9 +62,10 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
         print(msg)
         return True
 
+    shacl_validator = ShaclValidator(api_con)
     save_graph_dir = _get_save_directory(filepath)
 
-    report = _get_validation_result(graphs, api_con, save_graph_dir, save_graphs)
+    report = _get_validation_result(graphs, shacl_validator, save_graph_dir, save_graphs)
     if report.conforms:
         print(BACKGROUND_BOLD_GREEN + "\n   Validation passed!   " + RESET_TO_DEFAULT)
     else:
@@ -144,12 +145,11 @@ def _get_all_onto_classes(ontos: Graph) -> tuple[set[str], set[str]]:
 
 
 def _get_validation_result(
-    rdf_graphs: RDFGraphs, api_con: ApiConnection, save_dir: Path, save_graphs: bool
+    rdf_graphs: RDFGraphs, shacl_validator: ShaclValidator, save_dir: Path, save_graphs: bool
 ) -> ValidationReportGraphs:
     if save_graphs:
         _save_graphs(save_dir, rdf_graphs)
-    val = ShaclValidator(api_con)
-    report = _validate(val, rdf_graphs)
+    report = _validate(shacl_validator, rdf_graphs)
     if save_graphs:
         report.validation_graph.serialize(f"{save_dir}_VALIDATION_REPORT.ttl")
     return report

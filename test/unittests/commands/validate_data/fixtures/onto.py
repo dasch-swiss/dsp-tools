@@ -271,7 +271,7 @@ def link_prop_card_01() -> Graph:
 @pytest.fixture
 def seqnum_ispartof() -> Graph:
     ttl = f"""{PREFIXES}
-    onto:TestStillImageRepresentationWithMixedSeqnum a owl:Class ;
+    onto:TargetClass a owl:Class ;
         rdfs:label "StillImageRepresentation using sub-properties of seqnum" ;
         knora-api:canBeInstantiated true ;
         knora-api:isResourceClass true ;

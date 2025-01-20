@@ -34,6 +34,7 @@ def construct_property_shapes(onto: Graph, project_lists: AllProjectLists) -> Gr
     g += _construct_link_value_node_shape(onto)
     g += _construct_property_type_text_value(onto)
     g += _construct_list_shapes(onto, project_lists)
+    # TODO: activate
     # g += _construct_seqnum_is_part_of_prop_shape(onto)
     return g + _add_property_shapes_to_class_shapes(onto)
 
@@ -327,12 +328,12 @@ def _construct_seqnum_is_part_of_prop_shape(onto_graph: Graph) -> Graph:
 
     CONSTRUCT {
 
-      _:constructedShape
-      a                 sh:PropertyShape ;
-      sh:message        "The properties seqnum and isPartOf must be used together. This resource used only one of the properties." ;
-      sh:path           ?seqnumProp ;
-      dash:coExistsWith ?isPartOfProp ;
-      sh:severity       sh:Violation .
+      ?targetClass sh:property [
+          a                 sh:PropertyShape ;
+          sh:message        "The properties seqnum and isPartOf must be used together. This resource used only one of the properties." ;
+          sh:path           ?seqnumProp ;
+          dash:coExistsWith ?isPartOfProp ;
+          sh:severity       sh:Violation ] .
 
     } WHERE {
 

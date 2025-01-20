@@ -61,7 +61,7 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
         msg = unknown_classes.get_msg()
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(msg)
-        # if unknown classes are found we cannot validate all the data in the file
+        # if unknown classes are found, we cannot validate all the data in the file
         return True
 
     shacl_validator = ShaclValidator(api_con)
@@ -104,7 +104,9 @@ def _get_save_directory(filepath: Path) -> Path:
     parent_directory = filepath.parent
     new_directory = parent_directory / "graphs"
     new_directory.mkdir(exist_ok=True)
-    return new_directory / filepath.stem
+    save_path = new_directory / filepath.stem
+    print(BOLD_CYAN + f"\n   Saving graphs to {save_path}   " + RESET_TO_DEFAULT)
+    return save_path
 
 
 def _inform_about_experimental_feature() -> None:
@@ -167,7 +169,6 @@ def _get_validation_result(
 
 
 def _save_graphs(save_path: Path, rdf_graphs: RDFGraphs) -> None:
-    print(BOLD_CYAN + f"\n   Saving graphs to {save_path}   " + RESET_TO_DEFAULT)
     rdf_graphs.ontos.serialize(f"{save_path}_ONTO.ttl")
     shacl_onto = rdf_graphs.content_shapes + rdf_graphs.cardinality_shapes + rdf_graphs.ontos
     shacl_onto.serialize(f"{save_path}_SHACL_ONTO.ttl")

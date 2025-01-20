@@ -217,8 +217,35 @@ def _construct_0_n_cardinality(onto_graph: Graph) -> Graph:
 
 def _construct_coexist_for_sub_props_of_seqnum(onto_graph: Graph) -> Graph:
     query_s = """
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
+    PREFIX dash: <http://datashapes.org/dash#>
     
-    """
+    CONSTRUCT {
+        
+      _:constructedShape
+      a                 sh:PropertyShape ;
+      sh:message        "The property seqnum or isPartOf must be used together. This resource used only one of the properties." ;
+      sh:path           ?seqnumProp ;
+      dash:coExistsWith ?isPartOfProp ;
+      sh:severity       sh:Violation .
+    
+    } WHERE {
+      
+        ?targetClass a owl:Class ;
+                    rdfs:subClassOf ?restrictionIsPartOf .
+        ?restrictionIsPartOf a owl:Restriction ;
+                             owl:onProperty ?isPartOfProp .
+        ?isPartOfProp rdfs:subPropertyOf* knora-api:isPartOf .
+     
+        ?targetClass a owl:Class ;
+                      rdfs:subClassOf ?restrictionSeqnum .
+        ?restrictionSeqnum a owl:Restriction ;
+                               owl:onProperty ?seqnumProp .
+        ?seqnumProp rdfs:subPropertyOf* knora-api:seqnum .
+    }
+    """  # noqa:E501 (line too long)
     if results_graph := onto_graph.query(query_s).graph:
         return results_graph
     return Graph()

@@ -304,20 +304,6 @@ api-shapes:valueHasComment_Shape
   sh:severity sh:Violation .
 
 
-### knora-api:seqnum and knora-api:isPartOf
-
-# dash:coExistsWith ensures that isPartOf also needs seqnum. There is no need for a second shape.
-api-shapes:seqnum_PropShape
-  a                 sh:PropertyShape ;
-  sh:message        """
-                    The property seqnum or isPartOf (or sub-properties of them) must be used together.
-                    This resource only used one of the properties.
-                    """ ;
-  sh:path           knora-api:seqnum ;
-  dash:coExistsWith knora-api:isPartOf ;
-  sh:severity       sh:Violation .
-
-
 #########################################
 # DSP BUILT IN RESOURCES
 #########################################

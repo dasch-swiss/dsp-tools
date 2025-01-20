@@ -23,6 +23,7 @@ from dsp_tools.commands.validate_data.models.validation import ValidationReportG
 from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_shapes_graphs
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
+from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_GREEN
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_MAGENTA
@@ -60,12 +61,21 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
         msg = unknown_classes.get_msg()
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(msg)
+        # if unknown classes are found we cannot validate all the data in the file
         return True
 
     shacl_validator = ShaclValidator(api_con)
     save_path = None
     if save_graphs:
         save_path = _get_save_directory(filepath)
+
+    onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, save_path)
+    if onto_validation_result:
+        problem_msg = onto_validation_result.get_msg()
+        print(VALIDATION_ERRORS_FOUND_MSG)
+        print(problem_msg)
+        # if the ontology itself has errors, we will not validate the data
+        return True
 
     report = _get_validation_result(graphs, shacl_validator, save_path)
     if report.conforms:

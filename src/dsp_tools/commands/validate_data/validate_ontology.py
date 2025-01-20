@@ -1,4 +1,5 @@
 import importlib.resources
+from pathlib import Path
 
 from rdflib import RDF
 from rdflib import SH
@@ -13,7 +14,9 @@ from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 LIST_SEPARATOR = "\n    - "
 
 
-def validate_ontology(onto_graph: Graph, shacl_validator: ShaclValidator) -> OntologyValidationProblem | None:
+def validate_ontology(
+    onto_graph: Graph, shacl_validator: ShaclValidator, save_path: Path | None
+) -> OntologyValidationProblem | None:
     """
     The API accepts erroneous cardinalities in the ontology.
     To distinguish a mistake in the data from the erroneous ontology, the ontology will be validated beforehand.
@@ -21,6 +24,7 @@ def validate_ontology(onto_graph: Graph, shacl_validator: ShaclValidator) -> Ont
     Args:
         onto_graph: the graph of the project ontologies
         shacl_validator: connection to the API for the validation
+        save_path: the path where the turtle file should be saved if so desired
     Returns:
         A validation report if errors were found
     """
@@ -30,6 +34,8 @@ def validate_ontology(onto_graph: Graph, shacl_validator: ShaclValidator) -> Ont
     validation_result = shacl_validator.validate_ontology(onto_graph, onto_shacl)
     if validation_result.conforms:
         return None
+    if save_path:
+        validation_result.validation_graph.serialize(f"{save_path}_ONTO_VIOLATIONS.ttl")
     return OntologyValidationProblem(_reformat_ontology_validation_result(validation_result.validation_graph))
 
 

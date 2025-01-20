@@ -248,7 +248,7 @@ def _construct_one_list_node_shape(one_list: OneList) -> Graph:
 
 
 def _construct_one_list_property_shape_with_collection(shacl_info: SHACLListInfo) -> Graph:
-    logger.info(f"Constructing ListValue PropertyShape for {shacl_info.sh_path}")
+    logger.info(f"Constructing Collection Shape for ListValue: {shacl_info.list_iri}")
     g = Graph()
     collection_bn = BNode()
     collection_literals: list[SubjectObjectTypeAlias] = [Literal(lit, datatype=XSD.string) for lit in shacl_info.sh_in]

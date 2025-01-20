@@ -48,29 +48,10 @@
             }
           },
           {
-            "name": "ImageWithKnoraProp_ErroneousCard_seqnum",
+            "name": "ImageWithKnoraProp_ErroneousCards",
             "super": "StillImageRepresentation",
             "labels": {
-              "en": "ImageWithKnoraProp_ErroneousCard"
-            },
-            "cardinalities": [
-              {
-                "propname": "isPartOf",
-                "gui_order": 1,
-                "cardinality": "0-1"
-              },
-              {
-                "propname": "seqnum",
-                "gui_order": 2,
-                "cardinality": "1-n"
-              }
-            ]
-          },
-          {
-            "name": "ImageWithKnoraProp_ErroneousCard_isPartOf",
-            "super": "StillImageRepresentation",
-            "labels": {
-              "en": "ImageWithKnoraProp_ErroneousCard"
+              "en": "ImageWithKnoraProp_ErroneousCards"
             },
             "cardinalities": [
               {
@@ -81,7 +62,7 @@
               {
                 "propname": "seqnum",
                 "gui_order": 2,
-                "cardinality": "0-1"
+                "cardinality": "0-n"
               }
             ]
           },
@@ -152,35 +133,16 @@
             ]
           },
           {
-            "name": "ImageWithSubProp_ErroneousCard_isPartOf",
+            "name": "ImageWithSubProp_ErroneousCards",
             "super": "StillImageRepresentation",
             "labels": {
-              "en": "ImageWithSubProp_ErroneousCard"
+              "en": "ImageWithSubProp_ErroneousCards"
             },
             "cardinalities": [
               {
                 "propname": ":testIsPartOf",
                 "gui_order": 1,
-                "cardinality": "0-1"
-              },
-              {
-                "propname": ":testSeqnum",
-                "gui_order": 2,
                 "cardinality": "1-n"
-              }
-            ]
-          },
-          {
-            "name": "ImageWithSubProp_ErroneousCard_seqnum",
-            "super": "StillImageRepresentation",
-            "labels": {
-              "en": "ImageWithSubProp_ErroneousCard"
-            },
-            "cardinalities": [
-              {
-                "propname": ":testIsPartOf",
-                "gui_order": 1,
-                "cardinality": "0-1"
               },
               {
                 "propname": ":testSeqnum",

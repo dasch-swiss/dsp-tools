@@ -75,6 +75,7 @@
         </integer-prop>
     </resource>
 
+
     <!-- sub-property of isPartOf is missing in the ontology -->
 
     <resource label="Image with sequence" restype=":ImageWithSubProp_MissingIsPartOf"

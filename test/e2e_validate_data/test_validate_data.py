@@ -552,22 +552,29 @@ class TestReformatValidationGraph:
 
     def test_validate_ontology_violation(self, validate_ontology_violation: ValidationReportGraphs) -> None:
         assert isinstance(validate_ontology_violation, OntologyValidationProblem)
+        erroneous_cards_msg = {
+            "isPartOf must either have cardinality 1 or 0-1.",
+            "seqnum must either have cardinality 1 or 0-1.",
+        }
+        missing_is_part_of = {"A class with a cardinality for seqnum also requires a cardinality for isPartOf."}
+        missing_seqnum = {"A class with a cardinality for isPartOf also requires a cardinality for seqnum."}
+        mixed_cards = {"The cardinalities for seqnum and isPartOf must be identical within one resource class."}
         expected_results = [
-            ("error:ImageWithKnoraProp_ErroneousCard_isPartOf", ""),
-            ("error:ImageWithKnoraProp_ErroneousCard_seqnum", ""),
-            ("error:ImageWithKnoraProp_MissingIsPartOf", ""),
-            ("error:ImageWithKnoraProp_MissingSeqnum", ""),
-            ("error:ImageWithKnoraProp_MixedValidCards", ""),
-            ("error:ImageWithSubProp_ErroneousCard_isPartOf", ""),
-            ("error:ImageWithSubProp_ErroneousCard_seqnum", ""),
-            ("error:ImageWithSubProp_MissingIsPartOf", ""),
-            ("error:ImageWithSubProp_MissingSeqnum", ""),
-            ("error:ImageWithSubProp_MixedValidCards", ""),
+            ("error:ImageWithKnoraProp_ErroneousCards", erroneous_cards_msg),
+            ("error:ImageWithKnoraProp_ErroneousCards", erroneous_cards_msg),
+            ("error:ImageWithKnoraProp_MissingIsPartOf", missing_is_part_of),
+            ("error:ImageWithKnoraProp_MissingSeqnum", missing_seqnum),
+            ("error:ImageWithKnoraProp_MixedValidCards", mixed_cards),
+            ("error:ImageWithSubProp_ErroneousCards", erroneous_cards_msg),
+            ("error:ImageWithSubProp_ErroneousCards", erroneous_cards_msg),
+            ("error:ImageWithSubProp_MissingIsPartOf", missing_is_part_of),
+            ("error:ImageWithSubProp_MissingSeqnum", missing_seqnum),
+            ("error:ImageWithSubProp_MixedValidCards", mixed_cards),
         ]
         assert len(validate_ontology_violation.problems) == len(expected_results)
         for one_result, expected in zip(validate_ontology_violation.problems, expected_results):
             assert one_result.res_iri == expected[0]
-            # assert one_result.msg == expected[1]
+            assert one_result.msg in expected[1]
 
 
 def test_check_for_unknown_resource_classes(unknown_classes_graphs: RDFGraphs) -> None:

@@ -60,12 +60,12 @@ def test_add_property_shapes_to_class_shapes(card_1: Graph) -> None:
 def test_construct_seqnum_is_part_of_prop_shape(seqnum_ispartof: Graph) -> None:
     res = _construct_seqnum_is_part_of_prop_shape(seqnum_ispartof)
     assert len(res) == 6
-    shape_iri = next(res.subjects(RDF.type, SH.PropertyShape))
-    assert next(res.objects(shape_iri, SH.path)) == KNORA_API.seqnum
-    assert next(res.objects(shape_iri, DASH.coExistsWith)) == ONTO.testIsPartOf
+    shape_bn = next(res.subjects(RDF.type, SH.PropertyShape))
+    assert next(res.objects(shape_bn, SH.path)) == KNORA_API.seqnum
+    assert next(res.objects(shape_bn, DASH.coExistsWith)) == ONTO.testIsPartOf
     msg = "The properties seqnum and isPartOf must be used together. This resource used only one of the properties."
-    assert str(next(res.objects(shape_iri, SH.message))) == msg
-    assert next(res.objects(ONTO.TargetClass, SH.property)) == shape_iri
+    assert str(next(res.objects(shape_bn, SH.message))) == msg
+    assert next(res.objects(ONTO.TargetClass, SH.property)) == shape_bn
 
 
 class TestConstructListNode:

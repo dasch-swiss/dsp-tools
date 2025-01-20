@@ -127,12 +127,12 @@ api-shapes:FindMissingIsPartOf_OntologyShape
   sh:severity    sh:Violation .
 
 
-api-shapes:FindCardinalityMismatchSeqnum_OntologyShape
+api-shapes:FindCardinalityOneMismatch_OntologyShape
   a              sh:NodeShape ;
   sh:targetClass owl:Class ;
   sh:sparql      [
                    a          sh:SPARQLConstraint ;
-                   sh:message "A class with a cardinality for isPartOf also requires a cardinality for seqnum." ;
+                   sh:message "The cardinalities for seqnum and isPartOf must be identical within one resource class." ;
                    sh:select  """
                     PREFIX owl: <http://www.w3.org/2002/07/owl#>
                     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -147,13 +147,14 @@ api-shapes:FindCardinalityMismatchSeqnum_OntologyShape
                                              owl:cardinality 1 .
                         ?path rdfs:subPropertyOf* knora-api:isPartOf .
 
+                        $this a owl:Class ;
+                              rdfs:subClassOf ?restrictionSeqnum .
+                        ?restrictionSeqnum a owl:Restriction ;
+                                           owl:onProperty ?seqnumProp .
+                        ?seqnumProp rdfs:subPropertyOf* knora-api:seqnum .
+
                         FILTER NOT EXISTS {
-                            $this a owl:Class ;
-                                  rdfs:subClassOf ?restrictionSeqnum .
-                            ?restrictionSeqnum a owl:Restriction ;
-                                               owl:onProperty ?seqnumProp ;
-                                               owl:cardinality 1 .
-                            ?seqnumProp rdfs:subPropertyOf* knora-api:seqnum .
+                            ?restrictionSeqnum owl:cardinality 1 .
                         }
                     }
                     """ ;
@@ -161,12 +162,12 @@ api-shapes:FindCardinalityMismatchSeqnum_OntologyShape
   sh:severity    sh:Violation .
 
 
-api-shapes:FindCardinalityMismatchIsPartOf_OntologyShape
+api-shapes:FindMaxCardinalityMismatch_OntologyShape
   a              sh:NodeShape ;
   sh:targetClass owl:Class ;
   sh:sparql      [
                    a          sh:SPARQLConstraint ;
-                   sh:message "A class with a cardinality for seqnum also requires a cardinality for isPartOf." ;
+                   sh:message "The cardinalities for seqnum and isPartOf must be identical within one resource class." ;
                    sh:select  """
                     PREFIX owl: <http://www.w3.org/2002/07/owl#>
                     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -175,19 +176,20 @@ api-shapes:FindCardinalityMismatchIsPartOf_OntologyShape
                     SELECT $this ?path WHERE {
 
                         $this a owl:Class ;
+                              rdfs:subClassOf ?restrictionIsPartOf .
+                        ?restrictionIsPartOf a owl:Restriction ;
+                                             owl:onProperty ?path ;
+                                             owl:maxCardinality 1 .
+                        ?path rdfs:subPropertyOf* knora-api:isPartOf .
+
+                        $this a owl:Class ;
                               rdfs:subClassOf ?restrictionSeqnum .
                         ?restrictionSeqnum a owl:Restriction ;
-                                           owl:onProperty ?path ;
-                                           owl:maxCardinality 1 .
-                        ?path rdfs:subPropertyOf* knora-api:seqnum .
+                                           owl:onProperty ?seqnumProp .
+                        ?seqnumProp rdfs:subPropertyOf* knora-api:seqnum .
 
                         FILTER NOT EXISTS {
-                            $this a owl:Class ;
-                                  rdfs:subClassOf ?restrictionIsPartOf .
-                            ?restrictionIsPartOf a owl:Restriction ;
-                                                 owl:onProperty ?isPartOfProp ;
-                                                 owl:maxCardinality 1 .
-                            ?isPartOfProp rdfs:subPropertyOf* knora-api:isPartOf .
+                            ?restrictionSeqnum owl:maxCardinality 1 .
                         }
                     }
                     """ ;

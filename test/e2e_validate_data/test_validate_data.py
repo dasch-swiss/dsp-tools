@@ -20,6 +20,7 @@ from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTyp
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityProblem
+from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProblem
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
@@ -30,6 +31,7 @@ from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_
 from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validate_data import _get_parsed_graphs
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
+from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
 from test.e2e_validate_data.setup_testcontainers import get_containers
 
 CREDS = ServerCredentials("root@example.com", "test", "http://0.0.0.0:3333")
@@ -209,10 +211,10 @@ def inheritance_violation(
 @pytest.fixture(scope="module")
 def validate_ontology_violation(
     _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
-) -> ValidationReportGraphs:
+) -> OntologyValidationProblem:
     file = Path("testdata/validate-data/erroneous_ontology/erroneous_ontology.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, shacl_validator, None)
+    return validate_ontology(graphs.ontos, shacl_validator, None)
 
 
 def test_extract_identifiers_of_resource_results(every_combination_once: ValidationReportGraphs) -> None:
@@ -294,9 +296,6 @@ class TestCheckConforms:
 
     def test_inheritance_violation(self, inheritance_violation: ValidationReportGraphs) -> None:
         assert not inheritance_violation.conforms
-
-    def test_validate_ontology_violation(self, validate_ontology_violation: ValidationReportGraphs) -> None:
-        assert not validate_ontology_violation.conforms
 
 
 class TestReformatValidationGraph:
@@ -550,6 +549,23 @@ class TestReformatValidationGraph:
             assert isinstance(one_result, NonExistentCardinalityProblem)
             assert one_result.res_id == expected[0]
             assert one_result.prop_name in expected[1]
+
+    def test_validate_ontology_violation(self, validate_ontology_violation: ValidationReportGraphs) -> None:
+        assert isinstance(validate_ontology_violation, OntologyValidationProblem)
+        expected_results = [
+            ("error:ImageWithKnoraProp_ErroneousCards", ""),
+            ("error:ImageWithKnoraProp_MissingIsPartOf", ""),
+            ("error:ImageWithKnoraProp_MissingSeqnum", ""),
+            ("error:ImageWithKnoraProp_MixedValidCards", ""),
+            ("error:ImageWithSubProp_ErroneousCards", ""),
+            ("error:ImageWithSubProp_MissingIsPartOf", ""),
+            ("error:ImageWithSubProp_MissingSeqnum", ""),
+            ("error:ImageWithSubProp_MixedValidCards", ""),
+        ]
+        assert len(validate_ontology_violation.problems) == len(expected_results)
+        for one_result, expected in zip(validate_ontology_violation.problems, expected_results):
+            assert one_result.res_iri == expected[0]
+            # assert one_result.msg == expected[1]
 
 
 def test_check_for_unknown_resource_classes(unknown_classes_graphs: RDFGraphs) -> None:

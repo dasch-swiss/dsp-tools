@@ -1,3 +1,4 @@
+from loguru import logger
 from rdflib import Graph
 
 
@@ -11,14 +12,15 @@ def construct_cardinality_node_shapes(onto: Graph) -> Graph:
     Returns:
         Graph with the resource class node shapes
     """
+    logger.info("Constructing cardinality shapes for the ontology.")
     g = Graph()
     g += _construct_resource_nodeshape(onto)
     g += _construct_all_cardinalities(onto)
-    g += _construct_coexist_for_sub_props_of_seqnum(onto)
     return g
 
 
 def _construct_resource_nodeshape(onto_graph: Graph) -> Graph:
+    logger.info("Constructing resource NodeShape")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -60,6 +62,7 @@ def _construct_all_cardinalities(onto_graph: Graph) -> Graph:
 
 
 def _construct_1_cardinality(onto_graph: Graph) -> Graph:
+    logger.info("Constructing 1 cardinality")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -104,6 +107,7 @@ def _construct_1_cardinality(onto_graph: Graph) -> Graph:
 
 
 def _construct_0_1_cardinality(onto_graph: Graph) -> Graph:
+    logger.info("Constructing 0-1 cardinality")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -143,6 +147,7 @@ def _construct_0_1_cardinality(onto_graph: Graph) -> Graph:
 
 
 def _construct_1_n_cardinality(onto_graph: Graph) -> Graph:
+    logger.info("Constructing 1-n cardinality")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -181,6 +186,7 @@ def _construct_1_n_cardinality(onto_graph: Graph) -> Graph:
 
 
 def _construct_0_n_cardinality(onto_graph: Graph) -> Graph:
+    logger.info("Constructing 0-n cardinality")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -210,42 +216,6 @@ def _construct_0_n_cardinality(onto_graph: Graph) -> Graph:
       )
     }
     """
-    if results_graph := onto_graph.query(query_s).graph:
-        return results_graph
-    return Graph()
-
-
-def _construct_coexist_for_sub_props_of_seqnum(onto_graph: Graph) -> Graph:
-    query_s = """
-    PREFIX owl: <http://www.w3.org/2002/07/owl#>
-    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
-    PREFIX dash: <http://datashapes.org/dash#>
-    
-    CONSTRUCT {
-        
-      _:constructedShape
-      a                 sh:PropertyShape ;
-      sh:message        "The properties seqnum and isPartOf must be used together. This resource used only one of the properties." ;
-      sh:path           ?seqnumProp ;
-      dash:coExistsWith ?isPartOfProp ;
-      sh:severity       sh:Violation .
-    
-    } WHERE {
-      
-        ?targetClass a owl:Class ;
-                    rdfs:subClassOf ?restrictionIsPartOf .
-        ?restrictionIsPartOf a owl:Restriction ;
-                             owl:onProperty ?isPartOfProp .
-        ?isPartOfProp rdfs:subPropertyOf* knora-api:isPartOf .
-     
-        ?targetClass a owl:Class ;
-                      rdfs:subClassOf ?restrictionSeqnum .
-        ?restrictionSeqnum a owl:Restriction ;
-                               owl:onProperty ?seqnumProp .
-        ?seqnumProp rdfs:subPropertyOf* knora-api:seqnum .
-    }
-    """  # noqa:E501 (line too long)
     if results_graph := onto_graph.query(query_s).graph:
         return results_graph
     return Graph()

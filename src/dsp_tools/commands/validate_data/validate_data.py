@@ -63,11 +63,11 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
         return True
 
     shacl_validator = ShaclValidator(api_con)
-    save_graph_dir = None
+    save_path = None
     if save_graphs:
-        save_graph_dir = _get_save_directory(filepath)
+        save_path = _get_save_directory(filepath)
 
-    report = _get_validation_result(graphs, shacl_validator, save_graph_dir)
+    report = _get_validation_result(graphs, shacl_validator, save_path)
     if report.conforms:
         print(BACKGROUND_BOLD_GREEN + "\n   Validation passed!   " + RESET_TO_DEFAULT)
     else:
@@ -146,26 +146,26 @@ def _get_all_onto_classes(ontos: Graph) -> tuple[set[str], set[str]]:
 
 
 def _get_validation_result(
-    rdf_graphs: RDFGraphs, shacl_validator: ShaclValidator, save_dir: Path | None
+    rdf_graphs: RDFGraphs, shacl_validator: ShaclValidator, save_path: Path | None
 ) -> ValidationReportGraphs:
-    if save_dir:
-        _save_graphs(save_dir, rdf_graphs)
+    if save_path:
+        _save_graphs(save_path, rdf_graphs)
     report = _validate(shacl_validator, rdf_graphs)
-    if save_dir:
-        report.validation_graph.serialize(f"{save_dir}_VALIDATION_REPORT.ttl")
+    if save_path:
+        report.validation_graph.serialize(f"{save_path}_VALIDATION_REPORT.ttl")
     return report
 
 
-def _save_graphs(save_dir: Path, rdf_graphs: RDFGraphs) -> None:
-    print(BOLD_CYAN + f"\n   Saving graphs to {save_dir}   " + RESET_TO_DEFAULT)
-    rdf_graphs.ontos.serialize(f"{save_dir}_ONTO.ttl")
+def _save_graphs(save_path: Path, rdf_graphs: RDFGraphs) -> None:
+    print(BOLD_CYAN + f"\n   Saving graphs to {save_path}   " + RESET_TO_DEFAULT)
+    rdf_graphs.ontos.serialize(f"{save_path}_ONTO.ttl")
     shacl_onto = rdf_graphs.content_shapes + rdf_graphs.cardinality_shapes + rdf_graphs.ontos
-    shacl_onto.serialize(f"{save_dir}_SHACL_ONTO.ttl")
-    rdf_graphs.cardinality_shapes.serialize(f"{save_dir}_SHACL_CARD.ttl")
-    rdf_graphs.content_shapes.serialize(f"{save_dir}_SHACL_CONTENT.ttl")
-    rdf_graphs.data.serialize(f"{save_dir}_DATA.ttl")
+    shacl_onto.serialize(f"{save_path}_SHACL_ONTO.ttl")
+    rdf_graphs.cardinality_shapes.serialize(f"{save_path}_SHACL_CARD.ttl")
+    rdf_graphs.content_shapes.serialize(f"{save_path}_SHACL_CONTENT.ttl")
+    rdf_graphs.data.serialize(f"{save_path}_DATA.ttl")
     onto_data = rdf_graphs.data + rdf_graphs.ontos
-    onto_data.serialize(f"{save_dir}_ONTO_DATA.ttl")
+    onto_data.serialize(f"{save_path}_ONTO_DATA.ttl")
 
 
 def _create_graphs(onto_client: OntologyClient, list_client: ListClient, data_rdf: Graph) -> RDFGraphs:

@@ -34,7 +34,6 @@ from test.e2e_validate_data.setup_testcontainers import get_containers
 
 CREDS = ServerCredentials("root@example.com", "test", "http://0.0.0.0:3333")
 LOCAL_API = "http://0.0.0.0:3333"
-DONT_SAVE_GRAPHS = False
 
 
 @pytest.fixture(scope="module")
@@ -62,7 +61,7 @@ def cardinality_correct(
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/cardinality_correct.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, shacl_validator, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
@@ -77,7 +76,7 @@ def cardinality_violation(
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/cardinality_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, shacl_validator, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
@@ -86,7 +85,7 @@ def content_correct(
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/content_correct.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, shacl_validator, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
@@ -95,7 +94,7 @@ def content_violation(
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/content_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, shacl_validator, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
@@ -104,7 +103,7 @@ def every_combination_once(
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/every_combination_once.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, shacl_validator, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
@@ -113,7 +112,7 @@ def minimal_correct(
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/minimal_correct.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, shacl_validator, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
@@ -122,7 +121,7 @@ def value_type_violation(
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/value_type_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, shacl_validator, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
@@ -131,7 +130,7 @@ def unique_value_violation(
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/unique_value_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, shacl_validator, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
@@ -140,7 +139,7 @@ def file_value_correct(
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/file_value_correct.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, shacl_validator, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
@@ -149,7 +148,7 @@ def file_value_violation(
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/file_value_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, shacl_validator, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
@@ -158,7 +157,7 @@ def dsp_inbuilt_correct(
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/dsp_inbuilt_correct.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, shacl_validator, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
@@ -167,7 +166,7 @@ def dsp_inbuilt_violation(
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/dsp_inbuilt_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, shacl_validator, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
@@ -176,7 +175,7 @@ def special_characters_correct(
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/special_characters/special_characters_correct.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, shacl_validator, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
@@ -185,7 +184,7 @@ def special_characters_violation(
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/special_characters/special_characters_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, shacl_validator, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
@@ -194,7 +193,7 @@ def inheritance_correct(
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/inheritance/inheritance_correct.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, shacl_validator, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
@@ -203,7 +202,7 @@ def inheritance_violation(
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/inheritance/inheritance_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, shacl_validator, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 def test_extract_identifiers_of_resource_results(every_combination_once: ValidationReportGraphs) -> None:

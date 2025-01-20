@@ -571,8 +571,9 @@ class TestReformatValidationGraph:
             ("error:ImageWithSubProp_MissingSeqnum", missing_seqnum),
             ("error:ImageWithSubProp_MixedValidCards", mixed_cards),
         ]
+        sorted_problems = sorted(validate_ontology_violation.problems, key=lambda x: x.res_iri)
         assert len(validate_ontology_violation.problems) == len(expected_results)
-        for one_result, expected in zip(validate_ontology_violation.problems, expected_results):
+        for one_result, expected in zip(sorted_problems, expected_results):
             assert one_result.res_iri == expected[0]
             assert one_result.msg in expected[1]
 

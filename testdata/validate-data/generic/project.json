@@ -684,6 +684,23 @@
                 "cardinality": "0-1"
               }
             ]
+          },
+          {
+            "name": "TestStillImageRepresentationWithMixedSeqnum",
+            "super": "StillImageRepresentation",
+            "labels": {
+              "en": "StillImageRepresentation using sub-property of isPartOf but knora-api:seqnum"
+            },
+            "cardinalities": [
+              {
+                "propname": ":testIsPartOf",
+                "cardinality": "1"
+              },
+              {
+                "propname": "seqnum",
+                "cardinality": "1"
+              }
+            ]
           }
         ]
       }

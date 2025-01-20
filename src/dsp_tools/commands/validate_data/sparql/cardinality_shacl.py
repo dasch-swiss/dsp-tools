@@ -226,7 +226,7 @@ def _construct_coexist_for_sub_props_of_seqnum(onto_graph: Graph) -> Graph:
         
       _:constructedShape
       a                 sh:PropertyShape ;
-      sh:message        "The property seqnum or isPartOf must be used together. This resource used only one of the properties." ;
+      sh:message        "The properties seqnum and isPartOf must be used together. This resource used only one of the properties." ;
       sh:path           ?seqnumProp ;
       dash:coExistsWith ?isPartOfProp ;
       sh:severity       sh:Violation .

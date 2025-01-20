@@ -93,4 +93,18 @@
         </integer-prop>
     </resource>
 
+
+    <!-- usage of sub-property of isPartOf, but with knora-api:seqnum -->
+
+    <resource label="Image with sequence" restype=":TestStillImageRepresentationWithMixedSeqnum"
+              id="seqnum_isPartOf_mixed_usage">
+        <bitstream>this/is/filepath/file.jpg</bitstream>
+        <resptr-prop name=":testIsPartOf">
+            <resptr>target_empty_1</resptr>
+        </resptr-prop>
+        <integer-prop name="seqnum">
+            <integer>1</integer>
+        </integer-prop>
+    </resource>
+
 </knora>

@@ -138,8 +138,8 @@ def _get_validation_result(
     generic_filepath = Path()
     if save_graphs:
         generic_filepath = _save_graphs(filepath, rdf_graphs)
-    val = ShaclValidator(api_con, rdf_graphs)
-    report = _validate(val)
+    val = ShaclValidator(api_con)
+    report = _validate(val, rdf_graphs)
     if save_graphs:
         report.validation_graph.serialize(f"{generic_filepath}_VALIDATION_REPORT.ttl")
     return report
@@ -199,14 +199,14 @@ def _save_graphs(filepath: Path, rdf_graphs: RDFGraphs) -> Path:
     return generic_filepath
 
 
-def _validate(validator: ShaclValidator) -> ValidationReportGraphs:
-    validation_results = validator.validate()
+def _validate(validator: ShaclValidator, rdf_graphs: RDFGraphs) -> ValidationReportGraphs:
+    validation_results = validator.validate(rdf_graphs)
     return ValidationReportGraphs(
         conforms=validation_results.conforms,
         validation_graph=validation_results.validation_graph,
-        shacl_graph=validator.rdf_graphs.cardinality_shapes + validator.rdf_graphs.content_shapes,
-        onto_graph=validator.rdf_graphs.ontos + validator.rdf_graphs.knora_api,
-        data_graph=validator.rdf_graphs.data,
+        shacl_graph=rdf_graphs.cardinality_shapes + rdf_graphs.content_shapes,
+        onto_graph=rdf_graphs.ontos + rdf_graphs.knora_api,
+        data_graph=rdf_graphs.data,
     )
 
 

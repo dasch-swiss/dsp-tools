@@ -3,10 +3,10 @@ from pathlib import Path
 
 from rdflib import RDF
 from rdflib import SH
-from rdflib import BNode
 from rdflib import Graph
 
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
+from dsp_tools.commands.validate_data.constants import SubjectObjectTypeAlias
 from dsp_tools.commands.validate_data.models.input_problems import OntologyResourceProblem
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
@@ -46,7 +46,7 @@ def _reformat_ontology_validation_result(validation_result: Graph) -> list[Ontol
     return [_get_one_problem(validation_result, bn) for bn in bns]
 
 
-def _get_one_problem(val_g: Graph, result_bn: BNode) -> OntologyResourceProblem:
+def _get_one_problem(val_g: Graph, result_bn: SubjectObjectTypeAlias) -> OntologyResourceProblem:
     iri = next(val_g.objects(result_bn, SH.focusNode))
     iri_str = reformat_onto_iri(iri)
     msg = str(next(val_g.objects(result_bn, SH.resultMessage)))

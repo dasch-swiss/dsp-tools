@@ -21,10 +21,12 @@ def validate_ontology(
     The API accepts erroneous cardinalities in the ontology.
     To distinguish a mistake in the data from the erroneous ontology, the ontology will be validated beforehand.
     This way, we do not have to take an erroneous ontology into account when validating the data.
+
     Args:
         onto_graph: the graph of the project ontologies
         shacl_validator: connection to the API for the validation
         save_path: the path where the turtle file should be saved if so desired
+
     Returns:
         A validation report if errors were found
     """

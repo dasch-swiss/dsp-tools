@@ -14,6 +14,7 @@ def construct_cardinality_node_shapes(onto: Graph) -> Graph:
     g = Graph()
     g += _construct_resource_nodeshape(onto)
     g += _construct_all_cardinalities(onto)
+    g += _construct_coexist_for_sub_props_of_seqnum(onto)
     return g
 
 
@@ -208,6 +209,15 @@ def _construct_0_n_cardinality(onto_graph: Graph) -> Graph:
             knora-api:Region, knora-api:AudioSegment, knora-api:VideoSegment)
       )
     }
+    """
+    if results_graph := onto_graph.query(query_s).graph:
+        return results_graph
+    return Graph()
+
+
+def _construct_coexist_for_sub_props_of_seqnum(onto_graph: Graph) -> Graph:
+    query_s = """
+    
     """
     if results_graph := onto_graph.query(query_s).graph:
         return results_graph

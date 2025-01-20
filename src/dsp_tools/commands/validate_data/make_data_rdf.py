@@ -17,7 +17,7 @@ from dsp_tools.commands.validate_data.models.data_deserialised import PropertyOb
 from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TripleObjectType
 from dsp_tools.commands.validate_data.models.data_deserialised import ValueInformation
-
+from loguru import logger
 
 def make_data_rdf(data_deserialised: DataDeserialised) -> Graph:
     """
@@ -29,6 +29,7 @@ def make_data_rdf(data_deserialised: DataDeserialised) -> Graph:
     Returns:
         Graph with the data
     """
+    logger.info("Creating the RDF data graph.")
     g = Graph()
     for r in data_deserialised.resources:
         g += _make_one_resource(r)

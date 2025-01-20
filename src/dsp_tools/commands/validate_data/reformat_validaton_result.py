@@ -69,7 +69,6 @@ def reformat_validation_graph(report: ValidationReportGraphs) -> AllProblems:
 
     results_and_onto = report.validation_graph + report.onto_graph
     data_and_onto = report.onto_graph + report.data_graph
-
     validation_results, unexpected_extracted = _query_all_results(results_and_onto, data_and_onto)
     reformatted_results: list[InputProblem] = _reformat_extracted_results(validation_results)
 

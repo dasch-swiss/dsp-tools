@@ -23,6 +23,7 @@ from dsp_tools.commands.validate_data.models.validation import ValidationReportG
 from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.sparql.construct_shacl import construct_shapes_graphs
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
+from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_GREEN
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_MAGENTA
@@ -60,12 +61,21 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
         msg = unknown_classes.get_msg()
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(msg)
+        # if unknown classes are found, we cannot validate all the data in the file
         return True
 
     shacl_validator = ShaclValidator(api_con)
     save_path = None
     if save_graphs:
         save_path = _get_save_directory(filepath)
+
+    onto_validation_result = validate_ontology(graphs.ontos, shacl_validator, save_path)
+    if onto_validation_result:
+        problem_msg = onto_validation_result.get_msg()
+        print(VALIDATION_ERRORS_FOUND_MSG)
+        print(problem_msg)
+        # if the ontology itself has errors, we will not validate the data
+        return True
 
     report = _get_validation_result(graphs, shacl_validator, save_path)
     if report.conforms:
@@ -94,7 +104,9 @@ def _get_save_directory(filepath: Path) -> Path:
     parent_directory = filepath.parent
     new_directory = parent_directory / "graphs"
     new_directory.mkdir(exist_ok=True)
-    return new_directory / filepath.stem
+    save_path = new_directory / filepath.stem
+    print(BOLD_CYAN + f"\n   Saving graphs to {save_path}   " + RESET_TO_DEFAULT)
+    return save_path
 
 
 def _inform_about_experimental_feature() -> None:
@@ -157,7 +169,6 @@ def _get_validation_result(
 
 
 def _save_graphs(save_path: Path, rdf_graphs: RDFGraphs) -> None:
-    print(BOLD_CYAN + f"\n   Saving graphs to {save_path}   " + RESET_TO_DEFAULT)
     rdf_graphs.ontos.serialize(f"{save_path}_ONTO.ttl")
     shacl_onto = rdf_graphs.content_shapes + rdf_graphs.cardinality_shapes + rdf_graphs.ontos
     shacl_onto.serialize(f"{save_path}_SHACL_ONTO.ttl")

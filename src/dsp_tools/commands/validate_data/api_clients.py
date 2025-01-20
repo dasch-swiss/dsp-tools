@@ -169,6 +169,18 @@ class ShaclValidator:
 
         return SHACLValidationReport(conforms=conforms, validation_graph=result_graph)
 
+    def validate_ontology(self, onto_graph: Graph, onto_shacl: Graph) -> SHACLValidationReport:
+        post_files = self._prepare_validation_files_for_request(onto_graph, onto_shacl)
+        response = self.api_con.post_files(endpoint="shacl/validate", files=post_files)
+        if not response.ok:
+            msg = (
+                f"NON-OK RESPONSE | Request: POST files for SHACL ontology validation | "
+                f"Code: {response.status_code} | Message: {response.text}"
+            )
+            logger.error(msg)
+            raise InternalError(msg)
+        return self._parse_validation_result(response.text)
+
     def _validate_cardinality(self, rdf_graphs: RDFGraphs) -> SHACLValidationReport:
         card_files = self._prepare_cardinality_files(rdf_graphs)
         response = self.api_con.post_files(endpoint="shacl/validate", files=card_files)

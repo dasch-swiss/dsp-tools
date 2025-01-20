@@ -425,11 +425,6 @@
                 "propname": ":testHasRepresentation",
                 "cardinality": "0-n",
                 "gui_order": 18
-              },
-              {
-                "propname": ":testIsPartOf",
-                "cardinality": "0-n",
-                "gui_order": 19
               }
             ]
           },

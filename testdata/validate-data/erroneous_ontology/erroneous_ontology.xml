@@ -1,0 +1,99 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="9991"
+       default-ontology="error">
+
+    <!--
+        The API erroneously allows 0-n cardinalities for seqnum/isPartOf.
+        Therefore, we cannot rely on the ontology to get it correct.
+        We have to treat it as a special case.
+    -->
+
+    <!-- 6 Violations -->
+
+    <!-- Target Resources for Links -->
+
+    <resource label="Resource without Representation" restype=":TargetResource"
+              id="target_res_without_representation_1"/>
+
+
+    <resource label="Resource without Representation" restype=":TargetResource"
+              id="target_res_without_representation_2"/>
+
+
+    <!-- usage of knora-api seqnum/isPartOf: multiple usage -->
+
+    <resource label="Image with sequence" restype=":ImageWithKnoraProp_ErroneousCards"
+              id="knora_seqnum_is_part_of_multiple">
+        <bitstream>testdata/bitstreams/test.jpeg</bitstream>
+        <resptr-prop name="isPartOf">
+            <resptr>target_res_without_representation_1</resptr>
+            <resptr>target_res_without_representation_2</resptr>
+        </resptr-prop>
+        <integer-prop name="seqnum">
+            <integer>1</integer>
+            <integer>2</integer>
+        </integer-prop>
+    </resource>
+
+    <!-- knora-api:isPartOf is missing in the ontology -->
+
+    <resource label="Image with sequence" restype=":ImageWithKnoraProp_MissingIsPartOf"
+              id="knora_missing_is_part_of">
+        <bitstream>testdata/bitstreams/test.jpeg</bitstream>
+        <integer-prop name="seqnum">
+            <integer>1</integer>
+        </integer-prop>
+    </resource>
+
+    <!-- knora-api:seqnum is missing in the ontology -->
+
+    <resource label="Image with sequence" restype=":ImageWithKnoraProp_MissingSeqnum"
+              id="knora_missing_seqnum">
+        <bitstream>testdata/bitstreams/test.jpeg</bitstream>
+        <resptr-prop name="isPartOf">
+            <resptr>target_res_without_representation_1</resptr>
+        </resptr-prop>
+    </resource>
+
+
+    <!-- sub-property usage of knora-api seqnum/isPartOf: multiple usage -->
+
+    <resource label="Image with sequence" restype=":ImageWithSubProp_ErroneousCards"
+              id="seqnum_isPartOf_sub_prop_usage_and_erroneous_card">
+        <bitstream>testdata/bitstreams/test.jpeg</bitstream>
+        <resptr-prop name=":testIsPartOf">
+            <resptr>target_res_without_representation_1</resptr>
+            <resptr>target_res_without_representation_2</resptr>
+        </resptr-prop>
+        <integer-prop name=":testSeqnum">
+            <integer>1</integer>
+            <integer>2</integer>
+        </integer-prop>
+    </resource>
+
+
+    <!-- sub-property of isPartOf is missing in the ontology -->
+
+    <resource label="Image with sequence" restype=":ImageWithSubProp_MissingIsPartOf"
+              id="sub_prop_missing_is_part_of">
+        <bitstream>testdata/bitstreams/test.jpeg</bitstream>
+        <integer-prop name=":testSeqnum">
+            <integer>1</integer>
+        </integer-prop>
+    </resource>
+
+    <!-- sub-property of seqnum is missing in the ontology -->
+
+    <resource label="Image with sequence" restype=":ImageWithSubProp_MissingSeqnum"
+              id="sub_prop_missing_seqnum">
+        <bitstream>testdata/bitstreams/test.jpeg</bitstream>
+        <resptr-prop name=":testIsPartOf">
+            <resptr>target_res_without_representation_1</resptr>
+        </resptr-prop>
+    </resource>
+
+</knora>

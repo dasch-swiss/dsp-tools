@@ -1,0 +1,205 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json",
+  "project": {
+    "shortcode": "9991",
+    "shortname": "erroneous-ontology",
+    "longname": "Test project for validate-data with erroneous cardinalities.",
+    "descriptions": {
+      "en": "The API allows some erroneous cardinalities."
+    },
+    "keywords": [
+      "validate"
+    ],
+    "ontologies": [
+      {
+        "name": "error",
+        "label": "Erroneous Ontology",
+        "comment": "Erroneous Ontology",
+        "properties": [
+          {
+            "name": "testIsPartOf",
+            "super": [
+              "isPartOf"
+            ],
+            "object": ":TargetResource",
+            "labels": {
+              "en": "is part of"
+            },
+            "gui_element": "Searchbox"
+          },
+          {
+            "name": "testSeqnum",
+            "super": [
+              "seqnum"
+            ],
+            "object": "IntValue",
+            "labels": {
+              "en": "Test Seqnum"
+            },
+            "gui_element": "SimpleText"
+          }
+        ],
+        "resources": [
+          {
+            "name": "TargetResource",
+            "super": "Resource",
+            "labels": {
+              "en": "Resource"
+            }
+          },
+          {
+            "name": "ImageWithKnoraProp_ErroneousCards",
+            "super": "StillImageRepresentation",
+            "labels": {
+              "en": "ImageWithKnoraProp_ErroneousCards"
+            },
+            "cardinalities": [
+              {
+                "propname": "isPartOf",
+                "gui_order": 1,
+                "cardinality": "0-n"
+              },
+              {
+                "propname": "seqnum",
+                "gui_order": 2,
+                "cardinality": "0-n"
+              }
+            ]
+          },
+          {
+            "name": "ImageWithKnoraProp_MissingIsPartOf",
+            "super": "StillImageRepresentation",
+            "labels": {
+              "en": "ImageWithKnoraProp_MissingIsPartOf"
+            },
+            "cardinalities": [
+              {
+                "propname": "seqnum",
+                "gui_order": 1,
+                "cardinality": "1"
+              }
+            ]
+          },
+          {
+            "name": "ImageWithKnoraProp_MissingSeqnum",
+            "super": "StillImageRepresentation",
+            "labels": {
+              "en": "ImageWithKnoraProp_MissingSeqnum"
+            },
+            "cardinalities": [
+              {
+                "propname": "isPartOf",
+                "gui_order": 1,
+                "cardinality": "1"
+              }
+            ]
+          },
+          {
+            "name": "ImageWithKnoraProp_MixedValidCards",
+            "super": "StillImageRepresentation",
+            "labels": {
+              "en": "ImageWithKnoraProp_MixedValidCards"
+            },
+            "cardinalities": [
+              {
+                "propname": "isPartOf",
+                "gui_order": 1,
+                "cardinality": "1"
+              },
+              {
+                "propname": "seqnum",
+                "gui_order": 2,
+                "cardinality": "0-1"
+              }
+            ]
+          },
+          {
+            "name": "ImageWithKnoraProp_AllGood",
+            "super": "StillImageRepresentation",
+            "labels": {
+              "en": "ImageWithKnoraProp_AllGood"
+            },
+            "cardinalities": [
+              {
+                "propname": "isPartOf",
+                "gui_order": 1,
+                "cardinality": "1"
+              },
+              {
+                "propname": "seqnum",
+                "gui_order": 2,
+                "cardinality": "1"
+              }
+            ]
+          },
+          {
+            "name": "ImageWithSubProp_ErroneousCards",
+            "super": "StillImageRepresentation",
+            "labels": {
+              "en": "ImageWithSubProp_ErroneousCards"
+            },
+            "cardinalities": [
+              {
+                "propname": ":testIsPartOf",
+                "gui_order": 1,
+                "cardinality": "1-n"
+              },
+              {
+                "propname": ":testSeqnum",
+                "gui_order": 2,
+                "cardinality": "1-n"
+              }
+            ]
+          },
+          {
+            "name": "ImageWithSubProp_MissingIsPartOf",
+            "super": "StillImageRepresentation",
+            "labels": {
+              "en": "ImageWithSubProp_MissingIsPartOf"
+            },
+            "cardinalities": [
+              {
+                "propname": ":testSeqnum",
+                "gui_order": 1,
+                "cardinality": "1"
+              }
+            ]
+          },
+          {
+            "name": "ImageWithSubProp_MissingSeqnum",
+            "super": "StillImageRepresentation",
+            "labels": {
+              "en": "ImageWithSubProp_MissingSeqnum"
+            },
+            "cardinalities": [
+              {
+                "propname": ":testIsPartOf",
+                "gui_order": 1,
+                "cardinality": "1"
+              }
+            ]
+          },
+          {
+            "name": "ImageWithSubProp_MixedValidCards",
+            "super": "StillImageRepresentation",
+            "labels": {
+              "en": "ImageWithSubProp_MixedValidCards"
+            },
+            "cardinalities": [
+              {
+                "propname": ":testIsPartOf",
+                "gui_order": 1,
+                "cardinality": "0-1"
+              },
+              {
+                "propname": ":testSeqnum",
+                "gui_order": 2,
+                "cardinality": "1"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

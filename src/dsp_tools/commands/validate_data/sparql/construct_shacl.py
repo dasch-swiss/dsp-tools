@@ -31,6 +31,7 @@ def construct_shapes_graphs(onto: Graph, knora_api: Graph, project_lists: AllPro
 
 
 def _get_all_relevant_knora_subset(knora_api: Graph) -> Graph:
+    logger.info("Getting relevant knora-api subset")
     props = ["isLinkProperty", "isEditable"]
     g = Graph()
     for p in props:
@@ -39,7 +40,6 @@ def _get_all_relevant_knora_subset(knora_api: Graph) -> Graph:
 
 
 def _get_one_relevant_knora_subset(knora_api: Graph, knora_prop: str) -> Graph:
-    logger.info("Getting relevant knora-api subset")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>

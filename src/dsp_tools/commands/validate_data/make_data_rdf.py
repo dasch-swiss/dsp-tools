@@ -1,5 +1,6 @@
 from uuid import uuid4
 
+from loguru import logger
 from rdflib import RDF
 from rdflib import XSD
 from rdflib import Graph
@@ -29,6 +30,7 @@ def make_data_rdf(data_deserialised: DataDeserialised) -> Graph:
     Returns:
         Graph with the data
     """
+    logger.info("Creating the RDF data graph.")
     g = Graph()
     for r in data_deserialised.resources:
         g += _make_one_resource(r)

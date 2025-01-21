@@ -1,6 +1,7 @@
 import importlib.resources
 from pathlib import Path
 
+from loguru import logger
 from rdflib import RDF
 from rdflib import SH
 from rdflib import Graph
@@ -30,6 +31,7 @@ def validate_ontology(
     Returns:
         A validation report if errors were found
     """
+    logger.info("Validating the ontology.")
     shacl_file = importlib.resources.files("dsp_tools").joinpath("resources/validate_data/validate-ontology.ttl")
     onto_shacl = Graph()
     onto_shacl = onto_shacl.parse(str(shacl_file))

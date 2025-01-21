@@ -5,7 +5,7 @@ from rdflib import XSD
 from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
-
+from loguru import logger
 from dsp_tools.commands.validate_data.constants import DATA
 from dsp_tools.commands.validate_data.constants import TRIPLE_OBJECT_TYPE_TO_XSD
 from dsp_tools.commands.validate_data.constants import TRIPLE_PROP_TYPE_TO_IRI_MAPPER
@@ -29,6 +29,7 @@ def make_data_rdf(data_deserialised: DataDeserialised) -> Graph:
     Returns:
         Graph with the data
     """
+    logger.info("Creating the RDF data graph.")
     g = Graph()
     for r in data_deserialised.resources:
         g += _make_one_resource(r)

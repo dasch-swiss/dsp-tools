@@ -1,5 +1,5 @@
 from rdflib import Graph
-
+from loguru import logger
 
 def construct_cardinality_node_shapes(onto: Graph) -> Graph:
     """
@@ -11,6 +11,7 @@ def construct_cardinality_node_shapes(onto: Graph) -> Graph:
     Returns:
         Graph with the resource class node shapes
     """
+    logger.info("Constructing cardinality shapes for the ontology.")
     g = Graph()
     g += _construct_resource_nodeshape(onto)
     g += _construct_all_cardinalities(onto)
@@ -18,6 +19,7 @@ def construct_cardinality_node_shapes(onto: Graph) -> Graph:
 
 
 def _construct_resource_nodeshape(onto_graph: Graph) -> Graph:
+    logger.info("Constructing resource NodeShape")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -59,6 +61,7 @@ def _construct_all_cardinalities(onto_graph: Graph) -> Graph:
 
 
 def _construct_1_cardinality(onto_graph: Graph) -> Graph:
+    logger.info("Constructing cardinality: 1")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -103,6 +106,7 @@ def _construct_1_cardinality(onto_graph: Graph) -> Graph:
 
 
 def _construct_0_1_cardinality(onto_graph: Graph) -> Graph:
+    logger.info("Constructing cardinality: 0-1")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -142,6 +146,7 @@ def _construct_0_1_cardinality(onto_graph: Graph) -> Graph:
 
 
 def _construct_1_n_cardinality(onto_graph: Graph) -> Graph:
+    logger.info("Constructing cardinality: 1-n")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -180,6 +185,7 @@ def _construct_1_n_cardinality(onto_graph: Graph) -> Graph:
 
 
 def _construct_0_n_cardinality(onto_graph: Graph) -> Graph:
+    logger.info("Constructing cardinality: 0-n")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>

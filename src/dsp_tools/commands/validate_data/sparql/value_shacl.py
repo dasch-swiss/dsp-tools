@@ -6,7 +6,7 @@ from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
 from rdflib.collection import Collection
-
+from loguru import logger
 from dsp_tools.commands.validate_data.constants import API_SHAPES
 from dsp_tools.commands.validate_data.constants import PropertyTypeAlias
 from dsp_tools.commands.validate_data.constants import SubjectObjectTypeAlias
@@ -26,6 +26,7 @@ def construct_property_shapes(onto: Graph, project_lists: AllProjectLists) -> Gr
     Returns:
         Graph with the property shapes
     """
+    logger.info("Constructing property shapes for ontology.")
     g = Graph()
     g += _construct_property_type_shape_based_on_object_type(onto)
     g += _construct_link_value_shape(onto)
@@ -37,6 +38,7 @@ def construct_property_shapes(onto: Graph, project_lists: AllProjectLists) -> Gr
 
 
 def _add_property_shapes_to_class_shapes(onto: Graph) -> Graph:
+    logger.info("Add property shape to resources")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -84,6 +86,7 @@ def _construct_property_type_shape_based_on_object_type(onto: Graph) -> Graph:
 
 
 def _construct_one_property_type_shape_based_on_object_type(onto: Graph, object_type: str, shacl_shape: str) -> Graph:
+    logger.info(f"Constructing shape for {object_type}")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -111,6 +114,7 @@ def _construct_one_property_type_shape_based_on_object_type(onto: Graph, object_
 
 
 def _construct_link_value_shape(onto: Graph) -> Graph:
+    logger.info("Constructing LinkValue PropertyShape")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -139,6 +143,7 @@ def _construct_link_value_shape(onto: Graph) -> Graph:
 
 
 def _construct_link_value_node_shape(onto: Graph) -> Graph:
+    logger.info("Constructing LinkValue NodeShape")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -185,6 +190,7 @@ def _construct_property_type_text_value(onto: Graph) -> Graph:
 
 
 def _construct_one_property_type_text_value(onto: Graph, gui_element: str, shacl_shape: str) -> Graph:
+    logger.info(f"Constructing shape for {gui_element}")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -259,6 +265,7 @@ def _construct_one_list_property_shape_with_collection(shacl_info: SHACLListInfo
 
 
 def _construct_one_list_property_shape(onto: Graph, one_list: OneList) -> Graph:
+    logger.info(f"Constructing Collection Shape for ListValue: {one_list.list_iri}")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -285,6 +292,7 @@ def _construct_one_list_property_shape(onto: Graph, one_list: OneList) -> Graph:
 
 
 def _construct_seqnum_is_part_of_prop_shape(onto: Graph) -> Graph:
+    logger.info(f"Constructing Collection Shape seqnum / isPartOf")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>

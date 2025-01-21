@@ -185,7 +185,7 @@ def _create_graphs(onto_client: OntologyClient, list_client: ListClient, data_rd
     knora_ttl = onto_client.get_knora_api()
     knora_api = Graph()
     knora_api.parse(data=knora_ttl, format="ttl")
-    shapes = construct_shapes_graphs(ontologies, all_lists)
+    shapes = construct_shapes_graphs(ontologies, knora_api, all_lists)
     api_shapes = Graph()
     api_shapes_path = importlib.resources.files("dsp_tools").joinpath("resources/validate_data/api-shapes.ttl")
     api_shapes.parse(str(api_shapes_path))

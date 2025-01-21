@@ -67,7 +67,7 @@ class BulkIngestClient:
         # noqa: DAR201
         """
         filepath_rel = filepath.relative_to("/") if filepath.is_absolute() else filepath
-        target_base = Path("/Volumes/Salsah/LHTT/dsp-api/sipi/tmp-dsp-ingest/import/0820")
+        target_base = Path("/Volumes/Thoth/dsp-api/sipi/tmp-dsp-ingest/import/0820")
         target = target_base / filepath_rel
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy(filepath, target)

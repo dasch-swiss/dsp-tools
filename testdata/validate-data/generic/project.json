@@ -425,11 +425,6 @@
                 "propname": ":testHasRepresentation",
                 "cardinality": "0-n",
                 "gui_order": 18
-              },
-              {
-                "propname": ":testIsPartOf",
-                "cardinality": "0-n",
-                "gui_order": 19
               }
             ]
           },
@@ -687,40 +682,6 @@
               {
                 "propname": ":testSeqnum",
                 "cardinality": "0-1"
-              }
-            ]
-          },
-          {
-            "name": "TestStillImageRepresentationWithSeqnumErroneousCard",
-            "super": "StillImageRepresentation",
-            "labels": {
-              "en": "StillImageRepresentation with knora-api:seqnum and erroneous cardinality"
-            },
-            "cardinalities": [
-              {
-                "propname": "isPartOf",
-                "cardinality": "0-n"
-              },
-              {
-                "propname": "seqnum",
-                "cardinality": "0-n"
-              }
-            ]
-          },
-          {
-            "name": "TestStillImageRepresentationWithInheritedSeqnumErroneousCard",
-            "super": "StillImageRepresentation",
-            "labels": {
-              "en": "StillImageRepresentation using sub-properties of seqnum and erroneous cardinality"
-            },
-            "cardinalities": [
-              {
-                "propname": ":testIsPartOf",
-                "cardinality": "0-n"
-              },
-              {
-                "propname": ":testSeqnum",
-                "cardinality": "0-n"
               }
             ]
           }

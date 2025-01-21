@@ -1,4 +1,5 @@
 @prefix sh:         <http://www.w3.org/ns/shacl#> .
+@prefix dash:       <http://datashapes.org/dash#> .
 @prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
 @prefix owl:        <http://www.w3.org/2002/07/owl#> .
@@ -73,6 +74,7 @@ api-shapes:BooleanValue_ClassShape
   sh:name     "Validates the class type" ;
   sh:message  "BooleanValue" ;
   sh:class    knora-api:BooleanValue ;
+  sh:property api-shapes:valueHasComment_Shape ;
   sh:severity sh:Violation .
 
 
@@ -85,6 +87,7 @@ api-shapes:ColorValue_ClassShape
   sh:name     "Validates the class type" ;
   sh:message  "ColorValue" ;
   sh:class    knora-api:ColorValue ;
+  sh:property api-shapes:valueHasComment_Shape ;
   sh:severity sh:Violation .
 
 
@@ -97,6 +100,7 @@ api-shapes:DateValue_ClassShape
   sh:name     "Validates the class type" ;
   sh:message  "DateValue" ;
   sh:class    knora-api:DateValue ;
+  sh:property api-shapes:valueHasComment_Shape ;
   sh:severity sh:Violation .
 
 
@@ -109,6 +113,7 @@ api-shapes:DecimalValue_ClassShape
   sh:name     "Validates the class type" ;
   sh:message  "DecimalValue" ;
   sh:class    knora-api:DecimalValue ;
+  sh:property api-shapes:valueHasComment_Shape ;
   sh:severity sh:Violation .
 
 
@@ -120,7 +125,7 @@ api-shapes:GeonameValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
   sh:message  "GeonameValue" ;
-  sh:property api-shapes:geonameValueAsGeonameCode_Shape ;
+  sh:property api-shapes:geonameValueAsGeonameCode_Shape, api-shapes:valueHasComment_Shape ;
   sh:class    knora-api:GeonameValue ;
   sh:severity sh:Violation .
 
@@ -142,6 +147,7 @@ api-shapes:IntValue_ClassShape
   sh:name     "Validates the class type" ;
   sh:message  "IntValue" ;
   sh:class    knora-api:IntValue ;
+  sh:property api-shapes:valueHasComment_Shape ;
   sh:severity sh:Violation .
 
 
@@ -154,6 +160,7 @@ api-shapes:LinkValue_ClassShape
   sh:name     "Validates the class type" ;
   sh:message  "LinkValue" ;
   sh:class    knora-api:LinkValue ;
+  sh:property api-shapes:valueHasComment_Shape ;
   sh:severity sh:Violation .
 
 
@@ -166,6 +173,7 @@ api-shapes:ListValue_ClassShape
   sh:name     "Validates the class type" ;
   sh:message  "ListValue" ;
   sh:class    knora-api:ListValue ;
+  sh:property api-shapes:valueHasComment_Shape ;
   sh:severity sh:Violation .
 
 
@@ -179,7 +187,7 @@ api-shapes:ListValue_ClassShape
 api-shapes:SimpleTextValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
-  sh:property api-shapes:SimpleTextValue_PropShape, api-shapes:valueAsString_Shape ;
+  sh:property api-shapes:SimpleTextValue_PropShape, api-shapes:valueAsString_Shape, api-shapes:valueHasComment_Shape ;
   sh:severity sh:Violation .
 
 api-shapes:SimpleTextValue_PropShape
@@ -205,7 +213,8 @@ api-shapes:valueAsString_Shape
 api-shapes:FormattedTextValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
-  sh:property api-shapes:FormattedTextValue_PropShape, api-shapes:textValueAsXml_Shape ;
+  sh:property api-shapes:FormattedTextValue_PropShape, api-shapes:textValueAsXml_Shape,
+              api-shapes:valueHasComment_Shape ;
   sh:severity sh:Violation .
 
 api-shapes:FormattedTextValue_PropShape
@@ -234,6 +243,7 @@ api-shapes:TimeValue_ClassShape
   sh:name     "Validates the class type" ;
   sh:message  "TimeValue" ;
   sh:class    knora-api:TimeValue ;
+  sh:property api-shapes:valueHasComment_Shape ;
   sh:severity sh:Violation .
 
 
@@ -246,7 +256,10 @@ api-shapes:UriValue_ClassShape
   sh:name     "Validates the class type" ;
   sh:message  "UriValue" ;
   sh:class    knora-api:UriValue ;
+  sh:property api-shapes:valueHasComment_Shape ;
   sh:severity sh:Violation .
+
+
 #########################################
 # KNORA-API IN-BUILT PROPERTIES
 #########################################
@@ -277,6 +290,34 @@ api-shapes:hasComment_PropertyShape
   sh:node api-shapes:FormattedTextValue_ClassShape ;
   sh:path knora-api:hasComment .
 
+
+### knora-api:valueHasComment
+
+api-shapes:valueHasComment_Shape
+  a           sh:PropertyShape ;
+  sh:message  "The comment on the value must be a non-empty string" ;
+  sh:path     knora-api:valueHasComment ;
+  sh:minCount 0 ;
+  sh:maxCount 1 ;
+  sh:pattern  "\\s*\\S+\\s*" ;
+  sh:datatype xsd:string ;
+  sh:severity sh:Violation .
+
+
+### knora-api:seqnum and knora-api:isPartOf
+
+# dash:coExistsWith ensures that isPartOf also needs seqnum. There is no need for a second shape.
+api-shapes:seqnum_PropShape
+  a                 sh:PropertyShape ;
+  sh:message        """
+                    The property seqnum or isPartOf (or sub-properties of them) must be used together.
+                    This resource only used one of the properties.
+                    """ ;
+  sh:path           knora-api:seqnum ;
+  dash:coExistsWith knora-api:isPartOf ;
+  sh:severity       sh:Violation .
+
+
 #########################################
 # DSP BUILT IN RESOURCES
 #########################################
@@ -290,13 +331,11 @@ api-shapes:hasComment_PropertyShape
 # LinkObj
 
 api-shapes:LinkObj_ResourceShape
-  a                  sh:NodeShape ;
-  sh:name            "Validates the LinkObj resource" ;
-  sh:targetClass     knora-api:LinkObj ;
-  sh:property        api-shapes:rdfsLabel_Shape ,
-                     api-shapes:hasLinkTo_PropertyShape ,
-                     api-shapes:hasComment_PropertyShape ;
-  sh:severity        sh:Violation .
+  a              sh:NodeShape ;
+  sh:name        "Validates the LinkObj resource" ;
+  sh:targetClass knora-api:LinkObj ;
+  sh:property    api-shapes:rdfsLabel_Shape, api-shapes:hasLinkTo_PropertyShape, api-shapes:hasComment_PropertyShape ;
+  sh:severity    sh:Violation .
 
 
 ###########################

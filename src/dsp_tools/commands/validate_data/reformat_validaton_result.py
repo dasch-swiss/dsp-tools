@@ -2,6 +2,7 @@ from typing import Callable
 from typing import cast
 
 import regex
+from loguru import logger
 from rdflib import RDF
 from rdflib import RDFS
 from rdflib import SH
@@ -16,7 +17,8 @@ from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import FileValueNotAllowedProblem
 from dsp_tools.commands.validate_data.models.input_problems import FileValueProblem
-from dsp_tools.commands.validate_data.models.input_problems import GenericProblem
+from dsp_tools.commands.validate_data.models.input_problems import GenericProblemWithInput
+from dsp_tools.commands.validate_data.models.input_problems import GenericProblemWithMessage
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import InputRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
@@ -39,6 +41,7 @@ from dsp_tools.commands.validate_data.models.validation import ResultNonExistent
 from dsp_tools.commands.validate_data.models.validation import ResultPatternViolation
 from dsp_tools.commands.validate_data.models.validation import ResultUniqueValueViolation
 from dsp_tools.commands.validate_data.models.validation import ResultValueTypeViolation
+from dsp_tools.commands.validate_data.models.validation import SeqnumIsPartOfViolation
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationResult
@@ -64,10 +67,9 @@ def reformat_validation_graph(report: ValidationReportGraphs) -> AllProblems:
     Returns:
         All Problems
     """
-
+    logger.info("Reformatting validation results.")
     results_and_onto = report.validation_graph + report.onto_graph
     data_and_onto = report.onto_graph + report.data_graph
-
     validation_results, unexpected_extracted = _query_all_results(results_and_onto, data_and_onto)
     reformatted_results: list[InputProblem] = _reformat_extracted_results(validation_results)
 
@@ -158,7 +160,7 @@ def _query_all_without_detail(
     return extracted_results, unexpected_components
 
 
-def _query_one_without_detail(
+def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
     base_info: ValidationResultBaseInfo, results_and_onto: Graph
 ) -> ValidationResult | UnexpectedComponent | None:
     msg = str(next(results_and_onto.objects(base_info.result_bn, SH.resultMessage)))
@@ -180,6 +182,13 @@ def _query_one_without_detail(
             return _query_for_non_existent_cardinality_violation(base_info, results_and_onto)
         case SH.SPARQLConstraintComponent:
             return _query_for_unique_value_violation(base_info, results_and_onto)
+        case DASH.CoExistsWithConstraintComponent:
+            return SeqnumIsPartOfViolation(
+                res_iri=base_info.resource_iri,
+                res_class=base_info.res_class_type,
+                results_message=msg,
+                property=None,
+            )
         case _:
             return UnexpectedComponent(str(component))
 
@@ -401,12 +410,20 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
             )
         case ResultGenericViolation():
             iris = _reformat_main_iris(validation_result)
-            return GenericProblem(
+            return GenericProblemWithInput(
                 res_id=iris.res_id,
                 res_type=iris.res_type,
                 prop_name=iris.prop_name,
                 results_message=validation_result.results_message,
                 actual_input=validation_result.actual_value,
+            )
+        case SeqnumIsPartOfViolation():
+            iris = _reformat_main_iris(validation_result)
+            return GenericProblemWithMessage(
+                res_id=iris.res_id,
+                res_type=iris.res_type,
+                prop_name="seqnum or isPartOf",
+                results_message=validation_result.results_message,
             )
         case ResultValueTypeViolation():
             return _reformat_value_type_violation_result(validation_result)
@@ -505,7 +522,7 @@ def _reformat_unique_value_violation_result(result: ResultUniqueValueViolation) 
 
 def _reformat_main_iris(result: ValidationResult) -> ReformattedIRI:
     subject_id = reformat_data_iri(result.res_iri)
-    prop_name = reformat_onto_iri(result.property)
+    prop_name = reformat_onto_iri(result.property) if result.property else ""
     res_type = reformat_onto_iri(result.res_class)
     return ReformattedIRI(res_id=subject_id, res_type=res_type, prop_name=prop_name)
 

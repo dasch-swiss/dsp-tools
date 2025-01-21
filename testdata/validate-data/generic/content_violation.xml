@@ -6,7 +6,7 @@
        shortcode="9999"
        default-ontology="onto">
 
-    <!-- 10 Violations -->
+    <!-- 12 Violations -->
 
     <!-- label may not be empty -->
     <resource label=" " restype=":ClassWithEverything" id="empty_label"/>
@@ -75,6 +75,20 @@
 
             </text>
         </text-prop>
+    </resource>
+
+    <!-- Comment on value may not be empty -->
+    <resource label="Comment on Value" restype=":ClassWithEverything" id="comment_on_value_empty">
+        <uri-prop name=":testUriValue">
+            <uri comment="">https://dasch.swiss</uri>
+        </uri-prop>
+    </resource>
+
+    <!-- Comment on value may not only consist of whitespace characters -->
+    <resource label="Comment on Value" restype=":ClassWithEverything" id="comment_on_value_whitespace">
+        <uri-prop name=":testUriValue">
+            <uri comment="   ">https://dasch.swiss</uri>
+        </uri-prop>
     </resource>
 
 </knora>

@@ -8,7 +8,8 @@ from rdflib import URIRef
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import FileValueNotAllowedProblem
 from dsp_tools.commands.validate_data.models.input_problems import FileValueProblem
-from dsp_tools.commands.validate_data.models.input_problems import GenericProblem
+from dsp_tools.commands.validate_data.models.input_problems import GenericProblemWithInput
+from dsp_tools.commands.validate_data.models.input_problems import GenericProblemWithMessage
 from dsp_tools.commands.validate_data.models.input_problems import InputRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
@@ -27,6 +28,7 @@ from dsp_tools.commands.validate_data.models.validation import ResultNonExistent
 from dsp_tools.commands.validate_data.models.validation import ResultPatternViolation
 from dsp_tools.commands.validate_data.models.validation import ResultUniqueValueViolation
 from dsp_tools.commands.validate_data.models.validation import ResultValueTypeViolation
+from dsp_tools.commands.validate_data.models.validation import SeqnumIsPartOfViolation
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
 from dsp_tools.commands.validate_data.reformat_validaton_result import _extract_base_info_of_resource_results
@@ -194,6 +196,15 @@ class TestQueryWithoutDetail:
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testHasLinkTo
         assert result.actual_value == DATA.link_valueTarget_id
+
+    def test_coexist_with(self, report_coexist_with: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
+        validation_g, _, info = report_coexist_with
+        result = _query_one_without_detail(info, validation_g)
+        assert isinstance(result, SeqnumIsPartOfViolation)
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
+        assert result.results_message == "The property seqnum must be used together with isPartOf"
+        assert not result.property
 
     def test_unknown(self, result_unknown_component: tuple[Graph, ValidationResultBaseInfo]) -> None:
         graphs, info = result_unknown_component
@@ -410,7 +421,7 @@ class TestReformatResult:
 
     def test_unknown_list_node(self, extracted_unknown_list_node: ResultGenericViolation) -> None:
         result = _reformat_one_validation_result(extracted_unknown_list_node)
-        assert isinstance(result, GenericProblem)
+        assert isinstance(result, GenericProblemWithInput)
         assert result.res_id == "list_node_non_existent"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testListProp"
@@ -419,7 +430,7 @@ class TestReformatResult:
 
     def test_unknown_list_name(self, extracted_unknown_list_name: ResultGenericViolation) -> None:
         result = _reformat_one_validation_result(extracted_unknown_list_name)
-        assert isinstance(result, GenericProblem)
+        assert isinstance(result, GenericProblemWithInput)
         assert result.res_id == "list_name_non_existent"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testListProp"
@@ -442,6 +453,14 @@ class TestReformatResult:
         assert result.res_id == "id_resource_without_representation"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "bitstream / iiif-uri"
+
+    def test_seqnum_is_part_of(self, extracted_coexist_with: SeqnumIsPartOfViolation) -> None:
+        result = _reformat_one_validation_result(extracted_coexist_with)
+        assert isinstance(result, GenericProblemWithMessage)
+        assert result.res_id == "missing_seqnum"
+        assert result.res_type == "in-built:TestStillImageRepresentationWithSeqnum"
+        assert result.prop_name == "seqnum or isPartOf"
+        assert result.results_message == "Coexist message from knora-api turtle"
 
 
 if __name__ == "__main__":

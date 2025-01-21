@@ -1,3 +1,4 @@
+from loguru import logger
 from rdflib import RDF
 from rdflib import SH
 from rdflib import XSD
@@ -26,16 +27,19 @@ def construct_property_shapes(onto: Graph, project_lists: AllProjectLists) -> Gr
     Returns:
         Graph with the property shapes
     """
+    logger.info("Constructing property shapes for ontology.")
     g = Graph()
     g += _construct_property_type_shape_based_on_object_type(onto)
     g += _construct_link_value_shape(onto)
     g += _construct_link_value_node_shape(onto)
     g += _construct_property_type_text_value(onto)
     g += _construct_list_shapes(onto, project_lists)
+    g += _construct_seqnum_is_part_of_prop_shape(onto)
     return g + _add_property_shapes_to_class_shapes(onto)
 
 
 def _add_property_shapes_to_class_shapes(onto: Graph) -> Graph:
+    logger.info("Add property shape to resources")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -83,6 +87,7 @@ def _construct_property_type_shape_based_on_object_type(onto: Graph) -> Graph:
 
 
 def _construct_one_property_type_shape_based_on_object_type(onto: Graph, object_type: str, shacl_shape: str) -> Graph:
+    logger.info(f"Constructing shape for {object_type}")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -110,6 +115,7 @@ def _construct_one_property_type_shape_based_on_object_type(onto: Graph, object_
 
 
 def _construct_link_value_shape(onto: Graph) -> Graph:
+    logger.info("Constructing LinkValue PropertyShape")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -138,6 +144,7 @@ def _construct_link_value_shape(onto: Graph) -> Graph:
 
 
 def _construct_link_value_node_shape(onto: Graph) -> Graph:
+    logger.info("Constructing LinkValue NodeShape")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -184,6 +191,7 @@ def _construct_property_type_text_value(onto: Graph) -> Graph:
 
 
 def _construct_one_property_type_text_value(onto: Graph, gui_element: str, shacl_shape: str) -> Graph:
+    logger.info(f"Constructing shape for {gui_element}")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -258,6 +266,7 @@ def _construct_one_list_property_shape_with_collection(shacl_info: SHACLListInfo
 
 
 def _construct_one_list_property_shape(onto: Graph, one_list: OneList) -> Graph:
+    logger.info(f"Constructing Collection Shape for ListValue: {one_list.list_iri}")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -278,6 +287,37 @@ def _construct_one_list_property_shape(onto: Graph, one_list: OneList) -> Graph:
         BIND(IRI(CONCAT(str(?prop), "_PropShape")) AS ?shapesIRI)
     }
     """ % {"guiAttribute": one_list.hlist(), "list": one_list.list_iri}  # noqa: UP031 (printf-string-formatting)
+    if results_graph := onto.query(query_s).graph:
+        return results_graph
+    return Graph()
+
+
+def _construct_seqnum_is_part_of_prop_shape(onto: Graph) -> Graph:
+    logger.info("Constructing Collection Shape seqnum / isPartOf")
+    query_s = """
+    PREFIX owl: <http://www.w3.org/2002/07/owl#> 
+    PREFIX sh: <http://www.w3.org/ns/shacl#>
+    PREFIX dash: <http://datashapes.org/dash#>
+    PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
+    PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
+    PREFIX salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#>
+
+    CONSTRUCT {
+        ?resourceClass sh:property api-shapes:seqnum_PropShape .
+    } WHERE {
+        ?resourceClass rdfs:subClassOf ?restriction .
+        ?restriction a owl:Restriction .
+        {
+            ?restriction owl:onProperty knora-api:seqnum .
+        }
+        UNION
+        {
+            ?restriction owl:onProperty knora-api:isPartOf .
+        }
+    }
+    """
+    # The API allows the ontology to declare cardinalities for seqnum without isPartOf and vice versa.
+    # Therefore we have a union query.
     if results_graph := onto.query(query_s).graph:
         return results_graph
     return Graph()

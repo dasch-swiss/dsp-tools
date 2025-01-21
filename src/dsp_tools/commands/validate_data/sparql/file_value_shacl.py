@@ -1,3 +1,4 @@
+from loguru import logger
 from rdflib import Graph
 
 
@@ -11,6 +12,7 @@ def construct_file_value_cardinality(onto: Graph) -> Graph:
     Returns:
         Graph with file cardinalities
     """
+    logger.info("Constructing File Value shapes for ontology.")
     val_prop_mapper = {
         "ArchiveRepresentation": "hasArchiveFileValue",
         "AudioRepresentation": "hasAudioFileValue",

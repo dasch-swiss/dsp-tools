@@ -1,3 +1,4 @@
+from loguru import logger
 from rdflib import Graph
 
 from dsp_tools.commands.validate_data.models.api_responses import AllProjectLists
@@ -18,6 +19,7 @@ def construct_shapes_graphs(onto: Graph, project_lists: AllProjectLists) -> SHAC
     Returns:
         shapes graph
     """
+    logger.info("Constructing SHACL shapes from ontology.")
     cardinality = construct_cardinality_node_shapes(onto)
     content = construct_property_shapes(onto, project_lists)
     file_values = construct_file_value_cardinality(onto)

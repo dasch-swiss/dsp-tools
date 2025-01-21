@@ -7,17 +7,20 @@ from rdflib import URIRef
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create import create_project
+from dsp_tools.commands.validate_data.api_clients import ShaclValidator
 from dsp_tools.commands.validate_data.api_connection import ApiConnection
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import FileValueNotAllowedProblem
 from dsp_tools.commands.validate_data.models.input_problems import FileValueProblem
-from dsp_tools.commands.validate_data.models.input_problems import GenericProblem
+from dsp_tools.commands.validate_data.models.input_problems import GenericProblemWithInput
+from dsp_tools.commands.validate_data.models.input_problems import GenericProblemWithMessage
 from dsp_tools.commands.validate_data.models.input_problems import InputRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityProblem
+from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProblem
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
@@ -28,11 +31,11 @@ from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_
 from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validate_data import _get_parsed_graphs
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
+from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
 from test.e2e_validate_data.setup_testcontainers import get_containers
 
 CREDS = ServerCredentials("root@example.com", "test", "http://0.0.0.0:3333")
 LOCAL_API = "http://0.0.0.0:3333"
-DONT_SAVE_GRAPHS = False
 
 
 @pytest.fixture(scope="module")
@@ -41,6 +44,7 @@ def _create_projects() -> Iterator[None]:
         assert create_project(Path("testdata/validate-data/generic/project.json"), CREDS)
         assert create_project(Path("testdata/validate-data/special_characters/project_special_characters.json"), CREDS)
         assert create_project(Path("testdata/validate-data/inheritance/project_inheritance.json"), CREDS)
+        assert create_project(Path("testdata/validate-data/erroneous_ontology/project_erroneous_ontology.json"), CREDS)
         yield
 
 
@@ -50,10 +54,17 @@ def api_con() -> ApiConnection:
 
 
 @pytest.fixture(scope="module")
-def cardinality_correct(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+def shacl_validator(api_con: ApiConnection) -> ShaclValidator:
+    return ShaclValidator(api_con)
+
+
+@pytest.fixture(scope="module")
+def cardinality_correct(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/cardinality_correct.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
@@ -63,108 +74,147 @@ def unknown_classes_graphs(_create_projects: Iterator[None], api_con: ApiConnect
 
 
 @pytest.fixture(scope="module")
-def cardinality_violation(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+def cardinality_violation(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/cardinality_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
-def content_correct(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+def content_correct(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/content_correct.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
-def content_violation(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+def content_violation(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/content_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
-def every_combination_once(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+def every_combination_once(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/every_combination_once.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
-def minimal_correct(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+def minimal_correct(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/minimal_correct.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
-def value_type_violation(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+def value_type_violation(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/value_type_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
-def unique_value_violation(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+def unique_value_violation(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/unique_value_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
-def file_value_correct(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+def file_value_correct(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/file_value_correct.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
-def file_value_violation(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+def file_value_violation(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/file_value_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
-def dsp_inbuilt_correct(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+def dsp_inbuilt_correct(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/dsp_inbuilt_correct.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
-def dsp_inbuilt_violation(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+def dsp_inbuilt_violation(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/dsp_inbuilt_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
-def special_characters_correct(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+def special_characters_correct(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/special_characters/special_characters_correct.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
-def special_characters_violation(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+def special_characters_violation(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/special_characters/special_characters_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
-def inheritance_correct(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+def inheritance_correct(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/inheritance/inheritance_correct.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
-def inheritance_violation(_create_projects: Iterator[None], api_con: ApiConnection) -> ValidationReportGraphs:
+def inheritance_violation(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/inheritance/inheritance_violation.xml")
     graphs = _get_parsed_graphs(api_con, file)
-    return _get_validation_result(graphs, api_con, file, DONT_SAVE_GRAPHS)
+    return _get_validation_result(graphs, shacl_validator, None)
+
+
+@pytest.fixture(scope="module")
+def validate_ontology_violation(
+    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+) -> OntologyValidationProblem | None:
+    file = Path("testdata/validate-data/erroneous_ontology/erroneous_ontology.xml")
+    graphs = _get_parsed_graphs(api_con, file)
+    return validate_ontology(graphs.ontos, shacl_validator, None)
 
 
 def test_extract_identifiers_of_resource_results(every_combination_once: ValidationReportGraphs) -> None:
@@ -185,6 +235,7 @@ def test_extract_identifiers_of_resource_results(every_combination_once: Validat
         (URIRef("http://data/link_target_non_existent"), BNode),
         (URIRef("http://data/link_target_wrong_class"), BNode),
         (URIRef("http://data/list_node_non_existent"), BNode),
+        (URIRef("http://data/missing_seqnum"), None),
     ]
     assert len(result) == len(expected_iris)
     for result_info, expected_iri in zip(result_sorted, expected_iris):
@@ -296,6 +347,16 @@ class TestReformatValidationGraph:
         assert not result.unexpected_results
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         expected_info_tuples = [
+            (
+                "comment_on_value_empty",
+                "onto:testUriValue",
+                "The comment on the value must be a non-empty string",
+            ),
+            (
+                "comment_on_value_whitespace",
+                "onto:testUriValue",
+                "The comment on the value must be a non-empty string",
+            ),
             ("empty_label", "rdfs:label", "The label must be a non-empty string"),
             ("empty_text_rich", "onto:testRichtext", "The value must be a non-empty string"),
             ("empty_text_simple", "onto:testTextarea", "The value must be a non-empty string"),
@@ -334,7 +395,7 @@ class TestReformatValidationGraph:
             assert one_result.prop_name == expected_info[1]
             if isinstance(one_result, InputRegexProblem):
                 assert one_result.expected_format == expected_info[2]
-            elif isinstance(one_result, GenericProblem):
+            elif isinstance(one_result, GenericProblemWithInput):
                 assert one_result.results_message == expected_info[2]
             elif isinstance(one_result, LinkTargetTypeMismatchProblem):
                 assert one_result.link_target_id == expected_info[2]
@@ -357,7 +418,8 @@ class TestReformatValidationGraph:
             ("identical_values", DuplicateValueProblem),
             ("link_target_non_existent", LinkedResourceDoesNotExistProblem),
             ("link_target_wrong_class", LinkTargetTypeMismatchProblem),
-            ("list_node_non_existent", GenericProblem),
+            ("list_node_non_existent", GenericProblemWithInput),
+            ("missing_seqnum", GenericProblemWithMessage),
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)
@@ -410,6 +472,8 @@ class TestReformatValidationGraph:
         result = reformat_validation_graph(dsp_inbuilt_violation)
         expected_info_tuples = [
             ("link_obj_target_non_existent", LinkedResourceDoesNotExistProblem),
+            ("missing_isPartOf", GenericProblemWithMessage),
+            ("missing_seqnum", GenericProblemWithMessage),
             ("target_must_be_a_representation", LinkTargetTypeMismatchProblem),
             ("target_must_be_an_image_representation", LinkTargetTypeMismatchProblem),
         ]
@@ -463,7 +527,7 @@ class TestReformatValidationGraph:
         assert len(result.problems) == len(expected_tuples)
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         for prblm, expected in zip(sorted_problems, expected_tuples):
-            if isinstance(prblm, GenericProblem):
+            if isinstance(prblm, GenericProblemWithInput):
                 assert prblm.res_id == expected[0]
                 assert prblm.problem == expected[1]
                 assert prblm.actual_input == expected[2]
@@ -485,6 +549,33 @@ class TestReformatValidationGraph:
             assert isinstance(one_result, NonExistentCardinalityProblem)
             assert one_result.res_id == expected[0]
             assert one_result.prop_name in expected[1]
+
+    def test_validate_ontology_violation(self, validate_ontology_violation: ValidationReportGraphs | None) -> None:
+        assert isinstance(validate_ontology_violation, OntologyValidationProblem)
+        erroneous_cards_msg = {
+            "isPartOf must either have cardinality 1 or 0-1.",
+            "seqnum must either have cardinality 1 or 0-1.",
+        }
+        missing_is_part_of = {"A class with a cardinality for seqnum also requires a cardinality for isPartOf."}
+        missing_seqnum = {"A class with a cardinality for isPartOf also requires a cardinality for seqnum."}
+        mixed_cards = {"The cardinalities for seqnum and isPartOf must be identical within one resource class."}
+        expected_results = [
+            ("error:ImageWithKnoraProp_ErroneousCards", erroneous_cards_msg),
+            ("error:ImageWithKnoraProp_ErroneousCards", erroneous_cards_msg),
+            ("error:ImageWithKnoraProp_MissingIsPartOf", missing_is_part_of),
+            ("error:ImageWithKnoraProp_MissingSeqnum", missing_seqnum),
+            ("error:ImageWithKnoraProp_MixedValidCards", mixed_cards),
+            ("error:ImageWithSubProp_ErroneousCards", erroneous_cards_msg),
+            ("error:ImageWithSubProp_ErroneousCards", erroneous_cards_msg),
+            ("error:ImageWithSubProp_MissingIsPartOf", missing_is_part_of),
+            ("error:ImageWithSubProp_MissingSeqnum", missing_seqnum),
+            ("error:ImageWithSubProp_MixedValidCards", mixed_cards),
+        ]
+        sorted_problems = sorted(validate_ontology_violation.problems, key=lambda x: x.res_iri)
+        assert len(validate_ontology_violation.problems) == len(expected_results)
+        for one_result, expected in zip(sorted_problems, expected_results):
+            assert one_result.res_iri == expected[0]
+            assert one_result.msg in expected[1]
 
 
 def test_check_for_unknown_resource_classes(unknown_classes_graphs: RDFGraphs) -> None:

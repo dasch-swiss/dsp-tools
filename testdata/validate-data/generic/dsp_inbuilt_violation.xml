@@ -6,24 +6,7 @@
        shortcode="9999"
        default-ontology="in-built">
 
-    <permissions id="open">
-        <allow group="UnknownUser">V</allow>
-        <allow group="KnownUser">V</allow>
-        <allow group="ProjectMember">D</allow>
-        <allow group="ProjectAdmin">CR</allow>
-    </permissions>
-    <permissions id="restricted-view">
-        <allow group="UnknownUser">RV</allow>
-        <allow group="KnownUser">RV</allow>
-        <allow group="ProjectMember">D</allow>
-        <allow group="ProjectAdmin">CR</allow>
-    </permissions>
-    <permissions id="restricted">
-        <allow group="ProjectMember">D</allow>
-        <allow group="ProjectAdmin">CR</allow>
-    </permissions>
-
-    <!-- 3 Violations -->
+    <!-- 5 Violations -->
 
     <!-- Target Resources for Links -->
 
@@ -64,10 +47,6 @@
         </resptr-prop>
     </resource>
 
-
-    <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-    <!-- 6 Violations but not yet implemented -->
-
     <!-- direct usage of knora-api seqnum/isPartOf one prop missing -->
 
     <resource label="Image with sequence" restype=":TestStillImageRepresentationWithSeqnum"
@@ -85,6 +64,10 @@
             <integer>1</integer>
         </integer-prop>
     </resource>
+
+
+    <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
+    <!-- 4 Violations but not yet implemented -->
 
 
     <!-- sub-property usage of knora-api seqnum/isPartOf one prop missing -->
@@ -130,45 +113,6 @@
         </resptr-prop>
         <integer-prop name=":testSeqnum">
             <integer>-1</integer>
-        </integer-prop>
-    </resource>
-
-
-    <!--
-        The API erroneously allows 0-n cardinalities for seqnum/isPartOf.
-        Therefore, we cannot rely on the ontology to get it correct.
-        We have to treat it as a special case.
-    -->
-
-    <!-- direct usage of knora-api seqnum/isPartOf: multiple usage -->
-
-    <resource label="Image with sequence" restype=":TestStillImageRepresentationWithSeqnumErroneousCard"
-              id="seqnum_isPartOf_direct_usage_and_erroneous_card">
-        <bitstream>this/is/filepath/file.jpg</bitstream>
-        <resptr-prop name="isPartOf">
-            <resptr>target_res_without_representation_1</resptr>
-            <resptr>target_res_without_representation_2</resptr>
-            <resptr>target_empty_1</resptr>
-        </resptr-prop>
-        <integer-prop name="seqnum">
-            <integer>1</integer>
-            <integer>2</integer>
-        </integer-prop>
-    </resource>
-
-
-    <!-- sub-property usage of knora-api seqnum/isPartOf: multiple usage -->
-
-    <resource label="Image with sequence" restype=":TestStillImageRepresentationWithInheritedSeqnumErroneousCard"
-              id="seqnum_isPartOf_sub_prop_usage_and_erroneous_card">
-        <bitstream>this/is/filepath/file.jpg</bitstream>
-        <resptr-prop name=":testIsPartOf">
-            <resptr>target_res_without_representation_1</resptr>
-            <resptr>target_res_without_representation_2</resptr>
-        </resptr-prop>
-        <integer-prop name=":testSeqnum">
-            <integer>1</integer>
-            <integer>2</integer>
         </integer-prop>
     </resource>
 

@@ -322,11 +322,6 @@ api-shapes:seqnum_PropShape
 # DSP BUILT IN RESOURCES
 #########################################
 
-
-###########################
-# Region
-
-
 ###########################
 # LinkObj
 
@@ -336,6 +331,10 @@ api-shapes:LinkObj_ResourceShape
   sh:targetClass knora-api:LinkObj ;
   sh:property    api-shapes:rdfsLabel_Shape, api-shapes:hasLinkTo_PropertyShape, api-shapes:hasComment_PropertyShape ;
   sh:severity    sh:Violation .
+
+
+###########################
+# Region
 
 
 ###########################

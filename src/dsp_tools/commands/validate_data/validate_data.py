@@ -185,18 +185,17 @@ def _create_graphs(onto_client: OntologyClient, list_client: ListClient, data_rd
     knora_ttl = onto_client.get_knora_api()
     knora_api = Graph()
     knora_api.parse(data=knora_ttl, format="ttl")
-    onto_for_construction = deepcopy(ontologies) + knora_api
-    shapes = construct_shapes_graphs(onto_for_construction, all_lists)
+    shapes = construct_shapes_graphs(ontologies, all_lists)
     api_shapes = Graph()
     api_shapes_path = importlib.resources.files("dsp_tools").joinpath("resources/validate_data/api-shapes.ttl")
     api_shapes.parse(str(api_shapes_path))
-    file_shapes = Graph()
-    file_shapes_path = importlib.resources.files("dsp_tools").joinpath(
+    api_card_shapes = Graph()
+    api_card_path = importlib.resources.files("dsp_tools").joinpath(
         "resources/validate_data/api-shapes-with-cardinalities.ttl"
     )
-    file_shapes.parse(str(file_shapes_path))
+    api_card_shapes.parse(str(api_card_path))
     content_shapes = shapes.content + api_shapes
-    card_shapes = shapes.cardinality + file_shapes
+    card_shapes = shapes.cardinality + api_card_shapes
     return RDFGraphs(
         data=data_rdf,
         ontos=ontologies,

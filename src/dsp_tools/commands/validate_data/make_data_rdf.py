@@ -1,11 +1,12 @@
 from uuid import uuid4
 
+from loguru import logger
 from rdflib import RDF
 from rdflib import XSD
 from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
-from loguru import logger
+
 from dsp_tools.commands.validate_data.constants import DATA
 from dsp_tools.commands.validate_data.constants import TRIPLE_OBJECT_TYPE_TO_XSD
 from dsp_tools.commands.validate_data.constants import TRIPLE_PROP_TYPE_TO_IRI_MAPPER

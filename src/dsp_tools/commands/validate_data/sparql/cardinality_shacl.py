@@ -1,5 +1,6 @@
-from rdflib import Graph
 from loguru import logger
+from rdflib import Graph
+
 
 def construct_cardinality_node_shapes(onto: Graph) -> Graph:
     """

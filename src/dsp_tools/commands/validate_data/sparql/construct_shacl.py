@@ -1,5 +1,6 @@
-from rdflib import Graph
 from loguru import logger
+from rdflib import Graph
+
 from dsp_tools.commands.validate_data.models.api_responses import AllProjectLists
 from dsp_tools.commands.validate_data.models.validation import SHACLGraphs
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import construct_cardinality_node_shapes

@@ -2,6 +2,7 @@ from typing import Callable
 from typing import cast
 
 import regex
+from loguru import logger
 from rdflib import RDF
 from rdflib import RDFS
 from rdflib import SH
@@ -48,7 +49,7 @@ from dsp_tools.commands.validate_data.models.validation import ValidationResultB
 from dsp_tools.commands.validate_data.utils import reformat_data_iri
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.models.exceptions import BaseError
-from loguru import logger
+
 result_to_problem_mapper = {
     ResultMaxCardinalityViolation: MaxCardinalityProblem,
     ResultMinCardinalityViolation: MinCardinalityProblem,

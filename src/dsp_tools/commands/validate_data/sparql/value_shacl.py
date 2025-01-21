@@ -1,3 +1,4 @@
+from loguru import logger
 from rdflib import RDF
 from rdflib import SH
 from rdflib import XSD
@@ -6,7 +7,7 @@ from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
 from rdflib.collection import Collection
-from loguru import logger
+
 from dsp_tools.commands.validate_data.constants import API_SHAPES
 from dsp_tools.commands.validate_data.constants import PropertyTypeAlias
 from dsp_tools.commands.validate_data.constants import SubjectObjectTypeAlias
@@ -292,7 +293,7 @@ def _construct_one_list_property_shape(onto: Graph, one_list: OneList) -> Graph:
 
 
 def _construct_seqnum_is_part_of_prop_shape(onto: Graph) -> Graph:
-    logger.info(f"Constructing Collection Shape seqnum / isPartOf")
+    logger.info("Constructing Collection Shape seqnum / isPartOf")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>

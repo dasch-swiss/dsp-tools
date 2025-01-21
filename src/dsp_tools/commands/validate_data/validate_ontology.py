@@ -1,10 +1,11 @@
 import importlib.resources
 from pathlib import Path
 
+from loguru import logger
 from rdflib import RDF
 from rdflib import SH
 from rdflib import Graph
-from loguru import logger
+
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
 from dsp_tools.commands.validate_data.constants import SubjectObjectTypeAlias
 from dsp_tools.commands.validate_data.models.input_problems import OntologyResourceProblem

@@ -62,7 +62,7 @@ def _construct_all_cardinalities(onto_graph: Graph) -> Graph:
 
 
 def _construct_1_cardinality(onto_graph: Graph) -> Graph:
-    logger.info("Constructing 1 cardinality")
+    logger.info("Constructing cardinality: 1")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -107,7 +107,7 @@ def _construct_1_cardinality(onto_graph: Graph) -> Graph:
 
 
 def _construct_0_1_cardinality(onto_graph: Graph) -> Graph:
-    logger.info("Constructing 0-1 cardinality")
+    logger.info("Constructing cardinality: 0-1")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -147,7 +147,7 @@ def _construct_0_1_cardinality(onto_graph: Graph) -> Graph:
 
 
 def _construct_1_n_cardinality(onto_graph: Graph) -> Graph:
-    logger.info("Constructing 1-n cardinality")
+    logger.info("Constructing cardinality: 1-n")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>
@@ -186,7 +186,7 @@ def _construct_1_n_cardinality(onto_graph: Graph) -> Graph:
 
 
 def _construct_0_n_cardinality(onto_graph: Graph) -> Graph:
-    logger.info("Constructing 0-n cardinality")
+    logger.info("Constructing cardinality: 0-n")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>

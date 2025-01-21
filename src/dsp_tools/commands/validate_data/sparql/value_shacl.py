@@ -268,7 +268,7 @@ def _construct_one_list_property_shape_with_collection(shacl_info: SHACLListInfo
 
 
 def _construct_one_list_property_shape(onto: Graph, one_list: OneList) -> Graph:
-    logger.info(f"Constructing ListValue PropertyShape for {one_list.list_iri}")
+    logger.info(f"Constructing Collection Shape for ListValue: {one_list.list_iri}")
     query_s = """
     PREFIX owl: <http://www.w3.org/2002/07/owl#> 
     PREFIX sh: <http://www.w3.org/ns/shacl#>

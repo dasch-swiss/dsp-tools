@@ -312,6 +312,25 @@ api-shapes:hasLinkTo_NodeShape
   sh:severity sh:Violation .
 
 
+### knora-api:isRegionOf
+
+api-shapes:isRegionOf_PropertyShape
+  a       sh:PropertyShape ;
+  sh:path knora-api:isRegionOf ;
+  sh:node api-shapes:LinkValue_ClassShape, api-shapes:isRegionOf_NodeShape .
+
+api-shapes:isRegionOf_NodeShape
+  a           sh:NodeShape ;
+  sh:name     "This ensures that the target of the property is of type Representation, i.e. exists in the graph." ;
+  sh:property [
+                a          sh:PropertyShape ;
+                sh:class   knora-api:Representation ;
+                sh:message "Range is a Representation or a subclass." ;
+                sh:path    knora-api:isRegionOf ;
+              ] ;
+  sh:severity sh:Violation .
+
+
 ### knora-api:hasComment
 
 api-shapes:hasComment_PropertyShape
@@ -335,11 +354,18 @@ api-shapes:valueHasComment_Shape
 
 ### knora-api:hasColor
 
-api-shapes:hasComment_PropertyShape
+api-shapes:hasColor_PropertyShape
   a       sh:PropertyShape ;
-  sh:node api-shapes:FormattedTextValue_ClassShape ;
-  sh:path knora-api:hasComment .
+  sh:node api-shapes:ColorValue_ClassShape ;
+  sh:path knora-api:hasColor .
 
+
+### knora-api:hasGeometry
+
+api-shapes:hasGeometry_PropertyShape
+  a       sh:PropertyShape ;
+  sh:node api-shapes:GeomValue_ClassShape ;
+  sh:path knora-api:hasGeometry .
 
 
 ### knora-api:seqnum and knora-api:isPartOf
@@ -374,15 +400,16 @@ api-shapes:LinkObj_ResourceShape
 ###########################
 # Region
 
-
 api-shapes:Region_ResourceShape
   a              sh:NodeShape ;
   sh:name        "Validates the Region resource" ;
   sh:targetClass knora-api:Region ;
-  sh:property    api-shapes:rdfsLabel_Shape , api-shapes:hasComment_PropertyShape ;
+  sh:property    api-shapes:rdfsLabel_Shape ,
+                 api-shapes:hasColor_PropertyShape ,
+                 api-shapes:isRegionOf_PropertyShape ,
+                 api-shapes:hasGeometry_PropertyShape ,
+                 api-shapes:hasComment_PropertyShape ;
   sh:severity    sh:Violation .
-
-
 
 
 ###########################

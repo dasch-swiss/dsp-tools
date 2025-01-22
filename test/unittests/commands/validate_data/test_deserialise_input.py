@@ -1,6 +1,7 @@
 import pytest
 from lxml import etree
 
+from dsp_tools.commands.validate_data.constants import KNORA_API_STR
 from dsp_tools.commands.validate_data.deserialise_input import _deserialise_all_resources
 from dsp_tools.commands.validate_data.deserialise_input import _deserialise_one_property
 from dsp_tools.commands.validate_data.deserialise_input import _deserialise_one_resource
@@ -146,6 +147,24 @@ class TestGeonameValue:
         assert res[1].user_facing_value == "2222222"
         assert res[0].knora_type == KnoraValueType.GEONAME_VALUE
         assert res[1].knora_type == KnoraValueType.GEONAME_VALUE
+
+
+class TestGeomValue:
+    def test_corr(self, geometry_value_corr: etree._Element) -> None:
+        res_list = _deserialise_one_property(geometry_value_corr)
+        assert len(res_list) == 1
+        res = res_list[0]
+        assert res.user_facing_prop == f"{KNORA_API_STR}hasGeometry"
+        assert len(res.user_facing_value) > 0
+        assert res.knora_type == KnoraValueType.GEOM_VALUE
+        assert not res.value_metadata
+
+    def test_wrong(self, geometry_value_wrong: etree._Element) -> None:
+        res = _deserialise_one_property(geometry_value_wrong)
+        assert len(res) == 1
+        assert res[0].user_facing_prop == f"{KNORA_API_STR}hasGeometry"
+        assert not res[0].user_facing_prop
+        assert res[0].knora_type == KnoraValueType.GEOM_VALUE
 
 
 class TestIntValue:

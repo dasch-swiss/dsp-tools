@@ -31,7 +31,6 @@ SubjectObjectTypeAlias: TypeAlias = Union[IdentifiedNode, Literal, Variable]
 KNORA_API_STR = "http://api.knora.org/ontology/knora-api/v2#"
 API_SHAPES_STR = "http://api.knora.org/ontology/knora-api/shapes/v2#"
 
-REGION_RESOURCE = KNORA_API_STR + "Region"
 LINKOBJ_RESOURCE = KNORA_API_STR + "LinkObj"
 VIDEO_SEGMENT_RESOURCE = KNORA_API_STR + "VideoSegment"
 AUDIO_SEGMENT_RESOURCE = KNORA_API_STR + "AudioSegment"

@@ -163,7 +163,7 @@ class TestGeomValue:
         assert len(res_list) == 1
         res = res_list[0]
         assert res.user_facing_prop == f"{KNORA_API_STR}hasGeometry"
-        assert len(res.user_facing_value) > 0
+        assert res.user_facing_value is not None
         assert res.knora_type == KnoraValueType.GEOM_VALUE
         assert not res.value_metadata
 

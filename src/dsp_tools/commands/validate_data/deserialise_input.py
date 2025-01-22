@@ -174,6 +174,8 @@ def _extract_geometry_value_information(prop: etree._Element) -> list[ValueInfor
     prop_name = prop.attrib["name"]
 
     def check_for_geometry_json(value: str | None) -> str | None:
+        if not value:
+            return None
         try:
             return json.dumps(json.loads(value))
         except JSONDecodeError:

@@ -160,11 +160,13 @@ class TestGeomValue:
         assert not res.value_metadata
 
     def test_wrong(self, geometry_value_wrong: etree._Element) -> None:
-        res = _deserialise_one_property(geometry_value_wrong)
-        assert len(res) == 1
-        assert res[0].user_facing_prop == f"{KNORA_API_STR}hasGeometry"
-        assert not res[0].user_facing_prop
-        assert res[0].knora_type == KnoraValueType.GEOM_VALUE
+        res_list = _deserialise_one_property(geometry_value_wrong)
+        assert len(res_list) == 1
+        res = res_list[0]
+        assert res.user_facing_prop == f"{KNORA_API_STR}hasGeometry"
+        assert not res.user_facing_value
+        assert res.knora_type == KnoraValueType.GEOM_VALUE
+        assert not res.value_metadata
 
 
 class TestIntValue:

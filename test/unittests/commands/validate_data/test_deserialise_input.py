@@ -55,7 +55,15 @@ class TestResource:
         assert lbl.object_type == TripleObjectType.STRING
         assert rdf_type.object_value == "http://api.knora.org/ontology/knora-api/v2#Region"
         assert rdf_type.object_type == TripleObjectType.IRI
-        assert len(res.values) == 0
+        assert len(res.values) == 4
+        expected_props = {
+            f"{KNORA_API_STR}hasColor",
+            f"{KNORA_API_STR}isRegionOf",
+            f"{KNORA_API_STR}hasGeometry",
+            f"{KNORA_API_STR}hasComment",
+        }
+        actual_props = {x.user_facing_prop for x in res.values}
+        assert actual_props == expected_props
 
 
 class TestBooleanValue:

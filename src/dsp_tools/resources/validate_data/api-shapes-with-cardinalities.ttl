@@ -24,9 +24,8 @@ api-shapes:rdfsLabel_Cardinality
 ###########################
 # LinkObj
 
-api-shapes:LinkObj_Cardinalities
+knora-api:LinkObj
   a                  sh:NodeShape ;
-  sh:targetClass     knora-api:LinkObj ;
   dash:closedByTypes true ;
   sh:property        api-shapes:rdfsLabel_Cardinality ,
                      [
@@ -43,9 +42,8 @@ api-shapes:LinkObj_Cardinalities
 ###########################
 # Region
 
-api-shapes:Region_Cardinalities
+knora-api:Region
   a                  sh:NodeShape ;
-  sh:targetClass     knora-api:Region ;
   dash:closedByTypes true ;
   sh:property        api-shapes:rdfsLabel_Cardinality ,
                      [

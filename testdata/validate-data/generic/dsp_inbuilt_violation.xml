@@ -6,7 +6,7 @@
        shortcode="9999"
        default-ontology="in-built">
 
-    <!-- 7 Violations -->
+    <!-- 8 Violations -->
 
     <!-- Target Resources for Links -->
 
@@ -46,13 +46,37 @@
         <geometry-prop name="hasGeometry">
             <geometry>
                 {
-                    "status": "active",
-                    "type": "polygon",
-                    "lineWidth": 5,
-                    "points": [{"x": 0.4, "y": 0.6},
-                    {"x": 0.5, "y": 0.9},
-                    {"x": 0.8, "y": 0.9},
-                    {"x": 0.7, "y": 0.6}]
+                "status": "active",
+                "type": "polygon",
+                "lineWidth": 5,
+                "points": [{"x": 0.4, "y": 0.6},
+                {"x": 0.5, "y": 0.9},
+                {"x": 0.8, "y": 0.9},
+                {"x": 0.7, "y": 0.6}]
+                }
+            </geometry>
+        </geometry-prop>
+    </region>
+
+    <!-- Region isRegionOf target resource is not a representation -->
+
+    <region label="Region" id="region_isRegionOf_resource_not_a_representation">
+        <color-prop name="hasColor">
+            <color>#5d1f1e</color>
+        </color-prop>
+        <resptr-prop name="isRegionOf">
+            <resptr>target_res_without_representation_1</resptr>
+        </resptr-prop>
+        <geometry-prop name="hasGeometry">
+            <geometry>
+                {
+                "status": "active",
+                "type": "polygon",
+                "lineWidth": 5,
+                "points": [{"x": 0.4, "y": 0.6},
+                {"x": 0.5, "y": 0.9},
+                {"x": 0.8, "y": 0.9},
+                {"x": 0.7, "y": 0.6}]
                 }
             </geometry>
         </geometry-prop>

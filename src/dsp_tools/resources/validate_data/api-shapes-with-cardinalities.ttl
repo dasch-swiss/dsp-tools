@@ -45,7 +45,31 @@ api-shapes:LinkObj_Cardinalities
 api-shapes:Region_Cardinalities
   a                  sh:NodeShape ;
   dash:closedByTypes true ;
-  sh:property        api-shapes:rdfsLabel_Cardinality .
+  sh:property        api-shapes:rdfsLabel_Cardinality ,
+                     [
+                       a sh:PropertyShape ;
+                       sh:path knora-api:hasComment
+                     ],
+                     [ a sh:PropertyShape ;
+                       sh:message "1" ;
+                       sh:minCount 1 ;
+                       sh:maxCount 1 ;
+                       sh:path knora-api:hasColor ;
+                       sh:severity sh:Violation
+                     ] ,
+                     [ a sh:PropertyShape ;
+                       sh:message "1" ;
+                       sh:minCount 1 ;
+                       sh:maxCount 1 ;
+                       sh:path knora-api:isRegionOf ;
+                       sh:severity sh:Violation
+                     ] ,
+                     [ a sh:PropertyShape ;
+                       sh:message "1-n" ;
+                       sh:minCount 1 ;
+                       sh:path knora-api:hasGeometry ;
+                       sh:severity sh:Violation
+                     ] .
 
 ###########################
 # VideoSegment

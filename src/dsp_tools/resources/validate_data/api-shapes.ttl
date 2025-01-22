@@ -326,7 +326,7 @@ api-shapes:isRegionOf_NodeShape
                 a          sh:PropertyShape ;
                 sh:class   knora-api:Representation ;
                 sh:message "Range is a Representation or a subclass." ;
-                sh:path    knora-api:isRegionOf ;
+                sh:path    api-shapes:linkValueHasTargetID ;
               ] ;
   sh:severity sh:Violation .
 

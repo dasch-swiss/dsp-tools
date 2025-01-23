@@ -48,6 +48,7 @@ DATA = Namespace("http://data/")
 
 XML_ATTRIB_TO_PROP_TYPE_MAPPER = {
     "comment": TriplePropertyType.KNORA_COMMENT_ON_VALUE,
+    "permissions": TriplePropertyType.KNORA_PERMISSIONS,
 }
 
 XML_TAG_TO_VALUE_TYPE_MAPPER = {
@@ -70,6 +71,7 @@ TRIPLE_PROP_TYPE_TO_IRI_MAPPER = {
     TriplePropertyType.RDF_TYPE: RDF.type,
     TriplePropertyType.RDFS_LABEL: RDFS.label,
     TriplePropertyType.KNORA_COMMENT_ON_VALUE: KNORA_API.valueHasComment,
+    TriplePropertyType.KNORA_PERMISSIONS: KNORA_API.hasPermissions,
 }
 
 

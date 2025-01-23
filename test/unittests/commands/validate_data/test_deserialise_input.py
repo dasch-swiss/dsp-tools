@@ -5,7 +5,7 @@ from dsp_tools.commands.validate_data.constants import KNORA_API_STR
 from dsp_tools.commands.validate_data.deserialise_input import _deserialise_all_resources
 from dsp_tools.commands.validate_data.deserialise_input import _deserialise_one_property
 from dsp_tools.commands.validate_data.deserialise_input import _deserialise_one_resource
-from dsp_tools.commands.validate_data.deserialise_input import _extract_metadata_of_value
+from dsp_tools.commands.validate_data.deserialise_input import _extract_metadata
 from dsp_tools.commands.validate_data.deserialise_input import _get_text_as_string
 from dsp_tools.commands.validate_data.models.data_deserialised import KnoraValueType
 from dsp_tools.commands.validate_data.models.data_deserialised import PropertyObject
@@ -329,11 +329,11 @@ class TestLinkValue:
 
 class TestExtractMetadataOfValue:
     def test_none(self, boolean_value_no_attrib: etree._Element) -> None:
-        res = _extract_metadata_of_value(boolean_value_no_attrib)
+        res = _extract_metadata(boolean_value_no_attrib)
         assert not res
 
     def test_comment(self, boolean_value_comment: etree._Element) -> None:
-        res = _extract_metadata_of_value(boolean_value_comment)
+        res = _extract_metadata(boolean_value_comment)
         assert len(res) == 1
         val = res.pop(0)
         assert val.property_type == TriplePropertyType.KNORA_COMMENT_ON_VALUE
@@ -342,7 +342,7 @@ class TestExtractMetadataOfValue:
 
     def test_permissions(self, boolean_value_permissions: etree._Element) -> None:
         # Not yet implemented
-        res = _extract_metadata_of_value(boolean_value_permissions)
+        res = _extract_metadata(boolean_value_permissions)
         assert not res
 
 

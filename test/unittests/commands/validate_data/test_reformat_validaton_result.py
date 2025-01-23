@@ -80,7 +80,7 @@ class TestQueryAllResults:
         assert result.property == KNORA_API.isRegionOf
         assert result.target_iri == DATA.target_res_without_representation_1
         assert result.target_resource_type == IN_BUILT_ONTO.TestNormalResource
-        assert str(result.expected_type) == "Range is a Representation or a subclass."
+        assert str(result.expected_type) == "http://api.knora.org/ontology/knora-api/v2#Representation"
 
 
 class TestExtractBaseInfo:

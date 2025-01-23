@@ -6,7 +6,7 @@
        shortcode="9999"
        default-ontology="in-built">
 
-    <!-- 12 Violations -->
+    <!-- 8 Violations -->
 
     <!-- Target Resources for Links -->
 
@@ -137,7 +137,7 @@
 
 
     <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-    <!-- 4 Violations but not yet implemented -->
+    <!-- 8 Violations but not yet implemented -->
 
 
     <!-- sub-property usage of knora-api seqnum/isPartOf one prop missing -->

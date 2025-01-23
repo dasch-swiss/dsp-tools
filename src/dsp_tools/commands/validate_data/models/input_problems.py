@@ -464,23 +464,3 @@ class FileValueProblem(InputProblem):
 
     def sort_value(self) -> str:
         return self.prop_name
-
-
-@dataclass
-class PermissionsInexistentProblem(InputProblem):
-    actual_input: str
-
-    @property
-    def problem(self) -> str:
-        return "Permissions do not exist"
-
-    def get_msg(self) -> str:
-        return f"{self.problem}, Your Input: '{self.actual_input}'"
-
-    def to_dict(self) -> dict[str, str]:
-        problm_dict = self._base_dict()
-        problm_dict["Your Input"] = self.actual_input
-        return problm_dict
-
-    def sort_value(self) -> str:
-        return self.prop_name

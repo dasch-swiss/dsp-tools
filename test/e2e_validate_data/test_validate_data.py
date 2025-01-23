@@ -21,7 +21,6 @@ from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalit
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
-from dsp_tools.commands.validate_data.models.input_problems import PermissionsInexistentProblem
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProblem
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
@@ -473,10 +472,6 @@ class TestReformatValidationGraph:
         result = reformat_validation_graph(dsp_inbuilt_violation)
         expected_info_tuples = [
             ("link_obj_target_non_existent", LinkedResourceDoesNotExistProblem),
-            ("non_existent_permissions_bitstream", PermissionsInexistentProblem),
-            ("non_existent_permissions_iiif", PermissionsInexistentProblem),
-            ("non_existent_permissions_resource", PermissionsInexistentProblem),
-            ("non_existent_permissions_value", PermissionsInexistentProblem),
             ("missing_isPartOf", GenericProblemWithMessage),
             ("missing_seqnum", GenericProblemWithMessage),
             ("region_invalid_geometry", InputRegexProblem),

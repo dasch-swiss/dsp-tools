@@ -54,7 +54,7 @@ def report_target_resource_wrong_type(onto_graph: Graph) -> tuple[Graph, Graph]:
     
     _:detail_bn a sh:ValidationResult ;
         sh:focusNode <http://data/value_isRegionOf> ;
-        sh:resultMessage "Range is a Representation or a subclass." ;
+        sh:resultMessage "http://api.knora.org/ontology/knora-api/v2#Representation" ;
         sh:resultPath <http://api.knora.org/ontology/knora-api/shapes/v2#linkValueHasTargetID> ;
         sh:resultSeverity sh:Violation ;
         sh:sourceConstraintComponent sh:ClassConstraintComponent ;

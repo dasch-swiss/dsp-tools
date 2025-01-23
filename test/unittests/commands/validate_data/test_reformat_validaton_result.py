@@ -1,4 +1,3 @@
-
 import pytest
 from rdflib import RDFS
 from rdflib import SH
@@ -65,7 +64,7 @@ def test_reformat_validation_graph(report_target_resource_wrong_type: tuple[Grap
     assert result.prop_name == "isRegionOf"
     assert result.link_target_id == "target_res_without_representation_1"
     assert result.actual_type == "in-built:TestNormalResource"
-    assert result.expected_type == "Range is a Representation or a subclass."
+    assert result.expected_type == "Representation"
 
 
 class TestQueryAllResults:

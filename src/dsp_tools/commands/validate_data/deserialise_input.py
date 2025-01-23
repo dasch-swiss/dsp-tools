@@ -1,10 +1,11 @@
+import json
+from json import JSONDecodeError
 from pathlib import Path
 
 from lxml import etree
 
 from dsp_tools.commands.validate_data.constants import AUDIO_SEGMENT_RESOURCE
 from dsp_tools.commands.validate_data.constants import KNORA_API_STR
-from dsp_tools.commands.validate_data.constants import REGION_RESOURCE
 from dsp_tools.commands.validate_data.constants import VIDEO_SEGMENT_RESOURCE
 from dsp_tools.commands.validate_data.constants import XML_ATTRIB_TO_PROP_TYPE_MAPPER
 from dsp_tools.commands.validate_data.constants import XML_TAG_TO_VALUE_TYPE_MAPPER
@@ -43,9 +44,7 @@ def _deserialise_all_resources(root: etree._Element) -> DataDeserialised:
     for res in root.iterdescendants(tag="resource"):
         dsp_type = None
         res_type = res.attrib["restype"]
-        if res_type == REGION_RESOURCE:
-            dsp_type = REGION_RESOURCE
-        elif res_type == VIDEO_SEGMENT_RESOURCE:
+        if res_type == VIDEO_SEGMENT_RESOURCE:
             dsp_type = VIDEO_SEGMENT_RESOURCE
         elif res_type == AUDIO_SEGMENT_RESOURCE:
             dsp_type = AUDIO_SEGMENT_RESOURCE
@@ -101,6 +100,8 @@ def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueInformation
             return _extract_text_value_information(prop_ele)
         case "iiif-uri" | "bitstream" as file_tag:
             return _deserialise_file_values(prop_ele, file_tag)
+        case "geometry-prop":
+            return _extract_geometry_value_information(prop_ele)
         case _:
             return []
 
@@ -167,6 +168,28 @@ def _extract_text_value_information(prop: etree._Element) -> list[ValueInformati
             )
         )
     return all_vals
+
+
+def _extract_geometry_value_information(prop: etree._Element) -> list[ValueInformation]:
+    prop_name = prop.attrib["name"]
+
+    def check_for_geometry_json(value: str | None) -> str | None:
+        if not value:
+            return None
+        try:
+            return json.dumps(json.loads(value))
+        except JSONDecodeError:
+            return None
+
+    return [
+        ValueInformation(
+            user_facing_prop=prop_name,
+            user_facing_value=check_for_geometry_json(val.text),
+            knora_type=KnoraValueType.GEOM_VALUE,
+            value_metadata=_extract_metadata_of_value(val),
+        )
+        for val in prop.iterchildren()
+    ]
 
 
 def _get_text_as_string(value: etree._Element) -> str | None:

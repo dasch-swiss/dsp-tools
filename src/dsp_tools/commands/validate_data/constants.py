@@ -15,6 +15,7 @@ from dsp_tools.commands.validate_data.models.data_deserialised import TripleProp
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import BOOLEAN_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import COLOR_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import DECIMAL_PROP_TYPE_INFO
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import GEOMETRY_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import GEONAME_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import INT_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import RICHTEXT_PROP_TYPE_INFO
@@ -31,7 +32,6 @@ SubjectObjectTypeAlias: TypeAlias = Union[IdentifiedNode, Literal, Variable]
 KNORA_API_STR = "http://api.knora.org/ontology/knora-api/v2#"
 API_SHAPES_STR = "http://api.knora.org/ontology/knora-api/shapes/v2#"
 
-REGION_RESOURCE = KNORA_API_STR + "Region"
 LINKOBJ_RESOURCE = KNORA_API_STR + "LinkObj"
 VIDEO_SEGMENT_RESOURCE = KNORA_API_STR + "VideoSegment"
 AUDIO_SEGMENT_RESOURCE = KNORA_API_STR + "AudioSegment"
@@ -90,6 +90,7 @@ VALUE_INFO_TO_RDF_MAPPER = {
     KnoraValueType.DATE_VALUE: RDFPropTypeInfo(KNORA_API.DateValue, KNORA_API.valueAsString, XSD.string),
     KnoraValueType.DECIMAL_VALUE: DECIMAL_PROP_TYPE_INFO,
     KnoraValueType.GEONAME_VALUE: GEONAME_PROP_TYPE_INFO,
+    KnoraValueType.GEOM_VALUE: GEOMETRY_PROP_TYPE_INFO,
     KnoraValueType.LIST_VALUE: RDFPropTypeInfo(KNORA_API.ListValue, API_SHAPES.listNodeAsString, XSD.string),
     KnoraValueType.LINK_VALUE: RDFPropTypeInfo(KNORA_API.LinkValue, API_SHAPES.linkValueHasTargetID, XSD.string),
     KnoraValueType.INT_VALUE: INT_PROP_TYPE_INFO,
@@ -111,6 +112,7 @@ VALUE_INFO_TRIPLE_OBJECT_TYPE = {
     KnoraValueType.COLOR_VALUE: TripleObjectType.STRING,
     KnoraValueType.DATE_VALUE: TripleObjectType.STRING,
     KnoraValueType.DECIMAL_VALUE: TripleObjectType.DECIMAL,
+    KnoraValueType.GEOM_VALUE: TripleObjectType.STRING,
     KnoraValueType.GEONAME_VALUE: TripleObjectType.STRING,
     KnoraValueType.LIST_VALUE: TripleObjectType.STRING,
     KnoraValueType.LINK_VALUE: TripleObjectType.IRI,

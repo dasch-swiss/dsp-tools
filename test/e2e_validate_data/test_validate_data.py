@@ -474,6 +474,9 @@ class TestReformatValidationGraph:
             ("link_obj_target_non_existent", LinkedResourceDoesNotExistProblem),
             ("missing_isPartOf", GenericProblemWithMessage),
             ("missing_seqnum", GenericProblemWithMessage),
+            ("region_invalid_geometry", InputRegexProblem),
+            ("region_isRegionOf_resource_does_not_exist", LinkedResourceDoesNotExistProblem),
+            ("region_isRegionOf_resource_not_a_representation", LinkTargetTypeMismatchProblem),
             ("target_must_be_a_representation", LinkTargetTypeMismatchProblem),
             ("target_must_be_an_image_representation", LinkTargetTypeMismatchProblem),
         ]

@@ -151,7 +151,7 @@ def decimal_value_corr_several() -> etree._Element:
 @pytest.fixture
 def geometry_value_corr() -> etree._Element:
     return etree.fromstring("""
-        <geometry-prop name="hasGeometry">
+        <geometry-prop name="http://api.knora.org/ontology/knora-api/v2#hasGeometry">
             <geometry>
                 {
                     "status": "active",
@@ -170,8 +170,8 @@ def geometry_value_corr() -> etree._Element:
 @pytest.fixture
 def geometry_value_wrong() -> etree._Element:
     return etree.fromstring("""
-        <geometry-prop name="hasGeometry">
-            <geometry></geometry>
+        <geometry-prop name="http://api.knora.org/ontology/knora-api/v2#hasGeometry">
+            <geometry>{ not geometry }</geometry>
         </geometry-prop>
     """)
 

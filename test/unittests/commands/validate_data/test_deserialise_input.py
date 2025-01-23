@@ -1,6 +1,7 @@
 import pytest
 from lxml import etree
 
+from dsp_tools.commands.validate_data.constants import KNORA_API_STR
 from dsp_tools.commands.validate_data.deserialise_input import _deserialise_all_resources
 from dsp_tools.commands.validate_data.deserialise_input import _deserialise_one_property
 from dsp_tools.commands.validate_data.deserialise_input import _deserialise_one_resource
@@ -54,7 +55,15 @@ class TestResource:
         assert lbl.object_type == TripleObjectType.STRING
         assert rdf_type.object_value == "http://api.knora.org/ontology/knora-api/v2#Region"
         assert rdf_type.object_type == TripleObjectType.IRI
-        assert len(res.values) == 0
+        assert len(res.values) == 4
+        expected_props = {
+            f"{KNORA_API_STR}hasColor",
+            f"{KNORA_API_STR}isRegionOf",
+            f"{KNORA_API_STR}hasGeometry",
+            f"{KNORA_API_STR}hasComment",
+        }
+        actual_props = {x.user_facing_prop for x in res.values}
+        assert actual_props == expected_props
 
 
 class TestBooleanValue:
@@ -146,6 +155,26 @@ class TestGeonameValue:
         assert res[1].user_facing_value == "2222222"
         assert res[0].knora_type == KnoraValueType.GEONAME_VALUE
         assert res[1].knora_type == KnoraValueType.GEONAME_VALUE
+
+
+class TestGeomValue:
+    def test_corr(self, geometry_value_corr: etree._Element) -> None:
+        res_list = _deserialise_one_property(geometry_value_corr)
+        assert len(res_list) == 1
+        res = res_list[0]
+        assert res.user_facing_prop == f"{KNORA_API_STR}hasGeometry"
+        assert res.user_facing_value is not None
+        assert res.knora_type == KnoraValueType.GEOM_VALUE
+        assert not res.value_metadata
+
+    def test_wrong(self, geometry_value_wrong: etree._Element) -> None:
+        res_list = _deserialise_one_property(geometry_value_wrong)
+        assert len(res_list) == 1
+        res = res_list[0]
+        assert res.user_facing_prop == f"{KNORA_API_STR}hasGeometry"
+        assert not res.user_facing_value
+        assert res.knora_type == KnoraValueType.GEOM_VALUE
+        assert not res.value_metadata
 
 
 class TestIntValue:

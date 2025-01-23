@@ -32,6 +32,7 @@ from dsp_tools.commands.validate_data.models.validation import SeqnumIsPartOfVio
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
 from dsp_tools.commands.validate_data.reformat_validaton_result import _extract_base_info_of_resource_results
+from dsp_tools.commands.validate_data.reformat_validaton_result import _query_all_results
 from dsp_tools.commands.validate_data.reformat_validaton_result import _query_one_with_detail
 from dsp_tools.commands.validate_data.reformat_validaton_result import _query_one_without_detail
 from dsp_tools.commands.validate_data.reformat_validaton_result import _reformat_one_validation_result
@@ -39,6 +40,14 @@ from dsp_tools.commands.validate_data.reformat_validaton_result import _separate
 from test.unittests.commands.validate_data.constants import DATA
 from test.unittests.commands.validate_data.constants import KNORA_API
 from test.unittests.commands.validate_data.constants import ONTO
+
+
+class TestQueryAllResults:
+    def test_link_target_inexistent(self, report_target_resource_wrong_type: tuple[Graph, Graph]) -> None:
+        validation_g, onto_data_g = report_target_resource_wrong_type
+        extracted_results, unexpected_components = _query_all_results(validation_g, onto_data_g)
+        assert not unexpected_components
+        assert len(extracted_results) == 1
 
 
 class TestExtractBaseInfo:

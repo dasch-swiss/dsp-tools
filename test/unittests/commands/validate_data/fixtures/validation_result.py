@@ -38,6 +38,52 @@ def onto_graph() -> Graph:
 
 
 @pytest.fixture
+def report_target_resource_wrong_type(onto_graph: Graph) -> tuple[Graph, Graph]:
+    validation_str = f"""{PREFIXES}
+    [ 
+        a sh:ValidationResult ;
+        sh:detail _:detail_bn ;
+        sh:focusNode <http://data/region_isRegionOf_resource_not_a_representation> ;
+        sh:resultMessage "Value does not have shape api-shapes:isRegionOf_NodeShape" ;
+        sh:resultPath <http://api.knora.org/ontology/knora-api/v2#isRegionOf> ;
+        sh:resultSeverity sh:Violation ;
+        sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+        sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#isRegionOf_PropertyShape> ;
+        sh:value <http://data/value_isRegionOf> 
+    ] .
+    
+    _:detail_bn a sh:ValidationResult ;
+        sh:focusNode <http://data/value_isRegionOf> ;
+        sh:resultMessage "Range is a Representation or a subclass." ;
+        sh:resultPath <http://api.knora.org/ontology/knora-api/shapes/v2#linkValueHasTargetID> ;
+        sh:resultSeverity sh:Violation ;
+        sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+        sh:sourceShape _:source_shape ;
+        sh:value <http://data/target_res_without_representation_1> .
+    """
+    validation_g = Graph()
+    validation_g.parse(data=validation_str, format="ttl")
+    data_str = f"""{PREFIXES}
+    <http://data/region_isRegionOf_resource_not_a_representation> 
+        a knora-api:Region ;
+        rdfs:label "Region"^^xsd:string ;
+        knora-api:hasColor <http://data/value_hasColor> ;
+        knora-api:hasGeometry <http://data/value_hasGeometry> ;
+        knora-api:isRegionOf <http://data/value_isRegionOf> .
+    
+    <http://data/value_isRegionOf> a knora-api:LinkValue ;
+        api-shapes:linkValueHasTargetID <http://data/target_res_without_representation_1> .
+    
+    <http://data/target_res_without_representation_1> a in-built:TestNormalResource ;
+        rdfs:label "Resource without Representation"^^xsd:string .
+    """
+    onto_data_g = Graph()
+    onto_data_g += onto_graph
+    onto_data_g.parse(data=data_str, format="ttl")
+    return validation_g, onto_data_g
+
+
+@pytest.fixture
 def report_not_resource(onto_graph: Graph) -> tuple[Graph, Graph]:
     validation_str = f"""{PREFIXES}
     _:bn_id_simpletext a sh:ValidationResult ;

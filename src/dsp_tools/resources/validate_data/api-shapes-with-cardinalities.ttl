@@ -18,7 +18,7 @@ api-shapes:rdfsLabel_Cardinality
 
 
 ### knora-api:hasPermissions
-api-shapes:hasPermissions_Shape
+api-shapes:hasPermissions_Cardinality
   a           sh:PropertyShape ;
   sh:message  "The resource or value may have at most one permission." ;
   sh:path     knora-api:hasPermissions ;
@@ -39,7 +39,7 @@ knora-api:LinkObj
   a                  sh:NodeShape ;
   dash:closedByTypes true ;
   sh:property        api-shapes:rdfsLabel_Cardinality ,
-                     api-shapes:hasPermissions_Shape ,
+                     api-shapes:hasPermissions_Cardinality ,
                      [
                        a sh:PropertyShape ;
                        sh:path knora-api:hasComment
@@ -58,7 +58,7 @@ knora-api:Region
   a                  sh:NodeShape ;
   dash:closedByTypes true ;
   sh:property        api-shapes:rdfsLabel_Cardinality,
-                     api-shapes:hasPermissions_Shape ,
+                     api-shapes:hasPermissions_Cardinality ,
                      [
                        a sh:PropertyShape ;
                        sh:path knora-api:hasComment
@@ -90,7 +90,7 @@ knora-api:Region
 api-shapes:VideoSegment_Cardinalities
   a                  sh:NodeShape ;
   dash:closedByTypes true ;
-  sh:property        api-shapes:rdfsLabel_Cardinality, api-shapes:hasPermissions_Shape .
+  sh:property        api-shapes:rdfsLabel_Cardinality, api-shapes:hasPermissions_Cardinality .
 
 
 ###########################
@@ -99,7 +99,7 @@ api-shapes:VideoSegment_Cardinalities
 api-shapes:AudioSegment_Cardinalities
   a                  sh:NodeShape ;
   dash:closedByTypes true ;
-  sh:property        api-shapes:rdfsLabel_Cardinality, api-shapes:hasPermissions_Shape .
+  sh:property        api-shapes:rdfsLabel_Cardinality, api-shapes:hasPermissions_Cardinality .
 
 
 #########################################
@@ -139,7 +139,7 @@ api-shapes:ArchiveFileValue_ClassShape
                             'zip', 'tar', 'gz', 'z', 'tgz', 'gzip', '7z'.
                             """ ;
               ] ,
-              api-shapes:hasPermissions_Shape;
+              api-shapes:hasPermissions_Cardinality;
   sh:severity sh:Violation .
 
 
@@ -170,7 +170,7 @@ api-shapes:AudioFileValue_ClassShape
                 sh:severity sh:Violation ;
                 sh:message  "An AudioRepresentation requires a file with one of the following extensions 'mp3', 'wav'." ;
               ] ,
-              api-shapes:hasPermissions_Shape;
+              api-shapes:hasPermissions_Cardinality;
   sh:severity sh:Violation .
 
 
@@ -207,7 +207,7 @@ api-shapes:DocumentFileValue_ClassShape
                             'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'.
                             """ ;
               ] ,
-              api-shapes:hasPermissions_Shape;
+              api-shapes:hasPermissions_Cardinality;
   sh:severity sh:Violation .
 
 
@@ -238,7 +238,7 @@ api-shapes:MovingImageFileValue_ClassShape
                 sh:severity sh:Violation ;
                 sh:message  "A MovingImageRepresentation requires a file with the extension 'mp4'." ;
               ] ,
-              api-shapes:hasPermissions_Shape;
+              api-shapes:hasPermissions_Cardinality;
   sh:severity sh:Violation .
 
 
@@ -279,7 +279,7 @@ api-shapes:StillImageFileValue_ClassShape
                             'jpg', 'jpeg', 'png', 'tif', 'tiff', 'jp2'.
                             """ ;
               ] ,
-              api-shapes:hasPermissions_Shape;
+              api-shapes:hasPermissions_Cardinality;
   sh:severity sh:Violation .
 
 
@@ -300,7 +300,7 @@ api-shapes:StillImageExternalFileValue_ClassShape
                 sh:severity sh:Violation ;
                 sh:message  "StillImageExternalFileValue requires an external IIIF-URI" ;
               ] ,
-              api-shapes:hasPermissions_Shape;
+              api-shapes:hasPermissions_Cardinality;
   sh:severity sh:Violation .
 
 
@@ -337,5 +337,5 @@ api-shapes:TextFileValue_ClassShape
                             'odd', 'rng', 'txt', 'xml', 'xsd', 'xsl', 'csv', 'json'.
                             """ ;
               ] ,
-              api-shapes:hasPermissions_Shape;
+              api-shapes:hasPermissions_Cardinality;
   sh:severity sh:Violation .

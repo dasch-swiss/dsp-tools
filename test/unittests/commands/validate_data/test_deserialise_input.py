@@ -341,9 +341,12 @@ class TestExtractMetadataOfValue:
         assert val.object_type == TripleObjectType.STRING
 
     def test_permissions(self, boolean_value_permissions: etree._Element) -> None:
-        # Not yet implemented
         res = _extract_metadata(boolean_value_permissions)
-        assert not res
+        assert len(res) == 1
+        permission = res.pop(0)
+        assert permission.property_type == TriplePropertyType.KNORA_PERMISSIONS
+        assert permission.object_value == "open"
+        assert permission.object_type == TripleObjectType.STRING
 
 
 @pytest.mark.parametrize(

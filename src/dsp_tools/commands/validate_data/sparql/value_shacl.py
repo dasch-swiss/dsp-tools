@@ -317,7 +317,7 @@ def _construct_seqnum_is_part_of_prop_shape(onto: Graph) -> Graph:
     }
     """
     # The API allows the ontology to declare cardinalities for seqnum without isPartOf and vice versa.
-    # Therefore we have a union query.
+    # Therefore, we have a union query.
     if results_graph := onto.query(query_s).graph:
         return results_graph
     return Graph()

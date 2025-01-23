@@ -1,5 +1,27 @@
 # Changelog
 
+## [10.2.0](https://github.com/dasch-swiss/dsp-tools/compare/v10.1.1...v10.2.0) (2025-01-23)
+
+
+### Enhancements
+
+* **validate-data:** `seqnum` and `isPartOf` (DEV-4242) ([#1373](https://github.com/dasch-swiss/dsp-tools/issues/1373)) ([832fc4f](https://github.com/dasch-swiss/dsp-tools/commit/832fc4f875a99e835394d26a07900e5641236676))
+* **validate-data:** improve performance time for SHACL construction (DEV-4523) ([#1378](https://github.com/dasch-swiss/dsp-tools/issues/1378)) ([a9bdaac](https://github.com/dasch-swiss/dsp-tools/commit/a9bdaac875fd90a3de279cf575ee9c661abf9b19))
+* **validate-data:** prevent erroneous ontology for `seqnum` and `isPartOf`(DEV-4517) ([#1374](https://github.com/dasch-swiss/dsp-tools/issues/1374)) ([070fef7](https://github.com/dasch-swiss/dsp-tools/commit/070fef74a901054232abeb7433339273bc183a39))
+* **validate-data:** validate `hasComment` on values (DEV-4472) ([#1371](https://github.com/dasch-swiss/dsp-tools/issues/1371)) ([33f6339](https://github.com/dasch-swiss/dsp-tools/commit/33f6339e90958dce92ece9dca6ef7e3957155f53))
+* **validate-data:** validate `knora-api:Region` (DEV-4462) ([#1380](https://github.com/dasch-swiss/dsp-tools/issues/1380)) ([0b954d6](https://github.com/dasch-swiss/dsp-tools/commit/0b954d6a00a3d44aba2b53ba4ffcf815b82d32b5))
+
+
+### Maintenance
+
+* bump dependencies / fix new linter errors / format according to new formatter rules ([#1368](https://github.com/dasch-swiss/dsp-tools/issues/1368)) ([4d32cfb](https://github.com/dasch-swiss/dsp-tools/commit/4d32cfb58893a076270159ce13482f29b9571e5c))
+* bump versions for 2025.01.02 DSP release ([#1379](https://github.com/dasch-swiss/dsp-tools/issues/1379)) ([65f57e8](https://github.com/dasch-swiss/dsp-tools/commit/65f57e8b6af53bf96b4d66901b5cc194caef54a9))
+* upgrade `rdflib` and fix typing ([#1370](https://github.com/dasch-swiss/dsp-tools/issues/1370)) ([adbe88c](https://github.com/dasch-swiss/dsp-tools/commit/adbe88cfa1be54dae84261ae5f13e56e730396b9))
+* **validate-data:** add logging ([#1377](https://github.com/dasch-swiss/dsp-tools/issues/1377)) ([92f36c7](https://github.com/dasch-swiss/dsp-tools/commit/92f36c7c5ace0180df5ac56a2fe6573d9111107d))
+* **validate-data:** change SHACLValidator structure ([#1375](https://github.com/dasch-swiss/dsp-tools/issues/1375)) ([57df7eb](https://github.com/dasch-swiss/dsp-tools/commit/57df7ebb7e0f759af9ad6a5632c3ede0256cbd51))
+* **validate-data:** improve user message ([#1363](https://github.com/dasch-swiss/dsp-tools/issues/1363)) ([77684f0](https://github.com/dasch-swiss/dsp-tools/commit/77684f08c954477acdd9353054f437d97e21a8c3))
+* **validate-data:** simplify internal representation of file values ([#1367](https://github.com/dasch-swiss/dsp-tools/issues/1367)) ([c9665ca](https://github.com/dasch-swiss/dsp-tools/commit/c9665cae816ce913ea55b1367f5398a372b322bc))
+
 ## [10.1.1](https://github.com/dasch-swiss/dsp-tools/compare/v10.1.0...v10.1.1) (2025-01-15)
 
 

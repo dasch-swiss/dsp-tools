@@ -65,15 +65,27 @@ def _deserialise_one_in_built(resource: etree._Element, res_type: str) -> Resour
     )
 
 
+def _extract_metadata(element: etree._Element) -> list[PropertyObject]:
+    property_objects = []
+    for k, v in element.attrib.items():
+        if not (knora_prop := XML_ATTRIB_TO_PROP_TYPE_MAPPER.get(k)):
+            continue
+        property_objects.append(
+            PropertyObject(property_type=knora_prop, object_value=v, object_type=TripleObjectType.STRING)
+        )
+    return property_objects
+
+
 def _deserialise_one_resource(resource: etree._Element) -> ResourceDeserialised:
     values = []
     for val in resource.iterchildren():
         values.extend(_deserialise_one_property(val))
-    lbl = PropertyObject(TriplePropertyType.RDFS_LABEL, resource.attrib["label"], TripleObjectType.STRING)
-    rdf_type = PropertyObject(TriplePropertyType.RDF_TYPE, resource.attrib["restype"], TripleObjectType.IRI)
+    metadata = _extract_metadata(resource)
+    metadata.append(PropertyObject(TriplePropertyType.RDFS_LABEL, resource.attrib["label"], TripleObjectType.STRING))
+    metadata.append(PropertyObject(TriplePropertyType.RDF_TYPE, resource.attrib["restype"], TripleObjectType.IRI))
     return ResourceDeserialised(
         res_id=resource.attrib["id"],
-        property_objects=[rdf_type, lbl],
+        property_objects=metadata,
         values=values,
     )
 
@@ -106,17 +118,6 @@ def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueInformation
             return []
 
 
-def _extract_metadata_of_value(value: etree._Element) -> list[PropertyObject]:
-    property_objects = []
-    for k, v in value.attrib.items():
-        if not (knora_prop := XML_ATTRIB_TO_PROP_TYPE_MAPPER.get(k)):
-            continue
-        property_objects.append(
-            PropertyObject(property_type=knora_prop, object_value=v, object_type=TripleObjectType.STRING)
-        )
-    return property_objects
-
-
 def _extract_generic_value_information(prop: etree._Element, value_type: KnoraValueType) -> list[ValueInformation]:
     prop_name = prop.attrib["name"]
     return [
@@ -124,7 +125,7 @@ def _extract_generic_value_information(prop: etree._Element, value_type: KnoraVa
             user_facing_prop=prop_name,
             user_facing_value=val.text,
             knora_type=value_type,
-            value_metadata=_extract_metadata_of_value(val),
+            value_metadata=_extract_metadata(val),
         )
         for val in prop.iterchildren()
     ]
@@ -141,7 +142,7 @@ def _extract_list_value_information(prop: etree._Element) -> list[ValueInformati
                 user_facing_prop=prop_name,
                 user_facing_value=found_value,
                 knora_type=KnoraValueType.LIST_VALUE,
-                value_metadata=_extract_metadata_of_value(val),
+                value_metadata=_extract_metadata(val),
             )
         )
     return all_vals
@@ -164,10 +165,21 @@ def _extract_text_value_information(prop: etree._Element) -> list[ValueInformati
                 user_facing_prop=prop_name,
                 user_facing_value=_get_text_as_string(val),
                 knora_type=val_type,
-                value_metadata=_extract_metadata_of_value(val),
+                value_metadata=_extract_metadata(val),
             )
         )
     return all_vals
+
+
+def _get_text_as_string(value: etree._Element) -> str | None:
+    if len(value):
+        text_list = []
+        if found := value.text:
+            text_list = [found]
+        text_list.extend([etree.tostring(child, encoding="unicode", method="xml") for child in value])
+        return "".join(text_list).strip()
+    else:
+        return value.text
 
 
 def _extract_geometry_value_information(prop: etree._Element) -> list[ValueInformation]:
@@ -186,21 +198,10 @@ def _extract_geometry_value_information(prop: etree._Element) -> list[ValueInfor
             user_facing_prop=prop_name,
             user_facing_value=check_for_geometry_json(val.text),
             knora_type=KnoraValueType.GEOM_VALUE,
-            value_metadata=_extract_metadata_of_value(val),
+            value_metadata=_extract_metadata(val),
         )
         for val in prop.iterchildren()
     ]
-
-
-def _get_text_as_string(value: etree._Element) -> str | None:
-    if len(value):
-        text_list = []
-        if found := value.text:
-            text_list = [found]
-        text_list.extend([etree.tostring(child, encoding="unicode", method="xml") for child in value])
-        return "".join(text_list).strip()
-    else:
-        return value.text
 
 
 def _deserialise_file_values(value: etree._Element, tag_name: str) -> list[ValueInformation]:
@@ -212,7 +213,7 @@ def _deserialise_file_values(value: etree._Element, tag_name: str) -> list[Value
                 user_facing_prop=f"{KNORA_API_STR}hasStillImageFileValue",
                 user_facing_value=file_str,
                 knora_type=KnoraValueType.STILL_IMAGE_IIIF,
-                value_metadata=[],
+                value_metadata=_extract_metadata(value),
             )
         ]
     file_type, prop_str = _get_file_value_type(file_str)
@@ -223,7 +224,7 @@ def _deserialise_file_values(value: etree._Element, tag_name: str) -> list[Value
             user_facing_prop=prop_str,
             user_facing_value=file_str,
             knora_type=file_type,
-            value_metadata=[],
+            value_metadata=_extract_metadata(value),
         )
     ]
 

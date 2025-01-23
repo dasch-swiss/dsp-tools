@@ -5,7 +5,7 @@ from dsp_tools.commands.validate_data.constants import KNORA_API_STR
 from dsp_tools.commands.validate_data.deserialise_input import _deserialise_all_resources
 from dsp_tools.commands.validate_data.deserialise_input import _deserialise_one_property
 from dsp_tools.commands.validate_data.deserialise_input import _deserialise_one_resource
-from dsp_tools.commands.validate_data.deserialise_input import _extract_metadata_of_value
+from dsp_tools.commands.validate_data.deserialise_input import _extract_metadata
 from dsp_tools.commands.validate_data.deserialise_input import _get_text_as_string
 from dsp_tools.commands.validate_data.models.data_deserialised import KnoraValueType
 from dsp_tools.commands.validate_data.models.data_deserialised import PropertyObject
@@ -14,10 +14,11 @@ from dsp_tools.commands.validate_data.models.data_deserialised import TripleObje
 from dsp_tools.commands.validate_data.models.data_deserialised import TriplePropertyType
 
 
-def _get_label_and_type(resource: ResourceDeserialised) -> tuple[PropertyObject, PropertyObject]:
+def _get_label_and_type(resource: ResourceDeserialised) -> tuple[PropertyObject, PropertyObject, list[PropertyObject]]:
     lbl = next(x for x in resource.property_objects if x.property_type == TriplePropertyType.RDFS_LABEL)
     rdf_type = next(x for x in resource.property_objects if x.property_type == TriplePropertyType.RDF_TYPE)
-    return lbl, rdf_type
+    permissions = list(x for x in resource.property_objects if x.property_type == TriplePropertyType.KNORA_PERMISSIONS)
+    return lbl, rdf_type, permissions
 
 
 class TestResource:
@@ -25,7 +26,23 @@ class TestResource:
         res = _deserialise_one_resource(resource_empty)
         assert res.res_id == "one"
         assert len(res.property_objects) == 2
-        lbl, rdf_type = _get_label_and_type(res)
+        lbl, rdf_type, _ = _get_label_and_type(res)
+        assert lbl.object_value == "lbl"
+        assert lbl.object_type == TripleObjectType.STRING
+        assert rdf_type.object_value == "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"
+        assert rdf_type.object_type == TripleObjectType.IRI
+        assert len(res.values) == 0
+
+    def test_empty_permissions(self, resource_empty_permissions: etree._Element) -> None:
+        res = _deserialise_one_resource(resource_empty_permissions)
+        assert res.res_id == "one"
+        assert len(res.property_objects) == 3
+        lbl, rdf_type, perm = _get_label_and_type(res)
+        assert len(perm) == 1
+        permission = perm.pop(0)
+        assert permission.object_value == "open"
+        assert permission.object_type == TripleObjectType.STRING
+        assert permission.property_type == TriplePropertyType.KNORA_PERMISSIONS
         assert lbl.object_value == "lbl"
         assert lbl.object_type == TripleObjectType.STRING
         assert rdf_type.object_value == "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"
@@ -38,7 +55,7 @@ class TestResource:
         res = res_list[0]
         assert res.res_id == "one"
         assert len(res.property_objects) == 2
-        lbl, rdf_type = _get_label_and_type(res)
+        lbl, rdf_type, _ = _get_label_and_type(res)
         assert lbl.object_value == "lbl"
         assert lbl.object_type == TripleObjectType.STRING
         assert rdf_type.object_value == "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"
@@ -50,7 +67,7 @@ class TestResource:
         res = res_list[0]
         assert res.res_id == "region_1"
         assert len(res.property_objects) == 2
-        lbl, rdf_type = _get_label_and_type(res)
+        lbl, rdf_type, _ = _get_label_and_type(res)
         assert lbl.object_value == "Region"
         assert lbl.object_type == TripleObjectType.STRING
         assert rdf_type.object_value == "http://api.knora.org/ontology/knora-api/v2#Region"
@@ -327,13 +344,13 @@ class TestLinkValue:
         assert res[1].knora_type == KnoraValueType.LINK_VALUE
 
 
-class TestExtractMetadataOfValue:
+class TestExtractMetadata:
     def test_none(self, boolean_value_no_attrib: etree._Element) -> None:
-        res = _extract_metadata_of_value(boolean_value_no_attrib)
+        res = _extract_metadata(boolean_value_no_attrib)
         assert not res
 
     def test_comment(self, boolean_value_comment: etree._Element) -> None:
-        res = _extract_metadata_of_value(boolean_value_comment)
+        res = _extract_metadata(boolean_value_comment)
         assert len(res) == 1
         val = res.pop(0)
         assert val.property_type == TriplePropertyType.KNORA_COMMENT_ON_VALUE
@@ -341,9 +358,12 @@ class TestExtractMetadataOfValue:
         assert val.object_type == TripleObjectType.STRING
 
     def test_permissions(self, boolean_value_permissions: etree._Element) -> None:
-        # Not yet implemented
-        res = _extract_metadata_of_value(boolean_value_permissions)
-        assert not res
+        res = _extract_metadata(boolean_value_permissions)
+        assert len(res) == 1
+        permission = res.pop(0)
+        assert permission.property_type == TriplePropertyType.KNORA_PERMISSIONS
+        assert permission.object_value == "open"
+        assert permission.object_type == TripleObjectType.STRING
 
 
 @pytest.mark.parametrize(

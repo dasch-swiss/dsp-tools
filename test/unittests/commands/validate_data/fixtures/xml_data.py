@@ -11,6 +11,19 @@ def resource_empty() -> etree._Element:
 
 
 @pytest.fixture
+def resource_empty_permissions() -> etree._Element:
+    return etree.fromstring("""
+    <resource 
+        label="lbl" 
+        restype="http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything" 
+        id="one"
+        permissions="open"
+    >
+    </resource>
+    """)
+
+
+@pytest.fixture
 def root_resource_with_props() -> etree._Element:
     return etree.fromstring("""
     <knora>

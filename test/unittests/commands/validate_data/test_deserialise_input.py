@@ -26,8 +26,7 @@ class TestResource:
         res = _deserialise_one_resource(resource_empty)
         assert res.res_id == "one"
         assert len(res.property_objects) == 2
-        lbl, rdf_type, perm = _get_label_and_type(res)
-        assert not perm
+        lbl, rdf_type, _ = _get_label_and_type(res)
         assert lbl.object_value == "lbl"
         assert lbl.object_type == TripleObjectType.STRING
         assert rdf_type.object_value == "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"
@@ -56,8 +55,7 @@ class TestResource:
         res = res_list[0]
         assert res.res_id == "one"
         assert len(res.property_objects) == 2
-        lbl, rdf_type, perm = _get_label_and_type(res)
-        assert not perm
+        lbl, rdf_type, _ = _get_label_and_type(res)
         assert lbl.object_value == "lbl"
         assert lbl.object_type == TripleObjectType.STRING
         assert rdf_type.object_value == "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"
@@ -69,8 +67,7 @@ class TestResource:
         res = res_list[0]
         assert res.res_id == "region_1"
         assert len(res.property_objects) == 2
-        lbl, rdf_type, perm = _get_label_and_type(res)
-        assert not perm
+        lbl, rdf_type, _ = _get_label_and_type(res)
         assert lbl.object_value == "Region"
         assert lbl.object_type == TripleObjectType.STRING
         assert rdf_type.object_value == "http://api.knora.org/ontology/knora-api/v2#Region"

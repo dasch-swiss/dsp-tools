@@ -344,7 +344,7 @@ class TestLinkValue:
         assert res[1].knora_type == KnoraValueType.LINK_VALUE
 
 
-class TestExtractMetadataOfValue:
+class TestExtractMetadata:
     def test_none(self, boolean_value_no_attrib: etree._Element) -> None:
         res = _extract_metadata(boolean_value_no_attrib)
         assert not res

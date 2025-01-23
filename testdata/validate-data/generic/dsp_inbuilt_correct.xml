@@ -6,6 +6,14 @@
        shortcode="9999"
        default-ontology="in-built">
 
+
+    <permissions id="open">
+        <allow group="UnknownUser">V</allow>
+        <allow group="KnownUser">V</allow>
+        <allow group="ProjectMember">D</allow>
+        <allow group="ProjectAdmin">CR</allow>
+    </permissions>
+
     <!-- Target Resources for Links -->
 
     <resource label="Empty 1" restype=":TestNormalResource" id="target_empty_1"/>
@@ -143,6 +151,33 @@
         <integer-prop name=":testSeqnum">
             <integer>1</integer>
         </integer-prop>
+    </resource>
+
+    <!-- permissions -->
+
+    <resource label="Resource with Permissions"
+              restype=":TestNormalResource"
+              id="resource_permissions"
+              permissions="open"
+    />
+
+    <link label="value with permissions" id="value_with_permissions">
+        <resptr-prop name="hasLinkTo">
+            <resptr permissions="open">target_empty_1</resptr>
+        </resptr-prop>
+    </link>
+
+    <resource label="bitstream with permissions"
+              restype=":TestStillImageRepresentationWithSeqnum"
+              id="bitstream_permissions"
+    >
+        <bitstream permissions="open">this/is/filepath/file.jpg</bitstream>
+    </resource>
+
+    <resource label="IIIF with permissions" restype=":TestStillImageRepresentationWithSeqnum" id="iiif_permissions">
+        <iiif-uri permissions="open">
+            https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg
+        </iiif-uri>
     </resource>
 
 </knora>

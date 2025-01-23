@@ -133,7 +133,7 @@ api-shapes:GeonameValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
   sh:message  "GeonameValue" ;
-  sh:property api-shapes:geonameValueAsGeonameCode_Shape, api-shapes:valueHasComment_Shape;
+  sh:property api-shapes:geonameValueAsGeonameCode_Shape, api-shapes:valueHasComment_Shape ;
   sh:class    knora-api:GeonameValue ;
   sh:severity sh:Violation .
 
@@ -216,7 +216,7 @@ api-shapes:ListValue_ClassShape
 api-shapes:SimpleTextValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
-  sh:property api-shapes:SimpleTextValue_PropShape, api-shapes:valueAsString_Shape, api-shapes:valueHasComment_Shape;
+  sh:property api-shapes:SimpleTextValue_PropShape, api-shapes:valueAsString_Shape, api-shapes:valueHasComment_Shape ;
   sh:severity sh:Violation .
 
 api-shapes:SimpleTextValue_PropShape
@@ -393,7 +393,7 @@ api-shapes:LinkObj_ResourceShape
   a              sh:NodeShape ;
   sh:name        "Validates the LinkObj resource" ;
   sh:targetClass knora-api:LinkObj ;
-  sh:property    api-shapes:rdfsLabel_Shape, api-shapes:hasLinkTo_PropertyShape, api-shapes:hasComment_PropertyShape;
+  sh:property    api-shapes:rdfsLabel_Shape, api-shapes:hasLinkTo_PropertyShape, api-shapes:hasComment_PropertyShape ;
   sh:severity    sh:Violation .
 
 
@@ -404,8 +404,11 @@ api-shapes:Region_ResourceShape
   a              sh:NodeShape ;
   sh:name        "Validates the Region resource" ;
   sh:targetClass knora-api:Region ;
-  sh:property    api-shapes:rdfsLabel_Shape, api-shapes:hasColor_PropertyShape, api-shapes:isRegionOf_PropertyShape,
-                 api-shapes:hasGeometry_PropertyShape, api-shapes:hasComment_PropertyShape ;
+  sh:property    api-shapes:rdfsLabel_Shape ,
+                 api-shapes:hasColor_PropertyShape ,
+                 api-shapes:isRegionOf_PropertyShape ,
+                 api-shapes:hasGeometry_PropertyShape ,
+                 api-shapes:hasComment_PropertyShape ;
   sh:severity    sh:Violation .
 
 

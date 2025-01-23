@@ -120,6 +120,7 @@ class KnoraValueType(Enum):
     DATE_VALUE = auto()
     DECIMAL_VALUE = auto()
     GEONAME_VALUE = auto()
+    GEOM_VALUE = auto()
     INT_VALUE = auto()
     LINK_VALUE = auto()
     LIST_VALUE = auto()

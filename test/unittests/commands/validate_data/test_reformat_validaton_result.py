@@ -30,15 +30,57 @@ from dsp_tools.commands.validate_data.models.validation import ResultUniqueValue
 from dsp_tools.commands.validate_data.models.validation import ResultValueTypeViolation
 from dsp_tools.commands.validate_data.models.validation import SeqnumIsPartOfViolation
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
+from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
 from dsp_tools.commands.validate_data.reformat_validaton_result import _extract_base_info_of_resource_results
+from dsp_tools.commands.validate_data.reformat_validaton_result import _query_all_results
 from dsp_tools.commands.validate_data.reformat_validaton_result import _query_one_with_detail
 from dsp_tools.commands.validate_data.reformat_validaton_result import _query_one_without_detail
 from dsp_tools.commands.validate_data.reformat_validaton_result import _reformat_one_validation_result
 from dsp_tools.commands.validate_data.reformat_validaton_result import _separate_result_types
+from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_validation_graph
 from test.unittests.commands.validate_data.constants import DATA
+from test.unittests.commands.validate_data.constants import IN_BUILT_ONTO
 from test.unittests.commands.validate_data.constants import KNORA_API
 from test.unittests.commands.validate_data.constants import ONTO
+
+
+def test_reformat_validation_graph(report_target_resource_wrong_type: tuple[Graph, Graph]) -> None:
+    validation_g, onto_data_g = report_target_resource_wrong_type
+    report = ValidationReportGraphs(
+        conforms=False,
+        validation_graph=validation_g,
+        shacl_graph=Graph(),
+        onto_graph=onto_data_g,
+        data_graph=onto_data_g,
+    )
+    result_all_problems = reformat_validation_graph(report)
+    assert not result_all_problems.unexpected_results
+    assert len(result_all_problems.problems) == 1
+    result = result_all_problems.problems.pop(0)
+    assert isinstance(result, LinkTargetTypeMismatchProblem)
+    assert result.res_id == "region_isRegionOf_resource_not_a_representation"
+    assert result.res_type == "Region"
+    assert result.prop_name == "isRegionOf"
+    assert result.link_target_id == "target_res_without_representation_1"
+    assert result.actual_type == "in-built:TestNormalResource"
+    assert result.expected_type == "Representation"
+
+
+class TestQueryAllResults:
+    def test_link_target_inexistent(self, report_target_resource_wrong_type: tuple[Graph, Graph]) -> None:
+        validation_g, onto_data_g = report_target_resource_wrong_type
+        extracted_results, unexpected_components = _query_all_results(validation_g, onto_data_g)
+        assert not unexpected_components
+        assert len(extracted_results) == 1
+        result = extracted_results.pop(0)
+        assert isinstance(result, ResultLinkTargetViolation)
+        assert result.res_iri == DATA.region_isRegionOf_resource_not_a_representation
+        assert result.res_class == KNORA_API.Region
+        assert result.property == KNORA_API.isRegionOf
+        assert result.target_iri == DATA.target_res_without_representation_1
+        assert result.target_resource_type == IN_BUILT_ONTO.TestNormalResource
+        assert str(result.expected_type) == "http://api.knora.org/ontology/knora-api/v2#Representation"
 
 
 class TestExtractBaseInfo:

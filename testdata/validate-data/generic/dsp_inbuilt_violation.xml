@@ -6,7 +6,7 @@
        shortcode="9999"
        default-ontology="in-built">
 
-    <!-- 5 Violations -->
+    <!-- 8 Violations -->
 
     <!-- Target Resources for Links -->
 
@@ -21,6 +21,11 @@
         <bitstream>this/is/filepath/file.mp4</bitstream>
     </resource>
 
+    <resource label="Target Image" restype=":TestStillImageRepresentationWithSeqnum" id="target_empty_image">
+        <bitstream>this/is/filepath/file.jpg</bitstream>
+    </resource>
+
+
     <!-- link target does not exist -->
 
     <link label="Link object" id="link_obj_target_non_existent">
@@ -28,6 +33,71 @@
             <resptr>non_existing_link_target</resptr>
         </resptr-prop>
     </link>
+
+    <!-- Region isRegionOf does not exist -->
+
+    <region label="Region" id="region_isRegionOf_resource_does_not_exist">
+        <color-prop name="hasColor">
+            <color>#5d1f1e</color>
+        </color-prop>
+        <resptr-prop name="isRegionOf">
+            <resptr>target_does_not_exist</resptr>
+        </resptr-prop>
+        <geometry-prop name="hasGeometry">
+            <geometry>
+                {
+                "status": "active",
+                "type": "polygon",
+                "lineWidth": 5,
+                "points": [{"x": 0.4, "y": 0.6},
+                {"x": 0.5, "y": 0.9},
+                {"x": 0.8, "y": 0.9},
+                {"x": 0.7, "y": 0.6}]
+                }
+            </geometry>
+        </geometry-prop>
+    </region>
+
+    <!-- Region isRegionOf target resource is not a representation -->
+
+    <region label="Region" id="region_isRegionOf_resource_not_a_representation">
+        <color-prop name="hasColor">
+            <color>#5d1f1e</color>
+        </color-prop>
+        <resptr-prop name="isRegionOf">
+            <resptr>target_res_without_representation_1</resptr>
+        </resptr-prop>
+        <geometry-prop name="hasGeometry">
+            <geometry>
+                {
+                "status": "active",
+                "type": "polygon",
+                "lineWidth": 5,
+                "points": [{"x": 0.4, "y": 0.6},
+                {"x": 0.5, "y": 0.9},
+                {"x": 0.8, "y": 0.9},
+                {"x": 0.7, "y": 0.6}]
+                }
+            </geometry>
+        </geometry-prop>
+    </region>
+
+    <!-- Region Geometry is not valid json -->
+
+    <region label="Region" id="region_invalid_geometry">
+        <color-prop name="hasColor">
+            <color>#5d1f1e</color>
+        </color-prop>
+        <resptr-prop name="isRegionOf">
+            <resptr>target_empty_image</resptr>
+        </resptr-prop>
+        <geometry-prop name="hasGeometry">
+            <geometry>
+                { not a valid json }
+            </geometry>
+        </geometry-prop>
+    </region>
+
 
     <!-- hasRepresentation target is not a representation -->
 

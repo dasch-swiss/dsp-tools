@@ -40,6 +40,58 @@
     </link>
 
 
+    <!-- Region -->
+
+    <region label="Region" id="region_with_comment">
+        <color-prop name="hasColor">
+            <color>#5d1f1e</color>
+        </color-prop>
+        <resptr-prop name="isRegionOf">
+            <resptr>target_empty_image</resptr>
+        </resptr-prop>
+        <geometry-prop name="hasGeometry">
+            <geometry>
+                {
+                    "status": "active",
+                    "type": "polygon",
+                    "lineWidth": 5,
+                    "points": [{"x": 0.4, "y": 0.6},
+                    {"x": 0.5, "y": 0.9},
+                    {"x": 0.8, "y": 0.9},
+                    {"x": 0.7, "y": 0.6}]
+                }
+            </geometry>
+        </geometry-prop>
+        <text-prop name="hasComment">
+            <text encoding="xml">Comment Text</text>
+        </text-prop>
+    </region>
+
+    <!-- Region without comment -->
+
+    <region label="Region" id="region_without_comment">
+        <color-prop name="hasColor">
+            <color>#5d1f1e</color>
+        </color-prop>
+        <resptr-prop name="isRegionOf">
+            <resptr>target_empty_image</resptr>
+        </resptr-prop>
+        <geometry-prop name="hasGeometry">
+            <geometry>
+                {
+                    "status": "active",
+                    "type": "polygon",
+                    "lineWidth": 5,
+                    "points": [{"x": 0.4, "y": 0.6},
+                    {"x": 0.5, "y": 0.9},
+                    {"x": 0.8, "y": 0.9},
+                    {"x": 0.7, "y": 0.6}]
+                }
+            </geometry>
+        </geometry-prop>
+    </region>
+
+
     <!-- hasRepresentation to any Representation type -->
 
     <resource label="Target is any representation image" restype=":TestNormalResource"

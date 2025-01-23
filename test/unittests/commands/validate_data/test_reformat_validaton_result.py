@@ -48,6 +48,14 @@ class TestQueryAllResults:
         extracted_results, unexpected_components = _query_all_results(validation_g, onto_data_g)
         assert not unexpected_components
         assert len(extracted_results) == 1
+        result = extracted_results.pop(0)
+        assert isinstance(result, LinkTargetTypeMismatchProblem)
+        assert result.res_id == "region_isRegionOf_resource_not_a_representation"
+        assert result.res_type == "Region"
+        assert result.prop_name == "isRegionOf"
+        assert result.link_target_id == "target_res_without_representation_1"
+        assert result.actual_type == "in-built:TestNormalResource"
+        assert result.expected_type == "Representation"
 
 
 class TestExtractBaseInfo:

@@ -27,6 +27,9 @@
         <bitstream>this/is/filepath/file.mp4</bitstream>
     </resource>
 
+    <resource label="Target Audio" restype="onto:TestAudioRepresentation" id="target_empty_audio">
+        <bitstream>this/is/filepath/file.mp3</bitstream>
+    </resource>
 
     <!-- LinkObj -->
 
@@ -99,6 +102,42 @@
         </geometry-prop>
     </region>
 
+    <!-- VideoSegment -->
+
+    <video-segment label="Video Segment with all possible values" id="video_segment_all_values">
+        <isSegmentOf>target_empty_movie</isSegmentOf>
+        <hasSegmentBounds segment_start="0.1" segment_end="0.234"/>
+        <hasTitle>Title of video segment</hasTitle>
+        <hasComment><strong>Bold comment</strong> of video segment</hasComment>
+        <hasDescription><strong>Bold description</strong> of video segment</hasDescription>
+        <hasKeyword>Keyword 1 of video segment</hasKeyword>
+        <hasKeyword>Keyword 2 of video segment</hasKeyword>
+        <relatesTo>audio_segment_all_values</relatesTo>
+    </video-segment>
+
+    <video-segment label="Video Segment with only the mandatory values" id="video_segment_only_mandatory">
+        <isSegmentOf>target_empty_movie</isSegmentOf>
+        <hasSegmentBounds segment_start="2" segment_end="3.5"/>
+    </video-segment>
+
+    <!-- AudioSegment -->
+    <audio-segment label="Audio Segment with all possible values" id="audio_segment_all_values">
+        <isSegmentOf>target_empty_audio</isSegmentOf>
+        <hasSegmentBounds segment_start="3.5" segment_end="5.6"/>
+        <hasTitle>Title of audio segment</hasTitle>
+        <hasComment>Comment 1 of audio segment</hasComment>
+        <hasComment>Comment 2 of audio segment</hasComment>
+        <hasDescription>Description 1 of audio segment</hasDescription>
+        <hasDescription>Description 2 of audio segment</hasDescription>
+        <hasKeyword>Keyword 1 of audio segment</hasKeyword>
+        <hasKeyword>Keyword 2 of audio segment</hasKeyword>
+        <relatesTo>video_segment_all_values</relatesTo>
+    </audio-segment>
+
+    <audio-segment label="Audio Segment with only the mandatory values" id="audio_segment_mandatory_values">
+        <isSegmentOf>target_empty_audio</isSegmentOf>
+        <hasSegmentBounds segment_start="0.5" segment_end="7"/>
+    </audio-segment>
 
     <!-- hasRepresentation to any Representation type -->
 

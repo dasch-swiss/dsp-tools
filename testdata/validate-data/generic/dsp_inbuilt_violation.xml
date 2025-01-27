@@ -98,6 +98,31 @@
         </geometry-prop>
     </region>
 
+    <!-- AudioSegment -->
+
+    <audio-segment label="Audio Segment" id="audio_segment_target_non_existent">
+        <isSegmentOf>target_non_existent</isSegmentOf>
+        <hasSegmentBounds segment_start="0.5" segment_end="7"/>
+    </audio-segment>
+
+
+    <audio-segment label="Audio Segment" id="audio_segment_target_is_video">
+        <isSegmentOf>target_empty_image</isSegmentOf>
+        <hasSegmentBounds segment_start="0.5" segment_end="7"/>
+    </audio-segment>
+
+    <!-- VideoSegment -->
+
+    <video-segment label="Video Segment" id="video_segment_target_non_existent">
+        <isSegmentOf>target_non_existent</isSegmentOf>
+        <hasSegmentBounds segment_start="2" segment_end="3.5"/>
+    </video-segment>
+
+    <video-segment label="Video Segment" id="video_segment_target_is_audio">
+        <isSegmentOf>target_empty_image</isSegmentOf>
+        <hasSegmentBounds segment_start="2" segment_end="3.5"/>
+    </video-segment>
+
 
     <!-- hasRepresentation target is not a representation -->
 

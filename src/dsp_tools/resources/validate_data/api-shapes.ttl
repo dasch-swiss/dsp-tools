@@ -426,7 +426,61 @@ api-shapes:hasSegmentBounds_PropertyShape
   sh:path knora-api:hasSegmentBounds .
 
 
+### knora-api:relatesTo
 
+api-shapes:relatesTo_PropertyShape
+  a       sh:PropertyShape ;
+  sh:path knora-api:relatesTo ;
+  sh:node api-shapes:LinkValue_ClassShape, api-shapes:relatesTo_NodeShape .
+
+api-shapes:relatesTo_NodeShape
+  a           sh:NodeShape ;
+  sh:name     "This ensures that the target of the property is of type Resource, i.e. exists in the graph." ;
+  sh:property [
+                a          sh:PropertyShape ;
+                sh:class   knora-api:Resource ;
+                sh:message "Range is knora-api:Resource or a subclass." ;
+                sh:path    api-shapes:linkValueHasTargetID ;
+              ] ;
+  sh:severity sh:Violation .
+
+
+### knora-api:isVideoSegmentOf
+
+api-shapes:isVideoSegmentOf_PropertyShape
+  a       sh:PropertyShape ;
+  sh:path knora-api:isVideoSegmentOf ;
+  sh:node api-shapes:LinkValue_ClassShape, api-shapes:isVideoSegmentOf_NodeShape .
+
+api-shapes:isVideoSegmentOf_NodeShape
+  a           sh:NodeShape ;
+  sh:name     "This ensures that the target of the property is of type MovingImageRepresentation, i.e. exists in the graph." ;
+  sh:property [
+                a          sh:PropertyShape ;
+                sh:class   knora-api:MovingImageRepresentation ;
+                sh:message "http://api.knora.org/ontology/knora-api/v2#MovingImageRepresentation" ;
+                sh:path    api-shapes:linkValueHasTargetID ;
+              ] ;
+  sh:severity sh:Violation .
+
+
+### knora-api:isAudioSegmentOf
+
+api-shapes:isAudioSegmentOf_PropertyShape
+  a       sh:PropertyShape ;
+  sh:path knora-api:isAudioSegmentOf ;
+  sh:node api-shapes:LinkValue_ClassShape, api-shapes:isAudioSegmentOf_NodeShape .
+
+api-shapes:isAudioSegmentOf_NodeShape
+  a           sh:NodeShape ;
+  sh:name     "This ensures that the target of the property is of type AudioRepresentation, i.e. exists in the graph." ;
+  sh:property [
+                a          sh:PropertyShape ;
+                sh:class   knora-api:AudioRepresentation ;
+                sh:message "http://api.knora.org/ontology/knora-api/v2#AudioRepresentation" ;
+                sh:path    api-shapes:linkValueHasTargetID ;
+              ] ;
+  sh:severity sh:Violation .
 
 #########################################
 # DSP BUILT IN RESOURCES
@@ -467,7 +521,9 @@ api-shapes:AudioSegment_ResourceShape
   sh:targetClass knora-api:AudioSegment ;
   sh:property    api-shapes:rdfsLabel_Shape ,
                  api-shapes:hasComment_PropertyShape ,
-                 api-shapes:hasSegmentBounds_PropertyShape ;
+                 api-shapes:hasSegmentBounds_PropertyShape ,
+                 api-shapes:relatesTo_PropertyShape ,
+                 api-shapes:isAudioSegmentOf_PropertyShape ;
   sh:severity    sh:Violation .
 
 
@@ -480,11 +536,11 @@ api-shapes:VideoSegment_ResourceShape
   sh:targetClass knora-api:VideoSegment ;
   sh:property    api-shapes:rdfsLabel_Shape ,
                  api-shapes:hasComment_PropertyShape ,
-                 api-shapes:hasSegmentBounds_PropertyShape ;
+                 api-shapes:hasSegmentBounds_PropertyShape ,
+                 api-shapes:relatesTo_PropertyShape ,
+                 api-shapes:isVideoSegmentOf_PropertyShape ;
   sh:severity    sh:Violation .
 
 
-
-# LinkValue -> isVideoSegmentOf / isAudioSegmentOf, relatesTo
 # SimpleText -> hasTitle, hasKeyword
 # Richtext -> hasDescription

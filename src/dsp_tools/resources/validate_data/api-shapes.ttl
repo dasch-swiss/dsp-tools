@@ -415,6 +415,14 @@ api-shapes:Region_ResourceShape
 ###########################
 # VideoSegment
 
+# api-shapes:hasComment_PropertyShape, api-shapes:rdfsLabel_Shape ,
 
 ###########################
 # AudioSegment
+
+# api-shapes:hasComment_PropertyShape, api-shapes:rdfsLabel_Shape ,
+
+
+# 1 -> hasSegmentBounds, isVideoSegmentOf / isAudioSegmentOf, label
+# 0-1 -> hasTitle
+# 0-n -> hasKeyword, hasComment, relatesTo, hasComment, hasDescription

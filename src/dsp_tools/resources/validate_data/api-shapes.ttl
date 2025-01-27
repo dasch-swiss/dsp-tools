@@ -482,6 +482,31 @@ api-shapes:isAudioSegmentOf_NodeShape
               ] ;
   sh:severity sh:Violation .
 
+
+### knora-api:hasDescription
+
+api-shapes:hasDescription_PropertyShape
+  a       sh:PropertyShape ;
+  sh:node api-shapes:FormattedTextValue_ClassShape ;
+  sh:path knora-api:hasDescription .
+
+
+### knora-api:hasTitle
+
+api-shapes:hasTitle_PropertyShape
+  a       sh:PropertyShape ;
+  sh:node api-shapes:SimpleTextValue_ClassShape ;
+  sh:path knora-api:hasTitle .
+
+
+### knora-api:hasKeyword
+
+api-shapes:hasKeyword_PropertyShape
+  a       sh:PropertyShape ;
+  sh:node api-shapes:SimpleTextValue_ClassShape ;
+  sh:path knora-api:hasKeyword .
+
+
 #########################################
 # DSP BUILT IN RESOURCES
 #########################################
@@ -523,7 +548,10 @@ api-shapes:AudioSegment_ResourceShape
                  api-shapes:hasComment_PropertyShape ,
                  api-shapes:hasSegmentBounds_PropertyShape ,
                  api-shapes:relatesTo_PropertyShape ,
-                 api-shapes:isAudioSegmentOf_PropertyShape ;
+                 api-shapes:isAudioSegmentOf_PropertyShape ,
+                 api-shapes:hasDescription_PropertyShape ,
+                 api-shapes:hasTitle_PropertyShape ,
+                 api-shapes:hasKeyword_PropertyShape ;
   sh:severity    sh:Violation .
 
 
@@ -538,9 +566,8 @@ api-shapes:VideoSegment_ResourceShape
                  api-shapes:hasComment_PropertyShape ,
                  api-shapes:hasSegmentBounds_PropertyShape ,
                  api-shapes:relatesTo_PropertyShape ,
-                 api-shapes:isVideoSegmentOf_PropertyShape ;
+                 api-shapes:isVideoSegmentOf_PropertyShape ,
+                 api-shapes:hasDescription_PropertyShape ,
+                 api-shapes:hasTitle_PropertyShape ,
+                 api-shapes:hasKeyword_PropertyShape ;
   sh:severity    sh:Violation .
-
-
-# SimpleText -> hasTitle, hasKeyword
-# Richtext -> hasDescription

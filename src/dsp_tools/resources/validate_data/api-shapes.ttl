@@ -413,16 +413,29 @@ api-shapes:Region_ResourceShape
 
 
 ###########################
-# VideoSegment
-
-# api-shapes:hasComment_PropertyShape, api-shapes:rdfsLabel_Shape ,
-
-###########################
 # AudioSegment
 
-# api-shapes:hasComment_PropertyShape, api-shapes:rdfsLabel_Shape ,
+api-shapes:AudioSegment_ResourceShape
+  a              sh:NodeShape ;
+  sh:name        "Validates the AudioSegment resource" ;
+  sh:targetClass knora-api:AudioSegment ;
+  sh:property    api-shapes:rdfsLabel_Shape ,
+                 api-shapes:hasComment_PropertyShape ;
+  sh:severity    sh:Violation .
+
+
+###########################
+# VideoSegment
+
+api-shapes:VideoSegment_ResourceShape
+  a              sh:NodeShape ;
+  sh:name        "Validates the VideoSegment resource" ;
+  sh:targetClass knora-api:VideoSegment ;
+  sh:property    api-shapes:rdfsLabel_Shape ,
+                 api-shapes:hasComment_PropertyShape ;
+  sh:severity    sh:Violation .
 
 
 # 1 -> hasSegmentBounds, isVideoSegmentOf / isAudioSegmentOf, label
 # 0-1 -> hasTitle
-# 0-n -> hasKeyword, hasComment, relatesTo, hasComment, hasDescription
+# 0-n -> hasKeyword, hasComment, relatesTo, hasDescription

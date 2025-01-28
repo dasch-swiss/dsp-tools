@@ -13,6 +13,7 @@ from rdflib import URIRef
 from tqdm import tqdm
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.commands.validate_data.validate_data import validate_data
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import create_resource_with_values
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
@@ -74,6 +75,10 @@ def xmlupload(
         True if all resources could be uploaded without errors; False if one of the resources could not be
         uploaded because there is an error in it
     """
+    validation_passed = validate_data(filepath=input_file, api_url=creds.server, dev_route=False, save_graphs=False)
+    # The validation results are communicated to the user in the function, so no further action is needed.
+    if not validation_passed:
+        return True
 
     root, shortcode, default_ontology = prepare_input_xml_file(input_file, imgdir)
 

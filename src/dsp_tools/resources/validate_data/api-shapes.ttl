@@ -176,7 +176,13 @@ api-shapes:IntervalValue_ClassShape
   sh:name     "Validates the class type" ;
   sh:message  "IntervalValue" ;
   sh:class    knora-api:IntervalValue ;
-  sh:property api-shapes:valueHasComment_Shape ,
+  sh:property [
+                sh:path knora-api:intervalValueHasStart ;
+		            sh:lessThan knora-api:intervalValueHasEnd ;
+                sh:message "The start of the interval must be smaller than the end." ;
+                sh:severity sh:Violation ;
+              ] ,
+              api-shapes:valueHasComment_Shape ,
               api-shapes:intervalValueHasStart_PropShape ,
               api-shapes:intervalValueHasEnd_PropShape ;
   sh:severity sh:Violation .
@@ -571,5 +577,3 @@ api-shapes:VideoSegment_ResourceShape
                  api-shapes:hasTitle_PropertyShape ,
                  api-shapes:hasKeyword_PropertyShape ;
   sh:severity    sh:Violation .
-
-# TODO: can I validate that one value is bigger than another?

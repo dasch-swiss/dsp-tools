@@ -290,34 +290,36 @@ def report_min_inclusive(onto_graph: Graph) -> tuple[Graph, Graph, ValidationRes
     validation_str = f"""{PREFIXES}
     [ 
         a sh:ValidationResult ;
-        sh:detail _:ne9a2d2bc1e224dc3b9d49ebcce780152b30 ;
+        sh:detail _:detail_bn ;
         sh:focusNode <http://data/video_segment_negative_bounds> ;
         sh:resultMessage "Value does not have shape api-shapes:IntervalValue_ClassShape" ;
         sh:resultPath <http://api.knora.org/ontology/knora-api/v2#hasSegmentBounds> ;
         sh:resultSeverity sh:Violation ;
         sh:sourceConstraintComponent sh:NodeConstraintComponent ;
         sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#hasSegmentBounds_PropertyShape> ;
-        sh:value <http://data/6559348b-2e84-42a8-aecd-7a95d7bf4e0f> 
+        sh:value <http://data/value_iri> 
     ] .
             
-    _:ne9a2d2bc1e224dc3b9d49ebcce780152b30 a sh:ValidationResult ;
-    sh:focusNode <http://data/6559348b-2e84-42a8-aecd-7a95d7bf4e0f> ;
+    _:detail_bn a sh:ValidationResult ;
+    sh:focusNode <http://data/value_iri> ;
     sh:resultMessage "The interval start must be a non-negative integer or decimal." ;
     sh:resultPath <http://api.knora.org/ontology/knora-api/v2#intervalValueHasStart> ;
     sh:resultSeverity sh:Violation ;
     sh:sourceConstraintComponent sh:MinInclusiveConstraintComponent ;
     sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#intervalValueHasStart_PropShape> ;
     sh:value -2.0 .
-    """  # noqa: E501 (Line too long)
+    """
     validation_g = Graph()
     validation_g.parse(data=validation_str, format="ttl")
     data_str = f"""{PREFIXES}
-    <http://data/id_simpletext> a onto:ClassWithEverything ;
-        rdfs:label "Simpletext"^^xsd:string ;
-        onto:testTextarea <http://data/value_id_simpletext> .
 
-    <http://data/value_id_simpletext> a knora-api:TextValue ;
-        knora-api:textValueAsXml "Text"^^xsd:string .
+    <http://data/video_segment_negative_bounds> a knora-api:VideoSegment ;
+        rdfs:label "Video Segment"^^xsd:string ;
+        knora-api:hasSegmentBounds <http://data/value_iri> .
+    
+    <http://data/value_iri> a knora-api:IntervalValue ;
+        knora-api:intervalValueHasEnd -1.0 ;
+        knora-api:intervalValueHasStart -2.0 .
     """
     onto_data_g = Graph()
     onto_data_g += onto_graph
@@ -326,14 +328,14 @@ def report_min_inclusive(onto_graph: Graph) -> tuple[Graph, Graph, ValidationRes
     detail_bn = next(validation_g.objects(val_bn, SH.detail))
     detail = DetailBaseInfo(
         detail_bn=detail_bn,
-        source_constraint_component=SH.MinCountConstraintComponent,
+        source_constraint_component=SH.MinInclusiveConstraintComponent,
     )
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
-        result_path=ONTO.testTextarea,
+        result_path=KNORA_API.hasSegmentBounds,
         source_constraint_component=SH.NodeConstraintComponent,
-        resource_iri=DATA.id_simpletext,
-        res_class_type=ONTO.ClassWithEverything,
+        resource_iri=DATA.video_segment_negative_bounds,
+        res_class_type=KNORA_API.VideoSegment,
         detail=detail,
     )
     return validation_g, onto_data_g, base_info

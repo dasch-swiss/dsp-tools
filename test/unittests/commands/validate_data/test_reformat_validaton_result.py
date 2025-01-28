@@ -338,6 +338,16 @@ class TestQueryWithDetail:
         assert result.results_message == "A valid node from the list 'firstList' must be used with this property."
         assert result.actual_value == "firstList / other"
 
+    def test_report_min_inclusive(self, report_min_inclusive: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
+        res, data, info = report_min_inclusive
+        result = _query_one_with_detail(info, res, data)
+        assert isinstance(result, ResultGenericViolation)
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
+        assert result.property == KNORA_API.hasSegmentBounds
+        assert result.results_message == "The interval start must be a non-negative integer or decimal."
+        assert result.actual_value == "-2.0"
+
 
 class TestQueryFileValueViolations:
     def test_missing_file_value(self, report_missing_file_value: tuple[Graph, ValidationResultBaseInfo]) -> None:

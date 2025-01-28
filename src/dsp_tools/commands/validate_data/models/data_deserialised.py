@@ -93,6 +93,8 @@ class TriplePropertyType(Enum):
     RDF_TYPE = auto()
     KNORA_PERMISSIONS = auto()
     KNORA_COMMENT_ON_VALUE = auto()
+    KNORA_SEGMENT_START = auto()
+    KNORA_SEGMENT_END = auto()
 
 
 class TripleObjectType(Enum):

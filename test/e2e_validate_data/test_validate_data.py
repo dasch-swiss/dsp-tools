@@ -487,6 +487,7 @@ class TestReformatValidationGraph:
             ("video_segment_target_is_audio", LinkTargetTypeMismatchProblem),
             ("video_segment_target_non_existent", LinkedResourceDoesNotExistProblem),
             ("video_segment_wrong_bounds", GenericProblemWithInput),
+            ("video_segment_wrong_bounds", GenericProblemWithInput),
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)

@@ -124,12 +124,12 @@ class TestResource:
         assert lbl.object_type == TripleObjectType.STRING
         assert rdf_type.object_value == "http://api.knora.org/ontology/knora-api/v2#VideoSegment"
         assert rdf_type.object_type == TripleObjectType.IRI
-        assert len(res.values) == 6
+        assert len(res.values) == 7
         propname_to_info = {x.user_facing_prop: x for x in res.values}
         segment_bounds = propname_to_info.pop(f"{KNORA_API_STR}hasSegmentBounds")
         assert not segment_bounds.user_facing_value
         assert segment_bounds.knora_type == KnoraValueType.INTERVAL_VALUE
-        assert len(segment_bounds.value_metadata) == 3
+        assert len(segment_bounds.value_metadata) == 2
         seg_bounds_prop_objects = {x.property_type: x for x in segment_bounds.value_metadata}
         start_bound = seg_bounds_prop_objects.pop(TriplePropertyType.KNORA_INTERVAL_START)
         assert start_bound.object_value == "0.1"
@@ -144,6 +144,7 @@ class TestResource:
             f"{KNORA_API_STR}hasComment": ("Comment", KnoraValueType.RICHTEXT_VALUE),
             f"{KNORA_API_STR}hasKeyword": ("Keyword", KnoraValueType.SIMPLETEXT_VALUE),
             f"{KNORA_API_STR}relatesTo": ("relates_to_id", KnoraValueType.LINK_VALUE),
+            f"{KNORA_API_STR}hasDescription": ("Description", KnoraValueType.RICHTEXT_VALUE),
         }
         for prop_name, value_info in propname_to_info.items():
             expected = other_props[prop_name]

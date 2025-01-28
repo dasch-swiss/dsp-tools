@@ -43,6 +43,7 @@ def video_segment() -> etree._Element:
         <hasComment>Comment</hasComment>
         <hasKeyword>Keyword</hasKeyword>
         <relatesTo>relates_to_id</relatesTo>
+        <hasDescription>Description</hasDescription>
     </resource>
     """)
 

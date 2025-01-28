@@ -28,6 +28,7 @@ SEGMENT_TAG_TO_PROP_MAPPER = {
     "hasKeyword": KnoraValueType.SIMPLETEXT_VALUE,
     "isAudioSegmentOf": KnoraValueType.LINK_VALUE,
     "isVideoSegmentOf": KnoraValueType.LINK_VALUE,
+    "hasComment": KnoraValueType.RICHTEXT_VALUE,
 }
 
 

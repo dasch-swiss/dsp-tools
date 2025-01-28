@@ -177,4 +177,12 @@
             <bitstream>this/is/filepath/file.mp4</bitstream>
         </resource>
 
+
+        <video-segment label="Video Segment" id="video_segment_wrong_bounds">
+            <isSegmentOf>target_empty_movie</isSegmentOf>
+            <hasSegmentBounds segment_start="-2" segment_end="0"/>
+        </video-segment>
+
+
+
 </knora>

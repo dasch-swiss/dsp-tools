@@ -421,7 +421,7 @@ class TestReformatValidationGraph:
             ("link_target_wrong_class", LinkTargetTypeMismatchProblem),
             ("list_node_non_existent", GenericProblemWithInput),
             ("missing_seqnum", GenericProblemWithMessage),
-            ("video_segment_start_larger_than_end", GenericProblemWithMessage),
+            ("video_segment_start_larger_than_end", GenericProblemWithInput),
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)
@@ -484,7 +484,7 @@ class TestReformatValidationGraph:
             ("target_must_be_a_representation", LinkTargetTypeMismatchProblem),
             ("target_must_be_an_image_representation", LinkTargetTypeMismatchProblem),
             ("video_segment_target_is_audio", LinkTargetTypeMismatchProblem),
-            ("video_segment_start_larger_than_end", GenericProblemWithMessage),
+            ("video_segment_start_larger_than_end", GenericProblemWithInput),
             ("video_segment_target_non_existent", LinkedResourceDoesNotExistProblem),
             ("video_segment_wrong_bounds", GenericProblemWithInput),
         ]

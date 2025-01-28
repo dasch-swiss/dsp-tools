@@ -20,6 +20,15 @@ from dsp_tools.commands.validate_data.models.data_deserialised import TripleProp
 from dsp_tools.commands.validate_data.models.data_deserialised import ValueInformation
 from dsp_tools.models.exceptions import BaseError
 
+SEGMENT_TAG_TO_PROP_MAPPER = {
+    "relatesTo": KnoraValueType.LINK_VALUE,
+    "hasSegmentBounds": KnoraValueType.INTERVAL_VALUE,
+    "hasDescription": KnoraValueType.RICHTEXT_VALUE,
+    "hasTitle": KnoraValueType.SIMPLETEXT_VALUE,
+    "hasKeyword": KnoraValueType.SIMPLETEXT_VALUE,
+    "isAudioSegmentOf": KnoraValueType.LINK_VALUE,
+    "isVideoSegmentOf": KnoraValueType.LINK_VALUE,
+}
 
 def deserialise_xml(root: etree._Element) -> ProjectDeserialised:
     """
@@ -247,15 +256,6 @@ def _deserialise_one_segment(resource: etree._Element) -> ResourceDeserialised:
 
 
 def _deserialise_segment_values(resource: etree._Element) -> list[ValueInformation]:
-    segment_tag_mapper = {
-        "relatesTo": KnoraValueType.LINK_VALUE,
-        "hasSegmentBounds": KnoraValueType.INTERVAL_VALUE,
-        "hasDescription": KnoraValueType.RICHTEXT_VALUE,
-        "hasTitle": KnoraValueType.SIMPLETEXT_VALUE,
-        "hasKeyword": KnoraValueType.SIMPLETEXT_VALUE,
-        "isAudioSegmentOf": KnoraValueType.LINK_VALUE,
-        "isVideoSegmentOf": KnoraValueType.LINK_VALUE,
-    }
     values = []
     for val in resource.iterchildren():
         prop_name = val.tag
@@ -263,7 +263,7 @@ def _deserialise_segment_values(resource: etree._Element) -> list[ValueInformati
             ValueInformation(
                 user_facing_prop=prop_name,
                 user_facing_value=val.text,
-                knora_type=segment_tag_mapper[prop_name],
+                knora_type=SEGMENT_TAG_TO_PROP_MAPPER[prop_name],
                 value_metadata=_extract_metadata(val),
             )
         )

@@ -342,6 +342,17 @@ def report_min_inclusive(onto_graph: Graph) -> tuple[Graph, Graph, ValidationRes
 
 
 @pytest.fixture
+def extracted_min_inclusive() -> ResultGenericViolation:
+    return ResultGenericViolation(
+        res_iri=DATA.video_segment_negative_bounds,
+        res_class=KNORA_API.VideoSegment,
+        property=KNORA_API.hasSegmentBounds,
+        results_message="The interval start must be a non-negative integer or decimal.",
+        actual_value="-2.0",
+    )
+
+
+@pytest.fixture
 def report_value_type(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;

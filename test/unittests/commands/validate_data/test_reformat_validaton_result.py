@@ -489,6 +489,15 @@ class TestReformatResult:
         assert result.results_message == "A valid node from the list 'firstList' must be used with this property."
         assert result.actual_input == "other / n1"
 
+    def test_min_inclusive(self, extracted_min_inclusive: ResultGenericViolation) -> None:
+        result = _reformat_one_validation_result(extracted_min_inclusive)
+        assert isinstance(result, GenericProblemWithInput)
+        assert result.res_id == "video_segment_negative_bounds"
+        assert result.res_type == "VideoSegment"
+        assert result.prop_name == "hasSegmentBounds"
+        assert result.results_message == "The interval start must be a non-negative integer or decimal."
+        assert result.actual_input == "-2.0"
+
     def test_missing_file_value(self, extracted_missing_file_value: ResultFileValueViolation) -> None:
         result = _reformat_one_validation_result(extracted_missing_file_value)
         assert isinstance(result, FileValueProblem)

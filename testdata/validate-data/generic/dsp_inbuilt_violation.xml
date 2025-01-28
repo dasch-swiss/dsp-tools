@@ -137,7 +137,7 @@
 
 
     <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-    <!-- 4 Violations but not yet implemented -->
+    <!-- 8 Violations but not yet implemented -->
 
 
     <!-- sub-property usage of knora-api seqnum/isPartOf one prop missing -->
@@ -184,6 +184,36 @@
         <integer-prop name=":testSeqnum">
             <integer>-1</integer>
         </integer-prop>
+    </resource>
+
+    <!-- permissions -->
+
+    <resource label="Resource with Permissions"
+              restype=":TestNormalResource"
+              id="non_existent_permissions_resource"
+              permissions="open"
+    />
+
+    <link label="value with permissions" id="non_existent_permissions_value">
+        <resptr-prop name="hasLinkTo">
+            <resptr permissions="open">target_res_without_representation_1</resptr>
+        </resptr-prop>
+    </link>
+
+    <resource label="bitstream with permissions"
+              restype=":TestStillImageRepresentationWithSeqnum"
+              id="non_existent_permissions_bitstream"
+    >
+        <bitstream permissions="open">this/is/filepath/file.jpg</bitstream>
+    </resource>
+
+    <resource label="IIIF with permissions"
+              restype=":TestStillImageRepresentationWithSeqnum"
+              id="non_existent_permissions_iiif"
+    >
+        <iiif-uri permissions="open">
+            https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg
+        </iiif-uri>
     </resource>
 
 </knora>

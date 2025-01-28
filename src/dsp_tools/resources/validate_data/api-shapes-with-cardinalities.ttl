@@ -16,6 +16,17 @@ api-shapes:rdfsLabel_Cardinality
   sh:path     rdfs:label ;
   sh:severity sh:Violation .
 
+
+### knora-api:hasPermissions
+api-shapes:hasPermissions_Cardinality
+  a           sh:PropertyShape ;
+  sh:message  "The resource or value may have at most one permission." ;
+  sh:path     knora-api:hasPermissions ;
+  sh:minCount 0 ;
+  sh:maxCount 1 ;
+  sh:severity sh:Violation .
+
+
 #########################################
 # DSP IN-BUILT RESOURCES
 #########################################
@@ -28,6 +39,7 @@ knora-api:LinkObj
   a                  sh:NodeShape ;
   dash:closedByTypes true ;
   sh:property        api-shapes:rdfsLabel_Cardinality ,
+                     api-shapes:hasPermissions_Cardinality ,
                      [
                        a sh:PropertyShape ;
                        sh:path knora-api:hasComment
@@ -45,7 +57,8 @@ knora-api:LinkObj
 knora-api:Region
   a                  sh:NodeShape ;
   dash:closedByTypes true ;
-  sh:property        api-shapes:rdfsLabel_Cardinality ,
+  sh:property        api-shapes:rdfsLabel_Cardinality,
+                     api-shapes:hasPermissions_Cardinality ,
                      [
                        a sh:PropertyShape ;
                        sh:path knora-api:hasComment
@@ -77,7 +90,7 @@ knora-api:Region
 api-shapes:VideoSegment_Cardinalities
   a                  sh:NodeShape ;
   dash:closedByTypes true ;
-  sh:property        api-shapes:rdfsLabel_Cardinality .
+  sh:property        api-shapes:rdfsLabel_Cardinality, api-shapes:hasPermissions_Cardinality .
 
 
 ###########################
@@ -86,7 +99,7 @@ api-shapes:VideoSegment_Cardinalities
 api-shapes:AudioSegment_Cardinalities
   a                  sh:NodeShape ;
   dash:closedByTypes true ;
-  sh:property        api-shapes:rdfsLabel_Cardinality .
+  sh:property        api-shapes:rdfsLabel_Cardinality, api-shapes:hasPermissions_Cardinality .
 
 
 #########################################
@@ -125,7 +138,8 @@ api-shapes:ArchiveFileValue_ClassShape
                             An ArchiveRepresentation requires a file with one of the following extensions
                             'zip', 'tar', 'gz', 'z', 'tgz', 'gzip', '7z'.
                             """ ;
-              ] ;
+              ] ,
+              api-shapes:hasPermissions_Cardinality;
   sh:severity sh:Violation .
 
 
@@ -155,7 +169,8 @@ api-shapes:AudioFileValue_ClassShape
                 sh:flags    "i" ; # case insensitive
                 sh:severity sh:Violation ;
                 sh:message  "An AudioRepresentation requires a file with one of the following extensions 'mp3', 'wav'." ;
-              ] ;
+              ] ,
+              api-shapes:hasPermissions_Cardinality;
   sh:severity sh:Violation .
 
 
@@ -191,7 +206,8 @@ api-shapes:DocumentFileValue_ClassShape
                             A DocumentRepresentation requires a file with one of the following extensions
                             'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'.
                             """ ;
-              ] ;
+              ] ,
+              api-shapes:hasPermissions_Cardinality;
   sh:severity sh:Violation .
 
 
@@ -221,7 +237,8 @@ api-shapes:MovingImageFileValue_ClassShape
                 sh:flags    "i" ; # case insensitive
                 sh:severity sh:Violation ;
                 sh:message  "A MovingImageRepresentation requires a file with the extension 'mp4'." ;
-              ] ;
+              ] ,
+              api-shapes:hasPermissions_Cardinality;
   sh:severity sh:Violation .
 
 
@@ -261,7 +278,8 @@ api-shapes:StillImageFileValue_ClassShape
                             A StillImageFileValue requires a file with one of the extensions:
                             'jpg', 'jpeg', 'png', 'tif', 'tiff', 'jp2'.
                             """ ;
-              ] ;
+              ] ,
+              api-shapes:hasPermissions_Cardinality;
   sh:severity sh:Violation .
 
 
@@ -281,7 +299,8 @@ api-shapes:StillImageExternalFileValue_ClassShape
                 sh:datatype xsd:anyURI ;
                 sh:severity sh:Violation ;
                 sh:message  "StillImageExternalFileValue requires an external IIIF-URI" ;
-              ] ;
+              ] ,
+              api-shapes:hasPermissions_Cardinality;
   sh:severity sh:Violation .
 
 
@@ -317,5 +336,6 @@ api-shapes:TextFileValue_ClassShape
                             A TextRepresentation requires a file with one of the following extensions
                             'odd', 'rng', 'txt', 'xml', 'xsd', 'xsl', 'csv', 'json'.
                             """ ;
-              ] ;
+              ] ,
+              api-shapes:hasPermissions_Cardinality;
   sh:severity sh:Violation .

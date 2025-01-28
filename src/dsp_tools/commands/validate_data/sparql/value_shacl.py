@@ -349,7 +349,9 @@ def _construct_seqnum_is_part_of_prop_shape(onto_graph: Graph) -> Graph:
                                owl:onProperty ?seqnumProp .
         ?seqnumProp rdfs:subPropertyOf* knora-api:seqnum .
     }
-    """  # noqa:E501 (line too long)
+    """
+    # The API allows the ontology to declare cardinalities for seqnum without isPartOf and vice versa.
+    # Therefore, we have a union query.
     if results_graph := onto_graph.query(query_s).graph:
         return results_graph
     return Graph()

@@ -33,7 +33,8 @@ def _construct_resource_nodeshape(onto_graph: Graph) -> Graph:
     CONSTRUCT {
         ?class a sh:NodeShape ;
                 dash:closedByTypes true ;
-                sh:property [
+                sh:property api-shapes:hasPermissions_Cardinality ,
+                            [
                               a sh:PropertyShape ;
                               sh:path rdfs:label ;
                               sh:minCount 1 ;

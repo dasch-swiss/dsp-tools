@@ -118,29 +118,43 @@ def _extract_base_info_of_resource_results(
                 focus_iri=focus_iri,
                 focus_rdf_type=res_type,
             )
-            all_res_focus_nodes.append(_extract_one_base_info(info, results_and_onto))
+            all_res_focus_nodes.extend(_extract_one_base_info(info, results_and_onto))
     return all_res_focus_nodes
 
 
-def _extract_one_base_info(info: QueryInfo, results_and_onto: Graph) -> ValidationResultBaseInfo:
+def _extract_one_base_info(info: QueryInfo, results_and_onto: Graph) -> list[ValidationResultBaseInfo]:
+    results = []
     path = next(results_and_onto.objects(info.validation_bn, SH.resultPath))
     main_component_type = next(results_and_onto.objects(info.validation_bn, SH.sourceConstraintComponent))
-    detail = None
     if detail_bn_list := list(results_and_onto.objects(info.validation_bn, SH.detail)):
-        detail_bn = detail_bn_list[0]
-        detail_component = next(results_and_onto.objects(detail_bn, SH.sourceConstraintComponent))
-        detail = DetailBaseInfo(
-            detail_bn=detail_bn,
-            source_constraint_component=detail_component,
+        for single_detail in detail_bn_list:
+            detail_component = next(results_and_onto.objects(single_detail, SH.sourceConstraintComponent))
+            detail = DetailBaseInfo(
+                detail_bn=single_detail,
+                source_constraint_component=detail_component,
+            )
+            results.append(
+                ValidationResultBaseInfo(
+                    result_bn=info.validation_bn,
+                    source_constraint_component=main_component_type,
+                    resource_iri=info.focus_iri,
+                    res_class_type=info.focus_rdf_type,
+                    result_path=path,
+                    detail=detail,
+                )
+            )
+    else:
+        results.append(
+            ValidationResultBaseInfo(
+                result_bn=info.validation_bn,
+                source_constraint_component=main_component_type,
+                resource_iri=info.focus_iri,
+                res_class_type=info.focus_rdf_type,
+                result_path=path,
+                detail=None,
+            )
         )
-    return ValidationResultBaseInfo(
-        result_bn=info.validation_bn,
-        source_constraint_component=main_component_type,
-        resource_iri=info.focus_iri,
-        res_class_type=info.focus_rdf_type,
-        result_path=path,
-        detail=detail,
-    )
+    return results
 
 
 def _query_all_without_detail(

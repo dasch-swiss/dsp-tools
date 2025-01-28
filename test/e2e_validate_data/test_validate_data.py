@@ -236,6 +236,7 @@ def test_extract_identifiers_of_resource_results(every_combination_once: Validat
         (URIRef("http://data/link_target_wrong_class"), BNode),
         (URIRef("http://data/list_node_non_existent"), BNode),
         (URIRef("http://data/missing_seqnum"), None),
+        (URIRef("http://data/video_segment_start_larger_than_end"), BNode),
     ]
     assert len(result) == len(expected_iris)
     for result_info, expected_iri in zip(result_sorted, expected_iris):
@@ -420,7 +421,6 @@ class TestReformatValidationGraph:
             ("link_target_wrong_class", LinkTargetTypeMismatchProblem),
             ("list_node_non_existent", GenericProblemWithInput),
             ("missing_seqnum", GenericProblemWithMessage),
-            ("video_segment_negative_bounds", GenericProblemWithMessage),
             ("video_segment_start_larger_than_end", GenericProblemWithMessage),
         ]
         assert not result.unexpected_results
@@ -486,6 +486,7 @@ class TestReformatValidationGraph:
             ("video_segment_target_is_audio", LinkTargetTypeMismatchProblem),
             ("video_segment_start_larger_than_end", GenericProblemWithMessage),
             ("video_segment_target_non_existent", LinkedResourceDoesNotExistProblem),
+            ("video_segment_wrong_bounds", GenericProblemWithInput),
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)

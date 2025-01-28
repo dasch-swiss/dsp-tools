@@ -6,7 +6,7 @@
        shortcode="9999"
        default-ontology="in-built">
 
-    <!-- 15 Violations -->
+    <!-- 14 Violations -->
 
     <!-- Target Resources for Links -->
 
@@ -128,9 +128,9 @@
         <hasSegmentBounds segment_start="99" segment_end="1"/>
     </video-segment>
 
-    <video-segment label="Video Segment" id="video_segment_negative_bounds">
+    <video-segment label="Video Segment" id="video_segment_wrong_bounds">
         <isSegmentOf>target_empty_movie</isSegmentOf>
-        <hasSegmentBounds segment_start="-2" segment_end="-1"/>
+        <hasSegmentBounds segment_start="-2" segment_end="0"/>
     </video-segment>
 
 

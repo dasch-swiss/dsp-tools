@@ -24,6 +24,31 @@ def resource_empty_permissions() -> etree._Element:
 
 
 @pytest.fixture
+def audio_segment() -> etree._Element:
+    return etree.fromstring("""
+    <resource restype="http://api.knora.org/ontology/knora-api/v2#AudioSegment" label="lbl" id="audio_id">
+        <isAudioSegmentOf comment="Comment">is_segment_of_id</isAudioSegmentOf>
+        <hasSegmentBounds permissions="open" segment_start="0.5" segment_end="7"/>
+    </resource>
+    """)
+
+
+@pytest.fixture
+def video_segment() -> etree._Element:
+    return etree.fromstring("""
+    <resource restype="http://api.knora.org/ontology/knora-api/v2#VideoSegment" label="lbl" id="video_id">
+        <isVideoSegmentOf>is_segment_of_id</isVideoSegmentOf>
+        <hasSegmentBounds segment_start="0.1" segment_end="0.234"/>
+        <hasTitle>Title</hasTitle>
+        <hasComment>Comment</hasComment>
+        <hasKeyword>Keyword</hasKeyword>
+        <relatesTo>relates_to_id</relatesTo>
+        <hasDescription>Description</hasDescription>
+    </resource>
+    """)
+
+
+@pytest.fixture
 def root_resource_with_props() -> etree._Element:
     return etree.fromstring("""
     <knora>

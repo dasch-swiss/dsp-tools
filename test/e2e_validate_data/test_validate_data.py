@@ -236,6 +236,9 @@ def test_extract_identifiers_of_resource_results(every_combination_once: Validat
         (URIRef("http://data/link_target_wrong_class"), BNode),
         (URIRef("http://data/list_node_non_existent"), BNode),
         (URIRef("http://data/missing_seqnum"), None),
+        (URIRef("http://data/video_segment_start_larger_than_end"), BNode),
+        (URIRef("http://data/video_segment_wrong_bounds"), BNode),
+        (URIRef("http://data/video_segment_wrong_bounds"), BNode),
     ]
     assert len(result) == len(expected_iris)
     for result_info, expected_iri in zip(result_sorted, expected_iris):
@@ -420,6 +423,9 @@ class TestReformatValidationGraph:
             ("link_target_wrong_class", LinkTargetTypeMismatchProblem),
             ("list_node_non_existent", GenericProblemWithInput),
             ("missing_seqnum", GenericProblemWithMessage),
+            ("video_segment_start_larger_than_end", GenericProblemWithInput),
+            ("video_segment_wrong_bounds", GenericProblemWithInput),  # once for start that is less than zero
+            ("video_segment_wrong_bounds", GenericProblemWithInput),  # once for the end that is zero
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)
@@ -471,6 +477,8 @@ class TestReformatValidationGraph:
     def test_reformat_dsp_inbuilt_violation(self, dsp_inbuilt_violation: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(dsp_inbuilt_violation)
         expected_info_tuples = [
+            ("audio_segment_target_is_video", LinkTargetTypeMismatchProblem),
+            ("audio_segment_target_non_existent", LinkedResourceDoesNotExistProblem),
             ("link_obj_target_non_existent", LinkedResourceDoesNotExistProblem),
             ("missing_isPartOf", GenericProblemWithMessage),
             ("missing_seqnum", GenericProblemWithMessage),
@@ -479,6 +487,11 @@ class TestReformatValidationGraph:
             ("region_isRegionOf_resource_not_a_representation", LinkTargetTypeMismatchProblem),
             ("target_must_be_a_representation", LinkTargetTypeMismatchProblem),
             ("target_must_be_an_image_representation", LinkTargetTypeMismatchProblem),
+            ("video_segment_start_larger_than_end", GenericProblemWithInput),
+            ("video_segment_target_is_audio", LinkTargetTypeMismatchProblem),
+            ("video_segment_target_non_existent", LinkedResourceDoesNotExistProblem),
+            ("video_segment_wrong_bounds", GenericProblemWithInput),  # once for start that is less than zero
+            ("video_segment_wrong_bounds", GenericProblemWithInput),  # once for the end that is zero
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)

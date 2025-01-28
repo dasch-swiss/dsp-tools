@@ -338,6 +338,16 @@ class TestQueryWithDetail:
         assert result.results_message == "A valid node from the list 'firstList' must be used with this property."
         assert result.actual_value == "firstList / other"
 
+    def test_report_min_inclusive(self, report_min_inclusive: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
+        res, data, info = report_min_inclusive
+        result = _query_one_with_detail(info, res, data)
+        assert isinstance(result, ResultGenericViolation)
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
+        assert result.property == KNORA_API.hasSegmentBounds
+        assert result.results_message == "The interval start must be a non-negative integer or decimal."
+        assert result.actual_value == "-2.0"
+
 
 class TestQueryFileValueViolations:
     def test_missing_file_value(self, report_missing_file_value: tuple[Graph, ValidationResultBaseInfo]) -> None:
@@ -478,6 +488,15 @@ class TestReformatResult:
         assert result.prop_name == "onto:testListProp"
         assert result.results_message == "A valid node from the list 'firstList' must be used with this property."
         assert result.actual_input == "other / n1"
+
+    def test_min_inclusive(self, extracted_min_inclusive: ResultGenericViolation) -> None:
+        result = _reformat_one_validation_result(extracted_min_inclusive)
+        assert isinstance(result, GenericProblemWithInput)
+        assert result.res_id == "video_segment_negative_bounds"
+        assert result.res_type == "VideoSegment"
+        assert result.prop_name == "hasSegmentBounds"
+        assert result.results_message == "The interval start must be a non-negative integer or decimal."
+        assert result.actual_input == "-2.0"
 
     def test_missing_file_value(self, extracted_missing_file_value: ResultFileValueViolation) -> None:
         result = _reformat_one_validation_result(extracted_missing_file_value)

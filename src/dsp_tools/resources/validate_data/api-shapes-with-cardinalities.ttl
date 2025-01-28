@@ -84,22 +84,95 @@ knora-api:Region
                        sh:severity sh:Violation
                      ] .
 
-###########################
-# VideoSegment
-
-api-shapes:VideoSegment_Cardinalities
-  a                  sh:NodeShape ;
-  dash:closedByTypes true ;
-  sh:property        api-shapes:rdfsLabel_Cardinality, api-shapes:hasPermissions_Cardinality .
-
 
 ###########################
 # AudioSegment
 
-api-shapes:AudioSegment_Cardinalities
+knora-api:AudioSegment
   a                  sh:NodeShape ;
   dash:closedByTypes true ;
-  sh:property        api-shapes:rdfsLabel_Cardinality, api-shapes:hasPermissions_Cardinality .
+  sh:property        api-shapes:rdfsLabel_Cardinality,
+                     api-shapes:hasPermissions_Cardinality ,
+                     [ a sh:PropertyShape ;
+                       sh:message "1" ;
+                       sh:minCount 1 ;
+                       sh:maxCount 1 ;
+                       sh:path knora-api:hasSegmentBounds ;
+                       sh:severity sh:Violation
+                     ] ,
+                     [ a sh:PropertyShape ;
+                       sh:message "1" ;
+                       sh:minCount 1 ;
+                       sh:maxCount 1 ;
+                       sh:path knora-api:isAudioSegmentOf ;
+                       sh:severity sh:Violation
+                     ] ,
+                     [ a sh:PropertyShape ;
+                       sh:message "0-1" ;
+                       sh:maxCount 1 ;
+                       sh:path knora-api:hasTitle ;
+                       sh:severity sh:Violation
+                     ] ,
+                     [ a sh:PropertyShape ;
+                       sh:path knora-api:hasKeyword
+                     ] ,
+                     [
+                       a sh:PropertyShape ;
+                       sh:path knora-api:hasComment
+                     ] ,
+                     [
+                       a sh:PropertyShape ;
+                       sh:path knora-api:relatesTo
+                     ] ,
+                     [
+                       a sh:PropertyShape ;
+                       sh:path knora-api:hasDescription
+                     ] .
+
+
+###########################
+# VideoSegment
+
+knora-api:VideoSegment
+  a                  sh:NodeShape ;
+  dash:closedByTypes true ;
+  sh:property        api-shapes:rdfsLabel_Cardinality,
+                     api-shapes:hasPermissions_Cardinality ,
+                     [ a sh:PropertyShape ;
+                       sh:message "1" ;
+                       sh:minCount 1 ;
+                       sh:maxCount 1 ;
+                       sh:path knora-api:hasSegmentBounds ;
+                       sh:severity sh:Violation
+                     ] ,
+                     [ a sh:PropertyShape ;
+                       sh:message "1" ;
+                       sh:minCount 1 ;
+                       sh:maxCount 1 ;
+                       sh:path knora-api:isVideoSegmentOf ;
+                       sh:severity sh:Violation
+                     ] ,
+                     [ a sh:PropertyShape ;
+                       sh:message "0-1" ;
+                       sh:maxCount 1 ;
+                       sh:path knora-api:hasTitle ;
+                       sh:severity sh:Violation
+                     ] ,
+                     [ a sh:PropertyShape ;
+                       sh:path knora-api:hasKeyword
+                     ] ,
+                     [
+                       a sh:PropertyShape ;
+                       sh:path knora-api:hasComment
+                     ] ,
+                     [
+                       a sh:PropertyShape ;
+                       sh:path knora-api:relatesTo
+                     ] ,
+                     [
+                       a sh:PropertyShape ;
+                       sh:path knora-api:hasDescription
+                     ] .
 
 
 #########################################

@@ -20,6 +20,17 @@ from dsp_tools.commands.validate_data.models.data_deserialised import TripleProp
 from dsp_tools.commands.validate_data.models.data_deserialised import ValueInformation
 from dsp_tools.models.exceptions import BaseError
 
+SEGMENT_TAG_TO_PROP_MAPPER = {
+    "relatesTo": KnoraValueType.LINK_VALUE,
+    "hasSegmentBounds": KnoraValueType.INTERVAL_VALUE,
+    "hasDescription": KnoraValueType.RICHTEXT_VALUE,
+    "hasTitle": KnoraValueType.SIMPLETEXT_VALUE,
+    "hasKeyword": KnoraValueType.SIMPLETEXT_VALUE,
+    "isAudioSegmentOf": KnoraValueType.LINK_VALUE,
+    "isVideoSegmentOf": KnoraValueType.LINK_VALUE,
+    "hasComment": KnoraValueType.RICHTEXT_VALUE,
+}
+
 
 def deserialise_xml(root: etree._Element) -> ProjectDeserialised:
     """
@@ -42,27 +53,8 @@ def deserialise_xml(root: etree._Element) -> ProjectDeserialised:
 def _deserialise_all_resources(root: etree._Element) -> DataDeserialised:
     all_res: list[ResourceDeserialised] = []
     for res in root.iterdescendants(tag="resource"):
-        dsp_type = None
-        res_type = res.attrib["restype"]
-        if res_type == VIDEO_SEGMENT_RESOURCE:
-            dsp_type = VIDEO_SEGMENT_RESOURCE
-        elif res_type == AUDIO_SEGMENT_RESOURCE:
-            dsp_type = AUDIO_SEGMENT_RESOURCE
-        if dsp_type:
-            all_res.append(_deserialise_one_in_built(res, dsp_type))
-        else:
-            all_res.append(_deserialise_one_resource(res))
+        all_res.append(_deserialise_one_resource(res))
     return DataDeserialised(all_res)
-
-
-def _deserialise_one_in_built(resource: etree._Element, res_type: str) -> ResourceDeserialised:
-    lbl = PropertyObject(TriplePropertyType.RDFS_LABEL, resource.attrib["label"], TripleObjectType.STRING)
-    rdf_type = PropertyObject(TriplePropertyType.RDF_TYPE, res_type, TripleObjectType.IRI)
-    return ResourceDeserialised(
-        res_id=resource.attrib["id"],
-        property_objects=[rdf_type, lbl],
-        values=[],
-    )
 
 
 def _extract_metadata(element: etree._Element) -> list[PropertyObject]:
@@ -77,17 +69,26 @@ def _extract_metadata(element: etree._Element) -> list[PropertyObject]:
 
 
 def _deserialise_one_resource(resource: etree._Element) -> ResourceDeserialised:
-    values = []
-    for val in resource.iterchildren():
-        values.extend(_deserialise_one_property(val))
+    res_type = resource.attrib["restype"]
+    if res_type in {VIDEO_SEGMENT_RESOURCE, AUDIO_SEGMENT_RESOURCE}:
+        values = _deserialise_segment_properties(resource)
+    else:
+        values = _deserialise_generic_properties(resource)
     metadata = _extract_metadata(resource)
     metadata.append(PropertyObject(TriplePropertyType.RDFS_LABEL, resource.attrib["label"], TripleObjectType.STRING))
-    metadata.append(PropertyObject(TriplePropertyType.RDF_TYPE, resource.attrib["restype"], TripleObjectType.IRI))
+    metadata.append(PropertyObject(TriplePropertyType.RDF_TYPE, res_type, TripleObjectType.IRI))
     return ResourceDeserialised(
         res_id=resource.attrib["id"],
         property_objects=metadata,
         values=values,
     )
+
+
+def _deserialise_generic_properties(resource: etree._Element) -> list[ValueInformation]:
+    values = []
+    for val in resource.iterchildren():
+        values.extend(_deserialise_one_property(val))
+    return values
 
 
 def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueInformation]:
@@ -247,3 +248,34 @@ def _get_file_value_type(file_name: str) -> tuple[KnoraValueType | None, str]:  
             return KnoraValueType.TEXT_FILE, f"{KNORA_API_STR}hasTextFileValue"
         case _:
             return None, ""
+
+
+def _deserialise_segment_properties(resource: etree._Element) -> list[ValueInformation]:
+    values = []
+    for val in resource.iterchildren():
+        prop_name = str(val.tag)
+        property_objects = _extract_metadata(val)
+        if prop_name == "hasSegmentBounds":
+            property_objects.append(
+                PropertyObject(
+                    TriplePropertyType.KNORA_INTERVAL_START,
+                    val.attrib["segment_start"],
+                    TripleObjectType.DECIMAL,
+                )
+            )
+            property_objects.append(
+                PropertyObject(
+                    TriplePropertyType.KNORA_INTERVAL_END,
+                    val.attrib["segment_end"],
+                    TripleObjectType.DECIMAL,
+                )
+            )
+        values.append(
+            ValueInformation(
+                user_facing_prop=f"{KNORA_API_STR}{prop_name}",
+                user_facing_value=_get_text_as_string(val),
+                knora_type=SEGMENT_TAG_TO_PROP_MAPPER[prop_name],
+                value_metadata=property_objects,
+            )
+        )
+    return values

@@ -162,4 +162,30 @@
             </list-prop>
         </resource>
 
+        <!--
+        Our Violation Type            GenericProblemWithInput
+        sh:sourceConstraintComponent  sh:NodeConstraintComponent
+        sh:detail                     sh:LessThanConstraintComponent
+        -->
+
+        <video-segment label="Video Segment" id="video_segment_start_larger_than_end">
+            <isSegmentOf>target_empty_movie</isSegmentOf>
+            <hasSegmentBounds segment_start="99" segment_end="1"/>
+        </video-segment>
+
+        <resource label="Target Movie" restype=":TestMovingImageRepresentation" id="target_empty_movie">
+            <bitstream>this/is/filepath/file.mp4</bitstream>
+        </resource>
+
+        <!--
+        Our Violation Type            GenericProblemWithInput
+        sh:sourceConstraintComponent  sh:NodeConstraintComponent
+        sh:detail                     sh:MinInclusiveConstraintComponent & sh:MinExclusiveConstraintComponent
+        -->
+
+        <video-segment label="Video Segment" id="video_segment_wrong_bounds">
+            <isSegmentOf>target_empty_movie</isSegmentOf>
+            <hasSegmentBounds segment_start="-2" segment_end="0"/>
+        </video-segment>
+
 </knora>

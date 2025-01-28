@@ -253,7 +253,7 @@ def _get_file_value_type(file_name: str) -> tuple[KnoraValueType | None, str]:  
 def _deserialise_segment_properties(resource: etree._Element) -> list[ValueInformation]:
     values = []
     for val in resource.iterchildren():
-        prop_name = val.tag
+        prop_name = str(val.tag)
         property_objects = _extract_metadata(val)
         if prop_name == "hasSegmentBounds":
             property_objects.append(

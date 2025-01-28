@@ -115,6 +115,42 @@ class TestResource:
         assert end_bound.object_value == "7"
         assert end_bound.object_type == TripleObjectType.DECIMAL
 
+    def test_video_segment(self, video_segment: etree._Element) -> None:
+        res = _deserialise_one_resource(video_segment)
+        assert res.res_id == "video_id"
+        assert len(res.property_objects) == 2
+        lbl, rdf_type, _ = _get_label_and_type(res)
+        assert lbl.object_value == "lbl"
+        assert lbl.object_type == TripleObjectType.STRING
+        assert rdf_type.object_value == "http://api.knora.org/ontology/knora-api/v2#VideoSegment"
+        assert rdf_type.object_type == TripleObjectType.IRI
+        assert len(res.values) == 6
+        propname_to_info = {x.user_facing_prop: x for x in res.values}
+        segment_bounds = propname_to_info.pop(f"{KNORA_API_STR}hasSegmentBounds")
+        assert not segment_bounds.user_facing_value
+        assert segment_bounds.knora_type == KnoraValueType.INTERVAL_VALUE
+        assert len(segment_bounds.value_metadata) == 3
+        seg_bounds_prop_objects = {x.property_type: x for x in segment_bounds.value_metadata}
+        start_bound = seg_bounds_prop_objects.pop(TriplePropertyType.KNORA_INTERVAL_START)
+        assert start_bound.object_value == "0.1"
+        assert start_bound.object_type == TripleObjectType.DECIMAL
+        end_bound = seg_bounds_prop_objects.pop(TriplePropertyType.KNORA_INTERVAL_END)
+        assert end_bound.object_value == "0.234"
+        assert end_bound.object_type == TripleObjectType.DECIMAL
+
+        other_props = {
+            f"{KNORA_API_STR}isVideoSegmentOf": ("is_segment_of_id", KnoraValueType.LINK_VALUE),
+            f"{KNORA_API_STR}hasTitle": ("Title", KnoraValueType.SIMPLETEXT_VALUE),
+            f"{KNORA_API_STR}hasComment": ("Comment", KnoraValueType.RICHTEXT_VALUE),
+            f"{KNORA_API_STR}hasKeyword": ("Keyword", KnoraValueType.SIMPLETEXT_VALUE),
+            f"{KNORA_API_STR}relatesTo": ("relates_to_id", KnoraValueType.LINK_VALUE),
+        }
+        for prop_name, value_info in propname_to_info.items():
+            expected = other_props[prop_name]
+            assert value_info.user_facing_value == expected[0]
+            assert value_info.knora_type == expected[1]
+            assert len(value_info.value_metadata) == 0
+
 
 class TestBooleanValue:
     def test_corr(self, boolean_value_corr: etree._Element) -> None:

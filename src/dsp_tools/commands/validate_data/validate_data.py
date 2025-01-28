@@ -54,7 +54,6 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
     Returns:
         true if no errors were found otherwise false
     """
-    _inform_about_experimental_feature()
     api_con = ApiConnection(api_url)
     graphs = _get_parsed_graphs(api_con, filepath)
     if unknown_classes := _check_for_unknown_resource_classes(graphs):
@@ -108,22 +107,6 @@ def _get_save_directory(filepath: Path) -> Path:
     save_path = new_directory / filepath.stem
     print(BOLD_CYAN + f"\n   Saving graphs to {save_path}   " + RESET_TO_DEFAULT)
     return save_path
-
-
-def _inform_about_experimental_feature() -> None:
-    what_is_validated = [
-        "This is an experimental feature, it will change and be extended continuously. "
-        "Please note that special characters may not be rendered correctly in the validation result. "
-        "This however has no influence on the validation itself."
-        "The following information of your data is being validated:",
-        "Cardinalities",
-        "If the value type used matches the ontology",
-        "Content of the values",
-        "Missing files",
-        "If the file type matches the ontology",
-        "DSP in-built resources: link (LinkObj), region, audio- and video-segment",
-    ]
-    print(BOLD_CYAN + LIST_SEPARATOR.join(what_is_validated) + RESET_TO_DEFAULT)
 
 
 def _get_parsed_graphs(api_con: ApiConnection, filepath: Path) -> RDFGraphs:

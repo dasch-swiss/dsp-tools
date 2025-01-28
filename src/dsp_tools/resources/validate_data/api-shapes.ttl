@@ -191,9 +191,10 @@ api-shapes:IntervalValue_ClassShape
 ### knora-api:intervalValueHasStart
 api-shapes:intervalValueHasStart_PropShape
   a           sh:PropertyShape ;
-  sh:message  "The interval start must be either an integer or decimal." ;
+  sh:message  "The interval start must be a non-negative integer or decimal." ;
   sh:path     knora-api:intervalValueHasStart ;
   sh:datatype xsd:decimal ;
+  sh:minInclusive 0 ;
   sh:minCount 1 ;
   sh:maxCount 1 ;
   sh:severity sh:Violation .
@@ -201,9 +202,10 @@ api-shapes:intervalValueHasStart_PropShape
 ### knora-api:intervalValueHasEnd
 api-shapes:intervalValueHasEnd_PropShape
   a           sh:PropertyShape ;
-  sh:message  "The interval end must be either an integer or decimal." ;
+  sh:message  "The interval end must be an integer or decimal that is larger than 0." ;
   sh:path     knora-api:intervalValueHasEnd ;
   sh:datatype xsd:decimal ;
+  sh:minExclusive 0 ;
   sh:minCount 1 ;
   sh:maxCount 1 ;
   sh:severity sh:Violation .

@@ -286,6 +286,60 @@ def extracted_value_type_simpletext() -> ResultValueTypeViolation:
 
 
 @pytest.fixture
+def report_min_inclusive(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
+    validation_str = f"""{PREFIXES}
+    [ 
+        a sh:ValidationResult ;
+        sh:detail _:ne9a2d2bc1e224dc3b9d49ebcce780152b30 ;
+        sh:focusNode <http://data/video_segment_negative_bounds> ;
+        sh:resultMessage "Value does not have shape api-shapes:IntervalValue_ClassShape" ;
+        sh:resultPath <http://api.knora.org/ontology/knora-api/v2#hasSegmentBounds> ;
+        sh:resultSeverity sh:Violation ;
+        sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+        sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#hasSegmentBounds_PropertyShape> ;
+        sh:value <http://data/6559348b-2e84-42a8-aecd-7a95d7bf4e0f> 
+    ] .
+            
+    _:ne9a2d2bc1e224dc3b9d49ebcce780152b30 a sh:ValidationResult ;
+    sh:focusNode <http://data/6559348b-2e84-42a8-aecd-7a95d7bf4e0f> ;
+    sh:resultMessage "The interval start must be a non-negative integer or decimal." ;
+    sh:resultPath <http://api.knora.org/ontology/knora-api/v2#intervalValueHasStart> ;
+    sh:resultSeverity sh:Violation ;
+    sh:sourceConstraintComponent sh:MinInclusiveConstraintComponent ;
+    sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#intervalValueHasStart_PropShape> ;
+    sh:value -2.0 .
+    """  # noqa: E501 (Line too long)
+    validation_g = Graph()
+    validation_g.parse(data=validation_str, format="ttl")
+    data_str = f"""{PREFIXES}
+    <http://data/id_simpletext> a onto:ClassWithEverything ;
+        rdfs:label "Simpletext"^^xsd:string ;
+        onto:testTextarea <http://data/value_id_simpletext> .
+
+    <http://data/value_id_simpletext> a knora-api:TextValue ;
+        knora-api:textValueAsXml "Text"^^xsd:string .
+    """
+    onto_data_g = Graph()
+    onto_data_g += onto_graph
+    onto_data_g.parse(data=data_str, format="ttl")
+    val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+    detail_bn = next(validation_g.objects(val_bn, SH.detail))
+    detail = DetailBaseInfo(
+        detail_bn=detail_bn,
+        source_constraint_component=SH.MinCountConstraintComponent,
+    )
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        result_path=ONTO.testTextarea,
+        source_constraint_component=SH.NodeConstraintComponent,
+        resource_iri=DATA.id_simpletext,
+        res_class_type=ONTO.ClassWithEverything,
+        detail=detail,
+    )
+    return validation_g, onto_data_g, base_info
+
+
+@pytest.fixture
 def report_value_type(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;

@@ -6,7 +6,7 @@
        shortcode="9999"
        default-ontology="in-built">
 
-    <!-- 13 Violations -->
+    <!-- 15 Violations -->
 
     <!-- Target Resources for Links -->
 
@@ -127,6 +127,12 @@
         <isSegmentOf>target_empty_movie</isSegmentOf>
         <hasSegmentBounds segment_start="99" segment_end="1"/>
     </video-segment>
+
+    <video-segment label="Video Segment" id="video_segment_negative_bounds">
+        <isSegmentOf>target_empty_movie</isSegmentOf>
+        <hasSegmentBounds segment_start="-2" segment_end="-1"/>
+    </video-segment>
+
 
     <!-- hasRepresentation target is not a representation -->
 

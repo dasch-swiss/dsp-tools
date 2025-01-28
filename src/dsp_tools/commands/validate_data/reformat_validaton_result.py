@@ -250,7 +250,12 @@ def _query_one_with_detail(
             return _query_pattern_constraint_component_violation(detail_info.detail_bn, base_info, results_and_onto)
         case SH.ClassConstraintComponent:
             return _query_class_constraint_component_violation(base_info, results_and_onto, data_graph)
-        case SH.InConstraintComponent | SH.LessThanConstraintComponent:
+        case (
+            SH.InConstraintComponent
+            | SH.LessThanConstraintComponent
+            | SH.MinExclusiveConstraintComponent
+            | SH.MinInclusiveConstraintComponent
+        ):
             return _query_generic_violation(base_info, results_and_onto)
         case _:
             return UnexpectedComponent(str(detail_info.source_constraint_component))

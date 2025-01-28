@@ -124,7 +124,7 @@
 
     <audio-segment label="Audio Segment with all possible values" id="audio_segment_all_values">
         <isSegmentOf>target_empty_audio</isSegmentOf>
-        <hasSegmentBounds segment_start="3.5" segment_end="5.6"/>
+        <hasSegmentBounds segment_start="0" segment_end="5.6"/>
         <hasTitle>Title of audio segment</hasTitle>
         <hasComment>Comment 1 of audio segment</hasComment>
         <hasComment>Comment 2 of audio segment</hasComment>

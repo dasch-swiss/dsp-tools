@@ -420,6 +420,7 @@ class TestReformatValidationGraph:
             ("link_target_wrong_class", LinkTargetTypeMismatchProblem),
             ("list_node_non_existent", GenericProblemWithInput),
             ("missing_seqnum", GenericProblemWithMessage),
+            ("video_segment_negative_bounds", GenericProblemWithMessage),
             ("video_segment_start_larger_than_end", GenericProblemWithMessage),
         ]
         assert not result.unexpected_results

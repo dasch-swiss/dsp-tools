@@ -122,6 +122,7 @@ class KnoraValueType(Enum):
     GEONAME_VALUE = auto()
     GEOM_VALUE = auto()
     INT_VALUE = auto()
+    INTERVAL_VALUE = auto()  # TODO: implement this in the mappers
     LINK_VALUE = auto()
     LIST_VALUE = auto()
     SIMPLETEXT_VALUE = auto()

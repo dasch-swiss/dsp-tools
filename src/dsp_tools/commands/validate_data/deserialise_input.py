@@ -44,25 +44,11 @@ def _deserialise_all_resources(root: etree._Element) -> DataDeserialised:
     for res in root.iterdescendants(tag="resource"):
         dsp_type = None
         res_type = res.attrib["restype"]
-        if res_type == VIDEO_SEGMENT_RESOURCE:
-            dsp_type = VIDEO_SEGMENT_RESOURCE
-        elif res_type == AUDIO_SEGMENT_RESOURCE:
-            dsp_type = AUDIO_SEGMENT_RESOURCE
-        if dsp_type:
-            all_res.append(_deserialise_one_in_built(res, dsp_type))
+        if res_type == VIDEO_SEGMENT_RESOURCE | AUDIO_SEGMENT_RESOURCE:
+            all_res.append(_deserialise_one_segment(res, dsp_type))
         else:
             all_res.append(_deserialise_one_resource(res))
     return DataDeserialised(all_res)
-
-
-def _deserialise_one_in_built(resource: etree._Element, res_type: str) -> ResourceDeserialised:
-    lbl = PropertyObject(TriplePropertyType.RDFS_LABEL, resource.attrib["label"], TripleObjectType.STRING)
-    rdf_type = PropertyObject(TriplePropertyType.RDF_TYPE, res_type, TripleObjectType.IRI)
-    return ResourceDeserialised(
-        res_id=resource.attrib["id"],
-        property_objects=[rdf_type, lbl],
-        values=[],
-    )
 
 
 def _extract_metadata(element: etree._Element) -> list[PropertyObject]:
@@ -247,3 +233,38 @@ def _get_file_value_type(file_name: str) -> tuple[KnoraValueType | None, str]:  
             return KnoraValueType.TEXT_FILE, f"{KNORA_API_STR}hasTextFileValue"
         case _:
             return None, ""
+
+
+def _deserialise_one_segment(resource: etree._Element) -> ResourceDeserialised:
+    metadata = _extract_metadata(resource)
+    metadata.append(PropertyObject(TriplePropertyType.RDFS_LABEL, resource.attrib["label"], TripleObjectType.STRING))
+    metadata.append(PropertyObject(TriplePropertyType.RDF_TYPE, resource.attrib["restype"], TripleObjectType.IRI))
+    return ResourceDeserialised(
+        res_id=resource.attrib["id"],
+        property_objects=metadata,
+        values=_deserialise_segment_values(resource),
+    )
+
+
+def _deserialise_segment_values(resource: etree._Element) -> list[ValueInformation]:
+    segment_tag_mapper = {
+        "relatesTo": KnoraValueType.LINK_VALUE,
+        "hasSegmentBounds": KnoraValueType.INTERVAL_VALUE,
+        "hasDescription": KnoraValueType.RICHTEXT_VALUE,
+        "hasTitle": KnoraValueType.SIMPLETEXT_VALUE,
+        "hasKeyword": KnoraValueType.SIMPLETEXT_VALUE,
+        "isAudioSegmentOf": KnoraValueType.LINK_VALUE,
+        "isVideoSegmentOf": KnoraValueType.LINK_VALUE,
+    }
+    values = []
+    for val in resource.iterchildren():
+        prop_name = val.tag
+        values.append(
+            ValueInformation(
+                user_facing_prop=prop_name,
+                user_facing_value=val.text,
+                knora_type=segment_tag_mapper[prop_name],
+                value_metadata=_extract_metadata(val),
+            )
+        )
+    return values

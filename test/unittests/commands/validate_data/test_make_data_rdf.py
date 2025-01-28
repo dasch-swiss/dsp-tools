@@ -137,6 +137,16 @@ class TestIntValue:
         assert next(val_g.objects(bn, KNORA_API.intValueAsInt)) == Literal("1", datatype=XSD.integer)
 
 
+class TestIntervalValue:
+    def test_corr(self, interval_value_deserialised_corr: ValueInformation) -> None:
+        val_g = _make_one_value(interval_value_deserialised_corr, RES_IRI)
+        assert len(val_g) == 4
+        bn = next(val_g.objects(RES_IRI, KNORA_API.hasSegmentBounds))
+        assert next(val_g.objects(bn, RDF.type)) == KNORA_API.IntervalValue
+        assert next(val_g.objects(bn, KNORA_API.intervalValueHasStart)) == Literal("1", datatype=XSD.decimal)
+        assert next(val_g.objects(bn, KNORA_API.intervalValueHasEnd)) == Literal("2", datatype=XSD.decimal)
+
+
 class TestLinkValue:
     def test_corr(self, link_value_deserialised_corr: ValueInformation) -> None:
         val_g = _make_one_value(link_value_deserialised_corr, RES_IRI)

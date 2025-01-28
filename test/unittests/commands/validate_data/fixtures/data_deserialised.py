@@ -1,5 +1,6 @@
 import pytest
 
+from dsp_tools.commands.validate_data.constants import KNORA_API_STR
 from dsp_tools.commands.validate_data.models.data_deserialised import KnoraValueType
 from dsp_tools.commands.validate_data.models.data_deserialised import PropertyObject
 from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
@@ -112,6 +113,18 @@ def int_value_deserialised_corr() -> ValueInformation:
         "1",
         KnoraValueType.INT_VALUE,
         [],
+    )
+
+
+@pytest.fixture
+def interval_value_deserialised_corr() -> ValueInformation:
+    seg_start = PropertyObject(TriplePropertyType.KNORA_INTERVAL_START, "1", TripleObjectType.DECIMAL)
+    seg_end = PropertyObject(TriplePropertyType.KNORA_INTERVAL_END, "2", TripleObjectType.DECIMAL)
+    return ValueInformation(
+        user_facing_prop=f"{KNORA_API_STR}hasSegmentBounds",
+        user_facing_value=None,
+        knora_type=KnoraValueType.INTERVAL_VALUE,
+        value_metadata=[seg_start, seg_end],
     )
 
 

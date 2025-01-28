@@ -571,3 +571,5 @@ api-shapes:VideoSegment_ResourceShape
                  api-shapes:hasTitle_PropertyShape ,
                  api-shapes:hasKeyword_PropertyShape ;
   sh:severity    sh:Violation .
+
+# TODO: can I validate that one value is bigger than another?

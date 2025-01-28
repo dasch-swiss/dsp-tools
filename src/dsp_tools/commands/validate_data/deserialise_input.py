@@ -52,12 +52,7 @@ def deserialise_xml(root: etree._Element) -> ProjectDeserialised:
 def _deserialise_all_resources(root: etree._Element) -> DataDeserialised:
     all_res: list[ResourceDeserialised] = []
     for res in root.iterdescendants(tag="resource"):
-        dsp_type = None
-        res_type = res.attrib["restype"]
-        if res_type == VIDEO_SEGMENT_RESOURCE | AUDIO_SEGMENT_RESOURCE:
-            all_res.append(_deserialise_one_segment(res, dsp_type))
-        else:
-            all_res.append(_deserialise_one_resource(res))
+        all_res.append(_deserialise_one_resource(res))
     return DataDeserialised(all_res)
 
 
@@ -73,17 +68,26 @@ def _extract_metadata(element: etree._Element) -> list[PropertyObject]:
 
 
 def _deserialise_one_resource(resource: etree._Element) -> ResourceDeserialised:
-    values = []
-    for val in resource.iterchildren():
-        values.extend(_deserialise_one_property(val))
+    res_type = resource.attrib["restype"]
+    if res_type == VIDEO_SEGMENT_RESOURCE | AUDIO_SEGMENT_RESOURCE:
+        values = _deserialise_segment_values(resource)
+    else:
+        values = _deserialise_generic_properties(resource)
     metadata = _extract_metadata(resource)
     metadata.append(PropertyObject(TriplePropertyType.RDFS_LABEL, resource.attrib["label"], TripleObjectType.STRING))
-    metadata.append(PropertyObject(TriplePropertyType.RDF_TYPE, resource.attrib["restype"], TripleObjectType.IRI))
+    metadata.append(PropertyObject(TriplePropertyType.RDF_TYPE, res_type, TripleObjectType.IRI))
     return ResourceDeserialised(
         res_id=resource.attrib["id"],
         property_objects=metadata,
         values=values,
     )
+
+
+def _deserialise_generic_properties(resource: etree._Element) -> list[ValueInformation]:
+    values = []
+    for val in resource.iterchildren():
+        values.extend(_deserialise_one_property(val))
+    return values
 
 
 def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueInformation]:
@@ -245,17 +249,6 @@ def _get_file_value_type(file_name: str) -> tuple[KnoraValueType | None, str]:  
             return None, ""
 
 
-def _deserialise_one_segment(resource: etree._Element) -> ResourceDeserialised:
-    metadata = _extract_metadata(resource)
-    metadata.append(PropertyObject(TriplePropertyType.RDFS_LABEL, resource.attrib["label"], TripleObjectType.STRING))
-    metadata.append(PropertyObject(TriplePropertyType.RDF_TYPE, resource.attrib["restype"], TripleObjectType.IRI))
-    return ResourceDeserialised(
-        res_id=resource.attrib["id"],
-        property_objects=metadata,
-        values=_deserialise_segment_values(resource),
-    )
-
-
 def _deserialise_segment_values(resource: etree._Element) -> list[ValueInformation]:
     values = []
     for val in resource.iterchildren():
@@ -264,12 +257,16 @@ def _deserialise_segment_values(resource: etree._Element) -> list[ValueInformati
         if prop_name == "hasSegmentBounds":
             property_objects.append(
                 PropertyObject(
-                    TriplePropertyType.KNORA_SEGMENT_START, val.attrib["segment_start"], TripleObjectType.DECIMAL
+                    TriplePropertyType.KNORA_SEGMENT_START,
+                    val.attrib["segment_start"],
+                    TripleObjectType.DECIMAL,
                 )
             )
             property_objects.append(
                 PropertyObject(
-                    TriplePropertyType.KNORA_SEGMENT_END, val.attrib["segment_end"], TripleObjectType.DECIMAL
+                    TriplePropertyType.KNORA_SEGMENT_END,
+                    val.attrib["segment_end"],
+                    TripleObjectType.DECIMAL,
                 )
             )
         values.append(

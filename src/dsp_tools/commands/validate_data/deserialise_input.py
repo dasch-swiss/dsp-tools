@@ -273,7 +273,7 @@ def _deserialise_segment_properties(resource: etree._Element) -> list[ValueInfor
         values.append(
             ValueInformation(
                 user_facing_prop=f"{KNORA_API_STR}{prop_name}",
-                user_facing_value=val.text,
+                user_facing_value=_get_text_as_string(val),
                 knora_type=SEGMENT_TAG_TO_PROP_MAPPER[prop_name],
                 value_metadata=property_objects,
             )

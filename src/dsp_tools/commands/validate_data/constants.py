@@ -72,6 +72,8 @@ TRIPLE_PROP_TYPE_TO_IRI_MAPPER = {
     TriplePropertyType.RDFS_LABEL: RDFS.label,
     TriplePropertyType.KNORA_COMMENT_ON_VALUE: KNORA_API.valueHasComment,
     TriplePropertyType.KNORA_PERMISSIONS: KNORA_API.hasPermissions,
+    TriplePropertyType.KNORA_INTERVAL_START: KNORA_API.intervalValueHasStart,
+    TriplePropertyType.KNORA_INTERVAL_END: KNORA_API.intervalValueHasEnd,
 }
 
 
@@ -96,6 +98,7 @@ VALUE_INFO_TO_RDF_MAPPER = {
     KnoraValueType.LIST_VALUE: RDFPropTypeInfo(KNORA_API.ListValue, API_SHAPES.listNodeAsString, XSD.string),
     KnoraValueType.LINK_VALUE: RDFPropTypeInfo(KNORA_API.LinkValue, API_SHAPES.linkValueHasTargetID, XSD.string),
     KnoraValueType.INT_VALUE: INT_PROP_TYPE_INFO,
+    KnoraValueType.INTERVAL_VALUE: RDFPropTypeInfo(KNORA_API.IntervalValue, KNORA_API.hasSegmentBounds),
     KnoraValueType.SIMPLETEXT_VALUE: SIMPLE_TEXT_PROP_TYPE_INFO,
     KnoraValueType.RICHTEXT_VALUE: RICHTEXT_PROP_TYPE_INFO,
     KnoraValueType.TIME_VALUE: TIME_PROP_TYPE_INFO,

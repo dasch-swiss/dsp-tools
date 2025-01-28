@@ -93,8 +93,8 @@ class TriplePropertyType(Enum):
     RDF_TYPE = auto()
     KNORA_PERMISSIONS = auto()
     KNORA_COMMENT_ON_VALUE = auto()
-    KNORA_SEGMENT_START = auto()
-    KNORA_SEGMENT_END = auto()
+    KNORA_INTERVAL_START = auto()
+    KNORA_INTERVAL_END = auto()
 
 
 class TripleObjectType(Enum):
@@ -124,7 +124,7 @@ class KnoraValueType(Enum):
     GEONAME_VALUE = auto()
     GEOM_VALUE = auto()
     INT_VALUE = auto()
-    INTERVAL_VALUE = auto()  # TODO: implement this in the mappers
+    INTERVAL_VALUE = auto()
     LINK_VALUE = auto()
     LIST_VALUE = auto()
     SIMPLETEXT_VALUE = auto()

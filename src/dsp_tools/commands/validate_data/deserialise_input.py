@@ -70,7 +70,7 @@ def _extract_metadata(element: etree._Element) -> list[PropertyObject]:
 def _deserialise_one_resource(resource: etree._Element) -> ResourceDeserialised:
     res_type = resource.attrib["restype"]
     if res_type == VIDEO_SEGMENT_RESOURCE | AUDIO_SEGMENT_RESOURCE:
-        values = _deserialise_segment_values(resource)
+        values = _deserialise_segment_properties(resource)
     else:
         values = _deserialise_generic_properties(resource)
     metadata = _extract_metadata(resource)
@@ -249,7 +249,7 @@ def _get_file_value_type(file_name: str) -> tuple[KnoraValueType | None, str]:  
             return None, ""
 
 
-def _deserialise_segment_values(resource: etree._Element) -> list[ValueInformation]:
+def _deserialise_segment_properties(resource: etree._Element) -> list[ValueInformation]:
     values = []
     for val in resource.iterchildren():
         prop_name = val.tag
@@ -257,21 +257,21 @@ def _deserialise_segment_values(resource: etree._Element) -> list[ValueInformati
         if prop_name == "hasSegmentBounds":
             property_objects.append(
                 PropertyObject(
-                    TriplePropertyType.KNORA_SEGMENT_START,
+                    TriplePropertyType.KNORA_INTERVAL_START,
                     val.attrib["segment_start"],
                     TripleObjectType.DECIMAL,
                 )
             )
             property_objects.append(
                 PropertyObject(
-                    TriplePropertyType.KNORA_SEGMENT_END,
+                    TriplePropertyType.KNORA_INTERVAL_END,
                     val.attrib["segment_end"],
                     TripleObjectType.DECIMAL,
                 )
             )
         values.append(
             ValueInformation(
-                user_facing_prop=prop_name,
+                user_facing_prop=f"{KNORA_API_STR}{prop_name}",
                 user_facing_value=val.text,
                 knora_type=SEGMENT_TAG_TO_PROP_MAPPER[prop_name],
                 value_metadata=property_objects,

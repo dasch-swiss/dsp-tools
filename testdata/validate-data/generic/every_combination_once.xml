@@ -163,7 +163,7 @@
         </resource>
 
         <!--
-        Our Violation Type            GenericProblemWithMessage
+        Our Violation Type            GenericProblemWithInput
         sh:sourceConstraintComponent  sh:NodeConstraintComponent
         sh:detail                     sh:LessThanConstraintComponent
         -->
@@ -177,6 +177,11 @@
             <bitstream>this/is/filepath/file.mp4</bitstream>
         </resource>
 
+        <!--
+        Our Violation Type            GenericProblemWithInput
+        sh:sourceConstraintComponent  sh:NodeConstraintComponent
+        sh:detail                     sh:MinInclusiveConstraintComponent & sh:MinExclusiveConstraintComponent
+        -->
 
         <video-segment label="Video Segment" id="video_segment_wrong_bounds">
             <isSegmentOf>target_empty_movie</isSegmentOf>

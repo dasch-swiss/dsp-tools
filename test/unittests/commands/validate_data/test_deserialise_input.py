@@ -82,6 +82,39 @@ class TestResource:
         actual_props = {x.user_facing_prop for x in res.values}
         assert actual_props == expected_props
 
+    def test_audio_segment(self, audio_segment: etree._Element) -> None:
+        res = _deserialise_one_resource(audio_segment)
+        assert res.res_id == ""
+        assert len(res.property_objects) == 2
+        lbl, rdf_type, _ = _get_label_and_type(res)
+        assert lbl.object_value == ""
+        assert lbl.object_type == TripleObjectType.STRING
+        assert rdf_type.object_value == "http://api.knora.org/ontology/knora-api/v2#"
+        assert rdf_type.object_type == TripleObjectType.IRI
+        assert len(res.values) == 2
+        propname_to_info = {x.user_facing_prop: x for x in res.values}
+        segment_of = propname_to_info.pop(f"{KNORA_API_STR}isSegmentOf")
+        assert segment_of.user_facing_value == "is_segment_of_id"
+        assert segment_of.knora_type == KnoraValueType.LINK_VALUE
+        assert len(segment_of.value_metadata) == 1
+        assert segment_of.value_metadata[0].property_type == TriplePropertyType.KNORA_COMMENT_ON_VALUE
+        assert segment_of.value_metadata[0].object_value == "Comment"
+        assert segment_of.value_metadata[0].object_type == TripleObjectType.STRING
+        segment_bounds = propname_to_info.pop(f"{KNORA_API_STR}hasSegmentBounds")
+        assert not segment_bounds.user_facing_value
+        assert segment_bounds.knora_type == KnoraValueType.INTERVAL_VALUE
+        assert len(segment_bounds.value_metadata) == 3
+        seg_bounds_prop_objects = {x.property_type: x for x in segment_bounds.value_metadata}
+        permission = seg_bounds_prop_objects.pop(TriplePropertyType.KNORA_PERMISSIONS)
+        assert permission.object_value == "open"
+        assert permission.object_type == TripleObjectType.STRING
+        start_bound = seg_bounds_prop_objects.pop(TriplePropertyType.KNORA_INTERVAL_START)
+        assert start_bound.object_value == "0.5"
+        assert start_bound.object_type == TripleObjectType.DECIMAL
+        end_bound = seg_bounds_prop_objects.pop(TriplePropertyType.KNORA_INTERVAL_END)
+        assert end_bound.object_value == "7"
+        assert end_bound.object_type == TripleObjectType.DECIMAL
+
 
 class TestBooleanValue:
     def test_corr(self, boolean_value_corr: etree._Element) -> None:

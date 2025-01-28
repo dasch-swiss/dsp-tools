@@ -84,16 +84,16 @@ class TestResource:
 
     def test_audio_segment(self, audio_segment: etree._Element) -> None:
         res = _deserialise_one_resource(audio_segment)
-        assert res.res_id == ""
+        assert res.res_id == "audio_id"
         assert len(res.property_objects) == 2
         lbl, rdf_type, _ = _get_label_and_type(res)
-        assert lbl.object_value == ""
+        assert lbl.object_value == "lbl"
         assert lbl.object_type == TripleObjectType.STRING
-        assert rdf_type.object_value == "http://api.knora.org/ontology/knora-api/v2#"
+        assert rdf_type.object_value == "http://api.knora.org/ontology/knora-api/v2#AudioSegment"
         assert rdf_type.object_type == TripleObjectType.IRI
         assert len(res.values) == 2
         propname_to_info = {x.user_facing_prop: x for x in res.values}
-        segment_of = propname_to_info.pop(f"{KNORA_API_STR}isSegmentOf")
+        segment_of = propname_to_info.pop(f"{KNORA_API_STR}isAudioSegmentOf")
         assert segment_of.user_facing_value == "is_segment_of_id"
         assert segment_of.knora_type == KnoraValueType.LINK_VALUE
         assert len(segment_of.value_metadata) == 1

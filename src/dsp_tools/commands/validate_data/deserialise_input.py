@@ -69,7 +69,7 @@ def _extract_metadata(element: etree._Element) -> list[PropertyObject]:
 
 def _deserialise_one_resource(resource: etree._Element) -> ResourceDeserialised:
     res_type = resource.attrib["restype"]
-    if res_type == VIDEO_SEGMENT_RESOURCE | AUDIO_SEGMENT_RESOURCE:
+    if res_type in {VIDEO_SEGMENT_RESOURCE, AUDIO_SEGMENT_RESOURCE}:
         values = _deserialise_segment_properties(resource)
     else:
         values = _deserialise_generic_properties(resource)

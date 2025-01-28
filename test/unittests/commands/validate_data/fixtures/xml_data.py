@@ -27,7 +27,7 @@ def resource_empty_permissions() -> etree._Element:
 def audio_segment() -> etree._Element:
     return etree.fromstring("""
     <resource restype="http://api.knora.org/ontology/knora-api/v2#AudioSegment" label="lbl" id="audio_id">
-        <isSegmentOf comment="Comment">is_segment_of_id</isSegmentOf>
+        <isAudioSegmentOf comment="Comment">is_segment_of_id</isAudioSegmentOf>
         <hasSegmentBounds permissions="open" segment_start="0.5" segment_end="7"/>
     </resource>
     """)
@@ -37,7 +37,7 @@ def audio_segment() -> etree._Element:
 def video_segment() -> etree._Element:
     return etree.fromstring("""
     <resource restype="http://api.knora.org/ontology/knora-api/v2#VideoSegment" label="lbl" id="video_id">
-        <isSegmentOf>is_segment_of_id</isSegmentOf>
+        <isVideoSegmentOf>is_segment_of_id</isVideoSegmentOf>
         <hasSegmentBounds segment_start="0.1" segment_end="0.234"/>
         <hasTitle>Title</hasTitle>
         <hasComment>Comment</hasComment>

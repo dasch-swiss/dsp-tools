@@ -30,6 +30,7 @@ SEGMENT_TAG_TO_PROP_MAPPER = {
     "isVideoSegmentOf": KnoraValueType.LINK_VALUE,
 }
 
+
 def deserialise_xml(root: etree._Element) -> ProjectDeserialised:
     """
     Takes the root of an XML
@@ -259,12 +260,24 @@ def _deserialise_segment_values(resource: etree._Element) -> list[ValueInformati
     values = []
     for val in resource.iterchildren():
         prop_name = val.tag
+        property_objects = _extract_metadata(val)
+        if prop_name == "hasSegmentBounds":
+            property_objects.append(
+                PropertyObject(
+                    TriplePropertyType.KNORA_SEGMENT_START, val.attrib["segment_start"], TripleObjectType.DECIMAL
+                )
+            )
+            property_objects.append(
+                PropertyObject(
+                    TriplePropertyType.KNORA_SEGMENT_END, val.attrib["segment_end"], TripleObjectType.DECIMAL
+                )
+            )
         values.append(
             ValueInformation(
                 user_facing_prop=prop_name,
                 user_facing_value=val.text,
                 knora_type=SEGMENT_TAG_TO_PROP_MAPPER[prop_name],
-                value_metadata=_extract_metadata(val),
+                value_metadata=property_objects,
             )
         )
     return values

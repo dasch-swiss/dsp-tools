@@ -212,9 +212,12 @@ def _call_xmlupload(args: argparse.Namespace) -> bool:
 
 
 def _call_validate_data(args: argparse.Namespace) -> bool:
-    return validate_data(
+    # The boolean return value of the function indicates if validation errors were found,
+    # not the success status of the command
+    _ = validate_data(
         filepath=Path(args.xmlfile), api_url=args.server, dev_route=args.dev, save_graphs=args.save_graphs
     )
+    return True
 
 
 def _call_resume_xmlupload(args: argparse.Namespace) -> bool:

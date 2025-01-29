@@ -418,3 +418,21 @@ def uri_value_wrong() -> etree._Element:
             <uri>oth er</uri>
         </uri-prop>
     """)
+
+
+@pytest.fixture
+def bitstream_with_spaces() -> etree._Element:
+    return etree.fromstring("""
+        <bitstream>
+            testdata/bitstreams/test.wav
+        </bitstream>
+    """)
+
+
+@pytest.fixture
+def iiif_with_spaces() -> etree._Element:
+    return etree.fromstring("""
+        <iiif-uri>
+            https://iiif.uri/full.jpg
+        </iiif-uri>
+    """)

@@ -206,8 +206,9 @@ def _extract_geometry_value_information(prop: etree._Element) -> list[ValueInfor
 
 
 def _deserialise_file_values(value: etree._Element, tag_name: str) -> list[ValueInformation]:
-    if not (file_str := value.text):
+    if (file_str := value.text) is None:
         return []
+    file_str = file_str.strip()
     if tag_name == "iiif-uri":
         return [
             ValueInformation(

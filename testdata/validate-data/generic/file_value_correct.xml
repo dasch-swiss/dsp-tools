@@ -9,7 +9,9 @@
     <!-- ArchiveRepresentation -->
 
     <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="id_archive_zip">
-        <bitstream>this/is/filepath/file.zip</bitstream>
+        <bitstream>
+            this/is/filepath/file.zip
+        </bitstream>
     </resource>
 
     <resource label="TestArchiveRepresentation tar" restype=":TestArchiveRepresentation" id="id_archive_tar">
@@ -130,7 +132,9 @@
     </resource>
 
     <resource label="TestStillImageRepresentation IIIF" restype=":TestStillImageRepresentation" id="id_still_image_iiif">
-        <iiif-uri>https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg</iiif-uri>
+        <iiif-uri>
+            https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg
+        </iiif-uri>
     </resource>
 
     <!-- TextRepresentation -->

@@ -88,7 +88,7 @@ class ListClient:
         return AllProjectLists(reformatted)
 
     def _get_all_list_iris(self) -> dict[str, Any]:
-        response = self.api_con.get_with_endpoint(endpoint=f"admin/lists?{self.shortcode}")
+        response = self.api_con.get_with_endpoint(endpoint=f"admin/lists?projectShortcode={self.shortcode}")
         if not response.ok:
             msg = (
                 f"NON-OK RESPONSE | Request: GET all list IRIs | "

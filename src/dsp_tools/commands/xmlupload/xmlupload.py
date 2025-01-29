@@ -13,7 +13,6 @@ from rdflib import URIRef
 from tqdm import tqdm
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.commands.validate_data.validate_data import validate_data
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import create_resource_with_values
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
@@ -75,20 +74,15 @@ def xmlupload(
         True if all resources could be uploaded without errors; False if one of the resources could not be
         uploaded because there is an error in it
     """
-    if not config.no_validation:
-        validation_passed = validate_data(filepath=input_file, api_url=creds.server, dev_route=False, save_graphs=False)
-        # The validation results are communicated to the user in the function, so no further action is needed.
-        if not validation_passed:
-            return True
 
     root, shortcode, default_ontology = prepare_input_xml_file(input_file, imgdir)
-
-    if not any([config.skip_iiif_validation, config.no_validation]):
-        _validate_iiif_uris(root)
 
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
     con = ConnectionLive(creds.server, auth)
     config = config.with_server_info(server=creds.server, shortcode=shortcode)
+
+    if not config.skip_iiif_validation:
+        _validate_iiif_uris(root)
 
     ontology_client = OntologyClientLive(con=con, shortcode=shortcode, default_ontology=default_ontology)
     resources, permissions_lookup, stash = prepare_upload_from_root(root, ontology_client)

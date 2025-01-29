@@ -32,7 +32,7 @@ def construct_shapes_graphs(onto: Graph, knora_api: Graph, project_lists: AllPro
 
 def _get_all_relevant_knora_subset(knora_api: Graph) -> Graph:
     logger.info("Getting relevant knora-api subset")
-    props = ["isLinkProperty", "isEditable"]
+    props = ["isLinkProperty", "isEditable", "isLinkValueProperty"]
     g = Graph()
     for p in props:
         g += _get_one_relevant_knora_subset(knora_api, p)

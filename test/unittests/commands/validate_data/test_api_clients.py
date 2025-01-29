@@ -71,7 +71,7 @@ class TestListConnection:
         with patch.object(list_connection.api_con, "get_with_endpoint", return_value=mock_response) as patched_get:
             result = list_connection._get_all_list_iris()
             assert result == {"lists": []}
-            patched_get.assert_called_once_with(endpoint="admin/lists?9999")
+            patched_get.assert_called_once_with(endpoint="admin/lists?projectShortcode=9999")
 
     def test_get_all_list_iris_non_ok_code(self, list_connection: ListClient) -> None:
         mock_response = Mock()
@@ -79,7 +79,7 @@ class TestListConnection:
         with patch.object(list_connection.api_con, "get_with_endpoint", return_value=mock_response) as patched_get:
             with pytest.raises(InternalError):
                 list_connection._get_all_list_iris()
-            patched_get.assert_called_once_with(endpoint="admin/lists?9999")
+            patched_get.assert_called_once_with(endpoint="admin/lists?projectShortcode=9999")
 
     def test_get_one_list(self, list_connection: ListClient) -> None:
         mock_response = Mock()

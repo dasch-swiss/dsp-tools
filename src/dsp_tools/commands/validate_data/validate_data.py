@@ -61,7 +61,7 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(msg)
         # if unknown classes are found, we cannot validate all the data in the file
-        return False
+        return True
 
     shacl_validator = ShaclValidator(api_con)
     save_path = None
@@ -74,7 +74,7 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(problem_msg)
         # if the ontology itself has errors, we will not validate the data
-        return False
+        return True
 
     report = _get_validation_result(graphs, shacl_validator, save_path)
     if report.conforms:
@@ -91,13 +91,13 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
                     BACKGROUND_BOLD_YELLOW + "\n   Unexpected violations were found! "
                     "Consult the saved graphs for details.   " + RESET_TO_DEFAULT
                 )
-                return False
+                return True
             reformatted.unexpected_results.save_inform_user(
                 results_graph=report.validation_graph,
                 shacl=report.shacl_graph,
                 data=report.data_graph,
             )
-        return False
+        return True
 
 
 def _get_save_directory(filepath: Path) -> Path:

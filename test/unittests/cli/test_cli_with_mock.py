@@ -441,25 +441,6 @@ def test_start_stack_default(mock_init: Mock, start_stack: Mock) -> None:
             suppress_docker_system_prune=False,
             latest_dev_version=False,
             upload_test_data=False,
-            api_version_for_validate=False,
-        )
-    )
-    start_stack.assert_called_once()
-
-
-@patch("dsp_tools.commands.start_stack.StackHandler.start_stack")
-@patch("dsp_tools.commands.start_stack.StackHandler.__init__", return_value=None)
-def test_start_stack_validation(mock_init: Mock, start_stack: Mock) -> None:
-    args = "start-stack --validation".split()
-    entry_point.run(args)
-    mock_init.assert_called_once_with(
-        StackConfiguration(
-            max_file_size=None,
-            enforce_docker_system_prune=False,
-            suppress_docker_system_prune=False,
-            latest_dev_version=False,
-            upload_test_data=False,
-            api_version_for_validate=True,
         )
     )
     start_stack.assert_called_once()

@@ -80,9 +80,7 @@ def _get_image_version(docker_compose_content: str, component: str) -> str:
 
 
 def _get_api_image_version() -> str:
-    docker_compose_content = Path("src/dsp_tools/resources/start-stack/docker-compose-validation.yml").read_text(
-        encoding="utf-8"
-    )
+    docker_compose_content = Path("src/dsp_tools/resources/start-stack/docker-compose.yml").read_text(encoding="utf-8")
     match = regex.search(r"image: daschswiss/knora-api:([^\n]+)", docker_compose_content)
     return match.group(1) if match else "latest"
 

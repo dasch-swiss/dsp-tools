@@ -124,7 +124,6 @@ def _add_start_stack(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     subparser.add_argument("--no-prune", action="store_true", help=no_prune_text)
     subparser.add_argument("--latest", action="store_true", help=latest_text)
     subparser.add_argument("--with-test-data", action="store_true", help=with_test_data_text)
-    subparser.add_argument("--validation", action="store_true")
 
 
 def _add_id2iri(subparsers: _SubParsersAction[ArgumentParser]) -> None:

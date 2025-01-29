@@ -91,7 +91,7 @@ def test_xmlupload_default(xmlupload: Mock) -> None:
         input_file=Path(file),
         creds=creds,
         imgdir=".",
-        config=UploadConfig(skip_iiif_validation=False, interrupt_after=None),
+        config=UploadConfig(skip_iiif_validation=False, interrupt_after=None, no_validation=False),
     )
 
 

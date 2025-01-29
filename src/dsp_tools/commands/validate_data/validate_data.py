@@ -52,7 +52,7 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
         save_graphs: if this flag is set, all the graphs will be saved in a folder
 
     Returns:
-        true if no errors were found otherwise false
+        true unless it crashed
     """
     api_con = ApiConnection(api_url)
     graphs = _get_parsed_graphs(api_con, filepath)

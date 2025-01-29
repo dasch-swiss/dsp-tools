@@ -414,6 +414,26 @@ class TestLinkValue:
         assert res[1].knora_type == KnoraValueType.LINK_VALUE
 
 
+class TestFileValue:
+    def test_bitstream(self, bitstream_with_spaces: etree._Element) -> None:
+        result = _deserialise_one_property(bitstream_with_spaces)
+        assert len(result) == 1
+        res = result.pop()
+        assert res.user_facing_prop == f"{KNORA_API_STR}hasAudioFileValue"
+        assert res.user_facing_value == "testdata/bitstreams/test.wav"
+        assert res.knora_type == KnoraValueType.AUDIO_FILE
+        assert not res.value_metadata
+
+    def test_iiif(self, iiif_with_spaces: etree._Element) -> None:
+        result = _deserialise_one_property(iiif_with_spaces)
+        assert len(result) == 1
+        res = result.pop()
+        assert res.user_facing_prop == f"{KNORA_API_STR}hasStillImageFileValue"
+        assert res.user_facing_value == "https://iiif.uri/full.jpg"
+        assert res.knora_type == KnoraValueType.STILL_IMAGE_IIIF
+        assert not res.value_metadata
+
+
 class TestExtractMetadata:
     def test_none(self, boolean_value_no_attrib: etree._Element) -> None:
         res = _extract_metadata(boolean_value_no_attrib)

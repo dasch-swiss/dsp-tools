@@ -1,5 +1,0 @@
----
-
-services:
-  api:
-    image: daschswiss/knora-api:v31.2.1

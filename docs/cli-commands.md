@@ -126,6 +126,45 @@ But in this case, the resulting JSON file won't have a "users" section.
 The expected JSON format is [documented here](./file-formats/json-project/overview.md).
 
 
+## `validate-data`
+
+This command validates an XML data file according to the ontology previously uploaded on the server. 
+
+```bash
+dsp-tools validate-data [options] xml_data_file.xml
+```
+
+The following options are available:
+
+- `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP-API server where DSP-TOOLS sends the data to
+- `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
+- `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
+- `-i` | `--imgdir` (optional, default: `.`): folder from where the paths in the `<bitstream>` tags are evaluated
+- `-V` | `--validate` (optional): validate the XML file without uploading it
+
+Output:
+
+- The result of the validation is printed out on the console.
+- If there are more than 50 validation errors, a csv with the results is saved in the current directory.
+
+
+The defaults are intended for local testing: 
+
+```bash
+dsp-tools validate-data xml_data_file.xml
+```
+
+will validate the data defined in `xml_data_file.xml` on `localhost`.
+
+In order to validate the same data 
+with the ontology on a DSP server it is necessary to specify the server.
+For test servers the naming is: `https://api.[host].dasch.swiss`.
+For the prod server the URL is: `https://api.dasch.swiss`
+
+
+```bash
+dsp-tools validate-data -s https://api.dasch.swiss xml_data_file.xml
+```
 
 ## `xmlupload`
 

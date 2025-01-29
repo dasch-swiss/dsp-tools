@@ -79,7 +79,6 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
     report = _get_validation_result(graphs, shacl_validator, save_path)
     if report.conforms:
         print(BACKGROUND_BOLD_GREEN + "\n   Validation passed!   " + RESET_TO_DEFAULT)
-        return True
     else:
         reformatted = reformat_validation_graph(report)
         problem_msg = reformatted.get_msg(filepath)
@@ -97,7 +96,7 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
                 shacl=report.shacl_graph,
                 data=report.data_graph,
             )
-        return True
+    return True
 
 
 def _get_save_directory(filepath: Path) -> Path:

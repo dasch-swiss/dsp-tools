@@ -32,7 +32,7 @@ from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_re
 from dsp_tools.commands.validate_data.validate_data import _get_parsed_graphs
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
 from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
-from test.e2e_validate_data.setup_testcontainers import get_containers
+from test.e2e.setup_testcontainers import get_containers
 
 CREDS = ServerCredentials("root@example.com", "test", "http://0.0.0.0:3333")
 LOCAL_API = "http://0.0.0.0:3333"

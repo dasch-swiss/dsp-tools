@@ -515,6 +515,23 @@ api-shapes:hasKeyword_PropertyShape
   sh:path knora-api:hasKeyword .
 
 
+### knora-api:hasStandoffLinkTo
+
+api-shapes:hasStandoffLinkTo_NonRecursivePropertyShape
+  a sh:PropertyShape ;
+  sh:path knora-api:hasStandoffLinkTo ;
+  dash:nonRecursive true ;
+  sh:message "A stand-off link in a text may not target the resource itself." ;
+  sh:severity sh:Violation .
+
+api-shapes:hasStandoffLinkTo_TargetMustExistPropertyShape
+  a sh:PropertyShape ;
+  sh:path knora-api:hasStandoffLinkTo ;
+  sh:class knora-api:Resource ;
+  sh:message "A stand-off link must target an existing resource." ;
+  sh:severity sh:Violation .
+
+
 #########################################
 # DSP BUILT IN RESOURCES
 #########################################

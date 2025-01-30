@@ -80,6 +80,6 @@ def _make_one_rdflib_object(
         return Literal("", datatype=XSD.string)
     if object_type == TripleObjectType.IRI:
         if prop_type == TriplePropertyType.KNORA_STANDOFF_LINK:
-            return DATA[object_type]
+            return DATA[object_value]
         return URIRef(object_value)
     return Literal(object_value, datatype=TRIPLE_OBJECT_TYPE_TO_XSD[object_type])

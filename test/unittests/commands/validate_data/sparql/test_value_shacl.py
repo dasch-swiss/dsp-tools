@@ -49,8 +49,13 @@ def test_construct_one_property_type_text_value(one_richtext_prop: Graph) -> Non
 
 def test_add_property_shapes_to_class_shapes(card_1: Graph) -> None:
     res = _add_property_shapes_to_class_shapes(card_1)
+    expected_props = {
+        ONTO.testBoolean_PropShape,
+        API_SHAPES.rdfsLabel_Shape,
+        API_SHAPES.hasStandoffLinkTo_TargetMustExistPropertyShape,
+        API_SHAPES.hasStandoffLinkTo_NonRecursivePropertyShape,
+    }
     assert len(res) == 5
-    expected_props = {ONTO.testBoolean_PropShape, API_SHAPES.rdfsLabel_Shape}
     assert set(res.objects(ONTO.ClassMixedCard, SH.property)) == expected_props
 
 

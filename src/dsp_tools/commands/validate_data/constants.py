@@ -74,6 +74,7 @@ TRIPLE_PROP_TYPE_TO_IRI_MAPPER = {
     TriplePropertyType.KNORA_PERMISSIONS: KNORA_API.hasPermissions,
     TriplePropertyType.KNORA_INTERVAL_START: KNORA_API.intervalValueHasStart,
     TriplePropertyType.KNORA_INTERVAL_END: KNORA_API.intervalValueHasEnd,
+    TriplePropertyType.KNORA_STANDOFF_LINK: KNORA_API.hasStandoffLinkTo,
 }
 
 

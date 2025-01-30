@@ -156,22 +156,19 @@ def _extract_text_value_information(prop: etree._Element) -> list[ValueInformati
     all_vals = []
     for val in prop.iterchildren():
         encoding = val.attrib["encoding"]
-        metadata = _extract_metadata(val)
-        text_content = _get_text_as_string(val)
         match encoding:
             case "utf8":
                 val_type = KnoraValueType.SIMPLETEXT_VALUE
             case "xml":
                 val_type = KnoraValueType.RICHTEXT_VALUE
-                metadata.extend(_get_stand_off_links(text_content))
             case _:
                 raise BaseError(f"Unknown encoding: {encoding}.")
         all_vals.append(
             ValueInformation(
                 user_facing_prop=prop_name,
-                user_facing_value=text_content,
+                user_facing_value=_get_text_as_string(val),
                 knora_type=val_type,
-                value_metadata=metadata,
+                value_metadata=_extract_metadata(val),
             )
         )
     return all_vals

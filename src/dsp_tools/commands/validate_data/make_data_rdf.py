@@ -17,6 +17,7 @@ from dsp_tools.commands.validate_data.models.data_deserialised import KnoraValue
 from dsp_tools.commands.validate_data.models.data_deserialised import PropertyObject
 from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import TripleObjectType
+from dsp_tools.commands.validate_data.models.data_deserialised import TriplePropertyType
 from dsp_tools.commands.validate_data.models.data_deserialised import ValueInformation
 
 
@@ -67,14 +68,18 @@ def _make_one_value(val: ValueInformation, res_iri: URIRef) -> Graph:
 def _make_property_objects_graph(property_objects: list[PropertyObject], subject_iri: URIRef) -> Graph:
     g = Graph()
     for trpl in property_objects:
-        object_val = _make_one_rdflib_object(trpl.object_value, trpl.object_type)
+        object_val = _make_one_rdflib_object(trpl.object_value, trpl.object_type, trpl.property_type)
         g.add((subject_iri, TRIPLE_PROP_TYPE_TO_IRI_MAPPER[trpl.property_type], object_val))
     return g
 
 
-def _make_one_rdflib_object(object_value: str | None, object_type: TripleObjectType) -> Literal | URIRef:
+def _make_one_rdflib_object(
+    object_value: str | None, object_type: TripleObjectType, prop_type: TriplePropertyType | None = None
+) -> Literal | URIRef:
     if not object_value:
         return Literal("", datatype=XSD.string)
     if object_type == TripleObjectType.IRI:
+        if prop_type == TriplePropertyType.KNORA_STANDOFF_LINK:
+            return DATA[object_type]
         return URIRef(object_value)
     return Literal(object_value, datatype=TRIPLE_OBJECT_TYPE_TO_XSD[object_type])

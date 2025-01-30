@@ -126,6 +126,40 @@ But in this case, the resulting JSON file won't have a "users" section.
 The expected JSON format is [documented here](./file-formats/json-project/overview.md).
 
 
+## `validate-data`
+
+This command validates an XML data file according to the ontology previously uploaded on the server. 
+
+```bash
+dsp-tools validate-data [options] xml_data_file.xml
+```
+
+The following options are available:
+
+- `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP-API server where DSP-TOOLS gets the ontology from
+
+Output:
+
+- The result of the validation is printed out on the console.
+- If there are more than 50 validation errors, 
+  a csv called `[xml_data_file]_validation_errors.csv` with the results is saved in the current directory.
+
+
+The defaults are intended for local testing: 
+
+```bash
+dsp-tools validate-data xml_data_file.xml
+```
+
+will validate the data defined in `xml_data_file.xml` on `localhost`.
+
+In order to validate the same data 
+with the ontology on a DSP server it is necessary to specify the server.
+
+
+```bash
+dsp-tools validate-data -s https://api.dasch.swiss xml_data_file.xml
+```
 
 ## `xmlupload`
 

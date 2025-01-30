@@ -156,9 +156,6 @@ will validate the data defined in `xml_data_file.xml` on `localhost`.
 In order to validate the same data 
 with the ontology on a DSP server it is necessary to specify the server.
 
-- For test servers the naming is: `https://api.[host].dasch.swiss`.
-- For the prod server the URL is: `https://api.dasch.swiss`
-
 
 ```bash
 dsp-tools validate-data -s https://api.dasch.swiss xml_data_file.xml

@@ -269,12 +269,18 @@
                         ],
                         "object": "TextValue",
                         "labels": {
-                            "en": "hasSimpleText"
+                            "en": "English Label",
+                            "de": "German label",
+                            "fr": "French label",
+                            "it": "Italian label",
+                            "rm": "Rumantsch label"
                         },
                         "comments": {
-                            "en": "properties can optionally have comments",
-                            "de": "Properties können Kommentare haben",
-                            "rm": "Property with a Rumantsch comment"
+                            "en": "English Comment",
+                            "de": "German comment",
+                            "fr": "French comment",
+                            "it": "Italian comment",
+                            "rm": "Rumantsch comment"
                         },
                         "gui_element": "SimpleText",
                         "gui_attributes": {
@@ -516,8 +522,18 @@
                             "externalOnto:thing"
                         ],
                         "labels": {
-                            "en": "TestThing",
-                            "rm": "TestThing in Rumantsch"
+                            "en": "English Label",
+                            "de": "German label",
+                            "fr": "French label",
+                            "it": "Italian label",
+                            "rm": "Rumantsch label"
+                        },
+                        "comments": {
+                            "en": "English Comment",
+                            "de": "German comment",
+                            "fr": "French comment",
+                            "it": "Italian comment",
+                            "rm": "Rumantsch comment"
                         },
                         "cardinalities": [
                             {

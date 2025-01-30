@@ -2,6 +2,7 @@ import json
 from json import JSONDecodeError
 from pathlib import Path
 
+import regex
 from lxml import etree
 
 from dsp_tools.commands.validate_data.constants import AUDIO_SEGMENT_RESOURCE
@@ -75,6 +76,7 @@ def _deserialise_one_resource(resource: etree._Element) -> ResourceDeserialised:
     else:
         values = _deserialise_generic_properties(resource)
     metadata = _extract_metadata(resource)
+    metadata.extend(_get_all_stand_off_links(values))
     metadata.append(PropertyObject(TriplePropertyType.RDFS_LABEL, resource.attrib["label"], TripleObjectType.STRING))
     metadata.append(PropertyObject(TriplePropertyType.RDF_TYPE, res_type, TripleObjectType.IRI))
     return ResourceDeserialised(
@@ -154,19 +156,22 @@ def _extract_text_value_information(prop: etree._Element) -> list[ValueInformati
     all_vals = []
     for val in prop.iterchildren():
         encoding = val.attrib["encoding"]
+        metadata = _extract_metadata(val)
+        text_content = _get_text_as_string(val)
         match encoding:
             case "utf8":
                 val_type = KnoraValueType.SIMPLETEXT_VALUE
             case "xml":
                 val_type = KnoraValueType.RICHTEXT_VALUE
+                metadata.extend(_get_stand_off_links(text_content))
             case _:
                 raise BaseError(f"Unknown encoding: {encoding}.")
         all_vals.append(
             ValueInformation(
                 user_facing_prop=prop_name,
-                user_facing_value=_get_text_as_string(val),
+                user_facing_value=text_content,
                 knora_type=val_type,
-                value_metadata=_extract_metadata(val),
+                value_metadata=metadata,
             )
         )
     return all_vals
@@ -181,6 +186,21 @@ def _get_text_as_string(value: etree._Element) -> str | None:
         return "".join(text_list).strip()
     else:
         return value.text
+
+
+def _get_all_stand_off_links(values: list[ValueInformation]) -> list[PropertyObject]:
+    stand_offs = []
+    for val in values:
+        if val.knora_type.RICHTEXT_VALUE:
+            stand_offs.extend(_get_stand_off_links(val.user_facing_value))
+    return stand_offs
+
+
+def _get_stand_off_links(text: str | None) -> list[PropertyObject]:
+    if not text:
+        return []
+    links = set(regex.findall(pattern='href="IRI:(.*?):IRI"', string=text))
+    return [PropertyObject(TriplePropertyType.KNORA_STANDOFF_LINK, lnk, TripleObjectType.IRI) for lnk in links]
 
 
 def _extract_geometry_value_information(prop: etree._Element) -> list[ValueInformation]:

@@ -95,6 +95,7 @@ class TriplePropertyType(Enum):
     KNORA_COMMENT_ON_VALUE = auto()
     KNORA_INTERVAL_START = auto()
     KNORA_INTERVAL_END = auto()
+    KNORA_STANDOFF_LINK = auto()
 
 
 class TripleObjectType(Enum):

@@ -42,7 +42,8 @@ def _construct_resource_nodeshape(onto_graph: Graph) -> Graph:
                               sh:severity sh:Violation ;
                               sh:message "A label is required" ;
                             ] ,
-                            [
+                            [ 
+                              a sh:PropertyShape ;
                               sh:path knora-api:hasStandoffLinkTo
                             ] .
     } WHERE {

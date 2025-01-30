@@ -367,12 +367,12 @@ class TestReformatValidationGraph:
             (
                 "richtext_recursive_standoff_link",
                 "hasStandoffLinkTo",
-                "A stand-off link must target an existing resource.",
+                "A stand-off link in a text may not target the resource itself.",
             ),
             (
                 "richtext_standoff_link_nonexistent",
                 "hasStandoffLinkTo",
-                "A stand-off link in a text may not target the resource itself.",
+                "A stand-off link must target an existing resource.",
             ),
         ]
         assert len(result.problems) == len(expected_info_tuples)

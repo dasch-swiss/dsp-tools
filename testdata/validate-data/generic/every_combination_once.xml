@@ -166,19 +166,6 @@
 
         <!--
         Our Violation Type            GenericProblemWithInput
-        sh:sourceConstraintComponent  dash:NonRecursiveConstraintComponent
-        sh:detail                     -
-        -->
-        <resource label="Richtext" restype=":ClassWithEverything" id="richtext_recursive_standoff_link">
-            <text-prop name=":testRichtext">
-                <text encoding="xml">
-                    This is a text with <a class="salsah-link" href="IRI:richtext_recursive_standoff_link:IRI">standoff</a>.
-                </text>
-            </text-prop>
-        </resource>
-
-        <!--
-        Our Violation Type            GenericProblemWithInput
         sh:sourceConstraintComponent  sh:NodeConstraintComponent
         sh:detail                     sh:InConstraintComponent
         -->

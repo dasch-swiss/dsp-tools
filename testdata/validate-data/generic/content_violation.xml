@@ -6,7 +6,7 @@
        shortcode="9999"
        default-ontology="onto">
 
-    <!-- 14 Violations -->
+    <!-- 13 Violations -->
 
     <!-- label may not be empty -->
     <resource label=" " restype=":ClassWithEverything" id="empty_label"/>
@@ -82,15 +82,6 @@
         <text-prop name=":testRichtext">
             <text encoding="xml">
                 This is a text with <a class="salsah-link" href="IRI:non_existing:IRI">standoff</a>.
-            </text>
-        </text-prop>
-    </resource>
-
-    <!-- The target of the stand-off link may not be the resource itself. -->
-    <resource label="Richtext" restype=":ClassWithEverything" id="richtext_recursive_standoff_link">
-        <text-prop name=":testRichtext">
-            <text encoding="xml">
-                This is a text with <a class="salsah-link" href="IRI:richtext_recursive_standoff_link:IRI">standoff</a>.
             </text>
         </text-prop>
     </resource>

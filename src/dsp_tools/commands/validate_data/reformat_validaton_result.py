@@ -203,7 +203,7 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
                 results_message=msg,
                 property=None,
             )
-        case SH.ClassConstraintComponent | DASH.NonRecursiveConstraintComponent:
+        case SH.ClassConstraintComponent:
             val = next(results_and_onto.objects(base_info.result_bn, SH.value))
             target_id = reformat_data_iri(val)
             return ResultGenericViolation(

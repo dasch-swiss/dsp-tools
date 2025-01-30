@@ -174,7 +174,6 @@ def test_extract_identifiers_of_resource_results(every_combination_once: Validat
         (URIRef("http://data/link_target_wrong_class"), BNode),
         (URIRef("http://data/list_node_non_existent"), BNode),
         (URIRef("http://data/missing_seqnum"), None),
-        (URIRef("http://data/richtext_recursive_standoff_link"), None),
         (URIRef("http://data/richtext_standoff_link_nonexistent"), None),
         (URIRef("http://data/video_segment_start_larger_than_end"), BNode),
         (URIRef("http://data/video_segment_wrong_bounds"), BNode),
@@ -366,11 +365,6 @@ class TestReformatValidationGraph:
                 ),
             ),
             (
-                "richtext_recursive_standoff_link",
-                "hasStandoffLinkTo",
-                "A stand-off link in a text may not target the resource itself.",
-            ),
-            (
                 "richtext_standoff_link_nonexistent",
                 "hasStandoffLinkTo",
                 "A stand-off link must target an existing resource.",
@@ -408,7 +402,6 @@ class TestReformatValidationGraph:
             ("link_target_wrong_class", LinkTargetTypeMismatchProblem),
             ("list_node_non_existent", GenericProblemWithInput),
             ("missing_seqnum", GenericProblemWithMessage),
-            ("richtext_recursive_standoff_link", GenericProblemWithInput),
             ("richtext_standoff_link_nonexistent", GenericProblemWithInput),
             ("video_segment_start_larger_than_end", GenericProblemWithInput),
             ("video_segment_wrong_bounds", GenericProblemWithInput),  # once for start that is less than zero

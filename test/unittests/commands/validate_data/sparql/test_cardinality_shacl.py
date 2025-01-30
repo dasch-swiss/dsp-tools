@@ -21,7 +21,7 @@ class TestCheckTripleNumbersOnto:
     def test_nodeshape(self, onto_for_cardinality: Graph) -> None:
         result = _construct_resource_nodeshape(onto_for_cardinality)
         number_of_resource_classes = 12
-        triples_cls_nodeshape = 12 * number_of_resource_classes
+        triples_cls_nodeshape = 13 * number_of_resource_classes
         assert len(result) == triples_cls_nodeshape
 
     def test_cardinality_1(self, onto_for_cardinality: Graph) -> None:

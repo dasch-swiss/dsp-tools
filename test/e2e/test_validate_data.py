@@ -364,7 +364,11 @@ class TestReformatValidationGraph:
                 ),
             ),
             ("text_only_whitespace_simple", "onto:testTextarea", "The value must be a non-empty string"),
-            ("richtext_recursive_standoff_link", "hasStandoffLinkTo", "non_existing"),
+            (
+                "richtext_recursive_standoff_link",
+                "hasStandoffLinkTo",
+                "A stand-off link must target an existing resource.",
+            ),
             (
                 "richtext_standoff_link_nonexistent",
                 "hasStandoffLinkTo",

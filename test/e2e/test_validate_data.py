@@ -364,6 +364,12 @@ class TestReformatValidationGraph:
                 ),
             ),
             ("text_only_whitespace_simple", "onto:testTextarea", "The value must be a non-empty string"),
+            ("richtext_recursive_standoff_link", "hasStandoffLinkTo", "non_existing"),
+            (
+                "richtext_standoff_link_nonexistent",
+                "hasStandoffLinkTo",
+                "A stand-off link in a text may not target the resource itself.",
+            ),
         ]
         assert len(result.problems) == len(expected_info_tuples)
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):

@@ -77,6 +77,24 @@
         </text-prop>
     </resource>
 
+    <!-- The target of the stand-off link does not exist. -->
+    <resource label="Richtext" restype=":ClassWithEverything" id="richtext_standoff_link_nonexistent">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">
+                This is a text with <a class="salsah-link" href="IRI:non_existing:IRI">standoff</a>.
+            </text>
+        </text-prop>
+    </resource>
+
+    <!-- The target of the stand-off link may not be the resource itself. -->
+    <resource label="Richtext" restype=":ClassWithEverything" id="richtext_recursive_standoff_link">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">
+                This is a text with <a class="salsah-link" href="IRI:richtext_recursive_standoff_link:IRI">standoff</a>.
+            </text>
+        </text-prop>
+    </resource>
+
     <!-- Comment on value may not be empty -->
     <resource label="Comment on Value" restype=":ClassWithEverything" id="comment_on_value_empty">
         <uri-prop name=":testUriValue">

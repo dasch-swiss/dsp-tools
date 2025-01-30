@@ -90,6 +90,12 @@
         </text-prop>
     </resource>
 
+    <resource label="Richtext" restype=":ClassWithEverything" id="id_richtext_with_stand_off">
+        <text-prop name=":testRichtext">
+            <text encoding="xml">This is a text with <a class="salsah-link" href="IRI:id_empty:IRI">standoff</a>.</text>
+        </text-prop>
+    </resource>
+
     <resource label="Simpletext" restype=":ClassWithEverything" id="id_simpletext">
         <text-prop name=":testTextarea">
             <text encoding="utf8">Text line 1

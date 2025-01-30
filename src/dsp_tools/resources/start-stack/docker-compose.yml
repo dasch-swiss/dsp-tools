@@ -3,7 +3,7 @@ services:
   api:
     # on the verge of every deployment (fortnightly), update the "image" value from the "api" value of
     # https://github.com/dasch-swiss/ops-deploy/blob/main/versions/RELEASE.json
-    image: daschswiss/knora-api:v31.3.0
+    image: daschswiss/knora-api:v31.3.0-5-g12874d1
     depends_on:
       - sipi
       - db

@@ -52,13 +52,15 @@ data:InstanceResourceSubCls1 a :ResourceSubCls1 ;
 
 # Test with real data
 
-`dsp-tools create testdata/validate-data/inheritance/project_inheritance.json`
+- Check out the branch to use the command (validation is different)
 
-`dsp-tools validate testdata/validate-data/inheritance/inheritance_correct.xml`
+- `dsp-tools create testdata/validate-data/inheritance/project_inheritance.json`
+
+- `dsp-tools validate testdata/validate-data/inheritance/inheritance_correct.xml`
 
 -> here `inheritance_correct_for_api` will be wrong
 
 
-`dsp-tools xmlupload testdata/validate-data/inheritance/inheritance_correct.xml`
+- `dsp-tools xmlupload testdata/validate-data/inheritance/inheritance_correct.xml`
 
 -> here `inheritance_correct_for_shacl` will not be uploaded

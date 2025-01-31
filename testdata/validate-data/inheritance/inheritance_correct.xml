@@ -6,13 +6,10 @@
        shortcode="9990"
        default-ontology="onto">
 
-    <resource label="Resource0" restype=":Resource0" id="Resource0">
+    <resource label="inheritance_correct_for_shacl" restype=":ResourceSubCls1" id="inheritance_correct_for_shacl">
         <text-prop name=":hasText0">
             <text encoding="utf8">Text 0</text>
         </text-prop>
-    </resource>
-
-    <resource label="ResourceSubCls1" restype=":ResourceSubCls1" id="ResourceSubCls1">
         <text-prop name=":hasTextSubProp1">
             <text encoding="utf8">Text 1</text>
         </text-prop>
@@ -21,18 +18,12 @@
         </text-prop>
     </resource>
 
-    <resource label="ResourceSubCls2" restype=":ResourceSubCls2" id="ResourceSubCls2">
-        <text-prop name=":hasTextSubProp2">
-            <text encoding="utf8">Text 2</text>
+    <resource label="inheritance_correct_for_api" restype=":ResourceSubCls1" id="inheritance_correct_for_api">
+        <text-prop name=":hasTextSubProp1">
+            <text encoding="utf8">Text 1</text>
         </text-prop>
         <text-prop name=":nonRelatedProp">
             <text encoding="utf8">Text non-related</text>
-        </text-prop>
-    </resource>
-
-    <resource label="ResourceUnrelated" restype=":ResourceUnrelated" id="ResourceUnrelated">
-        <text-prop name=":hasTextSubProp1">
-            <text encoding="utf8">hasTextSubProp1</text>
         </text-prop>
     </resource>
 

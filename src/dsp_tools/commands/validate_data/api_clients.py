@@ -162,10 +162,10 @@ class ShaclValidator:
             result_graph += card_result.validation_graph
             conforms = False
 
-        content_result = self._validate_content(rdf_graphs)
-        if not content_result.conforms:
-            result_graph += content_result.validation_graph
-            conforms = False
+        # content_result = self._validate_content(rdf_graphs)
+        # if not content_result.conforms:
+        #     result_graph += content_result.validation_graph
+        #     conforms = False
 
         return SHACLValidationReport(conforms=conforms, validation_graph=result_graph)
 
@@ -194,8 +194,9 @@ class ShaclValidator:
         return self._parse_validation_result(response.text)
 
     def _prepare_cardinality_files(self, rdf_graphs: RDFGraphs) -> PostFiles:
-        shacl_graph = rdf_graphs.cardinality_shapes + rdf_graphs.ontos + rdf_graphs.knora_api
-        return self._prepare_validation_files_for_request(rdf_graphs.data, shacl_graph)
+        shacl_graph = rdf_graphs.cardinality_shapes + rdf_graphs.ontos + rdf_graphs.knora_api + rdf_graphs.content_shapes
+        data_graph = rdf_graphs.data + rdf_graphs.ontos + rdf_graphs.knora_api
+        return self._prepare_validation_files_for_request(data_graph, shacl_graph)
 
     def _validate_content(self, rdf_graphs: RDFGraphs) -> SHACLValidationReport:
         content_files = self._prepare_content_files(rdf_graphs)

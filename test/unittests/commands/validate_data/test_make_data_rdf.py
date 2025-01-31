@@ -27,27 +27,38 @@ RESOURCE_TYPE_STR = "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverythi
 
 
 @pytest.mark.parametrize(
-    ("object", "object_type", "expected"),
+    ("trpl_obj", "object_type", "prop_type", "expected"),
     [
         (
             "label",
             TripleObjectType.STRING,
+            None,
             Literal("label", datatype=XSD.string),
         ),
         (
             RESOURCE_TYPE_STR,
             TripleObjectType.IRI,
+            None,
             URIRef(RESOURCE_TYPE_STR),
         ),
         (
             None,
             TripleObjectType.IRI,
+            None,
             Literal("", datatype=XSD.string),
+        ),
+        (
+            "res_id",
+            TripleObjectType.IRI,
+            TriplePropertyType.KNORA_STANDOFF_LINK,
+            DATA.res_id,
         ),
     ],
 )
-def test_make_one_rdflib_object(object: str | None, object_type: TripleObjectType, expected: Node) -> None:
-    result = _make_one_rdflib_object(object, object_type)
+def test_make_one_rdflib_object(
+    trpl_obj: str | None, object_type: TripleObjectType, prop_type: TriplePropertyType | None, expected: Node
+) -> None:
+    result = _make_one_rdflib_object(trpl_obj, object_type, prop_type)
     assert result == expected
 
 

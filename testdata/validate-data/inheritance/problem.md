@@ -14,7 +14,7 @@
 :Resource0 cardinality 1 for property :nonRelatedProp .
 :Resource0 cardinality 1 for property :hasText0 .
 
-:ResourceSubCls1 a owl:Class ;hasText0
+:ResourceSubCls1 a owl:Class ;
 	rdfs:subClassOf :Resource0 .
 
 :ResourceSubCls1 cardinality 1 for property :hasTextSubProp1 .

@@ -56,7 +56,7 @@ data:InstanceResourceSubCls1 a :ResourceSubCls1 ;
 
 - `dsp-tools create testdata/validate-data/inheritance/project_inheritance.json`
 
-- `dsp-tools validate testdata/validate-data/inheritance/inheritance_correct.xml`
+- `dsp-tools validate-data testdata/validate-data/inheritance/inheritance_correct.xml`
 
 -> here `inheritance_correct_for_api` will be wrong
 

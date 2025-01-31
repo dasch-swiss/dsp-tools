@@ -49,6 +49,7 @@ data:InstanceResourceSubCls1 a :ResourceSubCls1 ;
 `OntologyConstraintException: Resource class <http://0.0.0.0:3333/ontology/9990/onto/v2#ResourceSubCls1> has no cardinality for property <http://www.knora.org/ontology/9990/onto#hasText0>`
 
 -> What behaviour do we want?
+-> Why is rdfs inference not taking care of this?
 
 # Test with real data
 

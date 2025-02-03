@@ -50,6 +50,10 @@ data:InstanceResourceSubCls1 a :ResourceSubCls1 ;
 
 -> What behaviour do we want?
 -> Why is rdfs inference not taking care of this?
+        -> because this: https://github.com/dasch-swiss/dsp-api/commit/a281fd85d0abc2072bdd5c59be2e55ff1820b31a#diff-d46a45191f32cf5a76216414d1c844c8d8112a8b87cd96c36b9985496b1efd86L38
+            was disabled.
+        -> if we enable it, we need to do some major refactoring in the code that parses the results,
+as we get many false errors when checking for duplicate values
 
 # Test with real data
 

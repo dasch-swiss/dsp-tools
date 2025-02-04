@@ -14,7 +14,9 @@ from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
 
-def create_footnote_string(footnote_text: str, newline_replacement_option: NewlineReplacement.LINEBREAK) -> str:
+def create_footnote_string(
+    footnote_text: str, newline_replacement_option: NewlineReplacement = NewlineReplacement.LINEBREAK
+) -> str:
     """
     Takes the text for a footnote, and returns a string with the correct formatting.
 
@@ -40,7 +42,7 @@ def create_footnote_string(footnote_text: str, newline_replacement_option: Newli
 
 
 def create_footnote_element(
-    footnote_text: str, newline_replacement_option: NewlineReplacement.LINEBREAK
+    footnote_text: str, newline_replacement_option: NewlineReplacement = NewlineReplacement.LINEBREAK
 ) -> etree._Element:
     """
     Takes the text for a footnote, and returns an `etree.Element`

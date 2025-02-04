@@ -5,10 +5,27 @@ from typing import Any
 from typing import Iterable
 
 import regex
+from lxml import etree
 from regex import Match
 
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
+from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
+
+
+def create_footnote_string(footnote_text: str, newline_replacement_option: NewlineReplacement.LINEBREAK) -> str:
+    pass
+
+
+def create_footnote_element(
+    footnote_text: str, newline_replacement_option: NewlineReplacement.LINEBREAK
+) -> etree._Element:
+    if newline_replacement_option not in {NewlineReplacement.LINEBREAK, NewlineReplacement.NONE}:
+        raise InputError("Currently the only supported newline replacement is linebreak (<br/>) or None.")
+    if not is_nonempty_value(footnote_text):
+        raise InputError("The input value is empty.")
+    footnote_text = replace_newlines_with_tags(str(footnote_text), newline_replacement_option)
 
 
 def create_label_to_name_list_node_mapping(

@@ -7,6 +7,7 @@ from lxml import etree
 from namedentities.core import numeric_entities  # type: ignore[import-untyped]
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
+from dsp_tools.xmllib.internal_helpers import escape_reserved_xml_chars
 from dsp_tools.xmllib.models.problems import IllegalTagProblem
 
 
@@ -385,7 +386,7 @@ def check_richtext_syntax(richtext: str) -> None:
         "blockquote",
         "code",
     ]
-    escaped_text = escape_reserved_chars(richtext, allowed_tags)
+    escaped_text = escape_reserved_xml_chars(richtext, allowed_tags)
     # transform named entities (=character references) to numeric entities, e.g. &nbsp; -> &#160;
     num_ent = numeric_entities(escaped_text)
     pseudo_xml = f"<text>{num_ent}</text>"
@@ -394,27 +395,3 @@ def check_richtext_syntax(richtext: str) -> None:
     except etree.XMLSyntaxError as err:
         prob = IllegalTagProblem(orig_err_msg=err.msg, pseudo_xml=pseudo_xml)
         warnings.warn(DspToolsUserWarning(prob.execute_error_protocol()))
-
-
-def escape_reserved_chars(richtext: str, allowed_tags: list[str]) -> str:
-    """
-    This function escapes characters that are reserved in an XML.
-    The angular brackets around the allowed tags will not be escaped.
-
-    Args:
-        richtext: Text to be escaped
-        allowed_tags: tags that should remain XML tags
-
-    Returns:
-        Escaped string
-    """
-    allowed_tags_regex = "|".join(allowed_tags)
-    lookahead = rf"(?!/?({allowed_tags_regex})/?>)"
-    illegal_lt = rf"<{lookahead}"
-    lookbehind = rf"(?<!</?({allowed_tags_regex})/?)"
-    illegal_gt = rf"{lookbehind}>"
-    illegal_amp = r"&(?![#a-zA-Z0-9]+;)"
-    richtext = regex.sub(illegal_lt, "&lt;", richtext or "")
-    richtext = regex.sub(illegal_gt, "&gt;", richtext)
-    richtext = regex.sub(illegal_amp, "&amp;", richtext)
-    return richtext

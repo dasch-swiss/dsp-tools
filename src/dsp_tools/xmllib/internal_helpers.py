@@ -3,6 +3,8 @@ from __future__ import annotations
 import warnings
 from typing import Any
 
+import regex
+
 from dsp_tools.models.custom_warnings import DspToolsUserInfo
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
@@ -88,3 +90,27 @@ def check_and_fix_collection_input(value: Any, prop_name: str, res_id: str) -> l
             raise InputError(msg)
         case _:
             return [value]
+
+
+def escape_reserved_xml_chars(richtext: str, allowed_tags: list[str]) -> str:
+    """
+    This function escapes characters that are reserved in an XML.
+    The angular brackets around the allowed tags will not be escaped.
+
+    Args:
+        richtext: Text to be escaped
+        allowed_tags: tags that should remain XML tags
+
+    Returns:
+        Escaped string
+    """
+    allowed_tags_regex = "|".join(allowed_tags)
+    lookahead = rf"(?!/?({allowed_tags_regex})/?>)"
+    illegal_lt = rf"<{lookahead}"
+    lookbehind = rf"(?<!</?({allowed_tags_regex})/?)"
+    illegal_gt = rf"{lookbehind}>"
+    illegal_amp = r"&(?![#a-zA-Z0-9]+;)"
+    richtext = regex.sub(illegal_lt, "&lt;", richtext or "")
+    richtext = regex.sub(illegal_gt, "&gt;", richtext)
+    richtext = regex.sub(illegal_amp, "&amp;", richtext)
+    return richtext

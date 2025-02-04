@@ -34,8 +34,6 @@ def check_and_create_richtext_string(
     Args:
         value: richtext value
         prop_name: name of the property
-        permissions: permissions of the value
-        comment: comment for the value
         newline_replacement: the replacement for the newlines in the string
         res_id: id of the calling resource
 

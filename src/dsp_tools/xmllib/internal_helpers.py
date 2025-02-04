@@ -96,19 +96,19 @@ def check_and_fix_collection_input(value: Any, prop_name: str, res_id: str) -> l
             return [value]
 
 
-def escape_reserved_xml_chars(richtext: str, allowed_tags: list[str]) -> str:
+def escape_reserved_xml_chars(richtext: str, known_tags: list[str]) -> str:
     """
     This function escapes characters that are reserved in an XML.
     The angular brackets around the allowed tags will not be escaped.
 
     Args:
         richtext: Text to be escaped
-        allowed_tags: tags that should remain XML tags
+        known_tags: tags that should remain XML tags
 
     Returns:
         Escaped string
     """
-    allowed_tags_regex = "|".join(allowed_tags)
+    allowed_tags_regex = "|".join(known_tags)
     lookahead = rf"(?!/?({allowed_tags_regex})/?>)"
     illegal_lt = rf"<{lookahead}"
     lookbehind = rf"(?<!</?({allowed_tags_regex})/?)"

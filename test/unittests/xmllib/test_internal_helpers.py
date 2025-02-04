@@ -1,4 +1,3 @@
-
 import pytest
 
 from dsp_tools.xmllib.internal_helpers import escape_reserved_xml_chars
@@ -11,7 +10,7 @@ from dsp_tools.xmllib.internal_helpers import escape_reserved_xml_chars
         ("allowed tag <allowed>content</allowed>", "allowed tag <allowed>content</allowed>"),
         ("Ampersand &", "Ampersand &amp;"),
         ("Unknow tags <unknonw></unknonw>", "Unknow tags &lt;unknonw&gt;&lt;/unknonw&gt;"),
-        ("<text om brackets>", "&lt;text in brackets&gt;"),
+        ("<text in brackets>", "&lt;text in brackets&gt;"),
     ],
 )
 def test_escape_reserved_xml_chars(input_val: str, expected: str) -> None:

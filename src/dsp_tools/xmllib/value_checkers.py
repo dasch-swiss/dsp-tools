@@ -363,7 +363,8 @@ def check_richtext_syntax(richtext: str) -> None:
         DspToolsUserWarning: if the input contains XML syntax problems
     """
     known_tags = [  # defined at https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/
-        "a( [^>]+)?",  # <a> is the only tag that can have attributes
+        "a( [^>]+)?",  # <a> has attributes
+        "footnote( [^>]+)?",  # the footnote text is in the attributes
         "p",
         "em",
         "strong",

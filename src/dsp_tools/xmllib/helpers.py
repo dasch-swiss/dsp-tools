@@ -73,6 +73,7 @@ def create_footnote_element(
     if not is_nonempty_value(footnote_text):
         raise InputError("The input value is empty.")
     footnote_text = replace_newlines_with_tags(str(footnote_text), newline_replacement_option)
+    return etree.Element("footnote", attrib={"content": footnote_text})
 
 
 def create_label_to_name_list_node_mapping(

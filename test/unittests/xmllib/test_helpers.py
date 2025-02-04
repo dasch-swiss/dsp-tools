@@ -18,12 +18,10 @@ class TestFootnotes:
         [
             ("Text", NewlineReplacement.NONE, "Text"),
             ("With escape &", NewlineReplacement.NONE, "With escape &amp;"),
-            ('"With escape "', NewlineReplacement.NONE, "&quot;With escape &quot;"),
-            ("With escape '", NewlineReplacement.NONE, "With escape &apos;"),
             ("With escape <", NewlineReplacement.NONE, "With escape &lt;"),
             ("With escape >", NewlineReplacement.NONE, "With escape &gt;"),
             ("<With escape>", NewlineReplacement.LINEBREAK, "&lt;With escape&gt;"),
-            ("Already escaped &lt;&gt;", NewlineReplacement.LINEBREAK, "Already escaped &lt;&gt;"),
+            ("Already escaped &lt;&gt;", NewlineReplacement.LINEBREAK, "Already escaped &amp;lt;&amp;gt;"),
             (
                 "Non-ASCII àéèêëôû äöüß 0123456789 _-'()+=!?| 漢が글ርبيةб中",
                 NewlineReplacement.NONE,

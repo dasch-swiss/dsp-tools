@@ -3,6 +3,8 @@ from __future__ import annotations
 import warnings
 from typing import Any
 
+import regex
+
 from dsp_tools.models.custom_warnings import DspToolsUserInfo
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
@@ -11,6 +13,36 @@ from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.values import Richtext
 from dsp_tools.xmllib.value_checkers import is_string_like
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
+
+ALLOWED_RICHTEXT_TAGS = [
+    # defined at https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/
+    "a( [^>]+)?",  # <a> can have attributes
+    "footnote( [^>]+)?",  # <footnote> is an empty tag with the content in the attributes
+    "p",
+    "em",
+    "strong",
+    "u",
+    "sub",
+    "sup",
+    "strike",
+    "h1",
+    "ol",
+    "ul",
+    "li",
+    "tbody",
+    "table",
+    "tr",
+    "td",
+    "br",
+    "hr",
+    "pre",
+    "cite",
+    "blockquote",
+    "code",
+]
+
+
+ALLOWED_TAGS_IN_FOOTNOTES = ["br", "em", "strong", "u", "strike", "a( [^>]+)?"]
 
 
 def create_richtext_with_checks(
@@ -88,3 +120,25 @@ def check_and_fix_collection_input(value: Any, prop_name: str, res_id: str) -> l
             raise InputError(msg)
         case _:
             return [value]
+
+
+def escape_reserved_chars(richtext: str) -> str:
+    """
+
+
+    Args:
+        richtext:
+
+    Returns:
+
+    """
+    allowed_tags_regex = "|".join(ALLOWED_RICHTEXT_TAGS)
+    lookahead = rf"(?!/?({allowed_tags_regex})/?>)"
+    illegal_lt = rf"<{lookahead}"
+    lookbehind = rf"(?<!</?({allowed_tags_regex})/?)"
+    illegal_gt = rf"{lookbehind}>"
+    illegal_amp = r"&(?![#a-zA-Z0-9]+;)"
+    richtext = regex.sub(illegal_lt, "&lt;", richtext or "")
+    richtext = regex.sub(illegal_gt, "&gt;", richtext)
+    richtext = regex.sub(illegal_amp, "&amp;", richtext)
+    return richtext

@@ -361,18 +361,6 @@ def check_richtext_syntax(richtext: str) -> None:
     Warns:
         DspToolsUserWarning: if the input contains XML syntax problems
     """
-    escaped_text = _escape_reserved_chars(richtext)
-    # transform named entities (=character references) to numeric entities, e.g. &nbsp; -> &#160;
-    num_ent = numeric_entities(escaped_text)
-    pseudo_xml = f"<text>{num_ent}</text>"
-    try:
-        _ = etree.fromstring(pseudo_xml)
-    except etree.XMLSyntaxError as err:
-        prob = IllegalTagProblem(orig_err_msg=err.msg, pseudo_xml=pseudo_xml)
-        warnings.warn(DspToolsUserWarning(prob.execute_error_protocol()))
-
-
-def _escape_reserved_chars(richtext: str) -> str:
     allowed_tags = [  # defined at https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/
         "a( [^>]+)?",  # <a> is the only tag that can have attributes
         "p",
@@ -397,6 +385,29 @@ def _escape_reserved_chars(richtext: str) -> str:
         "blockquote",
         "code",
     ]
+    escaped_text = escape_reserved_chars(richtext, allowed_tags)
+    # transform named entities (=character references) to numeric entities, e.g. &nbsp; -> &#160;
+    num_ent = numeric_entities(escaped_text)
+    pseudo_xml = f"<text>{num_ent}</text>"
+    try:
+        _ = etree.fromstring(pseudo_xml)
+    except etree.XMLSyntaxError as err:
+        prob = IllegalTagProblem(orig_err_msg=err.msg, pseudo_xml=pseudo_xml)
+        warnings.warn(DspToolsUserWarning(prob.execute_error_protocol()))
+
+
+def escape_reserved_chars(richtext: str, allowed_tags: list[str]) -> str:
+    """
+    This function escapes characters that are reserved in an XML.
+    The angular brackets around the allowed tags will not be escaped.
+
+    Args:
+        richtext: Text to be escaped
+        allowed_tags: tags that should remain XML tags
+
+    Returns:
+        Escaped string
+    """
     allowed_tags_regex = "|".join(allowed_tags)
     lookahead = rf"(?!/?({allowed_tags_regex})/?>)"
     illegal_lt = rf"<{lookahead}"

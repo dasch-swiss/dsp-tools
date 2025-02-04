@@ -180,7 +180,7 @@ def find_date_in_string(string: str) -> str | None:
         - Dates written with slashes are always interpreted in a European manner: 5/11/2021 is the 5th of November.
         - In the European notation, 2-digit years are expanded to 4 digits, with the current year as watershed:
             - 30.4.24 -> 30.04.2024
-            - 30.4.25 -> 30.04.1925
+            - 30.4.50 -> 30.04.1950
 
     Currently supported date formats:
         - 0476-09-04 -> GREGORIAN:CE:0476-09-04:CE:0476-09-04

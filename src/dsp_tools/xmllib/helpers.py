@@ -9,6 +9,7 @@ from lxml import etree
 from regex import Match
 
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.xmllib.constants import KNOWN_XML_TAGS
 from dsp_tools.xmllib.internal_helpers import reverse_escaped_xml_chars
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
@@ -226,31 +227,7 @@ def escape_reserved_xml_characters(text: str) -> str:
         # result == "Text <br/> text after"
         ```
     """
-    allowed_tags = [
-        "a( [^>]+)?",  # <a> is the only tag that can have attributes
-        "p",
-        "em",
-        "strong",
-        "u",
-        "sub",
-        "sup",
-        "strike",
-        "h1",
-        "ol",
-        "ul",
-        "li",
-        "tbody",
-        "table",
-        "tr",
-        "td",
-        "br",
-        "hr",
-        "pre",
-        "cite",
-        "blockquote",
-        "code",
-    ]
-    allowed_tags_regex = "|".join(allowed_tags)
+    allowed_tags_regex = "|".join(KNOWN_XML_TAGS)
     lookahead = rf"(?!/?({allowed_tags_regex})/?>)"
     illegal_lt = rf"<{lookahead}"
     lookbehind = rf"(?<!</?({allowed_tags_regex})/?)"

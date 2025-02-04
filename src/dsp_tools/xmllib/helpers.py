@@ -20,6 +20,8 @@ def create_footnote_string(
 ) -> str:
     """
     Takes the text for a footnote, and returns a string with the correct formatting.
+    The reserved characters, `<`, `>` and `&` will be escaped.
+    Once the XML is parsed that is reversed and the escape sequence is not displayed.
 
     Attention:
         - The text in the footnote may be richtext, i.e. contain XML tags.
@@ -39,6 +41,23 @@ def create_footnote_string(
 
     Returns:
         The footnote as a string
+
+    Examples:
+        ```python
+        result = xmllib.create_footnote_string("Text")
+        # result == '<footnote content="Text"/>'
+        ```
+
+        ```python
+        result = xmllib.create_footnote_string("Text\\nSecond Line")
+        # result == '<footnote content="Text&lt;br/&gt;Second Line"/>'
+        ```
+
+        ```python
+        result = xmllib.create_footnote_string("Already escaped &lt;&gt;")
+        # already escaped characters will not be escaped again
+        # result == '<footnote content="Already escaped &lt;&gt;"/>'
+        ```
     """
     text_tag = create_footnote_element(footnote_text, newline_replacement_option)
     return etree.tostring(text_tag, encoding="unicode")

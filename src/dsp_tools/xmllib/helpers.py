@@ -23,8 +23,8 @@ def create_footnote_string(
     Takes the text for a footnote, and returns a string with the correct formatting.
     You can use this if you want to add the footnote to a string.
     Currently, the newline replacement options are restricted to `LINEBREAK` and `NONE`.
-    The reserved characters, `<`, `>` and `&` will be escaped.
-    Once the XML is parsed that is reversed and the escape sequence is not displayed.
+    The reserved characters `<`, `>` and `&` will be escaped temporarily,
+    but they will be correctly displayed in DSP-APP. 
 
     Attention:
         - The text in the footnote may be richtext, i.e. contain XML tags.
@@ -43,7 +43,7 @@ def create_footnote_string(
         newline_replacement_option: options to replace newlines
 
     Raises:
-        InputError: If the text is empty or a newline replacement which is not implemented is entered
+        InputError: If the text is empty, or if a newline replacement which is not implemented is entered
 
     Returns:
         The footnote as a string
@@ -94,7 +94,7 @@ def create_footnote_element(
         newline_replacement_option: options to replace newlines
 
     Raises:
-        InputError: If the text is empty or a newline replacement which is not implemented is entered
+        InputError: If the text is empty, or if a newline replacement which is not implemented is entered
 
     Returns:
         The footnote as a string

@@ -120,7 +120,7 @@ def escape_reserved_xml_chars(richtext: str, known_tags: list[str]) -> str:
 
 def reverse_escaped_xml_chars(richtext: str) -> str:
     """
-    This function escapes characters that are reserved in an XML.
+    This function unescapes characters that are reserved in an XML.
 
     Args:
         richtext: Text to be escaped

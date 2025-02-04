@@ -6,9 +6,24 @@ from typing import Iterable
 
 import regex
 from regex import Match
-
+from lxml import etree
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
+
+
+def create_standoff_link_to_resource(
+        resource_id: str,
+        displayed_text: str
+) -> str:
+    if not all([is_nonempty_value(resource_id), is_nonempty_value(displayed_text)]):
+        raise InputError(f"The entered resource ID and displayed text may not be empty. Your input: resource_id '{resource_id}' / displayed_text '{displayed_text}'")
+    attribs = {
+        "class": "salsah-link",
+        "href": f"IRI:{resource_id}:IRI"
+    }
+    ele = etree.Element("a", attrib=attribs)
+    ele.text = displayed_text
+    return etree.tostring(ele, encoding="unicode")
 
 
 def create_label_to_name_list_node_mapping(

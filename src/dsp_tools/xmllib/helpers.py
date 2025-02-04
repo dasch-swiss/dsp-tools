@@ -13,9 +13,31 @@ from dsp_tools.xmllib.value_checkers import is_nonempty_value
 
 
 def create_standoff_link_to_resource(resource_id: str, displayed_text: str) -> str:
+    """
+    From a resource ID and the text to display it creates a standoff tag as string.
+
+    Args:
+        resource_id: ID of the resource that is liked
+        displayed_text: text to display for the embedded link
+
+    Returns:
+        A standoff link in string form.
+
+    Raises:
+        InputError: if the resource ID or the displayed text are empty
+
+    Examples:
+        ```python
+        result = xmllib.create_standoff_link_to_resource("resource_id", "Text")
+        # result == '<a class="salsah-link" href="IRI:resource_id:IRI">Text</a>'
+        ```
+    """
     if not all([is_nonempty_value(resource_id), is_nonempty_value(displayed_text)]):
         raise InputError(
-            f"The entered resource ID and displayed text may not be empty. Your input: resource_id '{resource_id}' / displayed_text '{displayed_text}'"
+            (
+                f"The entered resource ID and displayed text may not be empty. "
+                f"Your input: resource_id '{resource_id}' / displayed_text '{displayed_text}'"
+            )
         )
     attribs = {"class": "salsah-link", "href": f"IRI:{resource_id}:IRI"}
     ele = etree.Element("a", attrib=attribs)
@@ -24,9 +46,31 @@ def create_standoff_link_to_resource(resource_id: str, displayed_text: str) -> s
 
 
 def create_standoff_link_to_uri(uri: str, displayed_text: str) -> str:
+    """
+    From a URI and the text to display it creates a standoff tag as string.
+
+    Args:
+        uri: the URI that should be embedded
+        displayed_text: text to display for the embedded link
+
+    Returns:
+        A standoff link in string form.
+
+    Raises:
+        InputError: if the URI or the displayed text are empty
+
+    Examples:
+        ```python
+        result = xmllib.create_standoff_link_to_resource("https://www.dasch.swiss/", "This is DaSCH")
+        # result == '<a href="https://www.dasch.swiss/">This is DaSCH</a>'
+        ```
+    """
     if not all([is_nonempty_value(uri), is_nonempty_value(displayed_text)]):
         raise InputError(
-            f"The entered URI and displayed text may not be empty. Your input: uri '{uri}' / displayed_text '{displayed_text}'"
+            (
+                f"The entered URI and displayed text may not be empty. "
+                f"Your input: uri '{uri}' / displayed_text '{displayed_text}'"
+            )
         )
     attribs = {"href": uri}
     ele = etree.Element("a", attrib=attribs)

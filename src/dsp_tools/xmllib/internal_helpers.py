@@ -3,26 +3,31 @@ from __future__ import annotations
 import warnings
 from typing import Any
 
+import pandas as pd
 import regex
 
 from dsp_tools.models.custom_warnings import DspToolsUserInfo
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
-from dsp_tools.xmllib.models.config_options import Permissions
-from dsp_tools.xmllib.models.values import Richtext
-from dsp_tools.xmllib.value_checkers import is_string_like
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
 
-def create_richtext_with_checks(
+def _like_string(value: Any) -> bool:
+    if pd.isna(value):
+        return False
+    value = str(value).strip()
+    if len(value) == 0:
+        return False
+    return bool(regex.search(r"\S", value, flags=regex.UNICODE))
+
+
+def check_and_create_richtext_string(
     value: Any,
     prop_name: str,
-    permissions: Permissions,
-    comment: str | None,
     newline_replacement: NewlineReplacement,
     res_id: str,
-) -> Richtext:
+) -> str:
     """
     Creates a RichtextValue with checks and optional conversions
 
@@ -44,8 +49,7 @@ def create_richtext_with_checks(
     # Values such as str(`pd.NA`) result in a non-empy string.
     # Therefore, a check must occur before the casting takes place.
     check_richtext_before_conversion(value, prop_name, res_id)
-    value = replace_newlines_with_tags(str(value), newline_replacement)
-    return Richtext(value, prop_name, permissions, comment, res_id)
+    return replace_newlines_with_tags(str(value), newline_replacement)
 
 
 def check_richtext_before_conversion(value: Any, prop_name: str, res_id: str) -> None:
@@ -57,7 +61,7 @@ def check_richtext_before_conversion(value: Any, prop_name: str, res_id: str) ->
         prop_name: Property name
         res_id: Resource ID
     """
-    if not is_string_like(value):
+    if not _like_string(value):
         msg = f"Resource '{res_id}' has a richtext value that is not a string: Value: {value} | Property: {prop_name}"
         warnings.warn(DspToolsUserWarning(msg))
 

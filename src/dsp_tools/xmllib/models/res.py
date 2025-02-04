@@ -10,8 +10,8 @@ from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.xmllib.internal_helpers import check_and_create_richtext_string
 from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
-from dsp_tools.xmllib.internal_helpers import create_richtext_with_checks
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.file_values import AbstractFileValue
@@ -26,6 +26,7 @@ from dsp_tools.xmllib.models.values import GeonameValue
 from dsp_tools.xmllib.models.values import IntValue
 from dsp_tools.xmllib.models.values import LinkValue
 from dsp_tools.xmllib.models.values import ListValue
+from dsp_tools.xmllib.models.values import Richtext
 from dsp_tools.xmllib.models.values import SimpleText
 from dsp_tools.xmllib.models.values import TimeValue
 from dsp_tools.xmllib.models.values import UriValue
@@ -1158,14 +1159,19 @@ class Resource:
             )
             ```
         """
+        checked_text = check_and_create_richtext_string(
+            value=value,
+            prop_name=prop_name,
+            newline_replacement=newline_replacement,
+            res_id=self.res_id,
+        )
         self.values.append(
-            create_richtext_with_checks(
-                value=value,
+            Richtext(
+                value=checked_text,
                 prop_name=prop_name,
                 permissions=permissions,
                 comment=comment,
-                newline_replacement=newline_replacement,
-                res_id=self.res_id,
+                resource_id=self.res_id,
             )
         )
         return self
@@ -1209,19 +1215,27 @@ class Resource:
             )
             ```
         """
-        vals = check_and_fix_collection_input(values, prop_name, self.res_id)
-        richtexts = [
-            create_richtext_with_checks(
+        checked_text = [
+            check_and_create_richtext_string(
                 value=v,
                 prop_name=prop_name,
-                permissions=permissions,
-                comment=comment,
                 newline_replacement=newline_replacement,
                 res_id=self.res_id,
             )
-            for v in vals
+            for v in values
         ]
-        self.values.extend(richtexts)
+        self.values.extend(
+            [
+                Richtext(
+                    value=v,
+                    prop_name=prop_name,
+                    permissions=permissions,
+                    comment=comment,
+                    resource_id=self.res_id,
+                )
+                for v in checked_text
+            ]
+        )
         return self
 
     def add_richtext_optional(
@@ -1271,16 +1285,7 @@ class Resource:
             ```
         """
         if is_nonempty_value(value):
-            self.values.append(
-                create_richtext_with_checks(
-                    value=value,
-                    prop_name=prop_name,
-                    permissions=permissions,
-                    comment=comment,
-                    newline_replacement=newline_replacement,
-                    res_id=self.res_id,
-                )
-            )
+            return self.add_richtext(prop_name, value, permissions, comment, newline_replacement)
         return self
 
     #######################

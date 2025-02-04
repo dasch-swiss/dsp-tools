@@ -23,6 +23,17 @@ def create_standoff_link_to_resource(resource_id: str, displayed_text: str) -> s
     return etree.tostring(ele, encoding="unicode")
 
 
+def create_standoff_link_to_uri(uri: str, displayed_text: str) -> str:
+    if not all([is_nonempty_value(uri), is_nonempty_value(displayed_text)]):
+        raise InputError(
+            f"The entered resource ID and displayed text may not be empty. Your input: uri '{uri}' / displayed_text '{displayed_text}'"
+        )
+    attribs = {"href": uri}
+    ele = etree.Element("a", attrib=attribs)
+    ele.text = displayed_text
+    return etree.tostring(ele, encoding="unicode")
+
+
 def create_label_to_name_list_node_mapping(
     project_json_path: str,
     list_name: str,

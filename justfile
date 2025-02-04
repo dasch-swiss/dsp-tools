@@ -86,10 +86,11 @@ clean:
     -find . -name .ruff_cache -exec rm -rf {} \;
     -find . -name .pytest_cache -exec rm -rf {} \;
     -find . -name .mypy_cache -exec rm -rf {} \;
-    -rm -rf *id2iri_mapping*.json
-    -rm -f warnings.log
-    -rm -rf testdata/e2e/tmp-dsp-ingest/
-    -rm -rf testdata/e2e/tmp-dsp-sipi/
-    -rm -rf testdata/e2e/ingest-db/
-    -rm -rf testdata/e2e/images/
-    -rm -f mapping-????.csv
+    -rm -rf ./*id2iri_mapping*.json
+    -rm -f ./warnings.log
+    -rm -rf ./testdata/e2e/tmp-dsp-ingest/
+    -rm -rf ./testdata/e2e/tmp-dsp-sipi/
+    -rm -rf ./testdata/e2e/ingest-db/
+    -rm -rf ./testdata/e2e/images/
+    -rm -rf ./site
+    -rm -f ./mapping-????.csv

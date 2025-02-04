@@ -6,7 +6,23 @@ import regex
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.xmllib.helpers import create_list_from_string
 from dsp_tools.xmllib.helpers import create_non_empty_list_from_string
+from dsp_tools.xmllib.helpers import create_standoff_link_to_resource
 from dsp_tools.xmllib.helpers import find_date_in_string
+
+
+def test_create_standoff_link_to_resource_success() -> None:
+    result = create_standoff_link_to_resource("id", "Text")
+    assert result == '<a class="salsah-link" href="IRI:id:IRI">Text</a>'
+
+
+def test_create_standoff_link_to_resource_id_empty() -> None:
+    with pytest.raises(InputError):
+        create_standoff_link_to_resource("", "Text")
+
+
+def test_create_standoff_link_to_resource_text_empty() -> None:
+    with pytest.raises(InputError):
+        create_standoff_link_to_resource("id", "")
 
 
 class TestFindDate:

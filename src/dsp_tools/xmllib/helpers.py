@@ -9,6 +9,7 @@ from lxml import etree
 from regex import Match
 
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.xmllib.internal_helpers import reverse_escaped_xml_chars
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
@@ -73,7 +74,8 @@ def create_footnote_element(
     if not is_nonempty_value(footnote_text):
         raise InputError("The input value is empty.")
     footnote_text = replace_newlines_with_tags(str(footnote_text), newline_replacement_option)
-    return etree.Element("footnote", attrib={"content": footnote_text})
+    unescaped_text = reverse_escaped_xml_chars(footnote_text)
+    return etree.Element("footnote", attrib={"content": unescaped_text})
 
 
 def create_label_to_name_list_node_mapping(

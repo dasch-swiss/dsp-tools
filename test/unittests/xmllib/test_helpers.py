@@ -21,7 +21,7 @@ class TestFootnotes:
             ("With escape <", NewlineReplacement.NONE, "With escape &lt;"),
             ("With escape >", NewlineReplacement.NONE, "With escape &gt;"),
             ("<With escape>", NewlineReplacement.LINEBREAK, "&lt;With escape&gt;"),
-            ("Already escaped &lt;&gt;", NewlineReplacement.LINEBREAK, "Already escaped &amp;lt;&amp;gt;"),
+            ("Already escaped &lt;&gt;", NewlineReplacement.LINEBREAK, "Already escaped &lt;&gt;"),
             (
                 "Non-ASCII àéèêëôû äöüß 0123456789 _-'()+=!?| 漢が글ርبيةб中",
                 NewlineReplacement.NONE,

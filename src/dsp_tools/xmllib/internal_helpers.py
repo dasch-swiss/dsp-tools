@@ -116,3 +116,19 @@ def escape_reserved_xml_chars(richtext: str, known_tags: list[str]) -> str:
     richtext = regex.sub(illegal_gt, "&gt;", richtext)
     richtext = regex.sub(illegal_amp, "&amp;", richtext)
     return richtext
+
+
+def reverse_escaped_xml_chars(richtext: str) -> str:
+    """
+    This function escapes characters that are reserved in an XML.
+
+    Args:
+        richtext: Text to be escaped
+
+    Returns:
+        Escaped string
+    """
+    richtext = regex.sub(r"&lt;", "<", richtext or "")
+    richtext = regex.sub(r"&gt;", ">", richtext)
+    richtext = regex.sub(r"&amp;", "&", richtext)
+    return richtext

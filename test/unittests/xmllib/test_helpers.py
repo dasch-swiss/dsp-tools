@@ -1,5 +1,6 @@
 import datetime
 
+import pandas as pd
 import pytest
 import regex
 
@@ -21,7 +22,7 @@ class TestFootnotes:
             ("With escape '", NewlineReplacement.NONE, "With escape &apos;"),
             ("With escape <", NewlineReplacement.NONE, "With escape &lt;"),
             ("With escape >", NewlineReplacement.NONE, "With escape &gt;"),
-            ("<With escape >", NewlineReplacement.NONE, "&lt;With escape&gt;"),
+            ("<With escape>", NewlineReplacement.LINEBREAK, "&lt;With escape&gt;"),
         ],
     )
     def test_create_footnote_string_correct(
@@ -32,16 +33,21 @@ class TestFootnotes:
         assert result == expected
 
     @pytest.mark.parametrize(
-        ("input_text", "newline_replacement", "expected"),
+        ("input_text", "newline_replacement", "expected_msg"),
         [
-            ("", NewlineReplacement, ""),
+            (
+                "Text",
+                NewlineReplacement.PARAGRAPH,
+                "Currently the only supported newline replacement is linebreak (<br/>) or None.",
+            ),
+            (pd.NA, NewlineReplacement.NONE, "The input value is empty."),
         ],
     )
     def test_create_footnote_string_raises(
-        self, input_text: str, newline_replacement: NewlineReplacement, expected: str
+        self, input_text: str, newline_replacement: NewlineReplacement, expected_msg: str
     ) -> None:
-        result = create_footnote_string(input_text, newline_replacement)
-        assert result == expected
+        with pytest.raises(InputError, match=regex.escape(expected_msg)):
+            create_footnote_string(input_text, newline_replacement)
 
 
 class TestFindDate:

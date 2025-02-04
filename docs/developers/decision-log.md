@@ -1,5 +1,13 @@
 # Decision Log
 
+## Future considerations for `validate-data`
+
+- Validate data is not feature complete.
+- It assumes that:
+    - `dsp-tools` does its job correctly, i.e. it does not check if the `Values` are correctly structured. 
+      If `dsp-tools` started to make mistakes they may not be found or emit very strange validation results.
+    - the `xsd` schema validation passed. Some primitive checks that the `xsd` finds are not repeated in the SHACL validation
+
 
 ## Python class structure in `validate-data`
 

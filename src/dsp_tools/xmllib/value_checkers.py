@@ -7,6 +7,8 @@ from lxml import etree
 from namedentities.core import numeric_entities  # type: ignore[import-untyped]
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
+from dsp_tools.xmllib.constants import KNOWN_XML_TAGS
+from dsp_tools.xmllib.internal_helpers import escape_reserved_xml_chars
 from dsp_tools.xmllib.models.problems import IllegalTagProblem
 
 
@@ -361,7 +363,7 @@ def check_richtext_syntax(richtext: str) -> None:
     Warns:
         DspToolsUserWarning: if the input contains XML syntax problems
     """
-    escaped_text = _escape_reserved_chars(richtext)
+    escaped_text = escape_reserved_xml_chars(richtext, KNOWN_XML_TAGS)
     # transform named entities (=character references) to numeric entities, e.g. &nbsp; -> &#160;
     num_ent = numeric_entities(escaped_text)
     pseudo_xml = f"<text>{num_ent}</text>"
@@ -370,40 +372,3 @@ def check_richtext_syntax(richtext: str) -> None:
     except etree.XMLSyntaxError as err:
         prob = IllegalTagProblem(orig_err_msg=err.msg, pseudo_xml=pseudo_xml)
         warnings.warn(DspToolsUserWarning(prob.execute_error_protocol()))
-
-
-def _escape_reserved_chars(richtext: str) -> str:
-    allowed_tags = [  # defined at https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/
-        "a( [^>]+)?",  # <a> is the only tag that can have attributes
-        "p",
-        "em",
-        "strong",
-        "u",
-        "sub",
-        "sup",
-        "strike",
-        "h1",
-        "ol",
-        "ul",
-        "li",
-        "tbody",
-        "table",
-        "tr",
-        "td",
-        "br",
-        "hr",
-        "pre",
-        "cite",
-        "blockquote",
-        "code",
-    ]
-    allowed_tags_regex = "|".join(allowed_tags)
-    lookahead = rf"(?!/?({allowed_tags_regex})/?>)"
-    illegal_lt = rf"<{lookahead}"
-    lookbehind = rf"(?<!</?({allowed_tags_regex})/?)"
-    illegal_gt = rf"{lookbehind}>"
-    illegal_amp = r"&(?![#a-zA-Z0-9]+;)"
-    richtext = regex.sub(illegal_lt, "&lt;", richtext or "")
-    richtext = regex.sub(illegal_gt, "&gt;", richtext)
-    richtext = regex.sub(illegal_amp, "&amp;", richtext)
-    return richtext

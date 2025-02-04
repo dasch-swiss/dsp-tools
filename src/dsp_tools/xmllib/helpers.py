@@ -33,7 +33,7 @@ def create_footnote_string(
             - `<em>` (italic)
             - `<u>` (underline)
             - `<strike>` (strike through)
-            - `<a href="URL">` (link to a URL)
+            - `<a href="URI">` (link to a URI)
             - `<a class="salsah-link" href="Knora IRI">` (link to a resource)
 
     Args:
@@ -80,7 +80,7 @@ def create_footnote_element(
             - `<em>` (italic)
             - `<u>` (underline)
             - `<strike>` (strike through)
-            - `<a href="URL">` (link to a URL)
+            - `<a href="URI">` (link to a URI)
             - `<a class="salsah-link" href="Knora IRI">` (link to a resource)
 
     Args:

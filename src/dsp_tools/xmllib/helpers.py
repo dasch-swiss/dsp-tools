@@ -14,7 +14,7 @@ from dsp_tools.xmllib.value_checkers import is_nonempty_value
 
 def create_standoff_link_to_resource(resource_id: str, displayed_text: str) -> str:
     """
-    From a resource ID and the text to display it creates a standoff tag as string.
+    Creates a standoff link as a string to a resource.
 
     Args:
         resource_id: ID of the resource that is liked
@@ -47,7 +47,7 @@ def create_standoff_link_to_resource(resource_id: str, displayed_text: str) -> s
 
 def create_standoff_link_to_uri(uri: str, displayed_text: str) -> str:
     """
-    From a URI and the text to display it creates a standoff tag as string.
+    Creates a standoff link to a URI.
 
     Args:
         uri: the URI that should be embedded
@@ -61,7 +61,7 @@ def create_standoff_link_to_uri(uri: str, displayed_text: str) -> str:
 
     Examples:
         ```python
-        result = xmllib.create_standoff_link_to_resource("https://www.dasch.swiss/", "This is DaSCH")
+        result = xmllib.create_standoff_link_to_uri("https://www.dasch.swiss/", "This is DaSCH")
         # result == '<a href="https://www.dasch.swiss/">This is DaSCH</a>'
         ```
     """

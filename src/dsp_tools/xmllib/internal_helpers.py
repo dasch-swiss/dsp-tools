@@ -99,7 +99,7 @@ def check_and_fix_collection_input(value: Any, prop_name: str, res_id: str) -> l
 def escape_reserved_xml_chars(richtext: str, known_tags: list[str]) -> str:
     """
     This function escapes characters that are reserved in an XML.
-    The angular brackets around the allowed tags will not be escaped.
+    The angular brackets around the known tags will not be escaped.
 
     Args:
         richtext: Text to be escaped

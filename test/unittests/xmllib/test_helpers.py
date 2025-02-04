@@ -1,12 +1,57 @@
 import datetime
 
+import pandas as pd
 import pytest
 import regex
 
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.xmllib.helpers import create_footnote_string
 from dsp_tools.xmllib.helpers import create_list_from_string
 from dsp_tools.xmllib.helpers import create_non_empty_list_from_string
 from dsp_tools.xmllib.helpers import find_date_in_string
+from dsp_tools.xmllib.models.config_options import NewlineReplacement
+
+
+class TestFootnotes:
+    @pytest.mark.parametrize(
+        ("input_text", "newline_replacement", "expected"),
+        [
+            ("Text", NewlineReplacement.NONE, "Text"),
+            ("With escape &", NewlineReplacement.NONE, "With escape &amp;"),
+            ("With escape <", NewlineReplacement.NONE, "With escape &lt;"),
+            ("With escape >", NewlineReplacement.NONE, "With escape &gt;"),
+            ("<With escape>", NewlineReplacement.LINEBREAK, "&lt;With escape&gt;"),
+            ("Already escaped &lt;&gt;", NewlineReplacement.LINEBREAK, "Already escaped &lt;&gt;"),
+            (
+                "Non-ASCII àéèêëôû äöüß 0123456789 _-'()+=!?| 漢が글ርبيةб中",
+                NewlineReplacement.NONE,
+                "Non-ASCII àéèêëôû äöüß 0123456789 _-'()+=!?| 漢が글ርبيةб中",
+            ),
+        ],
+    )
+    def test_create_footnote_string_correct(
+        self, input_text: str, newline_replacement: NewlineReplacement, expected: str
+    ) -> None:
+        result = create_footnote_string(input_text, newline_replacement)
+        expected = f'<footnote content="{expected}"/>'
+        assert result == expected
+
+    @pytest.mark.parametrize(
+        ("input_text", "newline_replacement", "expected_msg"),
+        [
+            (
+                "Text",
+                NewlineReplacement.PARAGRAPH,
+                "Currently the only supported newline replacement is linebreak (<br/>) or None.",
+            ),
+            (pd.NA, NewlineReplacement.NONE, "The input value is empty."),
+        ],
+    )
+    def test_create_footnote_string_raises(
+        self, input_text: str, newline_replacement: NewlineReplacement, expected_msg: str
+    ) -> None:
+        with pytest.raises(InputError, match=regex.escape(expected_msg)):
+            create_footnote_string(input_text, newline_replacement)
 
 
 class TestFindDate:

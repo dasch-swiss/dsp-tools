@@ -1,9 +1,11 @@
+import warnings
 from typing import Any
 
 import numpy as np
 import pandas as pd
 import pytest
 
+from dsp_tools.xmllib.value_checkers import check_richtext_syntax
 from dsp_tools.xmllib.value_checkers import is_bool_like
 from dsp_tools.xmllib.value_checkers import is_color
 from dsp_tools.xmllib.value_checkers import is_date
@@ -14,6 +16,32 @@ from dsp_tools.xmllib.value_checkers import is_geoname
 from dsp_tools.xmllib.value_checkers import is_integer
 from dsp_tools.xmllib.value_checkers import is_string_like
 from dsp_tools.xmllib.value_checkers import is_timestamp
+
+ALLOWED_RICHTEXT_TAGS = [
+    "a",
+    "p",
+    "footnote",
+    "em",
+    "strong",
+    "u",
+    "sub",
+    "sup",
+    "strike",
+    "h1",
+    "ol",
+    "ul",
+    "li",
+    "tbody",
+    "table",
+    "tr",
+    "td",
+    "br",
+    "hr",
+    "pre",
+    "cite",
+    "blockquote",
+    "code",
+]
 
 
 @pytest.mark.parametrize(
@@ -161,6 +189,29 @@ def test_is_dsp_ark_correct(val: Any) -> None:
 @pytest.mark.parametrize("val", ["http://www.example.org/prefix1/", "http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA"])
 def test_is_dsp_ark_wrong(val: Any) -> None:
     assert not is_dsp_ark(val)
+
+
+@pytest.mark.parametrize(
+    "val",
+    [f"Start Text<{tag}> middle text </{tag}> ending." for tag in ALLOWED_RICHTEXT_TAGS],
+)
+def test_check_richtext_syntax_correct(val: Any) -> None:
+    with warnings.catch_warnings(record=True) as caught_warnings:
+        check_richtext_syntax(val)
+    assert len(caught_warnings) == 0
+
+
+@pytest.mark.parametrize(
+    "val",
+    [
+        'Start <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a> ending.',
+        '<footnote content="footnote text"/>',
+    ],
+)
+def test_check_richtext_syntax_correct_special_cases(val: Any) -> None:
+    with warnings.catch_warnings(record=True) as caught_warnings:
+        check_richtext_syntax(val)
+    assert len(caught_warnings) == 0
 
 
 if __name__ == "__main__":

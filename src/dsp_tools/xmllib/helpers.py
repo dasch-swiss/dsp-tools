@@ -26,7 +26,7 @@ def create_standoff_link_to_resource(resource_id: str, displayed_text: str) -> s
 def create_standoff_link_to_uri(uri: str, displayed_text: str) -> str:
     if not all([is_nonempty_value(uri), is_nonempty_value(displayed_text)]):
         raise InputError(
-            f"The entered resource ID and displayed text may not be empty. Your input: uri '{uri}' / displayed_text '{displayed_text}'"
+            f"The entered URI and displayed text may not be empty. Your input: uri '{uri}' / displayed_text '{displayed_text}'"
         )
     attribs = {"href": uri}
     ele = etree.Element("a", attrib=attribs)

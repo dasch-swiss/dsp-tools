@@ -17,6 +17,30 @@ from dsp_tools.xmllib.value_checkers import is_integer
 from dsp_tools.xmllib.value_checkers import is_string_like
 from dsp_tools.xmllib.value_checkers import is_timestamp
 
+ALLOWED_RICHTEXT_TAGS = [
+    "p",
+    "em",
+    "strong",
+    "u",
+    "sub",
+    "sup",
+    "strike",
+    "h1",
+    "ol",
+    "ul",
+    "li",
+    "tbody",
+    "table",
+    "tr",
+    "td",
+    "br",
+    "hr",
+    "pre",
+    "cite",
+    "blockquote",
+    "code",
+]
+
 
 @pytest.mark.parametrize(
     "val", ["false", "0", "0.0", "no", "true", "1", "1.0", "yes", False, True, "oui", "JA", "non", "nein"]
@@ -167,40 +191,32 @@ def test_is_dsp_ark_wrong(val: Any) -> None:
 
 @pytest.mark.parametrize(
     "val",
-    [
-        True,
-        10.0,
-        5,
-        "2019-10-2",
-        "CE:1849:CE:1850",
-        "2019-10-23T13:45:12.1234567890123Z",
-        "2022",
-        "GREGORIAN:CE:2014-01-31",
-    ],
+    [f"Start Text<{tag}> middle text </{tag}> ending." for tag in ALLOWED_RICHTEXT_TAGS],
 )
 def test_check_richtext_syntax_correct(val: Any) -> None:
     with warnings.catch_warnings(record=True) as caught_warnings:
         check_richtext_syntax(val)
-        assert len(caught_warnings) == 0
+    assert len(caught_warnings) == 0
 
 
 @pytest.mark.parametrize(
     "val",
-    [
-        True,
-        10.0,
-        5,
-        "2019-10-2",
-        "CE:1849:CE:1850",
-        "2019-10-23T13:45:12.1234567890123Z",
-        "2022",
-        "GREGORIAN:CE:2014-01-31",
-    ],
+    ['Start <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a> ending.'],
+)
+def test_check_richtext_syntax_correct_special_cases(val: Any) -> None:
+    with warnings.catch_warnings(record=True) as caught_warnings:
+        check_richtext_syntax(val)
+    assert len(caught_warnings) == 0
+
+
+@pytest.mark.parametrize(
+    "val",
+    [f"Start Text<{tag}> no closing tag" for tag in ALLOWED_RICHTEXT_TAGS[1:]],
 )
 def test_check_richtext_syntax_warns(val: Any) -> None:
     with warnings.catch_warnings(record=True) as caught_warnings:
         check_richtext_syntax(val)
-        assert len(caught_warnings) == 0
+    assert len(caught_warnings) == 1
 
 
 if __name__ == "__main__":

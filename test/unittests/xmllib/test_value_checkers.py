@@ -1,9 +1,11 @@
+import warnings
 from typing import Any
 
 import numpy as np
 import pandas as pd
 import pytest
 
+from dsp_tools.xmllib.value_checkers import check_richtext_syntax
 from dsp_tools.xmllib.value_checkers import is_bool_like
 from dsp_tools.xmllib.value_checkers import is_color
 from dsp_tools.xmllib.value_checkers import is_date
@@ -161,6 +163,44 @@ def test_is_dsp_ark_correct(val: Any) -> None:
 @pytest.mark.parametrize("val", ["http://www.example.org/prefix1/", "http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA"])
 def test_is_dsp_ark_wrong(val: Any) -> None:
     assert not is_dsp_ark(val)
+
+
+@pytest.mark.parametrize(
+    "val",
+    [
+        True,
+        10.0,
+        5,
+        "2019-10-2",
+        "CE:1849:CE:1850",
+        "2019-10-23T13:45:12.1234567890123Z",
+        "2022",
+        "GREGORIAN:CE:2014-01-31",
+    ],
+)
+def test_check_richtext_syntax_correct(val: Any) -> None:
+    with warnings.catch_warnings(record=True) as caught_warnings:
+        check_richtext_syntax(val)
+        assert len(caught_warnings) == 0
+
+
+@pytest.mark.parametrize(
+    "val",
+    [
+        True,
+        10.0,
+        5,
+        "2019-10-2",
+        "CE:1849:CE:1850",
+        "2019-10-23T13:45:12.1234567890123Z",
+        "2022",
+        "GREGORIAN:CE:2014-01-31",
+    ],
+)
+def test_check_richtext_syntax_warns(val: Any) -> None:
+    with warnings.catch_warnings(record=True) as caught_warnings:
+        check_richtext_syntax(val)
+        assert len(caught_warnings) == 0
 
 
 if __name__ == "__main__":

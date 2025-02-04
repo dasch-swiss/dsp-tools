@@ -11,8 +11,8 @@ from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.xmllib.internal_helpers import check_and_create_richtext_string
 from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
-from dsp_tools.xmllib.internal_helpers import create_richtext_with_checks
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.geometry import Circle
@@ -279,14 +279,19 @@ class RegionResource:
             region = region.add_comment(text="comment text", comment="Comment about the comment.")
             ```
         """
+        checked_text = check_and_create_richtext_string(
+            value=text,
+            prop_name="hasComment",
+            newline_replacement=newline_replacement,
+            res_id=self.res_id,
+        )
         self.comments.append(
-            create_richtext_with_checks(
-                value=text,
+            Richtext(
+                value=checked_text,
                 prop_name="hasComment",
                 permissions=permissions,
                 comment=comment,
-                newline_replacement=newline_replacement,
-                res_id=self.res_id,
+                resource_id=self.res_id,
             )
         )
         return self
@@ -316,16 +321,24 @@ class RegionResource:
             ```
         """
         vals = check_and_fix_collection_input(texts, "hasComment", self.res_id)
-        comnts = [
-            create_richtext_with_checks(
-                value=c,
+        texts = [
+            check_and_create_richtext_string(
+                value=x,
                 prop_name="hasComment",
-                permissions=permissions,
-                comment=comment,
                 newline_replacement=newline_replacement,
                 res_id=self.res_id,
             )
-            for c in vals
+            for x in vals
+        ]
+        comnts = [
+            Richtext(
+                value=x,
+                prop_name="hasComment",
+                permissions=permissions,
+                comment=comment,
+                resource_id=self.res_id,
+            )
+            for x in texts
         ]
         self.comments.extend(comnts)
         return self
@@ -359,16 +372,7 @@ class RegionResource:
             ```
         """
         if is_nonempty_value(text):
-            self.comments.append(
-                create_richtext_with_checks(
-                    value=text,
-                    prop_name="hasComment",
-                    permissions=permissions,
-                    comment=comment,
-                    newline_replacement=newline_replacement,
-                    res_id=self.res_id,
-                )
-            )
+            return self.add_comment(text, permissions, comment, newline_replacement)
         return self
 
     def add_migration_metadata(
@@ -526,14 +530,19 @@ class LinkResource:
             link_resource = link_resource.add_comment(text="comment text", comment="Comment about the comment.")
             ```
         """
+        checked_text = check_and_create_richtext_string(
+            value=text,
+            prop_name="hasComment",
+            newline_replacement=newline_replacement,
+            res_id=self.res_id,
+        )
         self.comments.append(
-            create_richtext_with_checks(
-                value=text,
+            Richtext(
+                value=checked_text,
                 prop_name="hasComment",
                 permissions=permissions,
                 comment=comment,
-                newline_replacement=newline_replacement,
-                res_id=self.res_id,
+                resource_id=self.res_id,
             )
         )
         return self
@@ -563,16 +572,24 @@ class LinkResource:
             ```
         """
         vals = check_and_fix_collection_input(texts, "hasComment", self.res_id)
-        comnts = [
-            create_richtext_with_checks(
-                value=c,
+        texts = [
+            check_and_create_richtext_string(
+                value=x,
                 prop_name="hasComment",
-                permissions=permissions,
-                comment=comment,
                 newline_replacement=newline_replacement,
                 res_id=self.res_id,
             )
-            for c in vals
+            for x in vals
+        ]
+        comnts = [
+            Richtext(
+                value=x,
+                prop_name="hasComment",
+                permissions=permissions,
+                comment=comment,
+                resource_id=self.res_id,
+            )
+            for x in texts
         ]
         self.comments.extend(comnts)
         return self
@@ -606,16 +623,7 @@ class LinkResource:
             ```
         """
         if is_nonempty_value(text):
-            self.comments.append(
-                create_richtext_with_checks(
-                    value=text,
-                    prop_name="hasComment",
-                    permissions=permissions,
-                    comment=comment,
-                    newline_replacement=newline_replacement,
-                    res_id=self.res_id,
-                )
-            )
+            return self.add_comment(text, permissions, comment, newline_replacement)
         return self
 
     def add_migration_metadata(

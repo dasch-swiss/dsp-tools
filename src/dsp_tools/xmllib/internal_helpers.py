@@ -108,10 +108,10 @@ def escape_reserved_xml_chars(richtext: str, known_tags: list[str]) -> str:
     Returns:
         Escaped string
     """
-    allowed_tags_regex = "|".join(known_tags)
-    lookahead = rf"(?!/?({allowed_tags_regex})/?>)"
+    known_tags_regex = "|".join(known_tags)
+    lookahead = rf"(?!/?({known_tags_regex})/?>)"
     illegal_lt = rf"<{lookahead}"
-    lookbehind = rf"(?<!</?({allowed_tags_regex})/?)"
+    lookbehind = rf"(?<!</?({known_tags_regex})/?)"
     illegal_gt = rf"{lookbehind}>"
     illegal_amp = r"&(?![#a-zA-Z0-9]+;)"
     richtext = regex.sub(illegal_lt, "&lt;", richtext or "")

@@ -362,7 +362,7 @@ def check_richtext_syntax(richtext: str) -> None:
     Warns:
         DspToolsUserWarning: if the input contains XML syntax problems
     """
-    allowed_tags = [  # defined at https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/
+    known_tags = [  # defined at https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/
         "a( [^>]+)?",  # <a> is the only tag that can have attributes
         "p",
         "em",
@@ -386,7 +386,7 @@ def check_richtext_syntax(richtext: str) -> None:
         "blockquote",
         "code",
     ]
-    escaped_text = escape_reserved_xml_chars(richtext, allowed_tags)
+    escaped_text = escape_reserved_xml_chars(richtext, known_tags)
     # transform named entities (=character references) to numeric entities, e.g. &nbsp; -> &#160;
     num_ent = numeric_entities(escaped_text)
     pseudo_xml = f"<text>{num_ent}</text>"

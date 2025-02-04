@@ -15,12 +15,55 @@ from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
 
 def create_footnote_string(footnote_text: str, newline_replacement_option: NewlineReplacement.LINEBREAK) -> str:
-    pass
+    """
+    Takes the text for a footnote, and returns a string with the correct formatting.
+
+    Attention:
+        - The text in the footnote may be richtext, i.e. contain XML tags.
+        - Not all tags supported in ordinary richtext are currently implemented.
+        - The allowed tags are:
+            - `<br>` (break line)
+            - `<strong>` (bold)
+            - `<em>` (italic)
+            - `<u>` (underline)
+            - `<strike>` (strike through)
+            - `<a href="URL">` (link to a URL)
+            - `<a class="salsah-link" href="Knora IRI">` (link to a resource)
+
+    Args:
+        footnote_text: Text for the footnote
+        newline_replacement_option: options to replace newlines
+
+    Returns:
+        The footnote as a string
+    """
 
 
 def create_footnote_element(
     footnote_text: str, newline_replacement_option: NewlineReplacement.LINEBREAK
 ) -> etree._Element:
+    """
+    Takes the text for a footnote, and returns an `etree.Element`
+
+    Attention:
+        - The text in the footnote may be richtext, i.e. contain XML tags.
+        - Not all tags supported in ordinary richtext are currently implemented.
+        - The allowed tags are:
+            - `<br>` (break line)
+            - `<strong>` (bold)
+            - `<em>` (italic)
+            - `<u>` (underline)
+            - `<strike>` (strike through)
+            - `<a href="URL">` (link to a URL)
+            - `<a class="salsah-link" href="Knora IRI">` (link to a resource)
+
+    Args:
+        footnote_text: Text for the footnote
+        newline_replacement_option: options to replace newlines
+
+    Returns:
+        The footnote as a string
+    """
     if newline_replacement_option not in {NewlineReplacement.LINEBREAK, NewlineReplacement.NONE}:
         raise InputError("Currently the only supported newline replacement is linebreak (<br/>) or None.")
     if not is_nonempty_value(footnote_text):

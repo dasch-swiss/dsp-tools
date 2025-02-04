@@ -374,7 +374,8 @@ def check_richtext_syntax(richtext: str) -> None:
 
 def _escape_reserved_chars(richtext: str) -> str:
     allowed_tags = [  # defined at https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/
-        "a( [^>]+)?",  # <a> is the only tag that can have attributes
+        "a( [^>]+)?",  # <a> can have attributes
+        "footnote( [^>]+)?",  # <footnote> is an empty tag with the content in the attributes
         "p",
         "em",
         "strong",

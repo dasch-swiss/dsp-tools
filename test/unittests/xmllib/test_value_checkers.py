@@ -18,7 +18,9 @@ from dsp_tools.xmllib.value_checkers import is_string_like
 from dsp_tools.xmllib.value_checkers import is_timestamp
 
 ALLOWED_RICHTEXT_TAGS = [
+    "a",
     "p",
+    "footnote",
     "em",
     "strong",
     "u",
@@ -201,7 +203,10 @@ def test_check_richtext_syntax_correct(val: Any) -> None:
 
 @pytest.mark.parametrize(
     "val",
-    ['Start <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a> ending.'],
+    [
+        'Start <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a> ending.',
+        '<footnote content="footnote text"/>',
+    ],
 )
 def test_check_richtext_syntax_correct_special_cases(val: Any) -> None:
     with warnings.catch_warnings(record=True) as caught_warnings:
@@ -211,7 +216,7 @@ def test_check_richtext_syntax_correct_special_cases(val: Any) -> None:
 
 @pytest.mark.parametrize(
     "val",
-    [f"Start Text<{tag}> no closing tag" for tag in ALLOWED_RICHTEXT_TAGS[1:]],
+    [f"Start Text<{tag}> no closing tag" for tag in ALLOWED_RICHTEXT_TAGS],
 )
 def test_check_richtext_syntax_warns(val: Any) -> None:
     with warnings.catch_warnings(record=True) as caught_warnings:

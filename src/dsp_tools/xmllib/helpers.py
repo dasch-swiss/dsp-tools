@@ -9,7 +9,103 @@ from lxml import etree
 from regex import Match
 
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.xmllib.constants import KNOWN_XML_TAGS
+from dsp_tools.xmllib.internal_helpers import unescape_reserved_xml_chars
+from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
+from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
+
+
+def create_footnote_string(
+    footnote_text: str, newline_replacement_option: NewlineReplacement = NewlineReplacement.LINEBREAK
+) -> str:
+    """
+    Takes the text for a footnote, and returns a string with the correct formatting.
+    You can use this if you want to add the footnote to a string.
+    Currently, the newline replacement options are restricted to `LINEBREAK` and `NONE`.
+    The reserved characters `<`, `>` and `&` will be escaped temporarily,
+    but they will be correctly displayed in DSP-APP.
+
+    Attention:
+        - The text in the footnote may be richtext, i.e. contain XML tags.
+        - Not all tags supported in ordinary richtext are currently implemented.
+        - The allowed tags are:
+            - `<br>` (break line)
+            - `<strong>` (bold)
+            - `<em>` (italic)
+            - `<u>` (underline)
+            - `<strike>` (strike through)
+            - `<a href="URI">` (link to a URI)
+            - `<a class="salsah-link" href="Knora IRI">` (link to a resource)
+
+    Args:
+        footnote_text: Text for the footnote
+        newline_replacement_option: options to replace newlines
+
+    Raises:
+        InputError: If the text is empty, or if a newline replacement which is not implemented is entered
+
+    Returns:
+        The footnote as a string
+
+    Examples:
+        ```python
+        result = xmllib.create_footnote_string("Text")
+        # result == '<footnote content="Text"/>'
+        ```
+
+        ```python
+        result = xmllib.create_footnote_string("Text\\nSecond Line")
+        # result == '<footnote content="Text&lt;br/&gt;Second Line"/>'
+        ```
+
+        ```python
+        result = xmllib.create_footnote_string("Already escaped &lt;&gt;")
+        # already escaped characters will not be escaped again
+        # result == '<footnote content="Already escaped &lt;&gt;"/>'
+        ```
+    """
+    text_tag = create_footnote_element(footnote_text, newline_replacement_option)
+    return etree.tostring(text_tag, encoding="unicode")
+
+
+def create_footnote_element(
+    footnote_text: str, newline_replacement_option: NewlineReplacement = NewlineReplacement.LINEBREAK
+) -> etree._Element:
+    """
+    Takes the text for a footnote, and returns an `etree.Element`.
+    You can use this if you are working with `lxml`.
+    Currently, the newline replacement options are restricted to `LINEBREAK` and `NONE`.
+
+    Attention:
+        - The text in the footnote may be richtext, i.e. contain XML tags.
+        - Not all tags supported in ordinary richtext are currently implemented.
+        - The allowed tags are:
+            - `<br>` (break line)
+            - `<strong>` (bold)
+            - `<em>` (italic)
+            - `<u>` (underline)
+            - `<strike>` (strike through)
+            - `<a href="URI">` (link to a URI)
+            - `<a class="salsah-link" href="Knora IRI">` (link to a resource)
+
+    Args:
+        footnote_text: Text for the footnote
+        newline_replacement_option: options to replace newlines
+
+    Raises:
+        InputError: If the text is empty, or if a newline replacement which is not implemented is entered
+
+    Returns:
+        The footnote as a string
+    """
+    if newline_replacement_option not in {NewlineReplacement.LINEBREAK, NewlineReplacement.NONE}:
+        raise InputError("Currently the only supported newline replacement is linebreak (<br/>) or None.")
+    if not is_nonempty_value(footnote_text):
+        raise InputError("The input value is empty.")
+    footnote_text = replace_newlines_with_tags(str(footnote_text), newline_replacement_option)
+    unescaped_text = unescape_reserved_xml_chars(footnote_text)
+    return etree.Element("footnote", attrib={"content": unescaped_text})
 
 
 def create_standoff_link_to_resource(resource_id: str, displayed_text: str) -> str:
@@ -197,31 +293,7 @@ def escape_reserved_xml_characters(text: str) -> str:
         # result == "Text <br/> text after"
         ```
     """
-    allowed_tags = [
-        "a( [^>]+)?",  # <a> is the only tag that can have attributes
-        "p",
-        "em",
-        "strong",
-        "u",
-        "sub",
-        "sup",
-        "strike",
-        "h1",
-        "ol",
-        "ul",
-        "li",
-        "tbody",
-        "table",
-        "tr",
-        "td",
-        "br",
-        "hr",
-        "pre",
-        "cite",
-        "blockquote",
-        "code",
-    ]
-    allowed_tags_regex = "|".join(allowed_tags)
+    allowed_tags_regex = "|".join(KNOWN_XML_TAGS)
     lookahead = rf"(?!/?({allowed_tags_regex})/?>)"
     illegal_lt = rf"<{lookahead}"
     lookbehind = rf"(?<!</?({allowed_tags_regex})/?)"

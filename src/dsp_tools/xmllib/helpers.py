@@ -24,7 +24,7 @@ def create_footnote_string(
     You can use this if you want to add the footnote to a string.
     Currently, the newline replacement options are restricted to `LINEBREAK` and `NONE`.
     The reserved characters `<`, `>` and `&` will be escaped temporarily,
-    but they will be correctly displayed in DSP-APP. 
+    but they will be correctly displayed in DSP-APP.
 
     Attention:
         - The text in the footnote may be richtext, i.e. contain XML tags.

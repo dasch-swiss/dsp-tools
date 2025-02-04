@@ -9,6 +9,7 @@ from namedentities.core import numeric_entities  # type: ignore[import-untyped]
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.xmllib.models.problems import IllegalTagProblem
 
+from dsp_tools.xmllib.internal_helpers import is_string_like
 
 def is_nonempty_value(value: Any) -> bool:
     """
@@ -234,42 +235,6 @@ def is_integer(value: Any) -> bool:
             return bool(regex.search(r"^\d+$", value))
         case _:
             return False
-
-
-def is_string_like(value: Any) -> bool:
-    """
-    Checks if a value is a string.
-
-    Args:
-        value: value to check
-
-    Returns:
-        True if it is a string
-
-    Examples:
-        ```python
-        result = xmllib.is_string_like("this is a string")
-        # result == True
-        ```
-
-        ```python
-        # because numbers, floats, etc. can be converted to strings they are accepted
-
-        result = xmllib.is_string_like(1)
-        # result == True
-        ```
-
-        ```python
-        result = xmllib.is_string_like(None)
-        # result == False
-        ```
-    """
-    if pd.isna(value):
-        return False
-    value = str(value).strip()
-    if len(value) == 0:
-        return False
-    return bool(regex.search(r"\S", value, flags=regex.UNICODE))
 
 
 def is_timestamp(value: Any) -> bool:

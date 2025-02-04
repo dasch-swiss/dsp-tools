@@ -12,7 +12,6 @@ from dsp_tools.xmllib.value_checkers import is_dsp_ark
 from dsp_tools.xmllib.value_checkers import is_dsp_iri
 from dsp_tools.xmllib.value_checkers import is_geoname
 from dsp_tools.xmllib.value_checkers import is_integer
-from dsp_tools.xmllib.value_checkers import is_string_like
 from dsp_tools.xmllib.value_checkers import is_timestamp
 
 
@@ -98,16 +97,6 @@ def test_is_integer_correct(val: Any) -> None:
 @pytest.mark.parametrize("val", [1.2, "1.2", "wdasd", True, False, "1e2"])
 def test_is_integer_wrong(val: Any) -> None:
     assert not is_integer(val)
-
-
-@pytest.mark.parametrize("val", ["a", "None", "-", "1", "\n1", "עִבְרִית", "اَلْعَرَبِيَّةُ", "hello world"])
-def test_is_string_correct(val: Any) -> None:
-    assert is_string_like(val)
-
-
-@pytest.mark.parametrize("val", [None, pd.NA, "", " ", "\t \n"])
-def test_is_string_wrong(val: Any) -> None:
-    assert not is_string_like(val)
 
 
 @pytest.mark.parametrize(

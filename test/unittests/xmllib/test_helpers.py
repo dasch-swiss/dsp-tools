@@ -23,6 +23,11 @@ class TestFootnotes:
             ("With escape <", NewlineReplacement.NONE, "With escape &lt;"),
             ("With escape >", NewlineReplacement.NONE, "With escape &gt;"),
             ("<With escape>", NewlineReplacement.LINEBREAK, "&lt;With escape&gt;"),
+            (
+                "Non-ASCII àéèêëôû äöüß 0123456789 _-'()+=!?&lt;&gt;| 漢が글ርبيةб中",
+                NewlineReplacement.NONE,
+                "Non-ASCII àéèêëôû äöüß 0123456789 _-'()+=!?&lt;&gt;| 漢が글ርبيةб中",
+            ),
         ],
     )
     def test_create_footnote_string_correct(

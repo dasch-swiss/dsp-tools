@@ -39,6 +39,8 @@ def create_footnote_string(
     Returns:
         The footnote as a string
     """
+    text_tag = create_footnote_element(footnote_text, newline_replacement_option)
+    return etree.tostring(text_tag, encoding="unicode")
 
 
 def create_footnote_element(

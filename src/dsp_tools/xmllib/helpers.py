@@ -108,6 +108,72 @@ def create_footnote_element(
     return etree.Element("footnote", attrib={"content": unescaped_text})
 
 
+def create_standoff_link_to_resource(resource_id: str, displayed_text: str) -> str:
+    """
+    Creates a standoff link to a resource.
+
+    Args:
+        resource_id: ID of the resource that is linked
+        displayed_text: text to display for the embedded link
+
+    Returns:
+        A standoff link in string form.
+
+    Raises:
+        InputError: if the resource ID or the displayed text are empty
+
+    Examples:
+        ```python
+        result = xmllib.create_standoff_link_to_resource("resource_id", "Text")
+        # result == '<a class="salsah-link" href="IRI:resource_id:IRI">Text</a>'
+        ```
+    """
+    if not all([is_nonempty_value(resource_id), is_nonempty_value(displayed_text)]):
+        raise InputError(
+            (
+                f"The entered resource ID and displayed text may not be empty. "
+                f"Your input: resource_id '{resource_id}' / displayed_text '{displayed_text}'"
+            )
+        )
+    attribs = {"class": "salsah-link", "href": f"IRI:{resource_id}:IRI"}
+    ele = etree.Element("a", attrib=attribs)
+    ele.text = displayed_text
+    return etree.tostring(ele, encoding="unicode")
+
+
+def create_standoff_link_to_uri(uri: str, displayed_text: str) -> str:
+    """
+    Creates a standoff link to a URI.
+
+    Args:
+        uri: the target URI that should be linked to
+        displayed_text: text to display for the embedded link
+
+    Returns:
+        A standoff link in string form.
+
+    Raises:
+        InputError: if the URI or the displayed text are empty
+
+    Examples:
+        ```python
+        result = xmllib.create_standoff_link_to_uri("https://www.dasch.swiss/", "This is DaSCH")
+        # result == '<a href="https://www.dasch.swiss/">This is DaSCH</a>'
+        ```
+    """
+    if not all([is_nonempty_value(uri), is_nonempty_value(displayed_text)]):
+        raise InputError(
+            (
+                f"The entered URI and displayed text may not be empty. "
+                f"Your input: uri '{uri}' / displayed_text '{displayed_text}'"
+            )
+        )
+    attribs = {"href": uri}
+    ele = etree.Element("a", attrib=attribs)
+    ele.text = displayed_text
+    return etree.tostring(ele, encoding="unicode")
+
+
 def create_label_to_name_list_node_mapping(
     project_json_path: str,
     list_name: str,

@@ -8,6 +8,8 @@ from dsp_tools.models.exceptions import InputError
 from dsp_tools.xmllib.helpers import create_footnote_string
 from dsp_tools.xmllib.helpers import create_list_from_string
 from dsp_tools.xmllib.helpers import create_non_empty_list_from_string
+from dsp_tools.xmllib.helpers import create_standoff_link_to_resource
+from dsp_tools.xmllib.helpers import create_standoff_link_to_uri
 from dsp_tools.xmllib.helpers import find_date_in_string
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 
@@ -52,6 +54,36 @@ class TestFootnotes:
     ) -> None:
         with pytest.raises(InputError, match=regex.escape(expected_msg)):
             create_footnote_string(input_text, newline_replacement)
+
+
+def test_create_standoff_link_to_resource_success() -> None:
+    result = create_standoff_link_to_resource("id", "Text")
+    assert result == '<a class="salsah-link" href="IRI:id:IRI">Text</a>'
+
+
+def test_create_standoff_link_to_resource_id_empty() -> None:
+    with pytest.raises(InputError):
+        create_standoff_link_to_resource("", "Text")
+
+
+def test_create_standoff_link_to_resource_text_empty() -> None:
+    with pytest.raises(InputError):
+        create_standoff_link_to_resource("id", "")
+
+
+def test_create_standoff_link_to_uri_success() -> None:
+    result = create_standoff_link_to_uri("https://uri.ch", "Text")
+    assert result == '<a href="https://uri.ch">Text</a>'
+
+
+def test_create_standoff_link_to_uri_empty() -> None:
+    with pytest.raises(InputError):
+        create_standoff_link_to_uri("", "Text")
+
+
+def test_create_standoff_link_to_uri_text_empty() -> None:
+    with pytest.raises(InputError):
+        create_standoff_link_to_uri("https://uri.ch", "")
 
 
 class TestFindDate:

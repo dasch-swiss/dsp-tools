@@ -110,10 +110,10 @@ def create_footnote_element(
 
 def create_standoff_link_to_resource(resource_id: str, displayed_text: str) -> str:
     """
-    Creates a standoff link as a string to a resource.
+    Creates a standoff link to a resource.
 
     Args:
-        resource_id: ID of the resource that is liked
+        resource_id: ID of the resource that is linked
         displayed_text: text to display for the embedded link
 
     Returns:
@@ -146,7 +146,7 @@ def create_standoff_link_to_uri(uri: str, displayed_text: str) -> str:
     Creates a standoff link to a URI.
 
     Args:
-        uri: the URI that should be embedded
+        uri: the target URI that should be linked to
         displayed_text: text to display for the embedded link
 
     Returns:

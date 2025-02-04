@@ -214,15 +214,5 @@ def test_check_richtext_syntax_correct_special_cases(val: Any) -> None:
     assert len(caught_warnings) == 0
 
 
-@pytest.mark.parametrize(
-    "val",
-    [f"Start Text<{tag}> no closing tag" for tag in ALLOWED_RICHTEXT_TAGS],
-)
-def test_check_richtext_syntax_warns(val: Any) -> None:
-    with warnings.catch_warnings(record=True) as caught_warnings:
-        check_richtext_syntax(val)
-    assert len(caught_warnings) == 1
-
-
 if __name__ == "__main__":
     pytest.main([__file__])

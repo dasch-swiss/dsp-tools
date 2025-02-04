@@ -7,14 +7,14 @@ from dsp_tools.xmllib.internal_helpers import escape_reserved_xml_chars
     ("input_val", "expected"),
     [
         ("Text no escape", "Text no escape"),
-        ("allowed tag <allowed>content</allowed>", "allowed tag <allowed>content</allowed>"),
+        ("known tag <known>content</known>", "known tag <known>content</known>"),
         ("Ampersand &", "Ampersand &amp;"),
         ("Unknow tags <unknonw></unknonw>", "Unknow tags &lt;unknonw&gt;&lt;/unknonw&gt;"),
         ("<text in brackets>", "&lt;text in brackets&gt;"),
     ],
 )
 def test_escape_reserved_xml_chars(input_val: str, expected: str) -> None:
-    result = escape_reserved_xml_chars(input_val, ["allowed"])
+    result = escape_reserved_xml_chars(input_val, ["known"])
     assert result == expected
 
 

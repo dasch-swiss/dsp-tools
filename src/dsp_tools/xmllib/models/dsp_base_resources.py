@@ -13,6 +13,7 @@ from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
 from dsp_tools.xmllib.internal_helpers import create_richtext_with_checks
+from dsp_tools.xmllib.internal_helpers import is_string_like
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.geometry import Circle
@@ -29,7 +30,6 @@ from dsp_tools.xmllib.models.values import Value
 from dsp_tools.xmllib.serialise.serialise_values import serialise_values
 from dsp_tools.xmllib.value_checkers import is_decimal
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
-from dsp_tools.xmllib.value_checkers import is_string_like
 
 # ruff: noqa: D101, D102
 

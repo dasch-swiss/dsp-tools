@@ -7,9 +7,9 @@ from lxml import etree
 from namedentities.core import numeric_entities  # type: ignore[import-untyped]
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
+from dsp_tools.xmllib.internal_helpers import is_string_like as is_string_like
 from dsp_tools.xmllib.models.problems import IllegalTagProblem
 
-from dsp_tools.xmllib.internal_helpers import is_string_like
 
 def is_nonempty_value(value: Any) -> bool:
     """

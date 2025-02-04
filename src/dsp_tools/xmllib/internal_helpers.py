@@ -3,13 +3,15 @@ from __future__ import annotations
 import warnings
 from typing import Any
 
+import pandas as pd
+import regex
+
 from dsp_tools.models.custom_warnings import DspToolsUserInfo
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.values import Richtext
-from dsp_tools.xmllib.value_checkers import is_string_like
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
 
@@ -88,3 +90,39 @@ def check_and_fix_collection_input(value: Any, prop_name: str, res_id: str) -> l
             raise InputError(msg)
         case _:
             return [value]
+
+
+def is_string_like(value: Any) -> bool:
+    """
+    Checks if a value is a string.
+
+    Args:
+        value: value to check
+
+    Returns:
+        True if it is a string
+
+    Examples:
+        ```python
+        result = xmllib.is_string_like("this is a string")
+        # result == True
+        ```
+
+        ```python
+        # because numbers, floats, etc. can be converted to strings they are accepted
+
+        result = xmllib.is_string_like(1)
+        # result == True
+        ```
+
+        ```python
+        result = xmllib.is_string_like(None)
+        # result == False
+        ```
+    """
+    if pd.isna(value):
+        return False
+    value = str(value).strip()
+    if len(value) == 0:
+        return False
+    return bool(regex.search(r"\S", value, flags=regex.UNICODE))

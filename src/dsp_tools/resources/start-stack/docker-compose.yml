@@ -64,7 +64,7 @@ services:
   ingest:
     # on the verge of every deployment (fortnightly), update the "image" value from the "ingest" value of
     # https://github.com/dasch-swiss/ops-deploy/blob/main/versions/RELEASE.json
-    image: daschswiss/dsp-ingest:v0.17.0
+    image: daschswiss/dsp-ingest:v0.18.1
     ports:
       - "3340:3340"
     volumes:

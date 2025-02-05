@@ -473,11 +473,6 @@ class InputProblem:
     res_type: str
     prop_name: str
     problem_type: ProblemType
-    problem_details: ProblemDetails | None = None
-
-
-@dataclass
-class ProblemDetails:
     message: str | None = None
     actual_input: str | None = None
     actual_input_type: str | None = None
@@ -491,7 +486,7 @@ class ProblemType(Enum):
     MIN_CARD = "Minimum Cardinality Violation"
     NON_EXISTING_CARD = "The resource class does not have a cardinality for this property."
     FILE_VALUE_PROHIBITED = "A file was added to the resource. This resource type must not have a file."
-    VALUE_TYPE = "Value Type Mismatch"
+    VALUE_TYPE_MISMATCH = "Value Type Mismatch"
     INPUT_REGEX = "Wrong Format of Input"
     LINK_TARGET_TYPE_MISMATCH = "Linked Resource Type Mismatch"
     INEXISTENT_LINKED_RESOURCE = "Linked Resource does not exist"

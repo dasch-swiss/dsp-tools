@@ -1,5 +1,40 @@
 # Changelog
 
+## [10.3.0](https://github.com/dasch-swiss/dsp-tools/compare/v10.2.0...v10.3.0) (2025-02-05)
+
+
+### Enhancements
+
+* **start-stack:** remove special docker compose for validation (DEV-4548) ([#1386](https://github.com/dasch-swiss/dsp-tools/issues/1386)) ([a0f8116](https://github.com/dasch-swiss/dsp-tools/commit/a0f8116150e3185b8bae6b0feb3895c349c28d83))
+* **validate-data:** add `AudioSegment` and `VideoSegment` (DEV-4464) ([#1384](https://github.com/dasch-swiss/dsp-tools/issues/1384)) ([0106a35](https://github.com/dasch-swiss/dsp-tools/commit/0106a351f0f69ea250b974b63cf2f8b8e47740ea))
+* **validate-data:** add permissions cardinalities (DEV-4528) ([#1381](https://github.com/dasch-swiss/dsp-tools/issues/1381)) ([2534792](https://github.com/dasch-swiss/dsp-tools/commit/2534792f4dd1979b76c24d41125210f7c78dd4db))
+* **validate-data:** validate target of stand-off links (DEV-4443) ([#1392](https://github.com/dasch-swiss/dsp-tools/issues/1392)) ([b37d43c](https://github.com/dasch-swiss/dsp-tools/commit/b37d43cfb08c3a9fc297ec64a0ae39b2f1f7f0f9))
+* **xmllib:** add footnotes helper functions (DEV-4561) ([#1398](https://github.com/dasch-swiss/dsp-tools/issues/1398)) ([c53aca8](https://github.com/dasch-swiss/dsp-tools/commit/c53aca8060852aaecf4730387146cceb715a7c9a))
+* **xmllib:** add helper function to create standoff link tags (DEV-4563) ([#1401](https://github.com/dasch-swiss/dsp-tools/issues/1401)) ([5714ba4](https://github.com/dasch-swiss/dsp-tools/commit/5714ba4a09cd6190ed89e59060b0ad2319e96c40))
+
+
+### Bug Fixes
+
+* **validate-data:** add correct query parameter for requesting lists (DEV-4550) ([#1388](https://github.com/dasch-swiss/dsp-tools/issues/1388)) ([443a8da](https://github.com/dasch-swiss/dsp-tools/commit/443a8da135017a0975b9b1cd819f0a03ba539941))
+* **validate-data:** include LinkValueProperty in knora-subset and remove witespaces (DEV-4547) ([#1385](https://github.com/dasch-swiss/dsp-tools/issues/1385)) ([28699b6](https://github.com/dasch-swiss/dsp-tools/commit/28699b6dc78168d350ecf8d83f1bcdb831bdad08))
+
+
+### Maintenance
+
+* `just clean` removes also built documentation site ([#1402](https://github.com/dasch-swiss/dsp-tools/issues/1402)) ([9c9045d](https://github.com/dasch-swiss/dsp-tools/commit/9c9045de390a7bd5313b460a13b49856f8b7a78e))
+* bump dsp-ingest to v0.18.1 ([#1403](https://github.com/dasch-swiss/dsp-tools/issues/1403)) ([cd01da7](https://github.com/dasch-swiss/dsp-tools/commit/cd01da7f0bea32ed0e7957844f81b3f4b804ad68))
+* bump versions for 2025.02.01 ([#1394](https://github.com/dasch-swiss/dsp-tools/issues/1394)) ([dce7910](https://github.com/dasch-swiss/dsp-tools/commit/dce7910f6be638ae2a7d4d882af81526e78f676f))
+* bump versions for 2025.02.01 [#2](https://github.com/dasch-swiss/dsp-tools/issues/2) ([#1397](https://github.com/dasch-swiss/dsp-tools/issues/1397)) ([7719419](https://github.com/dasch-swiss/dsp-tools/commit/771941993e235df37c84fe1135b880307dbb8b69))
+* revert to previous version ([#1395](https://github.com/dasch-swiss/dsp-tools/issues/1395)) ([fd497ce](https://github.com/dasch-swiss/dsp-tools/commit/fd497ce2952de56c63c98f70da2261f8ad7b727d))
+* Update uv.lock after new release ([#1382](https://github.com/dasch-swiss/dsp-tools/issues/1382)) ([60a963c](https://github.com/dasch-swiss/dsp-tools/commit/60a963cd51ca9ab9f5906d0df13b4a9a1a11de3f))
+* **xmllib:** generalise escape reserved characters function ([#1400](https://github.com/dasch-swiss/dsp-tools/issues/1400)) ([2e57f4b](https://github.com/dasch-swiss/dsp-tools/commit/2e57f4b447026d134ac8ea3c025d0e68a6ad7035))
+
+
+### Documentation
+
+* **validate-data:** final notes of MVP ([#1396](https://github.com/dasch-swiss/dsp-tools/issues/1396)) ([4385d47](https://github.com/dasch-swiss/dsp-tools/commit/4385d4746207ad5b000378fe821b7e46332ad511))
+* **validate-data:** write documentation (DEV-4532) ([#1387](https://github.com/dasch-swiss/dsp-tools/issues/1387)) ([30f822a](https://github.com/dasch-swiss/dsp-tools/commit/30f822ad7aca12e5b49343ed0e6a6d8aeaa2cbd7))
+
 ## [10.2.0](https://github.com/dasch-swiss/dsp-tools/compare/v10.1.1...v10.2.0) (2025-01-23)
 
 

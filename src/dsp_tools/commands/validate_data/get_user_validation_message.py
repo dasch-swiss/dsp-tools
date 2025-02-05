@@ -1,8 +1,24 @@
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
-
+from collections import defaultdict
 
 def get_user_message(problems: list[InputProblem]):
     pass
+
+
+
+
+def _group_problems_by_resource(problems: list[InputProblem]) -> dict[str: list[InputProblem]]:
+    grouped_res = defaultdict(list)
+    for prob in problems:
+        grouped_res[prob.res_id].append(prob)
+    return grouped_res
+
+
+def _get_message_with_properties(problems: list[InputProblem]) -> str:
+    messages = defaultdict(list)
+    for prob in problems:
+        messages[prob.prop_name].append(_get_message_detail_str(prob))
+
 
 
 def _get_message_details_dict(problem: InputProblem) -> dict[str, str]:

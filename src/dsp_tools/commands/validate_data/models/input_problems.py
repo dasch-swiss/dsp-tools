@@ -7,7 +7,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-
+from enum import Enum
 import pandas as pd
 from rdflib import Graph
 
@@ -412,7 +412,7 @@ class LinkedResourceDoesNotExistProblem(InputProblem):
 
     @property
     def problem(self) -> str:
-        return "Linked Resource does not Exist"
+        return "Linked Resource does not exist"
 
     def get_msg(self) -> str:
         return f"{self.problem}, Target Resource ID: '{self.link_target_id}'"
@@ -464,3 +464,33 @@ class FileValueProblem(InputProblem):
 
     def sort_value(self) -> str:
         return self.prop_name
+
+
+@dataclass
+class InputProblem:
+    res_id: str
+    res_type: str
+    prop_name: str
+    problem_type: ProblemType
+    problem_details: ProblemDetails | None = None
+
+@dataclass
+class ProblemDetails:
+    message: str | None = None
+    actual_input: str | None = None
+    actual_input_type: str | None = None
+    expected: str | None = None
+
+
+class ProblemType(Enum):
+    GENERIC = ""
+    FILE_VALUE = ""
+    MAX_CARD = "Maximum Cardinality Violation"
+    MIN_CARD = "Minimum Cardinality Violation"
+    NON_EXISTING_CARD = "The resource class does not have a cardinality for this property."
+    FILE_VALUE_PROHIBITED = "A file was added to the resource. This resource type must not have a file."
+    VALUE_TYPE = "Value Type Mismatch"
+    INPUT_REGEX = "Wrong Format of Input"
+    LINK_TARGET_TYPE_MISMATCH = "Linked Resource Type Mismatch"
+    INEXISTENT_LINKED_RESOURCE = "Linked Resource does not exist"
+    DUPLICATE_VALUE = "Your input is duplicated"

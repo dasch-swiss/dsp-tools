@@ -6,8 +6,9 @@ from abc import abstractmethod
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime
-from pathlib import Path
 from enum import Enum
+from pathlib import Path
+
 import pandas as pd
 from rdflib import Graph
 
@@ -103,7 +104,7 @@ class UnexpectedResults:
 
 @dataclass
 class AllProblems:
-    problems: list[InputProblem]
+    problems: list[InputProblemABC]
     unexpected_results: UnexpectedResults | None
 
     def get_msg(self, file_path: Path) -> str:
@@ -139,7 +140,7 @@ class AllProblems:
 @dataclass
 class ResourceProblemCollection:
     res_id: str
-    problems: list[InputProblem]
+    problems: list[InputProblemABC]
 
     def get_msg(self) -> str:
         prop_msg = self._msg_for_properties()
@@ -154,7 +155,7 @@ class ResourceProblemCollection:
         sorted_list = sorted(out_list, key=lambda x: x[0])
         return "\n".join([x[1] for x in sorted_list])
 
-    def _make_collection(self) -> dict[str, list[InputProblem]]:
+    def _make_collection(self) -> dict[str, list[InputProblemABC]]:
         grouped_dict = defaultdict(list)
         for problem in self.problems:
             grouped_dict[problem.sort_value()].append(problem)
@@ -165,7 +166,7 @@ class ResourceProblemCollection:
 
 
 @dataclass
-class InputProblem(ABC):
+class InputProblemABC(ABC):
     res_id: str
     res_type: str
     prop_name: str
@@ -197,7 +198,7 @@ class InputProblem(ABC):
 
 
 @dataclass
-class GenericProblemWithInput(InputProblem):
+class GenericProblemWithInput(InputProblemABC):
     results_message: str
     actual_input: str
 
@@ -222,7 +223,7 @@ class GenericProblemWithInput(InputProblem):
 
 
 @dataclass
-class GenericProblemWithMessage(InputProblem):
+class GenericProblemWithMessage(InputProblemABC):
     results_message: str
 
     @property
@@ -245,7 +246,7 @@ class GenericProblemWithMessage(InputProblem):
 
 
 @dataclass
-class MaxCardinalityProblem(InputProblem):
+class MaxCardinalityProblem(InputProblemABC):
     expected_cardinality: str
 
     @property
@@ -265,7 +266,7 @@ class MaxCardinalityProblem(InputProblem):
 
 
 @dataclass
-class MinCardinalityProblem(InputProblem):
+class MinCardinalityProblem(InputProblemABC):
     expected_cardinality: str
 
     @property
@@ -285,7 +286,7 @@ class MinCardinalityProblem(InputProblem):
 
 
 @dataclass
-class NonExistentCardinalityProblem(InputProblem):
+class NonExistentCardinalityProblem(InputProblemABC):
     @property
     def problem(self) -> str:
         return "The resource class does not have a cardinality for this property."
@@ -301,7 +302,7 @@ class NonExistentCardinalityProblem(InputProblem):
 
 
 @dataclass
-class FileValueNotAllowedProblem(InputProblem):
+class FileValueNotAllowedProblem(InputProblemABC):
     @property
     def problem(self) -> str:
         return "A file was added to the resource. This resource type must not have a file."
@@ -321,7 +322,7 @@ class FileValueNotAllowedProblem(InputProblem):
 
 
 @dataclass
-class ValueTypeProblem(InputProblem):
+class ValueTypeProblem(InputProblemABC):
     actual_type: str
     expected_type: str
 
@@ -347,7 +348,7 @@ class ValueTypeProblem(InputProblem):
 
 
 @dataclass
-class InputRegexProblem(InputProblem):
+class InputRegexProblem(InputProblemABC):
     expected_format: str
     actual_input: str | None
 
@@ -380,7 +381,7 @@ class InputRegexProblem(InputProblem):
 
 
 @dataclass
-class LinkTargetTypeMismatchProblem(InputProblem):
+class LinkTargetTypeMismatchProblem(InputProblemABC):
     link_target_id: str
     actual_type: str
     expected_type: str
@@ -407,7 +408,7 @@ class LinkTargetTypeMismatchProblem(InputProblem):
 
 
 @dataclass
-class LinkedResourceDoesNotExistProblem(InputProblem):
+class LinkedResourceDoesNotExistProblem(InputProblemABC):
     link_target_id: str
 
     @property
@@ -427,7 +428,7 @@ class LinkedResourceDoesNotExistProblem(InputProblem):
 
 
 @dataclass
-class DuplicateValueProblem(InputProblem):
+class DuplicateValueProblem(InputProblemABC):
     actual_input: str
 
     @property
@@ -447,7 +448,7 @@ class DuplicateValueProblem(InputProblem):
 
 
 @dataclass
-class FileValueProblem(InputProblem):
+class FileValueProblem(InputProblemABC):
     expected: str
 
     @property
@@ -474,6 +475,7 @@ class InputProblem:
     problem_type: ProblemType
     problem_details: ProblemDetails | None = None
 
+
 @dataclass
 class ProblemDetails:
     message: str | None = None
@@ -483,8 +485,8 @@ class ProblemDetails:
 
 
 class ProblemType(Enum):
-    GENERIC = ""
-    FILE_VALUE = ""
+    GENERIC = "generic"
+    FILE_VALUE = "file problem"
     MAX_CARD = "Maximum Cardinality Violation"
     MIN_CARD = "Minimum Cardinality Violation"
     NON_EXISTING_CARD = "The resource class does not have a cardinality for this property."

@@ -19,7 +19,7 @@ from dsp_tools.commands.validate_data.models.input_problems import FileValueNotA
 from dsp_tools.commands.validate_data.models.input_problems import FileValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import GenericProblemWithInput
 from dsp_tools.commands.validate_data.models.input_problems import GenericProblemWithMessage
-from dsp_tools.commands.validate_data.models.input_problems import InputProblem
+from dsp_tools.commands.validate_data.models.input_problems import InputProblemABC
 from dsp_tools.commands.validate_data.models.input_problems import InputRegexProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
 from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
@@ -71,7 +71,7 @@ def reformat_validation_graph(report: ValidationReportGraphs) -> AllProblems:
     results_and_onto = report.validation_graph + report.onto_graph
     data_and_onto = report.onto_graph + report.data_graph
     validation_results, unexpected_extracted = _query_all_results(results_and_onto, data_and_onto)
-    reformatted_results: list[InputProblem] = _reformat_extracted_results(validation_results)
+    reformatted_results: list[InputProblemABC] = _reformat_extracted_results(validation_results)
 
     unexpected_found = UnexpectedResults(unexpected_extracted) if unexpected_extracted else None
     return AllProblems(reformatted_results, unexpected_found)
@@ -413,12 +413,12 @@ def _query_for_unique_value_violation(
     )
 
 
-def _reformat_extracted_results(results: list[ValidationResult]) -> list[InputProblem]:
-    all_reformatted: list[InputProblem] = [_reformat_one_validation_result(x) for x in results]
+def _reformat_extracted_results(results: list[ValidationResult]) -> list[InputProblemABC]:
+    all_reformatted: list[InputProblemABC] = [_reformat_one_validation_result(x) for x in results]
     return all_reformatted
 
 
-def _reformat_one_validation_result(validation_result: ValidationResult) -> InputProblem:  # noqa: PLR0911 Too many return statements
+def _reformat_one_validation_result(validation_result: ValidationResult) -> InputProblemABC:  # noqa: PLR0911 Too many return statements
     match validation_result:
         case ResultMaxCardinalityViolation() | ResultMinCardinalityViolation() as violation:
             problem = result_to_problem_mapper[type(violation)]
@@ -476,8 +476,8 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
 
 def _reformat_with_prop_and_message(
     result: ResultMaxCardinalityViolation | ResultMinCardinalityViolation,
-    problem_type: Callable[[str, str, str, str], InputProblem],
-) -> InputProblem:
+    problem_type: Callable[[str, str, str, str], InputProblemABC],
+) -> InputProblemABC:
     iris = _reformat_main_iris(result)
     return problem_type(
         iris.res_id,
@@ -513,7 +513,7 @@ def _reformat_pattern_violation_result(result: ResultPatternViolation) -> InputR
     )
 
 
-def _reformat_link_target_violation_result(result: ResultLinkTargetViolation) -> InputProblem:
+def _reformat_link_target_violation_result(result: ResultLinkTargetViolation) -> InputProblemABC:
     iris = _reformat_main_iris(result)
     target_id = reformat_data_iri(result.target_iri)
     if not result.target_resource_type:

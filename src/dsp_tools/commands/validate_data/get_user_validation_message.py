@@ -1,17 +1,28 @@
-from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from collections import defaultdict
 
-def get_user_message(problems: list[InputProblem]):
-    pass
+from dsp_tools.commands.validate_data.models.input_problems import InputProblem
+
+LIST_SEPARATOR = "\n    - "
+GRAND_SEPARATOR = "\n\n----------------------------\n"
 
 
+def get_user_print_message(problems: list[InputProblem]) -> str:
+    grouped_problems = _group_problems_by_resource(problems)
+    messages = [_get_message_for_one_resource(v) for v in grouped_problems.values()]
+    return GRAND_SEPARATOR.join(messages)
 
 
-def _group_problems_by_resource(problems: list[InputProblem]) -> dict[str: list[InputProblem]]:
+def _group_problems_by_resource(problems: list[InputProblem]) -> dict[str : list[InputProblem]]:
     grouped_res = defaultdict(list)
     for prob in problems:
         grouped_res[prob.res_id].append(prob)
     return grouped_res
+
+
+def _get_message_for_one_resource(problems: list[InputProblem]) -> str:
+    start_msg = f"Resource ID: {problems[0].res_id} | Resource Type: {problems[0].res_type}"
+    prop_messages = _get_message_with_properties(problems)
+    return f"{start_msg}\n{prop_messages}"
 
 
 def _get_message_with_properties(problems: list[InputProblem]) -> str:
@@ -19,6 +30,10 @@ def _get_message_with_properties(problems: list[InputProblem]) -> str:
     for prob in problems:
         messages[prob.prop_name].append(_get_message_detail_str(prob))
 
+    def format_msg(propname: str, msg: list[str]) -> str:
+        return f"{propname}{LIST_SEPARATOR}{LIST_SEPARATOR.join(msg)}"
+
+    return "\n".join([format_msg(k, v) for k, v in messages.items()])
 
 
 def _get_message_details_dict(problem: InputProblem) -> dict[str, str]:

@@ -40,7 +40,7 @@ def test_get_message_for_one_resource_file_value(file_value: InputProblem) -> No
     expected = (
         "Resource ID: res_id | Resource Type: onto:Class\n"
         "bitstream / iiif-uri\n"
-        "    - Expected: A MovingImageRepresentation requires a file with the extension 'mp4'."
+        "    - Expected : A MovingImageRepresentation requires a file with the extension 'mp4'."
     )
     assert result == expected
 

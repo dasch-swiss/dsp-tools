@@ -69,22 +69,22 @@ def _get_message_detail_str(problem: InputProblem) -> str:
     if problem.actual_input_type:
         msg.append(f"Actual input type: '{problem.actual_input_type}'")
     if problem.expected:
-        msg.append(_format_expected_input(problem.expected, problem.problem_type))
+        msg.append(f"Expected {_format_expected_input(problem.expected, problem.problem_type)}")
     return " | ".join(msg)
 
 
-def _format_expected_input(expected: str, problem_type: ProblemType) -> str:
+def _format_expected_input(expected: str | None, problem_type: ProblemType) -> str:
     match problem_type:
         case ProblemType.MIN_CARD | ProblemType.MAX_CARD:
-            return f"Expected Cardinality: '{expected}'"
+            return f"Cardinality: '{expected}'"
         case ProblemType.VALUE_TYPE_MISMATCH:
-            return f"Expected Value Type: '{expected}'"
+            return f"Value Type: '{expected}'"
         case ProblemType.INPUT_REGEX:
-            return f"Expected Input Format: {expected}"
+            return f"Input Format: {expected}"
         case ProblemType.LINK_TARGET_TYPE_MISMATCH:
-            return f"Expected Resource Type: {expected} or a subclass"
+            return f"Resource Type: {expected} or a subclass"
         case _:
-            return f"Expected: {expected}"
+            return f": {expected}"
 
 
 def _save_problem_info_as_csv(problems: list[InputProblem], file_path: Path) -> str:
@@ -104,9 +104,11 @@ def _get_message_dict(problem: InputProblem) -> dict[str, str]:
         "Problem": problem.message,
         "Your Input": _shorten_input(problem.actual_input),
         "Input Type": problem.actual_input_type,
-        "Expected": problem.expected,
     }
-    return {k: v for k, v in msg_dict.items() if v}
+    msg_dict = {k: v for k, v in msg_dict.items() if v}
+    if problem.expected:
+        msg_dict["Expected"] = _format_expected_input(problem.expected, problem.problem_type)
+    return msg_dict
 
 
 def _shorten_input(user_input: str | None) -> str | None:

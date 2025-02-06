@@ -378,6 +378,7 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
             | ViolationType.GENERIC
             | ViolationType.NON_EXISTING_CARD
             | ViolationType.PATTERN
+            | ViolationType.UNIQUE_VALUE
             | ViolationType.VALUE_TYPE as violation
         ):
             problem = RESULT_TO_PROBLEM_MAPPER[violation]
@@ -403,9 +404,6 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
             )
         case ViolationType.LINK_TARGET:
             return _reformat_link_target_violation_result(validation_result)
-        case ViolationType.UNIQUE_VALUE:
-            # TODO: look at this
-            return _reformat_unique_value_violation_result(validation_result)
         case _:
             raise BaseError(f"An unknown violation result was found: {validation_result.__class__.__name__}")
 
@@ -433,19 +431,6 @@ def _reformat_generic(
     )
 
 
-def _reformat_value_type_violation_result(result: ValidationResult) -> InputProblem:
-    iris = _reformat_main_iris(result)
-    actual_type = reformat_onto_iri(str(result.input_type))
-    return InputProblem(
-        problem_type=ProblemType.VALUE_TYPE_MISMATCH,
-        res_id=iris.res_id,
-        res_type=iris.res_type,
-        prop_name=iris.prop_name,
-        input_type=actual_type,
-        expected=result.expected,
-    )
-
-
 def _reformat_link_target_violation_result(result: ValidationResult) -> InputProblem:
     iris = _reformat_main_iris(result)
     target_id = reformat_data_iri(str(result.input_value))
@@ -467,21 +452,6 @@ def _reformat_link_target_violation_result(result: ValidationResult) -> InputPro
         input_value=target_id,
         input_type=actual_type,
         expected=expected_type,
-    )
-
-
-def _reformat_unique_value_violation_result(result: ValidationResult) -> InputProblem:
-    iris = _reformat_main_iris(result)
-    if isinstance(result.input_value, Literal):
-        actual_value = str(result.input_value)
-    else:
-        actual_value = reformat_data_iri(str(result.input_value))
-    return InputProblem(
-        problem_type=ProblemType.DUPLICATE_VALUE,
-        res_id=iris.res_id,
-        res_type=iris.res_type,
-        prop_name=iris.prop_name,
-        input_value=actual_value,
     )
 
 

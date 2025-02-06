@@ -15,4 +15,4 @@ def reformat_onto_iri(iri: SubjectObjectTypeAlias | str) -> str:
 
 def reformat_data_iri(iri: SubjectObjectTypeAlias | str) -> str:
     """Takes a rdflib Node with in the data namespace and returns only the suffix."""
-    return str(iri).replace("http://data/", "")
+    return str(iri).replace("http://data/", "", 1)

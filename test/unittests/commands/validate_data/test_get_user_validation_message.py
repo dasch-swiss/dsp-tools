@@ -16,14 +16,6 @@ def generic_problem() -> InputProblem:
     )
 
 
-def test_get_message_for_one_resource_generic(generic_problem: InputProblem) -> None:
-    result = _get_message_for_one_resource([generic_problem])
-    expected = (
-        "Resource ID: res_id | Resource Type: onto:Class\nonto:hasGenericProblem\n    - This is a generic problem."
-    )
-    assert result == expected
-
-
 @pytest.fixture
 def file_value() -> InputProblem:
     return InputProblem(
@@ -33,16 +25,6 @@ def file_value() -> InputProblem:
         prop_name="bitstream / iiif-uri",
         expected="A MovingImageRepresentation requires a file with the extension 'mp4'.",
     )
-
-
-def test_get_message_for_one_resource_file_value(file_value: InputProblem) -> None:
-    result = _get_message_for_one_resource([file_value])
-    expected = (
-        "Resource ID: res_id | Resource Type: onto:Class\n"
-        "bitstream / iiif-uri\n"
-        "    - Expected : A MovingImageRepresentation requires a file with the extension 'mp4'."
-    )
-    assert result == expected
 
 
 @pytest.fixture
@@ -56,16 +38,6 @@ def max_card() -> InputProblem:
     )
 
 
-def test_get_message_for_one_resource_max_card(max_card: InputProblem) -> None:
-    result = _get_message_for_one_resource([max_card])
-    expected = (
-        "Resource ID: res_id | Resource Type: onto:Class\n"
-        "onto:hasMaxCardProblem\n"
-        "    - Maximum Cardinality Violation | Expected Cardinality: 1"
-    )
-    assert result == expected
-
-
 @pytest.fixture
 def min_card() -> InputProblem:
     return InputProblem(
@@ -75,16 +47,6 @@ def min_card() -> InputProblem:
         prop_name="onto:hasMinCardProblem",
         expected="1-n",
     )
-
-
-def test_get_message_for_one_resource_min_card(min_card: InputProblem) -> None:
-    result = _get_message_for_one_resource([min_card])
-    expected = (
-        "Resource ID: res_id | Resource Type: onto:Class\n"
-        "onto:hasMinCardProblem\n"
-        "    - Minimum Cardinality Violation | Expected Cardinality: 1-n"
-    )
-    assert result == expected
 
 
 @pytest.fixture
@@ -97,16 +59,6 @@ def non_existing_card() -> InputProblem:
     )
 
 
-def test_get_message_for_one_resource_non_existing_card(non_existing_card: InputProblem) -> None:
-    result = _get_message_for_one_resource([non_existing_card])
-    expected = (
-        "Resource ID: res_id | Resource Type: onto:Class\n"
-        "onto:hasProp\n"
-        "    - The resource class does not have a cardinality for this property."
-    )
-    assert result == expected
-
-
 @pytest.fixture
 def file_value_prohibited() -> InputProblem:
     return InputProblem(
@@ -115,16 +67,6 @@ def file_value_prohibited() -> InputProblem:
         res_type="onto:Class",
         prop_name="bitstream / iiif-uri",
     )
-
-
-def test_get_message_for_one_resource_file_value_prohibited(file_value_prohibited: InputProblem) -> None:
-    result = _get_message_for_one_resource([file_value_prohibited])
-    expected = (
-        "Resource ID: res_id | Resource Type: onto:Class\n"
-        "bitstream / iiif-uri\n"
-        "    - A file was added to the resource. This resource type must not have a file."
-    )
-    assert result == expected
 
 
 @pytest.fixture
@@ -139,16 +81,6 @@ def value_type_mismatch() -> InputProblem:
     )
 
 
-def test_get_message_for_one_resource_value_type_mismatch(value_type_mismatch: InputProblem) -> None:
-    result = _get_message_for_one_resource([value_type_mismatch])
-    expected = (
-        "Resource ID: res_id | Resource Type: onto:Class\n"
-        "onto:hasProp\n"
-        "    - Value Type Mismatch | Actual input type: 'LinkValue' | Expected Value Type: 'ListValue'"
-    )
-    assert result == expected
-
-
 @pytest.fixture
 def input_regex() -> InputProblem:
     return InputProblem(
@@ -159,17 +91,6 @@ def input_regex() -> InputProblem:
         actual_input="wrong input",
         expected="Expected format information",
     )
-
-
-def test_get_message_for_one_resource_input_regex(input_regex: InputProblem) -> None:
-    result = _get_message_for_one_resource([input_regex])
-    expected = (
-        "Resource ID: res_id | Resource Type: onto:Class\n"
-        "onto:hasProp\n"
-        "    - Wrong Format of Input | Your input: 'wrong input' | "
-        "Expected Input Format: Expected format information"
-    )
-    assert result == expected
 
 
 @pytest.fixture
@@ -185,17 +106,6 @@ def link_target_mismatch() -> InputProblem:
     )
 
 
-def test_get_message_for_one_resource_link_target_mismatch(link_target_mismatch: InputProblem) -> None:
-    result = _get_message_for_one_resource([link_target_mismatch])
-    expected = (
-        "Resource ID: res_id | Resource Type: onto:Class\n"
-        "onto:hasProp\n"
-        "    - Linked Resource Type Mismatch | Your input: 'link_target_id' | "
-        "Actual input type: 'onto:Class' | Expected Resource Type: onto:File or a subclass"
-    )
-    assert result == expected
-
-
 @pytest.fixture
 def inexistent_linked_resource() -> InputProblem:
     return InputProblem(
@@ -207,16 +117,6 @@ def inexistent_linked_resource() -> InputProblem:
     )
 
 
-def test_get_message_for_one_resource_inexistent_linked_resource(inexistent_linked_resource: InputProblem) -> None:
-    result = _get_message_for_one_resource([inexistent_linked_resource])
-    expected = (
-        "Resource ID: res_id | Resource Type: onto:Class\n"
-        "onto:hasProp\n"
-        "    - Linked Resource does not exist | Your input: 'link_target_id'"
-    )
-    assert result == expected
-
-
 @pytest.fixture
 def duplicate_value() -> InputProblem:
     return InputProblem(
@@ -226,6 +126,106 @@ def duplicate_value() -> InputProblem:
         prop_name="onto:hasProp",
         actual_input="Text",
     )
+
+
+def test_get_message_for_one_resource_generic(generic_problem: InputProblem) -> None:
+    result = _get_message_for_one_resource([generic_problem])
+    expected = (
+        "Resource ID: res_id | Resource Type: onto:Class\nonto:hasGenericProblem\n    - This is a generic problem."
+    )
+    assert result == expected
+
+
+def test_get_message_for_one_resource_file_value(file_value: InputProblem) -> None:
+    result = _get_message_for_one_resource([file_value])
+    expected = (
+        "Resource ID: res_id | Resource Type: onto:Class\n"
+        "bitstream / iiif-uri\n"
+        "    - Expected : A MovingImageRepresentation requires a file with the extension 'mp4'."
+    )
+    assert result == expected
+
+
+def test_get_message_for_one_resource_max_card(max_card: InputProblem) -> None:
+    result = _get_message_for_one_resource([max_card])
+    expected = (
+        "Resource ID: res_id | Resource Type: onto:Class\n"
+        "onto:hasMaxCardProblem\n"
+        "    - Maximum Cardinality Violation | Expected Cardinality: 1"
+    )
+    assert result == expected
+
+
+def test_get_message_for_one_resource_min_card(min_card: InputProblem) -> None:
+    result = _get_message_for_one_resource([min_card])
+    expected = (
+        "Resource ID: res_id | Resource Type: onto:Class\n"
+        "onto:hasMinCardProblem\n"
+        "    - Minimum Cardinality Violation | Expected Cardinality: 1-n"
+    )
+    assert result == expected
+
+
+def test_get_message_for_one_resource_non_existing_card(non_existing_card: InputProblem) -> None:
+    result = _get_message_for_one_resource([non_existing_card])
+    expected = (
+        "Resource ID: res_id | Resource Type: onto:Class\n"
+        "onto:hasProp\n"
+        "    - The resource class does not have a cardinality for this property."
+    )
+    assert result == expected
+
+
+def test_get_message_for_one_resource_file_value_prohibited(file_value_prohibited: InputProblem) -> None:
+    result = _get_message_for_one_resource([file_value_prohibited])
+    expected = (
+        "Resource ID: res_id | Resource Type: onto:Class\n"
+        "bitstream / iiif-uri\n"
+        "    - A file was added to the resource. This resource type must not have a file."
+    )
+    assert result == expected
+
+
+def test_get_message_for_one_resource_value_type_mismatch(value_type_mismatch: InputProblem) -> None:
+    result = _get_message_for_one_resource([value_type_mismatch])
+    expected = (
+        "Resource ID: res_id | Resource Type: onto:Class\n"
+        "onto:hasProp\n"
+        "    - Value Type Mismatch | Actual input type: 'LinkValue' | Expected Value Type: 'ListValue'"
+    )
+    assert result == expected
+
+
+def test_get_message_for_one_resource_input_regex(input_regex: InputProblem) -> None:
+    result = _get_message_for_one_resource([input_regex])
+    expected = (
+        "Resource ID: res_id | Resource Type: onto:Class\n"
+        "onto:hasProp\n"
+        "    - Wrong Format of Input | Your input: 'wrong input' | "
+        "Expected Input Format: Expected format information"
+    )
+    assert result == expected
+
+
+def test_get_message_for_one_resource_link_target_mismatch(link_target_mismatch: InputProblem) -> None:
+    result = _get_message_for_one_resource([link_target_mismatch])
+    expected = (
+        "Resource ID: res_id | Resource Type: onto:Class\n"
+        "onto:hasProp\n"
+        "    - Linked Resource Type Mismatch | Your input: 'link_target_id' | "
+        "Actual input type: 'onto:Class' | Expected Resource Type: onto:File or a subclass"
+    )
+    assert result == expected
+
+
+def test_get_message_for_one_resource_inexistent_linked_resource(inexistent_linked_resource: InputProblem) -> None:
+    result = _get_message_for_one_resource([inexistent_linked_resource])
+    expected = (
+        "Resource ID: res_id | Resource Type: onto:Class\n"
+        "onto:hasProp\n"
+        "    - Linked Resource does not exist | Your input: 'link_target_id'"
+    )
+    assert result == expected
 
 
 def test_get_message_for_one_resource_duplicate_value(duplicate_value: InputProblem) -> None:

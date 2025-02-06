@@ -8,10 +8,10 @@ from rdflib import Literal
 from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.constants import DATA
-from dsp_tools.commands.validate_data.constants import TRIPLE_OBJECT_TYPE_TO_XSD
-from dsp_tools.commands.validate_data.constants import TRIPLE_PROP_TYPE_TO_IRI_MAPPER
-from dsp_tools.commands.validate_data.constants import VALUE_INFO_TO_RDF_MAPPER
-from dsp_tools.commands.validate_data.constants import VALUE_INFO_TRIPLE_OBJECT_TYPE
+from dsp_tools.commands.validate_data.mappers import TRIPLE_OBJECT_TYPE_TO_XSD
+from dsp_tools.commands.validate_data.mappers import TRIPLE_PROP_TYPE_TO_IRI_MAPPER
+from dsp_tools.commands.validate_data.mappers import VALUE_INFO_TO_RDF_MAPPER
+from dsp_tools.commands.validate_data.mappers import VALUE_INFO_TRIPLE_OBJECT_TYPE
 from dsp_tools.commands.validate_data.models.data_deserialised import DataDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import KnoraValueType
 from dsp_tools.commands.validate_data.models.data_deserialised import PropertyObject

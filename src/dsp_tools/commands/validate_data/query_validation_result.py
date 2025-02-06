@@ -8,10 +8,13 @@ from rdflib import SH
 from rdflib import Graph
 from rdflib import Literal
 
-from dsp_tools.commands.validate_data.constants import API_SHAPES
 from dsp_tools.commands.validate_data.constants import DASH
+from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROP_SHAPES
+from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROPERTIES
 from dsp_tools.commands.validate_data.constants import KNORA_API
+from dsp_tools.commands.validate_data.constants import VALUE_CLASS_SHAPES
 from dsp_tools.commands.validate_data.constants import SubjectObjectTypeAlias
+from dsp_tools.commands.validate_data.mappers import RESULT_TO_PROBLEM_MAPPER
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
@@ -37,20 +40,6 @@ from dsp_tools.commands.validate_data.models.validation import ValidationResultB
 from dsp_tools.commands.validate_data.utils import reformat_data_iri
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.models.exceptions import BaseError
-
-RESULT_TO_PROBLEM_MAPPER = {
-    SeqnumIsPartOfViolation: ProblemType.GENERIC,
-    ResultUniqueValueViolation: ProblemType.DUPLICATE_VALUE,
-    ResultValueTypeViolation: ProblemType.VALUE_TYPE_MISMATCH,
-    ResultPatternViolation: ProblemType.INPUT_REGEX,
-    ResultGenericViolation: ProblemType.GENERIC,
-    ResultLinkTargetViolation: ProblemType.LINK_TARGET_TYPE_MISMATCH,
-    ResultMaxCardinalityViolation: ProblemType.MAX_CARD,
-    ResultMinCardinalityViolation: ProblemType.MIN_CARD,
-    ResultNonExistentCardinalityViolation: ProblemType.NON_EXISTING_CARD,
-    ResultFileValueNotAllowedViolation: ProblemType.FILE_VALUE_PROHIBITED,
-    ResultFileValueViolation: ProblemType.FILE_VALUE,
-}
 
 
 def reformat_validation_graph(report: ValidationReportGraphs) -> AllProblems:
@@ -221,15 +210,7 @@ def _query_for_non_existent_cardinality_violation(
     # the created value is of type StillImageFileValue.
     # This creates a min cardinality and a closed constraint violation.
     # The closed constraint we ignore, because the problem is communicated through the min cardinality violation.
-    file_value_properties = {
-        KNORA_API.hasArchiveFileValue,
-        KNORA_API.hasAudioFileValue,
-        KNORA_API.hasDocumentFileValue,
-        KNORA_API.hasMovingImageFileValue,
-        KNORA_API.hasTextFileValue,
-        KNORA_API.hasStillImageFileValue,
-    }
-    if base_info.result_path in file_value_properties:
+    if base_info.result_path in FILE_VALUE_PROPERTIES:
         sub_classes = list(results_and_onto.transitive_objects(base_info.res_class_type, RDFS.subClassOf))
         if KNORA_API.Representation in sub_classes:
             return None
@@ -287,19 +268,7 @@ def _query_class_constraint_component_violation(
 ) -> ValidationResult | UnexpectedComponent:
     detail_info = cast(DetailBaseInfo, base_info.detail)
     detail_source_shape = next(results_and_onto.objects(detail_info.detail_bn, SH.sourceShape))
-    all_class_shapes = {
-        API_SHAPES.BooleanValue_ClassShape,
-        API_SHAPES.ColorValue_ClassShape,
-        API_SHAPES.DateValue_ClassShape,
-        API_SHAPES.DecimalValue_ClassShape,
-        API_SHAPES.GeonameValue_ClassShape,
-        API_SHAPES.IntValue_ClassShape,
-        API_SHAPES.LinkValue_ClassShape,
-        API_SHAPES.ListValue_ClassShape,
-        API_SHAPES.TimeValue_ClassShape,
-        API_SHAPES.UriValue_ClassShape,
-    }
-    if detail_source_shape in all_class_shapes:
+    if detail_source_shape in VALUE_CLASS_SHAPES:
         return _query_for_value_type_violation(base_info, results_and_onto, data_graph)
     return _query_for_link_value_target_violation(base_info, results_and_onto, data_graph)
 
@@ -374,15 +343,8 @@ def _query_for_min_cardinality_violation(
     results_and_onto: Graph,
 ) -> ValidationResult:
     source_shape = next(results_and_onto.objects(base_info.result_bn, SH.sourceShape))
-    file_shapes = {
-        API_SHAPES.hasArchiveFileValue_PropShape,
-        API_SHAPES.hasAudioFileValue_PropShape,
-        API_SHAPES.hasDocumentFileValue_PropShape,
-        API_SHAPES.hasMovingImageFileValue_PropShape,
-        API_SHAPES.hasTextFileValue_PropShape,
-        API_SHAPES.hasStillImageFileValue_PropShape,
-    }
-    if source_shape in file_shapes:
+
+    if source_shape in FILE_VALUE_PROP_SHAPES:
         return ResultFileValueViolation(
             res_iri=base_info.resource_iri,
             res_class=base_info.res_class_type,

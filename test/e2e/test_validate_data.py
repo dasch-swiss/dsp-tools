@@ -10,13 +10,8 @@ from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
 from dsp_tools.commands.validate_data.api_connection import ApiConnection
 from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
-from dsp_tools.commands.validate_data.models.input_problems import FileValueNotAllowedProblem
-from dsp_tools.commands.validate_data.models.input_problems import FileValueProblem
 from dsp_tools.commands.validate_data.models.input_problems import GenericProblemWithInput
-from dsp_tools.commands.validate_data.models.input_problems import GenericProblemWithMessage
 from dsp_tools.commands.validate_data.models.input_problems import InputRegexProblem
-from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
-from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityProblem
@@ -433,52 +428,52 @@ class TestReformatValidationGraph:
     def test_reformat_file_value_violation(self, file_value_violation: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(file_value_violation)
         expected_info_tuples = [
-            ("id_archive_missing", FileValueProblem),
-            ("id_archive_unknown", FileValueProblem),
-            ("id_audio_missing", FileValueProblem),
-            ("id_audio_unknown", FileValueProblem),
-            ("id_document_missing", FileValueProblem),
-            ("id_document_unknown", FileValueProblem),
-            ("id_resource_without_representation", FileValueNotAllowedProblem),
-            ("id_still_image_missing", FileValueProblem),
-            ("id_still_image_unknown", FileValueProblem),
-            ("id_text_missing", FileValueProblem),
-            ("id_text_unknown", FileValueProblem),
-            ("id_video_missing", FileValueProblem),
-            ("id_video_unknown", FileValueProblem),
-            ("id_wrong_file_type", FileValueProblem),
+            ("id_archive_missing", ProblemType.FILE_VALUE),
+            ("id_archive_unknown", ProblemType.FILE_VALUE),
+            ("id_audio_missing", ProblemType.FILE_VALUE),
+            ("id_audio_unknown", ProblemType.FILE_VALUE),
+            ("id_document_missing", ProblemType.FILE_VALUE),
+            ("id_document_unknown", ProblemType.FILE_VALUE),
+            ("id_resource_without_representation", ProblemType.FILE_VALUE_PROHIBITED),
+            ("id_still_image_missing", ProblemType.FILE_VALUE),
+            ("id_still_image_unknown", ProblemType.FILE_VALUE),
+            ("id_text_missing", ProblemType.FILE_VALUE),
+            ("id_text_unknown", ProblemType.FILE_VALUE),
+            ("id_video_missing", ProblemType.FILE_VALUE),
+            ("id_video_unknown", ProblemType.FILE_VALUE),
+            ("id_wrong_file_type", ProblemType.FILE_VALUE),
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
-            assert isinstance(one_result, expected_info[1])
+            assert one_result.problem_type == expected_info[1]
             assert one_result.res_id == expected_info[0]
 
     def test_reformat_dsp_inbuilt_violation(self, dsp_inbuilt_violation: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(dsp_inbuilt_violation)
         expected_info_tuples = [
-            ("audio_segment_target_is_video", LinkTargetTypeMismatchProblem),
-            ("audio_segment_target_non_existent", LinkedResourceDoesNotExistProblem),
-            ("link_obj_target_non_existent", LinkedResourceDoesNotExistProblem),
-            ("missing_isPartOf", GenericProblemWithMessage),
-            ("missing_seqnum", GenericProblemWithMessage),
-            ("region_invalid_geometry", InputRegexProblem),
-            ("region_isRegionOf_resource_does_not_exist", LinkedResourceDoesNotExistProblem),
-            ("region_isRegionOf_resource_not_a_representation", LinkTargetTypeMismatchProblem),
-            ("target_must_be_a_representation", LinkTargetTypeMismatchProblem),
-            ("target_must_be_an_image_representation", LinkTargetTypeMismatchProblem),
-            ("video_segment_start_larger_than_end", GenericProblemWithInput),
-            ("video_segment_target_is_audio", LinkTargetTypeMismatchProblem),
-            ("video_segment_target_non_existent", LinkedResourceDoesNotExistProblem),
-            ("video_segment_wrong_bounds", GenericProblemWithInput),  # once for start that is less than zero
-            ("video_segment_wrong_bounds", GenericProblemWithInput),  # once for the end that is zero
+            ("audio_segment_target_is_video", ProblemType.LINK_TARGET_TYPE_MISMATCH),
+            ("audio_segment_target_non_existent", ProblemType.INEXISTENT_LINKED_RESOURCE),
+            ("link_obj_target_non_existent", ProblemType.INEXISTENT_LINKED_RESOURCE),
+            ("missing_isPartOf", ProblemType.GENERIC),
+            ("missing_seqnum", ProblemType.GENERIC),
+            ("region_invalid_geometry", ProblemType.INPUT_REGEX),
+            ("region_isRegionOf_resource_does_not_exist", ProblemType.INEXISTENT_LINKED_RESOURCE),
+            ("region_isRegionOf_resource_not_a_representation", ProblemType.LINK_TARGET_TYPE_MISMATCH),
+            ("target_must_be_a_representation", ProblemType.LINK_TARGET_TYPE_MISMATCH),
+            ("target_must_be_an_image_representation", ProblemType.LINK_TARGET_TYPE_MISMATCH),
+            ("video_segment_start_larger_than_end", ProblemType.GENERIC),
+            ("video_segment_target_is_audio", ProblemType.LINK_TARGET_TYPE_MISMATCH),
+            ("video_segment_target_non_existent", ProblemType.INEXISTENT_LINKED_RESOURCE),
+            ("video_segment_wrong_bounds", ProblemType.GENERIC),  # once for start that is less than zero
+            ("video_segment_wrong_bounds", ProblemType.GENERIC),  # once for the end that is zero
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
-            assert isinstance(one_result, expected_info[1])
+            assert one_result.problem_type == expected_info[1]
             assert one_result.res_id == expected_info[0]
 
     def test_reformat_special_characters_violation(self, special_characters_violation: ValidationReportGraphs) -> None:

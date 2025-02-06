@@ -231,7 +231,22 @@ def test_get_message_for_one_resource_inexistent_linked_resource(inexistent_link
 def test_get_message_for_one_resource_duplicate_value(duplicate_value: InputProblem) -> None:
     result = _get_message_for_one_resource([duplicate_value])
     expected = (
-        "Resource ID: res_id | Resource Type: onto:Class\nonto:hasProp\n"
+        "Resource ID: res_id | Resource Type: onto:Class\n"
+        "onto:hasProp\n"
         "    - Your input is duplicated | Your input: 'Text'"
+    )
+    assert result == expected
+
+
+def test_get_message_for_one_resource_several_problems(
+    file_value: InputProblem, inexistent_linked_resource: InputProblem
+) -> None:
+    result = _get_message_for_one_resource([file_value, inexistent_linked_resource])
+    expected = (
+        "Resource ID: res_id | Resource Type: onto:Class\n"
+        "bitstream / iiif-uri\n"
+        "    - Expected : A MovingImageRepresentation requires a file with the extension 'mp4'.\n"
+        "onto:hasProp\n"
+        "    - Linked Resource does not exist | Your input: 'link_target_id'"
     )
     assert result == expected

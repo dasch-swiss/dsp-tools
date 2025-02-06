@@ -29,8 +29,8 @@ def get_user_message(problems: list[InputProblem], file_path: Path) -> str:
 
 
 def _get_problem_print_message(problems: list[InputProblem]) -> str:
-    grouped_problems = _group_problems_by_resource(problems)
-    messages = [_get_message_for_one_resource(v) for v in grouped_problems.values()]
+    grouped_problems = list(_group_problems_by_resource(problems).values())
+    messages = [_get_message_for_one_resource(v) for v in sorted(grouped_problems, key=lambda x: x.res_id)]
     return GRAND_SEPARATOR.join(messages)
 
 

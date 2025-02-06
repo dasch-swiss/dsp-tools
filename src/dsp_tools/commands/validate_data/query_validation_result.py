@@ -12,9 +12,9 @@ from dsp_tools.commands.validate_data.constants import DASH
 from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROP_SHAPES
 from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROPERTIES
 from dsp_tools.commands.validate_data.constants import KNORA_API
-from dsp_tools.commands.validate_data.constants import RESULT_TO_PROBLEM_MAPPER
 from dsp_tools.commands.validate_data.constants import VALUE_CLASS_SHAPES
 from dsp_tools.commands.validate_data.constants import SubjectObjectTypeAlias
+from dsp_tools.commands.validate_data.mappers import RESULT_TO_PROBLEM_MAPPER
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType

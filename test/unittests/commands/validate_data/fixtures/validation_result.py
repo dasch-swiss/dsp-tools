@@ -8,18 +8,9 @@ from rdflib import Graph
 from rdflib import Literal
 
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
-from dsp_tools.commands.validate_data.models.validation import ResultFileValueNotAllowedViolation
-from dsp_tools.commands.validate_data.models.validation import ResultFileValueViolation
-from dsp_tools.commands.validate_data.models.validation import ResultGenericViolation
-from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
-from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
-from dsp_tools.commands.validate_data.models.validation import ResultMinCardinalityViolation
-from dsp_tools.commands.validate_data.models.validation import ResultNonExistentCardinalityViolation
-from dsp_tools.commands.validate_data.models.validation import ResultPatternViolation
-from dsp_tools.commands.validate_data.models.validation import ResultUniqueValueViolation
-from dsp_tools.commands.validate_data.models.validation import ResultValueTypeViolation
-from dsp_tools.commands.validate_data.models.validation import SeqnumIsPartOfViolation
+from dsp_tools.commands.validate_data.models.validation import ValidationResult
 from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
+from dsp_tools.commands.validate_data.models.validation import ViolationType
 from test.unittests.commands.validate_data.constants import DASH
 from test.unittests.commands.validate_data.constants import DATA
 from test.unittests.commands.validate_data.constants import IN_BUILT_ONTO
@@ -205,8 +196,9 @@ def file_value_for_resource_without_representation(onto_graph: Graph) -> tuple[G
 
 
 @pytest.fixture
-def extracted_file_value_for_resource_without_representation() -> ResultFileValueNotAllowedViolation:
-    return ResultFileValueNotAllowedViolation(
+def extracted_file_value_for_resource_without_representation() -> ValidationResult:
+    return ValidationResult(
+        violation_type=ViolationType.FILEVALUE_PROHIBITED,
         res_iri=DATA.id_resource_without_representation,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.hasMovingImageFileValue,
@@ -214,8 +206,9 @@ def extracted_file_value_for_resource_without_representation() -> ResultFileValu
 
 
 @pytest.fixture
-def extracted_min_card() -> ResultMinCardinalityViolation:
-    return ResultMinCardinalityViolation(
+def extracted_min_card() -> ValidationResult:
+    return ValidationResult(
+        violation_type=ViolationType.MIN_CARD,
         res_iri=DATA.id_card_one,
         res_class=ONTO.ClassInheritedCardinalityOverwriting,
         property=ONTO.testBoolean,
@@ -275,8 +268,9 @@ def report_value_type_simpletext(onto_graph: Graph) -> tuple[Graph, Graph, Valid
 
 
 @pytest.fixture
-def extracted_value_type_simpletext() -> ResultValueTypeViolation:
-    return ResultValueTypeViolation(
+def extracted_value_type_simpletext() -> ValidationResult:
+    return ValidationResult(
+        violation_type=ViolationType.VALUE_TYPE,
         res_iri=DATA.id_simpletext,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testTextarea,
@@ -342,8 +336,9 @@ def report_min_inclusive(onto_graph: Graph) -> tuple[Graph, Graph, ValidationRes
 
 
 @pytest.fixture
-def extracted_min_inclusive() -> ResultGenericViolation:
-    return ResultGenericViolation(
+def extracted_min_inclusive() -> ValidationResult:
+    return ValidationResult(
+        violation_type=ViolationType.GENERIC,
         res_iri=DATA.video_segment_negative_bounds,
         res_class=KNORA_API.VideoSegment,
         property=KNORA_API.hasSegmentBounds,
@@ -405,8 +400,9 @@ def report_value_type(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResult
 
 
 @pytest.fixture
-def extracted_value_type() -> ResultValueTypeViolation:
-    return ResultValueTypeViolation(
+def extracted_value_type() -> ValidationResult:
+    return ValidationResult(
+        violation_type=ViolationType.VALUE_TYPE,
         res_iri=DATA.id_uri,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testUriValue,
@@ -469,8 +465,9 @@ def report_regex(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseI
 
 
 @pytest.fixture
-def extracted_regex() -> ResultPatternViolation:
-    return ResultPatternViolation(
+def extracted_regex() -> ValidationResult:
+    return ValidationResult(
+        violation_type=ViolationType.PATTERN,
         res_iri=DATA.geoname_not_number,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testGeoname,
@@ -533,14 +530,14 @@ def report_link_target_non_existent(onto_graph: Graph) -> tuple[Graph, Graph, Va
 
 
 @pytest.fixture
-def extracted_link_target_non_existent() -> ResultLinkTargetViolation:
-    return ResultLinkTargetViolation(
+def extracted_link_target_non_existent() -> ValidationResult:
+    return ValidationResult(
+        violation_type=ViolationType.LINK_TARGET,
         res_iri=DATA.link_target_non_existent,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testHasLinkTo,
         expected=KNORA_API.Resource,
         input_value=DATA.other,
-        input_type=None,
     )
 
 
@@ -601,8 +598,9 @@ def report_link_target_wrong_class(onto_graph: Graph) -> tuple[Graph, Graph, Val
 
 
 @pytest.fixture
-def extracted_link_target_wrong_class() -> ResultLinkTargetViolation:
-    return ResultLinkTargetViolation(
+def extracted_link_target_wrong_class() -> ValidationResult:
+    return ValidationResult(
+        violation_type=ViolationType.LINK_TARGET,
         res_iri=DATA.link_target_wrong_class,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testHasLinkToCardOneResource,
@@ -648,8 +646,9 @@ def report_closed_constraint(onto_graph: Graph) -> tuple[Graph, Graph, Validatio
 
 
 @pytest.fixture
-def extracted_closed_constraint() -> ResultNonExistentCardinalityViolation:
-    return ResultNonExistentCardinalityViolation(
+def extracted_closed_constraint() -> ValidationResult:
+    return ValidationResult(
+        violation_type=ViolationType.NON_EXISTING_CARD,
         res_iri=DATA.id_closed_constraint,
         res_class=ONTO.CardOneResource,
         property=ONTO.testIntegerSimpleText,
@@ -694,8 +693,9 @@ def report_max_card(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBa
 
 
 @pytest.fixture
-def extracted_max_card() -> ResultMaxCardinalityViolation:
-    return ResultMaxCardinalityViolation(
+def extracted_max_card() -> ValidationResult:
+    return ValidationResult(
+        violation_type=ViolationType.MAX_CARD,
         res_iri=DATA.id_max_card,
         res_class=ONTO.ClassMixedCard,
         property=ONTO.testDecimalSimpleText,
@@ -735,8 +735,9 @@ def report_empty_label(onto_graph: Graph) -> tuple[Graph, ValidationResultBaseIn
 
 
 @pytest.fixture
-def extracted_empty_label() -> ResultPatternViolation:
-    return ResultPatternViolation(
+def extracted_empty_label() -> ValidationResult:
+    return ValidationResult(
+        violation_type=ViolationType.PATTERN,
         res_iri=DATA.empty_label,
         res_class=ONTO.ClassWithEverything,
         property=RDFS.label,
@@ -778,8 +779,9 @@ def report_unique_value_literal(onto_graph: Graph) -> tuple[Graph, Graph, Valida
 
 
 @pytest.fixture
-def extracted_unique_value_literal() -> ResultUniqueValueViolation:
-    return ResultUniqueValueViolation(
+def extracted_unique_value_literal() -> ValidationResult:
+    return ValidationResult(
+        violation_type=ViolationType.UNIQUE_VALUE,
         res_iri=DATA.identical_values_valueHas,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testGeoname,
@@ -820,8 +822,9 @@ def report_unique_value_iri(onto_graph: Graph) -> tuple[Graph, Graph, Validation
 
 
 @pytest.fixture
-def extracted_unique_value_iri() -> ResultUniqueValueViolation:
-    return ResultUniqueValueViolation(
+def extracted_unique_value_iri() -> ValidationResult:
+    return ValidationResult(
+        violation_type=ViolationType.UNIQUE_VALUE,
         res_iri=DATA.identical_values_LinkValue,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testHasLinkTo,
@@ -863,12 +866,12 @@ def report_coexist_with(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResu
 
 
 @pytest.fixture
-def extracted_coexist_with() -> SeqnumIsPartOfViolation:
-    return SeqnumIsPartOfViolation(
+def extracted_coexist_with() -> ValidationResult:
+    return ValidationResult(
+        violation_type=ViolationType.SEQNUM_IS_PART_OF,
         res_iri=DATA.missing_seqnum,
         res_class=IN_BUILT_ONTO.TestStillImageRepresentationWithSeqnum,
         message="Coexist message from knora-api turtle",
-        property=None,
     )
 
 
@@ -921,8 +924,9 @@ sh:value <http://data/value_list_node_non_existent> ] .
 
 
 @pytest.fixture
-def extracted_unknown_list_node() -> ResultGenericViolation:
-    return ResultGenericViolation(
+def extracted_unknown_list_node() -> ValidationResult:
+    return ValidationResult(
+        violation_type=ViolationType.GENERIC,
         res_iri=DATA.list_node_non_existent,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testListProp,
@@ -980,8 +984,9 @@ _:bn_list_name_non_existent a sh:ValidationResult ;
 
 
 @pytest.fixture
-def extracted_unknown_list_name() -> ResultGenericViolation:
-    return ResultGenericViolation(
+def extracted_unknown_list_name() -> ValidationResult:
+    return ValidationResult(
+        violation_type=ViolationType.GENERIC,
         res_iri=DATA.list_name_non_existent,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testListProp,
@@ -1022,8 +1027,9 @@ def report_missing_file_value(onto_graph: Graph) -> tuple[Graph, ValidationResul
 
 
 @pytest.fixture
-def extracted_missing_file_value() -> ResultFileValueViolation:
-    return ResultFileValueViolation(
+def extracted_missing_file_value() -> ValidationResult:
+    return ValidationResult(
+        violation_type=ViolationType.FILE_VALUE,
         res_iri=DATA.id_video_missing,
         res_class=ONTO.TestMovingImageRepresentation,
         property=KNORA_API.hasMovingImageFileValue,

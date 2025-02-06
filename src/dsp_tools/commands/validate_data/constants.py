@@ -12,6 +12,18 @@ from rdflib.term import Variable
 from dsp_tools.commands.validate_data.models.data_deserialised import KnoraValueType
 from dsp_tools.commands.validate_data.models.data_deserialised import TripleObjectType
 from dsp_tools.commands.validate_data.models.data_deserialised import TriplePropertyType
+from dsp_tools.commands.validate_data.models.input_problems import ProblemType
+from dsp_tools.commands.validate_data.models.validation import ResultFileValueNotAllowedViolation
+from dsp_tools.commands.validate_data.models.validation import ResultFileValueViolation
+from dsp_tools.commands.validate_data.models.validation import ResultGenericViolation
+from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
+from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
+from dsp_tools.commands.validate_data.models.validation import ResultMinCardinalityViolation
+from dsp_tools.commands.validate_data.models.validation import ResultNonExistentCardinalityViolation
+from dsp_tools.commands.validate_data.models.validation import ResultPatternViolation
+from dsp_tools.commands.validate_data.models.validation import ResultUniqueValueViolation
+from dsp_tools.commands.validate_data.models.validation import ResultValueTypeViolation
+from dsp_tools.commands.validate_data.models.validation import SeqnumIsPartOfViolation
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import BOOLEAN_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import COLOR_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import DECIMAL_PROP_TYPE_INFO
@@ -143,4 +155,51 @@ TRIPLE_OBJECT_TYPE_TO_XSD = {
     TripleObjectType.INTEGER: XSD.integer,
     TripleObjectType.STRING: XSD.string,
     TripleObjectType.URI: XSD.anyURI,
+}
+
+
+# validation results
+
+FILE_VALUE_PROPERTIES = {
+    KNORA_API.hasArchiveFileValue,
+    KNORA_API.hasAudioFileValue,
+    KNORA_API.hasDocumentFileValue,
+    KNORA_API.hasMovingImageFileValue,
+    KNORA_API.hasTextFileValue,
+    KNORA_API.hasStillImageFileValue,
+}
+VALUE_CLASS_SHAPES = {
+    API_SHAPES.BooleanValue_ClassShape,
+    API_SHAPES.ColorValue_ClassShape,
+    API_SHAPES.DateValue_ClassShape,
+    API_SHAPES.DecimalValue_ClassShape,
+    API_SHAPES.GeonameValue_ClassShape,
+    API_SHAPES.IntValue_ClassShape,
+    API_SHAPES.LinkValue_ClassShape,
+    API_SHAPES.ListValue_ClassShape,
+    API_SHAPES.TimeValue_ClassShape,
+    API_SHAPES.UriValue_ClassShape,
+}
+FILE_VALUE_PROP_SHAPES = {
+    API_SHAPES.hasArchiveFileValue_PropShape,
+    API_SHAPES.hasAudioFileValue_PropShape,
+    API_SHAPES.hasDocumentFileValue_PropShape,
+    API_SHAPES.hasMovingImageFileValue_PropShape,
+    API_SHAPES.hasTextFileValue_PropShape,
+    API_SHAPES.hasStillImageFileValue_PropShape,
+}
+
+
+RESULT_TO_PROBLEM_MAPPER = {
+    SeqnumIsPartOfViolation: ProblemType.GENERIC,
+    ResultUniqueValueViolation: ProblemType.DUPLICATE_VALUE,
+    ResultValueTypeViolation: ProblemType.VALUE_TYPE_MISMATCH,
+    ResultPatternViolation: ProblemType.INPUT_REGEX,
+    ResultGenericViolation: ProblemType.GENERIC,
+    ResultLinkTargetViolation: ProblemType.LINK_TARGET_TYPE_MISMATCH,
+    ResultMaxCardinalityViolation: ProblemType.MAX_CARD,
+    ResultMinCardinalityViolation: ProblemType.MIN_CARD,
+    ResultNonExistentCardinalityViolation: ProblemType.NON_EXISTING_CARD,
+    ResultFileValueNotAllowedViolation: ProblemType.FILE_VALUE_PROHIBITED,
+    ResultFileValueViolation: ProblemType.FILE_VALUE,
 }

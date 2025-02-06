@@ -16,17 +16,6 @@ from dsp_tools.commands.validate_data.models.data_deserialised import TripleObje
 from dsp_tools.commands.validate_data.models.data_deserialised import TriplePropertyType
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.validation import ViolationType
-from dsp_tools.commands.validate_data.models.validation import ResultFileValueNotAllowedViolation
-from dsp_tools.commands.validate_data.models.validation import ResultFileValueViolation
-from dsp_tools.commands.validate_data.models.validation import ResultGenericViolation
-from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
-from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
-from dsp_tools.commands.validate_data.models.validation import ResultMinCardinalityViolation
-from dsp_tools.commands.validate_data.models.validation import ResultNonExistentCardinalityViolation
-from dsp_tools.commands.validate_data.models.validation import ResultPatternViolation
-from dsp_tools.commands.validate_data.models.validation import ResultUniqueValueViolation
-from dsp_tools.commands.validate_data.models.validation import ResultValueTypeViolation
-from dsp_tools.commands.validate_data.models.validation import SeqnumIsPartOfViolation
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import BOOLEAN_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import COLOR_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import DECIMAL_PROP_TYPE_INFO

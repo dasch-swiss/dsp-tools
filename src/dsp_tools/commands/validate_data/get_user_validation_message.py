@@ -64,10 +64,10 @@ def _get_message_detail_str(problem: InputProblem) -> str:
         msg.append(problem.message)
     if problem.problem_type not in {ProblemType.GENERIC, ProblemType.FILE_VALUE}:
         msg.append(str(problem.problem_type))
-    if problem.actual_input:
-        msg.append(f"Your input: '{_shorten_input(problem.actual_input)}'")
-    if problem.actual_input_type:
-        msg.append(f"Actual input type: '{problem.actual_input_type}'")
+    if problem.input_value:
+        msg.append(f"Your input: '{_shorten_input(problem.input_value)}'")
+    if problem.input_type:
+        msg.append(f"Actual input type: '{problem.input_type}'")
     if problem.expected:
         msg.append(f"Expected {_format_expected_input(problem.expected, problem.problem_type)}")
     return " | ".join(msg)
@@ -102,8 +102,8 @@ def _get_message_dict(problem: InputProblem) -> dict[str, str]:
         "Resource Type": problem.res_type,
         "Property": problem.prop_name,
         "Problem": problem.message,
-        "Your Input": _shorten_input(problem.actual_input),
-        "Input Type": problem.actual_input_type,
+        "Your Input": _shorten_input(problem.input_value),
+        "Input Type": problem.input_type,
     }
     non_empty_dict = {k: v for k, v in msg_dict.items() if v}
     if problem.expected:

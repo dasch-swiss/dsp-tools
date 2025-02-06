@@ -76,7 +76,7 @@ def value_type_mismatch() -> InputProblem:
         res_id="res_id",
         res_type="onto:Class",
         prop_name="onto:hasProp",
-        actual_input_type="LinkValue",
+        input_type="LinkValue",
         expected="ListValue",
     )
 
@@ -88,7 +88,7 @@ def input_regex() -> InputProblem:
         res_id="res_id",
         res_type="onto:Class",
         prop_name="onto:hasProp",
-        actual_input="wrong input",
+        input_value="wrong input",
         expected="Expected format information",
     )
 
@@ -100,8 +100,8 @@ def link_target_mismatch() -> InputProblem:
         res_id="res_id",
         res_type="onto:Class",
         prop_name="onto:hasProp",
-        actual_input="link_target_id",
-        actual_input_type="onto:Class",
+        input_value="link_target_id",
+        input_type="onto:Class",
         expected="onto:File or a subclass",
     )
 
@@ -113,7 +113,7 @@ def inexistent_linked_resource() -> InputProblem:
         res_id="res_id",
         res_type="onto:Class",
         prop_name="onto:hasProp",
-        actual_input="link_target_id",
+        input_value="link_target_id",
     )
 
 
@@ -124,7 +124,7 @@ def duplicate_value() -> InputProblem:
         res_id="res_id",
         res_type="onto:Class",
         prop_name="onto:hasProp",
-        actual_input="Text",
+        input_value="Text",
     )
 
 

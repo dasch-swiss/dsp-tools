@@ -187,7 +187,7 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
                 res_iri=base_info.resource_iri,
                 res_class=base_info.res_class_type,
                 property=base_info.result_path,
-                results_message=msg,
+                expected=msg,
             )
         case DASH.ClosedByTypesConstraintComponent:
             return _query_for_non_existent_cardinality_violation(base_info, results_and_onto)
@@ -197,7 +197,7 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
             return SeqnumIsPartOfViolation(
                 res_iri=base_info.resource_iri,
                 res_class=base_info.res_class_type,
-                results_message=msg,
+                message=msg,
                 property=None,
             )
         case SH.ClassConstraintComponent:
@@ -207,8 +207,8 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
                 res_iri=base_info.resource_iri,
                 res_class=base_info.res_class_type,
                 property=base_info.result_path,
-                results_message=msg,
-                actual_value=target_id,
+                message=msg,
+                input_value=target_id,
             )
         case _:
             return UnexpectedComponent(str(component))
@@ -315,8 +315,8 @@ def _query_for_value_type_violation(
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
         property=base_info.result_path,
-        results_message=str(msg),
-        actual_value_type=val_type,
+        expected=str(msg),
+        input_type=val_type,
     )
 
 
@@ -330,8 +330,8 @@ def _query_pattern_constraint_component_violation(
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
         property=base_info.result_path,
-        results_message=msg,
-        actual_value=str(val),
+        expected=msg,
+        input_value=str(val),
     )
 
 
@@ -344,8 +344,8 @@ def _query_generic_violation(base_info: ValidationResultBaseInfo, results_and_on
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
         property=base_info.result_path,
-        results_message=msg,
-        actual_value=str(val),
+        message=msg,
+        input_value=str(val),
     )
 
 
@@ -362,9 +362,9 @@ def _query_for_link_value_target_violation(
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
         property=base_info.result_path,
-        expected_type=expected_type,
-        target_iri=target_iri,
-        target_resource_type=target_rdf_type,
+        expected=expected_type,
+        input_value=target_iri,
+        input_type=target_rdf_type,
     )
 
 
@@ -387,13 +387,13 @@ def _query_for_min_cardinality_violation(
             res_iri=base_info.resource_iri,
             res_class=base_info.res_class_type,
             property=base_info.result_path,
-            results_message=msg,
+            expected=msg,
         )
     return ResultMinCardinalityViolation(
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
         property=base_info.result_path,
-        results_message=msg,
+        expected=msg,
     )
 
 
@@ -406,7 +406,7 @@ def _query_for_unique_value_violation(
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
         property=base_info.result_path,
-        actual_value=val,
+        input_value=val,
     )
 
 
@@ -442,8 +442,8 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
                 res_id=iris.res_id,
                 res_type=iris.res_type,
                 prop_name=iris.prop_name,
-                message=validation_result.results_message,
-                actual_input=validation_result.actual_value,
+                message=validation_result.message,
+                input_value=validation_result.input_value,
             )
         case SeqnumIsPartOfViolation():
             iris = _reformat_main_iris(validation_result)
@@ -452,7 +452,7 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
                 res_id=iris.res_id,
                 res_type=iris.res_type,
                 prop_name="seqnum or isPartOf",
-                message=validation_result.results_message,
+                message=validation_result.message,
             )
         case ResultValueTypeViolation():
             return _reformat_value_type_violation_result(validation_result)
@@ -469,7 +469,7 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
                 res_id=iris.res_id,
                 res_type=iris.res_type,
                 prop_name="bitstream / iiif-uri",
-                expected=validation_result.results_message,
+                expected=validation_result.expected,
             )
         case _:
             raise BaseError(f"An unknown violation result was found: {validation_result.__class__.__name__}")
@@ -485,26 +485,26 @@ def _reformat_with_prop_and_message(
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
-        expected=result.results_message,
+        expected=result.expected,
     )
 
 
 def _reformat_value_type_violation_result(result: ResultValueTypeViolation) -> InputProblem:
     iris = _reformat_main_iris(result)
-    actual_type = reformat_onto_iri(result.actual_value_type)
+    actual_type = reformat_onto_iri(result.input_type)
     return InputProblem(
         problem_type=ProblemType.VALUE_TYPE_MISMATCH,
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
-        actual_input_type=actual_type,
-        expected=result.results_message,
+        input_type=actual_type,
+        expected=result.expected,
     )
 
 
 def _reformat_pattern_violation_result(result: ResultPatternViolation) -> InputProblem:
     iris = _reformat_main_iris(result)
-    val: str | None = result.actual_value
+    val: str | None = result.input_value
     if val and not regex.search(r"\S+", val):
         val = None
     return InputProblem(
@@ -512,47 +512,47 @@ def _reformat_pattern_violation_result(result: ResultPatternViolation) -> InputP
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
-        actual_input=val,
-        expected=result.results_message,
+        input_value=val,
+        expected=result.expected,
     )
 
 
 def _reformat_link_target_violation_result(result: ResultLinkTargetViolation) -> InputProblem:
     iris = _reformat_main_iris(result)
-    target_id = reformat_data_iri(result.target_iri)
-    if not result.target_resource_type:
+    target_id = reformat_data_iri(result.input_value)
+    if not result.input_type:
         return InputProblem(
             problem_type=ProblemType.INEXISTENT_LINKED_RESOURCE,
             res_id=iris.res_id,
             res_type=iris.res_type,
             prop_name=iris.prop_name,
-            actual_input=target_id,
+            input_value=target_id,
         )
-    actual_type = reformat_onto_iri(result.target_resource_type)
-    expected_type = reformat_onto_iri(result.expected_type)
+    actual_type = reformat_onto_iri(result.input_type)
+    expected_type = reformat_onto_iri(result.expected)
     return InputProblem(
         problem_type=ProblemType.LINK_TARGET_TYPE_MISMATCH,
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
-        actual_input=target_id,
-        actual_input_type=actual_type,
+        input_value=target_id,
+        input_type=actual_type,
         expected=expected_type,
     )
 
 
 def _reformat_unique_value_violation_result(result: ResultUniqueValueViolation) -> InputProblem:
     iris = _reformat_main_iris(result)
-    if isinstance(result.actual_value, Literal):
-        actual_value = str(result.actual_value)
+    if isinstance(result.input_value, Literal):
+        actual_value = str(result.input_value)
     else:
-        actual_value = reformat_data_iri(result.actual_value)
+        actual_value = reformat_data_iri(result.input_value)
     return InputProblem(
         problem_type=ProblemType.DUPLICATE_VALUE,
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
-        actual_input=actual_value,
+        input_value=actual_value,
     )
 
 

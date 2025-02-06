@@ -111,8 +111,8 @@ class InputProblem:
     res_type: str
     prop_name: str
     message: str | None = None
-    actual_input: str | None = None
-    actual_input_type: str | None = None
+    input_value: str | None = None
+    input_type: str | None = None
     expected: str | None = None
 
 

@@ -51,8 +51,8 @@ def test_reformat_validation_graph(report_target_resource_wrong_type: tuple[Grap
     assert result.res_id == "region_isRegionOf_resource_not_a_representation"
     assert result.res_type == "Region"
     assert result.prop_name == "isRegionOf"
-    assert result.actual_input == "target_res_without_representation_1"
-    assert result.actual_input_type == "in-built:TestNormalResource"
+    assert result.input_value == "target_res_without_representation_1"
+    assert result.input_type == "in-built:TestNormalResource"
     assert result.expected == "Representation"
 
 
@@ -67,9 +67,9 @@ class TestQueryAllResults:
         assert result.res_iri == DATA.region_isRegionOf_resource_not_a_representation
         assert result.res_class == KNORA_API.Region
         assert result.property == KNORA_API.isRegionOf
-        assert result.target_iri == DATA.target_res_without_representation_1
-        assert result.target_resource_type == IN_BUILT_ONTO.TestNormalResource
-        assert str(result.expected_type) == "http://api.knora.org/ontology/knora-api/v2#Representation"
+        assert result.input_value == DATA.target_res_without_representation_1
+        assert result.input_type == IN_BUILT_ONTO.TestNormalResource
+        assert str(result.expected) == "http://api.knora.org/ontology/knora-api/v2#Representation"
 
 
 class TestExtractBaseInfo:
@@ -177,7 +177,7 @@ class TestQueryWithoutDetail:
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testBoolean
-        assert result.results_message == "1"
+        assert result.expected == "1"
 
     def test_result_id_closed_constraint(
         self, report_closed_constraint: tuple[Graph, Graph, ValidationResultBaseInfo]
@@ -196,7 +196,7 @@ class TestQueryWithoutDetail:
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testHasLinkToCardOneResource
-        assert result.results_message == "1"
+        assert result.expected == "1"
 
     def test_result_empty_label(self, report_empty_label: tuple[Graph, ValidationResultBaseInfo]) -> None:
         graphs, info = report_empty_label
@@ -205,8 +205,8 @@ class TestQueryWithoutDetail:
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == RDFS.label
-        assert result.results_message == "The label must be a non-empty string"
-        assert result.actual_value == " "
+        assert result.expected == "The label must be a non-empty string"
+        assert result.input_value == " "
 
     def test_unique_value_literal(
         self, report_unique_value_literal: tuple[Graph, Graph, ValidationResultBaseInfo]
@@ -217,7 +217,7 @@ class TestQueryWithoutDetail:
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testGeoname
-        assert result.actual_value == Literal("00111111")
+        assert result.input_value == Literal("00111111")
 
     def test_unique_value_iri(self, report_unique_value_iri: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res, _, info = report_unique_value_iri
@@ -226,7 +226,7 @@ class TestQueryWithoutDetail:
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testHasLinkTo
-        assert result.actual_value == DATA.link_valueTarget_id
+        assert result.input_value == DATA.link_valueTarget_id
 
     def test_coexist_with(self, report_coexist_with: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         validation_g, _, info = report_coexist_with
@@ -234,7 +234,7 @@ class TestQueryWithoutDetail:
         assert isinstance(result, SeqnumIsPartOfViolation)
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
-        assert result.results_message == "The property seqnum must be used together with isPartOf"
+        assert result.message == "The property seqnum must be used together with isPartOf"
         assert not result.property
 
     def test_unknown(self, result_unknown_component: tuple[Graph, ValidationResultBaseInfo]) -> None:
@@ -254,8 +254,8 @@ class TestQueryWithDetail:
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testTextarea
-        assert result.results_message == "TextValue without formatting"
-        assert result.actual_value_type == KNORA_API.TextValue
+        assert result.expected == "TextValue without formatting"
+        assert result.input_type == KNORA_API.TextValue
 
     def test_result_id_uri(self, report_value_type: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res, data, info = report_value_type
@@ -264,8 +264,8 @@ class TestQueryWithDetail:
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testUriValue
-        assert result.results_message == "UriValue"
-        assert result.actual_value_type == KNORA_API.TextValue
+        assert result.expected == "UriValue"
+        assert result.input_type == KNORA_API.TextValue
 
     def test_result_geoname_not_number(self, report_regex: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res, data, info = report_regex
@@ -274,8 +274,8 @@ class TestQueryWithDetail:
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testGeoname
-        assert result.results_message == "The value must be a valid geoname code"
-        assert result.actual_value == "this-is-not-a-valid-code"
+        assert result.expected == "The value must be a valid geoname code"
+        assert result.input_value == "this-is-not-a-valid-code"
 
     def test_link_target_non_existent(
         self, report_link_target_non_existent: tuple[Graph, Graph, ValidationResultBaseInfo]
@@ -286,9 +286,9 @@ class TestQueryWithDetail:
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testHasLinkTo
-        assert result.expected_type == KNORA_API.Resource
-        assert result.target_iri == URIRef("http://data/other")
-        assert not result.target_resource_type
+        assert result.expected == KNORA_API.Resource
+        assert result.input_value == URIRef("http://data/other")
+        assert not result.input_type
 
     def test_link_target_wrong_class(
         self, report_link_target_wrong_class: tuple[Graph, Graph, ValidationResultBaseInfo]
@@ -299,9 +299,9 @@ class TestQueryWithDetail:
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testHasLinkToCardOneResource
-        assert result.expected_type == ONTO.CardOneResource
-        assert result.target_iri == URIRef("http://data/id_9_target")
-        assert result.target_resource_type == ONTO.ClassWithEverything
+        assert result.expected == ONTO.CardOneResource
+        assert result.input_value == URIRef("http://data/id_9_target")
+        assert result.input_type == ONTO.ClassWithEverything
 
     def test_report_unknown_list_name(
         self, report_unknown_list_name: tuple[Graph, Graph, ValidationResultBaseInfo]
@@ -312,8 +312,8 @@ class TestQueryWithDetail:
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testListProp
-        assert result.results_message == "A valid node from the list 'firstList' must be used with this property."
-        assert result.actual_value == "other / n1"
+        assert result.message == "A valid node from the list 'firstList' must be used with this property."
+        assert result.input_value == "other / n1"
 
     def test_report_unknown_list_node(
         self, report_unknown_list_node: tuple[Graph, Graph, ValidationResultBaseInfo]
@@ -324,8 +324,8 @@ class TestQueryWithDetail:
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testListProp
-        assert result.results_message == "A valid node from the list 'firstList' must be used with this property."
-        assert result.actual_value == "firstList / other"
+        assert result.message == "A valid node from the list 'firstList' must be used with this property."
+        assert result.input_value == "firstList / other"
 
     def test_report_min_inclusive(self, report_min_inclusive: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res, data, info = report_min_inclusive
@@ -334,8 +334,8 @@ class TestQueryWithDetail:
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == KNORA_API.hasSegmentBounds
-        assert result.results_message == "The interval start must be a non-negative integer or decimal."
-        assert result.actual_value == "-2.0"
+        assert result.message == "The interval start must be a non-negative integer or decimal."
+        assert result.input_value == "-2.0"
 
 
 class TestQueryFileValueViolations:
@@ -346,7 +346,7 @@ class TestQueryFileValueViolations:
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == KNORA_API.hasMovingImageFileValue
-        assert result.results_message == "A MovingImageRepresentation requires a file with the extension 'mp4'."
+        assert result.expected == "A MovingImageRepresentation requires a file with the extension 'mp4'."
 
     def test_file_value_cardinality_to_ignore(
         self, file_value_cardinality_to_ignore: tuple[Graph, ValidationResultBaseInfo]
@@ -390,7 +390,7 @@ class TestReformatResult:
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "rdfs:label"
         assert result.expected == "The label must be a non-empty string"
-        assert not result.actual_input
+        assert not result.input_value
 
     def test_closed(self, extracted_closed_constraint: ResultNonExistentCardinalityViolation) -> None:
         result = _reformat_one_validation_result(extracted_closed_constraint)
@@ -405,7 +405,7 @@ class TestReformatResult:
         assert result.res_id == "id_simpletext"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testTextarea"
-        assert result.actual_input_type == "TextValue"
+        assert result.input_type == "TextValue"
         assert result.expected == "TextValue without formatting"
 
     def test_value_type(self, extracted_value_type: ResultValueTypeViolation) -> None:
@@ -414,7 +414,7 @@ class TestReformatResult:
         assert result.res_id == "id_uri"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testUriValue"
-        assert result.actual_input_type == "TextValue"
+        assert result.input_type == "TextValue"
         assert result.expected == "UriValue"
 
     def test_violation_regex(self, extracted_regex: ResultPatternViolation) -> None:
@@ -424,7 +424,7 @@ class TestReformatResult:
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testGeoname"
         assert result.expected == "The value must be a valid geoname code"
-        assert result.actual_input == "this-is-not-a-valid-code"
+        assert result.input_value == "this-is-not-a-valid-code"
 
     def test_link_target_non_existent(self, extracted_link_target_non_existent: ResultLinkTargetViolation) -> None:
         result = _reformat_one_validation_result(extracted_link_target_non_existent)
@@ -432,7 +432,7 @@ class TestReformatResult:
         assert result.res_id == "link_target_non_existent"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testHasLinkTo"
-        assert result.actual_input == "other"
+        assert result.input_value == "other"
 
     def test_link_target_wrong_class(self, extracted_link_target_wrong_class: ResultLinkTargetViolation) -> None:
         result = _reformat_one_validation_result(extracted_link_target_wrong_class)
@@ -440,8 +440,8 @@ class TestReformatResult:
         assert result.res_id == "link_target_wrong_class"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testHasLinkToCardOneResource"
-        assert result.actual_input == "id_9_target"
-        assert result.actual_input_type == "onto:ClassWithEverything"
+        assert result.input_value == "id_9_target"
+        assert result.input_type == "onto:ClassWithEverything"
         assert result.expected == "onto:CardOneResource"
 
     def test_unique_value_literal(self, extracted_unique_value_literal: ResultUniqueValueViolation) -> None:
@@ -450,7 +450,7 @@ class TestReformatResult:
         assert result.res_id == "identical_values_valueHas"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testGeoname"
-        assert result.actual_input == "00111111"
+        assert result.input_value == "00111111"
 
     def test_unique_value_iri(self, extracted_unique_value_iri: ResultUniqueValueViolation) -> None:
         result = _reformat_one_validation_result(extracted_unique_value_iri)
@@ -458,7 +458,7 @@ class TestReformatResult:
         assert result.res_id == "identical_values_LinkValue"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testHasLinkTo"
-        assert result.actual_input == "link_valueTarget_id"
+        assert result.input_value == "link_valueTarget_id"
 
     def test_unknown_list_node(self, extracted_unknown_list_node: ResultGenericViolation) -> None:
         result = _reformat_one_validation_result(extracted_unknown_list_node)
@@ -467,7 +467,7 @@ class TestReformatResult:
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testListProp"
         assert result.message == "A valid node from the list 'firstList' must be used with this property."
-        assert result.actual_input == "firstList / other"
+        assert result.input_value == "firstList / other"
 
     def test_unknown_list_name(self, extracted_unknown_list_name: ResultGenericViolation) -> None:
         result = _reformat_one_validation_result(extracted_unknown_list_name)
@@ -476,7 +476,7 @@ class TestReformatResult:
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testListProp"
         assert result.message == "A valid node from the list 'firstList' must be used with this property."
-        assert result.actual_input == "other / n1"
+        assert result.input_value == "other / n1"
 
     def test_min_inclusive(self, extracted_min_inclusive: ResultGenericViolation) -> None:
         result = _reformat_one_validation_result(extracted_min_inclusive)
@@ -485,7 +485,7 @@ class TestReformatResult:
         assert result.res_type == "VideoSegment"
         assert result.prop_name == "hasSegmentBounds"
         assert result.message == "The interval start must be a non-negative integer or decimal."
-        assert result.actual_input == "-2.0"
+        assert result.input_value == "-2.0"
 
     def test_missing_file_value(self, extracted_missing_file_value: ResultFileValueViolation) -> None:
         result = _reformat_one_validation_result(extracted_missing_file_value)

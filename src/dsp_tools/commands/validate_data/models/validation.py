@@ -88,50 +88,6 @@ class ViolationType(Enum):
 
 
 @dataclass
-class SeqnumIsPartOfViolation(ValidationResult): ...
-
-
-@dataclass
-class ResultUniqueValueViolation(ValidationResult): ...
-
-
-@dataclass
-class ResultValueTypeViolation(ValidationResult): ...
-
-
-@dataclass
-class ResultPatternViolation(ValidationResult): ...
-
-
-@dataclass
-class ResultGenericViolation(ValidationResult): ...
-
-
-@dataclass
-class ResultLinkTargetViolation(ValidationResult): ...
-
-
-@dataclass
-class ResultMaxCardinalityViolation(ValidationResult): ...
-
-
-@dataclass
-class ResultMinCardinalityViolation(ValidationResult): ...
-
-
-@dataclass
-class ResultNonExistentCardinalityViolation(ValidationResult): ...
-
-
-@dataclass
-class ResultFileValueNotAllowedViolation(ValidationResult): ...
-
-
-@dataclass
-class ResultFileValueViolation(ValidationResult): ...
-
-
-@dataclass
 class ReformattedIRI:
     res_id: str
     res_type: str

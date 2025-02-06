@@ -90,12 +90,16 @@ class StackHandler:
         """
         url_prefix_base = "https://github.com/dasch-swiss/dsp-api/raw"
 
+        docker_compose_pth = importlib.resources.files("dsp_tools").joinpath("resources/start-stack/docker-compose.yml")
+        docker_compose = yaml.safe_load(docker_compose_pth.read_bytes())
+        tag = docker_compose["services"]["api"]["image"].split(":")[-1]
+  
+        response = requests.get(f"https://api.github.com/repos/dasch-swiss/dsp-api/git/ref/tags/{tag}", timeout=5)
+        commit_of_used_api_version = response.json()["object"]["sha"]
+
         if self.__stack_configuration.latest_dev_version:
             return f"{url_prefix_base}/main/"
 
-        config_file = importlib.resources.files("dsp_tools").joinpath("resources/start-stack/start-stack-config.yml")
-        start_stack_config = yaml.safe_load(config_file.read_bytes())
-        commit_of_used_api_version = start_stack_config["DSP-API commit"]
         return f"{url_prefix_base}/{commit_of_used_api_version}/"
 
     def _copy_resources_to_home_dir(self) -> None:

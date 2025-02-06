@@ -469,10 +469,10 @@ class FileValueProblem(InputProblemABC):
 
 @dataclass
 class InputProblem:
+    problem_type: ProblemType
     res_id: str
     res_type: str
     prop_name: str
-    problem_type: ProblemType
     message: str | None = None
     actual_input: str | None = None
     actual_input_type: str | None = None

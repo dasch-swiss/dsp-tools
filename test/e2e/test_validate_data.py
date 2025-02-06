@@ -18,8 +18,8 @@ from dsp_tools.commands.validate_data.models.input_problems import UnknownClasse
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
-from dsp_tools.commands.validate_data.query_validaton_result import _extract_base_info_of_resource_results
-from dsp_tools.commands.validate_data.query_validaton_result import reformat_validation_graph
+from dsp_tools.commands.validate_data.query_validation_result import _extract_base_info_of_resource_results
+from dsp_tools.commands.validate_data.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validate_data import _get_parsed_graphs
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result

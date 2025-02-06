@@ -1,7 +1,7 @@
 import pytest
-from mypy.errors import Literal
+from rdflib import Literal
 from rdflib import RDFS
-from rdflib import SH
+from rdflib import SH, XSD
 from rdflib import Graph
 
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
@@ -341,7 +341,7 @@ class TestQueryWithDetail:
         assert result.res_class == info.res_class_type
         assert result.property == KNORA_API.hasSegmentBounds
         assert result.message == "The interval start must be a non-negative integer or decimal."
-        assert result.input_value == Literal("-2.0")
+        assert result.input_value == Literal("-2.0", datatype=XSD.decimal)
 
 
 class TestQueryFileValueViolations:

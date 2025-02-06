@@ -4,6 +4,7 @@ from pathlib import Path
 import pandas as pd
 
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
+from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 
 LIST_SEPARATOR = "\n    - "
 GRAND_SEPARATOR = "\n\n----------------------------\n"
@@ -65,8 +66,10 @@ def _get_message_detail_str(problem: InputProblem) -> str:
         msg.append(f"Your input: '{_shorten_input(problem.actual_input)}'")
     if problem.actual_input_type:
         msg.append(f"Actual input type: '{problem.actual_input_type}'")
+    if problem.problem_type not in {ProblemType.GENERIC, ProblemType.FILE_VALUE}:
+        msg.append(str(problem.problem_type))
     if problem.expected:
-        msg.append(f"Expected: '{problem.expected}'")
+        msg.append(f"Expected: {problem.expected}")
     return " | ".join(msg)
 
 

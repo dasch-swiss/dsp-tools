@@ -3,7 +3,7 @@ from __future__ import annotations
 import warnings
 from dataclasses import dataclass
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 
 from rdflib import Graph
@@ -116,7 +116,7 @@ class InputProblem:
     expected: str | None = None
 
 
-class ProblemType(Enum):
+class ProblemType(StrEnum):
     GENERIC = "generic"
     FILE_VALUE = "file problem"
     MAX_CARD = "Maximum Cardinality Violation"

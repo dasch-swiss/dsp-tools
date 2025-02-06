@@ -18,7 +18,9 @@ def generic_problem() -> InputProblem:
 
 def test_get_message_for_one_resource_generic(generic_problem: InputProblem) -> None:
     result = _get_message_for_one_resource([generic_problem])
-    expected = "Resource ID: res_id | Resource Type: onto:Class\n"
+    expected = (
+        "Resource ID: res_id | Resource Type: onto:Class\nonto:hasGenericProblem\n    - This is a generic problem."
+    )
     assert result == expected
 
 
@@ -38,7 +40,7 @@ def test_get_message_for_one_resource_file_value(file_value: InputProblem) -> No
     expected = (
         "Resource ID: res_id | Resource Type: onto:Class\n"
         "bitstream / iiif-uri\n"
-        "    - A MovingImageRepresentation requires a file with the extension 'mp4'."
+        "    - Expected: A MovingImageRepresentation requires a file with the extension 'mp4'."
     )
     assert result == expected
 
@@ -95,7 +97,7 @@ def non_existing_card() -> InputProblem:
     )
 
 
-def test_get_message_for_one_resource_(non_existing_card: InputProblem) -> None:
+def test_get_message_for_one_resource_non_existing_card(non_existing_card: InputProblem) -> None:
     result = _get_message_for_one_resource([non_existing_card])
     expected = (
         "Resource ID: res_id | Resource Type: onto:Class\n"
@@ -117,7 +119,11 @@ def file_value_prohibited() -> InputProblem:
 
 def test_get_message_for_one_resource_file_value_prohibited(file_value_prohibited: InputProblem) -> None:
     result = _get_message_for_one_resource([file_value_prohibited])
-    expected = "Resource ID: res_id | Resource Type: onto:Class\n"
+    expected = (
+        "Resource ID: res_id | Resource Type: onto:Class\n"
+        "bitstream / iiif-uri\n"
+        "    - Expected: A file was added to the resource. This resource type must not have a file."
+    )
     assert result == expected
 
 

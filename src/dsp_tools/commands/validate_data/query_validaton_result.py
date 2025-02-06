@@ -14,8 +14,6 @@ from dsp_tools.commands.validate_data.constants import KNORA_API
 from dsp_tools.commands.validate_data.constants import SubjectObjectTypeAlias
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
-from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
-from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import UnexpectedResults
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo

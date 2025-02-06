@@ -21,6 +21,7 @@ from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalit
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
+from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProblem
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
@@ -375,37 +376,37 @@ class TestReformatValidationGraph:
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
             assert one_result.res_id == expected_info[0]
             assert one_result.prop_name == expected_info[1]
-            if isinstance(one_result, InputRegexProblem):
-                assert one_result.expected_format == expected_info[2]
-            elif isinstance(one_result, GenericProblemWithInput):
-                assert one_result.results_message == expected_info[2]
-            elif isinstance(one_result, LinkTargetTypeMismatchProblem):
-                assert one_result.link_target_id == expected_info[2]
-            elif isinstance(one_result, LinkedResourceDoesNotExistProblem):
-                assert one_result.link_target_id == expected_info[2]
+            if one_result.problem_type == ProblemType.INPUT_REGEX:
+                assert one_result.expected == expected_info[2]
+            elif one_result.problem_type == ProblemType.GENERIC:
+                assert one_result.message == expected_info[2]
+            elif one_result.problem_type == ProblemType.LINK_TARGET_TYPE_MISMATCH:
+                assert one_result.actual_input == expected_info[2]
+            elif one_result.problem_type == ProblemType.INEXISTENT_LINKED_RESOURCE:
+                assert one_result.actual_input == expected_info[2]
             else:
-                assert isinstance(one_result, LinkedResourceDoesNotExistProblem)
+                assert one_result.problem_type == ProblemType.INEXISTENT_LINKED_RESOURCE
 
     def test_reformat_every_constraint_once(self, every_combination_once: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(every_combination_once)
         expected_info_tuples = [
-            ("empty_label", InputRegexProblem),
-            ("geoname_not_number", InputRegexProblem),
-            ("id_card_one", MinCardinalityProblem),
-            ("id_closed_constraint", NonExistentCardinalityProblem),
-            ("id_max_card", MaxCardinalityProblem),
-            ("id_missing_file_value", FileValueProblem),
-            ("id_simpletext", ValueTypeProblem),
-            ("id_uri", ValueTypeProblem),
-            ("identical_values", DuplicateValueProblem),
-            ("link_target_non_existent", LinkedResourceDoesNotExistProblem),
-            ("link_target_wrong_class", LinkTargetTypeMismatchProblem),
-            ("list_node_non_existent", GenericProblemWithInput),
-            ("missing_seqnum", GenericProblemWithMessage),
-            ("richtext_standoff_link_nonexistent", GenericProblemWithInput),
-            ("video_segment_start_larger_than_end", GenericProblemWithInput),
-            ("video_segment_wrong_bounds", GenericProblemWithInput),  # once for start that is less than zero
-            ("video_segment_wrong_bounds", GenericProblemWithInput),  # once for the end that is zero
+            ("empty_label", ProblemType.INPUT_REGEX),
+            ("geoname_not_number", ProblemType.INPUT_REGEX),
+            ("id_card_one", ProblemType.MIN_CARD),
+            ("id_closed_constraint", ProblemType.NON_EXISTING_CARD),
+            ("id_max_card", ProblemType.MAX_CARD),
+            ("id_missing_file_value", ProblemType.FILE_VALUE),
+            ("id_simpletext", ProblemType.VALUE_TYPE_MISMATCH),
+            ("id_uri", ProblemType.VALUE_TYPE_MISMATCH),
+            ("identical_values", ProblemType.DUPLICATE_VALUE),
+            ("link_target_non_existent", ProblemType.INEXISTENT_LINKED_RESOURCE),
+            ("link_target_wrong_class", ProblemType.LINK_TARGET_TYPE_MISMATCH),
+            ("list_node_non_existent", ProblemType.GENERIC),
+            ("missing_seqnum", ProblemType.GENERIC),
+            ("richtext_standoff_link_nonexistent", ProblemType.GENERIC),
+            ("video_segment_start_larger_than_end", ProblemType.GENERIC),
+            ("video_segment_wrong_bounds", ProblemType.GENERIC),  # once for start that is less than zero
+            ("video_segment_wrong_bounds", ProblemType.GENERIC),  # once for the end that is zero
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)

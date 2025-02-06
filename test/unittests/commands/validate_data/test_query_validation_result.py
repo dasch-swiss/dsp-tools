@@ -1,4 +1,5 @@
 import pytest
+from mypy.errors import Literal
 from rdflib import RDFS
 from rdflib import SH
 from rdflib import Graph
@@ -57,7 +58,7 @@ class TestQueryAllResults:
         assert result.res_iri == DATA.region_isRegionOf_resource_not_a_representation
         assert result.res_class == KNORA_API.Region
         assert result.property == KNORA_API.isRegionOf
-        assert result.input_value == str(DATA.target_res_without_representation_1)
+        assert result.input_value == DATA.target_res_without_representation_1
         assert result.input_type == IN_BUILT_ONTO.TestNormalResource
         assert str(result.expected) == "http://api.knora.org/ontology/knora-api/v2#Representation"
 
@@ -200,7 +201,7 @@ class TestQueryWithoutDetail:
         assert result.res_class == info.res_class_type
         assert result.property == RDFS.label
         assert result.expected == "The label must be a non-empty string"
-        assert result.input_value == " "
+        assert result.input_value == Literal(" ")
 
     def test_unique_value_literal(
         self, report_unique_value_literal: tuple[Graph, Graph, ValidationResultBaseInfo]
@@ -212,7 +213,7 @@ class TestQueryWithoutDetail:
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testGeoname
-        assert result.input_value == "00111111"
+        assert result.input_value == Literal("00111111")
 
     def test_unique_value_iri(self, report_unique_value_iri: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res, _, info = report_unique_value_iri
@@ -222,7 +223,7 @@ class TestQueryWithoutDetail:
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testHasLinkTo
-        assert result.input_value == str(DATA.link_valueTarget_id)
+        assert result.input_value == DATA.link_valueTarget_id
 
     def test_coexist_with(self, report_coexist_with: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         validation_g, _, info = report_coexist_with
@@ -275,7 +276,7 @@ class TestQueryWithDetail:
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testGeoname
         assert result.expected == "The value must be a valid geoname code"
-        assert result.input_value == "this-is-not-a-valid-code"
+        assert result.input_value == Literal("this-is-not-a-valid-code")
 
     def test_link_target_non_existent(
         self, report_link_target_non_existent: tuple[Graph, Graph, ValidationResultBaseInfo]
@@ -288,7 +289,7 @@ class TestQueryWithDetail:
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testHasLinkTo
         assert result.expected == str(KNORA_API.Resource)
-        assert result.input_value == "http://data/other"
+        assert result.input_value == DATA.other
         assert not result.input_type
 
     def test_link_target_wrong_class(
@@ -302,7 +303,7 @@ class TestQueryWithDetail:
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testHasLinkToCardOneResource
         assert result.expected == str(ONTO.CardOneResource)
-        assert result.input_value == "http://data/id_9_target"
+        assert result.input_value == DATA.id_9_target
         assert result.input_type == ONTO.ClassWithEverything
 
     def test_report_unknown_list_name(
@@ -316,7 +317,7 @@ class TestQueryWithDetail:
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testListProp
         assert result.message == "A valid node from the list 'firstList' must be used with this property."
-        assert result.input_value == "other / n1"
+        assert result.input_value == Literal("other / n1")
 
     def test_report_unknown_list_node(
         self, report_unknown_list_node: tuple[Graph, Graph, ValidationResultBaseInfo]
@@ -329,7 +330,7 @@ class TestQueryWithDetail:
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testListProp
         assert result.message == "A valid node from the list 'firstList' must be used with this property."
-        assert result.input_value == "firstList / other"
+        assert result.input_value == Literal("firstList / other")
 
     def test_report_min_inclusive(self, report_min_inclusive: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res, data, info = report_min_inclusive
@@ -340,7 +341,7 @@ class TestQueryWithDetail:
         assert result.res_class == info.res_class_type
         assert result.property == KNORA_API.hasSegmentBounds
         assert result.message == "The interval start must be a non-negative integer or decimal."
-        assert result.input_value == "-2.0"
+        assert result.input_value == Literal("-2.0")
 
 
 class TestQueryFileValueViolations:

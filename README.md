@@ -8,7 +8,7 @@
 
 # DSP-TOOLS - DaSCH Service Platform Tools
 
-DSP-TOOLS is a command line tool that helps you to interact with the DaSCH Service Platform (DSP) API. 
+DSP-TOOLS is a command line tool that helps you to interact with the DaSCH Service Platform (DSP) API. foo
 This document is intended for developers who want to work with the code of DSP-TOOLS. 
 
 | <center>Hint</center>                                                                                                 |

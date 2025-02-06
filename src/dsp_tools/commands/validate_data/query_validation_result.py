@@ -8,7 +8,6 @@ from rdflib import SH
 from rdflib import Graph
 from rdflib import Literal
 
-from dsp_tools.commands.validate_data.constants import API_SHAPES
 from dsp_tools.commands.validate_data.constants import DASH
 from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROP_SHAPES
 from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROPERTIES
@@ -42,7 +41,6 @@ from dsp_tools.commands.validate_data.models.validation import ViolationType
 from dsp_tools.commands.validate_data.utils import reformat_data_iri
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.models.exceptions import BaseError
-
 
 
 def reformat_validation_graph(report: ValidationReportGraphs) -> AllProblems:
@@ -175,7 +173,8 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
         case SH.MinCountConstraintComponent:
             return _query_for_min_cardinality_violation(base_info, msg, results_and_onto)
         case SH.MaxCountConstraintComponent:
-            return ResultMaxCardinalityViolation(
+            return ValidationResult(
+                violation_type=ViolationType.MAX_CARD,
                 res_iri=base_info.resource_iri,
                 res_class=base_info.res_class_type,
                 property=base_info.result_path,
@@ -186,16 +185,17 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
         case SH.SPARQLConstraintComponent:
             return _query_for_unique_value_violation(base_info, results_and_onto)
         case DASH.CoExistsWithConstraintComponent:
-            return SeqnumIsPartOfViolation(
+            return ValidationResult(
+                violation_type=ViolationType.SEQNUM_IS_PART_OF,
                 res_iri=base_info.resource_iri,
                 res_class=base_info.res_class_type,
                 message=msg,
-                property=None,
             )
         case SH.ClassConstraintComponent:
             val = next(results_and_onto.objects(base_info.result_bn, SH.value))
             target_id = reformat_data_iri(val)
-            return ResultGenericViolation(
+            return ValidationResult(
+                violation_type=ViolationType.GENERIC,
                 res_iri=base_info.resource_iri,
                 res_class=base_info.res_class_type,
                 property=base_info.result_path,
@@ -217,12 +217,12 @@ def _query_for_non_existent_cardinality_violation(
         sub_classes = list(results_and_onto.transitive_objects(base_info.res_class_type, RDFS.subClassOf))
         if KNORA_API.Representation in sub_classes:
             return None
-        return ResultFileValueNotAllowedViolation(
-            res_iri=base_info.resource_iri,
-            res_class=base_info.res_class_type,
-            property=base_info.result_path,
-        )
-    return ResultNonExistentCardinalityViolation(
+        violation_type = ViolationType.FILEVALUE_PROHIBITED
+    else:
+        violation_type = ViolationType.INEXISTENT_CARD
+
+    return ValidationResult(
+        violation_type=violation_type,
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
         property=base_info.result_path,
@@ -278,12 +278,13 @@ def _query_class_constraint_component_violation(
 
 def _query_for_value_type_violation(
     base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
-) -> ResultValueTypeViolation:
+) -> ValidationResult:
     detail_info = cast(DetailBaseInfo, base_info.detail)
     msg = next(results_and_onto.objects(detail_info.detail_bn, SH.resultMessage))
     val = next(results_and_onto.objects(base_info.result_bn, SH.value))
     val_type = next(data_graph.objects(val, RDF.type))
-    return ResultValueTypeViolation(
+    return ValidationResult(
+        violation_type=ViolationType.VALUE_TYPE,
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
         property=base_info.result_path,
@@ -308,12 +309,13 @@ def _query_pattern_constraint_component_violation(
     )
 
 
-def _query_generic_violation(base_info: ValidationResultBaseInfo, results_and_onto: Graph) -> ResultGenericViolation:
+def _query_generic_violation(base_info: ValidationResultBaseInfo, results_and_onto: Graph) -> ValidationResult:
     detail_info = cast(DetailBaseInfo, base_info.detail)
     val = next(results_and_onto.objects(detail_info.detail_bn, SH.value))
     msg = str(next(results_and_onto.objects(detail_info.detail_bn, SH.resultMessage)))
     msg = _remove_whitespaces_from_string(msg)
-    return ResultGenericViolation(
+    return ValidationResult(
+        violation_type=ViolationType.GENERIC,
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
         property=base_info.result_path,
@@ -324,14 +326,15 @@ def _query_generic_violation(base_info: ValidationResultBaseInfo, results_and_on
 
 def _query_for_link_value_target_violation(
     base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
-) -> ResultLinkTargetViolation:
+) -> ValidationResult:
     detail_info = cast(DetailBaseInfo, base_info.detail)
     target_iri = next(results_and_onto.objects(detail_info.detail_bn, SH.value))
     target_rdf_type: SubjectObjectTypeAlias | None = None
     if target_type := list(data_graph.objects(target_iri, RDF.type)):
         target_rdf_type = target_type[0]
     expected_type = next(results_and_onto.objects(detail_info.detail_bn, SH.resultMessage))
-    return ResultLinkTargetViolation(
+    return ValidationResult(
+        violation_type=ViolationType.LINK_TARGET,
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
         property=base_info.result_path,
@@ -363,9 +366,10 @@ def _query_for_min_cardinality_violation(
 def _query_for_unique_value_violation(
     base_info: ValidationResultBaseInfo,
     results_and_onto: Graph,
-) -> ResultUniqueValueViolation:
+) -> ValidationResult:
     val = next(results_and_onto.objects(base_info.result_bn, SH.value))
-    return ResultUniqueValueViolation(
+    return ValidationResult(
+        violation_type=ViolationType.UNIQUE_VALUE,
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
         property=base_info.result_path,

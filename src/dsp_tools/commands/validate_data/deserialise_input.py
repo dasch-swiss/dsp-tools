@@ -8,8 +8,8 @@ from lxml import etree
 from dsp_tools.commands.validate_data.constants import AUDIO_SEGMENT_RESOURCE
 from dsp_tools.commands.validate_data.constants import KNORA_API_STR
 from dsp_tools.commands.validate_data.constants import VIDEO_SEGMENT_RESOURCE
-from dsp_tools.commands.validate_data.constants import XML_ATTRIB_TO_PROP_TYPE_MAPPER
-from dsp_tools.commands.validate_data.constants import XML_TAG_TO_VALUE_TYPE_MAPPER
+from dsp_tools.commands.validate_data.mappers import XML_ATTRIB_TO_PROP_TYPE_MAPPER
+from dsp_tools.commands.validate_data.mappers import XML_TAG_TO_VALUE_TYPE_MAPPER
 from dsp_tools.commands.validate_data.models.data_deserialised import DataDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import KnoraValueType
 from dsp_tools.commands.validate_data.models.data_deserialised import ProjectDeserialised

@@ -144,7 +144,7 @@ def test_get_message_for_one_resource_value_type_mismatch(value_type_mismatch: I
     expected = (
         "Resource ID: res_id | Resource Type: onto:Class\n"
         "onto:hasProp\n"
-        "    - Value Type Mismatch | Actual input type: 'LinkValue' | Expected: 'ListValue'"
+        "    - Value Type Mismatch | Actual input type: 'LinkValue' | Expected Value Type: 'ListValue'"
     )
     assert result == expected
 
@@ -190,8 +190,8 @@ def test_get_message_for_one_resource_link_target_mismatch(link_target_mismatch:
     expected = (
         "Resource ID: res_id | Resource Type: onto:Class\n"
         "onto:hasProp\n"
-        "    - Linked Resource Type Mismatch | Your input: 'link_target_id' "
-        "Actual Type: 'onto:Class' | Expected Resource Type: : onto:File or a subclass."
+        "    - Linked Resource Type Mismatch | Your input: 'link_target_id' | "
+        "Actual input type: 'onto:Class' | Expected Resource Type: onto:File or a subclass"
     )
     assert result == expected
 
@@ -212,7 +212,7 @@ def test_get_message_for_one_resource_inexistent_linked_resource(inexistent_link
     expected = (
         "Resource ID: res_id | Resource Type: onto:Class\n"
         "onto:hasProp\n"
-        "    - Linked Resource does not Exist, Target Resource ID: 'link_target_id'"
+        "    - Linked Resource does not exist | Your input: 'link_target_id'"
     )
     assert result == expected
 
@@ -231,6 +231,7 @@ def duplicate_value() -> InputProblem:
 def test_get_message_for_one_resource_duplicate_value(duplicate_value: InputProblem) -> None:
     result = _get_message_for_one_resource([duplicate_value])
     expected = (
-        "Resource ID: res_id | Resource Type: onto:Class\nonto:hasProp\n    - Value is duplicated, Your Input: 'Text'"
+        "Resource ID: res_id | Resource Type: onto:Class\nonto:hasProp\n"
+        "    - Your input is duplicated | Your input: 'Text'"
     )
     assert result == expected

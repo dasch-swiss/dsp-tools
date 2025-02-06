@@ -82,7 +82,7 @@ class ViolationType(Enum):
     LINK_TARGET = auto()
     MAX_CARD = auto()
     MIN_CARD = auto()
-    INEXISTENT_CARD = auto()
+    NON_EXISTING_CARD = auto()
     FILEVALUE_PROHIBITED = auto()
     FILE_VALUE = auto()
 

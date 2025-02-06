@@ -22,17 +22,6 @@ from dsp_tools.commands.validate_data.models.input_problems import UnexpectedRes
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import QueryInfo
 from dsp_tools.commands.validate_data.models.validation import ReformattedIRI
-from dsp_tools.commands.validate_data.models.validation import ResultFileValueNotAllowedViolation
-from dsp_tools.commands.validate_data.models.validation import ResultFileValueViolation
-from dsp_tools.commands.validate_data.models.validation import ResultGenericViolation
-from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
-from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
-from dsp_tools.commands.validate_data.models.validation import ResultMinCardinalityViolation
-from dsp_tools.commands.validate_data.models.validation import ResultNonExistentCardinalityViolation
-from dsp_tools.commands.validate_data.models.validation import ResultPatternViolation
-from dsp_tools.commands.validate_data.models.validation import ResultUniqueValueViolation
-from dsp_tools.commands.validate_data.models.validation import ResultValueTypeViolation
-from dsp_tools.commands.validate_data.models.validation import SeqnumIsPartOfViolation
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationResult
@@ -219,7 +208,7 @@ def _query_for_non_existent_cardinality_violation(
             return None
         violation_type = ViolationType.FILEVALUE_PROHIBITED
     else:
-        violation_type = ViolationType.INEXISTENT_CARD
+        violation_type = ViolationType.NON_EXISTING_CARD
 
     return ValidationResult(
         violation_type=violation_type,
@@ -382,11 +371,11 @@ def _reformat_extracted_results(results: list[ValidationResult]) -> list[InputPr
 
 
 def _reformat_one_validation_result(validation_result: ValidationResult) -> InputProblem:  # noqa: PLR0911 Too many return statements
-    match validation_result:
-        case ResultMaxCardinalityViolation() | ResultMinCardinalityViolation() as violation:
+    match validation_result.violation_type:
+        case ViolationType.MAX_CARD | ViolationType.MIN_CARD as violation:
             problem = RESULT_TO_PROBLEM_MAPPER[type(violation)]
             return _reformat_with_prop_and_message(result=validation_result, problem_type=problem)
-        case ResultNonExistentCardinalityViolation():
+        case ViolationType.NON_EXISTING_CARD:
             iris = _reformat_main_iris(validation_result)
             return InputProblem(
                 problem_type=ProblemType.NON_EXISTING_CARD,
@@ -394,7 +383,7 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
                 res_type=iris.res_type,
                 prop_name=iris.prop_name,
             )
-        case ResultFileValueNotAllowedViolation():
+        case ViolationType.FILEVALUE_PROHIBITED:
             iris = _reformat_main_iris(validation_result)
             return InputProblem(
                 problem_type=ProblemType.FILE_VALUE_PROHIBITED,
@@ -402,7 +391,7 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
                 res_type=iris.res_type,
                 prop_name="bitstream / iiif-uri",
             )
-        case ResultGenericViolation():
+        case ViolationType.GENERIC:
             iris = _reformat_main_iris(validation_result)
             return InputProblem(
                 problem_type=ProblemType.GENERIC,
@@ -412,7 +401,7 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
                 message=validation_result.message,
                 input_value=validation_result.input_value,
             )
-        case SeqnumIsPartOfViolation():
+        case ViolationType.SEQNUM_IS_PART_OF:
             iris = _reformat_main_iris(validation_result)
             return InputProblem(
                 problem_type=ProblemType.GENERIC,
@@ -421,15 +410,15 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
                 prop_name="seqnum or isPartOf",
                 message=validation_result.message,
             )
-        case ResultValueTypeViolation():
+        case ViolationType.VALUE_TYPE:
             return _reformat_value_type_violation_result(validation_result)
-        case ResultPatternViolation():
+        case ViolationType.PATTERN:
             return _reformat_pattern_violation_result(validation_result)
-        case ResultLinkTargetViolation():
+        case ViolationType.LINK_TARGET:
             return _reformat_link_target_violation_result(validation_result)
-        case ResultUniqueValueViolation():
+        case ViolationType.UNIQUE_VALUE:
             return _reformat_unique_value_violation_result(validation_result)
-        case ResultFileValueViolation():
+        case ViolationType.FILE_VALUE:
             iris = _reformat_main_iris(validation_result)
             return InputProblem(
                 problem_type=ProblemType.FILE_VALUE,
@@ -443,7 +432,7 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
 
 
 def _reformat_with_prop_and_message(
-    result: ResultMaxCardinalityViolation | ResultMinCardinalityViolation,
+    result: ValidationResult,
     problem_type: ProblemType,
 ) -> InputProblem:
     iris = _reformat_main_iris(result)
@@ -456,7 +445,7 @@ def _reformat_with_prop_and_message(
     )
 
 
-def _reformat_value_type_violation_result(result: ResultValueTypeViolation) -> InputProblem:
+def _reformat_value_type_violation_result(result: ValidationResult) -> InputProblem:
     iris = _reformat_main_iris(result)
     actual_type = reformat_onto_iri(str(result.input_type))
     return InputProblem(
@@ -469,7 +458,7 @@ def _reformat_value_type_violation_result(result: ResultValueTypeViolation) -> I
     )
 
 
-def _reformat_pattern_violation_result(result: ResultPatternViolation) -> InputProblem:
+def _reformat_pattern_violation_result(result: ValidationResult) -> InputProblem:
     iris = _reformat_main_iris(result)
     val: str | None = result.input_value
     if val and not regex.search(r"\S+", val):
@@ -484,7 +473,7 @@ def _reformat_pattern_violation_result(result: ResultPatternViolation) -> InputP
     )
 
 
-def _reformat_link_target_violation_result(result: ResultLinkTargetViolation) -> InputProblem:
+def _reformat_link_target_violation_result(result: ValidationResult) -> InputProblem:
     iris = _reformat_main_iris(result)
     target_id = reformat_data_iri(str(result.input_value))
     if not result.input_type:
@@ -508,7 +497,7 @@ def _reformat_link_target_violation_result(result: ResultLinkTargetViolation) ->
     )
 
 
-def _reformat_unique_value_violation_result(result: ResultUniqueValueViolation) -> InputProblem:
+def _reformat_unique_value_violation_result(result: ValidationResult) -> InputProblem:
     iris = _reformat_main_iris(result)
     if isinstance(result.input_value, Literal):
         actual_value = str(result.input_value)

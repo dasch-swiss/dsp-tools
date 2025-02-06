@@ -436,7 +436,7 @@ class TestReformatResult:
 
     def test_link_target_wrong_class(self, extracted_link_target_wrong_class: ResultLinkTargetViolation) -> None:
         result = _reformat_one_validation_result(extracted_link_target_wrong_class)
-        assert result.problem_type == ProblemType.INPUT_REGEX
+        assert result.problem_type == ProblemType.LINK_TARGET_TYPE_MISMATCH
         assert result.res_id == "link_target_wrong_class"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testHasLinkToCardOneResource"

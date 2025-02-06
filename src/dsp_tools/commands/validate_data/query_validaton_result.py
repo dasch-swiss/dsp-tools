@@ -451,7 +451,7 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
                 problem_type=ProblemType.GENERIC,
                 res_id=iris.res_id,
                 res_type=iris.res_type,
-                prop_name=iris.prop_name,
+                prop_name="seqnum or isPartOf",
                 message=validation_result.results_message,
             )
         case ResultValueTypeViolation():
@@ -485,7 +485,7 @@ def _reformat_with_prop_and_message(
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
-        message=result.results_message,
+        expected=result.results_message,
     )
 
 

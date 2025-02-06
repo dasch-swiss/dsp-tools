@@ -1,5 +1,6 @@
 import pytest
 
+from dsp_tools.commands.validate_data.get_user_validation_message import _get_message_for_one_resource
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 
@@ -15,6 +16,12 @@ def generic_problem() -> InputProblem:
     )
 
 
+def test_get_message_for_one_resource_generic(generic_problem: InputProblem) -> None:
+    result = _get_message_for_one_resource([generic_problem])
+    expected = "e"
+    assert result == expected
+
+
 @pytest.fixture
 def file_value() -> InputProblem:
     return InputProblem(
@@ -24,6 +31,12 @@ def file_value() -> InputProblem:
         prop_name="onto:hasFileProblem",
         expected="A MovingImageRepresentation requires a file with the extension 'mp4'.",
     )
+
+
+def test_get_message_for_one_resource_file_value(file_value: InputProblem) -> None:
+    result = _get_message_for_one_resource([file_value])
+    expected = "e"
+    assert result == expected
 
 
 @pytest.fixture
@@ -37,6 +50,12 @@ def max_card() -> InputProblem:
     )
 
 
+def test_get_message_for_one_resource_max_card(max_card: InputProblem) -> None:
+    result = _get_message_for_one_resource([max_card])
+    expected = "e"
+    assert result == expected
+
+
 @pytest.fixture
 def min_card() -> InputProblem:
     return InputProblem(
@@ -46,6 +65,12 @@ def min_card() -> InputProblem:
         prop_name="onto:hasMinCardProblem",
         expected="1-n",
     )
+
+
+def test_get_message_for_one_resource_min_card(min_card: InputProblem) -> None:
+    result = _get_message_for_one_resource([min_card])
+    expected = "e"
+    assert result == expected
 
 
 @pytest.fixture
@@ -58,6 +83,12 @@ def non_existing_card() -> InputProblem:
     )
 
 
+def test_get_message_for_one_resource_(non_existing_card: InputProblem) -> None:
+    result = _get_message_for_one_resource([non_existing_card])
+    expected = "e"
+    assert result == expected
+
+
 @pytest.fixture
 def file_value_prohibited() -> InputProblem:
     return InputProblem(
@@ -66,6 +97,12 @@ def file_value_prohibited() -> InputProblem:
         res_type="onto:Class",
         prop_name="bitstream / iiif-uri",
     )
+
+
+def test_get_message_for_one_resource_file_value_prohibited(file_value_prohibited: InputProblem) -> None:
+    result = _get_message_for_one_resource([file_value_prohibited])
+    expected = "e"
+    assert result == expected
 
 
 @pytest.fixture
@@ -80,6 +117,12 @@ def value_type_mismatch() -> InputProblem:
     )
 
 
+def test_get_message_for_one_resource_value_type_mismatch(value_type_mismatch: InputProblem) -> None:
+    result = _get_message_for_one_resource([value_type_mismatch])
+    expected = "e"
+    assert result == expected
+
+
 @pytest.fixture
 def input_regex() -> InputProblem:
     return InputProblem(
@@ -90,6 +133,12 @@ def input_regex() -> InputProblem:
         actual_input="wrong input",
         expected="Expected format information",
     )
+
+
+def test_get_message_for_one_resource_input_regex(input_regex: InputProblem) -> None:
+    result = _get_message_for_one_resource([input_regex])
+    expected = "e"
+    assert result == expected
 
 
 @pytest.fixture
@@ -105,6 +154,12 @@ def link_target_mismatch() -> InputProblem:
     )
 
 
+def test_get_message_for_one_resource_link_target_mismatch(link_target_mismatch: InputProblem) -> None:
+    result = _get_message_for_one_resource([link_target_mismatch])
+    expected = "e"
+    assert result == expected
+
+
 @pytest.fixture
 def inexistent_linked_resource() -> InputProblem:
     return InputProblem(
@@ -116,6 +171,12 @@ def inexistent_linked_resource() -> InputProblem:
     )
 
 
+def test_get_message_for_one_resource_inexistent_linked_resource(inexistent_linked_resource: InputProblem) -> None:
+    result = _get_message_for_one_resource([inexistent_linked_resource])
+    expected = "e"
+    assert result == expected
+
+
 @pytest.fixture
 def duplicate_value() -> InputProblem:
     return InputProblem(
@@ -125,3 +186,9 @@ def duplicate_value() -> InputProblem:
         prop_name="onto:hasProp",
         actual_input="Duplicate input",
     )
+
+
+def test_get_message_for_one_resource_duplicate_value(duplicate_value: InputProblem) -> None:
+    result = _get_message_for_one_resource([duplicate_value])
+    expected = "e"
+    assert result == expected

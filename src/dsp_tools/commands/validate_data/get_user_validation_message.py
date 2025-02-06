@@ -2,9 +2,13 @@ from collections import defaultdict
 from pathlib import Path
 
 import pandas as pd
+import regex
+from rdflib import URIRef
 
+from dsp_tools.commands.validate_data.constants import SubjectObjectTypeAlias
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
+from dsp_tools.commands.validate_data.utils import reformat_data_iri, reformat_onto_iri
 
 LIST_SEPARATOR = "\n    - "
 GRAND_SEPARATOR = "\n\n----------------------------\n"
@@ -65,7 +69,7 @@ def _get_message_detail_str(problem: InputProblem) -> str:
     if problem.problem_type not in {ProblemType.GENERIC, ProblemType.FILE_VALUE}:
         msg.append(str(problem.problem_type))
     if problem.input_value:
-        msg.append(f"Your input: '{_shorten_input(problem.input_value)}'")
+        msg.append(f"Your input: '{_reformat_input_value(problem.input_value)}'")
     if problem.input_type:
         msg.append(f"Actual input type: '{problem.input_type}'")
     if problem.expected:
@@ -102,7 +106,7 @@ def _get_message_dict(problem: InputProblem) -> dict[str, str]:
         "Resource Type": problem.res_type,
         "Property": problem.prop_name,
         "Problem": problem.message,
-        "Your Input": _shorten_input(problem.input_value),
+        "Your Input": _reformat_input_value(problem.input_value),
         "Input Type": problem.input_type,
     }
     non_empty_dict = {k: v for k, v in msg_dict.items() if v}
@@ -111,7 +115,20 @@ def _get_message_dict(problem: InputProblem) -> dict[str, str]:
     return non_empty_dict
 
 
-def _shorten_input(user_input: str | None) -> str | None:
-    if not user_input or len(user_input) < 15:
+def _reformat_input_value(user_input: SubjectObjectTypeAlias | None) -> str | None:
+    if not user_input:
+        return None
+    if isinstance(user_input, URIRef):
+        return reformat_data_iri(str(user_input))
+    input_str = str(user_input)
+    if not regex.search(r"\S+", input_str):
+        return None
+    if len(user_input) > 15:
         return user_input
     return f"{user_input[:15]}[...]"
+
+
+def _reformat_input_type(input_type: SubjectObjectTypeAlias | None) -> str | None:
+    if not input_type:
+        return None
+    return reformat_onto_iri(str(input_type))

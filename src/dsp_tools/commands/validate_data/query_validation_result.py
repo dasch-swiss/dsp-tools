@@ -370,36 +370,27 @@ def _reformat_extracted_results(results: list[ValidationResult]) -> list[InputPr
     return [_reformat_one_validation_result(x) for x in results]
 
 
-def _reformat_one_validation_result(validation_result: ValidationResult) -> InputProblem:  # noqa: PLR0911 Too many return statements
+def _reformat_one_validation_result(validation_result: ValidationResult) -> InputProblem:
     match validation_result.violation_type:
-        case ViolationType.MAX_CARD | ViolationType.MIN_CARD as violation:
+        case (
+            ViolationType.MAX_CARD
+            | ViolationType.MIN_CARD
+            | ViolationType.GENERIC
+            | ViolationType.NON_EXISTING_CARD
+            | ViolationType.PATTERN
+            | ViolationType.VALUE_TYPE as violation
+        ):
             problem = RESULT_TO_PROBLEM_MAPPER[violation]
-            return _reformat_with_prop_and_message(result=validation_result, problem_type=problem)
-        case ViolationType.NON_EXISTING_CARD:
+            return _reformat_generic(result=validation_result, problem_type=problem)
+        case ViolationType.FILEVALUE_PROHIBITED | ViolationType.FILE_VALUE as violation:
+            problem = RESULT_TO_PROBLEM_MAPPER[violation]
             iris = _reformat_main_iris(validation_result)
             return InputProblem(
-                problem_type=ProblemType.NON_EXISTING_CARD,
-                res_id=iris.res_id,
-                res_type=iris.res_type,
-                prop_name=iris.prop_name,
-            )
-        case ViolationType.FILEVALUE_PROHIBITED:
-            iris = _reformat_main_iris(validation_result)
-            return InputProblem(
-                problem_type=ProblemType.FILE_VALUE_PROHIBITED,
+                problem_type=problem,
                 res_id=iris.res_id,
                 res_type=iris.res_type,
                 prop_name="bitstream / iiif-uri",
-            )
-        case ViolationType.GENERIC:
-            iris = _reformat_main_iris(validation_result)
-            return InputProblem(
-                problem_type=ProblemType.GENERIC,
-                res_id=iris.res_id,
-                res_type=iris.res_type,
-                prop_name=iris.prop_name,
-                message=validation_result.message,
-                input_value=validation_result.input_value,
+                expected=validation_result.expected,
             )
         case ViolationType.SEQNUM_IS_PART_OF:
             iris = _reformat_main_iris(validation_result)
@@ -410,37 +401,34 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
                 prop_name="seqnum or isPartOf",
                 message=validation_result.message,
             )
-        case ViolationType.VALUE_TYPE:
-            return _reformat_value_type_violation_result(validation_result)
-        case ViolationType.PATTERN:
-            return _reformat_pattern_violation_result(validation_result)
         case ViolationType.LINK_TARGET:
             return _reformat_link_target_violation_result(validation_result)
         case ViolationType.UNIQUE_VALUE:
+            # TODO: look at this
             return _reformat_unique_value_violation_result(validation_result)
-        case ViolationType.FILE_VALUE:
-            iris = _reformat_main_iris(validation_result)
-            return InputProblem(
-                problem_type=ProblemType.FILE_VALUE,
-                res_id=iris.res_id,
-                res_type=iris.res_type,
-                prop_name="bitstream / iiif-uri",
-                expected=validation_result.expected,
-            )
         case _:
             raise BaseError(f"An unknown violation result was found: {validation_result.__class__.__name__}")
 
 
-def _reformat_with_prop_and_message(
+def _reformat_generic(
     result: ValidationResult,
     problem_type: ProblemType,
 ) -> InputProblem:
     iris = _reformat_main_iris(result)
+    val: str | None = result.input_value
+    if val and not regex.search(r"\S+", val):
+        val = None
+    in_type = None
+    if result.input_type:
+        in_type = reformat_onto_iri(str(result.input_type))
     return InputProblem(
         problem_type=problem_type,
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
+        message=result.message,
+        input_value=val,
+        input_type=in_type,
         expected=result.expected,
     )
 
@@ -454,21 +442,6 @@ def _reformat_value_type_violation_result(result: ValidationResult) -> InputProb
         res_type=iris.res_type,
         prop_name=iris.prop_name,
         input_type=actual_type,
-        expected=result.expected,
-    )
-
-
-def _reformat_pattern_violation_result(result: ValidationResult) -> InputProblem:
-    iris = _reformat_main_iris(result)
-    val: str | None = result.input_value
-    if val and not regex.search(r"\S+", val):
-        val = None
-    return InputProblem(
-        problem_type=ProblemType.INPUT_REGEX,
-        res_id=iris.res_id,
-        res_type=iris.res_type,
-        prop_name=iris.prop_name,
-        input_value=val,
         expected=result.expected,
     )
 

@@ -362,8 +362,8 @@ def _query_for_link_value_target_violation(
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
         property=base_info.result_path,
-        expected=expected_type,
-        input_value=target_iri,
+        expected=str(expected_type),
+        input_value=str(target_iri),
         input_type=target_rdf_type,
     )
 
@@ -406,7 +406,7 @@ def _query_for_unique_value_violation(
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
         property=base_info.result_path,
-        input_value=val,
+        input_value=str(val),
     )
 
 

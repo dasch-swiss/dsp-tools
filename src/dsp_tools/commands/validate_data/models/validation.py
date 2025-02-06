@@ -73,7 +73,7 @@ class SeqnumIsPartOfViolation(ValidationResult):
 
 @dataclass
 class ResultUniqueValueViolation(ValidationResult):
-    input_value: SubjectObjectTypeAlias
+    input_value: str
 
 
 @dataclass
@@ -96,8 +96,8 @@ class ResultGenericViolation(ValidationResult):
 
 @dataclass
 class ResultLinkTargetViolation(ValidationResult):
-    expected: SubjectObjectTypeAlias
-    input_value: SubjectObjectTypeAlias
+    expected: str
+    input_value: str
     input_type: SubjectObjectTypeAlias | None
 
 

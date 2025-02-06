@@ -2,8 +2,6 @@ import pytest
 from rdflib import RDFS
 from rdflib import SH
 from rdflib import Graph
-from rdflib import Literal
-from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
@@ -67,7 +65,7 @@ class TestQueryAllResults:
         assert result.res_iri == DATA.region_isRegionOf_resource_not_a_representation
         assert result.res_class == KNORA_API.Region
         assert result.property == KNORA_API.isRegionOf
-        assert result.input_value == DATA.target_res_without_representation_1
+        assert result.input_value == str(DATA.target_res_without_representation_1)
         assert result.input_type == IN_BUILT_ONTO.TestNormalResource
         assert str(result.expected) == "http://api.knora.org/ontology/knora-api/v2#Representation"
 
@@ -217,7 +215,7 @@ class TestQueryWithoutDetail:
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testGeoname
-        assert result.input_value == Literal("00111111")
+        assert result.input_value == "00111111"
 
     def test_unique_value_iri(self, report_unique_value_iri: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res, _, info = report_unique_value_iri
@@ -226,7 +224,7 @@ class TestQueryWithoutDetail:
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testHasLinkTo
-        assert result.input_value == DATA.link_valueTarget_id
+        assert result.input_value == str(DATA.link_valueTarget_id)
 
     def test_coexist_with(self, report_coexist_with: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         validation_g, _, info = report_coexist_with
@@ -286,8 +284,8 @@ class TestQueryWithDetail:
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testHasLinkTo
-        assert result.expected == KNORA_API.Resource
-        assert result.input_value == URIRef("http://data/other")
+        assert result.expected == str(KNORA_API.Resource)
+        assert result.input_value == "http://data/other"
         assert not result.input_type
 
     def test_link_target_wrong_class(
@@ -299,8 +297,8 @@ class TestQueryWithDetail:
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testHasLinkToCardOneResource
-        assert result.expected == ONTO.CardOneResource
-        assert result.input_value == URIRef("http://data/id_9_target")
+        assert result.expected == str(ONTO.CardOneResource)
+        assert result.input_value == "http://data/id_9_target"
         assert result.input_type == ONTO.ClassWithEverything
 
     def test_report_unknown_list_name(

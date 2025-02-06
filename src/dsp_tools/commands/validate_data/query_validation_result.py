@@ -1,6 +1,5 @@
 from typing import cast
 
-import regex
 from loguru import logger
 from rdflib import RDF
 from rdflib import RDFS
@@ -182,14 +181,13 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
             )
         case SH.ClassConstraintComponent:
             val = next(results_and_onto.objects(base_info.result_bn, SH.value))
-            target_id = reformat_data_iri(val)
             return ValidationResult(
                 violation_type=ViolationType.GENERIC,
                 res_iri=base_info.resource_iri,
                 res_class=base_info.res_class_type,
                 property=base_info.result_path,
                 message=msg,
-                input_value=target_id,
+                input_value=val,
             )
         case _:
             return UnexpectedComponent(str(component))
@@ -294,7 +292,7 @@ def _query_pattern_constraint_component_violation(
         res_class=base_info.res_class_type,
         property=base_info.result_path,
         expected=msg,
-        input_value=str(val),
+        input_value=val,
     )
 
 
@@ -309,7 +307,7 @@ def _query_generic_violation(base_info: ValidationResultBaseInfo, results_and_on
         res_class=base_info.res_class_type,
         property=base_info.result_path,
         message=msg,
-        input_value=str(val),
+        input_value=val,
     )
 
 
@@ -328,7 +326,7 @@ def _query_for_link_value_target_violation(
         res_class=base_info.res_class_type,
         property=base_info.result_path,
         expected=str(expected_type),
-        input_value=str(target_iri),
+        input_value=target_iri,
         input_type=target_rdf_type,
     )
 
@@ -362,7 +360,7 @@ def _query_for_unique_value_violation(
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
         property=base_info.result_path,
-        input_value=str(val),
+        input_value=val,
     )
 
 
@@ -460,15 +458,12 @@ def _reformat_value_type_violation_result(result: ValidationResult) -> InputProb
 
 def _reformat_pattern_violation_result(result: ValidationResult) -> InputProblem:
     iris = _reformat_main_iris(result)
-    val: str | None = result.input_value
-    if val and not regex.search(r"\S+", val):
-        val = None
     return InputProblem(
         problem_type=ProblemType.INPUT_REGEX,
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
-        input_value=val,
+        input_value=result.input_value,
         expected=result.expected,
     )
 

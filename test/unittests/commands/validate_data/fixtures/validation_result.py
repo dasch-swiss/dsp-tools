@@ -343,7 +343,7 @@ def extracted_min_inclusive() -> ValidationResult:
         res_class=KNORA_API.VideoSegment,
         property=KNORA_API.hasSegmentBounds,
         message="The interval start must be a non-negative integer or decimal.",
-        input_value="-2.0",
+        input_value=Literal("-2.0"),
     )
 
 
@@ -472,7 +472,7 @@ def extracted_regex() -> ValidationResult:
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testGeoname,
         expected="The value must be a valid geoname code",
-        input_value="this-is-not-a-valid-code",
+        input_value=Literal("this-is-not-a-valid-code"),
     )
 
 
@@ -742,7 +742,7 @@ def extracted_empty_label() -> ValidationResult:
         res_class=ONTO.ClassWithEverything,
         property=RDFS.label,
         expected="The label must be a non-empty string",
-        input_value=" ",
+        input_value=Literal(" "),
     )
 
 
@@ -931,7 +931,7 @@ def extracted_unknown_list_node() -> ValidationResult:
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testListProp,
         message="A valid node from the list 'firstList' must be used with this property.",
-        input_value="firstList / other",
+        input_value=Literal("firstList / other"),
     )
 
 
@@ -991,7 +991,7 @@ def extracted_unknown_list_name() -> ValidationResult:
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testListProp,
         message="A valid node from the list 'firstList' must be used with this property.",
-        input_value="other / n1",
+        input_value=Literal("other / n1"),
     )
 
 

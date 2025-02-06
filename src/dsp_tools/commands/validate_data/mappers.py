@@ -44,7 +44,6 @@ XML_ATTRIB_TO_PROP_TYPE_MAPPER = {
     "permissions": TriplePropertyType.KNORA_PERMISSIONS,
 }
 
-
 # Mappers from internal representation to API format
 XML_TAG_TO_VALUE_TYPE_MAPPER = {
     "boolean-prop": KnoraValueType.BOOLEAN_VALUE,

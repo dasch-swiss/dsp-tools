@@ -1,7 +1,7 @@
-from rdflib.term import Node
+from dsp_tools.commands.validate_data.constants import SubjectObjectTypeAlias
 
 
-def reformat_onto_iri(iri: Node | str) -> str:
+def reformat_onto_iri(iri: SubjectObjectTypeAlias | str) -> str:
     """Takes a rdflib Node and returns a prefixed IRI in string form."""
     iri_str = str(iri)
     if "http://www.w3.org/2000/01/rdf-schema#" in iri_str:
@@ -13,6 +13,6 @@ def reformat_onto_iri(iri: Node | str) -> str:
     return f"{onto}:{ending}"
 
 
-def reformat_data_iri(iri: Node | str) -> str:
+def reformat_data_iri(iri: SubjectObjectTypeAlias | str) -> str:
     """Takes a rdflib Node with in the data namespace and returns only the suffix."""
     return str(iri).replace("http://data/", "")

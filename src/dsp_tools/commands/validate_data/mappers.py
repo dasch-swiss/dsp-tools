@@ -15,17 +15,7 @@ from dsp_tools.commands.validate_data.models.data_deserialised import KnoraValue
 from dsp_tools.commands.validate_data.models.data_deserialised import TripleObjectType
 from dsp_tools.commands.validate_data.models.data_deserialised import TriplePropertyType
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
-from dsp_tools.commands.validate_data.models.validation import ResultFileValueNotAllowedViolation
-from dsp_tools.commands.validate_data.models.validation import ResultFileValueViolation
-from dsp_tools.commands.validate_data.models.validation import ResultGenericViolation
-from dsp_tools.commands.validate_data.models.validation import ResultLinkTargetViolation
-from dsp_tools.commands.validate_data.models.validation import ResultMaxCardinalityViolation
-from dsp_tools.commands.validate_data.models.validation import ResultMinCardinalityViolation
-from dsp_tools.commands.validate_data.models.validation import ResultNonExistentCardinalityViolation
-from dsp_tools.commands.validate_data.models.validation import ResultPatternViolation
-from dsp_tools.commands.validate_data.models.validation import ResultUniqueValueViolation
-from dsp_tools.commands.validate_data.models.validation import ResultValueTypeViolation
-from dsp_tools.commands.validate_data.models.validation import SeqnumIsPartOfViolation
+from dsp_tools.commands.validate_data.models.validation import ViolationType
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import BOOLEAN_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import COLOR_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import DECIMAL_PROP_TYPE_INFO
@@ -127,15 +117,15 @@ TRIPLE_OBJECT_TYPE_TO_XSD = {
 # validation results
 
 RESULT_TO_PROBLEM_MAPPER = {
-    SeqnumIsPartOfViolation: ProblemType.GENERIC,
-    ResultUniqueValueViolation: ProblemType.DUPLICATE_VALUE,
-    ResultValueTypeViolation: ProblemType.VALUE_TYPE_MISMATCH,
-    ResultPatternViolation: ProblemType.INPUT_REGEX,
-    ResultGenericViolation: ProblemType.GENERIC,
-    ResultLinkTargetViolation: ProblemType.LINK_TARGET_TYPE_MISMATCH,
-    ResultMaxCardinalityViolation: ProblemType.MAX_CARD,
-    ResultMinCardinalityViolation: ProblemType.MIN_CARD,
-    ResultNonExistentCardinalityViolation: ProblemType.NON_EXISTING_CARD,
-    ResultFileValueNotAllowedViolation: ProblemType.FILE_VALUE_PROHIBITED,
-    ResultFileValueViolation: ProblemType.FILE_VALUE,
+    ViolationType.SEQNUM_IS_PART_OF: ProblemType.GENERIC,
+    ViolationType.UNIQUE_VALUE: ProblemType.DUPLICATE_VALUE,
+    ViolationType.VALUE_TYPE: ProblemType.VALUE_TYPE_MISMATCH,
+    ViolationType.PATTERN: ProblemType.INPUT_REGEX,
+    ViolationType.GENERIC: ProblemType.GENERIC,
+    ViolationType.LINK_TARGET: ProblemType.LINK_TARGET_TYPE_MISMATCH,
+    ViolationType.MAX_CARD: ProblemType.MAX_CARD,
+    ViolationType.MIN_CARD: ProblemType.MIN_CARD,
+    ViolationType.NON_EXISTING_CARD: ProblemType.NON_EXISTING_CARD,
+    ViolationType.FILEVALUE_PROHIBITED: ProblemType.FILE_VALUE_PROHIBITED,
+    ViolationType.FILE_VALUE: ProblemType.FILE_VALUE,
 }

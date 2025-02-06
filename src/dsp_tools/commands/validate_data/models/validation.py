@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from enum import Enum
+from enum import auto
 
 from rdflib import Graph
 
@@ -61,67 +63,28 @@ class DetailBaseInfo:
 
 @dataclass
 class ValidationResult:
+    violation_type: ViolationType
     res_iri: SubjectObjectTypeAlias
     res_class: SubjectObjectTypeAlias
-    property: SubjectObjectTypeAlias | None
+    property: SubjectObjectTypeAlias | None = None
+    message: str | None = None
+    input_value: str | None = None
+    input_type: SubjectObjectTypeAlias | None = None
+    expected: str | None = None
 
 
-@dataclass
-class SeqnumIsPartOfViolation(ValidationResult):
-    message: str
-
-
-@dataclass
-class ResultUniqueValueViolation(ValidationResult):
-    input_value: str
-
-
-@dataclass
-class ResultValueTypeViolation(ValidationResult):
-    expected: str
-    input_type: SubjectObjectTypeAlias
-
-
-@dataclass
-class ResultPatternViolation(ValidationResult):
-    expected: str
-    input_value: str
-
-
-@dataclass
-class ResultGenericViolation(ValidationResult):
-    message: str
-    input_value: str
-
-
-@dataclass
-class ResultLinkTargetViolation(ValidationResult):
-    expected: str
-    input_value: str
-    input_type: SubjectObjectTypeAlias | None
-
-
-@dataclass
-class ResultMaxCardinalityViolation(ValidationResult):
-    expected: str
-
-
-@dataclass
-class ResultMinCardinalityViolation(ValidationResult):
-    expected: str
-
-
-@dataclass
-class ResultNonExistentCardinalityViolation(ValidationResult): ...
-
-
-@dataclass
-class ResultFileValueNotAllowedViolation(ValidationResult): ...
-
-
-@dataclass
-class ResultFileValueViolation(ValidationResult):
-    expected: str
+class ViolationType(Enum):
+    SEQNUM_IS_PART_OF = auto()
+    UNIQUE_VALUE = auto()
+    VALUE_TYPE = auto()
+    PATTERN = auto()
+    GENERIC = auto()
+    LINK_TARGET = auto()
+    MAX_CARD = auto()
+    MIN_CARD = auto()
+    NON_EXISTING_CARD = auto()
+    FILEVALUE_PROHIBITED = auto()
+    FILE_VALUE = auto()
 
 
 @dataclass

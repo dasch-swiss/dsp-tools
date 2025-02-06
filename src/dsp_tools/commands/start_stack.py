@@ -75,8 +75,7 @@ class StackHandler:
         For this reason, we need to know the commit hash of the DSP-API version that is currently deployed,
         so that the files can be retrieved from the correct commit.
 
-        This function reads the commit hash of DSP-API
-        that is configured in start-stack-config.yml,
+        This function deduces the commit hash from the version tag in the docker-compose.yml file,
         and constructs the URL prefix necessary to retrieve the files from the DSP-API repository.
 
         If something goes wrong,

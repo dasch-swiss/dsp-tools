@@ -40,11 +40,6 @@ from dsp_tools.commands.validate_data.utils import reformat_data_iri
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.models.exceptions import BaseError
 
-result_to_problem_mapper = {
-    ResultMaxCardinalityViolation: MaxCardinalityProblem,
-    ResultMinCardinalityViolation: MinCardinalityProblem,
-}
-
 RESULT_TO_PROBLEM_MAPPER = {
     SeqnumIsPartOfViolation: ProblemType.GENERIC,
     ResultUniqueValueViolation: ProblemType.DUPLICATE_VALUE,

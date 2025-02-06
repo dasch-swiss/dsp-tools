@@ -10,6 +10,16 @@ GRAND_SEPARATOR = "\n\n----------------------------\n"
 
 
 def get_user_message(problems: list[InputProblem], file_path: Path) -> str:
+    """
+    Creates the string to communicate the user message.
+
+    Args:
+        problems: List of validation problems
+        file_path: Path to the original data XML
+
+    Returns:
+        Problem message
+    """
     if len(problems) > 50:
         specific_message = _save_problem_info_as_csv(problems, file_path)
     else:

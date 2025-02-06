@@ -26,6 +26,7 @@ from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTyp
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityProblem
+from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import UnexpectedResults
 from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProblem
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
@@ -53,6 +54,20 @@ from dsp_tools.models.exceptions import BaseError
 result_to_problem_mapper = {
     ResultMaxCardinalityViolation: MaxCardinalityProblem,
     ResultMinCardinalityViolation: MinCardinalityProblem,
+}
+
+RESULT_TO_PROBLEM_MAPPER = {
+    SeqnumIsPartOfViolation: ProblemType.GENERIC,
+    ResultUniqueValueViolation: ProblemType.DUPLICATE_VALUE,
+    ResultValueTypeViolation: ProblemType.VALUE_TYPE_MISMATCH,
+    ResultPatternViolation: ProblemType.INPUT_REGEX,
+    ResultGenericViolation: ProblemType.GENERIC,
+    ResultLinkTargetViolation: ProblemType.LINK_TARGET_TYPE_MISMATCH,
+    ResultMaxCardinalityViolation: ProblemType.MAX_CARD,
+    ResultMinCardinalityViolation: ProblemType.MIN_CARD,
+    ResultNonExistentCardinalityViolation: ProblemType.NON_EXISTING_CARD,
+    ResultFileValueNotAllowedViolation: ProblemType.FILE_VALUE_PROHIBITED,
+    ResultFileValueViolation: ProblemType.FILE_VALUE,
 }
 
 

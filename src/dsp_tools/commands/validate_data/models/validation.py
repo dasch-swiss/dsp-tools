@@ -68,47 +68,47 @@ class ValidationResult:
 
 @dataclass
 class SeqnumIsPartOfViolation(ValidationResult):
-    results_message: str
+    message: str
 
 
 @dataclass
 class ResultUniqueValueViolation(ValidationResult):
-    actual_value: SubjectObjectTypeAlias
+    input_value: str
 
 
 @dataclass
 class ResultValueTypeViolation(ValidationResult):
-    results_message: str
-    actual_value_type: SubjectObjectTypeAlias
+    expected: str
+    input_type: SubjectObjectTypeAlias
 
 
 @dataclass
 class ResultPatternViolation(ValidationResult):
-    results_message: str
-    actual_value: str
+    expected: str
+    input_value: str
 
 
 @dataclass
 class ResultGenericViolation(ValidationResult):
-    results_message: str
-    actual_value: str
+    message: str
+    input_value: str
 
 
 @dataclass
 class ResultLinkTargetViolation(ValidationResult):
-    expected_type: SubjectObjectTypeAlias
-    target_iri: SubjectObjectTypeAlias
-    target_resource_type: SubjectObjectTypeAlias | None
+    expected: str
+    input_value: str
+    input_type: SubjectObjectTypeAlias | None
 
 
 @dataclass
 class ResultMaxCardinalityViolation(ValidationResult):
-    results_message: str
+    expected: str
 
 
 @dataclass
 class ResultMinCardinalityViolation(ValidationResult):
-    results_message: str
+    expected: str
 
 
 @dataclass
@@ -121,7 +121,7 @@ class ResultFileValueNotAllowedViolation(ValidationResult): ...
 
 @dataclass
 class ResultFileValueViolation(ValidationResult):
-    results_message: str
+    expected: str
 
 
 @dataclass

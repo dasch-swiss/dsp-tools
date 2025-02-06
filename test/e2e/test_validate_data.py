@@ -372,9 +372,9 @@ class TestReformatValidationGraph:
             elif one_result.problem_type == ProblemType.GENERIC:
                 assert one_result.message == expected_info[2]
             elif one_result.problem_type == ProblemType.LINK_TARGET_TYPE_MISMATCH:
-                assert one_result.actual_input == expected_info[2]
+                assert one_result.input_value == expected_info[2]
             elif one_result.problem_type == ProblemType.INEXISTENT_LINKED_RESOURCE:
-                assert one_result.actual_input == expected_info[2]
+                assert one_result.input_value == expected_info[2]
             else:
                 nev: Never = cast(Never, one_result.problem_type)
                 assert_never(nev)
@@ -519,7 +519,7 @@ class TestReformatValidationGraph:
             if prblm.problem_type == ProblemType.GENERIC:
                 assert prblm.res_id == expected[0]
                 assert prblm.message == expected[1]
-                assert prblm.actual_input == expected[2]
+                assert prblm.input_value == expected[2]
             elif prblm.problem_type == ProblemType.INPUT_REGEX:
                 assert prblm.res_id == expected[0]
 

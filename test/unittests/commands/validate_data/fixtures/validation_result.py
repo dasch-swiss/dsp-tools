@@ -219,7 +219,7 @@ def extracted_min_card() -> ResultMinCardinalityViolation:
         res_iri=DATA.id_card_one,
         res_class=ONTO.ClassInheritedCardinalityOverwriting,
         property=ONTO.testBoolean,
-        results_message="1",
+        expected="1",
     )
 
 
@@ -280,8 +280,8 @@ def extracted_value_type_simpletext() -> ResultValueTypeViolation:
         res_iri=DATA.id_simpletext,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testTextarea,
-        results_message="TextValue without formatting",
-        actual_value_type=KNORA_API.TextValue,
+        expected="TextValue without formatting",
+        input_type=KNORA_API.TextValue,
     )
 
 
@@ -347,8 +347,8 @@ def extracted_min_inclusive() -> ResultGenericViolation:
         res_iri=DATA.video_segment_negative_bounds,
         res_class=KNORA_API.VideoSegment,
         property=KNORA_API.hasSegmentBounds,
-        results_message="The interval start must be a non-negative integer or decimal.",
-        actual_value="-2.0",
+        message="The interval start must be a non-negative integer or decimal.",
+        input_value="-2.0",
     )
 
 
@@ -410,8 +410,8 @@ def extracted_value_type() -> ResultValueTypeViolation:
         res_iri=DATA.id_uri,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testUriValue,
-        results_message="UriValue",
-        actual_value_type=KNORA_API.TextValue,
+        expected="UriValue",
+        input_type=KNORA_API.TextValue,
     )
 
 
@@ -474,8 +474,8 @@ def extracted_regex() -> ResultPatternViolation:
         res_iri=DATA.geoname_not_number,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testGeoname,
-        results_message="The value must be a valid geoname code",
-        actual_value="this-is-not-a-valid-code",
+        expected="The value must be a valid geoname code",
+        input_value="this-is-not-a-valid-code",
     )
 
 
@@ -538,9 +538,9 @@ def extracted_link_target_non_existent() -> ResultLinkTargetViolation:
         res_iri=DATA.link_target_non_existent,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testHasLinkTo,
-        expected_type=KNORA_API.Resource,
-        target_iri=DATA.other,
-        target_resource_type=None,
+        expected=KNORA_API.Resource,
+        input_value=DATA.other,
+        input_type=None,
     )
 
 
@@ -606,9 +606,9 @@ def extracted_link_target_wrong_class() -> ResultLinkTargetViolation:
         res_iri=DATA.link_target_wrong_class,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testHasLinkToCardOneResource,
-        expected_type=ONTO.CardOneResource,
-        target_iri=DATA.id_9_target,
-        target_resource_type=ONTO.ClassWithEverything,
+        expected=ONTO.CardOneResource,
+        input_value=DATA.id_9_target,
+        input_type=ONTO.ClassWithEverything,
     )
 
 
@@ -699,7 +699,7 @@ def extracted_max_card() -> ResultMaxCardinalityViolation:
         res_iri=DATA.id_max_card,
         res_class=ONTO.ClassMixedCard,
         property=ONTO.testDecimalSimpleText,
-        results_message="0-1",
+        expected="0-1",
     )
 
 
@@ -740,8 +740,8 @@ def extracted_empty_label() -> ResultPatternViolation:
         res_iri=DATA.empty_label,
         res_class=ONTO.ClassWithEverything,
         property=RDFS.label,
-        results_message="The label must be a non-empty string",
-        actual_value=" ",
+        expected="The label must be a non-empty string",
+        input_value=" ",
     )
 
 
@@ -783,7 +783,7 @@ def extracted_unique_value_literal() -> ResultUniqueValueViolation:
         res_iri=DATA.identical_values_valueHas,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testGeoname,
-        actual_value=Literal("00111111"),
+        input_value=Literal("00111111"),
     )
 
 
@@ -825,7 +825,7 @@ def extracted_unique_value_iri() -> ResultUniqueValueViolation:
         res_iri=DATA.identical_values_LinkValue,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testHasLinkTo,
-        actual_value=DATA.link_valueTarget_id,
+        input_value=DATA.link_valueTarget_id,
     )
 
 
@@ -867,7 +867,7 @@ def extracted_coexist_with() -> SeqnumIsPartOfViolation:
     return SeqnumIsPartOfViolation(
         res_iri=DATA.missing_seqnum,
         res_class=IN_BUILT_ONTO.TestStillImageRepresentationWithSeqnum,
-        results_message="Coexist message from knora-api turtle",
+        message="Coexist message from knora-api turtle",
         property=None,
     )
 
@@ -926,8 +926,8 @@ def extracted_unknown_list_node() -> ResultGenericViolation:
         res_iri=DATA.list_node_non_existent,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testListProp,
-        results_message="A valid node from the list 'firstList' must be used with this property.",
-        actual_value="firstList / other",
+        message="A valid node from the list 'firstList' must be used with this property.",
+        input_value="firstList / other",
     )
 
 
@@ -985,8 +985,8 @@ def extracted_unknown_list_name() -> ResultGenericViolation:
         res_iri=DATA.list_name_non_existent,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testListProp,
-        results_message="A valid node from the list 'firstList' must be used with this property.",
-        actual_value="other / n1",
+        message="A valid node from the list 'firstList' must be used with this property.",
+        input_value="other / n1",
     )
 
 
@@ -1027,7 +1027,7 @@ def extracted_missing_file_value() -> ResultFileValueViolation:
         res_iri=DATA.id_video_missing,
         res_class=ONTO.TestMovingImageRepresentation,
         property=KNORA_API.hasMovingImageFileValue,
-        results_message="A MovingImageRepresentation requires a file with the extension 'mp4'.",
+        expected="A MovingImageRepresentation requires a file with the extension 'mp4'.",
     )
 
 

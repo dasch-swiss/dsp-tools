@@ -30,11 +30,11 @@ def get_user_message(problems: list[InputProblem], file_path: Path) -> str:
 
 def _get_problem_print_message(problems: list[InputProblem]) -> str:
     grouped_problems = list(_group_problems_by_resource(problems).values())
-    messages = [_get_message_for_one_resource(v) for v in sorted(grouped_problems, key=lambda x: x.res_id)]
+    messages = [_get_message_for_one_resource(v) for v in sorted(grouped_problems, key=lambda x: x[0].res_id)]
     return GRAND_SEPARATOR.join(messages)
 
 
-def _group_problems_by_resource(problems: list[InputProblem]) -> dict[str : list[InputProblem]]:
+def _group_problems_by_resource(problems: list[InputProblem]) -> dict[str, list[InputProblem]]:
     grouped_res = defaultdict(list)
     for prob in problems:
         grouped_res[prob.res_id].append(prob)
@@ -73,7 +73,7 @@ def _get_message_detail_str(problem: InputProblem) -> str:
     return " | ".join(msg)
 
 
-def _format_expected_input(expected: str | None, problem_type: ProblemType) -> str:
+def _format_expected_input(expected: str, problem_type: ProblemType) -> str:
     match problem_type:
         case ProblemType.MIN_CARD | ProblemType.MAX_CARD:
             return f"Cardinality: {expected}"
@@ -105,10 +105,10 @@ def _get_message_dict(problem: InputProblem) -> dict[str, str]:
         "Your Input": _shorten_input(problem.actual_input),
         "Input Type": problem.actual_input_type,
     }
-    msg_dict = {k: v for k, v in msg_dict.items() if v}
+    non_empty_dict = {k: v for k, v in msg_dict.items() if v}
     if problem.expected:
-        msg_dict["Expected"] = _format_expected_input(problem.expected, problem.problem_type)
-    return msg_dict
+        non_empty_dict["Expected"] = _format_expected_input(problem.expected, problem.problem_type)
+    return non_empty_dict
 
 
 def _shorten_input(user_input: str | None) -> str | None:

@@ -1,9 +1,12 @@
 from pathlib import Path
 from typing import Iterator
+from typing import Never
+from typing import cast
 
 import pytest
 from rdflib import BNode
 from rdflib import URIRef
+from typing_extensions import assert_never
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create import create_project
@@ -373,7 +376,8 @@ class TestReformatValidationGraph:
             elif one_result.problem_type == ProblemType.INEXISTENT_LINKED_RESOURCE:
                 assert one_result.actual_input == expected_info[2]
             else:
-                assert one_result.problem_type == ProblemType.INEXISTENT_LINKED_RESOURCE
+                nev: Never = cast(Never, one_result.problem_type)
+                assert_never(nev)
 
     def test_reformat_every_constraint_once(self, every_combination_once: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(every_combination_once)

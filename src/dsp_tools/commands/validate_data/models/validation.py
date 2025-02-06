@@ -64,51 +64,42 @@ class ValidationResult:
     res_iri: SubjectObjectTypeAlias
     res_class: SubjectObjectTypeAlias
     property: SubjectObjectTypeAlias | None
+    message: str | None = None
+    input_value: str | None = None
+    input_type: SubjectObjectTypeAlias | None = None
+    expected: str | None = None
 
 
 @dataclass
-class SeqnumIsPartOfViolation(ValidationResult):
-    message: str
+class SeqnumIsPartOfViolation(ValidationResult): ...
 
 
 @dataclass
-class ResultUniqueValueViolation(ValidationResult):
-    input_value: str
+class ResultUniqueValueViolation(ValidationResult): ...
 
 
 @dataclass
-class ResultValueTypeViolation(ValidationResult):
-    expected: str
-    input_type: SubjectObjectTypeAlias
+class ResultValueTypeViolation(ValidationResult): ...
 
 
 @dataclass
-class ResultPatternViolation(ValidationResult):
-    expected: str
-    input_value: str
+class ResultPatternViolation(ValidationResult): ...
 
 
 @dataclass
-class ResultGenericViolation(ValidationResult):
-    message: str
-    input_value: str
+class ResultGenericViolation(ValidationResult): ...
 
 
 @dataclass
-class ResultLinkTargetViolation(ValidationResult):
-    expected: str
-    input_value: str
-    input_type: SubjectObjectTypeAlias | None
+class ResultLinkTargetViolation(ValidationResult): ...
 
 
 @dataclass
-class ResultMaxCardinalityViolation(ValidationResult):
-    expected: str
+class ResultMaxCardinalityViolation(ValidationResult): ...
 
 
 @dataclass
-class ResultMinCardinalityViolation(ValidationResult):
-    expected: str
+class ResultMinCardinalityViolation(ValidationResult): ...
 
 
 @dataclass
@@ -120,8 +111,7 @@ class ResultFileValueNotAllowedViolation(ValidationResult): ...
 
 
 @dataclass
-class ResultFileValueViolation(ValidationResult):
-    expected: str
+class ResultFileValueViolation(ValidationResult): ...
 
 
 @dataclass

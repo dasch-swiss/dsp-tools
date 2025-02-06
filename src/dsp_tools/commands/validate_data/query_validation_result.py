@@ -1,4 +1,3 @@
-from typing import Callable
 from typing import cast
 
 import regex
@@ -14,20 +13,9 @@ from dsp_tools.commands.validate_data.constants import DASH
 from dsp_tools.commands.validate_data.constants import KNORA_API
 from dsp_tools.commands.validate_data.constants import SubjectObjectTypeAlias
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
-from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
-from dsp_tools.commands.validate_data.models.input_problems import FileValueNotAllowedProblem
-from dsp_tools.commands.validate_data.models.input_problems import FileValueProblem
-from dsp_tools.commands.validate_data.models.input_problems import GenericProblemWithInput
-from dsp_tools.commands.validate_data.models.input_problems import GenericProblemWithMessage
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
-from dsp_tools.commands.validate_data.models.input_problems import InputRegexProblem
-from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
-from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
-from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
-from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityProblem
-from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityProblem
+from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import UnexpectedResults
-from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProblem
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import QueryInfo
 from dsp_tools.commands.validate_data.models.validation import ReformattedIRI
@@ -50,9 +38,18 @@ from dsp_tools.commands.validate_data.utils import reformat_data_iri
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.models.exceptions import BaseError
 
-result_to_problem_mapper = {
-    ResultMaxCardinalityViolation: MaxCardinalityProblem,
-    ResultMinCardinalityViolation: MinCardinalityProblem,
+RESULT_TO_PROBLEM_MAPPER = {
+    SeqnumIsPartOfViolation: ProblemType.GENERIC,
+    ResultUniqueValueViolation: ProblemType.DUPLICATE_VALUE,
+    ResultValueTypeViolation: ProblemType.VALUE_TYPE_MISMATCH,
+    ResultPatternViolation: ProblemType.INPUT_REGEX,
+    ResultGenericViolation: ProblemType.GENERIC,
+    ResultLinkTargetViolation: ProblemType.LINK_TARGET_TYPE_MISMATCH,
+    ResultMaxCardinalityViolation: ProblemType.MAX_CARD,
+    ResultMinCardinalityViolation: ProblemType.MIN_CARD,
+    ResultNonExistentCardinalityViolation: ProblemType.NON_EXISTING_CARD,
+    ResultFileValueNotAllowedViolation: ProblemType.FILE_VALUE_PROHIBITED,
+    ResultFileValueViolation: ProblemType.FILE_VALUE,
 }
 
 
@@ -71,7 +68,7 @@ def reformat_validation_graph(report: ValidationReportGraphs) -> AllProblems:
     results_and_onto = report.validation_graph + report.onto_graph
     data_and_onto = report.onto_graph + report.data_graph
     validation_results, unexpected_extracted = _query_all_results(results_and_onto, data_and_onto)
-    reformatted_results: list[InputProblem] = _reformat_extracted_results(validation_results)
+    reformatted_results = _reformat_extracted_results(validation_results)
 
     unexpected_found = UnexpectedResults(unexpected_extracted) if unexpected_extracted else None
     return AllProblems(reformatted_results, unexpected_found)
@@ -414,45 +411,48 @@ def _query_for_unique_value_violation(
 
 
 def _reformat_extracted_results(results: list[ValidationResult]) -> list[InputProblem]:
-    all_reformatted: list[InputProblem] = [_reformat_one_validation_result(x) for x in results]
-    return all_reformatted
+    return [_reformat_one_validation_result(x) for x in results]
 
 
 def _reformat_one_validation_result(validation_result: ValidationResult) -> InputProblem:  # noqa: PLR0911 Too many return statements
     match validation_result:
         case ResultMaxCardinalityViolation() | ResultMinCardinalityViolation() as violation:
-            problem = result_to_problem_mapper[type(violation)]
+            problem = RESULT_TO_PROBLEM_MAPPER[type(violation)]
             return _reformat_with_prop_and_message(result=validation_result, problem_type=problem)
         case ResultNonExistentCardinalityViolation():
             iris = _reformat_main_iris(validation_result)
-            return NonExistentCardinalityProblem(
+            return InputProblem(
+                problem_type=ProblemType.NON_EXISTING_CARD,
                 res_id=iris.res_id,
                 res_type=iris.res_type,
                 prop_name=iris.prop_name,
             )
         case ResultFileValueNotAllowedViolation():
             iris = _reformat_main_iris(validation_result)
-            return FileValueNotAllowedProblem(
+            return InputProblem(
+                problem_type=ProblemType.FILE_VALUE_PROHIBITED,
                 res_id=iris.res_id,
                 res_type=iris.res_type,
                 prop_name="bitstream / iiif-uri",
             )
         case ResultGenericViolation():
             iris = _reformat_main_iris(validation_result)
-            return GenericProblemWithInput(
+            return InputProblem(
+                problem_type=ProblemType.GENERIC,
                 res_id=iris.res_id,
                 res_type=iris.res_type,
                 prop_name=iris.prop_name,
-                results_message=validation_result.results_message,
+                message=validation_result.results_message,
                 actual_input=validation_result.actual_value,
             )
         case SeqnumIsPartOfViolation():
             iris = _reformat_main_iris(validation_result)
-            return GenericProblemWithMessage(
+            return InputProblem(
+                problem_type=ProblemType.GENERIC,
                 res_id=iris.res_id,
                 res_type=iris.res_type,
                 prop_name="seqnum or isPartOf",
-                results_message=validation_result.results_message,
+                message=validation_result.results_message,
             )
         case ResultValueTypeViolation():
             return _reformat_value_type_violation_result(validation_result)
@@ -464,7 +464,8 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
             return _reformat_unique_value_violation_result(validation_result)
         case ResultFileValueViolation():
             iris = _reformat_main_iris(validation_result)
-            return FileValueProblem(
+            return InputProblem(
+                problem_type=ProblemType.FILE_VALUE,
                 res_id=iris.res_id,
                 res_type=iris.res_type,
                 prop_name="bitstream / iiif-uri",
@@ -476,40 +477,43 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
 
 def _reformat_with_prop_and_message(
     result: ResultMaxCardinalityViolation | ResultMinCardinalityViolation,
-    problem_type: Callable[[str, str, str, str], InputProblem],
+    problem_type: ProblemType,
 ) -> InputProblem:
     iris = _reformat_main_iris(result)
-    return problem_type(
-        iris.res_id,
-        iris.res_type,
-        iris.prop_name,
-        result.results_message,
-    )
-
-
-def _reformat_value_type_violation_result(result: ResultValueTypeViolation) -> ValueTypeProblem:
-    iris = _reformat_main_iris(result)
-    actual_type = reformat_onto_iri(result.actual_value_type)
-    return ValueTypeProblem(
+    return InputProblem(
+        problem_type=problem_type,
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
-        actual_type=actual_type,
-        expected_type=result.results_message,
+        expected=result.results_message,
     )
 
 
-def _reformat_pattern_violation_result(result: ResultPatternViolation) -> InputRegexProblem:
+def _reformat_value_type_violation_result(result: ResultValueTypeViolation) -> InputProblem:
+    iris = _reformat_main_iris(result)
+    actual_type = reformat_onto_iri(result.actual_value_type)
+    return InputProblem(
+        problem_type=ProblemType.VALUE_TYPE_MISMATCH,
+        res_id=iris.res_id,
+        res_type=iris.res_type,
+        prop_name=iris.prop_name,
+        actual_input_type=actual_type,
+        expected=result.results_message,
+    )
+
+
+def _reformat_pattern_violation_result(result: ResultPatternViolation) -> InputProblem:
     iris = _reformat_main_iris(result)
     val: str | None = result.actual_value
     if val and not regex.search(r"\S+", val):
         val = None
-    return InputRegexProblem(
+    return InputProblem(
+        problem_type=ProblemType.INPUT_REGEX,
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
-        expected_format=result.results_message,
         actual_input=val,
+        expected=result.results_message,
     )
 
 
@@ -517,31 +521,34 @@ def _reformat_link_target_violation_result(result: ResultLinkTargetViolation) ->
     iris = _reformat_main_iris(result)
     target_id = reformat_data_iri(result.target_iri)
     if not result.target_resource_type:
-        return LinkedResourceDoesNotExistProblem(
+        return InputProblem(
+            problem_type=ProblemType.INEXISTENT_LINKED_RESOURCE,
             res_id=iris.res_id,
             res_type=iris.res_type,
             prop_name=iris.prop_name,
-            link_target_id=target_id,
+            actual_input=target_id,
         )
     actual_type = reformat_onto_iri(result.target_resource_type)
     expected_type = reformat_onto_iri(result.expected_type)
-    return LinkTargetTypeMismatchProblem(
+    return InputProblem(
+        problem_type=ProblemType.LINK_TARGET_TYPE_MISMATCH,
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
-        link_target_id=target_id,
-        actual_type=actual_type,
-        expected_type=expected_type,
+        actual_input=target_id,
+        actual_input_type=actual_type,
+        expected=expected_type,
     )
 
 
-def _reformat_unique_value_violation_result(result: ResultUniqueValueViolation) -> DuplicateValueProblem:
+def _reformat_unique_value_violation_result(result: ResultUniqueValueViolation) -> InputProblem:
     iris = _reformat_main_iris(result)
     if isinstance(result.actual_value, Literal):
         actual_value = str(result.actual_value)
     else:
         actual_value = reformat_data_iri(result.actual_value)
-    return DuplicateValueProblem(
+    return InputProblem(
+        problem_type=ProblemType.DUPLICATE_VALUE,
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,

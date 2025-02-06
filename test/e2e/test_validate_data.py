@@ -1,33 +1,25 @@
 from pathlib import Path
 from typing import Iterator
+from typing import Never
+from typing import cast
 
 import pytest
 from rdflib import BNode
 from rdflib import URIRef
+from typing_extensions import assert_never
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
 from dsp_tools.commands.validate_data.api_connection import ApiConnection
-from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
-from dsp_tools.commands.validate_data.models.input_problems import FileValueNotAllowedProblem
-from dsp_tools.commands.validate_data.models.input_problems import FileValueProblem
-from dsp_tools.commands.validate_data.models.input_problems import GenericProblemWithInput
-from dsp_tools.commands.validate_data.models.input_problems import GenericProblemWithMessage
-from dsp_tools.commands.validate_data.models.input_problems import InputRegexProblem
-from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
-from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
-from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
-from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityProblem
-from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
+from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
-from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProblem
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
-from dsp_tools.commands.validate_data.reformat_validaton_result import _extract_base_info_of_resource_results
-from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_validation_graph
+from dsp_tools.commands.validate_data.query_validation_result import _extract_base_info_of_resource_results
+from dsp_tools.commands.validate_data.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validate_data import _get_parsed_graphs
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
@@ -279,18 +271,18 @@ class TestReformatValidationGraph:
     def test_reformat_cardinality_violation(self, cardinality_violation: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(cardinality_violation)
         expected_info_tuples = [
-            (MinCardinalityProblem, "id_card_one"),
-            (NonExistentCardinalityProblem, "id_closed_constraint"),
-            (MaxCardinalityProblem, "id_max_card"),
-            (MinCardinalityProblem, "id_min_card"),
-            (NonExistentCardinalityProblem, "super_prop_no_card"),
+            ("id_card_one", ProblemType.MIN_CARD),
+            ("id_closed_constraint", ProblemType.NON_EXISTING_CARD),
+            ("id_max_card", ProblemType.MAX_CARD),
+            ("id_min_card", ProblemType.MIN_CARD),
+            ("super_prop_no_card", ProblemType.NON_EXISTING_CARD),
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
-            assert isinstance(one_result, expected_info[0])
-            assert one_result.res_id == expected_info[1]
+            assert one_result.res_id == expected_info[0]
+            assert one_result.problem_type == expected_info[1]
 
     def test_reformat_value_type_violation(self, value_type_violation: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(value_type_violation)
@@ -314,9 +306,9 @@ class TestReformatValidationGraph:
         ]
         assert len(result.problems) == len(expected_info_tuples)
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
-            assert isinstance(one_result, ValueTypeProblem)
+            assert one_result.problem_type == ProblemType.VALUE_TYPE_MISMATCH
             assert one_result.res_id == expected_info[0]
-            assert one_result.expected_type == expected_info[1]
+            assert one_result.expected == expected_info[1]
             assert one_result.prop_name == expected_info[2]
 
     def test_reformat_content_violation(self, content_violation: ValidationReportGraphs) -> None:
@@ -375,44 +367,45 @@ class TestReformatValidationGraph:
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
             assert one_result.res_id == expected_info[0]
             assert one_result.prop_name == expected_info[1]
-            if isinstance(one_result, InputRegexProblem):
-                assert one_result.expected_format == expected_info[2]
-            elif isinstance(one_result, GenericProblemWithInput):
-                assert one_result.results_message == expected_info[2]
-            elif isinstance(one_result, LinkTargetTypeMismatchProblem):
-                assert one_result.link_target_id == expected_info[2]
-            elif isinstance(one_result, LinkedResourceDoesNotExistProblem):
-                assert one_result.link_target_id == expected_info[2]
+            if one_result.problem_type == ProblemType.INPUT_REGEX:
+                assert one_result.expected == expected_info[2]
+            elif one_result.problem_type == ProblemType.GENERIC:
+                assert one_result.message == expected_info[2]
+            elif one_result.problem_type == ProblemType.LINK_TARGET_TYPE_MISMATCH:
+                assert one_result.actual_input == expected_info[2]
+            elif one_result.problem_type == ProblemType.INEXISTENT_LINKED_RESOURCE:
+                assert one_result.actual_input == expected_info[2]
             else:
-                assert isinstance(one_result, LinkedResourceDoesNotExistProblem)
+                nev: Never = cast(Never, one_result.problem_type)
+                assert_never(nev)
 
     def test_reformat_every_constraint_once(self, every_combination_once: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(every_combination_once)
         expected_info_tuples = [
-            ("empty_label", InputRegexProblem),
-            ("geoname_not_number", InputRegexProblem),
-            ("id_card_one", MinCardinalityProblem),
-            ("id_closed_constraint", NonExistentCardinalityProblem),
-            ("id_max_card", MaxCardinalityProblem),
-            ("id_missing_file_value", FileValueProblem),
-            ("id_simpletext", ValueTypeProblem),
-            ("id_uri", ValueTypeProblem),
-            ("identical_values", DuplicateValueProblem),
-            ("link_target_non_existent", LinkedResourceDoesNotExistProblem),
-            ("link_target_wrong_class", LinkTargetTypeMismatchProblem),
-            ("list_node_non_existent", GenericProblemWithInput),
-            ("missing_seqnum", GenericProblemWithMessage),
-            ("richtext_standoff_link_nonexistent", GenericProblemWithInput),
-            ("video_segment_start_larger_than_end", GenericProblemWithInput),
-            ("video_segment_wrong_bounds", GenericProblemWithInput),  # once for start that is less than zero
-            ("video_segment_wrong_bounds", GenericProblemWithInput),  # once for the end that is zero
+            ("empty_label", ProblemType.INPUT_REGEX),
+            ("geoname_not_number", ProblemType.INPUT_REGEX),
+            ("id_card_one", ProblemType.MIN_CARD),
+            ("id_closed_constraint", ProblemType.NON_EXISTING_CARD),
+            ("id_max_card", ProblemType.MAX_CARD),
+            ("id_missing_file_value", ProblemType.FILE_VALUE),
+            ("id_simpletext", ProblemType.VALUE_TYPE_MISMATCH),
+            ("id_uri", ProblemType.VALUE_TYPE_MISMATCH),
+            ("identical_values", ProblemType.DUPLICATE_VALUE),
+            ("link_target_non_existent", ProblemType.INEXISTENT_LINKED_RESOURCE),
+            ("link_target_wrong_class", ProblemType.LINK_TARGET_TYPE_MISMATCH),
+            ("list_node_non_existent", ProblemType.GENERIC),
+            ("missing_seqnum", ProblemType.GENERIC),
+            ("richtext_standoff_link_nonexistent", ProblemType.GENERIC),
+            ("video_segment_start_larger_than_end", ProblemType.GENERIC),
+            ("video_segment_wrong_bounds", ProblemType.GENERIC),  # once for start that is less than zero
+            ("video_segment_wrong_bounds", ProblemType.GENERIC),  # once for the end that is zero
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
             assert one_result.res_id == expected_info[0]
-            assert isinstance(one_result, expected_info[1])
+            assert one_result.problem_type == expected_info[1]
 
     def test_reformat_unique_value_violation(self, unique_value_violation: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(unique_value_violation)
@@ -426,58 +419,58 @@ class TestReformatValidationGraph:
         assert len(result.problems) == len(expected_ids)
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         for one_result, expected_id in zip(sorted_problems, expected_ids):
-            assert isinstance(one_result, DuplicateValueProblem)
+            assert one_result.problem_type == ProblemType.DUPLICATE_VALUE
             assert one_result.res_id == expected_id
 
     def test_reformat_file_value_violation(self, file_value_violation: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(file_value_violation)
         expected_info_tuples = [
-            ("id_archive_missing", FileValueProblem),
-            ("id_archive_unknown", FileValueProblem),
-            ("id_audio_missing", FileValueProblem),
-            ("id_audio_unknown", FileValueProblem),
-            ("id_document_missing", FileValueProblem),
-            ("id_document_unknown", FileValueProblem),
-            ("id_resource_without_representation", FileValueNotAllowedProblem),
-            ("id_still_image_missing", FileValueProblem),
-            ("id_still_image_unknown", FileValueProblem),
-            ("id_text_missing", FileValueProblem),
-            ("id_text_unknown", FileValueProblem),
-            ("id_video_missing", FileValueProblem),
-            ("id_video_unknown", FileValueProblem),
-            ("id_wrong_file_type", FileValueProblem),
+            ("id_archive_missing", ProblemType.FILE_VALUE),
+            ("id_archive_unknown", ProblemType.FILE_VALUE),
+            ("id_audio_missing", ProblemType.FILE_VALUE),
+            ("id_audio_unknown", ProblemType.FILE_VALUE),
+            ("id_document_missing", ProblemType.FILE_VALUE),
+            ("id_document_unknown", ProblemType.FILE_VALUE),
+            ("id_resource_without_representation", ProblemType.FILE_VALUE_PROHIBITED),
+            ("id_still_image_missing", ProblemType.FILE_VALUE),
+            ("id_still_image_unknown", ProblemType.FILE_VALUE),
+            ("id_text_missing", ProblemType.FILE_VALUE),
+            ("id_text_unknown", ProblemType.FILE_VALUE),
+            ("id_video_missing", ProblemType.FILE_VALUE),
+            ("id_video_unknown", ProblemType.FILE_VALUE),
+            ("id_wrong_file_type", ProblemType.FILE_VALUE),
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
-            assert isinstance(one_result, expected_info[1])
+            assert one_result.problem_type == expected_info[1]
             assert one_result.res_id == expected_info[0]
 
     def test_reformat_dsp_inbuilt_violation(self, dsp_inbuilt_violation: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(dsp_inbuilt_violation)
         expected_info_tuples = [
-            ("audio_segment_target_is_video", LinkTargetTypeMismatchProblem),
-            ("audio_segment_target_non_existent", LinkedResourceDoesNotExistProblem),
-            ("link_obj_target_non_existent", LinkedResourceDoesNotExistProblem),
-            ("missing_isPartOf", GenericProblemWithMessage),
-            ("missing_seqnum", GenericProblemWithMessage),
-            ("region_invalid_geometry", InputRegexProblem),
-            ("region_isRegionOf_resource_does_not_exist", LinkedResourceDoesNotExistProblem),
-            ("region_isRegionOf_resource_not_a_representation", LinkTargetTypeMismatchProblem),
-            ("target_must_be_a_representation", LinkTargetTypeMismatchProblem),
-            ("target_must_be_an_image_representation", LinkTargetTypeMismatchProblem),
-            ("video_segment_start_larger_than_end", GenericProblemWithInput),
-            ("video_segment_target_is_audio", LinkTargetTypeMismatchProblem),
-            ("video_segment_target_non_existent", LinkedResourceDoesNotExistProblem),
-            ("video_segment_wrong_bounds", GenericProblemWithInput),  # once for start that is less than zero
-            ("video_segment_wrong_bounds", GenericProblemWithInput),  # once for the end that is zero
+            ("audio_segment_target_is_video", ProblemType.LINK_TARGET_TYPE_MISMATCH),
+            ("audio_segment_target_non_existent", ProblemType.INEXISTENT_LINKED_RESOURCE),
+            ("link_obj_target_non_existent", ProblemType.INEXISTENT_LINKED_RESOURCE),
+            ("missing_isPartOf", ProblemType.GENERIC),
+            ("missing_seqnum", ProblemType.GENERIC),
+            ("region_invalid_geometry", ProblemType.INPUT_REGEX),
+            ("region_isRegionOf_resource_does_not_exist", ProblemType.INEXISTENT_LINKED_RESOURCE),
+            ("region_isRegionOf_resource_not_a_representation", ProblemType.LINK_TARGET_TYPE_MISMATCH),
+            ("target_must_be_a_representation", ProblemType.LINK_TARGET_TYPE_MISMATCH),
+            ("target_must_be_an_image_representation", ProblemType.LINK_TARGET_TYPE_MISMATCH),
+            ("video_segment_start_larger_than_end", ProblemType.GENERIC),
+            ("video_segment_target_is_audio", ProblemType.LINK_TARGET_TYPE_MISMATCH),
+            ("video_segment_target_non_existent", ProblemType.INEXISTENT_LINKED_RESOURCE),
+            ("video_segment_wrong_bounds", ProblemType.GENERIC),  # once for start that is less than zero
+            ("video_segment_wrong_bounds", ProblemType.GENERIC),  # once for the end that is zero
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
-            assert isinstance(one_result, expected_info[1])
+            assert one_result.problem_type == expected_info[1]
             assert one_result.res_id == expected_info[0]
 
     def test_reformat_special_characters_violation(self, special_characters_violation: ValidationReportGraphs) -> None:
@@ -523,11 +516,11 @@ class TestReformatValidationGraph:
         assert len(result.problems) == len(expected_tuples)
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         for prblm, expected in zip(sorted_problems, expected_tuples):
-            if isinstance(prblm, GenericProblemWithInput):
+            if prblm.problem_type == ProblemType.GENERIC:
                 assert prblm.res_id == expected[0]
-                assert prblm.problem == expected[1]
+                assert prblm.message == expected[1]
                 assert prblm.actual_input == expected[2]
-            elif isinstance(prblm, InputRegexProblem):
+            elif prblm.problem_type == ProblemType.INPUT_REGEX:
                 assert prblm.res_id == expected[0]
 
     def test_reformat_inheritance_violation(self, inheritance_violation: ValidationReportGraphs) -> None:
@@ -542,7 +535,7 @@ class TestReformatValidationGraph:
         assert len(result.problems) == len(expected_results)
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         for one_result, expected in zip(sorted_problems, expected_results):
-            assert isinstance(one_result, NonExistentCardinalityProblem)
+            assert one_result.problem_type == ProblemType.NON_EXISTING_CARD
             assert one_result.res_id == expected[0]
             assert one_result.prop_name in expected[1]
 

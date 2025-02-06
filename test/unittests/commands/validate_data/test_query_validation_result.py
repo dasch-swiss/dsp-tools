@@ -5,18 +5,7 @@ from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
 
-from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
-from dsp_tools.commands.validate_data.models.input_problems import FileValueNotAllowedProblem
-from dsp_tools.commands.validate_data.models.input_problems import FileValueProblem
-from dsp_tools.commands.validate_data.models.input_problems import GenericProblemWithInput
-from dsp_tools.commands.validate_data.models.input_problems import GenericProblemWithMessage
-from dsp_tools.commands.validate_data.models.input_problems import InputRegexProblem
-from dsp_tools.commands.validate_data.models.input_problems import LinkedResourceDoesNotExistProblem
-from dsp_tools.commands.validate_data.models.input_problems import LinkTargetTypeMismatchProblem
-from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
-from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityProblem
-from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityProblem
-from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProblem
+from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import ResultFileValueNotAllowedViolation
 from dsp_tools.commands.validate_data.models.validation import ResultFileValueViolation
@@ -32,13 +21,13 @@ from dsp_tools.commands.validate_data.models.validation import SeqnumIsPartOfVio
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
-from dsp_tools.commands.validate_data.reformat_validaton_result import _extract_base_info_of_resource_results
-from dsp_tools.commands.validate_data.reformat_validaton_result import _query_all_results
-from dsp_tools.commands.validate_data.reformat_validaton_result import _query_one_with_detail
-from dsp_tools.commands.validate_data.reformat_validaton_result import _query_one_without_detail
-from dsp_tools.commands.validate_data.reformat_validaton_result import _reformat_one_validation_result
-from dsp_tools.commands.validate_data.reformat_validaton_result import _separate_result_types
-from dsp_tools.commands.validate_data.reformat_validaton_result import reformat_validation_graph
+from dsp_tools.commands.validate_data.query_validation_result import _extract_base_info_of_resource_results
+from dsp_tools.commands.validate_data.query_validation_result import _query_all_results
+from dsp_tools.commands.validate_data.query_validation_result import _query_one_with_detail
+from dsp_tools.commands.validate_data.query_validation_result import _query_one_without_detail
+from dsp_tools.commands.validate_data.query_validation_result import _reformat_one_validation_result
+from dsp_tools.commands.validate_data.query_validation_result import _separate_result_types
+from dsp_tools.commands.validate_data.query_validation_result import reformat_validation_graph
 from test.unittests.commands.validate_data.constants import DATA
 from test.unittests.commands.validate_data.constants import IN_BUILT_ONTO
 from test.unittests.commands.validate_data.constants import KNORA_API
@@ -58,13 +47,13 @@ def test_reformat_validation_graph(report_target_resource_wrong_type: tuple[Grap
     assert not result_all_problems.unexpected_results
     assert len(result_all_problems.problems) == 1
     result = result_all_problems.problems.pop(0)
-    assert isinstance(result, LinkTargetTypeMismatchProblem)
+    assert result.problem_type == ProblemType.LINK_TARGET_TYPE_MISMATCH
     assert result.res_id == "region_isRegionOf_resource_not_a_representation"
     assert result.res_type == "Region"
     assert result.prop_name == "isRegionOf"
-    assert result.link_target_id == "target_res_without_representation_1"
-    assert result.actual_type == "in-built:TestNormalResource"
-    assert result.expected_type == "Representation"
+    assert result.actual_input == "target_res_without_representation_1"
+    assert result.actual_input_type == "in-built:TestNormalResource"
+    assert result.expected == "Representation"
 
 
 class TestQueryAllResults:
@@ -380,84 +369,84 @@ class TestQueryFileValueViolations:
 class TestReformatResult:
     def test_min(self, extracted_min_card: ResultMinCardinalityViolation) -> None:
         result = _reformat_one_validation_result(extracted_min_card)
-        assert isinstance(result, MinCardinalityProblem)
+        assert result.problem_type == ProblemType.MIN_CARD
         assert result.res_id == "id_card_one"
         assert result.res_type == "onto:ClassInheritedCardinalityOverwriting"
         assert result.prop_name == "onto:testBoolean"
-        assert result.expected_cardinality == "1"
+        assert result.expected == "1"
 
     def test_max(self, extracted_max_card: ResultMaxCardinalityViolation) -> None:
         result = _reformat_one_validation_result(extracted_max_card)
-        assert isinstance(result, MaxCardinalityProblem)
+        assert result.problem_type == ProblemType.MAX_CARD
         assert result.res_id == "id_max_card"
         assert result.res_type == "onto:ClassMixedCard"
         assert result.prop_name == "onto:testDecimalSimpleText"
-        assert result.expected_cardinality == "0-1"
+        assert result.expected == "0-1"
 
     def test_violation_empty_label(self, extracted_empty_label: ResultPatternViolation) -> None:
         result = _reformat_one_validation_result(extracted_empty_label)
-        assert isinstance(result, InputRegexProblem)
+        assert result.problem_type == ProblemType.INPUT_REGEX
         assert result.res_id == "empty_label"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "rdfs:label"
-        assert result.expected_format == "The label must be a non-empty string"
+        assert result.expected == "The label must be a non-empty string"
         assert not result.actual_input
 
     def test_closed(self, extracted_closed_constraint: ResultNonExistentCardinalityViolation) -> None:
         result = _reformat_one_validation_result(extracted_closed_constraint)
-        assert isinstance(result, NonExistentCardinalityProblem)
+        assert result.problem_type == ProblemType.NON_EXISTING_CARD
         assert result.res_id == "id_closed_constraint"
         assert result.res_type == "onto:CardOneResource"
         assert result.prop_name == "onto:testIntegerSimpleText"
 
     def test_value_type_simpletext(self, extracted_value_type_simpletext: ResultValueTypeViolation) -> None:
         result = _reformat_one_validation_result(extracted_value_type_simpletext)
-        assert isinstance(result, ValueTypeProblem)
+        assert result.problem_type == ProblemType.VALUE_TYPE_MISMATCH
         assert result.res_id == "id_simpletext"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testTextarea"
-        assert result.actual_type == "TextValue"
-        assert result.expected_type == "TextValue without formatting"
+        assert result.actual_input_type == "TextValue"
+        assert result.expected == "TextValue without formatting"
 
     def test_value_type(self, extracted_value_type: ResultValueTypeViolation) -> None:
         result = _reformat_one_validation_result(extracted_value_type)
-        assert isinstance(result, ValueTypeProblem)
+        assert result.problem_type == ProblemType.VALUE_TYPE_MISMATCH
         assert result.res_id == "id_uri"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testUriValue"
-        assert result.actual_type == "TextValue"
-        assert result.expected_type == "UriValue"
+        assert result.actual_input_type == "TextValue"
+        assert result.expected == "UriValue"
 
     def test_violation_regex(self, extracted_regex: ResultPatternViolation) -> None:
         result = _reformat_one_validation_result(extracted_regex)
-        assert isinstance(result, InputRegexProblem)
+        assert result.problem_type == ProblemType.INPUT_REGEX
         assert result.res_id == "geoname_not_number"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testGeoname"
-        assert result.expected_format == "The value must be a valid geoname code"
+        assert result.expected == "The value must be a valid geoname code"
         assert result.actual_input == "this-is-not-a-valid-code"
 
     def test_link_target_non_existent(self, extracted_link_target_non_existent: ResultLinkTargetViolation) -> None:
         result = _reformat_one_validation_result(extracted_link_target_non_existent)
-        assert isinstance(result, LinkedResourceDoesNotExistProblem)
+        assert result.problem_type == ProblemType.INEXISTENT_LINKED_RESOURCE
         assert result.res_id == "link_target_non_existent"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testHasLinkTo"
-        assert result.link_target_id == "other"
+        assert result.actual_input == "other"
 
     def test_link_target_wrong_class(self, extracted_link_target_wrong_class: ResultLinkTargetViolation) -> None:
         result = _reformat_one_validation_result(extracted_link_target_wrong_class)
-        assert isinstance(result, LinkTargetTypeMismatchProblem)
+        assert result.problem_type == ProblemType.LINK_TARGET_TYPE_MISMATCH
         assert result.res_id == "link_target_wrong_class"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testHasLinkToCardOneResource"
-        assert result.link_target_id == "id_9_target"
-        assert result.expected_type == "onto:CardOneResource"
-        assert result.actual_type == "onto:ClassWithEverything"
+        assert result.actual_input == "id_9_target"
+        assert result.actual_input_type == "onto:ClassWithEverything"
+        assert result.expected == "onto:CardOneResource"
 
     def test_unique_value_literal(self, extracted_unique_value_literal: ResultUniqueValueViolation) -> None:
         result = _reformat_one_validation_result(extracted_unique_value_literal)
-        assert isinstance(result, DuplicateValueProblem)
+        assert result.problem_type == ProblemType.DUPLICATE_VALUE
         assert result.res_id == "identical_values_valueHas"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testGeoname"
@@ -465,7 +454,7 @@ class TestReformatResult:
 
     def test_unique_value_iri(self, extracted_unique_value_iri: ResultUniqueValueViolation) -> None:
         result = _reformat_one_validation_result(extracted_unique_value_iri)
-        assert isinstance(result, DuplicateValueProblem)
+        assert result.problem_type == ProblemType.DUPLICATE_VALUE
         assert result.res_id == "identical_values_LinkValue"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testHasLinkTo"
@@ -473,34 +462,34 @@ class TestReformatResult:
 
     def test_unknown_list_node(self, extracted_unknown_list_node: ResultGenericViolation) -> None:
         result = _reformat_one_validation_result(extracted_unknown_list_node)
-        assert isinstance(result, GenericProblemWithInput)
+        assert result.problem_type == ProblemType.GENERIC
         assert result.res_id == "list_node_non_existent"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testListProp"
-        assert result.results_message == "A valid node from the list 'firstList' must be used with this property."
+        assert result.message == "A valid node from the list 'firstList' must be used with this property."
         assert result.actual_input == "firstList / other"
 
     def test_unknown_list_name(self, extracted_unknown_list_name: ResultGenericViolation) -> None:
         result = _reformat_one_validation_result(extracted_unknown_list_name)
-        assert isinstance(result, GenericProblemWithInput)
+        assert result.problem_type == ProblemType.GENERIC
         assert result.res_id == "list_name_non_existent"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testListProp"
-        assert result.results_message == "A valid node from the list 'firstList' must be used with this property."
+        assert result.message == "A valid node from the list 'firstList' must be used with this property."
         assert result.actual_input == "other / n1"
 
     def test_min_inclusive(self, extracted_min_inclusive: ResultGenericViolation) -> None:
         result = _reformat_one_validation_result(extracted_min_inclusive)
-        assert isinstance(result, GenericProblemWithInput)
+        assert result.problem_type == ProblemType.GENERIC
         assert result.res_id == "video_segment_negative_bounds"
         assert result.res_type == "VideoSegment"
         assert result.prop_name == "hasSegmentBounds"
-        assert result.results_message == "The interval start must be a non-negative integer or decimal."
+        assert result.message == "The interval start must be a non-negative integer or decimal."
         assert result.actual_input == "-2.0"
 
     def test_missing_file_value(self, extracted_missing_file_value: ResultFileValueViolation) -> None:
         result = _reformat_one_validation_result(extracted_missing_file_value)
-        assert isinstance(result, FileValueProblem)
+        assert result.problem_type == ProblemType.FILE_VALUE
         assert result.res_id == "id_video_missing"
         assert result.res_type == "onto:TestMovingImageRepresentation"
         assert result.prop_name == "bitstream / iiif-uri"
@@ -510,18 +499,18 @@ class TestReformatResult:
         self, extracted_file_value_for_resource_without_representation: ResultFileValueNotAllowedViolation
     ) -> None:
         result = _reformat_one_validation_result(extracted_file_value_for_resource_without_representation)
-        assert isinstance(result, FileValueNotAllowedProblem)
+        assert result.problem_type == ProblemType.FILE_VALUE_PROHIBITED
         assert result.res_id == "id_resource_without_representation"
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "bitstream / iiif-uri"
 
     def test_seqnum_is_part_of(self, extracted_coexist_with: SeqnumIsPartOfViolation) -> None:
         result = _reformat_one_validation_result(extracted_coexist_with)
-        assert isinstance(result, GenericProblemWithMessage)
+        assert result.problem_type == ProblemType.GENERIC
         assert result.res_id == "missing_seqnum"
         assert result.res_type == "in-built:TestStillImageRepresentationWithSeqnum"
         assert result.prop_name == "seqnum or isPartOf"
-        assert result.results_message == "Coexist message from knora-api turtle"
+        assert result.message == "Coexist message from knora-api turtle"
 
 
 if __name__ == "__main__":

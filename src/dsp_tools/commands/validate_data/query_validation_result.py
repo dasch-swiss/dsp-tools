@@ -34,6 +34,7 @@ from dsp_tools.commands.validate_data.models.validation import UnexpectedCompone
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationResult
 from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
+from dsp_tools.commands.validate_data.models.validation import ViolationType
 from dsp_tools.commands.validate_data.utils import reformat_data_iri
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.models.exceptions import BaseError
@@ -194,11 +195,11 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
         case SH.SPARQLConstraintComponent:
             return _query_for_unique_value_violation(base_info, results_and_onto)
         case DASH.CoExistsWithConstraintComponent:
-            return SeqnumIsPartOfViolation(
+            return ValidationResult(
+                violation_type=ViolationType.SEQNUM_IS_PART_OF,
                 res_iri=base_info.resource_iri,
                 res_class=base_info.res_class_type,
                 message=msg,
-                property=None,
             )
         case SH.ClassConstraintComponent:
             val = next(results_and_onto.objects(base_info.result_bn, SH.value))
@@ -322,11 +323,12 @@ def _query_for_value_type_violation(
 
 def _query_pattern_constraint_component_violation(
     bn_with_info: SubjectObjectTypeAlias, base_info: ValidationResultBaseInfo, results_and_onto: Graph
-) -> ResultPatternViolation:
+) -> ValidationResult:
     val = next(results_and_onto.objects(bn_with_info, SH.value))
     msg = str(next(results_and_onto.objects(bn_with_info, SH.resultMessage)))
     msg = _remove_whitespaces_from_string(msg)
-    return ResultPatternViolation(
+    return ValidationResult(
+        violation_type=ViolationType.PATTERN,
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
         property=base_info.result_path,
@@ -383,13 +385,11 @@ def _query_for_min_cardinality_violation(
         API_SHAPES.hasStillImageFileValue_PropShape,
     }
     if source_shape in file_shapes:
-        return ResultFileValueViolation(
-            res_iri=base_info.resource_iri,
-            res_class=base_info.res_class_type,
-            property=base_info.result_path,
-            expected=msg,
-        )
-    return ResultMinCardinalityViolation(
+        violation_type = ViolationType.FILE_VALUE
+    else:
+        violation_type = ViolationType.MIN_CARD
+    return ValidationResult(
+        violation_type=violation_type,
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
         property=base_info.result_path,

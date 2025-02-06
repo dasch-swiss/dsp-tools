@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from enum import Enum
+from enum import auto
 
 from rdflib import Graph
 
@@ -61,13 +63,28 @@ class DetailBaseInfo:
 
 @dataclass
 class ValidationResult:
+    violation_type: ViolationType
     res_iri: SubjectObjectTypeAlias
     res_class: SubjectObjectTypeAlias
-    property: SubjectObjectTypeAlias | None
+    property: SubjectObjectTypeAlias | None = None
     message: str | None = None
     input_value: str | None = None
     input_type: SubjectObjectTypeAlias | None = None
     expected: str | None = None
+
+
+class ViolationType(Enum):
+    SEQNUM_IS_PART_OF = auto()
+    UNIQUE_VALUE = auto()
+    VALUE_TYPE = auto()
+    PATTERN = auto()
+    GENERIC = auto()
+    LINK_TARGET = auto()
+    MAX_CARD = auto()
+    MIN_CARD = auto()
+    INEXISTENT_CARD = auto()
+    FILEVALUE_PROHIBITED = auto()
+    FILE_VALUE = auto()
 
 
 @dataclass

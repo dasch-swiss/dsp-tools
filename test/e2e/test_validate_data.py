@@ -9,16 +9,9 @@ from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
 from dsp_tools.commands.validate_data.api_connection import ApiConnection
-from dsp_tools.commands.validate_data.models.input_problems import DuplicateValueProblem
-from dsp_tools.commands.validate_data.models.input_problems import GenericProblemWithInput
-from dsp_tools.commands.validate_data.models.input_problems import InputRegexProblem
-from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
-from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityProblem
-from dsp_tools.commands.validate_data.models.input_problems import NonExistentCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
-from dsp_tools.commands.validate_data.models.input_problems import ValueTypeProblem
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
@@ -275,18 +268,18 @@ class TestReformatValidationGraph:
     def test_reformat_cardinality_violation(self, cardinality_violation: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(cardinality_violation)
         expected_info_tuples = [
-            (MinCardinalityProblem, "id_card_one"),
-            (NonExistentCardinalityProblem, "id_closed_constraint"),
-            (MaxCardinalityProblem, "id_max_card"),
-            (MinCardinalityProblem, "id_min_card"),
-            (NonExistentCardinalityProblem, "super_prop_no_card"),
+            ("id_card_one", ProblemType.MIN_CARD),
+            ("id_closed_constraint", ProblemType.NON_EXISTING_CARD),
+            ("id_max_card", ProblemType.MAX_CARD),
+            ("id_min_card", ProblemType.MIN_CARD),
+            ("super_prop_no_card", ProblemType.NON_EXISTING_CARD),
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
-            assert isinstance(one_result, expected_info[0])
-            assert one_result.res_id == expected_info[1]
+            assert one_result.res_id == expected_info[0]
+            assert one_result.problem_type == expected_info[1]
 
     def test_reformat_value_type_violation(self, value_type_violation: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(value_type_violation)
@@ -310,9 +303,9 @@ class TestReformatValidationGraph:
         ]
         assert len(result.problems) == len(expected_info_tuples)
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
-            assert isinstance(one_result, ValueTypeProblem)
+            assert one_result.problem_type == ProblemType.VALUE_TYPE_MISMATCH
             assert one_result.res_id == expected_info[0]
-            assert one_result.expected_type == expected_info[1]
+            assert one_result.expected == expected_info[1]
             assert one_result.prop_name == expected_info[2]
 
     def test_reformat_content_violation(self, content_violation: ValidationReportGraphs) -> None:
@@ -408,7 +401,7 @@ class TestReformatValidationGraph:
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
             assert one_result.res_id == expected_info[0]
-            assert isinstance(one_result, expected_info[1])
+            assert one_result.problem_type == expected_info[1]
 
     def test_reformat_unique_value_violation(self, unique_value_violation: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(unique_value_violation)
@@ -422,7 +415,7 @@ class TestReformatValidationGraph:
         assert len(result.problems) == len(expected_ids)
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         for one_result, expected_id in zip(sorted_problems, expected_ids):
-            assert isinstance(one_result, DuplicateValueProblem)
+            assert one_result.problem_type == ProblemType.DUPLICATE_VALUE
             assert one_result.res_id == expected_id
 
     def test_reformat_file_value_violation(self, file_value_violation: ValidationReportGraphs) -> None:
@@ -519,11 +512,11 @@ class TestReformatValidationGraph:
         assert len(result.problems) == len(expected_tuples)
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         for prblm, expected in zip(sorted_problems, expected_tuples):
-            if isinstance(prblm, GenericProblemWithInput):
+            if prblm.problem_type == ProblemType.GENERIC:
                 assert prblm.res_id == expected[0]
-                assert prblm.problem == expected[1]
+                assert prblm.message == expected[1]
                 assert prblm.actual_input == expected[2]
-            elif isinstance(prblm, InputRegexProblem):
+            elif prblm.problem_type == ProblemType.INPUT_REGEX:
                 assert prblm.res_id == expected[0]
 
     def test_reformat_inheritance_violation(self, inheritance_violation: ValidationReportGraphs) -> None:
@@ -538,7 +531,7 @@ class TestReformatValidationGraph:
         assert len(result.problems) == len(expected_results)
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         for one_result, expected in zip(sorted_problems, expected_results):
-            assert isinstance(one_result, NonExistentCardinalityProblem)
+            assert one_result.problem_type == ProblemType.NON_EXISTING_CARD
             assert one_result.res_id == expected[0]
             assert one_result.prop_name in expected[1]
 

@@ -68,7 +68,7 @@ class ValidationResult:
     res_class: SubjectObjectTypeAlias
     property: SubjectObjectTypeAlias | None = None
     message: str | None = None
-    input_value: str | None = None
+    input_value: SubjectObjectTypeAlias | str | None = None
     input_type: SubjectObjectTypeAlias | None = None
     expected: str | None = None
 

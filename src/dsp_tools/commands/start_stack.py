@@ -92,7 +92,7 @@ class StackHandler:
         docker_compose_pth = importlib.resources.files("dsp_tools").joinpath("resources/start-stack/docker-compose.yml")
         docker_compose = yaml.safe_load(docker_compose_pth.read_bytes())
         tag = docker_compose["services"]["api"]["image"].split(":")[-1]
-  
+
         response = requests.get(f"https://api.github.com/repos/dasch-swiss/dsp-api/git/ref/tags/{tag}", timeout=5)
         commit_of_used_api_version = response.json()["object"]["sha"]
 

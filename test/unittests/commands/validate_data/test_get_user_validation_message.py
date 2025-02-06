@@ -61,7 +61,7 @@ def test_get_message_for_one_resource_max_card(max_card: InputProblem) -> None:
     expected = (
         "Resource ID: res_id | Resource Type: onto:Class\n"
         "onto:hasMaxCardProblem\n"
-        "    - Maximum Cardinality Violation | Expected Cardinality: 1"
+        "    - Maximum Cardinality Violation | Expected Cardinality: '1'"
     )
     assert result == expected
 
@@ -82,7 +82,7 @@ def test_get_message_for_one_resource_min_card(min_card: InputProblem) -> None:
     expected = (
         "Resource ID: res_id | Resource Type: onto:Class\n"
         "onto:hasMinCardProblem\n"
-        "    - Minimum Cardinality Violation | Expected Cardinality: 1"
+        "    - Minimum Cardinality Violation | Expected Cardinality: '1-n'"
     )
     assert result == expected
 
@@ -122,7 +122,7 @@ def test_get_message_for_one_resource_file_value_prohibited(file_value_prohibite
     expected = (
         "Resource ID: res_id | Resource Type: onto:Class\n"
         "bitstream / iiif-uri\n"
-        "    - Expected: A file was added to the resource. This resource type must not have a file."
+        "    - A file was added to the resource. This resource type must not have a file."
     )
     assert result == expected
 
@@ -144,7 +144,7 @@ def test_get_message_for_one_resource_value_type_mismatch(value_type_mismatch: I
     expected = (
         "Resource ID: res_id | Resource Type: onto:Class\n"
         "onto:hasProp\n"
-        "    - Value Type Mismatch, Actual Type: LinkValue | Expected Type: ListValue"
+        "    - Value Type Mismatch | Actual input type: 'LinkValue' | Expected: 'ListValue'"
     )
     assert result == expected
 
@@ -163,7 +163,12 @@ def input_regex() -> InputProblem:
 
 def test_get_message_for_one_resource_input_regex(input_regex: InputProblem) -> None:
     result = _get_message_for_one_resource([input_regex])
-    expected = "Resource ID: res_id | Resource Type: onto:Class\n"
+    expected = (
+        "Resource ID: res_id | Resource Type: onto:Class\n"
+        "onto:hasProp\n"
+        "    - Wrong Format of Input | Your input: 'wrong input' | "
+        "Expected Input Format: Expected format information"
+    )
     assert result == expected
 
 
@@ -185,8 +190,8 @@ def test_get_message_for_one_resource_link_target_mismatch(link_target_mismatch:
     expected = (
         "Resource ID: res_id | Resource Type: onto:Class\n"
         "onto:hasProp\n"
-        "    - Linked Resource Type Mismatch, Target Resource ID: 'link_target_id' "
-        "Actual Type: 'onto:Class' | Expected Resource Type: 'onto:File or a subclass.'"
+        "    - Linked Resource Type Mismatch | Your input: 'link_target_id' "
+        "Actual Type: 'onto:Class' | Expected Resource Type: : onto:File or a subclass."
     )
     assert result == expected
 

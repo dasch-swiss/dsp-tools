@@ -62,15 +62,29 @@ def _get_message_detail_str(problem: InputProblem) -> str:
     msg = []
     if problem.message:
         msg.append(problem.message)
+    if problem.problem_type not in {ProblemType.GENERIC, ProblemType.FILE_VALUE}:
+        msg.append(str(problem.problem_type))
     if problem.actual_input:
         msg.append(f"Your input: '{_shorten_input(problem.actual_input)}'")
     if problem.actual_input_type:
         msg.append(f"Actual input type: '{problem.actual_input_type}'")
-    if problem.problem_type not in {ProblemType.GENERIC, ProblemType.FILE_VALUE}:
-        msg.append(str(problem.problem_type))
     if problem.expected:
-        msg.append(f"Expected: {problem.expected}")
+        msg.append(_format_expected_input(problem.expected, problem.problem_type))
     return " | ".join(msg)
+
+
+def _format_expected_input(expected: str, problem_type: ProblemType) -> str:
+    match problem_type:
+        case ProblemType.MIN_CARD | ProblemType.MAX_CARD:
+            return f"Expected Cardinality: '{expected}'"
+        case ProblemType.VALUE_TYPE_MISMATCH:
+            return f"Expected Value Type: '{expected}'"
+        case ProblemType.INPUT_REGEX:
+            return f"Expected Input Format: {expected}"
+        case ProblemType.LINK_TARGET_TYPE_MISMATCH:
+            return f"Expected Resource Type: {expected} or a subclass"
+        case _:
+            return f"Expected: {expected}"
 
 
 def _save_problem_info_as_csv(problems: list[InputProblem], file_path: Path) -> str:

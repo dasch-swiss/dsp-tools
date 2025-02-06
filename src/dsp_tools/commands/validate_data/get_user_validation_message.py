@@ -76,13 +76,13 @@ def _get_message_detail_str(problem: InputProblem) -> str:
 def _format_expected_input(expected: str | None, problem_type: ProblemType) -> str:
     match problem_type:
         case ProblemType.MIN_CARD | ProblemType.MAX_CARD:
-            return f"Cardinality: '{expected}'"
+            return f"Cardinality: {expected}"
         case ProblemType.VALUE_TYPE_MISMATCH:
             return f"Value Type: '{expected}'"
         case ProblemType.INPUT_REGEX:
             return f"Input Format: {expected}"
         case ProblemType.LINK_TARGET_TYPE_MISMATCH:
-            return f"Resource Type: {expected} or a subclass"
+            return f"Resource Type: {expected}"
         case _:
             return f": {expected}"
 

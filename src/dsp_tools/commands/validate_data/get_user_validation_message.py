@@ -114,6 +114,8 @@ def _get_message_dict(problem: InputProblem) -> dict[str, str]:
         non_empty_dict["Expected"] = _format_expected_input(problem.expected, problem.problem_type).lstrip(": ")
     return non_empty_dict
 
+# TODO: cannot do this if the value is an IRI...
+#  perhaps we need to move this function to the other and here only shorten it...
 
 def _reformat_input_value(user_input: SubjectObjectTypeAlias | None) -> str | None:
     if not user_input:

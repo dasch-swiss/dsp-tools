@@ -107,7 +107,7 @@ def _get_message_dict(problem: InputProblem) -> dict[str, str]:
     }
     non_empty_dict = {k: v for k, v in msg_dict.items() if v}
     if problem.expected:
-        non_empty_dict["Expected"] = _format_expected_input(problem.expected, problem.problem_type)
+        non_empty_dict["Expected"] = _format_expected_input(problem.expected, problem.problem_type).lstrip(": ")
     return non_empty_dict
 
 

@@ -52,6 +52,7 @@ class TestQueryAllResults:
         assert not unexpected_components
         assert len(extracted_results) == 1
         result = extracted_results.pop(0)
+        assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.LINK_TARGET
         assert result.res_iri == DATA.region_isRegionOf_resource_not_a_representation
         assert result.res_class == KNORA_API.Region
@@ -162,6 +163,7 @@ class TestQueryWithoutDetail:
     def test_result_id_card_one(self, report_min_card: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res, _, info = report_min_card
         result = _query_one_without_detail(info, res)
+        assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.MIN_CARD
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
@@ -173,6 +175,7 @@ class TestQueryWithoutDetail:
     ) -> None:
         res, _, info = report_closed_constraint
         result = _query_one_without_detail(info, res)
+        assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.NON_EXISTING_CARD
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
@@ -181,6 +184,7 @@ class TestQueryWithoutDetail:
     def test_result_id_max_card(self, report_max_card: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res, _, info = report_max_card
         result = _query_one_without_detail(info, res)
+        assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.MAX_CARD
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
@@ -190,6 +194,7 @@ class TestQueryWithoutDetail:
     def test_result_empty_label(self, report_empty_label: tuple[Graph, ValidationResultBaseInfo]) -> None:
         graphs, info = report_empty_label
         result = _query_one_without_detail(info, graphs)
+        assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.PATTERN
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
@@ -202,6 +207,7 @@ class TestQueryWithoutDetail:
     ) -> None:
         res, _, info = report_unique_value_literal
         result = _query_one_without_detail(info, res)
+        assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.UNIQUE_VALUE
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
@@ -211,6 +217,7 @@ class TestQueryWithoutDetail:
     def test_unique_value_iri(self, report_unique_value_iri: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res, _, info = report_unique_value_iri
         result = _query_one_without_detail(info, res)
+        assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.UNIQUE_VALUE
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
@@ -220,6 +227,7 @@ class TestQueryWithoutDetail:
     def test_coexist_with(self, report_coexist_with: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         validation_g, _, info = report_coexist_with
         result = _query_one_without_detail(info, validation_g)
+        assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.SEQNUM_IS_PART_OF
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
@@ -239,6 +247,7 @@ class TestQueryWithDetail:
     ) -> None:
         res, data, info = report_value_type_simpletext
         result = _query_one_with_detail(info, res, data)
+        assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.VALUE_TYPE
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
@@ -249,6 +258,7 @@ class TestQueryWithDetail:
     def test_result_id_uri(self, report_value_type: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res, data, info = report_value_type
         result = _query_one_with_detail(info, res, data)
+        assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.VALUE_TYPE
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
@@ -259,6 +269,7 @@ class TestQueryWithDetail:
     def test_result_geoname_not_number(self, report_regex: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res, data, info = report_regex
         result = _query_one_with_detail(info, res, data)
+        assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.PATTERN
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
@@ -271,6 +282,7 @@ class TestQueryWithDetail:
     ) -> None:
         res, data, info = report_link_target_non_existent
         result = _query_one_with_detail(info, res, data)
+        assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.LINK_TARGET
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
@@ -284,6 +296,7 @@ class TestQueryWithDetail:
     ) -> None:
         res, data, info = report_link_target_wrong_class
         result = _query_one_with_detail(info, res, data)
+        assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.LINK_TARGET
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
@@ -297,6 +310,7 @@ class TestQueryWithDetail:
     ) -> None:
         res, data, info = report_unknown_list_name
         result = _query_one_with_detail(info, res, data)
+        assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.GENERIC
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
@@ -309,6 +323,7 @@ class TestQueryWithDetail:
     ) -> None:
         res, data, info = report_unknown_list_node
         result = _query_one_with_detail(info, res, data)
+        assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.GENERIC
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
@@ -319,6 +334,7 @@ class TestQueryWithDetail:
     def test_report_min_inclusive(self, report_min_inclusive: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res, data, info = report_min_inclusive
         result = _query_one_with_detail(info, res, data)
+        assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.GENERIC
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
@@ -331,6 +347,7 @@ class TestQueryFileValueViolations:
     def test_missing_file_value(self, report_missing_file_value: tuple[Graph, ValidationResultBaseInfo]) -> None:
         graphs, info = report_missing_file_value
         result = _query_one_without_detail(info, graphs)
+        assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.FILE_VALUE
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
@@ -349,6 +366,7 @@ class TestQueryFileValueViolations:
     ) -> None:
         graphs, info = file_value_for_resource_without_representation
         result = _query_one_without_detail(info, graphs)
+        assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.FILEVALUE_PROHIBITED
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type

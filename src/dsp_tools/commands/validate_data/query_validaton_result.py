@@ -14,7 +14,6 @@ from dsp_tools.commands.validate_data.constants import KNORA_API
 from dsp_tools.commands.validate_data.constants import SubjectObjectTypeAlias
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
-from dsp_tools.commands.validate_data.models.input_problems import InputProblemABC
 from dsp_tools.commands.validate_data.models.input_problems import MaxCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import MinCardinalityProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
@@ -76,7 +75,7 @@ def reformat_validation_graph(report: ValidationReportGraphs) -> AllProblems:
     results_and_onto = report.validation_graph + report.onto_graph
     data_and_onto = report.onto_graph + report.data_graph
     validation_results, unexpected_extracted = _query_all_results(results_and_onto, data_and_onto)
-    reformatted_results: list[InputProblemABC] = _reformat_extracted_results(validation_results)
+    reformatted_results = _reformat_extracted_results(validation_results)
 
     unexpected_found = UnexpectedResults(unexpected_extracted) if unexpected_extracted else None
     return AllProblems(reformatted_results, unexpected_found)

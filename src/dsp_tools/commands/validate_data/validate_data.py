@@ -14,6 +14,7 @@ from dsp_tools.commands.validate_data.api_clients import ShaclValidator
 from dsp_tools.commands.validate_data.api_connection import ApiConnection
 from dsp_tools.commands.validate_data.constants import KNORA_API_STR
 from dsp_tools.commands.validate_data.deserialise_input import deserialise_xml
+from dsp_tools.commands.validate_data.get_user_validation_message import get_user_message
 from dsp_tools.commands.validate_data.make_data_rdf import make_data_rdf
 from dsp_tools.commands.validate_data.models.data_deserialised import ProjectDeserialised
 from dsp_tools.commands.validate_data.models.data_deserialised import XMLProject
@@ -81,7 +82,7 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
         print(BACKGROUND_BOLD_GREEN + "\n   Validation passed!   " + RESET_TO_DEFAULT)
     else:
         reformatted = reformat_validation_graph(report)
-        problem_msg = reformatted.get_msg(filepath)
+        problem_msg = get_user_message(reformatted.problems, filepath)
         print(VALIDATION_ERRORS_FOUND_MSG)
         print(problem_msg)
         if reformatted.unexpected_results:

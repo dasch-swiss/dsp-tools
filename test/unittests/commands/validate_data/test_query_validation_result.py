@@ -1,8 +1,9 @@
 import pytest
-from rdflib import Literal
 from rdflib import RDFS
-from rdflib import SH, XSD
+from rdflib import SH
+from rdflib import XSD
 from rdflib import Graph
+from rdflib import Literal
 
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo

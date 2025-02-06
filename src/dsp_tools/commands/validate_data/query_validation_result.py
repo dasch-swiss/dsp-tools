@@ -491,7 +491,7 @@ def _reformat_with_prop_and_message(
 
 def _reformat_value_type_violation_result(result: ResultValueTypeViolation) -> InputProblem:
     iris = _reformat_main_iris(result)
-    actual_type = reformat_onto_iri(result.input_type)
+    actual_type = reformat_onto_iri(str(result.input_type))
     return InputProblem(
         problem_type=ProblemType.VALUE_TYPE_MISMATCH,
         res_id=iris.res_id,
@@ -519,7 +519,7 @@ def _reformat_pattern_violation_result(result: ResultPatternViolation) -> InputP
 
 def _reformat_link_target_violation_result(result: ResultLinkTargetViolation) -> InputProblem:
     iris = _reformat_main_iris(result)
-    target_id = reformat_data_iri(result.input_value)
+    target_id = reformat_data_iri(str(result.input_value))
     if not result.input_type:
         return InputProblem(
             problem_type=ProblemType.INEXISTENT_LINKED_RESOURCE,
@@ -528,8 +528,8 @@ def _reformat_link_target_violation_result(result: ResultLinkTargetViolation) ->
             prop_name=iris.prop_name,
             input_value=target_id,
         )
-    actual_type = reformat_onto_iri(result.input_type)
-    expected_type = reformat_onto_iri(result.expected)
+    actual_type = reformat_onto_iri(str(result.input_type))
+    expected_type = reformat_onto_iri(str(result.expected))
     return InputProblem(
         problem_type=ProblemType.LINK_TARGET_TYPE_MISMATCH,
         res_id=iris.res_id,
@@ -546,7 +546,7 @@ def _reformat_unique_value_violation_result(result: ResultUniqueValueViolation) 
     if isinstance(result.input_value, Literal):
         actual_value = str(result.input_value)
     else:
-        actual_value = reformat_data_iri(result.input_value)
+        actual_value = reformat_data_iri(str(result.input_value))
     return InputProblem(
         problem_type=ProblemType.DUPLICATE_VALUE,
         res_id=iris.res_id,

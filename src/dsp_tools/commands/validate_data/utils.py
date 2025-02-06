@@ -1,4 +1,3 @@
-
 from dsp_tools.commands.validate_data.constants import SubjectObjectTypeAlias
 
 

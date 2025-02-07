@@ -6,6 +6,7 @@ from rdflib import RDFS
 from rdflib import SH
 from rdflib import Graph
 from rdflib import Literal
+from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.constants import DASH
 from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROP_SHAPES
@@ -180,6 +181,7 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
             )
         case SH.ClassConstraintComponent:
             val = next(results_and_onto.objects(base_info.result_bn, SH.value))
+            target_id = reformat_data_iri(val)
             return ValidationResult(
                 violation_type=ViolationType.GENERIC,
                 res_iri=base_info.resource_iri,
@@ -395,7 +397,7 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
                 res_id=iris.res_id,
                 res_type=iris.res_type,
                 prop_name="seqnum or isPartOf",
-                message=_remove_whitespaces_from_string(str(validation_result.message)),
+                message=_convert_rdflib_input_data_to_string(validation_result.message),
             )
         case ViolationType.LINK_TARGET:
             return _reformat_link_target_violation_result(validation_result)
@@ -413,6 +415,31 @@ def _reformat_generic(
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
+        expected=_convert_rdflib_input_data_to_string(result.expected),
+    )
+
+
+def _reformat_value_type_violation_result(result: ValidationResult) -> InputProblem:
+    iris = _reformat_main_iris(result)
+    return InputProblem(
+        problem_type=ProblemType.VALUE_TYPE_MISMATCH,
+        res_id=iris.res_id,
+        res_type=iris.res_type,
+        prop_name=iris.prop_name,
+        input_type=reformat_onto_iri(str(result.input_type)),
+        expected=_convert_rdflib_input_data_to_string(result.expected),
+    )
+
+
+def _reformat_pattern_violation_result(result: ValidationResult) -> InputProblem:
+    iris = _reformat_main_iris(result)
+    return InputProblem(
+        problem_type=ProblemType.INPUT_REGEX,
+        res_id=iris.res_id,
+        res_type=iris.res_type,
+        prop_name=iris.prop_name,
+        input_value=_convert_rdflib_input_data_to_string(result.input_value),
+        expected=_convert_rdflib_input_data_to_string(result.expected),
         message=_remove_whitespaces_from_string(str(result.message)),
         input_value=result.input_value,
         input_type=result.input_type,
@@ -428,18 +455,27 @@ def _reformat_link_target_violation_result(result: ValidationResult) -> InputPro
             res_id=iris.res_id,
             res_type=iris.res_type,
             prop_name=iris.prop_name,
-            input_value=result.input_value,
+            input_value=_convert_rdflib_input_data_to_string(result.input_value),
         )
-    actual_type = reformat_onto_iri(str(result.input_type))
-    expected_type = reformat_onto_iri(str(result.expected))
     return InputProblem(
         problem_type=ProblemType.LINK_TARGET_TYPE_MISMATCH,
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
-        input_value=result.input_value,
-        input_type=actual_type,
-        expected=expected_type,
+        input_value=_convert_rdflib_input_data_to_string(result.input_value),
+        input_type=reformat_onto_iri(str(result.input_type)),
+        expected=reformat_onto_iri(str(result.expected)),
+    )
+
+
+def _reformat_unique_value_violation_result(result: ValidationResult) -> InputProblem:
+    iris = _reformat_main_iris(result)
+    return InputProblem(
+        problem_type=ProblemType.DUPLICATE_VALUE,
+        res_id=iris.res_id,
+        res_type=iris.res_type,
+        prop_name=iris.prop_name,
+        input_value=_convert_rdflib_input_data_to_string(result.input_value),
     )
 
 
@@ -450,7 +486,11 @@ def _reformat_main_iris(result: ValidationResult) -> ReformattedIRI:
     return ReformattedIRI(res_id=subject_id, res_type=res_type, prop_name=prop_name)
 
 
-def _remove_whitespaces_from_string(msg: str) -> str:
-    splt = msg.split(" ")
+def _convert_rdflib_input_data_to_string(input_val: SubjectObjectTypeAlias | None) -> str | None:
+    if not input_val:
+        return None
+    if isinstance(input_val, URIRef):
+        return reformat_data_iri(input_val)
+    splt = str(input_val).split(" ")
     splt = [found for x in splt if (found := x.strip())]
     return " ".join(splt)

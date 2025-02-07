@@ -150,11 +150,14 @@ def _query_all_without_detail(
     return extracted_results, unexpected_components
 
 
+# TODO: msg = _remove_whitespaces_from_string(msg)
+# TODO: before reformatting input check for dtype
+
+
 def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
     base_info: ValidationResultBaseInfo, results_and_onto: Graph
 ) -> ValidationResult | UnexpectedComponent | None:
-    msg = str(next(results_and_onto.objects(base_info.result_bn, SH.resultMessage)))
-    msg = _remove_whitespaces_from_string(msg)
+    msg = next(results_and_onto.objects(base_info.result_bn, SH.resultMessage))
     component = next(results_and_onto.objects(base_info.result_bn, SH.sourceConstraintComponent))
     match component:
         case SH.PatternConstraintComponent:
@@ -182,14 +185,13 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
             )
         case SH.ClassConstraintComponent:
             val = next(results_and_onto.objects(base_info.result_bn, SH.value))
-            target_id = reformat_data_iri(val)
             return ValidationResult(
                 violation_type=ViolationType.GENERIC,
                 res_iri=base_info.resource_iri,
                 res_class=base_info.res_class_type,
                 property=base_info.result_path,
                 message=msg,
-                input_value=target_id,
+                input_value=val,
             )
         case _:
             return UnexpectedComponent(str(component))
@@ -277,7 +279,7 @@ def _query_for_value_type_violation(
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
         property=base_info.result_path,
-        expected=str(msg),
+        expected=msg,
         input_type=val_type,
     )
 
@@ -286,30 +288,28 @@ def _query_pattern_constraint_component_violation(
     bn_with_info: SubjectObjectTypeAlias, base_info: ValidationResultBaseInfo, results_and_onto: Graph
 ) -> ValidationResult:
     val = next(results_and_onto.objects(bn_with_info, SH.value))
-    msg = str(next(results_and_onto.objects(bn_with_info, SH.resultMessage)))
-    msg = _remove_whitespaces_from_string(msg)
+    msg = next(results_and_onto.objects(bn_with_info, SH.resultMessage))
     return ValidationResult(
         violation_type=ViolationType.PATTERN,
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
         property=base_info.result_path,
         expected=msg,
-        input_value=str(val),
+        input_value=val,
     )
 
 
 def _query_generic_violation(base_info: ValidationResultBaseInfo, results_and_onto: Graph) -> ValidationResult:
     detail_info = cast(DetailBaseInfo, base_info.detail)
     val = next(results_and_onto.objects(detail_info.detail_bn, SH.value))
-    msg = str(next(results_and_onto.objects(detail_info.detail_bn, SH.resultMessage)))
-    msg = _remove_whitespaces_from_string(msg)
+    msg = next(results_and_onto.objects(detail_info.detail_bn, SH.resultMessage))
     return ValidationResult(
         violation_type=ViolationType.GENERIC,
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
         property=base_info.result_path,
         message=msg,
-        input_value=str(val),
+        input_value=val,
     )
 
 
@@ -327,15 +327,15 @@ def _query_for_link_value_target_violation(
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
         property=base_info.result_path,
-        expected=str(expected_type),
-        input_value=str(target_iri),
+        expected=expected_type,
+        input_value=target_iri,
         input_type=target_rdf_type,
     )
 
 
 def _query_for_min_cardinality_violation(
     base_info: ValidationResultBaseInfo,
-    msg: str,
+    msg: SubjectObjectTypeAlias,
     results_and_onto: Graph,
 ) -> ValidationResult:
     source_shape = next(results_and_onto.objects(base_info.result_bn, SH.sourceShape))
@@ -362,7 +362,7 @@ def _query_for_unique_value_violation(
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
         property=base_info.result_path,
-        input_value=str(val),
+        input_value=val,
     )
 
 

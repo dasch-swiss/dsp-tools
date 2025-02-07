@@ -1,6 +1,5 @@
 from typing import cast
 
-import regex
 from loguru import logger
 from rdflib import RDF
 from rdflib import RDFS

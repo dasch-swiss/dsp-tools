@@ -504,7 +504,9 @@ def _reformat_main_iris(result: ValidationResult) -> ReformattedIRI:
     return ReformattedIRI(res_id=subject_id, res_type=res_type, prop_name=prop_name)
 
 
-def _convert_rdflib_input_data_to_string(input_val: SubjectObjectTypeAlias) -> str:
+def _convert_rdflib_input_data_to_string(input_val: SubjectObjectTypeAlias | None) -> str | None:
+    if not input_val:
+        return None
     if isinstance(input_val, URIRef):
         return reformat_data_iri(input_val)
     splt = str(input_val).split(" ")

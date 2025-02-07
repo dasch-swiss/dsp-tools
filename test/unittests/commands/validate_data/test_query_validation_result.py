@@ -399,7 +399,7 @@ class TestReformatResult:
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "rdfs:label"
         assert result.expected == "The label must be a non-empty string"
-        assert result.input_value == " "
+        assert not result.input_value
 
     def test_closed(self, extracted_closed_constraint: ValidationResult) -> None:
         result = _reformat_one_validation_result(extracted_closed_constraint)

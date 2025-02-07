@@ -1,6 +1,7 @@
 import pytest
 from rdflib import RDFS
 from rdflib import SH
+from rdflib import XSD
 from rdflib import Graph
 from rdflib import Literal
 
@@ -60,7 +61,8 @@ class TestQueryAllResults:
         assert result.property == KNORA_API.isRegionOf
         assert result.input_value == DATA.target_res_without_representation_1
         assert result.input_type == IN_BUILT_ONTO.TestNormalResource
-        assert result.expected == KNORA_API.Representation
+        # TODO: when link in result then know that expected is a URI but in literal form
+        assert result.expected == Literal("http://api.knora.org/ontology/knora-api/v2#Representation")
 
 
 class TestExtractBaseInfo:
@@ -341,7 +343,7 @@ class TestQueryWithDetail:
         assert result.res_class == info.res_class_type
         assert result.property == KNORA_API.hasSegmentBounds
         assert result.message == Literal("The interval start must be a non-negative integer or decimal.")
-        assert result.input_value == Literal("-2.0")
+        assert result.input_value == Literal("-2.0", datatype=XSD.decimal)
 
 
 class TestQueryFileValueViolations:

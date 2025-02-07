@@ -1,6 +1,23 @@
 from dsp_tools.commands.validate_data.constants import SubjectObjectTypeAlias
 
 
+def reformat_any_iri(iri: SubjectObjectTypeAlias | str) -> str:
+    """
+    Reformats any kind of IRI, if it starts with data then it treats is like a data IRI.
+    Otherwise, like an ontology IRI.
+
+    Args:
+        iri: Input IRI
+
+    Returns:
+        reformatted string
+    """
+    iri_str = str(iri)
+    if iri_str.startswith("http://data/"):
+        return reformat_data_iri(iri_str)
+    return reformat_onto_iri(iri_str)
+
+
 def reformat_onto_iri(iri: SubjectObjectTypeAlias | str) -> str:
     """Takes a rdflib Node and returns a prefixed IRI in string form."""
     iri_str = str(iri)

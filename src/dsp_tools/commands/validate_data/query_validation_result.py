@@ -27,6 +27,7 @@ from dsp_tools.commands.validate_data.models.validation import ValidationReportG
 from dsp_tools.commands.validate_data.models.validation import ValidationResult
 from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
 from dsp_tools.commands.validate_data.models.validation import ViolationType
+from dsp_tools.commands.validate_data.utils import reformat_any_iri
 from dsp_tools.commands.validate_data.utils import reformat_data_iri
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.models.exceptions import BaseError
@@ -414,6 +415,9 @@ def _reformat_generic(
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
+        message=_convert_rdflib_input_data_to_string(result.message),
+        input_value=_convert_rdflib_input_data_to_string(result.input_value),
+        input_type=_convert_rdflib_input_data_to_string(result.input_type),
         expected=_convert_rdflib_input_data_to_string(result.expected),
     )
 
@@ -487,5 +491,5 @@ def _convert_rdflib_input_data_to_string(input_val: SubjectObjectTypeAlias | Non
     if not input_val:
         return None
     if isinstance(input_val, URIRef):
-        return reformat_data_iri(input_val)
+        return reformat_any_iri(input_val)
     return str(input_val)

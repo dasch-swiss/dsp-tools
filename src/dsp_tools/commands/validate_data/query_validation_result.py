@@ -27,6 +27,7 @@ from dsp_tools.commands.validate_data.models.validation import ValidationReportG
 from dsp_tools.commands.validate_data.models.validation import ValidationResult
 from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
 from dsp_tools.commands.validate_data.models.validation import ViolationType
+from dsp_tools.commands.validate_data.utils import reformat_any_iri
 from dsp_tools.commands.validate_data.utils import reformat_data_iri
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.models.exceptions import BaseError
@@ -366,134 +367,68 @@ def _reformat_extracted_results(results: list[ValidationResult]) -> list[InputPr
     return [_reformat_one_validation_result(x) for x in results]
 
 
-def _reformat_one_validation_result(validation_result: ValidationResult) -> InputProblem:  # noqa: PLR0911 Too many return statements
+def _reformat_one_validation_result(validation_result: ValidationResult) -> InputProblem:
     match validation_result.violation_type:
-        case ViolationType.MAX_CARD | ViolationType.MIN_CARD as violation:
+        case (
+            ViolationType.MAX_CARD
+            | ViolationType.MIN_CARD
+            | ViolationType.GENERIC
+            | ViolationType.NON_EXISTING_CARD
+            | ViolationType.PATTERN
+            | ViolationType.UNIQUE_VALUE
+            | ViolationType.VALUE_TYPE as violation
+        ):
             problem = RESULT_TO_PROBLEM_MAPPER[violation]
-            return _reformat_with_prop_and_message(result=validation_result, problem_type=problem)
-        case ViolationType.NON_EXISTING_CARD:
-            iris = _reformat_main_iris(validation_result)
-            return InputProblem(
-                problem_type=ProblemType.NON_EXISTING_CARD,
-                res_id=iris.res_id,
-                res_type=iris.res_type,
-                prop_name=iris.prop_name,
-            )
-        case ViolationType.FILEVALUE_PROHIBITED:
-            iris = _reformat_main_iris(validation_result)
-            return InputProblem(
-                problem_type=ProblemType.FILE_VALUE_PROHIBITED,
-                res_id=iris.res_id,
-                res_type=iris.res_type,
-                prop_name="bitstream / iiif-uri",
-            )
-        case ViolationType.GENERIC:
-            iris = _reformat_main_iris(validation_result)
-            return InputProblem(
-                problem_type=ProblemType.GENERIC,
-                res_id=iris.res_id,
-                res_type=iris.res_type,
-                prop_name=iris.prop_name,
-                message=_convert_rdflib_input_data_to_string(validation_result.message),
-                input_value=_convert_rdflib_input_data_to_string(validation_result.input_value),
-            )
+            return _reformat_generic(result=validation_result, problem_type=problem)
+        case ViolationType.FILEVALUE_PROHIBITED | ViolationType.FILE_VALUE as violation:
+            problem = RESULT_TO_PROBLEM_MAPPER[violation]
+            return _reformat_generic(result=validation_result, problem_type=problem, prop_string="bitstream / iiif-uri")
         case ViolationType.SEQNUM_IS_PART_OF:
-            iris = _reformat_main_iris(validation_result)
-            return InputProblem(
-                problem_type=ProblemType.GENERIC,
-                res_id=iris.res_id,
-                res_type=iris.res_type,
-                prop_name="seqnum or isPartOf",
-                message=_convert_rdflib_input_data_to_string(validation_result.message),
+            return _reformat_generic(
+                result=validation_result, problem_type=ProblemType.GENERIC, prop_string="seqnum or isPartOf"
             )
-        case ViolationType.VALUE_TYPE:
-            return _reformat_value_type_violation_result(validation_result)
-        case ViolationType.PATTERN:
-            return _reformat_pattern_violation_result(validation_result)
         case ViolationType.LINK_TARGET:
             return _reformat_link_target_violation_result(validation_result)
-        case ViolationType.UNIQUE_VALUE:
-            return _reformat_unique_value_violation_result(validation_result)
-        case ViolationType.FILE_VALUE:
-            iris = _reformat_main_iris(validation_result)
-            return InputProblem(
-                problem_type=ProblemType.FILE_VALUE,
-                res_id=iris.res_id,
-                res_type=iris.res_type,
-                prop_name="bitstream / iiif-uri",
-                expected=_convert_rdflib_input_data_to_string(validation_result.expected),
-            )
         case _:
             raise BaseError(f"An unknown violation result was found: {validation_result.__class__.__name__}")
 
 
-def _reformat_with_prop_and_message(
-    result: ValidationResult,
-    problem_type: ProblemType,
+def _reformat_generic(
+    result: ValidationResult, problem_type: ProblemType, prop_string: str | None = None
 ) -> InputProblem:
     iris = _reformat_main_iris(result)
+    user_prop = iris.prop_name if not prop_string else prop_string
     return InputProblem(
         problem_type=problem_type,
         res_id=iris.res_id,
         res_type=iris.res_type,
-        prop_name=iris.prop_name,
-        expected=_convert_rdflib_input_data_to_string(result.expected),
-    )
-
-
-def _reformat_value_type_violation_result(result: ValidationResult) -> InputProblem:
-    iris = _reformat_main_iris(result)
-    return InputProblem(
-        problem_type=ProblemType.VALUE_TYPE_MISMATCH,
-        res_id=iris.res_id,
-        res_type=iris.res_type,
-        prop_name=iris.prop_name,
-        input_type=reformat_onto_iri(str(result.input_type)),
-        expected=_convert_rdflib_input_data_to_string(result.expected),
-    )
-
-
-def _reformat_pattern_violation_result(result: ValidationResult) -> InputProblem:
-    iris = _reformat_main_iris(result)
-    return InputProblem(
-        problem_type=ProblemType.INPUT_REGEX,
-        res_id=iris.res_id,
-        res_type=iris.res_type,
-        prop_name=iris.prop_name,
-        input_value=_convert_rdflib_input_data_to_string(result.input_value),
-        expected=_convert_rdflib_input_data_to_string(result.expected),
+        prop_name=user_prop,
+        message=_convert_rdflib_input_to_string(result.message),
+        input_value=_convert_rdflib_input_to_string(result.input_value),
+        input_type=_convert_rdflib_input_to_string(result.input_type),
+        expected=_convert_rdflib_input_to_string(result.expected),
     )
 
 
 def _reformat_link_target_violation_result(result: ValidationResult) -> InputProblem:
     iris = _reformat_main_iris(result)
-    if not result.input_type:
-        return InputProblem(
-            problem_type=ProblemType.INEXISTENT_LINKED_RESOURCE,
-            res_id=iris.res_id,
-            res_type=iris.res_type,
-            prop_name=iris.prop_name,
-            input_value=_convert_rdflib_input_data_to_string(result.input_value),
-        )
+    input_type = None
+    expected = None
+    problem_type = ProblemType.INEXISTENT_LINKED_RESOURCE
+
+    if result.input_type:
+        problem_type = ProblemType.LINK_TARGET_TYPE_MISMATCH
+        input_type = reformat_onto_iri(str(result.input_type))
+        expected = reformat_onto_iri(str(result.expected))
+
     return InputProblem(
-        problem_type=ProblemType.LINK_TARGET_TYPE_MISMATCH,
+        problem_type=problem_type,
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
-        input_value=_convert_rdflib_input_data_to_string(result.input_value),
-        input_type=reformat_onto_iri(str(result.input_type)),
-        expected=reformat_onto_iri(str(result.expected)),
-    )
-
-
-def _reformat_unique_value_violation_result(result: ValidationResult) -> InputProblem:
-    iris = _reformat_main_iris(result)
-    return InputProblem(
-        problem_type=ProblemType.DUPLICATE_VALUE,
-        res_id=iris.res_id,
-        res_type=iris.res_type,
-        prop_name=iris.prop_name,
-        input_value=_convert_rdflib_input_data_to_string(result.input_value),
+        input_value=reformat_data_iri(str(result.input_value)),
+        input_type=input_type,
+        expected=expected,
     )
 
 
@@ -504,9 +439,9 @@ def _reformat_main_iris(result: ValidationResult) -> ReformattedIRI:
     return ReformattedIRI(res_id=subject_id, res_type=res_type, prop_name=prop_name)
 
 
-def _convert_rdflib_input_data_to_string(input_val: SubjectObjectTypeAlias | None) -> str | None:
+def _convert_rdflib_input_to_string(input_val: SubjectObjectTypeAlias | None) -> str | None:
     if not input_val:
         return None
     if isinstance(input_val, URIRef):
-        return reformat_data_iri(input_val)
+        return reformat_any_iri(input_val)
     return str(input_val)

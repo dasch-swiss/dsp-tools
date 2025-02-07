@@ -440,28 +440,28 @@ def _reformat_pattern_violation_result(result: ValidationResult) -> InputProblem
         input_value=_convert_rdflib_input_data_to_string(result.input_value),
         expected=_convert_rdflib_input_data_to_string(result.expected),
         message=_convert_rdflib_input_data_to_string(result.message),
-        input_type=result.input_type,
     )
 
 
 def _reformat_link_target_violation_result(result: ValidationResult) -> InputProblem:
     iris = _reformat_main_iris(result)
-    if not result.input_type:
-        return InputProblem(
-            problem_type=ProblemType.INEXISTENT_LINKED_RESOURCE,
-            res_id=iris.res_id,
-            res_type=iris.res_type,
-            prop_name=iris.prop_name,
-            input_value=_convert_rdflib_input_data_to_string(result.input_value),
-        )
+    input_type = None
+    expected = None
+    problem_type = ProblemType.INEXISTENT_LINKED_RESOURCE
+
+    if result.input_type:
+        problem_type = ProblemType.LINK_TARGET_TYPE_MISMATCH
+        input_type = reformat_onto_iri(str(result.input_type))
+        expected = reformat_onto_iri(str(result.expected))
+
     return InputProblem(
-        problem_type=ProblemType.LINK_TARGET_TYPE_MISMATCH,
+        problem_type=problem_type,
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
         input_value=_convert_rdflib_input_data_to_string(result.input_value),
-        input_type=reformat_onto_iri(str(result.input_type)),
-        expected=reformat_onto_iri(str(result.expected)),
+        input_type=input_type,
+        expected=expected,
     )
 
 

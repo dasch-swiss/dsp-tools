@@ -181,7 +181,6 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
             )
         case SH.ClassConstraintComponent:
             val = next(results_and_onto.objects(base_info.result_bn, SH.value))
-            target_id = reformat_data_iri(val)
             return ValidationResult(
                 violation_type=ViolationType.GENERIC,
                 res_iri=base_info.resource_iri,
@@ -440,10 +439,8 @@ def _reformat_pattern_violation_result(result: ValidationResult) -> InputProblem
         prop_name=iris.prop_name,
         input_value=_convert_rdflib_input_data_to_string(result.input_value),
         expected=_convert_rdflib_input_data_to_string(result.expected),
-        message=_remove_whitespaces_from_string(str(result.message)),
-        input_value=result.input_value,
+        message=_convert_rdflib_input_data_to_string(result.message),
         input_type=result.input_type,
-        expected=result.expected,
     )
 
 

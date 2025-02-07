@@ -388,7 +388,7 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
                 res_id=iris.res_id,
                 res_type=iris.res_type,
                 prop_name="bitstream / iiif-uri",
-                expected=_convert_input_value_to_string(validation_result.expected),
+                expected=_convert_rdflib_input_to_string(validation_result.expected),
             )
         case ViolationType.SEQNUM_IS_PART_OF:
             iris = _reformat_main_iris(validation_result)
@@ -397,7 +397,7 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
                 res_id=iris.res_id,
                 res_type=iris.res_type,
                 prop_name="seqnum or isPartOf",
-                message=_convert_input_value_to_string(validation_result.message),
+                message=_convert_rdflib_input_to_string(validation_result.message),
             )
         case ViolationType.LINK_TARGET:
             return _reformat_link_target_violation_result(validation_result)
@@ -415,10 +415,10 @@ def _reformat_generic(
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
-        message=_convert_input_value_to_string(result.message),
-        input_value=_convert_input_value_to_string(result.input_value),
-        input_type=_convert_input_value_to_string(result.input_type),
-        expected=_convert_input_value_to_string(result.expected),
+        message=_convert_rdflib_input_to_string(result.message),
+        input_value=_convert_rdflib_input_to_string(result.input_value),
+        input_type=_convert_rdflib_input_to_string(result.input_type),
+        expected=_convert_rdflib_input_to_string(result.expected),
     )
 
 
@@ -430,7 +430,7 @@ def _reformat_value_type_violation_result(result: ValidationResult) -> InputProb
         res_type=iris.res_type,
         prop_name=iris.prop_name,
         input_type=reformat_onto_iri(str(result.input_type)),
-        expected=_convert_input_value_to_string(result.expected),
+        expected=_convert_rdflib_input_to_string(result.expected),
     )
 
 
@@ -441,9 +441,9 @@ def _reformat_pattern_violation_result(result: ValidationResult) -> InputProblem
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
-        input_value=_convert_input_value_to_string(result.input_value),
-        expected=_convert_input_value_to_string(result.expected),
-        message=_convert_input_value_to_string(result.message),
+        input_value=_convert_rdflib_input_to_string(result.input_value),
+        expected=_convert_rdflib_input_to_string(result.expected),
+        message=_convert_rdflib_input_to_string(result.message),
     )
 
 
@@ -463,7 +463,7 @@ def _reformat_link_target_violation_result(result: ValidationResult) -> InputPro
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
-        input_value=_convert_input_value_to_string(result.input_value),
+        input_value=_convert_rdflib_input_to_string(result.input_value),
         input_type=input_type,
         expected=expected,
     )
@@ -476,7 +476,7 @@ def _reformat_unique_value_violation_result(result: ValidationResult) -> InputPr
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
-        input_value=_convert_input_value_to_string(result.input_value),
+        input_value=_convert_rdflib_input_to_string(result.input_value),
     )
 
 
@@ -487,7 +487,7 @@ def _reformat_main_iris(result: ValidationResult) -> ReformattedIRI:
     return ReformattedIRI(res_id=subject_id, res_type=res_type, prop_name=prop_name)
 
 
-def _convert_input_value_to_string(input_val: SubjectObjectTypeAlias | None) -> str | None:
+def _convert_rdflib_input_to_string(input_val: SubjectObjectTypeAlias | None) -> str | None:
     if not input_val:
         return None
     if isinstance(input_val, URIRef):

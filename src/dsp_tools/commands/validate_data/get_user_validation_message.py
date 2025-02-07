@@ -76,8 +76,6 @@ def _get_message_detail_str(problem: InputProblem) -> str:
 
 def _format_expected_input(expected: str, problem_type: ProblemType) -> str:
     match problem_type:
-        case ProblemType.MIN_CARD | ProblemType.MAX_CARD:
-            return f"Cardinality: {expected}"
         case ProblemType.VALUE_TYPE_MISMATCH:
             return f"Value Type: '{expected}'"
         case ProblemType.INPUT_REGEX:

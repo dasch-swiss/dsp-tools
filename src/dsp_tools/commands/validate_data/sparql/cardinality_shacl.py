@@ -83,7 +83,7 @@ def _construct_1_cardinality(onto_graph: Graph) -> Graph:
           sh:minCount 1 ;
           sh:maxCount 1 ;
           sh:severity sh:Violation ;
-          sh:message "1" ;
+          sh:message "Cardinality 1" ;
       ] .
     } WHERE {
       ?class a owl:Class ;
@@ -126,7 +126,7 @@ def _construct_0_1_cardinality(onto_graph: Graph) -> Graph:
           sh:minCount 0 ;
           sh:maxCount 1 ;
           sh:severity sh:Violation ;
-          sh:message "0-1" ;
+          sh:message "Cardinality 0-1" ;
       ] .
     } WHERE {
       ?class a owl:Class ;
@@ -162,7 +162,7 @@ def _construct_1_n_cardinality(onto_graph: Graph) -> Graph:
           sh:path ?propRestriction ;
           sh:minCount 1 ;
           sh:severity sh:Violation ;
-          sh:message "1-n" ;
+          sh:message "Cardinality 1-n" ;
       ] .
     } WHERE {
       ?class a owl:Class ;

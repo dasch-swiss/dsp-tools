@@ -100,7 +100,7 @@ class Test1:
         assert str(next(result.objects(bn, SH.maxCount))) == "1"
         assert next(result.objects(bn, SH.path)) == ONTO.testBoolean
         assert next(result.objects(bn, SH.severity)) == SH.Violation
-        assert str(next(result.objects(bn, SH.message))) == "1"
+        assert str(next(result.objects(bn, SH.message))) == "Cardinality 1"
 
     def test_good_link_value(self, link_prop_card_1: Graph) -> None:
         result = _construct_1_cardinality(link_prop_card_1)
@@ -112,7 +112,7 @@ class Test1:
         assert str(next(result.objects(bn, SH.maxCount))) == "1"
         assert next(result.objects(bn, SH.path)) == ONTO.testHasLinkToCardOneResource
         assert next(result.objects(bn, SH.severity)) == SH.Violation
-        assert str(next(result.objects(bn, SH.message))) == "1"
+        assert str(next(result.objects(bn, SH.message))) == "Cardinality 1"
 
     def test_empty_0_1(self, card_0_1: Graph) -> None:
         result = _construct_1_cardinality(card_0_1)
@@ -138,7 +138,7 @@ class Test01:
         assert str(next(result.objects(bn, SH.maxCount))) == "1"
         assert next(result.objects(bn, SH.path)) == ONTO.testDecimalSimpleText
         assert next(result.objects(bn, SH.severity)) == SH.Violation
-        assert str(next(result.objects(bn, SH.message))) == "0-1"
+        assert str(next(result.objects(bn, SH.message))) == "Cardinality 0-1"
 
     def test_good_link_value(self, link_prop_card_01: Graph) -> None:
         result = _construct_0_1_cardinality(link_prop_card_01)
@@ -150,7 +150,7 @@ class Test01:
         assert str(next(result.objects(bn, SH.maxCount))) == "1"
         assert next(result.objects(bn, SH.path)) == ONTO.testHasLinkToCardOneResource
         assert next(result.objects(bn, SH.severity)) == SH.Violation
-        assert str(next(result.objects(bn, SH.message))) == "0-1"
+        assert str(next(result.objects(bn, SH.message))) == "Cardinality 0-1"
 
     def test_empty_1(self, card_1: Graph) -> None:
         result = _construct_0_1_cardinality(card_1)
@@ -175,7 +175,7 @@ class Test1N:
         assert str(next(result.objects(bn, SH.minCount))) == "1"
         assert next(result.objects(bn, SH.path)) == ONTO.testGeoname
         assert next(result.objects(bn, SH.severity)) == SH.Violation
-        assert str(next(result.objects(bn, SH.message))) == "1-n"
+        assert str(next(result.objects(bn, SH.message))) == "Cardinality 1-n"
 
     def test_empty_1(self, card_1: Graph) -> None:
         result = _construct_1_n_cardinality(card_1)
@@ -222,7 +222,7 @@ def test_construct_all_cardinalities(one_res_one_prop: Graph) -> None:
     assert str(next(result.objects(bn, SH.maxCount))) == "1"
     assert next(result.objects(bn, SH.path)) == ONTO.testBoolean
     assert next(result.objects(bn, SH.severity)) == SH.Violation
-    assert str(next(result.objects(bn, SH.message))) == "1"
+    assert str(next(result.objects(bn, SH.message))) == "Cardinality 1"
 
 
 if __name__ == "__main__":

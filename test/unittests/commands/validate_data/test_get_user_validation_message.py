@@ -34,7 +34,7 @@ def max_card() -> InputProblem:
         res_id="res_id",
         res_type="onto:Class",
         prop_name="onto:hasMaxCardProblem",
-        expected="1",
+        expected="Cardinality 1",
     )
 
 
@@ -45,7 +45,7 @@ def min_card() -> InputProblem:
         res_id="res_id",
         res_type="onto:Class",
         prop_name="onto:hasMinCardProblem",
-        expected="1-n",
+        expected="Cardinality 1-n",
     )
 
 
@@ -151,7 +151,7 @@ def test_get_message_for_one_resource_max_card(max_card: InputProblem) -> None:
     expected = (
         "Resource ID: res_id | Resource Type: onto:Class\n"
         "onto:hasMaxCardProblem\n"
-        "    - Maximum Cardinality Violation | Expected Cardinality: 1"
+        "    - Maximum Cardinality Violation | Expected : Cardinality 1"
     )
     assert result == expected
 
@@ -161,7 +161,7 @@ def test_get_message_for_one_resource_min_card(min_card: InputProblem) -> None:
     expected = (
         "Resource ID: res_id | Resource Type: onto:Class\n"
         "onto:hasMinCardProblem\n"
-        "    - Minimum Cardinality Violation | Expected Cardinality: 1-n"
+        "    - Minimum Cardinality Violation | Expected : Cardinality 1-n"
     )
     assert result == expected
 

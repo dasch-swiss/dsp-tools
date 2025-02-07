@@ -75,12 +75,8 @@ class StackHandler:
         For this reason, we need to know the commit hash of the DSP-API version that is currently deployed,
         so that the files can be retrieved from the correct commit.
 
-        This function reads the commit hash of DSP-API
-        that is configured in start-stack-config.yml,
+        This function reads the version tag in the docker-compose.yml file,
         and constructs the URL prefix necessary to retrieve the files from the DSP-API repository.
-
-        If something goes wrong,
-        the URL prefix falls back to pointing to the main branch of the DSP-API repository.
 
         If the latest development version of DSP-API is started,
         the URL prefix points to the main branch of the DSP-API repository.
@@ -88,15 +84,16 @@ class StackHandler:
         Returns:
             URL prefix used to retrieve files from the DSP-API repository
         """
-        url_prefix_base = "https://github.com/dasch-swiss/dsp-api/raw"
+        url_prefix_base = "https://raw.githubusercontent.com/dasch-swiss/dsp-api"
 
         if self.__stack_configuration.latest_dev_version:
             return f"{url_prefix_base}/main/"
 
-        config_file = importlib.resources.files("dsp_tools").joinpath("resources/start-stack/start-stack-config.yml")
-        start_stack_config = yaml.safe_load(config_file.read_bytes())
-        commit_of_used_api_version = start_stack_config["DSP-API commit"]
-        return f"{url_prefix_base}/{commit_of_used_api_version}/"
+        docker_compose_pth = importlib.resources.files("dsp_tools").joinpath("resources/start-stack/docker-compose.yml")
+        docker_compose = yaml.safe_load(docker_compose_pth.read_bytes())
+        tag = docker_compose["services"]["api"]["image"].split(":")[-1]
+
+        return f"{url_prefix_base}/{tag}/"
 
     def _copy_resources_to_home_dir(self) -> None:
         """

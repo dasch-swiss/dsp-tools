@@ -141,7 +141,7 @@ def test_get_message_for_one_resource_file_value(file_value: InputProblem) -> No
     expected = (
         "Resource ID: res_id | Resource Type: onto:Class\n"
         "bitstream / iiif-uri\n"
-        "    - Expected : A MovingImageRepresentation requires a file with the extension 'mp4'."
+        "    - Expected: A MovingImageRepresentation requires a file with the extension 'mp4'."
     )
     assert result == expected
 
@@ -191,7 +191,7 @@ def test_get_message_for_one_resource_value_type_mismatch(value_type_mismatch: I
     expected = (
         "Resource ID: res_id | Resource Type: onto:Class\n"
         "onto:hasProp\n"
-        "    - Value Type Mismatch | Actual input type: 'LinkValue' | Expected Value Type: 'ListValue'"
+        "    - Value Type Mismatch | Actual input type: 'LinkValue' | Expected Value Type: ListValue"
     )
     assert result == expected
 
@@ -245,7 +245,7 @@ def test_get_message_for_one_resource_several_problems(
     expected = (
         "Resource ID: res_id | Resource Type: onto:Class\n"
         "bitstream / iiif-uri\n"
-        "    - Expected : A MovingImageRepresentation requires a file with the extension 'mp4'.\n"
+        "    - Expected: A MovingImageRepresentation requires a file with the extension 'mp4'.\n"
         "onto:hasProp\n"
         "    - Linked Resource does not exist | Your input: 'link_target_id'"
     )

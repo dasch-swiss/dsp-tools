@@ -3,7 +3,6 @@ import warnings
 import pytest
 from lxml import etree
 
-from dsp_tools.models.custom_warnings import DspToolsUserInfo
 from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
 
@@ -70,7 +69,7 @@ class TestLinkResource:
             linkobj.serialise()
             assert len(caught_warnings) == 1
 
-    @pytest.mark.filterwarnings(DspToolsUserInfo)
+    @pytest.mark.filterwarnings("ignore::dsp_tools.models.custom_warnings.DspToolsUserInfo")
     def test_serialise_no_link(self) -> None:
         linkobj = LinkResource.create_new("id", "lbl", []).add_comment("cmt")
         with warnings.catch_warnings(record=True) as caught_warnings:

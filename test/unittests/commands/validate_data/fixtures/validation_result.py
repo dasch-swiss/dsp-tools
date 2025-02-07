@@ -212,7 +212,7 @@ def extracted_min_card() -> ValidationResult:
         res_iri=DATA.id_card_one,
         res_class=ONTO.ClassInheritedCardinalityOverwriting,
         property=ONTO.testBoolean,
-        expected="1",
+        expected=Literal("1"),
     )
 
 
@@ -274,7 +274,7 @@ def extracted_value_type_simpletext() -> ValidationResult:
         res_iri=DATA.id_simpletext,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testTextarea,
-        expected="TextValue without formatting",
+        expected=Literal("TextValue without formatting"),
         input_type=KNORA_API.TextValue,
     )
 
@@ -342,8 +342,8 @@ def extracted_min_inclusive() -> ValidationResult:
         res_iri=DATA.video_segment_negative_bounds,
         res_class=KNORA_API.VideoSegment,
         property=KNORA_API.hasSegmentBounds,
-        message="The interval start must be a non-negative integer or decimal.",
-        input_value="-2.0",
+        message=Literal("The interval start must be a non-negative integer or decimal."),
+        input_value=Literal("-2.0"),
     )
 
 
@@ -406,7 +406,7 @@ def extracted_value_type() -> ValidationResult:
         res_iri=DATA.id_uri,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testUriValue,
-        expected="UriValue",
+        expected=Literal("UriValue"),
         input_type=KNORA_API.TextValue,
     )
 
@@ -471,8 +471,8 @@ def extracted_regex() -> ValidationResult:
         res_iri=DATA.geoname_not_number,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testGeoname,
-        expected="The value must be a valid geoname code",
-        input_value="this-is-not-a-valid-code",
+        expected=Literal("The value must be a valid geoname code"),
+        input_value=Literal("this-is-not-a-valid-code"),
     )
 
 
@@ -699,7 +699,7 @@ def extracted_max_card() -> ValidationResult:
         res_iri=DATA.id_max_card,
         res_class=ONTO.ClassMixedCard,
         property=ONTO.testDecimalSimpleText,
-        expected="0-1",
+        expected=Literal("0-1"),
     )
 
 
@@ -741,8 +741,8 @@ def extracted_empty_label() -> ValidationResult:
         res_iri=DATA.empty_label,
         res_class=ONTO.ClassWithEverything,
         property=RDFS.label,
-        expected="The label must be a non-empty string",
-        input_value=" ",
+        expected=Literal("The label must be a non-empty string"),
+        input_value=Literal(" "),
     )
 
 
@@ -871,7 +871,7 @@ def extracted_coexist_with() -> ValidationResult:
         violation_type=ViolationType.SEQNUM_IS_PART_OF,
         res_iri=DATA.missing_seqnum,
         res_class=IN_BUILT_ONTO.TestStillImageRepresentationWithSeqnum,
-        message="Coexist message from knora-api turtle",
+        message=Literal("Coexist message from knora-api turtle"),
     )
 
 
@@ -930,8 +930,8 @@ def extracted_unknown_list_node() -> ValidationResult:
         res_iri=DATA.list_node_non_existent,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testListProp,
-        message="A valid node from the list 'firstList' must be used with this property.",
-        input_value="firstList / other",
+        message=Literal("A valid node from the list 'firstList' must be used with this property."),
+        input_value=Literal("firstList / other"),
     )
 
 
@@ -990,8 +990,8 @@ def extracted_unknown_list_name() -> ValidationResult:
         res_iri=DATA.list_name_non_existent,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testListProp,
-        message="A valid node from the list 'firstList' must be used with this property.",
-        input_value="other / n1",
+        message=Literal("A valid node from the list 'firstList' must be used with this property."),
+        input_value=Literal("other / n1"),
     )
 
 
@@ -1033,7 +1033,7 @@ def extracted_missing_file_value() -> ValidationResult:
         res_iri=DATA.id_video_missing,
         res_class=ONTO.TestMovingImageRepresentation,
         property=KNORA_API.hasMovingImageFileValue,
-        expected="A MovingImageRepresentation requires a file with the extension 'mp4'.",
+        expected=Literal("A MovingImageRepresentation requires a file with the extension 'mp4'."),
     )
 
 

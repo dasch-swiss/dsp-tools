@@ -387,7 +387,7 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
                 res_id=iris.res_id,
                 res_type=iris.res_type,
                 prop_name="bitstream / iiif-uri",
-                expected=validation_result.expected,
+                expected=_convert_rdflib_input_data_to_string(validation_result.expected),
             )
         case ViolationType.SEQNUM_IS_PART_OF:
             iris = _reformat_main_iris(validation_result)

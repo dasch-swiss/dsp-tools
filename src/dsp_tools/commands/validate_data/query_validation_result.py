@@ -382,22 +382,10 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
             return _reformat_generic(result=validation_result, problem_type=problem)
         case ViolationType.FILEVALUE_PROHIBITED | ViolationType.FILE_VALUE as violation:
             problem = RESULT_TO_PROBLEM_MAPPER[violation]
-            iris = _reformat_main_iris(validation_result)
-            return InputProblem(
-                problem_type=problem,
-                res_id=iris.res_id,
-                res_type=iris.res_type,
-                prop_name="bitstream / iiif-uri",
-                expected=_convert_rdflib_input_to_string(validation_result.expected),
-            )
+            return _reformat_generic(result=validation_result, problem_type=problem, prop_string="bitstream / iiif-uri")
         case ViolationType.SEQNUM_IS_PART_OF:
-            iris = _reformat_main_iris(validation_result)
-            return InputProblem(
-                problem_type=ProblemType.GENERIC,
-                res_id=iris.res_id,
-                res_type=iris.res_type,
-                prop_name="seqnum or isPartOf",
-                message=_convert_rdflib_input_to_string(validation_result.message),
+            return _reformat_generic(
+                result=validation_result, problem_type=ProblemType.GENERIC, prop_string="seqnum or isPartOf"
             )
         case ViolationType.LINK_TARGET:
             return _reformat_link_target_violation_result(validation_result)
@@ -406,44 +394,19 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
 
 
 def _reformat_generic(
-    result: ValidationResult,
-    problem_type: ProblemType,
+    result: ValidationResult, problem_type: ProblemType, prop_string: str | None = None
 ) -> InputProblem:
     iris = _reformat_main_iris(result)
+    user_prop = iris.prop_name if not prop_string else prop_string
     return InputProblem(
         problem_type=problem_type,
         res_id=iris.res_id,
         res_type=iris.res_type,
-        prop_name=iris.prop_name,
+        prop_name=user_prop,
         message=_convert_rdflib_input_to_string(result.message),
         input_value=_convert_rdflib_input_to_string(result.input_value),
         input_type=_convert_rdflib_input_to_string(result.input_type),
         expected=_convert_rdflib_input_to_string(result.expected),
-    )
-
-
-def _reformat_value_type_violation_result(result: ValidationResult) -> InputProblem:
-    iris = _reformat_main_iris(result)
-    return InputProblem(
-        problem_type=ProblemType.VALUE_TYPE_MISMATCH,
-        res_id=iris.res_id,
-        res_type=iris.res_type,
-        prop_name=iris.prop_name,
-        input_type=reformat_onto_iri(str(result.input_type)),
-        expected=_convert_rdflib_input_to_string(result.expected),
-    )
-
-
-def _reformat_pattern_violation_result(result: ValidationResult) -> InputProblem:
-    iris = _reformat_main_iris(result)
-    return InputProblem(
-        problem_type=ProblemType.INPUT_REGEX,
-        res_id=iris.res_id,
-        res_type=iris.res_type,
-        prop_name=iris.prop_name,
-        input_value=_convert_rdflib_input_to_string(result.input_value),
-        expected=_convert_rdflib_input_to_string(result.expected),
-        message=_convert_rdflib_input_to_string(result.message),
     )
 
 
@@ -466,17 +429,6 @@ def _reformat_link_target_violation_result(result: ValidationResult) -> InputPro
         input_value=_convert_rdflib_input_to_string(result.input_value),
         input_type=input_type,
         expected=expected,
-    )
-
-
-def _reformat_unique_value_violation_result(result: ValidationResult) -> InputProblem:
-    iris = _reformat_main_iris(result)
-    return InputProblem(
-        problem_type=ProblemType.DUPLICATE_VALUE,
-        res_id=iris.res_id,
-        res_type=iris.res_type,
-        prop_name=iris.prop_name,
-        input_value=_convert_rdflib_input_to_string(result.input_value),
     )
 
 

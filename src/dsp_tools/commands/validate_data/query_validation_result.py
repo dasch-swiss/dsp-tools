@@ -1,6 +1,5 @@
 from typing import cast
 
-import regex
 from loguru import logger
 from rdflib import RDF
 from rdflib import RDFS
@@ -422,7 +421,7 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
                 res_id=iris.res_id,
                 res_type=iris.res_type,
                 prop_name="bitstream / iiif-uri",
-                expected=validation_result.expected,
+                expected=_convert_rdflib_input_data_to_string(validation_result.expected),
             )
         case _:
             raise BaseError(f"An unknown violation result was found: {validation_result.__class__.__name__}")
@@ -438,7 +437,7 @@ def _reformat_with_prop_and_message(
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
-        expected=result.expected,
+        expected=_convert_rdflib_input_data_to_string(result.expected),
     )
 
 
@@ -456,15 +455,12 @@ def _reformat_value_type_violation_result(result: ValidationResult) -> InputProb
 
 def _reformat_pattern_violation_result(result: ValidationResult) -> InputProblem:
     iris = _reformat_main_iris(result)
-    val: str | None = result.input_value
-    if val and not regex.search(r"\S+", val):
-        val = None
     return InputProblem(
         problem_type=ProblemType.INPUT_REGEX,
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
-        input_value=val,
+        input_value=_convert_rdflib_input_data_to_string(result.input_value),
         expected=_convert_rdflib_input_data_to_string(result.expected),
     )
 

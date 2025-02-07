@@ -70,20 +70,21 @@ def _get_message_detail_str(problem: InputProblem) -> str:
     if problem.input_type:
         msg.append(f"Actual input type: '{problem.input_type}'")
     if problem.expected:
-        msg.append(f"Expected {_format_expected_input(problem.expected, problem.problem_type)}")
+        prefix = _format_expected_input(problem.problem_type)
+        msg.append(f"Expected{prefix}: {problem.expected}")
     return " | ".join(msg)
 
 
-def _format_expected_input(expected: str, problem_type: ProblemType) -> str:
+def _format_expected_input(problem_type: ProblemType) -> str | None:
     match problem_type:
         case ProblemType.VALUE_TYPE_MISMATCH:
-            return f"Value Type: '{expected}'"
+            return " Value Type"
         case ProblemType.INPUT_REGEX:
-            return f"Input Format: {expected}"
+            return " Input Format"
         case ProblemType.LINK_TARGET_TYPE_MISMATCH:
-            return f"Resource Type: {expected}"
+            return " Resource Type"
         case _:
-            return f": {expected}"
+            return ""
 
 
 def _save_problem_info_as_csv(problems: list[InputProblem], file_path: Path) -> str:
@@ -106,7 +107,7 @@ def _get_message_dict(problem: InputProblem) -> dict[str, str]:
     }
     non_empty_dict = {k: v for k, v in msg_dict.items() if v}
     if problem.expected:
-        non_empty_dict["Expected"] = _format_expected_input(problem.expected, problem.problem_type).lstrip(": ")
+        non_empty_dict["Expected"] = _format_expected_input(problem.problem_type).lstrip(" ")
     return non_empty_dict
 
 

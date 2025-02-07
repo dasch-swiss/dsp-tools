@@ -488,6 +488,4 @@ def _convert_rdflib_input_data_to_string(input_val: SubjectObjectTypeAlias | Non
         return None
     if isinstance(input_val, URIRef):
         return reformat_data_iri(input_val)
-    splt = str(input_val).split(" ")
-    splt = [found for x in splt if (found := x.strip())]
-    return " ".join(splt)
+    return str(input_val)

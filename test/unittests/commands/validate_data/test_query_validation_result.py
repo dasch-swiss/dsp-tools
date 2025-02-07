@@ -61,7 +61,6 @@ class TestQueryAllResults:
         assert result.property == KNORA_API.isRegionOf
         assert result.input_value == DATA.target_res_without_representation_1
         assert result.input_type == IN_BUILT_ONTO.TestNormalResource
-        # TODO: when link in result then know that expected is a URI but in literal form
         assert result.expected == Literal("http://api.knora.org/ontology/knora-api/v2#Representation")
 
 

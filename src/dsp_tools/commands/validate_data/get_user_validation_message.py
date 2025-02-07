@@ -2,7 +2,6 @@ from collections import defaultdict
 from pathlib import Path
 
 import pandas as pd
-import regex
 
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
@@ -114,9 +113,8 @@ def _get_message_dict(problem: InputProblem) -> dict[str, str]:
 
 
 def _shorten_input(user_input: str | None) -> str | None:
-    if not user_input or not regex.search(r"\S+", user_input):
+    if not user_input:
         return None
-    user_input = user_input.strip()
     if len(user_input) < 41:
         return user_input
     return f"{user_input[:40]}[...]"

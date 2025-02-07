@@ -6,6 +6,7 @@ from datetime import datetime
 from enum import StrEnum
 from pathlib import Path
 
+import regex
 from rdflib import Graph
 
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
@@ -114,6 +115,19 @@ class InputProblem:
     input_value: str | None = None
     input_type: str | None = None
     expected: str | None = None
+
+    def __post_init__(self) -> None:
+        self.message = self._clean_input(self.message)
+        self.input_value = self._clean_input(self.input_value)
+        self.expected = self._clean_input(self.expected)
+
+    def _clean_input(self, to_clean: str | None) -> str | None:
+        if not to_clean:
+            return None
+        if not regex.search(r"\S+", to_clean):
+            return None
+        str_split = [content for x in to_clean.split(" ") if (content := x.strip())]
+        return " ".join(str_split)
 
 
 class ProblemType(StrEnum):

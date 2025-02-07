@@ -426,7 +426,7 @@ def _reformat_link_target_violation_result(result: ValidationResult) -> InputPro
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
-        input_value=_convert_rdflib_input_to_string(result.input_value),
+        input_value=reformat_data_iri(str(result.input_value)),
         input_type=input_type,
         expected=expected,
     )

@@ -112,6 +112,6 @@ def _get_message_dict(problem: InputProblem) -> dict[str, str]:
 
 
 def _shorten_input(user_input: str | None) -> str | None:
-    if not user_input or len(user_input) < 15:
+    if not user_input or len(user_input) < 40:
         return user_input
-    return f"{user_input[:15]}[...]"
+    return f"{user_input[:40]}[...]"

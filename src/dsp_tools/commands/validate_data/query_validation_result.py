@@ -152,8 +152,7 @@ def _query_all_without_detail(
 def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
     base_info: ValidationResultBaseInfo, results_and_onto: Graph
 ) -> ValidationResult | UnexpectedComponent | None:
-    msg = str(next(results_and_onto.objects(base_info.result_bn, SH.resultMessage)))
-    msg = _remove_whitespaces_from_string(msg)
+    msg = next(results_and_onto.objects(base_info.result_bn, SH.resultMessage))
     component = next(results_and_onto.objects(base_info.result_bn, SH.sourceConstraintComponent))
     match component:
         case SH.PatternConstraintComponent:
@@ -275,7 +274,7 @@ def _query_for_value_type_violation(
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
         property=base_info.result_path,
-        expected=str(msg),
+        expected=msg,
         input_type=val_type,
     )
 
@@ -284,8 +283,7 @@ def _query_pattern_constraint_component_violation(
     bn_with_info: SubjectObjectTypeAlias, base_info: ValidationResultBaseInfo, results_and_onto: Graph
 ) -> ValidationResult:
     val = next(results_and_onto.objects(bn_with_info, SH.value))
-    msg = str(next(results_and_onto.objects(bn_with_info, SH.resultMessage)))
-    msg = _remove_whitespaces_from_string(msg)
+    msg = next(results_and_onto.objects(bn_with_info, SH.resultMessage))
     return ValidationResult(
         violation_type=ViolationType.PATTERN,
         res_iri=base_info.resource_iri,
@@ -299,8 +297,7 @@ def _query_pattern_constraint_component_violation(
 def _query_generic_violation(base_info: ValidationResultBaseInfo, results_and_onto: Graph) -> ValidationResult:
     detail_info = cast(DetailBaseInfo, base_info.detail)
     val = next(results_and_onto.objects(detail_info.detail_bn, SH.value))
-    msg = str(next(results_and_onto.objects(detail_info.detail_bn, SH.resultMessage)))
-    msg = _remove_whitespaces_from_string(msg)
+    msg = next(results_and_onto.objects(detail_info.detail_bn, SH.resultMessage))
     return ValidationResult(
         violation_type=ViolationType.GENERIC,
         res_iri=base_info.resource_iri,
@@ -325,7 +322,7 @@ def _query_for_link_value_target_violation(
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
         property=base_info.result_path,
-        expected=str(expected_type),
+        expected=expected_type,
         input_value=target_iri,
         input_type=target_rdf_type,
     )
@@ -333,7 +330,7 @@ def _query_for_link_value_target_violation(
 
 def _query_for_min_cardinality_violation(
     base_info: ValidationResultBaseInfo,
-    msg: str,
+    msg: SubjectObjectTypeAlias,
     results_and_onto: Graph,
 ) -> ValidationResult:
     source_shape = next(results_and_onto.objects(base_info.result_bn, SH.sourceShape))
@@ -398,7 +395,7 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
                 res_id=iris.res_id,
                 res_type=iris.res_type,
                 prop_name="seqnum or isPartOf",
-                message=validation_result.message,
+                message=_remove_whitespaces_from_string(str(validation_result.message)),
             )
         case ViolationType.LINK_TARGET:
             return _reformat_link_target_violation_result(validation_result)
@@ -416,7 +413,7 @@ def _reformat_generic(
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
-        message=result.message,
+        message=_remove_whitespaces_from_string(str(result.message)),
         input_value=result.input_value,
         input_type=result.input_type,
         expected=result.expected,

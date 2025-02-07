@@ -118,7 +118,6 @@ class InputProblem:
 
     def __post_init__(self) -> None:
         self.message = self._clean_input(self.message)
-        self.input_value = self._clean_input(self.input_value)
         self.expected = self._clean_input(self.expected)
 
     def _clean_input(self, to_clean: str | None) -> str | None:

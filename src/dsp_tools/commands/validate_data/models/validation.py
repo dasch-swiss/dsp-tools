@@ -67,10 +67,10 @@ class ValidationResult:
     res_iri: SubjectObjectTypeAlias
     res_class: SubjectObjectTypeAlias
     property: SubjectObjectTypeAlias | None = None
-    message: str | None = None
-    input_value: str | None = None
+    message: SubjectObjectTypeAlias | None = None
+    input_value: SubjectObjectTypeAlias | None = None
     input_type: SubjectObjectTypeAlias | None = None
-    expected: str | None = None
+    expected: SubjectObjectTypeAlias | None = None
 
 
 class ViolationType(Enum):

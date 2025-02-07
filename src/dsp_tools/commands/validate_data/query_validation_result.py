@@ -1,12 +1,12 @@
 from typing import cast
 
-import regex
 from loguru import logger
 from rdflib import RDF
 from rdflib import RDFS
 from rdflib import SH
 from rdflib import Graph
 from rdflib import Literal
+from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.constants import DASH
 from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROP_SHAPES
@@ -153,8 +153,7 @@ def _query_all_without_detail(
 def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
     base_info: ValidationResultBaseInfo, results_and_onto: Graph
 ) -> ValidationResult | UnexpectedComponent | None:
-    msg = str(next(results_and_onto.objects(base_info.result_bn, SH.resultMessage)))
-    msg = _remove_whitespaces_from_string(msg)
+    msg = next(results_and_onto.objects(base_info.result_bn, SH.resultMessage))
     component = next(results_and_onto.objects(base_info.result_bn, SH.sourceConstraintComponent))
     match component:
         case SH.PatternConstraintComponent:
@@ -182,14 +181,13 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
             )
         case SH.ClassConstraintComponent:
             val = next(results_and_onto.objects(base_info.result_bn, SH.value))
-            target_id = reformat_data_iri(val)
             return ValidationResult(
                 violation_type=ViolationType.GENERIC,
                 res_iri=base_info.resource_iri,
                 res_class=base_info.res_class_type,
                 property=base_info.result_path,
                 message=msg,
-                input_value=target_id,
+                input_value=val,
             )
         case _:
             return UnexpectedComponent(str(component))
@@ -277,7 +275,7 @@ def _query_for_value_type_violation(
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
         property=base_info.result_path,
-        expected=str(msg),
+        expected=msg,
         input_type=val_type,
     )
 
@@ -286,30 +284,28 @@ def _query_pattern_constraint_component_violation(
     bn_with_info: SubjectObjectTypeAlias, base_info: ValidationResultBaseInfo, results_and_onto: Graph
 ) -> ValidationResult:
     val = next(results_and_onto.objects(bn_with_info, SH.value))
-    msg = str(next(results_and_onto.objects(bn_with_info, SH.resultMessage)))
-    msg = _remove_whitespaces_from_string(msg)
+    msg = next(results_and_onto.objects(bn_with_info, SH.resultMessage))
     return ValidationResult(
         violation_type=ViolationType.PATTERN,
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
         property=base_info.result_path,
         expected=msg,
-        input_value=str(val),
+        input_value=val,
     )
 
 
 def _query_generic_violation(base_info: ValidationResultBaseInfo, results_and_onto: Graph) -> ValidationResult:
     detail_info = cast(DetailBaseInfo, base_info.detail)
     val = next(results_and_onto.objects(detail_info.detail_bn, SH.value))
-    msg = str(next(results_and_onto.objects(detail_info.detail_bn, SH.resultMessage)))
-    msg = _remove_whitespaces_from_string(msg)
+    msg = next(results_and_onto.objects(detail_info.detail_bn, SH.resultMessage))
     return ValidationResult(
         violation_type=ViolationType.GENERIC,
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
         property=base_info.result_path,
         message=msg,
-        input_value=str(val),
+        input_value=val,
     )
 
 
@@ -327,15 +323,15 @@ def _query_for_link_value_target_violation(
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
         property=base_info.result_path,
-        expected=str(expected_type),
-        input_value=str(target_iri),
+        expected=expected_type,
+        input_value=target_iri,
         input_type=target_rdf_type,
     )
 
 
 def _query_for_min_cardinality_violation(
     base_info: ValidationResultBaseInfo,
-    msg: str,
+    msg: SubjectObjectTypeAlias,
     results_and_onto: Graph,
 ) -> ValidationResult:
     source_shape = next(results_and_onto.objects(base_info.result_bn, SH.sourceShape))
@@ -362,7 +358,7 @@ def _query_for_unique_value_violation(
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
         property=base_info.result_path,
-        input_value=str(val),
+        input_value=val,
     )
 
 
@@ -398,8 +394,8 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
                 res_id=iris.res_id,
                 res_type=iris.res_type,
                 prop_name=iris.prop_name,
-                message=validation_result.message,
-                input_value=validation_result.input_value,
+                message=_convert_rdflib_input_data_to_string(validation_result.message),
+                input_value=_convert_rdflib_input_data_to_string(validation_result.input_value),
             )
         case ViolationType.SEQNUM_IS_PART_OF:
             iris = _reformat_main_iris(validation_result)
@@ -408,7 +404,7 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
                 res_id=iris.res_id,
                 res_type=iris.res_type,
                 prop_name="seqnum or isPartOf",
-                message=validation_result.message,
+                message=_convert_rdflib_input_data_to_string(validation_result.message),
             )
         case ViolationType.VALUE_TYPE:
             return _reformat_value_type_violation_result(validation_result)
@@ -425,7 +421,7 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
                 res_id=iris.res_id,
                 res_type=iris.res_type,
                 prop_name="bitstream / iiif-uri",
-                expected=validation_result.expected,
+                expected=_convert_rdflib_input_data_to_string(validation_result.expected),
             )
         case _:
             raise BaseError(f"An unknown violation result was found: {validation_result.__class__.__name__}")
@@ -441,74 +437,63 @@ def _reformat_with_prop_and_message(
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
-        expected=result.expected,
+        expected=_convert_rdflib_input_data_to_string(result.expected),
     )
 
 
 def _reformat_value_type_violation_result(result: ValidationResult) -> InputProblem:
     iris = _reformat_main_iris(result)
-    actual_type = reformat_onto_iri(str(result.input_type))
     return InputProblem(
         problem_type=ProblemType.VALUE_TYPE_MISMATCH,
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
-        input_type=actual_type,
-        expected=result.expected,
+        input_type=reformat_onto_iri(str(result.input_type)),
+        expected=_convert_rdflib_input_data_to_string(result.expected),
     )
 
 
 def _reformat_pattern_violation_result(result: ValidationResult) -> InputProblem:
     iris = _reformat_main_iris(result)
-    val: str | None = result.input_value
-    if val and not regex.search(r"\S+", val):
-        val = None
     return InputProblem(
         problem_type=ProblemType.INPUT_REGEX,
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
-        input_value=val,
-        expected=result.expected,
+        input_value=_convert_rdflib_input_data_to_string(result.input_value),
+        expected=_convert_rdflib_input_data_to_string(result.expected),
     )
 
 
 def _reformat_link_target_violation_result(result: ValidationResult) -> InputProblem:
     iris = _reformat_main_iris(result)
-    target_id = reformat_data_iri(str(result.input_value))
     if not result.input_type:
         return InputProblem(
             problem_type=ProblemType.INEXISTENT_LINKED_RESOURCE,
             res_id=iris.res_id,
             res_type=iris.res_type,
             prop_name=iris.prop_name,
-            input_value=target_id,
+            input_value=_convert_rdflib_input_data_to_string(result.input_value),
         )
-    actual_type = reformat_onto_iri(str(result.input_type))
-    expected_type = reformat_onto_iri(str(result.expected))
     return InputProblem(
         problem_type=ProblemType.LINK_TARGET_TYPE_MISMATCH,
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
-        input_value=target_id,
-        input_type=actual_type,
-        expected=expected_type,
+        input_value=_convert_rdflib_input_data_to_string(result.input_value),
+        input_type=reformat_onto_iri(str(result.input_type)),
+        expected=reformat_onto_iri(str(result.expected)),
     )
 
 
 def _reformat_unique_value_violation_result(result: ValidationResult) -> InputProblem:
     iris = _reformat_main_iris(result)
-    if isinstance(result.input_value, Literal):
-        actual_value = str(result.input_value)
-    else:
-        actual_value = reformat_data_iri(str(result.input_value))
     return InputProblem(
         problem_type=ProblemType.DUPLICATE_VALUE,
         res_id=iris.res_id,
         res_type=iris.res_type,
         prop_name=iris.prop_name,
-        input_value=actual_value,
+        input_value=_convert_rdflib_input_data_to_string(result.input_value),
     )
 
 
@@ -519,7 +504,9 @@ def _reformat_main_iris(result: ValidationResult) -> ReformattedIRI:
     return ReformattedIRI(res_id=subject_id, res_type=res_type, prop_name=prop_name)
 
 
-def _remove_whitespaces_from_string(msg: str) -> str:
-    splt = msg.split(" ")
-    splt = [found for x in splt if (found := x.strip())]
-    return " ".join(splt)
+def _convert_rdflib_input_data_to_string(input_val: SubjectObjectTypeAlias | None) -> str | None:
+    if not input_val:
+        return None
+    if isinstance(input_val, URIRef):
+        return reformat_data_iri(input_val)
+    return str(input_val)

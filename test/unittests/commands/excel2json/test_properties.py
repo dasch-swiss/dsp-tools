@@ -139,6 +139,7 @@ class TestFunctions(unittest.TestCase):
         test_dict = {
             "maxlength:1, size:32": {"maxlength": "1", "size": "32"},
             "hlist: languages": {"hlist": "languages"},
+            "hlist: special:character": {"hlist": "special:character"},
         }
         for original, expected in test_dict.items():
             self.assertDictEqual(e2j._unpack_gui_attributes(attribute_str=original), expected)
@@ -272,7 +273,7 @@ class TestFunctions(unittest.TestCase):
                 "subject": ["subject_1", "subject_2", pd.NA],
                 "object": ["object_1", "object_2", "object_3"],
                 "gui_element": ["Simple", "Date", "List"],
-                "gui_attributes": ["size: 32, maxlength: 128", pd.NA, "hlist: languages"],
+                "gui_attributes": ["size: 32, maxlength: 128", pd.NA, "hlist: lang:uages"],
             }
         )
         returned_prop = e2j._row2prop(df_row=cast("pd.Series[Any]", original_df.loc[0, :]), row_num=0)
@@ -317,7 +318,7 @@ class TestFunctions(unittest.TestCase):
         returned_prop = e2j._row2prop(df_row=cast("pd.Series[Any]", original_df.loc[2, :]), row_num=2)
         expected_dict = {
             "comments": {"de": "comment_de_3"},
-            "gui_attributes": {"hlist": "languages"},
+            "gui_attributes": {"hlist": "lang:uages"},
             "gui_element": "List",
             "labels": {"de": "label_de_3"},
             "name": "name_3",

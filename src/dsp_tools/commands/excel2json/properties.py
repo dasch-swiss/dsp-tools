@@ -263,12 +263,12 @@ def _get_gui_attribute(
 ) -> GuiAttributes | InvalidExcelContentProblem | None:
     if pd.isnull(df_row["gui_attributes"]):
         return None
-    # If the attribute is not in the correct format, a called function may raise an IndexError
+    # If the attribute is not in the correct format, a called function may raise an InputError
     try:
         return _format_gui_attribute(attribute_str=df_row["gui_attributes"])
-    except IndexError:
+    except InputError:
         return InvalidExcelContentProblem(
-            expected_content="attribute: value, attribute: value",
+            expected_content="attribute: value, attribute: value (no attribute key may be duplicated)",
             actual_content=df_row["gui_attributes"],
             excel_position=PositionInExcel(column="gui_attributes", row=row_num),
         )
@@ -283,10 +283,20 @@ def _format_gui_attribute(attribute_str: str) -> GuiAttributes:
 
 def _unpack_gui_attributes(attribute_str: str) -> dict[str, str]:
     gui_list = [x.strip() for x in attribute_str.split(",") if x.strip() != ""]
-    sub_gui_list = [[sub.strip() for sub in x.split(":") if sub.strip() != ""] for x in gui_list]
-    if any(len(sub) != 2 for sub in sub_gui_list):
-        raise IndexError
-    return {sub[0]: sub[1] for sub in sub_gui_list}
+    gui_attrib = {}
+    for attrib in gui_list:
+        attrib_key, attrib_val = _extract_information_from_single_gui_attribute(attrib)
+        if attrib_key in attrib:
+            raise InputError("Duplicate gui attribute")
+        gui_attrib[attrib_key] = attrib_val
+    return gui_attrib
+
+
+def _extract_information_from_single_gui_attribute(attribute_str: str) -> tuple[str, str]:
+    hlist_attrib = r"(\S+)\s*:\s*(.+)"
+    if found := regex.search(attribute_str, hlist_attrib):
+        return found.group(1), found.group(2)
+    raise InputError("Invalid gui attribute")
 
 
 def _search_convert_numbers_in_str(value_str: str) -> str | int | float:

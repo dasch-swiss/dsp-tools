@@ -45,7 +45,7 @@ knora-api:LinkObj
                        sh:path knora-api:hasComment
                      ],
                      [ a sh:PropertyShape ;
-                       sh:message "1-n" ;
+                       sh:message "Cardinality 1-n" ;
                        sh:minCount 1 ;
                        sh:path knora-api:hasLinkTo ;
                        sh:severity sh:Violation
@@ -68,21 +68,21 @@ knora-api:Region
                        sh:path knora-api:hasComment
                      ] ,
                      [ a sh:PropertyShape ;
-                       sh:message "1" ;
+                       sh:message "Cardinality 1" ;
                        sh:minCount 1 ;
                        sh:maxCount 1 ;
                        sh:path knora-api:hasColor ;
                        sh:severity sh:Violation
                      ] ,
                      [ a sh:PropertyShape ;
-                       sh:message "1" ;
+                       sh:message "Cardinality 1" ;
                        sh:minCount 1 ;
                        sh:maxCount 1 ;
                        sh:path knora-api:isRegionOf ;
                        sh:severity sh:Violation
                      ] ,
                      [ a sh:PropertyShape ;
-                       sh:message "1-n" ;
+                       sh:message "Cardinality 1-n" ;
                        sh:minCount 1 ;
                        sh:path knora-api:hasGeometry ;
                        sh:severity sh:Violation
@@ -102,21 +102,21 @@ knora-api:AudioSegment
   sh:property        api-shapes:rdfsLabel_Cardinality,
                      api-shapes:hasPermissions_Cardinality ,
                      [ a sh:PropertyShape ;
-                       sh:message "1" ;
+                       sh:message "Cardinality 1" ;
                        sh:minCount 1 ;
                        sh:maxCount 1 ;
                        sh:path knora-api:hasSegmentBounds ;
                        sh:severity sh:Violation
                      ] ,
                      [ a sh:PropertyShape ;
-                       sh:message "1" ;
+                       sh:message "Cardinality 1" ;
                        sh:minCount 1 ;
                        sh:maxCount 1 ;
                        sh:path knora-api:isAudioSegmentOf ;
                        sh:severity sh:Violation
                      ] ,
                      [ a sh:PropertyShape ;
-                       sh:message "0-1" ;
+                       sh:message "Cardinality 0-1" ;
                        sh:maxCount 1 ;
                        sh:path knora-api:hasTitle ;
                        sh:severity sh:Violation
@@ -151,21 +151,21 @@ knora-api:VideoSegment
   sh:property        api-shapes:rdfsLabel_Cardinality,
                      api-shapes:hasPermissions_Cardinality ,
                      [ a sh:PropertyShape ;
-                       sh:message "1" ;
+                       sh:message "Cardinality 1" ;
                        sh:minCount 1 ;
                        sh:maxCount 1 ;
                        sh:path knora-api:hasSegmentBounds ;
                        sh:severity sh:Violation
                      ] ,
                      [ a sh:PropertyShape ;
-                       sh:message "1" ;
+                       sh:message "Cardinality 1" ;
                        sh:minCount 1 ;
                        sh:maxCount 1 ;
                        sh:path knora-api:isVideoSegmentOf ;
                        sh:severity sh:Violation
                      ] ,
                      [ a sh:PropertyShape ;
-                       sh:message "0-1" ;
+                       sh:message "Cardinality 0-1" ;
                        sh:maxCount 1 ;
                        sh:path knora-api:hasTitle ;
                        sh:severity sh:Violation

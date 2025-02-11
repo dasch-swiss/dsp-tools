@@ -2,7 +2,6 @@ from collections import defaultdict
 from pathlib import Path
 
 import pandas as pd
-import regex
 
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
@@ -70,22 +69,20 @@ def _get_message_detail_str(problem: InputProblem) -> str:
     if problem.input_type:
         msg.append(f"Actual input type: '{problem.input_type}'")
     if problem.expected:
-        msg.append(f"Expected {_format_expected_input(problem.expected, problem.problem_type)}")
+        msg.append(f"Expected{_get_expected_prefix(problem.problem_type)}: {problem.expected}")
     return " | ".join(msg)
 
 
-def _format_expected_input(expected: str, problem_type: ProblemType) -> str:
+def _get_expected_prefix(problem_type: ProblemType) -> str | None:
     match problem_type:
-        case ProblemType.MIN_CARD | ProblemType.MAX_CARD:
-            return f"Cardinality: {expected}"
         case ProblemType.VALUE_TYPE_MISMATCH:
-            return f"Value Type: '{expected}'"
+            return " Value Type"
         case ProblemType.INPUT_REGEX:
-            return f"Input Format: {expected}"
+            return " Input Format"
         case ProblemType.LINK_TARGET_TYPE_MISMATCH:
-            return f"Resource Type: {expected}"
+            return " Resource Type"
         case _:
-            return f": {expected}"
+            return ""
 
 
 def _save_problem_info_as_csv(problems: list[InputProblem], file_path: Path) -> str:
@@ -108,14 +105,16 @@ def _get_message_dict(problem: InputProblem) -> dict[str, str]:
     }
     non_empty_dict = {k: v for k, v in msg_dict.items() if v}
     if problem.expected:
-        non_empty_dict["Expected"] = _format_expected_input(problem.expected, problem.problem_type).lstrip(": ")
+        msg_str = problem.expected
+        if prefix := _get_expected_prefix(problem.problem_type):
+            msg_str = f"{prefix.strip()}: {msg_str}"
+        non_empty_dict["Expected"] = msg_str
     return non_empty_dict
 
 
 def _shorten_input(user_input: str | None) -> str | None:
-    if not user_input or not regex.search(r"\S+", user_input):
+    if not user_input:
         return None
-    user_input = user_input.strip()
     if len(user_input) < 41:
         return user_input
     return f"{user_input[:40]}[...]"

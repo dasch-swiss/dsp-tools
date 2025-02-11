@@ -273,7 +273,7 @@ class TestFunctions(unittest.TestCase):
                 "subject": ["subject_1", "subject_2", pd.NA],
                 "object": ["object_1", "object_2", "object_3"],
                 "gui_element": ["Simple", "Date", "List"],
-                "gui_attributes": ["size: 32, maxlength: 128", pd.NA, "hlist: lang:uages"],
+                "gui_attributes": ["size: 32, maxlength: 128", pd.NA, "hlist: Urheber:in"],
             }
         )
         returned_prop = e2j._row2prop(df_row=cast("pd.Series[Any]", original_df.loc[0, :]), row_num=0)
@@ -318,7 +318,7 @@ class TestFunctions(unittest.TestCase):
         returned_prop = e2j._row2prop(df_row=cast("pd.Series[Any]", original_df.loc[2, :]), row_num=2)
         expected_dict = {
             "comments": {"de": "comment_de_3"},
-            "gui_attributes": {"hlist": "lang:uages"},
+            "gui_attributes": {"hlist": "Urheber:in"},
             "gui_element": "List",
             "labels": {"de": "label_de_3"},
             "name": "name_3",

@@ -334,6 +334,7 @@ class TestFunctions(unittest.TestCase):
     [
         ("min:1.2", "min", "1.2"),
         ("hlist: lan:guages", "hlist", "lan:guages"),
+        ("hlist:   lan:gu   ages", "hlist", "lan:gu   ages"),
         ("max:1.4 / min:1.2", "max", "1.4 / min:1.2"),
     ],
 )

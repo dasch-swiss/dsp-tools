@@ -225,7 +225,7 @@ class TestFunctions(unittest.TestCase):
         result = e2j._get_final_series(mandatory_check, no_attribute_check)
         self.assertEqual(result, expected)
 
-    def test_row2prop_problem(self) -> None:
+    def test_row2prop_duplicate_attrib_key_problem(self) -> None:
         test_series = pd.Series(
             {
                 "name": "name_1",

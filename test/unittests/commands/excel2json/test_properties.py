@@ -151,14 +151,14 @@ class TestFunctions(unittest.TestCase):
 
     def test_get_gui_attribute(self) -> None:
         original_df = pd.DataFrame(
-            {"gui_attributes": [pd.NA, "max:1.4 / min:1.2", "hlist:", "234345", "hlist: languages,"]}
+            {"gui_attributes": [pd.NA, "max=1.4, min:1.2", "hlist:", "234345", "hlist: languages,"]}
         )
         self.assertIsNone(e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[0, :]), row_num=2))
 
         res_1 = e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[1, :]), row_num=3)
-        assert isinstance(res_1, GuiAttributes)
-        expected_dict = {"max": "1.4 / min:1.2"}
-        self.assertDictEqual(expected_dict, res_1.serialise())
+        assert isinstance(res_1, InvalidExcelContentProblem)
+        assert res_1.excel_position.row == 3
+        assert res_1.actual_content == "max=1.4, min:1.2"
 
         res_2 = e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[2, :]), row_num=4)
         assert isinstance(res_2, InvalidExcelContentProblem)
@@ -333,8 +333,9 @@ class TestFunctions(unittest.TestCase):
     ("input_str", "expected_key", "expected_val"),
     [
         ("min:1.2", "min", "1.2"),
-        ("hlist: lan:guages", "hlist", "lan:guages"),
-        ("hlist:   lan:gu   ages", "hlist", "lan:gu   ages"),
+        ("hlist: Urheber:in", "hlist", "Urheber:in"),
+        ("hlist:   Urheber : in", "hlist", "Urheber : in"),
+        # While this does not make sense, it is not possible to allow ":" in the text and validate it at the same time.
         ("max:1.4 / min:1.2", "max", "1.4 / min:1.2"),
     ],
 )

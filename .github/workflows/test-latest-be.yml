@@ -1,7 +1,6 @@
 ---
 
-name: Test DSP-TOOLS against latest dev versions of backend components
-
+name: integrate with latest BE
 
 on:
   schedule:
@@ -14,7 +13,6 @@ env:
   DSP_TOOLS_TESTING: true
 
 jobs:
-
   latest-backend-components:
     runs-on: ubuntu-latest
     steps:

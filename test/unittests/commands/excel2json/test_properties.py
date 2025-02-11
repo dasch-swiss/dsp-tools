@@ -175,6 +175,22 @@ class TestFunctions(unittest.TestCase):
         assert isinstance(returned_dict, GuiAttributes)
         self.assertDictEqual(expected_dict, returned_dict.serialise())
 
+    @pytest.mark.parametrize(
+        ("input_str", "expected_key", "expected_val"),
+        [("min:1.2", "min", "1.2"), ("hlist: lan:guages", "hlist", "lan:guages")],
+    )
+    def test_extract_information_from_single_gui_attribute_good(
+        self, input_str: str, expected_key: str, expected_val: str
+    ) -> None:
+        attrib_key, attrib_val = e2j._extract_information_from_single_gui_attribute(input_str)
+        assert attrib_key == expected_key
+        assert attrib_val == expected_val
+
+    @pytest.mark.parametrize("input_str", ["max:1.4 / min:1.2", "hlist:", "234345"])
+    def test_extract_information_from_single_gui_attribute_raises(self, input_str: str) -> None:
+        with pytest.raises(InputError):
+            e2j._extract_information_from_single_gui_attribute(input_str)
+
     def test_check_compliance_gui_attributes_all_good(self) -> None:
         original_df = pd.DataFrame(
             {

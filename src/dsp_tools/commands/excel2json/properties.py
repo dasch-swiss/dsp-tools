@@ -294,7 +294,7 @@ def _unpack_gui_attributes(attribute_str: str) -> dict[str, str]:
 
 def _extract_information_from_single_gui_attribute(attribute_str: str) -> tuple[str, str]:
     hlist_attrib = r"(\S+)\s*:\s*(.+)"
-    if found := regex.search(attribute_str, hlist_attrib):
+    if found := regex.search(hlist_attrib, attribute_str):
         return found.group(1), found.group(2)
     raise InputError("Invalid gui attribute")
 

@@ -268,7 +268,7 @@ def _get_gui_attribute(
         return _format_gui_attribute(attribute_str=df_row["gui_attributes"])
     except InputError:
         return InvalidExcelContentProblem(
-            expected_content="attribute: value, attribute: value (no attribute key may be duplicated)",
+            expected_content="attribute1: value, attribute2: value (no attribute key may be duplicated)",
             actual_content=df_row["gui_attributes"],
             excel_position=PositionInExcel(column="gui_attributes", row=row_num),
         )
@@ -286,7 +286,7 @@ def _unpack_gui_attributes(attribute_str: str) -> dict[str, str]:
     gui_attrib = {}
     for attrib in gui_list:
         attrib_key, attrib_val = _extract_information_from_single_gui_attribute(attrib)
-        if attrib_key in attrib:
+        if attrib_key in gui_attrib:
             raise InputError("Duplicate gui attribute")
         gui_attrib[attrib_key] = attrib_val
     return gui_attrib

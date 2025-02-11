@@ -156,9 +156,9 @@ class TestFunctions(unittest.TestCase):
         self.assertIsNone(e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[0, :]), row_num=2))
 
         res_1 = e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[1, :]), row_num=3)
-        assert isinstance(res_1, InvalidExcelContentProblem)
-        assert res_1.excel_position.row == 3
-        assert res_1.actual_content == "max:1.4 / min:1.2"
+        assert isinstance(res_1, GuiAttributes)
+        expected_dict = {"max": "1.4 / min:1.2"}
+        self.assertDictEqual(expected_dict, res_1.serialise())
 
         res_2 = e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[2, :]), row_num=4)
         assert isinstance(res_2, InvalidExcelContentProblem)
@@ -174,22 +174,6 @@ class TestFunctions(unittest.TestCase):
         returned_dict = e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[4, :]), row_num=6)
         assert isinstance(returned_dict, GuiAttributes)
         self.assertDictEqual(expected_dict, returned_dict.serialise())
-
-    @pytest.mark.parametrize(
-        ("input_str", "expected_key", "expected_val"),
-        [("min:1.2", "min", "1.2"), ("hlist: lan:guages", "hlist", "lan:guages")],
-    )
-    def test_extract_information_from_single_gui_attribute_good(
-        self, input_str: str, expected_key: str, expected_val: str
-    ) -> None:
-        attrib_key, attrib_val = e2j._extract_information_from_single_gui_attribute(input_str)
-        assert attrib_key == expected_key
-        assert attrib_val == expected_val
-
-    @pytest.mark.parametrize("input_str", ["max:1.4 / min:1.2", "hlist:", "234345"])
-    def test_extract_information_from_single_gui_attribute_raises(self, input_str: str) -> None:
-        with pytest.raises(InputError):
-            e2j._extract_information_from_single_gui_attribute(input_str)
 
     def test_check_compliance_gui_attributes_all_good(self) -> None:
         original_df = pd.DataFrame(
@@ -259,7 +243,7 @@ class TestFunctions(unittest.TestCase):
                 "subject": "subject_1",
                 "object": "object_1",
                 "gui_element": "Simple",
-                "gui_attributes": "max:1.4 / min:1.2",
+                "gui_attributes": "max:1.4 , max:1.2",
             }
         )
         res = e2j._row2prop(test_series, row_num=0)
@@ -268,8 +252,8 @@ class TestFunctions(unittest.TestCase):
         assert len(res.problems) == 1
         invalid = res.problems[0]
         assert isinstance(invalid, InvalidExcelContentProblem)
-        assert invalid.actual_content == "max:1.4 / min:1.2"
-        assert invalid.expected_content == "attribute: value, attribute: value"
+        assert invalid.actual_content == "max:1.4 , max:1.2"
+        assert invalid.expected_content == "attribute1: value, attribute2: value (no attribute key may be duplicated)"
 
     def test_row2prop(self) -> None:
         original_df = pd.DataFrame(
@@ -343,6 +327,28 @@ class TestFunctions(unittest.TestCase):
         }
         assert isinstance(returned_prop, OntoProperty)
         self.assertDictEqual(expected_dict, returned_prop.serialise())
+
+
+@pytest.mark.parametrize(
+    ("input_str", "expected_key", "expected_val"),
+    [
+        ("min:1.2", "min", "1.2"),
+        ("hlist: lan:guages", "hlist", "lan:guages"),
+        ("max:1.4 / min:1.2", "max", "1.4 / min:1.2"),
+    ],
+)
+def test_extract_information_from_single_gui_attribute_good(
+    input_str: str, expected_key: str, expected_val: str
+) -> None:
+    attrib_key, attrib_val = e2j._extract_information_from_single_gui_attribute(input_str)
+    assert attrib_key == expected_key
+    assert attrib_val == expected_val
+
+
+@pytest.mark.parametrize("input_str", ["hlist:", "234345"])
+def test_extract_information_from_single_gui_attribute_raises(input_str: str) -> None:
+    with pytest.raises(InputError):
+        e2j._extract_information_from_single_gui_attribute(input_str)
 
 
 if __name__ == "__main__":

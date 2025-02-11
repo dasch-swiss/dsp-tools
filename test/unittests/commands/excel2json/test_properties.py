@@ -335,7 +335,8 @@ class TestFunctions(unittest.TestCase):
         ("min:1.2", "min", "1.2"),
         ("hlist: Urheber:in", "hlist", "Urheber:in"),
         ("hlist:   Urheber : in", "hlist", "Urheber : in"),
-        # While this does not make sense, it is not possible to allow ":" in the text and validate it at the same time.
+        # While this does not make sense, it is not possible to allow ":"
+        # in the text and catch these kinds of errors at the same time.
         ("max:1.4 / min:1.2", "max", "1.4 / min:1.2"),
     ],
 )

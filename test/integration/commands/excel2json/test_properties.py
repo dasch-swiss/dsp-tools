@@ -78,7 +78,7 @@ def test_excel2properties_invalid_gui_attrib_format() -> None:
         "The property 'hasInteger' has the following problem(s):\n"
         "There is invalid content in the excel.\n"
         "Located at: Column 'gui_attributes' | Row 4\n"
-        "Expected Content: attribute: value, attribute: value\n"
+        "Expected Content: attribute1: value, attribute2: value (no attribute key may be duplicated)\n"
         "Actual Content: max=10, min=5"
     )
     with pytest.raises(InputError, match=expected_msg):

@@ -139,6 +139,7 @@ class TestFunctions(unittest.TestCase):
         test_dict = {
             "maxlength:1, size:32": {"maxlength": "1", "size": "32"},
             "hlist: languages": {"hlist": "languages"},
+            "hlist: special:character": {"hlist": "special:character"},
         }
         for original, expected in test_dict.items():
             self.assertDictEqual(e2j._unpack_gui_attributes(attribute_str=original), expected)
@@ -150,14 +151,14 @@ class TestFunctions(unittest.TestCase):
 
     def test_get_gui_attribute(self) -> None:
         original_df = pd.DataFrame(
-            {"gui_attributes": [pd.NA, "max:1.4 / min:1.2", "hlist:", "234345", "hlist: languages,"]}
+            {"gui_attributes": [pd.NA, "max=1.4, min:1.2", "hlist:", "234345", "hlist: languages,"]}
         )
         self.assertIsNone(e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[0, :]), row_num=2))
 
         res_1 = e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[1, :]), row_num=3)
         assert isinstance(res_1, InvalidExcelContentProblem)
         assert res_1.excel_position.row == 3
-        assert res_1.actual_content == "max:1.4 / min:1.2"
+        assert res_1.actual_content == "max=1.4, min:1.2"
 
         res_2 = e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[2, :]), row_num=4)
         assert isinstance(res_2, InvalidExcelContentProblem)
@@ -224,7 +225,7 @@ class TestFunctions(unittest.TestCase):
         result = e2j._get_final_series(mandatory_check, no_attribute_check)
         self.assertEqual(result, expected)
 
-    def test_row2prop_problem(self) -> None:
+    def test_row2prop_duplicate_attrib_key_problem(self) -> None:
         test_series = pd.Series(
             {
                 "name": "name_1",
@@ -242,7 +243,7 @@ class TestFunctions(unittest.TestCase):
                 "subject": "subject_1",
                 "object": "object_1",
                 "gui_element": "Simple",
-                "gui_attributes": "max:1.4 / min:1.2",
+                "gui_attributes": "max:1.4 , max:1.2",
             }
         )
         res = e2j._row2prop(test_series, row_num=0)
@@ -251,8 +252,8 @@ class TestFunctions(unittest.TestCase):
         assert len(res.problems) == 1
         invalid = res.problems[0]
         assert isinstance(invalid, InvalidExcelContentProblem)
-        assert invalid.actual_content == "max:1.4 / min:1.2"
-        assert invalid.expected_content == "attribute: value, attribute: value"
+        assert invalid.actual_content == "max:1.4 , max:1.2"
+        assert invalid.expected_content == "attribute1: value, attribute2: value (no attribute key may be duplicated)"
 
     def test_row2prop(self) -> None:
         original_df = pd.DataFrame(
@@ -272,7 +273,7 @@ class TestFunctions(unittest.TestCase):
                 "subject": ["subject_1", "subject_2", pd.NA],
                 "object": ["object_1", "object_2", "object_3"],
                 "gui_element": ["Simple", "Date", "List"],
-                "gui_attributes": ["size: 32, maxlength: 128", pd.NA, "hlist: languages"],
+                "gui_attributes": ["size: 32, maxlength: 128", pd.NA, "hlist: Urheber:in"],
             }
         )
         returned_prop = e2j._row2prop(df_row=cast("pd.Series[Any]", original_df.loc[0, :]), row_num=0)
@@ -317,7 +318,7 @@ class TestFunctions(unittest.TestCase):
         returned_prop = e2j._row2prop(df_row=cast("pd.Series[Any]", original_df.loc[2, :]), row_num=2)
         expected_dict = {
             "comments": {"de": "comment_de_3"},
-            "gui_attributes": {"hlist": "languages"},
+            "gui_attributes": {"hlist": "Urheber:in"},
             "gui_element": "List",
             "labels": {"de": "label_de_3"},
             "name": "name_3",
@@ -326,6 +327,31 @@ class TestFunctions(unittest.TestCase):
         }
         assert isinstance(returned_prop, OntoProperty)
         self.assertDictEqual(expected_dict, returned_prop.serialise())
+
+
+@pytest.mark.parametrize(
+    ("input_str", "expected_key", "expected_val"),
+    [
+        ("min:1.2", "min", "1.2"),
+        ("hlist: Urheber:in", "hlist", "Urheber:in"),
+        ("hlist:   Urheber : in", "hlist", "Urheber : in"),
+        # While this does not make sense, it is not possible to allow ":"
+        # in the text and catch these kinds of errors at the same time.
+        ("max:1.4 / min:1.2", "max", "1.4 / min:1.2"),
+    ],
+)
+def test_extract_information_from_single_gui_attribute_good(
+    input_str: str, expected_key: str, expected_val: str
+) -> None:
+    attrib_key, attrib_val = e2j._extract_information_from_single_gui_attribute(input_str)
+    assert attrib_key == expected_key
+    assert attrib_val == expected_val
+
+
+@pytest.mark.parametrize("input_str", ["hlist:", "234345"])
+def test_extract_information_from_single_gui_attribute_raises(input_str: str) -> None:
+    with pytest.raises(InputError):
+        e2j._extract_information_from_single_gui_attribute(input_str)
 
 
 if __name__ == "__main__":

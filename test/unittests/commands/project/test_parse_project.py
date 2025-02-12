@@ -1,7 +1,7 @@
 import pytest
 from pytest_unordered import unordered
 
-from dsp_tools.commands.project.create.project_create import _rectify_hlist_of_properties
+from dsp_tools.commands.project.create.parse_project import _rectify_hlist_of_properties
 from dsp_tools.models.exceptions import UserError
 
 

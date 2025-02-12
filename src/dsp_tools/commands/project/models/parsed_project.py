@@ -5,8 +5,8 @@ from typing import Any
 
 
 @dataclass
-class Project:
-    metadata: Metadata
+class ParsedProject:
+    metadata: ProjectMetadata
     ontologies: list[dict[str, Any]]
     lists: list[dict[str, Any]] | None
     groups: list[dict[str, str]] | None
@@ -14,7 +14,7 @@ class Project:
 
 
 @dataclass
-class Metadata:
+class ProjectMetadata:
     shortcode: str
     shortname: str
     longname: str

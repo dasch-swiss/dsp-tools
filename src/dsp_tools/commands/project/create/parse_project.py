@@ -4,14 +4,14 @@ from typing import cast
 from loguru import logger
 
 from dsp_tools.commands.excel2json.lists import expand_lists_from_excel
-from dsp_tools.commands.project.models.project_definition import Metadata
-from dsp_tools.commands.project.models.project_definition import Project
+from dsp_tools.commands.project.models.parsed_project import ParsedProject
+from dsp_tools.commands.project.models.parsed_project import ProjectMetadata
 from dsp_tools.models.exceptions import UserError
 
 
 def parse_project_json(
     project_json: dict[str, Any],
-) -> Project:
+) -> ParsedProject:
     """
     Takes a validated project json and parses the content.
 
@@ -21,7 +21,7 @@ def parse_project_json(
     Returns:
         Object with the parsed information
     """
-    project_def = Metadata(
+    metadata = ProjectMetadata(
         shortcode=project_json["project"]["shortcode"],
         shortname=project_json["project"]["shortname"],
         longname=project_json["project"]["longname"],
@@ -33,7 +33,7 @@ def parse_project_json(
 
     groups = project_json["project"].get("groups")
     users = project_json["project"].get("users")
-    return Project(metadata=project_def, ontologies=all_ontos, lists=all_lists, groups=groups, users=users)
+    return ParsedProject(metadata=metadata, ontologies=all_ontos, lists=all_lists, groups=groups, users=users)
 
 
 def _parse_all_lists(project_json: dict[str, Any]) -> list[dict[str, Any]] | None:

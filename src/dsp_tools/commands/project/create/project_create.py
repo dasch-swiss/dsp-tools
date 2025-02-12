@@ -390,6 +390,91 @@ def _create_groups(
     return current_project_groups, overall_success
 
 
+def _create_users(
+    con: Connection,
+    users_section: list[dict[str, str]],
+    current_project_groups: dict[str, Group],
+    current_project: Project,
+    verbose: bool,
+) -> bool:
+    """
+    Creates users on a DSP server from the "users" section of a JSON project file.
+    If a user cannot be created, a warning is printed and the user is skipped.
+
+    Args:
+        con: connection instance to connect to the DSP server
+        users_section: "users" section of a parsed JSON project file
+        current_project_groups: groups defined in the current project, in the form ``{group name: group object}``
+            (must exist on DSP server)
+        current_project: "project" object of the current project (must exist on DSP server)
+        verbose: Prints more information if set to True
+
+    Returns:
+        True if all users could be created without any problems. False if a warning/error occurred.
+    """
+    overall_success = True
+    for json_user_definition in users_section:
+        username = json_user_definition["username"]
+
+        # skip the user if he already exists
+        all_users = User.getAllUsers(con)
+        if json_user_definition["email"] in [user.email for user in all_users]:
+            err_msg = (
+                f"User '{username}' already exists on the DSP server.\n"
+                f"Please manually add this user to the project in DSP-APP."
+            )
+            print(f"    WARNING: {err_msg}")
+            logger.opt(exception=True).warning(err_msg)
+            overall_success = False
+            continue
+        # add user to the group(s)
+        group_iris, sysadmin, success = _get_group_iris_for_user(
+            json_user_definition=json_user_definition,
+            current_project=current_project,
+            current_project_groups=current_project_groups,
+            con=con,
+            verbose=verbose,
+        )
+        if not success:
+            overall_success = False
+
+        # add user to the project(s)
+        project_info, success = _get_projects_where_user_is_admin(
+            json_user_definition=json_user_definition,
+            current_project=current_project,
+            con=con,
+            verbose=verbose,
+        )
+        if not success:
+            overall_success = False
+
+        # create the user
+        user_local = User(
+            con=con,
+            username=json_user_definition["username"],
+            email=json_user_definition["email"],
+            givenName=json_user_definition["givenName"],
+            familyName=json_user_definition["familyName"],
+            password=json_user_definition["password"],
+            status=bool(json_user_definition.get("status", True)),
+            lang=json_user_definition.get("lang", "en"),
+            sysadmin=sysadmin,
+            in_projects=project_info,
+            in_groups=group_iris,
+        )
+        try:
+            user_local.create()
+        except BaseError:
+            print(f"    WARNING: Unable to create user '{username}'.")
+            logger.opt(exception=True).warning(f"Unable to create user '{username}'.")
+            overall_success = False
+            continue
+        print(f"    Created user '{username}'.")
+        logger.info(f"Created user '{username}'.")
+
+    return overall_success
+
+
 def _get_group_iris_for_user(
     json_user_definition: dict[str, str],
     current_project: Project,
@@ -552,162 +637,6 @@ def _get_projects_where_user_is_admin(
         logger.info(f"Added user '{username}' as {project_role} to project '{in_project.shortname}'.")
 
     return project_info, success
-
-
-def _create_users(
-    con: Connection,
-    users_section: list[dict[str, str]],
-    current_project_groups: dict[str, Group],
-    current_project: Project,
-    verbose: bool,
-) -> bool:
-    """
-    Creates users on a DSP server from the "users" section of a JSON project file.
-    If a user cannot be created, a warning is printed and the user is skipped.
-
-    Args:
-        con: connection instance to connect to the DSP server
-        users_section: "users" section of a parsed JSON project file
-        current_project_groups: groups defined in the current project, in the form ``{group name: group object}``
-            (must exist on DSP server)
-        current_project: "project" object of the current project (must exist on DSP server)
-        verbose: Prints more information if set to True
-
-    Returns:
-        True if all users could be created without any problems. False if a warning/error occurred.
-    """
-    overall_success = True
-    for json_user_definition in users_section:
-        username = json_user_definition["username"]
-
-        # skip the user if he already exists
-        all_users = User.getAllUsers(con)
-        if json_user_definition["email"] in [user.email for user in all_users]:
-            err_msg = (
-                f"User '{username}' already exists on the DSP server.\n"
-                f"Please manually add this user to the project in DSP-APP."
-            )
-            print(f"    WARNING: {err_msg}")
-            logger.opt(exception=True).warning(err_msg)
-            overall_success = False
-            continue
-        # add user to the group(s)
-        group_iris, sysadmin, success = _get_group_iris_for_user(
-            json_user_definition=json_user_definition,
-            current_project=current_project,
-            current_project_groups=current_project_groups,
-            con=con,
-            verbose=verbose,
-        )
-        if not success:
-            overall_success = False
-
-        # add user to the project(s)
-        project_info, success = _get_projects_where_user_is_admin(
-            json_user_definition=json_user_definition,
-            current_project=current_project,
-            con=con,
-            verbose=verbose,
-        )
-        if not success:
-            overall_success = False
-
-        # create the user
-        user_local = User(
-            con=con,
-            username=json_user_definition["username"],
-            email=json_user_definition["email"],
-            givenName=json_user_definition["givenName"],
-            familyName=json_user_definition["familyName"],
-            password=json_user_definition["password"],
-            status=bool(json_user_definition.get("status", True)),
-            lang=json_user_definition.get("lang", "en"),
-            sysadmin=sysadmin,
-            in_projects=project_info,
-            in_groups=group_iris,
-        )
-        try:
-            user_local.create()
-        except BaseError:
-            print(f"    WARNING: Unable to create user '{username}'.")
-            logger.opt(exception=True).warning(f"Unable to create user '{username}'.")
-            overall_success = False
-            continue
-        print(f"    Created user '{username}'.")
-        logger.info(f"Created user '{username}'.")
-
-    return overall_success
-
-
-def _sort_resources(
-    unsorted_resources: list[dict[str, Any]],
-    onto_name: str,
-) -> list[dict[str, Any]]:
-    """
-    This method sorts the resource classes in an ontology according to their inheritance order (parent classes first).
-
-    Args:
-        unsorted_resources: list of resources from a parsed JSON project file
-        onto_name: name of the onto
-
-    Returns:
-        sorted list of resource classes
-    """
-
-    # do not modify the original unsorted_resources, which points to the original JSON project file
-    resources_to_sort = unsorted_resources.copy()
-    sorted_resources: list[dict[str, Any]] = []
-    ok_resource_names: list[str] = []
-    while resources_to_sort:
-        # inside the for loop, resources_to_sort is modified, so a copy must be made to iterate over
-        for res in resources_to_sort.copy():
-            parent_classes = res["super"]
-            if isinstance(parent_classes, str):
-                parent_classes = [parent_classes]
-            parent_classes = [regex.sub(r"^:([^:]+)$", f"{onto_name}:\\1", elem) for elem in parent_classes]
-            parent_classes_ok = [not p.startswith(onto_name) or p in ok_resource_names for p in parent_classes]
-            if all(parent_classes_ok):
-                sorted_resources.append(res)
-                res_name = f"{onto_name}:{res['name']}"
-                ok_resource_names.append(res_name)
-                resources_to_sort.remove(res)
-    return sorted_resources
-
-
-def _sort_prop_classes(
-    unsorted_prop_classes: list[dict[str, Any]],
-    onto_name: str,
-) -> list[dict[str, Any]]:
-    """
-    In case of inheritance, parent properties must be uploaded before their children. This method sorts the
-    properties.
-
-    Args:
-        unsorted_prop_classes: list of properties from a parsed JSON project file
-        onto_name: name of the onto
-
-    Returns:
-        sorted list of properties
-    """
-
-    # do not modify the original unsorted_prop_classes, which points to the original JSON project file
-    prop_classes_to_sort = unsorted_prop_classes.copy()
-    sorted_prop_classes: list[dict[str, Any]] = []
-    ok_propclass_names: list[str] = []
-    while prop_classes_to_sort:
-        # inside the for loop, resources_to_sort is modified, so a copy must be made to iterate over
-        for prop in prop_classes_to_sort.copy():
-            prop_name = f"{onto_name}:{prop['name']}"
-            parent_classes = prop.get("super", "hasValue")
-            if isinstance(parent_classes, str):
-                parent_classes = [parent_classes]
-            parent_classes = [regex.sub(r"^:([^:]+)$", f"{onto_name}:\\1", elem) for elem in parent_classes]
-            parent_classes_ok = [not p.startswith(onto_name) or p in ok_propclass_names for p in parent_classes]
-            if all(parent_classes_ok):
-                sorted_prop_classes.append(prop)
-                ok_propclass_names.append(prop_name)
-                prop_classes_to_sort.remove(prop)
-    return sorted_prop_classes
 
 
 def _create_ontology(
@@ -943,6 +872,41 @@ def _add_resource_classes_to_remote_ontology(
     return last_modification_date, new_res_classes, overall_success
 
 
+def _sort_resources(
+    unsorted_resources: list[dict[str, Any]],
+    onto_name: str,
+) -> list[dict[str, Any]]:
+    """
+    This method sorts the resource classes in an ontology according to their inheritance order (parent classes first).
+
+    Args:
+        unsorted_resources: list of resources from a parsed JSON project file
+        onto_name: name of the onto
+
+    Returns:
+        sorted list of resource classes
+    """
+
+    # do not modify the original unsorted_resources, which points to the original JSON project file
+    resources_to_sort = unsorted_resources.copy()
+    sorted_resources: list[dict[str, Any]] = []
+    ok_resource_names: list[str] = []
+    while resources_to_sort:
+        # inside the for loop, resources_to_sort is modified, so a copy must be made to iterate over
+        for res in resources_to_sort.copy():
+            parent_classes = res["super"]
+            if isinstance(parent_classes, str):
+                parent_classes = [parent_classes]
+            parent_classes = [regex.sub(r"^:([^:]+)$", f"{onto_name}:\\1", elem) for elem in parent_classes]
+            parent_classes_ok = [not p.startswith(onto_name) or p in ok_resource_names for p in parent_classes]
+            if all(parent_classes_ok):
+                sorted_resources.append(res)
+                res_name = f"{onto_name}:{res['name']}"
+                ok_resource_names.append(res_name)
+                resources_to_sort.remove(res)
+    return sorted_resources
+
+
 def _add_property_classes_to_remote_ontology(
     onto_name: str,
     property_definitions: list[dict[str, Any]],
@@ -1037,6 +1001,42 @@ def _add_property_classes_to_remote_ontology(
             overall_success = False
 
     return last_modification_date, overall_success
+
+
+def _sort_prop_classes(
+    unsorted_prop_classes: list[dict[str, Any]],
+    onto_name: str,
+) -> list[dict[str, Any]]:
+    """
+    In case of inheritance, parent properties must be uploaded before their children. This method sorts the
+    properties.
+
+    Args:
+        unsorted_prop_classes: list of properties from a parsed JSON project file
+        onto_name: name of the onto
+
+    Returns:
+        sorted list of properties
+    """
+
+    # do not modify the original unsorted_prop_classes, which points to the original JSON project file
+    prop_classes_to_sort = unsorted_prop_classes.copy()
+    sorted_prop_classes: list[dict[str, Any]] = []
+    ok_propclass_names: list[str] = []
+    while prop_classes_to_sort:
+        # inside the for loop, resources_to_sort is modified, so a copy must be made to iterate over
+        for prop in prop_classes_to_sort.copy():
+            prop_name = f"{onto_name}:{prop['name']}"
+            parent_classes = prop.get("super", "hasValue")
+            if isinstance(parent_classes, str):
+                parent_classes = [parent_classes]
+            parent_classes = [regex.sub(r"^:([^:]+)$", f"{onto_name}:\\1", elem) for elem in parent_classes]
+            parent_classes_ok = [not p.startswith(onto_name) or p in ok_propclass_names for p in parent_classes]
+            if all(parent_classes_ok):
+                sorted_prop_classes.append(prop)
+                ok_propclass_names.append(prop_name)
+                prop_classes_to_sort.remove(prop)
+    return sorted_prop_classes
 
 
 def _add_cardinalities_to_resource_classes(

@@ -6,7 +6,7 @@ import jsonpath_ng.ext
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create import create_project
-from dsp_tools.commands.project.create.project_create_lists import create_lists
+from dsp_tools.commands.project.create.project_create_lists import create_only_lists
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
 
@@ -36,7 +36,7 @@ class TestCreateLists(unittest.TestCase):
         test_project_minimal["project"]["lists"] = [lists_section[0]]
 
         # The method to be tested can now be called with the project with the added list
-        name2iri_mapping, success = create_lists(test_project_minimal, self.creds)
+        name2iri_mapping, success = create_only_lists(test_project_minimal, self.creds)
 
         # test if the returned mapping contains the same node names than the original list
         self.assertTrue(success)

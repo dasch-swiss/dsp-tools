@@ -1,5 +1,27 @@
 # Changelog
 
+## [10.4.0](https://github.com/dasch-swiss/dsp-tools/compare/v10.3.0...v10.4.0) (2025-02-12)
+
+
+### Enhancements
+
+* **excel2json:** allow list names to contain colons (DEV-4580) ([#1418](https://github.com/dasch-swiss/dsp-tools/issues/1418)) ([5007fb2](https://github.com/dasch-swiss/dsp-tools/commit/5007fb29185e4c7de2092409447825c48e31bc29))
+
+
+### Maintenance
+
+* bump stack to 2025.02.02 ([#1420](https://github.com/dasch-swiss/dsp-tools/issues/1420)) ([0ebe609](https://github.com/dasch-swiss/dsp-tools/commit/0ebe60938cf0d9865a6bee12f2b1ff09db727886))
+* **optimise release process:** deduce api commit hash from version tag ([#1410](https://github.com/dasch-swiss/dsp-tools/issues/1410)) ([ee1b39e](https://github.com/dasch-swiss/dsp-tools/commit/ee1b39e82a06c66d4b394feb89f9fe4c232fdba9))
+* **test:** don't print user facing warnings during test runs ([#1415](https://github.com/dasch-swiss/dsp-tools/issues/1415)) ([55bff2e](https://github.com/dasch-swiss/dsp-tools/commit/55bff2e07d58bef9b1907c55c80bf2dc8b37f1bb))
+* Update uv.lock ([#1404](https://github.com/dasch-swiss/dsp-tools/issues/1404)) ([8e48113](https://github.com/dasch-swiss/dsp-tools/commit/8e481133a80e7213b8e368a1b1514ffb69888431))
+* **validate-data:** class structure of `InputProblem` ([#1406](https://github.com/dasch-swiss/dsp-tools/issues/1406)) ([7c6b6a6](https://github.com/dasch-swiss/dsp-tools/commit/7c6b6a637b098d3c19428fe4d417e7319b9b2483))
+* **validate-data:** harmonise datatype of `ValidationResult` parameters ([#1416](https://github.com/dasch-swiss/dsp-tools/issues/1416)) ([1ff12ac](https://github.com/dasch-swiss/dsp-tools/commit/1ff12ac055f8a14063b38525166188198d21c2fd))
+* **validate-data:** make instance variable names uniform ([#1407](https://github.com/dasch-swiss/dsp-tools/issues/1407)) ([b02bd1e](https://github.com/dasch-swiss/dsp-tools/commit/b02bd1ee2680ff1878f93b0e043d746d12730749))
+* **validate-data:** move mappers and constants to own file ([#1409](https://github.com/dasch-swiss/dsp-tools/issues/1409)) ([4057609](https://github.com/dasch-swiss/dsp-tools/commit/40576094e04c764d83ae3b0ceba551999893f2d4))
+* **validate-data:** simplify cardinality message construction ([#1417](https://github.com/dasch-swiss/dsp-tools/issues/1417)) ([29bccf7](https://github.com/dasch-swiss/dsp-tools/commit/29bccf7b79a2dfd8ac80602ffe72df4e1e38c04d))
+* **validate-data:** simplify mapping from violation to user facing problem ([#1411](https://github.com/dasch-swiss/dsp-tools/issues/1411)) ([06c0bc7](https://github.com/dasch-swiss/dsp-tools/commit/06c0bc70f7f8d89e87396b12dabacf07ede5b0dc))
+* **validate-data:** simplify validation query class structure ([#1408](https://github.com/dasch-swiss/dsp-tools/issues/1408)) ([2319e6b](https://github.com/dasch-swiss/dsp-tools/commit/2319e6bddbee0d33e934c64bdae031e685658392))
+
 ## [10.3.0](https://github.com/dasch-swiss/dsp-tools/compare/v10.2.0...v10.3.0) (2025-02-05)
 
 

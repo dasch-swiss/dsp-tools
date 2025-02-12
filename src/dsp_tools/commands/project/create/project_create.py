@@ -4,13 +4,12 @@ of the project, the creation of groups, users, lists, resource classes, properti
 from pathlib import Path
 from typing import Any
 from typing import Optional
-from typing import cast
 
 import regex
 from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.commands.excel2json.lists import expand_lists_from_excel
+from dsp_tools.commands.project.create.parse_project import parse_project_json
 from dsp_tools.commands.project.create.project_create_lists import create_lists_on_server
 from dsp_tools.commands.project.create.project_validate import validate_project
 from dsp_tools.commands.project.models.context import Context
@@ -18,7 +17,7 @@ from dsp_tools.commands.project.models.group import Group
 from dsp_tools.commands.project.models.helpers import Cardinality
 from dsp_tools.commands.project.models.ontology import Ontology
 from dsp_tools.commands.project.models.project import Project
-from dsp_tools.commands.project.models.project_definition import ProjectDefinition
+from dsp_tools.commands.project.models.project_definition import ProjectMetadata
 from dsp_tools.commands.project.models.propertyclass import PropertyClass
 from dsp_tools.commands.project.models.resourceclass import ResourceClass
 from dsp_tools.commands.project.models.user import User
@@ -71,21 +70,22 @@ def create_project(
 
     context = Context(project_json.get("prefixes", {}))
 
-    project_definition = _validate_and_parse_project_json(project_json)
+    # validate against JSON schema
+    validate_project(project_json, expand_lists=False)
+    print("    JSON project file is syntactically correct and passed validation.")
+    logger.info("JSON project file is syntactically correct and passed validation.")
 
-    all_lists = _parse_all_lists(project_json)
-
-    all_ontos = _parse_all_ontos(project_json, all_lists)
+    project = parse_project_json(project_json)
 
     auth = AuthenticationClientLive(creds.server, creds.user, creds.password)
     con = ConnectionLive(creds.server, auth)
 
     # create project on DSP server
-    info_str = f"Create project '{project_definition.shortname}' ({project_definition.shortcode})..."
+    info_str = f"Create project '{project.metadata.shortname}' ({project.metadata.shortcode})..."
     print(info_str)
     logger.info(info_str)
     project_remote, success = _create_project_on_server(
-        project_definition=project_definition,
+        project_definition=project.metadata,
         con=con,
     )
     if not success:
@@ -93,11 +93,11 @@ def create_project(
 
     # create the lists
     names_and_iris_of_list_nodes: dict[str, Any] = {}
-    if all_lists:
+    if project.lists:
         print("Create lists...")
         logger.info("Create lists...")
         names_and_iris_of_list_nodes, success = create_lists_on_server(
-            lists_to_create=all_lists,
+            lists_to_create=project.lists,
             con=con,
             project_remote=project_remote,
         )
@@ -106,24 +106,24 @@ def create_project(
 
     # create the groups
     current_project_groups: dict[str, Group] = {}
-    if project_definition.groups:
+    if project.groups:
         print("Create groups...")
         logger.info("Create groups...")
         current_project_groups, success = _create_groups(
             con=con,
-            groups=project_definition.groups,
+            groups=project.groups,
             project=project_remote,
         )
         if not success:
             overall_success = False
 
     # create or update the users
-    if project_definition.users:
+    if project.users:
         print("Create users...")
         logger.info("Create users...")
         success = _create_users(
             con=con,
-            users_section=project_definition.users,
+            users_section=project.users,
             current_project_groups=current_project_groups,
             current_project=project_remote,
             verbose=verbose,
@@ -137,7 +137,7 @@ def create_project(
         context=context,
         knora_api_prefix=knora_api_prefix,
         names_and_iris_of_list_nodes=names_and_iris_of_list_nodes,
-        ontology_definitions=all_ontos,
+        ontology_definitions=project.ontologies,
         project_remote=project_remote,
         verbose=verbose,
     )
@@ -147,15 +147,15 @@ def create_project(
     # final steps
     if overall_success:
         msg = (
-            f"Successfully created project '{project_definition.shortname}' "
-            f"({project_definition.shortcode}) with all its ontologies. "
+            f"Successfully created project '{project.metadata.shortname}' "
+            f"({project.metadata.shortcode}) with all its ontologies. "
             f"There were no problems during the creation process."
         )
         print(f"========================================================\n{msg}")
         logger.info(msg)
     else:
         msg = (
-            f"The project '{project_definition.shortname}' ({project_definition.shortcode}) "
+            f"The project '{project.metadata.shortname}' ({project.metadata.shortcode}) "
             f"with its ontologies could be created, "
             f"but during the creation process, some problems occurred. Please carefully check the console output."
         )
@@ -165,107 +165,8 @@ def create_project(
     return overall_success
 
 
-def _validate_and_parse_project_json(
-    project_json: dict[str, Any],
-) -> ProjectDefinition:
-    project_def = ProjectDefinition(
-        shortcode=project_json["project"]["shortcode"],
-        shortname=project_json["project"]["shortname"],
-        longname=project_json["project"]["longname"],
-        keywords=project_json["project"].get("keywords"),
-        descriptions=project_json["project"].get("descriptions"),
-        groups=project_json["project"].get("groups"),
-        users=project_json["project"].get("users"),
-    )
-
-    # validate against JSON schema
-    validate_project(project_json, expand_lists=False)
-    print("    JSON project file is syntactically correct and passed validation.")
-    logger.info("JSON project file is syntactically correct and passed validation.")
-
-    return project_def
-
-
-def _parse_all_lists(project_json: dict[str, Any]) -> list[dict[str, Any]] | None:
-    # expand the Excel files referenced in the "lists" section of the project, if any
-    if all_lists := expand_lists_from_excel(project_json.get("project", {}).get("lists", [])):
-        return all_lists
-    new_lists: list[dict[str, Any]] | None = project_json["project"].get("lists")
-    return new_lists
-
-
-def _parse_all_ontos(project_json: dict[str, Any], all_lists: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
-    all_ontos: list[dict[str, Any]] = project_json["project"]["ontologies"]
-    if all_lists is None:
-        return all_ontos
-    # rectify the "hlist" of the "gui_attributes" of the properties
-    for onto in all_ontos:
-        if onto.get("properties"):
-            onto["properties"] = _rectify_hlist_of_properties(
-                lists=all_lists,
-                properties=onto["properties"],
-            )
-    return all_ontos
-
-
-def _rectify_hlist_of_properties(
-    lists: list[dict[str, Any]],
-    properties: list[dict[str, Any]],
-) -> list[dict[str, Any]]:
-    """
-    Check the "hlist" of the "gui_attributes" of the properties.
-    If they don't refer to an existing list name,
-    check if there is a label of a list that corresponds to the "hlist".
-    If so, rectify the "hlist" to refer to the name of the list instead of the label.
-
-    Args:
-        lists: "lists" section of the JSON project definition
-        properties: "properties" section of one of the ontologies of the JSON project definition
-
-    Raises:
-        UserError: if the "hlist" refers to no existing list name or label
-
-    Returns:
-        the rectified "properties" section
-    """
-
-    if not lists or not properties:
-        return properties
-
-    existing_list_names = [lst["name"] for lst in lists]
-
-    for prop in properties:
-        if not prop.get("gui_attributes"):
-            continue
-        if not prop["gui_attributes"].get("hlist"):
-            continue
-        list_name = prop["gui_attributes"]["hlist"] if prop["gui_attributes"]["hlist"] in existing_list_names else None
-        if list_name:
-            continue
-
-        deduced_list_name = None
-        for root_node in lists:
-            if prop["gui_attributes"]["hlist"] in root_node["labels"].values():
-                deduced_list_name = cast(str, root_node["name"])
-        if deduced_list_name:
-            msg = (
-                f"INFO: Property '{prop['name']}' references the list '{prop['gui_attributes']['hlist']}' "
-                f"which is not a valid list name. "
-                f"Assuming that you meant '{deduced_list_name}' instead."
-            )
-            logger.opt(exception=True).warning(msg)
-            print(msg)
-        else:
-            msg = f"Property '{prop['name']}' references an unknown list: '{prop['gui_attributes']['hlist']}'"
-            logger.error(msg)
-            raise UserError(f"ERROR: {msg}")
-        prop["gui_attributes"]["hlist"] = deduced_list_name
-
-    return properties
-
-
 def _create_project_on_server(
-    project_definition: ProjectDefinition,
+    project_definition: ProjectMetadata,
     con: Connection,
 ) -> tuple[Project, bool]:
     """

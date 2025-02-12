@@ -27,7 +27,7 @@ def test_lists_validate(validate_lists: Mock) -> None:
     validate_lists.assert_called_once_with(file)
 
 
-@patch("dsp_tools.cli.call_action.create_lists")
+@patch("dsp_tools.cli.call_action.create_only_lists")
 def test_lists_create(create_lists: Mock) -> None:
     create_lists.return_value = ({}, True)
     file = "filename.json"

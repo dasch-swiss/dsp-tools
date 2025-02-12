@@ -17,6 +17,63 @@ from dsp_tools.utils.connection_live import ConnectionLive
 from dsp_tools.utils.shared import parse_json_input
 
 
+def create_lists_on_server(
+    lists_to_create: list[dict[str, Any]],
+    con: Connection,
+    project_remote: Project,
+) -> tuple[dict[str, Any], bool]:
+    """
+    Creates the "lists" section of a JSON project definition on a DSP server.
+    If a list with the same name is already existing in this project on the DSP server, this list is skipped.
+    If a node or an entire list cannot be created, an error message is printed, but the process continues.
+
+    Args:
+        lists_to_create: "lists" section of a JSON project definition
+        con: connection to the DSP server
+        project_remote: representation of the project on the DSP server
+
+    Raises:
+        BaseError: if one of the lists to be created already exists on the DSP server, but it has no name
+
+    Returns:
+        tuple consisting of the IRIs of the list nodes and the success status (True if everything went well)
+    """
+
+    overall_success = True
+
+    # retrieve existing lists
+    try:
+        existing_lists = ListNode.getAllLists(con=con, project_iri=project_remote.iri)
+    except BaseError:
+        err_msg = "Unable to retrieve existing lists on DSP server. Cannot check if your lists are already existing."
+        print(f"WARNING: {err_msg}")
+        logger.opt(exception=True).warning(err_msg)
+        existing_lists = []
+        overall_success = False
+
+    current_project_lists: dict[str, Any] = {}
+    for new_lst in lists_to_create:
+        if existing_lst := [x for x in existing_lists if x.project == project_remote.iri and x.name == new_lst["name"]]:
+            existing_list_name = existing_lst[0].name
+            if not existing_list_name:
+                raise BaseError(f"Node {existing_lst[0]} has no name.")
+            current_project_lists[existing_list_name] = {
+                "id": existing_lst[0].iri,
+                "nodes": new_lst["nodes"],
+            }
+            print(f"    WARNING: List '{new_lst['name']}' already exists on the DSP server. Skipping...")
+            overall_success = False
+            continue
+
+        created_list, success = _create_list_node(con=con, project=project_remote, node=new_lst)
+        current_project_lists.update(created_list)
+        if not success:
+            overall_success = False
+        print(f"    Created list '{new_lst['name']}'.")
+
+    return current_project_lists, overall_success
+
+
 def _create_list_node(
     con: Connection,
     project: Project,
@@ -77,64 +134,7 @@ def _create_list_node(
         return {new_node.name: {"id": new_node.iri}}, True
 
 
-def create_lists_on_server(
-    lists_to_create: list[dict[str, Any]],
-    con: Connection,
-    project_remote: Project,
-) -> tuple[dict[str, Any], bool]:
-    """
-    Creates the "lists" section of a JSON project definition on a DSP server.
-    If a list with the same name is already existing in this project on the DSP server, this list is skipped.
-    If a node or an entire list cannot be created, an error message is printed, but the process continues.
-
-    Args:
-        lists_to_create: "lists" section of a JSON project definition
-        con: connection to the DSP server
-        project_remote: representation of the project on the DSP server
-
-    Raises:
-        BaseError: if one of the lists to be created already exists on the DSP server, but it has no name
-
-    Returns:
-        tuple consisting of the IRIs of the list nodes and the success status (True if everything went well)
-    """
-
-    overall_success = True
-
-    # retrieve existing lists
-    try:
-        existing_lists = ListNode.getAllLists(con=con, project_iri=project_remote.iri)
-    except BaseError:
-        err_msg = "Unable to retrieve existing lists on DSP server. Cannot check if your lists are already existing."
-        print(f"WARNING: {err_msg}")
-        logger.opt(exception=True).warning(err_msg)
-        existing_lists = []
-        overall_success = False
-
-    current_project_lists: dict[str, Any] = {}
-    for new_lst in lists_to_create:
-        if existing_lst := [x for x in existing_lists if x.project == project_remote.iri and x.name == new_lst["name"]]:
-            existing_list_name = existing_lst[0].name
-            if not existing_list_name:
-                raise BaseError(f"Node {existing_lst[0]} has no name.")
-            current_project_lists[existing_list_name] = {
-                "id": existing_lst[0].iri,
-                "nodes": new_lst["nodes"],
-            }
-            print(f"    WARNING: List '{new_lst['name']}' already exists on the DSP server. Skipping...")
-            overall_success = False
-            continue
-
-        created_list, success = _create_list_node(con=con, project=project_remote, node=new_lst)
-        current_project_lists.update(created_list)
-        if not success:
-            overall_success = False
-        print(f"    Created list '{new_lst['name']}'.")
-
-    return current_project_lists, overall_success
-
-
-def create_lists(
+def create_only_lists(
     project_file_as_path_or_parsed: Union[str, dict[str, Any]],
     creds: ServerCredentials,
 ) -> tuple[dict[str, Any], bool]:

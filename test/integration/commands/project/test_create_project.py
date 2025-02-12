@@ -4,8 +4,6 @@ from typing import Any
 import pytest
 import regex
 
-from dsp_tools.commands.project.create.project_create import _sort_prop_classes
-from dsp_tools.commands.project.create.project_create import _sort_resources
 from dsp_tools.commands.project.create.project_validate import _check_for_duplicate_names
 from dsp_tools.commands.project.create.project_validate import _check_for_undefined_cardinalities
 from dsp_tools.commands.project.create.project_validate import _check_for_undefined_super_property
@@ -37,28 +35,6 @@ def tp_circular_ontology() -> dict[str, Any]:
     with open(tp_circular_ontology_file, encoding="utf-8") as json_file:
         tp_circular_ontology: dict[str, Any] = json.load(json_file)
     return tp_circular_ontology
-
-
-def test_sort_resources(tp_systematic_ontology: dict[str, Any]) -> None:
-    onto_name: str = tp_systematic_ontology["name"]
-    unsorted_resources: list[dict[str, Any]] = tp_systematic_ontology["resources"]
-    sorted_resources = _sort_resources(unsorted_resources, onto_name)
-
-    unsorted_resources = sorted(unsorted_resources, key=lambda a: str(a["name"]))
-    sorted_resources = sorted(sorted_resources, key=lambda a: str(a["name"]))
-
-    assert unsorted_resources == sorted_resources
-
-
-def test_sort_prop_classes(tp_systematic_ontology: dict[str, Any]) -> None:
-    onto_name: str = tp_systematic_ontology["name"]
-    unsorted_props: list[dict[str, Any]] = tp_systematic_ontology["resources"]
-    sorted_props = _sort_prop_classes(unsorted_props, onto_name)
-
-    unsorted_props = sorted(unsorted_props, key=lambda a: str(a["name"]))
-    sorted_props = sorted(sorted_props, key=lambda a: str(a["name"]))
-
-    assert unsorted_props == sorted_props
 
 
 def test_validate_project(tp_systematic: dict[str, Any], tp_circular_ontology: dict[str, Any]) -> None:

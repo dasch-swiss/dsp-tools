@@ -16,8 +16,8 @@ from dsp_tools.commands.project.models.context import Context
 from dsp_tools.commands.project.models.group import Group
 from dsp_tools.commands.project.models.helpers import Cardinality
 from dsp_tools.commands.project.models.ontology import Ontology
-from dsp_tools.commands.project.models.parsed_project import ProjectMetadata
 from dsp_tools.commands.project.models.project import Project
+from dsp_tools.commands.project.models.project_definition import ProjectMetadata
 from dsp_tools.commands.project.models.propertyclass import PropertyClass
 from dsp_tools.commands.project.models.resourceclass import ResourceClass
 from dsp_tools.commands.project.models.user import User

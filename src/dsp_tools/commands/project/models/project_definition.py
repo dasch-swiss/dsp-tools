@@ -5,7 +5,7 @@ from typing import Any
 
 
 @dataclass
-class ParsedProject:
+class ProjectDefinition:
     metadata: ProjectMetadata
     ontologies: list[dict[str, Any]]
     lists: list[dict[str, Any]] | None

@@ -16,203 +16,6 @@ from dsp_tools.commands.excel2json.lists import expand_lists_from_excel
 from dsp_tools.models.exceptions import BaseError
 
 
-def _check_for_duplicate_names(project_definition: dict[str, Any]) -> bool:
-    """
-    Check that the resource names and property names are unique.
-
-    Args:
-        project_definition: parsed JSON project definition
-
-    Raises:
-        BaseError: detailed error message if there is a duplicate resource name / property name
-
-    Returns:
-        True if the resource/property names are unique
-    """
-    propnames_duplicates, resnames_duplicates = _find_duplicates(project_definition)
-
-    if not resnames_duplicates and not propnames_duplicates:
-        return True
-
-    err_msg = "Resource names and property names must be unique inside every ontology.\n"
-    for ontoname, res_duplicates in resnames_duplicates.items():
-        for res_duplicate in sorted(res_duplicates):
-            err_msg += f"Resource '{res_duplicate}' appears multiple times in the ontology '{ontoname}'.\n"
-    for ontoname, prop_duplicates in propnames_duplicates.items():
-        for prop_duplicate in sorted(prop_duplicates):
-            err_msg += f"Property '{prop_duplicate}' appears multiple times in the ontology '{ontoname}'.\n"
-
-    raise BaseError(err_msg)
-
-
-def _find_duplicates(project_definition: dict[str, Any]) -> tuple[dict[str, set[str]], dict[str, set[str]]]:
-    resnames_duplicates: dict[str, set[str]] = {}
-    propnames_duplicates: dict[str, set[str]] = {}
-    for onto in project_definition["project"]["ontologies"]:
-        resnames = [r["name"] for r in onto["resources"]]
-        if len(set(resnames)) != len(resnames):
-            for elem in resnames:
-                if resnames.count(elem) > 1:
-                    if resnames_duplicates.get(onto["name"]):
-                        resnames_duplicates[onto["name"]].add(elem)
-                    else:
-                        resnames_duplicates[onto["name"]] = {elem}
-
-        propnames = [p["name"] for p in onto["properties"]]
-        if len(set(propnames)) != len(propnames):
-            for elem in propnames:
-                if propnames.count(elem) > 1:
-                    if propnames_duplicates.get(onto["name"]):
-                        propnames_duplicates[onto["name"]].add(elem)
-                    else:
-                        propnames_duplicates[onto["name"]] = {elem}
-    return propnames_duplicates, resnames_duplicates
-
-
-def _check_for_undefined_super_resource(project_definition: dict[str, Any]) -> bool:
-    """
-    Check the superresources that claim to point to a resource defined in the same JSON project.
-    Check if the resource they point to actually exists.
-    (DSP base resources and resources from other ontologies are not considered.)
-
-    Args:
-        project_definition: parsed JSON project definition
-
-    Raises:
-        BaseError: detailed error message if a superresource is not existent
-
-    Returns:
-        True if the superresource are valid
-    """
-    errors: dict[str, list[str]] = {}
-    for onto in project_definition["project"]["ontologies"]:
-        ontoname = onto["name"]
-        resnames = [r["name"] for r in onto["resources"]]
-        for res in onto["resources"]:
-            supers = res["super"] if isinstance(res["super"], list) else [res["super"]]
-            # form of supers:
-            #  - Resource      # DSP base resource
-            #  - other:res     # other onto
-            #  - same:res      # same onto
-            #  - :res          # same onto (short form)
-
-            # filter out DSP base resources
-            supers = [s for s in supers if ":" in s]
-            # extend short form
-            supers = [regex.sub(r"^:", f"{ontoname}:", s) for s in supers]
-            # filter out other ontos
-            supers = [s for s in supers if regex.search(f"^{ontoname}:", s)]
-            # convert to short form
-            supers = [regex.sub(f"^{ontoname}", "", s) for s in supers]
-
-            if invalid_references := [s for s in supers if regex.sub(":", "", s) not in resnames]:
-                errors[f"Ontology '{ontoname}', resource '{res['name']}'"] = invalid_references
-
-    if errors:
-        err_msg = "Your data model contains resources that are derived from an invalid super-resource:\n" + "\n".join(
-            f" - {loc}: {invalids}" for loc, invalids in errors.items()
-        )
-        raise BaseError(err_msg)
-    return True
-
-
-def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> bool:
-    """
-    Check the superproperties that claim to point to a property defined in the same JSON project.
-    Check if the property they point to actually exists.
-    (DSP base properties and properties from other ontologies are not considered.)
-
-    Args:
-        project_definition: parsed JSON project definition
-
-    Raises:
-        BaseError: detailed error message if a superproperty is not existent
-
-    Returns:
-        True if the superproperties are valid
-    """
-    errors: dict[str, list[str]] = {}
-    for onto in project_definition["project"]["ontologies"]:
-        ontoname = onto["name"]
-        propnames = [p["name"] for p in onto["properties"]]
-        for prop in onto["properties"]:
-            supers = prop["super"]
-            # form of supers:
-            #  - isSegmentOf   # DSP base property
-            #  - other:prop    # other onto
-            #  - same:prop     # same onto
-            #  - :prop         # same onto (short form)
-
-            # filter out DSP base properties
-            supers = [s for s in supers if ":" in s]
-            # extend short form
-            supers = [regex.sub(r"^:", f"{ontoname}:", s) for s in supers]
-            # filter out other ontos
-            supers = [s for s in supers if regex.search(f"^{ontoname}:", s)]
-            # convert to short form
-            supers = [regex.sub(f"^{ontoname}", "", s) for s in supers]
-
-            if invalid_references := [s for s in supers if regex.sub(":", "", s) not in propnames]:
-                errors[f"Ontology '{ontoname}', property '{prop['name']}'"] = invalid_references
-
-    if errors:
-        err_msg = "Your data model contains properties that are derived from an invalid super-property:\n" + "\n".join(
-            f" - {loc}: {invalids}" for loc, invalids in errors.items()
-        )
-        raise BaseError(err_msg)
-    return True
-
-
-def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> bool:
-    """
-    Check if the propnames that are used in the cardinalities of each resource are defined in the "properties"
-    section. (DSP base properties and properties from other ontologies are not considered.)
-
-    Args:
-        project_definition: parsed JSON project definition
-
-    Raises:
-        BaseError: detailed error message if a cardinality is used that is not defined
-
-    Returns:
-        True if all cardinalities are defined in the "properties" section
-    """
-    errors: dict[str, list[str]] = {}
-    for onto in project_definition["project"]["ontologies"]:
-        ontoname = onto["name"]
-        propnames = [prop["name"] for prop in onto["properties"]]
-        for res in onto["resources"]:
-            cardnames = [card["propname"] for card in res.get("cardinalities", [])]
-            # form of the cardnames:
-            #  - isSegmentOf   # DSP base property
-            #  - other:prop    # other onto
-            #  - same:prop     # same onto
-            #  - :prop         # same onto (short form)
-
-            # filter out DSP base properties
-            cardnames = [card for card in cardnames if ":" in card]
-            # extend short form
-            cardnames = [regex.sub(r"^:", f"{ontoname}:", card) for card in cardnames]
-            # filter out other ontos
-            cardnames = [card for card in cardnames if regex.search(f"^{ontoname}:", card)]
-            # convert to short form
-            cardnames = [regex.sub(f"^{ontoname}:", ":", card) for card in cardnames]
-
-            if invalid_cardnames := [card for card in cardnames if regex.sub(":", "", card) not in propnames]:
-                errors[f"Ontology '{ontoname}', resource '{res['name']}'"] = invalid_cardnames
-
-    if errors:
-        err_msg = "Your data model contains cardinalities with invalid propnames:\n" + "\n".join(
-            f" - {loc}: {invalids}" for loc, invalids in errors.items()
-        )
-        raise BaseError(err_msg)
-    return True
-
-
-def _check_for_deprecated_syntax(project_definition: dict[str, Any]) -> bool:  # noqa: ARG001 (unused argument)
-    return True
-
-
 def validate_project(
     input_file_or_json: Union[dict[str, Any], str],
     expand_lists: bool = True,
@@ -288,6 +91,170 @@ def validate_project(
 
     # cardinalities check for circular references
     return _check_cardinalities_of_circular_references(project_definition)
+
+
+def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> bool:
+    """
+    Check the superproperties that claim to point to a property defined in the same JSON project.
+    Check if the property they point to actually exists.
+    (DSP base properties and properties from other ontologies are not considered.)
+
+    Args:
+        project_definition: parsed JSON project definition
+
+    Raises:
+        BaseError: detailed error message if a superproperty is not existent
+
+    Returns:
+        True if the superproperties are valid
+    """
+    errors: dict[str, list[str]] = {}
+    for onto in project_definition["project"]["ontologies"]:
+        ontoname = onto["name"]
+        propnames = [p["name"] for p in onto["properties"]]
+        for prop in onto["properties"]:
+            supers = prop["super"]
+            # form of supers:
+            #  - isSegmentOf   # DSP base property
+            #  - other:prop    # other onto
+            #  - same:prop     # same onto
+            #  - :prop         # same onto (short form)
+
+            # filter out DSP base properties
+            supers = [s for s in supers if ":" in s]
+            # extend short form
+            supers = [regex.sub(r"^:", f"{ontoname}:", s) for s in supers]
+            # filter out other ontos
+            supers = [s for s in supers if regex.search(f"^{ontoname}:", s)]
+            # convert to short form
+            supers = [regex.sub(f"^{ontoname}", "", s) for s in supers]
+
+            if invalid_references := [s for s in supers if regex.sub(":", "", s) not in propnames]:
+                errors[f"Ontology '{ontoname}', property '{prop['name']}'"] = invalid_references
+
+    if errors:
+        err_msg = "Your data model contains properties that are derived from an invalid super-property:\n" + "\n".join(
+            f" - {loc}: {invalids}" for loc, invalids in errors.items()
+        )
+        raise BaseError(err_msg)
+    return True
+
+
+def _find_duplicates(project_definition: dict[str, Any]) -> tuple[dict[str, set[str]], dict[str, set[str]]]:
+    resnames_duplicates: dict[str, set[str]] = {}
+    propnames_duplicates: dict[str, set[str]] = {}
+    for onto in project_definition["project"]["ontologies"]:
+        resnames = [r["name"] for r in onto["resources"]]
+        if len(set(resnames)) != len(resnames):
+            for elem in resnames:
+                if resnames.count(elem) > 1:
+                    if resnames_duplicates.get(onto["name"]):
+                        resnames_duplicates[onto["name"]].add(elem)
+                    else:
+                        resnames_duplicates[onto["name"]] = {elem}
+
+        propnames = [p["name"] for p in onto["properties"]]
+        if len(set(propnames)) != len(propnames):
+            for elem in propnames:
+                if propnames.count(elem) > 1:
+                    if propnames_duplicates.get(onto["name"]):
+                        propnames_duplicates[onto["name"]].add(elem)
+                    else:
+                        propnames_duplicates[onto["name"]] = {elem}
+    return propnames_duplicates, resnames_duplicates
+
+
+def _check_for_undefined_super_resource(project_definition: dict[str, Any]) -> bool:
+    """
+    Check the superresources that claim to point to a resource defined in the same JSON project.
+    Check if the resource they point to actually exists.
+    (DSP base resources and resources from other ontologies are not considered.)
+
+    Args:
+        project_definition: parsed JSON project definition
+
+    Raises:
+        BaseError: detailed error message if a superresource is not existent
+
+    Returns:
+        True if the superresource are valid
+    """
+    errors: dict[str, list[str]] = {}
+    for onto in project_definition["project"]["ontologies"]:
+        ontoname = onto["name"]
+        resnames = [r["name"] for r in onto["resources"]]
+        for res in onto["resources"]:
+            supers = res["super"] if isinstance(res["super"], list) else [res["super"]]
+            # form of supers:
+            #  - Resource      # DSP base resource
+            #  - other:res     # other onto
+            #  - same:res      # same onto
+            #  - :res          # same onto (short form)
+
+            # filter out DSP base resources
+            supers = [s for s in supers if ":" in s]
+            # extend short form
+            supers = [regex.sub(r"^:", f"{ontoname}:", s) for s in supers]
+            # filter out other ontos
+            supers = [s for s in supers if regex.search(f"^{ontoname}:", s)]
+            # convert to short form
+            supers = [regex.sub(f"^{ontoname}", "", s) for s in supers]
+
+            if invalid_references := [s for s in supers if regex.sub(":", "", s) not in resnames]:
+                errors[f"Ontology '{ontoname}', resource '{res['name']}'"] = invalid_references
+
+    if errors:
+        err_msg = "Your data model contains resources that are derived from an invalid super-resource:\n" + "\n".join(
+            f" - {loc}: {invalids}" for loc, invalids in errors.items()
+        )
+        raise BaseError(err_msg)
+    return True
+
+
+def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> bool:
+    """
+    Check if the propnames that are used in the cardinalities of each resource are defined in the "properties"
+    section. (DSP base properties and properties from other ontologies are not considered.)
+
+    Args:
+        project_definition: parsed JSON project definition
+
+    Raises:
+        BaseError: detailed error message if a cardinality is used that is not defined
+
+    Returns:
+        True if all cardinalities are defined in the "properties" section
+    """
+    errors: dict[str, list[str]] = {}
+    for onto in project_definition["project"]["ontologies"]:
+        ontoname = onto["name"]
+        propnames = [prop["name"] for prop in onto["properties"]]
+        for res in onto["resources"]:
+            cardnames = [card["propname"] for card in res.get("cardinalities", [])]
+            # form of the cardnames:
+            #  - isSegmentOf   # DSP base property
+            #  - other:prop    # other onto
+            #  - same:prop     # same onto
+            #  - :prop         # same onto (short form)
+
+            # filter out DSP base properties
+            cardnames = [card for card in cardnames if ":" in card]
+            # extend short form
+            cardnames = [regex.sub(r"^:", f"{ontoname}:", card) for card in cardnames]
+            # filter out other ontos
+            cardnames = [card for card in cardnames if regex.search(f"^{ontoname}:", card)]
+            # convert to short form
+            cardnames = [regex.sub(f"^{ontoname}:", ":", card) for card in cardnames]
+
+            if invalid_cardnames := [card for card in cardnames if regex.sub(":", "", card) not in propnames]:
+                errors[f"Ontology '{ontoname}', resource '{res['name']}'"] = invalid_cardnames
+
+    if errors:
+        err_msg = "Your data model contains cardinalities with invalid propnames:\n" + "\n".join(
+            f" - {loc}: {invalids}" for loc, invalids in errors.items()
+        )
+        raise BaseError(err_msg)
+    return True
 
 
 def _check_cardinalities_of_circular_references(project_definition: dict[Any, Any]) -> bool:
@@ -451,3 +418,36 @@ def _find_circles_with_min_one_cardinality(
             if cardinalities[resource].get(prop) not in ["0-1", "0-n"]:
                 errors.add((resource, prop))
     return errors
+
+
+def _check_for_duplicate_names(project_definition: dict[str, Any]) -> bool:
+    """
+    Check that the resource names and property names are unique.
+
+    Args:
+        project_definition: parsed JSON project definition
+
+    Raises:
+        BaseError: detailed error message if there is a duplicate resource name / property name
+
+    Returns:
+        True if the resource/property names are unique
+    """
+    propnames_duplicates, resnames_duplicates = _find_duplicates(project_definition)
+
+    if not resnames_duplicates and not propnames_duplicates:
+        return True
+
+    err_msg = "Resource names and property names must be unique inside every ontology.\n"
+    for ontoname, res_duplicates in resnames_duplicates.items():
+        for res_duplicate in sorted(res_duplicates):
+            err_msg += f"Resource '{res_duplicate}' appears multiple times in the ontology '{ontoname}'.\n"
+    for ontoname, prop_duplicates in propnames_duplicates.items():
+        for prop_duplicate in sorted(prop_duplicates):
+            err_msg += f"Property '{prop_duplicate}' appears multiple times in the ontology '{ontoname}'.\n"
+
+    raise BaseError(err_msg)
+
+
+def _check_for_deprecated_syntax(project_definition: dict[str, Any]) -> bool:  # noqa: ARG001 (unused argument)
+    return True

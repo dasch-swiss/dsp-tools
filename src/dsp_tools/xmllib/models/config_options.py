@@ -53,9 +53,9 @@ class NewlineReplacement(Enum):
     LINEBREAK = auto()
 
 
-class License(Enum):
+class PreDefinedLicense(Enum):
     """
-    Pre-defined licenses for assets (`bitstream` and `iiif-uri`)
+    Pre-defined licenses for assets (`bitstream` and `iiif-uri`):
 
     - `CC_BY`: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
     - `CC_BY_SA`: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)

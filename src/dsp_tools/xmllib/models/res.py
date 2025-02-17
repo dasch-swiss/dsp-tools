@@ -14,6 +14,7 @@ from dsp_tools.xmllib.internal_helpers import check_and_create_richtext_string
 from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
+from dsp_tools.xmllib.models.config_options import PreDefinedLicense
 from dsp_tools.xmllib.models.file_values import AbstractFileValue
 from dsp_tools.xmllib.models.file_values import FileValue
 from dsp_tools.xmllib.models.file_values import IIIFUri
@@ -1513,6 +1514,9 @@ class Resource:
     def add_file(
         self,
         filename: str,
+        license: PreDefinedLicense | str,
+        copyright_holder: str,
+        authorship: list[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -1523,6 +1527,9 @@ class Resource:
 
         Args:
             filename: path to the file
+            license: License of the file, can be a predefined or custom license
+            copyright_holder: Copyright holder of the file
+            authorship: Authorship of the file
             permissions: optional permissions of this file
             comment: optional comment
 
@@ -1559,6 +1566,9 @@ class Resource:
     def add_iiif_uri(
         self,
         iiif_uri: str,
+        license: PreDefinedLicense | str,
+        copyright_holder: str,
+        authorship: list[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -1569,6 +1579,9 @@ class Resource:
 
         Args:
             iiif_uri: valid IIIF URI
+            license: License of the file as defined on the original web-page, can be a predefined or custom license
+            copyright_holder: Copyright holder of the file as defined on the original web-page
+            authorship: Authorship of the file as defined on the original web-page
             permissions: optional permissions of this value
             comment: optional comment
 

@@ -17,9 +17,17 @@ XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.o
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 
 
+@dataclass
+class Metadata:
+    license: str
+    copyright_holder: str
+    authorship: set[str]
+
+
 class AbstractFileValue(Protocol):
     value: str | Path
     permissions: Permissions
+    metadata: Metadata
     comment: str | None = None
 
     def serialise(self) -> etree._Element:
@@ -30,6 +38,7 @@ class AbstractFileValue(Protocol):
 class FileValue(AbstractFileValue):
     value: str | Path
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
+    metadata: Metadata
     comment: str | None = None
     resource_id: str | None = None
 
@@ -52,6 +61,7 @@ class FileValue(AbstractFileValue):
 class IIIFUri(AbstractFileValue):
     value: str
     permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
+    metadata: Metadata
     comment: str | None = None
     resource_id: str | None = None
 

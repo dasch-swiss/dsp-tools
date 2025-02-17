@@ -10,9 +10,9 @@ test.gzip   DaSCH: Johannes Nussbaum
 test.jp2    DaSCH: Johannes Nussbaum
 test.jpeg   DaSCH: Johannes Nussbaum
 test.jpg    DaSCH: Johannes Nussbaum
-test.gif    Public Domain: Matsuo Basho: https://en.wikipedia.org/wiki/Haiku#/media/File:Basho_Horohoroto.jpg
+test.gif    DaSCH: Johannes Nussbaum
 test.mp3    DaSCH: Johannes Nussbaum
-test.mp4    Public Domain: https://commons.wikimedia.org/wiki/File:VID20240601163749.mp4.webm / https://upload.wikimedia.org/wikipedia/commons/transcoded/0/06/VID20240601163749.mp4.webm/VID20240601163749.mp4.webm.360p.vp9.webm?download
+test.mp4    DaSCH: Nora Ammann
 test.pdf    DaSCH: Nora Ammann
 test.png    DaSCH: Johannes Nussbaum
 test.ppt    DaSCH: Johannes Nussbaum

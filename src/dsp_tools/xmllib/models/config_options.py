@@ -51,3 +51,36 @@ class NewlineReplacement(Enum):
     NONE = auto()
     PARAGRAPH = auto()
     LINEBREAK = auto()
+
+
+class License(Enum):
+    """
+    Pre-defined licenses for assets (`bitstream` and `iiif-uri`)
+
+    - `CC_BY`: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+    - `CC_BY_SA`: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+    - `CC_BY_NC`: [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/)
+    - `CC_BY_NC_SA`: [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+    - `CC_BY_ND`: [CC BY-ND 4.0](https://creativecommons.org/licenses/by-nd/4.0/)
+    - `CC_BY_NC_ND`: [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/)
+    - `AI_GENERATED`: AI-Generated Content - Not Protected by Copyright
+    - `UNKNOWN`: Unknown License - Ask Copyright Holder for Permission
+    - `PUBLIC_DOMAIN`: Public Domain - Not Protected by Copyright
+
+    Examples:
+        ```python
+        # adding a license to a bitstream
+        resource = resource.
+        ```
+    """
+
+    # TODO: example
+    CC_BY = "http://rdfh.ch/licenses/cc-by-4.0"
+    CC_BY_SA = "http://rdfh.ch/licenses/cc-by-sa-4.0"
+    CC_BY_NC = "http://rdfh.ch/licenses/cc-by-nc-4.0"
+    CC_BY_NC_SA = "http://rdfh.ch/licenses/cc-by-nc-sa-4.0"
+    CC_BY_ND = "http://rdfh.ch/licenses/cc-by-nd-4.0"
+    CC_BY_NC_ND = "http://rdfh.ch/licenses/cc-by-nc-nd-4.0"
+    AI_GENERATED = "http://rdfh.ch/licenses/ai-generated"
+    UNKNOWN = "http://rdfh.ch/licenses/unknown"
+    PUBLIC_DOMAIN = "http://rdfh.ch/licenses/public-domain"

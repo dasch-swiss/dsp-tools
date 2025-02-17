@@ -33,4 +33,3 @@ jobs:
           name: logging.log
           path: /home/runner/.dsp-tools/logging.log
           compression-level: 0
-

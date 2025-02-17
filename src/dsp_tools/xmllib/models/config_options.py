@@ -74,7 +74,6 @@ class PreDefinedLicense(Enum):
         ```
     """
 
-    # TODO: example
     CC_BY = "http://rdfh.ch/licenses/cc-by-4.0"
     CC_BY_SA = "http://rdfh.ch/licenses/cc-by-sa-4.0"
     CC_BY_NC = "http://rdfh.ch/licenses/cc-by-nc-4.0"

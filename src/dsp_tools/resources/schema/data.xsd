@@ -410,7 +410,7 @@
             <xs:extension base="nonEmptyString_pretty_printed">
                 <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
                 <xs:attribute name="license" type="xs:string" use="optional"/>
-                <xs:attribute name="copyright-attribution" type="xs:string" use="optional"/>
+                <xs:attribute name="copyright-holder" type="xs:string" use="optional"/>
                 <xs:attribute name="authorship-id" type="xs:IDREF" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
@@ -422,7 +422,7 @@
             <xs:extension base="nonEmptyString_pretty_printed">
                 <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
                 <xs:attribute name="license" type="xs:string" use="optional"/>
-                <xs:attribute name="copyright-attribution" type="xs:string" use="optional"/>
+                <xs:attribute name="copyright-holder" type="xs:string" use="optional"/>
                 <xs:attribute name="authorship-id" type="xs:IDREF" use="optional"/>
             </xs:extension>
         </xs:simpleContent>

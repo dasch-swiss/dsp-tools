@@ -1,4 +1,5 @@
 from enum import Enum
+from enum import StrEnum
 from enum import auto
 
 
@@ -53,7 +54,7 @@ class NewlineReplacement(Enum):
     LINEBREAK = auto()
 
 
-class PreDefinedLicense(Enum):
+class PreDefinedLicense(StrEnum):
     """
     Pre-defined licenses for assets (`bitstream` and `iiif-uri`):
 
@@ -69,8 +70,13 @@ class PreDefinedLicense(Enum):
 
     Examples:
         ```python
-        # adding a license to a bitstream
-        resource = resource.
+        # adding a pre-defined license to a file
+        resource = resource.add_file(
+            filename="images/dog.jpg",
+            license=xmllib.PreDefinedLicense.PUBLIC_DOMAIN,
+            copyright_holder="Bark University",
+            authorship=["Bark McDog"],
+        )
         ```
     """
 

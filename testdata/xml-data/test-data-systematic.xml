@@ -114,6 +114,7 @@
                 <a class="salsah-link" href="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA">test_thing_with_iri_1</a>
             </text>
             <text encoding="xml">Text with an external link: <a href="https://www.google.com/">Google</a></text>
+            <text encoding="xml">Text with a footnote<footnote content="footnote text"/>.</text>
         </text-prop>
         <uri-prop name=":hasUri">
             <uri permissions="open">https://dasch.swiss</uri>

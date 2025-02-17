@@ -6,7 +6,7 @@ test.csv    DaSCH: Nora Ammann
 test.doc    DaSCH: Nora Ammann
 test.docx   DaSCH: Nora Ammann
 test.gz	    DaSCH: Johannes Nussbaum
-test.gzip   DaSCH: Johannes Nussbaum
+test.gzip   DaSCH: Johannes Nussbaum / Nora Ammann
 test.jp2    DaSCH: Johannes Nussbaum
 test.jpeg   DaSCH: Johannes Nussbaum
 test.jpg    DaSCH: Johannes Nussbaum

@@ -36,8 +36,8 @@ class Metadata:
 
 class AbstractFileValue(Protocol):
     value: str | Path
-    permissions: Permissions
     metadata: Metadata
+    permissions: Permissions
     comment: str | None = None
 
     def serialise(self) -> etree._Element:
@@ -47,8 +47,8 @@ class AbstractFileValue(Protocol):
 @dataclass
 class FileValue(AbstractFileValue):
     value: str | Path
-    permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     metadata: Metadata
+    permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
     resource_id: str | None = None
 
@@ -70,8 +70,8 @@ class FileValue(AbstractFileValue):
 @dataclass
 class IIIFUri(AbstractFileValue):
     value: str
-    permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     metadata: Metadata
+    permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
     comment: str | None = None
     resource_id: str | None = None
 

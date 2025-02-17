@@ -22,7 +22,7 @@ class Metadata:
     license: str
     copyright_holder: str
     authorship: set[str]
-    resource_id: str = None
+    resource_id: str
 
     def __post_init__(self) -> None:
         if not is_string_like(str(self.license)):

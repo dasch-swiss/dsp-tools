@@ -288,9 +288,9 @@
         </text-prop>
     </resource>
 
-    <resource label="iiif-link with license / copyright"
+    <resource label="iiif-link"
               restype=":ImageThing"
-              id="iiif-link-license-copyright"
+              id="iiif-link"
               permissions="open">
         <iiif-uri license="http://rdfh.ch/licenses/cc-by-nc-4.0"
                   copyright-attribution="Wellcome Collection"
@@ -300,14 +300,11 @@
         </iiif-uri>
     </resource>
 
-    <resource label="iiif-link"
+    <resource label="iiif-link without legal info"
               restype=":ImageThing"
-              id="iiif-link"
+              id="iiif-link-no-legal-info"
               permissions="open">
-        <iiif-uri license="http://rdfh.ch/licenses/cc-by-nc-4.0"
-                  copyright-attribution="Wellcome Collection"
-                  authorship-id="authorship_1"
-        >https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg</iiif-uri>
+        <iiif-uri>https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg</iiif-uri>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">
                 Licence: Attribution-NonCommercial 4.0 International (CC BY-NC 4.0).
@@ -324,6 +321,18 @@
                    copyright-attribution="DaSCH"
                    authorship-id="authorship_3"
         >
+            testdata/bitstreams/test.tiff
+        </bitstream>
+        <text-prop name=":hasSimpleText">
+            <text permissions="open" encoding="utf8">This is a Imagething as TIFF</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Imagething-tiff wihtout legal info"
+              restype=":ImageThing"
+              id="image_thing_1_no_legal"
+              permissions="open">
+        <bitstream>
             testdata/bitstreams/test.tiff
         </bitstream>
         <text-prop name=":hasSimpleText">

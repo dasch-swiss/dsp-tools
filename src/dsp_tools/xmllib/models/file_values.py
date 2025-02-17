@@ -33,6 +33,13 @@ class Metadata:
             if not is_string_like(author):
                 _warn_type_mismatch(expected_type="author", value=author, res_id=self.resource_id)
 
+    def serialise(self) -> dict[str, str]:
+        return {
+            "license": self.license,
+            "copyright-holder": self.copyright_holder,
+
+        }
+
 
 class AbstractFileValue(Protocol):
     value: str | Path
@@ -57,7 +64,7 @@ class FileValue(AbstractFileValue):
             _warn_type_mismatch(expected_type="file name", value=self.value, res_id=self.resource_id)
 
     def serialise(self) -> etree._Element:
-        attribs = {}
+        attribs = self.metadata.serialise()
         if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
             attribs["permissions"] = self.permissions.value
         if is_string_like(self.comment):
@@ -80,7 +87,7 @@ class IIIFUri(AbstractFileValue):
             _warn_type_mismatch(expected_type="IIIF uri", value=self.value, res_id=self.resource_id)
 
     def serialise(self) -> etree._Element:
-        attribs = {}
+        attribs = self.metadata.serialise()
         if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
             attribs["permissions"] = self.permissions.value
         if is_string_like(self.comment):

@@ -324,40 +324,45 @@ class TestAddValues:
 
 class TestAddFiles:
     def test_add_file(self) -> None:
-        res = Resource.create_new("res_id", "restype", "label").add_file("foo/bar.baz")
+        res = Resource.create_new("res_id", "restype", "label").add_file("foo/bar.baz", "license", "copy", ["auth"])
         assert isinstance(res.file_value, FileValue)
 
     def test_add_file_warns(self) -> None:
         with pytest.warns(DspToolsUserWarning, match=regex.escape("The value '' is not a valid file name")):
-            Resource.create_new("res_id", "restype", "label").add_file("")
+            Resource.create_new("res_id", "restype", "label").add_file("", "license", "copy", ["auth"])
 
     def test_add_file_raising(self) -> None:
-        res = Resource.create_new("res_id", "restype", "label").add_file("existing filename")
+        res = Resource.create_new("res_id", "restype", "label").add_file(
+            "existing filename", "license", "copy", ["auth"]
+        )
         msg = regex.escape(
             "The resource with the ID 'res_id' already contains a file with the name: 'existing filename'.\n"
             "The new file with the name 'new filename' cannot be added."
         )
         with pytest.raises(InputError, match=msg):
-            res.add_file("new filename")
+            res.add_file("new filename", "license", "copy", ["auth"])
 
     def test_add_iiif_uri(self) -> None:
         res = Resource.create_new("res_id", "restype", "label").add_iiif_uri(
-            "https://iiif.dasch.swiss/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/837,530/0/default.jp2"
+            "https://iiif.dasch.swiss/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/837,530/0/default.jp2",
+            "license",
+            "copy",
+            ["auth"],
         )
         assert isinstance(res.file_value, IIIFUri)
 
     def test_add_iiif_uri_warns(self) -> None:
         with pytest.warns(DspToolsUserWarning, match=regex.escape("The value '' is not a valid IIIF uri")):
-            Resource.create_new("res_id", "restype", "label").add_iiif_uri("")
+            Resource.create_new("res_id", "restype", "label").add_iiif_uri("", "license", "copy", ["auth"])
 
     def test_add_iiif_uri_raising(self) -> None:
-        res = Resource.create_new("res_id", "restype", "label").add_file("existing IIIF")
+        res = Resource.create_new("res_id", "restype", "label").add_file("existing IIIF", "license", "copy", ["auth"])
         msg = regex.escape(
             "The resource with the ID 'res_id' already contains a file with the name: 'existing IIIF'.\n"
             "The new file with the name 'new IIIF' cannot be added."
         )
         with pytest.raises(InputError, match=msg):
-            res.add_iiif_uri("new IIIF")
+            res.add_iiif_uri("new IIIF", "license", "copy", ["auth"])
 
 
 @pytest.mark.parametrize(

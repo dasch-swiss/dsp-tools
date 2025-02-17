@@ -29,6 +29,20 @@
         <allow group="systematic-tp:testgroupEditors">M</allow>
     </permissions>
 
+    <authorships id="1">
+        <author>
+            Cavanagh, Annie
+        </author>
+    </authorships>
+    <authorships id="2">
+        <author>DaSCH</author>
+        <author>Johannes Nussbaum</author>
+    </authorships>
+    <authorships id="3">
+        <author>DaSCH</author>
+        <author>Lukas Rosenthaler</author>
+    </authorships>
+
     <resource label="TestthingWithArk1"
               restype=":TestThing2"
               id="test_thing_with_ark_1"
@@ -270,15 +284,12 @@
               restype=":ImageThing"
               id="iiif-link-license-copyright"
               permissions="open">
-        <iiif-uri license="twoLineLicense" copyright-attribution="copyright_id">
+        <iiif-uri license="http://rdfh.ch/licenses/cc-by-nc-4.0"
+                  copyright-attribution="Wellcome Collection"
+                  authorships-id="1"
+        >
             https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg
         </iiif-uri>
-        <text-prop name=":hasSimpleText">
-            <text permissions="open" encoding="utf8">
-                Licence: Attribution-NonCommercial 4.0 International (CC BY-NC 4.0).
-                Credit: Zebrafish embryo. Source: Wellcome Collection.
-            </text>
-        </text-prop>
     </resource>
 
     <resource label="iiif-link"
@@ -660,7 +671,10 @@
               restype=":ZipThing"
               id="zip_thing_2"
               permissions="open">
-        <bitstream>testdata/bitstreams/test.7z</bitstream>
+        <bitstream license="" copyright-attribution="" authorships-id=""
+        >
+            testdata/bitstreams/test.7z
+        </bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Zipthing as 7Z</text>
         </text-prop>

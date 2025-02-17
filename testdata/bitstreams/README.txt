@@ -2,7 +2,7 @@ Rights/Licenses of the test data in this directory
 **************************************************
 
 test.7z     DaSCH: Johannes Nussbaum
-test.csv    DaSCH: rosetta/Documents/RosettaCategoryList.csv
+test.csv    DaSCH: Nora Ammann
 test.doc    DaSCH: rosetta/Documents/RosettaTestProject.docx
 test.docx   DaSCH: rosetta/Documents/RosettaTestProject.docx
 test.gz	    DaSCH: Johannes Nussbaum

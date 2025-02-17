@@ -18,6 +18,7 @@ from dsp_tools.xmllib.models.config_options import PreDefinedLicense
 from dsp_tools.xmllib.models.file_values import AbstractFileValue
 from dsp_tools.xmllib.models.file_values import FileValue
 from dsp_tools.xmllib.models.file_values import IIIFUri
+from dsp_tools.xmllib.models.file_values import Metadata
 from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
 from dsp_tools.xmllib.models.values import BooleanValue
 from dsp_tools.xmllib.models.values import ColorValue
@@ -1606,6 +1607,10 @@ class Resource:
             )
         self.file_value = IIIFUri(iiif_uri, permissions, comment, self.res_id)
         return self
+
+    @staticmethod
+    def _create_metadata(license: PreDefinedLicense | str, copyright_holder: str, authorship: list[str]) -> Metadata:
+        pass
 
     #######################
     # Migration Metadata

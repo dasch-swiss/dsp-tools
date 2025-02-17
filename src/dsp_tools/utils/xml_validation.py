@@ -66,7 +66,6 @@ def validate_xml(xml: etree._Element) -> bool:
         logger.opt(exception=True).error(err_msg)
         raise InputError(err_msg)
 
-    logger.info("The XML file is syntactically correct.")
     return True
 
 

@@ -3,17 +3,17 @@ Rights/Licenses of the test data in this directory
 
 test.7z     DaSCH: Johannes Nussbaum
 test.csv    DaSCH: Nora Ammann
-test.doc    DaSCH: rosetta/Documents/RosettaTestProject.docx
-test.docx   DaSCH: rosetta/Documents/RosettaTestProject.docx
+test.doc    DaSCH: Nora Ammann
+test.docx   DaSCH: Nora Ammann
 test.gz	    DaSCH: Johannes Nussbaum
-test.gzip   Python Package joblib: /test/data/joblib_0.11.0_pickle_py36_np111.pkl.gzip
-test.jp2    Public Domain: www.loc.gov/item/00279382687-ms (Library of Congress Collection of Manuscripts in St. Catherine's Monastery, Mt. Sinai)
-test.jpeg   Public Domain: https://en.wikipedia.org/wiki/Haiku#/media/File:Basho_Horohoroto.jpg
-test.jpg    Public Domain: https://en.wikipedia.org/wiki/Haiku#/media/File:Basho_Horohoroto.jpg
-test.gif    Public Domain: https://en.wikipedia.org/wiki/Haiku#/media/File:Basho_Horohoroto.jpg
+test.gzip   DaSCH: Johannes Nussbaum
+test.jp2    DaSCH: Johannes Nussbaum
+test.jpeg   DaSCH: Johannes Nussbaum
+test.jpg    DaSCH: Johannes Nussbaum
+test.gif    Public Domain: Matsuo Basho: https://en.wikipedia.org/wiki/Haiku#/media/File:Basho_Horohoroto.jpg
 test.mp3    DaSCH: Johannes Nussbaum
 test.mp4    Public Domain: https://commons.wikimedia.org/wiki/File:VID20240601163749.mp4.webm / https://upload.wikimedia.org/wikipedia/commons/transcoded/0/06/VID20240601163749.mp4.webm/VID20240601163749.mp4.webm.360p.vp9.webm?download
-test.pdf    DaSCH: rosetta/Documents/RosettaTestProject.docx
+test.pdf    DaSCH: Nora Ammann
 test.png    DaSCH: Johannes Nussbaum
 test.ppt    DaSCH: Johannes Nussbaum
 test.pptx   DaSCH: Johannes Nussbaum

@@ -1561,7 +1561,17 @@ class Resource:
                 f"'{self.file_value.value}'.\n"
                 f"The new file with the name '{filename}' cannot be added."
             )
-        self.file_value = FileValue(filename, permissions, comment, self.res_id)
+
+        fixed_authors = check_and_fix_collection_input(authorship, "iiif-uri", self.res_id)
+        meta = Metadata(
+            license=str(license),
+            copyright_holder=copyright_holder,
+            authorship=set(fixed_authors),
+            resource_id=self.res_id,
+        )
+        self.file_value = FileValue(
+            value=filename, metadata=meta, permissions=permissions, comment=comment, resource_id=self.res_id
+        )
         return self
 
     def add_iiif_uri(
@@ -1605,12 +1615,17 @@ class Resource:
                 f"'{self.file_value.value}'.\n"
                 f"The new file with the name '{iiif_uri}' cannot be added."
             )
-        self.file_value = IIIFUri(iiif_uri, permissions, comment, self.res_id)
+        fixed_authors = check_and_fix_collection_input(authorship, "iiif-uri", self.res_id)
+        meta = Metadata(
+            license=str(license),
+            copyright_holder=copyright_holder,
+            authorship=set(fixed_authors),
+            resource_id=self.res_id,
+        )
+        self.file_value = IIIFUri(
+            value=iiif_uri, metadata=meta, permissions=permissions, comment=comment, resource_id=self.res_id
+        )
         return self
-
-    @staticmethod
-    def _create_metadata(license: PreDefinedLicense | str, copyright_holder: str, authorship: list[str]) -> Metadata:
-        pass
 
     #######################
     # Migration Metadata

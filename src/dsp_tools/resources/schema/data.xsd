@@ -577,7 +577,7 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="permissions" type="permissions_type" minOccurs="0" maxOccurs="unbounded"/>
-                <xs:element name="authorship" type="permissions_type" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element name="authorship" type="authorship_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:choice maxOccurs="unbounded">
                     <xs:element name="resource" type="resource_type" minOccurs="1" maxOccurs="unbounded">
                         <xs:unique name="UniqueNameAttr_Resource">

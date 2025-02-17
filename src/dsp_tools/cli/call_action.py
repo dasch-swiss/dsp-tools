@@ -199,7 +199,9 @@ def _call_ingest_xmlupload(args: argparse.Namespace) -> bool:
 
 def _call_xmlupload(args: argparse.Namespace) -> bool:
     if args.validate_only:
-        return validate_xml_file(Path(args.xmlfile))
+        success = validate_xml_file(Path(args.xmlfile))
+        print("The XML file is syntactically correct.")
+        return success
     else:
         interrupt_after = args.interrupt_after if args.interrupt_after > 0 else None
         return xmlupload(

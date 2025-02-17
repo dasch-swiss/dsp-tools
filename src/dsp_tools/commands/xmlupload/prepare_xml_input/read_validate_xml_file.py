@@ -42,6 +42,7 @@ def validate_and_parse(input_file: Path) -> tuple[etree._Element, str, str]:
     root = remove_comments_from_element_tree(root)
 
     validate_xml(root)
+    print("The XML file is syntactically correct.")
     root = transform_special_tags_make_localname(root)
     _check_if_link_targets_exist(root)
     shortcode = root.attrib["shortcode"]

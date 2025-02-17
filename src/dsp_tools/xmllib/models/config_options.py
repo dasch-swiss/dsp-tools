@@ -58,12 +58,12 @@ class PreDefinedLicense(StrEnum):
     """
     Pre-defined licenses for assets (`bitstream` and `iiif-uri`):
 
-    - `CC_BY`: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
-    - `CC_BY_SA`: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
-    - `CC_BY_NC`: [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/)
-    - `CC_BY_NC_SA`: [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
-    - `CC_BY_ND`: [CC BY-ND 4.0](https://creativecommons.org/licenses/by-nd/4.0/)
-    - `CC_BY_NC_ND`: [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/)
+    - `CC_BY`: [Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
+    - `CC_BY_SA`: [Attribution-ShareAlike 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+    - `CC_BY_NC`: [Attribution-NonCommercial 4.0](https://creativecommons.org/licenses/by-nc/4.0/)
+    - `CC_BY_NC_SA`: [Attribution-NonCommercial-ShareAlike 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+    - `CC_BY_ND`: [Attribution-NoDerivatives 4.0](https://creativecommons.org/licenses/by-nd/4.0/)
+    - `CC_BY_NC_ND`: [Attribution-NonCommercial-NoDerivatives 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/)
     - `AI_GENERATED`: AI-Generated Content - Not Protected by Copyright
     - `UNKNOWN`: Unknown License - Ask Copyright Holder for Permission
     - `PUBLIC_DOMAIN`: Public Domain - Not Protected by Copyright

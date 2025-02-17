@@ -29,24 +29,24 @@
         <allow group="systematic-tp:testgroupEditors">M</allow>
     </permissions>
 
-    <authorships id="1">
+    <authorship id="1">
         <author>
             Cavanagh, Annie
         </author>
-    </authorships>
-    <authorships id="2">
+    </authorship>
+    <authorship id="2">
         <author>Johannes Nussbaum</author>
-    </authorships>
-    <authorships id="3">
+    </authorship>
+    <authorship id="3">
         <author>Lukas Rosenthaler</author>
-    </authorships>
-    <authorships id="4">
+    </authorship>
+    <authorship id="4">
         <author>Nora Ammann</author>
-    </authorships>
-    <authorships id="5">
+    </authorship>
+    <authorship id="5">
         <author>Nora Ammann</author>
         <author>Johannes Nussbaum</author>
-    </authorships>
+    </authorship>
 
     <resource label="TestthingWithArk1"
               restype=":TestThing2"
@@ -281,7 +281,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="3"
+                   authorship-id="3"
         >testdata/bitstreams/test.tif</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Imagething as TIF</text>
@@ -294,7 +294,7 @@
               permissions="open">
         <iiif-uri license="http://rdfh.ch/licenses/cc-by-nc-4.0"
                   copyright-attribution="Wellcome Collection"
-                  authorships-id="1"
+                  authorship-id="1"
         >
             https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg
         </iiif-uri>
@@ -306,7 +306,7 @@
               permissions="open">
         <iiif-uri license="http://rdfh.ch/licenses/cc-by-nc-4.0"
                   copyright-attribution="Wellcome Collection"
-                  authorships-id="1"
+                  authorship-id="1"
         >https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg</iiif-uri>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">
@@ -322,7 +322,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="3"
+                   authorship-id="3"
         >
             testdata/bitstreams/test.tiff
         </bitstream>
@@ -337,7 +337,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="2"
+                   authorship-id="2"
         >testdata/bitstreams/test.jp2</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Imagething as JP2</text>
@@ -350,7 +350,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="2"
+                   authorship-id="2"
         >testdata/bitstreams/test.jpeg</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Imagething as JPEG</text>
@@ -363,7 +363,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="2"
+                   authorship-id="2"
         >testdata/bitstreams/test.jpg</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Imagething as JPG</text>
@@ -376,7 +376,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="2"
+                   authorship-id="2"
         >testdata/bitstreams/test.png</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Imagething as PNG</text>
@@ -389,7 +389,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="2"
+                   authorship-id="2"
         >testdata/bitstreams/test.with.multiple.dots.png</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Imagething, the name has multiple dots</text>
@@ -402,7 +402,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="2"
+                   authorship-id="2"
         >testdata/bitstreams/test with whitespaces.png</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Imagething, the name has whitespaces</text>
@@ -415,7 +415,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="2"
+                   authorship-id="2"
         >testdata/bitstreams/test with uppercase extension.JPG</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Imagething, with an uppercase extension</text>
@@ -428,7 +428,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="2"
+                   authorship-id="2"
         >testdata/bitstreams/test,with,multiple,commas.png</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Imagething, the name has multiple commas</text>
@@ -441,7 +441,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="2"
+                   authorship-id="2"
         >testdata/bitstreams/test with special chars àéèêëôû äöüß 0123456789 _-'()[]{}+=!&lt;&gt;| 漢が글ርبيةб中.png</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Imagething, the name contains special chars</text>
@@ -502,7 +502,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="2"
+                   authorship-id="2"
         >testdata/bitstreams/test.jpg</bitstream>
         <resptr-prop name="knora-api:isPartOf">
             <resptr permissions="open">compound_thing_0</resptr>
@@ -518,7 +518,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="2"
+                   authorship-id="2"
         >testdata/bitstreams/test.jpg</bitstream>
         <resptr-prop name="isPartOf">
             <resptr permissions="open">compound_thing_0</resptr>
@@ -534,7 +534,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="2"
+                   authorship-id="2"
         >testdata/bitstreams/test.jpg</bitstream>
         <resptr-prop name=":partOf">
             <resptr permissions="open">compound_thing_1</resptr>
@@ -550,7 +550,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="2"
+                   authorship-id="2"
         >testdata/bitstreams/test.jpg</bitstream>
         <resptr-prop name=":partOf">
             <resptr permissions="open">compound_thing_1</resptr>
@@ -566,7 +566,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="4"
+                   authorship-id="4"
         >testdata/bitstreams/test.pdf</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Documentthing as PDF</text>
@@ -579,7 +579,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="2"
+                   authorship-id="2"
         >testdata/bitstreams/test.xls</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Documentthing as XLS</text>
@@ -592,7 +592,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="2"
+                   authorship-id="2"
         >testdata/bitstreams/test.xlsx</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Documentthing as XLSX</text>
@@ -605,7 +605,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="4"
+                   authorship-id="4"
         >testdata/bitstreams/test.doc</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Documentthing as DOC</text>
@@ -618,7 +618,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="4"
+                   authorship-id="4"
         >testdata/bitstreams/test.docx</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Documentthing as DOCX</text>
@@ -631,7 +631,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="2"
+                   authorship-id="2"
         >testdata/bitstreams/test.ppt</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Documentthing as PPT</text>
@@ -644,7 +644,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="2"
+                   authorship-id="2"
         >testdata/bitstreams/test.pptx</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Documentthing as PPTX</text>
@@ -657,7 +657,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="4"
+                   authorship-id="4"
         >testdata/bitstreams/test.csv</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Textthing as CSV</text>
@@ -670,7 +670,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="2"
+                   authorship-id="2"
         >testdata/bitstreams/test.txt</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Textthing as TXT</text>
@@ -683,7 +683,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="2"
+                   authorship-id="2"
         >testdata/bitstreams/test.xml</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Textthing as XML</text>
@@ -696,7 +696,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="2"
+                   authorship-id="2"
         >testdata/bitstreams/test.xsl</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Textthing as XSL</text>
@@ -709,7 +709,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="2"
+                   authorship-id="2"
         >testdata/bitstreams/test.xsd</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Textthing as XSD</text>
@@ -722,7 +722,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="2"
+                   authorship-id="2"
         >testdata/bitstreams/test.odd</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Textthing as ODD</text>
@@ -735,7 +735,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="2"
+                   authorship-id="2"
         >testdata/bitstreams/test.rng</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Textthing as RNG</text>
@@ -748,7 +748,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="2"
+                   authorship-id="2"
         >testdata/bitstreams/test.json</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Textthing as JSON</text>
@@ -761,7 +761,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="2"
+                   authorship-id="2"
         >testdata/bitstreams/test.zip</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Zipthing as ZIP</text>
@@ -774,7 +774,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="2"
+                   authorship-id="2"
 
         >
             testdata/bitstreams/test.7z
@@ -790,7 +790,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="5"
+                   authorship-id="5"
         >testdata/bitstreams/test.gzip</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Zipthing as gzip</text>
@@ -803,7 +803,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="2"
+                   authorship-id="2"
         >testdata/bitstreams/test.tar.gz</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Zipthing as tar.gz</text>
@@ -816,7 +816,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="2"
+                   authorship-id="2"
         >testdata/bitstreams/test.tar</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Zipthing as tar</text>
@@ -829,7 +829,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="2"
+                   authorship-id="2"
         >testdata/bitstreams/test.tgz</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Zipthing as tgz</text>
@@ -842,7 +842,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="2"
+                   authorship-id="2"
         >testdata/bitstreams/test.z</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Zipthing as z</text>
@@ -855,7 +855,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="2"
+                   authorship-id="2"
         >testdata/bitstreams/test.gz</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Zipthing as gz</text>
@@ -868,7 +868,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="2"
+                   authorship-id="2"
         >testdata/bitstreams/test.wav</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Audiothing as WAV</text>
@@ -881,7 +881,7 @@
               permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="2"
+                   authorship-id="2"
         >testdata/bitstreams/test.mp3</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="open" encoding="utf8">This is a Audiothing as MP3</text>
@@ -894,7 +894,7 @@
               permissions="restricted-view">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-attribution="DaSCH"
-                   authorships-id="4"
+                   authorship-id="4"
         >testdata/bitstreams/test.mp4</bitstream>
         <text-prop name=":hasSimpleText">
             <text encoding="utf8" permissions="open">Dummy video with music</text>

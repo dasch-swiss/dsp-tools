@@ -21,7 +21,7 @@ DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 class Metadata:
     license: str
     copyright_holder: str
-    authorship: set[str]
+    authorship: tuple[str]
     resource_id: str
 
     def __post_init__(self) -> None:

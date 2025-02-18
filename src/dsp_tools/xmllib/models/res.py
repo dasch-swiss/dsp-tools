@@ -1568,11 +1568,12 @@ class Resource:
                 f"The new file with the name '{filename}' cannot be added."
             )
 
-        fixed_authors = check_and_fix_collection_input(authorship, "iiif-uri", self.res_id)
+        fixed_authors = set(check_and_fix_collection_input(authorship, "iiif-uri", self.res_id))
+        fixed_authors_list = sorted(list(fixed_authors))
         meta = Metadata(
             license=str(license),
             copyright_holder=copyright_holder,
-            authorship=set(fixed_authors),
+            authorship=tuple(fixed_authors_list),
             resource_id=self.res_id,
         )
         self.file_value = FileValue(
@@ -1624,11 +1625,12 @@ class Resource:
                 f"'{self.file_value.value}'.\n"
                 f"The new file with the name '{iiif_uri}' cannot be added."
             )
-        fixed_authors = check_and_fix_collection_input(authorship, "iiif-uri", self.res_id)
+        fixed_authors = set(check_and_fix_collection_input(authorship, "iiif-uri", self.res_id))
+        fixed_authors_list = sorted(list(fixed_authors))
         meta = Metadata(
             license=str(license),
             copyright_holder=copyright_holder,
-            authorship=set(fixed_authors),
+            authorship=tuple(fixed_authors_list),
             resource_id=self.res_id,
         )
         self.file_value = IIIFUri(

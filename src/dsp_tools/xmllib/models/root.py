@@ -192,6 +192,8 @@ class XMLRoot:
         root = self._make_root()
         permissions = XMLPermissions().serialise()
         root.extend(permissions)
+        authorship_lookup = _make_authorship_lookup(self.resources)
+        root.extend(_serialise_authorship(authorship_lookup))
         serialised_resources = [x.serialise() for x in self.resources]
         root.extend(serialised_resources)
         return root
@@ -211,3 +213,28 @@ class XMLRoot:
             },
             nsmap=XML_NAMESPACE_MAP,
         )
+
+
+def _make_authorship_lookup(resources: list[AnyResource]) -> dict[tuple[str], str]:
+    file_vals = [x.file_value for x in resources if x.file_value]
+    authors = {x.metadata.authorship for x in file_vals}
+    lookup = {}
+    for auth, i in zip(authors, range(len(authors))):
+        lookup[auth] = f"authorship_{i}"
+    return lookup
+
+
+def _serialise_authorship(authorship_lookup: dict[tuple[str], str]) -> list[etree._Element]:
+    return [_make_one_authorship_element(auth, id_) for auth, id_ in authorship_lookup.items()]
+
+
+def _make_one_authorship_element(authors: tuple[str], author_id: str) -> etree._Element:
+    def _make_one_author(author: str) -> etree._Element:
+        ele = etree.Element(f"{DASCH_SCHEMA}author", nsmap=XML_NAMESPACE_MAP)
+        ele.text = author
+        return ele
+
+    authorship_ele = etree.Element(f"{DASCH_SCHEMA}permissions", attrib={"id": author_id}, nsmap=XML_NAMESPACE_MAP)
+    all_authors = [_make_one_author(x) for x in authors]
+    authorship_ele.extend(all_authors)
+    return authorship_ele

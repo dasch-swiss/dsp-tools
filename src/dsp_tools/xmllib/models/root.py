@@ -195,7 +195,8 @@ class XMLRoot:
         root = self._make_root()
         permissions = XMLPermissions().serialise()
         root.extend(permissions)
-        serialised_resources = serialise_resources(self.resources)
+        author_lookup = _make_authorship_lookup(self.resources)
+        serialised_resources = serialise_resources(self.resources, author_lookup)
         root.extend(serialised_resources)
         return root
 

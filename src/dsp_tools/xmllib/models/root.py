@@ -15,6 +15,7 @@ from dsp_tools.xmllib.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.constants import XML_NAMESPACE_MAP
 from dsp_tools.xmllib.constants import AnyResource
 from dsp_tools.xmllib.models.permissions import XMLPermissions
+from dsp_tools.xmllib.serialise.serialise_resource import serialise_resources
 
 # ruff: noqa: D101
 
@@ -184,7 +185,7 @@ class XMLRoot:
         root = self._make_root()
         permissions = XMLPermissions().serialise()
         root.extend(permissions)
-        serialised_resources = [x.serialise() for x in self.resources]
+        serialised_resources = serialise_resources(self.resources)
         root.extend(serialised_resources)
         return root
 

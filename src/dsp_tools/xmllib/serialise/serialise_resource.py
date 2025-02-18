@@ -15,6 +15,7 @@ from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
 from dsp_tools.xmllib.models.dsp_base_resources import VideoSegmentResource
 from dsp_tools.xmllib.models.res import Resource
+from dsp_tools.xmllib.serialise.serialise_values import serialise_values
 from dsp_tools.xmllib.value_checkers import is_string_like
 
 
@@ -62,8 +63,21 @@ def _serialise_region(res: RegionResource) -> etree._Element:
 
 
 def _serialise_link(res: LinkResource) -> etree._Element:
-    # link
-    pass
+    problem = []
+    if not res.comments:
+        problem.append("at least one comment")
+    if not res.link_to:
+        problem.append("at least two links")
+    if problem:
+        msg = (
+            f"The link object with the ID '{res.res_id}' requires: {' and '.join(problem)} "
+            f"Please note that an xmlupload will fail."
+        )
+        warnings.warn(DspToolsUserWarning(msg))
+    ele = _serialise_dsp_in_built_resource_element(res, "link")
+    generic_vals = res.comments + res.link_to
+    ele.extend(serialise_values(generic_vals))
+    return ele
 
 
 def _serialise_segment(res: AudioSegmentResource | VideoSegmentResource, segment_type: str) -> etree._Element:

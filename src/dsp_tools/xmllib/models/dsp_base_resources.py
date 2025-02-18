@@ -28,7 +28,6 @@ from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import LinkValue
 from dsp_tools.xmllib.models.values import Richtext
 from dsp_tools.xmllib.models.values import Value
-from dsp_tools.xmllib.serialise.serialise_resource import _serialise_segment_children
 from dsp_tools.xmllib.serialise.serialise_values import serialise_values
 from dsp_tools.xmllib.value_checkers import is_decimal
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
@@ -659,32 +658,6 @@ class LinkResource:
         self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
         return self
 
-    def serialise(self) -> etree._Element:
-        res_ele = self._serialise_resource_element()
-        self._final_checks()
-        generic_vals = self.comments + self.link_to
-        res_ele.extend(serialise_values(cast(list[Value], generic_vals)))
-        return res_ele
-
-    def _final_checks(self) -> None:
-        problem = []
-        if not self.comments:
-            problem.append("at least one comment")
-        if not self.link_to:
-            problem.append("at least two links")
-        if problem:
-            msg = (
-                f"The link object with the ID '{self.res_id}' requires: {' and '.join(problem)} "
-                f"Please note that an xmlupload will fail."
-            )
-            warnings.warn(DspToolsUserWarning(msg))
-
-    def _serialise_resource_element(self) -> etree._Element:
-        attribs = {"label": self.label, "id": self.res_id}
-        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
-            attribs["permissions"] = self.permissions.value
-        return etree.Element(f"{DASCH_SCHEMA}link", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
-
 
 @dataclass
 class SegmentBounds:
@@ -1097,17 +1070,6 @@ class VideoSegmentResource:
         self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
         return self
 
-    def serialise(self) -> etree._Element:
-        res_ele = self._serialise_resource_element()
-        res_ele.extend(_serialise_segment_children(self))
-        return res_ele
-
-    def _serialise_resource_element(self) -> etree._Element:
-        attribs = {"label": self.label, "id": self.res_id}
-        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
-            attribs["permissions"] = self.permissions.value
-        return etree.Element(f"{DASCH_SCHEMA}video-segment", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
-
 
 @dataclass
 class AudioSegmentResource:
@@ -1478,17 +1440,6 @@ class AudioSegmentResource:
             )
         self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
         return self
-
-    def serialise(self) -> etree._Element:
-        res_ele = self._serialise_resource_element()
-        res_ele.extend(_serialise_segment_children(self))
-        return res_ele
-
-    def _serialise_resource_element(self) -> etree._Element:
-        attribs = {"label": self.label, "id": self.res_id}
-        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
-            attribs["permissions"] = self.permissions.value
-        return etree.Element(f"{DASCH_SCHEMA}audio-segment", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
 
 
 def _check_strings(string_to_check: str, res_id: str, field_name: str) -> None:

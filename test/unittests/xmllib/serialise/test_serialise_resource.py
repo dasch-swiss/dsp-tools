@@ -3,8 +3,10 @@ import warnings
 import pytest
 from lxml import etree
 
+from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
+from dsp_tools.xmllib.models.res import Resource
 from dsp_tools.xmllib.serialise.serialise_resource import _serialise_one_resource
 
 
@@ -17,6 +19,26 @@ def region_no_warnings() -> RegionResource:
 @pytest.fixture
 def link_obj_no_warnings() -> LinkResource:
     return LinkResource.create_new("id", "lbl", ["link"]).add_comment("cmt")
+
+
+class TestResource:
+    def test_no_values(self) -> None:
+        res = Resource.create_new("id", ":Type", "lbl")
+        serialised = etree.tostring(_serialise_one_resource(res))
+        expected = ""
+        assert serialised == expected
+
+    def test_permissions(self) -> None:
+        res = Resource.create_new("id", ":Type", "lbl", permissions=Permissions.OPEN)
+        serialised = etree.tostring(_serialise_one_resource(res))
+        expected = ""
+        assert serialised == expected
+
+    def test_one_value(self) -> None:
+        res = Resource.create_new("id", ":Type", "lbl")
+        serialised = etree.tostring(_serialise_one_resource(res))
+        expected = ""
+        assert serialised == expected
 
 
 class TestRegionResource:

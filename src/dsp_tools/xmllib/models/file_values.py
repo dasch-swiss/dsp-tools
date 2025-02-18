@@ -11,9 +11,6 @@ from dsp_tools.utils.uri_util import is_iiif_uri
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.value_checkers import is_string_like
 
-XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
-DASCH_SCHEMA = "{https://dasch.swiss/schema}"
-
 
 class AbstractFileValue(Protocol):
     value: str | Path

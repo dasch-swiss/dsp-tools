@@ -410,7 +410,8 @@
             <xs:extension base="nonEmptyString_pretty_printed">
                 <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
                 <xs:attribute name="license" type="xs:string" use="optional"/>
-                <xs:attribute name="copyright-attribution" type="xs:string" use="optional"/>
+                <xs:attribute name="copyright-holder" type="xs:string" use="optional"/>
+                <xs:attribute name="authorship-id" type="xs:IDREF" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -421,7 +422,8 @@
             <xs:extension base="nonEmptyString_pretty_printed">
                 <xs:attribute name="permissions" type="xs:IDREF" use="optional"/>
                 <xs:attribute name="license" type="xs:string" use="optional"/>
-                <xs:attribute name="copyright-attribution" type="xs:string" use="optional"/>
+                <xs:attribute name="copyright-holder" type="xs:string" use="optional"/>
+                <xs:attribute name="authorship-id" type="xs:IDREF" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -562,11 +564,20 @@
         <xs:attribute name="id" type="xs:ID" use="required"/>
     </xs:complexType>
 
+    <!-- authorship tag -->
+    <xs:complexType name="authorship_type" mixed="true">
+        <xs:sequence>
+            <xs:element name="author" type="nonEmptyString_pretty_printed" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:ID" use="required"/>
+    </xs:complexType>
+
     <!-- complete document -->
     <xs:element name="knora">
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="permissions" type="permissions_type" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element name="authorship" type="authorship_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:choice maxOccurs="unbounded">
                     <xs:element name="resource" type="resource_type" minOccurs="1" maxOccurs="unbounded">
                         <xs:unique name="UniqueNameAttr_Resource">
@@ -600,6 +611,14 @@
         <xs:keyref name="permissionsIdref" refer="permissionsId">
             <xs:selector xpath="resource"/>
             <xs:field xpath="@permissions"/>
+        </xs:keyref>
+        <xs:key name="authorshipId">
+            <xs:selector xpath="./authorship"/>
+            <xs:field xpath="@id"/>
+        </xs:key>
+        <xs:keyref name="authorshipIdref" refer="authorshipId">
+            <xs:selector xpath="resource"/>
+            <xs:field xpath="@authorship-id"/>
         </xs:keyref>
         <xs:unique name="IRI_attribute_of_resource_must_be_unique">
             <xs:selector xpath=".//*"/>

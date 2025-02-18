@@ -1,9 +1,7 @@
-from typing import Never
-from typing import assert_never
-from typing import cast
 
 from lxml import etree
 
+from dsp_tools.models.exceptions import BaseError
 from dsp_tools.xmllib.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.constants import XML_NAMESPACE_MAP
 from dsp_tools.xmllib.models.config_options import Permissions
@@ -28,8 +26,9 @@ def serialise_file_value(file_value: AbstractFileValue) -> etree._Element:
     elif isinstance(file_value, IIIFUri):
         return _serialise_file_value(file_value, "iiif-uri")
     else:
-        never: Never = cast(Never, file_value)
-        assert_never(never)
+        raise BaseError(
+            f"file_value must be either a FileValue or a IIIFUri, but you provided {file_value.__class__.__name__}"
+        )
 
 
 def _serialise_file_value(value: AbstractFileValue, tag_name: str) -> etree._Element:

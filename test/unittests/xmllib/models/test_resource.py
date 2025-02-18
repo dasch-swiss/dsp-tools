@@ -335,7 +335,7 @@ class TestAddFiles:
         assert isinstance(res.file_value, FileValue)
         assert res.file_value.metadata.license == "http://rdfh.ch/licenses/cc-by-4.0"
         assert res.file_value.metadata.copyright_holder == "copy"
-        assert res.file_value.metadata.authorship == tuple("auth")
+        assert res.file_value.metadata.authorship == tuple(["auth"])
 
     def test_add_file_warns(self) -> None:
         with pytest.warns(DspToolsUserWarning, match=regex.escape("The value '' is not a valid file name")):
@@ -371,7 +371,7 @@ class TestAddFiles:
         assert isinstance(res.file_value, IIIFUri)
         assert res.file_value.metadata.license == "http://rdfh.ch/licenses/cc-by-4.0"
         assert res.file_value.metadata.copyright_holder == "copy"
-        assert res.file_value.metadata.authorship == tuple("auth")
+        assert res.file_value.metadata.authorship == tuple(["auth"])
 
     def test_add_iiif_uri_warns(self) -> None:
         with pytest.warns(DspToolsUserWarning, match=regex.escape("The value '' is not a valid IIIF uri")):

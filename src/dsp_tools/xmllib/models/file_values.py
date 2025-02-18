@@ -13,6 +13,14 @@ from dsp_tools.xmllib.value_checkers import is_string_like
 
 
 @dataclass
+class AuthorshipLookup:
+    lookup: dict[tuple[str, ...], str]
+
+    def get_id(self, authors: tuple[str, ...]) -> str:
+        return self.lookup[authors]
+
+
+@dataclass
 class Metadata:
     license: str
     copyright_holder: str

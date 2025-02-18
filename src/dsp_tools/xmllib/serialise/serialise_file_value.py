@@ -10,12 +10,13 @@ from dsp_tools.xmllib.models.file_values import IIIFUri
 from dsp_tools.xmllib.value_checkers import is_string_like
 
 
-def serialise_file_value(file_value: AbstractFileValue) -> etree._Element:
+def serialise_file_value(file_value: AbstractFileValue, authorship_id: str) -> etree._Element:
     """
     Serialise the file value of a resource.
 
     Args:
         file_value: File Value
+        authorship_id: ID referencing the authorship
 
     Returns:
         File Value as etree

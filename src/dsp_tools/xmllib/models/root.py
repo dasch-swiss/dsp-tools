@@ -19,6 +19,7 @@ from dsp_tools.xmllib.models.dsp_base_resources import AudioSegmentResource
 from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
 from dsp_tools.xmllib.models.dsp_base_resources import VideoSegmentResource
+from dsp_tools.xmllib.models.file_values import AuthorshipLookup
 from dsp_tools.xmllib.models.permissions import XMLPermissions
 from dsp_tools.xmllib.models.res import Resource
 from dsp_tools.xmllib.serialise.serialise_resource import serialise_resources
@@ -215,14 +216,14 @@ class XMLRoot:
         )
 
 
-def _make_authorship_lookup(resources: list[AnyResource]) -> dict[tuple[str, ...], str]:
+def _make_authorship_lookup(resources: list[AnyResource]) -> AuthorshipLookup:
     res = [x for x in resources if isinstance(x, Resource)]
     file_vals = [x.file_value for x in res if x.file_value]
     authors = {x.metadata.authorship for x in file_vals}
     lookup = {}
     for auth, i in zip(authors, range(1, len(authors) + 1)):
         lookup[auth] = f"authorship_{i}"
-    return lookup
+    return AuthorshipLookup(lookup)
 
 
 def _serialise_authorship(authorship_lookup: dict[tuple[str], str]) -> list[etree._Element]:

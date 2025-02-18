@@ -25,19 +25,30 @@ class TestResource:
     def test_no_values(self) -> None:
         res = Resource.create_new("id", ":Type", "lbl")
         serialised = etree.tostring(_serialise_one_resource(res))
-        expected = ""
+        expected = (
+            b'<resource xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'label="lbl" id="id" restype=":Type"/>'
+        )
         assert serialised == expected
 
     def test_permissions(self) -> None:
         res = Resource.create_new("id", ":Type", "lbl", permissions=Permissions.OPEN)
         serialised = etree.tostring(_serialise_one_resource(res))
-        expected = ""
+        expected = (
+            b'<resource xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'label="lbl" id="id" permissions="open" restype=":Type"/>'
+        )
         assert serialised == expected
 
     def test_one_value(self) -> None:
-        res = Resource.create_new("id", ":Type", "lbl")
+        res = Resource.create_new("id", ":Type", "lbl").add_bool(":bool", True)
         serialised = etree.tostring(_serialise_one_resource(res))
-        expected = ""
+        expected = (
+            b'<resource xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'label="lbl" id="id" restype=":Type">'
+            b'<boolean-prop name=":bool"><boolean>true</boolean></boolean-prop>'
+            b"</resource>"
+        )
         assert serialised == expected
 
 

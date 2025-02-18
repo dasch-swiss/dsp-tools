@@ -28,6 +28,7 @@ from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import LinkValue
 from dsp_tools.xmllib.models.values import Richtext
 from dsp_tools.xmllib.models.values import Value
+from dsp_tools.xmllib.serialise.serialise_resource import _serialise_segment_children
 from dsp_tools.xmllib.serialise.serialise_values import serialise_values
 from dsp_tools.xmllib.value_checkers import is_decimal
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
@@ -1497,59 +1498,6 @@ def _check_strings(string_to_check: str, res_id: str, field_name: str) -> None:
             f"Field: {field_name} | Value: {string_to_check}"
         )
         warnings.warn(DspToolsUserWarning(msg))
-
-
-def _validate_segment(segment: AudioSegmentResource | VideoSegmentResource) -> None:
-    problems = []
-    if not is_string_like(segment.res_id):
-        problems.append(f"Field: Resource ID | Value: {segment.res_id}")
-    if not is_string_like(segment.label):
-        problems.append(f"Field: label | Value: {segment.label}")
-    if not is_string_like(segment.segment_of):
-        problems.append(f"Field: segment_of | Value: {segment.segment_of}")
-    if segment.title and not is_string_like(segment.title):
-        problems.append(f"Field: title | Value: {segment.title}")
-    if fails := [x for x in segment.comments if not is_string_like(x)]:
-        problems.extend([f"Field: comment | Value: {x}" for x in fails])
-    if fails := [x for x in segment.descriptions if not is_string_like(x)]:
-        problems.extend([f"Field: description | Value: {x}" for x in fails])
-    if fails := [x for x in segment.keywords if not is_string_like(x)]:
-        problems.extend([f"Field: keywords | Value: {x}" for x in fails])
-    if fails := [x for x in segment.relates_to if not is_string_like(x)]:
-        problems.extend([f"Field: relates_to | Value: {x}" for x in fails])
-    if problems:
-        msg = f"The resource with the ID '{segment.res_id}' has the following problem(s):{'\n- '.join(problems)}"
-        warnings.warn(DspToolsUserWarning(msg))
-
-
-def _serialise_segment_children(segment: AudioSegmentResource | VideoSegmentResource) -> list[etree._Element]:
-    segment_elements = []
-    segment_of = etree.Element(f"{DASCH_SCHEMA}isSegmentOf", nsmap=XML_NAMESPACE_MAP)
-    segment_of.text = segment.segment_of
-    segment_elements.append(segment_of)
-    segment_elements.append(
-        etree.Element(
-            f"{DASCH_SCHEMA}hasSegmentBounds",
-            attrib={
-                "segment_start": str(segment.segment_bounds.segment_start),
-                "segment_end": str(segment.segment_bounds.segment_end),
-            },
-            nsmap=XML_NAMESPACE_MAP,
-        )
-    )
-    if segment.title:
-        segment_elements.append(_make_element_with_text("hasTitle", segment.title))
-    segment_elements.extend([_make_element_with_text("hasComment", x) for x in segment.comments])
-    segment_elements.extend([_make_element_with_text("hasDescription", x) for x in segment.descriptions])
-    segment_elements.extend([_make_element_with_text("hasKeyword", x) for x in segment.keywords])
-    segment_elements.extend([_make_element_with_text("relatesTo", x) for x in segment.relates_to])
-    return segment_elements
-
-
-def _make_element_with_text(tag_name: str, text_content: str) -> etree._Element:
-    ele = etree.Element(f"{DASCH_SCHEMA}{tag_name}", nsmap=XML_NAMESPACE_MAP)
-    ele.text = text_content
-    return ele
 
 
 def _warn_value_exists(*, old_value: Any, new_value: Any, value_field: str, res_id: str | None) -> None:

@@ -5,6 +5,7 @@ from lxml import etree
 
 from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
+from dsp_tools.xmllib.serialise.serialise_resource import _serialise_one_resource
 
 
 @pytest.fixture
@@ -21,11 +22,11 @@ def link_obj_no_warnings() -> LinkResource:
 class TestRegionResource:
     def test_serialise_no_warnings(self, region_no_warnings: RegionResource) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            region_no_warnings.serialise()
+            _serialise_one_resource(region_no_warnings)
             assert len(caught_warnings) == 0
 
     def test_serialised_string_no_warnings(self, region_no_warnings: RegionResource) -> None:
-        serialised = etree.tostring(region_no_warnings.serialise())
+        serialised = etree.tostring(_serialise_one_resource(region_no_warnings))
         expected = (
             b'<region xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'label="label" id="res_id">'
@@ -42,18 +43,18 @@ class TestRegionResource:
     def test_serialise_no_region(self) -> None:
         region = RegionResource.create_new("res_id", "label", "region_of")
         with warnings.catch_warnings(record=True) as caught_warnings:
-            region.serialise()
+            _serialise_one_resource(region)
             assert len(caught_warnings) == 1
 
 
 class TestLinkResource:
     def test_serialise_no_warnings(self, link_obj_no_warnings: LinkResource) -> None:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            link_obj_no_warnings.serialise()
+            _serialise_one_resource(link_obj_no_warnings)
             assert len(caught_warnings) == 0
 
     def test_serialised_string_no_warnings(self, link_obj_no_warnings: RegionResource) -> None:
-        serialised = etree.tostring(link_obj_no_warnings.serialise())
+        serialised = etree.tostring(_serialise_one_resource(link_obj_no_warnings))
         expected = (
             b'<link xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'label="lbl" id="id">'
@@ -66,14 +67,14 @@ class TestLinkResource:
     def test_serialise_no_comment(self) -> None:
         linkobj = LinkResource.create_new("id", "lbl", ["link"])
         with warnings.catch_warnings(record=True) as caught_warnings:
-            linkobj.serialise()
+            _serialise_one_resource(linkobj)
             assert len(caught_warnings) == 1
 
     @pytest.mark.filterwarnings("ignore::dsp_tools.models.custom_warnings.DspToolsUserInfo")
     def test_serialise_no_link(self) -> None:
         linkobj = LinkResource.create_new("id", "lbl", []).add_comment("cmt")
         with warnings.catch_warnings(record=True) as caught_warnings:
-            linkobj.serialise()
+            _serialise_one_resource(linkobj)
             assert len(caught_warnings) == 1
 
 

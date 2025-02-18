@@ -122,20 +122,21 @@ def execute_upload(clients: UploadClients, upload_state: UploadState) -> bool:
         True if all resources could be uploaded without errors; False if any resource could not be uploaded
     """
     _upload_resources(clients, upload_state)
-    return _cleanup_upload(upload_state)
+    return _cleanup_upload(upload_state, clients.project_client.shortcode)
 
 
-def _cleanup_upload(upload_state: UploadState) -> bool:
+def _cleanup_upload(upload_state: UploadState, shortcode: str) -> bool:
     """
     Write the id2iri mapping to a file and print a message to the console.
 
     Args:
         upload_state: the current state of the upload
+        shortcode: shortcode of the project
 
     Returns:
         success status (deduced from failed_uploads and non-applied stash)
     """
-    write_id2iri_mapping(upload_state.iri_resolver.lookup, upload_state.config.diagnostics)
+    write_id2iri_mapping(upload_state.iri_resolver.lookup, shortcode, upload_state.config.diagnostics)
     has_stash_failed = upload_state.pending_stash and not upload_state.pending_stash.is_empty()
     if not upload_state.failed_uploads and not has_stash_failed:
         success = True

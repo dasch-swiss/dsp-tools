@@ -34,7 +34,7 @@ class TestCliDepsResources(unittest.TestCase):
         """Is executed after the methods of this class have all run through"""
         shutil.rmtree(cls.testdata_tmp)
         shutil.rmtree(cls.cwd)
-        for f in Path().glob("*id2iri_*.json"):
+        for f in Path().glob("id2iri_*.json"):
             f.unlink()
 
     def test_validate_lists_section_with_schema(self) -> None:

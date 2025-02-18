@@ -5,6 +5,7 @@ import warnings
 from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
+from dsp_tools.models.exceptions import InputError
 from dsp_tools.xmllib.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.constants import XML_NAMESPACE_MAP
 from dsp_tools.xmllib.constants import AnyResource
@@ -18,11 +19,37 @@ from dsp_tools.xmllib.value_checkers import is_string_like
 
 
 def serialise_resources(resources: list[AnyResource]) -> etree._Element:
-    pass
+    """
+    Serialise all the resources
+
+    Args:
+        resources: list of resources
+
+    Returns:
+        serialised resources
+    """
+    return [_serialise_one_resource(x) for x in resources]
 
 
 def _serialise_one_resource(res: AnyResource) -> etree._Element:
-    pass
+    match res:
+        case Resource():
+            return _serialise_generic_resource(res)
+        case RegionResource():
+            return _serialise_region(res)
+        case LinkResource():
+            return _serialise_link(res)
+        case AudioSegmentResource():
+            return _serialise_segment(res, "audio-segment")
+        case VideoSegmentResource():
+            return _serialise_segment(res, "video-segment")
+        case _:
+            raise InputError(
+                f"An unknown resource was added to the root. "
+                f"Only Resource, RegionResource, LinkResource, VideoSegmentResource, AudioSegmentResource "
+                f"are permitted."
+                f"The input type is {res.__class__.__name__}"
+            )
 
 
 def _serialise_generic_resource(res: Resource) -> etree._Element:
@@ -40,9 +67,10 @@ def _serialise_link(res: LinkResource) -> etree._Element:
 
 
 def _serialise_segment(res: AudioSegmentResource | VideoSegmentResource, segment_type: str) -> etree._Element:
-    # audio-segment
-    # video-segment
-    pass
+    _validate_segment(res)
+    seg = _serialise_dsp_in_built_resource_element(res, segment_type)
+    seg.extend(_serialise_segment_children(res))
+    return seg
 
 
 def _serialise_dsp_in_built_resource_element(res: AnyResource, res_type: str) -> etree._Element:

@@ -13,9 +13,9 @@ from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.xml_validation import validate_xml_file
 from dsp_tools.xmllib.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.constants import XML_NAMESPACE_MAP
-from dsp_tools.xmllib.constants import AnyResource
 from dsp_tools.xmllib.models.permissions import XMLPermissions
 from dsp_tools.xmllib.serialise.serialise_resource import serialise_resources
+from dsp_tools.xmllib.type_aliases import AnyResource
 
 # ruff: noqa: D101
 

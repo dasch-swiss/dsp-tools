@@ -8,7 +8,6 @@ from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.xmllib.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.constants import XML_NAMESPACE_MAP
-from dsp_tools.xmllib.constants import AnyResource
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.dsp_base_resources import AudioSegmentResource
 from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
@@ -19,6 +18,7 @@ from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import Value
 from dsp_tools.xmllib.serialise.serialise_file_value import serialise_file_value
 from dsp_tools.xmllib.serialise.serialise_values import serialise_values
+from dsp_tools.xmllib.type_aliases import AnyResource
 from dsp_tools.xmllib.value_checkers import is_string_like
 
 

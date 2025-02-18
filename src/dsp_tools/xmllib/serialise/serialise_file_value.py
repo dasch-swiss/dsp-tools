@@ -1,4 +1,3 @@
-
 from lxml import etree
 
 from dsp_tools.models.exceptions import BaseError
@@ -20,6 +19,9 @@ def serialise_file_value(file_value: AbstractFileValue) -> etree._Element:
 
     Returns:
         File Value as etree
+
+    Raises:
+        BaseError: in case of an unknown class
     """
     if isinstance(file_value, FileValue):
         return _serialise_file_value(file_value, "bitstream")

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 KNOWN_XML_TAGS = [  # defined at https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/
     "a( [^>]+)?",  # <a> has attributes
     "footnote( [^>]+)?",  # the footnote text is in the attributes

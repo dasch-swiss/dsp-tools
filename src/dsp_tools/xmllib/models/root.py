@@ -7,24 +7,23 @@ from dataclasses import field
 from pathlib import Path
 from typing import TypeAlias
 from typing import Union
-
 from lxml import etree
-
+from dsp_tools.xmllib.models.dsp_base_resources import AudioSegmentResource
+from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
+from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
+from dsp_tools.xmllib.models.dsp_base_resources import VideoSegmentResource
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.xml_validation import validate_xml_file
 from dsp_tools.xmllib.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.constants import XML_NAMESPACE_MAP
-from dsp_tools.xmllib.models.dsp_base_resources import AudioSegmentResource
-from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
-from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
-from dsp_tools.xmllib.models.dsp_base_resources import VideoSegmentResource
 from dsp_tools.xmllib.models.permissions import XMLPermissions
-from dsp_tools.xmllib.models.res import Resource
-
-# ruff: noqa: D101
+from dsp_tools.xmllib.serialise.serialise_resource import serialise_resources
 
 AnyResource: TypeAlias = Union[Resource, RegionResource, LinkResource, VideoSegmentResource, AudioSegmentResource]
+
+
+# ruff: noqa: D101
 
 
 @dataclass
@@ -192,9 +191,7 @@ class XMLRoot:
         root = self._make_root()
         permissions = XMLPermissions().serialise()
         root.extend(permissions)
-        authorship_lookup = _make_authorship_lookup(self.resources)
-        root.extend(_serialise_authorship(authorship_lookup))
-        serialised_resources = [x.serialise() for x in self.resources]
+        serialised_resources = serialise_resources(self.resources)
         root.extend(serialised_resources)
         return root
 

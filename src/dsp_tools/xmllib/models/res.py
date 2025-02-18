@@ -6,12 +6,8 @@ from dataclasses import dataclass
 from dataclasses import field
 from typing import Any
 
-from lxml import etree
-
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
-from dsp_tools.xmllib.constants import DASCH_SCHEMA
-from dsp_tools.xmllib.constants import XML_NAMESPACE_MAP
 from dsp_tools.xmllib.internal_helpers import check_and_create_richtext_string
 from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
@@ -35,8 +31,6 @@ from dsp_tools.xmllib.models.values import SimpleText
 from dsp_tools.xmllib.models.values import TimeValue
 from dsp_tools.xmllib.models.values import UriValue
 from dsp_tools.xmllib.models.values import Value
-from dsp_tools.xmllib.serialise.serialise_file_value import serialise_file_value
-from dsp_tools.xmllib.serialise.serialise_values import serialise_values
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_string_like
 
@@ -114,19 +108,6 @@ class Resource:
             label=label,
             permissions=permissions,
         )
-
-    def serialise(self) -> etree._Element:
-        res_ele = self._serialise_resource_element()
-        if self.file_value:
-            res_ele.append(serialise_file_value(self.file_value))
-        res_ele.extend(serialise_values(self.values))
-        return res_ele
-
-    def _serialise_resource_element(self) -> etree._Element:
-        attribs = {"label": self.label, "restype": self.restype, "id": self.res_id}
-        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
-            attribs["permissions"] = self.permissions.value
-        return etree.Element(f"{DASCH_SCHEMA}resource", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
 
     #######################
     # BooleanValue

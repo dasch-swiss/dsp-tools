@@ -31,6 +31,7 @@ from dsp_tools.xmllib.models.values import SimpleText
 from dsp_tools.xmllib.models.values import TimeValue
 from dsp_tools.xmllib.models.values import UriValue
 from dsp_tools.xmllib.models.values import Value
+from dsp_tools.xmllib.serialise.serialise_file_value import serialise_file_value
 from dsp_tools.xmllib.serialise.serialise_values import serialise_values
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_string_like
@@ -116,7 +117,7 @@ class Resource:
     def serialise(self) -> etree._Element:
         res_ele = self._serialise_resource_element()
         if self.file_value:
-            res_ele.append(self.file_value.serialise())
+            res_ele.append(serialise_file_value(self.file_value))
         res_ele.extend(serialise_values(self.values))
         return res_ele
 

@@ -37,16 +37,6 @@ class FileValue(AbstractFileValue):
         if not is_string_like(str(self.value)):
             _warn_type_mismatch(expected_type="file name", value=self.value, res_id=self.resource_id)
 
-    def serialise(self) -> etree._Element:
-        attribs = {}
-        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
-            attribs["permissions"] = self.permissions.value
-        if is_string_like(self.comment):
-            attribs["comment"] = str(self.comment)
-        ele = etree.Element(f"{DASCH_SCHEMA}bitstream", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
-        ele.text = str(self.value)
-        return ele
-
 
 @dataclass
 class IIIFUri(AbstractFileValue):
@@ -58,16 +48,6 @@ class IIIFUri(AbstractFileValue):
     def __post_init__(self) -> None:
         if not is_iiif_uri(self.value):
             _warn_type_mismatch(expected_type="IIIF uri", value=self.value, res_id=self.resource_id)
-
-    def serialise(self) -> etree._Element:
-        attribs = {}
-        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
-            attribs["permissions"] = self.permissions.value
-        if is_string_like(self.comment):
-            attribs["comment"] = str(self.comment)
-        ele = etree.Element(f"{DASCH_SCHEMA}iiif-uri", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
-        ele.text = str(self.value)
-        return ele
 
 
 def _warn_type_mismatch(expected_type: str, value: Any, res_id: str | None) -> None:

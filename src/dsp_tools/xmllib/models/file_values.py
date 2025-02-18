@@ -16,7 +16,7 @@ from dsp_tools.xmllib.value_checkers import is_string_like
 class Metadata:
     license: str
     copyright_holder: str
-    authorship: tuple[str]
+    authorship: tuple[str, ...]
     resource_id: str
 
     def __post_init__(self) -> None:

@@ -215,8 +215,9 @@ class XMLRoot:
         )
 
 
-def _make_authorship_lookup(resources: list[AnyResource]) -> dict[tuple[str], str]:
-    file_vals = [x.file_value for x in resources if x.file_value]
+def _make_authorship_lookup(resources: list[AnyResource]) -> dict[tuple[str, ...], str]:
+    res = [x for x in resources if isinstance(x, Resource)]
+    file_vals = [x.file_value for x in res if x.file_value]
     authors = {x.metadata.authorship for x in file_vals}
     lookup = {}
     for auth, i in zip(authors, range(1, len(authors) + 1)):

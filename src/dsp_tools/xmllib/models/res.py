@@ -1550,7 +1550,8 @@ class Resource:
             )
 
         fixed_authors = set(check_and_fix_collection_input(authorship, "iiif-uri", self.res_id))
-        fixed_authors_list = sorted(list(fixed_authors))
+        fixed_authors_list = [str(x).strip() for x in fixed_authors]
+        fixed_authors_list = sorted(fixed_authors_list)
         meta = Metadata(
             license=str(license),
             copyright_holder=copyright_holder,
@@ -1607,7 +1608,8 @@ class Resource:
                 f"The new file with the name '{iiif_uri}' cannot be added."
             )
         fixed_authors = set(check_and_fix_collection_input(authorship, "iiif-uri", self.res_id))
-        fixed_authors_list = sorted(list(fixed_authors))
+        fixed_authors_list = [str(x).strip() for x in fixed_authors]
+        fixed_authors_list = sorted(fixed_authors_list)
         meta = Metadata(
             license=str(license),
             copyright_holder=copyright_holder,

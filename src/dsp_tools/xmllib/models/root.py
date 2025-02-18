@@ -219,7 +219,7 @@ def _make_authorship_lookup(resources: list[AnyResource]) -> dict[tuple[str], st
     file_vals = [x.file_value for x in resources if x.file_value]
     authors = {x.metadata.authorship for x in file_vals}
     lookup = {}
-    for auth, i in zip(authors, range(len(authors))):
+    for auth, i in zip(authors, range(1, len(authors) + 1)):
         lookup[auth] = f"authorship_{i}"
     return lookup
 

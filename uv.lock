@@ -231,7 +231,6 @@ dependencies = [
     { name = "requests" },
     { name = "rustworkx" },
     { name = "tqdm" },
-    { name = "typing-extensions" },
 ]
 
 [package.dev-dependencies]
@@ -261,6 +260,7 @@ dev = [
     { name = "types-regex" },
     { name = "types-requests" },
     { name = "types-tqdm" },
+    { name = "typing-extensions" },
     { name = "viztracer" },
     { name = "yamllint" },
 ]
@@ -284,7 +284,6 @@ requires-dist = [
     { name = "requests", specifier = ">=2.32.3" },
     { name = "rustworkx", specifier = ">=0.15.1" },
     { name = "tqdm", specifier = ">=4.66.5" },
-    { name = "typing-extensions", specifier = ">=4.12.2" },
 ]
 
 [package.metadata.requires-dev]
@@ -314,6 +313,7 @@ dev = [
     { name = "types-regex", specifier = ">=2024.9.11.20240912" },
     { name = "types-requests", specifier = ">=2.32.0.20240907" },
     { name = "types-tqdm", specifier = ">=4.66.0.20240417" },
+    { name = "typing-extensions", specifier = ">=4.12.2" },
     { name = "viztracer", specifier = ">=0.16.3" },
     { name = "yamllint", specifier = ">=1.35.1" },
 ]

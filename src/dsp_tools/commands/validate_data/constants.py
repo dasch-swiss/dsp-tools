@@ -5,13 +5,14 @@ from rdflib import XSD
 from rdflib import Namespace
 from rdflib.term import IdentifiedNode
 from rdflib.term import Literal
+from rdflib.term import Node
 from rdflib.term import Variable
 
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 
 # rdflib typing
 PropertyTypeAlias: TypeAlias = Union[IdentifiedNode, Variable]
-SubjectObjectTypeAlias: TypeAlias = Union[IdentifiedNode, Literal, Variable]
+SubjectObjectTypeAlias: TypeAlias = Union[IdentifiedNode, Literal, Variable, Node]
 
 # Namespaces as string
 KNORA_API_STR = "http://api.knora.org/ontology/knora-api/v2#"

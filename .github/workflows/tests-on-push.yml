@@ -90,7 +90,7 @@ jobs:
       - name: integration-tests
         run: just integration-tests --cov=dsp_tools --cov-report xml
       - name: upload coverage report to codecov.io
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           flags: integration-tests
           token: ${{ secrets.CODECOV_TOKEN }}

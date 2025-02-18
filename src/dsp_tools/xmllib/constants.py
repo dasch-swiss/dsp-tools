@@ -23,3 +23,5 @@ KNOWN_XML_TAGS = [  # defined at https://docs.dasch.swiss/latest/DSP-API/03-endp
     "blockquote",
     "code",
 ]
+XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
+DASCH_SCHEMA = "{https://dasch.swiss/schema}"

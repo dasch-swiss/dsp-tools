@@ -15,6 +15,8 @@ from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
 from dsp_tools.xmllib.models.dsp_base_resources import VideoSegmentResource
 from dsp_tools.xmllib.models.res import Resource
+from dsp_tools.xmllib.models.values import ColorValue
+from dsp_tools.xmllib.models.values import Value
 from dsp_tools.xmllib.serialise.serialise_values import serialise_values
 from dsp_tools.xmllib.value_checkers import is_string_like
 
@@ -58,8 +60,34 @@ def _serialise_generic_resource(res: Resource) -> etree._Element:
 
 
 def _serialise_region(res: RegionResource) -> etree._Element:
-    # region
-    pass
+    ele = _serialise_dsp_in_built_resource_element(res, "region")
+    ele.extend(_serialise_geometry_shape(res))
+    props: list[Value] = [res.region_of]
+    if res.comments:
+        props.append(res.comments)
+    ele.extend(serialise_values(props))
+    return ele
+
+
+def _serialise_geometry_shape(res: RegionResource) -> list[etree._Element]:
+    prop_list: list[etree._Element] = []
+    if not res.geometry:
+        msg = (
+            f"The region resource with the ID '{res.res_id}' does not have a geometry, "
+            f"please note that an xmlupload will fail."
+        )
+        warnings.warn(DspToolsUserWarning(msg))
+
+        return prop_list
+    geo_prop = etree.Element(f"{DASCH_SCHEMA}geometry-prop", name="hasGeometry", nsmap=XML_NAMESPACE_MAP)
+    ele = etree.Element(f"{DASCH_SCHEMA}geometry", nsmap=XML_NAMESPACE_MAP)
+    ele.text = res.geometry.to_json_string()
+    geo_prop.append(ele)
+    prop_list.append(geo_prop)
+    prop_list.extend(
+        serialise_values([ColorValue(value=res.geometry.color, prop_name="hasColor", resource_id=res.res_id)]),
+    )
+    return prop_list
 
 
 def _serialise_link(res: LinkResource) -> etree._Element:

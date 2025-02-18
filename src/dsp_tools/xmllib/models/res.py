@@ -1554,7 +1554,7 @@ class Resource:
             # a file with restricted view permissions
             resource = resource.add_file(
                 filename="images/dog.jpg",
-                license=PreDefinedLicense.PUBLIC_DOMAIN,
+                license=xmllib.PreDefinedLicense.PUBLIC_DOMAIN,
                 copyright_holder="Bark University",
                 authorship=["Bark McDog"],
                 permissions=xmllib.Permissions.RESTRICTED_VIEW,

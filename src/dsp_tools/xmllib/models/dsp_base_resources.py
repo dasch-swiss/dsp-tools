@@ -5,14 +5,9 @@ from collections.abc import Collection
 from dataclasses import dataclass
 from dataclasses import field
 from typing import Any
-from typing import cast
-
-from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
-from dsp_tools.xmllib.constants import DASCH_SCHEMA
-from dsp_tools.xmllib.constants import XML_NAMESPACE_MAP
 from dsp_tools.xmllib.internal_helpers import check_and_create_richtext_string
 from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
@@ -24,11 +19,8 @@ from dsp_tools.xmllib.models.geometry import Polygon
 from dsp_tools.xmllib.models.geometry import Rectangle
 from dsp_tools.xmllib.models.geometry import Vector
 from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
-from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import LinkValue
 from dsp_tools.xmllib.models.values import Richtext
-from dsp_tools.xmllib.models.values import Value
-from dsp_tools.xmllib.serialise.serialise_values import serialise_values
 from dsp_tools.xmllib.value_checkers import is_decimal
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_string_like
@@ -407,46 +399,6 @@ class RegionResource:
         self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
         return self
 
-    def serialise(self) -> etree._Element:
-        res_ele = self._serialise_resource_element()
-        res_ele.extend(self._serialise_geometry_shape())
-        res_ele.extend(self._serialise_values())
-        if self.comments:
-            res_ele.extend(serialise_values(cast(list[Value], self.comments)))
-
-        return res_ele
-
-    def _serialise_resource_element(self) -> etree._Element:
-        attribs = {"label": self.label, "id": self.res_id}
-        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
-            attribs["permissions"] = self.permissions.value
-        return etree.Element(f"{DASCH_SCHEMA}region", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
-
-    def _serialise_values(self) -> list[etree._Element]:
-        return serialise_values(
-            [self.region_of],
-        )
-
-    def _serialise_geometry_shape(self) -> list[etree._Element]:
-        prop_list: list[etree._Element] = []
-        if not self.geometry:
-            msg = (
-                f"The region resource with the ID '{self.res_id}' does not have a geometry, "
-                f"please note that an xmlupload will fail."
-            )
-            warnings.warn(DspToolsUserWarning(msg))
-
-            return prop_list
-        geo_prop = etree.Element(f"{DASCH_SCHEMA}geometry-prop", name="hasGeometry", nsmap=XML_NAMESPACE_MAP)
-        ele = etree.Element(f"{DASCH_SCHEMA}geometry", nsmap=XML_NAMESPACE_MAP)
-        ele.text = self.geometry.to_json_string()
-        geo_prop.append(ele)
-        prop_list.append(geo_prop)
-        prop_list.extend(
-            serialise_values([ColorValue(value=self.geometry.color, prop_name="hasColor", resource_id=self.res_id)]),
-        )
-        return prop_list
-
 
 @dataclass
 class LinkResource:
@@ -657,32 +609,6 @@ class LinkResource:
             )
         self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
         return self
-
-    def serialise(self) -> etree._Element:
-        res_ele = self._serialise_resource_element()
-        self._final_checks()
-        generic_vals = self.comments + self.link_to
-        res_ele.extend(serialise_values(cast(list[Value], generic_vals)))
-        return res_ele
-
-    def _final_checks(self) -> None:
-        problem = []
-        if not self.comments:
-            problem.append("at least one comment")
-        if not self.link_to:
-            problem.append("at least two links")
-        if problem:
-            msg = (
-                f"The link object with the ID '{self.res_id}' requires: {' and '.join(problem)} "
-                f"Please note that an xmlupload will fail."
-            )
-            warnings.warn(DspToolsUserWarning(msg))
-
-    def _serialise_resource_element(self) -> etree._Element:
-        attribs = {"label": self.label, "id": self.res_id}
-        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
-            attribs["permissions"] = self.permissions.value
-        return etree.Element(f"{DASCH_SCHEMA}link", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
 
 
 @dataclass
@@ -1096,17 +1022,6 @@ class VideoSegmentResource:
         self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
         return self
 
-    def serialise(self) -> etree._Element:
-        res_ele = self._serialise_resource_element()
-        res_ele.extend(_serialise_segment_children(self))
-        return res_ele
-
-    def _serialise_resource_element(self) -> etree._Element:
-        attribs = {"label": self.label, "id": self.res_id}
-        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
-            attribs["permissions"] = self.permissions.value
-        return etree.Element(f"{DASCH_SCHEMA}video-segment", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
-
 
 @dataclass
 class AudioSegmentResource:
@@ -1478,17 +1393,6 @@ class AudioSegmentResource:
         self.migration_metadata = MigrationMetadata(creation_date=creation_date, iri=iri, ark=ark, res_id=self.res_id)
         return self
 
-    def serialise(self) -> etree._Element:
-        res_ele = self._serialise_resource_element()
-        res_ele.extend(_serialise_segment_children(self))
-        return res_ele
-
-    def _serialise_resource_element(self) -> etree._Element:
-        attribs = {"label": self.label, "id": self.res_id}
-        if self.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
-            attribs["permissions"] = self.permissions.value
-        return etree.Element(f"{DASCH_SCHEMA}audio-segment", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
-
 
 def _check_strings(string_to_check: str, res_id: str, field_name: str) -> None:
     if not is_string_like(string_to_check):
@@ -1497,59 +1401,6 @@ def _check_strings(string_to_check: str, res_id: str, field_name: str) -> None:
             f"Field: {field_name} | Value: {string_to_check}"
         )
         warnings.warn(DspToolsUserWarning(msg))
-
-
-def _validate_segment(segment: AudioSegmentResource | VideoSegmentResource) -> None:
-    problems = []
-    if not is_string_like(segment.res_id):
-        problems.append(f"Field: Resource ID | Value: {segment.res_id}")
-    if not is_string_like(segment.label):
-        problems.append(f"Field: label | Value: {segment.label}")
-    if not is_string_like(segment.segment_of):
-        problems.append(f"Field: segment_of | Value: {segment.segment_of}")
-    if segment.title and not is_string_like(segment.title):
-        problems.append(f"Field: title | Value: {segment.title}")
-    if fails := [x for x in segment.comments if not is_string_like(x)]:
-        problems.extend([f"Field: comment | Value: {x}" for x in fails])
-    if fails := [x for x in segment.descriptions if not is_string_like(x)]:
-        problems.extend([f"Field: description | Value: {x}" for x in fails])
-    if fails := [x for x in segment.keywords if not is_string_like(x)]:
-        problems.extend([f"Field: keywords | Value: {x}" for x in fails])
-    if fails := [x for x in segment.relates_to if not is_string_like(x)]:
-        problems.extend([f"Field: relates_to | Value: {x}" for x in fails])
-    if problems:
-        msg = f"The resource with the ID '{segment.res_id}' has the following problem(s):{'\n- '.join(problems)}"
-        warnings.warn(DspToolsUserWarning(msg))
-
-
-def _serialise_segment_children(segment: AudioSegmentResource | VideoSegmentResource) -> list[etree._Element]:
-    segment_elements = []
-    segment_of = etree.Element(f"{DASCH_SCHEMA}isSegmentOf", nsmap=XML_NAMESPACE_MAP)
-    segment_of.text = segment.segment_of
-    segment_elements.append(segment_of)
-    segment_elements.append(
-        etree.Element(
-            f"{DASCH_SCHEMA}hasSegmentBounds",
-            attrib={
-                "segment_start": str(segment.segment_bounds.segment_start),
-                "segment_end": str(segment.segment_bounds.segment_end),
-            },
-            nsmap=XML_NAMESPACE_MAP,
-        )
-    )
-    if segment.title:
-        segment_elements.append(_make_element_with_text("hasTitle", segment.title))
-    segment_elements.extend([_make_element_with_text("hasComment", x) for x in segment.comments])
-    segment_elements.extend([_make_element_with_text("hasDescription", x) for x in segment.descriptions])
-    segment_elements.extend([_make_element_with_text("hasKeyword", x) for x in segment.keywords])
-    segment_elements.extend([_make_element_with_text("relatesTo", x) for x in segment.relates_to])
-    return segment_elements
-
-
-def _make_element_with_text(tag_name: str, text_content: str) -> etree._Element:
-    ele = etree.Element(f"{DASCH_SCHEMA}{tag_name}", nsmap=XML_NAMESPACE_MAP)
-    ele.text = text_content
-    return ele
 
 
 def _warn_value_exists(*, old_value: Any, new_value: Any, value_field: str, res_id: str | None) -> None:

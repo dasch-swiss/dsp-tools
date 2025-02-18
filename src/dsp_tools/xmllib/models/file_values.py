@@ -37,7 +37,6 @@ class Metadata:
         return {
             "license": self.license,
             "copyright-holder": self.copyright_holder,
-
         }
 
 

@@ -31,7 +31,6 @@ dependencies = [
     "requests>=2.32.3",
     "rustworkx>=0.15.1",
     "tqdm>=4.66.5",
-    "typing-extensions>=4.12.2",
 ]
 
 
@@ -84,6 +83,7 @@ dev-dependencies = [
     "types-tqdm>=4.66.0.20240417",
     "viztracer>=0.16.3",
     "yamllint>=1.35.1",
+    "typing-extensions>=4.12.2",
 ]
 
 

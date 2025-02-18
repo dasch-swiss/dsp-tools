@@ -4,9 +4,9 @@ from rdflib import RDFS
 from rdflib import XSD
 from rdflib import Literal
 from rdflib import URIRef
-from rdflib.term import Node
 
 from dsp_tools.commands.validate_data.constants import KNORA_API_STR
+from dsp_tools.commands.validate_data.constants import SubjectObjectTypeAlias
 from dsp_tools.commands.validate_data.make_data_rdf import _make_one_rdflib_object
 from dsp_tools.commands.validate_data.make_data_rdf import _make_one_resource
 from dsp_tools.commands.validate_data.make_data_rdf import _make_one_value
@@ -56,7 +56,10 @@ RESOURCE_TYPE_STR = "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverythi
     ],
 )
 def test_make_one_rdflib_object(
-    trpl_obj: str | None, object_type: TripleObjectType, prop_type: TriplePropertyType | None, expected: Node
+    trpl_obj: str | None,
+    object_type: TripleObjectType,
+    prop_type: TriplePropertyType | None,
+    expected: SubjectObjectTypeAlias,
 ) -> None:
     result = _make_one_rdflib_object(trpl_obj, object_type, prop_type)
     assert result == expected

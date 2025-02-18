@@ -6,8 +6,6 @@ from pathlib import Path
 from typing import Any
 from typing import Protocol
 
-from lxml import etree
-
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.utils.uri_util import is_iiif_uri
 from dsp_tools.xmllib.models.config_options import Permissions
@@ -21,9 +19,6 @@ class AbstractFileValue(Protocol):
     value: str | Path
     permissions: Permissions
     comment: str | None = None
-
-    def serialise(self) -> etree._Element:
-        raise NotImplementedError
 
 
 @dataclass

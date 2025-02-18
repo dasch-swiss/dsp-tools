@@ -24,6 +24,10 @@ class Metadata:
             _warn_type_mismatch(expected_type="license", value=self.license, res_id=self.resource_id)
         if not is_string_like(str(self.copyright_holder)):
             _warn_type_mismatch(expected_type="copyright holder", value=self.license, res_id=self.resource_id)
+        if len(self.authorship) == 0:
+            _warn_type_mismatch(
+                expected_type="list of authorship strings", value="empty input", res_id=self.resource_id
+            )
         for author in self.authorship:
             if not is_string_like(author):
                 _warn_type_mismatch(expected_type="author", value=author, res_id=self.resource_id)

@@ -61,7 +61,7 @@ def _serialise_generic_resource(res: Resource) -> etree._Element:
     ele.attrib["restype"] = res.restype
     if res.file_value:
         ele.append(serialise_file_value(ele.file_value))
-    ele.extend(serialise_values(ele.values))
+    ele.extend(serialise_values(res.values))
     return ele
 
 

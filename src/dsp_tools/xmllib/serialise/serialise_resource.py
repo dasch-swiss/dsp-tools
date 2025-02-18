@@ -17,6 +17,7 @@ from dsp_tools.xmllib.models.dsp_base_resources import VideoSegmentResource
 from dsp_tools.xmllib.models.res import Resource
 from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import Value
+from dsp_tools.xmllib.serialise.serialise_file_value import serialise_file_value
 from dsp_tools.xmllib.serialise.serialise_values import serialise_values
 from dsp_tools.xmllib.value_checkers import is_string_like
 
@@ -56,11 +57,16 @@ def _serialise_one_resource(res: AnyResource) -> etree._Element:
 
 
 def _serialise_generic_resource(res: Resource) -> etree._Element:
-    pass
+    ele = _make_generic_resource_element(res, "resource")
+    ele.attrib["restype"] = res.restype
+    if res.file_value:
+        ele.append(serialise_file_value(ele.file_value))
+    ele.extend(serialise_values(ele.values))
+    return ele
 
 
 def _serialise_region(res: RegionResource) -> etree._Element:
-    ele = _serialise_dsp_in_built_resource_element(res, "region")
+    ele = _make_generic_resource_element(res, "region")
     ele.extend(_serialise_geometry_shape(res))
     props: list[Value] = [res.region_of]
     if res.comments:
@@ -102,7 +108,7 @@ def _serialise_link(res: LinkResource) -> etree._Element:
             f"Please note that an xmlupload will fail."
         )
         warnings.warn(DspToolsUserWarning(msg))
-    ele = _serialise_dsp_in_built_resource_element(res, "link")
+    ele = _make_generic_resource_element(res, "link")
     generic_vals = res.comments + res.link_to
     ele.extend(serialise_values(generic_vals))
     return ele
@@ -110,12 +116,12 @@ def _serialise_link(res: LinkResource) -> etree._Element:
 
 def _serialise_segment(res: AudioSegmentResource | VideoSegmentResource, segment_type: str) -> etree._Element:
     _validate_segment(res)
-    seg = _serialise_dsp_in_built_resource_element(res, segment_type)
+    seg = _make_generic_resource_element(res, segment_type)
     seg.extend(_serialise_segment_children(res))
     return seg
 
 
-def _serialise_dsp_in_built_resource_element(res: AnyResource, res_type: str) -> etree._Element:
+def _make_generic_resource_element(res: AnyResource, res_type: str) -> etree._Element:
     attribs = {"label": res.label, "id": res.res_id}
     if res.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
         attribs["permissions"] = res.permissions.value

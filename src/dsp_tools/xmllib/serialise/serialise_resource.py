@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import warnings
+from typing import cast
 
 from lxml import etree
 
@@ -22,7 +23,7 @@ from dsp_tools.xmllib.type_aliases import AnyResource
 from dsp_tools.xmllib.value_checkers import is_string_like
 
 
-def serialise_resources(resources: list[AnyResource]) -> etree._Element:
+def serialise_resources(resources: list[AnyResource]) -> list[etree._Element]:
     """
     Serialise all the resources
 
@@ -60,7 +61,7 @@ def _serialise_generic_resource(res: Resource) -> etree._Element:
     ele = _make_generic_resource_element(res, "resource")
     ele.attrib["restype"] = res.restype
     if res.file_value:
-        ele.append(serialise_file_value(ele.file_value))
+        ele.append(serialise_file_value(res.file_value))
     ele.extend(serialise_values(res.values))
     return ele
 
@@ -70,7 +71,8 @@ def _serialise_region(res: RegionResource) -> etree._Element:
     ele.extend(_serialise_geometry_shape(res))
     props: list[Value] = [res.region_of]
     if res.comments:
-        props.append(res.comments)
+        cmnt = cast(list[Value], res.comments)
+        props.extend(cmnt)
     ele.extend(serialise_values(props))
     return ele
 
@@ -109,7 +111,9 @@ def _serialise_link(res: LinkResource) -> etree._Element:
         )
         warnings.warn(DspToolsUserWarning(msg))
     ele = _make_generic_resource_element(res, "link")
-    generic_vals = res.comments + res.link_to
+    comments = cast(list[Value], res.comments)
+    links_to = cast(list[Value], res.link_to)
+    generic_vals = comments + links_to
     ele.extend(serialise_values(generic_vals))
     return ele
 

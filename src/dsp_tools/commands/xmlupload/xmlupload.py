@@ -135,7 +135,9 @@ def _cleanup_upload(upload_state: UploadState) -> bool:
     Returns:
         success status (deduced from failed_uploads and non-applied stash)
     """
-    write_id2iri_mapping(upload_state.iri_resolver.lookup, upload_state.config.diagnostics)
+    write_id2iri_mapping(
+        upload_state.iri_resolver.lookup, upload_state.config.shortcode, upload_state.config.diagnostics
+    )
     has_stash_failed = upload_state.pending_stash and not upload_state.pending_stash.is_empty()
     if not upload_state.failed_uploads and not has_stash_failed:
         success = True

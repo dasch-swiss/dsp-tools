@@ -14,6 +14,7 @@ from tqdm import tqdm
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import create_resource_with_values
+from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLBitstream
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
@@ -279,7 +280,7 @@ def _upload_one_resource(
 def _upload_one_bitstream(
     resource: XMLResource, permissions_lookup: dict[str, Permissions], ingest_client: AssetClient
 ) -> IngestResult:
-    bistr = resource.bitstream
+    bistr = cast(XMLBitstream, resource.bitstream)
     permissions = permissions_lookup.get(bistr.permissions) if bistr.permissions else None
     ingest_info = MediaIngestInfo(
         bitstream=bistr, permissions=permissions, res_id=resource.res_id, res_label=resource.label

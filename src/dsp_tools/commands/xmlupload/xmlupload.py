@@ -239,24 +239,20 @@ def _upload_one_resource(
         _handle_resource_creation_failure(resource, transformation_result.resource_failure.failure_msg)
         upload_state.failed_uploads.append(resource.res_id)
         return
-
     transformed_resource = cast(IntermediaryResource, transformation_result.resource_success)
 
-    try:
-        if resource.bitstream:
-            success, media_info = ingest_client.get_bitstream_info(
-                resource.bitstream, upload_state.permissions_lookup, resource.label, resource.res_id
-            )
-        else:
-            success, media_info = True, None
-
-        if not success:
+    media_info = None
+    if transformed_resource.file_value:
+        try:
+            ingest_result = ingest_client.get_bitstream_info(transformed_resource.file_value)
+        except PermanentConnectionError as err:
+            _handle_permanent_connection_error(err)
+        except KeyboardInterrupt:
+            _handle_keyboard_interrupt()
+        if not ingest_result:
             upload_state.failed_uploads.append(resource.res_id)
             return
-    except PermanentConnectionError as err:
-        _handle_permanent_connection_error(err)
-    except KeyboardInterrupt:
-        _handle_keyboard_interrupt()
+        media_info = ingest_result
 
     iri = None
     try:

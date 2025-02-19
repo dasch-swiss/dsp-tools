@@ -153,7 +153,7 @@ class TestTransformOneResource:
 
 class TestTransformFileValue:
     def test_transform_file_value(self, bitstream: XMLBitstream, lookups: IntermediaryLookups) -> None:
-        result = _transform_file_value(bitstream, lookups)
+        result = _transform_file_value(bitstream, lookups, "id", "lbl")
         assert result.value == "file.jpg"
         assert isinstance(result, IntermediaryFileValue)
         assert not result.metadata.permissions
@@ -161,7 +161,7 @@ class TestTransformFileValue:
     def test_transform_file_value_with_permissions(
         self, bitstream_with_permission: XMLBitstream, lookups: IntermediaryLookups
     ) -> None:
-        result = _transform_file_value(bitstream_with_permission, lookups)
+        result = _transform_file_value(bitstream_with_permission, lookups, "id", "lbl")
         assert isinstance(result, IntermediaryFileValue)
         assert result.value == "file.jpg"
         assert result.metadata

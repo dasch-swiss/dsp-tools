@@ -24,6 +24,7 @@ from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookup
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.lookup_models import get_json_ld_context_for_project
 from dsp_tools.commands.xmlupload.models.lookup_models import make_namespace_dict_from_onto_names
+from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClient
@@ -238,12 +239,7 @@ def _upload_one_resource(
 ) -> None:
     media_info = None
     if resource.bitstream:
-        bistr = resource.bitstream
-        permissions = upload_state.permissions_lookup.get(bistr.permissions) if bistr.permissions else None
-        ingest_info = MediaIngestInfo(
-            bitstream=bistr, permissions=permissions, res_id=resource.res_id, res_label=resource.label
-        )
-        ingest_result = _upload_one_bitstream(ingest_info, ingest_client)
+        ingest_result = _upload_one_bitstream(resource, upload_state.permissions_lookup, ingest_client)
         if not ingest_result.success:
             upload_state.failed_uploads.append(resource.res_id)
             return
@@ -280,10 +276,16 @@ def _upload_one_resource(
         _handle_keyboard_interrupt()
 
 
-def _upload_one_bitstream(ingest_info: MediaIngestInfo, ingest_client: AssetClient) -> IngestResult:
+def _upload_one_bitstream(
+    resource: XMLResource, permissions_lookup: dict[str, Permissions], ingest_client: AssetClient
+) -> IngestResult:
+    bistr = resource.bitstream
+    permissions = permissions_lookup.get(bistr.permissions) if bistr.permissions else None
+    ingest_info = MediaIngestInfo(
+        bitstream=bistr, permissions=permissions, res_id=resource.res_id, res_label=resource.label
+    )
     try:
-        success, media_info = ingest_client.get_bitstream_info(ingest_info)
-        return IngestResult(success, media_info)
+        return ingest_client.get_bitstream_info(ingest_info)
     except PermanentConnectionError as err:
         _handle_permanent_connection_error(err)
     except KeyboardInterrupt:

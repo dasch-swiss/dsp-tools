@@ -35,7 +35,7 @@ class IngestResponse:
 class AssetClient(Protocol):
     """Protocol for asset handling clients."""
 
-    def get_bitstream_info(self, ingest_info: MediaIngestInfo) -> tuple[bool, None | BitstreamInfo]:
+    def get_bitstream_info(self, ingest_info: MediaIngestInfo) -> IngestResult:
         """Uploads the file to the ingest server if applicable, and returns the BitstreamInfo.
 
         Args:
@@ -118,29 +118,33 @@ class DspIngestClientLive(AssetClient):
             except requests.exceptions.RequestException as e:
                 raise PermanentConnectionError(f"{err}. {e}") from e
 
-    def get_bitstream_info(self, ingest_info: MediaIngestInfo) -> tuple[bool, None | BitstreamInfo]:
+    def get_bitstream_info(self, ingest_info: MediaIngestInfo) -> IngestResult:
         """Uploads a file to the ingest server and returns the BitstreamInfo."""
         try:
             res = self._ingest(Path(self.imgdir) / Path(ingest_info.bitstream.value))
             msg = f"Uploaded file '{ingest_info.bitstream.value}'"
             logger.info(msg)
-            return True, BitstreamInfo(ingest_info.bitstream.value, res.internal_filename, ingest_info.permissions)
+            return IngestResult(
+                True, BitstreamInfo(ingest_info.bitstream.value, res.internal_filename, ingest_info.permissions)
+            )
         except PermanentConnectionError:
             msg = (
                 f"Unable to upload file '{ingest_info.bitstream.value}' of resource "
                 f"'{ingest_info.res_label}' ({ingest_info.res_id})"
             )
             logger.opt(exception=True).warning(msg)
-            return False, None
+            return IngestResult(False, None)
 
 
 @dataclass(frozen=True)
 class BulkIngestedAssetClient(AssetClient):
     """Client for handling media info, if the assets were bulk ingested previously."""
 
-    def get_bitstream_info(self, ingest_info: MediaIngestInfo) -> tuple[bool, BitstreamInfo | None]:
+    def get_bitstream_info(self, ingest_info: MediaIngestInfo) -> IngestResult:
         """Returns the BitstreamInfo of the already ingested file based on the `XMLBitstream.value`."""
-        return True, BitstreamInfo(ingest_info.bitstream.value, ingest_info.bitstream.value, ingest_info.permissions)
+        return IngestResult(
+            True, BitstreamInfo(ingest_info.bitstream.value, ingest_info.bitstream.value, ingest_info.permissions)
+        )
 
 
 @dataclass

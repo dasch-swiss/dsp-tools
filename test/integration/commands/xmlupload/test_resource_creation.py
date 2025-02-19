@@ -13,6 +13,9 @@ from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
+from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediarySimpleText
 from dsp_tools.commands.xmlupload.models.lookup_models import JSONLDContext
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
@@ -28,6 +31,8 @@ from dsp_tools.models.exceptions import XmlUploadInterruptedError
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
 from test.integration.commands.xmlupload.authentication_client_mock import AuthenticationClientMockBase
+
+ONTO = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
 
 
 @pytest.fixture
@@ -62,15 +67,17 @@ class ProjectClientStub:
 
 
 def test_one_resource_without_links(ingest_client_mock: AssetClient) -> None:
-    xml_strings = [
-        """
-        <resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id">
-            <text-prop name=":hasSimpleText"><text encoding="utf8">foo_1 text</text></text-prop>
-        </resource>
-        """,
+    prop_name = "http://0.0.0.0:3333/ontology/9999/onto/v2#hasSimpleText"
+    resources = [
+        IntermediaryResource(
+            "foo_1_id",
+            f"{ONTO}foo_1_type",
+            "foo_1_label",
+            None,
+            [IntermediarySimpleText("foo_1 text", prop_name, None, None)],
+        )
     ]
-    xml_resources = [XMLResource.from_node(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
-    upload_state = UploadState(xml_resources, None, UploadConfig(), JSONLDContext({}))
+    upload_state = UploadState(resources, None, UploadConfig(), JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [{"@id": "foo_1_iri", "rdfs:label": "foo_1_label"}]
     con.post = Mock(side_effect=post_responses)
@@ -82,7 +89,6 @@ def test_one_resource_without_links(ingest_client_mock: AssetClient) -> None:
     assert len(con.post.call_args_list) == len(post_responses)
     post_call_args = cast(dict[str, Any], con.post.call_args_list[0].kwargs)
     assert len(post_call_args) == 3
-    prop_name = "http://0.0.0.0:3333/ontology/9999/onto/v2#hasSimpleText"
     expected = {
         "route": "/v2/resources",
         "data": {
@@ -119,16 +125,17 @@ def test_one_resource_without_links(ingest_client_mock: AssetClient) -> None:
 
 
 def test_one_resource_with_link_to_existing_resource(ingest_client_mock: AssetClient) -> None:
-    xml_strings = [
-        """
-        <resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id">
-            <resptr-prop name=":hasCustomLink"><resptr>foo_2_id</resptr></resptr-prop>
-        </resource>
-        """,
+    resources = [
+        IntermediaryResource(
+            "foo_1_id",
+            f"{ONTO}foo_1_type",
+            "foo_1_label",
+            None,
+            [IntermediaryLink("foo_2_id", f"{ONTO}hasCustomLink", None, None)],
+        )
     ]
-    xml_resources = [XMLResource.from_node(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
     upload_state = UploadState(
-        xml_resources, None, UploadConfig(), JSONLDContext({}), [], IriResolver({"foo_2_id": "foo_2_iri"})
+        resources, None, UploadConfig(), JSONLDContext({}), [], IriResolver({"foo_2_id": "foo_2_iri"})
     )
     con = Mock(spec_set=ConnectionLive)
     post_responses = [{"@id": "foo_1_iri", "rdfs:label": "foo_1_label"}]
@@ -188,13 +195,13 @@ def _2_resources_with_stash_interrupted_by_error(
         '<resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id"></resource>',
         '<resource label="foo_2_label" restype=":foo_2_type" id="foo_2_id"></resource>',
     ]
-    xml_resources = [XMLResource.from_node(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
+    resources = [XMLResource.from_node(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
     link_val_stash_dict = {
         "foo_1_id": [LinkValueStashItem("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")],
         "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
-    upload_state = UploadState(xml_resources.copy(), deepcopy(stash), UploadConfig(), JSONLDContext({}))
+    upload_state = UploadState(resources.copy(), deepcopy(stash), UploadConfig(), JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [
         {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
@@ -218,23 +225,21 @@ def _2_resources_with_stash_interrupted_by_error(
             "If not, a normal 'resume-xmlupload' can be started."
         )
         upload_state_expected = UploadState(
-            xml_resources[1:], stash, UploadConfig(), JSONLDContext({}), [], IriResolver({"foo_1_id": "foo_1_iri"})
+            resources[1:], stash, UploadConfig(), JSONLDContext({}), [], IriResolver({"foo_1_id": "foo_1_iri"})
         )
         _handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
 
 def test_2_resources_with_stash(ingest_client_mock: AssetClient) -> None:
-    xml_strings = [
-        '<resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id"></resource>',
-        '<resource label="foo_2_label" restype=":foo_2_type" id="foo_2_id"></resource>',
+    resources = [
+        IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 3)
     ]
-    xml_resources = [XMLResource.from_node(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
     link_val_stash_dict = {
         "foo_1_id": [LinkValueStashItem("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")],
         "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
-    upload_state = UploadState(xml_resources.copy(), deepcopy(stash), UploadConfig(), JSONLDContext({}))
+    upload_state = UploadState(resources.copy(), deepcopy(stash), UploadConfig(), JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [
         {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
@@ -272,21 +277,16 @@ def test_2_resources_with_stash(ingest_client_mock: AssetClient) -> None:
 
 
 def test_5_resources_with_stash_and_interrupt_after_2(ingest_client_mock: AssetClient) -> None:
-    xml_strings = [
-        '<resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id"></resource>',
-        '<resource label="foo_2_label" restype=":foo_2_type" id="foo_2_id"></resource>',
-        '<resource label="foo_3_label" restype=":foo_3_type" id="foo_3_id"></resource>',
-        '<resource label="foo_4_label" restype=":foo_4_type" id="foo_4_id"></resource>',
-        '<resource label="foo_5_label" restype=":foo_5_type" id="foo_5_id"></resource>',
+    resources = [
+        IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 6)
     ]
-    xml_resources = [XMLResource.from_node(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
     link_val_stash_dict = {
         "foo_1_id": [LinkValueStashItem("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")],
         "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
-    upload_state = UploadState(xml_resources.copy(), deepcopy(stash), upload_config, JSONLDContext({}))
+    upload_state = UploadState(resources.copy(), deepcopy(stash), upload_config, JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [
         {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
@@ -306,7 +306,7 @@ def test_5_resources_with_stash_and_interrupt_after_2(ingest_client_mock: AssetC
         _upload_resources(client, upload_state)
         iri_resolver_expected = IriResolver({"foo_1_id": "foo_1_iri", "foo_2_id": "foo_2_iri"})
         upload_state_expected = UploadState(
-            xml_resources[2:], stash, upload_config, JSONLDContext({}), [], iri_resolver_expected
+            resources[2:], stash, upload_config, JSONLDContext({}), [], iri_resolver_expected
         )
         _handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
@@ -314,7 +314,7 @@ def test_5_resources_with_stash_and_interrupt_after_2(ingest_client_mock: AssetC
         _upload_resources(client, upload_state)
         iri_resolver_expected.lookup.update({"foo_3_id": "foo_3_iri", "foo_4_id": "foo_4_iri"})
         upload_state_expected = UploadState(
-            xml_resources[4:], stash, upload_config, JSONLDContext({}), [], iri_resolver_expected
+            resources[4:], stash, upload_config, JSONLDContext({}), [], iri_resolver_expected
         )
         _handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
@@ -330,22 +330,16 @@ def test_5_resources_with_stash_and_interrupt_after_2(ingest_client_mock: AssetC
 
 
 def test_6_resources_with_stash_and_interrupt_after_2(ingest_client_mock: AssetClient) -> None:
-    xml_strings = [
-        '<resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id"></resource>',
-        '<resource label="foo_2_label" restype=":foo_2_type" id="foo_2_id"></resource>',
-        '<resource label="foo_3_label" restype=":foo_3_type" id="foo_3_id"></resource>',
-        '<resource label="foo_4_label" restype=":foo_4_type" id="foo_4_id"></resource>',
-        '<resource label="foo_5_label" restype=":foo_5_type" id="foo_5_id"></resource>',
-        '<resource label="foo_6_label" restype=":foo_6_type" id="foo_6_id"></resource>',
+    resources = [
+        IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 7)
     ]
-    xml_resources = [XMLResource.from_node(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
     link_val_stash_dict = {
         "foo_1_id": [LinkValueStashItem("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")],
         "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
-    upload_state = UploadState(xml_resources.copy(), deepcopy(stash), upload_config, JSONLDContext({}))
+    upload_state = UploadState(resources.copy(), deepcopy(stash), upload_config, JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [
         {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
@@ -366,7 +360,7 @@ def test_6_resources_with_stash_and_interrupt_after_2(ingest_client_mock: AssetC
         _upload_resources(client, upload_state)
         iri_resolver_expected = IriResolver({"foo_1_id": "foo_1_iri", "foo_2_id": "foo_2_iri"})
         upload_state_expected = UploadState(
-            xml_resources[2:], stash, upload_config, JSONLDContext({}), [], iri_resolver_expected
+            resources[2:], stash, upload_config, JSONLDContext({}), [], iri_resolver_expected
         )
         _handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
@@ -374,7 +368,7 @@ def test_6_resources_with_stash_and_interrupt_after_2(ingest_client_mock: AssetC
         _upload_resources(client, upload_state)
         iri_resolver_expected.lookup.update({"foo_3_id": "foo_3_iri", "foo_4_id": "foo_4_iri"})
         upload_state_expected = UploadState(
-            xml_resources[4:], stash, upload_config, JSONLDContext({}), [], iri_resolver_expected
+            resources[4:], stash, upload_config, JSONLDContext({}), [], iri_resolver_expected
         )
         _handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
@@ -395,21 +389,16 @@ def test_6_resources_with_stash_and_interrupt_after_2(ingest_client_mock: AssetC
 
 
 def test_logging(caplog: pytest.LogCaptureFixture, ingest_client_mock: AssetClient) -> None:
-    xml_strings = [
-        '<resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id"></resource>',
-        '<resource label="foo_2_label" restype=":foo_2_type" id="foo_2_id"></resource>',
-        '<resource label="foo_3_label" restype=":foo_3_type" id="foo_3_id"></resource>',
-        '<resource label="foo_4_label" restype=":foo_4_type" id="foo_4_id"></resource>',
-        '<resource label="foo_5_label" restype=":foo_5_type" id="foo_5_id"></resource>',
+    resources = [
+        IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 6)
     ]
-    xml_resources = [XMLResource.from_node(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
     link_val_stash_dict = {
         "foo_1_id": [LinkValueStashItem("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")],
         "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
-    upload_state = UploadState(xml_resources.copy(), deepcopy(stash), upload_config, JSONLDContext({}))
+    upload_state = UploadState(resources.copy(), deepcopy(stash), upload_config, JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [
         {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
@@ -443,22 +432,16 @@ def test_logging(caplog: pytest.LogCaptureFixture, ingest_client_mock: AssetClie
 
 
 def test_post_requests(ingest_client_mock: AssetClient) -> None:
-    xml_strings = [
-        '<resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id"></resource>',
-        '<resource label="foo_2_label" restype=":foo_2_type" id="foo_2_id"></resource>',
-        '<resource label="foo_3_label" restype=":foo_3_type" id="foo_3_id"></resource>',
-        '<resource label="foo_4_label" restype=":foo_4_type" id="foo_4_id"></resource>',
-        '<resource label="foo_5_label" restype=":foo_5_type" id="foo_5_id"></resource>',
-        '<resource label="foo_6_label" restype=":foo_6_type" id="foo_6_id"></resource>',
+    resources = [
+        IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 7)
     ]
-    xml_resources = [XMLResource.from_node(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
     link_val_stash_dict = {
         "foo_1_id": [LinkValueStashItem("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")],
         "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
-    upload_state = UploadState(xml_resources.copy(), deepcopy(stash), upload_config, JSONLDContext({}))
+    upload_state = UploadState(resources.copy(), deepcopy(stash), upload_config, JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [
         {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
@@ -483,13 +466,11 @@ def test_post_requests(ingest_client_mock: AssetClient) -> None:
 
 
 def test_interruption_if_resource_cannot_be_created_because_of_404() -> None:
-    xml_strings = [
-        '<resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id"></resource>',
-        '<resource label="foo_2_label" restype=":foo_2_type" id="foo_2_id"></resource>',
+    resources = [
+        IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 3)
     ]
-    xml_resources = [XMLResource.from_node(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
     upload_state = UploadState(
-        xml_resources.copy(), Stash(None, None), UploadConfig(), JSONLDContext({}), [], IriResolver()
+        resources.copy(), Stash(None, None), UploadConfig(), JSONLDContext({}), [], IriResolver()
     )
     con = ConnectionLive("foo")
     con._log_request = Mock()  # type: ignore[method-assign]

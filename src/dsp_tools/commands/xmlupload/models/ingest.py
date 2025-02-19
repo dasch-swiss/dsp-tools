@@ -36,7 +36,7 @@ class AssetClient(Protocol):
     """Protocol for asset handling clients."""
 
     def get_bitstream_info(self, ingest_info: MediaIngestInfo) -> IngestResult:
-        """Uploads the file to the ingest server if applicable, and returns the BitstreamInfo.
+        """Uploads the file to the ingest server if applicable, and returns the upload results.
 
         Args:
             ingest_info: Information required for ingesting an asset
@@ -119,7 +119,7 @@ class DspIngestClientLive(AssetClient):
                 raise PermanentConnectionError(f"{err}. {e}") from e
 
     def get_bitstream_info(self, ingest_info: MediaIngestInfo) -> IngestResult:
-        """Uploads a file to the ingest server and returns the BitstreamInfo."""
+        """Uploads a file to the ingest server and returns the upload results."""
         try:
             res = self._ingest(Path(self.imgdir) / Path(ingest_info.bitstream.value))
             msg = f"Uploaded file '{ingest_info.bitstream.value}'"

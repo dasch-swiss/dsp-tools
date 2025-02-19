@@ -17,7 +17,10 @@ class AuthorshipLookup:
     lookup: dict[tuple[str, ...], str]
 
     def get_id(self, authors: tuple[str, ...]) -> str:
-        return self.lookup[authors]
+        if not (found := self.lookup.get(authors)):
+            warnings.warn(DspToolsUserWarning(f"The input authors {authors} are not defined in the look-up."))
+            return str(authors)
+        return found
 
 
 @dataclass

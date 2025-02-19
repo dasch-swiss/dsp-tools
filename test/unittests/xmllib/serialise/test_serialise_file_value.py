@@ -1,14 +1,11 @@
 import pytest
 
 from dsp_tools.xmllib.models.config_options import Permissions
-from dsp_tools.xmllib.models.file_values import AuthorshipLookup
 from dsp_tools.xmllib.models.file_values import FileValue
 from dsp_tools.xmllib.models.file_values import IIIFUri
 from dsp_tools.xmllib.models.file_values import Metadata
 from dsp_tools.xmllib.serialise.serialise_file_value import _serialise_metadata
 from dsp_tools.xmllib.serialise.serialise_file_value import serialise_file_value
-
-AUTHOR_LOOKUP = AuthorshipLookup({("one", "one2"): "authorship_1", tuple(["auth"]): "authorship_2"})
 
 
 @pytest.fixture
@@ -27,7 +24,7 @@ def test_serialise_metadata(metadata_no_permissions: Metadata) -> None:
         "copyright-holder": "copyright",
         "authorship-id": "authorship_1",
     }
-    result = _serialise_metadata(metadata_no_permissions, AUTHOR_LOOKUP)
+    result = _serialise_metadata(metadata_no_permissions, "authorship_1")
     assert result == expected
 
 
@@ -44,7 +41,7 @@ def test_serialise_metadata_with_permissions() -> None:
         "authorship-id": "authorship_2",
         "permissions": "open",
     }
-    result = _serialise_metadata(meta, AUTHOR_LOOKUP)
+    result = _serialise_metadata(meta, "authorship_2")
     assert result == expected
 
 

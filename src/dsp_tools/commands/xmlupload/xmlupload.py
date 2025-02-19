@@ -13,7 +13,6 @@ from tqdm import tqdm
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import create_resource_with_values
-from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
@@ -316,17 +315,6 @@ def _tidy_up_resource_creation_idempotent(
 
     if resource in upload_state.pending_resources:
         upload_state.pending_resources.remove(resource)
-
-
-def _inform_about_resource_transformation_failure(resource: XMLResource, err_msg: str | None) -> None:
-    log_msg = f"{datetime.now()}: WARNING: Unable to create resource '{resource.label}' ({resource.res_id})\n"
-    if err_msg:
-        log_msg += err_msg
-    log_msg += (
-        f"\nResource details:\n{vars(resource)}\nProperty details:\n"
-        f"{'\n'.join([str(vars(prop)) for prop in resource.properties])}"
-    )
-    logger.exception(log_msg)
 
 
 def _inform_about_resource_creation_failure(resource: IntermediaryResource, err_msg: str | None) -> None:

@@ -1,4 +1,5 @@
 import pytest
+from lxml import etree
 
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.file_values import FileValue
@@ -48,29 +49,55 @@ def test_serialise_metadata_with_permissions() -> None:
 def test_serialise_file_value_bitstream(metadata_no_permissions: Metadata) -> None:
     val = FileValue("file.jpg", metadata_no_permissions, None)
     result = serialise_file_value(val, "authorship_1")
-    expected = ""
-    assert result == expected
+    expected = (
+        b'<bitstream xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+        b'license="license" '
+        b'copyright-holder="copyright" '
+        b'authorship-id="authorship_1"'
+        b">file.jpg</bitstream>"
+    )
+    assert etree.tostring(result) == expected
 
 
 def test_serialise_file_value_bitstream_with_comment(metadata_no_permissions: Metadata) -> None:
     val = FileValue("file.jpg", metadata_no_permissions, "comment")
     result = serialise_file_value(val, "authorship_1")
-    expected = ""
-    assert result == expected
+    expected = (
+        b'<bitstream xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+        b'license="license" '
+        b'copyright-holder="copyright" '
+        b'authorship-id="authorship_1" '
+        b'comment="comment"'
+        b">file.jpg</bitstream>"
+    )
+    assert etree.tostring(result) == expected
 
 
 def test_serialise_file_value_iiif(metadata_no_permissions: Metadata) -> None:
     val = IIIFUri("https://link.org", metadata_no_permissions, None)
     result = serialise_file_value(val, "authorship_1")
-    expected = ""
-    assert result == expected
+    expected = (
+        b'<iiif-uri xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+        b'license="license" '
+        b'copyright-holder="copyright" '
+        b'authorship-id="authorship_1"'
+        b">https://link.org</iiif-uri>"
+    )
+    assert etree.tostring(result) == expected
 
 
 def test_serialise_file_value_iiif_with_comment(metadata_no_permissions: Metadata) -> None:
     val = IIIFUri("https://link.org", metadata_no_permissions, "comment")
     result = serialise_file_value(val, "authorship_1")
-    expected = ""
-    assert result == expected
+    expected = (
+        b'<iiif-uri xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+        b'license="license" '
+        b'copyright-holder="copyright" '
+        b'authorship-id="authorship_1" '
+        b'comment="comment"'
+        b">https://link.org</iiif-uri>"
+    )
+    assert etree.tostring(result) == expected
 
 
 if __name__ == "__main__":

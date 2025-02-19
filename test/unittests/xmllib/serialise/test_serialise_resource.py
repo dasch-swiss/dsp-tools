@@ -54,6 +54,36 @@ class TestResource:
         )
         assert serialised == expected
 
+    def test_serialise_no_warnings(self) -> None:
+        res = Resource.create_new("id", ":Type", "lbl").add_file("file.jpg", "lic", "copy", ["one", "one2"])
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            result = _serialise_one_resource(res, AUTHOR_LOOKUP)
+            assert len(caught_warnings) == 0
+        expected = (
+            b'<resource xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'label="lbl" id="id" restype=":Type">'
+            b'<bitstream license="lic" copyright-holder="copy" authorship-id="authorship_1">'
+            b"file.jpg"
+            b"</bitstream>"
+            b"</resource>"
+        )
+        assert etree.tostring(result) == expected
+
+    def test_file_value_unknown_author(self) -> None:
+        res = Resource.create_new("id", ":Type", "lbl").add_file("file.jpg", "lic", "copy", ["unknown"])
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            result = _serialise_one_resource(res, AUTHOR_LOOKUP)
+            assert len(caught_warnings) == 1
+        expected = (
+            b'<resource xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            b'label="lbl" id="id" restype=":Type">'
+            b'<bitstream license="lic" copyright-holder="copy" authorship-id="unknown">'
+            b"file.jpg"
+            b"</bitstream>"
+            b"</resource>"
+        )
+        assert etree.tostring(result) == expected
+
 
 class TestRegionResource:
     def test_serialise_no_warnings(self, region_no_warnings: RegionResource) -> None:

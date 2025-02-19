@@ -134,6 +134,6 @@ class DspIngestClientLive(AssetClient):
 class BulkIngestedAssetClient(AssetClient):
     """Client for handling media info, if the assets were bulk ingested previously."""
 
-    def get_bitstream_info(self, file_info: IntermediaryFileValue) -> BitstreamInfo | None:
+    def get_bitstream_info(self, file_info: IntermediaryFileValue) -> BitstreamInfo:
         """Returns the BitstreamInfo of the already ingested file based on the `IntermediaryFileValue.value`."""
         return BitstreamInfo(file_info.value, file_info.value, file_info.metadata.permissions)

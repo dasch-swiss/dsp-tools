@@ -12,6 +12,7 @@ from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontology import (
     do_xml_consistency_check_with_ontology,
 )
+from dsp_tools.commands.xmlupload.prepare_xml_input.deserialise_xml import extract_resources_from_xml
 from dsp_tools.commands.xmlupload.prepare_xml_input.iiif_uri_validator import IIIFUriValidator
 from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClient
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import identify_circular_references
@@ -74,7 +75,7 @@ def _get_data_from_xml(
 ) -> tuple[list[XMLResource], dict[str, Permissions]]:
     proj_context = _get_project_context_from_server(connection=con, shortcode=root.attrib["shortcode"])
     permissions = _extract_permissions_from_xml(root, proj_context)
-    resources = _extract_resources_from_xml(root, default_ontology)
+    resources = extract_resources_from_xml(root, default_ontology)
     permissions_lookup = {name: perm.get_permission_instance() for name, perm in permissions.items()}
     return resources, permissions_lookup
 
@@ -105,8 +106,3 @@ def _extract_permissions_from_xml(root: etree._Element, proj_context: ProjectCon
     permission_ele = list(root.iter(tag="permissions"))
     permissions = [XmlPermission(permission, proj_context) for permission in permission_ele]
     return {permission.permission_id: permission for permission in permissions}
-
-
-def _extract_resources_from_xml(root: etree._Element, default_ontology: str) -> list[XMLResource]:
-    resources = list(root.iter(tag="resource"))
-    return [XMLResource.from_node(res, default_ontology) for res in resources]

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import urllib
 from dataclasses import dataclass
 from dataclasses import field
@@ -33,20 +35,11 @@ class IngestResponse:
 class AssetClient(Protocol):
     """Protocol for asset handling clients."""
 
-    def get_bitstream_info(
-        self,
-        bitstream: XMLBitstream,
-        permissions_lookup: dict[str, Permissions],
-        res_label: str,
-        res_id: str,
-    ) -> tuple[bool, None | BitstreamInfo]:
+    def get_bitstream_info(self, ingest_info: MediaIngestInfo) -> tuple[bool, None | BitstreamInfo]:
         """Uploads the file to the ingest server if applicable, and returns the BitstreamInfo.
 
         Args:
-            bitstream: The bitstream to upload.
-            permissions_lookup: The permissions lookup.
-            res_label: The resource label (for error message in failure case).
-            res_id: The resource ID (for error message in failure case).
+            ingest_info: Information required for ingesting an asset
         """
 
 
@@ -125,22 +118,18 @@ class DspIngestClientLive(AssetClient):
             except requests.exceptions.RequestException as e:
                 raise PermanentConnectionError(f"{err}. {e}") from e
 
-    def get_bitstream_info(
-        self,
-        bitstream: XMLBitstream,
-        permissions_lookup: dict[str, Permissions],
-        res_label: str,
-        res_id: str,
-    ) -> tuple[bool, None | BitstreamInfo]:
+    def get_bitstream_info(self, ingest_info: MediaIngestInfo) -> tuple[bool, None | BitstreamInfo]:
         """Uploads a file to the ingest server and returns the BitstreamInfo."""
         try:
-            res = self._ingest(Path(self.imgdir) / Path(bitstream.value))
-            msg = f"Uploaded file '{bitstream.value}'"
+            res = self._ingest(Path(self.imgdir) / Path(ingest_info.bitstream.value))
+            msg = f"Uploaded file '{ingest_info.bitstream.value}'"
             logger.info(msg)
-            permissions = permissions_lookup.get(bitstream.permissions) if bitstream.permissions else None
-            return True, BitstreamInfo(bitstream.value, res.internal_filename, permissions)
+            return True, BitstreamInfo(ingest_info.bitstream.value, res.internal_filename, ingest_info.permissions)
         except PermanentConnectionError:
-            msg = f"Unable to upload file '{bitstream.value}' of resource '{res_label}' ({res_id})"
+            msg = (
+                f"Unable to upload file '{ingest_info.bitstream.value}' of resource "
+                f"'{ingest_info.res_label}' ({ingest_info.res_id})"
+            )
             logger.opt(exception=True).warning(msg)
             return False, None
 
@@ -149,13 +138,20 @@ class DspIngestClientLive(AssetClient):
 class BulkIngestedAssetClient(AssetClient):
     """Client for handling media info, if the assets were bulk ingested previously."""
 
-    def get_bitstream_info(
-        self,
-        bitstream: XMLBitstream,
-        permissions_lookup: dict[str, Permissions],
-        res_label: str,  # noqa: ARG002
-        res_id: str,  # noqa: ARG002
-    ) -> tuple[bool, BitstreamInfo | None]:
+    def get_bitstream_info(self, ingest_info: MediaIngestInfo) -> tuple[bool, BitstreamInfo | None]:
         """Returns the BitstreamInfo of the already ingested file based on the `XMLBitstream.value`."""
-        permissions = permissions_lookup.get(bitstream.permissions) if bitstream.permissions else None
-        return True, BitstreamInfo(bitstream.value, bitstream.value, permissions)
+        return True, BitstreamInfo(ingest_info.bitstream.value, ingest_info.bitstream.value, ingest_info.permissions)
+
+
+@dataclass
+class MediaIngestInfo:
+    bitstream: XMLBitstream
+    permissions: Permissions | None
+    res_id: str
+    res_label: str
+
+
+@dataclass
+class IngestResult:
+    success: bool
+    media_info: BitstreamInfo | None

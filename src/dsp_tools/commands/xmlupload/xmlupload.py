@@ -17,6 +17,8 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
+from dsp_tools.commands.xmlupload.models.ingest import IngestResult
+from dsp_tools.commands.xmlupload.models.ingest import MediaIngestInfo
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookups
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
@@ -234,6 +236,19 @@ def _upload_one_resource(
     intermediary_lookups: IntermediaryLookups,
     creation_attempts_of_this_round: int,
 ) -> None:
+    media_info = None
+    if resource.bitstream:
+        bistr = resource.bitstream
+        permissions = upload_state.permissions_lookup.get(bistr.permissions) if bistr.permissions else None
+        ingest_info = MediaIngestInfo(
+            bitstream=bistr, permissions=permissions, res_id=resource.res_id, res_label=resource.label
+        )
+        ingest_result = _upload_one_bitstream(ingest_info, ingest_client)
+        if not ingest_result.success:
+            upload_state.failed_uploads.append(resource.res_id)
+            return
+        media_info = ingest_result.media_info
+
     transformation_result = transform_into_intermediary_resource(resource, intermediary_lookups)
     if transformation_result.resource_failure:
         _handle_resource_creation_failure(resource, transformation_result.resource_failure.failure_msg)
@@ -241,22 +256,6 @@ def _upload_one_resource(
         return
 
     transformed_resource = cast(IntermediaryResource, transformation_result.resource_success)
-
-    try:
-        if resource.bitstream:
-            success, media_info = ingest_client.get_bitstream_info(
-                resource.bitstream, upload_state.permissions_lookup, resource.label, resource.res_id
-            )
-        else:
-            success, media_info = True, None
-
-        if not success:
-            upload_state.failed_uploads.append(resource.res_id)
-            return
-    except PermanentConnectionError as err:
-        _handle_permanent_connection_error(err)
-    except KeyboardInterrupt:
-        _handle_keyboard_interrupt()
 
     iri = None
     try:
@@ -278,6 +277,16 @@ def _upload_one_resource(
         _interrupt_if_indicated(upload_state, creation_attempts_of_this_round)
     except KeyboardInterrupt:
         _tidy_up_resource_creation_idempotent(upload_state, iri, resource)
+        _handle_keyboard_interrupt()
+
+
+def _upload_one_bitstream(ingest_info: MediaIngestInfo, ingest_client: AssetClient) -> IngestResult:
+    try:
+        success, media_info = ingest_client.get_bitstream_info(ingest_info)
+        return IngestResult(success, media_info)
+    except PermanentConnectionError as err:
+        _handle_permanent_connection_error(err)
+    except KeyboardInterrupt:
         _handle_keyboard_interrupt()
 
 

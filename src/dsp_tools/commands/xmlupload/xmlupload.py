@@ -35,7 +35,7 @@ from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 from dsp_tools.commands.xmlupload.resource_create_client import ResourceCreateClient
 from dsp_tools.commands.xmlupload.stash.upload_stashed_resptr_props import upload_stashed_resptr_props
 from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import upload_stashed_xml_texts
-from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import transform_into_intermediary_resource
+from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_into_intermediary_resource
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.write_diagnostic_info import write_id2iri_mapping
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
@@ -198,7 +198,7 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
     progress_bar = tqdm(upload_state.pending_resources.copy(), desc="Creating Resources", dynamic_ncols=True)
     try:
         for creation_attempts_of_this_round, resource in enumerate(progress_bar):
-            transformation_result = transform_into_intermediary_resource(resource, intermediary_lookups)
+            transformation_result = _transform_into_intermediary_resource(resource, intermediary_lookups)
             if transformation_result.resource_failure:
                 _inform_about_resource_transformation_failure(
                     resource, transformation_result.resource_failure.failure_msg
@@ -316,7 +316,7 @@ def _interrupt_if_indicated(upload_state: UploadState, creation_attempts_of_this
 def _tidy_up_resource_creation_idempotent(
     upload_state: UploadState,
     iri: str | None,
-    resource: XMLResource,
+    resource: IntermediaryResource,
 ) -> None:
     previous_successful = len(upload_state.iri_resolver.lookup)
     previous_failed = len(upload_state.failed_uploads)

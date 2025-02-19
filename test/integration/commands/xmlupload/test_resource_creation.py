@@ -6,11 +6,9 @@ from unittest.mock import Mock
 from unittest.mock import patch
 
 import pytest
-from lxml import etree
 from requests import Response
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
-from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
@@ -191,11 +189,9 @@ def test_2_resources_with_stash_interrupted_by_keyboard(ingest_client_mock: Asse
 def _2_resources_with_stash_interrupted_by_error(
     err_to_interrupt_with: BaseException, err_as_str: str, ingest_client_mock: AssetClient
 ) -> None:
-    xml_strings = [
-        '<resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id"></resource>',
-        '<resource label="foo_2_label" restype=":foo_2_type" id="foo_2_id"></resource>',
+    resources = [
+        IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 3)
     ]
-    resources = [XMLResource.from_node(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
     link_val_stash_dict = {
         "foo_1_id": [LinkValueStashItem("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")],
         "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],

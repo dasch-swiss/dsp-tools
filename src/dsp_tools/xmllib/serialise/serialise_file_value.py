@@ -5,8 +5,10 @@ from dsp_tools.xmllib.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.constants import XML_NAMESPACE_MAP
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.file_values import AbstractFileValue
+from dsp_tools.xmllib.models.file_values import AuthorshipLookup
 from dsp_tools.xmllib.models.file_values import FileValue
 from dsp_tools.xmllib.models.file_values import IIIFUri
+from dsp_tools.xmllib.models.file_values import Metadata
 from dsp_tools.xmllib.value_checkers import is_string_like
 
 
@@ -43,3 +45,7 @@ def _serialise_file_value(value: AbstractFileValue, tag_name: str) -> etree._Ele
     ele = etree.Element(f"{DASCH_SCHEMA}{tag_name}", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
     ele.text = str(value.value)
     return ele
+
+
+def _serialise_metadata(metadata: Metadata, authorship_lookup: AuthorshipLookup) -> dict[str, str]:
+    pass

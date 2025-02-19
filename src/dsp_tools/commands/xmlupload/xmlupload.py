@@ -17,8 +17,6 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
-from dsp_tools.commands.xmlupload.models.ingest import IngestResult
-from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileValue
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookups
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
@@ -245,7 +243,12 @@ def _upload_one_resource(
 
     media_info = None
     if transformed_resource.file_value:
-        ingest_result = _upload_one_bitstream(transformed_resource.file_value, ingest_client)
+        try:
+            ingest_result = ingest_client.get_bitstream_info(transformed_resource.file_value)
+        except PermanentConnectionError as err:
+            _handle_permanent_connection_error(err)
+        except KeyboardInterrupt:
+            _handle_keyboard_interrupt()
         if not ingest_result.success:
             upload_state.failed_uploads.append(resource.res_id)
             return
@@ -271,15 +274,6 @@ def _upload_one_resource(
         _interrupt_if_indicated(upload_state, creation_attempts_of_this_round)
     except KeyboardInterrupt:
         _tidy_up_resource_creation_idempotent(upload_state, iri, resource)
-        _handle_keyboard_interrupt()
-
-
-def _upload_one_bitstream(intermediary_filevalue: IntermediaryFileValue, ingest_client: AssetClient) -> IngestResult:
-    try:
-        return ingest_client.get_bitstream_info(intermediary_filevalue)
-    except PermanentConnectionError as err:
-        _handle_permanent_connection_error(err)
-    except KeyboardInterrupt:
         _handle_keyboard_interrupt()
 
 

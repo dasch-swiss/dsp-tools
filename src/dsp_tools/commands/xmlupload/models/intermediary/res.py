@@ -11,8 +11,8 @@ from dsp_tools.models.datetimestamp import DateTimeStamp
 
 @dataclass
 class ResourceTransformationResult:
-    resource_success: list[IntermediaryResource]
-    resource_failure: list[ResourceInputConversionFailure]
+    transformed_resources: list[IntermediaryResource]
+    resource_failures: list[ResourceInputConversionFailure]
 
 
 @dataclass

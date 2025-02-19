@@ -6,7 +6,6 @@ import warnings
 from datetime import datetime
 from pathlib import Path
 from typing import Never
-from typing import cast
 
 from loguru import logger
 from rdflib import URIRef
@@ -18,16 +17,15 @@ from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResou
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
-from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookups
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.lookup_models import get_json_ld_context_for_project
-from dsp_tools.commands.xmlupload.models.lookup_models import make_namespace_dict_from_onto_names
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClient
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClientLive
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import _validate_iiif_uris
+from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_upload_state
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import prepare_upload_from_root
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import prepare_input_xml_file
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
@@ -35,7 +33,6 @@ from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 from dsp_tools.commands.xmlupload.resource_create_client import ResourceCreateClient
 from dsp_tools.commands.xmlupload.stash.upload_stashed_resptr_props import upload_stashed_resptr_props
 from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import upload_stashed_xml_texts
-from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_into_intermediary_resource
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.write_diagnostic_info import write_id2iri_mapping
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
@@ -88,7 +85,7 @@ def xmlupload(
     resources, permissions_lookup, stash = prepare_upload_from_root(root, ontology_client)
 
     clients = _get_live_clients(con, auth, creds, shortcode, imgdir)
-    state = UploadState(resources, stash, config, permissions_lookup)
+    state = get_upload_state(resources, clients, stash, config, permissions_lookup)
 
     return execute_upload(clients, state)
 
@@ -177,38 +174,22 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
         XmlUploadInterruptedError: if the number of resources created is equal to the interrupt_after value
     """
     project_iri = clients.project_client.get_project_iri()
-    project_onto_dict = clients.project_client.get_ontology_name_dict()
-    listnode_lookup = clients.list_client.get_list_node_id_to_iri_lookup()
-    project_context = get_json_ld_context_for_project(project_onto_dict)
-    namespaces = make_namespace_dict_from_onto_names(project_onto_dict)
 
     iri_lookup = IRILookups(
         project_iri=URIRef(project_iri),
         id_to_iri=upload_state.iri_resolver,
-        jsonld_context=project_context,
+        jsonld_context=upload_state.project_context,
     )
 
     resource_create_client = ResourceCreateClient(
         con=clients.project_client.con,
     )
-    intermediary_lookups = IntermediaryLookups(
-        permissions=upload_state.permissions_lookup, listnodes=listnode_lookup, namespaces=namespaces
-    )
-
     progress_bar = tqdm(upload_state.pending_resources.copy(), desc="Creating Resources", dynamic_ncols=True)
     try:
         for creation_attempts_of_this_round, resource in enumerate(progress_bar):
-            transformation_result = _transform_into_intermediary_resource(resource, intermediary_lookups)
-            if transformation_result.resource_failure:
-                _inform_about_resource_transformation_failure(
-                    resource, transformation_result.resource_failure.failure_msg
-                )
-                upload_state.failed_uploads.append(resource.res_id)
-                continue
-            transformed_resource = cast(IntermediaryResource, transformation_result.resource_success)
             _upload_one_resource(
                 upload_state=upload_state,
-                resource=transformed_resource,
+                resource=resource,
                 ingest_client=clients.asset_client,
                 resource_create_client=resource_create_client,
                 iri_lookups=iri_lookup,

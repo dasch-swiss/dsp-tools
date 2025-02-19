@@ -27,7 +27,6 @@ def test_save_upload_state(tmp_path: Path) -> None:
         iri_resolver=IriResolver({"foo": "bar"}),
         pending_stash=None,
         config=config,
-        permissions_lookup={},
     )
     msg = _save_upload_state(upload_state)
     with open(save_location, "rb") as f:
@@ -38,4 +37,3 @@ def test_save_upload_state(tmp_path: Path) -> None:
     assert upload_state.iri_resolver.lookup == saved_state.iri_resolver.lookup
     assert upload_state.pending_stash == saved_state.pending_stash
     assert upload_state.config == saved_state.config
-    assert upload_state.permissions_lookup == saved_state.permissions_lookup

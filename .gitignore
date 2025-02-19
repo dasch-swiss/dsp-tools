@@ -52,7 +52,7 @@ venv.bak/
 
 # generated files
 out.json
-*id2iri_mapping*
+/*id2iri_*.json
 **/~$*.*
 testdata/tmp/
 cwd/

@@ -14,6 +14,8 @@ class IntermediaryFileMetadata:
 class IntermediaryFileValue:
     value: str
     metadata: IntermediaryFileMetadata
+    res_id: str
+    res_label: str
 
 
 @dataclass

@@ -14,18 +14,16 @@ from tqdm import tqdm
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import create_resource_with_values
-from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLBitstream
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
 from dsp_tools.commands.xmlupload.models.ingest import IngestResult
-from dsp_tools.commands.xmlupload.models.ingest import MediaIngestInfo
+from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileValue
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookups
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.lookup_models import get_json_ld_context_for_project
 from dsp_tools.commands.xmlupload.models.lookup_models import make_namespace_dict_from_onto_names
-from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClient
@@ -246,8 +244,8 @@ def _upload_one_resource(
     transformed_resource = cast(IntermediaryResource, transformation_result.resource_success)
 
     media_info = None
-    if resource.bitstream:
-        ingest_result = _upload_one_bitstream(resource, upload_state.permissions_lookup, ingest_client)
+    if transformed_resource.file_value:
+        ingest_result = _upload_one_bitstream(transformed_resource.file_value, ingest_client)
         if not ingest_result.success:
             upload_state.failed_uploads.append(resource.res_id)
             return
@@ -276,16 +274,9 @@ def _upload_one_resource(
         _handle_keyboard_interrupt()
 
 
-def _upload_one_bitstream(
-    resource: XMLResource, permissions_lookup: dict[str, Permissions], ingest_client: AssetClient
-) -> IngestResult:
-    bistr = cast(XMLBitstream, resource.bitstream)
-    permissions = permissions_lookup.get(bistr.permissions) if bistr.permissions else None
-    ingest_info = MediaIngestInfo(
-        bitstream=bistr, permissions=permissions, res_id=resource.res_id, res_label=resource.label
-    )
+def _upload_one_bitstream(intermediary_filevalue: IntermediaryFileValue, ingest_client: AssetClient) -> IngestResult:
     try:
-        return ingest_client.get_bitstream_info(ingest_info)
+        return ingest_client.get_bitstream_info(intermediary_filevalue)
     except PermanentConnectionError as err:
         _handle_permanent_connection_error(err)
     except KeyboardInterrupt:

@@ -198,13 +198,20 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
     progress_bar = tqdm(upload_state.pending_resources.copy(), desc="Creating Resources", dynamic_ncols=True)
     try:
         for creation_attempts_of_this_round, resource in enumerate(progress_bar):
+            transformation_result = transform_into_intermediary_resource(resource, intermediary_lookups)
+            if transformation_result.resource_failure:
+                _inform_about_resource_transformation_failure(
+                    resource, transformation_result.resource_failure.failure_msg
+                )
+                upload_state.failed_uploads.append(resource.res_id)
+                continue
+            transformed_resource = cast(IntermediaryResource, transformation_result.resource_success)
             _upload_one_resource(
                 upload_state=upload_state,
-                resource=resource,
+                resource=transformed_resource,
                 ingest_client=clients.asset_client,
                 resource_create_client=resource_create_client,
                 iri_lookups=iri_lookup,
-                intermediary_lookups=intermediary_lookups,
                 creation_attempts_of_this_round=creation_attempts_of_this_round,
             )
             progress_bar.set_description(f"Creating Resources (failed: {len(upload_state.failed_uploads)})")
@@ -227,24 +234,16 @@ def _upload_stash(
 
 def _upload_one_resource(
     upload_state: UploadState,
-    resource: XMLResource,
+    resource: IntermediaryResource,
     ingest_client: AssetClient,
     resource_create_client: ResourceCreateClient,
     iri_lookups: IRILookups,
-    intermediary_lookups: IntermediaryLookups,
     creation_attempts_of_this_round: int,
 ) -> None:
-    transformation_result = transform_into_intermediary_resource(resource, intermediary_lookups)
-    if transformation_result.resource_failure:
-        _handle_resource_creation_failure(resource, transformation_result.resource_failure.failure_msg)
-        upload_state.failed_uploads.append(resource.res_id)
-        return
-    transformed_resource = cast(IntermediaryResource, transformation_result.resource_success)
-
     media_info = None
-    if transformed_resource.file_value:
+    if resource.file_value:
         try:
-            ingest_result = ingest_client.get_bitstream_info(transformed_resource.file_value)
+            ingest_result = ingest_client.get_bitstream_info(resource.file_value)
         except PermanentConnectionError as err:
             _handle_permanent_connection_error(err)
         except KeyboardInterrupt:
@@ -257,7 +256,7 @@ def _upload_one_resource(
     iri = None
     try:
         serialised_resource = create_resource_with_values(
-            resource=transformed_resource, bitstream_information=media_info, lookups=iri_lookups
+            resource=resource, bitstream_information=media_info, lookups=iri_lookups
         )
         logger.info(f"Attempting to create resource {resource.res_id} (label: {resource.label})...")
         iri = resource_create_client.create_resource(serialised_resource, bool(media_info))
@@ -267,7 +266,7 @@ def _upload_one_resource(
         _handle_permanent_connection_error(err)
     except Exception as err:  # noqa: BLE001 (blind-except)
         err_msg = err.message if isinstance(err, BaseError) else None
-        _handle_resource_creation_failure(resource, err_msg)
+        _inform_about_resource_creation_failure(resource, err_msg)
 
     try:
         _tidy_up_resource_creation_idempotent(upload_state, iri, resource)
@@ -338,14 +337,24 @@ def _tidy_up_resource_creation_idempotent(
         upload_state.pending_resources.remove(resource)
 
 
-def _handle_resource_creation_failure(resource: XMLResource, err_msg: str | None) -> None:
-    msg = f"{datetime.now()}: WARNING: Unable to create resource '{resource.label}' (ID: '{resource.res_id}')"
+def _inform_about_resource_transformation_failure(resource: XMLResource, err_msg: str | None) -> None:
+    log_msg = f"{datetime.now()}: WARNING: Unable to create resource '{resource.label}' ({resource.res_id})\n"
     if err_msg:
-        msg = f"{msg}: {err_msg}"
-    log_msg = (
-        f"Unable to create resource '{resource.label}' ({resource.res_id})\n"
-        f"Resource details:\n{vars(resource)}\n"
-        f"Property details:\n" + "\n".join([str(vars(prop)) for prop in resource.properties])
+        log_msg += err_msg
+    log_msg += (
+        f"\nResource details:\n{vars(resource)}\nProperty details:\n"
+        f"{'\n'.join([str(vars(prop)) for prop in resource.properties])}"
+    )
+    logger.exception(log_msg)
+
+
+def _inform_about_resource_creation_failure(resource: IntermediaryResource, err_msg: str | None) -> None:
+    log_msg = f"{datetime.now()}: WARNING: Unable to create resource '{resource.label}' ({resource.res_id})\n"
+    if err_msg:
+        log_msg += err_msg
+    log_msg += (
+        f"\nResource details:\n{vars(resource)}\nProperty details:\n"
+        f"{'\n'.join([str(vars(prop)) for prop in resource.values])}"
     )
     logger.exception(log_msg)
 

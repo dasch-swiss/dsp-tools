@@ -127,7 +127,9 @@ def test_one_resource_with_link_to_existing_resource(ingest_client_mock: AssetCl
         """,
     ]
     xml_resources = [XMLResource.from_node(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
-    upload_state = UploadState(xml_resources, None, UploadConfig(), {}, [], IriResolver({"foo_2_id": "foo_2_iri"}))
+    upload_state = UploadState(
+        xml_resources, None, UploadConfig(), JSONLDContext({}), [], IriResolver({"foo_2_id": "foo_2_iri"})
+    )
     con = Mock(spec_set=ConnectionLive)
     post_responses = [{"@id": "foo_1_iri", "rdfs:label": "foo_1_label"}]
     con.post = Mock(side_effect=post_responses)
@@ -216,7 +218,7 @@ def _2_resources_with_stash_interrupted_by_error(
             "If not, a normal 'resume-xmlupload' can be started."
         )
         upload_state_expected = UploadState(
-            xml_resources[1:], stash, UploadConfig(), {}, [], IriResolver({"foo_1_id": "foo_1_iri"})
+            xml_resources[1:], stash, UploadConfig(), JSONLDContext({}), [], IriResolver({"foo_1_id": "foo_1_iri"})
         )
         _handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
@@ -303,7 +305,9 @@ def test_5_resources_with_stash_and_interrupt_after_2(ingest_client_mock: AssetC
     with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
         _upload_resources(client, upload_state)
         iri_resolver_expected = IriResolver({"foo_1_id": "foo_1_iri", "foo_2_id": "foo_2_iri"})
-        upload_state_expected = UploadState(xml_resources[2:], stash, upload_config, {}, [], iri_resolver_expected)
+        upload_state_expected = UploadState(
+            xml_resources[2:], stash, upload_config, JSONLDContext({}), [], iri_resolver_expected
+        )
         _handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
     with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
@@ -318,7 +322,9 @@ def test_5_resources_with_stash_and_interrupt_after_2(ingest_client_mock: AssetC
         _upload_resources(client, upload_state)
         iri_resolver_expected.lookup.update({"foo_5_id": "foo_5_iri"})
         empty_stash = Stash(standoff_stash=None, link_value_stash=LinkValueStash({}))
-        upload_state_expected = UploadState([], empty_stash, upload_config, {}, [], iri_resolver_expected)
+        upload_state_expected = UploadState(
+            [], empty_stash, upload_config, JSONLDContext({}), [], iri_resolver_expected
+        )
         _handle_upload_error.assert_not_called()
         assert upload_state == upload_state_expected
 

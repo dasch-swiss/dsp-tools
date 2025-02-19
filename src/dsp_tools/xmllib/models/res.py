@@ -1578,10 +1578,10 @@ class Resource:
 
         Args:
             iiif_uri: valid IIIF URI
-            license: License of the file as defined on the original web-page, can be a predefined or custom license
-            copyright_holder: Copyright holder of the file as defined on the original web-page
-            authorship: Authorship of the file as defined on the original web-page
-            permissions: optional permissions of this value
+            license: License of the file (predefined or custom). A license states the circumstances how you are allowed to share/reuse something.
+            copyright_holder: The person or institution who owns the economic rights of something.
+            authorship: The (natural) person who authored something.
+            permissions: optional permissions of this file
             comment: optional comment
 
         Raises:

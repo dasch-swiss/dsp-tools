@@ -32,10 +32,10 @@ class Metadata:
     resource_id: str | None = None
 
     def __post_init__(self) -> None:
-        if not is_string_like(str(self.license)):
+        if not is_string_like(self.license):
             _warn_type_mismatch(expected_type="license", value=self.license, res_id=self.resource_id)
         if not is_string_like(str(self.copyright_holder)):
-            _warn_type_mismatch(expected_type="copyright holder", value=self.license, res_id=self.resource_id)
+            _warn_type_mismatch(expected_type="copyright holder", value=self.copyright_holder, res_id=self.resource_id)
         if len(self.authorship) == 0:
             _warn_type_mismatch(
                 expected_type="list of authorship strings", value="empty input", res_id=self.resource_id

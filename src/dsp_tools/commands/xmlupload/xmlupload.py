@@ -238,6 +238,13 @@ def _upload_one_resource(
     intermediary_lookups: IntermediaryLookups,
     creation_attempts_of_this_round: int,
 ) -> None:
+    transformation_result = transform_into_intermediary_resource(resource, intermediary_lookups)
+    if transformation_result.resource_failure:
+        _handle_resource_creation_failure(resource, transformation_result.resource_failure.failure_msg)
+        upload_state.failed_uploads.append(resource.res_id)
+        return
+    transformed_resource = cast(IntermediaryResource, transformation_result.resource_success)
+
     media_info = None
     if resource.bitstream:
         ingest_result = _upload_one_bitstream(resource, upload_state.permissions_lookup, ingest_client)
@@ -245,14 +252,6 @@ def _upload_one_resource(
             upload_state.failed_uploads.append(resource.res_id)
             return
         media_info = ingest_result.media_info
-
-    transformation_result = transform_into_intermediary_resource(resource, intermediary_lookups)
-    if transformation_result.resource_failure:
-        _handle_resource_creation_failure(resource, transformation_result.resource_failure.failure_msg)
-        upload_state.failed_uploads.append(resource.res_id)
-        return
-
-    transformed_resource = cast(IntermediaryResource, transformation_result.resource_success)
 
     iri = None
     try:

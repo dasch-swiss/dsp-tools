@@ -34,7 +34,7 @@ class IngestResponse:
 class AssetClient(Protocol):
     """Protocol for asset handling clients."""
 
-    def get_bitstream_info(self, file_info: IntermediaryFileValue) -> IngestResult:
+    def get_bitstream_info(self, file_info: IntermediaryFileValue) -> BitstreamInfo | None:
         """Uploads the file to the ingest server if applicable, and returns the upload results.
 
         Args:
@@ -117,31 +117,23 @@ class DspIngestClientLive(AssetClient):
             except requests.exceptions.RequestException as e:
                 raise PermanentConnectionError(f"{err}. {e}") from e
 
-    def get_bitstream_info(self, file_info: IntermediaryFileValue) -> IngestResult:
+    def get_bitstream_info(self, file_info: IntermediaryFileValue) -> BitstreamInfo | None:
         """Uploads a file to the ingest server and returns the upload results."""
         try:
             res = self._ingest(Path(self.imgdir) / Path(file_info.value))
             msg = f"Uploaded file '{file_info.value}'"
             logger.info(msg)
-            return IngestResult(
-                True, BitstreamInfo(file_info.value, res.internal_filename, file_info.metadata.permissions)
-            )
+            return BitstreamInfo(file_info.value, res.internal_filename, file_info.metadata.permissions)
         except PermanentConnectionError:
             msg = f"Unable to upload file '{file_info.value}' of resource '{file_info.res_label}' ({file_info.res_id})"
             logger.opt(exception=True).warning(msg)
-            return IngestResult(False, None)
+            return None
 
 
 @dataclass(frozen=True)
 class BulkIngestedAssetClient(AssetClient):
     """Client for handling media info, if the assets were bulk ingested previously."""
 
-    def get_bitstream_info(self, file_info: IntermediaryFileValue) -> IngestResult:
+    def get_bitstream_info(self, file_info: IntermediaryFileValue) -> BitstreamInfo | None:
         """Returns the BitstreamInfo of the already ingested file based on the `IntermediaryFileValue.value`."""
-        return IngestResult(True, BitstreamInfo(file_info.value, file_info.value, file_info.metadata.permissions))
-
-
-@dataclass
-class IngestResult:
-    success: bool
-    media_info: BitstreamInfo | None
+        return BitstreamInfo(file_info.value, file_info.value, file_info.metadata.permissions)

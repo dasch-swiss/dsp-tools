@@ -249,10 +249,10 @@ def _upload_one_resource(
             _handle_permanent_connection_error(err)
         except KeyboardInterrupt:
             _handle_keyboard_interrupt()
-        if not ingest_result.success:
+        if not ingest_result:
             upload_state.failed_uploads.append(resource.res_id)
             return
-        media_info = ingest_result.media_info
+        media_info = ingest_result
 
     iri = None
     try:

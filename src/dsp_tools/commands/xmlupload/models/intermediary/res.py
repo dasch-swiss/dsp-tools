@@ -32,11 +32,11 @@ class IntermediaryResource:
     res_id: str
     type_iri: str
     label: str
-    permissions: Permissions | None
-    values: list[IntermediaryValue]
-    file_value: IntermediaryFileValue | None
-    iiif_uri: IntermediaryIIIFUri | None
-    migration_metadata: MigrationMetadata | None
+    permissions: Permissions | None = None
+    values: list[IntermediaryValue] = None
+    file_value: IntermediaryFileValue | None = None
+    iiif_uri: IntermediaryIIIFUri | None = None
+    migration_metadata: MigrationMetadata | None = None
 
 
 @dataclass

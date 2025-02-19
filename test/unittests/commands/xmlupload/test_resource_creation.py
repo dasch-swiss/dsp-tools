@@ -13,10 +13,10 @@ from dsp_tools.commands.xmlupload.xmlupload import _tidy_up_resource_creation_id
 @pytest.fixture
 def intermediary_resources() -> list[IntermediaryResource]:
     one = IntermediaryResource(
-        "foo_1_id", "onto:foo_1_type", "lbl", None, [IntermediarySimpleText("val", "prp", None, None)], None, None, None
+        "foo_1_id", "onto:foo_1_type", "lbl", None, [IntermediarySimpleText("val", "prp", None, None)]
     )
     two = IntermediaryResource(
-        "foo_2_id", "onto:foo_2_type", "lbl", None, [IntermediarySimpleText("val", "prp", None, None)], None, None, None
+        "foo_2_id", "onto:foo_2_type", "lbl", None, [IntermediarySimpleText("val", "prp", None, None)]
     )
     return [one, two]
 

@@ -5,6 +5,7 @@ from lxml import etree
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
+from dsp_tools.commands.xmlupload.models.lookup_models import JSONLDContext
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.upload_config import DiagnosticsConfig
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
@@ -24,6 +25,7 @@ def test_save_upload_state(tmp_path: Path) -> None:
     upload_state = UploadState(
         pending_resources=[XMLResource.from_node(etree.fromstring(resource_str), default_ontology="test")],
         failed_uploads=[],
+        project_context=JSONLDContext({}),
         iri_resolver=IriResolver({"foo": "bar"}),
         pending_stash=None,
         config=config,

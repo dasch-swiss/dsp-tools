@@ -4,6 +4,7 @@ import pytest
 
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediarySimpleText
+from dsp_tools.commands.xmlupload.models.lookup_models import JSONLDContext
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import _tidy_up_resource_creation_idempotent
@@ -21,7 +22,7 @@ def intermediary_resources() -> list[IntermediaryResource]:
 
 
 def test_idempotency_on_success(intermediary_resources: list[IntermediaryResource]) -> None:
-    upload_state = UploadState(deepcopy(intermediary_resources), None, UploadConfig(), {})
+    upload_state = UploadState(deepcopy(intermediary_resources), None, UploadConfig(), JSONLDContext({}))
     for _ in range(3):
         _tidy_up_resource_creation_idempotent(upload_state, "foo_1_iri", intermediary_resources[0])
         assert upload_state.pending_resources == intermediary_resources[1:]
@@ -31,7 +32,7 @@ def test_idempotency_on_success(intermediary_resources: list[IntermediaryResourc
 
 
 def test_idempotency_on_failure(intermediary_resources: list[IntermediaryResource]) -> None:
-    upload_state = UploadState(deepcopy(intermediary_resources), None, UploadConfig(), {})
+    upload_state = UploadState(deepcopy(intermediary_resources), None, UploadConfig(), JSONLDContext({}))
     for _ in range(3):
         _tidy_up_resource_creation_idempotent(upload_state, None, intermediary_resources[0])
         assert upload_state.pending_resources == intermediary_resources[1:]

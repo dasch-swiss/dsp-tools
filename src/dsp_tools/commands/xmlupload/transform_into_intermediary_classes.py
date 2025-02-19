@@ -78,7 +78,7 @@ def transform_into_intermediary_resource(
 def _transform_one_resource(resource: XMLResource, lookups: IntermediaryLookups) -> IntermediaryResource:
     file_value, iiif_uri, migration_metadata = None, None, None
     if resource.bitstream:
-        file_value = _transform_file_value(resource.bitstream, lookups)
+        file_value = _transform_file_value(resource.bitstream, lookups, resource.res_id, resource.label)
     elif resource.iiif_uri:
         iiif_uri = _transform_iiif_uri_value(resource.iiif_uri, lookups)
     if any([resource.ark, resource.creation_date, resource.iri]):
@@ -105,9 +105,11 @@ def _transform_migration_metadata(resource: XMLResource) -> MigrationMetadata:
     return MigrationMetadata(res_iri, resource.creation_date)
 
 
-def _transform_file_value(bitstream: XMLBitstream, lookups: IntermediaryLookups) -> IntermediaryFileValue:
+def _transform_file_value(
+    bitstream: XMLBitstream, lookups: IntermediaryLookups, res_id: str, res_label: str
+) -> IntermediaryFileValue:
     metadata = _get_metadata(bitstream, lookups)
-    return IntermediaryFileValue(bitstream.value, metadata)
+    return IntermediaryFileValue(bitstream.value, metadata, res_id, res_label)
 
 
 def _transform_iiif_uri_value(iiif_uri: IIIFUriInfo, lookups: IntermediaryLookups) -> IntermediaryIIIFUri:

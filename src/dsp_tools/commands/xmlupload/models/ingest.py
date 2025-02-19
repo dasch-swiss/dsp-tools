@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import urllib
 from dataclasses import dataclass
 from dataclasses import field
@@ -10,9 +12,8 @@ from requests import Session
 from requests.adapters import HTTPAdapter
 from requests.adapters import Retry
 
-from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLBitstream
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
-from dsp_tools.commands.xmlupload.models.permission import Permissions
+from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileValue
 from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.utils.authentication_client import AuthenticationClient
@@ -33,20 +34,11 @@ class IngestResponse:
 class AssetClient(Protocol):
     """Protocol for asset handling clients."""
 
-    def get_bitstream_info(
-        self,
-        bitstream: XMLBitstream,
-        permissions_lookup: dict[str, Permissions],
-        res_label: str,
-        res_id: str,
-    ) -> tuple[bool, None | BitstreamInfo]:
-        """Uploads the file to the ingest server if applicable, and returns the BitstreamInfo.
+    def get_bitstream_info(self, file_info: IntermediaryFileValue) -> BitstreamInfo | None:
+        """Uploads the file to the ingest server if applicable, and returns the upload results.
 
         Args:
-            bitstream: The bitstream to upload.
-            permissions_lookup: The permissions lookup.
-            res_label: The resource label (for error message in failure case).
-            res_id: The resource ID (for error message in failure case).
+            file_info: Information required for ingesting an asset
         """
 
 
@@ -125,37 +117,23 @@ class DspIngestClientLive(AssetClient):
             except requests.exceptions.RequestException as e:
                 raise PermanentConnectionError(f"{err}. {e}") from e
 
-    def get_bitstream_info(
-        self,
-        bitstream: XMLBitstream,
-        permissions_lookup: dict[str, Permissions],
-        res_label: str,
-        res_id: str,
-    ) -> tuple[bool, None | BitstreamInfo]:
-        """Uploads a file to the ingest server and returns the BitstreamInfo."""
+    def get_bitstream_info(self, file_info: IntermediaryFileValue) -> BitstreamInfo | None:
+        """Uploads a file to the ingest server and returns the upload results."""
         try:
-            res = self._ingest(Path(self.imgdir) / Path(bitstream.value))
-            msg = f"Uploaded file '{bitstream.value}'"
+            res = self._ingest(Path(self.imgdir) / Path(file_info.value))
+            msg = f"Uploaded file '{file_info.value}'"
             logger.info(msg)
-            permissions = permissions_lookup.get(bitstream.permissions) if bitstream.permissions else None
-            return True, BitstreamInfo(bitstream.value, res.internal_filename, permissions)
+            return BitstreamInfo(file_info.value, res.internal_filename, file_info.metadata.permissions)
         except PermanentConnectionError:
-            msg = f"Unable to upload file '{bitstream.value}' of resource '{res_label}' ({res_id})"
+            msg = f"Unable to upload file '{file_info.value}' of resource '{file_info.res_label}' ({file_info.res_id})"
             logger.opt(exception=True).warning(msg)
-            return False, None
+            return None
 
 
 @dataclass(frozen=True)
 class BulkIngestedAssetClient(AssetClient):
     """Client for handling media info, if the assets were bulk ingested previously."""
 
-    def get_bitstream_info(
-        self,
-        bitstream: XMLBitstream,
-        permissions_lookup: dict[str, Permissions],
-        res_label: str,  # noqa: ARG002
-        res_id: str,  # noqa: ARG002
-    ) -> tuple[bool, BitstreamInfo | None]:
-        """Returns the BitstreamInfo of the already ingested file based on the `XMLBitstream.value`."""
-        permissions = permissions_lookup.get(bitstream.permissions) if bitstream.permissions else None
-        return True, BitstreamInfo(bitstream.value, bitstream.value, permissions)
+    def get_bitstream_info(self, file_info: IntermediaryFileValue) -> BitstreamInfo:
+        """Returns the BitstreamInfo of the already ingested file based on the `IntermediaryFileValue.value`."""
+        return BitstreamInfo(file_info.value, file_info.value, file_info.metadata.permissions)

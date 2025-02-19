@@ -1,3 +1,5 @@
+from typing import cast
+
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import IIIFUriInfo
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLBitstream
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
@@ -75,7 +77,7 @@ def transform_all_resources_into_intermediary_resources(
         if result.resource_success:
             transformed.append(result.resource_success)
         else:
-            failures.append(result.resource_failure)
+            failures.append(cast(ResourceInputConversionFailure, result.resource_failure))
     return ResourceTransformationResult(transformed, failures)
 
 

@@ -25,6 +25,7 @@ class Metadata:
     license: str
     copyright_holder: str
     authorship: tuple[str, ...]
+    permissions: Permissions
     resource_id: str
 
     def __post_init__(self) -> None:
@@ -44,17 +45,15 @@ class Metadata:
 class AbstractFileValue(Protocol):
     value: str | Path
     metadata: Metadata
-    permissions: Permissions
-    comment: str | None = None
+    comment: str | None
 
 
 @dataclass
 class FileValue(AbstractFileValue):
     value: str | Path
     metadata: Metadata
-    permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
-    comment: str | None = None
-    resource_id: str | None = None
+    comment: str | None
+    resource_id: str | None
 
     def __post_init__(self) -> None:
         if not is_string_like(str(self.value)):
@@ -65,9 +64,8 @@ class FileValue(AbstractFileValue):
 class IIIFUri(AbstractFileValue):
     value: str
     metadata: Metadata
-    permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS
-    comment: str | None = None
-    resource_id: str | None = None
+    comment: str | None
+    resource_id: str | None
 
     def __post_init__(self) -> None:
         if not is_iiif_uri(self.value):

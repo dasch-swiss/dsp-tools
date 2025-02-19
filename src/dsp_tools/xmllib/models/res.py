@@ -1556,11 +1556,10 @@ class Resource:
             license=str(license),
             copyright_holder=copyright_holder,
             authorship=tuple(fixed_authors_list),
+            permissions=permissions,
             resource_id=self.res_id,
         )
-        self.file_value = FileValue(
-            value=filename, metadata=meta, permissions=permissions, comment=comment, resource_id=self.res_id
-        )
+        self.file_value = FileValue(value=filename, metadata=meta, comment=comment, resource_id=self.res_id)
         return self
 
     def add_iiif_uri(
@@ -1614,11 +1613,10 @@ class Resource:
             license=str(license),
             copyright_holder=copyright_holder,
             authorship=tuple(fixed_authors_list),
+            permissions=permissions,
             resource_id=self.res_id,
         )
-        self.file_value = IIIFUri(
-            value=iiif_uri, metadata=meta, permissions=permissions, comment=comment, resource_id=self.res_id
-        )
+        self.file_value = IIIFUri(value=iiif_uri, metadata=meta, comment=comment, resource_id=self.res_id)
         return self
 
     #######################

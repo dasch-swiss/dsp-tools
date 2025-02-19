@@ -4,6 +4,7 @@ import pytest
 from lxml import etree
 
 from dsp_tools.xmllib.models.config_options import Permissions
+from dsp_tools.xmllib.models.config_options import PreDefinedLicense
 from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
 from dsp_tools.xmllib.models.file_values import AuthorshipLookup
@@ -55,14 +56,19 @@ class TestResource:
         assert serialised == expected
 
     def test_serialise_no_warnings(self) -> None:
-        res = Resource.create_new("id", ":Type", "lbl").add_file("file.jpg", "lic", "copy", ["one", "one2"])
+        res = Resource.create_new("id", ":Type", "lbl").add_file(
+            "file.jpg", PreDefinedLicense.UNKNOWN, "copy", ["one", "one2"]
+        )
         with warnings.catch_warnings(record=True) as caught_warnings:
             result = _serialise_one_resource(res, AUTHOR_LOOKUP)
             assert len(caught_warnings) == 0
         expected = (
             b'<resource xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'label="lbl" id="id" restype=":Type">'
-            b'<bitstream license="lic" copyright-holder="copy" authorship-id="authorship_1">'
+            b'<bitstream license="http://rdfh.ch/licenses/unknown" '
+            b'copyright-holder="copy" '
+            b'authorship-id="authorship_1"'
+            b">"
             b"file.jpg"
             b"</bitstream>"
             b"</resource>"

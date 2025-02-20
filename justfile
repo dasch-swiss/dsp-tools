@@ -30,7 +30,7 @@ mypy:
 # Check completeness and correctness of python docstrings
 [no-exit-message]
 darglint:
-    uv run darglint -v 2 ./src/dsp_tools/xmllib/*.py
+    uv run darglint -v 2 ./src/dsp_tools/xmllib/**/*.py
 
 
 # Check that there are no dead links in the docs

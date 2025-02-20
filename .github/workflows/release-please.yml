@@ -53,13 +53,12 @@ jobs:
         uses: astral-sh/setup-uv@v2
         with:
           enable-cache: true
-      - name: Update uv.lock
-        run: uv lock
-      - name: Commit updated uv.lock
+      - name: Update uv.lock and commit it
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout ${{ steps.get_release_pr_branch.outputs.branch }}
+          uv lock
           git add uv.lock
           git commit --allow-empty -m "update uv.lock with new version of dsp-tools"
           git push

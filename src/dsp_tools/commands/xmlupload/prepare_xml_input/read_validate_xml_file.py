@@ -12,9 +12,7 @@ from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.iri_util import is_resource_iri
 from dsp_tools.utils.xml_parsing.models.text_value_validation import InconsistentTextValueEncodings
 from dsp_tools.utils.xml_parsing.models.text_value_validation import TextValueData
-from dsp_tools.utils.xml_parsing.parse_and_clean import parse_and_basic_cleaning
-from dsp_tools.utils.xml_parsing.parse_and_transform_file import transform_special_tags_make_localname
-from dsp_tools.utils.xml_parsing.schema_validation import validate_xml_with_schema
+from dsp_tools.utils.xml_parsing.prepare_input_file import parse_clean_and_validate_xml
 from dsp_tools.utils.xml_parsing.validations import list_separator
 
 
@@ -43,11 +41,8 @@ def validate_and_parse(input_file: Path) -> tuple[etree._Element, str, str]:
     Returns:
         The root element of the parsed XML file, the shortcode, and the default ontology
     """
-    root = parse_and_basic_cleaning(input_file)
-
-    validate_xml_with_schema(root)
+    root = parse_clean_and_validate_xml(input_file)
     print("The XML file is syntactically correct.")
-    root = transform_special_tags_make_localname(root)
     check_if_link_targets_exist(root)
     shortcode = root.attrib["shortcode"]
     default_ontology = root.attrib["default-ontology"]

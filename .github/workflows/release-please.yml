@@ -46,7 +46,9 @@ jobs:
 
           branch_name=$(echo "$release_pr" | jq -r '.head.ref')
           echo "branch=$branch_name" >> $GITHUB_OUTPUT
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Install uv
         uses: astral-sh/setup-uv@v2
         with:

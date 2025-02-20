@@ -13,7 +13,7 @@ from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.xml_parsing.models.text_value_validation import InconsistentTextValueEncodings
 from dsp_tools.utils.xml_parsing.models.text_value_validation import TextValueData
-from dsp_tools.utils.xml_parsing.parse_and_clean import remove_namespaces_and_comments_from_tree
+from dsp_tools.utils.xml_parsing.parse_and_clean import _remove_namespaces_and_comments_from_tree
 
 separator = "\n    "
 list_separator = "\n    - "
@@ -34,7 +34,7 @@ def validate_xml_with_schema(xml: etree._Element) -> bool:
     Returns:
         True if the XML file is valid
     """
-    xml_no_namespace = remove_namespaces_and_comments_from_tree(xml)
+    xml_no_namespace = _remove_namespaces_and_comments_from_tree(xml)
 
     problems = []
 

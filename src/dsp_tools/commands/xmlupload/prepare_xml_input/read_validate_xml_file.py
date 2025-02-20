@@ -7,9 +7,9 @@ from lxml import etree
 
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.iri_util import is_resource_iri
-from dsp_tools.utils.xml_parsing.xml_parsing_and_cleaning import parse_xml_file
-from dsp_tools.utils.xml_parsing.xml_parsing_and_cleaning import remove_comments_from_element_tree
-from dsp_tools.utils.xml_parsing.xml_parsing_and_cleaning import transform_special_tags_make_localname
+from dsp_tools.utils.xml_parsing.parse_and_transform_file import parse_xml_file
+from dsp_tools.utils.xml_parsing.parse_and_transform_file import remove_comments_from_element_tree
+from dsp_tools.utils.xml_parsing.parse_and_transform_file import transform_special_tags_make_localname
 from dsp_tools.utils.xml_parsing.xml_schema_validation import validate_xml_with_schema
 
 

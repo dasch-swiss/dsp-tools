@@ -10,16 +10,16 @@ from dsp_tools.commands.validate_data.constants import KNORA_API_STR
 from dsp_tools.commands.validate_data.constants import VIDEO_SEGMENT_RESOURCE
 from dsp_tools.commands.validate_data.mappers import XML_ATTRIB_TO_PROP_TYPE_MAPPER
 from dsp_tools.commands.validate_data.mappers import XML_TAG_TO_VALUE_TYPE_MAPPER
-from dsp_tools.commands.validate_data.models.data_deserialised import DataDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import KnoraValueType
-from dsp_tools.commands.validate_data.models.data_deserialised import ProjectDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import ProjectInformation
-from dsp_tools.commands.validate_data.models.data_deserialised import PropertyObject
-from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import TripleObjectType
-from dsp_tools.commands.validate_data.models.data_deserialised import TriplePropertyType
-from dsp_tools.commands.validate_data.models.data_deserialised import ValueInformation
 from dsp_tools.models.exceptions import BaseError
+from dsp_tools.utils.xml_parsing.models.data_deserialised import DataDeserialised
+from dsp_tools.utils.xml_parsing.models.data_deserialised import KnoraValueType
+from dsp_tools.utils.xml_parsing.models.data_deserialised import ProjectDeserialised
+from dsp_tools.utils.xml_parsing.models.data_deserialised import ProjectInformation
+from dsp_tools.utils.xml_parsing.models.data_deserialised import PropertyObject
+from dsp_tools.utils.xml_parsing.models.data_deserialised import ResourceDeserialised
+from dsp_tools.utils.xml_parsing.models.data_deserialised import TripleObjectType
+from dsp_tools.utils.xml_parsing.models.data_deserialised import TriplePropertyType
+from dsp_tools.utils.xml_parsing.models.data_deserialised import ValueInformation
 
 SEGMENT_TAG_TO_PROP_MAPPER = {
     "relatesTo": KnoraValueType.LINK_VALUE,
@@ -33,7 +33,7 @@ SEGMENT_TAG_TO_PROP_MAPPER = {
 }
 
 
-def deserialise_xml(root: etree._Element) -> ProjectDeserialised:
+def get_project_deserialised(root: etree._Element) -> ProjectDeserialised:
     """
     Takes the root of an XML
     Extracts the data of the project and transforms all its resources.

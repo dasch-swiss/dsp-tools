@@ -14,6 +14,7 @@ from dsp_tools.xmllib.models.dsp_base_resources import AudioSegmentResource
 from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
 from dsp_tools.xmllib.models.dsp_base_resources import VideoSegmentResource
+from dsp_tools.xmllib.models.file_values import AuthorshipLookup
 from dsp_tools.xmllib.models.res import Resource
 from dsp_tools.xmllib.models.values import ColorValue
 from dsp_tools.xmllib.models.values import Value
@@ -23,23 +24,24 @@ from dsp_tools.xmllib.type_aliases import AnyResource
 from dsp_tools.xmllib.value_checkers import is_string_like
 
 
-def serialise_resources(resources: list[AnyResource]) -> list[etree._Element]:
+def serialise_resources(resources: list[AnyResource], authorship_lookup: AuthorshipLookup) -> list[etree._Element]:
     """
     Serialise all the resources
 
     Args:
         resources: list of resources
+        authorship_lookup: lookup to map the authors to the corresponding IDs
 
     Returns:
         serialised resources
     """
-    return [_serialise_one_resource(x) for x in resources]
+    return [_serialise_one_resource(x, authorship_lookup) for x in resources]
 
 
-def _serialise_one_resource(res: AnyResource) -> etree._Element:
+def _serialise_one_resource(res: AnyResource, authorship_lookup: AuthorshipLookup) -> etree._Element:
     match res:
         case Resource():
-            return _serialise_generic_resource(res)
+            return _serialise_generic_resource(res, authorship_lookup)
         case RegionResource():
             return _serialise_region(res)
         case LinkResource():
@@ -57,11 +59,12 @@ def _serialise_one_resource(res: AnyResource) -> etree._Element:
             )
 
 
-def _serialise_generic_resource(res: Resource) -> etree._Element:
+def _serialise_generic_resource(res: Resource, authorship_lookup: AuthorshipLookup) -> etree._Element:
     ele = _make_generic_resource_element(res, "resource")
     ele.attrib["restype"] = res.restype
     if res.file_value:
-        ele.append(serialise_file_value(res.file_value))
+        auth_id = authorship_lookup.get_id(res.file_value.metadata.authorship)
+        ele.append(serialise_file_value(res.file_value, auth_id))
     ele.extend(serialise_values(res.values))
     return ele
 

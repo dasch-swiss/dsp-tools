@@ -9,6 +9,7 @@ from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
+from dsp_tools.xmllib.models.config_options import PreDefinedLicense
 from dsp_tools.xmllib.models.file_values import FileValue
 from dsp_tools.xmllib.models.file_values import IIIFUri
 from dsp_tools.xmllib.models.res import Resource
@@ -324,40 +325,66 @@ class TestAddValues:
 
 class TestAddFiles:
     def test_add_file(self) -> None:
-        res = Resource.create_new("res_id", "restype", "label").add_file("foo/bar.baz")
+        res = Resource.create_new("res_id", "restype", "label").add_file("foo/bar.baz", "license", "copy", ["auth"])
         assert isinstance(res.file_value, FileValue)
+
+    def test_add_file_with_metadata(self) -> None:
+        res = Resource.create_new("res_id", "restype", "label").add_file(
+            "foo/bar.baz", PreDefinedLicense.CC_BY, "copy", ["auth"]
+        )
+        assert isinstance(res.file_value, FileValue)
+        assert res.file_value.metadata.license == "http://rdfh.ch/licenses/cc-by-4.0"
+        assert res.file_value.metadata.copyright_holder == "copy"
+        assert res.file_value.metadata.authorship == tuple(["auth"])
 
     def test_add_file_warns(self) -> None:
         with pytest.warns(DspToolsUserWarning, match=regex.escape("The value '' is not a valid file name")):
-            Resource.create_new("res_id", "restype", "label").add_file("")
+            Resource.create_new("res_id", "restype", "label").add_file("", "license", "copy", ["auth"])
 
     def test_add_file_raising(self) -> None:
-        res = Resource.create_new("res_id", "restype", "label").add_file("existing filename")
+        res = Resource.create_new("res_id", "restype", "label").add_file(
+            "existing filename", "license", "copy", ["auth"]
+        )
         msg = regex.escape(
             "The resource with the ID 'res_id' already contains a file with the name: 'existing filename'.\n"
             "The new file with the name 'new filename' cannot be added."
         )
         with pytest.raises(InputError, match=msg):
-            res.add_file("new filename")
+            res.add_file("new filename", "license", "copy", ["auth"])
 
     def test_add_iiif_uri(self) -> None:
         res = Resource.create_new("res_id", "restype", "label").add_iiif_uri(
-            "https://iiif.dasch.swiss/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/837,530/0/default.jp2"
+            "https://iiif.dasch.swiss/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/837,530/0/default.jp2",
+            "license",
+            "copy",
+            ["auth"],
         )
         assert isinstance(res.file_value, IIIFUri)
 
+    def test_add_iiif_uri_with_metadata(self) -> None:
+        res = Resource.create_new("res_id", "restype", "label").add_iiif_uri(
+            "https://iiif.dasch.swiss/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/837,530/0/default.jp2",
+            PreDefinedLicense.CC_BY,
+            "copy",
+            ["auth"],
+        )
+        assert isinstance(res.file_value, IIIFUri)
+        assert res.file_value.metadata.license == "http://rdfh.ch/licenses/cc-by-4.0"
+        assert res.file_value.metadata.copyright_holder == "copy"
+        assert res.file_value.metadata.authorship == tuple(["auth"])
+
     def test_add_iiif_uri_warns(self) -> None:
         with pytest.warns(DspToolsUserWarning, match=regex.escape("The value '' is not a valid IIIF uri")):
-            Resource.create_new("res_id", "restype", "label").add_iiif_uri("")
+            Resource.create_new("res_id", "restype", "label").add_iiif_uri("", "license", "copy", ["auth"])
 
     def test_add_iiif_uri_raising(self) -> None:
-        res = Resource.create_new("res_id", "restype", "label").add_file("existing IIIF")
+        res = Resource.create_new("res_id", "restype", "label").add_file("existing IIIF", "license", "copy", ["auth"])
         msg = regex.escape(
             "The resource with the ID 'res_id' already contains a file with the name: 'existing IIIF'.\n"
             "The new file with the name 'new IIIF' cannot be added."
         )
         with pytest.raises(InputError, match=msg):
-            res.add_iiif_uri("new IIIF")
+            res.add_iiif_uri("new IIIF", "license", "copy", ["auth"])
 
 
 @pytest.mark.parametrize(

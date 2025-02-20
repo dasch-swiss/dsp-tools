@@ -321,10 +321,6 @@ def _inform_about_resource_creation_failure(resource: IntermediaryResource, err_
     log_msg = f"Unable to create resource '{resource.label}' ({resource.res_id})\n"
     if err_msg:
         log_msg += err_msg
-    log_msg += (
-        f"\nResource details:\n{vars(resource)}\nProperty details:\n"
-        f"{'\n'.join([str(vars(prop)) for prop in resource.values])}"
-    )
     logger.exception(log_msg)
 
 

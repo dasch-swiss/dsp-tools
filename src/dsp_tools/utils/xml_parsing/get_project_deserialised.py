@@ -81,7 +81,10 @@ def _deserialise_one_resource(resource: etree._Element) -> ResourceDeserialised:
     metadata.append(PropertyObject(TriplePropertyType.RDFS_LABEL, resource.attrib["label"], TripleObjectType.STRING))
     metadata.append(PropertyObject(TriplePropertyType.RDF_TYPE, res_type, TripleObjectType.IRI))
     return ResourceDeserialised(
-        res_id=resource.attrib["id"], property_objects=metadata, values=values, asset_value=asset_value
+        res_id=resource.attrib["id"],
+        property_objects=metadata,
+        values=values,
+        asset_value=asset_value,
     )
 
 

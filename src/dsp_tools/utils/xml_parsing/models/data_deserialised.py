@@ -15,18 +15,6 @@ class XMLProject:
 
 
 @dataclass
-class ProjectDeserialised:
-    info: ProjectInformation
-    data: DataDeserialised
-
-
-@dataclass
-class ProjectInformation:
-    shortcode: str
-    default_onto: str
-
-
-@dataclass
 class DataDeserialised:
     resources: list[ResourceDeserialised]
 

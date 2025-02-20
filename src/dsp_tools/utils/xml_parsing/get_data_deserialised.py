@@ -13,8 +13,6 @@ from dsp_tools.commands.validate_data.mappers import XML_TAG_TO_VALUE_TYPE_MAPPE
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.xml_parsing.models.data_deserialised import DataDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import KnoraValueType
-from dsp_tools.utils.xml_parsing.models.data_deserialised import ProjectDeserialised
-from dsp_tools.utils.xml_parsing.models.data_deserialised import ProjectInformation
 from dsp_tools.utils.xml_parsing.models.data_deserialised import PropertyObject
 from dsp_tools.utils.xml_parsing.models.data_deserialised import ResourceDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import TripleObjectType
@@ -33,7 +31,7 @@ SEGMENT_TAG_TO_PROP_MAPPER = {
 }
 
 
-def get_project_deserialised(root: etree._Element) -> ProjectDeserialised:
+def get_data_deserialised(root: etree._Element) -> tuple[str, DataDeserialised]:
     """
     Takes the root of an XML
     Extracts the data of the project and transforms all its resources.
@@ -42,13 +40,11 @@ def get_project_deserialised(root: etree._Element) -> ProjectDeserialised:
         root: root of an xml with qnames and comments removed
 
     Returns:
-        Class instance with the information reformatted
+        Shortcode and deserialised data
     """
     shortcode = root.attrib["shortcode"]
-    default_ontology = root.attrib["default-ontology"]
-    project_info = ProjectInformation(shortcode, default_ontology)
     data_deserialised = _deserialise_all_resources(root)
-    return ProjectDeserialised(project_info, data_deserialised)
+    return shortcode, data_deserialised
 
 
 def _deserialise_all_resources(root: etree._Element) -> DataDeserialised:

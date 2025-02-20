@@ -91,6 +91,7 @@ def _deserialise_generic_properties(resource: etree._Element) -> tuple[list[Valu
         if val.tag == "bitstream":
             asset_value = _deserialise_bitstream(val)
         else:
+        # iiif links are handled like all other values
             values.extend(_deserialise_one_property(val))
     return values, asset_value
 

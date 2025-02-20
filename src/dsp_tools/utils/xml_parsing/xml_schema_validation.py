@@ -32,17 +32,16 @@ def validate_xml_with_schema(xml: etree._Element) -> bool:
     """
     cleaned = remove_namespaces_from_xml(xml)
     _warn_user_about_tags_in_simpletext(cleaned)
-    problems = _validate_xml_against_schema(xml)
+    problem_msg = _validate_xml_against_schema(xml)
 
-    if problems:
-        err_msg = grand_separator.join(problems)
-        logger.opt(exception=True).error(err_msg)
-        raise InputError(err_msg)
+    if problem_msg:
+        logger.opt(exception=True).error(problem_msg)
+        raise InputError(problem_msg)
 
     return True
 
 
-def _validate_xml_against_schema(data_xml: etree._Element) -> list[str]:
+def _validate_xml_against_schema(data_xml: etree._Element) -> str | None:
     schema_res = importlib.resources.files("dsp_tools").joinpath("resources/schema/data.xsd")
     with schema_res.open(encoding="utf-8") as schema_file:
         xmlschema = etree.XMLSchema(etree.parse(schema_file))
@@ -51,8 +50,8 @@ def _validate_xml_against_schema(data_xml: etree._Element) -> list[str]:
         for error in xmlschema.error_log:
             error_msg = f"{error_msg}{separator}Line {error.line}: {error.message}"
         error_msg = error_msg.replace("{https://dasch.swiss/schema}", "")
-        return [error_msg]
-    return []
+        return error_msg
+    return None
 
 
 def _warn_user_about_tags_in_simpletext(xml_no_namespace: etree._Element) -> None:

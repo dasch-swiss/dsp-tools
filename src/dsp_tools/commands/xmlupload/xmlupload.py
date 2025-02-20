@@ -318,7 +318,7 @@ def _tidy_up_resource_creation_idempotent(
 
 
 def _inform_about_resource_creation_failure(resource: IntermediaryResource, err_msg: str | None) -> None:
-    log_msg = f"{datetime.now()}: WARNING: Unable to create resource '{resource.label}' ({resource.res_id})\n"
+    log_msg = f"Unable to create resource '{resource.label}' ({resource.res_id})\n"
     if err_msg:
         log_msg += err_msg
     log_msg += (

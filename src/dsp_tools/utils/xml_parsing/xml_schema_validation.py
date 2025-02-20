@@ -9,7 +9,7 @@ from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
-
+from dsp_tools.utils.xml_parsing.parse_and_transform_file import transform_into_localnames
 separator = "\n    "
 list_separator = "\n    - "
 medium_separator = "\n----------------------------\n"
@@ -29,8 +29,9 @@ def validate_xml_with_schema(xml: etree._Element) -> bool:
     Returns:
         True if the XML file is valid
     """
-    _warn_user_about_tags_in_simpletext(xml)
-    problems = _validate_xml_against_schema(xml)
+    cleaned = transform_into_localnames(xml)
+    _warn_user_about_tags_in_simpletext(cleaned)
+    problems = _validate_xml_against_schema(cleaned)
 
     if problems:
         err_msg = grand_separator.join(problems)

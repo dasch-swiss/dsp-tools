@@ -3,10 +3,10 @@
 name: Release-Please
 
 on:
-  workflow_dispatch:  # trigger manually for testing
+  workflow_dispatch:  # trigger manually
   push:
     branches:
-      - DEV-4596-update-uv.lock-2
+      - main
 
 permissions:
   contents: write

@@ -13,7 +13,6 @@ from dsp_tools.commands.validate_data.api_clients import OntologyClient
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
 from dsp_tools.commands.validate_data.api_connection import ApiConnection
 from dsp_tools.commands.validate_data.constants import KNORA_API_STR
-from dsp_tools.commands.validate_data.deserialise_input import deserialise_xml
 from dsp_tools.commands.validate_data.get_user_validation_message import get_user_message
 from dsp_tools.commands.validate_data.make_data_rdf import make_data_rdf
 from dsp_tools.commands.validate_data.models.data_deserialised import ProjectDeserialised
@@ -31,6 +30,7 @@ from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_MAGENTA
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_YELLOW
 from dsp_tools.utils.ansi_colors import BOLD_CYAN
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.utils.xml_parsing.get_project_deserialised import deserialise_xml
 from dsp_tools.utils.xml_parsing.xml_parsing_and_cleaning import parse_xml_file
 from dsp_tools.utils.xml_parsing.xml_parsing_and_cleaning import remove_comments_from_element_tree
 from dsp_tools.utils.xml_parsing.xml_parsing_and_cleaning import transform_special_tags_make_localname

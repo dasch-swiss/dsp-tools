@@ -5,6 +5,7 @@ from uuid import uuid4
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
+from dsp_tools.commands.xmlupload.models.lookup_models import JSONLDContext
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.project_client import ProjectInfo
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
@@ -95,7 +96,7 @@ class TestUploadLinkValueStashes:
             }
         )
         con: Connection = ConnectionMock(post_responses=[{}])
-        upload_state = UploadState([], stash, UploadConfig(), {}, [], iri_resolver)
+        upload_state = UploadState([], stash, UploadConfig(), JSONLDContext({}), [], iri_resolver)
         _upload_stash(upload_state, ProjectClientStub(con, "1234", None))
         assert not upload_state.pending_stash or upload_state.pending_stash.is_empty()
 
@@ -122,7 +123,7 @@ class TestUploadLinkValueStashes:
             }
         )
         con: Connection = ConnectionMock(post_responses=[{}, {}, {}, {}])
-        upload_state = UploadState([], stash, UploadConfig(), {}, [], iri_resolver)
+        upload_state = UploadState([], stash, UploadConfig(), JSONLDContext({}), [], iri_resolver)
         _upload_stash(upload_state, ProjectClientStub(con, "1234", None))
         assert not upload_state.pending_stash or upload_state.pending_stash.is_empty()
 
@@ -167,7 +168,7 @@ class TestUploadTextValueStashes:
             ],
             put_responses=[{}],
         )
-        upload_state = UploadState([], stash, UploadConfig(), {}, [], iri_resolver)
+        upload_state = UploadState([], stash, UploadConfig(), JSONLDContext({}), [], iri_resolver)
         _upload_stash(upload_state, ProjectClientStub(con, "1234", None))
         assert not upload_state.pending_stash or upload_state.pending_stash.is_empty()
 
@@ -209,6 +210,6 @@ class TestUploadTextValueStashes:
             ],
             put_responses=[{}],
         )
-        upload_state = UploadState([], stash, UploadConfig(), {}, [], iri_resolver)
+        upload_state = UploadState([], stash, UploadConfig(), JSONLDContext({}), [], iri_resolver)
         _upload_stash(upload_state, ProjectClientStub(con, "1234", None))
         assert upload_state.pending_stash == stash

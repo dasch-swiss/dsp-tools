@@ -1,12 +1,12 @@
 import pytest
 
 from dsp_tools.commands.validate_data.constants import KNORA_API_STR
-from dsp_tools.commands.validate_data.models.data_deserialised import KnoraValueType
-from dsp_tools.commands.validate_data.models.data_deserialised import PropertyObject
-from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import TripleObjectType
-from dsp_tools.commands.validate_data.models.data_deserialised import TriplePropertyType
-from dsp_tools.commands.validate_data.models.data_deserialised import ValueInformation
+from dsp_tools.utils.xml_parsing.models.data_deserialised import KnoraValueType
+from dsp_tools.utils.xml_parsing.models.data_deserialised import PropertyObject
+from dsp_tools.utils.xml_parsing.models.data_deserialised import ResourceDeserialised
+from dsp_tools.utils.xml_parsing.models.data_deserialised import TripleObjectType
+from dsp_tools.utils.xml_parsing.models.data_deserialised import TriplePropertyType
+from dsp_tools.utils.xml_parsing.models.data_deserialised import ValueInformation
 
 LABEL_TRIPLE = PropertyObject(TriplePropertyType.RDFS_LABEL, "lbl", TripleObjectType.STRING)
 TYPE_TRIPLE = PropertyObject(
@@ -24,15 +24,27 @@ def resource_deserialised_with_values(
         res_id="id",
         property_objects=UNREIFIED_TRIPLE_OBJECTS,
         values=[boolean_value_deserialised_corr],
+        asset_value=None,
     )
 
 
 @pytest.fixture
 def resource_deserialised_no_values() -> ResourceDeserialised:
+    return ResourceDeserialised(res_id="id", property_objects=UNREIFIED_TRIPLE_OBJECTS, values=[], asset_value=None)
+
+
+@pytest.fixture
+def resource_deserialised_with_asset() -> ResourceDeserialised:
     return ResourceDeserialised(
         res_id="id",
         property_objects=UNREIFIED_TRIPLE_OBJECTS,
         values=[],
+        asset_value=ValueInformation(
+            f"{KNORA_API_STR}hasAudioFileValue",
+            "testdata/bitstreams/test.wav",
+            KnoraValueType.AUDIO_FILE,
+            [],
+        ),
     )
 
 

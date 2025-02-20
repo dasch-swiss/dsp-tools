@@ -10,9 +10,9 @@ from dsp_tools.models.datetimestamp import DateTimeStamp
 
 
 @dataclass
-class ResourceTransformationOutput:
-    resource_success: IntermediaryResource | None
-    resource_failure: ResourceInputConversionFailure | None = None
+class ResourceTransformationResult:
+    transformed_resources: list[IntermediaryResource]
+    resource_failures: list[ResourceInputConversionFailure]
 
 
 @dataclass
@@ -28,9 +28,9 @@ class IntermediaryResource:
     label: str
     permissions: Permissions | None
     values: list[IntermediaryValue]
-    file_value: IntermediaryFileValue | None
-    iiif_uri: IntermediaryIIIFUri | None
-    migration_metadata: MigrationMetadata | None
+    file_value: IntermediaryFileValue | None = None
+    iiif_uri: IntermediaryIIIFUri | None = None
+    migration_metadata: MigrationMetadata | None = None
 
 
 @dataclass

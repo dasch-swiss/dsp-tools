@@ -8,7 +8,7 @@ from dsp_tools.commands.xmlupload.models.intermediary.file_values import Interme
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.intermediary.res import MigrationMetadata
 from dsp_tools.commands.xmlupload.models.intermediary.res import ResourceInputConversionFailure
-from dsp_tools.commands.xmlupload.models.intermediary.res import ResourceTransformationOutput
+from dsp_tools.commands.xmlupload.models.intermediary.res import ResourceTransformationResult
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryBoolean
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryColor
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryDate
@@ -53,26 +53,38 @@ TYPE_TRANSFORMER_MAPPER: dict[str, TypeTransformerMapper] = {
 }
 
 
-def transform_into_intermediary_resource(
-    resource: XMLResource, lookups: IntermediaryLookups
-) -> ResourceTransformationOutput:
+def transform_all_resources_into_intermediary_resources(
+    resources: list[XMLResource], lookups: IntermediaryLookups
+) -> ResourceTransformationResult:
     """
-    Takes the XMLResource parsed from the XML file and converts them into the Intermediary format.
+    Takes the XMLResources parsed from the XML file and converts them into the Intermediary format.
     Permissions, relative IRIs, etc. are resolved in this step.
 
     Args:
-        resource: resource
+        resources: resource list
         lookups: lookup for permissions, prefixes, etc.
 
     Returns:
-        An object containing either the transformed resource or the information for the failure report
+        An object containing the transformed resources and transformation failure information
     """
+    failures = []
+    transformed = []
+    for res in resources:
+        result = _transform_into_intermediary_resource(res, lookups)
+        if isinstance(result, IntermediaryResource):
+            transformed.append(result)
+        else:
+            failures.append(result)
+    return ResourceTransformationResult(transformed, failures)
+
+
+def _transform_into_intermediary_resource(
+    resource: XMLResource, lookups: IntermediaryLookups
+) -> IntermediaryResource | ResourceInputConversionFailure:
     try:
-        transformed = _transform_one_resource(resource, lookups)
-        return ResourceTransformationOutput(transformed)
+        return _transform_one_resource(resource, lookups)
     except (PermissionNotExistsError, InputError) as e:
-        transformation_failure = ResourceInputConversionFailure(resource.res_id, str(e))
-        return ResourceTransformationOutput(None, transformation_failure)
+        return ResourceInputConversionFailure(resource.res_id, str(e))
 
 
 def _transform_one_resource(resource: XMLResource, lookups: IntermediaryLookups) -> IntermediaryResource:

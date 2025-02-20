@@ -10,9 +10,9 @@ from dsp_tools.commands.ingest_xmlupload.create_resources.apply_ingest_id import
 from dsp_tools.commands.ingest_xmlupload.create_resources.apply_ingest_id import replace_filepath_with_internal_filename
 from dsp_tools.commands.xmlupload.models.ingest import BulkIngestedAssetClient
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
-from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClientLive
+from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_upload_state
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import prepare_upload_from_root
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import validate_and_parse
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
@@ -66,7 +66,7 @@ def ingest_xmlupload(
     resources, permissions_lookup, stash = prepare_upload_from_root(root, ontology_client)
 
     clients = _get_live_clients(con, config)
-    state = UploadState(resources, stash, config, permissions_lookup)
+    state = get_upload_state(resources, clients, stash, config, permissions_lookup)
 
     return execute_upload(clients, state)
 

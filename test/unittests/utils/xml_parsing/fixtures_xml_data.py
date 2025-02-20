@@ -24,6 +24,17 @@ def resource_empty_permissions() -> etree._Element:
 
 
 @pytest.fixture
+def resource_with_bitstream() -> etree._Element:
+    return etree.fromstring("""
+    <resource label="lbl" restype="http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything" id="one">
+        <bitstream>
+            testdata/bitstreams/test.wav
+        </bitstream>
+    </resource>
+    """)
+
+
+@pytest.fixture
 def audio_segment() -> etree._Element:
     return etree.fromstring("""
     <resource restype="http://api.knora.org/ontology/knora-api/v2#AudioSegment" label="lbl" id="audio_id">
@@ -417,15 +428,6 @@ def uri_value_wrong() -> etree._Element:
         <uri-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testUriValue">
             <uri>oth er</uri>
         </uri-prop>
-    """)
-
-
-@pytest.fixture
-def bitstream_with_spaces() -> etree._Element:
-    return etree.fromstring("""
-        <bitstream>
-            testdata/bitstreams/test.wav
-        </bitstream>
     """)
 
 

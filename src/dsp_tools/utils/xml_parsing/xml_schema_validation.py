@@ -11,11 +11,9 @@ from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
-from dsp_tools.utils.xml_utils import parse_xml_file
-from dsp_tools.utils.xml_utils import remove_comments_from_element_tree
-from dsp_tools.utils.xml_utils import remove_namespaces_from_xml
-from dsp_tools.utils.xml_validation_models import InconsistentTextValueEncodings
-from dsp_tools.utils.xml_validation_models import TextValueData
+from dsp_tools.utils.xml_parsing.models.text_value_validation import InconsistentTextValueEncodings
+from dsp_tools.utils.xml_parsing.models.text_value_validation import TextValueData
+from dsp_tools.utils.xml_parsing.parse_and_transform_file import remove_namespaces_from_xml
 
 separator = "\n    "
 list_separator = "\n    - "
@@ -23,25 +21,7 @@ medium_separator = "\n----------------------------\n"
 grand_separator = "\n\n---------------------------------------\n\n"
 
 
-def validate_xml_file(input_file: Path | str) -> bool:
-    """
-    Validates an XML file against the DSP XSD schema.
-
-    Args:
-        input_file: path to the XML file to be validated, or parsed ElementTree
-
-    Raises:
-        InputError: if the XML file is invalid
-
-    Returns:
-        True if the XML file is valid
-    """
-    root = parse_xml_file(input_file)
-    data_xml = remove_comments_from_element_tree(root)
-    return validate_xml(data_xml)
-
-
-def validate_xml(xml: etree._Element) -> bool:
+def validate_xml_with_schema(xml: etree._Element) -> bool:
     """
     Validates an XML element tree against the DSP XSD schema.
 

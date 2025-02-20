@@ -12,7 +12,7 @@ from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.utils.xml_validation import validate_xml_file
+from dsp_tools.utils.xml_parsing.xml_schema_validation import validate_xml_file
 from dsp_tools.xmllib.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.constants import XML_NAMESPACE_MAP
 from dsp_tools.xmllib.models.dsp_base_resources import AudioSegmentResource

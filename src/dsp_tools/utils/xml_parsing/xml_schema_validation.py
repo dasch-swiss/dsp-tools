@@ -11,11 +11,11 @@ from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
-from dsp_tools.utils.xml_utils import parse_xml_file
-from dsp_tools.utils.xml_utils import remove_comments_from_element_tree
-from dsp_tools.utils.xml_utils import remove_namespaces_from_xml
-from dsp_tools.utils.xml_validation_models import InconsistentTextValueEncodings
-from dsp_tools.utils.xml_validation_models import TextValueData
+from dsp_tools.utils.xml_parsing.models.text_value_validation import InconsistentTextValueEncodings
+from dsp_tools.utils.xml_parsing.models.text_value_validation import TextValueData
+from dsp_tools.utils.xml_parsing.xml_parsing_and_cleaning import parse_xml_file
+from dsp_tools.utils.xml_parsing.xml_parsing_and_cleaning import remove_comments_from_element_tree
+from dsp_tools.utils.xml_parsing.xml_parsing_and_cleaning import remove_namespaces_from_xml
 
 separator = "\n    "
 list_separator = "\n    - "

@@ -31,10 +31,10 @@ from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_MAGENTA
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_YELLOW
 from dsp_tools.utils.ansi_colors import BOLD_CYAN
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
-from dsp_tools.utils.xml_utils import parse_xml_file
-from dsp_tools.utils.xml_utils import remove_comments_from_element_tree
-from dsp_tools.utils.xml_utils import transform_special_tags_make_localname
-from dsp_tools.utils.xml_validation import validate_xml
+from dsp_tools.utils.xml_parsing.xml_parsing_and_cleaning import parse_xml_file
+from dsp_tools.utils.xml_parsing.xml_parsing_and_cleaning import remove_comments_from_element_tree
+from dsp_tools.utils.xml_parsing.xml_parsing_and_cleaning import transform_special_tags_make_localname
+from dsp_tools.utils.xml_parsing.xml_schema_validation import validate_xml
 
 LIST_SEPARATOR = "\n    - "
 

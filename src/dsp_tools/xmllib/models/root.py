@@ -5,6 +5,8 @@ from collections.abc import Collection
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
+from typing import TypeAlias
+from typing import Union
 
 from lxml import etree
 
@@ -13,9 +15,17 @@ from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.xml_validation import validate_xml_file
 from dsp_tools.xmllib.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.constants import XML_NAMESPACE_MAP
+from dsp_tools.xmllib.models.dsp_base_resources import AudioSegmentResource
+from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
+from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
+from dsp_tools.xmllib.models.dsp_base_resources import VideoSegmentResource
+from dsp_tools.xmllib.models.file_values import AuthorshipLookup
 from dsp_tools.xmllib.models.permissions import XMLPermissions
+from dsp_tools.xmllib.models.res import Resource
 from dsp_tools.xmllib.serialise.serialise_resource import serialise_resources
-from dsp_tools.xmllib.type_aliases import AnyResource
+
+AnyResource: TypeAlias = Union[Resource, RegionResource, LinkResource, VideoSegmentResource, AudioSegmentResource]
+
 
 # ruff: noqa: D101
 
@@ -185,7 +195,10 @@ class XMLRoot:
         root = self._make_root()
         permissions = XMLPermissions().serialise()
         root.extend(permissions)
-        serialised_resources = serialise_resources(self.resources)
+        author_lookup = _make_authorship_lookup(self.resources)
+        authorship = _serialise_authorship(author_lookup.lookup)
+        root.extend(authorship)
+        serialised_resources = serialise_resources(self.resources, author_lookup)
         root.extend(serialised_resources)
         return root
 
@@ -204,3 +217,29 @@ class XMLRoot:
             },
             nsmap=XML_NAMESPACE_MAP,
         )
+
+
+def _make_authorship_lookup(resources: list[AnyResource]) -> AuthorshipLookup:
+    filtered_resources = [x for x in resources if isinstance(x, Resource)]
+    file_vals = [x.file_value for x in filtered_resources if x.file_value]
+    authors = {x.metadata.authorship for x in file_vals}
+    lookup = {}
+    for auth, i in zip(authors, range(1, len(authors) + 1)):
+        lookup[auth] = f"authorship_{i}"
+    return AuthorshipLookup(lookup)
+
+
+def _serialise_authorship(authorship_lookup: dict[tuple[str, ...], str]) -> list[etree._Element]:
+    return [_make_one_authorship_element(auth, id_) for auth, id_ in authorship_lookup.items()]
+
+
+def _make_one_authorship_element(authors: tuple[str, ...], author_id: str) -> etree._Element:
+    def _make_one_author(author: str) -> etree._Element:
+        ele = etree.Element(f"{DASCH_SCHEMA}author", nsmap=XML_NAMESPACE_MAP)
+        ele.text = author
+        return ele
+
+    authorship_ele = etree.Element(f"{DASCH_SCHEMA}permissions", attrib={"id": author_id}, nsmap=XML_NAMESPACE_MAP)
+    all_authors = [_make_one_author(x) for x in authors]
+    authorship_ele.extend(all_authors)
+    return authorship_ele

@@ -38,10 +38,10 @@ def validate_xml_file(input_file: Path | str) -> bool:
     """
     root = parse_xml_file(input_file)
     data_xml = remove_comments_from_element_tree(root)
-    return validate_xml(data_xml)
+    return validate_xml_with_schema(data_xml)
 
 
-def validate_xml(xml: etree._Element) -> bool:
+def validate_xml_with_schema(xml: etree._Element) -> bool:
     """
     Validates an XML element tree against the DSP XSD schema.
 

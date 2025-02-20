@@ -10,7 +10,7 @@ from dsp_tools.utils.iri_util import is_resource_iri
 from dsp_tools.utils.xml_parsing.xml_parsing_and_cleaning import parse_xml_file
 from dsp_tools.utils.xml_parsing.xml_parsing_and_cleaning import remove_comments_from_element_tree
 from dsp_tools.utils.xml_parsing.xml_parsing_and_cleaning import transform_special_tags_make_localname
-from dsp_tools.utils.xml_parsing.xml_schema_validation import validate_xml
+from dsp_tools.utils.xml_parsing.xml_schema_validation import validate_xml_with_schema
 
 
 def prepare_input_xml_file(input_file: Path, imgdir: str) -> tuple[etree._Element, str, str]:
@@ -41,7 +41,7 @@ def validate_and_parse(input_file: Path) -> tuple[etree._Element, str, str]:
     root = parse_xml_file(input_file)
     root = remove_comments_from_element_tree(root)
 
-    validate_xml(root)
+    validate_xml_with_schema(root)
     print("The XML file is syntactically correct.")
     root = transform_special_tags_make_localname(root)
     _check_if_link_targets_exist(root)

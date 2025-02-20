@@ -34,7 +34,7 @@ from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.xml_parsing.xml_parsing_and_cleaning import parse_xml_file
 from dsp_tools.utils.xml_parsing.xml_parsing_and_cleaning import remove_comments_from_element_tree
 from dsp_tools.utils.xml_parsing.xml_parsing_and_cleaning import transform_special_tags_make_localname
-from dsp_tools.utils.xml_parsing.xml_schema_validation import validate_xml
+from dsp_tools.utils.xml_parsing.xml_schema_validation import validate_xml_with_schema
 
 LIST_SEPARATOR = "\n    - "
 
@@ -220,7 +220,7 @@ def _get_data_info_from_file(file: Path, api_url: str) -> tuple[Graph, str]:
 def _parse_and_clean_file(file: Path, api_url: str) -> XMLProject:
     root = parse_xml_file(file)
     root = remove_comments_from_element_tree(root)
-    validate_xml(root)
+    validate_xml_with_schema(root)
     root = transform_special_tags_make_localname(root)
     return _replace_namespaces(root, api_url)
 

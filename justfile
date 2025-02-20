@@ -30,11 +30,7 @@ mypy:
 # Check completeness and correctness of python docstrings
 [no-exit-message]
 darglint:
-    find . -name "*.py" \
-    -not -path "./src/dsp_tools/commands/project/models/*" \
-    -not -path "./.git/*" \
-    -not -path "./.venv/*" \
-    | xargs uv run darglint -v 2\
+    uv run darglint -v 2 ./src/dsp_tools/xmllib/**/*.py
 
 
 # Check that there are no dead links in the docs

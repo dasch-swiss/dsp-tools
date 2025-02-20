@@ -5,7 +5,7 @@ name: Release-Please
 on:
   push:
     branches:
-      - main
+      - DEV-4596-update-uv.lock-2
 
 permissions:
   contents: write

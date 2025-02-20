@@ -1,7 +1,10 @@
+from lxml import etree
+
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
 from dsp_tools.xmllib.models.res import Resource
 from dsp_tools.xmllib.models.root import XMLRoot
 from dsp_tools.xmllib.models.root import _make_authorship_lookup
+from dsp_tools.xmllib.models.root import _serialise_authorship
 
 
 def test_root_add_resources() -> None:
@@ -36,7 +39,23 @@ def test_root_add_resources() -> None:
 def test_make_authorship_lookup() -> None:
     res1 = Resource.create_new("id1", ":Restype", "label").add_file("file.jpg", "lic", "copy", ["auth", "auth1"])
     res2 = Resource.create_new("id2", ":Restype", "label").add_file("file.jpg", "lic", "copy", ["auth2"])
+    res3 = Resource.create_new("id2", ":Restype", "label").add_file("file.jpg", "lic", "copy", ["auth2"])
     region_res = RegionResource.create_new("regionID", "label", "id1")
-    result = _make_authorship_lookup([res1, res2, region_res])
+    result = _make_authorship_lookup([res1, res2, res3, region_res])
     assert set(result.lookup.keys()) == {("auth", "auth1"), tuple(["auth2"])}
     assert set(result.lookup.values()) == {"authorship_1", "authorship_2"}
+
+
+def test_serialise_authorship() -> None:
+    lookup = {("auth", "auth1"): "authorship_1", tuple(["auth2"]): "authorship_2"}
+    expected = [
+        b'<permissions xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+        b'id="authorship_1"><author>auth</author><author>auth1</author></permissions>',
+        b'<permissions xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+        b'id="authorship_2"><author>auth2</author></permissions>',
+    ]
+    serialised = _serialise_authorship(lookup)
+    result = sorted([etree.tostring(x) for x in serialised])
+    assert len(result) == len(expected)
+    for res, ex in zip(result, expected):
+        assert res == ex

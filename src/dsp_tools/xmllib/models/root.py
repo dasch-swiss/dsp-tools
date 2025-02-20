@@ -233,7 +233,7 @@ def _serialise_authorship(authorship_lookup: dict[tuple[str, ...], str]) -> list
     return [_make_one_authorship_element(auth, id_) for auth, id_ in authorship_lookup.items()]
 
 
-def _make_one_authorship_element(authors: tuple[str], author_id: str) -> etree._Element:
+def _make_one_authorship_element(authors: tuple[str, ...], author_id: str) -> etree._Element:
     def _make_one_author(author: str) -> etree._Element:
         ele = etree.Element(f"{DASCH_SCHEMA}author", nsmap=XML_NAMESPACE_MAP)
         ele.text = author

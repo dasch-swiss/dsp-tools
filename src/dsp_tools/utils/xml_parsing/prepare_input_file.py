@@ -11,7 +11,7 @@ from dsp_tools.utils.xml_parsing.transformations import resolve_prefixes_for_pro
 from dsp_tools.utils.xml_parsing.transformations import transform_special_resource_tags
 
 
-def prepare_xml_file(file: Path) -> etree._Element:
+def parse_clean_and_validate_xml(file: Path) -> etree._Element:
     """
     Parse an XML file with DSP-conform data,
     remove namespace URI from the elements' names,
@@ -25,7 +25,13 @@ def prepare_xml_file(file: Path) -> etree._Element:
     return transform_special_resource_tags(tree)
 
 
+def parse_and_validate(file: Path) -> bool:
+    """Parses and validates"""
+    tree = parse_and_basic_cleaning(file)
+    return validate_xml_with_schema(tree)
+
+
 def get_xml_project(file: Path, api_url: str) -> XMLProject:
     """Parses, cleans and does some basic transformation of the file and creates the XMLProject."""
-    root = prepare_xml_file(file)
+    root = parse_clean_and_validate_xml(file)
     return resolve_prefixes_for_properties_and_resources(root, api_url)

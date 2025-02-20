@@ -28,7 +28,7 @@ from dsp_tools.commands.template import generate_template_repo
 from dsp_tools.commands.validate_data.validate_data import validate_data
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
-from dsp_tools.utils.xml_parsing.parsing_and_cleaning import parse_and_validate_xml_file
+from dsp_tools.utils.xml_parsing.prepare_input_file import parse_and_validate
 
 
 def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912 (too many branches)
@@ -199,7 +199,7 @@ def _call_ingest_xmlupload(args: argparse.Namespace) -> bool:
 
 def _call_xmlupload(args: argparse.Namespace) -> bool:
     if args.validate_only:
-        success = parse_and_validate_xml_file(Path(args.xmlfile))
+        success = parse_and_validate(Path(args.xmlfile))
         print("The XML file is syntactically correct.")
         return success
     else:

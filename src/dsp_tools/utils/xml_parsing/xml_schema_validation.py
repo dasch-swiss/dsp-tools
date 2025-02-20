@@ -5,13 +5,7 @@ import importlib.resources
 from loguru import logger
 from lxml import etree
 
-from dsp_tools.models.exceptions import InputError
-from dsp_tools.utils.xml_parsing.parse_and_transform_file import remove_namespaces_from_xml
-
-separator = "\n    "
-list_separator = "\n    - "
-medium_separator = "\n----------------------------\n"
-grand_separator = "\n\n---------------------------------------\n\n"
+from dsp_tools.models.exceptions import BaseError
 
 
 def validate_xml_with_schema(xml: etree._Element) -> bool:
@@ -27,11 +21,9 @@ def validate_xml_with_schema(xml: etree._Element) -> bool:
     Returns:
         True if the XML file is valid
     """
-    xml_no_namespace = remove_namespaces_from_xml(xml)
-    problems = _validate_xml_against_schema(xml_no_namespace)
-    if problems:
+    if problems := _validate_xml_against_schema(xml):
         logger.opt(exception=True).error(problems)
-        raise InputError(problems)
+        raise BaseError(problems)
     return True
 
 
@@ -40,8 +32,9 @@ def _validate_xml_against_schema(data_xml: etree._Element) -> str | None:
     with schema_res.open(encoding="utf-8") as schema_file:
         xmlschema = etree.XMLSchema(etree.parse(schema_file))
     if not xmlschema.validate(data_xml):
-        error_msg = "The XML file cannot be uploaded due to the following validation error(s):"
+        messages = ["The XML file cannot be uploaded due to the following validation error(s):"]
         for error in xmlschema.error_log:
-            error_msg = f"{error_msg}{separator}Line {error.line}: {error.message}"
-        return error_msg.replace("{https://dasch.swiss/schema}", "")
+            messages.append(f"Line {error.line}: {error.message}")
+        msg = "\n    ".join(messages)
+        return msg.replace("{https://dasch.swiss/schema}", "")
     return None

@@ -60,9 +60,6 @@ def _warn_user_about_tags_in_simpletext(xml_no_namespace: etree._Element) -> Non
     But it is also possible that an angular bracket should be displayed.
     So that the user does not insert XML tags mistakenly into simple text fields,
     the user is warned, if there is any present.
-
-    Args:
-        xml_no_namespace: parsed XML file with the namespaces removed
     """
     resources_with_potential_xml_tags = []
     for text in xml_no_namespace.findall(path="resource/text-prop/text"):

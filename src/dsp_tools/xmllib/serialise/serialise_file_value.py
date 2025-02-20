@@ -48,7 +48,7 @@ def _serialise_metadata(metadata: Metadata, authorship_id: str) -> dict[str, str
     attribs = {
         "license": metadata.license,
         "copyright-holder": metadata.copyright_holder,
-        "authorship-id": authorship_id,
+        "authorship-id": authorship_id,  # the authorship that is contained in the metadata is the raw form, but we need its ID
     }
     if metadata.permissions != Permissions.PROJECT_SPECIFIC_PERMISSIONS:
         attribs["permissions"] = metadata.permissions.value

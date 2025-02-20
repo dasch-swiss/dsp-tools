@@ -27,7 +27,7 @@ from dsp_tools.utils.shared import check_notna
 from dsp_tools.utils.shared import simplify_name
 from dsp_tools.utils.uri_util import is_iiif_uri
 from dsp_tools.utils.uri_util import is_uri
-from dsp_tools.utils.xml_parsing.prepare_input_file import parse_clean_and_validate_xml
+from dsp_tools.utils.xml_parsing.prepare_input_file import parse_and_validate
 
 # ruff: noqa: E501, UP031 (line-too-long, use f-string over percent formatting)
 
@@ -2234,7 +2234,7 @@ def write_xml(
     with open(filepath, "w", encoding="utf-8") as f:
         f.write(xml_string)
     try:
-        parse_clean_and_validate_xml(input_file=filepath)
+        parse_and_validate(filepath)
         print(f"The XML file was successfully saved to {filepath}")
     except BaseError as err:
         msg = (

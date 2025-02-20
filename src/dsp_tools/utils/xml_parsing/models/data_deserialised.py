@@ -42,11 +42,13 @@ class ResourceDeserialised:
             They are non-reified triples (not values).
             For example, the label of a resource is here.
         values: a list of user-facing values (e.g. BooleanValue)
+        asset_value: a asset value (all FileValues excluding the IIIFUri)
     """
 
     res_id: str
     property_objects: list[PropertyObject]
     values: list[ValueInformation]
+    asset_value: ValueInformation | None = None
 
 
 @dataclass

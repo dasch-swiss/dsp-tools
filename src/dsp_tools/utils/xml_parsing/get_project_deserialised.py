@@ -71,26 +71,29 @@ def _extract_metadata(element: etree._Element) -> list[PropertyObject]:
 
 def _deserialise_one_resource(resource: etree._Element) -> ResourceDeserialised:
     res_type = resource.attrib["restype"]
+    asset_value = None
     if res_type in {VIDEO_SEGMENT_RESOURCE, AUDIO_SEGMENT_RESOURCE}:
         values = _deserialise_segment_properties(resource)
     else:
-        values = _deserialise_generic_properties(resource)
+        values, asset_value = _deserialise_generic_properties(resource)
     metadata = _extract_metadata(resource)
     metadata.extend(_get_all_stand_off_links(values))
     metadata.append(PropertyObject(TriplePropertyType.RDFS_LABEL, resource.attrib["label"], TripleObjectType.STRING))
     metadata.append(PropertyObject(TriplePropertyType.RDF_TYPE, res_type, TripleObjectType.IRI))
     return ResourceDeserialised(
-        res_id=resource.attrib["id"],
-        property_objects=metadata,
-        values=values,
+        res_id=resource.attrib["id"], property_objects=metadata, values=values, asset_value=asset_value
     )
 
 
-def _deserialise_generic_properties(resource: etree._Element) -> list[ValueInformation]:
+def _deserialise_generic_properties(resource: etree._Element) -> tuple[list[ValueInformation], ValueInformation | None]:
     values = []
+    asset_value = None
     for val in resource.iterchildren():
-        values.extend(_deserialise_one_property(val))
-    return values
+        if val.tag == "bitstream":
+            asset_value = _deserialise_bitstream(val)
+        else:
+            values.extend(_deserialise_one_property(val))
+    return values, asset_value
 
 
 def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueInformation]:
@@ -113,8 +116,8 @@ def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueInformation
             return _extract_list_value_information(prop_ele)
         case "text-prop":
             return _extract_text_value_information(prop_ele)
-        case "iiif-uri" | "bitstream" as file_tag:
-            return _deserialise_file_values(prop_ele, file_tag)
+        case "iiif-uri":
+            return _deserialise_iiif_uri(prop_ele)
         case "geometry-prop":
             return _extract_geometry_value_information(prop_ele)
         case _:
@@ -222,30 +225,33 @@ def _extract_geometry_value_information(prop: etree._Element) -> list[ValueInfor
     ]
 
 
-def _deserialise_file_values(value: etree._Element, tag_name: str) -> list[ValueInformation]:
+def _deserialise_iiif_uri(value: etree._Element) -> list[ValueInformation]:
     if (file_str := value.text) is None:
         return []
     file_str = file_str.strip()
-    if tag_name == "iiif-uri":
-        return [
-            ValueInformation(
-                user_facing_prop=f"{KNORA_API_STR}hasStillImageFileValue",
-                user_facing_value=file_str,
-                knora_type=KnoraValueType.STILL_IMAGE_IIIF,
-                value_metadata=_extract_metadata(value),
-            )
-        ]
-    file_type, prop_str = _get_file_value_type(file_str)
-    if not file_type:
-        return []
     return [
         ValueInformation(
-            user_facing_prop=prop_str,
+            user_facing_prop=f"{KNORA_API_STR}hasStillImageFileValue",
             user_facing_value=file_str,
-            knora_type=file_type,
+            knora_type=KnoraValueType.STILL_IMAGE_IIIF,
             value_metadata=_extract_metadata(value),
         )
     ]
+
+
+def _deserialise_bitstream(value: etree._Element) -> ValueInformation | None:
+    if (file_str := value.text) is None:
+        return None
+    file_str = file_str.strip()
+    file_type, prop_str = _get_file_value_type(file_str)
+    if not file_type:
+        return None
+    return ValueInformation(
+        user_facing_prop=prop_str,
+        user_facing_value=file_str,
+        knora_type=file_type,
+        value_metadata=_extract_metadata(value),
+    )
 
 
 def _get_file_value_type(file_name: str) -> tuple[KnoraValueType | None, str]:  # noqa:PLR0911 (Too many return statements)

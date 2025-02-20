@@ -25,9 +25,9 @@ from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_MAGENTA
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_YELLOW
 from dsp_tools.utils.ansi_colors import BOLD_CYAN
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
-from dsp_tools.utils.xml_parsing.get_project_deserialised import deserialise_xml
-from dsp_tools.utils.xml_parsing.get_xml_project import get_xml_project
+from dsp_tools.utils.xml_parsing.get_project_deserialised import get_project_deserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import ProjectDeserialised
+from dsp_tools.utils.xml_parsing.xml_parsing_and_cleaning import get_xml_project
 
 LIST_SEPARATOR = "\n    - "
 
@@ -205,6 +205,6 @@ def _validate(validator: ShaclValidator, rdf_graphs: RDFGraphs) -> ValidationRep
 
 def _get_data_info_from_file(file: Path, api_url: str) -> tuple[Graph, str]:
     xml_project = get_xml_project(file, api_url)
-    deserialised: ProjectDeserialised = deserialise_xml(xml_project.root)
+    deserialised: ProjectDeserialised = get_project_deserialised(xml_project.root)
     rdf_data = make_data_rdf(deserialised.data)
     return rdf_data, deserialised.info.shortcode

@@ -33,7 +33,7 @@ SEGMENT_TAG_TO_PROP_MAPPER = {
 }
 
 
-def deserialise_xml(root: etree._Element) -> ProjectDeserialised:
+def get_project_deserialised(root: etree._Element) -> ProjectDeserialised:
     """
     Takes the root of an XML
     Extracts the data of the project and transforms all its resources.

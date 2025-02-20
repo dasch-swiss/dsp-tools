@@ -24,15 +24,27 @@ def resource_deserialised_with_values(
         res_id="id",
         property_objects=UNREIFIED_TRIPLE_OBJECTS,
         values=[boolean_value_deserialised_corr],
+        asset_value=None,
     )
 
 
 @pytest.fixture
 def resource_deserialised_no_values() -> ResourceDeserialised:
+    return ResourceDeserialised(res_id="id", property_objects=UNREIFIED_TRIPLE_OBJECTS, values=[], asset_value=None)
+
+
+@pytest.fixture
+def resource_deserialised_with_asset() -> ResourceDeserialised:
     return ResourceDeserialised(
         res_id="id",
         property_objects=UNREIFIED_TRIPLE_OBJECTS,
         values=[],
+        asset_value=ValueInformation(
+            f"{KNORA_API_STR}hasAudioFileValue",
+            "testdata/bitstreams/test.wav",
+            KnoraValueType.AUDIO_FILE,
+            [],
+        ),
     )
 
 

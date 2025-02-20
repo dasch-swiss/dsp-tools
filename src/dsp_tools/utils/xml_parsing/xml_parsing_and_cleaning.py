@@ -57,7 +57,7 @@ def parse_and_clean_xml_file(input_file: Path) -> etree._Element:
 
 def get_xml_project(file: Path, api_url: str) -> XMLProject:
     """
-    Parses, cleans and does some basic transformaton of the file and creates the XMLProject.
+    Parses, cleans and does some basic transformation of the file and creates the XMLProject.
 
     Args:
         file: file path

@@ -43,7 +43,6 @@ class ResourceDeserialised:
             For example, the label of a resource is here.
         values: a list of user-facing values (e.g. BooleanValue)
     """
-
     res_id: str
     property_objects: list[PropertyObject]
     values: list[ValueInformation]

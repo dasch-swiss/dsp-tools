@@ -12,6 +12,7 @@ from dsp_tools.utils.xml_parsing.models.data_deserialised import PropertyObject
 from dsp_tools.utils.xml_parsing.models.data_deserialised import ResourceDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import TripleObjectType
 from dsp_tools.utils.xml_parsing.models.data_deserialised import TriplePropertyType
+from dsp_tools.utils.xml_parsing.models.data_deserialised import ValueInformation
 
 
 def _get_label_and_type(resource: ResourceDeserialised) -> tuple[PropertyObject, PropertyObject, list[PropertyObject]]:
@@ -61,6 +62,16 @@ class TestResource:
         assert rdf_type.object_value == "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"
         assert rdf_type.object_type == TripleObjectType.IRI
         assert len(res.values) == 3
+
+    def test_with_bitstream(self, resource_with_bitstream: etree._Element) -> None:
+        result = _deserialise_one_resource(resource_with_bitstream)
+        assert len(result.values) == 0
+        bitstream = result.asset_value
+        assert isinstance(bitstream, ValueInformation)
+        assert bitstream.user_facing_prop == f"{KNORA_API_STR}hasAudioFileValue"
+        assert bitstream.user_facing_value == "testdata/bitstreams/test.wav"
+        assert bitstream.knora_type == KnoraValueType.AUDIO_FILE
+        assert not bitstream.value_metadata
 
     def test_region(self, root_resource_region: etree._Element) -> None:
         res_list = _deserialise_all_resources(root_resource_region).resources
@@ -415,15 +426,6 @@ class TestLinkValue:
 
 
 class TestFileValue:
-    def test_bitstream(self, bitstream_with_spaces: etree._Element) -> None:
-        result = _deserialise_one_property(bitstream_with_spaces)
-        assert len(result) == 1
-        res = result.pop()
-        assert res.user_facing_prop == f"{KNORA_API_STR}hasAudioFileValue"
-        assert res.user_facing_value == "testdata/bitstreams/test.wav"
-        assert res.knora_type == KnoraValueType.AUDIO_FILE
-        assert not res.value_metadata
-
     def test_iiif(self, iiif_with_spaces: etree._Element) -> None:
         result = _deserialise_one_property(iiif_with_spaces)
         assert len(result) == 1

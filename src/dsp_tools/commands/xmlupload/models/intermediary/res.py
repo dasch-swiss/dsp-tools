@@ -16,12 +16,6 @@ class ResourceTransformationResult:
 
 
 @dataclass
-class ResourceTransformationOutput:
-    resource_success: IntermediaryResource | None
-    resource_failure: ResourceInputConversionFailure | None = None
-
-
-@dataclass
 class ResourceInputConversionFailure:
     resource_id: str
     failure_msg: str

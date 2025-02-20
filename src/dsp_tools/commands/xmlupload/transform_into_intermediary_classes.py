@@ -1,5 +1,3 @@
-from typing import cast
-
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import IIIFUriInfo
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLBitstream
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
@@ -10,7 +8,6 @@ from dsp_tools.commands.xmlupload.models.intermediary.file_values import Interme
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.intermediary.res import MigrationMetadata
 from dsp_tools.commands.xmlupload.models.intermediary.res import ResourceInputConversionFailure
-from dsp_tools.commands.xmlupload.models.intermediary.res import ResourceTransformationOutput
 from dsp_tools.commands.xmlupload.models.intermediary.res import ResourceTransformationResult
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryBoolean
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryColor
@@ -74,22 +71,20 @@ def transform_all_resources_into_intermediary_resources(
     transformed = []
     for res in resources:
         result = _transform_into_intermediary_resource(res, lookups)
-        if result.resource_success:
-            transformed.append(result.resource_success)
+        if isinstance(result, IntermediaryResource):
+            transformed.append(result)
         else:
-            failures.append(cast(ResourceInputConversionFailure, result.resource_failure))
+            failures.append(result)
     return ResourceTransformationResult(transformed, failures)
 
 
 def _transform_into_intermediary_resource(
     resource: XMLResource, lookups: IntermediaryLookups
-) -> ResourceTransformationOutput:
+) -> IntermediaryResource | ResourceInputConversionFailure:
     try:
-        transformed = _transform_one_resource(resource, lookups)
-        return ResourceTransformationOutput(transformed)
+        return _transform_one_resource(resource, lookups)
     except (PermissionNotExistsError, InputError) as e:
-        transformation_failure = ResourceInputConversionFailure(resource.res_id, str(e))
-        return ResourceTransformationOutput(None, transformation_failure)
+        return ResourceInputConversionFailure(resource.res_id, str(e))
 
 
 def _transform_one_resource(resource: XMLResource, lookups: IntermediaryLookups) -> IntermediaryResource:

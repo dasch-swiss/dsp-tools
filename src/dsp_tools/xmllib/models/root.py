@@ -196,6 +196,8 @@ class XMLRoot:
         permissions = XMLPermissions().serialise()
         root.extend(permissions)
         author_lookup = _make_authorship_lookup(self.resources)
+        authorship = _serialise_authorship(author_lookup.lookup)
+        root.extend(authorship)
         serialised_resources = serialise_resources(self.resources, author_lookup)
         root.extend(serialised_resources)
         return root
@@ -218,8 +220,8 @@ class XMLRoot:
 
 
 def _make_authorship_lookup(resources: list[AnyResource]) -> AuthorshipLookup:
-    res = [x for x in resources if isinstance(x, Resource)]
-    file_vals = [x.file_value for x in res if x.file_value]
+    filtered_resources = [x for x in resources if isinstance(x, Resource)]
+    file_vals = [x.file_value for x in filtered_resources if x.file_value]
     authors = {x.metadata.authorship for x in file_vals}
     lookup = {}
     for auth, i in zip(authors, range(1, len(authors) + 1)):
@@ -227,7 +229,7 @@ def _make_authorship_lookup(resources: list[AnyResource]) -> AuthorshipLookup:
     return AuthorshipLookup(lookup)
 
 
-def _serialise_authorship(authorship_lookup: dict[tuple[str], str]) -> list[etree._Element]:
+def _serialise_authorship(authorship_lookup: dict[tuple[str, ...], str]) -> list[etree._Element]:
     return [_make_one_authorship_element(auth, id_) for auth, id_ in authorship_lookup.items()]
 
 

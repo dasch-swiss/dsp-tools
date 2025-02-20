@@ -39,5 +39,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add uv.lock
-          git commit -m "chore: update uv.lock with new version of dsp-tools"
+          git commit --allow-empty -m "update uv.lock with new version of dsp-tools"
           git push

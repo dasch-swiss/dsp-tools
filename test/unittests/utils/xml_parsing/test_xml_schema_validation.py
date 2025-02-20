@@ -2,14 +2,18 @@ import pytest
 import regex
 from lxml import etree
 
+from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import (
+    _find_all_text_props_with_multiple_encodings,
+)
+from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import _find_xml_tags_in_simple_text_elements
+from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import _get_all_ids_and_encodings_from_root
+from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import _get_encodings_from_one_property
+from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import _get_encodings_from_one_resource
+from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import (
+    check_if_only_one_encoding_is_used_per_prop_in_root,
+)
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.utils.xml_parsing.models.text_value_validation import TextValueData
-from dsp_tools.utils.xml_parsing.validations import _find_all_text_props_with_multiple_encodings
-from dsp_tools.utils.xml_parsing.validations import _find_xml_tags_in_simple_text_elements
-from dsp_tools.utils.xml_parsing.validations import _get_all_ids_and_encodings_from_root
-from dsp_tools.utils.xml_parsing.validations import _get_encodings_from_one_property
-from dsp_tools.utils.xml_parsing.validations import _get_encodings_from_one_resource
-from dsp_tools.utils.xml_parsing.validations import check_if_only_one_encoding_is_used_per_prop_in_root
 
 
 class TestFindXMLTagsInUTF8:

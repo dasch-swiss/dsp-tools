@@ -13,7 +13,6 @@ from dsp_tools.commands.validate_data.api_connection import ApiConnection
 from dsp_tools.commands.validate_data.constants import KNORA_API_STR
 from dsp_tools.commands.validate_data.get_user_validation_message import get_user_message
 from dsp_tools.commands.validate_data.make_data_rdf import make_data_rdf
-from dsp_tools.commands.validate_data.models.data_deserialised import ProjectDeserialised
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
@@ -28,6 +27,7 @@ from dsp_tools.utils.ansi_colors import BOLD_CYAN
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.xml_parsing.get_project_deserialised import deserialise_xml
 from dsp_tools.utils.xml_parsing.get_xml_project import get_xml_project
+from dsp_tools.utils.xml_parsing.models.data_deserialised import ProjectDeserialised
 
 LIST_SEPARATOR = "\n    - "
 

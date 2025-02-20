@@ -1,12 +1,12 @@
 import pytest
 
 from dsp_tools.commands.validate_data.constants import KNORA_API_STR
-from dsp_tools.commands.validate_data.models.data_deserialised import KnoraValueType
-from dsp_tools.commands.validate_data.models.data_deserialised import PropertyObject
-from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import TripleObjectType
-from dsp_tools.commands.validate_data.models.data_deserialised import TriplePropertyType
-from dsp_tools.commands.validate_data.models.data_deserialised import ValueInformation
+from dsp_tools.utils.xml_parsing.models.data_deserialised import KnoraValueType
+from dsp_tools.utils.xml_parsing.models.data_deserialised import PropertyObject
+from dsp_tools.utils.xml_parsing.models.data_deserialised import ResourceDeserialised
+from dsp_tools.utils.xml_parsing.models.data_deserialised import TripleObjectType
+from dsp_tools.utils.xml_parsing.models.data_deserialised import TriplePropertyType
+from dsp_tools.utils.xml_parsing.models.data_deserialised import ValueInformation
 
 LABEL_TRIPLE = PropertyObject(TriplePropertyType.RDFS_LABEL, "lbl", TripleObjectType.STRING)
 TYPE_TRIPLE = PropertyObject(

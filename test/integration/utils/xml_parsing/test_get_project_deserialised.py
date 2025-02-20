@@ -1,8 +1,8 @@
 import pytest
 from lxml import etree
 
-from dsp_tools.commands.validate_data.models.data_deserialised import ProjectDeserialised
 from dsp_tools.utils.xml_parsing.get_project_deserialised import deserialise_xml
+from dsp_tools.utils.xml_parsing.models.data_deserialised import ProjectDeserialised
 
 
 def test_to_data_rdf(data_xml: etree._Element) -> None:

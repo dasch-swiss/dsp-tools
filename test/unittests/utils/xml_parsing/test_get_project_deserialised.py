@@ -2,16 +2,16 @@ import pytest
 from lxml import etree
 
 from dsp_tools.commands.validate_data.constants import KNORA_API_STR
-from dsp_tools.commands.validate_data.models.data_deserialised import KnoraValueType
-from dsp_tools.commands.validate_data.models.data_deserialised import PropertyObject
-from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import TripleObjectType
-from dsp_tools.commands.validate_data.models.data_deserialised import TriplePropertyType
 from dsp_tools.utils.xml_parsing.get_project_deserialised import _deserialise_all_resources
 from dsp_tools.utils.xml_parsing.get_project_deserialised import _deserialise_one_property
 from dsp_tools.utils.xml_parsing.get_project_deserialised import _deserialise_one_resource
 from dsp_tools.utils.xml_parsing.get_project_deserialised import _extract_metadata
 from dsp_tools.utils.xml_parsing.get_project_deserialised import _get_text_as_string
+from dsp_tools.utils.xml_parsing.models.data_deserialised import KnoraValueType
+from dsp_tools.utils.xml_parsing.models.data_deserialised import PropertyObject
+from dsp_tools.utils.xml_parsing.models.data_deserialised import ResourceDeserialised
+from dsp_tools.utils.xml_parsing.models.data_deserialised import TripleObjectType
+from dsp_tools.utils.xml_parsing.models.data_deserialised import TriplePropertyType
 
 
 def _get_label_and_type(resource: ResourceDeserialised) -> tuple[PropertyObject, PropertyObject, list[PropertyObject]]:

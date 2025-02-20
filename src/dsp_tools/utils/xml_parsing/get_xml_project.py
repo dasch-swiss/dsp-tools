@@ -4,8 +4,8 @@ from pathlib import Path
 from lxml import etree
 
 from dsp_tools.commands.validate_data.constants import KNORA_API_STR
-from dsp_tools.commands.validate_data.models.data_deserialised import XMLProject
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.utils.xml_parsing.models.data_deserialised import XMLProject
 from dsp_tools.utils.xml_parsing.xml_parsing_and_cleaning import parse_xml_file
 from dsp_tools.utils.xml_parsing.xml_parsing_and_cleaning import remove_comments_from_element_tree
 from dsp_tools.utils.xml_parsing.xml_parsing_and_cleaning import transform_special_tags_make_localname

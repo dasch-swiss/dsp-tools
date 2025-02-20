@@ -11,9 +11,6 @@ from dsp_tools.commands.validate_data.constants import KNORA_API
 from dsp_tools.commands.validate_data.constants import MOVING_IMAGE_FILE_VALUE
 from dsp_tools.commands.validate_data.constants import STILL_IMAGE_FILE_VALUE
 from dsp_tools.commands.validate_data.constants import TEXT_FILE_VALUE
-from dsp_tools.commands.validate_data.models.data_deserialised import KnoraValueType
-from dsp_tools.commands.validate_data.models.data_deserialised import TripleObjectType
-from dsp_tools.commands.validate_data.models.data_deserialised import TriplePropertyType
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.validation import ViolationType
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import BOOLEAN_PROP_TYPE_INFO
@@ -27,6 +24,9 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.constants import SIMPLE_TEXT_PR
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import TIME_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import URI_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
+from dsp_tools.utils.xml_parsing.models.data_deserialised import KnoraValueType
+from dsp_tools.utils.xml_parsing.models.data_deserialised import TripleObjectType
+from dsp_tools.utils.xml_parsing.models.data_deserialised import TriplePropertyType
 
 # Mapper from XML to internal representation
 XML_ATTRIB_TO_PROP_TYPE_MAPPER = {

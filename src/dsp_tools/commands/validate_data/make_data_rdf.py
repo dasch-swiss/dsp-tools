@@ -43,6 +43,8 @@ def _make_one_resource(res: ResourceDeserialised) -> Graph:
     g = _make_property_objects_graph(res.property_objects, res_iri)
     for v in res.values:
         g += _make_one_value(v, res_iri)
+    if res.asset_value:
+        g += _make_one_value(res.asset_value, res_iri)
     return g
 
 

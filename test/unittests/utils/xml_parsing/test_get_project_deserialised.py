@@ -2,16 +2,17 @@ import pytest
 from lxml import etree
 
 from dsp_tools.commands.validate_data.constants import KNORA_API_STR
-from dsp_tools.utils.xml_parsing.get_project_deserialised import _deserialise_all_resources
-from dsp_tools.utils.xml_parsing.get_project_deserialised import _deserialise_one_property
-from dsp_tools.utils.xml_parsing.get_project_deserialised import _deserialise_one_resource
-from dsp_tools.utils.xml_parsing.get_project_deserialised import _extract_metadata
-from dsp_tools.utils.xml_parsing.get_project_deserialised import _get_text_as_string
+from dsp_tools.utils.xml_parsing.get_data_deserialised import _deserialise_all_resources
+from dsp_tools.utils.xml_parsing.get_data_deserialised import _deserialise_one_property
+from dsp_tools.utils.xml_parsing.get_data_deserialised import _deserialise_one_resource
+from dsp_tools.utils.xml_parsing.get_data_deserialised import _extract_metadata
+from dsp_tools.utils.xml_parsing.get_data_deserialised import _get_text_as_string
 from dsp_tools.utils.xml_parsing.models.data_deserialised import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.data_deserialised import PropertyObject
 from dsp_tools.utils.xml_parsing.models.data_deserialised import ResourceDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import TripleObjectType
 from dsp_tools.utils.xml_parsing.models.data_deserialised import TriplePropertyType
+from dsp_tools.utils.xml_parsing.models.data_deserialised import ValueInformation
 
 
 def _get_label_and_type(resource: ResourceDeserialised) -> tuple[PropertyObject, PropertyObject, list[PropertyObject]]:
@@ -26,6 +27,7 @@ class TestResource:
         res = _deserialise_one_resource(resource_empty)
         assert res.res_id == "one"
         assert len(res.property_objects) == 2
+        assert not res.asset_value
         lbl, rdf_type, _ = _get_label_and_type(res)
         assert lbl.object_value == "lbl"
         assert lbl.object_type == TripleObjectType.STRING
@@ -37,6 +39,7 @@ class TestResource:
         res = _deserialise_one_resource(resource_empty_permissions)
         assert res.res_id == "one"
         assert len(res.property_objects) == 3
+        assert not res.asset_value
         lbl, rdf_type, perm = _get_label_and_type(res)
         assert len(perm) == 1
         permission = perm.pop(0)
@@ -55,6 +58,7 @@ class TestResource:
         res = res_list[0]
         assert res.res_id == "one"
         assert len(res.property_objects) == 2
+        assert not res.asset_value
         lbl, rdf_type, _ = _get_label_and_type(res)
         assert lbl.object_value == "lbl"
         assert lbl.object_type == TripleObjectType.STRING
@@ -62,11 +66,22 @@ class TestResource:
         assert rdf_type.object_type == TripleObjectType.IRI
         assert len(res.values) == 3
 
+    def test_with_bitstream(self, resource_with_bitstream: etree._Element) -> None:
+        result = _deserialise_one_resource(resource_with_bitstream)
+        assert len(result.values) == 0
+        bitstream = result.asset_value
+        assert isinstance(bitstream, ValueInformation)
+        assert bitstream.user_facing_prop == f"{KNORA_API_STR}hasAudioFileValue"
+        assert bitstream.user_facing_value == "testdata/bitstreams/test.wav"
+        assert bitstream.knora_type == KnoraValueType.AUDIO_FILE
+        assert not bitstream.value_metadata
+
     def test_region(self, root_resource_region: etree._Element) -> None:
         res_list = _deserialise_all_resources(root_resource_region).resources
         res = res_list[0]
         assert res.res_id == "region_1"
         assert len(res.property_objects) == 2
+        assert not res.asset_value
         lbl, rdf_type, _ = _get_label_and_type(res)
         assert lbl.object_value == "Region"
         assert lbl.object_type == TripleObjectType.STRING
@@ -86,6 +101,7 @@ class TestResource:
         res = _deserialise_one_resource(audio_segment)
         assert res.res_id == "audio_id"
         assert len(res.property_objects) == 2
+        assert not res.asset_value
         lbl, rdf_type, _ = _get_label_and_type(res)
         assert lbl.object_value == "lbl"
         assert lbl.object_type == TripleObjectType.STRING
@@ -119,6 +135,7 @@ class TestResource:
         res = _deserialise_one_resource(video_segment)
         assert res.res_id == "video_id"
         assert len(res.property_objects) == 2
+        assert not res.asset_value
         lbl, rdf_type, _ = _get_label_and_type(res)
         assert lbl.object_value == "lbl"
         assert lbl.object_type == TripleObjectType.STRING
@@ -415,15 +432,6 @@ class TestLinkValue:
 
 
 class TestFileValue:
-    def test_bitstream(self, bitstream_with_spaces: etree._Element) -> None:
-        result = _deserialise_one_property(bitstream_with_spaces)
-        assert len(result) == 1
-        res = result.pop()
-        assert res.user_facing_prop == f"{KNORA_API_STR}hasAudioFileValue"
-        assert res.user_facing_value == "testdata/bitstreams/test.wav"
-        assert res.knora_type == KnoraValueType.AUDIO_FILE
-        assert not res.value_metadata
-
     def test_iiif(self, iiif_with_spaces: etree._Element) -> None:
         result = _deserialise_one_property(iiif_with_spaces)
         assert len(result) == 1

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+from copy import deepcopy
 from pathlib import Path
 
 from loguru import logger
@@ -36,7 +37,21 @@ def make_localnames_and_remove_comments(data_xml: etree._Element) -> etree._Elem
     This type of cleaning is a prerequisite for many other functions dealing with the tree.
     """
     xml_no_namespace = copy.deepcopy(data_xml)
-    for elem in xml_no_namespace.iter():
-        if not isinstance(elem, (etree._Comment, etree._ProcessingInstruction)):
-            elem.tag = etree.QName(elem).localname
-    return xml_no_namespace
+    xml_no_namespace = remove_comments_from_element_tree(xml_no_namespace)
+    return transform_into_localnames(xml_no_namespace)
+
+
+def transform_into_localnames(root: etree._Element) -> etree._Element:
+    tree = deepcopy(root)
+    for elem in tree.iter():
+        elem.tag = etree.QName(elem).localname
+    return tree
+
+
+def remove_comments_from_element_tree(input_tree: etree._Element) -> etree._Element:
+    root = copy.deepcopy(input_tree)
+    for c in root.xpath("//comment()"):
+        c.getparent().remove(c)
+    for c in root.xpath("//processing-instruction()"):
+        c.getparent().remove(c)
+    return root

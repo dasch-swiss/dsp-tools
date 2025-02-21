@@ -3,6 +3,7 @@
 name: Release-Please
 
 on:
+  workflow_dispatch:  # trigger manually
   push:
     branches:
       - main
@@ -27,3 +28,37 @@ jobs:
           token: ${{ secrets.DASCHBOT_PAT }}
           config-file: .github/release-please-config.json
           manifest-file: .github/release-please-manifest.json
+      - name: Get branch of open release-please PR
+        id: get_release_pr_branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pr_data=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            "https://api.github.com/repos/dasch-swiss/dsp-tools/pulls?state=open")
+
+          # iterate over the JSON array with `.[]`, then select PR if title matches condition
+          release_pr=$(echo "$pr_data" | jq '.[] | select(.title | startswith("chore: release"))')
+
+          if [[ -z "$release_pr" ]]; then  # -z exits with code 0 if the string has lenght 0
+            echo "No open release-please PR found. Please check the conditions in this script how the PR is searched."
+            exit 1
+          fi
+
+          branch_name=$(echo "$release_pr" | jq -r '.head.ref')
+          echo "branch=$branch_name" >> $GITHUB_OUTPUT
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install uv
+        uses: astral-sh/setup-uv@v2
+        with:
+          enable-cache: true
+      - name: Update uv.lock and commit it
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout ${{ steps.get_release_pr_branch.outputs.branch }}
+          uv lock
+          git add uv.lock
+          git commit --allow-empty -m "update uv.lock with new version of dsp-tools"
+          git push

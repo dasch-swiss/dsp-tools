@@ -6,7 +6,7 @@ import pytest
 import regex
 from lxml import etree
 
-from dsp_tools.utils.xml_parsing.combinations import parse_and_clean_xml_file
+from dsp_tools.utils.xml_parsing.parse_and_transform import parse_and_clean_xml_file
 
 
 @pytest.fixture

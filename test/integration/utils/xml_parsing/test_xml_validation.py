@@ -3,7 +3,7 @@ import regex
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
-from dsp_tools.utils.xml_parsing.combinations import parse_and_validate_xml_file
+from dsp_tools.utils.xml_parsing.parse_and_transform import parse_and_validate_xml_file
 
 
 def test_validate_xml_data_systematic() -> None:

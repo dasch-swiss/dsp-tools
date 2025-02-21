@@ -41,7 +41,7 @@ def remove_namespaces_and_comments(data_xml: etree._Element) -> etree._Element:
     Returns:
         the XMl without the namespaces
     """
-    xml_no_namespace = _remove_comments_from_element_tree(data_xml)
+    xml_no_namespace = remove_comments_from_element_tree(data_xml)
     return _transform_into_localnames(xml_no_namespace)
 
 
@@ -52,7 +52,8 @@ def _transform_into_localnames(root: etree._Element) -> etree._Element:
     return tree
 
 
-def _remove_comments_from_element_tree(input_tree: etree._Element) -> etree._Element:
+def remove_comments_from_element_tree(input_tree: etree._Element) -> etree._Element:
+    """Removes comments and processing instructions."""
     root = copy.deepcopy(input_tree)
     for c in root.xpath("//comment()"):
         c.getparent().remove(c)

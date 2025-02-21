@@ -4,8 +4,8 @@ from pathlib import Path
 
 from lxml import etree
 
-from dsp_tools.utils.xml_parsing.parse_and_clean import _remove_comments_from_element_tree
 from dsp_tools.utils.xml_parsing.parse_and_clean import parse_xml_file
+from dsp_tools.utils.xml_parsing.parse_and_clean import remove_comments_from_element_tree
 from dsp_tools.utils.xml_parsing.transform import transform_special_tags_make_localname
 from dsp_tools.utils.xml_parsing.xml_schema_validation import validate_xml_with_schema
 
@@ -24,7 +24,7 @@ def parse_and_validate_xml_file(input_file: Path | str) -> bool:
         True if the XML file is valid
     """
     root = parse_xml_file(input_file)
-    data_xml = _remove_comments_from_element_tree(root)
+    data_xml = remove_comments_from_element_tree(root)
     return validate_xml_with_schema(data_xml)
 
 
@@ -47,5 +47,5 @@ def parse_and_clean_xml_file(input_file: Path) -> etree._Element:
         InputError: if the input is not of either the expected types
     """
     root = parse_xml_file(input_file)
-    root = _remove_comments_from_element_tree(root)
+    root = remove_comments_from_element_tree(root)
     return transform_special_tags_make_localname(root)

@@ -8,9 +8,9 @@ from lxml import etree
 from dsp_tools.commands.validate_data.constants import KNORA_API_STR
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.xml_parsing.models.data_deserialised import XMLProject
-from dsp_tools.utils.xml_parsing.parse_and_transform_file import parse_xml_file
-from dsp_tools.utils.xml_parsing.parse_and_transform_file import remove_comments_from_element_tree
-from dsp_tools.utils.xml_parsing.parse_and_transform_file import transform_special_tags_make_localname
+from dsp_tools.utils.xml_parsing.parse_and_clean import _remove_comments_from_element_tree
+from dsp_tools.utils.xml_parsing.parse_and_clean import parse_xml_file
+from dsp_tools.utils.xml_parsing.transform import transform_special_tags_make_localname
 from dsp_tools.utils.xml_parsing.xml_schema_validation import validate_xml_with_schema
 
 
@@ -28,7 +28,7 @@ def parse_and_validate_xml_file(input_file: Path | str) -> bool:
         True if the XML file is valid
     """
     root = parse_xml_file(input_file)
-    data_xml = remove_comments_from_element_tree(root)
+    data_xml = _remove_comments_from_element_tree(root)
     return validate_xml_with_schema(data_xml)
 
 
@@ -51,7 +51,7 @@ def parse_and_clean_xml_file(input_file: Path) -> etree._Element:
         InputError: if the input is not of either the expected types
     """
     root = parse_xml_file(input_file)
-    root = remove_comments_from_element_tree(root)
+    root = _remove_comments_from_element_tree(root)
     return transform_special_tags_make_localname(root)
 
 
@@ -67,7 +67,7 @@ def get_xml_project(file: Path, api_url: str) -> XMLProject:
         Project Information and cleaned root
     """
     root = parse_xml_file(file)
-    root = remove_comments_from_element_tree(root)
+    root = _remove_comments_from_element_tree(root)
     validate_xml_with_schema(root)
     root = transform_special_tags_make_localname(root)
     return _replace_namespaces(root, api_url)

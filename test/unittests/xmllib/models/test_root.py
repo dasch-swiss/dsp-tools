@@ -49,10 +49,10 @@ def test_make_authorship_lookup() -> None:
 def test_serialise_authorship() -> None:
     lookup = {("auth", "auth1"): "authorship_1", tuple(["auth2"]): "authorship_2"}
     expected = [
-        b'<permissions xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
-        b'id="authorship_1"><author>auth</author><author>auth1</author></permissions>',
-        b'<permissions xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
-        b'id="authorship_2"><author>auth2</author></permissions>',
+        b'<authorship xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+        b'id="authorship_1"><author>auth</author><author>auth1</author></authorship>',
+        b'<authorship xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+        b'id="authorship_2"><author>auth2</author></authorship>',
     ]
     serialised = _serialise_authorship(lookup)
     result = sorted([etree.tostring(x) for x in serialised])

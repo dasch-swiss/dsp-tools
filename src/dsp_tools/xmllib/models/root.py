@@ -239,7 +239,7 @@ def _make_one_authorship_element(authors: tuple[str, ...], author_id: str) -> et
         ele.text = author
         return ele
 
-    authorship_ele = etree.Element(f"{DASCH_SCHEMA}permissions", attrib={"id": author_id}, nsmap=XML_NAMESPACE_MAP)
+    authorship_ele = etree.Element(f"{DASCH_SCHEMA}authorship", attrib={"id": author_id}, nsmap=XML_NAMESPACE_MAP)
     all_authors = [_make_one_author(x) for x in authors]
     authorship_ele.extend(all_authors)
     return authorship_ele

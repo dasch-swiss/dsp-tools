@@ -40,11 +40,13 @@ class ResourceDeserialised:
     asset_value: ValueInformation | None
     migration_metadata: MigrationMetadata | None = None
 
+
 @dataclass
 class MigrationMetadata:
     iri: str | None
     ark: str | None
     creation_date: str | None
+
 
 @dataclass
 class PropertyObject:

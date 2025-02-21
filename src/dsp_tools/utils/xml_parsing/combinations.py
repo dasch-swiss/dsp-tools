@@ -4,8 +4,8 @@ from pathlib import Path
 
 from lxml import etree
 
-from dsp_tools.utils.xml_parsing.parse_and_clean import parse_xml_file
-from dsp_tools.utils.xml_parsing.parse_and_clean import remove_comments_from_element_tree
+from dsp_tools.utils.xml_parsing.parse_xml import parse_xml_file
+from dsp_tools.utils.xml_parsing.transform import remove_comments_from_element_tree
 from dsp_tools.utils.xml_parsing.transform import transform_special_tags_make_localname
 from dsp_tools.utils.xml_parsing.xml_schema_validation import validate_xml_with_schema
 

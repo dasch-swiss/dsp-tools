@@ -1,10 +1,9 @@
 from __future__ import annotations
 
+import copy
 from copy import deepcopy
 
 from lxml import etree
-
-from dsp_tools.utils.xml_parsing.parse_and_clean import transform_into_localnames
 
 
 def transform_special_tags_make_localname(input_tree: etree._Element) -> etree._Element:
@@ -50,3 +49,21 @@ def _correct_is_segment_of_property(segment: etree._Element, restype: str) -> No
         if child.tag == "isSegmentOf":
             child.tag = f"is{restype}Of"
             break
+
+
+def transform_into_localnames(root: etree._Element) -> etree._Element:
+    """Removes the namespace of the tags."""
+    tree = deepcopy(root)
+    for elem in tree.iter():
+        elem.tag = etree.QName(elem).localname
+    return tree
+
+
+def remove_comments_from_element_tree(input_tree: etree._Element) -> etree._Element:
+    """Removes comments and processing instructions."""
+    root = copy.deepcopy(input_tree)
+    for c in root.xpath("//comment()"):
+        c.getparent().remove(c)
+    for c in root.xpath("//processing-instruction()"):
+        c.getparent().remove(c)
+    return root

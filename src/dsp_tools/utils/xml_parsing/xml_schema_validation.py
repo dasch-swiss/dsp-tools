@@ -9,8 +9,8 @@ from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
-from dsp_tools.utils.xml_parsing.parse_and_clean import remove_comments_from_element_tree
-from dsp_tools.utils.xml_parsing.parse_and_clean import transform_into_localnames
+from dsp_tools.utils.xml_parsing.transform import remove_comments_from_element_tree
+from dsp_tools.utils.xml_parsing.transform import transform_into_localnames
 
 separator = "\n    "
 list_separator = "\n    - "

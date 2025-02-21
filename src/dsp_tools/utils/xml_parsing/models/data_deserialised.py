@@ -71,6 +71,7 @@ class ValueInformation:
     user_facing_value: str | None
     knora_type: KnoraValueType
     value_metadata: list[PropertyObject]
+    value_uuid: str
 
 
 class TriplePropertyType(Enum):

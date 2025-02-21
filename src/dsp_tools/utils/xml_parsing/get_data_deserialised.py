@@ -1,6 +1,7 @@
 import json
 from json import JSONDecodeError
 from pathlib import Path
+from uuid import uuid4
 
 import regex
 from lxml import etree
@@ -132,6 +133,7 @@ def _extract_generic_value_information(prop: etree._Element, value_type: KnoraVa
             user_facing_value=val.text,
             knora_type=value_type,
             value_metadata=_extract_metadata(val),
+            value_uuid=str(uuid4()),
         )
         for val in prop.iterchildren()
     ]
@@ -149,6 +151,7 @@ def _extract_list_value_information(prop: etree._Element) -> list[ValueInformati
                 user_facing_value=found_value,
                 knora_type=KnoraValueType.LIST_VALUE,
                 value_metadata=_extract_metadata(val),
+                value_uuid=str(uuid4()),
             )
         )
     return all_vals
@@ -172,6 +175,7 @@ def _extract_text_value_information(prop: etree._Element) -> list[ValueInformati
                 user_facing_value=_get_text_as_string(val),
                 knora_type=val_type,
                 value_metadata=_extract_metadata(val),
+                value_uuid=str(uuid4()),
             )
         )
     return all_vals
@@ -220,6 +224,7 @@ def _extract_geometry_value_information(prop: etree._Element) -> list[ValueInfor
             user_facing_value=check_for_geometry_json(val.text),
             knora_type=KnoraValueType.GEOM_VALUE,
             value_metadata=_extract_metadata(val),
+            value_uuid=str(uuid4()),
         )
         for val in prop.iterchildren()
     ]
@@ -235,6 +240,7 @@ def _deserialise_iiif_uri(value: etree._Element) -> list[ValueInformation]:
             user_facing_value=file_str,
             knora_type=KnoraValueType.STILL_IMAGE_IIIF,
             value_metadata=_extract_metadata(value),
+            value_uuid=str(uuid4()),
         )
     ]
 
@@ -251,6 +257,7 @@ def _deserialise_bitstream(value: etree._Element) -> ValueInformation | None:
         user_facing_value=file_str,
         knora_type=file_type,
         value_metadata=_extract_metadata(value),
+        value_uuid=str(uuid4()),
     )
 
 
@@ -300,6 +307,7 @@ def _deserialise_segment_properties(resource: etree._Element) -> list[ValueInfor
                 user_facing_value=_get_text_as_string(val),
                 knora_type=SEGMENT_TAG_TO_PROP_MAPPER[prop_name],
                 value_metadata=property_objects,
+                value_uuid=str(uuid4()),
             )
         )
     return values

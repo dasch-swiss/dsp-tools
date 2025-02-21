@@ -16,8 +16,6 @@ from dsp_tools.utils.xml_parsing.transform import transform_into_localnames
 
 separator = "\n    "
 list_separator = "\n    - "
-medium_separator = "\n----------------------------\n"
-grand_separator = "\n\n---------------------------------------\n\n"
 
 
 def validate_xml_with_schema(xml: etree._Element) -> bool:

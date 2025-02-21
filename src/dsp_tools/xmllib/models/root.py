@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import TypeAlias
 from typing import Union
 
+from loguru import logger
 from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
@@ -175,6 +176,7 @@ class XMLRoot:
         with open(filepath, "w", encoding="utf-8") as f:
             f.write(xml_string)
         try:
+            logger.disable("dsp_tools")
             parse_and_validate_xml_file(input_file=filepath)
             print(f"The XML file was successfully saved to {filepath}")
         except BaseError as err:

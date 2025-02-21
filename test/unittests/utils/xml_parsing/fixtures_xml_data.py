@@ -35,6 +35,21 @@ def resource_with_bitstream() -> etree._Element:
 
 
 @pytest.fixture
+def resource_with_migration_metadata() -> etree._Element:
+    return etree.fromstring("""
+    <resource 
+        label="lbl" 
+        restype="http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything" 
+        id="one"
+        ark="ark"
+        iri="iri"
+        creation_date="date"
+    >
+    </resource>
+    """)
+
+
+@pytest.fixture
 def audio_segment() -> etree._Element:
     return etree.fromstring("""
     <resource restype="http://api.knora.org/ontology/knora-api/v2#AudioSegment" label="lbl" id="audio_id">

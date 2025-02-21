@@ -13,6 +13,7 @@ from dsp_tools.commands.validate_data.mappers import XML_TAG_TO_VALUE_TYPE_MAPPE
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.xml_parsing.models.data_deserialised import DataDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import KnoraValueType
+from dsp_tools.utils.xml_parsing.models.data_deserialised import MigrationMetadata
 from dsp_tools.utils.xml_parsing.models.data_deserialised import PropertyObject
 from dsp_tools.utils.xml_parsing.models.data_deserialised import ResourceDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import TripleObjectType
@@ -81,6 +82,15 @@ def _deserialise_one_resource(resource: etree._Element) -> ResourceDeserialised:
         property_objects=metadata,
         values=values,
         asset_value=asset_value,
+        migration_metadata=_deserialise_migration_metadata(resource),
+    )
+
+
+def _deserialise_migration_metadata(resource: etree._Element) -> MigrationMetadata:
+    return MigrationMetadata(
+        iri=resource.attrib.get("iri"),
+        ark=resource.attrib.get("ark"),
+        creation_date=resource.attrib.get("creation_date"),
     )
 
 

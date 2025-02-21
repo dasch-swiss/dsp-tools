@@ -47,6 +47,9 @@ class MigrationMetadata:
     ark: str | None
     creation_date: str | None
 
+    def any(self) -> bool:
+        return any([self.iri, self.ark, self.creation_date])
+
 
 @dataclass
 class PropertyObject:

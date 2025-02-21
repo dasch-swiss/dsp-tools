@@ -15,7 +15,7 @@ def parse_and_basic_cleaning(input_file: str | Path) -> etree._Element:
     From the tags that remain, the namespace is removed, leaving the localname.
     """
     tree = _parse_xml_file(input_file)
-    return _remove_namespaces_and_comments_from_tree(tree)
+    return remove_namespaces_and_comments_from_tree(tree)
 
 
 def _parse_xml_file(input_file: str | Path) -> etree._Element:
@@ -27,7 +27,11 @@ def _parse_xml_file(input_file: str | Path) -> etree._Element:
         raise InputError(f"The XML file contains the following syntax error: {err.msg}") from None
 
 
-def _remove_namespaces_and_comments_from_tree(data_xml: etree._Element) -> etree._Element:
+def remove_namespaces_and_comments_from_tree(data_xml: etree._Element) -> etree._Element:
+    """
+    Removes the namespaces and comments,
+    it is a prerequisite for many other functions that work only with localnames.
+    """
     xml_no_namespace = copy.deepcopy(data_xml)
     for elem in xml_no_namespace.iter():
         if not isinstance(elem, (etree._Comment, etree._ProcessingInstruction)):

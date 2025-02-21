@@ -9,7 +9,7 @@ from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
-from dsp_tools.utils.xml_parsing.parse_and_transform_file import remove_namespaces_from_xml
+from dsp_tools.utils.xml_parsing.parse_and_clean import remove_namespaces_and_comments_from_tree
 
 separator = "\n    "
 list_separator = "\n    - "
@@ -30,7 +30,7 @@ def validate_xml_with_schema(xml: etree._Element) -> bool:
     Returns:
         True if the XML file is valid
     """
-    cleaned = remove_namespaces_from_xml(xml)
+    cleaned = remove_namespaces_and_comments_from_tree(xml)
     _warn_user_about_tags_in_simpletext(cleaned)
     problem_msg = _validate_xml_against_schema(xml)
 

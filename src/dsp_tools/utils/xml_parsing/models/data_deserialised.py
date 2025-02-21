@@ -38,14 +38,14 @@ class ResourceDeserialised:
     property_objects: list[PropertyObject]
     values: list[ValueInformation]
     asset_value: ValueInformation | None
-    migration_metadata: MigrationMetadata | None = None
+    migration_metadata: MigrationMetadata
 
 
 @dataclass
 class MigrationMetadata:
-    iri: str | None
-    ark: str | None
-    creation_date: str | None
+    iri: str | None = None
+    ark: str | None = None
+    creation_date: str | None = None
 
     def any(self) -> bool:
         return any([self.iri, self.ark, self.creation_date])

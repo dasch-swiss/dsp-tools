@@ -1,5 +1,3 @@
-from uuid import uuid4
-
 from loguru import logger
 from rdflib import RDF
 from rdflib import XSD
@@ -51,7 +49,7 @@ def _make_one_resource(res: ResourceDeserialised) -> Graph:
 def _make_one_value(val: ValueInformation, res_iri: URIRef) -> Graph:
     prop_type_info = VALUE_INFO_TO_RDF_MAPPER[val.knora_type]
 
-    val_iri = DATA[str(uuid4())]
+    val_iri = DATA[val.value_uuid]
     g = _make_property_objects_graph(val.value_metadata, val_iri)
     g.add((res_iri, URIRef(val.user_facing_prop), val_iri))
     g.add((val_iri, RDF.type, prop_type_info.knora_type))

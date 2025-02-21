@@ -60,40 +60,28 @@ def resource_deserialised_with_asset() -> ResourceDeserialised:
 @pytest.fixture
 def boolean_value_deserialised_corr() -> ValueInformation:
     return ValueInformation(
-        "http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean",
-        "false",
-        KnoraValueType.BOOLEAN_VALUE,
-        [],
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean", "false", KnoraValueType.BOOLEAN_VALUE, []
     )
 
 
 @pytest.fixture
 def boolean_value_deserialised_zero() -> ValueInformation:
     return ValueInformation(
-        "http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean",
-        "0",
-        KnoraValueType.BOOLEAN_VALUE,
-        [],
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean", "0", KnoraValueType.BOOLEAN_VALUE, []
     )
 
 
 @pytest.fixture
 def boolean_value_deserialised_one() -> ValueInformation:
     return ValueInformation(
-        "http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean",
-        "1",
-        KnoraValueType.BOOLEAN_VALUE,
-        [],
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean", "1", KnoraValueType.BOOLEAN_VALUE, []
     )
 
 
 @pytest.fixture
 def color_value_deserialised_corr() -> ValueInformation:
     return ValueInformation(
-        "http://0.0.0.0:3333/ontology/9999/onto/v2#testColor",
-        "#00ff00",
-        KnoraValueType.COLOR_VALUE,
-        [],
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testColor", "#00ff00", KnoraValueType.COLOR_VALUE, []
     )
 
 
@@ -162,20 +150,14 @@ def link_value_deserialised_corr() -> ValueInformation:
 @pytest.fixture
 def link_value_deserialised_none() -> ValueInformation:
     return ValueInformation(
-        "http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo",
-        None,
-        KnoraValueType.LINK_VALUE,
-        [],
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo", None, KnoraValueType.LINK_VALUE, []
     )
 
 
 @pytest.fixture
 def list_value_deserialised_corr() -> ValueInformation:
     return ValueInformation(
-        "http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp",
-        "n1",
-        KnoraValueType.LIST_VALUE,
-        [],
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp", "n1", KnoraValueType.LIST_VALUE, []
     )
 
 

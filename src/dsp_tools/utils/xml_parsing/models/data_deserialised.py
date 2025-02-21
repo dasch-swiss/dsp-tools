@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from dataclasses import field
 from enum import Enum
 from enum import auto
+from uuid import uuid4
 
 from lxml import etree
 
@@ -85,6 +87,7 @@ class ValueInformation:
     user_facing_value: str | None
     knora_type: KnoraValueType
     value_metadata: list[PropertyObject]
+    value_uuid: str = field(default_factory=lambda: str(uuid4()))
 
 
 class TriplePropertyType(Enum):

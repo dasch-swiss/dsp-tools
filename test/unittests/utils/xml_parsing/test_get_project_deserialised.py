@@ -35,6 +35,22 @@ class TestResource:
         assert rdf_type.object_type == TripleObjectType.IRI
         assert len(res.values) == 0
 
+    def test_migration_metadata(self, resource_with_migration_metadata: etree._Element) -> None:
+        res = _deserialise_one_resource(resource_with_migration_metadata)
+        assert res.res_id == "one"
+        assert len(res.property_objects) == 2
+        assert not res.asset_value
+        lbl, rdf_type, _ = _get_label_and_type(res)
+        assert lbl.object_value == "lbl"
+        assert lbl.object_type == TripleObjectType.STRING
+        assert rdf_type.object_value == "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"
+        assert rdf_type.object_type == TripleObjectType.IRI
+        assert len(res.values) == 0
+        assert res.migration_metadata.any()
+        assert res.migration_metadata.ark == "ark"
+        assert res.migration_metadata.iri == "iri"
+        assert str(res.migration_metadata.creation_date) == "2019-01-09T15:45:54.502951Z"
+
     def test_empty_permissions(self, resource_empty_permissions: etree._Element) -> None:
         res = _deserialise_one_resource(resource_empty_permissions)
         assert res.res_id == "one"
@@ -51,6 +67,7 @@ class TestResource:
         assert rdf_type.object_value == "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"
         assert rdf_type.object_type == TripleObjectType.IRI
         assert len(res.values) == 0
+        assert not res.migration_metadata.any()
 
     def test_with_props(self, root_resource_with_props: etree._Element) -> None:
         res_list = _deserialise_all_resources(root_resource_with_props).resources
@@ -65,6 +82,7 @@ class TestResource:
         assert rdf_type.object_value == "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"
         assert rdf_type.object_type == TripleObjectType.IRI
         assert len(res.values) == 3
+        assert not res.migration_metadata.any()
 
     def test_with_bitstream(self, resource_with_bitstream: etree._Element) -> None:
         result = _deserialise_one_resource(resource_with_bitstream)
@@ -75,6 +93,7 @@ class TestResource:
         assert bitstream.user_facing_value == "testdata/bitstreams/test.wav"
         assert bitstream.knora_type == KnoraValueType.AUDIO_FILE
         assert not bitstream.value_metadata
+        assert not result.migration_metadata.any()
 
     def test_region(self, root_resource_region: etree._Element) -> None:
         res_list = _deserialise_all_resources(root_resource_region).resources
@@ -96,6 +115,7 @@ class TestResource:
         }
         actual_props = {x.user_facing_prop for x in res.values}
         assert actual_props == expected_props
+        assert not res.migration_metadata.any()
 
     def test_audio_segment(self, audio_segment: etree._Element) -> None:
         res = _deserialise_one_resource(audio_segment)
@@ -130,6 +150,7 @@ class TestResource:
         end_bound = seg_bounds_prop_objects.pop(TriplePropertyType.KNORA_INTERVAL_END)
         assert end_bound.object_value == "7"
         assert end_bound.object_type == TripleObjectType.DECIMAL
+        assert not res.migration_metadata.any()
 
     def test_video_segment(self, video_segment: etree._Element) -> None:
         res = _deserialise_one_resource(video_segment)
@@ -168,6 +189,7 @@ class TestResource:
             assert value_info.user_facing_value == expected[0]
             assert value_info.knora_type == expected[1]
             assert len(value_info.value_metadata) == 0
+        assert not res.migration_metadata.any()
 
 
 class TestBooleanValue:

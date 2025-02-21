@@ -8,6 +8,8 @@ from uuid import uuid4
 
 from lxml import etree
 
+from dsp_tools.models.datetimestamp import DateTimeStamp
+
 
 @dataclass
 class XMLProject:
@@ -33,12 +35,24 @@ class ResourceDeserialised:
             For example, the label of a resource is here.
         values: a list of user-facing values (e.g. BooleanValue)
         asset_value: an asset value (all FileValues excluding the IIIFUri)
+        migration_metadata: Metadata used for salsah migration
     """
 
     res_id: str
     property_objects: list[PropertyObject]
     values: list[ValueInformation]
     asset_value: ValueInformation | None
+    migration_metadata: MigrationMetadata
+
+
+@dataclass
+class MigrationMetadata:
+    iri: str | None = None
+    ark: str | None = None
+    creation_date: DateTimeStamp | None = None
+
+    def any(self) -> bool:
+        return any([self.iri, self.ark, self.creation_date])
 
 
 @dataclass

@@ -133,7 +133,6 @@ def _extract_generic_value_information(prop: etree._Element, value_type: KnoraVa
             user_facing_value=val.text,
             knora_type=value_type,
             value_metadata=_extract_metadata(val),
-            value_uuid=str(uuid4()),
         )
         for val in prop.iterchildren()
     ]

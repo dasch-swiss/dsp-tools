@@ -46,7 +46,6 @@ def resource_deserialised_with_asset() -> ResourceDeserialised:
             "testdata/bitstreams/test.wav",
             KnoraValueType.AUDIO_FILE,
             [],
-            str(uuid4()),
         ),
     )
 
@@ -86,7 +85,6 @@ def date_value_deserialised_corr() -> ValueInformation:
         "JULIAN:BCE:0700:BCE:0600",
         KnoraValueType.DATE_VALUE,
         [],
-        str(uuid4()),
     )
 
 
@@ -97,7 +95,6 @@ def decimal_value_deserialised_corr() -> ValueInformation:
         "1.2",
         KnoraValueType.DECIMAL_VALUE,
         [],
-        str(uuid4()),
     )
 
 
@@ -108,7 +105,6 @@ def geoname_value_deserialised_corr() -> ValueInformation:
         "1241345",
         KnoraValueType.GEONAME_VALUE,
         [],
-        str(uuid4()),
     )
 
 
@@ -119,7 +115,6 @@ def int_value_deserialised_corr() -> ValueInformation:
         "1",
         KnoraValueType.INT_VALUE,
         [],
-        str(uuid4()),
     )
 
 
@@ -132,7 +127,6 @@ def interval_value_deserialised_corr() -> ValueInformation:
         user_facing_value=None,
         knora_type=KnoraValueType.INTERVAL_VALUE,
         value_metadata=[seg_start, seg_end],
-        value_uuid=str(uuid4()),
     )
 
 
@@ -143,7 +137,6 @@ def link_value_deserialised_corr() -> ValueInformation:
         "link-id",
         KnoraValueType.LINK_VALUE,
         [],
-        str(uuid4()),
     )
 
 
@@ -168,7 +161,6 @@ def simple_text_deserialised_corr() -> ValueInformation:
         "simple text",
         KnoraValueType.SIMPLETEXT_VALUE,
         [],
-        str(uuid4()),
     )
 
 
@@ -179,7 +171,6 @@ def richtext_deserialised_corr() -> ValueInformation:
         "rich text",
         KnoraValueType.RICHTEXT_VALUE,
         [],
-        str(uuid4()),
     )
 
 
@@ -190,7 +181,6 @@ def time_value_deserialised_corr() -> ValueInformation:
         "2019-10-23T13:45:12.01-14:00",
         KnoraValueType.TIME_VALUE,
         [],
-        str(uuid4()),
     )
 
 
@@ -201,5 +191,4 @@ def uri_value_deserialised_corr() -> ValueInformation:
         "https://dasch.swiss",
         KnoraValueType.URI_VALUE,
         [],
-        str(uuid4()),
     )

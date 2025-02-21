@@ -10,7 +10,7 @@ from dsp_tools.utils.iri_util import is_resource_iri
 from dsp_tools.utils.xml_parsing.combinations import transform_special_tags_make_localname
 from dsp_tools.utils.xml_parsing.parse_and_clean import make_localnames_and_remove_comments
 from dsp_tools.utils.xml_parsing.parse_and_clean import parse_xml_file
-from dsp_tools.utils.xml_parsing.xx_xml_schema_validation import validate_xml_with_schema
+from dsp_tools.utils.xml_parsing.schema_validation import validate_xml_with_schema
 
 
 def prepare_input_xml_file(input_file: Path, imgdir: str) -> tuple[etree._Element, str, str]:

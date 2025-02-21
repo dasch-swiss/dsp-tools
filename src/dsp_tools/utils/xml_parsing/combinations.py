@@ -6,8 +6,8 @@ from lxml import etree
 
 from dsp_tools.utils.xml_parsing.parse_and_clean import make_localnames_and_remove_comments
 from dsp_tools.utils.xml_parsing.parse_and_clean import parse_xml_file
+from dsp_tools.utils.xml_parsing.schema_validation import validate_xml_with_schema
 from dsp_tools.utils.xml_parsing.transform import transform_special_tags
-from dsp_tools.utils.xml_parsing.xx_xml_schema_validation import validate_xml_with_schema
 
 
 def parse_and_validate_xml_file(input_file: Path | str) -> bool:

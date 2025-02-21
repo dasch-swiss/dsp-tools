@@ -11,7 +11,7 @@ from dsp_tools.utils.xml_parsing.combinations import transform_special_tags_make
 from dsp_tools.utils.xml_parsing.models.data_deserialised import XMLProject
 from dsp_tools.utils.xml_parsing.parse_and_clean import make_localnames_and_remove_comments
 from dsp_tools.utils.xml_parsing.parse_and_clean import parse_xml_file
-from dsp_tools.utils.xml_parsing.xx_xml_schema_validation import validate_xml_with_schema
+from dsp_tools.utils.xml_parsing.schema_validation import validate_xml_with_schema
 
 
 def get_xml_project(file: Path, api_url: str) -> XMLProject:

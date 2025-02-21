@@ -6,7 +6,7 @@ from viztracer import VizTracer
 from dsp_tools.commands.xmlupload.stash.construct_and_analyze_graph import create_info_from_xml_for_graph
 from dsp_tools.commands.xmlupload.stash.construct_and_analyze_graph import generate_upload_order
 from dsp_tools.commands.xmlupload.stash.construct_and_analyze_graph import make_graph
-from dsp_tools.utils.xml_parsing.xx_xml_parsing_and_cleaning import parse_and_clean_xml_file
+from dsp_tools.utils.xml_parsing.combinations import parse_and_clean_xml_file
 
 
 def analyse_circles_in_data(xml_filepath: Path, tracer_output_file: str, save_tracer: bool = False) -> None:

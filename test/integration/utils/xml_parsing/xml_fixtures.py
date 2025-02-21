@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from lxml import etree
 
-from dsp_tools.utils.xml_parsing.xx_xml_parsing_and_cleaning import get_xml_project
+from dsp_tools.utils.xml_parsing.get_xml_project import get_xml_project
 
 
 @pytest.fixture

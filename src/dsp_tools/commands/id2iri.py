@@ -9,7 +9,7 @@ from loguru import logger
 from lxml import etree
 
 from dsp_tools.models.exceptions import UserError
-from dsp_tools.utils.xml_parsing.xx_xml_parsing_and_cleaning import parse_and_clean_xml_file
+from dsp_tools.utils.xml_parsing.combinations import parse_and_clean_xml_file
 
 
 def _check_input_parameters(

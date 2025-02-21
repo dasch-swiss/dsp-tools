@@ -43,7 +43,7 @@ def resource_with_migration_metadata() -> etree._Element:
         id="one"
         ark="ark"
         iri="iri"
-        creation_date="date"
+        creation_date="2019-01-09T15:45:54.502951Z"
     >
     </resource>
     """)

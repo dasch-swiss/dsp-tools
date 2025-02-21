@@ -6,6 +6,8 @@ from enum import auto
 
 from lxml import etree
 
+from dsp_tools.models.datetimestamp import DateTimeStamp
+
 
 @dataclass
 class XMLProject:
@@ -45,7 +47,7 @@ class ResourceDeserialised:
 class MigrationMetadata:
     iri: str | None = None
     ark: str | None = None
-    creation_date: str | None = None
+    creation_date: DateTimeStamp | None = None
 
     def any(self) -> bool:
         return any([self.iri, self.ark, self.creation_date])

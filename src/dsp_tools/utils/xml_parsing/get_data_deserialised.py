@@ -10,6 +10,7 @@ from dsp_tools.commands.validate_data.constants import KNORA_API_STR
 from dsp_tools.commands.validate_data.constants import VIDEO_SEGMENT_RESOURCE
 from dsp_tools.commands.validate_data.mappers import XML_ATTRIB_TO_PROP_TYPE_MAPPER
 from dsp_tools.commands.validate_data.mappers import XML_TAG_TO_VALUE_TYPE_MAPPER
+from dsp_tools.models.datetimestamp import DateTimeStamp
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.xml_parsing.models.data_deserialised import DataDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import KnoraValueType
@@ -87,10 +88,12 @@ def _deserialise_one_resource(resource: etree._Element) -> ResourceDeserialised:
 
 
 def _deserialise_migration_metadata(resource: etree._Element) -> MigrationMetadata:
+    date = resource.attrib.get("creation_date")
+    creation_date = DateTimeStamp(date) if date else None
     return MigrationMetadata(
         iri=resource.attrib.get("iri"),
         ark=resource.attrib.get("ark"),
-        creation_date=resource.attrib.get("creation_date"),
+        creation_date=creation_date,
     )
 
 

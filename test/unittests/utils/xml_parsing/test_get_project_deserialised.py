@@ -49,7 +49,7 @@ class TestResource:
         assert res.migration_metadata.any()
         assert res.migration_metadata.ark == "ark"
         assert res.migration_metadata.iri == "iri"
-        assert res.migration_metadata.creation_date == "date"
+        assert str(res.migration_metadata.creation_date) == "2019-01-09T15:45:54.502951Z"
 
     def test_empty_permissions(self, resource_empty_permissions: etree._Element) -> None:
         res = _deserialise_one_resource(resource_empty_permissions)

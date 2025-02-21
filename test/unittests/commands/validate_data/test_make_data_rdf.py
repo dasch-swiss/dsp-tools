@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 import pytest
 from rdflib import RDF
 from rdflib import RDFS
@@ -248,6 +250,7 @@ class TestTransformFileValue:
             user_facing_value="test.zip",
             knora_type=KnoraValueType.ARCHIVE_FILE,
             value_metadata=[],
+            value_uuid=str(uuid4()),
         )
         file_g = _make_one_value(file_value, RES_IRI)
         assert len(file_g) == 3
@@ -262,6 +265,7 @@ class TestTransformFileValue:
             user_facing_value=uri,
             knora_type=KnoraValueType.STILL_IMAGE_IIIF,
             value_metadata=[],
+            value_uuid=str(uuid4()),
         )
         file_g = _make_one_value(file_value, RES_IRI)
         assert len(file_g) == 3

@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 import pytest
 
 from dsp_tools.commands.validate_data.constants import KNORA_API_STR
@@ -44,6 +46,7 @@ def resource_deserialised_with_asset() -> ResourceDeserialised:
             "testdata/bitstreams/test.wav",
             KnoraValueType.AUDIO_FILE,
             [],
+            str(uuid4()),
         ),
     )
 
@@ -51,40 +54,28 @@ def resource_deserialised_with_asset() -> ResourceDeserialised:
 @pytest.fixture
 def boolean_value_deserialised_corr() -> ValueInformation:
     return ValueInformation(
-        "http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean",
-        "false",
-        KnoraValueType.BOOLEAN_VALUE,
-        [],
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean", "false", KnoraValueType.BOOLEAN_VALUE, [], str(uuid4())
     )
 
 
 @pytest.fixture
 def boolean_value_deserialised_zero() -> ValueInformation:
     return ValueInformation(
-        "http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean",
-        "0",
-        KnoraValueType.BOOLEAN_VALUE,
-        [],
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean", "0", KnoraValueType.BOOLEAN_VALUE, [], str(uuid4())
     )
 
 
 @pytest.fixture
 def boolean_value_deserialised_one() -> ValueInformation:
     return ValueInformation(
-        "http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean",
-        "1",
-        KnoraValueType.BOOLEAN_VALUE,
-        [],
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean", "1", KnoraValueType.BOOLEAN_VALUE, [], str(uuid4())
     )
 
 
 @pytest.fixture
 def color_value_deserialised_corr() -> ValueInformation:
     return ValueInformation(
-        "http://0.0.0.0:3333/ontology/9999/onto/v2#testColor",
-        "#00ff00",
-        KnoraValueType.COLOR_VALUE,
-        [],
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testColor", "#00ff00", KnoraValueType.COLOR_VALUE, [], str(uuid4())
     )
 
 
@@ -95,6 +86,7 @@ def date_value_deserialised_corr() -> ValueInformation:
         "JULIAN:BCE:0700:BCE:0600",
         KnoraValueType.DATE_VALUE,
         [],
+        str(uuid4()),
     )
 
 
@@ -105,6 +97,7 @@ def decimal_value_deserialised_corr() -> ValueInformation:
         "1.2",
         KnoraValueType.DECIMAL_VALUE,
         [],
+        str(uuid4()),
     )
 
 
@@ -115,6 +108,7 @@ def geoname_value_deserialised_corr() -> ValueInformation:
         "1241345",
         KnoraValueType.GEONAME_VALUE,
         [],
+        str(uuid4()),
     )
 
 
@@ -125,6 +119,7 @@ def int_value_deserialised_corr() -> ValueInformation:
         "1",
         KnoraValueType.INT_VALUE,
         [],
+        str(uuid4()),
     )
 
 
@@ -137,6 +132,7 @@ def interval_value_deserialised_corr() -> ValueInformation:
         user_facing_value=None,
         knora_type=KnoraValueType.INTERVAL_VALUE,
         value_metadata=[seg_start, seg_end],
+        value_uuid=str(uuid4()),
     )
 
 
@@ -147,26 +143,21 @@ def link_value_deserialised_corr() -> ValueInformation:
         "link-id",
         KnoraValueType.LINK_VALUE,
         [],
+        str(uuid4()),
     )
 
 
 @pytest.fixture
 def link_value_deserialised_none() -> ValueInformation:
     return ValueInformation(
-        "http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo",
-        None,
-        KnoraValueType.LINK_VALUE,
-        [],
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo", None, KnoraValueType.LINK_VALUE, [], str(uuid4())
     )
 
 
 @pytest.fixture
 def list_value_deserialised_corr() -> ValueInformation:
     return ValueInformation(
-        "http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp",
-        "n1",
-        KnoraValueType.LIST_VALUE,
-        [],
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp", "n1", KnoraValueType.LIST_VALUE, [], str(uuid4())
     )
 
 
@@ -177,6 +168,7 @@ def simple_text_deserialised_corr() -> ValueInformation:
         "simple text",
         KnoraValueType.SIMPLETEXT_VALUE,
         [],
+        str(uuid4()),
     )
 
 
@@ -187,6 +179,7 @@ def richtext_deserialised_corr() -> ValueInformation:
         "rich text",
         KnoraValueType.RICHTEXT_VALUE,
         [],
+        str(uuid4()),
     )
 
 
@@ -197,6 +190,7 @@ def time_value_deserialised_corr() -> ValueInformation:
         "2019-10-23T13:45:12.01-14:00",
         KnoraValueType.TIME_VALUE,
         [],
+        str(uuid4()),
     )
 
 
@@ -207,4 +201,5 @@ def uri_value_deserialised_corr() -> ValueInformation:
         "https://dasch.swiss",
         KnoraValueType.URI_VALUE,
         [],
+        str(uuid4()),
     )

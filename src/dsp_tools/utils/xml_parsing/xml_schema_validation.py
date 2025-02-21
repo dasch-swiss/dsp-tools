@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.resources
 import warnings
+from pathlib import Path
 
 import regex
 from loguru import logger
@@ -9,6 +10,7 @@ from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.utils.xml_parsing.parse_xml import parse_xml_file
 from dsp_tools.utils.xml_parsing.transform import remove_comments_from_element_tree
 from dsp_tools.utils.xml_parsing.transform import transform_into_localnames
 
@@ -83,3 +85,21 @@ def _warn_user_about_tags_in_simpletext(xml_no_namespace: etree._Element) -> Non
             f"{list_separator.join(resources_with_potential_xml_tags)}"
         )
         warnings.warn(DspToolsUserWarning(err_msg))
+
+
+def parse_and_validate_xml_file(input_file: Path | str) -> bool:
+    """
+    Validates an XML file against the DSP XSD schema.
+
+    Args:
+        input_file: path to the XML file to be validated, or parsed ElementTree
+
+    Raises:
+        InputError: if the XML file is invalid
+
+    Returns:
+        True if the XML file is valid
+    """
+    root = parse_xml_file(input_file)
+    data_xml = remove_comments_from_element_tree(root)
+    return validate_xml_with_schema(data_xml)

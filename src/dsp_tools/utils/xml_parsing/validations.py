@@ -9,8 +9,8 @@ from dsp_tools.utils.xml_parsing.schema_validation import separator
 list_separator = "\n    - "
 
 
-def validate_xml_against_schema(data_xml: etree._Element) -> list[str]:
-    """Validate agains XML Schema, this requires a cleaned tree."""
+def validate_xml_against_schema_raising(data_xml: etree._Element) -> None:
+    """Validate against XML Schema, this requires a cleaned tree."""
     schema_res = importlib.resources.files("dsp_tools").joinpath("resources/schema/data.xsd")
     with schema_res.open(encoding="utf-8") as schema_file:
         xmlschema = etree.XMLSchema(etree.parse(schema_file))

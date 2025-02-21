@@ -2234,7 +2234,7 @@ def write_xml(
     with open(filepath, "w", encoding="utf-8") as f:
         f.write(xml_string)
     try:
-        parse_and_validate(filepath)
+        parse_and_validate(Path(filepath))
         print(f"The XML file was successfully saved to {filepath}")
     except BaseError as err:
         msg = (

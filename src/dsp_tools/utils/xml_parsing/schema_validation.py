@@ -4,7 +4,7 @@ from lxml import etree
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import find_mixed_encodings_in_text_tags
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.xml_parsing.parse_and_clean import remove_namespaces_and_comments_from_tree
-from dsp_tools.utils.xml_parsing.validations import validate_xml_against_schema
+from dsp_tools.utils.xml_parsing.validations import validate_xml_against_schema_raising
 
 separator = "\n    "
 grand_separator = "\n\n---------------------------------------\n\n"
@@ -27,7 +27,7 @@ def validate_xml_with_schema(xml: etree._Element) -> bool:
 
     problems = []
 
-    problems.extend(validate_xml_against_schema(xml))
+    problems.extend(validate_xml_against_schema_raising(xml))
     problems.extend(find_mixed_encodings_in_text_tags(xml_no_namespace))
 
     if problems:

@@ -103,7 +103,7 @@ def _rectify_hlist_of_properties(
                 f"which is not a valid list name. "
                 f"Assuming that you meant '{deduced_list_name}' instead."
             )
-            logger.opt(exception=True).warning(msg)
+            logger.warning(msg)
             print(msg)
         else:
             msg = f"Property '{prop['name']}' references an unknown list: '{prop['gui_attributes']['hlist']}'"

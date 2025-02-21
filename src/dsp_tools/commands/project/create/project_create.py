@@ -154,7 +154,7 @@ def create_project(
             f"but during the creation process, some problems occurred. Please carefully check the console output."
         )
         print(f"========================================================\nWARNING: {msg}")
-        logger.opt(exception=True).warning(msg)
+        logger.warning(msg)
 
     return overall_success
 
@@ -256,7 +256,7 @@ def _create_groups(
             current_project_groups[group_name] = remotely_existing_group[0]
             err_msg = f"Group name '{group_name}' already exists on the DSP server. Skipping..."
             print(f"    WARNING: {err_msg}")
-            logger.opt(exception=True).warning(err_msg)
+            logger.warning(err_msg)
             overall_success = False
             continue
 
@@ -319,7 +319,7 @@ def _create_users(
                 f"Please manually add this user to the project in DSP-APP."
             )
             print(f"    WARNING: {err_msg}")
-            logger.opt(exception=True).warning(err_msg)
+            logger.warning(err_msg)
             overall_success = False
             continue
         # add user to the group(s)
@@ -408,7 +408,7 @@ def _get_group_iris_for_user(
         )
         if ":" not in full_group_name and full_group_name != "SystemAdmin":
             print(f"    WARNING: {inexisting_group_msg}")
-            logger.opt(exception=True).warning(inexisting_group_msg)
+            logger.warning(inexisting_group_msg)
             success = False
             continue
 
@@ -425,7 +425,7 @@ def _get_group_iris_for_user(
             # full_group_name refers to a group inside the same project
             if group_name not in current_project_groups:
                 print(f"    WARNING: {inexisting_group_msg}")
-                logger.opt(exception=True).warning(inexisting_group_msg)
+                logger.warning(inexisting_group_msg)
                 success = False
                 continue
             group = current_project_groups[group_name]
@@ -446,7 +446,7 @@ def _get_group_iris_for_user(
             existing_group = [g for g in remote_groups if g.project == current_project.iri and g.name == group_name]
             if not existing_group:
                 print(f"    WARNING: {inexisting_group_msg}")
-                logger.opt(exception=True).warning(inexisting_group_msg)
+                logger.warning(inexisting_group_msg)
                 success = False
                 continue
             group = existing_group[0]
@@ -488,7 +488,7 @@ def _get_projects_where_user_is_admin(
         if ":" not in full_project_name:
             err_msg = "Provided project '{full_project_name}' for user '{username}' is not valid. Skipping..."
             print(f"    WARNING: {err_msg}")
-            logger.opt(exception=True).warning(err_msg)
+            logger.warning(err_msg)
             success = False
             continue
 
@@ -514,7 +514,7 @@ def _get_projects_where_user_is_admin(
             if not in_project_list:
                 msg = f"Provided project '{full_project_name}' for user '{username}' is not valid. Skipping..."
                 print(f"    WARNING: {msg}")
-                logger.opt(exception=True).warning(msg)
+                logger.warning(msg)
                 success = False
                 continue
             in_project = in_project_list[0]

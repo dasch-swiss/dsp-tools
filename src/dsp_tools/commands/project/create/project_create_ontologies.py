@@ -151,7 +151,7 @@ def _create_ontology(
     if onto_name in [onto.name for onto in project_ontologies]:
         err_msg = f"Ontology '{onto_name}' already exists on the DSP server. Skipping..."
         print(f"    WARNING: {err_msg}")
-        logger.opt(exception=True).warning(err_msg)
+        logger.warning(err_msg)
         return None
 
     print(f"Create ontology '{onto_name}'...")

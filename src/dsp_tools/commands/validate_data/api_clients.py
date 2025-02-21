@@ -53,10 +53,10 @@ class OntologyClient:
         response_json = cast(dict[str, Any], response.json())
         msg = f"The response from the API does not contain any ontologies.\nAPI response:{response.text}"
         if not (proj := response_json.get("project")):
-            logger.exception(msg)
+            logger.error(msg)
             raise UserError(msg)
         if not (ontos := proj.get("ontologies")):
-            logger.exception(msg)
+            logger.error(msg)
             raise UserError(msg)
         output = cast(list[str], ontos)
         return output

@@ -31,21 +31,8 @@ def parse_xml_file(input_file: str | Path) -> etree._Element:
         raise InputError(f"The XML file contains the following syntax error: {err.msg}") from None
 
 
-def remove_namespaces_and_comments(data_xml: etree._Element) -> etree._Element:
-    """
-    This function removes all the namespaces from an XML element tree.
-
-    Args:
-        data_xml: xml with namespaces
-
-    Returns:
-        the XMl without the namespaces
-    """
-    xml_no_namespace = remove_comments_from_element_tree(data_xml)
-    return _transform_into_localnames(xml_no_namespace)
-
-
-def _transform_into_localnames(root: etree._Element) -> etree._Element:
+def transform_into_localnames(root: etree._Element) -> etree._Element:
+    """Removes the namespace of the tags."""
     tree = deepcopy(root)
     for elem in tree.iter():
         elem.tag = etree.QName(elem).localname

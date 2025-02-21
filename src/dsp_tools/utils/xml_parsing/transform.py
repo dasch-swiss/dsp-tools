@@ -4,7 +4,7 @@ from copy import deepcopy
 
 from lxml import etree
 
-from dsp_tools.utils.xml_parsing.parse_and_clean import _transform_into_localnames
+from dsp_tools.utils.xml_parsing.parse_and_clean import transform_into_localnames
 
 
 def transform_special_tags_make_localname(input_tree: etree._Element) -> etree._Element:
@@ -21,7 +21,7 @@ def transform_special_tags_make_localname(input_tree: etree._Element) -> etree._
     Returns:
         cleaned tree
     """
-    tree = _transform_into_localnames(input_tree)
+    tree = transform_into_localnames(input_tree)
     return _transform_special_tags(tree)
 
 

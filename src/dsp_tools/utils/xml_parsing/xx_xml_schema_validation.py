@@ -9,7 +9,7 @@ from lxml import etree
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
-from dsp_tools.utils.xml_parsing.parse_and_transform_file import remove_namespaces_from_xml
+from dsp_tools.utils.xml_parsing.xx_parse_and_transform_file import remove_namespaces_from_xml
 
 separator = "\n    "
 list_separator = "\n    - "

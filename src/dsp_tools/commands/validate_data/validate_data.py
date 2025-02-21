@@ -26,7 +26,7 @@ from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_YELLOW
 from dsp_tools.utils.ansi_colors import BOLD_CYAN
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.xml_parsing.get_data_deserialised import get_data_deserialised
-from dsp_tools.utils.xml_parsing.xml_parsing_and_cleaning import get_xml_project
+from dsp_tools.utils.xml_parsing.xx_xml_parsing_and_cleaning import get_xml_project
 
 LIST_SEPARATOR = "\n    - "
 

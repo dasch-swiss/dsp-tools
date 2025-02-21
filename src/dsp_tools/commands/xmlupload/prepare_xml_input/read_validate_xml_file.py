@@ -7,10 +7,10 @@ from lxml import etree
 
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.iri_util import is_resource_iri
-from dsp_tools.utils.xml_parsing.parse_and_transform_file import parse_xml_file
-from dsp_tools.utils.xml_parsing.parse_and_transform_file import remove_comments_from_element_tree
-from dsp_tools.utils.xml_parsing.parse_and_transform_file import transform_special_tags_make_localname
-from dsp_tools.utils.xml_parsing.xml_schema_validation import validate_xml_with_schema
+from dsp_tools.utils.xml_parsing.transform import transform_special_tags_make_localname
+from dsp_tools.utils.xml_parsing.xx_parse_and_transform_file import parse_xml_file
+from dsp_tools.utils.xml_parsing.xx_parse_and_transform_file import remove_comments_from_element_tree
+from dsp_tools.utils.xml_parsing.xx_xml_schema_validation import validate_xml_with_schema
 
 
 def prepare_input_xml_file(input_file: Path, imgdir: str) -> tuple[etree._Element, str, str]:

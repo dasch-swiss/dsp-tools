@@ -13,8 +13,6 @@ from dsp_tools.utils.xml_parsing.parse_and_clean import make_localnames_and_remo
 
 separator = "\n    "
 list_separator = "\n    - "
-medium_separator = "\n----------------------------\n"
-grand_separator = "\n\n---------------------------------------\n\n"
 
 
 def validate_xml_with_schema(cleaned_tree: etree._Element) -> bool:

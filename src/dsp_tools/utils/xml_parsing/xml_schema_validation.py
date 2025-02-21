@@ -37,7 +37,7 @@ def validate_xml_with_schema(xml: etree._Element) -> bool:
     problem_msg = _validate_xml_against_schema(xml)
 
     if problem_msg:
-        logger.opt(exception=True).error(problem_msg)
+        logger.error(problem_msg)
         raise InputError(problem_msg)
 
     return True

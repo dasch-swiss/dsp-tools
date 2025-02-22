@@ -87,11 +87,6 @@ def test_create_standoff_link_to_uri_text_empty() -> None:
 
 
 class TestFindDate:
-    def test_find_date_in_string_with_question_mark(self) -> None:
-        """template: 15 Jan 1927 | 15 January 1927"""
-        assert find_date_in_string("x 15 Jan 1927 x") == "GREGORIAN:CE:1927-01-15:CE:1927-01-15"
-        assert find_date_in_string("x 15 January 1927 x") == "GREGORIAN:CE:1927-01-15:CE:1927-01-15"
-
     def test_find_date_in_string_iso(self) -> None:
         """template: 2021-01-01"""
         assert find_date_in_string("x 1492-10-12, x") == "GREGORIAN:CE:1492-10-12:CE:1492-10-12"
@@ -165,6 +160,13 @@ class TestFindDate:
         assert find_date_in_string("x Sept 1, 1000 x") == "GREGORIAN:CE:1000-09-01:CE:1000-09-01"
         assert find_date_in_string("x October 01, 1000 x") == "GREGORIAN:CE:1000-10-01:CE:1000-10-01"
         assert find_date_in_string("x Nov 6,1000 x") == "GREGORIAN:CE:1000-11-06:CE:1000-11-06"
+
+    def test_find_date_in_string_monthname_after_day(self) -> None:
+        """template: 15 Jan 1927 | 15 January 1927"""
+        assert find_date_in_string("x 15 Jan 1927 x") == "GREGORIAN:CE:1927-01-15:CE:1927-01-15"
+        assert find_date_in_string("x 15Jan1927 x") == "GREGORIAN:CE:1927-01-15:CE:1927-01-15"
+        assert find_date_in_string("x 15 January 1927 x") == "GREGORIAN:CE:1927-01-15:CE:1927-01-15"
+        assert find_date_in_string("x 15January1927 x") == "GREGORIAN:CE:1927-01-15:CE:1927-01-15"
 
     def test_find_date_in_string_single_year(self) -> None:
         """template: 1907 | 476"""

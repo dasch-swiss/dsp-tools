@@ -87,6 +87,10 @@ def test_create_standoff_link_to_uri_text_empty() -> None:
 
 
 class TestFindDate:
+    def test_find_date_in_string_with_question_mark(self) -> None:
+        """template: 15 Jan 1927"""
+        assert find_date_in_string("x 15 Jan 1927 x") == "GREGORIAN:CE:1927-01-15:CE:1927-01-15"
+    
     def test_find_date_in_string_iso(self) -> None:
         """template: 2021-01-01"""
         assert find_date_in_string("x 1492-10-12, x") == "GREGORIAN:CE:1492-10-12:CE:1492-10-12"

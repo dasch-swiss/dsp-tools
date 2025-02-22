@@ -328,6 +328,8 @@ def find_date_in_string(string: str) -> str | None:
         - 30.4.21 -> GREGORIAN:CE:2021-04-30:CE:2021-04-30
         - 5/11/2021 -> GREGORIAN:CE:2021-11-05:CE:2021-11-05
         - Jan 26, 1993 -> GREGORIAN:CE:1993-01-26:CE:1993-01-26
+        - 26 Jan 1993 -> GREGORIAN:CE:1993-01-26:CE:1993-01-26
+        - 26 January 1993 -> GREGORIAN:CE:1993-01-26:CE:1993-01-26
         - 28.2.-1.12.1515 -> GREGORIAN:CE:1515-02-28:CE:1515-12-01
         - 25.-26.2.0800 -> GREGORIAN:CE:0800-02-25:CE:0800-02-26
         - 1.9.2022-3.1.2024 -> GREGORIAN:CE:2022-09-01:CE:2024-01-03
@@ -362,7 +364,7 @@ def find_date_in_string(string: str) -> str | None:
     if not is_nonempty_value(string):
         return None
     try:
-        return _find_date_in_string_throwing(string)
+        return _find_date_in_string_raising(string)
     except ValueError:
         return None
 
@@ -394,7 +396,7 @@ _months_dict = {
 }
 
 
-def _find_date_in_string_throwing(string: str) -> str | None:
+def _find_date_in_string_raising(string: str) -> str | None:
     """
     This function is the same as find_date_in_string(), but may raise a ValueError instead of returning None.
     """
@@ -433,6 +435,11 @@ def _find_date_in_string_throwing(string: str) -> str | None:
     monthname_date_regex = rf"{lookbehind}({all_months}) ?{day_regex}, ?{year_regex}{lookahead}"
     monthname_date = regex.search(monthname_date_regex, string)
 
+    # template: 9 March 1908
+    all_months = "|".join(_months_dict)
+    monthname_after_day_regex = rf"{lookbehind}{day_regex} ?({all_months}) ?{year_regex}{lookahead}"
+    monthname_after_day = regex.search(monthname_after_day_regex, string)
+
     # template: 1849/50 | 1849-50 | 1849/1850
     year_range = regex.search(lookbehind + year_regex + r"[/-](\d{1,4})" + lookahead, string)
 
@@ -448,6 +455,8 @@ def _find_date_in_string_throwing(string: str) -> str | None:
         res = _from_eur_date(eur_date)
     elif monthname_date:
         res = _from_monthname_date(monthname_date)
+    elif monthname_after_day:
+        res = _from_monthname_after_day(monthname_after_day)
     elif year_range:
         res = _from_year_range(year_range)
     elif year_only:
@@ -533,6 +542,14 @@ def _from_monthname_date(monthname_date: Match[str]) -> str:
     day = int(monthname_date.group(2))
     month = _months_dict[monthname_date.group(1)]
     year = int(monthname_date.group(3))
+    date = datetime.date(year, month, day)
+    return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
+
+
+def _from_monthname_after_day(monthname_after_day: Match[str]) -> str:
+    day = int(monthname_after_day.group(1))
+    month = _months_dict[monthname_after_day.group(2)]
+    year = int(monthname_after_day.group(3))
     date = datetime.date(year, month, day)
     return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
 

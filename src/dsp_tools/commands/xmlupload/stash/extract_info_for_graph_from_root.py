@@ -6,8 +6,8 @@ import regex
 from lxml import etree
 
 from dsp_tools.commands.xmlupload.stash.graph_models import InfoForGraph
-from dsp_tools.commands.xmlupload.stash.graph_models import ResptrLink
-from dsp_tools.commands.xmlupload.stash.graph_models import XMLLink
+from dsp_tools.commands.xmlupload.stash.graph_models import LinkValueLink
+from dsp_tools.commands.xmlupload.stash.graph_models import StandOffLink
 from dsp_tools.utils.iri_util import is_resource_iri
 
 
@@ -40,9 +40,9 @@ def create_info_from_xml_for_graph(
 
 def _create_info_from_xml_for_graph_from_one_resource(
     resource: etree._Element,
-) -> tuple[list[ResptrLink], list[XMLLink]]:
-    resptr_links: list[ResptrLink] = []
-    xml_links: list[XMLLink] = []
+) -> tuple[list[LinkValueLink], list[StandOffLink]]:
+    resptr_links: list[LinkValueLink] = []
+    xml_links: list[StandOffLink] = []
     for prop in resource.getchildren():
         match prop.tag:
             case "resptr-prop":
@@ -58,45 +58,45 @@ def _create_info_from_xml_for_graph_from_one_resource(
     return resptr_links, xml_links
 
 
-def _create_segmentOf_link_objects(subject_id: str, resptr: etree._Element) -> ResptrLink | None:
+def _create_segmentOf_link_objects(subject_id: str, resptr: etree._Element) -> LinkValueLink | None:
     resptr.text = cast(str, resptr.text)
     if is_resource_iri(resptr.text):
         return None
-    link_object = ResptrLink(subject_id, resptr.text)
+    link_object = LinkValueLink(subject_id, resptr.text)
     # this UUID is so that the links that were stashed can be identified in the XML data file
     resptr.attrib["linkUUID"] = link_object.link_uuid
     return link_object
 
 
-def _create_resptr_link_objects(subject_id: str, resptr_prop: etree._Element) -> list[ResptrLink]:
+def _create_resptr_link_objects(subject_id: str, resptr_prop: etree._Element) -> list[LinkValueLink]:
     resptr_links = []
     for resptr in resptr_prop.getchildren():
         resptr.text = cast(str, resptr.text)
         if not is_resource_iri(resptr.text):
-            link_object = ResptrLink(subject_id, resptr.text)
+            link_object = LinkValueLink(subject_id, resptr.text)
             # this UUID is so that the links that were stashed can be identified in the XML data file
             resptr.attrib["linkUUID"] = link_object.link_uuid
             resptr_links.append(link_object)
     return resptr_links
 
 
-def _create_text_link_objects(subject_id: str, text_prop: etree._Element) -> list[XMLLink]:
+def _create_text_link_objects(subject_id: str, text_prop: etree._Element) -> list[StandOffLink]:
     # if the same ID is in several separate <text> values of one <text-prop>, they are considered separate links
     xml_props = []
     for text in text_prop.getchildren():
         if links := _extract_ids_from_one_text_value(text):
-            xml_link = XMLLink(subject_id, links)
+            xml_link = StandOffLink(subject_id, links)
             xml_props.append(xml_link)
             # this UUID is so that the links that were stashed can be identified in the XML data file
             text.attrib["linkUUID"] = xml_link.link_uuid
     return xml_props
 
 
-def _create_text_link_object_from_special_tags(subject_id: str, special_tag: etree._Element) -> XMLLink | None:
+def _create_text_link_object_from_special_tags(subject_id: str, special_tag: etree._Element) -> StandOffLink | None:
     # This is for <hasDescription> and <hasComment> properties of <video-segment>s or <audio-segment>s
     if not (links := _extract_ids_from_one_text_value(special_tag)):
         return None
-    xml_link = XMLLink(subject_id, links)
+    xml_link = StandOffLink(subject_id, links)
     # this UUID is so that the links that were stashed can be identified in the XML data file
     special_tag.attrib["linkUUID"] = xml_link.link_uuid
     return xml_link

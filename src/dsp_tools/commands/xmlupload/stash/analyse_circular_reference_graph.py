@@ -7,8 +7,8 @@ import rustworkx as rx
 from dsp_tools.commands.xmlupload.stash.graph_models import Cost
 from dsp_tools.commands.xmlupload.stash.graph_models import Edge
 from dsp_tools.commands.xmlupload.stash.graph_models import InfoForGraph
-from dsp_tools.commands.xmlupload.stash.graph_models import ResptrLink
-from dsp_tools.commands.xmlupload.stash.graph_models import XMLLink
+from dsp_tools.commands.xmlupload.stash.graph_models import LinkValueLink
+from dsp_tools.commands.xmlupload.stash.graph_models import StandOffLink
 
 
 def make_graph(
@@ -158,7 +158,7 @@ def _remove_edges_to_stash(
     phantom_edges_to_remove = []
     source, target = edges_to_remove[0].source, edges_to_remove[0].target
     for link_to_stash in [x.link_object for x in edges_to_remove]:
-        if isinstance(link_to_stash, XMLLink):
+        if isinstance(link_to_stash, StandOffLink):
             phantom_edges_to_remove.extend(
                 _find_phantom_xml_edges(source, target, all_edges, link_to_stash, remaining_nodes)
             )
@@ -171,7 +171,7 @@ def _find_phantom_xml_edges(
     source_node_index: int,
     target_node_index: int,
     all_edges: list[Edge],
-    xml_link_to_stash: XMLLink,
+    xml_link_to_stash: StandOffLink,
     remaining_nodes: set[int],
 ) -> list[tuple[int, int]]:
     """
@@ -208,7 +208,7 @@ def _find_phantom_xml_edges(
 
 def _add_stash_to_lookup_dict(
     stash_dict: dict[str, list[str]],
-    links_to_stash: list[XMLLink | ResptrLink],
+    links_to_stash: list[StandOffLink | LinkValueLink],
 ) -> dict[str, list[str]]:
     stash_list = [stash_link.link_uuid for stash_link in links_to_stash]
     # all stashed links have the same subject id, so we can just take the first one

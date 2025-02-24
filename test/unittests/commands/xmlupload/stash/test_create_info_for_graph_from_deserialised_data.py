@@ -25,7 +25,7 @@ def link_value() -> ValueInformation:
 def text_value_with_link() -> ValueInformation:
     return ValueInformation(
         "prop",
-        'This text contains a link: <a class="salsah-link" href="IRI:res_id_target:IRI">res_id_target</a>',
+        'This text contains a link: <a class="salsah-link" href="IRI:res_id_target:IRI">target resource</a>',
         KnoraValueType.RICHTEXT_VALUE,
         [],
     )
@@ -154,11 +154,11 @@ def test_process_richtext_value_with_links(text_value_with_link: ValueInformatio
 @pytest.mark.parametrize(
     ("text", "expected"),
     [
-        ('Internal Link: <a class="salsah-link" href="IRI:id:IRI">id</a>', {"id"}),
+        ('Internal Link: <a class="salsah-link" href="IRI:id:IRI">target res</a>', {"id"}),
         ('Resource IRI <a class="salsah-link" href="http://rdfh.ch/4123/DiAmY">IRI</a>', {"http://rdfh.ch/4123/DiAmY"}),
         ("None", None),
         (
-            'Mixed Links: <a class="salsah-link" href="IRI:id:IRI">id</a>, <a class="salsah-link" href="http://rdfh.ch/4123/DiAmY">IRI</a>',
+            'Mixed Links: <a class="salsah-link" href="IRI:id:IRI">target res</a>, <a class="salsah-link" href="http://rdfh.ch/4123/DiAmY">IRI</a>',
             {"http://rdfh.ch/4123/DiAmY", "id"},
         ),
     ],

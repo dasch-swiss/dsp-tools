@@ -69,31 +69,74 @@ def test_create_info_for_graph_from_data(
 
 
 def test_process_one_resource_no_links(resource_with_no_links: ResourceDeserialised) -> None:
-    result = _process_one_resource(resource_with_no_links)
+    links, standoff = _process_one_resource(resource_with_no_links)
+    assert not links
+    assert not standoff
 
 
-def test_process_one_resource_stand_off(resource_with_text: ResourceDeserialised) -> None:
-    result = _process_one_resource(resource_with_text)
+def test_process_one_resource_stand_off(
+    resource_with_text: ResourceDeserialised, text_value_with_link: ValueInformation
+) -> None:
+    links, standoff_list = _process_one_resource(resource_with_text)
+    assert not links
+    assert len(standoff_list) == 1
+    standoff = standoff_list.pop(0)
+    assert standoff.source_id == "res_id"
+    assert standoff.target_ids == {"res_id_target"}
+    assert standoff.link_uuid == text_value_with_link.value_uuid
 
 
-def test_process_one_resource_link_values(resource_with_link: ResourceDeserialised) -> None:
-    result = _process_one_resource(resource_with_link)
+def test_process_one_resource_link_values(
+    resource_with_link: ResourceDeserialised, link_value: ValueInformation
+) -> None:
+    link_list, standoff = _process_one_resource(resource_with_link)
+    assert not standoff
+    assert len(link_list) == 1
+    link = link_list.pop(0)
+    assert link.source_id == "res_id"
+    assert link.target_id == "res_id_target"
+    assert link.link_uuid == link_value.value_uuid
 
 
-def test_process_one_resource_both_links(resource_with_link_and_text: ResourceDeserialised) -> None:
-    result = _process_one_resource(resource_with_link_and_text)
+def test_process_one_resource_both_links(
+    resource_with_link_and_text: ResourceDeserialised,
+    link_value: ValueInformation,
+    text_value_with_link: ValueInformation,
+) -> None:
+    link_list, standoff_list = _process_one_resource(resource_with_link_and_text)
+    assert len(link_list) == 1
+    link = link_list.pop(0)
+    assert link.source_id == "res_id"
+    assert link.target_id == "res_id_target"
+    assert link.link_uuid == link_value.value_uuid
+
+    assert len(standoff_list) == 1
+    standoff = standoff_list.pop(0)
+    assert standoff.source_id == "res_id"
+    assert standoff.target_ids == {"res_id_target"}
+    assert standoff.link_uuid == text_value_with_link.value_uuid
 
 
 def test_process_richtext_value_no_links(text_value_no_link: ValueInformation) -> None:
-    result = _process_richtext_value(text_value_no_link)
+    assert not _process_richtext_value(text_value_no_link, "res_id")
 
 
 def test_process_richtext_value_with_links(text_value_with_link: ValueInformation) -> None:
-    result = _process_richtext_value(text_value_with_link)
+    result = _process_richtext_value(text_value_with_link, "res_id")
+    assert len(result) == 1
+    res = result.pop(0)
+    assert res.source_id == "res_id"
+    assert res.target_ids == {"res_id_target"}
+    assert res.link_uuid == text_value_with_link.value_uuid
 
 
 def test_process_link_value_with_links(link_value: ValueInformation) -> None:
-    result = _process_link_value(link_value)
+    result = _process_link_value(link_value, "res_id")
+    assert len(result) == 1
+    res = result.pop(0)
+    assert res.source_id == "res_id"
+    assert res.target_id == "res_id_target"
+    assert res.link_uuid == link_value.value_uuid
 
 
 if __name__ == "__main__":

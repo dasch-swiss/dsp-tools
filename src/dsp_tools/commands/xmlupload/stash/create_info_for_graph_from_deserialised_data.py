@@ -14,9 +14,9 @@ def _process_one_resource(resource: ResourceDeserialised) -> tuple[list[LinkValu
     pass
 
 
-def _process_richtext_value(value: ValueInformation) -> list[StandOffLink]:
+def _process_richtext_value(value: ValueInformation, res_id: str) -> list[StandOffLink]:
     pass
 
 
-def _process_link_value(value: ValueInformation) -> list[LinkValueLink]:
+def _process_link_value(value: ValueInformation, res_id: str) -> list[LinkValueLink]:
     pass

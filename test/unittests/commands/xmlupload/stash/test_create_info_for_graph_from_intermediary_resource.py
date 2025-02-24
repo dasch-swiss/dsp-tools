@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 import pytest
 
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
@@ -14,7 +16,7 @@ from dsp_tools.commands.xmlupload.stash.create_info_for_graph_from_intermediary_
 
 @pytest.fixture
 def link_value() -> IntermediaryValue:
-    return IntermediaryLink("res_id_target", "prop", None, None)
+    return IntermediaryLink("res_id_target", "prop", None, None, str(uuid4()))
 
 
 @pytest.fixture
@@ -27,12 +29,13 @@ def text_value_with_link() -> IntermediaryValue:
         None,
         None,
         {"res_id_target"},
+        str(uuid4()),
     )
 
 
 @pytest.fixture
 def text_value_no_link() -> IntermediaryValue:
-    return IntermediaryRichtext(FormattedTextValue("Text"), "prop", None, None, set())
+    return IntermediaryRichtext(FormattedTextValue("Text"), "prop", None, None, set(), str(uuid4()))
 
 
 @pytest.fixture

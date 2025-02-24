@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import IIIFUriInfo
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLBitstream
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
@@ -47,7 +49,6 @@ TYPE_TRANSFORMER_MAPPER: dict[str, TypeTransformerMapper] = {
     "geoname": TypeTransformerMapper(IntermediaryGeoname, assert_is_string),
     "integer": TypeTransformerMapper(IntermediaryInt, transform_integer),
     "interval": TypeTransformerMapper(IntermediaryInterval, transform_interval),
-    "resptr": TypeTransformerMapper(IntermediaryLink, assert_is_string),
     "time": TypeTransformerMapper(IntermediaryTime, assert_is_string),
     "uri": TypeTransformerMapper(IntermediaryUri, assert_is_string),
 }
@@ -147,6 +148,8 @@ def _transform_one_property(prop: XMLProperty, lookups: IntermediaryLookups) -> 
             return _transform_list_values(prop, lookups)
         case "text":
             return _transform_text_values(prop, lookups)
+        case "resptr":
+            return _transform_one_link_value(prop, lookups)
         case _ as val_type:
             transformation_mapper = TYPE_TRANSFORMER_MAPPER[val_type]
             return _transform_one_generic_value(prop=prop, lookups=lookups, transformation_mapper=transformation_mapper)
@@ -162,6 +165,18 @@ def _transform_one_generic_value(
         permission_val = _resolve_permission(val.permissions, lookups.permissions)
         intermediary_values.append(
             transformation_mapper.val_type(transformed_value, prop_iri, val.comment, permission_val)
+        )
+    return intermediary_values
+
+
+def _transform_one_link_value(prop: XMLProperty, lookups: IntermediaryLookups) -> list[IntermediaryValue]:
+    intermediary_values = []
+    prop_iri = _get_absolute_iri(prop.name, lookups.namespaces)
+    for val in prop.values:
+        transformed_value = assert_is_string(val.value)
+        permission_val = _resolve_permission(val.permissions, lookups.permissions)
+        intermediary_values.append(
+            IntermediaryLink(transformed_value, prop_iri, val.comment, permission_val, str(uuid4()))
         )
     return intermediary_values
 
@@ -193,6 +208,7 @@ def _transform_text_values(prop: XMLProperty, lookups: IntermediaryLookups) -> l
                     comment=val.comment,
                     permissions=permission_val,
                     resource_references=val.resrefs,
+                    value_uuid=str(uuid4()),
                 )
             )
     return intermediary_values

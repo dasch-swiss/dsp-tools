@@ -1,10 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from dataclasses import field
 from typing import TypeAlias
 from typing import Union
-from uuid import uuid4
 
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.permission import Permissions
@@ -71,7 +69,7 @@ class IntermediaryInterval(IntermediaryValue):
 @dataclass
 class IntermediaryLink(IntermediaryValue):
     value: str
-    value_uuid: str = field(default=str(uuid4()))
+    value_uuid: str
 
     def __post_init__(self) -> None:
         self.prop_iri = f"{self.prop_iri}Value"
@@ -91,7 +89,7 @@ class IntermediarySimpleText(IntermediaryValue):
 class IntermediaryRichtext(IntermediaryValue):
     value: FormattedTextValue
     resource_references: set[str]
-    value_uuid: str = field(default=str(uuid4()))
+    value_uuid: str
 
 
 @dataclass

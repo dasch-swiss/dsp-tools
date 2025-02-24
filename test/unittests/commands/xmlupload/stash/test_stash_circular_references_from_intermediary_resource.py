@@ -7,6 +7,7 @@ from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTe
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediarySimpleText
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.commands.xmlupload.stash.stash_circular_references_from_intermediary_resource import (
@@ -15,6 +16,11 @@ from dsp_tools.commands.xmlupload.stash.stash_circular_references_from_intermedi
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
+
+
+@pytest.fixture
+def simple_text_value() -> IntermediarySimpleText:
+    return IntermediarySimpleText("Text", "prop", None, None)
 
 
 @pytest.fixture
@@ -53,14 +59,16 @@ def text_value_with_link() -> IntermediaryRichtext:
 
 @pytest.fixture
 def resource_1(
-    link_value_no_permissions_to_res_2: IntermediaryLink, link_value_to_resource_no_links: IntermediaryLink
+    link_value_with_permissions_to_res_2: IntermediaryLink,
+    link_value_to_resource_no_links: IntermediaryLink,
+    simple_text_value: IntermediarySimpleText,
 ) -> IntermediaryResource:
     return IntermediaryResource(
         res_id="res_1",
         type_iri="type",
         label="lbl",
         permissions=None,
-        values=[link_value_no_permissions_to_res_2, link_value_to_resource_no_links],
+        values=[link_value_with_permissions_to_res_2, link_value_to_resource_no_links, simple_text_value],
     )
 
 
@@ -76,13 +84,13 @@ def resource_2(text_value_with_link: IntermediaryRichtext) -> IntermediaryResour
 
 
 @pytest.fixture
-def resource_3(link_value_with_permissions_to_res_1: IntermediaryRichtext) -> IntermediaryResource:
+def resource_3(link_value_to_res_1: IntermediaryRichtext) -> IntermediaryResource:
     return IntermediaryResource(
         res_id="res_3",
         type_iri="type",
         label="lbl",
         permissions=None,
-        values=[link_value_with_permissions_to_res_1],
+        values=[link_value_to_res_1],
     )
 
 
@@ -124,9 +132,9 @@ def test_stash_circular_references_remove_link_value(
     assert stash_item.permission
 
     # check that the resource values are as expected
-    assert len(copied_res_1.values) == 1
-    remaining_val = copied_res_1.values.pop(0)
-    assert remaining_val.value == "res_no_links"
+    assert len(copied_res_1.values) == 2
+    content = {x.value for x in copied_res_1.values}
+    assert content == {"res_no_links", "Text"}
 
     assert len(resource_2.values) == len(copied_res_2.values)
     assert len(resource_3.values) == len(copied_res_3.values)

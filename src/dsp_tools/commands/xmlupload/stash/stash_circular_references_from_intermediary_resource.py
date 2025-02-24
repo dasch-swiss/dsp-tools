@@ -1,3 +1,4 @@
+from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
@@ -37,14 +38,17 @@ def _process_one_resource(
     stashed_link_values: list[LinkValueStashItem] = []
     stashed_standoff_values: list[StandoffStashItem] = []
 
-    for val in resource.values:
+    for val in resource.values.copy():
         if isinstance(val, IntermediaryLink):
             if val.value_uuid not in stash_lookup[resource.res_id]:
                 continue
             stashed_link_values.append(_stash_link(val, resource.res_id, resource.type_iri))
+            resource.values.remove(val)
         elif isinstance(val, IntermediaryRichtext):
             if val.value_uuid not in stash_lookup[resource.res_id]:
                 continue
+            # value.value is a KnoraStandoffXml text with problematic links.
+            # stash it, then replace the problematic text with a UUID
             stashed_standoff_values.append(_stash_standoff(val, resource.res_id, resource.type_iri))
 
     return stashed_link_values, stashed_standoff_values
@@ -55,10 +59,16 @@ def _stash_link(
     res_id: str,
     res_type: str,
 ) -> LinkValueStashItem:
-    pass
+    return LinkValueStashItem(
+        res_id=res_id, res_type=res_type, prop_name=value.prop_iri, target_id=value.value, permission=value.permissions
+    )
 
 
-def _stash_standoff(value: IntermediaryRichtext, res_id: str, res_type: str) -> StandoffStashItem | None:
+def _stash_standoff(value: IntermediaryRichtext, res_id: str, res_type: str) -> StandoffStashItem:
+    # Replace the content with the UUID
+    value.value = FormattedTextValue(value.value_uuid)
     # It is not necessary to add the permissions to the StandoffStashItem because it is an update request
     # If no new permissions are given during that request, the permissions of the previous value are taken
-    pass
+    return StandoffStashItem(
+        res_id=res_id, res_type=res_type, uuid=value.value_uuid, prop_name=value.prop_iri, value=value.value
+    )

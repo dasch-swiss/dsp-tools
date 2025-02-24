@@ -1,20 +1,19 @@
 import regex
 
+from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
 from dsp_tools.commands.xmlupload.stash.graph_models import InfoForGraph
 from dsp_tools.commands.xmlupload.stash.graph_models import LinkValueLink
 from dsp_tools.commands.xmlupload.stash.graph_models import StandOffLink
-from dsp_tools.utils.xml_parsing.models.data_deserialised import DataDeserialised
-from dsp_tools.utils.xml_parsing.models.data_deserialised import KnoraValueType
-from dsp_tools.utils.xml_parsing.models.data_deserialised import ResourceDeserialised
-from dsp_tools.utils.xml_parsing.models.data_deserialised import ValueInformation
 
 
-def create_info_for_graph_from_data(data: DataDeserialised) -> InfoForGraph:
+def create_info_for_graph_from_intermediary_resources(resources: list[IntermediaryResource]) -> InfoForGraph:
     """Extracts information to create the graph to analyse the circular references."""
     all_links = []
     all_stand_off = []
     all_resource_ids = []
-    for res in data.resources:
+    for res in resources:
         links, stand_off = _process_one_resource(res)
         all_links.extend(links)
         all_stand_off.extend(stand_off)
@@ -26,37 +25,44 @@ def create_info_for_graph_from_data(data: DataDeserialised) -> InfoForGraph:
     )
 
 
-def _process_one_resource(resource: ResourceDeserialised) -> tuple[list[LinkValueLink], list[StandOffLink]]:
+def _process_one_resource(resource: IntermediaryResource) -> tuple[list[LinkValueLink], list[StandOffLink]]:
     link_values = []
     stand_off = []
     for val in resource.values:
-        if val.knora_type == KnoraValueType.LINK_VALUE:
-            if link_found := _process_link_value(val, resource.res_id):
-                link_values.append(link_found)
-        elif val.knora_type == KnoraValueType.RICHTEXT_VALUE:
-            if links := _process_richtext_value(val, resource.res_id):
-                stand_off.append(links)
+        if isinstance(val, IntermediaryLink):
+            link_values.append(
+                LinkValueLink(
+                    source_id=resource.res_id,
+                    target_id=val.value,
+                    link_uuid=val.value_uuid,
+                )
+            )
+        elif isinstance(val, IntermediaryRichtext):
+            if val.resource_references:
+                stand_off.append(
+                    StandOffLink(
+                        source_id=resource.res_id,
+                        target_ids=val.resource_references,
+                        link_uuid=val.value_uuid,
+                    )
+                )
     return link_values, stand_off
 
 
-def _process_link_value(value: ValueInformation, res_id: str) -> LinkValueLink | None:
-    if not (linked_id := value.user_facing_value):
-        return None
+def _process_link_value(value: IntermediaryLink, res_id: str) -> LinkValueLink:
     return LinkValueLink(
         source_id=res_id,
-        target_id=linked_id,
+        target_id=value.value,
         link_uuid=value.value_uuid,
     )
 
 
-def _process_richtext_value(value: ValueInformation, res_id: str) -> StandOffLink | None:
-    if not (existing_value := value.user_facing_value):
-        return None
-    if not (links := _get_stand_off_links(existing_value)):
+def _process_richtext_value(value: IntermediaryRichtext, res_id: str) -> StandOffLink | None:
+    if not value.resource_references:
         return None
     return StandOffLink(
         source_id=res_id,
-        target_ids=links,
+        target_ids=value.resource_references,
         link_uuid=value.value_uuid,
     )
 

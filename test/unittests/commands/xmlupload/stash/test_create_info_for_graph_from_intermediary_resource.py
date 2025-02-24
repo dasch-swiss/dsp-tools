@@ -4,20 +4,18 @@ from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTe
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediarySimpleText
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryValue
 from dsp_tools.commands.xmlupload.stash.create_info_for_graph_from_intermediary_resource import _get_stand_off_links
 from dsp_tools.commands.xmlupload.stash.create_info_for_graph_from_intermediary_resource import _process_link_value
 from dsp_tools.commands.xmlupload.stash.create_info_for_graph_from_intermediary_resource import _process_one_resource
 from dsp_tools.commands.xmlupload.stash.create_info_for_graph_from_intermediary_resource import _process_richtext_value
 from dsp_tools.commands.xmlupload.stash.create_info_for_graph_from_intermediary_resource import (
-    create_info_for_graph_from_data,
+    create_info_for_graph_from_intermediary_resources,
 )
 from dsp_tools.commands.xmlupload.stash.graph_models import LinkValueLink
 from dsp_tools.commands.xmlupload.stash.graph_models import StandOffLink
-from dsp_tools.utils.xml_parsing.models.data_deserialised import DataDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import KnoraValueType
-from dsp_tools.utils.xml_parsing.models.data_deserialised import MigrationMetadata
-from dsp_tools.utils.xml_parsing.models.data_deserialised import ValueInformation
 
 
 @pytest.fixture
@@ -47,35 +45,35 @@ def text_value_no_link() -> IntermediaryValue:
 def resource_with_link_and_text(
     link_value: IntermediaryValue, text_value_with_link: IntermediaryValue
 ) -> IntermediaryResource:
-    return IntermediaryResource("res_id", [], [link_value, text_value_with_link], None, MigrationMetadata())
+    return IntermediaryResource("res_id", "res_type", "lbl", None, [link_value, text_value_with_link])
 
 
 @pytest.fixture
 def resource_with_link(link_value: IntermediaryValue) -> IntermediaryResource:
-    return IntermediaryResource("res_id", [], [link_value], None, MigrationMetadata())
+    return IntermediaryResource("res_id", "res_type", "lbl", None, [link_value])
 
 
 @pytest.fixture
 def resource_with_text(text_value_with_link: IntermediaryValue) -> IntermediaryResource:
-    return IntermediaryResource("res_id", [], [text_value_with_link], None, MigrationMetadata())
+    return IntermediaryResource("res_id", "res_type", "lbl", None, [text_value_with_link])
 
 
 @pytest.fixture
 def resource_without_links() -> IntermediaryResource:
     return IntermediaryResource(
         "res_id_target",
-        [],
-        [ValueInformation("prop", "", KnoraValueType.SIMPLETEXT_VALUE, [])],
+        "res_type",
+        "lbl",
         None,
-        MigrationMetadata(),
+        [IntermediarySimpleText("val", "prop", None, None)],
     )
 
 
 def test_create_info_for_graph_from_data(
     resource_without_links: IntermediaryResource, resource_with_link_and_text: IntermediaryResource
 ) -> None:
-    data = DataDeserialised([resource_with_link_and_text, resource_without_links])
-    result = create_info_for_graph_from_data(data)
+    data = [resource_with_link_and_text, resource_without_links]
+    result = create_info_for_graph_from_intermediary_resources(data)
     assert set(result.all_resource_ids) == {"res_id_target", "res_id"}
     assert len(result.link_values) == 1
     assert len(result.standoff_links) == 1

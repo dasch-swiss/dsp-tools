@@ -25,8 +25,16 @@ def _process_richtext_value(value: ValueInformation, res_id: str) -> StandOffLin
             links.add(internal_id.group(1))
         else:
             links.add(lnk)
-    return StandOffLink(source_id=res_id, target_ids=links, link_uuid=value.value_uuid)
+    return StandOffLink(
+        source_id=res_id,
+        target_ids=links,
+        link_uuid=value.value_uuid,
+    )
 
 
 def _process_link_value(value: ValueInformation, res_id: str) -> LinkValueLink:
-    return LinkValueLink(source_id=res_id, target_id=value.user_facing_value, link_uuid=value.value_uuid)
+    return LinkValueLink(
+        source_id=res_id,
+        target_id=value.user_facing_value,
+        link_uuid=value.value_uuid,
+    )

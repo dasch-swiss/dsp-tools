@@ -64,7 +64,7 @@ def _stash_link(
         res_type=res_type,
         prop_name=value.prop_iri,
         target_id=value.value,
-        permission=value.permissions,
+        permission=str(value.permissions) if value.permissions else None,
     )
 
 

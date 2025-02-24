@@ -129,7 +129,7 @@ def test_stash_circular_references_remove_link_value(
     assert stash_item.res_type == "type"
     assert stash_item.prop_name == "propValue"
     assert stash_item.target_id == "res_2"
-    assert stash_item.permission
+    assert stash_item.permission == "CR knora-admin:ProjectAdmin"
 
     # check that the resource values are as expected
     assert len(copied_res_1.values) == 2
@@ -169,6 +169,7 @@ def test_stash_circular_references_remove_text_value(
     # check that the resource values are as expected
     assert len(copied_res_2.values) == 1
     text_val = copied_res_2.values.pop(0)
+    assert isinstance(text_val, IntermediaryRichtext)
     assert text_val.value.xmlstr == "standoff_link_to_res_3_uuid"
     assert len(resource_1.values) == len(copied_res_1.values)
     assert len(resource_3.values) == len(copied_res_3.values)
@@ -178,7 +179,7 @@ def test_stash_circular_references_no_stash(
     resource_1: IntermediaryResource,
 ) -> None:
     resources = [deepcopy(resource_1)]
-    lookup = {}
+    lookup: dict[str, list[str]] = {}
     assert not stash_circular_references(resources, lookup)
 
 

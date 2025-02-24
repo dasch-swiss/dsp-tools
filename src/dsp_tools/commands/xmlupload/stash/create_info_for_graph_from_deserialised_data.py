@@ -18,5 +18,5 @@ def _process_richtext_value(value: ValueInformation, res_id: str) -> list[StandO
     pass
 
 
-def _process_link_value(value: ValueInformation, res_id: str) -> list[LinkValueLink]:
+def _process_link_value(value: ValueInformation, res_id: str) -> LinkValueLink:
     pass

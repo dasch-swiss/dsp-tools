@@ -132,7 +132,7 @@ def test_process_link_value_with_links(link_value: ValueInformation) -> None:
 
 
 def test_process_link_value_without_value() -> None:
-    assert not _process_link_value(ValueInformation("prop", None, KnoraValueType.LINK_VALUE, []))
+    assert not _process_link_value(ValueInformation("prop", None, KnoraValueType.LINK_VALUE, []), "id")
 
 
 def test_process_richtext_value_no_links(text_value_no_link: ValueInformation) -> None:
@@ -140,7 +140,7 @@ def test_process_richtext_value_no_links(text_value_no_link: ValueInformation) -
 
 
 def test_process_richtext_value_without_value() -> None:
-    assert not _process_richtext_value(ValueInformation("prop", None, KnoraValueType.RICHTEXT_VALUE, []))
+    assert not _process_richtext_value(ValueInformation("prop", None, KnoraValueType.RICHTEXT_VALUE, []), "id")
 
 
 def test_process_richtext_value_with_links(text_value_with_link: ValueInformation) -> None:

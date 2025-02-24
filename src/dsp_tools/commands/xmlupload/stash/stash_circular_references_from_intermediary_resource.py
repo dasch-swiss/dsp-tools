@@ -69,8 +69,8 @@ def _stash_link(
 
 
 def _stash_standoff(value: IntermediaryRichtext, res_id: str, res_type: str) -> StandoffStashItem:
-    # Replace the content with the UUID
     actual_text = value.value
+    # Replace the content with the UUID
     value.value = FormattedTextValue(value.value_uuid)
     # It is not necessary to add the permissions to the StandoffStashItem because it is an update request
     # If no new permissions are given during that request, the permissions of the previous value are taken

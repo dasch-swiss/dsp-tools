@@ -103,7 +103,10 @@ def test_stash_circular_references_remove_link_value(
     resource_3: IntermediaryResource,
     resource_no_links: IntermediaryResource,
 ) -> None:
-    resources = [deepcopy(resource_1), deepcopy(resource_2), deepcopy(resource_3), deepcopy(resource_no_links)]
+    copied_res_1 = deepcopy(resource_1)
+    copied_res_2 = deepcopy(resource_2)
+    copied_res_3 = deepcopy(resource_3)
+    resources = [copied_res_1, copied_res_2, copied_res_3, deepcopy(resource_no_links)]
     lookup = {"res_1": ["link_to_res_2_uuid"]}
     result = stash_circular_references(resources, lookup)
     assert isinstance(result, Stash)
@@ -120,6 +123,14 @@ def test_stash_circular_references_remove_link_value(
     assert stash_item.target_id == "res_2"
     assert stash_item.permission
 
+    # check that the resource values are as expected
+    assert len(copied_res_1.values) == 1
+    remaining_val = copied_res_1.values.pop(0)
+    assert remaining_val.value == "res_no_links"
+
+    assert len(resource_2.values) == len(copied_res_2.values)
+    assert len(resource_3.values) == len(copied_res_3.values)
+
 
 def test_stash_circular_references_remove_text_value(
     resource_1: IntermediaryResource,
@@ -127,7 +138,10 @@ def test_stash_circular_references_remove_text_value(
     resource_3: IntermediaryResource,
     resource_no_links: IntermediaryResource,
 ) -> None:
-    resources = [deepcopy(resource_1), deepcopy(resource_2), deepcopy(resource_3), deepcopy(resource_no_links)]
+    copied_res_1 = deepcopy(resource_1)
+    copied_res_2 = deepcopy(resource_2)
+    copied_res_3 = deepcopy(resource_3)
+    resources = [copied_res_1, copied_res_2, copied_res_3, deepcopy(resource_no_links)]
     lookup = {"res_2": ["standoff_link_to_res_3_uuid"]}
     result = stash_circular_references(resources, lookup)
     assert isinstance(result, Stash)
@@ -143,6 +157,11 @@ def test_stash_circular_references_remove_text_value(
     assert stash_item.uuid == "standoff_link_to_res_3_uuid"
     assert stash_item.prop_name == "prop"
     assert stash_item.value.xmlstr == 'Link: <a class="salsah-link" href="IRI:res_3:IRI">res_3</a>'
+
+    # check that the resource values are as expected
+    assert len(copied_res_2.values) == 0
+    assert len(resource_1.values) == len(copied_res_1.values)
+    assert len(resource_3.values) == len(copied_res_3.values)
 
 
 def test_stash_circular_references_no_stash(

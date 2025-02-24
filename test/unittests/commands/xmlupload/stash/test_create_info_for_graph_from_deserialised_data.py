@@ -126,11 +126,9 @@ def test_process_richtext_value_no_links(text_value_no_link: ValueInformation) -
 
 def test_process_richtext_value_with_links(text_value_with_link: ValueInformation) -> None:
     result = _process_richtext_value(text_value_with_link, "res_id")
-    assert len(result) == 1
-    res = result.pop(0)
-    assert res.source_id == "res_id"
-    assert res.target_ids == {"res_id_target"}
-    assert res.link_uuid == text_value_with_link.value_uuid
+    assert result.source_id == "res_id"
+    assert result.target_ids == {"res_id_target"}
+    assert result.link_uuid == text_value_with_link.value_uuid
 
 
 def test_process_link_value_with_links(link_value: ValueInformation) -> None:

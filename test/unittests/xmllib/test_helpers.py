@@ -168,6 +168,17 @@ class TestFindDate:
         assert find_date_in_string("x 15 January 1927 x") == "GREGORIAN:CE:1927-01-15:CE:1927-01-15"
         assert find_date_in_string("x 15January1927 x") == "GREGORIAN:CE:1927-01-15:CE:1927-01-15"
 
+    def test_find_date_in_string_german_monthnames(self) -> None:
+        """template: 26. Jan. 1993 | 26. Januar 1993"""
+        assert find_date_in_string("x 26 Jan 1993 x") == "GREGORIAN:CE:1993-01-26:CE:1993-01-26"
+        assert find_date_in_string("x 26. Jan 1993 x") == "GREGORIAN:CE:1993-01-26:CE:1993-01-26"
+        assert find_date_in_string("x 26 Jan. 1993 x") == "GREGORIAN:CE:1993-01-26:CE:1993-01-26"
+        assert find_date_in_string("x 26. Jan. 1993 x") == "GREGORIAN:CE:1993-01-26:CE:1993-01-26"
+        assert find_date_in_string("x 26.Jan. 1993 x") == "GREGORIAN:CE:1993-01-26:CE:1993-01-26"
+        assert find_date_in_string("x 26.Jan.1993 x") == "GREGORIAN:CE:1993-01-26:CE:1993-01-26"
+        assert find_date_in_string("x 26Jan1993 x") == "GREGORIAN:CE:1993-01-26:CE:1993-01-26"
+        assert find_date_in_string("x 26. Januar 1993 x") == "GREGORIAN:CE:1993-01-26:CE:1993-01-26"
+
     def test_find_date_in_string_single_year(self) -> None:
         """template: 1907 | 476"""
         assert find_date_in_string("Text 1848 text") == "GREGORIAN:CE:1848:CE:1848"

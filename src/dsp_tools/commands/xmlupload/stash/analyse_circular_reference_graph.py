@@ -6,14 +6,13 @@ import rustworkx as rx
 
 from dsp_tools.commands.xmlupload.stash.graph_models import Cost
 from dsp_tools.commands.xmlupload.stash.graph_models import Edge
+from dsp_tools.commands.xmlupload.stash.graph_models import InfoForGraph
 from dsp_tools.commands.xmlupload.stash.graph_models import ResptrLink
 from dsp_tools.commands.xmlupload.stash.graph_models import XMLLink
 
 
 def make_graph(
-    resptr_links: list[ResptrLink],
-    xml_links: list[XMLLink],
-    all_resource_ids: list[str],
+    info_for_graph: InfoForGraph,
 ) -> tuple[rx.PyDiGraph[Any, Any], dict[int, str], list[Edge]]:
     """
     This function takes information about the resources of an XML file and links between them.
@@ -21,10 +20,7 @@ def make_graph(
     Resources are represented as nodes and links as edges.
 
     Args:
-        resptr_links: objects representing a direct link between a starting resource and a target resource
-        xml_links: objects representing one or more links from a single text value of a single starting resource
-                   to a set of target resources
-        all_resource_ids: IDs of all resources in the graph
+        info_for_graph: Information required to construct the graph
 
     Returns:
         - The rustworkx graph.
@@ -32,12 +28,12 @@ def make_graph(
         - A list with all the edges in the graph.
     """
     graph: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
-    nodes = [(id_, None, None) for id_ in all_resource_ids]
+    nodes = [(id_, None, None) for id_ in info_for_graph.all_resource_ids]
     node_indices = list(graph.add_nodes_from(nodes))
-    id_to_node = dict(zip(all_resource_ids, node_indices))
-    node_to_id = dict(zip(node_indices, all_resource_ids))
-    edges = [Edge(id_to_node[x.source_id], id_to_node[x.target_id], x) for x in resptr_links]
-    for xml in xml_links:
+    id_to_node = dict(zip(info_for_graph.all_resource_ids, node_indices))
+    node_to_id = dict(zip(node_indices, info_for_graph.all_resource_ids))
+    edges = [Edge(id_to_node[x.source_id], id_to_node[x.target_id], x) for x in info_for_graph.link_values]
+    for xml in info_for_graph.standoff_links:
         edges.extend([Edge(id_to_node[xml.source_id], id_to_node[x], xml) for x in xml.target_ids])
     graph.add_edges_from([e.as_tuple() for e in edges])
     return graph, node_to_id, edges

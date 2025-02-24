@@ -5,6 +5,7 @@ from typing import cast
 import regex
 from lxml import etree
 
+from dsp_tools.commands.xmlupload.stash.graph_models import InfoForGraph
 from dsp_tools.commands.xmlupload.stash.graph_models import ResptrLink
 from dsp_tools.commands.xmlupload.stash.graph_models import XMLLink
 from dsp_tools.utils.iri_util import is_resource_iri
@@ -12,7 +13,7 @@ from dsp_tools.utils.iri_util import is_resource_iri
 
 def create_info_from_xml_for_graph(
     root: etree._Element,
-) -> tuple[list[ResptrLink], list[XMLLink], list[str]]:
+) -> InfoForGraph:
     """
     Create link objects (ResptrLink/XMLLink) from the XML file,
     and add a reference UUID to each XML element that contains a link (<resptr> or <text>).
@@ -34,7 +35,7 @@ def create_info_from_xml_for_graph(
         all_resource_ids.append(resource.attrib["id"])
         resptr_links.extend(resptr)
         xml_links.extend(xml)
-    return resptr_links, xml_links, all_resource_ids
+    return InfoForGraph(all_resource_ids=all_resource_ids, link_values=resptr_links, standoff_links=xml_links)
 
 
 def _create_info_from_xml_for_graph_from_one_resource(

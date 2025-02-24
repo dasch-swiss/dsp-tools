@@ -131,8 +131,16 @@ def test_process_link_value_with_links(link_value: ValueInformation) -> None:
     assert result.link_uuid == link_value.value_uuid
 
 
+def test_process_link_value_without_value() -> None:
+    assert not _process_link_value(ValueInformation("prop", None, KnoraValueType.LINK_VALUE, []))
+
+
 def test_process_richtext_value_no_links(text_value_no_link: ValueInformation) -> None:
     assert not _process_richtext_value(text_value_no_link, "res_id")
+
+
+def test_process_richtext_value_without_value() -> None:
+    assert not _process_richtext_value(ValueInformation("prop", None, KnoraValueType.RICHTEXT_VALUE, []))
 
 
 def test_process_richtext_value_with_links(text_value_with_link: ValueInformation) -> None:

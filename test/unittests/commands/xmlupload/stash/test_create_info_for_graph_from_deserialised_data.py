@@ -52,7 +52,7 @@ def resource_with_text(text_value_with_link: ValueInformation) -> ResourceDeseri
 
 
 @pytest.fixture
-def resource_with_no_links() -> ResourceDeserialised:
+def resource_without_links() -> ResourceDeserialised:
     return ResourceDeserialised(
         "res_id_target",
         [],
@@ -63,17 +63,17 @@ def resource_with_no_links() -> ResourceDeserialised:
 
 
 def test_create_info_for_graph_from_data(
-    resource_with_no_links: ResourceDeserialised, resource_with_link_and_text: ResourceDeserialised
+    resource_without_links: ResourceDeserialised, resource_with_link_and_text: ResourceDeserialised
 ) -> None:
-    data = DataDeserialised([resource_with_link_and_text, resource_with_no_links])
+    data = DataDeserialised([resource_with_link_and_text, resource_without_links])
     result = create_info_for_graph_from_data(data)
     assert set(result.all_resource_ids) == {"res_id_target", "res_id"}
     assert len(result.link_values) == 1
     assert len(result.standoff_links) == 1
 
 
-def test_process_one_resource_no_links(resource_with_no_links: ResourceDeserialised) -> None:
-    links, standoff = _process_one_resource(resource_with_no_links)
+def test_process_one_resource_no_links(resource_without_links: ResourceDeserialised) -> None:
+    links, standoff = _process_one_resource(resource_without_links)
     assert not links
     assert not standoff
 

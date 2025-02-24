@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 import pytest
 import regex
 from rdflib import RDF
@@ -170,7 +172,7 @@ class TestMakeOneValueGraphSuccess:
 
     def test_resptr(self, lookups: IRILookups) -> None:
         res_bn = BNode()
-        prop = IntermediaryLink("res_one", absolute_iri("hasResource"), None, None)
+        prop = IntermediaryLink("res_one", absolute_iri("hasResource"), None, None, str(uuid4()))
         result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 3
         val_bn = next(result.objects(res_bn, ONTO.hasResourceValue))
@@ -193,7 +195,12 @@ class TestMakeOneValueGraphSuccess:
     def test_richtext(self, lookups: IRILookups) -> None:
         res_bn = BNode()
         prop = IntermediaryRichtext(
-            FormattedTextValue("Text"), absolute_iri("hasRichtext"), None, OPEN_PERMISSION, resource_references=set()
+            FormattedTextValue("Text"),
+            absolute_iri("hasRichtext"),
+            None,
+            OPEN_PERMISSION,
+            resource_references=set(),
+            value_uuid=str(uuid4()),
         )
         result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 5
@@ -212,7 +219,12 @@ class TestMakeOneValueGraphSuccess:
         res_bn = BNode()
         text = 'Comment with <a class="salsah-link" href="IRI:res_one:IRI">link to res_one'
         prop = IntermediaryRichtext(
-            FormattedTextValue(text), absolute_iri("hasRichtext"), None, None, resource_references=set("res_one")
+            FormattedTextValue(text),
+            absolute_iri("hasRichtext"),
+            None,
+            None,
+            resource_references=set("res_one"),
+            value_uuid=str(uuid4()),
         )
         result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 4
@@ -273,7 +285,13 @@ class TestMakeOneValueGraphSuccess:
 
     def test_segment_of_video(self, lookups: IRILookups) -> None:
         res_bn = BNode()
-        prop = IntermediaryLink("res_one", "http://api.knora.org/ontology/knora-api/v2#isVideoSegmentOf", None, None)
+        prop = IntermediaryLink(
+            "res_one",
+            "http://api.knora.org/ontology/knora-api/v2#isVideoSegmentOf",
+            None,
+            None,
+            value_uuid=str(uuid4()),
+        )
         result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 3
         val_bn = next(result.objects(res_bn, KNORA_API.isVideoSegmentOfValue))
@@ -284,7 +302,13 @@ class TestMakeOneValueGraphSuccess:
 
     def test_segment_of_audio(self, lookups: IRILookups) -> None:
         res_bn = BNode()
-        prop = IntermediaryLink("res_one", "http://api.knora.org/ontology/knora-api/v2#isAudioSegmentOf", None, None)
+        prop = IntermediaryLink(
+            "res_one",
+            "http://api.knora.org/ontology/knora-api/v2#isAudioSegmentOf",
+            None,
+            None,
+            value_uuid=str(uuid4()),
+        )
         result = _make_one_value_graph(prop, res_bn, lookups)
         assert len(result) == 3
         val_bn = next(result.objects(res_bn, KNORA_API.isAudioSegmentOfValue))
@@ -296,7 +320,7 @@ class TestMakeOneValueGraphSuccess:
 
 def test_link_target_not_found(lookups: IRILookups) -> None:
     res_bn = BNode()
-    prop = IntermediaryLink("non_existing", absolute_iri("hasResource"), None, None)
+    prop = IntermediaryLink("non_existing", absolute_iri("hasResource"), None, None, value_uuid=str(uuid4()))
     err_str = regex.escape(
         (
             "Could not find the ID non_existing in the id2iri mapping. "
@@ -317,6 +341,7 @@ def test_richtext_with_reference_not_found(lookups: IRILookups) -> None:
         None,
         None,
         resource_references=set("nonExisingReference"),
+        value_uuid=str(uuid4()),
     )
     err_str = regex.escape("Internal ID 'nonExisingReference' could not be resolved to an IRI")
     with pytest.raises(BaseError, match=err_str):

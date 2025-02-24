@@ -69,6 +69,7 @@ class IntermediaryInterval(IntermediaryValue):
 @dataclass
 class IntermediaryLink(IntermediaryValue):
     value: str
+    value_uuid: str
 
     def __post_init__(self) -> None:
         self.prop_iri = f"{self.prop_iri}Value"
@@ -88,6 +89,7 @@ class IntermediarySimpleText(IntermediaryValue):
 class IntermediaryRichtext(IntermediaryValue):
     value: FormattedTextValue
     resource_references: set[str]
+    value_uuid: str
 
 
 @dataclass

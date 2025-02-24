@@ -170,7 +170,7 @@ def _transform_one_generic_value(
 
 
 def _transform_one_link_value(prop: XMLProperty, lookups: IntermediaryLookups) -> list[IntermediaryValue]:
-    intermediary_values = []
+    intermediary_values: list[IntermediaryValue] = []
     prop_iri = _get_absolute_iri(prop.name, lookups.namespaces)
     for val in prop.values:
         transformed_value = assert_is_string(val.value)

@@ -4,6 +4,7 @@ from typing import Any
 from typing import cast
 from unittest.mock import Mock
 from unittest.mock import patch
+from uuid import uuid4
 
 import pytest
 from requests import Response
@@ -129,7 +130,7 @@ def test_one_resource_with_link_to_existing_resource(ingest_client_mock: AssetCl
             f"{ONTO}foo_1_type",
             "foo_1_label",
             None,
-            [IntermediaryLink("foo_2_id", f"{ONTO}hasCustomLink", None, None)],
+            [IntermediaryLink("foo_2_id", f"{ONTO}hasCustomLink", None, None, str(uuid4()))],
         )
     ]
     upload_state = UploadState(

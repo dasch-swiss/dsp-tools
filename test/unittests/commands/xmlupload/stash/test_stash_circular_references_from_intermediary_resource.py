@@ -4,7 +4,7 @@ import pytest
 
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
-from dsp_tools.commands.xmlupload.stash.stash_circular_references_from_data_deserialised import (
+from dsp_tools.commands.xmlupload.stash.stash_circular_references_from_intermediary_resource import (
     stash_circular_references,
 )
 from dsp_tools.utils.xml_parsing.models.data_deserialised import KnoraValueType

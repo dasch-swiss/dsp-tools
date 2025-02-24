@@ -60,7 +60,11 @@ def _stash_link(
     res_type: str,
 ) -> LinkValueStashItem:
     return LinkValueStashItem(
-        res_id=res_id, res_type=res_type, prop_name=value.prop_iri, target_id=value.value, permission=value.permissions
+        res_id=res_id,
+        res_type=res_type,
+        prop_name=value.prop_iri,
+        target_id=value.value,
+        permission=value.permissions,
     )
 
 
@@ -70,5 +74,9 @@ def _stash_standoff(value: IntermediaryRichtext, res_id: str, res_type: str) -> 
     # It is not necessary to add the permissions to the StandoffStashItem because it is an update request
     # If no new permissions are given during that request, the permissions of the previous value are taken
     return StandoffStashItem(
-        res_id=res_id, res_type=res_type, uuid=value.value_uuid, prop_name=value.prop_iri, value=value.value
+        res_id=res_id,
+        res_type=res_type,
+        uuid=value.value_uuid,
+        prop_name=value.prop_iri,
+        value=value.value,
     )

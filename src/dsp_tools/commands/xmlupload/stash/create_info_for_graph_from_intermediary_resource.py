@@ -1,5 +1,3 @@
-import regex
-
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
@@ -47,33 +45,3 @@ def _process_one_resource(resource: IntermediaryResource) -> tuple[list[LinkValu
                     )
                 )
     return link_values, stand_off
-
-
-def _process_link_value(value: IntermediaryLink, res_id: str) -> LinkValueLink:
-    return LinkValueLink(
-        source_id=res_id,
-        target_id=value.value,
-        link_uuid=value.value_uuid,
-    )
-
-
-def _process_richtext_value(value: IntermediaryRichtext, res_id: str) -> StandOffLink | None:
-    if not value.resource_references:
-        return None
-    return StandOffLink(
-        source_id=res_id,
-        target_ids=value.resource_references,
-        link_uuid=value.value_uuid,
-    )
-
-
-def _get_stand_off_links(text: str) -> set[str] | None:
-    if not (links_in_text := set(regex.findall(pattern=r'href="(.*?)"', string=text))):
-        return None
-    links = set()
-    for lnk in links_in_text:
-        if internal_id := regex.search(r"IRI:(.*):IRI", lnk):
-            links.add(internal_id.group(1))
-        else:
-            links.add(lnk)
-    return links

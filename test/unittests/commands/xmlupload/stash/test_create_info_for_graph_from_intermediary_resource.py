@@ -6,16 +6,10 @@ from dsp_tools.commands.xmlupload.models.intermediary.values import Intermediary
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediarySimpleText
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryValue
-from dsp_tools.commands.xmlupload.stash.create_info_for_graph_from_intermediary_resource import _get_stand_off_links
-from dsp_tools.commands.xmlupload.stash.create_info_for_graph_from_intermediary_resource import _process_link_value
 from dsp_tools.commands.xmlupload.stash.create_info_for_graph_from_intermediary_resource import _process_one_resource
-from dsp_tools.commands.xmlupload.stash.create_info_for_graph_from_intermediary_resource import _process_richtext_value
 from dsp_tools.commands.xmlupload.stash.create_info_for_graph_from_intermediary_resource import (
     create_info_for_graph_from_intermediary_resources,
 )
-from dsp_tools.commands.xmlupload.stash.graph_models import LinkValueLink
-from dsp_tools.commands.xmlupload.stash.graph_models import StandOffLink
-from dsp_tools.utils.xml_parsing.models.data_deserialised import KnoraValueType
 
 
 @pytest.fixture
@@ -86,7 +80,7 @@ def test_process_one_resource_no_links(resource_without_links: IntermediaryResou
 
 
 def test_process_one_resource_stand_off(
-    resource_with_text: IntermediaryValue, text_value_with_link: IntermediaryValue
+    resource_with_text: IntermediaryResource, text_value_with_link: IntermediaryRichtext
 ) -> None:
     links, standoff_list = _process_one_resource(resource_with_text)
     assert not links
@@ -98,7 +92,7 @@ def test_process_one_resource_stand_off(
 
 
 def test_process_one_resource_link_values(
-    resource_with_link: IntermediaryResource, link_value: IntermediaryValue
+    resource_with_link: IntermediaryResource, link_value: IntermediaryLink
 ) -> None:
     link_list, standoff = _process_one_resource(resource_with_link)
     assert not standoff
@@ -111,8 +105,8 @@ def test_process_one_resource_link_values(
 
 def test_process_one_resource_both_links(
     resource_with_link_and_text: IntermediaryResource,
-    link_value: IntermediaryValue,
-    text_value_with_link: IntermediaryValue,
+    link_value: IntermediaryLink,
+    text_value_with_link: IntermediaryRichtext,
 ) -> None:
     link_list, standoff_list = _process_one_resource(resource_with_link_and_text)
     assert len(link_list) == 1
@@ -126,51 +120,6 @@ def test_process_one_resource_both_links(
     assert standoff.source_id == "res_id"
     assert standoff.target_ids == {"res_id_target"}
     assert standoff.link_uuid == text_value_with_link.value_uuid
-
-
-def test_process_link_value_with_links(link_value: IntermediaryValue) -> None:
-    result = _process_link_value(link_value, "res_id")
-    assert isinstance(result, LinkValueLink)
-    assert result.source_id == "res_id"
-    assert result.target_id == "res_id_target"
-    assert result.link_uuid == link_value.value_uuid
-
-
-def test_process_link_value_without_value() -> None:
-    assert not _process_link_value(IntermediaryLink("prop", None, KnoraValueType.LINK_VALUE, []), "id")
-
-
-def test_process_richtext_value_no_links(text_value_no_link: IntermediaryValue) -> None:
-    assert not _process_richtext_value(text_value_no_link, "res_id")
-
-
-def test_process_richtext_value_without_value() -> None:
-    assert not _process_richtext_value(IntermediaryRichtext("prop", None, KnoraValueType.RICHTEXT_VALUE, []), "id")
-
-
-def test_process_richtext_value_with_links(text_value_with_link: IntermediaryValue) -> None:
-    result = _process_richtext_value(text_value_with_link, "res_id")
-    assert isinstance(result, StandOffLink)
-    assert result.source_id == "res_id"
-    assert result.target_ids == {"res_id_target"}
-    assert result.link_uuid == text_value_with_link.value_uuid
-
-
-@pytest.mark.parametrize(
-    ("text", "expected"),
-    [
-        ('Internal Link: <a class="salsah-link" href="IRI:id:IRI">target res</a>', {"id"}),
-        ('Resource IRI <a class="salsah-link" href="http://rdfh.ch/4123/DiAmY">IRI</a>', {"http://rdfh.ch/4123/DiAmY"}),
-        ("None", None),
-        (
-            'Mixed Links: <a class="salsah-link" href="IRI:id:IRI">target res</a>, <a class="salsah-link" href="http://rdfh.ch/4123/DiAmY">IRI</a>',
-            {"http://rdfh.ch/4123/DiAmY", "id"},
-        ),
-    ],
-)
-def test_get_stand_off_links(text: str, expected: set[str]) -> None:
-    result = _get_stand_off_links(text)
-    assert result == expected
 
 
 if __name__ == "__main__":

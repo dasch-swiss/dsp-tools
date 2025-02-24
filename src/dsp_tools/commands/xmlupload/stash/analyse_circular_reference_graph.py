@@ -1,118 +1,13 @@
 from __future__ import annotations
 
 from typing import Any
-from typing import cast
 
-import regex
 import rustworkx as rx
-from lxml import etree
 
 from dsp_tools.commands.xmlupload.stash.graph_models import Cost
 from dsp_tools.commands.xmlupload.stash.graph_models import Edge
 from dsp_tools.commands.xmlupload.stash.graph_models import ResptrLink
 from dsp_tools.commands.xmlupload.stash.graph_models import XMLLink
-from dsp_tools.utils.iri_util import is_resource_iri
-
-
-def create_info_from_xml_for_graph(
-    root: etree._Element,
-) -> tuple[list[ResptrLink], list[XMLLink], list[str]]:
-    """
-    Create link objects (ResptrLink/XMLLink) from the XML file,
-    and add a reference UUID to each XML element that contains a link (<resptr> or <text>).
-    With this UUID, the link objects can be identified in the XML data file.
-
-    Args:
-        root: root of the parsed XML file
-
-    Returns:
-        - All resptr links contained in the XML file, represented as ResptrLink objects.
-        - All XML links contained in the XML file, represented as XMLLink objects.
-        - A list with all resource IDs used in the XML file.
-    """
-    resptr_links = []
-    xml_links = []
-    all_resource_ids = []
-    for resource in root.iter(tag="resource"):
-        resptr, xml = _create_info_from_xml_for_graph_from_one_resource(resource)
-        all_resource_ids.append(resource.attrib["id"])
-        resptr_links.extend(resptr)
-        xml_links.extend(xml)
-    return resptr_links, xml_links, all_resource_ids
-
-
-def _create_info_from_xml_for_graph_from_one_resource(
-    resource: etree._Element,
-) -> tuple[list[ResptrLink], list[XMLLink]]:
-    resptr_links: list[ResptrLink] = []
-    xml_links: list[XMLLink] = []
-    for prop in resource.getchildren():
-        match prop.tag:
-            case "resptr-prop":
-                resptr_links.extend(_create_resptr_link_objects(resource.attrib["id"], prop))
-            case "text-prop":
-                xml_links.extend(_create_text_link_objects(resource.attrib["id"], prop))
-            case "hasComment" | "hasDescription":
-                if xml_link := _create_text_link_object_from_special_tags(resource.attrib["id"], prop):
-                    xml_links.append(xml_link)
-            case "isAudioSegmentOf" | "isVideoSegmentOf" | "relatesTo":
-                if segment_link := _create_segmentOf_link_objects(resource.attrib["id"], prop):
-                    resptr_links.append(segment_link)
-    return resptr_links, xml_links
-
-
-def _create_segmentOf_link_objects(subject_id: str, resptr: etree._Element) -> ResptrLink | None:
-    resptr.text = cast(str, resptr.text)
-    if is_resource_iri(resptr.text):
-        return None
-    link_object = ResptrLink(subject_id, resptr.text)
-    # this UUID is so that the links that were stashed can be identified in the XML data file
-    resptr.attrib["linkUUID"] = link_object.link_uuid
-    return link_object
-
-
-def _create_resptr_link_objects(subject_id: str, resptr_prop: etree._Element) -> list[ResptrLink]:
-    resptr_links = []
-    for resptr in resptr_prop.getchildren():
-        resptr.text = cast(str, resptr.text)
-        if not is_resource_iri(resptr.text):
-            link_object = ResptrLink(subject_id, resptr.text)
-            # this UUID is so that the links that were stashed can be identified in the XML data file
-            resptr.attrib["linkUUID"] = link_object.link_uuid
-            resptr_links.append(link_object)
-    return resptr_links
-
-
-def _create_text_link_objects(subject_id: str, text_prop: etree._Element) -> list[XMLLink]:
-    # if the same ID is in several separate <text> values of one <text-prop>, they are considered separate links
-    xml_props = []
-    for text in text_prop.getchildren():
-        if links := _extract_ids_from_one_text_value(text):
-            xml_link = XMLLink(subject_id, links)
-            xml_props.append(xml_link)
-            # this UUID is so that the links that were stashed can be identified in the XML data file
-            text.attrib["linkUUID"] = xml_link.link_uuid
-    return xml_props
-
-
-def _create_text_link_object_from_special_tags(subject_id: str, special_tag: etree._Element) -> XMLLink | None:
-    # This is for <hasDescription> and <hasComment> properties of <video-segment>s or <audio-segment>s
-    if not (links := _extract_ids_from_one_text_value(special_tag)):
-        return None
-    xml_link = XMLLink(subject_id, links)
-    # this UUID is so that the links that were stashed can be identified in the XML data file
-    special_tag.attrib["linkUUID"] = xml_link.link_uuid
-    return xml_link
-
-
-def _extract_ids_from_one_text_value(text: etree._Element) -> set[str]:
-    # the same id in one <text> only means one link to the resource
-    all_links = set()
-    for ele in text.iterdescendants():
-        if href := ele.attrib.get("href"):
-            if internal_id := regex.search(r"IRI:(.*):IRI", href):
-                all_links.add(internal_id.group(1))
-    return all_links
 
 
 def make_graph(
@@ -146,6 +41,46 @@ def make_graph(
         edges.extend([Edge(id_to_node[xml.source_id], id_to_node[x], xml) for x in xml.target_ids])
     graph.add_edges_from([e.as_tuple() for e in edges])
     return graph, node_to_id, edges
+
+
+def generate_upload_order(
+    graph: rx.PyDiGraph[Any, Any],
+    node_to_id: dict[int, str],
+    edges: list[Edge],
+) -> tuple[dict[str, list[str]], list[str], int]:
+    """
+    Generate the order in which the resources should be uploaded to the DSP-API based on the dependencies.
+
+    Args:
+        graph: graph
+        node_to_id: mapping between indices of the graph nodes and original resource IDs from the XML file
+        edges: edges in the graph (contains info about source node, target node, and link info)
+
+    Returns:
+        - A dictionary which maps the resources that have stashes to the UUIDs of the stashed links.
+        - A list of resource IDs which gives the order in which the resources should be uploaded to DSP-API.
+        - The number of links in the stash.
+    """
+    upload_order: list[str] = []
+    stash_lookup: dict[str, list[str]] = {}
+    node_indices = set(node_to_id.keys())
+    leaf_nodes, remaining_node_indices = _remove_leaf_nodes(graph, node_to_id, node_indices)
+    upload_order.extend(leaf_nodes)
+    stash_counter = 0
+    while remaining_node_indices:
+        cycle = list(rx.digraph_find_cycle(graph))
+        links_to_remove = _find_cheapest_outgoing_links(graph, cycle, edges)
+        stash_counter += len(links_to_remove)
+        _remove_edges_to_stash(
+            graph=graph,
+            edges_to_remove=links_to_remove,
+            all_edges=edges,
+            remaining_nodes=remaining_node_indices,
+        )
+        stash_lookup = _add_stash_to_lookup_dict(stash_lookup, [x.link_object for x in links_to_remove])
+        leaf_nodes, remaining_node_indices = _remove_leaf_nodes(graph, node_to_id, remaining_node_indices)
+        upload_order.extend(leaf_nodes)
+    return stash_lookup, upload_order, stash_counter
 
 
 def _remove_leaf_nodes(
@@ -287,43 +222,3 @@ def _add_stash_to_lookup_dict(
     else:
         stash_dict[subj_id] = stash_list
     return stash_dict
-
-
-def generate_upload_order(
-    graph: rx.PyDiGraph[Any, Any],
-    node_to_id: dict[int, str],
-    edges: list[Edge],
-) -> tuple[dict[str, list[str]], list[str], int]:
-    """
-    Generate the order in which the resources should be uploaded to the DSP-API based on the dependencies.
-
-    Args:
-        graph: graph
-        node_to_id: mapping between indices of the graph nodes and original resource IDs from the XML file
-        edges: edges in the graph (contains info about source node, target node, and link info)
-
-    Returns:
-        - A dictionary which maps the resources that have stashes to the UUIDs of the stashed links.
-        - A list of resource IDs which gives the order in which the resources should be uploaded to DSP-API.
-        - The number of links in the stash.
-    """
-    upload_order: list[str] = []
-    stash_lookup: dict[str, list[str]] = {}
-    node_indices = set(node_to_id.keys())
-    leaf_nodes, remaining_node_indices = _remove_leaf_nodes(graph, node_to_id, node_indices)
-    upload_order.extend(leaf_nodes)
-    stash_counter = 0
-    while remaining_node_indices:
-        cycle = list(rx.digraph_find_cycle(graph))
-        links_to_remove = _find_cheapest_outgoing_links(graph, cycle, edges)
-        stash_counter += len(links_to_remove)
-        _remove_edges_to_stash(
-            graph=graph,
-            edges_to_remove=links_to_remove,
-            all_edges=edges,
-            remaining_nodes=remaining_node_indices,
-        )
-        stash_lookup = _add_stash_to_lookup_dict(stash_lookup, [x.link_object for x in links_to_remove])
-        leaf_nodes, remaining_node_indices = _remove_leaf_nodes(graph, node_to_id, remaining_node_indices)
-        upload_order.extend(leaf_nodes)
-    return stash_lookup, upload_order, stash_counter

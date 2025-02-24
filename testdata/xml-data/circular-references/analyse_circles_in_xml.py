@@ -3,9 +3,9 @@ from pathlib import Path
 
 from viztracer import VizTracer
 
-from dsp_tools.commands.xmlupload.stash.construct_and_analyze_graph import create_info_from_xml_for_graph
-from dsp_tools.commands.xmlupload.stash.construct_and_analyze_graph import generate_upload_order
-from dsp_tools.commands.xmlupload.stash.construct_and_analyze_graph import make_graph
+from dsp_tools.commands.xmlupload.stash.analyse_circular_reference_graph import generate_upload_order
+from dsp_tools.commands.xmlupload.stash.analyse_circular_reference_graph import make_graph
+from dsp_tools.commands.xmlupload.stash.extract_info_for_graph_from_root import create_info_from_xml_for_graph
 from dsp_tools.utils.xml_parsing.parse_and_transform import parse_and_clean_xml_file
 
 

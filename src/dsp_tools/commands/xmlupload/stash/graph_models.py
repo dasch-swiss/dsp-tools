@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-import uuid
 from dataclasses import dataclass
-from dataclasses import field
 
 
 @dataclass
@@ -25,7 +23,7 @@ class LinkValueLink:
 
     source_id: str
     target_id: str
-    link_uuid: str = field(default_factory=lambda: str(uuid.uuid4()))
+    link_uuid: str
 
     @property
     def cost_links(self) -> float:
@@ -47,7 +45,7 @@ class StandOffLink:
 
     source_id: str
     target_ids: set[str]
-    link_uuid: str = field(default_factory=lambda: str(uuid.uuid4()))
+    link_uuid: str
 
     @property
     def cost_links(self) -> float:

@@ -38,12 +38,12 @@ def text_value_no_link() -> ValueInformation:
 def resource_with_link_and_text(
     link_value: ValueInformation, text_value_with_link: ValueInformation
 ) -> ResourceDeserialised:
-    return ResourceDeserialised("res_id_link_text", [], [link_value, text_value_with_link], None, MigrationMetadata())
+    return ResourceDeserialised("res_id", [], [link_value, text_value_with_link], None, MigrationMetadata())
 
 
 @pytest.fixture
 def resource_with_link(link_value: ValueInformation) -> ResourceDeserialised:
-    return ResourceDeserialised("res_id_link", [], [link_value], None, MigrationMetadata())
+    return ResourceDeserialised("res_id", [], [link_value], None, MigrationMetadata())
 
 
 @pytest.fixture
@@ -67,7 +67,7 @@ def test_create_info_for_graph_from_data(
 ) -> None:
     data = DataDeserialised([resource_with_link_and_text, resource_with_no_links])
     result = create_info_for_graph_from_data(data)
-    assert set(result.all_resource_ids) == {"res_id_target", "res_id_link_text"}
+    assert set(result.all_resource_ids) == {"res_id_target", "res_id"}
     assert len(result.link_values) == 1
     assert len(result.standoff_links) == 1
 

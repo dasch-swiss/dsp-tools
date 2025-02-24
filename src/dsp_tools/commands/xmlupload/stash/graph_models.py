@@ -5,6 +5,13 @@ from dataclasses import dataclass
 from dataclasses import field
 
 
+@dataclass
+class InfoForGraph:
+    all_resource_ids: list[str]
+    link_values: list[ResptrLink]
+    standoff_links: list[XMLLink]
+
+
 @dataclass(frozen=True)
 class ResptrLink:
     """

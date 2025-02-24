@@ -209,12 +209,12 @@ def test_create_info_from_xml_for_graph_check_UUID_in_root() -> None:
             <resource label="res_C_11" restype=":TestThing" id="res_C_11" permissions="open"></resource>
         </knora>"""
     )
-    res_resptr_li, res_xml_li, res_all_ids = create_info_from_xml_for_graph(root)
-    res_resptr = res_resptr_li[0]
+    result_info = create_info_from_xml_for_graph(root)
+    res_resptr = result_info.link_values[0]
     assert isinstance(res_resptr, ResptrLink)
-    res_xml = res_xml_li[0]
+    res_xml = result_info.standoff_links[0]
     assert isinstance(res_xml, XMLLink)
-    assert unordered(res_all_ids) == ["res_A_11", "res_B_11", "res_C_11"]
+    assert unordered(result_info.all_resource_ids) == ["res_A_11", "res_B_11", "res_C_11"]
     xml_res_resptr = root.find(".//resptr")
     assert xml_res_resptr.attrib["linkUUID"] == res_resptr.link_uuid  # type: ignore[union-attr]
     xml_res_text = root.find(".//text")

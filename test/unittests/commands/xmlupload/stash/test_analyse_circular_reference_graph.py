@@ -12,17 +12,16 @@ from dsp_tools.commands.xmlupload.stash.analyse_circular_reference_graph import 
 from dsp_tools.commands.xmlupload.stash.analyse_circular_reference_graph import generate_upload_order
 from dsp_tools.commands.xmlupload.stash.analyse_circular_reference_graph import make_graph
 from dsp_tools.commands.xmlupload.stash.graph_models import Edge
+from dsp_tools.commands.xmlupload.stash.graph_models import InfoForGraph
 from dsp_tools.commands.xmlupload.stash.graph_models import ResptrLink
 from dsp_tools.commands.xmlupload.stash.graph_models import XMLLink
 
 
 def test_make_graph() -> None:
     resptr = ResptrLink("a", "b")
-    resptr_links = [resptr]
     xml = XMLLink("a", {"b", "c"})
-    xml_links = [xml]
-    all_ids = ["a", "b", "c"]
-    graph, node_to_id, edges = make_graph(resptr_links, xml_links, all_ids)
+    graph_info = InfoForGraph(all_resource_ids=["a", "b", "c"], link_values=[resptr], standoff_links=[xml])
+    graph, node_to_id, edges = make_graph(graph_info)
     assert graph.num_nodes() == 3
     assert graph.num_edges() == 3
     assert node_to_id[0] == "a"

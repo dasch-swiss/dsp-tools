@@ -121,7 +121,6 @@ def _stash_resptr(
     for value in link_prop.values.copy():
         if value.link_uuid not in stash_lookup[res_id]:
             continue
-        # TODO: this currently crashes... there is no specific error treatment
         permission = str(permission_lookup[value.permissions]) if value.permissions else None
         # value.value is the ID of the target resource. stash it, then delete it
         link_stash_item = LinkValueStashItem(

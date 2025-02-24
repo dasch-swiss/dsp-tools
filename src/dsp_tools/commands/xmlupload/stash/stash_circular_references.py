@@ -33,8 +33,8 @@ def identify_circular_references(root: etree._Element) -> tuple[dict[str, list[s
         stash_lookup: A dictionary which maps the resources that have stashes to the UUIDs of the stashed links
         upload_order: A list of resource IDs in the order in which they should be uploaded
     """
-    resptr_links, xml_links, all_resource_ids = create_info_from_xml_for_graph(root)
-    graph, node_to_id, edges = make_graph(resptr_links, xml_links, all_resource_ids)
+    info_for_graph = create_info_from_xml_for_graph(root)
+    graph, node_to_id, edges = make_graph(info_for_graph)
     stash_lookup, upload_order, _ = generate_upload_order(graph, node_to_id, edges)
     return stash_lookup, upload_order
 

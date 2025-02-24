@@ -5,8 +5,15 @@ from dataclasses import dataclass
 from dataclasses import field
 
 
+@dataclass
+class InfoForGraph:
+    all_resource_ids: list[str]
+    link_values: list[LinkValueLink]
+    standoff_links: list[StandOffLink]
+
+
 @dataclass(frozen=True)
-class ResptrLink:
+class LinkValueLink:
     """
     This class represents a direct link (resptr) between a starting resource and a target resource.
 
@@ -27,7 +34,7 @@ class ResptrLink:
 
 
 @dataclass(frozen=True)
-class XMLLink:
+class StandOffLink:
     """
     This class represents one or more links from a single starting resource to a set of target resources,
     where all target resources are linked to from a single text value of the starting resource.
@@ -61,9 +68,9 @@ class Edge:
 
     source: int
     target: int
-    link_object: ResptrLink | XMLLink
+    link_object: LinkValueLink | StandOffLink
 
-    def as_tuple(self) -> tuple[int, int, ResptrLink | XMLLink]:
+    def as_tuple(self) -> tuple[int, int, LinkValueLink | StandOffLink]:
         """Returns a representation of this edge as a tuple of the source index, target index and link object"""
         return self.source, self.target, self.link_object
 

@@ -6,14 +6,13 @@ import rustworkx as rx
 
 from dsp_tools.commands.xmlupload.stash.graph_models import Cost
 from dsp_tools.commands.xmlupload.stash.graph_models import Edge
-from dsp_tools.commands.xmlupload.stash.graph_models import ResptrLink
-from dsp_tools.commands.xmlupload.stash.graph_models import XMLLink
+from dsp_tools.commands.xmlupload.stash.graph_models import InfoForGraph
+from dsp_tools.commands.xmlupload.stash.graph_models import LinkValueLink
+from dsp_tools.commands.xmlupload.stash.graph_models import StandOffLink
 
 
 def make_graph(
-    resptr_links: list[ResptrLink],
-    xml_links: list[XMLLink],
-    all_resource_ids: list[str],
+    info_for_graph: InfoForGraph,
 ) -> tuple[rx.PyDiGraph[Any, Any], dict[int, str], list[Edge]]:
     """
     This function takes information about the resources of an XML file and links between them.
@@ -21,10 +20,7 @@ def make_graph(
     Resources are represented as nodes and links as edges.
 
     Args:
-        resptr_links: objects representing a direct link between a starting resource and a target resource
-        xml_links: objects representing one or more links from a single text value of a single starting resource
-                   to a set of target resources
-        all_resource_ids: IDs of all resources in the graph
+        info_for_graph: Information required to construct the graph
 
     Returns:
         - The rustworkx graph.
@@ -32,12 +28,12 @@ def make_graph(
         - A list with all the edges in the graph.
     """
     graph: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
-    nodes = [(id_, None, None) for id_ in all_resource_ids]
+    nodes = [(id_, None, None) for id_ in info_for_graph.all_resource_ids]
     node_indices = list(graph.add_nodes_from(nodes))
-    id_to_node = dict(zip(all_resource_ids, node_indices))
-    node_to_id = dict(zip(node_indices, all_resource_ids))
-    edges = [Edge(id_to_node[x.source_id], id_to_node[x.target_id], x) for x in resptr_links]
-    for xml in xml_links:
+    id_to_node = dict(zip(info_for_graph.all_resource_ids, node_indices))
+    node_to_id = dict(zip(node_indices, info_for_graph.all_resource_ids))
+    edges = [Edge(id_to_node[x.source_id], id_to_node[x.target_id], x) for x in info_for_graph.link_values]
+    for xml in info_for_graph.standoff_links:
         edges.extend([Edge(id_to_node[xml.source_id], id_to_node[x], xml) for x in xml.target_ids])
     graph.add_edges_from([e.as_tuple() for e in edges])
     return graph, node_to_id, edges
@@ -162,7 +158,7 @@ def _remove_edges_to_stash(
     phantom_edges_to_remove = []
     source, target = edges_to_remove[0].source, edges_to_remove[0].target
     for link_to_stash in [x.link_object for x in edges_to_remove]:
-        if isinstance(link_to_stash, XMLLink):
+        if isinstance(link_to_stash, StandOffLink):
             phantom_edges_to_remove.extend(
                 _find_phantom_xml_edges(source, target, all_edges, link_to_stash, remaining_nodes)
             )
@@ -175,7 +171,7 @@ def _find_phantom_xml_edges(
     source_node_index: int,
     target_node_index: int,
     all_edges: list[Edge],
-    xml_link_to_stash: XMLLink,
+    xml_link_to_stash: StandOffLink,
     remaining_nodes: set[int],
 ) -> list[tuple[int, int]]:
     """
@@ -212,7 +208,7 @@ def _find_phantom_xml_edges(
 
 def _add_stash_to_lookup_dict(
     stash_dict: dict[str, list[str]],
-    links_to_stash: list[XMLLink | ResptrLink],
+    links_to_stash: list[StandOffLink | LinkValueLink],
 ) -> dict[str, list[str]]:
     stash_list = [stash_link.link_uuid for stash_link in links_to_stash]
     # all stashed links have the same subject id, so we can just take the first one

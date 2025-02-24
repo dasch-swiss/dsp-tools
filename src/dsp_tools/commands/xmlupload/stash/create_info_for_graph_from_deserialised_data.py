@@ -21,7 +21,7 @@ def _process_richtext_value(value: ValueInformation, res_id: str) -> StandOffLin
         return None
     links = set()
     for lnk in links_in_text:
-        if internal_id := regex.search(r"IRI:(.*):IRI"):
+        if internal_id := regex.search(r"IRI:(.*):IRI", lnk):
             links.add(internal_id.group(1))
         else:
             links.add(lnk)

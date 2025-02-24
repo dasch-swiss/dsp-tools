@@ -144,7 +144,7 @@ def test_process_richtext_value_with_links(text_value_with_link: ValueInformatio
     [
         ('Internal Link: <a class="salsah-link" href="IRI:id:IRI">id</a>', {"id"}),
         ('Resource IRI <a class="salsah-link" href="http://rdfh.ch/4123/DiAmY">IRI</a>', {"http://rdfh.ch/4123/DiAmY"}),
-        ("None", {}),
+        ("None", None),
         (
             'Mixed Links: <a class="salsah-link" href="IRI:id:IRI">id</a>, <a class="salsah-link" href="http://rdfh.ch/4123/DiAmY">IRI</a>',
             {"http://rdfh.ch/4123/DiAmY", "id"},

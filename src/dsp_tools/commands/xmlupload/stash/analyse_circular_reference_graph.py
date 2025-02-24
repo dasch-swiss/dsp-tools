@@ -43,6 +43,46 @@ def make_graph(
     return graph, node_to_id, edges
 
 
+def generate_upload_order(
+    graph: rx.PyDiGraph[Any, Any],
+    node_to_id: dict[int, str],
+    edges: list[Edge],
+) -> tuple[dict[str, list[str]], list[str], int]:
+    """
+    Generate the order in which the resources should be uploaded to the DSP-API based on the dependencies.
+
+    Args:
+        graph: graph
+        node_to_id: mapping between indices of the graph nodes and original resource IDs from the XML file
+        edges: edges in the graph (contains info about source node, target node, and link info)
+
+    Returns:
+        - A dictionary which maps the resources that have stashes to the UUIDs of the stashed links.
+        - A list of resource IDs which gives the order in which the resources should be uploaded to DSP-API.
+        - The number of links in the stash.
+    """
+    upload_order: list[str] = []
+    stash_lookup: dict[str, list[str]] = {}
+    node_indices = set(node_to_id.keys())
+    leaf_nodes, remaining_node_indices = _remove_leaf_nodes(graph, node_to_id, node_indices)
+    upload_order.extend(leaf_nodes)
+    stash_counter = 0
+    while remaining_node_indices:
+        cycle = list(rx.digraph_find_cycle(graph))
+        links_to_remove = _find_cheapest_outgoing_links(graph, cycle, edges)
+        stash_counter += len(links_to_remove)
+        _remove_edges_to_stash(
+            graph=graph,
+            edges_to_remove=links_to_remove,
+            all_edges=edges,
+            remaining_nodes=remaining_node_indices,
+        )
+        stash_lookup = _add_stash_to_lookup_dict(stash_lookup, [x.link_object for x in links_to_remove])
+        leaf_nodes, remaining_node_indices = _remove_leaf_nodes(graph, node_to_id, remaining_node_indices)
+        upload_order.extend(leaf_nodes)
+    return stash_lookup, upload_order, stash_counter
+
+
 def _remove_leaf_nodes(
     graph: rx.PyDiGraph[Any, Any],
     node_to_id: dict[int, str],
@@ -182,43 +222,3 @@ def _add_stash_to_lookup_dict(
     else:
         stash_dict[subj_id] = stash_list
     return stash_dict
-
-
-def generate_upload_order(
-    graph: rx.PyDiGraph[Any, Any],
-    node_to_id: dict[int, str],
-    edges: list[Edge],
-) -> tuple[dict[str, list[str]], list[str], int]:
-    """
-    Generate the order in which the resources should be uploaded to the DSP-API based on the dependencies.
-
-    Args:
-        graph: graph
-        node_to_id: mapping between indices of the graph nodes and original resource IDs from the XML file
-        edges: edges in the graph (contains info about source node, target node, and link info)
-
-    Returns:
-        - A dictionary which maps the resources that have stashes to the UUIDs of the stashed links.
-        - A list of resource IDs which gives the order in which the resources should be uploaded to DSP-API.
-        - The number of links in the stash.
-    """
-    upload_order: list[str] = []
-    stash_lookup: dict[str, list[str]] = {}
-    node_indices = set(node_to_id.keys())
-    leaf_nodes, remaining_node_indices = _remove_leaf_nodes(graph, node_to_id, node_indices)
-    upload_order.extend(leaf_nodes)
-    stash_counter = 0
-    while remaining_node_indices:
-        cycle = list(rx.digraph_find_cycle(graph))
-        links_to_remove = _find_cheapest_outgoing_links(graph, cycle, edges)
-        stash_counter += len(links_to_remove)
-        _remove_edges_to_stash(
-            graph=graph,
-            edges_to_remove=links_to_remove,
-            all_edges=edges,
-            remaining_nodes=remaining_node_indices,
-        )
-        stash_lookup = _add_stash_to_lookup_dict(stash_lookup, [x.link_object for x in links_to_remove])
-        leaf_nodes, remaining_node_indices = _remove_leaf_nodes(graph, node_to_id, remaining_node_indices)
-        upload_order.extend(leaf_nodes)
-    return stash_lookup, upload_order, stash_counter

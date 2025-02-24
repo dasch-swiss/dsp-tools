@@ -16,15 +16,17 @@ def _process_one_resource(resource: ResourceDeserialised) -> tuple[list[LinkValu
     pass
 
 
+def _process_link_value(value: ValueInformation, res_id: str) -> LinkValueLink:
+    return LinkValueLink(
+        source_id=res_id,
+        target_id=value.user_facing_value,
+        link_uuid=value.value_uuid,
+    )
+
+
 def _process_richtext_value(value: ValueInformation, res_id: str) -> StandOffLink | None:
-    if not (links_in_text := set(regex.findall(pattern=r'href="(.*?)"', string=value.user_facing_value))):
+    if not (links := _get_stand_off_links(value.user_facing_value)):
         return None
-    links = set()
-    for lnk in links_in_text:
-        if internal_id := regex.search(r"IRI:(.*):IRI", lnk):
-            links.add(internal_id.group(1))
-        else:
-            links.add(lnk)
     return StandOffLink(
         source_id=res_id,
         target_ids=links,
@@ -32,9 +34,12 @@ def _process_richtext_value(value: ValueInformation, res_id: str) -> StandOffLin
     )
 
 
-def _process_link_value(value: ValueInformation, res_id: str) -> LinkValueLink:
-    return LinkValueLink(
-        source_id=res_id,
-        target_id=value.user_facing_value,
-        link_uuid=value.value_uuid,
-    )
+def _get_stand_off_links(text: str) -> set[str] | None:
+    if not (links_in_text := set(regex.findall(pattern=r'href="(.*?)"', string=text))):
+        return None
+    links = set()
+    for lnk in links_in_text:
+        if internal_id := regex.search(r"IRI:(.*):IRI", lnk):
+            links.add(internal_id.group(1))
+        else:
+            links.add(lnk)

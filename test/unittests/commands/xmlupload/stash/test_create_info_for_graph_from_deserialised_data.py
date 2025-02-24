@@ -1,5 +1,6 @@
 import pytest
 
+from dsp_tools.commands.xmlupload.stash.create_info_for_graph_from_deserialised_data import _get_stand_off_links
 from dsp_tools.commands.xmlupload.stash.create_info_for_graph_from_deserialised_data import _process_link_value
 from dsp_tools.commands.xmlupload.stash.create_info_for_graph_from_deserialised_data import _process_one_resource
 from dsp_tools.commands.xmlupload.stash.create_info_for_graph_from_deserialised_data import _process_richtext_value
@@ -120,6 +121,13 @@ def test_process_one_resource_both_links(
     assert standoff.link_uuid == text_value_with_link.value_uuid
 
 
+def test_process_link_value_with_links(link_value: ValueInformation) -> None:
+    result = _process_link_value(link_value, "res_id")
+    assert result.source_id == "res_id"
+    assert result.target_id == "res_id_target"
+    assert result.link_uuid == link_value.value_uuid
+
+
 def test_process_richtext_value_no_links(text_value_no_link: ValueInformation) -> None:
     assert not _process_richtext_value(text_value_no_link, "res_id")
 
@@ -131,11 +139,21 @@ def test_process_richtext_value_with_links(text_value_with_link: ValueInformatio
     assert result.link_uuid == text_value_with_link.value_uuid
 
 
-def test_process_link_value_with_links(link_value: ValueInformation) -> None:
-    result = _process_link_value(link_value, "res_id")
-    assert result.source_id == "res_id"
-    assert result.target_id == "res_id_target"
-    assert result.link_uuid == link_value.value_uuid
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ('Internal Link: <a class="salsah-link" href="IRI:id:IRI">id</a>', {"id"}),
+        ('Resource IRI <a class="salsah-link" href="http://rdfh.ch/4123/DiAmY">IRI</a>', {"http://rdfh.ch/4123/DiAmY"}),
+        ("None", {}),
+        (
+            'Mixed Links: <a class="salsah-link" href="IRI:id:IRI">id</a>, <a class="salsah-link" href="http://rdfh.ch/4123/DiAmY">IRI</a>',
+            {"http://rdfh.ch/4123/DiAmY", "id"},
+        ),
+    ],
+)
+def test_get_stand_off_links(text: str, expected: set[str]) -> None:
+    result = _get_stand_off_links(text)
+    assert result == expected
 
 
 if __name__ == "__main__":

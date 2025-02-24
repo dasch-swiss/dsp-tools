@@ -12,18 +12,21 @@ from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.commands.xmlupload.stash.stash_circular_references_from_intermediary_resource import (
     stash_circular_references,
 )
+from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
+from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash
+from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 
 
 @pytest.fixture
-def link_value_with_permissions_to_res_1() -> IntermediaryLink:
+def link_value_to_res_1() -> IntermediaryLink:
+    return IntermediaryLink("res_1", "prop", None, None, "link_to_res_1_uuid")
+
+
+@pytest.fixture
+def link_value_with_permissions_to_res_2() -> IntermediaryLink:
     return IntermediaryLink(
-        "res_1", "prop", None, Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]}), str(uuid4())
+        "res_2", "prop", None, Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]}), "link_to_res_2_uuid"
     )
-
-
-@pytest.fixture
-def link_value_no_permissions_to_res_2() -> IntermediaryLink:
-    return IntermediaryLink("res_2", "prop", None, None, str(uuid4()))
 
 
 @pytest.fixture
@@ -44,7 +47,7 @@ def text_value_with_link() -> IntermediaryRichtext:
         None,
         None,
         set("res_3"),
-        str(uuid4()),
+        "standoff_link_to_res_3_uuid",
     )
 
 
@@ -101,8 +104,21 @@ def test_stash_circular_references_remove_link_value(
     resource_no_links: IntermediaryResource,
 ) -> None:
     resources = [deepcopy(resource_1), deepcopy(resource_2), deepcopy(resource_3), deepcopy(resource_no_links)]
-    lookup = {}
-    stash = stash_circular_references(resources, lookup)
+    lookup = {"res_1": ["link_to_res_2_uuid"]}
+    result = stash_circular_references(resources, lookup)
+    assert isinstance(result, Stash)
+    assert not result.standoff_stash
+    link_stash = result.link_value_stash
+    assert isinstance(link_stash, LinkValueStash)
+    assert link_stash.res_2_stash_items.keys() == lookup.keys()
+    stash_list = link_stash.res_2_stash_items["res_1"]
+    assert len(stash_list) == 1
+    stash_item = stash_list.pop(0)
+    assert stash_item.res_id == "res_1"
+    assert stash_item.res_type == "type"
+    assert stash_item.prop_name == "prop"
+    assert stash_item.target_id == "res_2"
+    assert stash_item.permission
 
 
 def test_stash_circular_references_remove_text_value(
@@ -112,8 +128,29 @@ def test_stash_circular_references_remove_text_value(
     resource_no_links: IntermediaryResource,
 ) -> None:
     resources = [deepcopy(resource_1), deepcopy(resource_2), deepcopy(resource_3), deepcopy(resource_no_links)]
+    lookup = {"res_2": ["standoff_link_to_res_3_uuid"]}
+    result = stash_circular_references(resources, lookup)
+    assert isinstance(result, Stash)
+    assert not result.link_value_stash
+    standoff_stash = result.standoff_stash
+    assert isinstance(standoff_stash, StandoffStash)
+    assert standoff_stash.res_2_stash_items.keys() == lookup.keys()
+    stash_list = standoff_stash.res_2_stash_items["res_2"]
+    assert len(stash_list) == 1
+    stash_item = stash_list.pop(0)
+    assert stash_item.res_id == "res_2"
+    assert stash_item.res_type == "type"
+    assert stash_item.uuid == "standoff_link_to_res_3_uuid"
+    assert stash_item.prop_name == "prop"
+    assert stash_item.value.xmlstr == 'Link: <a class="salsah-link" href="IRI:res_3:IRI">res_3</a>'
+
+
+def test_stash_circular_references_no_stash(
+    resource_1: IntermediaryResource,
+) -> None:
+    resources = [deepcopy(resource_1)]
     lookup = {}
-    stash = stash_circular_references(resources, lookup)
+    assert not stash_circular_references(resources, lookup)
 
 
 if __name__ == "__main__":

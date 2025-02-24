@@ -127,7 +127,7 @@ def test_stash_circular_references_remove_link_value(
     stash_item = stash_list.pop(0)
     assert stash_item.res_id == "res_1"
     assert stash_item.res_type == "type"
-    assert stash_item.prop_name == "prop"
+    assert stash_item.prop_name == "propValue"
     assert stash_item.target_id == "res_2"
     assert stash_item.permission
 
@@ -167,7 +167,9 @@ def test_stash_circular_references_remove_text_value(
     assert stash_item.value.xmlstr == 'Link: <a class="salsah-link" href="IRI:res_3:IRI">res_3</a>'
 
     # check that the resource values are as expected
-    assert len(copied_res_2.values) == 0
+    assert len(copied_res_2.values) == 1
+    text_val = copied_res_2.values.pop(0)
+    assert text_val.value.xmlstr == "standoff_link_to_res_3_uuid"
     assert len(resource_1.values) == len(copied_res_1.values)
     assert len(resource_3.values) == len(copied_res_3.values)
 

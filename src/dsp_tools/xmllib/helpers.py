@@ -571,7 +571,7 @@ def _from_monthname_after_day(monthname_after_day: Match[str]) -> str:
     date = datetime.date(year, month, day)
     return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
 
-    
+
 def _from_german_monthname_date(german_monthname_date: Match[str]) -> str:
     day = int(german_monthname_date.group(1))
     month = _months_dict[german_monthname_date.group(2)]

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import uuid
 from typing import cast
 
 import regex
@@ -62,7 +63,7 @@ def _create_segmentOf_link_objects(subject_id: str, resptr: etree._Element) -> L
     resptr.text = cast(str, resptr.text)
     if is_resource_iri(resptr.text):
         return None
-    link_object = LinkValueLink(subject_id, resptr.text)
+    link_object = LinkValueLink(subject_id, resptr.text, str(uuid.uuid4()))
     # this UUID is so that the links that were stashed can be identified in the XML data file
     resptr.attrib["linkUUID"] = link_object.link_uuid
     return link_object
@@ -73,7 +74,7 @@ def _create_resptr_link_objects(subject_id: str, resptr_prop: etree._Element) ->
     for resptr in resptr_prop.getchildren():
         resptr.text = cast(str, resptr.text)
         if not is_resource_iri(resptr.text):
-            link_object = LinkValueLink(subject_id, resptr.text)
+            link_object = LinkValueLink(subject_id, resptr.text, str(uuid.uuid4()))
             # this UUID is so that the links that were stashed can be identified in the XML data file
             resptr.attrib["linkUUID"] = link_object.link_uuid
             resptr_links.append(link_object)
@@ -85,7 +86,7 @@ def _create_text_link_objects(subject_id: str, text_prop: etree._Element) -> lis
     xml_props = []
     for text in text_prop.getchildren():
         if links := _extract_ids_from_one_text_value(text):
-            xml_link = StandOffLink(subject_id, links)
+            xml_link = StandOffLink(subject_id, links, str(uuid.uuid4()))
             xml_props.append(xml_link)
             # this UUID is so that the links that were stashed can be identified in the XML data file
             text.attrib["linkUUID"] = xml_link.link_uuid
@@ -96,7 +97,7 @@ def _create_text_link_object_from_special_tags(subject_id: str, special_tag: etr
     # This is for <hasDescription> and <hasComment> properties of <video-segment>s or <audio-segment>s
     if not (links := _extract_ids_from_one_text_value(special_tag)):
         return None
-    xml_link = StandOffLink(subject_id, links)
+    xml_link = StandOffLink(subject_id, links, str(uuid.uuid4()))
     # this UUID is so that the links that were stashed can be identified in the XML data file
     special_tag.attrib["linkUUID"] = xml_link.link_uuid
     return xml_link

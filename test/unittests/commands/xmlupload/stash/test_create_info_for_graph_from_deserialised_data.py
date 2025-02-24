@@ -66,6 +66,9 @@ def test_create_info_for_graph_from_data(
 ) -> None:
     data = DataDeserialised([resource_with_link_and_text, resource_with_no_links])
     result = create_info_for_graph_from_data(data)
+    assert set(result.all_resource_ids) == {"res_id_target", "res_id_link_text"}
+    assert len(result.link_values) == 1
+    assert len(result.standoff_links) == 1
 
 
 def test_process_one_resource_no_links(resource_with_no_links: ResourceDeserialised) -> None:

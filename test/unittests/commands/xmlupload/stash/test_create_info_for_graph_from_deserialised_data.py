@@ -7,6 +7,8 @@ from dsp_tools.commands.xmlupload.stash.create_info_for_graph_from_deserialised_
 from dsp_tools.commands.xmlupload.stash.create_info_for_graph_from_deserialised_data import (
     create_info_for_graph_from_data,
 )
+from dsp_tools.commands.xmlupload.stash.graph_models import LinkValueLink
+from dsp_tools.commands.xmlupload.stash.graph_models import StandOffLink
 from dsp_tools.utils.xml_parsing.models.data_deserialised import DataDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.data_deserialised import MigrationMetadata
@@ -123,6 +125,7 @@ def test_process_one_resource_both_links(
 
 def test_process_link_value_with_links(link_value: ValueInformation) -> None:
     result = _process_link_value(link_value, "res_id")
+    assert isinstance(result, LinkValueLink)
     assert result.source_id == "res_id"
     assert result.target_id == "res_id_target"
     assert result.link_uuid == link_value.value_uuid
@@ -134,6 +137,7 @@ def test_process_richtext_value_no_links(text_value_no_link: ValueInformation) -
 
 def test_process_richtext_value_with_links(text_value_with_link: ValueInformation) -> None:
     result = _process_richtext_value(text_value_with_link, "res_id")
+    assert isinstance(result, StandOffLink)
     assert result.source_id == "res_id"
     assert result.target_ids == {"res_id_target"}
     assert result.link_uuid == text_value_with_link.value_uuid

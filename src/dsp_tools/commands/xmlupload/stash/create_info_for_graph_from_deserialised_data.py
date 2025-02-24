@@ -31,23 +31,28 @@ def _process_one_resource(resource: ResourceDeserialised) -> tuple[list[LinkValu
     stand_off = []
     for val in resource.values:
         if val.knora_type == KnoraValueType.LINK_VALUE:
-            link_values.append(_process_link_value(val, resource.res_id))
+            if link_found := _process_link_value(val, resource.res_id):
+                link_values.append(link_found)
         elif val.knora_type == KnoraValueType.RICHTEXT_VALUE:
             if links := _process_richtext_value(val, resource.res_id):
                 stand_off.append(links)
     return link_values, stand_off
 
 
-def _process_link_value(value: ValueInformation, res_id: str) -> LinkValueLink:
+def _process_link_value(value: ValueInformation, res_id: str) -> LinkValueLink | None:
+    if not (linked_id := value.user_facing_value):
+        return None
     return LinkValueLink(
         source_id=res_id,
-        target_id=value.user_facing_value,
+        target_id=linked_id,
         link_uuid=value.value_uuid,
     )
 
 
 def _process_richtext_value(value: ValueInformation, res_id: str) -> StandOffLink | None:
-    if not (links := _get_stand_off_links(value.user_facing_value)):
+    if not (existing_value := value.user_facing_value):
+        return None
+    if not (links := _get_stand_off_links(existing_value)):
         return None
     return StandOffLink(
         source_id=res_id,

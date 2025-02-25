@@ -47,7 +47,7 @@ def _process_one_resource(
         elif isinstance(val, IntermediaryRichtext):
             if val.value_uuid not in stash_lookup[resource.res_id]:
                 continue
-            # value.value is a KnoraStandoffXml text with problematic links.
+            # val.value is a KnoraStandoffXml text with problematic links.
             # stash it, then replace the problematic text with a UUID
             stashed_standoff_values.append(_stash_standoff(val, resource.res_id, resource.type_iri))
 
@@ -72,8 +72,9 @@ def _stash_standoff(value: IntermediaryRichtext, res_id: str, res_type: str) -> 
     actual_text = value.value
     # Replace the content with the UUID
     value.value = FormattedTextValue(value.value_uuid)
-    # It is not necessary to add the permissions to the StandoffStashItem because it is an update request
-    # If no new permissions are given during that request, the permissions of the previous value are taken
+    # It is not necessary to add the permissions to the StandoffStashItem.
+    # Because when no new permissions are given during an update request,
+    # the permissions of the previous value are taken.
     return StandoffStashItem(
         res_id=res_id,
         res_type=res_type,

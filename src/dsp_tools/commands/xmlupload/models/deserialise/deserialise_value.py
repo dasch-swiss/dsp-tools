@@ -123,7 +123,7 @@ class XMLValue:
             value = _cleanup_unformatted_text(str_orig)
         elif val_type == "list":
             listname = cast(str, listname)
-            value = f"{listname}:" + "".join(node.itertext())
+            value = f"{listname} / " + "".join(node.itertext())
         else:
             value = "".join(node.itertext())
         link_uuid = node.attrib.get("linkUUID")  # not all richtexts have a link, so this attribute is optional

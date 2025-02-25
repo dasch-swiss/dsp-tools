@@ -50,7 +50,7 @@ class Test_XMLProperty:
 
     def test_get_values_from_normal_props_list(self) -> None:
         string = """<list-prop list="testlist" name=":hasListItem"><list>first subnode</list></list-prop>"""
-        expected = [XMLValue("testlist:first subnode")]
+        expected = [XMLValue("testlist / first subnode")]
         res = XMLProperty._get_values_from_normal_props(etree.fromstring(string), "list")
         assert res == expected
 
@@ -150,7 +150,7 @@ class Test_XMLValue:
     def test_from_node_list_value(self) -> None:
         # assure that list node is constructed correctly
         node = etree.fromstring("""<list>second subnode</list>""")
-        expected = XMLValue(value="testlist:second subnode")
+        expected = XMLValue(value="testlist / second subnode")
         res = XMLValue.from_node(node, "list", "testlist")
         assert res == expected
 

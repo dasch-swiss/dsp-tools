@@ -2097,7 +2097,7 @@ def create_json_excel_list_mapping(
     excel_values_new = []
     for val in excel_values:
         if isinstance(val, str):
-            excel_values_new.extend([x.strip() for x in val.split(sep) if x])
+            excel_values_new.extend([x.strip() for x in val.split(sep) if x.strip()])
 
     # read the list of the JSON project (works also for nested lists)
     with open(path_to_json, encoding="utf-8") as f:

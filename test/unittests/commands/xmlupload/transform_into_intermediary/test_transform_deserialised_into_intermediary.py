@@ -3,6 +3,7 @@
 import pytest
 
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
+from dsp_tools.commands.xmlupload.models.intermediary.res import MigrationMetadata
 from dsp_tools.commands.xmlupload.models.intermediary.res import ResourceInputConversionFailure
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryBoolean
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryColor
@@ -48,6 +49,7 @@ LISTNODE_LOOKUP = {"list / node": "http://rdfh.ch/9999/node"}
 
 # this enables the usage of the fixtures defined in that file
 pytest_plugins = "test.unittests.commands.validate_data.fixtures.data_deserialised"
+
 
 @pytest.fixture
 def permission_good() -> PropertyObject:
@@ -127,15 +129,15 @@ def test_transform_all_resources_into_intermediary_resources_failure(
     assert len(result.resource_failures) == 1
     assert len(result.transformed_resources) == 1
     failure = result.resource_failures.pop(0)
-    assert failure.resource_id == ""
-    assert failure.failure_msg
+    assert failure.resource_id == "resource_inexistent_permissions"
+    assert failure.failure_msg == "Could not find permissions for value: does-not-exist"
 
 
 class TestTransformOneResource:
     def test_no_values(self, resource_deserialised_no_values):
         result = _transform_one_resource(resource_deserialised_no_values, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
         assert isinstance(result, IntermediaryResource)
-        assert result.res_id == ""
+        assert result.res_id == "resource_deserialised_no_values"
         assert result.type_iri == "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"
         assert result.label == "lbl"
         assert not result.permissions
@@ -147,7 +149,7 @@ class TestTransformOneResource:
     def test_with_values(self, resource_deserialised_with_values):
         result = _transform_one_resource(resource_deserialised_with_values, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
         assert isinstance(result, IntermediaryResource)
-        assert result.res_id == ""
+        assert result.res_id == "resource_deserialised_with_values"
         assert result.type_iri == "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"
         assert result.label == "lbl"
         assert not result.permissions
@@ -159,7 +161,7 @@ class TestTransformOneResource:
     def test_with_asset(self, resource_deserialised_with_asset):
         result = _transform_one_resource(resource_deserialised_with_asset, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
         assert isinstance(result, IntermediaryResource)
-        assert result.res_id == ""
+        assert result.res_id == "resource_deserialised_with_asset"
         assert result.type_iri == "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"
         assert result.label == "lbl"
         assert not result.permissions
@@ -171,26 +173,29 @@ class TestTransformOneResource:
     def test_with_migration_metadata(self, resource_with_migration_metadata):
         result = _transform_one_resource(resource_with_migration_metadata, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
         assert isinstance(result, IntermediaryResource)
-        assert result.res_id == ""
+        assert result.res_id == "resource_with_migration_metadata"
         assert result.type_iri == "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"
         assert result.label == "lbl"
         assert not result.permissions
         assert not result.values
         assert not result.file_value
         assert not result.iiif_uri
-        assert not result.migration_metadata
+        metadata = result.migration_metadata
+        assert isinstance(metadata, MigrationMetadata)
+        assert metadata.iri_str == "bla"
+        assert metadata.creation_date == DateTimeStamp("1999-12-31T23:59:59.9999999+01:00")
 
     def test_inexistent_permission(self, resource_inexistent_permissions):
         result = _transform_one_resource(resource_inexistent_permissions, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
         assert isinstance(result, ResourceInputConversionFailure)
-        assert result.resource_id == ""
-        assert result.failure_msg == ""
+        assert result.resource_id == "resource_inexistent_permissions"
+        assert result.failure_msg == "Could not find permissions for value: does-not-exist"
 
     def test_with_failing_value(self, resource_with_failing_value):
         result = _transform_one_resource(resource_with_failing_value, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
         assert isinstance(result, ResourceInputConversionFailure)
-        assert result.resource_id == ""
-        assert result.failure_msg == ""
+        assert result.resource_id == "resource_with_failing_value"
+        assert result.failure_msg == "Could not find permissions for value: does-not-exist"
 
 
 class TestTransformValues:

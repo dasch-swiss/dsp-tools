@@ -12,9 +12,11 @@ from dsp_tools.xmllib.internal_helpers import check_and_create_richtext_string
 from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
+from dsp_tools.xmllib.models.config_options import PreDefinedLicense
 from dsp_tools.xmllib.models.file_values import AbstractFileValue
 from dsp_tools.xmllib.models.file_values import FileValue
 from dsp_tools.xmllib.models.file_values import IIIFUri
+from dsp_tools.xmllib.models.file_values import Metadata
 from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
 from dsp_tools.xmllib.models.values import BooleanValue
 from dsp_tools.xmllib.models.values import ColorValue
@@ -1494,6 +1496,9 @@ class Resource:
     def add_file(
         self,
         filename: str,
+        license: PreDefinedLicense | str,
+        copyright_holder: str,
+        authorship: list[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -1504,6 +1509,10 @@ class Resource:
 
         Args:
             filename: path to the file
+            license: License of the file (predefined or custom).
+                A license states the circumstances how you are allowed to share/reuse something.
+            copyright_holder: The person or institution who owns the economic rights of something.
+            authorship: The (natural) person who authored something.
             permissions: optional permissions of this file
             comment: optional comment
 
@@ -1516,7 +1525,10 @@ class Resource:
         Examples:
             ```python
             resource = resource.add_file(
-                filename="images/dog.jpg"
+                filename="images/dog.jpg",
+                license=xmllib.PreDefinedLicense.PUBLIC_DOMAIN,
+                copyright_holder="Bark University",
+                authorship=["Bark McDog"],
             )
             ```
 
@@ -1524,7 +1536,10 @@ class Resource:
             # a file with restricted view permissions
             resource = resource.add_file(
                 filename="images/dog.jpg",
-                permissions=xmllib.Permissions.RESTRICTED_VIEW
+                license=xmllib.PreDefinedLicense.PUBLIC_DOMAIN,
+                copyright_holder="Bark University",
+                authorship=["Bark McDog"],
+                permissions=xmllib.Permissions.RESTRICTED_VIEW,
             )
             ```
         """
@@ -1534,12 +1549,26 @@ class Resource:
                 f"'{self.file_value.value}'.\n"
                 f"The new file with the name '{filename}' cannot be added."
             )
-        self.file_value = FileValue(filename, permissions, comment, self.res_id)
+
+        fixed_authors = set(check_and_fix_collection_input(authorship, "iiif-uri", self.res_id))
+        fixed_authors_list = [str(x).strip() for x in fixed_authors]
+        fixed_authors_list = sorted(fixed_authors_list)
+        meta = Metadata(
+            license=str(license),
+            copyright_holder=copyright_holder,
+            authorship=tuple(fixed_authors_list),
+            permissions=permissions,
+            resource_id=self.res_id,
+        )
+        self.file_value = FileValue(value=filename, metadata=meta, comment=comment, resource_id=self.res_id)
         return self
 
     def add_iiif_uri(
         self,
         iiif_uri: str,
+        license: PreDefinedLicense | str,
+        copyright_holder: str,
+        authorship: list[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
         comment: str | None = None,
     ) -> Resource:
@@ -1550,7 +1579,11 @@ class Resource:
 
         Args:
             iiif_uri: valid IIIF URI
-            permissions: optional permissions of this value
+            license: License of the file (predefined or custom).
+                A license states the circumstances how you are allowed to share/reuse something.
+            copyright_holder: The person or institution who owns the economic rights of something.
+            authorship: The (natural) person who authored something.
+            permissions: optional permissions of this file
             comment: optional comment
 
         Raises:
@@ -1562,7 +1595,10 @@ class Resource:
         Examples:
             ```python
             resource = resource.add_iiif_uri(
-                iiif_uri="https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg"
+                iiif_uri="https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg",
+                license=xmllib.PreDefinedLicense.CC_BY_NC,
+                copyright_holder="Wellcome Collection",
+                authorship=["Cavanagh, Annie"]
             )
             ```
         """
@@ -1572,7 +1608,17 @@ class Resource:
                 f"'{self.file_value.value}'.\n"
                 f"The new file with the name '{iiif_uri}' cannot be added."
             )
-        self.file_value = IIIFUri(iiif_uri, permissions, comment, self.res_id)
+        fixed_authors = set(check_and_fix_collection_input(authorship, "iiif-uri", self.res_id))
+        fixed_authors_list = [str(x).strip() for x in fixed_authors]
+        fixed_authors_list = sorted(fixed_authors_list)
+        meta = Metadata(
+            license=str(license),
+            copyright_holder=copyright_holder,
+            authorship=tuple(fixed_authors_list),
+            permissions=permissions,
+            resource_id=self.res_id,
+        )
+        self.file_value = IIIFUri(value=iiif_uri, metadata=meta, comment=comment, resource_id=self.res_id)
         return self
 
     #######################

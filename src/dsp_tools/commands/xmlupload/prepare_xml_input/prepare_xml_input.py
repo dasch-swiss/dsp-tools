@@ -8,20 +8,78 @@ from lxml import etree
 
 from dsp_tools.commands.xmlupload.models.deserialise.xmlpermission import XmlPermission
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
+from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookups
+from dsp_tools.commands.xmlupload.models.lookup_models import get_json_ld_context_for_project
+from dsp_tools.commands.xmlupload.models.lookup_models import make_namespace_dict_from_onto_names
 from dsp_tools.commands.xmlupload.models.permission import Permissions
+from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
+from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontology import (
     do_xml_consistency_check_with_ontology,
 )
 from dsp_tools.commands.xmlupload.prepare_xml_input.iiif_uri_validator import IIIFUriValidator
 from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClient
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import (
+    transform_all_resources_into_intermediary_resources,
+)
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import identify_circular_references
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
+from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.models.projectContext import ProjectContext
 from dsp_tools.utils.connection import Connection
+
+LIST_SEPARATOR = "\n-    "
+
+
+def get_upload_state(
+    resources: list[XMLResource],
+    clients: UploadClients,
+    stash: Stash | None,
+    config: UploadConfig,
+    permissions_lookup: dict[str, Permissions],
+) -> UploadState:
+    """
+    Transforms the XMLResources and creates the upload state.
+
+    Args:
+        resources: list of resources
+        clients: clients to retrieve information from the API
+        stash: Stashed links and texts
+        config: upload config
+        permissions_lookup: lookup for permissions
+
+    Returns:
+        Upload state
+
+    Raises:
+        InputError: If a resource could not be transformed, an error is raised.
+    """
+    project_onto_dict = clients.project_client.get_ontology_name_dict()
+    listnode_lookup = clients.list_client.get_list_node_id_to_iri_lookup()
+    project_context = get_json_ld_context_for_project(project_onto_dict)
+    namespaces = make_namespace_dict_from_onto_names(project_onto_dict)
+    intermediary_lookups = IntermediaryLookups(
+        permissions=permissions_lookup, listnodes=listnode_lookup, namespaces=namespaces
+    )
+    result = transform_all_resources_into_intermediary_resources(resources, intermediary_lookups)
+    if result.resource_failures:
+        failures = [f"Resource ID: '{x.resource_id}', Message: {x.failure_msg}" for x in result.resource_failures]
+        msg = (
+            f"{datetime.now()}: WARNING: Unable to create the following resource(s):"
+            f"{LIST_SEPARATOR}{LIST_SEPARATOR.join(failures)}"
+        )
+        raise InputError(msg)
+    return UploadState(
+        pending_resources=result.transformed_resources,
+        pending_stash=stash,
+        config=config,
+        project_context=project_context,
+    )
 
 
 def prepare_upload_from_root(

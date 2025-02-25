@@ -24,11 +24,13 @@ from dsp_tools.commands.xmlupload.models.intermediary.values import Intermediary
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryUri
 from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
-from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_file_value
-from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_iiif_uri_value
-from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_one_property
-from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_one_resource
-from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import transform_into_intermediary_resource
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import _transform_file_value
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import _transform_iiif_uri_value
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import (
+    _transform_into_intermediary_resource,
+)
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import _transform_one_property
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import _transform_one_resource
 from dsp_tools.models.datetimestamp import DateTimeStamp
 from dsp_tools.models.exceptions import PermissionNotExistsError
 from dsp_tools.utils.date_util import Date
@@ -42,17 +44,14 @@ class TestTransformResources:
         resource_one_prop: XMLResource,
         lookups: IntermediaryLookups,
     ) -> None:
-        result = transform_into_intermediary_resource(resource_one_prop, lookups)
-        assert isinstance(result.resource_success, IntermediaryResource)
-        assert not result.resource_failure
+        result = _transform_into_intermediary_resource(resource_one_prop, lookups)
+        assert isinstance(result, IntermediaryResource)
 
     def test_failure(self, resource_with_unknown_permissions: XMLResource, lookups: IntermediaryLookups) -> None:
-        result = transform_into_intermediary_resource(resource_with_unknown_permissions, lookups)
-        assert not result.resource_success
-        failure = result.resource_failure
-        assert isinstance(failure, ResourceInputConversionFailure)
-        assert failure.resource_id == "id"
-        assert failure.failure_msg == "Could not find permissions for value: nonExisting"
+        result = _transform_into_intermediary_resource(resource_with_unknown_permissions, lookups)
+        assert isinstance(result, ResourceInputConversionFailure)
+        assert result.resource_id == "id"
+        assert result.failure_msg == "Could not find permissions for value: nonExisting"
 
 
 class TestTransformOneResource:
@@ -153,7 +152,7 @@ class TestTransformOneResource:
 
 class TestTransformFileValue:
     def test_transform_file_value(self, bitstream: XMLBitstream, lookups: IntermediaryLookups) -> None:
-        result = _transform_file_value(bitstream, lookups)
+        result = _transform_file_value(bitstream, lookups, "id", "lbl")
         assert result.value == "file.jpg"
         assert isinstance(result, IntermediaryFileValue)
         assert not result.metadata.permissions
@@ -161,7 +160,7 @@ class TestTransformFileValue:
     def test_transform_file_value_with_permissions(
         self, bitstream_with_permission: XMLBitstream, lookups: IntermediaryLookups
     ) -> None:
-        result = _transform_file_value(bitstream_with_permission, lookups)
+        result = _transform_file_value(bitstream_with_permission, lookups, "id", "lbl")
         assert isinstance(result, IntermediaryFileValue)
         assert result.value == "file.jpg"
         assert result.metadata

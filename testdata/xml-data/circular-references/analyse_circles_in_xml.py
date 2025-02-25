@@ -3,10 +3,10 @@ from pathlib import Path
 
 from viztracer import VizTracer
 
-from dsp_tools.commands.xmlupload.stash.construct_and_analyze_graph import create_info_from_xml_for_graph
-from dsp_tools.commands.xmlupload.stash.construct_and_analyze_graph import generate_upload_order
-from dsp_tools.commands.xmlupload.stash.construct_and_analyze_graph import make_graph
-from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
+from dsp_tools.commands.xmlupload.stash.analyse_circular_reference_graph import generate_upload_order
+from dsp_tools.commands.xmlupload.stash.analyse_circular_reference_graph import make_graph
+from dsp_tools.commands.xmlupload.stash.extract_info_for_graph_from_root import create_info_from_xml_for_graph
+from dsp_tools.utils.xml_parsing.parse_and_transform import parse_and_clean_xml_file
 
 
 def analyse_circles_in_data(xml_filepath: Path, tracer_output_file: str, save_tracer: bool = False) -> None:
@@ -22,7 +22,7 @@ def analyse_circles_in_data(xml_filepath: Path, tracer_output_file: str, save_tr
         save_tracer: True if the output of the viztracer should be saved
     """
     root = parse_and_clean_xml_file(xml_filepath)
-    resptr_links, xml_links, all_resource_ids = create_info_from_xml_for_graph(root)
+    graph_info = create_info_from_xml_for_graph(root)
     tracer: VizTracer | None = None
     if save_tracer:
         tracer = VizTracer(
@@ -32,11 +32,11 @@ def analyse_circles_in_data(xml_filepath: Path, tracer_output_file: str, save_tr
         tracer.start()
     start = datetime.now()
     print("=" * 80)
-    print(f"Total Number of Resources: {len(all_resource_ids)}")
-    print(f"Total Number of resptr Links: {len(resptr_links)}")
-    print(f"Total Number of XML Texts with Links: {len(xml_links)}")
+    print(f"Total Number of Resources: {len(graph_info.all_resource_ids)}")
+    print(f"Total Number of resptr Links: {len(graph_info.link_values)}")
+    print(f"Total Number of XML Texts with Links: {len(graph_info.standoff_links)}")
     print("=" * 80)
-    graph, node_to_id, edges = make_graph(resptr_links, xml_links, all_resource_ids)
+    graph, node_to_id, edges = make_graph(graph_info)
     _, _, stash_counter = generate_upload_order(graph, node_to_id, edges)
     end = datetime.now()
     if save_tracer and tracer:

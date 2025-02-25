@@ -1,12 +1,13 @@
 import pytest
 
 from dsp_tools.commands.validate_data.constants import KNORA_API_STR
-from dsp_tools.commands.validate_data.models.data_deserialised import KnoraValueType
-from dsp_tools.commands.validate_data.models.data_deserialised import PropertyObject
-from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import TripleObjectType
-from dsp_tools.commands.validate_data.models.data_deserialised import TriplePropertyType
-from dsp_tools.commands.validate_data.models.data_deserialised import ValueInformation
+from dsp_tools.utils.xml_parsing.models.data_deserialised import KnoraValueType
+from dsp_tools.utils.xml_parsing.models.data_deserialised import MigrationMetadata
+from dsp_tools.utils.xml_parsing.models.data_deserialised import PropertyObject
+from dsp_tools.utils.xml_parsing.models.data_deserialised import ResourceDeserialised
+from dsp_tools.utils.xml_parsing.models.data_deserialised import TripleObjectType
+from dsp_tools.utils.xml_parsing.models.data_deserialised import TriplePropertyType
+from dsp_tools.utils.xml_parsing.models.data_deserialised import ValueInformation
 
 LABEL_TRIPLE = PropertyObject(TriplePropertyType.RDFS_LABEL, "lbl", TripleObjectType.STRING)
 TYPE_TRIPLE = PropertyObject(
@@ -24,6 +25,8 @@ def resource_deserialised_with_values(
         res_id="id",
         property_objects=UNREIFIED_TRIPLE_OBJECTS,
         values=[boolean_value_deserialised_corr],
+        asset_value=None,
+        migration_metadata=MigrationMetadata(),
     )
 
 
@@ -33,46 +36,52 @@ def resource_deserialised_no_values() -> ResourceDeserialised:
         res_id="id",
         property_objects=UNREIFIED_TRIPLE_OBJECTS,
         values=[],
+        asset_value=None,
+        migration_metadata=MigrationMetadata(),
+    )
+
+
+@pytest.fixture
+def resource_deserialised_with_asset() -> ResourceDeserialised:
+    return ResourceDeserialised(
+        res_id="id",
+        property_objects=UNREIFIED_TRIPLE_OBJECTS,
+        values=[],
+        asset_value=ValueInformation(
+            f"{KNORA_API_STR}hasAudioFileValue",
+            "testdata/bitstreams/test.wav",
+            KnoraValueType.AUDIO_FILE,
+            [],
+        ),
+        migration_metadata=MigrationMetadata(),
     )
 
 
 @pytest.fixture
 def boolean_value_deserialised_corr() -> ValueInformation:
     return ValueInformation(
-        "http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean",
-        "false",
-        KnoraValueType.BOOLEAN_VALUE,
-        [],
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean", "false", KnoraValueType.BOOLEAN_VALUE, []
     )
 
 
 @pytest.fixture
 def boolean_value_deserialised_zero() -> ValueInformation:
     return ValueInformation(
-        "http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean",
-        "0",
-        KnoraValueType.BOOLEAN_VALUE,
-        [],
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean", "0", KnoraValueType.BOOLEAN_VALUE, []
     )
 
 
 @pytest.fixture
 def boolean_value_deserialised_one() -> ValueInformation:
     return ValueInformation(
-        "http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean",
-        "1",
-        KnoraValueType.BOOLEAN_VALUE,
-        [],
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean", "1", KnoraValueType.BOOLEAN_VALUE, []
     )
 
 
 @pytest.fixture
 def color_value_deserialised_corr() -> ValueInformation:
     return ValueInformation(
-        "http://0.0.0.0:3333/ontology/9999/onto/v2#testColor",
-        "#00ff00",
-        KnoraValueType.COLOR_VALUE,
-        [],
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testColor", "#00ff00", KnoraValueType.COLOR_VALUE, []
     )
 
 
@@ -141,20 +150,14 @@ def link_value_deserialised_corr() -> ValueInformation:
 @pytest.fixture
 def link_value_deserialised_none() -> ValueInformation:
     return ValueInformation(
-        "http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo",
-        None,
-        KnoraValueType.LINK_VALUE,
-        [],
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo", None, KnoraValueType.LINK_VALUE, []
     )
 
 
 @pytest.fixture
 def list_value_deserialised_corr() -> ValueInformation:
     return ValueInformation(
-        "http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp",
-        "n1",
-        KnoraValueType.LIST_VALUE,
-        [],
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp", "n1", KnoraValueType.LIST_VALUE, []
     )
 
 

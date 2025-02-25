@@ -95,7 +95,7 @@ def test_xmlupload_default(xmlupload: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.call_action.validate_xml_file")
+@patch("dsp_tools.cli.call_action.parse_and_validate_xml_file")
 def test_xmlupload_validate(validate_xml: Mock) -> None:
     file = "filename.xml"
     args = f"xmlupload --validate-only {file}".split()

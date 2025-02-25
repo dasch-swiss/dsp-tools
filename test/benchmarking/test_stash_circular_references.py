@@ -8,7 +8,7 @@ from dsp_tools.commands.xmlupload.stash.stash_circular_references import identif
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.ansi_colors import YELLOW
-from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
+from dsp_tools.utils.xml_parsing.parse_and_transform import parse_and_clean_xml_file
 
 
 def test_get_length_ok_resources() -> None:

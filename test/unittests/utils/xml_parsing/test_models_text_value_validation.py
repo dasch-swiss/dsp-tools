@@ -2,10 +2,10 @@ import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal
 
-from dsp_tools.utils.xml_validation_models import InconsistentTextValueEncodings
-from dsp_tools.utils.xml_validation_models import TextValueData
-from dsp_tools.utils.xml_validation_models import _make_msg_for_one_resource
-from dsp_tools.utils.xml_validation_models import _make_msg_from_df
+from dsp_tools.utils.xml_parsing.models.text_value_validation import InconsistentTextValueEncodings
+from dsp_tools.utils.xml_parsing.models.text_value_validation import TextValueData
+from dsp_tools.utils.xml_parsing.models.text_value_validation import _make_msg_for_one_resource
+from dsp_tools.utils.xml_parsing.models.text_value_validation import _make_msg_from_df
 
 
 class TestInvalidTextValueEncodings:

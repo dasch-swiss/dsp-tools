@@ -1,10 +1,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from dataclasses import field
 from enum import Enum
 from enum import auto
+from uuid import uuid4
 
 from lxml import etree
+
+from dsp_tools.models.datetimestamp import DateTimeStamp
 
 
 @dataclass
@@ -12,18 +16,6 @@ class XMLProject:
     shortcode: str
     root: etree._Element
     used_ontologies: set[str]
-
-
-@dataclass
-class ProjectDeserialised:
-    info: ProjectInformation
-    data: DataDeserialised
-
-
-@dataclass
-class ProjectInformation:
-    shortcode: str
-    default_onto: str
 
 
 @dataclass
@@ -42,11 +34,25 @@ class ResourceDeserialised:
             They are non-reified triples (not values).
             For example, the label of a resource is here.
         values: a list of user-facing values (e.g. BooleanValue)
+        asset_value: an asset value (all FileValues excluding the IIIFUri)
+        migration_metadata: Metadata used for salsah migration
     """
 
     res_id: str
     property_objects: list[PropertyObject]
     values: list[ValueInformation]
+    asset_value: ValueInformation | None
+    migration_metadata: MigrationMetadata
+
+
+@dataclass
+class MigrationMetadata:
+    iri: str | None = None
+    ark: str | None = None
+    creation_date: DateTimeStamp | None = None
+
+    def any(self) -> bool:
+        return any([self.iri, self.ark, self.creation_date])
 
 
 @dataclass
@@ -81,6 +87,7 @@ class ValueInformation:
     user_facing_value: str | None
     knora_type: KnoraValueType
     value_metadata: list[PropertyObject]
+    value_uuid: str = field(default_factory=lambda: str(uuid4()))
 
 
 class TriplePropertyType(Enum):

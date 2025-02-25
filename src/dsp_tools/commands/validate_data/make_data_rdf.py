@@ -1,5 +1,3 @@
-from uuid import uuid4
-
 from loguru import logger
 from rdflib import RDF
 from rdflib import XSD
@@ -12,13 +10,13 @@ from dsp_tools.commands.validate_data.mappers import TRIPLE_OBJECT_TYPE_TO_XSD
 from dsp_tools.commands.validate_data.mappers import TRIPLE_PROP_TYPE_TO_IRI_MAPPER
 from dsp_tools.commands.validate_data.mappers import VALUE_INFO_TO_RDF_MAPPER
 from dsp_tools.commands.validate_data.mappers import VALUE_INFO_TRIPLE_OBJECT_TYPE
-from dsp_tools.commands.validate_data.models.data_deserialised import DataDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import KnoraValueType
-from dsp_tools.commands.validate_data.models.data_deserialised import PropertyObject
-from dsp_tools.commands.validate_data.models.data_deserialised import ResourceDeserialised
-from dsp_tools.commands.validate_data.models.data_deserialised import TripleObjectType
-from dsp_tools.commands.validate_data.models.data_deserialised import TriplePropertyType
-from dsp_tools.commands.validate_data.models.data_deserialised import ValueInformation
+from dsp_tools.utils.xml_parsing.models.data_deserialised import DataDeserialised
+from dsp_tools.utils.xml_parsing.models.data_deserialised import KnoraValueType
+from dsp_tools.utils.xml_parsing.models.data_deserialised import PropertyObject
+from dsp_tools.utils.xml_parsing.models.data_deserialised import ResourceDeserialised
+from dsp_tools.utils.xml_parsing.models.data_deserialised import TripleObjectType
+from dsp_tools.utils.xml_parsing.models.data_deserialised import TriplePropertyType
+from dsp_tools.utils.xml_parsing.models.data_deserialised import ValueInformation
 
 
 def make_data_rdf(data_deserialised: DataDeserialised) -> Graph:
@@ -43,13 +41,15 @@ def _make_one_resource(res: ResourceDeserialised) -> Graph:
     g = _make_property_objects_graph(res.property_objects, res_iri)
     for v in res.values:
         g += _make_one_value(v, res_iri)
+    if res.asset_value:
+        g += _make_one_value(res.asset_value, res_iri)
     return g
 
 
 def _make_one_value(val: ValueInformation, res_iri: URIRef) -> Graph:
     prop_type_info = VALUE_INFO_TO_RDF_MAPPER[val.knora_type]
 
-    val_iri = DATA[str(uuid4())]
+    val_iri = DATA[val.value_uuid]
     g = _make_property_objects_graph(val.value_metadata, val_iri)
     g.add((res_iri, URIRef(val.user_facing_prop), val_iri))
     g.add((val_iri, RDF.type, prop_type_info.knora_type))

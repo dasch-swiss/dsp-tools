@@ -1,52 +1,41 @@
-from lxml import etree
+from copy import deepcopy
 
-from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
+import pytest
+
+from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediarySimpleText
+from dsp_tools.commands.xmlupload.models.lookup_models import JSONLDContext
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import _tidy_up_resource_creation_idempotent
 
 
-def test_idempotency_on_success() -> None:
-    xml_strings = [
-        """
-        <resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id">
-            <text-prop name=":hasSimpleText"><text encoding="utf8">foo_1 text</text></text-prop>
-        </resource>
-        """,
-        """
-        <resource label="foo_2_label" restype=":foo_2_type" id="foo_2_id">
-            <text-prop name=":hasSimpleText"><text encoding="utf8">foo_2 text</text></text-prop>
-        </resource>
-        """,
-    ]
-    xml_resources = [XMLResource.from_node(etree.fromstring(xml_str), "onto") for xml_str in xml_strings]
-    upload_state = UploadState(xml_resources.copy(), None, UploadConfig(), {})
+@pytest.fixture
+def intermediary_resources() -> list[IntermediaryResource]:
+    one = IntermediaryResource(
+        "foo_1_id", "onto:foo_1_type", "lbl", None, [IntermediarySimpleText("val", "prp", None, None)]
+    )
+    two = IntermediaryResource(
+        "foo_2_id", "onto:foo_2_type", "lbl", None, [IntermediarySimpleText("val", "prp", None, None)]
+    )
+    return [one, two]
+
+
+def test_idempotency_on_success(intermediary_resources: list[IntermediaryResource]) -> None:
+    upload_state = UploadState(deepcopy(intermediary_resources), None, UploadConfig(), JSONLDContext({}))
     for _ in range(3):
-        _tidy_up_resource_creation_idempotent(upload_state, "foo_1_iri", xml_resources[0])
-        assert upload_state.pending_resources == xml_resources[1:]
+        _tidy_up_resource_creation_idempotent(upload_state, "foo_1_iri", intermediary_resources[0])
+        assert upload_state.pending_resources == intermediary_resources[1:]
         assert upload_state.failed_uploads == []
         assert upload_state.iri_resolver.lookup == {"foo_1_id": "foo_1_iri"}
         assert not upload_state.pending_stash
 
 
-def test_idempotency_on_failure() -> None:
-    xml_strings = [
-        """
-        <resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id">
-            <text-prop name=":hasSimpleText"><text encoding="utf8">foo_1 text</text></text-prop>
-        </resource>
-        """,
-        """
-        <resource label="foo_2_label" restype=":foo_2_type" id="foo_2_id">
-            <text-prop name=":hasSimpleText"><text encoding="utf8">foo_2 text</text></text-prop>
-        </resource>
-        """,
-    ]
-    xml_resources = [XMLResource.from_node(etree.fromstring(xml_str), "onto") for xml_str in xml_strings]
-    upload_state = UploadState(xml_resources.copy(), None, UploadConfig(), {})
+def test_idempotency_on_failure(intermediary_resources: list[IntermediaryResource]) -> None:
+    upload_state = UploadState(deepcopy(intermediary_resources), None, UploadConfig(), JSONLDContext({}))
     for _ in range(3):
-        _tidy_up_resource_creation_idempotent(upload_state, None, xml_resources[0])
-        assert upload_state.pending_resources == xml_resources[1:]
+        _tidy_up_resource_creation_idempotent(upload_state, None, intermediary_resources[0])
+        assert upload_state.pending_resources == intermediary_resources[1:]
         assert upload_state.failed_uploads == ["foo_1_id"]
         assert upload_state.iri_resolver.lookup == {}
         assert not upload_state.pending_stash

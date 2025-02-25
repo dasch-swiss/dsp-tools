@@ -68,7 +68,7 @@ def test_get_properties_of_normal_resource() -> None:
         XMLProperty("knora-api:hasGeometry", "geometry", [XMLValue("{...}")]),
         XMLProperty("rosetta:hasGeoname", "geoname", [XMLValue("5416656")]),
         XMLProperty("rosetta:hasInteger", "integer", [XMLValue("4711")]),
-        XMLProperty("rosetta:hasListItem", "list", [XMLValue("testlist:subnode")]),
+        XMLProperty("rosetta:hasListItem", "list", [XMLValue("testlist / subnode")]),
         XMLProperty("rosetta:hasLink", "resptr", [XMLValue("test_thing_0")]),
         XMLProperty("rosetta:hasSimpleText", "text", [XMLValue("foo")]),
         XMLProperty("rosetta:hasTime", "time", [XMLValue("2019-10-23T13:45:12.01-14:00")]),

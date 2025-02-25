@@ -31,7 +31,7 @@ def mapping_file(monkeypatch: pytest.MonkeyPatch) -> Iterator[Path]:
         mapping_file = Path(f"mapping-{SHORTCODE}.csv")
         yield mapping_file
         mapping_file.unlink(missing_ok=True)
-        for id2iri_mapping in Path(".").glob("*id2iri_mapping*.json"):
+        for id2iri_mapping in Path(".").glob("id2iri_*.json"):
             id2iri_mapping.unlink(missing_ok=True)
 
 
@@ -72,7 +72,7 @@ def _test_ingest_step(mapping_file: Path) -> None:
 def _test_xmlupload_step() -> None:
     success = ingest_xmlupload(XML_FILE, CREDS)
     assert success
-    id2iri_file = list(Path.cwd().glob("*_id2iri_mapping_localhost.json"))[-1]  # choose the most recent one
+    id2iri_file = list(Path.cwd().glob("id2iri_4125_localhost*.json"))[-1]  # choose the most recent one
     id2iri_mapping = json.loads(id2iri_file.read_text(encoding="utf-8"))
     assert sorted(id2iri_mapping.keys()) == ["resource_1", "resource_2", "resource_3"]
     assert all(x.startswith(f"http://rdfh.ch/{SHORTCODE}/") for x in id2iri_mapping.values())

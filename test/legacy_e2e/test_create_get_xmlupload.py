@@ -43,7 +43,7 @@ class TestCreateGetXMLUpload(unittest.TestCase):
         """Is executed after the methods of this class have all run through"""
         shutil.rmtree(cls.testdata_tmp)
         shutil.rmtree(cls.cwd)
-        for f in Path().glob("*id2iri_*.json"):
+        for f in Path().glob("id2iri_*.json"):
             f.unlink()
 
     def test_create_project(self) -> None:
@@ -67,7 +67,7 @@ class TestCreateGetXMLUpload(unittest.TestCase):
         )
         self.assertTrue(success)
 
-        mapping_file = self._get_most_recent_glob_match("*_id2iri_mapping_*.json")
+        mapping_file = self._get_most_recent_glob_match("id2iri_*.json")
         second_xml_file_orig = Path("testdata/id2iri/test-id2iri-data.xml")
         success = id2iri(
             xml_file=str(second_xml_file_orig),

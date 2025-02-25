@@ -6,7 +6,6 @@ import warnings
 from datetime import datetime
 from pathlib import Path
 from typing import Never
-from typing import cast
 
 from loguru import logger
 from rdflib import URIRef
@@ -14,20 +13,18 @@ from tqdm import tqdm
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import create_resource_with_values
-from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
-from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookups
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.lookup_models import get_json_ld_context_for_project
-from dsp_tools.commands.xmlupload.models.lookup_models import make_namespace_dict_from_onto_names
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClient
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClientLive
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import _validate_iiif_uris
+from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_upload_state
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import prepare_upload_from_root
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import prepare_input_xml_file
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
@@ -35,7 +32,6 @@ from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 from dsp_tools.commands.xmlupload.resource_create_client import ResourceCreateClient
 from dsp_tools.commands.xmlupload.stash.upload_stashed_resptr_props import upload_stashed_resptr_props
 from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import upload_stashed_xml_texts
-from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import transform_into_intermediary_resource
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.write_diagnostic_info import write_id2iri_mapping
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
@@ -88,7 +84,7 @@ def xmlupload(
     resources, permissions_lookup, stash = prepare_upload_from_root(root, ontology_client)
 
     clients = _get_live_clients(con, auth, creds, shortcode, imgdir)
-    state = UploadState(resources, stash, config, permissions_lookup)
+    state = get_upload_state(resources, clients, stash, config, permissions_lookup)
 
     return execute_upload(clients, state)
 
@@ -135,7 +131,9 @@ def _cleanup_upload(upload_state: UploadState) -> bool:
     Returns:
         success status (deduced from failed_uploads and non-applied stash)
     """
-    write_id2iri_mapping(upload_state.iri_resolver.lookup, upload_state.config.diagnostics)
+    write_id2iri_mapping(
+        upload_state.iri_resolver.lookup, upload_state.config.shortcode, upload_state.config.diagnostics
+    )
     has_stash_failed = upload_state.pending_stash and not upload_state.pending_stash.is_empty()
     if not upload_state.failed_uploads and not has_stash_failed:
         success = True
@@ -175,24 +173,16 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
         XmlUploadInterruptedError: if the number of resources created is equal to the interrupt_after value
     """
     project_iri = clients.project_client.get_project_iri()
-    project_onto_dict = clients.project_client.get_ontology_name_dict()
-    listnode_lookup = clients.list_client.get_list_node_id_to_iri_lookup()
-    project_context = get_json_ld_context_for_project(project_onto_dict)
-    namespaces = make_namespace_dict_from_onto_names(project_onto_dict)
 
     iri_lookup = IRILookups(
         project_iri=URIRef(project_iri),
         id_to_iri=upload_state.iri_resolver,
-        jsonld_context=project_context,
+        jsonld_context=upload_state.project_context,
     )
 
     resource_create_client = ResourceCreateClient(
         con=clients.project_client.con,
     )
-    intermediary_lookups = IntermediaryLookups(
-        permissions=upload_state.permissions_lookup, listnodes=listnode_lookup, namespaces=namespaces
-    )
-
     progress_bar = tqdm(upload_state.pending_resources.copy(), desc="Creating Resources", dynamic_ncols=True)
     try:
         for creation_attempts_of_this_round, resource in enumerate(progress_bar):
@@ -202,7 +192,6 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
                 ingest_client=clients.asset_client,
                 resource_create_client=resource_create_client,
                 iri_lookups=iri_lookup,
-                intermediary_lookups=intermediary_lookups,
                 creation_attempts_of_this_round=creation_attempts_of_this_round,
             )
             progress_bar.set_description(f"Creating Resources (failed: {len(upload_state.failed_uploads)})")
@@ -225,41 +214,29 @@ def _upload_stash(
 
 def _upload_one_resource(
     upload_state: UploadState,
-    resource: XMLResource,
+    resource: IntermediaryResource,
     ingest_client: AssetClient,
     resource_create_client: ResourceCreateClient,
     iri_lookups: IRILookups,
-    intermediary_lookups: IntermediaryLookups,
     creation_attempts_of_this_round: int,
 ) -> None:
-    transformation_result = transform_into_intermediary_resource(resource, intermediary_lookups)
-    if transformation_result.resource_failure:
-        _handle_resource_creation_failure(resource, transformation_result.resource_failure.failure_msg)
-        upload_state.failed_uploads.append(resource.res_id)
-        return
-
-    transformed_resource = cast(IntermediaryResource, transformation_result.resource_success)
-
-    try:
-        if resource.bitstream:
-            success, media_info = ingest_client.get_bitstream_info(
-                resource.bitstream, upload_state.permissions_lookup, resource.label, resource.res_id
-            )
-        else:
-            success, media_info = True, None
-
-        if not success:
+    media_info = None
+    if resource.file_value:
+        try:
+            ingest_result = ingest_client.get_bitstream_info(resource.file_value)
+        except PermanentConnectionError as err:
+            _handle_permanent_connection_error(err)
+        except KeyboardInterrupt:
+            _handle_keyboard_interrupt()
+        if not ingest_result:
             upload_state.failed_uploads.append(resource.res_id)
             return
-    except PermanentConnectionError as err:
-        _handle_permanent_connection_error(err)
-    except KeyboardInterrupt:
-        _handle_keyboard_interrupt()
+        media_info = ingest_result
 
     iri = None
     try:
         serialised_resource = create_resource_with_values(
-            resource=transformed_resource, bitstream_information=media_info, lookups=iri_lookups
+            resource=resource, bitstream_information=media_info, lookups=iri_lookups
         )
         logger.info(f"Attempting to create resource {resource.res_id} (label: {resource.label})...")
         iri = resource_create_client.create_resource(serialised_resource, bool(media_info))
@@ -269,7 +246,7 @@ def _upload_one_resource(
         _handle_permanent_connection_error(err)
     except Exception as err:  # noqa: BLE001 (blind-except)
         err_msg = err.message if isinstance(err, BaseError) else None
-        _handle_resource_creation_failure(resource, err_msg)
+        _inform_about_resource_creation_failure(resource, err_msg)
 
     try:
         _tidy_up_resource_creation_idempotent(upload_state, iri, resource)
@@ -319,7 +296,7 @@ def _interrupt_if_indicated(upload_state: UploadState, creation_attempts_of_this
 def _tidy_up_resource_creation_idempotent(
     upload_state: UploadState,
     iri: str | None,
-    resource: XMLResource,
+    resource: IntermediaryResource,
 ) -> None:
     previous_successful = len(upload_state.iri_resolver.lookup)
     previous_failed = len(upload_state.failed_uploads)
@@ -340,15 +317,10 @@ def _tidy_up_resource_creation_idempotent(
         upload_state.pending_resources.remove(resource)
 
 
-def _handle_resource_creation_failure(resource: XMLResource, err_msg: str | None) -> None:
-    msg = f"{datetime.now()}: WARNING: Unable to create resource '{resource.label}' (ID: '{resource.res_id}')"
+def _inform_about_resource_creation_failure(resource: IntermediaryResource, err_msg: str | None) -> None:
+    log_msg = f"Unable to create resource '{resource.label}' ({resource.res_id})\n"
     if err_msg:
-        msg = f"{msg}: {err_msg}"
-    log_msg = (
-        f"Unable to create resource '{resource.label}' ({resource.res_id})\n"
-        f"Resource details:\n{vars(resource)}\n"
-        f"Property details:\n" + "\n".join([str(vars(prop)) for prop in resource.properties])
-    )
+        log_msg += err_msg
     logger.exception(log_msg)
 
 

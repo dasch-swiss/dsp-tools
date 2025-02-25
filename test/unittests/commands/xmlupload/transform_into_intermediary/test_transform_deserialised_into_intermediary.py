@@ -41,6 +41,11 @@ def val_bool_inexistent_permissions(permission_inexistent) -> ValueInformation:
 
 
 @pytest.fixture
+def val_bool_permissions_good(permission_good) -> ValueInformation:
+    return ValueInformation("propIRI", "true", KnoraValueType.BOOLEAN_VALUE, [permission_good])
+
+
+@pytest.fixture
 def resource_inexistent_permissions(permission_inexistent) -> ResourceDeserialised:
     return ResourceDeserialised(
         "resource_inexistent_permissions", [permission_inexistent], [], None, MigrationMetadata()
@@ -115,6 +120,12 @@ class TestTransformValues:
 
     def test_boolean_value_deserialised_one(self, boolean_value_deserialised_one):
         result = _transform_one_property(boolean_value_deserialised_one, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
+
+    def test_val_bool_permissions_good(self, val_bool_permissions_good):
+        result = _transform_one_property(val_bool_permissions_good, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
+
+    def test_val_bool_inexistent_permissions(self, val_bool_inexistent_permissions):
+        result = _transform_one_property(val_bool_inexistent_permissions, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
 
     def test_color_value_deserialised_corr(self, color_value_deserialised_corr):
         result = _transform_one_property(color_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP)

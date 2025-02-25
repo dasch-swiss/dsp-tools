@@ -25,6 +25,9 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_deserialised_into_
     _resolve_value_metadata,
 )
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_deserialised_into_intermediary import (
+    _transform_file_value,
+)
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_deserialised_into_intermediary import (
     _transform_one_property,
 )
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_deserialised_into_intermediary import (
@@ -36,6 +39,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_deserialised_into_
 from dsp_tools.models.datetimestamp import DateTimeStamp
 from dsp_tools.models.exceptions import PermissionNotExistsError
 from dsp_tools.utils.date_util import Era
+from dsp_tools.utils.date_util import SingleDate
 from dsp_tools.utils.xml_parsing.models.data_deserialised import DataDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.data_deserialised import MigrationMetadataDeserialised
@@ -186,7 +190,7 @@ class TestTransformOneResource:
         metadata = result.migration_metadata
         assert isinstance(metadata, MigrationMetadata)
         assert metadata.iri_str == "bla"
-        assert metadata.creation_date == DateTimeStamp("1999-12-31T23:59:59.9999999+01:00")
+        assert str(metadata.creation_date) == "1999-12-31T23:59:59.9999999+01:00"
 
     def test_inexistent_permission(self, resource_inexistent_permissions):
         result = _transform_one_resource(resource_inexistent_permissions, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
@@ -261,6 +265,7 @@ class TestTransformValues:
         assert result.prop_iri == f"{ONTO_STR}testSubDate1"
         assert result.value.start.year == 700
         assert result.value.start.era == Era.BCE
+        assert isinstance(result.value.end, SingleDate)
         assert result.value.end.year == 600
         assert result.value.end.era == Era.BCE
         assert not result.comment
@@ -355,6 +360,22 @@ class TestTransformValues:
         assert result.value == "https://dasch.swiss"
         assert not result.comment
         assert not result.permissions
+
+    def test_transform_file_value(self):
+        val = ValueInformation("knora-prop", "image.jpg", KnoraValueType.STILL_IMAGE_FILE, [])
+        result = _transform_file_value(val, PERMISSION_LOOKUP, "id", "lbl")
+        assert result.value == "image.jpg"
+        assert not result.metadata.permissions
+        assert result.res_id == "id"
+        assert result.res_label == "lbl"
+
+    def test_transform_file_value_with_permissions(self, permission_good):
+        val = ValueInformation("knora-prop", "image.jpg", KnoraValueType.STILL_IMAGE_FILE, [permission_good])
+        result = _transform_file_value(val, PERMISSION_LOOKUP, "id", "lbl")
+        assert result.value == "image.jpg"
+        isinstance(result.metadata.permissions, Permissions)
+        assert result.res_id == "id"
+        assert result.res_label == "lbl"
 
 
 class TestTransformMetadata:

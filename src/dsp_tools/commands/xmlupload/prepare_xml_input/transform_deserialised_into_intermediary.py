@@ -2,6 +2,7 @@ from dsp_tools.commands.xmlupload.models.intermediary.file_values import Interme
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileValue
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryIIIFUri
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
+from dsp_tools.commands.xmlupload.models.intermediary.res import MigrationMetadata
 from dsp_tools.commands.xmlupload.models.intermediary.res import ResourceInputConversionFailure
 from dsp_tools.commands.xmlupload.models.intermediary.res import ResourceTransformationResult
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryBoolean
@@ -28,7 +29,6 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values impor
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import PermissionNotExistsError
 from dsp_tools.utils.xml_parsing.models.data_deserialised import DataDeserialised
-from dsp_tools.utils.xml_parsing.models.data_deserialised import MigrationMetadataDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import PropertyObject
 from dsp_tools.utils.xml_parsing.models.data_deserialised import ResourceDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import ValueInformation
@@ -88,30 +88,31 @@ def _transform_one_resource(
     pass
 
 
-def _transform_migration_metadata(resource: ResourceDeserialised) -> MigrationMetadataDeserialised:
+def _transform_migration_metadata(resource: ResourceDeserialised) -> MigrationMetadata:
     res_iri = resource.migration_metadata.iri
     if resource.migration_metadata.ark:
         res_iri = convert_ark_v0_to_resource_iri(resource.migration_metadata.ark)
-    return MigrationMetadataDeserialised(res_iri, resource.migration_metadata.creation_date)
+    return MigrationMetadata(res_iri, resource.migration_metadata.creation_date)
 
 
 def _transform_file_value(
     bitstream: ValueInformation, permissions_lookup: dict[str, Permissions], res_id: str, res_label: str
 ) -> IntermediaryFileValue:
-    metadata = _get_metadata(bitstream, permissions_lookup)
-    return IntermediaryFileValue(bitstream.value, metadata, res_id, res_label)
+    metadata = _resolve_file_value_metadata(bitstream.value_metadata, permissions_lookup)
+    return IntermediaryFileValue(bitstream.user_facing_value, metadata, res_id, res_label)
 
 
 def _transform_iiif_uri_value(
     iiif_uri: ValueInformation, permissions_lookup: dict[str, Permissions]
 ) -> IntermediaryIIIFUri:
-    metadata = _get_metadata(iiif_uri, permissions_lookup)
-    return IntermediaryIIIFUri(iiif_uri.value, metadata)
+    metadata = _resolve_file_value_metadata(iiif_uri.value_metadata, permissions_lookup)
+    return IntermediaryIIIFUri(iiif_uri.user_facing_value, metadata)
 
 
-def _get_metadata(input_val: ValueInformation, permissions_lookup: dict[str, Permissions]) -> IntermediaryFileMetadata:
-    perm = _resolve_permission(input_val.metadata.permissions, permissions_lookup)
-    return IntermediaryFileMetadata(perm)
+def _resolve_file_value_metadata(
+    file_val_metadata: list[PropertyObject], permissions_lookup: dict[str, Permissions]
+) -> IntermediaryFileMetadata:
+    pass
 
 
 def _transform_all_properties(

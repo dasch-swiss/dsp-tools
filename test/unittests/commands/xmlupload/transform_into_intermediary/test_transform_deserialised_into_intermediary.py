@@ -1,6 +1,7 @@
 # mypy: disable-error-code="no-untyped-def"
 
 import pytest
+import regex
 
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.intermediary.res import MigrationMetadata
@@ -37,6 +38,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_deserialised_into_
     transform_all_resources_into_intermediary_resources,
 )
 from dsp_tools.models.datetimestamp import DateTimeStamp
+from dsp_tools.models.exceptions import InvalidInputError
 from dsp_tools.models.exceptions import PermissionNotExistsError
 from dsp_tools.utils.date_util import Era
 from dsp_tools.utils.date_util import SingleDate
@@ -213,7 +215,7 @@ class TestTransformValues:
             KnoraValueType.BOOLEAN_VALUE,
             [comment_prop_obj],
         )
-        result = _transform_one_property(val, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
+        result = _transform_one_property(val, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
         assert isinstance(result, IntermediaryBoolean)
         assert result.prop_iri == "propIRI"
         assert result.value is True
@@ -230,7 +232,7 @@ class TestTransformValues:
                 permission_good,
             ],
         )
-        result = _transform_one_property(val, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
+        result = _transform_one_property(val, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
         assert isinstance(result, IntermediaryBoolean)
         assert result.prop_iri == "propIRI"
         assert result.value is False
@@ -238,7 +240,7 @@ class TestTransformValues:
         assert not result.permissions
 
     def test_val_bool_permissions_good(self, val_bool_permissions_good):
-        result = _transform_one_property(val_bool_permissions_good, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
+        result = _transform_one_property(val_bool_permissions_good, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
         assert isinstance(result, IntermediaryBoolean)
         assert result.prop_iri == "propIRI"
         assert result.value is True
@@ -246,13 +248,12 @@ class TestTransformValues:
         assert not result.permissions
 
     def test_val_bool_inexistent_permissions(self, val_bool_inexistent_permissions):
-        result = _transform_one_property(val_bool_inexistent_permissions, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
-        assert isinstance(result, ResourceInputConversionFailure)
-        assert result.resource_id == "id"
-        assert result.failure_msg == "Could not find permissions for value: does-not-exist"
+        message = regex.escape("Could not find permissions for value: does-not-exist")
+        with pytest.raises(PermissionNotExistsError, match=message):
+            _transform_one_property(val_bool_inexistent_permissions, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
 
     def test_color_value_deserialised_corr(self, color_value_deserialised_corr):
-        result = _transform_one_property(color_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
+        result = _transform_one_property(color_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
         assert isinstance(result, IntermediaryColor)
         assert result.prop_iri == f"{ONTO_STR}testColor"
         assert result.value == "#00ff00"
@@ -260,7 +261,7 @@ class TestTransformValues:
         assert not result.permissions
 
     def test_date_value_deserialised_corr(self, date_value_deserialised_corr):
-        result = _transform_one_property(date_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
+        result = _transform_one_property(date_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
         assert isinstance(result, IntermediaryDate)
         assert result.prop_iri == f"{ONTO_STR}testSubDate1"
         assert result.value.start.year == 700
@@ -272,7 +273,7 @@ class TestTransformValues:
         assert not result.permissions
 
     def test_decimal_value_deserialised_corr(self, decimal_value_deserialised_corr):
-        result = _transform_one_property(decimal_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
+        result = _transform_one_property(decimal_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
         assert isinstance(result, IntermediaryDecimal)
         assert result.prop_iri == f"{ONTO_STR}testDecimalSimpleText"
         assert result.value == 1.2
@@ -280,7 +281,7 @@ class TestTransformValues:
         assert not result.permissions
 
     def test_geoname_value_deserialised_corr(self, geoname_value_deserialised_corr):
-        result = _transform_one_property(geoname_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
+        result = _transform_one_property(geoname_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
         assert isinstance(result, IntermediaryGeoname)
         assert result.prop_iri == f"{ONTO_STR}testGeoname"
         assert result.value == "1241345"
@@ -288,7 +289,7 @@ class TestTransformValues:
         assert not result.permissions
 
     def test_int_value_deserialised_corr(self, int_value_deserialised_corr):
-        result = _transform_one_property(int_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
+        result = _transform_one_property(int_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
         assert isinstance(result, IntermediaryInt)
         assert result.prop_iri == f"{ONTO_STR}testIntegerSimpleText"
         assert result.value == 1
@@ -296,7 +297,7 @@ class TestTransformValues:
         assert not result.permissions
 
     def test_interval_value_deserialised_corr(self, interval_value_deserialised_corr):
-        result = _transform_one_property(interval_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
+        result = _transform_one_property(interval_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
         assert isinstance(result, IntermediaryInterval)
         assert result.prop_iri == f"{ONTO_STR}hasSegmentBounds"
         assert result.value.start == 1
@@ -305,7 +306,7 @@ class TestTransformValues:
         assert not result.permissions
 
     def test_link_value_deserialised_corr(self, link_value_deserialised_corr):
-        result = _transform_one_property(link_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
+        result = _transform_one_property(link_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
         assert isinstance(result, IntermediaryLink)
         assert result.prop_iri == f"{ONTO_STR}testHasLinkTo"
         assert result.value == "link-id"
@@ -313,16 +314,14 @@ class TestTransformValues:
         assert not result.permissions
 
     def test_link_value_deserialised_none(self, link_value_deserialised_none):
-        result = _transform_one_property(link_value_deserialised_none, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
-        assert isinstance(result, ResourceInputConversionFailure)
-        assert result.resource_id == "id"
-        assert (
-            result.failure_msg
-            == "A value of the property http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo is empty."
+        message = regex.escape(
+            "A value of the property http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo is empty."
         )
+        with pytest.raises(InvalidInputError, match=message):
+            _transform_one_property(link_value_deserialised_none, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
 
     def test_list_value_deserialised_corr(self, list_value_deserialised_corr):
-        result = _transform_one_property(list_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
+        result = _transform_one_property(list_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
         assert isinstance(result, IntermediaryList)
         assert result.prop_iri == f"{ONTO_STR}testListProp"
         assert result.value == "http://rdfh.ch/9999/node"
@@ -330,7 +329,7 @@ class TestTransformValues:
         assert not result.permissions
 
     def test_simple_text_deserialised_corr(self, simple_text_deserialised_corr):
-        result = _transform_one_property(simple_text_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
+        result = _transform_one_property(simple_text_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
         assert isinstance(result, IntermediarySimpleText)
         assert result.prop_iri == f"{ONTO_STR}testTextarea"
         assert result.value == "simple text"
@@ -338,7 +337,7 @@ class TestTransformValues:
         assert not result.permissions
 
     def test_richtext_deserialised_corr(self, richtext_deserialised_corr):
-        result = _transform_one_property(richtext_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
+        result = _transform_one_property(richtext_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
         assert isinstance(result, IntermediaryRichtext)
         assert result.prop_iri == f"{ONTO_STR}testRichtext"
         assert result.value.xmlstr == "rich text"
@@ -346,7 +345,7 @@ class TestTransformValues:
         assert not result.permissions
 
     def test_time_value_deserialised_corr(self, time_value_deserialised_corr):
-        result = _transform_one_property(time_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
+        result = _transform_one_property(time_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
         assert isinstance(result, IntermediaryTime)
         assert result.prop_iri == f"{ONTO_STR}testTimeValue"
         assert result.value == "2019-10-23T13:45:12.01-14:00"
@@ -354,7 +353,7 @@ class TestTransformValues:
         assert not result.permissions
 
     def test_uri_value_deserialised_corr(self, uri_value_deserialised_corr):
-        result = _transform_one_property(uri_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
+        result = _transform_one_property(uri_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
         assert isinstance(result, IntermediaryUri)
         assert result.prop_iri == f"{ONTO_STR}testUriValue"
         assert result.value == "https://dasch.swiss"

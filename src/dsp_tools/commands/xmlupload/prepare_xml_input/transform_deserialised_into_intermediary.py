@@ -27,6 +27,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values impor
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_integer
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_interval
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.models.exceptions import InvalidInputError
 from dsp_tools.models.exceptions import PermissionNotExistsError
 from dsp_tools.utils.xml_parsing.models.data_deserialised import DataDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import PropertyObject
@@ -116,16 +117,23 @@ def _resolve_file_value_metadata(
 
 
 def _transform_all_properties(
-    properties: list[ValueInformation], permissions_lookup: dict[str, Permissions], listnodes: dict[str, str]
-) -> list[IntermediaryValue]:
+    properties: list[ValueInformation],
+    res_id: str,
+    permissions_lookup: dict[str, Permissions],
+    listnodes: dict[str, str],
+) -> tuple[list[IntermediaryValue], list[ResourceInputConversionFailure]]:
     all_values = []
+    failures = []
     for prop in properties:
-        all_values.append(_transform_one_property(prop, permissions_lookup, listnodes))
-    return all_values
+        try:
+            all_values.append(_transform_one_property(prop, permissions_lookup, listnodes))
+        except PermissionNotExistsError | InvalidInputError as e:
+            failures.append(ResourceInputConversionFailure(res_id, str(e)))
+    return all_values, failures
 
 
 def _transform_one_property(
-    prop: ValueInformation, permissions_lookup: dict[str, Permissions], listnodes: dict[str, str], res_id: str
+    prop: ValueInformation, permissions_lookup: dict[str, Permissions], listnodes: dict[str, str]
 ) -> IntermediaryValue:
     pass
 

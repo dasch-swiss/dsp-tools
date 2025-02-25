@@ -129,13 +129,14 @@ def _transform_one_property(
     pass
 
 
-def _resolve_value_metadata(metadata: list[PropertyObject], permissions_lookup: dict[str, Permissions]):
+def _resolve_value_metadata(
+    metadata: list[PropertyObject], permissions_lookup: dict[str, Permissions]
+) -> tuple[Permissions | None, str | None]:
     pass
 
 
 def _resolve_permission(permissions: str | None, permissions_lookup: dict[str, Permissions]) -> Permissions | None:
     """Resolve the permission into a string that can be sent to the API."""
-    # TODO: add metadata filter to deserialised
     if permissions:
         if not (per := permissions_lookup.get(permissions)):
             raise PermissionNotExistsError(f"Could not find permissions for value: {permissions}")

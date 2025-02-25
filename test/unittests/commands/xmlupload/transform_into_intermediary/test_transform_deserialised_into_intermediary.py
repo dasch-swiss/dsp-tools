@@ -212,7 +212,7 @@ class TestTransformValues:
         result = _transform_one_property(val, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
         assert isinstance(result, IntermediaryBoolean)
         assert result.prop_iri == "propIRI"
-        assert result.value == True
+        assert result.value is True
         assert not result.comment
         assert not result.permissions
 
@@ -229,7 +229,7 @@ class TestTransformValues:
         result = _transform_one_property(val, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
         assert isinstance(result, IntermediaryBoolean)
         assert result.prop_iri == "propIRI"
-        assert result.value == False
+        assert result.value is False
         assert not result.comment
         assert not result.permissions
 
@@ -237,7 +237,7 @@ class TestTransformValues:
         result = _transform_one_property(val_bool_permissions_good, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
         assert isinstance(result, IntermediaryBoolean)
         assert result.prop_iri == "propIRI"
-        assert result.value == True
+        assert result.value is True
         assert not result.comment
         assert not result.permissions
 
@@ -359,13 +359,15 @@ class TestTransformValues:
 
 class TestTransformMetadata:
     def test_separate_comment_and_permissions(self, permission_good, comment_prop_obj):
-        result = _resolve_value_metadata([permission_good, comment_prop_obj], PERMISSION_LOOKUP)
+        perm, cmt = _resolve_value_metadata([permission_good, comment_prop_obj], PERMISSION_LOOKUP)
+        assert isinstance(perm, Permissions)
+        assert cmt == "Comment"
 
-    def test_resolve_permission_good(self, permission_good):
+    def test_resolve_permission_good(self):
         result = _resolve_permission("good", PERMISSION_LOOKUP)
         assert result == PERMISSION_LOOKUP["good"]
 
-    def test_resolve_permission_raises(self, permission_inexistent):
+    def test_resolve_permission_raises(self):
         with pytest.raises(PermissionNotExistsError):
             _resolve_permission("does-not-exist", PERMISSION_LOOKUP)
 

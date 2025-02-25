@@ -21,6 +21,9 @@ from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_deserialised_into_intermediary import _resolve_permission
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_deserialised_into_intermediary import (
+    _resolve_value_metadata,
+)
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_deserialised_into_intermediary import (
     _transform_one_property,
 )
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_deserialised_into_intermediary import (
@@ -52,6 +55,11 @@ def permission_good() -> PropertyObject:
 @pytest.fixture
 def permission_inexistent() -> PropertyObject:
     return PropertyObject(TriplePropertyType.KNORA_PERMISSIONS, "does-not-exist", TripleObjectType.STRING)
+
+
+@pytest.fixture
+def comment_prop_obj() -> PropertyObject:
+    return PropertyObject(TriplePropertyType.KNORA_COMMENT_ON_VALUE, "Comment", TripleObjectType.STRING)
 
 
 @pytest.fixture
@@ -200,12 +208,12 @@ class TestTransformValues:
         assert not result.comment
         assert not result.permissions
 
-    def test_boolean_with_comment(self):
+    def test_boolean_with_comment(self, comment_prop_obj):
         val = ValueInformation(
             "propIRI",
             "true",
             KnoraValueType.BOOLEAN_VALUE,
-            [PropertyObject(TriplePropertyType.KNORA_COMMENT_ON_VALUE, "Comment", TripleObjectType.STRING)],
+            [comment_prop_obj],
         )
         result = _transform_one_property(val, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
         assert isinstance(result, IntermediaryBoolean)
@@ -348,14 +356,17 @@ class TestTransformValues:
         assert not result.permissions
 
 
-def test_resolve_permission_good(permission_good):
-    result = _resolve_permission("good", PERMISSION_LOOKUP)
-    assert result == PERMISSION_LOOKUP["good"]
+class TestTransformMetadata:
+    def test_separate_comment_and_permissions(self, permission_good, comment_prop_obj):
+        result = _resolve_value_metadata([permission_good, comment_prop_obj], PERMISSION_LOOKUP)
 
+    def test_resolve_permission_good(self, permission_good):
+        result = _resolve_permission("good", PERMISSION_LOOKUP)
+        assert result == PERMISSION_LOOKUP["good"]
 
-def test_resolve_permission_raises(permission_inexistent):
-    with pytest.raises(PermissionNotExistsError):
-        _resolve_permission("does-not-exist", PERMISSION_LOOKUP)
+    def test_resolve_permission_raises(self, permission_inexistent):
+        with pytest.raises(PermissionNotExistsError):
+            _resolve_permission("does-not-exist", PERMISSION_LOOKUP)
 
 
 if __name__ == "__main__":

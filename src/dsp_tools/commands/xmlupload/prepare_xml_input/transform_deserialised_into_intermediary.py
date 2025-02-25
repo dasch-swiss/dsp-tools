@@ -48,7 +48,7 @@ TYPE_TRANSFORMER_MAPPER: dict[str, TypeTransformerMapper] = {
 
 
 def transform_all_resources_into_intermediary_resources(
-    data: DataDeserialised, permissions: dict[str, Permissions], listnodes: dict[str, str]
+    data: DataDeserialised, permissions_lookup: dict[str, Permissions], listnodes: dict[str, str]
 ) -> ResourceTransformationResult:
     """
     Takes the XMLResources parsed from the XML file and converts them into the Intermediary format.
@@ -56,7 +56,7 @@ def transform_all_resources_into_intermediary_resources(
 
     Args:
         data: deserialised data
-        permissions: lookup for permissions
+        permissions_lookup: lookup for permissions
         listnodes: lookup for list node name to IRI
 
     Returns:
@@ -65,7 +65,7 @@ def transform_all_resources_into_intermediary_resources(
     failures = []
     transformed = []
     for res in data.resources:
-        result = _transform_into_intermediary_resource(res, permissions, listnodes)
+        result = _transform_into_intermediary_resource(res, permissions_lookup, listnodes)
         if isinstance(result, IntermediaryResource):
             transformed.append(result)
         else:
@@ -74,16 +74,16 @@ def transform_all_resources_into_intermediary_resources(
 
 
 def _transform_into_intermediary_resource(
-    resource: ResourceDeserialised, permissions: dict[str, Permissions], listnodes: dict[str, str]
+    resource: ResourceDeserialised, permissions_lookup: dict[str, Permissions], listnodes: dict[str, str]
 ) -> IntermediaryResource | ResourceInputConversionFailure:
     try:
-        return _transform_one_resource(resource, permissions, listnodes)
+        return _transform_one_resource(resource, permissions_lookup, listnodes)
     except (PermissionNotExistsError, InputError) as e:
         return ResourceInputConversionFailure(resource.res_id, str(e))
 
 
 def _transform_one_resource(
-    resource: ResourceDeserialised, permissions: dict[str, Permissions], listnodes: dict[str, str]
+    resource: ResourceDeserialised, permissions_lookup: dict[str, Permissions], listnodes: dict[str, str]
 ) -> IntermediaryResource:
     pass
 
@@ -96,38 +96,40 @@ def _transform_migration_metadata(resource: ResourceDeserialised) -> MigrationMe
 
 
 def _transform_file_value(
-    bitstream: ValueInformation, permissions: dict[str, Permissions], res_id: str, res_label: str
+    bitstream: ValueInformation, permissions_lookup: dict[str, Permissions], res_id: str, res_label: str
 ) -> IntermediaryFileValue:
-    metadata = _get_metadata(bitstream, permissions)
+    metadata = _get_metadata(bitstream, permissions_lookup)
     return IntermediaryFileValue(bitstream.value, metadata, res_id, res_label)
 
 
-def _transform_iiif_uri_value(iiif_uri: ValueInformation, permissions: dict[str, Permissions]) -> IntermediaryIIIFUri:
-    metadata = _get_metadata(iiif_uri, permissions)
+def _transform_iiif_uri_value(
+    iiif_uri: ValueInformation, permissions_lookup: dict[str, Permissions]
+) -> IntermediaryIIIFUri:
+    metadata = _get_metadata(iiif_uri, permissions_lookup)
     return IntermediaryIIIFUri(iiif_uri.value, metadata)
 
 
-def _get_metadata(input_val: ValueInformation, permissions: dict[str, Permissions]) -> IntermediaryFileMetadata:
-    perm = _resolve_permission(input_val.metadata.permissions, permissions)
+def _get_metadata(input_val: ValueInformation, permissions_lookup: dict[str, Permissions]) -> IntermediaryFileMetadata:
+    perm = _resolve_permission(input_val.metadata.permissions, permissions_lookup)
     return IntermediaryFileMetadata(perm)
 
 
 def _transform_all_properties(
-    properties: list[ValueInformation], permissions: dict[str, Permissions], listnodes: dict[str, str]
+    properties: list[ValueInformation], permissions_lookup: dict[str, Permissions], listnodes: dict[str, str]
 ) -> list[IntermediaryValue]:
     all_values = []
     for prop in properties:
-        all_values.append(_transform_one_property(prop, permissions, listnodes))
+        all_values.append(_transform_one_property(prop, permissions_lookup, listnodes))
     return all_values
 
 
 def _transform_one_property(
-    prop: ValueInformation, permissions: dict[str, Permissions], listnodes: dict[str, str]
+    prop: ValueInformation, permissions_lookup: dict[str, Permissions], listnodes: dict[str, str]
 ) -> IntermediaryValue:
     pass
 
 
-def _take_apart_value_metadata(metadata: list[PropertyObject]):
+def _resolve_value_metadata(metadata: list[PropertyObject], permissions_lookup: dict[str, Permissions]):
     pass
 
 

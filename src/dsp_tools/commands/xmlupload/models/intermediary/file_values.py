@@ -7,7 +7,10 @@ from dsp_tools.commands.xmlupload.models.permission import Permissions
 
 @dataclass
 class IntermediaryFileMetadata:
-    permissions: Permissions | None
+    license_iri: str | None
+    copyright_holder: str | None
+    authorships: list[str] | None
+    permissions: Permissions | None = None
 
 
 @dataclass

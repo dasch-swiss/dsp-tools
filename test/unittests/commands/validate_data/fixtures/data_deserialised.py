@@ -2,7 +2,7 @@ import pytest
 
 from dsp_tools.commands.validate_data.constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.models.data_deserialised import KnoraValueType
-from dsp_tools.utils.xml_parsing.models.data_deserialised import MigrationMetadata
+from dsp_tools.utils.xml_parsing.models.data_deserialised import MigrationMetadataDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import PropertyObject
 from dsp_tools.utils.xml_parsing.models.data_deserialised import ResourceDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import TripleObjectType
@@ -22,29 +22,29 @@ def resource_deserialised_with_values(
     boolean_value_deserialised_corr: ValueInformation,
 ) -> ResourceDeserialised:
     return ResourceDeserialised(
-        res_id="id",
+        res_id="resource_deserialised_with_values",
         property_objects=UNREIFIED_TRIPLE_OBJECTS,
         values=[boolean_value_deserialised_corr],
         asset_value=None,
-        migration_metadata=MigrationMetadata(),
+        migration_metadata=MigrationMetadataDeserialised(),
     )
 
 
 @pytest.fixture
 def resource_deserialised_no_values() -> ResourceDeserialised:
     return ResourceDeserialised(
-        res_id="id",
+        res_id="resource_deserialised_no_values",
         property_objects=UNREIFIED_TRIPLE_OBJECTS,
         values=[],
         asset_value=None,
-        migration_metadata=MigrationMetadata(),
+        migration_metadata=MigrationMetadataDeserialised(),
     )
 
 
 @pytest.fixture
 def resource_deserialised_with_asset() -> ResourceDeserialised:
     return ResourceDeserialised(
-        res_id="id",
+        res_id="resource_deserialised_with_asset",
         property_objects=UNREIFIED_TRIPLE_OBJECTS,
         values=[],
         asset_value=ValueInformation(
@@ -53,7 +53,7 @@ def resource_deserialised_with_asset() -> ResourceDeserialised:
             KnoraValueType.AUDIO_FILE,
             [],
         ),
-        migration_metadata=MigrationMetadata(),
+        migration_metadata=MigrationMetadataDeserialised(),
     )
 
 
@@ -157,7 +157,7 @@ def link_value_deserialised_none() -> ValueInformation:
 @pytest.fixture
 def list_value_deserialised_corr() -> ValueInformation:
     return ValueInformation(
-        "http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp", "n1", KnoraValueType.LIST_VALUE, []
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp", "list / node", KnoraValueType.LIST_VALUE, []
     )
 
 

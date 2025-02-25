@@ -133,6 +133,7 @@ def _transform_iiif_uri_value(iiif_uri: IIIFUriInfo, lookups: IntermediaryLookup
 
 def _get_metadata(file_metadata: XMLFileMetadata, lookups: IntermediaryLookups) -> IntermediaryFileMetadata:
     perm = _resolve_permission(file_metadata.permissions, lookups.permissions)
+    # TODO: validate license IRI
     return IntermediaryFileMetadata(
         license_iri=file_metadata.license_,
         copyright_holder=file_metadata.copyright_holder,

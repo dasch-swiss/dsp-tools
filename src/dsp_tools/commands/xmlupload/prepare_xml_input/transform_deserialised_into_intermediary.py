@@ -2,7 +2,6 @@ from dsp_tools.commands.xmlupload.models.intermediary.file_values import Interme
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileValue
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryIIIFUri
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
-from dsp_tools.commands.xmlupload.models.intermediary.res import MigrationMetadata
 from dsp_tools.commands.xmlupload.models.intermediary.res import ResourceInputConversionFailure
 from dsp_tools.commands.xmlupload.models.intermediary.res import ResourceTransformationResult
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryBoolean
@@ -29,7 +28,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values impor
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import PermissionNotExistsError
 from dsp_tools.utils.xml_parsing.models.data_deserialised import DataDeserialised
-from dsp_tools.utils.xml_parsing.models.data_deserialised import MigrationMetadata
+from dsp_tools.utils.xml_parsing.models.data_deserialised import MigrationMetadataDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import ResourceDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import ValueInformation
 
@@ -88,11 +87,11 @@ def _transform_one_resource(
     pass
 
 
-def _transform_migration_metadata(resource: ResourceDeserialised) -> MigrationMetadata:
+def _transform_migration_metadata(resource: ResourceDeserialised) -> MigrationMetadataDeserialised:
     res_iri = resource.migration_metadata.iri
     if resource.migration_metadata.ark:
         res_iri = convert_ark_v0_to_resource_iri(resource.migration_metadata.ark)
-    return MigrationMetadata(res_iri, resource.migration_metadata.creation_date)
+    return MigrationMetadataDeserialised(res_iri, resource.migration_metadata.creation_date)
 
 
 def _transform_file_value(

@@ -14,7 +14,7 @@ from dsp_tools.models.datetimestamp import DateTimeStamp
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.xml_parsing.models.data_deserialised import DataDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import KnoraValueType
-from dsp_tools.utils.xml_parsing.models.data_deserialised import MigrationMetadata
+from dsp_tools.utils.xml_parsing.models.data_deserialised import MigrationMetadataDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import PropertyObject
 from dsp_tools.utils.xml_parsing.models.data_deserialised import ResourceDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import TripleObjectType
@@ -87,10 +87,10 @@ def _deserialise_one_resource(resource: etree._Element) -> ResourceDeserialised:
     )
 
 
-def _deserialise_migration_metadata(resource: etree._Element) -> MigrationMetadata:
+def _deserialise_migration_metadata(resource: etree._Element) -> MigrationMetadataDeserialised:
     date = resource.attrib.get("creation_date")
     creation_date = DateTimeStamp(date) if date else None
-    return MigrationMetadata(
+    return MigrationMetadataDeserialised(
         iri=resource.attrib.get("iri"),
         ark=resource.attrib.get("ark"),
         creation_date=creation_date,

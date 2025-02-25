@@ -1,5 +1,4 @@
-# type: ignore
-
+# mypy: disable-error-code="no-untyped-def"
 
 import pytest
 
@@ -31,10 +30,13 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_deserialised_into_
 )
 from dsp_tools.models.datetimestamp import DateTimeStamp
 from dsp_tools.utils.xml_parsing.models.data_deserialised import DataDeserialised
+from dsp_tools.utils.xml_parsing.models.data_deserialised import KnoraValueType
+from dsp_tools.utils.xml_parsing.models.data_deserialised import MigrationMetadataDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import PropertyObject
 from dsp_tools.utils.xml_parsing.models.data_deserialised import ResourceDeserialised
+from dsp_tools.utils.xml_parsing.models.data_deserialised import TripleObjectType
+from dsp_tools.utils.xml_parsing.models.data_deserialised import TriplePropertyType
 from dsp_tools.utils.xml_parsing.models.data_deserialised import ValueInformation
-from test.unittests.commands.validate_data.fixtures.data_deserialised import *  # noqa: F403
 
 PERMISSION_LOOKUP = {"open": Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})}
 LISTNODE_LOOKUP = {"list / node": "http://rdfh.ch/9999/node"}
@@ -63,14 +65,14 @@ def val_bool_permissions_good(permission_good) -> ValueInformation:
 @pytest.fixture
 def resource_inexistent_permissions(permission_inexistent) -> ResourceDeserialised:
     return ResourceDeserialised(
-        "resource_inexistent_permissions", [permission_inexistent], [], None, MigrationMetadata()
+        "resource_inexistent_permissions", [permission_inexistent], [], None, MigrationMetadataDeserialised()
     )
 
 
 @pytest.fixture
 def resource_with_failing_value(val_bool_inexistent_permissions) -> ResourceDeserialised:
     return ResourceDeserialised(
-        "resource_with_failing_value", [], [val_bool_inexistent_permissions], None, MigrationMetadata()
+        "resource_with_failing_value", [], [val_bool_inexistent_permissions], None, MigrationMetadataDeserialised()
     )
 
 
@@ -81,7 +83,7 @@ def resource_with_migration_metadata() -> ResourceDeserialised:
         [],
         [],
         None,
-        MigrationMetadata(
+        MigrationMetadataDeserialised(
             "http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA",
             "ark:/72163/4123-43xc6ivb931-a.2022829",
             DateTimeStamp("1999-12-31T23:59:59.9999999+01:00"),
@@ -97,6 +99,9 @@ def test_transform_all_resources_into_intermediary_resources_success(
         PERMISSION_LOOKUP,
         LISTNODE_LOOKUP,
     )
+    assert not result.resource_failures
+    transformed = result.transformed_resources
+    assert len(transformed) == 2
 
 
 def test_transform_all_resources_into_intermediary_resources_failure(
@@ -107,6 +112,11 @@ def test_transform_all_resources_into_intermediary_resources_failure(
         PERMISSION_LOOKUP,
         LISTNODE_LOOKUP,
     )
+    assert len(result.resource_failures) == 1
+    assert len(result.transformed_resources) == 1
+    failure = result.resource_failures.pop(0)
+    assert failure.resource_id == ""
+    assert failure.failure_msg
 
 
 class TestTransformOneResource:

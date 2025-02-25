@@ -2,7 +2,7 @@ import pytest
 
 from dsp_tools.commands.validate_data.constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.models.data_deserialised import KnoraValueType
-from dsp_tools.utils.xml_parsing.models.data_deserialised import MigrationMetadata
+from dsp_tools.utils.xml_parsing.models.data_deserialised import MigrationMetadataDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import PropertyObject
 from dsp_tools.utils.xml_parsing.models.data_deserialised import ResourceDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import TripleObjectType
@@ -26,7 +26,7 @@ def resource_deserialised_with_values(
         property_objects=UNREIFIED_TRIPLE_OBJECTS,
         values=[boolean_value_deserialised_corr],
         asset_value=None,
-        migration_metadata=MigrationMetadata(),
+        migration_metadata=MigrationMetadataDeserialised(),
     )
 
 
@@ -37,7 +37,7 @@ def resource_deserialised_no_values() -> ResourceDeserialised:
         property_objects=UNREIFIED_TRIPLE_OBJECTS,
         values=[],
         asset_value=None,
-        migration_metadata=MigrationMetadata(),
+        migration_metadata=MigrationMetadataDeserialised(),
     )
 
 
@@ -53,7 +53,7 @@ def resource_deserialised_with_asset() -> ResourceDeserialised:
             KnoraValueType.AUDIO_FILE,
             [],
         ),
-        migration_metadata=MigrationMetadata(),
+        migration_metadata=MigrationMetadataDeserialised(),
     )
 
 

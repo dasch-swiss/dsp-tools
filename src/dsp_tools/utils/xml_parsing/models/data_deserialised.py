@@ -42,11 +42,11 @@ class ResourceDeserialised:
     property_objects: list[PropertyObject]
     values: list[ValueInformation]
     asset_value: ValueInformation | None
-    migration_metadata: MigrationMetadata
+    migration_metadata: MigrationMetadataDeserialised
 
 
 @dataclass
-class MigrationMetadata:
+class MigrationMetadataDeserialised:
     iri: str | None = None
     ark: str | None = None
     creation_date: DateTimeStamp | None = None

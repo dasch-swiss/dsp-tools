@@ -201,11 +201,11 @@ class XMLBitstream:
 
     Attributes:
         value: The file path of the bitstream object
-        permissions: Reference to the set of permissions for the bitstream object
+        metadata: Reference to the set of permissions for the bitstream object
     """
 
     value: str
-    permissions: FileMetadata
+    metadata: XMLFileMetadata
 
     @staticmethod
     def from_node(node: etree._Element) -> XMLBitstream:
@@ -222,11 +222,11 @@ class IIIFUriInfo:
 
     Attributes:
         value: The IIIF URI of the object
-        permissions: Reference to the set of permissions for the IIIF URI
+        metadata: Reference to the set of permissions for the IIIF URI
     """
 
     value: str
-    permissions: FileMetadata
+    metadata: XMLFileMetadata
 
     @staticmethod
     def from_node(node: etree._Element) -> IIIFUriInfo:
@@ -237,18 +237,18 @@ class IIIFUriInfo:
 
 
 @dataclass
-class FileMetadata:
-    permissions: str | None
+class XMLFileMetadata:
     license_: str | None
     copyright_holder: str | None
     authorship_id: str | None
+    permissions: str | None = None
 
 
-def get_file_metadata(node: etree._Element) -> FileMetadata:
+def get_file_metadata(node: etree._Element) -> XMLFileMetadata:
     """Parses the metadata for a bitstream or iiif-uri"""
-    return FileMetadata(
-        permissions=node.get("permissions"),
+    return XMLFileMetadata(
         license_=node.get("license"),
         copyright_holder=node.get("copyright-holder"),
         authorship_id=node.get("authorship-id"),
+        permissions=node.get("permissions"),
     )

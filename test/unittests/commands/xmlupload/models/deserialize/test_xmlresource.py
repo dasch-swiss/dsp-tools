@@ -25,22 +25,45 @@ def test_get_restype_full() -> None:
 
 
 def test_get_properties_bitstream_only() -> None:
-    string = "<resource><bitstream>testdata/bitstreams/test.tif</bitstream></resource>"
-    bitstream_expected = XMLBitstream("testdata/bitstreams/test.tif")
+    string = """
+    <resource>
+        <bitstream license="http://rdfh.ch/licenses/cc-by-nc-4.0"
+                   copyright-holder="copy"
+                   authorship-id="auth_id"
+        >
+            testdata/bitstreams/test.tif
+        </bitstream>
+    </resource>
+    """
     bitstream, iiif, props = XMLResource._get_properties(etree.fromstring(string), "rosetta")
-    assert bitstream == bitstream_expected
+    assert isinstance(bitstream, XMLBitstream)
+    assert bitstream.value == "testdata/bitstreams/test.tif"
+    assert not bitstream.metadata.permissions
+    assert bitstream.metadata.license_ == "http://rdfh.ch/licenses/cc-by-nc-4.0"
+    assert bitstream.metadata.copyright_holder == "copy"
+    assert bitstream.metadata.authorship_id == "auth_id"
     assert not iiif
     assert not props
 
 
 def test_get_properties_iiif_only() -> None:
-    iiif_uri = "https://iiif.dasch.swiss/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/837,530/0/default.jp2"
-    string = f"<resource><iiif-uri>{iiif_uri}</iiif-uri></resource>"
-    iiif_expected = IIIFUriInfo(iiif_uri)
+    iiif_uri = "https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg"
+    string = f"""
+    <resource>
+        <iiif-uri license="http://rdfh.ch/licenses/cc-by-nc-4.0"
+                  copyright-holder="copy"
+                  authorship-id="auth_id"
+        >{iiif_uri}</iiif-uri>
+    </resource>
+    """
     bitstream, iiif, props = XMLResource._get_properties(etree.fromstring(string), "rosetta")
-    assert not bitstream
-    assert iiif == iiif_expected
     assert not props
+    assert not bitstream
+    assert isinstance(iiif, IIIFUriInfo)
+    assert not iiif.metadata.permissions
+    assert iiif.metadata.license_ == "http://rdfh.ch/licenses/cc-by-nc-4.0"
+    assert iiif.metadata.copyright_holder == "copy"
+    assert iiif.metadata.authorship_id == "auth_id"
 
 
 def test_get_properties_of_normal_resource() -> None:

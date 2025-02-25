@@ -78,7 +78,15 @@ def transform_all_resources_into_intermediary_resources(
 def _transform_one_resource(
     resource: ResourceDeserialised, permissions_lookup: dict[str, Permissions], listnodes: dict[str, str]
 ) -> IntermediaryResource | ResourceInputConversionFailure:
+    failures = []
+    file_value, iiif_uri = None, None
     migration_metadata = _transform_migration_metadata(resource.migration_metadata)
+    try:
+        resource_permission = _get_permission(resource.property_objects, permissions_lookup)
+    except PermissionNotExistsError as e:
+        failures.append(str(e))
+    if resource.asset_value:
+        file_value = _transform_file_value(resource.asset_value, permissions_lookup, resource.res_id)
 
 
 def _transform_migration_metadata(migration_metadata: MigrationMetadataDeserialised) -> MigrationMetadata | None:

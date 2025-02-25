@@ -124,7 +124,7 @@ def _transform_all_properties(
 
 
 def _transform_one_property(
-    prop: ValueInformation, permissions_lookup: dict[str, Permissions], listnodes: dict[str, str]
+    prop: ValueInformation, permissions_lookup: dict[str, Permissions], listnodes: dict[str, str], res_id: str
 ) -> IntermediaryValue:
     pass
 

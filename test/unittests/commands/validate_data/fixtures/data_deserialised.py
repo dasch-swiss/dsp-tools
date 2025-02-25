@@ -157,7 +157,7 @@ def link_value_deserialised_none() -> ValueInformation:
 @pytest.fixture
 def list_value_deserialised_corr() -> ValueInformation:
     return ValueInformation(
-        "http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp", "n1", KnoraValueType.LIST_VALUE, []
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp", "list / node", KnoraValueType.LIST_VALUE, []
     )
 
 

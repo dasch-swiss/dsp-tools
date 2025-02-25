@@ -35,6 +35,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_deserialised_into_
 )
 from dsp_tools.models.datetimestamp import DateTimeStamp
 from dsp_tools.models.exceptions import PermissionNotExistsError
+from dsp_tools.utils.date_util import Era
 from dsp_tools.utils.xml_parsing.models.data_deserialised import DataDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.data_deserialised import MigrationMetadataDeserialised
@@ -46,6 +47,8 @@ from dsp_tools.utils.xml_parsing.models.data_deserialised import ValueInformatio
 
 PERMISSION_LOOKUP = {"open": Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})}
 LISTNODE_LOOKUP = {"list / node": "http://rdfh.ch/9999/node"}
+
+ONTO_STR = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
 
 # this enables the usage of the fixtures defined in that file
 pytest_plugins = "test.unittests.commands.validate_data.fixtures.data_deserialised"
@@ -138,7 +141,7 @@ class TestTransformOneResource:
         result = _transform_one_resource(resource_deserialised_no_values, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
         assert isinstance(result, IntermediaryResource)
         assert result.res_id == "resource_deserialised_no_values"
-        assert result.type_iri == "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"
+        assert result.type_iri == f"{ONTO_STR}ClassWithEverything"
         assert result.label == "lbl"
         assert not result.permissions
         assert not result.values
@@ -150,7 +153,7 @@ class TestTransformOneResource:
         result = _transform_one_resource(resource_deserialised_with_values, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
         assert isinstance(result, IntermediaryResource)
         assert result.res_id == "resource_deserialised_with_values"
-        assert result.type_iri == "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"
+        assert result.type_iri == f"{ONTO_STR}ClassWithEverything"
         assert result.label == "lbl"
         assert not result.permissions
         assert not result.values
@@ -162,7 +165,7 @@ class TestTransformOneResource:
         result = _transform_one_resource(resource_deserialised_with_asset, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
         assert isinstance(result, IntermediaryResource)
         assert result.res_id == "resource_deserialised_with_asset"
-        assert result.type_iri == "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"
+        assert result.type_iri == f"{ONTO_STR}ClassWithEverything"
         assert result.label == "lbl"
         assert not result.permissions
         assert not result.values
@@ -174,7 +177,7 @@ class TestTransformOneResource:
         result = _transform_one_resource(resource_with_migration_metadata, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
         assert isinstance(result, IntermediaryResource)
         assert result.res_id == "resource_with_migration_metadata"
-        assert result.type_iri == "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"
+        assert result.type_iri == f"{ONTO_STR}ClassWithEverything"
         assert result.label == "lbl"
         assert not result.permissions
         assert not result.values
@@ -199,166 +202,157 @@ class TestTransformOneResource:
 
 
 class TestTransformValues:
-    def test_(self, boolean_value_deserialised_corr):
-        result = _transform_one_property(boolean_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
-        assert isinstance(result, IntermediaryBoolean)
-        assert result.prop_iri == ""
-        assert result.value == ""
-        assert not result.comment
-        assert not result.permissions
-
-    def test_boolean_value_deserialised_one(self, boolean_value_deserialised_one):
-        result = _transform_one_property(boolean_value_deserialised_one, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
-        assert isinstance(result, IntermediaryBoolean)
-        assert result.prop_iri == ""
-        assert result.value == ""
-        assert not result.comment
-        assert not result.permissions
-
     def test_boolean_with_comment(self, comment_prop_obj):
         val = ValueInformation(
             "propIRI",
-            "true",
+            "1",
             KnoraValueType.BOOLEAN_VALUE,
             [comment_prop_obj],
         )
-        result = _transform_one_property(val, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
+        result = _transform_one_property(val, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
         assert isinstance(result, IntermediaryBoolean)
-        assert result.prop_iri == ""
-        assert result.value == ""
+        assert result.prop_iri == "propIRI"
+        assert result.value == True
         assert not result.comment
         assert not result.permissions
 
     def test_boolean_with_comment_and_permissions(self, permission_good):
         val = ValueInformation(
             "propIRI",
-            "true",
+            "false",
             KnoraValueType.BOOLEAN_VALUE,
             [
                 PropertyObject(TriplePropertyType.KNORA_COMMENT_ON_VALUE, "Comment", TripleObjectType.STRING),
                 permission_good,
             ],
         )
-        result = _transform_one_property(val, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
+        result = _transform_one_property(val, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
         assert isinstance(result, IntermediaryBoolean)
-        assert result.prop_iri == ""
-        assert result.value == ""
+        assert result.prop_iri == "propIRI"
+        assert result.value == False
         assert not result.comment
         assert not result.permissions
 
     def test_val_bool_permissions_good(self, val_bool_permissions_good):
-        result = _transform_one_property(val_bool_permissions_good, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
+        result = _transform_one_property(val_bool_permissions_good, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
         assert isinstance(result, IntermediaryBoolean)
-        assert result.prop_iri == ""
-        assert result.value == ""
+        assert result.prop_iri == "propIRI"
+        assert result.value == True
         assert not result.comment
         assert not result.permissions
 
     def test_val_bool_inexistent_permissions(self, val_bool_inexistent_permissions):
-        result = _transform_one_property(val_bool_inexistent_permissions, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
+        result = _transform_one_property(val_bool_inexistent_permissions, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
         assert isinstance(result, ResourceInputConversionFailure)
-        assert result.resource_id == ""
-        assert result.failure_msg == ""
+        assert result.resource_id == "id"
+        assert result.failure_msg == "Could not find permissions for value: does-not-exist"
 
     def test_color_value_deserialised_corr(self, color_value_deserialised_corr):
-        result = _transform_one_property(color_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
+        result = _transform_one_property(color_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
         assert isinstance(result, IntermediaryColor)
-        assert result.prop_iri == ""
-        assert result.value == ""
+        assert result.prop_iri == f"{ONTO_STR}testColor"
+        assert result.value == "#00ff00"
         assert not result.comment
         assert not result.permissions
 
     def test_date_value_deserialised_corr(self, date_value_deserialised_corr):
-        result = _transform_one_property(date_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
+        result = _transform_one_property(date_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
         assert isinstance(result, IntermediaryDate)
-        assert result.prop_iri == ""
-        assert result.value == ""
+        assert result.prop_iri == f"{ONTO_STR}testSubDate1"
+        assert result.value.start.year == 700
+        assert result.value.start.era == Era.BCE
+        assert result.value.end.year == 600
+        assert result.value.end.era == Era.BCE
         assert not result.comment
         assert not result.permissions
 
     def test_decimal_value_deserialised_corr(self, decimal_value_deserialised_corr):
-        result = _transform_one_property(decimal_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
+        result = _transform_one_property(decimal_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
         assert isinstance(result, IntermediaryDecimal)
-        assert result.prop_iri == ""
-        assert result.value == ""
+        assert result.prop_iri == f"{ONTO_STR}testDecimalSimpleText"
+        assert result.value == 1.2
         assert not result.comment
         assert not result.permissions
 
     def test_geoname_value_deserialised_corr(self, geoname_value_deserialised_corr):
-        result = _transform_one_property(geoname_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
+        result = _transform_one_property(geoname_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
         assert isinstance(result, IntermediaryGeoname)
-        assert result.prop_iri == ""
-        assert result.value == ""
+        assert result.prop_iri == f"{ONTO_STR}testGeoname"
+        assert result.value == "1241345"
         assert not result.comment
         assert not result.permissions
 
     def test_int_value_deserialised_corr(self, int_value_deserialised_corr):
-        result = _transform_one_property(int_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
+        result = _transform_one_property(int_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
         assert isinstance(result, IntermediaryInt)
-        assert result.prop_iri == ""
-        assert result.value == ""
+        assert result.prop_iri == f"{ONTO_STR}testIntegerSimpleText"
+        assert result.value == 1
         assert not result.comment
         assert not result.permissions
 
     def test_interval_value_deserialised_corr(self, interval_value_deserialised_corr):
-        result = _transform_one_property(interval_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
+        result = _transform_one_property(interval_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
         assert isinstance(result, IntermediaryInterval)
-        assert result.prop_iri == ""
-        assert result.value == ""
+        assert result.prop_iri == f"{ONTO_STR}hasSegmentBounds"
+        assert result.value.start == 1
+        assert result.value.end == 2
         assert not result.comment
         assert not result.permissions
 
     def test_link_value_deserialised_corr(self, link_value_deserialised_corr):
-        result = _transform_one_property(link_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
+        result = _transform_one_property(link_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
         assert isinstance(result, IntermediaryLink)
-        assert result.prop_iri == ""
-        assert result.value == ""
+        assert result.prop_iri == f"{ONTO_STR}testHasLinkTo"
+        assert result.value == "link-id"
         assert not result.comment
         assert not result.permissions
 
     def test_link_value_deserialised_none(self, link_value_deserialised_none):
-        result = _transform_one_property(link_value_deserialised_none, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
+        result = _transform_one_property(link_value_deserialised_none, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
         assert isinstance(result, ResourceInputConversionFailure)
-        assert result.resource_id == ""
-        assert result.failure_msg == ""
+        assert result.resource_id == "id"
+        assert (
+            result.failure_msg
+            == "A value of the property http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo is empty."
+        )
 
     def test_list_value_deserialised_corr(self, list_value_deserialised_corr):
-        result = _transform_one_property(list_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
+        result = _transform_one_property(list_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
         assert isinstance(result, IntermediaryList)
-        assert result.prop_iri == ""
-        assert result.value == ""
+        assert result.prop_iri == f"{ONTO_STR}testListProp"
+        assert result.value == "http://rdfh.ch/9999/node"
         assert not result.comment
         assert not result.permissions
 
     def test_simple_text_deserialised_corr(self, simple_text_deserialised_corr):
-        result = _transform_one_property(simple_text_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
+        result = _transform_one_property(simple_text_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
         assert isinstance(result, IntermediarySimpleText)
-        assert result.prop_iri == ""
-        assert result.value == ""
+        assert result.prop_iri == f"{ONTO_STR}testTextarea"
+        assert result.value == "simple text"
         assert not result.comment
         assert not result.permissions
 
     def test_richtext_deserialised_corr(self, richtext_deserialised_corr):
-        result = _transform_one_property(richtext_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
+        result = _transform_one_property(richtext_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
         assert isinstance(result, IntermediaryRichtext)
-        assert result.prop_iri == ""
-        assert result.value == ""
+        assert result.prop_iri == f"{ONTO_STR}testRichtext"
+        assert result.value.xmlstr == "rich text"
         assert not result.comment
         assert not result.permissions
 
     def test_time_value_deserialised_corr(self, time_value_deserialised_corr):
-        result = _transform_one_property(time_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
+        result = _transform_one_property(time_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
         assert isinstance(result, IntermediaryTime)
-        assert result.prop_iri == ""
-        assert result.value == ""
+        assert result.prop_iri == f"{ONTO_STR}testTimeValue"
+        assert result.value == "2019-10-23T13:45:12.01-14:00"
         assert not result.comment
         assert not result.permissions
 
     def test_uri_value_deserialised_corr(self, uri_value_deserialised_corr):
-        result = _transform_one_property(uri_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP)
+        result = _transform_one_property(uri_value_deserialised_corr, PERMISSION_LOOKUP, LISTNODE_LOOKUP, "id")
         assert isinstance(result, IntermediaryUri)
-        assert result.prop_iri == ""
-        assert result.value == ""
+        assert result.prop_iri == f"{ONTO_STR}testUriValue"
+        assert result.value == "https://dasch.swiss"
         assert not result.comment
         assert not result.permissions
 

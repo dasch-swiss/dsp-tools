@@ -12,7 +12,6 @@ from dsp_tools.commands.xmlupload.models.intermediary.values import Intermediary
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryGeometry
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryGeoname
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryInt
-from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryInterval
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryTime
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryUri
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryValue
@@ -25,7 +24,6 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values impor
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_decimal
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_geometry
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_integer
-from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_interval
 from dsp_tools.models.exceptions import InvalidInputError
 from dsp_tools.models.exceptions import PermissionNotExistsError
 from dsp_tools.utils.xml_parsing.models.data_deserialised import DataDeserialised
@@ -35,17 +33,16 @@ from dsp_tools.utils.xml_parsing.models.data_deserialised import PropertyObject
 from dsp_tools.utils.xml_parsing.models.data_deserialised import ResourceDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import ValueInformation
 
-TYPE_TRANSFORMER_MAPPER: dict[str, TypeTransformerMapper] = {
-    "boolean": TypeTransformerMapper(IntermediaryBoolean, transform_boolean),
-    "color": TypeTransformerMapper(IntermediaryColor, assert_is_string),
-    "decimal": TypeTransformerMapper(IntermediaryDecimal, transform_decimal),
-    "date": TypeTransformerMapper(IntermediaryDate, transform_date),
-    "geometry": TypeTransformerMapper(IntermediaryGeometry, transform_geometry),
-    "geoname": TypeTransformerMapper(IntermediaryGeoname, assert_is_string),
-    "integer": TypeTransformerMapper(IntermediaryInt, transform_integer),
-    "interval": TypeTransformerMapper(IntermediaryInterval, transform_interval),
-    "time": TypeTransformerMapper(IntermediaryTime, assert_is_string),
-    "uri": TypeTransformerMapper(IntermediaryUri, assert_is_string),
+TYPE_TRANSFORMER_MAPPER: dict[KnoraValueType, TypeTransformerMapper] = {
+    KnoraValueType.BOOLEAN_VALUE: TypeTransformerMapper(IntermediaryBoolean, transform_boolean),
+    KnoraValueType.COLOR_VALUE: TypeTransformerMapper(IntermediaryColor, assert_is_string),
+    KnoraValueType.DECIMAL_VALUE: TypeTransformerMapper(IntermediaryDecimal, transform_decimal),
+    KnoraValueType.DATE_VALUE: TypeTransformerMapper(IntermediaryDate, transform_date),
+    KnoraValueType.GEOM_VALUE: TypeTransformerMapper(IntermediaryGeometry, transform_geometry),
+    KnoraValueType.GEONAME_VALUE: TypeTransformerMapper(IntermediaryGeoname, assert_is_string),
+    KnoraValueType.INT_VALUE: TypeTransformerMapper(IntermediaryInt, transform_integer),
+    KnoraValueType.TIME_VALUE: TypeTransformerMapper(IntermediaryTime, assert_is_string),
+    KnoraValueType.URI_VALUE: TypeTransformerMapper(IntermediaryUri, assert_is_string),
 }
 
 
@@ -153,6 +150,8 @@ def _transform_all_values(
     all_values = []
     failures = set()
     for prop in values:
+        if prop.knora_type == KnoraValueType.STILL_IMAGE_IIIF:
+            continue
         try:
             all_values.append(_transform_one_value(prop, permissions_lookup, listnodes))
         except PermissionNotExistsError | InvalidInputError as e:
@@ -161,8 +160,43 @@ def _transform_all_values(
 
 
 def _transform_one_value(
-    prop: ValueInformation, permissions_lookup: dict[str, Permissions], listnodes: dict[str, str]
+    val: ValueInformation, permissions_lookup: dict[str, Permissions], listnodes: dict[str, str]
 ) -> IntermediaryValue:
+    match val.knora_type:
+        case KnoraValueType.LIST_VALUE:
+            return _transform_list_value(val, permissions_lookup, listnodes)
+        case KnoraValueType.RICHTEXT_VALUE:
+            return _transform_richtext_value(val, permissions_lookup)
+        case KnoraValueType.LINK_VALUE:
+            return _transform_link_value(val, permissions_lookup)
+        case KnoraValueType.INTERVAL_VALUE:
+            return _transform_interval_value(val, permissions_lookup)
+        case _ as val_type:
+            transformation_mapper = TYPE_TRANSFORMER_MAPPER[val_type]
+            return _transform_one_generic_value(val, permissions_lookup, transformation_mapper)
+
+
+def _transform_one_generic_value(
+    val: ValueInformation, permissions_lookup: dict[str, Permissions], transformation_mapper: TypeTransformerMapper
+) -> IntermediaryValue:
+    pass
+
+
+def _transform_list_value(
+    val: ValueInformation, permissions_lookup: dict[str, Permissions], listnodes: dict[str, str]
+) -> IntermediaryValue:
+    pass
+
+
+def _transform_richtext_value(val: ValueInformation, permissions_lookup: dict[str, Permissions]) -> IntermediaryValue:
+    pass
+
+
+def _transform_link_value(val: ValueInformation, permissions_lookup: dict[str, Permissions]) -> IntermediaryValue:
+    pass
+
+
+def _transform_interval_value(val: ValueInformation, permissions_lookup: dict[str, Permissions]) -> IntermediaryValue:
     pass
 
 

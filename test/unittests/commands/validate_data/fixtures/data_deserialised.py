@@ -22,7 +22,7 @@ def resource_deserialised_with_values(
     boolean_value_deserialised_corr: ValueInformation,
 ) -> ResourceDeserialised:
     return ResourceDeserialised(
-        res_id="id",
+        res_id="resource_deserialised_with_values",
         property_objects=UNREIFIED_TRIPLE_OBJECTS,
         values=[boolean_value_deserialised_corr],
         asset_value=None,
@@ -33,7 +33,7 @@ def resource_deserialised_with_values(
 @pytest.fixture
 def resource_deserialised_no_values() -> ResourceDeserialised:
     return ResourceDeserialised(
-        res_id="id",
+        res_id="resource_deserialised_no_values",
         property_objects=UNREIFIED_TRIPLE_OBJECTS,
         values=[],
         asset_value=None,
@@ -44,7 +44,7 @@ def resource_deserialised_no_values() -> ResourceDeserialised:
 @pytest.fixture
 def resource_deserialised_with_asset() -> ResourceDeserialised:
     return ResourceDeserialised(
-        res_id="id",
+        res_id="resource_deserialised_with_asset",
         property_objects=UNREIFIED_TRIPLE_OBJECTS,
         values=[],
         asset_value=ValueInformation(

@@ -155,7 +155,11 @@ class TestTransformFileValue:
         result = _transform_file_value(bitstream, lookups, "id", "lbl")
         assert result.value == "file.jpg"
         assert isinstance(result, IntermediaryFileValue)
-        assert not result.metadata.permissions
+        metadata = result.metadata
+        assert not metadata.permissions
+        assert metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
+        assert metadata.copyright_holder == "copy"
+        assert not metadata.authorships
 
     def test_transform_file_value_with_permissions(
         self, bitstream_with_permission: XMLBitstream, lookups: IntermediaryLookups
@@ -163,13 +167,21 @@ class TestTransformFileValue:
         result = _transform_file_value(bitstream_with_permission, lookups, "id", "lbl")
         assert isinstance(result, IntermediaryFileValue)
         assert result.value == "file.jpg"
-        assert result.metadata
-        assert isinstance(result.metadata.permissions, Permissions)
+        metadata = result.metadata
+        assert isinstance(metadata.permissions, Permissions)
+        assert metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
+        assert metadata.copyright_holder == "copy"
+        assert not metadata.authorships
 
     def test_transform_iiif_uri_value(self, iiif_uri: IIIFUriInfo, lookups: IntermediaryLookups) -> None:
         result = _transform_iiif_uri_value(iiif_uri, lookups)
         assert result.value == "https://this/is/a/uri.jpg"
         assert isinstance(result, IntermediaryIIIFUri)
+        metadata = result.metadata
+        assert not metadata.permissions
+        assert metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
+        assert metadata.copyright_holder == "copy"
+        assert not metadata.authorships
 
     def test_transform_iiif_uri_value_with_permission(
         self, iiif_uri_with_permission: IIIFUriInfo, lookups: IntermediaryLookups
@@ -177,8 +189,11 @@ class TestTransformFileValue:
         result = _transform_iiif_uri_value(iiif_uri_with_permission, lookups)
         assert isinstance(result, IntermediaryIIIFUri)
         assert result.value == "https://this/is/a/uri.jpg"
-        assert result.metadata
-        assert isinstance(result.metadata.permissions, Permissions)
+        metadata = result.metadata
+        assert isinstance(metadata.permissions, Permissions)
+        assert metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
+        assert metadata.copyright_holder == "copy"
+        assert not metadata.authorships
 
 
 class TestTransformProperties:

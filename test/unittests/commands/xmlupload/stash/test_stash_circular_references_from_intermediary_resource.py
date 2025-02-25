@@ -19,50 +19,12 @@ from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 
 
 @pytest.fixture
-def simple_text_value() -> IntermediarySimpleText:
-    return IntermediarySimpleText("Text", "prop", None, None)
-
-
-@pytest.fixture
-def link_value_to_res_1() -> IntermediaryLink:
-    return IntermediaryLink("res_1", "prop", None, None, "link_to_res_1_uuid")
-
-
-@pytest.fixture
-def link_value_with_permissions_to_res_2() -> IntermediaryLink:
-    return IntermediaryLink(
+def resource_1() -> IntermediaryResource:
+    link_value_to_resource_no_links = IntermediaryLink("res_no_links", "prop", None, None, str(uuid4()))
+    link_value_with_permissions_to_res_2 = IntermediaryLink(
         "res_2", "prop", None, Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]}), "link_to_res_2_uuid"
     )
-
-
-@pytest.fixture
-def link_value_to_resource_no_links() -> IntermediaryLink:
-    return IntermediaryLink("res_no_links", "prop", None, None, str(uuid4()))
-
-
-@pytest.fixture
-def text_value_no_links() -> IntermediaryRichtext:
-    return IntermediaryRichtext(FormattedTextValue("No links"), "prop", None, None, set(), str(uuid4()))
-
-
-@pytest.fixture
-def text_value_with_link() -> IntermediaryRichtext:
-    return IntermediaryRichtext(
-        FormattedTextValue('Link: <a class="salsah-link" href="IRI:res_3:IRI">res_3</a>'),
-        "prop",
-        None,
-        None,
-        set("res_3"),
-        "standoff_link_to_res_3_uuid",
-    )
-
-
-@pytest.fixture
-def resource_1(
-    link_value_with_permissions_to_res_2: IntermediaryLink,
-    link_value_to_resource_no_links: IntermediaryLink,
-    simple_text_value: IntermediarySimpleText,
-) -> IntermediaryResource:
+    simple_text_value = IntermediarySimpleText("Text", "prop", None, None)
     return IntermediaryResource(
         res_id="res_1",
         type_iri="type",
@@ -73,18 +35,27 @@ def resource_1(
 
 
 @pytest.fixture
-def resource_2(text_value_with_link: IntermediaryRichtext) -> IntermediaryResource:
+def resource_2() -> IntermediaryResource:
+    val = IntermediaryRichtext(
+        FormattedTextValue('Link: <a class="salsah-link" href="IRI:res_3:IRI">res_3</a>'),
+        "prop",
+        None,
+        None,
+        set("res_3"),
+        "standoff_link_to_res_3_uuid",
+    )
     return IntermediaryResource(
         res_id="res_2",
         type_iri="type",
         label="lbl",
         permissions=None,
-        values=[text_value_with_link],
+        values=[val],
     )
 
 
 @pytest.fixture
-def resource_3(link_value_to_res_1: IntermediaryRichtext) -> IntermediaryResource:
+def resource_3() -> IntermediaryResource:
+    link_value_to_res_1 = IntermediaryLink("res_1", "prop", None, None, "link_to_res_1_uuid")
     return IntermediaryResource(
         res_id="res_3",
         type_iri="type",

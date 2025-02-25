@@ -117,13 +117,13 @@ def _transform_all_properties(
 ) -> list[IntermediaryValue]:
     all_values = []
     for prop in properties:
-        all_values.extend(_transform_one_property(prop, permissions, listnodes))
+        all_values.append(_transform_one_property(prop, permissions, listnodes))
     return all_values
 
 
 def _transform_one_property(
     prop: ValueInformation, permissions: dict[str, Permissions], listnodes: dict[str, str]
-) -> list[IntermediaryValue]:
+) -> IntermediaryValue:
     pass
 
 

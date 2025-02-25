@@ -212,7 +212,7 @@ class XMLBitstream:
         """Factory that parses a bitstream node from the XML DOM"""
         if not node.text:
             raise XmlUploadError("Empty bitstream tag")
-        return XMLBitstream(node.text.strip(), node.get("permissions"))
+        return XMLBitstream(node.text.strip(), get_file_metadata(node))
 
 
 @dataclass(frozen=True)
@@ -233,7 +233,7 @@ class IIIFUriInfo:
         """Factory that parses an IIIF URI node from the XML DOM"""
         if not node.text:
             raise XmlUploadError("Empty IIIF URI tag")
-        return IIIFUriInfo(node.text.strip(), node.get("permissions"))
+        return IIIFUriInfo(node.text.strip(), get_file_metadata(node))
 
 
 @dataclass
@@ -242,3 +242,13 @@ class FileMetadata:
     license_: str | None
     copyright_holder: str | None
     authorship_id: str | None
+
+
+def get_file_metadata(node: etree._Element) -> FileMetadata:
+    """Parses the metadata for a bitstream or iiif-uri"""
+    return FileMetadata(
+        permissions=node.get("permissions"),
+        license_=node.get("license"),
+        copyright_holder=node.get("copyright-holder"),
+        authorship_id=node.get("authorship-id"),
+    )

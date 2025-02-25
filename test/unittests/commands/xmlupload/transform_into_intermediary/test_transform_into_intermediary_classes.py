@@ -24,11 +24,13 @@ from dsp_tools.commands.xmlupload.models.intermediary.values import Intermediary
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryUri
 from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
-from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_file_value
-from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_iiif_uri_value
-from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_into_intermediary_resource
-from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_one_property
-from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import _transform_one_resource
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import _transform_file_value
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import _transform_iiif_uri_value
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import (
+    _transform_into_intermediary_resource,
+)
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import _transform_one_property
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import _transform_one_resource
 from dsp_tools.models.datetimestamp import DateTimeStamp
 from dsp_tools.models.exceptions import PermissionNotExistsError
 from dsp_tools.utils.date_util import Date

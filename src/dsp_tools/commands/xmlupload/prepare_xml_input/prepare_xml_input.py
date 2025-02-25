@@ -19,12 +19,12 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontol
 )
 from dsp_tools.commands.xmlupload.prepare_xml_input.iiif_uri_validator import IIIFUriValidator
 from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClient
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import (
+    transform_all_resources_into_intermediary_resources,
+)
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import identify_circular_references
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
-from dsp_tools.commands.xmlupload.transform_into_intermediary_classes import (
-    transform_all_resources_into_intermediary_resources,
-)
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import BaseError

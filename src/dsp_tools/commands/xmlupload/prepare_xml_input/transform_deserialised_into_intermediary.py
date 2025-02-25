@@ -29,6 +29,7 @@ from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import PermissionNotExistsError
 from dsp_tools.utils.xml_parsing.models.data_deserialised import DataDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import MigrationMetadataDeserialised
+from dsp_tools.utils.xml_parsing.models.data_deserialised import PropertyObject
 from dsp_tools.utils.xml_parsing.models.data_deserialised import ResourceDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import ValueInformation
 
@@ -123,6 +124,10 @@ def _transform_all_properties(
 def _transform_one_property(
     prop: ValueInformation, permissions: dict[str, Permissions], listnodes: dict[str, str]
 ) -> IntermediaryValue:
+    pass
+
+
+def _take_apart_value_metadata(metadata: list[PropertyObject]):
     pass
 
 

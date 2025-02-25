@@ -19,6 +19,7 @@ from dsp_tools.commands.xmlupload.models.intermediary.values import Intermediary
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryUri
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_deserialised_into_intermediary import _resolve_permission
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_deserialised_into_intermediary import (
     _transform_one_property,
 )
@@ -29,6 +30,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_deserialised_into_
     transform_all_resources_into_intermediary_resources,
 )
 from dsp_tools.models.datetimestamp import DateTimeStamp
+from dsp_tools.models.exceptions import PermissionNotExistsError
 from dsp_tools.utils.xml_parsing.models.data_deserialised import DataDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.data_deserialised import MigrationMetadataDeserialised
@@ -344,6 +346,16 @@ class TestTransformValues:
         assert result.value == ""
         assert not result.comment
         assert not result.permissions
+
+
+def test_resolve_permission_good(permission_good):
+    result = _resolve_permission("good", PERMISSION_LOOKUP)
+    assert result == PERMISSION_LOOKUP["good"]
+
+
+def test_resolve_permission_raises(permission_inexistent):
+    with pytest.raises(PermissionNotExistsError):
+        _resolve_permission("does-not-exist", PERMISSION_LOOKUP)
 
 
 if __name__ == "__main__":

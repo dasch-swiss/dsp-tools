@@ -44,6 +44,21 @@ class ResourceDeserialised:
     asset_value: ValueInformation | None
     migration_metadata: MigrationMetadataDeserialised
 
+    def get_label(self) -> str:
+        val = next(x for x in self.property_objects if x.property_type == TriplePropertyType.RDFS_LABEL)
+        label: str = val.object_value
+        return label
+
+    def get_restype(self) -> str:
+        val = next(x for x in self.property_objects if x.property_type == TriplePropertyType.RDF_TYPE)
+        type_: str = val.object_value
+        return type_
+
+    def get_permission(self) -> str | None:
+        if perm := [x for x in self.property_objects if x.property_type == TriplePropertyType.KNORA_PERMISSIONS]:
+            return perm.pop(0).object_value
+        return None
+
 
 @dataclass
 class MigrationMetadataDeserialised:

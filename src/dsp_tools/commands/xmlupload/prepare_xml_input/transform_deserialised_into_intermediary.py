@@ -29,10 +29,10 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values impor
 from dsp_tools.models.exceptions import InvalidInputError
 from dsp_tools.models.exceptions import PermissionNotExistsError
 from dsp_tools.utils.xml_parsing.models.data_deserialised import DataDeserialised
+from dsp_tools.utils.xml_parsing.models.data_deserialised import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.data_deserialised import MigrationMetadataDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import PropertyObject
 from dsp_tools.utils.xml_parsing.models.data_deserialised import ResourceDeserialised
-from dsp_tools.utils.xml_parsing.models.data_deserialised import TriplePropertyType
 from dsp_tools.utils.xml_parsing.models.data_deserialised import ValueInformation
 
 TYPE_TRANSFORMER_MAPPER: dict[str, TypeTransformerMapper] = {
@@ -78,15 +78,39 @@ def transform_all_resources_into_intermediary_resources(
 def _transform_one_resource(
     resource: ResourceDeserialised, permissions_lookup: dict[str, Permissions], listnodes: dict[str, str]
 ) -> IntermediaryResource | ResourceInputConversionFailure:
-    failures = []
-    file_value, iiif_uri = None, None
+    failures = set()
+    file_value, resource_permission, iiif_uri = None, None, None
     migration_metadata = _transform_migration_metadata(resource.migration_metadata)
     try:
-        resource_permission = _get_permission(resource.property_objects, permissions_lookup)
+        resource_permission = _resolve_permission(resource.get_permission(), permissions_lookup)
     except PermissionNotExistsError as e:
-        failures.append(str(e))
+        failures.add(str(e))
     if resource.asset_value:
-        file_value = _transform_file_value(resource.asset_value, permissions_lookup, resource.res_id)
+        try:
+            file_value = _transform_file_value(
+                resource.asset_value, permissions_lookup, resource.res_id, resource.get_label()
+            )
+        except PermissionNotExistsError as e:
+            failures.add(str(e))
+    try:
+        iiif_uri = _transform_iiif_uri_value(resource.values, permissions_lookup)
+    except PermissionNotExistsError as e:
+        failures.add(str(e))
+
+    transformed_vals, val_fails = _transform_all_values(resource.values, permissions_lookup, listnodes)
+    failures.update(val_fails)
+    if failures:
+        return ResourceInputConversionFailure(resource.res_id, ", ".join(failures))
+    return IntermediaryResource(
+        res_id=resource.res_id,
+        type_iri=resource.get_restype(),
+        label=resource.get_label(),
+        permissions=resource_permission,
+        values=transformed_vals,
+        file_value=file_value,
+        iiif_uri=iiif_uri,
+        migration_metadata=migration_metadata,
+    )
 
 
 def _transform_migration_metadata(migration_metadata: MigrationMetadataDeserialised) -> MigrationMetadata | None:
@@ -106,10 +130,13 @@ def _transform_file_value(
 
 
 def _transform_iiif_uri_value(
-    iiif_uri: ValueInformation, permissions_lookup: dict[str, Permissions]
-) -> IntermediaryIIIFUri:
-    metadata = _resolve_file_value_metadata(iiif_uri.value_metadata, permissions_lookup)
-    return IntermediaryIIIFUri(iiif_uri.user_facing_value, metadata)
+    properties: list[ValueInformation], permissions_lookup: dict[str, Permissions]
+) -> IntermediaryIIIFUri | None:
+    for prop in properties:
+        if prop.knora_type == KnoraValueType.STILL_IMAGE_IIIF:
+            metadata = _resolve_file_value_metadata(prop.value_metadata, permissions_lookup)
+            return IntermediaryIIIFUri(prop.user_facing_value, metadata)
+    return None
 
 
 def _resolve_file_value_metadata(
@@ -118,22 +145,22 @@ def _resolve_file_value_metadata(
     pass
 
 
-def _transform_all_properties(
-    properties: list[ValueInformation],
+def _transform_all_values(
+    values: list[ValueInformation],
     permissions_lookup: dict[str, Permissions],
     listnodes: dict[str, str],
-) -> tuple[list[IntermediaryValue], list[str]]:
+) -> tuple[list[IntermediaryValue], set[str]]:
     all_values = []
-    failures = []
-    for prop in properties:
+    failures = set()
+    for prop in values:
         try:
-            all_values.append(_transform_one_property(prop, permissions_lookup, listnodes))
+            all_values.append(_transform_one_value(prop, permissions_lookup, listnodes))
         except PermissionNotExistsError | InvalidInputError as e:
-            failures.append(str(e))
+            failures.add(str(e))
     return all_values, failures
 
 
-def _transform_one_property(
+def _transform_one_value(
     prop: ValueInformation, permissions_lookup: dict[str, Permissions], listnodes: dict[str, str]
 ) -> IntermediaryValue:
     pass
@@ -143,14 +170,6 @@ def _resolve_value_metadata(
     metadata: list[PropertyObject], permissions_lookup: dict[str, Permissions]
 ) -> tuple[Permissions | None, str | None]:
     pass
-
-
-def _get_permission(
-    prop_objects: list[PropertyObject], permissions_lookup: dict[str, Permissions]
-) -> Permissions | None:
-    if perm := [x for x in prop_objects if x.property_type == TriplePropertyType.KNORA_PERMISSIONS]:
-        return _resolve_permission(perm.pop(0).object_value, permissions_lookup)
-    return None
 
 
 def _resolve_permission(permissions: str | None, permissions_lookup: dict[str, Permissions]) -> Permissions | None:

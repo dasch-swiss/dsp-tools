@@ -1,5 +1,4 @@
 # mypy: disable-error-code="no-untyped-def"
-
 import pytest
 
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
@@ -45,6 +44,8 @@ from dsp_tools.utils.xml_parsing.models.data_deserialised import ValueInformatio
 
 PERMISSION_LOOKUP = {"open": Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})}
 LISTNODE_LOOKUP = {"list / node": "http://rdfh.ch/9999/node"}
+
+pytest_plugins = "test.unittests.commands.validate_data.fixtures.data_deserialised"
 
 
 @pytest.fixture

@@ -1,4 +1,5 @@
 # mypy: disable-error-code="no-untyped-def"
+
 import pytest
 
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource

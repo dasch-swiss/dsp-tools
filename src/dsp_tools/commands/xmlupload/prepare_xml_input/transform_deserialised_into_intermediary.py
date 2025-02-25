@@ -26,12 +26,13 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values impor
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_geometry
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_integer
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_interval
-from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import InvalidInputError
 from dsp_tools.models.exceptions import PermissionNotExistsError
 from dsp_tools.utils.xml_parsing.models.data_deserialised import DataDeserialised
+from dsp_tools.utils.xml_parsing.models.data_deserialised import MigrationMetadataDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import PropertyObject
 from dsp_tools.utils.xml_parsing.models.data_deserialised import ResourceDeserialised
+from dsp_tools.utils.xml_parsing.models.data_deserialised import TriplePropertyType
 from dsp_tools.utils.xml_parsing.models.data_deserialised import ValueInformation
 
 TYPE_TRANSFORMER_MAPPER: dict[str, TypeTransformerMapper] = {
@@ -66,7 +67,7 @@ def transform_all_resources_into_intermediary_resources(
     failures = []
     transformed = []
     for res in data.resources:
-        result = _transform_into_intermediary_resource(res, permissions_lookup, listnodes)
+        result = _transform_one_resource(res, permissions_lookup, listnodes)
         if isinstance(result, IntermediaryResource):
             transformed.append(result)
         else:
@@ -74,26 +75,19 @@ def transform_all_resources_into_intermediary_resources(
     return ResourceTransformationResult(transformed, failures)
 
 
-def _transform_into_intermediary_resource(
-    resource: ResourceDeserialised, permissions_lookup: dict[str, Permissions], listnodes: dict[str, str]
-) -> IntermediaryResource | ResourceInputConversionFailure:
-    try:
-        return _transform_one_resource(resource, permissions_lookup, listnodes)
-    except (PermissionNotExistsError, InputError) as e:
-        return ResourceInputConversionFailure(resource.res_id, str(e))
-
-
 def _transform_one_resource(
     resource: ResourceDeserialised, permissions_lookup: dict[str, Permissions], listnodes: dict[str, str]
-) -> IntermediaryResource:
-    pass
+) -> IntermediaryResource | ResourceInputConversionFailure:
+    migration_metadata = _transform_migration_metadata(resource.migration_metadata)
 
 
-def _transform_migration_metadata(resource: ResourceDeserialised) -> MigrationMetadata:
-    res_iri = resource.migration_metadata.iri
-    if resource.migration_metadata.ark:
-        res_iri = convert_ark_v0_to_resource_iri(resource.migration_metadata.ark)
-    return MigrationMetadata(res_iri, resource.migration_metadata.creation_date)
+def _transform_migration_metadata(migration_metadata: MigrationMetadataDeserialised) -> MigrationMetadata | None:
+    if not migration_metadata.any():
+        return None
+    res_iri = migration_metadata.iri
+    if migration_metadata.ark:
+        res_iri = convert_ark_v0_to_resource_iri(migration_metadata.ark)
+    return MigrationMetadata(res_iri, migration_metadata.creation_date)
 
 
 def _transform_file_value(
@@ -118,17 +112,16 @@ def _resolve_file_value_metadata(
 
 def _transform_all_properties(
     properties: list[ValueInformation],
-    res_id: str,
     permissions_lookup: dict[str, Permissions],
     listnodes: dict[str, str],
-) -> tuple[list[IntermediaryValue], list[ResourceInputConversionFailure]]:
+) -> tuple[list[IntermediaryValue], list[str]]:
     all_values = []
     failures = []
     for prop in properties:
         try:
             all_values.append(_transform_one_property(prop, permissions_lookup, listnodes))
         except PermissionNotExistsError | InvalidInputError as e:
-            failures.append(ResourceInputConversionFailure(res_id, str(e)))
+            failures.append(str(e))
     return all_values, failures
 
 
@@ -142,6 +135,14 @@ def _resolve_value_metadata(
     metadata: list[PropertyObject], permissions_lookup: dict[str, Permissions]
 ) -> tuple[Permissions | None, str | None]:
     pass
+
+
+def _get_permission(
+    prop_objects: list[PropertyObject], permissions_lookup: dict[str, Permissions]
+) -> Permissions | None:
+    if perm := [x for x in prop_objects if x.property_type == TriplePropertyType.KNORA_PERMISSIONS]:
+        return _resolve_permission(perm.pop(0).object_value, permissions_lookup)
+    return None
 
 
 def _resolve_permission(permissions: str | None, permissions_lookup: dict[str, Permissions]) -> Permissions | None:

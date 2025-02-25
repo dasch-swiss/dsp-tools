@@ -70,7 +70,7 @@ def _get_node_tuples(lists: list[List]) -> Iterable[tuple[str, str]]:
         list_name = lst.list_name
         for node in lst.nodes:
             node_name = node.node_name
-            node_id = f"{list_name}:{node_name}"
+            node_id = f"{list_name} / {node_name}"
             yield node_id, node.node_iri
 
 

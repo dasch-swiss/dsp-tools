@@ -46,8 +46,8 @@ from dsp_tools.utils.xml_parsing.models.data_deserialised import ValueInformatio
 PERMISSION_LOOKUP = {"open": Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})}
 LISTNODE_LOOKUP = {"list / node": "http://rdfh.ch/9999/node"}
 
+# this enables the usage of the fixtures defined in that file
 pytest_plugins = "test.unittests.commands.validate_data.fixtures.data_deserialised"
-
 
 @pytest.fixture
 def permission_good() -> PropertyObject:

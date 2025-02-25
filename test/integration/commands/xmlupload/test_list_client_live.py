@@ -38,7 +38,7 @@ class TestGetListNodeLookup:
         con = ConnectionMock([list_iris, list_a])
         list_client = ListClientLive(con, "")
         lookup = list_client.get_list_node_id_to_iri_lookup()
-        expected = {"list-a:list-a": "http://www.example.org/lists#a"}
+        expected = {"list-a / list-a": "http://www.example.org/lists#a"}
         assert lookup == expected
 
     def test_list_with_children(self) -> None:
@@ -65,9 +65,9 @@ class TestGetListNodeLookup:
         list_client = ListClientLive(con, "")
         lookup = list_client.get_list_node_id_to_iri_lookup()
         expected = {
-            "list-a:list-a": "http://www.example.org/lists#a",
-            "list-a:node-a1": "http://www.example.org/lists#a1",
-            "list-a:node-a2": "http://www.example.org/lists#a2",
+            "list-a / list-a": "http://www.example.org/lists#a",
+            "list-a / node-a1": "http://www.example.org/lists#a1",
+            "list-a / node-a2": "http://www.example.org/lists#a2",
         }
         assert lookup == expected
 
@@ -110,10 +110,10 @@ class TestGetListNodeLookup:
         list_client = ListClientLive(con, "")
         lookup = list_client.get_list_node_id_to_iri_lookup()
         expected = {
-            "list-a:list-a": "http://www.example.org/lists#a",
-            "list-a:node-a1": "http://www.example.org/lists#a1",
-            "list-b:list-b": "http://www.example.org/lists#b",
-            "list-b:node-b1": "http://www.example.org/lists#b1",
+            "list-a / list-a": "http://www.example.org/lists#a",
+            "list-a / node-a1": "http://www.example.org/lists#a1",
+            "list-b / list-b": "http://www.example.org/lists#b",
+            "list-b / node-b1": "http://www.example.org/lists#b1",
         }
         assert lookup == expected
 

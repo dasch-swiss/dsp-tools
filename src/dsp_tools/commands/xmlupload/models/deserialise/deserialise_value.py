@@ -205,7 +205,7 @@ class XMLBitstream:
     """
 
     value: str
-    permissions: Optional[str] = None
+    permissions: FileMetadata
 
     @staticmethod
     def from_node(node: etree._Element) -> XMLBitstream:
@@ -226,7 +226,7 @@ class IIIFUriInfo:
     """
 
     value: str
-    permissions: str | None = None
+    permissions: FileMetadata
 
     @staticmethod
     def from_node(node: etree._Element) -> IIIFUriInfo:
@@ -234,3 +234,11 @@ class IIIFUriInfo:
         if not node.text:
             raise XmlUploadError("Empty IIIF URI tag")
         return IIIFUriInfo(node.text.strip(), node.get("permissions"))
+
+
+@dataclass
+class FileMetadata:
+    permissions: str | None
+    license_: str | None
+    copyright_holder: str | None
+    authorship_id: str | None

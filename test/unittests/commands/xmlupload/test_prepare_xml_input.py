@@ -14,7 +14,7 @@ def test_extract_authorships_from_xml_with_authors():
             Rosenthaler</author>
         </authorship>
         <authorship id="authorship_2">
-            <author>Nora Ammann
+            <author>\tNora Ammann
             </author>
         </authorship>
         <authorship id="authorship_3">

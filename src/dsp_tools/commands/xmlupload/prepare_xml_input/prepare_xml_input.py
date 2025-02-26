@@ -165,8 +165,20 @@ def _extract_permissions_from_xml(root: etree._Element, proj_context: ProjectCon
     return {permission.permission_id: permission for permission in permissions}
 
 
-def _extract_authorships_from_xml(root: etree._Element) -> dict[str, str]:
-    pass
+def _extract_authorships_from_xml(root: etree._Element) -> dict[str, list[str]]:
+    # The xsd file ensures that the body of the element contains valid non-whitespace characters
+    def get_one_author(ele: etree._Element) -> str:
+        split_auth = ele.text.split(" ")
+        split_auth = [x.split("\t") for x in split_auth]
+        split_auth = [x.split("\n") for x in split_auth]
+        split_auth = [found for x in split_auth if (found := x.strip())]
+        return " ".join(split_auth)
+
+    authorship_lookup = {}
+    for auth in root.iter(tag="authorship"):
+        individual_authors = [get_one_author(child) for child in auth.iterchildren()]
+        authorship_lookup[auth.attrib["id"]] = individual_authors
+    return authorship_lookup
 
 
 def _extract_resources_from_xml(root: etree._Element, default_ontology: str) -> list[XMLResource]:

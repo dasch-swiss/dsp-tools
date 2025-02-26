@@ -5,6 +5,7 @@ import requests
 from requests import ReadTimeout
 from requests import Response
 
+from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
 from dsp_tools.utils.legal_info_client import LegalInfoClient
 from dsp_tools.utils.request_utils import GenericRequestParameters
@@ -14,6 +15,8 @@ from dsp_tools.utils.request_utils import log_response
 from dsp_tools.utils.set_encoder import SetEncoder
 
 TIMEOUT = 60
+
+HTTP_INSUFFICIENT_CREDENTIALS = 403
 
 
 @dataclass
@@ -34,6 +37,11 @@ class LegalInfoClientLive(LegalInfoClient):
                 log_and_raise_timeouts(err)
             if response.ok:
                 continue
+            if response.status_code == HTTP_INSUFFICIENT_CREDENTIALS:
+                raise BadCredentialsError(
+                    "Only a project or system administrator can create new copyright holders. "
+                    "Your permissions are insufficient for this action."
+                )
 
     def _post_request(self, endpoint: str, data: list[str]) -> Response:
         url = f"{self.server}/admin/projects/shortcode/{self.project_shortcode}/legal-info/{endpoint}"

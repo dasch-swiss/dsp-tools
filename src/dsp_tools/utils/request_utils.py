@@ -9,7 +9,6 @@ from typing import Literal
 from typing import Never
 
 from loguru import logger
-from requests import JSONDecodeError
 from requests import ReadTimeout
 from requests import Response
 

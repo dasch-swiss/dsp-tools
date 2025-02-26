@@ -1,7 +1,7 @@
 import json
-from dataclasses import dataclass
 import os
 import time
+from dataclasses import dataclass
 from datetime import datetime
 from json import JSONDecodeError
 from typing import Any
@@ -9,7 +9,6 @@ from typing import Literal
 from typing import Never
 
 from loguru import logger
-from requests import JSONDecodeError
 from requests import ReadTimeout
 from requests import Response
 

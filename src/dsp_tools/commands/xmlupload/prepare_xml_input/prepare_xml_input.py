@@ -165,6 +165,10 @@ def _extract_permissions_from_xml(root: etree._Element, proj_context: ProjectCon
     return {permission.permission_id: permission for permission in permissions}
 
 
+def _extract_authorships_from_xml(root: etree._Element) -> dict[str, str]:
+    pass
+
+
 def _extract_resources_from_xml(root: etree._Element, default_ontology: str) -> list[XMLResource]:
     resources = list(root.iter(tag="resource"))
     return [XMLResource.from_node(res, default_ontology) for res in resources]

@@ -17,6 +17,7 @@ class IntermediaryLookups:
     permissions: dict[str, Permissions]
     listnodes: dict[str, str]
     namespaces: dict[str, str]
+    authorships: dict[str, list[str]]
 
 
 @dataclass

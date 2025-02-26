@@ -160,7 +160,7 @@ class TestTransformFileValue:
         assert not metadata.permissions
         assert metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
         assert metadata.copyright_holder == "copy"
-        assert not metadata.authorships
+        assert metadata.authorships == ["author"]
 
     def test_transform_file_value_with_permissions(
         self, bitstream_with_permission: XMLBitstream, lookups: IntermediaryLookups
@@ -172,7 +172,7 @@ class TestTransformFileValue:
         assert isinstance(metadata.permissions, Permissions)
         assert metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
         assert metadata.copyright_holder == "copy"
-        assert not metadata.authorships
+        assert metadata.authorships == ["author"]
 
     def test_transform_iiif_uri_value(self, iiif_uri: IIIFUriInfo, lookups: IntermediaryLookups):
         result = _transform_iiif_uri_value(iiif_uri, lookups)
@@ -182,7 +182,7 @@ class TestTransformFileValue:
         assert not metadata.permissions
         assert metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
         assert metadata.copyright_holder == "copy"
-        assert not metadata.authorships
+        assert metadata.authorships == ["author"]
 
     def test_transform_iiif_uri_value_with_permission(
         self, iiif_uri_with_permission: IIIFUriInfo, lookups: IntermediaryLookups
@@ -194,7 +194,7 @@ class TestTransformFileValue:
         assert isinstance(metadata.permissions, Permissions)
         assert metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
         assert metadata.copyright_holder == "copy"
-        assert not metadata.authorships
+        assert metadata.authorships == ["author"]
 
     def test_get_metadata_soon_deprecated_without_metadata(self, lookups):
         file = IIIFUriInfo("uri", XMLFileMetadata(None, None, None))
@@ -210,6 +210,15 @@ class TestTransformFileValue:
         msg = regex.escape(
             "The license 'unknown' used for an image or iiif-uri is unknown. "
             "See documentation for accepted pre-defined licenses."
+        )
+        with pytest.raises(InputError, match=msg):
+            _get_metadata(metadata, lookups)
+
+    def test_get_metadata_unknown_author(self, lookups):
+        metadata = XMLFileMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "unknown")
+        msg = regex.escape(
+            "The authorship id 'unknown' referenced  an image or iiif-uri is unknown. "
+            "Ensure that all referenced ids are defined in the `<authorship>` elements of your XML."
         )
         with pytest.raises(InputError, match=msg):
             _get_metadata(metadata, lookups)

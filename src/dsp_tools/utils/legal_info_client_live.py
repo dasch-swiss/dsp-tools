@@ -33,7 +33,7 @@ class LegalInfoClientLive(LegalInfoClient):
         segmented_data = _segment_data(copyright_holders)
         for seg in segmented_data:
             try:
-                response = self._post_request("copyright-holders", seg)
+                response = self._post_and_log_request("copyright-holders", seg)
             except (TimeoutError, ReadTimeout) as err:
                 log_and_raise_timeouts(err)
             if response.ok:
@@ -49,7 +49,7 @@ class LegalInfoClientLive(LegalInfoClient):
                     f"Please consult warnings.log for details."
                 )
 
-    def _post_request(self, endpoint: str, data: list[str]) -> Response:
+    def _post_and_log_request(self, endpoint: str, data: list[str]) -> Response:
         url = f"{self.server}/admin/projects/shortcode/{self.project_shortcode}/legal-info/{endpoint}"
         headers = {
             "Content-Type": "application/json",

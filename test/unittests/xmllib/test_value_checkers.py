@@ -14,6 +14,7 @@ from dsp_tools.xmllib.value_checkers import is_dsp_ark
 from dsp_tools.xmllib.value_checkers import is_dsp_iri
 from dsp_tools.xmllib.value_checkers import is_geoname
 from dsp_tools.xmllib.value_checkers import is_integer
+from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_string_like
 from dsp_tools.xmllib.value_checkers import is_timestamp
 
@@ -42,6 +43,16 @@ ALLOWED_RICHTEXT_TAGS = [
     "blockquote",
     "code",
 ]
+
+
+@pytest.mark.parametrize("val", ["None", "-", "1", 0, 1, True, False])
+def test_is_nonempty_value_correct(val: Any) -> None:
+    assert is_nonempty_value(val)
+
+
+@pytest.mark.parametrize("val", [None, pd.NA, "", " ", "\n", " \t "])
+def test_is_nonempty_value_wrong(val: Any) -> None:
+    assert not is_nonempty_value(val)
 
 
 @pytest.mark.parametrize(

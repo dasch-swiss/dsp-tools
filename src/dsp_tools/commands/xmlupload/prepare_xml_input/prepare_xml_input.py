@@ -173,13 +173,9 @@ def _extract_authorships_from_xml(root: etree._Element) -> dict[str, list[str]]:
     # The xsd file ensures that the body of the element contains valid non-whitespace characters
     def get_one_author(ele: etree._Element) -> str:
         txt = cast(str, ele.text)
-        fragment_list: list[str] = []
-        for frag in txt.split(" "):
-            no_newline = frag.split("\n")
-            for sub_frag in no_newline:
-                fragment_list.extend(sub_frag.split("\t"))
-        split_auth = [found for x in fragment_list if (found := x.strip())]
-        return " ".join(split_auth)
+        txt = re.sub(r"[\n\t]", " ", txt)
+        txt = re.sub(r" +", " ", txt)
+        return txt.strip()
 
     authorship_lookup = {}
     for auth in root.iter(tag="authorship"):

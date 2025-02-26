@@ -173,7 +173,7 @@ class ConnectionLive(Connection):
         action = partial(self.session.request, **params.as_kwargs())
         for retry_counter in range(7):
             try:
-                self._log_request(params)
+                log_request(params, dict(self.session.headers))
                 response = action()
             except (TimeoutError, ReadTimeout) as err:
                 log_and_raise_timeouts(err)
@@ -214,6 +214,3 @@ class ConnectionLive(Connection):
         self.session.headers["User-Agent"] = f"DSP-TOOLS/{version('dsp-tools')}"
         if self.authenticationClient and (token := self.authenticationClient.get_token()):
             self.session.headers["Authorization"] = f"Bearer {token}"
-
-    def _log_request(self, params: RequestParameters) -> None:
-        log_request(params, dict(self.session.headers))

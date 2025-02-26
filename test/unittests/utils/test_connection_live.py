@@ -187,16 +187,16 @@ def test_server_and_route_without_slash() -> None:
         assert expected_params.url == "http://example.com/v2/resources", f"Method '{method.__name__}' failed"
 
 
+@patch("dsp_tools.utils.connection_live.log_request")
 @patch("dsp_tools.utils.connection_live.log_response")
-def test_try_network_action(log_response: Mock) -> None:
+def test_try_network_action(log_request: Mock, log_response: Mock) -> None:
     con = ConnectionLive("http://example.com/")
     response_expected = Mock(status_code=200)
     con.session.request = Mock(return_value=response_expected)
-    con._log_request = Mock()
     params = RequestParameters(method="GET", url="http://example.com/", timeout=1)
     response = con._try_network_action(params)
     assert response == response_expected
-    con._log_request.assert_called_once_with(params)
+    log_request.assert_called_once_with(params, con.session.headers)
     con.session.request.assert_called_once_with(**params.as_kwargs())
     log_response.assert_called_once_with(response_expected)
 

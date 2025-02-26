@@ -164,7 +164,7 @@ def _get_metadata(file_metadata: XMLFileMetadata, lookups: IntermediaryLookups) 
 def _warn_about_mandatory_legal_info(file_val: XMLBitstream | IIIFUriInfo) -> None:
     if not all([file_val.metadata.copyright_holder, file_val.metadata.license_, file_val.metadata.authorship_id]):
         warn_msg = (
-            f"The file {file_val.value} does not contain any legal info. "
+            f"The file {file_val.value} does not contain all the legal info. "
             "Legal info (copyright, license and authorship) is soon required for all bitstreams and iiif-uri."
             "Please ensure that all information is included in the XML. See documentation for details."
         )

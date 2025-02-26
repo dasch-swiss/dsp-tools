@@ -195,6 +195,14 @@ class TestTransformFileValue:
         assert metadata.copyright_holder == "copy"
         assert not metadata.authorships
 
+    def test_get_metadata_soon_deprecated_without_metadata(self, lookups):
+        metadata = XMLFileMetadata(None, None, None)
+        result = _get_metadata(metadata, lookups)
+        assert not result.permissions
+        assert not result.license_iri
+        assert not result.copyright_holder
+        assert not result.authorships
+
     def test_get_metadata_raises(self, lookups):
         metadata = XMLFileMetadata("unknown", "copy", "auth")
         msg = regex.escape(

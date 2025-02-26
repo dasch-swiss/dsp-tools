@@ -132,7 +132,7 @@ def _transform_iiif_uri_value(iiif_uri: IIIFUriInfo, lookups: IntermediaryLookup
 
 
 def _get_metadata(file_metadata: XMLFileMetadata, lookups: IntermediaryLookups) -> IntermediaryFileMetadata:
-    perm = _resolve_permission(file_metadata.permissions, lookups.permissions)
+    permissions = _resolve_permission(file_metadata.permissions, lookups.permissions)
     predefined_licenses = [
         "http://rdfh.ch/licenses/cc-by-4.0",
         "http://rdfh.ch/licenses/cc-by-sa-4.0",
@@ -153,7 +153,7 @@ def _get_metadata(file_metadata: XMLFileMetadata, lookups: IntermediaryLookups) 
         license_iri=file_metadata.license_,
         copyright_holder=file_metadata.copyright_holder,
         authorships=None,
-        permissions=perm,
+        permissions=permissions,
     )
 
 

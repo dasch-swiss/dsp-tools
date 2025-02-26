@@ -168,10 +168,12 @@ def _extract_permissions_from_xml(root: etree._Element, proj_context: ProjectCon
 def _extract_authorships_from_xml(root: etree._Element) -> dict[str, list[str]]:
     # The xsd file ensures that the body of the element contains valid non-whitespace characters
     def get_one_author(ele: etree._Element) -> str:
-        split_auth = ele.text.split(" ")
-        split_auth = [x.split("\t") for x in split_auth]
-        split_auth = [x.split("\n") for x in split_auth]
-        split_auth = [found for x in split_auth if (found := x.strip())]
+        fragment_list = []
+        for frag in ele.text.split(" "):
+            no_newline = frag.split("\n")
+            for sub_frag in no_newline:
+                fragment_list.extend(sub_frag.split("\t"))
+        split_auth = [found for x in fragment_list if (found := x.strip())]
         return " ".join(split_auth)
 
     authorship_lookup = {}

@@ -18,7 +18,7 @@ def test_extract_authorships_from_xml_with_authors():
             </author>
         </authorship>
         <authorship id="authorship_3">
-            <author>Nora Ammann</author>
+            <author>Nora    Ammann</author>
             <author>Johannes Nussbaum</author>
         </authorship>
     </knora>

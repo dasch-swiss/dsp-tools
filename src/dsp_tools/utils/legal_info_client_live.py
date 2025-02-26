@@ -19,6 +19,14 @@ class LegalInfoClientLive(LegalInfoClient):
 
     def post_copyright_holders(self, copyright_holders: list[str]) -> None:
         """Send a list of new copyright holders to the API"""
+        # The maximum allowed number of data elements is 100,
+        # this segments the entries so that it does not go over the limit.
+        segmented_data = _segment_data(copyright_holders)
+        for seg in segmented_data:
+            try:
+                response = self._post_request("copyright-holders", seg)
+            except:
+                pass
 
     def _post_request(self, endpoint: str, data: list[str]) -> Response:
         url = f"{self.server}admin/projects/shortcode/{self.project_shortcode}/legal-info/{endpoint}"

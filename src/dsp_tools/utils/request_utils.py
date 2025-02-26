@@ -1,12 +1,16 @@
 import json
 from dataclasses import dataclass
+from datetime import datetime
 from json import JSONDecodeError
 from typing import Any
 from typing import Literal
+from typing import Never
 
 from loguru import logger
+from requests import ReadTimeout
 from requests import Response
 
+from dsp_tools.models.exceptions import PermanentTimeOutError
 from dsp_tools.utils.set_encoder import SetEncoder
 
 
@@ -20,6 +24,7 @@ class GenericRequestParameters:
 
 
 def log_request(params: GenericRequestParameters) -> None:
+    """Log a request"""
     dumpobj = {
         "method": params.method,
         "url": params.url,
@@ -36,6 +41,8 @@ def log_request(params: GenericRequestParameters) -> None:
 
 
 def sanitize_headers(headers: dict[str, str | bytes]) -> dict[str, str]:
+    """Remove any authorisation of cookie information from the header."""
+
     def _mask(key: str, value: str | bytes) -> str:
         if isinstance(value, bytes):
             value = value.decode("utf-8")
@@ -49,6 +56,7 @@ def sanitize_headers(headers: dict[str, str | bytes]) -> dict[str, str]:
 
 
 def log_response(response: Response) -> None:
+    """Log the response to a request."""
     dumpobj: dict[str, Any] = {
         "status_code": response.status_code,
         "headers": sanitize_headers(dict(response.headers)),
@@ -58,3 +66,11 @@ def log_response(response: Response) -> None:
     except JSONDecodeError:
         dumpobj["content"] = response.text
     logger.debug(f"RESPONSE: {json.dumps(dumpobj)}")
+
+
+def log_and_raise_timeouts(error: TimeoutError | ReadTimeout) -> Never:
+    """Logs the timeout errors that may occurr during a request and raises our own."""
+    msg = f"A '{error.__class__.__name__}' occurred during the connection to the DSP server."
+    print(f"{datetime.now()}: {msg}")
+    logger.exception(msg)
+    raise PermanentTimeOutError(msg) from None

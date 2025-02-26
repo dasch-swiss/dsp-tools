@@ -1,11 +1,13 @@
 from dataclasses import dataclass
 
 import requests
+from requests import ReadTimeout
 from requests import Response
 
 from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
 from dsp_tools.utils.legal_info_client import LegalInfoClient
 from dsp_tools.utils.request_utils import GenericRequestParameters
+from dsp_tools.utils.request_utils import log_and_raise_timeouts
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
 
@@ -29,9 +31,9 @@ class LegalInfoClientLive(LegalInfoClient):
         segmented_data = _segment_data(copyright_holders)
         for seg in segmented_data:
             try:
-                response = self._post_request("copyright-holders", seg)
-            except:
-                pass
+                self._post_request("copyright-holders", seg)
+            except TimeoutError | ReadTimeout as err:
+                log_and_raise_timeouts(err)
 
     def _post_request(self, endpoint: str, data: list[str]) -> Response:
         url = f"{self.server}admin/projects/shortcode/{self.project_shortcode}/legal-info/{endpoint}"
@@ -42,7 +44,7 @@ class LegalInfoClientLive(LegalInfoClient):
         payload = {"data": [item.encode("utf-8") for item in data]}
         params = GenericRequestParameters("POST", url, TIMEOUT, payload, headers)
         log_request(params)
-        response = requests.post(url=url, headers=headers, data=payload)
+        response = requests.post(url=url, headers=headers, data=payload, timeout=TIMEOUT)
         log_response(response)
         return response
 

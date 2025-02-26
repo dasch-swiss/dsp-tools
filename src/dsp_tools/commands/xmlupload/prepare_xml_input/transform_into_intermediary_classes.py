@@ -156,7 +156,7 @@ def _get_metadata(file_metadata: XMLFileMetadata, lookups: IntermediaryLookups) 
     return IntermediaryFileMetadata(
         license_iri=file_metadata.license_,
         copyright_holder=file_metadata.copyright_holder,
-        authorships=None,
+        authorships=_resolve_authorship(file_metadata.authorship_id, lookups.authorships),
         permissions=permissions,
     )
 
@@ -169,6 +169,17 @@ def _warn_about_mandatory_legal_info(file_val: XMLBitstream | IIIFUriInfo) -> No
             "Please ensure that all information is included in the XML. See documentation for details."
         )
         warnings.warn(DspToolsFutureWarning(warn_msg))
+
+
+def _resolve_authorship(authorship_id: str | None, lookup: dict[str, list[str]]) -> list[str] | None:
+    if not authorship_id:
+        return None
+    if not (found := lookup.get(authorship_id)):
+        raise InputError(
+            f"The authorship id '{authorship_id}' referenced in a multimedia file or iiif-uri is unknown. "
+            f"Ensure that all referenced ids are defined in the `<authorship>` elements of your XML."
+        )
+    return found
 
 
 def _transform_all_properties(properties: list[XMLProperty], lookups: IntermediaryLookups) -> list[IntermediaryValue]:

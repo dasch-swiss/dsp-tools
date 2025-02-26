@@ -22,6 +22,7 @@ def lookups() -> IntermediaryLookups:
             "knora-api": "http://api.knora.org/ontology/knora-api/v2#",
             "onto": "http://0.0.0.0:3333/ontology/9999/onto/v2#",
         },
+        authorships={"auth_id": ["author"]},
     )
 
 

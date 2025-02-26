@@ -91,6 +91,12 @@ class TestFindDate:
         assert find_date_in_string("x 1492-10-12, 2025-01-01x") == "GREGORIAN:CE:1492-10-12:CE:1492-10-12"
         assert find_date_in_string("first date: 2024. Second is ignored: 2025.") == "GREGORIAN:CE:2024:CE:2024"
 
+    def test_find_date_in_string_accept_only_dash_as_range_delimiter(self) -> None:
+        assert find_date_in_string("01.01.1900:31.12.2000") == "GREGORIAN:CE:1900-01-01:CE:1900-01-01"
+        assert find_date_in_string("01.01.1900 to 31.12.2000") == "GREGORIAN:CE:1900-01-01:CE:1900-01-01"
+        assert find_date_in_string("1900:2000") == "GREGORIAN:CE:1900:CE:1900"
+        assert find_date_in_string("1900 to 2000") == "GREGORIAN:CE:1900:CE:1900"
+
     def test_find_date_in_string_iso(self) -> None:
         """template: 2021-01-01"""
         assert find_date_in_string("x 1492-10-12, x") == "GREGORIAN:CE:1492-10-12:CE:1492-10-12"

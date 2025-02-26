@@ -31,18 +31,13 @@ class LegalInfoClientLive(LegalInfoClient):
 
 
 def _segment_data(data: list[str]) -> list[list[str]]:
-    segmented = [data[:100]]
-    counter = 2
+    if len(data) <= 100:
+        return [data]
 
-    def get_range(counter_num: int) -> tuple[int, int]:
-        start = counter_num * 100
-        end = (counter_num + 1) * 100
-        return start, end
-
+    segmented = []
     while len(data) > 100:
-        start_range, end_range = get_range(counter)
-        segmented.append(data[start_range:end_range])
-        counter += 1
-    start_range, end_range = get_range(counter + 1)
-    segmented.append(data[start_range:end_range])
+        segmented.append(data[:100])
+        data = data[100:]
+
+    segmented.append(data)
     return segmented

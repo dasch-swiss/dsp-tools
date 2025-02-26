@@ -4,7 +4,6 @@ from dataclasses import field
 from functools import partial
 from importlib.metadata import version
 from typing import Any
-from typing import Literal
 from typing import cast
 
 import regex
@@ -19,7 +18,9 @@ from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.utils.authentication_client import AuthenticationClient
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.logger_config import WARNINGS_SAVEPATH
+from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_and_raise_timeouts
+from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_request_failure_and_sleep
 from dsp_tools.utils.request_utils import log_response
 from dsp_tools.utils.request_utils import sanitize_headers
@@ -28,35 +29,6 @@ from dsp_tools.utils.set_encoder import SetEncoder
 
 HTTP_OK = 200
 HTTP_UNAUTHORIZED = 401
-
-
-@dataclass
-class RequestParameters:
-    method: Literal["POST", "GET", "PUT", "DELETE"]
-    url: str
-    timeout: int
-    data: dict[str, Any] | None = None
-    data_serialized: bytes | None = field(init=False, default=None)
-    headers: dict[str, str] | None = None
-    files: dict[str, tuple[str, Any]] | None = None
-
-    def __post_init__(self) -> None:
-        self.data_serialized = self._serialize_payload(self.data)
-
-    def _serialize_payload(self, payload: dict[str, Any] | None) -> bytes | None:
-        # If data is not encoded as bytes, issues can occur with non-ASCII characters,
-        # where the content-length of the request will turn out to be different from the actual length.
-        return json.dumps(payload, cls=SetEncoder, ensure_ascii=False).encode("utf-8") if payload else None
-
-    def as_kwargs(self) -> dict[str, Any]:
-        return {
-            "method": self.method,
-            "url": self.url,
-            "timeout": self.timeout,
-            "data": self.data_serialized,
-            "headers": self.headers,
-            "files": self.files,
-        }
 
 
 @dataclass
@@ -205,7 +177,7 @@ class ConnectionLive(Connection):
         action = partial(self.session.request, **params.as_kwargs())
         for retry_counter in range(7):
             try:
-                self._log_request(params)
+                log_request(params, self.session.headers)
                 response = action()
             except (TimeoutError, ReadTimeout) as err:
                 log_and_raise_timeouts(err)

@@ -5,6 +5,11 @@ from requests import Response
 
 from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
 from dsp_tools.utils.legal_info_client import LegalInfoClient
+from dsp_tools.utils.request_utils import GenericRequestParameters
+from dsp_tools.utils.request_utils import log_request
+from dsp_tools.utils.request_utils import log_response
+
+TIMEOUT = 60
 
 
 @dataclass
@@ -34,8 +39,12 @@ class LegalInfoClientLive(LegalInfoClient):
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.authentication_client.get_token()}",
         }
-        payload = {"data": data}
-        return requests.post(url=url, headers=headers, data=payload)
+        payload = {"data": [item.encode("utf-8") for item in data]}
+        params = GenericRequestParameters("POST", url, TIMEOUT, payload, headers)
+        log_request(params)
+        response = requests.post(url=url, headers=headers, data=payload)
+        log_response(response)
+        return response
 
 
 def _segment_data(data: list[str]) -> list[list[str]]:

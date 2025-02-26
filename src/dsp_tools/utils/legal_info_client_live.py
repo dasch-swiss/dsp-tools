@@ -31,9 +31,6 @@ class LegalInfoClientLive(LegalInfoClient):
 
 
 def _segment_data(data: list[str]) -> list[list[str]]:
-    if len(data) <= 100:
-        return [data]
-
     segmented = []
     while len(data) > 100:
         segmented.append(data[:100])

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import warnings
 from datetime import datetime
+from typing import cast
 
 from loguru import logger
 from lxml import etree
@@ -171,8 +172,9 @@ def _extract_permissions_from_xml(root: etree._Element, proj_context: ProjectCon
 def _extract_authorships_from_xml(root: etree._Element) -> dict[str, list[str]]:
     # The xsd file ensures that the body of the element contains valid non-whitespace characters
     def get_one_author(ele: etree._Element) -> str:
-        fragment_list = []
-        for frag in ele.text.split(" "):
+        txt = cast(str, ele.text)
+        fragment_list: list[str] = []
+        for frag in txt.split(" "):
             no_newline = frag.split("\n")
             for sub_frag in no_newline:
                 fragment_list.extend(sub_frag.split("\t"))

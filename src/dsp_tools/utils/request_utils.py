@@ -9,6 +9,7 @@ from typing import Literal
 from typing import Never
 
 from loguru import logger
+from requests import JSONDecodeError
 from requests import ReadTimeout
 from requests import Response
 
@@ -56,7 +57,7 @@ def log_response(response: Response) -> None:
 
 
 def sanitize_headers(headers: dict[str, str | bytes]) -> dict[str, str]:
-    """Remove any authorisation of cookie information from the header."""
+    """Remove sensitive information from request headers."""
 
     def _mask(key: str, value: str | bytes) -> str:
         if isinstance(value, bytes):
@@ -82,7 +83,7 @@ def log_request_failure_and_sleep(reason: str, retry_counter: int, exc_info: boo
 
 
 def log_and_raise_timeouts(error: TimeoutError | ReadTimeout) -> Never:
-    """Logs the timeout errors that may occur during a request and raises our own."""
+    """Log a timeout error raised by a request and raise our own PermanentTimeOutError"""
     msg = f"A '{error.__class__.__name__}' occurred during the connection to the DSP server."
     print(f"{datetime.now()}: {msg}")
     logger.exception(msg)

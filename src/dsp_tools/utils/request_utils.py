@@ -2,6 +2,7 @@ import json
 import os
 import time
 from dataclasses import dataclass
+from dataclasses import field
 from datetime import datetime
 from typing import Any
 from typing import Literal
@@ -17,15 +18,35 @@ from dsp_tools.utils.set_encoder import SetEncoder
 
 
 @dataclass
-class GenericRequestParameters:
+class RequestParameters:
     method: Literal["POST", "GET", "PUT", "DELETE"]
     url: str
     timeout: int
-    data: Any | None = None
+    data: dict[str, Any] | None = None
+    data_serialized: bytes | None = field(init=False, default=None)
     headers: dict[str, str] | None = None
+    files: dict[str, tuple[str, Any]] | None = None
+
+    def __post_init__(self) -> None:
+        self.data_serialized = self._serialize_payload(self.data)
+
+    def _serialize_payload(self, payload: dict[str, Any] | None) -> bytes | None:
+        # If data is not encoded as bytes, issues can occur with non-ASCII characters,
+        # where the content-length of the request will turn out to be different from the actual length.
+        return json.dumps(payload, cls=SetEncoder, ensure_ascii=False).encode("utf-8") if payload else None
+
+    def as_kwargs(self) -> dict[str, Any]:
+        return {
+            "method": self.method,
+            "url": self.url,
+            "timeout": self.timeout,
+            "data": self.data_serialized,
+            "headers": self.headers,
+            "files": self.files,
+        }
 
 
-def log_request(params: GenericRequestParameters) -> None:
+def log_request(params: RequestParameters) -> None:
     """Log a request"""
     dumpobj = {
         "method": params.method,

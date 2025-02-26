@@ -1,4 +1,3 @@
-import json
 from dataclasses import dataclass
 
 import requests
@@ -9,11 +8,10 @@ from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
 from dsp_tools.utils.legal_info_client import LegalInfoClient
-from dsp_tools.utils.request_utils import GenericRequestParameters
+from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_and_raise_timeouts
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
-from dsp_tools.utils.set_encoder import SetEncoder
 
 TIMEOUT = 60
 
@@ -46,7 +44,7 @@ class LegalInfoClientLive(LegalInfoClient):
             else:
                 raise BaseError(
                     f"An unexpected response with the status code {response.status_code} from the API occurred. "
-                    f"Please consult warnings.log for details."
+                    f"Please consult 'warnings.log' for details."
                 )
 
     def _post_and_log_request(self, endpoint: str, data: list[str]) -> Response:
@@ -55,11 +53,9 @@ class LegalInfoClientLive(LegalInfoClient):
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.authentication_client.get_token()}",
         }
-        params = GenericRequestParameters("POST", url, TIMEOUT, data, headers)
+        params = RequestParameters("POST", url, TIMEOUT, {"data": data}, headers)
         log_request(params)
-        data_dict = {"data": data}
-        encoded_data = json.dumps(data_dict, cls=SetEncoder, ensure_ascii=False).encode("utf-8")
-        response = requests.post(url=url, headers=headers, data=encoded_data, timeout=TIMEOUT)
+        response = requests.post(url=url, headers=headers, data=params.data_serialized, timeout=TIMEOUT)
         log_response(response)
         return response
 

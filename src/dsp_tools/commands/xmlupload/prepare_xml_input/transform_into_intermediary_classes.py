@@ -144,7 +144,7 @@ def _get_metadata(file_metadata: XMLFileMetadata, lookups: IntermediaryLookups) 
         "http://rdfh.ch/licenses/unknown",
         "http://rdfh.ch/licenses/public-domain",
     ]
-    if file_metadata.license_ not in predefined_licenses:
+    if file_metadata.license_ and file_metadata.license_ not in predefined_licenses:
         raise InputError(
             f"The license '{file_metadata.license_}' used for an image or iiif-uri is unknown. "
             f"See documentation for accepted pre-defined licenses."

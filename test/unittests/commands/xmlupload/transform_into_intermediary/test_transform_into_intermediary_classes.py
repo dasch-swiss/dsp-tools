@@ -197,7 +197,10 @@ class TestTransformFileValue:
 
     def test_get_metadata_raises(self, lookups):
         metadata = XMLFileMetadata("unknown", "copy", "auth")
-        msg = regex.escape("adsf")
+        msg = regex.escape(
+            "The license 'unknown' used for an image or iiif-uri is unknown. "
+            "See documentation for accepted pre-defined licenses."
+        )
         with pytest.raises(InputError, match=msg):
             _get_metadata(metadata, lookups)
 

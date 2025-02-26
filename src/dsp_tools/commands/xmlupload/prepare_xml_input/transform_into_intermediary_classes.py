@@ -146,8 +146,8 @@ def _get_metadata(file_metadata: XMLFileMetadata, lookups: IntermediaryLookups) 
     ]
     if file_metadata.license_ not in predefined_licenses:
         raise InputError(
-            f"Unknown license used for an image: {file_metadata.license_}. "
-            f"See documentation for accepted pre-defined liceses."
+            f"The license '{file_metadata.license_}' used for an image or iiif-uri is unknown. "
+            f"See documentation for accepted pre-defined licenses."
         )
     return IntermediaryFileMetadata(
         license_iri=file_metadata.license_,

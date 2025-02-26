@@ -4,6 +4,7 @@ import warnings
 from datetime import datetime
 from typing import cast
 
+import regex
 from loguru import logger
 from lxml import etree
 
@@ -170,11 +171,11 @@ def _extract_permissions_from_xml(root: etree._Element, proj_context: ProjectCon
 
 
 def _extract_authorships_from_xml(root: etree._Element) -> dict[str, list[str]]:
-    # The xsd file ensures that the body of the element contains valid non-whitespace characters
     def get_one_author(ele: etree._Element) -> str:
+        # The xsd file ensures that the body of the element contains valid non-whitespace characters
         txt = cast(str, ele.text)
-        txt = re.sub(r"[\n\t]", " ", txt)
-        txt = re.sub(r" +", " ", txt)
+        txt = regex.sub(r"[\n\t]", " ", txt)
+        txt = regex.sub(r" +", " ", txt)
         return txt.strip()
 
     authorship_lookup = {}

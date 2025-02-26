@@ -217,7 +217,7 @@ class TestTransformFileValue:
     def test_get_metadata_unknown_author(self, lookups):
         metadata = XMLFileMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "unknown")
         msg = regex.escape(
-            "The authorship id 'unknown' referenced  a multimedia file or iiif-uri is unknown. "
+            "The authorship id 'unknown' referenced in a multimedia file or iiif-uri is unknown. "
             "Ensure that all referenced ids are defined in the `<authorship>` elements of your XML."
         )
         with pytest.raises(InputError, match=msg):

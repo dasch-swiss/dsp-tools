@@ -38,7 +38,7 @@ def is_nonempty_value(value: Any) -> bool:
         # result == False
         ```
     """
-    if isinstance(value, str) and len(value) == 0:
+    if isinstance(value, str) and len(value.strip()) == 0:
         return False
     return not pd.isna(value)
 

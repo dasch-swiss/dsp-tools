@@ -24,7 +24,7 @@ class RequestParameters:
     timeout: int
     data: dict[str, Any] | None = None
     data_serialized: bytes | None = field(init=False, default=None)
-    headers: dict[str, str] | None = None
+    headers: dict[str, Any] | None = None
     files: dict[str, tuple[str, Any]] | None = None
 
     def __post_init__(self) -> None:

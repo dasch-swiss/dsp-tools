@@ -1,4 +1,4 @@
-# mypy: disable-error-code="method-assign"
+# mypy: disable-error-code="method-assign,no-untyped-def"
 
 from dsp_tools.utils.legal_info_client_live import _segment_data
 

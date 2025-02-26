@@ -1,5 +1,63 @@
 # Changelog
 
+## [10.5.0](https://github.com/dasch-swiss/dsp-tools/compare/v10.4.0...v10.5.0) (2025-02-26)
+
+
+### Enhancements
+
+* allow legal info in XML (DEV-4599) ([#1431](https://github.com/dasch-swiss/dsp-tools/issues/1431)) ([c3f1b15](https://github.com/dasch-swiss/dsp-tools/commit/c3f1b154f310fe14db497369d64ead746c3ef89a))
+* parse migration metadata in `DataDeserialised` (DEV-4612) ([#1457](https://github.com/dasch-swiss/dsp-tools/issues/1457)) ([412a747](https://github.com/dasch-swiss/dsp-tools/commit/412a7477defbbb50b395bf67cab3f03badff0c6c))
+* **xmllib:** implement license and copyright (DEV-4354) ([#1427](https://github.com/dasch-swiss/dsp-tools/issues/1427)) ([f48b827](https://github.com/dasch-swiss/dsp-tools/commit/f48b8277bfe38f49943c7f0d2633df35329dded4))
+* **xmllib:** support "15 Jan 2025" in find_date_in_string() (RDU-75) ([#1461](https://github.com/dasch-swiss/dsp-tools/issues/1461)) ([1b17163](https://github.com/dasch-swiss/dsp-tools/commit/1b17163027ab4efd361645b21002fe4693b903db))
+* **xmllib:** support german month names in find_date_in_string() (RDU-76) ([#1462](https://github.com/dasch-swiss/dsp-tools/issues/1462)) ([81aa0b9](https://github.com/dasch-swiss/dsp-tools/commit/81aa0b96b6b51c7788c7120daa61a81906f45391))
+* **xmlupload:** change name of id2iri mapping file (DEV-4601) ([#1438](https://github.com/dasch-swiss/dsp-tools/issues/1438)) ([dd079ff](https://github.com/dasch-swiss/dsp-tools/commit/dd079fff12c1c22db58becf5937b8c449bca9fd9))
+
+
+### Bug Fixes
+
+* **excel2xml:** filter out blanks-only strings from create_json_excel_list_mapping() ([#1472](https://github.com/dasch-swiss/dsp-tools/issues/1472)) ([8ba9a18](https://github.com/dasch-swiss/dsp-tools/commit/8ba9a186ded6c519f8687dde29bf143c9943ba35))
+* **xmllib:** don't spam user with dsp-tools internal logging/printing (DEV-4595) ([#1430](https://github.com/dasch-swiss/dsp-tools/issues/1430)) ([e7f6449](https://github.com/dasch-swiss/dsp-tools/commit/e7f644901febdbf73c4f0d0c2cf3dd3fa33205f9))
+* **xmllib:** don't spam user with dsp-tools internal logging/printing, the second (DEV-4595) ([#1459](https://github.com/dasch-swiss/dsp-tools/issues/1459)) ([9b0847a](https://github.com/dasch-swiss/dsp-tools/commit/9b0847a0e504e334def6ead6ea78bd7f7c4dc89c))
+* **xmllib:** fix authorship block ([#1460](https://github.com/dasch-swiss/dsp-tools/issues/1460)) ([a32f0af](https://github.com/dasch-swiss/dsp-tools/commit/a32f0af3dd0b3517c34590776ff6c6426a10729c))
+
+
+### Maintenance
+
+* add a UUID to the `ValueInformation` when parsing the XML (DEV-4617) ([#1458](https://github.com/dasch-swiss/dsp-tools/issues/1458)) ([b908d48](https://github.com/dasch-swiss/dsp-tools/commit/b908d48eadfe787a14ada3be857e2eac985cb0c7))
+* bump dependencies ([#1432](https://github.com/dasch-swiss/dsp-tools/issues/1432)) ([cd703e8](https://github.com/dasch-swiss/dsp-tools/commit/cd703e8cfc04d22211e760dafd5647b84abccc9f))
+* bump stack to DSP 2025.02.03 ([#1440](https://github.com/dasch-swiss/dsp-tools/issues/1440)) ([fb7ff98](https://github.com/dasch-swiss/dsp-tools/commit/fb7ff984b7d7d0792b45858d3cdbdcef2becf6aa))
+* bump versions of GitHub actions ([#1433](https://github.com/dasch-swiss/dsp-tools/issues/1433)) ([3eb0be9](https://github.com/dasch-swiss/dsp-tools/commit/3eb0be9b727ed6d907b45d0aa33add965bfaad79))
+* **create:** change structure of parsed project ([#1425](https://github.com/dasch-swiss/dsp-tools/issues/1425)) ([1a360fb](https://github.com/dasch-swiss/dsp-tools/commit/1a360fbd7c8faee64d57ea5200cd1fb02da8a279))
+* **create:** move ontology creation to separate file ([#1426](https://github.com/dasch-swiss/dsp-tools/issues/1426)) ([3e4f23f](https://github.com/dasch-swiss/dsp-tools/commit/3e4f23f967314333e7d4d21fc9f2b5c8b8f31823))
+* **create:** reorganise code ([#1424](https://github.com/dasch-swiss/dsp-tools/issues/1424)) ([decfa24](https://github.com/dasch-swiss/dsp-tools/commit/decfa242150bc2d82a7ce83f6f9adc4ab6731135))
+* enable darglint only in `xmllib` ([#1449](https://github.com/dasch-swiss/dsp-tools/issues/1449)) ([dc91e54](https://github.com/dasch-swiss/dsp-tools/commit/dc91e5467a2af4446d412a70ba3af7d30e676882))
+* fix too many blank lines for test-latest-be.yml ([#1429](https://github.com/dasch-swiss/dsp-tools/issues/1429)) ([28d36ec](https://github.com/dasch-swiss/dsp-tools/commit/28d36ececa7d072f434c34232e56ef74a5f4a888))
+* move typing-extensions to dev-dependencies ([#1436](https://github.com/dasch-swiss/dsp-tools/issues/1436)) ([86f3415](https://github.com/dasch-swiss/dsp-tools/commit/86f3415d28a9ccd59d9996f3fef21a5ad7e3e2d2))
+* move xml parsing and validation files ([#1445](https://github.com/dasch-swiss/dsp-tools/issues/1445)) ([7cd763f](https://github.com/dasch-swiss/dsp-tools/commit/7cd763fd0c2cf91d31f879b1ed5734f9920b08da))
+* **release-please:** update uv.lock automatically (DEV-4596) ([#1435](https://github.com/dasch-swiss/dsp-tools/issues/1435)) ([5adaf04](https://github.com/dasch-swiss/dsp-tools/commit/5adaf04242b1b5818c0da4a06dcf5195361d8e1f))
+* **release-please:** update uv.lock automatically, 2nd attempt (DEV-4596) ([#1446](https://github.com/dasch-swiss/dsp-tools/issues/1446)) ([4bdac59](https://github.com/dasch-swiss/dsp-tools/commit/4bdac598eebf94d5466c1f177fd1008e850bdaa0))
+* **release-please:** update uv.lock automatically, 3rd attempt (DEV-4596) ([#1453](https://github.com/dasch-swiss/dsp-tools/issues/1453)) ([33842e4](https://github.com/dasch-swiss/dsp-tools/commit/33842e4347e83dbf19623669b198997df379e0b5))
+* remove copyright and license tags from xsd ([#1423](https://github.com/dasch-swiss/dsp-tools/issues/1423)) ([6bdf2c6](https://github.com/dasch-swiss/dsp-tools/commit/6bdf2c60164cdf9aad98a7eb83bfe14e3cb1bd21))
+* remove redundant text encoding check ([#1452](https://github.com/dasch-swiss/dsp-tools/issues/1452)) ([d504513](https://github.com/dasch-swiss/dsp-tools/commit/d5045134ba10dcffd02e05c60599321d072fced0))
+* reorganise XML cleaning functions ([#1456](https://github.com/dasch-swiss/dsp-tools/issues/1456)) ([da07379](https://github.com/dasch-swiss/dsp-tools/commit/da07379240feaf9484169b2d054ccb16f0d5768d))
+* separate asset value from others in deserialise xml (DEV-4610) ([#1448](https://github.com/dasch-swiss/dsp-tools/issues/1448)) ([b7467d8](https://github.com/dasch-swiss/dsp-tools/commit/b7467d8929d0ad4e152fc31f399bacad71bd21ec))
+* unpin dependencies ([#1439](https://github.com/dasch-swiss/dsp-tools/issues/1439)) ([4a88d10](https://github.com/dasch-swiss/dsp-tools/commit/4a88d10fbbb634df4028cbe29e22e10215b58118))
+* Update uv.lock after version pinning is removed from pyproject.toml ([#1441](https://github.com/dasch-swiss/dsp-tools/issues/1441)) ([db5c1ee](https://github.com/dasch-swiss/dsp-tools/commit/db5c1eefef91b86901ca45cfba8a808b5af9792d))
+* Update uv.lock with new version number ([#1421](https://github.com/dasch-swiss/dsp-tools/issues/1421)) ([e049458](https://github.com/dasch-swiss/dsp-tools/commit/e04945888442100c57ac20fef738e25f24201be9))
+* **validate-data:** move parsing files to utils ([#1447](https://github.com/dasch-swiss/dsp-tools/issues/1447)) ([a61d7b6](https://github.com/dasch-swiss/dsp-tools/commit/a61d7b6c9fa06706d4df9d4c0ee7a0d2660f097c))
+* **xmllib:** move file value serialisation out of the classes ([#1434](https://github.com/dasch-swiss/dsp-tools/issues/1434)) ([51b0414](https://github.com/dasch-swiss/dsp-tools/commit/51b04144f8d3b0dae298cf982ff8bcebcb8773f4))
+* **xmllib:** move resource serialisation out of the class ([#1437](https://github.com/dasch-swiss/dsp-tools/issues/1437)) ([e52539e](https://github.com/dasch-swiss/dsp-tools/commit/e52539e4f7659dd4bb99607ff61dd649224dde31))
+* **xmlupload:** create `Stash` from `IntermediaryResource` ([#1467](https://github.com/dasch-swiss/dsp-tools/issues/1467)) ([96afbc2](https://github.com/dasch-swiss/dsp-tools/commit/96afbc2aa34b5cd1da7398a599a996efe42b0bae))
+* **xmlupload:** create info for graph from `DataDeserialised` (DEV-4622) ([#1464](https://github.com/dasch-swiss/dsp-tools/issues/1464)) ([568f526](https://github.com/dasch-swiss/dsp-tools/commit/568f526ffd43faf21c94e37cd129cf139d191a26))
+* **xmlupload:** extract information from graph from `IntermediaryResource` ([#1468](https://github.com/dasch-swiss/dsp-tools/issues/1468)) ([bb97e76](https://github.com/dasch-swiss/dsp-tools/commit/bb97e7672d5fc4b8b603cdd9f7036aeb96375f66))
+* **xmlupload:** make listnode lookup congruent with `DataDeserialised` ([#1471](https://github.com/dasch-swiss/dsp-tools/issues/1471)) ([f3f784a](https://github.com/dasch-swiss/dsp-tools/commit/f3f784ac0a904250322656fee671b4d7771695f9))
+* **xmlupload:** move resource transformation files ([#1469](https://github.com/dasch-swiss/dsp-tools/issues/1469)) ([c379a66](https://github.com/dasch-swiss/dsp-tools/commit/c379a66acfd2501a25a027aa85763349c5caa39d))
+* **xmlupload:** move transformed resource into the `UploadState` ([#1444](https://github.com/dasch-swiss/dsp-tools/issues/1444)) ([47577c2](https://github.com/dasch-swiss/dsp-tools/commit/47577c2e31d805a7d1b41a8cfe7e6cc91d8bcda0))
+* **xmlupload:** re-organise circular reference files ([#1463](https://github.com/dasch-swiss/dsp-tools/issues/1463)) ([92a4465](https://github.com/dasch-swiss/dsp-tools/commit/92a446521f61f670ae0a8d9fa9729d4f3f5a91cc))
+* **xmlupload:** remove creation of UUID from circular references models constructor ([#1466](https://github.com/dasch-swiss/dsp-tools/issues/1466)) ([9cc0d80](https://github.com/dasch-swiss/dsp-tools/commit/9cc0d80c7a95f654c31a79d1a1d769a558e7e7a7))
+* **xmlupload:** use `IntermediaryFileValue` for ingest upload ([#1443](https://github.com/dasch-swiss/dsp-tools/issues/1443)) ([c3c121e](https://github.com/dasch-swiss/dsp-tools/commit/c3c121e208d2f82ee774ec944669f95c313ce84c))
+* **xmlupload:** wrap info for circular references in class ([#1465](https://github.com/dasch-swiss/dsp-tools/issues/1465)) ([258f871](https://github.com/dasch-swiss/dsp-tools/commit/258f8718068a8c88b8b1eee43476d74959c1155f))
+
 ## [10.4.0](https://github.com/dasch-swiss/dsp-tools/compare/v10.3.0...v10.4.0) (2025-02-12)
 
 

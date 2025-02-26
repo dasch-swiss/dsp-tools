@@ -1,3 +1,4 @@
+import warnings
 from uuid import uuid4
 
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import IIIFUriInfo
@@ -38,6 +39,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values impor
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_geometry
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_integer
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_interval
+from dsp_tools.models.custom_warnings import DspToolsFutureWarning
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import PermissionNotExistsError
 
@@ -122,11 +124,13 @@ def _transform_migration_metadata(resource: XMLResource) -> MigrationMetadata:
 def _transform_file_value(
     bitstream: XMLBitstream, lookups: IntermediaryLookups, res_id: str, res_label: str
 ) -> IntermediaryFileValue:
+    _warn_about_mandatory_legal_info(bitstream)
     metadata = _get_metadata(bitstream.metadata, lookups)
     return IntermediaryFileValue(bitstream.value, metadata, res_id, res_label)
 
 
 def _transform_iiif_uri_value(iiif_uri: IIIFUriInfo, lookups: IntermediaryLookups) -> IntermediaryIIIFUri:
+    _warn_about_mandatory_legal_info(iiif_uri)
     metadata = _get_metadata(iiif_uri.metadata, lookups)
     return IntermediaryIIIFUri(iiif_uri.value, metadata)
 
@@ -155,6 +159,16 @@ def _get_metadata(file_metadata: XMLFileMetadata, lookups: IntermediaryLookups) 
         authorships=None,
         permissions=permissions,
     )
+
+
+def _warn_about_mandatory_legal_info(file_val: XMLBitstream | IIIFUriInfo) -> None:
+    if not all([file_val.metadata.copyright_holder, file_val.metadata.license_, file_val.metadata.authorship_id]):
+        warn_msg = (
+            f"The file {file_val.value} does not contain any legal info. "
+            "Legal info (copyright, license and authorship) is soon required for all bitstreams and iiif-uri."
+            "Please ensure that all information is included in the XML. See documentation for details."
+        )
+        warnings.warn(DspToolsFutureWarning(warn_msg))
 
 
 def _transform_all_properties(properties: list[XMLProperty], lookups: IntermediaryLookups) -> list[IntermediaryValue]:

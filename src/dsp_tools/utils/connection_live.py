@@ -216,7 +216,7 @@ class ConnectionLive(Connection):
                 )
                 continue
 
-            self._log_response(response)
+            log_response(response)
             if response.status_code == HTTP_OK:
                 return response
 
@@ -246,9 +246,6 @@ class ConnectionLive(Connection):
         self.session.headers["User-Agent"] = f"DSP-TOOLS/{version('dsp-tools')}"
         if self.authenticationClient and (token := self.authenticationClient.get_token()):
             self.session.headers["Authorization"] = f"Bearer {token}"
-
-    def _log_response(self, response: Response) -> None:
-        log_response(response)
 
     def _log_request(self, params: RequestParameters) -> None:
         dumpobj = {

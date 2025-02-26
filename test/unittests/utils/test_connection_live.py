@@ -187,20 +187,21 @@ def test_server_and_route_without_slash() -> None:
         assert expected_params.url == "http://example.com/v2/resources", f"Method '{method.__name__}' failed"
 
 
-def test_try_network_action() -> None:
+@patch("dsp_tools.utils.connection_live.log_response")
+def test_try_network_action(log_response: Mock) -> None:
     con = ConnectionLive("http://example.com/")
     response_expected = Mock(status_code=200)
     con.session.request = Mock(return_value=response_expected)
     con._log_request = Mock()
-    con._log_response = Mock()
     params = RequestParameters(method="GET", url="http://example.com/", timeout=1)
     response = con._try_network_action(params)
     assert response == response_expected
     con._log_request.assert_called_once_with(params)
     con.session.request.assert_called_once_with(**params.as_kwargs())
-    con._log_response.assert_called_once_with(response_expected)
+    log_response.assert_called_once_with(response_expected)
 
 
+@patch("dsp_tools.utils.connection_live.log_response")
 def test_try_network_action_timeout_error(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("DSP_TOOLS_TESTING", raising=False)  # in CI, this variable suppresses the retrying mechanism
     con = ConnectionLive("http://example.com/")
@@ -208,70 +209,69 @@ def test_try_network_action_timeout_error(monkeypatch: pytest.MonkeyPatch) -> No
     session_mock = SessionMock(responses)
     con.session = session_mock  # type: ignore[assignment]
     con._log_request = Mock()
-    con._log_response = Mock()
     params = RequestParameters(method="GET", url="http://example.com/", timeout=1)
     expected_msg = regex.escape("A 'TimeoutError' occurred during the connection to the DSP server.")
     with pytest.raises(PermanentTimeOutError, match=expected_msg):
         con._try_network_action(params)
 
 
-def test_try_network_action_connection_error(monkeypatch: pytest.MonkeyPatch) -> None:
+@patch("dsp_tools.utils.connection_live.log_response")
+def test_try_network_action_connection_error(log_response: Mock, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("DSP_TOOLS_TESTING", raising=False)  # in CI, this variable suppresses the retrying mechanism
     con = ConnectionLive("http://example.com/")
     responses = (ConnectionError(), ConnectionError(), RequestException(), Mock(status_code=200))
     session_mock = SessionMock(responses)
     con.session = session_mock  # type: ignore[assignment]
     con._log_request = Mock()
-    con._log_response = Mock()
     con._renew_session = Mock()
     params = RequestParameters(method="POST", url="http://example.com/", timeout=1)
-    with patch("dsp_tools.utils.connection_live.time.sleep") as sleep_mock:
+    with patch("dsp_tools.utils.request_utils.time.sleep") as sleep_mock:
         response = con._try_network_action(params)
         assert [x.args[0] for x in sleep_mock.call_args_list] == [1, 2, 4]
     assert con._renew_session.call_count == len(session_mock.responses) - 1
     assert [x.args[0] for x in con._log_request.call_args_list] == [params] * len(session_mock.responses)
-    con._log_response.assert_called_once_with(session_mock.responses[-1])
+    log_response.assert_called_once_with(session_mock.responses[-1])
     assert response == session_mock.responses[-1]
 
 
-def test_try_network_action_non_200(monkeypatch: pytest.MonkeyPatch) -> None:
+@patch("dsp_tools.utils.connection_live.log_response")
+def test_try_network_action_non_200(log_response: Mock, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("DSP_TOOLS_TESTING", raising=False)  # in CI, this variable suppresses the retrying mechanism
     con = ConnectionLive("http://example.com/")
     responses = (Mock(status_code=500, text=""), Mock(status_code=506, text=""), Mock(status_code=200, text=""))
     session_mock = SessionMock(responses)
     con.session = session_mock  # type: ignore[assignment]
     con._log_request = Mock()
-    con._log_response = Mock()
     params = RequestParameters(method="POST", url="http://example.com/", timeout=1)
-    with patch("dsp_tools.utils.connection_live.time.sleep") as sleep_mock:
+    with patch("dsp_tools.utils.request_utils.time.sleep") as sleep_mock:
         response = con._try_network_action(params)
         assert [x.args[0] for x in sleep_mock.call_args_list] == [1, 2]
     assert [x.args[0] for x in con._log_request.call_args_list] == [params] * len(session_mock.responses)
-    assert [x.args[0] for x in con._log_response.call_args_list] == list(session_mock.responses)
+    assert [x.args[0] for x in log_response.call_args_list] == list(session_mock.responses)
     assert response == session_mock.responses[-1]
 
 
-def test_try_network_action_in_testing_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+@patch("dsp_tools.utils.connection_live.log_response")
+def test_try_network_action_in_testing_environment(log_response: Mock, monkeypatch: pytest.MonkeyPatch) -> None:  # noqa: ARG001
     monkeypatch.setenv("DSP_TOOLS_TESTING", "true")  # automatically set in CI, but not locally
     con = ConnectionLive("http://example.com/")
     responses = (Mock(status_code=500, text=""), Mock(status_code=404, text=""), Mock(status_code=200, text=""))
     con.session = SessionMock(responses)  # type: ignore[assignment]
     con._log_request = Mock()
-    con._log_response = Mock()
     params = RequestParameters(method="PUT", url="http://example.com/", timeout=1)
-    with patch("dsp_tools.utils.connection_live.time.sleep") as sleep_mock:
+    with patch("dsp_tools.utils.connection_live.log_request_failure_and_sleep") as sleep_mock:
         with pytest.raises(PermanentConnectionError):
             con._try_network_action(params)
         sleep_mock.assert_not_called()
 
 
-def test_try_network_action_permanent_connection_error(monkeypatch: pytest.MonkeyPatch) -> None:
+@patch("dsp_tools.utils.connection_live.log_response")
+def test_try_network_action_permanent_connection_error(log_response: Mock, monkeypatch: pytest.MonkeyPatch) -> None:  # noqa: ARG001
     monkeypatch.setenv("DSP_TOOLS_TESTING", "true")  # automatically set in CI, but not locally
     con = ConnectionLive("http://example.com/")
     responses = (Mock(status_code=500, text=""),) * 7
     con.session = SessionMock(responses)  # type: ignore[assignment]
     con._log_request = Mock()
-    con._log_response = Mock()
     params = RequestParameters(method="POST", url="http://example.com/", timeout=1)
     with pytest.raises(PermanentConnectionError):
         con._try_network_action(params)
@@ -297,23 +297,6 @@ def test_log_request() -> None:
     with patch("dsp_tools.utils.connection_live.logger.debug") as debug_mock:
         con._log_request(params)
         debug_mock.assert_called_once_with(f"REQUEST: {json.dumps(expected_output)}")
-
-
-def test_log_response() -> None:
-    con = ConnectionLive("http://example.com/")
-    response_mock = ResponseMock(
-        status_code=200,
-        headers={"Set-Cookie": "KnoraAuthenticationMFYGSLT", "Content-Type": "application/json"},
-        text=json.dumps({"foo": "bar"}),
-    )
-    expected_output = {
-        "status_code": 200,
-        "headers": {"Set-Cookie": "***", "Content-Type": "application/json"},
-        "content": {"foo": "bar"},
-    }
-    with patch("dsp_tools.utils.connection_live.logger.debug") as debug_mock:
-        con._log_response(response_mock)  # type: ignore[arg-type]
-        debug_mock.assert_called_once_with(f"RESPONSE: {json.dumps(expected_output)}")
 
 
 def test_renew_session() -> None:

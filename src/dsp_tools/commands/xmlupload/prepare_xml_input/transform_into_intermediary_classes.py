@@ -133,7 +133,22 @@ def _transform_iiif_uri_value(iiif_uri: IIIFUriInfo, lookups: IntermediaryLookup
 
 def _get_metadata(file_metadata: XMLFileMetadata, lookups: IntermediaryLookups) -> IntermediaryFileMetadata:
     perm = _resolve_permission(file_metadata.permissions, lookups.permissions)
-    # TODO: validate license IRI
+    predefined_licenses = [
+        "http://rdfh.ch/licenses/cc-by-4.0",
+        "http://rdfh.ch/licenses/cc-by-sa-4.0",
+        "http://rdfh.ch/licenses/cc-by-nc-4.0",
+        "http://rdfh.ch/licenses/cc-by-nc-sa-4.0",
+        "http://rdfh.ch/licenses/cc-by-nd-4.0",
+        "http://rdfh.ch/licenses/cc-by-nc-nd-4.0",
+        "http://rdfh.ch/licenses/ai-generated",
+        "http://rdfh.ch/licenses/unknown",
+        "http://rdfh.ch/licenses/public-domain",
+    ]
+    if file_metadata.license_ not in predefined_licenses:
+        raise InputError(
+            f"Unknown license used for an image: {file_metadata.license_}. "
+            f"See documentation for accepted pre-defined liceses."
+        )
     return IntermediaryFileMetadata(
         license_iri=file_metadata.license_,
         copyright_holder=file_metadata.copyright_holder,

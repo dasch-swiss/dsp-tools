@@ -5,7 +5,7 @@ import requests
 from requests import ReadTimeout
 from requests import Response
 
-from dsp_tools.models.exceptions import BadCredentialsError
+from dsp_tools.models.exceptions import BadCredentialsError, UserError, BaseError
 from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
 from dsp_tools.utils.legal_info_client import LegalInfoClient
 from dsp_tools.utils.request_utils import GenericRequestParameters
@@ -42,6 +42,9 @@ class LegalInfoClientLive(LegalInfoClient):
                     "Only a project or system administrator can create new copyright holders. "
                     "Your permissions are insufficient for this action."
                 )
+            else:
+                 raise BaseError(f"An unexpected response with the status code {response.status_code} from the API occurred. "
+                                 f"Please consult warnings.log for details.")
 
     def _post_request(self, endpoint: str, data: list[str]) -> Response:
         url = f"{self.server}/admin/projects/shortcode/{self.project_shortcode}/legal-info/{endpoint}"

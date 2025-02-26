@@ -63,10 +63,10 @@ def ingest_xmlupload(
     )
 
     ontology_client = OntologyClientLive(con=con, shortcode=shortcode, default_ontology=default_ontology)
-    resources, permissions_lookup, stash = prepare_upload_from_root(root, ontology_client)
+    resources, permissions_lookup, stash, authorship_lookup = prepare_upload_from_root(root, ontology_client)
 
     clients = _get_live_clients(con, config)
-    state = get_upload_state(resources, clients, stash, config, permissions_lookup)
+    state = get_upload_state(resources, clients, stash, config, permissions_lookup, authorship_lookup)
 
     return execute_upload(clients, state)
 

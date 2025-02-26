@@ -42,6 +42,7 @@ def get_upload_state(
     stash: Stash | None,
     config: UploadConfig,
     permissions_lookup: dict[str, Permissions],
+    authorship_lookup: dict[str, list[str]],
 ) -> UploadState:
     """
     Transforms the XMLResources and creates the upload state.
@@ -52,6 +53,7 @@ def get_upload_state(
         stash: Stashed links and texts
         config: upload config
         permissions_lookup: lookup for permissions
+        authorship_lookup: lookup for authorship
 
     Returns:
         Upload state
@@ -64,7 +66,7 @@ def get_upload_state(
     project_context = get_json_ld_context_for_project(project_onto_dict)
     namespaces = make_namespace_dict_from_onto_names(project_onto_dict)
     intermediary_lookups = IntermediaryLookups(
-        permissions=permissions_lookup, listnodes=listnode_lookup, namespaces=namespaces
+        permissions=permissions_lookup, listnodes=listnode_lookup, namespaces=namespaces, authorships=authorship_lookup
     )
     result = transform_all_resources_into_intermediary_resources(resources, intermediary_lookups)
     if result.resource_failures:
@@ -85,7 +87,7 @@ def get_upload_state(
 def prepare_upload_from_root(
     root: etree._Element,
     ontology_client: OntologyClient,
-) -> tuple[list[XMLResource], dict[str, Permissions], Stash | None]:
+) -> tuple[list[XMLResource], dict[str, Permissions], Stash | None, dict[str, list[str]]]:
     """Do the consistency check, resolve circular references, and return the resources and permissions."""
     do_xml_consistency_check_with_ontology(onto_client=ontology_client, root=root)
     return _resolve_circular_references(
@@ -107,12 +109,12 @@ def _resolve_circular_references(
     root: etree._Element,
     con: Connection,
     default_ontology: str,
-) -> tuple[list[XMLResource], dict[str, Permissions], Stash | None]:
+) -> tuple[list[XMLResource], dict[str, Permissions], Stash | None, dict[str, list[str]]]:
     logger.info("Checking resources for circular references...")
     print(f"{datetime.now()}: Checking resources for circular references...")
     stash_lookup, upload_order = identify_circular_references(root)
     logger.info("Get data from XML...")
-    resources, permissions_lookup = _get_data_from_xml(
+    resources, permissions_lookup, authorships = _get_data_from_xml(
         con=con,
         root=root,
         default_ontology=default_ontology,
@@ -122,19 +124,20 @@ def _resolve_circular_references(
     logger.info("Stashing circular references...")
     print(f"{datetime.now()}: Stashing circular references...")
     stash = stash_circular_references(resources, stash_lookup, permissions_lookup)
-    return resources, permissions_lookup, stash
+    return resources, permissions_lookup, stash, authorships
 
 
 def _get_data_from_xml(
     con: Connection,
     root: etree._Element,
     default_ontology: str,
-) -> tuple[list[XMLResource], dict[str, Permissions]]:
+) -> tuple[list[XMLResource], dict[str, Permissions], dict[str, list[str]]]:
     proj_context = _get_project_context_from_server(connection=con, shortcode=root.attrib["shortcode"])
     permissions = _extract_permissions_from_xml(root, proj_context)
+    authorships = _extract_authorships_from_xml(root)
     resources = _extract_resources_from_xml(root, default_ontology)
     permissions_lookup = {name: perm.get_permission_instance() for name, perm in permissions.items()}
-    return resources, permissions_lookup
+    return resources, permissions_lookup, authorships
 
 
 def _get_project_context_from_server(connection: Connection, shortcode: str) -> ProjectContext:

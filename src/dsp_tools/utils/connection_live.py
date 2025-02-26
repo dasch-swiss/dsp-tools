@@ -1,19 +1,15 @@
 import json
 import os
-import time
 from dataclasses import dataclass
 from dataclasses import field
-from datetime import datetime
 from functools import partial
 from importlib.metadata import version
 from typing import Any
 from typing import Literal
-from typing import Never
 from typing import cast
 
 import regex
 from loguru import logger
-from requests import JSONDecodeError
 from requests import ReadTimeout
 from requests import RequestException
 from requests import Response
@@ -21,10 +17,13 @@ from requests import Session
 
 from dsp_tools.models.exceptions import InvalidInputError
 from dsp_tools.models.exceptions import PermanentConnectionError
-from dsp_tools.models.exceptions import PermanentTimeOutError
 from dsp_tools.utils.authentication_client import AuthenticationClient
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.logger_config import WARNINGS_SAVEPATH
+from dsp_tools.utils.request_utils import log_and_raise_timeouts
+from dsp_tools.utils.request_utils import log_request_failure_and_sleep
+from dsp_tools.utils.request_utils import log_response
+from dsp_tools.utils.request_utils import sanitize_headers
 from dsp_tools.utils.set_encoder import SetEncoder
 
 HTTP_OK = 200
@@ -209,10 +208,10 @@ class ConnectionLive(Connection):
                 self._log_request(params)
                 response = action()
             except (TimeoutError, ReadTimeout) as err:
-                self._log_and_raise_timeouts(err)
+                log_and_raise_timeouts(err)
             except (ConnectionError, RequestException):
                 self._renew_session()
-                self._log_and_sleep(reason="Connection Error raised", retry_counter=i, exc_info=True)
+                log_request_failure_and_sleep(reason="Connection Error raised", retry_counter=i, exc_info=True)
                 continue
 
             self._log_response(response)
@@ -227,7 +226,7 @@ class ConnectionLive(Connection):
 
     def _handle_non_ok_responses(self, response: Response, retry_counter: int) -> None:
         if _should_retry(response):
-            self._log_and_sleep("Transient Error", retry_counter, exc_info=False)
+            log_request_failure_and_sleep("Transient Error", retry_counter, exc_info=False)
             return None
         else:
             msg = "Permanently unable to execute the network action. "
@@ -246,37 +245,14 @@ class ConnectionLive(Connection):
         if self.authenticationClient and (token := self.authenticationClient.get_token()):
             self.session.headers["Authorization"] = f"Bearer {token}"
 
-    def _log_and_sleep(self, reason: str, retry_counter: int, exc_info: bool) -> None:
-        msg = f"{reason}: Try reconnecting to DSP server, next attempt in {2**retry_counter} seconds..."
-        print(f"{datetime.now()}: {msg}")
-        if exc_info:
-            logger.opt(exception=True).error(f"{msg} ({retry_counter=:})")
-        else:
-            logger.error(f"{msg} ({retry_counter=:})")
-        time.sleep(2**retry_counter)
-
-    def _log_and_raise_timeouts(self, error: TimeoutError | ReadTimeout) -> Never:
-        msg = f"A '{error.__class__.__name__}' occurred during the connection to the DSP server."
-        print(f"{datetime.now()}: {msg}")
-        logger.exception(msg)
-        raise PermanentTimeOutError(msg) from None
-
     def _log_response(self, response: Response) -> None:
-        dumpobj: dict[str, Any] = {
-            "status_code": response.status_code,
-            "headers": _sanitize_headers(dict(response.headers)),
-        }
-        try:
-            dumpobj["content"] = response.json()
-        except JSONDecodeError:
-            dumpobj["content"] = response.text
-        logger.debug(f"RESPONSE: {json.dumps(dumpobj)}")
+        log_response(response)
 
     def _log_request(self, params: RequestParameters) -> None:
         dumpobj = {
             "method": params.method,
             "url": params.url,
-            "headers": _sanitize_headers(dict(self.session.headers) | (params.headers or {})),  # type: ignore[operator]
+            "headers": sanitize_headers(dict(self.session.headers) | (params.headers or {})),  # type: ignore[operator]
             "timeout": params.timeout,
         }
         if params.data:
@@ -287,19 +263,6 @@ class ConnectionLive(Connection):
         if params.files:
             dumpobj["files"] = params.files["file"][0]
         logger.debug(f"REQUEST: {json.dumps(dumpobj, cls=SetEncoder)}")
-
-
-def _sanitize_headers(headers: dict[str, str | bytes]) -> dict[str, str]:
-    def _mask(key: str, value: str | bytes) -> str:
-        if isinstance(value, bytes):
-            value = value.decode("utf-8")
-        if key == "Authorization" and value.startswith("Bearer "):
-            return "Bearer ***"
-        if key == "Set-Cookie":
-            return "***"
-        return value
-
-    return {k: _mask(k, v) for k, v in headers.items()}
 
 
 def _should_retry(response: Response) -> bool:

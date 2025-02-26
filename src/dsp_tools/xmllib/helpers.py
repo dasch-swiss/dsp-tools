@@ -435,7 +435,7 @@ def _find_date_in_string_raising(string: str) -> str | None:
     # template: 6.-8.3.1948 | 6/2/1947 - 24.03.1948
     eur_date_range_regex = (
         rf"{lookbehind}"
-        rf"{day_regex}{sep_regex}(?:{month_regex}{sep_regex}{year_regex_2_or_4_digits}?)? ?(?:-|:|to) ?"
+        rf"{day_regex}{sep_regex}(?:{month_regex}{sep_regex}{year_regex_2_or_4_digits}?)? ?- ?"
         rf"{day_regex}{sep_regex}{month_regex}{sep_regex}{year_regex_2_or_4_digits}"
         rf"{lookahead}"
     )

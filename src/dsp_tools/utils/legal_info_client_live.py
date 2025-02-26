@@ -1,3 +1,4 @@
+import json
 from dataclasses import dataclass
 
 import requests
@@ -10,6 +11,7 @@ from dsp_tools.utils.request_utils import GenericRequestParameters
 from dsp_tools.utils.request_utils import log_and_raise_timeouts
 from dsp_tools.utils.request_utils import log_request
 from dsp_tools.utils.request_utils import log_response
+from dsp_tools.utils.set_encoder import SetEncoder
 
 TIMEOUT = 60
 
@@ -20,10 +22,6 @@ class LegalInfoClientLive(LegalInfoClient):
     project_shortcode: str
     authentication_client: AuthenticationClientLive
 
-    def __post_init__(self) -> None:
-        if not self.server.endswith("/"):
-            self.server = f"{self.server}/"
-
     def post_copyright_holders(self, copyright_holders: list[str]) -> None:
         """Send a list of new copyright holders to the API"""
         # The maximum allowed number of data elements is 100,
@@ -31,20 +29,23 @@ class LegalInfoClientLive(LegalInfoClient):
         segmented_data = _segment_data(copyright_holders)
         for seg in segmented_data:
             try:
-                self._post_request("copyright-holders", seg)
-            except TimeoutError | ReadTimeout as err:
+                response = self._post_request("copyright-holders", seg)
+            except (TimeoutError, ReadTimeout) as err:
                 log_and_raise_timeouts(err)
+            if response.ok:
+                continue
 
     def _post_request(self, endpoint: str, data: list[str]) -> Response:
-        url = f"{self.server}admin/projects/shortcode/{self.project_shortcode}/legal-info/{endpoint}"
+        url = f"{self.server}/admin/projects/shortcode/{self.project_shortcode}/legal-info/{endpoint}"
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.authentication_client.get_token()}",
         }
-        payload = {"data": [item.encode("utf-8") for item in data]}
-        params = GenericRequestParameters("POST", url, TIMEOUT, payload, headers)
+        params = GenericRequestParameters("POST", url, TIMEOUT, data, headers)
         log_request(params)
-        response = requests.post(url=url, headers=headers, data=payload, timeout=TIMEOUT)
+        data_dict = {"data": data}
+        encoded_data = json.dumps(data_dict, cls=SetEncoder, ensure_ascii=False).encode("utf-8")
+        response = requests.post(url=url, headers=headers, data=encoded_data, timeout=TIMEOUT)
         log_response(response)
         return response
 

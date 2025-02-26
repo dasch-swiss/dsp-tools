@@ -3,12 +3,12 @@ import os
 import time
 from dataclasses import dataclass
 from datetime import datetime
-from json import JSONDecodeError
 from typing import Any
 from typing import Literal
 from typing import Never
 
 from loguru import logger
+from requests import JSONDecodeError
 from requests import ReadTimeout
 from requests import Response
 
@@ -33,10 +33,7 @@ def log_request(params: GenericRequestParameters) -> None:
         "timeout": params.timeout,
     }
     if params.data:
-        data = params.data.copy()
-        if "password" in data:
-            data["password"] = "***"
-        dumpobj["data"] = data
+        dumpobj["data"] = params.data
     if params.headers:
         dumpobj["headers"] = sanitize_headers(params.headers)
     logger.debug(f"REQUEST: {json.dumps(dumpobj, cls=SetEncoder)}")

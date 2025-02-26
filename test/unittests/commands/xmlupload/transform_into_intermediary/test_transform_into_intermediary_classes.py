@@ -206,7 +206,7 @@ class TestTransformFileValue:
         assert not result.metadata.authorships
 
     def test_get_metadata_raises(self, lookups):
-        metadata = XMLFileMetadata("unknown", "copy", "auth")
+        metadata = XMLFileMetadata("unknown", "copy", "auth_id")
         msg = regex.escape(
             "The license 'unknown' used for an image or iiif-uri is unknown. "
             "See documentation for accepted pre-defined licenses."

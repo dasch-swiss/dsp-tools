@@ -1,5 +1,6 @@
 import json
 import os
+import time
 from datetime import datetime
 from typing import Any
 from typing import Never
@@ -40,7 +41,7 @@ def sanitize_headers(headers: dict[str, str | bytes]) -> dict[str, str]:
     return {k: _mask(k, v) for k, v in headers.items()}
 
 
-def log_request_failure(reason: str, retry_counter: int, exc_info: bool) -> None:
+def log_request_failure_and_sleep(reason: str, retry_counter: int, exc_info: bool) -> None:
     """Log the reason for a request failure and sleep."""
     msg = f"{reason}: Try reconnecting to DSP server, next attempt in {2**retry_counter} seconds..."
     print(f"{datetime.now()}: {msg}")
@@ -48,6 +49,7 @@ def log_request_failure(reason: str, retry_counter: int, exc_info: bool) -> None
         logger.opt(exception=True).error(f"{msg} ({retry_counter=:})")
     else:
         logger.error(f"{msg} ({retry_counter=:})")
+    time.sleep(2**retry_counter)
 
 
 def log_and_raise_timeouts(error: TimeoutError | ReadTimeout) -> Never:

@@ -225,7 +225,7 @@ def test_try_network_action_connection_error(monkeypatch: pytest.MonkeyPatch) ->
     con._log_response = Mock()
     con._renew_session = Mock()
     params = RequestParameters(method="POST", url="http://example.com/", timeout=1)
-    with patch("dsp_tools.utils.connection_live.time.sleep") as sleep_mock:
+    with patch("dsp_tools.utils.request_utils.time.sleep") as sleep_mock:
         response = con._try_network_action(params)
         assert [x.args[0] for x in sleep_mock.call_args_list] == [1, 2, 4]
     assert con._renew_session.call_count == len(session_mock.responses) - 1
@@ -243,7 +243,7 @@ def test_try_network_action_non_200(monkeypatch: pytest.MonkeyPatch) -> None:
     con._log_request = Mock()
     con._log_response = Mock()
     params = RequestParameters(method="POST", url="http://example.com/", timeout=1)
-    with patch("dsp_tools.utils.connection_live.time.sleep") as sleep_mock:
+    with patch("dsp_tools.utils.request_utils.time.sleep") as sleep_mock:
         response = con._try_network_action(params)
         assert [x.args[0] for x in sleep_mock.call_args_list] == [1, 2]
     assert [x.args[0] for x in con._log_request.call_args_list] == [params] * len(session_mock.responses)
@@ -259,7 +259,7 @@ def test_try_network_action_in_testing_environment(monkeypatch: pytest.MonkeyPat
     con._log_request = Mock()
     con._log_response = Mock()
     params = RequestParameters(method="PUT", url="http://example.com/", timeout=1)
-    with patch("dsp_tools.utils.connection_live.time.sleep") as sleep_mock:
+    with patch("dsp_tools.utils.request_utils.time.sleep") as sleep_mock:
         with pytest.raises(PermanentConnectionError):
             con._try_network_action(params)
         sleep_mock.assert_not_called()

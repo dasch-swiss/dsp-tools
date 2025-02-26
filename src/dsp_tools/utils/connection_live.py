@@ -1,5 +1,4 @@
 import json
-import time
 from dataclasses import dataclass
 from dataclasses import field
 from functools import partial
@@ -21,7 +20,7 @@ from dsp_tools.utils.authentication_client import AuthenticationClient
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.logger_config import WARNINGS_SAVEPATH
 from dsp_tools.utils.request_utils import log_and_raise_timeouts
-from dsp_tools.utils.request_utils import log_request_failure
+from dsp_tools.utils.request_utils import log_request_failure_and_sleep
 from dsp_tools.utils.request_utils import log_response
 from dsp_tools.utils.request_utils import sanitize_headers
 from dsp_tools.utils.request_utils import should_retry
@@ -212,8 +211,9 @@ class ConnectionLive(Connection):
                 log_and_raise_timeouts(err)
             except (ConnectionError, RequestException):
                 self._renew_session()
-                log_request_failure(reason="Connection Error raised", retry_counter=retry_counter, exc_info=True)
-                time.sleep(2**retry_counter)
+                log_request_failure_and_sleep(
+                    reason="Connection Error raised", retry_counter=retry_counter, exc_info=True
+                )
                 continue
 
             self._log_response(response)
@@ -228,8 +228,7 @@ class ConnectionLive(Connection):
 
     def _handle_non_ok_responses(self, response: Response, retry_counter: int) -> None:
         if should_retry(response):
-            log_request_failure("Transient Error", retry_counter, exc_info=False)
-            time.sleep(2**retry_counter)
+            log_request_failure_and_sleep("Transient Error", retry_counter, exc_info=False)
             return None
         else:
             msg = "Permanently unable to execute the network action. "

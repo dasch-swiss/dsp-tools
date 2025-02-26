@@ -11,7 +11,7 @@ def test_extract_authorships_from_xml_with_authors():
         <authorship id="authorship_1">
             <author>
             Lukas 
-            Rosenthaler</author>
+            Rosenthaler </author>
         </authorship>
         <authorship id="authorship_2">
             <author>\tNora Ammann
@@ -26,12 +26,12 @@ def test_extract_authorships_from_xml_with_authors():
     root = etree.fromstring(root_str)
     expected = {
         "authorship_1": ["Lukas Rosenthaler"],
-        "authorship_2": ["N. Ammann"],
+        "authorship_2": ["Nora Ammann"],
         "authorship_3": ["Nora Ammann", "Johannes Nussbaum"],
     }
     result = _extract_authorships_from_xml(root)
     assert set(result.keys()) == set(expected.keys())
-    for k, v in expected.items():
+    for k, v in result.items():
         assert set(v) == set(expected[k])
 
 

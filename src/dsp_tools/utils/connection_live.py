@@ -1,5 +1,4 @@
 import json
-import os
 from dataclasses import dataclass
 from dataclasses import field
 from functools import partial
@@ -24,6 +23,7 @@ from dsp_tools.utils.request_utils import log_and_raise_timeouts
 from dsp_tools.utils.request_utils import log_request_failure_and_sleep
 from dsp_tools.utils.request_utils import log_response
 from dsp_tools.utils.request_utils import sanitize_headers
+from dsp_tools.utils.request_utils import should_retry
 from dsp_tools.utils.set_encoder import SetEncoder
 
 HTTP_OK = 200
@@ -225,7 +225,7 @@ class ConnectionLive(Connection):
         raise PermanentConnectionError(msg)
 
     def _handle_non_ok_responses(self, response: Response, retry_counter: int) -> None:
-        if _should_retry(response):
+        if should_retry(response):
             log_request_failure_and_sleep("Transient Error", retry_counter, exc_info=False)
             return None
         else:
@@ -263,10 +263,3 @@ class ConnectionLive(Connection):
         if params.files:
             dumpobj["files"] = params.files["file"][0]
         logger.debug(f"REQUEST: {json.dumps(dumpobj, cls=SetEncoder)}")
-
-
-def _should_retry(response: Response) -> bool:
-    in_500_range = 500 <= response.status_code < 600
-    try_again_later = "try again later" in response.text.lower()
-    in_testing_env = os.getenv("DSP_TOOLS_TESTING") == "true"  # set in .github/workflows/tests-on-push.yml
-    return (try_again_later or in_500_range) and not in_testing_env

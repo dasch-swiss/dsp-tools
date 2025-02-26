@@ -176,7 +176,7 @@ def _resolve_authorship(authorship_id: str | None, lookup: dict[str, list[str]])
         return None
     if not (found := lookup.get(authorship_id)):
         raise InputError(
-            f"The authorship id '{authorship_id}' referenced  an image or iiif-uri is unknown. "
+            f"The authorship id '{authorship_id}' referenced  a multimedia file or iiif-uri is unknown. "
             f"Ensure that all referenced ids are defined in the `<authorship>` elements of your XML."
         )
     return found

@@ -2,6 +2,7 @@ import pytest
 
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import IIIFUriInfo
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLBitstream
+from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLFileMetadata
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLValue
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
@@ -112,22 +113,48 @@ def uri_prop() -> XMLProperty:
 
 @pytest.fixture
 def iiif_uri() -> IIIFUriInfo:
-    return IIIFUriInfo("https://this/is/a/uri.jpg")
+    return IIIFUriInfo(
+        "https://this/is/a/uri.jpg",
+        XMLFileMetadata(
+            license_="http://rdfh.ch/licenses/cc-by-nc-4.0", copyright_holder="copy", authorship_id="auth_id"
+        ),
+    )
 
 
 @pytest.fixture
 def bitstream() -> XMLBitstream:
-    return XMLBitstream("file.jpg")
+    return XMLBitstream(
+        "file.jpg",
+        XMLFileMetadata(
+            license_="http://rdfh.ch/licenses/cc-by-nc-4.0", copyright_holder="copy", authorship_id="auth_id"
+        ),
+    )
 
 
 @pytest.fixture
 def iiif_uri_with_permission() -> IIIFUriInfo:
-    return IIIFUriInfo("https://this/is/a/uri.jpg", "open")
+    return IIIFUriInfo(
+        "https://this/is/a/uri.jpg",
+        XMLFileMetadata(
+            license_="http://rdfh.ch/licenses/cc-by-nc-4.0",
+            copyright_holder="copy",
+            authorship_id="auth_id",
+            permissions="open",
+        ),
+    )
 
 
 @pytest.fixture
 def bitstream_with_permission() -> XMLBitstream:
-    return XMLBitstream("file.jpg", "open")
+    return XMLBitstream(
+        "file.jpg",
+        XMLFileMetadata(
+            license_="http://rdfh.ch/licenses/cc-by-nc-4.0",
+            copyright_holder="copy",
+            authorship_id="auth_id",
+            permissions="open",
+        ),
+    )
 
 
 @pytest.fixture

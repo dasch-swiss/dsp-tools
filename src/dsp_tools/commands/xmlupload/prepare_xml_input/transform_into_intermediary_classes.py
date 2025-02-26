@@ -1,7 +1,9 @@
+import warnings
 from uuid import uuid4
 
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import IIIFUriInfo
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLBitstream
+from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLFileMetadata
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileMetadata
@@ -37,6 +39,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values impor
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_geometry
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_integer
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_interval
+from dsp_tools.models.custom_warnings import DspToolsFutureWarning
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import PermissionNotExistsError
 
@@ -121,18 +124,51 @@ def _transform_migration_metadata(resource: XMLResource) -> MigrationMetadata:
 def _transform_file_value(
     bitstream: XMLBitstream, lookups: IntermediaryLookups, res_id: str, res_label: str
 ) -> IntermediaryFileValue:
-    metadata = _get_metadata(bitstream, lookups)
+    _warn_about_mandatory_legal_info(bitstream)
+    metadata = _get_metadata(bitstream.metadata, lookups)
     return IntermediaryFileValue(bitstream.value, metadata, res_id, res_label)
 
 
 def _transform_iiif_uri_value(iiif_uri: IIIFUriInfo, lookups: IntermediaryLookups) -> IntermediaryIIIFUri:
-    metadata = _get_metadata(iiif_uri, lookups)
+    _warn_about_mandatory_legal_info(iiif_uri)
+    metadata = _get_metadata(iiif_uri.metadata, lookups)
     return IntermediaryIIIFUri(iiif_uri.value, metadata)
 
 
-def _get_metadata(input_val: XMLBitstream | IIIFUriInfo, lookups: IntermediaryLookups) -> IntermediaryFileMetadata:
-    perm = _resolve_permission(input_val.permissions, lookups.permissions)
-    return IntermediaryFileMetadata(perm)
+def _get_metadata(file_metadata: XMLFileMetadata, lookups: IntermediaryLookups) -> IntermediaryFileMetadata:
+    permissions = _resolve_permission(file_metadata.permissions, lookups.permissions)
+    predefined_licenses = [
+        "http://rdfh.ch/licenses/cc-by-4.0",
+        "http://rdfh.ch/licenses/cc-by-sa-4.0",
+        "http://rdfh.ch/licenses/cc-by-nc-4.0",
+        "http://rdfh.ch/licenses/cc-by-nc-sa-4.0",
+        "http://rdfh.ch/licenses/cc-by-nd-4.0",
+        "http://rdfh.ch/licenses/cc-by-nc-nd-4.0",
+        "http://rdfh.ch/licenses/ai-generated",
+        "http://rdfh.ch/licenses/unknown",
+        "http://rdfh.ch/licenses/public-domain",
+    ]
+    if file_metadata.license_ and file_metadata.license_ not in predefined_licenses:
+        raise InputError(
+            f"The license '{file_metadata.license_}' used for an image or iiif-uri is unknown. "
+            f"See documentation for accepted pre-defined licenses."
+        )
+    return IntermediaryFileMetadata(
+        license_iri=file_metadata.license_,
+        copyright_holder=file_metadata.copyright_holder,
+        authorships=None,
+        permissions=permissions,
+    )
+
+
+def _warn_about_mandatory_legal_info(file_val: XMLBitstream | IIIFUriInfo) -> None:
+    if not all([file_val.metadata.copyright_holder, file_val.metadata.license_, file_val.metadata.authorship_id]):
+        warn_msg = (
+            f"The file {file_val.value} does not contain all the legal info. "
+            "Legal info (copyright, license and authorship) is soon required for all bitstreams and iiif-uri."
+            "Please ensure that all information is included in the XML. See documentation for details."
+        )
+        warnings.warn(DspToolsFutureWarning(warn_msg))
 
 
 def _transform_all_properties(properties: list[XMLProperty], lookups: IntermediaryLookups) -> list[IntermediaryValue]:

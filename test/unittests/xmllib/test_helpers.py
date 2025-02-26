@@ -87,6 +87,11 @@ def test_create_standoff_link_to_uri_text_empty() -> None:
 
 
 class TestFindDate:
+    def test_find_date_in_string_ignore_subsequent(self) -> None:
+        assert find_date_in_string("x 1492-10-12, 2025-01-01x") == "GREGORIAN:CE:1492-10-12:CE:1492-10-12"
+        assert find_date_in_string("first date: 2024. Second is ignored: 2025.") == "GREGORIAN:CE:2024:CE:2024"
+       
+
     def test_find_date_in_string_iso(self) -> None:
         """template: 2021-01-01"""
         assert find_date_in_string("x 1492-10-12, x") == "GREGORIAN:CE:1492-10-12:CE:1492-10-12"

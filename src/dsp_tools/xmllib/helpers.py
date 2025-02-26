@@ -308,9 +308,10 @@ def escape_reserved_xml_characters(text: str) -> str:
 def find_date_in_string(string: str) -> str | None:
     """
     Checks if a string contains a date value (single date, or date range),
-    and returns the first found date as DSP-formatted string,
-    [see XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#date)
+    and returns the first found date as DSP-formatted string.
+    Once a date/date range has been found, subsequent dates/date ranges are ignored.
     Returns None if no date was found.
+    [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#date).
 
     Notes:
         - All dates are interpreted in the Christian era and the Gregorian calendar.
@@ -359,6 +360,11 @@ def find_date_in_string(string: str) -> str | None:
         ```python
         result = xmllib.find_date_in_string("not a valid date")
         # result == None
+        ```
+
+        ```python
+        result = xmllib.find_date_in_string("first date: 2024. Second is ignored: 2025.")
+        # result == "GREGORIAN:CE:2024:CE:2024"
         ```
     """
 

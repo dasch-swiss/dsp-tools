@@ -290,11 +290,11 @@ def test_log_request() -> None:
     expected_output = {
         "method": "GET",
         "url": "http://example.com/",
-        "headers": {"Authorization": "Bearer ***", "request-header": "request-value"},
         "timeout": 1,
+        "headers": {"Authorization": "Bearer ***", "request-header": "request-value"},
         "data": {"password": "***", "foo": "bar"},
     }
-    with patch("dsp_tools.utils.connection_live.logger.debug") as debug_mock:
+    with patch("dsp_tools.utils.request_utils.logger.debug") as debug_mock:
         con._log_request(params)
         debug_mock.assert_called_once_with(f"REQUEST: {json.dumps(expected_output)}")
 

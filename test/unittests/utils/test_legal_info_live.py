@@ -27,7 +27,6 @@ class TestPostCopyrightHolders:
             data={"data": ["1"]},
             timeout=60,
         )
-
         response = client._post_and_log_request("copyright-holders", ["1"])
         assert response == expected_response
         log_request.assert_called_once_with(params)

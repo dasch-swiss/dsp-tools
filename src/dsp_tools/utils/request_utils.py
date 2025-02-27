@@ -24,7 +24,7 @@ class RequestParameters:
     timeout: int
     data: dict[str, Any] | None = None
     data_serialized: bytes | None = field(init=False, default=None)
-    headers: dict[str, Any] | None = None
+    headers: dict[str, str] | None = None
     files: dict[str, tuple[str, Any]] | None = None
 
     def __post_init__(self) -> None:
@@ -46,17 +46,26 @@ class RequestParameters:
         }
 
 
-def log_request(params: RequestParameters) -> None:
-    """Log a request"""
+def log_request(params: RequestParameters, extra_headers: dict[str, Any] | None = None) -> None:
+    """Logs the request."""
     dumpobj = {
         "method": params.method,
         "url": params.url,
         "timeout": params.timeout,
     }
-    if params.data:
-        dumpobj["data"] = params.data
+    headers_to_log = {}
+    if extra_headers:
+        headers_to_log = extra_headers
     if params.headers:
-        dumpobj["headers"] = sanitize_headers(params.headers)
+        headers_to_log = headers_to_log | params.headers
+    dumpobj["headers"] = sanitize_headers(headers_to_log)
+    if params.data:
+        data = params.data.copy()
+        if "password" in data:
+            data["password"] = "***"
+        dumpobj["data"] = data
+    if params.files:
+        dumpobj["files"] = params.files["file"][0]
     logger.debug(f"REQUEST: {json.dumps(dumpobj, cls=SetEncoder)}")
 
 
@@ -64,7 +73,7 @@ def log_response(response: Response) -> None:
     """Log the response of a request."""
     dumpobj: dict[str, Any] = {
         "status_code": response.status_code,
-        "headers": sanitize_headers(dict(response.headers)),
+        "headers": sanitize_headers(dict(response.headers)) if response.headers else "",
     }
     try:
         dumpobj["content"] = response.json()

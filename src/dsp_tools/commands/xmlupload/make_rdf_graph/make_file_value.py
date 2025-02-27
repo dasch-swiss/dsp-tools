@@ -16,15 +16,13 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.constants import MOVING_IMAGE_F
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import STILL_IMAGE_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import TEXT_FILE_VALUE
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
-from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileMetadata
-from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryIIIFUri
 from dsp_tools.commands.xmlupload.models.rdf_models import AbstractFileValue
 from dsp_tools.commands.xmlupload.models.rdf_models import FileValueMetadata
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 from dsp_tools.models.exceptions import BaseError
 
 
-def make_iiif_uri_value_graph(iiif_uri: IntermediaryIIIFUri, res_node: BNode | URIRef) -> Graph:
+def make_iiif_uri_value_graph(iiif_uri: AbstractFileValue, res_node: BNode | URIRef) -> Graph:
     """
     Creates a graph with the IIIF-URI Link
 
@@ -35,22 +33,20 @@ def make_iiif_uri_value_graph(iiif_uri: IntermediaryIIIFUri, res_node: BNode | U
     Returns:
         Graph with the IIIF-URI Value
     """
-    metadata = _make_file_value_metadata(iiif_uri.metadata)
-    file_value = AbstractFileValue(iiif_uri.value, metadata)
     return _make_abstract_file_value_graph(
-        file_value, IIIF_URI_VALUE, res_node, KNORA_API.stillImageFileValueHasExternalUrl
+        iiif_uri, IIIF_URI_VALUE, res_node, KNORA_API.stillImageFileValueHasExternalUrl
     )
 
 
 def make_file_value_graph(
-    bitstream_info: BitstreamInfo, file_value_metadata: IntermediaryFileMetadata, res_node: BNode | URIRef
+    bitstream_info: BitstreamInfo, file_value_metadata: FileValueMetadata, res_node: BNode | URIRef
 ) -> Graph:
     """
     Creates a graph with the File Value information.
 
     Args:
         bitstream_info: Information about the previously uploaded file
-        file_value_metadata: Metadata of the
+        file_value_metadata: Metadata of the file value
         res_node: Node of the resource
 
     Returns:
@@ -58,20 +54,8 @@ def make_file_value_graph(
     """
     file_type = get_file_type_info(bitstream_info.local_file)
     internal_filename = bitstream_info.internal_file_name
-    file_value = AbstractFileValue(internal_filename, _make_file_value_metadata(file_value_metadata))
+    file_value = AbstractFileValue(internal_filename, file_value_metadata)
     return _make_abstract_file_value_graph(file_value, file_type, res_node)
-
-
-def _make_file_value_metadata(intermediary_metadata: IntermediaryFileMetadata) -> FileValueMetadata:
-    permissions = None
-    if found := intermediary_metadata.permissions:
-        permissions = str(found)
-    return FileValueMetadata(
-        intermediary_metadata.license_iri,
-        intermediary_metadata.copyright_holder,
-        intermediary_metadata.authorships,
-        permissions,
-    )
 
 
 def get_file_type_info(local_file: str) -> RDFPropTypeInfo:

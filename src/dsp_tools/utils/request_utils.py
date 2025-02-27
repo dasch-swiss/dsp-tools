@@ -53,7 +53,11 @@ def log_request(params: RequestParameters, extra_headers: dict[str, Any] | None 
         "url": params.url,
         "timeout": params.timeout,
     }
-    headers_to_log = extra_headers | params.headers
+    headers_to_log = {}
+    if extra_headers:
+        headers_to_log = extra_headers
+    if params.headers:
+        headers_to_log = headers_to_log | params.headers
     dumpobj["headers"] = sanitize_headers(headers_to_log)
     if params.data:
         data = params.data.copy()

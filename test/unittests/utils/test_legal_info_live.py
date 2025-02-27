@@ -17,7 +17,7 @@ AUTH = Mock()
 class TestPostCopyrightHolders:
     @patch("dsp_tools.utils.legal_info_client_live.log_response")
     @patch("dsp_tools.utils.legal_info_client_live.log_request")
-    def test_client_post_copyright_holders_ok(self, log_request: Mock, log_response: Mock):
+    def test_client_post_copyright_holders_ok(self, log_request: Mock, log_response: Mock):  # noqa: ARG002
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
         params = RequestParameters(
             method="POST",

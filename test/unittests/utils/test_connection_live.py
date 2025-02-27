@@ -257,7 +257,7 @@ def test_try_network_action_in_testing_environment(log_response: Mock, monkeypat
     monkeypatch.setenv("DSP_TOOLS_TESTING", "true")  # automatically set in CI, but not locally
     con = ConnectionLive("http://example.com/")
     responses = (Mock(status_code=500, text=""), Mock(status_code=404, text=""), Mock(status_code=200, text=""))
-    con.session = SessionMock(responses)  # type: ignore[assignment]
+    con.session = SessionMock(responses, {})  # type: ignore[assignment]
     con._log_request = Mock()
     params = RequestParameters(method="PUT", url="http://example.com/", timeout=1)
     with patch("dsp_tools.utils.connection_live.log_request_failure_and_sleep") as sleep_mock:
@@ -271,7 +271,7 @@ def test_try_network_action_permanent_connection_error(log_response: Mock, monke
     monkeypatch.setenv("DSP_TOOLS_TESTING", "true")  # automatically set in CI, but not locally
     con = ConnectionLive("http://example.com/")
     responses = (Mock(status_code=500, text=""),) * 7
-    con.session = SessionMock(responses)  # type: ignore[assignment]
+    con.session = SessionMock(responses, {})  # type: ignore[assignment]
     con._log_request = Mock()
     params = RequestParameters(method="POST", url="http://example.com/", timeout=1)
     with pytest.raises(PermanentConnectionError):

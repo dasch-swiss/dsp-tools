@@ -258,7 +258,9 @@ def test_try_network_action_non_200(log_request: Mock, log_response: Mock, monke
 @patch("dsp_tools.utils.connection_live.log_response")
 @patch("dsp_tools.utils.connection_live.log_request")
 def test_try_network_action_in_testing_environment(
-    log_request: Mock, log_response: Mock, monkeypatch: pytest.MonkeyPatch    # noqa: ARG001
+    log_request: Mock,  # noqa: ARG001
+    log_response: Mock,  # noqa: ARG001
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setenv("DSP_TOOLS_TESTING", "true")  # automatically set in CI, but not locally
     con = ConnectionLive("http://example.com/")
@@ -274,7 +276,9 @@ def test_try_network_action_in_testing_environment(
 @patch("dsp_tools.utils.connection_live.log_response")
 @patch("dsp_tools.utils.connection_live.log_request")
 def test_try_network_action_permanent_connection_error(
-    log_request: Mock, log_response: Mock, monkeypatch: pytest.MonkeyPatch  # noqa: ARG001
+    log_request: Mock,  # noqa: ARG001
+    log_response: Mock,  # noqa: ARG001
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setenv("DSP_TOOLS_TESTING", "true")  # automatically set in CI, but not locally
     con = ConnectionLive("http://example.com/")

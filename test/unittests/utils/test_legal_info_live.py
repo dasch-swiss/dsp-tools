@@ -3,6 +3,50 @@
 from dsp_tools.utils.legal_info_client_live import _segment_data
 
 
+def test_client_ok():
+    pass
+
+
+
+
+def test_client_timeout():
+    pass
+
+
+
+
+def test_client_insufficient_credentials():
+    pass
+
+
+
+
+def test_client_unknown_status_code():
+    pass
+
+
+
+
+def test_client_post_short():
+    pass
+
+
+
+
+def test_client_post_longer_than_max():
+    pass
+
+
+
+
+
+
+
+
+
+
+
+
 def test_segment_data_more_than_limit():
     data_list = [str(x) for x in range(203)]
     result = _segment_data(data_list)
@@ -20,3 +64,5 @@ def test_segment_data_less_than_limit():
     result = _segment_data(data_list)
     assert len(result) == 1
     assert len(result[0]) == 4
+
+

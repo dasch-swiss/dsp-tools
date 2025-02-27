@@ -14,8 +14,6 @@ from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import Bitstrea
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.intermediary.res import MigrationMetadata
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
-from dsp_tools.commands.xmlupload.models.rdf_models import AbstractFileValue
-from dsp_tools.commands.xmlupload.models.rdf_models import FileValueMetadata
 
 
 def create_resource_with_values(
@@ -61,16 +59,11 @@ def _make_values_graph_from_resource(
     properties_graph = make_values(resource.values, res_node, lookups)
 
     if resource.iiif_uri:
-        permissions = None
-        if found := resource.iiif_uri.metadata.permissions:
-            permissions = str(found)
-        metadata = FileValueMetadata(permissions)
-        iiif_val = AbstractFileValue(resource.iiif_uri.value, metadata)
-        iiif_g = make_iiif_uri_value_graph(iiif_val, res_node)
+        iiif_g = make_iiif_uri_value_graph(resource.iiif_uri, res_node)
         properties_graph += iiif_g
 
     elif bitstream_information:
-        file_g = make_file_value_graph(bitstream_information, res_node)
+        file_g = make_file_value_graph(bitstream_information, resource.file_value.metadata, res_node)
         properties_graph += file_g
 
     return properties_graph

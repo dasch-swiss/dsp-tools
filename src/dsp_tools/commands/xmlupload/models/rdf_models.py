@@ -35,4 +35,7 @@ class AbstractFileValue:
 
 @dataclass
 class FileValueMetadata:
+    license_iri: str | None
+    copyright_holder: str | None
+    authorships: list[str] | None
     permissions: str | None

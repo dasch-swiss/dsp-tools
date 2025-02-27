@@ -18,7 +18,6 @@ def test_save_upload_state(tmp_path: Path) -> None:
         pending_resources=[
             IntermediaryResource("id", "type", "label", None, [IntermediarySimpleText("Some text", "prop", None, None)])
         ],
-        copyright_holders=[],
         failed_uploads=[],
         project_context=JSONLDContext({}),
         iri_resolver=IriResolver({"foo": "bar"}),

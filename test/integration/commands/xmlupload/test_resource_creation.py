@@ -82,7 +82,7 @@ def test_one_resource_without_links(ingest_client_mock: AssetClient, legal_info_
             [IntermediarySimpleText("foo_1 text", prop_name, None, None)],
         )
     ]
-    upload_state = UploadState(resources, [], None, UploadConfig(), JSONLDContext({}))
+    upload_state = UploadState(resources, None, UploadConfig(), JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [{"@id": "foo_1_iri", "rdfs:label": "foo_1_label"}]
     con.post = Mock(side_effect=post_responses)
@@ -217,7 +217,7 @@ def _2_resources_with_stash_interrupted_by_error(
         "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
-    upload_state = UploadState(resources.copy(), [], deepcopy(stash), UploadConfig(), JSONLDContext({}))
+    upload_state = UploadState(resources.copy(), deepcopy(stash), UploadConfig(), JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [
         {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
@@ -255,7 +255,7 @@ def test_2_resources_with_stash(ingest_client_mock: AssetClient, legal_info_clie
         "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
-    upload_state = UploadState(resources.copy(), [], deepcopy(stash), UploadConfig(), JSONLDContext({}))
+    upload_state = UploadState(resources.copy(), deepcopy(stash), UploadConfig(), JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [
         {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
@@ -304,7 +304,7 @@ def test_5_resources_with_stash_and_interrupt_after_2(
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
-    upload_state = UploadState(resources.copy(), [], deepcopy(stash), upload_config, JSONLDContext({}))
+    upload_state = UploadState(resources.copy(), deepcopy(stash), upload_config, JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [
         {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
@@ -359,7 +359,7 @@ def test_6_resources_with_stash_and_interrupt_after_2(
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
-    upload_state = UploadState(resources.copy(), [], deepcopy(stash), upload_config, JSONLDContext({}))
+    upload_state = UploadState(resources.copy(), deepcopy(stash), upload_config, JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [
         {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
@@ -420,7 +420,7 @@ def test_logging(
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
-    upload_state = UploadState(resources.copy(), [], deepcopy(stash), upload_config, JSONLDContext({}))
+    upload_state = UploadState(resources.copy(), deepcopy(stash), upload_config, JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [
         {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
@@ -463,7 +463,7 @@ def test_post_requests(ingest_client_mock: AssetClient, legal_info_client_mock: 
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
-    upload_state = UploadState(resources.copy(), [], deepcopy(stash), upload_config, JSONLDContext({}))
+    upload_state = UploadState(resources.copy(), deepcopy(stash), upload_config, JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [
         {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},

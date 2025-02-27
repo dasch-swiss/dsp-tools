@@ -66,6 +66,19 @@ def test_xmlupload(auth_header: dict[str, str], project_iri: str) -> None:
     _analyze_pdf_resources(pdf_resources)
 
 
+@pytest.mark.usefixtures("_xmlupload")
+def test_all_copyright_holders(auth_header: dict[str, str]) -> None:
+    response = _get_copyright_holders(auth_header)
+    assert response["data"] == ["DaSCH"]
+
+
+def _get_copyright_holders(auth_header: dict[str, str]) -> dict[str, Any]:
+    url = f"{CREDS.server}/admin/projects/shortcode/4125/legal-info/copyright-holders?page=1&page-size=25&order=Asc"
+    headers = auth_header | {"accept": "application/json"}
+    response = requests.get(url=url, headers=headers, timeout=3).json()
+    return dict(response)
+
+
 def _check_project(project: dict[str, Any]) -> None:
     assert project["shortname"] == "e2e-tp"
     assert project["shortcode"] == PROJECT_SHORTCODE

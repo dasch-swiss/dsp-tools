@@ -43,6 +43,8 @@ from dsp_tools.utils.authentication_client import AuthenticationClient
 from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
+from dsp_tools.utils.legal_info_client import LegalInfoClient
+from dsp_tools.utils.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.utils.logger_config import WARNINGS_SAVEPATH
 
 
@@ -83,7 +85,7 @@ def xmlupload(
     ontology_client = OntologyClientLive(con=con, shortcode=shortcode, default_ontology=default_ontology)
     resources, permissions_lookup, stash, authorship_lookup = prepare_upload_from_root(root, ontology_client)
 
-    clients = _get_live_clients(con, auth, creds, shortcode, imgdir)
+    clients = _get_live_clients(con, auth, creds, creds.server, shortcode, imgdir)
     state = get_upload_state(resources, clients, stash, config, permissions_lookup, authorship_lookup)
 
     return execute_upload(clients, state)
@@ -93,6 +95,7 @@ def _get_live_clients(
     con: Connection,
     auth: AuthenticationClient,
     creds: ServerCredentials,
+    server: str,
     shortcode: str,
     imgdir: str,
 ) -> UploadClients:
@@ -100,10 +103,12 @@ def _get_live_clients(
     ingest_client = DspIngestClientLive(creds.dsp_ingest_url, auth, shortcode, imgdir)
     project_client: ProjectClient = ProjectClientLive(con, shortcode)
     list_client: ListClient = ListClientLive(con, project_client.get_project_iri())
+    legal_info_client: LegalInfoClient = LegalInfoClientLive(server, shortcode, auth)
     return UploadClients(
         asset_client=ingest_client,
         project_client=project_client,
         list_client=list_client,
+        legal_info_client=legal_info_client,
     )
 
 
@@ -117,8 +122,24 @@ def execute_upload(clients: UploadClients, upload_state: UploadState) -> bool:
     Returns:
         True if all resources could be uploaded without errors; False if any resource could not be uploaded
     """
+    _upload_copyright_holders(upload_state.pending_resources, clients.legal_info_client)
     _upload_resources(clients, upload_state)
     return _cleanup_upload(upload_state)
+
+
+def _upload_copyright_holders(resources: list[IntermediaryResource], legal_info_client: LegalInfoClient) -> None:
+    copyright_holders = _get_copyright_holders(resources)
+    legal_info_client.post_copyright_holders(copyright_holders)
+
+
+def _get_copyright_holders(resources: list[IntermediaryResource]) -> list[str]:
+    copyright_holders = set()
+    for res in resources:
+        if res.file_value:
+            copyright_holders.add(res.file_value.metadata.copyright_holder)
+        elif res.iiif_uri:
+            copyright_holders.add(res.iiif_uri.metadata.copyright_holder)
+    return [x for x in copyright_holders if x]
 
 
 def _cleanup_upload(upload_state: UploadState) -> bool:

@@ -122,9 +122,24 @@ def execute_upload(clients: UploadClients, upload_state: UploadState) -> bool:
     Returns:
         True if all resources could be uploaded without errors; False if any resource could not be uploaded
     """
-    clients.legal_info_client.post_copyright_holders(upload_state.copyright_holders)
+    _upload_copyright_holders(upload_state.pending_resources, clients.legal_info_client)
     _upload_resources(clients, upload_state)
     return _cleanup_upload(upload_state)
+
+
+def _upload_copyright_holders(resources: list[IntermediaryResource], legal_info_client: LegalInfoClient) -> None:
+    copyright_holders = _get_copyright_holders(resources)
+    legal_info_client.post_copyright_holders(copyright_holders)
+
+
+def _get_copyright_holders(resources: list[IntermediaryResource]) -> list[str]:
+    copyright_holders = set()
+    for res in resources:
+        if res.file_value:
+            copyright_holders.add(res.file_value.metadata.copyright_holder)
+        elif res.iiif_uri:
+            copyright_holders.add(res.iiif_uri.metadata.copyright_holder)
+    return [x for x in copyright_holders if x]
 
 
 def _cleanup_upload(upload_state: UploadState) -> bool:

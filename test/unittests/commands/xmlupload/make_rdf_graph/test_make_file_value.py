@@ -47,7 +47,7 @@ def abstract_file_no_permissions(metadata_no_permissions) -> AbstractFileValue:
 
 
 class TestIIIFURI:
-    def test_make_iiif_uri_value_graph_with_permissions(self, abstract_file_with_permissions) -> None:
+    def test_make_iiif_uri_value_graph_with_permissions(self, abstract_file_with_permissions):
         res_bn = BNode()
         g = make_iiif_uri_value_graph(abstract_file_with_permissions, res_bn)
         assert len(g) == 4
@@ -58,7 +58,7 @@ class TestIIIFURI:
         permissions = next(g.objects(val_bn, KNORA_API.hasPermissions))
         assert permissions == Literal("CR knora-admin:ProjectAdmin", datatype=XSD.string)
 
-    def test_make_iiif_uri_value_graph_no_permissions(self, abstract_file_no_permissions) -> None:
+    def test_make_iiif_uri_value_graph_no_permissions(self, abstract_file_no_permissions):
         res_bn = BNode()
         g = make_iiif_uri_value_graph(abstract_file_no_permissions, res_bn)
         assert len(g) == 3
@@ -69,7 +69,7 @@ class TestIIIFURI:
 
 
 class TestMakeBitstreamFileGraph:
-    def test_make_file_value_graph_with_permissions(self, metadata_with_permissions) -> None:
+    def test_make_file_value_graph_with_permissions(self, metadata_with_permissions):
         bitstream = BitstreamInfo(
             local_file="path/test.txt",
             internal_file_name="FileID",
@@ -84,7 +84,7 @@ class TestMakeBitstreamFileGraph:
         permissions = next(g.objects(file_bn, KNORA_API.hasPermissions))
         assert permissions == Literal("CR knora-admin:ProjectAdmin", datatype=XSD.string)
 
-    def test_make_file_value_graph_no_permissions(self, metadata_no_permissions) -> None:
+    def test_make_file_value_graph_no_permissions(self, metadata_no_permissions):
         bitstream = BitstreamInfo(
             local_file="path/test.txt",
             internal_file_name="FileID",
@@ -110,7 +110,7 @@ class TestMakeFileValueGraph:
             TEXT_FILE_VALUE,
         ],
     )
-    def test_with_permissions(self, abstract_file_with_permissions, type_info) -> None:
+    def test_with_permissions(self, abstract_file_with_permissions, type_info):
         res_bn = BNode()
         g = _make_abstract_file_value_graph(abstract_file_with_permissions, type_info, res_bn)
         assert len(g) == 4
@@ -132,7 +132,7 @@ class TestMakeFileValueGraph:
             TEXT_FILE_VALUE,
         ],
     )
-    def test_no_permissions(self, abstract_file_no_permissions, type_info) -> None:
+    def test_no_permissions(self, abstract_file_no_permissions, type_info):
         res_bn = BNode()
         g = _make_abstract_file_value_graph(abstract_file_no_permissions, type_info, res_bn)
         assert len(g) == 3
@@ -146,30 +146,30 @@ class TestFileTypeInfo:
     @pytest.mark.parametrize(
         "file_name", ["test.zip", "test.tar", "test.gz", "test.z", "test.tgz", "test.gzip", "test.7z"]
     )
-    def test_archive(self, file_name: str) -> None:
+    def test_archive(self, file_name: str):
         result = get_file_type_info(file_name)
         assert result.knora_type == KNORA_API.ArchiveFileValue
 
     @pytest.mark.parametrize("file_name", ["test.mp3", "test.wav"])
-    def test_audio(self, file_name: str) -> None:
+    def test_audio(self, file_name: str):
         result = get_file_type_info(file_name)
         assert result.knora_type == KNORA_API.AudioFileValue
 
     @pytest.mark.parametrize(
         "file_name", ["test.pdf", "test.doc", "test.docx", "test.xls", "test.xlsx", "test.ppt", "test.pptx"]
     )
-    def test_document(self, file_name: str) -> None:
+    def test_document(self, file_name: str):
         result = get_file_type_info(file_name)
         assert result.knora_type == KNORA_API.DocumentFileValue
 
-    def test_moving_image(self) -> None:
+    def test_moving_image(self):
         result = get_file_type_info("test.mp4")
         assert result.knora_type == KNORA_API.MovingImageFileValue
 
     @pytest.mark.parametrize(
         "file_name", ["test.jpg", "test.jpeg", "path/test.jp2", "test.png", "test.tif", "test.tiff", "test.jpx"]
     )
-    def test_still_image(self, file_name: str) -> None:
+    def test_still_image(self, file_name: str):
         result = get_file_type_info(file_name)
         assert result.knora_type == KNORA_API.StillImageFileValue
 
@@ -177,12 +177,12 @@ class TestFileTypeInfo:
         "file_name",
         ["path/test.odd", "test.rng", "test.txt", "test.xml", "test.xsd", "test.xsl", "test.csv", "test.json"],
     )
-    def test_text(self, file_name: str) -> None:
+    def test_text(self, file_name: str):
         result = get_file_type_info(file_name)
         assert result.knora_type == KNORA_API.TextFileValue
 
     @pytest.mark.parametrize(("file_name", "ending"), [("test.", ""), ("test", ""), ("test.other", "other")])
-    def test_raises(self, file_name: str, ending: str) -> None:
+    def test_raises(self, file_name: str, ending: str):
         msg = regex.escape(f"Unknown file ending '{ending}' for file '{file_name}'")
         with pytest.raises(BaseError, match=msg):
             get_file_type_info(file_name)

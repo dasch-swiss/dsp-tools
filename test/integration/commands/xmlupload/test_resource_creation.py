@@ -470,7 +470,6 @@ def test_interruption_if_resource_cannot_be_created_because_of_404() -> None:
         resources.copy(), Stash(None, None), UploadConfig(), JSONLDContext({}), [], IriResolver()
     )
     con = ConnectionLive("foo")
-    con._log_request = Mock()  # type: ignore[method-assign]
     resp_404 = Response()
     resp_404.status_code = 404
     post_responses = [resp_404]

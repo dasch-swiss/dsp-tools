@@ -16,6 +16,6 @@ def test_log_response() -> None:
         "headers": {"Set-Cookie": "***", "Content-Type": "application/json"},
         "content": {"foo": "bar"},
     }
-    with patch("dsp_tools.utils.connection_live.logger.debug") as debug_mock:
+    with patch("dsp_tools.utils.request_utils.logger.debug") as debug_mock:
         log_response(response_mock)  # type: ignore[arg-type]
         debug_mock.assert_called_once_with(f"RESPONSE: {json.dumps(expected_output)}")

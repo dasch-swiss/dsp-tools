@@ -1,7 +1,8 @@
 from dataclasses import dataclass
-from itertools import batched
+from datetime import datetime
 
 import requests
+from loguru import logger
 from requests import ReadTimeout
 from requests import Response
 
@@ -27,25 +28,23 @@ class LegalInfoClientLive(LegalInfoClient):
 
     def post_copyright_holders(self, copyright_holders: list[str]) -> None:
         """Send a list of new copyright holders to the API"""
-        # The maximum allowed number of data elements is 100,
-        # this segments the entries so that it does not go over the limit.
-        for seg in batched(copyright_holders, 100):
-            try:
-                response = self._post_and_log_request("copyright-holders", seg)
-            except (TimeoutError, ReadTimeout) as err:
-                log_and_raise_timeouts(err)
-            if response.ok:
-                continue
-            if response.status_code == HTTP_LACKING_PERMISSIONS:
-                raise BadCredentialsError(
-                    "Only a project or system administrator can create new copyright holders. "
-                    "Your permissions are insufficient for this action."
-                )
-            else:
-                raise BaseError(
-                    f"An unexpected response with the status code {response.status_code} was received from the API. "
-                    f"Please consult 'warnings.log' for details."
-                )
+        logger.debug(f"{datetime.now()}: POST {len(copyright_holders)} new copyright holders")
+        try:
+            response = self._post_and_log_request("copyright-holders", copyright_holders)
+        except (TimeoutError, ReadTimeout) as err:
+            log_and_raise_timeouts(err)
+        if response.ok:
+            return
+        if response.status_code == HTTP_LACKING_PERMISSIONS:
+            raise BadCredentialsError(
+                "Only a project or system administrator can create new copyright holders. "
+                "Your permissions are insufficient for this action."
+            )
+        else:
+            raise BaseError(
+                f"An unexpected response with the status code {response.status_code} was received from the API. "
+                f"Please consult 'warnings.log' for details."
+            )
 
     def _post_and_log_request(self, endpoint: str, data: list[str]) -> Response:
         url = f"{self.server}/admin/projects/shortcode/{self.project_shortcode}/legal-info/{endpoint}"

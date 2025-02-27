@@ -4,6 +4,7 @@ import warnings
 from collections.abc import Collection
 from dataclasses import dataclass
 from dataclasses import field
+from pathlib import Path
 from typing import Any
 
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
@@ -1495,7 +1496,7 @@ class Resource:
 
     def add_file(
         self,
-        filename: str,
+        filename: str | Path,
         license: PreDefinedLicense | str,
         copyright_holder: str,
         authorship: list[str],

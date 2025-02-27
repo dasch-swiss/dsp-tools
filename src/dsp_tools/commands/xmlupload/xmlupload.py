@@ -43,6 +43,8 @@ from dsp_tools.utils.authentication_client import AuthenticationClient
 from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
+from dsp_tools.utils.legal_info_client_live import LegalInfoClient
+from dsp_tools.utils.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.utils.logger_config import WARNINGS_SAVEPATH
 
 
@@ -100,10 +102,12 @@ def _get_live_clients(
     ingest_client = DspIngestClientLive(creds.dsp_ingest_url, auth, shortcode, imgdir)
     project_client: ProjectClient = ProjectClientLive(con, shortcode)
     list_client: ListClient = ListClientLive(con, project_client.get_project_iri())
+    legal_info_client: LegalInfoClient = LegalInfoClientLive(con.server, shortcode, auth)
     return UploadClients(
         asset_client=ingest_client,
         project_client=project_client,
         list_client=list_client,
+        legal_info_client=legal_info_client,
     )
 
 

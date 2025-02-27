@@ -23,6 +23,7 @@ from dsp_tools.utils.connection_live import RequestParameters
 @dataclass
 class SessionMock:
     responses: tuple[Any, ...]
+    headers: dict[str, Any] | None = None
     counter = 0
 
     def request(self, **kwargs: Any) -> Any:  # noqa: ARG002
@@ -206,7 +207,7 @@ def test_try_network_action_timeout_error(monkeypatch: pytest.MonkeyPatch) -> No
     monkeypatch.delenv("DSP_TOOLS_TESTING", raising=False)  # in CI, this variable suppresses the retrying mechanism
     con = ConnectionLive("http://example.com/")
     responses = (TimeoutError(), ReadTimeout(), Mock(status_code=200))
-    session_mock = SessionMock(responses)
+    session_mock = SessionMock(responses, headers={})
     con.session = session_mock  # type: ignore[assignment]
     con._log_request = Mock()
     params = RequestParameters(method="GET", url="http://example.com/", timeout=1)

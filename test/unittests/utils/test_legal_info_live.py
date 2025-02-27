@@ -15,22 +15,25 @@ AUTH = Mock()
 
 
 class TestPostCopyrightHolders:
-    @patch("dsp_tools.utils.legal_info_client_live.log_request")
     @patch("dsp_tools.utils.legal_info_client_live.log_response")
+    @patch("dsp_tools.utils.legal_info_client_live.log_request")
     def test_client_post_copyright_holders_ok(self, log_request: Mock, log_response: Mock):
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
-        expected_response = Mock(status_code=200, ok=True)
-        client._post_and_log_request = Mock(return_value=expected_response)
         params = RequestParameters(
             method="POST",
-            url="http://api.com/admin/projects/shortcode/9999/copyright-holders",
+            url="http://api.com/admin/projects/shortcode/9999/legal-info/copyright-holders",
             data={"data": ["1"]},
             timeout=60,
         )
-        response = client._post_and_log_request("copyright-holders", ["1"])
-        assert response == expected_response
-        log_request.assert_called_once_with(params)
-        log_response.assert_called_once_with(expected_response)
+        with patch("dsp_tools.utils.legal_info_client_live.requests.post") as post_mock:
+            post_mock.return_value = Mock(status_code=200, ok=True)
+            response = client._post_and_log_request("copyright-holders", ["1"])
+        assert response.status_code == 200
+        assert response.ok
+        log_request_call_params = log_request.call_args_list[0].args[0]
+        assert isinstance(log_request_call_params, RequestParameters)
+        del log_request_call_params.headers
+        assert log_request_call_params == params
 
     def test_client_post_copyright_holders_insufficient_credentials(self):
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)

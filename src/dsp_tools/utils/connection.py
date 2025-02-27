@@ -9,8 +9,6 @@ class Connection(Protocol):
     Protocol class/interface for the connection object.
     """
 
-    server: str
-
     def get(
         self,
         route: str,

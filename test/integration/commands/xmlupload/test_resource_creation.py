@@ -82,7 +82,7 @@ def test_one_resource_without_links(ingest_client_mock: AssetClient, legal_info_
             [IntermediarySimpleText("foo_1 text", prop_name, None, None)],
         )
     ]
-    upload_state = UploadState(resources, None, UploadConfig(), JSONLDContext({}))
+    upload_state = UploadState(resources, [], None, UploadConfig(), JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [{"@id": "foo_1_iri", "rdfs:label": "foo_1_label"}]
     con.post = Mock(side_effect=post_responses)
@@ -142,7 +142,7 @@ def test_one_resource_with_link_to_existing_resource(
         )
     ]
     upload_state = UploadState(
-        resources, None, UploadConfig(), JSONLDContext({}), [], IriResolver({"foo_2_id": "foo_2_iri"})
+        resources, [], None, UploadConfig(), JSONLDContext({}), [], IriResolver({"foo_2_id": "foo_2_iri"})
     )
     con = Mock(spec_set=ConnectionLive)
     post_responses = [{"@id": "foo_1_iri", "rdfs:label": "foo_1_label"}]
@@ -217,7 +217,7 @@ def _2_resources_with_stash_interrupted_by_error(
         "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
-    upload_state = UploadState(resources.copy(), deepcopy(stash), UploadConfig(), JSONLDContext({}))
+    upload_state = UploadState(resources.copy(), [], deepcopy(stash), UploadConfig(), JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [
         {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
@@ -241,7 +241,7 @@ def _2_resources_with_stash_interrupted_by_error(
             "If not, a normal 'resume-xmlupload' can be started."
         )
         upload_state_expected = UploadState(
-            resources[1:], stash, UploadConfig(), JSONLDContext({}), [], IriResolver({"foo_1_id": "foo_1_iri"})
+            resources[1:], [], stash, UploadConfig(), JSONLDContext({}), [], IriResolver({"foo_1_id": "foo_1_iri"})
         )
         _handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
@@ -255,7 +255,7 @@ def test_2_resources_with_stash(ingest_client_mock: AssetClient, legal_info_clie
         "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
-    upload_state = UploadState(resources.copy(), deepcopy(stash), UploadConfig(), JSONLDContext({}))
+    upload_state = UploadState(resources.copy(), [], deepcopy(stash), UploadConfig(), JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [
         {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
@@ -304,7 +304,7 @@ def test_5_resources_with_stash_and_interrupt_after_2(
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
-    upload_state = UploadState(resources.copy(), deepcopy(stash), upload_config, JSONLDContext({}))
+    upload_state = UploadState(resources.copy(), [], deepcopy(stash), upload_config, JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [
         {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
@@ -324,7 +324,7 @@ def test_5_resources_with_stash_and_interrupt_after_2(
         _upload_resources(client, upload_state)
         iri_resolver_expected = IriResolver({"foo_1_id": "foo_1_iri", "foo_2_id": "foo_2_iri"})
         upload_state_expected = UploadState(
-            resources[2:], stash, upload_config, JSONLDContext({}), [], iri_resolver_expected
+            resources[2:], [], stash, upload_config, JSONLDContext({}), [], iri_resolver_expected
         )
         _handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
@@ -332,7 +332,7 @@ def test_5_resources_with_stash_and_interrupt_after_2(
         _upload_resources(client, upload_state)
         iri_resolver_expected.lookup.update({"foo_3_id": "foo_3_iri", "foo_4_id": "foo_4_iri"})
         upload_state_expected = UploadState(
-            resources[4:], stash, upload_config, JSONLDContext({}), [], iri_resolver_expected
+            resources[4:], [], stash, upload_config, JSONLDContext({}), [], iri_resolver_expected
         )
         _handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
@@ -341,7 +341,7 @@ def test_5_resources_with_stash_and_interrupt_after_2(
         iri_resolver_expected.lookup.update({"foo_5_id": "foo_5_iri"})
         empty_stash = Stash(standoff_stash=None, link_value_stash=LinkValueStash({}))
         upload_state_expected = UploadState(
-            [], empty_stash, upload_config, JSONLDContext({}), [], iri_resolver_expected
+            [], [], empty_stash, upload_config, JSONLDContext({}), [], iri_resolver_expected
         )
         _handle_upload_error.assert_not_called()
         assert upload_state == upload_state_expected
@@ -359,7 +359,7 @@ def test_6_resources_with_stash_and_interrupt_after_2(
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
-    upload_state = UploadState(resources.copy(), deepcopy(stash), upload_config, JSONLDContext({}))
+    upload_state = UploadState(resources.copy(), [], deepcopy(stash), upload_config, JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [
         {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
@@ -380,7 +380,7 @@ def test_6_resources_with_stash_and_interrupt_after_2(
         _upload_resources(client, upload_state)
         iri_resolver_expected = IriResolver({"foo_1_id": "foo_1_iri", "foo_2_id": "foo_2_iri"})
         upload_state_expected = UploadState(
-            resources[2:], stash, upload_config, JSONLDContext({}), [], iri_resolver_expected
+            resources[2:], [], stash, upload_config, JSONLDContext({}), [], iri_resolver_expected
         )
         _handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
@@ -388,21 +388,21 @@ def test_6_resources_with_stash_and_interrupt_after_2(
         _upload_resources(client, upload_state)
         iri_resolver_expected.lookup.update({"foo_3_id": "foo_3_iri", "foo_4_id": "foo_4_iri"})
         upload_state_expected = UploadState(
-            resources[4:], stash, upload_config, JSONLDContext({}), [], iri_resolver_expected
+            resources[4:], [], stash, upload_config, JSONLDContext({}), [], iri_resolver_expected
         )
         _handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
     with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
         _upload_resources(client, upload_state)
         iri_resolver_expected.lookup.update({"foo_5_id": "foo_5_iri", "foo_6_id": "foo_6_iri"})
-        upload_state_expected = UploadState([], stash, upload_config, JSONLDContext({}), [], iri_resolver_expected)
+        upload_state_expected = UploadState([], [], stash, upload_config, JSONLDContext({}), [], iri_resolver_expected)
         _handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
     with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
         _upload_resources(client, upload_state)
         empty_stash = Stash(standoff_stash=None, link_value_stash=LinkValueStash({}))
         upload_state_expected = UploadState(
-            [], empty_stash, upload_config, JSONLDContext({}), [], iri_resolver_expected
+            [], [], empty_stash, upload_config, JSONLDContext({}), [], iri_resolver_expected
         )
         _handle_upload_error.assert_not_called()
         assert upload_state == upload_state_expected
@@ -420,7 +420,7 @@ def test_logging(
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
-    upload_state = UploadState(resources.copy(), deepcopy(stash), upload_config, JSONLDContext({}))
+    upload_state = UploadState(resources.copy(), [], deepcopy(stash), upload_config, JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [
         {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
@@ -463,7 +463,7 @@ def test_post_requests(ingest_client_mock: AssetClient, legal_info_client_mock: 
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
-    upload_state = UploadState(resources.copy(), deepcopy(stash), upload_config, JSONLDContext({}))
+    upload_state = UploadState(resources.copy(), [], deepcopy(stash), upload_config, JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [
         {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
@@ -492,7 +492,7 @@ def test_interruption_if_resource_cannot_be_created_because_of_404(legal_info_cl
         IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 3)
     ]
     upload_state = UploadState(
-        resources.copy(), Stash(None, None), UploadConfig(), JSONLDContext({}), [], IriResolver()
+        resources.copy(), [], Stash(None, None), UploadConfig(), JSONLDContext({}), [], IriResolver()
     )
     con = ConnectionLive("foo")
     resp_404 = Response()

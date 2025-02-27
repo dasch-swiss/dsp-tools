@@ -38,12 +38,15 @@ def make_iiif_uri_value_graph(iiif_uri: AbstractFileValue, res_node: BNode | URI
     )
 
 
-def make_file_value_graph(bitstream_info: BitstreamInfo, res_node: BNode | URIRef) -> Graph:
+def make_file_value_graph(
+    bitstream_info: BitstreamInfo, file_value_metadata: FileValueMetadata, res_node: BNode | URIRef
+) -> Graph:
     """
     Creates a graph with the File Value information.
 
     Args:
         bitstream_info: Information about the previously uploaded file
+        file_value_metadata: Metadata of the file value
         res_node: Node of the resource
 
     Returns:
@@ -51,11 +54,7 @@ def make_file_value_graph(bitstream_info: BitstreamInfo, res_node: BNode | URIRe
     """
     file_type = get_file_type_info(bitstream_info.local_file)
     internal_filename = bitstream_info.internal_file_name
-    bitstream_permissions = None
-    if bitstream_info.permissions:
-        bitstream_permissions = str(bitstream_info.permissions)
-    metadata = FileValueMetadata(bitstream_permissions)
-    file_value = AbstractFileValue(internal_filename, metadata)
+    file_value = AbstractFileValue(internal_filename, file_value_metadata)
     return _make_abstract_file_value_graph(file_value, file_type, res_node)
 
 

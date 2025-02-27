@@ -5,12 +5,14 @@ from rdflib import BNode
 from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
-
+from typing import cast
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import KNORA_API
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_file_value_graph
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_iiif_uri_value_graph
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import make_values
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
+from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileMetadata
+from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileValue
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.intermediary.res import MigrationMetadata
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
@@ -61,25 +63,29 @@ def _make_values_graph_from_resource(
     properties_graph = make_values(resource.values, res_node, lookups)
 
     if resource.iiif_uri:
-        permissions = None
-        if found := resource.iiif_uri.metadata.permissions:
-            permissions = str(found)
-        intermediary_metadata = resource.iiif_uri.metadata
-        metadata = FileValueMetadata(
-            intermediary_metadata.license_iri,
-            intermediary_metadata.copyright_holder,
-            intermediary_metadata.authorships,
-            permissions,
-        )
-        iiif_val = AbstractFileValue(resource.iiif_uri.value, metadata)
-        iiif_g = make_iiif_uri_value_graph(iiif_val, res_node)
+        metadata = _make_file_value_metadata(resource.iiif_uri.metadata)
+        iiif_g = make_iiif_uri_value_graph(AbstractFileValue(resource.iiif_uri.value, metadata), res_node)
         properties_graph += iiif_g
 
     elif bitstream_information:
-        file_g = make_file_value_graph(bitstream_information, res_node)
+        file_val = cast(IntermediaryFileValue, resource.file_value)
+        metadata = _make_file_value_metadata(file_val.metadata)
+        file_g = make_file_value_graph(bitstream_information, metadata, res_node)
         properties_graph += file_g
 
     return properties_graph
+
+
+def _make_file_value_metadata(intermediary_metadata: IntermediaryFileMetadata) -> FileValueMetadata:
+    permissions = None
+    if found := intermediary_metadata.permissions:
+        permissions = str(found)
+    return FileValueMetadata(
+        intermediary_metadata.license_iri,
+        intermediary_metadata.copyright_holder,
+        intermediary_metadata.authorships,
+        permissions,
+    )
 
 
 def _make_resource(resource: IntermediaryResource, res_node: BNode | URIRef, project_iri: URIRef) -> Graph:

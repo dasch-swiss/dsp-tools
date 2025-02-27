@@ -10,6 +10,7 @@ from lxml import etree
 
 from dsp_tools.commands.xmlupload.models.deserialise.xmlpermission import XmlPermission
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
+from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookups
 from dsp_tools.commands.xmlupload.models.lookup_models import get_json_ld_context_for_project
 from dsp_tools.commands.xmlupload.models.lookup_models import make_namespace_dict_from_onto_names
@@ -78,12 +79,24 @@ def get_upload_state(
             f"{LIST_SEPARATOR}{LIST_SEPARATOR.join(failures)}"
         )
         raise InputError(msg)
+    copyright_holders = _get_copyright_holders(result.transformed_resources)
     return UploadState(
         pending_resources=result.transformed_resources,
+        copyright_holders=copyright_holders,
         pending_stash=stash,
         config=config,
         project_context=project_context,
     )
+
+
+def _get_copyright_holders(resources: list[IntermediaryResource]) -> list[str]:
+    copyright_holders = set()
+    for res in resources:
+        if res.file_value:
+            copyright_holders.add(res.file_value.metadata.copyright_holder)
+        elif res.iiif_uri:
+            copyright_holders.add(res.iiif_uri.metadata.copyright_holder)
+    return list(copyright_holders)
 
 
 def prepare_upload_from_root(

@@ -15,6 +15,7 @@ class UploadState:
     """
 
     pending_resources: list[IntermediaryResource]
+    copyright_holders: list[str]
     pending_stash: Stash | None
     config: UploadConfig
     project_context: JSONLDContext

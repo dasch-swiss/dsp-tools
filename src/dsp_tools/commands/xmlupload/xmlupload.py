@@ -121,6 +121,7 @@ def execute_upload(clients: UploadClients, upload_state: UploadState) -> bool:
     Returns:
         True if all resources could be uploaded without errors; False if any resource could not be uploaded
     """
+    clients.legal_info_client.post_copyright_holders(upload_state.copyright_holders)
     _upload_resources(clients, upload_state)
     return _cleanup_upload(upload_state)
 

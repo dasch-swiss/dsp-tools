@@ -260,7 +260,7 @@ def test_try_network_action_in_testing_environment(log_response: Mock, monkeypat
     con.session = SessionMock(responses, {})  # type: ignore[assignment]
     con._log_request = Mock()
     params = RequestParameters(method="PUT", url="http://example.com/", timeout=1)
-    with patch("dsp_tools.utils.connection_live.log_request_failure_and_sleep") as sleep_mock:
+    with patch("dsp_tools.utils.request_utils.log_request_failure_and_sleep") as sleep_mock:
         with pytest.raises(PermanentConnectionError):
             con._try_network_action(params)
         sleep_mock.assert_not_called()

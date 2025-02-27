@@ -27,23 +27,28 @@ from dsp_tools.models.exceptions import BaseError
 
 
 @pytest.fixture
-def metadata_with_permissions() -> FileValueMetadata:
+def metadata_with_permissions_no_legal_info() -> FileValueMetadata:
     return FileValueMetadata(None, None, None, "CR knora-admin:ProjectAdmin")
 
 
 @pytest.fixture
-def metadata_no_permissions() -> FileValueMetadata:
+def metadata_no_permissions_no_legal_info() -> FileValueMetadata:
     return FileValueMetadata(None, None, None, None)
 
 
 @pytest.fixture
-def abstract_file_with_permissions(metadata_with_permissions) -> AbstractFileValue:
-    return AbstractFileValue("value", metadata_with_permissions)
+def metadata_with_legal_info() -> FileValueMetadata:
+    return FileValueMetadata("https://iri.ch", "copy", ["auth1", "auth2"], None)
 
 
 @pytest.fixture
-def abstract_file_no_permissions(metadata_no_permissions) -> AbstractFileValue:
-    return AbstractFileValue("value", metadata_no_permissions)
+def abstract_file_with_permissions(metadata_with_permissions_no_legal_info) -> AbstractFileValue:
+    return AbstractFileValue("value", metadata_with_permissions_no_legal_info)
+
+
+@pytest.fixture
+def abstract_file_no_permissions(metadata_no_permissions_no_legal_info) -> AbstractFileValue:
+    return AbstractFileValue("value", metadata_no_permissions_no_legal_info)
 
 
 class TestIIIFURI:
@@ -69,14 +74,14 @@ class TestIIIFURI:
 
 
 class TestMakeBitstreamFileGraph:
-    def test_make_file_value_graph_with_permissions(self, metadata_with_permissions):
+    def test_make_file_value_graph_with_permissions(self, metadata_with_permissions_no_legal_info):
         bitstream = BitstreamInfo(
             local_file="path/test.txt",
             internal_file_name="FileID",
             permissions=Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]}),
         )
         res_bn = BNode()
-        g = make_file_value_graph(bitstream, metadata_with_permissions, res_bn)
+        g = make_file_value_graph(bitstream, metadata_with_permissions_no_legal_info, res_bn)
         file_bn = next(g.objects(res_bn, KNORA_API.hasTextFileValue))
         assert next(g.objects(file_bn, RDF.type)) == KNORA_API.TextFileValue
         file_id = next(g.objects(file_bn, KNORA_API.fileValueHasFilename))
@@ -84,14 +89,14 @@ class TestMakeBitstreamFileGraph:
         permissions = next(g.objects(file_bn, KNORA_API.hasPermissions))
         assert permissions == Literal("CR knora-admin:ProjectAdmin", datatype=XSD.string)
 
-    def test_make_file_value_graph_no_permissions(self, metadata_no_permissions):
+    def test_make_file_value_graph_no_permissions(self, metadata_with_permissions_no_legal_info):
         bitstream = BitstreamInfo(
             local_file="path/test.txt",
             internal_file_name="FileID",
             permissions=None,
         )
         res_bn = BNode()
-        g = make_file_value_graph(bitstream, metadata_no_permissions, res_bn)
+        g = make_file_value_graph(bitstream, metadata_with_permissions_no_legal_info, res_bn)
         file_bn = next(g.objects(res_bn, KNORA_API.hasTextFileValue))
         assert next(g.objects(file_bn, RDF.type)) == KNORA_API.TextFileValue
         file_id = next(g.objects(file_bn, KNORA_API.fileValueHasFilename))

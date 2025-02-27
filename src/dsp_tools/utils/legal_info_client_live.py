@@ -55,16 +55,23 @@ class LegalInfoClientLive(LegalInfoClient):
         }
         params = RequestParameters("POST", url, TIMEOUT, {"data": data}, headers)
         log_request(params)
-        response = requests.post(url=url, headers=headers, data=params.data_serialized, timeout=TIMEOUT)
+        response = requests.post(
+            url=params.url,
+            headers=params.headers,
+            data=params.data_serialized,
+            timeout=params.timeout,
+        )
         log_response(response)
         return response
 
 
 def _segment_data(data: list[str]) -> list[list[str]]:
+    max_length = 100
+
     segmented = []
-    while len(data) > 100:
-        segmented.append(data[:100])
-        data = data[100:]
+    while len(data) > max_length:
+        segmented.append(data[:max_length])
+        data = data[max_length:]
 
     segmented.append(data)
     return segmented

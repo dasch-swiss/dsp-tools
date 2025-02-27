@@ -36,16 +36,6 @@ class SessionMock:
         return response
 
 
-@dataclass
-class ResponseMock:
-    status_code: int
-    headers: dict[str, Any]
-    text: str
-
-    def json(self) -> dict[str, Any]:
-        return cast(dict[str, Any], json.loads(self.text))
-
-
 def test_post() -> None:
     con = ConnectionLive("http://example.com/")
     con._try_network_action = Mock()

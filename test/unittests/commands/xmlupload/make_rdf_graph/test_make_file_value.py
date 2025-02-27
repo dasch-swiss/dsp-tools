@@ -1,3 +1,5 @@
+# mypy: disable-error-code="method-assign,no-untyped-def"
+
 import pytest
 import regex
 from rdflib import RDF
@@ -22,34 +24,31 @@ from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.commands.xmlupload.models.rdf_models import AbstractFileValue
 from dsp_tools.commands.xmlupload.models.rdf_models import FileValueMetadata
-from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 from dsp_tools.models.exceptions import BaseError
 
 
 @pytest.fixture
 def metadata_with_permissions() -> FileValueMetadata:
-    return FileValueMetadata("permissions")
+    return FileValueMetadata(None, None, None, "CR knora-admin:ProjectAdmin")
 
 
 @pytest.fixture
 def metadata_no_permissions() -> FileValueMetadata:
-    return FileValueMetadata(None)
+    return FileValueMetadata(None, None, None, None)
 
 
 @pytest.fixture
-def abstract_file_with_permissions(metadata_with_permissions: FileValueMetadata) -> AbstractFileValue:
+def abstract_file_with_permissions(metadata_with_permissions) -> AbstractFileValue:
     return AbstractFileValue("value", metadata_with_permissions)
 
 
 @pytest.fixture
-def abstract_file_no_permissions(metadata_no_permissions: FileValueMetadata) -> AbstractFileValue:
+def abstract_file_no_permissions(metadata_no_permissions) -> AbstractFileValue:
     return AbstractFileValue("value", metadata_no_permissions)
 
 
 class TestIIIFURI:
-    def test_make_iiif_uri_value_graph_with_permissions(
-        self, abstract_file_with_permissions: AbstractFileValue
-    ) -> None:
+    def test_make_iiif_uri_value_graph_with_permissions(self, abstract_file_with_permissions) -> None:
         res_bn = BNode()
         g = make_iiif_uri_value_graph(abstract_file_with_permissions, res_bn)
         assert len(g) == 4
@@ -58,9 +57,9 @@ class TestIIIFURI:
         value = next(g.objects(val_bn, KNORA_API.stillImageFileValueHasExternalUrl))
         assert value == Literal("value", datatype=XSD.string)
         permissions = next(g.objects(val_bn, KNORA_API.hasPermissions))
-        assert permissions == Literal("permissions", datatype=XSD.string)
+        assert permissions == Literal("CR knora-admin:ProjectAdmin", datatype=XSD.string)
 
-    def test_make_iiif_uri_value_graph_no_permissions(self, abstract_file_no_permissions: AbstractFileValue) -> None:
+    def test_make_iiif_uri_value_graph_no_permissions(self, abstract_file_no_permissions) -> None:
         res_bn = BNode()
         g = make_iiif_uri_value_graph(abstract_file_no_permissions, res_bn)
         assert len(g) == 3
@@ -71,14 +70,14 @@ class TestIIIFURI:
 
 
 class TestMakeBitstreamFileGraph:
-    def test_make_file_value_graph_with_permissions(self) -> None:
+    def test_make_file_value_graph_with_permissions(self, metadata_with_permissions) -> None:
         bitstream = BitstreamInfo(
             local_file="path/test.txt",
             internal_file_name="FileID",
             permissions=Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]}),
         )
         res_bn = BNode()
-        g = make_file_value_graph(bitstream, res_bn)
+        g = make_file_value_graph(bitstream, metadata_with_permissions, res_bn)
         file_bn = next(g.objects(res_bn, KNORA_API.hasTextFileValue))
         assert next(g.objects(file_bn, RDF.type)) == KNORA_API.TextFileValue
         file_id = next(g.objects(file_bn, KNORA_API.fileValueHasFilename))
@@ -86,14 +85,14 @@ class TestMakeBitstreamFileGraph:
         permissions = next(g.objects(file_bn, KNORA_API.hasPermissions))
         assert permissions == Literal("CR knora-admin:ProjectAdmin", datatype=XSD.string)
 
-    def test_make_file_value_graph_no_permissions(self) -> None:
+    def test_make_file_value_graph_no_permissions(self, metadata_no_permissions) -> None:
         bitstream = BitstreamInfo(
             local_file="path/test.txt",
             internal_file_name="FileID",
             permissions=None,
         )
         res_bn = BNode()
-        g = make_file_value_graph(bitstream, res_bn)
+        g = make_file_value_graph(bitstream, metadata_no_permissions, res_bn)
         file_bn = next(g.objects(res_bn, KNORA_API.hasTextFileValue))
         assert next(g.objects(file_bn, RDF.type)) == KNORA_API.TextFileValue
         file_id = next(g.objects(file_bn, KNORA_API.fileValueHasFilename))
@@ -112,9 +111,7 @@ class TestMakeFileValueGraph:
             TEXT_FILE_VALUE,
         ],
     )
-    def test_with_permissions(
-        self, abstract_file_with_permissions: AbstractFileValue, type_info: RDFPropTypeInfo
-    ) -> None:
+    def test_with_permissions(self, abstract_file_with_permissions, type_info) -> None:
         res_bn = BNode()
         g = _make_abstract_file_value_graph(abstract_file_with_permissions, type_info, res_bn)
         assert len(g) == 4
@@ -123,7 +120,7 @@ class TestMakeFileValueGraph:
         filename = next(g.objects(val_bn, KNORA_API.fileValueHasFilename))
         assert filename == Literal("value", datatype=XSD.string)
         permissions = next(g.objects(val_bn, KNORA_API.hasPermissions))
-        assert permissions == Literal("permissions", datatype=XSD.string)
+        assert permissions == Literal("CR knora-admin:ProjectAdmin", datatype=XSD.string)
 
     @pytest.mark.parametrize(
         "type_info",
@@ -136,7 +133,7 @@ class TestMakeFileValueGraph:
             TEXT_FILE_VALUE,
         ],
     )
-    def test_no_permissions(self, abstract_file_no_permissions: AbstractFileValue, type_info: RDFPropTypeInfo) -> None:
+    def test_no_permissions(self, abstract_file_no_permissions, type_info) -> None:
         res_bn = BNode()
         g = _make_abstract_file_value_graph(abstract_file_no_permissions, type_info, res_bn)
         assert len(g) == 3
@@ -198,7 +195,7 @@ class TestAddMetadata:
         g = _add_metadata(bn, metadata_with_permissions)
         assert len(g) == 1
         permission = next(g.objects(bn, KNORA_API.hasPermissions))
-        assert permission == Literal("permissions", datatype=XSD.string)
+        assert permission == Literal("CR knora-admin:ProjectAdmin", datatype=XSD.string)
 
     def test_no_permissions(self, metadata_no_permissions: FileValueMetadata) -> None:
         bn = BNode()

@@ -277,8 +277,8 @@ def test_try_network_action_permanent_connection_error(log_response: Mock, monke
     with pytest.raises(PermanentConnectionError):
         con._try_network_action(params)
 
-
-def test_log_request() -> None:
+@patch("dsp_tools.utils.connection_live.log_request")
+def test_log_request(log_request: Mock) -> None:
     con = ConnectionLive("http://example.com/")
     con.session.headers = {"Authorization": "Bearer my-very-long-token"}
     params = RequestParameters(
@@ -296,7 +296,7 @@ def test_log_request() -> None:
         "data": {"password": "***", "foo": "bar"},
     }
     with patch("dsp_tools.utils.request_utils.logger.debug") as debug_mock:
-        con._log_request(params)
+        log_request(params)
         debug_mock.assert_called_once_with(f"REQUEST: {json.dumps(expected_output)}")
 
 

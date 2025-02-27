@@ -66,8 +66,7 @@ def ingest_xmlupload(
 
     ontology_client = OntologyClientLive(con=con, shortcode=shortcode, default_ontology=default_ontology)
     resources, permissions_lookup, stash, authorship_lookup = prepare_upload_from_root(root, ontology_client)
-
-    clients = _get_live_clients(con, config)
+    clients = _get_live_clients(con, config, auth)
     state = get_upload_state(resources, clients, stash, config, permissions_lookup, authorship_lookup)
 
     return execute_upload(clients, state)
@@ -106,5 +105,5 @@ def _get_live_clients(con: Connection, config: UploadConfig, auth: Authenticatio
     ingest_client = BulkIngestedAssetClient()
     project_client = ProjectClientLive(con, config.shortcode)
     list_client = ListClientLive(con, project_client.get_project_iri())
-    legal_info_client = LegalInfoClientLive(con.server, config.shortcode, auth)
+    legal_info_client = LegalInfoClientLive(config.server, config.shortcode, auth)
     return UploadClients(ingest_client, project_client, list_client, legal_info_client)

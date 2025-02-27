@@ -19,6 +19,8 @@ from dsp_tools.utils.ansi_colors import RED
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
 from dsp_tools.utils.connection_live import ConnectionLive
+from dsp_tools.utils.legal_info_client import LegalInfoClient
+from dsp_tools.utils.legal_info_client_live import LegalInfoClientLive
 
 
 def resume_xmlupload(creds: ServerCredentials, skip_first_resource: bool = False) -> bool:
@@ -51,7 +53,8 @@ def resume_xmlupload(creds: ServerCredentials, skip_first_resource: bool = False
 
     project_client: ProjectClient = ProjectClientLive(con, upload_state.config.shortcode)
     list_client: ListClient = ListClientLive(con, project_client.get_project_iri())
-    clients = UploadClients(ingest_client, project_client, list_client)
+    legal_info_client: LegalInfoClient = LegalInfoClientLive(server, upload_state.config.shortcode, auth)
+    clients = UploadClients(ingest_client, project_client, list_client, legal_info_client)
 
     return execute_upload(clients, upload_state)
 

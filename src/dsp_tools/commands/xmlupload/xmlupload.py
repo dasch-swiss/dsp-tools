@@ -43,7 +43,7 @@ from dsp_tools.utils.authentication_client import AuthenticationClient
 from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
-from dsp_tools.utils.legal_info_client_live import LegalInfoClient
+from dsp_tools.utils.legal_info_client import LegalInfoClient
 from dsp_tools.utils.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.utils.logger_config import WARNINGS_SAVEPATH
 

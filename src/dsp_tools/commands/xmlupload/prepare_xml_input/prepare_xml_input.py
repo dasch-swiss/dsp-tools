@@ -96,7 +96,7 @@ def _get_copyright_holders(resources: list[IntermediaryResource]) -> list[str]:
             copyright_holders.add(res.file_value.metadata.copyright_holder)
         elif res.iiif_uri:
             copyright_holders.add(res.iiif_uri.metadata.copyright_holder)
-    return list(copyright_holders)
+    return [x for x in copyright_holders if x]
 
 
 def prepare_upload_from_root(

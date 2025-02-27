@@ -29,7 +29,7 @@ from dsp_tools.models.exceptions import BaseError
 
 @pytest.fixture
 def metadata_with_permissions() -> FileValueMetadata:
-    return FileValueMetadata(None, None, None, "permissions")
+    return FileValueMetadata(None, None, None, "CR knora-admin:ProjectAdmin")
 
 
 @pytest.fixture
@@ -57,7 +57,7 @@ class TestIIIFURI:
         value = next(g.objects(val_bn, KNORA_API.stillImageFileValueHasExternalUrl))
         assert value == Literal("value", datatype=XSD.string)
         permissions = next(g.objects(val_bn, KNORA_API.hasPermissions))
-        assert permissions == Literal("permissions", datatype=XSD.string)
+        assert permissions == Literal("CR knora-admin:ProjectAdmin", datatype=XSD.string)
 
     def test_make_iiif_uri_value_graph_no_permissions(self, abstract_file_no_permissions) -> None:
         res_bn = BNode()
@@ -120,7 +120,7 @@ class TestMakeFileValueGraph:
         filename = next(g.objects(val_bn, KNORA_API.fileValueHasFilename))
         assert filename == Literal("value", datatype=XSD.string)
         permissions = next(g.objects(val_bn, KNORA_API.hasPermissions))
-        assert permissions == Literal("permissions", datatype=XSD.string)
+        assert permissions == Literal("CR knora-admin:ProjectAdmin", datatype=XSD.string)
 
     @pytest.mark.parametrize(
         "type_info",
@@ -195,7 +195,7 @@ class TestAddMetadata:
         g = _add_metadata(bn, metadata_with_permissions)
         assert len(g) == 1
         permission = next(g.objects(bn, KNORA_API.hasPermissions))
-        assert permission == Literal("permissions", datatype=XSD.string)
+        assert permission == Literal("CR knora-admin:ProjectAdmin", datatype=XSD.string)
 
     def test_no_permissions(self, metadata_no_permissions: FileValueMetadata) -> None:
         bn = BNode()

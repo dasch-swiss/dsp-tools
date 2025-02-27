@@ -43,7 +43,7 @@ class LegalInfoClientLive(LegalInfoClient):
                 )
             else:
                 raise BaseError(
-                    f"An unexpected response with the status code {response.status_code} from the API occurred. "
+                    f"An unexpected response with the status code {response.status_code} was received from the API. "
                     f"Please consult 'warnings.log' for details."
                 )
 

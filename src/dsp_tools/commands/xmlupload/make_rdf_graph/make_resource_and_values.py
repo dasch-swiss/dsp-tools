@@ -1,3 +1,5 @@
+from typing import cast
+
 from rdflib import RDF
 from rdflib import RDFS
 from rdflib import XSD
@@ -5,7 +7,7 @@ from rdflib import BNode
 from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
-from typing import cast
+
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import KNORA_API
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_file_value_graph
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_iiif_uri_value_graph

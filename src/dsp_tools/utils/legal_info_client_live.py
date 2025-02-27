@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import requests
 from requests import ReadTimeout
 from requests import Response
-
+from itertools import batched
 from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
@@ -28,8 +28,7 @@ class LegalInfoClientLive(LegalInfoClient):
         """Send a list of new copyright holders to the API"""
         # The maximum allowed number of data elements is 100,
         # this segments the entries so that it does not go over the limit.
-        segmented_data = _segment_data(copyright_holders)
-        for seg in segmented_data:
+        for seg in batched(copyright_holders, 100):
             try:
                 response = self._post_and_log_request("copyright-holders", seg)
             except (TimeoutError, ReadTimeout) as err:
@@ -63,15 +62,3 @@ class LegalInfoClientLive(LegalInfoClient):
         )
         log_response(response)
         return response
-
-
-def _segment_data(data: list[str]) -> list[list[str]]:
-    max_length = 100
-
-    segmented = []
-    while len(data) > max_length:
-        segmented.append(data[:max_length])
-        data = data[max_length:]
-
-    segmented.append(data)
-    return segmented

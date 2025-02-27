@@ -38,7 +38,7 @@ def metadata_no_permissions_no_legal_info() -> FileValueMetadata:
 
 @pytest.fixture
 def metadata_with_legal_info() -> FileValueMetadata:
-    return FileValueMetadata("https://iri.ch", "copy", ["auth"], None)
+    return FileValueMetadata("https://iri.ch", "copy", ["auth1", "auth2"], None)
 
 
 @pytest.fixture
@@ -197,18 +197,21 @@ class TestAddMetadata:
     def test_permissions(self, metadata_with_permissions_no_legal_info):
         bn = BNode()
         g = _add_metadata(bn, metadata_with_permissions_no_legal_info)
-        assert len(g) == 3
-        license_iri = next(g.objects(bn, KNORA_API.hasLicense))
-        assert license_iri == URIRef("https://iri.ch")
-        copyright_str = next(g.objects(bn, KNORA_API.hasCopyrightHolder))
-        assert copyright_str == Literal("copy", datatype=XSD.string)
+        assert len(g) == 1
+        permission = next(g.objects(bn, KNORA_API.hasPermissions))
+        assert permission == Literal("CR knora-admin:ProjectAdmin", datatype=XSD.string)
 
     def test_metadata_with_legal_info(self, metadata_with_legal_info):
         bn = BNode()
         g = _add_metadata(bn, metadata_with_legal_info)
-        assert len(g) == 1
-        permission = next(g.objects(bn, KNORA_API.hasPermissions))
-        assert permission == Literal("CR knora-admin:ProjectAdmin", datatype=XSD.string)
+        assert len(g) == 4
+        license_iri = next(g.objects(bn, KNORA_API.hasLicense))
+        assert license_iri == URIRef("https://iri.ch")
+        copyright_str = next(g.objects(bn, KNORA_API.hasCopyrightHolder))
+        assert copyright_str == Literal("copy", datatype=XSD.string)
+        auth_set = set(g.objects(bn, KNORA_API.hasAuthorship))
+        expected_auth = {Literal("auth1", datatype=XSD.string), Literal("auth2", datatype=XSD.string)}
+        assert auth_set == expected_auth
 
     def test_no_permissions(self, metadata_no_permissions_no_legal_info):
         bn = BNode()

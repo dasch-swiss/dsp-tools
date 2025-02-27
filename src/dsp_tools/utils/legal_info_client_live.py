@@ -1,9 +1,10 @@
 from dataclasses import dataclass
+from itertools import batched
 
 import requests
 from requests import ReadTimeout
 from requests import Response
-from itertools import batched
+
 from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
@@ -15,7 +16,7 @@ from dsp_tools.utils.request_utils import log_response
 
 TIMEOUT = 60
 
-HTTP_INSUFFICIENT_CREDENTIALS = 403
+HTTP_LACKING_PERMISSIONS = 403
 
 
 @dataclass
@@ -35,7 +36,7 @@ class LegalInfoClientLive(LegalInfoClient):
                 log_and_raise_timeouts(err)
             if response.ok:
                 continue
-            if response.status_code == HTTP_INSUFFICIENT_CREDENTIALS:
+            if response.status_code == HTTP_LACKING_PERMISSIONS:
                 raise BadCredentialsError(
                     "Only a project or system administrator can create new copyright holders. "
                     "Your permissions are insufficient for this action."

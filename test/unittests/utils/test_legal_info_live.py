@@ -6,7 +6,7 @@ import pytest
 
 from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.utils.legal_info_client_live import HTTP_INSUFFICIENT_CREDENTIALS
+from dsp_tools.utils.legal_info_client_live import HTTP_LACKING_PERMISSIONS
 from dsp_tools.utils.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.utils.request_utils import RequestParameters
 
@@ -34,16 +34,16 @@ class TestPostCopyrightHolders:
         del log_request_call_params.headers
         assert log_request_call_params == params
 
-    def test_client_post_copyright_holders_insufficient_credentials(self):
+    def test_client_post_copyright_holders_lacking_permissions(self):
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
-        expected_response = Mock(status_code=HTTP_INSUFFICIENT_CREDENTIALS, ok=False)
+        expected_response = Mock(status_code=HTTP_LACKING_PERMISSIONS, ok=False)
         client._post_and_log_request = Mock(return_value=expected_response)
         with pytest.raises(BadCredentialsError):
             client.post_copyright_holders(["1"])
 
     def test_client_post_copyright_holders_unknown_status_code(self):
         client = LegalInfoClientLive("http://api.com", "9999", AUTH)
-        expected_response = Mock(status_code=10000, ok=False)
+        expected_response = Mock(status_code=404, ok=False)
         client._post_and_log_request = Mock(return_value=expected_response)
         with pytest.raises(BaseError):
             client.post_copyright_holders(["1"])

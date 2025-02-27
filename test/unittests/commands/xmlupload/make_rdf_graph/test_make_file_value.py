@@ -28,12 +28,12 @@ from dsp_tools.models.exceptions import BaseError
 
 @pytest.fixture
 def metadata_with_permissions() -> FileValueMetadata:
-    return FileValueMetadata("permissions")
+    return FileValueMetadata(None, None, None, "permissions")
 
 
 @pytest.fixture
 def metadata_no_permissions() -> FileValueMetadata:
-    return FileValueMetadata(None)
+    return FileValueMetadata(None, None, None, None)
 
 
 @pytest.fixture

@@ -64,7 +64,13 @@ def _make_values_graph_from_resource(
         permissions = None
         if found := resource.iiif_uri.metadata.permissions:
             permissions = str(found)
-        metadata = FileValueMetadata(permissions)
+        intermediary_metadata = resource.iiif_uri.metadata
+        metadata = FileValueMetadata(
+            intermediary_metadata.license_iri,
+            intermediary_metadata.copyright_holder,
+            intermediary_metadata.authorships,
+            permissions,
+        )
         iiif_val = AbstractFileValue(resource.iiif_uri.value, metadata)
         iiif_g = make_iiif_uri_value_graph(iiif_val, res_node)
         properties_graph += iiif_g

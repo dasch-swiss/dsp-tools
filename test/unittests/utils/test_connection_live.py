@@ -188,8 +188,8 @@ def test_server_and_route_without_slash() -> None:
         assert expected_params.url == "http://example.com/v2/resources", f"Method '{method.__name__}' failed"
 
 
-@patch("dsp_tools.utils.connection_live.log_request")
-@patch("dsp_tools.utils.connection_live.log_response")
+@patch("dsp_tools.utils.request_utils.log_request")
+@patch("dsp_tools.utils.request_utils.log_response")
 def test_try_network_action(log_request: Mock, log_response: Mock) -> None:
     con = ConnectionLive("http://example.com/")
     response_expected = Mock(status_code=200)
@@ -202,7 +202,7 @@ def test_try_network_action(log_request: Mock, log_response: Mock) -> None:
     log_response.assert_called_once_with(response_expected)
 
 
-@patch("dsp_tools.utils.connection_live.log_response")
+@patch("dsp_tools.utils.request_utils.log_response")
 def test_try_network_action_timeout_error(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("DSP_TOOLS_TESTING", raising=False)  # in CI, this variable suppresses the retrying mechanism
     con = ConnectionLive("http://example.com/")
@@ -216,7 +216,7 @@ def test_try_network_action_timeout_error(monkeypatch: pytest.MonkeyPatch) -> No
         con._try_network_action(params)
 
 
-@patch("dsp_tools.utils.connection_live.log_response")
+@patch("dsp_tools.utils.request_utils.log_response")
 def test_try_network_action_connection_error(log_response: Mock, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("DSP_TOOLS_TESTING", raising=False)  # in CI, this variable suppresses the retrying mechanism
     con = ConnectionLive("http://example.com/")
@@ -235,7 +235,7 @@ def test_try_network_action_connection_error(log_response: Mock, monkeypatch: py
     assert response == session_mock.responses[-1]
 
 
-@patch("dsp_tools.utils.connection_live.log_response")
+@patch("dsp_tools.utils.request_utils.log_response")
 def test_try_network_action_non_200(log_response: Mock, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("DSP_TOOLS_TESTING", raising=False)  # in CI, this variable suppresses the retrying mechanism
     con = ConnectionLive("http://example.com/")
@@ -252,7 +252,7 @@ def test_try_network_action_non_200(log_response: Mock, monkeypatch: pytest.Monk
     assert response == session_mock.responses[-1]
 
 
-@patch("dsp_tools.utils.connection_live.log_response")
+@patch("dsp_tools.utils.request_utils.log_response")
 def test_try_network_action_in_testing_environment(log_response: Mock, monkeypatch: pytest.MonkeyPatch) -> None:  # noqa: ARG001
     monkeypatch.setenv("DSP_TOOLS_TESTING", "true")  # automatically set in CI, but not locally
     con = ConnectionLive("http://example.com/")
@@ -266,18 +266,17 @@ def test_try_network_action_in_testing_environment(log_response: Mock, monkeypat
         sleep_mock.assert_not_called()
 
 
-@patch("dsp_tools.utils.connection_live.log_response")
+@patch("dsp_tools.utils.request_utils.log_response")
 def test_try_network_action_permanent_connection_error(log_response: Mock, monkeypatch: pytest.MonkeyPatch) -> None:  # noqa: ARG001
     monkeypatch.setenv("DSP_TOOLS_TESTING", "true")  # automatically set in CI, but not locally
     con = ConnectionLive("http://example.com/")
     responses = (Mock(status_code=500, text=""),) * 7
     con.session = SessionMock(responses, {})  # type: ignore[assignment]
-    con._log_request = Mock()
     params = RequestParameters(method="POST", url="http://example.com/", timeout=1)
     with pytest.raises(PermanentConnectionError):
         con._try_network_action(params)
 
-@patch("dsp_tools.utils.connection_live.log_request")
+@patch("dsp_tools.utils.request_utils.log_request")
 def test_log_request(log_request: Mock) -> None:
     con = ConnectionLive("http://example.com/")
     con.session.headers = {"Authorization": "Bearer my-very-long-token"}

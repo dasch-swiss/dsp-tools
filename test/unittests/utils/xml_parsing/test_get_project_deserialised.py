@@ -491,7 +491,7 @@ class TestExtractMetadata:
         license_res = next(x for x in result if x.property_type == TriplePropertyType.KNORA_LICENSE)
         assert license_res.object_value == "license_iri"
         assert license_res.object_type == TripleObjectType.IRI
-        author_res = next(x for x in result if x.property_type == TriplePropertyType.KNRA_AUTHORSHIP)
+        author_res = next(x for x in result if x.property_type == TriplePropertyType.KNORA_AUTHORSHIP)
         assert author_res.object_value == "auth"
         assert author_res.object_type == TripleObjectType.STRING
         copyright_res = next(x for x in result if x.property_type == TriplePropertyType.KNORA_COPYRIGHT_HOLDER)

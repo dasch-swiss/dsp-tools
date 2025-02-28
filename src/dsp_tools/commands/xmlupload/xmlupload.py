@@ -34,6 +34,7 @@ from dsp_tools.commands.xmlupload.stash.upload_stashed_resptr_props import uploa
 from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import upload_stashed_xml_texts
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.write_diagnostic_info import write_id2iri_mapping
+from dsp_tools.models.custom_warnings import DspToolsFutureWarning
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import PermanentConnectionError
@@ -133,12 +134,25 @@ def _upload_copyright_holders(resources: list[IntermediaryResource], legal_info_
 
 def _get_copyright_holders(resources: list[IntermediaryResource]) -> list[str]:
     copyright_holders = set()
+    file_value_found = False
     for res in resources:
         if res.file_value:
+            file_value_found = True
             copyright_holders.add(res.file_value.metadata.copyright_holder)
         elif res.iiif_uri:
+            file_value_found = True
             copyright_holders.add(res.iiif_uri.metadata.copyright_holder)
+    if not copyright_holders and file_value_found:
+        _warn_about_future_mandatory_legal_info()
     return [x for x in copyright_holders if x]
+
+
+def _warn_about_future_mandatory_legal_info() -> None:
+    msg = (
+        "No bitstreams and iiif-uri in your XML contain legal info (copyright holders, license and authorship). "
+        "Soon this information will be mandatory."
+    )
+    warnings.warn(DspToolsFutureWarning(msg))
 
 
 def _cleanup_upload(upload_state: UploadState) -> bool:

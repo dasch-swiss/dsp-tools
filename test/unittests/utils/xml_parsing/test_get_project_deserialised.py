@@ -485,6 +485,19 @@ class TestExtractMetadata:
         assert permission.object_value == "open"
         assert permission.object_type == TripleObjectType.STRING
 
+    def test_iiif_with_legal_info(self, iiif_with_legal_info: etree._Element) -> None:
+        result = _extract_metadata(iiif_with_legal_info)
+        assert len(result) == 3
+        license_res = next(x for x in result if x.property_type == TriplePropertyType.KNORA_LICENSE)
+        assert license_res.object_value == "license_iri"
+        assert license_res.object_type == TripleObjectType.IRI
+        author_res = next(x for x in result if x.property_type == TriplePropertyType.KNRA_AUTHORSHIP)
+        assert author_res.object_value == "auth"
+        assert author_res.object_type == TripleObjectType.STRING
+        copyright_res = next(x for x in result if x.property_type == TriplePropertyType.KNORA_COPYRIGHT_HOLDER)
+        assert copyright_res.object_value == "copy"
+        assert copyright_res.object_type == TripleObjectType.STRING
+
 
 @pytest.mark.parametrize(
     ("input_str", "expected"),

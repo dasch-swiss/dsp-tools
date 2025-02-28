@@ -154,7 +154,7 @@ def _warn_about_future_mandatory_legal_info() -> None:
     )
     warnings.warn(DspToolsFutureWarning(msg))
 
-
+    
 def _cleanup_upload(upload_state: UploadState) -> bool:
     """
     Write the id2iri mapping to a file and print a message to the console.

@@ -6,18 +6,79 @@
        shortcode="9999"
        default-ontology="onto">
 
+    <authorship id="authorship_1">
+        <author>Author One</author>
+    </authorship>
+
     <!-- 14 Violations -->
-  
+
+    <!-- 7 Legal Info Violations (not implemented) -->
+
+    <!-- Missing Legal Info -->
+    <resource label="TestArchiveRepresentation tar" restype=":TestArchiveRepresentation" id="bitstream_no_legal_info">
+        <bitstream>this/is/filepath/file.tar</bitstream>
+    </resource>
+
+    <resource label="TestStillImageRepresentation IIIF" restype=":TestStillImageRepresentation" id="iiif_no_legal_info">
+        <iiif-uri>https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg</iiif-uri>
+    </resource>
+
+    <resource label="TestStillImageRepresentation Bitstream" restype=":TestStillImageRepresentation" id="image_no_legal_info">
+        <iiif-uri>this/is/filepath/file.jp2</iiif-uri>
+    </resource>
+
+    <!--
+    The xsd validation library used in the code is not able to recognise if a referenced ID does not exist in the file
+    -->
+    <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="unknown_authorship_id">
+        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_unknown_id"
+        >this/is/filepath/file.zip
+        </bitstream>
+    </resource>
+
+    <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="empty_copyright_holder">
+        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
+                   copyright-holder=""
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.zip
+        </bitstream>
+    </resource>
+
+    <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="empty_license">
+        <bitstream license=""
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.zip
+        </bitstream>
+    </resource>
+
+    <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="inexistent_license_iri">
+        <bitstream license="http://rdfh.ch/licenses/this-iri-does-not-exist"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.zip
+        </bitstream>
+    </resource>
+
+
     <!-- Resource Without Representation -->
 
     <resource label="Resource Without Representation" restype=":ClassWithEverything" id="id_resource_without_representation">
-        <bitstream>this/is/filepath/file.mp4</bitstream>
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.mp4</bitstream>
     </resource>
 
     <!-- Wrong file type -->
 
     <resource label="TestStillImageRepresentation File mp4" restype=":TestStillImageRepresentation" id="id_wrong_file_type">
-        <bitstream>this/is/filepath/file.mp4</bitstream>
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.mp4</bitstream>
     </resource>
 
     <!-- ArchiveRepresentation -->
@@ -25,7 +86,10 @@
     <resource label="TestArchiveRepresentation" restype=":TestArchiveRepresentation" id="id_archive_missing"/>
 
     <resource label="TestArchiveRepresentation unknown" restype=":TestArchiveRepresentation" id="id_archive_unknown">
-        <bitstream>this/is/filepath/file.unknown</bitstream>
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.unknown</bitstream>
     </resource>
 
     <!-- AudioRepresentation -->
@@ -33,7 +97,10 @@
     <resource label="TestAudioRepresentation" restype=":TestAudioRepresentation" id="id_audio_missing"/>
 
     <resource label="TestAudioRepresentation" restype=":TestAudioRepresentation" id="id_audio_unknown">
-        <bitstream>this/is/filepath/file.unknown</bitstream>
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.unknown</bitstream>
     </resource>
 
     <!-- DocumentRepresentation -->
@@ -41,7 +108,10 @@
     <resource label="TestDocumentRepresentation" restype=":TestDocumentRepresentation" id="id_document_missing"/>
 
     <resource label="TestDocumentRepresentation unknown" restype=":TestDocumentRepresentation" id="id_document_unknown">
-        <bitstream>this/is/filepath/file.unknown</bitstream>
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.unknown</bitstream>
     </resource>
 
     <!-- MovingImageRepresentation -->
@@ -49,7 +119,10 @@
     <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="id_video_missing"/>
 
     <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="id_video_unknown">
-        <bitstream>this/is/filepath/file.unknown</bitstream>
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.unknown</bitstream>
     </resource>
 
     <!-- TextRepresentation -->
@@ -57,7 +130,10 @@
     <resource label="TestTextRepresentation" restype=":TestTextRepresentation" id="id_text_missing"/>
 
     <resource label="TestTextRepresentation" restype=":TestTextRepresentation" id="id_text_unknown">
-        <bitstream>this/is/filepath/file.unknown</bitstream>
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.unknown</bitstream>
     </resource>
 
     <!-- StillImageRepresentation -->
@@ -65,7 +141,10 @@
     <resource label="TestStillImageRepresentation File missing" restype=":TestStillImageRepresentation" id="id_still_image_missing"/>
 
     <resource label="TestStillImageRepresentation File unknown" restype=":TestStillImageRepresentation" id="id_still_image_unknown">
-        <bitstream>this/is/filepath/file.unknown</bitstream>
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.unknown</bitstream>
     </resource>
 
 </knora>

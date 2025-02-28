@@ -453,3 +453,15 @@ def iiif_with_spaces() -> etree._Element:
             https://iiif.uri/full.jpg
         </iiif-uri>
     """)
+
+
+@pytest.fixture
+def iiif_with_legal_info() -> etree._Element:
+    return etree.fromstring("""
+        <iiif-uri
+         license="license_iri"
+                  copyright-holder="copy"
+                  authorship-id="auth">
+            https://iiif.uri/full.jpg
+        </iiif-uri>
+    """)

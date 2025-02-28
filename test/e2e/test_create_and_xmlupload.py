@@ -127,7 +127,10 @@ def _analyze_img_resources(img_resources: list[dict[str, Any]]) -> None:
     assert res_labels == ["Resource 1", "Resource 2"]
 
     res_1 = next(res for res in img_resources if res["rdfs:label"] == "Resource 1")
-    assert res_1.get("knora-api:hasStillImageFileValue")
+    file_val = res_1["knora-api:hasStillImageFileValue"]
+    assert file_val["knora-api:hasAuthorship"] == "Johannes Nussbaum"
+    assert file_val["knora-api:hasCopyrightHolder"] == "DaSCH"
+    assert file_val["knora-api:hasLicense"]["@id"] == "http://rdfh.ch/licenses/cc-by-4.0"
 
     res_2 = next(res for res in img_resources if res["rdfs:label"] == "Resource 2")
     assert res_2.get("knora-api:hasStillImageFileValue")

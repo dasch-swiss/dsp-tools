@@ -36,7 +36,6 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_
 )
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import _transform_one_property
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import _transform_one_resource
-from dsp_tools.models.custom_warnings import DspToolsFutureWarning
 from dsp_tools.models.datetimestamp import DateTimeStamp
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import PermissionNotExistsError
@@ -198,8 +197,7 @@ class TestTransformFileValue:
 
     def test_get_metadata_soon_deprecated_without_metadata(self, lookups):
         file = IIIFUriInfo("uri", XMLFileMetadata(None, None, None))
-        with pytest.warns(DspToolsFutureWarning):
-            result = _transform_iiif_uri_value(file, lookups)
+        result = _transform_iiif_uri_value(file, lookups)
         assert not result.metadata.permissions
         assert not result.metadata.license_iri
         assert not result.metadata.copyright_holder

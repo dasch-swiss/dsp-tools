@@ -106,6 +106,17 @@ def _make_abstract_file_value_graph(
 
 def _add_metadata(file_bn: BNode, metadata: FileValueMetadata) -> Graph:
     g = Graph()
+    if metadata.license_iri:
+        g.add((file_bn, KNORA_API.hasLicense, URIRef(metadata.license_iri)))
+
+    literal_metadata = []
+    if metadata.copyright_holder:
+        literal_metadata.append((KNORA_API.hasCopyrightHolder, metadata.copyright_holder))
+    if metadata.authorships:
+        for auth in metadata.authorships:
+            literal_metadata.append((KNORA_API.hasAuthorship, auth))
     if metadata.permissions:
-        g.add((file_bn, KNORA_API.hasPermissions, Literal(metadata.permissions, datatype=XSD.string)))
+        literal_metadata.append((KNORA_API.hasPermissions, metadata.permissions))
+    for prop, literal_val in literal_metadata:
+        g.add((file_bn, prop, Literal(literal_val, datatype=XSD.string)))
     return g

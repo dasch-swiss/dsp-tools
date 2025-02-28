@@ -11,9 +11,8 @@
     </authorship>
 
     <!-- 14 Violations -->
-    <!-- 6 Legal Info Violations (not implemented) -->
 
-    <!-- Legal Info (not implemented) -->
+    <!-- 6 Legal Info Violations (not implemented) -->
 
     <!-- Missing Legal Info -->
     <resource label="TestArchiveRepresentation tar" restype=":TestArchiveRepresentation" id="bitstream_no_legal_info">

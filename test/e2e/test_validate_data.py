@@ -216,6 +216,7 @@ class TestCheckConforms:
         minimal_correct = _get_validation_result(graphs, shacl_validator, None)
         assert minimal_correct.conforms
 
+    @pytest.mark.filterwarnings("ignore::dsp_tools.models.custom_warnings.DspToolsUserWarning")
     def test_value_type_violation(self, value_type_violation: ValidationReportGraphs) -> None:
         assert not value_type_violation.conforms
 

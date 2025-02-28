@@ -383,7 +383,7 @@ api-shapes:hasStillImageFileValue_PropShape
               A StillImageRepresentation requires an external IIIF-URI or a file with one of the extensions:
               'jpg', 'jpeg', 'png', 'tif', 'tiff', 'jp2'.
               """ ;
-  sh:or       ( [ sh:node api-shapes:StillImageFileValue_ClassShape ] [ sh:node api-shapes:StillImageExternalFileValue_ClassShape ] ) .
+  sh:xone     ( [ sh:node api-shapes:StillImageFileValue_ClassShape ] [ sh:node api-shapes:StillImageExternalFileValue_ClassShape ] ) .
 
 ###
 # StillImageFileValue

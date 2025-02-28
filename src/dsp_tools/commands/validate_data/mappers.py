@@ -28,6 +28,17 @@ from dsp_tools.utils.xml_parsing.models.data_deserialised import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.data_deserialised import TripleObjectType
 from dsp_tools.utils.xml_parsing.models.data_deserialised import TriplePropertyType
 
+SEGMENT_TAG_TO_PROP_MAPPER = {
+    "relatesTo": KnoraValueType.LINK_VALUE,
+    "hasSegmentBounds": KnoraValueType.INTERVAL_VALUE,
+    "hasDescription": KnoraValueType.RICHTEXT_VALUE,
+    "hasTitle": KnoraValueType.SIMPLETEXT_VALUE,
+    "hasKeyword": KnoraValueType.SIMPLETEXT_VALUE,
+    "isAudioSegmentOf": KnoraValueType.LINK_VALUE,
+    "isVideoSegmentOf": KnoraValueType.LINK_VALUE,
+    "hasComment": KnoraValueType.RICHTEXT_VALUE,
+}
+
 # Mapper from XML to internal representation
 XML_ATTRIB_TO_PROP_TYPE_MAPPER = {
     "comment": TriplePropertyType.KNORA_COMMENT_ON_VALUE,

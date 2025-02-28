@@ -8,6 +8,7 @@ from lxml import etree
 from dsp_tools.commands.validate_data.constants import AUDIO_SEGMENT_RESOURCE
 from dsp_tools.commands.validate_data.constants import KNORA_API_STR
 from dsp_tools.commands.validate_data.constants import VIDEO_SEGMENT_RESOURCE
+from dsp_tools.commands.validate_data.mappers import SEGMENT_TAG_TO_PROP_MAPPER
 from dsp_tools.commands.validate_data.mappers import XML_ATTRIB_TO_PROP_TYPE_MAPPER
 from dsp_tools.commands.validate_data.mappers import XML_TAG_TO_VALUE_TYPE_MAPPER
 from dsp_tools.models.datetimestamp import DateTimeStamp
@@ -20,17 +21,6 @@ from dsp_tools.utils.xml_parsing.models.data_deserialised import ResourceDeseria
 from dsp_tools.utils.xml_parsing.models.data_deserialised import TripleObjectType
 from dsp_tools.utils.xml_parsing.models.data_deserialised import TriplePropertyType
 from dsp_tools.utils.xml_parsing.models.data_deserialised import ValueInformation
-
-SEGMENT_TAG_TO_PROP_MAPPER = {
-    "relatesTo": KnoraValueType.LINK_VALUE,
-    "hasSegmentBounds": KnoraValueType.INTERVAL_VALUE,
-    "hasDescription": KnoraValueType.RICHTEXT_VALUE,
-    "hasTitle": KnoraValueType.SIMPLETEXT_VALUE,
-    "hasKeyword": KnoraValueType.SIMPLETEXT_VALUE,
-    "isAudioSegmentOf": KnoraValueType.LINK_VALUE,
-    "isVideoSegmentOf": KnoraValueType.LINK_VALUE,
-    "hasComment": KnoraValueType.RICHTEXT_VALUE,
-}
 
 
 def get_data_deserialised(root: etree._Element) -> tuple[str, DataDeserialised]:

@@ -20,13 +20,15 @@
     </resource>
 
     <resource label="TestStillImageRepresentation IIIF" restype=":TestStillImageRepresentation" id="iiif_no_legal_info">
-        <iiif-uri>https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg
-        </iiif-uri>
+        <iiif-uri>https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg</iiif-uri>
     </resource>
 
 
     <!-- Legal Info (not implemented) -->
 
+    <!--
+    The xsd validation library used in the code is not able to recognise if a referenced ID does not exist in the file
+    -->
     <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="unknown_authorship_id">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-holder="DaSCH"

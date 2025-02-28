@@ -6,6 +6,9 @@
        shortcode="9999"
        default-ontology="onto">
 
+    <authorship id="authorship_1">
+        <author>Author One</author>
+    </authorship>
 
     <!--
         This file aims to represent every combination of our error type and the component type mix:
@@ -186,5 +189,12 @@
             <isSegmentOf>target_empty_movie</isSegmentOf>
             <hasSegmentBounds segment_start="-2" segment_end="0"/>
         </video-segment>
+
+        <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="target_empty_movie">
+            <bitstream license="http://rdfh.ch/licenses/unknown"
+                       copyright-holder="DaSCH"
+                       authorship-id="authorship_1"
+            >this/is/filepath/file.mp4</bitstream>
+        </resource>
 
 </knora>

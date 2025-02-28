@@ -407,8 +407,8 @@ class TestReformatValidationGraph:
             ("video_segment_wrong_bounds", ProblemType.GENERIC),  # once for the end that is zero
         ]
         assert not result.unexpected_results
-        assert len(result.problems) == len(expected_info_tuples)
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
+        assert len(result.problems) == len(expected_info_tuples)
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
             assert one_result.res_id == expected_info[0]
             assert one_result.problem_type == expected_info[1]

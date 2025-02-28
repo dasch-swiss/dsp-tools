@@ -201,17 +201,16 @@ api-shapes:hasLicense_PropShape
   sh:path knora-api:hasLicense ;
   sh:minCount 1 ;
   sh:maxCount 1 ;
-  sh:nodeKind sh:IRI ;
-  sh:severity sh:Warning ;
-  sh:message "Files and IIIF-URIs require a reference to a license." .
+  sh:message "Files and IIIF-URIs require a reference to a license." ;
+  sh:severity sh:Violation .
 
 api-shapes:hasAuthorship_PropShape
   a sh:PropertyShape ;
   sh:path knora-api:hasAuthorship ;
   sh:minCount 1 ;
   sh:datatype xsd:string ;
-  sh:severity sh:Warning ;
-  sh:message "Files and IIIF-URIs require at least one authorship." .
+  sh:message "Files and IIIF-URIs require at least one authorship." ;
+  sh:severity sh:Violation .
 
 api-shapes:hasCopyrightHolder_PropShape
   a sh:PropertyShape ;
@@ -219,8 +218,8 @@ api-shapes:hasCopyrightHolder_PropShape
   sh:minCount 1 ;
   sh:maxCount 1 ;
   sh:datatype xsd:string ;
-  sh:severity sh:Warning ;
-  sh:message "Files and IIIF-URIs require a copyright holder." .
+  sh:message "Files and IIIF-URIs require a copyright holder." ;
+  sh:severity sh:Violation .
 
 
 ###########################

@@ -238,6 +238,8 @@ def _query_one_with_detail(
     detail_info = cast(DetailBaseInfo, base_info.detail)
     match detail_info.source_constraint_component:
         case SH.MinCountConstraintComponent:
+            if base_info.result_path in FILE_VALUE_PROPERTIES:
+                return _query_generic_violation(base_info, results_and_onto)
             return _query_for_value_type_violation(base_info, results_and_onto, data_graph)
         case SH.PatternConstraintComponent:
             return _query_pattern_constraint_component_violation(detail_info.detail_bn, base_info, results_and_onto)
@@ -298,7 +300,9 @@ def _query_pattern_constraint_component_violation(
 
 def _query_generic_violation(base_info: ValidationResultBaseInfo, results_and_onto: Graph) -> ValidationResult:
     detail_info = cast(DetailBaseInfo, base_info.detail)
-    val = next(results_and_onto.objects(detail_info.detail_bn, SH.value))
+    val = None
+    if found_val := list(results_and_onto.objects(detail_info.detail_bn, SH.value)):
+        val = found_val.pop()
     msg = next(results_and_onto.objects(detail_info.detail_bn, SH.resultMessage))
     return ValidationResult(
         violation_type=ViolationType.GENERIC,
@@ -372,7 +376,6 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
         case (
             ViolationType.MAX_CARD
             | ViolationType.MIN_CARD
-            | ViolationType.GENERIC
             | ViolationType.NON_EXISTING_CARD
             | ViolationType.PATTERN
             | ViolationType.UNIQUE_VALUE
@@ -380,6 +383,11 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
         ):
             problem = RESULT_TO_PROBLEM_MAPPER[violation]
             return _reformat_generic(result=validation_result, problem_type=problem)
+        case ViolationType.GENERIC:
+            prop_str = None
+            if validation_result.property in FILE_VALUE_PROPERTIES:
+                prop_str = "bitstream / iiif-uri"
+            return _reformat_generic(validation_result, ProblemType.GENERIC, prop_string=prop_str)
         case ViolationType.FILEVALUE_PROHIBITED | ViolationType.FILE_VALUE as violation:
             problem = RESULT_TO_PROBLEM_MAPPER[violation]
             return _reformat_generic(result=validation_result, problem_type=problem, prop_string="bitstream / iiif-uri")

@@ -153,6 +153,9 @@ def test_extract_identifiers_of_resource_results(every_combination_once: Validat
     result = _extract_base_info_of_resource_results(report_and_onto, data_and_onto)
     result_sorted = sorted(result, key=lambda x: str(x.resource_iri))
     expected_iris = [
+        (URIRef("http://data/bitstream_no_legal_info"), BNode),
+        (URIRef("http://data/bitstream_no_legal_info"), BNode),
+        (URIRef("http://data/bitstream_no_legal_info"), BNode),
         (URIRef("http://data/empty_label"), None),
         (URIRef("http://data/geoname_not_number"), BNode),
         (URIRef("http://data/id_card_one"), None),
@@ -213,6 +216,7 @@ class TestCheckConforms:
         minimal_correct = _get_validation_result(graphs, shacl_validator, None)
         assert minimal_correct.conforms
 
+    @pytest.mark.filterwarnings("ignore::dsp_tools.models.custom_warnings.DspToolsUserWarning")
     def test_value_type_violation(self, value_type_violation: ValidationReportGraphs) -> None:
         assert not value_type_violation.conforms
 
@@ -382,6 +386,9 @@ class TestReformatValidationGraph:
     def test_reformat_every_constraint_once(self, every_combination_once: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(every_combination_once)
         expected_info_tuples = [
+            ("bitstream_no_legal_info", ProblemType.GENERIC),
+            ("bitstream_no_legal_info", ProblemType.GENERIC),
+            ("bitstream_no_legal_info", ProblemType.GENERIC),
             ("empty_label", ProblemType.INPUT_REGEX),
             ("geoname_not_number", ProblemType.INPUT_REGEX),
             ("id_card_one", ProblemType.MIN_CARD),
@@ -401,8 +408,8 @@ class TestReformatValidationGraph:
             ("video_segment_wrong_bounds", ProblemType.GENERIC),  # once for the end that is zero
         ]
         assert not result.unexpected_results
-        assert len(result.problems) == len(expected_info_tuples)
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
+        assert len(result.problems) == len(expected_info_tuples)
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
             assert one_result.res_id == expected_info[0]
             assert one_result.problem_type == expected_info[1]
@@ -425,6 +432,9 @@ class TestReformatValidationGraph:
     def test_reformat_file_value_violation(self, file_value_violation: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(file_value_violation)
         expected_info_tuples = [
+            ("bitstream_no_legal_info", ProblemType.GENERIC),
+            ("bitstream_no_legal_info", ProblemType.GENERIC),
+            ("bitstream_no_legal_info", ProblemType.GENERIC),
             ("id_archive_missing", ProblemType.FILE_VALUE),
             ("id_archive_unknown", ProblemType.FILE_VALUE),
             ("id_audio_missing", ProblemType.FILE_VALUE),

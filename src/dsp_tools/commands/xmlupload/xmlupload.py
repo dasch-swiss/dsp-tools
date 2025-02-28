@@ -122,9 +122,38 @@ def execute_upload(clients: UploadClients, upload_state: UploadState) -> bool:
     Returns:
         True if all resources could be uploaded without errors; False if any resource could not be uploaded
     """
+    _warn_about_future_mandatory_legal_info(upload_state.pending_resources)
     _upload_copyright_holders(upload_state.pending_resources, clients.legal_info_client)
     _upload_resources(clients, upload_state)
     return _cleanup_upload(upload_state)
+
+
+def _warn_about_future_mandatory_legal_info(resources: list[IntermediaryResource]) -> None:
+    missing_info = []
+    counter = 0
+    for res in resources:
+        if res.file_value:
+            counter += 1
+            if not res.file_value.metadata.all_legal_info():
+                missing_info.append(res.file_value.value)
+        elif res.iiif_uri:
+            counter += 1
+            if not res.iiif_uri.metadata.all_legal_info():
+                missing_info.append(res.iiif_uri.value)
+    if counter == 0 or not missing_info:
+        return None
+    if len(missing_info) == counter:
+        number = "All"
+    else:
+        number = f"{len(missing_info)} of {counter}"
+    msg = (
+        f"{number} bitstream and iiif-uri in your XML do not contain all legal info "
+        f"(copyright holders, license and authorship). "
+        "Soon this information will be mandatory for all files."
+    )
+    if len(missing_info) < 100:
+        msg += f"The following files are affected:\n-   {'\n-   '.join(missing_info)}"
+    warnings.warn(DspToolsFutureWarning(msg))
 
 
 def _upload_copyright_holders(resources: list[IntermediaryResource], legal_info_client: LegalInfoClient) -> None:
@@ -134,25 +163,12 @@ def _upload_copyright_holders(resources: list[IntermediaryResource], legal_info_
 
 def _get_copyright_holders(resources: list[IntermediaryResource]) -> list[str]:
     copyright_holders = set()
-    file_value_found = False
     for res in resources:
         if res.file_value:
-            file_value_found = True
             copyright_holders.add(res.file_value.metadata.copyright_holder)
         elif res.iiif_uri:
-            file_value_found = True
             copyright_holders.add(res.iiif_uri.metadata.copyright_holder)
-    if not copyright_holders and file_value_found:
-        _warn_about_future_mandatory_legal_info()
     return [x for x in copyright_holders if x]
-
-
-def _warn_about_future_mandatory_legal_info() -> None:
-    msg = (
-        "No bitstreams and iiif-uri in your XML contain legal info (copyright holders, license and authorship). "
-        "Soon this information will be mandatory."
-    )
-    warnings.warn(DspToolsFutureWarning(msg))
 
 
 def _cleanup_upload(upload_state: UploadState) -> bool:

@@ -407,10 +407,7 @@ api-shapes:StillImageFileValue_ClassShape
                             'jpg', 'jpeg', 'png', 'tif', 'tiff', 'jp2'.
                             """ ;
               ] ,
-              api-shapes:hasPermissions_Cardinality ,
-              api-shapes:hasLicense_PropShape ,
-              api-shapes:hasAuthorship_PropShape ,
-              api-shapes:hasCopyrightHolder_PropShape ;
+              api-shapes:hasPermissions_Cardinality ;
   sh:severity sh:Violation .
 
 
@@ -431,10 +428,7 @@ api-shapes:StillImageExternalFileValue_ClassShape
                 sh:severity sh:Violation ;
                 sh:message  "StillImageExternalFileValue requires an external IIIF-URI" ;
               ] ,
-              api-shapes:hasPermissions_Cardinality ,
-              api-shapes:hasLicense_PropShape ,
-              api-shapes:hasAuthorship_PropShape ,
-              api-shapes:hasCopyrightHolder_PropShape ;
+              api-shapes:hasPermissions_Cardinality ;
   sh:severity sh:Violation .
 
 

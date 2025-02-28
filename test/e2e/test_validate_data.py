@@ -153,6 +153,9 @@ def test_extract_identifiers_of_resource_results(every_combination_once: Validat
     result = _extract_base_info_of_resource_results(report_and_onto, data_and_onto)
     result_sorted = sorted(result, key=lambda x: str(x.resource_iri))
     expected_iris = [
+        (URIRef("http://data/bitstream_no_legal_info"), BNode),
+        (URIRef("http://data/bitstream_no_legal_info"), BNode),
+        (URIRef("http://data/bitstream_no_legal_info"), BNode),
         (URIRef("http://data/empty_label"), None),
         (URIRef("http://data/geoname_not_number"), BNode),
         (URIRef("http://data/id_card_one"), None),
@@ -382,6 +385,9 @@ class TestReformatValidationGraph:
     def test_reformat_every_constraint_once(self, every_combination_once: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(every_combination_once)
         expected_info_tuples = [
+            ("bitstream_no_legal_info", ProblemType.MIN_CARD),
+            ("bitstream_no_legal_info", ProblemType.MIN_CARD),
+            ("bitstream_no_legal_info", ProblemType.MIN_CARD),
             ("empty_label", ProblemType.INPUT_REGEX),
             ("geoname_not_number", ProblemType.INPUT_REGEX),
             ("id_card_one", ProblemType.MIN_CARD),
@@ -425,6 +431,9 @@ class TestReformatValidationGraph:
     def test_reformat_file_value_violation(self, file_value_violation: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(file_value_violation)
         expected_info_tuples = [
+            ("bitstream_no_legal_info", ProblemType.MIN_CARD),
+            ("bitstream_no_legal_info", ProblemType.MIN_CARD),
+            ("bitstream_no_legal_info", ProblemType.MIN_CARD),
             ("id_archive_missing", ProblemType.FILE_VALUE),
             ("id_archive_unknown", ProblemType.FILE_VALUE),
             ("id_audio_missing", ProblemType.FILE_VALUE),

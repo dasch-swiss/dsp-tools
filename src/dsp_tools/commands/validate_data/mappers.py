@@ -32,6 +32,9 @@ from dsp_tools.utils.xml_parsing.models.data_deserialised import TriplePropertyT
 XML_ATTRIB_TO_PROP_TYPE_MAPPER = {
     "comment": TriplePropertyType.KNORA_COMMENT_ON_VALUE,
     "permissions": TriplePropertyType.KNORA_PERMISSIONS,
+    "license": TriplePropertyType.KNORA_LICENSE,
+    "authorship-id": TriplePropertyType.KNRA_AUTHORSHIP,
+    "copyright-holder": TriplePropertyType.KNORA_COPYRIGHT_HOLDER,
 }
 
 # Mappers from internal representation to API format
@@ -56,6 +59,9 @@ TRIPLE_PROP_TYPE_TO_IRI_MAPPER = {
     TriplePropertyType.KNORA_INTERVAL_START: KNORA_API.intervalValueHasStart,
     TriplePropertyType.KNORA_INTERVAL_END: KNORA_API.intervalValueHasEnd,
     TriplePropertyType.KNORA_STANDOFF_LINK: KNORA_API.hasStandoffLinkTo,
+    TriplePropertyType.KNORA_LICENSE: KNORA_API.hasLicense,
+    TriplePropertyType.KNRA_AUTHORSHIP: KNORA_API.hasAuthorship,
+    TriplePropertyType.KNORA_COPYRIGHT_HOLDER: KNORA_API.hasCopyrightHolder,
 }
 
 VALUE_INFO_TO_RDF_MAPPER = {

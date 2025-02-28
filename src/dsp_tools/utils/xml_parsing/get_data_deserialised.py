@@ -61,9 +61,10 @@ def _extract_metadata(element: etree._Element) -> list[PropertyObject]:
     for k, v in element.attrib.items():
         if not (knora_prop := XML_ATTRIB_TO_PROP_TYPE_MAPPER.get(k)):
             continue
-        property_objects.append(
-            PropertyObject(property_type=knora_prop, object_value=v, object_type=TripleObjectType.STRING)
-        )
+        object_type = TripleObjectType.STRING
+        if knora_prop == TriplePropertyType.KNORA_LICENSE:
+            object_type = TripleObjectType.IRI
+        property_objects.append(PropertyObject(property_type=knora_prop, object_value=v, object_type=object_type))
     return property_objects
 
 

@@ -10,6 +10,14 @@
         <author>Author One</author>
     </authorship>
 
+    <!-- Target class that does not produce a violation -->
+    <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="target_empty_movie">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.mp4</bitstream>
+    </resource>
+
     <!--
         This file aims to represent every combination of our error type and the component type mix:
             - the component type of the validation report where the focus node is a resource class,
@@ -189,12 +197,5 @@
             <isSegmentOf>target_empty_movie</isSegmentOf>
             <hasSegmentBounds segment_start="-2" segment_end="0"/>
         </video-segment>
-
-        <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="target_empty_movie">
-            <bitstream license="http://rdfh.ch/licenses/unknown"
-                       copyright-holder="DaSCH"
-                       authorship-id="authorship_1"
-            >this/is/filepath/file.mp4</bitstream>
-        </resource>
 
 </knora>

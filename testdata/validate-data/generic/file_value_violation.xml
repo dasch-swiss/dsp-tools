@@ -12,7 +12,7 @@
 
     <!-- 14 Violations -->
 
-    <!-- 6 Legal Info Violations (not implemented) -->
+    <!-- 7 Legal Info Violations (not implemented) -->
 
     <!-- Missing Legal Info -->
     <resource label="TestArchiveRepresentation tar" restype=":TestArchiveRepresentation" id="bitstream_no_legal_info">
@@ -21,6 +21,10 @@
 
     <resource label="TestStillImageRepresentation IIIF" restype=":TestStillImageRepresentation" id="iiif_no_legal_info">
         <iiif-uri>https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg</iiif-uri>
+    </resource>
+
+    <resource label="TestStillImageRepresentation Bitstream" restype=":TestStillImageRepresentation" id="image_no_legal_info">
+        <iiif-uri>this/is/filepath/file.jp2</iiif-uri>
     </resource>
 
     <!--

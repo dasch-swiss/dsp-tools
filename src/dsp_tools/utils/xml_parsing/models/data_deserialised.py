@@ -104,7 +104,7 @@ class TriplePropertyType(Enum):
     KNORA_INTERVAL_END = auto()
     KNORA_STANDOFF_LINK = auto()
     KNORA_LICENSE = auto()
-    KNRA_AUTHORSHIP = auto()
+    KNORA_AUTHORSHIP = auto()
     KNORA_COPYRIGHT_HOLDER = auto()
 
 

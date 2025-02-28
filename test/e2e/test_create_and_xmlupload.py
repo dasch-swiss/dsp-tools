@@ -74,7 +74,7 @@ def test_all_copyright_holders(auth_header: dict[str, str]) -> None:
 
 def _get_copyright_holders(auth_header: dict[str, str]) -> dict[str, Any]:
     url = f"{CREDS.server}/admin/projects/shortcode/4125/legal-info/copyright-holders?page=1&page-size=25&order=Asc"
-    headers = auth_header | {"accept": "application/json"}
+    headers = auth_header | {"Accept": "application/json"}
     response = requests.get(url=url, headers=headers, timeout=3).json()
     return dict(response)
 

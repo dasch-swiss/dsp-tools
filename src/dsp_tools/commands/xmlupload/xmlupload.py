@@ -85,7 +85,7 @@ def xmlupload(
     ontology_client = OntologyClientLive(con=con, shortcode=shortcode, default_ontology=default_ontology)
     resources, permissions_lookup, stash, authorship_lookup = prepare_upload_from_root(root, ontology_client)
 
-    clients = _get_live_clients(con, auth, creds, creds.server, shortcode, imgdir)
+    clients = _get_live_clients(con, auth, creds, shortcode, imgdir)
     state = get_upload_state(resources, clients, stash, config, permissions_lookup, authorship_lookup)
 
     return execute_upload(clients, state)
@@ -95,7 +95,6 @@ def _get_live_clients(
     con: Connection,
     auth: AuthenticationClient,
     creds: ServerCredentials,
-    server: str,
     shortcode: str,
     imgdir: str,
 ) -> UploadClients:
@@ -103,7 +102,7 @@ def _get_live_clients(
     ingest_client = DspIngestClientLive(creds.dsp_ingest_url, auth, shortcode, imgdir)
     project_client: ProjectClient = ProjectClientLive(con, shortcode)
     list_client: ListClient = ListClientLive(con, project_client.get_project_iri())
-    legal_info_client: LegalInfoClient = LegalInfoClientLive(server, shortcode, auth)
+    legal_info_client: LegalInfoClient = LegalInfoClientLive(creds.server, shortcode, auth)
     return UploadClients(
         asset_client=ingest_client,
         project_client=project_client,

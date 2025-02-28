@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClient
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
+from dsp_tools.utils.legal_info_client import LegalInfoClient
 
 
 @dataclass(frozen=True)
@@ -12,3 +13,4 @@ class UploadClients:
     asset_client: AssetClient
     project_client: ProjectClient
     list_client: ListClient
+    legal_info_client: LegalInfoClient

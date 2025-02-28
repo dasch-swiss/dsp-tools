@@ -29,6 +29,7 @@ from dsp_tools.models.exceptions import PermanentTimeOutError
 from dsp_tools.models.exceptions import XmlUploadInterruptedError
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
+from dsp_tools.utils.legal_info_client import LegalInfoClient
 from test.integration.commands.xmlupload.authentication_client_mock import AuthenticationClientMockBase
 
 ONTO = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
@@ -37,6 +38,11 @@ ONTO = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
 @pytest.fixture
 def ingest_client_mock():  # type: ignore[no-untyped-def]
     return Mock(spec_set=AssetClient)
+
+
+@pytest.fixture
+def legal_info_client_mock():  # type: ignore[no-untyped-def]
+    return Mock(spec_set=LegalInfoClient)
 
 
 class ListClientMock:
@@ -65,7 +71,7 @@ class ProjectClientStub:
         raise NotImplementedError("get_project_iri not implemented")
 
 
-def test_one_resource_without_links(ingest_client_mock: AssetClient) -> None:
+def test_one_resource_without_links(ingest_client_mock: AssetClient, legal_info_client_mock: LegalInfoClient) -> None:
     prop_name = "http://0.0.0.0:3333/ontology/9999/onto/v2#hasSimpleText"
     resources = [
         IntermediaryResource(
@@ -82,7 +88,7 @@ def test_one_resource_without_links(ingest_client_mock: AssetClient) -> None:
     con.post = Mock(side_effect=post_responses)
     project_client = ProjectClientStub(con, "1234", None)
 
-    clients = UploadClients(ingest_client_mock, project_client, ListClientMock())
+    clients = UploadClients(ingest_client_mock, project_client, ListClientMock(), legal_info_client_mock)
     _upload_resources(clients, upload_state)
 
     assert len(con.post.call_args_list) == len(post_responses)
@@ -123,7 +129,9 @@ def test_one_resource_without_links(ingest_client_mock: AssetClient) -> None:
     assert not upload_state.pending_stash
 
 
-def test_one_resource_with_link_to_existing_resource(ingest_client_mock: AssetClient) -> None:
+def test_one_resource_with_link_to_existing_resource(
+    ingest_client_mock: AssetClient, legal_info_client_mock: LegalInfoClient
+) -> None:
     resources = [
         IntermediaryResource(
             "foo_1_id",
@@ -140,7 +148,7 @@ def test_one_resource_with_link_to_existing_resource(ingest_client_mock: AssetCl
     post_responses = [{"@id": "foo_1_iri", "rdfs:label": "foo_1_label"}]
     con.post = Mock(side_effect=post_responses)
     project_client = ProjectClientStub(con, "1234", None)
-    clients = UploadClients(ingest_client_mock, project_client, ListClientMock())
+    clients = UploadClients(ingest_client_mock, project_client, ListClientMock(), legal_info_client_mock)
     _upload_resources(clients, upload_state)
 
     assert len(con.post.call_args_list) == len(post_responses)
@@ -179,16 +187,27 @@ def test_one_resource_with_link_to_existing_resource(ingest_client_mock: AssetCl
     assert not upload_state.pending_stash
 
 
-def test_2_resources_with_stash_interrupted_by_timeout(ingest_client_mock: AssetClient) -> None:
-    _2_resources_with_stash_interrupted_by_error(PermanentTimeOutError(""), "PermanentTimeOutError", ingest_client_mock)
+def test_2_resources_with_stash_interrupted_by_timeout(
+    ingest_client_mock: AssetClient, legal_info_client_mock: LegalInfoClient
+) -> None:
+    _2_resources_with_stash_interrupted_by_error(
+        PermanentTimeOutError(""), "PermanentTimeOutError", ingest_client_mock, legal_info_client_mock
+    )
 
 
-def test_2_resources_with_stash_interrupted_by_keyboard(ingest_client_mock: AssetClient) -> None:
-    _2_resources_with_stash_interrupted_by_error(KeyboardInterrupt(), "KeyboardInterrupt", ingest_client_mock)
+def test_2_resources_with_stash_interrupted_by_keyboard(
+    ingest_client_mock: AssetClient, legal_info_client_mock: LegalInfoClient
+) -> None:
+    _2_resources_with_stash_interrupted_by_error(
+        KeyboardInterrupt(), "KeyboardInterrupt", ingest_client_mock, legal_info_client_mock
+    )
 
 
 def _2_resources_with_stash_interrupted_by_error(
-    err_to_interrupt_with: BaseException, err_as_str: str, ingest_client_mock: AssetClient
+    err_to_interrupt_with: BaseException,
+    err_as_str: str,
+    ingest_client_mock: AssetClient,
+    legal_info_client_mock: LegalInfoClient,
 ) -> None:
     resources = [
         IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 3)
@@ -206,7 +225,7 @@ def _2_resources_with_stash_interrupted_by_error(
     ]
     con.post = Mock(side_effect=post_responses)
     project_client = ProjectClientStub(con, "1234", None)
-    clients = UploadClients(ingest_client_mock, project_client, ListClientMock())
+    clients = UploadClients(ingest_client_mock, project_client, ListClientMock(), legal_info_client_mock)
 
     with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
         with pytest.warns(DspToolsUserWarning):
@@ -227,7 +246,7 @@ def _2_resources_with_stash_interrupted_by_error(
         _handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
 
-def test_2_resources_with_stash(ingest_client_mock: AssetClient) -> None:
+def test_2_resources_with_stash(ingest_client_mock: AssetClient, legal_info_client_mock: LegalInfoClient) -> None:
     resources = [
         IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 3)
     ]
@@ -246,7 +265,7 @@ def test_2_resources_with_stash(ingest_client_mock: AssetClient) -> None:
     ]
     con.post = Mock(side_effect=post_responses)
     project_client = ProjectClientStub(con, "1234", None)
-    clients = UploadClients(ingest_client_mock, project_client, ListClientMock())
+    clients = UploadClients(ingest_client_mock, project_client, ListClientMock(), legal_info_client_mock)
 
     _upload_resources(clients, upload_state)
 
@@ -273,7 +292,9 @@ def test_2_resources_with_stash(ingest_client_mock: AssetClient) -> None:
     assert not upload_state.pending_stash or upload_state.pending_stash.is_empty()
 
 
-def test_5_resources_with_stash_and_interrupt_after_2(ingest_client_mock: AssetClient) -> None:
+def test_5_resources_with_stash_and_interrupt_after_2(
+    ingest_client_mock: AssetClient, legal_info_client_mock: LegalInfoClient
+) -> None:
     resources = [
         IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 6)
     ]
@@ -297,7 +318,7 @@ def test_5_resources_with_stash_and_interrupt_after_2(ingest_client_mock: AssetC
     con.post = Mock(side_effect=post_responses)
     project_client = ProjectClientStub(con, "1234", None)
     err_msg = "Interrupted: Maximum number of resources was reached (2)"
-    client = UploadClients(ingest_client_mock, project_client, ListClientMock())
+    client = UploadClients(ingest_client_mock, project_client, ListClientMock(), legal_info_client_mock)
 
     with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
         _upload_resources(client, upload_state)
@@ -326,7 +347,9 @@ def test_5_resources_with_stash_and_interrupt_after_2(ingest_client_mock: AssetC
         assert upload_state == upload_state_expected
 
 
-def test_6_resources_with_stash_and_interrupt_after_2(ingest_client_mock: AssetClient) -> None:
+def test_6_resources_with_stash_and_interrupt_after_2(
+    ingest_client_mock: AssetClient, legal_info_client_mock: LegalInfoClient
+) -> None:
     resources = [
         IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 7)
     ]
@@ -351,7 +374,7 @@ def test_6_resources_with_stash_and_interrupt_after_2(ingest_client_mock: AssetC
     con.post = Mock(side_effect=post_responses)
     project_client = ProjectClientStub(con, "1234", None)
     err_msg = "Interrupted: Maximum number of resources was reached (2)"
-    client = UploadClients(ingest_client_mock, project_client, ListClientMock())
+    client = UploadClients(ingest_client_mock, project_client, ListClientMock(), legal_info_client_mock)
 
     with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
         _upload_resources(client, upload_state)
@@ -385,7 +408,9 @@ def test_6_resources_with_stash_and_interrupt_after_2(ingest_client_mock: AssetC
         assert upload_state == upload_state_expected
 
 
-def test_logging(caplog: pytest.LogCaptureFixture, ingest_client_mock: AssetClient) -> None:
+def test_logging(
+    caplog: pytest.LogCaptureFixture, ingest_client_mock: AssetClient, legal_info_client_mock: LegalInfoClient
+) -> None:
     resources = [
         IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 6)
     ]
@@ -408,7 +433,7 @@ def test_logging(caplog: pytest.LogCaptureFixture, ingest_client_mock: AssetClie
     ]
     con.post = Mock(side_effect=post_responses)
     project_client = ProjectClientStub(con, "1234", None)
-    clients = UploadClients(ingest_client_mock, project_client, ListClientMock())
+    clients = UploadClients(ingest_client_mock, project_client, ListClientMock(), legal_info_client_mock)
 
     with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error"):
         _upload_resources(clients, upload_state)
@@ -428,7 +453,7 @@ def test_logging(caplog: pytest.LogCaptureFixture, ingest_client_mock: AssetClie
         caplog.clear()
 
 
-def test_post_requests(ingest_client_mock: AssetClient) -> None:
+def test_post_requests(ingest_client_mock: AssetClient, legal_info_client_mock: LegalInfoClient) -> None:
     resources = [
         IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 7)
     ]
@@ -452,7 +477,7 @@ def test_post_requests(ingest_client_mock: AssetClient) -> None:
     ]
     con.post = Mock(side_effect=post_responses)
     project_client = ProjectClientStub(con, "1234", None)
-    clients = UploadClients(ingest_client_mock, project_client, ListClientMock())
+    clients = UploadClients(ingest_client_mock, project_client, ListClientMock(), legal_info_client_mock)
 
     with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error"):
         _upload_resources(clients, upload_state)
@@ -462,7 +487,7 @@ def test_post_requests(ingest_client_mock: AssetClient) -> None:
         assert len(con.post.call_args_list) == len(post_responses)
 
 
-def test_interruption_if_resource_cannot_be_created_because_of_404() -> None:
+def test_interruption_if_resource_cannot_be_created_because_of_404(legal_info_client_mock: LegalInfoClient) -> None:
     resources = [
         IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 3)
     ]
@@ -478,7 +503,9 @@ def test_interruption_if_resource_cannot_be_created_because_of_404() -> None:
     ingest_client = DspIngestClientLive("", AuthenticationClientMockBase(), "1234", ".")
 
     with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
-        _upload_resources(UploadClients(ingest_client, project_client, ListClientMock()), upload_state)
+        _upload_resources(
+            UploadClients(ingest_client, project_client, ListClientMock(), legal_info_client_mock), upload_state
+        )
         msg = (
             "Lost connection to DSP server, probably because the server is down. "
             "Please continue later with 'resume-xmlupload'. Reason for this failure: "

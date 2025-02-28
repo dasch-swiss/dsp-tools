@@ -6,10 +6,17 @@
        shortcode="4125"
        default-ontology="e2e-testonto">
 
+    <authorship id="authorship_1">
+        <author>Johannes Nussbaum</author>
+    </authorship>
+
     <resource label="Resource 1"
               restype=":ImageResource"
               id="resource_1">
-        <bitstream>testdata/bitstreams/test.jpg</bitstream>
+        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >testdata/bitstreams/test.jpg</bitstream>
     </resource>
 
     <resource label="Resource 2"

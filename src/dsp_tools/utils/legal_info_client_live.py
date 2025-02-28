@@ -8,7 +8,7 @@ from requests import Response
 
 from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
+from dsp_tools.utils.authentication_client import AuthenticationClient
 from dsp_tools.utils.legal_info_client import LegalInfoClient
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_and_raise_timeouts
@@ -24,7 +24,7 @@ HTTP_LACKING_PERMISSIONS = 403
 class LegalInfoClientLive(LegalInfoClient):
     server: str
     project_shortcode: str
-    authentication_client: AuthenticationClientLive
+    authentication_client: AuthenticationClient
 
     def post_copyright_holders(self, copyright_holders: list[str]) -> None:
         """Send a list of new copyright holders to the API"""

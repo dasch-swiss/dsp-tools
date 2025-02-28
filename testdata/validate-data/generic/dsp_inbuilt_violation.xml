@@ -6,6 +6,10 @@
        shortcode="9999"
        default-ontology="in-built">
 
+    <authorship id="authorship_1">
+        <author>Author One</author>
+    </authorship>
+
     <!-- 15 Violations -->
 
     <!-- Target Resources for Links -->
@@ -18,11 +22,17 @@
               id="target_res_without_representation_2"/>
 
     <resource label="Target Movie" restype="onto:TestMovingImageRepresentation" id="target_empty_movie">
-        <bitstream>this/is/filepath/file.mp4</bitstream>
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.mp4</bitstream>
     </resource>
 
     <resource label="Target Image" restype=":TestStillImageRepresentationWithSeqnum" id="target_empty_image">
-        <bitstream>this/is/filepath/file.jpg</bitstream>
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.jpg</bitstream>
     </resource>
 
 

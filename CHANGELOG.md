@@ -1,5 +1,37 @@
 # Changelog
 
+## [10.6.0](https://github.com/dasch-swiss/dsp-tools/compare/v10.5.0...v10.6.0) (2025-02-28)
+
+
+### Enhancements
+
+* **xmlupload:** add `LegalInfoClient` to post copyright holders (DEV-4639) ([#1478](https://github.com/dasch-swiss/dsp-tools/issues/1478)) ([a4f9e6d](https://github.com/dasch-swiss/dsp-tools/commit/a4f9e6d5bf698fbc6180d74267af0db0161ab906))
+* **xmlupload:** integrate create copyright holders into xmlupload (DEV-4650) ([#1485](https://github.com/dasch-swiss/dsp-tools/issues/1485)) ([7a3aba5](https://github.com/dasch-swiss/dsp-tools/commit/7a3aba51394852ce5364145b8d6f2cc732f1919d))
+* **xmlupload:** map authorship ids to actual values (DEV-4637) ([#1476](https://github.com/dasch-swiss/dsp-tools/issues/1476)) ([99cfaee](https://github.com/dasch-swiss/dsp-tools/commit/99cfaee212348eaa52cdb7d21c99d2b121552378))
+* **xmlupload:** parse legal info for files from XML (DEV-4635) ([#1473](https://github.com/dasch-swiss/dsp-tools/issues/1473)) ([ef6df7f](https://github.com/dasch-swiss/dsp-tools/commit/ef6df7fd60db6bad870c782b4fc73533e9a2bcf1))
+* **xmlupload:** Upload the legal info of the file values during the xmlupload (DEV-4638) ([#1484](https://github.com/dasch-swiss/dsp-tools/issues/1484)) ([29e59b5](https://github.com/dasch-swiss/dsp-tools/commit/29e59b58411b254bbce506bfd8d2d1fc13ebf1e0))
+
+
+### Bug Fixes
+
+* **xmllib:** allow pathlib.Path as input for Resource.add_file() ([#1486](https://github.com/dasch-swiss/dsp-tools/issues/1486)) ([63d5fd6](https://github.com/dasch-swiss/dsp-tools/commit/63d5fd602a6dd8c3383d4b237fa6d36fc24fbdbc))
+* **xmllib:** disallow colon as range separator in find_date_in_string() ([#1480](https://github.com/dasch-swiss/dsp-tools/issues/1480)) ([a908714](https://github.com/dasch-swiss/dsp-tools/commit/a90871426998459b4614a85673d94731565bf2ba))
+* **xmllib:** is_nonempty_value(" ") should be false ([#1474](https://github.com/dasch-swiss/dsp-tools/issues/1474)) ([2550e80](https://github.com/dasch-swiss/dsp-tools/commit/2550e803f5fe4957d7712d1d6dde8d9bec139a39))
+
+
+### Maintenance
+
+* fix typo ([#1489](https://github.com/dasch-swiss/dsp-tools/issues/1489)) ([e52c9bf](https://github.com/dasch-swiss/dsp-tools/commit/e52c9bf6e3646898fda1fa9ae00bbaac2882753a))
+* move generic and static logging functions out from `ConnectionLive` to separate file ([#1479](https://github.com/dasch-swiss/dsp-tools/issues/1479)) ([2dd238a](https://github.com/dasch-swiss/dsp-tools/commit/2dd238a42996102ccb3933914c798c6c5031c8a3))
+* move logging of request out of `ConnectionLive` into generic file ([#1482](https://github.com/dasch-swiss/dsp-tools/issues/1482)) ([9250b01](https://github.com/dasch-swiss/dsp-tools/commit/9250b01517b24b2e53bd38211ee590e6fea55403))
+* **validate-data:** add legal info to the validation ([#1488](https://github.com/dasch-swiss/dsp-tools/issues/1488)) ([209a1d1](https://github.com/dasch-swiss/dsp-tools/commit/209a1d19b818d0bd835691c0f733b0ac1c6662ad))
+* **xmlupload:** make file value graph ([#1483](https://github.com/dasch-swiss/dsp-tools/issues/1483)) ([689c0c8](https://github.com/dasch-swiss/dsp-tools/commit/689c0c873113c156481e0d6af2e1a672409f90f9))
+
+
+### Documentation
+
+* **xmllib:** clarify that find_date_in_string() finds only 1 date ([#1477](https://github.com/dasch-swiss/dsp-tools/issues/1477)) ([b4210dc](https://github.com/dasch-swiss/dsp-tools/commit/b4210dcf74dfd5db48da0b5ceba27601f37f812f))
+
 ## [10.5.0](https://github.com/dasch-swiss/dsp-tools/compare/v10.4.0...v10.5.0) (2025-02-26)
 
 

@@ -385,9 +385,9 @@ class TestReformatValidationGraph:
     def test_reformat_every_constraint_once(self, every_combination_once: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(every_combination_once)
         expected_info_tuples = [
-            ("bitstream_no_legal_info", ProblemType.MIN_CARD),
-            ("bitstream_no_legal_info", ProblemType.MIN_CARD),
-            ("bitstream_no_legal_info", ProblemType.MIN_CARD),
+            ("bitstream_no_legal_info", ProblemType.GENERIC),
+            ("bitstream_no_legal_info", ProblemType.GENERIC),
+            ("bitstream_no_legal_info", ProblemType.GENERIC),
             ("empty_label", ProblemType.INPUT_REGEX),
             ("geoname_not_number", ProblemType.INPUT_REGEX),
             ("id_card_one", ProblemType.MIN_CARD),
@@ -431,9 +431,9 @@ class TestReformatValidationGraph:
     def test_reformat_file_value_violation(self, file_value_violation: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(file_value_violation)
         expected_info_tuples = [
-            ("bitstream_no_legal_info", ProblemType.MIN_CARD),
-            ("bitstream_no_legal_info", ProblemType.MIN_CARD),
-            ("bitstream_no_legal_info", ProblemType.MIN_CARD),
+            ("bitstream_no_legal_info", ProblemType.GENERIC),
+            ("bitstream_no_legal_info", ProblemType.GENERIC),
+            ("bitstream_no_legal_info", ProblemType.GENERIC),
             ("id_archive_missing", ProblemType.FILE_VALUE),
             ("id_archive_unknown", ProblemType.FILE_VALUE),
             ("id_audio_missing", ProblemType.FILE_VALUE),

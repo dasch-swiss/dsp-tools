@@ -174,7 +174,7 @@
         sh:detail                     sh:MinCountConstraintComponent
         -->
 
-        <resource label="Target Movie" restype=":TestMovingImageRepresentation" id="target_empty_movie">
+        <resource label="Target Movie" restype=":TestMovingImageRepresentation" id="bitstream_no_legal_info">
             <bitstream>this/is/filepath/file.mp4</bitstream>
         </resource>
 

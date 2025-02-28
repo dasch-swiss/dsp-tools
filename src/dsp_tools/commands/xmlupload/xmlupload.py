@@ -152,7 +152,7 @@ def _warn_about_future_mandatory_legal_info(resources: list[IntermediaryResource
         "Soon this information will be mandatory for all files."
     )
     if len(missing_info) < 100:
-        msg += f"The following files are affected:\n-   {'\n-   '.join(missing_info)}"
+        msg += f" The following files are affected:\n-   {'\n-   '.join(missing_info)}"
     warnings.warn(DspToolsFutureWarning(msg))
 
 

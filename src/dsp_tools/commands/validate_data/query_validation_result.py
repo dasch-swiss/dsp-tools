@@ -32,7 +32,11 @@ from dsp_tools.commands.validate_data.utils import reformat_data_iri
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.models.exceptions import BaseError
 
-STILL_IMAGE_VALUE_CLASSES = {KNORA_API.StillImageFileValue: KNORA_API.hasStillImageFileValue, KNORA_API.StillImageExternalFileValue: KNORA_API.stillImageFileValueHasExternalUrl}
+STILL_IMAGE_VALUE_CLASSES = {
+    KNORA_API.StillImageFileValue: KNORA_API.hasStillImageFileValue,
+    KNORA_API.StillImageExternalFileValue: KNORA_API.stillImageFileValueHasExternalUrl,
+}
+
 
 def reformat_validation_graph(report: ValidationReportGraphs) -> AllProblems:
     """
@@ -106,11 +110,11 @@ def _extract_base_info_of_resource_results(
                 focus_rdf_type=res_type,
             )
         if info:
-            all_res_focus_nodes.extend(_extract_one_base_info(info, results_and_onto, data_onto_graph))
+            all_res_focus_nodes.extend(_extract_one_base_info(info, results_and_onto))
     return all_res_focus_nodes
 
 
-def _extract_one_base_info(info: QueryInfo, results_and_onto: Graph, data_onto_graph: Graph) -> list[ValidationResultBaseInfo]:
+def _extract_one_base_info(info: QueryInfo, results_and_onto: Graph) -> list[ValidationResultBaseInfo]:
     results = []
     path = next(results_and_onto.objects(info.validation_bn, SH.resultPath))
     main_component_type = next(results_and_onto.objects(info.validation_bn, SH.sourceConstraintComponent))

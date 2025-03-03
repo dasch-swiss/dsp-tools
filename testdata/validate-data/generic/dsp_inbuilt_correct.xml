@@ -183,7 +183,10 @@
 
     <resource label="Image with sequence" restype=":TestStillImageRepresentationWithSeqnum"
               id="seqnum_isPartOf_direct_usage">
-        <bitstream>this/is/filepath/file.jpg</bitstream>
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.jpg</bitstream>
         <resptr-prop name="isPartOf">
             <resptr>target_empty_1</resptr>
         </resptr-prop>
@@ -197,7 +200,10 @@
 
     <resource label="Image with sequence" restype=":TestStillImageRepresentationWithInheritedSeqnum"
               id="seqnum_isPartOf_sub_prop_usage">
-        <bitstream>this/is/filepath/file.jpg</bitstream>
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.jpg</bitstream>
         <resptr-prop name=":testIsPartOf">
             <resptr>target_empty_1</resptr>
         </resptr-prop>
@@ -224,7 +230,11 @@
               restype=":TestStillImageRepresentationWithSeqnum"
               id="bitstream_permissions"
     >
-        <bitstream permissions="open">this/is/filepath/file.jpg</bitstream>
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+                   permissions="open"
+        >this/is/filepath/file.jpg</bitstream>
     </resource>
 
     <resource label="IIIF with permissions" restype=":TestStillImageRepresentationWithSeqnum" id="iiif_permissions">

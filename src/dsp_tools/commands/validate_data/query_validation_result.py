@@ -90,9 +90,9 @@ def _extract_base_info_of_resource_results(
 ) -> list[ValidationResultBaseInfo]:
     focus_nodes = list(results_and_onto.subject_objects(SH.focusNode))
     resource_classes = list(data_onto_graph.subjects(KNORA_API.canBeInstantiated, Literal(True)))
+    resource_classes.extend(STILL_IMAGE_VALUE_CLASSES)
     all_res_focus_nodes = []
     for nd in focus_nodes:
-        info = None
         focus_iri = nd[1]
         res_type = next(data_onto_graph.objects(focus_iri, RDF.type))
         if res_type in resource_classes:
@@ -101,21 +101,13 @@ def _extract_base_info_of_resource_results(
                 focus_iri=focus_iri,
                 focus_rdf_type=res_type,
             )
-        elif res_type in STILL_IMAGE_VALUE_CLASSES:
-            restype = cast(URIRef, res_type)
-            focus_iri = next(data_onto_graph.subjects(STILL_IMAGE_VALUE_CLASSES[restype], focus_iri))
-            res_type = next(data_onto_graph.objects(focus_iri, RDF.type))
-            info = QueryInfo(
-                validation_bn=nd[0],
-                focus_iri=focus_iri,
-                focus_rdf_type=res_type,
-            )
-        if info:
-            all_res_focus_nodes.extend(_extract_one_base_info(info, results_and_onto))
+            all_res_focus_nodes.extend(_extract_one_base_info(info, results_and_onto, data_onto_graph))
     return all_res_focus_nodes
 
 
-def _extract_one_base_info(info: QueryInfo, results_and_onto: Graph) -> list[ValidationResultBaseInfo]:
+def _extract_one_base_info(
+    info: QueryInfo, results_and_onto: Graph, data_onto_graph: Graph
+) -> list[ValidationResultBaseInfo]:
     results = []
     path = next(results_and_onto.objects(info.validation_bn, SH.resultPath))
     main_component_type = next(results_and_onto.objects(info.validation_bn, SH.sourceConstraintComponent))
@@ -137,12 +129,18 @@ def _extract_one_base_info(info: QueryInfo, results_and_onto: Graph) -> list[Val
                 )
             )
     else:
+        resource_iri = info.focus_iri
+        resource_type = info.focus_rdf_type
+        if info.focus_rdf_type in STILL_IMAGE_VALUE_CLASSES:
+            restype = cast(URIRef, info.focus_rdf_type)
+            resource_iri = next(data_onto_graph.subjects(STILL_IMAGE_VALUE_CLASSES[restype], info.focus_iri))
+            resource_type = next(data_onto_graph.objects(resource_iri, RDF.type))
         results.append(
             ValidationResultBaseInfo(
                 result_bn=info.validation_bn,
                 source_constraint_component=main_component_type,
-                resource_iri=info.focus_iri,
-                res_class_type=info.focus_rdf_type,
+                resource_iri=resource_iri,
+                res_class_type=resource_type,
                 result_path=path,
                 detail=None,
             )

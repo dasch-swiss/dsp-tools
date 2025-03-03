@@ -162,6 +162,18 @@
         </resource>
 
         <!--
+        sh:sourceConstraintComponent  sh:InConstraintComponent
+        sh:detail                     -
+        -->
+        <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="inexistent_license_iri">
+            <bitstream license="http://rdfh.ch/licenses/this-iri-does-not-exist"
+                       copyright-holder="DaSCH"
+                       authorship-id="authorship_1"
+            >this/is/filepath/file.zip
+            </bitstream>
+        </resource>
+
+        <!--
         sh:sourceConstraintComponent  sh:NodeConstraintComponent
         sh:detail                     sh:InConstraintComponent
         -->

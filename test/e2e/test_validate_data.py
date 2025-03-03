@@ -165,6 +165,9 @@ def test_extract_identifiers_of_resource_results(every_combination_once: Validat
         (URIRef("http://data/id_simpletext"), BNode),
         (URIRef("http://data/id_uri"), BNode),
         (URIRef("http://data/identical_values"), None),
+        (URIRef("http://data/image_no_legal_info"), BNode),
+        (URIRef("http://data/image_no_legal_info"), BNode),
+        (URIRef("http://data/image_no_legal_info"), BNode),
         (URIRef("http://data/link_target_non_existent"), BNode),
         (URIRef("http://data/link_target_wrong_class"), BNode),
         (URIRef("http://data/list_node_non_existent"), BNode),
@@ -398,6 +401,9 @@ class TestReformatValidationGraph:
             ("id_simpletext", ProblemType.VALUE_TYPE_MISMATCH),
             ("id_uri", ProblemType.VALUE_TYPE_MISMATCH),
             ("identical_values", ProblemType.DUPLICATE_VALUE),
+            ("image_no_legal_info", ProblemType.GENERIC),
+            ("image_no_legal_info", ProblemType.GENERIC),
+            ("image_no_legal_info", ProblemType.GENERIC),
             ("link_target_non_existent", ProblemType.INEXISTENT_LINKED_RESOURCE),
             ("link_target_wrong_class", ProblemType.LINK_TARGET_TYPE_MISMATCH),
             ("list_node_non_existent", ProblemType.GENERIC),
@@ -432,6 +438,7 @@ class TestReformatValidationGraph:
     def test_reformat_file_value_violation(self, file_value_violation: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(file_value_violation)
         expected_info_tuples = [
+            # each type of missing legal info (authorship, copyright, license) produces one violation
             ("bitstream_no_legal_info", ProblemType.GENERIC),
             ("bitstream_no_legal_info", ProblemType.GENERIC),
             ("bitstream_no_legal_info", ProblemType.GENERIC),
@@ -449,6 +456,12 @@ class TestReformatValidationGraph:
             ("id_video_missing", ProblemType.FILE_VALUE),
             ("id_video_unknown", ProblemType.FILE_VALUE),
             ("id_wrong_file_type", ProblemType.FILE_VALUE),
+            ("iiif_no_legal_info", ProblemType.GENERIC),
+            ("iiif_no_legal_info", ProblemType.GENERIC),
+            ("iiif_no_legal_info", ProblemType.GENERIC),
+            ("image_no_legal_info", ProblemType.GENERIC),
+            ("image_no_legal_info", ProblemType.GENERIC),
+            ("image_no_legal_info", ProblemType.GENERIC),
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)

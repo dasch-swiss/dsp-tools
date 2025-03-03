@@ -81,6 +81,17 @@ class TestExtractBaseInfo:
         assert found_result.source_constraint_component == SH.MinCountConstraintComponent
         assert not found_result.detail
 
+    def test_still_image_file(self, report_image_missing_legal_info: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
+        validation_g, onto_data_g, _ = report_image_missing_legal_info
+        results = _extract_base_info_of_resource_results(validation_g, onto_data_g)
+        assert len(results) == 1
+        found_result = results[0]
+        assert found_result.resource_iri == DATA.image_no_legal_info
+        assert found_result.res_class_type == ONTO.TestStillImageRepresentation
+        assert found_result.result_path == KNORA_API.hasLicense
+        assert found_result.source_constraint_component == SH.MinCountConstraintComponent
+        assert not found_result.detail
+
     def test_with_detail(self, report_value_type_simpletext: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         validation_g, onto_data_g, _ = report_value_type_simpletext
         results = _extract_base_info_of_resource_results(validation_g, onto_data_g)

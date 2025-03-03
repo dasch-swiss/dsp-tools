@@ -342,6 +342,8 @@ def _query_for_min_cardinality_violation(
     source_shape = next(results_and_onto.objects(base_info.result_bn, SH.sourceShape))
     if source_shape in FILE_VALUE_PROP_SHAPES:
         violation_type = ViolationType.FILE_VALUE
+    elif base_info.result_path in {KNORA_API.hasLicense, KNORA_API.hasCopyrightHolder, KNORA_API.hasAuthorship}:
+        violation_type = ViolationType.GENERIC
     else:
         violation_type = ViolationType.MIN_CARD
     return ValidationResult(

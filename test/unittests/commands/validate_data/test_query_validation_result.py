@@ -236,11 +236,13 @@ class TestQueryWithoutDetail:
         assert result.message == Literal("The property seqnum must be used together with isPartOf")
         assert not result.property
 
-    def test_image_missing_legal_info(self, report_image_missing_legal_info: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
+    def test_image_missing_legal_info(
+        self, report_image_missing_legal_info: tuple[Graph, Graph, ValidationResultBaseInfo]
+    ) -> None:
         res, _, info = report_image_missing_legal_info
         result = _query_one_without_detail(info, res)
         assert isinstance(result, ValidationResult)
-        assert result.violation_type == ViolationType.MIN_CARD
+        assert result.violation_type == ViolationType.GENERIC
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == KNORA_API.hasLicense

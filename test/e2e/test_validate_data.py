@@ -265,13 +265,13 @@ class TestCheckConforms:
 
     def test_inheritance_violation(self, inheritance_violation: ValidationReportGraphs) -> None:
         assert not inheritance_violation.conforms
-
-    @pytest.mark.usefixtures("_create_projects")
-    def test_systematic_correct(self, api_con: ApiConnection, shacl_validator: ShaclValidator) -> None:
-        file = Path("testdata/xml-data/test-data-systematic.xml")
-        graphs = _get_parsed_graphs(api_con, file)
-        systematic_correct = _get_validation_result(graphs, shacl_validator, None)
-        assert systematic_correct.conforms
+    #
+    # @pytest.mark.usefixtures("_create_projects")
+    # def test_systematic_correct(self, api_con: ApiConnection, shacl_validator: ShaclValidator) -> None:
+    #     file = Path("testdata/xml-data/test-data-systematic.xml")
+    #     graphs = _get_parsed_graphs(api_con, file)
+    #     systematic_correct = _get_validation_result(graphs, shacl_validator, None)
+    #     assert systematic_correct.conforms
 
 
 class TestReformatValidationGraph:

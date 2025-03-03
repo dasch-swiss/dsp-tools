@@ -240,11 +240,11 @@ class TestQueryWithoutDetail:
         res, _, info = report_image_missing_legal_info
         result = _query_one_without_detail(info, res)
         assert isinstance(result, ValidationResult)
-        assert result.violation_type == ViolationType.GENERIC
+        assert result.violation_type == ViolationType.MIN_CARD
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == KNORA_API.hasLicense
-        assert result.message == Literal("Files and IIIF-URIs require a reference to a license.")
+        assert result.expected == Literal("Files and IIIF-URIs require a reference to a license.")
 
     def test_unknown(self, result_unknown_component: tuple[Graph, ValidationResultBaseInfo]) -> None:
         graphs, info = result_unknown_component

@@ -4,7 +4,8 @@ from rdflib import Graph
 from dsp_tools.commands.validate_data.models.api_responses import AllProjectLists
 from dsp_tools.commands.validate_data.models.validation import SHACLGraphs
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import construct_cardinality_node_shapes
-from dsp_tools.commands.validate_data.sparql.file_value_shacl import construct_file_value_cardinality, construct_allowed_licenses_shape
+from dsp_tools.commands.validate_data.sparql.file_value_shacl import construct_allowed_licenses_shape
+from dsp_tools.commands.validate_data.sparql.file_value_shacl import construct_file_value_cardinality
 from dsp_tools.commands.validate_data.sparql.value_shacl import construct_property_shapes
 
 

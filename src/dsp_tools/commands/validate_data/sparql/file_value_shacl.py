@@ -77,7 +77,7 @@ def construct_allowed_licenses_shape() -> Graph:
           sh:message "You are required to use one of the pre-defined licenses, please consult the documentation for details." ;
           sh:severity sh:Violation
                   ] .
-    """
+    """  # noqa: E501 Line too long (135 > 120)
     g = Graph()
     g.parse(data=ttl_str, format="turtle")
     return g

@@ -522,7 +522,7 @@ class TestReformatResult:
         assert result.res_id == "image_no_legal_info"
         assert result.res_type == "onto:TestStillImageRepresentation"
         assert result.prop_name == "bitstream / iiif-uri"
-        assert result.message == "Files and IIIF-URIs require a reference to a license."
+        assert result.expected == "Files and IIIF-URIs require a reference to a license."
 
     def test_file_value_for_resource_without_representation(
         self, extracted_file_value_for_resource_without_representation: ValidationResult

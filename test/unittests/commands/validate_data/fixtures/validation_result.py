@@ -652,7 +652,7 @@ def extracted_image_missing_legal_info() -> ValidationResult:
         res_iri=DATA.image_no_legal_info,
         res_class=ONTO.TestStillImageRepresentation,
         property=KNORA_API.hasLicense,
-        message=Literal("Files and IIIF-URIs require a reference to a license."),
+        expected=Literal("Files and IIIF-URIs require a reference to a license."),
     )
 
 

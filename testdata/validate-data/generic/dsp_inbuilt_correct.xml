@@ -238,8 +238,11 @@
     </resource>
 
     <resource label="IIIF with permissions" restype=":TestStillImageRepresentationWithSeqnum" id="iiif_permissions">
-        <iiif-uri permissions="open">
-            https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg
+        <iiif-uri license="http://rdfh.ch/licenses/unknown"
+                  copyright-holder="DaSCH"
+                  authorship-id="authorship_1"
+                  permissions="open"
+        >https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg
         </iiif-uri>
     </resource>
 

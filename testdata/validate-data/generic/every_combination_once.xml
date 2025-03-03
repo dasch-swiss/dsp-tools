@@ -6,10 +6,20 @@
        shortcode="9999"
        default-ontology="onto">
 
+    <authorship id="authorship_1">
+        <author>Author One</author>
+    </authorship>
+
+    <!-- Target class that does not produce a violation -->
+    <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="target_empty_movie">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.mp4</bitstream>
+    </resource>
 
     <!--
-        This file aims to represent every combination of:
-            - our error type,
+        This file aims to represent every combination of our error type and the component type mix:
             - the component type of the validation report where the focus node is a resource class,
             - the component type of the sh:detail node, if applicable,
         This should primarily be used to ensure that the user gets the correct message
@@ -21,14 +31,12 @@
 
 
         <!--
-        Our Violation Type            ContentRegexViolation
         sh:sourceConstraintComponent  sh:PatternConstraintComponent
         sh:detail                     -
         -->
         <resource label=" " restype=":ClassWithEverything" id="empty_label"/>
 
         <!--
-        Our Violation Type            MaxCardinalityViolation
         sh:sourceConstraintComponent  sh:MaxCountConstraintComponent
         sh:detail                     -
         -->
@@ -46,21 +54,18 @@
         </resource>
 
         <!--
-        Our Violation Type            MinCardinalityViolation
         sh:sourceConstraintComponent  sh:MinCountConstraintComponent
         sh:detail                     -
         -->
         <resource label="Bool Card 1" restype=":ClassInheritedCardinalityOverwriting" id="id_card_one"/>
 
         <!--
-        Our Violation Type            FileValueProblem
         sh:sourceConstraintComponent  sh:MinCountConstraintComponent
         sh:detail                     -
         -->
         <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="id_missing_file_value"/>
 
         <!--
-        Our Violation Type            NonExistentCardinalityViolation
         sh:sourceConstraintComponent  dash:ClosedByTypesConstraintComponent
         sh:detail                     -
         -->
@@ -71,7 +76,6 @@
         </resource>
 
         <!--
-        Our Violation Type            SeqnumIsPartOfViolation
         sh:sourceConstraintComponent  dash:CoExistsWithConstraintComponent
         sh:detail                     -
         -->
@@ -84,7 +88,6 @@
         </resource>
 
         <!--
-        Our Violation Type            ContentRegexViolation
         sh:sourceConstraintComponent  sh:NodeConstraintComponent
         sh:detail                     sh:PatternConstraintComponent
         -->
@@ -95,7 +98,6 @@
         </resource>
 
         <!--
-        Our Violation Type            ValueTypeViolation
         sh:sourceConstraintComponent  sh:NodeConstraintComponent
         sh:detail                     sh:ClassConstraintComponent
         -->
@@ -106,7 +108,6 @@
         </resource>
 
         <!--
-        Our Violation Type            ValueTypeViolation
         sh:sourceConstraintComponent  sh:NodeConstraintComponent
         sh:detail                     sh:MinCountConstraintComponent
         -->
@@ -117,7 +118,6 @@
         </resource>
 
         <!--
-        Our Violation Type            LinkedResourceDoesNotExist
         sh:sourceConstraintComponent  sh:NodeConstraintComponent
         sh:detail                     sh:ClassConstraintComponent
         -->
@@ -128,7 +128,6 @@
         </resource>
 
         <!--
-        Our Violation Type            LinkTargetTypeMismatch
         sh:sourceConstraintComponent  sh:NodeConstraintComponent
         sh:detail                     sh:ClassConstraintComponent
         -->
@@ -140,7 +139,6 @@
         </resource>
 
         <!--
-        Our Violation Type            DuplicateValueProblem
         sh:sourceConstraintComponent  sh:SPARQLConstraintComponent
         sh:detail                     -
         -->
@@ -152,7 +150,6 @@
         </resource>
 
         <!--
-        Our Violation Type            GenericProblemWithInput
         sh:sourceConstraintComponent  sh:ClassConstraintComponent
         sh:detail                     -
         -->
@@ -165,7 +162,6 @@
         </resource>
 
         <!--
-        Our Violation Type            GenericProblemWithInput
         sh:sourceConstraintComponent  sh:NodeConstraintComponent
         sh:detail                     sh:InConstraintComponent
         -->
@@ -176,7 +172,6 @@
         </resource>
 
         <!--
-        Our Violation Type            GenericProblemWithInput
         sh:sourceConstraintComponent  sh:NodeConstraintComponent
         sh:detail                     sh:LessThanConstraintComponent
         -->
@@ -185,12 +180,16 @@
             <hasSegmentBounds segment_start="99" segment_end="1"/>
         </video-segment>
 
-        <resource label="Target Movie" restype=":TestMovingImageRepresentation" id="target_empty_movie">
+        <!--
+        sh:sourceConstraintComponent  sh:NodeConstraintComponent
+        sh:detail                     sh:MinCountConstraintComponent
+        -->
+
+        <resource label="Missing legal info" restype=":TestMovingImageRepresentation" id="bitstream_no_legal_info">
             <bitstream>this/is/filepath/file.mp4</bitstream>
         </resource>
 
         <!--
-        Our Violation Type            GenericProblemWithInput
         sh:sourceConstraintComponent  sh:NodeConstraintComponent
         sh:detail                     sh:MinInclusiveConstraintComponent & sh:MinExclusiveConstraintComponent
         -->

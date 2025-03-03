@@ -14,21 +14,34 @@
         <allow group="ProjectAdmin">CR</allow>
     </permissions>
 
+    <authorship id="authorship_1">
+        <author>Author One</author>
+    </authorship>
+
     <!-- Target Resources for Links -->
 
     <resource label="Empty 1" restype=":TestNormalResource" id="target_empty_1"/>
     <resource label="Empty 2" restype=":TestNormalResource" id="target_empty_2"/>
 
     <resource label="Target Image" restype=":TestStillImageRepresentationWithSeqnum" id="target_empty_image">
-        <bitstream>this/is/filepath/file.jpg</bitstream>
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.jpg</bitstream>
     </resource>
 
     <resource label="Target Movie" restype="onto:TestMovingImageRepresentation" id="target_empty_movie">
-        <bitstream>this/is/filepath/file.mp4</bitstream>
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.mp4</bitstream>
     </resource>
 
     <resource label="Target Audio" restype="onto:TestAudioRepresentation" id="target_empty_audio">
-        <bitstream>this/is/filepath/file.mp3</bitstream>
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.mp3</bitstream>
     </resource>
 
     <!-- LinkObj -->

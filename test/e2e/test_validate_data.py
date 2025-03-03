@@ -265,6 +265,7 @@ class TestCheckConforms:
 
     def test_inheritance_violation(self, inheritance_violation: ValidationReportGraphs) -> None:
         assert not inheritance_violation.conforms
+
     #
     # @pytest.mark.usefixtures("_create_projects")
     # def test_systematic_correct(self, api_con: ApiConnection, shacl_validator: ShaclValidator) -> None:

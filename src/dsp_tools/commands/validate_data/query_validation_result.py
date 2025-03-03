@@ -32,10 +32,7 @@ from dsp_tools.commands.validate_data.utils import reformat_data_iri
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.models.exceptions import BaseError
 
-STILL_IMAGE_VALUE_CLASSES = {
-    KNORA_API.StillImageFileValue: KNORA_API.hasStillImageFileValue,
-    KNORA_API.StillImageExternalFileValue: KNORA_API.stillImageFileValueHasExternalUrl,
-}
+STILL_IMAGE_VALUE_CLASSES = {KNORA_API.StillImageFileValue, KNORA_API.StillImageExternalFileValue}
 
 
 def reformat_validation_graph(report: ValidationReportGraphs) -> AllProblems:
@@ -132,8 +129,7 @@ def _extract_one_base_info(
         resource_iri = info.focus_iri
         resource_type = info.focus_rdf_type
         if info.focus_rdf_type in STILL_IMAGE_VALUE_CLASSES:
-            restype = cast(URIRef, info.focus_rdf_type)
-            resource_iri = next(data_onto_graph.subjects(STILL_IMAGE_VALUE_CLASSES[restype], info.focus_iri))
+            resource_iri = next(data_onto_graph.subjects(KNORA_API.hasStillImageFileValue, info.focus_iri))
             resource_type = next(data_onto_graph.objects(resource_iri, RDF.type))
         results.append(
             ValidationResultBaseInfo(

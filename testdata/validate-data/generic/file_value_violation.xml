@@ -10,22 +10,9 @@
         <author>Author One</author>
     </authorship>
 
-    <!-- 14 Violations -->
+    <!-- 19 Violations -->
 
-    <!-- 7 Legal Info Violations (not implemented) -->
-
-    <!-- Missing Legal Info -->
-    <resource label="TestArchiveRepresentation tar" restype=":TestArchiveRepresentation" id="bitstream_no_legal_info">
-        <bitstream>this/is/filepath/file.tar</bitstream>
-    </resource>
-
-    <resource label="TestStillImageRepresentation IIIF" restype=":TestStillImageRepresentation" id="iiif_no_legal_info">
-        <iiif-uri>https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg</iiif-uri>
-    </resource>
-
-    <resource label="TestStillImageRepresentation Bitstream" restype=":TestStillImageRepresentation" id="image_no_legal_info">
-        <iiif-uri>this/is/filepath/file.jp2</iiif-uri>
-    </resource>
+    <!-- 4 Legal Info Violations (not implemented) -->
 
     <!--
     The xsd validation library used in the code is not able to recognise if a referenced ID does not exist in the file
@@ -145,6 +132,20 @@
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
         >this/is/filepath/file.unknown</bitstream>
+    </resource>
+
+    <!-- Missing Legal Info -->
+
+    <resource label="TestArchiveRepresentation tar" restype=":TestArchiveRepresentation" id="bitstream_no_legal_info">
+        <bitstream>this/is/filepath/file.tar</bitstream>
+    </resource>
+
+    <resource label="TestStillImageRepresentation IIIF" restype=":TestStillImageRepresentation" id="iiif_no_legal_info">
+        <iiif-uri>https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg</iiif-uri>
+    </resource>
+
+    <resource label="TestStillImageRepresentation Bitstream" restype=":TestStillImageRepresentation" id="image_no_legal_info">
+        <bitstream>this/is/filepath/file.jp2</bitstream>
     </resource>
 
 </knora>

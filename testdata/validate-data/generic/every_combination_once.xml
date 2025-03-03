@@ -184,9 +184,16 @@
         sh:sourceConstraintComponent  sh:NodeConstraintComponent
         sh:detail                     sh:MinCountConstraintComponent
         -->
-
         <resource label="Missing legal info" restype=":TestMovingImageRepresentation" id="bitstream_no_legal_info">
             <bitstream>this/is/filepath/file.mp4</bitstream>
+        </resource>
+
+        <!--
+        sh:sourceConstraintComponent  sh:NodeConstraintComponent
+        sh:detail                     sh:MinCountConstraintComponent
+        -->
+        <resource label="TestStillImageRepresentation Bitstream" restype=":TestStillImageRepresentation" id="image_no_legal_info">
+            <bitstream>this/is/filepath/file.jp2</bitstream>
         </resource>
 
         <!--

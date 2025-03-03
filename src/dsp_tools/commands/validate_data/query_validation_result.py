@@ -32,6 +32,7 @@ from dsp_tools.commands.validate_data.utils import reformat_data_iri
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.models.exceptions import BaseError
 
+STILL_IMAGE_VALUE_CLASSES = {KNORA_API.StillImageFileValue: KNORA_API.hasStillImageFileValue, KNORA_API.StillImageExternalFileValue: KNORA_API.stillImageFileValueHasExternalUrl}
 
 def reformat_validation_graph(report: ValidationReportGraphs) -> AllProblems:
     """
@@ -87,6 +88,7 @@ def _extract_base_info_of_resource_results(
     resource_classes = list(data_onto_graph.subjects(KNORA_API.canBeInstantiated, Literal(True)))
     all_res_focus_nodes = []
     for nd in focus_nodes:
+        info = None
         focus_iri = nd[1]
         res_type = next(data_onto_graph.objects(focus_iri, RDF.type))
         if res_type in resource_classes:
@@ -95,11 +97,20 @@ def _extract_base_info_of_resource_results(
                 focus_iri=focus_iri,
                 focus_rdf_type=res_type,
             )
-            all_res_focus_nodes.extend(_extract_one_base_info(info, results_and_onto))
+        elif res_type in STILL_IMAGE_VALUE_CLASSES:
+            focus_iri = next(data_onto_graph.subjects(STILL_IMAGE_VALUE_CLASSES[res_type], focus_iri))
+            res_type = next(data_onto_graph.objects(focus_iri, RDF.type))
+            info = QueryInfo(
+                validation_bn=nd[0],
+                focus_iri=focus_iri,
+                focus_rdf_type=res_type,
+            )
+        if info:
+            all_res_focus_nodes.extend(_extract_one_base_info(info, results_and_onto, data_onto_graph))
     return all_res_focus_nodes
 
 
-def _extract_one_base_info(info: QueryInfo, results_and_onto: Graph) -> list[ValidationResultBaseInfo]:
+def _extract_one_base_info(info: QueryInfo, results_and_onto: Graph, data_onto_graph: Graph) -> list[ValidationResultBaseInfo]:
     results = []
     path = next(results_and_onto.objects(info.validation_bn, SH.resultPath))
     main_component_type = next(results_and_onto.objects(info.validation_bn, SH.sourceConstraintComponent))

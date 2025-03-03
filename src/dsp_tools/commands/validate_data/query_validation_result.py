@@ -102,7 +102,8 @@ def _extract_base_info_of_resource_results(
                 focus_rdf_type=res_type,
             )
         elif res_type in STILL_IMAGE_VALUE_CLASSES:
-            focus_iri = next(data_onto_graph.subjects(STILL_IMAGE_VALUE_CLASSES[res_type], focus_iri))
+            restype = cast(URIRef, res_type)
+            focus_iri = next(data_onto_graph.subjects(STILL_IMAGE_VALUE_CLASSES[restype], focus_iri))
             res_type = next(data_onto_graph.objects(focus_iri, RDF.type))
             info = QueryInfo(
                 validation_bn=nd[0],

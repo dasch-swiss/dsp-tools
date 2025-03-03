@@ -81,7 +81,10 @@
         -->
         <resource label="Image with sequence" restype="in-built:TestStillImageRepresentationWithSeqnum"
                   id="missing_seqnum">
-            <bitstream>this/is/filepath/file.jpg</bitstream>
+            <bitstream license="http://rdfh.ch/licenses/unknown"
+                       copyright-holder="DaSCH"
+                       authorship-id="authorship_1"
+            >this/is/filepath/file.jpg</bitstream>
             <resptr-prop name="isPartOf">
                 <resptr>target_res_without_representation_1</resptr>
             </resptr-prop>

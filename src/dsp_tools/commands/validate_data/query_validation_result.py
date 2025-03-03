@@ -33,6 +33,7 @@ from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.models.exceptions import BaseError
 
 STILL_IMAGE_VALUE_CLASSES = {KNORA_API.StillImageFileValue, KNORA_API.StillImageExternalFileValue}
+LEGAL_INFO_PROPS = {KNORA_API.hasLicense, KNORA_API.hasCopyrightHolder, KNORA_API.hasAuthorship}
 
 
 def reformat_validation_graph(report: ValidationReportGraphs) -> AllProblems:
@@ -352,7 +353,7 @@ def _query_for_min_cardinality_violation(
     source_shape = next(results_and_onto.objects(base_info.result_bn, SH.sourceShape))
     if source_shape in FILE_VALUE_PROP_SHAPES:
         violation_type = ViolationType.FILE_VALUE
-    elif base_info.result_path in {KNORA_API.hasLicense, KNORA_API.hasCopyrightHolder, KNORA_API.hasAuthorship}:
+    elif base_info.result_path in LEGAL_INFO_PROPS:
         violation_type = ViolationType.GENERIC
     else:
         violation_type = ViolationType.MIN_CARD

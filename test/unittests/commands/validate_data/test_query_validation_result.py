@@ -236,6 +236,16 @@ class TestQueryWithoutDetail:
         assert result.message == Literal("The property seqnum must be used together with isPartOf")
         assert not result.property
 
+    def test_image_missing_legal_info(self, report_image_missing_legal_info: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
+        res, _, info = report_image_missing_legal_info
+        result = _query_one_without_detail(info, res)
+        assert isinstance(result, ValidationResult)
+        assert result.violation_type == ViolationType.GENERIC
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
+        assert result.property == KNORA_API.hasLicense
+        assert result.message == Literal("Files and IIIF-URIs require a reference to a license.")
+
     def test_unknown(self, result_unknown_component: tuple[Graph, ValidationResultBaseInfo]) -> None:
         graphs, info = result_unknown_component
         result = _query_one_without_detail(info, graphs)
@@ -503,6 +513,14 @@ class TestReformatResult:
         assert result.res_type == "onto:TestMovingImageRepresentation"
         assert result.prop_name == "bitstream / iiif-uri"
         assert result.expected == "A MovingImageRepresentation requires a file with the extension 'mp4'."
+
+    def test_image_missing_legal_info(self, extracted_image_missing_legal_info: ValidationResult) -> None:
+        result = _reformat_one_validation_result(extracted_image_missing_legal_info)
+        assert result.problem_type == ProblemType.GENERIC
+        assert result.res_id == "image_no_legal_info"
+        assert result.res_type == "onto:TestStillImageRepresentation"
+        assert result.prop_name == "bitstream / iiif-uri"
+        assert result.message == "Files and IIIF-URIs require a reference to a license."
 
     def test_file_value_for_resource_without_representation(
         self, extracted_file_value_for_resource_without_representation: ValidationResult

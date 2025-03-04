@@ -1,7 +1,9 @@
+from pathlib import Path
+import re
 import pytest
 from requests.exceptions import RequestException
 
-from dsp_tools.commands.xmlupload.models.input_problems import AllIIIFUriProblems
+from dsp_tools.commands.xmlupload.models.input_problems import AllIIIFUriProblems, DuplicateBitstreamsProblem
 from dsp_tools.commands.xmlupload.models.input_problems import IIIFUriProblem
 
 
@@ -99,6 +101,14 @@ def test_all(iiif_exception: IIIFUriProblem, iiif_uri_problem_ok_regex: IIIFUriP
         "    - Status code: 404\n"
         "    - Response text: This is the response text."
     )
+
+
+def test_compile_duplicate_bitstreams_msg() -> None:
+    bitstreams = [Path(x) for x in ["file1.txt", "file2.txt", "file1.txt"]]
+    expected = [" - 2 times: file1.txt"]
+    returned = DuplicateBitstreamsProblem(bitstreams).execute_error_protocol()
+    list_items = [x for x in returned.split("\n") if x.startswith(" -")]
+    assert list_items == expected
 
 
 if __name__ == "__main__":

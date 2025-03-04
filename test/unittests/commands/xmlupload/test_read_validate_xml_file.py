@@ -1,8 +1,9 @@
 import pytest
 from lxml import etree
 
-from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import _check_if_resptr_targets_exist
+from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import _check_for_duplicate_bitstreams, _check_if_resptr_targets_exist
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import _check_if_salsah_targets_exist
+from dsp_tools.models.custom_warnings import DspToolsUserWarning
 
 
 def test_check_if_resptr_targets_exist() -> None:
@@ -95,6 +96,31 @@ def test_check_if_salsah_targets_exist_invalid() -> None:
         "Resource 'resource2', property 'text2' has an invalid link target 'IRI:resource4:IRI'",
     ]
     assert errors_returned == errors_expected
+
+
+def test_check_for_duplicate_bitstreams() -> None:
+    xml = """
+    <knora>
+        <resource id="res_1"></resource>
+        <resource id="res_2"><bitstream>path/to/file1.txt</bitstream></resource>
+        <resource id="res_3"><bitstream>path/to/file2.txt</bitstream></resource>
+        <resource id="res_4"><bitstream>path/to/file1.txt</bitstream></resource>
+        <resource id="res_5"><bitstream>path/to/file3.txt</bitstream></resource>
+        <resource id="res_5"><bitstream>path/to/file1.txt</bitstream></resource>
+        <resource id="res_5"><bitstream>path/to/file3.txt</bitstream></resource>
+    </knora>
+    """
+    expected = (
+        r"Your XML file contains duplicate bitstreams\. "
+        r"This means that the same file will be uploaded multiple times to DSP, each time creating a new resource\. "
+        r"Please check if it is possible to create only 1 resource per multimedia file\. "
+        r"\n\nThe following duplicates were found: "
+        r"\n - 3 times: path/to/file1\.txt"
+        r"\n - 2 times: path/to/file3\.txt"
+    )
+    root = etree.fromstring(xml)
+    with pytest.warns(DspToolsUserWarning, match=expected):
+        _check_for_duplicate_bitstreams(root, ".")
 
 
 if __name__ == "__main__":

@@ -1,6 +1,10 @@
 from __future__ import annotations
 
+from collections import Counter
 from dataclasses import dataclass
+from pathlib import Path
+
+from dsp_tools.models.problems import Problem
 
 list_separator = "\n    - "
 medium_separator = "\n----------------------------\n"
@@ -64,3 +68,22 @@ class IIIFUriProblem:
             "The URI is correct and the server responded as expected.",
             "Please contact the dsp-tools development team with this information.",
         ]
+
+
+@dataclass(frozen=True)
+class DuplicateBitstreamsProblem(Problem):
+    """Information about multimedia files referenced multiple times in the XML file"""
+
+    bitstreams: list[Path]
+    base_msg = (
+        "Your XML file contains duplicate bitstreams. "
+        "This means that the same file will be uploaded multiple times to DSP, each time creating a new resource. "
+        "Please check if it is possible to create only 1 resource per multimedia file. \n\n"
+        "The following duplicates were found: "
+    )
+
+    def execute_error_protocol(self) -> str:
+        """Get a message describing all problems."""
+        counter = Counter(self.bitstreams)
+        prob_lst = " - " + "\n - ".join(f"{counter[x]} times: {x}" for x in counter if counter[x] > 1)
+        return f"{self.base_msg}\n{prob_lst}"

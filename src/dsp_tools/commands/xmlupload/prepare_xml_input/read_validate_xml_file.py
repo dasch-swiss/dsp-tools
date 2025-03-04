@@ -7,6 +7,7 @@ from pathlib import Path
 import regex
 from lxml import etree
 
+from dsp_tools.commands.xmlupload.models.input_problems import DuplicateBitstreamsProblem
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.iri_util import is_resource_iri
@@ -136,11 +137,5 @@ def _check_for_duplicate_bitstreams(root: etree._Element, imgdir: str) -> None:
         for res in multimedia_resources
     ]
     if len(bitstreams) != len(set(bitstreams)):
-        msg = _compile_duplicate_bitstreams_msg(bitstreams)
+        msg = DuplicateBitstreamsProblem(bitstreams).execute_error_protocol()
         warnings.warn(DspToolsUserWarning(msg))
-
-
-def _compile_duplicate_bitstreams_msg(bitstreams: list[Path]) -> str:
-    counter = Counter(bitstreams)
-    duplicates = [x for x in counter if counter[x] > 1]
-    return str(duplicates)

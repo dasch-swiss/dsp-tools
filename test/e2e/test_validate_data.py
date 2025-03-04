@@ -180,13 +180,19 @@ def test_extract_identifiers_of_resource_results(every_combination_once: Validat
     ]
     assert len(result) == len(expected_iris)
     for result_info, expected_iri in zip(result_sorted, expected_iris):
-        assert result_info.resource_iri == expected_iri[0], f"Expected {expected_iri[0]}, got {result_info.resource_iri}"
+        assert result_info.resource_iri == expected_iri[0], (
+            f"Expected {expected_iri[0]}, got {result_info.resource_iri}"
+        )
         if expected_iri[1] is None:
             assert not result_info.detail
         else:
             detail_base_info = result_info.detail
-            assert isinstance(detail_base_info, DetailBaseInfo), f"Expected DetailBaseInfo, got {type(detail_base_info)}"
-            assert isinstance(detail_base_info.detail_bn, expected_iri[1]), f"Expected {expected_iri[1]} got detail_base_info.detail_bn"
+            assert isinstance(detail_base_info, DetailBaseInfo), (
+                f"Expected DetailBaseInfo, got {type(detail_base_info)}"
+            )
+            assert isinstance(detail_base_info.detail_bn, expected_iri[1]), (
+                f"Expected {expected_iri[1]} got detail_base_info.detail_bn"
+            )
 
 
 class TestCheckConforms:

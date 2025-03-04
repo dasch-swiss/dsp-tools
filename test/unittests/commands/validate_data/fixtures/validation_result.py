@@ -611,6 +611,52 @@ def extracted_link_target_wrong_class() -> ValidationResult:
 
 
 @pytest.fixture
+def report_image_missing_legal_info(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
+    validation_str = f"""{PREFIXES}
+    [ a sh:ValidationResult ;
+        sh:focusNode <http://data/value_image_no_legal_info> ;
+        sh:resultMessage "Files and IIIF-URIs require a reference to a license." ;
+        sh:resultPath <http://api.knora.org/ontology/knora-api/v2#hasLicense> ;
+        sh:resultSeverity sh:Violation ;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent ;
+        sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#hasLicense_PropShape> ] .
+    """
+    validation_g = Graph()
+    validation_g.parse(data=validation_str, format="ttl")
+    data_str = f"""{PREFIXES}
+    <http://data/image_no_legal_info> a <http://0.0.0.0:3333/ontology/9999/onto/v2#TestStillImageRepresentation> ;
+    rdfs:label "TestStillImageRepresentation Bitstream"^^xsd:string ;
+    knora-api:hasStillImageFileValue <http://data/value_image_no_legal_info> .
+
+    <http://data/value_image_no_legal_info> a knora-api:StillImageFileValue ;
+        knora-api:fileValueHasFilename "this/is/filepath/file.jp2"^^xsd:string .
+    """
+    onto_data_g = Graph()
+    onto_data_g += onto_graph
+    onto_data_g.parse(data=data_str, format="ttl")
+    val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+    base_info = ValidationResultBaseInfo(
+        result_bn=val_bn,
+        source_constraint_component=SH.MinCountConstraintComponent,
+        resource_iri=DATA.image_no_legal_info,
+        res_class_type=ONTO.TestStillImageRepresentation,
+        result_path=KNORA_API.hasLicense,
+    )
+    return validation_g, onto_data_g, base_info
+
+
+@pytest.fixture
+def extracted_image_missing_legal_info() -> ValidationResult:
+    return ValidationResult(
+        violation_type=ViolationType.GENERIC,
+        res_iri=DATA.image_no_legal_info,
+        res_class=ONTO.TestStillImageRepresentation,
+        property=KNORA_API.hasLicense,
+        expected=Literal("Files and IIIF-URIs require a reference to a license."),
+    )
+
+
+@pytest.fixture
 def report_closed_constraint(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;

@@ -166,7 +166,10 @@
 
     <resource label="Image with sequence" restype=":TestStillImageRepresentationWithSeqnum"
               id="missing_seqnum">
-        <bitstream>this/is/filepath/file.jpg</bitstream>
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.jpg</bitstream>
         <resptr-prop name="isPartOf">
             <resptr>target_res_without_representation_1</resptr>
         </resptr-prop>
@@ -174,7 +177,10 @@
 
     <resource label="Image with sequence" restype=":TestStillImageRepresentationWithSeqnum"
               id="missing_isPartOf">
-        <bitstream>this/is/filepath/file.jpg</bitstream>
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.jpg</bitstream>
         <integer-prop name="seqnum">
             <integer>1</integer>
         </integer-prop>
@@ -189,7 +195,10 @@
 
     <resource label="Image with sequence" restype=":TestStillImageRepresentationWithInheritedSeqnum"
               id="seqnum_sub_prop_missing">
-        <bitstream>this/is/filepath/file.jpg</bitstream>
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.jpg</bitstream>
         <resptr-prop name=":testIsPartOf">
             <resptr>target_res_without_representation_1</resptr>
         </resptr-prop>
@@ -197,7 +206,10 @@
 
     <resource label="Image with sequence" restype=":TestStillImageRepresentationWithInheritedSeqnum"
               id="isPartOf_sub_prop_missing">
-        <bitstream>this/is/filepath/file.jpg</bitstream>
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.jpg</bitstream>
         <integer-prop name=":testSeqnum">
             <integer>1</integer>
         </integer-prop>
@@ -208,7 +220,10 @@
 
     <resource label="Image with sequence" restype=":TestStillImageRepresentationWithSeqnum"
               id="seqnum_isPartOf_direct_usage_negative_sequence">
-        <bitstream>this/is/filepath/file.jpg</bitstream>
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.jpg</bitstream>
         <resptr-prop name="isPartOf">
             <resptr>target_res_without_representation_1</resptr>
         </resptr-prop>
@@ -222,7 +237,10 @@
 
     <resource label="Image with sequence" restype=":TestStillImageRepresentationWithInheritedSeqnum"
               id="seqnum_isPartOf_sub_prop_usage_negative_sequence">
-        <bitstream>this/is/filepath/file.jpg</bitstream>
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.jpg</bitstream>
         <resptr-prop name=":testIsPartOf">
             <resptr>target_res_without_representation_1</resptr>
         </resptr-prop>
@@ -249,15 +267,22 @@
               restype=":TestStillImageRepresentationWithSeqnum"
               id="non_existent_permissions_bitstream"
     >
-        <bitstream permissions="open">this/is/filepath/file.jpg</bitstream>
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+                   permissions="open"
+        >this/is/filepath/file.jpg</bitstream>
     </resource>
 
     <resource label="IIIF with permissions"
               restype=":TestStillImageRepresentationWithSeqnum"
               id="non_existent_permissions_iiif"
     >
-        <iiif-uri permissions="open">
-            https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg
+        <iiif-uri license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+                   permissions="open"
+        >https://iiif.wellcomecollection.org/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg
         </iiif-uri>
     </resource>
 

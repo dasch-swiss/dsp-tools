@@ -50,6 +50,9 @@ FILE_VALUE_PROPERTIES = {
     KNORA_API.hasMovingImageFileValue,
     KNORA_API.hasTextFileValue,
     KNORA_API.hasStillImageFileValue,
+    KNORA_API.hasLicense,
+    KNORA_API.hasCopyrightHolder,
+    KNORA_API.hasAuthorship,
 }
 
 VALUE_CLASS_SHAPES = {

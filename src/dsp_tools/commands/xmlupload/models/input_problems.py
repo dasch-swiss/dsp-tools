@@ -85,5 +85,6 @@ class DuplicateBitstreamsProblem(Problem):
     def execute_error_protocol(self) -> str:
         """Get a message describing all problems."""
         counter = Counter(self.bitstreams)
-        prob_lst = " - " + "\n - ".join(f"{counter[x]} times: {x}" for x in counter if counter[x] > 1)
+        counter_sorted = reversed(sorted([(counter[x], x) for x in counter if counter[x] > 1], key=lambda x: x[0]))
+        prob_lst = " - " + "\n - ".join(f"{x[0]} times: {x[1]}" for x in counter_sorted)
         return f"{self.base_msg}\n{prob_lst}"

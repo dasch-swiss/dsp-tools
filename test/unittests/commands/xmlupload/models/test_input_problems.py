@@ -104,12 +104,21 @@ def test_all(iiif_exception: IIIFUriProblem, iiif_uri_problem_ok_regex: IIIFUriP
     )
 
 
-def test_compile_duplicate_bitstreams_msg() -> None:
-    bitstreams = [Path(x) for x in ["file1.txt", "file2.txt", "file1.txt"]]
-    expected = [" - 2 times: file1.txt"]
+@pytest.mark.parametrize(
+    ("files", "output"),
+    [
+        (["file1.txt", "file2.txt", "file1.txt"], [" - 2 times: file1.txt"]),
+        (
+            ["file1.txt", "file2.txt", "file1.txt", "file2.txt", "file2.txt"],
+            [" - 3 times: file2.txt", " - 2 times: file1.txt"],
+        ),
+    ],
+)
+def test_compile_duplicate_bitstreams_msg(files: list[str], output: list[str]) -> None:
+    bitstreams = [Path(x) for x in files]
     returned = DuplicateBitstreamsProblem(bitstreams).execute_error_protocol()
     list_items = [x for x in returned.split("\n") if x.startswith(" -")]
-    assert list_items == expected
+    assert list_items == output
 
 
 if __name__ == "__main__":

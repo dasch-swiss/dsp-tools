@@ -10,6 +10,9 @@ LIST_SEPARATOR = "\n    - "
 GRAND_SEPARATOR = "\n\n----------------------------\n"
 
 
+PROBLEM_TYPES_IGNORE_STR_ENUM_INFO = {ProblemType.GENERIC, ProblemType.FILE_VALUE}
+
+
 def get_user_message(problems: list[InputProblem], file_path: Path) -> str:
     """
     Creates the string to communicate the user message.
@@ -62,7 +65,7 @@ def _get_message_detail_str(problem: InputProblem) -> str:
     msg = []
     if problem.message:
         msg.append(problem.message)
-    if problem.problem_type not in {ProblemType.GENERIC, ProblemType.FILE_VALUE}:
+    if problem.problem_type not in PROBLEM_TYPES_IGNORE_STR_ENUM_INFO:
         msg.append(str(problem.problem_type))
     if problem.input_value:
         msg.append(f"Your input: '{_shorten_input(problem.input_value)}'")
@@ -99,17 +102,30 @@ def _get_message_dict(problem: InputProblem) -> dict[str, str]:
         "Resource ID": problem.res_id,
         "Resource Type": problem.res_type,
         "Property": problem.prop_name,
-        "Problem": problem.message,
         "Your Input": _shorten_input(problem.input_value),
         "Input Type": problem.input_type,
     }
     non_empty_dict = {k: v for k, v in msg_dict.items() if v}
+    expected_and_message = _get_expected_message_dict(problem)
+    non_empty_dict.update(expected_and_message)
+    if problem.problem_type not in PROBLEM_TYPES_IGNORE_STR_ENUM_INFO:
+        non_empty_dict["Problem"] = str(problem.problem_type)
+    return non_empty_dict
+
+
+def _get_expected_message_dict(problem: InputProblem) -> dict[str, str]:
+    out_dict = {}
     if problem.expected:
         msg_str = problem.expected
         if prefix := _get_expected_prefix(problem.problem_type):
             msg_str = f"{prefix.strip()}: {msg_str}"
-        non_empty_dict["Expected"] = msg_str
-    return non_empty_dict
+        out_dict["Expected"] = msg_str
+    if problem.message:
+        if problem.expected:
+            out_dict["Message"] = problem.message
+        else:
+            out_dict["Expected"] = problem.message
+    return out_dict
 
 
 def _shorten_input(user_input: str | None) -> str | None:

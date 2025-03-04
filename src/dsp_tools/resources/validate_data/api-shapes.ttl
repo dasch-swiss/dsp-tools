@@ -80,8 +80,6 @@ api-shapes:booleanValueAsBoolean_Shape
   a           sh:PropertyShape ;
   sh:message  "The value must be a valid boolean" ;
   sh:path     knora-api:booleanValueAsBoolean ;
-  sh:minCount 1 ;
-  sh:maxCount 1 ;
   sh:datatype xsd:boolean ;
   sh:severity sh:Violation .
 
@@ -101,8 +99,6 @@ api-shapes:colorValueAsColor_Shape
   sh:message  "The value must be a valid color" ;
   sh:path     knora-api:colorValueAsColor ;
   sh:pattern  "^#([0-9a-fA-F]{3}){1,2}$" ;
-  sh:minCount 1 ;
-  sh:maxCount 1 ;
   sh:datatype xsd:string ;
   sh:severity sh:Violation .
 
@@ -122,8 +118,6 @@ api-shapes:valueAsString_Date_Shape
   a           sh:PropertyShape ;
   sh:message  "The value must be a valid date" ;
   sh:path     knora-api:valueAsString ;
-  sh:minCount 1 ;
-  sh:maxCount 1 ;
   sh:pattern  "\\s*\\S+\\s*" ;
   sh:datatype xsd:string ;
   sh:severity sh:Violation .
@@ -143,8 +137,6 @@ api-shapes:decimalValueAsDecimal_Shape
   a           sh:PropertyShape ;
   sh:message  "The value must be a valid decimal" ;
   sh:path     knora-api:decimalValueAsDecimal ;
-  sh:minCount 1 ;
-  sh:maxCount 1 ;
   sh:datatype xsd:decimal ;
   sh:severity sh:Violation .
 
@@ -246,8 +238,6 @@ api-shapes:intValueAsInt_Shape
   a           sh:PropertyShape ;
   sh:message  "The value must be a valid integer" ;
   sh:path     knora-api:intValueAsInt ;
-  sh:minCount 1 ;
-  sh:maxCount 1 ;
   sh:datatype xsd:integer ;
   sh:severity sh:Violation .
 
@@ -347,8 +337,6 @@ api-shapes:timeValueAsTimeStamp_Shape
   a           sh:PropertyShape ;
   sh:message  "The value must be a valid time stamp" ;
   sh:path     knora-api:timeValueAsTimeStamp ;
-  sh:minCount 1 ;
-  sh:maxCount 1 ;
   sh:datatype xsd:dateTimeStamp ;
   sh:severity sh:Violation .
 
@@ -367,8 +355,6 @@ api-shapes:uriValueAsUri_Shape
   a           sh:PropertyShape ;
   sh:message  "The value must be a valid URI" ;
   sh:path     knora-api:uriValueAsUri ;
-  sh:minCount 1 ;
-  sh:maxCount 1 ;
   sh:datatype xsd:anyURI ;
   sh:severity sh:Violation .
 

@@ -1,6 +1,7 @@
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
+import re
 from typing import cast
 
 import regex
@@ -245,10 +246,11 @@ def _get_prop_and_encoding_from_one_property(res_id: str, res_type: str, prop: e
 
 
 def _check_correctness_of_one_prop(text_val: TextValueData, text_prop_look_up: PropertyTextValueTypes) -> bool:
+    propname_without_prefix = re.sub(r"^.+(?=:.+)", "", text_val.property_name)
     match text_val.encoding:
         case "xml":
-            return text_val.property_name in text_prop_look_up.formatted_text_props
+            return propname_without_prefix in text_prop_look_up.formatted_text_props
         case "utf8":
-            return text_val.property_name in text_prop_look_up.unformatted_text_props
+            return propname_without_prefix in text_prop_look_up.unformatted_text_props
         case _:
             return False

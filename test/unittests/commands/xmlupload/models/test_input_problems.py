@@ -1,9 +1,10 @@
 from pathlib import Path
-import re
+
 import pytest
 from requests.exceptions import RequestException
 
-from dsp_tools.commands.xmlupload.models.input_problems import AllIIIFUriProblems, DuplicateBitstreamsProblem
+from dsp_tools.commands.xmlupload.models.input_problems import AllIIIFUriProblems
+from dsp_tools.commands.xmlupload.models.input_problems import DuplicateBitstreamsProblem
 from dsp_tools.commands.xmlupload.models.input_problems import IIIFUriProblem
 
 

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import warnings
-from collections import Counter
 from pathlib import Path
 
 import regex

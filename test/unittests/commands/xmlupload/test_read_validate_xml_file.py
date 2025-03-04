@@ -1,7 +1,8 @@
 import pytest
 from lxml import etree
 
-from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import _check_for_duplicate_bitstreams, _check_if_resptr_targets_exist
+from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import _check_for_duplicate_bitstreams
+from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import _check_if_resptr_targets_exist
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import _check_if_salsah_targets_exist
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 

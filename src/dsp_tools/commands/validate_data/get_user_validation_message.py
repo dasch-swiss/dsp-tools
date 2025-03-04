@@ -24,7 +24,7 @@ def get_user_message(problems: list[InputProblem], file_path: Path) -> str:
     Returns:
         Problem message
     """
-    if len(problems) > 5:
+    if len(problems) > 50:
         specific_message = _save_problem_info_as_csv(problems, file_path)
     else:
         specific_message = _get_problem_print_message(problems)

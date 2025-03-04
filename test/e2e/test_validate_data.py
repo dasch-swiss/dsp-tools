@@ -153,9 +153,9 @@ def test_extract_identifiers_of_resource_results(every_combination_once: Validat
     result = _extract_base_info_of_resource_results(report_and_onto, data_and_onto)
     result_sorted = sorted(result, key=lambda x: str(x.resource_iri))
     expected_iris = [
-        (URIRef("http://data/bitstream_no_legal_info"), BNode),
-        (URIRef("http://data/bitstream_no_legal_info"), BNode),
-        (URIRef("http://data/bitstream_no_legal_info"), BNode),
+        (URIRef("http://data/bitstream_no_legal_info"), None),
+        (URIRef("http://data/bitstream_no_legal_info"), None),
+        (URIRef("http://data/bitstream_no_legal_info"), None),
         (URIRef("http://data/empty_label"), None),
         (URIRef("http://data/geoname_not_number"), BNode),
         (URIRef("http://data/id_card_one"), None),
@@ -165,6 +165,7 @@ def test_extract_identifiers_of_resource_results(every_combination_once: Validat
         (URIRef("http://data/id_simpletext"), BNode),
         (URIRef("http://data/id_uri"), BNode),
         (URIRef("http://data/identical_values"), None),
+        (URIRef("http://data/image_no_legal_info"), None),
         (URIRef("http://data/image_no_legal_info"), None),
         (URIRef("http://data/image_no_legal_info"), None),
         (URIRef("http://data/image_no_legal_info"), None),
@@ -179,13 +180,13 @@ def test_extract_identifiers_of_resource_results(every_combination_once: Validat
     ]
     assert len(result) == len(expected_iris)
     for result_info, expected_iri in zip(result_sorted, expected_iris):
-        assert result_info.resource_iri == expected_iri[0]
+        assert result_info.resource_iri == expected_iri[0], f"Expected {expected_iri[0]}, got {result_info.resource_iri}"
         if expected_iri[1] is None:
             assert not result_info.detail
         else:
             detail_base_info = result_info.detail
-            assert isinstance(detail_base_info, DetailBaseInfo)
-            assert isinstance(detail_base_info.detail_bn, expected_iri[1])
+            assert isinstance(detail_base_info, DetailBaseInfo), f"Expected DetailBaseInfo, got {type(detail_base_info)}"
+            assert isinstance(detail_base_info.detail_bn, expected_iri[1]), f"Expected {expected_iri[1]} got detail_base_info.detail_bn"
 
 
 class TestCheckConforms:

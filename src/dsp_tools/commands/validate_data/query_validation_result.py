@@ -250,7 +250,7 @@ def _query_one_with_detail(
     detail_info = cast(DetailBaseInfo, base_info.detail)
     match detail_info.source_constraint_component:
         case SH.MinCountConstraintComponent:
-            # If the source shape is one of those then the problem is a value type violation.
+            # If the source shape is one either of the text values, then the problem is a value type violation.
             # However, this result is communicated through another shape, so we can ignore it.
             source_shape = next(results_and_onto.objects(detail_info.detail_bn, SH.sourceShape))
             if source_shape in {API_SHAPES.SimpleTextValue_PropShape, API_SHAPES.FormattedTextValue_PropShape}:

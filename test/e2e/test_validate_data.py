@@ -153,9 +153,9 @@ def test_extract_identifiers_of_resource_results(every_combination_once: Validat
     result = _extract_base_info_of_resource_results(report_and_onto, data_and_onto)
     result_sorted = sorted(result, key=lambda x: str(x.resource_iri))
     expected_iris = [
-        (URIRef("http://data/bitstream_no_legal_info"), None),
-        (URIRef("http://data/bitstream_no_legal_info"), None),
-        (URIRef("http://data/bitstream_no_legal_info"), None),
+        (URIRef("http://data/bitstream_no_legal_info"), BNode),
+        (URIRef("http://data/bitstream_no_legal_info"), BNode),
+        (URIRef("http://data/bitstream_no_legal_info"), BNode),
         (URIRef("http://data/empty_label"), None),
         (URIRef("http://data/geoname_not_number"), BNode),
         (URIRef("http://data/id_card_one"), None),
@@ -191,7 +191,7 @@ def test_extract_identifiers_of_resource_results(every_combination_once: Validat
                 f"Expected DetailBaseInfo, got {type(detail_base_info)}"
             )
             assert isinstance(detail_base_info.detail_bn, expected_iri[1]), (
-                f"Expected {expected_iri[1]} got detail_base_info.detail_bn"
+                f"Expected {expected_iri[1]} got {detail_base_info.detail_bn}"
             )
 
 

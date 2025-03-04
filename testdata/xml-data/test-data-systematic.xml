@@ -71,7 +71,7 @@
               restype=":TestThing"
               id="test_thing_1"
               permissions="open">
-        <text-prop name=":hasSimpleText">
+        <text-prop name="testonto:hasSimpleText">
             <text encoding="utf8">&lt;</text>
             <text encoding="utf8">&amp;lt;</text>
             <text encoding="utf8">text (&lt;2cm) text</text>
@@ -82,7 +82,7 @@
             <!-- <text encoding="utf8">&lt;em&gt;text&lt;/em&gt;</text>
             <text encoding="utf8">&lt;tag s=\"t\"&gt;</text> -->
         </text-prop>
-        <text-prop name=":hasTextArea">
+        <text-prop name="testonto:hasTextArea">
             <text encoding="utf8">&lt;</text>
             <text encoding="utf8">&amp;lt;</text>
             <text encoding="utf8">&amp;</text>
@@ -90,7 +90,7 @@
             <!-- <text encoding="utf8">&lt;em&gt;text&lt;/em&gt;</text>
             <text encoding="utf8">&lt;tag s=\"t\"&gt;</text>  -->
         </text-prop>
-        <text-prop name=":hasRichtext">
+        <text-prop name="testonto:hasRichtext">
             <text encoding="xml">&lt;</text>
             <text encoding="xml">&gt;</text>
             <text encoding="xml">&amp;</text>

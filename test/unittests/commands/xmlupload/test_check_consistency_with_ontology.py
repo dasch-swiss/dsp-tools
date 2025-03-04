@@ -555,6 +555,16 @@ class TestCheckCorrectnessOneProp:
         test_lookup = PropertyTextValueTypes(set(), set())
         assert _check_correctness_of_one_prop(test_val, test_lookup) is False
 
+    def test_xml_with_onto_prefix(self) -> None:
+        test_val = TextValueData("id", ":restype", "test-onto_2:prop", "xml")
+        test_lookup = PropertyTextValueTypes({":prop"}, set())
+        assert _check_correctness_of_one_prop(test_val, test_lookup) is True
+
+    def test_utf_with_onto_prefix(self) -> None:
+        test_val = TextValueData("id", ":restype", "test-onto_2:prop", "utf8")
+        test_lookup = PropertyTextValueTypes(set(), {":prop"})
+        assert _check_correctness_of_one_prop(test_val, test_lookup) is True
+
 
 def test_analyse_all_text_value_encodings_are_correct_all_good() -> None:
     test_ele = etree.fromstring(

@@ -1,4 +1,3 @@
-import re
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
@@ -54,14 +53,14 @@ def do_xml_consistency_check_with_ontology(onto_client: OntologyClient, root: et
     classes_in_data, properties_in_data = _get_all_classes_and_properties_from_data(root)
     problem_str = ""
     problem_str += _check_all_classes_and_properties_in_onto(classes_in_data, properties_in_data, cls_prop_lookup)
-    problem_str += _check_correctness_all_text_value_encodings(root, text_value_encoding_lookup)
+    problem_str += _check_correctness_all_text_value_encodings(root, text_value_encoding_lookup, onto_client.default_ontology)
     if problem_str:
         raise InputError(problem_str)
 
 
 def _get_onto_lookups(onto_client: OntologyClient) -> tuple[ProjectOntosInformation, PropertyTextValueTypes]:
     ontos = onto_client.get_all_project_ontologies_from_server()
-    text_value_encoding_lookup = get_text_value_types_of_properties_from_onto(ontos, onto_client.default_ontology)
+    text_value_encoding_lookup = get_text_value_types_of_properties_from_onto(ontos)
     ontos["knora-api"] = onto_client.get_knora_api_ontology_from_server()
     return make_project_onto_information(onto_client.default_ontology, ontos), text_value_encoding_lookup
 
@@ -176,7 +175,9 @@ def _get_separate_prefix_and_iri_from_onto_prop_or_cls(
         return None, None
 
 
-def _check_correctness_all_text_value_encodings(root: etree._Element, text_prop_look_up: PropertyTextValueTypes) -> str:
+def _check_correctness_all_text_value_encodings(
+    root: etree._Element, text_prop_look_up: PropertyTextValueTypes, default_onto_prefix: str
+) -> str:
     """
     This function analyses if all the encodings for the `<text>` elements are correct
     with respect to the specification in the ontology.
@@ -199,16 +200,12 @@ def _check_correctness_all_text_value_encodings(root: etree._Element, text_prop_
     </text-prop>
     ```
 
-    The accepted encodings are `xml` or `utf8`
-
-    Args:
-        root: root of the data xml document
-        text_prop_look_up: a lookup containing the property names and their specified types
+    The accepted encodings are `xml` or `utf8`.
 
     Returns:
         A string communicating the problem, if there are none the string is empty.
     """
-    text_values_in_data = _get_all_ids_and_props_and_encodings_from_root(root)
+    text_values_in_data = _get_all_ids_and_props_and_encodings_from_root(root, default_onto_prefix)
     invalid_text_values = [x for x in text_values_in_data if not _check_correctness_of_one_prop(x, text_prop_look_up)]
     if not invalid_text_values:
         return ""
@@ -223,34 +220,41 @@ def _check_correctness_all_text_value_encodings(root: etree._Element, text_prop_
     return msg
 
 
-def _get_all_ids_and_props_and_encodings_from_root(root: etree._Element) -> list[TextValueData]:
+def _get_all_ids_and_props_and_encodings_from_root(
+    root: etree._Element, default_onto_prefix: str
+) -> list[TextValueData]:
     res_list = []
     for res_input in root.iterchildren(tag="resource"):
-        res_list.extend(_get_id_and_props_and_encodings_from_one_resource(res_input))
+        res_list.extend(_get_id_and_props_and_encodings_from_one_resource(res_input, default_onto_prefix))
     return res_list
 
 
-def _get_id_and_props_and_encodings_from_one_resource(resource: etree._Element) -> list[TextValueData]:
+def _get_id_and_props_and_encodings_from_one_resource(
+    resource: etree._Element, default_onto_prefix: str
+) -> list[TextValueData]:
     res_id = resource.attrib["id"]
     res_type = resource.attrib["restype"]
     return [
-        _get_prop_and_encoding_from_one_property(res_id, res_type, child)
+        _get_prop_and_encoding_from_one_property(res_id, res_type, child, default_onto_prefix)
         for child in resource.iterchildren(tag="text-prop")
     ]
 
 
-def _get_prop_and_encoding_from_one_property(res_id: str, res_type: str, prop: etree._Element) -> TextValueData:
+def _get_prop_and_encoding_from_one_property(
+    res_id: str, res_type: str, prop: etree._Element, default_onto_prefix: str
+) -> TextValueData:
     prop_name = prop.attrib["name"]
+    if prop_name.startswith(":"):
+        prop_name = f"{default_onto_prefix}{prop_name}"
     encoding = cast(AllowedEncodings, prop[0].attrib["encoding"])
     return TextValueData(res_id, res_type, prop_name, encoding)
 
 
 def _check_correctness_of_one_prop(text_val: TextValueData, text_prop_look_up: PropertyTextValueTypes) -> bool:
-    propname_without_prefix = re.sub(r"^.+(?=:.+)", "", text_val.property_name)
     match text_val.encoding:
         case "xml":
-            return propname_without_prefix in text_prop_look_up.formatted_text_props
+            return text_val.property_name in text_prop_look_up.formatted_text_props
         case "utf8":
-            return propname_without_prefix in text_prop_look_up.unformatted_text_props
+            return text_val.property_name in text_prop_look_up.unformatted_text_props
         case _:
             return False

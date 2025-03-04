@@ -125,7 +125,7 @@ class PropertyTextValueTypes:
 
 
 def get_text_value_types_of_properties_from_onto(
-    onto_json_dict: dict[str, list[dict[str, Any]]], default_onto: str
+    onto_json_dict: dict[str, list[dict[str, Any]]]
 ) -> PropertyTextValueTypes:
     """
     This function takes a dict with the project ontologies in the format:
@@ -135,7 +135,6 @@ def get_text_value_types_of_properties_from_onto(
 
     Args:
         onto_json_dict: dict with the project ontologies
-        default_onto: name of the default ontology
 
     Returns:
         Look-up containing the properties separated according to the formatting
@@ -143,25 +142,21 @@ def get_text_value_types_of_properties_from_onto(
     all_props = []
     for onto_json in onto_json_dict.values():
         all_props.extend(_get_all_text_value_types_properties_and_from_onto(onto_json))
-    return _make_text_value_property_type_lookup(all_props, default_onto)
+    return _make_text_value_property_type_lookup(all_props)
 
 
 def _make_text_value_property_type_lookup(
-    prop_list: list[tuple[str, str]], default_onto: str
+    prop_list: list[tuple[str, str]]
 ) -> PropertyTextValueTypes:
     formatted_text = {
-        _remove_default_prefix(p, default_onto) for p, _type in prop_list if _type == "salsah-gui:Richtext"
+        p for p, _type in prop_list if _type == "salsah-gui:Richtext"
     }
     formatted_text.update(["hasComment", "hasDescription"])  # knora-api properties that can be used directly
     unformatted_text = {
-        _remove_default_prefix(p, default_onto) for p, _type in prop_list if _type != "salsah-gui:Richtext"
+        p for p, _type in prop_list if _type != "salsah-gui:Richtext"
     }
     unformatted_text.update(["hasTitle", "hasKeyword"])  # knora-api properties that can be used directly
     return PropertyTextValueTypes(formatted_text, unformatted_text)
-
-
-def _remove_default_prefix(prop_str: str, default_onto: str) -> str:
-    return regex.sub(rf"^{default_onto}:", ":", prop_str)
 
 
 def _get_all_text_value_types_properties_and_from_onto(onto_json: list[dict[str, Any]]) -> list[tuple[str, str]]:

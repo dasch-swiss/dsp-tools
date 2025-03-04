@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import warnings
+from collections import Counter
 from pathlib import Path
 
 import regex
 from lxml import etree
 
+from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.iri_util import is_resource_iri
 from dsp_tools.utils.xml_parsing.parse_xml import parse_xml_file
@@ -25,7 +28,7 @@ def prepare_input_xml_file(input_file: Path, imgdir: str) -> tuple[etree._Elemen
         The root element of the parsed XML file, the shortcode, and the default ontology
     """
     root, shortcode, default_ontology = validate_and_parse(input_file)
-    check_if_bitstreams_exist(root, imgdir)
+    _check_if_bitstreams_exist(root, imgdir)
     return root, shortcode, default_ontology
 
 
@@ -96,7 +99,7 @@ def _check_if_salsah_targets_exist(root: etree._Element) -> list[str]:
     return errors
 
 
-def check_if_bitstreams_exist(root: etree._Element, imgdir: str) -> None:
+def _check_if_bitstreams_exist(root: etree._Element, imgdir: str) -> None:
     """
     Make sure that all bitstreams referenced in the XML file exist in the imgdir.
 
@@ -114,3 +117,30 @@ def check_if_bitstreams_exist(root: etree._Element, imgdir: str) -> None:
             raise UserError(
                 f"Bitstream '{pth!s}' of resource '{res.attrib['label']}' does not exist in the imgdir '{imgdir}'."
             )
+
+
+def _check_for_duplicate_bitstreams(root: etree._Element, imgdir: str) -> None:
+    """
+    Make sure that all bitstreams referenced in the XML file exist in the imgdir.
+
+    Args:
+        root: parsed XML file
+        imgdir: folder where the bitstreams are stored
+
+    Raises:
+        UserError: if a bitstream does not exist in the imgdir
+    """
+    multimedia_resources = [x for x in root if any((y.tag == "bitstream" for y in x.iter()))]
+    bitstreams = [
+        next(Path(imgdir) / x.text.strip() for x in res.iter() if x.tag == "bitstream" and x.text)
+        for res in multimedia_resources
+    ]
+    if len(bitstreams) != len(set(bitstreams)):
+        msg = _compile_duplicate_bitstreams_msg(bitstreams)
+        warnings.warn(DspToolsUserWarning(msg))
+
+
+def _compile_duplicate_bitstreams_msg(bitstreams: list[Path]) -> str:
+    counter = Counter(bitstreams)
+    duplicates = [x for x in counter if counter[x] > 1]
+    return str(duplicates)

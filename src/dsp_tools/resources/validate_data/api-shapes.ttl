@@ -70,11 +70,11 @@ api-shapes:rdfsLabel_Shape
 ##############
 
 api-shapes:BooleanValue_ClassShape
-  a              sh:NodeShape ;
-  sh:name        "Validates the class type" ;
-  sh:message     "BooleanValue" ;
-  sh:property    api-shapes:valueHasComment_Shape ;
-  sh:severity    sh:Violation .
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "BooleanValue" ;
+  sh:property api-shapes:valueHasComment_Shape ;
+  sh:severity sh:Violation .
 
 
 ##############
@@ -82,11 +82,11 @@ api-shapes:BooleanValue_ClassShape
 ##############
 
 api-shapes:ColorValue_ClassShape
-  a              sh:NodeShape ;
-  sh:name        "Validates the class type" ;
-  sh:message     "ColorValue" ;
-  sh:property    api-shapes:colorValueAsColor_Shape, api-shapes:valueHasComment_Shape ;
-  sh:severity    sh:Violation .
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "ColorValue" ;
+  sh:property api-shapes:colorValueAsColor_Shape, api-shapes:valueHasComment_Shape ;
+  sh:severity sh:Violation .
 
 api-shapes:colorValueAsColor_Shape
   a           sh:PropertyShape ;
@@ -102,11 +102,11 @@ api-shapes:colorValueAsColor_Shape
 ##############
 
 api-shapes:DateValue_ClassShape
-  a              sh:NodeShape ;
-  sh:name        "Validates the class type" ;
-  sh:message     "DateValue" ;
-  sh:property    api-shapes:valueHasComment_Shape ;
-  sh:severity    sh:Violation .
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "DateValue" ;
+  sh:property api-shapes:valueHasComment_Shape ;
+  sh:severity sh:Violation .
 
 
 ##############
@@ -114,11 +114,11 @@ api-shapes:DateValue_ClassShape
 ##############
 
 api-shapes:DecimalValue_ClassShape
-  a              sh:NodeShape ;
-  sh:name        "Validates the class type" ;
-  sh:message     "DecimalValue" ;
-  sh:property    api-shapes:valueHasComment_Shape ;
-  sh:severity    sh:Violation .
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "DecimalValue" ;
+  sh:property api-shapes:valueHasComment_Shape ;
+  sh:severity sh:Violation .
 
 
 ##############
@@ -126,11 +126,11 @@ api-shapes:DecimalValue_ClassShape
 ##############
 
 api-shapes:GeonameValue_ClassShape
-  a              sh:NodeShape ;
-  sh:name        "Validates the class type" ;
-  sh:message     "GeonameValue" ;
-  sh:property    api-shapes:geonameValueAsGeonameCode_Shape, api-shapes:valueHasComment_Shape ;
-  sh:severity    sh:Violation .
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "GeonameValue" ;
+  sh:property api-shapes:geonameValueAsGeonameCode_Shape, api-shapes:valueHasComment_Shape ;
+  sh:severity sh:Violation .
 
 api-shapes:geonameValueAsGeonameCode_Shape
   a           sh:PropertyShape ;
@@ -146,12 +146,11 @@ api-shapes:geonameValueAsGeonameCode_Shape
 ##############
 
 api-shapes:GeomValue_ClassShape
-  a              sh:NodeShape ;
-  sh:name        "Validates the class type" ;
-  sh:message     "GeomValue" ;
-  sh:property    api-shapes:geometryValueAsGeometry_Shape, api-shapes:valueHasComment_Shape ;
-  sh:targetClass knora-api:GeomValue ;
-  sh:severity    sh:Violation .
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "GeomValue" ;
+  sh:property api-shapes:geometryValueAsGeometry_Shape, api-shapes:valueHasComment_Shape ;
+  sh:severity sh:Violation .
 
 api-shapes:geometryValueAsGeometry_Shape
   a           sh:PropertyShape ;
@@ -167,18 +166,18 @@ api-shapes:geometryValueAsGeometry_Shape
 ##############
 
 api-shapes:IntervalValue_ClassShape
-  a              sh:NodeShape ;
-  sh:name        "Validates the class type" ;
-  sh:message     "IntervalValue" ;
-  sh:property    [
-                   sh:path knora-api:intervalValueHasStart ;
-		               sh:lessThan knora-api:intervalValueHasEnd ;
-                   sh:message "The start of the interval must be smaller than the end." ;
-                   sh:severity sh:Violation ;
-                 ] ,
-                 api-shapes:valueHasComment_Shape ,
-                 api-shapes:intervalValueHasStart_PropShape ,
-                 api-shapes:intervalValueHasEnd_PropShape ;
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "IntervalValue" ;
+  sh:property [
+                sh:path knora-api:intervalValueHasStart ;
+		            sh:lessThan knora-api:intervalValueHasEnd ;
+                sh:message "The start of the interval must be smaller than the end." ;
+                sh:severity sh:Violation ;
+              ] ,
+              api-shapes:valueHasComment_Shape ,
+              api-shapes:intervalValueHasStart_PropShape ,
+              api-shapes:intervalValueHasEnd_PropShape ;
   sh:severity sh:Violation .
 
 
@@ -210,11 +209,11 @@ api-shapes:intervalValueHasEnd_PropShape
 ##############
 
 api-shapes:IntValue_ClassShape
-  a              sh:NodeShape ;
-  sh:name        "Validates the class type" ;
-  sh:message     "IntValue" ;
-  sh:property    api-shapes:valueHasComment_Shape ;
-  sh:severity    sh:Violation .
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "IntValue" ;
+  sh:property api-shapes:valueHasComment_Shape ;
+  sh:severity sh:Violation .
 
 
 ##############
@@ -222,11 +221,11 @@ api-shapes:IntValue_ClassShape
 ##############
 
 api-shapes:LinkValue_ClassShape
-  a              sh:NodeShape ;
-  sh:name        "Validates the class type" ;
-  sh:message     "LinkValue" ;
-  sh:property    api-shapes:valueHasComment_Shape ;
-  sh:severity    sh:Violation .
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "LinkValue" ;
+  sh:property api-shapes:valueHasComment_Shape ;
+  sh:severity sh:Violation .
 
 
 ##############
@@ -234,11 +233,11 @@ api-shapes:LinkValue_ClassShape
 ##############
 
 api-shapes:ListValue_ClassShape
-  a              sh:NodeShape ;
-  sh:name        "Validates the class type" ;
-  sh:message     "ListValue" ;
-  sh:property    api-shapes:valueHasComment_Shape ;
-  sh:severity    sh:Violation .
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "ListValue" ;
+  sh:property api-shapes:valueHasComment_Shape ;
+  sh:severity sh:Violation .
 
 
 ##############
@@ -303,11 +302,11 @@ api-shapes:textValueAsXml_Shape
 ##############
 
 api-shapes:TimeValue_ClassShape
-  a              sh:NodeShape ;
-  sh:name        "Validates the class type" ;
-  sh:message     "TimeValue" ;
-  sh:property    api-shapes:valueHasComment_Shape ;
-  sh:severity    sh:Violation .
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "TimeValue" ;
+  sh:property api-shapes:valueHasComment_Shape ;
+  sh:severity sh:Violation .
 
 
 ##############
@@ -315,11 +314,11 @@ api-shapes:TimeValue_ClassShape
 ##############
 
 api-shapes:UriValue_ClassShape
-  a              sh:NodeShape ;
-  sh:name        "Validates the class type" ;
-  sh:message     "UriValue" ;
-  sh:property    api-shapes:valueHasComment_Shape ;
-  sh:severity    sh:Violation .
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "UriValue" ;
+  sh:property api-shapes:valueHasComment_Shape ;
+  sh:severity sh:Violation .
 
 
 #########################################
@@ -507,11 +506,11 @@ api-shapes:hasKeyword_PropertyShape
 ### knora-api:hasStandoffLinkTo
 
 api-shapes:hasStandoffLinkTo_TargetMustExistPropertyShape
-  a              sh:PropertyShape ;
-  sh:path        knora-api:hasStandoffLinkTo ;
-  sh:targetClass knora-api:Resource ;
-  sh:message     "A stand-off link must target an existing resource." ;
-  sh:severity    sh:Violation .
+  a sh:PropertyShape ;
+  sh:path knora-api:hasStandoffLinkTo ;
+  sh:class knora-api:Resource ;
+  sh:message "A stand-off link must target an existing resource." ;
+  sh:severity sh:Violation .
 
 
 #########################################

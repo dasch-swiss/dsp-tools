@@ -9,6 +9,7 @@ from rdflib import Literal
 from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.constants import DASH
+from dsp_tools.commands.validate_data.constants import FILE_VALUE_CLASSES_TO_PROPS
 from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROP_SHAPES
 from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROPERTIES
 from dsp_tools.commands.validate_data.constants import KNORA_API
@@ -32,7 +33,6 @@ from dsp_tools.commands.validate_data.utils import reformat_data_iri
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.models.exceptions import BaseError
 
-STILL_IMAGE_VALUE_CLASSES = {KNORA_API.StillImageFileValue, KNORA_API.StillImageExternalFileValue}
 LEGAL_INFO_PROPS = {KNORA_API.hasLicense, KNORA_API.hasCopyrightHolder, KNORA_API.hasAuthorship}
 
 
@@ -88,7 +88,7 @@ def _extract_base_info_of_resource_results(
 ) -> list[ValidationResultBaseInfo]:
     focus_nodes = list(results_and_onto.subject_objects(SH.focusNode))
     resource_classes = list(data_onto_graph.subjects(KNORA_API.canBeInstantiated, Literal(True)))
-    resource_classes.extend(STILL_IMAGE_VALUE_CLASSES)
+    resource_classes.extend(FILE_VALUE_CLASSES_TO_PROPS.keys())
     all_res_focus_nodes = []
     for nd in focus_nodes:
         focus_iri = nd[1]
@@ -129,8 +129,9 @@ def _extract_one_base_info(
     else:
         resource_iri = info.focus_iri
         resource_type = info.focus_rdf_type
-        if info.focus_rdf_type in STILL_IMAGE_VALUE_CLASSES:
-            resource_iri = next(data_onto_graph.subjects(KNORA_API.hasStillImageFileValue, info.focus_iri))
+        if info.focus_rdf_type in FILE_VALUE_CLASSES_TO_PROPS:
+            fcs_type = cast(URIRef, info.focus_rdf_type)
+            resource_iri = next(data_onto_graph.subjects(FILE_VALUE_CLASSES_TO_PROPS[fcs_type], info.focus_iri))
             resource_type = next(data_onto_graph.objects(resource_iri, RDF.type))
         results.append(
             ValidationResultBaseInfo(

@@ -165,6 +165,8 @@ def test_extract_identifiers_of_resource_results(every_combination_once: Validat
         (URIRef("http://data/id_simpletext"), BNode),
         (URIRef("http://data/id_uri"), BNode),
         (URIRef("http://data/identical_values"), None),
+        (URIRef("http://data/inexistent_license_iri"), None),
+        (URIRef("http://data/image_no_legal_info"), None),
         (URIRef("http://data/image_no_legal_info"), None),
         (URIRef("http://data/image_no_legal_info"), None),
         (URIRef("http://data/image_no_legal_info"), None),
@@ -402,6 +404,7 @@ class TestReformatValidationGraph:
             ("id_simpletext", ProblemType.VALUE_TYPE_MISMATCH),
             ("id_uri", ProblemType.VALUE_TYPE_MISMATCH),
             ("identical_values", ProblemType.DUPLICATE_VALUE),
+            ("inexistent_license_iri", ProblemType.GENERIC),
             ("image_no_legal_info", ProblemType.GENERIC),
             ("image_no_legal_info", ProblemType.GENERIC),
             ("image_no_legal_info", ProblemType.GENERIC),
@@ -443,6 +446,7 @@ class TestReformatValidationGraph:
             ("bitstream_no_legal_info", ProblemType.GENERIC),
             ("bitstream_no_legal_info", ProblemType.GENERIC),
             ("bitstream_no_legal_info", ProblemType.GENERIC),
+            ("empty_license", ProblemType.GENERIC),
             ("id_archive_missing", ProblemType.FILE_VALUE),
             ("id_archive_unknown", ProblemType.FILE_VALUE),
             ("id_audio_missing", ProblemType.FILE_VALUE),
@@ -463,6 +467,7 @@ class TestReformatValidationGraph:
             ("image_no_legal_info", ProblemType.GENERIC),
             ("image_no_legal_info", ProblemType.GENERIC),
             ("image_no_legal_info", ProblemType.GENERIC),
+            ("inexistent_license_iri", ProblemType.GENERIC),
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)

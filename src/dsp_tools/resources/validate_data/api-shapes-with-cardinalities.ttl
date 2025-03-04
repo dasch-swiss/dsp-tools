@@ -410,6 +410,16 @@ api-shapes:StillImageFileValue_ClassShape
               api-shapes:hasPermissions_Cardinality ;
   sh:severity sh:Violation .
 
+api-shapes:StillImageFileValue_LegalInfo
+  a              sh:NodeShape ;
+  sh:name        "Validates the cardinalities of legal information." ;
+  sh:message     "StillImageFileValue" ;
+  sh:targetClass knora-api:StillImageFileValue ;
+  sh:property    api-shapes:hasLicense_PropShape ,
+                 api-shapes:hasAuthorship_PropShape ,
+                 api-shapes:hasCopyrightHolder_PropShape ;
+  sh:severity    sh:Violation .
+
 
 ###
 # StillImageExternalFileValue
@@ -430,6 +440,16 @@ api-shapes:StillImageExternalFileValue_ClassShape
               ] ,
               api-shapes:hasPermissions_Cardinality ;
   sh:severity sh:Violation .
+
+api-shapes:StillImageExternalFileValue_LegalInfo
+  a              sh:NodeShape ;
+  sh:name        "Validates the cardinalities of legal information." ;
+  sh:message     "StillImageFileValue" ;
+  sh:targetClass knora-api:StillImageExternalFileValue ;
+  sh:property    api-shapes:hasLicense_PropShape ,
+                 api-shapes:hasAuthorship_PropShape ,
+                 api-shapes:hasCopyrightHolder_PropShape ;
+  sh:severity    sh:Violation .
 
 
 ###########################

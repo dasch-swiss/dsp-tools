@@ -32,6 +32,9 @@ from dsp_tools.commands.validate_data.utils import reformat_data_iri
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.models.exceptions import BaseError
 
+STILL_IMAGE_VALUE_CLASSES = {KNORA_API.StillImageFileValue, KNORA_API.StillImageExternalFileValue}
+LEGAL_INFO_PROPS = {KNORA_API.hasLicense, KNORA_API.hasCopyrightHolder, KNORA_API.hasAuthorship}
+
 
 def reformat_validation_graph(report: ValidationReportGraphs) -> AllProblems:
     """
@@ -85,6 +88,7 @@ def _extract_base_info_of_resource_results(
 ) -> list[ValidationResultBaseInfo]:
     focus_nodes = list(results_and_onto.subject_objects(SH.focusNode))
     resource_classes = list(data_onto_graph.subjects(KNORA_API.canBeInstantiated, Literal(True)))
+    resource_classes.extend(STILL_IMAGE_VALUE_CLASSES)
     all_res_focus_nodes = []
     for nd in focus_nodes:
         focus_iri = nd[1]
@@ -95,11 +99,13 @@ def _extract_base_info_of_resource_results(
                 focus_iri=focus_iri,
                 focus_rdf_type=res_type,
             )
-            all_res_focus_nodes.extend(_extract_one_base_info(info, results_and_onto))
+            all_res_focus_nodes.extend(_extract_one_base_info(info, results_and_onto, data_onto_graph))
     return all_res_focus_nodes
 
 
-def _extract_one_base_info(info: QueryInfo, results_and_onto: Graph) -> list[ValidationResultBaseInfo]:
+def _extract_one_base_info(
+    info: QueryInfo, results_and_onto: Graph, data_onto_graph: Graph
+) -> list[ValidationResultBaseInfo]:
     results = []
     path = next(results_and_onto.objects(info.validation_bn, SH.resultPath))
     main_component_type = next(results_and_onto.objects(info.validation_bn, SH.sourceConstraintComponent))
@@ -121,12 +127,17 @@ def _extract_one_base_info(info: QueryInfo, results_and_onto: Graph) -> list[Val
                 )
             )
     else:
+        resource_iri = info.focus_iri
+        resource_type = info.focus_rdf_type
+        if info.focus_rdf_type in STILL_IMAGE_VALUE_CLASSES:
+            resource_iri = next(data_onto_graph.subjects(KNORA_API.hasStillImageFileValue, info.focus_iri))
+            resource_type = next(data_onto_graph.objects(resource_iri, RDF.type))
         results.append(
             ValidationResultBaseInfo(
                 result_bn=info.validation_bn,
                 source_constraint_component=main_component_type,
-                resource_iri=info.focus_iri,
-                res_class_type=info.focus_rdf_type,
+                resource_iri=resource_iri,
+                res_class_type=resource_type,
                 result_path=path,
                 detail=None,
             )
@@ -342,6 +353,8 @@ def _query_for_min_cardinality_violation(
     source_shape = next(results_and_onto.objects(base_info.result_bn, SH.sourceShape))
     if source_shape in FILE_VALUE_PROP_SHAPES:
         violation_type = ViolationType.FILE_VALUE
+    elif base_info.result_path in LEGAL_INFO_PROPS:
+        violation_type = ViolationType.GENERIC
     else:
         violation_type = ViolationType.MIN_CARD
     return ValidationResult(

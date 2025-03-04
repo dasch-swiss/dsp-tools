@@ -81,7 +81,10 @@
         -->
         <resource label="Image with sequence" restype="in-built:TestStillImageRepresentationWithSeqnum"
                   id="missing_seqnum">
-            <bitstream>this/is/filepath/file.jpg</bitstream>
+            <bitstream license="http://rdfh.ch/licenses/unknown"
+                       copyright-holder="DaSCH"
+                       authorship-id="authorship_1"
+            >this/is/filepath/file.jpg</bitstream>
             <resptr-prop name="isPartOf">
                 <resptr>target_res_without_representation_1</resptr>
             </resptr-prop>
@@ -196,9 +199,16 @@
         sh:sourceConstraintComponent  sh:NodeConstraintComponent
         sh:detail                     sh:MinCountConstraintComponent
         -->
-
         <resource label="Missing legal info" restype=":TestMovingImageRepresentation" id="bitstream_no_legal_info">
             <bitstream>this/is/filepath/file.mp4</bitstream>
+        </resource>
+
+        <!--
+        sh:sourceConstraintComponent  sh:NodeConstraintComponent
+        sh:detail                     sh:MinCountConstraintComponent
+        -->
+        <resource label="TestStillImageRepresentation Bitstream" restype=":TestStillImageRepresentation" id="image_no_legal_info">
+            <bitstream>this/is/filepath/file.jp2</bitstream>
         </resource>
 
         <!--

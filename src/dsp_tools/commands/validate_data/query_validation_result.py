@@ -192,7 +192,7 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
                 res_class=base_info.res_class_type,
                 message=msg,
             )
-        case SH.ClassConstraintComponent:
+        case SH.ClassConstraintComponent | SH.InConstraintComponent:
             val = next(results_and_onto.objects(base_info.result_bn, SH.value))
             return ValidationResult(
                 violation_type=ViolationType.GENERIC,

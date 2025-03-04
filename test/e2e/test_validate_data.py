@@ -446,6 +446,7 @@ class TestReformatValidationGraph:
             ("bitstream_no_legal_info", ProblemType.GENERIC),
             ("bitstream_no_legal_info", ProblemType.GENERIC),
             ("bitstream_no_legal_info", ProblemType.GENERIC),
+            ("empty_license", ProblemType.GENERIC),
             ("id_archive_missing", ProblemType.FILE_VALUE),
             ("id_archive_unknown", ProblemType.FILE_VALUE),
             ("id_audio_missing", ProblemType.FILE_VALUE),
@@ -466,6 +467,7 @@ class TestReformatValidationGraph:
             ("image_no_legal_info", ProblemType.GENERIC),
             ("image_no_legal_info", ProblemType.GENERIC),
             ("image_no_legal_info", ProblemType.GENERIC),
+            ("inexistent_license_iri", ProblemType.GENERIC),
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)

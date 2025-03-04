@@ -10,9 +10,9 @@
         <author>Author One</author>
     </authorship>
 
-    <!-- 19 Violations -->
+    <!-- 21 Violations -->
 
-    <!-- 4 Legal Info Violations (not implemented) -->
+    <!-- 2 Legal Info Violations (not implemented) -->
 
     <!--
     The xsd validation library used in the code is not able to recognise if a referenced ID does not exist in the file
@@ -28,22 +28,6 @@
     <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="empty_copyright_holder">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-holder=""
-                   authorship-id="authorship_1"
-        >this/is/filepath/file.zip
-        </bitstream>
-    </resource>
-
-    <resource label="TestStillImageRepresentation Bitstream" restype=":TestStillImageRepresentation" id="empty_license">
-        <bitstream license=""
-                   copyright-holder="DaSCH"
-                   authorship-id="authorship_1"
-        >this/is/filepath/file.jp2
-        </bitstream>
-    </resource>
-
-    <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="inexistent_license_iri">
-        <bitstream license="http://rdfh.ch/licenses/this-iri-does-not-exist"
-                   copyright-holder="DaSCH"
                    authorship-id="authorship_1"
         >this/is/filepath/file.zip
         </bitstream>
@@ -146,6 +130,24 @@
 
     <resource label="TestStillImageRepresentation Bitstream" restype=":TestStillImageRepresentation" id="image_no_legal_info">
         <bitstream>this/is/filepath/file.jp2</bitstream>
+    </resource>
+
+    <!-- Erroneous Legal Info -->
+
+    <resource label="TestStillImageRepresentation Bitstream" restype=":TestStillImageRepresentation" id="empty_license">
+        <bitstream license=""
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.jp2
+        </bitstream>
+    </resource>
+
+    <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="inexistent_license_iri">
+        <bitstream license="http://rdfh.ch/licenses/this-iri-does-not-exist"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.zip
+        </bitstream>
     </resource>
 
 </knora>

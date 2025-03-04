@@ -7,8 +7,8 @@ from rdflib import SH
 from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
-from unittests.commands.validate_data.constants import API_SHAPES
 
+from dsp_tools.commands.validate_data.constants import API_SHAPES
 from dsp_tools.commands.validate_data.constants import DASH
 from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROP_SHAPES
 from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROPERTIES

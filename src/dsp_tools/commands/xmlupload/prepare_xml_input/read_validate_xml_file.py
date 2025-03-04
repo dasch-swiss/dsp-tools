@@ -29,6 +29,7 @@ def prepare_input_xml_file(input_file: Path, imgdir: str) -> tuple[etree._Elemen
     """
     root, shortcode, default_ontology = validate_and_parse(input_file)
     _check_if_bitstreams_exist(root, imgdir)
+    _check_for_duplicate_bitstreams(root, imgdir)
     return root, shortcode, default_ontology
 
 

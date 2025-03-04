@@ -73,9 +73,17 @@ api-shapes:BooleanValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
   sh:message  "BooleanValue" ;
-  sh:property api-shapes:valueHasComment_Shape ;
+  sh:property api-shapes:booleanValueAsBoolean_Shape , api-shapes:valueHasComment_Shape ;
   sh:severity sh:Violation .
 
+api-shapes:booleanValueAsBoolean_Shape
+  a           sh:PropertyShape ;
+  sh:message  "The value must be a valid boolean" ;
+  sh:path     knora-api:booleanValueAsBoolean ;
+  sh:minCount 1 ;
+  sh:maxCount 1 ;
+  sh:datatype xsd:boolean ;
+  sh:severity sh:Violation .
 
 ##############
 # ColorValue
@@ -93,6 +101,8 @@ api-shapes:colorValueAsColor_Shape
   sh:message  "The value must be a valid color" ;
   sh:path     knora-api:colorValueAsColor ;
   sh:pattern  "^#([0-9a-fA-F]{3}){1,2}$" ;
+  sh:minCount 1 ;
+  sh:maxCount 1 ;
   sh:datatype xsd:string ;
   sh:severity sh:Violation .
 
@@ -105,9 +115,18 @@ api-shapes:DateValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
   sh:message  "DateValue" ;
-  sh:property api-shapes:valueHasComment_Shape ;
+  sh:property api-shapes:valueAsString_Date_Shape , api-shapes:valueHasComment_Shape ;
   sh:severity sh:Violation .
 
+api-shapes:valueAsString_Date_Shape
+  a           sh:PropertyShape ;
+  sh:message  "The value must be a valid date" ;
+  sh:path     knora-api:valueAsString ;
+  sh:minCount 1 ;
+  sh:maxCount 1 ;
+  sh:pattern  "\\s*\\S+\\s*" ;
+  sh:datatype xsd:string ;
+  sh:severity sh:Violation .
 
 ##############
 # DecimalValue
@@ -117,9 +136,17 @@ api-shapes:DecimalValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
   sh:message  "DecimalValue" ;
-  sh:property api-shapes:valueHasComment_Shape ;
+  sh:property api-shapes:decimalValueAsDecimal_Shape , api-shapes:valueHasComment_Shape ;
   sh:severity sh:Violation .
 
+api-shapes:decimalValueAsDecimal_Shape
+  a           sh:PropertyShape ;
+  sh:message  "The value must be a valid decimal" ;
+  sh:path     knora-api:decimalValueAsDecimal ;
+  sh:minCount 1 ;
+  sh:maxCount 1 ;
+  sh:datatype xsd:decimal ;
+  sh:severity sh:Violation .
 
 ##############
 # GeonameValue
@@ -212,9 +239,17 @@ api-shapes:IntValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
   sh:message  "IntValue" ;
-  sh:property api-shapes:valueHasComment_Shape ;
+  sh:property api-shapes:intValueAsInt_Shape , api-shapes:valueHasComment_Shape ;
   sh:severity sh:Violation .
 
+api-shapes:intValueAsInt_Shape
+  a           sh:PropertyShape ;
+  sh:message  "The value must be a valid integer" ;
+  sh:path     knora-api:intValueAsInt ;
+  sh:minCount 1 ;
+  sh:maxCount 1 ;
+  sh:datatype xsd:integer ;
+  sh:severity sh:Violation .
 
 ##############
 # LinkValue
@@ -305,9 +340,17 @@ api-shapes:TimeValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
   sh:message  "TimeValue" ;
-  sh:property api-shapes:valueHasComment_Shape ;
+  sh:property api-shapes:timeValueAsTimeStamp_Shape , api-shapes:valueHasComment_Shape ;
   sh:severity sh:Violation .
 
+api-shapes:timeValueAsTimeStamp_Shape
+  a           sh:PropertyShape ;
+  sh:message  "The value must be a valid time stamp" ;
+  sh:path     knora-api:timeValueAsTimeStamp ;
+  sh:minCount 1 ;
+  sh:maxCount 1 ;
+  sh:datatype xsd:dateTimeStamp ;
+  sh:severity sh:Violation .
 
 ##############
 # UriValue
@@ -317,9 +360,17 @@ api-shapes:UriValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
   sh:message  "UriValue" ;
-  sh:property api-shapes:valueHasComment_Shape ;
+  sh:property api-shapes:uriValueAsUri_Shape , api-shapes:valueHasComment_Shape ;
   sh:severity sh:Violation .
 
+api-shapes:uriValueAsUri_Shape
+  a           sh:PropertyShape ;
+  sh:message  "The value must be a valid URI" ;
+  sh:path     knora-api:uriValueAsUri ;
+  sh:minCount 1 ;
+  sh:maxCount 1 ;
+  sh:datatype xsd:anyURI ;
+  sh:severity sh:Violation .
 
 #########################################
 # KNORA-API IN-BUILT PROPERTIES

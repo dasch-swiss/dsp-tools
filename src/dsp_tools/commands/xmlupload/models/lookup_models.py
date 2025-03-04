@@ -5,7 +5,6 @@ from dataclasses import field
 from typing import Any
 from typing import Literal
 
-import regex
 from rdflib import URIRef
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
@@ -125,7 +124,7 @@ class PropertyTextValueTypes:
 
 
 def get_text_value_types_of_properties_from_onto(
-    onto_json_dict: dict[str, list[dict[str, Any]]]
+    onto_json_dict: dict[str, list[dict[str, Any]]],
 ) -> PropertyTextValueTypes:
     """
     This function takes a dict with the project ontologies in the format:
@@ -145,16 +144,10 @@ def get_text_value_types_of_properties_from_onto(
     return _make_text_value_property_type_lookup(all_props)
 
 
-def _make_text_value_property_type_lookup(
-    prop_list: list[tuple[str, str]]
-) -> PropertyTextValueTypes:
-    formatted_text = {
-        p for p, _type in prop_list if _type == "salsah-gui:Richtext"
-    }
+def _make_text_value_property_type_lookup(prop_list: list[tuple[str, str]]) -> PropertyTextValueTypes:
+    formatted_text = {p for p, _type in prop_list if _type == "salsah-gui:Richtext"}
     formatted_text.update(["hasComment", "hasDescription"])  # knora-api properties that can be used directly
-    unformatted_text = {
-        p for p, _type in prop_list if _type != "salsah-gui:Richtext"
-    }
+    unformatted_text = {p for p, _type in prop_list if _type != "salsah-gui:Richtext"}
     unformatted_text.update(["hasTitle", "hasKeyword"])  # knora-api properties that can be used directly
     return PropertyTextValueTypes(formatted_text, unformatted_text)
 

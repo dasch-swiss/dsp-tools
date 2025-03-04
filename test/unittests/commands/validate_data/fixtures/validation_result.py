@@ -231,6 +231,7 @@ def report_value_type_simpletext(onto_graph: Graph) -> tuple[Graph, Graph, Valid
 
     _:bn_id_simpletext a sh:ValidationResult ;
         sh:focusNode <http://data/value_id_simpletext> ;
+        sh:focusNode <http://data/value_id_simpletext> ;
         sh:resultMessage "TextValue without formatting" ;
         sh:resultPath knora-api:valueAsString ;
         sh:resultSeverity sh:Violation ;

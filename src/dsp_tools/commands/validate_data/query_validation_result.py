@@ -201,6 +201,8 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
                 message=msg,
                 input_value=val,
             )
+        case SH.XoneConstraintComponent:
+            return None
         case _:
             return UnexpectedComponent(str(component))
 

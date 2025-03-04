@@ -33,7 +33,7 @@
         </bitstream>
     </resource>
 
-    <resource label="TTestStillImageRepresentation Bitstream" restype=":TestStillImageRepresentation" id="empty_license">
+    <resource label="TestStillImageRepresentation Bitstream" restype=":TestStillImageRepresentation" id="empty_license">
         <bitstream license=""
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"

@@ -7,7 +7,6 @@ from dsp_tools.commands.xmlupload.models.lookup_models import _get_all_classes_f
 from dsp_tools.commands.xmlupload.models.lookup_models import _get_all_properties_from_onto
 from dsp_tools.commands.xmlupload.models.lookup_models import _get_all_text_value_types_properties_and_from_onto
 from dsp_tools.commands.xmlupload.models.lookup_models import _make_text_value_property_type_lookup
-from dsp_tools.commands.xmlupload.models.lookup_models import _remove_default_prefix
 from dsp_tools.commands.xmlupload.models.lookup_models import _remove_prefixes
 
 
@@ -272,33 +271,15 @@ def test_make_text_value_property_gui() -> None:
         ("other_onto:hasRichtext", "salsah-gui:Richtext"),
         ("onto:ontoHasSimpleText", "salsah-gui:SimpleText"),
     ]
-    res = _make_text_value_property_type_lookup(test_list, "onto")
-    assert res.formatted_text_props == {":hasRichtext", "other_onto:hasRichtext", "hasComment", "hasDescription"}
+    res = _make_text_value_property_type_lookup(test_list)
+    assert res.formatted_text_props == {"onto:hasRichtext", "other_onto:hasRichtext", "hasComment", "hasDescription"}
     assert res.unformatted_text_props == {
-        ":hasSimpleText",
+        "onto:hasSimpleText",
         "onto_other:hasTextarea",
-        ":ontoHasSimpleText",
+        "onto:ontoHasSimpleText",
         "hasTitle",
         "hasKeyword",
     }
-
-
-class TestRemoveDefaultPrefix:
-    def test_not_default(self) -> None:
-        res = _remove_default_prefix("onto:property", "default")
-        assert res == "onto:property"
-
-    def test_default(self) -> None:
-        res = _remove_default_prefix("default:property", "default")
-        assert res == ":property"
-
-    def test_not_default_two(self) -> None:
-        res = _remove_default_prefix("onto:property_onto", "default")
-        assert res == "onto:property_onto"
-
-    def test_default_two(self) -> None:
-        res = _remove_default_prefix("default:property_default", "default")
-        assert res == ":property_default"
 
 
 if __name__ == "__main__":

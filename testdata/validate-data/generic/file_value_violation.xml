@@ -33,11 +33,11 @@
         </bitstream>
     </resource>
 
-    <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="empty_license">
+    <resource label="TTestStillImageRepresentation Bitstream" restype=":TestStillImageRepresentation" id="empty_license">
         <bitstream license=""
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >this/is/filepath/file.zip
+        >this/is/filepath/file.jp2
         </bitstream>
     </resource>
 

@@ -24,7 +24,7 @@ def get_user_message(problems: list[InputProblem], file_path: Path) -> str:
     Returns:
         Problem message
     """
-    if len(problems) > 50:
+    if len(problems) > 5:
         specific_message = _save_problem_info_as_csv(problems, file_path)
     else:
         specific_message = _get_problem_print_message(problems)
@@ -102,19 +102,30 @@ def _get_message_dict(problem: InputProblem) -> dict[str, str]:
         "Resource ID": problem.res_id,
         "Resource Type": problem.res_type,
         "Property": problem.prop_name,
-        "Message": problem.message,
         "Your Input": _shorten_input(problem.input_value),
         "Input Type": problem.input_type,
     }
     non_empty_dict = {k: v for k, v in msg_dict.items() if v}
+    expected_and_message = _get_expected_message_dict(problem)
+    non_empty_dict.update(expected_and_message)
+    if problem.problem_type not in PROBLEM_TYPES_IGNORE_STR_ENUM_INFO:
+        non_empty_dict["Problem"] = str(problem.problem_type)
+    return non_empty_dict
+
+
+def _get_expected_message_dict(problem: InputProblem) -> dict[str, str]:
+    out_dict = {}
     if problem.expected:
         msg_str = problem.expected
         if prefix := _get_expected_prefix(problem.problem_type):
             msg_str = f"{prefix.strip()}: {msg_str}"
-        non_empty_dict["Expected"] = msg_str
-    if problem.problem_type not in PROBLEM_TYPES_IGNORE_STR_ENUM_INFO:
-        msg_dict["Problem"] = str(problem.problem_type)
-    return non_empty_dict
+        out_dict["Expected"] = msg_str
+    if problem.message:
+        if problem.expected:
+            out_dict["Message"] = problem.message
+        else:
+            out_dict["Expected"] = problem.message
+    return out_dict
 
 
 def _shorten_input(user_input: str | None) -> str | None:

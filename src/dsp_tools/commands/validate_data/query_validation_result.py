@@ -7,6 +7,7 @@ from rdflib import SH
 from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
+from unittests.commands.validate_data.constants import API_SHAPES
 
 from dsp_tools.commands.validate_data.constants import DASH
 from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROP_SHAPES
@@ -234,7 +235,8 @@ def _query_all_with_detail(
     unexpected_components: list[UnexpectedComponent] = []
 
     for base_info in all_base_info:
-        res = _query_one_with_detail(base_info, results_and_onto, data_onto_graph)
+        if not (res := _query_one_with_detail(base_info, results_and_onto, data_onto_graph)):
+            continue
         if isinstance(res, UnexpectedComponent):
             unexpected_components.append(res)
         else:
@@ -244,13 +246,16 @@ def _query_all_with_detail(
 
 def _query_one_with_detail(
     base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
-) -> ValidationResult | UnexpectedComponent:
+) -> ValidationResult | UnexpectedComponent | None:
     detail_info = cast(DetailBaseInfo, base_info.detail)
     match detail_info.source_constraint_component:
         case SH.MinCountConstraintComponent:
-            if base_info.result_path in FILE_VALUE_PROPERTIES:
-                return _query_generic_violation(base_info, results_and_onto)
-            return _query_for_value_type_violation(base_info, results_and_onto, data_graph)
+            # If the source shape is one of those then the problem is a value type violation.
+            # However, this result is communicated through another shape, so we can ignore it.
+            source_shape = next(results_and_onto.objects(detail_info.detail_bn, SH.sourceShape))
+            if source_shape in {API_SHAPES.SimpleTextValue_PropShape, API_SHAPES.FormattedTextValue_PropShape}:
+                return None
+            return _query_generic_violation(base_info, results_and_onto)
         case SH.PatternConstraintComponent:
             return _query_pattern_constraint_component_violation(detail_info.detail_bn, base_info, results_and_onto)
         case SH.ClassConstraintComponent:

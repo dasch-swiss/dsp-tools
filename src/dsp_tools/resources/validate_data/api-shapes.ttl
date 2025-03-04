@@ -340,7 +340,7 @@ api-shapes:SimpleTextValue_ClassShape
   sh:property [
                 sh:path     rdf:type ;
                 sh:class    knora-api:TextValue ;
-                sh:message  "Expected value type is TextValue." ;
+                sh:message  "Expected value type is TextValue without formatting." ;
                 sh:severity sh:Violation
               ] ,
               api-shapes:SimpleTextValue_PropShape, api-shapes:valueAsString_Shape, api-shapes:valueHasComment_Shape ;
@@ -372,7 +372,7 @@ api-shapes:FormattedTextValue_ClassShape
   sh:property [
                 sh:path     rdf:type ;
                 sh:class    knora-api:TextValue ;
-                sh:message  "Expected value type is TextValue." ;
+                sh:message  "Expected value type is TextValue with formatting." ;
                 sh:severity sh:Violation
               ] ,
               api-shapes:FormattedTextValue_PropShape, api-shapes:textValueAsXml_Shape,

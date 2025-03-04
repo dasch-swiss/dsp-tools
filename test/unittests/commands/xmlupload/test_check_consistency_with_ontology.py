@@ -43,6 +43,8 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontol
     _get_separate_prefix_and_iri_from_onto_prop_or_cls,
 )
 
+DEFAULT_ONTO_PREFIX = "my_onto"
+
 
 class TestFindClassType:
     def test_no_knora_prefix(self) -> None:
@@ -354,7 +356,7 @@ def test_get_id_and_props_and_encodings_from_one_resource_no_text() -> None:
         </resource>
         """
     )
-    res = _get_id_and_props_and_encodings_from_one_resource(test_props)
+    res = _get_id_and_props_and_encodings_from_one_resource(test_props, DEFAULT_ONTO_PREFIX)
     assert not res
 
 
@@ -377,9 +379,9 @@ def test_get_id_and_props_and_encodings_from_one_resource_richtext() -> None:
         </resource>
         """
     )
-    res = _get_id_and_props_and_encodings_from_one_resource(test_props)[0]
+    res = _get_id_and_props_and_encodings_from_one_resource(test_props, DEFAULT_ONTO_PREFIX)[0]
     assert res.resource_id == "test_thing_1"
-    assert res.property_name == ":hasRichtext"
+    assert res.property_name == f"{DEFAULT_ONTO_PREFIX}:hasRichtext"
     assert res.encoding == "utf8"
 
 
@@ -405,12 +407,12 @@ def test_get_id_and_props_and_encodings_from_one_resource_two_text_props() -> No
         </resource>
         """
     )
-    res = _get_id_and_props_and_encodings_from_one_resource(test_props)
+    res = _get_id_and_props_and_encodings_from_one_resource(test_props, DEFAULT_ONTO_PREFIX)
     assert res[0].resource_id == "test_thing_1"
-    assert res[0].property_name == ":hasRichtext"
+    assert res[0].property_name == f"{DEFAULT_ONTO_PREFIX}:hasRichtext"
     assert res[0].encoding == "xml"
     assert res[1].resource_id == "test_thing_1"
-    assert res[1].property_name == ":hasSimpleText"
+    assert res[1].property_name == f"{DEFAULT_ONTO_PREFIX}:hasSimpleText"
     assert res[1].encoding == "utf8"
 
 
@@ -428,10 +430,10 @@ class TestGetEncodingOneProperty:
             </text-prop>
             """
         )
-        res_info = _get_prop_and_encoding_from_one_property("id", ":resType", test_prop)
+        res_info = _get_prop_and_encoding_from_one_property("id", ":resType", test_prop, DEFAULT_ONTO_PREFIX)
         assert res_info.resource_id == "id"
         assert res_info.res_type == ":resType"
-        assert res_info.property_name == ":hasRichtext"
+        assert res_info.property_name == f"{DEFAULT_ONTO_PREFIX}:hasRichtext"
         assert res_info.encoding == "xml"
 
     def test_simple_several_text_ele(self) -> None:
@@ -443,10 +445,10 @@ class TestGetEncodingOneProperty:
             </text-prop>
             """
         )
-        res_info = _get_prop_and_encoding_from_one_property("id", ":resType", test_prop)
+        res_info = _get_prop_and_encoding_from_one_property("id", ":resType", test_prop, DEFAULT_ONTO_PREFIX)
         assert res_info.resource_id == "id"
         assert res_info.res_type == ":resType"
-        assert res_info.property_name == ":hasRichtext"
+        assert res_info.property_name == f"{DEFAULT_ONTO_PREFIX}:hasRichtext"
         assert res_info.encoding == "utf8"
 
     def test_simple_one_text_ele(self) -> None:
@@ -457,10 +459,10 @@ class TestGetEncodingOneProperty:
             </text-prop>
             """
         )
-        res_info = _get_prop_and_encoding_from_one_property("id", ":resType", test_prop)
+        res_info = _get_prop_and_encoding_from_one_property("id", ":resType", test_prop, DEFAULT_ONTO_PREFIX)
         assert res_info.resource_id == "id"
         assert res_info.res_type == ":resType"
-        assert res_info.property_name == ":hasRichtext"
+        assert res_info.property_name == f"{DEFAULT_ONTO_PREFIX}:hasRichtext"
         assert res_info.encoding == "utf8"
 
 
@@ -484,7 +486,7 @@ def test_get_all_ids_and_props_and_encodings_from_root_no_text() -> None:
                 </resource>
         </knora>"""
     )
-    res = _get_all_ids_and_props_and_encodings_from_root(test_ele)
+    res = _get_all_ids_and_props_and_encodings_from_root(test_ele, DEFAULT_ONTO_PREFIX)
     assert res == []
 
 
@@ -522,48 +524,38 @@ def test_get_all_ids_and_props_and_encodings_from_root_with_text() -> None:
                 </resource>
         </knora>"""
     )
-    res = _get_all_ids_and_props_and_encodings_from_root(test_ele)
+    res = _get_all_ids_and_props_and_encodings_from_root(test_ele, DEFAULT_ONTO_PREFIX)
     assert res[0].resource_id == "test_thing_1"
-    assert res[0].property_name == ":hasRichtext"
+    assert res[0].property_name == f"{DEFAULT_ONTO_PREFIX}:hasRichtext"
     assert res[0].encoding == "xml"
     assert res[1].resource_id == "resB"
-    assert res[1].property_name == ":hasSimpleText"
+    assert res[1].property_name == f"{DEFAULT_ONTO_PREFIX}:hasSimpleText"
     assert res[1].encoding == "utf8"
     assert res[2].resource_id == "resC"
-    assert res[2].property_name == ":hasSimpleText"
+    assert res[2].property_name == f"{DEFAULT_ONTO_PREFIX}:hasSimpleText"
     assert res[2].encoding == "utf8"
 
 
 class TestCheckCorrectnessOneProp:
     def test_utf_simple_correct(self) -> None:
-        test_val = TextValueData("id", ":restype", ":prop", "utf8")
-        test_lookup = PropertyTextValueTypes(set(), {":prop"})
+        test_val = TextValueData("id", ":restype", "test-onto_2:prop", "utf8")
+        test_lookup = PropertyTextValueTypes(set(), {"test-onto_2:prop"})
         assert _check_correctness_of_one_prop(test_val, test_lookup) is True
 
     def test_utf_simple_wrong(self) -> None:
-        test_val = TextValueData("id", ":restype", ":prop", "utf8")
-        test_lookup = PropertyTextValueTypes({":prop"}, set())
+        test_val = TextValueData("id", ":restype", "test-onto_2:prop", "utf8")
+        test_lookup = PropertyTextValueTypes({"test-onto_2:prop"}, set())
         assert _check_correctness_of_one_prop(test_val, test_lookup) is False
 
     def test_xml_correct(self) -> None:
-        test_val = TextValueData("id", ":restype", ":prop", "xml")
-        test_lookup = PropertyTextValueTypes({":prop"}, set())
+        test_val = TextValueData("id", ":restype", "test-onto_2:prop", "xml")
+        test_lookup = PropertyTextValueTypes({"test-onto_2:prop"}, set())
         assert _check_correctness_of_one_prop(test_val, test_lookup) is True
 
     def test_xml_wrong(self) -> None:
-        test_val = TextValueData("id", ":restype", ":prop", "xml")
+        test_val = TextValueData("id", ":restype", "test-onto_2:prop", "xml")
         test_lookup = PropertyTextValueTypes(set(), set())
         assert _check_correctness_of_one_prop(test_val, test_lookup) is False
-
-    def test_xml_with_onto_prefix(self) -> None:
-        test_val = TextValueData("id", ":restype", "test-onto_2:prop", "xml")
-        test_lookup = PropertyTextValueTypes({":prop"}, set())
-        assert _check_correctness_of_one_prop(test_val, test_lookup) is True
-
-    def test_utf_with_onto_prefix(self) -> None:
-        test_val = TextValueData("id", ":restype", "test-onto_2:prop", "utf8")
-        test_lookup = PropertyTextValueTypes(set(), {":prop"})
-        assert _check_correctness_of_one_prop(test_val, test_lookup) is True
 
 
 def test_analyse_all_text_value_encodings_are_correct_all_good() -> None:
@@ -602,9 +594,10 @@ def test_analyse_all_text_value_encodings_are_correct_all_good() -> None:
         </knora>"""
     )
     test_lookup = PropertyTextValueTypes(
-        formatted_text_props={":hasRichtext"}, unformatted_text_props={":hasSimpleText", ":hasText"}
+        formatted_text_props={f"{DEFAULT_ONTO_PREFIX}:hasRichtext"},
+        unformatted_text_props={f"{DEFAULT_ONTO_PREFIX}:hasSimpleText", ":hasText"},
     )
-    res_msg = _check_correctness_all_text_value_encodings(test_ele, test_lookup)
+    res_msg = _check_correctness_all_text_value_encodings(test_ele, test_lookup, DEFAULT_ONTO_PREFIX)
     assert not res_msg
 
 
@@ -644,7 +637,8 @@ def test_analyse_all_text_value_encodings_are_correct_problems() -> None:
         </knora>"""
     )
     test_lookup = PropertyTextValueTypes(
-        formatted_text_props={":hasRichtext"}, unformatted_text_props={":hasSimpleText", ":hasText"}
+        formatted_text_props={f"{DEFAULT_ONTO_PREFIX}:hasRichtext"},
+        unformatted_text_props={f"{DEFAULT_ONTO_PREFIX}:hasSimpleText", f"{DEFAULT_ONTO_PREFIX}:hasText"},
     )
     expected_msg = (
         "\nSome text encodings used in the XML data file are not conform with the gui_element "
@@ -652,12 +646,12 @@ def test_analyse_all_text_value_encodings_are_correct_problems() -> None:
         "Please consult the ontology regarding the assigned gui_elements."
         "\n\n"
         "Resource ID: 'resC' | Resource Type: ':TestThing2'\n"
-        "    - Property Name: ':hasRichtext' -> Encoding Used: 'utf8'"
+        f"    - Property Name: '{DEFAULT_ONTO_PREFIX}:hasRichtext' -> Encoding Used: 'utf8'"
         "\n\n"
         "Resource ID: 'test_thing_1' | Resource Type: ':TestThing'\n"
-        "    - Property Name: ':hasText' -> Encoding Used: 'xml'"
+        f"    - Property Name: '{DEFAULT_ONTO_PREFIX}:hasText' -> Encoding Used: 'xml'"
     )
-    res_msg = _check_correctness_all_text_value_encodings(test_ele, test_lookup)
+    res_msg = _check_correctness_all_text_value_encodings(test_ele, test_lookup, DEFAULT_ONTO_PREFIX)
     assert res_msg == expected_msg
 
 

@@ -93,7 +93,6 @@ class DspIngestClientLive(AssetClient):
             "Content-Type": "application/octet-stream",
         }
         timeout = 600
-        err = f"Failed to ingest {filepath} to '{url}'."
         with open(filepath, "rb") as binary_io:
             try:
                 logger.debug(f"REQUEST: POST to {url}, timeout: {timeout}, headers: {headers | {'Authorization': '*'}}")
@@ -109,20 +108,15 @@ class DspIngestClientLive(AssetClient):
                 elif res.status_code == STATUS_UNAUTHORIZED:
                     raise BadCredentialsError("Bad credentials")
                 else:
-                    user_msg = f"{err} See {WARNINGS_SAVEPATH} for more information."
-                    print(user_msg)
-                    log_msg = f"{err}. Response status code {res.status_code} '{res.text}'"
-                    logger.error(log_msg)
-                    raise PermanentConnectionError(log_msg)
+                    raise PermanentConnectionError()
             except requests.exceptions.RequestException as e:
-                raise PermanentConnectionError(f"{err}. {e}") from e
+                raise PermanentConnectionError(str(e)) from e
 
     def get_bitstream_info(self, file_info: IntermediaryFileValue) -> BitstreamInfo | None:
         """Uploads a file to the ingest server and returns the upload results."""
         try:
             res = self._ingest(Path(self.imgdir) / Path(file_info.value))
-            msg = f"Uploaded file '{file_info.value}'"
-            logger.info(msg)
+            logger.info(f"Uploaded file '{file_info.value}'")
             return BitstreamInfo(file_info.value, res.internal_filename, file_info.metadata.permissions)
         except PermanentConnectionError:
             msg = f"Unable to upload file '{file_info.value}' of resource '{file_info.res_label}' ({file_info.res_id})"

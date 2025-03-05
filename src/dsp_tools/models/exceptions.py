@@ -11,7 +11,7 @@ class BaseError(Exception):
         message: A message that describes the error
     """
 
-    message: str
+    message: str = ""
 
     def __str__(self) -> str:
         return self.message

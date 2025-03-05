@@ -199,11 +199,11 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
 def _query_class_constraint_without_detail(
     base_info: ValidationResultBaseInfo, results_and_onto: Graph, data: Graph, message: SubjectObjectTypeAlias
 ) -> ValidationResult | None:
-    val = next(results_and_onto.objects(base_info.result_bn, SH.value))
-    # In this case we have some file value violation
-    value_type = None
+    val: None | SubjectObjectTypeAlias = next(results_and_onto.objects(base_info.result_bn, SH.value))
+    # In this case we have some kind of FileValue violation
     violation_type = ViolationType.GENERIC
-    msg = message
+    value_type: None | SubjectObjectTypeAlias = None
+    msg: None | SubjectObjectTypeAlias = message
     expected = None
     val_type = next(data.objects(val, RDF.type))
     value_super_class = next(results_and_onto.objects(val_type, RDFS.subClassOf))

@@ -47,7 +47,7 @@ def create_lists_on_server(
     except BaseError:
         err_msg = "Unable to retrieve existing lists on DSP server. Cannot check if your lists are already existing."
         print(f"WARNING: {err_msg}")
-        logger.opt(exception=True).warning(err_msg)
+        logger.exception(err_msg)
         existing_lists = []
         overall_success = False
 
@@ -113,7 +113,7 @@ def _create_list_node(
         new_node = new_node.create()
     except BaseError:
         print(f"WARNING: Cannot create list node '{node['name']}'.")
-        logger.opt(exception=True).warning("Cannot create list node '{node['name']}'.")
+        logger.exception("Cannot create list node '{node['name']}'.")
         return {}, False
 
     # if node has child nodes, call the method recursively
@@ -191,7 +191,7 @@ def create_only_lists(
         project_remote = project_local.read()
     except BaseError:
         err_msg = f"Unable to create the lists: The project {shortcode} cannot be found on the DSP server."
-        logger.opt(exception=True).error(err_msg)
+        logger.exception(err_msg)
         raise UserError(err_msg) from None
 
     # create new lists

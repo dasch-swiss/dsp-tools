@@ -360,8 +360,16 @@ api-shapes:TimeValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
   sh:message  "TimeValue" ;
-  sh:class    knora-api:TimeValue ;
-  sh:property api-shapes:valueHasComment_Shape ;
+  sh:property [
+                a           sh:PropertyShape ;
+                sh:path     rdf:type ;
+                sh:class    knora-api:TimeValue ;
+                sh:message  "This property requires a TimeValue" ;
+                sh:minCount 1 ;
+                sh:maxCount 1 ;
+                sh:severity sh:Violation ;
+              ] ,
+              api-shapes:valueHasComment_Shape ;
   sh:severity sh:Violation .
 
 ##############

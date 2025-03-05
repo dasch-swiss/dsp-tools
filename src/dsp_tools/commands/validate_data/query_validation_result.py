@@ -198,19 +198,29 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
 
 def _query_class_constraint_without_detail(
     base_info: ValidationResultBaseInfo, results_and_onto: Graph, data: Graph, message: SubjectObjectTypeAlias
-):
+) -> ValidationResult | None:
     val = next(results_and_onto.objects(base_info.result_bn, SH.value))
+    # In this case we have some file value violation
     value_type = None
     violation_type = ViolationType.GENERIC
-    if val_type := list(data.objects(val, RDF.type)):
-        value_type = val_type.pop(0)
+    msg = message
+    expected = None
+    val_type = next(data.objects(val, RDF.type))
+    value_super_class = next(results_and_onto.objects(val_type, RDFS.subClassOf))
+    # Here we have a normal value type violation
+    if val_type and value_super_class != KNORA_API.FileValue:
+        value_type = val_type
+        val = None
         violation_type = ViolationType.VALUE_TYPE
+        msg = None
+        expected = message
     return ValidationResult(
         violation_type=violation_type,
         res_iri=base_info.resource_iri,
         res_class=base_info.res_class_type,
         property=base_info.result_path,
-        message=message,
+        message=msg,
+        expected=expected,
         input_value=val,
         input_type=value_type,
     )

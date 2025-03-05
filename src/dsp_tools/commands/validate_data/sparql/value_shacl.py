@@ -106,8 +106,7 @@ def _add_value_type_shapes_to_class_shapes(onto: Graph) -> Graph:
       ?propRestriction knora-api:isEditable true ;
                        knora-api:objectType ?objectType .
                        
-      # Link properties expect the resource class not the LinkValue in object position
-      FILTER NOT EXISTS { ?propRestriction knora-api:isLinkProperty true }
+      FILTER NOT EXISTS { ?propRestriction knora-api:objectType knora-api:TextValue }
 
       BIND(CONCAT("This property requires a ", STRAFTER(STR(?objectType), "#")) AS ?objectTypeMessage)
     }

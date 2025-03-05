@@ -391,7 +391,7 @@ def extracted_value_type() -> ValidationResult:
         res_iri=DATA.id_uri,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testUriValue,
-        expected=Literal("This property requires a UriValue"),
+        message=Literal("This property requires a UriValue"),
         input_type=KNORA_API.TextValue,
     )
 

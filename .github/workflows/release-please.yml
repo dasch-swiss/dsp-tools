@@ -31,9 +31,9 @@ jobs:
       - name: Get branch of open release-please PR
         id: get_release_pr_branch
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PAT: ${{ secrets.DASCHBOT_PAT }}
         run: |
-          pr_data=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+          pr_data=$(curl -s -H "Authorization: token $PAT" \
             "https://api.github.com/repos/dasch-swiss/dsp-tools/pulls?state=open")
 
           # iterate over the JSON array with `.[]`, then select PR if title matches condition

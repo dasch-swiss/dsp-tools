@@ -8,10 +8,6 @@ on:
   push:
     branches-ignore:
       - refs/heads/main
-  workflow_run:
-    workflows: ["Release-Please"]
-    types:
-      - completed
 
 env:
   DSP_TOOLS_TESTING: true

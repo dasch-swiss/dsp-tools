@@ -109,7 +109,7 @@ def _add_value_type_shapes_to_class_shapes(onto: Graph) -> Graph:
       # Link properties expect the resource class not the LinkValue in object position
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkProperty true }
 
-      BIND(str(?objectType) AS ?objectTypeMessage)
+      BIND(CONCAT("This property requires a ", STRAFTER(STR(?objectType), "#")) AS ?objectTypeMessage)
     }
     """
     if results_graph := onto.query(query_s).graph:

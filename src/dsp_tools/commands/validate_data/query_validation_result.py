@@ -63,7 +63,7 @@ def _query_all_results(
     extracted_results: list[ValidationResult] = []
     unexpected_components: list[UnexpectedComponent] = []
 
-    no_detail_extracted, no_detail_unexpected = _query_all_without_detail(no_details, results_and_onto)
+    no_detail_extracted, no_detail_unexpected = _query_all_without_detail(no_details, results_and_onto, data_onto_graph)
     extracted_results.extend(no_detail_extracted)
     unexpected_components.extend(no_detail_unexpected)
 
@@ -145,13 +145,13 @@ def _extract_one_base_info(
 
 
 def _query_all_without_detail(
-    all_base_info: list[ValidationResultBaseInfo], results_and_onto: Graph
+    all_base_info: list[ValidationResultBaseInfo], results_and_onto: Graph, data: Graph
 ) -> tuple[list[ValidationResult], list[UnexpectedComponent]]:
     extracted_results: list[ValidationResult] = []
     unexpected_components: list[UnexpectedComponent] = []
 
     for base_info in all_base_info:
-        res = _query_one_without_detail(base_info, results_and_onto)
+        res = _query_one_without_detail(base_info, results_and_onto, data)
         if res is None:
             pass
         elif isinstance(res, UnexpectedComponent):
@@ -162,7 +162,7 @@ def _query_all_without_detail(
 
 
 def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
-    base_info: ValidationResultBaseInfo, results_and_onto: Graph
+    base_info: ValidationResultBaseInfo, results_and_onto: Graph, data: Graph
 ) -> ValidationResult | UnexpectedComponent | None:
     msg = next(results_and_onto.objects(base_info.result_bn, SH.resultMessage))
     component = next(results_and_onto.objects(base_info.result_bn, SH.sourceConstraintComponent))
@@ -191,6 +191,7 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
                 message=msg,
             )
         case SH.ClassConstraintComponent:
+            # TODO: here
             val = next(results_and_onto.objects(base_info.result_bn, SH.value))
             return ValidationResult(
                 violation_type=ViolationType.GENERIC,

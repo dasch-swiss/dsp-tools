@@ -128,9 +128,9 @@ class TestSeparateResultTypes:
     def test_result_id_uri(self, report_value_type: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res_g, onto_data_g, _ = report_value_type
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
-        assert len(no_detail) == 0
-        assert len(with_detail) == 1
-        assert with_detail[0].resource_iri == DATA.id_uri
+        assert len(no_detail) == 1
+        assert len(with_detail) == 0
+        assert no_detail[0].resource_iri == DATA.id_uri
 
     def test_result_geoname_not_number(self, report_regex: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res_g, onto_data_g, _ = report_regex
@@ -261,6 +261,17 @@ class TestQueryWithoutDetail:
         assert result.property == KNORA_API.hasLicense
         assert result.expected == Literal("Files and IIIF-URIs require a reference to a license.")
 
+    def test_result_id_uri(self, report_value_type: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
+        res, data, info = report_value_type
+        result = _query_one_without_detail(info, res, data)
+        assert isinstance(result, ValidationResult)
+        assert result.violation_type == ViolationType.VALUE_TYPE
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
+        assert result.property == ONTO.testUriValue
+        assert result.expected == Literal("This property requires a UriValue")
+        assert result.input_type == KNORA_API.TextValue
+
     def test_unknown(self, result_unknown_component: tuple[Graph, ValidationResultBaseInfo]) -> None:
         graphs, info = result_unknown_component
         result = _query_one_without_detail(info, graphs)
@@ -280,17 +291,6 @@ class TestQueryWithDetail:
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testTextarea
         assert result.expected == Literal("TextValue without formatting")
-        assert result.input_type == KNORA_API.TextValue
-
-    def test_result_id_uri(self, report_value_type: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
-        res, data, info = report_value_type
-        result = _query_one_with_detail(info, res, data)
-        assert isinstance(result, ValidationResult)
-        assert result.violation_type == ViolationType.VALUE_TYPE
-        assert result.res_iri == info.resource_iri
-        assert result.res_class == info.res_class_type
-        assert result.property == ONTO.testUriValue
-        assert result.expected == Literal("This property requires a UriValue")
         assert result.input_type == KNORA_API.TextValue
 
     def test_result_geoname_not_number(self, report_regex: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
@@ -449,7 +449,7 @@ class TestReformatResult:
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testUriValue"
         assert result.input_type == "TextValue"
-        assert result.expected == "This property requires a UriValue"
+        assert result.expected == "UriValue"
 
     def test_violation_regex(self, extracted_regex: ValidationResult) -> None:
         result = _reformat_one_validation_result(extracted_regex)

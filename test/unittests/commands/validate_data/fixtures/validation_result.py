@@ -351,22 +351,23 @@ def extracted_min_inclusive() -> ValidationResult:
 def report_value_type(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
-        sh:detail _:bn_id_uri ;
-        sh:focusNode <http://data/id_uri> ;
-        sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#UriValue_ClassShape>" ;
-        sh:resultPath onto:testUriValue ;
-        sh:resultSeverity sh:Violation ;
-        sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-        sh:sourceShape onto:testUriValue_PropShape ;
-        sh:value <http://data/value_id_uri> ] .
+    sh:detail _:bn_id_uri ;
+    sh:focusNode <http://data/id_uri> ;
+    sh:resultMessage "Value does not have shape api-shapes:UriValue_ClassShape" ;
+    sh:resultPath <http://0.0.0.0:3333/ontology/9999/onto/v2#testUriValue> ;
+    sh:resultSeverity sh:Violation ;
+    sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+    sh:sourceShape <http://0.0.0.0:3333/ontology/9999/onto/v2#testUriValue_PropShape> ;
+    sh:value <http://data/value_id_uri> ] .
     
     _:bn_id_uri a sh:ValidationResult ;
         sh:focusNode <http://data/value_id_uri> ;
-        sh:resultMessage "UriValue" ;
+        sh:resultMessage "This property requires a UriValue" ;
+        sh:resultPath rdf:type ;
         sh:resultSeverity sh:Violation ;
         sh:sourceConstraintComponent sh:ClassConstraintComponent ;
-        sh:sourceShape api-shapes:UriValue_ClassShape ;
-        sh:value <http://data/value_id_uri> .
+        sh:sourceShape [ ] ;
+        sh:value <http://api.knora.org/ontology/knora-api/v2#TextValue> .
     """  # noqa: E501 (Line too long)
     validation_g = Graph()
     validation_g.parse(data=validation_str, format="ttl")

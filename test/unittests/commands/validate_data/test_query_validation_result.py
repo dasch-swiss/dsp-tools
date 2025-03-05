@@ -449,7 +449,7 @@ class TestReformatResult:
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testUriValue"
         assert result.input_type == "TextValue"
-        assert result.expected == "UriValue"
+        assert result.expected == "This property requires a UriValue"
 
     def test_violation_regex(self, extracted_regex: ValidationResult) -> None:
         result = _reformat_one_validation_result(extracted_regex)

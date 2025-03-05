@@ -115,7 +115,6 @@ class DspIngestClientLive(AssetClient):
             except requests.exceptions.RequestException as e:
                 raise PermanentConnectionError() from e
 
-
     def get_bitstream_info(self, file_info: IntermediaryFileValue) -> BitstreamInfo | None:
         """Uploads a file to the ingest server and returns the upload results."""
         try:

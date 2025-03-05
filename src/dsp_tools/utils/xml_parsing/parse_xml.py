@@ -25,5 +25,5 @@ def parse_xml_file(input_file: str | Path) -> etree._Element:
     try:
         return etree.parse(source=input_file, parser=parser).getroot()
     except etree.XMLSyntaxError as err:
-        logger.opt(exception=True).error(f"The XML file contains the following syntax error: {err.msg}")
+        logger.exception(f"The XML file contains the following syntax error: {err.msg}")
         raise InputError(f"The XML file contains the following syntax error: {err.msg}") from None

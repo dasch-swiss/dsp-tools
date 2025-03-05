@@ -57,7 +57,7 @@ def create_ontologies(
     except BaseError:
         err_msg = "Unable to retrieve remote ontologies. Cannot check if your ontology already exists."
         print("WARNING: {err_msg}")
-        logger.opt(exception=True).warning(err_msg)
+        logger.exception(err_msg)
         project_ontologies = []
 
     for ontology_definition in ontology_definitions:
@@ -167,7 +167,7 @@ def _create_ontology(
         ontology_remote = ontology_local.create()
     except BaseError:
         # if ontology cannot be created, let the error escalate
-        logger.opt(exception=True).error(f"ERROR while trying to create ontology '{onto_name}'.")
+        logger.exception(f"ERROR while trying to create ontology '{onto_name}'.")
         raise UserError(f"ERROR while trying to create ontology '{onto_name}'.") from None
 
     if verbose:
@@ -244,7 +244,7 @@ def _add_resource_classes_to_remote_ontology(
         except BaseError:
             err_msg = f"Unable to create resource class '{res_class['name']}'."
             print(f"WARNING: {err_msg}")
-            logger.opt(exception=True).warning(err_msg)
+            logger.exception(err_msg)
             overall_success = False
 
     return last_modification_date, new_res_classes, overall_success
@@ -375,7 +375,7 @@ def _add_property_classes_to_remote_ontology(
         except BaseError:
             err_msg = f"Unable to create property class '{prop_class['name']}'."
             print(f"WARNING: {err_msg}")
-            logger.opt(exception=True).warning(f"Unable to create property class '{prop_class['name']}'.")
+            logger.exception(f"Unable to create property class '{prop_class['name']}'.")
             overall_success = False
 
     return last_modification_date, overall_success
@@ -459,7 +459,7 @@ def _add_cardinalities_to_resource_classes(
                 f"This class doesn't exist on the DSP server."
             )
             print(f"WARNINIG: {msg}")
-            logger.opt(exception=True).warning(msg)
+            logger.exception(msg)
             overall_success = False
             continue
         for card_info in res_class.get("cardinalities", []):
@@ -482,7 +482,7 @@ def _add_cardinalities_to_resource_classes(
             except BaseError:
                 err_msg = f"Unable to add cardinality '{qualified_propname}' to resource class {res_class['name']}."
                 print(f"WARNING: {err_msg}")
-                logger.opt(exception=True).warning(err_msg)
+                logger.exception(err_msg)
                 overall_success = False
 
             ontology_remote.lastModificationDate = last_modification_date

@@ -88,7 +88,7 @@ def _upload_stash_item(
 def _log_unable_to_upload_link_value(msg: str, res_id: str, prop_name: str) -> None:
     err_msg = f"Unable to upload the resptr prop of '{prop_name}' of resource '{res_id}'."
     print(f"{datetime.now()}:     WARNING: {err_msg} Original error message: {msg}")
-    logger.opt(exception=True).warning(err_msg)
+    logger.exception(err_msg)
 
 
 def _create_resptr_prop_json_object_to_update(

@@ -12,7 +12,6 @@ from dsp_tools.commands.validate_data.constants import DASH
 from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROP_SHAPES
 from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROPERTIES
 from dsp_tools.commands.validate_data.constants import KNORA_API
-from dsp_tools.commands.validate_data.constants import VALUE_CLASS_SHAPES
 from dsp_tools.commands.validate_data.constants import SubjectObjectTypeAlias
 from dsp_tools.commands.validate_data.mappers import RESULT_TO_PROBLEM_MAPPER
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
@@ -271,8 +270,8 @@ def _query_class_constraint_component_violation(
     base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
 ) -> ValidationResult | UnexpectedComponent:
     detail_info = cast(DetailBaseInfo, base_info.detail)
-    detail_source_shape = next(results_and_onto.objects(detail_info.detail_bn, SH.sourceShape))
-    if detail_source_shape in VALUE_CLASS_SHAPES:
+    detail_path = next(results_and_onto.objects(detail_info.detail_bn, SH.resultPath))
+    if detail_path == RDF.type:
         return _query_for_value_type_violation(base_info, results_and_onto, data_graph)
     return _query_for_link_value_target_violation(base_info, results_and_onto, data_graph)
 

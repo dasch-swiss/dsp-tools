@@ -368,7 +368,7 @@ def report_value_type(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResult
         sh:sourceConstraintComponent sh:ClassConstraintComponent ;
         sh:sourceShape [ ] ;
         sh:value <http://api.knora.org/ontology/knora-api/v2#TextValue> .
-    """  # noqa: E501 (Line too long)
+    """
     validation_g = Graph()
     validation_g.parse(data=validation_str, format="ttl")
     data_str = f"""{PREFIXES}
@@ -407,7 +407,7 @@ def extracted_value_type() -> ValidationResult:
         res_iri=DATA.id_uri,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testUriValue,
-        expected=Literal("UriValue"),
+        expected=Literal("This property requires a UriValue"),
         input_type=KNORA_API.TextValue,
     )
 

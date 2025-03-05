@@ -17,7 +17,6 @@ from dsp_tools.commands.xmlupload.models.intermediary.file_values import Interme
 from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.utils.authentication_client import AuthenticationClient
-from dsp_tools.utils.logger_config import WARNINGS_SAVEPATH
 
 STATUS_OK = 200
 STATUS_UNAUTHORIZED = 401

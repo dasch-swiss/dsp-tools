@@ -11,7 +11,7 @@ class BaseError(Exception):
         message: A message that describes the error
     """
 
-    message: str
+    message: str = ""
 
     def __str__(self) -> str:
         return self.message
@@ -72,6 +72,10 @@ class PermanentConnectionError(BaseError):
 
 class InvalidInputError(BaseError):
     """This error is raised if the API responds with a permanent error because of invalid input data"""
+
+
+class InvalidFileNameError(InvalidInputError):
+    """This error is raised if INGEST rejects a file due to its name."""
 
 
 class PermanentTimeOutError(BaseError):

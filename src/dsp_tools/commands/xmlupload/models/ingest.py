@@ -15,11 +15,12 @@ from requests.adapters import Retry
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileValue
 from dsp_tools.models.exceptions import BadCredentialsError
+from dsp_tools.models.exceptions import InvalidFileNameError
 from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.utils.authentication_client import AuthenticationClient
-from dsp_tools.utils.logger_config import WARNINGS_SAVEPATH
 
 STATUS_OK = 200
+BAD_REQUEST = 400
 STATUS_UNAUTHORIZED = 401
 STATUS_INTERNAL_SERVER_ERROR = 500
 
@@ -93,7 +94,6 @@ class DspIngestClientLive(AssetClient):
             "Content-Type": "application/octet-stream",
         }
         timeout = 600
-        err = f"Failed to ingest {filepath} to '{url}'."
         with open(filepath, "rb") as binary_io:
             try:
                 logger.debug(f"REQUEST: POST to {url}, timeout: {timeout}, headers: {headers | {'Authorization': '*'}}")
@@ -108,26 +108,25 @@ class DspIngestClientLive(AssetClient):
                     return IngestResponse(internal_filename=res.json()["internalFilename"])
                 elif res.status_code == STATUS_UNAUTHORIZED:
                     raise BadCredentialsError("Bad credentials")
+                elif res.status_code == BAD_REQUEST and res.text == "Invalid value for: path parameter filename":
+                    raise InvalidFileNameError()
                 else:
-                    user_msg = f"{err} See {WARNINGS_SAVEPATH} for more information."
-                    print(user_msg)
-                    log_msg = f"{err}. Response status code {res.status_code} '{res.text}'"
-                    logger.error(log_msg)
-                    raise PermanentConnectionError(log_msg)
+                    raise PermanentConnectionError()
             except requests.exceptions.RequestException as e:
-                raise PermanentConnectionError(f"{err}. {e}") from e
+                raise PermanentConnectionError() from e
 
     def get_bitstream_info(self, file_info: IntermediaryFileValue) -> BitstreamInfo | None:
         """Uploads a file to the ingest server and returns the upload results."""
         try:
             res = self._ingest(Path(self.imgdir) / Path(file_info.value))
-            msg = f"Uploaded file '{file_info.value}'"
-            logger.info(msg)
+            logger.info(f"Uploaded file '{file_info.value}'")
             return BitstreamInfo(file_info.value, res.internal_filename, file_info.metadata.permissions)
+        except InvalidFileNameError:
+            msg = f"Invalid filename: Unable to upload file '{file_info.value}' of resource '{file_info.res_id}'"
         except PermanentConnectionError:
-            msg = f"Unable to upload file '{file_info.value}' of resource '{file_info.res_label}' ({file_info.res_id})"
-            logger.opt(exception=True).warning(msg)
-            return None
+            msg = f"Unable to upload file '{file_info.value}' of resource '{file_info.res_id}'"
+        logger.opt(exception=True).warning(msg)
+        return None
 
 
 @dataclass(frozen=True)

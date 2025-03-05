@@ -302,14 +302,14 @@ class TestReformatValidationGraph:
             ("id_date", "This property requires a DateValue", "onto:testSubDate1"),
             ("id_decimal", "This property requires a DecimalValue", "onto:testDecimalSimpleText"),
             ("id_geoname", "This property requires a GeonameValue", "onto:testGeoname"),
-            ("id_integer", "This property requires an IntValue", "onto:testIntegerSimpleText"),
+            ("id_integer", "This property requires a IntValue", "onto:testIntegerSimpleText"),
             ("id_link", "This property requires a LinkValue", "onto:testHasLinkTo"),
             ("id_list", "This property requires a ListValue", "onto:testListProp"),
             ("id_richtext", "TextValue with formatting", "onto:testRichtext"),
             ("id_simpletext", "TextValue without formatting", "onto:testTextarea"),
             ("id_time", "This property requires a TimeValue", "onto:testTimeValue"),
             ("id_uri", "This property requires a UriValue", "onto:testUriValue"),
-            ("is_link_should_be_integer", "This property requires an IntValue", "onto:testIntegerSpinbox"),
+            ("is_link_should_be_integer", "This property requires a IntValue", "onto:testIntegerSpinbox"),
             ("is_link_should_be_text", "TextValue without formatting", "onto:testTextarea"),
         ]
         assert len(result.problems) == len(expected_info_tuples)

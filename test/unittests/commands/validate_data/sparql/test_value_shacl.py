@@ -67,7 +67,7 @@ def test_add_value_type_shapes_to_class_shapes(card_1: Graph) -> None:
     prop_bn = next(res.objects(ONTO.ClassMixedCard, SH.property))
     assert next(res.objects(prop_bn, SH.path)) == ONTO.testBoolean
     assert next(res.objects(prop_bn, URIRef("http://www.w3.org/ns/shacl#class"))) == KNORA_API.BooleanValue
-    assert next(res.objects(prop_bn, SH.message)) == Literal(f"{KNORA_API_STR}BooleanValue")
+    assert next(res.objects(prop_bn, SH.message)) == Literal("This property requires a BooleanValue")
     assert len(res) == 6
 
 

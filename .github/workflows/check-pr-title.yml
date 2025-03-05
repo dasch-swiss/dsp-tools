@@ -5,6 +5,10 @@ name: PR-Title
 on:
   pull_request:
     types: [opened, edited, synchronize, reopened]
+  workflow_run:
+    workflows: ["Release-Please"]
+    types:
+      - completed
 
 permissions:
   pull-requests: read

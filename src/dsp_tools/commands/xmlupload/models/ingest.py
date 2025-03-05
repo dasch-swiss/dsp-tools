@@ -15,10 +15,12 @@ from requests.adapters import Retry
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileValue
 from dsp_tools.models.exceptions import BadCredentialsError
+from dsp_tools.models.exceptions import InvalidFileNameError
 from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.utils.authentication_client import AuthenticationClient
 
 STATUS_OK = 200
+BAD_REQUEST = 400
 STATUS_UNAUTHORIZED = 401
 STATUS_INTERNAL_SERVER_ERROR = 500
 
@@ -106,6 +108,8 @@ class DspIngestClientLive(AssetClient):
                     return IngestResponse(internal_filename=res.json()["internalFilename"])
                 elif res.status_code == STATUS_UNAUTHORIZED:
                     raise BadCredentialsError("Bad credentials")
+                elif res.status_code == BAD_REQUEST and res.text == "Invalid value for: path parameter filename":
+                    raise InvalidFileNameError()
                 else:
                     raise PermanentConnectionError()
             except requests.exceptions.RequestException as e:
@@ -117,10 +121,12 @@ class DspIngestClientLive(AssetClient):
             res = self._ingest(Path(self.imgdir) / Path(file_info.value))
             logger.info(f"Uploaded file '{file_info.value}'")
             return BitstreamInfo(file_info.value, res.internal_filename, file_info.metadata.permissions)
+        except InvalidFileNameError:
+            msg = f"Invalid filename: Unable to upload file '{file_info.value}' of resource '{file_info.res_id}'"
         except PermanentConnectionError:
-            msg = f"Unable to upload file '{file_info.value}' of resource '{file_info.res_label}' ({file_info.res_id})"
-            logger.opt(exception=True).warning(msg)
-            return None
+            msg = f"Unable to upload file '{file_info.value}' of resource '{file_info.res_id}'"
+        logger.opt(exception=True).warning(msg)
+        return None
 
 
 @dataclass(frozen=True)

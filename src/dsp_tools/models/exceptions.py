@@ -74,6 +74,10 @@ class InvalidInputError(BaseError):
     """This error is raised if the API responds with a permanent error because of invalid input data"""
 
 
+class InvalidFileNameError(InvalidInputError):
+    """This error is raised if INGEST rejects a file due to its name."""
+
+
 class PermanentTimeOutError(BaseError):
     """This error is raised when python throws a timeout due to no response from the DSP-API."""
 

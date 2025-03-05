@@ -1,5 +1,13 @@
 # Changelog
 
+## [10.6.1](https://github.com/dasch-swiss/dsp-tools/compare/v10.6.0...v10.6.1) (2025-03-05)
+
+
+### Maintenance
+
+* _handle_non_ok_responses() ([#1505](https://github.com/dasch-swiss/dsp-tools/issues/1505)) ([193d971](https://github.com/dasch-swiss/dsp-tools/commit/193d971621d67bbf47b386235363f21417e356a7))
+* **xmllib:** don't manually interfere with xml serialisation (DEV-4230) ([#1503](https://github.com/dasch-swiss/dsp-tools/issues/1503)) ([50c4c67](https://github.com/dasch-swiss/dsp-tools/commit/50c4c67c26b2d36e3cb81c498b9b739973540a32))
+
 ## [10.6.0](https://github.com/dasch-swiss/dsp-tools/compare/v10.5.0...v10.6.0) (2025-03-05)
 
 

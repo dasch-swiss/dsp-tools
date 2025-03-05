@@ -208,7 +208,7 @@ api-shapes:IntervalValue_ClassShape
                 a           sh:PropertyShape ;
                 sh:path     rdf:type ;
                 sh:class    knora-api:IntervalValue ;
-                sh:message  "This property requires a IntervalValue" ;
+                sh:message  "This property requires an IntervalValue" ;
                 sh:minCount 1 ;
                 sh:maxCount 1 ;
                 sh:severity sh:Violation ;
@@ -256,7 +256,7 @@ api-shapes:IntValue_ClassShape
                 a           sh:PropertyShape ;
                 sh:path     rdf:type ;
                 sh:class    knora-api:IntValue ;
-                sh:message  "This property requires a IntValue" ;
+                sh:message  "This property requires an IntValue" ;
                 sh:minCount 1 ;
                 sh:maxCount 1 ;
                 sh:severity sh:Violation ;

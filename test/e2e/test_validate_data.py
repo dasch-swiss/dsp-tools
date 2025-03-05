@@ -297,19 +297,19 @@ class TestReformatValidationGraph:
         assert not result.unexpected_results
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         expected_info_tuples = [
-            ("id_bool", "BooleanValue", "onto:testBoolean"),
-            ("id_color", "ColorValue", "onto:testColor"),
-            ("id_date", "DateValue", "onto:testSubDate1"),
-            ("id_decimal", "DecimalValue", "onto:testDecimalSimpleText"),
-            ("id_geoname", "GeonameValue", "onto:testGeoname"),
-            ("id_integer", "IntValue", "onto:testIntegerSimpleText"),
-            ("id_link", "LinkValue", "onto:testHasLinkTo"),
-            ("id_list", "ListValue", "onto:testListProp"),
+            ("id_bool", "This property requires a BooleanValue", "onto:testBoolean"),
+            ("id_color", "This property requires a ColorValue", "onto:testColor"),
+            ("id_date", "This property requires a DateValue", "onto:testSubDate1"),
+            ("id_decimal", "This property requires a DecimalValue", "onto:testDecimalSimpleText"),
+            ("id_geoname", "This property requires a GeonameValue", "onto:testGeoname"),
+            ("id_integer", "This property requires an IntValue", "onto:testIntegerSimpleText"),
+            ("id_link", "This property requires a LinkValue", "onto:testHasLinkTo"),
+            ("id_list", "This property requires a ListValue", "onto:testListProp"),
             ("id_richtext", "TextValue with formatting", "onto:testRichtext"),
             ("id_simpletext", "TextValue without formatting", "onto:testTextarea"),
-            ("id_time", "TimeValue", "onto:testTimeValue"),
-            ("id_uri", "UriValue", "onto:testUriValue"),
-            ("is_link_should_be_integer", "IntValue", "onto:testIntegerSpinbox"),
+            ("id_time", "This property requires a TimeValue", "onto:testTimeValue"),
+            ("id_uri", "This property requires a UriValue", "onto:testUriValue"),
+            ("is_link_should_be_integer", "This property requires an IntValue", "onto:testIntegerSpinbox"),
             ("is_link_should_be_text", "TextValue without formatting", "onto:testTextarea"),
         ]
         assert len(result.problems) == len(expected_info_tuples)

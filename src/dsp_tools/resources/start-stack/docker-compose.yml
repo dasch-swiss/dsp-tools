@@ -28,7 +28,7 @@ services:
 
   sipi:
     # on the verge of every deployment (fortnightly), take the same tag as DSP-API
-    image: daschswiss/knora-sipi:v31.8.0-1-g9805e5d
+    image: daschswiss/knora-sipi:v31.8.0
     ports:
       - "1024:1024"
     volumes:

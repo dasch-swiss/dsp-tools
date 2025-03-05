@@ -191,18 +191,29 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
                 message=msg,
             )
         case SH.ClassConstraintComponent:
-            # TODO: here
-            val = next(results_and_onto.objects(base_info.result_bn, SH.value))
-            return ValidationResult(
-                violation_type=ViolationType.GENERIC,
-                res_iri=base_info.resource_iri,
-                res_class=base_info.res_class_type,
-                property=base_info.result_path,
-                message=msg,
-                input_value=val,
-            )
+            return _query_class_constraint_without_detail(base_info, results_and_onto, data, msg)
         case _:
             return UnexpectedComponent(str(component))
+
+
+def _query_class_constraint_without_detail(
+    base_info: ValidationResultBaseInfo, results_and_onto: Graph, data: Graph, message: SubjectObjectTypeAlias
+):
+    val = next(results_and_onto.objects(base_info.result_bn, SH.value))
+    value_type = None
+    violation_type = ViolationType.GENERIC
+    if val_type := list(data.objects(val, RDF.type)):
+        value_type = val_type.pop(0)
+        violation_type = ViolationType.VALUE_TYPE
+    return ValidationResult(
+        violation_type=violation_type,
+        res_iri=base_info.resource_iri,
+        res_class=base_info.res_class_type,
+        property=base_info.result_path,
+        message=message,
+        input_value=val,
+        input_type=value_type,
+    )
 
 
 def _query_for_non_existent_cardinality_violation(

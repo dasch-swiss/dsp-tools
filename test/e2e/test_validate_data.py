@@ -163,7 +163,7 @@ def test_extract_identifiers_of_resource_results(every_combination_once: Validat
         (URIRef("http://data/id_max_card"), None),
         (URIRef("http://data/id_missing_file_value"), None),
         (URIRef("http://data/id_simpletext"), BNode),
-        (URIRef("http://data/id_uri"), BNode),
+        (URIRef("http://data/id_uri"), None),
         (URIRef("http://data/identical_values"), None),
         (URIRef("http://data/image_no_legal_info"), None),
         (URIRef("http://data/image_no_legal_info"), None),

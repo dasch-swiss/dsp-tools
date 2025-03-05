@@ -205,15 +205,17 @@ def _query_class_constraint_without_detail(
     value_type: None | SubjectObjectTypeAlias = None
     msg: None | SubjectObjectTypeAlias = message
     expected = None
-    val_type = next(data.objects(val, RDF.type))
-    value_super_class = list(results_and_onto.transitive_objects(val_type, RDFS.subClassOf))
+    val_type_list = list(data.objects(val, RDF.type))
     # Here we have a normal value type violation
-    if val_type and KNORA_API.FileValue not in value_super_class:
-        value_type = val_type
-        val = None
-        violation_type = ViolationType.VALUE_TYPE
-        msg = None
-        expected = message
+    if val_type_list:
+        val_type = val_type_list.pop(0)
+        value_super_class = list(results_and_onto.transitive_objects(val_type, RDFS.subClassOf))
+        if KNORA_API.FileValue not in value_super_class:
+            value_type = val_type
+            val = None
+            violation_type = ViolationType.VALUE_TYPE
+            msg = None
+            expected = message
     return ValidationResult(
         violation_type=violation_type,
         res_iri=base_info.resource_iri,

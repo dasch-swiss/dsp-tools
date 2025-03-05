@@ -291,7 +291,7 @@ api-shapes:UriValue_ClassShape
 api-shapes:hasLinkTo_PropertyShape
   a       sh:PropertyShape ;
   sh:path knora-api:hasLinkTo ;
-  sh:node api-shapes:LinkValue_ClassShape, api-shapes:hasLinkTo_NodeShape .
+  sh:node api-shapes:hasLinkTo_NodeShape .
 
 api-shapes:hasLinkTo_NodeShape
   a           sh:NodeShape ;
@@ -491,6 +491,7 @@ api-shapes:LinkObj_ResourceShape
                    sh:class knora-api:LinkValue ;
                    sh:message "This property requires a LinkValue" ;
                  ] ,
+                 api-shapes:hasLinkTo_PropertyShape ,
                  api-shapes:rdfsLabel_Shape,
                  api-shapes:hasComment_PropertyShape ,
                  api-shapes:hasStandoffLinkTo_TargetMustExistPropertyShape ;

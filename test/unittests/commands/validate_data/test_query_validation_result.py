@@ -259,7 +259,7 @@ class TestQueryWithoutDetail:
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == KNORA_API.hasLicense
-        assert result.message == Literal("Files and IIIF-URIs require a reference to a license.")
+        assert result.expected == Literal("Files and IIIF-URIs require a reference to a license.")
 
     def test_result_id_uri(self, report_value_type: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res, data, info = report_value_type
@@ -269,7 +269,7 @@ class TestQueryWithoutDetail:
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testUriValue
-        assert result.message == Literal("This property requires a UriValue")
+        assert result.expected == Literal("This property requires a UriValue")
         assert result.input_type == KNORA_API.TextValue
 
     def test_unknown(self, result_unknown_component: tuple[Graph, ValidationResultBaseInfo]) -> None:

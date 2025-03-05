@@ -206,6 +206,8 @@ class ConnectionLive(Connection):
             blame = "client"
         if original_str and original_str.group(1).startswith("OntologyConstraintException"):
             blame = "client"
+        if original_str and original_str.group(1).startswith("NotFoundException"):
+            blame = "client"
         if blame == "client":
             raise InvalidInputError(msg)
         else:

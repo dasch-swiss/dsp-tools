@@ -88,7 +88,13 @@ def card_1() -> Graph:
                 owl:cardinality 1 ;
                 owl:onProperty onto:testBoolean
                          ] .
-    onto:testBoolean knora-api:isEditable true .
+    onto:testBoolean a owl:ObjectProperty ;
+    rdfs:label "Test Boolean" ;
+    knora-api:isEditable true ;
+    knora-api:isResourceProperty true ;
+    knora-api:objectType knora-api:BooleanValue ;
+    salsah-gui::guiElement salsah-gui::Checkbox ;
+    rdfs:subPropertyOf knora-api:hasValue .
     """
     g = Graph()
     g.parse(data=ttl, format="ttl")

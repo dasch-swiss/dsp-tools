@@ -128,9 +128,9 @@ class TestSeparateResultTypes:
     def test_result_id_uri(self, report_value_type: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res_g, onto_data_g, _ = report_value_type
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
-        assert len(no_detail) == 0
-        assert len(with_detail) == 1
-        assert with_detail[0].resource_iri == DATA.id_uri
+        assert len(no_detail) == 1
+        assert len(with_detail) == 0
+        assert no_detail[0].resource_iri == DATA.id_uri
 
     def test_result_geoname_not_number(self, report_regex: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res_g, onto_data_g, _ = report_regex
@@ -176,8 +176,8 @@ class TestSeparateResultTypes:
 
 class TestQueryWithoutDetail:
     def test_result_id_card_one(self, report_min_card: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
-        res, _, info = report_min_card
-        result = _query_one_without_detail(info, res)
+        res, data, info = report_min_card
+        result = _query_one_without_detail(info, res, data)
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.MIN_CARD
         assert result.res_iri == info.resource_iri
@@ -188,8 +188,8 @@ class TestQueryWithoutDetail:
     def test_result_id_closed_constraint(
         self, report_closed_constraint: tuple[Graph, Graph, ValidationResultBaseInfo]
     ) -> None:
-        res, _, info = report_closed_constraint
-        result = _query_one_without_detail(info, res)
+        res, data, info = report_closed_constraint
+        result = _query_one_without_detail(info, res, data)
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.NON_EXISTING_CARD
         assert result.res_iri == info.resource_iri
@@ -197,8 +197,8 @@ class TestQueryWithoutDetail:
         assert result.property == ONTO.testIntegerSimpleText
 
     def test_result_id_max_card(self, report_max_card: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
-        res, _, info = report_max_card
-        result = _query_one_without_detail(info, res)
+        res, data, info = report_max_card
+        result = _query_one_without_detail(info, res, data)
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.MAX_CARD
         assert result.res_iri == info.resource_iri
@@ -208,7 +208,7 @@ class TestQueryWithoutDetail:
 
     def test_result_empty_label(self, report_empty_label: tuple[Graph, ValidationResultBaseInfo]) -> None:
         graphs, info = report_empty_label
-        result = _query_one_without_detail(info, graphs)
+        result = _query_one_without_detail(info, graphs, Graph())
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.PATTERN
         assert result.res_iri == info.resource_iri
@@ -220,8 +220,8 @@ class TestQueryWithoutDetail:
     def test_unique_value_literal(
         self, report_unique_value_literal: tuple[Graph, Graph, ValidationResultBaseInfo]
     ) -> None:
-        res, _, info = report_unique_value_literal
-        result = _query_one_without_detail(info, res)
+        res, data, info = report_unique_value_literal
+        result = _query_one_without_detail(info, res, data)
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.UNIQUE_VALUE
         assert result.res_iri == info.resource_iri
@@ -230,8 +230,8 @@ class TestQueryWithoutDetail:
         assert result.input_value == Literal("00111111")
 
     def test_unique_value_iri(self, report_unique_value_iri: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
-        res, _, info = report_unique_value_iri
-        result = _query_one_without_detail(info, res)
+        res, data, info = report_unique_value_iri
+        result = _query_one_without_detail(info, res, data)
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.UNIQUE_VALUE
         assert result.res_iri == info.resource_iri
@@ -240,8 +240,8 @@ class TestQueryWithoutDetail:
         assert result.input_value == DATA.link_valueTarget_id
 
     def test_coexist_with(self, report_coexist_with: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
-        validation_g, _, info = report_coexist_with
-        result = _query_one_without_detail(info, validation_g)
+        validation_g, data, info = report_coexist_with
+        result = _query_one_without_detail(info, validation_g, data)
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.SEQNUM_IS_PART_OF
         assert result.res_iri == info.resource_iri
@@ -252,8 +252,8 @@ class TestQueryWithoutDetail:
     def test_image_missing_legal_info(
         self, report_image_missing_legal_info: tuple[Graph, Graph, ValidationResultBaseInfo]
     ) -> None:
-        res, _, info = report_image_missing_legal_info
-        result = _query_one_without_detail(info, res)
+        res, data, info = report_image_missing_legal_info
+        result = _query_one_without_detail(info, res, data)
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.GENERIC
         assert result.res_iri == info.resource_iri
@@ -261,9 +261,20 @@ class TestQueryWithoutDetail:
         assert result.property == KNORA_API.hasLicense
         assert result.expected == Literal("Files and IIIF-URIs require a reference to a license.")
 
+    def test_result_id_uri(self, report_value_type: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
+        res, data, info = report_value_type
+        result = _query_one_without_detail(info, res, data)
+        assert isinstance(result, ValidationResult)
+        assert result.violation_type == ViolationType.VALUE_TYPE
+        assert result.res_iri == info.resource_iri
+        assert result.res_class == info.res_class_type
+        assert result.property == ONTO.testUriValue
+        assert result.expected == Literal("This property requires a UriValue")
+        assert result.input_type == KNORA_API.TextValue
+
     def test_unknown(self, result_unknown_component: tuple[Graph, ValidationResultBaseInfo]) -> None:
         graphs, info = result_unknown_component
-        result = _query_one_without_detail(info, graphs)
+        result = _query_one_without_detail(info, graphs, Graph())
         assert isinstance(result, UnexpectedComponent)
         assert result.component_type == str(SH.UniqueLangConstraintComponent)
 
@@ -280,17 +291,6 @@ class TestQueryWithDetail:
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testTextarea
         assert result.expected == Literal("TextValue without formatting")
-        assert result.input_type == KNORA_API.TextValue
-
-    def test_result_id_uri(self, report_value_type: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
-        res, data, info = report_value_type
-        result = _query_one_with_detail(info, res, data)
-        assert isinstance(result, ValidationResult)
-        assert result.violation_type == ViolationType.VALUE_TYPE
-        assert result.res_iri == info.resource_iri
-        assert result.res_class == info.res_class_type
-        assert result.property == ONTO.testUriValue
-        assert result.expected == Literal("UriValue")
         assert result.input_type == KNORA_API.TextValue
 
     def test_result_geoname_not_number(self, report_regex: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
@@ -373,7 +373,7 @@ class TestQueryWithDetail:
 class TestQueryFileValueViolations:
     def test_missing_file_value(self, report_missing_file_value: tuple[Graph, ValidationResultBaseInfo]) -> None:
         graphs, info = report_missing_file_value
-        result = _query_one_without_detail(info, graphs)
+        result = _query_one_without_detail(info, graphs, Graph())
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.FILE_VALUE
         assert result.res_iri == info.resource_iri
@@ -385,14 +385,14 @@ class TestQueryFileValueViolations:
         self, file_value_cardinality_to_ignore: tuple[Graph, ValidationResultBaseInfo]
     ) -> None:
         graphs, info = file_value_cardinality_to_ignore
-        result = _query_one_without_detail(info, graphs)
+        result = _query_one_without_detail(info, graphs, Graph())
         assert result is None
 
     def test_file_value_for_resource_without_representation(
         self, file_value_for_resource_without_representation: tuple[Graph, ValidationResultBaseInfo]
     ) -> None:
         graphs, info = file_value_for_resource_without_representation
-        result = _query_one_without_detail(info, graphs)
+        result = _query_one_without_detail(info, graphs, Graph())
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.FILEVALUE_PROHIBITED
         assert result.res_iri == info.resource_iri
@@ -449,7 +449,7 @@ class TestReformatResult:
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testUriValue"
         assert result.input_type == "TextValue"
-        assert result.expected == "UriValue"
+        assert result.expected == "This property requires a UriValue"
 
     def test_violation_regex(self, extracted_regex: ValidationResult) -> None:
         result = _reformat_one_validation_result(extracted_regex)

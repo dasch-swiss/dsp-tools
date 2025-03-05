@@ -91,6 +91,16 @@
         </resource>
 
         <!--
+        sh:sourceConstraintComponent  sh:ClassConstraintComponent
+        sh:detail                     -
+        -->
+        <resource label="Uri" restype=":ClassWithEverything" id="id_uri">
+            <text-prop name=":testUriValue">
+                <text encoding="utf8">https://dasch.swiss</text>
+            </text-prop>
+        </resource>
+
+        <!--
         sh:sourceConstraintComponent  sh:NodeConstraintComponent
         sh:detail                     sh:PatternConstraintComponent
         -->
@@ -98,16 +108,6 @@
             <geoname-prop name=":testGeoname">
                 <geoname>this-is-not-a-valid-code</geoname>
             </geoname-prop>
-        </resource>
-
-        <!--
-        sh:sourceConstraintComponent  sh:NodeConstraintComponent
-        sh:detail                     sh:ClassConstraintComponent
-        -->
-        <resource label="Uri" restype=":ClassWithEverything" id="id_uri">
-            <text-prop name=":testUriValue">
-                <text encoding="utf8">https://dasch.swiss</text>
-            </text-prop>
         </resource>
 
         <!--

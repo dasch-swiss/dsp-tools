@@ -304,14 +304,14 @@ class TestReformatValidationGraph:
             ("decimal_wrong_value_type", "This property requires a DecimalValue", "onto:testDecimalSimpleText"),
             ("geoname_wrong_value_type", "This property requires a GeonameValue", "onto:testGeoname"),
             ("integer_wrong_value_type", "This property requires a IntValue", "onto:testIntegerSimpleText"),
+            ("is_link_should_be_integer", "This property requires a IntValue", "onto:testIntegerSpinbox"),
+            ("is_link_should_be_text", "TextValue without formatting", "onto:testTextarea"),
             ("link_wrong_value_type", "This property requires a LinkValue", "onto:testHasLinkTo"),
             ("list_wrong_value_type", "This property requires a ListValue", "onto:testListProp"),
             ("richtext_wrong_value_type", "TextValue with formatting", "onto:testRichtext"),
             ("simpletext_wrong_value_type", "TextValue without formatting", "onto:testTextarea"),
             ("time_wrong_value_type", "This property requires a TimeValue", "onto:testTimeValue"),
             ("uri_wrong_value_type", "This property requires a UriValue", "onto:testUriValue"),
-            ("is_link_should_be_integer", "This property requires a IntValue", "onto:testIntegerSpinbox"),
-            ("is_link_should_be_text", "TextValue without formatting", "onto:testTextarea"),
         ]
         assert len(result.problems) == len(expected_info_tuples)
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
@@ -400,8 +400,6 @@ class TestReformatValidationGraph:
             ("id_closed_constraint", ProblemType.NON_EXISTING_CARD),
             ("id_max_card", ProblemType.MAX_CARD),
             ("id_missing_file_value", ProblemType.FILE_VALUE),
-            ("simpletext_wrong_value_type", ProblemType.VALUE_TYPE_MISMATCH),
-            ("uri_wrong_value_type", ProblemType.VALUE_TYPE_MISMATCH),
             ("identical_values", ProblemType.DUPLICATE_VALUE),
             ("image_no_legal_info", ProblemType.GENERIC),
             ("image_no_legal_info", ProblemType.GENERIC),
@@ -411,6 +409,8 @@ class TestReformatValidationGraph:
             ("list_node_non_existent", ProblemType.GENERIC),
             ("missing_seqnum", ProblemType.GENERIC),
             ("richtext_standoff_link_nonexistent", ProblemType.GENERIC),
+            ("simpletext_wrong_value_type", ProblemType.VALUE_TYPE_MISMATCH),
+            ("uri_wrong_value_type", ProblemType.VALUE_TYPE_MISMATCH),
             ("video_segment_start_larger_than_end", ProblemType.GENERIC),
             ("video_segment_wrong_bounds", ProblemType.GENERIC),  # once for start that is less than zero
             ("video_segment_wrong_bounds", ProblemType.GENERIC),  # once for the end that is zero

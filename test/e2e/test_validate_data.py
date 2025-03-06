@@ -12,6 +12,7 @@ from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
 from dsp_tools.commands.validate_data.api_connection import ApiConnection
+from dsp_tools.commands.validate_data.get_user_validation_message import _filter_out_duplicate_problems
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
@@ -296,7 +297,10 @@ class TestReformatValidationGraph:
     def test_reformat_value_type_violation(self, value_type_violation: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(value_type_violation)
         assert not result.unexpected_results
-        sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
+        # "is_link_should_be_text" gives two types of validation errors, this function removes the duplicates
+        filtered_problems = _filter_out_duplicate_problems(result.problems)
+        flattened_problems = [item for sublist in filtered_problems for item in sublist]
+        sorted_problems = sorted(flattened_problems, key=lambda x: x.res_id)
         expected_info_tuples = [
             ("bool_wrong_value_type", "This property requires a BooleanValue", "onto:testBoolean"),
             ("color_wrong_value_type", "This property requires a ColorValue", "onto:testColor"),
@@ -307,7 +311,6 @@ class TestReformatValidationGraph:
             ("is_date_should_be_simpletext", "TextValue without formatting", "onto:testTextarea"),
             ("is_link_should_be_integer", "This property requires a IntValue", "onto:testIntegerSpinbox"),
             ("is_link_should_be_text", "TextValue without formatting", "onto:testTextarea"),
-            ("is_link_should_be_text", "This property requires a TextValue", "onto:testTextarea"),
             ("link_wrong_value_type", "This property requires a LinkValue", "onto:testHasLinkTo"),
             ("list_wrong_value_type", "This property requires a ListValue", "onto:testListProp"),
             ("richtext_wrong_value_type", "TextValue with formatting", "onto:testRichtext"),
@@ -315,7 +318,7 @@ class TestReformatValidationGraph:
             ("time_wrong_value_type", "This property requires a TimeValue", "onto:testTimeValue"),
             ("uri_wrong_value_type", "This property requires a UriValue", "onto:testUriValue"),
         ]
-        assert len(result.problems) == len(expected_info_tuples)
+        assert len(sorted_problems) == len(expected_info_tuples)
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
             assert one_result.problem_type == ProblemType.VALUE_TYPE_MISMATCH
             assert one_result.res_id == expected_info[0]

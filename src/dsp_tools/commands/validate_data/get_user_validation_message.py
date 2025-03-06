@@ -39,6 +39,33 @@ def _filter_out_duplicate_problems(problems: list[InputProblem]) -> list[list[In
     return list(filtered.values())
 
 
+def _filter_out_duplicate_text_value_problem(problems: list[InputProblem]) -> list[InputProblem]:
+    filtered_problems = [x for x in problems if x.problem_type != ProblemType.VALUE_TYPE_MISMATCH]
+    type_problems = [x for x in problems if x.problem_type == ProblemType.VALUE_TYPE_MISMATCH]
+
+    grouped_dict = defaultdict(list)
+    for prob in type_problems:
+        grouped_dict[prob.prop_name].append(prob)
+
+    for problem_list in grouped_dict.values():
+        messages = [x.expected for x in problem_list]
+        # Is there a chance of a duplicate (only possible for TextValue)?
+        if "This property requires a TextValue" not in messages:
+            filtered_problems.extend(problem_list)
+            continue
+        # Is there a more precise message about the type of TextValue?
+        if "TextValue without formatting" not in messages and "TextValue with formatting" not in messages:
+            # If there is not a more precise message, then the generic one is communicated to the user
+            filtered_problems.extend(problem_list)
+            continue
+        # We remove the generic message and leave the specific one
+        inx = messages.index("This property requires a TextValue")
+        problem_list.pop(inx)
+        filtered_problems.extend(problem_list)
+
+    return filtered_problems
+
+
 def _group_problems_by_resource(problems: list[InputProblem]) -> dict[str, list[InputProblem]]:
     grouped_res = defaultdict(list)
     for prob in problems:
@@ -143,30 +170,3 @@ def _shorten_input(user_input: str | None) -> str | None:
     if len(user_input) < 41:
         return user_input
     return f"{user_input[:40]}[...]"
-
-
-def _filter_out_duplicate_text_value_problem(problems: list[InputProblem]) -> list[InputProblem]:
-    filtered_problems = [x for x in problems if not x.problem_type == ProblemType.VALUE_TYPE_MISMATCH]
-    type_problems = [x for x in problems if x.problem_type == ProblemType.VALUE_TYPE_MISMATCH]
-
-    grouped_dict = defaultdict(list)
-    for prob in type_problems:
-        grouped_dict[prob.prop_name].append(prob)
-
-    for problem_list in grouped_dict.values():
-        messages = [x.expected for x in problem_list]
-        # Is there a chance of a duplicate (only possible for TextValue)?
-        if "This property requires a TextValue" not in messages:
-            filtered_problems.extend(problem_list)
-            continue
-        # Is there a more precise message about the type of TextValue?
-        if "TextValue without formatting" not in messages and "TextValue with formatting" not in messages:
-            # If there is not a more precise message, then the generic one is communicated to the user
-            filtered_problems.extend(problem_list)
-            continue
-        # We remove the generic message and leave the specific one
-        inx = messages.index("This property requires a TextValue")
-        problem_list.pop(inx)
-        filtered_problems.extend(problem_list)
-
-    return filtered_problems

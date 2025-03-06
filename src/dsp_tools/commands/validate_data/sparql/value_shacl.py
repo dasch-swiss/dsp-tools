@@ -190,6 +190,8 @@ def _construct_property_type_text_value(onto: Graph) -> Graph:
         g += _construct_one_property_type_text_value(onto, object_type, shacl_shape)
     return g
 
+# TODO: add test data where the actual value is a date but it should be a simple text -> both use valueAsString.
+#  check why we get two validation errors for value type in text
 
 def _construct_one_property_type_text_value(onto: Graph, gui_element: str, shacl_shape: str) -> Graph:
     logger.info(f"Constructing shape for {gui_element}")

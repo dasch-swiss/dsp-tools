@@ -8,11 +8,11 @@ from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
 
+from dsp_tools.commands.validate_data.constants import API_SHAPES
 from dsp_tools.commands.validate_data.constants import DASH
 from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROP_SHAPES
 from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROPERTIES
 from dsp_tools.commands.validate_data.constants import KNORA_API
-from dsp_tools.commands.validate_data.constants import VALUE_CLASS_SHAPES
 from dsp_tools.commands.validate_data.constants import SubjectObjectTypeAlias
 from dsp_tools.commands.validate_data.mappers import RESULT_TO_PROBLEM_MAPPER
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
@@ -239,7 +239,8 @@ def _query_all_with_detail(
     unexpected_components: list[UnexpectedComponent] = []
 
     for base_info in all_base_info:
-        res = _query_one_with_detail(base_info, results_and_onto, data_onto_graph)
+        if not (res := _query_one_with_detail(base_info, results_and_onto, data_onto_graph)):
+            continue
         if isinstance(res, UnexpectedComponent):
             unexpected_components.append(res)
         else:
@@ -249,13 +250,16 @@ def _query_all_with_detail(
 
 def _query_one_with_detail(
     base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
-) -> ValidationResult | UnexpectedComponent:
+) -> ValidationResult | UnexpectedComponent | None:
     detail_info = cast(DetailBaseInfo, base_info.detail)
     match detail_info.source_constraint_component:
         case SH.MinCountConstraintComponent:
-            if base_info.result_path in FILE_VALUE_PROPERTIES:
-                return _query_generic_violation(base_info, results_and_onto)
-            return _query_for_value_type_violation(base_info, results_and_onto, data_graph)
+            # If the source shape is one either of the text values, then the problem is a value type violation.
+            # However, this result is communicated through another shape, so we can ignore it.
+            source_shape = next(results_and_onto.objects(detail_info.detail_bn, SH.sourceShape))
+            if source_shape in {API_SHAPES.SimpleTextValue_PropShape, API_SHAPES.FormattedTextValue_PropShape}:
+                return None
+            return _query_generic_violation(base_info, results_and_onto)
         case SH.PatternConstraintComponent:
             return _query_pattern_constraint_component_violation(detail_info.detail_bn, base_info, results_and_onto)
         case SH.ClassConstraintComponent:
@@ -275,8 +279,8 @@ def _query_class_constraint_component_violation(
     base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
 ) -> ValidationResult | UnexpectedComponent:
     detail_info = cast(DetailBaseInfo, base_info.detail)
-    detail_source_shape = next(results_and_onto.objects(detail_info.detail_bn, SH.sourceShape))
-    if detail_source_shape in VALUE_CLASS_SHAPES:
+    detail_path = next(results_and_onto.objects(detail_info.detail_bn, SH.resultPath))
+    if detail_path == RDF.type:
         return _query_for_value_type_violation(base_info, results_and_onto, data_graph)
     return _query_for_link_value_target_violation(base_info, results_and_onto, data_graph)
 

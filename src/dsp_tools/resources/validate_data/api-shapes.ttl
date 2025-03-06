@@ -1,6 +1,7 @@
 @prefix sh:         <http://www.w3.org/ns/shacl#> .
 @prefix dash:       <http://datashapes.org/dash#> .
 @prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
 @prefix owl:        <http://www.w3.org/2002/07/owl#> .
 @prefix knora-api:  <http://api.knora.org/ontology/knora-api/v2#> .
@@ -73,10 +74,22 @@ api-shapes:BooleanValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
   sh:message  "BooleanValue" ;
-  sh:class    knora-api:BooleanValue ;
-  sh:property api-shapes:valueHasComment_Shape ;
+  sh:property [
+                sh:path     rdf:type ;
+                sh:class    knora-api:BooleanValue ;
+                sh:message  "Expected value type is BooleanValue." ;
+                sh:severity sh:Violation
+              ] ,
+              api-shapes:booleanValueAsBoolean_Shape ,
+              api-shapes:valueHasComment_Shape ;
   sh:severity sh:Violation .
 
+api-shapes:booleanValueAsBoolean_Shape
+  a           sh:PropertyShape ;
+  sh:message  "The value must be a valid boolean" ;
+  sh:path     knora-api:booleanValueAsBoolean ;
+  sh:datatype xsd:boolean ;
+  sh:severity sh:Violation .
 
 ##############
 # ColorValue
@@ -86,8 +99,13 @@ api-shapes:ColorValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
   sh:message  "ColorValue" ;
-  sh:class    knora-api:ColorValue ;
-  sh:property api-shapes:colorValueAsColor_Shape, api-shapes:valueHasComment_Shape ;
+  sh:property [
+                sh:path     rdf:type ;
+                sh:class    knora-api:ColorValue ;
+                sh:message  "Expected value type is ColorValue." ;
+                sh:severity sh:Violation
+              ] ,
+              api-shapes:colorValueAsColor_Shape, api-shapes:valueHasComment_Shape ;
   sh:severity sh:Violation .
 
 api-shapes:colorValueAsColor_Shape
@@ -107,10 +125,22 @@ api-shapes:DateValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
   sh:message  "DateValue" ;
-  sh:class    knora-api:DateValue ;
-  sh:property api-shapes:valueHasComment_Shape ;
+  sh:property [
+                sh:path     rdf:type ;
+                sh:class    knora-api:DateValue ;
+                sh:message  "Expected value type is DateValue." ;
+                sh:severity sh:Violation
+              ] ,
+              api-shapes:valueAsString_Date_Shape , api-shapes:valueHasComment_Shape ;
   sh:severity sh:Violation .
 
+api-shapes:valueAsString_Date_Shape
+  a           sh:PropertyShape ;
+  sh:message  "The value must be a valid date" ;
+  sh:path     knora-api:valueAsString ;
+  sh:pattern  "\\s*\\S+\\s*" ;
+  sh:datatype xsd:string ;
+  sh:severity sh:Violation .
 
 ##############
 # DecimalValue
@@ -120,10 +150,21 @@ api-shapes:DecimalValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
   sh:message  "DecimalValue" ;
-  sh:class    knora-api:DecimalValue ;
-  sh:property api-shapes:valueHasComment_Shape ;
+  sh:property [
+                sh:path     rdf:type ;
+                sh:class    knora-api:DecimalValue ;
+                sh:message  "Expected value type is DecimalValue." ;
+                sh:severity sh:Violation
+              ] ,
+              api-shapes:decimalValueAsDecimal_Shape , api-shapes:valueHasComment_Shape ;
   sh:severity sh:Violation .
 
+api-shapes:decimalValueAsDecimal_Shape
+  a           sh:PropertyShape ;
+  sh:message  "The value must be a valid decimal" ;
+  sh:path     knora-api:decimalValueAsDecimal ;
+  sh:datatype xsd:decimal ;
+  sh:severity sh:Violation .
 
 ##############
 # GeonameValue
@@ -133,8 +174,13 @@ api-shapes:GeonameValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
   sh:message  "GeonameValue" ;
-  sh:property api-shapes:geonameValueAsGeonameCode_Shape, api-shapes:valueHasComment_Shape ;
-  sh:class    knora-api:GeonameValue ;
+  sh:property [
+                sh:path     rdf:type ;
+                sh:class    knora-api:GeonameValue ;
+                sh:message  "Expected value type is GeonameValue." ;
+                sh:severity sh:Violation
+              ] ,
+              api-shapes:geonameValueAsGeonameCode_Shape, api-shapes:valueHasComment_Shape ;
   sh:severity sh:Violation .
 
 api-shapes:geonameValueAsGeonameCode_Shape
@@ -154,8 +200,13 @@ api-shapes:GeomValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
   sh:message  "GeomValue" ;
-  sh:property api-shapes:geometryValueAsGeometry_Shape, api-shapes:valueHasComment_Shape ;
-  sh:class    knora-api:GeomValue ;
+  sh:property [
+                sh:path     rdf:type ;
+                sh:class    knora-api:GeomValue ;
+                sh:message  "Expected value type is GeomValue." ;
+                sh:severity sh:Violation
+              ] ,
+              api-shapes:geometryValueAsGeometry_Shape, api-shapes:valueHasComment_Shape ;
   sh:severity sh:Violation .
 
 api-shapes:geometryValueAsGeometry_Shape
@@ -175,8 +226,13 @@ api-shapes:IntervalValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
   sh:message  "IntervalValue" ;
-  sh:class    knora-api:IntervalValue ;
   sh:property [
+                sh:path     rdf:type ;
+                sh:class    knora-api:IntervalValue ;
+                sh:message  "Expected value type is IntervalValue." ;
+                sh:severity sh:Violation
+              ] ,
+              [
                 sh:path knora-api:intervalValueHasStart ;
 		            sh:lessThan knora-api:intervalValueHasEnd ;
                 sh:message "The start of the interval must be smaller than the end." ;
@@ -219,10 +275,21 @@ api-shapes:IntValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
   sh:message  "IntValue" ;
-  sh:class    knora-api:IntValue ;
-  sh:property api-shapes:valueHasComment_Shape ;
+  sh:property [
+                sh:path     rdf:type ;
+                sh:class    knora-api:IntValue ;
+                sh:message  "Expected value type is IntValue." ;
+                sh:severity sh:Violation
+              ] ,
+              api-shapes:intValueAsInt_Shape , api-shapes:valueHasComment_Shape ;
   sh:severity sh:Violation .
 
+api-shapes:intValueAsInt_Shape
+  a           sh:PropertyShape ;
+  sh:message  "The value must be a valid integer" ;
+  sh:path     knora-api:intValueAsInt ;
+  sh:datatype xsd:integer ;
+  sh:severity sh:Violation .
 
 ##############
 # LinkValue
@@ -232,8 +299,13 @@ api-shapes:LinkValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
   sh:message  "LinkValue" ;
-  sh:class    knora-api:LinkValue ;
-  sh:property api-shapes:valueHasComment_Shape ;
+  sh:property [
+                sh:path     rdf:type ;
+                sh:class    knora-api:LinkValue ;
+                sh:message  "Expected value type is LinkValue." ;
+                sh:severity sh:Violation
+              ] ,
+              api-shapes:valueHasComment_Shape ;
   sh:severity sh:Violation .
 
 
@@ -245,8 +317,13 @@ api-shapes:ListValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
   sh:message  "ListValue" ;
-  sh:class    knora-api:ListValue ;
-  sh:property api-shapes:valueHasComment_Shape ;
+  sh:property [
+                sh:path     rdf:type ;
+                sh:class    knora-api:ListValue ;
+                sh:message  "Expected value type is ListValue." ;
+                sh:severity sh:Violation
+              ] ,
+              api-shapes:valueHasComment_Shape ;
   sh:severity sh:Violation .
 
 
@@ -260,7 +337,13 @@ api-shapes:ListValue_ClassShape
 api-shapes:SimpleTextValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
-  sh:property api-shapes:SimpleTextValue_PropShape, api-shapes:valueAsString_Shape, api-shapes:valueHasComment_Shape ;
+  sh:property [
+                sh:path     rdf:type ;
+                sh:class    knora-api:TextValue ;
+                sh:message  "Expected value type is TextValue without formatting." ;
+                sh:severity sh:Violation
+              ] ,
+              api-shapes:SimpleTextValue_PropShape, api-shapes:valueAsString_Shape, api-shapes:valueHasComment_Shape ;
   sh:severity sh:Violation .
 
 api-shapes:SimpleTextValue_PropShape
@@ -286,7 +369,13 @@ api-shapes:valueAsString_Shape
 api-shapes:FormattedTextValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
-  sh:property api-shapes:FormattedTextValue_PropShape, api-shapes:textValueAsXml_Shape,
+  sh:property [
+                sh:path     rdf:type ;
+                sh:class    knora-api:TextValue ;
+                sh:message  "Expected value type is TextValue with formatting." ;
+                sh:severity sh:Violation
+              ] ,
+              api-shapes:FormattedTextValue_PropShape, api-shapes:textValueAsXml_Shape,
               api-shapes:valueHasComment_Shape ;
   sh:severity sh:Violation .
 
@@ -315,10 +404,21 @@ api-shapes:TimeValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
   sh:message  "TimeValue" ;
-  sh:class    knora-api:TimeValue ;
-  sh:property api-shapes:valueHasComment_Shape ;
+  sh:property [
+                sh:path     rdf:type ;
+                sh:class    knora-api:TimeValue ;
+                sh:message  "Expected value type is TimeValue." ;
+                sh:severity sh:Violation
+              ] ,
+              api-shapes:timeValueAsTimeStamp_Shape , api-shapes:valueHasComment_Shape ;
   sh:severity sh:Violation .
 
+api-shapes:timeValueAsTimeStamp_Shape
+  a           sh:PropertyShape ;
+  sh:message  "The value must be a valid time stamp" ;
+  sh:path     knora-api:timeValueAsTimeStamp ;
+  sh:datatype xsd:dateTimeStamp ;
+  sh:severity sh:Violation .
 
 ##############
 # UriValue
@@ -328,10 +428,21 @@ api-shapes:UriValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
   sh:message  "UriValue" ;
-  sh:class    knora-api:UriValue ;
-  sh:property api-shapes:valueHasComment_Shape ;
+  sh:property [
+                sh:path     rdf:type ;
+                sh:class    knora-api:UriValue ;
+                sh:message  "Expected value type is UriValue." ;
+                sh:severity sh:Violation
+              ] ,
+              api-shapes:uriValueAsUri_Shape , api-shapes:valueHasComment_Shape ;
   sh:severity sh:Violation .
 
+api-shapes:uriValueAsUri_Shape
+  a           sh:PropertyShape ;
+  sh:message  "The value must be a valid URI" ;
+  sh:path     knora-api:uriValueAsUri ;
+  sh:datatype xsd:anyURI ;
+  sh:severity sh:Violation .
 
 #########################################
 # KNORA-API IN-BUILT PROPERTIES

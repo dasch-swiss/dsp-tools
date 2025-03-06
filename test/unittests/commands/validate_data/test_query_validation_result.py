@@ -274,13 +274,7 @@ class TestQueryWithDetail:
     ) -> None:
         res, data, info = report_value_type_simpletext
         result = _query_one_with_detail(info, res, data)
-        assert isinstance(result, ValidationResult)
-        assert result.violation_type == ViolationType.VALUE_TYPE
-        assert result.res_iri == info.resource_iri
-        assert result.res_class == info.res_class_type
-        assert result.property == ONTO.testTextarea
-        assert result.expected == Literal("TextValue without formatting")
-        assert result.input_type == KNORA_API.TextValue
+        assert not result
 
     def test_result_id_uri(self, report_value_type: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res, data, info = report_value_type
@@ -290,7 +284,7 @@ class TestQueryWithDetail:
         assert result.res_iri == info.resource_iri
         assert result.res_class == info.res_class_type
         assert result.property == ONTO.testUriValue
-        assert result.expected == Literal("UriValue")
+        assert result.expected == Literal("Expected value type is UriValue.")
         assert result.input_type == KNORA_API.TextValue
 
     def test_result_geoname_not_number(self, report_regex: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
@@ -449,7 +443,7 @@ class TestReformatResult:
         assert result.res_type == "onto:ClassWithEverything"
         assert result.prop_name == "onto:testUriValue"
         assert result.input_type == "TextValue"
-        assert result.expected == "UriValue"
+        assert result.expected == "Expected value type is UriValue."
 
     def test_violation_regex(self, extracted_regex: ValidationResult) -> None:
         result = _reformat_one_validation_result(extracted_regex)

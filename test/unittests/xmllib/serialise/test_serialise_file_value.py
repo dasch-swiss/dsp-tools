@@ -74,20 +74,20 @@ def test_serialise_file_value_bitstream_with_comment(metadata_no_permissions: Me
 
 
 def test_serialise_file_value_iiif(metadata_no_permissions: Metadata) -> None:
-    val = IIIFUri("https://link.org", metadata_no_permissions, None)
+    val = IIIFUri("https://example.org/image.jpg/full/1338%2C/0/default.jpg", metadata_no_permissions, None)
     result = serialise_file_value(val, "authorship_1")
     expected = (
         b'<iiif-uri xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
         b'license="license" '
         b'copyright-holder="copyright" '
         b'authorship-id="authorship_1"'
-        b">https://link.org</iiif-uri>"
+        b">https://example.org/image.jpg/full/1338%2C/0/default.jpg</iiif-uri>"
     )
     assert etree.tostring(result) == expected
 
 
 def test_serialise_file_value_iiif_with_comment(metadata_no_permissions: Metadata) -> None:
-    val = IIIFUri("https://link.org", metadata_no_permissions, "comment")
+    val = IIIFUri("https://example.org/image.jpg/full/1338%2C/0/default.jpg", metadata_no_permissions, "comment")
     result = serialise_file_value(val, "authorship_1")
     expected = (
         b'<iiif-uri xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
@@ -95,7 +95,7 @@ def test_serialise_file_value_iiif_with_comment(metadata_no_permissions: Metadat
         b'copyright-holder="copyright" '
         b'authorship-id="authorship_1" '
         b'comment="comment"'
-        b">https://link.org</iiif-uri>"
+        b">https://example.org/image.jpg/full/1338%2C/0/default.jpg</iiif-uri>"
     )
     assert etree.tostring(result) == expected
 

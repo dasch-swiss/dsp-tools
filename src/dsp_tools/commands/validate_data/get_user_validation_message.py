@@ -53,8 +53,7 @@ def _get_problem_print_message(problems: list[list[InputProblem]]) -> str:
 
 def _get_message_for_one_resource(problems: list[InputProblem]) -> str:
     start_msg = f"Resource ID: {problems[0].res_id} | Resource Type: {problems[0].res_type}"
-    filtered_problems = _filter_out_duplicate_text_value_problem(problems)
-    prop_messages = _get_message_with_properties(filtered_problems)
+    prop_messages = _get_message_with_properties(problems)
     return f"{start_msg}\n{prop_messages}"
 
 

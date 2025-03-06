@@ -141,7 +141,7 @@ def test_filter_out_duplicate_text_value_problem_with_duplicate(duplicate_value,
     )
     should_be_removed = InputProblem(
         problem_type=ProblemType.VALUE_TYPE_MISMATCH,
-        res_id="be_removed",
+        res_id="should_be_removed",
         res_type="",
         prop_name="",
         expected="This property requires a TextValue",

@@ -25,11 +25,12 @@ def get_user_message(problems: list[InputProblem], file_path: Path) -> str:
         Problem message
     """
     duplicates_removed = _filter_out_duplicate_problems(problems)
-    if len(problems) > 50:
+    num_unique_problems = sum([len(x) for x in duplicates_removed])
+    if num_unique_problems > 50:
         specific_message = _save_problem_info_as_csv(duplicates_removed, file_path)
     else:
         specific_message = _get_problem_print_message(duplicates_removed)
-    return f"\nDuring the validation of the data {len(problems)} errors were found:\n\n{specific_message}"
+    return f"\nDuring the validation of the data {num_unique_problems} errors were found:\n\n{specific_message}"
 
 
 def _filter_out_duplicate_problems(problems: list[InputProblem]) -> list[list[InputProblem]]:

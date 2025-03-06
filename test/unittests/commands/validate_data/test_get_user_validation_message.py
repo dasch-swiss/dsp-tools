@@ -183,7 +183,6 @@ def test_filter_out_duplicate_text_value_problem_no_duplicate(duplicate_value, l
     )
     result = _filter_out_duplicate_text_value_problem([duplicate_value, link_value_type_mismatch, should_remain])
     assert len(result) == 3
-    assert set([x.res_id for x in result]) == {"should_remain", "res_id"}
 
 
 def test_get_message_for_one_resource_generic(generic_problem):

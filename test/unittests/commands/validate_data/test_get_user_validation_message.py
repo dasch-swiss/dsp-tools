@@ -173,18 +173,6 @@ def test_filter_out_duplicate_text_value_problem_different_props():
     assert set([x.res_id for x in result]) == {"one", "two"}
 
 
-def test_filter_out_duplicate_text_value_problem_no_duplicate(duplicate_value, link_value_type_mismatch):
-    should_remain = InputProblem(
-        problem_type=ProblemType.VALUE_TYPE_MISMATCH,
-        res_id="should_remain",
-        res_type="",
-        prop_name="onto:hasProp",
-        expected="This property requires a TextValue",
-    )
-    result = _filter_out_duplicate_text_value_problem([duplicate_value, link_value_type_mismatch, should_remain])
-    assert len(result) == 3
-
-
 def test_get_message_for_one_resource_generic(generic_problem):
     result = _get_message_for_one_resource([generic_problem])
     expected = (

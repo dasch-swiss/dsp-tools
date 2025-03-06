@@ -3,6 +3,28 @@ default:
     @just --list
 
 
+# Run all autoformattings
+[no-exit-message]
+format:
+    ruff format .
+    yamlfmt .
+
+
+# Run all linters
+[no-exit-message]
+lint:
+    #!/usr/bin/env -S parallel --shebang --ungroup --jobs {{ num_cpus() }}
+    just ruff-check
+    just ruff-format-check
+    yamlfmt -lint .
+    yamllint .
+    just markdownlint
+    just darglint
+    just mypy
+    uv run mkdocs build --strict
+    just check-links
+
+
 # Run the ruff linter to detect bad Python coding habits
 [no-exit-message]
 ruff-check *FLAGS:

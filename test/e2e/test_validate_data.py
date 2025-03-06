@@ -307,6 +307,7 @@ class TestReformatValidationGraph:
             ("is_date_should_be_simpletext", "TextValue without formatting", "onto:testTextarea"),
             ("is_link_should_be_integer", "This property requires a IntValue", "onto:testIntegerSpinbox"),
             ("is_link_should_be_text", "TextValue without formatting", "onto:testTextarea"),
+            ("is_link_should_be_text", "This property requires a TextValue", "onto:testTextarea"),
             ("link_wrong_value_type", "This property requires a LinkValue", "onto:testHasLinkTo"),
             ("list_wrong_value_type", "This property requires a ListValue", "onto:testListProp"),
             ("richtext_wrong_value_type", "TextValue with formatting", "onto:testRichtext"),

@@ -76,7 +76,7 @@
         </text-prop>
     </resource>
 
-    <resource label="Simpletext" restype=":ClassWithEverything" id="id_simpletext">
+    <resource label="Simpletext" restype=":ClassWithEverything" id="simpletext_wrong_value_type">
         <text-prop name=":testTextarea">
             <text encoding="xml">Text</text>
         </text-prop>
@@ -88,7 +88,7 @@
         </resptr-prop>
     </resource>
 
-    <resource label="Time" restype=":ClassWithEverything" id="id_time">
+    <resource label="Time" restype=":ClassWithEverything" id="time_wrong_value_type">
         <text-prop name=":testTimeValue">
             <text encoding="utf8">2019-10-23T13:45:12.01-14:00</text>
         </text-prop>

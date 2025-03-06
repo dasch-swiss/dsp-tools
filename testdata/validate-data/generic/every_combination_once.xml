@@ -114,7 +114,7 @@
         sh:sourceConstraintComponent  sh:NodeConstraintComponent
         sh:detail                     sh:MinCountConstraintComponent
         -->
-        <resource label="Simpletext" restype=":ClassWithEverything" id="id_simpletext">
+        <resource label="Simpletext" restype=":ClassWithEverything" id="simpletext_wrong_value_type">
             <text-prop name=":testTextarea">
                 <text encoding="xml">Text</text>
             </text-prop>

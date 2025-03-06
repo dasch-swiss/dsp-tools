@@ -46,7 +46,8 @@ def _group_problems_by_resource(problems: list[InputProblem]) -> dict[str, list[
 
 def _get_message_for_one_resource(problems: list[InputProblem]) -> str:
     start_msg = f"Resource ID: {problems[0].res_id} | Resource Type: {problems[0].res_type}"
-    prop_messages = _get_message_with_properties(problems)
+    filtered_problems = _filter_out_duplicate_text_value_problem(problems)
+    prop_messages = _get_message_with_properties(filtered_problems)
     return f"{start_msg}\n{prop_messages}"
 
 
@@ -134,3 +135,30 @@ def _shorten_input(user_input: str | None) -> str | None:
     if len(user_input) < 41:
         return user_input
     return f"{user_input[:40]}[...]"
+
+
+def _filter_out_duplicate_text_value_problem(problems: list[InputProblem]) -> list[InputProblem]:
+    filtered_problems = [x for x in problems if not x.problem_type == ProblemType.VALUE_TYPE_MISMATCH]
+    type_problems = [x for x in problems if x.problem_type == ProblemType.VALUE_TYPE_MISMATCH]
+
+    grouped_dict = defaultdict(list)
+    for prob in type_problems:
+        grouped_dict[prob.prop_name].append(prob)
+
+    for problem_list in grouped_dict.values():
+        messages = [x.message for x in problem_list]
+        # Is there a chance of a duplicate (only possible for TextValue)?
+        if "This property requires a TextValue" not in messages:
+            filtered_problems.extend(problem_list)
+            continue
+        # Is there a more precise message about the type of TextValue?
+        if "TextValue without formatting" not in messages:
+            # If there is not a more precise message then the generic one is communicated to the user
+            filtered_problems.extend(problem_list)
+            continue
+        # We remove the generic message and leave the specific one
+        inx = messages.index("This property requires a TextValue")
+        problem_list.pop(inx)
+        filtered_problems.extend(problem_list)
+
+    return filtered_problems

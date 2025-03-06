@@ -2,9 +2,9 @@
 
 # The excel2xml Module
 
-| <center>**Warning**</center>                                                                             |
-| -------------------------------------------------------------------------------------------------------- |
-| The `excel2xml` module is deprecated in favor of the [`xmllib` library](./xmllib-api-reference/xmlroot). |
+!!! warning
+
+    The `excel2xml` module is deprecated in favor of the [`xmllib` library](./xmllib-api-reference/xmlroot.md).
 
 ## Two Use Cases - Two Approaches
 

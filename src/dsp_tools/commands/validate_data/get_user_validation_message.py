@@ -160,8 +160,8 @@ def _filter_out_duplicate_text_value_problem(problems: list[InputProblem]) -> li
             filtered_problems.extend(problem_list)
             continue
         # Is there a more precise message about the type of TextValue?
-        if "TextValue without formatting" not in messages:
-            # If there is not a more precise message then the generic one is communicated to the user
+        if "TextValue without formatting" not in messages or "TextValue with formatting" not in messages:
+            # If there is not a more precise message, then the generic one is communicated to the user
             filtered_problems.extend(problem_list)
             continue
         # We remove the generic message and leave the specific one

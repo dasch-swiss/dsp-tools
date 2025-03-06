@@ -289,9 +289,9 @@ api-shapes:UriValue_ClassShape
 ### knora-api:hasLinkTo
 
 api-shapes:hasLinkTo_PropertyShape
-  a       sh:PropertyShape ;
-  sh:path knora-api:hasLinkTo ;
-  sh:node api-shapes:hasLinkTo_NodeShape .
+  a           sh:PropertyShape ;
+  sh:path     knora-api:hasLinkTo ;
+  sh:node     api-shapes:LinkValue_ClassShape, api-shapes:hasLinkTo_NodeShape .
 
 api-shapes:hasLinkTo_NodeShape
   a           sh:NodeShape ;
@@ -466,6 +466,8 @@ api-shapes:hasKeyword_PropertyShape
 
 ### knora-api:hasStandoffLinkTo
 
+# Currently StandOff are attached directly to the resource and not in a LinkValue,
+# therefore we do not validate it like a normal link with a LinkValue
 api-shapes:hasStandoffLinkTo_TargetMustExistPropertyShape
   a sh:PropertyShape ;
   sh:path knora-api:hasStandoffLinkTo ;
@@ -478,6 +480,9 @@ api-shapes:hasStandoffLinkTo_TargetMustExistPropertyShape
 # DSP BUILT IN RESOURCES
 #########################################
 
+# The built-in resources are are validated strictly by the xsd,
+# therefore a mismatch of value type does not need to be evaluated the way user defined properties need to be
+
 ###########################
 # LinkObj
 
@@ -485,13 +490,7 @@ api-shapes:LinkObj_ResourceShape
   a              sh:NodeShape ;
   sh:name        "Validates the LinkObj resource" ;
   sh:targetClass knora-api:LinkObj ;
-  sh:property    [
-                   a sh:PropertyShape ;
-                   sh:path knora-api:hasLinkTo ;
-                   sh:class knora-api:LinkValue ;
-                   sh:message "This property requires a LinkValue" ;
-                 ] ,
-                 api-shapes:hasLinkTo_PropertyShape ,
+  sh:property    api-shapes:hasLinkTo_PropertyShape ,
                  api-shapes:rdfsLabel_Shape,
                  api-shapes:hasComment_PropertyShape ,
                  api-shapes:hasStandoffLinkTo_TargetMustExistPropertyShape ;
@@ -506,8 +505,8 @@ api-shapes:Region_ResourceShape
   sh:name        "Validates the Region resource" ;
   sh:targetClass knora-api:Region ;
   sh:property    api-shapes:rdfsLabel_Shape ,
-                 api-shapes:hasColor_PropertyShape ,
                  api-shapes:isRegionOf_PropertyShape ,
+                 api-shapes:hasColor_PropertyShape ,
                  api-shapes:hasGeometry_PropertyShape ,
                  api-shapes:hasComment_PropertyShape ,
                  api-shapes:hasStandoffLinkTo_TargetMustExistPropertyShape ;

@@ -198,9 +198,6 @@ def _construct_one_property_type_shape_based_on_object_type(onto: Graph, object_
     return Graph()
 
 
-# TODO: for all hard coded link props, add the sh:path sh:class LinkValue
-
-
 def _construct_link_value_shape(onto: Graph) -> Graph:
     logger.info("Constructing LinkValue PropertyShape")
     query_s = """

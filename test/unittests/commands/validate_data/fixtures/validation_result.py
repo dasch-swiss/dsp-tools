@@ -350,25 +350,14 @@ def extracted_min_inclusive() -> ValidationResult:
 @pytest.fixture
 def report_value_type(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
-    [ 
-        a sh:ValidationResult ;
-        sh:detail _:bn_id_uri ;
+    [ a sh:ValidationResult ;
         sh:focusNode <http://data/id_uri> ;
-        sh:resultMessage "Value does not have shape api-shapes:UriValue_ClassShape" ;
+        sh:resultMessage "This property requires a UriValue" ;
         sh:resultPath <http://0.0.0.0:3333/ontology/9999/onto/v2#testUriValue> ;
-        sh:resultSeverity sh:Violation ;
-        sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-        sh:sourceShape <http://0.0.0.0:3333/ontology/9999/onto/v2#testUriValue_PropShape> ;
-        sh:value <http://data/value_id_uri> ] .
-    
-    _:bn_id_uri a sh:ValidationResult ;
-        sh:focusNode <http://data/value_id_uri> ;
-        sh:resultMessage "Expected value type is UriValue." ;
-        sh:resultPath rdf:type ;
         sh:resultSeverity sh:Violation ;
         sh:sourceConstraintComponent sh:ClassConstraintComponent ;
         sh:sourceShape [ ] ;
-        sh:value <http://api.knora.org/ontology/knora-api/v2#TextValue> .
+        sh:value <http://data/value_id_uri> ] .
     """
     validation_g = Graph()
     validation_g.parse(data=validation_str, format="ttl")
@@ -384,19 +373,13 @@ def report_value_type(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResult
     onto_data_g += onto_graph
     onto_data_g.parse(data=data_str, format="ttl")
     val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
-    detail_bn = next(validation_g.objects(predicate=SH.detail))
-    detail_component = next(validation_g.objects(detail_bn, SH.sourceConstraintComponent))
-    detail = DetailBaseInfo(
-        detail_bn=detail_bn,
-        source_constraint_component=detail_component,
-    )
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
-        source_constraint_component=SH.NodeConstraintComponent,
+        source_constraint_component=SH.ClassConstraintComponent,
         resource_iri=DATA.id_uri,
         res_class_type=ONTO.ClassWithEverything,
         result_path=ONTO.testUriValue,
-        detail=detail,
+        detail=None,
     )
     return validation_g, onto_data_g, base_info
 
@@ -408,7 +391,7 @@ def extracted_value_type() -> ValidationResult:
         res_iri=DATA.id_uri,
         res_class=ONTO.ClassWithEverything,
         property=ONTO.testUriValue,
-        expected=Literal("Expected value type is UriValue."),
+        expected=Literal("This property requires a UriValue"),
         input_type=KNORA_API.TextValue,
     )
 

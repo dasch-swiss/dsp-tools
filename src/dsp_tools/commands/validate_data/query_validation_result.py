@@ -8,7 +8,6 @@ from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
 
-from dsp_tools.commands.validate_data.constants import API_SHAPES
 from dsp_tools.commands.validate_data.constants import DASH
 from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROP_SHAPES
 from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROPERTIES
@@ -64,7 +63,7 @@ def _query_all_results(
     extracted_results: list[ValidationResult] = []
     unexpected_components: list[UnexpectedComponent] = []
 
-    no_detail_extracted, no_detail_unexpected = _query_all_without_detail(no_details, results_and_onto)
+    no_detail_extracted, no_detail_unexpected = _query_all_without_detail(no_details, results_and_onto, data_onto_graph)
     extracted_results.extend(no_detail_extracted)
     unexpected_components.extend(no_detail_unexpected)
 
@@ -146,13 +145,13 @@ def _extract_one_base_info(
 
 
 def _query_all_without_detail(
-    all_base_info: list[ValidationResultBaseInfo], results_and_onto: Graph
+    all_base_info: list[ValidationResultBaseInfo], results_and_onto: Graph, data: Graph
 ) -> tuple[list[ValidationResult], list[UnexpectedComponent]]:
     extracted_results: list[ValidationResult] = []
     unexpected_components: list[UnexpectedComponent] = []
 
     for base_info in all_base_info:
-        res = _query_one_without_detail(base_info, results_and_onto)
+        res = _query_one_without_detail(base_info, results_and_onto, data)
         if res is None:
             pass
         elif isinstance(res, UnexpectedComponent):
@@ -163,7 +162,7 @@ def _query_all_without_detail(
 
 
 def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
-    base_info: ValidationResultBaseInfo, results_and_onto: Graph
+    base_info: ValidationResultBaseInfo, results_and_onto: Graph, data: Graph
 ) -> ValidationResult | UnexpectedComponent | None:
     msg = next(results_and_onto.objects(base_info.result_bn, SH.resultMessage))
     component = next(results_and_onto.objects(base_info.result_bn, SH.sourceConstraintComponent))
@@ -192,21 +191,41 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
                 message=msg,
             )
         case SH.ClassConstraintComponent:
-            val = next(results_and_onto.objects(base_info.result_bn, SH.value))
-            return ValidationResult(
-                violation_type=ViolationType.GENERIC,
-                res_iri=base_info.resource_iri,
-                res_class=base_info.res_class_type,
-                property=base_info.result_path,
-                message=msg,
-                input_value=val,
-            )
-        # This component appears when an image file has any kind of problem.
-        # We ignore this because it is communicated either through the IIIF or the actual file shape
-        case SH.XoneConstraintComponent:
-            return None
+            return _query_class_constraint_without_detail(base_info, results_and_onto, data, msg)
         case _:
             return UnexpectedComponent(str(component))
+
+
+def _query_class_constraint_without_detail(
+    base_info: ValidationResultBaseInfo, results_and_onto: Graph, data: Graph, message: SubjectObjectTypeAlias
+) -> ValidationResult | None:
+    val: None | SubjectObjectTypeAlias = next(results_and_onto.objects(base_info.result_bn, SH.value))
+    # In this case we have some kind of FileValue violation
+    violation_type = ViolationType.GENERIC
+    value_type: None | SubjectObjectTypeAlias = None
+    msg: None | SubjectObjectTypeAlias = message
+    expected = None
+    val_type_list = list(data.objects(val, RDF.type))
+    # Here we have a normal value type violation
+    if val_type_list:
+        val_type = val_type_list.pop(0)
+        value_super_class = list(results_and_onto.transitive_objects(val_type, RDFS.subClassOf))
+        if KNORA_API.FileValue not in value_super_class:
+            value_type = val_type
+            val = None
+            violation_type = ViolationType.VALUE_TYPE
+            msg = None
+            expected = message
+    return ValidationResult(
+        violation_type=violation_type,
+        res_iri=base_info.resource_iri,
+        res_class=base_info.res_class_type,
+        property=base_info.result_path,
+        message=msg,
+        expected=expected,
+        input_value=val,
+        input_type=value_type,
+    )
 
 
 def _query_for_non_existent_cardinality_violation(
@@ -239,8 +258,7 @@ def _query_all_with_detail(
     unexpected_components: list[UnexpectedComponent] = []
 
     for base_info in all_base_info:
-        if not (res := _query_one_with_detail(base_info, results_and_onto, data_onto_graph)):
-            continue
+        res = _query_one_with_detail(base_info, results_and_onto, data_onto_graph)
         if isinstance(res, UnexpectedComponent):
             unexpected_components.append(res)
         else:
@@ -250,16 +268,13 @@ def _query_all_with_detail(
 
 def _query_one_with_detail(
     base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
-) -> ValidationResult | UnexpectedComponent | None:
+) -> ValidationResult | UnexpectedComponent:
     detail_info = cast(DetailBaseInfo, base_info.detail)
     match detail_info.source_constraint_component:
         case SH.MinCountConstraintComponent:
-            # If the source shape is one either of the text values, then the problem is a value type violation.
-            # However, this result is communicated through another shape, so we can ignore it.
-            source_shape = next(results_and_onto.objects(detail_info.detail_bn, SH.sourceShape))
-            if source_shape in {API_SHAPES.SimpleTextValue_PropShape, API_SHAPES.FormattedTextValue_PropShape}:
-                return None
-            return _query_generic_violation(base_info, results_and_onto)
+            if base_info.result_path in FILE_VALUE_PROPERTIES:
+                return _query_generic_violation(base_info, results_and_onto)
+            return _query_for_value_type_violation(base_info, results_and_onto, data_graph)
         case SH.PatternConstraintComponent:
             return _query_pattern_constraint_component_violation(detail_info.detail_bn, base_info, results_and_onto)
         case SH.ClassConstraintComponent:

@@ -56,7 +56,7 @@ jobs:
           enable-cache: true
       - name: Update uv.lock and commit it
         env:
-            PAT: ${{ secrets.DASCHBOT_PAT }}
+          PAT: ${{ secrets.DASCHBOT_PAT }}
         run: |
           git config user.name "daschbot"
           git config user.email "daschbot@users.noreply.github.com"

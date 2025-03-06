@@ -152,6 +152,7 @@ def test_filter_out_duplicate_text_value_problem_with_duplicate(duplicate_value,
     assert len(result) == 3
     assert set([x.res_id for x in result]) == {"should_remain", "res_id"}
 
+
 def test_filter_out_duplicate_text_value_problem_no_duplicate(duplicate_value, link_value_type_mismatch):
     should_remain = InputProblem(
         problem_type=ProblemType.VALUE_TYPE_MISMATCH,
@@ -160,9 +161,7 @@ def test_filter_out_duplicate_text_value_problem_no_duplicate(duplicate_value, l
         prop_name="",
         expected="This property requires a TextValue",
     )
-    result = _filter_out_duplicate_text_value_problem(
-        [duplicate_value, link_value_type_mismatch, should_remain]
-    )
+    result = _filter_out_duplicate_text_value_problem([duplicate_value, link_value_type_mismatch, should_remain])
     assert len(result) == 3
     assert set([x.res_id for x in result]) == {"should_remain", "res_id"}
 

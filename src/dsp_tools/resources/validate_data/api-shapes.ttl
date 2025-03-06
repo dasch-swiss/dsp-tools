@@ -69,16 +69,18 @@ api-shapes:rdfsLabel_Shape
 ##############
 # BooleanValue
 api-shapes:BooleanValue_ClassShape
-  a           sh:NodeShape ;
-  sh:name     "Validates the class type" ;
-  sh:message  "BooleanValue" ;
-  sh:property api-shapes:valueHasComment_Shape ;
-  sh:severity sh:Violation .
+  a              sh:NodeShape ;
+  sh:targetClass knora-api:BooleanValue ;
+  sh:name        "Validates the class type" ;
+  sh:message     "BooleanValue" ;
+  sh:property    api-shapes:valueHasComment_Shape ;
+  sh:severity    sh:Violation .
 
 ##############
 # ColorValue
 api-shapes:ColorValue_ClassShape
   a           sh:NodeShape ;
+  sh:targetClass knora-api:ColorValue ;
   sh:name     "Validates the class type" ;
   sh:message  "ColorValue" ;
   sh:property api-shapes:colorValueAsColor_Shape, api-shapes:valueHasComment_Shape ;
@@ -96,6 +98,7 @@ api-shapes:colorValueAsColor_Shape
 # DateValue
 api-shapes:DateValue_ClassShape
   a           sh:NodeShape ;
+  sh:targetClass knora-api:DateValue ;
   sh:name     "Validates the class type" ;
   sh:message  "DateValue" ;
   sh:property api-shapes:valueHasComment_Shape ;
@@ -105,6 +108,7 @@ api-shapes:DateValue_ClassShape
 # DecimalValue
 api-shapes:DecimalValue_ClassShape
   a           sh:NodeShape ;
+  sh:targetClass knora-api:DecimalValue ;
   sh:name     "Validates the class type" ;
   sh:message  "DecimalValue" ;
   sh:property api-shapes:valueHasComment_Shape ;
@@ -114,6 +118,7 @@ api-shapes:DecimalValue_ClassShape
 # GeonameValue
 api-shapes:GeonameValue_ClassShape
   a           sh:NodeShape ;
+  sh:targetClass knora-api:GeonameValue ;
   sh:name     "Validates the class type" ;
   sh:message  "GeonameValue" ;
   sh:property api-shapes:geonameValueAsGeonameCode_Shape, api-shapes:valueHasComment_Shape ;
@@ -131,6 +136,7 @@ api-shapes:geonameValueAsGeonameCode_Shape
 # GeomValue
 api-shapes:GeomValue_ClassShape
   a           sh:NodeShape ;
+  sh:targetClass knora-api:GeomValue ;
   sh:name     "Validates the class type" ;
   sh:message  "GeomValue" ;
   sh:property api-shapes:geometryValueAsGeometry_Shape, api-shapes:valueHasComment_Shape ;
@@ -148,6 +154,7 @@ api-shapes:geometryValueAsGeometry_Shape
 # IntervalValue
 api-shapes:IntervalValue_ClassShape
   a           sh:NodeShape ;
+  sh:targetClass knora-api:IntervalValue ;
   sh:name     "Validates the class type" ;
   sh:message  "IntervalValue" ;
   sh:property [
@@ -187,6 +194,7 @@ api-shapes:intervalValueHasEnd_PropShape
 # IntValue
 api-shapes:IntValue_ClassShape
   a           sh:NodeShape ;
+  sh:targetClass knora-api:IntValue ;
   sh:name     "Validates the class type" ;
   sh:message  "IntValue" ;
   sh:property api-shapes:valueHasComment_Shape ;
@@ -196,6 +204,7 @@ api-shapes:IntValue_ClassShape
 # LinkValue
 api-shapes:LinkValue_ClassShape
   a           sh:NodeShape ;
+  sh:targetClass knora-api:LinkValue ;
   sh:name     "Validates the class type" ;
   sh:message  "LinkValue" ;
   sh:property api-shapes:valueHasComment_Shape ;
@@ -205,6 +214,7 @@ api-shapes:LinkValue_ClassShape
 # ListValue
 api-shapes:ListValue_ClassShape
   a           sh:NodeShape ;
+  sh:targetClass knora-api:ListValue ;
   sh:name     "Validates the class type" ;
   sh:message  "ListValue" ;
   sh:property api-shapes:valueHasComment_Shape ;
@@ -268,6 +278,7 @@ api-shapes:textValueAsXml_Shape
 # TimeValue
 api-shapes:TimeValue_ClassShape
   a           sh:NodeShape ;
+  sh:targetClass knora-api:TimeValue ;
   sh:name     "Validates the class type" ;
   sh:message  "TimeValue" ;
   sh:property api-shapes:valueHasComment_Shape ;
@@ -277,6 +288,7 @@ api-shapes:TimeValue_ClassShape
 # UriValue
 api-shapes:UriValue_ClassShape
   a           sh:NodeShape ;
+  sh:targetClass knora-api:UriValue ;
   sh:name     "Validates the class type" ;
   sh:message  "UriValue" ;
   sh:property api-shapes:valueHasComment_Shape ;

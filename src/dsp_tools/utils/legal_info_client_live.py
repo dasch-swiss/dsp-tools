@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from datetime import datetime
 
 import requests
 from loguru import logger
@@ -28,7 +27,7 @@ class LegalInfoClientLive(LegalInfoClient):
 
     def post_copyright_holders(self, copyright_holders: list[str]) -> None:
         """Send a list of new copyright holders to the API"""
-        logger.debug(f"{datetime.now()}: POST {len(copyright_holders)} new copyright holders")
+        logger.debug(f"POST {len(copyright_holders)} new copyright holders")
         try:
             response = self._post_and_log_request("copyright-holders", copyright_holders)
         except (TimeoutError, ReadTimeout) as err:

@@ -310,6 +310,7 @@ def _handle_permanent_connection_error(err: PermanentConnectionError) -> Never:
     msg = "Lost connection to DSP server, probably because the server is down. "
     msg += f"Please continue later with 'resume-xmlupload'. Reason for this failure: {err.message}"
     logger.error(msg)
+    msg += f"\nSee {WARNINGS_SAVEPATH} for more information."
     raise XmlUploadInterruptedError(msg) from None
 
 

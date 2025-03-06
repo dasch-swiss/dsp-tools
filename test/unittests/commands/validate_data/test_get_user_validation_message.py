@@ -136,14 +136,14 @@ def test_filter_out_duplicate_text_value_problem_with_duplicate(duplicate_value,
         problem_type=ProblemType.VALUE_TYPE_MISMATCH,
         res_id="should_remain",
         res_type="",
-        prop_name="",
+        prop_name="onto:hasProp",
         expected="TextValue without formatting",
     )
     should_be_removed = InputProblem(
         problem_type=ProblemType.VALUE_TYPE_MISMATCH,
         res_id="should_be_removed",
         res_type="",
-        prop_name="",
+        prop_name="onto:hasProp",
         expected="This property requires a TextValue",
     )
     result = _filter_out_duplicate_text_value_problem(
@@ -153,12 +153,32 @@ def test_filter_out_duplicate_text_value_problem_with_duplicate(duplicate_value,
     assert set([x.res_id for x in result]) == {"should_remain", "res_id"}
 
 
+def test_filter_out_duplicate_text_value_problem_different_props():
+    one = InputProblem(
+        problem_type=ProblemType.VALUE_TYPE_MISMATCH,
+        res_id="one",
+        res_type="",
+        prop_name="onto:prop2",
+        expected="TextValue without formatting",
+    )
+    two = InputProblem(
+        problem_type=ProblemType.VALUE_TYPE_MISMATCH,
+        res_id="two",
+        res_type="",
+        prop_name="onto:prop1",
+        expected="This property requires a TextValue",
+    )
+    result = _filter_out_duplicate_text_value_problem([one, two])
+    assert len(result) == 2
+    assert set([x.res_id for x in result]) == {"one", "two"}
+
+
 def test_filter_out_duplicate_text_value_problem_no_duplicate(duplicate_value, link_value_type_mismatch):
     should_remain = InputProblem(
         problem_type=ProblemType.VALUE_TYPE_MISMATCH,
         res_id="should_remain",
         res_type="",
-        prop_name="",
+        prop_name="onto:hasProp",
         expected="This property requires a TextValue",
     )
     result = _filter_out_duplicate_text_value_problem([duplicate_value, link_value_type_mismatch, should_remain])

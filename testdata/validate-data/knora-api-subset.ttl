@@ -70,3 +70,36 @@ knora-api:VideoSegment
   rdfs:label                  "VideoSegment" ;
   knora-api:canBeInstantiated true ;
   knora-api:isResourceClass   true .
+
+
+knora-api:ArchiveFileValue
+  a               owl:Class ;
+  rdfs:subClassOf knora-api:FileValue .
+
+knora-api:AudioFileValue
+  a               owl:Class ;
+  rdfs:subClassOf knora-api:FileValue .
+
+knora-api:DocumentFileValue
+  a               owl:Class ;
+  rdfs:subClassOf knora-api:FileValue .
+
+knora-api:MovingImageFileValue
+  a               owl:Class ;
+  rdfs:subClassOf knora-api:FileValue .
+
+knora-api:TextFileValue
+  a               owl:Class ;
+  rdfs:subClassOf knora-api:FileValue .
+
+knora-api:StillImageAbstractFileValue
+  a               owl:Class ;
+  rdfs:subClassOf knora-api:FileValue .
+
+knora-api:StillImageFileValue
+  a               owl:Class ;
+  rdfs:subClassOf knora-api:StillImageAbstractFileValue .
+
+knora-api:StillImageExternalFileValue
+  a               owl:Class ;
+  rdfs:subClassOf knora-api:StillImageAbstractFileValue .

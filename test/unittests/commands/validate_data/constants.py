@@ -12,6 +12,7 @@ API_SHAPES = Namespace("http://api.knora.org/ontology/knora-api/shapes/v2#")
 PREFIXES = """
     @prefix owl: <http://www.w3.org/2002/07/owl#> .
     @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+    @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
     @prefix salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#> .
     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
     @prefix sh: <http://www.w3.org/ns/shacl#> .

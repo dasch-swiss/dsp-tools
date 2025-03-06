@@ -192,6 +192,10 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
             )
         case SH.ClassConstraintComponent:
             return _query_class_constraint_without_detail(base_info, results_and_onto, data, msg)
+        # This component appears when an image file has any kind of problem.
+        # We ignore this because it is communicated either through the IIIF or the actual file shape
+        case SH.XoneConstraintComponent:
+            return None
         case _:
             return UnexpectedComponent(str(component))
 

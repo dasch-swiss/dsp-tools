@@ -110,6 +110,7 @@ clean:
     -find . -name .pytest_cache -exec rm -rf {} \;
     -find . -name .mypy_cache -exec rm -rf {} \;
     -rm -rf ./*id2iri_mapping*.json
+    -rm -rf ./*id2iri_[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]*.json
     -rm -f ./warnings.log
     -rm -rf ./testdata/e2e/tmp-dsp-ingest/
     -rm -rf ./testdata/e2e/tmp-dsp-sipi/

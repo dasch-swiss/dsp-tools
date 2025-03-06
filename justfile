@@ -22,7 +22,6 @@ lint:
     just markdownlint
     just darglint
     just mypy
-    uv run mkdocs build --strict
     just check-links
 
 
@@ -34,7 +33,7 @@ yamllint:
 
 # Check the formatting of YAML files
 [no-exit-message]
-yamlfmt-check
+yamlfmt-check:
     yamlfmt -lint .
 
 

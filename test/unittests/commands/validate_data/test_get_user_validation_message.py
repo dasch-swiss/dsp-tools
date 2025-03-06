@@ -1,4 +1,4 @@
-# mypy: disable-error-code="method-assign"
+# mypy: disable-error-code="method-assign,no-untyped-def"
 
 import pytest
 

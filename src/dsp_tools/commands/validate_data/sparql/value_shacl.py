@@ -109,6 +109,7 @@ def _construct_value_type_shapes_to_class_shapes(onto: Graph) -> Graph:
 
       FILTER NOT EXISTS { ?propRestriction knora-api:objectType knora-api:TextValue }
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkProperty true }
+      FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
 
       BIND(CONCAT("This property requires a ", STRAFTER(STR(?objectType), "#")) AS ?objectTypeMessage)
     }

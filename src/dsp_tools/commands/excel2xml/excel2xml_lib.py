@@ -2230,7 +2230,6 @@ def write_xml(
         pretty_print=True,
         doctype='<?xml version="1.0" encoding="UTF-8"?>',
     )
-    xml_string = xml_string.replace(r"\'", "'")
     with open(filepath, "w", encoding="utf-8") as f:
         f.write(xml_string)
     try:

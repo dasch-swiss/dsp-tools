@@ -94,7 +94,7 @@
         sh:sourceConstraintComponent  sh:ClassConstraintComponent
         sh:detail                     -
         -->
-        <resource label="Uri" restype=":ClassWithEverything" id="id_uri">
+        <resource label="Uri" restype=":ClassWithEverything" id="uri_wrong_value_type">
             <text-prop name=":testUriValue">
                 <text encoding="utf8">https://dasch.swiss</text>
             </text-prop>

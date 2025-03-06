@@ -162,8 +162,6 @@ def test_extract_identifiers_of_resource_results(every_combination_once: Validat
         (URIRef("http://data/id_closed_constraint"), None),
         (URIRef("http://data/id_max_card"), None),
         (URIRef("http://data/id_missing_file_value"), None),
-        (URIRef("http://data/id_simpletext"), BNode),
-        (URIRef("http://data/id_uri"), None),
         (URIRef("http://data/identical_values"), None),
         (URIRef("http://data/image_no_legal_info"), None),
         (URIRef("http://data/image_no_legal_info"), None),
@@ -174,6 +172,8 @@ def test_extract_identifiers_of_resource_results(every_combination_once: Validat
         (URIRef("http://data/list_node_non_existent"), BNode),
         (URIRef("http://data/missing_seqnum"), None),
         (URIRef("http://data/richtext_standoff_link_nonexistent"), None),
+        (URIRef("http://data/simpletext_wrong_value_type"), BNode),
+        (URIRef("http://data/uri_wrong_value_type"), None),
         (URIRef("http://data/video_segment_start_larger_than_end"), BNode),
         (URIRef("http://data/video_segment_wrong_bounds"), BNode),
         (URIRef("http://data/video_segment_wrong_bounds"), BNode),
@@ -298,20 +298,20 @@ class TestReformatValidationGraph:
         assert not result.unexpected_results
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         expected_info_tuples = [
-            ("id_bool", "This property requires a BooleanValue", "onto:testBoolean"),
-            ("id_color", "This property requires a ColorValue", "onto:testColor"),
-            ("id_date", "This property requires a DateValue", "onto:testSubDate1"),
-            ("id_decimal", "This property requires a DecimalValue", "onto:testDecimalSimpleText"),
-            ("id_geoname", "This property requires a GeonameValue", "onto:testGeoname"),
-            ("id_integer", "This property requires a IntValue", "onto:testIntegerSimpleText"),
-            ("id_link", "This property requires a LinkValue", "onto:testHasLinkTo"),
-            ("id_list", "This property requires a ListValue", "onto:testListProp"),
-            ("id_richtext", "TextValue with formatting", "onto:testRichtext"),
-            ("id_simpletext", "TextValue without formatting", "onto:testTextarea"),
-            ("id_time", "This property requires a TimeValue", "onto:testTimeValue"),
-            ("id_uri", "This property requires a UriValue", "onto:testUriValue"),
+            ("bool_wrong_value_type", "This property requires a BooleanValue", "onto:testBoolean"),
+            ("color_wrong_value_type", "This property requires a ColorValue", "onto:testColor"),
+            ("date_wrong_value_type", "This property requires a DateValue", "onto:testSubDate1"),
+            ("decimal_wrong_value_type", "This property requires a DecimalValue", "onto:testDecimalSimpleText"),
+            ("geoname_wrong_value_type", "This property requires a GeonameValue", "onto:testGeoname"),
+            ("integer_wrong_value_type", "This property requires a IntValue", "onto:testIntegerSimpleText"),
             ("is_link_should_be_integer", "This property requires a IntValue", "onto:testIntegerSpinbox"),
             ("is_link_should_be_text", "TextValue without formatting", "onto:testTextarea"),
+            ("link_wrong_value_type", "This property requires a LinkValue", "onto:testHasLinkTo"),
+            ("list_wrong_value_type", "This property requires a ListValue", "onto:testListProp"),
+            ("richtext_wrong_value_type", "TextValue with formatting", "onto:testRichtext"),
+            ("simpletext_wrong_value_type", "TextValue without formatting", "onto:testTextarea"),
+            ("time_wrong_value_type", "This property requires a TimeValue", "onto:testTimeValue"),
+            ("uri_wrong_value_type", "This property requires a UriValue", "onto:testUriValue"),
         ]
         assert len(result.problems) == len(expected_info_tuples)
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
@@ -400,8 +400,6 @@ class TestReformatValidationGraph:
             ("id_closed_constraint", ProblemType.NON_EXISTING_CARD),
             ("id_max_card", ProblemType.MAX_CARD),
             ("id_missing_file_value", ProblemType.FILE_VALUE),
-            ("id_simpletext", ProblemType.VALUE_TYPE_MISMATCH),
-            ("id_uri", ProblemType.VALUE_TYPE_MISMATCH),
             ("identical_values", ProblemType.DUPLICATE_VALUE),
             ("image_no_legal_info", ProblemType.GENERIC),
             ("image_no_legal_info", ProblemType.GENERIC),
@@ -411,6 +409,8 @@ class TestReformatValidationGraph:
             ("list_node_non_existent", ProblemType.GENERIC),
             ("missing_seqnum", ProblemType.GENERIC),
             ("richtext_standoff_link_nonexistent", ProblemType.GENERIC),
+            ("simpletext_wrong_value_type", ProblemType.VALUE_TYPE_MISMATCH),
+            ("uri_wrong_value_type", ProblemType.VALUE_TYPE_MISMATCH),
             ("video_segment_start_larger_than_end", ProblemType.GENERIC),
             ("video_segment_wrong_bounds", ProblemType.GENERIC),  # once for start that is less than zero
             ("video_segment_wrong_bounds", ProblemType.GENERIC),  # once for the end that is zero

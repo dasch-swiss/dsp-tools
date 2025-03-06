@@ -26,10 +26,10 @@ ruff-format-check:
     uv run ruff format --check .
 
 
-# Check the type annotations in Python files for correctness
+# Check type annotations. Autostart mypy daemon if necessary, autoshutdown daemon after 1 day of inactivity
 [no-exit-message]
 mypy:
-    uv run mypy .
+    uv run dmypy run --timeout 86400 -- .
 
 
 # Check completeness and correctness of python docstrings

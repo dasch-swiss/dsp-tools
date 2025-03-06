@@ -304,6 +304,7 @@ class TestReformatValidationGraph:
             ("decimal_wrong_value_type", "This property requires a DecimalValue", "onto:testDecimalSimpleText"),
             ("geoname_wrong_value_type", "This property requires a GeonameValue", "onto:testGeoname"),
             ("integer_wrong_value_type", "This property requires a IntValue", "onto:testIntegerSimpleText"),
+            ("is_date_should_be_simpletext", "TextValue without formatting", "onto:testTextarea"),
             ("is_link_should_be_integer", "This property requires a IntValue", "onto:testIntegerSpinbox"),
             ("is_link_should_be_text", "TextValue without formatting", "onto:testTextarea"),
             ("link_wrong_value_type", "This property requires a LinkValue", "onto:testHasLinkTo"),

@@ -2,6 +2,10 @@
 
 # The excel2xml Module
 
+| <center>**Warning**</center>                                                                             |
+| -------------------------------------------------------------------------------------------------------- |
+| The `excel2xml` module is deprecated in favor of the [`xmllib` library](./xmllib-api-reference/xmlroot). |
+
 ## Two Use Cases - Two Approaches
 
 There are two kinds of Excel files that can be transformed into an XML file:

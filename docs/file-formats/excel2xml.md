@@ -2,7 +2,7 @@
 
 # Excel File Format to Generate an XML Data File
 
-| <center>Hint</center>                                                                                                            |
+| <center>**Hint**</center>                                                                                                        |
 |:---------------------------------------------------------------------------------------------------------------------------------|
 | If you want to convert customer data to XML, you need the [excel2xml module](../excel2xml-module.md) instead of the CLI command. |
 

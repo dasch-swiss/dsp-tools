@@ -113,7 +113,7 @@ def _create_list_node(
         new_node = new_node.create()
     except BaseError:
         print(f"WARNING: Cannot create list node '{node['name']}'.")
-        logger.exception("Cannot create list node '{node['name']}'.")
+        logger.exception(f"Cannot create list node '{node['name']}'.")
         return {}, False
 
     # if node has child nodes, call the method recursively

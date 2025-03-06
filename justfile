@@ -10,10 +10,9 @@ format:
     yamlfmt .
 
 
-# Run all linters
+# Run all linters in parallel (see https://just.systems/man/en/running-tasks-in-parallel.html)
 [no-exit-message]
-lint:
-    # run in parallel, see https://just.systems/man/en/running-tasks-in-parallel.html
+lint: 
     #!/usr/bin/env -S parallel --shebang --ungroup --jobs {{ num_cpus() }}
     just ruff-check
     just ruff-format-check
@@ -22,7 +21,7 @@ lint:
     just markdownlint
     just darglint
     just mypy
-    just check-links
+    uv run scripts/markdown_link_validator.py
 
 
 # Detect anti-patterns in YAML files

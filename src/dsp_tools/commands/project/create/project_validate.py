@@ -12,15 +12,11 @@ import jsonschema
 import networkx as nx
 import regex
 
-from dsp_tools.commands.excel2json.lists import expand_lists_from_excel
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InputError
 
 
-def validate_project(
-    input_file_or_json: Union[dict[str, Any], str],
-    expand_lists: bool = True,
-) -> bool:
+def validate_project(input_file_or_json: Union[dict[str, Any], str]) -> bool:
     """
     Validates a JSON project definition file.
 
@@ -40,7 +36,6 @@ def validate_project(
 
     Args:
         input_file_or_json: the project to be validated, can either be a file path or a parsed JSON file
-        expand_lists: if True, the Excel file references in the "lists" section will be expanded
 
     Raises:
         BaseError: detailed error report if the validation doesn't pass
@@ -61,12 +56,6 @@ def validate_project(
             project_definition = json.load(f)
     else:
         raise BaseError(f"Input '{input_file_or_json}' is neither a file path nor a JSON object.")
-
-    # expand all lists referenced in the "lists" section of the project definition,
-    # and add them to the project definition
-    if expand_lists:
-        if new_lists := expand_lists_from_excel(project_definition["project"].get("lists", [])):
-            project_definition["project"]["lists"] = new_lists
 
     # validate the project definition against the schema
     with (

@@ -48,47 +48,6 @@
             ]
         },
         {
-            "name": "my-list-from-excel",
-            "labels": {
-                "en": "My list from Excel"
-            },
-            "comments": {
-                "en": "a comment",
-                "de": "ein Kommentar",
-                "fr": "un commentaire"
-            },
-            "nodes": [
-                {
-                    "name": "red",
-                    "labels": {
-                        "en": "red",
-                        "de": "rot"
-                    }
-                },
-                {
-                    "name": "yellow",
-                    "labels": {
-                        "en": "yellow",
-                        "de": "gelb"
-                    }
-                },
-                {
-                    "name": "blue",
-                    "labels": {
-                        "en": "blue",
-                        "de": "blau"
-                    }
-                },
-                {
-                    "name": "green",
-                    "labels": {
-                        "en": "green",
-                        "de": "grün"
-                    }
-                }
-            ]
-        },
-        {
             "name": "notUsedList",
             "labels": {
                 "en": "Not used list"

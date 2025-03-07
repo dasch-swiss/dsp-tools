@@ -6,7 +6,7 @@ import regex
 
 from dsp_tools.commands.project.create.project_create_ontologies import _sort_prop_classes
 from dsp_tools.commands.project.create.project_create_ontologies import _sort_resources
-from dsp_tools.commands.project.create.project_validate import _check_for_duplicate_res_props
+from dsp_tools.commands.project.create.project_validate import _check_for_duplicate_res_and_props
 from dsp_tools.commands.project.create.project_validate import _check_for_undefined_cardinalities
 from dsp_tools.commands.project.create.project_validate import _check_for_undefined_super_property
 from dsp_tools.commands.project.create.project_validate import _check_for_undefined_super_resource
@@ -157,7 +157,7 @@ def test_check_for_duplicate_resources() -> None:
         r"Resource 'anotherResource' appears multiple times in the ontology 'testonto'\.\n"
         r"Resource 'minimalResource' appears multiple times in the ontology 'testonto'\.\n",
     ):
-        _check_for_duplicate_res_props(tp_duplicate_resource)
+        _check_for_duplicate_res_and_props(tp_duplicate_resource)
 
 
 def test_check_for_duplicate_properties() -> None:
@@ -170,7 +170,7 @@ def test_check_for_duplicate_properties() -> None:
         r"Property 'hasInt' appears multiple times in the ontology 'testonto'\.\n"
         r"Property 'hasText' appears multiple times in the ontology 'testonto'\.\n",
     ):
-        _check_for_duplicate_res_props(tp_duplicate_property)
+        _check_for_duplicate_res_and_props(tp_duplicate_property)
 
 
 if __name__ == "__main__":

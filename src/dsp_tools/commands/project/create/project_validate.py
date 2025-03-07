@@ -87,7 +87,7 @@ def validate_project(
     _check_for_undefined_super_property(project_definition)
     _check_for_undefined_super_resource(project_definition)
     _check_for_undefined_cardinalities(project_definition)
-    _check_for_duplicate_res_props(project_definition)
+    _check_for_duplicate_res_and_props(project_definition)
     if lists_section := project_definition["project"].get("lists"):
         _check_for_duplicate_listnodes(lists_section)
     _check_for_deprecated_syntax(project_definition)
@@ -143,7 +143,9 @@ def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> b
     return True
 
 
-def _find_duplicate_res_props(project_definition: dict[str, Any]) -> tuple[dict[str, set[str]], dict[str, set[str]]]:
+def _find_duplicate_res_and_props(
+    project_definition: dict[str, Any],
+) -> tuple[dict[str, set[str]], dict[str, set[str]]]:
     resnames_duplicates: dict[str, set[str]] = {}
     propnames_duplicates: dict[str, set[str]] = {}
     for onto in project_definition["project"]["ontologies"]:
@@ -439,7 +441,7 @@ def _find_circles_with_min_one_cardinality(
     return errors
 
 
-def _check_for_duplicate_res_props(project_definition: dict[str, Any]) -> bool:
+def _check_for_duplicate_res_and_props(project_definition: dict[str, Any]) -> bool:
     """
     Check that the resource names and property names are unique.
 
@@ -452,7 +454,7 @@ def _check_for_duplicate_res_props(project_definition: dict[str, Any]) -> bool:
     Returns:
         True if the resource/property names are unique
     """
-    propnames_duplicates, resnames_duplicates = _find_duplicate_res_props(project_definition)
+    propnames_duplicates, resnames_duplicates = _find_duplicate_res_and_props(project_definition)
 
     if not resnames_duplicates and not propnames_duplicates:
         return True

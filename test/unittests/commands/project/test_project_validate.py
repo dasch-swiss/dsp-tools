@@ -38,13 +38,11 @@ def two_nested_lists_two_duplicates() -> list[dict[str, Any]]:
 
 
 def test_find_duplicate_listnodes_ok_flat(two_flat_lists_ok: list[dict[str, Any]]) -> None:
-    expected: set[str] = set()
-    assert _find_duplicate_listnodes(two_flat_lists_ok) == expected
+    assert not _find_duplicate_listnodes(two_flat_lists_ok)
 
 
 def test_find_duplicate_listnodes_ok_nested(two_nested_lists_ok: list[dict[str, Any]]) -> None:
-    expected: set[str] = set()
-    assert _find_duplicate_listnodes(two_nested_lists_ok) == expected
+    assert not _find_duplicate_listnodes(two_nested_lists_ok)
 
 
 def test_find_duplicate_listnodes_flat_one_duplicate(two_flat_lists_one_duplicate: list[dict[str, Any]]) -> None:

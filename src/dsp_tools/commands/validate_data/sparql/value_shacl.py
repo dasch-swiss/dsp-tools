@@ -107,7 +107,6 @@ def _construct_value_type_shapes_to_class_shapes(onto: Graph) -> Graph:
       ?propRestriction knora-api:isEditable true ;
                        knora-api:objectType ?objectType .
 
-      FILTER NOT EXISTS { ?propRestriction knora-api:objectType knora-api:TextValue }
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkProperty true }
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
 

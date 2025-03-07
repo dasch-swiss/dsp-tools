@@ -5,6 +5,7 @@ from rdflib import RDF
 from rdflib import RDFS
 from rdflib import SH
 from rdflib import Graph
+from rdflib import Literal
 from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.constants import DASH
@@ -86,15 +87,18 @@ def _extract_base_info_of_resource_results(
 ) -> list[ValidationResultBaseInfo]:
     main_bns = _get_all_main_result_bns(results_and_onto)
     all_res_focus_nodes = []
+    resource_classes = list(data_onto_graph.subjects(KNORA_API.canBeInstantiated, Literal(True)))
+    resource_classes.extend(STILL_IMAGE_VALUE_CLASSES)
     for nd in main_bns:
         focus_iri = next(results_and_onto.objects(nd, SH.focusNode))
         res_type = next(data_onto_graph.objects(focus_iri, RDF.type))
-        info = QueryInfo(
-            validation_bn=nd,
-            focus_iri=focus_iri,
-            focus_rdf_type=res_type,
-        )
-        all_res_focus_nodes.extend(_extract_one_base_info(info, results_and_onto, data_onto_graph))
+        if res_type in resource_classes:
+            info = QueryInfo(
+                validation_bn=nd,
+                focus_iri=focus_iri,
+                focus_rdf_type=res_type,
+            )
+            all_res_focus_nodes.extend(_extract_one_base_info(info, results_and_onto, data_onto_graph))
     return all_res_focus_nodes
 
 

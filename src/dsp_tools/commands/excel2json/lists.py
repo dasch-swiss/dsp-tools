@@ -2,11 +2,9 @@
 
 import importlib.resources
 import json
-from copy import deepcopy
 from pathlib import Path
 from typing import Any
 from typing import Optional
-from typing import Union
 from typing import cast
 
 import jsonschema
@@ -21,62 +19,6 @@ from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.shared import simplify_name
-
-
-def expand_lists_from_excel(
-    lists_section: list[dict[str, Union[str, dict[str, Any]]]],
-) -> list[dict[str, Any]]:
-    """
-    Checks if the "lists" section of a JSON project file contains references to Excel files.
-    Expands all Excel files to JSON,
-    and returns the expanded "lists" section.
-    If there are no references to Excel files,
-    the "lists" section is returned as is.
-
-    Args:
-        lists_section: the "lists" section of a parsed JSON project file.
-            If this is an empty list, an empty list will be returned.
-
-    Raises:
-        UserError: if a problem occurred while trying to expand the Excel files
-
-    Returns:
-        the same "lists" section, but without references to Excel files
-    """
-    new_lists: list[dict[str, Any]] = []
-    for _list in lists_section:
-        # case 1: this list is a JSON list: return it as it is
-        if "folder" not in _list["nodes"]:
-            new_lists.append(_list)
-            continue
-
-        # case 2: this is a reference to a folder with Excel files
-        new_lists.append(_read_excel_make_lists(_list))
-
-    return new_lists
-
-
-def _read_excel_make_lists(_list: dict[str, Union[str, dict[str, Any]]]) -> dict[str, Any]:
-    foldername = _list["nodes"]["folder"]  # type: ignore[index]  # types are too complex to annotate them correctly
-    excel_file_paths = _extract_excel_file_paths(foldername)
-    new_list = deepcopy(_list)
-    try:
-        returned_lists_section = _make_json_lists_from_excel(excel_file_paths, verbose=False)
-        # we only need the "nodes" section of the first element of the returned "lists" section. This "nodes"
-        # section needs to replace the Excel folder reference. But the rest of the user-defined list element
-        # needs to stay intact, e.g. the labels and comments.
-        new_list["nodes"] = returned_lists_section[0]["nodes"]
-        print(
-            f"    The list '{_list['name']}' contains a reference to the folder '{foldername}'. The Excel "
-            f"files therein have been temporarily expanded into the 'lists' section of your project."
-        )
-        return new_list
-    except BaseError as err:
-        raise UserError(
-            f"    WARNING: The list '{_list['name']}' contains a reference to the folder '{foldername}', but a "
-            f"problem occurred while trying to expand the Excel files therein into the 'lists' section of "
-            f"your project: {err.message}"
-        ) from None
 
 
 def excel2lists(

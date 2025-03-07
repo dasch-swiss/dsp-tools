@@ -464,56 +464,6 @@ Example of a "lists" section that contains the two lists "color" and "category":
 
 
 
-#### `lists` from Excel
-
-Instead of being described in JSON, a list can be imported from one or several Excel files. In this case, the 
-`nodes` element of the root node consists of `{"folder": "<path-to-folder-containing-the-excel-files>"}`. In the above 
-example, the list "color" could be imported as follows:
-
-```json
-{
-    "lists": [
-        {
-            "name": "color",
-            "labels": {
-                "de": "Farbe",
-                "en": "Color"
-            },
-            "comments": {
-                "de": "Eine Liste mit einigen Farben",
-                "en": "A list with some colors"
-            },
-            "nodes": {
-                "folder": "path-to-folder"
-            }
-        },
-        {
-            "name": "category",
-            "labels": {
-                "de": "Kategorie",
-                "en": "category"
-            },
-            "comments": {
-                "de": "Eine Liste mit Kategorien",
-                "en": "A list with categories"
-            },
-            "nodes": [
-                "..."
-            ]
-        }
-    ]
-}
-```
-
-To do so, it would be necessary to place the following two files into the folder "path-to-folder":  
-![`Colors_en`](../../assets/images/img-json-list-from-excel-english.png)  
-![`Farben_de`](../../assets/images/img-json-list-from-excel-german.png)
-
-The expected format of the Excel files is documented [here](../excel2json.md#the-lists-section). The only 
-difference to the explanations there is that column A of the Excel worksheet is not interpreted as list name (root 
-node), but as node name of the first children level below the root node.
-
-
 
 ### `ontologies`
 

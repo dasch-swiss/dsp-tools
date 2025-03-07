@@ -179,13 +179,10 @@ def _construct_one_property_type_shape_based_on_object_type(onto: Graph, object_
     PREFIX salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#>
 
     CONSTRUCT {
-
         ?shapesIRI a sh:PropertyShape ;
                    sh:path ?prop ;
                    sh:node %(shacl_shape)s .
-
     } WHERE {
-
         ?prop a owl:ObjectProperty ;
                 knora-api:objectType %(object_type)s .
 

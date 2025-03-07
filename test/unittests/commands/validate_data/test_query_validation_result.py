@@ -1,3 +1,5 @@
+# mypy: disable-error-code="method-assign,no-untyped-def"
+
 import pytest
 from rdflib import RDFS
 from rdflib import SH
@@ -17,6 +19,7 @@ from dsp_tools.commands.validate_data.query_validation_result import _query_all_
 from dsp_tools.commands.validate_data.query_validation_result import _query_one_with_detail
 from dsp_tools.commands.validate_data.query_validation_result import _query_one_without_detail
 from dsp_tools.commands.validate_data.query_validation_result import _reformat_one_validation_result
+from dsp_tools.commands.validate_data.query_validation_result import _separate_bns_of_results
 from dsp_tools.commands.validate_data.query_validation_result import _separate_result_types
 from dsp_tools.commands.validate_data.query_validation_result import reformat_validation_graph
 from test.unittests.commands.validate_data.constants import DATA
@@ -45,6 +48,22 @@ def test_reformat_validation_graph(report_target_resource_wrong_type: tuple[Grap
     assert result.input_value == "target_res_without_representation_1"
     assert result.input_type == "in-built:TestNormalResource"
     assert result.expected == "Representation"
+
+
+def test_separate_bns_of_results(report_target_resource_wrong_type, report_not_resource):
+    val_g1, _ = report_target_resource_wrong_type
+    val_g2, _ = report_not_resource
+    combined_g = val_g1 + val_g2
+    extracted_bns = _separate_bns_of_results(combined_g)
+    assert len(extracted_bns) == 2
+    with_detail = next(x for x in extracted_bns if x.detail_bn)
+    main_focus = next(combined_g.objects(with_detail.main_bn, SH.focusNode))
+    assert main_focus == DATA.region_isRegionOf_resource_not_a_representation
+    value_focus_node = next(combined_g.objects(with_detail.detail_bn, SH.focusNode))
+    assert value_focus_node == DATA.value_isRegionOf
+    no_detail = next(x for x in extracted_bns if not x.detail_bn)
+    no_detail_node = next(combined_g.objects(no_detail.main_bn, SH.focusNode))
+    assert no_detail_node == DATA.value_id_simpletext
 
 
 class TestQueryAllResults:

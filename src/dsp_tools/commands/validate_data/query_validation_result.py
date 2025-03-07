@@ -19,6 +19,7 @@ from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import UnexpectedResults
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
+from dsp_tools.commands.validate_data.models.validation import OneValidationResult
 from dsp_tools.commands.validate_data.models.validation import QueryInfo
 from dsp_tools.commands.validate_data.models.validation import ReformattedIRI
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
@@ -80,6 +81,10 @@ def _separate_result_types(
     no_details = [x for x in base_info if not x.detail]
     with_details = [x for x in base_info if x.detail]
     return no_details, with_details
+
+
+def _separate_bns_of_results(results_and_onto: Graph) -> list[OneValidationResult]:
+    pass
 
 
 def _extract_base_info_of_resource_results(

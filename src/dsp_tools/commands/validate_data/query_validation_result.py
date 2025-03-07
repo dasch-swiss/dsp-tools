@@ -268,6 +268,8 @@ def _query_all_with_detail(
         res = _query_one_with_detail(base_info, results_and_onto, data_onto_graph)
         if isinstance(res, UnexpectedComponent):
             unexpected_components.append(res)
+        elif not res:
+            continue
         else:
             extracted_results.append(res)
     return extracted_results, unexpected_components
@@ -275,7 +277,7 @@ def _query_all_with_detail(
 
 def _query_one_with_detail(
     base_info: ValidationResultBaseInfo, results_and_onto: Graph, data_graph: Graph
-) -> ValidationResult | UnexpectedComponent:
+) -> ValidationResult | UnexpectedComponent | None:
     detail_info = cast(DetailBaseInfo, base_info.detail)
     match detail_info.source_constraint_component:
         case SH.MinCountConstraintComponent:
@@ -291,6 +293,8 @@ def _query_one_with_detail(
             | SH.MinInclusiveConstraintComponent
         ):
             return _query_generic_violation(base_info, results_and_onto)
+        case SH.PatternConstraintComponent:
+            return None
         case _:
             return UnexpectedComponent(str(detail_info.source_constraint_component))
 

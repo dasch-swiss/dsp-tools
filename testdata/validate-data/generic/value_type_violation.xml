@@ -6,7 +6,7 @@
        shortcode="9999"
        default-ontology="onto">
 
-    <!-- 14 Violations -->
+    <!-- 15 Violations -->
 
     <!--
         In this file, the property type does not match with the ontology.
@@ -86,6 +86,12 @@
         <resptr-prop name=":testTextarea">
             <resptr>link_non_existing</resptr>
         </resptr-prop>
+    </resource>
+
+    <resource label="Should be simple text" restype=":ClassWithEverything" id="is_date_should_be_simpletext">
+        <date-prop name=":testTextarea">
+            <date>JULIAN:BCE:0700:BCE:0600</date>
+        </date-prop>
     </resource>
 
     <resource label="Time" restype=":ClassWithEverything" id="time_wrong_value_type">

@@ -24,17 +24,46 @@ def get_user_message(problems: list[InputProblem], file_path: Path) -> str:
     Returns:
         Problem message
     """
-    if len(problems) > 50:
-        specific_message = _save_problem_info_as_csv(problems, file_path)
+    duplicates_removed = _filter_out_duplicate_problems(problems)
+    num_unique_problems = sum([len(x) for x in duplicates_removed])
+    if num_unique_problems > 50:
+        specific_message = _save_problem_info_as_csv(duplicates_removed, file_path)
     else:
-        specific_message = _get_problem_print_message(problems)
-    return f"\nDuring the validation of the data {len(problems)} errors were found:\n\n{specific_message}"
+        specific_message = _get_problem_print_message(duplicates_removed)
+    return f"\nDuring the validation of the data {num_unique_problems} errors were found:\n\n{specific_message}"
 
 
-def _get_problem_print_message(problems: list[InputProblem]) -> str:
-    grouped_problems = list(_group_problems_by_resource(problems).values())
-    messages = [_get_message_for_one_resource(v) for v in sorted(grouped_problems, key=lambda x: x[0].res_id)]
-    return GRAND_SEPARATOR.join(messages)
+def _filter_out_duplicate_problems(problems: list[InputProblem]) -> list[list[InputProblem]]:
+    grouped = _group_problems_by_resource(problems)
+    filtered = {k: _filter_out_duplicate_text_value_problem(v) for k, v in grouped.items()}
+    return list(filtered.values())
+
+
+def _filter_out_duplicate_text_value_problem(problems: list[InputProblem]) -> list[InputProblem]:
+    filtered_problems = [x for x in problems if x.problem_type != ProblemType.VALUE_TYPE_MISMATCH]
+    type_problems = [x for x in problems if x.problem_type == ProblemType.VALUE_TYPE_MISMATCH]
+
+    grouped_dict = defaultdict(list)
+    for prob in type_problems:
+        grouped_dict[prob.prop_name].append(prob)
+
+    for problem_list in grouped_dict.values():
+        messages = [x.expected for x in problem_list]
+        # Is there a chance of a duplicate (only possible for TextValue)?
+        if "This property requires a TextValue" not in messages:
+            filtered_problems.extend(problem_list)
+            continue
+        # Is there a more precise message about the type of TextValue?
+        if "TextValue without formatting" not in messages and "TextValue with formatting" not in messages:
+            # If there is not a more precise message, then the generic one is communicated to the user
+            filtered_problems.extend(problem_list)
+            continue
+        # We remove the generic message and leave the specific one
+        inx = messages.index("This property requires a TextValue")
+        problem_list.pop(inx)
+        filtered_problems.extend(problem_list)
+
+    return filtered_problems
 
 
 def _group_problems_by_resource(problems: list[InputProblem]) -> dict[str, list[InputProblem]]:
@@ -42,6 +71,11 @@ def _group_problems_by_resource(problems: list[InputProblem]) -> dict[str, list[
     for prob in problems:
         grouped_res[prob.res_id].append(prob)
     return grouped_res
+
+
+def _get_problem_print_message(problems: list[list[InputProblem]]) -> str:
+    messages = [_get_message_for_one_resource(v) for v in sorted(problems, key=lambda x: x[0].res_id)]
+    return GRAND_SEPARATOR.join(messages)
 
 
 def _get_message_for_one_resource(problems: list[InputProblem]) -> str:
@@ -88,9 +122,11 @@ def _get_expected_prefix(problem_type: ProblemType) -> str | None:
             return ""
 
 
-def _save_problem_info_as_csv(problems: list[InputProblem], file_path: Path) -> str:
+def _save_problem_info_as_csv(problems: list[list[InputProblem]], file_path: Path) -> str:
     out_path = file_path.parent / f"{file_path.stem}_validation_errors.csv"
-    all_problems = [_get_message_dict(x) for x in problems]
+    all_problems = []
+    for resource_problems in problems:
+        all_problems.extend([_get_message_dict(x) for x in resource_problems])
     df = pd.DataFrame.from_records(all_problems)
     df = df.sort_values(by=["Resource Type", "Resource ID", "Property"])
     df.to_csv(out_path, index=False)

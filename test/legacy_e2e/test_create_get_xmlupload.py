@@ -9,6 +9,7 @@ from typing import Optional
 from typing import Union
 from typing import cast
 
+import pytest
 import regex
 
 from dsp_tools.cli.args import ServerCredentials
@@ -16,6 +17,7 @@ from dsp_tools.commands.id2iri import id2iri
 from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.project.get import get_project
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
+from dsp_tools.models.custom_warnings import DspToolsFutureWarning
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
 
@@ -60,12 +62,15 @@ class TestCreateGetXMLUpload(unittest.TestCase):
         Test if the systematic XML data file can be uploaded without producing an error on its way,
         and if the 'id2iri' replacement works, so that the 2nd upload works.
         """
-        success = xmlupload(
-            input_file=self.test_data_systematic_file,
-            creds=self.creds,
-            imgdir=self.imgdir,
-        )
-        self.assertTrue(success)
+        with pytest.warns(
+            DspToolsFutureWarning, match=r"\d+ of \d+ bitstreams and iiif-uris in your XML are lacking the legal info"
+        ):
+            success = xmlupload(
+                input_file=self.test_data_systematic_file,
+                creds=self.creds,
+                imgdir=self.imgdir,
+            )
+            self.assertTrue(success)
 
         mapping_file = self._get_most_recent_glob_match("id2iri_*.json")
         second_xml_file_orig = Path("testdata/id2iri/test-id2iri-data.xml")

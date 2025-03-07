@@ -5,7 +5,6 @@ from typing import Union
 from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.commands.excel2json.lists import expand_lists_from_excel
 from dsp_tools.commands.project.create.project_validate import validate_project
 from dsp_tools.commands.project.models.listnode import ListNode
 from dsp_tools.commands.project.models.project import Project
@@ -139,8 +138,7 @@ def create_only_lists(
     creds: ServerCredentials,
 ) -> tuple[dict[str, Any], bool]:
     """
-    This method accepts a JSON project definition,
-    expands the Excel sheets referenced in its "lists" section,
+    This function accepts a JSON project definition,
     connects to a DSP server,
     and uploads the "lists" section to the server.
 
@@ -176,9 +174,7 @@ def create_only_lists(
     project_definition = parse_json_input(project_file_as_path_or_parsed=project_file_as_path_or_parsed)
     if not project_definition.get("project", {}).get("lists"):
         return {}, True
-    lists_to_create = expand_lists_from_excel(project_definition["project"]["lists"])
-    project_definition["project"]["lists"] = lists_to_create
-    validate_project(project_definition, expand_lists=False)
+    validate_project(project_definition)
     print("JSON project file is syntactically correct and passed validation.")
 
     auth = AuthenticationClientLive(creds.server, creds.user, creds.password)
@@ -196,7 +192,7 @@ def create_only_lists(
 
     # create new lists
     current_project_lists, success = create_lists_on_server(
-        lists_to_create=lists_to_create,
+        lists_to_create=project_definition["project"]["lists"],
         con=con,
         project_remote=project_remote,
     )

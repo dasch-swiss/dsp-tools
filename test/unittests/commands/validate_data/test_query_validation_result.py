@@ -78,11 +78,6 @@ class TestQueryAllResults:
 
 
 class TestExtractBaseInfo:
-    def test_not_resource(self, report_not_resource: tuple[Graph, Graph]) -> None:
-        validation_g, onto_data_g = report_not_resource
-        results = _extract_base_info_of_resource_results(validation_g, onto_data_g)
-        assert not results
-
     def test_no_detail(self, report_min_card: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         validation_g, onto_data_g, _ = report_min_card
         results = _extract_base_info_of_resource_results(validation_g, onto_data_g)

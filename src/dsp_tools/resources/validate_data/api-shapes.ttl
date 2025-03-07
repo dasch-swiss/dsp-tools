@@ -71,7 +71,7 @@ api-shapes:rdfsLabel_Shape
 api-shapes:BooleanValue_ClassShape
   a              sh:NodeShape ;
   # sh:targetClass knora-api:BooleanValue ;
-  sh:name        "Validates the class type" ;
+  sh:name        "Validates the properties used with this targetClass" ;
   sh:message     "BooleanValue" ;
   sh:property    api-shapes:booleanValueAsBoolean_Shape ,
                  api-shapes:valueHasComment_Shape ;

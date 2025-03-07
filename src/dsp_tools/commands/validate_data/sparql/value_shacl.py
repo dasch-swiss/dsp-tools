@@ -185,7 +185,7 @@ def _construct_one_property_type_shape_based_on_object_type(onto: Graph, object_
     } WHERE {
         ?prop a owl:ObjectProperty ;
                 knora-api:objectType %(object_type)s .
-
+                
         BIND(IRI(CONCAT(str(?prop), "_PropShape")) AS ?shapesIRI)
     }
     """ % {"object_type": object_type, "shacl_shape": shacl_shape}  # noqa: UP031 (printf-string-formatting)

@@ -6,10 +6,21 @@
        shortcode="9999"
        default-ontology="onto">
 
-    <!-- 13 Violations -->
+    <authorship id="authorship_1">
+        <author>Author One</author>
+    </authorship>
+
+    <!-- 14 Violations -->
 
     <!-- label may not be empty -->
     <resource label=" " restype=":ClassWithEverything" id="empty_label"/>
+
+    <resource label=" " restype=":TestArchiveRepresentation" id="empty_label_representation">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.tar</bitstream>
+    </resource>
 
     <!-- Geoname should be a number -->
     <resource label="Geoname is not a number" restype=":ClassWithEverything" id="geoname_not_number">

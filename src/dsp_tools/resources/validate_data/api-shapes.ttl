@@ -592,7 +592,6 @@ api-shapes:LinkObj_ResourceShape
   sh:name        "Validates the LinkObj resource" ;
   sh:targetClass knora-api:LinkObj ;
   sh:property    api-shapes:hasLinkTo_PropertyShape ,
-                 api-shapes:rdfsLabel_Shape,
                  api-shapes:hasComment_PropertyShape ,
                  api-shapes:hasStandoffLinkTo_TargetMustExistPropertyShape ;
   sh:severity    sh:Violation .
@@ -605,8 +604,7 @@ api-shapes:Region_ResourceShape
   a              sh:NodeShape ;
   sh:name        "Validates the Region resource" ;
   sh:targetClass knora-api:Region ;
-  sh:property    api-shapes:rdfsLabel_Shape ,
-                 api-shapes:isRegionOf_PropertyShape ,
+  sh:property    api-shapes:isRegionOf_PropertyShape ,
                  api-shapes:hasColor_PropertyShape ,
                  api-shapes:hasGeometry_PropertyShape ,
                  api-shapes:hasComment_PropertyShape ,
@@ -621,8 +619,7 @@ api-shapes:AudioSegment_ResourceShape
   a              sh:NodeShape ;
   sh:name        "Validates the AudioSegment resource" ;
   sh:targetClass knora-api:AudioSegment ;
-  sh:property    api-shapes:rdfsLabel_Shape ,
-                 api-shapes:hasComment_PropertyShape ,
+  sh:property    api-shapes:hasComment_PropertyShape ,
                  api-shapes:hasSegmentBounds_PropertyShape ,
                  api-shapes:relatesTo_PropertyShape ,
                  api-shapes:isAudioSegmentOf_PropertyShape ,
@@ -640,8 +637,7 @@ api-shapes:VideoSegment_ResourceShape
   a              sh:NodeShape ;
   sh:name        "Validates the VideoSegment resource" ;
   sh:targetClass knora-api:VideoSegment ;
-  sh:property    api-shapes:rdfsLabel_Shape ,
-                 api-shapes:hasComment_PropertyShape ,
+  sh:property    api-shapes:hasComment_PropertyShape ,
                  api-shapes:hasSegmentBounds_PropertyShape ,
                  api-shapes:relatesTo_PropertyShape ,
                  api-shapes:isVideoSegmentOf_PropertyShape ,

@@ -102,8 +102,8 @@ api-shapes:colorValueAsColor_Shape
   sh:message  "A ColorValue requires exactly one valid color" ;
   sh:path     knora-api:colorValueAsColor ;
   sh:pattern  "^#([0-9a-fA-F]{3}){1,2}$" ;
-  sh:minCount 1 ;
-  sh:maxCount 1 ;
+  # sh:minCount 1 ;
+  # sh:maxCount 1 ;
   sh:datatype xsd:string ;
   sh:severity sh:Violation .
 

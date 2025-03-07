@@ -29,6 +29,61 @@ def onto_graph() -> Graph:
 
 
 @pytest.fixture
+def report_bitstream_missing_legal_info(onto_graph: Graph) -> tuple[Graph, Graph]:
+    validation_str = f"""{PREFIXES}
+[ a sh:ValidationResult ;
+    sh:detail _:bn_hasLicense,
+              _:bn_hasCopyrightHolder,
+              _:bn_hasAuthorship ;
+    sh:focusNode <http://data/bitstream_no_legal_info> ;
+    sh:resultMessage "A MovingImageRepresentation requires a file with the extension 'mp4'." ;
+    sh:resultPath <http://api.knora.org/ontology/knora-api/v2#hasMovingImageFileValue> ;
+    sh:resultSeverity sh:Violation ;
+    sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+    sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#hasMovingImageFileValue_PropShape> ;
+    sh:value <http://data/value_moving_image> ] .
+
+_:bn_hasLicense a sh:ValidationResult ;
+    sh:focusNode <http://data/value_moving_image> ;
+    sh:resultMessage "Files and IIIF-URIs require a reference to a license." ;
+    sh:resultPath <http://api.knora.org/ontology/knora-api/v2#hasLicense> ;
+    sh:resultSeverity sh:Violation ;
+    sh:sourceConstraintComponent sh:MinCountConstraintComponent ;
+    sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#hasLicense_PropShape> .
+
+_:bn_hasCopyrightHolder a sh:ValidationResult ;
+    sh:focusNode <http://data/value_moving_image> ;
+    sh:resultMessage "Files and IIIF-URIs require a copyright holder." ;
+    sh:resultPath <http://api.knora.org/ontology/knora-api/v2#hasCopyrightHolder> ;
+    sh:resultSeverity sh:Violation ;
+    sh:sourceConstraintComponent sh:MinCountConstraintComponent ;
+    sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#hasCopyrightHolder_PropShape> .
+
+_:bn_hasAuthorship a sh:ValidationResult ;
+    sh:focusNode <http://data/value_moving_image> ;
+    sh:resultMessage "Files and IIIF-URIs require at least one authorship." ;
+    sh:resultPath <http://api.knora.org/ontology/knora-api/v2#hasAuthorship> ;
+    sh:resultSeverity sh:Violation ;
+    sh:sourceConstraintComponent sh:MinCountConstraintComponent ;
+    sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#hasAuthorship_PropShape> .
+    """
+    validation_g = Graph()
+    validation_g.parse(data=validation_str, format="ttl")
+    data_str = f"""{PREFIXES}
+    <http://data/bitstream_no_legal_info> a onto:TestMovingImageRepresentation ;
+        rdfs:label "Missing legal info"^^xsd:string ;
+        knora-api:hasMovingImageFileValue <http://data/value_moving_image> .
+
+    <http://data/value_moving_image> a knora-api:MovingImageFileValue ;
+        knora-api:fileValueHasFilename "this/is/filepath/file.mp4"^^xsd:string .
+    """
+    onto_data_g = Graph()
+    onto_data_g += onto_graph
+    onto_data_g.parse(data=data_str, format="ttl")
+    return validation_g, onto_data_g
+
+
+@pytest.fixture
 def report_target_resource_wrong_type(onto_graph: Graph) -> tuple[Graph, Graph]:
     validation_str = f"""{PREFIXES}
     [ 

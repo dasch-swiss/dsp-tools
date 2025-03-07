@@ -30,7 +30,7 @@ def construct_file_value_cardinality(onto: Graph) -> Graph:
         representation_type, shacl_shape = as_class_type_and_shacl_shape(t)
         g += _construct_one_representation_shape(onto, representation_type, shacl_shape)
     return g
-
+  # TODO: remove the nod here to prevent duplication in ttl
 
 def _construct_one_representation_shape(onto: Graph, representation_type: str, shacl_shape: str) -> Graph:
     query_s = """

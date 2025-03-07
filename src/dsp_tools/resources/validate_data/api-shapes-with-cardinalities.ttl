@@ -272,7 +272,7 @@ api-shapes:hasAudioFileValue_PropShape
   sh:minCount 1 ;
   sh:maxCount 1 ;
   sh:message  "An AudioRepresentation requires a file with one of the following extensions 'mp3', 'wav'." ;
-  sh:node     api-shapes:AudioFileValue_ClassShape .
+  sh:node     api-shapes:AudioFileValue_ClassShape .  # TODO: remove the nod here to prevent duplication
 
 api-shapes:AudioFileValue_ClassShape
   a              sh:NodeShape ;

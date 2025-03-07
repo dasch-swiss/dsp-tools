@@ -229,13 +229,13 @@ api-shapes:hasCopyrightHolder_PropShape
 api-shapes:hasArchiveFileValue_PropShape
   a           sh:PropertyShape ;
   sh:path     knora-api:hasArchiveFileValue ;
+  sh:class    knora-api:ArchiveFileValue ;
   sh:minCount 1 ;
   sh:maxCount 1 ;
   sh:message  """
               An ArchiveRepresentation requires a file with one of the following extensions
               'zip', 'tar', 'gz', 'z', 'tgz', 'gzip', '7z'.
-              """ ;
-  sh:node     api-shapes:ArchiveFileValue_ClassShape .
+              """ .
 
 api-shapes:ArchiveFileValue_ClassShape
   a              sh:NodeShape ;
@@ -269,10 +269,10 @@ api-shapes:ArchiveFileValue_ClassShape
 api-shapes:hasAudioFileValue_PropShape
   a           sh:PropertyShape ;
   sh:path     knora-api:hasAudioFileValue ;
+  sh:class    knora-api:AudioFileValue ;
   sh:minCount 1 ;
   sh:maxCount 1 ;
-  sh:message  "An AudioRepresentation requires a file with one of the following extensions 'mp3', 'wav'." ;
-  sh:node     api-shapes:AudioFileValue_ClassShape .
+  sh:message  "An AudioRepresentation requires a file with one of the following extensions 'mp3', 'wav'." .
 
 api-shapes:AudioFileValue_ClassShape
   a              sh:NodeShape ;
@@ -303,13 +303,13 @@ api-shapes:AudioFileValue_ClassShape
 api-shapes:hasDocumentFileValue_PropShape
   a           sh:PropertyShape ;
   sh:path     knora-api:hasDocumentFileValue ;
+  sh:class    knora-api:DocumentFileValue ;
   sh:minCount 1 ;
   sh:maxCount 1 ;
   sh:message  """
               A DocumentRepresentation requires a file with one of the following extensions
               'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'.
-              """ ;
-  sh:node     api-shapes:DocumentFileValue_ClassShape .
+              """ .
 
 api-shapes:DocumentFileValue_ClassShape
   a              sh:NodeShape ;
@@ -343,10 +343,10 @@ api-shapes:DocumentFileValue_ClassShape
 api-shapes:hasMovingImageFileValue_PropShape
   a           sh:PropertyShape ;
   sh:path     knora-api:hasMovingImageFileValue ;
+  sh:class    knora-api:MovingImageFileValue ;
   sh:minCount 1 ;
   sh:maxCount 1 ;
-  sh:message  "A MovingImageRepresentation requires a file with the extension 'mp4'." ;
-  sh:node     api-shapes:MovingImageFileValue_ClassShape .
+  sh:message  "A MovingImageRepresentation requires a file with the extension 'mp4'." .
 
 api-shapes:MovingImageFileValue_ClassShape
   a              sh:NodeShape ;
@@ -445,13 +445,13 @@ api-shapes:StillImageExternalFileValue_ClassShape
 api-shapes:hasTextFileValue_PropShape
   a           sh:PropertyShape ;
   sh:path     knora-api:hasTextFileValue ;
+  sh:class    knora-api:TextFileValue ;
   sh:minCount 1 ;
   sh:maxCount 1 ;
   sh:message  """
               A TextRepresentation requires a file with one of the following extensions
               'odd', 'rng', 'txt', 'xml', 'xsd', 'xsl', 'csv', 'json'.
-              """ ;
-  sh:node     api-shapes:TextFileValue_ClassShape .
+              """ .
 
 api-shapes:TextFileValue_ClassShape
   a              sh:NodeShape ;

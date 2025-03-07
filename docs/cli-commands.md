@@ -217,9 +217,10 @@ this file must remain in place.
 
 ## `resume-xmlupload`
 
-| <center>Warning</center>                                                                                                                                  |
-| --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| We do not guarantee that the state of an xmlupload is cleanly saved after `Ctrl + C`. We only guarantee this for `dsp-tools xmlupload --interrupt-after`. |
+!!! warning 
+
+    We do not guarantee that the state of an xmlupload is cleanly saved after `Ctrl + C`.
+    We only guarantee this for `dsp-tools xmlupload --interrupt-after`.
 
 This command resumes a previously interrupted `xmlupload` or `ingest-xmlupload`.
 
@@ -245,9 +246,9 @@ Currently, only one interrupted upload can be resumed at a time per server.
 
 ## New workflow for xmlupload
 
-| <center>Warning</center>                                          |
-| ----------------------------------------------------------------- |
-| These commands are experimental. They might change in the future. |
+!!! warning
+
+    These commands are experimental. They might change in the future.
 
 This new workflow consists of 3 commands:
 
@@ -410,9 +411,9 @@ The following options are available:
 The expected Excel file format and the folder structure are documented 
 [here](./file-formats/excel2json.md#the-lists-section).
 
-| <center>Hint</center>                                                    |
-| ------------------------------------------------------------------------ |
-| The command [`excel2json`](#excel2json) might be more convenient to use. |
+!!! tip
+
+    The command [`excel2json`](#excel2json) might be more convenient to use.
 
 
 ### `excel2resources`
@@ -430,9 +431,9 @@ The following options are available:
 
 The expected Excel format is [documented here](./file-formats/excel2json.md#the-resources-section).
 
-| <center>Hint</center>                                                    |
-| ------------------------------------------------------------------------ |
-| The command [`excel2json`](#excel2json) might be more convenient to use. |
+!!! tip
+
+    The command [`excel2json`](#excel2json) might be more convenient to use.
 
 
 
@@ -451,9 +452,9 @@ The following options are available:
 
 The expected Excel format is [documented here](./file-formats/excel2json.md#the-properties-section).
 
-| <center>Hint</center>                                                    |
-| ------------------------------------------------------------------------ |
-| The command [`excel2json`](#excel2json) might be more convenient to use. |
+!!! tip
+
+    The command [`excel2json`](#excel2json) might be more convenient to use.
 
 
 

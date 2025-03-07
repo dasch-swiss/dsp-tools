@@ -168,7 +168,7 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
     component = next(results_and_onto.objects(base_info.result_bn, SH.sourceConstraintComponent))
     match component:
         case SH.PatternConstraintComponent:
-            return _query_pattern_constraint_component_violation(base_info.result_bn, base_info, results_and_onto)
+            return _query_pattern_constraint_component_violation(base_info, results_and_onto, data)
         case SH.MinCountConstraintComponent:
             return _query_for_min_cardinality_violation(base_info, msg, results_and_onto)
         case SH.MaxCountConstraintComponent:
@@ -279,8 +279,6 @@ def _query_one_with_detail(
             if base_info.result_path in FILE_VALUE_PROPERTIES:
                 return _query_generic_violation(base_info, results_and_onto)
             return _query_for_value_type_violation(base_info, results_and_onto, data_graph)
-        case SH.PatternConstraintComponent:
-            return _query_pattern_constraint_component_violation(detail_info.detail_bn, base_info, results_and_onto)
         case SH.ClassConstraintComponent:
             return _query_class_constraint_component_violation(base_info, results_and_onto, data_graph)
         case (
@@ -322,10 +320,10 @@ def _query_for_value_type_violation(
 
 
 def _query_pattern_constraint_component_violation(
-    bn_with_info: SubjectObjectTypeAlias, base_info: ValidationResultBaseInfo, results_and_onto: Graph
+    base_info: ValidationResultBaseInfo, results_and_onto: Graph, data: Graph
 ) -> ValidationResult:
-    val = next(results_and_onto.objects(bn_with_info, SH.value))
-    msg = next(results_and_onto.objects(bn_with_info, SH.resultMessage))
+    val = next(results_and_onto.objects(base_info.result_bn, SH.value))
+    msg = next(results_and_onto.objects(base_info.result_bn, SH.resultMessage))
     return ValidationResult(
         violation_type=ViolationType.PATTERN,
         res_iri=base_info.resource_iri,

@@ -397,7 +397,7 @@ def extracted_value_type() -> ValidationResult:
 
 
 @pytest.fixture
-def report_regex(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
+def report_regex_on_value(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
     [ 
         a sh:ValidationResult ;
@@ -425,7 +425,7 @@ def report_regex(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseI
     val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
-        source_constraint_component=SH.NodeConstraintComponent,
+        source_constraint_component=SH.PatternConstraintComponent,
         resource_iri=DATA.geoname_not_number,
         res_class_type=ONTO.ClassWithEverything,
         result_path=ONTO.testGeoname,

@@ -132,8 +132,8 @@ class TestSeparateResultTypes:
         assert len(with_detail) == 0
         assert no_detail[0].resource_iri == DATA.id_uri
 
-    def test_result_geoname_not_number(self, report_regex: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
-        res_g, onto_data_g, _ = report_regex
+    def test_result_geoname_not_number(self, report_regex_on_value) -> None:
+        res_g, onto_data_g, _ = report_regex_on_value
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 1
         assert len(with_detail) == 0
@@ -272,9 +272,9 @@ class TestQueryWithoutDetail:
         assert result.expected == Literal("This property requires a UriValue")
         assert result.input_type == KNORA_API.TextValue
 
-    def test_result_geoname_not_number(self, report_regex: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
-        res, data, info = report_regex
-        result = _query_one_with_detail(info, res, data)
+    def test_result_geoname_not_number(self, report_regex_on_value) -> None:
+        res, data, info = report_regex_on_value
+        result = _query_one_without_detail(info, res, data)
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.PATTERN
         assert result.res_iri == info.resource_iri

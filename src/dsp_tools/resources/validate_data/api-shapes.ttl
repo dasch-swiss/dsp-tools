@@ -73,8 +73,18 @@ api-shapes:BooleanValue_ClassShape
   sh:targetClass knora-api:BooleanValue ;
   sh:name        "Validates the class type" ;
   sh:message     "BooleanValue" ;
-  sh:property    api-shapes:valueHasComment_Shape ;
+  sh:property    api-shapes:booleanValueAsBoolean_Shape ,
+                 api-shapes:valueHasComment_Shape ;
   sh:severity    sh:Violation .
+
+api-shapes:booleanValueAsBoolean_Shape
+  a           sh:PropertyShape ;
+  sh:message  "A BooleanValue requires one valid boolean" ;
+  sh:path     knora-api:booleanValueAsBoolean ;
+  sh:datatype xsd:boolean ;
+  sh:minCount 1 ;
+  sh:maxCount 1 ;
+  sh:severity sh:Violation .
 
 ##############
 # ColorValue
@@ -83,14 +93,17 @@ api-shapes:ColorValue_ClassShape
   sh:targetClass knora-api:ColorValue ;
   sh:name        "Validates the class type" ;
   sh:message     "ColorValue" ;
-  sh:property    api-shapes:colorValueAsColor_Shape, api-shapes:valueHasComment_Shape ;
+  sh:property    api-shapes:colorValueAsColor_Shape ,
+                 api-shapes:valueHasComment_Shape ;
   sh:severity    sh:Violation .
 
 api-shapes:colorValueAsColor_Shape
   a           sh:PropertyShape ;
-  sh:message  "The value must be a valid color" ;
+  sh:message  "A BooleanValue requires one valid color" ;
   sh:path     knora-api:colorValueAsColor ;
   sh:pattern  "^#([0-9a-fA-F]{3}){1,2}$" ;
+  sh:minCount 1 ;
+  sh:maxCount 1 ;
   sh:datatype xsd:string ;
   sh:severity sh:Violation .
 
@@ -101,17 +114,38 @@ api-shapes:DateValue_ClassShape
   sh:targetClass knora-api:DateValue ;
   sh:name        "Validates the class type" ;
   sh:message     "DateValue" ;
-  sh:property    api-shapes:valueHasComment_Shape ;
+  sh:property    api-shapes:valueAsString_DateValueShape ,
+                 api-shapes:valueHasComment_Shape ;
   sh:severity    sh:Violation .
+
+# Currently it is only checked that the string value is not empty
+# To validate the DateValue as the API receives it, the Date should be taken apart
+api-shapes:valueAsString_DateValueShape
+  a           sh:PropertyShape ;
+  sh:message  "A BooleanValue requires one valid Date" ;
+  sh:path     knora-api:valueAsString ;
+  sh:pattern  "\\s*\\S+\\s*" ;
+  sh:datatype xsd:string ;
+  sh:severity sh:Violation .
 
 ##############
 # DecimalValue
 api-shapes:DecimalValue_ClassShape
-  a           sh:NodeShape ;
+  a              sh:NodeShape ;
   sh:targetClass knora-api:DecimalValue ;
-  sh:name     "Validates the class type" ;
-  sh:message  "DecimalValue" ;
-  sh:property api-shapes:valueHasComment_Shape ;
+  sh:name        "Validates the class type" ;
+  sh:message     "DecimalValue" ;
+  sh:property    api-shapes:decimalValueAsDecimal_Shape ,
+                 api-shapes:valueHasComment_Shape ;
+  sh:severity    sh:Violation .
+
+api-shapes:decimalValueAsDecimal_Shape
+  a           sh:PropertyShape ;
+  sh:message  "A DecimalValue requires one valid decimal" ;
+  sh:path     knora-api:decimalValueAsDecimal ;
+  sh:datatype xsd:decimal ;
+  sh:minCount 1 ;
+  sh:maxCount 1 ;
   sh:severity sh:Violation .
 
 ##############
@@ -197,11 +231,24 @@ api-shapes:IntValue_ClassShape
   sh:targetClass knora-api:IntValue ;
   sh:name        "Validates the class type" ;
   sh:message     "IntValue" ;
-  sh:property    api-shapes:valueHasComment_Shape ;
+  sh:property    api-shapes:intValueAsInt_Shape ,
+                 api-shapes:valueHasComment_Shape ;
   sh:severity    sh:Violation .
+
+api-shapes:intValueAsInt_Shape
+  a           sh:PropertyShape ;
+  sh:message  "A IntValue requires one valid integer" ;
+  sh:path     knora-api:intValueAsInt ;
+  sh:datatype xsd:integer ;
+  sh:minCount 1 ;
+  sh:maxCount 1 ;
+  sh:severity sh:Violation .
 
 ##############
 # LinkValue
+
+# The target of the LinkValue is ontology specific.
+# The Shape is constructed through the SPARQL queries
 api-shapes:LinkValue_ClassShape
   a              sh:NodeShape ;
   sh:targetClass knora-api:LinkValue ;
@@ -212,6 +259,9 @@ api-shapes:LinkValue_ClassShape
 
 ##############
 # ListValue
+
+# The target of the ListValue is ontology specific.
+# The Shape is constructed through the SPARQL queries
 api-shapes:ListValue_ClassShape
   a              sh:NodeShape ;
   sh:targetClass knora-api:ListValue ;
@@ -295,8 +345,18 @@ api-shapes:TimeValue_ClassShape
   sh:targetClass knora-api:TimeValue ;
   sh:name        "Validates the class type" ;
   sh:message     "TimeValue" ;
-  sh:property    api-shapes:valueHasComment_Shape ;
+  sh:property    api-shapes:timeValueAsTimeStamp_Shape ,
+                 api-shapes:valueHasComment_Shape ;
   sh:severity    sh:Violation .
+
+api-shapes:timeValueAsTimeStamp_Shape
+  a           sh:PropertyShape ;
+  sh:message  "A TimeValue requires one valid xsd:dateTimeStamp" ;
+  sh:path     knora-api:timeValueAsTimeStamp ;
+  sh:datatype xsd:dateTimeStamp ;
+  sh:minCount 1 ;
+  sh:maxCount 1 ;
+  sh:severity sh:Violation .
 
 ##############
 # UriValue
@@ -305,8 +365,18 @@ api-shapes:UriValue_ClassShape
   sh:targetClass knora-api:UriValue ;
   sh:name        "Validates the class type" ;
   sh:message     "UriValue" ;
-  sh:property    api-shapes:valueHasComment_Shape ;
+  sh:property    api-shapes:uriValueAsUri_Shape ,
+                 api-shapes:valueHasComment_Shape ;
   sh:severity    sh:Violation .
+
+api-shapes:uriValueAsUri_Shape
+  a           sh:PropertyShape ;
+  sh:message  "A UriValue requires one valid xsd:anyURI" ;
+  sh:path     knora-api:uriValueAsUri ;
+  sh:datatype xsd:anyURI ;
+  sh:minCount 1 ;
+  sh:maxCount 1 ;
+  sh:severity sh:Violation .
 
 #########################################
 # KNORA-API IN-BUILT PROPERTIES
@@ -374,9 +444,9 @@ api-shapes:valueHasComment_Shape
 ### knora-api:hasColor
 
 api-shapes:hasColor_PropertyShape
-  a       sh:PropertyShape ;
-  sh:node api-shapes:ColorValue_ClassShape ;
-  sh:path knora-api:hasColor .
+  a        sh:PropertyShape ;
+  sh:node  api-shapes:ColorValue_ClassShape ;
+  sh:path  knora-api:hasColor .
 
 
 ### knora-api:hasGeometry

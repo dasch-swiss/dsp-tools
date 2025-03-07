@@ -124,8 +124,8 @@ def report_min_card(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBa
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.MinCountConstraintComponent,
-        resource_iri=DATA.id_card_one,
-        res_class_type=ONTO.ClassInheritedCardinalityOverwriting,
+        focus_node_iri=DATA.id_card_one,
+        focus_node_type=ONTO.ClassInheritedCardinalityOverwriting,
         result_path=ONTO.testBoolean,
     )
     return validation_g, onto_data_g, base_info
@@ -156,8 +156,8 @@ def file_value_cardinality_to_ignore(onto_graph: Graph) -> tuple[Graph, Validati
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=DASH.ClosedByTypesConstraintComponent,
-        resource_iri=DATA.id_wrong_file_type,
-        res_class_type=ONTO.TestStillImageRepresentation,
+        focus_node_iri=DATA.id_wrong_file_type,
+        focus_node_type=ONTO.TestStillImageRepresentation,
         result_path=KNORA_API.hasMovingImageFileValue,
     )
     return graphs, base_info
@@ -188,8 +188,8 @@ def file_value_for_resource_without_representation(onto_graph: Graph) -> tuple[G
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=DASH.ClosedByTypesConstraintComponent,
-        resource_iri=DATA.id_resource_without_representation,
-        res_class_type=ONTO.ClassWithEverything,
+        focus_node_iri=DATA.id_resource_without_representation,
+        focus_node_type=ONTO.ClassWithEverything,
         result_path=KNORA_API.hasMovingImageFileValue,
     )
     return graphs, base_info
@@ -260,8 +260,8 @@ def report_value_type_simpletext(onto_graph: Graph) -> tuple[Graph, Graph, Valid
         result_bn=val_bn,
         result_path=ONTO.testTextarea,
         source_constraint_component=SH.NodeConstraintComponent,
-        resource_iri=DATA.id_simpletext,
-        res_class_type=ONTO.ClassWithEverything,
+        focus_node_iri=DATA.id_simpletext,
+        focus_node_type=ONTO.ClassWithEverything,
         detail=detail,
     )
     return validation_g, onto_data_g, base_info
@@ -328,8 +328,8 @@ def report_min_inclusive(onto_graph: Graph) -> tuple[Graph, Graph, ValidationRes
         result_bn=val_bn,
         result_path=KNORA_API.hasSegmentBounds,
         source_constraint_component=SH.NodeConstraintComponent,
-        resource_iri=DATA.video_segment_negative_bounds,
-        res_class_type=KNORA_API.VideoSegment,
+        focus_node_iri=DATA.video_segment_negative_bounds,
+        focus_node_type=KNORA_API.VideoSegment,
         detail=detail,
     )
     return validation_g, onto_data_g, base_info
@@ -376,8 +376,8 @@ def report_value_type(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResult
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.ClassConstraintComponent,
-        resource_iri=DATA.id_uri,
-        res_class_type=ONTO.ClassWithEverything,
+        focus_node_iri=DATA.id_uri,
+        focus_node_type=ONTO.ClassWithEverything,
         result_path=ONTO.testUriValue,
         detail=None,
     )
@@ -441,8 +441,8 @@ def report_regex(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseI
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.NodeConstraintComponent,
-        resource_iri=DATA.geoname_not_number,
-        res_class_type=ONTO.ClassWithEverything,
+        focus_node_iri=DATA.geoname_not_number,
+        focus_node_type=ONTO.ClassWithEverything,
         result_path=ONTO.testGeoname,
         detail=detail,
     )
@@ -506,8 +506,8 @@ def report_link_target_non_existent(onto_graph: Graph) -> tuple[Graph, Graph, Va
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.NodeConstraintComponent,
-        resource_iri=DATA.link_target_non_existent,
-        res_class_type=ONTO.ClassWithEverything,
+        focus_node_iri=DATA.link_target_non_existent,
+        focus_node_type=ONTO.ClassWithEverything,
         result_path=ONTO.testHasLinkTo,
         detail=detail,
     )
@@ -574,8 +574,8 @@ def report_link_target_wrong_class(onto_graph: Graph) -> tuple[Graph, Graph, Val
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.NodeConstraintComponent,
-        resource_iri=DATA.link_target_wrong_class,
-        res_class_type=ONTO.ClassWithEverything,
+        focus_node_iri=DATA.link_target_wrong_class,
+        focus_node_type=ONTO.ClassWithEverything,
         result_path=ONTO.testHasLinkToCardOneResource,
         detail=detail,
     )
@@ -623,8 +623,8 @@ def report_image_missing_legal_info(onto_graph: Graph) -> tuple[Graph, Graph, Va
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.MinCountConstraintComponent,
-        resource_iri=DATA.image_no_legal_info,
-        res_class_type=ONTO.TestStillImageRepresentation,
+        focus_node_iri=DATA.image_no_legal_info,
+        focus_node_type=ONTO.TestStillImageRepresentation,
         result_path=KNORA_API.hasLicense,
     )
     return validation_g, onto_data_g, base_info
@@ -669,8 +669,8 @@ def report_closed_constraint(onto_graph: Graph) -> tuple[Graph, Graph, Validatio
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=DASH.ClosedByTypesConstraintComponent,
-        resource_iri=DATA.id_closed_constraint,
-        res_class_type=ONTO.CardOneResource,
+        focus_node_iri=DATA.id_closed_constraint,
+        focus_node_type=ONTO.CardOneResource,
         result_path=ONTO.testIntegerSimpleText,
     )
     return validation_g, onto_data_g, base_info
@@ -716,8 +716,8 @@ def report_max_card(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBa
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.MaxCountConstraintComponent,
-        resource_iri=DATA.id_max_card,
-        res_class_type=ONTO.ClassMixedCard,
+        focus_node_iri=DATA.id_max_card,
+        focus_node_type=ONTO.ClassMixedCard,
         result_path=ONTO.testHasLinkToCardOneResource,
     )
     return validation_g, onto_data_g, base_info
@@ -758,8 +758,8 @@ def report_empty_label(onto_graph: Graph) -> tuple[Graph, ValidationResultBaseIn
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.PatternConstraintComponent,
-        resource_iri=DATA.empty_label,
-        res_class_type=ONTO.ClassWithEverything,
+        focus_node_iri=DATA.empty_label,
+        focus_node_type=ONTO.ClassWithEverything,
         result_path=RDFS.label,
     )
     return graphs, base_info
@@ -802,8 +802,8 @@ def report_unique_value_literal(onto_graph: Graph) -> tuple[Graph, Graph, Valida
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.SPARQLConstraintComponent,
-        resource_iri=DATA.identical_values_valueHas,
-        res_class_type=ONTO.ClassWithEverything,
+        focus_node_iri=DATA.identical_values_valueHas,
+        focus_node_type=ONTO.ClassWithEverything,
         result_path=ONTO.testGeoname,
     )
     return validation_g, onto_data_g, base_info
@@ -845,8 +845,8 @@ def report_unique_value_iri(onto_graph: Graph) -> tuple[Graph, Graph, Validation
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.SPARQLConstraintComponent,
-        resource_iri=DATA.identical_values_LinkValue,
-        res_class_type=ONTO.ClassWithEverything,
+        focus_node_iri=DATA.identical_values_LinkValue,
+        focus_node_type=ONTO.ClassWithEverything,
         result_path=ONTO.testHasLinkTo,
     )
     return validation_g, onto_data_g, base_info
@@ -889,8 +889,8 @@ def report_coexist_with(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResu
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=DASH.CoExistsWithConstraintComponent,
-        resource_iri=DATA.missing_seqnum,
-        res_class_type=IN_BUILT_ONTO.TestStillImageRepresentationWithSeqnum,
+        focus_node_iri=DATA.missing_seqnum,
+        focus_node_type=IN_BUILT_ONTO.TestStillImageRepresentationWithSeqnum,
         result_path=KNORA_API.seqnum,
     )
     return validation_g, onto_data_g, base_info
@@ -946,8 +946,8 @@ sh:value <http://data/value_list_node_non_existent> ] .
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.NodeConstraintComponent,
-        resource_iri=DATA.list_node_non_existent,
-        res_class_type=ONTO.ClassWithEverything,
+        focus_node_iri=DATA.list_node_non_existent,
+        focus_node_type=ONTO.ClassWithEverything,
         result_path=ONTO.testListProp,
         detail=detail,
     )
@@ -1006,8 +1006,8 @@ _:bn_list_name_non_existent a sh:ValidationResult ;
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.NodeConstraintComponent,
-        resource_iri=DATA.list_name_non_existent,
-        res_class_type=ONTO.ClassWithEverything,
+        focus_node_iri=DATA.list_name_non_existent,
+        focus_node_type=ONTO.ClassWithEverything,
         result_path=ONTO.testListProp,
         detail=detail,
     )
@@ -1050,8 +1050,8 @@ def report_missing_file_value(onto_graph: Graph) -> tuple[Graph, ValidationResul
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.MinCountConstraintComponent,
-        resource_iri=DATA.id_video_missing,
-        res_class_type=ONTO.TestMovingImageRepresentation,
+        focus_node_iri=DATA.id_video_missing,
+        focus_node_type=ONTO.TestMovingImageRepresentation,
         result_path=KNORA_API.hasMovingImageFileValue,
     )
     return graphs, base_info
@@ -1092,8 +1092,8 @@ def result_unknown_component(onto_graph: Graph) -> tuple[Graph, ValidationResult
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.PatternConstraintComponent,
-        resource_iri=DATA.empty_label,
-        res_class_type=ONTO.ClassWithEverything,
+        focus_node_iri=DATA.empty_label,
+        focus_node_type=ONTO.ClassWithEverything,
         result_path=RDFS.label,
     )
     return graphs, base_info

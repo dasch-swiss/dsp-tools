@@ -121,8 +121,8 @@ def _extract_one_base_info(
                 ValidationResultBaseInfo(
                     result_bn=info.validation_bn,
                     source_constraint_component=main_component_type,
-                    resource_iri=info.focus_iri,
-                    res_class_type=info.focus_rdf_type,
+                    focus_node_iri=info.focus_iri,
+                    focus_node_type=info.focus_rdf_type,
                     result_path=path,
                     detail=detail,
                 )
@@ -137,8 +137,8 @@ def _extract_one_base_info(
             ValidationResultBaseInfo(
                 result_bn=info.validation_bn,
                 source_constraint_component=main_component_type,
-                resource_iri=resource_iri,
-                res_class_type=resource_type,
+                focus_node_iri=resource_iri,
+                focus_node_type=resource_type,
                 result_path=path,
                 detail=None,
             )
@@ -176,8 +176,8 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
         case SH.MaxCountConstraintComponent:
             return ValidationResult(
                 violation_type=ViolationType.MAX_CARD,
-                res_iri=base_info.resource_iri,
-                res_class=base_info.res_class_type,
+                res_iri=base_info.focus_node_iri,
+                res_class=base_info.focus_node_type,
                 property=base_info.result_path,
                 expected=msg,
             )
@@ -188,8 +188,8 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
         case DASH.CoExistsWithConstraintComponent:
             return ValidationResult(
                 violation_type=ViolationType.SEQNUM_IS_PART_OF,
-                res_iri=base_info.resource_iri,
-                res_class=base_info.res_class_type,
+                res_iri=base_info.focus_node_iri,
+                res_class=base_info.focus_node_type,
                 message=msg,
             )
         case SH.ClassConstraintComponent:
@@ -224,8 +224,8 @@ def _query_class_constraint_without_detail(
             expected = message
     return ValidationResult(
         violation_type=violation_type,
-        res_iri=base_info.resource_iri,
-        res_class=base_info.res_class_type,
+        res_iri=base_info.focus_node_iri,
+        res_class=base_info.focus_node_type,
         property=base_info.result_path,
         message=msg,
         expected=expected,
@@ -242,7 +242,7 @@ def _query_for_non_existent_cardinality_violation(
     # This creates a min cardinality and a closed constraint violation.
     # The closed constraint we ignore, because the problem is communicated through the min cardinality violation.
     if base_info.result_path in FILE_VALUE_PROPERTIES:
-        sub_classes = list(results_and_onto.transitive_objects(base_info.res_class_type, RDFS.subClassOf))
+        sub_classes = list(results_and_onto.transitive_objects(base_info.focus_node_type, RDFS.subClassOf))
         if KNORA_API.Representation in sub_classes:
             return None
         violation_type = ViolationType.FILEVALUE_PROHIBITED
@@ -251,8 +251,8 @@ def _query_for_non_existent_cardinality_violation(
 
     return ValidationResult(
         violation_type=violation_type,
-        res_iri=base_info.resource_iri,
-        res_class=base_info.res_class_type,
+        res_iri=base_info.focus_node_iri,
+        res_class=base_info.focus_node_type,
         property=base_info.result_path,
     )
 
@@ -315,8 +315,8 @@ def _query_for_value_type_violation(
     val_type = next(data_graph.objects(val, RDF.type))
     return ValidationResult(
         violation_type=ViolationType.VALUE_TYPE,
-        res_iri=base_info.resource_iri,
-        res_class=base_info.res_class_type,
+        res_iri=base_info.focus_node_iri,
+        res_class=base_info.focus_node_type,
         property=base_info.result_path,
         expected=msg,
         input_type=val_type,
@@ -330,8 +330,8 @@ def _query_pattern_constraint_component_violation(
     msg = next(results_and_onto.objects(bn_with_info, SH.resultMessage))
     return ValidationResult(
         violation_type=ViolationType.PATTERN,
-        res_iri=base_info.resource_iri,
-        res_class=base_info.res_class_type,
+        res_iri=base_info.focus_node_iri,
+        res_class=base_info.focus_node_type,
         property=base_info.result_path,
         expected=msg,
         input_value=val,
@@ -346,8 +346,8 @@ def _query_generic_violation(base_info: ValidationResultBaseInfo, results_and_on
     msg = next(results_and_onto.objects(detail_info.detail_bn, SH.resultMessage))
     return ValidationResult(
         violation_type=ViolationType.GENERIC,
-        res_iri=base_info.resource_iri,
-        res_class=base_info.res_class_type,
+        res_iri=base_info.focus_node_iri,
+        res_class=base_info.focus_node_type,
         property=base_info.result_path,
         message=msg,
         input_value=val,
@@ -365,8 +365,8 @@ def _query_for_link_value_target_violation(
     expected_type = next(results_and_onto.objects(detail_info.detail_bn, SH.resultMessage))
     return ValidationResult(
         violation_type=ViolationType.LINK_TARGET,
-        res_iri=base_info.resource_iri,
-        res_class=base_info.res_class_type,
+        res_iri=base_info.focus_node_iri,
+        res_class=base_info.focus_node_type,
         property=base_info.result_path,
         expected=expected_type,
         input_value=target_iri,
@@ -388,8 +388,8 @@ def _query_for_min_cardinality_violation(
         violation_type = ViolationType.MIN_CARD
     return ValidationResult(
         violation_type=violation_type,
-        res_iri=base_info.resource_iri,
-        res_class=base_info.res_class_type,
+        res_iri=base_info.focus_node_iri,
+        res_class=base_info.focus_node_type,
         property=base_info.result_path,
         expected=msg,
     )
@@ -402,8 +402,8 @@ def _query_for_unique_value_violation(
     val = next(results_and_onto.objects(base_info.result_bn, SH.value))
     return ValidationResult(
         violation_type=ViolationType.UNIQUE_VALUE,
-        res_iri=base_info.resource_iri,
-        res_class=base_info.res_class_type,
+        res_iri=base_info.focus_node_iri,
+        res_class=base_info.focus_node_type,
         property=base_info.result_path,
         input_value=val,
     )

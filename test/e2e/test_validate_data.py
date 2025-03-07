@@ -26,6 +26,9 @@ from dsp_tools.commands.validate_data.validate_data import _get_parsed_graphs
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
 from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
 from test.e2e.setup_testcontainers import get_containers
+from test.unittests.commands.validate_data.constants import IN_BUILT_ONTO
+from test.unittests.commands.validate_data.constants import KNORA_API
+from test.unittests.commands.validate_data.constants import ONTO
 
 CREDS = ServerCredentials("root@example.com", "test", "http://0.0.0.0:3333")
 LOCAL_API = "http://0.0.0.0:3333"
@@ -152,42 +155,45 @@ def test_extract_identifiers_of_resource_results(every_combination_once: Validat
     report_and_onto = every_combination_once.validation_graph + every_combination_once.onto_graph
     data_and_onto = every_combination_once.data_graph + every_combination_once.onto_graph
     result = _extract_base_info_of_resource_results(report_and_onto, data_and_onto)
-    result_sorted = sorted(result, key=lambda x: str(x.resource_iri))
+    result_sorted = sorted(result, key=lambda x: str(x.focus_node_iri))
     expected_iris = [
-        (URIRef("http://data/bitstream_no_legal_info"), BNode),
-        (URIRef("http://data/bitstream_no_legal_info"), BNode),
-        (URIRef("http://data/bitstream_no_legal_info"), BNode),
-        (URIRef("http://data/empty_label"), None),
-        (URIRef("http://data/geoname_not_number"), BNode),
-        (URIRef("http://data/id_card_one"), None),
-        (URIRef("http://data/id_closed_constraint"), None),
-        (URIRef("http://data/id_max_card"), None),
-        (URIRef("http://data/id_missing_file_value"), None),
-        (URIRef("http://data/identical_values"), None),
-        (URIRef("http://data/image_no_legal_info"), None),
-        (URIRef("http://data/image_no_legal_info"), None),
-        (URIRef("http://data/image_no_legal_info"), None),
-        (URIRef("http://data/image_no_legal_info"), None),
-        (URIRef("http://data/link_target_non_existent"), BNode),
-        (URIRef("http://data/link_target_wrong_class"), BNode),
-        (URIRef("http://data/list_node_non_existent"), BNode),
-        (URIRef("http://data/missing_seqnum"), None),
-        (URIRef("http://data/richtext_standoff_link_nonexistent"), None),
-        (URIRef("http://data/simpletext_wrong_value_type"), BNode),
-        (URIRef("http://data/uri_wrong_value_type"), None),
-        (URIRef("http://data/video_segment_start_larger_than_end"), BNode),
-        (URIRef("http://data/video_segment_wrong_bounds"), BNode),
-        (URIRef("http://data/video_segment_wrong_bounds"), BNode),
+        (URIRef("http://data/bitstream_no_legal_info"), None, KNORA_API.MovingImageFileValue),
+        (URIRef("http://data/bitstream_no_legal_info"), None, KNORA_API.MovingImageFileValue),
+        (URIRef("http://data/bitstream_no_legal_info"), None, KNORA_API.MovingImageFileValue),
+        (URIRef("http://data/empty_label"), None, ONTO.ClassWithEverything),
+        (URIRef("http://data/geoname_not_number"), BNode, ONTO.ClassWithEverything),
+        (URIRef("http://data/id_card_one"), None, ONTO.ClassInheritedCardinalityOverwriting),
+        (URIRef("http://data/id_closed_constraint"), None, ONTO.CardOneResource),
+        (URIRef("http://data/id_max_card"), None, ONTO.ClassMixedCard),
+        (URIRef("http://data/id_missing_file_value"), None, ONTO.TestMovingImageRepresentation),
+        (URIRef("http://data/identical_values"), None, ONTO.ClassWithEverything),
+        (URIRef("http://data/image_no_legal_info"), None, KNORA_API.StillImageRepresentation),
+        (URIRef("http://data/image_no_legal_info"), None, KNORA_API.StillImageRepresentation),
+        (URIRef("http://data/image_no_legal_info"), None, KNORA_API.StillImageRepresentation),
+        (URIRef("http://data/image_no_legal_info"), None, KNORA_API.StillImageRepresentation),
+        (URIRef("http://data/link_target_non_existent"), BNode, ONTO.ClassWithEverything),
+        (URIRef("http://data/link_target_wrong_class"), BNode, ONTO.ClassWithEverything),
+        (URIRef("http://data/list_node_non_existent"), BNode, ONTO.ClassWithEverything),
+        (URIRef("http://data/missing_seqnum"), None, IN_BUILT_ONTO.TestStillImageRepresentationWithSeqnum),
+        (URIRef("http://data/richtext_standoff_link_nonexistent"), None, ONTO.ClassWithEverything),
+        (URIRef("http://data/simpletext_wrong_value_type"), BNode, ONTO.ClassWithEverything),
+        (URIRef("http://data/uri_wrong_value_type"), None, ONTO.ClassWithEverything),
+        (URIRef("http://data/video_segment_start_larger_than_end"), BNode, KNORA_API.VideoSegment),
+        (URIRef("http://data/video_segment_wrong_bounds"), BNode, KNORA_API.VideoSegment),
+        (URIRef("http://data/video_segment_wrong_bounds"), BNode, KNORA_API.VideoSegment),
     ]
     assert len(result) == len(expected_iris)
-    for result_info, expected_iri in zip(result_sorted, expected_iris):
-        assert result_info.resource_iri == expected_iri[0]
-        if expected_iri[1] is None:
+    for result_info, (res_iri, detail_node, res_type) in zip(result_sorted, expected_iris):
+        # If the focus node is a Value then it is random and not informative
+        if res_iri:
+            assert result_info.focus_node_iri == res_iri
+        assert result_info.focus_node_type == res_type
+        if detail_node is None:
             assert not result_info.detail
         else:
             detail_base_info = result_info.detail
             assert isinstance(detail_base_info, DetailBaseInfo)
-            assert isinstance(detail_base_info.detail_bn, expected_iri[1])
+            assert isinstance(detail_base_info.detail_bn, detail_node)
 
 
 class TestCheckConforms:

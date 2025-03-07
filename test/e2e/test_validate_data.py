@@ -157,9 +157,9 @@ def test_extract_identifiers_of_resource_results(every_combination_once: Validat
     result = _extract_base_info_of_resource_results(report_and_onto, data_and_onto)
     result_sorted = sorted(result, key=lambda x: str(x.focus_node_iri))
     expected_iris = [
-        (URIRef("http://data/bitstream_no_legal_info"), None, KNORA_API.MovingImageFileValue),
-        (URIRef("http://data/bitstream_no_legal_info"), None, KNORA_API.MovingImageFileValue),
-        (URIRef("http://data/bitstream_no_legal_info"), None, KNORA_API.MovingImageFileValue),
+        (URIRef("http://data/bitstream_no_legal_info"), None, ONTO.TestMovingImageRepresentation),
+        (URIRef("http://data/bitstream_no_legal_info"), None, ONTO.TestMovingImageRepresentation),
+        (URIRef("http://data/bitstream_no_legal_info"), None, ONTO.TestMovingImageRepresentation),
         (URIRef("http://data/empty_label"), None, ONTO.ClassWithEverything),
         (URIRef("http://data/geoname_not_number"), BNode, ONTO.ClassWithEverything),
         (URIRef("http://data/id_card_one"), None, ONTO.ClassInheritedCardinalityOverwriting),
@@ -182,7 +182,6 @@ def test_extract_identifiers_of_resource_results(every_combination_once: Validat
         (URIRef("http://data/video_segment_wrong_bounds"), BNode, KNORA_API.VideoSegment),
         (URIRef("http://data/video_segment_wrong_bounds"), BNode, KNORA_API.VideoSegment),
     ]
-    assert len(result) == len(expected_iris)
     for result_info, (res_iri, detail_node, res_type) in zip(result_sorted, expected_iris):
         # If the focus node is a Value then it is random and not informative
         if res_iri:
@@ -194,7 +193,7 @@ def test_extract_identifiers_of_resource_results(every_combination_once: Validat
             detail_base_info = result_info.detail
             assert isinstance(detail_base_info, DetailBaseInfo)
             assert isinstance(detail_base_info.detail_bn, detail_node)
-
+    assert len(result) == len(expected_iris)
 
 class TestCheckConforms:
     @pytest.mark.usefixtures("_create_projects")

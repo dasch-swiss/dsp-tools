@@ -2,9 +2,10 @@
 
 # Excel File Format to Generate an XML Data File
 
-| <center>Hint</center>                                                                                                            |
-|:---------------------------------------------------------------------------------------------------------------------------------|
-| If you want to convert customer data to XML, you need the [excel2xml module](../excel2xml-module.md) instead of the CLI command. |
+!!! tip
+
+    If you want to convert customer data to XML,
+    you need the [excel2xml module](../excel2xml-module.md) instead of the CLI command.
 
 With the [`excel2xml`](../cli-commands.md#excel2xml) CLI command, 
 an XML data file can be created from an Excel/CSV file.

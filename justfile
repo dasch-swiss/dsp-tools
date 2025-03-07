@@ -3,16 +3,21 @@ default:
     @just --list
 
 
+# Detect anti-patterns in YAML files
+[no-exit-message]
+yamllint:
+    uv run yamllint .
+
+
+# Check the formatting of YAML files
+yamlfmt-check:
+    yamlfmt -lint .
+
+
 # Run the ruff linter to detect bad Python coding habits
 [no-exit-message]
 ruff-check *FLAGS:
     uv run ruff check . --ignore=A002,D101,D102,PLR0913,PLR2004 {{FLAGS}}
-
-
-# Run the ruff linter, with an output format suitable for GitHub runners
-[no-exit-message]
-ruff-check-github:
-    uv run just ruff-check --output-format=github
 
 
 # Check the formatting of the Python files
@@ -47,6 +52,7 @@ markdownlint:
     ghcr.io/igorshubovych/markdownlint-cli:v0.42.0 \
     --config .markdownlint.yml \
     --ignore CHANGELOG.md \
+    --ignore README.md \
     "**/*.md"
 
 
@@ -83,6 +89,7 @@ clean:
     -find . -name .pytest_cache -exec rm -rf {} \;
     -find . -name .mypy_cache -exec rm -rf {} \;
     -rm -rf ./*id2iri_mapping*.json
+    -rm -rf ./*id2iri_[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]*.json
     -rm -f ./warnings.log
     -rm -rf ./testdata/e2e/tmp-dsp-ingest/
     -rm -rf ./testdata/e2e/tmp-dsp-sipi/

@@ -37,31 +37,22 @@ jobs:
       - name: Install uv, just, and dependencies
         uses: ./.github/actions/setup
       - name: Linting with ruff
-        run: just ruff-check-github
+        run: just ruff-check --output-format=github
       - name: Check formatting with ruff
         run: just ruff-format-check
       - name: Linting with mypy
         run: just mypy
       - name: Linting with darglint
         run: just darglint
+      - name: yamllint
+        run: just yamllint
       - name: Check formatting of YAML files
         # Homebrew is pre-installed but not added to PATH. 
         # See https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2204-Readme.md#homebrew-note
         run: |
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           brew install yamlfmt
-          yamlfmt -lint .
-
-
-  yamllint:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout dsp-tools repo
-        uses: actions/checkout@v4
-      - name: install dependencies
-        run: pip install yamllint
-      - name: yamllint
-        run: yamllint .
+          just yamlfmt-check
 
 
   unittests:

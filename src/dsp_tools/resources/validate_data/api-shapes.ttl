@@ -79,7 +79,7 @@ api-shapes:BooleanValue_ClassShape
 
 api-shapes:booleanValueAsBoolean_Shape
   a           sh:PropertyShape ;
-  sh:message  "A BooleanValue requires one valid boolean" ;
+  sh:message  "A BooleanValue requires exactly one valid boolean" ;
   sh:path     knora-api:booleanValueAsBoolean ;
   sh:datatype xsd:boolean ;
   sh:minCount 1 ;
@@ -99,7 +99,7 @@ api-shapes:ColorValue_ClassShape
 
 api-shapes:colorValueAsColor_Shape
   a           sh:PropertyShape ;
-  sh:message  "A ColorValue requires one valid color" ;
+  sh:message  "A ColorValue requires exactly one valid color" ;
   sh:path     knora-api:colorValueAsColor ;
   sh:pattern  "^#([0-9a-fA-F]{3}){1,2}$" ;
   sh:minCount 1 ;
@@ -122,7 +122,7 @@ api-shapes:DateValue_ClassShape
 # To validate the DateValue as the API receives it, the Date should be taken apart
 api-shapes:valueAsString_DateValueShape
   a           sh:PropertyShape ;
-  sh:message  "A BooleanValue requires one valid Date" ;
+  sh:message  "A DateValue requires a valid Date" ;
   sh:path     knora-api:valueAsString ;
   sh:pattern  "\\s*\\S+\\s*" ;
   sh:datatype xsd:string ;
@@ -141,7 +141,7 @@ api-shapes:DecimalValue_ClassShape
 
 api-shapes:decimalValueAsDecimal_Shape
   a           sh:PropertyShape ;
-  sh:message  "A DecimalValue requires one valid decimal" ;
+  sh:message  "A DecimalValue requires exactly one valid decimal" ;
   sh:path     knora-api:decimalValueAsDecimal ;
   sh:datatype xsd:decimal ;
   sh:minCount 1 ;
@@ -237,7 +237,7 @@ api-shapes:IntValue_ClassShape
 
 api-shapes:intValueAsInt_Shape
   a           sh:PropertyShape ;
-  sh:message  "A IntValue requires one valid integer" ;
+  sh:message  "An IntValue requires exactly one valid integer" ;
   sh:path     knora-api:intValueAsInt ;
   sh:datatype xsd:integer ;
   sh:minCount 1 ;
@@ -351,7 +351,7 @@ api-shapes:TimeValue_ClassShape
 
 api-shapes:timeValueAsTimeStamp_Shape
   a           sh:PropertyShape ;
-  sh:message  "A TimeValue requires one valid xsd:dateTimeStamp" ;
+  sh:message  "A TimeValue requires exactly one valid xsd:dateTimeStamp" ;
   sh:path     knora-api:timeValueAsTimeStamp ;
   sh:datatype xsd:dateTimeStamp ;
   sh:minCount 1 ;
@@ -371,7 +371,7 @@ api-shapes:UriValue_ClassShape
 
 api-shapes:uriValueAsUri_Shape
   a           sh:PropertyShape ;
-  sh:message  "A UriValue requires one valid xsd:anyURI" ;
+  sh:message  "A UriValue requires exactly one valid xsd:anyURI" ;
   sh:path     knora-api:uriValueAsUri ;
   sh:datatype xsd:anyURI ;
   sh:minCount 1 ;

@@ -92,7 +92,10 @@ def _extract_base_info_of_resource_results(
     for nd in focus_nodes:
         focus_iri = nd[1]
         res_type = next(data_onto_graph.objects(focus_iri, RDF.type))
-        if res_type in resource_classes:
+        if not (found := list(results_and_onto.objects(nd[0], SH.sourceConstraintComponent))):
+            continue
+        constraint_component = found.pop(0)
+        if any([bool(res_type in resource_classes), bool(constraint_component == SH.PatternConstraintComponent)]):
             info = QueryInfo(
                 validation_bn=nd[0],
                 focus_iri=focus_iri,
@@ -322,13 +325,25 @@ def _query_for_value_type_violation(
 def _query_pattern_constraint_component_violation(
     base_info: ValidationResultBaseInfo, results_and_onto: Graph, data: Graph
 ) -> ValidationResult:
+    target_resource = base_info.resource_iri
+    target_resource_type = base_info.res_class_type
+    user_facing_property = base_info.result_path
+
+    rdf_type_superclasses = list(results_and_onto.transitive_objects(base_info.res_class_type, RDFS.subClassOf))
+    # In case it is a value, the information above is about the value itself and not user facing
+    if KNORA_API.Value in rdf_type_superclasses:
+        subj, pred = next(data.subject_predicates(base_info.resource_iri))
+        user_facing_property = pred
+        target_resource = subj
+        target_resource_type = next(data.objects(subj, RDF.type))
+
     val = next(results_and_onto.objects(base_info.result_bn, SH.value))
     msg = next(results_and_onto.objects(base_info.result_bn, SH.resultMessage))
     return ValidationResult(
         violation_type=ViolationType.PATTERN,
-        res_iri=base_info.resource_iri,
-        res_class=base_info.res_class_type,
-        property=base_info.result_path,
+        res_iri=target_resource,
+        res_class=target_resource_type,
+        property=user_facing_property,
         expected=msg,
         input_value=val,
     )

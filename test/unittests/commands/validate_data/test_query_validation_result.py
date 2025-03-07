@@ -137,7 +137,7 @@ class TestSeparateResultTypes:
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 1
         assert len(with_detail) == 0
-        assert no_detail[0].resource_iri == DATA.geoname_not_number
+        assert no_detail[0].resource_iri == DATA.value_geoname_not_number
 
     def test_result_id_closed_constraint(
         self, report_closed_constraint: tuple[Graph, Graph, ValidationResultBaseInfo]

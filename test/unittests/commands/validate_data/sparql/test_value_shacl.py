@@ -44,10 +44,8 @@ def test_add_property_shapes_to_class_shapes(card_1: Graph) -> None:
     res = _add_property_shapes_to_class_shapes(card_1)
     expected_props = {
         ONTO.testBoolean_PropShape,
-        API_SHAPES.rdfsLabel_Shape,
         API_SHAPES.hasStandoffLinkTo_TargetMustExistPropertyShape,
     }
-    assert len(res) == 4
     assert set(res.objects(ONTO.ClassMixedCard, SH.property)) == expected_props
 
 

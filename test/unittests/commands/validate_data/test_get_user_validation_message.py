@@ -1,5 +1,8 @@
+# mypy: disable-error-code="method-assign,no-untyped-def"
+
 import pytest
 
+from dsp_tools.commands.validate_data.get_user_validation_message import _filter_out_duplicate_text_value_problem
 from dsp_tools.commands.validate_data.get_user_validation_message import _get_message_for_one_resource
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
@@ -70,7 +73,7 @@ def file_value_prohibited() -> InputProblem:
 
 
 @pytest.fixture
-def value_type_mismatch() -> InputProblem:
+def link_value_type_mismatch() -> InputProblem:
     return InputProblem(
         problem_type=ProblemType.VALUE_TYPE_MISMATCH,
         res_id="res_id",
@@ -128,7 +131,49 @@ def duplicate_value() -> InputProblem:
     )
 
 
-def test_get_message_for_one_resource_generic(generic_problem: InputProblem) -> None:
+def test_filter_out_duplicate_text_value_problem_with_duplicate(duplicate_value, link_value_type_mismatch):
+    should_remain = InputProblem(
+        problem_type=ProblemType.VALUE_TYPE_MISMATCH,
+        res_id="should_remain",
+        res_type="",
+        prop_name="onto:hasProp",
+        expected="TextValue without formatting",
+    )
+    should_be_removed = InputProblem(
+        problem_type=ProblemType.VALUE_TYPE_MISMATCH,
+        res_id="should_be_removed",
+        res_type="",
+        prop_name="onto:hasProp",
+        expected="This property requires a TextValue",
+    )
+    result = _filter_out_duplicate_text_value_problem(
+        [duplicate_value, link_value_type_mismatch, should_remain, should_be_removed]
+    )
+    assert len(result) == 3
+    assert set([x.res_id for x in result]) == {"should_remain", "res_id"}
+
+
+def test_filter_out_duplicate_text_value_problem_different_props():
+    one = InputProblem(
+        problem_type=ProblemType.VALUE_TYPE_MISMATCH,
+        res_id="one",
+        res_type="",
+        prop_name="onto:prop2",
+        expected="TextValue without formatting",
+    )
+    two = InputProblem(
+        problem_type=ProblemType.VALUE_TYPE_MISMATCH,
+        res_id="two",
+        res_type="",
+        prop_name="onto:prop1",
+        expected="This property requires a TextValue",
+    )
+    result = _filter_out_duplicate_text_value_problem([one, two])
+    assert len(result) == 2
+    assert set([x.res_id for x in result]) == {"one", "two"}
+
+
+def test_get_message_for_one_resource_generic(generic_problem):
     result = _get_message_for_one_resource([generic_problem])
     expected = (
         "Resource ID: res_id | Resource Type: onto:Class\nonto:hasGenericProblem\n    - This is a generic problem."
@@ -136,7 +181,7 @@ def test_get_message_for_one_resource_generic(generic_problem: InputProblem) -> 
     assert result == expected
 
 
-def test_get_message_for_one_resource_file_value(file_value: InputProblem) -> None:
+def test_get_message_for_one_resource_file_value(file_value):
     result = _get_message_for_one_resource([file_value])
     expected = (
         "Resource ID: res_id | Resource Type: onto:Class\n"
@@ -146,7 +191,7 @@ def test_get_message_for_one_resource_file_value(file_value: InputProblem) -> No
     assert result == expected
 
 
-def test_get_message_for_one_resource_max_card(max_card: InputProblem) -> None:
+def test_get_message_for_one_resource_max_card(max_card):
     result = _get_message_for_one_resource([max_card])
     expected = (
         "Resource ID: res_id | Resource Type: onto:Class\n"
@@ -156,7 +201,7 @@ def test_get_message_for_one_resource_max_card(max_card: InputProblem) -> None:
     assert result == expected
 
 
-def test_get_message_for_one_resource_min_card(min_card: InputProblem) -> None:
+def test_get_message_for_one_resource_min_card(min_card):
     result = _get_message_for_one_resource([min_card])
     expected = (
         "Resource ID: res_id | Resource Type: onto:Class\n"
@@ -166,7 +211,7 @@ def test_get_message_for_one_resource_min_card(min_card: InputProblem) -> None:
     assert result == expected
 
 
-def test_get_message_for_one_resource_non_existing_card(non_existing_card: InputProblem) -> None:
+def test_get_message_for_one_resource_non_existing_card(non_existing_card):
     result = _get_message_for_one_resource([non_existing_card])
     expected = (
         "Resource ID: res_id | Resource Type: onto:Class\n"
@@ -176,7 +221,7 @@ def test_get_message_for_one_resource_non_existing_card(non_existing_card: Input
     assert result == expected
 
 
-def test_get_message_for_one_resource_file_value_prohibited(file_value_prohibited: InputProblem) -> None:
+def test_get_message_for_one_resource_file_value_prohibited(file_value_prohibited):
     result = _get_message_for_one_resource([file_value_prohibited])
     expected = (
         "Resource ID: res_id | Resource Type: onto:Class\n"
@@ -186,8 +231,8 @@ def test_get_message_for_one_resource_file_value_prohibited(file_value_prohibite
     assert result == expected
 
 
-def test_get_message_for_one_resource_value_type_mismatch(value_type_mismatch: InputProblem) -> None:
-    result = _get_message_for_one_resource([value_type_mismatch])
+def test_get_message_for_one_resource_value_type_mismatch(link_value_type_mismatch):
+    result = _get_message_for_one_resource([link_value_type_mismatch])
     expected = (
         "Resource ID: res_id | Resource Type: onto:Class\n"
         "onto:hasProp\n"
@@ -196,7 +241,7 @@ def test_get_message_for_one_resource_value_type_mismatch(value_type_mismatch: I
     assert result == expected
 
 
-def test_get_message_for_one_resource_input_regex(input_regex: InputProblem) -> None:
+def test_get_message_for_one_resource_input_regex(input_regex):
     result = _get_message_for_one_resource([input_regex])
     expected = (
         "Resource ID: res_id | Resource Type: onto:Class\n"
@@ -207,7 +252,7 @@ def test_get_message_for_one_resource_input_regex(input_regex: InputProblem) -> 
     assert result == expected
 
 
-def test_get_message_for_one_resource_link_target_mismatch(link_target_mismatch: InputProblem) -> None:
+def test_get_message_for_one_resource_link_target_mismatch(link_target_mismatch):
     result = _get_message_for_one_resource([link_target_mismatch])
     expected = (
         "Resource ID: res_id | Resource Type: onto:Class\n"
@@ -218,7 +263,7 @@ def test_get_message_for_one_resource_link_target_mismatch(link_target_mismatch:
     assert result == expected
 
 
-def test_get_message_for_one_resource_inexistent_linked_resource(inexistent_linked_resource: InputProblem) -> None:
+def test_get_message_for_one_resource_inexistent_linked_resource(inexistent_linked_resource):
     result = _get_message_for_one_resource([inexistent_linked_resource])
     expected = (
         "Resource ID: res_id | Resource Type: onto:Class\n"
@@ -228,7 +273,7 @@ def test_get_message_for_one_resource_inexistent_linked_resource(inexistent_link
     assert result == expected
 
 
-def test_get_message_for_one_resource_duplicate_value(duplicate_value: InputProblem) -> None:
+def test_get_message_for_one_resource_duplicate_value(duplicate_value):
     result = _get_message_for_one_resource([duplicate_value])
     expected = (
         "Resource ID: res_id | Resource Type: onto:Class\n"
@@ -238,9 +283,7 @@ def test_get_message_for_one_resource_duplicate_value(duplicate_value: InputProb
     assert result == expected
 
 
-def test_get_message_for_one_resource_several_problems(
-    file_value: InputProblem, inexistent_linked_resource: InputProblem
-) -> None:
+def test_get_message_for_one_resource_several_problems(file_value, inexistent_linked_resource):
     result = _get_message_for_one_resource([file_value, inexistent_linked_resource])
     expected = (
         "Resource ID: res_id | Resource Type: onto:Class\n"

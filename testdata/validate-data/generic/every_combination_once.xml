@@ -101,8 +101,8 @@
         </resource>
 
         <!--
-        sh:sourceConstraintComponent  sh:NodeConstraintComponent
-        sh:detail                     sh:PatternConstraintComponent
+        sh:sourceConstraintComponent  sh:PatternConstraintComponent
+        sh:detail                     -
         -->
         <resource label="Geoname is not a number" restype=":ClassWithEverything" id="geoname_not_number">
             <geoname-prop name=":testGeoname">

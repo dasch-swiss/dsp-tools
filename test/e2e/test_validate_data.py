@@ -152,7 +152,7 @@ def test_extract_identifiers_of_resource_results(every_combination_once: Validat
     report_and_onto = every_combination_once.validation_graph + every_combination_once.onto_graph
     data_and_onto = every_combination_once.data_graph + every_combination_once.onto_graph
     result = _extract_base_info_of_resource_results(report_and_onto, data_and_onto)
-    result_sorted = sorted(result, key=lambda x: str(x.resource_iri))
+    result_sorted = sorted(result, key=lambda x: str(x.focus_node_iri))
     expected_iris = [
         (URIRef("http://data/bitstream_no_legal_info"), BNode),
         (URIRef("http://data/bitstream_no_legal_info"), BNode),
@@ -181,7 +181,7 @@ def test_extract_identifiers_of_resource_results(every_combination_once: Validat
     ]
     assert len(result) == len(expected_iris)
     for result_info, expected_iri in zip(result_sorted, expected_iris):
-        assert result_info.resource_iri == expected_iri[0]
+        assert result_info.focus_node_iri == expected_iri[0]
         if expected_iri[1] is None:
             assert not result_info.detail
         else:

@@ -223,15 +223,27 @@ api-shapes:ListValue_ClassShape
 ##############
 # TextValue
 
+# This validates the metadata of the TextValue
+# It cannot give information if it is the correct TextValue type
+api-shapes:ListValue_ClassShape
+  a              sh:NodeShape ;
+  sh:targetClass knora-api:TextValue ;
+  sh:name        "Validates the metadata of the TextValue" ;
+  sh:message     "TextValue" ;
+  sh:property    api-shapes:valueHasComment_Shape ;
+  sh:severity    sh:Violation .
+
 ###
 # SimpleTextValue
 
+# This validates that the Simple TextValue is correct
 api-shapes:SimpleTextValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
-  sh:property api-shapes:SimpleTextValue_PropShape, api-shapes:valueAsString_Shape, api-shapes:valueHasComment_Shape ;
+  sh:property api-shapes:SimpleTextValue_PropShape, api-shapes:valueAsString_Shape ;
   sh:severity sh:Violation .
 
+# Because it is not a separate class we have to check the cardinality of the property
 api-shapes:SimpleTextValue_PropShape
   a           sh:PropertyShape ;
   sh:message  "TextValue without formatting" ;
@@ -251,6 +263,7 @@ api-shapes:valueAsString_Shape
 ###
 # FormattedTextValue
 
+# This validates that the Rich TextValue is correct
 api-shapes:FormattedTextValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
@@ -258,6 +271,7 @@ api-shapes:FormattedTextValue_ClassShape
               api-shapes:valueHasComment_Shape ;
   sh:severity sh:Violation .
 
+# Because it is not a separate class we have to check the cardinality of the property
 api-shapes:FormattedTextValue_PropShape
   a           sh:PropertyShape ;
   sh:message  "TextValue with formatting" ;

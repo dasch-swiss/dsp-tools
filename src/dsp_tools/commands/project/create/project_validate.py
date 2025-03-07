@@ -88,7 +88,7 @@ def validate_project(
     _check_for_undefined_super_resource(project_definition)
     _check_for_undefined_cardinalities(project_definition)
     _check_for_duplicate_res_props(project_definition)
-    _check_for_duplicate_listnodes(project_definition)
+    _check_for_duplicate_listnodes(project_definition["project"]["lists"])
     _check_for_deprecated_syntax(project_definition)
 
     # cardinalities check for circular references
@@ -166,7 +166,7 @@ def _find_duplicate_res_props(project_definition: dict[str, Any]) -> tuple[dict[
     return propnames_duplicates, resnames_duplicates
 
 
-def _find_duplicate_listnodes(project_definition: dict[str, Any]) -> set[str]:
+def _find_duplicate_listnodes(lists_section: list[dict[str, Any]]) -> set[str]:
     def _process_sublist(sublist: dict[str, Any]) -> None:
         existing_nodenames.append(sublist["name"])
         if nodes := sublist.get("nodes"):
@@ -176,7 +176,7 @@ def _find_duplicate_listnodes(project_definition: dict[str, Any]) -> set[str]:
                 _process_sublist(x)
 
     existing_nodenames: list[str] = []
-    for lst in project_definition["project"]["lists"]:
+    for lst in lists_section:
         _process_sublist(lst)
 
     return {x for x in existing_nodenames if existing_nodenames.count(x) > 1}
@@ -467,8 +467,8 @@ def _check_for_duplicate_res_props(project_definition: dict[str, Any]) -> bool:
     raise BaseError(err_msg)
 
 
-def _check_for_duplicate_listnodes(project_definition: dict[str, Any]) -> bool:
-    listnode_duplicates = _find_duplicate_listnodes(project_definition)
+def _check_for_duplicate_listnodes(lists_section: list[dict[str, Any]]) -> bool:
+    listnode_duplicates = _find_duplicate_listnodes(lists_section)
     err_msg = "Listnode names must be unique across all lists. The following names appear multiple times:"
     err_msg += "\n - " + "\n - ".join(listnode_duplicates)
     raise InputError(err_msg)

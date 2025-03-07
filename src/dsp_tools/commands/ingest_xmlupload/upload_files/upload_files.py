@@ -59,7 +59,7 @@ def upload_files(
 
 
 def _get_validated_paths(root: etree._Element) -> set[Path]:
-    paths = {Path(x.text) for x in root.xpath("//bitstream")}
+    paths = {Path(x.text.strip()) for x in root.xpath("//bitstream")}
     if problems := check_files(paths):
         msg = problems.execute_error_protocol()
         raise InputError(msg)

@@ -324,16 +324,6 @@ class TestCreateGetXMLUpload(unittest.TestCase):
         lists_original = lists_original or []
         lists_returned = lists_returned or []
 
-        # remove lists of which the nodes were defined in an Excel file
-        for list_original in lists_original:
-            if (
-                isinstance(list_original["nodes"], dict)
-                and len(list_original["nodes"]) == 1
-                and "folder" in list_original["nodes"]
-            ):
-                lists_original.remove(list_original)
-                lists_returned = [x for x in lists_returned if x["name"] != list_original["name"]]
-
         # sort both lists
         lists_original = sorted(lists_original, key=lambda x: cast(str, x.get("name", "")))
         lists_returned = sorted(lists_returned, key=lambda x: cast(str, x.get("name", "")))

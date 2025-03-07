@@ -399,25 +399,16 @@ def extracted_value_type() -> ValidationResult:
 @pytest.fixture
 def report_regex(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
-    [ a sh:ValidationResult ;
-        sh:detail _:bn_geoname_not_number ;
-        sh:focusNode <http://data/geoname_not_number> ;
-        sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#GeonameValue_ClassShape>" ;
-        sh:resultPath onto:testGeoname ;
-        sh:resultSeverity sh:Violation ;
-        sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-        sh:sourceShape onto:testGeoname_PropShape ;
-        sh:value <http://data/value_geoname_not_number> ] .
-
-    _:bn_geoname_not_number a sh:ValidationResult ;
+    [ 
+        a sh:ValidationResult ;
         sh:focusNode <http://data/value_geoname_not_number> ;
         sh:resultMessage "The value must be a valid geoname code" ;
-        sh:resultPath knora-api:geonameValueAsGeonameCode ;
+        sh:resultPath <http://api.knora.org/ontology/knora-api/v2#geonameValueAsGeonameCode> ;
         sh:resultSeverity sh:Violation ;
         sh:sourceConstraintComponent sh:PatternConstraintComponent ;
-        sh:sourceShape api-shapes:geonameValueAsGeonameCode_Shape ;
-        sh:value "this-is-not-a-valid-code" .
-    """  # noqa: E501 (Line too long)
+        sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#geonameValueAsGeonameCode_Shape> ;
+        sh:value "this-is-not-a-valid-code" ].
+    """
     validation_g = Graph()
     validation_g.parse(data=validation_str, format="ttl")
     data_str = f"""{PREFIXES}
@@ -432,19 +423,13 @@ def report_regex(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseI
     onto_data_g += onto_graph
     onto_data_g.parse(data=data_str, format="ttl")
     val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
-    detail_bn = next(validation_g.objects(val_bn, SH.detail))
-    detail_component = next(validation_g.objects(detail_bn, SH.sourceConstraintComponent))
-    detail = DetailBaseInfo(
-        detail_bn=detail_bn,
-        source_constraint_component=detail_component,
-    )
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.NodeConstraintComponent,
         resource_iri=DATA.geoname_not_number,
         res_class_type=ONTO.ClassWithEverything,
         result_path=ONTO.testGeoname,
-        detail=detail,
+        detail=None,
     )
     return validation_g, onto_data_g, base_info
 

@@ -331,19 +331,20 @@ class TestReformatValidationGraph:
         sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         expected_info_tuples = [
             (
-                "comment_on_value_empty",
+                "comment_on_value_empty",  # TODO: Missing
                 "onto:testUriValue",
                 "The comment on the value must be a non-empty string",
             ),
             (
-                "comment_on_value_whitespace",
+                "comment_on_value_whitespace",  # TODO: Missing
                 "onto:testUriValue",
                 "The comment on the value must be a non-empty string",
             ),
             ("empty_label", "rdfs:label", "The label must be a non-empty string"),
+            ("empty_label_representation", "rdfs:label", "The label must be a non-empty string"),
             ("empty_text_rich", "onto:testRichtext", "The value must be a non-empty string"),
             ("empty_text_simple", "onto:testTextarea", "The value must be a non-empty string"),
-            ("geoname_not_number", "onto:testGeoname", "The value must be a valid geoname code"),
+            ("geoname_not_number", "onto:testGeoname", "The value must be a valid geoname code"),  # TODO: missing
             ("link_target_non_existent", "onto:testHasLinkTo", "other"),
             ("link_target_wrong_class", "onto:testHasLinkToCardOneResource", "id_9_target"),
             (

@@ -88,7 +88,8 @@ def validate_project(
     _check_for_undefined_super_resource(project_definition)
     _check_for_undefined_cardinalities(project_definition)
     _check_for_duplicate_res_props(project_definition)
-    _check_for_duplicate_listnodes(project_definition["project"]["lists"])
+    if lists_section := project_definition["project"].get("lists"):
+        _check_for_duplicate_listnodes(lists_section)
     _check_for_deprecated_syntax(project_definition)
 
     # cardinalities check for circular references
@@ -467,11 +468,11 @@ def _check_for_duplicate_res_props(project_definition: dict[str, Any]) -> bool:
     raise BaseError(err_msg)
 
 
-def _check_for_duplicate_listnodes(lists_section: list[dict[str, Any]]) -> bool:
-    listnode_duplicates = _find_duplicate_listnodes(lists_section)
-    err_msg = "Listnode names must be unique across all lists. The following names appear multiple times:"
-    err_msg += "\n - " + "\n - ".join(listnode_duplicates)
-    raise InputError(err_msg)
+def _check_for_duplicate_listnodes(lists_section: list[dict[str, Any]]) -> None:
+    if listnode_duplicates := _find_duplicate_listnodes(lists_section):
+        err_msg = "Listnode names must be unique across all lists. The following names appear multiple times:"
+        err_msg += "\n - " + "\n - ".join(listnode_duplicates)
+        raise InputError(err_msg)
 
 
 def _check_for_deprecated_syntax(project_definition: dict[str, Any]) -> bool:  # noqa: ARG001 (unused argument)

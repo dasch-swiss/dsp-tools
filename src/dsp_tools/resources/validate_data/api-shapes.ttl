@@ -52,14 +52,15 @@ api-shapes:UniqueValue_Shape
 ########################
 
 api-shapes:rdfsLabel_Shape
-  a           sh:PropertyShape ;
-  sh:message  "The label must be a non-empty string" ;
-  sh:path     rdfs:label ;
-  sh:minCount 1 ;
-  sh:maxCount 1 ;
-  sh:pattern  "\\s*\\S+\\s*" ;
-  sh:datatype xsd:string ;
-  sh:severity sh:Violation .
+  a                sh:PropertyShape ;
+  # sh:targetClass knora-api:Resource ;
+  sh:message       "The label must be a non-empty string" ;
+  sh:path          rdfs:label ;
+  sh:minCount      1 ;
+  sh:maxCount      1 ;
+  sh:pattern       "\\s*\\S+\\s*" ;
+  sh:datatype      xsd:string ;
+  sh:severity      sh:Violation .
 
 
 ########################

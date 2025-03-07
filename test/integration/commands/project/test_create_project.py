@@ -6,7 +6,7 @@ import regex
 
 from dsp_tools.commands.project.create.project_create_ontologies import _sort_prop_classes
 from dsp_tools.commands.project.create.project_create_ontologies import _sort_resources
-from dsp_tools.commands.project.create.project_validate import _check_for_duplicate_names
+from dsp_tools.commands.project.create.project_validate import _check_for_duplicate_res_and_props
 from dsp_tools.commands.project.create.project_validate import _check_for_undefined_cardinalities
 from dsp_tools.commands.project.create.project_validate import _check_for_undefined_super_property
 from dsp_tools.commands.project.create.project_validate import _check_for_undefined_super_resource
@@ -14,6 +14,7 @@ from dsp_tools.commands.project.create.project_validate import _collect_link_pro
 from dsp_tools.commands.project.create.project_validate import _identify_problematic_cardinalities
 from dsp_tools.commands.project.create.project_validate import validate_project
 from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.shared import parse_json_input
 
 
@@ -72,6 +73,9 @@ def test_validate_project(tp_systematic: dict[str, Any], tp_circular_ontology: d
 
     with pytest.raises(BaseError, match=regex.escape("Your ontology contains properties derived from 'hasLinkTo'")):
         validate_project(tp_circular_ontology)
+
+    with pytest.raises(InputError, match=regex.escape("Listnode names must be unique across all lists")):
+        validate_project("testdata/invalid-testdata/json-project/duplicate-listnames.json")
 
 
 def test_check_for_undefined_cardinalities(tp_systematic: dict[str, Any]) -> None:
@@ -153,7 +157,7 @@ def test_check_for_duplicate_resources() -> None:
         r"Resource 'anotherResource' appears multiple times in the ontology 'testonto'\.\n"
         r"Resource 'minimalResource' appears multiple times in the ontology 'testonto'\.\n",
     ):
-        _check_for_duplicate_names(tp_duplicate_resource)
+        _check_for_duplicate_res_and_props(tp_duplicate_resource)
 
 
 def test_check_for_duplicate_properties() -> None:
@@ -166,7 +170,7 @@ def test_check_for_duplicate_properties() -> None:
         r"Property 'hasInt' appears multiple times in the ontology 'testonto'\.\n"
         r"Property 'hasText' appears multiple times in the ontology 'testonto'\.\n",
     ):
-        _check_for_duplicate_names(tp_duplicate_property)
+        _check_for_duplicate_res_and_props(tp_duplicate_property)
 
 
 if __name__ == "__main__":

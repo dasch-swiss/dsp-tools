@@ -13,13 +13,14 @@ import networkx as nx
 import regex
 
 from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import InputError
 
 
 def validate_project(input_file_or_json: Union[dict[str, Any], str]) -> bool:
     """
     Validates a JSON project definition file.
 
-    First, the Excel file references in the "lists" section are expanded
+    First, the Excel files referenced in the "lists" section are expanded
     (unless this behaviour is disabled).
 
     Then, the project is validated against the JSON schema.
@@ -75,7 +76,9 @@ def validate_project(input_file_or_json: Union[dict[str, Any], str]) -> bool:
     _check_for_undefined_super_property(project_definition)
     _check_for_undefined_super_resource(project_definition)
     _check_for_undefined_cardinalities(project_definition)
-    _check_for_duplicate_names(project_definition)
+    _check_for_duplicate_res_and_props(project_definition)
+    if lists_section := project_definition["project"].get("lists"):
+        _check_for_duplicate_listnodes(lists_section)
     _check_for_deprecated_syntax(project_definition)
 
     # cardinalities check for circular references
@@ -129,7 +132,9 @@ def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> b
     return True
 
 
-def _find_duplicates(project_definition: dict[str, Any]) -> tuple[dict[str, set[str]], dict[str, set[str]]]:
+def _find_duplicate_res_and_props(
+    project_definition: dict[str, Any],
+) -> tuple[dict[str, set[str]], dict[str, set[str]]]:
     resnames_duplicates: dict[str, set[str]] = {}
     propnames_duplicates: dict[str, set[str]] = {}
     for onto in project_definition["project"]["ontologies"]:
@@ -151,6 +156,22 @@ def _find_duplicates(project_definition: dict[str, Any]) -> tuple[dict[str, set[
                     else:
                         propnames_duplicates[onto["name"]] = {elem}
     return propnames_duplicates, resnames_duplicates
+
+
+def _find_duplicate_listnodes(lists_section: list[dict[str, Any]]) -> set[str]:
+    def _process_sublist(sublist: dict[str, Any]) -> None:
+        existing_nodenames.append(sublist["name"])
+        if nodes := sublist.get("nodes"):
+            if isinstance(nodes, dict) and list(nodes.keys()) == ["folder"]:
+                return
+            for x in nodes:
+                _process_sublist(x)
+
+    existing_nodenames: list[str] = []
+    for lst in lists_section:
+        _process_sublist(lst)
+
+    return {x for x in existing_nodenames if existing_nodenames.count(x) > 1}
 
 
 def _check_for_undefined_super_resource(project_definition: dict[str, Any]) -> bool:
@@ -409,7 +430,7 @@ def _find_circles_with_min_one_cardinality(
     return errors
 
 
-def _check_for_duplicate_names(project_definition: dict[str, Any]) -> bool:
+def _check_for_duplicate_res_and_props(project_definition: dict[str, Any]) -> bool:
     """
     Check that the resource names and property names are unique.
 
@@ -422,7 +443,7 @@ def _check_for_duplicate_names(project_definition: dict[str, Any]) -> bool:
     Returns:
         True if the resource/property names are unique
     """
-    propnames_duplicates, resnames_duplicates = _find_duplicates(project_definition)
+    propnames_duplicates, resnames_duplicates = _find_duplicate_res_and_props(project_definition)
 
     if not resnames_duplicates and not propnames_duplicates:
         return True
@@ -436,6 +457,13 @@ def _check_for_duplicate_names(project_definition: dict[str, Any]) -> bool:
             err_msg += f"Property '{prop_duplicate}' appears multiple times in the ontology '{ontoname}'.\n"
 
     raise BaseError(err_msg)
+
+
+def _check_for_duplicate_listnodes(lists_section: list[dict[str, Any]]) -> None:
+    if listnode_duplicates := _find_duplicate_listnodes(lists_section):
+        err_msg = "Listnode names must be unique across all lists. The following names appear multiple times:"
+        err_msg += "\n - " + "\n - ".join(listnode_duplicates)
+        raise InputError(err_msg)
 
 
 def _check_for_deprecated_syntax(project_definition: dict[str, Any]) -> bool:  # noqa: ARG001 (unused argument)

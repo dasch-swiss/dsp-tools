@@ -93,7 +93,7 @@ def _get_fuseki_container(network: Network, version: str) -> DockerContainer:
         DockerContainer(f"daschswiss/apache-jena-fuseki:{version}")
         .with_name("db")
         .with_network(network)
-        .with_bind_ports(3030, 3030)
+        .with_bind_ports(3031, 3031)
         .with_env("ADMIN_PASSWORD", "test")
     )
     fuseki.start()
@@ -106,12 +106,12 @@ def _get_fuseki_container(network: Network, version: str) -> DockerContainer:
 def _create_data_set_and_admin_user() -> None:
     repo_config = Path("testdata/e2e/repo_config.ttl").read_text(encoding="utf-8")
     files = {"file": ("file.ttl", repo_config, "text/turtle; charset=utf8")}
-    if not requests.post("http://0.0.0.0:3030/$/datasets", files=files, auth=("admin", "test"), timeout=30).ok:
+    if not requests.post("http://0.0.0.0:3031/$/datasets", files=files, auth=("admin", "test"), timeout=30).ok:
         raise RuntimeError("Fuseki did not create the dataset")
     print("Dataset created")
 
     admin_user_data = Path("testdata/e2e/admin_user_data.ttl").read_text(encoding="utf-8")
-    url = "http://0.0.0.0:3030/knora-test/data?graph=http://www.knora.org/data/admin"
+    url = "http://0.0.0.0:3031/knora-test/data?graph=http://www.knora.org/data/admin"
     files = {"file": ("file.ttl", admin_user_data, "text/turtle; charset: utf-8")}
     if not requests.post(url, files=files, auth=("admin", "test"), timeout=30).ok:
         raise RuntimeError("Fuseki did not create the admin user")
@@ -123,16 +123,16 @@ def _get_sipi_container(network: Network, version: str) -> DockerContainer:
         DockerContainer(f"daschswiss/knora-sipi:{version}")
         .with_name("sipi")
         .with_network(network)
-        .with_bind_ports(1024, 1024)
+        .with_bind_ports(1025, 1025)
         .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_HOST", "0.0.0.0")  # noqa: S104
-        .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", "3333")
+        .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", "3334")
         .with_command("--config=/sipi/config/sipi.docker-config.lua")
         .with_volume_mapping(TMP_SIPI, "/tmp", "rw")  # noqa: S108
         .with_volume_mapping(E2E_TESTDATA, "/sipi/config", "rw")
         .with_volume_mapping(SIPI_IMAGES, "/sipi/images", "rw")
     )
     sipi.start()
-    wait_for_logs(sipi, "Sipi: Server listening on HTTP port 1024")
+    wait_for_logs(sipi, "Sipi: Server listening on HTTP port 1025")
     print("Sipi is ready")
     return sipi
 
@@ -142,11 +142,11 @@ def _get_ingest_container(network: Network, version: str) -> DockerContainer:
         DockerContainer(f"daschswiss/dsp-ingest:{version}")
         .with_name("ingest")
         .with_network(network)
-        .with_bind_ports(3340, 3340)
+        .with_bind_ports(3341, 3341)
         .with_env("STORAGE_ASSET_DIR", "/opt/images")
         .with_env("STORAGE_TEMP_DIR", "/opt/temp")
-        .with_env("JWT_AUDIENCE", "http://localhost:3340")
-        .with_env("JWT_ISSUER", "0.0.0.0:3333")
+        .with_env("JWT_AUDIENCE", "http://localhost:3341")
+        .with_env("JWT_ISSUER", "0.0.0.0:3334")
         .with_env("JWT_SECRET", "UP 4888, nice 4-8-4 steam engine")
         .with_env("SIPI_USE_LOCAL_DEV", "false")
         .with_env("ALLOW_ERASE_PROJECTS", "true")
@@ -166,13 +166,15 @@ def _get_api_container(network: Network, version: str) -> DockerContainer:
         DockerContainer(f"daschswiss/knora-api:{version}")
         .with_name("api")
         .with_network(network)
-        .with_env("KNORA_WEBAPI_DSP_INGEST_BASE_URL", "http://ingest:3340")
+        .with_env("KNORA_WEBAPI_DSP_INGEST_BASE_URL", "http://ingest:3341")
         .with_env("KNORA_WEBAPI_TRIPLESTORE_HOST", "db")
+        .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_PORT", "3031")
         .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_REPOSITORY_NAME", "knora-test")
         .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_USERNAME", "admin")
         .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_PASSWORD", "test")
+        .with_env("KNORA_WEBAPI_SIPI_INTERNAL_PORT", "1025")
         .with_env("ALLOW_ERASE_PROJECTS", "true")
-        .with_bind_ports(3333, 3333)
+        .with_bind_ports(3334, 3334)
     )
     api.start()
     wait_for_logs(api, "AppState set to Running")

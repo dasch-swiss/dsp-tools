@@ -370,6 +370,7 @@ def _query_pattern_constraint_component_violation(
     #     input_value=val,
     # )
 
+
 def _query_generic_violation(base_info: ValidationResultBaseInfo, results_and_onto: Graph) -> ValidationResult:
     detail_info = cast(DetailBaseInfo, base_info.detail)
     val = None

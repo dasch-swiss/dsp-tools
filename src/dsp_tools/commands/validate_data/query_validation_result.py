@@ -347,9 +347,9 @@ def _query_pattern_constraint_component_violation(
     msg = next(results_and_onto.objects(bn_with_info, SH.resultMessage))
     return ValidationResult(
         violation_type=ViolationType.PATTERN,
-        res_iri=target_resource,
-        res_class=target_resource_type,
-        property=user_facing_property,
+        res_iri=base_info.focus_node_iri,
+        res_class=base_info.focus_node_type,
+        property=base_info.result_path,
         expected=msg,
         input_value=val,
     )

@@ -1,4 +1,4 @@
-import subprocess  # noqa: INP001 (missing __init__.py)
+import subprocess
 import sys
 from pathlib import Path
 

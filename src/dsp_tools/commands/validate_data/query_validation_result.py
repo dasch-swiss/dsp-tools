@@ -19,7 +19,6 @@ from dsp_tools.commands.validate_data.models.input_problems import InputProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import UnexpectedResults
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
-from dsp_tools.commands.validate_data.models.validation import OneValidationResult
 from dsp_tools.commands.validate_data.models.validation import QueryInfo
 from dsp_tools.commands.validate_data.models.validation import ReformattedIRI
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
@@ -83,10 +82,6 @@ def _separate_result_types(
     return no_details, with_details
 
 
-def _separate_bns_of_results(results_and_onto: Graph) -> list[OneValidationResult]:
-    pass
-
-
 def _extract_base_info_of_resource_results(
     results_and_onto: Graph, data_onto_graph: Graph
 ) -> list[ValidationResultBaseInfo]:
@@ -105,6 +100,12 @@ def _extract_base_info_of_resource_results(
             )
             all_res_focus_nodes.extend(_extract_one_base_info(info, results_and_onto, data_onto_graph))
     return all_res_focus_nodes
+
+
+def _get_all_main_result_bns(results_and_onto: Graph) -> set[SubjectObjectTypeAlias]:
+    all_bns = set(results_and_onto.subjects(RDF.type, SH.ValidationResult))
+    detail_bns = set(results_and_onto.objects(predicate=SH.detail))
+    return all_bns - detail_bns
 
 
 def _extract_one_base_info(

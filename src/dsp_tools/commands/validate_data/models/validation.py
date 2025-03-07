@@ -46,12 +46,6 @@ class UnexpectedComponent:
 
 
 @dataclass
-class OneValidationResult:
-    main_bn: SubjectObjectTypeAlias
-    detail_bn: SubjectObjectTypeAlias | None
-
-
-@dataclass
 class ValidationResultBaseInfo:
     result_bn: SubjectObjectTypeAlias
     source_constraint_component: SubjectObjectTypeAlias

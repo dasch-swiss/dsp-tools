@@ -15,11 +15,11 @@ from dsp_tools.commands.validate_data.models.validation import ValidationResult
 from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
 from dsp_tools.commands.validate_data.models.validation import ViolationType
 from dsp_tools.commands.validate_data.query_validation_result import _extract_base_info_of_resource_results
+from dsp_tools.commands.validate_data.query_validation_result import _get_all_main_result_bns
 from dsp_tools.commands.validate_data.query_validation_result import _query_all_results
 from dsp_tools.commands.validate_data.query_validation_result import _query_one_with_detail
 from dsp_tools.commands.validate_data.query_validation_result import _query_one_without_detail
 from dsp_tools.commands.validate_data.query_validation_result import _reformat_one_validation_result
-from dsp_tools.commands.validate_data.query_validation_result import _separate_bns_of_results
 from dsp_tools.commands.validate_data.query_validation_result import _separate_result_types
 from dsp_tools.commands.validate_data.query_validation_result import reformat_validation_graph
 from test.unittests.commands.validate_data.constants import DATA
@@ -54,16 +54,10 @@ def test_separate_bns_of_results(report_target_resource_wrong_type, report_not_r
     val_g1, _ = report_target_resource_wrong_type
     val_g2, _ = report_not_resource
     combined_g = val_g1 + val_g2
-    extracted_bns = _separate_bns_of_results(combined_g)
-    assert len(extracted_bns) == 2
-    with_detail = next(x for x in extracted_bns if x.detail_bn)
-    main_focus = next(combined_g.objects(with_detail.main_bn, SH.focusNode))
-    assert main_focus == DATA.region_isRegionOf_resource_not_a_representation
-    value_focus_node = next(combined_g.objects(with_detail.detail_bn, SH.focusNode))
-    assert value_focus_node == DATA.value_isRegionOf
-    no_detail = next(x for x in extracted_bns if not x.detail_bn)
-    no_detail_node = next(combined_g.objects(no_detail.main_bn, SH.focusNode))
-    assert no_detail_node == DATA.value_id_simpletext
+    extracted_bns = _get_all_main_result_bns(combined_g)
+    node1 = next(combined_g.subjects(SH.focusNode, DATA.region_isRegionOf_resource_not_a_representation))
+    node2 = next(combined_g.subjects(SH.focusNode, DATA.value_id_simpletext))
+    assert extracted_bns == {node1, node2}
 
 
 class TestQueryAllResults:

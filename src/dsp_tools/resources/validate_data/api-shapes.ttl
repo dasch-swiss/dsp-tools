@@ -254,7 +254,7 @@ api-shapes:intValueAsInt_Shape
 api-shapes:LinkValue_ClassShape
   a              sh:NodeShape ;
   # sh:targetClass knora-api:LinkValue ;
-  sh:name        "Validates the properties used with this targetClass" ;
+  sh:name        "Validates the metadata properties used with this targetClass" ;
   sh:message     "LinkValue" ;
   sh:property    api-shapes:valueHasComment_Shape ;
   sh:severity    sh:Violation .
@@ -267,7 +267,7 @@ api-shapes:LinkValue_ClassShape
 api-shapes:ListValue_ClassShape
   a              sh:NodeShape ;
   # sh:targetClass knora-api:ListValue ;
-  sh:name        "Validates the properties used with this targetClass" ;
+  sh:name        "Validates the metadata properties used with this targetClass" ;
   sh:message     "ListValue" ;
   sh:property    api-shapes:valueHasComment_Shape ;
   sh:severity    sh:Violation .

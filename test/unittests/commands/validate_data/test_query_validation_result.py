@@ -285,8 +285,8 @@ class TestQueryWithoutDetail:
         result = _query_one_without_detail(info, res, data)
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.PATTERN
-        assert result.res_iri == info.resource_iri
-        assert result.res_class == info.res_class_type
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
         assert result.property == ONTO.testGeoname
         assert result.expected == Literal("The value must be a valid geoname code")
         assert result.input_value == Literal("this-is-not-a-valid-code")
@@ -311,17 +311,6 @@ class TestQueryWithDetail:
         assert result.property == ONTO.testTextarea
         assert result.expected == Literal("TextValue without formatting")
         assert result.input_type == KNORA_API.TextValue
-
-    def test_result_geoname_not_number(self, report_regex: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
-        res, data, info = report_regex
-        result = _query_one_with_detail(info, res, data)
-        assert isinstance(result, ValidationResult)
-        assert result.violation_type == ViolationType.PATTERN
-        assert result.res_iri == info.focus_node_iri
-        assert result.res_class == info.focus_node_type
-        assert result.property == ONTO.testGeoname
-        assert result.expected == Literal("The value must be a valid geoname code")
-        assert result.input_value == Literal("this-is-not-a-valid-code")
 
     def test_link_target_non_existent(
         self, report_link_target_non_existent: tuple[Graph, Graph, ValidationResultBaseInfo]

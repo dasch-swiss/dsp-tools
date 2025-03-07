@@ -291,7 +291,9 @@ def _query_one_with_detail(
                 return _query_generic_violation(base_info, results_and_onto)
             return _query_for_value_type_violation(base_info, results_and_onto, data_graph)
         case SH.PatternConstraintComponent:
-            return _query_pattern_constraint_component_violation(detail_info.detail_bn, base_info, results_and_onto, data_graph)
+            return _query_pattern_constraint_component_violation(
+                detail_info.detail_bn, base_info, results_and_onto, data_graph
+            )
 
         case SH.ClassConstraintComponent:
             return _query_class_constraint_component_violation(base_info, results_and_onto, data_graph)

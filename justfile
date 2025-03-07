@@ -3,6 +3,27 @@ default:
     @just --list
 
 
+# Run all autoformattings
+[no-exit-message]
+format:
+    ruff format .
+    yamlfmt .
+
+
+# Run all linters in parallel (see https://just.systems/man/en/running-tasks-in-parallel.html)
+[no-exit-message]
+lint: 
+    #!/usr/bin/env -S parallel --shebang --ungroup --jobs {{ num_cpus() }}
+    just ruff-check
+    just ruff-format-check
+    just yamlfmt-check
+    just yamllint
+    just markdownlint
+    just darglint
+    just mypy
+    uv run scripts/markdown_link_validator.py
+
+
 # Detect anti-patterns in YAML files
 [no-exit-message]
 yamllint:
@@ -10,6 +31,7 @@ yamllint:
 
 
 # Check the formatting of YAML files
+[no-exit-message]
 yamlfmt-check:
     yamlfmt -lint .
 

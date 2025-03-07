@@ -280,7 +280,7 @@ api-shapes:ListValue_ClassShape
 api-shapes:TextValue_ClassShape
   a              sh:NodeShape ;
   # sh:targetClass knora-api:TextValue ;
-  sh:name        "Validates the metadata of the TextValue" ;
+  sh:name        "Validates the metadata properties used with this targetClass" ;
   sh:message     "TextValue" ;
   sh:property    api-shapes:valueHasComment_Shape ;
   sh:severity    sh:Violation .

@@ -195,20 +195,6 @@
                 ]
             },
             {
-                "name": "my-list-from-excel",
-                "labels": {
-                    "en": "My list from Excel"
-                },
-                "comments": {
-                    "de": "ein Kommentar",
-                    "en": "a comment",
-                    "fr": "un commentaire"
-                },
-                "nodes": {
-                    "folder": "testdata/excel2json/list-single"
-                }
-            },
-            {
                 "name": "notUsedList",
                 "labels": {
                     "en": "Not used list"

@@ -65,7 +65,7 @@ def create_project(
     context = Context(project_json.get("prefixes", {}))
 
     # validate against JSON schema
-    validate_project(project_json, expand_lists=False)
+    validate_project(project_json)
     print("    JSON project file is syntactically correct and passed validation.")
     logger.info("JSON project file is syntactically correct and passed validation.")
 

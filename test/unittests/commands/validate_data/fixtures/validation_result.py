@@ -426,8 +426,8 @@ def report_regex_on_value(onto_graph: Graph) -> tuple[Graph, Graph, ValidationRe
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.PatternConstraintComponent,
-        resource_iri=DATA.geoname_not_number,
-        res_class_type=ONTO.ClassWithEverything,
+        focus_node_iri=DATA.geoname_not_number,
+        focus_node_type=ONTO.ClassWithEverything,
         result_path=ONTO.testGeoname,
         detail=None,
     )

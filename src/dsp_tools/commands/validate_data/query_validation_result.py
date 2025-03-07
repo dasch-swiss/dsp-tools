@@ -92,7 +92,7 @@ def _extract_base_info_of_resource_results(
     for nd in main_bns:
         focus_iri = next(results_and_onto.objects(nd, SH.focusNode))
         res_type = next(data_onto_graph.objects(focus_iri, RDF.type))
-        if not (found := list(results_and_onto.objects(nd[0], SH.sourceConstraintComponent))):
+        if not (found := list(results_and_onto.objects(nd, SH.sourceConstraintComponent))):
             continue
         constraint_component = found.pop(0)
         if any([bool(res_type in resource_classes), bool(constraint_component == SH.PatternConstraintComponent)]):
@@ -177,7 +177,7 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
     component = next(results_and_onto.objects(base_info.result_bn, SH.sourceConstraintComponent))
     match component:
         case SH.PatternConstraintComponent:
-            return _query_pattern_constraint_component_violation(base_info, results_and_onto, data)
+            return _query_pattern_constraint_component_violation(base_info.result_bn, base_info, results_and_onto, data)
         case SH.MinCountConstraintComponent:
             return _query_for_min_cardinality_violation(base_info, msg, results_and_onto)
         case SH.MaxCountConstraintComponent:
@@ -291,7 +291,7 @@ def _query_one_with_detail(
                 return _query_generic_violation(base_info, results_and_onto)
             return _query_for_value_type_violation(base_info, results_and_onto, data_graph)
         case SH.PatternConstraintComponent:
-            return _query_pattern_constraint_component_violation(detail_info.detail_bn, base_info, results_and_onto)
+            return _query_pattern_constraint_component_violation(detail_info.detail_bn, base_info, results_and_onto, data_graph)
 
         case SH.ClassConstraintComponent:
             return _query_class_constraint_component_violation(base_info, results_and_onto, data_graph)
@@ -334,7 +334,7 @@ def _query_for_value_type_violation(
 
 
 def _query_pattern_constraint_component_violation(
-    bn_with_info: SubjectObjectTypeAlias, base_info: ValidationResultBaseInfo, results_and_onto: Graph
+    bn_with_info: SubjectObjectTypeAlias, base_info: ValidationResultBaseInfo, results_and_onto: Graph, data: Graph
 ) -> ValidationResult:
     val = next(results_and_onto.objects(bn_with_info, SH.value))
     msg = next(results_and_onto.objects(bn_with_info, SH.resultMessage))

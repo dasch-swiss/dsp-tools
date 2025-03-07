@@ -93,7 +93,7 @@ def _get_fuseki_container(network: Network, version: str) -> DockerContainer:
         DockerContainer(f"daschswiss/apache-jena-fuseki:{version}")
         .with_name("db")
         .with_network(network)
-        .with_bind_ports(3031, 3031)
+        .with_bind_ports(3030, 3031)
         .with_env("ADMIN_PASSWORD", "test")
     )
     fuseki.start()
@@ -123,7 +123,7 @@ def _get_sipi_container(network: Network, version: str) -> DockerContainer:
         DockerContainer(f"daschswiss/knora-sipi:{version}")
         .with_name("sipi")
         .with_network(network)
-        .with_bind_ports(1025, 1025)
+        .with_bind_ports(1024, 1025)
         .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_HOST", "0.0.0.0")  # noqa: S104
         .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", "3334")
         .with_command("--config=/sipi/config/sipi.docker-config.lua")
@@ -132,7 +132,7 @@ def _get_sipi_container(network: Network, version: str) -> DockerContainer:
         .with_volume_mapping(SIPI_IMAGES, "/sipi/images", "rw")
     )
     sipi.start()
-    wait_for_logs(sipi, "Sipi: Server listening on HTTP port 1025")
+    wait_for_logs(sipi, "Sipi: Server listening on HTTP port")
     print("Sipi is ready")
     return sipi
 
@@ -142,7 +142,7 @@ def _get_ingest_container(network: Network, version: str) -> DockerContainer:
         DockerContainer(f"daschswiss/dsp-ingest:{version}")
         .with_name("ingest")
         .with_network(network)
-        .with_bind_ports(3341, 3341)
+        .with_bind_ports(3340, 3341)
         .with_env("STORAGE_ASSET_DIR", "/opt/images")
         .with_env("STORAGE_TEMP_DIR", "/opt/temp")
         .with_env("JWT_AUDIENCE", "http://localhost:3341")
@@ -172,9 +172,10 @@ def _get_api_container(network: Network, version: str) -> DockerContainer:
         .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_REPOSITORY_NAME", "knora-test")
         .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_USERNAME", "admin")
         .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_PASSWORD", "test")
-        .with_env("KNORA_WEBAPI_SIPI_INTERNAL_PORT", "1025")
+        .with_env("KNORA_WEBAPI_SIPI_INTERNAL_PORT", "1025")  # defaults to 1024
+        # .with_env("KNORA_WEBAPI_SIPI_EXTERNAL_PORT", "1025")  # defaults to 443
         .with_env("ALLOW_ERASE_PROJECTS", "true")
-        .with_bind_ports(3334, 3334)
+        .with_bind_ports(3333, 3334)
     )
     api.start()
     wait_for_logs(api, "AppState set to Running")

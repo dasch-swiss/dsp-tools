@@ -85,24 +85,30 @@ def _separate_result_types(
 def _extract_base_info_of_resource_results(
     results_and_onto: Graph, data_onto_graph: Graph
 ) -> list[ValidationResultBaseInfo]:
-    focus_nodes = list(results_and_onto.subject_objects(SH.focusNode))
+    main_bns = _get_all_main_result_bns(results_and_onto)
+    all_res_focus_nodes = []
     resource_classes = list(data_onto_graph.subjects(KNORA_API.canBeInstantiated, Literal(True)))
     resource_classes.extend(STILL_IMAGE_VALUE_CLASSES)
-    all_res_focus_nodes = []
-    for nd in focus_nodes:
-        focus_iri = nd[1]
+    for nd in main_bns:
+        focus_iri = next(results_and_onto.objects(nd, SH.focusNode))
         res_type = next(data_onto_graph.objects(focus_iri, RDF.type))
         if not (found := list(results_and_onto.objects(nd[0], SH.sourceConstraintComponent))):
             continue
         constraint_component = found.pop(0)
         if any([bool(res_type in resource_classes), bool(constraint_component == SH.PatternConstraintComponent)]):
             info = QueryInfo(
-                validation_bn=nd[0],
+                validation_bn=nd,
                 focus_iri=focus_iri,
                 focus_rdf_type=res_type,
             )
             all_res_focus_nodes.extend(_extract_one_base_info(info, results_and_onto, data_onto_graph))
     return all_res_focus_nodes
+
+
+def _get_all_main_result_bns(results_and_onto: Graph) -> set[SubjectObjectTypeAlias]:
+    all_bns = set(results_and_onto.subjects(RDF.type, SH.ValidationResult))
+    detail_bns = set(results_and_onto.objects(predicate=SH.detail))
+    return all_bns - detail_bns
 
 
 def _extract_one_base_info(
@@ -122,8 +128,8 @@ def _extract_one_base_info(
                 ValidationResultBaseInfo(
                     result_bn=info.validation_bn,
                     source_constraint_component=main_component_type,
-                    resource_iri=info.focus_iri,
-                    res_class_type=info.focus_rdf_type,
+                    focus_node_iri=info.focus_iri,
+                    focus_node_type=info.focus_rdf_type,
                     result_path=path,
                     detail=detail,
                 )
@@ -138,8 +144,8 @@ def _extract_one_base_info(
             ValidationResultBaseInfo(
                 result_bn=info.validation_bn,
                 source_constraint_component=main_component_type,
-                resource_iri=resource_iri,
-                res_class_type=resource_type,
+                focus_node_iri=resource_iri,
+                focus_node_type=resource_type,
                 result_path=path,
                 detail=None,
             )
@@ -177,8 +183,8 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
         case SH.MaxCountConstraintComponent:
             return ValidationResult(
                 violation_type=ViolationType.MAX_CARD,
-                res_iri=base_info.resource_iri,
-                res_class=base_info.res_class_type,
+                res_iri=base_info.focus_node_iri,
+                res_class=base_info.focus_node_type,
                 property=base_info.result_path,
                 expected=msg,
             )
@@ -189,8 +195,8 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
         case DASH.CoExistsWithConstraintComponent:
             return ValidationResult(
                 violation_type=ViolationType.SEQNUM_IS_PART_OF,
-                res_iri=base_info.resource_iri,
-                res_class=base_info.res_class_type,
+                res_iri=base_info.focus_node_iri,
+                res_class=base_info.focus_node_type,
                 message=msg,
             )
         case SH.ClassConstraintComponent:
@@ -225,8 +231,8 @@ def _query_class_constraint_without_detail(
             expected = message
     return ValidationResult(
         violation_type=violation_type,
-        res_iri=base_info.resource_iri,
-        res_class=base_info.res_class_type,
+        res_iri=base_info.focus_node_iri,
+        res_class=base_info.focus_node_type,
         property=base_info.result_path,
         message=msg,
         expected=expected,
@@ -243,7 +249,7 @@ def _query_for_non_existent_cardinality_violation(
     # This creates a min cardinality and a closed constraint violation.
     # The closed constraint we ignore, because the problem is communicated through the min cardinality violation.
     if base_info.result_path in FILE_VALUE_PROPERTIES:
-        sub_classes = list(results_and_onto.transitive_objects(base_info.res_class_type, RDFS.subClassOf))
+        sub_classes = list(results_and_onto.transitive_objects(base_info.focus_node_type, RDFS.subClassOf))
         if KNORA_API.Representation in sub_classes:
             return None
         violation_type = ViolationType.FILEVALUE_PROHIBITED
@@ -252,8 +258,8 @@ def _query_for_non_existent_cardinality_violation(
 
     return ValidationResult(
         violation_type=violation_type,
-        res_iri=base_info.resource_iri,
-        res_class=base_info.res_class_type,
+        res_iri=base_info.focus_node_iri,
+        res_class=base_info.focus_node_type,
         property=base_info.result_path,
     )
 
@@ -284,6 +290,9 @@ def _query_one_with_detail(
             if base_info.result_path in FILE_VALUE_PROPERTIES:
                 return _query_generic_violation(base_info, results_and_onto)
             return _query_for_value_type_violation(base_info, results_and_onto, data_graph)
+        case SH.PatternConstraintComponent:
+            return _query_pattern_constraint_component_violation(detail_info.detail_bn, base_info, results_and_onto)
+
         case SH.ClassConstraintComponent:
             return _query_class_constraint_component_violation(base_info, results_and_onto, data_graph)
         case (
@@ -293,8 +302,6 @@ def _query_one_with_detail(
             | SH.MinInclusiveConstraintComponent
         ):
             return _query_generic_violation(base_info, results_and_onto)
-        case SH.PatternConstraintComponent:
-            return None
         case _:
             return UnexpectedComponent(str(detail_info.source_constraint_component))
 
@@ -318,8 +325,8 @@ def _query_for_value_type_violation(
     val_type = next(data_graph.objects(val, RDF.type))
     return ValidationResult(
         violation_type=ViolationType.VALUE_TYPE,
-        res_iri=base_info.resource_iri,
-        res_class=base_info.res_class_type,
+        res_iri=base_info.focus_node_iri,
+        res_class=base_info.focus_node_type,
         property=base_info.result_path,
         expected=msg,
         input_type=val_type,
@@ -327,31 +334,41 @@ def _query_for_value_type_violation(
 
 
 def _query_pattern_constraint_component_violation(
-    base_info: ValidationResultBaseInfo, results_and_onto: Graph, data: Graph
+    bn_with_info: SubjectObjectTypeAlias, base_info: ValidationResultBaseInfo, results_and_onto: Graph
 ) -> ValidationResult:
-    target_resource = base_info.resource_iri
-    target_resource_type = base_info.res_class_type
-    user_facing_property = base_info.result_path
-
-    rdf_type_superclasses = list(results_and_onto.transitive_objects(base_info.res_class_type, RDFS.subClassOf))
-    # In case it is a value, the information above is about the value itself and not user facing
-    if KNORA_API.Value in rdf_type_superclasses:
-        subj, pred = next(data.subject_predicates(base_info.resource_iri))
-        user_facing_property = pred
-        target_resource = subj
-        target_resource_type = next(data.objects(subj, RDF.type))
-
-    val = next(results_and_onto.objects(base_info.result_bn, SH.value))
-    msg = next(results_and_onto.objects(base_info.result_bn, SH.resultMessage))
+    val = next(results_and_onto.objects(bn_with_info, SH.value))
+    msg = next(results_and_onto.objects(bn_with_info, SH.resultMessage))
     return ValidationResult(
         violation_type=ViolationType.PATTERN,
-        res_iri=target_resource,
-        res_class=target_resource_type,
-        property=user_facing_property,
+        res_iri=base_info.focus_node_iri,
+        res_class=base_info.focus_node_type,
+        property=base_info.result_path,
         expected=msg,
         input_value=val,
     )
 
+    # target_resource = base_info.resource_iri
+    # target_resource_type = base_info.res_class_type
+    # user_facing_property = base_info.result_path
+    #
+    # rdf_type_superclasses = list(results_and_onto.transitive_objects(base_info.res_class_type, RDFS.subClassOf))
+    # # In case it is a value, the information above is about the value itself and not user facing
+    # if KNORA_API.Value in rdf_type_superclasses:
+    #     subj, pred = next(data.subject_predicates(base_info.resource_iri))
+    #     user_facing_property = pred
+    #     target_resource = subj
+    #     target_resource_type = next(data.objects(subj, RDF.type))
+    #
+    # val = next(results_and_onto.objects(base_info.result_bn, SH.value))
+    # msg = next(results_and_onto.objects(base_info.result_bn, SH.resultMessage))
+    # return ValidationResult(
+    #     violation_type=ViolationType.PATTERN,
+    #     res_iri=target_resource,
+    #     res_class=target_resource_type,
+    #     property=user_facing_property,
+    #     expected=msg,
+    #     input_value=val,
+    # )
 
 def _query_generic_violation(base_info: ValidationResultBaseInfo, results_and_onto: Graph) -> ValidationResult:
     detail_info = cast(DetailBaseInfo, base_info.detail)
@@ -361,8 +378,8 @@ def _query_generic_violation(base_info: ValidationResultBaseInfo, results_and_on
     msg = next(results_and_onto.objects(detail_info.detail_bn, SH.resultMessage))
     return ValidationResult(
         violation_type=ViolationType.GENERIC,
-        res_iri=base_info.resource_iri,
-        res_class=base_info.res_class_type,
+        res_iri=base_info.focus_node_iri,
+        res_class=base_info.focus_node_type,
         property=base_info.result_path,
         message=msg,
         input_value=val,
@@ -380,8 +397,8 @@ def _query_for_link_value_target_violation(
     expected_type = next(results_and_onto.objects(detail_info.detail_bn, SH.resultMessage))
     return ValidationResult(
         violation_type=ViolationType.LINK_TARGET,
-        res_iri=base_info.resource_iri,
-        res_class=base_info.res_class_type,
+        res_iri=base_info.focus_node_iri,
+        res_class=base_info.focus_node_type,
         property=base_info.result_path,
         expected=expected_type,
         input_value=target_iri,
@@ -403,8 +420,8 @@ def _query_for_min_cardinality_violation(
         violation_type = ViolationType.MIN_CARD
     return ValidationResult(
         violation_type=violation_type,
-        res_iri=base_info.resource_iri,
-        res_class=base_info.res_class_type,
+        res_iri=base_info.focus_node_iri,
+        res_class=base_info.focus_node_type,
         property=base_info.result_path,
         expected=msg,
     )
@@ -417,8 +434,8 @@ def _query_for_unique_value_violation(
     val = next(results_and_onto.objects(base_info.result_bn, SH.value))
     return ValidationResult(
         violation_type=ViolationType.UNIQUE_VALUE,
-        res_iri=base_info.resource_iri,
-        res_class=base_info.res_class_type,
+        res_iri=base_info.focus_node_iri,
+        res_class=base_info.focus_node_type,
         property=base_info.result_path,
         input_value=val,
     )

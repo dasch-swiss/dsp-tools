@@ -27,7 +27,7 @@ jobs:
       - name: Install just
         uses: taiki-e/install-action@just
       - name: bump version in pyproject.toml
-        run: uv run scripts/bump-version.py
+        run: uv run scripts/bump_version.py
       - name: build wheel
         run: uv build
       - name: publish new version to PyPI

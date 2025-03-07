@@ -60,6 +60,8 @@ DSP-TOOLS provides the following functionalities:
 - [`dsp-tools get`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands#get) 
   reads a project with its data model(s) from 
   a DSP server and writes it into a JSON file.
+- [`dsp-tools validate-data`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#validate-data)
+  validates an XML data file according to the ontology previously uploaded on the server.
 - [`dsp-tools xmlupload`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#xmlupload) 
   uploads data from an XML file (bulk data import)
   and writes the mapping from internal IDs to IRIs into a local file.
@@ -95,6 +97,9 @@ DSP-TOOLS provides the following functionalities:
   if it is already structured according to the DSP specifications.
 - [The module `excel2xml`](https://docs.dasch.swiss/latest/DSP-TOOLS/excel2xml-module) 
   provides helper methods that can be used in a Python script 
+  to convert data from a tabular format into XML. (**DEPRECATED in favor of `xmllib`**)
+- [The `xmllib` library](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/xmlroot/) 
+  provides helper functions that can be used in a Python script 
   to convert data from a tabular format into XML.
 - [`dsp-tools id2iri`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#id2iri)
   takes an XML file for bulk data import and replaces referenced internal IDs with IRIs. 

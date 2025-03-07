@@ -13,7 +13,8 @@ import networkx as nx
 import regex
 
 from dsp_tools.commands.excel2json.lists import expand_lists_from_excel
-from dsp_tools.models.exceptions import BaseError, InputError, InvalidInputError, UserError
+from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import InputError
 
 
 def validate_project(
@@ -166,7 +167,6 @@ def _find_duplicate_res_props(project_definition: dict[str, Any]) -> tuple[dict[
 
 
 def _find_duplicate_listnodes(project_definition: dict[str, Any]) -> set[str]:
-
     def _process_sublist(sublist: dict[str, Any]) -> None:
         existing_nodenames.append(sublist["name"])
         if nodes := sublist.get("nodes"):
@@ -180,7 +180,6 @@ def _find_duplicate_listnodes(project_definition: dict[str, Any]) -> set[str]:
         _process_sublist(lst)
 
     return {x for x in existing_nodenames if existing_nodenames.count(x) > 1}
-
 
 
 def _check_for_undefined_super_resource(project_definition: dict[str, Any]) -> bool:

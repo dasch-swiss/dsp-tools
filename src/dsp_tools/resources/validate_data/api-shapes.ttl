@@ -82,8 +82,8 @@ api-shapes:booleanValueAsBoolean_Shape
   sh:message  "A BooleanValue requires exactly one valid boolean" ;
   sh:path     knora-api:booleanValueAsBoolean ;
   sh:datatype xsd:boolean ;
-  sh:minCount 1 ;
-  sh:maxCount 1 ;
+  # sh:minCount 1 ;
+  # sh:maxCount 1 ;
   sh:severity sh:Violation .
 
 ##############
@@ -144,8 +144,8 @@ api-shapes:decimalValueAsDecimal_Shape
   sh:message  "A DecimalValue requires exactly one valid decimal" ;
   sh:path     knora-api:decimalValueAsDecimal ;
   sh:datatype xsd:decimal ;
-  sh:minCount 1 ;
-  sh:maxCount 1 ;
+  # sh:minCount 1 ;
+  # sh:maxCount 1 ;
   sh:severity sh:Violation .
 
 ##############
@@ -242,8 +242,8 @@ api-shapes:intValueAsInt_Shape
   sh:message  "An IntValue requires exactly one valid integer" ;
   sh:path     knora-api:intValueAsInt ;
   sh:datatype xsd:integer ;
-  sh:minCount 1 ;
-  sh:maxCount 1 ;
+  # sh:minCount 1 ;
+  # sh:maxCount 1 ;
   sh:severity sh:Violation .
 
 ##############
@@ -358,8 +358,8 @@ api-shapes:timeValueAsTimeStamp_Shape
   sh:message  "A TimeValue requires exactly one valid xsd:dateTimeStamp" ;
   sh:path     knora-api:timeValueAsTimeStamp ;
   sh:datatype xsd:dateTimeStamp ;
-  sh:minCount 1 ;
-  sh:maxCount 1 ;
+  # sh:minCount 1 ;
+  # sh:maxCount 1 ;
   sh:severity sh:Violation .
 
 ##############
@@ -378,8 +378,8 @@ api-shapes:uriValueAsUri_Shape
   sh:message  "A UriValue requires exactly one valid xsd:anyURI" ;
   sh:path     knora-api:uriValueAsUri ;
   sh:datatype xsd:anyURI ;
-  sh:minCount 1 ;
-  sh:maxCount 1 ;
+  # sh:minCount 1 ;
+  # sh:maxCount 1 ;
   sh:severity sh:Violation .
 
 #########################################

@@ -331,39 +331,28 @@ def _query_for_value_type_violation(
 def _query_pattern_constraint_component_violation(
     bn_with_info: SubjectObjectTypeAlias, base_info: ValidationResultBaseInfo, results_and_onto: Graph, data: Graph
 ) -> ValidationResult:
+    target_resource = base_info.focus_node_iri
+    target_resource_type = base_info.focus_node_type
+    user_facing_property = base_info.result_path
+
+    rdf_type_superclasses = list(results_and_onto.transitive_objects(base_info.focus_node_type, RDFS.subClassOf))
+    # In case it is a value, the information above is about the value itself and not user facing
+    if KNORA_API.Value in rdf_type_superclasses:
+        subj, pred = next(data.subject_predicates(base_info.focus_node_iri))
+        user_facing_property = pred
+        target_resource = subj
+        target_resource_type = next(data.objects(subj, RDF.type))
+
     val = next(results_and_onto.objects(bn_with_info, SH.value))
     msg = next(results_and_onto.objects(bn_with_info, SH.resultMessage))
     return ValidationResult(
         violation_type=ViolationType.PATTERN,
-        res_iri=base_info.focus_node_iri,
-        res_class=base_info.focus_node_type,
-        property=base_info.result_path,
+        res_iri=target_resource,
+        res_class=target_resource_type,
+        property=user_facing_property,
         expected=msg,
         input_value=val,
     )
-
-    # target_resource = base_info.resource_iri
-    # target_resource_type = base_info.res_class_type
-    # user_facing_property = base_info.result_path
-    #
-    # rdf_type_superclasses = list(results_and_onto.transitive_objects(base_info.res_class_type, RDFS.subClassOf))
-    # # In case it is a value, the information above is about the value itself and not user facing
-    # if KNORA_API.Value in rdf_type_superclasses:
-    #     subj, pred = next(data.subject_predicates(base_info.resource_iri))
-    #     user_facing_property = pred
-    #     target_resource = subj
-    #     target_resource_type = next(data.objects(subj, RDF.type))
-    #
-    # val = next(results_and_onto.objects(base_info.result_bn, SH.value))
-    # msg = next(results_and_onto.objects(base_info.result_bn, SH.resultMessage))
-    # return ValidationResult(
-    #     violation_type=ViolationType.PATTERN,
-    #     res_iri=target_resource,
-    #     res_class=target_resource_type,
-    #     property=user_facing_property,
-    #     expected=msg,
-    #     input_value=val,
-    # )
 
 
 def _query_generic_violation(base_info: ValidationResultBaseInfo, results_and_onto: Graph) -> ValidationResult:

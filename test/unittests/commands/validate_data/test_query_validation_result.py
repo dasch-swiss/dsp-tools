@@ -75,8 +75,8 @@ class TestExtractBaseInfo:
         results = _extract_base_info_of_resource_results(validation_g, onto_data_g)
         assert len(results) == 1
         found_result = results[0]
-        assert found_result.resource_iri == DATA.id_card_one
-        assert found_result.res_class_type == ONTO.ClassInheritedCardinalityOverwriting
+        assert found_result.focus_node_iri == DATA.id_card_one
+        assert found_result.focus_node_type == ONTO.ClassInheritedCardinalityOverwriting
         assert found_result.result_path == ONTO.testBoolean
         assert found_result.source_constraint_component == SH.MinCountConstraintComponent
         assert not found_result.detail
@@ -88,8 +88,8 @@ class TestExtractBaseInfo:
         results = _extract_base_info_of_resource_results(validation_g, onto_data_g)
         assert len(results) == 1
         found_result = results[0]
-        assert found_result.resource_iri == DATA.image_no_legal_info
-        assert found_result.res_class_type == ONTO.TestStillImageRepresentation
+        assert found_result.focus_node_iri == DATA.image_no_legal_info
+        assert found_result.focus_node_type == ONTO.TestStillImageRepresentation
         assert found_result.result_path == KNORA_API.hasLicense
         assert found_result.source_constraint_component == SH.MinCountConstraintComponent
         assert not found_result.detail
@@ -99,8 +99,8 @@ class TestExtractBaseInfo:
         results = _extract_base_info_of_resource_results(validation_g, onto_data_g)
         assert len(results) == 1
         found_result = results[0]
-        assert found_result.resource_iri == DATA.id_simpletext
-        assert found_result.res_class_type == ONTO.ClassWithEverything
+        assert found_result.focus_node_iri == DATA.id_simpletext
+        assert found_result.focus_node_type == ONTO.ClassWithEverything
         assert found_result.result_path == ONTO.testTextarea
         assert found_result.source_constraint_component == SH.NodeConstraintComponent
         detail = found_result.detail
@@ -114,7 +114,7 @@ class TestSeparateResultTypes:
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 1
         assert len(with_detail) == 0
-        assert no_detail[0].resource_iri == DATA.id_card_one
+        assert no_detail[0].focus_node_iri == DATA.id_card_one
 
     def test_result_id_simpletext(
         self, report_value_type_simpletext: tuple[Graph, Graph, ValidationResultBaseInfo]
@@ -123,21 +123,21 @@ class TestSeparateResultTypes:
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 0
         assert len(with_detail) == 1
-        assert with_detail[0].resource_iri == DATA.id_simpletext
+        assert with_detail[0].focus_node_iri == DATA.id_simpletext
 
     def test_result_id_uri(self, report_value_type: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res_g, onto_data_g, _ = report_value_type
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 1
         assert len(with_detail) == 0
-        assert no_detail[0].resource_iri == DATA.id_uri
+        assert no_detail[0].focus_node_iri == DATA.id_uri
 
     def test_result_geoname_not_number(self, report_regex: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res_g, onto_data_g, _ = report_regex
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 0
         assert len(with_detail) == 1
-        assert with_detail[0].resource_iri == DATA.geoname_not_number
+        assert with_detail[0].focus_node_iri == DATA.geoname_not_number
 
     def test_result_id_closed_constraint(
         self, report_closed_constraint: tuple[Graph, Graph, ValidationResultBaseInfo]
@@ -146,14 +146,14 @@ class TestSeparateResultTypes:
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 1
         assert len(with_detail) == 0
-        assert no_detail[0].resource_iri == DATA.id_closed_constraint
+        assert no_detail[0].focus_node_iri == DATA.id_closed_constraint
 
     def test_result_id_max_card(self, report_max_card: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res_g, onto_data_g, _ = report_max_card
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 1
         assert len(with_detail) == 0
-        assert no_detail[0].resource_iri == DATA.id_max_card
+        assert no_detail[0].focus_node_iri == DATA.id_max_card
 
     def test_report_unique_value_literal(
         self, report_unique_value_literal: tuple[Graph, Graph, ValidationResultBaseInfo]
@@ -162,7 +162,7 @@ class TestSeparateResultTypes:
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 1
         assert len(with_detail) == 0
-        assert no_detail[0].resource_iri == DATA.identical_values_valueHas
+        assert no_detail[0].focus_node_iri == DATA.identical_values_valueHas
 
     def test_report_unique_value_iri(
         self, report_unique_value_iri: tuple[Graph, Graph, ValidationResultBaseInfo]
@@ -171,7 +171,7 @@ class TestSeparateResultTypes:
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
         assert len(no_detail) == 1
         assert len(with_detail) == 0
-        assert no_detail[0].resource_iri == DATA.identical_values_LinkValue
+        assert no_detail[0].focus_node_iri == DATA.identical_values_LinkValue
 
 
 class TestQueryWithoutDetail:
@@ -180,8 +180,8 @@ class TestQueryWithoutDetail:
         result = _query_one_without_detail(info, res, data)
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.MIN_CARD
-        assert result.res_iri == info.resource_iri
-        assert result.res_class == info.res_class_type
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
         assert result.property == ONTO.testBoolean
         assert result.expected == Literal("1")
 
@@ -192,8 +192,8 @@ class TestQueryWithoutDetail:
         result = _query_one_without_detail(info, res, data)
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.NON_EXISTING_CARD
-        assert result.res_iri == info.resource_iri
-        assert result.res_class == info.res_class_type
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
         assert result.property == ONTO.testIntegerSimpleText
 
     def test_result_id_max_card(self, report_max_card: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
@@ -201,8 +201,8 @@ class TestQueryWithoutDetail:
         result = _query_one_without_detail(info, res, data)
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.MAX_CARD
-        assert result.res_iri == info.resource_iri
-        assert result.res_class == info.res_class_type
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
         assert result.property == ONTO.testHasLinkToCardOneResource
         assert result.expected == Literal("1")
 
@@ -211,8 +211,8 @@ class TestQueryWithoutDetail:
         result = _query_one_without_detail(info, graphs, Graph())
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.PATTERN
-        assert result.res_iri == info.resource_iri
-        assert result.res_class == info.res_class_type
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
         assert result.property == RDFS.label
         assert result.expected == Literal("The label must be a non-empty string")
         assert result.input_value == Literal(" ")
@@ -224,8 +224,8 @@ class TestQueryWithoutDetail:
         result = _query_one_without_detail(info, res, data)
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.UNIQUE_VALUE
-        assert result.res_iri == info.resource_iri
-        assert result.res_class == info.res_class_type
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
         assert result.property == ONTO.testGeoname
         assert result.input_value == Literal("00111111")
 
@@ -234,8 +234,8 @@ class TestQueryWithoutDetail:
         result = _query_one_without_detail(info, res, data)
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.UNIQUE_VALUE
-        assert result.res_iri == info.resource_iri
-        assert result.res_class == info.res_class_type
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
         assert result.property == ONTO.testHasLinkTo
         assert result.input_value == DATA.link_valueTarget_id
 
@@ -244,8 +244,8 @@ class TestQueryWithoutDetail:
         result = _query_one_without_detail(info, validation_g, data)
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.SEQNUM_IS_PART_OF
-        assert result.res_iri == info.resource_iri
-        assert result.res_class == info.res_class_type
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
         assert result.message == Literal("The property seqnum must be used together with isPartOf")
         assert not result.property
 
@@ -256,8 +256,8 @@ class TestQueryWithoutDetail:
         result = _query_one_without_detail(info, res, data)
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.GENERIC
-        assert result.res_iri == info.resource_iri
-        assert result.res_class == info.res_class_type
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
         assert result.property == KNORA_API.hasLicense
         assert result.expected == Literal("Files and IIIF-URIs require a reference to a license.")
 
@@ -266,8 +266,8 @@ class TestQueryWithoutDetail:
         result = _query_one_without_detail(info, res, data)
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.VALUE_TYPE
-        assert result.res_iri == info.resource_iri
-        assert result.res_class == info.res_class_type
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
         assert result.property == ONTO.testUriValue
         assert result.expected == Literal("This property requires a UriValue")
         assert result.input_type == KNORA_API.TextValue
@@ -287,8 +287,8 @@ class TestQueryWithDetail:
         result = _query_one_with_detail(info, res, data)
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.VALUE_TYPE
-        assert result.res_iri == info.resource_iri
-        assert result.res_class == info.res_class_type
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
         assert result.property == ONTO.testTextarea
         assert result.expected == Literal("TextValue without formatting")
         assert result.input_type == KNORA_API.TextValue
@@ -298,8 +298,8 @@ class TestQueryWithDetail:
         result = _query_one_with_detail(info, res, data)
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.PATTERN
-        assert result.res_iri == info.resource_iri
-        assert result.res_class == info.res_class_type
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
         assert result.property == ONTO.testGeoname
         assert result.expected == Literal("The value must be a valid geoname code")
         assert result.input_value == Literal("this-is-not-a-valid-code")
@@ -311,8 +311,8 @@ class TestQueryWithDetail:
         result = _query_one_with_detail(info, res, data)
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.LINK_TARGET
-        assert result.res_iri == info.resource_iri
-        assert result.res_class == info.res_class_type
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
         assert result.property == ONTO.testHasLinkTo
         assert result.expected == KNORA_API.Resource
         assert result.input_value == DATA.other
@@ -325,8 +325,8 @@ class TestQueryWithDetail:
         result = _query_one_with_detail(info, res, data)
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.LINK_TARGET
-        assert result.res_iri == info.resource_iri
-        assert result.res_class == info.res_class_type
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
         assert result.property == ONTO.testHasLinkToCardOneResource
         assert result.expected == ONTO.CardOneResource
         assert result.input_value == DATA.id_9_target
@@ -339,8 +339,8 @@ class TestQueryWithDetail:
         result = _query_one_with_detail(info, res, data)
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.GENERIC
-        assert result.res_iri == info.resource_iri
-        assert result.res_class == info.res_class_type
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
         assert result.property == ONTO.testListProp
         assert result.message == Literal("A valid node from the list 'firstList' must be used with this property.")
         assert result.input_value == Literal("other / n1")
@@ -352,8 +352,8 @@ class TestQueryWithDetail:
         result = _query_one_with_detail(info, res, data)
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.GENERIC
-        assert result.res_iri == info.resource_iri
-        assert result.res_class == info.res_class_type
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
         assert result.property == ONTO.testListProp
         assert result.message == Literal("A valid node from the list 'firstList' must be used with this property.")
         assert result.input_value == Literal("firstList / other")
@@ -363,8 +363,8 @@ class TestQueryWithDetail:
         result = _query_one_with_detail(info, res, data)
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.GENERIC
-        assert result.res_iri == info.resource_iri
-        assert result.res_class == info.res_class_type
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
         assert result.property == KNORA_API.hasSegmentBounds
         assert result.message == Literal("The interval start must be a non-negative integer or decimal.")
         assert result.input_value == Literal("-2.0", datatype=XSD.decimal)
@@ -376,8 +376,8 @@ class TestQueryFileValueViolations:
         result = _query_one_without_detail(info, graphs, Graph())
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.FILE_VALUE
-        assert result.res_iri == info.resource_iri
-        assert result.res_class == info.res_class_type
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
         assert result.property == KNORA_API.hasMovingImageFileValue
         assert result.expected == Literal("A MovingImageRepresentation requires a file with the extension 'mp4'.")
 
@@ -395,8 +395,8 @@ class TestQueryFileValueViolations:
         result = _query_one_without_detail(info, graphs, Graph())
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.FILEVALUE_PROHIBITED
-        assert result.res_iri == info.resource_iri
-        assert result.res_class == info.res_class_type
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
         assert result.property == KNORA_API.hasMovingImageFileValue
 
 

@@ -465,7 +465,7 @@ class TestBitstreamProp:
         assert res.text == "testdata/bitstreams/test.jpg"
 
     def test_make_bitstream_prop_invalid_file(self) -> None:
-        with pytest.warns(DspToolsUserWarning, match=".*Failed validation in bitstream tag.*"):
+        with pytest.warns(DspToolsUserWarning, match=regex.escape("Failed validation in bitstream tag")):
             res = excel2xml.make_bitstream_prop("foo/bar/baz.txt", check=True)
         assert str(res.tag).endswith("bitstream")
         assert res.attrib["permissions"] == "open"
@@ -538,7 +538,7 @@ class Test_hasSegmentBounds_Prop:
         assert res.text is None
 
     def test_start_less_than_end(self) -> None:
-        with pytest.warns(DspToolsUserWarning, match="must be less than"):
+        with pytest.warns(DspToolsUserWarning, match=regex.escape("must be less than")):
             res = excel2xml.make_hasSegmentBounds_prop(5, 3)
         assert str(res.tag).endswith("hasSegmentBounds")
         assert res.attrib["permissions"] == "open"
@@ -548,7 +548,7 @@ class Test_hasSegmentBounds_Prop:
         assert res.text is None
 
     def test_not_a_number(self) -> None:
-        with pytest.warns(DspToolsUserWarning, match="must be integers or floats"):
+        with pytest.warns(DspToolsUserWarning, match=regex.escape("must be integers or floats")):
             res = excel2xml.make_hasSegmentBounds_prop(segment_start="foo", segment_end=2)  # type: ignore[arg-type]
         assert str(res.tag).endswith("hasSegmentBounds")
         assert res.attrib["permissions"] == "open"

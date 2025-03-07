@@ -56,7 +56,7 @@ def replace_filepath_with_internal_filename(
     for elem in new_tree.iter():
         if not etree.QName(elem).localname.endswith("bitstream") or not elem.text:
             continue
-        img_path_str = elem.text
+        img_path_str = elem.text.strip()
         if img_path_str not in orig_path_2_asset_id and img_path_str.startswith("/"):
             img_path_str = img_path_str[1:]
         if img_path_str in orig_path_2_asset_id:

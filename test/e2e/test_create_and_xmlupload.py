@@ -39,25 +39,24 @@ def onto_iri(creds: ServerCredentials) -> str:
     return f"{creds.server}/ontology/{PROJECT_SHORTCODE}/{ONTO_NAME}/v2"
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def _create_project(creds: ServerCredentials) -> None:
     assert create_project(Path("testdata/json-project/test-project-e2e.json"), creds, verbose=True)
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def _xmlupload(_create_project: None, creds: ServerCredentials) -> None:
-    success = xmlupload(Path("testdata/xml-data/test-data-e2e.xml"), creds, ".")
-    assert success
+    assert xmlupload(Path("testdata/xml-data/test-data-e2e.xml"), creds, ".")
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def auth_header(_create_project: None, creds: ServerCredentials) -> dict[str, str]:
     payload = {"email": creds.user, "password": creds.password}
     token: str = requests.post(f"{creds.server}/v2/authentication", json=payload, timeout=3).json()["token"]
     return {"Authorization": f"Bearer {token}"}
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def project_iri(_create_project: None, creds: ServerCredentials) -> str:
     get_project_route = f"{creds.server}/admin/projects/shortcode/{PROJECT_SHORTCODE}"
     project_iri: str = requests.get(get_project_route, timeout=3).json()["project"]["id"]

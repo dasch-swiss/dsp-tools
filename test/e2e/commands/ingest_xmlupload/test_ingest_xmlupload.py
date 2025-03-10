@@ -40,7 +40,7 @@ def creds(container_ports: ContainerPorts) -> ServerCredentials:
     )
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def mapping_file(monkeypatch: pytest.MonkeyPatch) -> Iterator[Path]:
     with monkeypatch.context() as m:
         m.chdir(CWD)
@@ -51,7 +51,7 @@ def mapping_file(monkeypatch: pytest.MonkeyPatch) -> Iterator[Path]:
             id2iri_mapping.unlink(missing_ok=True)
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def _create_project(creds: ServerCredentials) -> None:
     assert create_project(Path("testdata/dsp-ingest-data/e2e-sample-project/project.json"), creds, verbose=True)
 

@@ -35,6 +35,7 @@ def container_ports() -> Iterator[ContainerPorts]:
         yield containers
 
 
+@pytest.fixture(scope="module")
 def creds(container_ports: ContainerPorts) -> ServerCredentials:
     return ServerCredentials(
         "root@example.com",

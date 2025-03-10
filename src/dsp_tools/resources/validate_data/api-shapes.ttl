@@ -464,7 +464,7 @@ api-shapes:hasColor_PropertyShape
 api-shapes:hasGeometry_PropertyShape
   a          sh:PropertyShape ;
   sh:path    knora-api:hasGeometry ;
-  sh:class   knora-api:ColorValue ;
+  sh:class   knora-api:GeomValue ;
   sh:message "This property requires an GeomValue" .
 
 

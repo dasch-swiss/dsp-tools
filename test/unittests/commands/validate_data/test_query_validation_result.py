@@ -50,7 +50,9 @@ def test_reformat_validation_graph(report_target_resource_wrong_type: tuple[Grap
     assert result.expected == "Representation"
 
 
-def test_separate_bns_of_results(report_target_resource_wrong_type, report_not_resource):
+def test_separate_bns_of_results(
+    report_target_resource_wrong_type: tuple[Graph, Graph], report_not_resource: tuple[Graph, Graph]
+):
     val_g1, _ = report_target_resource_wrong_type
     val_g2, _ = report_not_resource
     combined_g = val_g1 + val_g2

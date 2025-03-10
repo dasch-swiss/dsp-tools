@@ -70,6 +70,7 @@ check-links:
 [no-exit-message]
 markdownlint:
     docker run \
+    --rm \
     -v $PWD:/workdir \
     ghcr.io/igorshubovych/markdownlint-cli:v0.42.0 \
     --config .markdownlint.yml \

@@ -2,6 +2,7 @@ import subprocess
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
+from typing import ClassVar
 from typing import Iterator
 
 import docker
@@ -40,22 +41,30 @@ class Containers:
     api: DockerContainer
 
 
-@dataclass
+def _get_image_versions() -> ImageVersions:
+    docker_compose_content = Path("src/dsp_tools/resources/start-stack/docker-compose.yml").read_text(encoding="utf-8")
+    fuseki = _get_image_version(docker_compose_content, "apache-jena-fuseki")
+    sipi = _get_image_version(docker_compose_content, "knora-sipi")
+    ingest = _get_image_version(docker_compose_content, "dsp-ingest")
+    api = _get_image_version(docker_compose_content, "knora-api")
+    return ImageVersions(fuseki=fuseki, sipi=sipi, ingest=ingest, api=api)
+
+
 class TestContainerFactory:
-    __counter: int
-    versions: ImageVersions
+    __counter: ClassVar[int] = 0
+    versions: ClassVar[ImageVersions] = _get_image_versions()
 
-    def __post_init__(self) -> None:
-        self.__counter = 0
-        self.versions = _get_image_versions()
+    def __init__(self) -> None:
+        raise TypeError
 
+    @classmethod
     @contextmanager
-    def get_containers(self) -> Iterator[Containers]:
+    def get_containers(cls) -> Iterator[Containers]:
         if subprocess.run("docker stats --no-stream".split(), check=False).returncode != 0:
             raise RuntimeError("Docker is not running properly")
-        self.__counter += 1
-        with get_test_network(self.__counter) as network:
-            containers = _get_all_containers(network, self.versions, self.__counter)
+        cls.__counter += 1
+        with get_test_network(cls.__counter) as network:
+            containers = _get_all_containers(network, cls.versions, cls.__counter)
             try:
                 yield containers
             finally:
@@ -91,15 +100,6 @@ def _get_all_containers(network: Network, versions: ImageVersions, counter: int)
 def _get_image_version(docker_compose_content: str, component: str) -> str:
     match = regex.search(rf"image: daschswiss/{component}:([^\n]+)", docker_compose_content)
     return match.group(1) if match else "latest"
-
-
-def _get_image_versions() -> ImageVersions:
-    docker_compose_content = Path("src/dsp_tools/resources/start-stack/docker-compose.yml").read_text(encoding="utf-8")
-    fuseki = _get_image_version(docker_compose_content, "apache-jena-fuseki")
-    sipi = _get_image_version(docker_compose_content, "knora-sipi")
-    ingest = _get_image_version(docker_compose_content, "dsp-ingest")
-    api = _get_image_version(docker_compose_content, "knora-api")
-    return ImageVersions(fuseki=fuseki, sipi=sipi, ingest=ingest, api=api)
 
 
 def _get_fuseki_container(network: Network, version: str, counter: int) -> DockerContainer:

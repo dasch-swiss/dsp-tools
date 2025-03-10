@@ -9,7 +9,7 @@ import requests
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
-from test.e2e.setup_testcontainers import get_containers
+from test.e2e.setup_testcontainers import TestContainerFactory
 
 PROJECT_SHORTCODE = "4125"
 ONTO_NAME = "e2e-testonto"
@@ -21,7 +21,7 @@ RESCLASSES_IN_ONTO_JSON = 2
 
 @pytest.fixture
 def _create_project() -> Iterator[None]:
-    with get_containers():
+    with TestContainerFactory.get_containers():
         success = create_project(Path("testdata/json-project/test-project-e2e.json"), CREDS, verbose=True)
         assert success
         yield

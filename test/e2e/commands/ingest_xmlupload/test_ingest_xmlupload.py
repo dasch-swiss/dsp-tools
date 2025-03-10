@@ -13,7 +13,7 @@ from dsp_tools.commands.ingest_xmlupload.upload_files.upload_files import upload
 from dsp_tools.commands.project.create.project_create import create_project
 from test.e2e.setup_testcontainers import SIPI_IMAGES
 from test.e2e.setup_testcontainers import TMP_INGEST
-from test.e2e.setup_testcontainers import get_containers
+from test.e2e.setup_testcontainers import TestContainerFactory
 
 CREDS = ServerCredentials("root@example.com", "test", "http://0.0.0.0:3333")
 CWD = Path("testdata/dsp-ingest-data/e2e-sample-project")
@@ -37,7 +37,7 @@ def mapping_file(monkeypatch: pytest.MonkeyPatch) -> Iterator[Path]:
 
 @pytest.fixture
 def _create_project() -> Iterator[None]:
-    with get_containers():
+    with TestContainerFactory.get_containers():
         success = create_project(Path("testdata/dsp-ingest-data/e2e-sample-project/project.json"), CREDS, verbose=True)
         assert success
         yield

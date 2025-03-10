@@ -25,7 +25,7 @@ from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_re
 from dsp_tools.commands.validate_data.validate_data import _get_parsed_graphs
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
 from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
-from test.e2e.setup_testcontainers import get_containers
+from test.e2e.setup_testcontainers import TestContainerFactory
 
 CREDS = ServerCredentials("root@example.com", "test", "http://0.0.0.0:3333")
 LOCAL_API = "http://0.0.0.0:3333"
@@ -33,7 +33,8 @@ LOCAL_API = "http://0.0.0.0:3333"
 
 @pytest.fixture(scope="module")
 def _create_projects() -> Iterator[None]:
-    with get_containers():
+    with TestContainerFactory.get_containers() as containers:
+        containers.api.ports
         assert create_project(Path("testdata/validate-data/generic/project.json"), CREDS)
         assert create_project(Path("testdata/validate-data/special_characters/project_special_characters.json"), CREDS)
         assert create_project(Path("testdata/validate-data/inheritance/project_inheritance.json"), CREDS)

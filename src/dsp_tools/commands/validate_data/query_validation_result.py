@@ -226,6 +226,7 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
                 violation_type=ViolationType.GENERIC,
                 res_iri=base_info.focus_node_iri,
                 res_class=base_info.focus_node_type,
+                property=base_info.result_path,
                 message=msg,
                 input_value=value,
             )

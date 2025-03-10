@@ -282,26 +282,14 @@ def extracted_value_type_simpletext() -> ValidationResult:
 @pytest.fixture
 def report_min_inclusive(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
-    [ 
-        a sh:ValidationResult ;
-        sh:detail _:detail_bn ;
-        sh:focusNode <http://data/video_segment_negative_bounds> ;
-        sh:resultMessage "Value does not have shape api-shapes:IntervalValue_ClassShape" ;
-        sh:resultPath <http://api.knora.org/ontology/knora-api/v2#hasSegmentBounds> ;
+    [ a sh:ValidationResult ;
+        sh:focusNode <http://data/value_iri> ;
+        sh:resultMessage "The interval start must be a non-negative integer or decimal." ;
+        sh:resultPath <http://api.knora.org/ontology/knora-api/v2#intervalValueHasStart> ;
         sh:resultSeverity sh:Violation ;
-        sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-        sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#hasSegmentBounds_PropertyShape> ;
-        sh:value <http://data/value_iri> 
-    ] .
-            
-    _:detail_bn a sh:ValidationResult ;
-    sh:focusNode <http://data/value_iri> ;
-    sh:resultMessage "The interval start must be a non-negative integer or decimal." ;
-    sh:resultPath <http://api.knora.org/ontology/knora-api/v2#intervalValueHasStart> ;
-    sh:resultSeverity sh:Violation ;
-    sh:sourceConstraintComponent sh:MinInclusiveConstraintComponent ;
-    sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#intervalValueHasStart_PropShape> ;
-    sh:value -2.0 .
+        sh:sourceConstraintComponent sh:MinInclusiveConstraintComponent ;
+        sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#intervalValueHasStart_PropShape> ;
+        sh:value -2.0 ] .
     """
     validation_g = Graph()
     validation_g.parse(data=validation_str, format="ttl")
@@ -319,18 +307,13 @@ def report_min_inclusive(onto_graph: Graph) -> tuple[Graph, Graph, ValidationRes
     onto_data_g += onto_graph
     onto_data_g.parse(data=data_str, format="ttl")
     val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
-    detail_bn = next(validation_g.objects(val_bn, SH.detail))
-    detail = DetailBaseInfo(
-        detail_bn=detail_bn,
-        source_constraint_component=SH.MinInclusiveConstraintComponent,
-    )
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         result_path=KNORA_API.hasSegmentBounds,
         source_constraint_component=SH.NodeConstraintComponent,
         focus_node_iri=DATA.video_segment_negative_bounds,
         focus_node_type=KNORA_API.VideoSegment,
-        detail=detail,
+        detail=None,
     )
     return validation_g, onto_data_g, base_info
 

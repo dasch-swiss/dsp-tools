@@ -78,13 +78,23 @@ class TestQueryAllResults:
         assert result.input_type == IN_BUILT_ONTO.TestNormalResource
         assert result.expected == Literal("http://api.knora.org/ontology/knora-api/v2#Representation")
 
+    def test_report_archive_missing_legal_info(self, report_archive_missing_legal_info: tuple[Graph, Graph]) -> None:
+        validation_g, onto_data_g = report_archive_missing_legal_info
+        extracted_results, unexpected_components = _query_all_results(validation_g, onto_data_g)
+        assert not unexpected_components
+        assert len(extracted_results) == 1
+        result = extracted_results.pop(0)
+        assert isinstance(result, ValidationResult)
+        assert result.violation_type == ViolationType.GENERIC
+        assert result.res_iri == DATA.bitstream_no_legal_info
+        assert result.res_class == ONTO.TestArchiveRepresentation
+        assert result.property == KNORA_API.hasLicense
+        assert not result.input_value
+        assert not result.input_type
+        assert result.expected == Literal("Files and IIIF-URIs require a reference to a license.")
+
 
 class TestExtractBaseInfo:
-    def test_not_resource(self, report_not_resource: tuple[Graph, Graph]) -> None:
-        validation_g, onto_data_g = report_not_resource
-        results = _extract_base_info_of_resource_results(validation_g, onto_data_g)
-        assert not results
-
     def test_no_detail(self, report_min_card: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         validation_g, onto_data_g, _ = report_min_card
         results = _extract_base_info_of_resource_results(validation_g, onto_data_g)

@@ -234,8 +234,7 @@ api-shapes:hasArchiveFileValue_PropShape
   sh:message  """
               An ArchiveRepresentation requires a file with one of the following extensions
               'zip', 'tar', 'gz', 'z', 'tgz', 'gzip', '7z'.
-              """ ;
-  sh:node     api-shapes:ArchiveFileValue_ClassShape .
+              """ .
 
 api-shapes:ArchiveFileValue_ClassShape
   a              sh:NodeShape ;
@@ -271,8 +270,7 @@ api-shapes:hasAudioFileValue_PropShape
   sh:path     knora-api:hasAudioFileValue ;
   sh:minCount 1 ;
   sh:maxCount 1 ;
-  sh:message  "An AudioRepresentation requires a file with one of the following extensions 'mp3', 'wav'." ;
-  sh:node     api-shapes:AudioFileValue_ClassShape .
+  sh:message  "An AudioRepresentation requires a file with one of the following extensions 'mp3', 'wav'." .
 
 api-shapes:AudioFileValue_ClassShape
   a              sh:NodeShape ;
@@ -308,8 +306,7 @@ api-shapes:hasDocumentFileValue_PropShape
   sh:message  """
               A DocumentRepresentation requires a file with one of the following extensions
               'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'.
-              """ ;
-  sh:node     api-shapes:DocumentFileValue_ClassShape .
+              """ .
 
 api-shapes:DocumentFileValue_ClassShape
   a              sh:NodeShape ;
@@ -345,8 +342,7 @@ api-shapes:hasMovingImageFileValue_PropShape
   sh:path     knora-api:hasMovingImageFileValue ;
   sh:minCount 1 ;
   sh:maxCount 1 ;
-  sh:message  "A MovingImageRepresentation requires a file with the extension 'mp4'." ;
-  sh:node     api-shapes:MovingImageFileValue_ClassShape .
+  sh:message  "A MovingImageRepresentation requires a file with the extension 'mp4'." .
 
 api-shapes:MovingImageFileValue_ClassShape
   a              sh:NodeShape ;
@@ -450,8 +446,7 @@ api-shapes:hasTextFileValue_PropShape
   sh:message  """
               A TextRepresentation requires a file with one of the following extensions
               'odd', 'rng', 'txt', 'xml', 'xsd', 'xsl', 'csv', 'json'.
-              """ ;
-  sh:node     api-shapes:TextFileValue_ClassShape .
+              """ .
 
 api-shapes:TextFileValue_ClassShape
   a              sh:NodeShape ;

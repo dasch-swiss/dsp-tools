@@ -46,16 +46,6 @@ class UnexpectedComponent:
 
 
 @dataclass
-class ValidationDataInfo:
-    focus_node_iri: SubjectObjectTypeAlias
-    focus_node_type: SubjectObjectTypeAlias
-    result_path: SubjectObjectTypeAlias
-    resource_iri: SubjectObjectTypeAlias | None = None
-    resource_type: SubjectObjectTypeAlias | None = None
-    user_property: SubjectObjectTypeAlias | None = None
-
-
-@dataclass
 class ValidationResultBaseInfo:
     result_bn: SubjectObjectTypeAlias
     source_constraint_component: SubjectObjectTypeAlias

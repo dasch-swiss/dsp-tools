@@ -10,6 +10,7 @@ from rdflib import Literal
 
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
+from dsp_tools.commands.validate_data.models.validation import QueryInfo
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationResult
@@ -67,34 +68,34 @@ def test_separate_bns_of_results(
 class TestGetResourceIRIs:
     def test_with_detail_user_facing_info_there(self, report_value_type_simpletext):
         validation_g, onto_data_g, base_info = report_value_type_simpletext
-        result = _get_resource_iri_and_type(base_info.result_bn, validation_g, onto_data_g, {KNORA_API.TextValue})
-        assert result.focus_node_iri == DATA.id_simpletext
-        assert result.focus_node_type == ONTO.ClassWithEverything
-        assert result.result_path == ONTO.testTextarea
-        assert not result.resource_iri
-        assert not result.resource_type
-        assert not result.user_property
+        query_info = QueryInfo(base_info.result_bn, DATA.id_simpletext, KNORA_API.ClassWithEverything)
+        resource_iri, resource_type, user_facing_prop = _get_resource_iri_and_type(
+            query_info, validation_g, onto_data_g, {KNORA_API.TextValue}
+        )
+        assert resource_iri == DATA.id_simpletext
+        assert resource_type == ONTO.ClassWithEverything
+        assert user_facing_prop == ONTO.testTextarea
 
     def test_no_detail_user_facing_info_there(self, report_value_type):
         validation_g, onto_data_g, base_info = report_value_type
-        result = _get_resource_iri_and_type(base_info.result_bn, validation_g, onto_data_g, {KNORA_API.TextValue})
-        assert result.focus_node_iri == DATA.id_uri
-        assert result.focus_node_type == ONTO.ClassWithEverything
-        assert result.result_path == ONTO.testUriValue
-        assert not result.resource_iri
-        assert not result.resource_type
-        assert not result.user_property
+        query_info = QueryInfo(base_info.result_bn, DATA.id_uri, KNORA_API.ClassWithEverything)
+        resource_iri, resource_type, user_facing_prop = _get_resource_iri_and_type(
+            query_info, validation_g, onto_data_g, {KNORA_API.TextValue}
+        )
+        assert resource_iri == DATA.id_uri
+        assert resource_type == ONTO.ClassWithEverything
+        assert user_facing_prop == ONTO.testUriValue
 
     def test_no_detail_user_facing_prop_is_knora_prop(self, report_archive_missing_legal_info):
         validation_g, onto_data_g = report_archive_missing_legal_info
         result_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
-        result = _get_resource_iri_and_type(result_bn, validation_g, onto_data_g, {KNORA_API.ArchiveFileValue})
-        assert result.focus_node_iri == DATA.value_bitstream_no_legal_info
-        assert result.focus_node_type == KNORA_API.ArchiveFileValue
-        assert result.result_path == KNORA_API.hasLicense
-        assert result.resource_iri == DATA.bitstream_no_legal_info
-        assert result.resource_type == ONTO.TestArchiveRepresentation
-        assert result.user_property == KNORA_API.hasArchiveFileValue
+        query_info = QueryInfo(result_bn, DATA.value_bitstream_no_legal_info, KNORA_API.ArchiveFileValue)
+        resource_iri, resource_type, user_facing_prop = _get_resource_iri_and_type(
+            query_info, validation_g, onto_data_g, {KNORA_API.ArchiveFileValue}
+        )
+        assert resource_iri == DATA.bitstream_no_legal_info
+        assert resource_type == ONTO.TestArchiveRepresentation
+        assert user_facing_prop == KNORA_API.hasArchiveFileValue
 
 
 class TestQueryAllResults:

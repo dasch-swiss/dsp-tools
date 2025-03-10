@@ -21,7 +21,6 @@ from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import QueryInfo
 from dsp_tools.commands.validate_data.models.validation import ReformattedIRI
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
-from dsp_tools.commands.validate_data.models.validation import ValidationDataInfo
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationResult
 from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
@@ -133,14 +132,14 @@ def _extract_one_base_info(
                 )
             )
     else:
-        resource_iri, resource_type = _get_resource_iri_and_type_(info, data_onto_graph, value_types)
+        resource_iri, resource_type, user_facing_prop = _get_resource_iri_and_type(info, data_onto_graph, value_types)
         results.append(
             ValidationResultBaseInfo(
                 result_bn=info.validation_bn,
                 source_constraint_component=main_component_type,
                 focus_node_iri=resource_iri,
                 focus_node_type=resource_type,
-                result_path=path,
+                result_path=user_facing_prop,
                 detail=None,
             )
         )
@@ -155,33 +154,15 @@ def _get_all_main_result_bns(results_and_onto: Graph) -> set[SubjectObjectTypeAl
     return all_bns - detail_bns
 
 
-def _get_resource_iri_and_type_(
-    info: QueryInfo, data_onto_graph: Graph, value_types: set[SubjectObjectTypeAlias]
-) -> tuple[SubjectObjectTypeAlias, SubjectObjectTypeAlias]:
-    resource_iri = info.focus_iri
-    resource_type = info.focus_rdf_type
-    if resource_type in value_types:
-        resource_iri = next(data_onto_graph.subjects(object=info.focus_iri))
-        resource_type = next(data_onto_graph.objects(resource_iri, RDF.type))
-    return resource_iri, resource_type
-
-
 def _get_resource_iri_and_type(
     info: QueryInfo, path: SubjectObjectTypeAlias, data_onto_graph: Graph, value_types: set[SubjectObjectTypeAlias]
-) -> ValidationDataInfo:
-    resource_iri, resource_type, user_facing_prop = None, None, None
+) -> tuple[SubjectObjectTypeAlias, SubjectObjectTypeAlias, SubjectObjectTypeAlias]:
+    resource_iri, resource_type, user_facing_prop = info.focus_iri, info.focus_rdf_type, path
     if info.focus_rdf_type in value_types:
         resource_iri = next(data_onto_graph.subjects(object=info.focus_iri))
         resource_type = next(data_onto_graph.objects(resource_iri, RDF.type))
         user_facing_prop = next(data_onto_graph.predicates(subject=resource_iri, object=info.focus_iri))
-    return ValidationDataInfo(
-        focus_node_iri=info.focus_iri,
-        focus_node_type=info.focus_rdf_type,
-        result_path=path,
-        resource_iri=resource_iri,
-        resource_type=resource_type,
-        user_property=user_facing_prop,
-    )
+    return resource_iri, resource_type, user_facing_prop
 
 
 def _query_all_without_detail(

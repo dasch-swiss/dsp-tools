@@ -67,20 +67,20 @@ def test_separate_bns_of_results(
 
 class TestGetResourceIRIs:
     def test_with_detail_user_facing_info_there(self, report_value_type_simpletext):
-        validation_g, onto_data_g, base_info = report_value_type_simpletext
-        query_info = QueryInfo(base_info.result_bn, DATA.id_simpletext, KNORA_API.ClassWithEverything)
+        _, onto_data_g, base_info = report_value_type_simpletext
+        query_info = QueryInfo(base_info.result_bn, DATA.id_simpletext, ONTO.ClassWithEverything)
         resource_iri, resource_type, user_facing_prop = _get_resource_iri_and_type(
-            query_info, validation_g, onto_data_g, {KNORA_API.TextValue}
+            query_info, ONTO.testTextarea, onto_data_g, {KNORA_API.TextValue}
         )
         assert resource_iri == DATA.id_simpletext
         assert resource_type == ONTO.ClassWithEverything
         assert user_facing_prop == ONTO.testTextarea
 
     def test_no_detail_user_facing_info_there(self, report_value_type):
-        validation_g, onto_data_g, base_info = report_value_type
-        query_info = QueryInfo(base_info.result_bn, DATA.id_uri, KNORA_API.ClassWithEverything)
+        _, onto_data_g, base_info = report_value_type
+        query_info = QueryInfo(base_info.result_bn, DATA.id_uri, ONTO.ClassWithEverything)
         resource_iri, resource_type, user_facing_prop = _get_resource_iri_and_type(
-            query_info, validation_g, onto_data_g, {KNORA_API.TextValue}
+            query_info, ONTO.testUriValue, onto_data_g, {KNORA_API.TextValue}
         )
         assert resource_iri == DATA.id_uri
         assert resource_type == ONTO.ClassWithEverything
@@ -91,11 +91,11 @@ class TestGetResourceIRIs:
         result_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
         query_info = QueryInfo(result_bn, DATA.value_bitstream_no_legal_info, KNORA_API.ArchiveFileValue)
         resource_iri, resource_type, user_facing_prop = _get_resource_iri_and_type(
-            query_info, validation_g, onto_data_g, {KNORA_API.ArchiveFileValue}
+            query_info, KNORA_API.hasLicense, onto_data_g, {KNORA_API.ArchiveFileValue}
         )
         assert resource_iri == DATA.bitstream_no_legal_info
         assert resource_type == ONTO.TestArchiveRepresentation
-        assert user_facing_prop == KNORA_API.hasArchiveFileValue
+        assert user_facing_prop == KNORA_API.hasLicense
 
 
 class TestQueryAllResults:

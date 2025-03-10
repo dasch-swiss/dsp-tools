@@ -132,7 +132,9 @@ def _extract_one_base_info(
                 )
             )
     else:
-        resource_iri, resource_type, user_facing_prop = _get_resource_iri_and_type(info, data_onto_graph, value_types)
+        resource_iri, resource_type, user_facing_prop = _get_resource_iri_and_type(
+            info, path, data_onto_graph, value_types
+        )
         results.append(
             ValidationResultBaseInfo(
                 result_bn=info.validation_bn,
@@ -161,7 +163,8 @@ def _get_resource_iri_and_type(
     if info.focus_rdf_type in value_types:
         resource_iri = next(data_onto_graph.subjects(object=info.focus_iri))
         resource_type = next(data_onto_graph.objects(resource_iri, RDF.type))
-        user_facing_prop = next(data_onto_graph.predicates(subject=resource_iri, object=info.focus_iri))
+        if user_facing_prop not in LEGAL_INFO_PROPS:
+            user_facing_prop = next(data_onto_graph.predicates(subject=resource_iri, object=info.focus_iri))
     return resource_iri, resource_type, user_facing_prop
 
 

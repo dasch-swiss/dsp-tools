@@ -40,7 +40,7 @@ def creds(container_ports: ContainerPorts) -> ServerCredentials:
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def mapping_file(monkeypatch: pytest.MonkeyPatch) -> Iterator[Path]:
     with monkeypatch.context() as m:
         m.chdir(CWD)

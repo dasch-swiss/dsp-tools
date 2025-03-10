@@ -85,16 +85,16 @@ def _separate_result_types(
 def _extract_base_info_of_resource_results(
     results_and_onto: Graph, data_onto_graph: Graph
 ) -> list[ValidationResultBaseInfo]:
-    focus_nodes = list(results_and_onto.subject_objects(SH.focusNode))
     resource_classes = list(data_onto_graph.subjects(KNORA_API.canBeInstantiated, Literal(True)))
     resource_classes.extend(STILL_IMAGE_VALUE_CLASSES)
     all_res_focus_nodes = []
-    for nd in focus_nodes:
-        focus_iri = nd[1]
+    main_bns = _get_all_main_result_bns(results_and_onto)
+    for nd in main_bns:
+        focus_iri = next(results_and_onto.objects(nd, SH.focusNode))
         res_type = next(data_onto_graph.objects(focus_iri, RDF.type))
         if res_type in resource_classes:
             info = QueryInfo(
-                validation_bn=nd[0],
+                validation_bn=nd,
                 focus_iri=focus_iri,
                 focus_rdf_type=res_type,
             )
@@ -142,6 +142,12 @@ def _extract_one_base_info(
             )
         )
     return results
+
+
+def _get_all_main_result_bns(results_and_onto: Graph) -> set[SubjectObjectTypeAlias]:
+    all_bns = set(results_and_onto.subjects(RDF.type, SH.ValidationResult))
+    detail_bns = set(results_and_onto.objects(predicate=SH.detail))
+    return all_bns - detail_bns
 
 
 def _query_all_without_detail(

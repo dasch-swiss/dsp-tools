@@ -13,6 +13,7 @@ from dsp_tools.commands.validate_data.models.validation import ValidationResult
 from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
 from dsp_tools.commands.validate_data.models.validation import ViolationType
 from dsp_tools.commands.validate_data.query_validation_result import _extract_base_info_of_resource_results
+from dsp_tools.commands.validate_data.query_validation_result import _get_all_main_result_bns
 from dsp_tools.commands.validate_data.query_validation_result import _query_all_results
 from dsp_tools.commands.validate_data.query_validation_result import _query_one_with_detail
 from dsp_tools.commands.validate_data.query_validation_result import _query_one_without_detail
@@ -45,6 +46,16 @@ def test_reformat_validation_graph(report_target_resource_wrong_type: tuple[Grap
     assert result.input_value == "target_res_without_representation_1"
     assert result.input_type == "in-built:TestNormalResource"
     assert result.expected == "Representation"
+
+
+def test_separate_bns_of_results(report_target_resource_wrong_type, report_not_resource):
+    val_g1, _ = report_target_resource_wrong_type
+    val_g2, _ = report_not_resource
+    combined_g = val_g1 + val_g2
+    extracted_bns = _get_all_main_result_bns(combined_g)
+    node1 = next(combined_g.subjects(SH.focusNode, DATA.region_isRegionOf_resource_not_a_representation))
+    node2 = next(combined_g.subjects(SH.focusNode, DATA.value_id_simpletext))
+    assert extracted_bns == {node1, node2}
 
 
 class TestQueryAllResults:

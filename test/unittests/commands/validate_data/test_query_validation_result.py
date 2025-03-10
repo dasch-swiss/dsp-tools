@@ -1,6 +1,7 @@
 # mypy: disable-error-code="method-assign,no-untyped-def"
 
 import pytest
+from rdflib import RDF
 from rdflib import RDFS
 from rdflib import SH
 from rdflib import XSD
@@ -63,17 +64,37 @@ def test_separate_bns_of_results(
     assert extracted_bns == {node1, node2}
 
 
-def test_get_resource_iri_and_type_with_detail_user_facing_info_there(report_value_type_simpletext):
-    validation_g, onto_data_g, _ = report_value_type_simpletext
-    result = _get_resource_iri_and_type()
+class TestGetResourceIRIs:
+    def test_with_detail_user_facing_info_there(self, report_value_type_simpletext):
+        validation_g, onto_data_g, base_info = report_value_type_simpletext
+        result = _get_resource_iri_and_type(base_info.result_bn, validation_g, onto_data_g, {KNORA_API.TextValue})
+        assert result.focus_node_iri == DATA.id_simpletext
+        assert result.focus_node_type == ONTO.ClassWithEverything
+        assert result.result_path == ONTO.testTextarea
+        assert not result.resource_iri
+        assert not result.resource_type
+        assert not result.user_property
 
+    def test_no_detail_user_facing_info_there(self, report_value_type):
+        validation_g, onto_data_g, base_info = report_value_type
+        result = _get_resource_iri_and_type(base_info.result_bn, validation_g, onto_data_g, {KNORA_API.TextValue})
+        assert result.focus_node_iri == DATA.id_uri
+        assert result.focus_node_type == ONTO.ClassWithEverything
+        assert result.result_path == ONTO.testUriValue
+        assert not result.resource_iri
+        assert not result.resource_type
+        assert not result.user_property
 
-def test_get_resource_iri_and_type_no_detail_user_facing_info_there():
-    pass
-
-
-def test_get_resource_iri_and_type_no_detail_user_facing_info_missing():
-    pass
+    def test_no_detail_user_facing_prop_is_knora_prop(self, report_archive_missing_legal_info):
+        validation_g, onto_data_g = report_archive_missing_legal_info
+        result_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+        result = _get_resource_iri_and_type(result_bn, validation_g, onto_data_g, {KNORA_API.TextValue})
+        assert result.focus_node_iri == DATA.value_bitstream_no_legal_info
+        assert result.focus_node_type == KNORA_API.ArchiveFileValue
+        assert result.result_path == KNORA_API.hasLicense
+        assert result.resource_iri == DATA.bitstream_no_legal_info
+        assert result.resource_type == ONTO.TestArchiveRepresentation
+        assert result.user_property == KNORA_API.hasArchiveFileValue
 
 
 class TestQueryAllResults:

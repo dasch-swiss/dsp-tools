@@ -41,6 +41,11 @@ class Containers:
     api: DockerContainer
 
 
+def _get_image_version(docker_compose_content: str, component: str) -> str:
+    match = regex.search(rf"image: daschswiss/{component}:([^\n]+)", docker_compose_content)
+    return match.group(1) if match else "latest"
+
+
 def _get_image_versions() -> ImageVersions:
     docker_compose_content = Path("src/dsp_tools/resources/start-stack/docker-compose.yml").read_text(encoding="utf-8")
     fuseki = _get_image_version(docker_compose_content, "apache-jena-fuseki")
@@ -95,11 +100,6 @@ def _get_all_containers(network: Network, versions: ImageVersions, counter: int)
     containers = Containers(fuseki=fuseki, sipi=sipi, ingest=ingest, api=api)
     _print_containers_are_ready(containers)
     return containers
-
-
-def _get_image_version(docker_compose_content: str, component: str) -> str:
-    match = regex.search(rf"image: daschswiss/{component}:([^\n]+)", docker_compose_content)
-    return match.group(1) if match else "latest"
 
 
 def _get_fuseki_container(network: Network, version: str, counter: int) -> DockerContainer:

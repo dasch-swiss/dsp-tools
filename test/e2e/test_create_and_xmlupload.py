@@ -13,7 +13,7 @@ from test.e2e.setup_testcontainers import get_containers
 
 PROJECT_SHORTCODE = "4125"
 ONTO_NAME = "e2e-testonto"
-CREDS = ServerCredentials("root@example.com", "test", "http://0.0.0.0:3334")
+CREDS = ServerCredentials("root@example.com", "test", "http://0.0.0.0:3334", dsp_ingest_url="http://0.0.0.0:3341")
 ONTO_IRI = f"{CREDS.server}/ontology/{PROJECT_SHORTCODE}/{ONTO_NAME}/v2"
 PROPS_IN_ONTO_JSON = 1
 RESCLASSES_IN_ONTO_JSON = 2

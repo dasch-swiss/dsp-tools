@@ -630,22 +630,22 @@ def extracted_image_missing_legal_info() -> ValidationResult:
 def report_file_value_missing_legal_info(onto_graph: Graph) -> tuple[Graph, Graph]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
-            sh:focusNode <http://data/bitstream_no_legal_info> ;
-            sh:resultMessage "Files and IIIF-URIs require at least one authorship." ;
-            sh:resultPath <http://api.knora.org/ontology/knora-api/v2#hasAuthorship> ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:MinCountConstraintComponent ;
-            sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#hasAuthorship_PropShape> ] .
+        sh:focusNode <http://data/value_bitstream_no_legal_info> ;
+        sh:resultMessage "Files and IIIF-URIs require at least one authorship." ;
+        sh:resultPath <http://api.knora.org/ontology/knora-api/v2#hasAuthorship> ;
+        sh:resultSeverity sh:Violation ;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent ;
+        sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#hasAuthorship_PropShape> ] .
     """
     validation_g = Graph()
     validation_g.parse(data=validation_str, format="ttl")
     data_str = f"""{PREFIXES}
-    <http://data/bitstream_no_legal_info> a <http://0.0.0.0:3333/ontology/9999/onto/v2#TestArchiveRepresentation> ;
-        rdfs:label "TestArchiveRepresentation tar"^^xsd:string ;
-        knora-api:hasArchiveFileValue <http://data/bitstream_no_legal_info> .
+    <http://data/bitstream_no_legal_info> a onto:TestMovingImageRepresentation ;
+        rdfs:label "Missing legal info"^^xsd:string ;
+        knora-api:hasMovingImageFileValue <http://data/value_bitstream_no_legal_info> .
     
-    <http://data/bitstream_no_legal_info> a knora-api:ArchiveFileValue ;
-        knora-api:fileValueHasFilename "this/is/filepath/file.tar"^^xsd:string .
+    <http://data/value_bitstream_no_legal_info> a knora-api:MovingImageFileValue ;
+        knora-api:fileValueHasFilename "this/is/filepath/file.mp4"^^xsd:string .
     """
     onto_data_g = Graph()
     onto_data_g += onto_graph

@@ -85,11 +85,26 @@ class TestQueryAllResults:
         assert isinstance(result, ValidationResult)
         assert result.violation_type == ViolationType.GENERIC
         assert result.res_iri == DATA.bitstream_no_legal_info
-        assert result.res_class == ONTO.TestArchiveRepresentation
+        assert result.res_class == ONTO.TestMovingImageRepresentation
         assert result.property == KNORA_API.hasAuthorship
         assert not result.input_value
         assert not result.input_type
         assert result.expected == Literal("Files and IIIF-URIs require at least one authorship.")
+
+    def test_report_regex_on_value(self, report_regex_on_value) -> None:
+        validation_g, onto_data_g, _ = report_regex_on_value
+        extracted_results, unexpected_components = _query_all_results(validation_g, onto_data_g)
+        assert not unexpected_components
+        assert len(extracted_results) == 1
+        result = extracted_results.pop(0)
+        assert isinstance(result, ValidationResult)
+        assert result.violation_type == ViolationType.PATTERN
+        assert result.res_iri == DATA.geoname_not_number
+        assert result.res_class == ONTO.ClassWithEverything
+        assert result.property == KNORA_API.testGeoname
+        assert result.input_value == Literal("this-is-not-a-valid-code")
+        assert not result.input_type
+        assert result.expected == Literal("The value must be a valid geoname code")
 
 
 class TestExtractBaseInfo:

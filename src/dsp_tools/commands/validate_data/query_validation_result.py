@@ -130,9 +130,12 @@ def _extract_one_base_info(
     else:
         resource_iri = info.focus_iri
         resource_type = info.focus_rdf_type
-        if info.focus_rdf_type in STILL_IMAGE_VALUE_CLASSES:
-            resource_iri = next(data_onto_graph.subjects(KNORA_API.hasStillImageFileValue, info.focus_iri))
-            resource_type = next(data_onto_graph.objects(resource_iri, RDF.type))
+        if path in FILE_VALUE_PROPERTIES:
+            try:
+                resource_iri = next(data_onto_graph.subjects(object=info.focus_iri))
+                resource_type = next(data_onto_graph.objects(resource_iri, RDF.type))
+            except StopIteration:
+                pass
         results.append(
             ValidationResultBaseInfo(
                 result_bn=info.validation_bn,

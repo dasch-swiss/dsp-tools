@@ -25,27 +25,38 @@ from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_re
 from dsp_tools.commands.validate_data.validate_data import _get_parsed_graphs
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
 from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
+from test.e2e.setup_testcontainers import ContainerPorts
 from test.e2e.setup_testcontainers import TestContainerFactory
 
-CREDS = ServerCredentials("root@example.com", "test", "http://0.0.0.0:3333")
-LOCAL_API = "http://0.0.0.0:3333"
-
 
 @pytest.fixture(scope="module")
-def _create_projects() -> Iterator[None]:
+def container_ports() -> Iterator[ContainerPorts]:
     with TestContainerFactory.get_containers() as containers:
-        containers.api.ports
-        assert create_project(Path("testdata/validate-data/generic/project.json"), CREDS)
-        assert create_project(Path("testdata/validate-data/special_characters/project_special_characters.json"), CREDS)
-        assert create_project(Path("testdata/validate-data/inheritance/project_inheritance.json"), CREDS)
-        assert create_project(Path("testdata/validate-data/erroneous_ontology/project_erroneous_ontology.json"), CREDS)
-        assert create_project(Path("testdata/json-project/test-project-systematic.json"), CREDS)
-        yield
+        yield containers
+
+
+def creds(container_ports: ContainerPorts) -> ServerCredentials:
+    return ServerCredentials(
+        "root@example.com",
+        "test",
+        f"http://0.0.0.0:{container_ports.api_port}",
+        f"http://0.0.0.0:{container_ports.ingest_port}",
+    )
 
 
 @pytest.fixture(scope="module")
-def api_con() -> ApiConnection:
-    return ApiConnection(LOCAL_API)
+def _create_projects(creds: ServerCredentials) -> None:
+    assert create_project(Path("testdata/validate-data/generic/project.json"), creds)
+    assert create_project(Path("testdata/validate-data/special_characters/project_special_characters.json"), creds)
+    assert create_project(Path("testdata/validate-data/inheritance/project_inheritance.json"), creds)
+    assert create_project(Path("testdata/validate-data/erroneous_ontology/project_erroneous_ontology.json"), creds)
+    assert create_project(Path("testdata/json-project/test-project-systematic.json"), creds)
+        
+
+
+@pytest.fixture(scope="module")
+def api_con(container_ports: ContainerPorts) -> ApiConnection:
+    return ApiConnection(f"http://0.0.0.0:{container_ports.api_port}")
 
 
 @pytest.fixture(scope="module")

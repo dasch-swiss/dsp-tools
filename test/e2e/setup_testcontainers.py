@@ -41,6 +41,16 @@ class Containers:
     api: DockerContainer
 
 
+@dataclass(frozen=True)
+class ContainerPorts:
+    """External ports of the containers"""
+
+    fuseki_port: int
+    sipi_port: int
+    ingest_port: int
+    api_port: int
+
+
 def _get_image_version(docker_compose_content: str, component: str) -> str:
     match = regex.search(rf"image: daschswiss/{component}:([^\n]+)", docker_compose_content)
     return match.group(1) if match else "latest"
@@ -64,14 +74,19 @@ class TestContainerFactory:
 
     @classmethod
     @contextmanager
-    def get_containers(cls) -> Iterator[Containers]:
+    def get_containers(cls) -> Iterator[ContainerPorts]:
         if subprocess.run("docker stats --no-stream".split(), check=False).returncode != 0:
             raise RuntimeError("Docker is not running properly")
         cls.__counter += 1
         with get_test_network(cls.__counter) as network:
             containers = _get_all_containers(network, cls.versions, cls.__counter)
             try:
-                yield containers
+                yield ContainerPorts(
+                    fuseki_port=containers.fuseki.ports[FUSEKI_INTERNAL_PORT],
+                    sipi_port=containers.sipi.ports[SIPI_INTERNAL_PORT],
+                    ingest_port=containers.ingest.ports[INGEST_INTERNAL_PORT],
+                    api_port=containers.api.ports[API_INTERNAL_PORT],
+                )
             finally:
                 _stop_all_containers(containers)
 
@@ -150,7 +165,7 @@ def _get_sipi_container(network: Network, version: str, counter: int) -> DockerC
         .with_volume_mapping(SIPI_IMAGES, "/sipi/images", "rw")
     )
     sipi.start()
-    wait_for_logs(sipi, f"Sipi: Server listening on HTTP port {sipi_external_port}")
+    wait_for_logs(sipi, f"Sipi: Server listening on HTTP port {SIPI_INTERNAL_PORT}")
     print("Sipi is ready")
     return sipi
 
@@ -165,7 +180,6 @@ def _get_ingest_container(network: Network, version: str, counter: int) -> Docke
         .with_bind_ports(host=ingest_external_port, container=INGEST_INTERNAL_PORT)
         .with_env("STORAGE_ASSET_DIR", "/opt/images")
         .with_env("STORAGE_TEMP_DIR", "/opt/temp")
-        .with_env("JWT_AUDIENCE", f"http://ingest:{ingest_external_port}")
         .with_env("JWT_ISSUER", f"http://api:{api_external_port}")
         .with_env("JWT_SECRET", "UP 4888, nice 4-8-4 steam engine")
         .with_env("SIPI_USE_LOCAL_DEV", "false")
@@ -183,14 +197,12 @@ def _get_ingest_container(network: Network, version: str, counter: int) -> Docke
 
 def _get_api_container(network: Network, version: str, counter: int) -> DockerContainer:
     api_external_port = API_INTERNAL_PORT + counter
-    ingest_external_port = INGEST_INTERNAL_PORT + counter
     api = (
         DockerContainer(f"daschswiss/knora-api:{version}")
         .with_name("api")
         .with_network(network)
         # other containers are addressed by their service name and their **internal** port
         .with_env("KNORA_WEBAPI_DSP_INGEST_BASE_URL", f"http://ingest:{INGEST_INTERNAL_PORT}")
-        .with_env("KNORA_WEBAPI_DSP_INGEST_AUDIENCE", f"http://ingest:{ingest_external_port}")
         .with_env("KNORA_WEBAPI_JWT_ISSUER", f"http://api:{api_external_port}")
         .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", api_external_port)
         .with_env("KNORA_WEBAPI_TRIPLESTORE_HOST", "db")

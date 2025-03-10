@@ -737,7 +737,7 @@ def report_empty_label(onto_graph: Graph) -> tuple[Graph, ValidationResultBaseIn
         sh:resultPath rdfs:label ;
         sh:resultSeverity sh:Violation ;
         sh:sourceConstraintComponent sh:PatternConstraintComponent ;
-        sh:sourceShape api-shapes:rdfsLabel_Shape ;
+        sh:sourceShape [ ] ;
         sh:value " " ] .
     """
     data_str = f"""{PREFIXES}

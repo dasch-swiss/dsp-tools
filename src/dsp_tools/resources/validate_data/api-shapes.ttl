@@ -607,8 +607,7 @@ api-shapes:LinkObj_ResourceShape
   sh:targetClass knora-api:LinkObj ;
   sh:property    api-shapes:hasLinkTo_PropertyShape ,
                  api-shapes:rdfsLabel_Shape,
-                 api-shapes:hasComment_PropertyShape ,
-                 api-shapes:hasStandoffLinkTo_TargetMustExistPropertyShape ;
+                 api-shapes:hasComment_PropertyShape ;
   sh:severity    sh:Violation .
 
 
@@ -623,8 +622,7 @@ api-shapes:Region_ResourceShape
                  api-shapes:isRegionOf_PropertyShape ,
                  api-shapes:hasColor_PropertyShape ,
                  api-shapes:hasGeometry_PropertyShape ,
-                 api-shapes:hasComment_PropertyShape ,
-                 api-shapes:hasStandoffLinkTo_TargetMustExistPropertyShape ;
+                 api-shapes:hasComment_PropertyShape ;
   sh:severity    sh:Violation .
 
 
@@ -642,8 +640,7 @@ api-shapes:AudioSegment_ResourceShape
                  api-shapes:isAudioSegmentOf_PropertyShape ,
                  api-shapes:hasDescription_PropertyShape ,
                  api-shapes:hasTitle_PropertyShape ,
-                 api-shapes:hasKeyword_PropertyShape ,
-                 api-shapes:hasStandoffLinkTo_TargetMustExistPropertyShape ;
+                 api-shapes:hasKeyword_PropertyShape ;
   sh:severity    sh:Violation .
 
 
@@ -661,6 +658,5 @@ api-shapes:VideoSegment_ResourceShape
                  api-shapes:isVideoSegmentOf_PropertyShape ,
                  api-shapes:hasDescription_PropertyShape ,
                  api-shapes:hasTitle_PropertyShape ,
-                 api-shapes:hasKeyword_PropertyShape ,
-                 api-shapes:hasStandoffLinkTo_TargetMustExistPropertyShape ;
+                 api-shapes:hasKeyword_PropertyShape  ;
   sh:severity    sh:Violation .

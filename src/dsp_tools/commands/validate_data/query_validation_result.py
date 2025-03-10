@@ -117,7 +117,6 @@ def _extract_one_base_info(
                 detail_bn=single_detail,
                 source_constraint_component=detail_component,
             )
-            # TODO: we could replace the focus node and iri here as a standard...
             results.append(
                 ValidationResultBaseInfo(
                     result_bn=info.validation_bn,
@@ -129,12 +128,17 @@ def _extract_one_base_info(
                 )
             )
     else:
+        resource_iri = info.focus_iri
+        resource_type = info.focus_rdf_type
+        if info.focus_rdf_type in STILL_IMAGE_VALUE_CLASSES:
+            resource_iri = next(data_onto_graph.subjects(KNORA_API.hasStillImageFileValue, info.focus_iri))
+            resource_type = next(data_onto_graph.objects(resource_iri, RDF.type))
         results.append(
             ValidationResultBaseInfo(
                 result_bn=info.validation_bn,
                 source_constraint_component=main_component_type,
-                focus_node_iri=info.focus_iri,
-                focus_node_type=info.focus_rdf_type,
+                focus_node_iri=resource_iri,
+                focus_node_type=resource_type,
                 result_path=path,
                 detail=None,
             )

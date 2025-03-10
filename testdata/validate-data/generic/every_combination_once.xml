@@ -186,8 +186,9 @@
         sh:sourceConstraintComponent  sh:MinCountConstraintComponent
         sh:detail                     -
 
-        Produces also a sh:XoneConstraintComponent, because it does not comply with the node shape.
-        This is ignored because each property for the legal info produces its own violation min count violation.
+        Also produces a sh:XoneConstraintComponent, because it does not comply with the StillImage node shape.
+        This is ignored because each property for the legal info produces its own min count violation,
+        the information from that is more detailed and will be communicated to the user.
         -->
         <resource label="TestStillImageRepresentation Bitstream" restype=":TestStillImageRepresentation" id="image_no_legal_info">
             <bitstream>this/is/filepath/file.jp2</bitstream>

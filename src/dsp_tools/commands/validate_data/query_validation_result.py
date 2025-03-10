@@ -5,7 +5,6 @@ from rdflib import RDF
 from rdflib import RDFS
 from rdflib import SH
 from rdflib import Graph
-from rdflib import Literal
 from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.constants import DASH
@@ -31,7 +30,6 @@ from dsp_tools.commands.validate_data.utils import reformat_data_iri
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.models.exceptions import BaseError
 
-STILL_IMAGE_VALUE_CLASSES = {KNORA_API.StillImageFileValue, KNORA_API.StillImageExternalFileValue}
 LEGAL_INFO_PROPS = {KNORA_API.hasLicense, KNORA_API.hasCopyrightHolder, KNORA_API.hasAuthorship}
 
 
@@ -85,21 +83,18 @@ def _separate_result_types(
 def _extract_base_info_of_resource_results(
     results_and_onto: Graph, data_onto_graph: Graph
 ) -> list[ValidationResultBaseInfo]:
-    resource_classes = list(data_onto_graph.subjects(KNORA_API.canBeInstantiated, Literal(True)))
-    resource_classes.extend(STILL_IMAGE_VALUE_CLASSES)
     all_res_focus_nodes = []
     main_bns = _get_all_main_result_bns(results_and_onto)
     value_types = _get_all_value_classes(data_onto_graph)
     for nd in main_bns:
         focus_iri = next(results_and_onto.objects(nd, SH.focusNode))
         res_type = next(data_onto_graph.objects(focus_iri, RDF.type))
-        if res_type in resource_classes:
-            info = QueryInfo(
-                validation_bn=nd,
-                focus_iri=focus_iri,
-                focus_rdf_type=res_type,
-            )
-            all_res_focus_nodes.extend(_extract_one_base_info(info, results_and_onto, data_onto_graph, value_types))
+        info = QueryInfo(
+            validation_bn=nd,
+            focus_iri=focus_iri,
+            focus_rdf_type=res_type,
+        )
+        all_res_focus_nodes.extend(_extract_one_base_info(info, results_and_onto, data_onto_graph, value_types))
     return all_res_focus_nodes
 
 

@@ -163,23 +163,17 @@ def _get_ingest_container(network: Network, version: str) -> DockerContainer:
 
 def _get_api_container(network: Network, version: str) -> DockerContainer:
     api = (
-        DockerContainer("daschswiss/knora-api:v31.8.0-5-gec1e96c")
+        DockerContainer(f"daschswiss/knora-api:{version}")
         .with_name("api")
         .with_network(network)
-        .with_env("KNORA_AKKA_LOGLEVEL", "DEBUG")
-        .with_env("KNORA_AKKA_STDOUT_LOGLEVEL", "DEBUG")
         .with_env("KNORA_WEBAPI_DSP_INGEST_BASE_URL", "http://ingest:3340")
         .with_env("KNORA_WEBAPI_DSP_INGEST_AUDIENCE", "http://ingest:3341")
-        #.with_env("KNORA_WEBAPI_KNORA_API_INTERNAL_PORT", "3333")
         .with_env("KNORA_WEBAPI_JWT_ISSUER", "http://api:3334")
         .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", "3334")
-        .with_env("KNORA_WEBAPI_TRIPLESTORE_HOST", "db") # this is the name of the service in docker-compose.yml
-        # .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_PORT", "3030")
+        .with_env("KNORA_WEBAPI_TRIPLESTORE_HOST", "db")
         .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_REPOSITORY_NAME", "knora-test")
         .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_USERNAME", "admin")
         .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_PASSWORD", "test")
-        # .with_env("KNORA_WEBAPI_SIPI_INTERNAL_PORT", "1025")  # defaults to 1024
-        # .with_env("KNORA_WEBAPI_SIPI_EXTERNAL_PORT", "1025")  # defaults to 443
         .with_env("ALLOW_ERASE_PROJECTS", "true")
         .with_bind_ports(host=3334, container=3333)
     )

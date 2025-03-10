@@ -68,13 +68,13 @@ class TestQueryAllResults:
         assert len(extracted_results) == 1
         result = extracted_results.pop(0)
         assert isinstance(result, ValidationResult)
-        assert result.violation_type == ViolationType.GENERIC
-        assert result.res_iri == DATA.bitstream_no_legal_info
-        assert result.res_class == ONTO.TestArchiveRepresentation
-        assert result.property == KNORA_API.hasAuthorship
-        assert not result.input_value
-        assert not result.input_type
-        assert result.expected == Literal("Files and IIIF-URIs require at least one authorship.")
+        assert result.violation_type == ViolationType.LINK_TARGET
+        assert result.res_iri == DATA.region_isRegionOf_resource_not_a_representation
+        assert result.res_class == KNORA_API.Region
+        assert result.property == KNORA_API.isRegionOf
+        assert result.input_value == DATA.target_res_without_representation_1
+        assert result.input_type == IN_BUILT_ONTO.TestNormalResource
+        assert result.expected == Literal("http://api.knora.org/ontology/knora-api/v2#Representation")
 
     def test_movie_missing_legal_info(self, report_file_value_missing_legal_info) -> None:
         validation_g, onto_data_g = report_file_value_missing_legal_info
@@ -83,13 +83,13 @@ class TestQueryAllResults:
         assert len(extracted_results) == 1
         result = extracted_results.pop(0)
         assert isinstance(result, ValidationResult)
-        assert result.violation_type == ViolationType.FILE_VALUE
-        assert result.res_iri == DATA.region_isRegionOf_resource_not_a_representation
-        assert result.res_class == KNORA_API.Region
-        assert result.property == KNORA_API.isRegionOf
-        assert result.input_value == DATA.target_res_without_representation_1
-        assert result.input_type == IN_BUILT_ONTO.TestNormalResource
-        assert result.expected == Literal("http://api.knora.org/ontology/knora-api/v2#Representation")
+        assert result.violation_type == ViolationType.GENERIC
+        assert result.res_iri == DATA.bitstream_no_legal_info
+        assert result.res_class == ONTO.TestArchiveRepresentation
+        assert result.property == KNORA_API.hasAuthorship
+        assert not result.input_value
+        assert not result.input_type
+        assert result.expected == Literal("Files and IIIF-URIs require at least one authorship.")
 
 
 class TestExtractBaseInfo:

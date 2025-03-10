@@ -6,7 +6,7 @@ from enum import auto
 
 from rdflib import Graph
 
-from dsp_tools.commands.validate_data.constants import SubjectObjectTypeAlias
+from dsp_tools.commands.validate_data.constants import SubjectObjectTypeAlias, PropertyTypeAlias
 
 
 @dataclass
@@ -43,6 +43,15 @@ class QueryInfo:
 @dataclass
 class UnexpectedComponent:
     component_type: str
+
+@dataclass
+class ValidationDataInfo:
+    focus_node_iri: SubjectObjectTypeAlias
+    focus_node_type: SubjectObjectTypeAlias
+    result_path: PropertyTypeAlias
+    resource_iri: SubjectObjectTypeAlias | None = None
+    resource_type: SubjectObjectTypeAlias | None = None
+    user_property: PropertyTypeAlias | None = None
 
 
 @dataclass

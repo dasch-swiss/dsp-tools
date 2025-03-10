@@ -142,12 +142,20 @@ class TestLinkResource:
             _serialise_one_resource(linkobj, AUTHOR_LOOKUP)
             assert len(caught_warnings) == 1
 
-    @pytest.mark.filterwarnings("ignore::dsp_tools.models.custom_warnings.DspToolsUserInfo")
     def test_serialise_no_link(self) -> None:
-        linkobj = LinkResource.create_new("id", "lbl", []).add_comment("cmt")
         with warnings.catch_warnings(record=True) as caught_warnings:
+            linkobj = LinkResource.create_new("id", "lbl", []).add_comment("cmt")
             _serialise_one_resource(linkobj, AUTHOR_LOOKUP)
-            assert len(caught_warnings) == 1
+        warning_0 = (
+            "The link object with the ID 'id' requires at least two links. Please note that an xmlupload will fail."
+        )
+        warning_1 = (
+            "The input value of the resource with the ID 'id' and the property 'hasLinkTo' is empty. "
+            "Please note that no values will be added to the resource."
+        )
+        expected = sorted([warning_0, warning_1])
+        returned = sorted([x.message.args[0] for x in caught_warnings])  # type: ignore[union-attr]
+        assert returned == expected
 
 
 if __name__ == "__main__":

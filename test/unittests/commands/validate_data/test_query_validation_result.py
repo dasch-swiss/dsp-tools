@@ -88,7 +88,7 @@ class TestGetResourceIRIs:
     def test_no_detail_user_facing_prop_is_knora_prop(self, report_archive_missing_legal_info):
         validation_g, onto_data_g = report_archive_missing_legal_info
         result_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
-        result = _get_resource_iri_and_type(result_bn, validation_g, onto_data_g, {KNORA_API.TextValue})
+        result = _get_resource_iri_and_type(result_bn, validation_g, onto_data_g, {KNORA_API.ArchiveFileValue})
         assert result.focus_node_iri == DATA.value_bitstream_no_legal_info
         assert result.focus_node_type == KNORA_API.ArchiveFileValue
         assert result.result_path == KNORA_API.hasLicense

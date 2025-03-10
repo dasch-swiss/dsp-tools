@@ -176,7 +176,7 @@ def _get_resource_iri_and_type(
     if focus_type in value_types:
         resource_iri = next(data_onto_graph.subjects(object=focus_iri))
         resource_type = next(data_onto_graph.objects(resource_iri, RDF.type))
-        user_facing_prop = next(data_onto_graph.subjects(object=focus_iri))
+        user_facing_prop = next(data_onto_graph.predicates(subject=resource_iri, object=focus_iri))
     return ValidationDataInfo(
         focus_node_iri=focus_iri,
         focus_node_type=focus_type,

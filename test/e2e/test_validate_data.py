@@ -27,7 +27,7 @@ from dsp_tools.commands.validate_data.validate_data import _get_validation_resul
 from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
 from test.e2e.setup_testcontainers import get_containers
 
-CREDS = ServerCredentials("root@example.com", "test", "http://0.0.0.0:3334", dsp_ingest_url= "http://0.0.0.0:3341")
+CREDS = ServerCredentials("root@example.com", "test", "http://0.0.0.0:3334", dsp_ingest_url="http://0.0.0.0:3341")
 LOCAL_API = "http://0.0.0.0:3334"
 
 

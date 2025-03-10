@@ -126,11 +126,7 @@ def _extract_one_base_info(
                 )
             )
     else:
-        resource_iri = info.focus_iri
-        resource_type = info.focus_rdf_type
-        if info.focus_rdf_type in STILL_IMAGE_VALUE_CLASSES:
-            resource_iri = next(data_onto_graph.subjects(KNORA_API.hasStillImageFileValue, info.focus_iri))
-            resource_type = next(data_onto_graph.objects(resource_iri, RDF.type))
+        resource_iri, resource_type = _get_resource_iri_and_type(info, data_onto_graph)
         results.append(
             ValidationResultBaseInfo(
                 result_bn=info.validation_bn,
@@ -148,6 +144,18 @@ def _get_all_main_result_bns(results_and_onto: Graph) -> set[SubjectObjectTypeAl
     all_bns = set(results_and_onto.subjects(RDF.type, SH.ValidationResult))
     detail_bns = set(results_and_onto.objects(predicate=SH.detail))
     return all_bns - detail_bns
+
+
+def _get_resource_iri_and_type(
+    info: QueryInfo, data_onto_graph: Graph
+) -> tuple[SubjectObjectTypeAlias, SubjectObjectTypeAlias]:
+    resource_iri = info.focus_iri
+    resource_type = info.focus_rdf_type
+    super_classes = list(data_onto_graph.transitive_objects(resource_type, RDFS.subClassOf))
+    if KNORA_API.Value in super_classes:
+        resource_iri = next(data_onto_graph.subjects(object=info.focus_iri))
+        resource_type = next(data_onto_graph.objects(resource_iri, RDF.type))
+    return resource_iri, resource_type
 
 
 def _query_all_without_detail(

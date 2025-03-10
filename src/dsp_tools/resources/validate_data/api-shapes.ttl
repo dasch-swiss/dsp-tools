@@ -190,19 +190,19 @@ api-shapes:geometryValueAsGeometry_Shape
 ##############
 # IntervalValue
 api-shapes:IntervalValue_ClassShape
-  a           sh:NodeShape ;
+  a              sh:NodeShape ;
   sh:targetClass knora-api:IntervalValue ;
-  sh:name     "Validates the properties used with this targetClass" ;
-  sh:message  "IntervalValue" ;
-  sh:property [
-                sh:path knora-api:intervalValueHasStart ;
-		            sh:lessThan knora-api:intervalValueHasEnd ;
-                sh:message "The start of the interval must be smaller than the end." ;
-                sh:severity sh:Violation ;
-              ] ,
-              api-shapes:valueHasComment_Shape ,
-              api-shapes:intervalValueHasStart_PropShape ,
-              api-shapes:intervalValueHasEnd_PropShape ;
+  sh:name        "Validates the properties used with this targetClass" ;
+  sh:message     "IntervalValue" ;
+  sh:property    [
+                   sh:path knora-api:intervalValueHasStart ;
+		               sh:lessThan knora-api:intervalValueHasEnd ;
+                   sh:message "The start of the interval must be smaller than the end." ;
+                   sh:severity sh:Violation ;
+                 ] ,
+                 api-shapes:valueHasComment_Shape ,
+                 api-shapes:intervalValueHasStart_PropShape ,
+                 api-shapes:intervalValueHasEnd_PropShape ;
   sh:severity sh:Violation .
 
 ### knora-api:intervalValueHasStart

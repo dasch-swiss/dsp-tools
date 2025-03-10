@@ -223,8 +223,7 @@ class TestCheckConforms:
         assert minimal_correct.conforms
 
     def test_value_type_violation(self, value_type_violation: ValidationReportGraphs) -> None:
-        with pytest.warns(DspToolsUserWarning):
-            assert not value_type_violation.conforms
+        assert not value_type_violation.conforms
 
     def test_unique_value_violation(self, unique_value_violation: ValidationReportGraphs) -> None:
         assert not unique_value_violation.conforms

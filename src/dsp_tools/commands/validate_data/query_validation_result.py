@@ -89,6 +89,7 @@ def _extract_base_info_of_resource_results(
     resource_classes.extend(STILL_IMAGE_VALUE_CLASSES)
     all_res_focus_nodes = []
     main_bns = _get_all_main_result_bns(results_and_onto)
+    value_types = _get_all_value_classes(data_onto_graph)
     for nd in main_bns:
         focus_iri = next(results_and_onto.objects(nd, SH.focusNode))
         res_type = next(data_onto_graph.objects(focus_iri, RDF.type))
@@ -98,12 +99,22 @@ def _extract_base_info_of_resource_results(
                 focus_iri=focus_iri,
                 focus_rdf_type=res_type,
             )
-            all_res_focus_nodes.extend(_extract_one_base_info(info, results_and_onto, data_onto_graph))
+            all_res_focus_nodes.extend(_extract_one_base_info(info, results_and_onto, data_onto_graph, value_types))
     return all_res_focus_nodes
 
 
+def _get_all_value_classes(data_onto_graph: Graph) -> set[SubjectObjectTypeAlias]:
+    all_types = set(data_onto_graph.objects(predicate=RDF.type))
+    all_value_types = set()
+    for type_ in all_types:
+        super_classes = set(data_onto_graph.transitive_objects(type_, RDFS.subClassOf))
+        if KNORA_API.Value in super_classes:
+            all_value_types.add(type_)
+    return all_value_types
+
+
 def _extract_one_base_info(
-    info: QueryInfo, results_and_onto: Graph, data_onto_graph: Graph
+    info: QueryInfo, results_and_onto: Graph, data_onto_graph: Graph, value_types: set[SubjectObjectTypeAlias]
 ) -> list[ValidationResultBaseInfo]:
     results = []
     path = next(results_and_onto.objects(info.validation_bn, SH.resultPath))
@@ -126,7 +137,7 @@ def _extract_one_base_info(
                 )
             )
     else:
-        resource_iri, resource_type = _get_resource_iri_and_type(info, data_onto_graph)
+        resource_iri, resource_type = _get_resource_iri_and_type(info, data_onto_graph, value_types)
         results.append(
             ValidationResultBaseInfo(
                 result_bn=info.validation_bn,
@@ -142,17 +153,18 @@ def _extract_one_base_info(
 
 def _get_all_main_result_bns(results_and_onto: Graph) -> set[SubjectObjectTypeAlias]:
     all_bns = set(results_and_onto.subjects(RDF.type, SH.ValidationResult))
+    # All the blank nodes that are referenced in a sh:detail will be queried together with the main validation result
+    # if we queried them separately we would get duplicate errors
     detail_bns = set(results_and_onto.objects(predicate=SH.detail))
     return all_bns - detail_bns
 
 
 def _get_resource_iri_and_type(
-    info: QueryInfo, data_onto_graph: Graph
+    info: QueryInfo, data_onto_graph: Graph, value_types: set[SubjectObjectTypeAlias]
 ) -> tuple[SubjectObjectTypeAlias, SubjectObjectTypeAlias]:
     resource_iri = info.focus_iri
     resource_type = info.focus_rdf_type
-    super_classes = list(data_onto_graph.transitive_objects(resource_type, RDFS.subClassOf))
-    if KNORA_API.Value in super_classes:
+    if resource_type in value_types:
         resource_iri = next(data_onto_graph.subjects(object=info.focus_iri))
         resource_type = next(data_onto_graph.objects(resource_iri, RDF.type))
     return resource_iri, resource_type

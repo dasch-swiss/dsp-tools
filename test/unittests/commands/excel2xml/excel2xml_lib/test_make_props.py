@@ -269,13 +269,14 @@ class TestPropsGeneral(unittest.TestCase):
         invalid_values = ["https:", 10.0, 5, "www.test.com"]
         self.run_test(prop, method, different_values, invalid_values)
 
-    @pytest.mark.filterwarnings("ignore::dsp_tools.models.custom_warnings.DspToolsUserWarning")
     def test_make_text_prop(self) -> None:
         prop = "text"
         method = excel2xml.make_text_prop
         different_values = ["text_1", " ", "!", "?", "-", "_", "None"]
         invalid_values = [True, 10.0, 5, ""]
-        self.run_test(prop, method, different_values, invalid_values)
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            self.run_test(prop, method, different_values, invalid_values)
+            assert len(caught_warnings) == 3
         self.assertRaises(
             BaseError,
             lambda: excel2xml.make_text_prop(":test", excel2xml.PropertyElement(value="a", encoding="unicode")),

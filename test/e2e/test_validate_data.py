@@ -25,6 +25,7 @@ from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_re
 from dsp_tools.commands.validate_data.validate_data import _get_parsed_graphs
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
 from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
+from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from test.e2e.setup_testcontainers import get_containers
 
 CREDS = ServerCredentials("root@example.com", "test", "http://0.0.0.0:3333")
@@ -221,9 +222,9 @@ class TestCheckConforms:
         minimal_correct = _get_validation_result(graphs, shacl_validator, None)
         assert minimal_correct.conforms
 
-    @pytest.mark.filterwarnings("ignore::dsp_tools.models.custom_warnings.DspToolsUserWarning")
     def test_value_type_violation(self, value_type_violation: ValidationReportGraphs) -> None:
-        assert not value_type_violation.conforms
+        with pytest.warns(DspToolsUserWarning):
+            assert not value_type_violation.conforms
 
     def test_unique_value_violation(self, unique_value_violation: ValidationReportGraphs) -> None:
         assert not unique_value_violation.conforms

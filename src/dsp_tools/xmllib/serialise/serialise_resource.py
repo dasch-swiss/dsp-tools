@@ -102,14 +102,14 @@ def _serialise_geometry_shape(res: RegionResource) -> list[etree._Element]:
 
 
 def _serialise_link(res: LinkResource) -> etree._Element:
-    problem = []
+    problems = []
     if not res.comments:
-        problem.append("at least one comment")
+        problems.append("at least one comment")
     if not res.link_to:
-        problem.append("at least two links")
-    if problem:
+        problems.append("at least two links")
+    if problems:
         msg = (
-            f"The link object with the ID '{res.res_id}' requires: {' and '.join(problem)} "
+            f"The link object with the ID '{res.res_id}' requires {' and '.join(problems)}. "
             f"Please note that an xmlupload will fail."
         )
         warnings.warn(DspToolsUserWarning(msg))

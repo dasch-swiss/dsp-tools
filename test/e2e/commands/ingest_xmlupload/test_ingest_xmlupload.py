@@ -15,7 +15,7 @@ from test.e2e.setup_testcontainers import SIPI_IMAGES
 from test.e2e.setup_testcontainers import TMP_INGEST
 from test.e2e.setup_testcontainers import get_containers
 
-CREDS = ServerCredentials("root@example.com", "test", "http://0.0.0.0:3334")
+CREDS = ServerCredentials("root@example.com", "test", "http://0.0.0.0:3334", dsp_ingest_url= "http://0.0.0.0:3341")
 CWD = Path("testdata/dsp-ingest-data/e2e-sample-project")
 XML_FILE = Path("data.xml")
 MULTIMEDIA_FILE_1 = Path("Bilder Projekt 2024/Côté gauche/Bild A (1).jpg")

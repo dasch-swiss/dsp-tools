@@ -161,10 +161,10 @@ def _get_resource_iri_and_type(
 ) -> tuple[SubjectObjectTypeAlias, SubjectObjectTypeAlias, SubjectObjectTypeAlias]:
     resource_iri, resource_type, user_facing_prop = info.focus_iri, info.focus_rdf_type, path
     if info.focus_rdf_type in value_types:
-        resource_iri = next(data_onto_graph.subjects(object=info.focus_iri))
+        resource_iri, predicate = next(data_onto_graph.subject_predicates(object=info.focus_iri))
         resource_type = next(data_onto_graph.objects(resource_iri, RDF.type))
         if user_facing_prop not in LEGAL_INFO_PROPS:
-            user_facing_prop = next(data_onto_graph.predicates(subject=resource_iri, object=info.focus_iri))
+            user_facing_prop = predicate
     return resource_iri, resource_type, user_facing_prop
 
 

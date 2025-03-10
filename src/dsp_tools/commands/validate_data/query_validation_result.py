@@ -112,6 +112,7 @@ def _extract_one_base_info(
     main_component_type = next(results_and_onto.objects(info.validation_bn, SH.sourceConstraintComponent))
     if detail_bn_list := list(results_and_onto.objects(info.validation_bn, SH.detail)):
         for single_detail in detail_bn_list:
+            resource_iri, resource_type = _get_resource_iri_and_type(info, results_and_onto)
             detail_component = next(results_and_onto.objects(single_detail, SH.sourceConstraintComponent))
             detail = DetailBaseInfo(
                 detail_bn=single_detail,
@@ -121,21 +122,14 @@ def _extract_one_base_info(
                 ValidationResultBaseInfo(
                     result_bn=info.validation_bn,
                     source_constraint_component=main_component_type,
-                    focus_node_iri=info.focus_iri,
-                    focus_node_type=info.focus_rdf_type,
+                    focus_node_iri=resource_iri,
+                    focus_node_type=resource_type,
                     result_path=path,
                     detail=detail,
                 )
             )
     else:
-        resource_iri = info.focus_iri
-        resource_type = info.focus_rdf_type
-        if path in FILE_VALUE_PROPERTIES:
-            try:
-                resource_iri = next(data_onto_graph.subjects(object=info.focus_iri))
-                resource_type = next(data_onto_graph.objects(resource_iri, RDF.type))
-            except StopIteration:
-                pass
+        resource_iri, resource_type = _get_resource_iri_and_type(info, results_and_onto)
         results.append(
             ValidationResultBaseInfo(
                 result_bn=info.validation_bn,
@@ -147,6 +141,21 @@ def _extract_one_base_info(
             )
         )
     return results
+
+
+def _get_resource_iri_and_type(
+    info: QueryInfo, validation_graph: Graph
+) -> tuple[SubjectObjectTypeAlias, SubjectObjectTypeAlias]:
+    resource_iri = info.focus_iri
+    resource_type = info.focus_rdf_type
+    super_classes = list(validation_graph.transitive_objects(resource_type, RDFS.subClassOf))
+    if KNORA_API.Value in super_classes:
+        try:
+            resource_iri = next(validation_graph.subjects(object=info.focus_iri))
+            resource_type = next(validation_graph.objects(resource_iri, RDF.type))
+        except StopIteration:
+            pass
+    return resource_iri, resource_type
 
 
 def _query_all_without_detail(

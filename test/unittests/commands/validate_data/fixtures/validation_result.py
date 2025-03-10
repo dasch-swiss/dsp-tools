@@ -71,6 +71,7 @@ def report_target_resource_wrong_type(onto_graph: Graph) -> tuple[Graph, Graph]:
     onto_data_g = Graph()
     onto_data_g += onto_graph
     onto_data_g.parse(data=data_str, format="ttl")
+    validation_g += onto_graph
     return validation_g, onto_data_g
 
 

@@ -163,16 +163,18 @@ def _get_ingest_container(network: Network, version: str) -> DockerContainer:
 
 def _get_api_container(network: Network, version: str) -> DockerContainer:
     api = (
-        DockerContainer(f"daschswiss/knora-api:{version}")
+        DockerContainer("daschswiss/knora-api:v31.8.0-5-gec1e96c")
         .with_name("api")
         .with_network(network)
+        .with_env("KNORA_AKKA_LOGLEVEL", "DEBUG")
+        .with_env("KNORA_AKKA_STDOUT_LOGLEVEL", "DEBUG")
         .with_env("KNORA_WEBAPI_DSP_INGEST_BASE_URL", "http://ingest:3341")
         .with_env("KNORA_WEBAPI_DSP_INGEST_AUDIENCE", "http://ingest:3341")
         .with_env("KNORA_WEBAPI_JWT_ISSUER", "0.0.0.0:3334")
         .with_env("KNORA_WEBAPI_KNORA_API_INTERNAL_PORT", "3333")
         .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", "3334")
         .with_env("KNORA_WEBAPI_TRIPLESTORE_HOST", "db")
-        .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_PORT", "3031")
+        .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_PORT", "3030")
         .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_REPOSITORY_NAME", "knora-test")
         .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_USERNAME", "admin")
         .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_PASSWORD", "test")

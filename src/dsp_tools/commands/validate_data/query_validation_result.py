@@ -167,20 +167,17 @@ def _get_resource_iri_and_type_(
 
 
 def _get_resource_iri_and_type(
-    validation_bn, results_and_onto: Graph, data_onto_graph: Graph, value_types: set[SubjectObjectTypeAlias]
+    info: QueryInfo, path: SubjectObjectTypeAlias, data_onto_graph: Graph, value_types: set[SubjectObjectTypeAlias]
 ) -> ValidationDataInfo:
     resource_iri, resource_type, user_facing_prop = None, None, None
-    focus_iri = next(results_and_onto.objects(validation_bn, SH.focusNode))
-    focus_type = next(data_onto_graph.objects(focus_iri, RDF.type))
-    result_path = next(results_and_onto.objects(validation_bn, SH.resultPath))
-    if focus_type in value_types:
-        resource_iri = next(data_onto_graph.subjects(object=focus_iri))
+    if info.focus_rdf_type in value_types:
+        resource_iri = next(data_onto_graph.subjects(object=info.focus_iri))
         resource_type = next(data_onto_graph.objects(resource_iri, RDF.type))
-        user_facing_prop = next(data_onto_graph.predicates(subject=resource_iri, object=focus_iri))
+        user_facing_prop = next(data_onto_graph.predicates(subject=resource_iri, object=info.focus_iri))
     return ValidationDataInfo(
-        focus_node_iri=focus_iri,
-        focus_node_type=focus_type,
-        result_path=result_path,
+        focus_node_iri=info.focus_iri,
+        focus_node_type=info.focus_rdf_type,
+        result_path=path,
         resource_iri=resource_iri,
         resource_type=resource_type,
         user_property=user_facing_prop,

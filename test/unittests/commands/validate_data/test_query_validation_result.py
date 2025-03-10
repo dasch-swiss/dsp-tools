@@ -16,6 +16,7 @@ from dsp_tools.commands.validate_data.models.validation import ValidationResultB
 from dsp_tools.commands.validate_data.models.validation import ViolationType
 from dsp_tools.commands.validate_data.query_validation_result import _extract_base_info_of_resource_results
 from dsp_tools.commands.validate_data.query_validation_result import _get_all_main_result_bns
+from dsp_tools.commands.validate_data.query_validation_result import _get_resource_iri_and_type
 from dsp_tools.commands.validate_data.query_validation_result import _query_all_results
 from dsp_tools.commands.validate_data.query_validation_result import _query_one_with_detail
 from dsp_tools.commands.validate_data.query_validation_result import _query_one_without_detail
@@ -60,6 +61,19 @@ def test_separate_bns_of_results(
     node1 = next(combined_g.subjects(SH.focusNode, DATA.region_isRegionOf_resource_not_a_representation))
     node2 = next(combined_g.subjects(SH.focusNode, DATA.value_id_simpletext))
     assert extracted_bns == {node1, node2}
+
+
+def test_get_resource_iri_and_type_with_detail_user_facing_info_there(report_value_type_simpletext):
+    validation_g, onto_data_g, _ = report_value_type_simpletext
+    result = _get_resource_iri_and_type()
+
+
+def test_get_resource_iri_and_type_no_detail_user_facing_info_there():
+    pass
+
+
+def test_get_resource_iri_and_type_no_detail_user_facing_info_missing():
+    pass
 
 
 class TestQueryAllResults:

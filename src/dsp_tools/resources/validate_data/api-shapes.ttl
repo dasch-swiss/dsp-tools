@@ -48,19 +48,32 @@ api-shapes:UniqueValue_Shape
 
 
 ########################
-# RDFS:LABEL SHAPE
+# Generic Resource Shape
 ########################
 
-api-shapes:rdfsLabel_Shape
-  a                sh:PropertyShape ;
-  sh:targetClass   knora-api:Resource ;
-  sh:message       "The label must be a non-empty string" ;
-  sh:path          rdfs:label ;
-  sh:minCount      1 ;
-  sh:maxCount      1 ;
-  sh:pattern       "\\s*\\S+\\s*" ;
-  sh:datatype      xsd:string ;
-  sh:severity      sh:Violation .
+api-shapes:Resource_Shape
+  a              sh:NodeShape ;
+  sh:targetClass knora-api:Resource ;
+  sh:name        "Validates generic properties of all Resources" ;
+  sh:property    [
+                    a           sh:PropertyShape ;
+                    sh:message  "The label must be a non-empty string" ;
+                    sh:path     rdfs:label ;
+                    sh:datatype xsd:string ;
+                    sh:pattern  "\\s*\\S+\\s*" ;
+                    sh:minCount 1 ;
+                    sh:maxCount 1 ;
+                    sh:severity sh:Violation
+                  ] ,
+                  [
+                    # Currently StandOff are attached directly to the resource and not in a LinkValue,
+                    # therefore we do not validate it like a normal link with a LinkValue
+                    a           sh:PropertyShape ;
+                    sh:message  "A stand-off link must target an existing resource." ;
+                    sh:path     knora-api:hasStandoffLinkTo ;
+                    sh:class    knora-api:Resource ;
+                    sh:severity sh:Violation
+                  ].
 
 
 ########################
@@ -576,19 +589,6 @@ api-shapes:hasKeyword_PropertyShape
   a       sh:PropertyShape ;
   sh:node api-shapes:SimpleTextValue_ClassShape ;
   sh:path knora-api:hasKeyword .
-
-
-### knora-api:hasStandoffLinkTo
-
-# Currently StandOff are attached directly to the resource and not in a LinkValue,
-# therefore we do not validate it like a normal link with a LinkValue
-api-shapes:hasStandoffLinkTo_TargetMustExistPropertyShape
-  a              sh:PropertyShape ;
-  sh:targetClass knora-api:Resource ;
-  sh:path        knora-api:hasStandoffLinkTo ;
-  sh:class       knora-api:Resource ;
-  sh:message     "A stand-off link must target an existing resource." ;
-  sh:severity   sh:Violation .
 
 
 #########################################

@@ -360,7 +360,7 @@ api-shapes:FileValue_ClassShape
                     sh:minCount 0 ;
                     sh:maxCount 1 ;
                     sh:severity sh:Violation ;
-                    sh:message  "The resource or value may have at most one permission." ;
+                    sh:message  "A FileValue may have at most one permission." ;
                   ] ,
                   [
                     a           sh:PropertyShape ;
@@ -406,7 +406,7 @@ api-shapes:ArchiveFileValue_ClassShape
                                 An ArchiveRepresentation requires a file with one of the following extensions
                                 'zip', 'tar', 'gz', 'z', 'tgz', 'gzip', '7z'.
                                 """ ;
-                  ]  .
+                  ] .
 
 api-shapes:AudioFileValue_ClassShape
   a              sh:NodeShape ;

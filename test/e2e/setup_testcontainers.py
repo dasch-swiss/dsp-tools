@@ -9,6 +9,7 @@ import docker
 import regex
 import requests
 from docker.errors import NotFound
+from docker.models.containers import Container
 from docker.models.networks import Network
 from testcontainers.core.container import DockerContainer
 from testcontainers.core.waiting_utils import wait_for_logs
@@ -79,16 +80,36 @@ class TestContainerFactory:
             raise RuntimeError("Docker is not running properly")
         cls.__counter += 1
         with get_test_network(cls.__counter) as network:
-            containers = _get_all_containers(network, cls.image_versions, cls.__counter)
+            ports = _get_ports()
+            containers = _get_all_containers(network, cls.image_versions, ports)
             try:
-                yield ContainerPorts(
-                    fuseki_port=containers.fuseki.ports[FUSEKI_INTERNAL_PORT],
-                    sipi_port=containers.sipi.ports[SIPI_INTERNAL_PORT],
-                    ingest_port=containers.ingest.ports[INGEST_INTERNAL_PORT],
-                    api_port=containers.api.ports[API_INTERNAL_PORT],
-                )
+                yield ports
             finally:
                 _stop_all_containers(containers)
+
+
+def _get_ports() -> ContainerPorts:
+    running_containers: list[Container] = docker.client.from_env().containers.list()
+    ports_in_use: list[int] = []
+    for container in running_containers:
+        ports_lists: list[None | list[int | tuple[str, int] | list[int] | dict[str, str]]] = list(
+            container.ports.values()
+        )  # the ports dict is in format {internal: exposed}
+        for ports_list in [x for x in ports_lists if x]:
+            for ports in ports_list:
+                match ports:
+                    case int():
+                        ports_in_use.append(ports)
+                    case (str(), int() as port):
+                        ports_in_use.append(port)
+                    case list():
+                        ports_in_use.extend(ports)
+                    case dict():
+                        ports_in_use.append(int(ports.get("HostPort", "0")))
+    port_window = [1025, 1026, 1027, 1028]
+    while any(x in ports_in_use for x in port_window):
+        port_window = [x + 1 for x in port_window]
+    return ContainerPorts(*port_window)
 
 
 @contextmanager
@@ -107,29 +128,28 @@ def get_test_network(counter: int) -> Iterator[Network]:
         client.close()  # type: ignore[no-untyped-call]  # incomplete stubs - remove this when the stubs are complete
 
 
-def _get_all_containers(network: Network, versions: ImageVersions, counter: int) -> Containers:
-    fuseki = _get_fuseki_container(network, versions.fuseki, counter)
-    sipi = _get_sipi_container(network, versions.sipi, counter)
-    ingest = _get_ingest_container(network, versions.ingest, counter)
-    api = _get_api_container(network, versions.api, counter)
+def _get_all_containers(network: Network, versions: ImageVersions, ports: ContainerPorts) -> Containers:
+    fuseki = _get_fuseki_container(network, versions.fuseki, ports)
+    sipi = _get_sipi_container(network, versions.sipi, ports)
+    ingest = _get_ingest_container(network, versions.ingest, ports)
+    api = _get_api_container(network, versions.api, ports)
     containers = Containers(fuseki=fuseki, sipi=sipi, ingest=ingest, api=api)
     _print_containers_are_ready(containers)
     return containers
 
 
-def _get_fuseki_container(network: Network, version: str, counter: int) -> DockerContainer:
-    fuseki_external_port = FUSEKI_INTERNAL_PORT + counter
+def _get_fuseki_container(network: Network, version: str, ports: ContainerPorts) -> DockerContainer:
     fuseki = (
         DockerContainer(f"daschswiss/apache-jena-fuseki:{version}")
         .with_name("db")
         .with_network(network)
-        .with_bind_ports(host=fuseki_external_port, container=FUSEKI_INTERNAL_PORT)
+        .with_bind_ports(host=ports.fuseki_port, container=FUSEKI_INTERNAL_PORT)
         .with_env("ADMIN_PASSWORD", "test")
     )
     fuseki.start()
     wait_for_logs(fuseki, r"Server .+ Started .+ on port \d+$")
     print("Fuseki is ready")
-    _create_data_set_and_admin_user(fuseki_external_port)
+    _create_data_set_and_admin_user(ports.fuseki_port)
     return fuseki
 
 
@@ -149,16 +169,14 @@ def _create_data_set_and_admin_user(fuseki_external_port: int) -> None:
     print("Admin user created")
 
 
-def _get_sipi_container(network: Network, version: str, counter: int) -> DockerContainer:
-    sipi_external_port = SIPI_INTERNAL_PORT + counter
-    api_external_port = API_INTERNAL_PORT + counter
+def _get_sipi_container(network: Network, version: str, ports: ContainerPorts) -> DockerContainer:
     sipi = (
         DockerContainer(f"daschswiss/knora-sipi:{version}")
         .with_name("sipi")
         .with_network(network)
-        .with_bind_ports(host=sipi_external_port, container=SIPI_INTERNAL_PORT)
+        .with_bind_ports(host=ports.sipi_port, container=SIPI_INTERNAL_PORT)
         .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_HOST", "0.0.0.0")  # noqa: S104
-        .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", api_external_port)
+        .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", ports.api_port)
         .with_command("--config=/sipi/config/sipi.docker-config.lua")
         .with_volume_mapping(TMP_SIPI, "/tmp", "rw")  # noqa: S108
         .with_volume_mapping(E2E_TESTDATA, "/sipi/config", "rw")
@@ -170,17 +188,15 @@ def _get_sipi_container(network: Network, version: str, counter: int) -> DockerC
     return sipi
 
 
-def _get_ingest_container(network: Network, version: str, counter: int) -> DockerContainer:
-    ingest_external_port = INGEST_INTERNAL_PORT + counter
-    api_external_port = API_INTERNAL_PORT + counter
+def _get_ingest_container(network: Network, version: str, ports: ContainerPorts) -> DockerContainer:
     ingest = (
         DockerContainer(f"daschswiss/dsp-ingest:{version}")
         .with_name("ingest")
         .with_network(network)
-        .with_bind_ports(host=ingest_external_port, container=INGEST_INTERNAL_PORT)
+        .with_bind_ports(host=ports.ingest_port, container=INGEST_INTERNAL_PORT)
         .with_env("STORAGE_ASSET_DIR", "/opt/images")
         .with_env("STORAGE_TEMP_DIR", "/opt/temp")
-        .with_env("JWT_ISSUER", f"http://api:{api_external_port}")
+        .with_env("JWT_ISSUER", f"http://api:{ports.api_port}")
         .with_env("JWT_SECRET", "UP 4888, nice 4-8-4 steam engine")
         .with_env("SIPI_USE_LOCAL_DEV", "false")
         .with_env("ALLOW_ERASE_PROJECTS", "true")
@@ -195,22 +211,21 @@ def _get_ingest_container(network: Network, version: str, counter: int) -> Docke
     return ingest
 
 
-def _get_api_container(network: Network, version: str, counter: int) -> DockerContainer:
-    api_external_port = API_INTERNAL_PORT + counter
+def _get_api_container(network: Network, version: str, ports: ContainerPorts) -> DockerContainer:
     api = (
         DockerContainer(f"daschswiss/knora-api:{version}")
         .with_name("api")
         .with_network(network)
         # other containers are addressed by their service name and their **internal** port
         .with_env("KNORA_WEBAPI_DSP_INGEST_BASE_URL", f"http://ingest:{INGEST_INTERNAL_PORT}")
-        .with_env("KNORA_WEBAPI_JWT_ISSUER", f"http://api:{api_external_port}")
-        .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", api_external_port)
+        .with_env("KNORA_WEBAPI_JWT_ISSUER", f"http://api:{ports.api_port}")
+        .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", ports.api_port)
         .with_env("KNORA_WEBAPI_TRIPLESTORE_HOST", "db")
         .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_REPOSITORY_NAME", "knora-test")
         .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_USERNAME", "admin")
         .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_PASSWORD", "test")
         .with_env("ALLOW_ERASE_PROJECTS", "true")
-        .with_bind_ports(host=api_external_port, container=API_INTERNAL_PORT)
+        .with_bind_ports(host=ports.api_port, container=API_INTERNAL_PORT)
     )
     api.start()
     wait_for_logs(api, "AppState set to Running")

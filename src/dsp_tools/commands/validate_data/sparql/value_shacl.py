@@ -62,11 +62,8 @@ def _add_property_shapes_to_class_shapes(onto: Graph) -> Graph:
       ?restriction a owl:Restriction ;          
           owl:onProperty ?propRestriction .
           
-      { ?propRestriction knora-api:objectType knora-api:TextValue }
-      UNION
-      { ?propRestriction knora-api:objectType knora-api:ListValue }
-      UNION
-      { ?propRestriction knora-api:isLinkProperty true }
+      ?propRestriction knora-api:isEditable true .
+      FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
 
       BIND(IRI(CONCAT(str(?propRestriction), "_PropShape")) AS ?propShapesIRI)
     }
@@ -87,13 +84,10 @@ def _construct_value_type_shapes_to_class_shapes(onto: Graph) -> Graph:
 
     CONSTRUCT {
 
-      ?class a sh:NodeShape ;
-             sh:property [
-                            a sh:PropertyShape ;
-                            sh:path ?propRestriction ;
-                            sh:class ?objectType ;
-                            sh:message ?objectTypeMessage ;
-                         ] .
+      ?shapesIRI a sh:PropertyShape ;
+                sh:path ?propRestriction ;
+                sh:class ?objectType ;
+                sh:message ?objectTypeMessage .
 
     } WHERE {
 
@@ -109,7 +103,8 @@ def _construct_value_type_shapes_to_class_shapes(onto: Graph) -> Graph:
 
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkProperty true }
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
-
+      
+      BIND(IRI(CONCAT(str(?propRestriction), "_PropShape")) AS ?shapesIRI)
       BIND(CONCAT("This property requires a ", STRAFTER(STR(?objectType), "#")) AS ?objectTypeMessage)
     }
     """
@@ -129,13 +124,10 @@ def _construct_link_value_type_shapes_to_class_shapes(onto: Graph) -> Graph:
 
     CONSTRUCT {
 
-      ?class a sh:NodeShape ;
-             sh:property [
-                            a sh:PropertyShape ;
-                            sh:path ?propRestriction ;
-                            sh:class knora-api:LinkValue ;
-                            sh:message "This property requires a LinkValue" ;
-                         ] .
+      ?shapesIRI a sh:PropertyShape ;
+                 sh:path ?propRestriction ;
+                 sh:class knora-api:LinkValue ;
+                 sh:message "This property requires a LinkValue" .
 
     } WHERE {
 
@@ -149,6 +141,7 @@ def _construct_link_value_type_shapes_to_class_shapes(onto: Graph) -> Graph:
       ?propRestriction knora-api:isEditable true ;
                        knora-api:isLinkProperty true .
 
+      BIND(IRI(CONCAT(str(?propRestriction), "_PropShape")) AS ?shapesIRI)
     }
     """
     if results_graph := onto.query(query_s).graph:

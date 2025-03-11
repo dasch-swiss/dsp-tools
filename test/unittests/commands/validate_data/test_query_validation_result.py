@@ -439,7 +439,7 @@ class TestQueryFileValueViolations:
         graphs, info = report_missing_file_value
         result = _query_one_without_detail(info, graphs, Graph())
         assert isinstance(result, ValidationResult)
-        assert result.violation_type == ViolationType.FILE_VALUE
+        assert result.violation_type == ViolationType.MIN_CARD
         assert result.res_iri == info.focus_node_iri
         assert result.res_class == info.focus_node_type
         assert result.property == KNORA_API.hasMovingImageFileValue

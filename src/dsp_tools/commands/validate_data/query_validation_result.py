@@ -8,7 +8,8 @@ from rdflib import Graph
 from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.constants import DASH
-from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROPERTIES, FILEVALUE_DETAIL_INFO
+from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROPERTIES
+from dsp_tools.commands.validate_data.constants import FILEVALUE_DETAIL_INFO
 from dsp_tools.commands.validate_data.constants import KNORA_API
 from dsp_tools.commands.validate_data.constants import SubjectObjectTypeAlias
 from dsp_tools.commands.validate_data.mappers import RESULT_TO_PROBLEM_MAPPER
@@ -28,7 +29,6 @@ from dsp_tools.commands.validate_data.utils import reformat_any_iri
 from dsp_tools.commands.validate_data.utils import reformat_data_iri
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
 from dsp_tools.models.exceptions import BaseError
-from unittests.commands.validate_data.test_get_user_validation_message import file_value
 
 LEGAL_INFO_PROPS = {KNORA_API.hasLicense, KNORA_API.hasCopyrightHolder, KNORA_API.hasAuthorship}
 
@@ -484,6 +484,7 @@ def _reformat_min_card(result: ValidationResult) -> InputProblem:
         input_type=_convert_rdflib_input_to_string(result.input_type),
         expected=_convert_rdflib_input_to_string(result.expected),
     )
+
 
 def _reformat_generic(
     result: ValidationResult, problem_type: ProblemType, prop_string: str | None = None

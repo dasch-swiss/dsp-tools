@@ -23,7 +23,7 @@ def construct_file_value_cardinality(onto: Graph) -> Graph:
     }
 
     def as_class_type_and_shacl_shape(cls_name: str) -> tuple[str, str]:
-        return f"knora-api:{cls_name}", f"api-shapes:{val_prop_mapper[cls_name]}_Cardinality"
+        return f"knora-api:{cls_name}", f"api-shapes:{val_prop_mapper[cls_name]}_PropShape"
 
     g = Graph()
     for t in val_prop_mapper.keys():

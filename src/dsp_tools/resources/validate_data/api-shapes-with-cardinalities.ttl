@@ -226,7 +226,7 @@ api-shapes:hasCopyrightHolder_Cardinality
 # ArchiveRepresentation
 ###########################
 
-api-shapes:hasArchiveFileValue_Cardinality
+api-shapes:hasArchiveFileValue_PropShape
   a           sh:PropertyShape ;
   sh:path     knora-api:hasArchiveFileValue ;
   sh:minCount 1 ;
@@ -267,7 +267,7 @@ api-shapes:ArchiveFileValue_ClassShape
 # AudioRepresentation
 ###########################
 
-api-shapes:hasAudioFileValue_Cardinality
+api-shapes:hasAudioFileValue_PropShape
   a           sh:PropertyShape ;
   sh:path     knora-api:hasAudioFileValue ;
   sh:minCount 1 ;
@@ -302,7 +302,7 @@ api-shapes:AudioFileValue_ClassShape
 # DocumentRepresentation
 ###########################
 
-api-shapes:hasDocumentFileValue_Cardinality
+api-shapes:hasDocumentFileValue_PropShape
   a           sh:PropertyShape ;
   sh:path     knora-api:hasDocumentFileValue ;
   sh:minCount 1 ;
@@ -343,7 +343,7 @@ api-shapes:DocumentFileValue_ClassShape
 # MovingImageRepresentation
 ###########################
 
-api-shapes:hasMovingImageFileValue_Cardinality
+api-shapes:hasMovingImageFileValue_PropShape
   a           sh:PropertyShape ;
   sh:path     knora-api:hasMovingImageFileValue ;
   sh:minCount 1 ;
@@ -378,7 +378,7 @@ api-shapes:MovingImageFileValue_ClassShape
 # StillImageRepresentation
 ###########################
 
-api-shapes:hasStillImageFileValue_Cardinality
+api-shapes:hasStillImageFileValue_PropShape
   a           sh:PropertyShape ;
   sh:path     knora-api:hasStillImageFileValue ;
   sh:xone     (
@@ -449,7 +449,7 @@ api-shapes:StillImageExternalFileValue_ClassShape
 # TextRepresentation
 ###########################
 
-api-shapes:hasTextFileValue_Cardinality
+api-shapes:hasTextFileValue_PropShape
   a           sh:PropertyShape ;
   sh:path     knora-api:hasTextFileValue ;
   sh:minCount 1 ;

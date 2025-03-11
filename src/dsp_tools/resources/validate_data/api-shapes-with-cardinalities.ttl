@@ -195,8 +195,8 @@ knora-api:VideoSegment
 # RESOURCES WITH FILES
 #########################################
 
-### Legal Info Properties
-api-shapes:hasLicense_PropShape
+### Legal Info Cardinalities
+api-shapes:hasLicense_Cardinality
   a           sh:PropertyShape ;
   sh:path     knora-api:hasLicense ;
   sh:minCount 1 ;
@@ -204,7 +204,7 @@ api-shapes:hasLicense_PropShape
   sh:severity sh:Violation ;
   sh:message  "Files and IIIF-URIs require a reference to a license." .
 
-api-shapes:hasAuthorship_PropShape
+api-shapes:hasAuthorship_Cardinality
   a           sh:PropertyShape ;
   sh:path     knora-api:hasAuthorship ;
   sh:datatype xsd:string ;
@@ -212,7 +212,7 @@ api-shapes:hasAuthorship_PropShape
   sh:severity sh:Violation ;
   sh:message  "Files and IIIF-URIs require at least one authorship." .
 
-api-shapes:hasCopyrightHolder_PropShape
+api-shapes:hasCopyrightHolder_Cardinality
   a           sh:PropertyShape ;
   sh:path     knora-api:hasCopyrightHolder ;
   sh:datatype xsd:string ;
@@ -229,8 +229,10 @@ api-shapes:hasCopyrightHolder_PropShape
 api-shapes:hasArchiveFileValue_PropShape
   a           sh:PropertyShape ;
   sh:path     knora-api:hasArchiveFileValue ;
+  sh:class    knora-api:ArchiveFileValue ;
   sh:minCount 1 ;
   sh:maxCount 1 ;
+  sh:severity sh:Violation ;
   sh:message  """
               An ArchiveRepresentation requires a file with one of the following extensions
               'zip', 'tar', 'gz', 'z', 'tgz', 'gzip', '7z'.
@@ -255,11 +257,11 @@ api-shapes:ArchiveFileValue_ClassShape
                                 """ ;
                   ] ,
                   api-shapes:hasPermissions_Cardinality ,
-                  api-shapes:hasLicense_PropShape ,
-                  api-shapes:hasAuthorship_PropShape ,
-                  api-shapes:hasCopyrightHolder_PropShape ;
-  sh:severity sh:Violation ;
-  sh:message     "ArchiveFileValue" .
+                  api-shapes:hasLicense_Cardinality ,
+                  api-shapes:hasAuthorship_Cardinality ,
+                  api-shapes:hasCopyrightHolder_Cardinality ;
+  sh:severity     sh:Violation ;
+  sh:message      "ArchiveFileValue" .
 
 
 ###########################
@@ -269,8 +271,10 @@ api-shapes:ArchiveFileValue_ClassShape
 api-shapes:hasAudioFileValue_PropShape
   a           sh:PropertyShape ;
   sh:path     knora-api:hasAudioFileValue ;
+  sh:class    knora-api:AudioFileValue ;
   sh:minCount 1 ;
   sh:maxCount 1 ;
+  sh:severity sh:Violation ;
   sh:message  "An AudioRepresentation requires a file with one of the following extensions 'mp3', 'wav'." .
 
 api-shapes:AudioFileValue_ClassShape
@@ -289,9 +293,9 @@ api-shapes:AudioFileValue_ClassShape
                     sh:message  "An AudioRepresentation requires a file with one of the following extensions 'mp3', 'wav'." ;
                   ] ,
                   api-shapes:hasPermissions_Cardinality ,
-                  api-shapes:hasLicense_PropShape ,
-                  api-shapes:hasAuthorship_PropShape ,
-                  api-shapes:hasCopyrightHolder_PropShape ;
+                  api-shapes:hasLicense_Cardinality ,
+                  api-shapes:hasAuthorship_Cardinality ,
+                  api-shapes:hasCopyrightHolder_Cardinality ;
   sh:severity     sh:Violation ;
   sh:message      "AudioFileValue" .
 
@@ -303,8 +307,10 @@ api-shapes:AudioFileValue_ClassShape
 api-shapes:hasDocumentFileValue_PropShape
   a           sh:PropertyShape ;
   sh:path     knora-api:hasDocumentFileValue ;
+  sh:class    knora-api:DocumentFileValue ;
   sh:minCount 1 ;
   sh:maxCount 1 ;
+  sh:severity sh:Violation ;
   sh:message  """
               A DocumentRepresentation requires a file with one of the following extensions
               'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'.
@@ -329,9 +335,9 @@ api-shapes:DocumentFileValue_ClassShape
                                 """ ;
                   ] ,
                   api-shapes:hasPermissions_Cardinality ,
-                  api-shapes:hasLicense_PropShape ,
-                  api-shapes:hasAuthorship_PropShape ,
-                  api-shapes:hasCopyrightHolder_PropShape ;
+                  api-shapes:hasLicense_Cardinality ,
+                  api-shapes:hasAuthorship_Cardinality ,
+                  api-shapes:hasCopyrightHolder_Cardinality ;
   sh:severity     sh:Violation ;
   sh:message      "DocumentFileValue" .
 
@@ -343,8 +349,10 @@ api-shapes:DocumentFileValue_ClassShape
 api-shapes:hasMovingImageFileValue_PropShape
   a           sh:PropertyShape ;
   sh:path     knora-api:hasMovingImageFileValue ;
+  sh:class    knora-api:MovingImageFileValue ;
   sh:minCount 1 ;
   sh:maxCount 1 ;
+  sh:severity sh:Violation ;
   sh:message  "A MovingImageRepresentation requires a file with the extension 'mp4'." .
 
 api-shapes:MovingImageFileValue_ClassShape
@@ -363,9 +371,9 @@ api-shapes:MovingImageFileValue_ClassShape
                     sh:message  "A MovingImageRepresentation requires a file with the extension 'mp4'." ;
                   ] ,
                   api-shapes:hasPermissions_Cardinality ,
-                  api-shapes:hasLicense_PropShape ,
-                  api-shapes:hasAuthorship_PropShape ,
-                  api-shapes:hasCopyrightHolder_PropShape ;
+                  api-shapes:hasLicense_Cardinality ,
+                  api-shapes:hasAuthorship_Cardinality ,
+                  api-shapes:hasCopyrightHolder_Cardinality ;
   sh:severity     sh:Violation ;
   sh:message      "MovingImageFileValue" .
 
@@ -378,8 +386,8 @@ api-shapes:hasStillImageFileValue_PropShape
   a           sh:PropertyShape ;
   sh:path     knora-api:hasStillImageFileValue ;
   sh:xone     (
-                [ sh:node api-shapes:StillImageFileValue_ClassShape ]
-                [ sh:node api-shapes:StillImageExternalFileValue_ClassShape ]
+                [ sh:class knora-api:StillImageFileValue ]
+                [ sh:class knora-api:StillImageExternalFileValue ]
               ) ;
   sh:minCount 1 ;
   sh:maxCount 1 ;
@@ -410,9 +418,9 @@ api-shapes:StillImageFileValue_ClassShape
                                 """ ;
                   ] ,
                   api-shapes:hasPermissions_Cardinality ,
-                  api-shapes:hasLicense_PropShape ,
-                  api-shapes:hasAuthorship_PropShape ,
-                  api-shapes:hasCopyrightHolder_PropShape ;
+                  api-shapes:hasLicense_Cardinality ,
+                  api-shapes:hasAuthorship_Cardinality ,
+                  api-shapes:hasCopyrightHolder_Cardinality ;
   sh:severity     sh:Violation ;
   sh:message     "StillImageFileValue" .
 
@@ -434,9 +442,9 @@ api-shapes:StillImageExternalFileValue_ClassShape
                     sh:message  "StillImageExternalFileValue requires an external IIIF-URI" ;
                   ] ,
                   api-shapes:hasPermissions_Cardinality ,
-                  api-shapes:hasLicense_PropShape ,
-                  api-shapes:hasAuthorship_PropShape ,
-                  api-shapes:hasCopyrightHolder_PropShape ;
+                  api-shapes:hasLicense_Cardinality ,
+                  api-shapes:hasAuthorship_Cardinality ,
+                  api-shapes:hasCopyrightHolder_Cardinality ;
   sh:severity     sh:Violation ;
   sh:message      "StillImageExternalFileValue" .
 
@@ -448,8 +456,10 @@ api-shapes:StillImageExternalFileValue_ClassShape
 api-shapes:hasTextFileValue_PropShape
   a           sh:PropertyShape ;
   sh:path     knora-api:hasTextFileValue ;
+  sh:class    knora-api:TextFileValue ;
   sh:minCount 1 ;
   sh:maxCount 1 ;
+  sh:severity sh:Violation ;
   sh:message  """
               A TextRepresentation requires a file with one of the following extensions
               'odd', 'rng', 'txt', 'xml', 'xsd', 'xsl', 'csv', 'json'.
@@ -474,8 +484,8 @@ api-shapes:TextFileValue_ClassShape
                                 """ ;
                   ] ,
                   api-shapes:hasPermissions_Cardinality ,
-                  api-shapes:hasLicense_PropShape ,
-                  api-shapes:hasAuthorship_PropShape ,
-                  api-shapes:hasCopyrightHolder_PropShape ;
+                  api-shapes:hasLicense_Cardinality ,
+                  api-shapes:hasAuthorship_Cardinality ,
+                  api-shapes:hasCopyrightHolder_Cardinality ;
   sh:severity     sh:Violation ;
   sh:message      "TextFileValue" .

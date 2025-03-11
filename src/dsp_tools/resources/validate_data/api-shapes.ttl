@@ -80,14 +80,28 @@ api-shapes:Resource_Shape
 # USER FACING VALUES
 ########################
 
+api-shapes:Value_ClassShape
+  a              sh:NodeShape ;
+  sh:targetClass knora-api:Value ;
+  sh:property    [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:valueHasComment ;
+                    sh:datatype xsd:string ;
+                    sh:pattern  "\\s*\\S+\\s*" ;
+                    sh:minCount 0 ;
+                    sh:maxCount 1 ;
+                    sh:severity sh:Violation ;
+                    sh:message  "The comment on the value must be a non-empty string" ;
+                 ] .
+
+
 ##############
 # BooleanValue
 api-shapes:BooleanValue_ClassShape
   a              sh:NodeShape ;
   sh:name        "Validates the properties used with this targetClass" ;
   sh:targetClass knora-api:BooleanValue ;
-  sh:property    api-shapes:booleanValueAsBoolean_Shape ,
-                 api-shapes:valueHasComment_Shape ;
+  sh:property    api-shapes:booleanValueAsBoolean_Shape ;
   sh:severity    sh:Violation ;
   sh:message     "BooleanValue" .
 
@@ -106,8 +120,7 @@ api-shapes:ColorValue_ClassShape
   a              sh:NodeShape ;
   sh:name        "Validates the properties used with this targetClass" ;
   sh:targetClass knora-api:ColorValue ;
-  sh:property    api-shapes:colorValueAsColor_Shape ,
-                 api-shapes:valueHasComment_Shape ;
+  sh:property    api-shapes:colorValueAsColor_Shape ;
   sh:severity    sh:Violation ;
   sh:message     "ColorValue" .
 
@@ -127,8 +140,7 @@ api-shapes:DateValue_ClassShape
   a              sh:NodeShape ;
   sh:name        "Validates the properties used with this targetClass" ;
   sh:targetClass knora-api:DateValue ;
-  sh:property    api-shapes:valueAsString_DateValueShape ,
-                 api-shapes:valueHasComment_Shape ;
+  sh:property    api-shapes:valueAsString_DateValueShape ;
   sh:severity    sh:Violation ;
   sh:message     "DateValue" .
 
@@ -150,8 +162,7 @@ api-shapes:DecimalValue_ClassShape
   a              sh:NodeShape ;
   sh:name        "Validates the properties used with this targetClass" ;
   sh:targetClass knora-api:DecimalValue ;
-  sh:property    api-shapes:decimalValueAsDecimal_Shape ,
-                 api-shapes:valueHasComment_Shape ;
+  sh:property    api-shapes:decimalValueAsDecimal_Shape ;
   sh:severity    sh:Violation ;
   sh:message     "DecimalValue" .
 
@@ -170,8 +181,7 @@ api-shapes:GeonameValue_ClassShape
   a              sh:NodeShape ;
   sh:name        "Validates the properties used with this targetClass" ;
   sh:targetClass knora-api:GeonameValue ;
-  sh:property    api-shapes:geonameValueAsGeonameCode_Shape ,
-                 api-shapes:valueHasComment_Shape ;
+  sh:property    api-shapes:geonameValueAsGeonameCode_Shape ;
   sh:severity    sh:Violation ;
   sh:message     "GeonameValue" .
 
@@ -191,8 +201,7 @@ api-shapes:GeomValue_ClassShape
   a              sh:NodeShape ;
   sh:name        "Validates the properties used with this targetClass" ;
   sh:targetClass knora-api:GeomValue ;
-  sh:property    api-shapes:geometryValueAsGeometry_Shape ,
-                 api-shapes:valueHasComment_Shape ;
+  sh:property    api-shapes:geometryValueAsGeometry_Shape ;
   sh:severity    sh:Violation ;
   sh:message     "GeomValue" .
 
@@ -218,7 +227,6 @@ api-shapes:IntervalValue_ClassShape
                    sh:severity sh:Violation ;
                    sh:message "The start of the interval must be smaller than the end." ;
                  ] ,
-                 api-shapes:valueHasComment_Shape ,
                  api-shapes:intervalValueHasStart_PropShape ,
                  api-shapes:intervalValueHasEnd_PropShape ;
   sh:severity    sh:Violation ;
@@ -252,8 +260,7 @@ api-shapes:IntValue_ClassShape
   a              sh:NodeShape ;
   sh:name        "Validates the properties used with this targetClass" ;
   sh:targetClass knora-api:IntValue ;
-  sh:property    api-shapes:intValueAsInt_Shape ,
-                 api-shapes:valueHasComment_Shape ;
+  sh:property    api-shapes:intValueAsInt_Shape ;
   sh:severity    sh:Violation ;
   sh:message     "IntValue" .
 
@@ -271,39 +278,15 @@ api-shapes:intValueAsInt_Shape
 
 # The target of the LinkValue is ontology specific.
 # The Shape is constructed through the SPARQL queries
-api-shapes:LinkValue_ClassShape
-  a              sh:NodeShape ;
-  sh:name        "Validates the metadata properties used with this targetClass" ;
-  sh:targetClass knora-api:LinkValue ;
-  sh:property    api-shapes:valueHasComment_Shape ;
-  sh:severity    sh:Violation ;
-  sh:message     "LinkValue" .
 
 ##############
 # ListValue
 
 # The target of the ListValue is ontology specific.
 # The Shape is constructed through the SPARQL queries
-api-shapes:ListValue_ClassShape
-  a              sh:NodeShape ;
-  sh:name        "Validates the metadata properties used with this targetClass" ;
-  sh:targetClass knora-api:ListValue ;
-  sh:property    api-shapes:valueHasComment_Shape ;
-  sh:severity    sh:Violation ;
-  sh:message     "ListValue" .
 
 ##############
 # TextValue
-
-# This validates the metadata of the TextValue
-# It cannot give information if it is the correct TextValue type
-api-shapes:TextValue_ClassShape
-  a              sh:NodeShape ;
-  sh:name        "Validates the metadata properties used with this targetClass" ;
-  sh:targetClass knora-api:TextValue ;
-  sh:property    api-shapes:valueHasComment_Shape ;
-  sh:severity    sh:Violation ;
-  sh:message     "TextValue" .
 
 ###
 # SimpleTextValue
@@ -342,8 +325,7 @@ api-shapes:FormattedTextValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Ensures that the properties for a formatted text value are used" ;
   sh:property api-shapes:FormattedTextValue_PropShape ,
-              api-shapes:textValueAsXml_Shape ,
-              api-shapes:valueHasComment_Shape ;
+              api-shapes:textValueAsXml_Shape ;
   sh:severity sh:Violation .
 
 # Because it is not a separate class we have to check the cardinality of the property
@@ -370,8 +352,7 @@ api-shapes:TimeValue_ClassShape
   a              sh:NodeShape ;
   sh:name        "Validates the properties used with this targetClass" ;
   sh:targetClass knora-api:TimeValue ;
-  sh:property    api-shapes:timeValueAsTimeStamp_Shape ,
-                 api-shapes:valueHasComment_Shape ;
+  sh:property    api-shapes:timeValueAsTimeStamp_Shape ;
   sh:severity    sh:Violation ;
   sh:message     "TimeValue" .
 
@@ -390,8 +371,7 @@ api-shapes:UriValue_ClassShape
   a              sh:NodeShape ;
   sh:name        "Validates the properties used with this targetClass" ;
   sh:targetClass knora-api:UriValue ;
-  sh:property    api-shapes:uriValueAsUri_Shape ,
-                 api-shapes:valueHasComment_Shape ;
+  sh:property    api-shapes:uriValueAsUri_Shape ;
   sh:severity    sh:Violation ;
   sh:message     "UriValue" .
 
@@ -456,19 +436,6 @@ api-shapes:hasComment_PropertyShape
   a       sh:PropertyShape ;
   sh:path knora-api:hasComment ;
   sh:node api-shapes:FormattedTextValue_ClassShape .
-
-
-### knora-api:valueHasComment
-
-api-shapes:valueHasComment_Shape
-  a           sh:PropertyShape ;
-  sh:path     knora-api:valueHasComment ;
-  sh:datatype xsd:string ;
-  sh:pattern  "\\s*\\S+\\s*" ;
-  sh:minCount 0 ;
-  sh:maxCount 1 ;
-  sh:severity sh:Violation ;
-  sh:message  "The comment on the value must be a non-empty string" .
 
 
 ### knora-api:hasColor

@@ -2,6 +2,7 @@ import socket
 import subprocess
 from contextlib import contextmanager
 from dataclasses import dataclass
+from itertools import count
 from pathlib import Path
 from typing import Iterator
 from uuid import uuid4
@@ -18,6 +19,7 @@ TMP_SIPI = E2E_TESTDATA / "tmp-dsp-sipi"
 TMP_INGEST = E2E_TESTDATA / "tmp-dsp-ingest"
 INGEST_DB = E2E_TESTDATA / "ingest-db"
 
+TESTCONTAINER_PORTS_LOCKFILES = Path("test/e2e/testcontainer_port_lockfiles")
 API_INTERNAL_PORT = 3333
 INGEST_INTERNAL_PORT = 3340
 SIPI_INTERNAL_PORT = 1024
@@ -77,7 +79,7 @@ def get_containers() -> Iterator[ContainerPorts]:
         raise RuntimeError("Docker is not running properly")
     with Network() as network:
         ports = _get_ports()
-        prefix = f"testcontainer-{uuid4()}"
+        prefix = f"testcontainer-{str(uuid4())[:6]}"
         names = ContainerNames(f"{prefix}-db", f"{prefix}-sipi", f"{prefix}-ingest", f"{prefix}-api")
         containers = _get_all_containers(network, ports, names)
         try:
@@ -87,13 +89,24 @@ def get_containers() -> Iterator[ContainerPorts]:
 
 
 def _get_ports() -> ContainerPorts:
-    def _is_port_free(port: int) -> bool:
+    def _reserve_port(port: int) -> bool:
         with socket.socket() as s:
-            return s.connect_ex(("localhost", port)) != 0
+            if s.connect_ex(("localhost", port)) == 0:
+                return False
+        try:
+            (TESTCONTAINER_PORTS_LOCKFILES / str(port)).touch(exist_ok=False)
+        except FileExistsError:
+            return False
+        return True
 
-    port_window = [1025, 1026, 1027, 1028]
-    while not all(_is_port_free(x) for x in port_window):
-        port_window = [x + 1 for x in port_window]
+    num_of_ports_needed = 4
+    port_window: list[int] = []
+    for port in count(1025):
+        if len(port_window) == num_of_ports_needed:
+            break
+        if _reserve_port(port):
+            port_window.append(port)
+
     return ContainerPorts(*port_window)
 
 

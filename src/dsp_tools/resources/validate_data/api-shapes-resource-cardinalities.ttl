@@ -24,7 +24,7 @@ api-shapes:hasPermissions_Cardinality
   sh:minCount 0 ;
   sh:maxCount 1 ;
   sh:severity sh:Violation ;
-  sh:message  "The resource or value may have at most one permission." .
+  sh:message  "The resource may have at most one permission." .
 
 
 #########################################
@@ -192,39 +192,8 @@ knora-api:VideoSegment
 
 
 #########################################
-# RESOURCES WITH FILES
+# PROPERTY SHAPES FOR REPRESENTATIONS
 #########################################
-
-### Legal Info Cardinalities
-api-shapes:hasLicense_Cardinality
-  a           sh:PropertyShape ;
-  sh:path     knora-api:hasLicense ;
-  sh:minCount 1 ;
-  sh:maxCount 1 ;
-  sh:severity sh:Violation ;
-  sh:message  "Files and IIIF-URIs require a reference to a license." .
-
-api-shapes:hasAuthorship_Cardinality
-  a           sh:PropertyShape ;
-  sh:path     knora-api:hasAuthorship ;
-  sh:datatype xsd:string ;
-  sh:minCount 1 ;
-  sh:severity sh:Violation ;
-  sh:message  "Files and IIIF-URIs require at least one authorship." .
-
-api-shapes:hasCopyrightHolder_Cardinality
-  a           sh:PropertyShape ;
-  sh:path     knora-api:hasCopyrightHolder ;
-  sh:datatype xsd:string ;
-  sh:minCount 1 ;
-  sh:maxCount 1 ;
-  sh:severity sh:Violation ;
-  sh:message  "Files and IIIF-URIs require a copyright holder." .
-
-
-###########################
-# ArchiveRepresentation
-###########################
 
 api-shapes:hasArchiveFileValue_PropShape
   a           sh:PropertyShape ;
@@ -238,36 +207,6 @@ api-shapes:hasArchiveFileValue_PropShape
               'zip', 'tar', 'gz', 'z', 'tgz', 'gzip', '7z'.
               """ .
 
-api-shapes:ArchiveFileValue_ClassShape
-  a              sh:NodeShape ;
-  sh:name        "Validates the class type" ;
-  sh:targetClass knora-api:ArchiveFileValue ;
-  sh:property    [
-                    a           sh:PropertyShape ;
-                    sh:path     knora-api:fileValueHasFilename ;
-                    sh:datatype xsd:string ;
-                    sh:pattern  ".+\\.(zip|tar|gz|z|tgz|gzip|7z)$" ;
-                    sh:flags    "i" ; # case insensitive
-                    sh:minCount 1 ;
-                    sh:maxCount 1 ;
-                    sh:severity sh:Violation ;
-                    sh:message  """
-                                An ArchiveRepresentation requires a file with one of the following extensions
-                                'zip', 'tar', 'gz', 'z', 'tgz', 'gzip', '7z'.
-                                """ ;
-                  ] ,
-                  api-shapes:hasPermissions_Cardinality ,
-                  api-shapes:hasLicense_Cardinality ,
-                  api-shapes:hasAuthorship_Cardinality ,
-                  api-shapes:hasCopyrightHolder_Cardinality ;
-  sh:severity     sh:Violation ;
-  sh:message      "ArchiveFileValue" .
-
-
-###########################
-# AudioRepresentation
-###########################
-
 api-shapes:hasAudioFileValue_PropShape
   a           sh:PropertyShape ;
   sh:path     knora-api:hasAudioFileValue ;
@@ -276,33 +215,6 @@ api-shapes:hasAudioFileValue_PropShape
   sh:maxCount 1 ;
   sh:severity sh:Violation ;
   sh:message  "An AudioRepresentation requires a file with one of the following extensions 'mp3', 'wav'." .
-
-api-shapes:AudioFileValue_ClassShape
-  a              sh:NodeShape ;
-  sh:name        "Validates the class type" ;
-  sh:targetClass knora-api:AudioFileValue ;
-  sh:property    [
-                    a           sh:PropertyShape ;
-                    sh:path     knora-api:fileValueHasFilename ;
-                    sh:datatype xsd:string ;
-                    sh:pattern  ".+\\.(mp3|wav)$" ;
-                    sh:flags    "i" ; # case insensitive
-                    sh:minCount 1 ;
-                    sh:maxCount 1 ;
-                    sh:severity sh:Violation ;
-                    sh:message  "An AudioRepresentation requires a file with one of the following extensions 'mp3', 'wav'." ;
-                  ] ,
-                  api-shapes:hasPermissions_Cardinality ,
-                  api-shapes:hasLicense_Cardinality ,
-                  api-shapes:hasAuthorship_Cardinality ,
-                  api-shapes:hasCopyrightHolder_Cardinality ;
-  sh:severity     sh:Violation ;
-  sh:message      "AudioFileValue" .
-
-
-###########################
-# DocumentRepresentation
-###########################
 
 api-shapes:hasDocumentFileValue_PropShape
   a           sh:PropertyShape ;
@@ -316,36 +228,6 @@ api-shapes:hasDocumentFileValue_PropShape
               'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'.
               """ .
 
-api-shapes:DocumentFileValue_ClassShape
-  a              sh:NodeShape ;
-  sh:name        "Validates the class type" ;
-  sh:targetClass knora-api:DocumentFileValue ;
-  sh:property    [
-                    a           sh:PropertyShape ;
-                    sh:path     knora-api:fileValueHasFilename ;
-                    sh:datatype xsd:string ;
-                    sh:pattern  ".+\\.(pdf|doc|docx|xls|xlsx|ppt|pptx)$" ;
-                    sh:flags    "i" ; # case insensitive
-                    sh:minCount 1 ;
-                    sh:maxCount 1 ;
-                    sh:severity sh:Violation ;
-                    sh:message  """
-                                A DocumentRepresentation requires a file with one of the following extensions
-                                'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'.
-                                """ ;
-                  ] ,
-                  api-shapes:hasPermissions_Cardinality ,
-                  api-shapes:hasLicense_Cardinality ,
-                  api-shapes:hasAuthorship_Cardinality ,
-                  api-shapes:hasCopyrightHolder_Cardinality ;
-  sh:severity     sh:Violation ;
-  sh:message      "DocumentFileValue" .
-
-
-###########################
-# MovingImageRepresentation
-###########################
-
 api-shapes:hasMovingImageFileValue_PropShape
   a           sh:PropertyShape ;
   sh:path     knora-api:hasMovingImageFileValue ;
@@ -354,33 +236,6 @@ api-shapes:hasMovingImageFileValue_PropShape
   sh:maxCount 1 ;
   sh:severity sh:Violation ;
   sh:message  "A MovingImageRepresentation requires a file with the extension 'mp4'." .
-
-api-shapes:MovingImageFileValue_ClassShape
-  a              sh:NodeShape ;
-  sh:name        "Validates the class type" ;
-  sh:targetClass knora-api:MovingImageFileValue ;
-  sh:property    [
-                    a           sh:PropertyShape ;
-                    sh:path     knora-api:fileValueHasFilename ;
-                    sh:datatype xsd:string ;
-                    sh:pattern  ".+\\.mp4$" ;
-                    sh:flags    "i" ; # case insensitive
-                    sh:minCount 1 ;
-                    sh:maxCount 1 ;
-                    sh:severity sh:Violation ;
-                    sh:message  "A MovingImageRepresentation requires a file with the extension 'mp4'." ;
-                  ] ,
-                  api-shapes:hasPermissions_Cardinality ,
-                  api-shapes:hasLicense_Cardinality ,
-                  api-shapes:hasAuthorship_Cardinality ,
-                  api-shapes:hasCopyrightHolder_Cardinality ;
-  sh:severity     sh:Violation ;
-  sh:message      "MovingImageFileValue" .
-
-
-###########################
-# StillImageRepresentation
-###########################
 
 api-shapes:hasStillImageFileValue_PropShape
   a           sh:PropertyShape ;
@@ -396,63 +251,6 @@ api-shapes:hasStillImageFileValue_PropShape
               'jpg', 'jpeg', 'png', 'tif', 'tiff', 'jp2'.
               """ .
 
-###
-# StillImageFileValue
-
-api-shapes:StillImageFileValue_ClassShape
-  a              sh:NodeShape ;
-  sh:name        "Validates the class type" ;
-  sh:targetClass knora-api:StillImageFileValue ;
-  sh:property    [
-                    a           sh:PropertyShape ;
-                    sh:path     knora-api:fileValueHasFilename ;
-                    sh:datatype xsd:string ;
-                    sh:pattern  ".+\\.(jpg|jpeg|png|tif|tiff|jp2|jpx)$" ; # jpx is the extension of the files returned by dsp-ingest
-                    sh:flags    "i" ; # case insensitive
-                    sh:minCount 1 ;
-                    sh:maxCount 1 ;
-                    sh:severity sh:Violation ;
-                    sh:message  """
-                                A StillImageFileValue requires a file with one of the extensions:
-                                'jpg', 'jpeg', 'png', 'tif', 'tiff', 'jp2'.
-                                """ ;
-                  ] ,
-                  api-shapes:hasPermissions_Cardinality ,
-                  api-shapes:hasLicense_Cardinality ,
-                  api-shapes:hasAuthorship_Cardinality ,
-                  api-shapes:hasCopyrightHolder_Cardinality ;
-  sh:severity     sh:Violation ;
-  sh:message     "StillImageFileValue" .
-
-
-###
-# StillImageExternalFileValue
-
-api-shapes:StillImageExternalFileValue_ClassShape
-  a              sh:NodeShape ;
-  sh:name        "Validates the class type" ;
-  sh:targetClass knora-api:StillImageExternalFileValue ;
-  sh:property    [
-                    a           sh:PropertyShape ;
-                    sh:path     knora-api:stillImageFileValueHasExternalUrl ;
-                    sh:datatype xsd:anyURI ;
-                    sh:minCount 1 ;
-                    sh:maxCount 1 ;
-                    sh:severity sh:Violation ;
-                    sh:message  "StillImageExternalFileValue requires an external IIIF-URI" ;
-                  ] ,
-                  api-shapes:hasPermissions_Cardinality ,
-                  api-shapes:hasLicense_Cardinality ,
-                  api-shapes:hasAuthorship_Cardinality ,
-                  api-shapes:hasCopyrightHolder_Cardinality ;
-  sh:severity     sh:Violation ;
-  sh:message      "StillImageExternalFileValue" .
-
-
-###########################
-# TextRepresentation
-###########################
-
 api-shapes:hasTextFileValue_PropShape
   a           sh:PropertyShape ;
   sh:path     knora-api:hasTextFileValue ;
@@ -465,27 +263,3 @@ api-shapes:hasTextFileValue_PropShape
               'odd', 'rng', 'txt', 'xml', 'xsd', 'xsl', 'csv', 'json'.
               """ .
 
-api-shapes:TextFileValue_ClassShape
-  a              sh:NodeShape ;
-  sh:name        "Validates the class type" ;
-  sh:targetClass knora-api:TextFileValue ;
-  sh:property    [
-                    a           sh:PropertyShape ;
-                    sh:path     knora-api:fileValueHasFilename ;
-                    sh:datatype xsd:string ;
-                    sh:pattern  ".+\\.(odd|rng|txt|xml|xsd|xsl|csv|json)$" ;
-                    sh:flags    "i" ; # case insensitive
-                    sh:minCount 1 ;
-                    sh:maxCount 1 ;
-                    sh:severity sh:Violation ;
-                    sh:message  """
-                                A TextRepresentation requires a file with one of the following extensions
-                                'odd', 'rng', 'txt', 'xml', 'xsd', 'xsl', 'csv', 'json'.
-                                """ ;
-                  ] ,
-                  api-shapes:hasPermissions_Cardinality ,
-                  api-shapes:hasLicense_Cardinality ,
-                  api-shapes:hasAuthorship_Cardinality ,
-                  api-shapes:hasCopyrightHolder_Cardinality ;
-  sh:severity     sh:Violation ;
-  sh:message      "TextFileValue" .

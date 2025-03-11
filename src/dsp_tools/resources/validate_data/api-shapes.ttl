@@ -48,7 +48,7 @@ api-shapes:UniqueValue_Shape
 
 
 ########################
-# Generic Resource Shape
+# GENERIC RESOURCE SHAPE
 ########################
 
 api-shapes:Resource_Shape
@@ -60,8 +60,6 @@ api-shapes:Resource_Shape
                     sh:path     rdfs:label ;
                     sh:datatype xsd:string ;
                     sh:pattern  "\\s*\\S+\\s*" ;
-                    sh:minCount 1 ;
-                    sh:maxCount 1 ;
                     sh:severity sh:Violation ;
                     sh:message  "The label must be a non-empty string" ;
                   ] ,
@@ -94,8 +92,7 @@ api-shapes:Value_ClassShape
                     sh:message  "The comment on the value must be a non-empty string" ;
                  ] .
 
-##############
-# BooleanValue
+
 api-shapes:BooleanValue_ClassShape
   a              sh:NodeShape ;
   sh:name        "Validates the properties used with this targetClass" ;
@@ -110,8 +107,6 @@ api-shapes:BooleanValue_ClassShape
                     sh:message  "A BooleanValue requires exactly one valid boolean" ;
                  ] .
 
-##############
-# ColorValue
 api-shapes:ColorValue_ClassShape
   a              sh:NodeShape ;
   sh:name        "Validates the properties used with this targetClass" ;
@@ -127,8 +122,6 @@ api-shapes:ColorValue_ClassShape
                     sh:message  "A ColorValue requires exactly one valid color" ;
                  ] .
 
-##############
-# DateValue
 api-shapes:DateValue_ClassShape
   a              sh:NodeShape ;
   sh:name        "Validates the properties used with this targetClass" ;
@@ -146,8 +139,6 @@ api-shapes:DateValue_ClassShape
                     sh:message  "A DateValue requires a valid Date" ;
                  ] .
 
-##############
-# DecimalValue
 api-shapes:DecimalValue_ClassShape
   a              sh:NodeShape ;
   sh:name        "Validates the properties used with this targetClass" ;
@@ -162,8 +153,6 @@ api-shapes:DecimalValue_ClassShape
                     sh:message  "A DecimalValue requires exactly one valid decimal"
                  ] .
 
-##############
-# GeonameValue
 api-shapes:GeonameValue_ClassShape
   a              sh:NodeShape ;
   sh:name        "Validates the properties used with this targetClass" ;
@@ -179,8 +168,6 @@ api-shapes:GeonameValue_ClassShape
                     sh:message  "The value must be a valid geoname code" ;
                  ] .
 
-##############
-# GeomValue
 api-shapes:GeomValue_ClassShape
   a              sh:NodeShape ;
   sh:name        "Validates the properties used with this targetClass" ;
@@ -196,8 +183,6 @@ api-shapes:GeomValue_ClassShape
                     sh:message  "The value must be a valid geometry JSON object" ;
                  ] .
 
-##############
-# IntervalValue
 api-shapes:IntervalValue_ClassShape
   a              sh:NodeShape ;
   sh:name        "Validates the properties used with this targetClass" ;
@@ -230,8 +215,6 @@ api-shapes:IntervalValue_ClassShape
                      sh:message "The start of the interval must be smaller than the end." ;
                  ] .
 
-##############
-# IntValue
 api-shapes:IntValue_ClassShape
   a              sh:NodeShape ;
   sh:name        "Validates the properties used with this targetClass" ;
@@ -248,23 +231,15 @@ api-shapes:IntValue_ClassShape
 
 ##############
 # LinkValue
-
 # The target of the LinkValue is ontology specific.
 # The Shape is constructed through the SPARQL queries
 
 ##############
 # ListValue
-
 # The target of the ListValue is ontology specific.
 # The Shape is constructed through the SPARQL queries
 
-##############
-# TextValue
 
-###
-# SimpleTextValue
-
-# This validates that the Simple TextValue is correct
 api-shapes:SimpleTextValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Ensures that the properties for a simple text value are used" ;
@@ -287,10 +262,6 @@ api-shapes:SimpleTextValue_ClassShape
                   sh:message  "The value must be a non-empty string"
               ] .
 
-###
-# FormattedTextValue
-
-# This validates that the Rich TextValue is correct
 api-shapes:FormattedTextValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Ensures that the properties for a formatted text value are used" ;
@@ -313,8 +284,6 @@ api-shapes:FormattedTextValue_ClassShape
                   sh:message  "The value must be a non-empty string" ;
               ] .
 
-##############
-# TimeValue
 api-shapes:TimeValue_ClassShape
   a              sh:NodeShape ;
   sh:name        "Validates the properties used with this targetClass" ;
@@ -329,8 +298,6 @@ api-shapes:TimeValue_ClassShape
                     sh:message  "A TimeValue requires exactly one valid xsd:dateTimeStamp"
                  ] .
 
-##############
-# UriValue
 api-shapes:UriValue_ClassShape
   a              sh:NodeShape ;
   sh:name        "Validates the properties used with this targetClass" ;
@@ -344,6 +311,171 @@ api-shapes:UriValue_ClassShape
                     sh:severity sh:Violation ;
                     sh:message  "A UriValue requires exactly one valid xsd:anyURI" ;
                  ] .
+
+
+#########################################
+# FILEVALUE
+#########################################
+
+api-shapes:FileValue_ClassShape
+  a              sh:NodeShape ;
+  sh:targetClass knora-api:FileValue ;
+  sh:property    [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:hasPermissions ;
+                    sh:minCount 0 ;
+                    sh:maxCount 1 ;
+                    sh:severity sh:Violation ;
+                    sh:message  "A FileValue may have at most one permission." ;
+                  ] ,
+                  [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:hasLicense ;
+                    sh:minCount 1 ;
+                    sh:maxCount 1 ;
+                    sh:severity sh:Violation ;
+                    sh:message  "Files and IIIF-URIs require a reference to a license." ;
+                  ] ,
+                  [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:hasAuthorship ;
+                    sh:datatype xsd:string ;
+                    sh:minCount 1 ;
+                    sh:severity sh:Violation ;
+                    sh:message  "Files and IIIF-URIs require at least one authorship." ;
+                  ] ,
+                  [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:hasCopyrightHolder ;
+                    sh:datatype xsd:string ;
+                    sh:minCount 1 ;
+                    sh:maxCount 1 ;
+                    sh:severity sh:Violation ;
+                    sh:message  "Files and IIIF-URIs require a copyright holder." ;
+                  ] .
+
+
+api-shapes:ArchiveFileValue_ClassShape
+  a              sh:NodeShape ;
+  sh:name        "Validates the class type" ;
+  sh:targetClass knora-api:ArchiveFileValue ;
+  sh:property    [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:fileValueHasFilename ;
+                    sh:datatype xsd:string ;
+                    sh:pattern  ".+\\.(zip|tar|gz|z|tgz|gzip|7z)$" ;
+                    sh:flags    "i" ; # case insensitive
+                    sh:minCount 1 ;
+                    sh:maxCount 1 ;
+                    sh:severity sh:Violation ;
+                    sh:message  """
+                                An ArchiveRepresentation requires a file with one of the following extensions
+                                'zip', 'tar', 'gz', 'z', 'tgz', 'gzip', '7z'.
+                                """ ;
+                  ] .
+
+api-shapes:AudioFileValue_ClassShape
+  a              sh:NodeShape ;
+  sh:name        "Validates the class type" ;
+  sh:targetClass knora-api:AudioFileValue ;
+  sh:property    [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:fileValueHasFilename ;
+                    sh:datatype xsd:string ;
+                    sh:pattern  ".+\\.(mp3|wav)$" ;
+                    sh:flags    "i" ; # case insensitive
+                    sh:minCount 1 ;
+                    sh:maxCount 1 ;
+                    sh:severity sh:Violation ;
+                    sh:message  "An AudioRepresentation requires a file with one of the following extensions 'mp3', 'wav'." ;
+                  ] .
+
+api-shapes:DocumentFileValue_ClassShape
+  a              sh:NodeShape ;
+  sh:name        "Validates the class type" ;
+  sh:targetClass knora-api:DocumentFileValue ;
+  sh:property    [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:fileValueHasFilename ;
+                    sh:datatype xsd:string ;
+                    sh:pattern  ".+\\.(pdf|doc|docx|xls|xlsx|ppt|pptx)$" ;
+                    sh:flags    "i" ; # case insensitive
+                    sh:minCount 1 ;
+                    sh:maxCount 1 ;
+                    sh:severity sh:Violation ;
+                    sh:message  """
+                                A DocumentRepresentation requires a file with one of the following extensions
+                                'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'.
+                                """ ;
+                  ] .
+
+api-shapes:MovingImageFileValue_ClassShape
+  a              sh:NodeShape ;
+  sh:name        "Validates the class type" ;
+  sh:targetClass knora-api:MovingImageFileValue ;
+  sh:property    [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:fileValueHasFilename ;
+                    sh:datatype xsd:string ;
+                    sh:pattern  ".+\\.mp4$" ;
+                    sh:flags    "i" ; # case insensitive
+                    sh:minCount 1 ;
+                    sh:maxCount 1 ;
+                    sh:severity sh:Violation ;
+                    sh:message  "A MovingImageRepresentation requires a file with the extension 'mp4'." ;
+                  ] .
+
+api-shapes:StillImageFileValue_ClassShape
+  a              sh:NodeShape ;
+  sh:name        "Validates the class type" ;
+  sh:targetClass knora-api:StillImageFileValue ;
+  sh:property    [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:fileValueHasFilename ;
+                    sh:datatype xsd:string ;
+                    sh:pattern  ".+\\.(jpg|jpeg|png|tif|tiff|jp2|jpx)$" ; # jpx is the extension of the files returned by dsp-ingest
+                    sh:flags    "i" ; # case insensitive
+                    sh:minCount 1 ;
+                    sh:maxCount 1 ;
+                    sh:severity sh:Violation ;
+                    sh:message  """
+                                A StillImageFileValue requires a file with one of the extensions:
+                                'jpg', 'jpeg', 'png', 'tif', 'tiff', 'jp2'.
+                                """ ;
+                  ] .
+
+api-shapes:StillImageExternalFileValue_ClassShape
+  a              sh:NodeShape ;
+  sh:name        "Validates the class type" ;
+  sh:targetClass knora-api:StillImageExternalFileValue ;
+  sh:property    [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:stillImageFileValueHasExternalUrl ;
+                    sh:datatype xsd:anyURI ;
+                    sh:minCount 1 ;
+                    sh:maxCount 1 ;
+                    sh:severity sh:Violation ;
+                    sh:message  "StillImageExternalFileValue requires an external IIIF-URI" ;
+                  ] .
+
+api-shapes:TextFileValue_ClassShape
+  a              sh:NodeShape ;
+  sh:name        "Validates the class type" ;
+  sh:targetClass knora-api:TextFileValue ;
+  sh:property    [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:fileValueHasFilename ;
+                    sh:datatype xsd:string ;
+                    sh:pattern  ".+\\.(odd|rng|txt|xml|xsd|xsl|csv|json)$" ;
+                    sh:flags    "i" ; # case insensitive
+                    sh:minCount 1 ;
+                    sh:maxCount 1 ;
+                    sh:severity sh:Violation ;
+                    sh:message  """
+                                A TextRepresentation requires a file with one of the following extensions
+                                'odd', 'rng', 'txt', 'xml', 'xsd', 'xsl', 'csv', 'json'.
+                                """ ;
+                  ] .
 
 #########################################
 # KNORA-API IN-BUILT PROPERTIES

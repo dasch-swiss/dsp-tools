@@ -55,18 +55,6 @@ FILE_VALUE_PROPERTIES = {
     KNORA_API.hasAuthorship,
 }
 
-VALUE_CLASS_SHAPES = {
-    API_SHAPES.BooleanValue_ClassShape,
-    API_SHAPES.ColorValue_ClassShape,
-    API_SHAPES.DateValue_ClassShape,
-    API_SHAPES.DecimalValue_ClassShape,
-    API_SHAPES.GeonameValue_ClassShape,
-    API_SHAPES.IntValue_ClassShape,
-    API_SHAPES.LinkValue_ClassShape,
-    API_SHAPES.ListValue_ClassShape,
-    API_SHAPES.TimeValue_ClassShape,
-    API_SHAPES.UriValue_ClassShape,
-}
 
 FILE_VALUE_PROP_SHAPES = {
     API_SHAPES.hasArchiveFileValue_PropShape,

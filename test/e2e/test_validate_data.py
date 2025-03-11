@@ -170,13 +170,12 @@ def test_extract_identifiers_of_resource_results(every_combination_once: Validat
         (URIRef("http://data/bitstream_no_legal_info"), None),
         (URIRef("http://data/bitstream_no_legal_info"), None),
         (URIRef("http://data/empty_label"), None),
-        (URIRef("http://data/geoname_not_number"), BNode),
+        (URIRef("http://data/geoname_not_number"), None),
         (URIRef("http://data/id_card_one"), None),
         (URIRef("http://data/id_closed_constraint"), None),
         (URIRef("http://data/id_max_card"), None),
         (URIRef("http://data/id_missing_file_value"), None),
         (URIRef("http://data/identical_values"), None),
-        (URIRef("http://data/image_no_legal_info"), None),
         (URIRef("http://data/image_no_legal_info"), None),
         (URIRef("http://data/image_no_legal_info"), None),
         (URIRef("http://data/image_no_legal_info"), None),
@@ -187,9 +186,9 @@ def test_extract_identifiers_of_resource_results(every_combination_once: Validat
         (URIRef("http://data/richtext_standoff_link_nonexistent"), None),
         (URIRef("http://data/simpletext_wrong_value_type"), BNode),
         (URIRef("http://data/uri_wrong_value_type"), None),
-        (URIRef("http://data/video_segment_start_larger_than_end"), BNode),
-        (URIRef("http://data/video_segment_wrong_bounds"), BNode),
-        (URIRef("http://data/video_segment_wrong_bounds"), BNode),
+        (URIRef("http://data/video_segment_start_larger_than_end"), None),
+        (URIRef("http://data/video_segment_wrong_bounds"), None),
+        (URIRef("http://data/video_segment_wrong_bounds"), None),
     ]
     assert len(result) == len(expected_iris)
     for result_info, expected_iri in zip(result_sorted, expected_iris):

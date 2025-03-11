@@ -167,7 +167,7 @@ def _create_graphs(onto_client: OntologyClient, list_client: ListClient, data_rd
     api_shapes.parse(str(api_shapes_path))
     api_card_shapes = Graph()
     api_card_path = importlib.resources.files("dsp_tools").joinpath(
-        "resources/validate_data/api-shapes-with-cardinalities.ttl"
+        "resources/validate_data/api-shapes-resource-cardinalities.ttl"
     )
     api_card_shapes.parse(str(api_card_path))
     content_shapes = shapes.content + api_shapes

@@ -132,14 +132,16 @@ def _extract_one_base_info(
                 )
             )
     else:
-        resource_iri, resource_type = _get_resource_iri_and_type(info, data_onto_graph, value_types)
+        resource_iri, resource_type, user_facing_prop = _get_resource_iri_and_type(
+            info, path, data_onto_graph, value_types
+        )
         results.append(
             ValidationResultBaseInfo(
                 result_bn=info.validation_bn,
                 source_constraint_component=main_component_type,
                 focus_node_iri=resource_iri,
                 focus_node_type=resource_type,
-                result_path=path,
+                result_path=user_facing_prop,
                 detail=None,
             )
         )
@@ -155,14 +157,15 @@ def _get_all_main_result_bns(results_and_onto: Graph) -> set[SubjectObjectTypeAl
 
 
 def _get_resource_iri_and_type(
-    info: QueryInfo, data_onto_graph: Graph, value_types: set[SubjectObjectTypeAlias]
-) -> tuple[SubjectObjectTypeAlias, SubjectObjectTypeAlias]:
-    resource_iri = info.focus_iri
-    resource_type = info.focus_rdf_type
-    if resource_type in value_types:
-        resource_iri = next(data_onto_graph.subjects(object=info.focus_iri))
+    info: QueryInfo, path: SubjectObjectTypeAlias, data_onto_graph: Graph, value_types: set[SubjectObjectTypeAlias]
+) -> tuple[SubjectObjectTypeAlias, SubjectObjectTypeAlias, SubjectObjectTypeAlias]:
+    resource_iri, resource_type, user_facing_prop = info.focus_iri, info.focus_rdf_type, path
+    if info.focus_rdf_type in value_types:
+        resource_iri, predicate = next(data_onto_graph.subject_predicates(object=info.focus_iri))
         resource_type = next(data_onto_graph.objects(resource_iri, RDF.type))
-    return resource_iri, resource_type
+        if user_facing_prop not in LEGAL_INFO_PROPS:
+            user_facing_prop = predicate
+    return resource_iri, resource_type, user_facing_prop
 
 
 def _query_all_without_detail(
@@ -213,10 +216,16 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
             )
         case SH.ClassConstraintComponent:
             return _query_class_constraint_without_detail(base_info, results_and_onto, data, msg)
-        # This component appears when an image file has any kind of problem.
-        # We ignore this because it is communicated either through the IIIF or the actual file shape
-        case SH.XoneConstraintComponent:
-            return None
+        case SH.LessThanConstraintComponent | SH.MinExclusiveConstraintComponent | SH.MinInclusiveConstraintComponent:
+            value = next(results_and_onto.objects(base_info.result_bn, SH.value))
+            return ValidationResult(
+                violation_type=ViolationType.GENERIC,
+                res_iri=base_info.focus_node_iri,
+                res_class=base_info.focus_node_type,
+                property=base_info.result_path,
+                message=msg,
+                input_value=value,
+            )
         case _:
             return UnexpectedComponent(str(component))
 
@@ -304,12 +313,7 @@ def _query_one_with_detail(
             return _query_pattern_constraint_component_violation(detail_info.detail_bn, base_info, results_and_onto)
         case SH.ClassConstraintComponent:
             return _query_class_constraint_component_violation(base_info, results_and_onto, data_graph)
-        case (
-            SH.InConstraintComponent
-            | SH.LessThanConstraintComponent
-            | SH.MinExclusiveConstraintComponent
-            | SH.MinInclusiveConstraintComponent
-        ):
+        case SH.InConstraintComponent:
             return _query_generic_violation(base_info, results_and_onto)
         case _:
             return UnexpectedComponent(str(detail_info.source_constraint_component))

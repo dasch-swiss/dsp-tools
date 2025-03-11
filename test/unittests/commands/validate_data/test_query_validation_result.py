@@ -1,6 +1,7 @@
 # mypy: disable-error-code="method-assign,no-untyped-def"
 
 import pytest
+from rdflib import RDF
 from rdflib import RDFS
 from rdflib import SH
 from rdflib import XSD
@@ -9,6 +10,7 @@ from rdflib import Literal
 
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
+from dsp_tools.commands.validate_data.models.validation import QueryInfo
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationResult
@@ -16,6 +18,7 @@ from dsp_tools.commands.validate_data.models.validation import ValidationResultB
 from dsp_tools.commands.validate_data.models.validation import ViolationType
 from dsp_tools.commands.validate_data.query_validation_result import _extract_base_info_of_resource_results
 from dsp_tools.commands.validate_data.query_validation_result import _get_all_main_result_bns
+from dsp_tools.commands.validate_data.query_validation_result import _get_resource_iri_and_type
 from dsp_tools.commands.validate_data.query_validation_result import _query_all_results
 from dsp_tools.commands.validate_data.query_validation_result import _query_one_with_detail
 from dsp_tools.commands.validate_data.query_validation_result import _query_one_without_detail
@@ -62,6 +65,39 @@ def test_separate_bns_of_results(
     assert extracted_bns == {node1, node2}
 
 
+class TestGetResourceIRIs:
+    def test_with_detail_user_facing_info_there(self, report_value_type_simpletext):
+        _, onto_data_g, base_info = report_value_type_simpletext
+        query_info = QueryInfo(base_info.result_bn, DATA.id_simpletext, ONTO.ClassWithEverything)
+        resource_iri, resource_type, user_facing_prop = _get_resource_iri_and_type(
+            query_info, ONTO.testTextarea, onto_data_g, {KNORA_API.TextValue}
+        )
+        assert resource_iri == DATA.id_simpletext
+        assert resource_type == ONTO.ClassWithEverything
+        assert user_facing_prop == ONTO.testTextarea
+
+    def test_no_detail_user_facing_info_there(self, report_value_type):
+        _, onto_data_g, base_info = report_value_type
+        query_info = QueryInfo(base_info.result_bn, DATA.id_uri, ONTO.ClassWithEverything)
+        resource_iri, resource_type, user_facing_prop = _get_resource_iri_and_type(
+            query_info, ONTO.testUriValue, onto_data_g, {KNORA_API.TextValue}
+        )
+        assert resource_iri == DATA.id_uri
+        assert resource_type == ONTO.ClassWithEverything
+        assert user_facing_prop == ONTO.testUriValue
+
+    def test_no_detail_user_facing_prop_is_knora_prop(self, report_archive_missing_legal_info):
+        validation_g, onto_data_g = report_archive_missing_legal_info
+        result_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+        query_info = QueryInfo(result_bn, DATA.value_bitstream_no_legal_info, KNORA_API.ArchiveFileValue)
+        resource_iri, resource_type, user_facing_prop = _get_resource_iri_and_type(
+            query_info, KNORA_API.hasLicense, onto_data_g, {KNORA_API.ArchiveFileValue}
+        )
+        assert resource_iri == DATA.bitstream_no_legal_info
+        assert resource_type == ONTO.TestArchiveRepresentation
+        assert user_facing_prop == KNORA_API.hasLicense
+
+
 class TestQueryAllResults:
     def test_link_target_inexistent(self, report_target_resource_wrong_type: tuple[Graph, Graph]) -> None:
         validation_g, onto_data_g = report_target_resource_wrong_type
@@ -92,6 +128,20 @@ class TestQueryAllResults:
         assert not result.input_value
         assert not result.input_type
         assert result.expected == Literal("Files and IIIF-URIs require a reference to a license.")
+
+    def test_result_geoname_not_number(self, report_regex: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
+        res, data, _ = report_regex
+        extracted_results, unexpected_components = _query_all_results(res, data)
+        assert not unexpected_components
+        assert len(extracted_results) == 1
+        result = extracted_results.pop(0)
+        assert isinstance(result, ValidationResult)
+        assert result.violation_type == ViolationType.PATTERN
+        assert result.res_iri == DATA.geoname_not_number
+        assert result.res_class == ONTO.ClassWithEverything
+        assert result.property == ONTO.testGeoname
+        assert result.expected == Literal("The value must be a valid geoname code")
+        assert result.input_value == Literal("this-is-not-a-valid-code")
 
 
 class TestExtractBaseInfo:
@@ -160,9 +210,9 @@ class TestSeparateResultTypes:
     def test_result_geoname_not_number(self, report_regex: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
         res_g, onto_data_g, _ = report_regex
         no_detail, with_detail = _separate_result_types(res_g, onto_data_g)
-        assert len(no_detail) == 0
-        assert len(with_detail) == 1
-        assert with_detail[0].focus_node_iri == DATA.geoname_not_number
+        assert len(no_detail) == 1
+        assert len(with_detail) == 0
+        assert no_detail[0].focus_node_iri == DATA.geoname_not_number
 
     def test_result_id_closed_constraint(
         self, report_closed_constraint: tuple[Graph, Graph, ValidationResultBaseInfo]
@@ -297,6 +347,17 @@ class TestQueryWithoutDetail:
         assert result.expected == Literal("This property requires a UriValue")
         assert result.input_type == KNORA_API.TextValue
 
+    def test_report_min_inclusive(self, report_min_inclusive: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
+        res, data, info = report_min_inclusive
+        result = _query_one_without_detail(info, res, data)
+        assert isinstance(result, ValidationResult)
+        assert result.violation_type == ViolationType.GENERIC
+        assert result.res_iri == info.focus_node_iri
+        assert result.res_class == info.focus_node_type
+        assert result.property == KNORA_API.hasSegmentBounds
+        assert result.message == Literal("The interval start must be a non-negative integer or decimal.")
+        assert result.input_value == Literal("-2.0", datatype=XSD.decimal)
+
     def test_unknown(self, result_unknown_component: tuple[Graph, ValidationResultBaseInfo]) -> None:
         graphs, info = result_unknown_component
         result = _query_one_without_detail(info, graphs, Graph())
@@ -317,17 +378,6 @@ class TestQueryWithDetail:
         assert result.property == ONTO.testTextarea
         assert result.expected == Literal("TextValue without formatting")
         assert result.input_type == KNORA_API.TextValue
-
-    def test_result_geoname_not_number(self, report_regex: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
-        res, data, info = report_regex
-        result = _query_one_with_detail(info, res, data)
-        assert isinstance(result, ValidationResult)
-        assert result.violation_type == ViolationType.PATTERN
-        assert result.res_iri == info.focus_node_iri
-        assert result.res_class == info.focus_node_type
-        assert result.property == ONTO.testGeoname
-        assert result.expected == Literal("The value must be a valid geoname code")
-        assert result.input_value == Literal("this-is-not-a-valid-code")
 
     def test_link_target_non_existent(
         self, report_link_target_non_existent: tuple[Graph, Graph, ValidationResultBaseInfo]
@@ -382,17 +432,6 @@ class TestQueryWithDetail:
         assert result.property == ONTO.testListProp
         assert result.message == Literal("A valid node from the list 'firstList' must be used with this property.")
         assert result.input_value == Literal("firstList / other")
-
-    def test_report_min_inclusive(self, report_min_inclusive: tuple[Graph, Graph, ValidationResultBaseInfo]) -> None:
-        res, data, info = report_min_inclusive
-        result = _query_one_with_detail(info, res, data)
-        assert isinstance(result, ValidationResult)
-        assert result.violation_type == ViolationType.GENERIC
-        assert result.res_iri == info.focus_node_iri
-        assert result.res_class == info.focus_node_type
-        assert result.property == KNORA_API.hasSegmentBounds
-        assert result.message == Literal("The interval start must be a non-negative integer or decimal.")
-        assert result.input_value == Literal("-2.0", datatype=XSD.decimal)
 
 
 class TestQueryFileValueViolations:

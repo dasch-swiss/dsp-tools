@@ -12,7 +12,6 @@ from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_link_
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_link_value_type_shapes_to_class_shapes
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_list_node_shape
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_list_property_shape_with_collection
-from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_property_type_shape_based_on_object_type
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_property_type_text_value
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_value_type_shapes_to_class_shapes
 from test.unittests.commands.validate_data.constants import API_SHAPES
@@ -20,25 +19,12 @@ from test.unittests.commands.validate_data.constants import KNORA_API
 from test.unittests.commands.validate_data.constants import ONTO
 
 
-def test_construct_one_property_type_shape_based_on_object_type(one_res_one_prop: Graph) -> None:
-    res = _construct_one_property_type_shape_based_on_object_type(
-        one_res_one_prop, "knora-api:BooleanValue", "api-shapes:BooleanValue_ClassShape"
-    )
-    assert len(res) == 3
-    assert next(res.objects(ONTO.testBoolean_PropShape, SH.path)) == ONTO.testBoolean
-    assert next(res.objects(ONTO.testBoolean_PropShape, RDF.type)) == SH.PropertyShape
-    assert next(res.objects(ONTO.testBoolean_PropShape, SH.node)) == API_SHAPES.BooleanValue_ClassShape
-
-
 def test_construct_link_value_shape(link_prop: Graph) -> None:
     res = _construct_link_value_shape(link_prop)
-    assert len(res) == 4
+    assert len(res) == 3
     assert next(res.objects(ONTO.testHasLinkTo_PropShape, SH.path)) == ONTO.testHasLinkTo
     assert next(res.objects(ONTO.testHasLinkTo_PropShape, RDF.type)) == SH.PropertyShape
-    assert set(res.objects(ONTO.testHasLinkTo_PropShape, SH.node)) == {
-        API_SHAPES.LinkValue_ClassShape,
-        ONTO.testHasLinkTo_NodeShape,
-    }
+    assert next(res.objects(ONTO.testHasLinkTo_PropShape, SH.node)) == ONTO.testHasLinkTo_NodeShape
 
 
 def test_construct_one_property_type_text_value(one_richtext_prop: Graph) -> None:
@@ -53,12 +39,7 @@ def test_construct_one_property_type_text_value(one_richtext_prop: Graph) -> Non
 
 def test_add_property_shapes_to_class_shapes(card_1: Graph) -> None:
     res = _add_property_shapes_to_class_shapes(card_1)
-    expected_props = {
-        ONTO.testBoolean_PropShape,
-        API_SHAPES.rdfsLabel_Shape,
-        API_SHAPES.hasStandoffLinkTo_TargetMustExistPropertyShape,
-    }
-    assert len(res) == 4
+    expected_props = {ONTO.testBoolean_PropShape}
     assert set(res.objects(ONTO.ClassMixedCard, SH.property)) == expected_props
 
 

@@ -229,6 +229,7 @@ api-shapes:hasCopyrightHolder_Cardinality
 api-shapes:hasArchiveFileValue_PropShape
   a           sh:PropertyShape ;
   sh:path     knora-api:hasArchiveFileValue ;
+  sh:class    knora-api:ArchiveFileValue ;
   sh:minCount 1 ;
   sh:maxCount 1 ;
   sh:severity sh:Violation ;
@@ -270,6 +271,7 @@ api-shapes:ArchiveFileValue_ClassShape
 api-shapes:hasAudioFileValue_PropShape
   a           sh:PropertyShape ;
   sh:path     knora-api:hasAudioFileValue ;
+  sh:class    knora-api:AudioFileValue ;
   sh:minCount 1 ;
   sh:maxCount 1 ;
   sh:severity sh:Violation ;
@@ -305,6 +307,7 @@ api-shapes:AudioFileValue_ClassShape
 api-shapes:hasDocumentFileValue_PropShape
   a           sh:PropertyShape ;
   sh:path     knora-api:hasDocumentFileValue ;
+  sh:class    knora-api:DocumentFileValue ;
   sh:minCount 1 ;
   sh:maxCount 1 ;
   sh:severity sh:Violation ;
@@ -346,6 +349,7 @@ api-shapes:DocumentFileValue_ClassShape
 api-shapes:hasMovingImageFileValue_PropShape
   a           sh:PropertyShape ;
   sh:path     knora-api:hasMovingImageFileValue ;
+  sh:class    knora-api:MovingImageFileValue ;
   sh:minCount 1 ;
   sh:maxCount 1 ;
   sh:severity sh:Violation ;
@@ -452,6 +456,7 @@ api-shapes:StillImageExternalFileValue_ClassShape
 api-shapes:hasTextFileValue_PropShape
   a           sh:PropertyShape ;
   sh:path     knora-api:hasTextFileValue ;
+  sh:class    knora-api:TextFileValue ;
   sh:minCount 1 ;
   sh:maxCount 1 ;
   sh:severity sh:Violation ;

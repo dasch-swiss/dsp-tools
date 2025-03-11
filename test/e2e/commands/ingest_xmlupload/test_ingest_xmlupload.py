@@ -14,7 +14,7 @@ from dsp_tools.commands.project.create.project_create import create_project
 from test.e2e.setup_testcontainers import SIPI_IMAGES
 from test.e2e.setup_testcontainers import TMP_INGEST
 from test.e2e.setup_testcontainers import ContainerPorts
-from test.e2e.setup_testcontainers import TestContainerFactory
+from test.e2e.setup_testcontainers import get_containers
 
 CWD = Path("testdata/dsp-ingest-data/e2e-sample-project")
 XML_FILE = Path("data.xml")
@@ -26,7 +26,7 @@ TMP_FOLDER = TMP_INGEST / "import" / SHORTCODE
 
 @pytest.fixture(scope="module")
 def container_ports() -> Iterator[ContainerPorts]:
-    with TestContainerFactory.get_containers() as containers:
+    with get_containers() as containers:
         yield containers
 
 

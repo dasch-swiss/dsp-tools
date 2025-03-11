@@ -3,15 +3,13 @@ import subprocess
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import ClassVar
 from typing import Iterator
+from uuid import uuid4
 
-import docker
 import regex
 import requests
-from docker.errors import NotFound
-from docker.models.networks import Network
 from testcontainers.core.container import DockerContainer
+from testcontainers.core.network import Network
 from testcontainers.core.waiting_utils import wait_for_logs
 
 E2E_TESTDATA = Path("testdata/e2e").absolute()
@@ -73,28 +71,19 @@ def _get_image_versions() -> ImageVersions:
     return ImageVersions(fuseki=fuseki, sipi=sipi, ingest=ingest, api=api)
 
 
-class TestContainerFactory:
-    __counter: ClassVar[int] = 0
-    image_versions: ClassVar[ImageVersions] = _get_image_versions()
-
-    def __init__(self) -> None:
-        raise TypeError
-
-    @classmethod
-    @contextmanager
-    def get_containers(cls) -> Iterator[ContainerPorts]:
-        if subprocess.run("docker stats --no-stream".split(), check=False).returncode != 0:
-            raise RuntimeError("Docker is not running properly")
-        cls.__counter += 1
-        with _get_test_network(cls.__counter) as network:
-            ports = _get_ports()
-            prefix = f"testcontainer-{cls.__counter}"
-            names = ContainerNames(f"{prefix}-db", f"{prefix}-sipi", f"{prefix}-ingest", f"{prefix}-api")
-            containers = _get_all_containers(network, cls.image_versions, ports, names)
-            try:
-                yield ports
-            finally:
-                _stop_all_containers(containers)
+@contextmanager
+def get_containers() -> Iterator[ContainerPorts]:
+    if subprocess.run("docker stats --no-stream".split(), check=False).returncode != 0:
+        raise RuntimeError("Docker is not running properly")
+    with Network() as network:
+        ports = _get_ports()
+        prefix = f"testcontainer-{uuid4()}"
+        names = ContainerNames(f"{prefix}-db", f"{prefix}-sipi", f"{prefix}-ingest", f"{prefix}-api")
+        containers = _get_all_containers(network, ports, names)
+        try:
+            yield ports
+        finally:
+            _stop_all_containers(containers)
 
 
 def _get_ports() -> ContainerPorts:
@@ -108,25 +97,8 @@ def _get_ports() -> ContainerPorts:
     return ContainerPorts(*port_window)
 
 
-@contextmanager
-def _get_test_network(counter: int) -> Iterator[Network]:
-    name = f"dsp-tools-test-network-{counter}"
-    client = docker.client.from_env()
-    try:
-        network = client.networks.get(name)
-    except NotFound:
-        client.networks.create(name, internal=True, check_duplicate=True)
-        network = client.networks.get(name)
-    try:
-        yield network
-    finally:
-        network.remove()
-        client.close()  # type: ignore[no-untyped-call]  # incomplete stubs - remove this when the stubs are complete
-
-
-def _get_all_containers(
-    network: Network, versions: ImageVersions, ports: ContainerPorts, names: ContainerNames
-) -> Containers:
+def _get_all_containers(network: Network, ports: ContainerPorts, names: ContainerNames) -> Containers:
+    versions = _get_image_versions()
     fuseki = _get_fuseki_container(network, versions.fuseki, ports, names)
     sipi = _get_sipi_container(network, versions.sipi, ports, names)
     ingest = _get_ingest_container(network, versions.ingest, ports, names)

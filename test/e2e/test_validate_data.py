@@ -26,12 +26,12 @@ from dsp_tools.commands.validate_data.validate_data import _get_parsed_graphs
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
 from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
 from test.e2e.setup_testcontainers import ContainerPorts
-from test.e2e.setup_testcontainers import TestContainerFactory
+from test.e2e.setup_testcontainers import get_containers
 
 
 @pytest.fixture(scope="module")
 def container_ports() -> Iterator[ContainerPorts]:
-    with TestContainerFactory.get_containers() as containers:
+    with get_containers() as containers:
         yield containers
 
 

@@ -20,6 +20,7 @@ TMP_INGEST = E2E_TESTDATA / "tmp-dsp-ingest"
 INGEST_DB = E2E_TESTDATA / "ingest-db"
 
 TESTCONTAINER_PORTS_LOCKFILES = Path("test/e2e/testcontainer_port_lockfiles")
+TESTCONTAINER_PORTS_LOCKFILES.mkdir(parents=True, exist_ok=True)
 API_INTERNAL_PORT = 3333
 INGEST_INTERNAL_PORT = 3340
 SIPI_INTERNAL_PORT = 1024
@@ -86,6 +87,7 @@ def get_containers() -> Iterator[ContainerPorts]:
             yield ports
         finally:
             _stop_all_containers(containers)
+            _release_ports(ports)
 
 
 def _get_ports() -> ContainerPorts:
@@ -108,6 +110,13 @@ def _get_ports() -> ContainerPorts:
             port_window.append(port)
 
     return ContainerPorts(*port_window)
+
+
+def _release_ports(ports: ContainerPorts) -> None:
+    (TESTCONTAINER_PORTS_LOCKFILES / str(ports.fuseki_port)).unlink()
+    (TESTCONTAINER_PORTS_LOCKFILES / str(ports.sipi_port)).unlink()
+    (TESTCONTAINER_PORTS_LOCKFILES / str(ports.ingest_port)).unlink()
+    (TESTCONTAINER_PORTS_LOCKFILES / str(ports.api_port)).unlink()
 
 
 def _get_all_containers(network: Network, ports: ContainerPorts, names: ContainerNames) -> Containers:

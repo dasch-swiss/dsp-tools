@@ -66,3 +66,5 @@ tmp/
 /testdata/e2e/images
 /mapping-????.csv
 test/warnings.log
+test/e2e/testcontainer_port_lockfiles
+test/e2e/ingest-db/ingest.sqlite

@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import ClassVar
 from typing import Iterator
+import socket
 
 import docker
 import regex
@@ -89,25 +90,12 @@ class TestContainerFactory:
 
 
 def _get_ports() -> ContainerPorts:
-    running_containers: list[Container] = docker.client.from_env().containers.list()
-    ports_in_use: list[int] = []
-    for container in running_containers:
-        ports_lists: list[None | list[int | tuple[str, int] | list[int] | dict[str, str]]] = list(
-            container.ports.values()
-        )  # the ports dict is in format {internal: exposed}
-        for ports_list in [x for x in ports_lists if x]:
-            for ports in ports_list:
-                match ports:
-                    case int():
-                        ports_in_use.append(ports)
-                    case (str(), int() as port):
-                        ports_in_use.append(port)
-                    case list():
-                        ports_in_use.extend(ports)
-                    case dict():
-                        ports_in_use.append(int(ports.get("HostPort", "0")))
+    def is_port_free(port: int) -> bool:
+        with socket.socket() as s:
+            return s.connect_ex(("localhost", port)) != 0
+
     port_window = [1025, 1026, 1027, 1028]
-    while any(x in ports_in_use for x in port_window):
+    while not all(is_port_free(x) for x in port_window):
         port_window = [x + 1 for x in port_window]
     return ContainerPorts(*port_window)
 

@@ -67,7 +67,7 @@ def _get_image_versions() -> ImageVersions:
 
 class TestContainerFactory:
     __counter: ClassVar[int] = 0
-    versions: ClassVar[ImageVersions] = _get_image_versions()
+    image_versions: ClassVar[ImageVersions] = _get_image_versions()
 
     def __init__(self) -> None:
         raise TypeError
@@ -79,7 +79,7 @@ class TestContainerFactory:
             raise RuntimeError("Docker is not running properly")
         cls.__counter += 1
         with get_test_network(cls.__counter) as network:
-            containers = _get_all_containers(network, cls.versions, cls.__counter)
+            containers = _get_all_containers(network, cls.image_versions, cls.__counter)
             try:
                 yield ContainerPorts(
                     fuseki_port=containers.fuseki.ports[FUSEKI_INTERNAL_PORT],

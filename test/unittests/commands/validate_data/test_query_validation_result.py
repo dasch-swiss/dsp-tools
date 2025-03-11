@@ -1,6 +1,7 @@
 # mypy: disable-error-code="method-assign,no-untyped-def"
 
 import pytest
+from rdflib import RDF
 from rdflib import RDFS
 from rdflib import SH
 from rdflib import XSD
@@ -9,6 +10,7 @@ from rdflib import Literal
 
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
+from dsp_tools.commands.validate_data.models.validation import QueryInfo
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
 from dsp_tools.commands.validate_data.models.validation import ValidationReportGraphs
 from dsp_tools.commands.validate_data.models.validation import ValidationResult
@@ -16,6 +18,7 @@ from dsp_tools.commands.validate_data.models.validation import ValidationResultB
 from dsp_tools.commands.validate_data.models.validation import ViolationType
 from dsp_tools.commands.validate_data.query_validation_result import _extract_base_info_of_resource_results
 from dsp_tools.commands.validate_data.query_validation_result import _get_all_main_result_bns
+from dsp_tools.commands.validate_data.query_validation_result import _get_resource_iri_and_type
 from dsp_tools.commands.validate_data.query_validation_result import _query_all_results
 from dsp_tools.commands.validate_data.query_validation_result import _query_one_with_detail
 from dsp_tools.commands.validate_data.query_validation_result import _query_one_without_detail
@@ -60,6 +63,39 @@ def test_separate_bns_of_results(
     node1 = next(combined_g.subjects(SH.focusNode, DATA.region_isRegionOf_resource_not_a_representation))
     node2 = next(combined_g.subjects(SH.focusNode, DATA.value_id_simpletext))
     assert extracted_bns == {node1, node2}
+
+
+class TestGetResourceIRIs:
+    def test_with_detail_user_facing_info_there(self, report_value_type_simpletext):
+        _, onto_data_g, base_info = report_value_type_simpletext
+        query_info = QueryInfo(base_info.result_bn, DATA.id_simpletext, ONTO.ClassWithEverything)
+        resource_iri, resource_type, user_facing_prop = _get_resource_iri_and_type(
+            query_info, ONTO.testTextarea, onto_data_g, {KNORA_API.TextValue}
+        )
+        assert resource_iri == DATA.id_simpletext
+        assert resource_type == ONTO.ClassWithEverything
+        assert user_facing_prop == ONTO.testTextarea
+
+    def test_no_detail_user_facing_info_there(self, report_value_type):
+        _, onto_data_g, base_info = report_value_type
+        query_info = QueryInfo(base_info.result_bn, DATA.id_uri, ONTO.ClassWithEverything)
+        resource_iri, resource_type, user_facing_prop = _get_resource_iri_and_type(
+            query_info, ONTO.testUriValue, onto_data_g, {KNORA_API.TextValue}
+        )
+        assert resource_iri == DATA.id_uri
+        assert resource_type == ONTO.ClassWithEverything
+        assert user_facing_prop == ONTO.testUriValue
+
+    def test_no_detail_user_facing_prop_is_knora_prop(self, report_archive_missing_legal_info):
+        validation_g, onto_data_g = report_archive_missing_legal_info
+        result_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
+        query_info = QueryInfo(result_bn, DATA.value_bitstream_no_legal_info, KNORA_API.ArchiveFileValue)
+        resource_iri, resource_type, user_facing_prop = _get_resource_iri_and_type(
+            query_info, KNORA_API.hasLicense, onto_data_g, {KNORA_API.ArchiveFileValue}
+        )
+        assert resource_iri == DATA.bitstream_no_legal_info
+        assert resource_type == ONTO.TestArchiveRepresentation
+        assert user_facing_prop == KNORA_API.hasLicense
 
 
 class TestQueryAllResults:

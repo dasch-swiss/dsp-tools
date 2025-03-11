@@ -57,12 +57,12 @@ FILE_VALUE_PROPERTIES = {
 
 
 FILEVALUE_DETAIL_INFO = {
-    API_SHAPES.hasArchiveFileValue: ("bitstream", "'zip', 'tar', 'gz', 'z', 'tgz', 'gzip', '7z'"),
-    API_SHAPES.hasAudioFileValue: ("bitstream", "'mp3', 'wav'"),
-    API_SHAPES.hasDocumentFileValue: ("bitstream", "'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'"),
-    API_SHAPES.hasMovingImageFileValue: ("bitstream", "'mp4'"),
-    API_SHAPES.hasTextFileValue: ("bitstream", "'odd', 'rng', 'txt', 'xml', 'xsd', 'xsl', 'csv', 'json'"),
-    API_SHAPES.hasStillImageFileValue: (
+    KNORA_API.hasArchiveFileValue: ("bitstream", "'zip', 'tar', 'gz', 'z', 'tgz', 'gzip', '7z'"),
+    KNORA_API.hasAudioFileValue: ("bitstream", "'mp3', 'wav'"),
+    KNORA_API.hasDocumentFileValue: ("bitstream", "'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'"),
+    KNORA_API.hasMovingImageFileValue: ("bitstream", "'mp4'"),
+    KNORA_API.hasTextFileValue: ("bitstream", "'odd', 'rng', 'txt', 'xml', 'xsd', 'xsl', 'csv', 'json'"),
+    KNORA_API.hasStillImageFileValue: (
         "bitstream / iiif-uri",
         "'jpg', 'jpeg', 'png', 'tif', 'tiff', 'jp2' or a IIIF-URI",
     ),

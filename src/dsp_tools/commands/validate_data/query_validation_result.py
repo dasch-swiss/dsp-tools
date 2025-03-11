@@ -437,7 +437,6 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
             return _reformat_min_card(validation_result)
         case (
             ViolationType.MAX_CARD
-            | ViolationType.MIN_CARD
             | ViolationType.NON_EXISTING_CARD
             | ViolationType.PATTERN
             | ViolationType.UNIQUE_VALUE
@@ -467,12 +466,14 @@ def _reformat_min_card(result: ValidationResult) -> InputProblem:
     iris = _reformat_main_iris(result)
     if file_prop_info := FILEVALUE_DETAIL_INFO.get(result.property):
         prop_str, file_extensions = file_prop_info
-        detail_msg = f"This resource requires a file with one of the following extensions: {file_extensions}"
+        detail_msg = None
         problem_type = ProblemType.FILE_VALUE
+        expected = f"This resource requires a file with one of the following extensions: {file_extensions}"
     else:
         prop_str = iris.prop_name
         detail_msg = _convert_rdflib_input_to_string(result.message)
         problem_type = ProblemType.MIN_CARD
+        expected = _convert_rdflib_input_to_string(result.expected)
 
     return InputProblem(
         problem_type=problem_type,
@@ -482,7 +483,7 @@ def _reformat_min_card(result: ValidationResult) -> InputProblem:
         message=detail_msg,
         input_value=_convert_rdflib_input_to_string(result.input_value),
         input_type=_convert_rdflib_input_to_string(result.input_type),
-        expected=_convert_rdflib_input_to_string(result.expected),
+        expected=expected,
     )
 
 

@@ -1025,12 +1025,11 @@ def report_missing_file_value(onto_graph: Graph) -> tuple[Graph, ValidationResul
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
             sh:focusNode <http://data/id_video_missing> ;
-            sh:resultMessage "A MovingImageRepresentation requires a file with the extension 'mp4'." ;
+            sh:resultMessage "Cardinality 1" ;
             sh:resultPath <http://api.knora.org/ontology/knora-api/v2#hasMovingImageFileValue> ;
             sh:resultSeverity sh:Violation ;
             sh:sourceConstraintComponent sh:MinCountConstraintComponent ;
-            sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#hasMovingImageFileValue_PropShape> 
-    ] .
+            sh:sourceShape _:n9f446ddf698b43ee9bc70be5f606ec25b13 ] .
     """
     data_str = f"""{PREFIXES}
     <http://data/id_video_missing> a <http://0.0.0.0:3333/ontology/9999/onto/v2#TestMovingImageRepresentation> ;
@@ -1054,11 +1053,11 @@ def report_missing_file_value(onto_graph: Graph) -> tuple[Graph, ValidationResul
 @pytest.fixture
 def extracted_missing_file_value() -> ValidationResult:
     return ValidationResult(
-        violation_type=ViolationType.FILE_VALUE,
+        violation_type=ViolationType.MIN_CARD,
         res_iri=DATA.id_video_missing,
         res_class=ONTO.TestMovingImageRepresentation,
         property=KNORA_API.hasMovingImageFileValue,
-        expected=Literal("A MovingImageRepresentation requires a file with the extension 'mp4'."),
+        expected=Literal("Cardinality 1"),
     )
 
 

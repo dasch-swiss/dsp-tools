@@ -21,7 +21,7 @@ from test.unittests.commands.validate_data.constants import ONTO
 
 def test_construct_link_value_shape(link_prop: Graph) -> None:
     res = _construct_link_value_shape(link_prop)
-    assert len(res) == 4
+    assert len(res) == 3
     assert next(res.objects(ONTO.testHasLinkTo_PropShape, SH.path)) == ONTO.testHasLinkTo
     assert next(res.objects(ONTO.testHasLinkTo_PropShape, RDF.type)) == SH.PropertyShape
     assert set(res.objects(ONTO.testHasLinkTo_PropShape, SH.node)) == {

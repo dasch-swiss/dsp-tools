@@ -166,7 +166,7 @@ def _construct_link_value_shape(onto: Graph) -> Graph:
 
         ?shapesIRI a sh:PropertyShape ;
                    sh:path ?prop ;
-                   sh:node api-shapes:LinkValue_ClassShape , ?nodeShapeIRI .
+                   sh:node ?nodeShapeIRI .
 
     } WHERE {
 

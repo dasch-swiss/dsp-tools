@@ -24,7 +24,7 @@ api-shapes:hasPermissions_Cardinality
   sh:minCount 0 ;
   sh:maxCount 1 ;
   sh:severity sh:Violation ;
-  sh:message  "The resource or value may have at most one permission." .
+  sh:message  "The resource may have at most one permission." .
 
 
 #########################################

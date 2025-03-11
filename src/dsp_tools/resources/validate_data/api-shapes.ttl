@@ -60,8 +60,6 @@ api-shapes:Resource_Shape
                     sh:path     rdfs:label ;
                     sh:datatype xsd:string ;
                     sh:pattern  "\\s*\\S+\\s*" ;
-                    sh:minCount 1 ;
-                    sh:maxCount 1 ;
                     sh:severity sh:Violation ;
                     sh:message  "The label must be a non-empty string" ;
                   ] ,

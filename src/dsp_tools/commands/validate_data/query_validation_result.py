@@ -464,11 +464,11 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
 
 def _reformat_min_card(result: ValidationResult) -> InputProblem:
     iris = _reformat_main_iris(result)
-    if file_prop_info := FILEVALUE_DETAIL_INFO.get(result.property):
+    if file_prop_info := FILEVALUE_DETAIL_INFO.get(cast(URIRef, result.property)):
         prop_str, file_extensions = file_prop_info
         detail_msg = None
         problem_type = ProblemType.FILE_VALUE
-        expected = f"This resource requires a file with one of the following extensions: {file_extensions}"
+        expected: str | None = f"This resource requires a file with one of the following extensions: {file_extensions}"
     else:
         prop_str = iris.prop_name
         detail_msg = _convert_rdflib_input_to_string(result.message)

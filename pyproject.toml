@@ -85,6 +85,7 @@ dev-dependencies = [
     "viztracer",
     "yamllint",
     "typing-extensions",
+    "pytest-xdist>=3.6.1",
 ]
 
 

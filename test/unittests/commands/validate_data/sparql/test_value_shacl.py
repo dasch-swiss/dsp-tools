@@ -24,9 +24,7 @@ def test_construct_link_value_shape(link_prop: Graph) -> None:
     assert len(res) == 3
     assert next(res.objects(ONTO.testHasLinkTo_PropShape, SH.path)) == ONTO.testHasLinkTo
     assert next(res.objects(ONTO.testHasLinkTo_PropShape, RDF.type)) == SH.PropertyShape
-    assert set(res.objects(ONTO.testHasLinkTo_PropShape, SH.node)) == {
-        ONTO.testHasLinkTo_NodeShape,
-    }
+    assert next(res.objects(ONTO.testHasLinkTo_PropShape, SH.node)) == ONTO.testHasLinkTo_NodeShape
 
 
 def test_construct_one_property_type_text_value(one_richtext_prop: Graph) -> None:

@@ -18,14 +18,14 @@ def test_construct_file_value_cardinality(file_value_shacl: Graph) -> None:
 
 
 def test_construct_audio(file_value_shacl: Graph) -> None:
-    result_list = list(file_value_shacl.subjects(SH.property, API_SHAPES.hasAudioFileValue_PropShape))
+    result_list = list(file_value_shacl.subjects(SH.property, API_SHAPES.hasAudioFileValue_Cardinality))
     assert len(result_list) == 1
     moving_image = result_list[0]
     assert moving_image == ONTO.TestAudioRepresentation
 
 
 def test_construct_moving_image(file_value_shacl: Graph) -> None:
-    result_list = list(file_value_shacl.subjects(SH.property, API_SHAPES.hasMovingImageFileValue_PropShape))
+    result_list = list(file_value_shacl.subjects(SH.property, API_SHAPES.hasMovingImageFileValue_Cardinality))
     assert len(result_list) == 1
     moving_image = result_list[0]
     assert moving_image == ONTO.TestMovingImageRepresentation

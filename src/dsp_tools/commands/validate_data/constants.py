@@ -56,7 +56,7 @@ FILE_VALUE_PROPERTIES = {
 }
 
 
-FILE_VALUE_PROP_SHAPES = {
+FILEVALUE_DETAIL_INFO = {
     API_SHAPES.hasArchiveFileValue: ("bitstream", "'zip', 'tar', 'gz', 'z', 'tgz', 'gzip', '7z'"),
     API_SHAPES.hasAudioFileValue: ("bitstream", "'mp3', 'wav'"),
     API_SHAPES.hasDocumentFileValue: ("bitstream", "'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'"),

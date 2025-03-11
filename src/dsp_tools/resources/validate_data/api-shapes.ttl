@@ -57,22 +57,22 @@ api-shapes:Resource_Shape
   sh:name        "Validates generic properties of all Resources" ;
   sh:property    [
                     a           sh:PropertyShape ;
-                    sh:message  "The label must be a non-empty string" ;
                     sh:path     rdfs:label ;
                     sh:datatype xsd:string ;
                     sh:pattern  "\\s*\\S+\\s*" ;
                     sh:minCount 1 ;
                     sh:maxCount 1 ;
-                    sh:severity sh:Violation
+                    sh:severity sh:Violation ;
+                    sh:message  "The label must be a non-empty string" ;
                   ] ,
                   [
                     # Currently StandOff are attached directly to the resource and not in a LinkValue,
                     # therefore we do not validate it like a normal link with a LinkValue
                     a           sh:PropertyShape ;
-                    sh:message  "A stand-off link must target an existing resource." ;
                     sh:path     knora-api:hasStandoffLinkTo ;
                     sh:class    knora-api:Resource ;
-                    sh:severity sh:Violation
+                    sh:severity sh:Violation ;
+                    sh:message  "A stand-off link must target an existing resource." ;
                   ].
 
 
@@ -84,187 +84,187 @@ api-shapes:Resource_Shape
 # BooleanValue
 api-shapes:BooleanValue_ClassShape
   a              sh:NodeShape ;
-  sh:targetClass knora-api:BooleanValue ;
   sh:name        "Validates the properties used with this targetClass" ;
-  sh:message     "BooleanValue" ;
+  sh:targetClass knora-api:BooleanValue ;
   sh:property    api-shapes:booleanValueAsBoolean_Shape ,
                  api-shapes:valueHasComment_Shape ;
-  sh:severity    sh:Violation .
+  sh:severity    sh:Violation ;
+  sh:message     "BooleanValue" .
 
 api-shapes:booleanValueAsBoolean_Shape
   a           sh:PropertyShape ;
-  sh:message  "A BooleanValue requires exactly one valid boolean" ;
   sh:path     knora-api:booleanValueAsBoolean ;
   sh:datatype xsd:boolean ;
   sh:minCount 1 ;
   sh:maxCount 1 ;
-  sh:severity sh:Violation .
+  sh:severity sh:Violation ;
+  sh:message  "A BooleanValue requires exactly one valid boolean".
 
 ##############
 # ColorValue
 api-shapes:ColorValue_ClassShape
   a              sh:NodeShape ;
-  sh:targetClass knora-api:ColorValue ;
   sh:name        "Validates the properties used with this targetClass" ;
-  sh:message     "ColorValue" ;
+  sh:targetClass knora-api:ColorValue ;
   sh:property    api-shapes:colorValueAsColor_Shape ,
                  api-shapes:valueHasComment_Shape ;
-  sh:severity    sh:Violation .
+  sh:severity    sh:Violation ;
+  sh:message     "ColorValue" .
 
 api-shapes:colorValueAsColor_Shape
   a           sh:PropertyShape ;
-  sh:message  "A ColorValue requires exactly one valid color" ;
   sh:path     knora-api:colorValueAsColor ;
+  sh:datatype xsd:string ;
   sh:pattern  "^#([0-9a-fA-F]{3}){1,2}$" ;
   sh:minCount 1 ;
   sh:maxCount 1 ;
-  sh:datatype xsd:string ;
-  sh:severity sh:Violation .
+  sh:severity sh:Violation ;
+  sh:message  "A ColorValue requires exactly one valid color" .
 
 ##############
 # DateValue
 api-shapes:DateValue_ClassShape
   a              sh:NodeShape ;
-  sh:targetClass knora-api:DateValue ;
   sh:name        "Validates the properties used with this targetClass" ;
-  sh:message     "DateValue" ;
+  sh:targetClass knora-api:DateValue ;
   sh:property    api-shapes:valueAsString_DateValueShape ,
                  api-shapes:valueHasComment_Shape ;
-  sh:severity    sh:Violation .
+  sh:severity    sh:Violation ;
+  sh:message     "DateValue" .
 
 # Currently it is only checked that the string value is not empty
 # To validate the DateValue as the API receives it, the Date should be taken apart
 api-shapes:valueAsString_DateValueShape
   a           sh:PropertyShape ;
-  sh:message  "A DateValue requires a valid Date" ;
   sh:path     knora-api:valueAsString ;
+  sh:datatype xsd:string ;
   sh:pattern  "\\s*\\S+\\s*" ;
   sh:minCount 1 ;
   sh:maxCount 1 ;
-  sh:datatype xsd:string ;
-  sh:severity sh:Violation .
+  sh:severity sh:Violation ;
+  sh:message  "A DateValue requires a valid Date" .
 
 ##############
 # DecimalValue
 api-shapes:DecimalValue_ClassShape
   a              sh:NodeShape ;
-  sh:targetClass knora-api:DecimalValue ;
   sh:name        "Validates the properties used with this targetClass" ;
-  sh:message     "DecimalValue" ;
+  sh:targetClass knora-api:DecimalValue ;
   sh:property    api-shapes:decimalValueAsDecimal_Shape ,
                  api-shapes:valueHasComment_Shape ;
-  sh:severity    sh:Violation .
+  sh:severity    sh:Violation ;
+  sh:message     "DecimalValue" .
 
 api-shapes:decimalValueAsDecimal_Shape
   a           sh:PropertyShape ;
-  sh:message  "A DecimalValue requires exactly one valid decimal" ;
   sh:path     knora-api:decimalValueAsDecimal ;
   sh:datatype xsd:decimal ;
   sh:minCount 1 ;
   sh:maxCount 1 ;
-  sh:severity sh:Violation .
+  sh:severity sh:Violation ;
+  sh:message  "A DecimalValue requires exactly one valid decimal" .
 
 ##############
 # GeonameValue
 api-shapes:GeonameValue_ClassShape
   a              sh:NodeShape ;
-  sh:targetClass knora-api:GeonameValue ;
   sh:name        "Validates the properties used with this targetClass" ;
-  sh:message     "GeonameValue" ;
+  sh:targetClass knora-api:GeonameValue ;
   sh:property    api-shapes:geonameValueAsGeonameCode_Shape ,
                  api-shapes:valueHasComment_Shape ;
-  sh:severity    sh:Violation .
+  sh:severity    sh:Violation ;
+  sh:message     "GeonameValue" .
 
 api-shapes:geonameValueAsGeonameCode_Shape
   a           sh:PropertyShape ;
-  sh:message  "The value must be a valid geoname code" ;
   sh:path     knora-api:geonameValueAsGeonameCode ;
+  sh:datatype xsd:string ;
   sh:pattern  "^\\d+$" ;
   sh:minCount 1 ;
   sh:maxCount 1 ;
-  sh:datatype xsd:string ;
-  sh:severity sh:Violation .
+  sh:severity sh:Violation ;
+  sh:message  "The value must be a valid geoname code" .
 
 ##############
 # GeomValue
 api-shapes:GeomValue_ClassShape
   a              sh:NodeShape ;
-  sh:targetClass knora-api:GeomValue ;
   sh:name        "Validates the properties used with this targetClass" ;
-  sh:message     "GeomValue" ;
+  sh:targetClass knora-api:GeomValue ;
   sh:property    api-shapes:geometryValueAsGeometry_Shape ,
                  api-shapes:valueHasComment_Shape ;
-  sh:severity    sh:Violation .
+  sh:severity    sh:Violation ;
+  sh:message     "GeomValue" .
 
 api-shapes:geometryValueAsGeometry_Shape
   a           sh:PropertyShape ;
-  sh:message  "The value must be a valid geometry JSON object" ;
   sh:path     knora-api:geometryValueAsGeometry ;
+  sh:datatype xsd:string ;
   sh:pattern  "\\s*\\S+\\s*" ;
   sh:minCount 1 ;
   sh:maxCount 1 ;
-  sh:datatype xsd:string ;
-  sh:severity sh:Violation .
+  sh:severity sh:Violation ;
+  sh:message  "The value must be a valid geometry JSON object" .
 
 ##############
 # IntervalValue
 api-shapes:IntervalValue_ClassShape
   a              sh:NodeShape ;
-  sh:targetClass knora-api:IntervalValue ;
   sh:name        "Validates the properties used with this targetClass" ;
-  sh:message     "IntervalValue" ;
+  sh:targetClass knora-api:IntervalValue ;
   sh:property    [
                    sh:path knora-api:intervalValueHasStart ;
 		               sh:lessThan knora-api:intervalValueHasEnd ;
-                   sh:message "The start of the interval must be smaller than the end." ;
                    sh:severity sh:Violation ;
+                   sh:message "The start of the interval must be smaller than the end." ;
                  ] ,
                  api-shapes:valueHasComment_Shape ,
                  api-shapes:intervalValueHasStart_PropShape ,
                  api-shapes:intervalValueHasEnd_PropShape ;
-  sh:severity sh:Violation .
+  sh:severity    sh:Violation ;
+  sh:message     "IntervalValue" .
 
 ### knora-api:intervalValueHasStart
 api-shapes:intervalValueHasStart_PropShape
   a               sh:PropertyShape ;
-  sh:message      "The interval start must be a non-negative integer or decimal." ;
   sh:path         knora-api:intervalValueHasStart ;
   sh:datatype     xsd:decimal ;
   sh:minInclusive 0 ;
   sh:minCount     1 ;
   sh:maxCount     1 ;
-  sh:severity     sh:Violation .
+  sh:severity     sh:Violation ;
+  sh:message      "The interval start must be a non-negative integer or decimal." .
 
 ### knora-api:intervalValueHasEnd
 api-shapes:intervalValueHasEnd_PropShape
   a               sh:PropertyShape ;
-  sh:message      "The interval end must be an integer or decimal that is larger than 0." ;
   sh:path         knora-api:intervalValueHasEnd ;
   sh:datatype     xsd:decimal ;
   sh:minExclusive 0 ;
   sh:minCount     1 ;
   sh:maxCount     1 ;
-  sh:severity     sh:Violation .
+  sh:severity     sh:Violation ;
+  sh:message      "The interval end must be an integer or decimal that is larger than 0." .
 
 ##############
 # IntValue
 api-shapes:IntValue_ClassShape
   a              sh:NodeShape ;
-  sh:targetClass knora-api:IntValue ;
   sh:name        "Validates the properties used with this targetClass" ;
-  sh:message     "IntValue" ;
+  sh:targetClass knora-api:IntValue ;
   sh:property    api-shapes:intValueAsInt_Shape ,
                  api-shapes:valueHasComment_Shape ;
-  sh:severity    sh:Violation .
+  sh:severity    sh:Violation ;
+  sh:message     "IntValue" .
 
 api-shapes:intValueAsInt_Shape
   a           sh:PropertyShape ;
-  sh:message  "An IntValue requires exactly one valid integer" ;
   sh:path     knora-api:intValueAsInt ;
   sh:datatype xsd:integer ;
   sh:minCount 1 ;
   sh:maxCount 1 ;
-  sh:severity sh:Violation .
+  sh:severity sh:Violation ;
+  sh:message  "An IntValue requires exactly one valid integer" .
 
 ##############
 # LinkValue
@@ -273,11 +273,11 @@ api-shapes:intValueAsInt_Shape
 # The Shape is constructed through the SPARQL queries
 api-shapes:LinkValue_ClassShape
   a              sh:NodeShape ;
-  sh:targetClass knora-api:LinkValue ;
   sh:name        "Validates the metadata properties used with this targetClass" ;
-  sh:message     "LinkValue" ;
+  sh:targetClass knora-api:LinkValue ;
   sh:property    api-shapes:valueHasComment_Shape ;
-  sh:severity    sh:Violation .
+  sh:severity    sh:Violation ;
+  sh:message     "LinkValue" .
 
 ##############
 # ListValue
@@ -286,11 +286,11 @@ api-shapes:LinkValue_ClassShape
 # The Shape is constructed through the SPARQL queries
 api-shapes:ListValue_ClassShape
   a              sh:NodeShape ;
-  sh:targetClass knora-api:ListValue ;
   sh:name        "Validates the metadata properties used with this targetClass" ;
-  sh:message     "ListValue" ;
+  sh:targetClass knora-api:ListValue ;
   sh:property    api-shapes:valueHasComment_Shape ;
-  sh:severity    sh:Violation .
+  sh:severity    sh:Violation ;
+  sh:message     "ListValue" .
 
 ##############
 # TextValue
@@ -299,11 +299,11 @@ api-shapes:ListValue_ClassShape
 # It cannot give information if it is the correct TextValue type
 api-shapes:TextValue_ClassShape
   a              sh:NodeShape ;
-  sh:targetClass knora-api:TextValue ;
   sh:name        "Validates the metadata properties used with this targetClass" ;
-  sh:message     "TextValue" ;
+  sh:targetClass knora-api:TextValue ;
   sh:property    api-shapes:valueHasComment_Shape ;
-  sh:severity    sh:Violation .
+  sh:severity    sh:Violation ;
+  sh:message     "TextValue" .
 
 ###
 # SimpleTextValue
@@ -319,19 +319,20 @@ api-shapes:SimpleTextValue_ClassShape
 # Because it is not a separate class we have to check the cardinality of the property
 api-shapes:SimpleTextValue_PropShape
   a           sh:PropertyShape ;
-  sh:message  "TextValue without formatting" ;
   sh:path     knora-api:valueAsString ;
   sh:datatype xsd:string ;
   sh:minCount 1 ;
-  sh:maxCount 1 .
+  sh:maxCount 1 ;
+  sh:severity sh:Violation ;
+  sh:message  "TextValue without formatting" .
 
 api-shapes:valueAsString_Shape
   a           sh:PropertyShape ;
-  sh:message  "The value must be a non-empty string" ;
   sh:path     knora-api:valueAsString ;
-  sh:pattern  "\\s*\\S+\\s*" ;
   sh:datatype xsd:string ;
-  sh:severity sh:Violation .
+  sh:pattern  "\\s*\\S+\\s*" ;
+  sh:severity sh:Violation ;
+  sh:message  "The value must be a non-empty string" .
 
 ###
 # FormattedTextValue
@@ -348,50 +349,51 @@ api-shapes:FormattedTextValue_ClassShape
 # Because it is not a separate class we have to check the cardinality of the property
 api-shapes:FormattedTextValue_PropShape
   a           sh:PropertyShape ;
-  sh:message  "TextValue with formatting" ;
   sh:path     knora-api:textValueAsXml ;
   sh:datatype xsd:string ;
   sh:minCount 1 ;
-  sh:maxCount 1 .
+  sh:maxCount 1 ;
+  sh:severity sh:Violation ;
+  sh:message  "TextValue with formatting" .
 
 api-shapes:textValueAsXml_Shape
   a           sh:PropertyShape ;
-  sh:message  "The value must be a non-empty string" ;
   sh:path     knora-api:textValueAsXml ;
-  sh:pattern  "\\s*\\S+\\s*" ;
   sh:datatype xsd:string ;
-  sh:severity sh:Violation .
+  sh:pattern  "\\s*\\S+\\s*" ;
+  sh:severity sh:Violation ;
+  sh:message  "The value must be a non-empty string" .
 
 ##############
 # TimeValue
 api-shapes:TimeValue_ClassShape
   a              sh:NodeShape ;
-  sh:targetClass knora-api:TimeValue ;
   sh:name        "Validates the properties used with this targetClass" ;
-  sh:message     "TimeValue" ;
+  sh:targetClass knora-api:TimeValue ;
   sh:property    api-shapes:timeValueAsTimeStamp_Shape ,
                  api-shapes:valueHasComment_Shape ;
-  sh:severity    sh:Violation .
+  sh:severity    sh:Violation ;
+  sh:message     "TimeValue" .
 
 api-shapes:timeValueAsTimeStamp_Shape
   a           sh:PropertyShape ;
-  sh:message  "A TimeValue requires exactly one valid xsd:dateTimeStamp" ;
   sh:path     knora-api:timeValueAsTimeStamp ;
   sh:datatype xsd:dateTimeStamp ;
   sh:minCount 1 ;
   sh:maxCount 1 ;
-  sh:severity sh:Violation .
+  sh:severity sh:Violation ;
+  sh:message  "A TimeValue requires exactly one valid xsd:dateTimeStamp" .
 
 ##############
 # UriValue
 api-shapes:UriValue_ClassShape
   a              sh:NodeShape ;
-  sh:targetClass knora-api:UriValue ;
   sh:name        "Validates the properties used with this targetClass" ;
-  sh:message     "UriValue" ;
+  sh:targetClass knora-api:UriValue ;
   sh:property    api-shapes:uriValueAsUri_Shape ,
                  api-shapes:valueHasComment_Shape ;
-  sh:severity    sh:Violation .
+  sh:severity    sh:Violation ;
+  sh:message     "UriValue" .
 
 api-shapes:uriValueAsUri_Shape
   a           sh:PropertyShape ;
@@ -412,17 +414,17 @@ api-shapes:hasLinkTo_PropertyShape
   a          sh:PropertyShape ;
   sh:path    knora-api:hasLinkTo ;
   sh:class   knora-api:LinkValue ;
-  sh:message "This property requires an LinkValue" ;
-  sh:node    api-shapes:hasLinkTo_NodeShape .
+  sh:node    api-shapes:hasLinkTo_NodeShape ;
+  sh:message "This property requires a LinkValue" .
 
 api-shapes:hasLinkTo_NodeShape
   a           sh:NodeShape ;
   sh:name     "This ensures that the target of the property is of type Resource, i.e. exists in the graph." ;
   sh:property [
                 a          sh:PropertyShape ;
+                sh:path    api-shapes:linkValueHasTargetID ;
                 sh:class   knora-api:Resource ;
                 sh:message "Range is knora-api:Resource or a subclass." ;
-                sh:path    api-shapes:linkValueHasTargetID ;
               ] ;
   sh:severity sh:Violation .
 
@@ -433,17 +435,17 @@ api-shapes:isRegionOf_PropertyShape
   a          sh:PropertyShape ;
   sh:path    knora-api:isRegionOf ;
   sh:class   knora-api:LinkValue ;
-  sh:message "This property requires an LinkValue" ;
-  sh:node    api-shapes:isRegionOf_NodeShape .
+  sh:node    api-shapes:isRegionOf_NodeShape ;
+  sh:message "This property requires an LinkValue" .
 
 api-shapes:isRegionOf_NodeShape
   a           sh:NodeShape ;
   sh:name     "This ensures that the target of the property is of type Representation, i.e. exists in the graph." ;
   sh:property [
                 a          sh:PropertyShape ;
+                sh:path    api-shapes:linkValueHasTargetID ;
                 sh:class   knora-api:Representation ;
                 sh:message "http://api.knora.org/ontology/knora-api/v2#Representation" ;
-                sh:path    api-shapes:linkValueHasTargetID ;
               ] ;
   sh:severity sh:Violation .
 
@@ -452,21 +454,21 @@ api-shapes:isRegionOf_NodeShape
 
 api-shapes:hasComment_PropertyShape
   a       sh:PropertyShape ;
-  sh:node api-shapes:FormattedTextValue_ClassShape ;
-  sh:path knora-api:hasComment .
+  sh:path knora-api:hasComment ;
+  sh:node api-shapes:FormattedTextValue_ClassShape .
 
 
 ### knora-api:valueHasComment
 
 api-shapes:valueHasComment_Shape
   a           sh:PropertyShape ;
-  sh:message  "The comment on the value must be a non-empty string" ;
   sh:path     knora-api:valueHasComment ;
+  sh:datatype xsd:string ;
+  sh:pattern  "\\s*\\S+\\s*" ;
   sh:minCount 0 ;
   sh:maxCount 1 ;
-  sh:pattern  "\\s*\\S+\\s*" ;
-  sh:datatype xsd:string ;
-  sh:severity sh:Violation .
+  sh:severity sh:Violation ;
+  sh:message  "The comment on the value must be a non-empty string" .
 
 
 ### knora-api:hasColor
@@ -492,13 +494,13 @@ api-shapes:hasGeometry_PropertyShape
 # dash:coExistsWith ensures that isPartOf also needs seqnum. There is no need for a second shape.
 api-shapes:seqnum_PropShape
   a                 sh:PropertyShape ;
+  sh:path           knora-api:seqnum ;
+  dash:coExistsWith knora-api:isPartOf ;
+  sh:severity       sh:Violation ;
   sh:message        """
                     The property seqnum or isPartOf (or sub-properties of them) must be used together.
                     This resource only used one of the properties.
-                    """ ;
-  sh:path           knora-api:seqnum ;
-  dash:coExistsWith knora-api:isPartOf ;
-  sh:severity       sh:Violation .
+                    """ .
 
 
 ### knora-api:hasSegmentBounds
@@ -516,17 +518,17 @@ api-shapes:relatesTo_PropertyShape
   a          sh:PropertyShape ;
   sh:path    knora-api:relatesTo ;
   sh:class   knora-api:LinkValue ;
-  sh:message "This property requires an LinkValue" ;
-  sh:node    api-shapes:relatesTo_NodeShape .
+  sh:node    api-shapes:relatesTo_NodeShape ;
+  sh:message "This property requires an LinkValue" .
 
 api-shapes:relatesTo_NodeShape
   a           sh:NodeShape ;
   sh:name     "This ensures that the target of the property is of type Resource, i.e. exists in the graph." ;
   sh:property [
                 a          sh:PropertyShape ;
+                sh:path    api-shapes:linkValueHasTargetID ;
                 sh:class   knora-api:Resource ;
                 sh:message "Range is knora-api:Resource or a subclass." ;
-                sh:path    api-shapes:linkValueHasTargetID ;
               ] ;
   sh:severity sh:Violation .
 
@@ -537,17 +539,17 @@ api-shapes:isVideoSegmentOf_PropertyShape
   a          sh:PropertyShape ;
   sh:path    knora-api:isVideoSegmentOf ;
   sh:class   knora-api:LinkValue ;
-  sh:message "This property requires an LinkValue" ;
-  sh:node    api-shapes:isVideoSegmentOf_NodeShape .
+  sh:node    api-shapes:isVideoSegmentOf_NodeShape ;
+  sh:message "This property requires an LinkValue" .
 
 api-shapes:isVideoSegmentOf_NodeShape
   a           sh:NodeShape ;
   sh:name     "This ensures that the target of the property is of type MovingImageRepresentation, i.e. exists in the graph." ;
   sh:property [
                 a          sh:PropertyShape ;
+                sh:path    api-shapes:linkValueHasTargetID ;
                 sh:class   knora-api:MovingImageRepresentation ;
                 sh:message "http://api.knora.org/ontology/knora-api/v2#MovingImageRepresentation" ;
-                sh:path    api-shapes:linkValueHasTargetID ;
               ] ;
   sh:severity sh:Violation .
 
@@ -558,17 +560,17 @@ api-shapes:isAudioSegmentOf_PropertyShape
   a          sh:PropertyShape ;
   sh:path    knora-api:isAudioSegmentOf ;
   sh:class   knora-api:LinkValue ;
-  sh:message "This property requires an LinkValue" ;
-  sh:node    api-shapes:isAudioSegmentOf_NodeShape .
+  sh:node    api-shapes:isAudioSegmentOf_NodeShape ;
+  sh:message "This property requires an LinkValue" .
 
 api-shapes:isAudioSegmentOf_NodeShape
   a           sh:NodeShape ;
   sh:name     "This ensures that the target of the property is of type AudioRepresentation, i.e. exists in the graph." ;
   sh:property [
                 a          sh:PropertyShape ;
+                sh:path    api-shapes:linkValueHasTargetID ;
                 sh:class   knora-api:AudioRepresentation ;
                 sh:message "http://api.knora.org/ontology/knora-api/v2#AudioRepresentation" ;
-                sh:path    api-shapes:linkValueHasTargetID ;
               ] ;
   sh:severity sh:Violation .
 
@@ -577,24 +579,24 @@ api-shapes:isAudioSegmentOf_NodeShape
 
 api-shapes:hasDescription_PropertyShape
   a       sh:PropertyShape ;
-  sh:node api-shapes:FormattedTextValue_ClassShape ;
-  sh:path knora-api:hasDescription .
+  sh:path knora-api:hasDescription ;
+  sh:node api-shapes:FormattedTextValue_ClassShape .
 
 
 ### knora-api:hasTitle
 
 api-shapes:hasTitle_PropertyShape
   a       sh:PropertyShape ;
-  sh:node api-shapes:SimpleTextValue_ClassShape ;
-  sh:path knora-api:hasTitle .
+  sh:path knora-api:hasTitle ;
+  sh:node api-shapes:SimpleTextValue_ClassShape .
 
 
 ### knora-api:hasKeyword
 
 api-shapes:hasKeyword_PropertyShape
   a       sh:PropertyShape ;
-  sh:node api-shapes:SimpleTextValue_ClassShape ;
-  sh:path knora-api:hasKeyword .
+  sh:path knora-api:hasKeyword ;
+  sh:node api-shapes:SimpleTextValue_ClassShape .
 
 
 #########################################

@@ -37,24 +37,19 @@ def test_construct_one_property_type_text_value(one_richtext_prop: Graph) -> Non
     assert next(res.objects(ONTO.testRichtext_PropShape, SH.node)) == API_SHAPES.FormattedTextValue_ClassShape
 
 
-def test_add_property_shapes_to_class_shapes_none(card_1: Graph) -> None:
+def test_add_property_shapes_to_class_shapes(card_1: Graph) -> None:
     res = _add_property_shapes_to_class_shapes(card_1)
-    assert len(res) == 0
-
-
-def test_add_property_shapes_to_class_shapes(card_0_n: Graph) -> None:
-    res = _add_property_shapes_to_class_shapes(card_0_n)
-    expected_props = {ONTO.testSimpleText_PropShape}
+    expected_props = {ONTO.testBoolean_PropShape}
     assert set(res.objects(ONTO.ClassMixedCard, SH.property)) == expected_props
 
 
 def test_construct_value_type_shapes_to_class_shapes_literal(card_1: Graph) -> None:
     res = _construct_value_type_shapes_to_class_shapes(card_1)
-    prop_bn = next(res.objects(ONTO.ClassMixedCard, SH.property))
-    assert next(res.objects(prop_bn, SH.path)) == ONTO.testBoolean
-    assert next(res.objects(prop_bn, URIRef("http://www.w3.org/ns/shacl#class"))) == KNORA_API.BooleanValue
-    assert next(res.objects(prop_bn, SH.message)) == Literal("This property requires a BooleanValue")
-    assert len(res) == 6
+    prop_iri = ONTO.testBoolean_PropShape
+    assert next(res.objects(prop_iri, SH.path)) == ONTO.testBoolean
+    assert next(res.objects(prop_iri, URIRef("http://www.w3.org/ns/shacl#class"))) == KNORA_API.BooleanValue
+    assert next(res.objects(prop_iri, SH.message)) == Literal("This property requires a BooleanValue")
+    assert len(res) == 4
 
 
 def test_construct_value_type_shapes_to_class_shapes_link_value(link_prop_card_1: Graph) -> None:
@@ -69,11 +64,11 @@ def test_construct_link_value_type_shapes_to_class_shapes_literal(card_1: Graph)
 
 def test_construct_link_value_type_shapes_to_class_shapes_link_value(link_prop_card_1: Graph) -> None:
     res = _construct_link_value_type_shapes_to_class_shapes(link_prop_card_1)
-    prop_bn = next(res.objects(ONTO.ClassMixedCard, SH.property))
-    assert next(res.objects(prop_bn, SH.path)) == ONTO.testHasLinkToCardOneResource
-    assert next(res.objects(prop_bn, URIRef("http://www.w3.org/ns/shacl#class"))) == KNORA_API.LinkValue
-    assert next(res.objects(prop_bn, SH.message)) == Literal("This property requires a LinkValue")
-    assert len(res) == 6
+    prop_iri = ONTO.testHasLinkToCardOneResource_PropShape
+    assert next(res.objects(prop_iri, SH.path)) == ONTO.testHasLinkToCardOneResource
+    assert next(res.objects(prop_iri, URIRef("http://www.w3.org/ns/shacl#class"))) == KNORA_API.LinkValue
+    assert next(res.objects(prop_iri, SH.message)) == Literal("This property requires a LinkValue")
+    assert len(res) == 4
 
 
 class TestConstructListNode:

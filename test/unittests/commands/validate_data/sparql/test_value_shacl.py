@@ -37,9 +37,14 @@ def test_construct_one_property_type_text_value(one_richtext_prop: Graph) -> Non
     assert next(res.objects(ONTO.testRichtext_PropShape, SH.node)) == API_SHAPES.FormattedTextValue_ClassShape
 
 
-def test_add_property_shapes_to_class_shapes(card_1: Graph) -> None:
+def test_add_property_shapes_to_class_shapes_none(card_1: Graph) -> None:
     res = _add_property_shapes_to_class_shapes(card_1)
-    expected_props = {ONTO.testBoolean_PropShape}
+    assert len(res) == 0
+
+
+def test_add_property_shapes_to_class_shapes(card_0_n: Graph) -> None:
+    res = _add_property_shapes_to_class_shapes(card_0_n)
+    expected_props = {ONTO.testSimpleText_PropShape}
     assert set(res.objects(ONTO.ClassMixedCard, SH.property)) == expected_props
 
 

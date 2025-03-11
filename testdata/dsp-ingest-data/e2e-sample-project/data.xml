@@ -4,7 +4,7 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
        shortcode="4126"
-       default-ontology="e2e-ingest-tp">
+       default-ontology="e2e-ingest-onto">
     
     <authorship id="authorship_1">
         <author>Johannes Nussbaum</author>

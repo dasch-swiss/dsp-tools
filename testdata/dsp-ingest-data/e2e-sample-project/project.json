@@ -12,7 +12,7 @@
         ],
         "ontologies": [
             {
-                "name": "e2e-testonto",
+                "name": "e2e-ingest-onto",
                 "label": "e2e Test ontology",
                 "properties": [
                     {

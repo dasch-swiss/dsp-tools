@@ -1,16 +1,15 @@
+import socket
 import subprocess
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import ClassVar
 from typing import Iterator
-import socket
 
 import docker
 import regex
 import requests
 from docker.errors import NotFound
-from docker.models.containers import Container
 from docker.models.networks import Network
 from testcontainers.core.container import DockerContainer
 from testcontainers.core.waiting_utils import wait_for_logs
@@ -80,7 +79,7 @@ class TestContainerFactory:
         if subprocess.run("docker stats --no-stream".split(), check=False).returncode != 0:
             raise RuntimeError("Docker is not running properly")
         cls.__counter += 1
-        with get_test_network(cls.__counter) as network:
+        with _get_test_network(cls.__counter) as network:
             ports = _get_ports()
             containers = _get_all_containers(network, cls.image_versions, ports)
             try:
@@ -101,7 +100,7 @@ def _get_ports() -> ContainerPorts:
 
 
 @contextmanager
-def get_test_network(counter: int) -> Iterator[Network]:
+def _get_test_network(counter: int) -> Iterator[Network]:
     name = f"dsp-tools-test-network-{counter}"
     client = docker.client.from_env()
     try:

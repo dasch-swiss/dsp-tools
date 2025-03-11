@@ -94,25 +94,21 @@ api-shapes:Value_ClassShape
                     sh:message  "The comment on the value must be a non-empty string" ;
                  ] .
 
-
 ##############
 # BooleanValue
 api-shapes:BooleanValue_ClassShape
   a              sh:NodeShape ;
   sh:name        "Validates the properties used with this targetClass" ;
   sh:targetClass knora-api:BooleanValue ;
-  sh:property    api-shapes:booleanValueAsBoolean_Shape ;
-  sh:severity    sh:Violation ;
-  sh:message     "BooleanValue" .
-
-api-shapes:booleanValueAsBoolean_Shape
-  a           sh:PropertyShape ;
-  sh:path     knora-api:booleanValueAsBoolean ;
-  sh:datatype xsd:boolean ;
-  sh:minCount 1 ;
-  sh:maxCount 1 ;
-  sh:severity sh:Violation ;
-  sh:message  "A BooleanValue requires exactly one valid boolean".
+  sh:property    [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:booleanValueAsBoolean ;
+                    sh:datatype xsd:boolean ;
+                    sh:minCount 1 ;
+                    sh:maxCount 1 ;
+                    sh:severity sh:Violation ;
+                    sh:message  "A BooleanValue requires exactly one valid boolean" ;
+                 ] .
 
 ##############
 # ColorValue
@@ -120,19 +116,16 @@ api-shapes:ColorValue_ClassShape
   a              sh:NodeShape ;
   sh:name        "Validates the properties used with this targetClass" ;
   sh:targetClass knora-api:ColorValue ;
-  sh:property    api-shapes:colorValueAsColor_Shape ;
-  sh:severity    sh:Violation ;
-  sh:message     "ColorValue" .
-
-api-shapes:colorValueAsColor_Shape
-  a           sh:PropertyShape ;
-  sh:path     knora-api:colorValueAsColor ;
-  sh:datatype xsd:string ;
-  sh:pattern  "^#([0-9a-fA-F]{3}){1,2}$" ;
-  sh:minCount 1 ;
-  sh:maxCount 1 ;
-  sh:severity sh:Violation ;
-  sh:message  "A ColorValue requires exactly one valid color" .
+  sh:property    [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:colorValueAsColor ;
+                    sh:datatype xsd:string ;
+                    sh:pattern  "^#([0-9a-fA-F]{3}){1,2}$" ;
+                    sh:minCount 1 ;
+                    sh:maxCount 1 ;
+                    sh:severity sh:Violation ;
+                    sh:message  "A ColorValue requires exactly one valid color" ;
+                 ] .
 
 ##############
 # DateValue
@@ -140,21 +133,18 @@ api-shapes:DateValue_ClassShape
   a              sh:NodeShape ;
   sh:name        "Validates the properties used with this targetClass" ;
   sh:targetClass knora-api:DateValue ;
-  sh:property    api-shapes:valueAsString_DateValueShape ;
-  sh:severity    sh:Violation ;
-  sh:message     "DateValue" .
-
-# Currently it is only checked that the string value is not empty
-# To validate the DateValue as the API receives it, the Date should be taken apart
-api-shapes:valueAsString_DateValueShape
-  a           sh:PropertyShape ;
-  sh:path     knora-api:valueAsString ;
-  sh:datatype xsd:string ;
-  sh:pattern  "\\s*\\S+\\s*" ;
-  sh:minCount 1 ;
-  sh:maxCount 1 ;
-  sh:severity sh:Violation ;
-  sh:message  "A DateValue requires a valid Date" .
+  sh:property    [
+                    # Currently it is only checked that the string value is not empty
+                    # To validate the DateValue as the API receives it, the Date should be taken apart
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:valueAsString ;
+                    sh:datatype xsd:string ;
+                    sh:pattern  "\\s*\\S+\\s*" ;
+                    sh:minCount 1 ;
+                    sh:maxCount 1 ;
+                    sh:severity sh:Violation ;
+                    sh:message  "A DateValue requires a valid Date" ;
+                 ] .
 
 ##############
 # DecimalValue
@@ -162,18 +152,15 @@ api-shapes:DecimalValue_ClassShape
   a              sh:NodeShape ;
   sh:name        "Validates the properties used with this targetClass" ;
   sh:targetClass knora-api:DecimalValue ;
-  sh:property    api-shapes:decimalValueAsDecimal_Shape ;
-  sh:severity    sh:Violation ;
-  sh:message     "DecimalValue" .
-
-api-shapes:decimalValueAsDecimal_Shape
-  a           sh:PropertyShape ;
-  sh:path     knora-api:decimalValueAsDecimal ;
-  sh:datatype xsd:decimal ;
-  sh:minCount 1 ;
-  sh:maxCount 1 ;
-  sh:severity sh:Violation ;
-  sh:message  "A DecimalValue requires exactly one valid decimal" .
+  sh:property    [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:decimalValueAsDecimal ;
+                    sh:datatype xsd:decimal ;
+                    sh:minCount 1 ;
+                    sh:maxCount 1 ;
+                    sh:severity sh:Violation ;
+                    sh:message  "A DecimalValue requires exactly one valid decimal"
+                 ] .
 
 ##############
 # GeonameValue
@@ -181,19 +168,16 @@ api-shapes:GeonameValue_ClassShape
   a              sh:NodeShape ;
   sh:name        "Validates the properties used with this targetClass" ;
   sh:targetClass knora-api:GeonameValue ;
-  sh:property    api-shapes:geonameValueAsGeonameCode_Shape ;
-  sh:severity    sh:Violation ;
-  sh:message     "GeonameValue" .
-
-api-shapes:geonameValueAsGeonameCode_Shape
-  a           sh:PropertyShape ;
-  sh:path     knora-api:geonameValueAsGeonameCode ;
-  sh:datatype xsd:string ;
-  sh:pattern  "^\\d+$" ;
-  sh:minCount 1 ;
-  sh:maxCount 1 ;
-  sh:severity sh:Violation ;
-  sh:message  "The value must be a valid geoname code" .
+  sh:property    [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:geonameValueAsGeonameCode ;
+                    sh:datatype xsd:string ;
+                    sh:pattern  "^\\d+$" ;
+                    sh:minCount 1 ;
+                    sh:maxCount 1 ;
+                    sh:severity sh:Violation ;
+                    sh:message  "The value must be a valid geoname code" ;
+                 ] .
 
 ##############
 # GeomValue
@@ -201,19 +185,16 @@ api-shapes:GeomValue_ClassShape
   a              sh:NodeShape ;
   sh:name        "Validates the properties used with this targetClass" ;
   sh:targetClass knora-api:GeomValue ;
-  sh:property    api-shapes:geometryValueAsGeometry_Shape ;
-  sh:severity    sh:Violation ;
-  sh:message     "GeomValue" .
-
-api-shapes:geometryValueAsGeometry_Shape
-  a           sh:PropertyShape ;
-  sh:path     knora-api:geometryValueAsGeometry ;
-  sh:datatype xsd:string ;
-  sh:pattern  "\\s*\\S+\\s*" ;
-  sh:minCount 1 ;
-  sh:maxCount 1 ;
-  sh:severity sh:Violation ;
-  sh:message  "The value must be a valid geometry JSON object" .
+  sh:property    [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:geometryValueAsGeometry ;
+                    sh:datatype xsd:string ;
+                    sh:pattern  "\\s*\\S+\\s*" ;
+                    sh:minCount 1 ;
+                    sh:maxCount 1 ;
+                    sh:severity sh:Violation ;
+                    sh:message  "The value must be a valid geometry JSON object" ;
+                 ] .
 
 ##############
 # IntervalValue
@@ -222,37 +203,32 @@ api-shapes:IntervalValue_ClassShape
   sh:name        "Validates the properties used with this targetClass" ;
   sh:targetClass knora-api:IntervalValue ;
   sh:property    [
-                   sh:path knora-api:intervalValueHasStart ;
-		               sh:lessThan knora-api:intervalValueHasEnd ;
-                   sh:severity sh:Violation ;
-                   sh:message "The start of the interval must be smaller than the end." ;
+                    a               sh:PropertyShape ;
+                    sh:path         knora-api:intervalValueHasStart ;
+                    sh:datatype     xsd:decimal ;
+                    sh:minInclusive 0 ;
+                    sh:minCount     1 ;
+                    sh:maxCount     1 ;
+                    sh:severity     sh:Violation ;
+                    sh:message      "The interval start must be a non-negative integer or decimal." ;
                  ] ,
-                 api-shapes:intervalValueHasStart_PropShape ,
-                 api-shapes:intervalValueHasEnd_PropShape ;
-  sh:severity    sh:Violation ;
-  sh:message     "IntervalValue" .
+                 [
+                    a               sh:PropertyShape ;
+                    sh:path         knora-api:intervalValueHasEnd ;
+                    sh:datatype     xsd:decimal ;
+                    sh:minExclusive 0 ;
+                    sh:minCount     1 ;
+                    sh:maxCount     1 ;
+                    sh:severity     sh:Violation ;
+                    sh:message      "The interval end must be an integer or decimal that is larger than 0." ;
+                 ] ,
 
-### knora-api:intervalValueHasStart
-api-shapes:intervalValueHasStart_PropShape
-  a               sh:PropertyShape ;
-  sh:path         knora-api:intervalValueHasStart ;
-  sh:datatype     xsd:decimal ;
-  sh:minInclusive 0 ;
-  sh:minCount     1 ;
-  sh:maxCount     1 ;
-  sh:severity     sh:Violation ;
-  sh:message      "The interval start must be a non-negative integer or decimal." .
-
-### knora-api:intervalValueHasEnd
-api-shapes:intervalValueHasEnd_PropShape
-  a               sh:PropertyShape ;
-  sh:path         knora-api:intervalValueHasEnd ;
-  sh:datatype     xsd:decimal ;
-  sh:minExclusive 0 ;
-  sh:minCount     1 ;
-  sh:maxCount     1 ;
-  sh:severity     sh:Violation ;
-  sh:message      "The interval end must be an integer or decimal that is larger than 0." .
+                 [
+                     sh:path knora-api:intervalValueHasStart ;
+                     sh:lessThan knora-api:intervalValueHasEnd ;
+                     sh:severity sh:Violation ;
+                     sh:message "The start of the interval must be smaller than the end." ;
+                 ] .
 
 ##############
 # IntValue
@@ -260,18 +236,15 @@ api-shapes:IntValue_ClassShape
   a              sh:NodeShape ;
   sh:name        "Validates the properties used with this targetClass" ;
   sh:targetClass knora-api:IntValue ;
-  sh:property    api-shapes:intValueAsInt_Shape ;
-  sh:severity    sh:Violation ;
-  sh:message     "IntValue" .
-
-api-shapes:intValueAsInt_Shape
-  a           sh:PropertyShape ;
-  sh:path     knora-api:intValueAsInt ;
-  sh:datatype xsd:integer ;
-  sh:minCount 1 ;
-  sh:maxCount 1 ;
-  sh:severity sh:Violation ;
-  sh:message  "An IntValue requires exactly one valid integer" .
+  sh:property    [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:intValueAsInt ;
+                    sh:datatype xsd:integer ;
+                    sh:minCount 1 ;
+                    sh:maxCount 1 ;
+                    sh:severity sh:Violation ;
+                    sh:message  "An IntValue requires exactly one valid integer" ;
+                 ] .
 
 ##############
 # LinkValue
@@ -295,27 +268,24 @@ api-shapes:intValueAsInt_Shape
 api-shapes:SimpleTextValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Ensures that the properties for a simple text value are used" ;
-  sh:property api-shapes:SimpleTextValue_PropShape ,
-              api-shapes:valueAsString_Shape ;
-  sh:severity sh:Violation .
-
-# Because it is not a separate class we have to check the cardinality of the property
-api-shapes:SimpleTextValue_PropShape
-  a           sh:PropertyShape ;
-  sh:path     knora-api:valueAsString ;
-  sh:datatype xsd:string ;
-  sh:minCount 1 ;
-  sh:maxCount 1 ;
-  sh:severity sh:Violation ;
-  sh:message  "TextValue without formatting" .
-
-api-shapes:valueAsString_Shape
-  a           sh:PropertyShape ;
-  sh:path     knora-api:valueAsString ;
-  sh:datatype xsd:string ;
-  sh:pattern  "\\s*\\S+\\s*" ;
-  sh:severity sh:Violation ;
-  sh:message  "The value must be a non-empty string" .
+  sh:property [
+                  # Because it is not a separate class we have to check the cardinality of the property
+                  a           sh:PropertyShape ;
+                  sh:path     knora-api:valueAsString ;
+                  sh:datatype xsd:string ;
+                  sh:minCount 1 ;
+                  sh:maxCount 1 ;
+                  sh:severity sh:Violation ;
+                  sh:message  "TextValue without formatting"
+              ] ,
+              [
+                  a           sh:PropertyShape ;
+                  sh:path     knora-api:valueAsString ;
+                  sh:datatype xsd:string ;
+                  sh:pattern  "\\s*\\S+\\s*" ;
+                  sh:severity sh:Violation ;
+                  sh:message  "The value must be a non-empty string"
+              ] .
 
 ###
 # FormattedTextValue
@@ -324,27 +294,24 @@ api-shapes:valueAsString_Shape
 api-shapes:FormattedTextValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Ensures that the properties for a formatted text value are used" ;
-  sh:property api-shapes:FormattedTextValue_PropShape ,
-              api-shapes:textValueAsXml_Shape ;
-  sh:severity sh:Violation .
-
-# Because it is not a separate class we have to check the cardinality of the property
-api-shapes:FormattedTextValue_PropShape
-  a           sh:PropertyShape ;
-  sh:path     knora-api:textValueAsXml ;
-  sh:datatype xsd:string ;
-  sh:minCount 1 ;
-  sh:maxCount 1 ;
-  sh:severity sh:Violation ;
-  sh:message  "TextValue with formatting" .
-
-api-shapes:textValueAsXml_Shape
-  a           sh:PropertyShape ;
-  sh:path     knora-api:textValueAsXml ;
-  sh:datatype xsd:string ;
-  sh:pattern  "\\s*\\S+\\s*" ;
-  sh:severity sh:Violation ;
-  sh:message  "The value must be a non-empty string" .
+  sh:property [
+                  # Because it is not a separate class we have to check the cardinality of the property
+                  a           sh:PropertyShape ;
+                  sh:path     knora-api:textValueAsXml ;
+                  sh:datatype xsd:string ;
+                  sh:minCount 1 ;
+                  sh:maxCount 1 ;
+                  sh:severity sh:Violation ;
+                  sh:message  "TextValue with formatting" ;
+              ] ,
+              [
+                  a           sh:PropertyShape ;
+                  sh:path     knora-api:textValueAsXml ;
+                  sh:datatype xsd:string ;
+                  sh:pattern  "\\s*\\S+\\s*" ;
+                  sh:severity sh:Violation ;
+                  sh:message  "The value must be a non-empty string" ;
+              ] .
 
 ##############
 # TimeValue
@@ -352,18 +319,15 @@ api-shapes:TimeValue_ClassShape
   a              sh:NodeShape ;
   sh:name        "Validates the properties used with this targetClass" ;
   sh:targetClass knora-api:TimeValue ;
-  sh:property    api-shapes:timeValueAsTimeStamp_Shape ;
-  sh:severity    sh:Violation ;
-  sh:message     "TimeValue" .
-
-api-shapes:timeValueAsTimeStamp_Shape
-  a           sh:PropertyShape ;
-  sh:path     knora-api:timeValueAsTimeStamp ;
-  sh:datatype xsd:dateTimeStamp ;
-  sh:minCount 1 ;
-  sh:maxCount 1 ;
-  sh:severity sh:Violation ;
-  sh:message  "A TimeValue requires exactly one valid xsd:dateTimeStamp" .
+  sh:property    [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:timeValueAsTimeStamp ;
+                    sh:datatype xsd:dateTimeStamp ;
+                    sh:minCount 1 ;
+                    sh:maxCount 1 ;
+                    sh:severity sh:Violation ;
+                    sh:message  "A TimeValue requires exactly one valid xsd:dateTimeStamp"
+                 ] .
 
 ##############
 # UriValue
@@ -371,18 +335,15 @@ api-shapes:UriValue_ClassShape
   a              sh:NodeShape ;
   sh:name        "Validates the properties used with this targetClass" ;
   sh:targetClass knora-api:UriValue ;
-  sh:property    api-shapes:uriValueAsUri_Shape ;
-  sh:severity    sh:Violation ;
-  sh:message     "UriValue" .
-
-api-shapes:uriValueAsUri_Shape
-  a           sh:PropertyShape ;
-  sh:message  "A UriValue requires exactly one valid xsd:anyURI" ;
-  sh:path     knora-api:uriValueAsUri ;
-  sh:datatype xsd:anyURI ;
-  sh:minCount 1 ;
-  sh:maxCount 1 ;
-  sh:severity sh:Violation .
+  sh:property    [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:uriValueAsUri ;
+                    sh:datatype xsd:anyURI ;
+                    sh:minCount 1 ;
+                    sh:maxCount 1 ;
+                    sh:severity sh:Violation ;
+                    sh:message  "A UriValue requires exactly one valid xsd:anyURI" ;
+                 ] .
 
 #########################################
 # KNORA-API IN-BUILT PROPERTIES
@@ -441,19 +402,23 @@ api-shapes:hasComment_PropertyShape
 ### knora-api:hasColor
 
 api-shapes:hasColor_PropertyShape
-  a          sh:PropertyShape ;
-  sh:path    knora-api:hasColor ;
-  sh:class   knora-api:ColorValue ;
-  sh:message "This property requires an ColorValue" .
+  a           sh:PropertyShape ;
+  sh:path     knora-api:hasColor ;
+  sh:class    knora-api:ColorValue ;
+  sh:minCount 1 ;
+  sh:maxCount 1 ;
+  sh:message  "This property requires an ColorValue" .
 
 
 ### knora-api:hasGeometry
 
 api-shapes:hasGeometry_PropertyShape
-  a          sh:PropertyShape ;
-  sh:path    knora-api:hasGeometry ;
-  sh:class   knora-api:GeomValue ;
-  sh:message "This property requires an GeomValue" .
+  a           sh:PropertyShape ;
+  sh:path     knora-api:hasGeometry ;
+  sh:class    knora-api:GeomValue ;
+  sh:minCount 1 ;
+  sh:maxCount 1 ;
+  sh:message  "This property requires an GeomValue" .
 
 
 ### knora-api:seqnum and knora-api:isPartOf
@@ -473,10 +438,12 @@ api-shapes:seqnum_PropShape
 ### knora-api:hasSegmentBounds
 
 api-shapes:hasSegmentBounds_PropertyShape
-  a          sh:PropertyShape ;
-  sh:path    knora-api:hasSegmentBounds ;
-  sh:class   knora-api:IntervalValue ;
-  sh:message "This property requires an IntervalValue" .
+  a           sh:PropertyShape ;
+  sh:path     knora-api:hasSegmentBounds ;
+  sh:class    knora-api:IntervalValue ;
+  sh:minCount 1 ;
+  sh:maxCount 1 ;
+  sh:message  "This property requires an IntervalValue" .
 
 
 ### knora-api:relatesTo

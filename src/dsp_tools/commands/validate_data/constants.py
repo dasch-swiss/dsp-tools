@@ -57,10 +57,13 @@ FILE_VALUE_PROPERTIES = {
 
 
 FILE_VALUE_PROP_SHAPES = {
-    API_SHAPES.hasArchiveFileValue_PropShape,
-    API_SHAPES.hasAudioFileValue_PropShape,
-    API_SHAPES.hasDocumentFileValue_PropShape,
-    API_SHAPES.hasMovingImageFileValue_PropShape,
-    API_SHAPES.hasTextFileValue_PropShape,
-    API_SHAPES.hasStillImageFileValue_PropShape,
+    API_SHAPES.hasArchiveFileValue: ("bitstream", "'zip', 'tar', 'gz', 'z', 'tgz', 'gzip', '7z'"),
+    API_SHAPES.hasAudioFileValue: ("bitstream", "'mp3', 'wav'"),
+    API_SHAPES.hasDocumentFileValue: ("bitstream", "'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'"),
+    API_SHAPES.hasMovingImageFileValue: ("bitstream", "'mp4'"),
+    API_SHAPES.hasTextFileValue: ("bitstream", "'odd', 'rng', 'txt', 'xml', 'xsd', 'xsl', 'csv', 'json'"),
+    API_SHAPES.hasStillImageFileValue: (
+        "bitstream / iiif-uri",
+        "'jpg', 'jpeg', 'png', 'tif', 'tiff', 'jp2' or a IIIF-URI",
+    ),
 }

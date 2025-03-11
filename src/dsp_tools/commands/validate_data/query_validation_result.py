@@ -8,7 +8,6 @@ from rdflib import Graph
 from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.constants import DASH
-from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROP_SHAPES
 from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROPERTIES
 from dsp_tools.commands.validate_data.constants import KNORA_API
 from dsp_tools.commands.validate_data.constants import SubjectObjectTypeAlias
@@ -194,7 +193,7 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
         case SH.PatternConstraintComponent:
             return _query_pattern_constraint_component_violation(base_info.result_bn, base_info, results_and_onto)
         case SH.MinCountConstraintComponent:
-            return _query_for_min_cardinality_violation(base_info, msg, results_and_onto)
+            return _query_for_min_cardinality_violation(base_info, msg)
         case SH.MaxCountConstraintComponent:
             return ValidationResult(
                 violation_type=ViolationType.MAX_CARD,
@@ -398,14 +397,9 @@ def _query_for_link_value_target_violation(
 
 
 def _query_for_min_cardinality_violation(
-    base_info: ValidationResultBaseInfo,
-    msg: SubjectObjectTypeAlias,
-    results_and_onto: Graph,
+    base_info: ValidationResultBaseInfo, msg: SubjectObjectTypeAlias
 ) -> ValidationResult:
-    source_shape = next(results_and_onto.objects(base_info.result_bn, SH.sourceShape))
-    if source_shape in FILE_VALUE_PROP_SHAPES:
-        violation_type = ViolationType.FILE_VALUE
-    elif base_info.result_path in LEGAL_INFO_PROPS:
+    if base_info.result_path in LEGAL_INFO_PROPS:
         violation_type = ViolationType.GENERIC
     else:
         violation_type = ViolationType.MIN_CARD

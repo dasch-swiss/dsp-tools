@@ -52,12 +52,11 @@ class ContainerPorts:
     api_port: int
 
 
-def _get_image_version(docker_compose_content: str, component: str) -> str:
-    match = regex.search(rf"image: daschswiss/{component}:([^\n]+)", docker_compose_content)
-    return match.group(1) if match else "latest"
-
-
 def _get_image_versions() -> ImageVersions:
+    def _get_image_version(docker_compose_content: str, component: str) -> str:
+        match = regex.search(rf"image: daschswiss/{component}:([^\n]+)", docker_compose_content)
+        return match.group(1) if match else "latest"
+
     docker_compose_content = Path("src/dsp_tools/resources/start-stack/docker-compose.yml").read_text(encoding="utf-8")
     fuseki = _get_image_version(docker_compose_content, "apache-jena-fuseki")
     sipi = _get_image_version(docker_compose_content, "knora-sipi")
@@ -89,12 +88,12 @@ class TestContainerFactory:
 
 
 def _get_ports() -> ContainerPorts:
-    def is_port_free(port: int) -> bool:
+    def _is_port_free(port: int) -> bool:
         with socket.socket() as s:
             return s.connect_ex(("localhost", port)) != 0
 
     port_window = [1025, 1026, 1027, 1028]
-    while not all(is_port_free(x) for x in port_window):
+    while not all(_is_port_free(x) for x in port_window):
         port_window = [x + 1 for x in port_window]
     return ContainerPorts(*port_window)
 

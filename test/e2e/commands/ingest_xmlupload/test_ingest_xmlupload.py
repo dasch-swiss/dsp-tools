@@ -20,7 +20,7 @@ CWD = Path("testdata/dsp-ingest-data/e2e-sample-project")
 XML_FILE = Path("data.xml")
 MULTIMEDIA_FILE_1 = Path("Bilder Projekt 2024/Côté gauche/Bild A (1).jpg")
 MULTIMEDIA_FILE_2 = Path("Bilder Projekt 2024/Côté gauche/Dokument B (2).pdf")
-SHORTCODE = "4125"
+SHORTCODE = "4126"
 TMP_FOLDER = TMP_INGEST / "import" / SHORTCODE
 
 

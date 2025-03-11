@@ -386,8 +386,8 @@ api-shapes:hasStillImageFileValue_PropShape
   a           sh:PropertyShape ;
   sh:path     knora-api:hasStillImageFileValue ;
   sh:xone     (
-                [ sh:node api-shapes:StillImageFileValue_ClassShape ]
-                [ sh:node api-shapes:StillImageExternalFileValue_ClassShape ]
+                [ sh:class knora-api:StillImageFileValue ]
+                [ sh:class knora-api:StillImageExternalFileValue ]
               ) ;
   sh:minCount 1 ;
   sh:maxCount 1 ;

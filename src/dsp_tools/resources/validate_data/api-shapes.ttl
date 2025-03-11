@@ -139,6 +139,8 @@ api-shapes:valueAsString_DateValueShape
   sh:message  "A DateValue requires a valid Date" ;
   sh:path     knora-api:valueAsString ;
   sh:pattern  "\\s*\\S+\\s*" ;
+  sh:minCount 1 ;
+  sh:maxCount 1 ;
   sh:datatype xsd:string ;
   sh:severity sh:Violation .
 
@@ -178,6 +180,8 @@ api-shapes:geonameValueAsGeonameCode_Shape
   sh:message  "The value must be a valid geoname code" ;
   sh:path     knora-api:geonameValueAsGeonameCode ;
   sh:pattern  "^\\d+$" ;
+  sh:minCount 1 ;
+  sh:maxCount 1 ;
   sh:datatype xsd:string ;
   sh:severity sh:Violation .
 
@@ -197,6 +201,8 @@ api-shapes:geometryValueAsGeometry_Shape
   sh:message  "The value must be a valid geometry JSON object" ;
   sh:path     knora-api:geometryValueAsGeometry ;
   sh:pattern  "\\s*\\S+\\s*" ;
+  sh:minCount 1 ;
+  sh:maxCount 1 ;
   sh:datatype xsd:string ;
   sh:severity sh:Violation .
 

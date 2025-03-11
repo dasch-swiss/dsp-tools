@@ -85,7 +85,7 @@ def _test_ingest_step(mapping_file: Path, creds: ServerCredentials) -> None:
 def _test_xmlupload_step(creds: ServerCredentials) -> None:
     success = ingest_xmlupload(XML_FILE, creds)
     assert success
-    id2iri_file = list(Path.cwd().glob("id2iri_4125_localhost*.json"))[-1]  # choose the most recent one
+    id2iri_file = list(Path.cwd().glob(f"id2iri_{SHORTCODE}_localhost*.json"))[-1]  # choose the most recent one
     id2iri_mapping = json.loads(id2iri_file.read_text(encoding="utf-8"))
     assert sorted(id2iri_mapping.keys()) == ["resource_1", "resource_2", "resource_3"]
     assert all(x.startswith(f"http://rdfh.ch/{SHORTCODE}/") for x in id2iri_mapping.values())

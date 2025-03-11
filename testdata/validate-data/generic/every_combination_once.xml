@@ -91,8 +91,18 @@
         </resource>
 
         <!--
-        sh:sourceConstraintComponent  sh:NodeConstraintComponent
-        sh:detail                     sh:PatternConstraintComponent
+        sh:sourceConstraintComponent  sh:ClassConstraintComponent
+        sh:detail                     -
+        -->
+        <resource label="Uri" restype=":ClassWithEverything" id="uri_wrong_value_type">
+            <text-prop name=":testUriValue">
+                <text encoding="utf8">https://dasch.swiss</text>
+            </text-prop>
+        </resource>
+
+        <!--
+        sh:sourceConstraintComponent  sh:PatternConstraintComponent
+        sh:detail                     -
         -->
         <resource label="Geoname is not a number" restype=":ClassWithEverything" id="geoname_not_number">
             <geoname-prop name=":testGeoname">
@@ -102,19 +112,9 @@
 
         <!--
         sh:sourceConstraintComponent  sh:NodeConstraintComponent
-        sh:detail                     sh:ClassConstraintComponent
-        -->
-        <resource label="Uri" restype=":ClassWithEverything" id="id_uri">
-            <text-prop name=":testUriValue">
-                <text encoding="utf8">https://dasch.swiss</text>
-            </text-prop>
-        </resource>
-
-        <!--
-        sh:sourceConstraintComponent  sh:NodeConstraintComponent
         sh:detail                     sh:MinCountConstraintComponent
         -->
-        <resource label="Simpletext" restype=":ClassWithEverything" id="id_simpletext">
+        <resource label="Simpletext" restype=":ClassWithEverything" id="simpletext_wrong_value_type">
             <text-prop name=":testTextarea">
                 <text encoding="xml">Text</text>
             </text-prop>
@@ -187,37 +187,41 @@
         </resource>
 
         <!--
-        sh:sourceConstraintComponent  sh:NodeConstraintComponent
-        sh:detail                     sh:LessThanConstraintComponent
-        -->
-        <video-segment label="Video Segment" id="video_segment_start_larger_than_end">
-            <isSegmentOf>target_empty_movie</isSegmentOf>
-            <hasSegmentBounds segment_start="99" segment_end="1"/>
-        </video-segment>
-
-        <!--
-        sh:sourceConstraintComponent  sh:NodeConstraintComponent
-        sh:detail                     sh:MinCountConstraintComponent
+        sh:sourceConstraintComponent  sh:MinCountConstraintComponent
+        sh:detail                     -
         -->
         <resource label="Missing legal info" restype=":TestMovingImageRepresentation" id="bitstream_no_legal_info">
             <bitstream>this/is/filepath/file.mp4</bitstream>
         </resource>
 
         <!--
-        sh:sourceConstraintComponent  sh:NodeConstraintComponent
-        sh:detail                     sh:MinCountConstraintComponent
+        sh:sourceConstraintComponent  sh:MinCountConstraintComponent
+        sh:detail                     -
+
+        Also produces a sh:XoneConstraintComponent, because it does not comply with the StillImage node shape.
+        This is ignored because each property for the legal info produces its own min count violation,
+        the information from that is more detailed and will be communicated to the user.
         -->
         <resource label="TestStillImageRepresentation Bitstream" restype=":TestStillImageRepresentation" id="image_no_legal_info">
             <bitstream>this/is/filepath/file.jp2</bitstream>
         </resource>
 
         <!--
-        sh:sourceConstraintComponent  sh:NodeConstraintComponent
-        sh:detail                     sh:MinInclusiveConstraintComponent & sh:MinExclusiveConstraintComponent
+        sh:sourceConstraintComponent  sh:MinInclusiveConstraintComponent & sh:MinExclusiveConstraintComponent
+        sh:detail                     -
         -->
         <video-segment label="Video Segment" id="video_segment_wrong_bounds">
             <isSegmentOf>target_empty_movie</isSegmentOf>
             <hasSegmentBounds segment_start="-2" segment_end="0"/>
+        </video-segment>
+
+        <!--
+        sh:sourceConstraintComponent  sh:LessThanConstraintComponent
+        sh:detail                     -
+        -->
+        <video-segment label="Video Segment" id="video_segment_start_larger_than_end">
+            <isSegmentOf>target_empty_movie</isSegmentOf>
+            <hasSegmentBounds segment_start="99" segment_end="1"/>
         </video-segment>
 
 </knora>

@@ -3,6 +3,7 @@ from dataclasses import field
 from functools import partial
 from importlib.metadata import version
 from typing import Any
+from typing import Literal
 from typing import cast
 
 import regex
@@ -198,14 +199,18 @@ class ConnectionLive(Connection):
         if should_retry(response):
             log_request_failure_and_sleep("Transient Error", retry_counter, exc_info=False)
             return None
+        msg = "Permanently unable to execute the network action. "
+        blame: Literal["server", "client"] = "server"
+        if original_str := regex.search(r'{"knora-api:error":"dsp\.errors\.(.*)","@context', str(response.content)):
+            msg += f"\n{' ' * 37}Original Message: {original_str.group(1)}\n"
+            blame = "client"
+        if original_str and original_str.group(1).startswith("OntologyConstraintException"):
+            blame = "client"
+        if original_str and original_str.group(1).startswith("NotFoundException"):
+            blame = "client"
+        if blame == "client":
+            raise InvalidInputError(msg)
         else:
-            msg = "Permanently unable to execute the network action. "
-            if original_str := regex.search(r'{"knora-api:error":"dsp\.errors\.(.*)","@context', str(response.content)):
-                msg += f"\n{' ' * 37}Original Message: {original_str.group(1)}\n"
-                if original_str.group(1).startswith("OntologyConstraintException"):
-                    msg += f"See {WARNINGS_SAVEPATH} for more information."
-                    raise InvalidInputError(msg)
-            msg += f"See {WARNINGS_SAVEPATH} for more information."
             raise PermanentConnectionError(msg)
 
     def _renew_session(self) -> None:

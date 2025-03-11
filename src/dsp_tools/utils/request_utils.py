@@ -102,7 +102,7 @@ def log_request_failure_and_sleep(reason: str, retry_counter: int, exc_info: boo
     msg = f"{reason}: Try reconnecting to DSP server, next attempt in {2**retry_counter} seconds..."
     print(f"{datetime.now()}: {msg}")
     if exc_info:
-        logger.opt(exception=True).error(f"{msg} ({retry_counter=:})")
+        logger.exception(f"{msg} ({retry_counter=:})")
     else:
         logger.error(f"{msg} ({retry_counter=:})")
     time.sleep(2**retry_counter)

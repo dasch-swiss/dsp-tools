@@ -70,3 +70,91 @@ knora-api:VideoSegment
   rdfs:label                  "VideoSegment" ;
   knora-api:canBeInstantiated true ;
   knora-api:isResourceClass   true .
+
+
+knora-api:Value a owl:Class .
+
+knora-api:BooleanValue
+  a               owl:Class ;
+  rdfs:subClassOf knora-api:Value .
+
+knora-api:ColorValue
+  a               owl:Class ;
+  rdfs:subClassOf knora-api:Value .
+
+knora-api:DecimalValue
+  a               owl:Class ;
+  rdfs:subClassOf knora-api:Value .
+
+knora-api:GeomValue
+  a               owl:Class ;
+  rdfs:subClassOf knora-api:Value .
+
+knora-api:GeonameValue
+  a               owl:Class ;
+  rdfs:subClassOf knora-api:Value .
+
+knora-api:IntValue
+  a               owl:Class ;
+  rdfs:subClassOf knora-api:Value .
+
+knora-api:TextValue
+  a               owl:Class ;
+  rdfs:subClassOf knora-api:Value .
+
+knora-api:TimeValue
+  a               owl:Class ;
+  rdfs:subClassOf knora-api:Value .
+
+knora-api:UriValue
+  a               owl:Class ;
+  rdfs:subClassOf knora-api:Value .
+
+knora-api:ListValue
+  a               owl:Class ;
+  rdfs:subClassOf knora-api:Value .
+
+knora-api:LinkValue
+  a               owl:Class ;
+  rdfs:subClassOf knora-api:Value .
+
+knora-api:IntervalValue
+  a               owl:Class ;
+  rdfs:subClassOf knora-api:Value .
+
+
+knora-api:FileValue
+  a               owl:Class ;
+  rdfs:subClassOf knora-api:Value .
+
+knora-api:ArchiveFileValue
+  a               owl:Class ;
+  rdfs:subClassOf knora-api:FileValue .
+
+knora-api:AudioFileValue
+  a               owl:Class ;
+  rdfs:subClassOf knora-api:FileValue .
+
+knora-api:DocumentFileValue
+  a               owl:Class ;
+  rdfs:subClassOf knora-api:FileValue .
+
+knora-api:MovingImageFileValue
+  a               owl:Class ;
+  rdfs:subClassOf knora-api:FileValue .
+
+knora-api:TextFileValue
+  a               owl:Class ;
+  rdfs:subClassOf knora-api:FileValue .
+
+knora-api:StillImageAbstractFileValue
+  a               owl:Class ;
+  rdfs:subClassOf knora-api:FileValue .
+
+knora-api:StillImageFileValue
+  a               owl:Class ;
+  rdfs:subClassOf knora-api:StillImageAbstractFileValue .
+
+knora-api:StillImageExternalFileValue
+  a               owl:Class ;
+  rdfs:subClassOf knora-api:StillImageAbstractFileValue .

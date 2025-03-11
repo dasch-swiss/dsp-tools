@@ -147,7 +147,7 @@ def _warn_about_future_mandatory_legal_info(resources: list[IntermediaryResource
     else:
         number = f"{len(missing_info)} of {counter}"
     msg = (
-        f"{number} bitstream and iiif-uri in your XML do not contain all legal info "
+        f"{number} bitstreams and iiif-uris in your XML are lacking the legal info "
         f"(copyright holders, license and authorship). "
         "Soon this information will be mandatory for all files."
     )
@@ -310,6 +310,7 @@ def _handle_permanent_connection_error(err: PermanentConnectionError) -> Never:
     msg = "Lost connection to DSP server, probably because the server is down. "
     msg += f"Please continue later with 'resume-xmlupload'. Reason for this failure: {err.message}"
     logger.error(msg)
+    msg += f"\nSee {WARNINGS_SAVEPATH} for more information."
     raise XmlUploadInterruptedError(msg) from None
 
 

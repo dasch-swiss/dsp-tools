@@ -65,7 +65,7 @@ def create_project(
     context = Context(project_json.get("prefixes", {}))
 
     # validate against JSON schema
-    validate_project(project_json, expand_lists=False)
+    validate_project(project_json)
     print("    JSON project file is syntactically correct and passed validation.")
     logger.info("JSON project file is syntactically correct and passed validation.")
 
@@ -204,7 +204,7 @@ def _create_project_on_server(
         err_msg = (
             f"Cannot create project '{project_definition.shortname}' ({project_definition.shortcode}) on DSP server."
         )
-        logger.opt(exception=True).error(err_msg)
+        logger.exception(err_msg)
         raise UserError(err_msg) from None
     print(f"    Created project '{project_remote.shortname}' ({project_remote.shortcode}).")
     logger.info(f"Created project '{project_remote.shortname}' ({project_remote.shortcode}).")
@@ -244,7 +244,7 @@ def _create_groups(
             "not possible to retrieve the remote groups from the DSP server."
         )
         print(f"WARNING: {err_msg}")
-        logger.opt(exception=True).warning(err_msg)
+        logger.exception(err_msg)
         remote_groups = []
         overall_success = False
 
@@ -274,7 +274,7 @@ def _create_groups(
         except BaseError:
             err_msg = "Unable to create group '{group_name}'."
             print(f"    WARNING: {err_msg}")
-            logger.opt(exception=True).warning(err_msg)
+            logger.exception(err_msg)
             overall_success = False
             continue
 
@@ -361,7 +361,7 @@ def _create_users(
             user_local.create()
         except BaseError:
             print(f"    WARNING: Unable to create user '{username}'.")
-            logger.opt(exception=True).warning(f"Unable to create user '{username}'.")
+            logger.exception(f"Unable to create user '{username}'.")
             overall_success = False
             continue
         print(f"    Created user '{username}'.")
@@ -440,7 +440,7 @@ def _get_group_iris_for_user(
                     f"exists on the DSP server, but no groups could be retrieved from the DSP server."
                 )
                 print(f"    WARNING: {err_msg}")
-                logger.opt(exception=True).warning(err_msg)
+                logger.exception(err_msg)
                 success = False
                 continue
             existing_group = [g for g in remote_groups if g.project == current_project.iri and g.name == group_name]
@@ -507,7 +507,7 @@ def _get_projects_where_user_is_admin(
                     f"because the projects cannot be retrieved from the DSP server."
                 )
                 print(f"    WARNING: {err_msg}")
-                logger.opt(exception=True).warning(err_msg)
+                logger.exception(err_msg)
                 success = False
                 continue
             in_project_list = [p for p in remote_projects if p.shortname == project_name]

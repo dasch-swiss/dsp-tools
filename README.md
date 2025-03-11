@@ -1,9 +1,9 @@
-[![](https://img.shields.io/pypi/v/dsp-tools.svg)](https://pypi.org/project/dsp-tools/) 
-[![](https://img.shields.io/pypi/l/dsp-tools.svg)](https://pypi.org/project/dsp-tools/) 
+[![DSP-TOOLS version on PyPI](https://img.shields.io/pypi/v/dsp-tools.svg)](https://pypi.org/project/dsp-tools/) 
+[![Supported Python versions](https://img.shields.io/pypi/pyversions/dsp-tools.svg)](https://pypi.org/project/dsp-tools/)
+[![License](https://img.shields.io/pypi/l/dsp-tools.svg)](https://pypi.org/project/dsp-tools/) 
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff) 
-[![](https://img.shields.io/badge/mypy-blue)](https://github.com/python/mypy) 
-[![](https://img.shields.io/badge/markdownlint-darkgreen)](https://github.com/igorshubovych/markdownlint-cli) 
-[![](https://img.shields.io/badge/markdown%20link%20validator-darkgreen)](https://www.npmjs.com/package/markdown-link-validator) 
+[![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
+[![mypy](https://img.shields.io/badge/mypy-blue)](https://github.com/python/mypy) 
 
 
 # DSP-TOOLS - DaSCH Service Platform Tools
@@ -11,13 +11,13 @@
 DSP-TOOLS is a command line tool that helps you to interact with the DaSCH Service Platform (DSP) API. 
 This document is intended for developers who want to work with the code of DSP-TOOLS. 
 
-| <center>Hint</center>                                                                                                 |
-| :-------------------------------------------------------------------------------------------------------------------- |
-| This technical document was written as a guide for developers.                                                        |
-| For the end user documentation, please consult [https://docs.dasch.swiss](https://docs.dasch.swiss/latest/DSP-TOOLS). |
+> [!NOTE]
+> This technical document was written as a guide for developers.
+> For the end user documentation, please consult [https://docs.dasch.swiss](https://docs.dasch.swiss/latest/DSP-TOOLS).
 
-This README contains basic information for getting started. 
-More details can be found in the [developers' documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/developers/).
+> [!TIP]
+> This README contains basic information for getting started. 
+> More details can be found in the [developers' documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/developers/).
 
 
 
@@ -30,7 +30,7 @@ To get started quickly, without reading the details, just execute these commands
 - `source .venv/bin/activate`
 - `pre-commit install`
 - `npm install -g markdown-link-validator`
-- `brew install just`
+- `brew install just parallel`
 
 The remainder of this README explains these commands in more detail.
 
@@ -159,13 +159,9 @@ so that every pull request is checked for code style violations.
 
 Your code can be checked for style violations locally before they are committed:
 
-- `just mypy`
-- `just ruff-check`
-- `just ruff-format-check`
-- `just darglint`
-- `just check-links`
-- `just markdownlint`
-- `yamllint .`
+```bash
+just lint
+```
 
 In addition, there are [pre-commit hooks](#pre-commit-hooks) 
 that run Ruff and MarkdownLint locally before every commit.

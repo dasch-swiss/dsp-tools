@@ -51,12 +51,11 @@ def do_xml_consistency_check_with_ontology(onto_client: OntologyClient, root: et
     """
     cls_prop_lookup, text_value_encoding_lookup = _get_onto_lookups(onto_client)
     classes_in_data, properties_in_data = _get_all_classes_and_properties_from_data(root)
-    problem_str = ""
-    problem_str += _check_all_classes_and_properties_in_onto(classes_in_data, properties_in_data, cls_prop_lookup)
-    problem_str += _check_correctness_all_text_value_encodings(
+    if problem_str := _check_all_classes_and_properties_in_onto(classes_in_data, properties_in_data, cls_prop_lookup):
+        raise InputError(problem_str)
+    if problem_str := _check_correctness_all_text_value_encodings(
         root, text_value_encoding_lookup, onto_client.default_ontology
-    )
-    if problem_str:
+    ):
         raise InputError(problem_str)
 
 

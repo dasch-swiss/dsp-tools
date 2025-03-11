@@ -3,7 +3,6 @@ from typing import cast
 
 from loguru import logger
 
-from dsp_tools.commands.excel2json.lists import expand_lists_from_excel
 from dsp_tools.commands.project.models.project_definition import ProjectDefinition
 from dsp_tools.commands.project.models.project_definition import ProjectMetadata
 from dsp_tools.models.exceptions import UserError
@@ -28,20 +27,12 @@ def parse_project_json(
         keywords=project_json["project"].get("keywords"),
         descriptions=project_json["project"].get("descriptions"),
     )
-    all_lists = _parse_all_lists(project_json)
+    all_lists: list[dict[str, Any]] | None = project_json["project"].get("lists")
     all_ontos = _parse_all_ontos(project_json, all_lists)
 
     groups = project_json["project"].get("groups")
     users = project_json["project"].get("users")
     return ProjectDefinition(metadata=metadata, ontologies=all_ontos, lists=all_lists, groups=groups, users=users)
-
-
-def _parse_all_lists(project_json: dict[str, Any]) -> list[dict[str, Any]] | None:
-    # expand the Excel files referenced in the "lists" section of the project, if any
-    if all_lists := expand_lists_from_excel(project_json.get("project", {}).get("lists", [])):
-        return all_lists
-    new_lists: list[dict[str, Any]] | None = project_json["project"].get("lists")
-    return new_lists
 
 
 def _parse_all_ontos(project_json: dict[str, Any], all_lists: list[dict[str, Any]] | None) -> list[dict[str, Any]]:

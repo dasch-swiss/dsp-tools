@@ -345,6 +345,50 @@ api-shapes:UriValue_ClassShape
                     sh:message  "A UriValue requires exactly one valid xsd:anyURI" ;
                  ] .
 
+
+
+#########################################
+# FILEVALUE
+#########################################
+
+api-shapes:FileValue_ClassShape
+  a              sh:NodeShape ;
+  sh:targetClass knora-api:FileValue ;
+  sh:property    [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:hasPermissions ;
+                    sh:minCount 0 ;
+                    sh:maxCount 1 ;
+                    sh:severity sh:Violation ;
+                    sh:message  "The resource or value may have at most one permission." ;
+                  ] ,
+                  [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:hasLicense ;
+                    sh:minCount 1 ;
+                    sh:maxCount 1 ;
+                    sh:severity sh:Violation ;
+                    sh:message  "Files and IIIF-URIs require a reference to a license." ;
+                  ] ,
+                  [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:hasAuthorship ;
+                    sh:datatype xsd:string ;
+                    sh:minCount 1 ;
+                    sh:severity sh:Violation ;
+                    sh:message  "Files and IIIF-URIs require at least one authorship." ;
+                  ] ,
+                  [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:hasCopyrightHolder ;
+                    sh:datatype xsd:string ;
+                    sh:minCount 1 ;
+                    sh:maxCount 1 ;
+                    sh:severity sh:Violation ;
+                    sh:message  "Files and IIIF-URIs require a copyright holder." ;
+                  ] .
+
+
 #########################################
 # KNORA-API IN-BUILT PROPERTIES
 #########################################

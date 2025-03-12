@@ -7,6 +7,7 @@ import pytest
 
 from test.e2e.setup_testcontainers import INGEST_DB
 from test.e2e.setup_testcontainers import SIPI_IMAGES
+from test.e2e.setup_testcontainers import TESTCONTAINER_PORTS_LOCKFILES
 from test.e2e.setup_testcontainers import TMP_INGEST
 from test.e2e.setup_testcontainers import TMP_SIPI
 
@@ -25,3 +26,5 @@ def _tidy_up_artifacts() -> Iterator[None]:
             break
         except PermissionError:
             time.sleep(1)
+    if not list(TESTCONTAINER_PORTS_LOCKFILES.glob("**/*")):
+        TESTCONTAINER_PORTS_LOCKFILES.rmdir()

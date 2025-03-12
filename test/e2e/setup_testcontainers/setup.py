@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import subprocess
 from contextlib import contextmanager
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterator
 from uuid import uuid4
@@ -10,40 +9,15 @@ from uuid import uuid4
 import regex
 from testcontainers.core.network import Network
 
-from test.e2e.setup_testcontainers.artifacts import ArtifactDirs
 from test.e2e.setup_testcontainers.artifacts import get_artifact_dirs
 from test.e2e.setup_testcontainers.artifacts import remove_artifact_dirs
+from test.e2e.setup_testcontainers.containers import ContainerMetadata
+from test.e2e.setup_testcontainers.containers import ContainerNames
 from test.e2e.setup_testcontainers.containers import Containers
+from test.e2e.setup_testcontainers.containers import ImageVersions
 from test.e2e.setup_testcontainers.containers import get_all_containers
-from test.e2e.setup_testcontainers.ports import ExternalContainerPorts
 from test.e2e.setup_testcontainers.ports import get_ports
 from test.e2e.setup_testcontainers.ports import release_ports
-
-E2E_TESTDATA = Path("testdata/e2e").absolute()
-
-
-@dataclass(frozen=True)
-class ContainerMetadata:
-    artifact_dirs: ArtifactDirs
-    versions: ImageVersions
-    ports: ExternalContainerPorts
-    names: ContainerNames
-
-
-@dataclass(frozen=True)
-class ImageVersions:
-    fuseki: str
-    sipi: str
-    ingest: str
-    api: str
-
-
-@dataclass(frozen=True)
-class ContainerNames:
-    fuseki: str
-    sipi: str
-    ingest: str
-    api: str
 
 
 @contextmanager

@@ -3,7 +3,7 @@ import shutil
 from dataclasses import dataclass
 from pathlib import Path
 
-from test.e2e.setup_testcontainers.setup import E2E_TESTDATA
+E2E_TESTDATA = Path("testdata/e2e").absolute()
 
 
 @dataclass(frozen=True)

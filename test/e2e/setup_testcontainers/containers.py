@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -6,11 +8,9 @@ from testcontainers.core.container import DockerContainer
 from testcontainers.core.network import Network
 from testcontainers.core.waiting_utils import wait_for_logs
 
+from test.e2e.setup_testcontainers.artifacts import E2E_TESTDATA
 from test.e2e.setup_testcontainers.artifacts import ArtifactDirs
 from test.e2e.setup_testcontainers.ports import ExternalContainerPorts
-from test.e2e.setup_testcontainers.setup import E2E_TESTDATA
-from test.e2e.setup_testcontainers.setup import ContainerMetadata
-from test.e2e.setup_testcontainers.setup import ContainerNames
 
 FUSEKI_INTERNAL_PORT = 3030
 SIPI_INTERNAL_PORT = 1024
@@ -24,6 +24,30 @@ class Containers:
     sipi: DockerContainer
     ingest: DockerContainer
     api: DockerContainer
+
+
+@dataclass(frozen=True)
+class ContainerMetadata:
+    artifact_dirs: ArtifactDirs
+    versions: ImageVersions
+    ports: ExternalContainerPorts
+    names: ContainerNames
+
+
+@dataclass(frozen=True)
+class ImageVersions:
+    fuseki: str
+    sipi: str
+    ingest: str
+    api: str
+
+
+@dataclass(frozen=True)
+class ContainerNames:
+    fuseki: str
+    sipi: str
+    ingest: str
+    api: str
 
 
 def get_all_containers(network: Network, metadata: ContainerMetadata) -> Containers:

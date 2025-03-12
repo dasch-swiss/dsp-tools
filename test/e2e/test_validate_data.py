@@ -25,18 +25,18 @@ from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_re
 from dsp_tools.commands.validate_data.validate_data import _get_parsed_graphs
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
 from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
-from test.e2e.setup_testcontainers.setup_testcontainers import ContainerPorts
+from test.e2e.setup_testcontainers.setup_testcontainers import ExternalContainerPorts
 from test.e2e.setup_testcontainers.setup_testcontainers import get_containers
 
 
 @pytest.fixture(scope="module")
-def container_ports() -> Iterator[ContainerPorts]:
+def container_ports() -> Iterator[ExternalContainerPorts]:
     with get_containers() as metadata:
         yield metadata.ports
 
 
 @pytest.fixture(scope="module")
-def creds(container_ports: ContainerPorts) -> ServerCredentials:
+def creds(container_ports: ExternalContainerPorts) -> ServerCredentials:
     return ServerCredentials(
         "root@example.com",
         "test",
@@ -55,7 +55,7 @@ def _create_projects(creds: ServerCredentials) -> None:
 
 
 @pytest.fixture(scope="module")
-def api_con(container_ports: ContainerPorts) -> ApiConnection:
+def api_con(container_ports: ExternalContainerPorts) -> ApiConnection:
     return ApiConnection(f"http://0.0.0.0:{container_ports.api}")
 
 

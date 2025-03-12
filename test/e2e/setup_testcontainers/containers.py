@@ -13,8 +13,8 @@ from test.e2e.setup_testcontainers.setup_testcontainers import SIPI_INTERNAL_POR
 from test.e2e.setup_testcontainers.setup_testcontainers import ArtifactDirs
 from test.e2e.setup_testcontainers.setup_testcontainers import ContainerMetadata
 from test.e2e.setup_testcontainers.setup_testcontainers import ContainerNames
-from test.e2e.setup_testcontainers.setup_testcontainers import ContainerPorts
 from test.e2e.setup_testcontainers.setup_testcontainers import Containers
+from test.e2e.setup_testcontainers.setup_testcontainers import ExternalContainerPorts
 
 
 def get_all_containers(network: Network, metadata: ContainerMetadata) -> Containers:
@@ -30,7 +30,7 @@ def get_all_containers(network: Network, metadata: ContainerMetadata) -> Contain
 
 
 def _get_fuseki_container(
-    network: Network, version: str, ports: ContainerPorts, names: ContainerNames
+    network: Network, version: str, ports: ExternalContainerPorts, names: ContainerNames
 ) -> DockerContainer:
     fuseki = (
         DockerContainer(f"daschswiss/apache-jena-fuseki:{version}")
@@ -63,7 +63,7 @@ def _create_data_set_and_admin_user(fuseki_external_port: int) -> None:
 
 
 def _get_sipi_container(
-    network: Network, version: str, ports: ContainerPorts, names: ContainerNames, artifact_dirs: ArtifactDirs
+    network: Network, version: str, ports: ExternalContainerPorts, names: ContainerNames, artifact_dirs: ArtifactDirs
 ) -> DockerContainer:
     sipi = (
         DockerContainer(f"daschswiss/knora-sipi:{version}")
@@ -84,7 +84,7 @@ def _get_sipi_container(
 
 
 def _get_ingest_container(
-    network: Network, version: str, ports: ContainerPorts, names: ContainerNames, artifact_dirs: ArtifactDirs
+    network: Network, version: str, ports: ExternalContainerPorts, names: ContainerNames, artifact_dirs: ArtifactDirs
 ) -> DockerContainer:
     ingest = (
         DockerContainer(f"daschswiss/dsp-ingest:{version}")
@@ -108,7 +108,9 @@ def _get_ingest_container(
     return ingest
 
 
-def _get_api_container(network: Network, version: str, ports: ContainerPorts, names: ContainerNames) -> DockerContainer:
+def _get_api_container(
+    network: Network, version: str, ports: ExternalContainerPorts, names: ContainerNames
+) -> DockerContainer:
     api = (
         DockerContainer(f"daschswiss/knora-api:{version}")
         .with_name(names.api)

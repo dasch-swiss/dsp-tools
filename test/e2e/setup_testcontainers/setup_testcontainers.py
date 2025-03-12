@@ -19,10 +19,11 @@ E2E_TESTDATA = Path("testdata/e2e").absolute()
 
 TESTCONTAINER_PORTS_LOCKFILES = E2E_TESTDATA / "testcontainer_port_lockfiles"
 TESTCONTAINER_PORTS_LOCKFILES.mkdir(parents=True, exist_ok=True)
-API_INTERNAL_PORT = 3333
-INGEST_INTERNAL_PORT = 3340
-SIPI_INTERNAL_PORT = 1024
+
 FUSEKI_INTERNAL_PORT = 3030
+SIPI_INTERNAL_PORT = 1024
+INGEST_INTERNAL_PORT = 3340
+API_INTERNAL_PORT = 3333
 
 
 @dataclass(frozen=True)
@@ -50,9 +51,7 @@ class ContainerNames:
 
 
 @dataclass(frozen=True)
-class ContainerPorts:
-    """External ports of the containers"""
-
+class ExternalContainerPorts:
     fuseki: int
     sipi: int
     ingest: int
@@ -102,7 +101,7 @@ def _remove_artifact_dirs(artifact_dirs: ArtifactDirs) -> None:
 class ContainerMetadata:
     artifact_dirs: ArtifactDirs
     versions: ImageVersions
-    ports: ContainerPorts
+    ports: ExternalContainerPorts
     names: ContainerNames
 
 
@@ -136,7 +135,7 @@ def _get_container_names(_uuid: str) -> ContainerNames:
     return ContainerNames(f"{prefix}-DB", f"{prefix}-SIPI", f"{prefix}-INGEST", f"{prefix}-API")
 
 
-def _get_ports() -> ContainerPorts:
+def _get_ports() -> ExternalContainerPorts:
     def _reserve_port(port: int) -> bool:
         with socket.socket() as s:
             if s.connect_ex(("localhost", port)) == 0:
@@ -155,10 +154,10 @@ def _get_ports() -> ContainerPorts:
         if _reserve_port(port):
             port_window.append(port)
 
-    return ContainerPorts(*port_window)
+    return ExternalContainerPorts(*port_window)
 
 
-def _release_ports(ports: ContainerPorts) -> None:
+def _release_ports(ports: ExternalContainerPorts) -> None:
     (TESTCONTAINER_PORTS_LOCKFILES / str(ports.fuseki)).unlink()
     (TESTCONTAINER_PORTS_LOCKFILES / str(ports.sipi)).unlink()
     (TESTCONTAINER_PORTS_LOCKFILES / str(ports.ingest)).unlink()

@@ -9,7 +9,7 @@ import requests
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
-from test.e2e.setup_testcontainers.setup_testcontainers import ContainerPorts
+from test.e2e.setup_testcontainers.setup_testcontainers import ExternalContainerPorts
 from test.e2e.setup_testcontainers.setup_testcontainers import get_containers
 
 PROJECT_SHORTCODE = "4125"
@@ -19,13 +19,13 @@ RESCLASSES_IN_ONTO_JSON = 2
 
 
 @pytest.fixture(scope="module")
-def container_ports() -> Iterator[ContainerPorts]:
+def container_ports() -> Iterator[ExternalContainerPorts]:
     with get_containers() as metadata:
         yield metadata.ports
 
 
 @pytest.fixture(scope="module")
-def creds(container_ports: ContainerPorts) -> ServerCredentials:
+def creds(container_ports: ExternalContainerPorts) -> ServerCredentials:
     return ServerCredentials(
         "root@example.com",
         "test",

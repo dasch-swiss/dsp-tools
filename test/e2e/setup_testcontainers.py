@@ -17,7 +17,7 @@ from testcontainers.core.waiting_utils import wait_for_logs
 
 E2E_TESTDATA = Path("testdata/e2e").absolute()
 
-TESTCONTAINER_PORTS_LOCKFILES = Path("test/e2e/testcontainer_port_lockfiles")
+TESTCONTAINER_PORTS_LOCKFILES = E2E_TESTDATA / "testcontainer_port_lockfiles"
 TESTCONTAINER_PORTS_LOCKFILES.mkdir(parents=True, exist_ok=True)
 API_INTERNAL_PORT = 3333
 INGEST_INTERNAL_PORT = 3340

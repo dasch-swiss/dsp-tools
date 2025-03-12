@@ -62,9 +62,12 @@ testdata/test-list.json
 tmp/
 /out/
 /warnings.log
+/mapping-????.csv
+/test/warnings.log
+
 /testdata/e2e/tmp-dsp-ingest
 /testdata/e2e/images
-/mapping-????.csv
-test/warnings.log
-test/e2e/testcontainer_port_lockfiles
-testdata/e2e/ingest-db
+/testdata/e2e/ingest-db
+/testdata/e2e/tmp-dsp-sipi
+
+/testdata/e2e/testcontainer_port_lockfiles

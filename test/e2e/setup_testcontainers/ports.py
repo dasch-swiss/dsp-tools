@@ -1,6 +1,6 @@
+import itertools
 import socket
 from dataclasses import dataclass
-from itertools import count
 
 from test.e2e.setup_testcontainers.artifacts import E2E_TESTDATA
 
@@ -19,7 +19,7 @@ class ExternalContainerPorts:
 def get_ports() -> ExternalContainerPorts:
     num_of_ports_needed = 4
     port_window: list[int] = []
-    for port in count(1025):
+    for port in itertools.count(1025):
         if len(port_window) == num_of_ports_needed:
             break
         if _reserve_port(port):

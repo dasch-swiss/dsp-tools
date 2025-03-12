@@ -51,18 +51,16 @@ class ContainerNames:
 
 
 def get_all_containers(network: Network, metadata: ContainerMetadata) -> Containers:
-    fuseki = _get_fuseki_container(network, metadata.versions.fuseki, metadata.ports, metadata.names)
-    sipi = _get_sipi_container(network, metadata.versions.sipi, metadata.ports, metadata.names, metadata.artifact_dirs)
-    ingest = _get_ingest_container(
-        network, metadata.versions.ingest, metadata.ports, metadata.names, metadata.artifact_dirs
-    )
-    api = _get_api_container(network, metadata.versions.api, metadata.ports, metadata.names)
+    fuseki = _get_fuseki(network, metadata.versions.fuseki, metadata.ports, metadata.names)
+    sipi = _get_sipi(network, metadata.versions.sipi, metadata.ports, metadata.names, metadata.artifact_dirs)
+    ingest = _get_ingest(network, metadata.versions.ingest, metadata.ports, metadata.names, metadata.artifact_dirs)
+    api = _get_api(network, metadata.versions.api, metadata.ports, metadata.names)
     containers = Containers(fuseki=fuseki, sipi=sipi, ingest=ingest, api=api)
     _print_containers_are_ready(containers)
     return containers
 
 
-def _get_fuseki_container(
+def _get_fuseki(
     network: Network, version: str, ports: ExternalContainerPorts, names: ContainerNames
 ) -> DockerContainer:
     fuseki = (
@@ -95,7 +93,7 @@ def _create_data_set_and_admin_user(fuseki_external_port: int) -> None:
     print("Admin user created")
 
 
-def _get_sipi_container(
+def _get_sipi(
     network: Network, version: str, ports: ExternalContainerPorts, names: ContainerNames, artifact_dirs: ArtifactDirs
 ) -> DockerContainer:
     sipi = (
@@ -116,7 +114,7 @@ def _get_sipi_container(
     return sipi
 
 
-def _get_ingest_container(
+def _get_ingest(
     network: Network, version: str, ports: ExternalContainerPorts, names: ContainerNames, artifact_dirs: ArtifactDirs
 ) -> DockerContainer:
     ingest = (
@@ -142,7 +140,7 @@ def _get_ingest_container(
     return ingest
 
 
-def _get_api_container(
+def _get_api(
     network: Network, version: str, ports: ExternalContainerPorts, names: ContainerNames
 ) -> DockerContainer:
     api = (

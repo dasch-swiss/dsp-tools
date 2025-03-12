@@ -11,9 +11,9 @@ from dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml import inge
 from dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files import ingest_files
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_files import upload_files
 from dsp_tools.commands.project.create.project_create import create_project
-from test.e2e.setup_testcontainers import ArtifactDirs
-from test.e2e.setup_testcontainers import ContainerMetadata
-from test.e2e.setup_testcontainers import get_containers
+from test.e2e.setup_testcontainers.setup_testcontainers import ArtifactDirs
+from test.e2e.setup_testcontainers.setup_testcontainers import ContainerMetadata
+from test.e2e.setup_testcontainers.setup_testcontainers import get_containers
 
 CWD = Path("testdata/dsp-ingest-data/e2e-sample-project")
 XML_FILE = Path("data.xml")

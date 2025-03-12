@@ -29,8 +29,8 @@ def container_metadata() -> Iterator[ContainerMetadata]:
 
 
 @pytest.fixture(scope="module")
-def tmp_folder(metadata: ContainerMetadata) -> Path:
-    return metadata.artifact_dirs.tmp_ingest / "import" / SHORTCODE
+def tmp_folder(container_metadata: ContainerMetadata) -> Path:
+    return container_metadata.artifact_dirs.tmp_ingest / "import" / SHORTCODE
 
 
 @pytest.fixture(scope="module")
@@ -61,10 +61,10 @@ def _create_project(creds: ServerCredentials) -> None:
 
 @pytest.mark.usefixtures("_create_project")
 def test_ingest_upload(
-    mapping_file: Path, creds: ServerCredentials, metadata: ContainerMetadata, tmp_folder: Path
+    mapping_file: Path, creds: ServerCredentials, container_metadata: ContainerMetadata, tmp_folder: Path
 ) -> None:
     _test_upload_step(creds, tmp_folder)
-    _test_ingest_step(mapping_file, creds, tmp_folder, metadata.artifact_dirs)
+    _test_ingest_step(mapping_file, creds, tmp_folder, container_metadata.artifact_dirs)
     _test_xmlupload_step(creds)
 
 

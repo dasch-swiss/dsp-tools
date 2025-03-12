@@ -53,10 +53,10 @@ class ContainerNames:
 class ContainerPorts:
     """External ports of the containers"""
 
-    fuseki_port: int
-    sipi_port: int
-    ingest_port: int
-    api_port: int
+    fuseki: int
+    sipi: int
+    ingest: int
+    api: int
 
 
 def _get_image_versions() -> ImageVersions:
@@ -159,10 +159,10 @@ def _get_ports() -> ContainerPorts:
 
 
 def _release_ports(ports: ContainerPorts) -> None:
-    (TESTCONTAINER_PORTS_LOCKFILES / str(ports.fuseki_port)).unlink()
-    (TESTCONTAINER_PORTS_LOCKFILES / str(ports.sipi_port)).unlink()
-    (TESTCONTAINER_PORTS_LOCKFILES / str(ports.ingest_port)).unlink()
-    (TESTCONTAINER_PORTS_LOCKFILES / str(ports.api_port)).unlink()
+    (TESTCONTAINER_PORTS_LOCKFILES / str(ports.fuseki)).unlink()
+    (TESTCONTAINER_PORTS_LOCKFILES / str(ports.sipi)).unlink()
+    (TESTCONTAINER_PORTS_LOCKFILES / str(ports.ingest)).unlink()
+    (TESTCONTAINER_PORTS_LOCKFILES / str(ports.api)).unlink()
 
 
 def _stop_all_containers(containers: Containers) -> None:

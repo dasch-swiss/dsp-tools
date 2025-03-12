@@ -29,8 +29,8 @@ def creds(container_ports: ContainerPorts) -> ServerCredentials:
     return ServerCredentials(
         "root@example.com",
         "test",
-        f"http://0.0.0.0:{container_ports.api_port}",
-        f"http://0.0.0.0:{container_ports.ingest_port}",
+        f"http://0.0.0.0:{container_ports.api}",
+        f"http://0.0.0.0:{container_ports.ingest}",
     )
 
 

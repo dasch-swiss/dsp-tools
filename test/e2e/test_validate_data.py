@@ -40,8 +40,8 @@ def creds(container_ports: ContainerPorts) -> ServerCredentials:
     return ServerCredentials(
         "root@example.com",
         "test",
-        f"http://0.0.0.0:{container_ports.api_port}",
-        f"http://0.0.0.0:{container_ports.ingest_port}",
+        f"http://0.0.0.0:{container_ports.api}",
+        f"http://0.0.0.0:{container_ports.ingest}",
     )
 
 
@@ -56,7 +56,7 @@ def _create_projects(creds: ServerCredentials) -> None:
 
 @pytest.fixture(scope="module")
 def api_con(container_ports: ContainerPorts) -> ApiConnection:
-    return ApiConnection(f"http://0.0.0.0:{container_ports.api_port}")
+    return ApiConnection(f"http://0.0.0.0:{container_ports.api}")
 
 
 @pytest.fixture(scope="module")

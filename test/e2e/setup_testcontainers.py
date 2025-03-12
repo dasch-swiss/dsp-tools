@@ -81,20 +81,15 @@ class ArtifactDirs:
 
 
 def _get_artifact_dirs(_uuid: str) -> ArtifactDirs:
-    sipi_images = E2E_TESTDATA / "images" / _uuid
-    tmp_sipi = E2E_TESTDATA / "tmp-dsp-sipi" / _uuid
-    tmp_ingest = E2E_TESTDATA / "tmp-dsp-ingest" / _uuid
-    ingest_db = E2E_TESTDATA / "ingest-db" / _uuid
-    sipi_images.mkdir(parents=True)
-    tmp_sipi.mkdir(parents=True)
-    tmp_ingest.mkdir(parents=True)
-    ingest_db.mkdir(parents=True)
-    return ArtifactDirs(
-        sipi_images=sipi_images,
-        tmp_sipi=tmp_sipi,
-        tmp_ingest=tmp_ingest,
-        ingest_db=ingest_db,
-    )
+    dirs = {
+        "sipi_images": E2E_TESTDATA / "images" / _uuid,
+        "tmp_sipi": E2E_TESTDATA / "tmp-dsp-sipi" / _uuid,
+        "tmp_ingest": E2E_TESTDATA / "tmp-dsp-ingest" / _uuid,
+        "ingest_db": E2E_TESTDATA / "ingest-db" / _uuid,
+    }
+    for _dir in dirs.values():
+        _dir.mkdir(parents=True)
+    return ArtifactDirs(**dirs)
 
 
 def _remove_artifact_dirs(artifact_dirs: ArtifactDirs) -> None:

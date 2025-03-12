@@ -140,9 +140,7 @@ def _get_ingest(
     return ingest
 
 
-def _get_api(
-    network: Network, version: str, ports: ExternalContainerPorts, names: ContainerNames
-) -> DockerContainer:
+def _get_api(network: Network, version: str, ports: ExternalContainerPorts, names: ContainerNames) -> DockerContainer:
     api = (
         DockerContainer(f"daschswiss/knora-api:{version}")
         .with_name(names.api)

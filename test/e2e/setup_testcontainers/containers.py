@@ -8,9 +8,9 @@ from testcontainers.core.waiting_utils import wait_for_logs
 
 from test.e2e.setup_testcontainers.artifacts import ArtifactDirs
 from test.e2e.setup_testcontainers.ports import ExternalContainerPorts
-from test.e2e.setup_testcontainers.setup_testcontainers import E2E_TESTDATA
-from test.e2e.setup_testcontainers.setup_testcontainers import ContainerMetadata
-from test.e2e.setup_testcontainers.setup_testcontainers import ContainerNames
+from test.e2e.setup_testcontainers.setup import E2E_TESTDATA
+from test.e2e.setup_testcontainers.setup import ContainerMetadata
+from test.e2e.setup_testcontainers.setup import ContainerNames
 
 FUSEKI_INTERNAL_PORT = 3030
 SIPI_INTERNAL_PORT = 1024

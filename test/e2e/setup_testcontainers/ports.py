@@ -2,7 +2,7 @@ import socket
 from dataclasses import dataclass
 from itertools import count
 
-from test.e2e.setup_testcontainers.setup_testcontainers import E2E_TESTDATA
+from test.e2e.setup_testcontainers.setup import E2E_TESTDATA
 
 TESTCONTAINER_PORTS_LOCKFILES = E2E_TESTDATA / "testcontainer_port_lockfiles"
 TESTCONTAINER_PORTS_LOCKFILES.mkdir(parents=True, exist_ok=True)

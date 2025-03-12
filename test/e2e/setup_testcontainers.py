@@ -1,3 +1,4 @@
+import contextlib
 import shutil
 import socket
 import subprocess
@@ -97,10 +98,9 @@ def _get_artifact_dirs(_uuid: str) -> ArtifactDirs:
 
 
 def _remove_artifact_dirs(artifact_dirs: ArtifactDirs) -> None:
-    shutil.rmtree(artifact_dirs.sipi_images)
-    shutil.rmtree(artifact_dirs.tmp_sipi)
-    shutil.rmtree(artifact_dirs.tmp_ingest)
-    shutil.rmtree(artifact_dirs.ingest_db)
+    for _dir in [artifact_dirs.sipi_images, artifact_dirs.tmp_sipi, artifact_dirs.tmp_ingest, artifact_dirs.ingest_db]:
+        with contextlib.suppress(PermissionError):
+            shutil.rmtree(_dir)
 
 
 @contextmanager

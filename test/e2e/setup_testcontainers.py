@@ -81,7 +81,7 @@ def get_containers() -> Iterator[ContainerPorts]:
     with Network() as network:
         ports = _get_ports()
         prefix = f"testcontainer-{str(uuid4())[:6]}"
-        names = ContainerNames(f"{prefix}-db", f"{prefix}-sipi", f"{prefix}-ingest", f"{prefix}-api")
+        names = ContainerNames(f"{prefix}__db", f"{prefix}__sipi", f"{prefix}__ingest", f"{prefix}__api")
         containers = _get_all_containers(network, ports, names)
         try:
             yield ports

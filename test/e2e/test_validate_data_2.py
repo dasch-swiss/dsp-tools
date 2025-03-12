@@ -90,6 +90,57 @@ def test_special_characters_violation(special_characters_violation: ValidationRe
     assert not special_characters_violation.conforms
 
 
+def test_reformat_special_characters_violation(special_characters_violation: ValidationReportGraphs) -> None:
+    result = reformat_validation_graph(special_characters_violation)
+    expected_tuples = [
+        (
+            "node_backslash",
+            (
+                "A valid node from the list 'list \\ ' space' must be used with this property "
+                "(input displayed in format 'listName / NodeName')."
+            ),
+            "list \\ ' space / other \\ backslash",
+        ),
+        (
+            "node_double_quote",
+            (
+                "A valid node from the list 'list \\ ' space' must be used with this property "
+                "(input displayed in format 'listName / NodeName')."
+            ),
+            '''list \\ ' space / other double quote "''',
+        ),
+        (
+            "node_single_quote",
+            (
+                "A valid node from the list 'list \\ ' space' must be used with this property "
+                "(input displayed in format 'listName / NodeName')."
+            ),
+            "list \\ ' space / other single quote '",
+        ),
+        ("non_ascii_latin_alphabet", "", ""),
+        ("non_ascii_other_alphabet", "", ""),
+        ("special_char", "", ""),
+        (
+            "wrong_list_name",
+            (
+                "A valid node from the list 'list \\ ' space' must be used with this property "
+                "(input displayed in format 'listName / NodeName')."
+            ),
+            "other /  \\ backslash",
+        ),
+    ]
+    assert not result.unexpected_results
+    assert len(result.problems) == len(expected_tuples)
+    sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
+    for prblm, expected in zip(sorted_problems, expected_tuples):
+        if prblm.problem_type == ProblemType.GENERIC:
+            assert prblm.res_id == expected[0]
+            assert prblm.message == expected[1]
+            assert prblm.input_value == expected[2]
+        elif prblm.problem_type == ProblemType.INPUT_REGEX:
+            assert prblm.res_id == expected[0]
+
+
 @pytest.mark.usefixtures("_create_projects")
 def test_inheritance_correct(api_con: ApiConnection, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/inheritance/inheritance_correct.xml")

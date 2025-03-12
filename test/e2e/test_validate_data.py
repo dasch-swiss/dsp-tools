@@ -13,7 +13,6 @@ from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
 from dsp_tools.commands.validate_data.api_connection import ApiConnection
 from dsp_tools.commands.validate_data.get_user_validation_message import _filter_out_duplicate_problems
-from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
@@ -24,7 +23,6 @@ from dsp_tools.commands.validate_data.query_validation_result import reformat_va
 from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validate_data import _get_parsed_graphs
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
-from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
 from test.e2e.setup_testcontainers.ports import ExternalContainerPorts
 from test.e2e.setup_testcontainers.setup import get_containers
 
@@ -462,56 +460,6 @@ class TestReformatValidationGraph:
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
             assert one_result.problem_type == expected_info[1]
             assert one_result.res_id == expected_info[0]
-
-    def test_reformat_special_characters_violation(self, special_characters_violation: ValidationReportGraphs) -> None:
-        result = reformat_validation_graph(special_characters_violation)
-        expected_tuples = [
-            (
-                "node_backslash",
-                (
-                    "A valid node from the list 'list \\ ' space' must be used with this property "
-                    "(input displayed in format 'listName / NodeName')."
-                ),
-                "list \\ ' space / other \\ backslash",
-            ),
-            (
-                "node_double_quote",
-                (
-                    "A valid node from the list 'list \\ ' space' must be used with this property "
-                    "(input displayed in format 'listName / NodeName')."
-                ),
-                '''list \\ ' space / other double quote "''',
-            ),
-            (
-                "node_single_quote",
-                (
-                    "A valid node from the list 'list \\ ' space' must be used with this property "
-                    "(input displayed in format 'listName / NodeName')."
-                ),
-                "list \\ ' space / other single quote '",
-            ),
-            ("non_ascii_latin_alphabet", "", ""),
-            ("non_ascii_other_alphabet", "", ""),
-            ("special_char", "", ""),
-            (
-                "wrong_list_name",
-                (
-                    "A valid node from the list 'list \\ ' space' must be used with this property "
-                    "(input displayed in format 'listName / NodeName')."
-                ),
-                "other /  \\ backslash",
-            ),
-        ]
-        assert not result.unexpected_results
-        assert len(result.problems) == len(expected_tuples)
-        sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
-        for prblm, expected in zip(sorted_problems, expected_tuples):
-            if prblm.problem_type == ProblemType.GENERIC:
-                assert prblm.res_id == expected[0]
-                assert prblm.message == expected[1]
-                assert prblm.input_value == expected[2]
-            elif prblm.problem_type == ProblemType.INPUT_REGEX:
-                assert prblm.res_id == expected[0]
 
 
 def test_check_for_unknown_resource_classes(unknown_classes_graphs: RDFGraphs) -> None:

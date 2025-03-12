@@ -45,8 +45,11 @@ def _create_project(creds: ServerCredentials) -> None:
 
 
 @pytest.fixture(scope="module")
-def _xmlupload(_create_project: None, creds: ServerCredentials) -> None:
+def _xmlupload(_create_project: None, creds: ServerCredentials) -> Iterator[None]:
     assert xmlupload(Path("testdata/xml-data/test-data-e2e.xml"), creds, ".")
+    yield
+    if found := list(Path.cwd().glob(f"id2iri_{PROJECT_SHORTCODE}_localhost_*.json")):
+        found[0].unlink()
 
 
 @pytest.fixture(scope="module")

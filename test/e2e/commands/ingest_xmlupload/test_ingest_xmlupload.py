@@ -23,7 +23,7 @@ SHORTCODE = "4126"
 
 
 @pytest.fixture(scope="module")
-def containers() -> Iterator[ContainerMetadata]:
+def container_metadata() -> Iterator[ContainerMetadata]:
     with get_containers() as metadata:
         yield metadata
 
@@ -34,12 +34,12 @@ def tmp_folder(metadata: ContainerMetadata) -> Path:
 
 
 @pytest.fixture(scope="module")
-def creds(metadata: ContainerMetadata) -> ServerCredentials:
+def creds(container_metadata: ContainerMetadata) -> ServerCredentials:
     return ServerCredentials(
         "root@example.com",
         "test",
-        f"http://0.0.0.0:{metadata.ports.api}",
-        f"http://0.0.0.0:{metadata.ports.ingest}",
+        f"http://0.0.0.0:{container_metadata.ports.api}",
+        f"http://0.0.0.0:{container_metadata.ports.ingest}",
     )
 
 

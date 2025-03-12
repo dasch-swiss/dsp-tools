@@ -72,7 +72,7 @@
 
     <resource label="Richtext" restype=":ClassWithEverything" id="richtext_wrong_value_type">
         <text-prop name=":testRichtext">
-            <text encoding="utf8">Text</text>
+            <text encoding="utf8"><p>Text</p></text>
         </text-prop>
     </resource>
 

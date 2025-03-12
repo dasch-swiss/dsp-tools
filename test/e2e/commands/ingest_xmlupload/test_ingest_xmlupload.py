@@ -28,6 +28,7 @@ def containers() -> Iterator[tuple[ContainerPorts, ArtifactDirs]]:
         yield container_ports, artifact_dirs
 
 
+@pytest.fixture(scope="module")
 def tmp_folder(containers: tuple[ContainerPorts, ArtifactDirs]) -> Path:
     container_ports, artifact_dirs = containers
     return artifact_dirs.tmp_ingest / "import" / SHORTCODE

@@ -123,7 +123,7 @@ def get_containers() -> Iterator[tuple[ContainerPorts, ArtifactDirs]]:
 
 def _get_container_names(_uuid: str) -> ContainerNames:
     prefix = f"testcontainer-{_uuid}"
-    return ContainerNames(f"{prefix}__db", f"{prefix}__sipi", f"{prefix}__ingest", f"{prefix}__api")
+    return ContainerNames(f"{prefix}-DB", f"{prefix}-SIPI", f"{prefix}-INGEST", f"{prefix}-API")
 
 
 def _get_ports() -> ContainerPorts:

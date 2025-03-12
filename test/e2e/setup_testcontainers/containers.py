@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from pathlib import Path
 
 import requests
@@ -5,16 +6,24 @@ from testcontainers.core.container import DockerContainer
 from testcontainers.core.network import Network
 from testcontainers.core.waiting_utils import wait_for_logs
 
-from test.e2e.setup_testcontainers.setup_testcontainers import API_INTERNAL_PORT
+from test.e2e.setup_testcontainers.artifacts import ArtifactDirs
+from test.e2e.setup_testcontainers.ports import ExternalContainerPorts
 from test.e2e.setup_testcontainers.setup_testcontainers import E2E_TESTDATA
-from test.e2e.setup_testcontainers.setup_testcontainers import FUSEKI_INTERNAL_PORT
-from test.e2e.setup_testcontainers.setup_testcontainers import INGEST_INTERNAL_PORT
-from test.e2e.setup_testcontainers.setup_testcontainers import SIPI_INTERNAL_PORT
-from test.e2e.setup_testcontainers.setup_testcontainers import ArtifactDirs
 from test.e2e.setup_testcontainers.setup_testcontainers import ContainerMetadata
 from test.e2e.setup_testcontainers.setup_testcontainers import ContainerNames
-from test.e2e.setup_testcontainers.setup_testcontainers import Containers
-from test.e2e.setup_testcontainers.setup_testcontainers import ExternalContainerPorts
+
+FUSEKI_INTERNAL_PORT = 3030
+SIPI_INTERNAL_PORT = 1024
+INGEST_INTERNAL_PORT = 3340
+API_INTERNAL_PORT = 3333
+
+
+@dataclass(frozen=True)
+class Containers:
+    fuseki: DockerContainer
+    sipi: DockerContainer
+    ingest: DockerContainer
+    api: DockerContainer
 
 
 def get_all_containers(network: Network, metadata: ContainerMetadata) -> Containers:

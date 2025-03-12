@@ -9,7 +9,7 @@ import requests
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
-from test.e2e.setup_testcontainers.setup_testcontainers import ExternalContainerPorts
+from test.e2e.setup_testcontainers.ports import ExternalContainerPorts
 from test.e2e.setup_testcontainers.setup_testcontainers import get_containers
 
 PROJECT_SHORTCODE = "4125"

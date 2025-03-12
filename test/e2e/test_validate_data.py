@@ -25,7 +25,7 @@ from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_re
 from dsp_tools.commands.validate_data.validate_data import _get_parsed_graphs
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
 from dsp_tools.commands.validate_data.validate_ontology import validate_ontology
-from test.e2e.setup_testcontainers.setup_testcontainers import ExternalContainerPorts
+from test.e2e.setup_testcontainers.ports import ExternalContainerPorts
 from test.e2e.setup_testcontainers.setup_testcontainers import get_containers
 
 

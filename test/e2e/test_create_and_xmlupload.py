@@ -20,8 +20,8 @@ RESCLASSES_IN_ONTO_JSON = 2
 
 @pytest.fixture(scope="module")
 def container_ports() -> Iterator[ContainerPorts]:
-    with get_containers() as containers:
-        yield containers
+    with get_containers() as (container_ports, _):
+        yield container_ports
 
 
 @pytest.fixture(scope="module")

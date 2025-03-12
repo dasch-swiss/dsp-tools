@@ -1,3 +1,4 @@
+import shutil
 import socket
 import subprocess
 from contextlib import contextmanager
@@ -14,10 +15,6 @@ from testcontainers.core.network import Network
 from testcontainers.core.waiting_utils import wait_for_logs
 
 E2E_TESTDATA = Path("testdata/e2e").absolute()
-SIPI_IMAGES = E2E_TESTDATA / "images"
-TMP_SIPI = E2E_TESTDATA / "tmp-dsp-sipi"
-TMP_INGEST = E2E_TESTDATA / "tmp-dsp-ingest"
-INGEST_DB = E2E_TESTDATA / "ingest-db"
 
 TESTCONTAINER_PORTS_LOCKFILES = Path("test/e2e/testcontainer_port_lockfiles")
 TESTCONTAINER_PORTS_LOCKFILES.mkdir(parents=True, exist_ok=True)
@@ -74,20 +71,59 @@ def _get_image_versions() -> ImageVersions:
     return ImageVersions(fuseki=fuseki, sipi=sipi, ingest=ingest, api=api)
 
 
+@dataclass(frozen=True)
+class ArtifactDirs:
+    sipi_images: Path
+    tmp_sipi: Path
+    tmp_ingest: Path
+    ingest_db: Path
+
+
+def _get_artifact_dirs(_uuid: str) -> ArtifactDirs:
+    sipi_images = E2E_TESTDATA / "images" / _uuid
+    tmp_sipi = E2E_TESTDATA / "tmp-dsp-sipi" / _uuid
+    tmp_ingest = E2E_TESTDATA / "tmp-dsp-ingest" / _uuid
+    ingest_db = E2E_TESTDATA / "ingest-db" / _uuid
+    sipi_images.mkdir(parents=True)
+    tmp_sipi.mkdir(parents=True)
+    tmp_ingest.mkdir(parents=True)
+    ingest_db.mkdir(parents=True)
+    return ArtifactDirs(
+        sipi_images=sipi_images,
+        tmp_sipi=tmp_sipi,
+        tmp_ingest=tmp_ingest,
+        ingest_db=ingest_db,
+    )
+
+
+def _remove_artifact_dirs(artifact_dirs: ArtifactDirs) -> None:
+    shutil.rmtree(artifact_dirs.sipi_images)
+    shutil.rmtree(artifact_dirs.tmp_sipi)
+    shutil.rmtree(artifact_dirs.tmp_ingest)
+    shutil.rmtree(artifact_dirs.ingest_db)
+
+
 @contextmanager
-def get_containers() -> Iterator[ContainerPorts]:
+def get_containers() -> Iterator[tuple[ContainerPorts, ArtifactDirs]]:
     if subprocess.run("docker stats --no-stream".split(), check=False).returncode != 0:
         raise RuntimeError("Docker is not running properly")
     with Network() as network:
+        _uuid = str(uuid4())[:6]
+        artifact_dirs = _get_artifact_dirs(_uuid)
         ports = _get_ports()
-        prefix = f"testcontainer-{str(uuid4())[:6]}"
-        names = ContainerNames(f"{prefix}__db", f"{prefix}__sipi", f"{prefix}__ingest", f"{prefix}__api")
-        containers = _get_all_containers(network, ports, names)
+        names = _get_container_names(_uuid)
+        containers = _get_all_containers(network, ports, names, artifact_dirs)
         try:
-            yield ports
+            yield ports, artifact_dirs
         finally:
             _stop_all_containers(containers)
             _release_ports(ports)
+            _remove_artifact_dirs(artifact_dirs)
+
+
+def _get_container_names(_uuid: str) -> ContainerNames:
+    prefix = f"testcontainer-{_uuid}"
+    return ContainerNames(f"{prefix}__db", f"{prefix}__sipi", f"{prefix}__ingest", f"{prefix}__api")
 
 
 def _get_ports() -> ContainerPorts:
@@ -119,11 +155,13 @@ def _release_ports(ports: ContainerPorts) -> None:
     (TESTCONTAINER_PORTS_LOCKFILES / str(ports.api_port)).unlink()
 
 
-def _get_all_containers(network: Network, ports: ContainerPorts, names: ContainerNames) -> Containers:
+def _get_all_containers(
+    network: Network, ports: ContainerPorts, names: ContainerNames, artifact_dirs: ArtifactDirs
+) -> Containers:
     versions = _get_image_versions()
     fuseki = _get_fuseki_container(network, versions.fuseki, ports, names)
-    sipi = _get_sipi_container(network, versions.sipi, ports, names)
-    ingest = _get_ingest_container(network, versions.ingest, ports, names)
+    sipi = _get_sipi_container(network, versions.sipi, ports, names, artifact_dirs)
+    ingest = _get_ingest_container(network, versions.ingest, ports, names, artifact_dirs)
     api = _get_api_container(network, versions.api, ports, names)
     containers = Containers(fuseki=fuseki, sipi=sipi, ingest=ingest, api=api)
     _print_containers_are_ready(containers)
@@ -164,7 +202,7 @@ def _create_data_set_and_admin_user(fuseki_external_port: int) -> None:
 
 
 def _get_sipi_container(
-    network: Network, version: str, ports: ContainerPorts, names: ContainerNames
+    network: Network, version: str, ports: ContainerPorts, names: ContainerNames, artifact_dirs: ArtifactDirs
 ) -> DockerContainer:
     sipi = (
         DockerContainer(f"daschswiss/knora-sipi:{version}")
@@ -174,9 +212,9 @@ def _get_sipi_container(
         .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_HOST", "0.0.0.0")  # noqa: S104
         .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", ports.api_port)
         .with_command("--config=/sipi/config/sipi.docker-config.lua")
-        .with_volume_mapping(TMP_SIPI, "/tmp", "rw")  # noqa: S108
+        .with_volume_mapping(artifact_dirs.tmp_sipi, "/tmp", "rw")  # noqa: S108
         .with_volume_mapping(E2E_TESTDATA, "/sipi/config", "rw")
-        .with_volume_mapping(SIPI_IMAGES, "/sipi/images", "rw")
+        .with_volume_mapping(artifact_dirs.sipi_images, "/sipi/images", "rw")
     )
     sipi.start()
     wait_for_logs(sipi, f"Sipi: Server listening on HTTP port {SIPI_INTERNAL_PORT}")
@@ -185,7 +223,7 @@ def _get_sipi_container(
 
 
 def _get_ingest_container(
-    network: Network, version: str, ports: ContainerPorts, names: ContainerNames
+    network: Network, version: str, ports: ContainerPorts, names: ContainerNames, artifact_dirs: ArtifactDirs
 ) -> DockerContainer:
     ingest = (
         DockerContainer(f"daschswiss/dsp-ingest:{version}")
@@ -199,9 +237,9 @@ def _get_ingest_container(
         .with_env("SIPI_USE_LOCAL_DEV", "false")
         .with_env("ALLOW_ERASE_PROJECTS", "true")
         .with_env("DB_JDBC_URL", "jdbc:sqlite:/opt/db/ingest.sqlite")
-        .with_volume_mapping(SIPI_IMAGES, "/opt/images", "rw")
-        .with_volume_mapping(TMP_INGEST, "/opt/temp", "rw")
-        .with_volume_mapping(INGEST_DB, "/opt/db", "rw")
+        .with_volume_mapping(artifact_dirs.sipi_images, "/opt/images", "rw")
+        .with_volume_mapping(artifact_dirs.tmp_ingest, "/opt/temp", "rw")
+        .with_volume_mapping(artifact_dirs.ingest_db, "/opt/db", "rw")
     )
     ingest.start()
     wait_for_logs(ingest, "Started dsp-ingest")

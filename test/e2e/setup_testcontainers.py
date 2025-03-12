@@ -103,22 +103,37 @@ def _remove_artifact_dirs(artifact_dirs: ArtifactDirs) -> None:
             shutil.rmtree(_dir)
 
 
+@dataclass(frozen=True)
+class ContainerMetadata:
+    artifact_dirs: ArtifactDirs
+    versions: ImageVersions
+    ports: ContainerPorts
+    names: ContainerNames
+
+
 @contextmanager
-def get_containers() -> Iterator[tuple[ContainerPorts, ArtifactDirs]]:
+def get_containers() -> Iterator[ContainerMetadata]:
     if subprocess.run("docker stats --no-stream".split(), check=False).returncode != 0:
         raise RuntimeError("Docker is not running properly")
     with Network() as network:
-        _uuid = str(uuid4())[:6]
-        artifact_dirs = _get_artifact_dirs(_uuid)
-        ports = _get_ports()
-        names = _get_container_names(_uuid)
-        containers = _get_all_containers(network, ports, names, artifact_dirs)
+        metadata = _get_container_metadata()
+        containers = _get_all_containers(network, metadata)
         try:
-            yield ports, artifact_dirs
+            yield metadata
         finally:
             _stop_all_containers(containers)
-            _release_ports(ports)
-            _remove_artifact_dirs(artifact_dirs)
+            _release_ports(metadata.ports)
+            _remove_artifact_dirs(metadata.artifact_dirs)
+
+
+def _get_container_metadata() -> ContainerMetadata:
+    _uuid = str(uuid4())[:6]
+    return ContainerMetadata(
+        artifact_dirs=_get_artifact_dirs(_uuid),
+        versions=_get_image_versions(),
+        ports=_get_ports(),
+        names=_get_container_names(_uuid),
+    )
 
 
 def _get_container_names(_uuid: str) -> ContainerNames:
@@ -155,14 +170,13 @@ def _release_ports(ports: ContainerPorts) -> None:
     (TESTCONTAINER_PORTS_LOCKFILES / str(ports.api_port)).unlink()
 
 
-def _get_all_containers(
-    network: Network, ports: ContainerPorts, names: ContainerNames, artifact_dirs: ArtifactDirs
-) -> Containers:
-    versions = _get_image_versions()
-    fuseki = _get_fuseki_container(network, versions.fuseki, ports, names)
-    sipi = _get_sipi_container(network, versions.sipi, ports, names, artifact_dirs)
-    ingest = _get_ingest_container(network, versions.ingest, ports, names, artifact_dirs)
-    api = _get_api_container(network, versions.api, ports, names)
+def _get_all_containers(network: Network, metadata: ContainerMetadata) -> Containers:
+    fuseki = _get_fuseki_container(network, metadata.versions.fuseki, metadata.ports, metadata.names)
+    sipi = _get_sipi_container(network, metadata.versions.sipi, metadata.ports, metadata.names, metadata.artifact_dirs)
+    ingest = _get_ingest_container(
+        network, metadata.versions.ingest, metadata.ports, metadata.names, metadata.artifact_dirs
+    )
+    api = _get_api_container(network, metadata.versions.api, metadata.ports, metadata.names)
     containers = Containers(fuseki=fuseki, sipi=sipi, ingest=ingest, api=api)
     _print_containers_are_ready(containers)
     return containers

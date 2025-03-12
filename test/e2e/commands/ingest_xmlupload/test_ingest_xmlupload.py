@@ -12,7 +12,7 @@ from dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files import ingest
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_files import upload_files
 from dsp_tools.commands.project.create.project_create import create_project
 from test.e2e.setup_testcontainers import ArtifactDirs
-from test.e2e.setup_testcontainers import ContainerPorts
+from test.e2e.setup_testcontainers import ContainerMetadata
 from test.e2e.setup_testcontainers import get_containers
 
 CWD = Path("testdata/dsp-ingest-data/e2e-sample-project")
@@ -23,25 +23,23 @@ SHORTCODE = "4126"
 
 
 @pytest.fixture(scope="module")
-def containers() -> Iterator[tuple[ContainerPorts, ArtifactDirs]]:
-    with get_containers() as (container_ports, artifact_dirs):
-        yield container_ports, artifact_dirs
+def containers() -> Iterator[ContainerMetadata]:
+    with get_containers() as metadata:
+        yield metadata
 
 
 @pytest.fixture(scope="module")
-def tmp_folder(containers: tuple[ContainerPorts, ArtifactDirs]) -> Path:
-    container_ports, artifact_dirs = containers
-    return artifact_dirs.tmp_ingest / "import" / SHORTCODE
+def tmp_folder(metadata: ContainerMetadata) -> Path:
+    return metadata.artifact_dirs.tmp_ingest / "import" / SHORTCODE
 
 
 @pytest.fixture(scope="module")
-def creds(containers: tuple[ContainerPorts, ArtifactDirs]) -> ServerCredentials:
-    container_ports, _ = containers
+def creds(metadata: ContainerMetadata) -> ServerCredentials:
     return ServerCredentials(
         "root@example.com",
         "test",
-        f"http://0.0.0.0:{container_ports.api_port}",
-        f"http://0.0.0.0:{container_ports.ingest_port}",
+        f"http://0.0.0.0:{metadata.ports.api_port}",
+        f"http://0.0.0.0:{metadata.ports.ingest_port}",
     )
 
 
@@ -63,11 +61,10 @@ def _create_project(creds: ServerCredentials) -> None:
 
 @pytest.mark.usefixtures("_create_project")
 def test_ingest_upload(
-    mapping_file: Path, creds: ServerCredentials, containers: tuple[ContainerPorts, ArtifactDirs], tmp_folder: Path
+    mapping_file: Path, creds: ServerCredentials, metadata: ContainerMetadata, tmp_folder: Path
 ) -> None:
-    container_ports, artifact_dirs = containers
     _test_upload_step(creds, tmp_folder)
-    _test_ingest_step(mapping_file, creds, tmp_folder, artifact_dirs)
+    _test_ingest_step(mapping_file, creds, tmp_folder, metadata.artifact_dirs)
     _test_xmlupload_step(creds)
 
 

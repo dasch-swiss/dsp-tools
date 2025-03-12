@@ -31,8 +31,8 @@ from test.e2e.setup_testcontainers import get_containers
 
 @pytest.fixture(scope="module")
 def container_ports() -> Iterator[ContainerPorts]:
-    with get_containers() as (container_ports, _):
-        yield container_ports
+    with get_containers() as metadata:
+        yield metadata.ports
 
 
 @pytest.fixture(scope="module")

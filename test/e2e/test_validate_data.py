@@ -91,7 +91,9 @@ def value_type_violation(
     _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/value_type_violation.xml")
-    graphs = _get_parsed_graphs(api_con, file)
+    match = r"Angular brackets in the format of <text> were found in text properties with encoding=utf8"
+    with pytest.warns(DspToolsUserWarning, match=match):
+        graphs = _get_parsed_graphs(api_con, file)
     return _get_validation_result(graphs, shacl_validator, None)
 
 
@@ -222,9 +224,7 @@ class TestCheckConforms:
         assert minimal_correct.conforms
 
     def test_value_type_violation(self, value_type_violation: ValidationReportGraphs) -> None:
-        match = r"Angular brackets in the format of <text> were found in text properties with encoding=utf8"
-        with pytest.warns(DspToolsUserWarning, match=match):
-            assert not value_type_violation.conforms
+        assert not value_type_violation.conforms
 
     def test_unique_value_violation(self, unique_value_violation: ValidationReportGraphs) -> None:
         assert not unique_value_violation.conforms

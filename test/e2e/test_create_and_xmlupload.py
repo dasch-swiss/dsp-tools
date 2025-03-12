@@ -35,11 +35,6 @@ def creds(container_ports: ExternalContainerPorts) -> ServerCredentials:
 
 
 @pytest.fixture(scope="module")
-def onto_iri(creds: ServerCredentials) -> str:
-    return f"{creds.server}/ontology/{PROJECT_SHORTCODE}/{ONTO_NAME}/v2"
-
-
-@pytest.fixture(scope="module")
 def _create_project(creds: ServerCredentials) -> None:
     assert create_project(Path("testdata/json-project/test-project-e2e.json"), creds, verbose=True)
 
@@ -54,6 +49,11 @@ def auth_header(_create_project: None, creds: ServerCredentials) -> dict[str, st
     payload = {"email": creds.user, "password": creds.password}
     token: str = requests.post(f"{creds.server}/v2/authentication", json=payload, timeout=3).json()["token"]
     return {"Authorization": f"Bearer {token}"}
+
+
+@pytest.fixture(scope="module")
+def onto_iri(creds: ServerCredentials) -> str:
+    return f"{creds.server}/ontology/{PROJECT_SHORTCODE}/{ONTO_NAME}/v2"
 
 
 @pytest.fixture(scope="module")

@@ -102,6 +102,7 @@ def _get_ingest_container(
         .with_bind_ports(host=ports.ingest, container=INGEST_INTERNAL_PORT)
         .with_env("STORAGE_ASSET_DIR", "/opt/images")
         .with_env("STORAGE_TEMP_DIR", "/opt/temp")
+        # other containers are addressed with http://<service_name>:<internal_port>
         .with_env("JWT_ISSUER", f"http://{names.api}:{ports.api}")
         .with_env("JWT_SECRET", "UP 4888, nice 4-8-4 steam engine")
         .with_env("SIPI_USE_LOCAL_DEV", "false")
@@ -124,7 +125,7 @@ def _get_api_container(
         DockerContainer(f"daschswiss/knora-api:{version}")
         .with_name(names.api)
         .with_network(network)
-        # other containers are addressed by their service name and their **internal** port
+        # other containers are addressed with http://<service_name>:<internal_port>
         .with_env("KNORA_WEBAPI_DSP_INGEST_BASE_URL", f"http://{names.ingest}:{INGEST_INTERNAL_PORT}")
         .with_env("KNORA_WEBAPI_JWT_ISSUER", f"http://{names.api}:{ports.api}")
         .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", ports.api)

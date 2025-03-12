@@ -17,16 +17,6 @@ class ExternalContainerPorts:
 
 
 def get_ports() -> ExternalContainerPorts:
-    def _reserve_port(port: int) -> bool:
-        with socket.socket() as s:
-            if s.connect_ex(("localhost", port)) == 0:
-                return False
-        try:
-            (TESTCONTAINER_PORTS_LOCKFILES / str(port)).touch(exist_ok=False)
-        except FileExistsError:
-            return False
-        return True
-
     num_of_ports_needed = 4
     port_window: list[int] = []
     for port in count(1025):
@@ -36,6 +26,17 @@ def get_ports() -> ExternalContainerPorts:
             port_window.append(port)
 
     return ExternalContainerPorts(*port_window)
+
+
+def _reserve_port(port: int) -> bool:
+    with socket.socket() as s:
+        if s.connect_ex(("localhost", port)) == 0:
+            return False
+    try:
+        (TESTCONTAINER_PORTS_LOCKFILES / str(port)).touch(exist_ok=False)
+    except FileExistsError:
+        return False
+    return True
 
 
 def release_ports(ports: ExternalContainerPorts) -> None:

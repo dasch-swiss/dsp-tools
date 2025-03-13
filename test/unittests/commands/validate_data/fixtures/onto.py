@@ -151,7 +151,8 @@ def card_0_n() -> Graph:
                 owl:minCardinality 0 ;
                 owl:onProperty onto:testSimpleText
                          ] .
-    onto:testSimpleText knora-api:isEditable true .
+    onto:testSimpleText knora-api:isEditable true ;
+                        knora-api:objectType knora-api:TextValue .
     """
     g = Graph()
     g.parse(data=ttl, format="ttl")

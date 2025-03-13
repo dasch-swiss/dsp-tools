@@ -439,11 +439,11 @@ class TestQueryFileValueViolations:
         graphs, info = report_missing_file_value
         result = _query_one_without_detail(info, graphs, Graph())
         assert isinstance(result, ValidationResult)
-        assert result.violation_type == ViolationType.FILE_VALUE
+        assert result.violation_type == ViolationType.MIN_CARD
         assert result.res_iri == info.focus_node_iri
         assert result.res_class == info.focus_node_type
         assert result.property == KNORA_API.hasMovingImageFileValue
-        assert result.expected == Literal("A MovingImageRepresentation requires a file with the extension 'mp4'.")
+        assert result.expected == Literal("Cardinality 1")
 
     def test_file_value_cardinality_to_ignore(
         self, file_value_cardinality_to_ignore: tuple[Graph, ValidationResultBaseInfo]
@@ -590,8 +590,8 @@ class TestReformatResult:
         assert result.problem_type == ProblemType.FILE_VALUE
         assert result.res_id == "id_video_missing"
         assert result.res_type == "onto:TestMovingImageRepresentation"
-        assert result.prop_name == "bitstream / iiif-uri"
-        assert result.expected == "A MovingImageRepresentation requires a file with the extension 'mp4'."
+        assert result.prop_name == "bitstream"
+        assert result.expected == "This resource requires a file with one of the following extensions: 'mp4'"
 
     def test_image_missing_legal_info(self, extracted_image_missing_legal_info: ValidationResult) -> None:
         result = _reformat_one_validation_result(extracted_image_missing_legal_info)

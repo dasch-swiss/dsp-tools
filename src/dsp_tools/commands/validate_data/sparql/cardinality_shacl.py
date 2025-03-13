@@ -96,12 +96,6 @@ def _construct_1_cardinality(onto_graph: Graph) -> Graph:
           
       ?propRestriction knora-api:isEditable true .
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
-      
-      FILTER (?propRestriction NOT IN (
-             knora-api:hasArchiveFileValue, knora-api:hasAudioFileValue, knora-api:hasDocumentFileValue, 
-             knora-api:hasMovingImageFileValue, knora-api:hasStillImageFileValue, knora-api:hasTextFileValue
-             )
-      )
     }
     """
     if results_graph := onto_graph.query(query_s).graph:

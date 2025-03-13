@@ -40,16 +40,6 @@ IIIF_URI_VALUE = RDFPropTypeInfo(
     KNORA_API.StillImageExternalFileValue, KNORA_API.stillImageFileValueHasExternalUrl, XSD.anyURI
 )
 
-FILE_VALUE_CLASSES_TO_PROPS = {
-    KNORA_API.ArchiveFileValue: KNORA_API.hasArchiveFileValue,
-    KNORA_API.AudioFileValue: KNORA_API.hasAudioFileValue,
-    KNORA_API.DocumentFileValue: KNORA_API.hasDocumentFileValue,
-    KNORA_API.MovingImageFileValue: KNORA_API.hasMovingImageFileValue,
-    KNORA_API.TextFileValue: KNORA_API.hasTextFileValue,
-    KNORA_API.StillImageFileValue: KNORA_API.hasStillImageFileValue,
-}
-
-
 # validation results
 
 FILE_VALUE_PROPERTIES = {

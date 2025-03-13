@@ -364,12 +364,12 @@ def _query_pattern_constraint_component_violation(
 
 
 def _query_generic_violation(
-    validation_bn: SubjectObjectTypeAlias, base_info: ValidationResultBaseInfo, results_and_onto: Graph
+    result_bn: SubjectObjectTypeAlias, base_info: ValidationResultBaseInfo, results_and_onto: Graph
 ) -> ValidationResult:
     val = None
-    if found_val := list(results_and_onto.objects(validation_bn, SH.value)):
+    if found_val := list(results_and_onto.objects(result_bn, SH.value)):
         val = found_val.pop()
-    msg = next(results_and_onto.objects(validation_bn, SH.resultMessage))
+    msg = next(results_and_onto.objects(result_bn, SH.resultMessage))
     return ValidationResult(
         violation_type=ViolationType.GENERIC,
         res_iri=base_info.focus_node_iri,

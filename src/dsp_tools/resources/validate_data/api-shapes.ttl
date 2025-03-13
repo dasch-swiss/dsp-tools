@@ -46,9 +46,9 @@ api-shapes:UniqueValue_Shape
             GROUP BY $this ?path ?value
             HAVING (COUNT(?value) > 1)
                     """ ;
-                   sh:message "A resource may not have the same property and value more than one time." ;
-                 ] ;
-  sh:severity    sh:Violation .
+                   sh:severity sh:Violation ;
+                   sh:message  "A resource may not have the same property and value more than one time." ;
+                 ] .
 
 
 ########################

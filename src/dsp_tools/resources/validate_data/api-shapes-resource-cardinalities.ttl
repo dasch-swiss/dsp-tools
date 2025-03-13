@@ -1,0 +1,191 @@
+@prefix sh:         <http://www.w3.org/ns/shacl#> .
+@prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:        <http://www.w3.org/2002/07/owl#> .
+@prefix dash:       <http://datashapes.org/dash#> .
+@prefix knora-api:  <http://api.knora.org/ontology/knora-api/v2#> .
+
+@prefix api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#> .
+
+
+api-shapes:rdfsLabel_Cardinality
+  a           sh:PropertyShape ;
+  sh:path     rdfs:label ;
+  sh:minCount 1 ;
+  sh:maxCount 1 ;
+  sh:severity sh:Violation ;
+  sh:message  "A label is required" .
+
+
+### knora-api:hasPermissions
+api-shapes:hasPermissions_Cardinality
+  a           sh:PropertyShape ;
+  sh:path     knora-api:hasPermissions ;
+  sh:minCount 0 ;
+  sh:maxCount 1 ;
+  sh:severity sh:Violation ;
+  sh:message  "The resource may have at most one permission." .
+
+
+#########################################
+# DSP IN-BUILT RESOURCES
+#########################################
+
+
+###########################
+# LinkObj
+
+knora-api:LinkObj
+  a                  sh:NodeShape ;
+  dash:closedByTypes true ;
+  sh:property        api-shapes:rdfsLabel_Cardinality ,
+                     api-shapes:hasPermissions_Cardinality ,
+                     [
+                       a sh:PropertyShape ;
+                       sh:path knora-api:hasComment
+                     ],
+                     [ a sh:PropertyShape ;
+                       sh:path knora-api:hasLinkTo ;
+                       sh:minCount 1 ;
+                       sh:severity sh:Violation ;
+                       sh:message "Cardinality 1-n" ;
+                     ] ,
+                     [
+                       a sh:PropertyShape ;
+                       sh:path knora-api:hasStandoffLinkTo
+                     ] .
+
+###########################
+# Region
+
+knora-api:Region
+  a                  sh:NodeShape ;
+  dash:closedByTypes true ;
+  sh:property        api-shapes:rdfsLabel_Cardinality,
+                     api-shapes:hasPermissions_Cardinality ,
+                     [
+                       a sh:PropertyShape ;
+                       sh:path knora-api:hasComment
+                     ] ,
+                     [ a sh:PropertyShape ;
+                       sh:path knora-api:hasColor ;
+                       sh:minCount 1 ;
+                       sh:maxCount 1 ;
+                       sh:severity sh:Violation ;
+                       sh:message "Cardinality 1" ;
+                     ] ,
+                     [ a sh:PropertyShape ;
+                       sh:path knora-api:isRegionOf ;
+                       sh:minCount 1 ;
+                       sh:maxCount 1 ;
+                       sh:severity sh:Violation ;
+                       sh:message "Cardinality 1" ;
+                     ] ,
+                     [ a sh:PropertyShape ;
+                       sh:path knora-api:hasGeometry ;
+                       sh:minCount 1 ;
+                       sh:severity sh:Violation ;
+                       sh:message "Cardinality 1-n" ;
+                     ] ,
+                     [
+                       a sh:PropertyShape ;
+                       sh:path knora-api:hasStandoffLinkTo
+                     ] .
+
+
+###########################
+# AudioSegment
+
+knora-api:AudioSegment
+  a                  sh:NodeShape ;
+  dash:closedByTypes true ;
+  sh:property        api-shapes:rdfsLabel_Cardinality,
+                     api-shapes:hasPermissions_Cardinality ,
+                     [ a sh:PropertyShape ;
+                       sh:path knora-api:hasSegmentBounds ;
+                       sh:minCount 1 ;
+                       sh:maxCount 1 ;
+                       sh:severity sh:Violation ;
+                       sh:message "Cardinality 1" ;
+                     ] ,
+                     [ a sh:PropertyShape ;
+                       sh:path knora-api:isAudioSegmentOf ;
+                       sh:minCount 1 ;
+                       sh:maxCount 1 ;
+                       sh:severity sh:Violation ;
+                       sh:message "Cardinality 1" ;
+                     ] ,
+                     [ a sh:PropertyShape ;
+                       sh:path knora-api:hasTitle ;
+                       sh:maxCount 1 ;
+                       sh:severity sh:Violation ;
+                       sh:message "Cardinality 0-1" ;
+                     ] ,
+                     [ a sh:PropertyShape ;
+                       sh:path knora-api:hasKeyword
+                     ] ,
+                     [
+                       a sh:PropertyShape ;
+                       sh:path knora-api:hasComment
+                     ] ,
+                     [
+                       a sh:PropertyShape ;
+                       sh:path knora-api:relatesTo
+                     ] ,
+                     [
+                       a sh:PropertyShape ;
+                       sh:path knora-api:hasDescription
+                     ] ,
+                     [
+                       a sh:PropertyShape ;
+                       sh:path knora-api:hasStandoffLinkTo
+                     ] .
+
+
+###########################
+# VideoSegment
+
+knora-api:VideoSegment
+  a                  sh:NodeShape ;
+  dash:closedByTypes true ;
+  sh:property        api-shapes:rdfsLabel_Cardinality,
+                     api-shapes:hasPermissions_Cardinality ,
+                     [ a sh:PropertyShape ;
+                       sh:path knora-api:hasSegmentBounds ;
+                       sh:minCount 1 ;
+                       sh:maxCount 1 ;
+                       sh:severity sh:Violation ;
+                       sh:message "Cardinality 1" ;
+                     ] ,
+                     [ a sh:PropertyShape ;
+                       sh:path knora-api:isVideoSegmentOf ;
+                       sh:minCount 1 ;
+                       sh:maxCount 1 ;
+                       sh:severity sh:Violation ;
+                       sh:message "Cardinality 1" ;
+                     ] ,
+                     [ a sh:PropertyShape ;
+                       sh:path knora-api:hasTitle ;
+                       sh:maxCount 1 ;
+                       sh:severity sh:Violation ;
+                       sh:message "Cardinality 0-1" ;
+                     ] ,
+                     [ a sh:PropertyShape ;
+                       sh:path knora-api:hasKeyword
+                     ] ,
+                     [
+                       a sh:PropertyShape ;
+                       sh:path knora-api:hasComment
+                     ] ,
+                     [
+                       a sh:PropertyShape ;
+                       sh:path knora-api:relatesTo
+                     ] ,
+                     [
+                       a sh:PropertyShape ;
+                       sh:path knora-api:hasDescription
+                     ] ,
+                     [
+                       a sh:PropertyShape ;
+                       sh:path knora-api:hasStandoffLinkTo
+                     ] .

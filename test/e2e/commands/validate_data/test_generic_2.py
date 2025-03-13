@@ -4,7 +4,6 @@ from typing import Never
 from typing import assert_never
 from typing import cast
 
-from dsp_tools.models.custom_warnings import DspToolsUserWarning
 import pytest
 from rdflib import BNode
 from rdflib import URIRef
@@ -24,6 +23,7 @@ from dsp_tools.commands.validate_data.query_validation_result import reformat_va
 from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_resource_classes
 from dsp_tools.commands.validate_data.validate_data import _get_parsed_graphs
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
+from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from test.e2e.setup_testcontainers.ports import ExternalContainerPorts
 from test.e2e.setup_testcontainers.setup import get_containers
 

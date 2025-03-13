@@ -12,7 +12,7 @@
 
     <!-- 25 Violations -->
 
-    <!-- 4 Legal Info Violations (not implemented) -->
+    <!-- 2 Legal Info Violations (not implemented) -->
 
     <!--
     The xsd validation library used in the code is not able to recognise if a referenced ID does not exist in the file

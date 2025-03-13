@@ -216,6 +216,8 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
             )
         case SH.ClassConstraintComponent:
             return _query_class_constraint_without_detail(base_info, results_and_onto, data, msg)
+        case SH.InConstraintComponent:
+            return _query_generic_violation(base_info.result_bn, base_info, results_and_onto)
         case SH.LessThanConstraintComponent | SH.MinExclusiveConstraintComponent | SH.MinInclusiveConstraintComponent:
             value = next(results_and_onto.objects(base_info.result_bn, SH.value))
             return ValidationResult(
@@ -314,7 +316,7 @@ def _query_one_with_detail(
         case SH.ClassConstraintComponent:
             return _query_class_constraint_component_violation(base_info, results_and_onto, data_graph)
         case SH.InConstraintComponent:
-            return _query_generic_violation(base_info, results_and_onto)
+            return _query_generic_violation(base_info.detail.detail_bn, base_info, results_and_onto)
         case _:
             return UnexpectedComponent(str(detail_info.source_constraint_component))
 
@@ -361,12 +363,13 @@ def _query_pattern_constraint_component_violation(
     )
 
 
-def _query_generic_violation(base_info: ValidationResultBaseInfo, results_and_onto: Graph) -> ValidationResult:
-    detail_info = cast(DetailBaseInfo, base_info.detail)
+def _query_generic_violation(
+    validation_bn: SubjectObjectTypeAlias, base_info: ValidationResultBaseInfo, results_and_onto: Graph
+) -> ValidationResult:
     val = None
-    if found_val := list(results_and_onto.objects(detail_info.detail_bn, SH.value)):
+    if found_val := list(results_and_onto.objects(validation_bn, SH.value)):
         val = found_val.pop()
-    msg = next(results_and_onto.objects(detail_info.detail_bn, SH.resultMessage))
+    msg = next(results_and_onto.objects(validation_bn, SH.resultMessage))
     return ValidationResult(
         violation_type=ViolationType.GENERIC,
         res_iri=base_info.focus_node_iri,

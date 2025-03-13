@@ -45,13 +45,13 @@ def _get_one_relevant_knora_subset(knora_api: Graph, knora_prop: str) -> Graph:
     CONSTRUCT {
     
       ?focusProp a owl:ObjectProperty ;
-                 knora-api:objectType ?o ;
+                 knora-api:objectType ?type ;
                  knora-api:%(knora_prop)s ?object .
       
     } WHERE {
       
       ?focusProp a owl:ObjectProperty ;
-                 knora-api:objectType ?o ;
+                 knora-api:objectType ?type ;
                  knora-api:%(knora_prop)s ?object .
       
     }

@@ -216,18 +216,13 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
             )
         case SH.ClassConstraintComponent:
             return _query_class_constraint_without_detail(base_info, results_and_onto, data, msg)
-        case SH.InConstraintComponent:
+        case (
+            SH.InConstraintComponent
+            | SH.LessThanConstraintComponent
+            | SH.MinExclusiveConstraintComponent
+            | SH.MinInclusiveConstraintComponent
+        ):
             return _query_generic_violation(base_info.result_bn, base_info, results_and_onto)
-        case SH.LessThanConstraintComponent | SH.MinExclusiveConstraintComponent | SH.MinInclusiveConstraintComponent:
-            value = next(results_and_onto.objects(base_info.result_bn, SH.value))
-            return ValidationResult(
-                violation_type=ViolationType.GENERIC,
-                res_iri=base_info.focus_node_iri,
-                res_class=base_info.focus_node_type,
-                property=base_info.result_path,
-                message=msg,
-                input_value=value,
-            )
         case _:
             return UnexpectedComponent(str(component))
 

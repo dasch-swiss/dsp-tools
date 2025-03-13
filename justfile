@@ -94,7 +94,9 @@ integration-tests *FLAGS:
 # Run the end-to-end tests (with testcontainers)
 [no-exit-message]
 e2e-tests *FLAGS:
-    uv run pytest test/e2e/ {{FLAGS}}
+    # "--dist=loadfile" guarantees that all tests in a file are executed by the same worker
+    # see https://pytest-xdist.readthedocs.io/en/latest/distribution.html
+    uv run pytest -n=auto --dist=loadfile test/e2e/ {{FLAGS}}
 
 
 # Run the legacy end-to-end tests (needs a running stack)

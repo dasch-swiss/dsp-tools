@@ -509,18 +509,20 @@ api-shapes:LinkObj_ResourceShape
   a              sh:NodeShape ;
   sh:name        "Validates the LinkObj resource" ;
   sh:targetClass knora-api:LinkObj ;
-  sh:property    api-shapes:hasLinkTo_PropertyShape ,
-                 api-shapes:hasComment_PropertyShape ;
-  sh:severity    sh:Violation .
+  sh:property    [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:hasLinkTo ;
+                    sh:class    knora-api:LinkValue ;
+                    sh:severity sh:Violation ;
+                    sh:message  "This property requires a LinkValue"
+                 ] ,
+                 [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:hasLinkTo ;
+                    sh:node     api-shapes:hasLinkTo_NodeShape ;
+                 ] ,
+                 api-shapes:hasComment_PropertyShape .
 
-### knora-api:hasLinkTo -> TODO: move
-
-api-shapes:hasLinkTo_PropertyShape
-  a          sh:PropertyShape ;
-  sh:path    knora-api:hasLinkTo ;
-  sh:class   knora-api:LinkValue ;
-  sh:node    api-shapes:hasLinkTo_NodeShape ;
-  sh:message "This property requires a LinkValue" .
 
 api-shapes:hasLinkTo_NodeShape
   a           sh:NodeShape ;

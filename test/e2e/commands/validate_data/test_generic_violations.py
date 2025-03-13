@@ -286,6 +286,7 @@ class TestReformatValidationGraph:
             ("bitstream_no_legal_info", ProblemType.GENERIC),
             ("bitstream_no_legal_info", ProblemType.GENERIC),
             ("bitstream_no_legal_info", ProblemType.GENERIC),
+            ("empty_license", ProblemType.GENERIC),
             ("id_archive_missing", ProblemType.FILE_VALUE),
             ("id_archive_unknown", ProblemType.FILE_VALUE),
             ("id_audio_missing", ProblemType.FILE_VALUE),
@@ -306,6 +307,7 @@ class TestReformatValidationGraph:
             ("image_no_legal_info", ProblemType.GENERIC),
             ("image_no_legal_info", ProblemType.GENERIC),
             ("image_no_legal_info", ProblemType.GENERIC),
+            ("inexistent_license_iri", ProblemType.GENERIC),
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)
@@ -360,6 +362,7 @@ def test_extract_identifiers_of_resource_results(every_violation_combination_onc
         (URIRef("http://data/image_no_legal_info"), None),
         (URIRef("http://data/image_no_legal_info"), None),
         (URIRef("http://data/image_no_legal_info"), None),
+        (URIRef("http://data/inexistent_license_iri"), None),
         (URIRef("http://data/link_target_non_existent"), BNode),
         (URIRef("http://data/link_target_wrong_class"), BNode),
         (URIRef("http://data/list_node_non_existent"), BNode),
@@ -402,6 +405,7 @@ def test_reformat_every_constraint_once(every_violation_combination_once: Valida
         ("image_no_legal_info", ProblemType.GENERIC),
         ("image_no_legal_info", ProblemType.GENERIC),
         ("image_no_legal_info", ProblemType.GENERIC),
+        ("inexistent_license_iri", ProblemType.GENERIC),
         ("link_target_non_existent", ProblemType.INEXISTENT_LINKED_RESOURCE),
         ("link_target_wrong_class", ProblemType.LINK_TARGET_TYPE_MISMATCH),
         ("list_node_non_existent", ProblemType.GENERIC),

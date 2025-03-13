@@ -8,8 +8,8 @@ from rdflib import Graph
 from rdflib import URIRef
 
 from dsp_tools.commands.validate_data.constants import DASH
-from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROP_SHAPES
 from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROPERTIES
+from dsp_tools.commands.validate_data.constants import FILEVALUE_DETAIL_INFO
 from dsp_tools.commands.validate_data.constants import KNORA_API
 from dsp_tools.commands.validate_data.constants import SubjectObjectTypeAlias
 from dsp_tools.commands.validate_data.mappers import RESULT_TO_PROBLEM_MAPPER
@@ -194,7 +194,7 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
         case SH.PatternConstraintComponent:
             return _query_pattern_constraint_component_violation(base_info.result_bn, base_info, results_and_onto)
         case SH.MinCountConstraintComponent:
-            return _query_for_min_cardinality_violation(base_info, msg, results_and_onto)
+            return _query_for_min_cardinality_violation(base_info, msg)
         case SH.MaxCountConstraintComponent:
             return ValidationResult(
                 violation_type=ViolationType.MAX_CARD,
@@ -398,14 +398,9 @@ def _query_for_link_value_target_violation(
 
 
 def _query_for_min_cardinality_violation(
-    base_info: ValidationResultBaseInfo,
-    msg: SubjectObjectTypeAlias,
-    results_and_onto: Graph,
+    base_info: ValidationResultBaseInfo, msg: SubjectObjectTypeAlias
 ) -> ValidationResult:
-    source_shape = next(results_and_onto.objects(base_info.result_bn, SH.sourceShape))
-    if source_shape in FILE_VALUE_PROP_SHAPES:
-        violation_type = ViolationType.FILE_VALUE
-    elif base_info.result_path in LEGAL_INFO_PROPS:
+    if base_info.result_path in LEGAL_INFO_PROPS:
         violation_type = ViolationType.GENERIC
     else:
         violation_type = ViolationType.MIN_CARD
@@ -438,9 +433,10 @@ def _reformat_extracted_results(results: list[ValidationResult]) -> list[InputPr
 
 def _reformat_one_validation_result(validation_result: ValidationResult) -> InputProblem:
     match validation_result.violation_type:
+        case ViolationType.MIN_CARD:
+            return _reformat_min_card(validation_result)
         case (
             ViolationType.MAX_CARD
-            | ViolationType.MIN_CARD
             | ViolationType.NON_EXISTING_CARD
             | ViolationType.PATTERN
             | ViolationType.UNIQUE_VALUE
@@ -450,7 +446,7 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
             return _reformat_generic(result=validation_result, problem_type=problem)
         case ViolationType.GENERIC:
             prop_str = None
-            if validation_result.property in FILE_VALUE_PROPERTIES:
+            if validation_result.property in LEGAL_INFO_PROPS:
                 prop_str = "bitstream / iiif-uri"
             return _reformat_generic(validation_result, ProblemType.GENERIC, prop_string=prop_str)
         case ViolationType.FILEVALUE_PROHIBITED | ViolationType.FILE_VALUE as violation:
@@ -464,6 +460,31 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
             return _reformat_link_target_violation_result(validation_result)
         case _:
             raise BaseError(f"An unknown violation result was found: {validation_result.__class__.__name__}")
+
+
+def _reformat_min_card(result: ValidationResult) -> InputProblem:
+    iris = _reformat_main_iris(result)
+    if file_prop_info := FILEVALUE_DETAIL_INFO.get(cast(URIRef, result.property)):
+        prop_str, file_extensions = file_prop_info
+        detail_msg = None
+        problem_type = ProblemType.FILE_VALUE
+        expected: str | None = f"This resource requires a file with one of the following extensions: {file_extensions}"
+    else:
+        prop_str = iris.prop_name
+        detail_msg = _convert_rdflib_input_to_string(result.message)
+        problem_type = ProblemType.MIN_CARD
+        expected = _convert_rdflib_input_to_string(result.expected)
+
+    return InputProblem(
+        problem_type=problem_type,
+        res_id=iris.res_id,
+        res_type=iris.res_type,
+        prop_name=prop_str,
+        message=detail_msg,
+        input_value=_convert_rdflib_input_to_string(result.input_value),
+        input_type=_convert_rdflib_input_to_string(result.input_type),
+        expected=expected,
+    )
 
 
 def _reformat_generic(

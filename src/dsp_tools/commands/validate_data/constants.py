@@ -40,6 +40,7 @@ IIIF_URI_VALUE = RDFPropTypeInfo(
     KNORA_API.StillImageExternalFileValue, KNORA_API.stillImageFileValueHasExternalUrl, XSD.anyURI
 )
 
+
 # validation results
 
 FILE_VALUE_PROPERTIES = {

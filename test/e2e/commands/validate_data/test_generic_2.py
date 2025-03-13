@@ -4,6 +4,7 @@ from typing import Never
 from typing import assert_never
 from typing import cast
 
+from dsp_tools.models.custom_warnings import DspToolsUserWarning
 import pytest
 from rdflib import BNode
 from rdflib import URIRef
@@ -96,7 +97,9 @@ def value_type_violation(
     _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/value_type_violation.xml")
-    graphs = _get_parsed_graphs(api_con, file)
+    match = r"Angular brackets in the format of <text> were found in text properties with encoding=utf8"
+    with pytest.warns(DspToolsUserWarning, match=match):
+        graphs = _get_parsed_graphs(api_con, file)
     return _get_validation_result(graphs, shacl_validator, None)
 
 

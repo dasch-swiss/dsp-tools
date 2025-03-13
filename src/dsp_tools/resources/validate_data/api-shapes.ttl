@@ -562,7 +562,7 @@ api-shapes:seqnum_PropShape
   dash:coExistsWith knora-api:isPartOf ;
   sh:severity       sh:Violation ;
   sh:message        """
-                    The property seqnum or isPartOf (or sub-properties of them) must be used together.
+                    The property seqnum and isPartOf (or sub-properties of them) must be used together.
                     This resource only used one of the properties.
                     """ .
 

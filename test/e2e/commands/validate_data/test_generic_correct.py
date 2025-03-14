@@ -4,7 +4,7 @@ from typing import Iterator
 import pytest
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.commands.project.create.project_create import create_project
+from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
 from dsp_tools.commands.validate_data.api_connection import ApiConnection
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData

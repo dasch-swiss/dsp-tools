@@ -15,9 +15,9 @@ from typing import Union
 
 import regex
 
-from dsp_tools.commands.project.models.context import Context
-from dsp_tools.commands.project.models.helpers import Cardinality
-from dsp_tools.commands.project.models.model import Model
+from dsp_tools.commands.project.legacy_models.context import Context
+from dsp_tools.commands.project.legacy_models.helpers import Cardinality
+from dsp_tools.commands.project.legacy_models.model import Model
 from dsp_tools.models.datetimestamp import DateTimeStamp
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.langstring import LangString

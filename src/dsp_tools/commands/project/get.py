@@ -5,11 +5,11 @@ from typing import Any
 import regex
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.commands.project.models.group import Group
-from dsp_tools.commands.project.models.listnode import ListNode
-from dsp_tools.commands.project.models.ontology import Ontology
-from dsp_tools.commands.project.models.project import Project
-from dsp_tools.commands.project.models.user import User
+from dsp_tools.commands.project.legacy_models.group import Group
+from dsp_tools.commands.project.legacy_models.listnode import ListNode
+from dsp_tools.commands.project.legacy_models.ontology import Ontology
+from dsp_tools.commands.project.legacy_models.project import Project
+from dsp_tools.commands.project.legacy_models.user import User
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
 from dsp_tools.utils.connection import Connection

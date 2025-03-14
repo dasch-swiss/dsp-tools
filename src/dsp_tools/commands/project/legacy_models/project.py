@@ -19,7 +19,7 @@ from typing import Optional
 from typing import Union
 from urllib.parse import quote_plus
 
-from dsp_tools.commands.project.models.model import Model
+from dsp_tools.commands.project.legacy_models.model import Model
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.langstring import LangString
 from dsp_tools.utils.connection import Connection

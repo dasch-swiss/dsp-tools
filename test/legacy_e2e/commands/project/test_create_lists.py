@@ -5,7 +5,7 @@ from pathlib import Path
 import jsonpath_ng.ext
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.commands.project.create.project_create import create_project
+from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.project.create.project_create_lists import create_only_lists
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)

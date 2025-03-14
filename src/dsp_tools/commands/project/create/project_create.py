@@ -22,8 +22,8 @@ def create_project_on_server(
         success status (True if everything went smoothly, False otherwise)
     """
     project_designation = f"{project_definition.shortcode} {project_definition.shortname}"
-    existing_shortcodes = proj_client.get_all_project_shortcodes()
-    if project_definition.shortcode in existing_shortcodes:
+    existing_shortcodes, existing_shortnames = proj_client.get_existing_shortcodes_and_shortnames()
+    if project_definition.shortcode in existing_shortcodes or project_definition.shortname in existing_shortnames:
         raise UserError(f"A project with the shortcode/shortname {project_designation} already exists on the server.")
     data: dict[str, Any] = {
         "shortcode": project_definition.shortcode,

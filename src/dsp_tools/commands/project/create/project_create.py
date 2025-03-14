@@ -25,6 +25,17 @@ def create_project_on_server(
     existing_shortcodes, existing_shortnames = proj_client.get_existing_shortcodes_and_shortnames()
     if project_definition.shortcode in existing_shortcodes or project_definition.shortname in existing_shortnames:
         raise UserError(f"A project with the shortcode/shortname {project_designation} already exists on the server.")
+    
+    data = _serialize_project(project_definition)
+    if not (success := proj_client.create_project(data)):
+        raise UserError(f"Cannot create project {project_designation} on DSP server")
+    print(f"    Created project {project_designation}")
+    logger.info(f"Created project {project_designation}")
+
+    return success
+
+
+def _serialize_project(project_definition: ProjectMetadata) -> dict[str, Any]:
     data: dict[str, Any] = {
         "shortcode": project_definition.shortcode,
         "shortname": project_definition.shortname,
@@ -35,10 +46,4 @@ def create_project_on_server(
     }
     if desc := project_definition.descriptions:
         data["description"] = [{"language": lang, "value": val} for lang, val in desc.items()]
-
-    if not (success := proj_client.create_project(data)):
-        raise UserError(f"Cannot create project {project_designation} on DSP server")
-    print(f"    Created project {project_designation}")
-    logger.info(f"Created project {project_designation}")
-
-    return success
+    return data

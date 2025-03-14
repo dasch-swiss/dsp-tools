@@ -100,18 +100,18 @@ show_column_numbers = true
 strict = true
 enable_error_code = ["possibly-undefined"]
 exclude = [
-    "src/dsp_tools/models/datetimestamp.py",                  # TODO: activate this
-    "src/dsp_tools/models/langstring.py",                     # TODO: activate this
-    "src/dsp_tools/models/projectContext.py",                 # TODO: activate this
-    "src/dsp_tools/commands/project/models/context.py",       # TODO: activate this
-    "src/dsp_tools/commands/project/models/group.py",         # TODO: activate this
-    "src/dsp_tools/commands/project/models/helpers.py",       # TODO: activate this
-    "src/dsp_tools/commands/project/models/listnode.py",      # TODO: activate this
-    "src/dsp_tools/commands/project/models/ontology.py",      # TODO: activate this
-    "src/dsp_tools/commands/project/models/project.py",       # TODO: activate this
-    "src/dsp_tools/commands/project/models/propertyclass.py", # TODO: activate this
-    "src/dsp_tools/commands/project/models/resourceclass.py", # TODO: activate this
-    "src/dsp_tools/commands/project/models/user.py",          # TODO: activate this
+    "src/dsp_tools/models/datetimestamp.py",                         # TODO: activate this
+    "src/dsp_tools/models/langstring.py",                            # TODO: activate this
+    "src/dsp_tools/models/projectContext.py",                        # TODO: activate this
+    "src/dsp_tools/commands/project/legacy_models/context.py",       # TODO: activate this
+    "src/dsp_tools/commands/project/legacy_models/group.py",         # TODO: activate this
+    "src/dsp_tools/commands/project/legacy_models/helpers.py",       # TODO: activate this
+    "src/dsp_tools/commands/project/legacy_models/listnode.py",      # TODO: activate this
+    "src/dsp_tools/commands/project/legacy_models/ontology.py",      # TODO: activate this
+    "src/dsp_tools/commands/project/legacy_models/project.py",       # TODO: activate this
+    "src/dsp_tools/commands/project/legacy_models/propertyclass.py", # TODO: activate this
+    "src/dsp_tools/commands/project/legacy_models/resourceclass.py", # TODO: activate this
+    "src/dsp_tools/commands/project/legacy_models/user.py",          # TODO: activate this
 ]
 
 

@@ -4,8 +4,8 @@ import unittest
 
 import pytest
 
-from dsp_tools.commands.project.models.ontology import Ontology
-from dsp_tools.commands.project.models.resourceclass import ResourceClass
+from dsp_tools.commands.project.legacy_models.ontology import Ontology
+from dsp_tools.commands.project.legacy_models.resourceclass import ResourceClass
 from dsp_tools.models.langstring import LangString
 from dsp_tools.models.langstring import Languages
 from dsp_tools.utils.authentication_client_live import AuthenticationClientLive

@@ -6,8 +6,8 @@ from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_validate import validate_project
-from dsp_tools.commands.project.models.listnode import ListNode
-from dsp_tools.commands.project.models.project import Project
+from dsp_tools.commands.project.legacy_models.listnode import ListNode
+from dsp_tools.commands.project.legacy_models.project import Project
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.authentication_client_live import AuthenticationClientLive

@@ -11,11 +11,11 @@ from dsp_tools.commands.project.create.parse_project import parse_project_json
 from dsp_tools.commands.project.create.project_create_lists import create_lists_on_server
 from dsp_tools.commands.project.create.project_create_ontologies import create_ontologies
 from dsp_tools.commands.project.create.project_validate import validate_project
-from dsp_tools.commands.project.models.context import Context
-from dsp_tools.commands.project.models.group import Group
-from dsp_tools.commands.project.models.project import Project
+from dsp_tools.commands.project.legacy_models.context import Context
+from dsp_tools.commands.project.legacy_models.group import Group
+from dsp_tools.commands.project.legacy_models.project import Project
 from dsp_tools.commands.project.models.project_definition import ProjectMetadata
-from dsp_tools.commands.project.models.user import User
+from dsp_tools.commands.project.legacy_models.user import User
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.models.langstring import LangString

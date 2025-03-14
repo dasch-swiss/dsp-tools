@@ -408,7 +408,7 @@ def _handle_upload_error(err: BaseException, upload_state: UploadState) -> None:
         msg += f"Independently from this, there were some resources that could not be uploaded: {failed}\n"
 
     if exit_code == 1:
-        logger.exception(msg)
+        logger.error(msg)
     else:
         logger.info(msg)
     print(msg)

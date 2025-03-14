@@ -112,7 +112,7 @@ def log_and_raise_timeouts(error: TimeoutError | ReadTimeout) -> Never:
     """Log a timeout error raised by a request and raise our own PermanentTimeOutError"""
     msg = f"A '{error.__class__.__name__}' occurred during the connection to the DSP server."
     print(f"{datetime.now()}: {msg}")
-    logger.exception(msg)
+    logger.error(msg)
     raise PermanentTimeOutError(msg) from None
 
 

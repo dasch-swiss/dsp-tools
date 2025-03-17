@@ -36,14 +36,14 @@ class TestOntologyClient:
     def test_get_ontology_iris_non_ok_code(self, ontology_client: OntologyClient) -> None:
         mock_response = Mock(status_code=404, ok=False, headers={})
         mock_response.json.return_value = {}
-        with patch("dsp_tools.commands.validate_data.api_clients.requests.get", return_value=mock_response) as mock_get:
+        with patch("dsp_tools.commands.validate_data.api_clients.requests.get", return_value=mock_response):
             with pytest.raises(InternalError):
                 ontology_client._get_ontology_iris()
 
     def test_get_ontology_iris_no_ontology_key(self, ontology_client: OntologyClient) -> None:
         mock_response = Mock(status_code=200, ok=True, headers={})
         mock_response.json.return_value = {"foo": "bar"}
-        with patch("dsp_tools.commands.validate_data.api_clients.requests.get", return_value=mock_response) as mock_get:
+        with patch("dsp_tools.commands.validate_data.api_clients.requests.get", return_value=mock_response):
             with pytest.raises(InternalError):
                 ontology_client._get_ontology_iris()
 
@@ -69,7 +69,7 @@ class TestListConnection:
     def test_get_all_list_iris_non_ok_code(self, list_client: ListClient) -> None:
         mock_response = Mock(status_code=404, ok=False, headers={})
         mock_response.json.return_value = {}
-        with patch("dsp_tools.commands.validate_data.api_clients.requests.get", return_value=mock_response) as mock_get:
+        with patch("dsp_tools.commands.validate_data.api_clients.requests.get", return_value=mock_response):
             with pytest.raises(InternalError):
                 list_client._get_all_list_iris()
 
@@ -85,7 +85,7 @@ class TestListConnection:
     def test_get_one_list_non_ok_code(self, list_client: ListClient) -> None:
         mock_response = Mock(status_code=404, ok=False, headers={})
         mock_response.json.return_value = {}
-        with patch("dsp_tools.commands.validate_data.api_clients.requests.get", return_value=mock_response) as mock_get:
+        with patch("dsp_tools.commands.validate_data.api_clients.requests.get", return_value=mock_response):
             with pytest.raises(InternalError):
                 list_client._get_one_list("http://rdfh.ch/lists/9999/WWqeCEj8R_qrK5djsVcHvg")
 

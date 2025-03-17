@@ -1,6 +1,8 @@
 from typing import Any
 from typing import Protocol
 
+from dsp_tools.utils.request_utils import PostFiles
+
 # ruff: noqa: D102 (missing docstring in public method)
 
 
@@ -28,7 +30,7 @@ class Connection(Protocol):
         self,
         route: str,
         data: dict[str, Any] | None = None,
-        files: dict[str, tuple[str | bytes, ...]] | None = None,
+        files: PostFiles | None = None,
         headers: dict[str, str] | None = None,
         timeout: int | None = None,
     ) -> dict[str, Any]:

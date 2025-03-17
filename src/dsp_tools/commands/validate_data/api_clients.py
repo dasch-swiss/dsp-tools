@@ -185,9 +185,9 @@ class ShaclValidator:
     @staticmethod
     def _prepare_validation_files_for_request(data_graph: Graph, shacl_graph: Graph) -> PostFiles:
         shacl_str = shacl_graph.serialize(format="ttl")
-        shacl_file = OneFile(file_name="shacl.ttl", file_content=shacl_str, file_format="text/turtle")
+        shacl_file = PostFile(file_name="shacl.ttl", fileobj=shacl_str, content_type="text/turtle")
         data_str = data_graph.serialize(format="ttl")
-        data_file = OneFile(file_name="data.ttl", file_content=data_str, file_format="text/turtle")
+        data_file = PostFile(file_name="data.ttl", fileobj=data_str, content_type="text/turtle")
         return PostFiles([shacl_file, data_file])
 
     def _parse_validation_result(self, response_text: str) -> SHACLValidationReport:

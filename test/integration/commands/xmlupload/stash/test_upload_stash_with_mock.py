@@ -16,6 +16,7 @@ from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import _upload_stash
 from dsp_tools.utils.connection import Connection
+from dsp_tools.utils.request_utils import PostFiles
 from test.integration.commands.xmlupload.connection_mock import ConnectionMockBase
 
 # ruff: noqa: ARG002 (unused-method-argument)
@@ -62,7 +63,7 @@ class ConnectionMock(ConnectionMockBase):
         self,
         route: str,
         data: dict[str, Any] | None = None,
-        files: dict[str, tuple[str | bytes, ...]] | None = None,
+        files: PostFiles | None = None,
         headers: dict[str, str] | None = None,
         timeout: int | None = None,
     ) -> dict[str, Any]:

@@ -14,7 +14,7 @@ from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClientLive
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_transformed_resources
-from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import prepare_upload_from_root
+from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import old_prepare_upload_from_root
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import validate_and_parse
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
@@ -66,7 +66,7 @@ def ingest_xmlupload(
     )
 
     ontology_client = OntologyClientLive(con=con, shortcode=shortcode, default_ontology=default_ontology)
-    resources, permissions_lookup, stash, authorship_lookup = prepare_upload_from_root(root, ontology_client)
+    resources, permissions_lookup, stash, authorship_lookup = old_prepare_upload_from_root(root, ontology_client)
     clients = _get_live_clients(con, config, auth)
     transformed_resources, project_context = get_transformed_resources(
         resources, clients, permissions_lookup, authorship_lookup

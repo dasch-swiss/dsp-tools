@@ -35,13 +35,13 @@ def creds(container_ports: ExternalContainerPorts) -> ServerCredentials:
 
 
 @pytest.fixture(scope="module")
-def api_con(container_ports: ExternalContainerPorts) -> ApiConnection:
-    return ApiConnection(f"http://0.0.0.0:{container_ports.api}")
+def api_url(container_ports: ExternalContainerPorts) -> str:
+    return f"http://0.0.0.0:{container_ports.api}"
 
 
 @pytest.fixture(scope="module")
-def shacl_validator(api_con: ApiConnection) -> ShaclValidator:
-    return ShaclValidator(api_con)
+def shacl_validator(api_url: str) -> ShaclValidator:
+    return ShaclValidator(api_url)
 
 
 @pytest.fixture(scope="module")
@@ -53,35 +53,35 @@ def _create_projects(creds: ServerCredentials) -> None:
 
 @pytest.fixture(scope="module")
 def special_characters_violation(
-    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+    _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/special_characters/special_characters_violation.xml")
-    graphs = _get_parsed_graphs(api_con, file)
+    graphs = _get_parsed_graphs(api_url, file)
     return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
 def inheritance_violation(
-    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+    _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/inheritance/inheritance_violation.xml")
-    graphs = _get_parsed_graphs(api_con, file)
+    graphs = _get_parsed_graphs(api_url, file)
     return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
 def validate_ontology_violation(
-    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+    _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
 ) -> OntologyValidationProblem | None:
     file = Path("testdata/validate-data/erroneous_ontology/erroneous_ontology.xml")
-    graphs = _get_parsed_graphs(api_con, file)
+    graphs = _get_parsed_graphs(api_url, file)
     return validate_ontology(graphs.ontos, shacl_validator, None)
 
 
 @pytest.mark.usefixtures("_create_projects")
-def test_special_characters_correct(api_con: ApiConnection, shacl_validator: ShaclValidator) -> None:
+def test_special_characters_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/special_characters/special_characters_correct.xml")
-    graphs = _get_parsed_graphs(api_con, file)
+    graphs = _get_parsed_graphs(api_url, file)
     special_characters_correct = _get_validation_result(graphs, shacl_validator, None)
     assert special_characters_correct.conforms
 
@@ -142,9 +142,9 @@ def test_reformat_special_characters_violation(special_characters_violation: Val
 
 
 @pytest.mark.usefixtures("_create_projects")
-def test_inheritance_correct(api_con: ApiConnection, shacl_validator: ShaclValidator) -> None:
+def test_inheritance_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/inheritance/inheritance_correct.xml")
-    graphs = _get_parsed_graphs(api_con, file)
+    graphs = _get_parsed_graphs(api_url, file)
     inheritance_correct = _get_validation_result(graphs, shacl_validator, None)
     assert inheritance_correct.conforms
 

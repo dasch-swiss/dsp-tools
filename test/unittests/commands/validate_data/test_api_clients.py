@@ -30,8 +30,8 @@ class TestOntologyClient:
         mock_response.json.return_value = {"project": {"ontologies": ["onto_iri"]}}
         with patch("dsp_tools.commands.validate_data.api_clients.requests.get", return_value=mock_response) as mock_get:
             result = ontology_client._get_ontology_iris()
-            assert result == ["onto_iri"]
-            assert mock_get.call_args_list[0][1]["url"] == f"{ontology_client.api_url}/admin/projects/shortcode/9999"
+        assert result == ["onto_iri"]
+        assert mock_get.call_args_list[0][1]["url"] == f"{ontology_client.api_url}/admin/projects/shortcode/9999"
 
     def test_get_ontology_iris_non_ok_code(self, ontology_client: OntologyClient) -> None:
         mock_response = Mock(status_code=404, ok=False, headers={})
@@ -39,7 +39,6 @@ class TestOntologyClient:
         with patch("dsp_tools.commands.validate_data.api_clients.requests.get", return_value=mock_response) as mock_get:
             with pytest.raises(InternalError):
                 ontology_client._get_ontology_iris()
-            assert mock_get.call_args_list[0][1]["url"] == f"{ontology_client.api_url}/admin/projects/shortcode/9999"
 
     def test_get_ontology_iris_no_ontology_key(self, ontology_client: OntologyClient) -> None:
         mock_response = Mock(status_code=200, ok=True, headers={})
@@ -47,56 +46,48 @@ class TestOntologyClient:
         with patch("dsp_tools.commands.validate_data.api_clients.requests.get", return_value=mock_response) as mock_get:
             with pytest.raises(InternalError):
                 ontology_client._get_ontology_iris()
-            assert mock_get.call_args_list[0][1]["url"] == f"{ontology_client.api_url}/admin/projects/shortcode/9999"
 
     def test_get_one_ontology(self, ontology_client: OntologyClient) -> None:
         mock_response = Mock(status_code=200, ok=True, headers={}, text="Turtle Text")
         mock_response.json.return_value = {}
         with patch("dsp_tools.commands.validate_data.api_clients.requests.get", return_value=mock_response) as mock_get:
             result = ontology_client._get_one_ontology("iri")
-            assert result == "Turtle Text"
-            assert mock_get.call_args_list[0][1]["url"] == "iri"
-            assert mock_get.call_args_list[0][1]["headers"] == {"Accept": "text/turtle"}
+        assert result == "Turtle Text"
+        assert mock_get.call_args_list[0][1]["url"] == "iri"
+        assert mock_get.call_args_list[0][1]["headers"] == {"Accept": "text/turtle"}
 
 
 class TestListConnection:
     def test_get_all_list_iris(self, list_client: ListClient) -> None:
-        mock_response = Mock()
-        mock_response.ok = True
+        mock_response = Mock(status_code=200, ok=True, headers={})
         mock_response.json.return_value = {"lists": []}
-        with patch.object(list_client.api_con, "get_with_endpoint", return_value=mock_response) as patched_get:
+        with patch("dsp_tools.commands.validate_data.api_clients.requests.get", return_value=mock_response) as mock_get:
             result = list_client._get_all_list_iris()
-            assert result == {"lists": []}
-            patched_get.assert_called_once_with(endpoint="admin/lists?projectShortcode=9999")
+        assert result == {"lists": []}
+        assert mock_get.call_args_list[0][1]["url"] == f"{list_client.api_url}/admin/lists?projectShortcode=9999"
 
     def test_get_all_list_iris_non_ok_code(self, list_client: ListClient) -> None:
-        mock_response = Mock()
-        mock_response.ok = False
-        with patch.object(list_client.api_con, "get_with_endpoint", return_value=mock_response) as patched_get:
+        mock_response = Mock(status_code=404, ok=False, headers={})
+        mock_response.json.return_value = {}
+        with patch("dsp_tools.commands.validate_data.api_clients.requests.get", return_value=mock_response) as mock_get:
             with pytest.raises(InternalError):
                 list_client._get_all_list_iris()
-            patched_get.assert_called_once_with(endpoint="admin/lists?projectShortcode=9999")
 
     def test_get_one_list(self, list_client: ListClient) -> None:
-        mock_response = Mock()
-        mock_response.ok = True
+        mock_response = Mock(status_code=200, ok=True, headers={})
         mock_response.json.return_value = {"type": "ListGetResponseADM", "list": {}}
-        with patch.object(list_client.api_con, "get_with_endpoint", return_value=mock_response) as patched_get:
+        with patch("dsp_tools.commands.validate_data.api_clients.requests.get", return_value=mock_response) as mock_get:
             result = list_client._get_one_list("http://rdfh.ch/lists/9999/WWqeCEj8R_qrK5djsVcHvg")
-            assert result == {"type": "ListGetResponseADM", "list": {}}
-            patched_get.assert_called_once_with(
-                endpoint="admin/lists/http%3A%2F%2Frdfh.ch%2Flists%2F9999%2FWWqeCEj8R_qrK5djsVcHvg"
-            )
+        assert result == {"type": "ListGetResponseADM", "list": {}}
+        url_expected = f"{list_client.api_url}/admin/lists/http%3A%2F%2Frdfh.ch%2Flists%2F9999%2FWWqeCEj8R_qrK5djsVcHvg"
+        assert mock_get.call_args_list[0][1]["url"] == url_expected
 
     def test_get_one_list_non_ok_code(self, list_client: ListClient) -> None:
-        mock_response = Mock()
-        mock_response.ok = False
-        with patch.object(list_client.api_con, "get_with_endpoint", return_value=mock_response) as patched_get:
+        mock_response = Mock(status_code=404, ok=False, headers={})
+        mock_response.json.return_value = {}
+        with patch("dsp_tools.commands.validate_data.api_clients.requests.get", return_value=mock_response) as mock_get:
             with pytest.raises(InternalError):
                 list_client._get_one_list("http://rdfh.ch/lists/9999/WWqeCEj8R_qrK5djsVcHvg")
-            patched_get.assert_called_once_with(
-                endpoint="admin/lists/http%3A%2F%2Frdfh.ch%2Flists%2F9999%2FWWqeCEj8R_qrK5djsVcHvg"
-            )
 
     def test_extract_list_iris(self, list_client: ListClient, response_all_list_one_project: dict[str, Any]) -> None:
         extracted = list_client._extract_list_iris(response_all_list_one_project)

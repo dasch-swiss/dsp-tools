@@ -125,7 +125,7 @@ class DspIngestClientLive(AssetClient):
             msg = f"Invalid filename: Unable to upload file '{file_info.value}' of resource '{file_info.res_id}'"
         except PermanentConnectionError:
             msg = f"Unable to upload file '{file_info.value}' of resource '{file_info.res_id}'"
-        logger.exception(msg)
+        logger.error(msg)
         return None
 
 

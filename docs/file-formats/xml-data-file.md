@@ -190,6 +190,25 @@ you will see the following:
   Only users from `ProjectMember` upwards are able to look at the image.
 
 
+## Defining the authorships
+
+Every multimedia asset must be accompanied by an authorship,
+meaning the natural person who authored the work.
+The authorship can be defined in the following way:
+
+```xml
+<authorship id="authorship_1">
+    <author>Lukas Rosenthaler</author>
+</authorship>
+<authorship id="authorship_2">
+    <author>Nora Ammann</author>
+    <author>Johannes Nussbaum</author>
+</authorship>
+```
+
+These identifiers can later be referenced in the `<bitstream>` and `<iiif-uri>` elements.
+
+
 ## Describing Resources With the `<resource>` Element
 
 A `<resource>` element contains all necessary information to create a resource. It has the following attributes:
@@ -306,7 +325,13 @@ Example of a public image inside a `StillImageRepresentation`:
 
 ```xml
 <resource restype=":Image" id="image_1" label="image_1" permissions="open">
-    <bitstream permissions="open">postcards/images/EURUS015a.jpg</bitstream>
+    <bitstream 
+        permissions="open" 
+        license="http://rdfh.ch/licenses/cc-by-4.0" 
+        copyright-holder="DaSCH" 
+        authorship-id="authorship_id_defined_at_the_top">
+            postcards/images/EURUS015a.jpg
+    </bitstream>
 </resource>
 ```
 
@@ -337,7 +362,13 @@ Example of a public image inside a `StillImageRepresentation`:
 
 ```xml
 <resource restype=":Image" id="image_1" label="image_1" permissions="open">
-    <iiif-uri permissions="open">https://iiif.dasch.swiss/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/837,530/0/default.jp2</iiif-uri>
+    <iiif-uri 
+        permissions="open" 
+        license="http://rdfh.ch/licenses/cc-by-4.0" 
+        copyright-holder="DaSCH" 
+        authorship-id="authorship_id_defined_at_the_top">
+            https://iiif.dasch.swiss/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/837,530/0/default.jp2
+    </iiif-uri>
 </resource>
 ```
 

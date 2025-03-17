@@ -15,6 +15,8 @@ def reformat_any_iri(iri: SubjectObjectTypeAlias | str) -> str:
     iri_str = str(iri)
     if iri_str.startswith("http://data/"):
         return reformat_data_iri(iri_str)
+    if iri_str.startswith("http://rdfh.ch/"):
+        return iri_str
     return reformat_onto_iri(iri_str)
 
 

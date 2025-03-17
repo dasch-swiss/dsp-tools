@@ -36,7 +36,7 @@ def _log_unable_to_retrieve_resource(
         "because the resource cannot be retrieved from the DSP server."
     )
     print(f"{datetime.now()}:   WARNING: {err_msg} Original error message: {received_error.message}")
-    logger.exception(err_msg)
+    logger.error(err_msg)
 
 
 def _log_unable_to_upload_xml_resource(
@@ -57,7 +57,7 @@ def _log_unable_to_upload_xml_resource(
     # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
     err_msg = f"Unable to upload the xml text of '{prop_name}' of resource '{stashed_resource_id}'."
     print(f"{datetime.now()}:     WARNING: {err_msg} Original error message: {received_error.message}")
-    logger.exception(err_msg)
+    logger.error(err_msg)
 
 
 def _create_XMLResource_json_object_to_update(

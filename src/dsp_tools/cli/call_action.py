@@ -16,7 +16,7 @@ from dsp_tools.commands.id2iri import id2iri
 from dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml import ingest_xmlupload
 from dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files import ingest_files
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_files import upload_files
-from dsp_tools.commands.project.create.project_create import create_project
+from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.project.create.project_create_lists import create_only_lists
 from dsp_tools.commands.project.create.project_validate import validate_project
 from dsp_tools.commands.project.get import get_project

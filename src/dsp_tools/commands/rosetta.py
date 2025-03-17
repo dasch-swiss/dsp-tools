@@ -3,7 +3,7 @@ import subprocess
 from pathlib import Path
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.commands.project.create.project_create import create_project
+from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.models.exceptions import UserError
 

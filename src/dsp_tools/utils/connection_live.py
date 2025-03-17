@@ -4,6 +4,7 @@ from functools import partial
 from importlib.metadata import version
 from typing import Any
 from typing import Literal
+from typing import Mapping
 from typing import cast
 
 import regex
@@ -63,7 +64,7 @@ class ConnectionLive(Connection):
         self,
         route: str,
         data: dict[str, Any] | None = None,
-        files: dict[str, tuple[str, Any]] | None = None,
+        files: Mapping[str, tuple[str | bytes, ...]] | None = None,
         headers: dict[str, str] | None = None,
         timeout: int | None = None,
     ) -> dict[str, Any]:

@@ -6,6 +6,7 @@ from dataclasses import field
 from datetime import datetime
 from typing import Any
 from typing import Literal
+from typing import Mapping
 from typing import Never
 
 from loguru import logger
@@ -25,7 +26,7 @@ class RequestParameters:
     data: dict[str, Any] | None = None
     data_serialized: bytes | None = field(init=False, default=None)
     headers: dict[str, str] | None = None
-    files: dict[str, tuple[str, Any]] | None = None
+    files: Mapping[str, tuple[str | bytes, ...]] | None = None
 
     def __post_init__(self) -> None:
         self.data_serialized = self._serialize_payload(self.data)

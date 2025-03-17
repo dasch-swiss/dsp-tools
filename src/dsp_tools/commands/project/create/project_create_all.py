@@ -8,6 +8,7 @@ from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.parse_project import parse_project_json
+from dsp_tools.commands.project.create.project_create import create_project_on_server
 from dsp_tools.commands.project.create.project_create_lists import create_lists_on_server
 from dsp_tools.commands.project.create.project_create_ontologies import create_ontologies
 from dsp_tools.commands.project.create.project_validate import validate_project
@@ -15,6 +16,7 @@ from dsp_tools.commands.project.legacy_models.context import Context
 from dsp_tools.commands.project.legacy_models.group import Group
 from dsp_tools.commands.project.legacy_models.project import Project
 from dsp_tools.commands.project.legacy_models.user import User
+from dsp_tools.commands.project.models.project_create_client import ProjectCreateClient
 from dsp_tools.commands.project.models.project_definition import ProjectMetadata
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import UserError
@@ -72,16 +74,14 @@ def create_project(
     project = parse_project_json(project_json)
 
     auth = AuthenticationClientLive(creds.server, creds.user, creds.password)
+    proj_client = ProjectCreateClient(auth)
     con = ConnectionLive(creds.server, auth)
 
     # create project on DSP server
     info_str = f"Create project '{project.metadata.shortname}' ({project.metadata.shortcode})..."
     print(info_str)
     logger.info(info_str)
-    project_remote, success = _create_project_on_server(
-        project_definition=project.metadata,
-        con=con,
-    )
+    success = create_project_on_server(project.metadata, proj_client)
     if not success:
         overall_success = False
 

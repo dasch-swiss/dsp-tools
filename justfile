@@ -7,6 +7,7 @@ default:
 [no-exit-message]
 format:
     ruff format .
+    just ruff-check --fix
     yamlfmt .
 
 

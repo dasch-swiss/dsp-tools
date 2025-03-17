@@ -24,7 +24,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClien
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClientLive
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import _validate_iiif_uris
-from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_upload_state
+from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_transformed_resources
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import prepare_upload_from_root
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import prepare_input_xml_file
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
@@ -87,7 +87,15 @@ def xmlupload(
     resources, permissions_lookup, stash, authorship_lookup = prepare_upload_from_root(root, ontology_client)
 
     clients = _get_live_clients(con, auth, creds, shortcode, imgdir)
-    state = get_upload_state(resources, clients, stash, config, permissions_lookup, authorship_lookup)
+    transformed_resources, project_context = get_transformed_resources(
+        resources, clients, permissions_lookup, authorship_lookup
+    )
+    state = UploadState(
+        pending_resources=transformed_resources,
+        pending_stash=stash,
+        config=config,
+        project_context=project_context,
+    )
 
     return execute_upload(clients, state)
 

@@ -53,14 +53,17 @@ def _make_one_value(val: ValueInformation, res_iri: URIRef) -> Graph:
     g = _make_property_objects_graph(val.value_metadata, val_iri)
     g.add((res_iri, URIRef(val.user_facing_prop), val_iri))
     g.add((val_iri, RDF.type, prop_type_info.knora_type))
-    # The interval values are added in the property objects graph
-    if val.knora_type == KnoraValueType.INTERVAL_VALUE:
-        return g
-    if val.knora_type == KnoraValueType.LINK_VALUE:
-        link_val = val.user_facing_value if val.user_facing_value else ""
-        triple_object: Literal | URIRef = DATA[link_val]
-    else:
-        triple_object = _make_one_rdflib_object(val.user_facing_value, VALUE_INFO_TRIPLE_OBJECT_TYPE[val.knora_type])
+    match val.knora_type:
+        # The interval values are added in the property objects graph
+        case KnoraValueType.INTERVAL_VALUE:
+            return g
+        case KnoraValueType.LINK_VALUE:
+            link_val = val.user_facing_value if val.user_facing_value else ""
+            triple_object: Literal | URIRef = DATA[link_val]
+        case _:
+            triple_object = _make_one_rdflib_object(
+                val.user_facing_value, VALUE_INFO_TRIPLE_OBJECT_TYPE[val.knora_type]
+            )
     g.add((val_iri, prop_type_info.knora_prop, triple_object))
     return g
 

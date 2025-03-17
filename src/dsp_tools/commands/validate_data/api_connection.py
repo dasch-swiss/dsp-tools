@@ -10,6 +10,9 @@ from requests import Response
 from requests import Timeout
 
 from dsp_tools.models.exceptions import InternalError
+from dsp_tools.utils.request_utils import RequestParameters
+from dsp_tools.utils.request_utils import log_request
+from dsp_tools.utils.request_utils import log_response
 
 
 @dataclass
@@ -21,9 +24,11 @@ class ApiConnection:
         return self.get_with_url(url, headers, timeout)
 
     def get_with_url(self, url: str, headers: dict[str, Any] | None = None, timeout: int = 42) -> Response:
-        logger.debug(f"REQUEST: GET to {url} | Timeout: {timeout} | Headers: {headers}")
+        log_request(RequestParameters("GET", url, timeout, headers=headers))
         try:
-            return requests.get(url=url, headers=headers, timeout=timeout)
+            response = requests.get(url=url, headers=headers, timeout=timeout)
+            log_response(response)
+            return response
         except (TimeoutError, Timeout) as err:
             logger.error(err)
             raise InternalError("TimeoutError occurred. See logs for details.") from None
@@ -36,9 +41,11 @@ class ApiConnection:
     ) -> Response:
         file_dict = files.to_dict()
         url = f"{self.api_url}/{endpoint}"
-        logger.debug(f"REQUEST: POST FILES to {url} | Timeout: {timeout} | Headers: {headers}")
+        log_request(RequestParameters("POST", url, timeout, files=file_dict, headers=headers))
         try:
-            return requests.post(url, files=file_dict, timeout=timeout)
+            response = requests.post(url, files=file_dict, timeout=timeout)
+            log_response(response)
+            return response
         except (TimeoutError, Timeout) as err:
             logger.error(err)
             raise InternalError("TimeoutError occurred. See logs for details.") from None

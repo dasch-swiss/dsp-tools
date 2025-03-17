@@ -9,8 +9,8 @@ from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XM
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.permission import Permissions
-from dsp_tools.commands.xmlupload.stash.analyse_circular_reference_graph import generate_upload_order
-from dsp_tools.commands.xmlupload.stash.analyse_circular_reference_graph import make_graph
+from dsp_tools.commands.xmlupload.stash.analyse_circular_reference_graph import _generate_upload_order_from_graph
+from dsp_tools.commands.xmlupload.stash.analyse_circular_reference_graph import _make_graph
 from dsp_tools.commands.xmlupload.stash.extract_info_for_graph_from_root import create_info_from_xml_for_graph
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem
@@ -34,8 +34,8 @@ def identify_circular_references(root: etree._Element) -> tuple[dict[str, list[s
         upload_order: A list of resource IDs in the order in which they should be uploaded
     """
     info_for_graph = create_info_from_xml_for_graph(root)
-    graph, node_to_id, edges = make_graph(info_for_graph)
-    stash_lookup, upload_order, _ = generate_upload_order(graph, node_to_id, edges)
+    graph, node_to_id, edges = _make_graph(info_for_graph)
+    stash_lookup, upload_order, _ = _generate_upload_order_from_graph(graph, node_to_id, edges)
     return stash_lookup, upload_order
 
 

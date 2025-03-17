@@ -102,9 +102,7 @@ class TestListConnection:
                 endpoint="admin/lists/http%3A%2F%2Frdfh.ch%2Flists%2F9999%2FWWqeCEj8R_qrK5djsVcHvg"
             )
 
-    def test_extract_list_iris(
-        self, list_client: ListClient, response_all_list_one_project: dict[str, Any]
-    ) -> None:
+    def test_extract_list_iris(self, list_client: ListClient, response_all_list_one_project: dict[str, Any]) -> None:
         extracted = list_client._extract_list_iris(response_all_list_one_project)
         expected = {"http://rdfh.ch/lists/9999/list1", "http://rdfh.ch/lists/9999/list2"}
         assert set(extracted) == expected

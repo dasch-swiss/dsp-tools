@@ -4,6 +4,7 @@ from typing import Any
 import pytest
 
 from dsp_tools.utils.connection import Connection
+from dsp_tools.utils.request_utils import PostFiles
 
 # ruff: noqa: ARG002 (unused-method-argument)
 
@@ -30,7 +31,7 @@ class ConnectionMockBase(Connection):
         self,
         route: str,
         data: dict[str, Any] | None = None,
-        files: dict[str, tuple[str, Any]] | None = None,
+        files: PostFiles | None = None,
         headers: dict[str, str] | None = None,
         timeout: int | None = None,
     ) -> dict[str, Any]:

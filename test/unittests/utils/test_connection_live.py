@@ -18,6 +18,8 @@ from requests import RequestException
 from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.models.exceptions import PermanentTimeOutError
 from dsp_tools.utils.connection_live import ConnectionLive
+from dsp_tools.utils.request_utils import PostFile
+from dsp_tools.utils.request_utils import PostFiles
 from dsp_tools.utils.request_utils import RequestParameters
 from dsp_tools.utils.request_utils import log_request
 
@@ -63,7 +65,7 @@ def test_post_with_data() -> None:
 def test_post_with_file() -> None:
     con = ConnectionLive("http://example.com/")
     con._try_network_action = Mock()
-    file = {"file": ("path/to/file.jpg", b"some bytes")}
+    file = PostFiles([PostFile("path/to/file.jpg", b"some bytes")])
     con.post(route="/upload", files=file)
     expected_params: RequestParameters = con._try_network_action.call_args.args[0]
     assert expected_params.method == "POST"

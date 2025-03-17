@@ -10,6 +10,7 @@ from requests import Response
 from requests import Timeout
 
 from dsp_tools.models.exceptions import InternalError
+from dsp_tools.utils.request_utils import PostFiles
 
 
 @dataclass
@@ -45,21 +46,3 @@ class ApiConnection:
         except (ConnectionError, RequestException) as err:
             logger.error(err)
             raise InternalError("ConnectionError occurred. See logs for details.") from None
-
-
-@dataclass
-class PostFiles:
-    files: list[OneFile]
-
-    def to_dict(self) -> dict[str, tuple[str, str, str]]:
-        return {x.file_name: x.to_tuple() for x in self.files}
-
-
-@dataclass
-class OneFile:
-    file_name: str
-    file_content: str
-    file_format: str
-
-    def to_tuple(self) -> tuple[str, str, str]:
-        return self.file_name, self.file_content, self.file_format

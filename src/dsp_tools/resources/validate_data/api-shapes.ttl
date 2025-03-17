@@ -12,6 +12,10 @@
 # GENERAL SHAPES
 #########################################
 
+# Cardinalities for the Resources are validated through designated shapes for the cardinality violations.
+# Adding cardinalities to properties here would lead to duplication of the error message,
+# therefore only the content is validated with the shapes for the resources.
+
 ########################
 # UNIQUE VALUE SHAPE
 ########################
@@ -42,9 +46,9 @@ api-shapes:UniqueValue_Shape
             GROUP BY $this ?path ?value
             HAVING (COUNT(?value) > 1)
                     """ ;
-                   sh:message "A resource may not have the same property and value more than one time." ;
-                 ] ;
-  sh:severity    sh:Violation .
+                   sh:severity sh:Violation ;
+                   sh:message  "A resource may not have the same property and value more than one time." ;
+                 ] .
 
 
 ########################
@@ -77,6 +81,9 @@ api-shapes:Resource_Shape
 ########################
 # USER FACING VALUES
 ########################
+
+# Cardinalities for Values are not evaluated separately and they can be included in this file.
+# This however, will only work as long as the shapes for the knora-api:Value are not closed.
 
 api-shapes:Value_ClassShape
   a              sh:NodeShape ;
@@ -477,83 +484,18 @@ api-shapes:TextFileValue_ClassShape
                                 """ ;
                   ] .
 
+
 #########################################
 # KNORA-API IN-BUILT PROPERTIES
 #########################################
 
-### knora-api:hasLinkTo
-
-api-shapes:hasLinkTo_PropertyShape
-  a          sh:PropertyShape ;
-  sh:path    knora-api:hasLinkTo ;
-  sh:class   knora-api:LinkValue ;
-  sh:node    api-shapes:hasLinkTo_NodeShape ;
-  sh:message "This property requires a LinkValue" .
-
-api-shapes:hasLinkTo_NodeShape
-  a           sh:NodeShape ;
-  sh:name     "This ensures that the target of the property is of type Resource, i.e. exists in the graph." ;
-  sh:property [
-                a          sh:PropertyShape ;
-                sh:path    api-shapes:linkValueHasTargetID ;
-                sh:class   knora-api:Resource ;
-                sh:message "Range is knora-api:Resource or a subclass." ;
-              ] ;
-  sh:severity sh:Violation .
-
-
-### knora-api:isRegionOf
-
-api-shapes:isRegionOf_PropertyShape
-  a          sh:PropertyShape ;
-  sh:path    knora-api:isRegionOf ;
-  sh:class   knora-api:LinkValue ;
-  sh:node    api-shapes:isRegionOf_NodeShape ;
-  sh:message "This property requires an LinkValue" .
-
-api-shapes:isRegionOf_NodeShape
-  a           sh:NodeShape ;
-  sh:name     "This ensures that the target of the property is of type Representation, i.e. exists in the graph." ;
-  sh:property [
-                a          sh:PropertyShape ;
-                sh:path    api-shapes:linkValueHasTargetID ;
-                sh:class   knora-api:Representation ;
-                sh:message "http://api.knora.org/ontology/knora-api/v2#Representation" ;
-              ] ;
-  sh:severity sh:Violation .
-
-
-### knora-api:hasComment
+# The following shapes are for properties that are used by several resources.
+# Property shapes only used with one specific resource are defined with the shape for the resource.
 
 api-shapes:hasComment_PropertyShape
   a       sh:PropertyShape ;
   sh:path knora-api:hasComment ;
   sh:node api-shapes:FormattedTextValue_ClassShape .
-
-
-### knora-api:hasColor
-
-api-shapes:hasColor_PropertyShape
-  a           sh:PropertyShape ;
-  sh:path     knora-api:hasColor ;
-  sh:class    knora-api:ColorValue ;
-  sh:minCount 1 ;
-  sh:maxCount 1 ;
-  sh:message  "This property requires an ColorValue" .
-
-
-### knora-api:hasGeometry
-
-api-shapes:hasGeometry_PropertyShape
-  a           sh:PropertyShape ;
-  sh:path     knora-api:hasGeometry ;
-  sh:class    knora-api:GeomValue ;
-  sh:minCount 1 ;
-  sh:maxCount 1 ;
-  sh:message  "This property requires an GeomValue" .
-
-
-### knora-api:seqnum and knora-api:isPartOf
 
 # dash:coExistsWith ensures that isPartOf also needs seqnum. There is no need for a second shape.
 api-shapes:seqnum_PropShape
@@ -562,115 +504,14 @@ api-shapes:seqnum_PropShape
   dash:coExistsWith knora-api:isPartOf ;
   sh:severity       sh:Violation ;
   sh:message        """
-                    The property seqnum or isPartOf (or sub-properties of them) must be used together.
+                    The property seqnum and isPartOf (or sub-properties of them) must be used together.
                     This resource only used one of the properties.
                     """ .
-
-
-### knora-api:hasSegmentBounds
-
-api-shapes:hasSegmentBounds_PropertyShape
-  a           sh:PropertyShape ;
-  sh:path     knora-api:hasSegmentBounds ;
-  sh:class    knora-api:IntervalValue ;
-  sh:minCount 1 ;
-  sh:maxCount 1 ;
-  sh:message  "This property requires an IntervalValue" .
-
-
-### knora-api:relatesTo
-
-api-shapes:relatesTo_PropertyShape
-  a          sh:PropertyShape ;
-  sh:path    knora-api:relatesTo ;
-  sh:class   knora-api:LinkValue ;
-  sh:node    api-shapes:relatesTo_NodeShape ;
-  sh:message "This property requires an LinkValue" .
-
-api-shapes:relatesTo_NodeShape
-  a           sh:NodeShape ;
-  sh:name     "This ensures that the target of the property is of type Resource, i.e. exists in the graph." ;
-  sh:property [
-                a          sh:PropertyShape ;
-                sh:path    api-shapes:linkValueHasTargetID ;
-                sh:class   knora-api:Resource ;
-                sh:message "Range is knora-api:Resource or a subclass." ;
-              ] ;
-  sh:severity sh:Violation .
-
-
-### knora-api:isVideoSegmentOf
-
-api-shapes:isVideoSegmentOf_PropertyShape
-  a          sh:PropertyShape ;
-  sh:path    knora-api:isVideoSegmentOf ;
-  sh:class   knora-api:LinkValue ;
-  sh:node    api-shapes:isVideoSegmentOf_NodeShape ;
-  sh:message "This property requires an LinkValue" .
-
-api-shapes:isVideoSegmentOf_NodeShape
-  a           sh:NodeShape ;
-  sh:name     "This ensures that the target of the property is of type MovingImageRepresentation, i.e. exists in the graph." ;
-  sh:property [
-                a          sh:PropertyShape ;
-                sh:path    api-shapes:linkValueHasTargetID ;
-                sh:class   knora-api:MovingImageRepresentation ;
-                sh:message "http://api.knora.org/ontology/knora-api/v2#MovingImageRepresentation" ;
-              ] ;
-  sh:severity sh:Violation .
-
-
-### knora-api:isAudioSegmentOf
-
-api-shapes:isAudioSegmentOf_PropertyShape
-  a          sh:PropertyShape ;
-  sh:path    knora-api:isAudioSegmentOf ;
-  sh:class   knora-api:LinkValue ;
-  sh:node    api-shapes:isAudioSegmentOf_NodeShape ;
-  sh:message "This property requires an LinkValue" .
-
-api-shapes:isAudioSegmentOf_NodeShape
-  a           sh:NodeShape ;
-  sh:name     "This ensures that the target of the property is of type AudioRepresentation, i.e. exists in the graph." ;
-  sh:property [
-                a          sh:PropertyShape ;
-                sh:path    api-shapes:linkValueHasTargetID ;
-                sh:class   knora-api:AudioRepresentation ;
-                sh:message "http://api.knora.org/ontology/knora-api/v2#AudioRepresentation" ;
-              ] ;
-  sh:severity sh:Violation .
-
-
-### knora-api:hasDescription
-
-api-shapes:hasDescription_PropertyShape
-  a       sh:PropertyShape ;
-  sh:path knora-api:hasDescription ;
-  sh:node api-shapes:FormattedTextValue_ClassShape .
-
-
-### knora-api:hasTitle
-
-api-shapes:hasTitle_PropertyShape
-  a       sh:PropertyShape ;
-  sh:path knora-api:hasTitle ;
-  sh:node api-shapes:SimpleTextValue_ClassShape .
-
-
-### knora-api:hasKeyword
-
-api-shapes:hasKeyword_PropertyShape
-  a       sh:PropertyShape ;
-  sh:path knora-api:hasKeyword ;
-  sh:node api-shapes:SimpleTextValue_ClassShape .
 
 
 #########################################
 # DSP BUILT IN RESOURCES
 #########################################
-
-# The built-in resources are are validated strictly by the xsd,
-# therefore a mismatch of value type does not need to be evaluated the way user defined properties need to be
 
 ###########################
 # LinkObj
@@ -679,9 +520,31 @@ api-shapes:LinkObj_ResourceShape
   a              sh:NodeShape ;
   sh:name        "Validates the LinkObj resource" ;
   sh:targetClass knora-api:LinkObj ;
-  sh:property    api-shapes:hasLinkTo_PropertyShape ,
-                 api-shapes:hasComment_PropertyShape ;
-  sh:severity    sh:Violation .
+  sh:property    [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:hasLinkTo ;
+                    sh:class    knora-api:LinkValue ;
+                    sh:severity sh:Violation ;
+                    sh:message  "This property requires a LinkValue"
+                 ] ,
+                 [
+                    a       sh:PropertyShape ;
+                    sh:path knora-api:hasLinkTo ;
+                    sh:node api-shapes:hasLinkTo_NodeShape ;
+                 ] ,
+                 api-shapes:hasComment_PropertyShape .
+
+
+api-shapes:hasLinkTo_NodeShape
+  a           sh:NodeShape ;
+  sh:name     "This ensures that the target of the property is of type Resource, i.e. exists in the graph." ;
+  sh:property [
+                a          sh:PropertyShape ;
+                sh:path    api-shapes:linkValueHasTargetID ;
+                sh:class   knora-api:Resource ;
+                sh:severity sh:Violation ;
+                sh:message "Range is knora-api:Resource or a subclass." ;
+              ] .
 
 
 ###########################
@@ -691,11 +554,101 @@ api-shapes:Region_ResourceShape
   a              sh:NodeShape ;
   sh:name        "Validates the Region resource" ;
   sh:targetClass knora-api:Region ;
-  sh:property    api-shapes:isRegionOf_PropertyShape ,
-                 api-shapes:hasColor_PropertyShape ,
-                 api-shapes:hasGeometry_PropertyShape ,
-                 api-shapes:hasComment_PropertyShape ;
-  sh:severity    sh:Violation .
+  sh:property    [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:isRegionOf ;
+                    sh:class    knora-api:LinkValue ;
+                    sh:severity sh:Violation ;
+                    sh:message  "This property requires a LinkValue"
+                 ] ,
+                 [
+                    a       sh:PropertyShape ;
+                    sh:path knora-api:isRegionOf ;
+                    sh:node api-shapes:isRegionOf_NodeShape ;
+                 ] ,
+                 [
+                    a          sh:PropertyShape ;
+                    sh:path    knora-api:hasColor ;
+                    sh:class   knora-api:ColorValue ;
+                    sh:message "This property requires a ColorValue" ;
+                 ] ,
+                 [
+                    a          sh:PropertyShape ;
+                    sh:path    knora-api:hasGeometry ;
+                    sh:class   knora-api:GeomValue ;
+                    sh:message "This property requires a GeomValue" ;
+                 ] ,
+                 api-shapes:hasComment_PropertyShape .
+
+api-shapes:isRegionOf_NodeShape
+  a           sh:NodeShape ;
+  sh:name     "This ensures that the target of the property is of type Representation and exists in the graph." ;
+  sh:property [
+                a           sh:PropertyShape ;
+                sh:path     api-shapes:linkValueHasTargetID ;
+                sh:class    knora-api:Representation ;
+                sh:severity sh:Violation ;
+                sh:message  "http://api.knora.org/ontology/knora-api/v2#Representation" ;
+              ] .
+
+
+###########################
+# Segment
+
+# These shapes validate the generic properties of the Audio and Video Segment
+# and need not be repeated for each segment type.
+
+api-shapes:Segment_ResourceShape
+  a              sh:NodeShape ;
+  sh:name        "Validates the Region resource" ;
+  sh:targetClass knora-api:Segment ;
+  sh:property    [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:hasSegmentBounds ;
+                    sh:class    knora-api:IntervalValue ;
+                    sh:severity sh:Violation ;
+                    sh:message  "This property requires an IntervalValue" ;
+                 ] ,
+                 [
+                    a       sh:PropertyShape ;
+                    sh:path knora-api:hasDescription ;
+                    sh:node api-shapes:FormattedTextValue_ClassShape
+                 ] ,
+                 [
+                    a       sh:PropertyShape ;
+                    sh:path knora-api:hasTitle ;
+                    sh:node api-shapes:SimpleTextValue_ClassShape ;
+                 ] ,
+                 [
+                    a       sh:PropertyShape ;
+                    sh:path knora-api:hasKeyword ;
+                    sh:node api-shapes:SimpleTextValue_ClassShape ;
+                 ] ,
+                 [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:relatesTo ;
+                    sh:class    knora-api:LinkValue ;
+                    sh:node     api-shapes:relatesTo_NodeShape ;
+                    sh:severity sh:Violation ;
+                    sh:message  "This property requires an LinkValue" ;
+                 ] ,
+                 [
+                    a       sh:PropertyShape ;
+                    sh:path knora-api:relatesTo ;
+                    sh:node api-shapes:relatesTo_NodeShape ;
+                 ] ,
+                 api-shapes:hasComment_PropertyShape .
+
+api-shapes:relatesTo_NodeShape
+  a           sh:NodeShape ;
+  sh:name     "This ensures that the target of the property is of type Resource, i.e. exists in the graph." ;
+  sh:property [
+                a           sh:PropertyShape ;
+                sh:path     api-shapes:linkValueHasTargetID ;
+                sh:class    knora-api:Resource ;
+                sh:severity sh:Violation ;
+                sh:message  "Range is knora-api:Resource or a subclass." ;
+              ] .
 
 
 ###########################
@@ -705,14 +658,29 @@ api-shapes:AudioSegment_ResourceShape
   a              sh:NodeShape ;
   sh:name        "Validates the AudioSegment resource" ;
   sh:targetClass knora-api:AudioSegment ;
-  sh:property    api-shapes:hasComment_PropertyShape ,
-                 api-shapes:hasSegmentBounds_PropertyShape ,
-                 api-shapes:relatesTo_PropertyShape ,
-                 api-shapes:isAudioSegmentOf_PropertyShape ,
-                 api-shapes:hasDescription_PropertyShape ,
-                 api-shapes:hasTitle_PropertyShape ,
-                 api-shapes:hasKeyword_PropertyShape ;
-  sh:severity    sh:Violation .
+  sh:property    [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:isAudioSegmentOf ;
+                    sh:class    knora-api:LinkValue ;
+                    sh:severity sh:Violation ;
+                    sh:message  "This property requires a LinkValue" ;
+                 ] ,
+                 [
+                    a       sh:PropertyShape ;
+                    sh:path knora-api:isAudioSegmentOf ;
+                    sh:node api-shapes:isAudioSegmentOf_NodeShape ;
+                 ] .
+
+api-shapes:isAudioSegmentOf_NodeShape
+  a           sh:NodeShape ;
+  sh:name     "This ensures that the target of the property is of type AudioRepresentation and exists in the graph." ;
+  sh:property [
+                a           sh:PropertyShape ;
+                sh:path     api-shapes:linkValueHasTargetID ;
+                sh:class    knora-api:AudioRepresentation ;
+                sh:severity sh:Violation ;
+                sh:message  "http://api.knora.org/ontology/knora-api/v2#AudioRepresentation" ;
+              ] .
 
 
 ###########################
@@ -722,11 +690,26 @@ api-shapes:VideoSegment_ResourceShape
   a              sh:NodeShape ;
   sh:name        "Validates the VideoSegment resource" ;
   sh:targetClass knora-api:VideoSegment ;
-  sh:property    api-shapes:hasComment_PropertyShape ,
-                 api-shapes:hasSegmentBounds_PropertyShape ,
-                 api-shapes:relatesTo_PropertyShape ,
-                 api-shapes:isVideoSegmentOf_PropertyShape ,
-                 api-shapes:hasDescription_PropertyShape ,
-                 api-shapes:hasTitle_PropertyShape ,
-                 api-shapes:hasKeyword_PropertyShape  ;
-  sh:severity    sh:Violation .
+  sh:property    [
+                    a           sh:PropertyShape ;
+                    sh:path     knora-api:isVideoSegmentOf ;
+                    sh:class    knora-api:LinkValue ;
+                    sh:severity sh:Violation ;
+                    sh:message  "This property requires a LinkValue" ;
+                 ] ,
+                 [
+                    a       sh:PropertyShape ;
+                    sh:path knora-api:isVideoSegmentOf ;
+                    sh:node api-shapes:isVideoSegmentOf_NodeShape ;
+                 ] .
+
+api-shapes:isVideoSegmentOf_NodeShape
+  a           sh:NodeShape ;
+  sh:name     "This ensures that the target of the property is of type MovingImageRepresentation and exists in the graph." ;
+  sh:property [
+                a           sh:PropertyShape ;
+                sh:path     api-shapes:linkValueHasTargetID ;
+                sh:class    knora-api:MovingImageRepresentation ;
+                sh:severity sh:Violation ;
+                sh:message  "http://api.knora.org/ontology/knora-api/v2#MovingImageRepresentation" ;
+              ] .

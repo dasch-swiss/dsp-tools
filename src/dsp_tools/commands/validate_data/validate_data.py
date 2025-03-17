@@ -47,8 +47,7 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
     Returns:
         true unless it crashed
     """
-    api_con = ApiConnection(api_url)
-    graphs = _get_parsed_graphs(api_con, filepath)
+    graphs = _get_parsed_graphs(api_url, filepath)
     if unknown_classes := _check_for_unknown_resource_classes(graphs):
         msg = unknown_classes.get_msg()
         print(VALIDATION_ERRORS_FOUND_MSG)
@@ -56,7 +55,7 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
         # if unknown classes are found, we cannot validate all the data in the file
         return True
 
-    shacl_validator = ShaclValidator(api_con)
+    shacl_validator = ShaclValidator(api_url)
     save_path = None
     if save_graphs:
         save_path = _get_save_directory(filepath)
@@ -101,10 +100,10 @@ def _get_save_directory(filepath: Path) -> Path:
     return save_path
 
 
-def _get_parsed_graphs(api_con: ApiConnection, filepath: Path) -> RDFGraphs:
-    data_rdf, shortcode = _get_data_info_from_file(filepath, api_con.api_url)
-    onto_client = OntologyClient(api_con.api_url, shortcode)
-    list_client = ListClient(api_con, shortcode)
+def _get_parsed_graphs(api_url: str, filepath: Path) -> RDFGraphs:
+    data_rdf, shortcode = _get_data_info_from_file(filepath, api_url)
+    onto_client = OntologyClient(api_url, shortcode)
+    list_client = ListClient(api_url, shortcode)
     rdf_graphs = _create_graphs(onto_client, list_client, data_rdf)
     return rdf_graphs
 

@@ -7,7 +7,6 @@ import pytest
 from dsp_tools.commands.validate_data.api_clients import ListClient
 from dsp_tools.commands.validate_data.api_clients import OntologyClient
 from dsp_tools.models.exceptions import InternalError
-from dsp_tools.models.exceptions import UserError
 
 
 @pytest.fixture
@@ -51,13 +50,13 @@ class TestOntologyClient:
             assert mock_get.call_args_list[0][1]["url"] == f"{ontology_client.api_url}/admin/projects/shortcode/9999"
 
     def test_get_one_ontology(self, ontology_client: OntologyClient) -> None:
-        mock_response = Mock()
-        mock_response.ok = True
-        mock_response.text = "Turtle Text"
-        with patch.object(ontology_client.api_con, "get_with_url", return_value=mock_response) as patched_get:
+        mock_response = Mock(status_code=200, ok=True, headers={}, text="Turtle Text")
+        mock_response.json.return_value = {}
+        with patch("dsp_tools.commands.validate_data.api_clients.requests.get", return_value=mock_response) as mock_get:
             result = ontology_client._get_one_ontology("iri")
             assert result == "Turtle Text"
-            patched_get.assert_called_once_with(url="iri", headers={"Accept": "text/turtle"})
+            assert mock_get.call_args_list[0][1]["url"] == "iri"
+            assert mock_get.call_args_list[0][1]["headers"] == {"Accept": "text/turtle"}
 
 
 class TestListConnection:
@@ -99,9 +98,7 @@ class TestListConnection:
                 endpoint="admin/lists/http%3A%2F%2Frdfh.ch%2Flists%2F9999%2FWWqeCEj8R_qrK5djsVcHvg"
             )
 
-    def test_extract_list_iris(
-        self, list_client: ListClient, response_all_list_one_project: dict[str, Any]
-    ) -> None:
+    def test_extract_list_iris(self, list_client: ListClient, response_all_list_one_project: dict[str, Any]) -> None:
         extracted = list_client._extract_list_iris(response_all_list_one_project)
         expected = {"http://rdfh.ch/lists/9999/list1", "http://rdfh.ch/lists/9999/list2"}
         assert set(extracted) == expected

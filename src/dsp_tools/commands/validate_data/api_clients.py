@@ -4,11 +4,9 @@ from typing import cast
 from urllib.parse import quote_plus
 
 import requests
-from loguru import logger
 from rdflib import SH
 from rdflib import Graph
 
-from dsp_tools.commands.validate_data.api_connection import ApiConnection
 from dsp_tools.commands.validate_data.models.api_responses import AllProjectLists
 from dsp_tools.commands.validate_data.models.api_responses import OneList
 from dsp_tools.commands.validate_data.models.api_responses import SHACLValidationReport
@@ -77,7 +75,7 @@ class OntologyClient:
 class ListClient:
     """Client to request and reformat the lists of a project."""
 
-    api_con: ApiConnection
+    api_url: str
     shortcode: str
 
     def get_lists(self) -> AllProjectLists:
@@ -88,7 +86,11 @@ class ListClient:
         return AllProjectLists(reformatted)
 
     def _get_all_list_iris(self) -> dict[str, Any]:
-        response = self.api_con.get_with_endpoint(endpoint=f"admin/lists?projectShortcode={self.shortcode}")
+        url = f"{self.api_url}/admin/lists?projectShortcode={self.shortcode}"
+        timeout = 10
+        log_request(RequestParameters("GET", url, timeout))
+        response = requests.get(url=url, timeout=timeout)
+        log_response(response)
         if not response.ok:
             raise InternalError(f"Failed Request: {response.status_code} {response.text}")
         json_response = cast(dict[str, Any], response.json())
@@ -99,7 +101,11 @@ class ListClient:
 
     def _get_one_list(self, list_iri: str) -> dict[str, Any]:
         encoded_list_iri = quote_plus(list_iri)
-        response = self.api_con.get_with_endpoint(endpoint=f"admin/lists/{encoded_list_iri}")
+        url = f"{self.api_url}/admin/lists/{encoded_list_iri}"
+        timeout = 10
+        log_request(RequestParameters("GET", url, timeout))
+        response = requests.get(url=url, timeout=timeout)
+        log_response(response)
         if not response.ok:
             raise InternalError(f"Failed Request: {response.status_code} {response.text}")
         response_json = cast(dict[str, Any], response.json())
@@ -128,7 +134,7 @@ class ListClient:
 class ShaclValidator:
     """Client to validate RDF data against a given SHACL shape."""
 
-    api_con: ApiConnection
+    api_url: str
 
     def validate(self, rdf_graphs: RDFGraphs) -> SHACLValidationReport:
         """
@@ -161,21 +167,24 @@ class ShaclValidator:
 
     def validate_ontology(self, onto_graph: Graph, onto_shacl: Graph) -> SHACLValidationReport:
         post_files = self._prepare_validation_files_for_request(onto_graph, onto_shacl)
-        response = self.api_con.post_files(endpoint="shacl/validate", files=post_files)
+        url = f"{self.api_url}/shacl/validate"
+        timeout = 60
+        log_request(RequestParameters("POST", url, timeout, files=post_files))
+        response = requests.post(url=url, files=post_files.to_dict(), timeout=timeout)
+        log_response(response)
         if not response.ok:
             raise InternalError(f"Failed Request: {response.status_code} {response.text}")
         return self._parse_validation_result(response.text)
 
     def _validate_cardinality(self, rdf_graphs: RDFGraphs) -> SHACLValidationReport:
         card_files = self._prepare_cardinality_files(rdf_graphs)
-        response = self.api_con.post_files(endpoint="shacl/validate", files=card_files)
+        url = f"{self.api_url}/shacl/validate"
+        timeout = 60
+        log_request(RequestParameters("POST", url, timeout, files=card_files))
+        response = requests.post(url=url, files=card_files.to_dict(), timeout=timeout)
+        log_response(response)
         if not response.ok:
-            msg = (
-                f"NON-OK RESPONSE | Request: POST files for SHACL cardinality validation | "
-                f"Code: {response.status_code} | Message: {response.text}"
-            )
-            logger.error(msg)
-            raise InternalError(msg)
+            raise InternalError(f"Failed Request: {response.status_code} {response.text}")
         return self._parse_validation_result(response.text)
 
     def _prepare_cardinality_files(self, rdf_graphs: RDFGraphs) -> PostFiles:
@@ -184,7 +193,11 @@ class ShaclValidator:
 
     def _validate_content(self, rdf_graphs: RDFGraphs) -> SHACLValidationReport:
         content_files = self._prepare_content_files(rdf_graphs)
-        response = self.api_con.post_files(endpoint="shacl/validate", files=content_files)
+        url = f"{self.api_url}/shacl/validate"
+        timeout = 60
+        log_request(RequestParameters("POST", url, timeout, files=content_files))
+        response = requests.post(url=url, files=content_files.to_dict(), timeout=timeout)
+        log_response(response)
         if not response.ok:
             raise InternalError(f"Failed Request: {response.status_code} {response.text}")
         return self._parse_validation_result(response.text)

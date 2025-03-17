@@ -11,7 +11,23 @@ from dsp_tools.commands.xmlupload.stash.graph_models import LinkValueLink
 from dsp_tools.commands.xmlupload.stash.graph_models import StandOffLink
 
 
-def make_graph(
+def generate_upload_order(info_for_graph: InfoForGraph) -> tuple[dict[str, list[str]], list[str]]:
+    """
+    Generates the upload order from the Info for the graph
+
+    Args:
+        info_for_graph: Info for the graph
+
+    Returns:
+        - A dictionary which maps the resources that have stashes to the UUIDs of the stashed links.
+        - A list of resource IDs which gives the order in which the resources should be uploaded to DSP-API.
+    """
+    graph, node_to_id, edges = _make_graph(info_for_graph)
+    stash_lookup, upload_order, _ = _generate_upload_order_from_graph(graph, node_to_id, edges)
+    return stash_lookup, upload_order
+
+
+def _make_graph(
     info_for_graph: InfoForGraph,
 ) -> tuple[rx.PyDiGraph[Any, Any], dict[int, str], list[Edge]]:
     """
@@ -39,7 +55,7 @@ def make_graph(
     return graph, node_to_id, edges
 
 
-def generate_upload_order(
+def _generate_upload_order_from_graph(
     graph: rx.PyDiGraph[Any, Any],
     node_to_id: dict[int, str],
     edges: list[Edge],

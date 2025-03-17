@@ -66,7 +66,7 @@ def log_request(params: RequestParameters, extra_headers: dict[str, Any] | None 
             data["password"] = "***"
         dumpobj["data"] = data
     if params.files:
-        dumpobj["files"] = params.files["file"][0]
+        dumpobj["files"] = next(iter(params.files.values()))[0]
     logger.debug(f"REQUEST: {json.dumps(dumpobj, cls=SetEncoder)}")
 
 

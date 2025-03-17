@@ -3,8 +3,8 @@ from pathlib import Path
 
 from viztracer import VizTracer
 
-from dsp_tools.commands.xmlupload.stash.analyse_circular_reference_graph import generate_upload_order
-from dsp_tools.commands.xmlupload.stash.analyse_circular_reference_graph import make_graph
+from dsp_tools.commands.xmlupload.stash.analyse_circular_reference_graph import _generate_upload_order_from_graph
+from dsp_tools.commands.xmlupload.stash.analyse_circular_reference_graph import _make_graph
 from dsp_tools.commands.xmlupload.stash.extract_info_for_graph_from_root import create_info_from_xml_for_graph
 from dsp_tools.utils.xml_parsing.parse_and_transform import parse_and_clean_xml_file
 
@@ -36,8 +36,8 @@ def analyse_circles_in_data(xml_filepath: Path, tracer_output_file: str, save_tr
     print(f"Total Number of resptr Links: {len(graph_info.link_values)}")
     print(f"Total Number of XML Texts with Links: {len(graph_info.standoff_links)}")
     print("=" * 80)
-    graph, node_to_id, edges = make_graph(graph_info)
-    _, _, stash_counter = generate_upload_order(graph, node_to_id, edges)
+    graph, node_to_id, edges = _make_graph(graph_info)
+    _, _, stash_counter = _generate_upload_order_from_graph(graph, node_to_id, edges)
     end = datetime.now()
     if save_tracer and tracer:
         tracer.stop()

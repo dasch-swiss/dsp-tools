@@ -11,9 +11,22 @@ from dsp_tools.commands.xmlupload.stash.graph_models import LinkValueLink
 from dsp_tools.commands.xmlupload.stash.graph_models import StandOffLink
 
 
-def make_graph(
-    info_for_graph: InfoForGraph,
-) -> tuple[rx.PyDiGraph[Any, Any], dict[int, str], list[Edge]]:
+def get_upload_order(info_for_graph: InfoForGraph) -> tuple[dict[str, list[str]], list[str]]:
+    """
+    Generate the order in which the resources should be uploaded to the DSP-API based on the dependencies.
+
+    Args:
+        info_for_graph: Information required to construct the graph
+
+    Returns:
+        stash lookup and upload order
+    """
+    graph, node_to_id, edges = _make_graph(info_for_graph)
+    stash_lookup, upload_order, _ = _create_upload_order(graph, node_to_id, edges)
+    return stash_lookup, upload_order
+
+
+def _make_graph(info_for_graph: InfoForGraph) -> tuple[rx.PyDiGraph[Any, Any], dict[int, str], list[Edge]]:
     """
     This function takes information about the resources of an XML file and links between them.
     From that it constructs a rustworkx directed graph.
@@ -39,7 +52,7 @@ def make_graph(
     return graph, node_to_id, edges
 
 
-def generate_upload_order(
+def _create_upload_order(
     graph: rx.PyDiGraph[Any, Any],
     node_to_id: dict[int, str],
     edges: list[Edge],

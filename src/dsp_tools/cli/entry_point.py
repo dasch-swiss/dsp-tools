@@ -75,7 +75,7 @@ def run(args: list[str]) -> None:
         print(f"\n{BOLD_RED}The process was terminated because of an Error: {err.message}{RESET_TO_DEFAULT}")
         sys.exit(1)
     except Exception as err:  # noqa: BLE001 (blind-except)
-        logger.exception(str(err))
+        logger.exception(err)
         print(InternalError())
         sys.exit(1)
 

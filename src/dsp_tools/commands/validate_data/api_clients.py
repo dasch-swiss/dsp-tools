@@ -3,28 +3,36 @@ from typing import Any
 from typing import cast
 from urllib.parse import quote_plus
 
+import requests
 from loguru import logger
 from rdflib import SH
 from rdflib import Graph
 
 from dsp_tools.commands.validate_data.api_connection import ApiConnection
-from dsp_tools.commands.validate_data.api_connection import OneFile
-from dsp_tools.commands.validate_data.api_connection import PostFiles
 from dsp_tools.commands.validate_data.models.api_responses import AllProjectLists
 from dsp_tools.commands.validate_data.models.api_responses import OneList
 from dsp_tools.commands.validate_data.models.api_responses import SHACLValidationReport
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.models.exceptions import InternalError
-from dsp_tools.models.exceptions import UserError
+from dsp_tools.utils.request_utils import PostFile
+from dsp_tools.utils.request_utils import PostFiles
+from dsp_tools.utils.request_utils import RequestParameters
+from dsp_tools.utils.request_utils import log_request
+from dsp_tools.utils.request_utils import log_response
 
 
 @dataclass
 class OntologyClient:
-    api_con: ApiConnection
+    api_url: str
     shortcode: str
 
     def get_knora_api(self) -> str:
-        response = self.api_con.get_with_endpoint(endpoint="ontology/knora-api/v2#", headers={"Accept": "text/turtle"})
+        url = f"{self.api_url}/ontology/knora-api/v2#"
+        headers = {"Accept": "text/turtle"}
+        timeout = 60
+        log_request(RequestParameters("GET", url, timeout=timeout, headers=headers))
+        response = requests.get(url=url, headers=headers, timeout=timeout)
+        log_response(response)
         if not response.ok:
             raise InternalError(f"Failed Request: {response.status_code} {response.text}")
         return response.text
@@ -40,22 +48,26 @@ class OntologyClient:
         return [self._get_one_ontology(x) for x in ontology_iris]
 
     def _get_ontology_iris(self) -> list[str]:
-        response = self.api_con.get_with_endpoint(endpoint=f"admin/projects/shortcode/{self.shortcode}")
+        url = f"{self.api_url}/admin/projects/shortcode/{self.shortcode}"
+        timeout = 10
+        log_request(RequestParameters("GET", url, timeout=timeout))
+        response = requests.get(url=url, timeout=timeout)
+        log_response(response)
         if not response.ok:
             raise InternalError(f"Failed Request: {response.status_code} {response.text}")
         response_json = cast(dict[str, Any], response.json())
-        msg = f"The response from the API does not contain any ontologies.\nAPI response:{response.text}"
-        if not (proj := response_json.get("project")):
-            logger.error(msg)
-            raise UserError(msg)
-        if not (ontos := proj.get("ontologies")):
-            logger.error(msg)
-            raise UserError(msg)
+        if not (ontos := response_json.get("project", {}).get("ontologies")):
+            raise InternalError(f"The response from the API does not contain any ontologies.\nResponse:{response.text}")
         output = cast(list[str], ontos)
         return output
 
     def _get_one_ontology(self, ontology_iri: str) -> str:
-        response = self.api_con.get_with_url(url=ontology_iri, headers={"Accept": "text/turtle"})
+        url = ontology_iri
+        headers = {"Accept": "text/turtle"}
+        timeout = 10
+        log_request(RequestParameters("GET", url, timeout=timeout, headers=headers))
+        response = requests.get(url=url, headers=headers, timeout=timeout)
+        log_response(response)
         if not response.ok:
             raise InternalError(f"Failed Request: {response.status_code} {response.text}")
         return response.text

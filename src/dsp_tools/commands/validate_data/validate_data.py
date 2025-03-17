@@ -103,7 +103,7 @@ def _get_save_directory(filepath: Path) -> Path:
 
 def _get_parsed_graphs(api_con: ApiConnection, filepath: Path) -> RDFGraphs:
     data_rdf, shortcode = _get_data_info_from_file(filepath, api_con.api_url)
-    onto_client = OntologyClient(api_con, shortcode)
+    onto_client = OntologyClient(api_con.api_url, shortcode)
     list_client = ListClient(api_con, shortcode)
     rdf_graphs = _create_graphs(onto_client, list_client, data_rdf)
     return rdf_graphs

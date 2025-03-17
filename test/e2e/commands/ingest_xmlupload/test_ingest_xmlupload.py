@@ -10,7 +10,7 @@ from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml import ingest_xmlupload
 from dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files import ingest_files
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_files import upload_files
-from dsp_tools.commands.project.create.project_create import create_project
+from dsp_tools.commands.project.create.project_create_all import create_project
 from test.e2e.setup_testcontainers.artifacts import ArtifactDirs
 from test.e2e.setup_testcontainers.containers import ContainerMetadata
 from test.e2e.setup_testcontainers.setup import get_containers

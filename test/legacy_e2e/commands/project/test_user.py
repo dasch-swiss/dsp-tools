@@ -4,7 +4,7 @@ import unittest
 
 import pytest
 
-from dsp_tools.commands.project.models.user import User
+from dsp_tools.commands.project.legacy_models.user import User
 from dsp_tools.models.langstring import Languages
 from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
 from dsp_tools.utils.connection import Connection

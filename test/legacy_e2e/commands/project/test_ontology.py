@@ -4,7 +4,7 @@ import unittest
 
 import pytest
 
-from dsp_tools.commands.project.models.ontology import Ontology
+from dsp_tools.commands.project.legacy_models.ontology import Ontology
 from dsp_tools.models.datetimestamp import DateTimeStamp
 from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
 from dsp_tools.utils.connection import Connection

@@ -9,7 +9,7 @@ from rdflib import BNode
 from rdflib import URIRef
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.commands.project.create.project_create import create_project
+from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
 from dsp_tools.commands.validate_data.api_connection import ApiConnection
 from dsp_tools.commands.validate_data.get_user_validation_message import _filter_out_duplicate_problems

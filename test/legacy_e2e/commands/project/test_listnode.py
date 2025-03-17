@@ -4,7 +4,7 @@ import unittest
 
 import pytest
 
-from dsp_tools.commands.project.models.listnode import ListNode
+from dsp_tools.commands.project.legacy_models.listnode import ListNode
 from dsp_tools.models.langstring import LangString
 from dsp_tools.models.langstring import Languages
 from dsp_tools.utils.authentication_client_live import AuthenticationClientLive

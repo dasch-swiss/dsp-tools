@@ -34,8 +34,30 @@ from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.models.projectContext import ProjectContext
 from dsp_tools.utils.connection import Connection
+from dsp_tools.commands.xmlupload.stash.create_info_for_graph_from_intermediary_resource import create_info_for_graph_from_intermediary_resources
+from dsp_tools.commands.xmlupload.stash.analyse_circular_reference_graph import make_graph, generate_upload_order
+
 
 LIST_SEPARATOR = "\n-    "
+
+
+def prepare_upload_from_root(
+        root: etree._Element,
+        con: Connection,
+        ontology_client: OntologyClient,
+        clients: UploadClients
+) -> tuple[list[IntermediaryResource], Stash | None, JSONLDContext]:
+    """Do the consistency check, resolve circular references, and return the resources and permissions."""
+    do_xml_consistency_check_with_ontology(onto_client=ontology_client, root=root)
+    logger.info("Get data from XML...")
+    resources, permissions_lookup, authorships = _get_data_from_xml(
+        con=con,
+        root=root,
+        default_ontology=ontology_client.default_ontology,
+    )
+    transformed_resources, project_context = get_transformed_resources(resources, clients, permissions_lookup, authorships)
+    info_for_graph = create_info_for_graph_from_intermediary_resources(transformed_resources)
+    graph, node_to_id, edges = make_graph(info_for_graph)
 
 
 def get_transformed_resources(
@@ -73,8 +95,7 @@ def get_transformed_resources(
     project_context = get_json_ld_context_for_project(project_onto_dict)
     return result.transformed_resources, project_context
 
-
-def prepare_upload_from_root(
+def old_prepare_upload_from_root(
     root: etree._Element,
     ontology_client: OntologyClient,
 ) -> tuple[list[XMLResource], dict[str, Permissions], Stash | None, dict[str, list[str]]]:

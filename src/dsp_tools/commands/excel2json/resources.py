@@ -48,7 +48,7 @@ def excel2resources(
             (otherwise, it's only returned as return value)
 
     Raises:
-        UserError: if something went wrong
+        InputError: if something went wrong
         InputError: is something went wrong
 
     Returns:
@@ -173,7 +173,7 @@ def _row2resource(
         class_df_with_cardinalities: Excel sheet of the individual class
 
     Raises:
-        UserError: if the row or the details sheet contains invalid data
+        InputError: if the row or the details sheet contains invalid data
 
     Returns:
         dict object of the resource

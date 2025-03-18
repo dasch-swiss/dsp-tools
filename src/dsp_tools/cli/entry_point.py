@@ -41,7 +41,6 @@ def run(args: list[str]) -> None:
 
     Raises:
         InputError: if user input was wrong
-        InputError: if user input was wrong
         InternalError: if the user cannot fix it
     """
     default_dsp_api_url = "http://0.0.0.0:3333"

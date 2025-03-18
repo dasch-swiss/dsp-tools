@@ -49,7 +49,6 @@ def excel2resources(
 
     Raises:
         InputError: if something went wrong
-        InputError: is something went wrong
 
     Returns:
         a tuple consisting of the "resources" section as Python list,

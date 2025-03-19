@@ -1,5 +1,66 @@
 # Changelog
 
+## [11.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v10.6.0...v11.0.0) (2025-03-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* **create:** remove Excel folder reference from JSON project file (DEV-4687) ([#1521](https://github.com/dasch-swiss/dsp-tools/issues/1521))
+
+### Enhancements
+
+* **create:** remove Excel folder reference from JSON project file (DEV-4687) ([#1521](https://github.com/dasch-swiss/dsp-tools/issues/1521)) ([8185e12](https://github.com/dasch-swiss/dsp-tools/commit/8185e12162f358c778f8fa4fef076c56ba2765b4))
+* **validate-data:** verify that the used license is allowed (DEV-4659) ([#1492](https://github.com/dasch-swiss/dsp-tools/issues/1492)) ([8701bf9](https://github.com/dasch-swiss/dsp-tools/commit/8701bf9ef8297145d8f3b73c524ac09abd0633db))
+
+
+### Bug Fixes
+
+* **ci:** trigger tests in release PR (DEV-4675) ([#1502](https://github.com/dasch-swiss/dsp-tools/issues/1502)) ([c2d0127](https://github.com/dasch-swiss/dsp-tools/commit/c2d01276c7e4453c012a95f0e66bae85edff65c1))
+* **create:** prevent duplicate list nodes (DEV-3531, DEV-3632) ([#1507](https://github.com/dasch-swiss/dsp-tools/issues/1507)) ([f60badb](https://github.com/dasch-swiss/dsp-tools/commit/f60badba3e3e3324445b6024a3c85384cd79d23c))
+* **ingest-xmlupload:** handle pretty-printed bitstream paths ([#1522](https://github.com/dasch-swiss/dsp-tools/issues/1522)) ([254b2f6](https://github.com/dasch-swiss/dsp-tools/commit/254b2f60e787c436dd1133a5997c4569537abc2e))
+* **validate-data:** correct the way Values are targeted in the SHACL shapes (DEV-4672) ([#1499](https://github.com/dasch-swiss/dsp-tools/issues/1499)) ([3db100f](https://github.com/dasch-swiss/dsp-tools/commit/3db100f74390512595b455829ee3861455ee0674))
+* **validate-data:** recognise if `DateValue` is used instead of `SimpleText` (DEV-4681) ([#1511](https://github.com/dasch-swiss/dsp-tools/issues/1511)) ([192af3f](https://github.com/dasch-swiss/dsp-tools/commit/192af3fb659198e5b55df0ef6047622e7e96005f))
+* **xmlupload:** Better Error Message when API returns NotFoundException (DEV-4631) ([#1506](https://github.com/dasch-swiss/dsp-tools/issues/1506)) ([e100ce2](https://github.com/dasch-swiss/dsp-tools/commit/e100ce20805c0a637205bdadaa01281e5dc69f1a))
+
+
+### Maintenance
+
+* _handle_non_ok_responses() ([#1505](https://github.com/dasch-swiss/dsp-tools/issues/1505)) ([193d971](https://github.com/dasch-swiss/dsp-tools/commit/193d971621d67bbf47b386235363f21417e356a7))
+* add some just linting commands ([#1509](https://github.com/dasch-swiss/dsp-tools/issues/1509)) ([1071e7f](https://github.com/dasch-swiss/dsp-tools/commit/1071e7fb08010fa33c10f59988e2e039ab052644))
+* auto-fix ruff violations in `just format` ([#1553](https://github.com/dasch-swiss/dsp-tools/issues/1553)) ([c48aca8](https://github.com/dasch-swiss/dsp-tools/commit/c48aca8f59a8eef49f084b07286faee0ba2cca2a))
+* **ci:** trigger tests in release PR, the second ([#1508](https://github.com/dasch-swiss/dsp-tools/issues/1508)) ([8909f91](https://github.com/dasch-swiss/dsp-tools/commit/8909f91487c63dfd0362535c315afe9484d6fbd6))
+* **create:** rename 1 directory and 1 file ([#1543](https://github.com/dasch-swiss/dsp-tools/issues/1543)) ([0071b3d](https://github.com/dasch-swiss/dsp-tools/commit/0071b3d92749a6306325e920f668cdb2f75e1d62))
+* don't spam log file with stack traces (DEV-4607) ([#1544](https://github.com/dasch-swiss/dsp-tools/issues/1544)) ([6011562](https://github.com/dasch-swiss/dsp-tools/commit/6011562d15c274c54514651ffd32cc19d02dde4b))
+* remove unused markdownlint containers ([#1526](https://github.com/dasch-swiss/dsp-tools/issues/1526)) ([499c745](https://github.com/dasch-swiss/dsp-tools/commit/499c745479f01e112198fda0fce4a99e83f1650c))
+* reorganise justfile ([#1512](https://github.com/dasch-swiss/dsp-tools/issues/1512)) ([3385226](https://github.com/dasch-swiss/dsp-tools/commit/3385226a8f3fb8e42824a866cd7ecb0189f25deb))
+* speed up mypy with daemon (DEV-4684) ([#1516](https://github.com/dasch-swiss/dsp-tools/issues/1516)) ([d9bec53](https://github.com/dasch-swiss/dsp-tools/commit/d9bec533c38d395fc2ee117990303d4d2d1a31be))
+* Update versions 2025.03.02 ([#1551](https://github.com/dasch-swiss/dsp-tools/issues/1551)) ([4f8c372](https://github.com/dasch-swiss/dsp-tools/commit/4f8c3729afd106f3e778a8a4c2cebcba3d0dd314))
+* **validate-data:** add property shapes to Values ([#1513](https://github.com/dasch-swiss/dsp-tools/issues/1513)) ([101313d](https://github.com/dasch-swiss/dsp-tools/commit/101313dfaa80ecb575d8992a1152337c4c602d6f))
+* **validate-data:** change creation of cardinalities for file value property ([#1536](https://github.com/dasch-swiss/dsp-tools/issues/1536)) ([eb1d8fe](https://github.com/dasch-swiss/dsp-tools/commit/eb1d8fe151b85fa5a70aa705e6d93a75e42bbbcd))
+* **validate-data:** change extraction of resource IRI and type ([#1530](https://github.com/dasch-swiss/dsp-tools/issues/1530)) ([764ed53](https://github.com/dasch-swiss/dsp-tools/commit/764ed533be05a676c2060b2caadd703b91e4b855))
+* **validate-data:** change ID names in test data ([#1510](https://github.com/dasch-swiss/dsp-tools/issues/1510)) ([2a30bdc](https://github.com/dasch-swiss/dsp-tools/commit/2a30bdcc5987ae7e543cd3811b0e700f36aa9a8a))
+* **validate-data:** change resource IRI and type extraction during result queries ([#1525](https://github.com/dasch-swiss/dsp-tools/issues/1525)) ([2edb389](https://github.com/dasch-swiss/dsp-tools/commit/2edb3891a121d7f4b3be9c0e407b3b1f21a70b02))
+* **validate-data:** change targeting of `knora-api:Values` (DEV-4690) ([#1528](https://github.com/dasch-swiss/dsp-tools/issues/1528)) ([77a9a54](https://github.com/dasch-swiss/dsp-tools/commit/77a9a540f7c67658905051609a12ca42be3d6a22))
+* **validate-data:** group property and nodeshapes better together ([#1534](https://github.com/dasch-swiss/dsp-tools/issues/1534)) ([3107c93](https://github.com/dasch-swiss/dsp-tools/commit/3107c9388e8dc8ae231a8420b878ef176ede443b))
+* **validate-data:** harmonise file value shapes ([#1494](https://github.com/dasch-swiss/dsp-tools/issues/1494)) ([dad04de](https://github.com/dasch-swiss/dsp-tools/commit/dad04de7dcef0ae9bbb6912cdc81178e201591bd))
+* **validate-data:** make name property shapes for ontology properties instead of blank nodes ([#1537](https://github.com/dasch-swiss/dsp-tools/issues/1537)) ([3452180](https://github.com/dasch-swiss/dsp-tools/commit/3452180ef8c5cfc01f3b5c784c8c10dbef41b01d))
+* **validate-data:** make order of information in turtle files consistent ([#1532](https://github.com/dasch-swiss/dsp-tools/issues/1532)) ([146d217](https://github.com/dasch-swiss/dsp-tools/commit/146d21744be9c2216f081454c62dfa37a68eccff))
+* **validate-data:** move `FileValue` cardinalities ([#1535](https://github.com/dasch-swiss/dsp-tools/issues/1535)) ([da4a933](https://github.com/dasch-swiss/dsp-tools/commit/da4a933495b81e4eb7d1f2b24f3e72ca950a34e4))
+* **validate-data:** re-organise SHACL property shapes of dsp in-built resources ([#1540](https://github.com/dasch-swiss/dsp-tools/issues/1540)) ([d00bb3a](https://github.com/dasch-swiss/dsp-tools/commit/d00bb3ae863b4fab9a9306c08c756bc632374a76))
+* **validate-data:** remove duplication of file value errors ([#1527](https://github.com/dasch-swiss/dsp-tools/issues/1527)) ([a9fb0d1](https://github.com/dasch-swiss/dsp-tools/commit/a9fb0d1c2e4b96d6dd8ede211fabd90164e2c3d2))
+* **validate-data:** rename class parameter ([#1523](https://github.com/dasch-swiss/dsp-tools/issues/1523)) ([67be1b6](https://github.com/dasch-swiss/dsp-tools/commit/67be1b663430c0590844a948ba00d993aef51102))
+* **validate-data:** validate metadata of values directly on the value ([#1533](https://github.com/dasch-swiss/dsp-tools/issues/1533)) ([5e56bc4](https://github.com/dasch-swiss/dsp-tools/commit/5e56bc4587f051612f5a2e3e52cae07e00ea87fa))
+* **xmllib:** don't manually interfere with xml serialisation (DEV-4230) ([#1503](https://github.com/dasch-swiss/dsp-tools/issues/1503)) ([50c4c67](https://github.com/dasch-swiss/dsp-tools/commit/50c4c67c26b2d36e3cb81c498b9b739973540a32))
+* **xmlupload:** reorganise functions to create the upload order ([#1552](https://github.com/dasch-swiss/dsp-tools/issues/1552)) ([4db08fe](https://github.com/dasch-swiss/dsp-tools/commit/4db08fe697ebd9608ae9fa290887b97f8aba0f79))
+* **xmlupload:** take apart the function to create the upload state ([#1549](https://github.com/dasch-swiss/dsp-tools/issues/1549)) ([756e633](https://github.com/dasch-swiss/dsp-tools/commit/756e633d179eb6e2afe5189438c395fa318bc416))
+
+
+### Documentation
+
+* add deprecation notes with admonitions ([#1514](https://github.com/dasch-swiss/dsp-tools/issues/1514)) ([c95947d](https://github.com/dasch-swiss/dsp-tools/commit/c95947d52f052669ae8fef54f271e33682eea6bc))
+* communicate supported Python versions (DEV-4680) ([#1515](https://github.com/dasch-swiss/dsp-tools/issues/1515)) ([6f4ab31](https://github.com/dasch-swiss/dsp-tools/commit/6f4ab31f637aac2c9108a947388f73cae176759f))
+* **xmlupload:** describe how to add authorship data ([#1542](https://github.com/dasch-swiss/dsp-tools/issues/1542)) ([005bcb3](https://github.com/dasch-swiss/dsp-tools/commit/005bcb3da09591877c544e6be2d36457ea8547a7))
+
 ## [10.6.0](https://github.com/dasch-swiss/dsp-tools/compare/v10.5.0...v10.6.0) (2025-03-05)
 
 

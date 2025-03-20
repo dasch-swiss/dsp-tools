@@ -108,8 +108,8 @@ def test_is_date_correct(val: str) -> None:
         "ISLAMIC:CE:0476-09-04:CE:0476-09-04",
         "ISLAMIC:AD:0476-09-04:AD:0476-09-04",
         "ISLAMIC:AH:0476-09-04:AH:0476-09-04",  # Anno Hegirae is not implemented yet
-         "ISLAMIC:BH:0476-09-04:BH:0476-09-04",  # Before Hijra is not implemented yet
-   ],
+        "ISLAMIC:BH:0476-09-04:BH:0476-09-04",  # Before Hijra is not implemented yet
+    ],
 )
 def test_is_date_wrong(val: Any) -> None:
     assert not is_date(val)

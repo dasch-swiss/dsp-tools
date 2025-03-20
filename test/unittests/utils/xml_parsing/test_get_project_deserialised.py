@@ -238,7 +238,7 @@ class TestDateValue:
         assert len(res) == 2
         assert res[0].user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate1"
         assert res[0].user_facing_value == "JULIAN:BCE:0700:BCE:0600"
-        assert res[1].user_facing_value == "ISLAMIC:BCE:0700:BCE:0600"
+        assert res[1].user_facing_value == "ISLAMIC:0600:0700"
         assert res[0].knora_type == KnoraValueType.DATE_VALUE
         assert res[1].knora_type == KnoraValueType.DATE_VALUE
 

@@ -452,13 +452,13 @@ The `<date>` element contains a DSP-specific date value. It has the following fo
 calendar:epoch:yyyy-mm-dd:epoch:yyyy-mm-dd
 ```
 
-- `calendar`: either "JULIAN" or "GREGORIAN" (optional, default: GREGORIAN)
+- `calendar`: "GREGORIAN", "JULIAN" or "ISLAMIC" (optional, default: GREGORIAN)
 - `epoch`: either "AD", "BC", "BCE" or "CE" (optional, default CE)
 - `yyyy`: year with one to four digits (required)
 - `mm`: month with one or two digits (optional, e.g. 01, 02, ..., 12)
 - `dd`: day with one or two digits (optional, e.g. 01, 02, ..., 31)
 
-Notes:
+Notes regarding precision:
 
 - If the day is omitted, then the precision is month, if also the month is omitted, the precision is year.
 - Internally, a date is always represented as a start and end date. 
@@ -473,7 +473,17 @@ Notes:
     - "1893-01-01" will be expanded to a range from January 1st 1893 **to the entire year 1893**.
 - **Therefore, a day-precision date should always be written with start and end date:** 
   `GREGORIAN:CE:1893-01-01:CE:1893-01-01`
-      
+
+Notes regarding calendars:
+
+- DSP stores dates using a calendar-independent,
+  astronomical representation, and converts between calendars as needed. 
+- The Gregorian and Julian calendars have 12 months with 28-31 days each.
+- The Islamic calendar has 12 months with 29 or 30 days each.
+- Year 1 of the Islamic calendar began in 622 CE in the Julian calendar.
+  Years in the Islamic calendar are shorter than years in the Gregorian/Julian calendar,
+  so 2025 CE corresponds to 1446 AH (not 1403 AH).
+- Eras of the Islamic calendar (AH: Anno Hegirae; BH: Before Hijra) are not supported yet.
 
 Attributes:
 

@@ -188,7 +188,7 @@ def date_value_corr_several() -> etree._Element:
     return etree.fromstring("""
         <date-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate1">
             <date>JULIAN:BCE:0700:BCE:0600</date>
-            <date>ISLAMIC:BCE:0700:BCE:0600</date>
+            <date>ISLAMIC:0600:0700</date>
         </date-prop>
         """)
 

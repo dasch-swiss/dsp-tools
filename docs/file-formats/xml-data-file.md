@@ -480,9 +480,10 @@ Notes regarding calendars:
   astronomical representation, and converts between calendars as needed. 
 - The Gregorian and Julian calendars have 12 months with 28-31 days each.
 - The Islamic calendar has 12 months with 29 or 30 days each.
-- Year 1 AH (Anno Hegirae = Year of Hijrah) in the Islamic calendar began in 622 CE in the Julian calendar.
+- Year 1 of the Islamic calendar began in 622 CE in the Julian calendar.
   Years in the Islamic calendar are shorter than years in the Gregorian/Julian calendar,
   so 2025 CE corresponds to 1446 AH (not 1403 AH).
+- Eras of the Islamic calendar (AH: Anno Hegirae; BH: Before Hijra) are not supported yet.
 
 Attributes:
 

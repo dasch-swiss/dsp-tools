@@ -84,8 +84,8 @@ def test_is_color_wrong(val: Any) -> None:
         "GREGORIAN:BC:2000:BC:1000",
         "JULIAN:CE:0476-09-04:CE:0476-09-04",
         "JULIAN:BC:2000:BC:1000",
-        "ISLAMIC:CE:0476-09-04:CE:0476-09-04",
-        "ISLAMIC:BC:2000:BC:1000",
+        "ISLAMIC:0476-09-04:0476-09-04",
+        "ISLAMIC:1000:2000",
         "GREGORIAN:0476-09-04:0476-09-04",
         "CE:0476-09-04:CE:0476-09-04",
     ],
@@ -103,7 +103,13 @@ def test_is_date_correct(val: str) -> None:
         "GREGORIAN:CE:0476-09-04:CE::0476-09-04",
         "GREGORIAN:CE:0476-09-04::CE:0476-09-04",
         "GREGORIAN:CE::0476-09-04:CE:0476-09-04",
-    ],
+        "ISLAMIC:BC:0476-09-04:BC:0476-09-04",
+        "ISLAMIC:BCE:0476-09-04:BCE:0476-09-04",
+        "ISLAMIC:CE:0476-09-04:CE:0476-09-04",
+        "ISLAMIC:AD:0476-09-04:AD:0476-09-04",
+        "ISLAMIC:AH:0476-09-04:AH:0476-09-04",  # Anno Hegirae is not implemented yet
+         "ISLAMIC:BH:0476-09-04:BH:0476-09-04",  # Before Hijra is not implemented yet
+   ],
 )
 def test_is_date_wrong(val: Any) -> None:
     assert not is_date(val)

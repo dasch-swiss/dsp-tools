@@ -24,7 +24,7 @@ To update to the latest version run:
 pip3 install --upgrade dsp-tools
 ```
 
-!!! warning
+🚨 
 
     If your Python version is older than ours,
     pip will silently install an outdated version of DSP-TOOLS.

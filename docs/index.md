@@ -24,9 +24,7 @@ To update to the latest version run:
 pip3 install --upgrade dsp-tools
 ```
 
-> 🚨 
->
-> If your Python version is older than ours,
+> 🚨 If your Python version is older than ours,
 > pip will silently install an outdated version of DSP-TOOLS.  
 > DSP-TOOLS requires one of these Python versions: 
 > [![](https://img.shields.io/pypi/pyversions/dsp-tools.svg)](https://pypi.org/project/dsp-tools/)  

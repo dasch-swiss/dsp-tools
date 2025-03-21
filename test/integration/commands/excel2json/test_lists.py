@@ -12,14 +12,14 @@ from dsp_tools.models.exceptions import InputError
 
 @pytest.fixture
 def result_lists_correct() -> list[dict[str, Any]]:
-    all_lists, _ = excel2lists(Path("testdata/excel2json/new_excel2json_files/lists"))
+    all_lists, _ = excel2lists(Path("testdata/excel2json/excel2json_files/lists"))
     all_lists = sorted(all_lists, key=lambda x: x["name"])
     return all_lists
 
 
 @pytest.fixture
 def expected_lists() -> list[dict[str, Any]]:
-    with open("testdata/excel2json/new-lists-output-expected.json", encoding="utf-8") as f:
+    with open("testdata/excel2json/lists-output-expected.json", encoding="utf-8") as f:
         expected = json.load(f)
         return cast(list[dict[str, Any]], expected)
 

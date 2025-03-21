@@ -17,7 +17,7 @@ def expected_project() -> dict[str, Any]:
 
 @pytest.fixture
 def returned_project() -> dict[str, Any]:
-    excel_folder = "testdata/excel2json/excel2json_files"
+    excel_folder = "testdata/excel2json/old_excel2json_files"
     listfolder, onto_folders = _old_validate_folder_structure_and_get_filenames(excel_folder)
     _, project = _old_create_project_json(excel_folder, listfolder, onto_folders)
     return project

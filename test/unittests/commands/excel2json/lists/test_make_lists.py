@@ -14,9 +14,7 @@ from dsp_tools.commands.excel2json.lists.make_lists import _make_one_node
 from dsp_tools.commands.excel2json.lists.make_lists import _remove_duplicate_ids_in_all_excels
 from dsp_tools.commands.excel2json.lists.make_lists import _resolve_duplicate_ids_all_excels
 from dsp_tools.commands.excel2json.lists.make_lists import _resolve_duplicate_ids_for_auto_id_one_df
-from dsp_tools.commands.excel2json.lists.make_lists import (
-    _resolve_duplicate_ids_keep_custom_change_auto_id_one_df,
-)
+from dsp_tools.commands.excel2json.lists.make_lists import _resolve_duplicate_ids_keep_custom_change_auto_id_one_df
 from dsp_tools.commands.excel2json.lists.models.deserialise import Columns
 from dsp_tools.commands.excel2json.lists.models.deserialise import ExcelSheet
 from dsp_tools.commands.excel2json.lists.models.serialise import ListNode

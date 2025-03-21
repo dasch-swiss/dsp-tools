@@ -72,7 +72,7 @@ def _get_fuseki(
         .with_env("ADMIN_PASSWORD", "test")
     )
     fuseki.start()
-    _await_healthcheck(fuseki.container_id)
+    _await_healthcheck(names.fuseki)
     print("Fuseki is ready")
     _create_data_set_and_admin_user(ports.fuseki)
     return fuseki
@@ -110,7 +110,7 @@ def _get_sipi(
         .with_volume_mapping(artifact_dirs.sipi_images, "/sipi/images", "rw")
     )
     sipi.start()
-    _await_healthcheck(sipi.container_id)
+    _await_healthcheck(names.sipi)
     print("Sipi is ready")
     return sipi
 
@@ -136,7 +136,7 @@ def _get_ingest(
         .with_volume_mapping(artifact_dirs.ingest_db, "/opt/db", "rw")
     )
     ingest.start()
-    _await_healthcheck(ingest.id)
+    _await_healthcheck(names.ingest)
     print("Ingest is ready")
     return ingest
 
@@ -158,15 +158,15 @@ def _get_api(network: Network, version: str, ports: ExternalContainerPorts, name
         .with_bind_ports(host=ports.api, container=API_INTERNAL_PORT)
     )
     api.start()
-    _await_healthcheck(api.container_id)
+    _await_healthcheck(names.api)
     print("API is ready")
     return api
 
 
-def _await_healthcheck(container_id: str) -> None:
+def _await_healthcheck(container_name: str) -> None:
     client = DockerClient().client
     while True:
-        inspect_result = client.api.inspect_container(container_id)
+        inspect_result = client.api.inspect_container(container_name)
         if inspect_result["State"]["Running"] and inspect_result["State"]["Health"]["Status"] == "healthy":
             break
         sleep(1)

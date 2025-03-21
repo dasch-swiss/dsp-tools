@@ -2,11 +2,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+from time import sleep
 
 import requests
 from testcontainers.core.container import DockerContainer
+from testcontainers.core.docker_client import DockerClient
 from testcontainers.core.network import Network
-from testcontainers.core.waiting_utils import wait_for_logs
 
 from test.e2e.setup_testcontainers.artifacts import E2E_TESTDATA
 from test.e2e.setup_testcontainers.artifacts import ArtifactDirs
@@ -71,7 +72,7 @@ def _get_fuseki(
         .with_env("ADMIN_PASSWORD", "test")
     )
     fuseki.start()
-    wait_for_logs(fuseki, f"Server .+ Started .+ on port {FUSEKI_INTERNAL_PORT}")
+    _await_healthcheck(fuseki.container_id)
     print("Fuseki is ready")
     _create_data_set_and_admin_user(ports.fuseki)
     return fuseki
@@ -109,7 +110,7 @@ def _get_sipi(
         .with_volume_mapping(artifact_dirs.sipi_images, "/sipi/images", "rw")
     )
     sipi.start()
-    wait_for_logs(sipi, f"Server listening on HTTP port {SIPI_INTERNAL_PORT}")
+    _await_healthcheck(sipi.container_id)
     print("Sipi is ready")
     return sipi
 
@@ -135,7 +136,7 @@ def _get_ingest(
         .with_volume_mapping(artifact_dirs.ingest_db, "/opt/db", "rw")
     )
     ingest.start()
-    wait_for_logs(ingest, "Started dsp-ingest")
+    _await_healthcheck(ingest.id)
     print("Ingest is ready")
     return ingest
 
@@ -157,10 +158,18 @@ def _get_api(network: Network, version: str, ports: ExternalContainerPorts, name
         .with_bind_ports(host=ports.api, container=API_INTERNAL_PORT)
     )
     api.start()
-    wait_for_logs(api, "AppState set to Running")
-    wait_for_logs(api, "Starting api on")
+    _await_healthcheck(api.container_id)
     print("API is ready")
     return api
+
+
+def _await_healthcheck(container_id: str) -> None:
+    client = DockerClient().client
+    while True:
+        inspect_result = client.api.inspect_container(container_id)
+        if inspect_result["State"]["Running"] and inspect_result["State"]["Health"]["Status"] == "healthy":
+            break
+        sleep(1)
 
 
 def _print_containers_are_ready(containers: Containers) -> None:

@@ -231,6 +231,103 @@ the `lists` section of a JSON project file can be created from one or several Ex
 The lists can then be inserted into a JSON project file and uploaded to a DSP server.
 
 The following example shows how to create the "lists" section 
+with Excel files that are located in a directory called `listfolder`.
+The Excel files must contain the word "list" in the name. All the files containing that word will be included.
+Files that do not contain that word will not be considered.
+
+
+```bash
+dsp-tools excel2lists listfolder lists.json
+```
+
+The Excel sheets must have the following structure:
+
+
+![img-excel2json-lists.png](../assets/images/img-excel2json-lists.png)
+
+
+### Formal requirements of the Excel format
+
+- One Excel file may contain several lists.
+- Per Excel sheet only one list is allowed. 
+  The name of the sheet is not relevant, but must be unique within one Excel file.
+- The list name (i.e. the content of the columns `en_list`/`de_list`/...) must be unique in one project.
+
+
+#### Columns
+
+- `ID (Optional)`
+    - Column where a custom ID for the node or list can be entered. 
+      This ID will become the `name` of the list/node in the JSON file.
+    - The ID must be unique in the entire project.
+    - If this field is left empty, an auto-ID will be generated. 
+    - In case of duplicate IDs, an auto-ID will be generated, which includes the names of the ancestors of the node. 
+      For example:
+          - `list1:node1:node1.1` for the node `node1.1` in `list1`
+          - `list2:node1:node1.1` for the node `node1.1` in `list2`
+- `<language>_comments`: These are optional but recommended at least for the list itself (the second row of the Excel).
+  If they are not provided for the list, the labels will be entered in the comments section.
+  Nodes will not have comments if not explicitly provided.
+  All languages that are used for one list must also be used for the comments.
+  It is possible to provide a comment only for some nodes.
+- `<language>_list`: At least one column with the name of the list in that language.
+- `<language>_number`: At least one column which specifies a node level. 
+  It starts with 1 for the highest node hierarchy, and can go on infinitely.
+
+
+#### Languages
+
+- The allowed language tags are: `de`, `en`, `fr`, `it`, `rm`
+- At least one language must be used.
+- There is no limit to the number of columns (i.e. node hierarchies).
+- Within one list, i.e. Excel sheet, all nodes must be consistently translated into the same languages.
+    - Correct:
+
+        ![img-excel2json-list-columns-correct.png](../assets/images/img-excel2json-list-columns-correct.png)
+
+    - Incorrect, because `de_list` is specified, but `de_1` is missing:
+
+        ![img-excel2json-list-columns-incorrect.png](../assets/images/img-excel2json-list-columns-incorrect.png)
+
+- Within one list, i.e. Excel sheet, all nodes must be translated into the same languages.
+  This example is incorrect, because there is no English translation for `Knoten 1`:
+  
+    ![img-excel2json-list-translation-incorrect.png](../assets/images/img-excel2json-list-translation-incorrect.png)
+
+- The use of language does not have to be consistent across all lists. 
+  For example, it is correct if "list1" is translated into English and German, 
+  but "list2" is only translated into English.
+
+
+#### Rows
+
+- Each sheet must contain at least two rows.
+- The sheet must be ordered correctly as shown in the example above. 
+- The order in the Excel corresponds to the order in the JSON file and the DSP-APP.
+  This example is incorrect, because the second column is unordered:
+
+    ![img-excel2json-list-sorting-incorrect.png](../assets/images/img-excel2json-list-sorting-incorrect.png)
+
+- The first row of the sheet, directly under the title, must only contain the information for the list itself. 
+  It must not contain anything in the other cells.
+    - Each successive row corresponds to one list node. 
+      Each node must have its own row.
+    - In this example, `Node 1` does not have its own row, which is incorrect. `Node 2` is correctly done.
+
+        ![img-excel2json-list-node-missing-node.png](../assets/images/img-excel2json-list-node-missing-node.png)
+
+
+**It is recommended to work from the following template:** [lists.xlsx](../assets/data_model_templates/lists/lists.xlsx)
+
+
+
+## The `lists` Section for `old-excel2json` and `old-excel2lists`
+
+With the [`excel2lists`](../cli-commands.md#excel2lists) command, 
+the `lists` section of a JSON project file can be created from one or several Excel files. 
+The lists can then be inserted into a JSON project file and uploaded to a DSP server.
+
+The following example shows how to create the "lists" section 
 from the two Excel files `de.xlsx` and `en.xlsx` 
 which are located in a directory called `listfolder`:
 
@@ -338,102 +435,3 @@ The output of the above command, with the template files, is:
     ]
 }
 ```
-
-
-
-## The `lists` Section for `new-excel2json` and `new-excel2lists`
-
-With the [`new-excel2lists`](../cli-commands.md#new-excel2lists) command, 
-the `lists` section of a JSON project file can be created from one or several Excel files. 
-The lists can then be inserted into a JSON project file and uploaded to a DSP server.
-
-The following example shows how to create the "lists" section 
-with Excel files that are located in a directory called `listfolder`.
-The Excel files must contain the word "list" in the name. All the files containing that word will be included.
-Files that do not contain that word will not be considered.
-
-
-```bash
-dsp-tools new-excel2lists listfolder lists.json
-```
-
-The Excel sheets must have the following structure:
-
-
-![img-excel2json-new-lists.png](../assets/images/img-excel2json-new-lists.png)
-
-
-### Formal requirements of the Excel format
-
-- One Excel file may contain several lists.
-- Per Excel sheet only one list is allowed. 
-  The name of the sheet is not relevant, but must be unique within one Excel file.
-- The list name (i.e. the content of the columns `en_list`/`de_list`/...) must be unique in one project.
-
-
-#### Columns
-
-- `ID (Optional)`
-    - Column where a custom ID for the node or list can be entered. 
-      This ID will become the `name` of the list/node in the JSON file.
-    - The ID must be unique in the entire project.
-    - If this field is left empty, an auto-ID will be generated. 
-    - In case of duplicate IDs, an auto-ID will be generated, which includes the names of the ancestors of the node. 
-      For example:
-          - `list1:node1:node1.1` for the node `node1.1` in `list1`
-          - `list2:node1:node1.1` for the node `node1.1` in `list2`
-- `<language>_comments`: These are optional but recommended at least for the list itself (the second row of the Excel).
-  If they are not provided for the list, the labels will be entered in the comments section.
-  Nodes will not have comments if not explicitly provided.
-  All languages that are used for one list must also be used for the comments.
-  It is possible to provide a comment only for some nodes.
-- `<language>_list`: At least one column with the name of the list in that language.
-- `<language>_number`: At least one column which specifies a node level. 
-  It starts with 1 for the highest node hierarchy, and can go on infinitely.
-
-
-#### Languages
-
-- The allowed language tags are: `de`, `en`, `fr`, `it`, `rm`
-- At least one language must be used.
-- There is no limit to the number of columns (i.e. node hierarchies).
-- Within one list, i.e. Excel sheet, all nodes must be consistently translated into the same languages.
-    - Correct:
-
-        ![img-excel2json-list-columns-correct.png](../assets/images/img-excel2json-list-columns-correct.png)
-
-    - Incorrect, because `de_list` is specified, but `de_1` is missing:
-
-        ![img-excel2json-list-columns-incorrect.png](../assets/images/img-excel2json-list-columns-incorrect.png)
-
-- Within one list, i.e. Excel sheet, all nodes must be translated into the same languages.
-  This example is incorrect, because there is no English translation for `Knoten 1`:
-  
-    ![img-excel2json-list-translation-incorrect.png](../assets/images/img-excel2json-list-translation-incorrect.png)
-
-- The use of language does not have to be consistent across all lists. 
-  For example, it is correct if "list1" is translated into English and German, 
-  but "list2" is only translated into English.
-
-
-#### Rows
-
-- Each sheet must contain at least two rows.
-- The sheet must be ordered correctly as shown in the example above. 
-- The order in the Excel corresponds to the order in the JSON file and the DSP-APP.
-  This example is incorrect, because the second column is unordered:
-
-    ![img-excel2json-list-sorting-incorrect.png](../assets/images/img-excel2json-list-sorting-incorrect.png)
-
-- The first row of the sheet, directly under the title, must only contain the information for the list itself. 
-  It must not contain anything in the other cells.
-    - Each successive row corresponds to one list node. 
-      Each node must have its own row.
-    - In this example, `Node 1` does not have its own row, which is incorrect. `Node 2` is correctly done.
-
-        ![img-excel2json-list-node-missing-node.png](../assets/images/img-excel2json-list-node-missing-node.png)
-
-
-
-**It is recommended to work from the following template:** [new_lists.xlsx](../assets/data_model_templates/lists/new_lists.xlsx)
-

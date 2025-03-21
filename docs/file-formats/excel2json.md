@@ -3,8 +3,7 @@
 # Excel File Format to Generate a JSON Project
 
 
-With the [`excel2json`](../cli-commands.md#excel2json) or 
-[`old-excel2json`](../cli-commands.md#old-excel2json) command, 
+With the [`excel2json`](../cli-commands.md#excel2json) command, 
 a JSON project file can be created from Excel files.
 
 To put it simple, a JSON project consists of
@@ -16,15 +15,15 @@ To put it simple, a JSON project consists of
     - 1 "resources" section
 
 For each of these 4 sections, one or several Excel files are necessary. The Excel files and their format are described 
-below. If you want to convert the Excel files to JSON, it is possible to invoke a command for each of these sections 
-separately (as described below). 
+below. 
 
+If you want to convert the Excel files to JSON, it is possible to invoke a command for each of these sections 
+separately (as described below). 
 But it is more convenient to use the command that creates the entire JSON project file.
 
 ## The Folder Structure for `excel2json`
 
 The following folder structure has to be used when invoking the `excel2json` command.
-All files containing "list" in their name will be read and processed, other files in the folder will not be included.
 
 
 ```text
@@ -38,9 +37,10 @@ data_model_files
     └── resources.xlsx
 ```
 
-Conventions for the folder names:
+Conventions for the names:
 
 - The "lists" folder must have exactly this name, if it exists. It can also be omitted.
+- The Excel files containing the lists must have the word "list" in the name, otherwise they will be ignored.
 - Replace "onto_name" by your ontology's name, and "onto_label" by your ontology's label.
 - The only name that can be chosen freely is the name of the topmost folder ("data_model_files" in this example).
 - The file "json_header.xlsx" is optional. If it exists, it should be located in the top level folder.
@@ -323,7 +323,7 @@ The Excel sheets must have the following structure:
 
 ## The `lists` Section for `old-excel2json` and `old-excel2lists`
 
-With the [`excel2lists`](../cli-commands.md#excel2lists) command, 
+With the [`old-excel2lists`](../cli-commands.md#old-excel2lists) command, 
 the `lists` section of a JSON project file can be created from one or several Excel files. 
 The lists can then be inserted into a JSON project file and uploaded to a DSP server.
 
@@ -332,7 +332,7 @@ from the two Excel files `de.xlsx` and `en.xlsx`
 which are located in a directory called `listfolder`:
 
 ```bash
-dsp-tools excel2lists listfolder lists.json
+dsp-tools old-excel2lists listfolder lists.json
 ```
 
 The Excel sheets must have the following structure:  

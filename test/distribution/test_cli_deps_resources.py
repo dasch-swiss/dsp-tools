@@ -47,7 +47,7 @@ class TestCliDepsResources(unittest.TestCase):
         Test if the resource file 'src/dsp_tools/resources/schema/resources-only.json' can be accessed.
         The output is not tested here, this is done in the unit tests.
         """
-        excel_file = Path("testdata/excel2json/excel2json_files/test-name (test_label)/resources.xlsx")
+        excel_file = Path("testdata/excel2json/old_excel2json_files/test-name (test_label)/resources.xlsx")
         out_file = self.testdata_tmp / "_out_resources.json"
         self._make_cli_call(["excel2resources", str(excel_file.absolute()), str(out_file.absolute())])
         out_file.unlink()
@@ -57,7 +57,7 @@ class TestCliDepsResources(unittest.TestCase):
         Test if the resource file 'src/dsp_tools/resources/schema/properties-only.json' can be accessed.
         The output is not tested here, this is done in the unit tests.
         """
-        excel_file = Path("testdata/excel2json/excel2json_files/test-name (test_label)/properties.xlsx")
+        excel_file = Path("testdata/excel2json/old_excel2json_files/test-name (test_label)/properties.xlsx")
         out_file = self.testdata_tmp / "_out_properties.json"
         self._make_cli_call(["excel2properties", str(excel_file.absolute()), str(out_file.absolute())])
         out_file.unlink()

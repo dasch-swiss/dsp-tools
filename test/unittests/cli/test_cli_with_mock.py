@@ -334,7 +334,6 @@ def test_excel2lists(excel2lists: Mock) -> None:
     excel2lists.assert_called_once_with(
         excelfolder=file,
         path_to_output_file=out_file,
-        verbose=False,
     )
 
 
@@ -386,6 +385,7 @@ def test_old_excel2lists(old_excel2lists: Mock) -> None:
     old_excel2lists.assert_called_once_with(
         excelfolder=file,
         path_to_output_file=out_file,
+        verbose=False,
     )
 
 

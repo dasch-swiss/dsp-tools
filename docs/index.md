@@ -88,10 +88,10 @@ DSP-TOOLS provides the following functionalities:
       creates the "properties" section of a JSON project file from an Excel file. 
       The resulting section can be integrated into a JSON project file 
       and then be uploaded to a DSP server with `dsp-tools create`.
-- [`dsp-tools new-excel2json`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#new-excel2json)
-  does the same as the old `excel2json` command, but the Excel format for the `lists` section has been adapted.
-    - [`dsp-tools new-excel2lists`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#new-excel2lists)
-      does the same as the old `excel2lists` command, but the Excel format has been adapted.
+- [`dsp-tools old-excel2json`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#old-excel2json)
+  does the same as the newer `excel2json` command, but the Excel format for the `lists` section is different.
+    - [`dsp-tools old-excel2lists`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#old-excel2lists)
+      does the same as the newer `excel2lists` command, but the Excel format is different.
 - [`dsp-tools excel2xml`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#excel2xml) 
   transforms a data source to XML 
   if it is already structured according to the DSP specifications.

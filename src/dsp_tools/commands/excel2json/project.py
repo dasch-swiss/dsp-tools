@@ -5,14 +5,14 @@ from typing import Any
 import regex
 
 from dsp_tools.commands.excel2json.json_header import get_json_header
-from dsp_tools.commands.excel2json.lists import excel2lists
-from dsp_tools.commands.excel2json.new_lists.make_new_lists import new_excel2lists
+from dsp_tools.commands.excel2json.old_lists import old_excel2lists
+from dsp_tools.commands.excel2json.lists.make_lists import excel2lists
 from dsp_tools.commands.excel2json.properties import excel2properties
 from dsp_tools.commands.excel2json.resources import excel2resources
 from dsp_tools.models.exceptions import UserError
 
 
-def excel2json(
+def old_excel2json(
     data_model_files: str,
     path_to_output_file: str,
 ) -> bool:
@@ -91,7 +91,7 @@ def _get_validate_list_folder(data_model_files: str, folder: list[Path]) -> tupl
     return listfolder, processed_files
 
 
-def new_excel2json(
+def excel2json(
     data_model_files: str,
     path_to_output_file: str,
 ) -> bool:
@@ -184,7 +184,7 @@ def _create_project_json(
     data_model_files: str, listfolder: list[Path], onto_folders: list[Path]
 ) -> tuple[bool, dict[str, Any]]:
     overall_success = True
-    lists, success = excel2lists(excelfolder=f"{data_model_files}/lists") if listfolder else (None, True)
+    lists, success = old_excel2lists(excelfolder=f"{data_model_files}/lists") if listfolder else (None, True)
     if not success:
         overall_success = False
     ontologies, success = _get_ontologies(data_model_files, onto_folders)
@@ -203,7 +203,7 @@ def _new_create_project_json(
     overall_success = True
     lists = None
     if list_folder:
-        lists, success = new_excel2lists(list_folder)
+        lists, success = excel2lists(list_folder)
         if not success:
             overall_success = False
     ontologies, success = _get_ontologies(data_model_files, onto_folders)

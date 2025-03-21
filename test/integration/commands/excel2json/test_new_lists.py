@@ -6,13 +6,13 @@ from typing import cast
 import pytest
 import regex
 
-from dsp_tools.commands.excel2json.new_lists.make_new_lists import new_excel2lists
+from dsp_tools.commands.excel2json.lists.make_lists import excel2lists
 from dsp_tools.models.exceptions import InputError
 
 
 @pytest.fixture
 def result_lists_correct() -> list[dict[str, Any]]:
-    all_lists, _ = new_excel2lists(Path("testdata/excel2json/new_excel2json_files/lists"))
+    all_lists, _ = excel2lists(Path("testdata/excel2json/new_excel2json_files/lists"))
     all_lists = sorted(all_lists, key=lambda x: x["name"])
     return all_lists
 
@@ -52,7 +52,7 @@ def test_duplicate_list_id() -> None:
         "| Sheet 'duplicate_list_id2' | Row 2"
     )
     with pytest.raises(InputError, match=expected):
-        new_excel2lists(Path("testdata/invalid-testdata/excel2json/new_lists_duplicate_list_ids"))
+        excel2lists(Path("testdata/invalid-testdata/excel2json/new_lists_duplicate_list_ids"))
 
 
 def test_duplicate_node_id() -> None:
@@ -67,7 +67,7 @@ def test_duplicate_node_id() -> None:
         "| Sheet 'duplicate_node_id2' | Row 3"
     )
     with pytest.raises(InputError, match=expected):
-        new_excel2lists(Path("testdata/invalid-testdata/excel2json/new_lists_duplicate_node_ids"))
+        excel2lists(Path("testdata/invalid-testdata/excel2json/new_lists_duplicate_node_ids"))
 
 
 def test_duplicate_list_name() -> None:
@@ -81,7 +81,7 @@ def test_duplicate_list_name() -> None:
         "Sheet: 'duplicate_list', List: 'List 2'"
     )
     with pytest.raises(InputError, match=expected):
-        new_excel2lists(Path("testdata/invalid-testdata/excel2json/new_lists_duplicate_listname"))
+        excel2lists(Path("testdata/invalid-testdata/excel2json/new_lists_duplicate_listname"))
 
 
 def test_invalid_shape() -> None:
@@ -96,7 +96,7 @@ def test_invalid_shape() -> None:
     )
 
     with pytest.raises(InputError, match=expected):
-        new_excel2lists(Path("testdata/invalid-testdata/excel2json/new_lists_invalid_shape"))
+        excel2lists(Path("testdata/invalid-testdata/excel2json/new_lists_invalid_shape"))
 
 
 def test_missing_translation() -> None:
@@ -113,7 +113,7 @@ def test_missing_translation() -> None:
         "    - Row Number: 4 | Column(s): de_comments"
     )
     with pytest.raises(InputError, match=expected):
-        new_excel2lists(Path("testdata/invalid-testdata/excel2json/new_lists_missing_translations"))
+        excel2lists(Path("testdata/invalid-testdata/excel2json/new_lists_missing_translations"))
 
 
 if __name__ == "__main__":

@@ -12,7 +12,7 @@ from dsp_tools.commands.project.legacy_models.propertyclass import PropertyClass
 from dsp_tools.commands.project.legacy_models.resourceclass import ResourceClass
 from dsp_tools.models.datetimestamp import DateTimeStamp
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.exceptions import UserError
+from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.langstring import LangString
 from dsp_tools.utils.connection import Connection
 
@@ -41,7 +41,7 @@ def create_ontologies(
         verbose: verbose switch
 
     Raises:
-        UserError: if an error occurs during the creation of an ontology.
+        InputError: if an error occurs during the creation of an ontology.
         All other errors are printed, the process continues, but the success status will be false.
 
     Returns:
@@ -142,7 +142,7 @@ def _create_ontology(
         verbose: verbose switch
 
     Raises:
-        UserError: if the ontology cannot be created on the DSP server
+        InputError: if the ontology cannot be created on the DSP server
 
     Returns:
         representation of the created ontology on the DSP server, or None if it already existed
@@ -168,7 +168,7 @@ def _create_ontology(
     except BaseError:
         # if ontology cannot be created, let the error escalate
         logger.exception(f"ERROR while trying to create ontology '{onto_name}'.")
-        raise UserError(f"ERROR while trying to create ontology '{onto_name}'.") from None
+        raise InputError(f"ERROR while trying to create ontology '{onto_name}'.") from None
 
     if verbose:
         print(f"    Created ontology '{onto_name}'.")

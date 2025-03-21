@@ -11,7 +11,6 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontol
 from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClientLive
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InputError
-from dsp_tools.models.exceptions import UserError
 from test.integration.commands.xmlupload.connection_mock import ConnectionMockBase
 
 
@@ -71,7 +70,7 @@ def test_error_on_nonexistent_shortcode() -> None:
         default_ontology="foo",
     )
     with pytest.raises(
-        UserError, match=regex.escape("A project with shortcode 9999 could not be found on the DSP server")
+        InputError, match=regex.escape("A project with shortcode 9999 could not be found on the DSP server")
     ):
         do_xml_consistency_check_with_ontology(ontology_client, root)
 

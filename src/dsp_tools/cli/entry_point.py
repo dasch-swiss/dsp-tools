@@ -19,6 +19,7 @@ from dsp_tools.models.exceptions import InternalError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.ansi_colors import BOLD_RED
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.utils.logger_config import WARNINGS_SAVEPATH
 from dsp_tools.utils.logger_config import logger_config
 from dsp_tools.utils.warnings_config import initialize_warnings
 
@@ -73,11 +74,14 @@ def run(args: list[str]) -> None:
     except BaseError as err:
         logger.error(f"The process was terminated because of an Error: {err.message}")
         print(f"\n{BOLD_RED}The process was terminated because of an Error: {err.message}{RESET_TO_DEFAULT}")
-        sys.exit(1)
+        success = False
     except Exception as err:  # noqa: BLE001 (blind-except)
         logger.exception(err)
         print(InternalError())
-        sys.exit(1)
+        success = False
+    finally:
+        if WARNINGS_SAVEPATH.is_file() and len(WARNINGS_SAVEPATH.read_bytes()) == 0:
+            WARNINGS_SAVEPATH.unlink()
 
     if not success:
         logger.error("Terminate without success")

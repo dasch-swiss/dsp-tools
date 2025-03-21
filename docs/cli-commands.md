@@ -382,7 +382,7 @@ This command creates a JSON project definition file from a nested folder structu
 The Excel format for the `lists` section has been adapted compared to the previous [`old-excel2json`](#old-excel2json) command.
 
 ```bash
-dsp-tools new-excel2json excelfolder project_definition.json
+dsp-tools excel2json excelfolder project_definition.json
 ```
 
 The following options are available:
@@ -391,7 +391,7 @@ The following options are available:
   (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 
 The expected Excel file format and the folder structure are documented 
-[here](./file-formats/excel2json.md#the-folder-structure-for-new-excel2json).
+[here](./file-formats/excel2json.md#the-folder-structure-for-excel2json).
 
 
 

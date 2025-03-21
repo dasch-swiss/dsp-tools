@@ -9,20 +9,20 @@ from typing import Optional
 import pandas as pd
 import regex
 
-from dsp_tools.commands.excel2json.lists import validate_lists_section_with_schema
-from dsp_tools.commands.excel2json.new_lists.compliance_checks import make_all_excel_compliance_checks
-from dsp_tools.commands.excel2json.new_lists.models.deserialise import Columns
-from dsp_tools.commands.excel2json.new_lists.models.deserialise import ExcelSheet
-from dsp_tools.commands.excel2json.new_lists.models.serialise import ListNode
-from dsp_tools.commands.excel2json.new_lists.models.serialise import ListRoot
-from dsp_tools.commands.excel2json.new_lists.utils import get_column_info
-from dsp_tools.commands.excel2json.new_lists.utils import get_columns_of_preferred_lang
-from dsp_tools.commands.excel2json.new_lists.utils import get_lang_string_from_column_name
+from dsp_tools.commands.excel2json.lists.compliance_checks import make_all_excel_compliance_checks
+from dsp_tools.commands.excel2json.lists.models.deserialise import Columns
+from dsp_tools.commands.excel2json.lists.models.deserialise import ExcelSheet
+from dsp_tools.commands.excel2json.lists.models.serialise import ListNode
+from dsp_tools.commands.excel2json.lists.models.serialise import ListRoot
+from dsp_tools.commands.excel2json.lists.utils import get_column_info
+from dsp_tools.commands.excel2json.lists.utils import get_columns_of_preferred_lang
+from dsp_tools.commands.excel2json.lists.utils import get_lang_string_from_column_name
+from dsp_tools.commands.excel2json.old_lists import validate_lists_section_with_schema
 from dsp_tools.commands.excel2json.utils import add_optional_columns
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
 
 
-def new_excel2lists(
+def excel2lists(
     excelfolder: str | Path,
     path_to_output_file: Optional[Path] = None,
 ) -> tuple[list[dict[str, Any]], bool]:

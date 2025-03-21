@@ -13,7 +13,7 @@ from dsp_tools.models.exceptions import InputError
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
 
 
-excelfile = "testdata/excel2json/excel2json_files/test-name (test_label)/resources.xlsx"
+excelfile = "testdata/excel2json/old_excel2json_files/test-name (test_label)/resources.xlsx"
 output_from_method, _ = e2j.excel2resources(excelfile, None)
 
 

@@ -21,7 +21,7 @@ from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.shared import simplify_name
 
 
-def excel2lists(
+def old_excel2lists(
     excelfolder: str,
     path_to_output_file: Optional[str] = None,
     verbose: bool = False,

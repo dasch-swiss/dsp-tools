@@ -2,25 +2,23 @@ import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal
 
-from dsp_tools.commands.excel2json.new_lists.make_new_lists import _add_nodes_to_parent
-from dsp_tools.commands.excel2json.new_lists.make_new_lists import _complete_id_one_df
-from dsp_tools.commands.excel2json.new_lists.make_new_lists import _construct_non_duplicate_id_string
-from dsp_tools.commands.excel2json.new_lists.make_new_lists import _create_auto_id_one_df
-from dsp_tools.commands.excel2json.new_lists.make_new_lists import _fill_parent_id_col_one_df
-from dsp_tools.commands.excel2json.new_lists.make_new_lists import _get_lang_dict
-from dsp_tools.commands.excel2json.new_lists.make_new_lists import _make_list_nodes_from_df
-from dsp_tools.commands.excel2json.new_lists.make_new_lists import _make_one_list
-from dsp_tools.commands.excel2json.new_lists.make_new_lists import _make_one_node
-from dsp_tools.commands.excel2json.new_lists.make_new_lists import _remove_duplicate_ids_in_all_excels
-from dsp_tools.commands.excel2json.new_lists.make_new_lists import _resolve_duplicate_ids_all_excels
-from dsp_tools.commands.excel2json.new_lists.make_new_lists import _resolve_duplicate_ids_for_auto_id_one_df
-from dsp_tools.commands.excel2json.new_lists.make_new_lists import (
-    _resolve_duplicate_ids_keep_custom_change_auto_id_one_df,
-)
-from dsp_tools.commands.excel2json.new_lists.models.deserialise import Columns
-from dsp_tools.commands.excel2json.new_lists.models.deserialise import ExcelSheet
-from dsp_tools.commands.excel2json.new_lists.models.serialise import ListNode
-from dsp_tools.commands.excel2json.new_lists.models.serialise import ListRoot
+from dsp_tools.commands.excel2json.lists.make_lists import _add_nodes_to_parent
+from dsp_tools.commands.excel2json.lists.make_lists import _complete_id_one_df
+from dsp_tools.commands.excel2json.lists.make_lists import _construct_non_duplicate_id_string
+from dsp_tools.commands.excel2json.lists.make_lists import _create_auto_id_one_df
+from dsp_tools.commands.excel2json.lists.make_lists import _fill_parent_id_col_one_df
+from dsp_tools.commands.excel2json.lists.make_lists import _get_lang_dict
+from dsp_tools.commands.excel2json.lists.make_lists import _make_list_nodes_from_df
+from dsp_tools.commands.excel2json.lists.make_lists import _make_one_list
+from dsp_tools.commands.excel2json.lists.make_lists import _make_one_node
+from dsp_tools.commands.excel2json.lists.make_lists import _remove_duplicate_ids_in_all_excels
+from dsp_tools.commands.excel2json.lists.make_lists import _resolve_duplicate_ids_all_excels
+from dsp_tools.commands.excel2json.lists.make_lists import _resolve_duplicate_ids_for_auto_id_one_df
+from dsp_tools.commands.excel2json.lists.make_lists import _resolve_duplicate_ids_keep_custom_change_auto_id_one_df
+from dsp_tools.commands.excel2json.lists.models.deserialise import Columns
+from dsp_tools.commands.excel2json.lists.models.deserialise import ExcelSheet
+from dsp_tools.commands.excel2json.lists.models.serialise import ListNode
+from dsp_tools.commands.excel2json.lists.models.serialise import ListRoot
 
 
 class TestDuplicateID:

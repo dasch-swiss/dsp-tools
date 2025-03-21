@@ -54,11 +54,11 @@ def make_parser(
     _add_ingest_files(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
     _add_ingest_xmlupload(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
 
-    _add_new_excel2json(subparsers)
     _add_excel2json(subparsers)
+    _add_old_excel2json(subparsers)
 
-    _add_new_excel2lists(subparsers)
     _add_excel2lists(subparsers)
+    _add_old_excel2lists(subparsers)
 
     _add_excel2resources(subparsers)
 
@@ -172,25 +172,35 @@ def _add_excel2resources(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     subparser.add_argument("resources_section", help="path to the output JSON file containing the 'resources' section")
 
 
-def _add_new_excel2lists(subparsers: _SubParsersAction[ArgumentParser]) -> None:
-    subparser = subparsers.add_parser(
-        name="new-excel2lists",
-        help="Create the 'lists' section of a JSON project file from one or multiple Excel files",
-    )
-    subparser.set_defaults(action="new-excel2lists")
-    subparser.add_argument("excelfolder", help="path to the folder containing the Excel file(s)")
-    subparser.add_argument("lists_section", help="path to the output JSON file containing the 'lists' section")
-
-
 def _add_excel2lists(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     subparser = subparsers.add_parser(
         name="excel2lists",
         help="Create the 'lists' section of a JSON project file from one or multiple Excel files",
     )
     subparser.set_defaults(action="excel2lists")
+    subparser.add_argument("excelfolder", help="path to the folder containing the Excel file(s)")
+    subparser.add_argument("lists_section", help="path to the output JSON file containing the 'lists' section")
+
+
+def _add_old_excel2lists(subparsers: _SubParsersAction[ArgumentParser]) -> None:
+    subparser = subparsers.add_parser(
+        name="old-excel2lists",
+        help="DEPRECATED: Create the 'lists' section of a JSON project file from one or multiple Excel files",
+    )
+    subparser.set_defaults(action="old-excel2lists")
     subparser.add_argument("-v", "--verbose", action="store_true", help=verbose_text)
     subparser.add_argument("excelfolder", help="path to the folder containing the Excel file(s)")
     subparser.add_argument("lists_section", help="path to the output JSON file containing the 'lists' section")
+
+
+def _add_old_excel2json(subparsers: _SubParsersAction[ArgumentParser]) -> None:
+    subparser = subparsers.add_parser(
+        name="old-excel2json",
+        help="DEPRECATED: Create an entire JSON project file from a folder containing the required Excel files",
+    )
+    subparser.set_defaults(action="old-excel2json")
+    subparser.add_argument("excelfolder", help="path to the folder containing the Excel files")
+    subparser.add_argument("project_definition", help="path to the output JSON file")
 
 
 def _add_excel2json(subparsers: _SubParsersAction[ArgumentParser]) -> None:
@@ -199,16 +209,6 @@ def _add_excel2json(subparsers: _SubParsersAction[ArgumentParser]) -> None:
         help="Create an entire JSON project file from a folder containing the required Excel files",
     )
     subparser.set_defaults(action="excel2json")
-    subparser.add_argument("excelfolder", help="path to the folder containing the Excel files")
-    subparser.add_argument("project_definition", help="path to the output JSON file")
-
-
-def _add_new_excel2json(subparsers: _SubParsersAction[ArgumentParser]) -> None:
-    subparser = subparsers.add_parser(
-        name="new-excel2json",
-        help="Create an entire JSON project file from a folder containing the required Excel files",
-    )
-    subparser.set_defaults(action="new-excel2json")
     subparser.add_argument("excelfolder", help="path to the folder containing the Excel files")
     subparser.add_argument("project_definition", help="path to the output JSON file")
 

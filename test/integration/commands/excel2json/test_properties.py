@@ -7,7 +7,7 @@ import regex
 from dsp_tools.commands.excel2json import properties as e2j
 from dsp_tools.models.exceptions import InputError
 
-excelfile = "testdata/excel2json/excel2json_files/test-name (test_label)/properties.xlsx"
+excelfile = "testdata/excel2json/old_excel2json_files/test-name (test_label)/properties.xlsx"
 output_from_method, _ = e2j.excel2properties(excelfile, None)
 
 

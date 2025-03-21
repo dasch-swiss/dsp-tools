@@ -334,7 +334,6 @@ def test_excel2lists(excel2lists: Mock) -> None:
     excel2lists.assert_called_once_with(
         excelfolder=file,
         path_to_output_file=out_file,
-        verbose=False,
     )
 
 
@@ -364,28 +363,29 @@ def test_excel2properties(excel2properties: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.call_action.new_excel2json")
-def test_new_excel2json(new_excel2json: Mock) -> None:
+@patch("dsp_tools.cli.call_action.old_excel2json")
+def test_old_excel2json(old_excel2json: Mock) -> None:
     folder = "folder"
     out_file = "filename.json"
-    args = f"new-excel2json {folder} {out_file}".split()
+    args = f"old-excel2json {folder} {out_file}".split()
     entry_point.run(args)
-    new_excel2json.assert_called_once_with(
+    old_excel2json.assert_called_once_with(
         data_model_files=folder,
         path_to_output_file=out_file,
     )
 
 
-@patch("dsp_tools.cli.call_action.new_excel2lists")
-def test_new_excel2lists(new_excel2lists: Mock) -> None:
-    new_excel2lists.return_value = ([], True)
+@patch("dsp_tools.cli.call_action.old_excel2lists")
+def test_old_excel2lists(old_excel2lists: Mock) -> None:
+    old_excel2lists.return_value = ([], True)
     file = "filename.xlsx"
     out_file = "filename.json"
-    args = f"new-excel2lists {file} {out_file}".split()
+    args = f"old-excel2lists {file} {out_file}".split()
     entry_point.run(args)
-    new_excel2lists.assert_called_once_with(
+    old_excel2lists.assert_called_once_with(
         excelfolder=file,
         path_to_output_file=out_file,
+        verbose=False,
     )
 
 

@@ -376,13 +376,13 @@ dsp-tools ingest-xmlupload -s https://api.dasch.swiss -u 'your@email.com' -p 'pa
 
 
 
-## `excel2json`
+## `old-excel2json`
 
 This command creates a JSON project definition file from a nested folder structure with Excel files.
-It will be deprecated in favor of [`new-excel2json`](#new-excel2json) in the future.
+It will be deprecated in favor of [`excel2json`](#excel2json) in the future.
 
 ```bash
-dsp-tools excel2json excelfolder project_definition.json
+dsp-tools old-excel2json excelfolder project_definition.json
 ```
 
 The following options are available:
@@ -393,13 +393,13 @@ The following options are available:
 The expected Excel file format and the folder structure are documented [here](./file-formats/excel2json.md).
 
 
-### `excel2lists`
+### `old-excel2lists`
 
 This command creates the "lists" section of a JSON project file from Excel files.
-It will be deprecated in favor of `new-excel2lists` in the future.
+It will be deprecated in favor of `excel2lists` in the future.
 
 ```bash
-dsp-tools excel2lists [options] excelfolder lists_section.json
+dsp-tools old-excel2lists [options] excelfolder lists_section.json
 ```
 
 The following options are available:
@@ -458,11 +458,10 @@ The expected Excel format is [documented here](./file-formats/excel2json.md#the-
 
 
 
-## `new-excel2json`
+## `excel2json`
 
 This command creates a JSON project definition file from a nested folder structure with Excel files.
-The Excel format for the `lists` section has been adapted compared to the previous [`excel2json`](#excel2json) command.
-This command is still under development, and might be less stable than `excel2json`.
+The Excel format for the `lists` section has been adapted compared to the previous [`old-excel2json`](#old-excel2json) command.
 
 ```bash
 dsp-tools new-excel2json excelfolder project_definition.json
@@ -477,14 +476,13 @@ The expected Excel file format and the folder structure are documented
 [here](./file-formats/excel2json.md#the-folder-structure-for-new-excel2json).
 
 
-### `new-excel2lists`
+### `excel2lists`
 
 This command creates the "lists" section of a JSON project file from Excel files.
-The Excel format for the `lists` section has been adapted compared to the previous `excel2lists` command.
-This command is still under development, and might be less stable than `excel2lists`.
+The Excel format for the `lists` section has been adapted compared to the previous `old-excel2lists` command.
 
 ```bash
-dsp-tools new-excel2lists excelfolder lists_section.json
+dsp-tools excel2lists excelfolder lists_section.json
 ```
 
 The following options are available:
@@ -493,7 +491,7 @@ The following options are available:
   (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 
 The expected Excel file format and the folder structure are documented 
-[here](./file-formats/excel2json.md#the-lists-section-for-new-excel2json-and-new-excel2lists).
+[here](./file-formats/excel2json.md#the-lists-section-for-excel2json-and-excel2lists).
 
 
 

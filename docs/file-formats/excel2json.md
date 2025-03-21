@@ -4,7 +4,7 @@
 
 
 With the [`excel2json`](../cli-commands.md#excel2json) or 
-[`new-excel2json`](../cli-commands.md#new-excel2json) command, 
+[`old-excel2json`](../cli-commands.md#old-excel2json) command, 
 a JSON project file can be created from Excel files.
 
 To put it simple, a JSON project consists of
@@ -23,14 +23,16 @@ But it is more convenient to use the command that creates the entire JSON projec
 
 ## The Folder Structure for `excel2json`
 
-The following folder structure has to be used, when invoking the standard `excel2json` command.
+The following folder structure has to be used when invoking the `excel2json` command.
+All files containing "list" in their name will be read and processed, other files in the folder will not be included.
+
 
 ```text
 data_model_files
 ├── json_header.xlsx (optional)
 ├── lists
-│   ├── en.xlsx
-│   └── de.xlsx
+│   ├── list.xlsx
+│   └── list_1.xlsx
 └── onto_name (onto_label)
     ├── properties.xlsx
     └── resources.xlsx
@@ -57,19 +59,18 @@ Likewise, there will be no prefixes, no groups and no users in the resulting JSO
 
 Continue reading the following paragraphs to learn more about the expected structure of the Excel files.
 
-## The Folder Structure for `new-excel2json`
 
-The convention for the folder structure and naming remains the same as for the standard `excel2json`.
-The Excel files containing the lists must have the word "list" in the name. 
-All the files containing "list" in their name will be read and processed, other files in the folder will not be included.
+## The Folder Structure for `old-excel2json`
+
+The convention for the folder structure and naming is the same as for `excel2json`.
 
 
 ```text
 data_model_files
 ├── json_header.xlsx (optional)
 ├── lists
-│   ├── list.xlsx
-│   └── list_1.xlsx
+│   ├── en.xlsx
+│   └── de.xlsx
 └── onto_name (onto_label)
     ├── properties.xlsx
     └── resources.xlsx
@@ -79,7 +80,7 @@ data_model_files
 Then, use the following command:
 
 ```bash
-dsp-tools new-excel2json data_model_files project.json
+dsp-tools old-excel2json data_model_files project.json
 ```
 
 ## The `json_header.xlsx`

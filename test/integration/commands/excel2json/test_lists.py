@@ -46,13 +46,13 @@ def test_duplicate_list_id() -> None:
         "No duplicates are allowed in the 'ID (optional)' column. At the following locations, IDs are duplicated:"
         "\n----------------------------\n"
         "ID: 'duplicate_list_id'\n"
-        "    - Excel 'testdata/invalid-testdata/excel2json/new_lists_duplicate_list_ids/list_duplicate_1.xlsx' "
+        "    - Excel 'testdata/invalid-testdata/excel2json/lists_duplicate_list_ids/list_duplicate_1.xlsx' "
         "| Sheet 'duplicate_list_id1' | Row 2\n"
-        "    - Excel 'testdata/invalid-testdata/excel2json/new_lists_duplicate_list_ids/list_duplicate_2.xlsx' "
+        "    - Excel 'testdata/invalid-testdata/excel2json/lists_duplicate_list_ids/list_duplicate_2.xlsx' "
         "| Sheet 'duplicate_list_id2' | Row 2"
     )
     with pytest.raises(InputError, match=expected):
-        excel2lists(Path("testdata/invalid-testdata/excel2json/new_lists_duplicate_list_ids"))
+        excel2lists(Path("testdata/invalid-testdata/excel2json/lists_duplicate_list_ids"))
 
 
 def test_duplicate_node_id() -> None:
@@ -61,13 +61,13 @@ def test_duplicate_node_id() -> None:
         "No duplicates are allowed in the 'ID (optional)' column. At the following locations, IDs are duplicated:"
         "\n----------------------------\n"
         "ID: 'duplicate_node_id'\n"
-        "    - Excel 'testdata/invalid-testdata/excel2json/new_lists_duplicate_node_ids/list_duplicate_node_ids.xlsx' "
+        "    - Excel 'testdata/invalid-testdata/excel2json/lists_duplicate_node_ids/list_duplicate_node_ids.xlsx' "
         "| Sheet 'duplicate_node_id1' | Row 3\n"
-        "    - Excel 'testdata/invalid-testdata/excel2json/new_lists_duplicate_node_ids/list_duplicate_node_ids.xlsx' "
+        "    - Excel 'testdata/invalid-testdata/excel2json/lists_duplicate_node_ids/list_duplicate_node_ids.xlsx' "
         "| Sheet 'duplicate_node_id2' | Row 3"
     )
     with pytest.raises(InputError, match=expected):
-        excel2lists(Path("testdata/invalid-testdata/excel2json/new_lists_duplicate_node_ids"))
+        excel2lists(Path("testdata/invalid-testdata/excel2json/lists_duplicate_node_ids"))
 
 
 def test_duplicate_list_name() -> None:
@@ -75,20 +75,20 @@ def test_duplicate_list_name() -> None:
         "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
         "The name of the list must be unique across all the excel sheets.\n"
         "The following sheets have lists with the same name:\n"
-        "    - Excel file: 'testdata/invalid-testdata/excel2json/new_lists_duplicate_listname/list_duplicate_1.xlsx', "
+        "    - Excel file: 'testdata/invalid-testdata/excel2json/lists_duplicate_listname/list_duplicate_1.xlsx', "
         "Sheet: 'duplicate_list', List: 'List 2'\n"
-        "    - Excel file: 'testdata/invalid-testdata/excel2json/new_lists_duplicate_listname/list_duplicate_2.xlsx', "
+        "    - Excel file: 'testdata/invalid-testdata/excel2json/lists_duplicate_listname/list_duplicate_2.xlsx', "
         "Sheet: 'duplicate_list', List: 'List 2'"
     )
     with pytest.raises(InputError, match=expected):
-        excel2lists(Path("testdata/invalid-testdata/excel2json/new_lists_duplicate_listname"))
+        excel2lists(Path("testdata/invalid-testdata/excel2json/lists_duplicate_listname"))
 
 
 def test_invalid_shape() -> None:
     expected = regex.escape(
         "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
         "The Excel file "
-        "'testdata/invalid-testdata/excel2json/new_lists_invalid_shape/list_missing_translation_column.xlsx' "
+        "'testdata/invalid-testdata/excel2json/lists_invalid_shape/list_missing_translation_column.xlsx' "
         "contains the following problems:\n\n"
         "The excel sheet 'Sheet1' has the following problem(s):\n"
         "    - All nodes and lists must be translated into the same languages. "
@@ -96,14 +96,14 @@ def test_invalid_shape() -> None:
     )
 
     with pytest.raises(InputError, match=expected):
-        excel2lists(Path("testdata/invalid-testdata/excel2json/new_lists_invalid_shape"))
+        excel2lists(Path("testdata/invalid-testdata/excel2json/lists_invalid_shape"))
 
 
 def test_missing_translation() -> None:
     expected = regex.escape(
         "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
         "The Excel file "
-        "'testdata/invalid-testdata/excel2json/new_lists_missing_translations/list_missing_translation_cell.xlsx' "
+        "'testdata/invalid-testdata/excel2json/lists_missing_translations/list_missing_translation_cell.xlsx' "
         "contains the following problems:\n\n"
         "The excel sheet 'missing_translation_cell' has the following problem(s):\n"
         "In one list, all the nodes must be translated into all the languages used. "
@@ -113,7 +113,7 @@ def test_missing_translation() -> None:
         "    - Row Number: 4 | Column(s): de_comments"
     )
     with pytest.raises(InputError, match=expected):
-        excel2lists(Path("testdata/invalid-testdata/excel2json/new_lists_missing_translations"))
+        excel2lists(Path("testdata/invalid-testdata/excel2json/lists_missing_translations"))
 
 
 if __name__ == "__main__":

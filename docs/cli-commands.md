@@ -410,7 +410,7 @@ The following options are available:
   (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 
 The expected Excel file format and the folder structure are documented 
-[here](./file-formats/excel2json.md#the-lists-section-for-excel2json-and-excel2lists).
+[here](./file-formats/excel2json.md#the-lists-section).
 
 
 

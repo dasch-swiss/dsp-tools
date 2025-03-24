@@ -17,7 +17,7 @@ from dsp_tools.commands.excel2json.models.input_error import MoreThanOneSheetPro
 from dsp_tools.commands.excel2json.models.list_node_name import ListNodeNames
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
-from dsp_tools.utils.date_formats.shared import simplify_name
+from dsp_tools.utils.data_formats.shared import simplify_name
 
 
 def old_excel2lists(

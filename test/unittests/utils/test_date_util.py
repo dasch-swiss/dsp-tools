@@ -1,13 +1,13 @@
 import pytest
 
 from dsp_tools.error.exceptions import BaseError
-from dsp_tools.utils.date_formats.date_util import Calendar
-from dsp_tools.utils.date_formats.date_util import Date
-from dsp_tools.utils.date_formats.date_util import Era
-from dsp_tools.utils.date_formats.date_util import SingleDate
-from dsp_tools.utils.date_formats.date_util import _parse_single_date
-from dsp_tools.utils.date_formats.date_util import _split_date_string
-from dsp_tools.utils.date_formats.date_util import parse_date_string
+from dsp_tools.utils.data_formats.date_util import Calendar
+from dsp_tools.utils.data_formats.date_util import Date
+from dsp_tools.utils.data_formats.date_util import Era
+from dsp_tools.utils.data_formats.date_util import SingleDate
+from dsp_tools.utils.data_formats.date_util import _parse_single_date
+from dsp_tools.utils.data_formats.date_util import _split_date_string
+from dsp_tools.utils.data_formats.date_util import parse_date_string
 
 
 class TestParseDateStringWithDateOnly:

@@ -1,6 +1,6 @@
 import pytest
 
-from dsp_tools.utils.date_formats.iri_util import is_resource_iri
+from dsp_tools.utils.data_formats.iri_util import is_resource_iri
 
 
 def test_is_resource_iri() -> None:

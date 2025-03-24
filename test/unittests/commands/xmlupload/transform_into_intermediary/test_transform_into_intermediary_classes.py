@@ -39,7 +39,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.exceptions import PermissionNotExistsError
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
-from dsp_tools.utils.date_formats.date_util import Date
+from dsp_tools.utils.data_formats.date_util import Date
 
 ONTO = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
 

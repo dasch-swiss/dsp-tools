@@ -1,6 +1,6 @@
 import pytest
 
-from dsp_tools.utils.date_formats.uri_util import is_iiif_uri
+from dsp_tools.utils.data_formats.uri_util import is_iiif_uri
 
 
 @pytest.mark.parametrize(

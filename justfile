@@ -116,7 +116,7 @@ legacy-e2e-tests *FLAGS:
 [no-exit-message]
 clean:
     -find . -name "*.pyc" -exec rm -rf {} \;
-    -find . -name .__pycache__ -exec rm -rf {} \;
+    -find . -name __pycache__ -exec rm -rf {} \;
     -find . -name .ruff_cache -exec rm -rf {} \;
     -find . -name .pytest_cache -exec rm -rf {} \;
     -find . -name .mypy_cache -exec rm -rf {} \;

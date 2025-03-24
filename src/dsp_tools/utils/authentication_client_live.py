@@ -6,8 +6,8 @@ import requests
 from loguru import logger
 
 from dsp_tools.models.exceptions import BadCredentialsError
+from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import PermanentConnectionError
-from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.authentication_client import AuthenticationClient
 
 
@@ -40,12 +40,12 @@ class AuthenticationClientLive(AuthenticationClient):
             logger.debug(f"RESPONSE: Requesting token responded with status {response.status_code}")
             res_json: dict[str, Any] = response.json()
         except BadCredentialsError:
-            raise UserError(f"Username and/or password are not valid on server '{self.server}'") from None
+            raise InputError(f"Username and/or password are not valid on server '{self.server}'") from None
         except PermanentConnectionError as e:
-            raise UserError(e.message) from None
+            raise InputError(e.message) from None
         match res_json.get("token"):
             case str(token):
                 self._token = token
                 return token
             case _:
-                raise UserError("Unable to retrieve a token from the server with the provided credentials.")
+                raise InputError("Unable to retrieve a token from the server with the provided credentials.")

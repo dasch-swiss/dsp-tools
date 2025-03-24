@@ -17,11 +17,10 @@ from dsp_tools.commands.excel2json.models.input_error import MoreThanOneSheetPro
 from dsp_tools.commands.excel2json.models.list_node_name import ListNodeNames
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InputError
-from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.shared import simplify_name
 
 
-def excel2lists(
+def old_excel2lists(
     excelfolder: str,
     path_to_output_file: Optional[str] = None,
     verbose: bool = False,
@@ -35,7 +34,7 @@ def excel2lists(
         verbose: verbose switch
 
     Raises:
-        UserError: if something went wrong
+        InputError: if something went wrong
         BaseError: if something went wrong
 
     Returns:
@@ -82,7 +81,7 @@ def _get_values_from_excel(
         verbose: verbose switch
 
     Raises:
-        UserError: if one of the Excel files contains invalid data
+        InputError: if one of the Excel files contains invalid data
 
     Returns:
         int: Row index for the next loop (current row index minus 1)
@@ -95,7 +94,7 @@ def _get_values_from_excel(
 
     for excelfile in excelfiles.values():
         if any((not excelfile["A1"].value, excelfile["B1"].value)):
-            raise UserError(
+            raise InputError(
                 f"ERROR: Inconsistency in Excel list: The first row must consist of exactly one value, in cell A1. "
                 f"All other cells of row 1 must be empty.\nInstead, found the following:\n"
                 f" - Cell A1: '{excelfile['A1'].value}'\n"
@@ -147,7 +146,7 @@ def _check_if_predecessors_in_row_are_consistent_with_preval(
 ) -> None:
     for idx, val in enumerate(preval[:-1]):
         if val != str(base_file_ws.cell(column=idx + 1, row=row).value).strip():
-            raise UserError(
+            raise InputError(
                 "ERROR: Inconsistency in Excel list: "
                 f"{val} not equal to {str(base_file_ws.cell(column=idx + 1, row=row).value).strip()}"
             )
@@ -189,7 +188,7 @@ def _check_if_duplicate_nodes_exist(cell: Cell, list_node_names: ListNodeNames, 
         list_node_names.lists_with_previous_cell_values.count(x) > 1
         for x in list_node_names.lists_with_previous_cell_values
     ):
-        raise UserError(
+        raise InputError(
             f"ERROR: There is at least one duplicate node in the list. "
             f"Found duplicate in column {cell.column}, row {cell.row}:\n'{str(cell.value).strip()}'"
         )
@@ -200,7 +199,7 @@ def _get_all_languages_of_node(excelfiles: dict[str, Worksheet], col: int, row: 
     for other_lang, ws_other_lang in excelfiles.items():
         cell_value = ws_other_lang.cell(column=col, row=row).value
         if not (isinstance(cell_value, str) and len(cell_value) > 0):
-            raise UserError(
+            raise InputError(
                 "ERROR: Malformed Excel file: The Excel file with the language code "
                 f"'{other_lang}' should have a value in row {row}, column {col}"
             )
@@ -222,7 +221,7 @@ def _make_json_lists_from_excel(
         verbose: verbose switch
 
     Raises:
-        UserError: if one of the Excel files contains invalid data
+        InputError: if one of the Excel files contains invalid data
 
     Returns:
         The finished "lists" section
@@ -288,7 +287,7 @@ def validate_lists_section_with_schema(
         lists_section: the "lists" section as Python object
 
     Raises:
-        UserError: if the validation fails
+        InputError: if the validation fails
         BaseError: if this function is called with invalid parameters
 
     Returns:
@@ -313,7 +312,7 @@ def validate_lists_section_with_schema(
             project = json.load(f)
             lists_section = project["project"].get("lists")
             if not lists_section:
-                raise UserError(
+                raise InputError(
                     f"Cannot validate 'lists' section of {path_to_json_project_file}, "
                     "because there is no 'lists' section in this file."
                 )
@@ -321,7 +320,7 @@ def validate_lists_section_with_schema(
     try:
         jsonschema.validate(instance={"lists": lists_section}, schema=lists_schema)
     except jsonschema.ValidationError as err:
-        raise UserError(
+        raise InputError(
             f"'lists' section did not pass validation. The error message is: {err.message}\n"
             f"The error occurred at {err.json_path}"
         ) from None
@@ -338,19 +337,19 @@ def _extract_excel_file_paths(excelfolder: str) -> list[Path]:
         excelfolder: path to the folder containing the Excel file(s)
 
     Raises:
-        UserError: if excelfolder is not a directory, or if one of the files in it has an invalid name
+        InputError: if excelfolder is not a directory, or if one of the files in it has an invalid name
 
     Returns:
         list of the Excel file paths to process
     """
     if not Path(excelfolder).is_dir():
-        raise UserError(f"ERROR: {excelfolder} is not a directory.")
+        raise InputError(f"ERROR: {excelfolder} is not a directory.")
 
     supported_files = ["en.xlsx", "de.xlsx", "fr.xlsx", "it.xlsx", "rm.xlsx"]
     excel_file_paths = [x for x in Path(excelfolder).glob("*.xlsx") if x.is_file() and not x.name.startswith("~$")]
 
     for filepath in excel_file_paths:
         if filepath.name not in supported_files:
-            raise UserError(f"Invalid file name '{filepath}'. Expected format: 'languagecode.xlsx'")
+            raise InputError(f"Invalid file name '{filepath}'. Expected format: 'languagecode.xlsx'")
 
     return excel_file_paths

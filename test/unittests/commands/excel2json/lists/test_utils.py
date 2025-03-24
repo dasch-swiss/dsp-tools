@@ -2,12 +2,12 @@ import pandas as pd
 import pytest
 import regex
 
-from dsp_tools.commands.excel2json.new_lists.utils import get_all_languages_for_columns
-from dsp_tools.commands.excel2json.new_lists.utils import get_column_info
-from dsp_tools.commands.excel2json.new_lists.utils import get_columns_of_preferred_lang
-from dsp_tools.commands.excel2json.new_lists.utils import get_hierarchy_nums
-from dsp_tools.commands.excel2json.new_lists.utils import get_lang_string_from_column_name
-from dsp_tools.commands.excel2json.new_lists.utils import get_preferred_language_from_columns
+from dsp_tools.commands.excel2json.lists.utils import get_all_languages_for_columns
+from dsp_tools.commands.excel2json.lists.utils import get_column_info
+from dsp_tools.commands.excel2json.lists.utils import get_columns_of_preferred_lang
+from dsp_tools.commands.excel2json.lists.utils import get_hierarchy_nums
+from dsp_tools.commands.excel2json.lists.utils import get_lang_string_from_column_name
+from dsp_tools.commands.excel2json.lists.utils import get_preferred_language_from_columns
 from dsp_tools.models.exceptions import InputError
 
 

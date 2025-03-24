@@ -4,7 +4,7 @@ from typing import Protocol
 from urllib.parse import quote_plus
 
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.exceptions import UserError
+from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.connection import Connection
 
 
@@ -64,7 +64,7 @@ def _get_project_iri_from_server(con: Connection, shortcode: str) -> str:
     try:
         res = con.get(url)
     except BaseError as e:
-        raise UserError(f"A project with shortcode {shortcode} could not be found on the DSP server") from e
+        raise InputError(f"A project with shortcode {shortcode} could not be found on the DSP server") from e
 
     iri: str | None = res.get("project", {}).get("id")
     if not iri:

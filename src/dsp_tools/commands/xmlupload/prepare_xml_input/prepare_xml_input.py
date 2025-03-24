@@ -35,7 +35,6 @@ from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InputError
-from dsp_tools.models.exceptions import UserError
 from dsp_tools.models.projectContext import ProjectContext
 from dsp_tools.utils.connection import Connection
 
@@ -169,13 +168,13 @@ def _get_project_context_from_server(connection: Connection, shortcode: str) -> 
         Project context
 
     Raises:
-        UserError: If the project was not previously uploaded on the server
+        InputError: If the project was not previously uploaded on the server
     """
     try:
         proj_context = ProjectContext(con=connection, shortcode=shortcode)
     except BaseError:
         logger.exception("Unable to retrieve project context from DSP server")
-        raise UserError("Unable to retrieve project context from DSP server") from None
+        raise InputError("Unable to retrieve project context from DSP server") from None
     return proj_context
 
 

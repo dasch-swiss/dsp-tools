@@ -13,8 +13,8 @@ from dsp_tools.commands.project.create.project_validate import _check_for_undefi
 from dsp_tools.commands.project.create.project_validate import _collect_link_properties
 from dsp_tools.commands.project.create.project_validate import _identify_problematic_cardinalities
 from dsp_tools.commands.project.create.project_validate import validate_project
-from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.error.exceptions import BaseError
+from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.shared import parse_json_input
 
 

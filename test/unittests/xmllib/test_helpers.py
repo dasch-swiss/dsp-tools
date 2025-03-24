@@ -4,7 +4,7 @@ import pandas as pd
 import pytest
 import regex
 
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.error.exceptions import InputError
 from dsp_tools.xmllib.helpers import create_footnote_string
 from dsp_tools.xmllib.helpers import create_list_from_string
 from dsp_tools.xmllib.helpers import create_non_empty_list_from_string

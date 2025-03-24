@@ -6,7 +6,7 @@ from pathlib import Path
 from lxml import etree
 
 from dsp_tools.commands.validate_data.constants import KNORA_API_STR
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.xml_parsing.models.data_deserialised import XMLProject
 from dsp_tools.utils.xml_parsing.parse_xml import parse_xml_file
 from dsp_tools.utils.xml_parsing.transform import remove_comments_from_element_tree

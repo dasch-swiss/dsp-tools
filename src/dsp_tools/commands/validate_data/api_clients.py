@@ -11,7 +11,7 @@ from dsp_tools.commands.validate_data.models.api_responses import AllProjectList
 from dsp_tools.commands.validate_data.models.api_responses import OneList
 from dsp_tools.commands.validate_data.models.api_responses import SHACLValidationReport
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
-from dsp_tools.models.exceptions import InternalError
+from dsp_tools.error.exceptions import InternalError
 from dsp_tools.utils.request_utils import PostFile
 from dsp_tools.utils.request_utils import PostFiles
 from dsp_tools.utils.request_utils import RequestParameters

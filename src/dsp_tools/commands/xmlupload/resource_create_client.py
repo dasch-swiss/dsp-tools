@@ -6,7 +6,7 @@ from typing import cast
 from pyld import jsonld
 from rdflib import Graph
 
-from dsp_tools.utils.connection import Connection
+from dsp_tools.clients.connection import Connection
 
 
 @dataclass(frozen=True)

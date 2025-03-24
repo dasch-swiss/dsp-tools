@@ -9,8 +9,8 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontol
     do_xml_consistency_check_with_ontology,
 )
 from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClientLive
-from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.error.exceptions import BaseError
+from dsp_tools.error.exceptions import InputError
 from test.integration.commands.xmlupload.connection_mock import ConnectionMockBase
 
 

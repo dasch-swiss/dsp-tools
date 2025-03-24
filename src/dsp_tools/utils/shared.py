@@ -12,7 +12,7 @@ import pandas as pd
 import regex
 
 from dsp_tools.commands.excel2xml.propertyelement import PropertyElement
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.error.exceptions import BaseError
 
 
 def simplify_name(value: str) -> str:

@@ -15,7 +15,7 @@ from dsp_tools.commands.excel2json.models.input_error import InvalidSheetNamePro
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import RequiredColumnMissingProblem
 from dsp_tools.commands.excel2json.models.ontology import LanguageDict
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.error.exceptions import InputError
 
 languages = ["en", "de", "fr", "it", "rm"]
 

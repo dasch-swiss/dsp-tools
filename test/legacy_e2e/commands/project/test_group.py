@@ -5,12 +5,12 @@ from typing import cast
 
 import pytest
 
+from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
+from dsp_tools.clients.connection import Connection
+from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.commands.project.legacy_models.group import Group
-from dsp_tools.models.langstring import LangString
-from dsp_tools.models.langstring import Languages
-from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
-from dsp_tools.utils.connection import Connection
-from dsp_tools.utils.connection_live import ConnectionLive
+from dsp_tools.legacy_models.langstring import LangString
+from dsp_tools.legacy_models.langstring import Languages
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
 

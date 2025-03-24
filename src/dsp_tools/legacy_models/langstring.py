@@ -4,7 +4,7 @@ from typing import Any
 from typing import Optional
 from typing import Union
 
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.error.exceptions import BaseError
 
 
 @unique

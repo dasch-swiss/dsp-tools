@@ -8,7 +8,7 @@ from dsp_tools.commands.excel2json.lists.utils import get_columns_of_preferred_l
 from dsp_tools.commands.excel2json.lists.utils import get_hierarchy_nums
 from dsp_tools.commands.excel2json.lists.utils import get_lang_string_from_column_name
 from dsp_tools.commands.excel2json.lists.utils import get_preferred_language_from_columns
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.error.exceptions import InputError
 
 
 def test_get_lang_string_good() -> None:

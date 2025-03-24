@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 
+from dsp_tools.clients.legal_info_client import LegalInfoClient
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClient
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
-from dsp_tools.utils.legal_info_client import LegalInfoClient
 
 
 @dataclass(frozen=True)

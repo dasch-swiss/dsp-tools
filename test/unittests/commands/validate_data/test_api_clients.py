@@ -6,7 +6,7 @@ import pytest
 
 from dsp_tools.commands.validate_data.api_clients import ListClient
 from dsp_tools.commands.validate_data.api_clients import OntologyClient
-from dsp_tools.models.exceptions import InternalError
+from dsp_tools.error.exceptions import InternalError
 
 
 @pytest.fixture

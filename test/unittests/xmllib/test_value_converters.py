@@ -3,7 +3,7 @@ from typing import Any
 import pandas as pd
 import pytest
 
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.error.exceptions import InputError
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.value_converters import convert_to_bool
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags

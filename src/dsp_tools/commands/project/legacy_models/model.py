@@ -1,4 +1,4 @@
-from dsp_tools.utils.connection import Connection
+from dsp_tools.clients.connection import Connection
 
 
 class Model:

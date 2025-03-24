@@ -9,7 +9,7 @@ from dsp_tools.commands.excel2json.lists import excel2lists
 from dsp_tools.commands.excel2json.new_lists.make_new_lists import new_excel2lists
 from dsp_tools.commands.excel2json.properties import excel2properties
 from dsp_tools.commands.excel2json.resources import excel2resources
-from dsp_tools.models.exceptions import UserError
+from dsp_tools.models.exceptions import InputError
 
 
 def excel2json(
@@ -38,7 +38,7 @@ def excel2json(
         path_to_output_file: path to the file where the output JSON file will be saved
 
     Raises:
-        UserError: if something went wrong
+        InputError: if something went wrong
         BaseError: if something went wrong
 
     Returns:
@@ -59,7 +59,7 @@ def excel2json(
 
 def _validate_folder_structure_get_filenames(data_model_files: str) -> tuple[list[Path], list[Path]]:
     if not Path(data_model_files).is_dir():
-        raise UserError(f"ERROR: {data_model_files} is not a directory.")
+        raise InputError(f"ERROR: {data_model_files} is not a directory.")
     sub_folders = [x for x in Path(data_model_files).glob("*") if _non_hidden(x) and x.is_dir()]
     files_to_process = []
     onto_folders, onto_files_to_process = _get_and_validate_onto_folder(Path(data_model_files), sub_folders)
@@ -67,7 +67,7 @@ def _validate_folder_structure_get_filenames(data_model_files: str) -> tuple[lis
     listfolder, lists_to_process = _get_validate_list_folder(data_model_files, sub_folders)
     files_to_process.extend(lists_to_process)
     if len(onto_folders) + len(listfolder) != len(sub_folders):
-        raise UserError(
+        raise InputError(
             f"The only allowed subfolders in '{data_model_files}' are 'lists' "
             "and folders that match the pattern 'onto_name (onto_label)'"
         )
@@ -84,7 +84,7 @@ def _get_validate_list_folder(data_model_files: str, folder: list[Path]) -> tupl
     if listfolder:
         listfolder_contents = [x for x in Path(listfolder[0]).glob("*") if _non_hidden(x)]
         if not all(regex.search(r"(de|en|fr|it|rm).xlsx", file.name) for file in listfolder_contents):
-            raise UserError(
+            raise InputError(
                 f"The only files allowed in '{data_model_files}/lists' are en.xlsx, de.xlsx, fr.xlsx, it.xlsx, rm.xlsx"
             )
         processed_files = [f"{data_model_files}/lists/{file.name}" for file in listfolder_contents]
@@ -137,7 +137,7 @@ def new_excel2json(
 
 def _new_validate_folder_structure_and_get_filenames(data_model_files: Path) -> tuple[Path | None, list[Path]]:
     if not data_model_files.is_dir():
-        raise UserError(f"ERROR: {data_model_files} is not a directory.")
+        raise InputError(f"ERROR: {data_model_files} is not a directory.")
     folder = [x for x in data_model_files.glob("*") if _non_hidden(x)]
     processed_files = []
     onto_folders, processed_onto = _get_and_validate_onto_folder(data_model_files, folder)
@@ -153,13 +153,13 @@ def _get_and_validate_onto_folder(data_model_files: Path, folder: list[Path]) ->
     processed_files = []
     onto_folders = [x for x in folder if x.is_dir() and regex.search(r"([\w.-]+) \(([\w.\- ]+)\)", x.name)]
     if not onto_folders:
-        raise UserError(
+        raise InputError(
             f"'{data_model_files}' must contain at least one subfolder named after the pattern 'onto_name (onto_label)'"
         )
     for onto_folder in onto_folders:
         contents = sorted([x.name for x in Path(onto_folder).glob("*") if _non_hidden(x)])
         if contents != ["properties.xlsx", "resources.xlsx"]:
-            raise UserError(
+            raise InputError(
                 f"ERROR: '{data_model_files}/{onto_folder.name}' must contain one file 'properties.xlsx' "
                 "and one file 'resources.xlsx', but nothing else."
             )

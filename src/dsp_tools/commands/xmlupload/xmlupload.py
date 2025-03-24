@@ -66,7 +66,7 @@ def xmlupload(
 
     Raises:
         BaseError: in case of permanent network or software failure
-        UserError: in case of permanent network or software failure, or if the XML file is invalid
+        InputError: in case of permanent network or software failure, or if the XML file is invalid
         InputError: in case of permanent network or software failure, or if the XML file is invalid
 
     Returns:

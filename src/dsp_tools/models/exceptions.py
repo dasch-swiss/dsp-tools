@@ -56,16 +56,7 @@ class PermissionNotExistsError(BaseError):
 
 
 class InputError(BaseError):
-    """Class for errors that is called when the user input is invalid."""
-
-
-class UserError(BaseError):
-    """
-    Class for errors that are intended for user feedback.
-    Typically, a UserError is raised when the execution of a program must be interrupted
-    due to a bad condition in the input data that prevents further processing.
-    The message should be as user-friendly as possible.
-    """
+    """This error is raised when the user input is invalid. The message should be as user-friendly as possible."""
 
 
 class PermanentConnectionError(BaseError):

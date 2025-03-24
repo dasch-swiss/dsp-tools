@@ -5,7 +5,7 @@ from lxml import etree
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.error.exceptions import XmlUploadError
-from dsp_tools.models.projectContext import ProjectContext
+from dsp_tools.legacy_models.projectContext import ProjectContext
 
 
 class XmlPermission:

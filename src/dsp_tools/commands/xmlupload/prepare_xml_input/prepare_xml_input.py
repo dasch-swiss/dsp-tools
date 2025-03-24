@@ -31,7 +31,7 @@ from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
-from dsp_tools.models.projectContext import ProjectContext
+from dsp_tools.legacy_models.projectContext import ProjectContext
 from dsp_tools.utils.connection import Connection
 
 LIST_SEPARATOR = "\n-    "

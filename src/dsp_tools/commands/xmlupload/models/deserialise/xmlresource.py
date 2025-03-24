@@ -11,7 +11,7 @@ from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XM
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.error.exceptions import XmlUploadError
-from dsp_tools.models.datetimestamp import DateTimeStamp
+from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 
 COMPOSITE_PROPS = (
     "boolean-prop",

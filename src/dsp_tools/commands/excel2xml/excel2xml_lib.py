@@ -21,7 +21,7 @@ from regex import Match
 from dsp_tools.commands.excel2xml.propertyelement import PropertyElement
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import BaseError
-from dsp_tools.models.datetimestamp import DateTimeStamp
+from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 from dsp_tools.utils.date_util import is_full_date
 from dsp_tools.utils.shared import check_notna
 from dsp_tools.utils.shared import simplify_name

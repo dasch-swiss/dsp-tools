@@ -2,8 +2,8 @@ import pytest
 
 from dsp_tools.commands.project.legacy_models.ontology import Ontology
 from dsp_tools.commands.project.legacy_models.propertyclass import PropertyClass
-from dsp_tools.models.langstring import LangString
-from dsp_tools.models.langstring import Languages
+from dsp_tools.legacy_models.langstring import LangString
+from dsp_tools.legacy_models.langstring import Languages
 from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
 from dsp_tools.utils.connection_live import ConnectionLive
 

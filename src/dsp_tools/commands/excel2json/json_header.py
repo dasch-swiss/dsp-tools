@@ -29,7 +29,7 @@ from dsp_tools.commands.excel2json.utils import find_missing_required_values
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.problems import Problem
-from dsp_tools.utils.uri_util import is_uri
+from dsp_tools.utils.date_formats.uri_util import is_uri
 
 
 def get_json_header(excel_filepath: Path) -> JsonHeader:

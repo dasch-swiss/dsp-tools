@@ -4,7 +4,7 @@ import requests
 
 from dsp_tools.commands.xmlupload.models.input_problems import AllIIIFUriProblems
 from dsp_tools.commands.xmlupload.models.input_problems import IIIFUriProblem
-from dsp_tools.utils.uri_util import is_iiif_uri
+from dsp_tools.utils.date_formats.uri_util import is_iiif_uri
 
 
 @dataclass(frozen=True)

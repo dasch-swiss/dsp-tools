@@ -35,10 +35,10 @@ from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 from dsp_tools.config.logger_config import WARNINGS_SAVEPATH
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
-from dsp_tools.utils.date_util import DayMonthYearEra
-from dsp_tools.utils.date_util import SingleDate
-from dsp_tools.utils.date_util import StartEnd
-from dsp_tools.utils.iri_util import is_resource_iri
+from dsp_tools.utils.date_formats.date_util import DayMonthYearEra
+from dsp_tools.utils.date_formats.date_util import SingleDate
+from dsp_tools.utils.date_formats.date_util import StartEnd
+from dsp_tools.utils.date_formats.iri_util import is_resource_iri
 
 LiteralValueTypesAlias: TypeAlias = Union[
     IntermediaryBoolean,

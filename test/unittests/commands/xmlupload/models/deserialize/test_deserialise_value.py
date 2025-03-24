@@ -7,7 +7,7 @@ from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import _c
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import _cleanup_unformatted_text
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import _extract_formatted_text_from_node
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
-from dsp_tools.models.exceptions import XmlUploadError
+from dsp_tools.error.exceptions import XmlUploadError
 
 
 class Test_XMLProperty:

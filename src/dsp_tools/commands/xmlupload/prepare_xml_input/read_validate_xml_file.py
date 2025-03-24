@@ -5,7 +5,7 @@ from pathlib import Path
 import regex
 from lxml import etree
 
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.iri_util import is_resource_iri
 from dsp_tools.utils.xml_parsing.parse_xml import parse_xml_file
 from dsp_tools.utils.xml_parsing.transform import remove_comments_from_element_tree

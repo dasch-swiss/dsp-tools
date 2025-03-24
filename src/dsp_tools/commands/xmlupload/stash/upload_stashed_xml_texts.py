@@ -13,7 +13,7 @@ from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStashItem
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.error.exceptions import BaseError
 from dsp_tools.utils.connection import Connection
 
 

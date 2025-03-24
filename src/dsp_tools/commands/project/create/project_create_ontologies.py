@@ -10,9 +10,9 @@ from dsp_tools.commands.project.legacy_models.ontology import Ontology
 from dsp_tools.commands.project.legacy_models.project import Project
 from dsp_tools.commands.project.legacy_models.propertyclass import PropertyClass
 from dsp_tools.commands.project.legacy_models.resourceclass import ResourceClass
+from dsp_tools.error.exceptions import BaseError
+from dsp_tools.error.exceptions import InputError
 from dsp_tools.models.datetimestamp import DateTimeStamp
-from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.langstring import LangString
 from dsp_tools.utils.connection import Connection
 

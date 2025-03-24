@@ -24,7 +24,7 @@ from urllib.parse import quote_plus
 from dsp_tools.commands.project.legacy_models.group import Group
 from dsp_tools.commands.project.legacy_models.model import Model
 from dsp_tools.commands.project.legacy_models.project import Project
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.error.exceptions import BaseError
 from dsp_tools.models.langstring import Languages
 from dsp_tools.utils.connection import Connection
 

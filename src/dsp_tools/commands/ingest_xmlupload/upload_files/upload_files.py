@@ -10,7 +10,7 @@ from dsp_tools.commands.ingest_xmlupload.upload_files.filechecker import check_f
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailure
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailures
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import validate_and_parse
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
 
 

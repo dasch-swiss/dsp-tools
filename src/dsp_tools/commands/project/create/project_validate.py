@@ -12,8 +12,8 @@ import jsonschema
 import networkx as nx
 import regex
 
-from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.error.exceptions import BaseError
+from dsp_tools.error.exceptions import InputError
 
 
 def validate_project(input_file_or_json: Union[dict[str, Any], str]) -> bool:

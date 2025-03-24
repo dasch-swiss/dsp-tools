@@ -32,8 +32,8 @@ from dsp_tools.commands.xmlupload.models.intermediary.values import Intermediary
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
-from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.error.exceptions import BaseError
+from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.date_util import DayMonthYearEra
 from dsp_tools.utils.date_util import SingleDate
 from dsp_tools.utils.date_util import StartEnd

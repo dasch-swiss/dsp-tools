@@ -6,7 +6,7 @@ import regex
 
 from dsp_tools.commands.project.legacy_models.helpers import ContextType
 from dsp_tools.commands.project.legacy_models.helpers import OntoIri
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.error.exceptions import BaseError
 from dsp_tools.utils.iri_util import is_iri
 
 

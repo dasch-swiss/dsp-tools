@@ -7,7 +7,7 @@ import pytest
 import regex
 
 from dsp_tools.commands.excel2json.lists.make_lists import excel2lists
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.error.exceptions import InputError
 
 
 @pytest.fixture

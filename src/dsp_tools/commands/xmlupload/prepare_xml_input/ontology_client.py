@@ -3,8 +3,8 @@ from dataclasses import field
 from typing import Any
 from typing import Protocol
 
-from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.error.exceptions import BaseError
+from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.connection import Connection
 
 

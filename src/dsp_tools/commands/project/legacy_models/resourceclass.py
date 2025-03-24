@@ -18,8 +18,8 @@ import regex
 from dsp_tools.commands.project.legacy_models.context import Context
 from dsp_tools.commands.project.legacy_models.helpers import Cardinality
 from dsp_tools.commands.project.legacy_models.model import Model
+from dsp_tools.error.exceptions import BaseError
 from dsp_tools.models.datetimestamp import DateTimeStamp
-from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.langstring import LangString
 from dsp_tools.utils.connection import Connection
 

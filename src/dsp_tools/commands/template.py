@@ -2,7 +2,7 @@ import importlib.resources
 import shutil
 from pathlib import Path
 
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.error.exceptions import InputError
 
 
 def generate_template_repo() -> bool:

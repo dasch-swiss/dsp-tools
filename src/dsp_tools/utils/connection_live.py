@@ -12,8 +12,8 @@ from requests import RequestException
 from requests import Response
 from requests import Session
 
-from dsp_tools.models.exceptions import InvalidInputError
-from dsp_tools.models.exceptions import PermanentConnectionError
+from dsp_tools.error.exceptions import InvalidInputError
+from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.utils.authentication_client import AuthenticationClient
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.logger_config import WARNINGS_SAVEPATH

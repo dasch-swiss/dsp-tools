@@ -5,7 +5,7 @@ from loguru import logger
 
 from dsp_tools.commands.project.models.project_definition import ProjectDefinition
 from dsp_tools.commands.project.models.project_definition import ProjectMetadata
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.error.exceptions import InputError
 
 
 def parse_project_json(

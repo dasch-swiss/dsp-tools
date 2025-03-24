@@ -5,8 +5,8 @@ from typing import Any
 import pandas as pd
 import regex
 
-from dsp_tools.commands.excel2json.new_lists.models.deserialise import ColumnNodes
-from dsp_tools.commands.excel2json.new_lists.models.deserialise import Columns
+from dsp_tools.commands.excel2json.lists.models.deserialise import ColumnNodes
+from dsp_tools.commands.excel2json.lists.models.deserialise import Columns
 from dsp_tools.models.exceptions import InputError
 
 

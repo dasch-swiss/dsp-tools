@@ -29,7 +29,7 @@ class TestCreateLists(unittest.TestCase):
         )
 
         # insert a "lists" section into the project that was created
-        with open("testdata/excel2json/lists-multilingual-output-expected.json", encoding="utf-8") as f:
+        with open("testdata/excel2json/old-lists-multilingual-output-expected.json", encoding="utf-8") as f:
             lists_section = json.load(f)
         with open(self.test_project_minimal_file, encoding="utf-8") as f:
             test_project_minimal = json.load(f)

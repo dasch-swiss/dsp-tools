@@ -2,7 +2,7 @@ import pytest
 from pytest_unordered import unordered
 
 from dsp_tools.commands.project.create.parse_project import _rectify_hlist_of_properties
-from dsp_tools.models.exceptions import UserError
+from dsp_tools.models.exceptions import InputError
 
 
 def test_rectify_hlist_of_properties() -> None:
@@ -64,7 +64,7 @@ def test_rectify_hlist_of_properties_nonexisting_list() -> None:
         }
     ]
     with pytest.raises(
-        UserError,
+        InputError,
         match=r"Property 'hasList1' references an unknown list: 'Nonexisting list'",
     ):
         _rectify_hlist_of_properties(

@@ -2,7 +2,7 @@ import pytest
 from pytest_unordered import unordered
 
 from dsp_tools.commands.project.create.parse_project import _rectify_hlist_of_properties
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.error.exceptions import InputError
 
 
 def test_rectify_hlist_of_properties() -> None:

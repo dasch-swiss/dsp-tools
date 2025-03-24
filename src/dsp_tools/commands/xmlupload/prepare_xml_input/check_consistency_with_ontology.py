@@ -16,7 +16,7 @@ from dsp_tools.commands.xmlupload.models.lookup_models import make_project_onto_
 from dsp_tools.commands.xmlupload.models.ontology_problem_models import InvalidOntologyElementsInData
 from dsp_tools.commands.xmlupload.models.ontology_problem_models import InvalidTextValueEncodings
 from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClient
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.error.exceptions import InputError
 
 defaultOntologyColon: Pattern[str] = regex.compile(r"^:\w+$")
 knoraUndeclared: Pattern[str] = regex.compile(r"^\w+$")

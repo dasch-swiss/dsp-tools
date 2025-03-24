@@ -7,7 +7,7 @@ import regex
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml import ingest_xmlupload
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.error.exceptions import InputError
 
 
 @pytest.fixture(autouse=True)

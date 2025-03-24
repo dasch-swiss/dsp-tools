@@ -2,7 +2,7 @@ import pytest
 import regex
 from lxml import etree
 
-from dsp_tools.models.custom_warnings import DspToolsUserWarning
+from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.utils.xml_parsing.xml_schema_validation import _warn_user_about_tags_in_simpletext
 
 

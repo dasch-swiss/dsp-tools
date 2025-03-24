@@ -1,6 +1,6 @@
 import pytest
 
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.error.exceptions import BaseError
 from dsp_tools.utils.date_util import Calendar
 from dsp_tools.utils.date_util import Date
 from dsp_tools.utils.date_util import Era

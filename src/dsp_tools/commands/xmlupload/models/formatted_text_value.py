@@ -5,7 +5,7 @@ from dataclasses import dataclass
 import regex
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.error.exceptions import BaseError
 
 
 @dataclass

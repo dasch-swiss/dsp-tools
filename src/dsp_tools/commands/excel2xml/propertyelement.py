@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Optional
 from typing import Union
 
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.error.exceptions import BaseError
 
 # ruff: noqa: E501 (line-too-long)
 

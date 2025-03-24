@@ -8,7 +8,7 @@ import regex
 from loguru import logger
 from lxml import etree
 
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.xml_parsing.parse_and_transform import parse_and_clean_xml_file
 
 

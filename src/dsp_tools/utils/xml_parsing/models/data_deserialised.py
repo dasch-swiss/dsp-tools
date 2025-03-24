@@ -8,7 +8,7 @@ from uuid import uuid4
 
 from lxml import etree
 
-from dsp_tools.models.datetimestamp import DateTimeStamp
+from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 
 
 @dataclass

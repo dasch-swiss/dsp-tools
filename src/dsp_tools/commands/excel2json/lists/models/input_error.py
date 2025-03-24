@@ -10,7 +10,7 @@ from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import grand_separator
 from dsp_tools.commands.excel2json.models.input_error import list_separator
 from dsp_tools.commands.excel2json.models.input_error import medium_separator
-from dsp_tools.models.problems import Problem
+from dsp_tools.error.problems import Problem
 
 
 @dataclass(frozen=True)

@@ -8,7 +8,7 @@ from dsp_tools.commands.excel2json.json_header import get_json_header
 from dsp_tools.commands.excel2json.models.json_header import EmptyJsonHeader
 from dsp_tools.commands.excel2json.models.json_header import FilledJsonHeader
 from dsp_tools.commands.excel2json.models.json_header import JsonHeader
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.error.exceptions import InputError
 
 
 @pytest.fixture

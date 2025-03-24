@@ -1,8 +1,8 @@
 import pytest
 
 from dsp_tools.commands.project.legacy_models.project import Project
-from dsp_tools.models.langstring import LangString
-from dsp_tools.models.langstring import Languages
+from dsp_tools.legacy_models.langstring import LangString
+from dsp_tools.legacy_models.langstring import Languages
 from test.integration.commands.xmlupload.connection_mock import ConnectionMockBase
 
 

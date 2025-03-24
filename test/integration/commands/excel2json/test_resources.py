@@ -7,8 +7,8 @@ import regex
 from pytest_unordered import unordered
 
 from dsp_tools.commands.excel2json import resources as e2j
-from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.error.exceptions import BaseError
+from dsp_tools.error.exceptions import InputError
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
 

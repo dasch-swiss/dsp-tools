@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from dsp_tools.models.problems import Problem
+from dsp_tools.error.problems import Problem
 
 
 @dataclass

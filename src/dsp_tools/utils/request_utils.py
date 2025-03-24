@@ -15,7 +15,7 @@ from requests import JSONDecodeError
 from requests import ReadTimeout
 from requests import Response
 
-from dsp_tools.models.exceptions import PermanentTimeOutError
+from dsp_tools.error.exceptions import PermanentTimeOutError
 from dsp_tools.utils.set_encoder import SetEncoder
 
 

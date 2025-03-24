@@ -32,7 +32,7 @@ from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.lookup_models import JSONLDContext
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.error.exceptions import BaseError
 from dsp_tools.utils.date_util import Calendar
 from dsp_tools.utils.date_util import Date
 from dsp_tools.utils.date_util import Era

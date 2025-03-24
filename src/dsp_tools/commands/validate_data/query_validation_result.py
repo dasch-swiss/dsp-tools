@@ -28,7 +28,7 @@ from dsp_tools.commands.validate_data.models.validation import ViolationType
 from dsp_tools.commands.validate_data.utils import reformat_any_iri
 from dsp_tools.commands.validate_data.utils import reformat_data_iri
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.error.exceptions import BaseError
 
 LEGAL_INFO_PROPS = {KNORA_API.hasLicense, KNORA_API.hasCopyrightHolder, KNORA_API.hasAuthorship}
 

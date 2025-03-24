@@ -6,7 +6,7 @@ import regex
 from lxml import etree
 from namedentities.core import numeric_entities  # type: ignore[import-untyped]
 
-from dsp_tools.models.custom_warnings import DspToolsUserWarning
+from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.xmllib.constants import KNOWN_XML_TAGS
 from dsp_tools.xmllib.internal_helpers import escape_reserved_xml_chars
 from dsp_tools.xmllib.models.problems import IllegalTagProblem

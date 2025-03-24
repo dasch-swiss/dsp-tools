@@ -5,7 +5,7 @@ from typing import cast
 from lxml import etree
 from namedentities.core import numeric_entities  # type: ignore[import-untyped]
 
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.error.exceptions import InputError
 from dsp_tools.xmllib.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.constants import XML_NAMESPACE_MAP
 from dsp_tools.xmllib.helpers import escape_reserved_xml_characters

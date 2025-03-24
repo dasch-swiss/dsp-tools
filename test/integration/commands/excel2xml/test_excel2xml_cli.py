@@ -4,7 +4,7 @@ import pytest
 import regex
 
 from dsp_tools.commands.excel2xml import excel2xml_cli
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.error.exceptions import BaseError
 
 INVALID_EXCEL_DIRECTORY = "testdata/invalid-testdata/excel2xml"
 

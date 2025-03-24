@@ -7,7 +7,7 @@ from typing import Any
 from typing import Protocol
 
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
-from dsp_tools.utils.uri_util import is_iiif_uri
+from dsp_tools.utils.data_formats.uri_util import is_iiif_uri
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.value_checkers import is_string_like
 

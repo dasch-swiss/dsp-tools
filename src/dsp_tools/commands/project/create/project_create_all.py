@@ -22,7 +22,7 @@ from dsp_tools.commands.project.models.project_definition import ProjectMetadata
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.legacy_models.langstring import LangString
-from dsp_tools.utils.shared import parse_json_input
+from dsp_tools.utils.json_parsing import parse_json_input
 
 
 def create_project(

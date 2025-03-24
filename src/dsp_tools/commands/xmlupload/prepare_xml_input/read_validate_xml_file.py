@@ -5,7 +5,7 @@ from pathlib import Path
 import regex
 from lxml import etree
 
-from dsp_tools.models.exceptions import UserError
+from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.iri_util import is_resource_iri
 from dsp_tools.utils.xml_parsing.parse_xml import parse_xml_file
 from dsp_tools.utils.xml_parsing.transform import remove_comments_from_element_tree
@@ -59,14 +59,14 @@ def _check_if_link_targets_exist(root: etree._Element) -> None:
         root: parsed XML file
 
     Raises:
-        UserError: if a link target does not exist in the XML file
+        InputError: if a link target does not exist in the XML file
     """
     resptr_errors = _check_if_resptr_targets_exist(root)
     salsah_errors = _check_if_salsah_targets_exist(root)
     if errors := resptr_errors + salsah_errors:
         sep = "\n - "
         msg = f"It is not possible to upload the XML file, because it contains invalid links:{sep}{sep.join(errors)}"
-        raise UserError(msg)
+        raise InputError(msg)
 
 
 def _check_if_resptr_targets_exist(root: etree._Element) -> list[str]:
@@ -105,12 +105,12 @@ def check_if_bitstreams_exist(root: etree._Element, imgdir: str) -> None:
         imgdir: folder where the bitstreams are stored
 
     Raises:
-        UserError: if a bitstream does not exist in the imgdir
+        InputError: if a bitstream does not exist in the imgdir
     """
     multimedia_resources = [x for x in root if any((y.tag == "bitstream" for y in x.iter()))]
     for res in multimedia_resources:
         pth = next(Path(x.text.strip()) for x in res.iter() if x.tag == "bitstream" and x.text)
         if not Path(imgdir / pth).is_file():
-            raise UserError(
+            raise InputError(
                 f"Bitstream '{pth!s}' of resource '{res.attrib['label']}' does not exist in the imgdir '{imgdir}'."
             )

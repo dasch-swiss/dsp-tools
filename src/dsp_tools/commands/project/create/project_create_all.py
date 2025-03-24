@@ -17,7 +17,7 @@ from dsp_tools.commands.project.legacy_models.project import Project
 from dsp_tools.commands.project.legacy_models.user import User
 from dsp_tools.commands.project.models.project_definition import ProjectMetadata
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.exceptions import UserError
+from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.langstring import LangString
 from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
 from dsp_tools.utils.connection import Connection
@@ -43,7 +43,7 @@ def create_project(
         verbose: prints more information if set to True
 
     Raises:
-        UserError:
+        InputError:
           - if the project cannot be created
           - if the login fails
           - if an ontology cannot be created
@@ -172,7 +172,7 @@ def _create_project_on_server(
         con: connection to the DSP server
 
     Raises:
-        UserError: if the project cannot be created on the DSP server
+        InputError: if the project cannot be created on the DSP server
 
     Returns:
         a tuple of the remote project and the success status (True if everything went smoothly, False otherwise)
@@ -205,7 +205,7 @@ def _create_project_on_server(
             f"Cannot create project '{project_definition.shortname}' ({project_definition.shortcode}) on DSP server."
         )
         logger.exception(err_msg)
-        raise UserError(err_msg) from None
+        raise InputError(err_msg) from None
     print(f"    Created project '{project_remote.shortname}' ({project_remote.shortcode}).")
     logger.info(f"Created project '{project_remote.shortname}' ({project_remote.shortcode}).")
     return project_remote, success

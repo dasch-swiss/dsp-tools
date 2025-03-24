@@ -3,7 +3,7 @@ from typing import Any
 
 import pytest
 
-from dsp_tools.utils.connection import Connection
+from dsp_tools.clients.connection import Connection
 from dsp_tools.utils.request_utils import PostFiles
 
 # ruff: noqa: ARG002 (unused-method-argument)

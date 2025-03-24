@@ -7,6 +7,7 @@ from typing import Union
 
 import regex
 
+from dsp_tools.clients.connection import Connection
 from dsp_tools.commands.project.legacy_models.context import Context
 from dsp_tools.commands.project.legacy_models.helpers import WithId
 from dsp_tools.commands.project.legacy_models.listnode import ListNode
@@ -14,7 +15,6 @@ from dsp_tools.commands.project.legacy_models.model import Model
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 from dsp_tools.legacy_models.langstring import LangString
-from dsp_tools.utils.connection import Connection
 
 
 class PropertyClass(Model):

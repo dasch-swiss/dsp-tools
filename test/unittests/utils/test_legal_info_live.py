@@ -4,10 +4,10 @@ from unittest.mock import patch
 
 import pytest
 
+from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.utils.legal_info_client_live import HTTP_LACKING_PERMISSIONS
-from dsp_tools.utils.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.utils.request_utils import RequestParameters
 
 AUTH = Mock()

@@ -5,10 +5,10 @@ from typing import Any
 import requests
 from loguru import logger
 
+from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.exceptions import PermanentConnectionError
-from dsp_tools.utils.authentication_client import AuthenticationClient
 
 
 @dataclass

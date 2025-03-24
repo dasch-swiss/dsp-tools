@@ -12,12 +12,12 @@ from requests import Session
 from requests.adapters import HTTPAdapter
 from requests.adapters import Retry
 
+from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileValue
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import InvalidFileNameError
 from dsp_tools.error.exceptions import PermanentConnectionError
-from dsp_tools.utils.authentication_client import AuthenticationClient
 
 STATUS_OK = 200
 BAD_REQUEST = 400

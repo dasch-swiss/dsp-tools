@@ -6,13 +6,13 @@ from typing import cast
 
 from loguru import logger
 
+from dsp_tools.clients.connection import Connection
 from dsp_tools.commands.xmlupload.models.lookup_models import JSONLDContext
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.error.exceptions import BaseError
-from dsp_tools.utils.connection import Connection
 
 
 def upload_stashed_resptr_props(

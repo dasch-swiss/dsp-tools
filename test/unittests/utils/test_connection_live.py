@@ -15,9 +15,9 @@ import regex
 from requests import ReadTimeout
 from requests import RequestException
 
+from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.error.exceptions import PermanentTimeOutError
-from dsp_tools.utils.connection_live import ConnectionLive
 from dsp_tools.utils.request_utils import PostFile
 from dsp_tools.utils.request_utils import PostFiles
 from dsp_tools.utils.request_utils import RequestParameters

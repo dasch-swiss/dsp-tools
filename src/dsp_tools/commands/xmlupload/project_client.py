@@ -3,9 +3,9 @@ from dataclasses import field
 from typing import Protocol
 from urllib.parse import quote_plus
 
+from dsp_tools.clients.connection import Connection
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
-from dsp_tools.utils.connection import Connection
 
 
 @dataclass(frozen=True)

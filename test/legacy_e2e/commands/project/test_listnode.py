@@ -4,12 +4,12 @@ import unittest
 
 import pytest
 
+from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
+from dsp_tools.clients.connection import Connection
+from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.commands.project.legacy_models.listnode import ListNode
 from dsp_tools.legacy_models.langstring import LangString
 from dsp_tools.legacy_models.langstring import Languages
-from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
-from dsp_tools.utils.connection import Connection
-from dsp_tools.utils.connection_live import ConnectionLive
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
 

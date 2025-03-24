@@ -8,14 +8,14 @@ from rdflib import SH
 from rdflib import Graph
 
 from dsp_tools.commands.validate_data.api_connection import ApiConnection
-from dsp_tools.commands.validate_data.api_connection import OneFile
-from dsp_tools.commands.validate_data.api_connection import PostFiles
 from dsp_tools.commands.validate_data.models.api_responses import AllProjectLists
 from dsp_tools.commands.validate_data.models.api_responses import OneList
 from dsp_tools.commands.validate_data.models.api_responses import SHACLValidationReport
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
+from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import InternalError
-from dsp_tools.models.exceptions import UserError
+from dsp_tools.utils.request_utils import PostFile
+from dsp_tools.utils.request_utils import PostFiles
 
 
 @dataclass
@@ -54,10 +54,10 @@ class OntologyClient:
         msg = f"The response from the API does not contain any ontologies.\nAPI response:{response.text}"
         if not (proj := response_json.get("project")):
             logger.error(msg)
-            raise UserError(msg)
+            raise InputError(msg)
         if not (ontos := proj.get("ontologies")):
             logger.error(msg)
-            raise UserError(msg)
+            raise InputError(msg)
         output = cast(list[str], ontos)
         return output
 
@@ -217,9 +217,9 @@ class ShaclValidator:
     @staticmethod
     def _prepare_validation_files_for_request(data_graph: Graph, shacl_graph: Graph) -> PostFiles:
         shacl_str = shacl_graph.serialize(format="ttl")
-        shacl_file = OneFile(file_name="shacl.ttl", file_content=shacl_str, file_format="text/turtle")
+        shacl_file = PostFile(file_name="shacl.ttl", fileobj=shacl_str, content_type="text/turtle")
         data_str = data_graph.serialize(format="ttl")
-        data_file = OneFile(file_name="data.ttl", file_content=data_str, file_format="text/turtle")
+        data_file = PostFile(file_name="data.ttl", fileobj=data_str, content_type="text/turtle")
         return PostFiles([shacl_file, data_file])
 
     def _parse_validation_result(self, response_text: str) -> SHACLValidationReport:

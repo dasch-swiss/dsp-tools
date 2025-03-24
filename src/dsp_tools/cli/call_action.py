@@ -40,7 +40,7 @@ def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912 (t
 
     Raises:
         BaseError: from the called function
-        UserError: from the called function
+        InputError: from the called function
         unexpected errors from the called methods and underlying libraries
 
     Returns:

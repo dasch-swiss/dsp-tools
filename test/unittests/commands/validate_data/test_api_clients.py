@@ -7,8 +7,8 @@ import pytest
 from dsp_tools.commands.validate_data.api_clients import ListClient
 from dsp_tools.commands.validate_data.api_clients import OntologyClient
 from dsp_tools.commands.validate_data.api_connection import ApiConnection
+from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import InternalError
-from dsp_tools.models.exceptions import UserError
 
 
 @pytest.fixture
@@ -49,7 +49,7 @@ class TestOntologyConnection:
         mock_response.ok = True
         mock_response.json.return_value = {}
         with patch.object(ontology_connection.api_con, "get_with_endpoint", return_value=mock_response) as patched_get:
-            with pytest.raises(UserError):
+            with pytest.raises(InputError):
                 ontology_connection._get_ontology_iris()
             patched_get.assert_called_once_with(endpoint="admin/projects/shortcode/9999")
 

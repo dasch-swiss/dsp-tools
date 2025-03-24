@@ -5,7 +5,7 @@ from loguru import logger
 
 from dsp_tools.commands.project.models.project_definition import ProjectDefinition
 from dsp_tools.commands.project.models.project_definition import ProjectMetadata
-from dsp_tools.models.exceptions import UserError
+from dsp_tools.models.exceptions import InputError
 
 
 def parse_project_json(
@@ -64,7 +64,7 @@ def _rectify_hlist_of_properties(
         properties: "properties" section of one of the ontologies of the JSON project definition
 
     Raises:
-        UserError: if the "hlist" refers to no existing list name or label
+        InputError: if the "hlist" refers to no existing list name or label
 
     Returns:
         the rectified "properties" section
@@ -99,7 +99,7 @@ def _rectify_hlist_of_properties(
         else:
             msg = f"Property '{prop['name']}' references an unknown list: '{prop['gui_attributes']['hlist']}'"
             logger.error(msg)
-            raise UserError(f"ERROR: {msg}")
+            raise InputError(f"ERROR: {msg}")
         prop["gui_attributes"]["hlist"] = deduced_list_name
 
     return properties

@@ -9,7 +9,7 @@ from lxml import etree
 from dsp_tools.commands.xmlupload.stash.graph_models import InfoForGraph
 from dsp_tools.commands.xmlupload.stash.graph_models import LinkValueLink
 from dsp_tools.commands.xmlupload.stash.graph_models import StandOffLink
-from dsp_tools.utils.iri_util import is_resource_iri
+from dsp_tools.utils.data_formats.iri_util import is_resource_iri
 
 
 def create_info_from_xml_for_graph(

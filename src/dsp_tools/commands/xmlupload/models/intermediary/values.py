@@ -6,7 +6,7 @@ from typing import Union
 
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.permission import Permissions
-from dsp_tools.utils.date_util import Date
+from dsp_tools.utils.data_formats.date_util import Date
 
 
 @dataclass

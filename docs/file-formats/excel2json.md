@@ -31,7 +31,7 @@ data_model_files
 ├── json_header.xlsx (optional)
 ├── lists
 │   ├── list.xlsx
-│   └── list_1.xlsx
+│   └── grammar_lists.xlsx
 └── onto_name (onto_label)
     ├── properties.xlsx
     └── resources.xlsx

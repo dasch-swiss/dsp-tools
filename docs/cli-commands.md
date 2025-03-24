@@ -401,7 +401,7 @@ This command creates the "lists" section of a JSON project file from Excel files
 The Excel format for the `lists` section has been adapted compared to the previous `old-excel2lists` command.
 
 ```bash
-dsp-tools excel2lists excelfolder lists_section.json
+dsp-tools excel2lists [options] excelfolder lists_section.json
 ```
 
 The following options are available:

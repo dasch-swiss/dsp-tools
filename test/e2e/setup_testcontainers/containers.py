@@ -109,7 +109,7 @@ def _get_sipi(
         .with_volume_mapping(artifact_dirs.sipi_images, "/sipi/images", "rw")
     )
     sipi.start()
-    wait_for_logs(sipi, f"Sipi: Server listening on HTTP port {SIPI_INTERNAL_PORT}")
+    wait_for_logs(sipi, f"Server listening on HTTP port {SIPI_INTERNAL_PORT}")
     print("Sipi is ready")
     return sipi
 

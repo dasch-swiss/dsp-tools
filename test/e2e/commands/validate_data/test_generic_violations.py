@@ -11,7 +11,6 @@ from rdflib import URIRef
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
-from dsp_tools.commands.validate_data.api_connection import ApiConnection
 from dsp_tools.commands.validate_data.get_user_validation_message import _filter_out_duplicate_problems
 from dsp_tools.commands.validate_data.models.input_problems import ProblemType
 from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
@@ -47,77 +46,77 @@ def _create_projects(creds: ServerCredentials) -> None:
 
 
 @pytest.fixture(scope="module")
-def api_con(container_ports: ExternalContainerPorts) -> ApiConnection:
-    return ApiConnection(f"http://0.0.0.0:{container_ports.api}")
+def api_url(container_ports: ExternalContainerPorts) -> str:
+    return f"http://0.0.0.0:{container_ports.api}"
 
 
 @pytest.fixture(scope="module")
-def shacl_validator(api_con: ApiConnection) -> ShaclValidator:
-    return ShaclValidator(api_con)
+def shacl_validator(api_url: str) -> ShaclValidator:
+    return ShaclValidator(api_url)
 
 
 @pytest.fixture(scope="module")
 def unique_value_violation(
-    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+    _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/unique_value_violation.xml")
-    graphs = _get_parsed_graphs(api_con, file)
+    graphs = _get_parsed_graphs(api_url, file)
     return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
 def file_value_violation(
-    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+    _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/file_value_violation.xml")
-    graphs = _get_parsed_graphs(api_con, file)
+    graphs = _get_parsed_graphs(api_url, file)
     return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
 def dsp_inbuilt_violation(
-    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+    _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/dsp_inbuilt_violation.xml")
-    graphs = _get_parsed_graphs(api_con, file)
+    graphs = _get_parsed_graphs(api_url, file)
     return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
 def cardinality_violation(
-    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+    _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/cardinality_violation.xml")
-    graphs = _get_parsed_graphs(api_con, file)
+    graphs = _get_parsed_graphs(api_url, file)
     return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
 def content_violation(
-    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+    _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/content_violation.xml")
-    graphs = _get_parsed_graphs(api_con, file)
+    graphs = _get_parsed_graphs(api_url, file)
     return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
 def value_type_violation(
-    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+    _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/value_type_violation.xml")
     match = r"Angular brackets in the format of <text> were found in text properties with encoding=utf8"
     with pytest.warns(DspToolsUserWarning, match=match):
-        graphs = _get_parsed_graphs(api_con, file)
+        graphs = _get_parsed_graphs(api_url, file)
     return _get_validation_result(graphs, shacl_validator, None)
 
 
 @pytest.fixture(scope="module")
 def every_violation_combination_once(
-    _create_projects: Iterator[None], api_con: ApiConnection, shacl_validator: ShaclValidator
+    _create_projects: Iterator[None], api_url: str, shacl_validator: ShaclValidator
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/every_violation_combination_once.xml")
-    graphs = _get_parsed_graphs(api_con, file)
+    graphs = _get_parsed_graphs(api_url, file)
     return _get_validation_result(graphs, shacl_validator, None)
 
 
@@ -286,6 +285,7 @@ class TestReformatValidationGraph:
             ("bitstream_no_legal_info", ProblemType.GENERIC),
             ("bitstream_no_legal_info", ProblemType.GENERIC),
             ("bitstream_no_legal_info", ProblemType.GENERIC),
+            ("empty_license", ProblemType.GENERIC),
             ("id_archive_missing", ProblemType.FILE_VALUE),
             ("id_archive_unknown", ProblemType.FILE_VALUE),
             ("id_audio_missing", ProblemType.FILE_VALUE),
@@ -306,6 +306,7 @@ class TestReformatValidationGraph:
             ("image_no_legal_info", ProblemType.GENERIC),
             ("image_no_legal_info", ProblemType.GENERIC),
             ("image_no_legal_info", ProblemType.GENERIC),
+            ("inexistent_license_iri", ProblemType.GENERIC),
         ]
         assert not result.unexpected_results
         assert len(result.problems) == len(expected_info_tuples)
@@ -360,6 +361,7 @@ def test_extract_identifiers_of_resource_results(every_violation_combination_onc
         (URIRef("http://data/image_no_legal_info"), None),
         (URIRef("http://data/image_no_legal_info"), None),
         (URIRef("http://data/image_no_legal_info"), None),
+        (URIRef("http://data/inexistent_license_iri"), None),
         (URIRef("http://data/link_target_non_existent"), BNode),
         (URIRef("http://data/link_target_wrong_class"), BNode),
         (URIRef("http://data/list_node_non_existent"), BNode),
@@ -402,6 +404,7 @@ def test_reformat_every_constraint_once(every_violation_combination_once: Valida
         ("image_no_legal_info", ProblemType.GENERIC),
         ("image_no_legal_info", ProblemType.GENERIC),
         ("image_no_legal_info", ProblemType.GENERIC),
+        ("inexistent_license_iri", ProblemType.GENERIC),
         ("link_target_non_existent", ProblemType.INEXISTENT_LINKED_RESOURCE),
         ("link_target_wrong_class", ProblemType.LINK_TARGET_TYPE_MISMATCH),
         ("list_node_non_existent", ProblemType.GENERIC),

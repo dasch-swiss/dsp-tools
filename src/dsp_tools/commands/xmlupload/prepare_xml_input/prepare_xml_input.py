@@ -10,12 +10,13 @@ from lxml import etree
 
 from dsp_tools.commands.xmlupload.models.deserialise.xmlpermission import XmlPermission
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
+from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookups
+from dsp_tools.commands.xmlupload.models.lookup_models import JSONLDContext
 from dsp_tools.commands.xmlupload.models.lookup_models import get_json_ld_context_for_project
 from dsp_tools.commands.xmlupload.models.lookup_models import make_namespace_dict_from_onto_names
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
-from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontology import (
     do_xml_consistency_check_with_ontology,
 )
@@ -27,45 +28,35 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import identify_circular_references
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
-from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InputError
-from dsp_tools.models.exceptions import UserError
 from dsp_tools.models.projectContext import ProjectContext
 from dsp_tools.utils.connection import Connection
 
 LIST_SEPARATOR = "\n-    "
 
 
-def get_upload_state(
+def get_transformed_resources(
     resources: list[XMLResource],
     clients: UploadClients,
-    stash: Stash | None,
-    config: UploadConfig,
     permissions_lookup: dict[str, Permissions],
     authorship_lookup: dict[str, list[str]],
-) -> UploadState:
+) -> tuple[list[IntermediaryResource], JSONLDContext]:
     """
-    Transforms the XMLResources and creates the upload state.
+    From the XMLResource get the transformed resources.
 
     Args:
         resources: list of resources
         clients: clients to retrieve information from the API
-        stash: Stashed links and texts
-        config: upload config
         permissions_lookup: lookup for permissions
         authorship_lookup: lookup for authorship
 
     Returns:
-        Upload state
-
-    Raises:
-        InputError: If a resource could not be transformed, an error is raised.
+        The transformed resources and the json-ld context
     """
     project_onto_dict = clients.project_client.get_ontology_name_dict()
     listnode_lookup = clients.list_client.get_list_node_id_to_iri_lookup()
-    project_context = get_json_ld_context_for_project(project_onto_dict)
     namespaces = make_namespace_dict_from_onto_names(project_onto_dict)
     intermediary_lookups = IntermediaryLookups(
         permissions=permissions_lookup, listnodes=listnode_lookup, namespaces=namespaces, authorships=authorship_lookup
@@ -78,12 +69,8 @@ def get_upload_state(
             f"{LIST_SEPARATOR}{LIST_SEPARATOR.join(failures)}"
         )
         raise InputError(msg)
-    return UploadState(
-        pending_resources=result.transformed_resources,
-        pending_stash=stash,
-        config=config,
-        project_context=project_context,
-    )
+    project_context = get_json_ld_context_for_project(project_onto_dict)
+    return result.transformed_resources, project_context
 
 
 def prepare_upload_from_root(
@@ -154,13 +141,13 @@ def _get_project_context_from_server(connection: Connection, shortcode: str) -> 
         Project context
 
     Raises:
-        UserError: If the project was not previously uploaded on the server
+        InputError: If the project was not previously uploaded on the server
     """
     try:
         proj_context = ProjectContext(con=connection, shortcode=shortcode)
     except BaseError:
         logger.exception("Unable to retrieve project context from DSP server")
-        raise UserError("Unable to retrieve project context from DSP server") from None
+        raise InputError("Unable to retrieve project context from DSP server") from None
     return proj_context
 
 

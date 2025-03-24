@@ -1,7 +1,7 @@
 import pytest
 
-from dsp_tools.commands.excel2json.new_lists.models.serialise import ListNode
-from dsp_tools.commands.excel2json.new_lists.models.serialise import ListRoot
+from dsp_tools.commands.excel2json.lists.models.serialise import ListNode
+from dsp_tools.commands.excel2json.lists.models.serialise import ListRoot
 
 
 class TestListRoot:

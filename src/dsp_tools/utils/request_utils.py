@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import os
 import time
@@ -25,7 +27,7 @@ class RequestParameters:
     data: dict[str, Any] | None = None
     data_serialized: bytes | None = field(init=False, default=None)
     headers: dict[str, str] | None = None
-    files: dict[str, tuple[str, Any]] | None = None
+    files: PostFiles | None = None
 
     def __post_init__(self) -> None:
         self.data_serialized = self._serialize_payload(self.data)
@@ -36,14 +38,16 @@ class RequestParameters:
         return json.dumps(payload, cls=SetEncoder, ensure_ascii=False).encode("utf-8") if payload else None
 
     def as_kwargs(self) -> dict[str, Any]:
-        return {
+        kwargs = {
             "method": self.method,
             "url": self.url,
             "timeout": self.timeout,
             "data": self.data_serialized,
             "headers": self.headers,
-            "files": self.files,
         }
+        if self.files:
+            kwargs["files"] = self.files.to_dict()
+        return kwargs
 
 
 def log_request(params: RequestParameters, extra_headers: dict[str, Any] | None = None) -> None:
@@ -65,7 +69,7 @@ def log_request(params: RequestParameters, extra_headers: dict[str, Any] | None 
             data["password"] = "***"
         dumpobj["data"] = data
     if params.files:
-        dumpobj["files"] = params.files["file"][0]
+        dumpobj["files"] = [x.file_name for x in params.files.files]
     logger.debug(f"REQUEST: {json.dumps(dumpobj, cls=SetEncoder)}")
 
 
@@ -112,7 +116,7 @@ def log_and_raise_timeouts(error: TimeoutError | ReadTimeout) -> Never:
     """Log a timeout error raised by a request and raise our own PermanentTimeOutError"""
     msg = f"A '{error.__class__.__name__}' occurred during the connection to the DSP server."
     print(f"{datetime.now()}: {msg}")
-    logger.exception(msg)
+    logger.error(msg)
     raise PermanentTimeOutError(msg) from None
 
 
@@ -122,3 +126,25 @@ def should_retry(response: Response) -> bool:
     try_again_later = "try again later" in response.text.lower()
     in_testing_env = os.getenv("DSP_TOOLS_TESTING") == "true"  # set in .github/workflows/tests-on-push.yml
     return (try_again_later or in_500_range) and not in_testing_env
+
+
+@dataclass
+class PostFiles:
+    """One or more files to be uploaded in a POST request."""
+
+    files: list[PostFile]
+
+    def to_dict(self) -> dict[str, tuple[str, Any, str] | tuple[str, Any]]:
+        return {x.file_name: x.to_tuple() for x in self.files}
+
+
+@dataclass
+class PostFile:
+    file_name: str
+    fileobj: Any
+    content_type: str | None = None
+
+    def to_tuple(self) -> tuple[str, Any, str] | tuple[str, Any]:
+        if self.content_type:
+            return self.file_name, self.fileobj, self.content_type
+        return self.file_name, self.fileobj

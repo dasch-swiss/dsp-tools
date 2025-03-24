@@ -15,10 +15,11 @@ from packaging.version import parse
 from dsp_tools.cli.call_action import call_requested_action
 from dsp_tools.cli.create_parsers import make_parser
 from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import InternalError
-from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.ansi_colors import BOLD_RED
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.utils.logger_config import WARNINGS_SAVEPATH
 from dsp_tools.utils.logger_config import logger_config
 from dsp_tools.utils.warnings_config import initialize_warnings
 
@@ -40,7 +41,6 @@ def run(args: list[str]) -> None:
             excluding the leading "dsp-tools" command.
 
     Raises:
-        UserError: if user input was wrong
         InputError: if user input was wrong
         InternalError: if the user cannot fix it
     """
@@ -71,14 +71,16 @@ def run(args: list[str]) -> None:
         )
         success = call_requested_action(parsed_arguments)
     except BaseError as err:
-        logger.exception("The process was terminated because of an Error:")
-        print("\nThe process was terminated because of an Error:")
-        print(err.message)
-        sys.exit(1)
+        logger.error(f"The process was terminated because of an Error: {err.message}")
+        print(f"\n{BOLD_RED}The process was terminated because of an Error: {err.message}{RESET_TO_DEFAULT}")
+        success = False
     except Exception as err:  # noqa: BLE001 (blind-except)
         logger.exception(err)
         print(InternalError())
-        sys.exit(1)
+        success = False
+    finally:
+        if WARNINGS_SAVEPATH.is_file() and len(WARNINGS_SAVEPATH.read_bytes()) == 0:
+            WARNINGS_SAVEPATH.unlink()
 
     if not success:
         logger.error("Terminate without success")
@@ -226,7 +228,7 @@ def _get_canonical_server_and_dsp_ingest_url(
         default_dsp_ingest_url: default ingest server on localhost
 
     Raises:
-        UserError: if the DSP server URL passed by the user is invalid
+        InputError: if the DSP server URL passed by the user is invalid
 
     Returns:
         canonical DSP URL and ingest server URL
@@ -244,7 +246,7 @@ def _get_canonical_server_and_dsp_ingest_url(
         dsp_ingest_url = f"https://ingest.{remote_url_match.group(1)}.swiss"
     else:
         logger.error(f"Invalid DSP server URL '{server}'")
-        raise UserError(f"ERROR: Invalid DSP server URL '{server}'")
+        raise InputError(f"ERROR: Invalid DSP server URL '{server}'")
 
     logger.info(f"Using DSP server '{server}' and ingest server '{dsp_ingest_url}'")
     print(f"Using DSP server '{server}' and ingest server '{dsp_ingest_url}'")
@@ -269,7 +271,7 @@ def _derive_dsp_ingest_url(
         default_dsp_ingest_url: default ingest server on localhost
 
     Raises:
-        UserError: if the DSP server URL passed by the user is invalid
+        InputError: if the DSP server URL passed by the user is invalid
 
     Returns:
         the modified arguments

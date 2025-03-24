@@ -1,6 +1,9 @@
 from dataclasses import dataclass
 from pathlib import Path
 
+from dsp_tools.utils.ansi_colors import BOLD_RED
+from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+
 
 @dataclass
 class BaseError(Exception):
@@ -31,13 +34,12 @@ class InternalError(BaseError):
 
     def __init__(self, custom_msg: str | None = None, keep_default_msg: bool = True) -> None:
         default_msg = (
-            "\n\nAn internal error occurred.\n"
+            f"\n\n{BOLD_RED}An internal error occurred.{RESET_TO_DEFAULT}\n"
             "Please contact the dsp-tools development team with the following information:\n"
             "    - Which command was used.\n"
             "    - If applicable, any files that were used in conjunction with the command.\n"
-            "    - A file with the terminal output copied into.\n"
-            "    - The log files called 'logging.log', if there are several, include all.\n"
-            f"      They can be found at: {Path.home() / Path('.dsp-tools')}\n"
+            "    - A text file with the terminal output copied into.\n"
+            f"    - The log file {Path.home() / '.dsp-tools/logging.log'}.\n"
         )
         match keep_default_msg, custom_msg:
             case False, str():
@@ -54,16 +56,7 @@ class PermissionNotExistsError(BaseError):
 
 
 class InputError(BaseError):
-    """Class for errors that is called when the user input is invalid."""
-
-
-class UserError(BaseError):
-    """
-    Class for errors that are intended for user feedback.
-    Typically, a UserError is raised when the execution of a program must be interrupted
-    due to a bad condition in the input data that prevents further processing.
-    The message should be as user-friendly as possible.
-    """
+    """This error is raised when the user input is invalid. The message should be as user-friendly as possible."""
 
 
 class PermanentConnectionError(BaseError):

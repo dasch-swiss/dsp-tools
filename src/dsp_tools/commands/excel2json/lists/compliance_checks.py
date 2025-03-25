@@ -277,7 +277,7 @@ def _check_for_erroneous_entries_one_column_level(
 def _check_for_erroneous_entries_one_grouped_df(
     group: pd.DataFrame, target_cols: list[str]
 ) -> list[NodesPerRowProblem]:
-    problems = []
+    problems: list[NodesPerRowProblem] = []
     first_col = min(group.index)
     # The first row is the current parent node. The remaining columns in that row must be empty.
     if not group.loc[first_col, target_cols[1:]].isna().all():

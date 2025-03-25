@@ -72,8 +72,7 @@ dev-dependencies = [
     # pytest: don't upgrade until https://github.com/pytest-dev/pytest/issues/12044 is fixed
     "requests-mock",
     "ruff",
-    "testcontainers==4.7.2",
-    # testcontainers: don't upgrade until https://github.com/dasch-swiss/dsp-tools/pull/1122#discussion_r1723055599 is fixed
+    "testcontainers",
     "tomlkit",
     "types-docker",
     "types-jsonschema",

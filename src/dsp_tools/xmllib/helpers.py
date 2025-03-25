@@ -8,7 +8,7 @@ import regex
 from lxml import etree
 from regex import Match
 
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.error.exceptions import InputError
 from dsp_tools.xmllib.constants import KNOWN_XML_TAGS
 from dsp_tools.xmllib.internal_helpers import unescape_reserved_xml_chars
 from dsp_tools.xmllib.models.config_options import NewlineReplacement

@@ -8,8 +8,8 @@ from requests import RequestException
 from requests_mock import Mocker
 
 from dsp_tools.commands.ingest_xmlupload.bulk_ingest_client import BulkIngestClient
-from dsp_tools.models.exceptions import BadCredentialsError
-from dsp_tools.models.exceptions import UserError
+from dsp_tools.error.exceptions import BadCredentialsError
+from dsp_tools.error.exceptions import InputError
 from test.integration.commands.xmlupload.authentication_client_mock import AuthenticationClientMockBase
 
 DSP_INGEST_URL = "https://example.com"
@@ -136,7 +136,7 @@ def test_trigger_wrong_shortcode(ingest_client: BulkIngestClient, requests_mock:
         "No assets have been uploaded for project 9999. "
         "Before using the 'ingest-files' command, you must upload some files with the 'upload-files' command."
     )
-    with pytest.raises(UserError, match=err_msg):
+    with pytest.raises(InputError, match=err_msg):
         ingest_client.trigger_ingest_process()
 
 
@@ -154,14 +154,14 @@ def test_trigger_when_ingest_already_running(
 def test_trigger_on_internal_server_error(ingest_client: BulkIngestClient, requests_mock: Mocker) -> None:
     url = f"{DSP_INGEST_URL}/projects/{SHORTCODE}/bulk-ingest"
     requests_mock.post(url, status_code=500)
-    with pytest.raises(UserError, match=re.escape("Server is unavailable. Please try again later.")):
+    with pytest.raises(InputError, match=re.escape("Server is unavailable. Please try again later.")):
         ingest_client.trigger_ingest_process()
 
 
 def test_trigger_on_server_unavailable(ingest_client: BulkIngestClient, requests_mock: Mocker) -> None:
     url = f"{DSP_INGEST_URL}/projects/{SHORTCODE}/bulk-ingest"
     requests_mock.post(url, status_code=503)
-    with pytest.raises(UserError, match=re.escape("Server is unavailable. Please try again later.")):
+    with pytest.raises(InputError, match=re.escape("Server is unavailable. Please try again later.")):
         ingest_client.trigger_ingest_process()
 
 
@@ -171,5 +171,5 @@ def test_trigger_when_server_response_doesnt_contain_right_shortcode(
     url = f"{DSP_INGEST_URL}/projects/{SHORTCODE}/bulk-ingest"
     requests_mock.post(url, status_code=202)
     err_msg = re.escape("Failed to trigger the ingest process. Please check the server logs, or try again later.")
-    with pytest.raises(UserError, match=err_msg):
+    with pytest.raises(InputError, match=err_msg):
         ingest_client.trigger_ingest_process()

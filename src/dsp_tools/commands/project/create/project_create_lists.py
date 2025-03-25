@@ -5,15 +5,15 @@ from typing import Union
 from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
+from dsp_tools.clients.connection import Connection
+from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.commands.project.create.project_validate import validate_project
 from dsp_tools.commands.project.legacy_models.listnode import ListNode
 from dsp_tools.commands.project.legacy_models.project import Project
-from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.exceptions import UserError
-from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
-from dsp_tools.utils.connection import Connection
-from dsp_tools.utils.connection_live import ConnectionLive
-from dsp_tools.utils.shared import parse_json_input
+from dsp_tools.error.exceptions import BaseError
+from dsp_tools.error.exceptions import InputError
+from dsp_tools.utils.json_parsing import parse_json_input
 
 
 def create_lists_on_server(
@@ -150,7 +150,7 @@ def create_only_lists(
         creds: credentials to connect to the DSP server
 
     Raises:
-        UserError:
+        InputError:
           - if the project cannot be read from the server
           - if the connection to the DSP server cannot be established
 
@@ -188,7 +188,7 @@ def create_only_lists(
     except BaseError:
         err_msg = f"Unable to create the lists: The project {shortcode} cannot be found on the DSP server."
         logger.exception(err_msg)
-        raise UserError(err_msg) from None
+        raise InputError(err_msg) from None
 
     # create new lists
     current_project_lists, success = create_lists_on_server(

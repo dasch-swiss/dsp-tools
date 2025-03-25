@@ -6,7 +6,7 @@ import regex
 from lxml import etree
 from namedentities.core import numeric_entities  # type: ignore[import-untyped]
 
-from dsp_tools.models.custom_warnings import DspToolsUserWarning
+from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.xmllib.constants import KNOWN_XML_TAGS
 from dsp_tools.xmllib.internal_helpers import escape_reserved_xml_chars
 from dsp_tools.xmllib.models.problems import IllegalTagProblem
@@ -122,16 +122,22 @@ def is_date(value: Any) -> bool:
         # result == False
         ```
     """
-    calendar_optional = r"((GREGORIAN|JULIAN|ISLAMIC):)?"
-    first_era_optional = r"((CE|BCE|BC|AD):)?"
-    second_area_optional = r"(:(CE|BCE|BC|AD))?"
+    calendar_optional = r"(?:(GREGORIAN|JULIAN|ISLAMIC):)?"
+    first_era_optional = r"(?:(CE|BCE|BC|AD):)?"
+    second_area_optional = r"(?::(CE|BCE|BC|AD))?"
     date = r"\d{1,4}(?:-\d{1,2}){0,2}"
     date_mandatory = rf"({date})"
     date_optional = rf"(:{date})?"
     full_date_pattern = (
         rf"^{calendar_optional}{first_era_optional}{date_mandatory}{second_area_optional}{date_optional}$"
     )
-    return bool(regex.search(full_date_pattern, str(value)))
+    found = regex.search(full_date_pattern, str(value))
+    if not found:
+        return False
+    if found.group(1) == "ISLAMIC" and (found.group(2) or found.group(4)):
+        # eras are not supported yet for the islamic calendar
+        return False
+    return True
 
 
 def is_geoname(value: Any) -> bool:

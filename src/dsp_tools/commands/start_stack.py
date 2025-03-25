@@ -11,7 +11,7 @@ import requests
 import yaml
 from loguru import logger
 
-from dsp_tools.models.exceptions import UserError
+from dsp_tools.error.exceptions import InputError
 
 MAX_FILE_SIZE = 100_000
 
@@ -39,12 +39,12 @@ class StackConfiguration:
         Validate the input parameters passed by the user.
 
         Raises:
-            UserError: if one of the parameters is invalid
+            InputError: if one of the parameters is invalid
         """
         if self.max_file_size is not None and not 1 <= self.max_file_size <= MAX_FILE_SIZE:
-            raise UserError(f"max_file_size must be between 1 and {MAX_FILE_SIZE}")
+            raise InputError(f"max_file_size must be between 1 and {MAX_FILE_SIZE}")
         if self.enforce_docker_system_prune and self.suppress_docker_system_prune:
-            raise UserError('The arguments "--prune" and "--no-prune" are mutually exclusive')
+            raise InputError('The arguments "--prune" and "--no-prune" are mutually exclusive')
 
 
 class StackHandler:
@@ -119,14 +119,14 @@ class StackHandler:
         and set the max_file_size parameter if necessary.
 
         Raises:
-            UserError: if max_file_size is set but cannot be injected into sipi.docker-config.lua
+            InputError: if max_file_size is set but cannot be injected into sipi.docker-config.lua
         """
         docker_config_lua_response = requests.get(f"{self.__url_prefix}sipi/config/sipi.docker-config.lua", timeout=30)
         docker_config_lua_text = docker_config_lua_response.text
         if self.__stack_configuration.max_file_size:
             max_post_size_regex = r"max_post_size ?= ?[\'\"]?\d+[MG][\'\"]?"
             if not regex.search(max_post_size_regex, docker_config_lua_text):
-                raise UserError("Unable to set max_file_size. Please try again without this flag.")
+                raise InputError("Unable to set max_file_size. Please try again without this flag.")
             docker_config_lua_text = regex.sub(
                 max_post_size_regex,
                 f"max_post_size = '{self.__stack_configuration.max_file_size}M'",
@@ -140,14 +140,14 @@ class StackHandler:
         Start up the Docker container of the fuseki database.
 
         Raises:
-            UserError: if the database cannot be started
+            InputError: if the database cannot be started
         """
         cmd = "docker compose up db -d".split()
         completed_process = subprocess.run(cmd, cwd=self.__docker_path_of_user, check=False)
         if not completed_process or completed_process.returncode != 0:
             msg = "Cannot start the API: Error while executing 'docker compose up db -d'"
             logger.error(f"{msg}. completed_process = '{vars(completed_process)}'")
-            raise UserError(msg)
+            raise InputError(msg)
 
     def _wait_for_fuseki(self) -> None:
         """
@@ -169,7 +169,7 @@ class StackHandler:
         This function imitates the behaviour of the script dsp-api/webapi/scripts/fuseki-init-knora-test.sh.
 
         Raises:
-            UserError: in case of failure
+            InputError: in case of failure
         """
         repo_template_response = requests.get(
             f"{self.__url_prefix}webapi/scripts/fuseki-repository-config.ttl.template",
@@ -189,7 +189,7 @@ class StackHandler:
                 "Is DSP-API perhaps running already?"
             )
             logger.error(f"{msg}. response = {vars(response)}")
-            raise UserError(msg)
+            raise InputError(msg)
 
     def _load_data_into_repo(self) -> None:
         """
@@ -198,7 +198,7 @@ class StackHandler:
         dsp-api/webapi/target/docker/stage/opt/docker/scripts/fuseki-init-knora-test.sh.
 
         Raises:
-            UserError: if one of the graphs cannot be created
+            InputError: if one of the graphs cannot be created
         """
         graph_prefix = f"{self.__localhost_url}:3030/knora-test/data?graph="
         ttl_files = [
@@ -217,7 +217,7 @@ class StackHandler:
             if not ttl_response.ok:
                 msg = f"Cannot start DSP-API: Error when retrieving '{self.__url_prefix + ttl_file}'"
                 logger.error(f"{msg}'. response = {vars(ttl_response)}")
-                raise UserError(msg)
+                raise InputError(msg)
             ttl_text = ttl_response.text
             response = requests.post(
                 graph_prefix + graph,
@@ -227,7 +227,7 @@ class StackHandler:
             )
             if not response.ok:
                 logger.error(f"Cannot start DSP-API: Error when creating graph '{graph}'. response = {vars(response)}")
-                raise UserError(f"Cannot start DSP-API: Error when creating graph '{graph}'")
+                raise InputError(f"Cannot start DSP-API: Error when creating graph '{graph}'")
 
     def _create_admin_user(self) -> None:
         """
@@ -235,7 +235,7 @@ class StackHandler:
         The password is the hash for "test".
 
         Raises:
-            UserError: If the user cannot be created.
+            InputError: If the user cannot be created.
         """
         graph_prefix = f"{self.__localhost_url}:3030/knora-test/data?graph="
         admin_graph = "http://www.knora.org/data/admin"
@@ -264,7 +264,7 @@ class StackHandler:
         )
         if not response.ok:
             logger.error(f"Cannot start DSP-API: Error when creating the admin user. response = {vars(response)}")
-            raise UserError("Cannot start DSP-API: Error when creating the admin user.")
+            raise InputError("Cannot start DSP-API: Error when creating the admin user.")
 
     def _initialize_fuseki(self) -> None:
         """
@@ -347,13 +347,13 @@ class StackHandler:
         After startup, ask user if Docker should be pruned or not.
 
         Raises:
-            UserError: if the stack cannot be started with the parameters passed by the user
+            InputError: if the stack cannot be started with the parameters passed by the user
 
         Returns:
             True if everything went well, False otherwise
         """
         if subprocess.run("docker stats --no-stream".split(), check=False, capture_output=True).returncode != 0:
-            raise UserError("Docker is not running properly. Please start Docker and try again.")
+            raise InputError("Docker is not running properly. Please start Docker and try again.")
         self._copy_resources_to_home_dir()
         self._get_sipi_docker_config_lua()
         self._start_docker_containers()

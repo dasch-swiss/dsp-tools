@@ -5,7 +5,7 @@ from pathlib import Path
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
-from dsp_tools.models.exceptions import UserError
+from dsp_tools.error.exceptions import InputError
 
 
 def _update_possibly_existing_repo(rosetta_folder: Path) -> bool:
@@ -44,13 +44,13 @@ def _clone_repo(
         enclosing_folder: path to the (existing) destination where rosetta should be cloned into
 
     Raises:
-        UserError: If rosetta cannot be cloned
+        InputError: If rosetta cannot be cloned
     """
     print(f"Clone into {rosetta_folder}...")
     cmd = "git clone https://github.com/dasch-swiss/082E-rosetta-scripts.git".split()
     completed_process = subprocess.run(cmd, cwd=enclosing_folder, check=False)
     if not completed_process or completed_process.returncode != 0:
-        raise UserError("There was a problem while cloning the rosetta test project")
+        raise InputError("There was a problem while cloning the rosetta test project")
 
 
 def _create_json(rosetta_folder: Path) -> bool:
@@ -104,7 +104,7 @@ def upload_rosetta() -> bool:
     Then, rosetta.json is created and rosetta.xml uploaded.
 
     Raises:
-        UserError: If the repo cannot be cloned nor pulled
+        InputError: If the repo cannot be cloned nor pulled
 
     Returns:
         True if everything went well

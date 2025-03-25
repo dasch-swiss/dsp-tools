@@ -38,8 +38,8 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values impor
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_geometry
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_integer
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_interval
-from dsp_tools.models.exceptions import InputError
-from dsp_tools.models.exceptions import PermissionNotExistsError
+from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.exceptions import PermissionNotExistsError
 
 TYPE_TRANSFORMER_MAPPER: dict[str, TypeTransformerMapper] = {
     "boolean": TypeTransformerMapper(IntermediaryBoolean, transform_boolean),

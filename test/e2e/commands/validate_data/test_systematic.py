@@ -6,7 +6,6 @@ import pytest
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
-from dsp_tools.commands.validate_data.api_connection import ApiConnection
 from dsp_tools.commands.validate_data.validate_data import _get_parsed_graphs
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
 from test.e2e.setup_testcontainers.ports import ExternalContainerPorts
@@ -35,18 +34,18 @@ def _create_projects(creds: ServerCredentials) -> None:
 
 
 @pytest.fixture(scope="module")
-def api_con(container_ports: ExternalContainerPorts) -> ApiConnection:
-    return ApiConnection(f"http://0.0.0.0:{container_ports.api}")
+def api_url(container_ports: ExternalContainerPorts) -> str:
+    return f"http://0.0.0.0:{container_ports.api}"
 
 
 @pytest.fixture(scope="module")
-def shacl_validator(api_con: ApiConnection) -> ShaclValidator:
-    return ShaclValidator(api_con)
+def shacl_validator(api_url: str) -> ShaclValidator:
+    return ShaclValidator(api_url)
 
 
 @pytest.mark.usefixtures("_create_projects")
-def test_systematic(api_con: ApiConnection, shacl_validator: ShaclValidator) -> None:
+def test_systematic(api_url: str, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/xml-data/test-data-systematic.xml")
-    graphs = _get_parsed_graphs(api_con, file)
+    graphs = _get_parsed_graphs(api_url, file)
     systematic_correct = _get_validation_result(graphs, shacl_validator, None)
     assert not systematic_correct.conforms  # This test will be correct as soon as legal information is mandatory

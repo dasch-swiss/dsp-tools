@@ -5,7 +5,7 @@ from pathlib import Path
 from loguru import logger
 from lxml import etree
 
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.error.exceptions import InputError
 
 
 def parse_xml_file(input_file: str | Path) -> etree._Element:

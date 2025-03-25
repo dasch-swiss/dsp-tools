@@ -32,13 +32,13 @@ from dsp_tools.commands.xmlupload.models.intermediary.values import Intermediary
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
-from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.exceptions import UserError
-from dsp_tools.utils.date_util import DayMonthYearEra
-from dsp_tools.utils.date_util import SingleDate
-from dsp_tools.utils.date_util import StartEnd
-from dsp_tools.utils.iri_util import is_resource_iri
-from dsp_tools.utils.logger_config import WARNINGS_SAVEPATH
+from dsp_tools.config.logger_config import WARNINGS_SAVEPATH
+from dsp_tools.error.exceptions import BaseError
+from dsp_tools.error.exceptions import InputError
+from dsp_tools.utils.data_formats.date_util import DayMonthYearEra
+from dsp_tools.utils.data_formats.date_util import SingleDate
+from dsp_tools.utils.data_formats.date_util import StartEnd
+from dsp_tools.utils.data_formats.iri_util import is_resource_iri
 
 LiteralValueTypesAlias: TypeAlias = Union[
     IntermediaryBoolean,
@@ -118,7 +118,7 @@ def _make_one_value_graph(val: IntermediaryValue, res_node: BNode | URIRef, iri_
                 res_node=res_node,
             )
         case _:
-            raise UserError(f"Unknown value type: {type(val).__name__}")
+            raise InputError(f"Unknown value type: {type(val).__name__}")
     return properties_graph
 
 

@@ -7,8 +7,8 @@ from loguru import logger
 from tqdm import tqdm
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.commands.ingest_xmlupload.bulk_ingest_client import BulkIngestClient
-from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
 
 
 def ingest_files(creds: ServerCredentials, shortcode: str) -> bool:

@@ -10,7 +10,7 @@ import regex
 from lxml import etree
 
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
-from dsp_tools.models.exceptions import XmlUploadError
+from dsp_tools.error.exceptions import XmlUploadError
 
 
 @dataclass(frozen=True)

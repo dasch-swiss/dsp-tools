@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import os
 import time
@@ -7,14 +9,52 @@ from datetime import datetime
 from typing import Any
 from typing import Literal
 from typing import Never
+from typing import Union
 
 from loguru import logger
 from requests import JSONDecodeError
 from requests import ReadTimeout
 from requests import Response
 
-from dsp_tools.models.exceptions import PermanentTimeOutError
-from dsp_tools.utils.set_encoder import SetEncoder
+from dsp_tools.commands.project.legacy_models.context import Context
+from dsp_tools.commands.project.legacy_models.helpers import OntoIri
+from dsp_tools.error.exceptions import PermanentTimeOutError
+
+
+@dataclass
+class PostFiles:
+    """One or more files to be uploaded in a POST request."""
+
+    files: list[PostFile]
+
+    def to_dict(self) -> dict[str, tuple[str, Any, str] | tuple[str, Any]]:
+        return {x.file_name: x.to_tuple() for x in self.files}
+
+
+@dataclass
+class PostFile:
+    file_name: str
+    fileobj: Any
+    content_type: str | None = None
+
+    def to_tuple(self) -> tuple[str, Any, str] | tuple[str, Any]:
+        if self.content_type:
+            return self.file_name, self.fileobj, self.content_type
+        return self.file_name, self.fileobj
+
+
+class SetEncoder(json.JSONEncoder):
+    """Encoder used to serialize objects to JSON that would by default not be serializable"""
+
+    def default(self, o: Union[set[Any], Context, OntoIri]) -> Any:
+        """Return a serializable object for o"""
+        if isinstance(o, set):
+            return list(o)
+        elif isinstance(o, Context):
+            return o.toJsonObj()
+        elif isinstance(o, OntoIri):
+            return {"iri": o.iri, "hashtag": o.hashtag}
+        return json.JSONEncoder.default(self, o)
 
 
 @dataclass
@@ -25,7 +65,7 @@ class RequestParameters:
     data: dict[str, Any] | None = None
     data_serialized: bytes | None = field(init=False, default=None)
     headers: dict[str, str] | None = None
-    files: dict[str, tuple[str, Any]] | None = None
+    files: PostFiles | None = None
 
     def __post_init__(self) -> None:
         self.data_serialized = self._serialize_payload(self.data)
@@ -36,14 +76,16 @@ class RequestParameters:
         return json.dumps(payload, cls=SetEncoder, ensure_ascii=False).encode("utf-8") if payload else None
 
     def as_kwargs(self) -> dict[str, Any]:
-        return {
+        kwargs = {
             "method": self.method,
             "url": self.url,
             "timeout": self.timeout,
             "data": self.data_serialized,
             "headers": self.headers,
-            "files": self.files,
         }
+        if self.files:
+            kwargs["files"] = self.files.to_dict()
+        return kwargs
 
 
 def log_request(params: RequestParameters, extra_headers: dict[str, Any] | None = None) -> None:
@@ -65,20 +107,23 @@ def log_request(params: RequestParameters, extra_headers: dict[str, Any] | None 
             data["password"] = "***"
         dumpobj["data"] = data
     if params.files:
-        dumpobj["files"] = params.files["file"][0]
+        dumpobj["files"] = [x.file_name for x in params.files.files]
     logger.debug(f"REQUEST: {json.dumps(dumpobj, cls=SetEncoder)}")
 
 
-def log_response(response: Response) -> None:
+def log_response(response: Response, include_response_content: bool = True) -> None:
     """Log the response of a request."""
     dumpobj: dict[str, Any] = {
         "status_code": response.status_code,
         "headers": sanitize_headers(dict(response.headers)) if response.headers else "",
     }
-    try:
-        dumpobj["content"] = response.json()
-    except JSONDecodeError:
-        dumpobj["content"] = response.text
+    if include_response_content:
+        try:
+            dumpobj["content"] = response.json()
+        except JSONDecodeError:
+            dumpobj["content"] = response.text
+    else:
+        dumpobj["content"] = "too big to be logged"
     logger.debug(f"RESPONSE: {json.dumps(dumpobj)}")
 
 

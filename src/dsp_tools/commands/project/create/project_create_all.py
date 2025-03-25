@@ -7,6 +7,9 @@ from typing import Any
 from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
+from dsp_tools.clients.connection import Connection
+from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.commands.project.create.parse_project import parse_project_json
 from dsp_tools.commands.project.create.project_create_lists import create_lists_on_server
 from dsp_tools.commands.project.create.project_create_ontologies import create_ontologies
@@ -16,13 +19,10 @@ from dsp_tools.commands.project.legacy_models.group import Group
 from dsp_tools.commands.project.legacy_models.project import Project
 from dsp_tools.commands.project.legacy_models.user import User
 from dsp_tools.commands.project.models.project_definition import ProjectMetadata
-from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.exceptions import UserError
-from dsp_tools.models.langstring import LangString
-from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
-from dsp_tools.utils.connection import Connection
-from dsp_tools.utils.connection_live import ConnectionLive
-from dsp_tools.utils.shared import parse_json_input
+from dsp_tools.error.exceptions import BaseError
+from dsp_tools.error.exceptions import InputError
+from dsp_tools.legacy_models.langstring import LangString
+from dsp_tools.utils.json_parsing import parse_json_input
 
 
 def create_project(
@@ -43,7 +43,7 @@ def create_project(
         verbose: prints more information if set to True
 
     Raises:
-        UserError:
+        InputError:
           - if the project cannot be created
           - if the login fails
           - if an ontology cannot be created
@@ -172,7 +172,7 @@ def _create_project_on_server(
         con: connection to the DSP server
 
     Raises:
-        UserError: if the project cannot be created on the DSP server
+        InputError: if the project cannot be created on the DSP server
 
     Returns:
         a tuple of the remote project and the success status (True if everything went smoothly, False otherwise)
@@ -205,7 +205,7 @@ def _create_project_on_server(
             f"Cannot create project '{project_definition.shortname}' ({project_definition.shortcode}) on DSP server."
         )
         logger.exception(err_msg)
-        raise UserError(err_msg) from None
+        raise InputError(err_msg) from None
     print(f"    Created project '{project_remote.shortname}' ({project_remote.shortcode}).")
     logger.info(f"Created project '{project_remote.shortname}' ({project_remote.shortcode}).")
     return project_remote, success

@@ -6,24 +6,25 @@ from loguru import logger
 from lxml import etree
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
+from dsp_tools.clients.connection import Connection
+from dsp_tools.clients.connection_live import ConnectionLive
+from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.commands.ingest_xmlupload.create_resources.apply_ingest_id import get_mapping_dict_from_file
 from dsp_tools.commands.ingest_xmlupload.create_resources.apply_ingest_id import replace_filepath_with_internal_filename
 from dsp_tools.commands.xmlupload.models.ingest import BulkIngestedAssetClient
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
+from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClientLive
-from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_upload_state
+from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_transformed_resources
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import prepare_upload_from_root
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import validate_and_parse
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import execute_upload
-from dsp_tools.models.exceptions import InputError
-from dsp_tools.utils.authentication_client import AuthenticationClient
-from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
-from dsp_tools.utils.connection import Connection
-from dsp_tools.utils.connection_live import ConnectionLive
-from dsp_tools.utils.legal_info_client_live import LegalInfoClientLive
+from dsp_tools.error.exceptions import InputError
 
 
 def ingest_xmlupload(
@@ -67,7 +68,15 @@ def ingest_xmlupload(
     ontology_client = OntologyClientLive(con=con, shortcode=shortcode, default_ontology=default_ontology)
     resources, permissions_lookup, stash, authorship_lookup = prepare_upload_from_root(root, ontology_client)
     clients = _get_live_clients(con, config, auth)
-    state = get_upload_state(resources, clients, stash, config, permissions_lookup, authorship_lookup)
+    transformed_resources, project_context = get_transformed_resources(
+        resources, clients, permissions_lookup, authorship_lookup
+    )
+    state = UploadState(
+        pending_resources=transformed_resources,
+        pending_stash=stash,
+        config=config,
+        project_context=project_context,
+    )
 
     return execute_upload(clients, state)
 

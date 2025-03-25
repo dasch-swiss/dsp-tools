@@ -12,6 +12,12 @@ from rdflib import URIRef
 from tqdm import tqdm
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.clients.authentication_client import AuthenticationClient
+from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
+from dsp_tools.clients.connection import Connection
+from dsp_tools.clients.connection_live import ConnectionLive
+from dsp_tools.clients.legal_info_client import LegalInfoClient
+from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import create_resource_with_values
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
@@ -24,7 +30,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClien
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClientLive
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import _validate_iiif_uris
-from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_upload_state
+from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_transformed_resources
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import prepare_upload_from_root
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import prepare_input_xml_file
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
@@ -34,19 +40,13 @@ from dsp_tools.commands.xmlupload.stash.upload_stashed_resptr_props import uploa
 from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import upload_stashed_xml_texts
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.write_diagnostic_info import write_id2iri_mapping
-from dsp_tools.models.custom_warnings import DspToolsFutureWarning
-from dsp_tools.models.custom_warnings import DspToolsUserWarning
-from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.exceptions import PermanentConnectionError
-from dsp_tools.models.exceptions import PermanentTimeOutError
-from dsp_tools.models.exceptions import XmlUploadInterruptedError
-from dsp_tools.utils.authentication_client import AuthenticationClient
-from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
-from dsp_tools.utils.connection import Connection
-from dsp_tools.utils.connection_live import ConnectionLive
-from dsp_tools.utils.legal_info_client import LegalInfoClient
-from dsp_tools.utils.legal_info_client_live import LegalInfoClientLive
-from dsp_tools.utils.logger_config import WARNINGS_SAVEPATH
+from dsp_tools.config.logger_config import WARNINGS_SAVEPATH
+from dsp_tools.error.custom_warnings import DspToolsFutureWarning
+from dsp_tools.error.custom_warnings import DspToolsUserWarning
+from dsp_tools.error.exceptions import BaseError
+from dsp_tools.error.exceptions import PermanentConnectionError
+from dsp_tools.error.exceptions import PermanentTimeOutError
+from dsp_tools.error.exceptions import XmlUploadInterruptedError
 
 
 def xmlupload(
@@ -66,7 +66,7 @@ def xmlupload(
 
     Raises:
         BaseError: in case of permanent network or software failure
-        UserError: in case of permanent network or software failure, or if the XML file is invalid
+        InputError: in case of permanent network or software failure, or if the XML file is invalid
         InputError: in case of permanent network or software failure, or if the XML file is invalid
 
     Returns:
@@ -87,7 +87,15 @@ def xmlupload(
     resources, permissions_lookup, stash, authorship_lookup = prepare_upload_from_root(root, ontology_client)
 
     clients = _get_live_clients(con, auth, creds, shortcode, imgdir)
-    state = get_upload_state(resources, clients, stash, config, permissions_lookup, authorship_lookup)
+    transformed_resources, project_context = get_transformed_resources(
+        resources, clients, permissions_lookup, authorship_lookup
+    )
+    state = UploadState(
+        pending_resources=transformed_resources,
+        pending_stash=stash,
+        config=config,
+        project_context=project_context,
+    )
 
     return execute_upload(clients, state)
 

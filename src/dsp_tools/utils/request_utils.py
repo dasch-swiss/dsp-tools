@@ -122,6 +122,8 @@ def log_response(response: Response, include_response_content: bool = True) -> N
             dumpobj["content"] = response.json()
         except JSONDecodeError:
             dumpobj["content"] = response.text
+    else:
+        dumpobj["content"] = "too big to be logged"
     logger.debug(f"RESPONSE: {json.dumps(dumpobj)}")
 
 

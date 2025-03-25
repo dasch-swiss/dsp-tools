@@ -111,16 +111,17 @@ def log_request(params: RequestParameters, extra_headers: dict[str, Any] | None 
     logger.debug(f"REQUEST: {json.dumps(dumpobj, cls=SetEncoder)}")
 
 
-def log_response(response: Response) -> None:
+def log_response(response: Response, include_response_content: bool = True) -> None:
     """Log the response of a request."""
     dumpobj: dict[str, Any] = {
         "status_code": response.status_code,
         "headers": sanitize_headers(dict(response.headers)) if response.headers else "",
     }
-    try:
-        dumpobj["content"] = response.json()
-    except JSONDecodeError:
-        dumpobj["content"] = response.text
+    if include_response_content:
+        try:
+            dumpobj["content"] = response.json()
+        except JSONDecodeError:
+            dumpobj["content"] = response.text
     logger.debug(f"RESPONSE: {json.dumps(dumpobj)}")
 
 

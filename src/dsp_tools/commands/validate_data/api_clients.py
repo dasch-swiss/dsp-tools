@@ -30,7 +30,7 @@ class OntologyClient:
         timeout = 60
         log_request(RequestParameters("GET", url, timeout=timeout, headers=headers))
         response = requests.get(url=url, headers=headers, timeout=timeout)
-        log_response(response)
+        log_response(response, include_response_content=False)
         if not response.ok:
             raise InternalError(f"Failed Request: {response.status_code} {response.text}")
         return response.text
@@ -65,7 +65,7 @@ class OntologyClient:
         timeout = 10
         log_request(RequestParameters("GET", url, timeout=timeout, headers=headers))
         response = requests.get(url=url, headers=headers, timeout=timeout)
-        log_response(response)
+        log_response(response, include_response_content=False)
         if not response.ok:
             raise InternalError(f"Failed Request: {response.status_code} {response.text}")
         return response.text

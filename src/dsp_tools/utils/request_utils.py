@@ -9,14 +9,52 @@ from datetime import datetime
 from typing import Any
 from typing import Literal
 from typing import Never
+from typing import Union
 
 from loguru import logger
 from requests import JSONDecodeError
 from requests import ReadTimeout
 from requests import Response
 
-from dsp_tools.models.exceptions import PermanentTimeOutError
-from dsp_tools.utils.set_encoder import SetEncoder
+from dsp_tools.commands.project.legacy_models.context import Context
+from dsp_tools.commands.project.legacy_models.helpers import OntoIri
+from dsp_tools.error.exceptions import PermanentTimeOutError
+
+
+@dataclass
+class PostFiles:
+    """One or more files to be uploaded in a POST request."""
+
+    files: list[PostFile]
+
+    def to_dict(self) -> dict[str, tuple[str, Any, str] | tuple[str, Any]]:
+        return {x.file_name: x.to_tuple() for x in self.files}
+
+
+@dataclass
+class PostFile:
+    file_name: str
+    fileobj: Any
+    content_type: str | None = None
+
+    def to_tuple(self) -> tuple[str, Any, str] | tuple[str, Any]:
+        if self.content_type:
+            return self.file_name, self.fileobj, self.content_type
+        return self.file_name, self.fileobj
+
+
+class SetEncoder(json.JSONEncoder):
+    """Encoder used to serialize objects to JSON that would by default not be serializable"""
+
+    def default(self, o: Union[set[Any], Context, OntoIri]) -> Any:
+        """Return a serializable object for o"""
+        if isinstance(o, set):
+            return list(o)
+        elif isinstance(o, Context):
+            return o.toJsonObj()
+        elif isinstance(o, OntoIri):
+            return {"iri": o.iri, "hashtag": o.hashtag}
+        return json.JSONEncoder.default(self, o)
 
 
 @dataclass
@@ -73,16 +111,19 @@ def log_request(params: RequestParameters, extra_headers: dict[str, Any] | None 
     logger.debug(f"REQUEST: {json.dumps(dumpobj, cls=SetEncoder)}")
 
 
-def log_response(response: Response) -> None:
+def log_response(response: Response, include_response_content: bool = True) -> None:
     """Log the response of a request."""
     dumpobj: dict[str, Any] = {
         "status_code": response.status_code,
         "headers": sanitize_headers(dict(response.headers)) if response.headers else "",
     }
-    try:
-        dumpobj["content"] = response.json()
-    except JSONDecodeError:
-        dumpobj["content"] = response.text
+    if include_response_content:
+        try:
+            dumpobj["content"] = response.json()
+        except JSONDecodeError:
+            dumpobj["content"] = response.text
+    else:
+        dumpobj["content"] = "too big to be logged"
     logger.debug(f"RESPONSE: {json.dumps(dumpobj)}")
 
 
@@ -126,25 +167,3 @@ def should_retry(response: Response) -> bool:
     try_again_later = "try again later" in response.text.lower()
     in_testing_env = os.getenv("DSP_TOOLS_TESTING") == "true"  # set in .github/workflows/tests-on-push.yml
     return (try_again_later or in_500_range) and not in_testing_env
-
-
-@dataclass
-class PostFiles:
-    """One or more files to be uploaded in a POST request."""
-
-    files: list[PostFile]
-
-    def to_dict(self) -> dict[str, tuple[str, Any, str] | tuple[str, Any]]:
-        return {x.file_name: x.to_tuple() for x in self.files}
-
-
-@dataclass
-class PostFile:
-    file_name: str
-    fileobj: Any
-    content_type: str | None = None
-
-    def to_tuple(self) -> tuple[str, Any, str] | tuple[str, Any]:
-        if self.content_type:
-            return self.file_name, self.fileobj, self.content_type
-        return self.file_name, self.fileobj

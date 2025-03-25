@@ -11,9 +11,15 @@ format:
     yamlfmt .
 
 
+# Rebuild the virtual environment (must be run before `just lint`, otherwise several tools will try to do it in parallel)
+[no-exit-message]
+uv-sync:
+    uv sync
+
+
 # Run all linters in parallel (see https://just.systems/man/en/running-tasks-in-parallel.html)
 [no-exit-message]
-lint: 
+lint: uv-sync
     #!/usr/bin/env -S parallel --shebang --ungroup --jobs {{ num_cpus() }}
     just ruff-check
     just ruff-format-check
@@ -110,7 +116,7 @@ legacy-e2e-tests *FLAGS:
 [no-exit-message]
 clean:
     -find . -name "*.pyc" -exec rm -rf {} \;
-    -find . -name .__pycache__ -exec rm -rf {} \;
+    -find . -name __pycache__ -exec rm -rf {} \;
     -find . -name .ruff_cache -exec rm -rf {} \;
     -find . -name .pytest_cache -exec rm -rf {} \;
     -find . -name .mypy_cache -exec rm -rf {} \;

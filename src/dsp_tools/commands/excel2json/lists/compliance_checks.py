@@ -32,9 +32,9 @@ from dsp_tools.commands.excel2json.lists.utils import get_columns_of_preferred_l
 from dsp_tools.commands.excel2json.lists.utils import get_hierarchy_nums
 from dsp_tools.commands.excel2json.lists.utils import get_lang_string_from_column_name
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
-from dsp_tools.models.custom_warnings import DspToolsUserWarning
-from dsp_tools.models.exceptions import InputError
-from dsp_tools.models.problems import Problem
+from dsp_tools.error.custom_warnings import DspToolsUserWarning
+from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.problems import Problem
 
 
 def make_all_excel_compliance_checks(sheet_list: list[ExcelSheet]) -> None:
@@ -277,7 +277,7 @@ def _check_for_erroneous_entries_one_column_level(
 def _check_for_erroneous_entries_one_grouped_df(
     group: pd.DataFrame, target_cols: list[str]
 ) -> list[NodesPerRowProblem]:
-    problems = []
+    problems: list[NodesPerRowProblem] = []
     first_col = min(group.index)
     # The first row is the current parent node. The remaining columns in that row must be empty.
     if not group.loc[first_col, target_cols[1:]].isna().all():

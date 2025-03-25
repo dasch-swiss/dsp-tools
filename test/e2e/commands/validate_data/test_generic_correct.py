@@ -6,7 +6,6 @@ import pytest
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
-from dsp_tools.commands.validate_data.api_connection import ApiConnection
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
 from dsp_tools.commands.validate_data.validate_data import _check_for_unknown_resource_classes
@@ -33,13 +32,13 @@ def creds(container_ports: ExternalContainerPorts) -> ServerCredentials:
 
 
 @pytest.fixture(scope="module")
-def api_con(container_ports: ExternalContainerPorts) -> ApiConnection:
-    return ApiConnection(f"http://0.0.0.0:{container_ports.api}")
+def api_url(container_ports: ExternalContainerPorts) -> str:
+    return f"http://0.0.0.0:{container_ports.api}"
 
 
 @pytest.fixture(scope="module")
-def shacl_validator(api_con: ApiConnection) -> ShaclValidator:
-    return ShaclValidator(api_con)
+def shacl_validator(api_url: str) -> ShaclValidator:
+    return ShaclValidator(api_url)
 
 
 @pytest.fixture(scope="module")
@@ -48,9 +47,9 @@ def _create_projects(creds: ServerCredentials) -> None:
 
 
 @pytest.fixture(scope="module")
-def unknown_classes_graphs(_create_projects: Iterator[None], api_con: ApiConnection) -> RDFGraphs:
+def unknown_classes_graphs(_create_projects: Iterator[None], api_url: str) -> RDFGraphs:
     file = Path("testdata/validate-data/generic/unknown_classes.xml")
-    return _get_parsed_graphs(api_con, file)
+    return _get_parsed_graphs(api_url, file)
 
 
 def test_check_for_unknown_resource_classes(unknown_classes_graphs: RDFGraphs) -> None:
@@ -61,40 +60,40 @@ def test_check_for_unknown_resource_classes(unknown_classes_graphs: RDFGraphs) -
 
 
 @pytest.mark.usefixtures("_create_projects")
-def test_cardinality_correct(api_con: ApiConnection, shacl_validator: ShaclValidator) -> None:
+def test_cardinality_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/generic/cardinality_correct.xml")
-    graphs = _get_parsed_graphs(api_con, file)
+    graphs = _get_parsed_graphs(api_url, file)
     cardinality_correct = _get_validation_result(graphs, shacl_validator, None)
     assert cardinality_correct.conforms
 
 
 @pytest.mark.usefixtures("_create_projects")
-def test_content_correct(api_con: ApiConnection, shacl_validator: ShaclValidator) -> None:
+def test_content_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/generic/content_correct.xml")
-    graphs = _get_parsed_graphs(api_con, file)
+    graphs = _get_parsed_graphs(api_url, file)
     content_correct = _get_validation_result(graphs, shacl_validator, None)
     assert content_correct.conforms
 
 
 @pytest.mark.usefixtures("_create_projects")
-def test_minimal_correct(api_con: ApiConnection, shacl_validator: ShaclValidator) -> None:
+def test_minimal_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/generic/minimal_correct.xml")
-    graphs = _get_parsed_graphs(api_con, file)
+    graphs = _get_parsed_graphs(api_url, file)
     minimal_correct = _get_validation_result(graphs, shacl_validator, None)
     assert minimal_correct.conforms
 
 
 @pytest.mark.usefixtures("_create_projects")
-def test_file_value_correct(api_con: ApiConnection, shacl_validator: ShaclValidator) -> None:
+def test_file_value_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/generic/file_value_correct.xml")
-    graphs = _get_parsed_graphs(api_con, file)
+    graphs = _get_parsed_graphs(api_url, file)
     file_value_correct = _get_validation_result(graphs, shacl_validator, None)
     assert file_value_correct.conforms
 
 
 @pytest.mark.usefixtures("_create_projects")
-def test_dsp_inbuilt_correct(api_con: ApiConnection, shacl_validator: ShaclValidator) -> None:
+def test_dsp_inbuilt_correct(api_url: str, shacl_validator: ShaclValidator) -> None:
     file = Path("testdata/validate-data/generic/dsp_inbuilt_correct.xml")
-    graphs = _get_parsed_graphs(api_con, file)
+    graphs = _get_parsed_graphs(api_url, file)
     dsp_inbuilt_correct = _get_validation_result(graphs, shacl_validator, None)
     assert dsp_inbuilt_correct.conforms

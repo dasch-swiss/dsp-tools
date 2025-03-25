@@ -17,7 +17,7 @@ from dsp_tools.commands.id2iri import id2iri
 from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.project.get import get_project
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
-from dsp_tools.models.custom_warnings import DspToolsFutureWarning
+from dsp_tools.error.custom_warnings import DspToolsFutureWarning
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
 

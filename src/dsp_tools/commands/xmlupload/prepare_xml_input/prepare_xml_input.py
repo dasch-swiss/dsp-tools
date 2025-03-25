@@ -8,6 +8,7 @@ import regex
 from loguru import logger
 from lxml import etree
 
+from dsp_tools.clients.connection import Connection
 from dsp_tools.commands.xmlupload.models.deserialise.xmlpermission import XmlPermission
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
@@ -32,11 +33,10 @@ from dsp_tools.commands.xmlupload.stash.create_info_for_graph_from_intermediary_
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import identify_circular_references
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
-from dsp_tools.models.custom_warnings import DspToolsUserWarning
-from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.exceptions import InputError
-from dsp_tools.models.projectContext import ProjectContext
-from dsp_tools.utils.connection import Connection
+from dsp_tools.error.custom_warnings import DspToolsUserWarning
+from dsp_tools.error.exceptions import BaseError
+from dsp_tools.error.exceptions import InputError
+from dsp_tools.legacy_models.projectContext import ProjectContext
 
 LIST_SEPARATOR = "\n-    "
 

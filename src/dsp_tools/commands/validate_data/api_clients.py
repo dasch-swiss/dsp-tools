@@ -3,32 +3,36 @@ from typing import Any
 from typing import cast
 from urllib.parse import quote_plus
 
-from loguru import logger
+import requests
 from rdflib import SH
 from rdflib import Graph
 
-from dsp_tools.commands.validate_data.api_connection import ApiConnection
 from dsp_tools.commands.validate_data.models.api_responses import AllProjectLists
 from dsp_tools.commands.validate_data.models.api_responses import OneList
 from dsp_tools.commands.validate_data.models.api_responses import SHACLValidationReport
 from dsp_tools.commands.validate_data.models.validation import RDFGraphs
-from dsp_tools.models.exceptions import InputError
-from dsp_tools.models.exceptions import InternalError
+from dsp_tools.error.exceptions import InternalError
 from dsp_tools.utils.request_utils import PostFile
 from dsp_tools.utils.request_utils import PostFiles
+from dsp_tools.utils.request_utils import RequestParameters
+from dsp_tools.utils.request_utils import log_request
+from dsp_tools.utils.request_utils import log_response
 
 
 @dataclass
 class OntologyClient:
-    api_con: ApiConnection
+    api_url: str
     shortcode: str
 
     def get_knora_api(self) -> str:
-        response = self.api_con.get_with_endpoint(endpoint="ontology/knora-api/v2#", headers={"Accept": "text/turtle"})
+        url = f"{self.api_url}/ontology/knora-api/v2#"
+        headers = {"Accept": "text/turtle"}
+        timeout = 60
+        log_request(RequestParameters("GET", url, timeout=timeout, headers=headers))
+        response = requests.get(url=url, headers=headers, timeout=timeout)
+        log_response(response, include_response_content=False)
         if not response.ok:
-            msg = f"NON-OK RESPONSE | Request: GET knora-api | Code: {response.status_code} | Message: {response.text}"
-            logger.error(msg)
-            raise InternalError(msg)
+            raise InternalError(f"Failed Request: {response.status_code} {response.text}")
         return response.text
 
     def get_ontologies(self) -> list[str]:
@@ -42,34 +46,28 @@ class OntologyClient:
         return [self._get_one_ontology(x) for x in ontology_iris]
 
     def _get_ontology_iris(self) -> list[str]:
-        response = self.api_con.get_with_endpoint(endpoint=f"admin/projects/shortcode/{self.shortcode}")
+        url = f"{self.api_url}/admin/projects/shortcode/{self.shortcode}"
+        timeout = 10
+        log_request(RequestParameters("GET", url, timeout=timeout))
+        response = requests.get(url=url, timeout=timeout)
+        log_response(response)
         if not response.ok:
-            msg = (
-                f"NON-OK RESPONSE | Request: GET ontology IRIs | "
-                f"Code: {response.status_code} | Message: {response.text}"
-            )
-            logger.error(msg)
-            raise InternalError(msg)
+            raise InternalError(f"Failed Request: {response.status_code} {response.text}")
         response_json = cast(dict[str, Any], response.json())
-        msg = f"The response from the API does not contain any ontologies.\nAPI response:{response.text}"
-        if not (proj := response_json.get("project")):
-            logger.error(msg)
-            raise InputError(msg)
-        if not (ontos := proj.get("ontologies")):
-            logger.error(msg)
-            raise InputError(msg)
+        if not (ontos := response_json.get("project", {}).get("ontologies")):
+            raise InternalError(f"The response from the API does not contain any ontologies.\nResponse:{response.text}")
         output = cast(list[str], ontos)
         return output
 
     def _get_one_ontology(self, ontology_iri: str) -> str:
-        response = self.api_con.get_with_url(url=ontology_iri, headers={"Accept": "text/turtle"})
+        url = ontology_iri
+        headers = {"Accept": "text/turtle"}
+        timeout = 10
+        log_request(RequestParameters("GET", url, timeout=timeout, headers=headers))
+        response = requests.get(url=url, headers=headers, timeout=timeout)
+        log_response(response, include_response_content=False)
         if not response.ok:
-            msg = (
-                f"NON-OK RESPONSE | Request: GET {ontology_iri} | "
-                f"Code: {response.status_code} | Message: {response.text}"
-            )
-            logger.error(msg)
-            raise InternalError(msg)
+            raise InternalError(f"Failed Request: {response.status_code} {response.text}")
         return response.text
 
 
@@ -77,7 +75,7 @@ class OntologyClient:
 class ListClient:
     """Client to request and reformat the lists of a project."""
 
-    api_con: ApiConnection
+    api_url: str
     shortcode: str
 
     def get_lists(self) -> AllProjectLists:
@@ -88,14 +86,13 @@ class ListClient:
         return AllProjectLists(reformatted)
 
     def _get_all_list_iris(self) -> dict[str, Any]:
-        response = self.api_con.get_with_endpoint(endpoint=f"admin/lists?projectShortcode={self.shortcode}")
+        url = f"{self.api_url}/admin/lists?projectShortcode={self.shortcode}"
+        timeout = 10
+        log_request(RequestParameters("GET", url, timeout))
+        response = requests.get(url=url, timeout=timeout)
+        log_response(response)
         if not response.ok:
-            msg = (
-                f"NON-OK RESPONSE | Request: GET all list IRIs | "
-                f"Code: {response.status_code} | Message: {response.text}"
-            )
-            logger.error(msg)
-            raise InternalError(msg)
+            raise InternalError(f"Failed Request: {response.status_code} {response.text}")
         json_response = cast(dict[str, Any], response.json())
         return json_response
 
@@ -104,14 +101,13 @@ class ListClient:
 
     def _get_one_list(self, list_iri: str) -> dict[str, Any]:
         encoded_list_iri = quote_plus(list_iri)
-        response = self.api_con.get_with_endpoint(endpoint=f"admin/lists/{encoded_list_iri}")
+        url = f"{self.api_url}/admin/lists/{encoded_list_iri}"
+        timeout = 10
+        log_request(RequestParameters("GET", url, timeout))
+        response = requests.get(url=url, timeout=timeout)
+        log_response(response)
         if not response.ok:
-            msg = (
-                f"NON-OK RESPONSE | Request: GET one list {list_iri} | "
-                f"Code: {response.status_code} | Message: {response.text}"
-            )
-            logger.error(msg)
-            raise InternalError(msg)
+            raise InternalError(f"Failed Request: {response.status_code} {response.text}")
         response_json = cast(dict[str, Any], response.json())
         return response_json
 
@@ -138,7 +134,7 @@ class ListClient:
 class ShaclValidator:
     """Client to validate RDF data against a given SHACL shape."""
 
-    api_con: ApiConnection
+    api_url: str
 
     def validate(self, rdf_graphs: RDFGraphs) -> SHACLValidationReport:
         """
@@ -171,26 +167,24 @@ class ShaclValidator:
 
     def validate_ontology(self, onto_graph: Graph, onto_shacl: Graph) -> SHACLValidationReport:
         post_files = self._prepare_validation_files_for_request(onto_graph, onto_shacl)
-        response = self.api_con.post_files(endpoint="shacl/validate", files=post_files)
+        url = f"{self.api_url}/shacl/validate"
+        timeout = 60
+        log_request(RequestParameters("POST", url, timeout, files=post_files))
+        response = requests.post(url=url, files=post_files.to_dict(), timeout=timeout)
+        log_response(response)
         if not response.ok:
-            msg = (
-                f"NON-OK RESPONSE | Request: POST files for SHACL ontology validation | "
-                f"Code: {response.status_code} | Message: {response.text}"
-            )
-            logger.error(msg)
-            raise InternalError(msg)
+            raise InternalError(f"Failed Request: {response.status_code} {response.text}")
         return self._parse_validation_result(response.text)
 
     def _validate_cardinality(self, rdf_graphs: RDFGraphs) -> SHACLValidationReport:
         card_files = self._prepare_cardinality_files(rdf_graphs)
-        response = self.api_con.post_files(endpoint="shacl/validate", files=card_files)
+        url = f"{self.api_url}/shacl/validate"
+        timeout = 60
+        log_request(RequestParameters("POST", url, timeout, files=card_files))
+        response = requests.post(url=url, files=card_files.to_dict(), timeout=timeout)
+        log_response(response)
         if not response.ok:
-            msg = (
-                f"NON-OK RESPONSE | Request: POST files for SHACL cardinality validation | "
-                f"Code: {response.status_code} | Message: {response.text}"
-            )
-            logger.error(msg)
-            raise InternalError(msg)
+            raise InternalError(f"Failed Request: {response.status_code} {response.text}")
         return self._parse_validation_result(response.text)
 
     def _prepare_cardinality_files(self, rdf_graphs: RDFGraphs) -> PostFiles:
@@ -199,14 +193,13 @@ class ShaclValidator:
 
     def _validate_content(self, rdf_graphs: RDFGraphs) -> SHACLValidationReport:
         content_files = self._prepare_content_files(rdf_graphs)
-        response = self.api_con.post_files(endpoint="shacl/validate", files=content_files)
+        url = f"{self.api_url}/shacl/validate"
+        timeout = 60
+        log_request(RequestParameters("POST", url, timeout, files=content_files))
+        response = requests.post(url=url, files=content_files.to_dict(), timeout=timeout)
+        log_response(response)
         if not response.ok:
-            msg = (
-                f"NON-OK RESPONSE | Request: POST files for SHACL content validation | "
-                f"Code: {response.status_code} | Message: {response.text}"
-            )
-            logger.error(msg)
-            raise InternalError(msg)
+            raise InternalError(f"Failed Request: {response.status_code} {response.text}")
         return self._parse_validation_result(response.text)
 
     def _prepare_content_files(self, rdf_graphs: RDFGraphs) -> PostFiles:

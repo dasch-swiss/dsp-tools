@@ -36,8 +36,8 @@ from dsp_tools.commands.excel2json.lists.models.input_error import MissingNodeCo
 from dsp_tools.commands.excel2json.lists.models.input_error import MissingNodeTranslationProblem
 from dsp_tools.commands.excel2json.lists.models.input_error import MissingTranslationsSheetProblem
 from dsp_tools.commands.excel2json.lists.models.input_error import NodesPerRowProblem
-from dsp_tools.models.custom_warnings import DspToolsUserWarning
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.error.custom_warnings import DspToolsUserWarning
+from dsp_tools.error.exceptions import InputError
 
 
 class TestMakeAllExcelComplianceChecks:

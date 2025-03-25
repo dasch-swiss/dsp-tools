@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from dsp_tools.models.problems import Problem
+from dsp_tools.error.problems import Problem
 
 separator = "\n\n"
 list_separator = "\n - "

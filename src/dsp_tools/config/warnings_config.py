@@ -1,7 +1,7 @@
 import warnings
 from typing import TextIO
 
-from dsp_tools.models.custom_warnings import DspToolsWarning
+from dsp_tools.error.custom_warnings import DspToolsWarning
 
 
 def initialize_warnings() -> None:

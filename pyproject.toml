@@ -4,7 +4,9 @@
 name = "dsp-tools"
 version = "11.0.0"
 description = "DSP-TOOLS is a Python package with a command line interface that helps you interact with a DaSCH service platform (DSP) server."
-authors = [{name = "DaSCH - Swiss National Data and Service Center for the Humanities", email = "info@dasch.swiss"}]
+authors = [
+    { name = "DaSCH - Swiss National Data and Service Center for the Humanities", email = "info@dasch.swiss" },
+]
 readme = "docs/index.md"
 classifiers = [
     "Programming Language :: Python :: 3.12",
@@ -42,7 +44,7 @@ Repository = "https://github.com/dasch-swiss/dsp-tools.git"
 
 
 [project.scripts]
-dsp-tools = "dsp_tools.cli.entry_point:main"  # definition of the CLI entry point
+dsp-tools = "dsp_tools.cli.entry_point:main" # definition of the CLI entry point
 
 
 [build-system]
@@ -66,12 +68,10 @@ dev-dependencies = [
     "pre-commit",
     "pytest-cov",
     "pytest-unordered",
-    "pytest==8.0.2",
-    # pytest: don't upgrade until https://github.com/pytest-dev/pytest/issues/12044 is fixed
+    "pytest",
     "requests-mock",
     "ruff",
-    "testcontainers==4.7.2",
-    # testcontainers: don't upgrade until https://github.com/dasch-swiss/dsp-tools/pull/1122#discussion_r1723055599 is fixed
+    "testcontainers",
     "tomlkit",
     "types-docker",
     "types-jsonschema",
@@ -100,18 +100,18 @@ show_column_numbers = true
 strict = true
 enable_error_code = ["possibly-undefined"]
 exclude = [
-    "src/dsp_tools/models/datetimestamp.py",                         # TODO: activate this
-    "src/dsp_tools/models/langstring.py",                            # TODO: activate this
-    "src/dsp_tools/models/projectContext.py",                        # TODO: activate this
-    "src/dsp_tools/commands/project/legacy_models/context.py",       # TODO: activate this
-    "src/dsp_tools/commands/project/legacy_models/group.py",         # TODO: activate this
-    "src/dsp_tools/commands/project/legacy_models/helpers.py",       # TODO: activate this
-    "src/dsp_tools/commands/project/legacy_models/listnode.py",      # TODO: activate this
-    "src/dsp_tools/commands/project/legacy_models/ontology.py",      # TODO: activate this
-    "src/dsp_tools/commands/project/legacy_models/project.py",       # TODO: activate this
-    "src/dsp_tools/commands/project/legacy_models/propertyclass.py", # TODO: activate this
-    "src/dsp_tools/commands/project/legacy_models/resourceclass.py", # TODO: activate this
-    "src/dsp_tools/commands/project/legacy_models/user.py",          # TODO: activate this
+    "src/dsp_tools/legacy_models/datetimestamp.py",
+    "src/dsp_tools/legacy_models/langstring.py",
+    "src/dsp_tools/legacy_models/projectContext.py",
+    "src/dsp_tools/commands/project/legacy_models/context.py",
+    "src/dsp_tools/commands/project/legacy_models/group.py",
+    "src/dsp_tools/commands/project/legacy_models/helpers.py",
+    "src/dsp_tools/commands/project/legacy_models/listnode.py",
+    "src/dsp_tools/commands/project/legacy_models/ontology.py",
+    "src/dsp_tools/commands/project/legacy_models/project.py",
+    "src/dsp_tools/commands/project/legacy_models/propertyclass.py",
+    "src/dsp_tools/commands/project/legacy_models/resourceclass.py",
+    "src/dsp_tools/commands/project/legacy_models/user.py",
 ]
 
 
@@ -127,56 +127,56 @@ line-length = 120
 
 [tool.ruff.lint]
 select = [
-    "RUF",      # ruff-specific rules
-    "PL",       # pylint
-    "I",        # isort
-    "E",        # pycodestyle errors
-    "F",        # pyflakes
-    "A",        # flake8-builtins
-    "BLE",      # flake8-blind-except
-    "ARG",      # flake8-unused-arguments
-    "S",        # flake8-bandit plugin which checks for security issues
-    "YTT",      # flake8-2020 plugin, which checks for misuse of `sys.version` or `sys.version_info`
-    "ASYNC",    # flake8-async plugin, which checks for bad async / asyncio practices
-    "ISC",      # flake8-implicit-str-concat plugin, which checks for problematic string concatenation
-    "INP",      # flake8-no-pep420 plugin, which checks for missing __init__.py files
-    "PIE",      # flake8-pie plugin, which does miscellaneous checks
-    "PT",       # flake8-pytest-style plugin
-    "TID",      # flake8-tidy-imports plugin
-    "ICN",      # flake8-import-conventions plugin, which checks for import conventions
-    "ARG",      # flake8-unused-arguments
-    "PGH",      # pygrep-hooks: A collection of fast, cheap, regex based pre-commit hooks
-    "UP031",    # pyupgrade: printf-string-formatting
-    "D101",     # pydocstyle: undocumented-public-class
-    "D102",     # pydocstyle: undocumented-public-method
-    "D103",     # pydocstyle: undocumented-public-function
-    "D417",     # pydocstyle: undocumented-param
-    "B023",     # flake8-bugbear: function-uses-loop-variable
-    "FIX",      # flake8-fixme: checks for FIXME, TODO, XXX, etc.
+    "RUF",   # ruff-specific rules
+    "PL",    # pylint
+    "I",     # isort
+    "E",     # pycodestyle errors
+    "F",     # pyflakes
+    "A",     # flake8-builtins
+    "BLE",   # flake8-blind-except
+    "ARG",   # flake8-unused-arguments
+    "S",     # flake8-bandit plugin which checks for security issues
+    "YTT",   # flake8-2020 plugin, which checks for misuse of `sys.version` or `sys.version_info`
+    "ASYNC", # flake8-async plugin, which checks for bad async / asyncio practices
+    "ISC",   # flake8-implicit-str-concat plugin, which checks for problematic string concatenation
+    "INP",   # flake8-no-pep420 plugin, which checks for missing __init__.py files
+    "PIE",   # flake8-pie plugin, which does miscellaneous checks
+    "PT",    # flake8-pytest-style plugin
+    "TID",   # flake8-tidy-imports plugin
+    "ICN",   # flake8-import-conventions plugin, which checks for import conventions
+    "ARG",   # flake8-unused-arguments
+    "PGH",   # pygrep-hooks: A collection of fast, cheap, regex based pre-commit hooks
+    "UP031", # pyupgrade: printf-string-formatting
+    "D101",  # pydocstyle: undocumented-public-class
+    "D102",  # pydocstyle: undocumented-public-method
+    "D103",  # pydocstyle: undocumented-public-function
+    "D417",  # pydocstyle: undocumented-param
+    "B023",  # flake8-bugbear: function-uses-loop-variable
+    "FIX",   # flake8-fixme: checks for FIXME, TODO, XXX, etc.
 ]
 ignore = [
-    "ISC001",   # flake8-implicit-str-concat: single-line-implicit-string-concatenation  # incompatible with the formatter
-    "S105",     # flake8-bandit: hardcoded password
-    "S106",     # flake8-bandit: hardcoded password
-    "S603",     # flake8-bandit: subprocess-without-shell-equals-true
-    "S320",     # flake8-bandit: xml parsing vulnerable to XML attacks
+    "ISC001", # flake8-implicit-str-concat: single-line-implicit-string-concatenation  # incompatible with the formatter
+    "S105",   # flake8-bandit: hardcoded password
+    "S106",   # flake8-bandit: hardcoded password
+    "S603",   # flake8-bandit: subprocess-without-shell-equals-true
+    "S320",   # flake8-bandit: xml parsing vulnerable to XML attacks
 ]
 
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = [
-    "F401",     # unused-import
-    "F403",     # undefined-local-with-import-star
-    "PLC0414",  # useless-import-alias
+    "F401",    # unused-import
+    "F403",    # undefined-local-with-import-star
+    "PLC0414", # useless-import-alias
 ]
 "testdata/**" = [
-    "INP001",   # implicit-namespace-package    # there are some python files, but no __init__.py
+    "INP001", # implicit-namespace-package    # there are some python files, but no __init__.py
 ]
 "test/*" = [
-    "D103",     # pydocstyle: undocumented-public-function
-    "D102",     # pydocstyle: undocumented-public-method
-    "D101",     # pydocstyle: undocumented-public-class
-    "S101",     # flake8-bandit: use of assert
+    "D103", # pydocstyle: undocumented-public-function
+    "D102", # pydocstyle: undocumented-public-method
+    "D101", # pydocstyle: undocumented-public-class
+    "S101", # flake8-bandit: use of assert
 ]
 
 
@@ -186,4 +186,3 @@ convention = "google"
 
 [tool.ruff.lint.isort]
 force-single-line = true
-

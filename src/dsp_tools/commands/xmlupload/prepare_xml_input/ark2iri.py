@@ -5,7 +5,7 @@ import uuid
 
 import regex
 
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.error.exceptions import BaseError
 
 
 def convert_ark_v0_to_resource_iri(ark: str) -> str:

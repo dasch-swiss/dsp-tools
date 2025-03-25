@@ -5,13 +5,13 @@ from lxml import etree
 from tqdm import tqdm
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
 from dsp_tools.commands.ingest_xmlupload.bulk_ingest_client import BulkIngestClient
 from dsp_tools.commands.ingest_xmlupload.upload_files.filechecker import check_files
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailure
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailures
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import validate_and_parse
-from dsp_tools.models.exceptions import InputError
-from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
+from dsp_tools.error.exceptions import InputError
 
 
 def upload_files(

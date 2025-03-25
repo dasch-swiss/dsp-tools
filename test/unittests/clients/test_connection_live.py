@@ -15,9 +15,9 @@ import regex
 from requests import ReadTimeout
 from requests import RequestException
 
-from dsp_tools.models.exceptions import PermanentConnectionError
-from dsp_tools.models.exceptions import PermanentTimeOutError
-from dsp_tools.utils.connection_live import ConnectionLive
+from dsp_tools.clients.connection_live import ConnectionLive
+from dsp_tools.error.exceptions import PermanentConnectionError
+from dsp_tools.error.exceptions import PermanentTimeOutError
 from dsp_tools.utils.request_utils import PostFile
 from dsp_tools.utils.request_utils import PostFiles
 from dsp_tools.utils.request_utils import RequestParameters
@@ -182,8 +182,8 @@ def test_server_and_route_without_slash() -> None:
         assert expected_params.url == "http://example.com/v2/resources", f"Method '{method.__name__}' failed"
 
 
-@patch("dsp_tools.utils.connection_live.log_response")
-@patch("dsp_tools.utils.connection_live.log_request")
+@patch("dsp_tools.clients.connection_live.log_response")
+@patch("dsp_tools.clients.connection_live.log_request")
 def test_try_network_action(log_request: Mock, log_response: Mock) -> None:
     con = ConnectionLive("http://example.com/")
     response_expected = Mock(status_code=200)
@@ -209,8 +209,8 @@ def test_try_network_action_timeout_error(monkeypatch: pytest.MonkeyPatch) -> No
         con._try_network_action(params)
 
 
-@patch("dsp_tools.utils.connection_live.log_response")
-@patch("dsp_tools.utils.connection_live.log_request")
+@patch("dsp_tools.clients.connection_live.log_response")
+@patch("dsp_tools.clients.connection_live.log_request")
 def test_try_network_action_connection_error(
     log_request: Mock, log_response: Mock, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -230,8 +230,8 @@ def test_try_network_action_connection_error(
     assert response == session_mock.responses[-1]
 
 
-@patch("dsp_tools.utils.connection_live.log_response")
-@patch("dsp_tools.utils.connection_live.log_request")
+@patch("dsp_tools.clients.connection_live.log_response")
+@patch("dsp_tools.clients.connection_live.log_request")
 def test_try_network_action_non_200(log_request: Mock, log_response: Mock, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("DSP_TOOLS_TESTING", raising=False)  # in CI, this variable suppresses the retrying mechanism
     con = ConnectionLive("http://example.com/")
@@ -247,8 +247,8 @@ def test_try_network_action_non_200(log_request: Mock, log_response: Mock, monke
     assert response == session_mock.responses[-1]
 
 
-@patch("dsp_tools.utils.connection_live.log_response")
-@patch("dsp_tools.utils.connection_live.log_request")
+@patch("dsp_tools.clients.connection_live.log_response")
+@patch("dsp_tools.clients.connection_live.log_request")
 def test_try_network_action_in_testing_environment(
     log_request: Mock,  # noqa: ARG001
     log_response: Mock,  # noqa: ARG001
@@ -265,8 +265,8 @@ def test_try_network_action_in_testing_environment(
         sleep_mock.assert_not_called()
 
 
-@patch("dsp_tools.utils.connection_live.log_response")
-@patch("dsp_tools.utils.connection_live.log_request")
+@patch("dsp_tools.clients.connection_live.log_response")
+@patch("dsp_tools.clients.connection_live.log_request")
 def test_try_network_action_permanent_connection_error(
     log_request: Mock,  # noqa: ARG001
     log_response: Mock,  # noqa: ARG001

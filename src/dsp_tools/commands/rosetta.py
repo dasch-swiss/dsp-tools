@@ -5,7 +5,7 @@ from pathlib import Path
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.error.exceptions import InputError
 
 
 def _update_possibly_existing_repo(rosetta_folder: Path) -> bool:

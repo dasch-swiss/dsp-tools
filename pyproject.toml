@@ -68,8 +68,7 @@ dev-dependencies = [
     "pre-commit",
     "pytest-cov",
     "pytest-unordered",
-    "pytest==8.0.2",
-    # pytest: don't upgrade until https://github.com/pytest-dev/pytest/issues/12044 is fixed
+    "pytest",
     "requests-mock",
     "ruff",
     "testcontainers",

@@ -3,6 +3,7 @@ from dataclasses import field
 from typing import Any
 from uuid import uuid4
 
+from dsp_tools.clients.connection import Connection
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.lookup_models import JSONLDContext
@@ -15,7 +16,6 @@ from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStashItem
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import _upload_stash
-from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.request_utils import PostFiles
 from test.integration.commands.xmlupload.connection_mock import ConnectionMockBase
 

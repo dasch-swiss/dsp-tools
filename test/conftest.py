@@ -5,7 +5,7 @@ import pytest
 from _pytest.logging import caplog as _caplog  # noqa: F401 (imported but unused)
 from loguru import logger
 
-from dsp_tools.utils.logger_config import logger_config
+from dsp_tools.config.logger_config import logger_config
 
 
 @pytest.fixture

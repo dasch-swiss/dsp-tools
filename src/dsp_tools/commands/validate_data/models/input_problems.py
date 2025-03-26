@@ -10,7 +10,7 @@ import regex
 from rdflib import Graph
 
 from dsp_tools.commands.validate_data.models.validation import UnexpectedComponent
-from dsp_tools.models.custom_warnings import DspToolsUserWarning
+from dsp_tools.error.custom_warnings import DspToolsUserWarning
 
 LIST_SEPARATOR = "\n    - "
 GRAND_SEPARATOR = "\n\n----------------------------\n"

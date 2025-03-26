@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from dsp_tools.models.problems import Problem
+from dsp_tools.error.problems import Problem
 
 separator = "\n    "
 list_separator = "\n    - "

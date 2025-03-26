@@ -30,8 +30,8 @@ from dsp_tools.commands.excel2xml.excel2xml_lib import make_text_prop
 from dsp_tools.commands.excel2xml.excel2xml_lib import make_uri_prop
 from dsp_tools.commands.excel2xml.excel2xml_lib import write_xml
 from dsp_tools.commands.excel2xml.propertyelement import PropertyElement
-from dsp_tools.models.exceptions import BaseError
-from dsp_tools.utils.shared import check_notna
+from dsp_tools.error.exceptions import BaseError
+from dsp_tools.utils.data_formats.shared import check_notna
 
 # ruff: noqa: E501 (line-too-long)
 

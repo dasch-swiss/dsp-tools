@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 
 from dsp_tools.commands.excel2xml.propertyelement import PropertyElement
-from dsp_tools.utils import shared
+from dsp_tools.utils.data_formats import shared
 
 
 def test_check_notna_good() -> None:

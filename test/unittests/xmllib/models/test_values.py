@@ -2,7 +2,7 @@ import warnings
 
 import pytest
 
-from dsp_tools.models.custom_warnings import DspToolsUserWarning
+from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.values import BooleanValue
 from dsp_tools.xmllib.models.values import ColorValue

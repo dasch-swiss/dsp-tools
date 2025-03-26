@@ -12,7 +12,7 @@ from dsp_tools.commands.excel2json.models.input_error import InvalidExcelContent
 from dsp_tools.commands.excel2json.models.input_error import PropertyProblem
 from dsp_tools.commands.excel2json.models.ontology import GuiAttributes
 from dsp_tools.commands.excel2json.models.ontology import OntoProperty
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.error.exceptions import InputError
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
 

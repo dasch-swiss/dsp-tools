@@ -7,7 +7,7 @@ import regex
 
 from dsp_tools.commands.excel2json.lists.models.deserialise import ColumnNodes
 from dsp_tools.commands.excel2json.lists.models.deserialise import Columns
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.error.exceptions import InputError
 
 
 def get_lang_string_from_column_name(col_str: str, ending: str = r"(\d+|list|comments)") -> str | None:

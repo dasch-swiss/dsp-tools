@@ -6,7 +6,7 @@ from typing import cast
 
 import regex
 
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.error.exceptions import BaseError
 
 _calendar = r"GREGORIAN|JULIAN|ISLAMIC"
 _era = r"CE|BCE|BC|AD"

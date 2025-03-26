@@ -9,7 +9,7 @@ from loguru import logger
 from lxml import etree
 
 from dsp_tools.commands.ingest_xmlupload.create_resources.user_information import IngestInformation
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.error.exceptions import InputError
 
 
 def get_mapping_dict_from_file(shortcode: str) -> dict[str, str]:

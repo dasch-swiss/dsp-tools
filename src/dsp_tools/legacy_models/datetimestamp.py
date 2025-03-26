@@ -5,7 +5,7 @@ from typing import Union
 
 import regex
 
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.error.exceptions import BaseError
 
 
 class DateTimeStamp:

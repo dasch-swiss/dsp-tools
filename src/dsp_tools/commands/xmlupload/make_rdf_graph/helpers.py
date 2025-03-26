@@ -2,8 +2,8 @@ from rdflib import Namespace
 from rdflib import URIRef
 
 from dsp_tools.commands.xmlupload.models.permission import Permissions
-from dsp_tools.models.exceptions import InputError
-from dsp_tools.models.exceptions import PermissionNotExistsError
+from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.exceptions import PermissionNotExistsError
 
 
 def resolve_permission(permissions: str | None, permissions_lookup: dict[str, Permissions]) -> str | None:

@@ -12,11 +12,11 @@ from requests import Session
 from requests.adapters import HTTPAdapter
 from requests.adapters import Retry
 
+from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailure
-from dsp_tools.models.exceptions import BadCredentialsError
-from dsp_tools.models.exceptions import InputError
-from dsp_tools.utils.authentication_client import AuthenticationClient
-from dsp_tools.utils.logger_config import LOGGER_SAVEPATH
+from dsp_tools.config.logger_config import LOGGER_SAVEPATH
+from dsp_tools.error.exceptions import BadCredentialsError
+from dsp_tools.error.exceptions import InputError
 
 STATUS_OK = 200
 STATUS_UNAUTHORIZED = 401

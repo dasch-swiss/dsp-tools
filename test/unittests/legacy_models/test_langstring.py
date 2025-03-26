@@ -4,8 +4,8 @@ import unittest
 
 import pytest
 
-from dsp_tools.models.langstring import LangString
-from dsp_tools.models.langstring import Languages
+from dsp_tools.legacy_models.langstring import LangString
+from dsp_tools.legacy_models.langstring import Languages
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
 

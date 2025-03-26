@@ -9,7 +9,7 @@ from urllib.parse import quote_plus
 
 from loguru import logger
 
-from dsp_tools.utils.connection import Connection
+from dsp_tools.clients.connection import Connection
 
 
 @dataclass(frozen=True)

@@ -14,7 +14,7 @@ from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryRes
 from dsp_tools.commands.xmlupload.models.intermediary.res import MigrationMetadata
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
-from dsp_tools.models.datetimestamp import DateTimeStamp
+from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 
 ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
 RESOURCE_TYPE = URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#TestResource")

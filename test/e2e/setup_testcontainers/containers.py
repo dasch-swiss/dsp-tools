@@ -159,7 +159,7 @@ def _get_api(network: Network, version: str, ports: ExternalContainerPorts, name
     )
     api.start()
     _await_healthcheck(names.api)
-    sleep(1)  # The API healthcheck is suspected to report healthy a bit too early
+    sleep(2)  # The API healthcheck is suspected to report healthy a bit too early
     print("API is ready")
     return api
 

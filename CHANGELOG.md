@@ -1,5 +1,42 @@
 # Changelog
 
+## [12.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v11.0.0...v12.0.0) (2025-03-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* rename old and new excel2json/excel2lists commands (RDU-80) ([#1558](https://github.com/dasch-swiss/dsp-tools/issues/1558))
+
+### Enhancements
+
+* rename old and new excel2json/excel2lists commands (RDU-80) ([#1558](https://github.com/dasch-swiss/dsp-tools/issues/1558)) ([5788aba](https://github.com/dasch-swiss/dsp-tools/commit/5788abaa22aec64d7ff9a978d9a05863bb9968b9))
+
+
+### Bug Fixes
+
+* delete warning.log if empty (DEV-3438) ([#1559](https://github.com/dasch-swiss/dsp-tools/issues/1559)) ([41ff3ed](https://github.com/dasch-swiss/dsp-tools/commit/41ff3ed290691eef5e8def5474aa14797226607c))
+* **xmlupload:** disallow the combination of eras and Islamic calendar dates (RDU-77) ([#1557](https://github.com/dasch-swiss/dsp-tools/issues/1557)) ([36206ea](https://github.com/dasch-swiss/dsp-tools/commit/36206eae9e04042fac6570563bcb393540864830))
+
+
+### Maintenance
+
+* add option to exclude request response text in logging ([#1569](https://github.com/dasch-swiss/dsp-tools/issues/1569)) ([624d1a2](https://github.com/dasch-swiss/dsp-tools/commit/624d1a28248ec49cc3e49780365f5b765c8993de))
+* bump dependencies ([#1566](https://github.com/dasch-swiss/dsp-tools/issues/1566)) ([34e7051](https://github.com/dasch-swiss/dsp-tools/commit/34e7051b7c3c66a44d4813567062329f146ddc66))
+* merge UserError and InputError classes (DEV-4698) ([#1555](https://github.com/dasch-swiss/dsp-tools/issues/1555)) ([52ba834](https://github.com/dasch-swiss/dsp-tools/commit/52ba8342a46ec79b878289254e73a7c77ac9a7f4))
+* remove version restriction on "testcontainers" ([#1567](https://github.com/dasch-swiss/dsp-tools/issues/1567)) ([f2fb985](https://github.com/dasch-swiss/dsp-tools/commit/f2fb985c129966455e4d14dd6323cc68f024e6be))
+* reorganise package structure (DEV-4721) ([#1564](https://github.com/dasch-swiss/dsp-tools/issues/1564)) ([e483b3b](https://github.com/dasch-swiss/dsp-tools/commit/e483b3b1a20af89e169c73b60a47229e7c1af354))
+* reorganise utils ([#1565](https://github.com/dasch-swiss/dsp-tools/issues/1565)) ([ceac23c](https://github.com/dasch-swiss/dsp-tools/commit/ceac23cb7092a773701adac2e5658994ea5f1ffd))
+* run `uv sync` before `just lint`, to prevent parallelism issues ([#1562](https://github.com/dasch-swiss/dsp-tools/issues/1562)) ([cbe35e1](https://github.com/dasch-swiss/dsp-tools/commit/cbe35e19137d18568db26013fa076ab9c1f91f9a))
+* Update versions 2025.03.03 ([#1563](https://github.com/dasch-swiss/dsp-tools/issues/1563)) ([3c12484](https://github.com/dasch-swiss/dsp-tools/commit/3c124847dc38efc5ad85921e4a42332dd323d6e8))
+* upgrade pytest (DEV-3786) ([#1568](https://github.com/dasch-swiss/dsp-tools/issues/1568)) ([a99bd00](https://github.com/dasch-swiss/dsp-tools/commit/a99bd0029cc6883910b687787a6cab6679e0a123))
+* **validate-data:** PostFiles ([#1554](https://github.com/dasch-swiss/dsp-tools/issues/1554)) ([21f33e6](https://github.com/dasch-swiss/dsp-tools/commit/21f33e61e836c51aa4a3b0bf0b0223a6f9cb1d0e))
+* **validate-data:** remove ApiConnection, handle all network interaction in ListClient (DEV-4702) ([#1546](https://github.com/dasch-swiss/dsp-tools/issues/1546)) ([046da8b](https://github.com/dasch-swiss/dsp-tools/commit/046da8b4d6358ab9ade85ff37d3ea0355bfc9319))
+
+
+### Documentation
+
+* fix UI bug: admonition is not supported on pypi.org (DEV-4715) ([#1556](https://github.com/dasch-swiss/dsp-tools/issues/1556)) ([98bdc97](https://github.com/dasch-swiss/dsp-tools/commit/98bdc974af4dc0650467a63ff277d555445fd08d))
+
 ## [11.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v10.6.0...v11.0.0) (2025-03-19)
 
 

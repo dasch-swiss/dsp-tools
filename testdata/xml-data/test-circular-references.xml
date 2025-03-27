@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<knora xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://dasch.swiss/schema https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/data.xsd" shortcode="0700" default-ontology="simcir">
+
+    <resource label="res_A_11" restype=":TestThing" id="res_A_11">
+        <text-prop name=":hasRichtext">
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_B_11:IRI">res_B_11</a>end text.</text>
+        </text-prop>
+        <resptr-prop name=":hasResource1">
+            <resptr>res_B_11</resptr>
+        </resptr-prop>
+    </resource>
+    <resource label="res_B_11" restype=":TestThing" id="res_B_11">
+        <text-prop name=":hasRichtext">
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_C_11:IRI">res_C_11</a>end text.</text>
+        </text-prop>
+        <resptr-prop name=":hasResource1">
+            <resptr>res_C_11</resptr>
+        </resptr-prop>
+    </resource>
+    <resource label="res_C_11" restype=":TestThing" id="res_C_11">
+        <text-prop name=":hasRichtext">
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_A_11:IRI">res_A_11</a>end text.</text>
+        </text-prop>
+        <resptr-prop name=":hasResource1">
+            <resptr>res_A_11</resptr>
+        </resptr-prop>
+    </resource>
+    <resource label="res_A_12.1" restype=":TestThing" id="res_A_12.1">
+        <text-prop name=":hasRichtext">
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_D_12.1:IRI">res_D_12.1</a>end text.</text>
+        </text-prop>
+    </resource>
+    <resource label="res_B_12.1" restype=":TestThing" id="res_B_12.1">
+        <text-prop name=":hasRichtext">
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_D_12.1:IRI">res_D_12.1</a>end text.</text>
+        </text-prop>
+    </resource>
+    <resource label="res_C_12.1" restype=":TestThing" id="res_C_12.1">
+        <text-prop name=":hasRichtext">
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_D_12.1:IRI">res_D_12.1</a>end text.</text>
+        </text-prop>
+    </resource>
+    <resource label="res_D_12.1" restype=":TestThing" id="res_D_12.1">
+        <resptr-prop name=":hasResource1">
+            <resptr>res_E_12.1</resptr>
+        </resptr-prop>
+    </resource>
+    <resource label="res_E_12.1" restype=":TestThing" id="res_E_12.1">
+        <resptr-prop name=":hasResource1">
+            <resptr>res_A_12.1</resptr>
+            <resptr>res_B_12.1</resptr>
+            <resptr>res_C_12.1</resptr>
+        </resptr-prop>
+    </resource>
+    <resource label="res_A_12.2" restype=":TestThing" id="res_A_12.2">
+        <text-prop name=":hasRichtext">
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_D_12.2:IRI">res_D_12.2</a>end text.</text>
+        </text-prop>
+    </resource>
+    <resource label="res_B_12.2" restype=":TestThing" id="res_B_12.2">
+        <text-prop name=":hasRichtext">
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_D_12.2:IRI">res_D_12.2</a>end text.</text>
+        </text-prop>
+    </resource>
+    <resource label="res_C_12.2" restype=":TestThing" id="res_C_12.2">
+        <text-prop name=":hasRichtext">
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_D_12.2:IRI">res_D_12.2</a>end text.</text>
+        </text-prop>
+    </resource>
+    <resource label="res_D_12.2" restype=":TestThing" id="res_D_12.2">
+        <resptr-prop name=":hasResource1">
+            <resptr>res_E_12.2</resptr>
+        </resptr-prop>
+        <resptr-prop name=":hasResource2">
+            <resptr>res_E_12.2</resptr>
+        </resptr-prop>
+        <resptr-prop name=":hasResource3">
+            <resptr>res_E_12.2</resptr>
+        </resptr-prop>
+        <resptr-prop name=":hasResource4">
+            <resptr>res_E_12.2</resptr>
+        </resptr-prop>
+        <resptr-prop name=":hasResource5">
+            <resptr>res_E_12.2</resptr>
+        </resptr-prop>
+    </resource>
+    <resource label="res_E_12.2" restype=":TestThing" id="res_E_12.2">
+        <resptr-prop name=":hasResource1">
+            <resptr>res_A_12.2</resptr>
+            <resptr>res_B_12.2</resptr>
+            <resptr>res_C_12.2</resptr>
+        </resptr-prop>
+    </resource>
+    <resource label="res_A_13" restype=":TestThing" id="res_A_13">
+        <text-prop name=":hasRichtext">
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_D_13:IRI">res_D_13</a>end text.</text>
+        </text-prop>
+    </resource>
+    <resource label="res_B_13" restype=":TestThing" id="res_B_13">
+        <text-prop name=":hasRichtext">
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_D_13:IRI">res_D_13</a>end text.</text>
+        </text-prop>
+    </resource>
+    <resource label="res_C_13" restype=":TestThing" id="res_C_13">
+        <text-prop name=":hasRichtext">
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_D_13:IRI">res_D_13</a>end text.</text>
+        </text-prop>
+    </resource>
+    <resource label="res_D_13" restype=":TestThing" id="res_D_13">
+        <resptr-prop name=":hasResource1">
+            <resptr>res_E_13</resptr>
+        </resptr-prop>
+        <text-prop name=":hasRichtext">
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_F_13:IRI">res_F_13</a>end text.</text>
+        </text-prop>
+    </resource>
+    <resource label="res_E_13" restype=":TestThing" id="res_E_13">
+        <resptr-prop name=":hasResource1">
+            <resptr>res_A_13</resptr>
+            <resptr>res_B_13</resptr>
+            <resptr>res_C_13</resptr>
+        </resptr-prop>
+    </resource>
+    <resource label="res_F_13" restype=":TestThing" id="res_F_13">
+        <resptr-prop name=":hasResource1">
+            <resptr>res_E_13</resptr>
+        </resptr-prop>
+    </resource>
+    <resource label="res_A_14.1" restype=":TestThing" id="res_A_14.1">
+        <resptr-prop name=":hasResource1">
+            <resptr>res_B_14.1</resptr>
+        </resptr-prop>
+    </resource>
+    <resource label="res_B_14.1" restype=":TestThing" id="res_B_14.1">
+        <text-prop name=":hasRichtext">
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_A_14.1:IRI">res_A_14.1</a>end text.</text>
+        </text-prop>
+    </resource>
+    <resource label="res_A_14.2" restype=":TestThing" id="res_A_14.2">
+        <resptr-prop name=":hasResource1">
+            <resptr>res_B_14.2</resptr>
+        </resptr-prop>
+        <resptr-prop name=":hasResource2">
+            <resptr>res_B_14.2</resptr>
+        </resptr-prop>
+    </resource>
+    <resource label="res_B_14.2" restype=":TestThing" id="res_B_14.2">
+        <text-prop name=":hasRichtext">
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_A_14.2:IRI">res_A_14.2</a>end text.</text>
+        </text-prop>
+    </resource>
+    <resource label="res_A_15" restype=":TestThing" id="res_A_15">
+        <resptr-prop name=":hasResource1">
+            <resptr>res_B_15</resptr>
+        </resptr-prop>
+    </resource>
+    <resource label="res_B_15" restype=":TestThing" id="res_B_15">
+        <resptr-prop name=":hasResource1">
+            <resptr>res_C_15</resptr>
+        </resptr-prop>
+    </resource>
+    <resource label="res_C_15" restype=":TestThing" id="res_C_15">
+        <resptr-prop name=":hasResource1">
+            <resptr>res_D_15</resptr>
+        </resptr-prop>
+    </resource>
+    <resource label="res_D_15" restype=":TestThing" id="res_D_15">
+        <resptr-prop name=":hasResource1">
+            <resptr>res_E_15</resptr>
+        </resptr-prop>
+    </resource>
+    <resource label="res_E_15" restype=":TestThing" id="res_E_15"/>
+    <resource label="res_A_16" restype=":TestThing" id="res_A_16">
+        <resptr-prop name=":hasResource1">
+            <resptr>res_D_16</resptr>
+        </resptr-prop>
+    </resource>
+    <resource label="res_B_16" restype=":TestThing" id="res_B_16">
+        <resptr-prop name=":hasResource1">
+            <resptr>res_D_16</resptr>
+        </resptr-prop>
+    </resource>
+    <resource label="res_C_16" restype=":TestThing" id="res_C_16">
+        <resptr-prop name=":hasResource1">
+            <resptr>res_D_16</resptr>
+        </resptr-prop>
+    </resource>
+    <resource label="res_D_16" restype=":TestThing" id="res_D_16">
+        <text-prop name=":hasRichtext">
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_E_16:IRI">res_E_16</a>end text.</text>
+        </text-prop>
+    </resource>
+    <resource label="res_E_16" restype=":TestThing" id="res_E_16">
+        <text-prop name=":hasRichtext">
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_A_16:IRI">res_A_16</a>blabla<a class="salsah-link" href="IRI:res_B_16:IRI">res_B_16</a>blabla<a class="salsah-link" href="IRI:res_C_16:IRI">res_C_16</a>end text.</text>
+        </text-prop>
+    </resource>
+    <resource label="res_A_17" restype=":TestThing" id="res_A_17">
+        <resptr-prop name=":hasResource1">
+            <resptr>res_B_17</resptr>
+            <resptr>res_C_17</resptr>
+        </resptr-prop>
+    </resource>
+    <resource label="res_B_17" restype=":TestThing" id="res_B_17">
+        <text-prop name=":hasRichtext">
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_A_17:IRI">res_A_17</a>end text.</text>
+        </text-prop>
+    </resource>
+    <resource label="res_C_17" restype=":TestThing" id="res_C_17"/>
+    <resource label="res_A_18" restype=":TestThing" id="res_A_18">
+        <resptr-prop name=":hasResource1">
+            <resptr>res_B_18</resptr>
+            <resptr>res_C_18</resptr>
+        </resptr-prop>
+    </resource>
+    <resource label="res_B_18" restype=":TestThing" id="res_B_18"/>
+    <resource label="res_C_18" restype=":TestThing" id="res_C_18">
+        <text-prop name=":hasRichtext">
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_A_18:IRI">res_A_18</a>end text.</text>
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_B_18:IRI">res_B_18</a>end text.</text>
+        </text-prop>
+    </resource>
+    <resource label="res_A_19" restype=":TestThing" id="res_A_19">
+        <resptr-prop name=":hasResource1">
+            <resptr>res_B_19</resptr>
+            <resptr>res_C_19</resptr>
+        </resptr-prop>
+        <text-prop name=":hasRichtext">
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_B_19:IRI">res_B_19</a>blabla<a class="salsah-link" href="IRI:res_C_19:IRI">res_C_19</a>end text.</text>
+        </text-prop>
+    </resource>
+    <resource label="res_B_19" restype=":TestThing" id="res_B_19"/>
+    <resource label="res_C_19" restype=":TestThing" id="res_C_19">
+        <text-prop name=":hasRichtext">
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_A_19:IRI">res_A_19</a>end text.</text>
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_B_19:IRI">res_B_19</a>end text.</text>
+        </text-prop>
+    </resource>
+    <resource label="res_A_110" restype=":TestThing" id="res_A_110">
+        <text-prop name=":hasRichtext">
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_D_110:IRI">res_D_110</a>end text.</text>
+        </text-prop>
+    </resource>
+    <resource label="res_B_110" restype=":TestThing" id="res_B_110">
+        <text-prop name=":hasRichtext">
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_D_110:IRI">res_D_110</a>end text.</text>
+        </text-prop>
+    </resource>
+    <resource label="res_C_110" restype=":TestThing" id="res_C_110">
+        <text-prop name=":hasRichtext">
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_D_110:IRI">res_D_110</a>end text.</text>
+        </text-prop>
+    </resource>
+    <resource label="res_D_110" restype=":TestThing" id="res_D_110">
+        <resptr-prop name=":hasResource1">
+            <resptr>res_E_110</resptr>
+        </resptr-prop>
+        <text-prop name=":hasRichtext">
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_F_110:IRI">res_F_110</a>end text.</text>
+        </text-prop>
+    </resource>
+    <resource label="res_E_110" restype=":TestThing" id="res_E_110">
+        <resptr-prop name=":hasResource1">
+            <resptr>res_A_110</resptr>
+            <resptr>res_B_110</resptr>
+            <resptr>res_C_110</resptr>
+        </resptr-prop>
+    </resource>
+    <resource label="res_F_110" restype=":TestThing" id="res_F_110">
+        <resptr-prop name=":hasResource1">
+            <resptr>res_E_110</resptr>
+        </resptr-prop>
+        <text-prop name=":hasRichtext">
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_K_110:IRI">res_K_110</a>end text.</text>
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_L_110:IRI">res_L_110</a>end text.</text>
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_M_110:IRI">res_M_110</a>end text.</text>
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_N_110:IRI">res_N_110</a>end text.</text>
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_O_110:IRI">res_O_110</a>end text.</text>
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_P_110:IRI">res_P_110</a>end text.</text>
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_Q_110:IRI">res_Q_110</a>end text.</text>
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_R_110:IRI">res_R_110</a>end text.</text>
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_S_110:IRI">res_S_110</a>end text.</text>
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_T_110:IRI">res_T_110</a>end text.</text>
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_U_110:IRI">res_U_110</a>end text.</text>
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_V_110:IRI">res_V_110</a>end text.</text>
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_W_110:IRI">res_W_110</a>end text.</text>
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_X_110:IRI">res_X_110</a>end text.</text>
+            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_Y_110:IRI">res_Y_110</a>end text.</text>
+        </text-prop>
+    </resource>
+    <resource label="res_K_110" restype=":TestThing" id="res_K_110"/>
+    <resource label="res_L_110" restype=":TestThing" id="res_L_110"/>
+    <resource label="res_M_110" restype=":TestThing" id="res_M_110"/>
+    <resource label="res_N_110" restype=":TestThing" id="res_N_110"/>
+    <resource label="res_O_110" restype=":TestThing" id="res_O_110"/>
+    <resource label="res_P_110" restype=":TestThing" id="res_P_110"/>
+    <resource label="res_Q_110" restype=":TestThing" id="res_Q_110"/>
+    <resource label="res_R_110" restype=":TestThing" id="res_R_110"/>
+    <resource label="res_S_110" restype=":TestThing" id="res_S_110"/>
+    <resource label="res_T_110" restype=":TestThing" id="res_T_110"/>
+    <resource label="res_U_110" restype=":TestThing" id="res_U_110"/>
+    <resource label="res_V_110" restype=":TestThing" id="res_V_110"/>
+    <resource label="res_W_110" restype=":TestThing" id="res_W_110"/>
+    <resource label="res_X_110" restype=":TestThing" id="res_X_110"/>
+    <resource label="res_Y_110" restype=":TestThing" id="res_Y_110"/>
+</knora>

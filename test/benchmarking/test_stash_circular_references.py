@@ -12,7 +12,9 @@ from dsp_tools.commands.xmlupload.stash.analyse_circular_reference_graph import 
 from dsp_tools.commands.xmlupload.stash.create_info_for_graph_from_intermediary_resource import (
     create_info_for_graph_from_intermediary_resources,
 )
-from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references
+from dsp_tools.commands.xmlupload.stash.stash_circular_references_from_intermediary_resource import (
+    stash_circular_references,
+)
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.ansi_colors import YELLOW
 from dsp_tools.utils.xml_parsing.parse_and_transform import parse_and_clean_xml_file

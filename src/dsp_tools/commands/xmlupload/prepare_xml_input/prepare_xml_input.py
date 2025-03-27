@@ -30,7 +30,9 @@ from dsp_tools.commands.xmlupload.stash.analyse_circular_reference_graph import 
 from dsp_tools.commands.xmlupload.stash.create_info_for_graph_from_intermediary_resource import (
     create_info_for_graph_from_intermediary_resources,
 )
-from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references
+from dsp_tools.commands.xmlupload.stash.stash_circular_references_from_intermediary_resource import (
+    stash_circular_references,
+)
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import BaseError

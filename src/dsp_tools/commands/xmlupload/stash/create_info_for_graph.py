@@ -40,12 +40,13 @@ def _process_one_resource(resource: IntermediaryResource) -> tuple[list[LinkValu
             )
         elif isinstance(val, IntermediaryRichtext):
             if val.resource_references:
-                if all([is_resource_iri(x) for x in val.resource_references]):
+                only_ids = {x for x in val.resource_references if not is_resource_iri(x)}
+                if not only_ids:
                     continue
                 stand_off.append(
                     StandOffLink(
                         source_id=resource.res_id,
-                        target_ids=val.resource_references,
+                        target_ids=only_ids,
                         link_uuid=val.value_uuid,
                     )
                 )

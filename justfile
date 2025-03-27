@@ -115,11 +115,12 @@ legacy-e2e-tests *FLAGS:
 # Remove artifact files
 [no-exit-message]
 clean:
-    -find . -name "*.pyc" -exec rm -rf {} \;
-    -find . -name __pycache__ -exec rm -rf {} \;
-    -find . -name .ruff_cache -exec rm -rf {} \;
-    -find . -name .pytest_cache -exec rm -rf {} \;
-    -find . -name .mypy_cache -exec rm -rf {} \;
+    -find . -name "*.pyc" -exec rm -rf {} +
+    -find . -name __pycache__ -exec rm -rf {} +
+    -find . -name .ruff_cache -exec rm -rf {} +
+    -find . -name .pytest_cache -exec rm -rf {} +
+    -find . -name .mypy_cache -exec rm -rf {} +
+    uv run dmypy restart
     -rm -rf ./*id2iri_mapping*.json
     -rm -rf ./*id2iri_[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]*.json
     -rm -f ./warnings.log

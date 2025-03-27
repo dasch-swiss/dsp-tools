@@ -107,7 +107,7 @@ def _create_resptr_prop_json_object_to_update(
     jsonobj = {
         "@id": res_iri,
         "@type": stash.res_type,
-        f"{stash.prop_name}Value": linkVal,
+        stash.prop_name: linkVal,
     }
     jsonobj.update(jsonld_context.serialise())
     return jsonobj

@@ -85,7 +85,9 @@ class TestUploadLinkValueStashes:
             standoff_stash=None,
             link_value_stash=LinkValueStash.make(
                 [
-                    LinkValueStashItem("001", "sometype", "someprop", "002"),
+                    LinkValueStashItem(
+                        "001", "sometype", "http://0.0.0.0:3333/ontology/4123/testonto/v2#someprop", "002"
+                    ),
                 ],
             ),
         )
@@ -107,10 +109,18 @@ class TestUploadLinkValueStashes:
             standoff_stash=None,
             link_value_stash=LinkValueStash.make(
                 [
-                    LinkValueStashItem("001", "sometype", "someprop", "002"),
-                    LinkValueStashItem("001", "sometype", "someprop", "003"),
-                    LinkValueStashItem("002", "sometype", "someprop", "003"),
-                    LinkValueStashItem("004", "sometype", "someprop", "002"),
+                    LinkValueStashItem(
+                        "001", "sometype", "http://0.0.0.0:3333/ontology/4123/testonto/v2#someprop", "002"
+                    ),
+                    LinkValueStashItem(
+                        "001", "sometype", "http://0.0.0.0:3333/ontology/4123/testonto/v2#someprop", "003"
+                    ),
+                    LinkValueStashItem(
+                        "002", "sometype", "http://0.0.0.0:3333/ontology/4123/testonto/v2#someprop", "003"
+                    ),
+                    LinkValueStashItem(
+                        "004", "sometype", "http://0.0.0.0:3333/ontology/4123/testonto/v2#someprop", "002"
+                    ),
                 ],
             ),
         )
@@ -133,7 +143,7 @@ class TestUploadTextValueStashes:
     def test_upload_text_value_stash(self) -> None:
         """Upload stashed text values (standoff), if all goes well."""
         value_uuid = str(uuid4())
-        property_name = "someprop"
+        property_name = "http://0.0.0.0:3333/ontology/4123/testonto/v2#someprop"
         stash = Stash.make(
             standoff_stash=StandoffStash.make(
                 [
@@ -154,7 +164,7 @@ class TestUploadTextValueStashes:
         con: Connection = ConnectionMock(
             get_responses=[
                 {
-                    property_name: [
+                    "testonto:someprop": [
                         {
                             "@id": "http://www.rdfh.ch/0001/001/values/01",
                             "knora-api:textValueAsXml": "<p>not relevant</p>",
@@ -179,7 +189,7 @@ class TestUploadTextValueStashes:
         text value in its text.
         """
         value_uuid = str(uuid4())
-        property_name = "someprop"
+        property_name = "http://0.0.0.0:3333/ontology/4123/testonto/v2#someprop"
         stash = Stash.make(
             standoff_stash=StandoffStash.make(
                 [
@@ -200,7 +210,7 @@ class TestUploadTextValueStashes:
         con: Connection = ConnectionMock(
             get_responses=[
                 {
-                    property_name: [
+                    "testonto:someprop": [
                         {
                             "@id": "http://www.rdfh.ch/0001/001/values/01",
                             "knora-api:textValueAsXml": "<p>not relevant</p>",

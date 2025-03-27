@@ -18,17 +18,10 @@ from dsp_tools.commands.xmlupload.models.lookup_models import get_json_ld_contex
 from dsp_tools.commands.xmlupload.models.lookup_models import make_namespace_dict_from_onto_names
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
-from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontology import (
-    do_xml_consistency_check_with_ontology,
-)
 from dsp_tools.commands.xmlupload.prepare_xml_input.iiif_uri_validator import IIIFUriValidator
-from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClient
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import (
     transform_all_resources_into_intermediary_resources,
 )
-from dsp_tools.commands.xmlupload.stash.stash_circular_references import identify_circular_references
-from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references
-from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError

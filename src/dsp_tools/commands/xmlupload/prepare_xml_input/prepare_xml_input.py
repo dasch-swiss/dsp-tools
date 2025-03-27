@@ -26,8 +26,8 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import Ontol
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import (
     transform_all_resources_into_intermediary_resources,
 )
-from dsp_tools.commands.xmlupload.stash.stash_circular_references import identify_circular_references
-from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references
+from dsp_tools.commands.xmlupload.stash.stash_circular_references_from_root import identify_circular_references
+from dsp_tools.commands.xmlupload.stash.stash_circular_references_from_root import stash_circular_references
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import BaseError

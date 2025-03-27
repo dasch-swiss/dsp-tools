@@ -4,15 +4,15 @@ import pytest
 
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import _extract_resources_from_xml
-from dsp_tools.commands.xmlupload.stash.stash_circular_references import identify_circular_references
-from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references
+from dsp_tools.commands.xmlupload.stash.stash_circular_references_from_root import identify_circular_references
+from dsp_tools.commands.xmlupload.stash.stash_circular_references_from_root import stash_circular_references
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.ansi_colors import YELLOW
 from dsp_tools.utils.xml_parsing.parse_and_transform import parse_and_clean_xml_file
 
 
 def test_get_length_ok_resources() -> None:
-    test_root = parse_and_clean_xml_file(Path("testdata/xml-data/circular-references/test_circular_references_1.xml"))
+    test_root = parse_and_clean_xml_file(Path("testdata/xml-data/test-circular-references.xml"))
     stash_lookup, _ = identify_circular_references(test_root)
     resources = _extract_resources_from_xml(test_root, "simcir")
     stash = stash_circular_references(resources, stash_lookup, {"open": Permissions()})

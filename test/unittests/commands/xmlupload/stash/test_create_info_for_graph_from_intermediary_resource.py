@@ -8,10 +8,8 @@ from dsp_tools.commands.xmlupload.models.intermediary.values import Intermediary
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediarySimpleText
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryValue
-from dsp_tools.commands.xmlupload.stash.create_info_for_graph_from_intermediary_resource import _process_one_resource
-from dsp_tools.commands.xmlupload.stash.create_info_for_graph_from_intermediary_resource import (
-    create_info_for_graph_from_intermediary_resources,
-)
+from dsp_tools.commands.xmlupload.stash.create_info_for_graph import _process_one_resource
+from dsp_tools.commands.xmlupload.stash.create_info_for_graph import create_info_for_graph_from_intermediary_resources
 
 
 @pytest.fixture

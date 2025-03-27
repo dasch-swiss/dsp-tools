@@ -49,7 +49,7 @@ def prepare_upload_from_root(
         root=root,
         default_ontology=ontology_client.default_ontology,
     )
-    transformed_resources, project_context = get_transformed_resources(
+    transformed_resources, project_context = _get_transformed_resources(
         resources, clients, permissions_lookup, authorships
     )
     info_for_graph = create_info_for_graph_from_intermediary_resources(transformed_resources)
@@ -60,24 +60,12 @@ def prepare_upload_from_root(
     return sorted_resources, stash, project_context
 
 
-def get_transformed_resources(
+def _get_transformed_resources(
     resources: list[XMLResource],
     clients: UploadClients,
     permissions_lookup: dict[str, Permissions],
     authorship_lookup: dict[str, list[str]],
 ) -> tuple[list[IntermediaryResource], JSONLDContext]:
-    """
-    From the XMLResource get the transformed resources.
-
-    Args:
-        resources: list of resources
-        clients: clients to retrieve information from the API
-        permissions_lookup: lookup for permissions
-        authorship_lookup: lookup for authorship
-
-    Returns:
-        The transformed resources and the json-ld context
-    """
     project_onto_dict = clients.project_client.get_ontology_name_dict()
     listnode_lookup = clients.list_client.get_list_node_id_to_iri_lookup()
     namespaces = make_namespace_dict_from_onto_names(project_onto_dict)

@@ -30,8 +30,9 @@ from dsp_tools.commands.xmlupload.stash.analyse_circular_reference_graph import 
 from dsp_tools.commands.xmlupload.stash.create_info_for_graph_from_intermediary_resource import (
     create_info_for_graph_from_intermediary_resources,
 )
-from dsp_tools.commands.xmlupload.stash.stash_circular_references import identify_circular_references
-from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references
+from dsp_tools.commands.xmlupload.stash.stash_circular_references_from_intermediary_resource import (
+    stash_circular_references,
+)
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import BaseError
@@ -42,13 +43,13 @@ LIST_SEPARATOR = "\n-    "
 
 
 def prepare_upload_from_root(
-    root: etree._Element, con: Connection, ontology_client: OntologyClient, clients: UploadClients
+    root: etree._Element, ontology_client: OntologyClient, clients: UploadClients
 ) -> tuple[list[IntermediaryResource], Stash | None, JSONLDContext]:
     """Do the consistency check, resolve circular references, and return the resources and permissions."""
     do_xml_consistency_check_with_ontology(onto_client=ontology_client, root=root)
     logger.info("Get data from XML...")
     resources, permissions_lookup, authorships = _get_data_from_xml(
-        con=con,
+        con=ontology_client.con,
         root=root,
         default_ontology=ontology_client.default_ontology,
     )
@@ -57,11 +58,10 @@ def prepare_upload_from_root(
     )
     info_for_graph = create_info_for_graph_from_intermediary_resources(transformed_resources)
     stash_lookup, upload_order = generate_upload_order(info_for_graph)
-    sorting_lookup = {res.res_id: res for res in resources}
-    resources = [sorting_lookup[res_id] for res_id in upload_order]
-    transformed_resources, project_context = get_transformed_resources(
-        resources,
-    )
+    sorting_lookup = {res.res_id: res for res in transformed_resources}
+    sorted_resources = [sorting_lookup[res_id] for res_id in upload_order]
+    stash = stash_circular_references(sorted_resources, stash_lookup)
+    return sorted_resources, stash, project_context
 
 
 def get_transformed_resources(
@@ -100,47 +100,12 @@ def get_transformed_resources(
     return result.transformed_resources, project_context
 
 
-def old_prepare_upload_from_root(
-    root: etree._Element,
-    ontology_client: OntologyClient,
-) -> tuple[list[XMLResource], dict[str, Permissions], Stash | None, dict[str, list[str]]]:
-    """Do the consistency check, resolve circular references, and return the resources and permissions."""
-    do_xml_consistency_check_with_ontology(onto_client=ontology_client, root=root)
-    return _resolve_circular_references(
-        root=root,
-        con=ontology_client.con,
-        default_ontology=ontology_client.default_ontology,
-    )
-
-
 def _validate_iiif_uris(root: etree._Element) -> None:
     uris = [uri.strip() for node in root.iter(tag="iiif-uri") if (uri := node.text)]
     if problems := IIIFUriValidator(uris).validate():
         msg = problems.get_msg()
         warnings.warn(DspToolsUserWarning(msg))
         logger.warning(msg)
-
-
-def _resolve_circular_references(
-    root: etree._Element,
-    con: Connection,
-    default_ontology: str,
-) -> tuple[list[XMLResource], dict[str, Permissions], Stash | None, dict[str, list[str]]]:
-    logger.info("Checking resources for circular references...")
-    print(f"{datetime.now()}: Checking resources for circular references...")
-    stash_lookup, upload_order = identify_circular_references(root)
-    logger.info("Get data from XML...")
-    resources, permissions_lookup, authorships = _get_data_from_xml(
-        con=con,
-        root=root,
-        default_ontology=default_ontology,
-    )
-    sorting_lookup = {res.res_id: res for res in resources}
-    resources = [sorting_lookup[res_id] for res_id in upload_order]
-    logger.info("Stashing circular references...")
-    print(f"{datetime.now()}: Stashing circular references...")
-    stash = stash_circular_references(resources, stash_lookup, permissions_lookup)
-    return resources, permissions_lookup, stash, authorships
 
 
 def _get_data_from_xml(

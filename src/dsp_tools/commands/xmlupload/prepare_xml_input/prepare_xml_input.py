@@ -18,16 +18,46 @@ from dsp_tools.commands.xmlupload.models.lookup_models import get_json_ld_contex
 from dsp_tools.commands.xmlupload.models.lookup_models import make_namespace_dict_from_onto_names
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
+from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontology import (
+    do_xml_consistency_check_with_ontology,
+)
 from dsp_tools.commands.xmlupload.prepare_xml_input.iiif_uri_validator import IIIFUriValidator
+from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClient
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import (
     transform_all_resources_into_intermediary_resources,
 )
+from dsp_tools.commands.xmlupload.stash.analyse_circular_reference_graph import generate_upload_order
+from dsp_tools.commands.xmlupload.stash.create_info_for_graph import create_info_for_graph_from_intermediary_resources
+from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references
+from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.legacy_models.projectContext import ProjectContext
 
 LIST_SEPARATOR = "\n-    "
+
+
+def prepare_upload_from_root(
+    root: etree._Element, ontology_client: OntologyClient, clients: UploadClients
+) -> tuple[list[IntermediaryResource], Stash | None, JSONLDContext]:
+    """Do the consistency check, resolve circular references, and return the resources and permissions."""
+    do_xml_consistency_check_with_ontology(onto_client=ontology_client, root=root)
+    logger.info("Get data from XML...")
+    resources, permissions_lookup, authorships = _get_data_from_xml(
+        con=ontology_client.con,
+        root=root,
+        default_ontology=ontology_client.default_ontology,
+    )
+    transformed_resources, project_context = get_transformed_resources(
+        resources, clients, permissions_lookup, authorships
+    )
+    info_for_graph = create_info_for_graph_from_intermediary_resources(transformed_resources)
+    stash_lookup, upload_order = generate_upload_order(info_for_graph)
+    sorting_lookup = {res.res_id: res for res in transformed_resources}
+    sorted_resources = [sorting_lookup[res_id] for res_id in upload_order]
+    stash = stash_circular_references(sorted_resources, stash_lookup)
+    return sorted_resources, stash, project_context
 
 
 def get_transformed_resources(

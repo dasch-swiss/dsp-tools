@@ -20,7 +20,9 @@ def test_get_length_ok_resources() -> None:
     test_root = parse_and_clean_xml_file(Path("testdata/xml-data/test-circular-references.xml"))
     resources = _extract_resources_from_xml(test_root, "simcir")
     permissions_lookup = {"open": Permissions()}
-    intermediary_lookups = IntermediaryLookups(permissions_lookup, {}, {}, {})
+    intermediary_lookups = IntermediaryLookups(
+        permissions_lookup, {}, namespaces={"simcir": "https://namespace.ch/simcir#"}, authorships={}
+    )
     transformation_result = transform_all_resources_into_intermediary_resources(resources, intermediary_lookups)
     info_for_graph = create_info_for_graph_from_intermediary_resources(transformation_result.transformed_resources)
     stash_lookup, _ = generate_upload_order(info_for_graph)

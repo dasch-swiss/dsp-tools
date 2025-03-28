@@ -30,10 +30,10 @@ class StandoffStashItemExtracted:
 class StandoffStash:
     """Holds information about a number of stashed XML text values, organized by resource instance."""
 
-    res_2_stash_items: dict[str, list[StandoffStashItemExtracted]]
+    res_2_stash_items: dict[str, list[StandoffStashItem]]
 
     @staticmethod
-    def make(items: list[StandoffStashItemExtracted]) -> StandoffStash | None:
+    def make(items: list[StandoffStashItem]) -> StandoffStash | None:
         """
         Factory method for StandoffStash.
 
@@ -44,7 +44,7 @@ class StandoffStash:
             StandoffStash | None: A StandoffStash object or None, if an empty list was passed.
         """
 
-        def _get_res_id(x: StandoffStashItemExtracted) -> str:
+        def _get_res_id(x: StandoffStashItem) -> str:
             return x.res_id
 
         if not items:

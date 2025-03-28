@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
@@ -5,7 +7,7 @@ from dsp_tools.commands.xmlupload.models.intermediary.values import Intermediary
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItemExtracted
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash
-from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStashItemExtracted
+from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStashItem
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 
 
@@ -14,7 +16,7 @@ def stash_circular_references(
 ) -> Stash | None:
     """Stash the values that would create circular references and remove them from the Resources."""
     stashed_link_values: list[LinkValueStashItemExtracted] = []
-    stashed_standoff_values: list[StandoffStashItemExtracted] = []
+    stashed_standoff_values: list[StandoffStashItem] = []
 
     if not stash_lookup:
         return None
@@ -34,9 +36,9 @@ def stash_circular_references(
 def _process_one_resource(
     resource: IntermediaryResource,
     stash_lookup: dict[str, list[str]],
-) -> tuple[list[LinkValueStashItemExtracted], list[StandoffStashItemExtracted]]:
+) -> tuple[list[LinkValueStashItemExtracted], list[StandoffStashItem]]:
     stashed_link_values: list[LinkValueStashItemExtracted] = []
-    stashed_standoff_values: list[StandoffStashItemExtracted] = []
+    stashed_standoff_values: list[StandoffStashItem] = []
 
     for val in resource.values.copy():
         if isinstance(val, IntermediaryLink):
@@ -69,18 +71,15 @@ def _stash_link(
     )
 
 
-def _stash_standoff(value: IntermediaryRichtext, res_id: str, res_type: str) -> StandoffStashItemExtracted:
-    actual_text = value.value
+def _stash_standoff(value: IntermediaryRichtext, res_id: str, res_type: str) -> StandoffStashItem:
+    original_value = deepcopy(value)
     # Replace the content with the UUID
     value.value = FormattedTextValue(value.value_uuid)
     # It is not necessary to add the permissions to the StandoffStashItem.
     # Because when no new permissions are given during an update request,
     # the permissions of the previous value are taken.
-    return StandoffStashItemExtracted(
+    return StandoffStashItem(
         res_id=res_id,
         res_type=res_type,
-        uuid=value.value_uuid,
-        prop_name=value.prop_iri,
-        comment=value.comment,
-        value=actual_text,
+        value=original_value,
     )

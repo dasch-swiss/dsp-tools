@@ -60,7 +60,7 @@ def test_make_richtext_update_graph(standoff_stash_item, iri_resolver):
     assert next(result.objects(VAL_IRI, RDF.type)) == KNORA_API.TextValue
 
 
-def test_serlialise_richtext_for_update(standoff_stash_item, iri_resolver):
+def test_serialise_richtext_for_update(standoff_stash_item, iri_resolver):
     result = _serialise_richtext_for_update(standoff_stash_item, VAL_IRI_STR, RES_IRI_STR, iri_resolver)
     expected = {
         "@id": "http://rdfh.ch/9999/res_one",

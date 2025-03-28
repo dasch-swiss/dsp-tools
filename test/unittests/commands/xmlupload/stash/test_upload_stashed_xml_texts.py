@@ -14,8 +14,8 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.constants import KNORA_API
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStashItem
-from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import _create_richtext_resource_for_update
 from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import _make_richtext_update_graph
+from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import _serlialise_richtext_for_update
 
 ONTO_STR = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
 
@@ -60,8 +60,8 @@ def test_make_richtext_update_graph(standoff_stash_item, iri_resolver):
     assert next(result.objects(VAL_IRI, RDF.type)) == KNORA_API.TextValue
 
 
-def test_create_richtext_resource_for_update(standoff_stash_item, iri_resolver):
-    result = _create_richtext_resource_for_update(standoff_stash_item, RES_IRI_STR, VAL_IRI_STR, iri_resolver)
+def test_serlialise_richtext_for_update(standoff_stash_item, iri_resolver):
+    result = _serlialise_richtext_for_update(standoff_stash_item, RES_IRI_STR, VAL_IRI_STR, iri_resolver)
     expected = {
         "@id": "http://rdfh.ch/9999/res_one",
         "@type": "http://0.0.0.0:3333/ontology/9999/onto/v2#Resource",

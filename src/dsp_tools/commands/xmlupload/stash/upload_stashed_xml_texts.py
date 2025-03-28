@@ -111,7 +111,7 @@ def _upload_stash_item(
     Returns:
         True, if the upload was successful, False otherwise
     """
-    payload = _create_richtext_resource_for_update(
+    payload = _serlialise_richtext_for_update(
         stash_item=stash_item,
         res_iri_str=res_iri,
         value_iri_str=value_iri,
@@ -126,7 +126,7 @@ def _upload_stash_item(
     return True
 
 
-def _create_richtext_resource_for_update(
+def _serlialise_richtext_for_update(
     stash_item: StandoffStashItem, res_iri_str: str, value_iri_str: str, iri_resolver: IriResolver
 ) -> dict[str, Any]:
     graph = _make_richtext_update_graph(

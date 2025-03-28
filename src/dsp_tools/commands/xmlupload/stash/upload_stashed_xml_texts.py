@@ -66,23 +66,9 @@ def _create_XMLResource_json_object_to_update(
     link_prop_name: str,
     value_iri: str,
     new_xmltext: FormattedTextValue,
-        comment: str | None,
+    comment: str | None,
     context: dict[str, str],
 ) -> dict[str, Any]:
-    """
-    This function creates a JSON object that can be sent as update request to DSP-API.
-
-    Args:
-        res_iri: the iri of the resource
-        res_type: the type of the resource
-        link_prop_name: the name of the link property
-        value_iri: the iri of the value
-        new_xmltext: the new xml text to be uploaded
-        context: the JSON-LD context of the resource
-
-    Returns:
-        json string
-    """
     jsonobj = {
         "@id": res_iri,
         "@type": res_type,

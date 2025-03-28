@@ -17,75 +17,6 @@ from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.error.exceptions import BaseError
 
 
-def _log_unable_to_retrieve_resource(
-    resource: str,
-    received_error: BaseError,
-) -> None:
-    """
-    This function logs the error if it is not possible to retrieve the resource.
-
-    Args:
-        resource: the resource id
-        received_error: the error
-    """
-    # print the message to keep track of the cause for the failure
-    # apart from that; no action is necessary:
-    # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
-    err_msg = (
-        f"Unable to upload XML texts of resource '{resource}', "
-        "because the resource cannot be retrieved from the DSP server."
-    )
-    print(f"{datetime.now()}:   WARNING: {err_msg} Original error message: {received_error.message}")
-    logger.error(err_msg)
-
-
-def _log_unable_to_upload_xml_resource(
-    received_error: BaseError,
-    stashed_resource_id: str,
-    prop_name: str,
-) -> None:
-    """
-    This function logs if it is not possible to upload a xml resource.
-
-    Args:
-        received_error: Error received
-        stashed_resource_id: id of the resource
-        prop_name: name of the property
-    """
-    # print the message to keep track of the cause for the failure
-    # apart from that; no action is necessary:
-    # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
-    err_msg = f"Unable to upload the xml text of '{prop_name}' of resource '{stashed_resource_id}'."
-    print(f"{datetime.now()}:     WARNING: {err_msg} Original error message: {received_error.message}")
-    logger.error(err_msg)
-
-
-def _create_XMLResource_json_object_to_update(
-    res_iri: str,
-    res_type: str,
-    link_prop_name: str,
-    value_iri: str,
-    new_xmltext: FormattedTextValue,
-    comment: str | None,
-    context: dict[str, str],
-) -> dict[str, Any]:
-    prop_json = {
-        "@id": value_iri,
-        "@type": "knora-api:TextValue",
-        "knora-api:textValueAsXml": new_xmltext.as_xml(),
-        "knora-api:textValueHasMapping": {"@id": "http://rdfh.ch/standoff/mappings/StandardMapping"},
-    }
-    if comment:
-        prop_json["knora-api:valueHasComment"] = comment
-    jsonobj = {
-        "@id": res_iri,
-        "@type": res_type,
-        link_prop_name: prop_json,
-        "@context": context,
-    }
-    return jsonobj
-
-
 def upload_stashed_xml_texts(upload_state: UploadState, con: Connection) -> None:
     """
     After all resources are uploaded, the stashed xml texts must be applied to their resources in DSP.
@@ -153,6 +84,12 @@ def _get_value_iri(
     return value_iri
 
 
+def _make_prefixed_prop_from_absolute_iri(absolute_iri: str) -> str:
+    _, onto, prop = absolute_iri.rsplit("/", 2)
+    local_name = prop.split("#")[-1]
+    return f"{onto}:{local_name}"
+
+
 def _upload_stash_item(
     stash_item: StandoffStashItem,
     res_iri: str,
@@ -198,7 +135,70 @@ def _upload_stash_item(
     return True
 
 
-def _make_prefixed_prop_from_absolute_iri(absolute_iri: str) -> str:
-    _, onto, prop = absolute_iri.rsplit("/", 2)
-    local_name = prop.split("#")[-1]
-    return f"{onto}:{local_name}"
+def _create_XMLResource_json_object_to_update(
+    res_iri: str,
+    res_type: str,
+    link_prop_name: str,
+    value_iri: str,
+    new_xmltext: FormattedTextValue,
+    comment: str | None,
+    context: dict[str, str],
+) -> dict[str, Any]:
+    prop_json = {
+        "@id": value_iri,
+        "@type": "knora-api:TextValue",
+        "knora-api:textValueAsXml": new_xmltext.as_xml(),
+        "knora-api:textValueHasMapping": {"@id": "http://rdfh.ch/standoff/mappings/StandardMapping"},
+    }
+    if comment:
+        prop_json["knora-api:valueHasComment"] = comment
+    jsonobj = {
+        "@id": res_iri,
+        "@type": res_type,
+        link_prop_name: prop_json,
+        "@context": context,
+    }
+    return jsonobj
+
+
+def _log_unable_to_retrieve_resource(
+    resource: str,
+    received_error: BaseError,
+) -> None:
+    """
+    This function logs the error if it is not possible to retrieve the resource.
+
+    Args:
+        resource: the resource id
+        received_error: the error
+    """
+    # print the message to keep track of the cause for the failure
+    # apart from that; no action is necessary:
+    # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
+    err_msg = (
+        f"Unable to upload XML texts of resource '{resource}', "
+        "because the resource cannot be retrieved from the DSP server."
+    )
+    print(f"{datetime.now()}:   WARNING: {err_msg} Original error message: {received_error.message}")
+    logger.error(err_msg)
+
+
+def _log_unable_to_upload_xml_resource(
+    received_error: BaseError,
+    stashed_resource_id: str,
+    prop_name: str,
+) -> None:
+    """
+    This function logs if it is not possible to upload a xml resource.
+
+    Args:
+        received_error: Error received
+        stashed_resource_id: id of the resource
+        prop_name: name of the property
+    """
+    # print the message to keep track of the cause for the failure
+    # apart from that; no action is necessary:
+    # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
+    err_msg = f"Unable to upload the xml text of '{prop_name}' of resource '{stashed_resource_id}'."
+    print(f"{datetime.now()}:     WARNING: {err_msg} Original error message: {received_error.message}")
+    logger.error(err_msg)

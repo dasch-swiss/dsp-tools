@@ -85,12 +85,6 @@ def _upload_stash_item(
     return True
 
 
-def _log_unable_to_upload_link_value(msg: str, res_id: str, prop_name: str) -> None:
-    err_msg = f"Unable to upload the resptr prop of '{prop_name}' of resource '{res_id}'."
-    print(f"{datetime.now()}:     WARNING: {err_msg} Original error message: {msg}")
-    logger.error(err_msg)
-
-
 def _create_resptr_prop_json_object_to_update(
     stash: LinkValueStashItem,
     res_iri: str,
@@ -113,3 +107,9 @@ def _create_resptr_prop_json_object_to_update(
     }
     jsonobj.update(jsonld_context.serialise())
     return jsonobj
+
+
+def _log_unable_to_upload_link_value(msg: str, res_id: str, prop_name: str) -> None:
+    err_msg = f"Unable to upload the resptr prop of '{prop_name}' of resource '{res_id}'."
+    print(f"{datetime.now()}:     WARNING: {err_msg} Original error message: {msg}")
+    logger.error(err_msg)

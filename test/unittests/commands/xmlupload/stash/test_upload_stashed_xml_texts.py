@@ -70,7 +70,7 @@ def test_create_richtext_resource_for_update(standoff_stash_item, iri_resolver):
             "@type": "http://api.knora.org/ontology/knora-api/v2#TextValue",
             "http://api.knora.org/ontology/knora-api/v2#textValueAsXml": {
                 "@type": "http://www.w3.org/2001/XMLSchema#string",
-                "@value": "<?xml versiontext</text>",
+                "@value": '<?xml version="1.0" encoding="UTF-8"?>\n<text>text</text>',
             },
             "http://api.knora.org/ontology/knora-api/v2#textValueHasMapping": {
                 "@id": "http://rdfh.ch/standoff/mappings/StandardMapping"

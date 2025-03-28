@@ -112,7 +112,10 @@ def _upload_stash_item(
         True, if the upload was successful, False otherwise
     """
     payload = _create_richtext_resource_for_update(
-        stash_item=stash_item, res_iri_str=res_iri, value_iri_str=value_iri, iri_resolver=iri_resolver
+        stash_item=stash_item,
+        res_iri_str=res_iri,
+        value_iri_str=value_iri,
+        iri_resolver=iri_resolver,
     )
     try:
         con.put(route="/v2/values", data=payload)

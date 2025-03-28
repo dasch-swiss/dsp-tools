@@ -126,16 +126,18 @@ def _upload_stash_item(
 def _create_richtext_resource_for_update(
     stash_item: StandoffStashItem, res_iri_str: str, value_iri_str: str, iri_resolver: IriResolver
 ) -> dict[str, Any]:
-    graph = _make_richtext_update_graph(stash_item, value_iri_str, res_iri_str, iri_resolver)
+    graph = _make_richtext_update_graph(
+        stash_item=stash_item, value_iri_str=value_iri_str, res_iri_str=res_iri_str, iri_resolver=iri_resolver
+    )
     graph_bytes = graph.serialize(format="json-ld", encoding="utf-8")
     serialised_json: list[dict[str, Any]] = json.loads(graph_bytes)
-    json_frame: dict[str, Any] = {res_iri_str: {}}
+    json_frame: dict[str, Any] = {"@id": res_iri_str}
     framed: dict[str, Any] = jsonld.frame(serialised_json, json_frame)
     return framed
 
 
 def _make_richtext_update_graph(
-    stash_item: StandoffStashItem, res_iri_str: str, value_iri_str: str, iri_resolver: IriResolver
+    stash_item: StandoffStashItem, value_iri_str: str, res_iri_str: str, iri_resolver: IriResolver
 ) -> Graph:
     res_iri = URIRef(res_iri_str)
     value_iri = URIRef(value_iri_str)

@@ -49,7 +49,7 @@ def iri_resolver() -> IriResolver:
 
 
 def test_make_richtext_update_graph(standoff_stash_item, iri_resolver):
-    result = _make_richtext_update_graph(standoff_stash_item, RES_IRI_STR, VAL_IRI_STR, iri_resolver)
+    result = _make_richtext_update_graph(standoff_stash_item, VAL_IRI_STR, RES_IRI_STR, iri_resolver)
     assert len(result) == 5
     assert next(result.objects(RES_IRI, RDF.type)) == RES_TYPE
     assert next(result.objects(RES_IRI, PROP_IRI)) == VAL_IRI
@@ -62,6 +62,22 @@ def test_make_richtext_update_graph(standoff_stash_item, iri_resolver):
 
 def test_create_richtext_resource_for_update(standoff_stash_item, iri_resolver):
     result = _create_richtext_resource_for_update(standoff_stash_item, RES_IRI_STR, VAL_IRI_STR, iri_resolver)
+    expected = {
+        "@id": "http://rdfh.ch/9999/res_one",
+        "@type": "http://0.0.0.0:3333/ontology/9999/onto/v2#Resource",
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#hasText": {
+            "@id": "http://rdfh.ch/9999/res_one/values/richtext",
+            "@type": "http://api.knora.org/ontology/knora-api/v2#TextValue",
+            "http://api.knora.org/ontology/knora-api/v2#textValueAsXml": {
+                "@type": "http://www.w3.org/2001/XMLSchema#string",
+                "@value": "<?xml versiontext</text>",
+            },
+            "http://api.knora.org/ontology/knora-api/v2#textValueHasMapping": {
+                "@id": "http://rdfh.ch/standoff/mappings/StandardMapping"
+            },
+        },
+    }
+    assert result == expected
 
 
 def test_find_ids_referenced_in_salsah_links_one_link() -> None:

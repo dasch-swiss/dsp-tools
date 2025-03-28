@@ -69,19 +69,20 @@ def _create_XMLResource_json_object_to_update(
     comment: str | None,
     context: dict[str, str],
 ) -> dict[str, Any]:
+    prop_json = {
+        "@id": value_iri,
+        "@type": "knora-api:TextValue",
+        "knora-api:textValueAsXml": new_xmltext.as_xml(),
+        "knora-api:textValueHasMapping": {"@id": "http://rdfh.ch/standoff/mappings/StandardMapping"},
+    }
+    if comment:
+        prop_json["knora-api:valueHasComment"] = comment
     jsonobj = {
         "@id": res_iri,
         "@type": res_type,
-        link_prop_name: {
-            "@id": value_iri,
-            "@type": "knora-api:TextValue",
-            "knora-api:textValueAsXml": new_xmltext.as_xml(),
-            "knora-api:textValueHasMapping": {"@id": "http://rdfh.ch/standoff/mappings/StandardMapping"},
-        },
+        link_prop_name: prop_json,
         "@context": context,
     }
-    if comment:
-        jsonobj["knora-api:valueHasComment"] = comment
     return jsonobj
 
 

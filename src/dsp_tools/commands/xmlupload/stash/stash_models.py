@@ -6,8 +6,8 @@ from itertools import groupby
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
 
 
-@dataclass
-class StandoffStashItem(frozen=True):
+@dataclass(frozen=True)
+class StandoffStashItem:
     res_id: str
     res_type: str
     value: IntermediaryRichtext

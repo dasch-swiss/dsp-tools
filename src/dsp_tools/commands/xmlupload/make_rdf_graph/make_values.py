@@ -242,6 +242,18 @@ def make_richtext_value_graph(
     res_node: BNode | URIRef,
     iri_resolver: IriResolver,
 ) -> Graph:
+    """
+    Creates an rdflib graph for a richtext value.
+
+    Args:
+        val: Richtext value
+        val_node: IRI or blank node of the value
+        res_node: IRI or blank node of the resource
+        iri_resolver: id to IRI resolver
+
+    Returns:
+        Graph
+    """
     g = _make_base_value_graph(val=val, val_node=val_node, prop_type_info=RICHTEXT_PROP_TYPE_INFO, res_node=res_node)
     xml_with_iris = val.value.with_iris(iri_resolver)
     val_str = xml_with_iris.as_xml()

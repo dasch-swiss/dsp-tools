@@ -6,6 +6,7 @@ from typing import cast
 from urllib.parse import quote_plus
 
 from loguru import logger
+from rdflib import URIRef
 
 from dsp_tools.clients.connection import Connection
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
@@ -15,6 +16,9 @@ from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStashItem
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.error.exceptions import BaseError
+
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import RICHTEXT_PROP_TYPE_INFO
+from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import make_richtext_value_graph
 
 
 def upload_stashed_xml_texts(upload_state: UploadState, con: Connection) -> None:
@@ -131,8 +135,14 @@ def _upload_stash_item(
     return True
 
 
-def _create_richtext_resource_for_update(stash_item: StandoffStashItem) -> dict[str, Any]:
-    pass
+def _create_richtext_resource_for_update(
+    stash_item: StandoffStashItem,
+    res_iri_str: str,
+    value_iri_str: str,
+    iri_resolver: IriResolver) -> dict[str, Any]:
+    res_iri = URIRef(res_iri_str)
+    value_iri = URIRef(value_iri_str)
+    val_graph = make_richtext_value_graph(stash_item.value, RICHTEXT_PROP_TYPE_INFO, res_iri, iri_resolver)
 
 
 

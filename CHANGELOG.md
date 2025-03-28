@@ -1,5 +1,22 @@
 # Changelog
 
+## [12.0.1](https://github.com/dasch-swiss/dsp-tools/compare/v12.0.0...v12.0.1) (2025-03-28)
+
+
+### Bug Fixes
+
+* **xmlupload:** add comment on value to shashed links and texts (DEV-4730) ([#1573](https://github.com/dasch-swiss/dsp-tools/issues/1573)) ([3670754](https://github.com/dasch-swiss/dsp-tools/commit/36707542761cf7f9d1a7683f73512315ae869b39))
+
+
+### Maintenance
+
+* delete dead code ([#1577](https://github.com/dasch-swiss/dsp-tools/issues/1577)) ([0205c59](https://github.com/dasch-swiss/dsp-tools/commit/0205c5958f6117929c7c4ec16da403c01f5ce352))
+* optimise `just clean` ([#1570](https://github.com/dasch-swiss/dsp-tools/issues/1570)) ([8347fe3](https://github.com/dasch-swiss/dsp-tools/commit/8347fe30dcbb76f986c0041671a518846ac5ac0c))
+* **xmlupload:** add option to use own value IRI in graph ([#1575](https://github.com/dasch-swiss/dsp-tools/issues/1575)) ([cf1927b](https://github.com/dasch-swiss/dsp-tools/commit/cf1927b1a57a667e76b079d882eb6f8294abe635))
+* **xmlupload:** change order of code ([#1574](https://github.com/dasch-swiss/dsp-tools/issues/1574)) ([5b7d657](https://github.com/dasch-swiss/dsp-tools/commit/5b7d6577a67cbb96cbfabb4d7edac6923a6f53eb))
+* **xmlupload:** integrate create upload order from `ResourceIntermediary` ([#1550](https://github.com/dasch-swiss/dsp-tools/issues/1550)) ([b279e68](https://github.com/dasch-swiss/dsp-tools/commit/b279e689b9ec0903daa34ff153f260cc5b7c1364))
+* **xmlupload:** remove old code and rename files ([#1572](https://github.com/dasch-swiss/dsp-tools/issues/1572)) ([cbd14de](https://github.com/dasch-swiss/dsp-tools/commit/cbd14de69c85c24f1cad522f69a28811a6c45f6c))
+
 ## [12.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v11.0.0...v12.0.0) (2025-03-26)
 
 

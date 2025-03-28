@@ -192,15 +192,16 @@ class TestUploadTextValueStashes:
         """
         value_uuid = str(uuid4())
         property_name = "http://0.0.0.0:3333/ontology/4123/testonto/v2#someprop"
+        val = IntermediaryRichtext(
+            value=FormattedTextValue("<p>some text</p>"),
+            prop_iri=property_name,
+            value_uuid=value_uuid,
+            resource_references=set(),
+            permissions=None,
+            comment=None,
+        )
         stash = Stash.make(
-            standoff_stash=StandoffStash.make(
-                [
-                    StandoffStashItem(
-                        "001", "sometype", value_uuid, property_name, FormattedTextValue("<p>some text</p>")
-                    ),
-                ]
-            ),
-            link_value_stash=None,
+            standoff_stash=StandoffStash.make([StandoffStashItem("001", "sometype", val)]), link_value_stash=None
         )
         assert stash
         iri_resolver = IriResolver(

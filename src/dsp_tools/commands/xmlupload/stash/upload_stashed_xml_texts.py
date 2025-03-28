@@ -130,7 +130,10 @@ def _serialise_richtext_for_update(
     stash_item: StandoffStashItem, value_iri_str: str, res_iri_str: str, iri_resolver: IriResolver
 ) -> dict[str, Any]:
     graph = _make_richtext_update_graph(
-        stash_item=stash_item, value_iri_str=value_iri_str, res_iri_str=res_iri_str, iri_resolver=iri_resolver
+        stash_item=stash_item,
+        value_iri_str=value_iri_str,
+        res_iri_str=res_iri_str,
+        iri_resolver=iri_resolver,
     )
     graph_bytes = graph.serialize(format="json-ld", encoding="utf-8")
     serialised_json: list[dict[str, Any]] = json.loads(graph_bytes)

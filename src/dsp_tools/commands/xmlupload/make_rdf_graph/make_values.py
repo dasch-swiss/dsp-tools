@@ -136,7 +136,7 @@ def _make_base_value_graph(
     return g
 
 
-def _add_optional_triples(val_bn: BNode, permissions: Permissions | None, comment: str | None) -> Graph:
+def _add_optional_triples(val_bn: BNode | URIRef, permissions: Permissions | None, comment: str | None) -> Graph:
     g = Graph()
     if permissions:
         g.add((val_bn, KNORA_API.hasPermissions, Literal(str(permissions), datatype=XSD.string)))

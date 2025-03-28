@@ -51,7 +51,7 @@ def upload_stashed_xml_texts(upload_state: UploadState, con: Connection) -> None
         print(f"{datetime.now()}:   Upload XML text(s) of resource '{res_id}'...")
         logger.info(f"  Upload XML text(s) of resource '{res_id}'...")
         for stash_item in stash_items:
-            value_iri = _get_value_iri(stash_item.prop_name, resource_in_triplestore, stash_item.uuid)
+            value_iri = _get_value_iri(stash_item.value.prop_iri, resource_in_triplestore, stash_item.value.value_uuid)
             if not value_iri:
                 continue
             if _upload_stash_item(
@@ -129,7 +129,7 @@ def _create_richtext_resource_for_update(
     graph = _make_richtext_update_graph(stash_item, value_iri_str, res_iri_str, iri_resolver)
     graph_bytes = graph.serialize(format="json-ld", encoding="utf-8")
     serialised_json: list[dict[str, Any]] = json.loads(graph_bytes)
-    json_frame = {res_iri_str: {}}
+    json_frame: dict[str, Any] = {res_iri_str: {}}
     framed: dict[str, Any] = jsonld.frame(serialised_json, json_frame)
     return framed
 

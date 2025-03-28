@@ -3,7 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from itertools import groupby
 
-from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
 
 
@@ -12,18 +11,6 @@ class StandoffStashItem:
     res_id: str
     res_type: str
     value: IntermediaryRichtext
-
-
-@dataclass(frozen=True)
-class StandoffStashItemExtracted:
-    """Holds information about a single stashed XML text value."""
-
-    res_id: str
-    res_type: str
-    uuid: str
-    prop_name: str
-    value: FormattedTextValue
-    comment: str | None = None
 
 
 @dataclass(frozen=True)
@@ -55,7 +42,7 @@ class StandoffStash:
 
 
 @dataclass(frozen=True)
-class LinkValueStashItemExtracted:
+class LinkValueStashItem:
     """Holds information about a single stashed link value."""
 
     res_id: str
@@ -70,10 +57,10 @@ class LinkValueStashItemExtracted:
 class LinkValueStash:
     """Holds information about a number of stashed link values (resptr-props), organized by resource instance."""
 
-    res_2_stash_items: dict[str, list[LinkValueStashItemExtracted]]
+    res_2_stash_items: dict[str, list[LinkValueStashItem]]
 
     @staticmethod
-    def make(items: list[LinkValueStashItemExtracted]) -> LinkValueStash | None:
+    def make(items: list[LinkValueStashItem]) -> LinkValueStash | None:
         """
         Factory method for LinkValueStash.
 
@@ -84,7 +71,7 @@ class LinkValueStash:
             LinkValueStash | None: A LinkValueStash object or None, if an empty list was passed.
         """
 
-        def _get_res_id(x: LinkValueStashItemExtracted) -> str:
+        def _get_res_id(x: LinkValueStashItem) -> str:
             return x.res_id
 
         if not items:

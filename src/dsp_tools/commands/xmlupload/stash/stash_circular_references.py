@@ -5,7 +5,7 @@ from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryRes
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
-from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItemExtracted
+from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStashItem
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
@@ -15,7 +15,7 @@ def stash_circular_references(
     resources: list[IntermediaryResource], stash_lookup: dict[str, list[str]]
 ) -> Stash | None:
     """Stash the values that would create circular references and remove them from the Resources."""
-    stashed_link_values: list[LinkValueStashItemExtracted] = []
+    stashed_link_values: list[LinkValueStashItem] = []
     stashed_standoff_values: list[StandoffStashItem] = []
 
     if not stash_lookup:
@@ -36,8 +36,8 @@ def stash_circular_references(
 def _process_one_resource(
     resource: IntermediaryResource,
     stash_lookup: dict[str, list[str]],
-) -> tuple[list[LinkValueStashItemExtracted], list[StandoffStashItem]]:
-    stashed_link_values: list[LinkValueStashItemExtracted] = []
+) -> tuple[list[LinkValueStashItem], list[StandoffStashItem]]:
+    stashed_link_values: list[LinkValueStashItem] = []
     stashed_standoff_values: list[StandoffStashItem] = []
 
     for val in resource.values.copy():
@@ -60,8 +60,8 @@ def _stash_link(
     value: IntermediaryLink,
     res_id: str,
     res_type: str,
-) -> LinkValueStashItemExtracted:
-    return LinkValueStashItemExtracted(
+) -> LinkValueStashItem:
+    return LinkValueStashItem(
         res_id=res_id,
         res_type=res_type,
         prop_name=value.prop_iri,

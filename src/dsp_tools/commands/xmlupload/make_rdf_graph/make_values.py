@@ -124,14 +124,14 @@ def _make_one_value_graph(val: IntermediaryValue, res_node: BNode | URIRef, iri_
 
 def _make_base_value_graph(
     val: IntermediaryValue,
+    val_node: BNode | URIRef,
     prop_type_info: RDFPropTypeInfo,
     res_node: BNode | URIRef,
-) -> tuple[BNode, Graph]:
-    val_bn = BNode()
-    g = _add_optional_triples(val_bn, val.permissions, val.comment)
-    g.add((res_node, URIRef(val.prop_iri), val_bn))
-    g.add((val_bn, RDF.type, prop_type_info.knora_type))
-    return val_bn, g
+) -> Graph:
+    g = _add_optional_triples(val_node, val.permissions, val.comment)
+    g.add((res_node, URIRef(val.prop_iri), val_node))
+    g.add((val_node, RDF.type, prop_type_info.knora_type))
+    return g
 
 
 def _add_optional_triples(val_bn: BNode, permissions: Permissions | None, comment: str | None) -> Graph:
@@ -148,7 +148,8 @@ def _make_value_graph_with_literal_object(
     prop_type_info: RDFPropTypeInfo,
     res_node: BNode | URIRef,
 ) -> Graph:
-    val_bn, g = _make_base_value_graph(val, prop_type_info, res_node)
+    val_bn = BNode()
+    g = _make_base_value_graph(val=val, val_node=val_bn, prop_type_info=prop_type_info, res_node=res_node)
     g.add((val_bn, prop_type_info.knora_prop, Literal(val.value, datatype=prop_type_info.xsd_type)))
     return g
 
@@ -158,7 +159,8 @@ def _make_list_value_graph(
     res_node: BNode | URIRef,
     prop_type_info: RDFPropTypeInfo,
 ) -> Graph:
-    val_bn, g = _make_base_value_graph(val, prop_type_info, res_node)
+    val_bn = BNode()
+    g = _make_base_value_graph(val=val, val_node=val_bn, prop_type_info=prop_type_info, res_node=res_node)
     g.add((val_bn, prop_type_info.knora_prop, URIRef(val.value)))
     return g
 
@@ -166,12 +168,13 @@ def _make_list_value_graph(
 def _make_link_value_graph(
     val: IntermediaryLink,
     prop_type_info: RDFPropTypeInfo,
+    val_node: BNode | URIRef,
     res_node: BNode | URIRef,
     iri_resolver: IriResolver,
 ) -> Graph:
-    val_bn, g = _make_base_value_graph(val, prop_type_info, res_node)
+    g = _make_base_value_graph(val=val, val_node=val_node, prop_type_info=prop_type_info, res_node=res_node)
     iri_str = _resolve_id_to_iri(val.value, iri_resolver)
-    g.add((val_bn, prop_type_info.knora_prop, URIRef(iri_str)))
+    g.add((val_node, prop_type_info.knora_prop, URIRef(iri_str)))
     return g
 
 
@@ -237,12 +240,13 @@ def _make_interval_value_graph(
 def _make_richtext_value_graph(
     val: IntermediaryRichtext,
     prop_type_info: RDFPropTypeInfo,
+    val_node: BNode | URIRef,
     res_node: BNode | URIRef,
     iri_resolver: IriResolver,
 ) -> Graph:
-    val_bn, g = _make_base_value_graph(val, prop_type_info, res_node)
+    g = _make_base_value_graph(val=val, val_node=val_node, prop_type_info=prop_type_info, res_node=res_node)
     xml_with_iris = val.value.with_iris(iri_resolver)
     val_str = xml_with_iris.as_xml()
-    g.add((val_bn, prop_type_info.knora_prop, Literal(val_str, datatype=XSD.string)))
-    g.add((val_bn, KNORA_API.textValueHasMapping, URIRef("http://rdfh.ch/standoff/mappings/StandardMapping")))
+    g.add((val_node, prop_type_info.knora_prop, Literal(val_str, datatype=XSD.string)))
+    g.add((val_node, KNORA_API.textValueHasMapping, URIRef("http://rdfh.ch/standoff/mappings/StandardMapping")))
     return g

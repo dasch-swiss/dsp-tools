@@ -96,6 +96,7 @@ def _make_one_value_graph(val: IntermediaryValue, res_node: BNode | URIRef, iri_
         case IntermediaryLink():
             properties_graph = _make_link_value_graph(
                 val=val,
+                val_node=BNode(),
                 res_node=res_node,
                 prop_type_info=LINK_PROP_TYPE_INFO,
                 iri_resolver=iri_lookups.id_to_iri,
@@ -103,6 +104,7 @@ def _make_one_value_graph(val: IntermediaryValue, res_node: BNode | URIRef, iri_
         case IntermediaryRichtext():
             properties_graph = _make_richtext_value_graph(
                 val=val,
+                val_node=BNode(),
                 res_node=res_node,
                 prop_type_info=RICHTEXT_PROP_TYPE_INFO,
                 iri_resolver=iri_lookups.id_to_iri,

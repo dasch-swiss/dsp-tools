@@ -66,6 +66,7 @@ def _create_XMLResource_json_object_to_update(
     link_prop_name: str,
     value_iri: str,
     new_xmltext: FormattedTextValue,
+        comment: str | None,
     context: dict[str, str],
 ) -> dict[str, Any]:
     """
@@ -93,6 +94,8 @@ def _create_XMLResource_json_object_to_update(
         },
         "@context": context,
     }
+    if comment:
+        jsonobj["knora-api:valueHasComment"] = comment
     return jsonobj
 
 
@@ -196,6 +199,7 @@ def _upload_stash_item(
         stash_item.prop_name,
         value_iri,
         adjusted_text_value,
+        stash_item.comment,
         context,
     )
     try:

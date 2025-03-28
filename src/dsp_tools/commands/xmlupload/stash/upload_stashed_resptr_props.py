@@ -104,6 +104,8 @@ def _create_resptr_prop_json_object_to_update(
     }
     if stash.permission:
         linkVal["knora-api:hasPermissions"] = stash.permission
+    if stash.comment:
+        linkVal["knora-api:valueHasComment"] = stash.comment
     jsonobj = {
         "@id": res_iri,
         "@type": stash.res_type,

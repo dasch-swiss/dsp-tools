@@ -3,7 +3,7 @@
 
     <resource label="res_A_11" restype=":TestThing" id="res_A_11">
         <text-prop name=":hasRichtext">
-            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_B_11:IRI">res_B_11</a>end text.</text>
+            <text comment="Val res_A_11 has comment" encoding="xml">Start text<a class="salsah-link" href="IRI:res_B_11:IRI">res_B_11</a>end text.</text>
         </text-prop>
         <resptr-prop name=":hasResource1">
             <resptr>res_B_11</resptr>
@@ -11,7 +11,7 @@
     </resource>
     <resource label="res_B_11" restype=":TestThing" id="res_B_11">
         <text-prop name=":hasRichtext">
-            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_C_11:IRI">res_C_11</a>end text.</text>
+            <text comment="Val res_B_11 has comment" encoding="xml">Start text<a class="salsah-link" href="IRI:res_C_11:IRI">res_C_11</a>end text.</text>
         </text-prop>
         <resptr-prop name=":hasResource1">
             <resptr>res_C_11</resptr>
@@ -19,7 +19,7 @@
     </resource>
     <resource label="res_C_11" restype=":TestThing" id="res_C_11">
         <text-prop name=":hasRichtext">
-            <text encoding="xml">Start text<a class="salsah-link" href="IRI:res_A_11:IRI">res_A_11</a>end text.</text>
+            <text comment="Val res_C_11 has comment" encoding="xml">Start text<a class="salsah-link" href="IRI:res_A_11:IRI">res_A_11</a>end text.</text>
         </text-prop>
         <resptr-prop name=":hasResource1">
             <resptr>res_A_11</resptr>

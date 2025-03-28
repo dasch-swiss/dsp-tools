@@ -111,10 +111,10 @@ def _upload_stash_item(
     Returns:
         True, if the upload was successful, False otherwise
     """
-    payload = _serlialise_richtext_for_update(
+    payload = _serialise_richtext_for_update(
         stash_item=stash_item,
-        res_iri_str=res_iri,
         value_iri_str=value_iri,
+        res_iri_str=res_iri,
         iri_resolver=iri_resolver,
     )
     try:
@@ -126,8 +126,8 @@ def _upload_stash_item(
     return True
 
 
-def _serlialise_richtext_for_update(
-    stash_item: StandoffStashItem, res_iri_str: str, value_iri_str: str, iri_resolver: IriResolver
+def _serialise_richtext_for_update(
+    stash_item: StandoffStashItem, value_iri_str: str, res_iri_str: str, iri_resolver: IriResolver
 ) -> dict[str, Any]:
     graph = _make_richtext_update_graph(
         stash_item=stash_item, value_iri_str=value_iri_str, res_iri_str=res_iri_str, iri_resolver=iri_resolver

@@ -101,7 +101,7 @@ def _make_one_value_graph(val: IntermediaryValue, res_node: BNode | URIRef, iri_
                 iri_resolver=iri_lookups.id_to_iri,
             )
         case IntermediaryRichtext():
-            properties_graph = _make_richtext_value_graph(
+            properties_graph = make_richtext_value_graph(
                 val=val,
                 res_node=res_node,
                 prop_type_info=RICHTEXT_PROP_TYPE_INFO,
@@ -234,7 +234,7 @@ def _make_interval_value_graph(
     return g
 
 
-def _make_richtext_value_graph(
+def make_richtext_value_graph(
     val: IntermediaryRichtext,
     prop_type_info: RDFPropTypeInfo,
     res_node: BNode | URIRef,

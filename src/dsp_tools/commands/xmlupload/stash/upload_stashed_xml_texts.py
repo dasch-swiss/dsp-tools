@@ -12,7 +12,7 @@ from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash
-from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStashItemExtracted
+from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStashItem
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.error.exceptions import BaseError
 
@@ -91,10 +91,8 @@ def _make_prefixed_prop_from_absolute_iri(absolute_iri: str) -> str:
 
 
 def _upload_stash_item(
-    stash_item: StandoffStashItemExtracted,
+    stash_item: StandoffStashItem,
     res_iri: str,
-    res_type: str,
-    res_id: str,
     value_iri: str,
     iri_resolver: IriResolver,
     con: Connection,
@@ -106,8 +104,6 @@ def _upload_stash_item(
     Args:
         stash_item: the stashed text value to upload
         res_iri: the iri of the resource
-        res_type: the type of the resource
-        res_id: the internal id of the resource
         value_iri: the iri of the value
         iri_resolver: resolver to map ids from the XML file to IRIs in DSP
         con: connection to DSP
@@ -116,23 +112,28 @@ def _upload_stash_item(
     Returns:
         True, if the upload was successful, False otherwise
     """
-    adjusted_text_value = stash_item.value.with_iris(iri_resolver)
+    adjusted_text_value = stash_item.value.value.with_iris(iri_resolver)
     payload = _create_XMLResource_json_object_to_update(
         res_iri,
-        res_type,
-        stash_item.prop_name,
+        stash_item.res_type,
+        stash_item.value.prop_iri,
         value_iri,
         adjusted_text_value,
-        stash_item.comment,
+        stash_item.value.comment,
         context,
     )
     try:
         con.put(route="/v2/values", data=payload)
     except BaseError as err:
-        _log_unable_to_upload_xml_resource(err, res_id, stash_item.prop_name)
+        _log_unable_to_upload_xml_resource(err, stash_item.res_id, stash_item.value.prop_iri)
         return False
-    logger.debug(f'  Successfully uploaded xml text of "{stash_item.prop_name}"')
+    logger.debug(f'  Successfully uploaded xml text of "{stash_item.value.prop_iri}"')
     return True
+
+
+def _create_richtext_resource_for_update(stash_item: StandoffStashItem) -> dict[str, Any]:
+    pass
+
 
 
 def _create_XMLResource_json_object_to_update(

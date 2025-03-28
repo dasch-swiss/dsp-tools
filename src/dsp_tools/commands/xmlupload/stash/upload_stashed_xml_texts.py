@@ -66,31 +66,21 @@ def _create_XMLResource_json_object_to_update(
     link_prop_name: str,
     value_iri: str,
     new_xmltext: FormattedTextValue,
+    comment: str | None,
     context: dict[str, str],
 ) -> dict[str, Any]:
-    """
-    This function creates a JSON object that can be sent as update request to DSP-API.
-
-    Args:
-        res_iri: the iri of the resource
-        res_type: the type of the resource
-        link_prop_name: the name of the link property
-        value_iri: the iri of the value
-        new_xmltext: the new xml text to be uploaded
-        context: the JSON-LD context of the resource
-
-    Returns:
-        json string
-    """
+    prop_json = {
+        "@id": value_iri,
+        "@type": "knora-api:TextValue",
+        "knora-api:textValueAsXml": new_xmltext.as_xml(),
+        "knora-api:textValueHasMapping": {"@id": "http://rdfh.ch/standoff/mappings/StandardMapping"},
+    }
+    if comment:
+        prop_json["knora-api:valueHasComment"] = comment
     jsonobj = {
         "@id": res_iri,
         "@type": res_type,
-        link_prop_name: {
-            "@id": value_iri,
-            "@type": "knora-api:TextValue",
-            "knora-api:textValueAsXml": new_xmltext.as_xml(),
-            "knora-api:textValueHasMapping": {"@id": "http://rdfh.ch/standoff/mappings/StandardMapping"},
-        },
+        link_prop_name: prop_json,
         "@context": context,
     }
     return jsonobj
@@ -196,6 +186,7 @@ def _upload_stash_item(
         stash_item.prop_name,
         value_iri,
         adjusted_text_value,
+        stash_item.comment,
         context,
     )
     try:

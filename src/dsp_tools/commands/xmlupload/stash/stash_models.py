@@ -15,6 +15,7 @@ class StandoffStashItem:
     uuid: str
     prop_name: str
     value: FormattedTextValue
+    comment: str | None = None
 
 
 @dataclass(frozen=True)
@@ -54,6 +55,7 @@ class LinkValueStashItem:
     prop_name: str
     target_id: str
     permission: str | None = None
+    comment: str | None = None
 
 
 @dataclass(frozen=True)

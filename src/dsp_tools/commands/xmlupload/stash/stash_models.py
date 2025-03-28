@@ -7,7 +7,7 @@ from dsp_tools.commands.xmlupload.models.intermediary.values import Intermediary
 
 
 @dataclass
-class StandoffStashItem:
+class StandoffStashItem(frozen=True):
     res_id: str
     res_type: str
     value: IntermediaryRichtext

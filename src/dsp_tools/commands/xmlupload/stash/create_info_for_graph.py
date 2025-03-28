@@ -4,6 +4,7 @@ from dsp_tools.commands.xmlupload.models.intermediary.values import Intermediary
 from dsp_tools.commands.xmlupload.stash.graph_models import InfoForGraph
 from dsp_tools.commands.xmlupload.stash.graph_models import LinkValueLink
 from dsp_tools.commands.xmlupload.stash.graph_models import StandOffLink
+from dsp_tools.utils.data_formats.iri_util import is_resource_iri
 
 
 def create_info_for_graph_from_intermediary_resources(resources: list[IntermediaryResource]) -> InfoForGraph:
@@ -28,6 +29,8 @@ def _process_one_resource(resource: IntermediaryResource) -> tuple[list[LinkValu
     stand_off = []
     for val in resource.values:
         if isinstance(val, IntermediaryLink):
+            if is_resource_iri(val.value):
+                continue
             link_values.append(
                 LinkValueLink(
                     source_id=resource.res_id,
@@ -37,10 +40,13 @@ def _process_one_resource(resource: IntermediaryResource) -> tuple[list[LinkValu
             )
         elif isinstance(val, IntermediaryRichtext):
             if val.resource_references:
+                only_ids = {x for x in val.resource_references if not is_resource_iri(x)}
+                if not only_ids:
+                    continue
                 stand_off.append(
                     StandOffLink(
                         source_id=resource.res_id,
-                        target_ids=val.resource_references,
+                        target_ids=only_ids,
                         link_uuid=val.value_uuid,
                     )
                 )

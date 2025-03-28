@@ -26,8 +26,9 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import Ontol
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import (
     transform_all_resources_into_intermediary_resources,
 )
-from dsp_tools.commands.xmlupload.stash.stash_circular_references_from_root import identify_circular_references
-from dsp_tools.commands.xmlupload.stash.stash_circular_references_from_root import stash_circular_references
+from dsp_tools.commands.xmlupload.stash.analyse_circular_reference_graph import generate_upload_order
+from dsp_tools.commands.xmlupload.stash.create_info_for_graph import create_info_for_graph_from_intermediary_resources
+from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import BaseError
@@ -37,24 +38,34 @@ from dsp_tools.legacy_models.projectContext import ProjectContext
 LIST_SEPARATOR = "\n-    "
 
 
-def get_transformed_resources(
+def prepare_upload_from_root(
+    root: etree._Element, ontology_client: OntologyClient, clients: UploadClients
+) -> tuple[list[IntermediaryResource], Stash | None, JSONLDContext]:
+    """Do the consistency check, resolve circular references, and return the resources and permissions."""
+    do_xml_consistency_check_with_ontology(onto_client=ontology_client, root=root)
+    logger.info("Get data from XML...")
+    resources, permissions_lookup, authorships = _get_data_from_xml(
+        con=ontology_client.con,
+        root=root,
+        default_ontology=ontology_client.default_ontology,
+    )
+    transformed_resources, project_context = _get_transformed_resources(
+        resources, clients, permissions_lookup, authorships
+    )
+    info_for_graph = create_info_for_graph_from_intermediary_resources(transformed_resources)
+    stash_lookup, upload_order = generate_upload_order(info_for_graph)
+    sorting_lookup = {res.res_id: res for res in transformed_resources}
+    sorted_resources = [sorting_lookup[res_id] for res_id in upload_order]
+    stash = stash_circular_references(sorted_resources, stash_lookup)
+    return sorted_resources, stash, project_context
+
+
+def _get_transformed_resources(
     resources: list[XMLResource],
     clients: UploadClients,
     permissions_lookup: dict[str, Permissions],
     authorship_lookup: dict[str, list[str]],
 ) -> tuple[list[IntermediaryResource], JSONLDContext]:
-    """
-    From the XMLResource get the transformed resources.
-
-    Args:
-        resources: list of resources
-        clients: clients to retrieve information from the API
-        permissions_lookup: lookup for permissions
-        authorship_lookup: lookup for authorship
-
-    Returns:
-        The transformed resources and the json-ld context
-    """
     project_onto_dict = clients.project_client.get_ontology_name_dict()
     listnode_lookup = clients.list_client.get_list_node_id_to_iri_lookup()
     namespaces = make_namespace_dict_from_onto_names(project_onto_dict)
@@ -73,47 +84,12 @@ def get_transformed_resources(
     return result.transformed_resources, project_context
 
 
-def prepare_upload_from_root(
-    root: etree._Element,
-    ontology_client: OntologyClient,
-) -> tuple[list[XMLResource], dict[str, Permissions], Stash | None, dict[str, list[str]]]:
-    """Do the consistency check, resolve circular references, and return the resources and permissions."""
-    do_xml_consistency_check_with_ontology(onto_client=ontology_client, root=root)
-    return _resolve_circular_references(
-        root=root,
-        con=ontology_client.con,
-        default_ontology=ontology_client.default_ontology,
-    )
-
-
 def _validate_iiif_uris(root: etree._Element) -> None:
     uris = [uri.strip() for node in root.iter(tag="iiif-uri") if (uri := node.text)]
     if problems := IIIFUriValidator(uris).validate():
         msg = problems.get_msg()
         warnings.warn(DspToolsUserWarning(msg))
         logger.warning(msg)
-
-
-def _resolve_circular_references(
-    root: etree._Element,
-    con: Connection,
-    default_ontology: str,
-) -> tuple[list[XMLResource], dict[str, Permissions], Stash | None, dict[str, list[str]]]:
-    logger.info("Checking resources for circular references...")
-    print(f"{datetime.now()}: Checking resources for circular references...")
-    stash_lookup, upload_order = identify_circular_references(root)
-    logger.info("Get data from XML...")
-    resources, permissions_lookup, authorships = _get_data_from_xml(
-        con=con,
-        root=root,
-        default_ontology=default_ontology,
-    )
-    sorting_lookup = {res.res_id: res for res in resources}
-    resources = [sorting_lookup[res_id] for res_id in upload_order]
-    logger.info("Stashing circular references...")
-    print(f"{datetime.now()}: Stashing circular references...")
-    stash = stash_circular_references(resources, stash_lookup, permissions_lookup)
-    return resources, permissions_lookup, stash, authorships
 
 
 def _get_data_from_xml(

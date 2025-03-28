@@ -149,7 +149,8 @@ def _get_value_iri(
     resource: dict[str, Any],
     uuid: str,
 ) -> str | None:
-    values_on_server = resource.get(property_name)
+    prefixed_prop = _make_prefixed_prop_from_absolute_iri(property_name)
+    values_on_server = resource.get(prefixed_prop)
     if not isinstance(values_on_server, list):
         values_on_server = [values_on_server]
 
@@ -204,3 +205,9 @@ def _upload_stash_item(
         return False
     logger.debug(f'  Successfully uploaded xml text of "{stash_item.prop_name}"')
     return True
+
+
+def _make_prefixed_prop_from_absolute_iri(absolute_iri: str) -> str:
+    _, onto, prop = absolute_iri.rsplit("/", 2)
+    local_name = prop.split("#")[-1]
+    return f"{onto}:{local_name}"

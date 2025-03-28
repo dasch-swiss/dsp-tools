@@ -50,7 +50,6 @@ def upload_stashed_xml_texts(upload_state: UploadState, con: Connection) -> None
             continue
         print(f"{datetime.now()}:   Upload XML text(s) of resource '{res_id}'...")
         logger.info(f"  Upload XML text(s) of resource '{res_id}'...")
-        context = resource_in_triplestore["@context"]
         for stash_item in stash_items:
             value_iri = _get_value_iri(stash_item.prop_name, resource_in_triplestore, stash_item.uuid)
             if not value_iri:
@@ -58,12 +57,9 @@ def upload_stashed_xml_texts(upload_state: UploadState, con: Connection) -> None
             if _upload_stash_item(
                 stash_item=stash_item,
                 res_iri=res_iri,
-                res_type=stash_item.res_type,
-                res_id=res_id,
                 value_iri=value_iri,
                 iri_resolver=upload_state.iri_resolver,
                 con=con,
-                context=context,
             ):
                 standoff_stash.res_2_stash_items[res_id].remove(stash_item)
         if not standoff_stash.res_2_stash_items[res_id]:
@@ -111,7 +107,6 @@ def _upload_stash_item(
         value_iri: the iri of the value
         iri_resolver: resolver to map ids from the XML file to IRIs in DSP
         con: connection to DSP
-        context: the JSON-LD context of the resource
 
     Returns:
         True, if the upload was successful, False otherwise

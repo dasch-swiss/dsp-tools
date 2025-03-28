@@ -64,6 +64,7 @@ def _stash_link(
         res_type=res_type,
         prop_name=value.prop_iri,
         target_id=value.value,
+        comment=value.comment,
         permission=str(value.permissions) if value.permissions else None,
     )
 
@@ -80,5 +81,6 @@ def _stash_standoff(value: IntermediaryRichtext, res_id: str, res_type: str) -> 
         res_type=res_type,
         uuid=value.value_uuid,
         prop_name=value.prop_iri,
+        comment=value.comment,
         value=actual_text,
     )

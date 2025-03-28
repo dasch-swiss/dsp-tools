@@ -3,9 +3,9 @@ from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryRes
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
-from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem
+from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItemExtracted
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash
-from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStashItem
+from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStashItemExtracted
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 
 
@@ -13,8 +13,8 @@ def stash_circular_references(
     resources: list[IntermediaryResource], stash_lookup: dict[str, list[str]]
 ) -> Stash | None:
     """Stash the values that would create circular references and remove them from the Resources."""
-    stashed_link_values: list[LinkValueStashItem] = []
-    stashed_standoff_values: list[StandoffStashItem] = []
+    stashed_link_values: list[LinkValueStashItemExtracted] = []
+    stashed_standoff_values: list[StandoffStashItemExtracted] = []
 
     if not stash_lookup:
         return None
@@ -34,9 +34,9 @@ def stash_circular_references(
 def _process_one_resource(
     resource: IntermediaryResource,
     stash_lookup: dict[str, list[str]],
-) -> tuple[list[LinkValueStashItem], list[StandoffStashItem]]:
-    stashed_link_values: list[LinkValueStashItem] = []
-    stashed_standoff_values: list[StandoffStashItem] = []
+) -> tuple[list[LinkValueStashItemExtracted], list[StandoffStashItemExtracted]]:
+    stashed_link_values: list[LinkValueStashItemExtracted] = []
+    stashed_standoff_values: list[StandoffStashItemExtracted] = []
 
     for val in resource.values.copy():
         if isinstance(val, IntermediaryLink):
@@ -58,8 +58,8 @@ def _stash_link(
     value: IntermediaryLink,
     res_id: str,
     res_type: str,
-) -> LinkValueStashItem:
-    return LinkValueStashItem(
+) -> LinkValueStashItemExtracted:
+    return LinkValueStashItemExtracted(
         res_id=res_id,
         res_type=res_type,
         prop_name=value.prop_iri,
@@ -69,14 +69,14 @@ def _stash_link(
     )
 
 
-def _stash_standoff(value: IntermediaryRichtext, res_id: str, res_type: str) -> StandoffStashItem:
+def _stash_standoff(value: IntermediaryRichtext, res_id: str, res_type: str) -> StandoffStashItemExtracted:
     actual_text = value.value
     # Replace the content with the UUID
     value.value = FormattedTextValue(value.value_uuid)
     # It is not necessary to add the permissions to the StandoffStashItem.
     # Because when no new permissions are given during an update request,
     # the permissions of the previous value are taken.
-    return StandoffStashItem(
+    return StandoffStashItemExtracted(
         res_id=res_id,
         res_type=res_type,
         uuid=value.value_uuid,

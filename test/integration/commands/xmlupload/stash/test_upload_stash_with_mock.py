@@ -10,9 +10,9 @@ from dsp_tools.commands.xmlupload.models.lookup_models import JSONLDContext
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.project_client import ProjectInfo
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
-from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem
+from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItemExtracted
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash
-from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStashItem
+from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStashItemExtracted
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import _upload_stash
@@ -85,7 +85,7 @@ class TestUploadLinkValueStashes:
             standoff_stash=None,
             link_value_stash=LinkValueStash.make(
                 [
-                    LinkValueStashItem(
+                    LinkValueStashItemExtracted(
                         "001", "sometype", "http://0.0.0.0:3333/ontology/4123/testonto/v2#someprop", "002"
                     ),
                 ],
@@ -109,16 +109,16 @@ class TestUploadLinkValueStashes:
             standoff_stash=None,
             link_value_stash=LinkValueStash.make(
                 [
-                    LinkValueStashItem(
+                    LinkValueStashItemExtracted(
                         "001", "sometype", "http://0.0.0.0:3333/ontology/4123/testonto/v2#someprop", "002"
                     ),
-                    LinkValueStashItem(
+                    LinkValueStashItemExtracted(
                         "001", "sometype", "http://0.0.0.0:3333/ontology/4123/testonto/v2#someprop", "003"
                     ),
-                    LinkValueStashItem(
+                    LinkValueStashItemExtracted(
                         "002", "sometype", "http://0.0.0.0:3333/ontology/4123/testonto/v2#someprop", "003"
                     ),
-                    LinkValueStashItem(
+                    LinkValueStashItemExtracted(
                         "004", "sometype", "http://0.0.0.0:3333/ontology/4123/testonto/v2#someprop", "002"
                     ),
                 ],
@@ -147,7 +147,7 @@ class TestUploadTextValueStashes:
         stash = Stash.make(
             standoff_stash=StandoffStash.make(
                 [
-                    StandoffStashItem(
+                    StandoffStashItemExtracted(
                         "001", "sometype", value_uuid, property_name, FormattedTextValue("<p>some text</p>")
                     ),
                 ]
@@ -193,7 +193,7 @@ class TestUploadTextValueStashes:
         stash = Stash.make(
             standoff_stash=StandoffStash.make(
                 [
-                    StandoffStashItem(
+                    StandoffStashItemExtracted(
                         "001", "sometype", value_uuid, property_name, FormattedTextValue("<p>some text</p>")
                     ),
                 ]

@@ -10,7 +10,7 @@ from dsp_tools.clients.connection import Connection
 from dsp_tools.commands.xmlupload.models.lookup_models import JSONLDContext
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
-from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem
+from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItemExtracted
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.error.exceptions import BaseError
 
@@ -56,7 +56,7 @@ def upload_stashed_resptr_props(
 
 
 def _upload_stash_item(
-    stash: LinkValueStashItem,
+    stash: LinkValueStashItemExtracted,
     res_iri: str,
     target_iri: str,
     con: Connection,
@@ -86,7 +86,7 @@ def _upload_stash_item(
 
 
 def _create_resptr_prop_json_object_to_update(
-    stash: LinkValueStashItem,
+    stash: LinkValueStashItemExtracted,
     res_iri: str,
     target_iri: str,
     jsonld_context: JSONLDContext,

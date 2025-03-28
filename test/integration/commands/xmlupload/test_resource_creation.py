@@ -23,7 +23,7 @@ from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.project_client import ProjectInfo
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
-from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem
+from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItemExtracted
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import _upload_resources
@@ -213,8 +213,12 @@ def _2_resources_with_stash_interrupted_by_error(
         IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 3)
     ]
     link_val_stash_dict = {
-        "foo_1_id": [LinkValueStashItem("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")],
-        "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
+        "foo_1_id": [
+            LinkValueStashItemExtracted("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")
+        ],
+        "foo_2_id": [
+            LinkValueStashItemExtracted("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")
+        ],
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
     upload_state = UploadState(resources.copy(), deepcopy(stash), UploadConfig(), JSONLDContext({}))
@@ -251,8 +255,12 @@ def test_2_resources_with_stash(ingest_client_mock: AssetClient, legal_info_clie
         IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 3)
     ]
     link_val_stash_dict = {
-        "foo_1_id": [LinkValueStashItem("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLinkValue", "foo_2_id")],
-        "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLinkValue", "foo_1_id")],
+        "foo_1_id": [
+            LinkValueStashItemExtracted("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLinkValue", "foo_2_id")
+        ],
+        "foo_2_id": [
+            LinkValueStashItemExtracted("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLinkValue", "foo_1_id")
+        ],
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
     upload_state = UploadState(resources.copy(), deepcopy(stash), UploadConfig(), JSONLDContext({}))
@@ -299,8 +307,12 @@ def test_5_resources_with_stash_and_interrupt_after_2(
         IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 6)
     ]
     link_val_stash_dict = {
-        "foo_1_id": [LinkValueStashItem("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")],
-        "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
+        "foo_1_id": [
+            LinkValueStashItemExtracted("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")
+        ],
+        "foo_2_id": [
+            LinkValueStashItemExtracted("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")
+        ],
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
@@ -354,8 +366,12 @@ def test_6_resources_with_stash_and_interrupt_after_2(
         IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 7)
     ]
     link_val_stash_dict = {
-        "foo_1_id": [LinkValueStashItem("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")],
-        "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
+        "foo_1_id": [
+            LinkValueStashItemExtracted("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")
+        ],
+        "foo_2_id": [
+            LinkValueStashItemExtracted("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")
+        ],
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
@@ -415,8 +431,12 @@ def test_logging(
         IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 6)
     ]
     link_val_stash_dict = {
-        "foo_1_id": [LinkValueStashItem("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")],
-        "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
+        "foo_1_id": [
+            LinkValueStashItemExtracted("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")
+        ],
+        "foo_2_id": [
+            LinkValueStashItemExtracted("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")
+        ],
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
@@ -458,8 +478,12 @@ def test_post_requests(ingest_client_mock: AssetClient, legal_info_client_mock: 
         IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 7)
     ]
     link_val_stash_dict = {
-        "foo_1_id": [LinkValueStashItem("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")],
-        "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
+        "foo_1_id": [
+            LinkValueStashItemExtracted("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")
+        ],
+        "foo_2_id": [
+            LinkValueStashItemExtracted("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")
+        ],
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)

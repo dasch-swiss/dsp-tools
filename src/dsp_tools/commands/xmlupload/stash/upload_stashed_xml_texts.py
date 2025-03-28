@@ -12,7 +12,7 @@ from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash
-from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStashItem
+from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStashItemExtracted
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.error.exceptions import BaseError
 
@@ -91,7 +91,7 @@ def _make_prefixed_prop_from_absolute_iri(absolute_iri: str) -> str:
 
 
 def _upload_stash_item(
-    stash_item: StandoffStashItem,
+    stash_item: StandoffStashItemExtracted,
     res_iri: str,
     res_type: str,
     res_id: str,

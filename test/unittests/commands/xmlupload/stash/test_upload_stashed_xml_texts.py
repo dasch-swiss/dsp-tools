@@ -61,7 +61,7 @@ def test_make_richtext_update_graph(standoff_stash_item, iri_resolver):
 
 
 def test_serlialise_richtext_for_update(standoff_stash_item, iri_resolver):
-    result = _serialise_richtext_for_update(standoff_stash_item, RES_IRI_STR, VAL_IRI_STR, iri_resolver)
+    result = _serialise_richtext_for_update(standoff_stash_item, VAL_IRI_STR, RES_IRI_STR, iri_resolver)
     expected = {
         "@id": "http://rdfh.ch/9999/res_one",
         "@type": "http://0.0.0.0:3333/ontology/9999/onto/v2#Resource",

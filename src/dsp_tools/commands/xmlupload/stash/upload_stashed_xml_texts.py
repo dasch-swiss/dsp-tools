@@ -134,7 +134,7 @@ def _serialise_richtext_for_update(
     )
     graph_bytes = graph.serialize(format="json-ld", encoding="utf-8")
     serialised_json: list[dict[str, Any]] = json.loads(graph_bytes)
-    json_frame: dict[str, Any] = {"@id": res_iri_str}
+    json_frame = {"@id": res_iri_str}
     framed: dict[str, Any] = jsonld.frame(serialised_json, json_frame)
     return framed
 

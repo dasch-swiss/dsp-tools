@@ -44,7 +44,7 @@ def _process_one_resource(
         if isinstance(val, IntermediaryLink):
             if val.value_uuid not in stash_lookup[resource.res_id]:
                 continue
-            stashed_link_values.append(_stash_link(val, resource.res_id, resource.type_iri))
+            stashed_link_values.append(LinkValueStashItem(resource.res_id, resource.type_iri, val))
             resource.values.remove(val)
         elif isinstance(val, IntermediaryRichtext):
             if val.value_uuid not in stash_lookup[resource.res_id]:
@@ -54,21 +54,6 @@ def _process_one_resource(
             stashed_standoff_values.append(_stash_standoff(val, resource.res_id, resource.type_iri))
 
     return stashed_link_values, stashed_standoff_values
-
-
-def _stash_link(
-    value: IntermediaryLink,
-    res_id: str,
-    res_type: str,
-) -> LinkValueStashItem:
-    return LinkValueStashItem(
-        res_id=res_id,
-        res_type=res_type,
-        prop_name=value.prop_iri,
-        target_id=value.value,
-        comment=value.comment,
-        permission=str(value.permissions) if value.permissions else None,
-    )
 
 
 def _stash_standoff(value: IntermediaryRichtext, res_id: str, res_type: str) -> StandoffStashItem:

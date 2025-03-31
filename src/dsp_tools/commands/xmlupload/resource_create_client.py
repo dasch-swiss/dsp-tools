@@ -4,7 +4,7 @@ from typing import cast
 from rdflib import Graph
 
 from dsp_tools.clients.connection import Connection
-from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_utils import make_json_post_resource
+from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_utils import serialise_jsonld_post_resource
 
 
 @dataclass(frozen=True)
@@ -19,7 +19,7 @@ class ResourceCreateClient:
         resource_has_bitstream: bool,
     ) -> str:
         """Creates a resource on the DSP server, and returns its IRI"""
-        res_dict = make_json_post_resource(graph)
+        res_dict = serialise_jsonld_post_resource(graph)
         headers = {"X-Asset-Ingested": "true"} if resource_has_bitstream else None
         res = self.con.post(route="/v2/resources", data=res_dict, headers=headers)
         return cast(str, res["@id"])

@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
@@ -70,7 +72,7 @@ def _stash_link(
 
 
 def _stash_standoff(value: IntermediaryRichtext, res_id: str, res_type: str) -> StandoffStashItem:
-    actual_text = value.value
+    original_value = deepcopy(value)
     # Replace the content with the UUID
     value.value = FormattedTextValue(value.value_uuid)
     # It is not necessary to add the permissions to the StandoffStashItem.
@@ -79,8 +81,5 @@ def _stash_standoff(value: IntermediaryRichtext, res_id: str, res_type: str) -> 
     return StandoffStashItem(
         res_id=res_id,
         res_type=res_type,
-        uuid=value.value_uuid,
-        prop_name=value.prop_iri,
-        comment=value.comment,
-        value=actual_text,
+        value=original_value,
     )

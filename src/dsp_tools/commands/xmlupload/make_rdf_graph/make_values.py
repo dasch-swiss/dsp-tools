@@ -101,7 +101,7 @@ def _make_one_value_graph(val: IntermediaryValue, res_node: BNode | URIRef, iri_
                 iri_resolver=iri_lookups.id_to_iri,
             )
         case IntermediaryRichtext():
-            properties_graph = _make_richtext_value_graph(
+            properties_graph = make_richtext_value_graph(
                 val=val,
                 val_node=BNode(),
                 res_node=res_node,
@@ -236,12 +236,24 @@ def _make_interval_value_graph(
     return g
 
 
-def _make_richtext_value_graph(
+def make_richtext_value_graph(
     val: IntermediaryRichtext,
     val_node: BNode | URIRef,
     res_node: BNode | URIRef,
     iri_resolver: IriResolver,
 ) -> Graph:
+    """
+    Creates an rdflib graph for a richtext value.
+
+    Args:
+        val: Richtext value
+        val_node: IRI or blank node of the value
+        res_node: IRI or blank node of the resource
+        iri_resolver: id to IRI resolver
+
+    Returns:
+        Graph
+    """
     g = _make_base_value_graph(val=val, val_node=val_node, prop_type_info=RICHTEXT_PROP_TYPE_INFO, res_node=res_node)
     xml_with_iris = val.value.with_iris(iri_resolver)
     val_str = xml_with_iris.as_xml()

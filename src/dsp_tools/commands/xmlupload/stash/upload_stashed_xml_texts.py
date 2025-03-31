@@ -11,7 +11,6 @@ from pyld import jsonld
 from rdflib import RDF
 from rdflib import Graph
 from rdflib import URIRef
-from rdflib.term import Node
 
 from dsp_tools.clients.connection import Connection
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
@@ -75,8 +74,8 @@ def _get_value_iri(
     property_name: URIRef,
     resource: Graph,
     uuid: str,
-) -> Node | None:
-    value_iris = resource.objects(property_name)
+) -> URIRef | None:
+    value_iris = list(resource.objects(predicate=property_name))
     for v in value_iris:
         # get the IRI of the value that contains the UUID in its text
         text = next(resource.objects(v, KNORA_API.textValueAsXml))
@@ -91,7 +90,7 @@ def _get_value_iri(
 def _upload_stash_item(
     stash_item: StandoffStashItem,
     res_iri: str,
-    value_iri: Node,
+    value_iri: URIRef,
     iri_resolver: IriResolver,
     con: Connection,
 ) -> bool:

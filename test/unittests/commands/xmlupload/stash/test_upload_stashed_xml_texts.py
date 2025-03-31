@@ -75,7 +75,7 @@ def test_get_value_iri_none():
 
 
 def test_make_richtext_update_graph(standoff_stash_item, iri_resolver):
-    result = _make_richtext_update_graph(standoff_stash_item, VAL_IRI_STR, RES_IRI_STR, iri_resolver)
+    result = _make_richtext_update_graph(standoff_stash_item, VAL_IRI, RES_IRI_STR, iri_resolver)
     assert len(result) == 5
     assert next(result.objects(RES_IRI, RDF.type)) == RES_TYPE
     assert next(result.objects(RES_IRI, PROP_IRI)) == VAL_IRI
@@ -87,7 +87,7 @@ def test_make_richtext_update_graph(standoff_stash_item, iri_resolver):
 
 
 def test_serialise_richtext_for_update(standoff_stash_item, iri_resolver):
-    result = _serialise_richtext_for_update(standoff_stash_item, VAL_IRI_STR, RES_IRI_STR, iri_resolver)
+    result = _serialise_richtext_for_update(standoff_stash_item, VAL_IRI, RES_IRI_STR, iri_resolver)
     expected = {
         "@id": "http://rdfh.ch/9999/res_one",
         "@type": "http://0.0.0.0:3333/ontology/9999/onto/v2#Resource",

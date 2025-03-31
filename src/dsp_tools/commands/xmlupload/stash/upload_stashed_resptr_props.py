@@ -45,7 +45,7 @@ def upload_stashed_resptr_props(
         logger.info(f"  Upload resptrs of resource '{res_id}'...")
         for stash_item in reversed(stash_items):
             # reversed avoids any problems caused by removing from the list we loop over at the same time
-            target_iri = upload_state.iri_resolver.get(stash_item.target_id)
+            target_iri = upload_state.iri_resolver.get(stash_item.res_id)
             if not target_iri:
                 continue
             if _upload_stash_item(stash_item, res_iri, target_iri, con, jsonld_context):
@@ -79,9 +79,9 @@ def _upload_stash_item(
     try:
         con.post(route="/v2/values", data=payload)
     except BaseError as err:
-        _log_unable_to_upload_link_value(err.message, stash.res_id, stash.prop_name)
+        _log_unable_to_upload_link_value(err.message, stash.res_id, stash.value.prop_iri)
         return False
-    logger.debug(f'  Successfully uploaded resptr links of "{stash.prop_name}"')
+    logger.debug(f'  Successfully uploaded resptr links of "{stash.value.prop_iri}"')
     return True
 
 

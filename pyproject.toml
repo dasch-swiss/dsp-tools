@@ -178,7 +178,7 @@ ignore = [
     "D101", # pydocstyle: undocumented-public-class
     "S101", # flake8-bandit: use of assert
 ]
-"!src/dsp_tools/xmllib/**.py" = ["D103"]  # Ignore `D103` everywhere except for the `src/dsp_tools/xmllib/` directory.
+"!src/dsp_tools/xmllib/**.py" = ["D103"]  # Ignore everywhere except for the `src/dsp_tools/xmllib/` directory.
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"

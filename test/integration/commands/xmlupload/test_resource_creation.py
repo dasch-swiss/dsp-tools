@@ -291,14 +291,15 @@ def test_2_resources_with_stash(ingest_client_mock: AssetClient, legal_info_clie
     _upload_resources(clients, upload_state)
 
     assert len(con.post.call_args_list) == len(post_responses)
-    match con.post.call_args_list[2].kwargs:
+    post_kwargs = con.post.call_args_list[2].kwargs
+    match post_kwargs:
         case {
             "route": "/v2/values",
             "data": {
-                "@type": "my_onto:foo_1_type",
+                "@type": "http://0.0.0.0:3333/ontology/9999/onto/v2#foo_1_type",
                 "@id": "http://rdfh.ch/0000/foo_1_iri",
                 "@context": dict(),
-                "my_onto:hasCustomLinkValue": {
+                "http://0.0.0.0:3333/ontology/9999/onto/v2#hasCustomLinkValue": {
                     "@type": "knora-api:LinkValue",
                     "knora-api:linkValueHasTargetIri": {"@id": "http://rdfh.ch/0000/foo_2_iri"},
                 },
@@ -471,19 +472,34 @@ def test_logging(
 
     with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error"):
         _upload_resources(clients, upload_state)
-        assert caplog.records[1].message == f"Created resource 1/5: 'foo_1_label' (ID: 'foo_1_id', IRI: '{RES_IRI_NAMESPACE_STR}foo_1_iri')"
-        assert caplog.records[3].message == f"Created resource 2/5: 'foo_2_label' (ID: 'foo_2_id', IRI: '{RES_IRI_NAMESPACE_STR}foo_2_iri')"
+        assert (
+            caplog.records[1].message
+            == f"Created resource 1/5: 'foo_1_label' (ID: 'foo_1_id', IRI: '{RES_IRI_NAMESPACE_STR}foo_1_iri')"
+        )
+        assert (
+            caplog.records[3].message
+            == f"Created resource 2/5: 'foo_2_label' (ID: 'foo_2_id', IRI: '{RES_IRI_NAMESPACE_STR}foo_2_iri')"
+        )
         caplog.clear()
 
         _upload_resources(clients, upload_state)
-        assert caplog.records[1].message == f"Created resource 3/5: 'foo_3_label' (ID: 'foo_3_id', IRI: '{RES_IRI_NAMESPACE_STR}foo_3_iri')"
-        assert caplog.records[3].message == f"Created resource 4/5: 'foo_4_label' (ID: 'foo_4_id', IRI: '{RES_IRI_NAMESPACE_STR}foo_4_iri')"
+        assert (
+            caplog.records[1].message
+            == f"Created resource 3/5: 'foo_3_label' (ID: 'foo_3_id', IRI: '{RES_IRI_NAMESPACE_STR}foo_3_iri')"
+        )
+        assert (
+            caplog.records[3].message
+            == f"Created resource 4/5: 'foo_4_label' (ID: 'foo_4_id', IRI: '{RES_IRI_NAMESPACE_STR}foo_4_iri')"
+        )
         caplog.clear()
 
         _upload_resources(clients, upload_state)
-        assert caplog.records[1].message == f"Created resource 5/5: 'foo_5_label' (ID: 'foo_5_id', IRI: '{RES_IRI_NAMESPACE_STR}foo_5_iri')"
-        assert caplog.records[3].message == f"  Upload resptrs of resource 'foo_1_id'..."
-        assert caplog.records[5].message == f"  Upload resptrs of resource 'foo_2_id'..."
+        assert (
+            caplog.records[1].message
+            == f"Created resource 5/5: 'foo_5_label' (ID: 'foo_5_id', IRI: '{RES_IRI_NAMESPACE_STR}foo_5_iri')"
+        )
+        assert caplog.records[3].message == "  Upload resptrs of resource 'foo_1_id'..."
+        assert caplog.records[5].message == "  Upload resptrs of resource 'foo_2_id'..."
         caplog.clear()
 
 

@@ -148,7 +148,12 @@ def test_one_resource_with_link_to_existing_resource(
         )
     ]
     upload_state = UploadState(
-        resources, None, UploadConfig(), JSONLDContext({}), [], IriResolver({"foo_2_id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri"})
+        resources,
+        None,
+        UploadConfig(),
+        JSONLDContext({}),
+        [],
+        IriResolver({"foo_2_id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri"}),
     )
     con = Mock(spec_set=ConnectionLive)
     post_responses = [{"@id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", RDFS_LABEL: "foo_1_label"}]
@@ -175,7 +180,9 @@ def test_one_resource_with_link_to_existing_resource(
             "@context": {},
             prop_name: {
                 "@type": "http://api.knora.org/ontology/knora-api/v2#LinkValue",
-                "http://api.knora.org/ontology/knora-api/v2#linkValueHasTargetIri": {"@id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri"},
+                "http://api.knora.org/ontology/knora-api/v2#linkValueHasTargetIri": {
+                    "@id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri"
+                },
             },
         },
     }
@@ -189,7 +196,10 @@ def test_one_resource_with_link_to_existing_resource(
     assert post_call_args["data"]["@type"] == expected["data"]["@type"]  # type: ignore[index]
     assert not upload_state.pending_resources
     assert not upload_state.failed_uploads
-    assert upload_state.iri_resolver.lookup == {"foo_1_id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", "foo_2_id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri"}
+    assert upload_state.iri_resolver.lookup == {
+        "foo_1_id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri",
+        "foo_2_id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri",
+    }
     assert not upload_state.pending_stash
 
 
@@ -247,7 +257,12 @@ def _2_resources_with_stash_interrupted_by_error(
             "If not, a normal 'resume-xmlupload' can be started."
         )
         upload_state_expected = UploadState(
-            resources[1:], stash, UploadConfig(), JSONLDContext({}), [], IriResolver({"foo_1_id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri"})
+            resources[1:],
+            stash,
+            UploadConfig(),
+            JSONLDContext({}),
+            [],
+            IriResolver({"foo_1_id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri"}),
         )
         _handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
@@ -294,7 +309,10 @@ def test_2_resources_with_stash(ingest_client_mock: AssetClient, legal_info_clie
             pytest.fail("POST request was not sent correctly")
     assert not upload_state.pending_resources
     assert not upload_state.failed_uploads
-    assert upload_state.iri_resolver.lookup == {"foo_1_id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", "foo_2_id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri"}
+    assert upload_state.iri_resolver.lookup == {
+        "foo_1_id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri",
+        "foo_2_id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri",
+    }
     assert not upload_state.pending_stash or upload_state.pending_stash.is_empty()
 
 
@@ -328,7 +346,9 @@ def test_5_resources_with_stash_and_interrupt_after_2(
 
     with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
         _upload_resources(client, upload_state)
-        iri_resolver_expected = IriResolver({"foo_1_id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", "foo_2_id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri"})
+        iri_resolver_expected = IriResolver(
+            {"foo_1_id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", "foo_2_id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri"}
+        )
         upload_state_expected = UploadState(
             resources[2:], stash, upload_config, JSONLDContext({}), [], iri_resolver_expected
         )
@@ -336,7 +356,9 @@ def test_5_resources_with_stash_and_interrupt_after_2(
 
     with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
         _upload_resources(client, upload_state)
-        iri_resolver_expected.lookup.update({"foo_3_id": "foo_3_iri", "foo_4_id": "foo_4_iri"})
+        iri_resolver_expected.lookup.update(
+            {"foo_3_id": f"{RES_IRI_NAMESPACE_STR}foo_3_iri", "foo_4_id": f"{RES_IRI_NAMESPACE_STR}foo_4_iri"}
+        )
         upload_state_expected = UploadState(
             resources[4:], stash, upload_config, JSONLDContext({}), [], iri_resolver_expected
         )
@@ -344,7 +366,7 @@ def test_5_resources_with_stash_and_interrupt_after_2(
 
     with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
         _upload_resources(client, upload_state)
-        iri_resolver_expected.lookup.update({"foo_5_id": "foo_5_iri"})
+        iri_resolver_expected.lookup.update({"foo_5_id": f"{RES_IRI_NAMESPACE_STR}foo_5_iri"})
         empty_stash = Stash(standoff_stash=None, link_value_stash=LinkValueStash({}))
         upload_state_expected = UploadState(
             [], empty_stash, upload_config, JSONLDContext({}), [], iri_resolver_expected
@@ -384,7 +406,9 @@ def test_6_resources_with_stash_and_interrupt_after_2(
 
     with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
         _upload_resources(client, upload_state)
-        iri_resolver_expected = IriResolver({"foo_1_id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", "foo_2_id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri"})
+        iri_resolver_expected = IriResolver(
+            {"foo_1_id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", "foo_2_id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri"}
+        )
         upload_state_expected = UploadState(
             resources[2:], stash, upload_config, JSONLDContext({}), [], iri_resolver_expected
         )
@@ -392,7 +416,9 @@ def test_6_resources_with_stash_and_interrupt_after_2(
 
     with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
         _upload_resources(client, upload_state)
-        iri_resolver_expected.lookup.update({"foo_3_id": "foo_3_iri", "foo_4_id": "foo_4_iri"})
+        iri_resolver_expected.lookup.update(
+            {"foo_3_id": f"{RES_IRI_NAMESPACE_STR}foo_3_iri", "foo_4_id": f"{RES_IRI_NAMESPACE_STR}foo_4_iri"}
+        )
         upload_state_expected = UploadState(
             resources[4:], stash, upload_config, JSONLDContext({}), [], iri_resolver_expected
         )
@@ -400,7 +426,9 @@ def test_6_resources_with_stash_and_interrupt_after_2(
 
     with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
         _upload_resources(client, upload_state)
-        iri_resolver_expected.lookup.update({"foo_5_id": "foo_5_iri", "foo_6_id": "foo_6_iri"})
+        iri_resolver_expected.lookup.update(
+            {"foo_5_id": f"{RES_IRI_NAMESPACE_STR}foo_5_iri", "foo_6_id": f"{RES_IRI_NAMESPACE_STR}foo_6_iri"}
+        )
         upload_state_expected = UploadState([], stash, upload_config, JSONLDContext({}), [], iri_resolver_expected)
         _handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 

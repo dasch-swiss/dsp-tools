@@ -1,5 +1,3 @@
-# mypy: disable-error-code="no-untyped-def"
-
 from copy import deepcopy
 from dataclasses import dataclass
 from typing import Any
@@ -34,10 +32,14 @@ from dsp_tools.error.exceptions import PermanentTimeOutError
 from dsp_tools.error.exceptions import XmlUploadInterruptedError
 from test.integration.commands.xmlupload.authentication_client_mock import AuthenticationClientMockBase
 
+RDFS_LABEL = "http://www.w3.org/2000/01/rdf-schema#label"
+
 ONTO = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
 
-LINK_PROP = "http://0.0.0.0:3333/ontology/4123/testonto/v2#hasCustomLink"
+LINK_PROP = f"{ONTO}hasCustomLink"
+TEXT_PROP = f"{ONTO}hasText"
 
+RES_IRI_NAMESPACE_STR = "http://rdfh.ch/0000/"
 
 @pytest.fixture
 def link_val_stash_lookup_two_items() -> dict[str, list[LinkValueStashItem]]:
@@ -53,7 +55,6 @@ def link_val_stash_lookup_two_items() -> dict[str, list[LinkValueStashItem]]:
             )
         ],
     }
-
 
 @pytest.fixture
 def ingest_client_mock():  # type: ignore[no-untyped-def]
@@ -92,19 +93,18 @@ class ProjectClientStub:
 
 
 def test_one_resource_without_links(ingest_client_mock: AssetClient, legal_info_client_mock: LegalInfoClient) -> None:
-    prop_name = "http://0.0.0.0:3333/ontology/9999/onto/v2#hasSimpleText"
     resources = [
         IntermediaryResource(
             "foo_1_id",
             f"{ONTO}foo_1_type",
             "foo_1_label",
             None,
-            [IntermediarySimpleText("foo_1 text", prop_name, None, None)],
+            [IntermediarySimpleText("foo_1 text", TEXT_PROP, None, None)],
         )
     ]
     upload_state = UploadState(resources, None, UploadConfig(), JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
-    post_responses = [{"@id": "foo_1_iri", "rdfs:label": "foo_1_label"}]
+    post_responses = [{"@id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", RDFS_LABEL: "foo_1_label"}]
     con.post = Mock(side_effect=post_responses)
     project_client = ProjectClientStub(con, "1234", None)
 
@@ -126,7 +126,7 @@ def test_one_resource_without_links(ingest_client_mock: AssetClient, legal_info_
                 "@id": "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"
             },
             "@context": {},
-            prop_name: {
+            TEXT_PROP: {
                 "@type": "http://api.knora.org/ontology/knora-api/v2#TextValue",
                 "http://api.knora.org/ontology/knora-api/v2#valueAsString": {
                     "@type": "http://www.w3.org/2001/XMLSchema#string",
@@ -137,7 +137,7 @@ def test_one_resource_without_links(ingest_client_mock: AssetClient, legal_info_
     }
     assert post_call_args["route"] == expected["route"]
     assert not post_call_args["headers"]
-    assert post_call_args["data"][prop_name] == expected["data"][prop_name]  # type: ignore[index]
+    assert post_call_args["data"][TEXT_PROP] == expected["data"][TEXT_PROP]  # type: ignore[index]
     expected_project = expected["data"]["http://api.knora.org/ontology/knora-api/v2#attachedToProject"]  # type: ignore[index]
     assert post_call_args["data"]["http://api.knora.org/ontology/knora-api/v2#attachedToProject"] == expected_project
     expected_label = expected["data"]["http://www.w3.org/2000/01/rdf-schema#label"]  # type: ignore[index]
@@ -145,7 +145,7 @@ def test_one_resource_without_links(ingest_client_mock: AssetClient, legal_info_
     assert post_call_args["data"]["@type"] == expected["data"]["@type"]  # type: ignore[index]
     assert not upload_state.pending_resources
     assert not upload_state.failed_uploads
-    assert upload_state.iri_resolver.lookup == {"foo_1_id": "foo_1_iri"}
+    assert upload_state.iri_resolver.lookup == {"foo_1_id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri"}
     assert not upload_state.pending_stash
 
 
@@ -158,14 +158,19 @@ def test_one_resource_with_link_to_existing_resource(
             f"{ONTO}foo_1_type",
             "foo_1_label",
             None,
-            [IntermediaryLink("foo_2_id", f"{ONTO}hasCustomLink", None, None, str(uuid4()))],
+            [IntermediaryLink("foo_2_id", LINK_PROP, None, None, str(uuid4()))],
         )
     ]
     upload_state = UploadState(
-        resources, None, UploadConfig(), JSONLDContext({}), [], IriResolver({"foo_2_id": "foo_2_iri"})
+        resources,
+        None,
+        UploadConfig(),
+        JSONLDContext({}),
+        [],
+        IriResolver({"foo_2_id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri"}),
     )
     con = Mock(spec_set=ConnectionLive)
-    post_responses = [{"@id": "foo_1_iri", "rdfs:label": "foo_1_label"}]
+    post_responses = [{"@id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", RDFS_LABEL: "foo_1_label"}]
     con.post = Mock(side_effect=post_responses)
     project_client = ProjectClientStub(con, "1234", None)
     clients = UploadClients(ingest_client_mock, project_client, ListClientMock(), legal_info_client_mock)
@@ -174,7 +179,7 @@ def test_one_resource_with_link_to_existing_resource(
     assert len(con.post.call_args_list) == len(post_responses)
     post_call_args = cast(dict[str, Any], con.post.call_args_list[0].kwargs)
     assert len(post_call_args) == 3
-    prop_name = "http://0.0.0.0:3333/ontology/9999/onto/v2#hasCustomLinkValue"
+    prop_name = f"{LINK_PROP}Value"
     expected = {
         "route": "/v2/resources",
         "data": {
@@ -189,7 +194,9 @@ def test_one_resource_with_link_to_existing_resource(
             "@context": {},
             prop_name: {
                 "@type": "http://api.knora.org/ontology/knora-api/v2#LinkValue",
-                "http://api.knora.org/ontology/knora-api/v2#linkValueHasTargetIri": {"@id": "foo_2_iri"},
+                "http://api.knora.org/ontology/knora-api/v2#linkValueHasTargetIri": {
+                    "@id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri"
+                },
             },
         },
     }
@@ -203,7 +210,10 @@ def test_one_resource_with_link_to_existing_resource(
     assert post_call_args["data"]["@type"] == expected["data"]["@type"]  # type: ignore[index]
     assert not upload_state.pending_resources
     assert not upload_state.failed_uploads
-    assert upload_state.iri_resolver.lookup == {"foo_1_id": "foo_1_iri", "foo_2_id": "foo_2_iri"}
+    assert upload_state.iri_resolver.lookup == {
+        "foo_1_id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri",
+        "foo_2_id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri",
+    }
     assert not upload_state.pending_stash
 
 
@@ -245,7 +255,7 @@ def _2_resources_with_stash_interrupted_by_error(
     upload_state = UploadState(resources.copy(), deepcopy(stash), UploadConfig(), JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [
-        {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", RDFS_LABEL: "foo_1_label"},
         err_to_interrupt_with,
     ]
     con.post = Mock(side_effect=post_responses)
@@ -266,7 +276,12 @@ def _2_resources_with_stash_interrupted_by_error(
             "If not, a normal 'resume-xmlupload' can be started."
         )
         upload_state_expected = UploadState(
-            resources[1:], stash, UploadConfig(), JSONLDContext({}), [], IriResolver({"foo_1_id": "foo_1_iri"})
+            resources[1:],
+            stash,
+            UploadConfig(),
+            JSONLDContext({}),
+            [],
+            IriResolver({"foo_1_id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri"}),
         )
         _handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
@@ -281,8 +296,8 @@ def test_2_resources_with_stash(
     upload_state = UploadState(resources.copy(), deepcopy(stash), UploadConfig(), JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [
-        {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
-        {"@id": "foo_2_iri", "rdfs:label": "foo_2_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", RDFS_LABEL: "foo_1_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri", RDFS_LABEL: "foo_2_label"},
         {},  # uploading a stash doesn't rely on a certain response
         {},  # uploading a stash doesn't rely on a certain response
     ]
@@ -293,16 +308,17 @@ def test_2_resources_with_stash(
     _upload_resources(clients, upload_state)
 
     assert len(con.post.call_args_list) == len(post_responses)
-    match con.post.call_args_list[2].kwargs:
+    post_kwargs = con.post.call_args_list[2].kwargs
+    match post_kwargs:
         case {
             "route": "/v2/values",
             "data": {
-                "@type": "my_onto:foo_1_type",
-                "@id": "foo_1_iri",
+                "@type": "http://0.0.0.0:3333/ontology/9999/onto/v2#foo_1_type",
+                "@id": "http://rdfh.ch/0000/foo_1_iri",
                 "@context": dict(),
-                "my_onto:hasCustomLinkValue": {
+                "http://0.0.0.0:3333/ontology/9999/onto/v2#hasCustomLinkValue": {
                     "@type": "knora-api:LinkValue",
-                    "knora-api:linkValueHasTargetIri": {"@id": "foo_2_iri"},
+                    "knora-api:linkValueHasTargetIri": {"@id": "http://rdfh.ch/0000/foo_2_iri"},
                 },
             },
         }:
@@ -311,7 +327,10 @@ def test_2_resources_with_stash(
             pytest.fail("POST request was not sent correctly")
     assert not upload_state.pending_resources
     assert not upload_state.failed_uploads
-    assert upload_state.iri_resolver.lookup == {"foo_1_id": "foo_1_iri", "foo_2_id": "foo_2_iri"}
+    assert upload_state.iri_resolver.lookup == {
+        "foo_1_id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri",
+        "foo_2_id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri",
+    }
     assert not upload_state.pending_stash or upload_state.pending_stash.is_empty()
 
 
@@ -326,11 +345,11 @@ def test_5_resources_with_stash_and_interrupt_after_2(
     upload_state = UploadState(resources.copy(), deepcopy(stash), upload_config, JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [
-        {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
-        {"@id": "foo_2_iri", "rdfs:label": "foo_2_label"},
-        {"@id": "foo_3_iri", "rdfs:label": "foo_3_label"},
-        {"@id": "foo_4_iri", "rdfs:label": "foo_4_label"},
-        {"@id": "foo_5_iri", "rdfs:label": "foo_5_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", RDFS_LABEL: "foo_1_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri", RDFS_LABEL: "foo_2_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_3_iri", RDFS_LABEL: "foo_3_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_4_iri", RDFS_LABEL: "foo_4_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_5_iri", RDFS_LABEL: "foo_5_label"},
         {},  # uploading a stash doesn't rely on a certain response
         {},  # uploading a stash doesn't rely on a certain response
     ]
@@ -341,7 +360,9 @@ def test_5_resources_with_stash_and_interrupt_after_2(
 
     with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
         _upload_resources(client, upload_state)
-        iri_resolver_expected = IriResolver({"foo_1_id": "foo_1_iri", "foo_2_id": "foo_2_iri"})
+        iri_resolver_expected = IriResolver(
+            {"foo_1_id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", "foo_2_id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri"}
+        )
         upload_state_expected = UploadState(
             resources[2:], stash, upload_config, JSONLDContext({}), [], iri_resolver_expected
         )
@@ -349,7 +370,9 @@ def test_5_resources_with_stash_and_interrupt_after_2(
 
     with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
         _upload_resources(client, upload_state)
-        iri_resolver_expected.lookup.update({"foo_3_id": "foo_3_iri", "foo_4_id": "foo_4_iri"})
+        iri_resolver_expected.lookup.update(
+            {"foo_3_id": f"{RES_IRI_NAMESPACE_STR}foo_3_iri", "foo_4_id": f"{RES_IRI_NAMESPACE_STR}foo_4_iri"}
+        )
         upload_state_expected = UploadState(
             resources[4:], stash, upload_config, JSONLDContext({}), [], iri_resolver_expected
         )
@@ -357,7 +380,7 @@ def test_5_resources_with_stash_and_interrupt_after_2(
 
     with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
         _upload_resources(client, upload_state)
-        iri_resolver_expected.lookup.update({"foo_5_id": "foo_5_iri"})
+        iri_resolver_expected.lookup.update({"foo_5_id": f"{RES_IRI_NAMESPACE_STR}foo_5_iri"})
         empty_stash = Stash(standoff_stash=None, link_value_stash=LinkValueStash({}))
         upload_state_expected = UploadState(
             [], empty_stash, upload_config, JSONLDContext({}), [], iri_resolver_expected
@@ -377,12 +400,12 @@ def test_6_resources_with_stash_and_interrupt_after_2(
     upload_state = UploadState(resources.copy(), deepcopy(stash), upload_config, JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [
-        {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
-        {"@id": "foo_2_iri", "rdfs:label": "foo_2_label"},
-        {"@id": "foo_3_iri", "rdfs:label": "foo_3_label"},
-        {"@id": "foo_4_iri", "rdfs:label": "foo_4_label"},
-        {"@id": "foo_5_iri", "rdfs:label": "foo_5_label"},
-        {"@id": "foo_6_iri", "rdfs:label": "foo_6_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", RDFS_LABEL: "foo_1_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri", RDFS_LABEL: "foo_2_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_3_iri", RDFS_LABEL: "foo_3_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_4_iri", RDFS_LABEL: "foo_4_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_5_iri", RDFS_LABEL: "foo_5_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_6_iri", RDFS_LABEL: "foo_6_label"},
         {},  # uploading a stash doesn't rely on a certain response
         {},  # uploading a stash doesn't rely on a certain response
     ]
@@ -393,7 +416,9 @@ def test_6_resources_with_stash_and_interrupt_after_2(
 
     with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
         _upload_resources(client, upload_state)
-        iri_resolver_expected = IriResolver({"foo_1_id": "foo_1_iri", "foo_2_id": "foo_2_iri"})
+        iri_resolver_expected = IriResolver(
+            {"foo_1_id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", "foo_2_id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri"}
+        )
         upload_state_expected = UploadState(
             resources[2:], stash, upload_config, JSONLDContext({}), [], iri_resolver_expected
         )
@@ -401,7 +426,9 @@ def test_6_resources_with_stash_and_interrupt_after_2(
 
     with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
         _upload_resources(client, upload_state)
-        iri_resolver_expected.lookup.update({"foo_3_id": "foo_3_iri", "foo_4_id": "foo_4_iri"})
+        iri_resolver_expected.lookup.update(
+            {"foo_3_id": f"{RES_IRI_NAMESPACE_STR}foo_3_iri", "foo_4_id": f"{RES_IRI_NAMESPACE_STR}foo_4_iri"}
+        )
         upload_state_expected = UploadState(
             resources[4:], stash, upload_config, JSONLDContext({}), [], iri_resolver_expected
         )
@@ -409,7 +436,9 @@ def test_6_resources_with_stash_and_interrupt_after_2(
 
     with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
         _upload_resources(client, upload_state)
-        iri_resolver_expected.lookup.update({"foo_5_id": "foo_5_iri", "foo_6_id": "foo_6_iri"})
+        iri_resolver_expected.lookup.update(
+            {"foo_5_id": f"{RES_IRI_NAMESPACE_STR}foo_5_iri", "foo_6_id": f"{RES_IRI_NAMESPACE_STR}foo_6_iri"}
+        )
         upload_state_expected = UploadState([], stash, upload_config, JSONLDContext({}), [], iri_resolver_expected)
         _handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
@@ -437,11 +466,11 @@ def test_logging(
     upload_state = UploadState(resources.copy(), deepcopy(stash), upload_config, JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [
-        {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
-        {"@id": "foo_2_iri", "rdfs:label": "foo_2_label"},
-        {"@id": "foo_3_iri", "rdfs:label": "foo_3_label"},
-        {"@id": "foo_4_iri", "rdfs:label": "foo_4_label"},
-        {"@id": "foo_5_iri", "rdfs:label": "foo_5_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", RDFS_LABEL: "foo_1_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri", RDFS_LABEL: "foo_2_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_3_iri", RDFS_LABEL: "foo_3_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_4_iri", RDFS_LABEL: "foo_4_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_5_iri", RDFS_LABEL: "foo_5_label"},
         {},  # uploading a stash doesn't rely on a certain response
         {},  # uploading a stash doesn't rely on a certain response
     ]
@@ -451,17 +480,32 @@ def test_logging(
 
     with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error"):
         _upload_resources(clients, upload_state)
-        assert caplog.records[1].message == "Created resource 1/5: 'foo_1_label' (ID: 'foo_1_id', IRI: 'foo_1_iri')"
-        assert caplog.records[3].message == "Created resource 2/5: 'foo_2_label' (ID: 'foo_2_id', IRI: 'foo_2_iri')"
+        assert (
+            caplog.records[1].message
+            == f"Created resource 1/5: 'foo_1_label' (ID: 'foo_1_id', IRI: '{RES_IRI_NAMESPACE_STR}foo_1_iri')"
+        )
+        assert (
+            caplog.records[3].message
+            == f"Created resource 2/5: 'foo_2_label' (ID: 'foo_2_id', IRI: '{RES_IRI_NAMESPACE_STR}foo_2_iri')"
+        )
         caplog.clear()
 
         _upload_resources(clients, upload_state)
-        assert caplog.records[1].message == "Created resource 3/5: 'foo_3_label' (ID: 'foo_3_id', IRI: 'foo_3_iri')"
-        assert caplog.records[3].message == "Created resource 4/5: 'foo_4_label' (ID: 'foo_4_id', IRI: 'foo_4_iri')"
+        assert (
+            caplog.records[1].message
+            == f"Created resource 3/5: 'foo_3_label' (ID: 'foo_3_id', IRI: '{RES_IRI_NAMESPACE_STR}foo_3_iri')"
+        )
+        assert (
+            caplog.records[3].message
+            == f"Created resource 4/5: 'foo_4_label' (ID: 'foo_4_id', IRI: '{RES_IRI_NAMESPACE_STR}foo_4_iri')"
+        )
         caplog.clear()
 
         _upload_resources(clients, upload_state)
-        assert caplog.records[1].message == "Created resource 5/5: 'foo_5_label' (ID: 'foo_5_id', IRI: 'foo_5_iri')"
+        assert (
+            caplog.records[1].message
+            == f"Created resource 5/5: 'foo_5_label' (ID: 'foo_5_id', IRI: '{RES_IRI_NAMESPACE_STR}foo_5_iri')"
+        )
         assert caplog.records[3].message == "  Upload resptrs of resource 'foo_1_id'..."
         assert caplog.records[5].message == "  Upload resptrs of resource 'foo_2_id'..."
         caplog.clear()
@@ -478,12 +522,12 @@ def test_post_requests(
     upload_state = UploadState(resources.copy(), deepcopy(stash), upload_config, JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [
-        {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
-        {"@id": "foo_2_iri", "rdfs:label": "foo_2_label"},
-        {"@id": "foo_3_iri", "rdfs:label": "foo_3_label"},
-        {"@id": "foo_4_iri", "rdfs:label": "foo_4_label"},
-        {"@id": "foo_5_iri", "rdfs:label": "foo_5_label"},
-        {"@id": "foo_6_iri", "rdfs:label": "foo_6_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", RDFS_LABEL: "foo_1_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri", RDFS_LABEL: "foo_2_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_3_iri", RDFS_LABEL: "foo_3_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_4_iri", RDFS_LABEL: "foo_4_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_5_iri", RDFS_LABEL: "foo_5_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_6_iri", RDFS_LABEL: "foo_6_label"},
         {},  # uploading a stash doesn't rely on a certain response
         {},  # uploading a stash doesn't rely on a certain response
     ]

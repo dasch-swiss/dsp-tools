@@ -32,7 +32,14 @@ from dsp_tools.error.exceptions import PermanentTimeOutError
 from dsp_tools.error.exceptions import XmlUploadInterruptedError
 from test.integration.commands.xmlupload.authentication_client_mock import AuthenticationClientMockBase
 
+RDFS_LABEL = "http://www.w3.org/2000/01/rdf-schema#label"
+
 ONTO = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
+
+LINK_PROP = f"{ONTO}hasCustomLink"
+TEXT_PROP = f"{ONTO}hasText"
+
+RES_IRI_NAMESPACE_STR = "http://rdfh.ch/0000/"
 
 
 @pytest.fixture
@@ -72,19 +79,18 @@ class ProjectClientStub:
 
 
 def test_one_resource_without_links(ingest_client_mock: AssetClient, legal_info_client_mock: LegalInfoClient) -> None:
-    prop_name = "http://0.0.0.0:3333/ontology/9999/onto/v2#hasSimpleText"
     resources = [
         IntermediaryResource(
             "foo_1_id",
             f"{ONTO}foo_1_type",
             "foo_1_label",
             None,
-            [IntermediarySimpleText("foo_1 text", prop_name, None, None)],
+            [IntermediarySimpleText("foo_1 text", TEXT_PROP, None, None)],
         )
     ]
     upload_state = UploadState(resources, None, UploadConfig(), JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
-    post_responses = [{"@id": "foo_1_iri", "rdfs:label": "foo_1_label"}]
+    post_responses = [{"@id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", RDFS_LABEL: "foo_1_label"}]
     con.post = Mock(side_effect=post_responses)
     project_client = ProjectClientStub(con, "1234", None)
 
@@ -106,7 +112,7 @@ def test_one_resource_without_links(ingest_client_mock: AssetClient, legal_info_
                 "@id": "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"
             },
             "@context": {},
-            prop_name: {
+            TEXT_PROP: {
                 "@type": "http://api.knora.org/ontology/knora-api/v2#TextValue",
                 "http://api.knora.org/ontology/knora-api/v2#valueAsString": {
                     "@type": "http://www.w3.org/2001/XMLSchema#string",
@@ -138,14 +144,14 @@ def test_one_resource_with_link_to_existing_resource(
             f"{ONTO}foo_1_type",
             "foo_1_label",
             None,
-            [IntermediaryLink("foo_2_id", f"{ONTO}hasCustomLink", None, None, str(uuid4()))],
+            [IntermediaryLink("foo_2_id", LINK_PROP, None, None, str(uuid4()))],
         )
     ]
     upload_state = UploadState(
         resources, None, UploadConfig(), JSONLDContext({}), [], IriResolver({"foo_2_id": "foo_2_iri"})
     )
     con = Mock(spec_set=ConnectionLive)
-    post_responses = [{"@id": "foo_1_iri", "rdfs:label": "foo_1_label"}]
+    post_responses = [{"@id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", RDFS_LABEL: "foo_1_label"}]
     con.post = Mock(side_effect=post_responses)
     project_client = ProjectClientStub(con, "1234", None)
     clients = UploadClients(ingest_client_mock, project_client, ListClientMock(), legal_info_client_mock)
@@ -154,7 +160,7 @@ def test_one_resource_with_link_to_existing_resource(
     assert len(con.post.call_args_list) == len(post_responses)
     post_call_args = cast(dict[str, Any], con.post.call_args_list[0].kwargs)
     assert len(post_call_args) == 3
-    prop_name = "http://0.0.0.0:3333/ontology/9999/onto/v2#hasCustomLinkValue"
+    prop_name = f"{LINK_PROP}Value"
     expected = {
         "route": "/v2/resources",
         "data": {
@@ -169,7 +175,7 @@ def test_one_resource_with_link_to_existing_resource(
             "@context": {},
             prop_name: {
                 "@type": "http://api.knora.org/ontology/knora-api/v2#LinkValue",
-                "http://api.knora.org/ontology/knora-api/v2#linkValueHasTargetIri": {"@id": "foo_2_iri"},
+                "http://api.knora.org/ontology/knora-api/v2#linkValueHasTargetIri": {"@id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri"},
             },
         },
     }
@@ -213,14 +219,14 @@ def _2_resources_with_stash_interrupted_by_error(
         IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 3)
     ]
     link_val_stash_dict = {
-        "foo_1_id": [LinkValueStashItem("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")],
-        "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
+        "foo_1_id": [LinkValueStashItem("foo_1_id", f"{ONTO}foo_1_type", LINK_PROP, "foo_2_id")],
+        "foo_2_id": [LinkValueStashItem("foo_2_id", f"{ONTO}foo_2_type", LINK_PROP, "foo_1_id")],
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
     upload_state = UploadState(resources.copy(), deepcopy(stash), UploadConfig(), JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [
-        {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", RDFS_LABEL: "foo_1_label"},
         err_to_interrupt_with,
     ]
     con.post = Mock(side_effect=post_responses)
@@ -251,15 +257,15 @@ def test_2_resources_with_stash(ingest_client_mock: AssetClient, legal_info_clie
         IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 3)
     ]
     link_val_stash_dict = {
-        "foo_1_id": [LinkValueStashItem("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLinkValue", "foo_2_id")],
-        "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLinkValue", "foo_1_id")],
+        "foo_1_id": [LinkValueStashItem("foo_1_id", f"{ONTO}foo_1_type", f"{ONTO}hasCustomLinkValue", "foo_2_id")],
+        "foo_2_id": [LinkValueStashItem("foo_2_id", f"{ONTO}foo_2_type", f"{ONTO}hasCustomLinkValue", "foo_1_id")],
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
     upload_state = UploadState(resources.copy(), deepcopy(stash), UploadConfig(), JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [
-        {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
-        {"@id": "foo_2_iri", "rdfs:label": "foo_2_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", RDFS_LABEL: "foo_1_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri", RDFS_LABEL: "foo_2_label"},
         {},  # uploading a stash doesn't rely on a certain response
         {},  # uploading a stash doesn't rely on a certain response
     ]
@@ -299,19 +305,19 @@ def test_5_resources_with_stash_and_interrupt_after_2(
         IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 6)
     ]
     link_val_stash_dict = {
-        "foo_1_id": [LinkValueStashItem("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")],
-        "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
+        "foo_1_id": [LinkValueStashItem("foo_1_id", f"{ONTO}foo_1_type", LINK_PROP, "foo_2_id")],
+        "foo_2_id": [LinkValueStashItem("foo_2_id", f"{ONTO}foo_2_type", LINK_PROP, "foo_1_id")],
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
     upload_state = UploadState(resources.copy(), deepcopy(stash), upload_config, JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [
-        {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
-        {"@id": "foo_2_iri", "rdfs:label": "foo_2_label"},
-        {"@id": "foo_3_iri", "rdfs:label": "foo_3_label"},
-        {"@id": "foo_4_iri", "rdfs:label": "foo_4_label"},
-        {"@id": "foo_5_iri", "rdfs:label": "foo_5_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", RDFS_LABEL: "foo_1_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri", RDFS_LABEL: "foo_2_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_3_iri", RDFS_LABEL: "foo_3_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_4_iri", RDFS_LABEL: "foo_4_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_5_iri", RDFS_LABEL: "foo_5_label"},
         {},  # uploading a stash doesn't rely on a certain response
         {},  # uploading a stash doesn't rely on a certain response
     ]
@@ -354,20 +360,20 @@ def test_6_resources_with_stash_and_interrupt_after_2(
         IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 7)
     ]
     link_val_stash_dict = {
-        "foo_1_id": [LinkValueStashItem("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")],
-        "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
+        "foo_1_id": [LinkValueStashItem("foo_1_id", f"{ONTO}foo_1_type", LINK_PROP, "foo_2_id")],
+        "foo_2_id": [LinkValueStashItem("foo_2_id", f"{ONTO}foo_2_type", LINK_PROP, "foo_1_id")],
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
     upload_state = UploadState(resources.copy(), deepcopy(stash), upload_config, JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [
-        {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
-        {"@id": "foo_2_iri", "rdfs:label": "foo_2_label"},
-        {"@id": "foo_3_iri", "rdfs:label": "foo_3_label"},
-        {"@id": "foo_4_iri", "rdfs:label": "foo_4_label"},
-        {"@id": "foo_5_iri", "rdfs:label": "foo_5_label"},
-        {"@id": "foo_6_iri", "rdfs:label": "foo_6_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", RDFS_LABEL: "foo_1_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri", RDFS_LABEL: "foo_2_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_3_iri", RDFS_LABEL: "foo_3_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_4_iri", RDFS_LABEL: "foo_4_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_5_iri", RDFS_LABEL: "foo_5_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_6_iri", RDFS_LABEL: "foo_6_label"},
         {},  # uploading a stash doesn't rely on a certain response
         {},  # uploading a stash doesn't rely on a certain response
     ]
@@ -415,19 +421,19 @@ def test_logging(
         IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 6)
     ]
     link_val_stash_dict = {
-        "foo_1_id": [LinkValueStashItem("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")],
-        "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
+        "foo_1_id": [LinkValueStashItem("foo_1_id", f"{ONTO}foo_1_type", LINK_PROP, "foo_2_id")],
+        "foo_2_id": [LinkValueStashItem("foo_2_id", f"{ONTO}foo_2_type", LINK_PROP, "foo_1_id")],
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
     upload_state = UploadState(resources.copy(), deepcopy(stash), upload_config, JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [
-        {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
-        {"@id": "foo_2_iri", "rdfs:label": "foo_2_label"},
-        {"@id": "foo_3_iri", "rdfs:label": "foo_3_label"},
-        {"@id": "foo_4_iri", "rdfs:label": "foo_4_label"},
-        {"@id": "foo_5_iri", "rdfs:label": "foo_5_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", RDFS_LABEL: "foo_1_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri", RDFS_LABEL: "foo_2_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_3_iri", RDFS_LABEL: "foo_3_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_4_iri", RDFS_LABEL: "foo_4_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_5_iri", RDFS_LABEL: "foo_5_label"},
         {},  # uploading a stash doesn't rely on a certain response
         {},  # uploading a stash doesn't rely on a certain response
     ]
@@ -458,20 +464,20 @@ def test_post_requests(ingest_client_mock: AssetClient, legal_info_client_mock: 
         IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 7)
     ]
     link_val_stash_dict = {
-        "foo_1_id": [LinkValueStashItem("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")],
-        "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
+        "foo_1_id": [LinkValueStashItem("foo_1_id", f"{ONTO}foo_1_type", LINK_PROP, "foo_2_id")],
+        "foo_2_id": [LinkValueStashItem("foo_2_id", f"{ONTO}foo_2_type", LINK_PROP, "foo_1_id")],
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
     upload_state = UploadState(resources.copy(), deepcopy(stash), upload_config, JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [
-        {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
-        {"@id": "foo_2_iri", "rdfs:label": "foo_2_label"},
-        {"@id": "foo_3_iri", "rdfs:label": "foo_3_label"},
-        {"@id": "foo_4_iri", "rdfs:label": "foo_4_label"},
-        {"@id": "foo_5_iri", "rdfs:label": "foo_5_label"},
-        {"@id": "foo_6_iri", "rdfs:label": "foo_6_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", RDFS_LABEL: "foo_1_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri", RDFS_LABEL: "foo_2_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_3_iri", RDFS_LABEL: "foo_3_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_4_iri", RDFS_LABEL: "foo_4_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_5_iri", RDFS_LABEL: "foo_5_label"},
+        {"@id": f"{RES_IRI_NAMESPACE_STR}foo_6_iri", RDFS_LABEL: "foo_6_label"},
         {},  # uploading a stash doesn't rely on a certain response
         {},  # uploading a stash doesn't rely on a certain response
     ]

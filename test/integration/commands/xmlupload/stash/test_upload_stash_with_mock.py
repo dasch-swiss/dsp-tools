@@ -3,9 +3,12 @@ from dataclasses import field
 from typing import Any
 from uuid import uuid4
 
+import pytest
+
 from dsp_tools.clients.connection import Connection
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
 from dsp_tools.commands.xmlupload.models.lookup_models import JSONLDContext
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
@@ -22,6 +25,8 @@ from test.integration.commands.xmlupload.connection_mock import ConnectionMockBa
 
 # ruff: noqa: ARG002 (unused-method-argument)
 # ruff: noqa: D102 (undocumented-public-method)
+
+SOME_PROP_STR = "http://0.0.0.0:3333/ontology/4123/testonto/v2#someprop"
 
 
 @dataclass
@@ -79,17 +84,19 @@ class ConnectionMock(ConnectionMockBase):
         return self.put_responses.pop(0)
 
 
+@pytest.fixture
+def link_val_stash_target_id_2():
+    val = IntermediaryLink("002", SOME_PROP_STR, None, None, str(uuid4()))
+    return LinkValueStashItem("001", "sometype", val)
+
+
 class TestUploadLinkValueStashes:
-    def test_upload_link_value_stash(self) -> None:
+    def test_upload_link_value_stash(self, link_val_stash_target_id_2: LinkValueStashItem) -> None:
         """Upload stashed link values (resptr), if all goes well."""
         stash = Stash.make(
             standoff_stash=None,
             link_value_stash=LinkValueStash.make(
-                [
-                    LinkValueStashItem(
-                        "001", "sometype", "http://0.0.0.0:3333/ontology/4123/testonto/v2#someprop", "002"
-                    ),
-                ],
+                [link_val_stash_target_id_2],
             ),
         )
         assert stash
@@ -104,23 +111,21 @@ class TestUploadLinkValueStashes:
         _upload_stash(upload_state, ProjectClientStub(con, "1234", None))
         assert not upload_state.pending_stash or upload_state.pending_stash.is_empty()
 
-    def test_upload_link_value_stash_multiple(self) -> None:
+    def test_upload_link_value_stash_multiple(self, link_val_stash_target_id_2: LinkValueStashItem) -> None:
         """Upload multiple stashed link values (resptr), if all goes well."""
         stash = Stash.make(
             standoff_stash=None,
             link_value_stash=LinkValueStash.make(
                 [
+                    link_val_stash_target_id_2,
                     LinkValueStashItem(
-                        "001", "sometype", "http://0.0.0.0:3333/ontology/4123/testonto/v2#someprop", "002"
+                        "001", "sometype", IntermediaryLink("003", SOME_PROP_STR, None, None, str(uuid4()))
                     ),
                     LinkValueStashItem(
-                        "001", "sometype", "http://0.0.0.0:3333/ontology/4123/testonto/v2#someprop", "003"
+                        "002", "sometype", IntermediaryLink("003", SOME_PROP_STR, None, None, str(uuid4()))
                     ),
                     LinkValueStashItem(
-                        "002", "sometype", "http://0.0.0.0:3333/ontology/4123/testonto/v2#someprop", "003"
-                    ),
-                    LinkValueStashItem(
-                        "004", "sometype", "http://0.0.0.0:3333/ontology/4123/testonto/v2#someprop", "002"
+                        "004", "sometype", IntermediaryLink("002", SOME_PROP_STR, None, None, str(uuid4()))
                     ),
                 ],
             ),
@@ -144,7 +149,7 @@ class TestUploadTextValueStashes:
     def test_upload_text_value_stash(self) -> None:
         """Upload stashed text values (standoff), if all goes well."""
         value_uuid = str(uuid4())
-        property_name = "http://0.0.0.0:3333/ontology/4123/testonto/v2#someprop"
+        property_name = SOME_PROP_STR
         val = IntermediaryRichtext(
             value=FormattedTextValue("<p>some text</p>"),
             prop_iri=property_name,
@@ -191,7 +196,7 @@ class TestUploadTextValueStashes:
         text value in its text.
         """
         value_uuid = str(uuid4())
-        property_name = "http://0.0.0.0:3333/ontology/4123/testonto/v2#someprop"
+        property_name = SOME_PROP_STR
         val = IntermediaryRichtext(
             value=FormattedTextValue("<p>some text</p>"),
             prop_iri=property_name,

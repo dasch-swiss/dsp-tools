@@ -1,3 +1,5 @@
+# mypy: disable-error-code="method-assign,no-untyped-def"
+
 from dataclasses import dataclass
 from dataclasses import field
 from typing import Any

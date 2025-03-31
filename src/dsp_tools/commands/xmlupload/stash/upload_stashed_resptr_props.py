@@ -1,13 +1,18 @@
 from __future__ import annotations
 
+import json
 from datetime import datetime
 from typing import Any
 from typing import cast
 
 from loguru import logger
+from pyld import jsonld
+from rdflib import RDF
+from rdflib import BNode
+from rdflib import URIRef
 
 from dsp_tools.clients.connection import Connection
-from dsp_tools.commands.xmlupload.models.lookup_models import JSONLDContext
+from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import make_link_value_graph
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem
@@ -18,7 +23,6 @@ from dsp_tools.error.exceptions import BaseError
 def upload_stashed_resptr_props(
     upload_state: UploadState,
     con: Connection,
-    jsonld_context: JSONLDContext,
 ) -> None:
     """
     After all resources are uploaded, the stashed resptr props must be applied to their resources in DSP.
@@ -27,7 +31,6 @@ def upload_stashed_resptr_props(
     Args:
         upload_state: the current state of the upload
         con: connection to DSP
-        jsonld_context: the JSON-LD context of the resource
     """
 
     print(f"{datetime.now()}: Upload the stashed resptrs...")
@@ -48,7 +51,7 @@ def upload_stashed_resptr_props(
             target_iri = upload_state.iri_resolver.get(stash_item.res_id)
             if not target_iri:
                 continue
-            if _upload_stash_item(stash_item, res_iri, target_iri, con, jsonld_context):
+            if _upload_stash_item(stash_item, res_iri, target_iri, con):
                 link_value_stash.res_2_stash_items[res_id].remove(stash_item)
         # remove res_id if all stash items were uploaded
         if not link_value_stash.res_2_stash_items[res_id]:
@@ -60,7 +63,6 @@ def _upload_stash_item(
     res_iri: str,
     target_iri: str,
     con: Connection,
-    jsonld_context: JSONLDContext,
 ) -> bool:
     """
     Upload a single stashed link value to DSP.
@@ -70,12 +72,11 @@ def _upload_stash_item(
         res_iri: the iri of the resource
         target_iri: the iri of the target resource
         con: connection to DSP
-        jsonld_context: the JSON-LD context of the resource
 
     Returns:
         True, if the upload was successful, False otherwise
     """
-    payload = _create_resptr_prop_json_object_to_update(stash, res_iri, target_iri, jsonld_context)
+    payload = _create_resptr_prop_json_object_to_update(stash, res_iri, target_iri)
     try:
         con.post(route="/v2/values", data=payload)
     except BaseError as err:
@@ -89,24 +90,17 @@ def _create_resptr_prop_json_object_to_update(
     stash: LinkValueStashItem,
     res_iri: str,
     target_iri: str,
-    jsonld_context: JSONLDContext,
 ) -> dict[str, Any]:
     """This function creates a JSON object that can be sent as an update request to the DSP-API."""
-    linkVal = {
-        "@type": "knora-api:LinkValue",
-        "knora-api:linkValueHasTargetIri": {"@id": target_iri},
-    }
-    if stash.permission:
-        linkVal["knora-api:hasPermissions"] = stash.permission
-    if stash.comment:
-        linkVal["knora-api:valueHasComment"] = stash.comment
-    jsonobj = {
-        "@id": res_iri,
-        "@type": stash.res_type,
-        stash.prop_name: linkVal,
-    }
-    jsonobj.update(jsonld_context.serialise())
-    return jsonobj
+    val_bn = BNode()
+    res_iri = URIRef(res_iri)
+    graph = make_link_value_graph(stash.value, val_bn, res_iri, URIRef(target_iri))
+    graph.add((res_iri, RDF.type, URIRef(stash.res_type)))
+    graph_bytes = graph.serialize(format="json-ld", encoding="utf-8")
+    serialised_json: list[dict[str, Any]] = json.loads(graph_bytes)
+    json_frame = {"@id": res_iri}
+    framed: dict[str, Any] = jsonld.frame(serialised_json, json_frame)
+    return framed
 
 
 def _log_unable_to_upload_link_value(msg: str, res_id: str, prop_name: str) -> None:

@@ -34,6 +34,8 @@ from test.integration.commands.xmlupload.authentication_client_mock import Authe
 
 ONTO = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
 
+LINK_PROP = "http://0.0.0.0:3333/ontology/4123/testonto/v2#hasCustomLink"
+
 
 @pytest.fixture
 def ingest_client_mock():  # type: ignore[no-untyped-def]
@@ -213,8 +215,16 @@ def _2_resources_with_stash_interrupted_by_error(
         IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 3)
     ]
     link_val_stash_dict = {
-        "foo_1_id": [LinkValueStashItem("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")],
-        "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
+        "foo_1_id": [
+            LinkValueStashItem(
+                "foo_1_id", "foo_1_type", IntermediaryLink("foo_2_id", LINK_PROP, None, None, str(uuid4()))
+            )
+        ],
+        "foo_2_id": [
+            LinkValueStashItem(
+                "foo_2_id", "foo_2_type", IntermediaryLink("foo_1_id", LINK_PROP, None, None, str(uuid4()))
+            )
+        ],
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
     upload_state = UploadState(resources.copy(), deepcopy(stash), UploadConfig(), JSONLDContext({}))

@@ -1,19 +1,18 @@
 from __future__ import annotations
 
-import json
 from datetime import datetime
 from typing import Any
 from typing import cast
 from urllib.parse import quote_plus
 
 from loguru import logger
-from pyld import jsonld
 from rdflib import RDF
 from rdflib import Graph
 from rdflib import URIRef
 
 from dsp_tools.clients.connection import Connection
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
+from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_utils import serialise_jsonld_for_value
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import make_richtext_value_graph
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash
@@ -135,11 +134,7 @@ def _serialise_richtext_for_update(
         res_iri_str=res_iri_str,
         iri_resolver=iri_resolver,
     )
-    graph_bytes = graph.serialize(format="json-ld", encoding="utf-8")
-    serialised_json: list[dict[str, Any]] = json.loads(graph_bytes)
-    json_frame = {"@id": res_iri_str}
-    framed: dict[str, Any] = jsonld.frame(serialised_json, json_frame)
-    return framed
+    return serialise_jsonld_for_value(graph, res_iri_str)
 
 
 def _make_richtext_update_graph(

@@ -11,14 +11,15 @@ from dsp_tools.clients.authentication_client_live import AuthenticationClientLiv
 from dsp_tools.clients.connection import Connection
 from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.commands.project.create.parse_project import parse_project_json
-from dsp_tools.commands.project.create.project_create import create_project_on_server
 from dsp_tools.commands.project.create.project_create_lists import create_lists_on_server
 from dsp_tools.commands.project.create.project_create_ontologies import create_ontologies
+from dsp_tools.commands.project.create.project_create_project import create_project_on_server
 from dsp_tools.commands.project.create.project_validate import validate_project
 from dsp_tools.commands.project.legacy_models.context import Context
 from dsp_tools.commands.project.legacy_models.group import Group
 from dsp_tools.commands.project.legacy_models.project import Project
 from dsp_tools.commands.project.legacy_models.user import User
+from dsp_tools.commands.project.models.list_creation_client import ListCreationClient
 from dsp_tools.commands.project.models.project_create_client import ProjectCreateClient
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.legacy_models.langstring import LangString
@@ -73,6 +74,7 @@ def create_project(
 
     auth = AuthenticationClientLive(creds.server, creds.user, creds.password)
     proj_client = ProjectCreateClient(auth)
+    list_creation_client = ListCreationClient(auth)
     con = ConnectionLive(creds.server, auth)
 
     # create project on DSP server
@@ -90,8 +92,7 @@ def create_project(
         logger.info("Create lists...")
         names_and_iris_of_list_nodes, success = create_lists_on_server(
             lists_to_create=project.lists,
-            con=con,
-            project_remote=project_remote,
+            list_creation_client=list_creation_client,
         )
         if not success:
             overall_success = False

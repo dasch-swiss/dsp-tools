@@ -17,7 +17,7 @@ from dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml import inge
 from dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files import ingest_files
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_files import upload_files
 from dsp_tools.commands.project.create.project_create_all import create_project
-from dsp_tools.commands.project.create.project_create_lists import create_only_lists
+from dsp_tools.commands.project.create.project_create_lists import create_only_lists_old
 from dsp_tools.commands.project.create.project_validate import validate_project
 from dsp_tools.commands.project.get import get_project
 from dsp_tools.commands.resume_xmlupload.resume_xmlupload import resume_xmlupload
@@ -241,7 +241,7 @@ def _call_create(args: argparse.Namespace) -> bool:
             success = validate_lists_section_with_schema(args.project_definition)
             print("'Lists' section of the JSON project file is syntactically correct and passed validation.")
         case True, False:
-            _, success = create_only_lists(
+            _, success = create_only_lists_old(
                 project_file_as_path_or_parsed=args.project_definition,
                 creds=_get_creds(args),
             )

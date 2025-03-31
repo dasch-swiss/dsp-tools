@@ -1,17 +1,16 @@
 from __future__ import annotations
 
-import json
 from datetime import datetime
 from typing import Any
 from typing import cast
 
 from loguru import logger
-from pyld import jsonld
 from rdflib import RDF
 from rdflib import BNode
 from rdflib import URIRef
 
 from dsp_tools.clients.connection import Connection
+from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_utils import serialise_jsonld_for_value_creation
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import make_link_value_graph
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
@@ -96,11 +95,7 @@ def _create_resptr_prop_json_object_to_update(
     res_iri = URIRef(res_iri)
     graph = make_link_value_graph(stash.value, val_bn, res_iri, URIRef(target_iri))
     graph.add((res_iri, RDF.type, URIRef(stash.res_type)))
-    graph_bytes = graph.serialize(format="json-ld", encoding="utf-8")
-    serialised_json: list[dict[str, Any]] = json.loads(graph_bytes)
-    json_frame = {"@id": res_iri}
-    framed: dict[str, Any] = jsonld.frame(serialised_json, json_frame)
-    return framed
+    return serialise_jsonld_for_value_creation(graph, res_iri)
 
 
 def _log_unable_to_upload_link_value(msg: str, res_id: str, prop_name: str) -> None:

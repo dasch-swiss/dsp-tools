@@ -29,10 +29,10 @@ def _frame_graph_for_resource(serialised_json: list[dict[str, Any]]) -> dict[str
 
 def serialise_jsonld_for_value(rdf_graph: Graph, resource_iri_str: str) -> dict[str, Any]:
     json_graph = _serialise_json(rdf_graph)
-    return _frame_graph_create_value(json_graph, resource_iri_str)
+    return _frame_graph_for_value(json_graph, resource_iri_str)
 
 
-def _frame_graph_create_value(serialised_json: list[dict[str, Any]], resource_iri_str: str) -> dict[str, Any]:
+def _frame_graph_for_value(serialised_json: list[dict[str, Any]], resource_iri_str: str) -> dict[str, Any]:
     json_frame = {"@id": resource_iri_str}
     framed: dict[str, Any] = jsonld.frame(serialised_json, json_frame)
     return framed

@@ -49,12 +49,12 @@ def link_val_stash_lookup_two_items() -> dict[str, list[LinkValueStashItem]]:
     return {
         "foo_1_id": [
             LinkValueStashItem(
-                "foo_1_id", "foo_1_type", IntermediaryLink("foo_2_id", LINK_PROP, None, None, str(uuid4()))
+                "foo_1_id", f"{ONTO}foo_1_type", IntermediaryLink("foo_2_id", LINK_PROP, None, None, str(uuid4()))
             )
         ],
         "foo_2_id": [
             LinkValueStashItem(
-                "foo_2_id", "foo_2_type", IntermediaryLink("foo_1_id", LINK_PROP, None, None, str(uuid4()))
+                "foo_2_id", f"{ONTO}foo_2_type", IntermediaryLink("foo_1_id", LINK_PROP, None, None, str(uuid4()))
             )
         ],
     }
@@ -321,7 +321,9 @@ def test_2_resources_with_stash(
                 "@id": "http://rdfh.ch/0000/foo_1_iri",
                 "http://0.0.0.0:3333/ontology/9999/onto/v2#hasCustomLinkValue": {
                     "@type": "http://api.knora.org/ontology/knora-api/v2#LinkValue",
-                    "http://api.knora.org/ontology/knora-api/v2#linkValueHasTargetIri": {"@id": "http://rdfh.ch/0000/foo_2_iri"},
+                    "http://api.knora.org/ontology/knora-api/v2#linkValueHasTargetIri": {
+                        "@id": "http://rdfh.ch/0000/foo_2_iri"
+                    },
                 },
             },
         }:

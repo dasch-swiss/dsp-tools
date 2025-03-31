@@ -99,7 +99,7 @@ def _make_one_value_graph(val: IntermediaryValue, res_node: BNode | URIRef, iri_
                 val=val,
                 val_node=BNode(),
                 res_node=res_node,
-                target_iri=URIRef(iri_str),
+                target_iri=URIRef(target_iri),
             )
         case IntermediaryRichtext():
             properties_graph = make_richtext_value_graph(

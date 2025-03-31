@@ -94,11 +94,12 @@ def _make_one_value_graph(val: IntermediaryValue, res_node: BNode | URIRef, iri_
         case IntermediaryList():
             properties_graph = _make_list_value_graph(val=val, res_node=res_node, prop_type_info=LIST_PROP_TYPE_INFO)
         case IntermediaryLink():
+            iri_str = _resolve_id_to_iri(val.value, iri_lookups.id_to_iri)
             properties_graph = _make_link_value_graph(
                 val=val,
                 val_node=BNode(),
                 res_node=res_node,
-                iri_resolver=iri_lookups.id_to_iri,
+                target_iri=URIRef(iri_str),
             )
         case IntermediaryRichtext():
             properties_graph = make_richtext_value_graph(
@@ -169,11 +170,10 @@ def _make_link_value_graph(
     val: IntermediaryLink,
     val_node: BNode | URIRef,
     res_node: BNode | URIRef,
-    iri_resolver: IriResolver,
+    target_iri: URIRef,
 ) -> Graph:
     g = _make_base_value_graph(val=val, val_node=val_node, prop_type_info=LINK_PROP_TYPE_INFO, res_node=res_node)
-    iri_str = _resolve_id_to_iri(val.value, iri_resolver)
-    g.add((val_node, LINK_PROP_TYPE_INFO.knora_prop, URIRef(iri_str)))
+    g.add((val_node, LINK_PROP_TYPE_INFO.knora_prop, target_iri))
     return g
 
 

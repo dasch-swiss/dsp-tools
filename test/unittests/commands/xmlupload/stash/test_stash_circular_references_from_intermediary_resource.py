@@ -98,7 +98,7 @@ def test_stash_circular_references_remove_link_value(
     assert stash_item.res_type == "type"
     assert stash_item.value.prop_iri == "propValue"
     assert stash_item.value.value == "res_2"
-    assert stash_item.value.permissions == PERMISSION
+    assert str(stash_item.value.permissions) == str(PERMISSION)
 
     # check that the resource values are as expected
     assert len(copied_res_1.values) == 2

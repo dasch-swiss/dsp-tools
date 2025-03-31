@@ -12,7 +12,7 @@ from rdflib import URIRef
 
 from dsp_tools.clients.connection import Connection
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
-from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_utils import serialise_jsonld_for_value_creation
+from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_utils import serialise_jsonld_for_value
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import make_richtext_value_graph
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash
@@ -134,7 +134,7 @@ def _serialise_richtext_for_update(
         res_iri_str=res_iri_str,
         iri_resolver=iri_resolver,
     )
-    return serialise_jsonld_for_value_creation(graph, res_iri_str)
+    return serialise_jsonld_for_value(graph, res_iri_str)
 
 
 def _make_richtext_update_graph(

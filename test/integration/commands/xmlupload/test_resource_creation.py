@@ -131,7 +131,7 @@ def test_one_resource_without_links(ingest_client_mock: AssetClient, legal_info_
     assert post_call_args["data"]["@type"] == expected["data"]["@type"]  # type: ignore[index]
     assert not upload_state.pending_resources
     assert not upload_state.failed_uploads
-    assert upload_state.iri_resolver.lookup == {"foo_1_id": "foo_1_iri"}
+    assert upload_state.iri_resolver.lookup == {"foo_1_id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri"}
     assert not upload_state.pending_stash
 
 
@@ -189,7 +189,7 @@ def test_one_resource_with_link_to_existing_resource(
     assert post_call_args["data"]["@type"] == expected["data"]["@type"]  # type: ignore[index]
     assert not upload_state.pending_resources
     assert not upload_state.failed_uploads
-    assert upload_state.iri_resolver.lookup == {"foo_1_id": "foo_1_iri", "foo_2_id": "foo_2_iri"}
+    assert upload_state.iri_resolver.lookup == {"foo_1_id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", "foo_2_id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri"}
     assert not upload_state.pending_stash
 
 
@@ -281,11 +281,11 @@ def test_2_resources_with_stash(ingest_client_mock: AssetClient, legal_info_clie
             "route": "/v2/values",
             "data": {
                 "@type": "my_onto:foo_1_type",
-                "@id": "foo_1_iri",
+                "@id": "http://rdfh.ch/0000/foo_1_iri",
                 "@context": dict(),
                 "my_onto:hasCustomLinkValue": {
                     "@type": "knora-api:LinkValue",
-                    "knora-api:linkValueHasTargetIri": {"@id": "foo_2_iri"},
+                    "knora-api:linkValueHasTargetIri": {"@id": "http://rdfh.ch/0000/foo_2_iri"},
                 },
             },
         }:

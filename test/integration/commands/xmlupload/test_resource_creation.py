@@ -319,10 +319,9 @@ def test_2_resources_with_stash(
             "data": {
                 "@type": "http://0.0.0.0:3333/ontology/9999/onto/v2#foo_1_type",
                 "@id": "http://rdfh.ch/0000/foo_1_iri",
-                "@context": dict(),
                 "http://0.0.0.0:3333/ontology/9999/onto/v2#hasCustomLinkValue": {
-                    "@type": "knora-api:LinkValue",
-                    "knora-api:linkValueHasTargetIri": {"@id": "http://rdfh.ch/0000/foo_2_iri"},
+                    "@type": "http://api.knora.org/ontology/knora-api/v2#LinkValue",
+                    "http://api.knora.org/ontology/knora-api/v2#linkValueHasTargetIri": {"@id": "http://rdfh.ch/0000/foo_2_iri"},
                 },
             },
         }:

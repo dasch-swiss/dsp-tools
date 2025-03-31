@@ -87,15 +87,15 @@ def _upload_stash_item(
 
 def _create_resptr_prop_json_object_to_update(
     stash: LinkValueStashItem,
-    res_iri: str,
+    res_iri_str: str,
     target_iri: str,
 ) -> dict[str, Any]:
     """This function creates a JSON object that can be sent as an update request to the DSP-API."""
     val_bn = BNode()
-    res_iri = URIRef(res_iri)
+    res_iri = URIRef(res_iri_str)
     graph = make_link_value_graph(stash.value, val_bn, res_iri, URIRef(target_iri))
     graph.add((res_iri, RDF.type, URIRef(stash.res_type)))
-    return serialise_jsonld_for_value_creation(graph, res_iri)
+    return serialise_jsonld_for_value_creation(graph, res_iri_str)
 
 
 def _log_unable_to_upload_link_value(msg: str, res_id: str, prop_name: str) -> None:

@@ -99,7 +99,7 @@ def _make_one_value_graph(val: IntermediaryValue, res_node: BNode | URIRef, iri_
                 val=val,
                 val_node=BNode(),
                 res_node=res_node,
-                target_iri=target_iri,
+                target_iri=URIRef(iri_str),
             )
         case IntermediaryRichtext():
             properties_graph = make_richtext_value_graph(
@@ -174,7 +174,7 @@ def make_link_value_graph(
 ) -> Graph:
     """Make a LinkValue Graph"""
     g = _make_base_value_graph(val=val, val_node=val_node, prop_type_info=LINK_PROP_TYPE_INFO, res_node=res_node)
-    g.add((val_node, LINK_PROP_TYPE_INFO.knora_prop, URIRef(target_iri)))
+    g.add((val_node, LINK_PROP_TYPE_INFO.knora_prop, target_iri))
     return g
 
 

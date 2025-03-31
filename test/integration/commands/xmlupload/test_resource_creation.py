@@ -41,6 +41,7 @@ TEXT_PROP = f"{ONTO}hasText"
 
 RES_IRI_NAMESPACE_STR = "http://rdfh.ch/0000/"
 
+
 @pytest.fixture
 def link_val_stash_lookup_two_items() -> dict[str, list[LinkValueStashItem]]:
     return {
@@ -55,6 +56,7 @@ def link_val_stash_lookup_two_items() -> dict[str, list[LinkValueStashItem]]:
             )
         ],
     }
+
 
 @pytest.fixture
 def ingest_client_mock():  # type: ignore[no-untyped-def]

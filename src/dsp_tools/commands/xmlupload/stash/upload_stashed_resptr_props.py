@@ -10,7 +10,7 @@ from rdflib import BNode
 from rdflib import URIRef
 
 from dsp_tools.clients.connection import Connection
-from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_utils import serialise_jsonld_for_value_creation
+from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_utils import serialise_jsonld_for_value
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import make_link_value_graph
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
@@ -95,7 +95,7 @@ def _create_resptr_prop_json_object_to_update(
     res_iri = URIRef(res_iri_str)
     graph = make_link_value_graph(stash.value, val_bn, res_iri, URIRef(target_iri))
     graph.add((res_iri, RDF.type, URIRef(stash.res_type)))
-    return serialise_jsonld_for_value_creation(graph, res_iri_str)
+    return serialise_jsonld_for_value(graph, res_iri_str)
 
 
 def _log_unable_to_upload_link_value(msg: str, res_id: str, prop_name: str) -> None:

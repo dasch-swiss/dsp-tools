@@ -3,12 +3,12 @@ from rdflib import Graph
 from rdflib import URIRef
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
+from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_utils import serialise_jsonld_post_resource
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import create_resource_with_values
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryBoolean
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.lookup_models import JSONLDContext
-from dsp_tools.commands.xmlupload.resource_create_client import _make_json
 
 
 @pytest.fixture
@@ -32,7 +32,7 @@ def resource_graph() -> Graph:
 
 
 def test_frame_json(resource_graph: Graph) -> None:
-    result_json = _make_json(resource_graph)
+    result_json = serialise_jsonld_post_resource(resource_graph)
     expected = {
         "@type": "http://0.0.0.0:3333/ontology/9999/onto/v2#TestResource",
         "http://0.0.0.0:3333/ontology/9999/onto/v2#isTrueOrFalse": {

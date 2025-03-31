@@ -123,7 +123,7 @@ def test_one_resource_without_links(ingest_client_mock: AssetClient, legal_info_
     }
     assert post_call_args["route"] == expected["route"]
     assert not post_call_args["headers"]
-    assert post_call_args["data"][prop_name] == expected["data"][prop_name]  # type: ignore[index]
+    assert post_call_args["data"][TEXT_PROP] == expected["data"][TEXT_PROP]  # type: ignore[index]
     expected_project = expected["data"]["http://api.knora.org/ontology/knora-api/v2#attachedToProject"]  # type: ignore[index]
     assert post_call_args["data"]["http://api.knora.org/ontology/knora-api/v2#attachedToProject"] == expected_project
     expected_label = expected["data"]["http://www.w3.org/2000/01/rdf-schema#label"]  # type: ignore[index]
@@ -148,7 +148,7 @@ def test_one_resource_with_link_to_existing_resource(
         )
     ]
     upload_state = UploadState(
-        resources, None, UploadConfig(), JSONLDContext({}), [], IriResolver({"foo_2_id": "foo_2_iri"})
+        resources, None, UploadConfig(), JSONLDContext({}), [], IriResolver({"foo_2_id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri"})
     )
     con = Mock(spec_set=ConnectionLive)
     post_responses = [{"@id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", RDFS_LABEL: "foo_1_label"}]
@@ -247,7 +247,7 @@ def _2_resources_with_stash_interrupted_by_error(
             "If not, a normal 'resume-xmlupload' can be started."
         )
         upload_state_expected = UploadState(
-            resources[1:], stash, UploadConfig(), JSONLDContext({}), [], IriResolver({"foo_1_id": "foo_1_iri"})
+            resources[1:], stash, UploadConfig(), JSONLDContext({}), [], IriResolver({"foo_1_id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri"})
         )
         _handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
@@ -294,7 +294,7 @@ def test_2_resources_with_stash(ingest_client_mock: AssetClient, legal_info_clie
             pytest.fail("POST request was not sent correctly")
     assert not upload_state.pending_resources
     assert not upload_state.failed_uploads
-    assert upload_state.iri_resolver.lookup == {"foo_1_id": "foo_1_iri", "foo_2_id": "foo_2_iri"}
+    assert upload_state.iri_resolver.lookup == {"foo_1_id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", "foo_2_id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri"}
     assert not upload_state.pending_stash or upload_state.pending_stash.is_empty()
 
 
@@ -328,7 +328,7 @@ def test_5_resources_with_stash_and_interrupt_after_2(
 
     with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
         _upload_resources(client, upload_state)
-        iri_resolver_expected = IriResolver({"foo_1_id": "foo_1_iri", "foo_2_id": "foo_2_iri"})
+        iri_resolver_expected = IriResolver({"foo_1_id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", "foo_2_id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri"})
         upload_state_expected = UploadState(
             resources[2:], stash, upload_config, JSONLDContext({}), [], iri_resolver_expected
         )
@@ -384,7 +384,7 @@ def test_6_resources_with_stash_and_interrupt_after_2(
 
     with patch("dsp_tools.commands.xmlupload.xmlupload._handle_upload_error") as _handle_upload_error:
         _upload_resources(client, upload_state)
-        iri_resolver_expected = IriResolver({"foo_1_id": "foo_1_iri", "foo_2_id": "foo_2_iri"})
+        iri_resolver_expected = IriResolver({"foo_1_id": f"{RES_IRI_NAMESPACE_STR}foo_1_iri", "foo_2_id": f"{RES_IRI_NAMESPACE_STR}foo_2_iri"})
         upload_state_expected = UploadState(
             resources[2:], stash, upload_config, JSONLDContext({}), [], iri_resolver_expected
         )

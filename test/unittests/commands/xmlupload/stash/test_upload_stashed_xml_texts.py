@@ -5,6 +5,7 @@ from uuid import uuid4
 import pytest
 from rdflib import RDF
 from rdflib import XSD
+from rdflib import Graph
 from rdflib import Literal
 from rdflib import Namespace
 from rdflib import URIRef
@@ -14,6 +15,7 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.constants import KNORA_API
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStashItem
+from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import _get_value_iri
 from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import _make_richtext_update_graph
 from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import _serialise_richtext_for_update
 
@@ -46,6 +48,30 @@ def standoff_stash_item() -> StandoffStashItem:
 @pytest.fixture
 def iri_resolver() -> IriResolver:
     return IriResolver({"res_one": RES_IRI_STR})
+
+
+def test_get_value_iri_success():
+    g = Graph()
+    g.add((RES_IRI, ONTO.hasRichtext, VAL_IRI))
+    uuid = str(uuid4())
+    richtext = Literal(f'<?xml version="1.0" encoding="UTF-8"?>\n<text>{uuid}</text>', datatype=XSD.string)
+    g.add((VAL_IRI, KNORA_API.textValueAsXml, richtext))
+    other_val = URIRef("http://rdfh.ch/9999/res_one/values/other_val")
+    g.add((RES_IRI, ONTO.hasRichtext, other_val))
+    other_text = Literal('<?xml version="1.0" encoding="UTF-8"?>\n<text>text</text>', datatype=XSD.string)
+    g.add((other_val, KNORA_API.textValueAsXml, other_text))
+    result = _get_value_iri(ONTO.hasRichtext, g, uuid)
+    assert result == VAL_IRI
+
+
+def test_get_value_iri_none():
+    g = Graph()
+    other_val = URIRef("http://rdfh.ch/9999/res_one/values/other_val")
+    g.add((RES_IRI, ONTO.hasRichtext, other_val))
+    other_text = Literal('<?xml version="1.0" encoding="UTF-8"?>\n<text>text</text>', datatype=XSD.string)
+    g.add((other_val, KNORA_API.textValueAsXml, other_text))
+    result = _get_value_iri(ONTO.hasRichtext, g, "inexistent")
+    assert not result
 
 
 def test_make_richtext_update_graph(standoff_stash_item, iri_resolver):
@@ -128,7 +154,7 @@ def test__replace_internal_ids_with_iris_one_link() -> None:
     assert returned_instance.xmlstr == expected_str
 
 
-def test__replace_internal_ids_with_iris_three_links() -> None:
+def test_replace_internal_ids_with_iris_three_links() -> None:
     resolver = IriResolver({"r1_id": "r1_iri", "r2_id": "r2_iri", "r3_id": "r3_iri"})
     three_link_KnoraStandoffXml = FormattedTextValue(
         xmlstr=(

@@ -11,9 +11,11 @@ from pyld import jsonld
 from rdflib import RDF
 from rdflib import Graph
 from rdflib import URIRef
+from rdflib.term import Node
 
 from dsp_tools.clients.connection import Connection
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import KNORA_API
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import make_richtext_value_graph
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash
@@ -51,7 +53,10 @@ def upload_stashed_xml_texts(upload_state: UploadState, con: Connection) -> None
         print(f"{datetime.now()}:   Upload XML text(s) of resource '{res_id}'...")
         logger.info(f"  Upload XML text(s) of resource '{res_id}'...")
         for stash_item in stash_items:
-            value_iri = _get_value_iri(stash_item.value.prop_iri, resource_in_triplestore, stash_item.value.value_uuid)
+            resource_g = Graph()
+            resource_g.parse(str(resource_in_triplestore), data="json-ld")
+            prop = URIRef(stash_item.value.prop_iri)
+            value_iri = _get_value_iri(prop, resource_g, stash_item.value.value_uuid)
             if not value_iri:
                 continue
             if _upload_stash_item(
@@ -67,34 +72,26 @@ def upload_stashed_xml_texts(upload_state: UploadState, con: Connection) -> None
 
 
 def _get_value_iri(
-    property_name: str,
-    resource: dict[str, Any],
+    property_name: URIRef,
+    resource: Graph,
     uuid: str,
-) -> str | None:
-    prefixed_prop = _make_prefixed_prop_from_absolute_iri(property_name)
-    values_on_server = resource.get(prefixed_prop)
-    if not isinstance(values_on_server, list):
-        values_on_server = [values_on_server]
-
-    # get the IRI of the value that contains the UUID in its text
-    text_and_iris = ((v["knora-api:textValueAsXml"], v["@id"]) for v in values_on_server)
-    value_iri: str | None = next((iri for text, iri in text_and_iris if uuid in text), None)
+) -> Node | None:
+    value_iris = resource.objects(property_name)
+    for v in value_iris:
+        # get the IRI of the value that contains the UUID in its text
+        text = next(resource.objects(v, KNORA_API.textValueAsXml))
+        if uuid in str(text):
+            return URIRef(str(v))
     # in case that "value_iri" is None, the value that contains the UUID in its text does not exist in DSP
     # no action necessary: this resource will remain in nonapplied_xml_texts,
     # which will be handled by the caller
-    return value_iri
-
-
-def _make_prefixed_prop_from_absolute_iri(absolute_iri: str) -> str:
-    _, onto, prop = absolute_iri.rsplit("/", 2)
-    local_name = prop.split("#")[-1]
-    return f"{onto}:{local_name}"
+    return None
 
 
 def _upload_stash_item(
     stash_item: StandoffStashItem,
     res_iri: str,
-    value_iri: str,
+    value_iri: Node,
     iri_resolver: IriResolver,
     con: Connection,
 ) -> bool:
@@ -113,7 +110,7 @@ def _upload_stash_item(
     """
     payload = _serialise_richtext_for_update(
         stash_item=stash_item,
-        value_iri_str=value_iri,
+        value_iri=value_iri,
         res_iri_str=res_iri,
         iri_resolver=iri_resolver,
     )
@@ -127,11 +124,11 @@ def _upload_stash_item(
 
 
 def _serialise_richtext_for_update(
-    stash_item: StandoffStashItem, value_iri_str: str, res_iri_str: str, iri_resolver: IriResolver
+    stash_item: StandoffStashItem, value_iri: URIRef, res_iri_str: str, iri_resolver: IriResolver
 ) -> dict[str, Any]:
     graph = _make_richtext_update_graph(
         stash_item=stash_item,
-        value_iri_str=value_iri_str,
+        value_iri=value_iri,
         res_iri_str=res_iri_str,
         iri_resolver=iri_resolver,
     )
@@ -143,10 +140,9 @@ def _serialise_richtext_for_update(
 
 
 def _make_richtext_update_graph(
-    stash_item: StandoffStashItem, value_iri_str: str, res_iri_str: str, iri_resolver: IriResolver
+    stash_item: StandoffStashItem, value_iri: URIRef, res_iri_str: str, iri_resolver: IriResolver
 ) -> Graph:
     res_iri = URIRef(res_iri_str)
-    value_iri = URIRef(value_iri_str)
     val_graph = make_richtext_value_graph(
         val=stash_item.value,
         val_node=value_iri,

@@ -94,12 +94,12 @@ def _make_one_value_graph(val: IntermediaryValue, res_node: BNode | URIRef, iri_
         case IntermediaryList():
             properties_graph = _make_list_value_graph(val=val, res_node=res_node, prop_type_info=LIST_PROP_TYPE_INFO)
         case IntermediaryLink():
-            iri_str = _resolve_id_to_iri(val.value, iri_lookups.id_to_iri)
-            properties_graph = _make_link_value_graph(
+            target_iri = _resolve_id_to_iri(val.value, iri_lookups.id_to_iri)
+            properties_graph = make_link_value_graph(
                 val=val,
                 val_node=BNode(),
                 res_node=res_node,
-                target_iri=URIRef(iri_str),
+                target_iri=URIRef(target_iri),
             )
         case IntermediaryRichtext():
             properties_graph = make_richtext_value_graph(
@@ -166,22 +166,23 @@ def _make_list_value_graph(
     return g
 
 
-def _make_link_value_graph(
+def make_link_value_graph(
     val: IntermediaryLink,
     val_node: BNode | URIRef,
     res_node: BNode | URIRef,
     target_iri: URIRef,
 ) -> Graph:
+    """Make a LinkValue Graph"""
     g = _make_base_value_graph(val=val, val_node=val_node, prop_type_info=LINK_PROP_TYPE_INFO, res_node=res_node)
     g.add((val_node, LINK_PROP_TYPE_INFO.knora_prop, target_iri))
     return g
 
 
-def _resolve_id_to_iri(value: str, iri_resolver: IriResolver) -> str:
+def _resolve_id_to_iri(value: str, iri_resolver: IriResolver) -> URIRef:
     if is_resource_iri(value):
-        return value
+        return URIRef(value)
     elif resolved_iri := iri_resolver.get(value):
-        return resolved_iri
+        return URIRef(resolved_iri)
     msg = (
         f"Could not find the ID {value} in the id2iri mapping. "
         f"This is probably because the resource '{value}' could not be created. "

@@ -45,6 +45,22 @@ RES_IRI_NAMESPACE_STR = "http://rdfh.ch/0000/"
 
 
 @pytest.fixture
+def link_val_stash_lookup_two_items() -> dict[str, list[LinkValueStashItem]]:
+    return {
+        "foo_1_id": [
+            LinkValueStashItem(
+                "foo_1_id", f"{ONTO}foo_1_type", IntermediaryLink("foo_2_id", LINK_PROP, None, None, str(uuid4()))
+            )
+        ],
+        "foo_2_id": [
+            LinkValueStashItem(
+                "foo_2_id", f"{ONTO}foo_2_type", IntermediaryLink("foo_1_id", LINK_PROP, None, None, str(uuid4()))
+            )
+        ],
+    }
+
+
+@pytest.fixture
 def ingest_client_mock():  # type: ignore[no-untyped-def]
     return Mock(spec_set=AssetClient)
 
@@ -206,22 +222,31 @@ def test_one_resource_with_link_to_existing_resource(
 
 
 def test_2_resources_with_stash_interrupted_by_timeout(
-    ingest_client_mock: AssetClient, legal_info_client_mock: LegalInfoClient
+    link_val_stash_lookup_two_items, ingest_client_mock: AssetClient, legal_info_client_mock: LegalInfoClient
 ) -> None:
     _2_resources_with_stash_interrupted_by_error(
-        PermanentTimeOutError(""), "PermanentTimeOutError", ingest_client_mock, legal_info_client_mock
+        link_val_stash_lookup_two_items,
+        PermanentTimeOutError(""),
+        "PermanentTimeOutError",
+        ingest_client_mock,
+        legal_info_client_mock,
     )
 
 
 def test_2_resources_with_stash_interrupted_by_keyboard(
-    ingest_client_mock: AssetClient, legal_info_client_mock: LegalInfoClient
+    link_val_stash_lookup_two_items, ingest_client_mock: AssetClient, legal_info_client_mock: LegalInfoClient
 ) -> None:
     _2_resources_with_stash_interrupted_by_error(
-        KeyboardInterrupt(), "KeyboardInterrupt", ingest_client_mock, legal_info_client_mock
+        link_val_stash_lookup_two_items,
+        KeyboardInterrupt(),
+        "KeyboardInterrupt",
+        ingest_client_mock,
+        legal_info_client_mock,
     )
 
 
 def _2_resources_with_stash_interrupted_by_error(
+    link_val_stash_lookup_two_items,
     err_to_interrupt_with: BaseException,
     err_as_str: str,
     ingest_client_mock: AssetClient,
@@ -230,11 +255,7 @@ def _2_resources_with_stash_interrupted_by_error(
     resources = [
         IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 3)
     ]
-    link_val_stash_dict = {
-        "foo_1_id": [LinkValueStashItem("foo_1_id", f"{ONTO}foo_1_type", LINK_PROP, "foo_2_id")],
-        "foo_2_id": [LinkValueStashItem("foo_2_id", f"{ONTO}foo_2_type", LINK_PROP, "foo_1_id")],
-    }
-    stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
+    stash = Stash(link_value_stash=LinkValueStash(link_val_stash_lookup_two_items), standoff_stash=None)
     upload_state = UploadState(resources.copy(), deepcopy(stash), UploadConfig(), JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [
@@ -269,15 +290,13 @@ def _2_resources_with_stash_interrupted_by_error(
         _handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
 
-def test_2_resources_with_stash(ingest_client_mock: AssetClient, legal_info_client_mock: LegalInfoClient) -> None:
+def test_2_resources_with_stash(
+    link_val_stash_lookup_two_items, ingest_client_mock: AssetClient, legal_info_client_mock: LegalInfoClient
+) -> None:
     resources = [
         IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 3)
     ]
-    link_val_stash_dict = {
-        "foo_1_id": [LinkValueStashItem("foo_1_id", f"{ONTO}foo_1_type", f"{ONTO}hasCustomLinkValue", "foo_2_id")],
-        "foo_2_id": [LinkValueStashItem("foo_2_id", f"{ONTO}foo_2_type", f"{ONTO}hasCustomLinkValue", "foo_1_id")],
-    }
-    stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
+    stash = Stash(link_value_stash=LinkValueStash(link_val_stash_lookup_two_items), standoff_stash=None)
     upload_state = UploadState(resources.copy(), deepcopy(stash), UploadConfig(), JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [
@@ -298,12 +317,13 @@ def test_2_resources_with_stash(ingest_client_mock: AssetClient, legal_info_clie
         case {
             "route": "/v2/values",
             "data": {
-                "@type": "http://0.0.0.0:3333/ontology/9999/onto/v2#foo_1_type",
                 "@id": "http://rdfh.ch/0000/foo_1_iri",
-                "@context": dict(),
+                "@type": "http://0.0.0.0:3333/ontology/9999/onto/v2#foo_1_type",
                 "http://0.0.0.0:3333/ontology/9999/onto/v2#hasCustomLinkValue": {
-                    "@type": "knora-api:LinkValue",
-                    "knora-api:linkValueHasTargetIri": {"@id": "http://rdfh.ch/0000/foo_2_iri"},
+                    "@type": "http://api.knora.org/ontology/knora-api/v2#LinkValue",
+                    "http://api.knora.org/ontology/knora-api/v2#linkValueHasTargetIri": {
+                        "@id": "http://rdfh.ch/0000/foo_2_iri"
+                    },
                 },
             },
         }:
@@ -320,16 +340,12 @@ def test_2_resources_with_stash(ingest_client_mock: AssetClient, legal_info_clie
 
 
 def test_5_resources_with_stash_and_interrupt_after_2(
-    ingest_client_mock: AssetClient, legal_info_client_mock: LegalInfoClient
+    link_val_stash_lookup_two_items, ingest_client_mock: AssetClient, legal_info_client_mock: LegalInfoClient
 ) -> None:
     resources = [
         IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 6)
     ]
-    link_val_stash_dict = {
-        "foo_1_id": [LinkValueStashItem("foo_1_id", f"{ONTO}foo_1_type", LINK_PROP, "foo_2_id")],
-        "foo_2_id": [LinkValueStashItem("foo_2_id", f"{ONTO}foo_2_type", LINK_PROP, "foo_1_id")],
-    }
-    stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
+    stash = Stash(link_value_stash=LinkValueStash(link_val_stash_lookup_two_items), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
     upload_state = UploadState(resources.copy(), deepcopy(stash), upload_config, JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
@@ -379,16 +395,12 @@ def test_5_resources_with_stash_and_interrupt_after_2(
 
 
 def test_6_resources_with_stash_and_interrupt_after_2(
-    ingest_client_mock: AssetClient, legal_info_client_mock: LegalInfoClient
+    link_val_stash_lookup_two_items, ingest_client_mock: AssetClient, legal_info_client_mock: LegalInfoClient
 ) -> None:
     resources = [
         IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 7)
     ]
-    link_val_stash_dict = {
-        "foo_1_id": [LinkValueStashItem("foo_1_id", f"{ONTO}foo_1_type", LINK_PROP, "foo_2_id")],
-        "foo_2_id": [LinkValueStashItem("foo_2_id", f"{ONTO}foo_2_type", LINK_PROP, "foo_1_id")],
-    }
-    stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
+    stash = Stash(link_value_stash=LinkValueStash(link_val_stash_lookup_two_items), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
     upload_state = UploadState(resources.copy(), deepcopy(stash), upload_config, JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
@@ -446,16 +458,15 @@ def test_6_resources_with_stash_and_interrupt_after_2(
 
 
 def test_logging(
-    caplog: pytest.LogCaptureFixture, ingest_client_mock: AssetClient, legal_info_client_mock: LegalInfoClient
+    link_val_stash_lookup_two_items,
+    caplog: pytest.LogCaptureFixture,
+    ingest_client_mock: AssetClient,
+    legal_info_client_mock: LegalInfoClient,
 ) -> None:
     resources = [
         IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 6)
     ]
-    link_val_stash_dict = {
-        "foo_1_id": [LinkValueStashItem("foo_1_id", f"{ONTO}foo_1_type", LINK_PROP, "foo_2_id")],
-        "foo_2_id": [LinkValueStashItem("foo_2_id", f"{ONTO}foo_2_type", LINK_PROP, "foo_1_id")],
-    }
-    stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
+    stash = Stash(link_value_stash=LinkValueStash(link_val_stash_lookup_two_items), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
     upload_state = UploadState(resources.copy(), deepcopy(stash), upload_config, JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)
@@ -505,15 +516,13 @@ def test_logging(
         caplog.clear()
 
 
-def test_post_requests(ingest_client_mock: AssetClient, legal_info_client_mock: LegalInfoClient) -> None:
+def test_post_requests(
+    link_val_stash_lookup_two_items, ingest_client_mock: AssetClient, legal_info_client_mock: LegalInfoClient
+) -> None:
     resources = [
         IntermediaryResource(f"foo_{i}_id", f"{ONTO}foo_{i}_type", f"foo_{i}_label", None, []) for i in range(1, 7)
     ]
-    link_val_stash_dict = {
-        "foo_1_id": [LinkValueStashItem("foo_1_id", f"{ONTO}foo_1_type", LINK_PROP, "foo_2_id")],
-        "foo_2_id": [LinkValueStashItem("foo_2_id", f"{ONTO}foo_2_type", LINK_PROP, "foo_1_id")],
-    }
-    stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
+    stash = Stash(link_value_stash=LinkValueStash(link_val_stash_lookup_two_items), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
     upload_state = UploadState(resources.copy(), deepcopy(stash), upload_config, JSONLDContext({}))
     con = Mock(spec_set=ConnectionLive)

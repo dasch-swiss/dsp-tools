@@ -1,14 +1,31 @@
+# mypy: disable-error-code="method-assign,no-untyped-def"
+
+from uuid import uuid4
+
 import pytest
 from rdflib import Graph
+from rdflib import Namespace
 from rdflib import URIRef
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_utils import serialise_jsonld_for_resource
+from dsp_tools.commands.xmlupload.make_rdf_graph.jsonld_utils import serialise_jsonld_for_value
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import create_resource_with_values
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryBoolean
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.lookup_models import JSONLDContext
+from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem
+from dsp_tools.commands.xmlupload.stash.upload_stashed_resptr_props import _make_link_value_create_graph
+
+ONTO_STR = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
+
+ONTO = Namespace(ONTO_STR)
+RES_IRI_STR = "http://rdfh.ch/9999/res_one"
+TARGET_IRI_STR = "http://rdfh.ch/9999/target_resource"
+RES_IRI = URIRef(RES_IRI_STR)
+RES_TYPE = ONTO.Resource
 
 
 @pytest.fixture
@@ -31,7 +48,7 @@ def resource_graph() -> Graph:
     return create_resource_with_values(res, None, lookups)
 
 
-def test_frame_json(resource_graph: Graph) -> None:
+def test_serialise_jsonld_for_resource(resource_graph: Graph) -> None:
     result_json = serialise_jsonld_for_resource(resource_graph)
     expected = {
         "@type": "http://0.0.0.0:3333/ontology/9999/onto/v2#TestResource",
@@ -49,3 +66,24 @@ def test_frame_json(resource_graph: Graph) -> None:
         },
     }
     assert result_json == expected
+
+
+def test_serialise_jsonld_for_value():
+    link_stash = LinkValueStashItem(
+        res_id=RES_IRI_STR,
+        res_type=RES_TYPE,
+        value=IntermediaryLink("target_resource_id", ONTO.hasLink, None, None, str(uuid4())),
+    )
+    graph = _make_link_value_create_graph(link_stash, RES_IRI_STR, TARGET_IRI_STR)
+    expected = {
+        "@id": "http://rdfh.ch/9999/res_one",
+        "@type": "http://0.0.0.0:3333/ontology/9999/onto/v2#Resource",
+        "http://0.0.0.0:3333/ontology/9999/onto/v2#hasLinkValue": {
+            "@type": "http://api.knora.org/ontology/knora-api/v2#LinkValue",
+            "http://api.knora.org/ontology/knora-api/v2#linkValueHasTargetIri": {
+                "@id": "http://rdfh.ch/9999/target_resource"
+            },
+        },
+    }
+    result = serialise_jsonld_for_value(graph, RES_IRI_STR)
+    assert result == expected

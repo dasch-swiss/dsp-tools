@@ -83,9 +83,7 @@ def xmlupload(
 
     ontology_client = OntologyClientLive(con=con, shortcode=shortcode, default_ontology=default_ontology)
     clients = _get_live_clients(con, auth, creds, shortcode, imgdir)
-    transformed_resources, stash, project_context = prepare_upload_from_root(
-        root=root, ontology_client=ontology_client, clients=clients
-    )
+    transformed_resources, stash = prepare_upload_from_root(root=root, ontology_client=ontology_client, clients=clients)
     state = UploadState(
         pending_resources=transformed_resources,
         pending_stash=stash,

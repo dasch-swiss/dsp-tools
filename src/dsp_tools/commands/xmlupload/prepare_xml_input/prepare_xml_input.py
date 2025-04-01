@@ -40,7 +40,7 @@ LIST_SEPARATOR = "\n-    "
 
 def prepare_upload_from_root(
     root: etree._Element, ontology_client: OntologyClient, clients: UploadClients
-) -> tuple[list[IntermediaryResource], Stash | None, JSONLDContext]:
+) -> tuple[list[IntermediaryResource], Stash | None]:
     """Do the consistency check, resolve circular references, and return the resources and permissions."""
     do_xml_consistency_check_with_ontology(onto_client=ontology_client, root=root)
     logger.info("Get data from XML...")
@@ -57,7 +57,7 @@ def prepare_upload_from_root(
     sorting_lookup = {res.res_id: res for res in transformed_resources}
     sorted_resources = [sorting_lookup[res_id] for res_id in upload_order]
     stash = stash_circular_references(sorted_resources, stash_lookup)
-    return sorted_resources, stash, project_context
+    return sorted_resources, stash
 
 
 def _get_transformed_resources(

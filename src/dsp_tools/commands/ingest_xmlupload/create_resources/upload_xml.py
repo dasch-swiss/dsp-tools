@@ -73,7 +73,6 @@ def ingest_xmlupload(
         pending_resources=transformed_resources,
         pending_stash=stash,
         config=config,
-        project_context=project_context,
     )
 
     return execute_upload(clients, state)

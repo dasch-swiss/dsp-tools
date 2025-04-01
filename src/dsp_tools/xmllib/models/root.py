@@ -226,7 +226,7 @@ def _make_authorship_lookup(resources: list[AnyResource]) -> AuthorshipLookup:
     file_vals = [x.file_value for x in filtered_resources if x.file_value]
     authors = {x.metadata.authorship for x in file_vals}
     lookup = {}
-    for auth, i in zip(authors, range(1, len(authors) + 1)):
+    for auth in authors:
         lookup[auth] = f"authorship_{uuid4()!s}"
     return AuthorshipLookup(lookup)
 

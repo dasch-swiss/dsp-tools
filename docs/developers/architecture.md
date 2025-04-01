@@ -31,13 +31,13 @@ eroot2-->pywork
 state pywork {
     eroot3-->parsedres1: transform representation
 }
-parsedres1-->transform
+pywork-->transform
 state transform {
     ResourceInputConversionFailure-->[*]: transformation error
     parsedres2-->intermediaryres: transformation success
     parsedres2-->ResourceInputConversionFailure: transformation failure
 }
-parsedres1-->valdata
+pywork-->valdata
 state valdata {
     parsedres3-->ResourceDeserialised: transformations
 }

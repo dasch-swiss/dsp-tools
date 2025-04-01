@@ -75,3 +75,44 @@ state transformall {
 ```
 
 
+```mermaid
+---
+title: Transformations from ParsedResource for xmlupload
+---
+stateDiagram-v2
+
+state "ParsedResource" as start
+state "Transform Entire Resource" as transformall
+state "Transform Resource" as transformres
+state "Transform Value" as transfomrationval
+state "Transform FileValues" as transformfile
+state "ParsedValue" as parsedval
+state "ParsedResource" as parsedres
+state "ValueDeserialised" as valdes
+state "ResourceDeserialised" as result
+state "Collect Transformations" as coll
+
+start-->transformall
+
+state transformall {
+    parsedres-->transformfile
+    parsedres-->transfomrationval
+    parsedres-->transformres
+    state transformres {
+        ParsedResource-->Permissions: resolve permissions
+    }
+    state transfomrationval {
+        parsedval-->valdes: map permissions</br></br>map listnodes to IRIs</br></br>map file metadata
+    }
+    state transformfile {
+        ParasedFileValue-->FileValueDeserialised: map permissions</br></br>map metadata
+    }
+    transformfile-->coll: return result
+    transfomrationval-->coll: return result
+    transformres-->coll: return result
+    coll-->ResourceDeserialised: sucessful transformations
+    coll-->ResourceInputConversionFailure: mapping errors
+    ResourceInputConversionFailure-->[*]: raise Error
+    ResourceDeserialised-->result: no errors found
+}
+```

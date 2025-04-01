@@ -5,6 +5,7 @@ from typing import Any
 from typing import cast
 
 from loguru import logger
+from rdflib import Graph
 from rdflib import RDF
 from rdflib import BNode
 from rdflib import URIRef
@@ -75,7 +76,8 @@ def _upload_stash_item(
     Returns:
         True, if the upload was successful, False otherwise
     """
-    payload = _create_resptr_prop_json_object_to_update(stash, res_iri, target_iri)
+    graph = _make_link_value_create_graph(stash, res_iri, target_iri)
+    payload = serialise_jsonld_for_value(graph, res_iri)
     try:
         con.post(route="/v2/values", data=payload)
     except BaseError as err:
@@ -85,17 +87,17 @@ def _upload_stash_item(
     return True
 
 
-def _create_resptr_prop_json_object_to_update(
+def _make_link_value_create_graph(
     stash: LinkValueStashItem,
     res_iri_str: str,
     target_iri: str,
-) -> dict[str, Any]:
+) -> Graph:
     """This function creates a JSON object that can be sent as an update request to the DSP-API."""
     val_bn = BNode()
     res_iri = URIRef(res_iri_str)
     graph = make_link_value_graph(stash.value, val_bn, res_iri, URIRef(target_iri))
     graph.add((res_iri, RDF.type, URIRef(stash.res_type)))
-    return serialise_jsonld_for_value(graph, res_iri_str)
+    return graph
 
 
 def _log_unable_to_upload_link_value(msg: str, res_id: str, prop_name: str) -> None:

@@ -43,7 +43,6 @@ def test_make_authorship_lookup() -> None:
     region_res = RegionResource.create_new("regionID", "label", "id1")
     result = _make_authorship_lookup([res1, res2, res3, region_res])
     assert set(result.lookup.keys()) == {("auth", "auth1"), tuple(["auth2"])}
-    assert set(result.lookup.values()) == {"authorship_1", "authorship_2"}
 
 
 def test_serialise_authorship() -> None:

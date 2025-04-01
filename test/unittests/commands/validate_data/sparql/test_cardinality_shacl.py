@@ -13,7 +13,7 @@ from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct_all_cardinalities
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import _construct_resource_nodeshape
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import construct_cardinality_node_shapes
-from test.unittests.commands.validate_data.constants import DASH
+from dsp_tools.utils.rdflib_constants import DASH
 from test.unittests.commands.validate_data.constants import ONTO
 
 

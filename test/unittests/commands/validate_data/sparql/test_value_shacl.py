@@ -14,8 +14,8 @@ from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_l
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_list_property_shape_with_collection
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_one_property_type_text_value
 from dsp_tools.commands.validate_data.sparql.value_shacl import _construct_value_type_shapes_to_class_shapes
-from test.unittests.commands.validate_data.constants import API_SHAPES
-from test.unittests.commands.validate_data.constants import KNORA_API
+from dsp_tools.utils.rdflib_constants import API_SHAPES
+from dsp_tools.utils.rdflib_constants import KNORA_API
 from test.unittests.commands.validate_data.constants import ONTO
 
 

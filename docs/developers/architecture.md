@@ -61,10 +61,9 @@ state "Value etree" as valtree
 state "IIIF/bitstream etree" as filetree
 state "ParsedValue" as valpars
 state "ParsedFileValue" as filepars
-state "Transform Resource" as transres
 state "Transform Value" as transval
 state "Transform FileValue" as transfile
-state "Transformed Content" as rescontent
+state "ParsedResource" as rescontent
 
 [*]-->r1: Parse file
 
@@ -80,14 +79,9 @@ r4-->transpy
         r3-->r4: make localnames
     }
     state transpy {
-        resetree1-->transres
         resetree1-->transval: extract values
         resetree1-->transfile: extract file or iiif
-        
-        state transres {
-            resetree2-->rescontent: transform special tags<br/><br/>resolve prefixes into absolute IRIs
-        }
-        transres-->respars
+        resetree1-->respars: transform special tags<br/><br/>resolve prefixes into absolute IRIs
 
         state transval {
             valtree-->valpars: transform special tags<br/><br/>resolve prefixes into absolute IRIs<br/><br/>map value type to Python Class

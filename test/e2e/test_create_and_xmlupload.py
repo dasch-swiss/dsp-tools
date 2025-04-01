@@ -95,7 +95,7 @@ def test_xmlupload(auth_header: dict[str, str], project_iri: str, creds: ServerC
 @pytest.mark.usefixtures("_xmlupload")
 def test_all_copyright_holders(auth_header: dict[str, str], creds: ServerCredentials) -> None:
     response = _get_copyright_holders(auth_header, creds)
-    assert response["data"] == ["DaSCH"]
+    assert set(response["data"]) == {"DaSCH", "Wellcome Collection"}
 
 
 def _get_copyright_holders(auth_header: dict[str, str], creds: ServerCredentials) -> dict[str, Any]:

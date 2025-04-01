@@ -13,8 +13,6 @@ from dsp_tools.commands.xmlupload.models.deserialise.xmlpermission import XmlPer
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookups
-from dsp_tools.commands.xmlupload.models.lookup_models import JSONLDContext
-from dsp_tools.commands.xmlupload.models.lookup_models import get_json_ld_context_for_project
 from dsp_tools.commands.xmlupload.models.lookup_models import make_namespace_dict_from_onto_names
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
@@ -49,9 +47,7 @@ def prepare_upload_from_root(
         root=root,
         default_ontology=ontology_client.default_ontology,
     )
-    transformed_resources, project_context = _get_transformed_resources(
-        resources, clients, permissions_lookup, authorships
-    )
+    transformed_resources = _get_transformed_resources(resources, clients, permissions_lookup, authorships)
     info_for_graph = create_info_for_graph_from_intermediary_resources(transformed_resources)
     stash_lookup, upload_order = generate_upload_order(info_for_graph)
     sorting_lookup = {res.res_id: res for res in transformed_resources}
@@ -65,7 +61,7 @@ def _get_transformed_resources(
     clients: UploadClients,
     permissions_lookup: dict[str, Permissions],
     authorship_lookup: dict[str, list[str]],
-) -> tuple[list[IntermediaryResource], JSONLDContext]:
+) -> list[IntermediaryResource]:
     project_onto_dict = clients.project_client.get_ontology_name_dict()
     listnode_lookup = clients.list_client.get_list_node_id_to_iri_lookup()
     namespaces = make_namespace_dict_from_onto_names(project_onto_dict)
@@ -80,8 +76,7 @@ def _get_transformed_resources(
             f"{LIST_SEPARATOR}{LIST_SEPARATOR.join(failures)}"
         )
         raise InputError(msg)
-    project_context = get_json_ld_context_for_project(project_onto_dict)
-    return result.transformed_resources, project_context
+    return result.transformed_resources
 
 
 def _validate_iiif_uris(root: etree._Element) -> None:

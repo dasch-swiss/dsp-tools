@@ -25,9 +25,9 @@ from dsp_tools.commands.validate_data.query_validation_result import _query_one_
 from dsp_tools.commands.validate_data.query_validation_result import _reformat_one_validation_result
 from dsp_tools.commands.validate_data.query_validation_result import _separate_result_types
 from dsp_tools.commands.validate_data.query_validation_result import reformat_validation_graph
-from test.unittests.commands.validate_data.constants import DATA
+from dsp_tools.utils.rdflib_constants import DATA
+from dsp_tools.utils.rdflib_constants import KNORA_API
 from test.unittests.commands.validate_data.constants import IN_BUILT_ONTO
-from test.unittests.commands.validate_data.constants import KNORA_API
 from test.unittests.commands.validate_data.constants import ONTO
 
 

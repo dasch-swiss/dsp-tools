@@ -45,6 +45,8 @@ state valdata {
 
 ### Parsing XML Files
 
+<!-- markdownlint-disable MD013 -->
+
 ```mermaid
 ---
 title: Parsing of XML File and Transformations Into ParsedResource
@@ -98,7 +100,8 @@ r4-->transpy
         transfile-->respars: add to resource
     }
 ```
-*<!-- markdownlint-disable MD013 -->*
+
+<!-- markdownlint-enable MD013 -->
 
 
 ### From `ParsedResource` to `IntermediaryResource` in `xmlupload`

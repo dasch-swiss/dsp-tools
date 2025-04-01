@@ -1,33 +1,14 @@
-from typing import TypeAlias
-from typing import Union
-
 from rdflib import XSD
-from rdflib import Namespace
-from rdflib.term import IdentifiedNode
-from rdflib.term import Literal
-from rdflib.term import Node
-from rdflib.term import Variable
 
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
-
-# rdflib typing
-PropertyTypeAlias: TypeAlias = Union[IdentifiedNode, Variable]
-SubjectObjectTypeAlias: TypeAlias = Union[IdentifiedNode, Literal, Variable, Node]
-
-# Namespaces as string
-KNORA_API_STR = "http://api.knora.org/ontology/knora-api/v2#"
-API_SHAPES_STR = "http://api.knora.org/ontology/knora-api/shapes/v2#"
+from dsp_tools.utils.rdflib_constants import KNORA_API
+from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 
 LINKOBJ_RESOURCE = KNORA_API_STR + "LinkObj"
 VIDEO_SEGMENT_RESOURCE = KNORA_API_STR + "VideoSegment"
 AUDIO_SEGMENT_RESOURCE = KNORA_API_STR + "AudioSegment"
 
 # rdflib Namespaces
-DASH = Namespace("http://datashapes.org/dash#")
-KNORA_API = Namespace(KNORA_API_STR)
-API_SHAPES = Namespace(API_SHAPES_STR)
-
-DATA = Namespace("http://data/")
 
 
 ARCHIVE_FILE_VALUE = RDFPropTypeInfo(KNORA_API.ArchiveFileValue, KNORA_API.fileValueHasFilename, XSD.string)

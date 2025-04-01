@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from rdflib import XSD
-from rdflib import Namespace
 
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryBoolean
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryColor
@@ -13,8 +12,7 @@ from dsp_tools.commands.xmlupload.models.intermediary.values import Intermediary
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryTime
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryUri
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
-
-KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
+from dsp_tools.utils.rdflib_constants import KNORA_API
 
 # values that need special considerations during the graph construction
 LIST_PROP_TYPE_INFO = RDFPropTypeInfo(KNORA_API.ListValue, KNORA_API.listValueAsListNode)

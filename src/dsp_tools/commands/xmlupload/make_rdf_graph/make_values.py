@@ -9,7 +9,6 @@ from rdflib import Literal
 from rdflib import URIRef
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import KNORA_API
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import LINK_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import LIST_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import RDF_LITERAL_PROP_TYPE_MAPPER
@@ -39,6 +38,7 @@ from dsp_tools.utils.data_formats.date_util import DayMonthYearEra
 from dsp_tools.utils.data_formats.date_util import SingleDate
 from dsp_tools.utils.data_formats.date_util import StartEnd
 from dsp_tools.utils.data_formats.iri_util import is_resource_iri
+from dsp_tools.utils.rdflib_constants import KNORA_API
 
 LiteralValueTypesAlias: TypeAlias = Union[
     IntermediaryBoolean,

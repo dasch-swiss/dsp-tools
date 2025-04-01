@@ -2,12 +2,10 @@ from rdflib import RDF
 from rdflib import RDFS
 from rdflib import XSD
 
-from dsp_tools.commands.validate_data.constants import API_SHAPES
 from dsp_tools.commands.validate_data.constants import ARCHIVE_FILE_VALUE
 from dsp_tools.commands.validate_data.constants import AUDIO_FILE_VALUE
 from dsp_tools.commands.validate_data.constants import DOCUMENT_FILE_VALUE
 from dsp_tools.commands.validate_data.constants import IIIF_URI_VALUE
-from dsp_tools.commands.validate_data.constants import KNORA_API
 from dsp_tools.commands.validate_data.constants import MOVING_IMAGE_FILE_VALUE
 from dsp_tools.commands.validate_data.constants import STILL_IMAGE_FILE_VALUE
 from dsp_tools.commands.validate_data.constants import TEXT_FILE_VALUE
@@ -24,6 +22,8 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.constants import SIMPLE_TEXT_PR
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import TIME_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import URI_PROP_TYPE_INFO
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
+from dsp_tools.utils.rdflib_constants import API_SHAPES
+from dsp_tools.utils.rdflib_constants import KNORA_API
 from dsp_tools.utils.xml_parsing.models.data_deserialised import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.data_deserialised import TripleObjectType
 from dsp_tools.utils.xml_parsing.models.data_deserialised import TriplePropertyType

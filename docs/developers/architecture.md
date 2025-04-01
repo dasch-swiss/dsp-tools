@@ -55,7 +55,6 @@ stateDiagram-v2
 state "Transform etree Root" as eroot
 state "Transform etree Root Into Python Representation" as transpy
 state "Resource etree" as resetree1
-state "Resource etree" as resetree2
 state "ParsedResource" as respars
 state "Value etree" as valtree
 state "IIIF/bitstream etree" as filetree
@@ -63,7 +62,6 @@ state "ParsedValue" as valpars
 state "ParsedFileValue" as filepars
 state "Transform Value" as transval
 state "Transform FileValue" as transfile
-state "ParsedResource" as rescontent
 
 [*]-->r1: Parse file
 
@@ -106,8 +104,6 @@ title: Transformations from ParsedResource for xmlupload
 ---
 stateDiagram-v2
 
-state "ParsedResource" as start
-state "Transform Entire Resource" as transformall
 state "Transform Resource" as transformres
 state "Transform Value" as transfomrationval
 state "Transform FileValues" as transformfile
@@ -116,26 +112,22 @@ state "ParsedResource" as parsedres
 state "IntermediaryValue" as valdes
 state "Collected Transformations" as coll
 
-start-->transformall
-
-state transformall {
-    parsedres-->transformfile
-    parsedres-->transfomrationval
-    parsedres-->transformres
-    state transformres {
-        ParsedResource-->Permissions: resolve permissions
-    }
-    state transfomrationval {
-        parsedval-->valdes: map permissions<br/><br/>map listnodes to IRIs<br/><br/>map file metadata
-    }
-    state transformfile {
-        ParsedFileValue-->IntermediaryFileValue: map permissions<br/><br/>map metadata
-    }
-    transformres-->coll: return result
-    transformfile-->coll: return result
-    transfomrationval-->coll: return result
-    coll-->ResourceInputConversionFailure: mapping errors
-    ResourceInputConversionFailure-->[*]
-    coll-->IntermediaryResource: successful transformations
+parsedres-->transformfile
+parsedres-->transfomrationval
+parsedres-->transformres
+state transformres {
+    ParsedResource-->Permissions: map permissions
 }
+state transfomrationval {
+    parsedval-->valdes: map permissions<br/><br/>map listnodes to IRIs<br/><br/>map file metadata
+}
+state transformfile {
+    ParsedFileValue-->IntermediaryFileValue: map permissions<br/><br/>map metadata
+}
+transformres-->coll: return result
+transformfile-->coll: return result
+transfomrationval-->coll: return result
+coll-->ResourceInputConversionFailure: mapping errors
+ResourceInputConversionFailure-->[*]
+coll-->IntermediaryResource: successful transformations
 ```

@@ -14,7 +14,7 @@ state "etree Root" as eroot1
 state "etree Root" as eroot2
 state "etree Root" as eroot3
 state "Root Modifications" as rootwork
-state "etree to Python Representation" as pywork
+state "etree Into Python Representation" as pywork
 state "CLI: xmlupload" as transform
 state "ParsedResource" as parsedres1
 state "ParsedResource" as parsedres2
@@ -53,7 +53,7 @@ title: Parsing of XML File and Transformations Into ParsedResource
 ---
 stateDiagram-v2
 state "Transform etree Root" as eroot
-state "Transform etree Root into Python Representation" as transpy
+state "Transform etree Root Into Python Representation" as transpy
 state "Resource etree" as resetree1
 state "Resource etree" as resetree2
 state "ParsedResource" as respars
@@ -90,7 +90,7 @@ r4-->transpy
         transres-->respars
 
         state transval {
-            valtree-->valpars: transform special tags<br/><br/>resolve prefixes into absolute IRIs<br/><br/>map value type into Python Class
+            valtree-->valpars: transform special tags<br/><br/>resolve prefixes into absolute IRIs<br/><br/>map value type to Python Class
         }
         transval-->respars: add to resource
 

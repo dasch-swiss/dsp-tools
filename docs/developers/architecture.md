@@ -79,10 +79,10 @@ r4-->transpy
     state transpy {
         resetree1-->transval: extract values
         resetree1-->transfile: extract file or iiif
-        resetree1-->respars: transform special tags<br/><br/>resolve prefixes into absolute IRIs
+        resetree1-->respars: transform special tags<br/><br/>map prefixes into absolute IRIs
 
         state transval {
-            valtree-->valpars: transform special tags<br/><br/>resolve prefixes into absolute IRIs<br/><br/>map value type to Python Class
+            valtree-->valpars: transform special tags<br/><br/>map prefixes into absolute IRIs<br/><br/>map value type to Python Class
         }
         transval-->respars: add to resource
 

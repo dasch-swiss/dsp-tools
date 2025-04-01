@@ -9,7 +9,6 @@ from rdflib import URIRef
 from dsp_tools.commands.validate_data.api_clients import ListClient
 from dsp_tools.commands.validate_data.api_clients import OntologyClient
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
-from dsp_tools.commands.validate_data.constants import KNORA_API_STR
 from dsp_tools.commands.validate_data.get_user_validation_message import get_user_message
 from dsp_tools.commands.validate_data.make_data_rdf import make_data_rdf
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
@@ -24,6 +23,7 @@ from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_MAGENTA
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_YELLOW
 from dsp_tools.utils.ansi_colors import BOLD_CYAN
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.get_data_deserialised import get_data_deserialised
 from dsp_tools.utils.xml_parsing.get_xml_project import get_xml_project
 

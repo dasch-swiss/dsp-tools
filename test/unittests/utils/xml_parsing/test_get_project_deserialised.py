@@ -1,7 +1,7 @@
 import pytest
 from lxml import etree
 
-from dsp_tools.commands.validate_data.constants import KNORA_API_STR
+from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.get_data_deserialised import _deserialise_all_resources
 from dsp_tools.utils.xml_parsing.get_data_deserialised import _deserialise_one_property
 from dsp_tools.utils.xml_parsing.get_data_deserialised import _deserialise_one_resource

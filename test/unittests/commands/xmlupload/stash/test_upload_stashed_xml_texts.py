@@ -10,12 +10,12 @@ from rdflib import Namespace
 from rdflib import URIRef
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import KNORA_API
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStashItem
 from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import _make_richtext_update_graph
 from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import _serialise_richtext_for_update
+from dsp_tools.utils.rdflib_constants import KNORA_API
 
 ONTO_STR = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
 

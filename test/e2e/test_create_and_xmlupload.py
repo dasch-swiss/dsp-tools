@@ -1,3 +1,4 @@
+import json
 import urllib.parse
 from pathlib import Path
 from typing import Any
@@ -5,11 +6,12 @@ from typing import Iterator
 
 import pytest
 import requests
-from rdflib import Graph
+from rdflib import Graph, RDF, RDFS, Literal, URIRef
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
+from dsp_tools.utils.rdflib_constants import KNORA_API
 from test.e2e.setup_testcontainers.ports import ExternalContainerPorts
 from test.e2e.setup_testcontainers.setup import get_containers
 
@@ -140,22 +142,23 @@ def _get_resources(
     get_resources_route = f"{creds.server}/v2/resources?resourceClass={resclass_iri_encoded}&page=0"
     headers = auth_header | {"X-Knora-Accept-Project": project_iri}
     response = requests.get(get_resources_route, timeout=3, headers=headers).json()
-    resources: list[dict[str, Any]] = response.get("@graph", [response])
+    resources = json.dumps(response)
     return resources
 
 
 def _analyze_img_resources(img_resources: list[dict[str, Any]]) -> None:
     img_g = Graph()
-    img_g.parse(str(img_resources), data="jsonld")
+    img_g.parse(data=str(img_resources), format="json-ld")
 
-    res_labels = sorted([res["rdfs:label"] for res in img_resources])
-    assert res_labels == ["Resource 1", "Resource 2"]
+    labels = {str(x) for x in img_g.objects(predicate=RDFS.label)}
+    assert labels == {"Resource 1", "Resource 2"}
 
-    res_1 = next(res for res in img_resources if res["rdfs:label"] == "Resource 1")
-    file_val = res_1["knora-api:hasStillImageFileValue"]
-    assert file_val["knora-api:hasAuthorship"] == "Johannes Nussbaum"
-    assert file_val["knora-api:hasCopyrightHolder"] == "DaSCH"
-    assert file_val["knora-api:hasLicense"]["@id"] == "http://rdfh.ch/licenses/cc-by-4.0"
+    res_1_iri = next(img_g.subjects(RDFS.label, Literal("Resource 1")))
+    file_1_bn = next(img_g.objects(res_1_iri, KNORA_API.hasStillImageFileValue))
+    assert next(img_g.objects(file_1_bn, KNORA_API.hasAuthorship)) == Literal("Johannes Nussbaum")
+    assert next(img_g.objects(file_1_bn, KNORA_API.hasCopyrightHolder)) == Literal("DaSCH")
+    assert next(img_g.objects(file_1_bn, KNORA_API.hasLicense)) == URIRef("http://rdfh.ch/licenses/cc-by-4.0")
+
 
     res_2 = next(res for res in img_resources if res["rdfs:label"] == "Resource 2")
     assert res_2.get("knora-api:hasStillImageFileValue")

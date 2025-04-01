@@ -29,7 +29,6 @@ from dsp_tools.commands.xmlupload.models.intermediary.values import Intermediary
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryUri
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntervalFloats
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
-from dsp_tools.commands.xmlupload.models.lookup_models import JSONLDContext
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.error.exceptions import BaseError
@@ -56,7 +55,6 @@ def lookups() -> IRILookups:
     return IRILookups(
         project_iri=URIRef("http://rdfh.ch/9999/project"),
         id_to_iri=IriResolver({"res_one": "http://rdfh.ch/9999/res_one"}),
-        jsonld_context=JSONLDContext({}),
     )
 
 

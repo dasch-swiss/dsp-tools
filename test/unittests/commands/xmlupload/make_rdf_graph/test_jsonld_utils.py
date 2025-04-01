@@ -15,7 +15,6 @@ from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryRes
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryBoolean
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
-from dsp_tools.commands.xmlupload.models.lookup_models import JSONLDContext
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem
 from dsp_tools.commands.xmlupload.stash.upload_stashed_resptr_props import _make_link_value_create_graph
 
@@ -33,7 +32,6 @@ def resource_graph() -> Graph:
     lookups = IRILookups(
         project_iri=URIRef("http://rdfh.ch/9999/project"),
         id_to_iri=IriResolver({"res_one": "http://rdfh.ch/9999/res_one"}),
-        jsonld_context=JSONLDContext({}),
     )
     res = IntermediaryResource(
         res_id="resource_id",

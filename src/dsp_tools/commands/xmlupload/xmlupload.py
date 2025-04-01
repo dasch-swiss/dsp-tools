@@ -83,14 +83,11 @@ def xmlupload(
 
     ontology_client = OntologyClientLive(con=con, shortcode=shortcode, default_ontology=default_ontology)
     clients = _get_live_clients(con, auth, creds, shortcode, imgdir)
-    transformed_resources, stash, project_context = prepare_upload_from_root(
-        root=root, ontology_client=ontology_client, clients=clients
-    )
+    transformed_resources, stash = prepare_upload_from_root(root=root, ontology_client=ontology_client, clients=clients)
     state = UploadState(
         pending_resources=transformed_resources,
         pending_stash=stash,
         config=config,
-        project_context=project_context,
     )
 
     return execute_upload(clients, state)
@@ -231,7 +228,6 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
     iri_lookup = IRILookups(
         project_iri=URIRef(project_iri),
         id_to_iri=upload_state.iri_resolver,
-        jsonld_context=upload_state.project_context,
     )
 
     resource_create_client = ResourceCreateClient(

@@ -119,7 +119,7 @@ state transformres {
     ParsedResource-->Permissions: map permissions
 }
 state transfomrationval {
-    parsedval-->valdes: map permissions<br/><br/>map listnodes to IRIs<br/><br/>map file metadata
+    parsedval-->valdes: map permissions<br/><br/>map listnodes to IRIs
 }
 state transformfile {
     ParsedFileValue-->IntermediaryFileValue: map permissions<br/><br/>map metadata

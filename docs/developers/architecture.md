@@ -13,19 +13,19 @@ stateDiagram-v2
 state "etree Root" as eroot1
 state "etree Root" as eroot2
 state "etree Root" as eroot3
-state "Root" as rootwork
+state "Root Modifications" as rootwork
 state "etree to Python Representation" as pywork
-state "xmlupload" as transform
+state "CLI: xmlupload" as transform
 state "ParsedResource" as parsedres1
 state "ParsedResource" as parsedres2
 state "ParsedResource" as parsedres3
 state "IntermediaryResource" as intermediaryres
-state "validate-data" as valdata
+state "CLI: validate-data" as valdata
 
 [*]-->rootwork
 state rootwork {
     eroot1-->eroot2: xsd validation success
-    eroot1-->[*]: xsd validation error
+    eroot1-->[*]: xsd validation error raised
 }
 eroot2-->pywork
 state pywork {
@@ -33,7 +33,7 @@ state pywork {
 }
 pywork-->transform
 state transform {
-    ResourceInputConversionFailure-->[*]: transformation error
+    ResourceInputConversionFailure-->[*]: transformation error raised
     parsedres2-->intermediaryres: transformation success
     parsedres2-->ResourceInputConversionFailure: transformation failure
 }
@@ -52,26 +52,50 @@ title: Parsing of XML File and Transformations Into ParsedResource
 stateDiagram-v2
 state "Transform etree Root" as eroot
 state "Transform etree Root into Python Representation" as transpy
+state "Resource etree" as resetree1
+state "Resource etree" as resetree2
+state "ParsedResource" as respars
+state "Value etree" as valtree
+state "IIIF/bitstream etree" as filetree
+state "ParsedValue" as valpars
+state "ParsedFileValue" as filepars
+state "Transform Resource" as transres
+state "Transform Value" as transval
+state "Transform FileValue" as transfile
+state "Transformed Content" as rescontent
 
-r3-->transpy
+[*]-->r1: Parse file
+
+r4-->transpy
     state eroot {
         state "etree root" as r1
         state "etree root" as r2
         state "etree root" as r3
-        [*]-->r1: Parse file
+        state "etree root" as r4
         r1-->r2: Remove Comments
         r2-->[*]: xsd validation failure
         r2-->r3: xsd validation success
+        r3-->r4: make localnames
     }
     state transpy {
-        state "Resource etree" as resetree
-        state "ParsedResource" as respars
-        state "Value etree" as valtree
-        state "ParsedValue" as valpars
-        resetree-->valtree: extract values
-        valtree-->valpars: transform special tags</br></br>resolve prefixes into absolute IRIs</br></br>map value type into Python
-        resetree-->respars: transform special tags</br></br>resolve prefixes into absolute IRIs
-        valpars-->respars: add to resource
+        resetree1-->transres
+        resetree1-->transval: extract values
+        resetree1-->transfile: extract file or iiif
+        
+        state transres {
+            resetree2-->rescontent: transform special tags</br></br>resolve prefixes into absolute IRIs
+        }
+        transres-->respars
+
+        state transval {
+            valtree-->valpars: transform special tags</br></br>resolve prefixes into absolute IRIs</br></br>map value type into Python Class
+        }
+        transval-->respars: add to resource
+
+        state transfile {
+            filetree-->filepars: map file type
+        }
+        transfile-->respars: add to resource
     }
 ```
 

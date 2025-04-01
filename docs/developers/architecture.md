@@ -4,7 +4,44 @@
 
 ### Overview
 
+```mermaid
+---
+title: Overview of Code Flow for xmlupload and validate-data
+---
+stateDiagram-v2
 
+state "etree Root" as eroot1
+state "etree Root" as eroot2
+state "etree Root" as eroot3
+state "Root" as rootwork
+state "etree to Python Representation" as pywork
+state "xmlupload" as transform
+state "ParsedResource" as parsedres1
+state "ParsedResource" as parsedres2
+state "ParsedResource" as parsedres3
+state "IntermediaryResource" as intermediaryres
+state "validate-data" as valdata
+
+[*]-->rootwork
+state rootwork {
+    eroot1-->eroot2: xsd validation success
+    eroot1-->[*]: xsd validation error
+}
+eroot2-->pywork
+state pywork {
+    eroot3-->parsedres1: transform representation
+}
+parsedres1-->transform
+state transform {
+    ResourceInputConversionFailure-->[*]: transformation error
+    parsedres2-->intermediaryres: transformation success
+    parsedres2-->ResourceInputConversionFailure: transformation failure
+}
+parsedres1-->valdata
+state valdata {
+    parsedres3-->ResourceDeserialised: transformations
+}
+```
 
 ### Parsing XML Files
 

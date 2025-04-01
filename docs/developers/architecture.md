@@ -116,7 +116,7 @@ state "Transform Value" as transfomrationval
 state "Transform FileValues" as transformfile
 state "ParsedValue" as parsedval
 state "ParsedResource" as parsedres
-state "ValueDeserialised" as valdes
+state "IntermediaryValue" as valdes
 state "Collected Transformations" as coll
 
 start-->transformall

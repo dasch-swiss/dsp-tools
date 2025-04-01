@@ -139,9 +139,7 @@ def _check_resclasses(resclasses: list[dict[str, Any]]) -> None:
     assert res_2["rdfs:label"] == "PDF Resource"
 
 
-def _get_resources(
-    resclass_iri: str, auth_header: dict[str, str], project_iri: str, creds: ServerCredentials
-) -> list[dict[str, Any]]:
+def _get_resources(resclass_iri: str, auth_header: dict[str, str], project_iri: str, creds: ServerCredentials) -> str:
     resclass_iri_encoded = urllib.parse.quote_plus(resclass_iri)
     get_resources_route = f"{creds.server}/v2/resources?resourceClass={resclass_iri_encoded}&page=0"
     headers = auth_header | {"X-Knora-Accept-Project": project_iri}
@@ -150,36 +148,44 @@ def _get_resources(
     return resources
 
 
-def _analyze_img_resources(img_resources: list[dict[str, Any]]) -> None:
-    img_g = Graph()
-    img_g.parse(data=str(img_resources), format="json-ld")
+def _analyze_img_resources(img_resources: str) -> None:
+    g = Graph()
+    g.parse(data=img_resources, format="json-ld")
     open_permissions = Literal(
         "CR knora-admin:ProjectAdmin|D knora-admin:ProjectMember|V knora-admin:KnownUser,knora-admin:UnknownUser"
     )
 
-    labels = {str(x) for x in img_g.objects(predicate=RDFS.label)}
+    labels = {str(x) for x in g.objects(predicate=RDFS.label)}
     assert labels == {"Resource 1", "Resource 2"}
 
-    res_1_iri = next(img_g.subjects(RDFS.label, Literal("Resource 1")))
-    assert next(img_g.objects(res_1_iri, KNORA_API.hasPermissions)) == open_permissions
-    file_1_bn = next(img_g.objects(res_1_iri, KNORA_API.hasStillImageFileValue))
-    assert next(img_g.objects(file_1_bn, RDF.type)) == KNORA_API.StillImageFileValue
-    assert next(img_g.objects(file_1_bn, KNORA_API.hasAuthorship)) == Literal("Johannes Nussbaum")
-    assert next(img_g.objects(file_1_bn, KNORA_API.hasCopyrightHolder)) == Literal("DaSCH")
-    assert next(img_g.objects(file_1_bn, KNORA_API.hasLicense)) == URIRef("http://rdfh.ch/licenses/cc-by-4.0")
+    res_1_iri = next(g.subjects(RDFS.label, Literal("Resource 1")))
+    assert next(g.objects(res_1_iri, KNORA_API.hasPermissions)) == open_permissions
+    file_1_iri = next(g.objects(res_1_iri, KNORA_API.hasStillImageFileValue))
+    assert next(g.objects(file_1_iri, RDF.type)) == KNORA_API.StillImageFileValue
+    assert next(g.objects(file_1_iri, KNORA_API.hasAuthorship)) == Literal("Johannes Nussbaum")
+    assert next(g.objects(file_1_iri, KNORA_API.hasCopyrightHolder)) == Literal("DaSCH")
+    assert next(g.objects(file_1_iri, KNORA_API.hasLicense)) == URIRef("http://rdfh.ch/licenses/cc-by-4.0")
 
-    res_2_iri = next(img_g.subjects(RDFS.label, Literal("Resource 2")))
-    file_2_bn = next(img_g.objects(res_2_iri, KNORA_API.hasStillImageFileValue))
-    assert next(img_g.objects(file_2_bn, RDF.type)) == KNORA_API.StillImageExternalFileValue
-    assert next(img_g.objects(file_2_bn, KNORA_API.hasPermissions)) == open_permissions
-    val_with_comment = next(img_g.subjects(object=Literal("first text value")))
-    assert next(img_g.objects(val_with_comment, KNORA_API.valueHasComment)) == Literal("Comment")
-    val_with_perm = next(img_g.subjects(object=Literal("second text value")))
-    assert next(img_g.objects(val_with_perm, KNORA_API.hasPermissions)) == open_permissions
+    res_2_iri = next(g.subjects(RDFS.label, Literal("Resource 2")))
+    file_2_iri = next(g.objects(res_2_iri, KNORA_API.hasStillImageFileValue))
+    assert next(g.objects(file_2_iri, RDF.type)) == KNORA_API.StillImageExternalFileValue
+    assert next(g.objects(file_2_iri, KNORA_API.hasPermissions)) == open_permissions
+    val_with_comment = next(g.subjects(object=Literal("first text value")))
+    assert next(g.objects(val_with_comment, KNORA_API.valueHasComment)) == Literal("Comment")
+    val_with_perm = next(g.subjects(object=Literal("second text value")))
+    assert next(g.objects(val_with_perm, KNORA_API.hasPermissions)) == open_permissions
 
 
-def _analyze_pdf_resources(pdf_resources: list[dict[str, Any]]) -> None:
-    res_labels = sorted([res["rdfs:label"] for res in pdf_resources])
-    assert res_labels == ["Resource 3"]
-    res_1 = next(res for res in pdf_resources if res["rdfs:label"] == "Resource 3")
-    assert res_1.get("knora-api:hasDocumentFileValue")
+def _analyze_pdf_resources(pdf_resources: str) -> None:
+    g = Graph()
+    g.parse(data=pdf_resources, format="json-ld")
+    res_iri = next(g.subjects(RDFS.label, Literal("Resource 3")))
+    file_iri = next(g.objects(res_iri, KNORA_API.hasDocumentFileValue))
+    open_permissions = Literal(
+        "CR knora-admin:ProjectAdmin|D knora-admin:ProjectMember|V knora-admin:KnownUser,knora-admin:UnknownUser"
+    )
+    assert next(g.objects(file_iri, RDF.type)) == KNORA_API.DocumentFileValue
+    assert next(g.objects(file_iri, KNORA_API.hasAuthorship)) == Literal("Nora Ammann")
+    assert next(g.objects(file_iri, KNORA_API.hasCopyrightHolder)) == Literal("DaSCH")
+    assert next(g.objects(file_iri, KNORA_API.hasLicense)) == URIRef("http://rdfh.ch/licenses/cc-by-4.0")
+    assert next(g.objects(file_iri, KNORA_API.hasPermissions)) == open_permissions

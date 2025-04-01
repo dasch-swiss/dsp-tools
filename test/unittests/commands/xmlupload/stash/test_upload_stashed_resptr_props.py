@@ -6,10 +6,10 @@ from rdflib import RDF
 from rdflib import Namespace
 from rdflib import URIRef
 
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import KNORA_API
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem
 from dsp_tools.commands.xmlupload.stash.upload_stashed_resptr_props import _make_link_value_create_graph
+from dsp_tools.utils.rdflib_constants import KNORA_API
 
 ONTO_STR = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
 

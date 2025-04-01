@@ -317,8 +317,8 @@ def test_2_resources_with_stash(
         case {
             "route": "/v2/values",
             "data": {
-                "@type": "http://0.0.0.0:3333/ontology/9999/onto/v2#foo_1_type",
                 "@id": "http://rdfh.ch/0000/foo_1_iri",
+                "@type": "http://0.0.0.0:3333/ontology/9999/onto/v2#foo_1_type",
                 "http://0.0.0.0:3333/ontology/9999/onto/v2#hasCustomLinkValue": {
                     "@type": "http://api.knora.org/ontology/knora-api/v2#LinkValue",
                     "http://api.knora.org/ontology/knora-api/v2#linkValueHasTargetIri": {

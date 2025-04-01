@@ -47,7 +47,7 @@ def upload_stashed_resptr_props(
         logger.info(f"  Upload resptrs of resource '{res_id}'...")
         for stash_item in reversed(stash_items):
             # reversed avoids any problems caused by removing from the list we loop over at the same time
-            target_iri = upload_state.iri_resolver.get(stash_item.res_id)
+            target_iri = upload_state.iri_resolver.get(stash_item.value.value)
             if not target_iri:
                 continue
             if _upload_stash_item(stash_item, res_iri, target_iri, con):

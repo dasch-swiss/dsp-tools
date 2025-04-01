@@ -5,6 +5,7 @@ from typing import Iterator
 
 import pytest
 import requests
+from rdflib import Graph
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create_all import create_project
@@ -144,6 +145,9 @@ def _get_resources(
 
 
 def _analyze_img_resources(img_resources: list[dict[str, Any]]) -> None:
+    img_g = Graph()
+    img_g.parse(str(img_resources), data="jsonld")
+
     res_labels = sorted([res["rdfs:label"] for res in img_resources])
     assert res_labels == ["Resource 1", "Resource 2"]
 

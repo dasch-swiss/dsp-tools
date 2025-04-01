@@ -6,7 +6,11 @@ from typing import Iterator
 
 import pytest
 import requests
-from rdflib import Graph, RDF, RDFS, Literal, URIRef
+from rdflib import RDF
+from rdflib import RDFS
+from rdflib import Graph
+from rdflib import Literal
+from rdflib import URIRef
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create_all import create_project
@@ -149,21 +153,29 @@ def _get_resources(
 def _analyze_img_resources(img_resources: list[dict[str, Any]]) -> None:
     img_g = Graph()
     img_g.parse(data=str(img_resources), format="json-ld")
+    open_permissions = Literal(
+        "CR knora-admin:ProjectAdmin|D knora-admin:ProjectMember|V knora-admin:KnownUser,knora-admin:UnknownUser"
+    )
 
     labels = {str(x) for x in img_g.objects(predicate=RDFS.label)}
     assert labels == {"Resource 1", "Resource 2"}
 
     res_1_iri = next(img_g.subjects(RDFS.label, Literal("Resource 1")))
+    assert next(img_g.objects(res_1_iri, KNORA_API.hasPermissions)) == open_permissions
     file_1_bn = next(img_g.objects(res_1_iri, KNORA_API.hasStillImageFileValue))
+    assert next(img_g.objects(file_1_bn, RDF.type)) == KNORA_API.StillImageFileValue
     assert next(img_g.objects(file_1_bn, KNORA_API.hasAuthorship)) == Literal("Johannes Nussbaum")
     assert next(img_g.objects(file_1_bn, KNORA_API.hasCopyrightHolder)) == Literal("DaSCH")
     assert next(img_g.objects(file_1_bn, KNORA_API.hasLicense)) == URIRef("http://rdfh.ch/licenses/cc-by-4.0")
 
-
-    res_2 = next(res for res in img_resources if res["rdfs:label"] == "Resource 2")
-    assert res_2.get("knora-api:hasStillImageFileValue")
-    res_2_text_vals = sorted([x["knora-api:valueAsString"] for x in res_2[f"{ONTO_NAME}:hasText"]])
-    assert res_2_text_vals == ["first text value", "second text value"]
+    res_2_iri = next(img_g.subjects(RDFS.label, Literal("Resource 2")))
+    file_2_bn = next(img_g.objects(res_2_iri, KNORA_API.hasStillImageFileValue))
+    assert next(img_g.objects(file_2_bn, RDF.type)) == KNORA_API.StillImageExternalFileValue
+    assert next(img_g.objects(file_2_bn, KNORA_API.hasPermissions)) == open_permissions
+    val_with_comment = next(img_g.subjects(object=Literal("first text value")))
+    assert next(img_g.objects(val_with_comment, KNORA_API.valueHasComment)) == Literal("Comment")
+    val_with_perm = next(img_g.subjects(object=Literal("second text value")))
+    assert next(img_g.objects(val_with_perm, KNORA_API.hasPermissions)) == open_permissions
 
 
 def _analyze_pdf_resources(pdf_resources: list[dict[str, Any]]) -> None:

@@ -44,7 +44,7 @@
             https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg
         </iiif-uri>
         <text-prop name=":hasText">
-            <text encoding="utf8" comment="This text has a comment">first text value</text>
+            <text encoding="utf8" comment="Comment">first text value</text>
             <text encoding="utf8" permissions="open">second text value</text>
         </text-prop>
     </resource>

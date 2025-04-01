@@ -131,9 +131,9 @@ state transformall {
     state transformfile {
         ParsedFileValue-->IntermediaryFileValue: map permissions<br/><br/>map metadata
     }
+    transformres-->coll: return result
     transformfile-->coll: return result
     transfomrationval-->coll: return result
-    transformres-->coll: return result
     coll-->ResourceInputConversionFailure: mapping errors
     ResourceInputConversionFailure-->[*]
     coll-->IntermediaryResource: successful transformations

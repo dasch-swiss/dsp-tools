@@ -85,12 +85,12 @@ r4-->transpy
         resetree1-->transfile: extract file or iiif
         
         state transres {
-            resetree2-->rescontent: transform special tags</br></br>resolve prefixes into absolute IRIs
+            resetree2-->rescontent: transform special tags<br/><br/>resolve prefixes into absolute IRIs
         }
         transres-->respars
 
         state transval {
-            valtree-->valpars: transform special tags</br></br>resolve prefixes into absolute IRIs</br></br>map value type into Python Class
+            valtree-->valpars: transform special tags<br/><br/>resolve prefixes into absolute IRIs<br/><br/>map value type into Python Class
         }
         transval-->respars: add to resource
 
@@ -132,10 +132,10 @@ state transformall {
         ParsedResource-->Permissions: resolve permissions
     }
     state transfomrationval {
-        parsedval-->valdes: map permissions</br></br>map listnodes to IRIs</br></br>map file metadata
+        parsedval-->valdes: map permissions<br/><br/>map listnodes to IRIs<br/><br/>map file metadata
     }
     state transformfile {
-        ParsedFileValue-->IntermediaryFileValue: map permissions</br></br>map metadata
+        ParsedFileValue-->IntermediaryFileValue: map permissions<br/><br/>map metadata
     }
     transformfile-->coll: return result
     transfomrationval-->coll: return result

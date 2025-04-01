@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any
 from typing import cast
 
 from loguru import logger
-from rdflib import Graph
 from rdflib import RDF
 from rdflib import BNode
+from rdflib import Graph
 from rdflib import URIRef
 
 from dsp_tools.clients.connection import Connection

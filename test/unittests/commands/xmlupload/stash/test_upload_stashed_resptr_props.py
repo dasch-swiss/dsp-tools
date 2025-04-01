@@ -2,19 +2,14 @@
 
 from uuid import uuid4
 
-import pytest
 from rdflib import RDF
-from rdflib import XSD
-from rdflib import Literal
 from rdflib import Namespace
 from rdflib import URIRef
 
+from dsp_tools.commands.xmlupload.make_rdf_graph.constants import KNORA_API
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
-from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem
 from dsp_tools.commands.xmlupload.stash.upload_stashed_resptr_props import _make_link_value_create_graph
-
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import KNORA_API
 
 ONTO_STR = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
 
@@ -30,7 +25,7 @@ def test_make_link_value_create_graph():
     link_stash = LinkValueStashItem(
         res_id=RES_IRI_STR,
         res_type=RES_TYPE,
-        value=IntermediaryLink("target_resource_id", ONTO.hasLink, None, None, str(uuid4()))
+        value=IntermediaryLink("target_resource_id", ONTO.hasLink, None, None, str(uuid4())),
     )
     result = _make_link_value_create_graph(link_stash, RES_IRI_STR, TARGET_IRI_STR)
     assert len(result) == 4
@@ -41,4 +36,3 @@ def test_make_link_value_create_graph():
     assert val_type == KNORA_API.LinkValue
     target_iri = next(result.objects(val_bn, KNORA_API.linkValueHasTargetIri))
     assert target_iri == URIRef(TARGET_IRI_STR)
-

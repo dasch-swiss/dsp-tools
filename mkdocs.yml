@@ -23,7 +23,7 @@ nav:
   - Information for developers:
       - Developers documentation: developers/index.md
       - Architectural Decision Records: developers/decision-log.md
-      - Architectural Design: docs/developers/architecture.md
+      - Architectural Design: developers/architecture.md
       - Dependencies, packaging & distribution: developers/packaging.md
       - User data: developers/user-data.md
       - MkDocs and markdown-link-validator: developers/mkdocs.md

@@ -98,7 +98,7 @@ r4-->transpy
         transfile-->respars: add to resource
     }
 ```
-*<!-- markdownlint-disable MD034 -->*
+*<!-- markdownlint-disable MD013 -->*
 
 
 ### From `ParsedResource` to `IntermediaryResource` in `xmlupload`

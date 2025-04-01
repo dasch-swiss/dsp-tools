@@ -23,7 +23,6 @@ class IntermediaryLookups:
 class IRILookups:
     project_iri: URIRef
     id_to_iri: IriResolver
-    jsonld_context: JSONLDContext
 
 
 @dataclass(frozen=True)

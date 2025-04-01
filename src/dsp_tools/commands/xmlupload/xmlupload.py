@@ -231,7 +231,6 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
     iri_lookup = IRILookups(
         project_iri=URIRef(project_iri),
         id_to_iri=upload_state.iri_resolver,
-        jsonld_context=upload_state.project_context,
     )
 
     resource_create_client = ResourceCreateClient(

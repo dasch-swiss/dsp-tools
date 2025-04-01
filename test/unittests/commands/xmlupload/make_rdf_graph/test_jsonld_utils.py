@@ -33,7 +33,6 @@ def resource_graph() -> Graph:
     lookups = IRILookups(
         project_iri=URIRef("http://rdfh.ch/9999/project"),
         id_to_iri=IriResolver({"res_one": "http://rdfh.ch/9999/res_one"}),
-        jsonld_context=JSONLDContext({}),
     )
     res = IntermediaryResource(
         res_id="resource_id",

@@ -45,18 +45,23 @@ title: Transformations from ParsedResource for xmlupload
 stateDiagram-v2
 
 state "ParsedResource" as start
-state "Transform Resource" as transformationres
+state "Transform Entire Resource" as transformall
+state "Transform Resource" as transformres
 state "Transform Value" as transfomrationval
 state "Transform FileValues" as transformfile
 state "ParsedValue" as parsedval
 state "ParsedResource" as parsedres
 state "ValueDeserialised" as valdes
 
-start-->transformationres
+start-->transformall
 
-state transformationres {
+state transformall {
     parsedres-->transformfile
     parsedres-->transfomrationval
+    parsedres-->transformres
+    state transformres {
+        ParsedResource-->Permissions: resolve permissions
+    }
     state transfomrationval {
         parsedval-->valdes: map permissions</br></br>map listnodes to IRIs</br></br>map file metadata
     }
@@ -65,7 +70,7 @@ state transformationres {
     }
     transformfile-->ResourceDeserialised: add File
     transfomrationval-->ResourceDeserialised: add Values
-    parsedres-->ResourceDeserialised: map permissions
+    transformres-->ResourceDeserialised: add permissions
 }
 ```
 

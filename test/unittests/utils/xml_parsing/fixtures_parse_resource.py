@@ -54,10 +54,17 @@ def resource_empty_permissions() -> etree._Element:
 @pytest.fixture
 def resource_with_file_values() -> etree._Element:
     return etree.fromstring("""
-    <resource label="lbl" restype=":Class" id="resource_with_bitstream">
-        <bitstream>
-            testdata/bitstreams/test.wav
-        </bitstream>
+    <resource label="lbl" restype=":Class" id="resource_with_file_values">
+        <bitstream>testdata/bitstreams/test.wav</bitstream>
+    </resource>
+    """)
+
+
+@pytest.fixture
+def resource_with_iiif() -> etree._Element:
+    return etree.fromstring("""
+    <resource label="lbl" restype=":Class" id="resource_with_iiif">
+        <iiif-uri>https://iiif.uri/full.jpg</iiif-uri>
     </resource>
     """)
 

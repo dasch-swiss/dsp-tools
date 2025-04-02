@@ -12,6 +12,7 @@ from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_file_values
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_one_value
 from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resources
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 
 API_URL = "http://url.ch"
 DEFAULT_ONTO_NAMESPACE = f"{API_URL}/ontology/0000/default/v2#"
@@ -55,7 +56,7 @@ class TestParseResource:
         assert resource.res_type == RES_CLASS
         assert resource.label == "lbl"
         assert not resource.permissions_id
-        assert len(resource.values) == 0
+        assert len(resource.values) == 3
         assert not resource.file_value
         assert not resource.migration_metadata
 
@@ -70,8 +71,25 @@ class TestParseResource:
         assert resource.label == "lbl"
         assert not resource.permissions_id
         assert len(resource.values) == 0
-        assert not resource.file_value
         assert not resource.migration_metadata
+        file_val = resource.file_value
+        assert isinstance(file_val, ParsedFileValue)
+
+    def test_iiif_value(self, root_no_resources, resource_with_iiif):
+        root = deepcopy(root_no_resources)
+        root.append(resource_with_iiif)
+        parsed_res, _ = get_parsed_resources(root, API_URL)
+        assert len(parsed_res) == 1
+        resource = parsed_res.pop(0)
+        assert resource.res_id == "resource_with_iiif"
+        assert resource.res_type == RES_CLASS
+        assert resource.label == "lbl"
+        assert not resource.permissions_id
+        assert len(resource.values) == 0
+        assert not resource.migration_metadata
+        file_val = resource.file_value
+        assert isinstance(file_val, ParsedFileValue)
+        assert file_val.value_type == KnoraValueType.STILL_IMAGE_IIIF
 
     def test_region(self, root_no_resources, resource_region):
         root = deepcopy(root_no_resources)
@@ -80,10 +98,10 @@ class TestParseResource:
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_region"
-        assert resource.res_type == RES_CLASS
+        assert resource.res_type == f"{KNORA_API_STR}Region"
         assert resource.label == "lbl"
         assert not resource.permissions_id
-        assert len(resource.values) == 0
+        assert len(resource.values) == 4
         assert not resource.file_value
         assert not resource.migration_metadata
 
@@ -94,10 +112,10 @@ class TestParseResource:
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_link"
-        assert resource.res_type == RES_CLASS
+        assert resource.res_type == f"{KNORA_API_STR}LinkObj"
         assert resource.label == "lbl"
         assert not resource.permissions_id
-        assert len(resource.values) == 0
+        assert len(resource.values) == 1
         assert not resource.file_value
         assert not resource.migration_metadata
 

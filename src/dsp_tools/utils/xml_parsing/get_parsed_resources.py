@@ -35,6 +35,10 @@ def get_parsed_resources(root: etree._Element, api_url: str) -> tuple[list[Parse
     for res in root.iterdescendants(tag="link"):
         res_type = f"{KNORA_API_STR}LinkObj"
         all_res.append(_parse_one_resource(res, res_type, iri_lookup))
+    for res in root.iterdescendants(tag="video-segment"):
+        all_res.append(_parse_segment(res, "Video"))
+    for res in root.iterdescendants(tag="audio-segment"):
+        all_res.append(_parse_segment(res, "Audio"))
     return all_res, set(iri_lookup.values())
 
 

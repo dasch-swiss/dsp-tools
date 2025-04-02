@@ -71,10 +71,10 @@ def _parse_values(resource: etree._Element, iri_lookup: dict[str, str]) -> list[
 def _parse_one_value(values: etree._Element, iri_lookup: dict[str, str]) -> list[ParsedValue]:
     prop_name = iri_lookup[values.attrib["name"]]
     match values.tag:
-        case "text-prop":
-            return _parse_text_value(values, prop_name)
         case "list-prop":
             return _parse_list_value(values, prop_name)
+        case "text-prop":
+            return _parse_text_value(values, prop_name)
         case _:
             return _parse_generic_values(values, prop_name)
 
@@ -88,6 +88,22 @@ def _parse_generic_values(values: etree._Element, prop_name: str):
                 prop_name=prop_name,
                 value=val.text,
                 value_type=value_type,
+                permissions_id=val.attrib.get("permissions"),
+                comment=val.attrib.get("comment"),
+            )
+        )
+    return parsed_values
+
+
+def _parse_list_value(values: etree._Element, prop_name: str) -> list[ParsedValue]:
+    parsed_values = []
+    list_name = values.attrib["list"]
+    for val in values:
+        parsed_values.append(
+            ParsedValue(
+                prop_name=prop_name,
+                value=(list_name, val.text),
+                value_type=KnoraValueType.LIST_VALUE,
                 permissions_id=val.attrib.get("permissions"),
                 comment=val.attrib.get("comment"),
             )
@@ -123,22 +139,6 @@ def _get_text_as_string(value: etree._Element) -> str | None:
         return "".join(text_list).strip()
     else:
         return value.text
-
-
-def _parse_list_value(values: etree._Element, prop_name: str) -> list[ParsedValue]:
-    parsed_values = []
-    list_name = values.attrib["list"]
-    for val in values:
-        parsed_values.append(
-            ParsedValue(
-                prop_name=prop_name,
-                value=(list_name, val.text),
-                value_type=KnoraValueType.LIST_VALUE,
-                permissions_id=val.attrib.get("permissions"),
-                comment=val.attrib.get("comment"),
-            )
-        )
-    return parsed_values
 
 
 def _parse_file_values(file_value: etree._Element) -> ParsedFileValue:

@@ -432,10 +432,10 @@ def _find_date_in_string_raising(string: str) -> str | None:
     lookahead = r"(?![0-9A-Za-z])"
     range_operator_regex = r" ?- ?"
 
-    if english_bc_date := _find_english_BC_or_CE_date(
+    if english_bc_or_ce_date := _find_english_BC_or_CE_date(
         string=string, lookbehind=lookbehind, lookahead=lookahead, range_operator_regex=range_operator_regex
     ):
-        return english_bc_date
+        return english_bc_or_ce_date
 
     if french_bc_date := _find_french_bc_date(
         string=string, lookbehind=lookbehind, lookahead=lookahead, range_operator_regex=range_operator_regex

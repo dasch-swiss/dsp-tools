@@ -215,15 +215,15 @@ class TestFindDate:
         assert find_date_in_string("x 1811-11 x") is None
         assert find_date_in_string("x 1811/10 x") is None
         assert find_date_in_string("x 1811/11 x") is None
-    
+
     @pytest.mark.parametrize("string", ["9 BC", "9 B.C.", "9 BCE", "9 B.C.E."])
     def test_find_date_in_string_bc_different_notations(self, string: str) -> None:
         assert find_date_in_string(string) == "GREGORIAN:BC:9:BC:9"
-    
+
     @pytest.mark.parametrize("string", ["9 CE", "9 C.E.", "9 AD", "9 A.D."])
     def test_find_date_in_string_ce_different_notations(self, string: str) -> None:
         assert find_date_in_string(string) == "GREGORIAN:CE:9:CE:9"
-  
+
     def test_find_date_in_string_bc(self) -> None:
         assert find_date_in_string("9 BC") == "GREGORIAN:BC:9:BC:9"
         assert find_date_in_string("10000 BC") == "GREGORIAN:BC:10000:BC:10000"

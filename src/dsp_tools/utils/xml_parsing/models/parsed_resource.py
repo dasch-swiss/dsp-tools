@@ -44,6 +44,14 @@ class ParsedFileValue:
     metadata: FileValueMetadata
 
 
+@dataclass
+class FileValueMetadata:
+    license_iri: str | None
+    copyright_holder: str | None
+    authorships: list[str] | None
+    permissions: str | None
+
+
 class KnoraValueType(Enum):
     """
     Maps to a knora value type, for example: BOOLEAN_VALUE -> knora-api:BooleanValue
@@ -71,11 +79,3 @@ class KnoraValueType(Enum):
     STILL_IMAGE_FILE = auto()
     STILL_IMAGE_IIIF = auto()
     TEXT_FILE = auto()
-
-
-@dataclass
-class FileValueMetadata:
-    license_iri: str | None
-    copyright_holder: str | None
-    authorships: list[str] | None
-    permissions: str | None

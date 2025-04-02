@@ -1055,10 +1055,12 @@ It is possible to leave out optional properties, but the present ones must fit t
 
 Example:
 
+<!-- markdownlint-disable MD013 -->
+
 ```xml
 <video-segment label="Video Segment" id="video_segment_1">
     <isSegmentOf permissions="open">video_thing_1</isSegmentOf>
-    <!-- The segment bounds must be entered in seconds. Decimal (for fractions of a second) are allowed, e.g. `1.4`.-->
+    <!-- The segment bounds must be entered in seconds. Decimal (for fractions of a second) are allowed, e.g. `1.4`-->
     <hasSegmentBounds permissions="open" segment_start="600" segment_end="1200"/> <!-- from 0h 10min 00s to 0h 20min 00s -->
     <hasTitle permissions="open">Title of video segment</hasTitle>
     <hasComment permissions="open"><strong>Comment</strong> of video segment</hasComment>
@@ -1067,6 +1069,8 @@ Example:
     <relatesTo permissions="open">audio_segment_1</relatesTo>
 </video-segment>
 ```
+
+<!-- markdownlint-enable MD013 -->
 
 Allowed attributes in these property tags: `permissions`, `comment`. 
 Example: `<hasTitle permissions="open" comment="Comment to my title">Title of video segment</hasTitle>`

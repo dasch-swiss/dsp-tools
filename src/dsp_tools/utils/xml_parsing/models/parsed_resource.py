@@ -4,19 +4,23 @@ from dataclasses import dataclass
 from enum import Enum
 from enum import auto
 
-from dsp_tools.commands.xmlupload.models.rdf_models import FileValueMetadata
-from dsp_tools.utils.xml_parsing.models.data_deserialised import MigrationMetadata
-
 
 @dataclass
 class ParsedResource:
     res_id: str
     res_type: str
     label: str
-    permissions: str | None
+    permissions_id: str | None
     values: list[ParsedValue]
     file_value: ParsedValue | None
-    migration_metadata: MigrationMetadata
+    migration_metadata: ParsedMigrationMetadata | None
+
+
+@dataclass
+class ParsedMigrationMetadata:
+    iri: str | None
+    ark: str | None
+    creation_date: str | None
 
 
 @dataclass
@@ -24,15 +28,23 @@ class ParsedValue:
     prop_name: str
     value: str | tuple[str, str] | None
     value_type: KnoraValueType
-    permissions: str | None = None
-    comment: str | None = None
+    permissions_id: str | None
+    comment: str | None
 
 
 @dataclass
 class ParsedFileValue:
     value: str
     value_type: KnoraValueType
-    metadata: FileValueMetadata
+    metadata: ParsedFileValueMetadata
+
+
+@dataclass
+class ParsedFileValueMetadata:
+    license_iri: str | None
+    copyright_holder: str | None
+    authorship_id: str | None
+    permissions_id: str | None
 
 
 class KnoraValueType(Enum):

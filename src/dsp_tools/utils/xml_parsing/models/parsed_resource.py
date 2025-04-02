@@ -12,7 +12,7 @@ class ParsedResource:
     label: str
     permissions_id: str | None
     values: list[ParsedValue]
-    file_value: ParsedValue | None
+    file_value: ParsedFileValue | None
     migration_metadata: ParsedMigrationMetadata | None
 
 

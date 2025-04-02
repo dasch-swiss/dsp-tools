@@ -11,6 +11,7 @@ from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_one_absolute_i
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_file_values
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_iiif_uri
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_one_value
+from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_segment_values
 from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resources
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
@@ -129,10 +130,10 @@ class TestSegment:
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_video_segment"
-        assert resource.res_type == RES_CLASS
+        assert resource.res_type == f"{KNORA_API_STR}VideoSegment"
         assert resource.label == "lbl"
         assert not resource.permissions_id
-        assert len(resource.values) == 0
+        assert len(resource.values) == 8
         assert not resource.file_value
         assert not resource.migration_metadata
 
@@ -143,12 +144,31 @@ class TestSegment:
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_audio_segment"
-        assert resource.res_type == RES_CLASS
+        assert resource.res_type == f"{KNORA_API_STR}AudioSegment"
         assert resource.label == "lbl"
         assert not resource.permissions_id
-        assert len(resource.values) == 0
+        assert len(resource.values) == 8
         assert not resource.file_value
         assert not resource.migration_metadata
+
+    def test_parse_segment_values(self, resource_audio_segment):
+        values = _parse_segment_values(resource_audio_segment, "Audio")
+        expected = [
+            (f"{KNORA_API_STR}isAudioSegmentOf", KnoraValueType.LINK_VALUE, "target", None, None),
+            (f"{KNORA_API_STR}hasSegmentBounds", KnoraValueType.INTERVAL_VALUE, ("0.1", "0.234"), "open", None),
+            (f"{KNORA_API_STR}hasTitle", KnoraValueType.SIMPLETEXT_VALUE, "Title", None, "Cmt"),
+            (f"{KNORA_API_STR}hasComment", KnoraValueType.RICHTEXT_VALUE, "Comment", None, None),
+            (f"{KNORA_API_STR}hasDescription", KnoraValueType.RICHTEXT_VALUE, "Description 1", None, None),
+            (f"{KNORA_API_STR}hasDescription", KnoraValueType.RICHTEXT_VALUE, "Description 2", None, None),
+            (f"{KNORA_API_STR}hasKeyword", KnoraValueType.SIMPLETEXT_VALUE, "Keyword", None, None),
+            (f"{KNORA_API_STR}relatesTo", KnoraValueType.LINK_VALUE, "relates_to_id", None, None),
+        ]
+        for result, (prop, value_type, content, perm, cmt) in zip(values, expected):
+            assert result.prop_name == prop
+            assert result.value == content
+            assert result.value_type == value_type
+            assert result.permissions_id == perm
+            assert result.comment == cmt
 
 
 class TestParseValues:

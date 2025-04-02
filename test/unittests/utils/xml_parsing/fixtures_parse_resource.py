@@ -135,11 +135,11 @@ def resource_link() -> etree._Element:
 def resource_video_segment() -> etree._Element:
     return etree.fromstring("""
     <video-segment label="lbl" id="resource_video_segment">
-        <isSegmentOf>target_empty_movie</isSegmentOf>
+        <isSegmentOf>target</isSegmentOf>
         <hasSegmentBounds segment_start="0.1" segment_end="0.234"/>
         <hasTitle>Title</hasTitle>
         <hasComment>Comment</hasComment>
-        <hasDescription><Description</hasDescription>
+        <hasDescription>Description</hasDescription>
         <hasKeyword>Keyword 1</hasKeyword>
         <hasKeyword>Keyword 2</hasKeyword>
         <relatesTo>relates_to_id</relatesTo>
@@ -151,13 +151,13 @@ def resource_video_segment() -> etree._Element:
 def resource_audio_segment() -> etree._Element:
     return etree.fromstring("""
     <audio-segment label="lbl" id="resource_audio_segment">
-        <isSegmentOf>target_empty_movie</isSegmentOf>
-        <hasSegmentBounds segment_start="0.1" segment_end="0.234"/>
-        <hasTitle>Title</hasTitle>
+        <isSegmentOf>target</isSegmentOf>
+        <hasSegmentBounds permissions="open" segment_start="0.1" segment_end="0.234"/>
+        <hasTitle comment="Cmt">Title</hasTitle>
         <hasComment>Comment</hasComment>
-        <hasDescription><Description 1</hasDescription>
-        <hasDescription><Description 2</hasDescription>
-        <hasKeyword>Keyword 1</hasKeyword>
+        <hasDescription>Description 1</hasDescription>
+        <hasDescription>Description 2</hasDescription>
+        <hasKeyword>Keyword</hasKeyword>
         <relatesTo>relates_to_id</relatesTo>
     </audio-segment>
     """)

@@ -77,7 +77,7 @@ def _parse_segment(segment: etree._Element, segment_type: str) -> ParsedResource
     migration_metadata = _parse_migration_metadata(segment)
     return ParsedResource(
         res_id=segment.attrib["id"],
-        res_type=f"{KNORA_API_STR}{segment}Segment",
+        res_type=f"{KNORA_API_STR}{segment_type}Segment",
         label=segment.attrib["label"],
         permissions_id=segment.attrib.get("permissions"),
         values=values,

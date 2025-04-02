@@ -23,7 +23,7 @@ def _parse_values(resource: etree._Element, iri_lookup: dict[str, str]) -> list[
     pass
 
 
-def _parse_one_value(value: etree._Element, iri_lookup: dict[str, str]) -> ParsedValue:
+def _parse_one_value(value: etree._Element, iri_lookup: dict[str, str]) -> list[ParsedValue]:
     pass
 
 

@@ -160,8 +160,7 @@ def resource_audio_segment() -> etree._Element:
 def boolean_value_with_metadata() -> etree._Element:
     return etree.fromstring("""
         <boolean-prop name=":hasProp">
-            <boolean comment="Comment on Value">true</boolean>
-             permissions="open"
+            <boolean permissions="open" comment="Comment on Value">true</boolean>
         </boolean-prop>
     """)
 
@@ -195,16 +194,6 @@ def date_value() -> etree._Element:
 
 
 @pytest.fixture
-def date_value_several() -> etree._Element:
-    return etree.fromstring("""
-        <date-prop name=":hasProp">
-            <date>JULIAN:BCE:0700:BCE:0600</date>
-            <date>ISLAMIC:0600:0700</date>
-        </date-prop>
-        """)
-
-
-@pytest.fixture
 def decimal_value() -> etree._Element:
     return etree.fromstring("""
         <decimal-prop name=":hasProp">
@@ -214,22 +203,10 @@ def decimal_value() -> etree._Element:
 
 
 @pytest.fixture
-def decimal_value_several() -> etree._Element:
-    return etree.fromstring("""
-        <decimal-prop name=":hasProp">
-            <decimal>1.0</decimal>
-            <decimal>2.0</decimal>
-        </decimal-prop>
-    """)
-
-
-@pytest.fixture
 def geometry_value() -> etree._Element:
     return etree.fromstring("""
         <geometry-prop name="hasGeometry">
-            <geometry>
-                {}
-            </geometry>
+            <geometry>{}</geometry>
         </geometry-prop>
     """)
 

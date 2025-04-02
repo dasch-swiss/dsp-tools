@@ -105,13 +105,24 @@ def _parse_text_value(values: etree._Element, prop_name: str) -> list[ParsedValu
         parsed_values.append(
             ParsedValue(
                 prop_name=prop_name,
-                value=val.text,
+                value=_get_text_as_string(val.text),
                 value_type=val_type,
                 permissions_id=val.attrib.get("permissions"),
                 comment=val.attrib.get("comment"),
             )
         )
     return parsed_values
+
+
+def _get_text_as_string(value: etree._Element) -> str | None:
+    if len(value):
+        text_list = []
+        if found := value.text:
+            text_list = [found]
+        text_list.extend([etree.tostring(child, encoding="unicode", method="xml") for child in value])
+        return "".join(text_list).strip()
+    else:
+        return value.text
 
 
 def _parse_list_value(values: etree._Element, prop_name: str) -> list[ParsedValue]:

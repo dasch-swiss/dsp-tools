@@ -15,6 +15,7 @@ from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_segment_valu
 from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resources
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedMigrationMetadata
 
 API_URL = "http://url.ch"
 DEFAULT_ONTO_NAMESPACE = f"{API_URL}/ontology/0000/default/v2#"
@@ -48,6 +49,24 @@ class TestParseResource:
         assert len(resource.values) == 0
         assert not resource.file_value
         assert not resource.migration_metadata
+
+    def test_resource_with_migration_data(self, root_no_resources, resource_with_migration_data):
+        root = deepcopy(root_no_resources)
+        root.append(resource_with_migration_data)
+        parsed_res, _ = get_parsed_resources(root, API_URL)
+        assert len(parsed_res) == 1
+        resource = parsed_res.pop(0)
+        assert resource.res_id == "resource_with_migration_data"
+        assert resource.res_type == RES_CLASS
+        assert resource.label == "lbl"
+        assert not resource.permissions_id
+        assert len(resource.values) == 0
+        assert not resource.file_value
+        metadata = resource.migration_metadata
+        assert isinstance(metadata, ParsedMigrationMetadata)
+        assert metadata.iri == "iri"
+        assert metadata.ark == "ark"
+        assert metadata.creation_date == "2019-01-09T15:45:54.502951Z"
 
     def test_with_values(self, root_no_resources, resource_with_values):
         root = deepcopy(root_no_resources)

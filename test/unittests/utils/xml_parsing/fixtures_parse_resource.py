@@ -70,12 +70,12 @@ def resource_with_iiif() -> etree._Element:
 
 
 @pytest.fixture
-def resource_with_migration_metadata() -> etree._Element:
+def resource_with_migration_data() -> etree._Element:
     return etree.fromstring("""
     <resource 
         label="lbl" 
         restype=":Class" 
-        id="resource_with_migration_metadata"
+        id="resource_with_migration_data"
         ark="ark"
         iri="iri"
         creation_date="2019-01-09T15:45:54.502951Z"

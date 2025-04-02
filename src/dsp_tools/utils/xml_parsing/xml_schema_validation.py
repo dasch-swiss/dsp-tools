@@ -34,7 +34,7 @@ def validate_xml_with_schema(xml: etree._Element) -> bool:
     cleaned = transform_into_localnames(xml)
     cleaned = remove_comments_from_element_tree(cleaned)
     _warn_user_about_tags_in_simpletext(cleaned)
-    problem_msg = _validate_xml_against_schema(xml)
+    problem_msg = validate_xml_against_schema(xml)
 
     if problem_msg:
         logger.error(problem_msg)
@@ -43,7 +43,7 @@ def validate_xml_with_schema(xml: etree._Element) -> bool:
     return True
 
 
-def _validate_xml_against_schema(data_xml: etree._Element) -> str | None:
+def validate_xml_against_schema(data_xml: etree._Element) -> str | None:
     schema_res = importlib.resources.files("dsp_tools").joinpath("resources/schema/data.xsd")
     with schema_res.open(encoding="utf-8") as schema_file:
         xmlschema = etree.XMLSchema(etree.parse(schema_file))

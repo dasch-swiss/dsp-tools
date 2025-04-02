@@ -1,7 +1,7 @@
 import datetime
 import json
 import uuid
-from typing import Any, Literal
+from typing import Any
 from typing import Iterable
 
 import regex
@@ -513,43 +513,56 @@ def _find_english_BC_or_CE_date(
     bc_date_regex = rf"(?:{eraless_date_regex} ?{bc_era_regex})"
     ce_era_regex = r"(?:CE|AD|C\.E\.|A\.D\.)"
     ce_date_regex = rf"(?:{eraless_date_regex} ?{ce_era_regex})"
-    bc_or_ce_date_regex = fr"(?:{bc_date_regex}|{ce_date_regex})"
-    
-    def _from_range() -> str:
-        start_raw, end_raw = regex.split(range_operator_regex, string)
+    bc_or_ce_date_regex = rf"(?:{bc_date_regex}|{ce_date_regex})"
 
-        if regex.search(bc_era_regex, end_raw):
-            end_era = "BC"
-        elif regex.search(ce_era_regex, end_raw):
-            end_era = "CE"
-        else:
-            raise ValueError(f"Missing Era in date {string}")
-
-        if regex.search(bc_era_regex, start_raw):
-            start_era = "BC"
-        elif regex.search(ce_era_regex, start_raw):
-            start_era = "CE"
-        else:
-            start_era = end_era
-        
-        if not (start_year_match := regex.search(eraless_date_regex, start_raw)):
-            raise ValueError(f"No start year found in date {string}")
-        if not (end_year_match := regex.search(eraless_date_regex, end_raw)):
-            raise ValueError(f"No end year found in date {string}")
-
-        return f"GREGORIAN:{start_era}:{start_year_match.group(0)}:{end_era}:{end_year_match.group(0)}"
-
-    range_regex = rf"{lookbehind}(?:{bc_or_ce_date_regex}|{eraless_date_regex}){range_operator_regex}{bc_or_ce_date_regex}{lookahead}"
+    range_regex = (
+        rf"{lookbehind}(?:{bc_or_ce_date_regex}|{eraless_date_regex})"
+        rf"{range_operator_regex}"
+        rf"{bc_or_ce_date_regex}{lookahead}"
+    )
     if match := regex.search(range_regex, string):
-        return _from_range()
+        return _from_english_BC_or_CE_range(
+            string=string,
+            range_operator_regex=range_operator_regex,
+            bc_era_regex=bc_era_regex,
+            ce_era_regex=ce_era_regex,
+            eraless_date_regex=eraless_date_regex,
+        )
 
-    if match := regex.search(fr"{lookbehind}{bc_date_regex}{lookahead}", string):
+    if match := regex.search(rf"{lookbehind}{bc_date_regex}{lookahead}", string):
         return f"GREGORIAN:BC:{match.group(1)}:BC:{match.group(1)}"
 
-    if match := regex.search(fr"{lookbehind}{ce_date_regex}{lookahead}", string):
+    if match := regex.search(rf"{lookbehind}{ce_date_regex}{lookahead}", string):
         return f"GREGORIAN:CE:{match.group(1)}:CE:{match.group(1)}"
 
     return None
+
+
+def _from_english_BC_or_CE_range(
+    string: str, range_operator_regex: str, bc_era_regex: str, ce_era_regex: str, eraless_date_regex: str
+) -> str:
+    start_raw, end_raw = regex.split(range_operator_regex, string)
+
+    if regex.search(bc_era_regex, end_raw):
+        end_era = "BC"
+    elif regex.search(ce_era_regex, end_raw):
+        end_era = "CE"
+    else:
+        raise ValueError(f"Missing Era in date {string}")
+
+    if regex.search(bc_era_regex, start_raw):
+        start_era = "BC"
+    elif regex.search(ce_era_regex, start_raw):
+        start_era = "CE"
+    else:
+        start_era = end_era
+
+    if not (start_year_match := regex.search(eraless_date_regex, start_raw)):
+        raise ValueError(f"No start year found in date {string}")
+    if not (end_year_match := regex.search(eraless_date_regex, end_raw)):
+        raise ValueError(f"No end year found in date {string}")
+
+    return f"GREGORIAN:{start_era}:{start_year_match.group(0)}:{end_era}:{end_year_match.group(0)}"
 
 
 def _find_french_bc_date(

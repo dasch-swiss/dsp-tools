@@ -2,12 +2,23 @@ from pathlib import Path
 
 from lxml import etree
 
+from dsp_tools.commands.validate_data.mappers import XML_TAG_TO_VALUE_TYPE_MAPPER
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
+
+SEGMENT_TAG_TO_PROP_MAPPER = {
+    "relatesTo": KnoraValueType.LINK_VALUE,
+    "hasSegmentBounds": KnoraValueType.INTERVAL_VALUE,
+    "hasDescription": KnoraValueType.RICHTEXT_VALUE,
+    "hasTitle": KnoraValueType.SIMPLETEXT_VALUE,
+    "hasKeyword": KnoraValueType.SIMPLETEXT_VALUE,
+    "isSegmentOf": KnoraValueType.LINK_VALUE,  # TODO: remove this and change
+    "hasComment": KnoraValueType.RICHTEXT_VALUE,
+}
 
 
 def get_parsed_resources(root: etree._Element, api_url: str) -> list[ParsedResource]:
@@ -57,8 +68,21 @@ def _parse_values(resource: etree._Element, iri_lookup: dict[str, str]) -> list[
     pass
 
 
-def _parse_one_value(value: etree._Element, iri_lookup: dict[str, str]) -> list[ParsedValue]:
-    pass
+def _parse_one_value(values: etree._Element, iri_lookup: dict[str, str]) -> list[ParsedValue]:
+    prop_iri = iri_lookup[values.attib["name"]]
+    value_type = XML_TAG_TO_VALUE_TYPE_MAPPER[values.tag]
+    parsed_values = []
+    for val in values:
+        parsed_values.append(
+            ParsedValue(
+                prop_name=prop_iri,
+                value=val.text,
+                value_type=value_type,
+                permissions_id=val.attrib.get("permissions"),
+                comment=val.attrib.get("comment"),
+            )
+        )
+    return parsed_values
 
 
 def _parse_file_values(file_value: etree._Element) -> ParsedFileValue:

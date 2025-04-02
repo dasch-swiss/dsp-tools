@@ -34,7 +34,7 @@ class ParsedValue:
 
 @dataclass
 class ParsedFileValue:
-    value: str
+    value: str | None
     value_type: KnoraValueType | None
     metadata: ParsedFileValueMetadata
 

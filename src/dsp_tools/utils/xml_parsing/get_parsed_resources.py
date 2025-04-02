@@ -192,11 +192,15 @@ def _get_text_as_string(value: etree._Element) -> str | None:
 
 
 def _parse_iiif_uri(iiif_uri: etree._Element) -> ParsedFileValue:
-    pass
+    return ParsedFileValue(
+        value=iiif_uri.text, value_type=KnoraValueType.STILL_IMAGE_IIIF, metadata=_parse_file_metadata(iiif_uri)
+    )
 
 
 def _parse_file_values(file_value: etree._Element) -> ParsedFileValue:
-    pass
+    return ParsedFileValue(
+        value=file_value.text, value_type=_get_file_value_type(file_value), metadata=_parse_file_metadata(file_value)
+    )
 
 
 def _parse_file_metadata(file_value: etree._Element) -> ParsedFileValueMetadata:

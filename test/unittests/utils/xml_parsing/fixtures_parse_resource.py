@@ -33,7 +33,7 @@ def minimal_root() -> etree._Element:
 @pytest.fixture
 def resource_no_values() -> etree._Element:
     return etree.fromstring("""
-    <resource label="lbl" restype=":Class" id="one">
+    <resource label="lbl" restype=":Class" id="resource_no_values">
     </resource>
     """)
 
@@ -44,7 +44,7 @@ def resource_empty_permissions() -> etree._Element:
     <resource 
         label="lbl" 
         restype=":Class" 
-        id="one"
+        id="resource_empty_permissions"
         permissions="open"
     >
     </resource>
@@ -54,7 +54,7 @@ def resource_empty_permissions() -> etree._Element:
 @pytest.fixture
 def resource_with_bitstream() -> etree._Element:
     return etree.fromstring("""
-    <resource label="lbl" restype=":Class" id="one">
+    <resource label="lbl" restype=":Class" id="resource_with_bitstream">
         <bitstream>
             testdata/bitstreams/test.wav
         </bitstream>
@@ -68,7 +68,7 @@ def resource_with_migration_metadata() -> etree._Element:
     <resource 
         label="lbl" 
         restype=":Class" 
-        id="one"
+        id="resource_with_migration_metadata"
         ark="ark"
         iri="iri"
         creation_date="2019-01-09T15:45:54.502951Z"
@@ -80,7 +80,7 @@ def resource_with_migration_metadata() -> etree._Element:
 @pytest.fixture
 def resource_with_values() -> etree._Element:
     return etree.fromstring("""
-        <resource label="lbl" restype=":Class" id="one">
+        <resource label="lbl" restype=":Class" id="resource_with_values">
             <boolean-prop name=":hasProp">
                 <boolean>true</boolean>
             </boolean-prop>
@@ -94,7 +94,7 @@ def resource_with_values() -> etree._Element:
 @pytest.fixture
 def resource_region() -> etree._Element:
     return etree.fromstring("""
-    <region label="Region" id="region_with_comment">
+    <region label="lbl" id="resource_region">
         <color-prop name="hasColor">
             <color>#5d1f1e</color>
         </color-prop>
@@ -116,7 +116,7 @@ def resource_region() -> etree._Element:
 @pytest.fixture
 def resource_link() -> etree._Element:
     return etree.fromstring("""
-    <link label="value with permissions" id="value_with_permissions">
+    <link label="lbl" id="resource_link">
         <resptr-prop name="hasLinkTo">
             <resptr permissions="open">target</resptr>
         </resptr-prop>
@@ -127,7 +127,7 @@ def resource_link() -> etree._Element:
 @pytest.fixture
 def resource_video_segment() -> etree._Element:
     return etree.fromstring("""
-    <video-segment label="Video Segment with all possible values" id="video_segment_all_values">
+    <video-segment label="lbl" id="resource_video_segment">
         <isSegmentOf>target_empty_movie</isSegmentOf>
         <hasSegmentBounds segment_start="0.1" segment_end="0.234"/>
         <hasTitle>Title</hasTitle>
@@ -143,7 +143,7 @@ def resource_video_segment() -> etree._Element:
 @pytest.fixture
 def resource_audio_segment() -> etree._Element:
     return etree.fromstring("""
-    <audio-segment label="Audio Segment with all possible values" id="audio_segment_all_values">
+    <audio-segment label="lbl" id="resource_audio_segment">
         <isSegmentOf>target_empty_movie</isSegmentOf>
         <hasSegmentBounds segment_start="0.1" segment_end="0.234"/>
         <hasTitle>Title</hasTitle>

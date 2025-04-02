@@ -10,6 +10,7 @@ from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_file_value_typ
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_one_absolute_iri
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_file_values
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_one_value
+from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resources
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 
 API_URL = "http://url.ch"
@@ -33,6 +34,16 @@ class TestParseResource:
     def test_empty(self, root_no_resources, resource_no_values):
         root = deepcopy(root_no_resources)
         root.append(resource_no_values)
+        parsed_res = get_parsed_resources(root, API_URL)
+        assert len(parsed_res) == 1
+        resource = parsed_res.pop(0)
+        assert resource.res_id == ""
+        assert resource.res_type == RES_CLASS
+        assert resource.label == "lbl"
+        assert not resource.permissions_id
+        assert len(resource.values) == 0
+        assert not resource.file_value
+        assert not resource.migration_metadata
 
     def test_with_values(self, root_no_resources, resource_with_values):
         root = deepcopy(root_no_resources)

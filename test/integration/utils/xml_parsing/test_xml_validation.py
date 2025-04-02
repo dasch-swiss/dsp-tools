@@ -1,7 +1,7 @@
 import pytest
 import regex
 
-from dsp_tools.error.custom_warnings import DspToolsUserWarning
+from dsp_tools.error.custom_warnings import DspToolsUserInfo
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.xml_parsing.xml_schema_validation import parse_and_validate_xml_file
 
@@ -34,7 +34,7 @@ def test_validate_xml_invalid_resource_tag_problem() -> None:
         "    - line 15: resource 'the_only_resource', property ':test'\n"
         "    - line 16: resource 'the_only_resource', property ':test'",
     )
-    with pytest.warns(DspToolsUserWarning, match=expected_msg):
+    with pytest.warns(DspToolsUserInfo, match=expected_msg):
         parse_and_validate_xml_file(input_file="testdata/invalid-testdata/xml-data/utf8-text-with-xml-tags.xml")
 
 

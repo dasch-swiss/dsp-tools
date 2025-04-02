@@ -19,7 +19,7 @@ from dsp_tools.commands.validate_data.query_validation_result import _extract_ba
 from dsp_tools.commands.validate_data.query_validation_result import reformat_validation_graph
 from dsp_tools.commands.validate_data.validate_data import _get_parsed_graphs
 from dsp_tools.commands.validate_data.validate_data import _get_validation_result
-from dsp_tools.error.custom_warnings import DspToolsUserWarning
+from dsp_tools.error.custom_warnings import DspToolsUserInfo
 from test.e2e.setup_testcontainers.ports import ExternalContainerPorts
 from test.e2e.setup_testcontainers.setup import get_containers
 
@@ -106,7 +106,7 @@ def value_type_violation(
 ) -> ValidationReportGraphs:
     file = Path("testdata/validate-data/generic/value_type_violation.xml")
     match = r"Angular brackets in the format of <text> were found in text properties with encoding=utf8"
-    with pytest.warns(DspToolsUserWarning, match=match):
+    with pytest.warns(DspToolsUserInfo, match=match):
         graphs = _get_parsed_graphs(api_url, file)
     return _get_validation_result(graphs, shacl_validator, None)
 

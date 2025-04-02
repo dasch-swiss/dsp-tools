@@ -1,5 +1,41 @@
 # Changelog
 
+## [12.1.0](https://github.com/dasch-swiss/dsp-tools/compare/v12.0.0...v12.1.0) (2025-04-02)
+
+
+### Enhancements
+
+* **xmllib:** use UUID for authorship ID instead of number (DEV-4739) ([#1584](https://github.com/dasch-swiss/dsp-tools/issues/1584)) ([7b8fa4a](https://github.com/dasch-swiss/dsp-tools/commit/7b8fa4a985a2734d50fb81b21d8a8d3eec83f9bd))
+
+
+### Bug Fixes
+
+* **xmlupload:** add comment on value to shashed links and texts (DEV-4730) ([#1573](https://github.com/dasch-swiss/dsp-tools/issues/1573)) ([3670754](https://github.com/dasch-swiss/dsp-tools/commit/36707542761cf7f9d1a7683f73512315ae869b39))
+
+
+### Maintenance
+
+* bump start-stack to 2025.04.01 ([#1583](https://github.com/dasch-swiss/dsp-tools/issues/1583)) ([794b842](https://github.com/dasch-swiss/dsp-tools/commit/794b842fcf26e2546fd64394bf8e2e06c16a65bd))
+* delete dead code ([#1577](https://github.com/dasch-swiss/dsp-tools/issues/1577)) ([0205c59](https://github.com/dasch-swiss/dsp-tools/commit/0205c5958f6117929c7c4ec16da403c01f5ce352))
+* move rdflib constants to one file ([#1589](https://github.com/dasch-swiss/dsp-tools/issues/1589)) ([78070eb](https://github.com/dasch-swiss/dsp-tools/commit/78070eb56263392124fcbaefb5ba82a2422c8b25))
+* optimise `just clean` ([#1570](https://github.com/dasch-swiss/dsp-tools/issues/1570)) ([8347fe3](https://github.com/dasch-swiss/dsp-tools/commit/8347fe30dcbb76f986c0041671a518846ac5ac0c))
+* **test:** Use real iris in xmlupload integration tests ([#1582](https://github.com/dasch-swiss/dsp-tools/issues/1582)) ([634a8b4](https://github.com/dasch-swiss/dsp-tools/commit/634a8b49c8df5881e2c02eb4da2cd37784882987))
+* **xmlupload:** add option to use own value IRI in graph ([#1575](https://github.com/dasch-swiss/dsp-tools/issues/1575)) ([cf1927b](https://github.com/dasch-swiss/dsp-tools/commit/cf1927b1a57a667e76b079d882eb6f8294abe635))
+* **xmlupload:** change order of code ([#1574](https://github.com/dasch-swiss/dsp-tools/issues/1574)) ([5b7d657](https://github.com/dasch-swiss/dsp-tools/commit/5b7d6577a67cbb96cbfabb4d7edac6923a6f53eb))
+* **xmlupload:** create minimal XML parsing and validation function ([#1590](https://github.com/dasch-swiss/dsp-tools/issues/1590)) ([b0f51d6](https://github.com/dasch-swiss/dsp-tools/commit/b0f51d6db62dd57a7bb78436712510b4bc61f29d))
+* **xmlupload:** extract json-ld serialisation ([#1580](https://github.com/dasch-swiss/dsp-tools/issues/1580)) ([b961d9c](https://github.com/dasch-swiss/dsp-tools/commit/b961d9c6cd1f1ade6c576805b5270d534a817387))
+* **xmlupload:** integrate create upload order from `ResourceIntermediary` ([#1550](https://github.com/dasch-swiss/dsp-tools/issues/1550)) ([b279e68](https://github.com/dasch-swiss/dsp-tools/commit/b279e689b9ec0903daa34ff153f260cc5b7c1364))
+* **xmlupload:** move resolve ID to IRI outside of function when creating a `LinkValue` ([#1581](https://github.com/dasch-swiss/dsp-tools/issues/1581)) ([aed3ff2](https://github.com/dasch-swiss/dsp-tools/commit/aed3ff2c5a4cbc00e3e415d731f82df6c53568e4))
+* **xmlupload:** remove old code and rename files ([#1572](https://github.com/dasch-swiss/dsp-tools/issues/1572)) ([cbd14de](https://github.com/dasch-swiss/dsp-tools/commit/cbd14de69c85c24f1cad522f69a28811a6c45f6c))
+* **xmlupload:** remove redundant `JsonldContext` ([#1586](https://github.com/dasch-swiss/dsp-tools/issues/1586)) ([2827881](https://github.com/dasch-swiss/dsp-tools/commit/2827881211018a627caf5f38e2c2fc98c4480e88))
+* **xmlupload:** serialise `LinkValueStashItem` with rdflib ([#1579](https://github.com/dasch-swiss/dsp-tools/issues/1579)) ([041c6c3](https://github.com/dasch-swiss/dsp-tools/commit/041c6c3e7db6d8e4ed456b67e06791ba5dc4842e))
+* **xmlupload:** serialise `StandoffStashItem` with rdflib ([#1576](https://github.com/dasch-swiss/dsp-tools/issues/1576)) ([53de9d4](https://github.com/dasch-swiss/dsp-tools/commit/53de9d4a8c12b59443387fcc0a366b20d28dce1b))
+
+
+### Documentation
+
+* create architectural design record ([#1587](https://github.com/dasch-swiss/dsp-tools/issues/1587)) ([5546dcf](https://github.com/dasch-swiss/dsp-tools/commit/5546dcfd92e7c73246472ac455755bab156d25b5))
+
 ## [12.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v11.0.0...v12.0.0) (2025-03-26)
 
 

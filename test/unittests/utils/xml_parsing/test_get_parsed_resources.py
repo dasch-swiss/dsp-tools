@@ -6,6 +6,7 @@ import pytest
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _create_from_local_name_to_absolute_iri_lookup
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_one_absolute_iri
+from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_file_values
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_one_value
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 
@@ -231,7 +232,41 @@ class TestParseValues:
 
 
 class TestParseFileValues:
-    pass
+    def test_iiif_no_legal_info(self, iiif_no_legal_info):
+        val = _parse_file_values(iiif_no_legal_info)
+        assert val.value == "https://iiif.uri/full.jpg"
+        assert val.value_type == KnoraValueType.STILL_IMAGE_IIIF
+        assert not val.metadata.license_iri
+        assert not val.metadata.copyright_holder
+        assert not val.metadata.authorship_id
+        assert not val.metadata.permissions_id
+
+    def test_iiif_with_legal_info(self, iiif_with_legal_info):
+        val = _parse_file_values(iiif_with_legal_info)
+        assert val.value == "https://iiif.uri/full.jpg"
+        assert val.value_type == KnoraValueType.STILL_IMAGE_IIIF
+        assert val.metadata.license_iri == "license_iri"
+        assert val.metadata.copyright_holder == "copy"
+        assert val.metadata.authorship_id == "auth"
+        assert not val.metadata.permissions_id
+
+    def test_bitstream_with_permissions(self, bitstream_with_permissions):
+        val = _parse_file_values(bitstream_with_permissions)
+        assert val.value == "this/is/filepath/file.z"
+        assert val.value_type == KnoraValueType.ARCHIVE_FILE
+        assert not val.metadata.license_iri
+        assert not val.metadata.copyright_holder
+        assert not val.metadata.authorship_id
+        assert val.metadata.permissions_id == "open"
+
+    def test_bitstream_with_legal_info(self, bitstream_with_legal_info):
+        val = _parse_file_values(bitstream_with_legal_info)
+        assert val.value == "this/is/filepath/file.z"
+        assert val.value_type == KnoraValueType.ARCHIVE_FILE
+        assert val.metadata.license_iri == "http://rdfh.ch/licenses/unknown"
+        assert val.metadata.copyright_holder == "DaSCH"
+        assert val.metadata.authorship_id == "authorship_1"
+        assert not val.metadata.permissions_id
 
 
 def test_create_from_local_name_to_absolute_iri_lookup(minimal_root):

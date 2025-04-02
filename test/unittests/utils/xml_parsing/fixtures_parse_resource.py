@@ -303,11 +303,9 @@ def uri_value() -> etree._Element:
 
 
 @pytest.fixture
-def iiif_with_spaces() -> etree._Element:
+def iiif_no_legal_info() -> etree._Element:
     return etree.fromstring("""
-        <iiif-uri>
-            https://iiif.uri/full.jpg
-        </iiif-uri>
+        <iiif-uri>https://iiif.uri/full.jpg</iiif-uri>
     """)
 
 
@@ -324,11 +322,9 @@ def iiif_with_legal_info() -> etree._Element:
 
 
 @pytest.fixture
-def bitstream_with_spaces() -> etree._Element:
+def bitstream_with_permissions() -> etree._Element:
     return etree.fromstring("""
-        <bitstream permissions="open">
-            this/is/filepath/file.z
-        </bitstream>
+        <bitstream permissions="open">this/is/filepath/file.z</bitstream>
     """)
 
 

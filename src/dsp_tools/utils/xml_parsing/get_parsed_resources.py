@@ -46,8 +46,8 @@ def _create_from_local_name_to_absolute_iri_lookup(root: etree._Element, api_url
     local_names = [ele.attrib["restype"] for ele in root.iterdescendants(tag="resource")]
     props = [ele.attrib["name"] for ele in root.iter() if "name" in ele.attrib]
     local_names.extend(props)
-    local_names = set(local_names)
-    lookup = {local: _get_one_absolute_iri(local, shortcode, default_ontology, api_url) for local in local_names}
+    unique_local_names = set(local_names)
+    lookup = {local: _get_one_absolute_iri(local, shortcode, default_ontology, api_url) for local in unique_local_names}
     return lookup
 
 
@@ -87,6 +87,7 @@ def _parse_segment(segment: etree._Element, segment_type: str) -> ParsedResource
 
 def _parse_segment_values(segment: etree._Element, segment_type: str) -> list[ParsedValue]:
     values = []
+    value: str | tuple[str | None, str | None] | None
     for val in segment.iterchildren():
         match val.tag:
             case "isSegmentOf":
@@ -96,10 +97,10 @@ def _parse_segment_values(segment: etree._Element, segment_type: str) -> list[Pa
             case "hasSegmentBounds":
                 val_type = KnoraValueType.INTERVAL_VALUE
                 prop = f"{KNORA_API_STR}hasSegmentBounds"
-                value = (val.attrib["segment_start"], val.attrib["segment_end"])
+                value = (val.attrib.get("segment_start"), val.attrib.get("segment_end"))
             case _:
-                val_type = SEGMENT_TAG_TO_PROP_MAPPER[val.tag]
-                prop = f"{KNORA_API_STR}{val.tag}"
+                val_type = SEGMENT_TAG_TO_PROP_MAPPER[str(val.tag)]
+                prop = f"{KNORA_API_STR}{val.tag!s}"
                 value = _get_text_as_string(val)
         values.append(
             ParsedValue(
@@ -166,7 +167,7 @@ def _parse_one_value(values: etree._Element, iri_lookup: dict[str, str]) -> list
 
 
 def _parse_generic_values(values: etree._Element, prop_name: str) -> list[ParsedValue]:
-    value_type = XML_TAG_TO_VALUE_TYPE_MAPPER[values.tag]
+    value_type = XML_TAG_TO_VALUE_TYPE_MAPPER[str(values.tag)]
     parsed_values = []
     for val in values:
         parsed_values.append(

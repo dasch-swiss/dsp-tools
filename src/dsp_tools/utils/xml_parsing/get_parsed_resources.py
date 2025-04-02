@@ -105,7 +105,7 @@ def _parse_text_value(values: etree._Element, prop_name: str) -> list[ParsedValu
         parsed_values.append(
             ParsedValue(
                 prop_name=prop_name,
-                value=_get_text_as_string(val.text),
+                value=_get_text_as_string(val),
                 value_type=val_type,
                 permissions_id=val.attrib.get("permissions"),
                 comment=val.attrib.get("comment"),

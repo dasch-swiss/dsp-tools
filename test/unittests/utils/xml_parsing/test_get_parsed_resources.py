@@ -5,6 +5,7 @@ import pytest
 
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _create_from_local_name_to_absolute_iri_lookup
+from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_file_value_type
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_one_absolute_iri
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_file_values
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_one_value
@@ -267,6 +268,43 @@ class TestParseFileValues:
         assert val.metadata.copyright_holder == "DaSCH"
         assert val.metadata.authorship_id == "authorship_1"
         assert not val.metadata.permissions_id
+
+
+class TestFileTypeInfo:
+    @pytest.mark.parametrize(
+        "file_name", ["test.zip", "test.tar", "test.gz", "test.z", "test.tgz", "test.gzip", "test.7z"]
+    )
+    def test_archive(self, file_name: str):
+        assert _get_file_value_type(file_name) == KnoraValueType.ARCHIVE_FILE
+
+    @pytest.mark.parametrize("file_name", ["test.mp3", "test.wav"])
+    def test_audio(self, file_name: str):
+        assert _get_file_value_type(file_name) == KnoraValueType.AUDIO_FILE
+
+    @pytest.mark.parametrize(
+        "file_name", ["test.pdf", "test.DOC", "test.docx", "test.xls", "test.xlsx", "test.ppt", "test.pptx"]
+    )
+    def test_document(self, file_name: str):
+        assert _get_file_value_type(file_name) == KnoraValueType.DOCUMENT_FILE
+
+    def test_moving_image(self):
+        assert _get_file_value_type("test.mp4") == KnoraValueType.MOVING_IMAGE_FILE
+
+    @pytest.mark.parametrize(
+        "file_name", ["test.jpg", "test.jpeg", "path/test.jp2", "test.png", "test.tif", "test.tiff", "test.jpx"]
+    )
+    def test_still_image(self, file_name: str):
+        assert _get_file_value_type(file_name) == KnoraValueType.STILL_IMAGE_FILE
+
+    @pytest.mark.parametrize(
+        "file_name",
+        ["path/test.odd", "test.rng", "test.txt", "test.xml", "test.xsd", "test.xsl", "test.csv", "test.json"],
+    )
+    def test_text(self, file_name: str):
+        assert _get_file_value_type(file_name) == KnoraValueType.TEXT_FILE
+
+    def test_unknown(self):
+        assert not _get_file_value_type("file.unknown")
 
 
 def test_create_from_local_name_to_absolute_iri_lookup(minimal_root):

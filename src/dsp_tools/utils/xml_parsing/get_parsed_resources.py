@@ -69,13 +69,23 @@ def _parse_values(resource: etree._Element, iri_lookup: dict[str, str]) -> list[
 
 
 def _parse_one_value(values: etree._Element, iri_lookup: dict[str, str]) -> list[ParsedValue]:
-    prop_iri = iri_lookup[values.attib["name"]]
+    prop_name = iri_lookup[values.attrib["name"]]
+    match values.tag:
+        case "text-prop":
+            return _parse_text_value(values, prop_name)
+        case "list-prop":
+            return _parse_list_value(values, prop_name)
+        case _:
+            return _parse_generic_values(values, prop_name)
+
+
+def _parse_generic_values(values: etree._Element, prop_name: str):
     value_type = XML_TAG_TO_VALUE_TYPE_MAPPER[values.tag]
     parsed_values = []
     for val in values:
         parsed_values.append(
             ParsedValue(
-                prop_name=prop_iri,
+                prop_name=prop_name,
                 value=val.text,
                 value_type=value_type,
                 permissions_id=val.attrib.get("permissions"),
@@ -83,6 +93,14 @@ def _parse_one_value(values: etree._Element, iri_lookup: dict[str, str]) -> list
             )
         )
     return parsed_values
+
+
+def _parse_text_value(values: etree._Element, prop_name: str) -> list[ParsedValue]:
+    pass
+
+
+def _parse_list_value(values: etree._Element, prop_name: str) -> list[ParsedValue]:
+    pass
 
 
 def _parse_file_values(file_value: etree._Element) -> ParsedFileValue:

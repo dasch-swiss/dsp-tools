@@ -9,6 +9,7 @@ from dsp_tools.utils.xml_parsing.get_parsed_resources import _create_from_local_
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_file_value_type
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_one_absolute_iri
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_file_values
+from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_iiif_uri
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _parse_one_value
 from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resources
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
@@ -411,7 +412,7 @@ class TestParseFileValues:
         xml_val = etree.fromstring("""
         <iiif-uri>https://iiif.uri/full.jpg</iiif-uri>
         """)
-        val = _parse_file_values(xml_val)
+        val = _parse_iiif_uri(xml_val)
         assert val.value == "https://iiif.uri/full.jpg"
         assert val.value_type == KnoraValueType.STILL_IMAGE_IIIF
         assert not val.metadata.license_iri
@@ -428,7 +429,7 @@ class TestParseFileValues:
             https://iiif.uri/full.jpg
         </iiif-uri>
         """)
-        val = _parse_file_values(xml_val)
+        val = _parse_iiif_uri(xml_val)
         assert val.value == "https://iiif.uri/full.jpg"
         assert val.value_type == KnoraValueType.STILL_IMAGE_IIIF
         assert val.metadata.license_iri == "license_iri"

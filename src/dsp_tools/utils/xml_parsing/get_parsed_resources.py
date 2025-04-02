@@ -193,18 +193,27 @@ def _get_text_as_string(value: etree._Element) -> str | None:
 
 def _parse_iiif_uri(iiif_uri: etree._Element) -> ParsedFileValue:
     return ParsedFileValue(
-        value=iiif_uri.text, value_type=KnoraValueType.STILL_IMAGE_IIIF, metadata=_parse_file_metadata(iiif_uri)
+        value=iiif_uri.text,
+        value_type=KnoraValueType.STILL_IMAGE_IIIF,
+        metadata=_parse_file_metadata(iiif_uri),
     )
 
 
 def _parse_file_values(file_value: etree._Element) -> ParsedFileValue:
     return ParsedFileValue(
-        value=file_value.text, value_type=_get_file_value_type(file_value), metadata=_parse_file_metadata(file_value)
+        value=file_value.text,
+        value_type=_get_file_value_type(file_value),
+        metadata=_parse_file_metadata(file_value),
     )
 
 
 def _parse_file_metadata(file_value: etree._Element) -> ParsedFileValueMetadata:
-    pass
+    return ParsedFileValueMetadata(
+        license_iri=file_value.attrib.get("license"),
+        copyright_holder=file_value.attrib.get("copyright-holder"),
+        authorship_id=file_value.attrib.get("authorship-id"),
+        permissions_id=file_value.attrib.get("permissions"),
+    )
 
 
 def _get_file_value_type(file_name: str) -> KnoraValueType | None:  # noqa:PLR0911 (Too many return statements)

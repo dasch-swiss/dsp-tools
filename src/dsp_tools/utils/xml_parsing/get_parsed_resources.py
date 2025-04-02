@@ -96,11 +96,23 @@ def _parse_generic_values(values: etree._Element, prop_name: str):
 
 
 def _parse_text_value(values: etree._Element, prop_name: str) -> list[ParsedValue]:
-    pass
+    parsed_values = []
 
 
 def _parse_list_value(values: etree._Element, prop_name: str) -> list[ParsedValue]:
-    pass
+    parsed_values = []
+    list_name = values.attrib["list"]
+    for val in values:
+        parsed_values.append(
+            ParsedValue(
+                prop_name=prop_name,
+                value=(list_name, val.text),
+                value_type=KnoraValueType.LIST_VALUE,
+                permissions_id=val.attrib.get("permissions"),
+                comment=val.attrib.get("comment"),
+            )
+        )
+    return parsed_values
 
 
 def _parse_file_values(file_value: etree._Element) -> ParsedFileValue:

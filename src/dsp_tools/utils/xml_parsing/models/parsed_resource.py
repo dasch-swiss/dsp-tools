@@ -26,7 +26,7 @@ class ParsedMigrationMetadata:
 @dataclass
 class ParsedValue:
     prop_name: str
-    value: str | tuple[str, str] | None
+    value: str | tuple[str, str | None] | None
     value_type: KnoraValueType
     permissions_id: str | None
     comment: str | None

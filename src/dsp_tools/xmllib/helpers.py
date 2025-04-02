@@ -476,7 +476,7 @@ def _find_date_in_string_raising(string: str) -> str | None:
     german_monthname_date = regex.search(german_monthname_date_regex, string)
 
     # template: 1849/50 | 1849-50 | 1849/1850
-    year_range = regex.search(lookbehind + year_regex + fr"{range_operator_regex}(\d{1,4})" + lookahead, string)
+    year_range = regex.search(lookbehind + year_regex + r"[/-](\d{1,4})" + lookahead, string)
 
     # template: 1907
     year_only = regex.search(rf"{lookbehind}{year_regex}{lookahead}", string)

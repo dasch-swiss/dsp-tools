@@ -173,9 +173,9 @@ def _analyze_img_resources(img_resources: str) -> None:
     assert next(g.objects(file_2_iri, KNORA_API.hasAuthorship)) == Literal("Cavanagh, Annie")
     assert next(g.objects(file_2_iri, KNORA_API.hasCopyrightHolder)) == Literal("Wellcome Collection")
     assert next(g.objects(file_2_iri, KNORA_API.hasLicense)) == URIRef("http://rdfh.ch/licenses/cc-by-nc-4.0")
-    val_with_comment = next(g.subjects(object=Literal("first text value")))
+    val_with_comment = next(g.subjects(KNORA_API.valueAsString, Literal("first text value")))
     assert next(g.objects(val_with_comment, KNORA_API.valueHasComment)) == Literal("Comment")
-    val_with_perm = next(g.subjects(object=Literal("second text value")))
+    val_with_perm = next(g.subjects(KNORA_API.valueAsString, Literal("second text value")))
     assert next(g.objects(val_with_perm, KNORA_API.hasPermissions)) == open_permissions
 
 

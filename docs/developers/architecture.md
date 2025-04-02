@@ -79,15 +79,15 @@ r4-->transpy
     state transpy {
         resetree1-->transval: extract values
         resetree1-->transfile: extract file or iiif
-        resetree1-->respars: transform special tags<br/><br/>map prefixes into absolute IRIs
+        resetree1-->respars: transform special tags<br/><br/>resolve prefixes into absolute IRIs
 
         state transval {
-            valtree-->valpars: transform special tags<br/><br/>map prefixes into absolute IRIs<br/><br/>map value type to Python Class
+            valtree-->valpars: transform special tags<br/><br/>resolve prefixes into absolute IRIs<br/><br/>resolve value type to Python Class
         }
         transval-->respars: add to resource
 
         state transfile {
-            filetree-->filepars: map file type
+            filetree-->filepars: resolve file type
         }
         transfile-->respars: add to resource
     }
@@ -116,18 +116,18 @@ parsedres-->transformfile
 parsedres-->transfomrationval
 parsedres-->transformres
 state transformres {
-    ParsedResource-->Permissions: map permissions
+    ParsedResource-->Permissions: resolve permissions
 }
 state transfomrationval {
-    parsedval-->valdes: map permissions<br/><br/>map listnodes to IRIs
+    parsedval-->valdes: resolve permissions<br/><br/>resolve listnodes to IRIs
 }
 state transformfile {
-    ParsedFileValue-->IntermediaryFileValue: map permissions<br/><br/>map metadata
+    ParsedFileValue-->IntermediaryFileValue: resolve permissions<br/><br/>resolve metadata
 }
 transformres-->coll: return result
 transformfile-->coll: return result
 transfomrationval-->coll: return result
-coll-->ResourceInputConversionFailure: mapping errors
+coll-->ResourceInputConversionFailure: resolveping errors
 ResourceInputConversionFailure-->[*]
 coll-->IntermediaryResource: successful transformations
 ```

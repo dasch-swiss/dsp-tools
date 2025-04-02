@@ -95,7 +95,7 @@ def _parse_segment_values(segment: etree._Element, segment_type: str) -> list[Pa
                 prop = f"{KNORA_API_STR}is{segment_type}SegmentOf"
                 value = val.text
             case "hasSegmentBounds":
-                val_type = KnoraValueType.LINK_VALUE
+                val_type = KnoraValueType.INTERVAL_VALUE
                 prop = f"{KNORA_API_STR}hasSegmentBounds"
                 value = (val.attrib["segment_start"], val.attrib["segment_end"])
             case _:

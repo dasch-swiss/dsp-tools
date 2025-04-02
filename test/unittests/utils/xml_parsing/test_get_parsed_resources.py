@@ -422,12 +422,10 @@ class TestParseFileValues:
 
     def test_iiif_with_legal_info(self):
         xml_val = etree.fromstring("""
-        <iiif-uri
-         license="license_iri"
+        <iiif-uri license="license_iri"
                   copyright-holder="copy"
-                  authorship-id="auth">
-            https://iiif.uri/full.jpg
-        </iiif-uri>
+                  authorship-id="auth"
+        >https://iiif.uri/full.jpg</iiif-uri>
         """)
         val = _parse_iiif_uri(xml_val)
         assert val.value == "https://iiif.uri/full.jpg"
@@ -500,6 +498,9 @@ class TestFileTypeInfo:
 
     def test_unknown(self):
         assert not _get_file_value_type("file.unknown")
+
+    def test_none(self):
+        assert not _get_file_value_type(None)
 
 
 def test_create_from_local_name_to_absolute_iri_lookup(minimal_root):

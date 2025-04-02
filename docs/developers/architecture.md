@@ -125,8 +125,8 @@ state transformfile {
     ParsedFileValue-->IntermediaryFileValue: resolve permissions<br/><br/>resolve metadata
 }
 transformres-->coll: return result
-transformfile-->coll: return result
 transfomrationval-->coll: return result
+transformfile-->coll: return result
 coll-->ResourceInputConversionFailure: resolveping errors
 ResourceInputConversionFailure-->[*]
 coll-->IntermediaryResource: successful transformations

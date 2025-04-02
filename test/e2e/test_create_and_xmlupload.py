@@ -1,3 +1,4 @@
+import json
 import urllib.parse
 from pathlib import Path
 from typing import Any
@@ -5,10 +6,16 @@ from typing import Iterator
 
 import pytest
 import requests
+from rdflib import RDF
+from rdflib import RDFS
+from rdflib import Graph
+from rdflib import Literal
+from rdflib import URIRef
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
+from dsp_tools.utils.rdflib_constants import KNORA_API
 from test.e2e.setup_testcontainers.ports import ExternalContainerPorts
 from test.e2e.setup_testcontainers.setup import get_containers
 
@@ -88,7 +95,7 @@ def test_xmlupload(auth_header: dict[str, str], project_iri: str, creds: ServerC
 @pytest.mark.usefixtures("_xmlupload")
 def test_all_copyright_holders(auth_header: dict[str, str], creds: ServerCredentials) -> None:
     response = _get_copyright_holders(auth_header, creds)
-    assert response["data"] == ["DaSCH"]
+    assert set(response["data"]) == {"DaSCH", "Wellcome Collection"}
 
 
 def _get_copyright_holders(auth_header: dict[str, str], creds: ServerCredentials) -> dict[str, Any]:
@@ -132,35 +139,56 @@ def _check_resclasses(resclasses: list[dict[str, Any]]) -> None:
     assert res_2["rdfs:label"] == "PDF Resource"
 
 
-def _get_resources(
-    resclass_iri: str, auth_header: dict[str, str], project_iri: str, creds: ServerCredentials
-) -> list[dict[str, Any]]:
+def _get_resources(resclass_iri: str, auth_header: dict[str, str], project_iri: str, creds: ServerCredentials) -> str:
     resclass_iri_encoded = urllib.parse.quote_plus(resclass_iri)
     get_resources_route = f"{creds.server}/v2/resources?resourceClass={resclass_iri_encoded}&page=0"
     headers = auth_header | {"X-Knora-Accept-Project": project_iri}
     response = requests.get(get_resources_route, timeout=3, headers=headers).json()
-    resources: list[dict[str, Any]] = response.get("@graph", [response])
+    resources = json.dumps(response)
     return resources
 
 
-def _analyze_img_resources(img_resources: list[dict[str, Any]]) -> None:
-    res_labels = sorted([res["rdfs:label"] for res in img_resources])
-    assert res_labels == ["Resource 1", "Resource 2"]
+def _analyze_img_resources(img_resources: str) -> None:
+    g = Graph()
+    g.parse(data=img_resources, format="json-ld")
+    open_permissions = Literal(
+        "CR knora-admin:ProjectAdmin|D knora-admin:ProjectMember|V knora-admin:KnownUser,knora-admin:UnknownUser"
+    )
 
-    res_1 = next(res for res in img_resources if res["rdfs:label"] == "Resource 1")
-    file_val = res_1["knora-api:hasStillImageFileValue"]
-    assert file_val["knora-api:hasAuthorship"] == "Johannes Nussbaum"
-    assert file_val["knora-api:hasCopyrightHolder"] == "DaSCH"
-    assert file_val["knora-api:hasLicense"]["@id"] == "http://rdfh.ch/licenses/cc-by-4.0"
+    labels = {str(x) for x in g.objects(predicate=RDFS.label)}
+    assert labels == {"Resource 1", "Resource 2"}
 
-    res_2 = next(res for res in img_resources if res["rdfs:label"] == "Resource 2")
-    assert res_2.get("knora-api:hasStillImageFileValue")
-    res_2_text_vals = sorted([x["knora-api:valueAsString"] for x in res_2[f"{ONTO_NAME}:hasText"]])
-    assert res_2_text_vals == ["first text value", "second text value"]
+    res_1_iri = next(g.subjects(RDFS.label, Literal("Resource 1")))
+    assert next(g.objects(res_1_iri, KNORA_API.hasPermissions)) == open_permissions
+    file_1_iri = next(g.objects(res_1_iri, KNORA_API.hasStillImageFileValue))
+    assert next(g.objects(file_1_iri, RDF.type)) == KNORA_API.StillImageFileValue
+    assert next(g.objects(file_1_iri, KNORA_API.hasAuthorship)) == Literal("Johannes Nussbaum")
+    assert next(g.objects(file_1_iri, KNORA_API.hasCopyrightHolder)) == Literal("DaSCH")
+    assert next(g.objects(file_1_iri, KNORA_API.hasLicense)) == URIRef("http://rdfh.ch/licenses/cc-by-4.0")
+
+    res_2_iri = next(g.subjects(RDFS.label, Literal("Resource 2")))
+    file_2_iri = next(g.objects(res_2_iri, KNORA_API.hasStillImageFileValue))
+    assert next(g.objects(file_2_iri, RDF.type)) == KNORA_API.StillImageExternalFileValue
+    assert next(g.objects(file_2_iri, KNORA_API.hasPermissions)) == open_permissions
+    assert next(g.objects(file_2_iri, KNORA_API.hasAuthorship)) == Literal("Cavanagh, Annie")
+    assert next(g.objects(file_2_iri, KNORA_API.hasCopyrightHolder)) == Literal("Wellcome Collection")
+    assert next(g.objects(file_2_iri, KNORA_API.hasLicense)) == URIRef("http://rdfh.ch/licenses/cc-by-nc-4.0")
+    val_with_comment = next(g.subjects(KNORA_API.valueAsString, Literal("first text value")))
+    assert next(g.objects(val_with_comment, KNORA_API.valueHasComment)) == Literal("Comment")
+    val_with_perm = next(g.subjects(KNORA_API.valueAsString, Literal("second text value")))
+    assert next(g.objects(val_with_perm, KNORA_API.hasPermissions)) == open_permissions
 
 
-def _analyze_pdf_resources(pdf_resources: list[dict[str, Any]]) -> None:
-    res_labels = sorted([res["rdfs:label"] for res in pdf_resources])
-    assert res_labels == ["Resource 3"]
-    res_1 = next(res for res in pdf_resources if res["rdfs:label"] == "Resource 3")
-    assert res_1.get("knora-api:hasDocumentFileValue")
+def _analyze_pdf_resources(pdf_resources: str) -> None:
+    g = Graph()
+    g.parse(data=pdf_resources, format="json-ld")
+    res_iri = next(g.subjects(RDFS.label, Literal("Resource 3")))
+    file_iri = next(g.objects(res_iri, KNORA_API.hasDocumentFileValue))
+    open_permissions = Literal(
+        "CR knora-admin:ProjectAdmin|D knora-admin:ProjectMember|V knora-admin:KnownUser,knora-admin:UnknownUser"
+    )
+    assert next(g.objects(file_iri, RDF.type)) == KNORA_API.DocumentFileValue
+    assert next(g.objects(file_iri, KNORA_API.hasAuthorship)) == Literal("Nora Ammann")
+    assert next(g.objects(file_iri, KNORA_API.hasCopyrightHolder)) == Literal("DaSCH")
+    assert next(g.objects(file_iri, KNORA_API.hasLicense)) == URIRef("http://rdfh.ch/licenses/cc-by-4.0")
+    assert next(g.objects(file_iri, KNORA_API.hasPermissions)) == open_permissions

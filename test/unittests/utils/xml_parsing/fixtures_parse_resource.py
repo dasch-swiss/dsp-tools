@@ -93,22 +93,67 @@ def resource_with_values() -> etree._Element:
 
 @pytest.fixture
 def resource_region() -> etree._Element:
-    return etree.fromstring("""""")
+    return etree.fromstring("""
+    <region label="Region" id="region_with_comment">
+        <color-prop name="hasColor">
+            <color>#5d1f1e</color>
+        </color-prop>
+        <resptr-prop name="isRegionOf">
+            <resptr>target_region_of</resptr>
+        </resptr-prop>
+        <geometry-prop name="hasGeometry">
+            <geometry>
+                {}
+            </geometry>
+        </geometry-prop>
+        <text-prop name="hasComment">
+            <text encoding="xml">Comment</text>
+        </text-prop>
+    </region>
+    """)
 
 
 @pytest.fixture
 def resource_link() -> etree._Element:
-    return etree.fromstring("""""")
+    return etree.fromstring("""
+    <link label="value with permissions" id="value_with_permissions">
+        <resptr-prop name="hasLinkTo">
+            <resptr permissions="open">target</resptr>
+        </resptr-prop>
+    </link>
+    """)
 
 
 @pytest.fixture
 def resource_video_segment() -> etree._Element:
-    return etree.fromstring("""""")
+    return etree.fromstring("""
+    <video-segment label="Video Segment with all possible values" id="video_segment_all_values">
+        <isSegmentOf>target_empty_movie</isSegmentOf>
+        <hasSegmentBounds segment_start="0.1" segment_end="0.234"/>
+        <hasTitle>Title</hasTitle>
+        <hasComment>Comment</hasComment>
+        <hasDescription><Description</hasDescription>
+        <hasKeyword>Keyword 1</hasKeyword>
+        <hasKeyword>Keyword 2</hasKeyword>
+        <relatesTo>relates_to_id</relatesTo>
+    </video-segment>
+    """)
 
 
 @pytest.fixture
 def resource_audio_segment() -> etree._Element:
-    return etree.fromstring("""""")
+    return etree.fromstring("""
+    <audio-segment label="Audio Segment with all possible values" id="audio_segment_all_values">
+        <isSegmentOf>target_empty_movie</isSegmentOf>
+        <hasSegmentBounds segment_start="0.1" segment_end="0.234"/>
+        <hasTitle>Title</hasTitle>
+        <hasComment>Comment</hasComment>
+        <hasDescription><Description 1</hasDescription>
+        <hasDescription><Description 2</hasDescription>
+        <hasKeyword>Keyword 1</hasKeyword>
+        <relatesTo>relates_to_id</relatesTo>
+    </audio-segment>
+    """)
 
 
 @pytest.fixture

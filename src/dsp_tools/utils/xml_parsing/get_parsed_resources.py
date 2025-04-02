@@ -11,7 +11,7 @@ def get_parsed_resources(root: etree._Element, api_url: str) -> list[ParsedResou
     pass
 
 
-def _parse_one_resource(resource: etree._Element) -> ParsedResource:
+def _parse_one_resource(resource: etree._Element, res_type: str, iri_lookup: dict[str, str]) -> ParsedResource:
     pass
 
 
@@ -19,7 +19,11 @@ def _parse_segment(segment: etree._Element, segment_type: str) -> ParsedResource
     pass
 
 
-def _parse_values(values: etree._Element) -> list[ParsedValue]:
+def _parse_values(resource: etree._Element, iri_lookup: dict[str, str]) -> list[ParsedValue]:
+    pass
+
+
+def _parse_one_value(value: etree._Element, iri_lookup: dict[str, str]) -> ParsedValue:
     pass
 
 

@@ -11,8 +11,9 @@ API_URL = "http://url.ch"
 DEFAULT_ONTO_NAMESPACE = f"{API_URL}/ontology/0000/default/v2#"
 
 
-def test_create_from_local_name_to_absolute_iri_lookup():
-    root = etree.fromstring("""
+@pytest.fixture
+def minimal_root():
+    return etree.fromstring("""
     <knora shortcode="0000"
        default-ontology="default">
         <resource label="The only resource"
@@ -27,7 +28,10 @@ def test_create_from_local_name_to_absolute_iri_lookup():
         </link>
     </knora>
     """)
-    result = _create_from_local_name_to_absolute_iri_lookup(root, API_URL)
+
+
+def test_create_from_local_name_to_absolute_iri_lookup(minimal_root):
+    result = _create_from_local_name_to_absolute_iri_lookup(minimal_root, API_URL)
     expected = {
         ":minimalResource": f"{DEFAULT_ONTO_NAMESPACE}minimalResource",
         "hasLinkTo": f"{KNORA_API_STR}hasLinkTo",

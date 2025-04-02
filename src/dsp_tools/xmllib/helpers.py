@@ -314,9 +314,12 @@ def find_date_in_string(string: str) -> str | None:
     [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#date).
 
     Notes:
-        - All dates are interpreted in the Christian era and the Gregorian calendar.
-        - BC dates are only supported in French notation (e.g. 1000-900 av. J.-C.).
-        - The years 0000-2999 are supported, in 3/4-digit form.
+        - If no era or calendar is given, dates are interpreted in the Christian era and the Gregorian calendar.
+        - For CE, the years 0000-2999 are supported, in 3/4-digit form.
+          (Because a 1-digit or 2-digit number isn't specific enough to be interpreted as a year.)
+        - For BCE, all years are supported, regardless of the number of digits.
+          However, no months/days are supported.
+        - A year is interpreted as BC if it is followed by one of these words: BCE, BC, B.C., B.C.E., av. J.-C.
         - Dates written with slashes are always interpreted in a European manner: 5/11/2021 is the 5th of November.
         - In the European notation, 2-digit years are expanded to 4 digits, with the current year as watershed:
             - 30.4.24 -> 30.04.2024
@@ -342,6 +345,8 @@ def find_date_in_string(string: str) -> str | None:
         - 1845-50 -> GREGORIAN:CE:1845:CE:1850
         - 840-50 -> GREGORIAN:CE:840:CE:850
         - 840-1 -> GREGORIAN:CE:840:CE:841
+        - 9 BC / 9 B.C. / 9 B.C.E. / 9 BCE -> GREGORIAN:BC:9:BC:9
+        - 20 BCE - 50 CE -> GREGORIAN:BC:20:CE:50
         - 1000-900 av. J.-C. -> GREGORIAN:BC:1000:BC:900
         - 45 av. J.-C. -> GREGORIAN:BC:45:BC:45
 
@@ -425,8 +430,16 @@ def _find_date_in_string_raising(string: str) -> str | None:
     sep_regex = r"[\./]"
     lookbehind = r"(?<![0-9A-Za-z])"
     lookahead = r"(?![0-9A-Za-z])"
+    range_operator_regex = r" ?- ?"
 
-    if french_bc_date := _find_french_bc_date(string=string, lookbehind=lookbehind, lookahead=lookahead):
+    if english_bc_date := _find_english_bc_date(
+        string=string, lookbehind=lookbehind, lookahead=lookahead, range_operator_regex=range_operator_regex
+    ):
+        return english_bc_date
+
+    if french_bc_date := _find_french_bc_date(
+        string=string, lookbehind=lookbehind, lookahead=lookahead, range_operator_regex=range_operator_regex
+    ):
         return french_bc_date
 
     # template: 2021-01-01 | 2015_01_02
@@ -435,7 +448,7 @@ def _find_date_in_string_raising(string: str) -> str | None:
     # template: 6.-8.3.1948 | 6/2/1947 - 24.03.1948
     eur_date_range_regex = (
         rf"{lookbehind}"
-        rf"{day_regex}{sep_regex}(?:{month_regex}{sep_regex}{year_regex_2_or_4_digits}?)? ?- ?"
+        rf"{day_regex}{sep_regex}(?:{month_regex}{sep_regex}{year_regex_2_or_4_digits}?)?{range_operator_regex}"
         rf"{day_regex}{sep_regex}{month_regex}{sep_regex}{year_regex_2_or_4_digits}"
         rf"{lookahead}"
     )
@@ -463,7 +476,7 @@ def _find_date_in_string_raising(string: str) -> str | None:
     german_monthname_date = regex.search(german_monthname_date_regex, string)
 
     # template: 1849/50 | 1849-50 | 1849/1850
-    year_range = regex.search(lookbehind + year_regex + r"[/-](\d{1,4})" + lookahead, string)
+    year_range = regex.search(lookbehind + year_regex + fr"{range_operator_regex}(\d{1,4})" + lookahead, string)
 
     # template: 1907
     year_only = regex.search(rf"{lookbehind}{year_regex}{lookahead}", string)
@@ -489,19 +502,44 @@ def _find_date_in_string_raising(string: str) -> str | None:
     return res
 
 
+def _find_english_bc_date(
+    string: str,
+    lookbehind: str,
+    lookahead: str,
+    range_operator_regex: str,
+) -> str | None:
+    bc_era_regex = r"(?P<bc>BC|BCE|B\.C\.|B\.C\.E\.)"
+    bc_date_regex = rf"(?:(\d+) ?{bc_era_regex})"
+
+    ce_era_regex = r"(?P<ce>CE|AD|C\.E\.|A\.D\.)"
+    ce_date_regex = rf"(?:(\d+) ?{ce_era_regex})"
+
+    bc_or_ce_date_regex = fr"(?:{bc_date_regex}|{ce_date_regex})"
+    eraless_date_regex = r"(\d+)"
+
+    range_regex = rf"{lookbehind}(?:{bc_or_ce_date_regex}|{eraless_date_regex}){range_operator_regex}{bc_or_ce_date_regex}{lookahead}"
+    if match := regex.search(range_regex, string):
+        start_raw, end_raw = regex.split(range_operator_regex, string)
+        start_date = _
+
+    if match := regex.search(fr"{lookbehind}{bc_date_regex}{lookahead}", string):
+        return f"GREGORIAN:BC:{match.group(1)}:BC:{match.group(1)}"
+
+    return None
+
+
 def _find_french_bc_date(
     string: str,
     lookbehind: str,
     lookahead: str,
+    range_operator_regex: str,
 ) -> str | None:
     french_bc_regex = r"av(?:\. |\.| )J\.?-?C\.?"
     if not regex.search(french_bc_regex, string):
         return None
 
     year_regex = r"\d{1,5}"
-    sep_regex = r" ?- ?"
-
-    year_range_regex = rf"{lookbehind}({year_regex}){sep_regex}({year_regex}) {french_bc_regex}{lookahead}"
+    year_range_regex = rf"{lookbehind}({year_regex}){range_operator_regex}({year_regex}) {french_bc_regex}{lookahead}"
     year_range = regex.search(year_range_regex, string)
     if year_range:
         start_year = int(year_range.group(1))

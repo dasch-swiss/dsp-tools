@@ -215,6 +215,22 @@ class TestFindDate:
         assert find_date_in_string("x 1811-11 x") is None
         assert find_date_in_string("x 1811/10 x") is None
         assert find_date_in_string("x 1811/11 x") is None
+    
+    @pytest.mark.parametrize("string", ["9 BC", "9 B.C.", "9 BCE", "9 B.C.E."])
+    def test_find_date_in_string_bc_different_notations(self, string: str) -> None:
+        assert find_date_in_string(string) == "GREGORIAN:BC:9:BC:9"
+    
+    @pytest.mark.parametrize("string", ["9 CE", "9 C.E.", "9 AD", "9 A.D."])
+    def test_find_date_in_string_ce_different_notations(self, string: str) -> None:
+        assert find_date_in_string(string) == "GREGORIAN:CE:9:CE:9"
+  
+    def test_find_date_in_string_bc(self) -> None:
+        # assert find_date_in_string("9 BC") == "GREGORIAN:BC:9:CE:9"
+        # assert find_date_in_string("10000 BC") == "GREGORIAN:BC:10000:CE:10000"
+        assert find_date_in_string("170 BC - 90 BC") == "GREGORIAN:BC:170:BC:90"
+        assert find_date_in_string("170-90 BCE") == "GREGORIAN:BC:170:BC:90"
+        assert find_date_in_string("20 BCE-50 CE") == "GREGORIAN:BC:20:CE:50"
+        assert find_date_in_string("20 BCE - 50 C.E.") == "GREGORIAN:BC:20:CE:50"
 
     def test_find_date_in_string_french_bc(self) -> None:
         assert find_date_in_string("Text 12345 av. J.-C. text") == "GREGORIAN:BC:12345:BC:12345"

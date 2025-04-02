@@ -7,6 +7,8 @@ from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedMigrationMetadata
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
 
@@ -56,16 +58,49 @@ def _construct_namespace(api_url: str, shortcode: str, onto_name: str) -> str:
     return f"{api_url}/ontology/{shortcode}/{onto_name}/v2#"
 
 
-def _parse_one_resource(resource: etree._Element, res_type: str, iri_lookup: dict[str, str]) -> ParsedResource:
-    pass
-
-
 def _parse_segment(segment: etree._Element, segment_type: str) -> ParsedResource:
     pass
 
 
-def _parse_values(resource: etree._Element, iri_lookup: dict[str, str]) -> list[ParsedValue]:
-    pass
+def _parse_one_resource(resource: etree._Element, res_type: str, iri_lookup: dict[str, str]) -> ParsedResource:
+    values, file_value = _parse_values(resource, iri_lookup)
+    migration_metadata = _parse_migration_metadata(resource)
+    return ParsedResource(
+        res_id=resource.attrib["id"],
+        res_type=res_type,
+        label=resource.attrib["label"],
+        permissions_id=resource.attrib.get("permissions"),
+        values=values,
+        file_value=file_value,
+        migration_metadata=migration_metadata,
+    )
+
+
+def _parse_migration_metadata(resource: etree._Element) -> ParsedMigrationMetadata | None:
+    metadata = (resource.attrib.get("iri"), resource.attrib.get("ark"), resource.attrib.get("creation_date"))
+    if any(metadata):
+        return ParsedMigrationMetadata(
+            iri=metadata[0],
+            ark=metadata[1],
+            creation_date=metadata[2],
+        )
+    return None
+
+
+def _parse_values(
+    resource: etree._Element, iri_lookup: dict[str, str]
+) -> tuple[list[ParsedValue], ParsedFileValue | None]:
+    values = []
+    asset_value = None
+    for val in resource.iterchildren():
+        match val.tag:
+            case "bitstream":
+                asset_value = _parse_file_values(val)
+            case "iiif-uri":
+                asset_value = _parse_iiif_uri(val)
+            case _:
+                values.extend(_parse_one_value(val, iri_lookup))
+    return values, asset_value
 
 
 def _parse_one_value(values: etree._Element, iri_lookup: dict[str, str]) -> list[ParsedValue]:
@@ -141,7 +176,15 @@ def _get_text_as_string(value: etree._Element) -> str | None:
         return value.text
 
 
+def _parse_iiif_uri(iiif_uri: etree._Element) -> ParsedFileValue:
+    pass
+
+
 def _parse_file_values(file_value: etree._Element) -> ParsedFileValue:
+    pass
+
+
+def _parse_file_metadata(file_value: etree._Element) -> ParsedFileValueMetadata:
     pass
 
 

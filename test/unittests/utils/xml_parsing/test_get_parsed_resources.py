@@ -11,7 +11,7 @@ DEFAULT_ONTO_NAMESPACE = f"{API_URL}/ontology/0000/default/v2#"
 
 def test_create_namespace_lookup():
     root = etree.fromstring("""
-    <knora shortcode="4124"
+    <knora shortcode="0000"
        default-ontology="default">
         <resource label="The only resource"
                   restype=":minimalResource"
@@ -26,7 +26,11 @@ def test_create_namespace_lookup():
     </knora>
     """)
     result = _create_namespace_lookup(root, API_URL)
-    expected = {}
+    expected = {
+        ":minimalResource": f"{DEFAULT_ONTO_NAMESPACE}minimalResource",
+        "hasLinkTo": f"{KNORA_API_STR}hasLinkTo",
+    }
+    assert result == expected
 
 
 @pytest.mark.parametrize(

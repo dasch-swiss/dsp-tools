@@ -35,7 +35,6 @@ def _create_namespace_lookup(root: etree._Element, api_url: str) -> dict[str, st
     local_names.extend(props)
     local_names = set(local_names)
     lookup = {local: _get_one_absolute_iri(local, shortcode, default_ontology, api_url) for local in local_names}
-    lookup["knora-api"] = KNORA_API_STR
     return lookup
 
 

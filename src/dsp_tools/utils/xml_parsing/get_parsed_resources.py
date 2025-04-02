@@ -23,8 +23,19 @@ SEGMENT_TAG_TO_PROP_MAPPER = {
 }
 
 
-def get_parsed_resources(root: etree._Element, api_url: str) -> list[ParsedResource]:
-    pass
+def get_parsed_resources(root: etree._Element, api_url: str) -> tuple[list[ParsedResource], set[str]]:
+    iri_lookup = _create_from_local_name_to_absolute_iri_lookup(root, api_url)
+    all_res: list[ParsedResource] = []
+    for res in root.iterdescendants(tag="resource"):
+        res_type = iri_lookup[res.attrib["restype"]]
+        all_res.append(_parse_one_resource(res, res_type, iri_lookup))
+    for res in root.iterdescendants(tag="region"):
+        res_type = f"{KNORA_API_STR}Region"
+        all_res.append(_parse_one_resource(res, res_type, iri_lookup))
+    for res in root.iterdescendants(tag="link"):
+        res_type = f"{KNORA_API_STR}LinkObj"
+        all_res.append(_parse_one_resource(res, res_type, iri_lookup))
+    return all_res, set(iri_lookup.values())
 
 
 def _create_from_local_name_to_absolute_iri_lookup(root: etree._Element, api_url: str) -> dict[str, str]:

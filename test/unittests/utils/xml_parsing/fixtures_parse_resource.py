@@ -81,10 +81,10 @@ def resource_with_migration_metadata() -> etree._Element:
 def resource_with_values() -> etree._Element:
     return etree.fromstring("""
         <resource label="lbl" restype=":Class" id="one">
-            <boolean-prop name=":testBoolean">
+            <boolean-prop name=":hasProp">
                 <boolean>true</boolean>
             </boolean-prop>
-            <color-prop name=":testColor">
+            <color-prop name=":hasProp">
                 <color>#00ff00</color>
                 <color>#00ff11</color>
             </color-prop>
@@ -114,7 +114,7 @@ def resource_audio_segment() -> etree._Element:
 @pytest.fixture
 def boolean_value_with_metadata() -> etree._Element:
     return etree.fromstring("""
-        <boolean-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testBoolean">
+        <boolean-prop name=":hasProp">
             <boolean comment="Comment on Value">true</boolean>
              permissions="open"
         </boolean-prop>
@@ -122,18 +122,18 @@ def boolean_value_with_metadata() -> etree._Element:
 
 
 @pytest.fixture
-def color_value_corr() -> etree._Element:
+def color_value() -> etree._Element:
     return etree.fromstring("""
-        <color-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testColor">
+        <color-prop name=":hasProp">
             <color>#00ff00</color>
         </color-prop>
         """)
 
 
 @pytest.fixture
-def color_value_corr_several() -> etree._Element:
+def color_value_several() -> etree._Element:
     return etree.fromstring("""
-        <color-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testColor">
+        <color-prop name=":hasProp">
             <color>#00ff00</color>
             <color>#00ff11</color>
         </color-prop>
@@ -141,18 +141,18 @@ def color_value_corr_several() -> etree._Element:
 
 
 @pytest.fixture
-def date_value_corr() -> etree._Element:
+def date_value() -> etree._Element:
     return etree.fromstring("""
-        <date-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate1">
+        <date-prop name=":hasProp">
             <date>JULIAN:BCE:0700:BCE:0600</date>
         </date-prop>
         """)
 
 
 @pytest.fixture
-def date_value_corr_several() -> etree._Element:
+def date_value_several() -> etree._Element:
     return etree.fromstring("""
-        <date-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate1">
+        <date-prop name=":hasProp">
             <date>JULIAN:BCE:0700:BCE:0600</date>
             <date>ISLAMIC:0600:0700</date>
         </date-prop>
@@ -160,18 +160,18 @@ def date_value_corr_several() -> etree._Element:
 
 
 @pytest.fixture
-def decimal_value_corr() -> etree._Element:
+def decimal_value() -> etree._Element:
     return etree.fromstring("""
-        <decimal-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testDecimalSimpleText">
+        <decimal-prop name=":hasProp">
             <decimal>2.71</decimal>
         </decimal-prop>
     """)
 
 
 @pytest.fixture
-def decimal_value_corr_several() -> etree._Element:
+def decimal_value_several() -> etree._Element:
     return etree.fromstring("""
-        <decimal-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testDecimalSimpleText">
+        <decimal-prop name=":hasProp">
             <decimal>1.0</decimal>
             <decimal>2.0</decimal>
         </decimal-prop>
@@ -179,9 +179,9 @@ def decimal_value_corr_several() -> etree._Element:
 
 
 @pytest.fixture
-def geometry_value_corr() -> etree._Element:
+def geometry_value() -> etree._Element:
     return etree.fromstring("""
-        <geometry-prop name="http://api.knora.org/ontology/knora-api/v2#hasGeometry">
+        <geometry-prop name="hasGeometry">
             <geometry>
                 {}
             </geometry>
@@ -190,36 +190,36 @@ def geometry_value_corr() -> etree._Element:
 
 
 @pytest.fixture
-def geoname_value_corr() -> etree._Element:
+def geoname_value() -> etree._Element:
     return etree.fromstring("""
-        <geoname-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testGeoname">
+        <geoname-prop name=":hasProp">
             <geoname>1111111</geoname>
         </geoname-prop>
     """)
 
 
 @pytest.fixture
-def integer_value_corr() -> etree._Element:
+def integer_value() -> etree._Element:
     return etree.fromstring("""
-        <integer-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testIntegerSimpleText">
+        <integer-prop name=":hasProp">
             <integer>1</integer>
         </integer-prop>
     """)
 
 
 @pytest.fixture
-def list_value_corr() -> etree._Element:
+def list_value() -> etree._Element:
     return etree.fromstring("""
-        <list-prop list="firstList" name="http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp">
+        <list-prop list="firstList" name=":hasProp">
             <list>n1</list>
         </list-prop>
     """)
 
 
 @pytest.fixture
-def list_value_corr_several() -> etree._Element:
+def list_value_several() -> etree._Element:
     return etree.fromstring("""
-        <list-prop list="firstList" name="http://0.0.0.0:3333/ontology/9999/onto/v2#testListProp">
+        <list-prop list="firstList" name=":hasProp">
             <list>n1</list>
             <list>n2</list>
         </list-prop>
@@ -227,45 +227,54 @@ def list_value_corr_several() -> etree._Element:
 
 
 @pytest.fixture
-def resptr_value_corr() -> etree._Element:
+def resptr_value() -> etree._Element:
     return etree.fromstring("""
-        <resptr-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testHasLinkTo">
+        <resptr-prop name=":hasProp">
             <resptr>id_1</resptr>
         </resptr-prop>
     """)
 
 
 @pytest.fixture
-def text_richtext_value_corr() -> etree._Element:
+def text_richtext_value() -> etree._Element:
     return etree.fromstring("""
-        <text-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testRichtext">
+        <text-prop name=":hasProp">
             <text encoding="xml"><p>Text</p></text>
         </text-prop>
     """)
 
 
 @pytest.fixture
-def text_simpletext_value_corr() -> etree._Element:
+def text_simpletext_value() -> etree._Element:
     return etree.fromstring("""
-        <text-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testTextarea">
+        <text-prop name=":hasProp">
             <text encoding="utf8">Text</text>
         </text-prop>
     """)
 
 
 @pytest.fixture
-def time_value_corr() -> etree._Element:
+def text_simpletext_value_no_text() -> etree._Element:
     return etree.fromstring("""
-        <time-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testTimeValue">
+        <text-prop name=":hasProp">
+            <text encoding="utf8"></text>
+        </text-prop>
+    """)
+
+
+@pytest.fixture
+def time_value() -> etree._Element:
+    return etree.fromstring("""
+        <time-prop name=":hasProp">
             <time>2019-10-23T13:45:12.01-14:00</time>
         </time-prop>
     """)
 
 
 @pytest.fixture
-def uri_value_corr() -> etree._Element:
+def uri_value() -> etree._Element:
     return etree.fromstring("""
-        <uri-prop name="http://0.0.0.0:3333/ontology/9999/onto/v2#testUriValue">
+        <uri-prop name=":hasProp">
             <uri>https://dasch.swiss</uri>
         </uri-prop>
     """)
@@ -289,4 +298,23 @@ def iiif_with_legal_info() -> etree._Element:
                   authorship-id="auth">
             https://iiif.uri/full.jpg
         </iiif-uri>
+    """)
+
+
+@pytest.fixture
+def bitstream_with_spaces() -> etree._Element:
+    return etree.fromstring("""
+        <bitstream permissions="open">
+            this/is/filepath/file.z
+        </bitstream>
+    """)
+
+
+@pytest.fixture
+def bitstream_with_legal_info() -> etree._Element:
+    return etree.fromstring("""
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.z</bitstream>
     """)

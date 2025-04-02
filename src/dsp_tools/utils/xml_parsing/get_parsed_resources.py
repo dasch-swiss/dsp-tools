@@ -97,6 +97,21 @@ def _parse_generic_values(values: etree._Element, prop_name: str):
 
 def _parse_text_value(values: etree._Element, prop_name: str) -> list[ParsedValue]:
     parsed_values = []
+    for val in values:
+        if val.attrib["encoding"] == "xml":
+            val_type = KnoraValueType.RICHTEXT_VALUE
+        else:
+            val_type = KnoraValueType.SIMPLETEXT_VALUE
+        parsed_values.append(
+            ParsedValue(
+                prop_name=prop_name,
+                value=val.text,
+                value_type=val_type,
+                permissions_id=val.attrib.get("permissions"),
+                comment=val.attrib.get("comment"),
+            )
+        )
+    return parsed_values
 
 
 def _parse_list_value(values: etree._Element, prop_name: str) -> list[ParsedValue]:

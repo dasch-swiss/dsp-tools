@@ -8,7 +8,7 @@ import regex
 from loguru import logger
 from lxml import etree
 
-from dsp_tools.error.custom_warnings import DspToolsUserWarning
+from dsp_tools.error.custom_warnings import DspToolsUserInfo
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.xml_parsing.parse_xml import parse_xml_file
 from dsp_tools.utils.xml_parsing.transform import remove_comments_from_element_tree
@@ -82,7 +82,7 @@ def _warn_user_about_tags_in_simpletext(xml_no_namespace: etree._Element) -> Non
             f"The following resources of your XML file contain angular brackets:{list_separator}"
             f"{list_separator.join(resources_with_potential_xml_tags)}"
         )
-        warnings.warn(DspToolsUserWarning(err_msg))
+        warnings.warn(DspToolsUserInfo(err_msg))
 
 
 def parse_and_validate_xml_file(input_file: Path | str) -> bool:

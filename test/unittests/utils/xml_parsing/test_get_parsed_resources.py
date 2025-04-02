@@ -37,7 +37,7 @@ class TestParseResource:
         parsed_res, _ = get_parsed_resources(root, API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
-        assert resource.res_id == ""
+        assert resource.res_id == "resource_no_values"
         assert resource.res_type == RES_CLASS
         assert resource.label == "lbl"
         assert not resource.permissions_id
@@ -51,7 +51,7 @@ class TestParseResource:
         parsed_res, _ = get_parsed_resources(root, API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
-        assert resource.res_id == ""
+        assert resource.res_id == "resource_with_values"
         assert resource.res_type == RES_CLASS
         assert resource.label == "lbl"
         assert not resource.permissions_id
@@ -65,7 +65,7 @@ class TestParseResource:
         parsed_res, _ = get_parsed_resources(root, API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
-        assert resource.res_id == ""
+        assert resource.res_id == "resource_with_file_values"
         assert resource.res_type == RES_CLASS
         assert resource.label == "lbl"
         assert not resource.permissions_id
@@ -79,7 +79,7 @@ class TestParseResource:
         parsed_res, _ = get_parsed_resources(root, API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
-        assert resource.res_id == ""
+        assert resource.res_id == "resource_region"
         assert resource.res_type == RES_CLASS
         assert resource.label == "lbl"
         assert not resource.permissions_id
@@ -93,7 +93,7 @@ class TestParseResource:
         parsed_res, _ = get_parsed_resources(root, API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
-        assert resource.res_id == ""
+        assert resource.res_id == "resource_link"
         assert resource.res_type == RES_CLASS
         assert resource.label == "lbl"
         assert not resource.permissions_id
@@ -109,7 +109,7 @@ class TestSegment:
         parsed_res, _ = get_parsed_resources(root, API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
-        assert resource.res_id == ""
+        assert resource.res_id == "resource_video_segment"
         assert resource.res_type == RES_CLASS
         assert resource.label == "lbl"
         assert not resource.permissions_id
@@ -123,7 +123,7 @@ class TestSegment:
         parsed_res, _ = get_parsed_resources(root, API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
-        assert resource.res_id == ""
+        assert resource.res_id == "resource_audio_segment"
         assert resource.res_type == RES_CLASS
         assert resource.label == "lbl"
         assert not resource.permissions_id

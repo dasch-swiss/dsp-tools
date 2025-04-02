@@ -509,35 +509,39 @@ def _find_english_BC_or_CE_date(
     range_operator_regex: str,
 ) -> str | None:
     eraless_date_regex = r"(\d+)"
-
-    bc_era_regex = r"(?P<bc>BC|BCE|B\.C\.|B\.C\.E\.)"
+    bc_era_regex = r"(?:BC|BCE|B\.C\.|B\.C\.E\.)"
     bc_date_regex = rf"(?:{eraless_date_regex} ?{bc_era_regex})"
-
-    ce_era_regex = r"(?P<ce>CE|AD|C\.E\.|A\.D\.)"
+    ce_era_regex = r"(?:CE|AD|C\.E\.|A\.D\.)"
     ce_date_regex = rf"(?:{eraless_date_regex} ?{ce_era_regex})"
-
     bc_or_ce_date_regex = fr"(?:{bc_date_regex}|{ce_date_regex})"
-
-    range_regex = rf"{lookbehind}(?:{bc_or_ce_date_regex}|{eraless_date_regex}){range_operator_regex}{bc_or_ce_date_regex}{lookahead}"
-    if match := regex.search(range_regex, string):
+    
+    def _from_range() -> str:
         start_raw, end_raw = regex.split(range_operator_regex, string)
 
-        start_era: Literal["BC", "CE"] | None = None
-        if regex.search(bc_era_regex, start_raw):
-            start_era = "BC"
-        elif regex.search(ce_era_regex, start_raw):
-            start_era = "CE"
-        end_era: Literal["BC", "CE"]
         if regex.search(bc_era_regex, end_raw):
             end_era = "BC"
         elif regex.search(ce_era_regex, end_raw):
             end_era = "CE"
-        start_era = start_era or end_era
+        else:
+            raise ValueError(f"Missing Era in date {string}")
 
-        start_year = regex.search(eraless_date_regex, start_raw).group(0)
-        end_year = regex.search(eraless_date_regex, end_raw).group(0)
+        if regex.search(bc_era_regex, start_raw):
+            start_era = "BC"
+        elif regex.search(ce_era_regex, start_raw):
+            start_era = "CE"
+        else:
+            start_era = end_era
+        
+        if not (start_year_match := regex.search(eraless_date_regex, start_raw)):
+            raise ValueError(f"No start year found in date {string}")
+        if not (end_year_match := regex.search(eraless_date_regex, end_raw)):
+            raise ValueError(f"No end year found in date {string}")
 
-        return f"GREGORIAN:{start_era}:{start_year}:{end_era}:{end_year}"
+        return f"GREGORIAN:{start_era}:{start_year_match.group(0)}:{end_era}:{end_year_match.group(0)}"
+
+    range_regex = rf"{lookbehind}(?:{bc_or_ce_date_regex}|{eraless_date_regex}){range_operator_regex}{bc_or_ce_date_regex}{lookahead}"
+    if match := regex.search(range_regex, string):
+        return _from_range()
 
     if match := regex.search(fr"{lookbehind}{bc_date_regex}{lookahead}", string):
         return f"GREGORIAN:BC:{match.group(1)}:BC:{match.group(1)}"

@@ -105,7 +105,7 @@ title: Transformations from ParsedResource for xmlupload
 stateDiagram-v2
 
 state "Transform Resource" as transformres
-state "Transform Value" as transfomrationval
+state "Transform Value" as transformationval
 state "Transform FileValues" as transformfile
 state "ParsedValue" as parsedval
 state "ParsedResource" as parsedres
@@ -113,19 +113,19 @@ state "IntermediaryValue" as valdes
 state "Collected Transformations" as coll
 
 parsedres-->transformfile
-parsedres-->transfomrationval
+parsedres-->transformationval
 parsedres-->transformres
 state transformres {
     ParsedResource-->Permissions: resolve permissions
 }
-state transfomrationval {
+state transformationval {
     parsedval-->valdes: resolve permissions<br/><br/>resolve listnodes to IRIs
 }
 state transformfile {
     ParsedFileValue-->IntermediaryFileValue: resolve permissions<br/><br/>resolve metadata
 }
 transformres-->coll: return result
-transfomrationval-->coll: return result
+transformationval-->coll: return result
 transformfile-->coll: return result
 coll-->ResourceInputConversionFailure: resolveping errors
 ResourceInputConversionFailure-->[*]

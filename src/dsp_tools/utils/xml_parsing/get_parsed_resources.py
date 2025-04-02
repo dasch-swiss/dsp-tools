@@ -18,7 +18,6 @@ SEGMENT_TAG_TO_PROP_MAPPER = {
     "hasDescription": KnoraValueType.RICHTEXT_VALUE,
     "hasTitle": KnoraValueType.SIMPLETEXT_VALUE,
     "hasKeyword": KnoraValueType.SIMPLETEXT_VALUE,
-    "isSegmentOf": KnoraValueType.LINK_VALUE,  # TODO: remove this and change
     "hasComment": KnoraValueType.RICHTEXT_VALUE,
 }
 
@@ -74,7 +73,45 @@ def _construct_namespace(api_url: str, shortcode: str, onto_name: str) -> str:
 
 
 def _parse_segment(segment: etree._Element, segment_type: str) -> ParsedResource:
-    pass
+    values = _parse_segment_values(segment, segment_type)
+    migration_metadata = _parse_migration_metadata(segment)
+    return ParsedResource(
+        res_id=segment.attrib["id"],
+        res_type=f"{KNORA_API_STR}{segment}Segment",
+        label=segment.attrib["label"],
+        permissions_id=segment.attrib.get("permissions"),
+        values=values,
+        file_value=None,
+        migration_metadata=migration_metadata,
+    )
+
+
+def _parse_segment_values(segment: etree._Element, segment_type: str) -> list[ParsedValue]:
+    values = []
+    for val in segment.iterchildren():
+        match val.tag:
+            case "isSegmentOf":
+                val_type = KnoraValueType.LINK_VALUE
+                prop = f"{KNORA_API_STR}is{segment_type}SegmentOf"
+                value = val.text
+            case "hasSegmentBounds":
+                val_type = KnoraValueType.LINK_VALUE
+                prop = f"{KNORA_API_STR}hasSegmentBounds"
+                value = (val.attrib["segment_start"], val.attrib["segment_end"])
+            case _:
+                val_type = SEGMENT_TAG_TO_PROP_MAPPER[val.tag]
+                prop = f"{KNORA_API_STR}{val.tag}"
+                value = _get_text_as_string(val)
+        values.append(
+            ParsedValue(
+                prop_name=prop,
+                value=value,
+                value_type=val_type,
+                permissions_id=val.attrib.get("permissions"),
+                comment=val.attrib.get("comment"),
+            )
+        )
+    return values
 
 
 def _parse_one_resource(resource: etree._Element, res_type: str, iri_lookup: dict[str, str]) -> ParsedResource:

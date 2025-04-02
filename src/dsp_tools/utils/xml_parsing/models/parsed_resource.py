@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from enum import Enum
 from enum import auto
 
+from dsp_tools.commands.xmlupload.models.rdf_models import FileValueMetadata
 from dsp_tools.utils.xml_parsing.models.data_deserialised import MigrationMetadata
 
 
@@ -32,14 +33,6 @@ class ParsedFileValue:
     value: str
     value_type: KnoraValueType
     metadata: FileValueMetadata
-
-
-@dataclass
-class FileValueMetadata:
-    license_iri: str | None
-    copyright_holder: str | None
-    authorships: list[str] | None
-    permissions: str | None
 
 
 class KnoraValueType(Enum):

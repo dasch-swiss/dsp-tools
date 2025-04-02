@@ -23,9 +23,9 @@ from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import Bitstrea
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.commands.xmlupload.models.rdf_models import AbstractFileValue
+from dsp_tools.commands.xmlupload.models.rdf_models import FileValueMetadata
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.utils.rdflib_constants import KNORA_API
-from dsp_tools.utils.xml_parsing.models.parsed_resource import FileValueMetadata
 
 
 @pytest.fixture

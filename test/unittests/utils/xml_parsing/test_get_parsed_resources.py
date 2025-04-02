@@ -2,7 +2,6 @@
 from copy import deepcopy
 
 import pytest
-from lxml import etree
 
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _create_from_local_name_to_absolute_iri_lookup
@@ -12,69 +11,6 @@ API_URL = "http://url.ch"
 DEFAULT_ONTO_NAMESPACE = f"{API_URL}/ontology/0000/default/v2#"
 
 IRI_LOOKUP = {}
-
-
-@pytest.fixture
-def root_no_resources() -> etree._Element:
-    return etree.fromstring("""
-    <knora shortcode="0000"
-       default-ontology="default">
-    </knora>
-    """)
-
-
-@pytest.fixture
-def minimal_root() -> etree._Element:
-    return etree.fromstring("""
-    <knora shortcode="0000"
-       default-ontology="default">
-        <resource label="The only resource"
-                  restype=":minimalResource"
-                  id="the_only_resource">
-        </resource>
-        
-        <link label="value with permissions" id="value_with_permissions">
-            <resptr-prop name="hasLinkTo">
-                <resptr permissions="open">target_empty_1</resptr>
-            </resptr-prop>
-        </link>
-    </knora>
-    """)
-
-
-@pytest.fixture
-def resource_no_values() -> etree._Element:
-    return etree.fromstring("""""")
-
-
-@pytest.fixture
-def resource_with_values() -> etree._Element:
-    return etree.fromstring("""""")
-
-
-@pytest.fixture
-def resource_with_file_values() -> etree._Element:
-    return etree.fromstring("""""")
-
-
-@pytest.fixture
-def resource_region() -> etree._Element:
-    return etree.fromstring("""""")
-
-
-@pytest.fixture
-def resource_link() -> etree._Element:
-    return etree.fromstring("""""")
-
-
-@pytest.fixture
-def resource_video_segment() -> etree._Element:
-    return etree.fromstring("""""")
-
-
-@pytest.fixture
-def resource_audio_segment() -> etree._Element:
-    return etree.fromstring("""""")
 
 
 class TestParseResource:

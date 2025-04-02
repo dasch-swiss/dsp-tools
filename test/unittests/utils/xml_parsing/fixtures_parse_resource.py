@@ -52,7 +52,7 @@ def resource_empty_permissions() -> etree._Element:
 
 
 @pytest.fixture
-def resource_with_bitstream() -> etree._Element:
+def resource_with_file_values() -> etree._Element:
     return etree.fromstring("""
     <resource label="lbl" restype=":Class" id="resource_with_bitstream">
         <bitstream>

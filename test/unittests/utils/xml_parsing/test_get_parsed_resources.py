@@ -48,26 +48,88 @@ class TestParseResource:
     def test_with_values(self, root_no_resources, resource_with_values):
         root = deepcopy(root_no_resources)
         root.append(resource_with_values)
+        parsed_res = get_parsed_resources(root, API_URL)
+        assert len(parsed_res) == 1
+        resource = parsed_res.pop(0)
+        assert resource.res_id == ""
+        assert resource.res_type == RES_CLASS
+        assert resource.label == "lbl"
+        assert not resource.permissions_id
+        assert len(resource.values) == 0
+        assert not resource.file_value
+        assert not resource.migration_metadata
 
     def test_file_value(self, root_no_resources, resource_with_file_values):
         root = deepcopy(root_no_resources)
         root.append(resource_with_file_values)
+        parsed_res = get_parsed_resources(root, API_URL)
+        assert len(parsed_res) == 1
+        resource = parsed_res.pop(0)
+        assert resource.res_id == ""
+        assert resource.res_type == RES_CLASS
+        assert resource.label == "lbl"
+        assert not resource.permissions_id
+        assert len(resource.values) == 0
+        assert not resource.file_value
+        assert not resource.migration_metadata
 
     def test_region(self, root_no_resources, resource_region):
         root = deepcopy(root_no_resources)
         root.append(resource_region)
+        parsed_res = get_parsed_resources(root, API_URL)
+        assert len(parsed_res) == 1
+        resource = parsed_res.pop(0)
+        assert resource.res_id == ""
+        assert resource.res_type == RES_CLASS
+        assert resource.label == "lbl"
+        assert not resource.permissions_id
+        assert len(resource.values) == 0
+        assert not resource.file_value
+        assert not resource.migration_metadata
 
     def test_link(self, root_no_resources, resource_link):
         root = deepcopy(root_no_resources)
         root.append(resource_link)
+        parsed_res = get_parsed_resources(root, API_URL)
+        assert len(parsed_res) == 1
+        resource = parsed_res.pop(0)
+        assert resource.res_id == ""
+        assert resource.res_type == RES_CLASS
+        assert resource.label == "lbl"
+        assert not resource.permissions_id
+        assert len(resource.values) == 0
+        assert not resource.file_value
+        assert not resource.migration_metadata
 
+
+class TestSegment:
     def test_video_segment(self, root_no_resources, resource_video_segment):
         root = deepcopy(root_no_resources)
         root.append(resource_video_segment)
+        parsed_res = get_parsed_resources(root, API_URL)
+        assert len(parsed_res) == 1
+        resource = parsed_res.pop(0)
+        assert resource.res_id == ""
+        assert resource.res_type == RES_CLASS
+        assert resource.label == "lbl"
+        assert not resource.permissions_id
+        assert len(resource.values) == 0
+        assert not resource.file_value
+        assert not resource.migration_metadata
 
     def test_audio_segment(self, root_no_resources, resource_audio_segment):
         root = deepcopy(root_no_resources)
         root.append(resource_audio_segment)
+        parsed_res = get_parsed_resources(root, API_URL)
+        assert len(parsed_res) == 1
+        resource = parsed_res.pop(0)
+        assert resource.res_id == ""
+        assert resource.res_type == RES_CLASS
+        assert resource.label == "lbl"
+        assert not resource.permissions_id
+        assert len(resource.values) == 0
+        assert not resource.file_value
+        assert not resource.migration_metadata
 
 
 class TestParseValues:

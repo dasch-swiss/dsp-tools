@@ -1,15 +1,17 @@
+# mypy: disable-error-code="method-assign,no-untyped-def"
+
 import pytest
 from lxml import etree
 
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
-from dsp_tools.utils.xml_parsing.get_parsed_resources import _create_namespace_lookup
+from dsp_tools.utils.xml_parsing.get_parsed_resources import _create_from_local_name_to_absolute_iri_lookup
 from dsp_tools.utils.xml_parsing.get_parsed_resources import _get_one_absolute_iri
 
 API_URL = "http://url.ch"
 DEFAULT_ONTO_NAMESPACE = f"{API_URL}/ontology/0000/default/v2#"
 
 
-def test_create_namespace_lookup():
+def test_create_from_local_name_to_absolute_iri_lookup():
     root = etree.fromstring("""
     <knora shortcode="0000"
        default-ontology="default">
@@ -25,7 +27,7 @@ def test_create_namespace_lookup():
         </link>
     </knora>
     """)
-    result = _create_namespace_lookup(root, API_URL)
+    result = _create_from_local_name_to_absolute_iri_lookup(root, API_URL)
     expected = {
         ":minimalResource": f"{DEFAULT_ONTO_NAMESPACE}minimalResource",
         "hasLinkTo": f"{KNORA_API_STR}hasLinkTo",

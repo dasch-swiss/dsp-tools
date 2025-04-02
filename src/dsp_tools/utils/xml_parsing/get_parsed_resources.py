@@ -27,7 +27,7 @@ def _parse_file_values(file_value: etree._Element) -> ParsedFileValue:
     pass
 
 
-def _create_namespace_lookup(root: etree._Element, api_url: str) -> dict[str, str]:
+def _create_from_local_name_to_absolute_iri_lookup(root: etree._Element, api_url: str) -> dict[str, str]:
     shortcode = root.attrib["shortcode"]
     default_ontology = root.attrib["default-ontology"]
     local_names = [ele.attrib["restype"] for ele in root.iterdescendants(tag="resource")]

@@ -1059,7 +1059,7 @@ Example:
 <video-segment label="Video Segment" id="video_segment_1">
     <isSegmentOf permissions="open">video_thing_1</isSegmentOf>
     <!-- The segment bounds must be entered in seconds. Decimal (for fractions of a second) are allowed, e.g. `1.4`.-->
-    <hasSegmentBounds permissions="open" start="600" end="1200"/> <!-- from 0h 10min 00s to 0h 20min 00s -->
+    <hasSegmentBounds permissions="open" segment_start="600" segment_end="1200"/> <!-- from 0h 10min 00s to 0h 20min 00s -->
     <hasTitle permissions="open">Title of video segment</hasTitle>
     <hasComment permissions="open"><strong>Comment</strong> of video segment</hasComment>
     <hasDescription permissions="open"><strong>Description</strong> of video segment</hasDescription>

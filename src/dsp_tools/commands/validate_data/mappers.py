@@ -24,9 +24,9 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.constants import URI_PROP_TYPE_
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 from dsp_tools.utils.rdflib_constants import API_SHAPES
 from dsp_tools.utils.rdflib_constants import KNORA_API
-from dsp_tools.utils.xml_parsing.models.data_deserialised import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.data_deserialised import TripleObjectType
 from dsp_tools.utils.xml_parsing.models.data_deserialised import TriplePropertyType
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 
 SEGMENT_TAG_TO_PROP_MAPPER = {
     "relatesTo": KnoraValueType.LINK_VALUE,

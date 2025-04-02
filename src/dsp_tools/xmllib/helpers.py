@@ -543,7 +543,9 @@ def _from_english_BC_or_CE_range(
 ) -> str:
     split_result = regex.split(range_operator_regex, string)
     if len(split_result) != 2:
-        raise ValueError(f"Expected exactly two components after splitting, but got {len(split_result)}: {split_result}")
+        raise ValueError(
+            f"Expected exactly two components after splitting, but got {len(split_result)}: {split_result}"
+        )
     start_raw, end_raw = split_result
     if regex.search(bc_era_regex, end_raw):
         end_era = "BC"

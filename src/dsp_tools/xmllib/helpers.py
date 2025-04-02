@@ -1,7 +1,7 @@
 import datetime
 import json
 import uuid
-from typing import Any
+from typing import Any, Literal
 from typing import Iterable
 
 import regex
@@ -432,7 +432,7 @@ def _find_date_in_string_raising(string: str) -> str | None:
     lookahead = r"(?![0-9A-Za-z])"
     range_operator_regex = r" ?- ?"
 
-    if english_bc_date := _find_english_bc_date(
+    if english_bc_date := _find_english_BC_or_CE_date(
         string=string, lookbehind=lookbehind, lookahead=lookahead, range_operator_regex=range_operator_regex
     ):
         return english_bc_date
@@ -502,28 +502,48 @@ def _find_date_in_string_raising(string: str) -> str | None:
     return res
 
 
-def _find_english_bc_date(
+def _find_english_BC_or_CE_date(
     string: str,
     lookbehind: str,
     lookahead: str,
     range_operator_regex: str,
 ) -> str | None:
+    eraless_date_regex = r"(\d+)"
+
     bc_era_regex = r"(?P<bc>BC|BCE|B\.C\.|B\.C\.E\.)"
-    bc_date_regex = rf"(?:(\d+) ?{bc_era_regex})"
+    bc_date_regex = rf"(?:{eraless_date_regex} ?{bc_era_regex})"
 
     ce_era_regex = r"(?P<ce>CE|AD|C\.E\.|A\.D\.)"
-    ce_date_regex = rf"(?:(\d+) ?{ce_era_regex})"
+    ce_date_regex = rf"(?:{eraless_date_regex} ?{ce_era_regex})"
 
     bc_or_ce_date_regex = fr"(?:{bc_date_regex}|{ce_date_regex})"
-    eraless_date_regex = r"(\d+)"
 
     range_regex = rf"{lookbehind}(?:{bc_or_ce_date_regex}|{eraless_date_regex}){range_operator_regex}{bc_or_ce_date_regex}{lookahead}"
     if match := regex.search(range_regex, string):
         start_raw, end_raw = regex.split(range_operator_regex, string)
-        start_date = _
+
+        start_era: Literal["BC", "CE"] | None = None
+        if regex.search(bc_era_regex, start_raw):
+            start_era = "BC"
+        elif regex.search(ce_era_regex, start_raw):
+            start_era = "CE"
+        end_era: Literal["BC", "CE"]
+        if regex.search(bc_era_regex, end_raw):
+            end_era = "BC"
+        elif regex.search(ce_era_regex, end_raw):
+            end_era = "CE"
+        start_era = start_era or end_era
+
+        start_year = regex.search(eraless_date_regex, start_raw).group(0)
+        end_year = regex.search(eraless_date_regex, end_raw).group(0)
+
+        return f"GREGORIAN:{start_era}:{start_year}:{end_era}:{end_year}"
 
     if match := regex.search(fr"{lookbehind}{bc_date_regex}{lookahead}", string):
         return f"GREGORIAN:BC:{match.group(1)}:BC:{match.group(1)}"
+
+    if match := regex.search(fr"{lookbehind}{ce_date_regex}{lookahead}", string):
+        return f"GREGORIAN:CE:{match.group(1)}:CE:{match.group(1)}"
 
     return None
 

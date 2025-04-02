@@ -225,8 +225,8 @@ class TestFindDate:
         assert find_date_in_string(string) == "GREGORIAN:CE:9:CE:9"
   
     def test_find_date_in_string_bc(self) -> None:
-        # assert find_date_in_string("9 BC") == "GREGORIAN:BC:9:CE:9"
-        # assert find_date_in_string("10000 BC") == "GREGORIAN:BC:10000:CE:10000"
+        assert find_date_in_string("9 BC") == "GREGORIAN:BC:9:BC:9"
+        assert find_date_in_string("10000 BC") == "GREGORIAN:BC:10000:BC:10000"
         assert find_date_in_string("170 BC - 90 BC") == "GREGORIAN:BC:170:BC:90"
         assert find_date_in_string("170-90 BCE") == "GREGORIAN:BC:170:BC:90"
         assert find_date_in_string("20 BCE-50 CE") == "GREGORIAN:BC:20:CE:50"

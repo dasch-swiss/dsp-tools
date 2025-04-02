@@ -165,7 +165,7 @@ def _parse_one_value(values: etree._Element, iri_lookup: dict[str, str]) -> list
             return _parse_generic_values(values, prop_name)
 
 
-def _parse_generic_values(values: etree._Element, prop_name: str):
+def _parse_generic_values(values: etree._Element, prop_name: str) -> list[ParsedValue]:
     value_type = XML_TAG_TO_VALUE_TYPE_MAPPER[values.tag]
     parsed_values = []
     for val in values:

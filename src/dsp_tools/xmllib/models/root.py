@@ -7,6 +7,7 @@ from dataclasses import field
 from pathlib import Path
 from typing import TypeAlias
 from typing import Union
+from uuid import uuid4
 
 from loguru import logger
 from lxml import etree
@@ -225,8 +226,8 @@ def _make_authorship_lookup(resources: list[AnyResource]) -> AuthorshipLookup:
     file_vals = [x.file_value for x in filtered_resources if x.file_value]
     authors = {x.metadata.authorship for x in file_vals}
     lookup = {}
-    for auth, i in zip(authors, range(1, len(authors) + 1)):
-        lookup[auth] = f"authorship_{i}"
+    for auth in authors:
+        lookup[auth] = f"authorship_{uuid4()!s}"
     return AuthorshipLookup(lookup)
 
 

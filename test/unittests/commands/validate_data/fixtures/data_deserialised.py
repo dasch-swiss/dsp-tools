@@ -1,6 +1,6 @@
 import pytest
 
-from dsp_tools.commands.validate_data.constants import KNORA_API_STR
+from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.models.data_deserialised import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.data_deserialised import MigrationMetadata
 from dsp_tools.utils.xml_parsing.models.data_deserialised import PropertyObject

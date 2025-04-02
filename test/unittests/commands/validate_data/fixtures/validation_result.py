@@ -11,10 +11,10 @@ from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import ValidationResult
 from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
 from dsp_tools.commands.validate_data.models.validation import ViolationType
-from test.unittests.commands.validate_data.constants import DASH
-from test.unittests.commands.validate_data.constants import DATA
+from dsp_tools.utils.rdflib_constants import DASH
+from dsp_tools.utils.rdflib_constants import DATA
+from dsp_tools.utils.rdflib_constants import KNORA_API
 from test.unittests.commands.validate_data.constants import IN_BUILT_ONTO
-from test.unittests.commands.validate_data.constants import KNORA_API
 from test.unittests.commands.validate_data.constants import ONTO
 from test.unittests.commands.validate_data.constants import PREFIXES
 

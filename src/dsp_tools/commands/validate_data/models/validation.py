@@ -6,7 +6,7 @@ from enum import auto
 
 from rdflib import Graph
 
-from dsp_tools.commands.validate_data.constants import SubjectObjectTypeAlias
+from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
 
 
 @dataclass

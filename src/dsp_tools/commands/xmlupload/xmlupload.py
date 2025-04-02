@@ -23,7 +23,6 @@ from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
-from dsp_tools.commands.xmlupload.models.lookup_models import get_json_ld_context_for_project
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClient
@@ -84,14 +83,11 @@ def xmlupload(
 
     ontology_client = OntologyClientLive(con=con, shortcode=shortcode, default_ontology=default_ontology)
     clients = _get_live_clients(con, auth, creds, shortcode, imgdir)
-    transformed_resources, stash, project_context = prepare_upload_from_root(
-        root=root, ontology_client=ontology_client, clients=clients
-    )
+    transformed_resources, stash = prepare_upload_from_root(root=root, ontology_client=ontology_client, clients=clients)
     state = UploadState(
         pending_resources=transformed_resources,
         pending_stash=stash,
         config=config,
-        project_context=project_context,
     )
 
     return execute_upload(clients, state)
@@ -232,7 +228,6 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
     iri_lookup = IRILookups(
         project_iri=URIRef(project_iri),
         id_to_iri=upload_state.iri_resolver,
-        jsonld_context=upload_state.project_context,
     )
 
     resource_create_client = ResourceCreateClient(
@@ -262,9 +257,8 @@ def _upload_stash(
 ) -> None:
     if upload_state.pending_stash and upload_state.pending_stash.standoff_stash:
         upload_stashed_xml_texts(upload_state, project_client.con)
-    context = get_json_ld_context_for_project(project_client.get_ontology_name_dict())
     if upload_state.pending_stash and upload_state.pending_stash.link_value_stash:
-        upload_stashed_resptr_props(upload_state, project_client.con, context)
+        upload_stashed_resptr_props(upload_state, project_client.con)
 
 
 def _upload_one_resource(

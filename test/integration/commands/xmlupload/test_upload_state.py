@@ -4,7 +4,6 @@ from pathlib import Path
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediarySimpleText
-from dsp_tools.commands.xmlupload.models.lookup_models import JSONLDContext
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.upload_config import DiagnosticsConfig
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
@@ -19,7 +18,6 @@ def test_save_upload_state(tmp_path: Path) -> None:
             IntermediaryResource("id", "type", "label", None, [IntermediarySimpleText("Some text", "prop", None, None)])
         ],
         failed_uploads=[],
-        project_context=JSONLDContext({}),
         iri_resolver=IriResolver({"foo": "bar"}),
         pending_stash=None,
         config=config,

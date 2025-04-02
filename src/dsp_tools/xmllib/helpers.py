@@ -541,8 +541,10 @@ def _find_english_BC_or_CE_date(
 def _from_english_BC_or_CE_range(
     string: str, range_operator_regex: str, bc_era_regex: str, ce_era_regex: str, eraless_date_regex: str
 ) -> str:
-    start_raw, end_raw = regex.split(range_operator_regex, string)
-
+    split_result = regex.split(range_operator_regex, string)
+    if len(split_result) != 2:
+        raise ValueError(f"Expected exactly two components after splitting, but got {len(split_result)}: {split_result}")
+    start_raw, end_raw = split_result
     if regex.search(bc_era_regex, end_raw):
         end_era = "BC"
     elif regex.search(ce_era_regex, end_raw):

@@ -16,10 +16,10 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.constants import STILL_IMAGE_FI
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import TEXT_FILE_VALUE
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.rdf_models import AbstractFileValue
-from dsp_tools.commands.xmlupload.models.rdf_models import FileValueMetadata
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.utils.rdflib_constants import KNORA_API
+from dsp_tools.utils.xml_parsing.models.parsed_resource import FileValueMetadata
 
 
 def make_iiif_uri_value_graph(iiif_uri: AbstractFileValue, res_node: BNode | URIRef) -> Graph:

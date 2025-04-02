@@ -11,12 +11,12 @@ from dsp_tools.commands.validate_data.mappers import VALUE_INFO_TO_RDF_MAPPER
 from dsp_tools.commands.validate_data.mappers import VALUE_INFO_TRIPLE_OBJECT_TYPE
 from dsp_tools.utils.rdflib_constants import DATA
 from dsp_tools.utils.xml_parsing.models.data_deserialised import DataDeserialised
-from dsp_tools.utils.xml_parsing.models.data_deserialised import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.data_deserialised import PropertyObject
 from dsp_tools.utils.xml_parsing.models.data_deserialised import ResourceDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import TripleObjectType
 from dsp_tools.utils.xml_parsing.models.data_deserialised import TriplePropertyType
 from dsp_tools.utils.xml_parsing.models.data_deserialised import ValueInformation
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 
 
 def make_data_rdf(data_deserialised: DataDeserialised) -> Graph:

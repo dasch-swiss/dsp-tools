@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from rdflib import Literal
 from rdflib import URIRef
 
+from dsp_tools.utils.xml_parsing.models.parsed_resource import FileValueMetadata
+
 
 @dataclass
 class TransformedValue:
@@ -31,11 +33,3 @@ class RDFPropTypeInfo:
 class AbstractFileValue:
     value: str
     metadata: FileValueMetadata
-
-
-@dataclass
-class FileValueMetadata:
-    license_iri: str | None
-    copyright_holder: str | None
-    authorships: list[str] | None
-    permissions: str | None

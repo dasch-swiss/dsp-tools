@@ -18,8 +18,8 @@ from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryRes
 from dsp_tools.commands.xmlupload.models.intermediary.res import MigrationMetadata
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.rdf_models import AbstractFileValue
-from dsp_tools.commands.xmlupload.models.rdf_models import FileValueMetadata
 from dsp_tools.utils.rdflib_constants import KNORA_API
+from dsp_tools.utils.xml_parsing.models.parsed_resource import FileValueMetadata
 
 
 def create_resource_with_values(

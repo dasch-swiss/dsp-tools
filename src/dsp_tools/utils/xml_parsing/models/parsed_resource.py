@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from enum import Enum
 from enum import auto
 
-from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
+from dsp_tools.utils.xml_parsing.models.data_deserialised import MigrationMetadata
 
 
 @dataclass
@@ -16,16 +16,6 @@ class ParsedResource:
     values: list[ParsedValue]
     file_value: ParsedValue | None
     migration_metadata: MigrationMetadata
-
-
-@dataclass
-class MigrationMetadata:
-    iri: str | None = None
-    ark: str | None = None
-    creation_date: DateTimeStamp | None = None
-
-    def any(self) -> bool:
-        return any([self.iri, self.ark, self.creation_date])
 
 
 @dataclass

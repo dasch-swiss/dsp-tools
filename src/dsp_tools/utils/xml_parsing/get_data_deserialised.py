@@ -14,13 +14,13 @@ from dsp_tools.error.exceptions import BaseError
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.models.data_deserialised import DataDeserialised
+from dsp_tools.utils.xml_parsing.models.data_deserialised import MigrationMetadata
 from dsp_tools.utils.xml_parsing.models.data_deserialised import PropertyObject
 from dsp_tools.utils.xml_parsing.models.data_deserialised import ResourceDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import TripleObjectType
 from dsp_tools.utils.xml_parsing.models.data_deserialised import TriplePropertyType
 from dsp_tools.utils.xml_parsing.models.data_deserialised import ValueInformation
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
-from dsp_tools.utils.xml_parsing.models.parsed_resource import MigrationMetadata
 
 
 def get_data_deserialised(root: etree._Element) -> tuple[str, DataDeserialised]:

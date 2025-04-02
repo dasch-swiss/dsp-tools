@@ -8,8 +8,8 @@ from uuid import uuid4
 
 from lxml import etree
 
+from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
-from dsp_tools.utils.xml_parsing.models.parsed_resource import MigrationMetadata
 
 
 @dataclass
@@ -44,6 +44,16 @@ class ResourceDeserialised:
     values: list[ValueInformation]
     asset_value: ValueInformation | None
     migration_metadata: MigrationMetadata
+
+
+@dataclass
+class MigrationMetadata:
+    iri: str | None = None
+    ark: str | None = None
+    creation_date: DateTimeStamp | None = None
+
+    def any(self) -> bool:
+        return any([self.iri, self.ark, self.creation_date])
 
 
 @dataclass

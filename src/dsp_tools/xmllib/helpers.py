@@ -1,6 +1,11 @@
+from __future__ import annotations
+
 import datetime
 import json
 import uuid
+import warnings
+from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 from typing import Iterable
 
@@ -8,6 +13,7 @@ import regex
 from lxml import etree
 from regex import Match
 
+from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.xmllib.constants import KNOWN_XML_TAGS
 from dsp_tools.xmllib.internal_helpers import unescape_reserved_xml_chars
@@ -233,7 +239,13 @@ def create_label_to_name_list_node_mapping(
     """
     with open(project_json_path, encoding="utf-8") as f:
         json_file = json.load(f)
-    json_subset = [x for x in json_file["project"]["lists"] if x["name"] == list_name]
+    return _get_label_to_node_one_list(json_file["project"]["lists"], list_name, language_of_label)
+
+
+def _get_label_to_node_one_list(
+    list_section: list[dict[str, Any]], list_name: str, language_of_label: str
+) -> dict[str, str]:
+    json_subset = [x for x in list_section if x["name"] == list_name]
     # json_subset is a list containing one item, namely the json object containing the entire json-list
     res = {}
     for label, name in _name_label_mapper_iterator(json_subset, language_of_label):
@@ -241,6 +253,282 @@ def create_label_to_name_list_node_mapping(
             res[label] = name
             res[label.strip().lower()] = name
     return res
+
+
+def _get_label_to_node_all_lists(
+    list_section: list[dict[str, Any]], language_of_label: str
+) -> dict[str, dict[str, str]]:
+    mapper = {}
+    for li in list_section:
+        mapper[li["name"]] = _get_label_to_node_one_list(list_section, li["name"], language_of_label)
+    return mapper
+
+
+def _get_property_to_list_name_mapping(ontologies: list[dict[str, Any]], default_ontology: str) -> dict[str, str]:
+    prop_lookup = {}
+    for onto in ontologies:
+        prefix = onto["name"]
+        property_section = onto["properties"]
+        for prop in property_section:
+            if prop["gui_element"] == "List":
+                prefixed_prop = f"{prefix}:{prop['name']}"
+                prop_lookup[prefixed_prop] = prop["gui_attributes"]["hlist"]
+    default_props = {
+        k.replace(default_ontology, "", 1): v for k, v in prop_lookup.items() if k.startswith(f"{default_ontology}:")
+    }
+    prop_lookup = prop_lookup | default_props
+    return prop_lookup
+
+
+@dataclass
+class ListLookup:
+    _lookup: dict[str, dict[str, str]]
+    _prop_to_list_name: dict[str, str]
+    _label_language: str
+
+    @staticmethod
+    def create_new(project_json_path: str | Path, language_of_label: str, default_ontology: str) -> ListLookup:
+        """
+        Creates a list lookup based on list labels in a specified language and returning list node names.
+        Works for all lists in a project.json
+
+        Args:
+            project_json_path: path to a JSON project file (a.k.a. ontology)
+            language_of_label: label language used for the list
+            default_ontology: ontology prefix which is defined as default in the XML file
+
+        Returns:
+            `ListLookup` for a project
+
+        Examples:
+            ```python
+            list_lookup = xmllib.ListLookup.create_new(
+                project_json_path="project.json",
+                language_of_label="en",
+                default_ontology="default-onto",
+            )
+            ```
+        """
+        with open(project_json_path, encoding="utf-8") as f:
+            json_file = json.load(f)
+        label_to_list_node_lookup = _get_label_to_node_all_lists(json_file["project"]["lists"], language_of_label)
+        prop_to_list_mapper = _get_property_to_list_name_mapping(json_file["project"]["ontologies"], default_ontology)
+        return ListLookup(
+            _lookup=label_to_list_node_lookup,
+            _prop_to_list_name=prop_to_list_mapper,
+            _label_language=language_of_label,
+        )
+
+    def get_node_via_list_name(self, list_name: str, node_label: str) -> str:
+        """
+        Returns the list node name based on a label.
+        The language of the label was specified when creating the `ListLookup`.
+
+        Args:
+            list_name: name of the list
+            node_label: label of the node
+
+        Returns:
+            node name
+
+        Examples:
+            ```python
+            node_name = list_lookup.get_node_via_list_name(
+                list_name="list1",
+                node_label="Label 1"  # or: "label 1" (capitalisation is not relevant)
+            )
+            # node_name == "node1"
+            ```
+        """
+        if not (list_lookup := self._lookup.get(list_name)):
+            msg = f"Entered list name '{list_name}' was not found."
+            warnings.warn(DspToolsUserWarning(msg))
+            return ""
+        if not (found_node := list_lookup.get(node_label)):
+            msg = (
+                f"'{node_label}' was not recognised as label of the list '{list_name}'. "
+                f"This ListLookup is configured for '{self._label_language}' labels."
+            )
+            warnings.warn(DspToolsUserWarning(msg))
+            return ""
+        return found_node
+
+    def get_list_name_and_node_via_property(self, prop_name: str, node_label: str) -> tuple[str, str]:
+        """
+        Returns the list name and the node name based on a property that is used with the list and the label of a node.
+        The language of the label was specified when creating the `ListLookup`.
+        The list name needs to be referenced in the XML file.
+
+        Args:
+            prop_name: name of the list
+            node_label: label of the node
+
+        Returns:
+            list name and node name
+
+        Examples:
+            ```python
+            list_name, node_name = list_lookup.get_list_name_and_node_via_property(
+                prop_name=":hasList",  # or: "default-onto:hasList"
+                node_label="label 1"
+            )
+            # list_name == "list1"
+            # node_name == "node1"
+            ```
+        """
+        if not (list_name := self.get_list_name_via_property(prop_name)):
+            return "", ""
+        return list_name, self.get_node_via_list_name(list_name, node_label)
+
+    def get_list_name_via_property(self, prop_name: str) -> str:
+        """
+        Returns the list name as specified in the ontology for a property.
+        The list name needs to be referenced in the XML file.
+
+        Args:
+            prop_name: name of the property
+
+        Returns:
+            Name of the list
+
+        Examples:
+            ```python
+            list_name = list_lookup.get_list_name_via_property(
+                prop_name=":hasList",  # or: "default-onto:hasList"
+            )
+            # list_name == "list1"
+            ```
+        """
+        if not (list_name := self._prop_to_list_name.get(prop_name)):
+            msg = f"Entered property '{prop_name}' was not found."
+            warnings.warn(DspToolsUserWarning(msg))
+            return ""
+        return list_name
+
+
+def get_list_nodes_from_string_via_list_name(
+    string_with_list_labels: str, label_separator: str, list_name: str, list_lookup: ListLookup
+) -> list[str]:
+    """
+    Takes a string containing list labels, the separator by which they can be split,
+    a property name and the list lookup.
+    Resolves the labels and returns the list name to be referenced in the XML file and a list of node names.
+    If the string is empty, it returns an empty list.
+
+    Args:
+        string_with_list_labels: the string containing the labels
+        label_separator: separator in the string that contains the labels
+        list_name: name of the list
+        list_lookup: `ListLookup` of the project
+
+    Returns:
+        The name of the list and a list of node names.
+
+    Examples:
+        ```python
+        string_with_list_labels = "Label 1; Label 2"
+        nodes = xmllib.get_list_nodes_from_string_via_list_name(
+            string_with_list_labels=string_with_list_labels,
+            label_separator=";",
+            list_name="list1",
+            list_lookup=list_lookup,
+        )
+        # nodes == ["node1", "node2"]
+        ```
+
+        ```python
+        string_with_list_labels = ""
+        nodes = xmllib.get_list_nodes_from_string_via_list_name(
+            string_with_list_labels=string_with_list_labels,
+            label_separator=";",
+            list_name="list1",
+            list_lookup=list_lookup,
+        )
+        # nodes == []
+        ```
+
+        ```python
+        string_with_list_labels = pd.NA
+        nodes = xmllib.get_list_nodes_from_string_via_list_name(
+            string_with_list_labels=string_with_list_labels,
+            label_separator=";",
+            list_name="list1",
+            list_lookup=list_lookup,
+        )
+        # nodes == []
+        ```
+    """
+    if not is_nonempty_value(string_with_list_labels):
+        return []
+    labels_list = create_list_from_string(string_with_list_labels, label_separator)
+    nodes_list = [list_lookup.get_node_via_list_name(list_name, label) for label in labels_list]
+    return nodes_list
+
+
+def get_list_nodes_from_string_via_property(
+    string_with_list_labels: str, label_separator: str, property_name: str, list_lookup: ListLookup
+) -> tuple[str, list[str]]:
+    """
+    Takes a string containing list labels, the separator by which they can be split,
+    a property name and the list lookup.
+    Resolves the labels and returns the list name to be referenced in the XML file and a list of node names.
+    If the string is empty, it returns an empty list.
+
+    Args:
+        string_with_list_labels: the string containing the labels
+        label_separator: separator in the string that contains the labels
+        property_name: name of the property
+        list_lookup: `ListLookup` of the project
+
+    Returns:
+        The name of the list and a list of node names.
+
+    Examples:
+        ```python
+        string_with_list_labels = "Label 1; Label 2"
+        list_name, nodes = xmllib.get_list_nodes_from_string_via_property(
+            string_with_list_labels=string_with_list_labels,
+            label_separator=";",
+            property_name=":hasList",
+            list_lookup=list_lookup,
+        )
+        # list_name == "list1"
+        # nodes == ["node1", "node2"]
+        ```
+
+        ```python
+        string_with_list_labels = ""
+        list_name, nodes = xmllib.get_list_nodes_from_string_via_property(
+            string_with_list_labels=string_with_list_labels,
+            label_separator=";",
+            property_name=":hasList",
+            list_lookup=list_lookup,
+        )
+        # list_name == ""
+        # nodes == []
+        ```
+
+        ```python
+        string_with_list_labels = pd.NA
+        list_name, nodes = xmllib.get_list_nodes_from_string_via_property(
+            string_with_list_labels=string_with_list_labels,
+            label_separator=";",
+            property_name=":hasList",
+            list_lookup=list_lookup,
+        )
+        # list_name == ""
+        # nodes == []
+        ```
+    """
+    if not is_nonempty_value(string_with_list_labels):
+        return "", []
+    labels_list = create_list_from_string(string_with_list_labels, label_separator)
+    list_name = ""
+    nodes = []
+    for lbl in labels_list:
+        list_name, node_name = list_lookup.get_list_name_and_node_via_property(property_name, lbl)
+        nodes.append(node_name)
+    return list_name, nodes
 
 
 def _name_label_mapper_iterator(

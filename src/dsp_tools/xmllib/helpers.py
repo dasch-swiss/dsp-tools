@@ -289,13 +289,13 @@ class ListLookup:
     @staticmethod
     def create_new(project_json_path: str | Path, language_of_label: str, default_ontology: str) -> ListLookup:
         """
-        Creates a `ListLookup` which is capable of returning list node names,
-        based on a label in a specified language for all lists in a project.json
+        Creates a "List lookup" based on list labels in a specified language and returning list node names.
+        Works for all lists in a project.json
 
         Args:
             project_json_path: path to a JSON project file (a.k.a. ontology)
-            language_of_label: which language of the label to choose
-            default_ontology: ontology prefix which is defined as default in the XML
+            language_of_label: label language used for the list
+            default_ontology: ontology prefix which is defined as default in the XML file
 
         Returns:
             `ListLookup` for a project
@@ -322,7 +322,7 @@ class ListLookup:
     def get_node_via_list_name(self, list_name: str, node_label: str) -> str:
         """
         Returns the list node name based on a label.
-        The language of the label was specified when creating the `ListLookup` with the function `get_list_lookup`
+        The language of the label was specified when creating the `ListLookup`.
 
         Args:
             list_name: name of the list
@@ -365,15 +365,15 @@ class ListLookup:
     def get_list_name_and_node_via_property(self, prop_name: str, node_label: str) -> tuple[str, str]:
         """
         Returns the list name and the node name based on a property that is used with the list and the label of a node.
-        The language of the label was specified when creating the `ListLookup` with the function `get_list_lookup`.
-        The list name needs to be referenced in the XML.
+        The language of the label was specified when creating the `ListLookup`.
+        The list name needs to be referenced in the XML file.
 
         Args:
             prop_name: name of the list
             node_label: label of the node
 
         Returns:
-            liste name and node name
+            list name and node name
 
         Examples:
             ```python
@@ -386,7 +386,7 @@ class ListLookup:
             ```
 
             ```python
-            # The prefix of the default onto can also be used to retrieve the list name and node
+            # The prefix of the default ontology can also be used to retrieve the list name and node
             list_name, node_name = list_lookup.get_list_name_and_node_via_property(
                 prop_name="default-onto:hasList",
                 node_label="label 1"
@@ -401,8 +401,8 @@ class ListLookup:
 
     def get_list_name_via_property(self, prop_name: str) -> str:
         """
-        Returns the list name as specified for a property in the ontology.
-        The list name needs to be referenced in the XML.
+        Returns the list name as specified in the ontology for a property.
+        The list name needs to be referenced in the XML file.
 
         Args:
             prop_name: name of the property
@@ -419,7 +419,7 @@ class ListLookup:
             ```
 
             ```python
-            # The prefix of the default onto can also be used to retrieve the list name and node
+            # The prefix of the default ontology can also be used to retrieve the list name and node
             list_name = list_lookup.get_list_name_via_property(
                 prop_name="default-onto:hasList",
             )
@@ -437,8 +437,9 @@ def get_list_nodes_from_string_via_list_name(
     string_with_list_labels: str, label_separator: str, list_name: str, list_lookup: ListLookup
 ) -> list[str]:
     """
-    Takes a string of list labels, the separator by which they can be split, a property name and the list lookup.
-    From that it resolves the labels and returns the list name, to be referenced in the XML and a list of node names.
+    Takes a string containing list labels, the separator by which they can be split,
+    a property name and the list lookup.
+    Resolves the labels and returns the list name to be referenced in the XML file and a list of node names.
     If the string is empty, it returns an empty list.
 
     Args:
@@ -448,7 +449,7 @@ def get_list_nodes_from_string_via_list_name(
         list_lookup: `ListLookup` of the project
 
     Returns:
-        The name of the list and a list with the node names.
+        The name of the list and a list of node names.
 
     Examples:
         ```python
@@ -495,8 +496,9 @@ def get_list_nodes_from_string_via_property(
     string_with_list_labels: str, label_separator: str, property_name: str, list_lookup: ListLookup
 ) -> tuple[str, list[str]]:
     """
-    Takes a string of list labels, the separator by which they can be split, a property name and the list lookup.
-    From that it resolves the labels and returns the list name, to be referenced in the XML and a list of node names.
+    Takes a string containing list labels, the separator by which they can be split,
+    a property name and the list lookup.
+    Resolves the labels and returns the list name to be referenced in the XML file and a list of node names.
     If the string is empty, it returns an empty list.
 
     Args:
@@ -506,11 +508,11 @@ def get_list_nodes_from_string_via_property(
         list_lookup: `ListLookup` of the project
 
     Returns:
-        The name of the list and a list with the node names.
+        The name of the list and a list of node names.
 
     Examples:
         ```python
-        string_with_list_labels = "Label 1 ;Label 2"
+        string_with_list_labels = "Label 1; Label 2"
         list_name, nodes = xmllib.get_list_nodes_from_string_via_property(
             string_with_list_labels=string_with_list_labels,
             label_separator=";",

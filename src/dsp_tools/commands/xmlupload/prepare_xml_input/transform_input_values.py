@@ -16,7 +16,7 @@ from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.data_formats.date_util import Date
 from dsp_tools.utils.data_formats.date_util import parse_date_string
 
-InputTypes: TypeAlias = Union[str, FormattedTextValue]
+InputTypes: TypeAlias = Union[str, FormattedTextValue, tuple[str, str]]
 
 
 @dataclass

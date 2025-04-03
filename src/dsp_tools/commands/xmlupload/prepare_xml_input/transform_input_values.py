@@ -86,3 +86,16 @@ def assert_is_string(value: str | FormattedTextValue | tuple[str, str]) -> str:
             raise InputError(f"Expected string value, but got tuple value: {value}")
         case _:
             assert_never(value)
+
+
+def assert_is_tuple(value: str | FormattedTextValue | tuple[str, str]) -> tuple[str, str]:
+    """Assert a value is a tuple."""
+    match value:
+        case tuple() as t:
+            return t
+        case FormattedTextValue() as xml:
+            raise InputError(f"Expected tuple value, but got XML value: {xml.as_xml()}")
+        case str():
+            raise InputError(f"Expected tuple value, but got string value: {value}")
+        case _:
+            assert_never(value)

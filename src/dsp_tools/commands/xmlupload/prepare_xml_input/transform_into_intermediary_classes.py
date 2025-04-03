@@ -34,6 +34,7 @@ from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.prepare_xml_input.ark2iri import convert_ark_v0_to_resource_iri
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import TypeTransformerMapper
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import assert_is_string
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import assert_is_tuple
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_boolean
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_date
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_decimal
@@ -220,9 +221,9 @@ def _transform_list_values(prop: XMLProperty, lookups: IntermediaryLookups) -> l
     intermediary_values: list[IntermediaryValue] = []
     prop_iri = _get_absolute_iri(prop.name, lookups.namespaces)
     for val in prop.values:
-        str_val = assert_is_string(val.value)
-        if not (list_iri := lookups.listnodes.get(str_val)):
-            raise InputError(f"Could not find list iri for node: {str_val}")
+        tuple_val = assert_is_tuple(val.value)
+        if not (list_iri := lookups.listnodes.get(tuple_val)):
+            raise InputError(f"Could not find list iri for node: {' / '.join(tuple_val)}")
         permission_val = _resolve_permission(val.permissions, lookups.permissions)
         intermediary_values.append(IntermediaryList(list_iri, prop_iri, val.comment, permission_val))
     return intermediary_values

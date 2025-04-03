@@ -314,12 +314,11 @@ def find_date_in_string(string: str) -> str | None:
     [See XML documentation for details](https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#date).
 
     Notes:
-        - If no era or calendar is given, dates are interpreted in the Christian era and the Gregorian calendar.
-        - For CE, the years 0000-2999 are supported, in 3/4-digit form.
-          (Because a 1-digit or 2-digit number isn't specific enough to be interpreted as a year.)
-        - For BCE, all years are supported, regardless of the number of digits.
-          However, no months/days are supported.
-        - A year is interpreted as BC if it is followed by one of these words: BCE, BC, B.C., B.C.E., av. J.-C.
+        - If no era or calendar is given, dates are interpreted in the Common Era and the Gregorian calendar.
+        - Standalone numbers from 000-2999, in 3/4-digit form, are interpreted as years CE.
+        - If a number (with any number of digits) is followed by CE, C.E., AD, A.D., it is interpreted as years CE.
+        - If a number (with any number of digits) is followed by BCE, BC, B.C., B.C.E., av. J.-C., 
+          it is interpreted as years BCE.
         - Dates written with slashes are always interpreted in a European manner: 5/11/2021 is the 5th of November.
         - In the European notation, 2-digit years are expanded to 4 digits, with the current year as watershed:
             - 30.4.24 -> 30.04.2024

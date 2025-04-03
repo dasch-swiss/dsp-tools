@@ -94,7 +94,7 @@ def integer_prop() -> XMLProperty:
 
 @pytest.fixture
 def list_prop() -> XMLProperty:
-    return XMLProperty(name="onto:listProp", valtype="list", values=[XMLValue("list:node")])
+    return XMLProperty(name="onto:listProp", valtype="list", values=[XMLValue(("list", "node"))])
 
 
 @pytest.fixture

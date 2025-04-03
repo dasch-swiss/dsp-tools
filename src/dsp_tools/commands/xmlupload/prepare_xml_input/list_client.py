@@ -39,7 +39,7 @@ class ProjectLists:
 class ListClient(Protocol):
     """Interface (protocol) for list-related requests to the DSP-API."""
 
-    def get_list_node_id_to_iri_lookup(self) -> dict[str, str]:
+    def get_list_node_id_to_iri_lookup(self) -> dict[tuple[str, str], str]:
         """Get a lookup of list node names to IRIs."""
 
 
@@ -51,11 +51,11 @@ class ListClientLive:
     project_iri: str
     list_info: ProjectLists | None = field(init=False, default=None)
 
-    def get_list_node_id_to_iri_lookup(self) -> dict[str, str]:
+    def get_list_node_id_to_iri_lookup(self) -> dict[tuple[str, str], str]:
         """
         Get a mapping of list node IDs to their respective IRIs.
         A list node ID is structured as follows:
-        `<list name>`:`<node name>` where the list name is the node name of the root node.
+        `("<list name>", "<node name>") where the list name is the node name of the root node.
 
         Returns:
             The mapping of list node IDs to IRIs.
@@ -65,13 +65,11 @@ class ListClientLive:
         return dict(_get_node_tuples(self.list_info.lists))
 
 
-def _get_node_tuples(lists: list[List]) -> Iterable[tuple[str, str]]:
+def _get_node_tuples(lists: list[List]) -> Iterable[tuple[tuple[str, str], str]]:
     for lst in lists:
         list_name = lst.list_name
         for node in lst.nodes:
-            node_name = node.node_name
-            node_id = f"{list_name} / {node_name}"
-            yield node_id, node.node_iri
+            yield (list_name, node.node_name), node.node_iri
 
 
 def _get_list_info_from_server(con: Connection, project_iri: str) -> ProjectLists:

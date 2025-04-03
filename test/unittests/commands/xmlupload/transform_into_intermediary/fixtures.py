@@ -17,7 +17,7 @@ from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 def lookups() -> IntermediaryLookups:
     return IntermediaryLookups(
         permissions={"open": Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})},
-        listnodes={"list:node": "http://rdfh.ch/9999/node"},
+        listnodes={("list", "node"): "http://rdfh.ch/9999/node"},
         namespaces={
             "knora-api": "http://api.knora.org/ontology/knora-api/v2#",
             "onto": "http://0.0.0.0:3333/ontology/9999/onto/v2#",
@@ -94,7 +94,7 @@ def integer_prop() -> XMLProperty:
 
 @pytest.fixture
 def list_prop() -> XMLProperty:
-    return XMLProperty(name="onto:listProp", valtype="list", values=[XMLValue("list:node")])
+    return XMLProperty(name="onto:listProp", valtype="list", values=[XMLValue(("list", "node"))])
 
 
 @pytest.fixture

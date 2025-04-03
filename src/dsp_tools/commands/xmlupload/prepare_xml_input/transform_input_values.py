@@ -16,7 +16,7 @@ from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.data_formats.date_util import Date
 from dsp_tools.utils.data_formats.date_util import parse_date_string
 
-InputTypes: TypeAlias = Union[str, FormattedTextValue]
+InputTypes: TypeAlias = Union[str, FormattedTextValue, tuple[str, str]]
 
 
 @dataclass
@@ -75,12 +75,27 @@ def transform_geometry(value: InputTypes) -> str:
         raise InputError(f"Could not parse json value: {value}") from None
 
 
-def assert_is_string(value: str | FormattedTextValue) -> str:
+def assert_is_string(value: str | FormattedTextValue | tuple[str, str]) -> str:
     """Assert a value is a string."""
     match value:
         case str() as s:
             return s
         case FormattedTextValue() as xml:
             raise InputError(f"Expected string value, but got XML value: {xml.as_xml()}")
+        case tuple():
+            raise InputError(f"Expected string value, but got tuple value: {value}")
+        case _:
+            assert_never(value)
+
+
+def assert_is_tuple(value: str | FormattedTextValue | tuple[str, str]) -> tuple[str, str]:
+    """Assert a value is a tuple."""
+    match value:
+        case tuple() as t:
+            return t
+        case FormattedTextValue() as xml:
+            raise InputError(f"Expected tuple value, but got XML value: {xml.as_xml()}")
+        case str():
+            raise InputError(f"Expected tuple value, but got string value: {value}")
         case _:
             assert_never(value)

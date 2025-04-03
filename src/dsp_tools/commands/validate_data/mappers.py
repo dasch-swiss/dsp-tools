@@ -54,6 +54,7 @@ XML_TAG_TO_VALUE_TYPE_MAPPER = {
     "color-prop": KnoraValueType.COLOR_VALUE,
     "date-prop": KnoraValueType.DATE_VALUE,
     "decimal-prop": KnoraValueType.DECIMAL_VALUE,
+    "geometry-prop": KnoraValueType.GEOM_VALUE,
     "geoname-prop": KnoraValueType.GEONAME_VALUE,
     "list-prop": KnoraValueType.LIST_VALUE,
     "integer-prop": KnoraValueType.INT_VALUE,

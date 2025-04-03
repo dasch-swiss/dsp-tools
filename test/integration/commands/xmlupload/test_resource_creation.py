@@ -70,8 +70,8 @@ def legal_info_client_mock():  # type: ignore[no-untyped-def]
 
 
 class ListClientMock:
-    def get_list_node_id_to_iri_lookup(self) -> dict[str, str]:
-        return {}
+    def get_list_node_id_to_iri_lookup(self) -> dict[tuple[str, str], str]:
+        return dict()
 
 
 @dataclass

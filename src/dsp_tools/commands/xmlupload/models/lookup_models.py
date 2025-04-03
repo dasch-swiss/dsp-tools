@@ -14,7 +14,7 @@ from dsp_tools.commands.xmlupload.models.permission import Permissions
 @dataclass
 class IntermediaryLookups:
     permissions: dict[str, Permissions]
-    listnodes: dict[str, str]
+    listnodes: dict[tuple[str, str], str]
     namespaces: dict[str, str]
     authorships: dict[str, list[str]]
 

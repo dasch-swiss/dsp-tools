@@ -98,7 +98,7 @@ class XMLProperty:
 class XMLValue:
     """Represents a value of a resource property in the XML used for data import"""
 
-    value: Union[str, FormattedTextValue]
+    value: Union[str, FormattedTextValue, tuple[str, str]]
     resrefs: set[str] = field(default_factory=set)
     comment: Optional[str] = None
     permissions: Optional[str] = None
@@ -111,7 +111,7 @@ class XMLValue:
         listname: Optional[str] = None,
     ) -> XMLValue:
         """Factory method to create an XMLValue from an XML node"""
-        value: Union[str, FormattedTextValue] = ""
+        value: Union[str, FormattedTextValue, tuple[str, str]] = ""
         resrefs = set()
         comment = node.get("comment")
         permissions = node.get("permissions")
@@ -123,7 +123,7 @@ class XMLValue:
             value = _cleanup_unformatted_text(str_orig)
         elif val_type == "list":
             listname = cast(str, listname)
-            value = f"{listname} / " + "".join(node.itertext())
+            value = (listname, "".join(node.itertext()))
         else:
             value = "".join(node.itertext())
         link_uuid = node.attrib.get("linkUUID")  # not all richtexts have a link, so this attribute is optional

@@ -2,12 +2,11 @@
 import pytest
 
 from dsp_tools.xmllib.helpers import ListLookup
-from dsp_tools.xmllib.helpers import get_list_lookup
 
 
 @pytest.fixture
 def list_lookup() -> ListLookup:
-    return get_list_lookup("testdata/json-project/test-list-lookup.json", "en", "default")
+    return ListLookup.create_new("testdata/json-project/test-list-lookup.json", "en", "default")
 
 
 class TestGetListLookup:

@@ -255,39 +255,6 @@ def _get_label_to_node_one_list(
     return res
 
 
-def get_list_lookup(project_json_path: str | Path, language_of_label: str, default_ontology: str) -> ListLookup:
-    """
-    Creates a `ListLookup` which is capable of returning list node names,
-    based on a label in a specified language for all lists in a project.json.
-    For more details regarding the functionalities see documentation for `ListLookup`.
-
-    Args:
-        project_json_path: path to a JSON project file (a.k.a. ontology)
-        language_of_label: which language of the label to choose
-        default_ontology: ontology prefix which is defined as default in the XML
-
-    Returns:
-        `ListLookup` for a project
-
-        ```python
-        list_lookup = xmllib.get_list_lookup(
-            project_json_path="project.json",
-            language_of_label="de",
-            default_ontology="onto",
-        )
-        ```
-    """
-    with open(project_json_path, encoding="utf-8") as f:
-        json_file = json.load(f)
-    label_to_list_node_lookup = _get_list_label_to_node_mapping(json_file["project"]["lists"], language_of_label)
-    prop_to_list_mapper = _get_property_to_list_name_mapping(json_file["project"]["ontologies"], default_ontology)
-    return ListLookup(
-        _lookup=label_to_list_node_lookup,
-        _prop_to_list_name=prop_to_list_mapper,
-        _label_language=language_of_label,
-    )
-
-
 def _get_list_label_to_node_mapping(
     list_section: list[dict[str, Any]], language_of_label: str
 ) -> dict[str, dict[str, str]]:
@@ -319,6 +286,39 @@ class ListLookup:
     _prop_to_list_name: dict[str, str]
     _label_language: str
 
+    @staticmethod
+    def create_new(project_json_path: str | Path, language_of_label: str, default_ontology: str) -> ListLookup:
+        """
+        Creates a `ListLookup` which is capable of returning list node names,
+        based on a label in a specified language for all lists in a project.json
+
+        Args:
+            project_json_path: path to a JSON project file (a.k.a. ontology)
+            language_of_label: which language of the label to choose
+            default_ontology: ontology prefix which is defined as default in the XML
+
+        Returns:
+            `ListLookup` for a project
+
+        Examples:
+            ```python
+            list_lookup = xmllib.ListLookup.create_new(
+                project_json_path="project.json",
+                language_of_label="de",
+                default_ontology="onto",
+            )
+            ```
+        """
+        with open(project_json_path, encoding="utf-8") as f:
+            json_file = json.load(f)
+        label_to_list_node_lookup = _get_list_label_to_node_mapping(json_file["project"]["lists"], language_of_label)
+        prop_to_list_mapper = _get_property_to_list_name_mapping(json_file["project"]["ontologies"], default_ontology)
+        return ListLookup(
+            _lookup=label_to_list_node_lookup,
+            _prop_to_list_name=prop_to_list_mapper,
+            _label_language=language_of_label,
+        )
+
     def get_node_via_list_name(self, list_name: str, node_label: str) -> str:
         """
         Returns the list node name based on a label.
@@ -331,6 +331,7 @@ class ListLookup:
         Returns:
             node name
 
+        Examples:
             ```python
             node_name = list_lookup.get_node_via_list_name(
                 list_name="list1",
@@ -372,8 +373,9 @@ class ListLookup:
             node_label: label of the node
 
         Returns:
-            node name
+            liste name and node name
 
+        Examples:
             ```python
             list_name, node_name = list_lookup.get_node_via_property(
                 prop_name=":hasList",
@@ -384,7 +386,7 @@ class ListLookup:
             ```
 
             ```python
-            # You can also use the default onto with its prefix to retrieve the list name and node
+            # The prefix of the default onto can also be used to retrieve the list name and node
             list_name, node_name = list_lookup.get_node_via_property(
                 prop_name="default-onto:hasList",
                 node_label="label 1"
@@ -408,6 +410,7 @@ class ListLookup:
         Returns:
             Name of the list
 
+        Examples:
             ```python
             list_name = list_lookup.get_list_name_via_property(
                 prop_name=":hasList",
@@ -416,7 +419,7 @@ class ListLookup:
             ```
 
             ```python
-            # The prefix of the default onto can be used to retrieve it
+            # The prefix of the default onto can also be used to retrieve the list name and node
             list_name = list_lookup.get_list_name_via_property(
                 prop_name="default-onto:hasList",
             )
@@ -447,6 +450,7 @@ def get_list_nodes_from_string_via_list_name(
     Returns:
         The name of the list and a list with the node names.
 
+    Examples:
         ```python
         string_with_list_labels = "Label 1 ;Label 2"
         nodes = xmllib.get_list_nodes_from_string_via_list_name(
@@ -504,6 +508,7 @@ def get_list_nodes_from_string_via_property(
     Returns:
         The name of the list and a list with the node names.
 
+    Examples:
         ```python
         string_with_list_labels = "Label 1 ;Label 2"
         list_name, nodes = xmllib.get_list_nodes_from_string_via_property(

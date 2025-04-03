@@ -304,8 +304,8 @@ class ListLookup:
             ```python
             list_lookup = xmllib.ListLookup.create_new(
                 project_json_path="project.json",
-                language_of_label="de",
-                default_ontology="onto",
+                language_of_label="en",
+                default_ontology="default-onto",
             )
             ```
         """
@@ -377,7 +377,7 @@ class ListLookup:
 
         Examples:
             ```python
-            list_name, node_name = list_lookup.get_node_via_property(
+            list_name, node_name = list_lookup.get_list_name_and_node_via_property(
                 prop_name=":hasList",
                 node_label="label 1"
             )
@@ -387,7 +387,7 @@ class ListLookup:
 
             ```python
             # The prefix of the default onto can also be used to retrieve the list name and node
-            list_name, node_name = list_lookup.get_node_via_property(
+            list_name, node_name = list_lookup.get_list_name_and_node_via_property(
                 prop_name="default-onto:hasList",
                 node_label="label 1"
             )

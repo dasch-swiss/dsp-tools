@@ -277,7 +277,17 @@ def _get_list_label_to_node_mapping(
 def _get_property_to_list_name_mapping(ontologies: list[dict[str, Any]], default_ontology: str) -> dict[str, str]:
     prop_lookup = {}
     for onto in ontologies:
-
+        prefix = onto["name"]
+        props = onto["properties"]
+        for prop in props:
+            if prop["gui_element"] == "List":
+                prefixed_prop = f"{prefix}:{prop['name']}"
+                prop_lookup[prefixed_prop] = props["gui_attributes"]["hlist"]
+    default_props = {
+        k.replace(default_ontology, "", 1): v for k, v in prop_lookup if k.startswith(f"{default_ontology}:")
+    }
+    prop_lookup = prop_lookup | default_props
+    return prop_lookup
 
 
 @dataclass

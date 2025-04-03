@@ -20,6 +20,7 @@ class TestGetListLookup:
             "label 2": "list1_node2",
             "label 2.1": "list1_node2.1",
             "label 2.2": "list1_node2.2",
+            "label 2.2.1": "list1_node2.2.1",
         }
         assert list_lookup._lookup["list1"] == expected_1
         expected_2 = {"label 1": "list2_node1", "label 2": "list2_node2"}

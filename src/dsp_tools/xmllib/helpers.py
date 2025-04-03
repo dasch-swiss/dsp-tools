@@ -275,7 +275,9 @@ def _get_list_label_to_node_mapping(
 
 
 def _get_property_to_list_name_mapping(ontologies: list[dict[str, Any]], default_ontology: str) -> dict[str, str]:
-    pass
+    prop_lookup = {}
+    for onto in ontologies:
+
 
 
 @dataclass

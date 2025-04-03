@@ -83,28 +83,6 @@
                         }
                     }
                 ]
-            },
-            {
-                "name": "notUsedList",
-                "labels": {
-                    "en": "Not used list"
-                },
-                "comments": {
-                    "de": "kein Kommentar",
-                    "en": "no comment"
-                },
-                "nodes": [
-                    {
-                        "name": "notUsedNode_1",
-                        "labels": {
-                            "en": "nodeLabel_1'"
-                        },
-                        "comments": {
-                            "en": "Nodes can have comments, too!",
-                            "rm": "Even in Rumantsch!"
-                        }
-                    }
-                ]
             }
         ],
         "ontologies": [

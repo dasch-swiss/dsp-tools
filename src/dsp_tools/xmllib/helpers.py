@@ -364,7 +364,8 @@ class ListLookup:
     def get_list_name_and_node_via_property(self, prop_name: str, node_label: str) -> tuple[str, str]:
         """
         Returns the list name and the node name based on a property that is used with the list and the label of a node.
-        The language of the label was specified when creating the `ListLookup` with the function `get_list_lookup`
+        The language of the label was specified when creating the `ListLookup` with the function `get_list_lookup`.
+        The list name needs to be referenced in the XML.
 
         Args:
             prop_name: name of the list
@@ -399,6 +400,7 @@ class ListLookup:
     def get_list_name_via_property(self, prop_name: str) -> str:
         """
         Returns the list name as specified for a property in the ontology.
+        The list name needs to be referenced in the XML.
 
         Args:
             prop_name: name of the property
@@ -431,6 +433,55 @@ class ListLookup:
 def get_list_nodes_from_string_via_list_name(
     string_with_list_labels: str, label_separator: str, list_name: str, list_lookup: ListLookup
 ) -> list[str]:
+    """
+    Takes a string of list labels, the separator by which they can be split, a property name and the list lookup.
+    From that it resolves the labels and returns the list name, to be referenced in the XML and a list of node names.
+    If the string is empty, it returns an empty list.
+
+    Args:
+        string_with_list_labels: the string containing the labels
+        label_separator: separator in the string that contains the labels
+        list_name: name of the list
+        list_lookup: `ListLookup` of the project
+
+    Returns:
+        The name of the list and a list with the node names.
+
+        ```python
+        string_with_list_labels = "Label 1 ;Label 2"
+        nodes = xmllib.get_list_nodes_from_string_via_list_name(
+            string_with_list_labels=string_with_list_labels,
+            label_separator=";",
+            list_name="list1",
+            list_lookup=list_lookup,
+        )
+        # nodes == ["node1", "node2"]
+        ```
+
+        ```python
+        string_with_list_labels = ""
+        nodes = xmllib.get_list_nodes_from_string_via_list_name(
+            string_with_list_labels=string_with_list_labels,
+            label_separator=";",
+            list_name="list1",
+            list_lookup=list_lookup,
+        )
+        # nodes == []
+        ```
+
+        ```python
+        string_with_list_labels = pd.NA
+        nodes = xmllib.get_list_nodes_from_string_via_list_name(
+            string_with_list_labels=string_with_list_labels,
+            label_separator=";",
+            list_name="list1",
+            list_lookup=list_lookup,
+        )
+        # nodes == []
+        ```
+    """
+    if not is_nonempty_value(string_with_list_labels):
+        return []
     labels_list = create_list_from_string(string_with_list_labels, label_separator)
     nodes_list = [list_lookup.get_node_via_list_name(list_name, label) for label in labels_list]
     return nodes_list
@@ -439,6 +490,58 @@ def get_list_nodes_from_string_via_list_name(
 def get_list_nodes_from_string_via_property(
     string_with_list_labels: str, label_separator: str, property_name: str, list_lookup: ListLookup
 ) -> tuple[str, list[str]]:
+    """
+    Takes a string of list labels, the separator by which they can be split, a property name and the list lookup.
+    From that it resolves the labels and returns the list name, to be referenced in the XML and a list of node names.
+    If the string is empty, it returns an empty list.
+
+    Args:
+        string_with_list_labels: the string containing the labels
+        label_separator: separator in the string that contains the labels
+        property_name: name of the property
+        list_lookup: `ListLookup` of the project
+
+    Returns:
+        The name of the list and a list with the node names.
+
+        ```python
+        string_with_list_labels = "Label 1 ;Label 2"
+        list_name, nodes = xmllib.get_list_nodes_from_string_via_property(
+            string_with_list_labels=string_with_list_labels,
+            label_separator=";",
+            property_name=":hasList",
+            list_lookup=list_lookup,
+        )
+        # list_name == "list1"
+        # nodes == ["node1", "node2"]
+        ```
+
+        ```python
+        string_with_list_labels = ""
+        list_name, nodes = xmllib.get_list_nodes_from_string_via_property(
+            string_with_list_labels=string_with_list_labels,
+            label_separator=";",
+            property_name=":hasList",
+            list_lookup=list_lookup,
+        )
+        # list_name == ""
+        # nodes == []
+        ```
+
+        ```python
+        string_with_list_labels = pd.NA
+        list_name, nodes = xmllib.get_list_nodes_from_string_via_property(
+            string_with_list_labels=string_with_list_labels,
+            label_separator=";",
+            property_name=":hasList",
+            list_lookup=list_lookup,
+        )
+        # list_name == ""
+        # nodes == []
+        ```
+    """
+    if not is_nonempty_value(string_with_list_labels):
+        return "", []
     labels_list = create_list_from_string(string_with_list_labels, label_separator)
     list_name = ""
     nodes = []

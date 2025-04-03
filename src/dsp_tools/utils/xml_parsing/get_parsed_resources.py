@@ -43,11 +43,10 @@ def get_parsed_resources(root: etree._Element, api_url: str) -> tuple[list[Parse
 def _create_from_local_name_to_absolute_iri_lookup(root: etree._Element, api_url: str) -> dict[str, str]:
     shortcode = root.attrib["shortcode"]
     default_ontology = root.attrib["default-ontology"]
-    local_names = [ele.attrib["restype"] for ele in root.iterdescendants(tag="resource")]
-    props = [ele.attrib["name"] for ele in root.iter() if "name" in ele.attrib]
-    local_names.extend(props)
-    unique_local_names = set(local_names)
-    lookup = {local: _get_one_absolute_iri(local, shortcode, default_ontology, api_url) for local in unique_local_names}
+    local_names = {ele.attrib["restype"] for ele in root.iterdescendants(tag="resource")}
+    props = {ele.attrib["name"] for ele in root.iter() if "name" in ele.attrib}
+    local_names.update(props)
+    lookup = {local: _get_one_absolute_iri(local, shortcode, default_ontology, api_url) for local in local_names}
     return lookup
 
 
@@ -56,7 +55,7 @@ def _get_one_absolute_iri(local_name: str, shortcode: str, default_ontology: str
     if len(split_name) == 1:
         return f"{KNORA_API_STR}{local_name}"
     if len(split_name) == 2:
-        if len(split_name[0]) == 0:
+        if split_name[0] == "":
             return f"{_construct_namespace(api_url, shortcode, default_ontology)}{split_name[1]}"
         if split_name[0] == "knora-api":
             return f"{KNORA_API_STR}{split_name[1]}"

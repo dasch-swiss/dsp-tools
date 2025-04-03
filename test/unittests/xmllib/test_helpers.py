@@ -225,7 +225,7 @@ class TestFindDate:
         assert find_date_in_string(string) == "GREGORIAN:CE:9:CE:9"
 
     @pytest.mark.parametrize(
-        ["string", "expected"],
+        ("string", "expected"),
         [
             ("x 9 BC x", "GREGORIAN:BC:9:BC:9"),
             ("x 10000 BC x", "GREGORIAN:BC:10000:BC:10000"),

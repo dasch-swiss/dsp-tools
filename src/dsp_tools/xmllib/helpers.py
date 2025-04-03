@@ -317,7 +317,7 @@ def find_date_in_string(string: str) -> str | None:
         - If no era or calendar is given, dates are interpreted in the Common Era and the Gregorian calendar.
         - Standalone numbers from 000-2999, in 3/4-digit form, are interpreted as years CE.
         - If a number (with any number of digits) is followed by CE, C.E., AD, A.D., it is interpreted as years CE.
-        - If a number (with any number of digits) is followed by BCE, BC, B.C., B.C.E., av. J.-C., 
+        - If a number (with any number of digits) is followed by BCE, BC, B.C., B.C.E., av. J.-C.,
           it is interpreted as years BCE.
         - Dates written with slashes are always interpreted in a European manner: 5/11/2021 is the 5th of November.
         - In the European notation, 2-digit years are expanded to 4 digits, with the current year as watershed:

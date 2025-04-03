@@ -21,7 +21,7 @@ def list_lookup() -> ListLookup:
     return ListLookup(
         _lookup={
             "list1": {"Label 1": "list1_node1", "Label 2": "list1_node2"},
-            "list2": {{"Label 1": "list2_node1", "Label 2": "list2_node2"}},
+            "list2": {"Label 1": "list2_node1", "Label 2": "list2_node2"},
         },
         _prop_to_list_name={
             "default:defaultOntoHasListOne": "list1",
@@ -331,13 +331,15 @@ class TestListLookup:
         assert list_lookup.get_node_via_list_name("list1", "Label 1") == "list1_node1"
 
     def test_get_node_via_list_name_warns_wrong_list(self, list_lookup):
-        msg = regex.escape("afddfsa")
+        msg = regex.escape("Entered list name 'inexistent' was not found. You entered the language en.")
         with pytest.warns(DspToolsUserWarning, match=msg):
             result = list_lookup.get_node_via_list_name("inexistent", "Label 1")
         assert result == ""
 
     def test_get_node_via_list_name_warns_wrong_node(self, list_lookup):
-        msg = regex.escape("adsfadfs")
+        msg = regex.escape(
+            "Entered list node 'inexistent' for list 'list1' was not found. You entered the language en."
+        )
         with pytest.warns(DspToolsUserWarning, match=msg):
             result = list_lookup.get_node_via_list_name("list1", "inexistent")
         assert result == ""
@@ -346,7 +348,7 @@ class TestListLookup:
         assert list_lookup.get_node_via_property("other-onto:otherOntoHasListTwo", "Label 2") == "list2_node2"
 
     def test_get_node_via_property_warns_wrong_property(self, list_lookup):
-        msg = regex.escape("adsfadfs")
+        msg = regex.escape("Entered property ':inexistent' was not found.")
         with pytest.warns(DspToolsUserWarning, match=msg):
-            result = list_lookup.get_node_via_property("inexistent", "Label 2")
+            result = list_lookup.get_node_via_property(":inexistent", "Label 2")
         assert result == ""

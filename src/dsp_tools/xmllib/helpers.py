@@ -255,7 +255,7 @@ def _get_label_to_node_one_list(
     return res
 
 
-def _get_list_label_to_node_mapping(
+def _get_label_to_node_all_lists(
     list_section: list[dict[str, Any]], language_of_label: str
 ) -> dict[str, dict[str, str]]:
     mapper = {}
@@ -289,7 +289,7 @@ class ListLookup:
     @staticmethod
     def create_new(project_json_path: str | Path, language_of_label: str, default_ontology: str) -> ListLookup:
         """
-        Creates a "List lookup" based on list labels in a specified language and returning list node names.
+        Creates a list lookup based on list labels in a specified language and returning list node names.
         Works for all lists in a project.json
 
         Args:
@@ -311,7 +311,7 @@ class ListLookup:
         """
         with open(project_json_path, encoding="utf-8") as f:
             json_file = json.load(f)
-        label_to_list_node_lookup = _get_list_label_to_node_mapping(json_file["project"]["lists"], language_of_label)
+        label_to_list_node_lookup = _get_label_to_node_all_lists(json_file["project"]["lists"], language_of_label)
         prop_to_list_mapper = _get_property_to_list_name_mapping(json_file["project"]["ontologies"], default_ontology)
         return ListLookup(
             _lookup=label_to_list_node_lookup,
@@ -335,28 +335,19 @@ class ListLookup:
             ```python
             node_name = list_lookup.get_node_via_list_name(
                 list_name="list1",
-                node_label="Label 1"
-            )
-            # node_name == "node1"
-            ```
-
-            ```python
-            # Capitalisation in the label is not relevant
-            node_name = list_lookup.get_node_via_list_name(
-                list_name="list1",
-                node_label="label 1"
+                node_label="Label 1"  # or: "label 1" (capitalisation is not relevant)
             )
             # node_name == "node1"
             ```
         """
         if not (list_lookup := self._lookup.get(list_name)):
-            msg = f"Entered list name '{list_name}' was not found. You entered the language {self._label_language}."
+            msg = f"Entered list name '{list_name}' was not found."
             warnings.warn(DspToolsUserWarning(msg))
             return ""
         if not (found_node := list_lookup.get(node_label)):
             msg = (
-                f"Entered list label '{node_label}' for list '{list_name}' was not found. "
-                f"You entered the language {self._label_language}."
+                f"'{node_label}' was not recognised as label of the list '{list_name}'. "
+                f"This ListLookup is configured for '{self._label_language}' labels."
             )
             warnings.warn(DspToolsUserWarning(msg))
             return ""

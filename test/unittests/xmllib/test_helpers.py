@@ -332,14 +332,15 @@ class TestListLookup:
         assert list_lookup.get_node_via_list_name("list1", "Label 1") == "list1_node1"
 
     def test_get_node_via_list_name_warns_wrong_list(self, list_lookup):
-        msg = regex.escape("Entered list name 'inexistent' was not found. You entered the language en.")
+        msg = regex.escape("Entered list name 'inexistent' was not found.")
         with pytest.warns(DspToolsUserWarning, match=msg):
             result = list_lookup.get_node_via_list_name("inexistent", "Label 1")
         assert result == ""
 
     def test_get_node_via_list_name_warns_wrong_node(self, list_lookup):
         msg = regex.escape(
-            "Entered list label 'inexistent' for list 'list1' was not found. You entered the language en."
+            "'inexistent' was not recognised as label of the list 'list1'. "
+            "This ListLookup is configured for 'en' labels."
         )
         with pytest.warns(DspToolsUserWarning, match=msg):
             result = list_lookup.get_node_via_list_name("list1", "inexistent")

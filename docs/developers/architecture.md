@@ -22,7 +22,7 @@ state "ParsedResource" as parsedres3
 state "IntermediaryResource" as intermediaryres
 state "CLI: validate-data" as valdata
 
-[*]-->rootwork
+[*]-->eroot1
 state rootwork {
     eroot1-->eroot2: xsd validation success
     eroot1-->[*]: xsd validation error raised
@@ -127,7 +127,7 @@ state transformfile {
 transformres-->coll: return result
 transformationval-->coll: return result
 transformfile-->coll: return result
-coll-->ResourceInputConversionFailure: resolveping errors
+coll-->ResourceInputConversionFailure: resolving errors
 ResourceInputConversionFailure-->[*]
 coll-->IntermediaryResource: successful transformations
 ```

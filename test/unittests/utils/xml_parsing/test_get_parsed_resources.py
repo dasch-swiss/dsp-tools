@@ -68,17 +68,23 @@ class TestParseResource:
         assert metadata.ark == "ark"
         assert metadata.creation_date == "2019-01-09T15:45:54.502951Z"
 
-    def test_with_values(self, root_no_resources, resource_with_values):
+    def test_with_value(self, root_no_resources, resource_with_value):
         root = deepcopy(root_no_resources)
-        root.append(resource_with_values)
+        root.append(resource_with_value)
         parsed_res, _ = get_parsed_resources(root, API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
-        assert resource.res_id == "resource_with_values"
+        assert resource.res_id == "resource_with_value"
         assert resource.res_type == RES_CLASS
         assert resource.label == "lbl"
         assert not resource.permissions_id
-        assert len(resource.values) == 3
+        assert len(resource.values) == 1
+        val = resource.values.pop(0)
+        assert val.prop_name == HAS_PROP
+        assert val.value == "true"
+        assert val.value_type == KnoraValueType.BOOLEAN_VALUE
+        assert not val.permissions_id
+        assert not val.comment
         assert not resource.file_value
         assert not resource.migration_metadata
 
@@ -96,6 +102,8 @@ class TestParseResource:
         assert not resource.migration_metadata
         file_val = resource.file_value
         assert isinstance(file_val, ParsedFileValue)
+        assert file_val.value_type == KnoraValueType.AUDIO_FILE
+        assert file_val.value == "testdata/bitstreams/test.wav"
 
     def test_iiif_value(self, root_no_resources, resource_with_iiif):
         root = deepcopy(root_no_resources)

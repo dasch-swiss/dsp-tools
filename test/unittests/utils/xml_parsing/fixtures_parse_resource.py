@@ -82,16 +82,12 @@ def resource_with_migration_data() -> etree._Element:
 
 
 @pytest.fixture
-def resource_with_values() -> etree._Element:
+def resource_with_value() -> etree._Element:
     return etree.fromstring("""
-        <resource label="lbl" restype=":Class" id="resource_with_values">
+        <resource label="lbl" restype=":Class" id="resource_with_value">
             <boolean-prop name=":hasProp">
                 <boolean>true</boolean>
             </boolean-prop>
-            <color-prop name=":hasProp">
-                <color>#00ff00</color>
-                <color>#00ff11</color>
-            </color-prop>
         </resource>""")
 
 

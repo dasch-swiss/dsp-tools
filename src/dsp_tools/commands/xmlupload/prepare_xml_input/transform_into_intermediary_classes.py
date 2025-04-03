@@ -5,6 +5,7 @@ from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XM
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLFileMetadata
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
+from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileMetadata
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileValue
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryIIIFUri
@@ -234,9 +235,10 @@ def _transform_text_values(prop: XMLProperty, lookups: IntermediaryLookups) -> l
         if isinstance(val.value, str):
             intermediary_values.append(IntermediarySimpleText(val.value, prop_iri, val.comment, permission_val))
         else:
+            value: FormattedTextValue = val.value
             intermediary_values.append(
                 IntermediaryRichtext(
-                    value=val.value,
+                    value=value,
                     prop_iri=prop_iri,
                     comment=val.comment,
                     permissions=permission_val,

@@ -75,12 +75,14 @@ def transform_geometry(value: InputTypes) -> str:
         raise InputError(f"Could not parse json value: {value}") from None
 
 
-def assert_is_string(value: str | FormattedTextValue) -> str:
+def assert_is_string(value: str | FormattedTextValue | tuple[str, str]) -> str:
     """Assert a value is a string."""
     match value:
         case str() as s:
             return s
         case FormattedTextValue() as xml:
             raise InputError(f"Expected string value, but got XML value: {xml.as_xml()}")
+        case tuple(str(), str()):
+            raise InputError(f"Expected string value, but got tuple value: {value}")
         case _:
             assert_never(value)

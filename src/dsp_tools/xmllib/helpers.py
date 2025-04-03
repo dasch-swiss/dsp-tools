@@ -239,7 +239,11 @@ def create_label_to_name_list_node_mapping(
     """
     with open(project_json_path, encoding="utf-8") as f:
         json_file = json.load(f)
-    json_subset = [x for x in json_file["project"]["lists"] if x["name"] == list_name]
+    return _get_label_to_node_one_list(json_file["project"]["lists"], list_name, language_of_label)
+
+
+def _get_label_to_node_one_list(list_section: list[dict[str, Any]], list_name, language_of_label) -> dict[str, str]:
+    json_subset = [x for x in list_section if x["name"] == list_name]
     # json_subset is a list containing one item, namely the json object containing the entire json-list
     res = {}
     for label, name in _name_label_mapper_iterator(json_subset, language_of_label):
@@ -264,7 +268,10 @@ def get_list_lookup(project_json_path: str | Path, language_of_label: str, defau
 def _get_list_label_to_node_mapping(
     list_section: list[dict[str, Any]], language_of_label: str
 ) -> dict[str, dict[str, str]]:
-    pass
+    mapper = {}
+    for li in list_section:
+        mapper[li["name"]] = _get_label_to_node_one_list(list_section, li["name"], language_of_label)
+    return mapper
 
 
 def _get_property_to_list_name_mapping(ontologies: list[dict[str, Any]], default_ontology: str) -> dict[str, str]:

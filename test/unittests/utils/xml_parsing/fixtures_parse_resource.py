@@ -12,7 +12,7 @@ def root_no_resources() -> etree._Element:
 
 
 @pytest.fixture
-def minimal_root() -> etree._Element:
+def root_with_2_resources() -> etree._Element:
     return etree.fromstring("""
     <knora shortcode="0000"
        default-ontology="default">
@@ -21,9 +21,9 @@ def minimal_root() -> etree._Element:
                   id="the_only_resource">
         </resource>
         
-        <link label="value with permissions" id="value_with_permissions">
+        <link label="a link object" id="link_obj">
             <resptr-prop name="hasLinkTo">
-                <resptr permissions="open">target_empty_1</resptr>
+                <resptr permissions="open">the_only_resource</resptr>
             </resptr-prop>
         </link>
     </knora>
@@ -32,14 +32,11 @@ def minimal_root() -> etree._Element:
 
 @pytest.fixture
 def resource_no_values() -> etree._Element:
-    return etree.fromstring("""
-    <resource label="lbl" restype=":Class" id="resource_no_values">
-    </resource>
-    """)
+    return etree.fromstring('<resource label="lbl" restype=":Class" id="resource_no_values"/>')
 
 
 @pytest.fixture
-def resource_empty_permissions() -> etree._Element:
+def resource_empty_with_permission() -> etree._Element:
     return etree.fromstring("""
     <resource 
         label="lbl" 
@@ -52,9 +49,9 @@ def resource_empty_permissions() -> etree._Element:
 
 
 @pytest.fixture
-def resource_with_file_values() -> etree._Element:
+def resource_with_file_value() -> etree._Element:
     return etree.fromstring("""
-    <resource label="lbl" restype=":Class" id="resource_with_file_values">
+    <resource label="lbl" restype=":Class" id="resource_with_file_value">
         <bitstream>testdata/bitstreams/test.wav</bitstream>
     </resource>
     """)

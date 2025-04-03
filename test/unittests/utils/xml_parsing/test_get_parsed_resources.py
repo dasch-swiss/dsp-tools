@@ -82,13 +82,13 @@ class TestParseResource:
         assert not resource.file_value
         assert not resource.migration_metadata
 
-    def test_file_value(self, root_no_resources, resource_with_file_values):
+    def test_file_value(self, root_no_resources, resource_with_file_value):
         root = deepcopy(root_no_resources)
-        root.append(resource_with_file_values)
+        root.append(resource_with_file_value)
         parsed_res, _ = get_parsed_resources(root, API_URL)
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
-        assert resource.res_id == "resource_with_file_values"
+        assert resource.res_id == "resource_with_file_value"
         assert resource.res_type == RES_CLASS
         assert resource.label == "lbl"
         assert not resource.permissions_id
@@ -543,8 +543,8 @@ class TestFileTypeInfo:
         assert not _get_file_value_type(None)
 
 
-def test_create_from_local_name_to_absolute_iri_lookup(minimal_root):
-    result = _create_from_local_name_to_absolute_iri_lookup(minimal_root, API_URL)
+def test_create_from_local_name_to_absolute_iri_lookup(root_with_2_resources):
+    result = _create_from_local_name_to_absolute_iri_lookup(root_with_2_resources, API_URL)
     expected = {
         ":minimalResource": f"{DEFAULT_ONTO_NAMESPACE}minimalResource",
         "hasLinkTo": f"{KNORA_API_STR}hasLinkTo",

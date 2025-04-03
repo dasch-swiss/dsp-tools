@@ -316,7 +316,7 @@ class ListLookup:
         if not (list_name := self._prop_to_list_name.get(prop_name)):
             msg = f"Entered property '{prop_name}' was not found."
             warnings.warn(DspToolsUserWarning(msg))
-            return ""
+            return "", ""
         return list_name, self.get_node_via_list_name(list_name, node_label)
 
 

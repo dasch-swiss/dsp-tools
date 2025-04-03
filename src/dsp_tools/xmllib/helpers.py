@@ -242,7 +242,9 @@ def create_label_to_name_list_node_mapping(
     return _get_label_to_node_one_list(json_file["project"]["lists"], list_name, language_of_label)
 
 
-def _get_label_to_node_one_list(list_section: list[dict[str, Any]], list_name, language_of_label) -> dict[str, str]:
+def _get_label_to_node_one_list(
+    list_section: list[dict[str, Any]], list_name: str, language_of_label: str
+) -> dict[str, str]:
     json_subset = [x for x in list_section if x["name"] == list_name]
     # json_subset is a list containing one item, namely the json object containing the entire json-list
     res = {}
@@ -278,13 +280,13 @@ def _get_property_to_list_name_mapping(ontologies: list[dict[str, Any]], default
     prop_lookup = {}
     for onto in ontologies:
         prefix = onto["name"]
-        props = onto["properties"]
-        for prop in props:
+        property_section = onto["properties"]
+        for prop in property_section:
             if prop["gui_element"] == "List":
                 prefixed_prop = f"{prefix}:{prop['name']}"
-                prop_lookup[prefixed_prop] = props["gui_attributes"]["hlist"]
+                prop_lookup[prefixed_prop] = prop["gui_attributes"]["hlist"]
     default_props = {
-        k.replace(default_ontology, "", 1): v for k, v in prop_lookup if k.startswith(f"{default_ontology}:")
+        k.replace(default_ontology, "", 1): v for k, v in prop_lookup.items() if k.startswith(f"{default_ontology}:")
     }
     prop_lookup = prop_lookup | default_props
     return prop_lookup
@@ -302,22 +304,25 @@ class ListLookup:
             warnings.warn(DspToolsUserWarning(msg))
             return ""
         if not (found_node := list_lookup.get(node_label)):
-            msg = f"Entered list label '{node_label}' for list '{list_name}' was not found. You entered the language {self._label_language}."
+            msg = (
+                f"Entered list label '{node_label}' for list '{list_name}' was not found. "
+                f"You entered the language {self._label_language}."
+            )
             warnings.warn(DspToolsUserWarning(msg))
             return ""
         return found_node
 
-    def get_node_via_property(self, prop_name: str, node_label: str) -> str:
+    def get_node_via_property(self, prop_name: str, node_label: str) -> tuple[str, str]:
         if not (list_name := self._prop_to_list_name.get(prop_name)):
             msg = f"Entered property '{prop_name}' was not found."
             warnings.warn(DspToolsUserWarning(msg))
             return ""
-        return self.get_node_via_list_name(list_name, node_label)
+        return list_name, self.get_node_via_list_name(list_name, node_label)
 
 
 def get_list_nodes_from_string_via_list_name(
     string_with_list_labels: str, label_separator: str, list_name: str, list_lookup: ListLookup
-) -> list:
+) -> list[str]:
     labels_list = create_list_from_string(string_with_list_labels, label_separator)
     nodes_list = [list_lookup.get_node_via_list_name(list_name, label) for label in labels_list]
     return nodes_list
@@ -325,10 +330,14 @@ def get_list_nodes_from_string_via_list_name(
 
 def get_list_nodes_from_string_via_property(
     string_with_list_labels: str, label_separator: str, property_name: str, list_lookup: ListLookup
-) -> list:
+) -> tuple[str, list[str]]:
     labels_list = create_list_from_string(string_with_list_labels, label_separator)
-    nodes_list = [list_lookup.get_node_via_property(property_name, label) for label in labels_list]
-    return nodes_list
+    list_name = ""
+    nodes = []
+    for lbl in labels_list:
+        list_name, node_name = list_lookup.get_node_via_property(property_name, lbl)
+        nodes.append(node_name)
+    return list_name, nodes
 
 
 def _name_label_mapper_iterator(

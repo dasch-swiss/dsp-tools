@@ -10,7 +10,6 @@
         "keywords": [
             "list"
         ],
-
         "lists": [
             {
                 "name": "list1",
@@ -46,14 +45,14 @@
                                 "labels": {
                                     "en": "label 2.2"
                                 },
-                              "nodes": [
-                                  {
-                                    "name": "list1_node2.2.1",
-                                    "labels": {
-                                        "en": "label 2.2.1"
+                                "nodes": [
+                                    {
+                                        "name": "list1_node2.2.1",
+                                        "labels": {
+                                            "en": "label 2.2.1"
+                                        }
                                     }
-                                  }
-                              ]
+                                ]
                             }
                         ]
                     }
@@ -126,7 +125,7 @@
                     }
                 ]
             },
-          {
+            {
                 "name": "other-onto",
                 "label": "Test ontology",
                 "properties": [

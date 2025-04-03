@@ -369,17 +369,7 @@ class ListLookup:
         Examples:
             ```python
             list_name, node_name = list_lookup.get_list_name_and_node_via_property(
-                prop_name=":hasList",
-                node_label="label 1"
-            )
-            # list_name == "list1"
-            # node_name == "node1"
-            ```
-
-            ```python
-            # The prefix of the default ontology can also be used to retrieve the list name and node
-            list_name, node_name = list_lookup.get_list_name_and_node_via_property(
-                prop_name="default-onto:hasList",
+                prop_name=":hasList",  # or: "default-onto:hasList"
                 node_label="label 1"
             )
             # list_name == "list1"
@@ -404,15 +394,7 @@ class ListLookup:
         Examples:
             ```python
             list_name = list_lookup.get_list_name_via_property(
-                prop_name=":hasList",
-            )
-            # list_name == "list1"
-            ```
-
-            ```python
-            # The prefix of the default ontology can also be used to retrieve the list name and node
-            list_name = list_lookup.get_list_name_via_property(
-                prop_name="default-onto:hasList",
+                prop_name=":hasList",  # or: "default-onto:hasList"
             )
             # list_name == "list1"
             ```

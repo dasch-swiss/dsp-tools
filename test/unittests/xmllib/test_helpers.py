@@ -346,12 +346,14 @@ class TestListLookup:
         assert result == ""
 
     def test_get_node_via_property(self, list_lookup):
-        list_name, node_name = list_lookup.get_node_via_property("other-onto:otherOntoHasListTwo", "Label 2")
+        list_name, node_name = list_lookup.get_list_name_and_node_via_property(
+            "other-onto:otherOntoHasListTwo", "Label 2"
+        )
         assert list_name == "list2"
         assert node_name == "list2_node2"
 
     def test_get_node_via_property_warns_wrong_property(self, list_lookup):
         msg = regex.escape("Entered property ':inexistent' was not found.")
         with pytest.warns(DspToolsUserWarning, match=msg):
-            result = list_lookup.get_node_via_property(":inexistent", "Label 2")
+            result = list_lookup.get_list_name_and_node_via_property(":inexistent", "Label 2")
         assert result == ("", "")

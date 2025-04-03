@@ -256,6 +256,27 @@ def _get_label_to_node_one_list(
 
 
 def get_list_lookup(project_json_path: str | Path, language_of_label: str, default_ontology: str) -> ListLookup:
+    """
+    Creates a `ListLookup` which is capable of returning list node names,
+    based on a label in a specified language for all lists in a project.json.
+    For more details regarding the functionalities see documentation for `ListLookup`.
+
+    Args:
+        project_json_path: path to a JSON project file (a.k.a. ontology)
+        language_of_label: which language of the label to choose
+        default_ontology: ontology prefix which is defined as default in the XML
+
+    Returns:
+        `ListLookup` for a project
+
+        ```python
+        list_lookup = xmllib.get_list_lookup(
+            project_json_path="project.json",
+            language_of_label="de",
+            default_ontology="onto",
+        )
+        ```
+    """
     with open(project_json_path, encoding="utf-8") as f:
         json_file = json.load(f)
     label_to_list_node_lookup = _get_list_label_to_node_mapping(json_file["project"]["lists"], language_of_label)
@@ -299,6 +320,34 @@ class ListLookup:
     _label_language: str
 
     def get_node_via_list_name(self, list_name: str, node_label: str) -> str:
+        """
+        Returns the list node name based on a label.
+        The language of the label was specified when creating the `ListLookup` with the function `get_list_lookup`
+
+        Args:
+            list_name: name of the list
+            node_label: label of the node
+
+        Returns:
+            node name
+
+            ```python
+            node_name = list_lookup.get_node_via_list_name(
+                list_name="list1",
+                node_label="Label 1"
+            )
+            # node_name == "node1"
+            ```
+
+            ```python
+            # Capitalisation in the label is not relevant
+            node_name = list_lookup.get_node_via_list_name(
+                list_name="list1",
+                node_label="label 1"
+            )
+            # node_name == "node1"
+            ```
+        """
         if not (list_lookup := self._lookup.get(list_name)):
             msg = f"Entered list name '{list_name}' was not found. You entered the language {self._label_language}."
             warnings.warn(DspToolsUserWarning(msg))
@@ -312,12 +361,71 @@ class ListLookup:
             return ""
         return found_node
 
-    def get_node_via_property(self, prop_name: str, node_label: str) -> tuple[str, str]:
+    def get_list_name_and_node_via_property(self, prop_name: str, node_label: str) -> tuple[str, str]:
+        """
+        Returns the list name and the node name based on a property that is used with the list and the label of a node.
+        The language of the label was specified when creating the `ListLookup` with the function `get_list_lookup`
+
+        Args:
+            prop_name: name of the list
+            node_label: label of the node
+
+        Returns:
+            node name
+
+            ```python
+            list_name, node_name = list_lookup.get_node_via_property(
+                prop_name=":hasList",
+                node_label="label 1"
+            )
+            # list_name == "list1"
+            # node_name == "node1"
+            ```
+
+            ```python
+            # You can also use the default onto with its prefix to retrieve the list name and node
+            list_name, node_name = list_lookup.get_node_via_property(
+                prop_name="default-onto:hasList",
+                node_label="label 1"
+            )
+            # list_name == "list1"
+            # node_name == "node1"
+            ```
+        """
+        if not (list_name := self._prop_to_list_name.get(prop_name)):
+            return "", ""
+        return list_name, self.get_node_via_list_name(list_name, node_label)
+
+    def get_list_name_via_property(self, prop_name: str) -> str:
+        """
+        Returns the list name as specified for a property in the ontology.
+
+        Args:
+            prop_name: name of the property
+
+        Returns:
+            Name of the list
+
+            ```python
+            list_name = list_lookup.get_list_name_via_property(
+                prop_name=":hasList",
+            )
+            # list_name == "list1"
+            ```
+
+            ```python
+            # The prefix of the default onto can be used to retrieve it
+            list_name = list_lookup.get_list_name_via_property(
+                prop_name="default-onto:hasList",
+            )
+            # list_name == "list1"
+            ```
+        """
         if not (list_name := self._prop_to_list_name.get(prop_name)):
             msg = f"Entered property '{prop_name}' was not found."
             warnings.warn(DspToolsUserWarning(msg))
-            return "", ""
-        return list_name, self.get_node_via_list_name(list_name, node_label)
+            return ""
+        return list_name
 
 
 def get_list_nodes_from_string_via_list_name(
@@ -335,7 +443,7 @@ def get_list_nodes_from_string_via_property(
     list_name = ""
     nodes = []
     for lbl in labels_list:
-        list_name, node_name = list_lookup.get_node_via_property(property_name, lbl)
+        list_name, node_name = list_lookup.get_list_name_and_node_via_property(property_name, lbl)
         nodes.append(node_name)
     return list_name, nodes
 

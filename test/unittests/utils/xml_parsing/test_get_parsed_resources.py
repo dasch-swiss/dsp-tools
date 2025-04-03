@@ -38,8 +38,8 @@ class TestParseResource:
     def test_empty(self, root_no_resources, resource_no_values):
         root = deepcopy(root_no_resources)
         root.append(resource_no_values)
-        parsed_res, lookup = get_parsed_resources(root, API_URL)
-        assert lookup == {RES_CLASS}
+        parsed_res, iris = get_parsed_resources(root, API_URL)
+        assert iris == {RES_CLASS}
         assert len(parsed_res) == 1
         resource = parsed_res.pop(0)
         assert resource.res_id == "resource_no_values"

@@ -453,7 +453,7 @@ def get_list_nodes_from_string_via_list_name(
 
     Examples:
         ```python
-        string_with_list_labels = "Label 1 ;Label 2"
+        string_with_list_labels = "Label 1; Label 2"
         nodes = xmllib.get_list_nodes_from_string_via_list_name(
             string_with_list_labels=string_with_list_labels,
             label_separator=";",

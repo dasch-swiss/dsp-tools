@@ -338,7 +338,7 @@ class TestListLookup:
 
     def test_get_node_via_list_name_warns_wrong_node(self, list_lookup):
         msg = regex.escape(
-            "Entered list node 'inexistent' for list 'list1' was not found. You entered the language en."
+            "Entered list label 'inexistent' for list 'list1' was not found. You entered the language en."
         )
         with pytest.warns(DspToolsUserWarning, match=msg):
             result = list_lookup.get_node_via_list_name("list1", "inexistent")

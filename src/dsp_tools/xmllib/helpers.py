@@ -283,7 +283,7 @@ class ListLookup:
             warnings.warn(DspToolsUserWarning(msg))
             return ""
         if not (found_node := list_lookup.get(node_label)):
-            msg = f"Entered list node '{node_label}' for list '{list_name}' was not found. You entered the language {self._label_language}."
+            msg = f"Entered list label '{node_label}' for list '{list_name}' was not found. You entered the language {self._label_language}."
             warnings.warn(DspToolsUserWarning(msg))
             return ""
         return found_node

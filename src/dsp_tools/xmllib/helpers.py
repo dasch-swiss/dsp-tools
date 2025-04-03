@@ -249,11 +249,11 @@ def create_label_to_name_list_node_mapping(
     return res
 
 
-def get_list_lookup(project_json_path: str | Path, language_of_label: str) -> ListLookup:
+def get_list_lookup(project_json_path: str | Path, language_of_label: str, default_ontology: str) -> ListLookup:
     with open(project_json_path, encoding="utf-8") as f:
         json_file = json.load(f)
     label_to_list_node_lookup = _get_list_label_to_node_mapping(json_file["project"]["lists"], language_of_label)
-    prop_to_list_mapper = _get_property_to_list_name_mapping(json_file["project"]["ontologies"])
+    prop_to_list_mapper = _get_property_to_list_name_mapping(json_file["project"]["ontologies"], default_ontology)
     return ListLookup(
         _lookup=label_to_list_node_lookup,
         _prop_to_list_name=prop_to_list_mapper,
@@ -267,7 +267,7 @@ def _get_list_label_to_node_mapping(
     pass
 
 
-def _get_property_to_list_name_mapping(ontologies: list[dict[str, Any]]) -> dict[str, str]:
+def _get_property_to_list_name_mapping(ontologies: list[dict[str, Any]], default_ontology: str) -> dict[str, str]:
     pass
 
 

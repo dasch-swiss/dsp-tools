@@ -1,3 +1,4 @@
+from typing import cast
 from uuid import uuid4
 
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import IIIFUriInfo
@@ -5,6 +6,7 @@ from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XM
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLFileMetadata
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
+from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileMetadata
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileValue
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryIIIFUri
@@ -32,6 +34,7 @@ from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.prepare_xml_input.ark2iri import convert_ark_v0_to_resource_iri
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import TypeTransformerMapper
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import assert_is_string
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import assert_is_tuple
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_boolean
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_date
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_decimal
@@ -218,9 +221,9 @@ def _transform_list_values(prop: XMLProperty, lookups: IntermediaryLookups) -> l
     intermediary_values: list[IntermediaryValue] = []
     prop_iri = _get_absolute_iri(prop.name, lookups.namespaces)
     for val in prop.values:
-        str_val = assert_is_string(val.value)
-        if not (list_iri := lookups.listnodes.get(str_val)):
-            raise InputError(f"Could not find list iri for node: {str_val}")
+        tuple_val = assert_is_tuple(val.value)
+        if not (list_iri := lookups.listnodes.get(tuple_val)):
+            raise InputError(f"Could not find list iri for node: {' / '.join(tuple_val)}")
         permission_val = _resolve_permission(val.permissions, lookups.permissions)
         intermediary_values.append(IntermediaryList(list_iri, prop_iri, val.comment, permission_val))
     return intermediary_values
@@ -234,9 +237,10 @@ def _transform_text_values(prop: XMLProperty, lookups: IntermediaryLookups) -> l
         if isinstance(val.value, str):
             intermediary_values.append(IntermediarySimpleText(val.value, prop_iri, val.comment, permission_val))
         else:
+            value = cast(FormattedTextValue, val.value)
             intermediary_values.append(
                 IntermediaryRichtext(
-                    value=val.value,
+                    value=value,
                     prop_iri=prop_iri,
                     comment=val.comment,
                     permissions=permission_val,

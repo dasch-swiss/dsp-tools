@@ -1,0 +1,184 @@
+{
+    "$schema": "../../src/dsp_tools/resources/schema/project.json",
+    "project": {
+        "shortcode": "0001",
+        "shortname": "list-lookup",
+        "longname": "Project to create list node lookups",
+        "descriptions": {
+            "en": "Project to create list node lookups"
+        },
+        "keywords": [
+            "list"
+        ],
+        "lists": [
+            {
+                "name": "list1",
+                "labels": {
+                    "en": "label List 1",
+                    "de": "Deutsch 1"
+                },
+                "comments": {
+                    "en": "no comment"
+                },
+                "nodes": [
+                    {
+                        "name": "list1_node1",
+                        "labels": {
+                            "en": "Label 1",
+                            "de": "Deutsch 1"
+                        }
+                    },
+                    {
+                        "name": "list1_node2",
+                        "labels": {
+                            "en": "label 2"
+                        },
+                        "nodes": [
+                            {
+                                "name": "list1_node2.1",
+                                "labels": {
+                                    "en": "label 2.1"
+                                }
+                            },
+                            {
+                                "name": "list1_node2.2",
+                                "labels": {
+                                    "en": "label 2.2"
+                                },
+                                "nodes": [
+                                    {
+                                        "name": "list1_node2.2.1",
+                                        "labels": {
+                                            "en": "label 2.2.1"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "name": "list2",
+                "labels": {
+                    "en": "label List 2"
+                },
+                "comments": {
+                    "en": "no comment"
+                },
+                "nodes": [
+                    {
+                        "name": "list2_node1",
+                        "labels": {
+                            "en": "label 1",
+                            "de": "Deutsch 1"
+                        }
+                    },
+                    {
+                        "name": "list2_node2",
+                        "labels": {
+                            "en": "label 2",
+                            "de": "Deutsch 2"
+                        }
+                    }
+                ]
+            }
+        ],
+        "ontologies": [
+            {
+                "name": "default",
+                "label": "Test ontology",
+                "properties": [
+                    {
+                        "name": "hasText",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "Text"
+                        },
+                        "gui_element": "SimpleText"
+                    },
+                    {
+                        "name": "defaultOntoHasListOne",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "ListValue",
+                        "labels": {
+                            "en": "List element"
+                        },
+                        "gui_element": "List",
+                        "gui_attributes": {
+                            "hlist": "list1"
+                        }
+                    }
+                ],
+                "resources": [
+                    {
+                        "name": "minimalResource",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "Minimal Resource"
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "other-onto",
+                "label": "Test ontology",
+                "properties": [
+                    {
+                        "name": "hasText",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "Text"
+                        },
+                        "gui_element": "SimpleText"
+                    },
+                    {
+                        "name": "otherOntoHasListOne",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "ListValue",
+                        "labels": {
+                            "en": "List element"
+                        },
+                        "gui_element": "List",
+                        "gui_attributes": {
+                            "hlist": "list1"
+                        }
+                    },
+                    {
+                        "name": "otherOntoHasListTwo",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "ListValue",
+                        "labels": {
+                            "en": "List element"
+                        },
+                        "gui_element": "List",
+                        "gui_attributes": {
+                            "hlist": "list2"
+                        }
+                    }
+                ],
+                "resources": [
+                    {
+                        "name": "minimalResource",
+                        "super": "Resource",
+                        "labels": {
+                            "en": "Minimal Resource"
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}

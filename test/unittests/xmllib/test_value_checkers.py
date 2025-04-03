@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from dsp_tools.xmllib.constants import KNOWN_XML_TAGS
 from dsp_tools.xmllib.value_checkers import check_richtext_syntax
 from dsp_tools.xmllib.value_checkers import is_bool_like
 from dsp_tools.xmllib.value_checkers import is_color
@@ -17,32 +18,6 @@ from dsp_tools.xmllib.value_checkers import is_integer
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_string_like
 from dsp_tools.xmllib.value_checkers import is_timestamp
-
-ALLOWED_RICHTEXT_TAGS = [
-    "a",
-    "p",
-    "footnote",
-    "em",
-    "strong",
-    "u",
-    "sub",
-    "sup",
-    "strike",
-    "h1",
-    "ol",
-    "ul",
-    "li",
-    "tbody",
-    "table",
-    "tr",
-    "td",
-    "br",
-    "hr",
-    "pre",
-    "cite",
-    "blockquote",
-    "code",
-]
 
 
 @pytest.mark.parametrize("val", ["None", "-", "1", 0, 1, True, False])
@@ -212,7 +187,7 @@ def test_is_dsp_ark_wrong(val: Any) -> None:
 
 @pytest.mark.parametrize(
     "val",
-    [f"Start Text<{tag}> middle text </{tag}> ending." for tag in ALLOWED_RICHTEXT_TAGS],
+    [f"Start Text<{tag}> middle text </{tag}> ending." for tag in KNOWN_XML_TAGS],
 )
 def test_check_richtext_syntax_correct(val: Any) -> None:
     with warnings.catch_warnings(record=True) as caught_warnings:

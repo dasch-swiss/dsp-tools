@@ -395,7 +395,7 @@ class ListLookup:
             # node_name == "node1"
             ```
         """
-        if not (list_name := self._prop_to_list_name.get(prop_name)):
+        if not (list_name := self.get_list_name_via_property(prop_name)):
             return "", ""
         return list_name, self.get_node_via_list_name(list_name, node_label)
 

@@ -1,3 +1,4 @@
+from typing import cast
 from uuid import uuid4
 
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import IIIFUriInfo
@@ -235,7 +236,7 @@ def _transform_text_values(prop: XMLProperty, lookups: IntermediaryLookups) -> l
         if isinstance(val.value, str):
             intermediary_values.append(IntermediarySimpleText(val.value, prop_iri, val.comment, permission_val))
         else:
-            value: FormattedTextValue = val.value
+            value = cast(FormattedTextValue, val.value)
             intermediary_values.append(
                 IntermediaryRichtext(
                     value=value,

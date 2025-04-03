@@ -277,13 +277,13 @@ class ListLookup:
     _prop_to_list_name: dict[str, str]
     _label_language: str
 
-    def get_node_via_list_name(self, list_label: str, node_label: str) -> str:
-        if not (list_lookup := self._lookup.get(list_label)):
-            msg = f"Entered list name '{list_label}' was not found. You entered the language {self._label_language}."
+    def get_node_via_list_name(self, list_name: str, node_label: str) -> str:
+        if not (list_lookup := self._lookup.get(list_name)):
+            msg = f"Entered list name '{list_name}' was not found. You entered the language {self._label_language}."
             warnings.warn(DspToolsUserWarning(msg))
             return ""
         if not (found_node := list_lookup.get(node_label)):
-            msg = f"Entered list node '{node_label}' for list '{list_label}' was not found. You entered the language {self._label_language}."
+            msg = f"Entered list node '{node_label}' for list '{list_name}' was not found. You entered the language {self._label_language}."
             warnings.warn(DspToolsUserWarning(msg))
             return ""
         return found_node

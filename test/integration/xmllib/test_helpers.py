@@ -31,23 +31,3 @@ class TestGetListLookup:
             "other-onto:otherOntoHasListTwo": "list2",
         }
         assert list_lookup._prop_to_list_name == expected
-
-
-class TestListLookup:
-    def test_get_list_lookup(self, list_lookup):
-        pass
-
-    def test_get_node_via_list_name(self, list_lookup):
-        pass
-
-    def test_get_node_via_list_name_warns_wrong_list(self, list_lookup):
-        pass
-
-    def test_get_node_via_list_name_warns_wrong_node(self, list_lookup):
-        pass
-
-    def test_get_node_via_property(self, list_lookup):
-        pass
-
-    def test_get_node_via_property_warns_wrong_property(self, list_lookup):
-        pass

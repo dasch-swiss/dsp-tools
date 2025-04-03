@@ -85,8 +85,8 @@ def _parse_segment(segment: etree._Element, segment_type: str) -> ParsedResource
 
 
 def _parse_segment_values(segment: etree._Element, segment_type: str) -> list[ParsedValue]:
-    values = []
-    value: str | tuple[str | None, str | None] | None
+    values: list[ParsedValue] = []
+    value: str | tuple[str, str] | None
     for val in segment.iterchildren():
         match val.tag:
             case "isSegmentOf":
@@ -96,7 +96,7 @@ def _parse_segment_values(segment: etree._Element, segment_type: str) -> list[Pa
             case "hasSegmentBounds":
                 val_type = KnoraValueType.INTERVAL_VALUE
                 prop = f"{KNORA_API_STR}hasSegmentBounds"
-                value = (val.attrib.get("segment_start"), val.attrib.get("segment_end"))
+                value = (val.attrib["segment_start"], val.attrib["segment_end"])
             case _:
                 val_type = SEGMENT_TAG_TO_PROP_MAPPER[str(val.tag)]
                 prop = f"{KNORA_API_STR}{val.tag!s}"
@@ -217,7 +217,7 @@ def _parse_text_value(values: etree._Element, prop_name: str) -> list[ParsedValu
 
 
 def _get_text_as_string(value: etree._Element) -> str | None:
-    if len(value):
+    if len(value) > 0:
         text_list = []
         if found := value.text:
             text_list = [found]

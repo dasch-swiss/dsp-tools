@@ -1,3 +1,4 @@
+# mypy: disable-error-code="method-assign,no-untyped-def"
 import pytest
 
 from dsp_tools.xmllib.helpers import ListLookup

@@ -1,6 +1,11 @@
+from __future__ import annotations
+
 import datetime
 import json
 import uuid
+import warnings
+from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 from typing import Iterable
 
@@ -8,6 +13,7 @@ import regex
 from lxml import etree
 from regex import Match
 
+from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.xmllib.constants import KNOWN_XML_TAGS
 from dsp_tools.xmllib.internal_helpers import unescape_reserved_xml_chars
@@ -241,6 +247,64 @@ def create_label_to_name_list_node_mapping(
             res[label] = name
             res[label.strip().lower()] = name
     return res
+
+
+def get_list_lookup(project_json_path: str | Path, language_of_label: str) -> ListLookup:
+    with open(project_json_path, encoding="utf-8") as f:
+        json_file = json.load(f)
+    list_mapper = _get_list_label_to_node_mapping(json_file["project"]["lists"], language_of_label)
+    ontologies = json_file["project"]["ontologies"]
+
+
+def _get_list_label_to_node_mapping(
+    list_section: list[dict[str, Any]], language_of_label: str
+) -> dict[str, dict[str, str]]:
+    pass
+
+
+def _get_property_to_list_name_mapping(properties: list[dict[str, Any]], ontology_name: str) -> dict[str, str]:
+    pass
+
+
+@dataclass
+class ListLookup:
+    _lookup: dict[str, dict[str, str]]
+    _prop_to_list_name: dict[str, str]
+    _label_language: str
+
+    def get_node_via_list_name(self, list_label: str, node_label: str) -> str:
+        if not (list_lookup := self._lookup.get(list_label)):
+            msg = f"Entered list name '{list_label}' was not found. You entered the language {self._label_language}."
+            warnings.warn(DspToolsUserWarning(msg))
+            return ""
+        if not (found_node := list_lookup.get(node_label)):
+            msg = f"Entered list node '{node_label}' for list '{list_label}' was not found. You entered the language {self._label_language}."
+            warnings.warn(DspToolsUserWarning(msg))
+            return ""
+        return found_node
+
+    def get_node_via_property(self, prop_name: str, node_label: str) -> str:
+        if not (list_name := self._prop_to_list_name.get(prop_name)):
+            msg = f"Entered property '{prop_name}' was not found."
+            warnings.warn(DspToolsUserWarning(msg))
+            return ""
+        return self.get_node_via_list_name(list_name, node_label)
+
+
+def get_list_nodes_from_string_via_list_name(
+    string_with_list_labels: str, label_separator: str, list_name: str, list_lookup: ListLookup
+) -> list:
+    labels_list = create_list_from_string(string_with_list_labels, label_separator)
+    nodes_list = [list_lookup.get_node_via_list_name(list_name, label) for label in labels_list]
+    return nodes_list
+
+
+def get_list_nodes_from_string_via_property(
+    string_with_list_labels: str, label_separator: str, property_name: str, list_lookup: ListLookup
+) -> list:
+    labels_list = create_list_from_string(string_with_list_labels, label_separator)
+    nodes_list = [list_lookup.get_node_via_property(property_name, label) for label in labels_list]
+    return nodes_list
 
 
 def _name_label_mapper_iterator(

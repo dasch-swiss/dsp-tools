@@ -1,1 +1,1 @@
-from test.unittests.commands.xmlupload.transform_into_intermediary.fixtures import *  # noqa: F403
+from test.unittests.commands.xmlupload.transform_into_intermediary.fixturesxmlproperty import *  # noqa: F403

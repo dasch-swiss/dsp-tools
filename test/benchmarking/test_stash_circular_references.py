@@ -5,7 +5,7 @@ import pytest
 from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import _extract_resources_from_xml
-from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import (
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_xmlresource_into_intermediary_classes import (
     transform_all_resources_into_intermediary_resources,
 )
 from dsp_tools.commands.xmlupload.stash.analyse_circular_reference_graph import generate_upload_order

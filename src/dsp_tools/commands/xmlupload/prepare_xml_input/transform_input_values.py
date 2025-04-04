@@ -75,6 +75,14 @@ def transform_geometry(value: InputTypes) -> str:
         raise InputError(f"Could not parse json value: {value}") from None
 
 
+def transform_simple_text(value: InputTypes) -> str:
+    pass
+
+
+def transform_richtext(value: InputTypes) -> FormattedTextValue:
+    pass
+
+
 def assert_is_string(value: str | FormattedTextValue | tuple[str, str]) -> str:
     """Assert a value is a string."""
     match value:

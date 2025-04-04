@@ -29,6 +29,8 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values impor
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_geometry
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_integer
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_interval
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_richtext
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_simple_text
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.exceptions import PermissionNotExistsError
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
@@ -49,8 +51,8 @@ TYPE_TRANSFORMER_MAPPER: dict[KnoraValueType, TypeTransformerMapper] = {
     KnoraValueType.INT_VALUE: TypeTransformerMapper(IntermediaryInt, transform_integer),
     KnoraValueType.INTERVAL_VALUE: TypeTransformerMapper(IntermediaryInterval, transform_interval),
     KnoraValueType.TIME_VALUE: TypeTransformerMapper(IntermediaryTime, assert_is_string),
-    KnoraValueType.SIMPLETEXT_VALUE: TypeTransformerMapper(IntermediarySimpleText, assert_is_string),
-    KnoraValueType.RICHTEXT_VALUE: TypeTransformerMapper(IntermediaryRichtext, assert_is_string),
+    KnoraValueType.SIMPLETEXT_VALUE: TypeTransformerMapper(IntermediarySimpleText, transform_simple_text),
+    KnoraValueType.RICHTEXT_VALUE: TypeTransformerMapper(IntermediaryRichtext, transform_richtext),
     KnoraValueType.URI_VALUE: TypeTransformerMapper(IntermediaryUri, assert_is_string),
 }
 
@@ -121,6 +123,12 @@ def _get_metadata(file_metadata: ParsedFileValueMetadata, lookups: IntermediaryL
             f"The license '{file_metadata.license_iri}' used for an image or iiif-uri is unknown. "
             f"See documentation for accepted pre-defined licenses."
         )
+    return IntermediaryFileMetadata(
+        license_iri=file_metadata.license_iri,
+        copyright_holder=file_metadata.copyright_holder,
+        authorships=_resolve_authorship(file_metadata.authorship_id, lookups.authorships),
+        permissions=permissions,
+    )
 
 
 def _resolve_authorship(authorship_id: str | None, lookup: dict[str, list[str]]) -> list[str] | None:

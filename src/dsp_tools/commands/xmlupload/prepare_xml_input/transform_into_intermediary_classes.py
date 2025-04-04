@@ -33,7 +33,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values impor
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_decimal
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_geometry
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_integer
-from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_interval
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_interval_from_tuple
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_richtext
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_simple_text
 from dsp_tools.error.exceptions import InputError
@@ -54,7 +54,7 @@ TYPE_TRANSFORMER_MAPPER: dict[KnoraValueType, TypeTransformerMapper] = {
     KnoraValueType.GEOM_VALUE: TypeTransformerMapper(IntermediaryGeometry, transform_geometry),
     KnoraValueType.GEONAME_VALUE: TypeTransformerMapper(IntermediaryGeoname, assert_is_string),
     KnoraValueType.INT_VALUE: TypeTransformerMapper(IntermediaryInt, transform_integer),
-    KnoraValueType.INTERVAL_VALUE: TypeTransformerMapper(IntermediaryInterval, transform_interval),
+    KnoraValueType.INTERVAL_VALUE: TypeTransformerMapper(IntermediaryInterval, transform_interval_from_tuple),
     KnoraValueType.TIME_VALUE: TypeTransformerMapper(IntermediaryTime, assert_is_string),
     KnoraValueType.SIMPLETEXT_VALUE: TypeTransformerMapper(IntermediarySimpleText, transform_simple_text),
     KnoraValueType.URI_VALUE: TypeTransformerMapper(IntermediaryUri, assert_is_string),

@@ -48,6 +48,7 @@ from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.exceptions import PermissionNotExistsError
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 from dsp_tools.utils.data_formats.date_util import Date
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 
 ONTO = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
 
@@ -143,6 +144,7 @@ class TestTransformOneResource:
         assert len(result.values) == 0
         file_val = result.file_value
         assert isinstance(file_val, IntermediaryFileValue)
+        assert file_val.value_type == KnoraValueType.STILL_IMAGE_FILE
         assert file_val.value == "file.jpg"
         assert not file_val.metadata.permissions
         assert not result.migration_metadata
@@ -162,6 +164,7 @@ class TestTransformFileValue:
     def test_transform_file_value(self, bitstream: XMLBitstream, lookups: IntermediaryLookups):
         result = _transform_file_value(bitstream, lookups, "id", "lbl")
         assert result.value == "file.jpg"
+        assert result.value_type == KnoraValueType.STILL_IMAGE_FILE
         assert isinstance(result, IntermediaryFileValue)
         metadata = result.metadata
         assert not metadata.permissions
@@ -174,6 +177,7 @@ class TestTransformFileValue:
     ):
         result = _transform_file_value(bitstream_with_permission, lookups, "id", "lbl")
         assert isinstance(result, IntermediaryFileValue)
+        assert result.value_type == KnoraValueType.STILL_IMAGE_FILE
         assert result.value == "file.jpg"
         metadata = result.metadata
         assert isinstance(metadata.permissions, Permissions)

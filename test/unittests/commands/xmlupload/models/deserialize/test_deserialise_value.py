@@ -3,10 +3,10 @@ from lxml import etree
 
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLValue
-from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import _cleanup_formatted_text
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import _cleanup_unformatted_text
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import _extract_formatted_text_from_node
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import cleanup_formatted_text
 from dsp_tools.error.exceptions import XmlUploadError
 
 
@@ -221,7 +221,7 @@ def test_cleanup_formatted_text() -> None:
         "It contains links to a resource: "
         '<a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>'
     )
-    res = _cleanup_formatted_text(orig)
+    res = cleanup_formatted_text(orig)
     assert res == expected
 
 

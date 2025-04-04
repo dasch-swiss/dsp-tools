@@ -27,6 +27,32 @@ class TypeTransformerMapper:
     val_transformer: Callable[[InputTypes], IntermediaryValueTypes]
 
 
+def assert_is_string(value: str | FormattedTextValue | tuple[str, str]) -> str:
+    """Assert a value is a string."""
+    match value:
+        case str() as s:
+            return s
+        case FormattedTextValue() as xml:
+            raise InputError(f"Expected string value, but got XML value: {xml.as_xml()}")
+        case tuple():
+            raise InputError(f"Expected string value, but got tuple value: {value}")
+        case _:
+            assert_never(value)
+
+
+def assert_is_tuple(value: str | FormattedTextValue | tuple[str, str]) -> tuple[str, str]:
+    """Assert a value is a tuple."""
+    match value:
+        case tuple() as t:
+            return t
+        case FormattedTextValue() as xml:
+            raise InputError(f"Expected tuple value, but got XML value: {xml.as_xml()}")
+        case str():
+            raise InputError(f"Expected tuple value, but got string value: {value}")
+        case _:
+            assert_never(value)
+
+
 def transform_boolean(value: InputTypes) -> bool:
     """Transform the value into a boolean"""
     match value:
@@ -86,29 +112,36 @@ def transform_simpletext(value: InputTypes) -> str:
     result = str_val.strip()
     if len(result) == 0:
         raise InputError(f"After removing redundant whitespaces and newlines the input string: '{value}' is empty.")
+    return result
 
 
-def assert_is_string(value: str | FormattedTextValue | tuple[str, str]) -> str:
-    """Assert a value is a string."""
-    match value:
-        case str() as s:
-            return s
-        case FormattedTextValue() as xml:
-            raise InputError(f"Expected string value, but got XML value: {xml.as_xml()}")
-        case tuple():
-            raise InputError(f"Expected string value, but got tuple value: {value}")
-        case _:
-            assert_never(value)
+def transform_richtext(value: InputTypes) -> FormattedTextValue:
+    str_val = assert_is_string(value)
+    return FormattedTextValue(cleanup_formatted_text(str_val))
 
 
-def assert_is_tuple(value: str | FormattedTextValue | tuple[str, str]) -> tuple[str, str]:
-    """Assert a value is a tuple."""
-    match value:
-        case tuple() as t:
-            return t
-        case FormattedTextValue() as xml:
-            raise InputError(f"Expected tuple value, but got XML value: {xml.as_xml()}")
-        case str():
-            raise InputError(f"Expected tuple value, but got string value: {value}")
-        case _:
-            assert_never(value)
+def cleanup_formatted_text(xmlstr_orig: str) -> str:
+    """
+    In a xml-encoded text value from the XML file,
+    there may be non-text characters that must be removed.
+    This function:
+        - replaces (multiple) line breaks by a space
+        - replaces multiple spaces or tabstops by a single space (except within `<code>` or `<pre>` tags)
+
+    Args:
+        xmlstr_orig: content of the tag from the XML file, in serialized form
+
+    Returns:
+        purged string, suitable to be sent to DSP-API
+    """
+    # replace (multiple) line breaks by a space
+    xmlstr = regex.sub("\n+", " ", xmlstr_orig)
+    # replace multiple spaces or tabstops by a single space (except within <code> or <pre> tags)
+    # the regex selects all spaces/tabstops not followed by </xyz> without <xyz in between.
+    # credits: https://stackoverflow.com/a/46937770/14414188
+    xmlstr = regex.sub("( {2,}|\t+)(?!(.(?!<(code|pre)))*</(code|pre)>)", " ", xmlstr)
+    # remove spaces after <br/> tags (except within <code> tags)
+    xmlstr = regex.sub("((?<=<br/?>) )(?!(.(?!<code))*</code>)", "", xmlstr)
+    # remove leading and trailing spaces
+    xmlstr = xmlstr.strip()
+    return xmlstr

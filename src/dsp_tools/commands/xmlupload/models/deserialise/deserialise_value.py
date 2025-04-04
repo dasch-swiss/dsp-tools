@@ -10,6 +10,7 @@ import regex
 from lxml import etree
 
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import cleanup_formatted_text
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_simpletext
 from dsp_tools.error.exceptions import XmlUploadError
 
@@ -134,39 +135,8 @@ class XMLValue:
 def _extract_formatted_text_from_node(node: etree._Element) -> FormattedTextValue:
     xmlstr = etree.tostring(node, encoding="unicode", method="xml")
     xmlstr = regex.sub(f"<{node.tag!s}.*?>|</{node.tag!s}>", "", xmlstr)
-    xmlstr = _cleanup_formatted_text(xmlstr)
+    xmlstr = cleanup_formatted_text(xmlstr)
     return FormattedTextValue(xmlstr)
-
-
-def _cleanup_formatted_text(xmlstr_orig: str) -> str:
-    """
-    In a xml-encoded text value from the XML file,
-    there may be non-text characters that must be removed.
-    This function:
-        - replaces (multiple) line breaks by a space
-        - replaces multiple spaces or tabstops by a single space (except within `<code>` or `<pre>` tags)
-
-    Args:
-        xmlstr_orig: content of the tag from the XML file, in serialized form
-
-    Returns:
-        purged string, suitable to be sent to DSP-API
-    """
-    # replace (multiple) line breaks by a space
-    xmlstr = regex.sub("\n+", " ", xmlstr_orig)
-
-    # replace multiple spaces or tabstops by a single space (except within <code> or <pre> tags)
-    # the regex selects all spaces/tabstops not followed by </xyz> without <xyz in between.
-    # credits: https://stackoverflow.com/a/46937770/14414188
-    xmlstr = regex.sub("( {2,}|\t+)(?!(.(?!<(code|pre)))*</(code|pre)>)", " ", xmlstr)
-
-    # remove spaces after <br/> tags (except within <code> tags)
-    xmlstr = regex.sub("((?<=<br/?>) )(?!(.(?!<code))*</code>)", "", xmlstr)
-
-    # remove leading and trailing spaces
-    xmlstr = xmlstr.strip()
-
-    return xmlstr
 
 
 def _cleanup_unformatted_text(string_orig: str) -> str:

@@ -1,5 +1,7 @@
 from uuid import uuid4
 
+from tomlkit import value
+
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileMetadata
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileValue
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryIIIFUri
@@ -122,7 +124,7 @@ def _transform_file_value(
 ) -> IntermediaryFileValue:
     metadata = _get_metadata(val.metadata, lookups)
     file_val = assert_is_string(val.value)
-    return IntermediaryFileValue(value=file_val, metadata=metadata, res_id=res_id, res_label=res_label)
+    return IntermediaryFileValue(value=file_val, value_type=val.value_type, metadata=metadata, res_id=res_id, res_label=res_label)
 
 
 def _transform_iiif_uri_value(iiif_uri: ParsedFileValue, lookups: IntermediaryLookups) -> IntermediaryIIIFUri:

@@ -122,9 +122,7 @@ def _transform_file_value(
 ) -> IntermediaryFileValue:
     metadata = _get_metadata(val.metadata, lookups)
     file_val = assert_is_string(val.value)
-    return IntermediaryFileValue(
-        value=file_val, value_type=val.value_type, metadata=metadata, res_id=res_id, res_label=res_label
-    )
+    return IntermediaryFileValue(value=file_val, metadata=metadata, res_id=res_id, res_label=res_label)
 
 
 def _transform_iiif_uri_value(iiif_uri: ParsedFileValue, lookups: IntermediaryLookups) -> IntermediaryIIIFUri:

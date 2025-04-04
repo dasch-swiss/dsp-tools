@@ -92,7 +92,9 @@ def _transform_one_resource(resource: ParsedResource, lookups: IntermediaryLooku
         if resource.file_value.value_type == KnoraValueType.STILL_IMAGE_IIIF:
             iiif_uri = _transform_iiif_uri_value(resource.file_value, lookups)
         else:
-            file_val = _transform_file_value(resource.file_value, lookups, resource.res_id, resource.res_type)
+            file_val = _transform_file_value(
+                val=resource.file_value, lookups=lookups, res_id=resource.res_id, res_label=resource.label
+            )
     if resource.migration_metadata:
         migration_metadata = _transform_migration_metadata(resource.migration_metadata)
     return IntermediaryResource(

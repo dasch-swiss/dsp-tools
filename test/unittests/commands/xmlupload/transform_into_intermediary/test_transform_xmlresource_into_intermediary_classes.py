@@ -185,6 +185,22 @@ class TestTransformFileValue:
         assert metadata.copyright_holder == "copy"
         assert metadata.authorships == ["author"]
 
+    def test_transform_file_value_raises(self, lookups: IntermediaryLookups) -> None:
+        file = XMLBitstream(
+            "file.unknown",
+            XMLFileMetadata(
+                license_="http://rdfh.ch/licenses/cc-by-nc-4.0",
+                copyright_holder="copy",
+                authorship_id="auth_id",
+                permissions="open",
+            ),
+        )
+        msg = regex.escape(
+            "The entered file extension or the resource with the id 'id' is not supported: file.unknown."
+        )
+        with pytest.raises(InputError, match=msg):
+            _transform_file_value(file, lookups, "id", "lbl")
+
     def test_transform_iiif_uri_value(self, iiif_uri: IIIFUriInfo, lookups: IntermediaryLookups):
         result = _transform_iiif_uri_value(iiif_uri, lookups)
         assert result.value == "https://this/is/a/uri.jpg"

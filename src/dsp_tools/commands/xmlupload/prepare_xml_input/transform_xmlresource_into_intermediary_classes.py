@@ -127,7 +127,10 @@ def _transform_file_value(
     bitstream: XMLBitstream, lookups: IntermediaryLookups, res_id: str, res_label: str
 ) -> IntermediaryFileValue:
     metadata = _get_metadata(bitstream.metadata, lookups)
-    file_type = get_file_value_type(bitstream.value)
+    if not (file_type := get_file_value_type(bitstream.value)):
+        raise InputError(
+            f"The entered file extension or the resource with the id '{res_id}' is not supported: {bitstream.value}."
+        )
     return IntermediaryFileValue(bitstream.value, file_type, metadata, res_id, res_label)
 
 

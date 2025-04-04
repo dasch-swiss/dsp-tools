@@ -2,7 +2,6 @@
 import pytest
 import regex
 
-from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileValue
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryIIIFUri
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
@@ -367,6 +366,27 @@ class TestTransformValues:
         assert not transformed.permissions
         assert not transformed.comment
 
+    def test_bool_value_with_comment(self, lookups: IntermediaryLookups):
+        val = ParsedValue(HAS_PROP, "false", KnoraValueType.BOOLEAN_VALUE, None, "comment")
+        transformed = _transform_one_value(val, lookups)
+        assert transformed.value == False  # noqa:E712 (Avoid equality comparisons)
+        assert transformed.prop_iri == HAS_PROP
+        assert not transformed.permissions
+        assert transformed.comment == "comment"
+
+    def test_bool_value_with_permissions(self, lookups: IntermediaryLookups):
+        val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, "open", None)
+        transformed = _transform_one_value(val, lookups)
+        assert transformed.value == True  # noqa:E712 (Avoid equality comparisons)
+        assert transformed.prop_iri == HAS_PROP
+        assert isinstance(transformed.permissions, Permissions)
+        assert not transformed.comment
+
+    def test_bool_value_with_non_existing_permissions(self, lookups: IntermediaryLookups):
+        val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, "nonExisting", None)
+        with pytest.raises(PermissionNotExistsError):
+            _transform_one_value(val, lookups)
+
     def test_color_value(self, lookups: IntermediaryLookups):
         val = ParsedValue(HAS_PROP, "#5d1f1e", KnoraValueType.COLOR_VALUE, None, None)
         transformed = _transform_one_value(val, lookups)
@@ -394,15 +414,6 @@ class TestTransformValues:
         assert not transformed.permissions
         assert not transformed.comment
 
-    def test_simple_text_value(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "text", KnoraValueType.SIMPLETEXT_VALUE, None, None)
-        transformed = _transform_one_value(val, lookups)
-        assert isinstance(transformed, IntermediarySimpleText)
-        assert transformed.value == "text"
-        assert transformed.prop_iri == HAS_PROP
-        assert not transformed.permissions
-        assert not transformed.comment
-
     def test_geometry_value(self, lookups: IntermediaryLookups):
         val = ParsedValue(f"{KNORA_API_STR}hasGeometry", "{}", KnoraValueType.GEOM_VALUE, None, None)
         transformed = _transform_one_value(val, lookups)
@@ -411,16 +422,6 @@ class TestTransformValues:
         assert transformed.prop_iri == f"{KNORA_API_STR}hasGeometry"
         assert not transformed.permissions
         assert not transformed.comment
-
-    def test_richtext_value(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "<text>this is text</text>", KnoraValueType.RICHTEXT_VALUE, None, None)
-        transformed = _transform_one_value(val, lookups)
-        assert isinstance(transformed, IntermediaryRichtext)
-        assert isinstance(transformed.value, FormattedTextValue)
-        assert transformed.prop_iri == HAS_PROP
-        assert not transformed.permissions
-        assert not transformed.comment
-        assert transformed.resource_references == set()
 
     def test_geoname_value(self, lookups: IntermediaryLookups):
         val = ParsedValue(HAS_PROP, "5416656", KnoraValueType.GEONAME_VALUE, None, None)
@@ -451,22 +452,53 @@ class TestTransformValues:
         assert not transformed.comment
 
     def test_list_value(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, ("list", "node"), KnoraValueType.LIST_VALUE, None, None)
+        val = ParsedValue(HAS_PROP, ("list", "node"), KnoraValueType.LIST_VALUE, "open", "cmt")
         transformed = _transform_one_value(val, lookups)
         assert isinstance(transformed, IntermediaryList)
         assert transformed.value == "http://rdfh.ch/9999/node"
         assert transformed.prop_iri == HAS_PROP
+        assert isinstance(transformed.permissions, Permissions)
+        assert transformed.comment == "cmt"
+
+    def test_simple_text_value(self, lookups: IntermediaryLookups):
+        val = ParsedValue(HAS_PROP, "text", KnoraValueType.SIMPLETEXT_VALUE, None, None)
+        transformed = _transform_one_value(val, lookups)
+        assert isinstance(transformed, IntermediarySimpleText)
+        assert transformed.value == "text"
+        assert transformed.prop_iri == HAS_PROP
         assert not transformed.permissions
         assert not transformed.comment
 
+    def test_richtext_value(self, lookups: IntermediaryLookups):
+        text_str = "<text>this is text</text>"
+        val = ParsedValue(HAS_PROP, text_str, KnoraValueType.RICHTEXT_VALUE, "open", "cmt")
+        transformed = _transform_one_value(val, lookups)
+        assert isinstance(transformed, IntermediaryRichtext)
+        assert transformed.value.xmlstr == text_str
+        assert transformed.prop_iri == HAS_PROP
+        assert isinstance(transformed.permissions, Permissions)
+        assert transformed.comment == "cmt"
+        assert transformed.resource_references == set()
+
+    def test_richtext_value_with_standoff(self, lookups: IntermediaryLookups):
+        text_str = 'Comment with <a class="salsah-link" href="IRI:link:IRI">link</a>.'
+        val = ParsedValue(HAS_PROP, text_str, KnoraValueType.RICHTEXT_VALUE, "open", "cmt")
+        transformed = _transform_one_value(val, lookups)
+        assert isinstance(transformed, IntermediaryRichtext)
+        assert transformed.value.xmlstr == text_str
+        assert transformed.prop_iri == HAS_PROP
+        assert isinstance(transformed.permissions, Permissions)
+        assert transformed.comment == "cmt"
+        assert transformed.resource_references == {"link"}
+
     def test_link_value(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "other_id", KnoraValueType.LINK_VALUE, None, None)
+        val = ParsedValue(HAS_PROP, "other_id", KnoraValueType.LINK_VALUE, "open", "cmt")
         transformed = _transform_one_value(val, lookups)
         assert isinstance(transformed, IntermediaryLink)
         assert transformed.value == "other_id"
         assert transformed.prop_iri == f"{HAS_PROP}Value"
-        assert not transformed.permissions
-        assert not transformed.comment
+        assert isinstance(transformed.permissions, Permissions)
+        assert transformed.comment == "cmt"
 
     def test_time_value(self, lookups: IntermediaryLookups):
         val = ParsedValue(HAS_PROP, "2019-10-23T13:45:12.01-14:00", KnoraValueType.TIME_VALUE, None, None)
@@ -485,24 +517,3 @@ class TestTransformValues:
         assert transformed.prop_iri == HAS_PROP
         assert not transformed.permissions
         assert not transformed.comment
-
-    def test_bool_value_with_comment(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "false", KnoraValueType.BOOLEAN_VALUE, None, "comment")
-        transformed = _transform_one_value(val, lookups)
-        assert transformed.value == False  # noqa:E712 (Avoid equality comparisons)
-        assert transformed.prop_iri == HAS_PROP
-        assert not transformed.permissions
-        assert transformed.comment == "comment"
-
-    def test_bool_value_with_permissions(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, "open", None)
-        transformed = _transform_one_value(val, lookups)
-        assert transformed.value == True  # noqa:E712 (Avoid equality comparisons)
-        assert transformed.prop_iri == HAS_PROP
-        assert isinstance(transformed.permissions, Permissions)
-        assert not transformed.comment
-
-    def test_bool_value_with_non_existing_permissions(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, "nonExisting", None)
-        with pytest.raises(PermissionNotExistsError):
-            _transform_one_value(val, lookups)

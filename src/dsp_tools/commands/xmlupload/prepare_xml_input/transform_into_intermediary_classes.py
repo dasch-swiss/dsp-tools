@@ -95,9 +95,10 @@ def _transform_migration_metadata(metadata: ParsedMigrationMetadata) -> Migratio
 
 
 def _transform_file_value(
-    bitstream: ParsedFileValue, lookups: IntermediaryLookups, res_id: str, res_label: str
+    val: ParsedFileValue, lookups: IntermediaryLookups, res_id: str, res_label: str
 ) -> IntermediaryFileValue:
-    pass
+    metadata = _get_metadata(val.metadata, lookups)
+    return IntermediaryFileValue(value=val.value, metadata=metadata, res_id=res_id, res_label=res_label)
 
 
 def _transform_iiif_uri_value(iiif_uri: ParsedFileValue, lookups: IntermediaryLookups) -> IntermediaryIIIFUri:

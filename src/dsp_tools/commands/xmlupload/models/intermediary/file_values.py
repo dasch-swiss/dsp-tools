@@ -3,7 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from dsp_tools.commands.xmlupload.models.permission import Permissions
-from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 
 
 @dataclass
@@ -20,7 +19,6 @@ class IntermediaryFileMetadata:
 @dataclass
 class IntermediaryFileValue:
     value: str
-    value_type: KnoraValueType | None
     metadata: IntermediaryFileMetadata
     res_id: str
     res_label: str

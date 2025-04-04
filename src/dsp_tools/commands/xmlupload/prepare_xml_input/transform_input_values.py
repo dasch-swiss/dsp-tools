@@ -58,9 +58,9 @@ def assert_is_tuple(value: InputTypes) -> tuple[str, str]:
 def transform_boolean(value: InputTypes) -> bool:
     """Transform the value into a boolean"""
     match value:
-        case "true" | "1" | 1 | True:
+        case "True" | "true" | "1" | 1 | True:
             return True
-        case "false" | "0" | 0 | False:
+        case "False" | "false" | "0" | 0 | False:
             return False
         case _:
             raise InputError(f"Could not parse boolean value: {value}")

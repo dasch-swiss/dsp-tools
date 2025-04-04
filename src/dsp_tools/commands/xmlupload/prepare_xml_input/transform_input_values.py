@@ -113,7 +113,7 @@ def transform_simpletext(value: InputTypes) -> str:
     str_val = "\n".join([s.strip() for s in str_val.split("\n")])
     result = str_val.strip()
     if len(result) == 0:
-        raise InputError(f"After removing redundant whitespaces and newlines the input string: '{value}' is empty.")
+        raise InputError("After removing redundant whitespaces and newlines the input string is empty.")
     return result
 
 

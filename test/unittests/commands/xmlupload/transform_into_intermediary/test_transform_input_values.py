@@ -15,6 +15,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values impor
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.data_formats.date_util import Calendar
 from dsp_tools.utils.data_formats.date_util import Date
+from dsp_tools.utils.data_formats.date_util import Era
 
 
 def test_assert_is_string_good():
@@ -65,7 +66,7 @@ def test_transform_boolean_good(in_val, expected):
 
 
 def test_transform_boolean_raises():
-    msg = regex.escape(r"")
+    msg = regex.escape(r"Could not parse boolean value: other")
     with pytest.raises(InputError, match=msg):
         transform_boolean("other")
 
@@ -73,11 +74,15 @@ def test_transform_boolean_raises():
 def test_transform_date_good():
     result = transform_date("2022")
     assert isinstance(result, Date)
-    assert result.start.era == Calendar.GREGORIAN
-    assert result.start.year == "2022"
+    assert result.calendar == Calendar.GREGORIAN
+    assert result.start.era == Era.CE
+    assert result.start.year == 2022
     assert not result.start.month
     assert not result.start.day
-    assert not result.end
+    assert result.end.era == Era.CE
+    assert result.end.year == 2022
+    assert not result.end.month
+    assert not result.end.day
 
 
 @pytest.mark.parametrize(
@@ -98,8 +103,8 @@ def test_transform_integer_good():
 @pytest.mark.parametrize(
     ("in_val", "start", "end"),
     [
-        (("0", "1"), 0.0, 1.0),
-        (("0.3", "1.3"), 0.3, 1.3),
+        ("0:1", 0.0, 1.0),
+        ("0.3:1.3", 0.3, 1.3),
     ],
 )
 def test_transform_interval_good(in_val, start, end):
@@ -109,9 +114,9 @@ def test_transform_interval_good(in_val, start, end):
 
 
 def test_transform_interval_raises():
-    msg = regex.escape(r"fds")
+    msg = regex.escape(r"Could not parse interval: :0")
     with pytest.raises(InputError, match=msg):
-        transform_interval(("", "1"))
+        transform_interval(":0")
 
 
 def test_transform_geometry_good():
@@ -126,12 +131,15 @@ def test_transform_geometry_good():
                                {"x": 0.7, "y": 0.6}]
                 }
                 """
-    expected = "sadf"
+    expected = (
+        '{"status": "active", "type": "polygon", "lineWidth": 5, "points": '
+        '[{"x": 0.4, "y": 0.6}, {"x": 0.5, "y": 0.9}, {"x": 0.8, "y": 0.9}, {"x": 0.7, "y": 0.6}]}'
+    )
     assert transform_geometry(geom_str) == expected
 
 
 def test_transform_geometry_raises():
-    msg = regex.escape(r"fdfd")
+    msg = regex.escape(r"Could not parse json value: not valid")
     with pytest.raises(InputError, match=msg):
         transform_geometry("not valid")
 
@@ -144,11 +152,11 @@ def test_transform_simpletext_good():
     Third line ...
     
     """
-    expected = """fdsadfsa"""
+    expected = "Text line 1\n\nline 2\nThird line ..."
     assert transform_simpletext(text) == expected
 
 
 def test_transform_simpletext_raises():
-    msg = regex.escape(r"fsfad")
+    msg = regex.escape(r"After removing redundant whitespaces and newlines the input string is empty.")
     with pytest.raises(InputError, match=msg):
         transform_simpletext("      ")

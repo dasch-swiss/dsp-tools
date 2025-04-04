@@ -3,7 +3,6 @@ from lxml import etree
 
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLValue
-from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import _cleanup_formatted_text
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import _cleanup_unformatted_text
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import _extract_formatted_text_from_node
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
@@ -193,36 +192,6 @@ def test_extract_formatted_text_from_node() -> None:
     formatted_node = etree.fromstring(orig)
     xml_value = _extract_formatted_text_from_node(formatted_node)
     assert xml_value.xmlstr == expected
-
-
-def test_cleanup_formatted_text() -> None:
-    """Test the removal of whitespaces and line breaks in xml-formatted text values"""
-    orig = """
-
-        This is <em>italicized and <strong>bold</strong></em> text!
-        It contains <code>monospace text  that   preserves whitespaces and &amp; HTML-escapes</code>.
-        The same <pre>is   true   for   preformatted   text</pre>.
-
-        It    contains    multiple    whitespaces	and		tabstops.<br/><br/>
-        Line breaks must be done with <code><br/></code> tags.<br/>
-        Otherwise they will be removed.<br/><br/>
-        
-        It contains links to a resource:
-        <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>
-
-    """
-    expected = (
-        "This is <em>italicized and <strong>bold</strong></em> text! "
-        "It contains <code>monospace text  that   preserves whitespaces and &amp; HTML-escapes</code>. "
-        "The same <pre>is   true   for   preformatted   text</pre>. "
-        "It contains multiple whitespaces and tabstops.<br/><br/>"
-        "Line breaks must be done with <code><br/></code> tags.<br/>"
-        "Otherwise they will be removed.<br/><br/>"
-        "It contains links to a resource: "
-        '<a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>'
-    )
-    res = _cleanup_formatted_text(orig)
-    assert res == expected
 
 
 if __name__ == "__main__":

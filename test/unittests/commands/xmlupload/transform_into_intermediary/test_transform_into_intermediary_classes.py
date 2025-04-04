@@ -150,7 +150,7 @@ class TestTransformOneResource:
         assert not result.migration_metadata
 
     def test_with_ark(self, lookups: IntermediaryLookups):
-        metadata = ParsedMigrationMetadata(
+        parsed_metadata = ParsedMigrationMetadata(
             iri=None, ark="ark:/72163/4123-43xc6ivb931-a.2022829", creation_date="1999-12-31T23:59:59.9999999+01:00"
         )
         res = ParsedResource(
@@ -160,7 +160,7 @@ class TestTransformOneResource:
             permissions_id=None,
             values=[],
             file_value=None,
-            migration_metadata=metadata,
+            migration_metadata=parsed_metadata,
         )
         result = _transform_one_resource(res, lookups)
         assert result.res_id == "id"
@@ -175,7 +175,7 @@ class TestTransformOneResource:
         assert metadata.creation_date == "1999-12-31T23:59:59.9999999+01:00"
 
     def test_with_iri(self, lookups: IntermediaryLookups):
-        metadata = ParsedMigrationMetadata(
+        parsed_metadata = ParsedMigrationMetadata(
             iri="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA", ark=None, creation_date=None
         )
         res = ParsedResource(
@@ -185,7 +185,7 @@ class TestTransformOneResource:
             permissions_id=None,
             values=[],
             file_value=None,
-            migration_metadata=metadata,
+            migration_metadata=parsed_metadata,
         )
         result = _transform_one_resource(res, lookups)
         assert result.res_id == "id"
@@ -200,7 +200,7 @@ class TestTransformOneResource:
         assert not metadata.creation_date
 
     def test_resource_with_ark_and_iri(self, lookups: IntermediaryLookups):
-        metadata = ParsedMigrationMetadata(
+        parsed_metadata = ParsedMigrationMetadata(
             iri="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA",
             ark="ark:/72163/4123-43xc6ivb931-a.2022829",
             creation_date="1999-12-31T23:59:59.9999999+01:00",
@@ -212,7 +212,7 @@ class TestTransformOneResource:
             permissions_id=None,
             values=[],
             file_value=None,
-            migration_metadata=metadata,
+            migration_metadata=parsed_metadata,
         )
         result = _transform_one_resource(res, lookups)
         assert result.res_id == "id"
@@ -292,31 +292,31 @@ class TestTransformFileValue:
         result = _transform_file_value(val, lookups, "id", "lbl")
         assert result.value == "file.jpg"
         assert isinstance(result, IntermediaryFileValue)
-        metadata = result.metadata
-        assert not metadata.permissions
-        assert metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
-        assert metadata.copyright_holder == "copy"
-        assert metadata.authorships == ["author"]
+        result_metadata = result.metadata
+        assert not result_metadata.permissions
+        assert result_metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
+        assert result_metadata.copyright_holder == "copy"
+        assert result_metadata.authorships == ["author"]
 
     def test_transform_file_value_with_permissions(self, file_with_permission, lookups: IntermediaryLookups):
         result = _transform_file_value(file_with_permission, lookups, "id", "lbl")
         assert isinstance(result, IntermediaryFileValue)
         assert result.value == "file.jpg"
-        metadata = result.metadata
-        assert isinstance(metadata.permissions, Permissions)
-        assert metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
-        assert metadata.copyright_holder == "copy"
-        assert metadata.authorships == ["author"]
+        result_metadata = result.metadata
+        assert isinstance(result_metadata.permissions, Permissions)
+        assert result_metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
+        assert result_metadata.copyright_holder == "copy"
+        assert result_metadata.authorships == ["author"]
 
     def test_transform_iiif_uri_value(self, iiif_file_value, lookups: IntermediaryLookups):
         result = _transform_iiif_uri_value(iiif_file_value, lookups)
         assert result.value == "https://this/is/a/uri.jpg"
         assert isinstance(result, IntermediaryIIIFUri)
-        metadata = result.metadata
-        assert not metadata.permissions
-        assert metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
-        assert metadata.copyright_holder == "copy"
-        assert metadata.authorships == ["author"]
+        result_metadata = result.metadata
+        assert not result_metadata.permissions
+        assert result_metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
+        assert result_metadata.copyright_holder == "copy"
+        assert result_metadata.authorships == ["author"]
 
     def test_transform_iiif_uri_value_with_permission(self, lookups: IntermediaryLookups):
         metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", "open")
@@ -324,11 +324,11 @@ class TestTransformFileValue:
         result = _transform_iiif_uri_value(val, lookups)
         assert isinstance(result, IntermediaryIIIFUri)
         assert result.value == "https://this/is/a/uri.jpg"
-        metadata = result.metadata
-        assert isinstance(metadata.permissions, Permissions)
-        assert metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
-        assert metadata.copyright_holder == "copy"
-        assert metadata.authorships == ["author"]
+        result_metadata = result.metadata
+        assert isinstance(result_metadata.permissions, Permissions)
+        assert result_metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
+        assert result_metadata.copyright_holder == "copy"
+        assert result_metadata.authorships == ["author"]
 
     def test_get_metadata_soon_deprecated_without_metadata(self, lookups):
         metadata = ParsedFileValueMetadata(None, None, None, None)

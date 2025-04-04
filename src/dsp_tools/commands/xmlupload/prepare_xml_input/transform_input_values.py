@@ -16,7 +16,7 @@ from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.data_formats.date_util import Date
 from dsp_tools.utils.data_formats.date_util import parse_date_string
 
-InputTypes: TypeAlias = Union[str, FormattedTextValue, tuple[str, str]]
+InputTypes: TypeAlias = Union[str, FormattedTextValue, tuple[str | None, str | None] | None]
 
 
 @dataclass
@@ -92,7 +92,7 @@ def transform_richtext(value: InputTypes) -> tuple[FormattedTextValue, set[str]]
     pass
 
 
-def assert_is_string(value: str | FormattedTextValue | tuple[str, str] | None) -> str:
+def assert_is_string(value: InputTypes) -> str:
     """Assert a value is a string."""
     match value:
         case str() as s:
@@ -107,7 +107,7 @@ def assert_is_string(value: str | FormattedTextValue | tuple[str, str] | None) -
             assert_never(value)
 
 
-def assert_is_tuple(value: str | FormattedTextValue | tuple[str, str] | None) -> tuple[str, str]:
+def assert_is_tuple(value: InputTypes) -> tuple[str, str]:
     """Assert a value is a tuple."""
     match value:
         case tuple() as t:

@@ -55,10 +55,10 @@ def assert_is_tuple(value: str | FormattedTextValue | tuple[str, str]) -> tuple[
 
 def transform_boolean(value: InputTypes) -> bool:
     """Transform the value into a boolean"""
-    match value:
-        case "True" | "true" | "1" | 1 | True:
+    match value.lower():
+        case "true" | "1" | 1 | True:
             return True
-        case "False" | "false" | "0" | 0 | False:
+        case "false" | "0" | 0 | False:
             return False
         case _:
             raise InputError(f"Could not parse boolean value: {value}")

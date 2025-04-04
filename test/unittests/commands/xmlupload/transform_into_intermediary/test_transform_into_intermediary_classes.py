@@ -228,6 +228,7 @@ class TestTransformOneResource:
         assert time_stamp == DateTimeStamp("1999-12-31T23:59:59.9999999+01:00")
 
     def test_unknown_permission(self, lookups: IntermediaryLookups):
+        msg = regex.escape(r"Could not find permissions for value: unknown")
         res = ParsedResource(
             res_id="id",
             res_type=RES_TYPE,
@@ -237,7 +238,7 @@ class TestTransformOneResource:
             file_value=None,
             migration_metadata=None,
         )
-        with pytest.raises(PermissionNotExistsError):
+        with pytest.raises(PermissionNotExistsError, match=msg):
             _transform_one_resource(res, lookups)
 
     def test_with_file_value(self, file_with_permission, lookups: IntermediaryLookups):

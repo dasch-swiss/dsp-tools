@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileMetadata
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileValue
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryIIIFUri
@@ -13,6 +15,8 @@ from dsp_tools.commands.xmlupload.models.intermediary.values import Intermediary
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryGeoname
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryInt
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryInterval
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryList
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediarySimpleText
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryTime
@@ -23,6 +27,7 @@ from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.prepare_xml_input.ark2iri import convert_ark_v0_to_resource_iri
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import TypeTransformerMapper
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import assert_is_string
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import assert_is_tuple
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_boolean
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_date
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_decimal
@@ -145,12 +150,12 @@ def _resolve_authorship(authorship_id: str | None, lookup: dict[str, list[str]])
 
 def _transform_all_values(values: list[ParsedValue], lookups: IntermediaryLookups) -> list[IntermediaryValue]:
     all_values = []
-    for prop in values:
-        all_values.extend(_transform_one_value(prop, lookups))
+    for val in values:
+        all_values.append(_transform_one_value(val, lookups))
     return all_values
 
 
-def _transform_one_value(val: ParsedValue, lookups: IntermediaryLookups) -> list[IntermediaryValue]:
+def _transform_one_value(val: ParsedValue, lookups: IntermediaryLookups) -> IntermediaryValue:
     match val.value_type:
         case KnoraValueType.LIST_VALUE:
             return _transform_list_value(val, lookups)
@@ -163,16 +168,35 @@ def _transform_one_value(val: ParsedValue, lookups: IntermediaryLookups) -> list
 
 def _transform_generic_value(
     val: ParsedValue, lookups: IntermediaryLookups, transformation_mapper: TypeTransformerMapper
-) -> list[IntermediaryValue]:
+) -> IntermediaryValue:
     pass
 
 
-def _transform_link_value(val: ParsedValue, lookups: IntermediaryLookups) -> list[IntermediaryValue]:
-    pass
+def _transform_link_value(val: ParsedValue, lookups: IntermediaryLookups) -> IntermediaryValue:
+    transformed_value = assert_is_string(val.value)
+    permission_val = _resolve_permission(val.permissions_id, lookups.permissions)
+    link_val: IntermediaryValue = IntermediaryLink(
+        value=transformed_value,
+        prop_iri=val.prop_name,
+        comment=val.comment,
+        permissions=permission_val,
+        value_uuid=str(uuid4()),
+    )
+    return link_val
 
 
-def _transform_list_value(val: ParsedValue, lookups: IntermediaryLookups) -> list[IntermediaryValue]:
-    pass
+def _transform_list_value(val: ParsedValue, lookups: IntermediaryLookups) -> IntermediaryValue:
+    tuple_val = assert_is_tuple(val.value)
+    if not (list_iri := lookups.listnodes.get(tuple_val)):
+        raise InputError(f"Could not find list iri for node: {' / '.join(tuple_val)}")
+    permission_val = _resolve_permission(val.permissions_id, lookups.permissions)
+    list_val: IntermediaryValue = IntermediaryList(
+        value=list_iri,
+        prop_iri=val.prop_name,
+        comment=val.comment,
+        permissions=permission_val,
+    )
+    return list_val
 
 
 def _resolve_permission(permissions: str | None, permissions_lookup: dict[str, Permissions]) -> Permissions | None:

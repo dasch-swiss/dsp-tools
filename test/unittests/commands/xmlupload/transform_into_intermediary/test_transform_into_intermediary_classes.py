@@ -38,6 +38,8 @@ from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 from dsp_tools.utils.data_formats.date_util import Date
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
 
 ONTO = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
@@ -172,8 +174,9 @@ class TestTransformOneResource:
 
 class TestTransformFileValue:
     def test_transform_file_value(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType, "", "")
-        result = _transform_file_value(bitstream, lookups, "id", "lbl")
+        metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", None)
+        val = ParsedFileValue("file.jpg", KnoraValueType.STILL_IMAGE_FILE, metadata)
+        result = _transform_file_value(val, lookups, "id", "lbl")
         assert result.value == "file.jpg"
         assert isinstance(result, IntermediaryFileValue)
         metadata = result.metadata
@@ -183,7 +186,9 @@ class TestTransformFileValue:
         assert metadata.authorships == ["author"]
 
     def test_transform_file_value_with_permissions(self, lookups: IntermediaryLookups):
-        result = _transform_file_value(bitstream_with_permission, lookups, "id", "lbl")
+        metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", "open")
+        val = ParsedFileValue("file.jpg", KnoraValueType.STILL_IMAGE_FILE, metadata)
+        result = _transform_file_value(val, lookups, "id", "lbl")
         assert isinstance(result, IntermediaryFileValue)
         assert result.value == "file.jpg"
         metadata = result.metadata
@@ -193,8 +198,9 @@ class TestTransformFileValue:
         assert metadata.authorships == ["author"]
 
     def test_transform_iiif_uri_value(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType, "", "")
-        result = _transform_iiif_uri_value(iiif_uri, lookups)
+        metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", None)
+        val = ParsedFileValue("https://this/is/a/uri.jpg", KnoraValueType.STILL_IMAGE_FILE, metadata)
+        result = _transform_iiif_uri_value(val, lookups)
         assert result.value == "https://this/is/a/uri.jpg"
         assert isinstance(result, IntermediaryIIIFUri)
         metadata = result.metadata
@@ -204,7 +210,9 @@ class TestTransformFileValue:
         assert metadata.authorships == ["author"]
 
     def test_transform_iiif_uri_value_with_permission(self, lookups: IntermediaryLookups):
-        result = _transform_iiif_uri_value(iiif_uri_with_permission, lookups)
+        metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", "open")
+        val = ParsedFileValue("https://this/is/a/uri.jpg", KnoraValueType.STILL_IMAGE_FILE, metadata)
+        result = _transform_iiif_uri_value(val, lookups)
         assert isinstance(result, IntermediaryIIIFUri)
         assert result.value == "https://this/is/a/uri.jpg"
         metadata = result.metadata
@@ -214,27 +222,28 @@ class TestTransformFileValue:
         assert metadata.authorships == ["author"]
 
     def test_get_metadata_soon_deprecated_without_metadata(self, lookups):
-        file = ""
-        result = _transform_iiif_uri_value(file, lookups)
+        metadata = ParsedFileValueMetadata(None, None, None, None)
+        val = ParsedFileValue("https://this/is/a/uri.jpg", KnoraValueType.STILL_IMAGE_FILE, metadata)
+        result = _transform_iiif_uri_value(val, lookups)
         assert not result.metadata.permissions
         assert not result.metadata.license_iri
         assert not result.metadata.copyright_holder
         assert not result.metadata.authorships
 
     def test_get_metadata_raises(self, lookups):
-        metadata = ""
+        metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/unknown", "copy", "auth_id", None)
         msg = regex.escape(
-            "The license 'unknown' used for an image or iiif-uri is unknown. "
+            "The license 'http://rdfh.ch/licenses/unknown' used for an image or iiif-uri is unknown. "
             "See documentation for accepted pre-defined licenses."
         )
         with pytest.raises(InputError, match=msg):
             _get_metadata(metadata, lookups)
 
     def test_get_metadata_unknown_author(self, lookups):
-        metadata = 'XMLFileMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "unknown")'
+        metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "unknown", "open")
         msg = regex.escape(
             "The authorship id 'unknown' referenced in a multimedia file or iiif-uri is unknown. "
-            "Ensure that all referenced ids are defined in the `<authorship>` elements of your XML."
+            "Ensure that all referenced ids are defined in the `<authorship>` elements of your XML file."
         )
         with pytest.raises(InputError, match=msg):
             _get_metadata(metadata, lookups)

@@ -83,7 +83,9 @@ def transform_simpletext(value: InputTypes) -> str:
     str_val = regex.sub(r" {2,}|\t+", " ", str_val)
     # remove leading and trailing spaces (of every line, but also of the entire string)
     str_val = "\n".join([s.strip() for s in str_val.split("\n")])
-    return str_val.strip()
+    result = str_val.strip()
+    if len(result) == 0:
+        raise InputError(f"After removing redundant whitespaces and newlines the input string: '{value}' is empty.")
 
 
 def assert_is_string(value: str | FormattedTextValue | tuple[str, str]) -> str:

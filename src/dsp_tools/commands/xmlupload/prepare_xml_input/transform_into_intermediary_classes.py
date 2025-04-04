@@ -224,17 +224,17 @@ def _transform_list_value(val: ParsedValue, lookups: IntermediaryLookups) -> Int
 
 
 def _transform_richtext_value(val: ParsedValue, lookups: IntermediaryLookups) -> IntermediaryValue:
-    transformed_value, res_references = transform_richtext(val.value)
+    transformed_value = transform_richtext(val.value)
     permission_val = _resolve_permission(val.permissions_id, lookups.permissions)
-    link_val: IntermediaryValue = IntermediaryRichtext(
+    richtext: IntermediaryValue = IntermediaryRichtext(
         value=transformed_value,
         prop_iri=val.prop_name,
         comment=val.comment,
         permissions=permission_val,
-        resource_references=res_references,
+        resource_references=transformed_value.find_internal_ids(),
         value_uuid=str(uuid4()),
     )
-    return link_val
+    return richtext
 
 
 def _resolve_permission(permissions: str | None, permissions_lookup: dict[str, Permissions]) -> Permissions | None:

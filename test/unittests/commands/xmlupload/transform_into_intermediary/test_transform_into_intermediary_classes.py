@@ -420,7 +420,7 @@ class TestTransformValues:
         assert transformed.prop_iri == HAS_PROP
         assert not transformed.permissions
         assert not transformed.comment
-        assert transformed.resource_references == {"id"}
+        assert transformed.resource_references == set()
 
     def test_geoname_value(self, lookups: IntermediaryLookups):
         val = ParsedValue(HAS_PROP, "5416656", KnoraValueType.GEONAME_VALUE, None, None)

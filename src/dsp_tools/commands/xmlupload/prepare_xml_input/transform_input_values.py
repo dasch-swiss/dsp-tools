@@ -18,7 +18,7 @@ from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.data_formats.date_util import Date
 from dsp_tools.utils.data_formats.date_util import parse_date_string
 
-InputTypes: TypeAlias = Union[str, FormattedTextValue, tuple[str, str]]
+InputTypes: TypeAlias = Union[str, FormattedTextValue, tuple[str | None, str | None] | None]
 
 
 @dataclass
@@ -36,6 +36,8 @@ def assert_is_string(value: InputTypes) -> str:
             raise InputError(f"Expected string value, but got XML value: {xml.as_xml()}")
         case tuple():
             raise InputError(f"Expected string value, but got tuple value: {value}")
+        case None:
+            raise InputError("Expected string value, but got None")
         case _:
             assert_never(value)
 
@@ -51,6 +53,8 @@ def assert_is_tuple(value: InputTypes) -> tuple[str, str]:
             raise InputError(f"Expected tuple value, but got XML value: {xml.as_xml()}")
         case str():
             raise InputError(f"Expected tuple value, but got string value: {value}")
+        case None:
+            raise InputError("Expected tuple value, but got None")
         case _:
             assert_never(value)
 
@@ -92,6 +96,15 @@ def transform_interval_from_string(input_value: InputTypes) -> IntervalFloats:
         raise InputError(f"Could not parse interval: {val}")
     try:
         return IntervalFloats(float(split_val[0]), float(split_val[1]))
+    except ValueError:
+        raise InputError(f"Could not parse interval: {val}") from None
+
+
+def transform_interval(input_value: InputTypes) -> IntervalFloats:
+    """Transform a string input into an interval object."""
+    val = assert_is_tuple(input_value)
+    try:
+        return IntervalFloats(float(val[0]), float(val[1]))
     except ValueError:
         raise InputError(f"Could not parse interval: {val}") from None
 

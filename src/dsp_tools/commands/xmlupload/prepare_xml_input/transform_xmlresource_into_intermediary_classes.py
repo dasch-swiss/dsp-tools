@@ -126,7 +126,7 @@ def _transform_file_value(
     bitstream: XMLBitstream, lookups: IntermediaryLookups, res_id: str, res_label: str
 ) -> IntermediaryFileValue:
     metadata = _get_metadata(bitstream.metadata, lookups)
-    return IntermediaryFileValue(bitstream.value, metadata, res_id, res_label)
+    return IntermediaryFileValue(bitstream.value, None, metadata, res_id, res_label)
 
 
 def _transform_iiif_uri_value(iiif_uri: IIIFUriInfo, lookups: IntermediaryLookups) -> IntermediaryIIIFUri:

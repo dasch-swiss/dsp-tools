@@ -20,7 +20,7 @@ class IntermediaryFileMetadata:
 @dataclass
 class IntermediaryFileValue:
     value: str
-    value_type: KnoraValueType
+    value_type: KnoraValueType | None
     metadata: IntermediaryFileMetadata
     res_id: str
     res_label: str

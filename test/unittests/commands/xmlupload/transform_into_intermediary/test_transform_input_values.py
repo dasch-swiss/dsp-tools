@@ -3,14 +3,17 @@
 import pytest
 import regex
 
+from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import assert_is_string
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import assert_is_tuple
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import cleanup_formatted_text
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_boolean
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_date
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_decimal
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_geometry
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_integer
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_interval
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_richtext
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_simpletext
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.data_formats.date_util import Calendar
@@ -163,3 +166,48 @@ def test_transform_simpletext_raises():
     msg = regex.escape(r"After removing redundant whitespaces and newlines the input string is empty.")
     with pytest.raises(InputError, match=msg):
         transform_simpletext("      ")
+
+
+def test_transform_richtext_good():
+    text = """This is <em>italicized 
+    and <strong>bold</strong></em> text!
+    """
+    expected = "This is <em>italicized and <strong>bold</strong></em> text!"
+    result = transform_richtext(text)
+    assert isinstance(result, FormattedTextValue)
+    assert result.xmlstr == expected
+
+
+def test_transform_richtext_raises():
+    msg = regex.escape(r"After removing redundant whitespaces and newlines the input string is empty.")
+    with pytest.raises(InputError, match=msg):
+        transform_richtext("      ")
+
+
+def test_cleanup_formatted_text() -> None:
+    orig = """
+
+        This is <em>italicized and <strong>bold</strong></em> text!
+        It contains <code>monospace text  that   preserves whitespaces and &amp; HTML-escapes</code>.
+        The same <pre>is   true   for   preformatted   text</pre>.
+
+        It    contains    multiple    whitespaces	and		tabstops.<br/><br/>
+        Line breaks must be done with <code><br/></code> tags.<br/>
+        Otherwise they will be removed.<br/><br/>
+
+        It contains links to a resource:
+        <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>
+
+    """
+    expected = (
+        "This is <em>italicized and <strong>bold</strong></em> text! "
+        "It contains <code>monospace text  that   preserves whitespaces and &amp; HTML-escapes</code>. "
+        "The same <pre>is   true   for   preformatted   text</pre>. "
+        "It contains multiple whitespaces and tabstops.<br/><br/>"
+        "Line breaks must be done with <code><br/></code> tags.<br/>"
+        "Otherwise they will be removed.<br/><br/>"
+        "It contains links to a resource: "
+        '<a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>'
+    )
+    res = cleanup_formatted_text(orig)
+    assert res == expected

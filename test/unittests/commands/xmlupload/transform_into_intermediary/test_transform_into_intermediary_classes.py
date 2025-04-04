@@ -4,9 +4,7 @@ import regex
 
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileValue
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryIIIFUri
-from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.intermediary.res import MigrationMetadata
-from dsp_tools.commands.xmlupload.models.intermediary.res import ResourceInputConversionFailure
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryBoolean
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryColor
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryDate
@@ -27,11 +25,11 @@ from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import _get_metadata
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import _transform_file_value
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import _transform_iiif_uri_value
-from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import (
-    _transform_into_intermediary_resource,
-)
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import _transform_one_resource
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import _transform_one_value
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import (
+    transform_all_resources_into_intermediary_resources,
+)
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.exceptions import PermissionNotExistsError
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
@@ -90,8 +88,9 @@ class TestTransformResources:
             file_value=None,
             migration_metadata=None,
         )
-        result = _transform_into_intermediary_resource(res, lookups)
-        assert isinstance(result, IntermediaryResource)
+        result = transform_all_resources_into_intermediary_resources([res], lookups)
+        assert len(result.transformed_resources) == 1
+        assert not result.resource_failures
 
     def test_failure(self, lookups: IntermediaryLookups):
         res = ParsedResource(
@@ -103,10 +102,11 @@ class TestTransformResources:
             file_value=None,
             migration_metadata=None,
         )
-        result = _transform_into_intermediary_resource(res, lookups)
-        assert isinstance(result, ResourceInputConversionFailure)
-        assert result.resource_id == "id"
-        assert result.failure_msg == "Could not find permissions for value: nonExisting"
+        result = transform_all_resources_into_intermediary_resources([res], lookups)
+        assert not result.transformed_resources
+        assert len(result.resource_failures) == 1
+        assert result.resource_failures[0].resource_id == "id"
+        assert result.resource_failures[0].failure_msg == "Could not find permissions for value: nonExisting"
 
 
 class TestTransformOneResource:

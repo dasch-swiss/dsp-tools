@@ -44,8 +44,8 @@ def assert_is_tuple(value: InputTypes) -> tuple[str, str]:
     """Assert a value is a tuple."""
     match value:
         case tuple() as t:
-            if not len(t):
-                raise InputError(f"Expected tuple with two elements but got {value}.")
+            if not len(t) == 2:
+                raise InputError(f"Expected tuple with two elements but got {value}")
             return t
         case FormattedTextValue() as xml:
             raise InputError(f"Expected tuple value, but got XML value: {xml.as_xml()}")
@@ -57,7 +57,7 @@ def assert_is_tuple(value: InputTypes) -> tuple[str, str]:
 
 def transform_boolean(value: InputTypes) -> bool:
     """Transform the value into a boolean"""
-    match value.lower():
+    match value:
         case "true" | "1" | 1 | True:
             return True
         case "false" | "0" | 0 | False:

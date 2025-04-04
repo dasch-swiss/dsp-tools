@@ -13,6 +13,8 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values impor
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_interval
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_simpletext
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.utils.data_formats.date_util import Calendar
+from dsp_tools.utils.data_formats.date_util import Date
 
 
 def test_assert_is_string_good():
@@ -21,16 +23,10 @@ def test_assert_is_string_good():
     assert result == "string"
 
 
-@pytest.mark.parametrize(
-    ("in_val", "expected"),
-    [
-        ("     ", r"sdf"),
-        (("1", 2), r"dsf"),
-    ],
-)
-def test_assert_is_string_raises(in_val, expected):
+def test_assert_is_string_raises():
+    expected = r"Expected string value, but got tuple value: ('1', '2')"
     with pytest.raises(InputError, match=regex.escape(expected)):
-        assert_is_string(in_val)
+        assert_is_string(("1", "2"))
 
 
 def test_assert_is_tuple_good():
@@ -39,7 +35,13 @@ def test_assert_is_tuple_good():
     assert result == ("1", "2")
 
 
-@pytest.mark.parametrize(("in_val", "expected"), [(("1", "2", "3"), r"dfsa"), ("string", r"sdf")])
+@pytest.mark.parametrize(
+    ("in_val", "expected"),
+    [
+        (("1", "2", "3"), r"Expected tuple with two elements but got ('1', '2', '3')"),
+        ("string", r"Expected tuple value, but got string value: string"),
+    ],
+)
 def test_assert_is_tuple_raises(in_val, expected):
     with pytest.raises(InputError, match=regex.escape(expected)):
         assert_is_tuple(in_val)
@@ -69,8 +71,13 @@ def test_transform_boolean_raises():
 
 
 def test_transform_date_good():
-    result = transform_date("JULIAN:BC:1:AD:200")
-    assert not result
+    result = transform_date("2022")
+    assert isinstance(result, Date)
+    assert result.start.era == Calendar.GREGORIAN
+    assert result.start.year == "2022"
+    assert not result.start.month
+    assert not result.start.day
+    assert not result.end
 
 
 @pytest.mark.parametrize(
@@ -102,7 +109,7 @@ def test_transform_interval_good(in_val, start, end):
 
 
 def test_transform_interval_raises():
-    msg = regex.escape(r"")
+    msg = regex.escape(r"fds")
     with pytest.raises(InputError, match=msg):
         transform_interval(("", "1"))
 
@@ -124,7 +131,7 @@ def test_transform_geometry_good():
 
 
 def test_transform_geometry_raises():
-    msg = regex.escape(r"")
+    msg = regex.escape(r"fdfd")
     with pytest.raises(InputError, match=msg):
         transform_geometry("not valid")
 
@@ -142,6 +149,6 @@ def test_transform_simpletext_good():
 
 
 def test_transform_simpletext_raises():
-    msg = regex.escape(r"")
+    msg = regex.escape(r"fsfad")
     with pytest.raises(InputError, match=msg):
         transform_simpletext("      ")

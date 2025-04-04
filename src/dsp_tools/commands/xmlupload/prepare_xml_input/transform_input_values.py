@@ -66,6 +66,15 @@ def transform_interval(input_value: InputTypes) -> IntervalFloats:
         raise InputError(f"Could not parse interval: {val}") from None
 
 
+def transform_interval_from_tuple(input_value: InputTypes) -> IntervalFloats:
+    """Transform a sting input into an interval object."""
+    val = assert_is_tuple(input_value)
+    try:
+        return IntervalFloats(float(val[0]), float(val[1]))
+    except ValueError:
+        raise InputError(f"Could not parse interval: {val}") from None
+
+
 def transform_geometry(value: InputTypes) -> str:
     """Transform a value into a geometry string"""
     str_val = assert_is_string(value)

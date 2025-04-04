@@ -15,6 +15,7 @@ from dsp_tools.commands.xmlupload.models.intermediary.values import Intermediary
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryGeometry
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryGeoname
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryInt
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryInterval
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryList
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
@@ -436,6 +437,16 @@ class TestTransformValues:
         assert isinstance(transformed, IntermediaryInt)
         assert transformed.value == 1
         assert transformed.prop_iri == HAS_PROP
+        assert not transformed.permissions
+        assert not transformed.comment
+
+    def test_interval_value(self, lookups: IntermediaryLookups):
+        val = ParsedValue(f"{KNORA_API_STR}hasSegmentBounds", ("1", "2"), KnoraValueType.INTERVAL_VALUE, None, None)
+        transformed = _transform_one_value(val, lookups)
+        assert isinstance(transformed, IntermediaryInterval)
+        assert transformed.value.start == 1.0
+        assert transformed.value.end == 2.0
+        assert transformed.prop_iri == f"{KNORA_API_STR}hasSegmentBounds"
         assert not transformed.permissions
         assert not transformed.comment
 

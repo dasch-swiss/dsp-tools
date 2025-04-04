@@ -122,12 +122,14 @@ def _transform_file_value(
     val: ParsedFileValue, lookups: IntermediaryLookups, res_id: str, res_label: str
 ) -> IntermediaryFileValue:
     metadata = _get_metadata(val.metadata, lookups)
-    return IntermediaryFileValue(value=val.value, metadata=metadata, res_id=res_id, res_label=res_label)
+    file_val = assert_is_string(val.value)
+    return IntermediaryFileValue(value=file_val, metadata=metadata, res_id=res_id, res_label=res_label)
 
 
 def _transform_iiif_uri_value(iiif_uri: ParsedFileValue, lookups: IntermediaryLookups) -> IntermediaryIIIFUri:
     metadata = _get_metadata(iiif_uri.metadata, lookups)
-    return IntermediaryIIIFUri(iiif_uri.value, metadata)
+    file_val = assert_is_string(iiif_uri.value)
+    return IntermediaryIIIFUri(file_val, metadata)
 
 
 def _get_metadata(file_metadata: ParsedFileValueMetadata, lookups: IntermediaryLookups) -> IntermediaryFileMetadata:

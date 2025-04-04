@@ -83,7 +83,7 @@ def transform_richtext(value: InputTypes) -> FormattedTextValue:
     pass
 
 
-def assert_is_string(value: str | FormattedTextValue | tuple[str, str]) -> str:
+def assert_is_string(value: str | FormattedTextValue | tuple[str, str] | None) -> str:
     """Assert a value is a string."""
     match value:
         case str() as s:
@@ -92,11 +92,13 @@ def assert_is_string(value: str | FormattedTextValue | tuple[str, str]) -> str:
             raise InputError(f"Expected string value, but got XML value: {xml.as_xml()}")
         case tuple():
             raise InputError(f"Expected string value, but got tuple value: {value}")
+        case None:
+            raise InputError("Expected string value, but got None.")
         case _:
             assert_never(value)
 
 
-def assert_is_tuple(value: str | FormattedTextValue | tuple[str, str]) -> tuple[str, str]:
+def assert_is_tuple(value: str | FormattedTextValue | tuple[str, str] | None) -> tuple[str, str]:
     """Assert a value is a tuple."""
     match value:
         case tuple() as t:
@@ -105,5 +107,7 @@ def assert_is_tuple(value: str | FormattedTextValue | tuple[str, str]) -> tuple[
             raise InputError(f"Expected tuple value, but got XML value: {xml.as_xml()}")
         case str():
             raise InputError(f"Expected tuple value, but got string value: {value}")
+        case None:
+            raise InputError("Expected string value, but got None.")
         case _:
             assert_never(value)

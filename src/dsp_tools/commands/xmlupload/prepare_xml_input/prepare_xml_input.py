@@ -21,7 +21,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontol
 )
 from dsp_tools.commands.xmlupload.prepare_xml_input.iiif_uri_validator import IIIFUriValidator
 from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClient
-from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import (
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_xmlresource_into_intermediary_classes import (
     transform_all_resources_into_intermediary_resources,
 )
 from dsp_tools.commands.xmlupload.stash.analyse_circular_reference_graph import generate_upload_order

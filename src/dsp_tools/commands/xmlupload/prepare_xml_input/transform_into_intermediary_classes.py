@@ -57,7 +57,6 @@ TYPE_TRANSFORMER_MAPPER: dict[KnoraValueType, TypeTransformerMapper] = {
     KnoraValueType.INTERVAL_VALUE: TypeTransformerMapper(IntermediaryInterval, transform_interval),
     KnoraValueType.TIME_VALUE: TypeTransformerMapper(IntermediaryTime, assert_is_string),
     KnoraValueType.SIMPLETEXT_VALUE: TypeTransformerMapper(IntermediarySimpleText, transform_simple_text),
-    KnoraValueType.RICHTEXT_VALUE: TypeTransformerMapper(IntermediaryRichtext, transform_richtext),
     KnoraValueType.URI_VALUE: TypeTransformerMapper(IntermediaryUri, assert_is_string),
 }
 
@@ -182,6 +181,8 @@ def _transform_one_value(val: ParsedValue, lookups: IntermediaryLookups) -> Inte
             return _transform_list_value(val, lookups)
         case KnoraValueType.LINK_VALUE:
             return _transform_link_value(val, lookups)
+        case KnoraValueType.RICHTEXT_VALUE:
+            return _transform_richtext_value(val, lookups)
         case _ as val_type:
             transformation_mapper = TYPE_TRANSFORMER_MAPPER[val_type]
             return _transform_generic_value(val=val, lookups=lookups, transformation_mapper=transformation_mapper)
@@ -220,6 +221,20 @@ def _transform_list_value(val: ParsedValue, lookups: IntermediaryLookups) -> Int
         permissions=permission_val,
     )
     return list_val
+
+
+def _transform_richtext_value(val: ParsedValue, lookups: IntermediaryLookups) -> IntermediaryValue:
+    transformed_value, res_references = transform_richtext(val.value)
+    permission_val = _resolve_permission(val.permissions_id, lookups.permissions)
+    link_val: IntermediaryValue = IntermediaryRichtext(
+        value=transformed_value,
+        prop_iri=val.prop_name,
+        comment=val.comment,
+        permissions=permission_val,
+        resource_references=res_references,
+        value_uuid=str(uuid4()),
+    )
+    return link_val
 
 
 def _resolve_permission(permissions: str | None, permissions_lookup: dict[str, Permissions]) -> Permissions | None:

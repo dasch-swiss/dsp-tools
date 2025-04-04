@@ -79,7 +79,7 @@ def transform_simple_text(value: InputTypes) -> str:
     pass
 
 
-def transform_richtext(value: InputTypes) -> FormattedTextValue:
+def transform_richtext(value: InputTypes) -> tuple[FormattedTextValue, set[str]]:
     pass
 
 

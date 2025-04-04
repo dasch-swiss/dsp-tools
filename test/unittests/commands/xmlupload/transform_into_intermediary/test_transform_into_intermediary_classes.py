@@ -12,6 +12,7 @@ from dsp_tools.commands.xmlupload.models.intermediary.values import Intermediary
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryColor
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryDate
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryDecimal
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryGeometry
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryGeoname
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryInt
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
@@ -35,6 +36,7 @@ from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.exceptions import PermissionNotExistsError
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 from dsp_tools.utils.data_formats.date_util import Date
+from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
 
@@ -240,7 +242,7 @@ class TestTransformFileValue:
 
 class TransformValues:
     def test_bool_value(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType.BOOLEAN_VALUE, "", "")
+        val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, None, None)
         result = _transform_one_value(val, lookups)
         assert len(result) == 1
         transformed = result[0]
@@ -251,7 +253,7 @@ class TransformValues:
         assert not transformed.comment
 
     def test_color_value(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType.COLOR_VALUE, "", "")
+        val = ParsedValue(HAS_PROP, "#5d1f1e", KnoraValueType.COLOR_VALUE, None, None)
         result = _transform_one_value(val, lookups)
         assert len(result) == 1
         transformed = result[0]
@@ -262,7 +264,7 @@ class TransformValues:
         assert not transformed.comment
 
     def test_date_value(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType.DATE_VALUE, "", "")
+        val = ParsedValue(HAS_PROP, "CE:1849:CE:1850", KnoraValueType.DATE_VALUE, None, None)
         result = _transform_one_value(val, lookups)
         assert len(result) == 1
         transformed = result[0]
@@ -273,7 +275,7 @@ class TransformValues:
         assert not transformed.comment
 
     def test_decimal_value(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType.DECIMAL_VALUE, "", "")
+        val = ParsedValue(HAS_PROP, "1.4", KnoraValueType.DECIMAL_VALUE, None, None)
         result = _transform_one_value(val, lookups)
         assert len(result) == 1
         transformed = result[0]
@@ -284,7 +286,7 @@ class TransformValues:
         assert not transformed.comment
 
     def test_simple_text_value(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType.SIMPLETEXT_VALUE, "", "")
+        val = ParsedValue(HAS_PROP, "text", KnoraValueType.SIMPLETEXT_VALUE, None, None)
         result = _transform_one_value(val, lookups)
         assert len(result) == 1
         transformed = result[0]
@@ -294,8 +296,19 @@ class TransformValues:
         assert not transformed.permissions
         assert not transformed.comment
 
+    def test_geometry_value(self, lookups: IntermediaryLookups):
+        val = ParsedValue(HAS_PROP, "", KnoraValueType.GEOM_VALUE, None, None)
+        result = _transform_one_value(val, lookups)
+        assert len(result) == 1
+        transformed = result[0]
+        assert isinstance(transformed, IntermediaryGeometry)
+        assert transformed.value == ""
+        assert transformed.prop_iri == f"{KNORA_API_STR}hasGeometry"
+        assert not transformed.permissions
+        assert not transformed.comment
+
     def test_richtext_value(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType.RICHTEXT_VALUE, "", "")
+        val = ParsedValue(HAS_PROP, "<text>this is text</text>", KnoraValueType.RICHTEXT_VALUE, None, None)
         result = _transform_one_value(val, lookups)
         assert len(result) == 1
         transformed = result[0]
@@ -307,7 +320,7 @@ class TransformValues:
         assert transformed.resource_references == {"id"}
 
     def test_geoname_value(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType.GEONAME_VALUE, "", "")
+        val = ParsedValue(HAS_PROP, "5416656", KnoraValueType.GEONAME_VALUE, None, None)
         result = _transform_one_value(val, lookups)
         assert len(result) == 1
         transformed = result[0]
@@ -318,7 +331,7 @@ class TransformValues:
         assert not transformed.comment
 
     def test_integer_value(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType.INT_VALUE, "", "")
+        val = ParsedValue(HAS_PROP, 1, KnoraValueType.INT_VALUE, None, None)
         result = _transform_one_value(val, lookups)
         assert len(result) == 1
         transformed = result[0]
@@ -329,7 +342,7 @@ class TransformValues:
         assert not transformed.comment
 
     def test_list_value(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType.LIST_VALUE, "", "")
+        val = ParsedValue(HAS_PROP, ("list", "node"), KnoraValueType.LIST_VALUE, None, None)
         result = _transform_one_value(val, lookups)
         assert len(result) == 1
         transformed = result[0]
@@ -340,7 +353,7 @@ class TransformValues:
         assert not transformed.comment
 
     def test_link_value(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType.LINK_VALUE, "", "")
+        val = ParsedValue(HAS_PROP, "other_id", KnoraValueType.LINK_VALUE, None, None)
         result = _transform_one_value(val, lookups)
         assert len(result) == 1
         transformed = result[0]
@@ -351,7 +364,7 @@ class TransformValues:
         assert not transformed.comment
 
     def test_time_value(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType.TIME_VALUE, "", "")
+        val = ParsedValue(HAS_PROP, "2019-10-23T13:45:12.01-14:00", KnoraValueType.TIME_VALUE, None, None)
         result = _transform_one_value(val, lookups)
         assert len(result) == 1
         transformed = result[0]
@@ -362,7 +375,7 @@ class TransformValues:
         assert not transformed.comment
 
     def test_uri_value(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType.URI_VALUE, "", "")
+        val = ParsedValue(HAS_PROP, "https://dasch.swiss", KnoraValueType.URI_VALUE, None, None)
         result = _transform_one_value(val, lookups)
         assert len(result) == 1
         transformed = result[0]
@@ -373,17 +386,17 @@ class TransformValues:
         assert not transformed.comment
 
     def test_bool_value_with_comment(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType.BOOLEAN_VALUE, "", "")
+        val = ParsedValue(HAS_PROP, "false", KnoraValueType.BOOLEAN_VALUE, None, "comment")
         result = _transform_one_value(val, lookups)
         assert len(result) == 1
         transformed = result[0]
-        assert transformed.value == True  # noqa:E712 (Avoid equality comparisons)
+        assert transformed.value == False  # noqa:E712 (Avoid equality comparisons)
         assert transformed.prop_iri == HAS_PROP
         assert not transformed.permissions
         assert transformed.comment == "comment"
 
     def test_bool_value_with_permissions(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType.BOOLEAN_VALUE, "", "")
+        val = ParsedValue(HAS_PROP, "", KnoraValueType.BOOLEAN_VALUE, "open", None)
         result = _transform_one_value(val, lookups)
         assert len(result) == 1
         transformed = result[0]
@@ -393,6 +406,6 @@ class TransformValues:
         assert not transformed.comment
 
     def test_bool_value_with_non_existing_permissions(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType.BOOLEAN_VALUE, "", "")
+        val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, "nonExisting", None)
         with pytest.raises(PermissionNotExistsError):
             _transform_one_value(val, lookups)

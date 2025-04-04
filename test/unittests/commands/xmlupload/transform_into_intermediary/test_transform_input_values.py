@@ -3,6 +3,8 @@
 import pytest
 import regex
 
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import assert_is_string
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import assert_is_tuple
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_boolean
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_date
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_decimal
@@ -11,6 +13,36 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values impor
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_interval
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_simpletext
 from dsp_tools.error.exceptions import InputError
+
+
+def test_assert_is_string_good():
+    result = assert_is_string("string")
+    assert isinstance(result, str)
+    assert result == "string"
+
+
+@pytest.mark.parametrize(
+    ("in_val", "expected"),
+    [
+        ("     ", r"sdf"),
+        (("1", 2), r"dsf"),
+    ],
+)
+def test_assert_is_string_raises(in_val, expected):
+    with pytest.raises(InputError, match=regex.escape(expected)):
+        assert_is_string(in_val)
+
+
+def test_assert_is_tuple_good():
+    result = assert_is_tuple(("1", "2"))
+    assert isinstance(result, tuple)
+    assert result == ("1", "2")
+
+
+@pytest.mark.parametrize(("in_val", "expected"), [(("1", "2", "3"), r"dfsa"), ("string", r"sdf")])
+def test_assert_is_tuple_raises(in_val, expected):
+    with pytest.raises(InputError, match=regex.escape(expected)):
+        assert_is_tuple(in_val)
 
 
 @pytest.mark.parametrize(

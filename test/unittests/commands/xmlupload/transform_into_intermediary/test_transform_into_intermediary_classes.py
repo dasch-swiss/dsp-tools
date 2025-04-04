@@ -481,7 +481,7 @@ class TestTransformValues:
         assert transformed.resource_references == set()
 
     def test_richtext_value_with_standoff(self, lookups: IntermediaryLookups):
-        text_str = 'Comment with <a class="salsah-link" href="IRI:link:IRI">link</a>.'
+        text_str = 'Comment with <a class="salsah-link" href="IRI:link:IRI">link text</a>.'
         val = ParsedValue(HAS_PROP, text_str, KnoraValueType.RICHTEXT_VALUE, "open", "cmt")
         transformed = _transform_one_value(val, lookups)
         assert isinstance(transformed, IntermediaryRichtext)

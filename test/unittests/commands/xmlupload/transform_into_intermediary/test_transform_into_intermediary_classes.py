@@ -357,7 +357,7 @@ class TestTransformFileValue:
             _get_metadata(metadata, lookups)
 
 
-class TransformValues:
+class TestTransformValues:
     def test_bool_value(self, bool_value, lookups: IntermediaryLookups):
         transformed = _transform_one_value(bool_value, lookups)
         assert isinstance(transformed, IntermediaryBoolean)
@@ -403,10 +403,10 @@ class TransformValues:
         assert not transformed.comment
 
     def test_geometry_value(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType.GEOM_VALUE, None, None)
+        val = ParsedValue(f"{KNORA_API_STR}hasGeometry", "{}", KnoraValueType.GEOM_VALUE, None, None)
         transformed = _transform_one_value(val, lookups)
         assert isinstance(transformed, IntermediaryGeometry)
-        assert transformed.value == ""
+        assert transformed.value == "{}"
         assert transformed.prop_iri == f"{KNORA_API_STR}hasGeometry"
         assert not transformed.permissions
         assert not transformed.comment
@@ -431,7 +431,7 @@ class TransformValues:
         assert not transformed.comment
 
     def test_integer_value(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, 1, KnoraValueType.INT_VALUE, None, None)
+        val = ParsedValue(HAS_PROP, "1", KnoraValueType.INT_VALUE, None, None)
         transformed = _transform_one_value(val, lookups)
         assert isinstance(transformed, IntermediaryInt)
         assert transformed.value == 1
@@ -453,7 +453,7 @@ class TransformValues:
         transformed = _transform_one_value(val, lookups)
         assert isinstance(transformed, IntermediaryLink)
         assert transformed.value == "other_id"
-        assert transformed.prop_iri == HAS_PROP
+        assert transformed.prop_iri == f"{HAS_PROP}Value"
         assert not transformed.permissions
         assert not transformed.comment
 
@@ -484,7 +484,7 @@ class TransformValues:
         assert transformed.comment == "comment"
 
     def test_bool_value_with_permissions(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType.BOOLEAN_VALUE, "open", None)
+        val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, "open", None)
         transformed = _transform_one_value(val, lookups)
         assert transformed.value == True  # noqa:E712 (Avoid equality comparisons)
         assert transformed.prop_iri == HAS_PROP

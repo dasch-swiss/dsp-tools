@@ -119,6 +119,8 @@ def transform_simpletext(value: InputTypes) -> str:
 
 def transform_richtext(value: InputTypes) -> FormattedTextValue:
     str_val = assert_is_string(value)
+    if len(str_val) == 0:
+        raise InputError("After removing redundant whitespaces and newlines the input string is empty.")
     return FormattedTextValue(cleanup_formatted_text(str_val))
 
 

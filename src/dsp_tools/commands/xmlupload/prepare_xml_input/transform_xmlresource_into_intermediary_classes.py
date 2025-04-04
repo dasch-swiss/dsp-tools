@@ -40,7 +40,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values impor
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_decimal
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_geometry
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_integer
-from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_interval
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_interval_from_string
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.exceptions import PermissionNotExistsError
 
@@ -52,7 +52,7 @@ TYPE_TRANSFORMER_MAPPER: dict[str, TypeTransformerMapper] = {
     "geometry": TypeTransformerMapper(IntermediaryGeometry, transform_geometry),
     "geoname": TypeTransformerMapper(IntermediaryGeoname, assert_is_string),
     "integer": TypeTransformerMapper(IntermediaryInt, transform_integer),
-    "interval": TypeTransformerMapper(IntermediaryInterval, transform_interval),
+    "interval": TypeTransformerMapper(IntermediaryInterval, transform_interval_from_string),
     "time": TypeTransformerMapper(IntermediaryTime, assert_is_string),
     "uri": TypeTransformerMapper(IntermediaryUri, assert_is_string),
 }

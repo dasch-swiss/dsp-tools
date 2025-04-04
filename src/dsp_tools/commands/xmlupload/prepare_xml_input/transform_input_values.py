@@ -84,7 +84,7 @@ def transform_integer(value: InputTypes) -> int:
     return int(str_val)
 
 
-def transform_interval(input_value: InputTypes) -> IntervalFloats:
+def transform_interval_from_string(input_value: InputTypes) -> IntervalFloats:
     """Transform a sting input into an interval object."""
     val = assert_is_string(input_value)
     split_val = [res for x in val.split(":", 1) if (res := x.strip())]

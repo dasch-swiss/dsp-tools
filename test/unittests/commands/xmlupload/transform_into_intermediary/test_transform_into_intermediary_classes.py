@@ -40,10 +40,12 @@ from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
 
 ONTO = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
 HAS_PROP = f"{ONTO}hasProp"
+RES_TYPE = f"{ONTO}ResourceType"
 
 
 @pytest.fixture
@@ -60,15 +62,30 @@ def lookups() -> IntermediaryLookups:
 
 
 class TestTransformResources:
-    def test_success(
-        self,
-    ):
-        result = _transform_into_intermediary_resource(resource_one_prop, lookups)
+    def test_success(self, lookups):
+        res = ParsedResource(
+            res_id="id",
+            res_type=RES_TYPE,
+            label="lbl",
+            permissions_id=None,
+            values=[],
+            file_value=None,
+            migration_metadata=None,
+        )
+        result = _transform_into_intermediary_resource(res, lookups)
         assert isinstance(result, IntermediaryResource)
 
     def test_failure(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType, "", "")
-        result = _transform_into_intermediary_resource(resource_with_unknown_permissions, lookups)
+        res = ParsedResource(
+            res_id="id",
+            res_type=RES_TYPE,
+            label="lbl",
+            permissions_id=None,
+            values=[],
+            file_value=None,
+            migration_metadata=None,
+        )
+        result = _transform_into_intermediary_resource(res, lookups)
         assert isinstance(result, ResourceInputConversionFailure)
         assert result.resource_id == "id"
         assert result.failure_msg == "Could not find permissions for value: nonExisting"
@@ -76,10 +93,18 @@ class TestTransformResources:
 
 class TestTransformOneResource:
     def test_resource_one_value(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType, "", "")
-        result = _transform_one_resource(resource_one_prop, lookups)
+        res = ParsedResource(
+            res_id="id",
+            res_type=RES_TYPE,
+            label="lbl",
+            permissions_id=None,
+            values=[],
+            file_value=None,
+            migration_metadata=None,
+        )
+        result = _transform_one_resource(res, lookups)
         assert result.res_id == "id"
-        assert result.type_iri == f"{ONTO}ResourceType"
+        assert result.type_iri == RES_TYPE
         assert result.label == "lbl"
         assert not result.permissions
         assert len(result.values) == 1
@@ -87,10 +112,18 @@ class TestTransformOneResource:
         assert not result.migration_metadata
 
     def test_resource_with_permissions(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType, "", "")
-        result = _transform_one_resource(resource_with_permissions, lookups)
+        res = ParsedResource(
+            res_id="id",
+            res_type=RES_TYPE,
+            label="lbl",
+            permissions_id=None,
+            values=[],
+            file_value=None,
+            migration_metadata=None,
+        )
+        result = _transform_one_resource(res, lookups)
         assert result.res_id == "id"
-        assert result.type_iri == f"{ONTO}ResourceType"
+        assert result.type_iri == RES_TYPE
         assert result.label == "lbl"
         assert isinstance(result.permissions, Permissions)
         assert len(result.values) == 0
@@ -98,10 +131,18 @@ class TestTransformOneResource:
         assert not result.migration_metadata
 
     def test_with_ark(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType, "", "")
-        result = _transform_one_resource(resource_with_ark, lookups)
+        res = ParsedResource(
+            res_id="id",
+            res_type=RES_TYPE,
+            label="lbl",
+            permissions_id=None,
+            values=[],
+            file_value=None,
+            migration_metadata=None,
+        )
+        result = _transform_one_resource(res, lookups)
         assert result.res_id == "id"
-        assert result.type_iri == f"{ONTO}ResourceType"
+        assert result.type_iri == RES_TYPE
         assert result.label == "lbl"
         assert not result.permissions
         assert len(result.values) == 0
@@ -112,10 +153,18 @@ class TestTransformOneResource:
         assert metadata.creation_date == "1999-12-31T23:59:59.9999999+01:00"
 
     def test_with_iri(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType, "", "")
-        result = _transform_one_resource(resource_with_iri, lookups)
+        res = ParsedResource(
+            res_id="id",
+            res_type=RES_TYPE,
+            label="lbl",
+            permissions_id=None,
+            values=[],
+            file_value=None,
+            migration_metadata=None,
+        )
+        result = _transform_one_resource(res, lookups)
         assert result.res_id == "id"
-        assert result.type_iri == f"{ONTO}ResourceType"
+        assert result.type_iri == RES_TYPE
         assert result.label == "lbl"
         assert not result.permissions
         assert len(result.values) == 0
@@ -126,10 +175,18 @@ class TestTransformOneResource:
         assert not metadata.creation_date
 
     def test_resource_with_ark_and_iri(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType, "", "")
-        result = _transform_one_resource(resource_with_ark_and_iri, lookups)
+        res = ParsedResource(
+            res_id="id",
+            res_type=RES_TYPE,
+            label="lbl",
+            permissions_id=None,
+            values=[],
+            file_value=None,
+            migration_metadata=None,
+        )
+        result = _transform_one_resource(res, lookups)
         assert result.res_id == "id"
-        assert result.type_iri == f"{ONTO}ResourceType"
+        assert result.type_iri == RES_TYPE
         assert result.label == "lbl"
         assert not result.permissions
         assert len(result.values) == 0
@@ -142,15 +199,31 @@ class TestTransformOneResource:
         assert time_stamp == DateTimeStamp("1999-12-31T23:59:59.9999999+01:00")
 
     def test_unknown_permission(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType, "", "")
+        res = ParsedResource(
+            res_id="id",
+            res_type=RES_TYPE,
+            label="lbl",
+            permissions_id=None,
+            values=[],
+            file_value=None,
+            migration_metadata=None,
+        )
         with pytest.raises(PermissionNotExistsError):
-            _transform_one_resource(resource_with_unknown_permissions, lookups)
+            _transform_one_resource(res, lookups)
 
     def test_with_file_value(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType, "", "")
-        result = _transform_one_resource(resource_with_bitstream, lookups)
+        res = ParsedResource(
+            res_id="id",
+            res_type=RES_TYPE,
+            label="lbl",
+            permissions_id=None,
+            values=[],
+            file_value=None,
+            migration_metadata=None,
+        )
+        result = _transform_one_resource(res, lookups)
         assert result.res_id == "id"
-        assert result.type_iri == f"{ONTO}ResourceType"
+        assert result.type_iri == RES_TYPE
         assert result.label == "lbl"
         assert not result.permissions
         assert len(result.values) == 0
@@ -161,10 +234,18 @@ class TestTransformOneResource:
         assert not result.migration_metadata
 
     def test_with_iiif_uri(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType, "", "")
-        result = _transform_one_resource(resource_with_iiif_uri, lookups)
+        res = ParsedResource(
+            res_id="id",
+            res_type=RES_TYPE,
+            label="lbl",
+            permissions_id=None,
+            values=[],
+            file_value=None,
+            migration_metadata=None,
+        )
+        result = _transform_one_resource(res, lookups)
         assert result.res_id == "id"
-        assert result.type_iri == f"{ONTO}ResourceType"
+        assert result.type_iri == RES_TYPE
         assert result.label == "lbl"
         assert not result.permissions
         assert len(result.values) == 0

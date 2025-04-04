@@ -76,7 +76,7 @@ def bool_value() -> ParsedValue:
 @pytest.fixture
 def iiif_file_value():
     metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", None)
-    return ParsedFileValue("https://this/is/a/uri.jpg", KnoraValueType.STILL_IMAGE_FILE, metadata)
+    return ParsedFileValue("https://this/is/a/uri.jpg", KnoraValueType.STILL_IMAGE_IIIF, metadata)
 
 
 class TestTransformResources:
@@ -98,7 +98,7 @@ class TestTransformResources:
             res_id="id",
             res_type=RES_TYPE,
             label="lbl",
-            permissions_id=None,
+            permissions_id="nonExisting",
             values=[],
             file_value=None,
             migration_metadata=None,
@@ -202,7 +202,7 @@ class TestTransformOneResource:
         metadata = ParsedMigrationMetadata(
             iri="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA",
             ark="ark:/72163/4123-43xc6ivb931-a.2022829",
-            creation_date=None,
+            creation_date="1999-12-31T23:59:59.9999999+01:00",
         )
         res = ParsedResource(
             res_id="id",
@@ -259,7 +259,8 @@ class TestTransformOneResource:
         file_val = result.file_value
         assert isinstance(file_val, IntermediaryFileValue)
         assert file_val.value == "file.jpg"
-        assert not file_val.metadata.permissions
+        assert file_val.metadata.permissions
+        assert not result.iiif_uri
         assert not result.migration_metadata
 
     def test_with_iiif_uri(self, iiif_file_value, lookups: IntermediaryLookups):
@@ -279,6 +280,7 @@ class TestTransformOneResource:
         assert not result.permissions
         assert len(result.values) == 0
         assert not result.file_value
+        assert isinstance(result.iiif_uri, IntermediaryIIIFUri)
         assert not result.migration_metadata
 
 

@@ -36,6 +36,8 @@ def assert_is_string(value: InputTypes) -> str:
             raise InputError(f"Expected string value, but got XML value: {xml.as_xml()}")
         case tuple():
             raise InputError(f"Expected string value, but got tuple value: {value}")
+        case None:
+            raise InputError("Expected string value, but got None")
         case _:
             assert_never(value)
 
@@ -51,6 +53,8 @@ def assert_is_tuple(value: InputTypes) -> tuple[str, str]:
             raise InputError(f"Expected tuple value, but got XML value: {xml.as_xml()}")
         case str():
             raise InputError(f"Expected tuple value, but got string value: {value}")
+        case None:
+            raise InputError("Expected tuple value, but got None")
         case _:
             assert_never(value)
 
@@ -96,7 +100,7 @@ def transform_interval_from_string(input_value: InputTypes) -> IntervalFloats:
         raise InputError(f"Could not parse interval: {val}") from None
 
 
-def transform_interval_from_tuple(input_value: InputTypes) -> IntervalFloats:
+def transform_interval(input_value: InputTypes) -> IntervalFloats:
     """Transform a sting input into an interval object."""
     val = assert_is_tuple(input_value)
     try:

@@ -40,6 +40,7 @@ from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedMigrationMetadata
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
 
@@ -59,6 +60,23 @@ def lookups() -> IntermediaryLookups:
         },
         authorships={"auth_id": ["author"]},
     )
+
+
+@pytest.fixture
+def file_with_permission() -> ParsedFileValue:
+    metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", "open")
+    return ParsedFileValue("file.jpg", KnoraValueType.STILL_IMAGE_FILE, metadata)
+
+
+@pytest.fixture
+def bool_value() -> ParsedValue:
+    return ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, None, None)
+
+
+@pytest.fixture
+def iiif_file_value():
+    metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", None)
+    return ParsedFileValue("https://this/is/a/uri.jpg", KnoraValueType.STILL_IMAGE_FILE, metadata)
 
 
 class TestTransformResources:
@@ -92,13 +110,13 @@ class TestTransformResources:
 
 
 class TestTransformOneResource:
-    def test_resource_one_value(self, lookups: IntermediaryLookups):
+    def test_resource_one_value(self, bool_value, lookups: IntermediaryLookups):
         res = ParsedResource(
             res_id="id",
             res_type=RES_TYPE,
             label="lbl",
             permissions_id=None,
-            values=[],
+            values=[bool_value],
             file_value=None,
             migration_metadata=None,
         )
@@ -116,7 +134,7 @@ class TestTransformOneResource:
             res_id="id",
             res_type=RES_TYPE,
             label="lbl",
-            permissions_id=None,
+            permissions_id="open",
             values=[],
             file_value=None,
             migration_metadata=None,
@@ -131,6 +149,9 @@ class TestTransformOneResource:
         assert not result.migration_metadata
 
     def test_with_ark(self, lookups: IntermediaryLookups):
+        metadata = ParsedMigrationMetadata(
+            iri=None, ark="ark:/72163/4123-43xc6ivb931-a.2022829", creation_date="1999-12-31T23:59:59.9999999+01:00"
+        )
         res = ParsedResource(
             res_id="id",
             res_type=RES_TYPE,
@@ -138,7 +159,7 @@ class TestTransformOneResource:
             permissions_id=None,
             values=[],
             file_value=None,
-            migration_metadata=None,
+            migration_metadata=metadata,
         )
         result = _transform_one_resource(res, lookups)
         assert result.res_id == "id"
@@ -153,6 +174,9 @@ class TestTransformOneResource:
         assert metadata.creation_date == "1999-12-31T23:59:59.9999999+01:00"
 
     def test_with_iri(self, lookups: IntermediaryLookups):
+        metadata = ParsedMigrationMetadata(
+            iri="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA", ark=None, creation_date=None
+        )
         res = ParsedResource(
             res_id="id",
             res_type=RES_TYPE,
@@ -160,7 +184,7 @@ class TestTransformOneResource:
             permissions_id=None,
             values=[],
             file_value=None,
-            migration_metadata=None,
+            migration_metadata=metadata,
         )
         result = _transform_one_resource(res, lookups)
         assert result.res_id == "id"
@@ -175,6 +199,11 @@ class TestTransformOneResource:
         assert not metadata.creation_date
 
     def test_resource_with_ark_and_iri(self, lookups: IntermediaryLookups):
+        metadata = ParsedMigrationMetadata(
+            iri="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA",
+            ark="ark:/72163/4123-43xc6ivb931-a.2022829",
+            creation_date=None,
+        )
         res = ParsedResource(
             res_id="id",
             res_type=RES_TYPE,
@@ -182,7 +211,7 @@ class TestTransformOneResource:
             permissions_id=None,
             values=[],
             file_value=None,
-            migration_metadata=None,
+            migration_metadata=metadata,
         )
         result = _transform_one_resource(res, lookups)
         assert result.res_id == "id"
@@ -203,7 +232,7 @@ class TestTransformOneResource:
             res_id="id",
             res_type=RES_TYPE,
             label="lbl",
-            permissions_id=None,
+            permissions_id="unknown",
             values=[],
             file_value=None,
             migration_metadata=None,
@@ -211,14 +240,14 @@ class TestTransformOneResource:
         with pytest.raises(PermissionNotExistsError):
             _transform_one_resource(res, lookups)
 
-    def test_with_file_value(self, lookups: IntermediaryLookups):
+    def test_with_file_value(self, file_with_permission, lookups: IntermediaryLookups):
         res = ParsedResource(
             res_id="id",
             res_type=RES_TYPE,
             label="lbl",
             permissions_id=None,
             values=[],
-            file_value=None,
+            file_value=file_with_permission,
             migration_metadata=None,
         )
         result = _transform_one_resource(res, lookups)
@@ -233,14 +262,14 @@ class TestTransformOneResource:
         assert not file_val.metadata.permissions
         assert not result.migration_metadata
 
-    def test_with_iiif_uri(self, lookups: IntermediaryLookups):
+    def test_with_iiif_uri(self, iiif_file_value, lookups: IntermediaryLookups):
         res = ParsedResource(
             res_id="id",
             res_type=RES_TYPE,
             label="lbl",
             permissions_id=None,
             values=[],
-            file_value=None,
+            file_value=iiif_file_value,
             migration_metadata=None,
         )
         result = _transform_one_resource(res, lookups)
@@ -266,10 +295,8 @@ class TestTransformFileValue:
         assert metadata.copyright_holder == "copy"
         assert metadata.authorships == ["author"]
 
-    def test_transform_file_value_with_permissions(self, lookups: IntermediaryLookups):
-        metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", "open")
-        val = ParsedFileValue("file.jpg", KnoraValueType.STILL_IMAGE_FILE, metadata)
-        result = _transform_file_value(val, lookups, "id", "lbl")
+    def test_transform_file_value_with_permissions(self, file_with_permission, lookups: IntermediaryLookups):
+        result = _transform_file_value(file_with_permission, lookups, "id", "lbl")
         assert isinstance(result, IntermediaryFileValue)
         assert result.value == "file.jpg"
         metadata = result.metadata
@@ -278,10 +305,8 @@ class TestTransformFileValue:
         assert metadata.copyright_holder == "copy"
         assert metadata.authorships == ["author"]
 
-    def test_transform_iiif_uri_value(self, lookups: IntermediaryLookups):
-        metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", None)
-        val = ParsedFileValue("https://this/is/a/uri.jpg", KnoraValueType.STILL_IMAGE_FILE, metadata)
-        result = _transform_iiif_uri_value(val, lookups)
+    def test_transform_iiif_uri_value(self, iiif_file_value, lookups: IntermediaryLookups):
+        result = _transform_iiif_uri_value(iiif_file_value, lookups)
         assert result.value == "https://this/is/a/uri.jpg"
         assert isinstance(result, IntermediaryIIIFUri)
         metadata = result.metadata
@@ -331,9 +356,8 @@ class TestTransformFileValue:
 
 
 class TransformValues:
-    def test_bool_value(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, None, None)
-        result = _transform_one_value(val, lookups)
+    def test_bool_value(self, bool_value, lookups: IntermediaryLookups):
+        result = _transform_one_value(bool_value, lookups)
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryBoolean)

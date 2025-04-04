@@ -169,7 +169,9 @@ def _transform_one_value(val: ParsedValue, lookups: IntermediaryLookups) -> Inte
 def _transform_generic_value(
     val: ParsedValue, lookups: IntermediaryLookups, transformation_mapper: TypeTransformerMapper
 ) -> IntermediaryValue:
-    pass
+    transformed_value = transformation_mapper.val_transformer(val.value)
+    permission_val = _resolve_permission(val.permissions_id, lookups.permissions)
+    return transformation_mapper.val_type(transformed_value, val.prop_name, val.comment, permission_val)
 
 
 def _transform_link_value(val: ParsedValue, lookups: IntermediaryLookups) -> IntermediaryValue:

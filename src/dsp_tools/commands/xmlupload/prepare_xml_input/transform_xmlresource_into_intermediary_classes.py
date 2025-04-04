@@ -43,6 +43,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values impor
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_interval
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.exceptions import PermissionNotExistsError
+from dsp_tools.utils.xml_parsing.get_parsed_resources import get_file_value_type
 
 TYPE_TRANSFORMER_MAPPER: dict[str, TypeTransformerMapper] = {
     "boolean": TypeTransformerMapper(IntermediaryBoolean, transform_boolean),
@@ -126,7 +127,8 @@ def _transform_file_value(
     bitstream: XMLBitstream, lookups: IntermediaryLookups, res_id: str, res_label: str
 ) -> IntermediaryFileValue:
     metadata = _get_metadata(bitstream.metadata, lookups)
-    return IntermediaryFileValue(bitstream.value, metadata, res_id, res_label)
+    file_type = get_file_value_type(bitstream.value)
+    return IntermediaryFileValue(bitstream.value, file_type, metadata, res_id, res_label)
 
 
 def _transform_iiif_uri_value(iiif_uri: IIIFUriInfo, lookups: IntermediaryLookups) -> IntermediaryIIIFUri:

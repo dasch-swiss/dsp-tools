@@ -13,6 +13,8 @@ from dsp_tools.commands.xmlupload.models.intermediary.values import Intermediary
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryGeoname
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryInt
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryInterval
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
+from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediarySimpleText
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryTime
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryUri
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryValue
@@ -47,6 +49,8 @@ TYPE_TRANSFORMER_MAPPER: dict[KnoraValueType, TypeTransformerMapper] = {
     KnoraValueType.INT_VALUE: TypeTransformerMapper(IntermediaryInt, transform_integer),
     KnoraValueType.INTERVAL_VALUE: TypeTransformerMapper(IntermediaryInterval, transform_interval),
     KnoraValueType.TIME_VALUE: TypeTransformerMapper(IntermediaryTime, assert_is_string),
+    KnoraValueType.SIMPLETEXT_VALUE: TypeTransformerMapper(IntermediarySimpleText, assert_is_string),
+    KnoraValueType.RICHTEXT_VALUE: TypeTransformerMapper(IntermediaryRichtext, assert_is_string),
     KnoraValueType.URI_VALUE: TypeTransformerMapper(IntermediaryUri, assert_is_string),
 }
 
@@ -138,6 +142,27 @@ def _transform_all_values(values: list[ParsedValue], lookups: IntermediaryLookup
 
 
 def _transform_one_value(val: ParsedValue, lookups: IntermediaryLookups) -> list[IntermediaryValue]:
+    match val.value_type:
+        case KnoraValueType.LIST_VALUE:
+            return _transform_list_value(val, lookups)
+        case KnoraValueType.LINK_VALUE:
+            return _transform_link_value(val, lookups)
+        case _ as val_type:
+            transformation_mapper = TYPE_TRANSFORMER_MAPPER[val_type]
+            return _transform_generic_value(val=val, lookups=lookups, transformation_mapper=transformation_mapper)
+
+
+def _transform_generic_value(
+    val: ParsedValue, lookups: IntermediaryLookups, transformation_mapper: TypeTransformerMapper
+) -> list[IntermediaryValue]:
+    pass
+
+
+def _transform_link_value(val: ParsedValue, lookups: IntermediaryLookups) -> list[IntermediaryValue]:
+    pass
+
+
+def _transform_list_value(val: ParsedValue, lookups: IntermediaryLookups) -> list[IntermediaryValue]:
     pass
 
 

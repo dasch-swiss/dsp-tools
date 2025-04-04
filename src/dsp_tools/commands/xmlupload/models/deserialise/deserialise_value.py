@@ -8,7 +8,7 @@ from typing import cast
 
 import regex
 from lxml import etree
-
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_simpletext
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.error.exceptions import XmlUploadError
 
@@ -185,13 +185,7 @@ def _cleanup_unformatted_text(string_orig: str) -> str:
     # remove the <text> tags
     string = regex.sub("<text.*?>", "", string_orig)
     string = regex.sub("</text>", "", string)
-
-    # replace multiple spaces or tabstops by a single space
-    string = regex.sub(r" {2,}|\t+", " ", string)
-
-    # remove leading and trailing spaces (of every line, but also of the entire string)
-    string = "\n".join([s.strip() for s in string.split("\n")])
-    return string.strip()
+    return transform_simpletext(string)
 
 
 @dataclass(frozen=True)

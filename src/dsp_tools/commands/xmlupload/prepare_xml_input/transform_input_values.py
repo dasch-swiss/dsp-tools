@@ -8,6 +8,8 @@ from typing import TypeAlias
 from typing import Union
 from typing import assert_never
 
+import regex
+
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryValue
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryValueTypes
@@ -73,6 +75,15 @@ def transform_geometry(value: InputTypes) -> str:
         return json.dumps(json.loads(str_val))
     except JSONDecodeError:
         raise InputError(f"Could not parse json value: {value}") from None
+
+
+def transform_simpletext(value: InputTypes) -> str:
+    str_val = assert_is_string(value)
+    # replace multiple spaces or tabstops by a single space
+    str_val = regex.sub(r" {2,}|\t+", " ", str_val)
+    # remove leading and trailing spaces (of every line, but also of the entire string)
+    str_val = "\n".join([s.strip() for s in str_val.split("\n")])
+    return str_val.strip()
 
 
 def assert_is_string(value: str | FormattedTextValue | tuple[str, str]) -> str:

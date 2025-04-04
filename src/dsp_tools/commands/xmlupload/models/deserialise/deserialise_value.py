@@ -8,8 +8,9 @@ from typing import cast
 
 import regex
 from lxml import etree
-from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_simpletext
+
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_simpletext
 from dsp_tools.error.exceptions import XmlUploadError
 
 

@@ -337,9 +337,9 @@ class TestTransformFileValue:
         assert not result.metadata.authorships
 
     def test_get_metadata_raises(self, lookups):
-        metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/unknown", "copy", "auth_id", None)
+        metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/inexistent-iri", "copy", "auth_id", None)
         msg = regex.escape(
-            "The license 'http://rdfh.ch/licenses/unknown' used for an image or iiif-uri is unknown. "
+            "The license 'http://rdfh.ch/licenses/inexistent-iri' used for an image or iiif-uri is unknown. "
             "See documentation for accepted pre-defined licenses."
         )
         with pytest.raises(InputError, match=msg):

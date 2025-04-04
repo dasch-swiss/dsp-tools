@@ -88,13 +88,14 @@ def _transform_into_intermediary_resource(
 def _transform_one_resource(resource: ParsedResource, lookups: IntermediaryLookups) -> IntermediaryResource:
     permissions = _resolve_permission(resource.permissions_id, lookups.permissions)
     values = _transform_all_values(resource.values, lookups)
-    file_val, iiif_uri = None, None
+    file_val, iiif_uri, migration_metadata = None, None, None
     if resource.file_value:
         if resource.file_value.value_type == KnoraValueType.STILL_IMAGE_IIIF:
             iiif_uri = _transform_iiif_uri_value(resource.file_value, lookups)
         else:
             file_val = _transform_file_value(resource.file_value, lookups, resource.res_id, resource.res_type)
-    migration_metadata = _transform_migration_metadata(resource.migration_metadata)
+    if resource.migration_metadata:
+        migration_metadata = _transform_migration_metadata(resource.migration_metadata)
     return IntermediaryResource(
         res_id=resource.res_id,
         type_iri=resource.res_type,
@@ -107,9 +108,7 @@ def _transform_one_resource(resource: ParsedResource, lookups: IntermediaryLooku
     )
 
 
-def _transform_migration_metadata(metadata: ParsedMigrationMetadata | None) -> MigrationMetadata | None:
-    if not metadata:
-        return None
+def _transform_migration_metadata(metadata: ParsedMigrationMetadata) -> MigrationMetadata:
     res_iri = metadata.iri
     if metadata.ark:
         res_iri = convert_ark_v0_to_resource_iri(metadata.ark)

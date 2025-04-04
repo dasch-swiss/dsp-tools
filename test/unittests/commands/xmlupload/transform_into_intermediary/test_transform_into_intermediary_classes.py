@@ -239,165 +239,160 @@ class TestTransformFileValue:
 
 
 class TransformValues:
-    def test_bool_prop(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType, "", "")
+    def test_bool_value(self, lookups: IntermediaryLookups):
+        val = ParsedValue(HAS_PROP, "", KnoraValueType.BOOLEAN_VALUE, "", "")
         result = _transform_one_value(val, lookups)
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryBoolean)
         assert transformed.value == True  # noqa:E712 (Avoid equality comparisons)
-        assert transformed.prop_iri == f"{ONTO}boolProp"
+        assert transformed.prop_iri == HAS_PROP
         assert not transformed.permissions
         assert not transformed.comment
 
-    def test_color_prop(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType, "", "")
+    def test_color_value(self, lookups: IntermediaryLookups):
+        val = ParsedValue(HAS_PROP, "", KnoraValueType.COLOR_VALUE, "", "")
         result = _transform_one_value(val, lookups)
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryColor)
         assert transformed.value == "#5d1f1e"
-        assert transformed.prop_iri == f"{ONTO}colorProp"
+        assert transformed.prop_iri == HAS_PROP
         assert not transformed.permissions
         assert not transformed.comment
 
-    def test_date_prop(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType, "", "")
+    def test_date_value(self, lookups: IntermediaryLookups):
+        val = ParsedValue(HAS_PROP, "", KnoraValueType.DATE_VALUE, "", "")
         result = _transform_one_value(val, lookups)
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryDate)
         assert isinstance(transformed.value, Date)
-        assert transformed.prop_iri == f"{ONTO}dateProp"
+        assert transformed.prop_iri == HAS_PROP
         assert not transformed.permissions
         assert not transformed.comment
 
-    def test_decimal_prop(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType, "", "")
+    def test_decimal_value(self, lookups: IntermediaryLookups):
+        val = ParsedValue(HAS_PROP, "", KnoraValueType.DECIMAL_VALUE, "", "")
         result = _transform_one_value(val, lookups)
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryDecimal)
         assert transformed.value == 1.4
-        assert transformed.prop_iri == f"{ONTO}decimalProp"
+        assert transformed.prop_iri == HAS_PROP
         assert not transformed.permissions
         assert not transformed.comment
 
-    def test_decimal_prop_with_two_values(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType, "", "")
-        result = _transform_one_value(val, lookups)
-        assert len(result) == 2
-
-    def test_simple_text_prop(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType, "", "")
+    def test_simple_text_value(self, lookups: IntermediaryLookups):
+        val = ParsedValue(HAS_PROP, "", KnoraValueType.SIMPLETEXT_VALUE, "", "")
         result = _transform_one_value(val, lookups)
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediarySimpleText)
         assert transformed.value == "text"
-        assert transformed.prop_iri == f"{ONTO}simpleTextProp"
+        assert transformed.prop_iri == HAS_PROP
         assert not transformed.permissions
         assert not transformed.comment
 
-    def test_richtext_prop(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType, "", "")
+    def test_richtext_value(self, lookups: IntermediaryLookups):
+        val = ParsedValue(HAS_PROP, "", KnoraValueType.RICHTEXT_VALUE, "", "")
         result = _transform_one_value(val, lookups)
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryRichtext)
         assert isinstance(transformed.value, FormattedTextValue)
-        assert transformed.prop_iri == f"{ONTO}richTextProp"
+        assert transformed.prop_iri == HAS_PROP
         assert not transformed.permissions
         assert not transformed.comment
         assert transformed.resource_references == {"id"}
 
-    def test_geoname_prop(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType, "", "")
+    def test_geoname_value(self, lookups: IntermediaryLookups):
+        val = ParsedValue(HAS_PROP, "", KnoraValueType.GEONAME_VALUE, "", "")
         result = _transform_one_value(val, lookups)
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryGeoname)
         assert transformed.value == "5416656"
-        assert transformed.prop_iri == f"{ONTO}geonameProp"
+        assert transformed.prop_iri == HAS_PROP
         assert not transformed.permissions
         assert not transformed.comment
 
-    def test_integer_prop(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType, "", "")
-        result = _transform_one_value(lookups)
+    def test_integer_value(self, lookups: IntermediaryLookups):
+        val = ParsedValue(HAS_PROP, "", KnoraValueType.INT_VALUE, "", "")
+        result = _transform_one_value(val, lookups)
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryInt)
         assert transformed.value == 1
-        assert transformed.prop_iri == f"{ONTO}integerProp"
+        assert transformed.prop_iri == HAS_PROP
         assert not transformed.permissions
         assert not transformed.comment
 
-    def test_list_prop(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType, "", "")
+    def test_list_value(self, lookups: IntermediaryLookups):
+        val = ParsedValue(HAS_PROP, "", KnoraValueType.LIST_VALUE, "", "")
         result = _transform_one_value(val, lookups)
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryList)
         assert transformed.value == "http://rdfh.ch/9999/node"
-        assert transformed.prop_iri == f"{ONTO}listProp"
+        assert transformed.prop_iri == HAS_PROP
         assert not transformed.permissions
         assert not transformed.comment
 
-    def test_resptr_prop(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType, "", "")
+    def test_link_value(self, lookups: IntermediaryLookups):
+        val = ParsedValue(HAS_PROP, "", KnoraValueType.LINK_VALUE, "", "")
         result = _transform_one_value(val, lookups)
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryLink)
         assert transformed.value == "other_id"
-        assert transformed.prop_iri == f"{ONTO}linkPropValue"
+        assert transformed.prop_iri == HAS_PROP
         assert not transformed.permissions
         assert not transformed.comment
 
-    def test_time_prop(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType, "", "")
+    def test_time_value(self, lookups: IntermediaryLookups):
+        val = ParsedValue(HAS_PROP, "", KnoraValueType.TIME_VALUE, "", "")
         result = _transform_one_value(val, lookups)
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryTime)
         assert transformed.value == "2019-10-23T13:45:12.01-14:00"
-        assert transformed.prop_iri == f"{ONTO}timeProp"
+        assert transformed.prop_iri == HAS_PROP
         assert not transformed.permissions
         assert not transformed.comment
 
-    def test_uri_prop(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType, "", "")
+    def test_uri_value(self, lookups: IntermediaryLookups):
+        val = ParsedValue(HAS_PROP, "", KnoraValueType.URI_VALUE, "", "")
         result = _transform_one_value(val, lookups)
         assert len(result) == 1
         transformed = result[0]
         assert isinstance(transformed, IntermediaryUri)
         assert transformed.value == "https://dasch.swiss"
-        assert transformed.prop_iri == f"{ONTO}uriProp"
+        assert transformed.prop_iri == HAS_PROP
         assert not transformed.permissions
         assert not transformed.comment
 
-    def test_bool_prop_with_comment(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType, "", "")
+    def test_bool_value_with_comment(self, lookups: IntermediaryLookups):
+        val = ParsedValue(HAS_PROP, "", KnoraValueType.BOOLEAN_VALUE, "", "")
         result = _transform_one_value(val, lookups)
         assert len(result) == 1
         transformed = result[0]
         assert transformed.value == True  # noqa:E712 (Avoid equality comparisons)
-        assert transformed.prop_iri == f"{ONTO}boolProp"
+        assert transformed.prop_iri == HAS_PROP
         assert not transformed.permissions
         assert transformed.comment == "comment"
 
-    def test_bool_prop_with_permissions(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType, "", "")
+    def test_bool_value_with_permissions(self, lookups: IntermediaryLookups):
+        val = ParsedValue(HAS_PROP, "", KnoraValueType.BOOLEAN_VALUE, "", "")
         result = _transform_one_value(val, lookups)
         assert len(result) == 1
         transformed = result[0]
         assert transformed.value == True  # noqa:E712 (Avoid equality comparisons)
-        assert transformed.prop_iri == f"{ONTO}boolProp"
+        assert transformed.prop_iri == HAS_PROP
         assert isinstance(transformed.permissions, Permissions)
         assert not transformed.comment
 
-    def test_bool_prop_with_non_existing_permissions(self, lookups: IntermediaryLookups):
-        val = ParsedValue(HAS_PROP, "", KnoraValueType, "", "")
+    def test_bool_value_with_non_existing_permissions(self, lookups: IntermediaryLookups):
+        val = ParsedValue(HAS_PROP, "", KnoraValueType.BOOLEAN_VALUE, "", "")
         with pytest.raises(PermissionNotExistsError):
             _transform_one_value(val, lookups)

@@ -101,7 +101,7 @@ def transform_interval_from_string(input_value: InputTypes) -> IntervalFloats:
 
 
 def transform_interval(input_value: InputTypes) -> IntervalFloats:
-    """Transform a sting input into an interval object."""
+    """Transform a string input into an interval object."""
     val = assert_is_tuple(input_value)
     try:
         return IntervalFloats(float(val[0]), float(val[1]))

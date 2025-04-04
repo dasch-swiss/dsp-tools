@@ -16,6 +16,7 @@ from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.data_formats.date_util import Calendar
 from dsp_tools.utils.data_formats.date_util import Date
 from dsp_tools.utils.data_formats.date_util import Era
+from dsp_tools.utils.data_formats.date_util import SingleDate
 
 
 def test_assert_is_string_good():
@@ -79,10 +80,12 @@ def test_transform_date_good():
     assert result.start.year == 2022
     assert not result.start.month
     assert not result.start.day
-    assert result.end.era == Era.CE
-    assert result.end.year == 2022
-    assert not result.end.month
-    assert not result.end.day
+    end_date = result.end
+    assert isinstance(end_date, SingleDate)
+    assert end_date.era == Era.CE
+    assert end_date.year == 2022
+    assert not end_date.month
+    assert not end_date.day
 
 
 @pytest.mark.parametrize(

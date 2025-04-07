@@ -76,7 +76,9 @@ class TestResource:
         assert etree.tostring(result) == expected
 
     def test_file_value_unknown_author(self) -> None:
-        res = Resource.create_new("id", ":Type", "lbl").add_file("file.jpg", "lic", "copy", ["unknown"])
+        res = Resource.create_new("id", ":Type", "lbl").add_file(
+            "file.jpg", LicenseRecommended.DSP.UNKNOWN, "copy", ["unknown"]
+        )
         with warnings.catch_warnings(record=True) as caught_warnings:
             result = _serialise_one_resource(res, AUTHOR_LOOKUP)
             assert len(caught_warnings) == 1

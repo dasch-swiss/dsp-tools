@@ -1,4 +1,4 @@
-from dsp_tools.xmllib.models.config_options import LicenceRecommended
+from dsp_tools.xmllib.models.config_options import LicenseRecommended
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
 from dsp_tools.xmllib.models.res import Resource
 from dsp_tools.xmllib.models.root import XMLRoot
@@ -17,7 +17,7 @@ def test_xmllib() -> None:
     my_res = Resource.create_new("my_res", "restype", "label")
     if is_bool_like("0"):
         my_res.add_bool("my_prop", convert_to_bool("0"))
-    my_res.add_file("my_file", LicenceRecommended.CC.BY, "copy", ["auth"])
+    my_res.add_file("my_file", LicenseRecommended.CC.BY, "copy", ["auth"])
     region = RegionResource.create_new("res_id", "label", "region_of")
     root.add_resource(region)
     root.add_resource(my_res)

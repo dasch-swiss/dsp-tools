@@ -150,5 +150,5 @@ class LicenseRecommended:
         ```
     """
 
-    CC: Type[CC] = CC
-    DSP: Type[DSP] = DSP
+    CC: Type[License] = CC
+    DSP: Type[License] = DSP

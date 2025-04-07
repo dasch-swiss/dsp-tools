@@ -1,5 +1,6 @@
 from lxml import etree
 
+from dsp_tools.xmllib.models.config_options import LicenseRecommended
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
 from dsp_tools.xmllib.models.res import Resource
 from dsp_tools.xmllib.models.root import XMLRoot
@@ -37,9 +38,15 @@ def test_root_add_resources() -> None:
 
 
 def test_make_authorship_lookup() -> None:
-    res1 = Resource.create_new("id1", ":Restype", "label").add_file("file.jpg", "lic", "copy", ["auth", "auth1"])
-    res2 = Resource.create_new("id2", ":Restype", "label").add_file("file.jpg", "lic", "copy", ["auth2"])
-    res3 = Resource.create_new("id2", ":Restype", "label").add_file("file.jpg", "lic", "copy", ["auth2"])
+    res1 = Resource.create_new("id1", ":Restype", "label").add_file(
+        "file.jpg", LicenseRecommended.DSP.UNKNOWN, "copy", ["auth", "auth1"]
+    )
+    res2 = Resource.create_new("id2", ":Restype", "label").add_file(
+        "file.jpg", LicenseRecommended.DSP.UNKNOWN, "copy", ["auth2"]
+    )
+    res3 = Resource.create_new("id2", ":Restype", "label").add_file(
+        "file.jpg", LicenseRecommended.DSP.UNKNOWN, "copy", ["auth2"]
+    )
     region_res = RegionResource.create_new("regionID", "label", "id1")
     result = _make_authorship_lookup([res1, res2, res3, region_res])
     assert set(result.lookup.keys()) == {("auth", "auth1"), tuple(["auth2"])}

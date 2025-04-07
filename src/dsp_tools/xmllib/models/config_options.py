@@ -99,7 +99,7 @@ class DSP(StrEnum):
         # adding a DSP licence to a file
         resource = resource.add_file(
             filename="images/dog.jpg",
-            licence=xmllib.LicenceRecommended.DSP.PUBLIC_DOMAIN,
+            license=xmllib.LicenceRecommended.DSP.PUBLIC_DOMAIN,
             copyright_holder="Bark University",
             authorship=["Bark McDog"],
         )
@@ -133,7 +133,7 @@ class LicenceRecommended:
         # adding a DSP licence to a file
         resource = resource.add_file(
             filename="images/dog.jpg",
-            licence=xmllib.LicenceRecommended.DSP.PUBLIC_DOMAIN,
+            license=xmllib.LicenceRecommended.DSP.PUBLIC_DOMAIN,
             copyright_holder="Bark University",
             authorship=["Bark McDog"],
         )

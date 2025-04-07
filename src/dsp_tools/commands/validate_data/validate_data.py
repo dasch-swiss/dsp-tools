@@ -9,8 +9,6 @@ from rdflib import URIRef
 from dsp_tools.commands.validate_data.api_clients import ListClient
 from dsp_tools.commands.validate_data.api_clients import OntologyClient
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
-from dsp_tools.commands.validate_data.api_connection import ApiConnection
-from dsp_tools.commands.validate_data.constants import KNORA_API_STR
 from dsp_tools.commands.validate_data.get_user_validation_message import get_user_message
 from dsp_tools.commands.validate_data.make_data_rdf import make_data_rdf
 from dsp_tools.commands.validate_data.models.input_problems import UnknownClassesInData
@@ -25,6 +23,7 @@ from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_MAGENTA
 from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_YELLOW
 from dsp_tools.utils.ansi_colors import BOLD_CYAN
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
+from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.get_data_deserialised import get_data_deserialised
 from dsp_tools.utils.xml_parsing.get_xml_project import get_xml_project
 
@@ -47,8 +46,7 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
     Returns:
         true unless it crashed
     """
-    api_con = ApiConnection(api_url)
-    graphs = _get_parsed_graphs(api_con, filepath)
+    graphs = _get_parsed_graphs(api_url, filepath)
     if unknown_classes := _check_for_unknown_resource_classes(graphs):
         msg = unknown_classes.get_msg()
         print(VALIDATION_ERRORS_FOUND_MSG)
@@ -56,7 +54,7 @@ def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bo
         # if unknown classes are found, we cannot validate all the data in the file
         return True
 
-    shacl_validator = ShaclValidator(api_con)
+    shacl_validator = ShaclValidator(api_url)
     save_path = None
     if save_graphs:
         save_path = _get_save_directory(filepath)
@@ -101,10 +99,10 @@ def _get_save_directory(filepath: Path) -> Path:
     return save_path
 
 
-def _get_parsed_graphs(api_con: ApiConnection, filepath: Path) -> RDFGraphs:
-    data_rdf, shortcode = _get_data_info_from_file(filepath, api_con.api_url)
-    onto_client = OntologyClient(api_con, shortcode)
-    list_client = ListClient(api_con, shortcode)
+def _get_parsed_graphs(api_url: str, filepath: Path) -> RDFGraphs:
+    data_rdf, shortcode = _get_data_info_from_file(filepath, api_url)
+    onto_client = OntologyClient(api_url, shortcode)
+    list_client = ListClient(api_url, shortcode)
     rdf_graphs = _create_graphs(onto_client, list_client, data_rdf)
     return rdf_graphs
 
@@ -167,7 +165,7 @@ def _create_graphs(onto_client: OntologyClient, list_client: ListClient, data_rd
     api_shapes.parse(str(api_shapes_path))
     api_card_shapes = Graph()
     api_card_path = importlib.resources.files("dsp_tools").joinpath(
-        "resources/validate_data/api-shapes-with-cardinalities.ttl"
+        "resources/validate_data/api-shapes-resource-cardinalities.ttl"
     )
     api_card_shapes.parse(str(api_card_path))
     content_shapes = shapes.content + api_shapes

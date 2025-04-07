@@ -12,12 +12,12 @@ from requests import Session
 from requests.adapters import HTTPAdapter
 from requests.adapters import Retry
 
+from dsp_tools.clients.authentication_client import AuthenticationClient
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileValue
-from dsp_tools.models.exceptions import BadCredentialsError
-from dsp_tools.models.exceptions import InvalidFileNameError
-from dsp_tools.models.exceptions import PermanentConnectionError
-from dsp_tools.utils.authentication_client import AuthenticationClient
+from dsp_tools.error.exceptions import BadCredentialsError
+from dsp_tools.error.exceptions import InvalidFileNameError
+from dsp_tools.error.exceptions import PermanentConnectionError
 
 STATUS_OK = 200
 BAD_REQUEST = 400
@@ -125,7 +125,7 @@ class DspIngestClientLive(AssetClient):
             msg = f"Invalid filename: Unable to upload file '{file_info.value}' of resource '{file_info.res_id}'"
         except PermanentConnectionError:
             msg = f"Unable to upload file '{file_info.value}' of resource '{file_info.res_id}'"
-        logger.exception(msg)
+        logger.error(msg)
         return None
 
 

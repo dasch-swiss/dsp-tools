@@ -1,18 +1,18 @@
 import pytest
 from lxml import etree
 
-from dsp_tools.commands.validate_data.constants import KNORA_API_STR
+from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.get_data_deserialised import _deserialise_all_resources
 from dsp_tools.utils.xml_parsing.get_data_deserialised import _deserialise_one_property
 from dsp_tools.utils.xml_parsing.get_data_deserialised import _deserialise_one_resource
 from dsp_tools.utils.xml_parsing.get_data_deserialised import _extract_metadata
 from dsp_tools.utils.xml_parsing.get_data_deserialised import _get_text_as_string
-from dsp_tools.utils.xml_parsing.models.data_deserialised import KnoraValueType
 from dsp_tools.utils.xml_parsing.models.data_deserialised import PropertyObject
 from dsp_tools.utils.xml_parsing.models.data_deserialised import ResourceDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import TripleObjectType
 from dsp_tools.utils.xml_parsing.models.data_deserialised import TriplePropertyType
 from dsp_tools.utils.xml_parsing.models.data_deserialised import ValueInformation
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 
 
 def _get_label_and_type(resource: ResourceDeserialised) -> tuple[PropertyObject, PropertyObject, list[PropertyObject]]:
@@ -238,7 +238,7 @@ class TestDateValue:
         assert len(res) == 2
         assert res[0].user_facing_prop == "http://0.0.0.0:3333/ontology/9999/onto/v2#testSubDate1"
         assert res[0].user_facing_value == "JULIAN:BCE:0700:BCE:0600"
-        assert res[1].user_facing_value == "ISLAMIC:BCE:0700:BCE:0600"
+        assert res[1].user_facing_value == "ISLAMIC:0600:0700"
         assert res[0].knora_type == KnoraValueType.DATE_VALUE
         assert res[1].knora_type == KnoraValueType.DATE_VALUE
 

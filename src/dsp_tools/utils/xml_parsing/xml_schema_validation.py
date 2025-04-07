@@ -8,8 +8,8 @@ import regex
 from loguru import logger
 from lxml import etree
 
-from dsp_tools.models.custom_warnings import DspToolsUserWarning
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.error.custom_warnings import DspToolsUserInfo
+from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.xml_parsing.parse_xml import parse_xml_file
 from dsp_tools.utils.xml_parsing.transform import remove_comments_from_element_tree
 from dsp_tools.utils.xml_parsing.transform import transform_into_localnames
@@ -34,7 +34,7 @@ def validate_xml_with_schema(xml: etree._Element) -> bool:
     cleaned = transform_into_localnames(xml)
     cleaned = remove_comments_from_element_tree(cleaned)
     _warn_user_about_tags_in_simpletext(cleaned)
-    problem_msg = _validate_xml_against_schema(xml)
+    problem_msg = validate_xml_against_schema(xml)
 
     if problem_msg:
         logger.error(problem_msg)
@@ -43,7 +43,7 @@ def validate_xml_with_schema(xml: etree._Element) -> bool:
     return True
 
 
-def _validate_xml_against_schema(data_xml: etree._Element) -> str | None:
+def validate_xml_against_schema(data_xml: etree._Element) -> str | None:
     schema_res = importlib.resources.files("dsp_tools").joinpath("resources/schema/data.xsd")
     with schema_res.open(encoding="utf-8") as schema_file:
         xmlschema = etree.XMLSchema(etree.parse(schema_file))
@@ -82,7 +82,7 @@ def _warn_user_about_tags_in_simpletext(xml_no_namespace: etree._Element) -> Non
             f"The following resources of your XML file contain angular brackets:{list_separator}"
             f"{list_separator.join(resources_with_potential_xml_tags)}"
         )
-        warnings.warn(DspToolsUserWarning(err_msg))
+        warnings.warn(DspToolsUserInfo(err_msg))
 
 
 def parse_and_validate_xml_file(input_file: Path | str) -> bool:

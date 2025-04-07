@@ -5,7 +5,7 @@ from pathlib import Path
 import jsonpath_ng.ext
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.commands.project.create.project_create import create_project
+from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.project.create.project_create_lists import create_only_lists
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
@@ -29,7 +29,7 @@ class TestCreateLists(unittest.TestCase):
         )
 
         # insert a "lists" section into the project that was created
-        with open("testdata/excel2json/lists-multilingual-output-expected.json", encoding="utf-8") as f:
+        with open("testdata/excel2json/old-lists-multilingual-output-expected.json", encoding="utf-8") as f:
             lists_section = json.load(f)
         with open(self.test_project_minimal_file, encoding="utf-8") as f:
             test_project_minimal = json.load(f)

@@ -3,11 +3,10 @@ from lxml import etree
 
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLValue
-from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import _cleanup_formatted_text
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import _cleanup_unformatted_text
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import _extract_formatted_text_from_node
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
-from dsp_tools.models.exceptions import XmlUploadError
+from dsp_tools.error.exceptions import XmlUploadError
 
 
 class Test_XMLProperty:
@@ -50,7 +49,7 @@ class Test_XMLProperty:
 
     def test_get_values_from_normal_props_list(self) -> None:
         string = """<list-prop list="testlist" name=":hasListItem"><list>first subnode</list></list-prop>"""
-        expected = [XMLValue("testlist / first subnode")]
+        expected = [XMLValue(("testlist", "first subnode"))]
         res = XMLProperty._get_values_from_normal_props(etree.fromstring(string), "list")
         assert res == expected
 
@@ -150,7 +149,7 @@ class Test_XMLValue:
     def test_from_node_list_value(self) -> None:
         # assure that list node is constructed correctly
         node = etree.fromstring("""<list>second subnode</list>""")
-        expected = XMLValue(value="testlist / second subnode")
+        expected = XMLValue(value=("testlist", "second subnode"))
         res = XMLValue.from_node(node, "list", "testlist")
         assert res == expected
 
@@ -193,36 +192,6 @@ def test_extract_formatted_text_from_node() -> None:
     formatted_node = etree.fromstring(orig)
     xml_value = _extract_formatted_text_from_node(formatted_node)
     assert xml_value.xmlstr == expected
-
-
-def test_cleanup_formatted_text() -> None:
-    """Test the removal of whitespaces and line breaks in xml-formatted text values"""
-    orig = """
-
-        This is <em>italicized and <strong>bold</strong></em> text!
-        It contains <code>monospace text  that   preserves whitespaces and &amp; HTML-escapes</code>.
-        The same <pre>is   true   for   preformatted   text</pre>.
-
-        It    contains    multiple    whitespaces	and		tabstops.<br/><br/>
-        Line breaks must be done with <code><br/></code> tags.<br/>
-        Otherwise they will be removed.<br/><br/>
-        
-        It contains links to a resource:
-        <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>
-
-    """
-    expected = (
-        "This is <em>italicized and <strong>bold</strong></em> text! "
-        "It contains <code>monospace text  that   preserves whitespaces and &amp; HTML-escapes</code>. "
-        "The same <pre>is   true   for   preformatted   text</pre>. "
-        "It contains multiple whitespaces and tabstops.<br/><br/>"
-        "Line breaks must be done with <code><br/></code> tags.<br/>"
-        "Otherwise they will be removed.<br/><br/>"
-        "It contains links to a resource: "
-        '<a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>'
-    )
-    res = _cleanup_formatted_text(orig)
-    assert res == expected
 
 
 if __name__ == "__main__":

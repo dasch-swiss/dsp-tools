@@ -7,10 +7,10 @@ from rdflib import SH
 from rdflib import Graph
 
 from dsp_tools.commands.validate_data.api_clients import ShaclValidator
-from dsp_tools.commands.validate_data.constants import SubjectObjectTypeAlias
 from dsp_tools.commands.validate_data.models.input_problems import OntologyResourceProblem
 from dsp_tools.commands.validate_data.models.input_problems import OntologyValidationProblem
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
+from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
 
 LIST_SEPARATOR = "\n    - "
 

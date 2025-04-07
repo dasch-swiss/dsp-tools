@@ -7,14 +7,14 @@ from rdflib import Literal
 from rdflib import Namespace
 from rdflib import URIRef
 
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import KNORA_API
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import _make_migration_metadata
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_resource_and_values import _make_resource
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.intermediary.res import MigrationMetadata
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
-from dsp_tools.models.datetimestamp import DateTimeStamp
+from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
+from dsp_tools.utils.rdflib_constants import KNORA_API
 
 ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
 RESOURCE_TYPE = URIRef("http://0.0.0.0:3333/ontology/9999/onto/v2#TestResource")

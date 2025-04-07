@@ -8,17 +8,17 @@ from dsp_tools.commands.excel2json.json_header import get_json_header
 from dsp_tools.commands.excel2json.models.json_header import EmptyJsonHeader
 from dsp_tools.commands.excel2json.models.json_header import FilledJsonHeader
 from dsp_tools.commands.excel2json.models.json_header import JsonHeader
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.error.exceptions import InputError
 
 
 @pytest.fixture
 def filled_json_header() -> JsonHeader:
-    test_path = Path("testdata/excel2json/new_excel2json_files/json_header.xlsx")
+    test_path = Path("testdata/excel2json/excel2json_files/json_header.xlsx")
     return get_json_header(test_path)
 
 
 def test_get_json_header_no_file() -> None:
-    test_path = Path("testdata/excel2json/excel2json_files")
+    test_path = Path("testdata/excel2json/old_excel2json_files")
     result = get_json_header(test_path)
     assert isinstance(result, EmptyJsonHeader)
 

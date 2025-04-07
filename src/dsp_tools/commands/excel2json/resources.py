@@ -28,8 +28,8 @@ from dsp_tools.commands.excel2json.utils import find_missing_required_values
 from dsp_tools.commands.excel2json.utils import get_comments
 from dsp_tools.commands.excel2json.utils import get_labels
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
-from dsp_tools.models.exceptions import InputError
-from dsp_tools.models.problems import Problem
+from dsp_tools.error.exceptions import InputError
+from dsp_tools.error.problems import Problem
 
 languages = ["en", "de", "fr", "it", "rm"]
 
@@ -48,8 +48,7 @@ def excel2resources(
             (otherwise, it's only returned as return value)
 
     Raises:
-        UserError: if something went wrong
-        InputError: is something went wrong
+        InputError: if something went wrong
 
     Returns:
         a tuple consisting of the "resources" section as Python list,
@@ -173,7 +172,7 @@ def _row2resource(
         class_df_with_cardinalities: Excel sheet of the individual class
 
     Raises:
-        UserError: if the row or the details sheet contains invalid data
+        InputError: if the row or the details sheet contains invalid data
 
     Returns:
         dict object of the resource

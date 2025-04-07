@@ -1,0 +1,223 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="9999"
+       default-ontology="onto">
+
+    <authorship id="authorship_1">
+        <author>Author One</author>
+    </authorship>
+
+    <!-- Target class that does not produce a violation -->
+    <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="target_empty_movie">
+        <bitstream license="http://rdfh.ch/licenses/unknown"
+                   copyright-holder="DaSCH"
+                   authorship-id="authorship_1"
+        >this/is/filepath/file.mp4</bitstream>
+    </resource>
+
+    <!--
+        This file aims to represent every combination of our error type and the component type mix:
+            - the component type of the validation report where the focus node is a resource class,
+            - the component type of the sh:detail node, if applicable,
+        This should primarily be used to ensure that the user gets the correct message
+        when the validation reports gets reformatted.
+        It does not aim to represent every validation that can be made.
+        For example, it is not an exhaustive list of value type violations
+        because they mostly result in the same combination.
+    -->
+
+
+        <!--
+        sh:sourceConstraintComponent  sh:PatternConstraintComponent
+        sh:detail                     -
+        -->
+        <resource label=" " restype=":ClassWithEverything" id="empty_label"/>
+
+        <!--
+        sh:sourceConstraintComponent  sh:MaxCountConstraintComponent
+        sh:detail                     -
+        -->
+        <resource label="Decimal Card 0-1" restype=":ClassMixedCard" id="id_max_card">
+            <boolean-prop name=":testBoolean">
+                <boolean>true</boolean>
+            </boolean-prop>
+            <resptr-prop name=":testHasLinkToCardOneResource">
+                <resptr>id_closed_constraint</resptr>
+                <resptr>id_card_one</resptr>
+            </resptr-prop>
+            <geoname-prop name=":testGeoname">
+                <geoname>111111</geoname>
+            </geoname-prop>
+        </resource>
+
+        <!--
+        sh:sourceConstraintComponent  sh:MinCountConstraintComponent
+        sh:detail                     -
+        -->
+        <resource label="Bool Card 1" restype=":ClassInheritedCardinalityOverwriting" id="id_card_one"/>
+
+        <!--
+        sh:sourceConstraintComponent  sh:MinCountConstraintComponent
+        sh:detail                     -
+        -->
+        <resource label="TestMovingImageRepresentation" restype=":TestMovingImageRepresentation" id="id_missing_file_value"/>
+
+        <!--
+        sh:sourceConstraintComponent  dash:ClosedByTypesConstraintComponent
+        sh:detail                     -
+        -->
+        <resource label="Int card does not exist" restype=":CardOneResource" id="id_closed_constraint">
+            <integer-prop name=":testIntegerSimpleText">
+                <integer>1</integer>
+            </integer-prop>
+        </resource>
+
+        <!--
+        sh:sourceConstraintComponent  dash:CoExistsWithConstraintComponent
+        sh:detail                     -
+        -->
+        <resource label="Image with sequence" restype="in-built:TestStillImageRepresentationWithSeqnum"
+                  id="missing_seqnum">
+            <bitstream license="http://rdfh.ch/licenses/unknown"
+                       copyright-holder="DaSCH"
+                       authorship-id="authorship_1"
+            >this/is/filepath/file.jpg</bitstream>
+            <resptr-prop name="isPartOf">
+                <resptr>target_res_without_representation_1</resptr>
+            </resptr-prop>
+        </resource>
+
+        <!--
+        sh:sourceConstraintComponent  sh:ClassConstraintComponent
+        sh:detail                     -
+        -->
+        <resource label="Uri" restype=":ClassWithEverything" id="uri_wrong_value_type">
+            <text-prop name=":testUriValue">
+                <text encoding="utf8">https://dasch.swiss</text>
+            </text-prop>
+        </resource>
+
+        <!--
+        sh:sourceConstraintComponent  sh:PatternConstraintComponent
+        sh:detail                     -
+        -->
+        <resource label="Geoname is not a number" restype=":ClassWithEverything" id="geoname_not_number">
+            <geoname-prop name=":testGeoname">
+                <geoname>this-is-not-a-valid-code</geoname>
+            </geoname-prop>
+        </resource>
+
+        <!--
+        sh:sourceConstraintComponent  sh:NodeConstraintComponent
+        sh:detail                     sh:MinCountConstraintComponent
+        -->
+        <resource label="Simpletext" restype=":ClassWithEverything" id="simpletext_wrong_value_type">
+            <text-prop name=":testTextarea">
+                <text encoding="xml">Text</text>
+            </text-prop>
+        </resource>
+
+        <!--
+        sh:sourceConstraintComponent  sh:NodeConstraintComponent
+        sh:detail                     sh:ClassConstraintComponent
+        -->
+        <resource label="Target does not exist" restype=":ClassWithEverything" id="link_target_non_existent">
+            <resptr-prop name=":testHasLinkTo">
+                <resptr>other</resptr>
+            </resptr-prop>
+        </resource>
+
+        <!--
+        sh:sourceConstraintComponent  sh:NodeConstraintComponent
+        sh:detail                     sh:ClassConstraintComponent
+        -->
+        <resource label="Link Prop" restype=":ClassWithEverything" id="id_9_target"/>
+        <resource label="Target not the right class" restype=":ClassWithEverything" id="link_target_wrong_class">
+            <resptr-prop name=":testHasLinkToCardOneResource">
+                <resptr>id_9_target</resptr>
+            </resptr-prop>
+        </resource>
+
+        <!--
+        sh:sourceConstraintComponent  sh:SPARQLConstraintComponent
+        sh:detail                     -
+        -->
+        <resource label="Duplicate Value: valueAsString" restype=":ClassWithEverything" id="identical_values">
+            <text-prop name=":testTextarea">
+                <text encoding="utf8">Text</text>
+                <text encoding="utf8">Text</text>
+            </text-prop>
+        </resource>
+
+        <!--
+        sh:sourceConstraintComponent  sh:ClassConstraintComponent
+        sh:detail                     -
+        -->
+        <resource label="Richtext" restype=":ClassWithEverything" id="richtext_standoff_link_nonexistent">
+            <text-prop name=":testRichtext">
+                <text encoding="xml">
+                    This is a text with <a class="salsah-link" href="IRI:non_existing:IRI">standoff</a>.
+                </text>
+            </text-prop>
+        </resource>
+
+        <!--
+        sh:sourceConstraintComponent  sh:InConstraintComponent
+        sh:detail                     -
+        -->
+        <resource label="TestArchiveRepresentation zip" restype=":TestArchiveRepresentation" id="inexistent_license_iri">
+            <bitstream license="http://rdfh.ch/licenses/this-iri-does-not-exist"
+                       copyright-holder="DaSCH"
+                       authorship-id="authorship_1"
+            >this/is/filepath/file.zip
+            </bitstream>
+        </resource>
+
+        <!--
+        sh:sourceConstraintComponent  sh:NodeConstraintComponent
+        sh:detail                     sh:InConstraintComponent
+        -->
+        <resource label="List node does not exist" restype=":ClassWithEverything" id="list_node_non_existent">
+            <list-prop list="firstList" name=":testListProp">
+                <list>other</list>
+            </list-prop>
+        </resource>
+
+        <!--
+        sh:sourceConstraintComponent  sh:MinCountConstraintComponent
+        sh:detail                     -
+        -->
+        <resource label="Missing legal info" restype=":TestMovingImageRepresentation" id="bitstream_no_legal_info">
+            <bitstream>this/is/filepath/file.mp4</bitstream>
+        </resource>
+
+        <!--
+        sh:sourceConstraintComponent  sh:MinCountConstraintComponent
+        sh:detail                     -
+        -->
+        <resource label="TestStillImageRepresentation Bitstream" restype=":TestStillImageRepresentation" id="image_no_legal_info">
+            <bitstream>this/is/filepath/file.jp2</bitstream>
+        </resource>
+
+        <!--
+        sh:sourceConstraintComponent  sh:MinInclusiveConstraintComponent & sh:MinExclusiveConstraintComponent
+        sh:detail                     -
+        -->
+        <video-segment label="Video Segment" id="video_segment_wrong_bounds">
+            <isSegmentOf>target_empty_movie</isSegmentOf>
+            <hasSegmentBounds segment_start="-2" segment_end="0"/>
+        </video-segment>
+
+        <!--
+        sh:sourceConstraintComponent  sh:LessThanConstraintComponent
+        sh:detail                     -
+        -->
+        <video-segment label="Video Segment" id="video_segment_start_larger_than_end">
+            <isSegmentOf>target_empty_movie</isSegmentOf>
+            <hasSegmentBounds segment_start="99" segment_end="1"/>
+        </video-segment>
+
+</knora>

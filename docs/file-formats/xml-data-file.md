@@ -190,6 +190,25 @@ you will see the following:
   Only users from `ProjectMember` upwards are able to look at the image.
 
 
+## Defining the authorships
+
+Every multimedia asset must be accompanied by an authorship,
+meaning the natural person who authored the work.
+The authorship can be defined in the following way:
+
+```xml
+<authorship id="authorship_1">
+    <author>Lukas Rosenthaler</author>
+</authorship>
+<authorship id="authorship_2">
+    <author>Nora Ammann</author>
+    <author>Johannes Nussbaum</author>
+</authorship>
+```
+
+These identifiers can later be referenced in the `<bitstream>` and `<iiif-uri>` elements.
+
+
 ## Describing Resources With the `<resource>` Element
 
 A `<resource>` element contains all necessary information to create a resource. It has the following attributes:
@@ -306,7 +325,13 @@ Example of a public image inside a `StillImageRepresentation`:
 
 ```xml
 <resource restype=":Image" id="image_1" label="image_1" permissions="open">
-    <bitstream permissions="open">postcards/images/EURUS015a.jpg</bitstream>
+    <bitstream 
+        permissions="open" 
+        license="http://rdfh.ch/licenses/cc-by-4.0" 
+        copyright-holder="DaSCH" 
+        authorship-id="authorship_id_defined_at_the_top">
+            postcards/images/EURUS015a.jpg
+    </bitstream>
 </resource>
 ```
 
@@ -337,7 +362,13 @@ Example of a public image inside a `StillImageRepresentation`:
 
 ```xml
 <resource restype=":Image" id="image_1" label="image_1" permissions="open">
-    <iiif-uri permissions="open">https://iiif.dasch.swiss/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/837,530/0/default.jp2</iiif-uri>
+    <iiif-uri 
+        permissions="open" 
+        license="http://rdfh.ch/licenses/cc-by-4.0" 
+        copyright-holder="DaSCH" 
+        authorship-id="authorship_id_defined_at_the_top">
+            https://iiif.dasch.swiss/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/837,530/0/default.jp2
+    </iiif-uri>
 </resource>
 ```
 
@@ -421,13 +452,13 @@ The `<date>` element contains a DSP-specific date value. It has the following fo
 calendar:epoch:yyyy-mm-dd:epoch:yyyy-mm-dd
 ```
 
-- `calendar`: either "JULIAN" or "GREGORIAN" (optional, default: GREGORIAN)
+- `calendar`: "GREGORIAN", "JULIAN" or "ISLAMIC" (optional, default: GREGORIAN)
 - `epoch`: either "AD", "BC", "BCE" or "CE" (optional, default CE)
 - `yyyy`: year with one to four digits (required)
 - `mm`: month with one or two digits (optional, e.g. 01, 02, ..., 12)
 - `dd`: day with one or two digits (optional, e.g. 01, 02, ..., 31)
 
-Notes:
+Notes regarding precision:
 
 - If the day is omitted, then the precision is month, if also the month is omitted, the precision is year.
 - Internally, a date is always represented as a start and end date. 
@@ -442,7 +473,17 @@ Notes:
     - "1893-01-01" will be expanded to a range from January 1st 1893 **to the entire year 1893**.
 - **Therefore, a day-precision date should always be written with start and end date:** 
   `GREGORIAN:CE:1893-01-01:CE:1893-01-01`
-      
+
+Notes regarding calendars:
+
+- DSP stores dates using a calendar-independent,
+  astronomical representation, and converts between calendars as needed. 
+- The Gregorian and Julian calendars have 12 months with 28-31 days each.
+- The Islamic calendar has 12 months with 29 or 30 days each.
+- Year 1 of the Islamic calendar began in 622 CE in the Julian calendar.
+  Years in the Islamic calendar are shorter than years in the Gregorian/Julian calendar,
+  so 2025 CE corresponds to 1446 AH (not 1403 AH).
+- Eras of the Islamic calendar (AH: Anno Hegirae; BH: Before Hijra) are not supported yet.
 
 Attributes:
 
@@ -1014,11 +1055,13 @@ It is possible to leave out optional properties, but the present ones must fit t
 
 Example:
 
+<!-- markdownlint-disable MD013 -->
+
 ```xml
 <video-segment label="Video Segment" id="video_segment_1">
     <isSegmentOf permissions="open">video_thing_1</isSegmentOf>
-    <!-- The segment bounds must be entered in seconds. Decimal (for fractions of a second) are allowed, e.g. `1.4`.-->
-    <hasSegmentBounds permissions="open" start="600" end="1200"/> <!-- from 0h 10min 00s to 0h 20min 00s -->
+    <!-- The segment bounds must be entered in seconds. Decimal (for fractions of a second) are allowed, e.g. `1.4`-->
+    <hasSegmentBounds permissions="open" segment_start="600" segment_end="1200"/> <!-- from 0h 10min 00s to 0h 20min 00s -->
     <hasTitle permissions="open">Title of video segment</hasTitle>
     <hasComment permissions="open"><strong>Comment</strong> of video segment</hasComment>
     <hasDescription permissions="open"><strong>Description</strong> of video segment</hasDescription>
@@ -1026,6 +1069,8 @@ Example:
     <relatesTo permissions="open">audio_segment_1</relatesTo>
 </video-segment>
 ```
+
+<!-- markdownlint-enable MD013 -->
 
 Allowed attributes in these property tags: `permissions`, `comment`. 
 Example: `<hasTitle permissions="open" comment="Comment to my title">Title of video segment</hasTitle>`

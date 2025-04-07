@@ -14,8 +14,8 @@ import regex
 from lxml import etree
 
 from dsp_tools.commands import excel2xml
-from dsp_tools.models.custom_warnings import DspToolsUserWarning
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.error.custom_warnings import DspToolsUserWarning
+from dsp_tools.error.exceptions import BaseError
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
 # ruff: noqa: PT027 (pytest-unittest-raises-assertion) (remove this line when pytest is used instead of unittest)
@@ -269,13 +269,14 @@ class TestPropsGeneral(unittest.TestCase):
         invalid_values = ["https:", 10.0, 5, "www.test.com"]
         self.run_test(prop, method, different_values, invalid_values)
 
-    @pytest.mark.filterwarnings("ignore::dsp_tools.models.custom_warnings.DspToolsUserWarning")
     def test_make_text_prop(self) -> None:
         prop = "text"
         method = excel2xml.make_text_prop
         different_values = ["text_1", " ", "!", "?", "-", "_", "None"]
         invalid_values = [True, 10.0, 5, ""]
-        self.run_test(prop, method, different_values, invalid_values)
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            self.run_test(prop, method, different_values, invalid_values)
+            assert len(caught_warnings) == 3
         self.assertRaises(
             BaseError,
             lambda: excel2xml.make_text_prop(":test", excel2xml.PropertyElement(value="a", encoding="unicode")),
@@ -465,7 +466,7 @@ class TestBitstreamProp:
         assert res.text == "testdata/bitstreams/test.jpg"
 
     def test_make_bitstream_prop_invalid_file(self) -> None:
-        with pytest.warns(DspToolsUserWarning, match=".*Failed validation in bitstream tag.*"):
+        with pytest.warns(DspToolsUserWarning, match=regex.escape("Failed validation in bitstream tag")):
             res = excel2xml.make_bitstream_prop("foo/bar/baz.txt", check=True)
         assert str(res.tag).endswith("bitstream")
         assert res.attrib["permissions"] == "open"
@@ -538,7 +539,7 @@ class Test_hasSegmentBounds_Prop:
         assert res.text is None
 
     def test_start_less_than_end(self) -> None:
-        with pytest.warns(DspToolsUserWarning, match="must be less than"):
+        with pytest.warns(DspToolsUserWarning, match=regex.escape("must be less than")):
             res = excel2xml.make_hasSegmentBounds_prop(5, 3)
         assert str(res.tag).endswith("hasSegmentBounds")
         assert res.attrib["permissions"] == "open"
@@ -548,7 +549,7 @@ class Test_hasSegmentBounds_Prop:
         assert res.text is None
 
     def test_not_a_number(self) -> None:
-        with pytest.warns(DspToolsUserWarning, match="must be integers or floats"):
+        with pytest.warns(DspToolsUserWarning, match=regex.escape("must be integers or floats")):
             res = excel2xml.make_hasSegmentBounds_prop(segment_start="foo", segment_end=2)  # type: ignore[arg-type]
         assert str(res.tag).endswith("hasSegmentBounds")
         assert res.attrib["permissions"] == "open"

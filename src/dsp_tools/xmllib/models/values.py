@@ -5,9 +5,9 @@ from dataclasses import dataclass
 from typing import Any
 from typing import Protocol
 
-from dsp_tools.models.custom_warnings import DspToolsUserWarning
-from dsp_tools.models.exceptions import InputError
-from dsp_tools.utils.uri_util import is_uri
+from dsp_tools.error.custom_warnings import DspToolsUserWarning
+from dsp_tools.error.exceptions import InputError
+from dsp_tools.utils.data_formats.uri_util import is_uri
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.value_checkers import check_richtext_syntax
 from dsp_tools.xmllib.value_checkers import is_color

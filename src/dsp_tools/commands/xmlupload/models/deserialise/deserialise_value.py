@@ -10,7 +10,9 @@ import regex
 from lxml import etree
 
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
-from dsp_tools.models.exceptions import XmlUploadError
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import cleanup_formatted_text
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_simpletext
+from dsp_tools.error.exceptions import XmlUploadError
 
 
 @dataclass(frozen=True)
@@ -98,7 +100,7 @@ class XMLProperty:
 class XMLValue:
     """Represents a value of a resource property in the XML used for data import"""
 
-    value: Union[str, FormattedTextValue]
+    value: Union[str, FormattedTextValue, tuple[str, str]]
     resrefs: set[str] = field(default_factory=set)
     comment: Optional[str] = None
     permissions: Optional[str] = None
@@ -111,7 +113,7 @@ class XMLValue:
         listname: Optional[str] = None,
     ) -> XMLValue:
         """Factory method to create an XMLValue from an XML node"""
-        value: Union[str, FormattedTextValue] = ""
+        value: Union[str, FormattedTextValue, tuple[str, str]] = ""
         resrefs = set()
         comment = node.get("comment")
         permissions = node.get("permissions")
@@ -123,7 +125,7 @@ class XMLValue:
             value = _cleanup_unformatted_text(str_orig)
         elif val_type == "list":
             listname = cast(str, listname)
-            value = f"{listname} / " + "".join(node.itertext())
+            value = (listname, "".join(node.itertext()))
         else:
             value = "".join(node.itertext())
         link_uuid = node.attrib.get("linkUUID")  # not all richtexts have a link, so this attribute is optional
@@ -133,39 +135,8 @@ class XMLValue:
 def _extract_formatted_text_from_node(node: etree._Element) -> FormattedTextValue:
     xmlstr = etree.tostring(node, encoding="unicode", method="xml")
     xmlstr = regex.sub(f"<{node.tag!s}.*?>|</{node.tag!s}>", "", xmlstr)
-    xmlstr = _cleanup_formatted_text(xmlstr)
+    xmlstr = cleanup_formatted_text(xmlstr)
     return FormattedTextValue(xmlstr)
-
-
-def _cleanup_formatted_text(xmlstr_orig: str) -> str:
-    """
-    In a xml-encoded text value from the XML file,
-    there may be non-text characters that must be removed.
-    This function:
-        - replaces (multiple) line breaks by a space
-        - replaces multiple spaces or tabstops by a single space (except within `<code>` or `<pre>` tags)
-
-    Args:
-        xmlstr_orig: content of the tag from the XML file, in serialized form
-
-    Returns:
-        purged string, suitable to be sent to DSP-API
-    """
-    # replace (multiple) line breaks by a space
-    xmlstr = regex.sub("\n+", " ", xmlstr_orig)
-
-    # replace multiple spaces or tabstops by a single space (except within <code> or <pre> tags)
-    # the regex selects all spaces/tabstops not followed by </xyz> without <xyz in between.
-    # credits: https://stackoverflow.com/a/46937770/14414188
-    xmlstr = regex.sub("( {2,}|\t+)(?!(.(?!<(code|pre)))*</(code|pre)>)", " ", xmlstr)
-
-    # remove spaces after <br/> tags (except within <code> tags)
-    xmlstr = regex.sub("((?<=<br/?>) )(?!(.(?!<code))*</code>)", "", xmlstr)
-
-    # remove leading and trailing spaces
-    xmlstr = xmlstr.strip()
-
-    return xmlstr
 
 
 def _cleanup_unformatted_text(string_orig: str) -> str:
@@ -185,13 +156,7 @@ def _cleanup_unformatted_text(string_orig: str) -> str:
     # remove the <text> tags
     string = regex.sub("<text.*?>", "", string_orig)
     string = regex.sub("</text>", "", string)
-
-    # replace multiple spaces or tabstops by a single space
-    string = regex.sub(r" {2,}|\t+", " ", string)
-
-    # remove leading and trailing spaces (of every line, but also of the entire string)
-    string = "\n".join([s.strip() for s in string.split("\n")])
-    return string.strip()
+    return transform_simpletext(string)
 
 
 @dataclass(frozen=True)

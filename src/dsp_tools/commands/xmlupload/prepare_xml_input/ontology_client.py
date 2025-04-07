@@ -3,9 +3,9 @@ from dataclasses import field
 from typing import Any
 from typing import Protocol
 
-from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.exceptions import UserError
-from dsp_tools.utils.connection import Connection
+from dsp_tools.clients.connection import Connection
+from dsp_tools.error.exceptions import BaseError
+from dsp_tools.error.exceptions import InputError
 
 
 @dataclass
@@ -48,7 +48,7 @@ class OntologyClientLive:
             url = f"/admin/projects/shortcode/{self.shortcode}"
             res = self.con.get(url)
         except BaseError as e:
-            raise UserError(f"A project with shortcode {self.shortcode} could not be found on the DSP server") from e
+            raise InputError(f"A project with shortcode {self.shortcode} could not be found on the DSP server") from e
         try:
             onto_iris: list[str] = res["project"]["ontologies"]
         except KeyError as e:

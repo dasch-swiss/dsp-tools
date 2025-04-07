@@ -1,9 +1,9 @@
 {
     "$schema": "../../../src/dsp_tools/resources/schema/project.json",
     "project": {
-        "shortcode": "4125",
-        "shortname": "e2e-tp",
-        "longname": "e2e test project",
+        "shortcode": "4126",
+        "shortname": "e2e-ingest-tp",
+        "longname": "e2e ingest test project",
         "descriptions": {
             "en": "The e2e test project"
         },
@@ -12,7 +12,7 @@
         ],
         "ontologies": [
             {
-                "name": "e2e-testonto",
+                "name": "e2e-ingest-onto",
                 "label": "e2e Test ontology",
                 "properties": [
                     {

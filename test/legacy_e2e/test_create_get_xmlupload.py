@@ -14,10 +14,10 @@ import regex
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.id2iri import id2iri
-from dsp_tools.commands.project.create.project_create import create_project
+from dsp_tools.commands.project.create.project_create_all import create_project
 from dsp_tools.commands.project.get import get_project
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
-from dsp_tools.models.custom_warnings import DspToolsFutureWarning
+from dsp_tools.error.custom_warnings import DspToolsFutureWarning
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
 
@@ -323,16 +323,6 @@ class TestCreateGetXMLUpload(unittest.TestCase):
         # avoid mutable default argument
         lists_original = lists_original or []
         lists_returned = lists_returned or []
-
-        # remove lists of which the nodes were defined in an Excel file
-        for list_original in lists_original:
-            if (
-                isinstance(list_original["nodes"], dict)
-                and len(list_original["nodes"]) == 1
-                and "folder" in list_original["nodes"]
-            ):
-                lists_original.remove(list_original)
-                lists_returned = [x for x in lists_returned if x["name"] != list_original["name"]]
 
         # sort both lists
         lists_original = sorted(lists_original, key=lambda x: cast(str, x.get("name", "")))

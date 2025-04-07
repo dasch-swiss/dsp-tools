@@ -7,12 +7,13 @@ from dataclasses import field
 from pathlib import Path
 from typing import TypeAlias
 from typing import Union
+from uuid import uuid4
 
 from loguru import logger
 from lxml import etree
 
-from dsp_tools.models.custom_warnings import DspToolsUserWarning
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.error.custom_warnings import DspToolsUserWarning
+from dsp_tools.error.exceptions import BaseError
 from dsp_tools.utils.xml_parsing.xml_schema_validation import parse_and_validate_xml_file
 from dsp_tools.xmllib.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.constants import XML_NAMESPACE_MAP
@@ -225,8 +226,8 @@ def _make_authorship_lookup(resources: list[AnyResource]) -> AuthorshipLookup:
     file_vals = [x.file_value for x in filtered_resources if x.file_value]
     authors = {x.metadata.authorship for x in file_vals}
     lookup = {}
-    for auth, i in zip(authors, range(1, len(authors) + 1)):
-        lookup[auth] = f"authorship_{i}"
+    for auth in authors:
+        lookup[auth] = f"authorship_{uuid4()!s}"
     return AuthorshipLookup(lookup)
 
 

@@ -5,16 +5,15 @@ from typing import Union
 from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.commands.excel2json.lists import expand_lists_from_excel
+from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
+from dsp_tools.clients.connection import Connection
+from dsp_tools.clients.connection_live import ConnectionLive
 from dsp_tools.commands.project.create.project_validate import validate_project
-from dsp_tools.commands.project.models.listnode import ListNode
-from dsp_tools.commands.project.models.project import Project
-from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.exceptions import UserError
-from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
-from dsp_tools.utils.connection import Connection
-from dsp_tools.utils.connection_live import ConnectionLive
-from dsp_tools.utils.shared import parse_json_input
+from dsp_tools.commands.project.legacy_models.listnode import ListNode
+from dsp_tools.commands.project.legacy_models.project import Project
+from dsp_tools.error.exceptions import BaseError
+from dsp_tools.error.exceptions import InputError
+from dsp_tools.utils.json_parsing import parse_json_input
 
 
 def create_lists_on_server(
@@ -113,7 +112,7 @@ def _create_list_node(
         new_node = new_node.create()
     except BaseError:
         print(f"WARNING: Cannot create list node '{node['name']}'.")
-        logger.exception("Cannot create list node '{node['name']}'.")
+        logger.exception(f"Cannot create list node '{node['name']}'.")
         return {}, False
 
     # if node has child nodes, call the method recursively
@@ -139,8 +138,7 @@ def create_only_lists(
     creds: ServerCredentials,
 ) -> tuple[dict[str, Any], bool]:
     """
-    This method accepts a JSON project definition,
-    expands the Excel sheets referenced in its "lists" section,
+    This function accepts a JSON project definition,
     connects to a DSP server,
     and uploads the "lists" section to the server.
 
@@ -152,7 +150,7 @@ def create_only_lists(
         creds: credentials to connect to the DSP server
 
     Raises:
-        UserError:
+        InputError:
           - if the project cannot be read from the server
           - if the connection to the DSP server cannot be established
 
@@ -176,9 +174,7 @@ def create_only_lists(
     project_definition = parse_json_input(project_file_as_path_or_parsed=project_file_as_path_or_parsed)
     if not project_definition.get("project", {}).get("lists"):
         return {}, True
-    lists_to_create = expand_lists_from_excel(project_definition["project"]["lists"])
-    project_definition["project"]["lists"] = lists_to_create
-    validate_project(project_definition, expand_lists=False)
+    validate_project(project_definition)
     print("JSON project file is syntactically correct and passed validation.")
 
     auth = AuthenticationClientLive(creds.server, creds.user, creds.password)
@@ -192,11 +188,11 @@ def create_only_lists(
     except BaseError:
         err_msg = f"Unable to create the lists: The project {shortcode} cannot be found on the DSP server."
         logger.exception(err_msg)
-        raise UserError(err_msg) from None
+        raise InputError(err_msg) from None
 
     # create new lists
     current_project_lists, success = create_lists_on_server(
-        lists_to_create=lists_to_create,
+        lists_to_create=project_definition["project"]["lists"],
         con=con,
         project_remote=project_remote,
     )

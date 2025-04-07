@@ -8,7 +8,7 @@ import regex
 from loguru import logger
 from lxml import etree
 
-from dsp_tools.models.exceptions import UserError
+from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.xml_parsing.parse_and_transform import parse_and_clean_xml_file
 
 
@@ -25,7 +25,7 @@ def _check_input_parameters(
         json_file: the JSON file with the mapping (dict) of internal IDs to IRIs
 
     Raises:
-        UserError: if one of the files could not be found
+        InputError: if one of the files could not be found
 
     Returns:
         path objects of the input parameters
@@ -33,12 +33,12 @@ def _check_input_parameters(
     xml_file_as_path = Path(xml_file)
     if not xml_file_as_path.is_file():
         logger.error(f"File {xml_file} could not be found.")
-        raise UserError(f"File {xml_file} could not be found.")
+        raise InputError(f"File {xml_file} could not be found.")
 
     json_file_as_path = Path(json_file)
     if not json_file_as_path.is_file():
         logger.error(f"File {json_file} could not be found.")
-        raise UserError(f"File {json_file} could not be found.")
+        raise InputError(f"File {json_file} could not be found.")
 
     return xml_file_as_path, json_file_as_path
 

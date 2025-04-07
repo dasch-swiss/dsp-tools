@@ -1,33 +1,14 @@
-from typing import TypeAlias
-from typing import Union
-
 from rdflib import XSD
-from rdflib import Namespace
-from rdflib.term import IdentifiedNode
-from rdflib.term import Literal
-from rdflib.term import Node
-from rdflib.term import Variable
 
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
-
-# rdflib typing
-PropertyTypeAlias: TypeAlias = Union[IdentifiedNode, Variable]
-SubjectObjectTypeAlias: TypeAlias = Union[IdentifiedNode, Literal, Variable, Node]
-
-# Namespaces as string
-KNORA_API_STR = "http://api.knora.org/ontology/knora-api/v2#"
-API_SHAPES_STR = "http://api.knora.org/ontology/knora-api/shapes/v2#"
+from dsp_tools.utils.rdflib_constants import KNORA_API
+from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 
 LINKOBJ_RESOURCE = KNORA_API_STR + "LinkObj"
 VIDEO_SEGMENT_RESOURCE = KNORA_API_STR + "VideoSegment"
 AUDIO_SEGMENT_RESOURCE = KNORA_API_STR + "AudioSegment"
 
 # rdflib Namespaces
-DASH = Namespace("http://datashapes.org/dash#")
-KNORA_API = Namespace(KNORA_API_STR)
-API_SHAPES = Namespace(API_SHAPES_STR)
-
-DATA = Namespace("http://data/")
 
 
 ARCHIVE_FILE_VALUE = RDFPropTypeInfo(KNORA_API.ArchiveFileValue, KNORA_API.fileValueHasFilename, XSD.string)
@@ -55,24 +36,15 @@ FILE_VALUE_PROPERTIES = {
     KNORA_API.hasAuthorship,
 }
 
-VALUE_CLASS_SHAPES = {
-    API_SHAPES.BooleanValue_ClassShape,
-    API_SHAPES.ColorValue_ClassShape,
-    API_SHAPES.DateValue_ClassShape,
-    API_SHAPES.DecimalValue_ClassShape,
-    API_SHAPES.GeonameValue_ClassShape,
-    API_SHAPES.IntValue_ClassShape,
-    API_SHAPES.LinkValue_ClassShape,
-    API_SHAPES.ListValue_ClassShape,
-    API_SHAPES.TimeValue_ClassShape,
-    API_SHAPES.UriValue_ClassShape,
-}
 
-FILE_VALUE_PROP_SHAPES = {
-    API_SHAPES.hasArchiveFileValue_PropShape,
-    API_SHAPES.hasAudioFileValue_PropShape,
-    API_SHAPES.hasDocumentFileValue_PropShape,
-    API_SHAPES.hasMovingImageFileValue_PropShape,
-    API_SHAPES.hasTextFileValue_PropShape,
-    API_SHAPES.hasStillImageFileValue_PropShape,
+FILEVALUE_DETAIL_INFO = {
+    KNORA_API.hasArchiveFileValue: ("bitstream", "'zip', 'tar', 'gz', 'z', 'tgz', 'gzip', '7z'"),
+    KNORA_API.hasAudioFileValue: ("bitstream", "'mp3', 'wav'"),
+    KNORA_API.hasDocumentFileValue: ("bitstream", "'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'"),
+    KNORA_API.hasMovingImageFileValue: ("bitstream", "'mp4'"),
+    KNORA_API.hasTextFileValue: ("bitstream", "'odd', 'rng', 'txt', 'xml', 'xsd', 'xsl', 'csv', 'json'"),
+    KNORA_API.hasStillImageFileValue: (
+        "bitstream / iiif-uri",
+        "'jpg', 'jpeg', 'png', 'tif', 'tiff', 'jp2' or a IIIF-URI",
+    ),
 }

@@ -4,6 +4,10 @@ import sys
 from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.clients.authentication_client_live import AuthenticationClientLive
+from dsp_tools.clients.connection_live import ConnectionLive
+from dsp_tools.clients.legal_info_client import LegalInfoClient
+from dsp_tools.clients.legal_info_client_live import LegalInfoClientLive
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import BulkIngestedAssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
@@ -17,10 +21,6 @@ from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import execute_upload
 from dsp_tools.utils.ansi_colors import RED
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
-from dsp_tools.utils.authentication_client_live import AuthenticationClientLive
-from dsp_tools.utils.connection_live import ConnectionLive
-from dsp_tools.utils.legal_info_client import LegalInfoClient
-from dsp_tools.utils.legal_info_client_live import LegalInfoClientLive
 
 
 def resume_xmlupload(creds: ServerCredentials, skip_first_resource: bool = False) -> bool:

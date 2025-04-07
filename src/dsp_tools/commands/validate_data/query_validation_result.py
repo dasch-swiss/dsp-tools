@@ -5,14 +5,10 @@ from rdflib import RDF
 from rdflib import RDFS
 from rdflib import SH
 from rdflib import Graph
-from rdflib import Literal
 from rdflib import URIRef
 
-from dsp_tools.commands.validate_data.constants import DASH
-from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROP_SHAPES
 from dsp_tools.commands.validate_data.constants import FILE_VALUE_PROPERTIES
-from dsp_tools.commands.validate_data.constants import KNORA_API
-from dsp_tools.commands.validate_data.constants import SubjectObjectTypeAlias
+from dsp_tools.commands.validate_data.constants import FILEVALUE_DETAIL_INFO
 from dsp_tools.commands.validate_data.mappers import RESULT_TO_PROBLEM_MAPPER
 from dsp_tools.commands.validate_data.models.input_problems import AllProblems
 from dsp_tools.commands.validate_data.models.input_problems import InputProblem
@@ -29,9 +25,11 @@ from dsp_tools.commands.validate_data.models.validation import ViolationType
 from dsp_tools.commands.validate_data.utils import reformat_any_iri
 from dsp_tools.commands.validate_data.utils import reformat_data_iri
 from dsp_tools.commands.validate_data.utils import reformat_onto_iri
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.error.exceptions import BaseError
+from dsp_tools.utils.rdflib_constants import DASH
+from dsp_tools.utils.rdflib_constants import KNORA_API
+from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
 
-STILL_IMAGE_VALUE_CLASSES = {KNORA_API.StillImageFileValue, KNORA_API.StillImageExternalFileValue}
 LEGAL_INFO_PROPS = {KNORA_API.hasLicense, KNORA_API.hasCopyrightHolder, KNORA_API.hasAuthorship}
 
 
@@ -85,25 +83,33 @@ def _separate_result_types(
 def _extract_base_info_of_resource_results(
     results_and_onto: Graph, data_onto_graph: Graph
 ) -> list[ValidationResultBaseInfo]:
-    focus_nodes = list(results_and_onto.subject_objects(SH.focusNode))
-    resource_classes = list(data_onto_graph.subjects(KNORA_API.canBeInstantiated, Literal(True)))
-    resource_classes.extend(STILL_IMAGE_VALUE_CLASSES)
     all_res_focus_nodes = []
-    for nd in focus_nodes:
-        focus_iri = nd[1]
+    main_bns = _get_all_main_result_bns(results_and_onto)
+    value_types = _get_all_value_classes(data_onto_graph)
+    for nd in main_bns:
+        focus_iri = next(results_and_onto.objects(nd, SH.focusNode))
         res_type = next(data_onto_graph.objects(focus_iri, RDF.type))
-        if res_type in resource_classes:
-            info = QueryInfo(
-                validation_bn=nd[0],
-                focus_iri=focus_iri,
-                focus_rdf_type=res_type,
-            )
-            all_res_focus_nodes.extend(_extract_one_base_info(info, results_and_onto, data_onto_graph))
+        info = QueryInfo(
+            validation_bn=nd,
+            focus_iri=focus_iri,
+            focus_rdf_type=res_type,
+        )
+        all_res_focus_nodes.extend(_extract_one_base_info(info, results_and_onto, data_onto_graph, value_types))
     return all_res_focus_nodes
 
 
+def _get_all_value_classes(data_onto_graph: Graph) -> set[SubjectObjectTypeAlias]:
+    all_types = set(data_onto_graph.objects(predicate=RDF.type))
+    all_value_types = set()
+    for type_ in all_types:
+        super_classes = set(data_onto_graph.transitive_objects(type_, RDFS.subClassOf))
+        if KNORA_API.Value in super_classes:
+            all_value_types.add(type_)
+    return all_value_types
+
+
 def _extract_one_base_info(
-    info: QueryInfo, results_and_onto: Graph, data_onto_graph: Graph
+    info: QueryInfo, results_and_onto: Graph, data_onto_graph: Graph, value_types: set[SubjectObjectTypeAlias]
 ) -> list[ValidationResultBaseInfo]:
     results = []
     path = next(results_and_onto.objects(info.validation_bn, SH.resultPath))
@@ -119,29 +125,47 @@ def _extract_one_base_info(
                 ValidationResultBaseInfo(
                     result_bn=info.validation_bn,
                     source_constraint_component=main_component_type,
-                    resource_iri=info.focus_iri,
-                    res_class_type=info.focus_rdf_type,
+                    focus_node_iri=info.focus_iri,
+                    focus_node_type=info.focus_rdf_type,
                     result_path=path,
                     detail=detail,
                 )
             )
     else:
-        resource_iri = info.focus_iri
-        resource_type = info.focus_rdf_type
-        if info.focus_rdf_type in STILL_IMAGE_VALUE_CLASSES:
-            resource_iri = next(data_onto_graph.subjects(KNORA_API.hasStillImageFileValue, info.focus_iri))
-            resource_type = next(data_onto_graph.objects(resource_iri, RDF.type))
+        resource_iri, resource_type, user_facing_prop = _get_resource_iri_and_type(
+            info, path, data_onto_graph, value_types
+        )
         results.append(
             ValidationResultBaseInfo(
                 result_bn=info.validation_bn,
                 source_constraint_component=main_component_type,
-                resource_iri=resource_iri,
-                res_class_type=resource_type,
-                result_path=path,
+                focus_node_iri=resource_iri,
+                focus_node_type=resource_type,
+                result_path=user_facing_prop,
                 detail=None,
             )
         )
     return results
+
+
+def _get_all_main_result_bns(results_and_onto: Graph) -> set[SubjectObjectTypeAlias]:
+    all_bns = set(results_and_onto.subjects(RDF.type, SH.ValidationResult))
+    # All the blank nodes that are referenced in a sh:detail will be queried together with the main validation result
+    # if we queried them separately we would get duplicate errors
+    detail_bns = set(results_and_onto.objects(predicate=SH.detail))
+    return all_bns - detail_bns
+
+
+def _get_resource_iri_and_type(
+    info: QueryInfo, path: SubjectObjectTypeAlias, data_onto_graph: Graph, value_types: set[SubjectObjectTypeAlias]
+) -> tuple[SubjectObjectTypeAlias, SubjectObjectTypeAlias, SubjectObjectTypeAlias]:
+    resource_iri, resource_type, user_facing_prop = info.focus_iri, info.focus_rdf_type, path
+    if info.focus_rdf_type in value_types:
+        resource_iri, predicate = next(data_onto_graph.subject_predicates(object=info.focus_iri))
+        resource_type = next(data_onto_graph.objects(resource_iri, RDF.type))
+        if user_facing_prop not in LEGAL_INFO_PROPS:
+            user_facing_prop = predicate
+    return resource_iri, resource_type, user_facing_prop
 
 
 def _query_all_without_detail(
@@ -170,12 +194,12 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
         case SH.PatternConstraintComponent:
             return _query_pattern_constraint_component_violation(base_info.result_bn, base_info, results_and_onto)
         case SH.MinCountConstraintComponent:
-            return _query_for_min_cardinality_violation(base_info, msg, results_and_onto)
+            return _query_for_min_cardinality_violation(base_info, msg)
         case SH.MaxCountConstraintComponent:
             return ValidationResult(
                 violation_type=ViolationType.MAX_CARD,
-                res_iri=base_info.resource_iri,
-                res_class=base_info.res_class_type,
+                res_iri=base_info.focus_node_iri,
+                res_class=base_info.focus_node_type,
                 property=base_info.result_path,
                 expected=msg,
             )
@@ -186,16 +210,19 @@ def _query_one_without_detail(  # noqa:PLR0911 (Too many return statements)
         case DASH.CoExistsWithConstraintComponent:
             return ValidationResult(
                 violation_type=ViolationType.SEQNUM_IS_PART_OF,
-                res_iri=base_info.resource_iri,
-                res_class=base_info.res_class_type,
+                res_iri=base_info.focus_node_iri,
+                res_class=base_info.focus_node_type,
                 message=msg,
             )
         case SH.ClassConstraintComponent:
             return _query_class_constraint_without_detail(base_info, results_and_onto, data, msg)
-        # This component appears when an image file has any kind of problem.
-        # We ignore this because it is communicated either through the IIIF or the actual file shape
-        case SH.XoneConstraintComponent:
-            return None
+        case (
+            SH.InConstraintComponent
+            | SH.LessThanConstraintComponent
+            | SH.MinExclusiveConstraintComponent
+            | SH.MinInclusiveConstraintComponent
+        ):
+            return _query_generic_violation(base_info.result_bn, base_info, results_and_onto)
         case _:
             return UnexpectedComponent(str(component))
 
@@ -222,8 +249,8 @@ def _query_class_constraint_without_detail(
             expected = message
     return ValidationResult(
         violation_type=violation_type,
-        res_iri=base_info.resource_iri,
-        res_class=base_info.res_class_type,
+        res_iri=base_info.focus_node_iri,
+        res_class=base_info.focus_node_type,
         property=base_info.result_path,
         message=msg,
         expected=expected,
@@ -240,7 +267,7 @@ def _query_for_non_existent_cardinality_violation(
     # This creates a min cardinality and a closed constraint violation.
     # The closed constraint we ignore, because the problem is communicated through the min cardinality violation.
     if base_info.result_path in FILE_VALUE_PROPERTIES:
-        sub_classes = list(results_and_onto.transitive_objects(base_info.res_class_type, RDFS.subClassOf))
+        sub_classes = list(results_and_onto.transitive_objects(base_info.focus_node_type, RDFS.subClassOf))
         if KNORA_API.Representation in sub_classes:
             return None
         violation_type = ViolationType.FILEVALUE_PROHIBITED
@@ -249,8 +276,8 @@ def _query_for_non_existent_cardinality_violation(
 
     return ValidationResult(
         violation_type=violation_type,
-        res_iri=base_info.resource_iri,
-        res_class=base_info.res_class_type,
+        res_iri=base_info.focus_node_iri,
+        res_class=base_info.focus_node_type,
         property=base_info.result_path,
     )
 
@@ -277,19 +304,15 @@ def _query_one_with_detail(
     match detail_info.source_constraint_component:
         case SH.MinCountConstraintComponent:
             if base_info.result_path in FILE_VALUE_PROPERTIES:
-                return _query_generic_violation(base_info, results_and_onto)
+                return _query_generic_violation(base_info.result_bn, base_info, results_and_onto)
             return _query_for_value_type_violation(base_info, results_and_onto, data_graph)
         case SH.PatternConstraintComponent:
             return _query_pattern_constraint_component_violation(detail_info.detail_bn, base_info, results_and_onto)
         case SH.ClassConstraintComponent:
             return _query_class_constraint_component_violation(base_info, results_and_onto, data_graph)
-        case (
-            SH.InConstraintComponent
-            | SH.LessThanConstraintComponent
-            | SH.MinExclusiveConstraintComponent
-            | SH.MinInclusiveConstraintComponent
-        ):
-            return _query_generic_violation(base_info, results_and_onto)
+        case SH.InConstraintComponent:
+            detail = cast(DetailBaseInfo, base_info.detail)
+            return _query_generic_violation(detail.detail_bn, base_info, results_and_onto)
         case _:
             return UnexpectedComponent(str(detail_info.source_constraint_component))
 
@@ -313,8 +336,8 @@ def _query_for_value_type_violation(
     val_type = next(data_graph.objects(val, RDF.type))
     return ValidationResult(
         violation_type=ViolationType.VALUE_TYPE,
-        res_iri=base_info.resource_iri,
-        res_class=base_info.res_class_type,
+        res_iri=base_info.focus_node_iri,
+        res_class=base_info.focus_node_type,
         property=base_info.result_path,
         expected=msg,
         input_type=val_type,
@@ -328,24 +351,25 @@ def _query_pattern_constraint_component_violation(
     msg = next(results_and_onto.objects(bn_with_info, SH.resultMessage))
     return ValidationResult(
         violation_type=ViolationType.PATTERN,
-        res_iri=base_info.resource_iri,
-        res_class=base_info.res_class_type,
+        res_iri=base_info.focus_node_iri,
+        res_class=base_info.focus_node_type,
         property=base_info.result_path,
         expected=msg,
         input_value=val,
     )
 
 
-def _query_generic_violation(base_info: ValidationResultBaseInfo, results_and_onto: Graph) -> ValidationResult:
-    detail_info = cast(DetailBaseInfo, base_info.detail)
+def _query_generic_violation(
+    result_bn: SubjectObjectTypeAlias, base_info: ValidationResultBaseInfo, results_and_onto: Graph
+) -> ValidationResult:
     val = None
-    if found_val := list(results_and_onto.objects(detail_info.detail_bn, SH.value)):
+    if found_val := list(results_and_onto.objects(result_bn, SH.value)):
         val = found_val.pop()
-    msg = next(results_and_onto.objects(detail_info.detail_bn, SH.resultMessage))
+    msg = next(results_and_onto.objects(result_bn, SH.resultMessage))
     return ValidationResult(
         violation_type=ViolationType.GENERIC,
-        res_iri=base_info.resource_iri,
-        res_class=base_info.res_class_type,
+        res_iri=base_info.focus_node_iri,
+        res_class=base_info.focus_node_type,
         property=base_info.result_path,
         message=msg,
         input_value=val,
@@ -363,8 +387,8 @@ def _query_for_link_value_target_violation(
     expected_type = next(results_and_onto.objects(detail_info.detail_bn, SH.resultMessage))
     return ValidationResult(
         violation_type=ViolationType.LINK_TARGET,
-        res_iri=base_info.resource_iri,
-        res_class=base_info.res_class_type,
+        res_iri=base_info.focus_node_iri,
+        res_class=base_info.focus_node_type,
         property=base_info.result_path,
         expected=expected_type,
         input_value=target_iri,
@@ -373,21 +397,16 @@ def _query_for_link_value_target_violation(
 
 
 def _query_for_min_cardinality_violation(
-    base_info: ValidationResultBaseInfo,
-    msg: SubjectObjectTypeAlias,
-    results_and_onto: Graph,
+    base_info: ValidationResultBaseInfo, msg: SubjectObjectTypeAlias
 ) -> ValidationResult:
-    source_shape = next(results_and_onto.objects(base_info.result_bn, SH.sourceShape))
-    if source_shape in FILE_VALUE_PROP_SHAPES:
-        violation_type = ViolationType.FILE_VALUE
-    elif base_info.result_path in LEGAL_INFO_PROPS:
+    if base_info.result_path in LEGAL_INFO_PROPS:
         violation_type = ViolationType.GENERIC
     else:
         violation_type = ViolationType.MIN_CARD
     return ValidationResult(
         violation_type=violation_type,
-        res_iri=base_info.resource_iri,
-        res_class=base_info.res_class_type,
+        res_iri=base_info.focus_node_iri,
+        res_class=base_info.focus_node_type,
         property=base_info.result_path,
         expected=msg,
     )
@@ -400,8 +419,8 @@ def _query_for_unique_value_violation(
     val = next(results_and_onto.objects(base_info.result_bn, SH.value))
     return ValidationResult(
         violation_type=ViolationType.UNIQUE_VALUE,
-        res_iri=base_info.resource_iri,
-        res_class=base_info.res_class_type,
+        res_iri=base_info.focus_node_iri,
+        res_class=base_info.focus_node_type,
         property=base_info.result_path,
         input_value=val,
     )
@@ -413,9 +432,10 @@ def _reformat_extracted_results(results: list[ValidationResult]) -> list[InputPr
 
 def _reformat_one_validation_result(validation_result: ValidationResult) -> InputProblem:
     match validation_result.violation_type:
+        case ViolationType.MIN_CARD:
+            return _reformat_min_card(validation_result)
         case (
             ViolationType.MAX_CARD
-            | ViolationType.MIN_CARD
             | ViolationType.NON_EXISTING_CARD
             | ViolationType.PATTERN
             | ViolationType.UNIQUE_VALUE
@@ -425,7 +445,7 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
             return _reformat_generic(result=validation_result, problem_type=problem)
         case ViolationType.GENERIC:
             prop_str = None
-            if validation_result.property in FILE_VALUE_PROPERTIES:
+            if validation_result.property in LEGAL_INFO_PROPS:
                 prop_str = "bitstream / iiif-uri"
             return _reformat_generic(validation_result, ProblemType.GENERIC, prop_string=prop_str)
         case ViolationType.FILEVALUE_PROHIBITED | ViolationType.FILE_VALUE as violation:
@@ -439,6 +459,31 @@ def _reformat_one_validation_result(validation_result: ValidationResult) -> Inpu
             return _reformat_link_target_violation_result(validation_result)
         case _:
             raise BaseError(f"An unknown violation result was found: {validation_result.__class__.__name__}")
+
+
+def _reformat_min_card(result: ValidationResult) -> InputProblem:
+    iris = _reformat_main_iris(result)
+    if file_prop_info := FILEVALUE_DETAIL_INFO.get(cast(URIRef, result.property)):
+        prop_str, file_extensions = file_prop_info
+        detail_msg = None
+        problem_type = ProblemType.FILE_VALUE
+        expected: str | None = f"This resource requires a file with one of the following extensions: {file_extensions}"
+    else:
+        prop_str = iris.prop_name
+        detail_msg = _convert_rdflib_input_to_string(result.message)
+        problem_type = ProblemType.MIN_CARD
+        expected = _convert_rdflib_input_to_string(result.expected)
+
+    return InputProblem(
+        problem_type=problem_type,
+        res_id=iris.res_id,
+        res_type=iris.res_type,
+        prop_name=prop_str,
+        message=detail_msg,
+        input_value=_convert_rdflib_input_to_string(result.input_value),
+        input_type=_convert_rdflib_input_to_string(result.input_type),
+        expected=expected,
+    )
 
 
 def _reformat_generic(

@@ -8,12 +8,12 @@ from rdflib import Literal
 from rdflib import URIRef
 from rdflib.collection import Collection
 
-from dsp_tools.commands.validate_data.constants import API_SHAPES
-from dsp_tools.commands.validate_data.constants import PropertyTypeAlias
-from dsp_tools.commands.validate_data.constants import SubjectObjectTypeAlias
 from dsp_tools.commands.validate_data.models.api_responses import AllProjectLists
 from dsp_tools.commands.validate_data.models.api_responses import OneList
 from dsp_tools.commands.validate_data.models.api_responses import SHACLListInfo
+from dsp_tools.utils.rdflib_constants import API_SHAPES
+from dsp_tools.utils.rdflib_constants import PropertyTypeAlias
+from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
 
 
 def construct_property_shapes(onto: Graph, project_lists: AllProjectLists) -> Graph:
@@ -29,7 +29,6 @@ def construct_property_shapes(onto: Graph, project_lists: AllProjectLists) -> Gr
     """
     logger.info("Constructing property shapes for ontology.")
     g = Graph()
-    g += _construct_property_type_shape_based_on_object_type(onto)
     g += _construct_link_value_shape(onto)
     g += _construct_link_value_node_shape(onto)
     g += _construct_property_type_text_value(onto)
@@ -52,8 +51,6 @@ def _add_property_shapes_to_class_shapes(onto: Graph) -> Graph:
     CONSTRUCT {
 
       ?class a sh:NodeShape ;
-             sh:property api-shapes:rdfsLabel_Shape , 
-                         api-shapes:hasStandoffLinkTo_TargetMustExistPropertyShape ;
              sh:property ?propShapesIRI .
     
     } WHERE {
@@ -87,13 +84,10 @@ def _construct_value_type_shapes_to_class_shapes(onto: Graph) -> Graph:
 
     CONSTRUCT {
 
-      ?class a sh:NodeShape ;
-             sh:property [
-                            a sh:PropertyShape ;
-                            sh:path ?propRestriction ;
-                            sh:class ?objectType ;
-                            sh:message ?objectTypeMessage ;
-                         ] .
+      ?shapesIRI a sh:PropertyShape ;
+                sh:path ?propRestriction ;
+                sh:class ?objectType ;
+                sh:message ?objectTypeMessage .
 
     } WHERE {
 
@@ -109,7 +103,8 @@ def _construct_value_type_shapes_to_class_shapes(onto: Graph) -> Graph:
 
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkProperty true }
       FILTER NOT EXISTS { ?propRestriction knora-api:isLinkValueProperty true }
-
+      
+      BIND(IRI(CONCAT(str(?propRestriction), "_PropShape")) AS ?shapesIRI)
       BIND(CONCAT("This property requires a ", STRAFTER(STR(?objectType), "#")) AS ?objectTypeMessage)
     }
     """
@@ -129,13 +124,10 @@ def _construct_link_value_type_shapes_to_class_shapes(onto: Graph) -> Graph:
 
     CONSTRUCT {
 
-      ?class a sh:NodeShape ;
-             sh:property [
-                            a sh:PropertyShape ;
-                            sh:path ?propRestriction ;
-                            sh:class knora-api:LinkValue ;
-                            sh:message "This property requires a LinkValue" ;
-                         ] .
+      ?shapesIRI a sh:PropertyShape ;
+                 sh:path ?propRestriction ;
+                 sh:class knora-api:LinkValue ;
+                 sh:message "This property requires a LinkValue" .
 
     } WHERE {
 
@@ -149,46 +141,9 @@ def _construct_link_value_type_shapes_to_class_shapes(onto: Graph) -> Graph:
       ?propRestriction knora-api:isEditable true ;
                        knora-api:isLinkProperty true .
 
+      BIND(IRI(CONCAT(str(?propRestriction), "_PropShape")) AS ?shapesIRI)
     }
     """
-    if results_graph := onto.query(query_s).graph:
-        return results_graph
-    return Graph()
-
-
-def _construct_property_type_shape_based_on_object_type(onto: Graph) -> Graph:
-    def as_object_type_and_shacl_shape(property_type: str) -> tuple[str, str]:
-        return "knora-api:" + property_type + "Value", "api-shapes:" + property_type + "Value_ClassShape"
-
-    property_types = {"Boolean", "Color", "Date", "Decimal", "Geoname", "Int", "List", "Time", "Uri"}
-
-    g = Graph()
-    for t in property_types:
-        object_type, shacl_shape = as_object_type_and_shacl_shape(t)
-        g += _construct_one_property_type_shape_based_on_object_type(onto, object_type, shacl_shape)
-    return g
-
-
-def _construct_one_property_type_shape_based_on_object_type(onto: Graph, object_type: str, shacl_shape: str) -> Graph:
-    logger.info(f"Constructing shape for {object_type}")
-    query_s = """
-    PREFIX owl: <http://www.w3.org/2002/07/owl#> 
-    PREFIX sh: <http://www.w3.org/ns/shacl#>
-    PREFIX api-shapes: <http://api.knora.org/ontology/knora-api/shapes/v2#>
-    PREFIX knora-api:  <http://api.knora.org/ontology/knora-api/v2#>
-    PREFIX salsah-gui: <http://api.knora.org/ontology/salsah-gui/v2#>
-
-    CONSTRUCT {
-        ?shapesIRI a sh:PropertyShape ;
-                   sh:path ?prop ;
-                   sh:node %(shacl_shape)s .
-    } WHERE {
-        ?prop a owl:ObjectProperty ;
-                knora-api:objectType %(object_type)s .
-                
-        BIND(IRI(CONCAT(str(?prop), "_PropShape")) AS ?shapesIRI)
-    }
-    """ % {"object_type": object_type, "shacl_shape": shacl_shape}  # noqa: UP031 (printf-string-formatting)
     if results_graph := onto.query(query_s).graph:
         return results_graph
     return Graph()
@@ -207,7 +162,7 @@ def _construct_link_value_shape(onto: Graph) -> Graph:
 
         ?shapesIRI a sh:PropertyShape ;
                    sh:path ?prop ;
-                   sh:node api-shapes:LinkValue_ClassShape , ?nodeShapeIRI .
+                   sh:node ?nodeShapeIRI .
 
     } WHERE {
 

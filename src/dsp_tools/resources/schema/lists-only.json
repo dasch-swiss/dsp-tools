@@ -39,17 +39,6 @@
                 "labels"
             ],
             "additionalProperties": false
-        },
-        "excelfolderref": {
-            "type": "object",
-            "properties": {
-                "folder": {
-                    "type": "string"
-                }
-            },
-            "required": [
-                "folder"
-            ]
         }
     },
     "type": "object",
@@ -69,18 +58,10 @@
                         "$ref": "#/definitions/langstring"
                     },
                     "nodes": {
-                        "oneOf": [
-                            {
-                                "type": "array",
-                                "items": {
-                                    "$ref": "#/definitions/node"
-                                }
-                            },
-                            {
-                                "type": "object",
-                                "$ref": "#/definitions/excelfolderref"
-                            }
-                        ]
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/node"
+                        }
                     }
                 },
                 "required": ["name", "labels", "comments", "nodes"],

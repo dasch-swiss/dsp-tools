@@ -11,7 +11,6 @@ from rdflib import URIRef
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import ARCHIVE_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import AUDIO_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import DOCUMENT_FILE_VALUE
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import KNORA_API
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import MOVING_IMAGE_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import STILL_IMAGE_FILE_VALUE
 from dsp_tools.commands.xmlupload.make_rdf_graph.constants import TEXT_FILE_VALUE
@@ -25,7 +24,8 @@ from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.commands.xmlupload.models.rdf_models import AbstractFileValue
 from dsp_tools.commands.xmlupload.models.rdf_models import FileValueMetadata
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.error.exceptions import BaseError
+from dsp_tools.utils.rdflib_constants import KNORA_API
 
 
 @pytest.fixture

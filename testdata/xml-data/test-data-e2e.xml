@@ -6,16 +6,27 @@
        shortcode="4125"
        default-ontology="e2e-testonto">
 
+    <permissions id="open">
+        <allow group="UnknownUser">V</allow>
+        <allow group="KnownUser">V</allow>
+        <allow group="ProjectMember">D</allow>
+        <allow group="ProjectAdmin">CR</allow>
+    </permissions>
+
     <authorship id="authorship_1">
         <author>Johannes Nussbaum</author>
     </authorship>
     <authorship id="authorship_2">
         <author>Nora Ammann</author>
     </authorship>
+    <authorship id="authorship_3">
+        <author>Cavanagh, Annie</author>
+    </authorship>
 
     <resource label="Resource 1"
               restype=":ImageResource"
-              id="resource_1">
+              id="resource_1"
+              permissions="open">
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
@@ -25,13 +36,16 @@
     <resource label="Resource 2"
               restype=":ImageResource"
               id="resource_2">
-        <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
-                   copyright-holder="DaSCH"
-                   authorship-id="authorship_1"
-        >testdata/bitstreams/test.jpg</bitstream>
+        <iiif-uri license="http://rdfh.ch/licenses/cc-by-nc-4.0"
+                  copyright-holder="Wellcome Collection"
+                  authorship-id="authorship_3"
+                   permissions="open"
+        >
+            https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg
+        </iiif-uri>
         <text-prop name=":hasText">
-            <text encoding="utf8">first text value</text>
-            <text encoding="utf8">second text value</text>
+            <text encoding="utf8" comment="Comment">first text value</text>
+            <text encoding="utf8" permissions="open">second text value</text>
         </text-prop>
     </resource>
 
@@ -41,6 +55,7 @@
         <bitstream license="http://rdfh.ch/licenses/cc-by-4.0"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_2"
+                   permissions="open"
         >testdata/bitstreams/test.pdf</bitstream>
     </resource>
 

@@ -2,7 +2,7 @@ import pytest
 import regex
 from lxml import etree
 
-from dsp_tools.models.custom_warnings import DspToolsUserWarning
+from dsp_tools.error.custom_warnings import DspToolsUserInfo
 from dsp_tools.utils.xml_parsing.xml_schema_validation import _warn_user_about_tags_in_simpletext
 
 
@@ -51,7 +51,7 @@ def test_warn_user_about_tags_in_simpletext_forbidden_escapes() -> None:
         "The following resources of your XML file contain angular brackets:\n"
         "    - line 5: resource 'id', property ':name'"
     )
-    with pytest.warns(DspToolsUserWarning, match=expected_msg):
+    with pytest.warns(DspToolsUserInfo, match=expected_msg):
         _warn_user_about_tags_in_simpletext(test_ele)
 
 
@@ -75,7 +75,7 @@ def test_warn_user_about_tags_in_simpletext_forbidden_escapes_two() -> None:
         "    - line 5: resource 'id', property ':propName'"
     )
 
-    with pytest.warns(DspToolsUserWarning, match=expected_msg):
+    with pytest.warns(DspToolsUserInfo, match=expected_msg):
         _warn_user_about_tags_in_simpletext(test_ele)
 
 

@@ -1,10 +1,13 @@
+# mypy: disable-error-code="method-assign,no-untyped-def"
 import datetime
 
 import pandas as pd
 import pytest
 import regex
 
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.error.custom_warnings import DspToolsUserWarning
+from dsp_tools.error.exceptions import InputError
+from dsp_tools.xmllib.helpers import ListLookup
 from dsp_tools.xmllib.helpers import create_footnote_string
 from dsp_tools.xmllib.helpers import create_list_from_string
 from dsp_tools.xmllib.helpers import create_non_empty_list_from_string
@@ -12,6 +15,23 @@ from dsp_tools.xmllib.helpers import create_standoff_link_to_resource
 from dsp_tools.xmllib.helpers import create_standoff_link_to_uri
 from dsp_tools.xmllib.helpers import find_date_in_string
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
+
+
+@pytest.fixture
+def list_lookup() -> ListLookup:
+    return ListLookup(
+        _lookup={
+            "list1": {"Label 1": "list1_node1", "Label 2": "list1_node2"},
+            "list2": {"Label 1": "list2_node1", "Label 2": "list2_node2"},
+        },
+        _prop_to_list_name={
+            "default:defaultOntoHasListOne": "list1",
+            ":defaultOntoHasListOne": "list1",
+            "other-onto:otherOntoHasListOne": "list1",
+            "other-onto:otherOntoHasListTwo": "list2",
+        },
+        _label_language="en",
+    )
 
 
 class TestFootnotes:
@@ -216,6 +236,28 @@ class TestFindDate:
         assert find_date_in_string("x 1811/10 x") is None
         assert find_date_in_string("x 1811/11 x") is None
 
+    @pytest.mark.parametrize("string", ["9 BC", "9 B.C.", "9 BCE", "9 B.C.E."])
+    def test_find_date_in_string_bc_different_notations(self, string: str) -> None:
+        assert find_date_in_string(string) == "GREGORIAN:BC:9:BC:9"
+
+    @pytest.mark.parametrize("string", ["9 CE", "9 C.E.", "9 AD", "9 A.D."])
+    def test_find_date_in_string_ce_different_notations(self, string: str) -> None:
+        assert find_date_in_string(string) == "GREGORIAN:CE:9:CE:9"
+
+    @pytest.mark.parametrize(
+        ("string", "expected"),
+        [
+            ("x 9 BC x", "GREGORIAN:BC:9:BC:9"),
+            ("x 10000 BC x", "GREGORIAN:BC:10000:BC:10000"),
+            ("x 170 BC - 90 BC x", "GREGORIAN:BC:170:BC:90"),
+            ("x 170-90 BCE x", "GREGORIAN:BC:170:BC:90"),
+            ("x 20 BCE-50 CE x", "GREGORIAN:BC:20:CE:50"),
+            ("x 20 BCE - 50 C.E. x", "GREGORIAN:BC:20:CE:50"),
+        ],
+    )
+    def test_find_date_in_string_bc(self, string: str, expected: str) -> None:
+        assert find_date_in_string(string) == expected
+
     def test_find_date_in_string_french_bc(self) -> None:
         assert find_date_in_string("Text 12345 av. J.-C. text") == "GREGORIAN:BC:12345:BC:12345"
         assert find_date_in_string("Text 2000 av. J.-C. text") == "GREGORIAN:BC:2000:BC:2000"
@@ -283,3 +325,36 @@ class TestCreateListFromString:
         )
         with pytest.raises(InputError, match=msg):
             create_non_empty_list_from_string(" , ", ",")
+
+
+class TestListLookup:
+    def test_get_node_via_list_name(self, list_lookup):
+        assert list_lookup.get_node_via_list_name("list1", "Label 1") == "list1_node1"
+
+    def test_get_node_via_list_name_warns_wrong_list(self, list_lookup):
+        msg = regex.escape("Entered list name 'inexistent' was not found.")
+        with pytest.warns(DspToolsUserWarning, match=msg):
+            result = list_lookup.get_node_via_list_name("inexistent", "Label 1")
+        assert result == ""
+
+    def test_get_node_via_list_name_warns_wrong_node(self, list_lookup):
+        msg = regex.escape(
+            "'inexistent' was not recognised as label of the list 'list1'. "
+            "This ListLookup is configured for 'en' labels."
+        )
+        with pytest.warns(DspToolsUserWarning, match=msg):
+            result = list_lookup.get_node_via_list_name("list1", "inexistent")
+        assert result == ""
+
+    def test_get_node_via_property(self, list_lookup):
+        list_name, node_name = list_lookup.get_list_name_and_node_via_property(
+            "other-onto:otherOntoHasListTwo", "Label 2"
+        )
+        assert list_name == "list2"
+        assert node_name == "list2_node2"
+
+    def test_get_node_via_property_warns_wrong_property(self, list_lookup):
+        msg = regex.escape("Entered property ':inexistent' was not found.")
+        with pytest.warns(DspToolsUserWarning, match=msg):
+            result = list_lookup.get_list_name_and_node_via_property(":inexistent", "Label 2")
+        assert result == ("", "")

@@ -11,10 +11,10 @@ from dsp_tools.commands.validate_data.models.validation import DetailBaseInfo
 from dsp_tools.commands.validate_data.models.validation import ValidationResult
 from dsp_tools.commands.validate_data.models.validation import ValidationResultBaseInfo
 from dsp_tools.commands.validate_data.models.validation import ViolationType
-from test.unittests.commands.validate_data.constants import DASH
-from test.unittests.commands.validate_data.constants import DATA
+from dsp_tools.utils.rdflib_constants import DASH
+from dsp_tools.utils.rdflib_constants import DATA
+from dsp_tools.utils.rdflib_constants import KNORA_API
 from test.unittests.commands.validate_data.constants import IN_BUILT_ONTO
-from test.unittests.commands.validate_data.constants import KNORA_API
 from test.unittests.commands.validate_data.constants import ONTO
 from test.unittests.commands.validate_data.constants import PREFIXES
 
@@ -124,8 +124,8 @@ def report_min_card(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBa
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.MinCountConstraintComponent,
-        resource_iri=DATA.id_card_one,
-        res_class_type=ONTO.ClassInheritedCardinalityOverwriting,
+        focus_node_iri=DATA.id_card_one,
+        focus_node_type=ONTO.ClassInheritedCardinalityOverwriting,
         result_path=ONTO.testBoolean,
     )
     return validation_g, onto_data_g, base_info
@@ -156,8 +156,8 @@ def file_value_cardinality_to_ignore(onto_graph: Graph) -> tuple[Graph, Validati
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=DASH.ClosedByTypesConstraintComponent,
-        resource_iri=DATA.id_wrong_file_type,
-        res_class_type=ONTO.TestStillImageRepresentation,
+        focus_node_iri=DATA.id_wrong_file_type,
+        focus_node_type=ONTO.TestStillImageRepresentation,
         result_path=KNORA_API.hasMovingImageFileValue,
     )
     return graphs, base_info
@@ -188,8 +188,8 @@ def file_value_for_resource_without_representation(onto_graph: Graph) -> tuple[G
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=DASH.ClosedByTypesConstraintComponent,
-        resource_iri=DATA.id_resource_without_representation,
-        res_class_type=ONTO.ClassWithEverything,
+        focus_node_iri=DATA.id_resource_without_representation,
+        focus_node_type=ONTO.ClassWithEverything,
         result_path=KNORA_API.hasMovingImageFileValue,
     )
     return graphs, base_info
@@ -260,8 +260,8 @@ def report_value_type_simpletext(onto_graph: Graph) -> tuple[Graph, Graph, Valid
         result_bn=val_bn,
         result_path=ONTO.testTextarea,
         source_constraint_component=SH.NodeConstraintComponent,
-        resource_iri=DATA.id_simpletext,
-        res_class_type=ONTO.ClassWithEverything,
+        focus_node_iri=DATA.id_simpletext,
+        focus_node_type=ONTO.ClassWithEverything,
         detail=detail,
     )
     return validation_g, onto_data_g, base_info
@@ -282,26 +282,14 @@ def extracted_value_type_simpletext() -> ValidationResult:
 @pytest.fixture
 def report_min_inclusive(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
-    [ 
-        a sh:ValidationResult ;
-        sh:detail _:detail_bn ;
-        sh:focusNode <http://data/video_segment_negative_bounds> ;
-        sh:resultMessage "Value does not have shape api-shapes:IntervalValue_ClassShape" ;
-        sh:resultPath <http://api.knora.org/ontology/knora-api/v2#hasSegmentBounds> ;
+    [ a sh:ValidationResult ;
+        sh:focusNode <http://data/value_iri> ;
+        sh:resultMessage "The interval start must be a non-negative integer or decimal." ;
+        sh:resultPath <http://api.knora.org/ontology/knora-api/v2#intervalValueHasStart> ;
         sh:resultSeverity sh:Violation ;
-        sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-        sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#hasSegmentBounds_PropertyShape> ;
-        sh:value <http://data/value_iri> 
-    ] .
-            
-    _:detail_bn a sh:ValidationResult ;
-    sh:focusNode <http://data/value_iri> ;
-    sh:resultMessage "The interval start must be a non-negative integer or decimal." ;
-    sh:resultPath <http://api.knora.org/ontology/knora-api/v2#intervalValueHasStart> ;
-    sh:resultSeverity sh:Violation ;
-    sh:sourceConstraintComponent sh:MinInclusiveConstraintComponent ;
-    sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#intervalValueHasStart_PropShape> ;
-    sh:value -2.0 .
+        sh:sourceConstraintComponent sh:MinInclusiveConstraintComponent ;
+        sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#intervalValueHasStart_PropShape> ;
+        sh:value -2.0 ] .
     """
     validation_g = Graph()
     validation_g.parse(data=validation_str, format="ttl")
@@ -319,18 +307,13 @@ def report_min_inclusive(onto_graph: Graph) -> tuple[Graph, Graph, ValidationRes
     onto_data_g += onto_graph
     onto_data_g.parse(data=data_str, format="ttl")
     val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
-    detail_bn = next(validation_g.objects(val_bn, SH.detail))
-    detail = DetailBaseInfo(
-        detail_bn=detail_bn,
-        source_constraint_component=SH.MinInclusiveConstraintComponent,
-    )
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         result_path=KNORA_API.hasSegmentBounds,
         source_constraint_component=SH.NodeConstraintComponent,
-        resource_iri=DATA.video_segment_negative_bounds,
-        res_class_type=KNORA_API.VideoSegment,
-        detail=detail,
+        focus_node_iri=DATA.video_segment_negative_bounds,
+        focus_node_type=KNORA_API.VideoSegment,
+        detail=None,
     )
     return validation_g, onto_data_g, base_info
 
@@ -376,8 +359,8 @@ def report_value_type(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResult
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.ClassConstraintComponent,
-        resource_iri=DATA.id_uri,
-        res_class_type=ONTO.ClassWithEverything,
+        focus_node_iri=DATA.id_uri,
+        focus_node_type=ONTO.ClassWithEverything,
         result_path=ONTO.testUriValue,
         detail=None,
     )
@@ -400,24 +383,14 @@ def extracted_value_type() -> ValidationResult:
 def report_regex(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseInfo]:
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
-        sh:detail _:bn_geoname_not_number ;
-        sh:focusNode <http://data/geoname_not_number> ;
-        sh:resultMessage "Value does not have shape <http://api.knora.org/ontology/knora-api/shapes/v2#GeonameValue_ClassShape>" ;
-        sh:resultPath onto:testGeoname ;
-        sh:resultSeverity sh:Violation ;
-        sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-        sh:sourceShape onto:testGeoname_PropShape ;
-        sh:value <http://data/value_geoname_not_number> ] .
-
-    _:bn_geoname_not_number a sh:ValidationResult ;
         sh:focusNode <http://data/value_geoname_not_number> ;
         sh:resultMessage "The value must be a valid geoname code" ;
-        sh:resultPath knora-api:geonameValueAsGeonameCode ;
+        sh:resultPath <http://api.knora.org/ontology/knora-api/v2#geonameValueAsGeonameCode> ;
         sh:resultSeverity sh:Violation ;
         sh:sourceConstraintComponent sh:PatternConstraintComponent ;
-        sh:sourceShape api-shapes:geonameValueAsGeonameCode_Shape ;
-        sh:value "this-is-not-a-valid-code" .
-    """  # noqa: E501 (Line too long)
+        sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#geonameValueAsGeonameCode_Shape> ;
+        sh:value "this-is-not-a-valid-code" ].
+    """
     validation_g = Graph()
     validation_g.parse(data=validation_str, format="ttl")
     data_str = f"""{PREFIXES}
@@ -432,19 +405,13 @@ def report_regex(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBaseI
     onto_data_g += onto_graph
     onto_data_g.parse(data=data_str, format="ttl")
     val_bn = next(validation_g.subjects(RDF.type, SH.ValidationResult))
-    detail_bn = next(validation_g.objects(val_bn, SH.detail))
-    detail_component = next(validation_g.objects(detail_bn, SH.sourceConstraintComponent))
-    detail = DetailBaseInfo(
-        detail_bn=detail_bn,
-        source_constraint_component=detail_component,
-    )
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.NodeConstraintComponent,
-        resource_iri=DATA.geoname_not_number,
-        res_class_type=ONTO.ClassWithEverything,
+        focus_node_iri=DATA.geoname_not_number,
+        focus_node_type=ONTO.ClassWithEverything,
         result_path=ONTO.testGeoname,
-        detail=detail,
+        detail=None,
     )
     return validation_g, onto_data_g, base_info
 
@@ -506,8 +473,8 @@ def report_link_target_non_existent(onto_graph: Graph) -> tuple[Graph, Graph, Va
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.NodeConstraintComponent,
-        resource_iri=DATA.link_target_non_existent,
-        res_class_type=ONTO.ClassWithEverything,
+        focus_node_iri=DATA.link_target_non_existent,
+        focus_node_type=ONTO.ClassWithEverything,
         result_path=ONTO.testHasLinkTo,
         detail=detail,
     )
@@ -574,8 +541,8 @@ def report_link_target_wrong_class(onto_graph: Graph) -> tuple[Graph, Graph, Val
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.NodeConstraintComponent,
-        resource_iri=DATA.link_target_wrong_class,
-        res_class_type=ONTO.ClassWithEverything,
+        focus_node_iri=DATA.link_target_wrong_class,
+        focus_node_type=ONTO.ClassWithEverything,
         result_path=ONTO.testHasLinkToCardOneResource,
         detail=detail,
     )
@@ -623,8 +590,8 @@ def report_image_missing_legal_info(onto_graph: Graph) -> tuple[Graph, Graph, Va
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.MinCountConstraintComponent,
-        resource_iri=DATA.image_no_legal_info,
-        res_class_type=ONTO.TestStillImageRepresentation,
+        focus_node_iri=DATA.image_no_legal_info,
+        focus_node_type=ONTO.TestStillImageRepresentation,
         result_path=KNORA_API.hasLicense,
     )
     return validation_g, onto_data_g, base_info
@@ -639,6 +606,33 @@ def extracted_image_missing_legal_info() -> ValidationResult:
         property=KNORA_API.hasLicense,
         expected=Literal("Files and IIIF-URIs require a reference to a license."),
     )
+
+
+@pytest.fixture
+def report_archive_missing_legal_info(onto_graph: Graph) -> tuple[Graph, Graph]:
+    validation_str = f"""{PREFIXES}
+    [ a sh:ValidationResult ;
+        sh:focusNode <http://data/value_bitstream_no_legal_info> ;
+        sh:resultMessage "Files and IIIF-URIs require a reference to a license." ;
+        sh:resultPath <http://api.knora.org/ontology/knora-api/v2#hasLicense> ;
+        sh:resultSeverity sh:Violation ;
+        sh:sourceConstraintComponent sh:MinCountConstraintComponent ;
+        sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#hasLicense_PropShape> ] .
+    """
+    validation_g = Graph()
+    validation_g.parse(data=validation_str, format="ttl")
+    data_str = f"""{PREFIXES}
+    <http://data/bitstream_no_legal_info> a <http://0.0.0.0:3333/ontology/9999/onto/v2#TestArchiveRepresentation> ;
+        rdfs:label "TestArchiveRepresentation tar"^^xsd:string ;
+        knora-api:hasArchiveFileValue <http://data/value_bitstream_no_legal_info> .
+    
+    <http://data/value_bitstream_no_legal_info> a knora-api:ArchiveFileValue ;
+        knora-api:fileValueHasFilename "this/is/filepath/file.tar"^^xsd:string .
+    """
+    onto_data_g = Graph()
+    onto_data_g += onto_graph
+    onto_data_g.parse(data=data_str, format="ttl")
+    return validation_g, onto_data_g
 
 
 @pytest.fixture
@@ -669,8 +663,8 @@ def report_closed_constraint(onto_graph: Graph) -> tuple[Graph, Graph, Validatio
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=DASH.ClosedByTypesConstraintComponent,
-        resource_iri=DATA.id_closed_constraint,
-        res_class_type=ONTO.CardOneResource,
+        focus_node_iri=DATA.id_closed_constraint,
+        focus_node_type=ONTO.CardOneResource,
         result_path=ONTO.testIntegerSimpleText,
     )
     return validation_g, onto_data_g, base_info
@@ -716,8 +710,8 @@ def report_max_card(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResultBa
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.MaxCountConstraintComponent,
-        resource_iri=DATA.id_max_card,
-        res_class_type=ONTO.ClassMixedCard,
+        focus_node_iri=DATA.id_max_card,
+        focus_node_type=ONTO.ClassMixedCard,
         result_path=ONTO.testHasLinkToCardOneResource,
     )
     return validation_g, onto_data_g, base_info
@@ -743,7 +737,7 @@ def report_empty_label(onto_graph: Graph) -> tuple[Graph, ValidationResultBaseIn
         sh:resultPath rdfs:label ;
         sh:resultSeverity sh:Violation ;
         sh:sourceConstraintComponent sh:PatternConstraintComponent ;
-        sh:sourceShape api-shapes:rdfsLabel_Shape ;
+        sh:sourceShape [ ] ;
         sh:value " " ] .
     """
     data_str = f"""{PREFIXES}
@@ -758,8 +752,8 @@ def report_empty_label(onto_graph: Graph) -> tuple[Graph, ValidationResultBaseIn
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.PatternConstraintComponent,
-        resource_iri=DATA.empty_label,
-        res_class_type=ONTO.ClassWithEverything,
+        focus_node_iri=DATA.empty_label,
+        focus_node_type=ONTO.ClassWithEverything,
         result_path=RDFS.label,
     )
     return graphs, base_info
@@ -802,8 +796,8 @@ def report_unique_value_literal(onto_graph: Graph) -> tuple[Graph, Graph, Valida
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.SPARQLConstraintComponent,
-        resource_iri=DATA.identical_values_valueHas,
-        res_class_type=ONTO.ClassWithEverything,
+        focus_node_iri=DATA.identical_values_valueHas,
+        focus_node_type=ONTO.ClassWithEverything,
         result_path=ONTO.testGeoname,
     )
     return validation_g, onto_data_g, base_info
@@ -845,8 +839,8 @@ def report_unique_value_iri(onto_graph: Graph) -> tuple[Graph, Graph, Validation
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.SPARQLConstraintComponent,
-        resource_iri=DATA.identical_values_LinkValue,
-        res_class_type=ONTO.ClassWithEverything,
+        focus_node_iri=DATA.identical_values_LinkValue,
+        focus_node_type=ONTO.ClassWithEverything,
         result_path=ONTO.testHasLinkTo,
     )
     return validation_g, onto_data_g, base_info
@@ -889,8 +883,8 @@ def report_coexist_with(onto_graph: Graph) -> tuple[Graph, Graph, ValidationResu
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=DASH.CoExistsWithConstraintComponent,
-        resource_iri=DATA.missing_seqnum,
-        res_class_type=IN_BUILT_ONTO.TestStillImageRepresentationWithSeqnum,
+        focus_node_iri=DATA.missing_seqnum,
+        focus_node_type=IN_BUILT_ONTO.TestStillImageRepresentationWithSeqnum,
         result_path=KNORA_API.seqnum,
     )
     return validation_g, onto_data_g, base_info
@@ -946,8 +940,8 @@ sh:value <http://data/value_list_node_non_existent> ] .
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.NodeConstraintComponent,
-        resource_iri=DATA.list_node_non_existent,
-        res_class_type=ONTO.ClassWithEverything,
+        focus_node_iri=DATA.list_node_non_existent,
+        focus_node_type=ONTO.ClassWithEverything,
         result_path=ONTO.testListProp,
         detail=detail,
     )
@@ -1006,8 +1000,8 @@ _:bn_list_name_non_existent a sh:ValidationResult ;
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.NodeConstraintComponent,
-        resource_iri=DATA.list_name_non_existent,
-        res_class_type=ONTO.ClassWithEverything,
+        focus_node_iri=DATA.list_name_non_existent,
+        focus_node_type=ONTO.ClassWithEverything,
         result_path=ONTO.testListProp,
         detail=detail,
     )
@@ -1031,12 +1025,11 @@ def report_missing_file_value(onto_graph: Graph) -> tuple[Graph, ValidationResul
     validation_str = f"""{PREFIXES}
     [ a sh:ValidationResult ;
             sh:focusNode <http://data/id_video_missing> ;
-            sh:resultMessage "A MovingImageRepresentation requires a file with the extension 'mp4'." ;
+            sh:resultMessage "Cardinality 1" ;
             sh:resultPath <http://api.knora.org/ontology/knora-api/v2#hasMovingImageFileValue> ;
             sh:resultSeverity sh:Violation ;
             sh:sourceConstraintComponent sh:MinCountConstraintComponent ;
-            sh:sourceShape <http://api.knora.org/ontology/knora-api/shapes/v2#hasMovingImageFileValue_PropShape> 
-    ] .
+            sh:sourceShape _:n9f446ddf698b43ee9bc70be5f606ec25b13 ] .
     """
     data_str = f"""{PREFIXES}
     <http://data/id_video_missing> a <http://0.0.0.0:3333/ontology/9999/onto/v2#TestMovingImageRepresentation> ;
@@ -1050,8 +1043,8 @@ def report_missing_file_value(onto_graph: Graph) -> tuple[Graph, ValidationResul
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.MinCountConstraintComponent,
-        resource_iri=DATA.id_video_missing,
-        res_class_type=ONTO.TestMovingImageRepresentation,
+        focus_node_iri=DATA.id_video_missing,
+        focus_node_type=ONTO.TestMovingImageRepresentation,
         result_path=KNORA_API.hasMovingImageFileValue,
     )
     return graphs, base_info
@@ -1060,11 +1053,11 @@ def report_missing_file_value(onto_graph: Graph) -> tuple[Graph, ValidationResul
 @pytest.fixture
 def extracted_missing_file_value() -> ValidationResult:
     return ValidationResult(
-        violation_type=ViolationType.FILE_VALUE,
+        violation_type=ViolationType.MIN_CARD,
         res_iri=DATA.id_video_missing,
         res_class=ONTO.TestMovingImageRepresentation,
         property=KNORA_API.hasMovingImageFileValue,
-        expected=Literal("A MovingImageRepresentation requires a file with the extension 'mp4'."),
+        expected=Literal("Cardinality 1"),
     )
 
 
@@ -1092,8 +1085,8 @@ def result_unknown_component(onto_graph: Graph) -> tuple[Graph, ValidationResult
     base_info = ValidationResultBaseInfo(
         result_bn=val_bn,
         source_constraint_component=SH.PatternConstraintComponent,
-        resource_iri=DATA.empty_label,
-        res_class_type=ONTO.ClassWithEverything,
+        focus_node_iri=DATA.empty_label,
+        focus_node_type=ONTO.ClassWithEverything,
         result_path=RDFS.label,
     )
     return graphs, base_info

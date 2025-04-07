@@ -6,7 +6,7 @@ from enum import auto
 
 from rdflib import Graph
 
-from dsp_tools.commands.validate_data.constants import SubjectObjectTypeAlias
+from dsp_tools.utils.rdflib_constants import SubjectObjectTypeAlias
 
 
 @dataclass
@@ -49,8 +49,8 @@ class UnexpectedComponent:
 class ValidationResultBaseInfo:
     result_bn: SubjectObjectTypeAlias
     source_constraint_component: SubjectObjectTypeAlias
-    resource_iri: SubjectObjectTypeAlias
-    res_class_type: SubjectObjectTypeAlias
+    focus_node_iri: SubjectObjectTypeAlias
+    focus_node_type: SubjectObjectTypeAlias
     result_path: SubjectObjectTypeAlias
     detail: DetailBaseInfo | None = None
 

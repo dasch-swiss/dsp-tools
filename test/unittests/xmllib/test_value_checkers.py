@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from dsp_tools.xmllib.constants import KNOWN_XML_TAGS
 from dsp_tools.xmllib.value_checkers import check_richtext_syntax
 from dsp_tools.xmllib.value_checkers import is_bool_like
 from dsp_tools.xmllib.value_checkers import is_color
@@ -17,32 +18,6 @@ from dsp_tools.xmllib.value_checkers import is_integer
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_checkers import is_string_like
 from dsp_tools.xmllib.value_checkers import is_timestamp
-
-ALLOWED_RICHTEXT_TAGS = [
-    "a",
-    "p",
-    "footnote",
-    "em",
-    "strong",
-    "u",
-    "sub",
-    "sup",
-    "strike",
-    "h1",
-    "ol",
-    "ul",
-    "li",
-    "tbody",
-    "table",
-    "tr",
-    "td",
-    "br",
-    "hr",
-    "pre",
-    "cite",
-    "blockquote",
-    "code",
-]
 
 
 @pytest.mark.parametrize("val", ["None", "-", "1", 0, 1, True, False])
@@ -84,8 +59,8 @@ def test_is_color_wrong(val: Any) -> None:
         "GREGORIAN:BC:2000:BC:1000",
         "JULIAN:CE:0476-09-04:CE:0476-09-04",
         "JULIAN:BC:2000:BC:1000",
-        "ISLAMIC:CE:0476-09-04:CE:0476-09-04",
-        "ISLAMIC:BC:2000:BC:1000",
+        "ISLAMIC:0476-09-04:0476-09-04",
+        "ISLAMIC:1000:2000",
         "GREGORIAN:0476-09-04:0476-09-04",
         "CE:0476-09-04:CE:0476-09-04",
     ],
@@ -103,6 +78,14 @@ def test_is_date_correct(val: str) -> None:
         "GREGORIAN:CE:0476-09-04:CE::0476-09-04",
         "GREGORIAN:CE:0476-09-04::CE:0476-09-04",
         "GREGORIAN:CE::0476-09-04:CE:0476-09-04",
+        "ISLAMIC:BC:0476-09-04:BC:0476-09-04",
+        "ISLAMIC:BCE:0476-09-04:BCE:0476-09-04",
+        "ISLAMIC:CE:0476-09-04:CE:0476-09-04",
+        "ISLAMIC:AD:0476-09-04:AD:0476-09-04",
+        "ISLAMIC:AH:0476-09-04:AH:0476-09-04",  # Anno Hegirae is not implemented yet
+        "ISLAMIC:BH:0476-09-04:BH:0476-09-04",  # Before Hijra is not implemented yet
+        "ISLAMIC:AH:0476-09-04:0476-09-04",
+        "ISLAMIC:0476-09-04:AH:0476-09-04",
     ],
 )
 def test_is_date_wrong(val: Any) -> None:
@@ -204,7 +187,7 @@ def test_is_dsp_ark_wrong(val: Any) -> None:
 
 @pytest.mark.parametrize(
     "val",
-    [f"Start Text<{tag}> middle text </{tag}> ending." for tag in ALLOWED_RICHTEXT_TAGS],
+    [f"Start Text<{tag}> middle text </{tag}> ending." for tag in KNOWN_XML_TAGS],
 )
 def test_check_richtext_syntax_correct(val: Any) -> None:
     with warnings.catch_warnings(record=True) as caught_warnings:

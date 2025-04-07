@@ -10,20 +10,18 @@ from dsp_tools.commands.xmlupload.models.intermediary.values import Intermediary
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediarySimpleText
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
-from dsp_tools.commands.xmlupload.stash.stash_circular_references_from_intermediary_resource import (
-    stash_circular_references,
-)
+from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
+
+PERMISSION = Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})
 
 
 @pytest.fixture
 def resource_1() -> IntermediaryResource:
     link_value_to_resource_no_links = IntermediaryLink("res_no_links", "prop", None, None, str(uuid4()))
-    link_value_with_permissions_to_res_2 = IntermediaryLink(
-        "res_2", "prop", None, Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]}), "link_to_res_2_uuid"
-    )
+    link_value_with_permissions_to_res_2 = IntermediaryLink("res_2", "prop", None, PERMISSION, "link_to_res_2_uuid")
     simple_text_value = IntermediarySimpleText("Text", "prop", None, None)
     return IntermediaryResource(
         res_id="res_1",
@@ -98,9 +96,9 @@ def test_stash_circular_references_remove_link_value(
     stash_item = stash_list.pop(0)
     assert stash_item.res_id == "res_1"
     assert stash_item.res_type == "type"
-    assert stash_item.prop_name == "propValue"
-    assert stash_item.target_id == "res_2"
-    assert stash_item.permission == "CR knora-admin:ProjectAdmin"
+    assert stash_item.value.prop_iri == "propValue"
+    assert stash_item.value.value == "res_2"
+    assert str(stash_item.value.permissions) == str(PERMISSION)
 
     # check that the resource values are as expected
     assert len(copied_res_1.values) == 2
@@ -133,9 +131,9 @@ def test_stash_circular_references_remove_text_value(
     stash_item = stash_list.pop(0)
     assert stash_item.res_id == "res_2"
     assert stash_item.res_type == "type"
-    assert stash_item.uuid == "standoff_link_to_res_3_uuid"
-    assert stash_item.prop_name == "prop"
-    assert stash_item.value.xmlstr == 'Link: <a class="salsah-link" href="IRI:res_3:IRI">res_3</a>'
+    assert stash_item.value.value_uuid == "standoff_link_to_res_3_uuid"
+    assert stash_item.value.prop_iri == "prop"
+    assert stash_item.value.value.xmlstr == 'Link: <a class="salsah-link" href="IRI:res_3:IRI">res_3</a>'
 
     # check that the resource values are as expected
     assert len(copied_res_2.values) == 1

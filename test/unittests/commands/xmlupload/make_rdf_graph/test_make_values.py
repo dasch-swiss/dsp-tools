@@ -10,7 +10,6 @@ from rdflib import Namespace
 from rdflib import URIRef
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
-from dsp_tools.commands.xmlupload.make_rdf_graph.constants import KNORA_API
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import _make_one_value_graph
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryBoolean
@@ -29,14 +28,14 @@ from dsp_tools.commands.xmlupload.models.intermediary.values import Intermediary
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryUri
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntervalFloats
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
-from dsp_tools.commands.xmlupload.models.lookup_models import JSONLDContext
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
-from dsp_tools.models.exceptions import BaseError
-from dsp_tools.utils.date_util import Calendar
-from dsp_tools.utils.date_util import Date
-from dsp_tools.utils.date_util import Era
-from dsp_tools.utils.date_util import SingleDate
+from dsp_tools.error.exceptions import BaseError
+from dsp_tools.utils.data_formats.date_util import Calendar
+from dsp_tools.utils.data_formats.date_util import Date
+from dsp_tools.utils.data_formats.date_util import Era
+from dsp_tools.utils.data_formats.date_util import SingleDate
+from dsp_tools.utils.rdflib_constants import KNORA_API
 
 ONTO = Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#")
 
@@ -56,7 +55,6 @@ def lookups() -> IRILookups:
     return IRILookups(
         project_iri=URIRef("http://rdfh.ch/9999/project"),
         id_to_iri=IriResolver({"res_one": "http://rdfh.ch/9999/res_one"}),
-        jsonld_context=JSONLDContext({}),
     )
 
 

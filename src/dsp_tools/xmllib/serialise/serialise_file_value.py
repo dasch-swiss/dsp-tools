@@ -1,6 +1,6 @@
 from lxml import etree
 
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.error.exceptions import BaseError
 from dsp_tools.xmllib.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.constants import XML_NAMESPACE_MAP
 from dsp_tools.xmllib.models.config_options import Permissions

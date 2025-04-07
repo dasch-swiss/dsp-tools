@@ -4,7 +4,7 @@ from rdflib import Graph
 from dsp_tools.commands.validate_data.models.api_responses import AllProjectLists
 from dsp_tools.commands.validate_data.models.validation import SHACLGraphs
 from dsp_tools.commands.validate_data.sparql.cardinality_shacl import construct_cardinality_node_shapes
-from dsp_tools.commands.validate_data.sparql.file_value_shacl import construct_file_value_cardinality
+from dsp_tools.commands.validate_data.sparql.legal_info_shacl import construct_allowed_licenses_shape
 from dsp_tools.commands.validate_data.sparql.value_shacl import construct_property_shapes
 
 
@@ -25,8 +25,7 @@ def construct_shapes_graphs(onto: Graph, knora_api: Graph, project_lists: AllPro
     graph_to_query = knora_subset + onto
     cardinality = construct_cardinality_node_shapes(graph_to_query)
     content = construct_property_shapes(graph_to_query, project_lists)
-    file_values = construct_file_value_cardinality(graph_to_query)
-    cardinality += file_values
+    content += construct_allowed_licenses_shape()
     return SHACLGraphs(cardinality=cardinality, content=content)
 
 
@@ -48,11 +47,13 @@ def _get_one_relevant_knora_subset(knora_api: Graph, knora_prop: str) -> Graph:
     CONSTRUCT {
     
       ?focusProp a owl:ObjectProperty ;
+                 knora-api:objectType ?type ;
                  knora-api:%(knora_prop)s ?object .
       
     } WHERE {
       
       ?focusProp a owl:ObjectProperty ;
+                 knora-api:objectType ?type ;
                  knora-api:%(knora_prop)s ?object .
       
     }

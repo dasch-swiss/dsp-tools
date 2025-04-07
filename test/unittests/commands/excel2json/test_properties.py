@@ -12,13 +12,12 @@ from dsp_tools.commands.excel2json.models.input_error import InvalidExcelContent
 from dsp_tools.commands.excel2json.models.input_error import PropertyProblem
 from dsp_tools.commands.excel2json.models.ontology import GuiAttributes
 from dsp_tools.commands.excel2json.models.ontology import OntoProperty
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.error.exceptions import InputError
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
 
 
 class TestFunctions(unittest.TestCase):
-    @pytest.mark.filterwarnings("ignore::UserWarning")
     def test_rename_deprecated_lang_cols(self) -> None:
         original_df = pd.DataFrame(
             {"en": [1, 2, 3], "de": [1, 2, 3], "fr": [1, 2, 3], "it": [1, 2, 3], "rm": [1, 2, 3]}
@@ -32,10 +31,11 @@ class TestFunctions(unittest.TestCase):
                 "label_rm": [1, 2, 3],
             }
         )
-        returned_df = e2j._rename_deprecated_lang_cols(df=original_df)
-        assert_frame_equal(expected_df, returned_df)
-        returned_df = e2j._rename_deprecated_lang_cols(df=expected_df)
-        assert_frame_equal(expected_df, returned_df)
+        with pytest.warns(UserWarning, match="column titles, which is deprecated"):
+            returned_df = e2j._rename_deprecated_lang_cols(df=original_df)
+            assert_frame_equal(expected_df, returned_df)
+            returned_df = e2j._rename_deprecated_lang_cols(df=expected_df)
+            assert_frame_equal(expected_df, returned_df)
 
     def test_do_property_excel_compliance_all_good(self) -> None:
         original_df = pd.DataFrame(
@@ -121,18 +121,19 @@ class TestFunctions(unittest.TestCase):
         with pytest.raises(InputError, match=expected_msg):
             e2j._do_property_excel_compliance(original_df)
 
-    @pytest.mark.filterwarnings("ignore::UserWarning")
     def test_rename_deprecated_hlist(self) -> None:
         original_df = pd.DataFrame({"hlist": [pd.NA, pd.NA, "languages"]})
         expected_df = pd.DataFrame({"gui_attributes": [pd.NA, pd.NA, "hlist:languages"]})
-        returned_df = e2j._rename_deprecated_hlist(df=original_df)
+        with pytest.warns(UserWarning, match="'hlist', which is deprecated"):
+            returned_df = e2j._rename_deprecated_hlist(df=original_df)
         assert_frame_equal(expected_df, returned_df)
 
         original_df = pd.DataFrame(
             {"hlist": [pd.NA, pd.NA, "languages"], "gui_attributes": [pd.NA, "attribute_1", pd.NA]}
         )
         expected_df = pd.DataFrame({"gui_attributes": [pd.NA, "attribute_1", "hlist:languages"]})
-        returned_df = e2j._rename_deprecated_hlist(df=original_df)
+        with pytest.warns(UserWarning, match="'hlist', which is deprecated"):
+            returned_df = e2j._rename_deprecated_hlist(df=original_df)
         assert_frame_equal(expected_df, returned_df)
 
     def test_unpack_gui_attributes(self) -> None:

@@ -9,7 +9,7 @@ from loguru import logger
 from lxml import etree
 
 from dsp_tools.commands.ingest_xmlupload.create_resources.user_information import IngestInformation
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.error.exceptions import InputError
 
 
 def get_mapping_dict_from_file(shortcode: str) -> dict[str, str]:
@@ -56,7 +56,7 @@ def replace_filepath_with_internal_filename(
     for elem in new_tree.iter():
         if not etree.QName(elem).localname.endswith("bitstream") or not elem.text:
             continue
-        img_path_str = elem.text
+        img_path_str = elem.text.strip()
         if img_path_str not in orig_path_2_asset_id and img_path_str.startswith("/"):
             img_path_str = img_path_str[1:]
         if img_path_str in orig_path_2_asset_id:

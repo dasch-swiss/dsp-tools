@@ -145,5 +145,5 @@ class LicenseRecommended:
         ```
     """
 
-    CC: Type[StrEnum, License] = CC
-    DSP: Type[StrEnum, License] = DSP
+    CC = CC
+    DSP = DSP

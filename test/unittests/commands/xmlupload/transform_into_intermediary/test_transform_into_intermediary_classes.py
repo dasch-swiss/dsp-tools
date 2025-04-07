@@ -340,7 +340,17 @@ class TestTransformFileValue:
         assert not result.metadata.copyright_holder
         assert not result.metadata.authorships
 
-    def test_get_metadata_raises(self, lookups):
+
+class TestFileMetadata:
+    def test_good(self, lookups):
+        metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", "open")
+        result_metadata = _get_metadata(metadata, lookups)
+        assert not result_metadata.permissions
+        assert result_metadata.license_iri == "http://rdfh.ch/licenses/cc-by-nc-4.0"
+        assert result_metadata.copyright_holder == "copy"
+        assert result_metadata.authorships == ["author"]
+
+    def test_raises_unknown_license(self, lookups):
         metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/inexistent-iri", "copy", "auth_id", None)
         msg = regex.escape(
             "The license 'http://rdfh.ch/licenses/inexistent-iri' used for an image or iiif-uri is unknown. "
@@ -349,7 +359,7 @@ class TestTransformFileValue:
         with pytest.raises(InputError, match=msg):
             _get_metadata(metadata, lookups)
 
-    def test_get_metadata_unknown_author(self, lookups):
+    def test_raises_unknown_author(self, lookups):
         metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "unknown", "open")
         msg = regex.escape(
             "The authorship id 'unknown' referenced in a multimedia file or iiif-uri is unknown. "

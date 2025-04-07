@@ -8,7 +8,7 @@ from .helpers import get_list_nodes_from_string_via_list_name as get_list_nodes_
 from .helpers import get_list_nodes_from_string_via_property as get_list_nodes_from_string_via_property
 from .helpers import make_xsd_compatible_id as make_xsd_compatible_id
 from .helpers import make_xsd_compatible_id_with_uuid as make_xsd_compatible_id_with_uuid
-from .models.config_options import LicensesRecommended as PreDefinedLicense
+from .models.config_options import LicenceRecommended as LicenceRecommended
 from .models.config_options import NewlineReplacement as NewlineReplacement
 from .models.config_options import Permissions as Permissions
 from .models.dsp_base_resources import AudioSegmentResource as AudioSegmentResource

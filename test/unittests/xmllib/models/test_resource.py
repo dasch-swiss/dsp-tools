@@ -8,7 +8,7 @@ from dsp_tools.error.custom_warnings import DspToolsUserInfo
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
-from dsp_tools.xmllib.models.config_options import LicensesRecommended
+from dsp_tools.xmllib.models.config_options import LicenceRecommended
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.file_values import FileValue
 from dsp_tools.xmllib.models.file_values import IIIFUri
@@ -330,7 +330,7 @@ class TestAddFiles:
 
     def test_add_file_with_metadata(self) -> None:
         res = Resource.create_new("res_id", "restype", "label").add_file(
-            "foo/bar.baz", LicensesRecommended.CC_BY, "copy", ["auth"]
+            "foo/bar.baz", LicenceRecommended.CC_BY, "copy", ["auth"]
         )
         assert isinstance(res.file_value, FileValue)
         assert res.file_value.metadata.license == "http://rdfh.ch/licenses/cc-by-4.0"
@@ -364,7 +364,7 @@ class TestAddFiles:
     def test_add_iiif_uri_with_metadata(self) -> None:
         res = Resource.create_new("res_id", "restype", "label").add_iiif_uri(
             "https://iiif.dasch.swiss/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/837,530/0/default.jp2",
-            LicensesRecommended.CC_BY,
+            LicenceRecommended.CC_BY,
             "copy",
             ["auth"],
         )

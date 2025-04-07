@@ -11,7 +11,7 @@ from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.xmllib.internal_helpers import check_and_create_richtext_string
 from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
-from dsp_tools.xmllib.models.config_options import LicensesRecommended
+from dsp_tools.xmllib.models.config_options import LicenceRecommended
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.file_values import AbstractFileValue
@@ -1497,7 +1497,7 @@ class Resource:
     def add_file(
         self,
         filename: str | Path,
-        license: LicensesRecommended | str,
+        license: LicenceRecommended | str,
         copyright_holder: str,
         authorship: list[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
@@ -1567,7 +1567,7 @@ class Resource:
     def add_iiif_uri(
         self,
         iiif_uri: str,
-        license: LicensesRecommended | str,
+        license: LicenceRecommended | str,
         copyright_holder: str,
         authorship: list[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,

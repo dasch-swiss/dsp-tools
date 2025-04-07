@@ -57,7 +57,7 @@ class NewlineReplacement(Enum):
 
 class CC(StrEnum):
     """
-    Pre-defined and recommended licenses:
+    Pre-defined and recommended licences:
 
     - `CC_BY`: [Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
     - `CC_BY_SA`: [Attribution-ShareAlike 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
@@ -88,7 +88,7 @@ class CC(StrEnum):
 
 class DSP(StrEnum):
     """
-    Pre-defined and recommended licenses:
+    Pre-defined and recommended licences:
 
     - `AI_GENERATED`: AI-Generated Content - Not Protected by Copyright
     - `UNKNOWN`: Unknown License - Ask Copyright Holder for Permission
@@ -111,26 +111,29 @@ class DSP(StrEnum):
     PUBLIC_DOMAIN = "http://rdfh.ch/licenses/public-domain"
 
 
-class LicensesRecommended(StrEnum):
+class LicenceRecommended:
     """
-    Pre-defined licenses for assets (`bitstream` and `iiif-uri`):
+    Recommended licences:
 
-    - `CC_BY`: [Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
-    - `CC_BY_SA`: [Attribution-ShareAlike 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
-    - `CC_BY_NC`: [Attribution-NonCommercial 4.0](https://creativecommons.org/licenses/by-nc/4.0/)
-    - `CC_BY_NC_SA`: [Attribution-NonCommercial-ShareAlike 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
-    - `CC_BY_ND`: [Attribution-NoDerivatives 4.0](https://creativecommons.org/licenses/by-nd/4.0/)
-    - `CC_BY_NC_ND`: [Attribution-NonCommercial-NoDerivatives 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/)
-    - `AI_GENERATED`: AI-Generated Content - Not Protected by Copyright
-    - `UNKNOWN`: Unknown License - Ask Copyright Holder for Permission
-    - `PUBLIC_DOMAIN`: Public Domain - Not Protected by Copyright
+    - `DSP`: Licences created and curated by DaSCH, see `DSP` for the options.
+    - `CC`: Creative Commons licences, see `CC` for the options.
 
     Examples:
         ```python
-        # adding a pre-defined license to a file
+        # adding a pre-defined creative commons licence to a file
+        resource = resource.add_file(
+            filename="images/cat.jpg",
+            license=xmllib.LicenceRecommended.CC.BY,
+            copyright_holder="Meow University",
+            authorship=["Kitty Meow"],
+        )
+        ```
+
+        ```python
+        # adding a pre-defined DSP licence to a file
         resource = resource.add_file(
             filename="images/dog.jpg",
-            license=xmllib.PreDefinedLicense.PUBLIC_DOMAIN,
+            license=xmllib.LicenceRecommended.DSP.PUBLIC_DOMAIN,
             copyright_holder="Bark University",
             authorship=["Bark McDog"],
         )

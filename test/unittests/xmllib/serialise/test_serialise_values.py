@@ -147,7 +147,7 @@ def test_list() -> None:
         ),
         ("&amp; &lt; &gt;", "&amp; &lt; &gt;"),
         ("&quot; &nbsp;", "&#34; &#160;"),
-        ("&#34; &#160; &#x22; &#xA0;", "&#34; &#160; &#34; &#160;"),
+        ("&#34; &#160; &#x22; &#xA0;", "&#34; &#160; &#x22; &#xA0;"),
         ("'uuas\\. 11` \\a\\ i! 1 ?7 Rinne   \\Rinne", "'uuas\\. 11` \\a\\ i! 1 ?7 Rinne   \\Rinne"),
         ("1 < 2 & 4 > 3", "1 &lt; 2 &amp; 4 &gt; 3"),
     ],
@@ -160,7 +160,7 @@ def test_richtext_tags(orig: str, expected: str) -> None:
         'name=":richtextProp">'
         f'<text encoding="xml">{expected}</text></text-prop>'
     )
-    res_str = str(etree.tostring(result.pop(0)), encoding="utf-8")
+    res_str = etree.tostring(result.pop(0), encoding="unicode")
     assert res_str == expected_xml
 
 

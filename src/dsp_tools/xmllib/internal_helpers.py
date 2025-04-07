@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import warnings
+from html.entities import html5
 from typing import Any
 
 import pandas as pd
@@ -136,18 +137,30 @@ def unescape_reserved_xml_chars(richtext: str) -> str:
 
 def numeric_entities(text: str) -> str:
     """
-    Replace all named HTML entities and all Hex numeric HTML entities by their decimal numeric counterparts.
+    Replace all named HTML entities by their decimal numeric counterparts.
+    Hex numeric HTML entities remain untouched.
+    Unescaped special characters remain untouched.
 
     Args:
         text: original text
 
     Returns:
-        text with numeric entities
-    
+        text with all named entities replaced
+
     Examples:
         ```python
-        result = xmllib.numeric_entities('Text &quot;quoted&#34; text &#x22;quoted"')
-        # result == 'Text &#34;quoted&#34; text &#34;quoted"'
+        result = xmllib.numeric_entities('text &quot; &#x22; " text')
+        # result == 'Text &#34; &#x22; " text'
         ```
     """
-    for match in regex.findall(r"&#x?([0-9A-Fa-f]+);", text):
+    named_ent_ok = ["&amp;", "&lt;", "&gt;", "&quot;", "&apos;"]  # these named entities are supported in XML
+    replacements: dict[str, str] = {}
+    for match in regex.findall(r"&[0-9A-Za-z]+;", text):
+        if match in named_ent_ok:
+            continue
+        char = html5[match[1:]]
+        replacements[match] = f"&#{ord(char)};"
+    text = regex.sub(
+        r"&[0-9A-Za-z]+;", lambda x: replacements[x.group()] if x.group() not in named_ent_ok else x.group(), text
+    )
+    return text

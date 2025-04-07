@@ -131,7 +131,7 @@ def _create_richtext_elements_from_string(value: Richtext, text_element: etree._
     num_ent = numeric_entities(escaped_text)
     pseudo_xml = f"<ignore-this>{num_ent}</ignore-this>"
     try:
-        parsed = etree.fromstring(pseudo_xml)
+        _ = etree.fromstring(pseudo_xml)
     except etree.XMLSyntaxError as err:
         msg = (
             f"The resource with the ID '{value.resource_id}' and the property '{value.prop_name}' "
@@ -140,6 +140,5 @@ def _create_richtext_elements_from_string(value: Richtext, text_element: etree._
         msg += f"\nOriginal error message: {err.msg}"
         msg += f"\nPotential line/column numbers are relative to this text: {pseudo_xml}"
         raise InputError(msg) from None
-    new_element.text = parsed.text  # everything before the first child tag
-    new_element.extend(list(parsed))  # all (nested) children of the pseudo-xml
+    new_element.text = num_ent
     return new_element

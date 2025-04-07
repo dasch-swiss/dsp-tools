@@ -370,7 +370,6 @@ def check_richtext_syntax(richtext: str) -> None:
         DspToolsUserWarning: if the input contains XML syntax problems
     """
     escaped_text = escape_reserved_xml_chars(richtext, KNOWN_XML_TAGS)
-    # transform named entities (=character references) to numeric entities, e.g. &nbsp; -> &#160;
     num_ent = numeric_entities(escaped_text)
     pseudo_xml = f"<text>{num_ent}</text>"
     try:

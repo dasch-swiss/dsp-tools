@@ -127,7 +127,6 @@ def _serialise_complete_richtext_prop(values: list[Richtext], prop_name: str) ->
 def _create_richtext_elements_from_string(value: Richtext, text_element: etree._Element) -> etree._Element:
     new_element = deepcopy(text_element)
     escaped_text = escape_reserved_xml_characters(value.value)
-    # transform named entities (=character references) to numeric entities, e.g. &nbsp; -> &#160;
     num_ent = numeric_entities(escaped_text)
     pseudo_xml = f"<ignore-this>{num_ent}</ignore-this>"
     try:

@@ -1352,7 +1352,6 @@ def make_text_prop(
 def _add_richtext_to_etree_element(richtext: str, element: etree._Element) -> etree._Element:
     new_element = copy.deepcopy(element)
     escaped_text = _escape_reserved_chars(richtext)
-    # transform named entities (=character references) to numeric entities, e.g. &nbsp; -> &#160;
     num_ent = numeric_entities(escaped_text)
     pseudo_xml = f"<ignore-this>{num_ent}</ignore-this>"
     try:

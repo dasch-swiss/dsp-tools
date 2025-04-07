@@ -67,21 +67,12 @@ def transform_all_resources_into_intermediary_resources(
     failures = []
     transformed = []
     for res in resources:
-        result = _transform_into_intermediary_resource(res, lookups)
-        if isinstance(result, IntermediaryResource):
+        try:
+            result = _transform_one_resource(res, lookups)
             transformed.append(result)
-        else:
-            failures.append(result)
+        except (PermissionNotExistsError, InputError) as e:
+            failures.append(ResourceInputConversionFailure(res.res_id, str(e)))
     return ResourceTransformationResult(transformed, failures)
-
-
-def _transform_into_intermediary_resource(
-    resource: ParsedResource, lookups: IntermediaryLookups
-) -> IntermediaryResource | ResourceInputConversionFailure:
-    try:
-        return _transform_one_resource(resource, lookups)
-    except (PermissionNotExistsError, InputError) as e:
-        return ResourceInputConversionFailure(resource.res_id, str(e))
 
 
 def _transform_one_resource(resource: ParsedResource, lookups: IntermediaryLookups) -> IntermediaryResource:

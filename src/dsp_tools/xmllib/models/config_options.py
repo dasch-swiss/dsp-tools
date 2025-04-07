@@ -91,7 +91,7 @@ class DSP(StrEnum):
     Pre-defined and recommended licences:
 
     - `AI_GENERATED`: AI-Generated Content - Not Protected by Copyright
-    - `UNKNOWN`: Unknown licence - Ask Copyright Holder for Permission
+    - `UNKNOWN`: Unknown license - Ask Copyright Holder for Permission
     - `PUBLIC_DOMAIN`: Public Domain - Not Protected by Copyright
 
     Examples:

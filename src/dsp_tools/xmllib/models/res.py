@@ -11,7 +11,7 @@ from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.xmllib.internal_helpers import check_and_create_richtext_string
 from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
-from dsp_tools.xmllib.models.config_options import LicenceRecommended
+from dsp_tools.xmllib.models.config_options import License
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.file_values import AbstractFileValue
@@ -1497,7 +1497,7 @@ class Resource:
     def add_file(
         self,
         filename: str | Path,
-        license: LicenceRecommended,
+        license: License,
         copyright_holder: str,
         authorship: list[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
@@ -1527,7 +1527,7 @@ class Resource:
             ```python
             resource = resource.add_file(
                 filename="images/dog.jpg",
-                license=xmllib.PreDefinedLicense.PUBLIC_DOMAIN,
+                license=xmllib.LicenceRecommended.DSP.PUBLIC_DOMAIN,
                 copyright_holder="Bark University",
                 authorship=["Bark McDog"],
             )
@@ -1537,7 +1537,7 @@ class Resource:
             # a file with restricted view permissions
             resource = resource.add_file(
                 filename="images/dog.jpg",
-                license=xmllib.PreDefinedLicense.PUBLIC_DOMAIN,
+                license=xmllib.LicenceRecommended.DSP.PUBLIC_DOMAIN,
                 copyright_holder="Bark University",
                 authorship=["Bark McDog"],
                 permissions=xmllib.Permissions.RESTRICTED_VIEW,
@@ -1567,7 +1567,7 @@ class Resource:
     def add_iiif_uri(
         self,
         iiif_uri: str,
-        license: LicenceRecommended,
+        license: License,
         copyright_holder: str,
         authorship: list[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
@@ -1597,7 +1597,7 @@ class Resource:
             ```python
             resource = resource.add_iiif_uri(
                 iiif_uri="https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg",
-                license=xmllib.PreDefinedLicense.CC_BY_NC,
+                license=xmllib.LicenceRecommended.CC.BY_NC,
                 copyright_holder="Wellcome Collection",
                 authorship=["Cavanagh, Annie"]
             )

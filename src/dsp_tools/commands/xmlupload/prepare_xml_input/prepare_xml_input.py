@@ -91,6 +91,7 @@ def _validate_iiif_uris(root: etree._Element) -> None:
         logger.warning(msg)
 
 
+# TODO: do lookups
 def _get_data_from_xml(
     con: Connection,
     root: etree._Element,

@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Never
 
 from loguru import logger
+from lxml import etree
 from rdflib import URIRef
 from tqdm import tqdm
 
@@ -25,6 +26,9 @@ from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryRes
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
+from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontology import (
+    do_xml_consistency_check_with_ontology,
+)
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClient
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClientLive
@@ -47,6 +51,7 @@ from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.error.exceptions import PermanentTimeOutError
 from dsp_tools.error.exceptions import XmlUploadInterruptedError
+from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resources
 from dsp_tools.utils.xml_parsing.parse_and_transform import get_root_for_deserialisation
 
 
@@ -74,23 +79,23 @@ def xmlupload(
         True if all resources could be uploaded without errors; False if one of the resources could not be
         uploaded because there is an error in it
     """
-
+    auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
+    con = ConnectionLive(creds.server, auth)
     root = get_root_for_deserialisation(input_file)
-    check_if_link_targets_exist(root)
-    check_if_bitstreams_exist(root, imgdir)
+
+    shortcode, default_ontology = _preliminary_checks(root, imgdir, con, config)
+
+    # TODO: move this into file where lookups are created
+    parsed_resources = get_parsed_resources(root, creds.server)
 
     root, shortcode, default_ontology = prepare_input_xml_file(input_file, imgdir)
 
-    auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
-    con = ConnectionLive(creds.server, auth)
     config = config.with_server_info(server=creds.server, shortcode=shortcode)
 
-    if not config.skip_iiif_validation:
-        _validate_iiif_uris(root)
-
-    ontology_client = OntologyClientLive(con=con, shortcode=shortcode, default_ontology=default_ontology)
     clients = _get_live_clients(con, auth, creds, shortcode, imgdir)
-    transformed_resources, stash = prepare_upload_from_root(root=root, ontology_client=ontology_client, clients=clients)
+    transformed_resources, stash = prepare_upload_from_root(
+        root=root, ontology_client="ontology_client", clients=clients
+    )
     state = UploadState(
         pending_resources=transformed_resources,
         pending_stash=stash,
@@ -98,6 +103,19 @@ def xmlupload(
     )
 
     return execute_upload(clients, state)
+
+
+def _preliminary_checks(root: etree._Element, imgdir: str, con: Connection, config: UploadConfig) -> tuple[str, str]:
+    check_if_link_targets_exist(root)
+    check_if_bitstreams_exist(root, imgdir)
+    if not config.skip_iiif_validation:
+        _validate_iiif_uris(root)
+
+    shortcode = root.attrib["shortcode"]
+    default_ontology = root.attrib["default-ontology"]
+    ontology_client = OntologyClientLive(con=con, shortcode=shortcode, default_ontology=default_ontology)
+    do_xml_consistency_check_with_ontology(ontology_client, root)
+    return shortcode, default_ontology
 
 
 def _get_live_clients(

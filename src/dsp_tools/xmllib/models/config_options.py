@@ -62,7 +62,7 @@ class License: ...
 
 class CC(License, StrEnum):
     """
-    Pre-defined and recommended licences:
+    Pre-defined and recommended licenses:
 
     - `BY`: [Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
     - `BY_SA`: [Attribution-ShareAlike 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
@@ -93,7 +93,7 @@ class CC(License, StrEnum):
 
 class DSP(License, StrEnum):
     """
-    Pre-defined and recommended licences:
+    Pre-defined and recommended license:
 
     - `AI_GENERATED`: AI-Generated Content - Not Protected by Copyright
     - `UNKNOWN`: Unknown License - Ask Copyright Holder for Permission
@@ -118,10 +118,10 @@ class DSP(License, StrEnum):
 
 class LicenseRecommended:
     """
-    Recommended licences:
+    Recommended licenses:
 
-    - `DSP`: Licences created and curated by DaSCH, [see `DSP` for the options.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/config-options/#xmllib.models.config_options.DSP)
-    - `CC`: Creative Commons licences, [see `CC` for the options.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/config-options/#xmllib.models.config_options.CC)
+    - `DSP`: Licenses created and curated by DaSCH, [see `DSP` for the options.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/config-options/#xmllib.models.config_options.DSP)
+    - `CC`: Creative Commons licenses, [see `CC` for the options.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/config-options/#xmllib.models.config_options.CC)
 
     Examples:
         ```python

@@ -132,3 +132,22 @@ def unescape_reserved_xml_chars(richtext: str) -> str:
     richtext = regex.sub(r"&gt;", ">", richtext)
     richtext = regex.sub(r"&amp;", "&", richtext)
     return richtext
+
+
+def numeric_entities(text: str) -> str:
+    """
+    Replace all named HTML entities and all Hex numeric HTML entities by their decimal numeric counterparts.
+
+    Args:
+        text: original text
+
+    Returns:
+        text with numeric entities
+    
+    Examples:
+        ```python
+        result = xmllib.numeric_entities('Text &quot;quoted&#34; text &#x22;quoted"')
+        # result == 'Text &#34;quoted&#34; text &#34;quoted"'
+        ```
+    """
+    for match in regex.findall(r"&#x?([0-9A-Fa-f]+);", text):

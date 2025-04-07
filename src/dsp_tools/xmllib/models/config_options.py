@@ -3,7 +3,6 @@ from __future__ import annotations
 from enum import Enum
 from enum import StrEnum
 from enum import auto
-from typing import Type
 
 
 class Permissions(Enum):

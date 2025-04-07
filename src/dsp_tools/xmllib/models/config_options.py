@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from enum import Enum
+from enum import StrEnum
 from enum import auto
 from typing import Type
 
@@ -57,15 +57,10 @@ class NewlineReplacement(Enum):
     LINEBREAK = auto()
 
 
-@dataclass
-class License:
-    iri: str
-
-    def __str__(self) -> str:
-        return self.iri
+class License: ...
 
 
-class CC(Enum):
+class CC(License, StrEnum):
     """
     Pre-defined and recommended licences:
 
@@ -88,15 +83,15 @@ class CC(Enum):
         ```
     """
 
-    BY: License = License("http://rdfh.ch/licenses/cc-by-4.0")
-    BY_SA: License = License("http://rdfh.ch/licenses/cc-by-sa-4.0")
-    BY_NC: License = License("http://rdfh.ch/licenses/cc-by-nc-4.0")
-    BY_NC_SA: License = License("http://rdfh.ch/licenses/cc-by-nc-sa-4.0")
-    BY_ND: License = License("http://rdfh.ch/licenses/cc-by-nd-4.0")
-    BY_NC_ND: License = License("http://rdfh.ch/licenses/cc-by-nc-nd-4.0")
+    BY = "http://rdfh.ch/licenses/cc-by-4.0"
+    BY_SA = "http://rdfh.ch/licenses/cc-by-sa-4.0"
+    BY_NC = "http://rdfh.ch/licenses/cc-by-nc-4.0"
+    BY_NC_SA = "http://rdfh.ch/licenses/cc-by-nc-sa-4.0"
+    BY_ND = "http://rdfh.ch/licenses/cc-by-nd-4.0"
+    BY_NC_ND = "http://rdfh.ch/licenses/cc-by-nc-nd-4.0"
 
 
-class DSP(Enum):
+class DSP(License, StrEnum):
     """
     Pre-defined and recommended licences:
 
@@ -116,9 +111,9 @@ class DSP(Enum):
         ```
     """
 
-    AI_GENERATED: License = License("http://rdfh.ch/licenses/ai-generated")
-    UNKNOWN: License = License("http://rdfh.ch/licenses/unknown")
-    PUBLIC_DOMAIN: License = License("http://rdfh.ch/licenses/public-domain")
+    AI_GENERATED = "http://rdfh.ch/licenses/ai-generated"
+    UNKNOWN = "http://rdfh.ch/licenses/unknown"
+    PUBLIC_DOMAIN = "http://rdfh.ch/licenses/public-domain"
 
 
 class LicenseRecommended:
@@ -150,5 +145,5 @@ class LicenseRecommended:
         ```
     """
 
-    CC: Type[License] = CC
-    DSP: Type[License] = DSP
+    CC: Type[StrEnum, License] = CC
+    DSP: Type[StrEnum, License] = DSP

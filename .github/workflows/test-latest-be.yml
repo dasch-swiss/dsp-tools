@@ -5,9 +5,7 @@ name: integrate with latest BE
 on:
   schedule:
     - cron: "0 0 * * *"  # daily at midnight
-  push:
-    branches-ignore:
-      - refs/heads/main
+  pull_request:
 
 env:
   DSP_TOOLS_TESTING: true

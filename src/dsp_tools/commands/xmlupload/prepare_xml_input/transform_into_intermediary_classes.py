@@ -113,9 +113,7 @@ def _transform_migration_metadata(metadata: ParsedMigrationMetadata) -> Migratio
     res_iri = metadata.iri
     if metadata.ark:
         res_iri = convert_ark_v0_to_resource_iri(metadata.ark)
-    date = None
-    if metadata.creation_date:
-        date = DateTimeStamp(metadata.creation_date)
+    date = DateTimeStamp(metadata.creation_date) if metadata.creation_date else None
     return MigrationMetadata(res_iri, date)
 
 

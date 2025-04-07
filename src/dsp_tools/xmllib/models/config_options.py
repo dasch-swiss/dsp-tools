@@ -115,8 +115,8 @@ class LicenceRecommended:
     """
     Recommended licences:
 
-    - `DSP`: Licences created and curated by DaSCH, see `DSP` for the options.
-    - `CC`: Creative Commons licences, see `CC` for the options.
+    - `DSP`: Licences created and curated by DaSCH, [see `DSP` for the options.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/config-options/#xmllib.models.config_options.DSP)
+    - `CC`: Creative Commons licences, [see `CC` for the options.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/config-options/#xmllib.models.config_options.CC)
 
     Examples:
         ```python

@@ -1497,7 +1497,7 @@ class Resource:
     def add_file(
         self,
         filename: str | Path,
-        license: LicenceRecommended | str,
+        license: LicenceRecommended,
         copyright_holder: str,
         authorship: list[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
@@ -1567,7 +1567,7 @@ class Resource:
     def add_iiif_uri(
         self,
         iiif_uri: str,
-        license: LicenceRecommended | str,
+        license: LicenceRecommended,
         copyright_holder: str,
         authorship: list[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,

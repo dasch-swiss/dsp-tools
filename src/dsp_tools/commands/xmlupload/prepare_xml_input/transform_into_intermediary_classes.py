@@ -86,7 +86,7 @@ def _transform_into_intermediary_resource(
 
 def _transform_one_resource(resource: ParsedResource, lookups: IntermediaryLookups) -> IntermediaryResource:
     permissions = _resolve_permission(resource.permissions_id, lookups.permissions)
-    values = _transform_all_values(resource.values, lookups)
+    values = [_transform_one_value(val, lookups) for val in resource.values]
     file_val, iiif_uri, migration_metadata = None, None, None
     if resource.file_value:
         if resource.file_value.value_type == KnoraValueType.STILL_IMAGE_IIIF:
@@ -166,13 +166,6 @@ def _resolve_authorship(authorship_id: str | None, lookup: dict[str, list[str]])
             f"Ensure that all referenced ids are defined in the `<authorship>` elements of your XML file."
         )
     return found
-
-
-def _transform_all_values(values: list[ParsedValue], lookups: IntermediaryLookups) -> list[IntermediaryValue]:
-    all_values = []
-    for val in values:
-        all_values.append(_transform_one_value(val, lookups))
-    return all_values
 
 
 def _transform_one_value(val: ParsedValue, lookups: IntermediaryLookups) -> IntermediaryValue:

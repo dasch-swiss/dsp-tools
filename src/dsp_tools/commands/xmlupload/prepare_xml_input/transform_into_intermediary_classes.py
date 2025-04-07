@@ -111,6 +111,8 @@ def _transform_one_resource(resource: ParsedResource, lookups: IntermediaryLooku
 
 def _transform_migration_metadata(metadata: ParsedMigrationMetadata) -> MigrationMetadata:
     res_iri = metadata.iri
+    # ARK takes precedence over the IRI,
+    # but must be transformed into an IRI as it is only for external reference and not consistent with a DB IRI
     if metadata.ark:
         res_iri = convert_ark_v0_to_resource_iri(metadata.ark)
     date = DateTimeStamp(metadata.creation_date) if metadata.creation_date else None

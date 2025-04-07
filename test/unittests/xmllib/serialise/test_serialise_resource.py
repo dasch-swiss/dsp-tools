@@ -85,7 +85,7 @@ class TestResource:
         expected = (
             b'<resource xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             b'label="lbl" id="id" restype=":Type">'
-            b'<bitstream license="lic" copyright-holder="copy" authorship-id="unknown">'
+            b'<bitstream license="http://rdfh.ch/licenses/unknown" copyright-holder="copy" authorship-id="unknown">'
             b"file.jpg"
             b"</bitstream>"
             b"</resource>"

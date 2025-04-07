@@ -96,7 +96,7 @@ class DSP(StrEnum):
 
     Examples:
         ```python
-        # adding a DSP licence to a file
+        # adding a DSP license to a file
         resource = resource.add_file(
             filename="images/dog.jpg",
             license=xmllib.LicenceRecommended.DSP.PUBLIC_DOMAIN,
@@ -130,7 +130,7 @@ class LicenceRecommended:
         ```
 
         ```python
-        # adding a DSP licence to a file
+        # adding a DSP license to a file
         resource = resource.add_file(
             filename="images/dog.jpg",
             license=xmllib.LicenceRecommended.DSP.PUBLIC_DOMAIN,

@@ -57,7 +57,7 @@ class TestResource:
 
     def test_serialise_no_warnings(self) -> None:
         res = Resource.create_new("id", ":Type", "lbl").add_file(
-            "file.jpg", LicenceRecommended.UNKNOWN, "copy", ["one", "one2"]
+            "file.jpg", LicenceRecommended.DSP.UNKNOWN, "copy", ["one", "one2"]
         )
         with warnings.catch_warnings(record=True) as caught_warnings:
             result = _serialise_one_resource(res, AUTHOR_LOOKUP)

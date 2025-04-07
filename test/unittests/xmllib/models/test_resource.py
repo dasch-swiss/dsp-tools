@@ -330,7 +330,7 @@ class TestAddFiles:
 
     def test_add_file_with_metadata(self) -> None:
         res = Resource.create_new("res_id", "restype", "label").add_file(
-            "foo/bar.baz", LicenceRecommended.CC_BY, "copy", ["auth"]
+            "foo/bar.baz", LicenceRecommended.CC.BY, "copy", ["auth"]
         )
         assert isinstance(res.file_value, FileValue)
         assert res.file_value.metadata.license == "http://rdfh.ch/licenses/cc-by-4.0"
@@ -364,7 +364,7 @@ class TestAddFiles:
     def test_add_iiif_uri_with_metadata(self) -> None:
         res = Resource.create_new("res_id", "restype", "label").add_iiif_uri(
             "https://iiif.dasch.swiss/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/837,530/0/default.jp2",
-            LicenceRecommended.CC_BY,
+            LicenceRecommended.CC.BY,
             "copy",
             ["auth"],
         )

@@ -68,12 +68,12 @@ class CC(StrEnum):
 
     Examples:
         ```python
-        # adding a pre-defined license to a file
+        # adding a creative commons license to a file
         resource = resource.add_file(
-            filename="images/dog.jpg",
-            license=xmllib.PreDefinedLicense.PUBLIC_DOMAIN,
-            copyright_holder="Bark University",
-            authorship=["Bark McDog"],
+            filename="images/cat.jpg",
+            license=xmllib.LicenceRecommended.CC.BY,
+            copyright_holder="Meow University",
+            authorship=["Kitty Meow"],
         )
         ```
     """
@@ -91,15 +91,15 @@ class DSP(StrEnum):
     Pre-defined and recommended licences:
 
     - `AI_GENERATED`: AI-Generated Content - Not Protected by Copyright
-    - `UNKNOWN`: Unknown License - Ask Copyright Holder for Permission
+    - `UNKNOWN`: Unknown licence - Ask Copyright Holder for Permission
     - `PUBLIC_DOMAIN`: Public Domain - Not Protected by Copyright
 
     Examples:
         ```python
-        # adding a pre-defined license to a file
+        # adding a DSP licence to a file
         resource = resource.add_file(
             filename="images/dog.jpg",
-            license=xmllib.PreDefinedLicense.PUBLIC_DOMAIN,
+            licence=xmllib.LicenceRecommended.DSP.PUBLIC_DOMAIN,
             copyright_holder="Bark University",
             authorship=["Bark McDog"],
         )
@@ -120,7 +120,7 @@ class LicenceRecommended:
 
     Examples:
         ```python
-        # adding a pre-defined creative commons licence to a file
+        # adding a creative commons license to a file
         resource = resource.add_file(
             filename="images/cat.jpg",
             license=xmllib.LicenceRecommended.CC.BY,
@@ -130,10 +130,10 @@ class LicenceRecommended:
         ```
 
         ```python
-        # adding a pre-defined DSP licence to a file
+        # adding a DSP licence to a file
         resource = resource.add_file(
             filename="images/dog.jpg",
-            license=xmllib.LicenceRecommended.DSP.PUBLIC_DOMAIN,
+            licence=xmllib.LicenceRecommended.DSP.PUBLIC_DOMAIN,
             copyright_holder="Bark University",
             authorship=["Bark McDog"],
         )

@@ -81,7 +81,7 @@ class CC(Enum):
         # adding a creative commons license to a file
         resource = resource.add_file(
             filename="images/cat.jpg",
-            license=xmllib.LicenceRecommended.CC.BY,
+            license=xmllib.LicenseRecommended.CC.BY,
             copyright_holder="Meow University",
             authorship=["Kitty Meow"],
         )
@@ -109,7 +109,7 @@ class DSP(Enum):
         # adding a DSP license to a file
         resource = resource.add_file(
             filename="images/dog.jpg",
-            license=xmllib.LicenceRecommended.DSP.PUBLIC_DOMAIN,
+            license=xmllib.LicenseRecommended.DSP.PUBLIC_DOMAIN,
             copyright_holder="Bark University",
             authorship=["Bark McDog"],
         )
@@ -133,7 +133,7 @@ class LicenseRecommended:
         # adding a creative commons license to a file
         resource = resource.add_file(
             filename="images/cat.jpg",
-            license=xmllib.LicenceRecommended.CC.BY,
+            license=xmllib.LicenseRecommended.CC.BY,
             copyright_holder="Meow University",
             authorship=["Kitty Meow"],
         )
@@ -143,7 +143,7 @@ class LicenseRecommended:
         # adding a DSP license to a file
         resource = resource.add_file(
             filename="images/dog.jpg",
-            license=xmllib.LicenceRecommended.DSP.PUBLIC_DOMAIN,
+            license=xmllib.LicenseRecommended.DSP.PUBLIC_DOMAIN,
             copyright_holder="Bark University",
             authorship=["Bark McDog"],
         )

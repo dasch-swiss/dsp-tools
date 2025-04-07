@@ -30,6 +30,8 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClien
 from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClientLive
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import _validate_iiif_uris
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import prepare_upload_from_root
+from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import check_if_bitstreams_exist
+from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import check_if_link_targets_exist
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import prepare_input_xml_file
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
@@ -45,6 +47,7 @@ from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.error.exceptions import PermanentTimeOutError
 from dsp_tools.error.exceptions import XmlUploadInterruptedError
+from dsp_tools.utils.xml_parsing.parse_and_transform import get_root_for_deserialisation
 
 
 def xmlupload(
@@ -71,6 +74,10 @@ def xmlupload(
         True if all resources could be uploaded without errors; False if one of the resources could not be
         uploaded because there is an error in it
     """
+
+    root = get_root_for_deserialisation(input_file)
+    check_if_link_targets_exist(root)
+    check_if_bitstreams_exist(root, imgdir)
 
     root, shortcode, default_ontology = prepare_input_xml_file(input_file, imgdir)
 

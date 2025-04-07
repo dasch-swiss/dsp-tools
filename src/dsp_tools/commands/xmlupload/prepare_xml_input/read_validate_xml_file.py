@@ -13,6 +13,7 @@ from dsp_tools.utils.xml_parsing.transform import transform_special_tags_make_lo
 from dsp_tools.utils.xml_parsing.xml_schema_validation import validate_xml_with_schema
 
 
+# TODO: delete
 def prepare_input_xml_file(input_file: Path, imgdir: str) -> tuple[etree._Element, str, str]:
     """
     Parses the file and does some rudimentary checks.
@@ -44,13 +45,13 @@ def validate_and_parse(input_file: Path) -> tuple[etree._Element, str, str]:
     validate_xml_with_schema(root)
     print("The XML file is syntactically correct.")
     root = transform_special_tags_make_localname(root)
-    _check_if_link_targets_exist(root)
+    check_if_link_targets_exist(root)
     shortcode = root.attrib["shortcode"]
     default_ontology = root.attrib["default-ontology"]
     return root, shortcode, default_ontology
 
 
-def _check_if_link_targets_exist(root: etree._Element) -> None:
+def check_if_link_targets_exist(root: etree._Element) -> None:
     """
     Make sure that all targets of links (resptr and salsah-links)
     are either IRIs or IDs that exist in the present XML file.

@@ -56,6 +56,10 @@ def prepare_upload_from_root(
     return sorted_resources, stash
 
 
+def get_upload_info_from_root():
+    pass
+
+
 def _get_transformed_resources(
     resources: list[XMLResource],
     clients: UploadClients,

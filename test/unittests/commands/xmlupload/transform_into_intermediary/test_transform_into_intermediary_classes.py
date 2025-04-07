@@ -23,6 +23,7 @@ from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookup
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import _get_metadata
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import _resolve_permission
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import _transform_file_value
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import _transform_iiif_uri_value
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import _transform_one_resource
@@ -518,3 +519,23 @@ class TestTransformValues:
         assert transformed.prop_iri == HAS_PROP
         assert not transformed.permissions
         assert not transformed.comment
+
+
+class TestPermissions:
+    def test_good(self, lookups):
+        result = _resolve_permission("open", lookups.permissions)
+        assert isinstance(result, Permissions)
+        assert str(result) == "CR knora-admin:ProjectAdmin"
+
+    def test_none(self, lookups):
+        result = _resolve_permission(None, lookups.permissions)
+        assert not result
+
+    def test_empty_string(self, lookups):
+        result = _resolve_permission("", lookups.permissions)
+        assert not result
+
+    def test_raises(self, lookups):
+        msg = regex.escape("Could not find permissions for value: inexistent")
+        with pytest.raises(PermissionNotExistsError, match=msg):
+            _resolve_permission("inexistent", lookups.permissions)

@@ -82,15 +82,15 @@ def xmlupload(
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
     con = ConnectionLive(creds.server, auth)
     root = get_root_for_deserialisation(input_file)
+    shortcode = root.attrib["shortcode"]
+    config = config.with_server_info(server=creds.server, shortcode=shortcode)
 
-    shortcode, default_ontology = _preliminary_checks(root, imgdir, con, config)
+    _preliminary_validation(root, imgdir, con, config)
 
     # TODO: move this into file where lookups are created
     parsed_resources = get_parsed_resources(root, creds.server)
 
     root, shortcode, default_ontology = prepare_input_xml_file(input_file, imgdir)
-
-    config = config.with_server_info(server=creds.server, shortcode=shortcode)
 
     clients = _get_live_clients(con, auth, creds, shortcode, imgdir)
     transformed_resources, stash = prepare_upload_from_root(
@@ -105,17 +105,15 @@ def xmlupload(
     return execute_upload(clients, state)
 
 
-def _preliminary_checks(root: etree._Element, imgdir: str, con: Connection, config: UploadConfig) -> tuple[str, str]:
+def _preliminary_validation(root: etree._Element, imgdir: str, con: Connection, config: UploadConfig) -> None:
     check_if_link_targets_exist(root)
     check_if_bitstreams_exist(root, imgdir)
     if not config.skip_iiif_validation:
         _validate_iiif_uris(root)
 
-    shortcode = root.attrib["shortcode"]
     default_ontology = root.attrib["default-ontology"]
-    ontology_client = OntologyClientLive(con=con, shortcode=shortcode, default_ontology=default_ontology)
+    ontology_client = OntologyClientLive(con=con, shortcode=config.shortcode, default_ontology=default_ontology)
     do_xml_consistency_check_with_ontology(ontology_client, root)
-    return shortcode, default_ontology
 
 
 def _get_live_clients(

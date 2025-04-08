@@ -90,6 +90,7 @@ def _validate_iiif_uris(root: etree._Element) -> None:
         warnings.warn(DspToolsUserWarning(msg))
         logger.warning(msg)
 
+def _get_lookups()
 
 # TODO: do lookups
 def _get_data_from_xml(

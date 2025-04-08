@@ -13,7 +13,7 @@ from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
 
-def _like_string(value: Any) -> bool:
+def like_string(value: Any) -> bool:
     if pd.isna(value):
         return False
     value = str(value).strip()
@@ -59,7 +59,7 @@ def check_richtext_before_conversion(value: Any, prop_name: str, res_id: str) ->
         prop_name: Property name
         res_id: Resource ID
     """
-    if not _like_string(value):
+    if not like_string(value):
         msg = f"Resource '{res_id}' has a richtext value that is not a string: Value: {value} | Property: {prop_name}"
         warnings.warn(DspToolsUserWarning(msg))
 
@@ -92,30 +92,6 @@ def check_and_fix_collection_input(value: Any, prop_name: str, res_id: str) -> l
             raise InputError(msg)
         case _:
             return [value]
-
-
-def escape_reserved_xml_chars(richtext: str, known_tags: list[str]) -> str:
-    """
-    This function escapes characters that are reserved in an XML.
-    The angular brackets around the known tags will not be escaped.
-
-    Args:
-        richtext: Text to be escaped
-        known_tags: tags that should remain XML tags
-
-    Returns:
-        Escaped string
-    """
-    known_tags_regex = "|".join(known_tags)
-    lookahead = rf"(?!/?({known_tags_regex})/?>)"
-    illegal_lt = rf"<{lookahead}"
-    lookbehind = rf"(?<!</?({known_tags_regex})/?)"
-    illegal_gt = rf"{lookbehind}>"
-    illegal_amp = r"&(?![#a-zA-Z0-9]+;)"
-    richtext = regex.sub(illegal_lt, "&lt;", richtext or "")
-    richtext = regex.sub(illegal_gt, "&gt;", richtext)
-    richtext = regex.sub(illegal_amp, "&amp;", richtext)
-    return richtext
 
 
 def unescape_reserved_xml_chars(richtext: str) -> str:

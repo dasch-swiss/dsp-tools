@@ -7,8 +7,7 @@ from lxml import etree
 from namedentities.core import numeric_entities  # type: ignore[import-untyped]
 
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
-from dsp_tools.xmllib.constants import KNOWN_XML_TAGS
-from dsp_tools.xmllib.internal_helpers import escape_reserved_xml_chars
+from dsp_tools.xmllib.helpers import escape_reserved_xml_characters
 from dsp_tools.xmllib.models.problems import IllegalTagProblem
 
 
@@ -369,7 +368,7 @@ def check_richtext_syntax(richtext: str) -> None:
     Warns:
         DspToolsUserWarning: if the input contains XML syntax problems
     """
-    escaped_text = escape_reserved_xml_chars(richtext, KNOWN_XML_TAGS)
+    escaped_text = escape_reserved_xml_characters(richtext)
     # transform named entities (=character references) to numeric entities, e.g. &nbsp; -> &#160;
     num_ent = numeric_entities(escaped_text)
     pseudo_xml = f"<text>{num_ent}</text>"

@@ -181,7 +181,8 @@ class Richtext(Value):
             _warn_type_mismatch(
                 expected_type="string", value=self.value, prop_name=self.prop_name, res_id=self.resource_id
             )
-        check_richtext_syntax(self.value)
+        else:
+            check_richtext_syntax(self.value)
 
 
 @dataclass

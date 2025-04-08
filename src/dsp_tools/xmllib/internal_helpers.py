@@ -13,7 +13,7 @@ from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
 
-def like_string(value: Any) -> bool:
+def like_string(value: Any) -> bool:  # noqa: D103 (missing docstring in public function)
     if pd.isna(value):
         return False
     value = str(value).strip()

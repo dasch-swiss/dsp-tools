@@ -3,7 +3,7 @@ import warnings
 import pytest
 from lxml import etree
 
-from dsp_tools.xmllib.models.config_options import LicenseRecommended
+from dsp_tools.xmllib import LicenseRecommended
 from dsp_tools.xmllib.models.config_options import Permissions
 from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource

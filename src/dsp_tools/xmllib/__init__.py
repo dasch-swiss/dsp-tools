@@ -8,13 +8,13 @@ from .helpers import get_list_nodes_from_string_via_list_name as get_list_nodes_
 from .helpers import get_list_nodes_from_string_via_property as get_list_nodes_from_string_via_property
 from .helpers import make_xsd_compatible_id as make_xsd_compatible_id
 from .helpers import make_xsd_compatible_id_with_uuid as make_xsd_compatible_id_with_uuid
-from .models.config_options import LicenseRecommended as LicenseRecommended
 from .models.config_options import NewlineReplacement as NewlineReplacement
 from .models.config_options import Permissions as Permissions
 from .models.dsp_base_resources import AudioSegmentResource as AudioSegmentResource
 from .models.dsp_base_resources import LinkResource as LinkResource
 from .models.dsp_base_resources import RegionResource as RegionResource
 from .models.dsp_base_resources import VideoSegmentResource as VideoSegmentResource
+from .models.licenses import LicenseRecommended as LicenseRecommended
 from .models.res import Resource as Resource
 from .models.root import XMLRoot as XMLRoot
 from .value_checkers import is_bool_like as is_bool_like

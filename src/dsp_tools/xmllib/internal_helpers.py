@@ -10,7 +10,7 @@ import regex
 from dsp_tools.error.custom_warnings import DspToolsUserInfo
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import InputError
-from dsp_tools.xmllib.constants import KNOWN_XML_TAGS
+from dsp_tools.xmllib.constants import KNOWN_XML_TAG_REGEXES
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
@@ -148,10 +148,10 @@ def unescape_standoff_tags(xml_str: str) -> str:
     Returns:
         string ready to be written to a file
     """
-    contained_xml_tags = filter(lambda x: x in xml_str, KNOWN_XML_TAGS)
+    contained_xml_tags = filter(lambda x: regex.search(x, xml_str), KNOWN_XML_TAG_REGEXES)
     for tag in contained_xml_tags:
-        xml_str = xml_str.replace(f"&lt;{tag}&gt;", f"<{tag}>")
-        xml_str = xml_str.replace(f"&lt;/{tag}&gt;", f"</{tag}>")
+        xml_str = regex.sub(f"&lt;{tag}&gt;", f"<{tag}>", xml_str)
+        xml_str = regex.sub(f"&lt;/{tag}&gt;", f"</{tag}>", xml_str)
     return xml_str
 
 

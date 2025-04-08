@@ -1526,10 +1526,10 @@ class Resource:
         Examples:
             ```python
             resource = resource.add_file(
-                filename="images/dog.jpg",
+                filename="images/cat.jpg",
                 license=xmllib.LicenseRecommended.DSP.PUBLIC_DOMAIN,
-                copyright_holder="Bark University",
-                authorship=["Bark McDog"],
+                copyright_holder="Meow University",
+                authorship=["Kitty Meow"],
             )
             ```
 
@@ -1537,7 +1537,7 @@ class Resource:
             # a file with restricted view permissions
             resource = resource.add_file(
                 filename="images/dog.jpg",
-                license=xmllib.LicenseRecommended.DSP.PUBLIC_DOMAIN,
+                license=xmllib.LicenseRecommended.CC.BY_NC_ND,
                 copyright_holder="Bark University",
                 authorship=["Bark McDog"],
                 permissions=xmllib.Permissions.RESTRICTED_VIEW,

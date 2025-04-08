@@ -61,7 +61,7 @@ class License: ...
 
 class CC(License, StrEnum):
     """
-    Pre-defined and recommended licenses:
+    Pre-defined and recommended [Creative Commons licenses:](https://creativecommons.org/share-your-work/)
 
     - `BY`: [Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
     - `BY_SA`: [Attribution-ShareAlike 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
@@ -72,12 +72,12 @@ class CC(License, StrEnum):
 
     Examples:
         ```python
-        # adding a creative commons license to a file
+        # adding a Creative Commons license to a file
         resource = resource.add_file(
-            filename="images/cat.jpg",
-            license=xmllib.LicenseRecommended.CC.BY,
-            copyright_holder="Meow University",
-            authorship=["Kitty Meow"],
+            filename="images/dog.jpg",
+            license=xmllib.LicenseRecommended.CC.BY_NC_ND,
+            copyright_holder="Bark University",
+            authorship=["Bark McDog"],
         )
         ```
     """
@@ -92,7 +92,7 @@ class CC(License, StrEnum):
 
 class DSP(License, StrEnum):
     """
-    Pre-defined and recommended license:
+    Pre-defined and recommended license that were created and are curated by DaSCH:
 
     - `AI_GENERATED`: AI-Generated Content - Not Protected by Copyright
     - `UNKNOWN`: Unknown License - Ask Copyright Holder for Permission
@@ -102,10 +102,10 @@ class DSP(License, StrEnum):
         ```python
         # adding a DSP license to a file
         resource = resource.add_file(
-            filename="images/dog.jpg",
+            filename="images/cat.jpg",
             license=xmllib.LicenseRecommended.DSP.PUBLIC_DOMAIN,
-            copyright_holder="Bark University",
-            authorship=["Bark McDog"],
+            copyright_holder="Meow University",
+            authorship=["Kitty Meow"],
         )
         ```
     """
@@ -119,8 +119,8 @@ class LicenseRecommended:
     """
     Recommended licenses:
 
-    - `DSP`: Licenses created and curated by DaSCH, [see `DSP` for the options.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/config-options/#xmllib.models.config_options.DSP)
-    - `CC`: Creative Commons licenses, [see `CC` for the options.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/config-options/#xmllib.models.config_options.CC)
+    - `DSP`: Licenses created and curated by DaSCH, [see `DSP` for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/config-options/#xmllib.models.config_options.DSP)
+    - `CC`: Creative Commons licenses, [see `CC` for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/config-options/#xmllib.models.config_options.CC)
 
     Examples:
         ```python

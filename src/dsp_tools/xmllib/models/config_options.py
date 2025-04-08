@@ -124,7 +124,7 @@ class LicenseRecommended:
 
     Examples:
         ```python
-        # adding a creative commons license to a file
+        # adding a Creative Commons license to a file
         resource = resource.add_file(
             filename="images/cat.jpg",
             license=xmllib.LicenseRecommended.CC.BY,

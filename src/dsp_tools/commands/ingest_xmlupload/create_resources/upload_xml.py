@@ -21,8 +21,8 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontol
 )
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClientLive
+from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import generate_upload_order_and_stash
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_intermediary_lookups
-from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import prepare_upload_from_root
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import validate_and_parse
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
@@ -55,6 +55,7 @@ def ingest_xmlupload(
     Raises:
         InputError: if any media was not uploaded or uploaded media was not referenced.
     """
+    # TODO: change code, maybe consolidate with other code
     default_ontology, root, shortcode = _parse_xml_and_replace_filepaths(xml_file)
 
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
@@ -74,7 +75,7 @@ def ingest_xmlupload(
     clients = _get_live_clients(con, config, auth)
     intermediary_lookups = get_intermediary_lookups(root=root, con=con, clients=clients)
 
-    transformed_resources, stash = prepare_upload_from_root(
+    transformed_resources, stash = generate_upload_order_and_stash(
         root=root, default_ontology=default_ontology, intermediary_lookups=intermediary_lookups
     )
     state = UploadState(

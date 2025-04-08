@@ -32,12 +32,12 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontol
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClient
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClientLive
-from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import _validate_iiif_uris
+from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import generate_upload_order_and_stash
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_intermediary_lookups
-from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import prepare_upload_from_root
+from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_transformed_resources
+from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import validate_iiif_uris
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import check_if_bitstreams_exist
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import check_if_link_targets_exist
-from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import prepare_input_xml_file
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 from dsp_tools.commands.xmlupload.resource_create_client import ResourceCreateClient
@@ -85,18 +85,15 @@ def xmlupload(
     root = get_root_for_deserialisation(input_file)
     shortcode = root.attrib["shortcode"]
     config = config.with_server_info(server=creds.server, shortcode=shortcode)
-
-    _preliminary_validation(root, imgdir, con, config)
-
-    # TODO: move this into file where lookups are created
-    parsed_resources = get_parsed_resources(root, creds.server)
-
-    root, shortcode, default_ontology = prepare_input_xml_file(input_file, imgdir)
-
     clients = _get_live_clients(con, auth, creds, shortcode, imgdir)
-    transformed_resources, stash = prepare_upload_from_root(
-        root=root, ontology_client="ontology_client", clients=clients
-    )
+
+    preliminary_validation_with_root(root, imgdir, con, config)
+
+    parsed_resources, _ = get_parsed_resources(root, creds.server)
+    intermediary_lookups = get_intermediary_lookups(root=root, con=con, clients=clients)
+    transformed_resources = get_transformed_resources(parsed_resources, intermediary_lookups)
+
+    transformed_resources, stash = generate_upload_order_and_stash(transformed_resources)
     state = UploadState(
         pending_resources=transformed_resources,
         pending_stash=stash,
@@ -106,12 +103,11 @@ def xmlupload(
     return execute_upload(clients, state)
 
 
-def _preliminary_validation(root: etree._Element, imgdir: str, con: Connection, config: UploadConfig) -> None:
+def preliminary_validation_with_root(root: etree._Element, imgdir: str, con: Connection, config: UploadConfig) -> None:
     check_if_link_targets_exist(root)
     check_if_bitstreams_exist(root, imgdir)
     if not config.skip_iiif_validation:
-        _validate_iiif_uris(root)
-
+        validate_iiif_uris(root)
     default_ontology = root.attrib["default-ontology"]
     ontology_client = OntologyClientLive(con=con, shortcode=config.shortcode, default_ontology=default_ontology)
     do_xml_consistency_check_with_ontology(ontology_client, root)

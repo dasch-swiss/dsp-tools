@@ -17,7 +17,7 @@ from dsp_tools.commands.xmlupload.models.lookup_models import make_namespace_dic
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.prepare_xml_input.iiif_uri_validator import IIIFUriValidator
-from dsp_tools.commands.xmlupload.prepare_xml_input.transform_xmlresource_into_intermediary_classes import (
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import (
     transform_all_resources_into_intermediary_resources,
 )
 from dsp_tools.commands.xmlupload.stash.analyse_circular_reference_graph import generate_upload_order
@@ -28,6 +28,7 @@ from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.legacy_models.projectContext import ProjectContext
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 
 LIST_SEPARATOR = "\n-    "
 
@@ -79,27 +80,8 @@ def _get_authorship_lookup(root: etree._Element) -> dict[str, list[str]]:
     return authorship_lookup
 
 
-def prepare_upload_from_root(
-    root: etree._Element, default_ontology: str, intermediary_lookups: IntermediaryLookups
-) -> tuple[list[IntermediaryResource], Stash | None]:
-    """Do the consistency check, resolve circular references, and return the resources and permissions."""
-    logger.info("Get data from XML...")
-    resources = _extract_resources_from_xml(root, default_ontology)
-    transformed_resources = _get_transformed_resources(resources, intermediary_lookups)
-    info_for_graph = create_info_for_graph_from_intermediary_resources(transformed_resources)
-    stash_lookup, upload_order = generate_upload_order(info_for_graph)
-    sorting_lookup = {res.res_id: res for res in transformed_resources}
-    sorted_resources = [sorting_lookup[res_id] for res_id in upload_order]
-    stash = stash_circular_references(sorted_resources, stash_lookup)
-    return sorted_resources, stash
-
-
-def get_upload_info_from_root():
-    pass
-
-
-def _get_transformed_resources(
-    resources: list[XMLResource], intermediary_lookups: IntermediaryLookups
+def get_transformed_resources(
+    resources: list[ParsedResource], intermediary_lookups: IntermediaryLookups
 ) -> list[IntermediaryResource]:
     result = transform_all_resources_into_intermediary_resources(resources, intermediary_lookups)
     if result.resource_failures:
@@ -112,7 +94,20 @@ def _get_transformed_resources(
     return result.transformed_resources
 
 
-def _validate_iiif_uris(root: etree._Element) -> None:
+def generate_upload_order_and_stash(
+    intermediary_resources: list[IntermediaryResource],
+) -> tuple[list[IntermediaryResource], Stash | None]:
+    """Do the consistency check, resolve circular references, and return the resources and permissions."""
+    logger.info("Get data from XML...")
+    info_for_graph = create_info_for_graph_from_intermediary_resources(intermediary_resources)
+    stash_lookup, upload_order = generate_upload_order(info_for_graph)
+    sorting_lookup = {res.res_id: res for res in intermediary_resources}
+    sorted_resources = [sorting_lookup[res_id] for res_id in upload_order]
+    stash = stash_circular_references(sorted_resources, stash_lookup)
+    return sorted_resources, stash
+
+
+def validate_iiif_uris(root: etree._Element) -> None:
     uris = [uri.strip() for node in root.iter(tag="iiif-uri") if (uri := node.text)]
     if problems := IIIFUriValidator(uris).validate():
         msg = problems.get_msg()

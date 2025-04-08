@@ -13,23 +13,6 @@ from dsp_tools.utils.xml_parsing.transform import transform_special_tags_make_lo
 from dsp_tools.utils.xml_parsing.xml_schema_validation import validate_xml_with_schema
 
 
-# TODO: delete
-def prepare_input_xml_file(input_file: Path, imgdir: str) -> tuple[etree._Element, str, str]:
-    """
-    Parses the file and does some rudimentary checks.
-
-    Args:
-        input_file: input XML
-        imgdir: directory of the images
-
-    Returns:
-        The root element of the parsed XML file, the shortcode, and the default ontology
-    """
-    root, shortcode, default_ontology = validate_and_parse(input_file)
-    check_if_bitstreams_exist(root, imgdir)
-    return root, shortcode, default_ontology
-
-
 def validate_and_parse(input_file: Path) -> tuple[etree._Element, str, str]:
     """Parse and validate an XML file.
 

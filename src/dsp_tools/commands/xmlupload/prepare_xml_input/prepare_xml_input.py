@@ -16,11 +16,7 @@ from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookup
 from dsp_tools.commands.xmlupload.models.lookup_models import make_namespace_dict_from_onto_names
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
-from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontology import (
-    do_xml_consistency_check_with_ontology,
-)
 from dsp_tools.commands.xmlupload.prepare_xml_input.iiif_uri_validator import IIIFUriValidator
-from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClient
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_xmlresource_into_intermediary_classes import (
     transform_all_resources_into_intermediary_resources,
 )
@@ -37,15 +33,14 @@ LIST_SEPARATOR = "\n-    "
 
 
 def prepare_upload_from_root(
-    root: etree._Element, ontology_client: OntologyClient, clients: UploadClients
+    root: etree._Element, clients: UploadClients, default_ontology: str, intermediary_lookups: IntermediaryLookups
 ) -> tuple[list[IntermediaryResource], Stash | None]:
     """Do the consistency check, resolve circular references, and return the resources and permissions."""
-    do_xml_consistency_check_with_ontology(onto_client=ontology_client, root=root)
     logger.info("Get data from XML...")
     resources, permissions_lookup, authorships = _get_data_from_xml(
-        con=ontology_client.con,
+        con=clients.project_client.con,
         root=root,
-        default_ontology=ontology_client.default_ontology,
+        default_ontology=default_ontology,
     )
     transformed_resources = _get_transformed_resources(resources, clients, permissions_lookup, authorships)
     info_for_graph = create_info_for_graph_from_intermediary_resources(transformed_resources)
@@ -99,7 +94,7 @@ def _get_data_from_xml(
     return resources, permissions_lookup, authorships
 
 
-def _get_intermediary_lookups(root: etree._Element, con: Connection, clients: UploadClients) -> IntermediaryLookups:
+def get_intermediary_lookups(root: etree._Element, con: Connection, clients: UploadClients) -> IntermediaryLookups:
     proj_context = _get_project_context_from_server(connection=con, shortcode=root.attrib["shortcode"])
     permissions_lookup = _get_permissions_lookup(root, proj_context)
     authorship_lookup = _get_authorship_lookup(root)

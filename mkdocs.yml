@@ -46,7 +46,7 @@ nav:
           - VideoSegmentResource: xmllib-api-reference/dsp-base-resources/video-segment-resource.md
           - AudioSegmentResource: xmllib-api-reference/dsp-base-resources/audio-segment-resource.md
       - Configuration options: xmllib-api-reference/config-options.md
-      - Licenses: 
+      - Licenses:
           - Recommended: xmllib-api-reference/licenses/recommended.md
           - Unrecommended: xmllib-api-reference/licenses/unrecommended.md
       - Value Checkers: xmllib-api-reference/value-checkers.md

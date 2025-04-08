@@ -87,7 +87,6 @@ def _validate_iiif_uris(root: etree._Element) -> None:
         logger.warning(msg)
 
 
-
 def _get_data_from_xml(
     con: Connection,
     root: etree._Element,
@@ -99,12 +98,20 @@ def _get_data_from_xml(
     resources = _extract_resources_from_xml(root, default_ontology)
     return resources, permissions_lookup, authorships
 
-def _get_intermediary_lookup(root: etree._Element, con: Connection) -> IntermediaryLookups:
+
+def _get_intermediary_lookups(root: etree._Element, con: Connection, clients: UploadClients) -> IntermediaryLookups:
     proj_context = _get_project_context_from_server(connection=con, shortcode=root.attrib["shortcode"])
-    permissions = _get_permissions_lookup(root, proj_context)
-
+    permissions_lookup = _get_permissions_lookup(root, proj_context)
     authorship_lookup = _get_authorship_lookup(root)
-
+    listnode_lookup = clients.list_client.get_list_node_id_to_iri_lookup()
+    project_onto_dict = clients.project_client.get_ontology_name_dict()
+    namespaces = make_namespace_dict_from_onto_names(project_onto_dict)
+    return IntermediaryLookups(
+        permissions=permissions_lookup,
+        listnodes=listnode_lookup,
+        namespaces=namespaces,
+        authorships=authorship_lookup,
+    )
 
 
 def _get_permissions_lookup(root: etree._Element, proj_context: ProjectContext) -> dict[str, Permissions]:
@@ -135,6 +142,7 @@ def _get_project_context_from_server(connection: Connection, shortcode: str) -> 
         logger.exception("Unable to retrieve project context from DSP server")
         raise InputError("Unable to retrieve project context from DSP server") from None
     return proj_context
+
 
 def _get_authorship_lookup(root: etree._Element) -> dict[str, list[str]]:
     def get_one_author(ele: etree._Element) -> str:

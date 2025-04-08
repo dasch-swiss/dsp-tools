@@ -6,6 +6,39 @@ from enum import StrEnum
 class License: ...
 
 
+class LicenseRecommended:
+    """
+    Recommended licenses:
+
+    - `DSP`: Licenses created and curated by DaSCH, [see `DSP` for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/#xmllib.models.licenses.recommended.DSP)
+    - `CC`: Creative Commons licenses, [see `CC` for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/#xmllib.models.licenses.recommended.CC)
+
+    Examples:
+        ```python
+        # adding a Creative Commons license to a file
+        resource = resource.add_file(
+            filename="images/cat.jpg",
+            license=xmllib.LicenseRecommended.CC.BY,
+            copyright_holder="Meow University",
+            authorship=["Kitty Meow"],
+        )
+        ```
+
+        ```python
+        # adding a DSP license to a file
+        resource = resource.add_file(
+            filename="images/dog.jpg",
+            license=xmllib.LicenseRecommended.DSP.PUBLIC_DOMAIN,
+            copyright_holder="Bark University",
+            authorship=["Bark McDog"],
+        )
+        ```
+    """
+
+    CC: type[CC]
+    DSP: type[DSP]
+
+
 class CC(License, StrEnum):
     """
     Pre-defined and recommended [Creative Commons licenses:](https://creativecommons.org/share-your-work/)
@@ -62,34 +95,5 @@ class DSP(License, StrEnum):
     PUBLIC_DOMAIN = "http://rdfh.ch/licenses/public-domain"
 
 
-class LicenseRecommended:
-    """
-    Recommended licenses:
-
-    - `DSP`: Licenses created and curated by DaSCH, [see `DSP` for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/config-options/#xmllib.models.config_options.DSP)
-    - `CC`: Creative Commons licenses, [see `CC` for details.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/config-options/#xmllib.models.config_options.CC)
-
-    Examples:
-        ```python
-        # adding a Creative Commons license to a file
-        resource = resource.add_file(
-            filename="images/cat.jpg",
-            license=xmllib.LicenseRecommended.CC.BY,
-            copyright_holder="Meow University",
-            authorship=["Kitty Meow"],
-        )
-        ```
-
-        ```python
-        # adding a DSP license to a file
-        resource = resource.add_file(
-            filename="images/dog.jpg",
-            license=xmllib.LicenseRecommended.DSP.PUBLIC_DOMAIN,
-            copyright_holder="Bark University",
-            authorship=["Bark McDog"],
-        )
-        ```
-    """
-
-    CC = CC
-    DSP = DSP
+LicenseRecommended.CC = CC
+LicenseRecommended.DSP = DSP

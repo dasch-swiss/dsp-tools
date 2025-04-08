@@ -32,6 +32,21 @@ from dsp_tools.legacy_models.projectContext import ProjectContext
 LIST_SEPARATOR = "\n-    "
 
 
+def get_intermediary_lookups(root: etree._Element, con: Connection, clients: UploadClients) -> IntermediaryLookups:
+    proj_context = _get_project_context_from_server(connection=con, shortcode=root.attrib["shortcode"])
+    permissions_lookup = _get_permissions_lookup(root, proj_context)
+    authorship_lookup = _get_authorship_lookup(root)
+    listnode_lookup = clients.list_client.get_list_node_id_to_iri_lookup()
+    project_onto_dict = clients.project_client.get_ontology_name_dict()
+    namespaces = make_namespace_dict_from_onto_names(project_onto_dict)
+    return IntermediaryLookups(
+        permissions=permissions_lookup,
+        listnodes=listnode_lookup,
+        namespaces=namespaces,
+        authorships=authorship_lookup,
+    )
+
+
 def prepare_upload_from_root(
     root: etree._Element, clients: UploadClients, default_ontology: str, intermediary_lookups: IntermediaryLookups
 ) -> tuple[list[IntermediaryResource], Stash | None]:
@@ -42,7 +57,7 @@ def prepare_upload_from_root(
         root=root,
         default_ontology=default_ontology,
     )
-    transformed_resources = _get_transformed_resources(resources, clients, permissions_lookup, authorships)
+    transformed_resources = _get_transformed_resources(resources, intermediary_lookups)
     info_for_graph = create_info_for_graph_from_intermediary_resources(transformed_resources)
     stash_lookup, upload_order = generate_upload_order(info_for_graph)
     sorting_lookup = {res.res_id: res for res in transformed_resources}
@@ -52,17 +67,8 @@ def prepare_upload_from_root(
 
 
 def _get_transformed_resources(
-    resources: list[XMLResource],
-    clients: UploadClients,
-    permissions_lookup: dict[str, Permissions],
-    authorship_lookup: dict[str, list[str]],
+    resources: list[XMLResource], intermediary_lookups: IntermediaryLookups
 ) -> list[IntermediaryResource]:
-    project_onto_dict = clients.project_client.get_ontology_name_dict()
-    listnode_lookup = clients.list_client.get_list_node_id_to_iri_lookup()
-    namespaces = make_namespace_dict_from_onto_names(project_onto_dict)
-    intermediary_lookups = IntermediaryLookups(
-        permissions=permissions_lookup, listnodes=listnode_lookup, namespaces=namespaces, authorships=authorship_lookup
-    )
     result = transform_all_resources_into_intermediary_resources(resources, intermediary_lookups)
     if result.resource_failures:
         failures = [f"Resource ID: '{x.resource_id}', Message: {x.failure_msg}" for x in result.resource_failures]
@@ -92,21 +98,6 @@ def _get_data_from_xml(
     authorships = _get_authorship_lookup(root)
     resources = _extract_resources_from_xml(root, default_ontology)
     return resources, permissions_lookup, authorships
-
-
-def get_intermediary_lookups(root: etree._Element, con: Connection, clients: UploadClients) -> IntermediaryLookups:
-    proj_context = _get_project_context_from_server(connection=con, shortcode=root.attrib["shortcode"])
-    permissions_lookup = _get_permissions_lookup(root, proj_context)
-    authorship_lookup = _get_authorship_lookup(root)
-    listnode_lookup = clients.list_client.get_list_node_id_to_iri_lookup()
-    project_onto_dict = clients.project_client.get_ontology_name_dict()
-    namespaces = make_namespace_dict_from_onto_names(project_onto_dict)
-    return IntermediaryLookups(
-        permissions=permissions_lookup,
-        listnodes=listnode_lookup,
-        namespaces=namespaces,
-        authorships=authorship_lookup,
-    )
 
 
 def _get_permissions_lookup(root: etree._Element, proj_context: ProjectContext) -> dict[str, Permissions]:

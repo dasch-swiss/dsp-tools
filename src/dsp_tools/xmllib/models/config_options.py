@@ -92,7 +92,7 @@ class CC(License, StrEnum):
 
 class DSP(License, StrEnum):
     """
-    Pre-defined and recommended license that were created and are curated by DaSCH:
+    Pre-defined and recommended licenses created and curated by DaSCH:
 
     - `AI_GENERATED`: AI-Generated Content - Not Protected by Copyright
     - `UNKNOWN`: Unknown License - Ask Copyright Holder for Permission

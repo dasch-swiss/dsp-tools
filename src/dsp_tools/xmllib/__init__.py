@@ -14,7 +14,7 @@ from .models.dsp_base_resources import AudioSegmentResource as AudioSegmentResou
 from .models.dsp_base_resources import LinkResource as LinkResource
 from .models.dsp_base_resources import RegionResource as RegionResource
 from .models.dsp_base_resources import VideoSegmentResource as VideoSegmentResource
-from .models.licenses import LicenseRecommended as LicenseRecommended
+from .models.licenses.recommended import LicenseRecommended as LicenseRecommended
 from .models.res import Resource as Resource
 from .models.root import XMLRoot as XMLRoot
 from .value_checkers import is_bool_like as is_bool_like

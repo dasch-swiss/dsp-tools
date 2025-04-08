@@ -87,17 +87,32 @@ def _validate_iiif_uris(root: etree._Element) -> None:
         logger.warning(msg)
 
 
+
 def _get_data_from_xml(
     con: Connection,
     root: etree._Element,
     default_ontology: str,
 ) -> tuple[list[XMLResource], dict[str, Permissions], dict[str, list[str]]]:
     proj_context = _get_project_context_from_server(connection=con, shortcode=root.attrib["shortcode"])
-    permissions = _extract_permissions_from_xml(root, proj_context)
-    authorships = _extract_authorships_from_xml(root)
+    permissions_lookup = _get_permissions_lookup(root, proj_context)
+    authorships = _get_authorship_lookup(root)
     resources = _extract_resources_from_xml(root, default_ontology)
-    permissions_lookup = {name: perm.get_permission_instance() for name, perm in permissions.items()}
     return resources, permissions_lookup, authorships
+
+def _get_intermediary_lookup(root: etree._Element, con: Connection) -> IntermediaryLookups:
+    proj_context = _get_project_context_from_server(connection=con, shortcode=root.attrib["shortcode"])
+    permissions = _get_permissions_lookup(root, proj_context)
+
+    authorship_lookup = _get_authorship_lookup(root)
+
+
+
+def _get_permissions_lookup(root: etree._Element, proj_context: ProjectContext) -> dict[str, Permissions]:
+    permission_ele = list(root.iter(tag="permissions"))
+    permissions = [XmlPermission(permission, proj_context) for permission in permission_ele]
+    permissions_dict = {permission.permission_id: permission for permission in permissions}
+    permissions_lookup = {name: perm.get_permission_instance() for name, perm in permissions_dict.items()}
+    return permissions_lookup
 
 
 def _get_project_context_from_server(connection: Connection, shortcode: str) -> ProjectContext:
@@ -121,14 +136,7 @@ def _get_project_context_from_server(connection: Connection, shortcode: str) -> 
         raise InputError("Unable to retrieve project context from DSP server") from None
     return proj_context
 
-
-def _extract_permissions_from_xml(root: etree._Element, proj_context: ProjectContext) -> dict[str, XmlPermission]:
-    permission_ele = list(root.iter(tag="permissions"))
-    permissions = [XmlPermission(permission, proj_context) for permission in permission_ele]
-    return {permission.permission_id: permission for permission in permissions}
-
-
-def _extract_authorships_from_xml(root: etree._Element) -> dict[str, list[str]]:
+def _get_authorship_lookup(root: etree._Element) -> dict[str, list[str]]:
     def get_one_author(ele: etree._Element) -> str:
         # The xsd file ensures that the body of the element contains valid non-whitespace characters
         txt = cast(str, ele.text)

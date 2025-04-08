@@ -90,7 +90,11 @@ def _validate_iiif_uris(root: etree._Element) -> None:
         warnings.warn(DspToolsUserWarning(msg))
         logger.warning(msg)
 
-def _get_lookups()
+def _get_lookups(root: etree._Element, con: Connection) -> IntermediaryLookups:
+    proj_context = _get_project_context_from_server(connection=con, shortcode=root.attrib["shortcode"])
+    permissions = _extract_permissions_from_xml(root, proj_context)
+    permissions_lookup = {name: perm.get_permission_instance() for name, perm in permissions.items()}
+    authorships = _get_authorship_lookup(root)
 
 # TODO: do lookups
 def _get_data_from_xml(
@@ -100,7 +104,7 @@ def _get_data_from_xml(
 ) -> tuple[list[XMLResource], dict[str, Permissions], dict[str, list[str]]]:
     proj_context = _get_project_context_from_server(connection=con, shortcode=root.attrib["shortcode"])
     permissions = _extract_permissions_from_xml(root, proj_context)
-    authorships = _extract_authorships_from_xml(root)
+    authorships = _get_authorship_lookup(root)
     resources = _extract_resources_from_xml(root, default_ontology)
     permissions_lookup = {name: perm.get_permission_instance() for name, perm in permissions.items()}
     return resources, permissions_lookup, authorships
@@ -134,7 +138,7 @@ def _extract_permissions_from_xml(root: etree._Element, proj_context: ProjectCon
     return {permission.permission_id: permission for permission in permissions}
 
 
-def _extract_authorships_from_xml(root: etree._Element) -> dict[str, list[str]]:
+def _get_authorship_lookup(root: etree._Element) -> dict[str, list[str]]:
     def get_one_author(ele: etree._Element) -> str:
         # The xsd file ensures that the body of the element contains valid non-whitespace characters
         txt = cast(str, ele.text)

@@ -4,8 +4,8 @@ from typing import Union
 from rdflib import IdentifiedNode
 from rdflib import Literal
 from rdflib import Namespace
-from rdflib import Node
 from rdflib import Variable
+from rdflib.term import Node
 
 # rdflib typing
 PropertyTypeAlias: TypeAlias = Union[IdentifiedNode, Variable]

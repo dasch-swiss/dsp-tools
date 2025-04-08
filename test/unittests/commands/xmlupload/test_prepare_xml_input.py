@@ -5,7 +5,7 @@ from lxml import etree
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import _get_authorship_lookup
 
 
-def test_extract_authorships_from_xml_with_authors():
+def test_get_authorship_lookup():
     root_str = """
     <knora>
         <authorship id="authorship_1">

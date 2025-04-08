@@ -4,7 +4,6 @@ from typing import cast
 
 from lxml import etree
 
-from dsp_tools.error.exceptions import InputError
 from dsp_tools.xmllib.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.constants import XML_NAMESPACE_MAP
 from dsp_tools.xmllib.helpers import escape_reserved_xml_characters
@@ -127,17 +126,5 @@ def _serialise_complete_richtext_prop(values: list[Richtext], prop_name: str) ->
 def _create_richtext_elements_from_string(value: Richtext, text_element: etree._Element) -> etree._Element:
     new_element = deepcopy(text_element)
     escaped_text = escape_reserved_xml_characters(value.value)
-    num_ent = numeric_entities(escaped_text)
-    pseudo_xml = f"<ignore-this>{num_ent}</ignore-this>"
-    try:
-        _ = etree.fromstring(pseudo_xml)
-    except etree.XMLSyntaxError as err:
-        msg = (
-            f"The resource with the ID '{value.resource_id}' and the property '{value.prop_name}' "
-            f"contains richtext which is not in correct XML syntax."
-        )
-        msg += f"\nOriginal error message: {err.msg}"
-        msg += f"\nPotential line/column numbers are relative to this text: {pseudo_xml}"
-        raise InputError(msg) from None
-    new_element.text = num_ent
+    new_element.text = numeric_entities(escaped_text)
     return new_element

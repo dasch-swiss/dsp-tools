@@ -10,6 +10,7 @@ import regex
 from dsp_tools.error.custom_warnings import DspToolsUserInfo
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.xmllib.constants import KNOWN_XML_TAGS
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
@@ -133,6 +134,25 @@ def unescape_reserved_xml_chars(richtext: str) -> str:
     richtext = regex.sub(r"&gt;", ">", richtext)
     richtext = regex.sub(r"&amp;", "&", richtext)
     return richtext
+
+
+def unescape_standoff_tags(xml_str: str) -> str:
+    """
+    Unescape `&lt;` and `&gt;` in DSP standard standoff tags.
+    Inside richtext values, the tags are escaped, because lxml doesn't treat elem.text as XML.
+    Before writing such an XML string to a file, the tags must be unescaped, otherwise they won't be recognized.
+
+    Args:
+        xml_str: a serialised XML string
+
+    Returns:
+        string ready to be written to a file
+    """
+    contained_xml_tags = filter(lambda x: x in xml_str, KNOWN_XML_TAGS)
+    for tag in contained_xml_tags:
+        xml_str = xml_str.replace(f"&lt;{tag}&gt;", f"<{tag}>")
+        xml_str = xml_str.replace(f"&lt;/{tag}&gt;", f"</{tag}>")
+    return xml_str
 
 
 def numeric_entities(text: str) -> str:

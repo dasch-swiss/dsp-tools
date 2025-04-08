@@ -17,6 +17,7 @@ from dsp_tools.error.exceptions import BaseError
 from dsp_tools.utils.xml_parsing.xml_schema_validation import parse_and_validate_xml_file
 from dsp_tools.xmllib.constants import DASCH_SCHEMA
 from dsp_tools.xmllib.constants import XML_NAMESPACE_MAP
+from dsp_tools.xmllib.internal_helpers import unescape_standoff_tags
 from dsp_tools.xmllib.models.dsp_base_resources import AudioSegmentResource
 from dsp_tools.xmllib.models.dsp_base_resources import LinkResource
 from dsp_tools.xmllib.models.dsp_base_resources import RegionResource
@@ -173,6 +174,7 @@ class XMLRoot:
             pretty_print=True,
             doctype='<?xml version="1.0" encoding="UTF-8"?>',
         )
+        xml_string = unescape_standoff_tags(xml_string)
         with open(filepath, "w", encoding="utf-8") as f:
             f.write(xml_string)
         try:

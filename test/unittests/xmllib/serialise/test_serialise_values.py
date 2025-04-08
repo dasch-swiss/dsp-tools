@@ -139,7 +139,7 @@ def test_list() -> None:
 
 
 @pytest.mark.parametrize(
-    ["orig", "expected"],
+    ("orig", "expected"),
     [
         (
             "<strong>standard standoff tag</strong><unsupported>Hello World</unsupported>",

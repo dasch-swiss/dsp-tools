@@ -47,16 +47,44 @@ def get_intermediary_lookups(root: etree._Element, con: Connection, clients: Upl
     )
 
 
+def _get_permissions_lookup(root: etree._Element, proj_context: ProjectContext) -> dict[str, Permissions]:
+    permission_ele = list(root.iter(tag="permissions"))
+    permissions = [XmlPermission(permission, proj_context) for permission in permission_ele]
+    permissions_dict = {permission.permission_id: permission for permission in permissions}
+    permissions_lookup = {name: perm.get_permission_instance() for name, perm in permissions_dict.items()}
+    return permissions_lookup
+
+
+def _get_project_context_from_server(connection: Connection, shortcode: str) -> ProjectContext:
+    try:
+        proj_context = ProjectContext(con=connection, shortcode=shortcode)
+    except BaseError:
+        logger.exception("Unable to retrieve project context from DSP server")
+        raise InputError("Unable to retrieve project context from DSP server") from None
+    return proj_context
+
+
+def _get_authorship_lookup(root: etree._Element) -> dict[str, list[str]]:
+    def get_one_author(ele: etree._Element) -> str:
+        # The xsd file ensures that the body of the element contains valid non-whitespace characters
+        txt = cast(str, ele.text)
+        txt = regex.sub(r"[\n\t]", " ", txt)
+        txt = regex.sub(r" +", " ", txt)
+        return txt.strip()
+
+    authorship_lookup = {}
+    for auth in root.iter(tag="authorship"):
+        individual_authors = [get_one_author(child) for child in auth.iterchildren()]
+        authorship_lookup[auth.attrib["id"]] = individual_authors
+    return authorship_lookup
+
+
 def prepare_upload_from_root(
-    root: etree._Element, clients: UploadClients, default_ontology: str, intermediary_lookups: IntermediaryLookups
+    root: etree._Element, default_ontology: str, intermediary_lookups: IntermediaryLookups
 ) -> tuple[list[IntermediaryResource], Stash | None]:
     """Do the consistency check, resolve circular references, and return the resources and permissions."""
     logger.info("Get data from XML...")
-    resources, permissions_lookup, authorships = _get_data_from_xml(
-        con=clients.project_client.con,
-        root=root,
-        default_ontology=default_ontology,
-    )
+    resources = _extract_resources_from_xml(root, default_ontology)
     transformed_resources = _get_transformed_resources(resources, intermediary_lookups)
     info_for_graph = create_info_for_graph_from_intermediary_resources(transformed_resources)
     stash_lookup, upload_order = generate_upload_order(info_for_graph)
@@ -86,63 +114,6 @@ def _validate_iiif_uris(root: etree._Element) -> None:
         msg = problems.get_msg()
         warnings.warn(DspToolsUserWarning(msg))
         logger.warning(msg)
-
-
-def _get_data_from_xml(
-    con: Connection,
-    root: etree._Element,
-    default_ontology: str,
-) -> tuple[list[XMLResource], dict[str, Permissions], dict[str, list[str]]]:
-    proj_context = _get_project_context_from_server(connection=con, shortcode=root.attrib["shortcode"])
-    permissions_lookup = _get_permissions_lookup(root, proj_context)
-    authorships = _get_authorship_lookup(root)
-    resources = _extract_resources_from_xml(root, default_ontology)
-    return resources, permissions_lookup, authorships
-
-
-def _get_permissions_lookup(root: etree._Element, proj_context: ProjectContext) -> dict[str, Permissions]:
-    permission_ele = list(root.iter(tag="permissions"))
-    permissions = [XmlPermission(permission, proj_context) for permission in permission_ele]
-    permissions_dict = {permission.permission_id: permission for permission in permissions}
-    permissions_lookup = {name: perm.get_permission_instance() for name, perm in permissions_dict.items()}
-    return permissions_lookup
-
-
-def _get_project_context_from_server(connection: Connection, shortcode: str) -> ProjectContext:
-    """
-    This function retrieves the project context previously uploaded on the server (json file)
-
-    Args:
-        connection: connection to the server
-        shortcode: shortcode of the project
-
-    Returns:
-        Project context
-
-    Raises:
-        InputError: If the project was not previously uploaded on the server
-    """
-    try:
-        proj_context = ProjectContext(con=connection, shortcode=shortcode)
-    except BaseError:
-        logger.exception("Unable to retrieve project context from DSP server")
-        raise InputError("Unable to retrieve project context from DSP server") from None
-    return proj_context
-
-
-def _get_authorship_lookup(root: etree._Element) -> dict[str, list[str]]:
-    def get_one_author(ele: etree._Element) -> str:
-        # The xsd file ensures that the body of the element contains valid non-whitespace characters
-        txt = cast(str, ele.text)
-        txt = regex.sub(r"[\n\t]", " ", txt)
-        txt = regex.sub(r" +", " ", txt)
-        return txt.strip()
-
-    authorship_lookup = {}
-    for auth in root.iter(tag="authorship"):
-        individual_authors = [get_one_author(child) for child in auth.iterchildren()]
-        authorship_lookup[auth.attrib["id"]] = individual_authors
-    return authorship_lookup
 
 
 def _extract_resources_from_xml(root: etree._Element, default_ontology: str) -> list[XMLResource]:

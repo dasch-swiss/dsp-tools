@@ -92,7 +92,7 @@ def xmlupload(
     intermediary_lookups = get_intermediary_lookups(root=root, con=con, clients=clients)
 
     transformed_resources, stash = prepare_upload_from_root(
-        root=root, clients=clients, default_ontology=default_ontology, intermediary_lookups=intermediary_lookups
+        root=root, default_ontology=default_ontology, intermediary_lookups=intermediary_lookups
     )
     state = UploadState(
         pending_resources=transformed_resources,

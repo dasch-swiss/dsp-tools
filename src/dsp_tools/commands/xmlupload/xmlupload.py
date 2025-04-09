@@ -76,7 +76,7 @@ def xmlupload(
     config = config.with_server_info(server=creds.server, shortcode=shortcode)
     clients = _get_live_clients(con, auth, creds, shortcode, imgdir)
 
-    stash, transformed_resources = prepare_root_for_upload(root, imgdir, clients, config)
+    transformed_resources, stash = prepare_root_for_upload(root, imgdir, clients, config)
     state = UploadState(
         pending_resources=transformed_resources,
         pending_stash=stash,

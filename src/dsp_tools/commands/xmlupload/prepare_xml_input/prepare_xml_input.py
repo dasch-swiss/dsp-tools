@@ -50,7 +50,7 @@ def prepare_root_for_upload(
     intermediary_lookups = get_intermediary_lookups(root=root, con=clients.project_client.con, clients=clients)
     transformed_resources = get_transformed_resources(parsed_resources, intermediary_lookups)
     transformed_resources, stash = generate_upload_order_and_stash(transformed_resources)
-    return stash, transformed_resources
+    return transformed_resources, stash
 
 
 def preliminary_validation_of_root(root: etree._Element, imgdir: str, con: Connection, config: UploadConfig) -> None:

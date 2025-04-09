@@ -90,7 +90,12 @@ def _validate_iiif_uris(root: etree._Element) -> None:
 
 def _check_if_resptr_targets_exist(root: etree._Element) -> list[str]:
     link_values = [x for x in root.iter() if x.tag == "resptr"]
-    resource_ids = [x.attrib["id"] for x in root.iter() if x.tag == "resource"]
+
+    def is_resource_tag(tag: str) -> bool:
+        resource_tags = ["resource", "link", "region", "video-segment", "audio-segment"]
+        return bool(tag in resource_tags)
+
+    resource_ids = [x.attrib["id"] for x in root.iter() if is_resource_tag(x.tag)]
     invalid_link_values = [x for x in link_values if x.text not in resource_ids]
     invalid_link_values = [x for x in invalid_link_values if not is_resource_iri(str(x.text))]
     errors = []

@@ -5,6 +5,13 @@ from pathlib import Path
 import regex
 from lxml import etree
 
+from dsp_tools.clients.connection import Connection
+from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontology import (
+    do_xml_consistency_check_with_ontology,
+)
+from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClientLive
+from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import validate_iiif_uris
+from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.data_formats.iri_util import is_resource_iri
 from dsp_tools.utils.xml_parsing.parse_xml import parse_xml_file
@@ -13,23 +20,21 @@ from dsp_tools.utils.xml_parsing.transform import transform_special_tags_make_lo
 from dsp_tools.utils.xml_parsing.xml_schema_validation import validate_xml_with_schema
 
 
-def prepare_input_xml_file(input_file: Path, imgdir: str) -> tuple[etree._Element, str, str]:
+def prepare_input_xml_file(input_file: Path) -> tuple[etree._Element, str, str]:
     """
     Parses the file and does some rudimentary checks.
 
     Args:
         input_file: input XML
-        imgdir: directory of the images
 
     Returns:
         The root element of the parsed XML file, the shortcode, and the default ontology
     """
-    root, shortcode, default_ontology = validate_and_parse(input_file)
-    check_if_bitstreams_exist(root, imgdir)
+    root, shortcode, default_ontology = parse_and_validate_with_xsd(input_file)
     return root, shortcode, default_ontology
 
 
-def validate_and_parse(input_file: Path) -> tuple[etree._Element, str, str]:
+def parse_and_validate_with_xsd(input_file: Path) -> tuple[etree._Element, str, str]:
     """Parse and validate an XML file.
 
     Args:
@@ -44,10 +49,18 @@ def validate_and_parse(input_file: Path) -> tuple[etree._Element, str, str]:
     validate_xml_with_schema(root)
     print("The XML file is syntactically correct.")
     root = transform_special_tags_make_localname(root)
-    _check_if_link_targets_exist(root)
     shortcode = root.attrib["shortcode"]
     default_ontology = root.attrib["default-ontology"]
     return root, shortcode, default_ontology
+
+
+def preliminary_validation_of_root(root: etree._Element, con: Connection, config: UploadConfig) -> None:
+    _check_if_link_targets_exist(root)
+    if not config.skip_iiif_validation:
+        validate_iiif_uris(root)
+    default_ontology = root.attrib["default-ontology"]
+    ontology_client = OntologyClientLive(con=con, shortcode=config.shortcode, default_ontology=default_ontology)
+    do_xml_consistency_check_with_ontology(ontology_client, root)
 
 
 def _check_if_link_targets_exist(root: etree._Element) -> None:

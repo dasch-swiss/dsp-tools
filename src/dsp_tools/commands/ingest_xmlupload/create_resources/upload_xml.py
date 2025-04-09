@@ -16,14 +16,11 @@ from dsp_tools.commands.ingest_xmlupload.create_resources.apply_ingest_id import
 from dsp_tools.commands.xmlupload.models.ingest import BulkIngestedAssetClient
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
-from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontology import (
-    do_xml_consistency_check_with_ontology,
-)
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClientLive
-from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClientLive
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_intermediary_lookups
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import prepare_upload_from_root
-from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import validate_and_parse
+from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import parse_and_validate_with_xsd
+from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import preliminary_validation_of_root
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import execute_upload
@@ -59,7 +56,6 @@ def ingest_xmlupload(
 
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
     con = ConnectionLive(creds.server, auth)
-
     config = UploadConfig(
         media_previously_uploaded=True,
         interrupt_after=interrupt_after,
@@ -67,13 +63,11 @@ def ingest_xmlupload(
         server=creds.server,
         shortcode=shortcode,
     )
-
-    ontology_client = OntologyClientLive(con=con, shortcode=shortcode, default_ontology=default_ontology)
-    do_xml_consistency_check_with_ontology(onto_client=ontology_client, root=root)
-
     clients = _get_live_clients(con, config, auth)
-    intermediary_lookups = get_intermediary_lookups(root=root, con=con, clients=clients)
 
+    preliminary_validation_of_root(root, con, config)
+
+    intermediary_lookups = get_intermediary_lookups(root=root, con=con, clients=clients)
     transformed_resources, stash = prepare_upload_from_root(
         root=root, default_ontology=default_ontology, intermediary_lookups=intermediary_lookups
     )
@@ -100,7 +94,7 @@ def _parse_xml_and_replace_filepaths(xml_file: Path) -> tuple[str, etree._Elemen
     Raises:
         InputError: if replacing file paths with internal asset IDs failed
     """
-    root, shortcode, default_ontology = validate_and_parse(xml_file)
+    root, shortcode, default_ontology = parse_and_validate_with_xsd(xml_file)
 
     logger.info(f"Validated and parsed the XML. {shortcode=:} and {default_ontology=:}")
 

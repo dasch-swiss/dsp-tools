@@ -108,7 +108,7 @@ def _get_transformed_resources(
     return result.transformed_resources
 
 
-def _validate_iiif_uris(root: etree._Element) -> None:
+def validate_iiif_uris(root: etree._Element) -> None:
     uris = [uri.strip() for node in root.iter(tag="iiif-uri") if (uri := node.text)]
     if problems := IIIFUriValidator(uris).validate():
         msg = problems.get_msg()

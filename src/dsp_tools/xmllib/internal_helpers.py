@@ -17,7 +17,7 @@ def is_nonempty_value_internal(value: Any) -> bool:
     """
     This is a duplicate of value_checkers.is_nonempty_value(), to avoid circular imports.
 
-    Check if a value is not None-like 
+    Check if a value is not None-like
     or that its string representation contains at least one of the following characters:
 
     - \p{S} = symbols and special characters
@@ -32,7 +32,7 @@ def is_nonempty_value_internal(value: Any) -> bool:
     """
     if pd.isna(value):
         return False
-    if regex.search(r"[\p{S}\p{P}\w]", str(value), flags=regex.UNICODE):
+    if regex.search(r"[\p{S}\p{P}\w]", str(value)):
         return True
     return False
 

@@ -101,9 +101,20 @@ def _check_if_resptr_targets_exist(root: etree._Element) -> list[str]:
     errors = []
     for inv in invalid_link_values:
         prop_name = next(inv.iterancestors(tag="resptr-prop")).attrib["name"]
-        res_id = next(inv.iterancestors(tag="resource")).attrib["id"]
+        res_id = _get_resource_ancestor_id(inv)
         errors.append(f"Resource '{res_id}', property '{prop_name}' has an invalid link target '{inv.text}'")
     return errors
+
+
+def _get_resource_ancestor_id(invalid_link_val: etree._Element) -> str:
+    resource_tags = ["resource", "link", "region", "video-segment", "audio-segment"]
+    for tg in resource_tags:
+        try:
+            res_id = next(invalid_link_val.iterancestors(tag=tg)).attrib["id"]
+            return res_id
+        except StopIteration:
+            pass
+    return "Resource ID not found"
 
 
 def _check_if_salsah_targets_exist(root: etree._Element) -> list[str]:

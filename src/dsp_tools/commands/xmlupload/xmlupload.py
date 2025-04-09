@@ -8,7 +8,6 @@ from pathlib import Path
 from typing import Never
 
 from loguru import logger
-from lxml import etree
 from rdflib import URIRef
 from tqdm import tqdm
 
@@ -26,18 +25,9 @@ from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryRes
 from dsp_tools.commands.xmlupload.models.lookup_models import IRILookups
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
-from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontology import (
-    do_xml_consistency_check_with_ontology,
-)
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClient
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClientLive
-from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClientLive
-from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import generate_upload_order_and_stash
-from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_intermediary_lookups
-from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_transformed_resources
-from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import validate_iiif_uris
-from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import check_if_bitstreams_exist
-from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import check_if_link_targets_exist
+from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import prepare_root_for_upload
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 from dsp_tools.commands.xmlupload.resource_create_client import ResourceCreateClient
@@ -52,7 +42,6 @@ from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import PermanentConnectionError
 from dsp_tools.error.exceptions import PermanentTimeOutError
 from dsp_tools.error.exceptions import XmlUploadInterruptedError
-from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resources
 from dsp_tools.utils.xml_parsing.parse_and_transform import get_root_for_deserialisation
 
 
@@ -80,20 +69,14 @@ def xmlupload(
         True if all resources could be uploaded without errors; False if one of the resources could not be
         uploaded because there is an error in it
     """
-    auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
-    con = ConnectionLive(creds.server, auth)
     root = get_root_for_deserialisation(input_file)
     shortcode = root.attrib["shortcode"]
+    auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
+    con = ConnectionLive(creds.server, auth)
     config = config.with_server_info(server=creds.server, shortcode=shortcode)
     clients = _get_live_clients(con, auth, creds, shortcode, imgdir)
 
-    preliminary_validation_with_root(root, imgdir, con, config)
-
-    parsed_resources, _ = get_parsed_resources(root, creds.server)
-    intermediary_lookups = get_intermediary_lookups(root=root, con=con, clients=clients)
-    transformed_resources = get_transformed_resources(parsed_resources, intermediary_lookups)
-
-    transformed_resources, stash = generate_upload_order_and_stash(transformed_resources)
+    stash, transformed_resources = prepare_root_for_upload(root, imgdir, clients, config)
     state = UploadState(
         pending_resources=transformed_resources,
         pending_stash=stash,
@@ -101,16 +84,6 @@ def xmlupload(
     )
 
     return execute_upload(clients, state)
-
-
-def preliminary_validation_with_root(root: etree._Element, imgdir: str, con: Connection, config: UploadConfig) -> None:
-    check_if_link_targets_exist(root)
-    check_if_bitstreams_exist(root, imgdir)
-    if not config.skip_iiif_validation:
-        validate_iiif_uris(root)
-    default_ontology = root.attrib["default-ontology"]
-    ontology_client = OntologyClientLive(con=con, shortcode=config.shortcode, default_ontology=default_ontology)
-    do_xml_consistency_check_with_ontology(ontology_client, root)
 
 
 def _get_live_clients(

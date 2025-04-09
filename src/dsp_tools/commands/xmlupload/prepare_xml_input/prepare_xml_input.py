@@ -16,7 +16,13 @@ from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookup
 from dsp_tools.commands.xmlupload.models.lookup_models import make_namespace_dict_from_onto_names
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
+from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontology import (
+    do_xml_consistency_check_with_ontology,
+)
 from dsp_tools.commands.xmlupload.prepare_xml_input.iiif_uri_validator import IIIFUriValidator
+from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClientLive
+from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import check_if_bitstreams_exist
+from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import check_if_link_targets_exist
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import (
     transform_all_resources_into_intermediary_resources,
 )
@@ -24,13 +30,37 @@ from dsp_tools.commands.xmlupload.stash.analyse_circular_reference_graph import 
 from dsp_tools.commands.xmlupload.stash.create_info_for_graph import create_info_for_graph_from_intermediary_resources
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
+from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.legacy_models.projectContext import ProjectContext
+from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resources
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 
 LIST_SEPARATOR = "\n-    "
+
+
+def prepare_root_for_upload(
+    root: etree._Element, imgdir: str, clients: UploadClients, config: UploadConfig
+) -> tuple[list[IntermediaryResource], Stash | None]:
+    preliminary_validation_of_root(root, imgdir, clients.project_client.con, config)
+    logger.info("Get data from XML...")
+    parsed_resources, _ = get_parsed_resources(root, clients.legal_info_client.server)
+    intermediary_lookups = get_intermediary_lookups(root=root, con=clients.project_client.con, clients=clients)
+    transformed_resources = get_transformed_resources(parsed_resources, intermediary_lookups)
+    transformed_resources, stash = generate_upload_order_and_stash(transformed_resources)
+    return stash, transformed_resources
+
+
+def preliminary_validation_of_root(root: etree._Element, imgdir: str, con: Connection, config: UploadConfig) -> None:
+    check_if_link_targets_exist(root)
+    check_if_bitstreams_exist(root, imgdir)
+    if not config.skip_iiif_validation:
+        validate_iiif_uris(root)
+    default_ontology = root.attrib["default-ontology"]
+    ontology_client = OntologyClientLive(con=con, shortcode=config.shortcode, default_ontology=default_ontology)
+    do_xml_consistency_check_with_ontology(ontology_client, root)
 
 
 def get_intermediary_lookups(root: etree._Element, con: Connection, clients: UploadClients) -> IntermediaryLookups:
@@ -98,7 +128,6 @@ def generate_upload_order_and_stash(
     intermediary_resources: list[IntermediaryResource],
 ) -> tuple[list[IntermediaryResource], Stash | None]:
     """Do the consistency check, resolve circular references, and return the resources and permissions."""
-    logger.info("Get data from XML...")
     info_for_graph = create_info_for_graph_from_intermediary_resources(intermediary_resources)
     stash_lookup, upload_order = generate_upload_order(info_for_graph)
     sorting_lookup = {res.res_id: res for res in intermediary_resources}

@@ -41,19 +41,19 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 LIST_SEPARATOR = "\n-    "
 
 
-def prepare_root_for_upload(
+def prepare_upload_from_root(
     root: etree._Element, imgdir: str, clients: UploadClients, config: UploadConfig
 ) -> tuple[list[IntermediaryResource], Stash | None]:
-    preliminary_validation_of_root(root, imgdir, clients.project_client.con, config)
+    _preliminary_validation_of_root(root, imgdir, clients.project_client.con, config)
     logger.info("Get data from XML...")
     parsed_resources, _ = get_parsed_resources(root, clients.legal_info_client.server)
-    intermediary_lookups = get_intermediary_lookups(root=root, con=clients.project_client.con, clients=clients)
-    transformed_resources = get_transformed_resources(parsed_resources, intermediary_lookups)
-    transformed_resources, stash = generate_upload_order_and_stash(transformed_resources)
+    intermediary_lookups = _get_intermediary_lookups(root=root, con=clients.project_client.con, clients=clients)
+    transformed_resources = _get_transformed_resources(parsed_resources, intermediary_lookups)
+    transformed_resources, stash = _generate_upload_order_and_stash(transformed_resources)
     return transformed_resources, stash
 
 
-def preliminary_validation_of_root(root: etree._Element, imgdir: str, con: Connection, config: UploadConfig) -> None:
+def _preliminary_validation_of_root(root: etree._Element, imgdir: str, con: Connection, config: UploadConfig) -> None:
     check_if_link_targets_exist(root)
     check_if_bitstreams_exist(root, imgdir)
     if not config.skip_iiif_validation:
@@ -63,7 +63,7 @@ def preliminary_validation_of_root(root: etree._Element, imgdir: str, con: Conne
     do_xml_consistency_check_with_ontology(ontology_client, root)
 
 
-def get_intermediary_lookups(root: etree._Element, con: Connection, clients: UploadClients) -> IntermediaryLookups:
+def _get_intermediary_lookups(root: etree._Element, con: Connection, clients: UploadClients) -> IntermediaryLookups:
     proj_context = _get_project_context_from_server(connection=con, shortcode=root.attrib["shortcode"])
     permissions_lookup = _get_permissions_lookup(root, proj_context)
     authorship_lookup = _get_authorship_lookup(root)
@@ -110,7 +110,7 @@ def _get_authorship_lookup(root: etree._Element) -> dict[str, list[str]]:
     return authorship_lookup
 
 
-def get_transformed_resources(
+def _get_transformed_resources(
     resources: list[ParsedResource], intermediary_lookups: IntermediaryLookups
 ) -> list[IntermediaryResource]:
     result = transform_all_resources_into_intermediary_resources(resources, intermediary_lookups)
@@ -124,7 +124,7 @@ def get_transformed_resources(
     return result.transformed_resources
 
 
-def generate_upload_order_and_stash(
+def _generate_upload_order_and_stash(
     intermediary_resources: list[IntermediaryResource],
 ) -> tuple[list[IntermediaryResource], Stash | None]:
     """Do the consistency check, resolve circular references, and return the resources and permissions."""

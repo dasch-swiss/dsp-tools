@@ -124,7 +124,7 @@ def prepare_upload_from_root_ingest(
     """Do the consistency check, resolve circular references, and return the resources and permissions."""
     logger.info("Get data from XML...")
     resources = _extract_resources_from_xml(root, default_ontology)
-    transformed_resources = _from_xmlresource_get_transformed_resources(resources, intermediary_lookups)
+    transformed_resources = _from_xmlresources_get_transformed_resources(resources, intermediary_lookups)
     info_for_graph = create_info_for_graph_from_intermediary_resources(transformed_resources)
     stash_lookup, upload_order = generate_upload_order(info_for_graph)
     sorting_lookup = {res.res_id: res for res in transformed_resources}
@@ -133,7 +133,7 @@ def prepare_upload_from_root_ingest(
     return sorted_resources, stash
 
 
-def _from_xmlresource_get_transformed_resources(
+def _from_xmlresources_get_transformed_resources(
     resources: list[XMLResource], intermediary_lookups: IntermediaryLookups
 ) -> list[IntermediaryResource]:
     result = transform_xmlresources_into_intermediary_resources(resources, intermediary_lookups)

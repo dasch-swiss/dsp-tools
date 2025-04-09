@@ -26,6 +26,9 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file impor
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import (
     transform_all_resources_into_intermediary_resources,
 )
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import (
+    transform_all_resources_into_intermediary_resources_from_xml,
+)
 from dsp_tools.commands.xmlupload.stash.analyse_circular_reference_graph import generate_upload_order
 from dsp_tools.commands.xmlupload.stash.create_info_for_graph import create_info_for_graph_from_intermediary_resources
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references
@@ -40,19 +43,39 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 
 LIST_SEPARATOR = "\n-    "
 
+
 def ingest_prepare_upload_from_root(
     root: etree._Element, default_ontology: str, intermediary_lookups: IntermediaryLookups
 ) -> tuple[list[IntermediaryResource], Stash | None]:
     """Do the consistency check, resolve circular references, and return the resources and permissions."""
     logger.info("Get data from XML...")
     resources = _extract_resources_from_xml(root, default_ontology)
-    transformed_resources = _get_transformed_resources(resources, intermediary_lookups)
+    transformed_resources = ingest_get_transformed_resources(resources, intermediary_lookups)
     info_for_graph = create_info_for_graph_from_intermediary_resources(transformed_resources)
     stash_lookup, upload_order = generate_upload_order(info_for_graph)
     sorting_lookup = {res.res_id: res for res in transformed_resources}
     sorted_resources = [sorting_lookup[res_id] for res_id in upload_order]
     stash = stash_circular_references(sorted_resources, stash_lookup)
     return sorted_resources, stash
+
+
+def _extract_resources_from_xml(root: etree._Element, default_ontology: str) -> list[XMLResource]:
+    resources = list(root.iter(tag="resource"))
+    return [XMLResource.from_node(res, default_ontology) for res in resources]
+
+
+def ingest_get_transformed_resources(
+    resources: list[XMLResource], intermediary_lookups: IntermediaryLookups
+) -> list[IntermediaryResource]:
+    result = transform_all_resources_into_intermediary_resources_from_xml(resources, intermediary_lookups)
+    if result.resource_failures:
+        failures = [f"Resource ID: '{x.resource_id}', Message: {x.failure_msg}" for x in result.resource_failures]
+        msg = (
+            f"{datetime.now()}: WARNING: Unable to create the following resource(s):"
+            f"{LIST_SEPARATOR}{LIST_SEPARATOR.join(failures)}"
+        )
+        raise InputError(msg)
+    return result.transformed_resources
 
 
 def prepare_upload_from_root(
@@ -62,7 +85,7 @@ def prepare_upload_from_root(
     logger.info("Get data from XML...")
     parsed_resources, _ = get_parsed_resources(root, clients.legal_info_client.server)
     intermediary_lookups = get_intermediary_lookups(root=root, con=clients.project_client.con, clients=clients)
-    transformed_resources = _get_transformed_resources_(parsed_resources, intermediary_lookups)
+    transformed_resources = _get_transformed_resources(parsed_resources, intermediary_lookups)
     transformed_resources, stash = generate_upload_order_and_stash(transformed_resources)
     return transformed_resources, stash
 
@@ -124,7 +147,7 @@ def _get_authorship_lookup(root: etree._Element) -> dict[str, list[str]]:
     return authorship_lookup
 
 
-def _get_transformed_resources_(
+def _get_transformed_resources(
     resources: list[ParsedResource], intermediary_lookups: IntermediaryLookups
 ) -> list[IntermediaryResource]:
     result = transform_all_resources_into_intermediary_resources(resources, intermediary_lookups)
@@ -156,8 +179,3 @@ def validate_iiif_uris(root: etree._Element) -> None:
         msg = problems.get_msg()
         warnings.warn(DspToolsUserWarning(msg))
         logger.warning(msg)
-
-
-def _extract_resources_from_xml(root: etree._Element, default_ontology: str) -> list[XMLResource]:
-    resources = list(root.iter(tag="resource"))
-    return [XMLResource.from_node(res, default_ontology) for res in resources]

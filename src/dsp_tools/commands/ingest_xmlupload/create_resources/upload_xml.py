@@ -21,8 +21,8 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.check_consistency_with_ontol
 )
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.prepare_xml_input.ontology_client import OntologyClientLive
-from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import ingest_prepare_upload_from_root
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_intermediary_lookups
+from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import ingest_prepare_upload_from_root
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import validate_and_parse
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
@@ -84,7 +84,6 @@ def ingest_xmlupload(
     )
 
     return execute_upload(clients, state)
-
 
 
 def _parse_xml_and_replace_filepaths(xml_file: Path) -> tuple[str, etree._Element, str]:

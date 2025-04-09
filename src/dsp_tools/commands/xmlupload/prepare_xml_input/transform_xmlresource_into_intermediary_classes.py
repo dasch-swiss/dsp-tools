@@ -58,7 +58,7 @@ TYPE_TRANSFORMER_MAPPER: dict[str, TypeTransformerMapper] = {
 }
 
 
-def transform_all_resources_into_intermediary_resources(
+def transform_all_resources_into_intermediary_resources_from_xml(
     resources: list[XMLResource], lookups: IntermediaryLookups
 ) -> ResourceTransformationResult:
     """

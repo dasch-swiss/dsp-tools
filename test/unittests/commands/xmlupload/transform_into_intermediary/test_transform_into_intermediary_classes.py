@@ -29,7 +29,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import _transform_one_resource
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import _transform_one_value
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import (
-    transform_all_resources_into_intermediary_resources,
+    transform_all_resources_into_intermediary_resources_from_xml,
 )
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.error.exceptions import PermissionNotExistsError
@@ -89,7 +89,7 @@ class TestTransformResources:
             file_value=None,
             migration_metadata=None,
         )
-        result = transform_all_resources_into_intermediary_resources([res], lookups)
+        result = transform_all_resources_into_intermediary_resources_from_xml([res], lookups)
         assert len(result.transformed_resources) == 1
         assert not result.resource_failures
 
@@ -103,7 +103,7 @@ class TestTransformResources:
             file_value=None,
             migration_metadata=None,
         )
-        result = transform_all_resources_into_intermediary_resources([res], lookups)
+        result = transform_all_resources_into_intermediary_resources_from_xml([res], lookups)
         assert not result.transformed_resources
         assert len(result.resource_failures) == 1
         assert result.resource_failures[0].resource_id == "id"

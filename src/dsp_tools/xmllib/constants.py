@@ -1,6 +1,4 @@
-KNOWN_XML_TAGS = [  # defined at https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/
-    "a( [^>]+)?",  # <a> has attributes
-    "footnote( [^>]+)?",  # the footnote text is in the attributes
+_COMMON_BASE = [
     "p",
     "em",
     "strong",
@@ -27,6 +25,16 @@ KNOWN_XML_TAGS = [  # defined at https://docs.dasch.swiss/latest/DSP-API/03-endp
     "cite",
     "blockquote",
     "code",
+]
+KNOWN_XML_TAG_REGEXES = [  # defined at https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/
+    *_COMMON_BASE,
+    "a( [^>]+)?",  # <a> has attributes
+    "footnote( [^>]+)?",  # the footnote text is in the attributes
+]
+KNOWN_XML_TAGS = [
+    *_COMMON_BASE,
+    "a",
+    "footnote",
 ]
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"

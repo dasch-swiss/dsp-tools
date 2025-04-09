@@ -1,3 +1,4 @@
+# The accepted XML tags are defined at https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/
 _COMMON_BASE = [
     "p",
     "em",
@@ -26,7 +27,7 @@ _COMMON_BASE = [
     "blockquote",
     "code",
 ]
-KNOWN_XML_TAG_REGEXES = [  # defined at https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/
+KNOWN_XML_TAG_REGEXES = [
     *_COMMON_BASE,
     "a( [^>]+)?",  # <a> has attributes
     "footnote( [^>]+)?",  # the footnote text is in the attributes

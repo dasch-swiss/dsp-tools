@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import warnings
 from datetime import datetime
 from typing import cast
 
@@ -16,7 +15,6 @@ from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookup
 from dsp_tools.commands.xmlupload.models.lookup_models import make_namespace_dict_from_onto_names
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
-from dsp_tools.commands.xmlupload.prepare_xml_input.iiif_uri_validator import IIIFUriValidator
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_xmlresource_into_intermediary_classes import (
     transform_all_resources_into_intermediary_resources,
 )
@@ -24,7 +22,6 @@ from dsp_tools.commands.xmlupload.stash.analyse_circular_reference_graph import 
 from dsp_tools.commands.xmlupload.stash.create_info_for_graph import create_info_for_graph_from_intermediary_resources
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
-from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.legacy_models.projectContext import ProjectContext
@@ -106,14 +103,6 @@ def _get_transformed_resources(
         )
         raise InputError(msg)
     return result.transformed_resources
-
-
-def validate_iiif_uris(root: etree._Element) -> None:
-    uris = [uri.strip() for node in root.iter(tag="iiif-uri") if (uri := node.text)]
-    if problems := IIIFUriValidator(uris).validate():
-        msg = problems.get_msg()
-        warnings.warn(DspToolsUserWarning(msg))
-        logger.warning(msg)
 
 
 def _extract_resources_from_xml(root: etree._Element, default_ontology: str) -> list[XMLResource]:

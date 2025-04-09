@@ -221,7 +221,7 @@ def _get_text_as_string(value: etree._Element) -> str | None:
     if len(value) > 0:
         xmlstr = etree.tostring(value, encoding="unicode", method="xml")
         xmlstr = regex.sub(f"<{value.tag!s}.*?>|</{value.tag!s}>", "", xmlstr)
-        return xmlstr
+        return xmlstr.strip()
     else:
         return value.text
 

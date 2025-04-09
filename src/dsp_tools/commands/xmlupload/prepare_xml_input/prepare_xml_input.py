@@ -40,15 +40,29 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 
 LIST_SEPARATOR = "\n-    "
 
+def ingest_prepare_upload_from_root(
+    root: etree._Element, default_ontology: str, intermediary_lookups: IntermediaryLookups
+) -> tuple[list[IntermediaryResource], Stash | None]:
+    """Do the consistency check, resolve circular references, and return the resources and permissions."""
+    logger.info("Get data from XML...")
+    resources = _extract_resources_from_xml(root, default_ontology)
+    transformed_resources = _get_transformed_resources(resources, intermediary_lookups)
+    info_for_graph = create_info_for_graph_from_intermediary_resources(transformed_resources)
+    stash_lookup, upload_order = generate_upload_order(info_for_graph)
+    sorting_lookup = {res.res_id: res for res in transformed_resources}
+    sorted_resources = [sorting_lookup[res_id] for res_id in upload_order]
+    stash = stash_circular_references(sorted_resources, stash_lookup)
+    return sorted_resources, stash
 
-def prepare_upload_from_root_new(
+
+def prepare_upload_from_root(
     root: etree._Element, imgdir: str, clients: UploadClients, config: UploadConfig
 ) -> tuple[list[IntermediaryResource], Stash | None]:
     _preliminary_validation_of_root(root, imgdir, clients.project_client.con, config)
     logger.info("Get data from XML...")
     parsed_resources, _ = get_parsed_resources(root, clients.legal_info_client.server)
     intermediary_lookups = get_intermediary_lookups(root=root, con=clients.project_client.con, clients=clients)
-    transformed_resources = _get_transformed_resources(parsed_resources, intermediary_lookups)
+    transformed_resources = _get_transformed_resources_(parsed_resources, intermediary_lookups)
     transformed_resources, stash = generate_upload_order_and_stash(transformed_resources)
     return transformed_resources, stash
 
@@ -110,7 +124,7 @@ def _get_authorship_lookup(root: etree._Element) -> dict[str, list[str]]:
     return authorship_lookup
 
 
-def _get_transformed_resources(
+def _get_transformed_resources_(
     resources: list[ParsedResource], intermediary_lookups: IntermediaryLookups
 ) -> list[IntermediaryResource]:
     result = transform_all_resources_into_intermediary_resources(resources, intermediary_lookups)

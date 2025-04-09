@@ -13,17 +13,28 @@ from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
 
-def like_string(value: Any) -> bool:  # noqa: D103 (missing docstring in public function)
-    # this is a duplicate of value_checkers.is_string_like()
-    # perhaps: merge value_checkers.is_string_like() and value_checkers.is_nonempty_value()
+def is_nonempty_value_internal(value: Any) -> bool:
+    """
+    This is a duplicate of value_checkers.is_nonempty_value(), to avoid circular imports.
+
+    Check if a value is not None-like 
+    or that its string representation contains at least one of the following characters:
+
+    - \p{S} = symbols and special characters
+    - \p{P} = punctuation
+    - \w = all Unicode letters, numbers, and _
+
+    Args:
+        value: value of any type
+
+    Returns:
+        True if the value is not None-like and contains at least one of the above-mentioned characters
+    """
     if pd.isna(value):
         return False
-    # \p{S} = symbols and special characters
-    # \p{P} = punctuation
-    # \w (in ASCII mode) = [A-Za-z0-9_]
-    # \w (in Unicode mode) = all Unicode letters, numbers, and _
-    return bool(regex.search(r"[\p{S}\p{P}\w]", str(value), flags=regex.UNICODE))  
-# \u200b (zero-width space) and \ufeff (Zero-Width No-Break Space) belong to Category "Other, Format (Cf)"
+    if regex.search(r"[\p{S}\p{P}\w]", str(value), flags=regex.UNICODE):
+        return True
+    return False
 
 
 def check_and_create_richtext_string(
@@ -63,7 +74,7 @@ def check_richtext_before_conversion(value: Any, prop_name: str, res_id: str) ->
         prop_name: Property name
         res_id: Resource ID
     """
-    if not like_string(value):
+    if not is_nonempty_value_internal(value):
         msg = f"Resource '{res_id}' has a richtext value that is not a string: Value: {value} | Property: {prop_name}"
         warnings.warn(DspToolsUserWarning(msg))
 

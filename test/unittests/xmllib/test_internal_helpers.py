@@ -1,22 +1,22 @@
 import pytest
 
-from dsp_tools.xmllib.internal_helpers import like_string
+from dsp_tools.xmllib.internal_helpers import is_nonempty_value_internal
 
 
 @pytest.mark.parametrize(
     ("text", "expected"),
     [
-        (" \u200B ", True),  # zero-width space
-        (" \uFEFF ", True),  # Zero-Width No-Break Space
+        (" \u200b ", False),  # zero-width space
+        (" \ufeff ", False),  # Zero-Width No-Break Space
         ("", False),
         (" ", False),
         (" \t ", False),
         (" \n ", False),
         (" \r ", False),
         (" \v ", False),  # vertical tab
-        (" \u00A0 ", False),  # non-breaking space
-        (" \f\r\t\n\v \u00A0 ", False),
+        (" \u00a0 ", False),  # non-breaking space
+        (" \f\r\t\n\v \u00a0 ", False),
     ],
 )
-def test_like_string(text: str, expected: bool) -> None:
-    assert like_string(text) == expected
+def test_is_nonempty_value_internal(text: str, expected: bool) -> None:
+    assert is_nonempty_value_internal(text) == expected

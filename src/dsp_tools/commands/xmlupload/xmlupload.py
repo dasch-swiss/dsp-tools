@@ -74,7 +74,6 @@ def xmlupload(
 
     root = prepare_input_xml_file(input_file)
     shortcode = root.attrib["shortcode"]
-    default_ontology = root.attrib["default-ontology"]
 
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
     con = ConnectionLive(creds.server, auth)
@@ -84,7 +83,7 @@ def xmlupload(
     check_if_bitstreams_exist(root, imgdir)
     preliminary_validation_of_root(root, con, config)
 
-    stash, transformed_resources = get_resources_and_stash_for_upload(root, default_ontology, clients)
+    transformed_resources, stash = get_resources_and_stash_for_upload(root, clients)
     state = UploadState(
         pending_resources=transformed_resources,
         pending_stash=stash,

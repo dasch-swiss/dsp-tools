@@ -41,7 +41,7 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 LIST_SEPARATOR = "\n-    "
 
 
-def prepare_upload_from_root(
+def prepare_upload_from_root_new(
     root: etree._Element, imgdir: str, clients: UploadClients, config: UploadConfig
 ) -> tuple[list[IntermediaryResource], Stash | None]:
     _preliminary_validation_of_root(root, imgdir, clients.project_client.con, config)

@@ -27,7 +27,7 @@ from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClient
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClientLive
-from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import prepare_upload_from_root
+from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import prepare_upload_from_root_new
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 from dsp_tools.commands.xmlupload.resource_create_client import ResourceCreateClient
@@ -76,7 +76,7 @@ def xmlupload(
     config = config.with_server_info(server=creds.server, shortcode=shortcode)
     clients = _get_live_clients(con, auth, creds, shortcode, imgdir)
 
-    transformed_resources, stash = prepare_upload_from_root(root, imgdir, clients, config)
+    transformed_resources, stash = prepare_upload_from_root_new(root, imgdir, clients, config)
     state = UploadState(
         pending_resources=transformed_resources,
         pending_stash=stash,

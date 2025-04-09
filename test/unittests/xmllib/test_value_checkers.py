@@ -31,7 +31,7 @@ from dsp_tools.xmllib.value_checkers import is_timestamp
         "1",
         True,
         False,
-        "עִבְרִית", 
+        "עִבְרִית",
         "اَلْعَرَبِيَّةُ",
     ],
 )
@@ -56,7 +56,7 @@ def test_is_nonempty_value_correct(text: str) -> None:
         " \u200b ",  # zero-width space
         " \ufeff ",  # Zero-Width No-Break Space
         " \t\n\r\v\f \u00a0 \u200b \ufeff",
-    ]
+    ],
 )
 def test_is_nonempty_value_wrong(text: str) -> None:
     assert not is_nonempty_value(text)

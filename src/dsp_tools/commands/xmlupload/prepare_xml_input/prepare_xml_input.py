@@ -89,11 +89,11 @@ def get_resources_and_stash_for_upload(
     logger.info("Get data from XML...")
     parsed_resources, _ = get_parsed_resources(root, clients.legal_info_client.server)
     intermediary_lookups = get_intermediary_lookups(root=root, clients=clients)
-    intermediary_resources = _get_transformed_resources(parsed_resources, intermediary_lookups)
+    intermediary_resources = _get_intermediary_resources(parsed_resources, intermediary_lookups)
     return _get_stash_and_upload_order(intermediary_resources)
 
 
-def _get_transformed_resources(
+def _get_intermediary_resources(
     resources: list[ParsedResource], intermediary_lookups: IntermediaryLookups
 ) -> list[IntermediaryResource]:
     result = transform_all_resources_into_intermediary_resources(resources, intermediary_lookups)

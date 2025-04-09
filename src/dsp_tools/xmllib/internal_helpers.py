@@ -14,12 +14,16 @@ from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
 
 def like_string(value: Any) -> bool:  # noqa: D103 (missing docstring in public function)
+    # this is a duplicate of value_checkers.is_string_like()
+    # perhaps: merge value_checkers.is_string_like() and value_checkers.is_nonempty_value()
     if pd.isna(value):
         return False
-    value = str(value).strip()
-    if len(value) == 0:
-        return False
-    return bool(regex.search(r"\S", value, flags=regex.UNICODE))
+    # \p{S} = symbols and special characters
+    # \p{P} = punctuation
+    # \w (in ASCII mode) = [A-Za-z0-9_]
+    # \w (in Unicode mode) = all Unicode letters, numbers, and _
+    return bool(regex.search(r"[\p{S}\p{P}\w]", str(value), flags=regex.UNICODE))  
+# \u200b (zero-width space) and \ufeff (Zero-Width No-Break Space) belong to Category "Other, Format (Cf)"
 
 
 def check_and_create_richtext_string(

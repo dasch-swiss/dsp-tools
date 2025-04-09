@@ -16,7 +16,7 @@ from dsp_tools.commands.xmlupload.models.lookup_models import make_namespace_dic
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_xmlresource_into_intermediary_classes import (
-    transform_all_resources_into_intermediary_resources,
+    transform_xmlresources_into_intermediary_resources,
 )
 from dsp_tools.commands.xmlupload.stash.analyse_circular_reference_graph import generate_upload_order
 from dsp_tools.commands.xmlupload.stash.create_info_for_graph import create_info_for_graph_from_intermediary_resources
@@ -94,7 +94,7 @@ def prepare_upload_from_root(
 def _get_transformed_resources(
     resources: list[XMLResource], intermediary_lookups: IntermediaryLookups
 ) -> list[IntermediaryResource]:
-    result = transform_all_resources_into_intermediary_resources(resources, intermediary_lookups)
+    result = transform_xmlresources_into_intermediary_resources(resources, intermediary_lookups)
     if result.resource_failures:
         failures = [f"Resource ID: '{x.resource_id}', Message: {x.failure_msg}" for x in result.resource_failures]
         msg = (

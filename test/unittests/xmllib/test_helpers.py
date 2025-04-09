@@ -371,6 +371,6 @@ class TestListLookup:
         ("<text in brackets>", "&lt;text in brackets&gt;"),
     ],
 )
-def test_escape_reserved_xml_chars(input_val: str, expected: str) -> None:
+def test_escape_reserved_xml_characters(input_val: str, expected: str) -> None:
     result = escape_reserved_xml_characters(input_val)
     assert result == expected

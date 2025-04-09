@@ -219,20 +219,10 @@ def _parse_text_value(values: etree._Element, prop_name: str) -> list[ParsedValu
     return parsed_values
 
 
-<<<<<<< Updated upstream
-def _get_text_as_string(value: etree._Element) -> str | None:
-    if len(value) > 0:
-        xmlstr = etree.tostring(value, encoding="unicode", method="xml")
-        xmlstr = regex.sub(f"<{value.tag!s}.*?>|</{value.tag!s}>", "", xmlstr)
-        return xmlstr.strip()
-    else:
-        return value.text
-=======
 def _get_formatted_text_as_string(value: etree._Element) -> str | None:
     xmlstr = etree.tostring(value, encoding="unicode", method="xml")
     xmlstr = regex.sub(f"<{value.tag!s}.*?>|</{value.tag!s}>", "", xmlstr)
     return xmlstr.strip()
->>>>>>> Stashed changes
 
 
 def _parse_iiif_uri(iiif_uri: etree._Element) -> ParsedFileValue:

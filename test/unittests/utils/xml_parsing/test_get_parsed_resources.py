@@ -401,11 +401,11 @@ class TestParseValues:
         </text-prop>
         """)
         result = _parse_one_value(xml_val, IRI_LOOKUP)
-        assert len(result)==1
+        assert len(result) == 1
         val = result.pop(0)
-        assert val.prop_name==HAS_PROP
-        assert val.value=="&amp;"
-        assert val.value_type==KnoraValueType.RICHTEXT_VALUE
+        assert val.prop_name == HAS_PROP
+        assert val.value == "&amp;"
+        assert val.value_type == KnoraValueType.RICHTEXT_VALUE
         assert not val.permissions_id
         assert not val.comment
 

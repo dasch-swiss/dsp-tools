@@ -21,7 +21,7 @@ from dsp_tools.xmllib.models.values import Value
 from dsp_tools.xmllib.serialise.serialise_file_value import serialise_file_value
 from dsp_tools.xmllib.serialise.serialise_values import serialise_values
 from dsp_tools.xmllib.type_aliases import AnyResource
-from dsp_tools.xmllib.value_checkers import is_string_like
+from dsp_tools.xmllib.value_checkers import is_nonempty_value
 
 
 def serialise_resources(resources: list[AnyResource], authorship_lookup: AuthorshipLookup) -> list[etree._Element]:
@@ -137,21 +137,21 @@ def _make_generic_resource_element(res: AnyResource, res_type: str) -> etree._El
 
 def _validate_segment(segment: AudioSegmentResource | VideoSegmentResource) -> None:
     problems = []
-    if not is_string_like(segment.res_id):
+    if not is_nonempty_value(segment.res_id):
         problems.append(f"Field: Resource ID | Value: {segment.res_id}")
-    if not is_string_like(segment.label):
+    if not is_nonempty_value(segment.label):
         problems.append(f"Field: label | Value: {segment.label}")
-    if not is_string_like(segment.segment_of):
+    if not is_nonempty_value(segment.segment_of):
         problems.append(f"Field: segment_of | Value: {segment.segment_of}")
-    if segment.title and not is_string_like(segment.title):
+    if segment.title and not is_nonempty_value(segment.title):
         problems.append(f"Field: title | Value: {segment.title}")
-    if fails := [x for x in segment.comments if not is_string_like(x)]:
+    if fails := [x for x in segment.comments if not is_nonempty_value(x)]:
         problems.extend([f"Field: comment | Value: {x}" for x in fails])
-    if fails := [x for x in segment.descriptions if not is_string_like(x)]:
+    if fails := [x for x in segment.descriptions if not is_nonempty_value(x)]:
         problems.extend([f"Field: description | Value: {x}" for x in fails])
-    if fails := [x for x in segment.keywords if not is_string_like(x)]:
+    if fails := [x for x in segment.keywords if not is_nonempty_value(x)]:
         problems.extend([f"Field: keywords | Value: {x}" for x in fails])
-    if fails := [x for x in segment.relates_to if not is_string_like(x)]:
+    if fails := [x for x in segment.relates_to if not is_nonempty_value(x)]:
         problems.extend([f"Field: relates_to | Value: {x}" for x in fails])
     if problems:
         msg = f"The resource with the ID '{segment.res_id}' has the following problem(s):{'\n- '.join(problems)}"

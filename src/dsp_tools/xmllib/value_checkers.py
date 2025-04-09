@@ -13,35 +13,39 @@ from dsp_tools.xmllib.models.problems import IllegalTagProblem
 
 def is_nonempty_value(value: Any) -> bool:
     """
-    Check if a value is not empty.
+    Check if a value is not None-like
+    or that its string representation contains at least one of the following characters:
+
+    - ``\\p{S}`` = symbols and special characters
+    - ``\\p{P}`` = punctuation
+    - ``\\w`` = all Unicode letters, numbers, and _
 
     Args:
-        value: value to check
+        value: value of any type
 
     Returns:
-        True if it is not empty
+        True if the value is not None-like and contains at least one of the above-mentioned characters
 
     Examples:
         ```python
-        result = xmllib.is_nonempty_value("not empty")
-        # result == True
-        ```
+        # True values:
+        assert xmllib.is_nonempty_value("word") == True
+        assert xmllib.is_nonempty_value("None") == True
+        assert xmllib.is_nonempty_value("-") == True
+        assert xmllib.is_nonempty_value(0) == True
+        assert xmllib.is_nonempty_value(1) == True
+        assert xmllib.is_nonempty_value("0") == True
+        assert xmllib.is_nonempty_value("1") == True
+        assert xmllib.is_nonempty_value(True) == True
+        assert xmllib.is_nonempty_value(False) == True
+        assert xmllib.is_nonempty_value("עִבְרִית") == True
 
-        ```python
-        # because numbers, floats, etc. can be converted to strings they are accepted
-
-        result = xmllib.is_nonempty_value(1)
-        # result == True
-        ```
-
-        ```python
-        result = xmllib.is_nonempty_value("")
-        # result == False
-        ```
-
-        ```python
-        result = xmllib.is_nonempty_value(None)
-        # result == False
+        # False values:
+        assert xmllib.is_nonempty_value(pd.NA) == False
+        assert xmllib.is_nonempty_value(None) == False
+        assert xmllib.is_nonempty_value("") == False
+        assert xmllib.is_nonempty_value(" ") == False
+        assert xmllib.is_nonempty_value("\\n") == False
         ```
     """
     if pd.isna(value):

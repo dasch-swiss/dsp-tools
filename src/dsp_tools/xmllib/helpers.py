@@ -16,9 +16,9 @@ from regex import Match
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.xmllib.constants import KNOWN_XML_TAGS
+from dsp_tools.xmllib.internal_helpers import is_nonempty_value_internal
 from dsp_tools.xmllib.internal_helpers import unescape_reserved_xml_chars
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
-from dsp_tools.xmllib.value_checkers import is_nonempty_value
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
 
@@ -107,7 +107,7 @@ def create_footnote_element(
     """
     if newline_replacement_option not in {NewlineReplacement.LINEBREAK, NewlineReplacement.NONE}:
         raise InputError("Currently the only supported newline replacement is linebreak (<br/>) or None.")
-    if not is_nonempty_value(footnote_text):
+    if not is_nonempty_value_internal(footnote_text):
         raise InputError("The input value is empty.")
     footnote_text = replace_newlines_with_tags(str(footnote_text), newline_replacement_option)
     unescaped_text = unescape_reserved_xml_chars(footnote_text)
@@ -134,7 +134,7 @@ def create_standoff_link_to_resource(resource_id: str, displayed_text: str) -> s
         # result == '<a class="salsah-link" href="IRI:resource_id:IRI">Text</a>'
         ```
     """
-    if not all([is_nonempty_value(resource_id), is_nonempty_value(displayed_text)]):
+    if not all([is_nonempty_value_internal(resource_id), is_nonempty_value_internal(displayed_text)]):
         raise InputError(
             (
                 f"The entered resource ID and displayed text may not be empty. "
@@ -167,7 +167,7 @@ def create_standoff_link_to_uri(uri: str, displayed_text: str) -> str:
         # result == '<a href="https://www.dasch.swiss/">This is DaSCH</a>'
         ```
     """
-    if not all([is_nonempty_value(uri), is_nonempty_value(displayed_text)]):
+    if not all([is_nonempty_value_internal(uri), is_nonempty_value_internal(displayed_text)]):
         raise InputError(
             (
                 f"The entered URI and displayed text may not be empty. "
@@ -458,7 +458,7 @@ def get_list_nodes_from_string_via_list_name(
         # nodes == []
         ```
     """
-    if not is_nonempty_value(string_with_list_labels):
+    if not is_nonempty_value_internal(string_with_list_labels):
         return []
     labels_list = create_list_from_string(string_with_list_labels, label_separator)
     nodes_list = [list_lookup.get_node_via_list_name(list_name, label) for label in labels_list]
@@ -520,7 +520,7 @@ def get_list_nodes_from_string_via_property(
         # nodes == []
         ```
     """
-    if not is_nonempty_value(string_with_list_labels):
+    if not is_nonempty_value_internal(string_with_list_labels):
         return "", []
     labels_list = create_list_from_string(string_with_list_labels, label_separator)
     list_name = ""
@@ -661,7 +661,7 @@ def find_date_in_string(string: str) -> str | None:
     """
 
     # sanitise input, just in case that the method was called on an empty or N/A cell
-    if not is_nonempty_value(string):
+    if not is_nonempty_value_internal(string):
         return None
     try:
         return _find_date_in_string_raising(string)
@@ -990,7 +990,7 @@ def make_xsd_compatible_id(input_value: str | float | int) -> str:
         # result == "_0_Universit_t_Basel"
         ```
     """
-    if not is_nonempty_value(input_value):
+    if not is_nonempty_value_internal(input_value):
         raise InputError(f"The input '{input_value}' cannot be transformed to an xsd:ID")
     # if the start of string is neither letter nor underscore, add an underscore
     res = regex.sub(r"^(?=[^A-Za-z_])", "_", str(input_value))

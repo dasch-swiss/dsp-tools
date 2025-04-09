@@ -26,7 +26,7 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file impor
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import (
     transform_all_resources_into_intermediary_resources,
 )
-from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import (
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_xmlresource_into_intermediary_classes import (
     transform_all_resources_into_intermediary_resources_from_xml,
 )
 from dsp_tools.commands.xmlupload.stash.analyse_circular_reference_graph import generate_upload_order

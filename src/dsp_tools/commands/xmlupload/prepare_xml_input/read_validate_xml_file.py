@@ -89,11 +89,8 @@ def _validate_iiif_uris(root: etree._Element) -> None:
 
 
 def _get_resource_ids_from_root(root: etree._Element) -> list[str]:
-    def is_resource_tag(tag: str) -> bool:
-        resource_tags = ["resource", "link", "region", "video-segment", "audio-segment"]
-        return bool(tag in resource_tags)
-
-    return [x.attrib["id"] for x in root.iter() if is_resource_tag(str(x.tag))]
+    resource_tags = ["resource", "link", "region", "video-segment", "audio-segment"]
+    return [x.attrib["id"] for x in root.iter() if str(x.tag) in resource_tags]
 
 
 def _get_resource_ancestor_id(invalid_link_val: etree._Element) -> str:

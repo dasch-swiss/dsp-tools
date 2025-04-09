@@ -10,7 +10,7 @@ from dsp_tools.commands.ingest_xmlupload.bulk_ingest_client import BulkIngestCli
 from dsp_tools.commands.ingest_xmlupload.upload_files.filechecker import check_files
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailure
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailures
-from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import parse_and_validate_with_xsd
+from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import parse_and_validate_with_xsd_transform_special_tags
 from dsp_tools.error.exceptions import InputError
 
 
@@ -31,7 +31,7 @@ def upload_files(
     Returns:
         success status
     """
-    root, shortcode, _ = parse_and_validate_with_xsd(xml_file)
+    root, shortcode, _ = parse_and_validate_with_xsd_transform_special_tags(xml_file)
     paths = _get_validated_paths(root)
     print(f"Found {len(paths)} files to upload onto server {creds.dsp_ingest_url}.")
     logger.info(f"Found {len(paths)} files to upload onto server {creds.dsp_ingest_url}.")

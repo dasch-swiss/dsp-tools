@@ -73,7 +73,9 @@ def xmlupload(
         uploaded because there is an error in it
     """
 
-    root, shortcode, default_ontology = prepare_input_xml_file(input_file)
+    root  = prepare_input_xml_file(input_file)
+    shortcode = root.attrib["shortcode"]
+    default_ontology = root.attrib["default-ontology"]
 
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
     con = ConnectionLive(creds.server, auth)
@@ -84,6 +86,8 @@ def xmlupload(
     preliminary_validation_of_root(root, con, config)
 
     intermediary_lookups = get_intermediary_lookups(root=root, con=con, clients=clients)
+
+    # TODO: implement here
     transformed_resources, stash = prepare_upload_from_root(
         root=root, default_ontology=default_ontology, intermediary_lookups=intermediary_lookups
     )

@@ -21,9 +21,10 @@ from dsp_tools.utils.xml_parsing.parse_xml import parse_xml_file
 from dsp_tools.utils.xml_parsing.transform import remove_comments_from_element_tree
 from dsp_tools.utils.xml_parsing.transform import transform_special_tags_make_localname
 from dsp_tools.utils.xml_parsing.xml_schema_validation import validate_xml_with_schema
+from dsp_tools.utils.xml_parsing.transform import transform_into_localnames
 
 
-def prepare_input_xml_file(input_file: Path) -> tuple[etree._Element, str, str]:
+def prepare_input_xml_file(input_file: Path) -> etree._Element:
     """
     Parses the file and does some rudimentary checks.
 
@@ -33,11 +34,15 @@ def prepare_input_xml_file(input_file: Path) -> tuple[etree._Element, str, str]:
     Returns:
         The root element of the parsed XML file, the shortcode, and the default ontology
     """
-    root, shortcode, default_ontology = parse_and_validate_with_xsd(input_file)
-    return root, shortcode, default_ontology
+    root = parse_xml_file(input_file)
+    root = remove_comments_from_element_tree(root)
+    validate_xml_with_schema(root)
+    print("The XML file is syntactically correct.")
+    return transform_into_localnames(root)
 
 
-def parse_and_validate_with_xsd(input_file: Path) -> tuple[etree._Element, str, str]:
+
+def parse_and_validate_with_xsd_transform_special_tags(input_file: Path) -> tuple[etree._Element, str, str]:
     """Parse and validate an XML file.
 
     Args:

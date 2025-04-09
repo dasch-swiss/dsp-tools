@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import regex
 from lxml import etree
 
 from dsp_tools.commands.validate_data.mappers import XML_TAG_TO_VALUE_TYPE_MAPPER
@@ -218,11 +219,9 @@ def _parse_text_value(values: etree._Element, prop_name: str) -> list[ParsedValu
 
 def _get_text_as_string(value: etree._Element) -> str | None:
     if len(value) > 0:
-        text_list = []
-        if found := value.text:
-            text_list = [found]
-        text_list.extend([etree.tostring(child, encoding="unicode", method="xml") for child in value])
-        return "".join(text_list).strip()
+        xmlstr = etree.tostring(value, encoding="unicode", method="xml")
+        xmlstr = regex.sub(f"<{value.tag!s}.*?>|</{value.tag!s}>", "", xmlstr)
+        return xmlstr
     else:
         return value.text
 

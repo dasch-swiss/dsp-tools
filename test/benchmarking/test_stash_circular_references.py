@@ -6,7 +6,7 @@ from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookup
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import _extract_resources_from_xml
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_xmlresource_into_intermediary_classes import (
-    transform_all_resources_into_intermediary_resources,
+    transform_xmlresources_into_intermediary_resources,
 )
 from dsp_tools.commands.xmlupload.stash.analyse_circular_reference_graph import generate_upload_order
 from dsp_tools.commands.xmlupload.stash.create_info_for_graph import create_info_for_graph_from_intermediary_resources
@@ -23,7 +23,7 @@ def test_get_length_ok_resources() -> None:
     intermediary_lookups = IntermediaryLookups(
         permissions_lookup, {}, namespaces={"simcir": "https://namespace.ch/simcir#"}, authorships={}
     )
-    transformation_result = transform_all_resources_into_intermediary_resources(resources, intermediary_lookups)
+    transformation_result = transform_xmlresources_into_intermediary_resources(resources, intermediary_lookups)
     info_for_graph = create_info_for_graph_from_intermediary_resources(transformation_result.transformed_resources)
     stash_lookup, _ = generate_upload_order(info_for_graph)
     stash = stash_circular_references(transformation_result.transformed_resources, stash_lookup)

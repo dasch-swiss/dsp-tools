@@ -69,7 +69,7 @@ def ingest_xmlupload(
 
     preliminary_validation_of_root(root, con, config)
 
-    intermediary_lookups = get_intermediary_lookups(root=root, con=con, clients=clients)
+    intermediary_lookups = get_intermediary_lookups(root=root, clients=clients)
     transformed_resources, stash = prepare_upload_from_root_ingest(
         root=root, default_ontology=default_ontology, intermediary_lookups=intermediary_lookups
     )

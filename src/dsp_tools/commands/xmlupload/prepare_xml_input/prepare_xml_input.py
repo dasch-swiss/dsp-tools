@@ -34,8 +34,10 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 LIST_SEPARATOR = "\n-    "
 
 
-def get_intermediary_lookups(root: etree._Element, con: Connection, clients: UploadClients) -> IntermediaryLookups:
-    proj_context = _get_project_context_from_server(connection=con, shortcode=root.attrib["shortcode"])
+def get_intermediary_lookups(root: etree._Element, clients: UploadClients) -> IntermediaryLookups:
+    proj_context = _get_project_context_from_server(
+        connection=clients.project_client.con, shortcode=root.attrib["shortcode"]
+    )
     permissions_lookup = _get_permissions_lookup(root, proj_context)
     authorship_lookup = _get_authorship_lookup(root)
     listnode_lookup = clients.list_client.get_list_node_id_to_iri_lookup()
@@ -86,7 +88,7 @@ def get_resources_and_stash_for_upload(
 ) -> tuple[list[IntermediaryResource], Stash | None]:
     logger.info("Get data from XML...")
     parsed_resources, _ = get_parsed_resources(root, clients.legal_info_client.server)
-    intermediary_lookups = get_intermediary_lookups(root=root, con=clients.project_client.con, clients=clients)
+    intermediary_lookups = get_intermediary_lookups(root=root, clients=clients)
     intermediary_resources = _get_transformed_resources(parsed_resources, intermediary_lookups)
     return _get_stash_and_upload_order(intermediary_resources)
 

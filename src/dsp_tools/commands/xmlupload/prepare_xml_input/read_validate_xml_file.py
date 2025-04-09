@@ -95,7 +95,7 @@ def _check_if_resptr_targets_exist(root: etree._Element) -> list[str]:
         resource_tags = ["resource", "link", "region", "video-segment", "audio-segment"]
         return bool(tag in resource_tags)
 
-    resource_ids = [x.attrib["id"] for x in root.iter() if is_resource_tag(x.tag)]
+    resource_ids = [x.attrib["id"] for x in root.iter() if is_resource_tag(str(x.tag))]
     invalid_link_values = [x for x in link_values if x.text not in resource_ids]
     invalid_link_values = [x for x in invalid_link_values if not is_resource_iri(str(x.text))]
     errors = []

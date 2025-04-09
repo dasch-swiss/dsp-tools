@@ -15,7 +15,7 @@ from regex import Match
 
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import InputError
-from dsp_tools.xmllib.constants import KNOWN_XML_TAGS
+from dsp_tools.xmllib.constants import KNOWN_XML_TAG_REGEXES
 from dsp_tools.xmllib.internal_helpers import is_nonempty_value_internal
 from dsp_tools.xmllib.internal_helpers import unescape_reserved_xml_chars
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
@@ -581,7 +581,7 @@ def escape_reserved_xml_characters(text: str) -> str:
         # result == "Text <br/> text after"
         ```
     """
-    allowed_tags_regex = "|".join(KNOWN_XML_TAGS)
+    allowed_tags_regex = "|".join(KNOWN_XML_TAG_REGEXES)
     lookahead = rf"(?!/?({allowed_tags_regex})/?>)"
     illegal_lt = rf"<{lookahead}"
     lookbehind = rf"(?<!</?({allowed_tags_regex})/?)"

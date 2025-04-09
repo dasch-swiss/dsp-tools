@@ -20,9 +20,9 @@ def is_nonempty_value_internal(value: Any) -> bool:
     Check if a value is not None-like
     or that its string representation contains at least one of the following characters:
 
-    - \p{S} = symbols and special characters
-    - \p{P} = punctuation
-    - \w = all Unicode letters, numbers, and _
+    - `\p{S}` = symbols and special characters
+    - `\p{P}` = punctuation
+    - `\w` = all Unicode letters, numbers, and _
 
     Args:
         value: value of any type
@@ -32,7 +32,7 @@ def is_nonempty_value_internal(value: Any) -> bool:
     """
     if pd.isna(value):
         return False
-    if regex.search(r"[\p{S}\p{P}\w]", str(value)):
+    if regex.search(r"[\p{S}\p{P}\w]", str(value), flags=regex.UNICODE):
         return True
     return False
 

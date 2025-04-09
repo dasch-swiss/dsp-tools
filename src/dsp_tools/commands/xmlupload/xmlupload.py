@@ -29,8 +29,8 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClien
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_resources_and_stash_for_upload
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import check_if_bitstreams_exist
+from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import parse_and_clean_xml_file
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import preliminary_validation_of_root
-from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import prepare_input_xml_file
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 from dsp_tools.commands.xmlupload.resource_create_client import ResourceCreateClient
@@ -72,7 +72,7 @@ def xmlupload(
         uploaded because there is an error in it
     """
 
-    root = prepare_input_xml_file(input_file)
+    root = parse_and_clean_xml_file(input_file)
     shortcode = root.attrib["shortcode"]
 
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)

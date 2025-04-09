@@ -24,16 +24,7 @@ from dsp_tools.utils.xml_parsing.transform import transform_special_tags_make_lo
 from dsp_tools.utils.xml_parsing.xml_schema_validation import validate_xml_with_schema
 
 
-def prepare_input_xml_file(input_file: Path) -> etree._Element:
-    """
-    Parses the file and does some rudimentary checks.
-
-    Args:
-        input_file: input XML
-
-    Returns:
-        The root element of the parsed XML file, the shortcode, and the default ontology
-    """
+def parse_and_clean_xml_file(input_file: Path) -> etree._Element:
     root = parse_xml_file(input_file)
     root = remove_comments_from_element_tree(root)
     validate_xml_with_schema(root)

@@ -394,6 +394,21 @@ class TestParseValues:
         assert not val.permissions_id
         assert not val.comment
 
+    def test_text_richtext_escaped_characters(self):
+        xml_val = etree.fromstring("""
+        <text-prop name=":hasProp">
+            <text encoding="xml">&amp;</text>
+        </text-prop>
+        """)
+        result = _parse_one_value(xml_val, IRI_LOOKUP)
+        assert len(result)==1
+        val = result.pop(0)
+        assert val.prop_name==HAS_PROP
+        assert val.value=="&amp;"
+        assert val.value_type==KnoraValueType.RICHTEXT_VALUE
+        assert not val.permissions_id
+        assert not val.comment
+
     def test_text_simpletext_value(self):
         xml_val = etree.fromstring("""
         <text-prop name=":hasProp">

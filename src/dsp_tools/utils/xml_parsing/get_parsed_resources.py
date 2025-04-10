@@ -93,7 +93,7 @@ def _parse_segment_values(segment: etree._Element, segment_type: str) -> list[Pa
             case "isSegmentOf":
                 val_type = KnoraValueType.LINK_VALUE
                 prop = f"{KNORA_API_STR}is{segment_type}SegmentOf"
-                value = val.text
+                value = val.text.strip() if val.text else None
             case "hasSegmentBounds":
                 val_type = KnoraValueType.INTERVAL_VALUE
                 prop = f"{KNORA_API_STR}hasSegmentBounds"
@@ -173,7 +173,7 @@ def _parse_generic_values(values: etree._Element, prop_name: str) -> list[Parsed
         parsed_values.append(
             ParsedValue(
                 prop_name=prop_name,
-                value=val.text,
+                value=val.text.strip() if val.text else None,
                 value_type=value_type,
                 permissions_id=val.attrib.get("permissions"),
                 comment=val.attrib.get("comment"),
@@ -189,7 +189,7 @@ def _parse_list_value(values: etree._Element, prop_name: str) -> list[ParsedValu
         parsed_values.append(
             ParsedValue(
                 prop_name=prop_name,
-                value=(list_name, val.text),
+                value=(list_name, val.text.strip() if val.text else None),
                 value_type=KnoraValueType.LIST_VALUE,
                 permissions_id=val.attrib.get("permissions"),
                 comment=val.attrib.get("comment"),
@@ -206,7 +206,7 @@ def _parse_text_value(values: etree._Element, prop_name: str) -> list[ParsedValu
             value = _get_formatted_text_as_string(val)
         else:
             val_type = KnoraValueType.SIMPLETEXT_VALUE
-            value = val.text
+            value = val.text.strip() if val.text else None
         parsed_values.append(
             ParsedValue(
                 prop_name=prop_name,
@@ -227,7 +227,7 @@ def _get_formatted_text_as_string(value: etree._Element) -> str | None:
 
 def _parse_iiif_uri(iiif_uri: etree._Element) -> ParsedFileValue:
     return ParsedFileValue(
-        value=iiif_uri.text,
+        value=iiif_uri.text.strip() if iiif_uri.text else None,
         value_type=KnoraValueType.STILL_IMAGE_IIIF,
         metadata=_parse_file_metadata(iiif_uri),
     )
@@ -235,7 +235,7 @@ def _parse_iiif_uri(iiif_uri: etree._Element) -> ParsedFileValue:
 
 def _parse_file_values(file_value: etree._Element) -> ParsedFileValue:
     return ParsedFileValue(
-        value=file_value.text,
+        value=file_value.text.strip() if file_value.text else None,
         value_type=_get_file_value_type(file_value.text),
         metadata=_parse_file_metadata(file_value),
     )

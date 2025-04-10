@@ -30,14 +30,11 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 LIST_SEPARATOR = "\n-    "
 
 
-def get_resources_and_stash_for_upload(
-    root: etree._Element, clients: UploadClients
-) -> tuple[list[IntermediaryResource], Stash | None]:
+def get_transformed_resources_for_upload(root: etree._Element, clients: UploadClients) -> list[IntermediaryResource]:
     logger.info("Get data from XML...")
     parsed_resources, _ = get_parsed_resources(root, clients.legal_info_client.server)
     intermediary_lookups = _get_intermediary_lookups(root=root, clients=clients)
-    intermediary_resources = _get_intermediary_resources(parsed_resources, intermediary_lookups)
-    return _get_stash_and_upload_order(intermediary_resources)
+    return _get_intermediary_resources(parsed_resources, intermediary_lookups)
 
 
 def _get_intermediary_lookups(root: etree._Element, clients: UploadClients) -> IntermediaryLookups:
@@ -103,7 +100,7 @@ def _get_intermediary_resources(
     return result.transformed_resources
 
 
-def _get_stash_and_upload_order(
+def get_stash_and_upload_order(
     resources: list[IntermediaryResource],
 ) -> tuple[list[IntermediaryResource], Stash | None]:
     info_for_graph = create_info_for_graph_from_intermediary_resources(resources)

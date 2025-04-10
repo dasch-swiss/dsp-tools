@@ -1,3 +1,5 @@
+import regex
+
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
@@ -47,6 +49,6 @@ def _check_if_standoff_link_targets_exist(resources: list[IntermediaryResource],
 
 
 def _clean_prop_iri(iri: str, suffix: str = "") -> str:
-    prop_name = re.sub(fr"{suffix}$", "", (iri.split("/v2#")[-1]))
+    prop_name = regex.sub(rf"{suffix}$", "", (iri.split("/v2#")[-1]))
     prefix = iri.split("/")[-2]
     return f"{prefix}:{prop_name}"

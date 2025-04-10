@@ -14,16 +14,12 @@ ONTO = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
 
 
 @pytest.fixture
-def richtext() -> IntermediaryRichtext:
+def resource_richtext() -> IntermediaryResource:
     val = FormattedTextValue(
         '<a class="salsah-link" href="IRI:target_resource_text:IRI">target_resource</a> '
         'with IRI <a class="salsah-link" href="http://rdfh.ch/082E/-lRvrg7tQI6aVpcTJbVrwg">target existing IRI</a>'
     )
-    return IntermediaryRichtext(val, f"{ONTO}richtextPropValue", None, None, {"target_resource_text"}, "")
-
-
-@pytest.fixture
-def resource_richtext(richtext) -> IntermediaryResource:
+    richtext = IntermediaryRichtext(val, f"{ONTO}richtextPropValue", None, None, {"target_resource_text"}, "")
     return IntermediaryResource(
         res_id="resource_richtext",
         type_iri="type",
@@ -109,7 +105,7 @@ def test_check_all_links_missing_text(resource_richtext, resource_link_value, ta
     expected = regex.escape(
         "It is not possible to upload the XML file, because it contains invalid links:\n"
         " - Resource 'resource_richtext', property 'onto:richtextPropValue' "
-        "has a invalid standoff link target(s) 'target_resource_text'"
+        "has invalid standoff link targets: 'target_resource_text'"
     )
     with pytest.raises(InputError, match=expected):
         check_if_link_targets_exist(resources)
@@ -120,7 +116,7 @@ def test_check_all_links_missing_text_several(resource_richtext_several):
     expected = regex.escape(
         "It is not possible to upload the XML file, because it contains invalid links:\n"
         " - Resource 'resource_richtext', property 'onto:richtextPropValue' "
-        "has a invalid standoff link target(s) 'target_resource_link', 'target_resource_text'"
+        "has invalid standoff link targets: 'target_resource_link', 'target_resource_text'"
     )
     with pytest.raises(InputError, match=expected):
         check_if_link_targets_exist(resources)

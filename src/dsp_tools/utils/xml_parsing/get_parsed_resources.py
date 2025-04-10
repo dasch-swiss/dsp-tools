@@ -234,9 +234,10 @@ def _parse_iiif_uri(iiif_uri: etree._Element) -> ParsedFileValue:
 
 
 def _parse_file_values(file_value: etree._Element) -> ParsedFileValue:
+    val = file_value.text.strip() if file_value.text else None
     return ParsedFileValue(
-        value=file_value.text.strip() if file_value.text else None,
-        value_type=_get_file_value_type(file_value.text),
+        value=val,
+        value_type=_get_file_value_type(val),
         metadata=_parse_file_metadata(file_value),
     )
 

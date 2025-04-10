@@ -5,7 +5,7 @@ import pytest
 from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import _get_intermediary_resources
-from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import _get_stash_and_upload_order
+from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_stash_and_upload_order
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import parse_and_clean_xml_file
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.ansi_colors import YELLOW
@@ -20,7 +20,7 @@ def test_get_length_ok_resources() -> None:
         permissions_lookup, {}, namespaces={"simcir": "https://namespace.ch/simcir#"}, authorships={}
     )
     intermediary_resources = _get_intermediary_resources(parsed_resources, intermediary_lookups)
-    _, stash = _get_stash_and_upload_order(intermediary_resources)
+    _, stash = get_stash_and_upload_order(intermediary_resources)
     len_standoff = len(stash.standoff_stash.res_2_stash_items)  # type: ignore[union-attr]
     len_resptr = len(stash.link_value_stash.res_2_stash_items)  # type: ignore[union-attr]
     stashed_links = len_standoff + len_resptr

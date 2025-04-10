@@ -139,10 +139,7 @@ def _from_xmlresources_get_transformed_resources(
     result = transform_xmlresources_into_intermediary_resources(resources, intermediary_lookups)
     if result.resource_failures:
         failures = [f"Resource ID: '{x.resource_id}', Message: {x.failure_msg}" for x in result.resource_failures]
-        msg = (
-            f"{datetime.now()}: WARNING: Unable to create the following resource(s):"
-            f"{LIST_SEPARATOR}{LIST_SEPARATOR.join(failures)}"
-        )
+        msg = f"Unable to create the following resource(s):{LIST_SEPARATOR}{LIST_SEPARATOR.join(failures)}"
         raise InputError(msg)
     return result.transformed_resources
 

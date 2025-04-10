@@ -1,5 +1,47 @@
 # Changelog
 
+## [13.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v12.1.0...v13.0.0) (2025-04-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* change structure of `PreDefinedLicenses` config in xmllib (DEV-4762) ([#1605](https://github.com/dasch-swiss/dsp-tools/issues/1605))
+
+### Enhancements
+
+* change structure of `PreDefinedLicenses` config in xmllib (DEV-4762) ([#1605](https://github.com/dasch-swiss/dsp-tools/issues/1605)) ([7319985](https://github.com/dasch-swiss/dsp-tools/commit/7319985ec95b26a1b2ce5265cb5760015c56e8a3))
+* downgrade warning level if angular brackets were found in Simpletext (DEV-4746) ([#1593](https://github.com/dasch-swiss/dsp-tools/issues/1593)) ([16d875a](https://github.com/dasch-swiss/dsp-tools/commit/16d875a3a82ae87946903a321d8997d54b1b183b))
+* **xmllib:** create additional label to list name helper functions and lookups (DEV-4753) ([#1598](https://github.com/dasch-swiss/dsp-tools/issues/1598)) ([da67e9a](https://github.com/dasch-swiss/dsp-tools/commit/da67e9a72f6f989f4122e2da9b341a4063631e40))
+* **xmllib:** support BCE dates in `find_date_in_string()` (RDU-83) ([#1596](https://github.com/dasch-swiss/dsp-tools/issues/1596)) ([5361bc6](https://github.com/dasch-swiss/dsp-tools/commit/5361bc603a8f1b7db4865590c2449217618d875d))
+
+
+### Bug Fixes
+
+* correct rdflib import (DEV-4765) ([#1612](https://github.com/dasch-swiss/dsp-tools/issues/1612)) ([67d6770](https://github.com/dasch-swiss/dsp-tools/commit/67d67708cfe89bf4730279a4483ab6ca1a3cd8de))
+* **xmllib:** allow additional header tags that can be displayed in the app (DEV-4756) ([#1599](https://github.com/dasch-swiss/dsp-tools/issues/1599)) ([700ccbb](https://github.com/dasch-swiss/dsp-tools/commit/700ccbb806554c7bb9e1fe0268c10b8e78a7f8a9))
+
+
+### Maintenance
+
+* bump start-stack to 2025.04.02 ([#1616](https://github.com/dasch-swiss/dsp-tools/issues/1616)) ([486855f](https://github.com/dasch-swiss/dsp-tools/commit/486855f42f61aa432681813728bc78d682ab7009))
+* consolidate code duplications (DEV-4780) ([#1613](https://github.com/dasch-swiss/dsp-tools/issues/1613)) ([432364d](https://github.com/dasch-swiss/dsp-tools/commit/432364d4d5fa3d8d2dcf5d5ccab5a4928504bc63))
+* create new classes to parse XML ([#1591](https://github.com/dasch-swiss/dsp-tools/issues/1591)) ([6b8fce1](https://github.com/dasch-swiss/dsp-tools/commit/6b8fce1a03415c914ff525d561548e46072cd1a4))
+* parse XML into `ParsedResource` ([#1594](https://github.com/dasch-swiss/dsp-tools/issues/1594)) ([dfb4ff3](https://github.com/dasch-swiss/dsp-tools/commit/dfb4ff332da4ea82c7d23e63ca2157fa55ffbe35))
+* PR checks should be triggered on PRs from forks ([#1608](https://github.com/dasch-swiss/dsp-tools/issues/1608)) ([164b2f9](https://github.com/dasch-swiss/dsp-tools/commit/164b2f926de7522ed9f0ec5e57f332af041310bd))
+* **start-stack:** switch `docker` command parts to match documentation ([#1606](https://github.com/dasch-swiss/dsp-tools/issues/1606)) ([bdb93c2](https://github.com/dasch-swiss/dsp-tools/commit/bdb93c2ba38229b8cbfe3013632d68d68f5eb208))
+* **xmlupload:** create functionality to transform resources from `ParsedResource` into `ResourceIntermediary` ([#1601](https://github.com/dasch-swiss/dsp-tools/issues/1601)) ([1cfdc8d](https://github.com/dasch-swiss/dsp-tools/commit/1cfdc8d623fbc7b65919d743801cd7c8621c6c7b))
+* **xmlupload:** deserialise list-prop as tuple and not string ([#1597](https://github.com/dasch-swiss/dsp-tools/issues/1597)) ([22d7fcf](https://github.com/dasch-swiss/dsp-tools/commit/22d7fcf2fea52957b24114559c9fb645a7e05321))
+* **xmlupload:** extract validation functions that use the root ([#1614](https://github.com/dasch-swiss/dsp-tools/issues/1614)) ([2df357f](https://github.com/dasch-swiss/dsp-tools/commit/2df357f49f045ba8ae948942da9d72375f4a7273))
+* **xmlupload:** move creation of intermediary lookup ([#1610](https://github.com/dasch-swiss/dsp-tools/issues/1610)) ([4b6d708](https://github.com/dasch-swiss/dsp-tools/commit/4b6d708e68bd7a759ed2f832471f9d46cd9501f4))
+* **xmlupload:** move transform rich- and simpletext values ([#1603](https://github.com/dasch-swiss/dsp-tools/issues/1603)) ([cb98c3c](https://github.com/dasch-swiss/dsp-tools/commit/cb98c3c5c252bc0023c4652a540b565c01bd8570))
+* **xmlupload:** rename transform into intermediary resources files ([#1602](https://github.com/dasch-swiss/dsp-tools/issues/1602)) ([f3394f7](https://github.com/dasch-swiss/dsp-tools/commit/f3394f725c584e4f9d3e22a5e2c8fbbe8adc26a5))
+
+
+### Documentation
+
+* fix typo and display in architecture.md ([#1600](https://github.com/dasch-swiss/dsp-tools/issues/1600)) ([9ef3743](https://github.com/dasch-swiss/dsp-tools/commit/9ef3743ad64c58d1bad95eb90c58e4fbe2798163))
+* **xmlupload:** fix attribute of hasSegmentBounds (`<video-segment>` / `<audio-segment>`) ([#1595](https://github.com/dasch-swiss/dsp-tools/issues/1595)) ([472a0b9](https://github.com/dasch-swiss/dsp-tools/commit/472a0b9f66ed75c4e4da834817ae3497b9f2d6e9))
+
 ## [12.1.0](https://github.com/dasch-swiss/dsp-tools/compare/v12.0.0...v12.1.0) (2025-04-02)
 
 

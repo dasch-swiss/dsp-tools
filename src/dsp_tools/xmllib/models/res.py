@@ -13,11 +13,11 @@ from dsp_tools.xmllib.internal_helpers import check_and_create_richtext_string
 from dsp_tools.xmllib.internal_helpers import check_and_fix_collection_input
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.models.config_options import Permissions
-from dsp_tools.xmllib.models.config_options import PreDefinedLicense
 from dsp_tools.xmllib.models.file_values import AbstractFileValue
 from dsp_tools.xmllib.models.file_values import FileValue
 from dsp_tools.xmllib.models.file_values import IIIFUri
 from dsp_tools.xmllib.models.file_values import Metadata
+from dsp_tools.xmllib.models.licenses.recommended import License
 from dsp_tools.xmllib.models.migration_metadata import MigrationMetadata
 from dsp_tools.xmllib.models.values import BooleanValue
 from dsp_tools.xmllib.models.values import ColorValue
@@ -1497,7 +1497,7 @@ class Resource:
     def add_file(
         self,
         filename: str | Path,
-        license: PreDefinedLicense | str,
+        license: License,
         copyright_holder: str,
         authorship: list[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
@@ -1510,7 +1510,7 @@ class Resource:
 
         Args:
             filename: path to the file
-            license: License of the file (predefined or custom).
+            license: License of the file (predefined or custom) [see the documentation for the options.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/#xmllib.models.licenses.recommended.LicenseRecommended).
                 A license states the circumstances how you are allowed to share/reuse something.
             copyright_holder: The person or institution who owns the economic rights of something.
             authorship: The (natural) person who authored something.
@@ -1526,10 +1526,10 @@ class Resource:
         Examples:
             ```python
             resource = resource.add_file(
-                filename="images/dog.jpg",
-                license=xmllib.PreDefinedLicense.PUBLIC_DOMAIN,
-                copyright_holder="Bark University",
-                authorship=["Bark McDog"],
+                filename="images/cat.jpg",
+                license=xmllib.LicenseRecommended.DSP.PUBLIC_DOMAIN,
+                copyright_holder="Meow University",
+                authorship=["Kitty Meow"],
             )
             ```
 
@@ -1537,7 +1537,7 @@ class Resource:
             # a file with restricted view permissions
             resource = resource.add_file(
                 filename="images/dog.jpg",
-                license=xmllib.PreDefinedLicense.PUBLIC_DOMAIN,
+                license=xmllib.LicenseRecommended.CC.BY_NC_ND,
                 copyright_holder="Bark University",
                 authorship=["Bark McDog"],
                 permissions=xmllib.Permissions.RESTRICTED_VIEW,
@@ -1567,7 +1567,7 @@ class Resource:
     def add_iiif_uri(
         self,
         iiif_uri: str,
-        license: PreDefinedLicense | str,
+        license: License,
         copyright_holder: str,
         authorship: list[str],
         permissions: Permissions = Permissions.PROJECT_SPECIFIC_PERMISSIONS,
@@ -1580,7 +1580,7 @@ class Resource:
 
         Args:
             iiif_uri: valid IIIF URI
-            license: License of the file (predefined or custom).
+            license: License of the file (predefined or custom) [see the documentation for the options.](https://docs.dasch.swiss/latest/DSP-TOOLS/xmllib-api-reference/licenses/recommended/#xmllib.models.licenses.recommended.LicenseRecommended).
                 A license states the circumstances how you are allowed to share/reuse something.
             copyright_holder: The person or institution who owns the economic rights of something.
             authorship: The (natural) person who authored something.
@@ -1597,7 +1597,7 @@ class Resource:
             ```python
             resource = resource.add_iiif_uri(
                 iiif_uri="https://iiif.wellcomecollection.org/image/b20432033_B0008608.JP2/full/1338%2C/0/default.jpg",
-                license=xmllib.PreDefinedLicense.CC_BY_NC,
+                license=xmllib.LicenseRecommended.CC.BY_NC,
                 copyright_holder="Wellcome Collection",
                 authorship=["Cavanagh, Annie"]
             )

@@ -1,3 +1,3 @@
-::: xmllib.models.config_options
+::: xmllib.models.licenses.recommended
     options:
         members_order: source

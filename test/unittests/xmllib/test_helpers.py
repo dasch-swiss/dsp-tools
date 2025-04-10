@@ -13,6 +13,7 @@ from dsp_tools.xmllib.helpers import create_list_from_string
 from dsp_tools.xmllib.helpers import create_non_empty_list_from_string
 from dsp_tools.xmllib.helpers import create_standoff_link_to_resource
 from dsp_tools.xmllib.helpers import create_standoff_link_to_uri
+from dsp_tools.xmllib.helpers import escape_reserved_xml_characters
 from dsp_tools.xmllib.helpers import find_date_in_string
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 
@@ -358,3 +359,18 @@ class TestListLookup:
         with pytest.warns(DspToolsUserWarning, match=msg):
             result = list_lookup.get_list_name_and_node_via_property(":inexistent", "Label 2")
         assert result == ("", "")
+
+
+@pytest.mark.parametrize(
+    ("input_val", "expected"),
+    [
+        ("Text no escape", "Text no escape"),
+        ("known tag <strong>content</strong>", "known tag <strong>content</strong>"),
+        ("Ampersand &", "Ampersand &amp;"),
+        ("Unknow tags <unknown></unknown>", "Unknow tags &lt;unknown&gt;&lt;/unknown&gt;"),
+        ("<text in brackets>", "&lt;text in brackets&gt;"),
+    ],
+)
+def test_escape_reserved_xml_characters(input_val: str, expected: str) -> None:
+    result = escape_reserved_xml_characters(input_val)
+    assert result == expected

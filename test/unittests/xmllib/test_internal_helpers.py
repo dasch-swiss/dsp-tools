@@ -1,22 +1,35 @@
+import numpy as np
+import pandas as pd
 import pytest
 
-from dsp_tools.xmllib.internal_helpers import escape_reserved_xml_chars
+from dsp_tools.xmllib.internal_helpers import is_nonempty_value_internal
 
 
 @pytest.mark.parametrize(
-    ("input_val", "expected"),
+    ("text", "expected"),
     [
-        ("Text no escape", "Text no escape"),
-        ("known tag <known>content</known>", "known tag <known>content</known>"),
-        ("Ampersand &", "Ampersand &amp;"),
-        ("Unknow tags <unknonw></unknonw>", "Unknow tags &lt;unknonw&gt;&lt;/unknonw&gt;"),
-        ("<text in brackets>", "&lt;text in brackets&gt;"),
+        (np.nan, False),
+        (pd.NA, False),
+        (None, False),
+        ("", False),
+        (" ", False),
+        (" \t ", False),
+        (" \n ", False),
+        (" \r ", False),
+        (" \v ", False),  # vertical tab
+        (" \f ", False),
+        (" \u00a0 ", False),  # non-breaking space
+        (" \u200b ", False),  # zero-width space
+        (" \ufeff ", False),  # Zero-Width No-Break Space
+        (" \t\n\r\v\f \u00a0 \u200b \ufeff", False),
+        ("a", True),
+        (0, True),
+        (1, True),
+        ("0", True),
+        ("1", True),
+        (True, True),
+        (False, True),
     ],
 )
-def test_escape_reserved_xml_chars(input_val: str, expected: str) -> None:
-    result = escape_reserved_xml_chars(input_val, ["known"])
-    assert result == expected
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])
+def test_is_nonempty_value_internal(text: str, expected: bool) -> None:
+    assert is_nonempty_value_internal(text) == expected

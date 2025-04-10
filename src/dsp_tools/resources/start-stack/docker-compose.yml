@@ -44,7 +44,7 @@ services:
   app:
     # on the verge of every deployment (fortnightly), update the "image" value from the "app" value of
     # https://github.com/dasch-swiss/ops-deploy/blob/main/versions/RELEASE.json
-    image: daschswiss/dsp-app:v11.27.0
+    image: daschswiss/dsp-app:v11.29.0
     volumes:
       - ./dsp-app-config.json:/public/config/config.prod.json
     ports:

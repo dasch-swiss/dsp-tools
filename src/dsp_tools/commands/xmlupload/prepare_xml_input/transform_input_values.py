@@ -31,7 +31,7 @@ def assert_is_string(value: InputTypes) -> str:
     """Assert a value is a string."""
     match value:
         case str() as s:
-            return s
+            return s.strip()
         case FormattedTextValue() as xml:
             raise InputError(f"Expected string value, but got XML value: {xml.as_xml()}")
         case tuple():

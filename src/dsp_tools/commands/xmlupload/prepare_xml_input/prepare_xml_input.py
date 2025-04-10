@@ -15,6 +15,9 @@ from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookup
 from dsp_tools.commands.xmlupload.models.lookup_models import make_namespace_dict_from_onto_names
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
+from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import (
+    transform_all_resources_into_intermediary_resources,
+)
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_xmlresource_into_intermediary_classes import (
     transform_xmlresources_into_intermediary_resources,
 )
@@ -25,12 +28,16 @@ from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.error.exceptions import BaseError
 from dsp_tools.error.exceptions import InputError
 from dsp_tools.legacy_models.projectContext import ProjectContext
+from dsp_tools.utils.xml_parsing.get_parsed_resources import get_parsed_resources
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 
 LIST_SEPARATOR = "\n-    "
 
 
-def get_intermediary_lookups(root: etree._Element, con: Connection, clients: UploadClients) -> IntermediaryLookups:
-    proj_context = _get_project_context_from_server(connection=con, shortcode=root.attrib["shortcode"])
+def get_intermediary_lookups(root: etree._Element, clients: UploadClients) -> IntermediaryLookups:
+    proj_context = _get_project_context_from_server(
+        connection=clients.project_client.con, shortcode=root.attrib["shortcode"]
+    )
     permissions_lookup = _get_permissions_lookup(root, proj_context)
     authorship_lookup = _get_authorship_lookup(root)
     listnode_lookup = clients.list_client.get_list_node_id_to_iri_lookup()
@@ -76,13 +83,48 @@ def _get_authorship_lookup(root: etree._Element) -> dict[str, list[str]]:
     return authorship_lookup
 
 
-def prepare_upload_from_root(
+def get_resources_and_stash_for_upload(
+    root: etree._Element, clients: UploadClients
+) -> tuple[list[IntermediaryResource], Stash | None]:
+    logger.info("Get data from XML...")
+    parsed_resources, _ = get_parsed_resources(root, clients.legal_info_client.server)
+    intermediary_lookups = get_intermediary_lookups(root=root, clients=clients)
+    intermediary_resources = _get_intermediary_resources(parsed_resources, intermediary_lookups)
+    return _get_stash_and_upload_order(intermediary_resources)
+
+
+def _get_intermediary_resources(
+    resources: list[ParsedResource], intermediary_lookups: IntermediaryLookups
+) -> list[IntermediaryResource]:
+    result = transform_all_resources_into_intermediary_resources(resources, intermediary_lookups)
+    if result.resource_failures:
+        failures = [f"Resource ID: '{x.resource_id}', Message: {x.failure_msg}" for x in result.resource_failures]
+        msg = (
+            f"{datetime.now()}: WARNING: Unable to create the following resource(s):"
+            f"{LIST_SEPARATOR}{LIST_SEPARATOR.join(failures)}"
+        )
+        raise InputError(msg)
+    return result.transformed_resources
+
+
+def _get_stash_and_upload_order(
+    resources: list[IntermediaryResource],
+) -> tuple[list[IntermediaryResource], Stash | None]:
+    info_for_graph = create_info_for_graph_from_intermediary_resources(resources)
+    stash_lookup, upload_order = generate_upload_order(info_for_graph)
+    sorting_lookup = {res.res_id: res for res in resources}
+    sorted_resources = [sorting_lookup[res_id] for res_id in upload_order]
+    stash = stash_circular_references(sorted_resources, stash_lookup)
+    return sorted_resources, stash
+
+
+def prepare_upload_from_root_ingest(
     root: etree._Element, default_ontology: str, intermediary_lookups: IntermediaryLookups
 ) -> tuple[list[IntermediaryResource], Stash | None]:
     """Do the consistency check, resolve circular references, and return the resources and permissions."""
     logger.info("Get data from XML...")
     resources = _extract_resources_from_xml(root, default_ontology)
-    transformed_resources = _get_transformed_resources(resources, intermediary_lookups)
+    transformed_resources = _from_xmlresources_get_transformed_resources(resources, intermediary_lookups)
     info_for_graph = create_info_for_graph_from_intermediary_resources(transformed_resources)
     stash_lookup, upload_order = generate_upload_order(info_for_graph)
     sorting_lookup = {res.res_id: res for res in transformed_resources}
@@ -91,16 +133,13 @@ def prepare_upload_from_root(
     return sorted_resources, stash
 
 
-def _get_transformed_resources(
+def _from_xmlresources_get_transformed_resources(
     resources: list[XMLResource], intermediary_lookups: IntermediaryLookups
 ) -> list[IntermediaryResource]:
     result = transform_xmlresources_into_intermediary_resources(resources, intermediary_lookups)
     if result.resource_failures:
         failures = [f"Resource ID: '{x.resource_id}', Message: {x.failure_msg}" for x in result.resource_failures]
-        msg = (
-            f"{datetime.now()}: WARNING: Unable to create the following resource(s):"
-            f"{LIST_SEPARATOR}{LIST_SEPARATOR.join(failures)}"
-        )
+        msg = f"Unable to create the following resource(s):{LIST_SEPARATOR}{LIST_SEPARATOR.join(failures)}"
         raise InputError(msg)
     return result.transformed_resources
 

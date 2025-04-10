@@ -62,9 +62,11 @@ class TestCreateGetXMLUpload(unittest.TestCase):
         Test if the systematic XML data file can be uploaded without producing an error on its way,
         and if the 'id2iri' replacement works, so that the 2nd upload works.
         """
-        with pytest.warns(
-            DspToolsFutureWarning, match=r"\d+ of \d+ bitstreams and iiif-uris in your XML are lacking the legal info"
-        ):
+        msg = regex.escape(
+            r"2 of 44 bitstreams and iiif-uris in your XML are lacking the legal info "
+            r"(copyright holders, license and authorship). Soon this information will be mandatory for all files."
+        )
+        with pytest.warns(DspToolsFutureWarning, match=msg):
             success = xmlupload(
                 input_file=self.test_data_systematic_file,
                 creds=self.creds,

@@ -20,7 +20,6 @@ from dsp_tools.utils.data_formats.iri_util import is_resource_iri
 from dsp_tools.utils.xml_parsing.parse_xml import parse_xml_file
 from dsp_tools.utils.xml_parsing.transform import remove_comments_from_element_tree
 from dsp_tools.utils.xml_parsing.transform import transform_into_localnames
-from dsp_tools.utils.xml_parsing.transform import transform_special_tags_make_localname
 from dsp_tools.utils.xml_parsing.xml_schema_validation import validate_xml_with_schema
 
 
@@ -30,26 +29,6 @@ def parse_and_clean_xml_file(input_file: Path) -> etree._Element:
     validate_xml_with_schema(root)
     print("The XML file is syntactically correct.")
     return transform_into_localnames(root)
-
-
-def parse_and_validate_with_xsd_transform_special_tags(input_file: Path) -> tuple[etree._Element, str, str]:
-    """Parse and validate an XML file.
-
-    Args:
-        input_file: Path to the XML file
-
-    Returns:
-        The root element of the parsed XML file, the shortcode, and the default ontology
-    """
-    root = parse_xml_file(input_file)
-    root = remove_comments_from_element_tree(root)
-
-    validate_xml_with_schema(root)
-    print("The XML file is syntactically correct.")
-    root = transform_special_tags_make_localname(root)
-    shortcode = root.attrib["shortcode"]
-    default_ontology = root.attrib["default-ontology"]
-    return root, shortcode, default_ontology
 
 
 def preliminary_validation_of_root(root: etree._Element, con: Connection, config: UploadConfig) -> None:

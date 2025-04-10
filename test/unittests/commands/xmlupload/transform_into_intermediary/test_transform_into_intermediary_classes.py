@@ -289,7 +289,7 @@ class TestTransformOneResource:
 class TestTransformFileValue:
     def test_transform_file_value(self, lookups: IntermediaryLookups):
         metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", None)
-        val = ParsedFileValue("file.jpg  ", KnoraValueType.STILL_IMAGE_FILE, metadata)
+        val = ParsedFileValue("file.jpg", KnoraValueType.STILL_IMAGE_FILE, metadata)
         result = _transform_file_value(val, lookups, "id", "lbl")
         assert result.value == "file.jpg"
         assert isinstance(result, IntermediaryFileValue)

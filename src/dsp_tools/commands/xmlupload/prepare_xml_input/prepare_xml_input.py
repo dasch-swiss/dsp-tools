@@ -8,11 +8,11 @@ from loguru import logger
 from lxml import etree
 
 from dsp_tools.clients.connection import Connection
-from dsp_tools.commands.xmlupload.models.deserialise.xmlpermission import XmlPermission
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookups
 from dsp_tools.commands.xmlupload.models.lookup_models import make_namespace_dict_from_onto_names
 from dsp_tools.commands.xmlupload.models.permission import Permissions
+from dsp_tools.commands.xmlupload.models.permissions_parsed import XmlPermission
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_into_intermediary_classes import (
     transform_all_resources_into_intermediary_resources,

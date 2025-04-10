@@ -88,18 +88,6 @@ def transform_integer(value: InputTypes) -> int:
     return int(str_val)
 
 
-def transform_interval_from_string(input_value: InputTypes) -> IntervalFloats:
-    """Transform a sting input into an interval object."""
-    val = assert_is_string(input_value)
-    split_val = [res for x in val.split(":", 1) if (res := x.strip())]
-    if not len(split_val) == 2:
-        raise InputError(f"Could not parse interval: {val}")
-    try:
-        return IntervalFloats(float(split_val[0]), float(split_val[1]))
-    except ValueError:
-        raise InputError(f"Could not parse interval: {val}") from None
-
-
 def transform_interval(input_value: InputTypes) -> IntervalFloats:
     """Transform a string input into an interval object."""
     val = assert_is_tuple(input_value)

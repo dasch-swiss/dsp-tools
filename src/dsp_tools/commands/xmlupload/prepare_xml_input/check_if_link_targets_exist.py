@@ -46,7 +46,7 @@ def _check_if_standoff_link_targets_exist(resources: list[IntermediaryResource],
     return not_found
 
 
-def _clean_prop_iri(iri: str, r_strip: str = "") -> str:
-    prop_name = iri.split("/v2#")[-1].rstrip(r_strip)
+def _clean_prop_iri(iri: str, suffix: str = "") -> str:
+    prop_name = re.sub(fr"{suffix}$", "", (iri.split("/v2#")[-1]))
     prefix = iri.split("/")[-2]
     return f"{prefix}:{prop_name}"

@@ -16,7 +16,6 @@ from dsp_tools.commands.ingest_xmlupload.create_resources.apply_ingest_id import
 from dsp_tools.commands.xmlupload.models.ingest import BulkIngestedAssetClient
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
-from dsp_tools.commands.xmlupload.prepare_xml_input.check_if_link_targets_exist import check_if_link_targets_exist
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_stash_and_upload_order
 from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_transformed_resources_for_upload
@@ -70,12 +69,10 @@ def ingest_xmlupload(
 
     preliminary_validation_of_root(root, con, config)
 
-    transformed_resources = get_transformed_resources_for_upload(root, clients)
-    check_if_link_targets_exist(transformed_resources)
-    sorted_and_transformed, stash = get_stash_and_upload_order(transformed_resources)
-
+    transformed = get_transformed_resources_for_upload(root, clients)
+    sorted_resources, stash = get_stash_and_upload_order(transformed)
     state = UploadState(
-        pending_resources=sorted_and_transformed,
+        pending_resources=sorted_resources,
         pending_stash=stash,
         config=config,
     )

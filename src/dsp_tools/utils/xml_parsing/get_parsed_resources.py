@@ -101,7 +101,7 @@ def _parse_segment_values(segment: etree._Element, segment_type: str) -> list[Pa
             case _:
                 val_type = SEGMENT_TAG_TO_PROP_MAPPER[str(val.tag)]
                 prop = f"{KNORA_API_STR}{val.tag!s}"
-                value = _get_formatted_text_as_string(val)
+                value = _get_etree_content_as_string(val)
         values.append(
             ParsedValue(
                 prop_name=prop,
@@ -173,7 +173,7 @@ def _parse_generic_values(values: etree._Element, prop_name: str) -> list[Parsed
         parsed_values.append(
             ParsedValue(
                 prop_name=prop_name,
-                value=val.text.strip() if val.text else None,
+                value=_get_etree_content_as_string(val),
                 value_type=value_type,
                 permissions_id=val.attrib.get("permissions"),
                 comment=val.attrib.get("comment"),
@@ -189,7 +189,7 @@ def _parse_list_value(values: etree._Element, prop_name: str) -> list[ParsedValu
         parsed_values.append(
             ParsedValue(
                 prop_name=prop_name,
-                value=(list_name, val.text.strip() if val.text else None),
+                value=(list_name, _get_etree_content_as_string(val)),
                 value_type=KnoraValueType.LIST_VALUE,
                 permissions_id=val.attrib.get("permissions"),
                 comment=val.attrib.get("comment"),
@@ -203,10 +203,10 @@ def _parse_text_value(values: etree._Element, prop_name: str) -> list[ParsedValu
     for val in values:
         if val.attrib["encoding"] == "xml":
             val_type = KnoraValueType.RICHTEXT_VALUE
-            value = _get_formatted_text_as_string(val)
+            value = _get_etree_content_as_string(val)
         else:
             val_type = KnoraValueType.SIMPLETEXT_VALUE
-            value = val.text.strip() if val.text else None
+            value = _get_etree_content_as_string(val)
         parsed_values.append(
             ParsedValue(
                 prop_name=prop_name,
@@ -219,7 +219,7 @@ def _parse_text_value(values: etree._Element, prop_name: str) -> list[ParsedValu
     return parsed_values
 
 
-def _get_formatted_text_as_string(value: etree._Element) -> str | None:
+def _get_etree_content_as_string(value: etree._Element) -> str | None:
     if not value.text and not len(value) > 0:
         return None
     xmlstr = etree.tostring(value, encoding="unicode", method="xml")

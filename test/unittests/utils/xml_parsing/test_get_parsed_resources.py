@@ -469,6 +469,24 @@ class TestParseValues:
         assert not val.permissions_id
         assert not val.comment
 
+    def test_text_simpletext_not_tags_but_angular_brackets(self):
+        # It is permissible for simpletext to contain angular brackets,
+        # even though they will not be displayed as XML on the app.
+        # lxml will see them as XMl and we must ensure that they are parsed correctly.
+        xml_val = etree.fromstring("""
+        <text-prop name=":hasProp">
+            <text encoding="utf8"><notARecognisedTag>Text</notARecognisedTag></text>
+        </text-prop>
+        """)
+        result = _parse_one_value(xml_val, IRI_LOOKUP)
+        assert len(result) == 1
+        val = result.pop(0)
+        assert val.prop_name == HAS_PROP
+        assert val.value == "<notARecognisedTag>Text</notARecognisedTag>"
+        assert val.value_type == KnoraValueType.SIMPLETEXT_VALUE
+        assert not val.permissions_id
+        assert not val.comment
+
     def test_text_simpletext_value_no_text(self):
         xml_val = etree.fromstring("""
         <text-prop name=":hasProp">

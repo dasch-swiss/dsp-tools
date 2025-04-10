@@ -28,7 +28,8 @@ def _check_if_link_value_targets_exist(resources: list[IntermediaryResource], re
                     if is_resource_iri(val.value):
                         pass
                     not_found.append(
-                        f"Resource '{res.res_id}', property '{val.prop_iri}' has an invalid link target '{val.value}'"
+                        f"Resource '{res.res_id}', property '{_clean_prop_iri(val.prop_iri, 'Value')}' "
+                        f"has an invalid link target '{val.value}'"
                     )
     return not_found
 
@@ -43,7 +44,13 @@ def _check_if_standoff_link_targets_exist(resources: list[IntermediaryResource],
                 if missing_no_iri:
                     all_missing = ", ".join(missing_no_iri)
                     not_found.append(
-                        f"Resource '{res.res_id}', property '{val.prop_iri}' "
+                        f"Resource '{res.res_id}', property '{_clean_prop_iri(val.prop_iri)}' "
                         f"has a invalid standoff link target(s) {all_missing}"
                     )
     return not_found
+
+
+def _clean_prop_iri(iri: str, r_strip: str = "") -> str:
+    prop_name = iri.split("/v2#")[-1].rstrip(r_strip)
+    prefix = iri.split("/")[-2]
+    return f"{prefix}:{prop_name}"

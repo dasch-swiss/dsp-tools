@@ -7,11 +7,13 @@ from dsp_tools.commands.xmlupload.models.intermediary.values import Intermediary
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
 from dsp_tools.commands.xmlupload.prepare_xml_input.check_if_link_targets_exist import _check_all_links
 
+ONTO = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
+
 
 @pytest.fixture
 def richtext() -> IntermediaryRichtext:
     val = FormattedTextValue('<a class="salsah-link" href="IRI:target_resource_text:IRI">target_resource</a>')
-    return IntermediaryRichtext(val, "richtextProp", None, None, {"target_resource_text"}, "")
+    return IntermediaryRichtext(val, f"{ONTO}richtextPropValue", None, None, {"target_resource_text"}, "")
 
 
 @pytest.fixture
@@ -21,7 +23,7 @@ def resource_richtext(richtext) -> IntermediaryResource:
         type_iri="type",
         label="lbl",
         permissions=None,
-        values=[richtext, IntermediaryInt(1, "intProp", None, None)],
+        values=[richtext, IntermediaryInt(1, f"{ONTO}intProp", None, None)],
     )
 
 
@@ -39,7 +41,7 @@ def resource_link_value() -> IntermediaryResource:
         type_iri="type",
         label="lbl",
         permissions=None,
-        values=[IntermediaryLink("target_resource_link", "linkProp", None, None, "")],
+        values=[IntermediaryLink("target_resource_link", f"{ONTO}linkProp", None, None, "")],
     )
 
 
@@ -61,7 +63,7 @@ def test_check_all_links_missing_text(resource_richtext, resource_link_value, ta
     result = _check_all_links(resources)
     assert len(result) == 1
     expected = (
-        "Resource 'resource_richtext', property 'richtextProp' "
+        "Resource 'resource_richtext', property 'onto:richtextPropValue' "
         "has a invalid standoff link target(s) 'target_resource_text'"
     )
     assert result[0] == expected
@@ -72,7 +74,7 @@ def test_check_all_links_missing_link(resource_richtext, resource_link_value, ta
     result = _check_all_links(resources)
     assert len(result) == 1
     expected = (
-        "Resource 'resource_link_value', property 'linkPropValue' has an invalid link target 'target_resource_link'"
+        "Resource 'resource_link_value', property 'onto:linkProp' has an invalid link target 'target_resource_link'"
     )
     assert result[0] == expected
 

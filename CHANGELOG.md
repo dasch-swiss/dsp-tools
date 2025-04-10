@@ -1,5 +1,22 @@
 # Changelog
 
+## [13.0.1](https://github.com/dasch-swiss/dsp-tools/compare/v13.0.0...v13.0.1) (2025-04-10)
+
+
+### Bug Fixes
+
+* distinguish between strings/regexes in KNOWN_XML_TAGS (DEV-4781) ([#1619](https://github.com/dasch-swiss/dsp-tools/issues/1619)) ([0c7c5d7](https://github.com/dasch-swiss/dsp-tools/commit/0c7c5d7e66d501c43fb97d1cfcf1cc8244e22b3c))
+* SyntaxWarning: invalid escape sequence '\p' ([#1618](https://github.com/dasch-swiss/dsp-tools/issues/1618)) ([d279c92](https://github.com/dasch-swiss/dsp-tools/commit/d279c92d9f1603c0ccd9bc28204f5ebddf804377))
+* **xmlupload:** validate link target IDs of Segment resources (DEV-4794) ([#1625](https://github.com/dasch-swiss/dsp-tools/issues/1625)) ([6cd2a27](https://github.com/dasch-swiss/dsp-tools/commit/6cd2a2743c99df75861b638444e8a25db7658fd1))
+
+
+### Maintenance
+
+* **ingest-xmlupload:** use `ParsedResource` instead of `XMLResource` ([#1622](https://github.com/dasch-swiss/dsp-tools/issues/1622)) ([4ab3fd8](https://github.com/dasch-swiss/dsp-tools/commit/4ab3fd853a49de193e2c43a5c86e135eb6dc6387))
+* remove `XMLResource` ([#1624](https://github.com/dasch-swiss/dsp-tools/issues/1624)) ([1a7289d](https://github.com/dasch-swiss/dsp-tools/commit/1a7289d0ac1f775ddf8696ae81d2e6a86a8ab2da))
+* remove whitespaces when creating `ParsedResource` ([#1623](https://github.com/dasch-swiss/dsp-tools/issues/1623)) ([1d86782](https://github.com/dasch-swiss/dsp-tools/commit/1d86782553ca3f5e655e1f4b962620af4c0c6d93))
+* **xmlupload:** use `ParsedResource` instead of `XMLResource` ([#1617](https://github.com/dasch-swiss/dsp-tools/issues/1617)) ([f5f293a](https://github.com/dasch-swiss/dsp-tools/commit/f5f293a53043bf0c4dc91c98d3e2eea7f20de85d))
+
 ## [13.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v12.1.0...v13.0.0) (2025-04-09)
 
 

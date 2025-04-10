@@ -11,7 +11,7 @@ from rdflib import URIRef
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_file_value_graph
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_file_value import make_iiif_uri_value_graph
 from dsp_tools.commands.xmlupload.make_rdf_graph.make_values import make_values
-from dsp_tools.commands.xmlupload.models.deserialise.bitstream_info import BitstreamInfo
+from dsp_tools.commands.xmlupload.models.intermediary.bitstream_info import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileMetadata
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileValue
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource

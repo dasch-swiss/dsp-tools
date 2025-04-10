@@ -13,7 +13,7 @@ from requests.adapters import HTTPAdapter
 from requests.adapters import Retry
 
 from dsp_tools.clients.authentication_client import AuthenticationClient
-from dsp_tools.commands.xmlupload.models.deserialise.bitstream_info import BitstreamInfo
+from dsp_tools.commands.xmlupload.models.intermediary.bitstream_info import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.intermediary.file_values import IntermediaryFileValue
 from dsp_tools.error.exceptions import BadCredentialsError
 from dsp_tools.error.exceptions import InvalidFileNameError

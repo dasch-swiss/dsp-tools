@@ -30,7 +30,17 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
 LIST_SEPARATOR = "\n-    "
 
 
-def get_intermediary_lookups(root: etree._Element, clients: UploadClients) -> IntermediaryLookups:
+def get_resources_and_stash_for_upload(
+    root: etree._Element, clients: UploadClients
+) -> tuple[list[IntermediaryResource], Stash | None]:
+    logger.info("Get data from XML...")
+    parsed_resources, _ = get_parsed_resources(root, clients.legal_info_client.server)
+    intermediary_lookups = _get_intermediary_lookups(root=root, clients=clients)
+    intermediary_resources = _get_intermediary_resources(parsed_resources, intermediary_lookups)
+    return _get_stash_and_upload_order(intermediary_resources)
+
+
+def _get_intermediary_lookups(root: etree._Element, clients: UploadClients) -> IntermediaryLookups:
     proj_context = _get_project_context_from_server(
         connection=clients.project_client.con, shortcode=root.attrib["shortcode"]
     )
@@ -77,16 +87,6 @@ def _get_authorship_lookup(root: etree._Element) -> dict[str, list[str]]:
         individual_authors = [get_one_author(child) for child in auth.iterchildren()]
         authorship_lookup[auth.attrib["id"]] = individual_authors
     return authorship_lookup
-
-
-def get_resources_and_stash_for_upload(
-    root: etree._Element, clients: UploadClients
-) -> tuple[list[IntermediaryResource], Stash | None]:
-    logger.info("Get data from XML...")
-    parsed_resources, _ = get_parsed_resources(root, clients.legal_info_client.server)
-    intermediary_lookups = get_intermediary_lookups(root=root, clients=clients)
-    intermediary_resources = _get_intermediary_resources(parsed_resources, intermediary_lookups)
-    return _get_stash_and_upload_order(intermediary_resources)
 
 
 def _get_intermediary_resources(

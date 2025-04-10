@@ -82,12 +82,12 @@ r4-->transpy
         resetree1-->respars: transform special tags<br/><br/>resolve prefixes into absolute IRIs
 
         state transval {
-            valtree-->valpars: transform special tags<br/><br/>resolve prefixes into absolute IRIs<br/><br/>resolve value type to Python Class
+            valtree-->valpars: transform special tags<br/><br/>resolve prefixes into absolute IRIs<br/><br/>resolve value type to Python Class<br/><br/>strip whitespaces from content
         }
         transval-->respars: add to resource
 
         state transfile {
-            filetree-->filepars: resolve file type
+            filetree-->filepars: resolve file type<br/><br/>strip whitespaces from content
         }
         transfile-->respars: add to resource
     }

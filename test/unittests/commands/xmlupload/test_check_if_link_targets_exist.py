@@ -1,11 +1,13 @@
 import pytest
+import regex
 
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.intermediary.res import IntermediaryResource
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryInt
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryLink
 from dsp_tools.commands.xmlupload.models.intermediary.values import IntermediaryRichtext
-from dsp_tools.commands.xmlupload.prepare_xml_input.check_if_link_targets_exist import _check_all_links
+from dsp_tools.commands.xmlupload.prepare_xml_input.check_if_link_targets_exist import check_if_link_targets_exist
+from dsp_tools.error.exceptions import InputError
 
 ONTO = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
 
@@ -54,29 +56,26 @@ def target_resource_link() -> IntermediaryResource:
 
 def test_check_all_links_good(resource_richtext, resource_link_value, target_resource_text, target_resource_link):
     resources = [resource_richtext, resource_link_value, target_resource_text, target_resource_link]
-    result = _check_all_links(resources)
-    assert len(result) == 0
+    check_if_link_targets_exist(resources)
 
 
 def test_check_all_links_missing_text(resource_richtext, resource_link_value, target_resource_link):
     resources = [resource_richtext, resource_link_value, target_resource_link]
-    result = _check_all_links(resources)
-    assert len(result) == 1
-    expected = (
+    expected = regex.escape(
         "Resource 'resource_richtext', property 'onto:richtextPropValue' "
         "has a invalid standoff link target(s) 'target_resource_text'"
     )
-    assert result[0] == expected
+    with pytest.raises(InputError, match=expected):
+        check_if_link_targets_exist(resources)
 
 
 def test_check_all_links_missing_link(resource_richtext, resource_link_value, target_resource_text):
     resources = [resource_richtext, resource_link_value, target_resource_text]
-    result = _check_all_links(resources)
-    assert len(result) == 1
-    expected = (
+    expected = regex.escape(
         "Resource 'resource_link_value', property 'onto:linkProp' has an invalid link target 'target_resource_link'"
     )
-    assert result[0] == expected
+    with pytest.raises(InputError, match=expected):
+        check_if_link_targets_exist(resources)
 
 
 if __name__ == "__main__":

@@ -6,17 +6,13 @@ from dsp_tools.utils.data_formats.iri_util import is_resource_iri
 
 
 def check_if_link_targets_exist(resources: list[IntermediaryResource]) -> None:
-    if errors := _check_all_links(resources):
-        sep = "\n - "
-        msg = f"It is not possible to upload the XML file, because it contains invalid links:{sep}{sep.join(errors)}"
-        raise InputError(msg)
-
-
-def _check_all_links(resources: list[IntermediaryResource]) -> list[str]:
     res_ids = {x.res_id for x in resources}
     link_value_errors = _check_if_link_value_targets_exist(resources, res_ids)
     standoff_errors = _check_if_standoff_link_targets_exist(resources, res_ids)
-    return link_value_errors + standoff_errors
+    if errors := link_value_errors + standoff_errors:
+        sep = "\n - "
+        msg = f"It is not possible to upload the XML file, because it contains invalid links:{sep}{sep.join(errors)}"
+        raise InputError(msg)
 
 
 def _check_if_link_value_targets_exist(resources: list[IntermediaryResource], resource_ids: set[str]) -> list[str]:

@@ -31,6 +31,24 @@ def resource_richtext(richtext) -> IntermediaryResource:
 
 
 @pytest.fixture
+def resource_richtext_several() -> IntermediaryResource:
+    val = FormattedTextValue(
+        'Text <a class="salsah-link" href="IRI:target_resource_text:IRI">target_resource_text</a> '
+        'more text <a class="salsah-link" href="IRI:target_resource_link:IRI">target_resource_link</a>'
+    )
+    text = IntermediaryRichtext(
+        val, f"{ONTO}richtextPropValue", None, None, {"target_resource_text", "target_resource_link"}, ""
+    )
+    return IntermediaryResource(
+        res_id="resource_richtext",
+        type_iri="type",
+        label="lbl",
+        permissions=None,
+        values=[text],
+    )
+
+
+@pytest.fixture
 def target_resource_text() -> IntermediaryResource:
     return IntermediaryResource(
         res_id="target_resource_text", type_iri="type", label="lbl", permissions=None, values=[]
@@ -63,8 +81,20 @@ def test_check_all_links_good(resource_richtext, resource_link_value, target_res
 def test_check_all_links_missing_text(resource_richtext, resource_link_value, target_resource_link):
     resources = [resource_richtext, resource_link_value, target_resource_link]
     expected = regex.escape(
-        "Resource 'resource_richtext', property 'onto:richtextPropValue' "
+        "It is not possible to upload the XML file, because it contains invalid links:\n"
+        " - Resource 'resource_richtext', property 'onto:richtextPropValue' "
         "has a invalid standoff link target(s) 'target_resource_text'"
+    )
+    with pytest.raises(InputError, match=expected):
+        check_if_link_targets_exist(resources)
+
+
+def test_check_all_links_missing_text_several(resource_richtext_several):
+    resources = [resource_richtext_several]
+    expected = regex.escape(
+        "It is not possible to upload the XML file, because it contains invalid links:\n"
+        " - Resource 'resource_richtext', property 'onto:richtextPropValue' "
+        "has a invalid standoff link target(s) 'target_resource_link', 'target_resource_text'"
     )
     with pytest.raises(InputError, match=expected):
         check_if_link_targets_exist(resources)
@@ -73,7 +103,8 @@ def test_check_all_links_missing_text(resource_richtext, resource_link_value, ta
 def test_check_all_links_missing_link(resource_richtext, resource_link_value, target_resource_text):
     resources = [resource_richtext, resource_link_value, target_resource_text]
     expected = regex.escape(
-        "Resource 'resource_link_value', property 'onto:linkProp' has an invalid link target 'target_resource_link'"
+        "It is not possible to upload the XML file, because it contains invalid links:\n"
+        " - Resource 'resource_link_value', property 'onto:linkProp' has an invalid link target 'target_resource_link'"
     )
     with pytest.raises(InputError, match=expected):
         check_if_link_targets_exist(resources)

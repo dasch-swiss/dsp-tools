@@ -38,7 +38,7 @@ def _check_if_standoff_link_targets_exist(resources: list[IntermediaryResource],
                 missing = [x for x in val.value.find_internal_ids() if x not in resource_ids]
                 missing_no_iri = [f"'{x}'" for x in missing if not is_resource_iri(x)]
                 if missing_no_iri:
-                    all_missing = ", ".join(missing_no_iri)
+                    all_missing = ", ".join(sorted(missing_no_iri))
                     not_found.append(
                         f"Resource '{res.res_id}', property '{_clean_prop_iri(val.prop_iri)}' "
                         f"has a invalid standoff link target(s) {all_missing}"

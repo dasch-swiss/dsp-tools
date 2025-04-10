@@ -15,7 +15,10 @@ ONTO = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
 
 @pytest.fixture
 def richtext() -> IntermediaryRichtext:
-    val = FormattedTextValue('<a class="salsah-link" href="IRI:target_resource_text:IRI">target_resource</a>')
+    val = FormattedTextValue(
+        '<a class="salsah-link" href="IRI:target_resource_text:IRI">target_resource</a> '
+        'with IRI <a class="salsah-link" href="http://rdfh.ch/082E/-lRvrg7tQI6aVpcTJbVrwg">target existing IRI</a>'
+    )
     return IntermediaryRichtext(val, f"{ONTO}richtextPropValue", None, None, {"target_resource_text"}, "")
 
 

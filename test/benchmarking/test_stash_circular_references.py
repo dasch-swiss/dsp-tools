@@ -1,10 +1,11 @@
 from pathlib import Path
 
 import pytest
+from lxml import etree
 
+from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.lookup_models import IntermediaryLookups
 from dsp_tools.commands.xmlupload.models.permission import Permissions
-from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import _extract_resources_from_xml
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_xmlresource_into_intermediary_classes import (
     transform_xmlresources_into_intermediary_resources,
 )
@@ -40,6 +41,11 @@ def test_get_length_ok_resources() -> None:
     )
     print(YELLOW + print_str + RESET_TO_DEFAULT)
     assert stashed_links <= previous_stash_size
+
+
+def _extract_resources_from_xml(root: etree._Element, default_ontology: str) -> list[XMLResource]:
+    resources = list(root.iter(tag="resource"))
+    return [XMLResource.from_node(res, default_ontology) for res in resources]
 
 
 if __name__ == "__main__":

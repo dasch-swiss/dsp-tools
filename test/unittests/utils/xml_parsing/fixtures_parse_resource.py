@@ -151,8 +151,8 @@ def resource_audio_segment() -> etree._Element:
         <isSegmentOf>target</isSegmentOf>
         <hasSegmentBounds permissions="open" segment_start="0.1" segment_end="0.234"/>
         <hasTitle comment="Cmt"> Title</hasTitle>
-        <hasComment>Comment</hasComment>
-        <hasDescription>Description 1 </hasDescription>
+        <hasComment><p>Comment</p></hasComment>
+        <hasDescription> <p>Description 1</p></hasDescription>
         <hasDescription>Description 2</hasDescription>
         <hasKeyword>Keyword </hasKeyword>
         <relatesTo>relates_to_id</relatesTo>

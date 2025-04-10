@@ -75,7 +75,7 @@ def bool_value() -> ParsedValue:
 @pytest.fixture
 def iiif_file_value():
     metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", None)
-    return ParsedFileValue("  https://this/is/a/uri.jpg", KnoraValueType.STILL_IMAGE_IIIF, metadata)
+    return ParsedFileValue("https://this/is/a/uri.jpg", KnoraValueType.STILL_IMAGE_IIIF, metadata)
 
 
 class TestTransformResources:

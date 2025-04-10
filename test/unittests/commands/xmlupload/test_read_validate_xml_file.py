@@ -35,7 +35,7 @@ def target_resource_text() -> IntermediaryResource:
 @pytest.fixture
 def resource_link_value() -> IntermediaryResource:
     return IntermediaryResource(
-        res_id="resource_richtext",
+        res_id="resource_link_value",
         type_iri="type",
         label="lbl",
         permissions=None,
@@ -50,19 +50,31 @@ def target_resource_link() -> IntermediaryResource:
     )
 
 
-def test_check_all_links_good(richtext, resource_link_value, target_resource_text, target_resource_link):
-    resources = [richtext, resource_link_value, target_resource_text, target_resource_link]
-    assert len(_check_all_links(resources)) == 0
+def test_check_all_links_good(resource_richtext, resource_link_value, target_resource_text, target_resource_link):
+    resources = [resource_richtext, resource_link_value, target_resource_text, target_resource_link]
+    result = _check_all_links(resources)
+    assert len(result) == 0
 
 
-def test_check_all_links_missing_text(richtext, resource_link_value, target_resource_link):
-    resources = [richtext, resource_link_value, target_resource_link]
-    assert len(_check_all_links(resources)) == 0
+def test_check_all_links_missing_text(resource_richtext, resource_link_value, target_resource_link):
+    resources = [resource_richtext, resource_link_value, target_resource_link]
+    result = _check_all_links(resources)
+    assert len(result) == 1
+    expected = (
+        "Resource 'resource_richtext', property 'richtextProp' "
+        "has a invalid standoff link target(s) 'target_resource_text'"
+    )
+    assert result[0] == expected
 
 
-def test_check_all_links_missing_link(richtext, resource_link_value, target_resource_text):
-    resources = [richtext, resource_link_value, target_resource_text]
-    assert len(_check_all_links(resources)) == 0
+def test_check_all_links_missing_link(resource_richtext, resource_link_value, target_resource_text):
+    resources = [resource_richtext, resource_link_value, target_resource_text]
+    result = _check_all_links(resources)
+    assert len(result) == 1
+    expected = (
+        "Resource 'resource_link_value', property 'linkPropValue' has an invalid link target 'target_resource_link'"
+    )
+    assert result[0] == expected
 
 
 if __name__ == "__main__":

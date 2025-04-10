@@ -41,7 +41,7 @@ def _check_if_standoff_link_targets_exist(resources: list[IntermediaryResource],
                     all_missing = ", ".join(sorted(missing_no_iri))
                     not_found.append(
                         f"Resource '{res.res_id}', property '{_clean_prop_iri(val.prop_iri)}' "
-                        f"has a invalid standoff link target(s) {all_missing}"
+                        f"has invalid standoff link targets: {all_missing}"
                     )
     return not_found
 

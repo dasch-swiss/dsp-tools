@@ -19,25 +19,20 @@ from dsp_tools.error.exceptions import InputError
 from dsp_tools.utils.data_formats.iri_util import is_resource_iri
 from dsp_tools.utils.xml_parsing.parse_xml import parse_xml_file
 from dsp_tools.utils.xml_parsing.transform import remove_comments_from_element_tree
+from dsp_tools.utils.xml_parsing.transform import transform_into_localnames
 from dsp_tools.utils.xml_parsing.transform import transform_special_tags_make_localname
 from dsp_tools.utils.xml_parsing.xml_schema_validation import validate_xml_with_schema
 
 
-def prepare_input_xml_file(input_file: Path) -> tuple[etree._Element, str, str]:
-    """
-    Parses the file and does some rudimentary checks.
-
-    Args:
-        input_file: input XML
-
-    Returns:
-        The root element of the parsed XML file, the shortcode, and the default ontology
-    """
-    root, shortcode, default_ontology = parse_and_validate_with_xsd(input_file)
-    return root, shortcode, default_ontology
+def parse_and_clean_xml_file(input_file: Path) -> etree._Element:
+    root = parse_xml_file(input_file)
+    root = remove_comments_from_element_tree(root)
+    validate_xml_with_schema(root)
+    print("The XML file is syntactically correct.")
+    return transform_into_localnames(root)
 
 
-def parse_and_validate_with_xsd(input_file: Path) -> tuple[etree._Element, str, str]:
+def parse_and_validate_with_xsd_transform_special_tags(input_file: Path) -> tuple[etree._Element, str, str]:
     """Parse and validate an XML file.
 
     Args:
@@ -93,29 +88,45 @@ def _validate_iiif_uris(root: etree._Element) -> None:
         logger.warning(msg)
 
 
+def _get_resource_ids_from_root(root: etree._Element) -> list[str]:
+    resource_tags = ["resource", "link", "region", "video-segment", "audio-segment"]
+    return [x.attrib["id"] for x in root.iter() if str(x.tag) in resource_tags]
+
+
+def _get_id_of_ancestor_resource(invalid_link_val: etree._Element) -> str:
+    resource_tags = ["resource", "link", "region", "video-segment", "audio-segment"]
+    for tg in resource_tags:
+        try:
+            res_id = next(invalid_link_val.iterancestors(tag=tg)).attrib["id"]
+            return res_id
+        except StopIteration:
+            pass
+    return "Resource ID not found"
+
+
 def _check_if_resptr_targets_exist(root: etree._Element) -> list[str]:
     link_values = [x for x in root.iter() if x.tag == "resptr"]
-    resource_ids = [x.attrib["id"] for x in root.iter() if x.tag == "resource"]
+    resource_ids = _get_resource_ids_from_root(root)
     invalid_link_values = [x for x in link_values if x.text not in resource_ids]
     invalid_link_values = [x for x in invalid_link_values if not is_resource_iri(str(x.text))]
     errors = []
     for inv in invalid_link_values:
         prop_name = next(inv.iterancestors(tag="resptr-prop")).attrib["name"]
-        res_id = next(inv.iterancestors(tag="resource")).attrib["id"]
+        res_id = _get_id_of_ancestor_resource(inv)
         errors.append(f"Resource '{res_id}', property '{prop_name}' has an invalid link target '{inv.text}'")
     return errors
 
 
 def _check_if_salsah_targets_exist(root: etree._Element) -> list[str]:
     link_values = [x for x in root.iter() if x.tag == "a"]
-    resource_ids = [x.attrib["id"] for x in root.iter() if x.tag == "resource"]
+    resource_ids = _get_resource_ids_from_root(root)
     invalid_link_values = [x for x in link_values if regex.sub(r"IRI:|:IRI", "", x.attrib["href"]) not in resource_ids]
     invalid_link_values = [x for x in invalid_link_values if x.attrib.get("class") == "salsah-link"]
     invalid_link_values = [x for x in invalid_link_values if not is_resource_iri(x.attrib["href"])]
     errors = []
     for inv in invalid_link_values:
         prop_name = next(inv.iterancestors(tag="text-prop")).attrib["name"]
-        res_id = next(inv.iterancestors(tag="resource")).attrib["id"]
+        res_id = _get_id_of_ancestor_resource(inv)
         errors.append(f"Resource '{res_id}', property '{prop_name}' has an invalid link target '{inv.attrib['href']}'")
     return errors
 

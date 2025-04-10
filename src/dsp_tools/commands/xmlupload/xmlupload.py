@@ -27,11 +27,10 @@ from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClient
 from dsp_tools.commands.xmlupload.prepare_xml_input.list_client import ListClientLive
-from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_intermediary_lookups
-from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import prepare_upload_from_root
+from dsp_tools.commands.xmlupload.prepare_xml_input.prepare_xml_input import get_resources_and_stash_for_upload
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import check_if_bitstreams_exist
+from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import parse_and_clean_xml_file
 from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import preliminary_validation_of_root
-from dsp_tools.commands.xmlupload.prepare_xml_input.read_validate_xml_file import prepare_input_xml_file
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 from dsp_tools.commands.xmlupload.resource_create_client import ResourceCreateClient
@@ -73,7 +72,8 @@ def xmlupload(
         uploaded because there is an error in it
     """
 
-    root, shortcode, default_ontology = prepare_input_xml_file(input_file)
+    root = parse_and_clean_xml_file(input_file)
+    shortcode = root.attrib["shortcode"]
 
     auth = AuthenticationClientLive(server=creds.server, email=creds.user, password=creds.password)
     con = ConnectionLive(creds.server, auth)
@@ -83,10 +83,7 @@ def xmlupload(
     check_if_bitstreams_exist(root, imgdir)
     preliminary_validation_of_root(root, con, config)
 
-    intermediary_lookups = get_intermediary_lookups(root=root, con=con, clients=clients)
-    transformed_resources, stash = prepare_upload_from_root(
-        root=root, default_ontology=default_ontology, intermediary_lookups=intermediary_lookups
-    )
+    transformed_resources, stash = get_resources_and_stash_for_upload(root, clients)
     state = UploadState(
         pending_resources=transformed_resources,
         pending_stash=stash,

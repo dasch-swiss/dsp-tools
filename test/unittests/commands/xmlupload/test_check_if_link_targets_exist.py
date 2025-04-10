@@ -67,14 +67,37 @@ def resource_link_value() -> IntermediaryResource:
 
 
 @pytest.fixture
+def resource_link_value_with_target_iri() -> IntermediaryResource:
+    return IntermediaryResource(
+        res_id="resource_link_value_with_target_iri",
+        type_iri="type",
+        label="lbl",
+        permissions=None,
+        values=[IntermediaryLink("http://rdfh.ch/082E/-lRvrg7tQI6aVpcTJbVrwg", f"{ONTO}linkProp", None, None, "")],
+    )
+
+
+@pytest.fixture
 def target_resource_link() -> IntermediaryResource:
     return IntermediaryResource(
         res_id="target_resource_link", type_iri="type", label="lbl", permissions=None, values=[]
     )
 
 
-def test_check_all_links_good(resource_richtext, resource_link_value, target_resource_text, target_resource_link):
-    resources = [resource_richtext, resource_link_value, target_resource_text, target_resource_link]
+def test_check_all_links_good(
+    resource_richtext,
+    resource_link_value,
+    target_resource_text,
+    target_resource_link,
+    resource_link_value_with_target_iri,
+):
+    resources = [
+        resource_richtext,
+        resource_link_value,
+        target_resource_text,
+        target_resource_link,
+        resource_link_value_with_target_iri,
+    ]
     check_if_link_targets_exist(resources)
 
 

@@ -22,7 +22,7 @@ def _check_if_link_value_targets_exist(resources: list[IntermediaryResource], re
             if isinstance(val, IntermediaryLink):
                 if val.value not in resource_ids:
                     if is_resource_iri(val.value):
-                        pass
+                        continue
                     not_found.append(
                         f"Resource '{res.res_id}', property '{_clean_prop_iri(val.prop_iri, 'Value')}' "
                         f"has an invalid link target '{val.value}'"

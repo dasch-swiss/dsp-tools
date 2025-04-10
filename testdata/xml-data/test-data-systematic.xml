@@ -115,6 +115,9 @@
             </text>
             <text encoding="xml">Text with an external link: <a href="https://www.google.com/">Google</a></text>
             <text encoding="xml">Text with a footnote<footnote content="footnote text"/>.</text>
+            <text encoding="xml">
+                Text<footnote content="Text &lt;a href=&#34;https://www.google.com/&#34;&gt;Google&lt;/a&gt;" />
+            </text>
         </text-prop>
         <uri-prop name=":hasUri">
             <uri permissions="open">https://dasch.swiss</uri>

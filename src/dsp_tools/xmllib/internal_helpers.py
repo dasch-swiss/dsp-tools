@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import warnings
+from html.entities import html5
 from typing import Any
 
 import pandas as pd
@@ -9,6 +10,7 @@ import regex
 from dsp_tools.error.custom_warnings import DspToolsUserInfo
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.error.exceptions import InputError
+from dsp_tools.xmllib.constants import KNOWN_XML_TAG_REGEXES
 from dsp_tools.xmllib.models.config_options import NewlineReplacement
 from dsp_tools.xmllib.value_converters import replace_newlines_with_tags
 
@@ -123,3 +125,53 @@ def unescape_reserved_xml_chars(richtext: str) -> str:
     richtext = regex.sub(r"&gt;", ">", richtext)
     richtext = regex.sub(r"&amp;", "&", richtext)
     return richtext
+
+
+def unescape_standoff_tags(xml_str: str) -> str:
+    """
+    Unescape `&lt;` and `&gt;` in DSP standard standoff tags.
+    Inside richtext values, the tags are escaped, because lxml doesn't treat elem.text as XML.
+    Before writing such an XML string to a file, the tags must be unescaped, otherwise they won't be recognized.
+
+    Args:
+        xml_str: a serialised XML string
+
+    Returns:
+        string ready to be written to a file
+    """
+    contained_xml_tags = filter(lambda x: regex.search(x, xml_str), KNOWN_XML_TAG_REGEXES)
+    for tag in contained_xml_tags:
+        xml_str = regex.sub(f"&lt;{tag}&gt;", f"<{tag}>", xml_str)
+        xml_str = regex.sub(f"&lt;/{tag}&gt;", f"</{tag}>", xml_str)
+    return xml_str
+
+
+def numeric_entities(text: str) -> str:
+    """
+    Replace all named HTML entities by their decimal numeric counterparts.
+    Hex numeric HTML entities remain untouched.
+    Unescaped special characters remain untouched.
+
+    Args:
+        text: original text
+
+    Returns:
+        text with all named entities replaced
+
+    Examples:
+        ```python
+        result = xmllib.numeric_entities('text &quot; &#x22; " text')
+        # result == 'Text &#34; &#x22; " text'
+        ```
+    """
+    named_ent_ok = ["&amp;", "&lt;", "&gt;", "&quot;", "&apos;"]  # these named entities are supported in XML
+    replacements: dict[str, str] = {}
+    for match in regex.findall(r"&[0-9A-Za-z]+;", text):
+        if match in named_ent_ok:
+            continue
+        char = html5[match[1:]]
+        replacements[match] = f"&#{ord(char)};"
+    text = regex.sub(
+        r"&[0-9A-Za-z]+;", lambda x: replacements[x.group()] if x.group() not in named_ent_ok else x.group(), text
+    )
+    return text

@@ -37,7 +37,6 @@ from dsp_tools.error.problems import Problem
 
 languages = ["en", "de", "fr", "it", "rm"]
 language_label_col = ["label_en", "label_de", "label_fr", "label_it", "label_rm"]
-mandatory_properties = ["name", "object", "gui_element"]
 
 
 def excel2properties(

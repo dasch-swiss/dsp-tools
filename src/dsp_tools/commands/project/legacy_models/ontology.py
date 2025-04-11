@@ -288,11 +288,6 @@ class Ontology(Model):
         return Ontology.fromJsonObj(self._con, result)
 
     @staticmethod
-    def getAllOntologies(con: Connection) -> list[Ontology]:
-        result = con.get(Ontology.ROUTE + Ontology.METADATA)
-        return Ontology.allOntologiesFromJsonObj(con, result)
-
-    @staticmethod
     def getProjectOntologies(con: Connection, project_id: str) -> list[Ontology]:
         if project_id is None:
             raise BaseError("Project ID must be defined!")

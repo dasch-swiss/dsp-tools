@@ -16,7 +16,6 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
 class XMLProject:
     shortcode: str
     root: etree._Element
-    used_ontologies: set[str]
 
 
 @dataclass

@@ -85,6 +85,10 @@ markdownlint:
     --ignore README.md \
     "**/*.md"
 
+# Run vulture, dead code analysis
+[no-exit-message]
+vulture:
+    uv run vulture src/dsp_tools
 
 # Run the unit tests
 [no-exit-message]

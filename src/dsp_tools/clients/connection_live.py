@@ -26,7 +26,6 @@ from dsp_tools.utils.request_utils import log_response
 from dsp_tools.utils.request_utils import should_retry
 
 HTTP_OK = 200
-HTTP_UNAUTHORIZED = 401
 
 
 @dataclass

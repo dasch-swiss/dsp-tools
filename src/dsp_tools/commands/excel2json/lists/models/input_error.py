@@ -23,17 +23,6 @@ class ListCreationProblem:
         return title + grand_separator.join(msg)
 
 
-@dataclass(frozen=True)
-class ListNodeProblem:
-    node_id: str
-    problems: dict[str, str]
-
-    def execute_error_protocol(self) -> str:
-        msg = [f"The node '{self.node_id}' has the following problem(s):"]
-        msg.extend([f"Field: '{key}', Problem: {value}" for key, value in self.problems.items()])
-        return list_separator.join(msg)
-
-
 @dataclass
 class SheetProblem(Protocol):
     excel_name: str

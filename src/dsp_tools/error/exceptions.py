@@ -20,13 +20,6 @@ class BaseError(Exception):
         return self.message
 
 
-@dataclass
-class Excel2JsonListError(BaseError):
-    """
-    Class for errors that are raised in the context of the excel2json ListNode class.
-    """
-
-
 class InternalError(BaseError):
     """
     Class for errors that are raised if the user cannot solve the problem themselves.

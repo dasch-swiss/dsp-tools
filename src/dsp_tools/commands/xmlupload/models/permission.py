@@ -1,27 +1,17 @@
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 from enum import unique
 from typing import Optional
 
 
 @unique
-class PermissionValue(Enum):
-    RV = 1
-    V = 2
-    M = 4
-    D = 8
-    CR = 16
-
-    def __str__(self) -> str:
-        tmp = {
-            1: "RV",
-            2: "V",
-            4: "M",
-            8: "D",
-            16: "CR",
-        }
-        return tmp[self.value]
+class PermissionValue(StrEnum):
+    RV = "RV"
+    V = "V"
+    M = "M"
+    D = "D"
+    CR = "CR"
 
 
 class Permissions:

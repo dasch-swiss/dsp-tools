@@ -51,6 +51,8 @@ jobs:
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           brew install yamlfmt
           just yamlfmt-check
+      - name: Find dead code with vulture
+        run: just vulture
 
 
   unittests:

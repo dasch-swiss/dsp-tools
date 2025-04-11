@@ -54,6 +54,15 @@ jobs:
       - name: Find dead code with vulture
         run: just vulture
 
+  vulture:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout dsp-tools repo
+        uses: actions/checkout@v4
+      - name: Install uv, just, and dependencies
+        uses: ./.github/actions/setup
+      - name: Find dead code with vulture
+        run: just vulture
 
   unittests:
     runs-on: ubuntu-latest

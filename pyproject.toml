@@ -187,3 +187,13 @@ convention = "google"
 
 [tool.ruff.lint.isort]
 force-single-line = true
+
+
+[tool.vulture]
+paths = ["/src/dsp_tools"]
+# usage of code in this directory is not considered as usage
+exclude = ["/src/dsp_tools/xmllib/", "/src/dsp_tools/commands/excel2xml/", "/test/"]
+# A whitelist is essentially a Python file that explicitly "simulates" the usage of code elements
+# (e.g., functions, variables, classes) that Vulture has flagged as unused but are actually required by the program.
+make_whitelist = true
+sort_by_size = true

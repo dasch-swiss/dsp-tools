@@ -5,8 +5,6 @@ from enum import unique
 from typing import Optional
 from typing import Union
 
-import regex
-
 
 @unique
 class PermissionValue(Enum):
@@ -69,16 +67,3 @@ class Permissions:
                 tmpstr += "|"
             tmpstr += f"{permission!s} " + ",".join(groups)
         return tmpstr
-
-    @classmethod
-    def fromString(cls, permstr: str) -> Permissions:
-        tmpstr = permstr.split("|")
-        permissions: dict[PermissionValue, list[str]] = {}
-        for s in tmpstr:
-            key, *vals = regex.split("[\\s,]+", s)
-            permissions[PermissionValue[key]] = vals
-        return cls(permissions)
-
-    @property
-    def permissions(self) -> Union[dict[PermissionValue, list[str]], None]:
-        return self._permissions

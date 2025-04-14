@@ -250,10 +250,18 @@ class TestValues:
     def test_interval_corr(self):
         val = ParsedValue(f"{KNORA_API_STR}hasSegmentBounds", ("1", "2"), KnoraValueType.INTERVAL_VALUE, None, None)
         res = _get_one_value(val)
-        assert res.user_facing_prop == HAS_PROP
+        assert res.user_facing_prop == "http://api.knora.org/ontology/knora-api/v2#hasSegmentBounds"
         assert res.user_facing_value == None  # noqa: E711 Comparison to `None`
-        assert res.knora_type == KnoraValueType.INT_VALUE
-        assert not res.value_metadata
+        assert res.knora_type == KnoraValueType.INTERVAL_VALUE
+        assert len(res.value_metadata) == 2
+        interval_start = next(
+            x for x in res.value_metadata if x.property_type == TriplePropertyType.KNORA_INTERVAL_START
+        )
+        assert interval_start.object_value == "1"
+        assert interval_start.object_type == TripleObjectType.DECIMAL
+        interval_end = next(x for x in res.value_metadata if x.property_type == TriplePropertyType.KNORA_INTERVAL_END)
+        assert interval_end.object_value == "2"
+        assert interval_end.object_type == TripleObjectType.DECIMAL
 
     def test_list_corr(self):
         val = ParsedValue(HAS_PROP, ("list", "node"), KnoraValueType.LIST_VALUE, None, None)
@@ -335,20 +343,19 @@ class TestFileValue:
         val = ParsedFileValue("https://this/is/a/uri.jpg", KnoraValueType.STILL_IMAGE_IIIF, metadata)
         res = _get_file_value(val)
         assert res.user_facing_prop == f"{KNORA_API_STR}hasStillImageFileValue"
-        assert res.user_facing_value == "https://iiif.uri/full.jpg"
+        assert res.user_facing_value == "https://this/is/a/uri.jpg"
         assert res.knora_type == KnoraValueType.STILL_IMAGE_IIIF
         assert not res.value_metadata
 
     def test_iiif_with_legal_info(self):
         metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", None)
-        val = ParsedFileValue("https://this/is/a/uri.jpg", KnoraValueType.STILL_IMAGE_IIIF, metadata)
-        result = _get_file_metadata(val)
+        result = _get_file_metadata(metadata)
         assert len(result) == 3
         license_res = next(x for x in result if x.property_type == TriplePropertyType.KNORA_LICENSE)
-        assert license_res.object_value == "license_iri"
+        assert license_res.object_value == "http://rdfh.ch/licenses/cc-by-nc-4.0"
         assert license_res.object_type == TripleObjectType.IRI
         author_res = next(x for x in result if x.property_type == TriplePropertyType.KNORA_AUTHORSHIP)
-        assert author_res.object_value == "auth"
+        assert author_res.object_value == "auth_id"
         assert author_res.object_type == TripleObjectType.STRING
         copyright_res = next(x for x in result if x.property_type == TriplePropertyType.KNORA_COPYRIGHT_HOLDER)
         assert copyright_res.object_value == "copy"

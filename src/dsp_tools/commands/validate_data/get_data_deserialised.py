@@ -114,7 +114,7 @@ def _get_value_metadata(value: ParsedValue) -> list[PropertyObject]:
 
 
 def _get_file_value(file_value: ParsedFileValue) -> ValueInformation | None:
-    if not any([file_value.value, file_value.value_type]):
+    if not all([file_value.value, file_value.value_type]):
         return None
     user_prop = FILE_TYPE_TO_PROP[file_value.value_type]
     return ValueInformation(

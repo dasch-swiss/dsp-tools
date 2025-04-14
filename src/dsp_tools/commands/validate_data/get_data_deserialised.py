@@ -34,7 +34,7 @@ def _get_one_resource(resource: ParsedResource) -> ResourceDeserialised:
         PropertyObject(TriplePropertyType.RDF_TYPE, resource.res_type, TripleObjectType.IRI),
     ]
     metadata.extend(_get_all_stand_off_links(values))
-    if resource.permissions_id:
+    if resource.permissions_id is not None:
         metadata.append(
             PropertyObject(TriplePropertyType.KNORA_PERMISSIONS, resource.permissions_id, TripleObjectType.STRING)
         )
@@ -137,7 +137,7 @@ def _get_geometry_value(user_value: str | tuple[str | None, str | None] | None) 
 
 def _get_value_metadata(value: ParsedValue) -> list[PropertyObject]:
     metadata = []
-    if value.permissions_id:
+    if value.permissions_id is not None:
         metadata.append(
             PropertyObject(
                 property_type=TriplePropertyType.KNORA_PERMISSIONS,
@@ -145,7 +145,7 @@ def _get_value_metadata(value: ParsedValue) -> list[PropertyObject]:
                 object_type=TripleObjectType.STRING,
             )
         )
-    if value.comment:
+    if value.comment is not None:
         metadata.append(
             PropertyObject(
                 property_type=TriplePropertyType.KNORA_COMMENT_ON_VALUE,
@@ -171,7 +171,7 @@ def _get_file_value(file_value: ParsedFileValue) -> ValueInformation | None:
 
 def _get_file_metadata(metadata: ParsedFileValueMetadata) -> list[PropertyObject]:
     property_objects = []
-    if metadata.license_iri:
+    if metadata.license_iri is not None:
         property_objects.append(
             PropertyObject(
                 property_type=TriplePropertyType.KNORA_LICENSE,
@@ -179,7 +179,7 @@ def _get_file_metadata(metadata: ParsedFileValueMetadata) -> list[PropertyObject
                 object_type=TripleObjectType.IRI,
             )
         )
-    if metadata.copyright_holder:
+    if metadata.copyright_holder is not None:
         property_objects.append(
             PropertyObject(
                 property_type=TriplePropertyType.KNORA_COPYRIGHT_HOLDER,
@@ -187,7 +187,7 @@ def _get_file_metadata(metadata: ParsedFileValueMetadata) -> list[PropertyObject
                 object_type=TripleObjectType.STRING,
             )
         )
-    if metadata.authorship_id:
+    if metadata.authorship_id is not None:
         property_objects.append(
             PropertyObject(
                 property_type=TriplePropertyType.KNORA_AUTHORSHIP,
@@ -195,7 +195,7 @@ def _get_file_metadata(metadata: ParsedFileValueMetadata) -> list[PropertyObject
                 object_type=TripleObjectType.STRING,
             )
         )
-    if metadata.permissions_id:
+    if metadata.permissions_id is not None:
         property_objects.append(
             PropertyObject(
                 property_type=TriplePropertyType.KNORA_PERMISSIONS,

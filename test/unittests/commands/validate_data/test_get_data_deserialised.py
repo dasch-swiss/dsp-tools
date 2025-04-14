@@ -184,6 +184,18 @@ class TestValues:
         assert metadata.object_value == "comment"
         assert metadata.object_type == TripleObjectType.STRING
 
+    def test_boolean_with_comment_empty_string(self):
+        val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, None, "")
+        res = _get_one_value(val)
+        assert res.user_facing_prop == HAS_PROP
+        assert res.user_facing_value == "true"
+        assert res.knora_type == KnoraValueType.BOOLEAN_VALUE
+        assert len(res.value_metadata) == 1
+        metadata = res.value_metadata.pop(0)
+        assert metadata.property_type == TriplePropertyType.KNORA_COMMENT_ON_VALUE
+        assert metadata.object_value == ""
+        assert metadata.object_type == TripleObjectType.STRING
+
     def test_boolean_with_permissions_corr(self):
         val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, "open", None)
         res = _get_one_value(val)

@@ -145,7 +145,7 @@ def test_validate_data_default(validate_data: Mock) -> None:
     args = f"validate-data {file}".split()
     entry_point.run(args)
     validate_data.assert_called_once_with(
-        filepath=Path(file), api_url="http://0.0.0.0:3333", dev_route=False, save_graphs=False
+        filepath=Path(file), api_url="http://0.0.0.0:3333", save_graphs=False
     )
 
 
@@ -155,7 +155,7 @@ def test_validate_data_dev(validate_data: Mock) -> None:
     args = f"validate-data {file}".split()
     entry_point.run(args)
     validate_data.assert_called_once_with(
-        filepath=Path(file), api_url="http://0.0.0.0:3333", dev_route=True, save_graphs=False
+        filepath=Path(file), api_url="http://0.0.0.0:3333", save_graphs=False
     )
 
 
@@ -165,7 +165,7 @@ def test_validate_data_save_graph(validate_data: Mock) -> None:
     args = f"validate-data {file} --save-graphs".split()
     entry_point.run(args)
     validate_data.assert_called_once_with(
-        filepath=Path(file), api_url="http://0.0.0.0:3333", dev_route=False, save_graphs=True
+        filepath=Path(file), api_url="http://0.0.0.0:3333", save_graphs=True
     )
 
 
@@ -175,7 +175,7 @@ def test_validate_data_other_server(validate_data: Mock) -> None:
     args = f"validate-data {file} -s https://api.dasch.swiss".split()
     entry_point.run(args)
     validate_data.assert_called_once_with(
-        filepath=Path(file), api_url="https://api.dasch.swiss", dev_route=False, save_graphs=False
+        filepath=Path(file), api_url="https://api.dasch.swiss", save_graphs=False
     )
 
 

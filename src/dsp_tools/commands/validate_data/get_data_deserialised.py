@@ -68,7 +68,7 @@ def _get_one_value(value: ParsedValue) -> ValueInformation:
         case KnoraValueType.INTERVAL_VALUE:
             return _get_interval_value(value)
         case KnoraValueType.LIST_VALUE:
-            user_value = f"{user_value[0]} / {user_value[1]}" if user_value else None
+            user_value = _get_list_value(user_value)
         case KnoraValueType.GEOM_VALUE:
             user_value = _get_geometry_value(user_value)
         case _:
@@ -113,6 +113,17 @@ def _get_interval_value(value: ParsedValue) -> ValueInformation:
         knora_type=value.value_type,
         value_metadata=property_objects,
     )
+
+
+def _get_list_value(user_value: str | tuple[str | None, str | None] | None) -> str | None:
+    if not isinstance(user_value, tuple):
+        return None
+    to_join = []
+    if user_value[0]:
+        to_join.append(user_value[0])
+    if user_value[1]:
+        to_join.append(user_value[1])
+    return " / ".join(to_join)
 
 
 def _get_geometry_value(user_value: str | tuple[str | None, str | None] | None) -> str | None:

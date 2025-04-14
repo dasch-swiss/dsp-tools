@@ -37,21 +37,25 @@ def _get_stand_off_links(text: str | None) -> list[PropertyObject]:
 
 
 def _get_one_value(value: ParsedValue) -> ValueInformation:
+    user_value: str | None = value.value
     match value.value_type:
         case KnoraValueType.LIST_VALUE:
-            return _get_list_value(value)
+            if user_value:
+                user_value = f"{user_value[0]} / {user_value[1]}" if user_value else None
+            return _get_generic_value(value, user_value)
         case KnoraValueType.INTERVAL_VALUE:
             return _get_interval_value(value)
         case _:
-            return _get_generic_value(value)
+            return _get_generic_value(value, user_value)
 
 
-def _get_generic_value(value: ParsedValue) -> ValueInformation:
-    pass
-
-
-def _get_list_value(value: ParsedValue) -> ValueInformation:
-    pass
+def _get_generic_value(value: ParsedValue, user_value: str | None) -> ValueInformation:
+    return ValueInformation(
+        user_facing_prop=value.prop_name,
+        user_facing_value=user_value,
+        knora_type=value.value_type,
+        value_metadata=_get_value_metadata(value),
+    )
 
 
 def _get_interval_value(value: ParsedValue) -> ValueInformation:

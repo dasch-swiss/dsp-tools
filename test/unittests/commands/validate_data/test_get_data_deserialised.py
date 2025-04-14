@@ -35,12 +35,6 @@ def bool_value() -> ParsedValue:
     return ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, None, None)
 
 
-@pytest.fixture
-def iiif_file_value():
-    metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", None)
-    return ParsedFileValue("https://this/is/a/uri.jpg", KnoraValueType.STILL_IMAGE_IIIF, metadata)
-
-
 def _get_label_and_type(resource: ResourceDeserialised) -> tuple[PropertyObject, PropertyObject, list[PropertyObject]]:
     lbl = next(x for x in resource.property_objects if x.property_type == TriplePropertyType.RDFS_LABEL)
     rdf_type = next(x for x in resource.property_objects if x.property_type == TriplePropertyType.RDF_TYPE)
@@ -311,15 +305,19 @@ class TestValues:
 
 
 class TestFileValue:
-    def test_iiif(self, iiif_with_spaces):
-        res = _get_file_value(iiif_with_spaces)
+    def test_iiif(self):
+        metadata = ParsedFileValueMetadata(None, None, None, None)
+        val = ParsedFileValue("https://this/is/a/uri.jpg", KnoraValueType.STILL_IMAGE_IIIF, metadata)
+        res = _get_file_value(val)
         assert res.user_facing_prop == f"{KNORA_API_STR}hasStillImageFileValue"
         assert res.user_facing_value == "https://iiif.uri/full.jpg"
         assert res.knora_type == KnoraValueType.STILL_IMAGE_IIIF
         assert not res.value_metadata
 
-    def test_iiif_with_legal_info(self, iiif_with_legal_info):
-        result = _get_file_metadata(iiif_with_legal_info)
+    def test_iiif_with_legal_info(self):
+        metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", None)
+        val = ParsedFileValue("https://this/is/a/uri.jpg", KnoraValueType.STILL_IMAGE_IIIF, metadata)
+        result = _get_file_metadata(val)
         assert len(result) == 3
         license_res = next(x for x in result if x.property_type == TriplePropertyType.KNORA_LICENSE)
         assert license_res.object_value == "license_iri"

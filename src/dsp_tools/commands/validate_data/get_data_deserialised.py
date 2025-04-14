@@ -1,5 +1,3 @@
-
-
 from dsp_tools.utils.xml_parsing.models.data_deserialised import DataDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import PropertyObject
 from dsp_tools.utils.xml_parsing.models.data_deserialised import ResourceDeserialised

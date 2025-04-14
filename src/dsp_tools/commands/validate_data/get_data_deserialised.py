@@ -63,7 +63,25 @@ def _get_generic_value(value: ParsedValue, user_value: str | None) -> ValueInfor
 
 
 def _get_interval_value(value: ParsedValue) -> ValueInformation:
-    pass
+    property_objects = [
+        PropertyObject(
+            property_type=TriplePropertyType.KNORA_INTERVAL_START,
+            object_value=value.value[0],
+            object_type=TripleObjectType.DECIMAL,
+        ),
+        PropertyObject(
+            property_type=TriplePropertyType.KNORA_INTERVAL_END,
+            object_value=value.value[1],
+            object_type=TripleObjectType.DECIMAL,
+        ),
+    ]
+    property_objects.extend(_get_value_metadata(value))
+    return ValueInformation(
+        user_facing_prop=value.prop_name,
+        user_facing_value=None,
+        knora_type=value.value_type,
+        value_metadata=property_objects,
+    )
 
 
 def _get_geometry_value(user_value: str) -> str | None:

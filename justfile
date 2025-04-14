@@ -88,7 +88,7 @@ markdownlint:
 # Run vulture, dead code analysis
 [no-exit-message]
 vulture:
-    uv run vulture src/dsp_tools
+    uv run vulture
 
 # Run the unit tests
 [no-exit-message]

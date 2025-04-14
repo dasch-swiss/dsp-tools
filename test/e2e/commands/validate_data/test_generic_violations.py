@@ -309,11 +309,11 @@ class TestReformatValidationGraph:
             ("inexistent_license_iri", ProblemType.GENERIC),
         ]
         assert not result.unexpected_results
-        sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         assert len(result.problems) == len(expected_info_tuples)
+        sorted_problems = sorted(result.problems, key=lambda x: x.res_id)
         for one_result, expected_info in zip(sorted_problems, expected_info_tuples):
-            assert one_result.res_id == expected_info[0]
             assert one_result.problem_type == expected_info[1]
+            assert one_result.res_id == expected_info[0]
 
     def test_reformat_dsp_inbuilt_violation(self, dsp_inbuilt_violation: ValidationReportGraphs) -> None:
         result = reformat_validation_graph(dsp_inbuilt_violation)

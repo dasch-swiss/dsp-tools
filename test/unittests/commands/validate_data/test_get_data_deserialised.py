@@ -148,7 +148,11 @@ class TestValues:
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "true"
         assert res.knora_type == KnoraValueType.BOOLEAN_VALUE
-        assert not res.value_metadata
+        assert len(res.value_metadata) == 1
+        metadata = res.value_metadata.pop(0)
+        assert metadata.property_type == TriplePropertyType.KNORA_COMMENT_ON_VALUE
+        assert metadata.object_value == "comment"
+        assert metadata.object_type == TripleObjectType.STRING
 
     def test_boolean_with_permissions_corr(self):
         val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, "open", None)
@@ -156,7 +160,11 @@ class TestValues:
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "true"
         assert res.knora_type == KnoraValueType.BOOLEAN_VALUE
-        assert not res.value_metadata
+        assert len(res.value_metadata) == 1
+        metadata = res.value_metadata.pop(0)
+        assert metadata.property_type == TriplePropertyType.KNORA_PERMISSIONS
+        assert metadata.object_value == "open"
+        assert metadata.object_type == TripleObjectType.STRING
 
     def test_boolean_none(self):
         val = ParsedValue(HAS_PROP, None, KnoraValueType.BOOLEAN_VALUE, None, None)

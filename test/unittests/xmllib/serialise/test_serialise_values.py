@@ -138,23 +138,28 @@ def test_list() -> None:
     assert res_str == expected
 
 
-def test_richtext() -> None:
-    v: list[Value] = [
-        Richtext(
-            "<otherTag>Hello World</otherTag>", ":richtextProp", resource_id="res_id", permissions=Permissions.OPEN
-        )
-    ]
-    result = serialise_values(v)
+@pytest.mark.parametrize(
+    ("orig", "expected"),
+    [
+        (
+            "<strong>standard standoff tag</strong><unsupported>Hello World</unsupported>",
+            "<strong>standard standoff tag</strong>&lt;unsupported&gt;Hello World&lt;/unsupported&gt;",
+        ),
+        ("&amp; &lt; &gt;", "&amp; &lt; &gt;"),
+        ("'uuas\\. 11` \\a\\ i! 1 ?7 Rinne   \\Rinne", "'uuas\\. 11` \\a\\ i! 1 ?7 Rinne   \\Rinne"),
+        ("1 < 2 & 4 > 3", "1 &lt; 2 &amp; 4 &gt; 3"),
+    ],
+)
+def test_richtext_tags(orig: str, expected: str) -> None:
+    result = serialise_values([Richtext(orig, ":richtextProp")])
     assert len(result) == 1
-    expected = (
-        b"<text-prop "
-        b'xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
-        b'name=":richtextProp">'
-        b'<text permissions="open" encoding="xml">&lt;otherTag&gt;Hello World&lt;/otherTag&gt;</text>'
-        b"</text-prop>"
+    expected_xml = (
+        '<text-prop xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+        'name=":richtextProp">'
+        f'<text encoding="xml">{expected}</text></text-prop>'
     )
-    res_str = etree.tostring(result.pop(0))
-    assert res_str == expected
+    res_str = etree.tostring(result.pop(0), encoding="unicode")
+    assert res_str == expected_xml
 
 
 def test_simpletext() -> None:
@@ -170,6 +175,20 @@ def test_simpletext() -> None:
     )
     res_str = etree.tostring(result.pop(0))
     assert res_str == expected
+
+
+def test_simpletext_escapes() -> None:
+    original = "'uuas\\. 11` \\a\\ i! 1 ?7 Rinne   \\Rinne"
+    expected = "'uuas\\. 11` \\a\\ i! 1 ?7 Rinne   \\Rinne"
+    result = serialise_values([SimpleText(original, ":simpleTextProp")])
+    assert len(result) == 1
+    expected_xml = (
+        '<text-prop xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+        'name=":simpleTextProp">'
+        f'<text encoding="utf8">{expected}</text></text-prop>'
+    )
+    res_str = str(etree.tostring(result.pop(0)), encoding="utf-8")
+    assert res_str == expected_xml
 
 
 def test_time() -> None:

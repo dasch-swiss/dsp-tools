@@ -1,5 +1,6 @@
 import json
 from json import JSONDecodeError
+from typing import cast
 
 import regex
 
@@ -19,8 +20,8 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
 
 
 def get_data_deserialised(resources: list[ParsedResource]) -> DataDeserialised:
-    resources = [_get_one_resource(x) for x in resources]
-    return DataDeserialised(resources)
+    deserialised_resources = [_get_one_resource(x) for x in resources]
+    return DataDeserialised(deserialised_resources)
 
 
 def _get_one_resource(resource: ParsedResource) -> ResourceDeserialised:
@@ -61,17 +62,18 @@ def _get_stand_off_links(text: str | None) -> list[PropertyObject]:
 
 
 def _get_one_value(value: ParsedValue) -> ValueInformation:
-    user_value: str | None = value.value
+    user_value = value.value
     match value.value_type:
         case KnoraValueType.INTERVAL_VALUE:
             return _get_interval_value(value)
         case KnoraValueType.LIST_VALUE:
             user_value = f"{user_value[0]} / {user_value[1]}" if user_value else None
         case KnoraValueType.GEOM_VALUE:
-            user_value = _get_geometry_value(user_value) if user_value else None
+            user_value = _get_geometry_value(user_value)
         case _:
             pass
-    return _get_generic_value(value, user_value)
+    typed_val: str | None = user_value if isinstance(user_value, str) else None
+    return _get_generic_value(value, typed_val)
 
 
 def _get_generic_value(value: ParsedValue, user_value: str | None) -> ValueInformation:
@@ -84,18 +86,25 @@ def _get_generic_value(value: ParsedValue, user_value: str | None) -> ValueInfor
 
 
 def _get_interval_value(value: ParsedValue) -> ValueInformation:
-    property_objects = [
-        PropertyObject(
-            property_type=TriplePropertyType.KNORA_INTERVAL_START,
-            object_value=value.value[0],
-            object_type=TripleObjectType.DECIMAL,
-        ),
-        PropertyObject(
-            property_type=TriplePropertyType.KNORA_INTERVAL_END,
-            object_value=value.value[1],
-            object_type=TripleObjectType.DECIMAL,
-        ),
-    ]
+    property_objects = []
+    tuple_val = value.value
+    if isinstance(tuple_val, tuple):
+        if first := tuple_val[0]:
+            property_objects.append(
+                PropertyObject(
+                    property_type=TriplePropertyType.KNORA_INTERVAL_START,
+                    object_value=first,
+                    object_type=TripleObjectType.DECIMAL,
+                )
+            )
+        if second := tuple_val[1]:
+            property_objects.append(
+                PropertyObject(
+                    property_type=TriplePropertyType.KNORA_INTERVAL_START,
+                    object_value=second,
+                    object_type=TripleObjectType.DECIMAL,
+                )
+            )
     property_objects.extend(_get_value_metadata(value))
     return ValueInformation(
         user_facing_prop=value.prop_name,
@@ -105,9 +114,11 @@ def _get_interval_value(value: ParsedValue) -> ValueInformation:
     )
 
 
-def _get_geometry_value(user_value: str) -> str | None:
+def _get_geometry_value(user_value: str | tuple[str | None, str | None] | None) -> str | None:
     try:
-        return json.dumps(json.loads(user_value))
+        if isinstance(user_value, str):
+            return json.dumps(json.loads(user_value))
+        return None
     except JSONDecodeError:
         return None
 
@@ -136,11 +147,12 @@ def _get_value_metadata(value: ParsedValue) -> list[PropertyObject]:
 def _get_file_value(file_value: ParsedFileValue) -> ValueInformation | None:
     if not all([file_value.value, file_value.value_type]):
         return None
-    user_prop = FILE_TYPE_TO_PROP[file_value.value_type]
+    file_type = cast(KnoraValueType, file_value.value_type)
+    user_prop = FILE_TYPE_TO_PROP[file_type]
     return ValueInformation(
         user_facing_prop=user_prop,
         user_facing_value=file_value.value,
-        knora_type=file_value.value_type,
+        knora_type=file_type,
         value_metadata=_get_file_metadata(file_value.metadata),
     )
 

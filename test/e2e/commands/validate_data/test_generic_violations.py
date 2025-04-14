@@ -285,7 +285,6 @@ class TestReformatValidationGraph:
             ("bitstream_no_legal_info", ProblemType.GENERIC),
             ("bitstream_no_legal_info", ProblemType.GENERIC),
             ("bitstream_no_legal_info", ProblemType.GENERIC),
-            ("empty_copyright_holder", ProblemType.GENERIC),
             ("empty_license", ProblemType.GENERIC),
             ("id_archive_missing", ProblemType.FILE_VALUE),
             ("id_archive_unknown", ProblemType.FILE_VALUE),

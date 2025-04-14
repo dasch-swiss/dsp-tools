@@ -100,7 +100,7 @@ def _get_interval_value(value: ParsedValue) -> ValueInformation:
         if second := tuple_val[1]:
             property_objects.append(
                 PropertyObject(
-                    property_type=TriplePropertyType.KNORA_INTERVAL_START,
+                    property_type=TriplePropertyType.KNORA_INTERVAL_END,
                     object_value=second,
                     object_type=TripleObjectType.DECIMAL,
                 )

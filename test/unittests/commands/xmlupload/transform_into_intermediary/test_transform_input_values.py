@@ -12,7 +12,6 @@ from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values impor
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_decimal
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_geometry
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_integer
-from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_interval_from_string
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_richtext
 from dsp_tools.commands.xmlupload.prepare_xml_input.transform_input_values import transform_simpletext
 from dsp_tools.error.exceptions import InputError
@@ -104,25 +103,6 @@ def test_transform_decimal_good(in_val, expected):
 
 def test_transform_integer_good():
     assert transform_integer("1") == 1
-
-
-@pytest.mark.parametrize(
-    ("in_val", "start", "end"),
-    [
-        ("0:1", 0.0, 1.0),
-        ("0.3:1.3", 0.3, 1.3),
-    ],
-)
-def test_transform_interval_good(in_val, start, end):
-    result = transform_interval_from_string(in_val)
-    assert result.start == start
-    assert result.end == end
-
-
-def test_transform_interval_raises():
-    msg = regex.escape(r"Could not parse interval: :0")
-    with pytest.raises(InputError, match=msg):
-        transform_interval_from_string(":0")
 
 
 def test_transform_geometry_good():

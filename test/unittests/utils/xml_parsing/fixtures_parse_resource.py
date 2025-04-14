@@ -52,7 +52,9 @@ def resource_empty_with_permission() -> etree._Element:
 def resource_with_file_value() -> etree._Element:
     return etree.fromstring("""
     <resource label="lbl" restype=":Class" id="resource_with_file_value">
-        <bitstream>testdata/bitstreams/test.wav</bitstream>
+        <bitstream>
+            testdata/bitstreams/test.wav    
+        </bitstream>
     </resource>
     """)
 
@@ -61,7 +63,9 @@ def resource_with_file_value() -> etree._Element:
 def resource_with_iiif() -> etree._Element:
     return etree.fromstring("""
     <resource label="lbl" restype=":Class" id="resource_with_iiif">
-        <iiif-uri>https://iiif.uri/full.jpg</iiif-uri>
+        <iiif-uri>
+            https://iiif.uri/full.jpg
+        </iiif-uri>
     </resource>
     """)
 
@@ -107,7 +111,7 @@ def resource_region() -> etree._Element:
             </geometry>
         </geometry-prop>
         <text-prop name="hasComment">
-            <text encoding="xml">Comment</text>
+            <text encoding="xml"> Comment</text>
         </text-prop>
     </region>
     """)
@@ -118,7 +122,7 @@ def resource_link() -> etree._Element:
     return etree.fromstring("""
     <link label="lbl" id="resource_link">
         <resptr-prop name="hasLinkTo">
-            <resptr permissions="open">target</resptr>
+            <resptr permissions="open"> target</resptr>
         </resptr-prop>
     </link>
     """)
@@ -132,7 +136,7 @@ def resource_video_segment() -> etree._Element:
         <hasSegmentBounds segment_start="0.1" segment_end="0.234"/>
         <hasTitle>Title</hasTitle>
         <hasComment>Comment</hasComment>
-        <hasDescription>Description</hasDescription>
+        <hasDescription> Description</hasDescription>
         <hasKeyword>Keyword 1</hasKeyword>
         <hasKeyword>Keyword 2</hasKeyword>
         <relatesTo>relates_to_id</relatesTo>
@@ -146,11 +150,11 @@ def resource_audio_segment() -> etree._Element:
     <audio-segment label="lbl" id="resource_audio_segment">
         <isSegmentOf>target</isSegmentOf>
         <hasSegmentBounds permissions="open" segment_start="0.1" segment_end="0.234"/>
-        <hasTitle comment="Cmt">Title</hasTitle>
-        <hasComment>Comment</hasComment>
-        <hasDescription>Description 1</hasDescription>
+        <hasTitle comment="Cmt"> Title</hasTitle>
+        <hasComment><p>Comment</p></hasComment>
+        <hasDescription> <p>Description 1</p></hasDescription>
         <hasDescription>Description 2</hasDescription>
-        <hasKeyword>Keyword</hasKeyword>
+        <hasKeyword>Keyword </hasKeyword>
         <relatesTo>relates_to_id</relatesTo>
     </audio-segment>
     """)

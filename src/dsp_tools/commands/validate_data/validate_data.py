@@ -24,7 +24,7 @@ from dsp_tools.utils.ansi_colors import BACKGROUND_BOLD_YELLOW
 from dsp_tools.utils.ansi_colors import BOLD_CYAN
 from dsp_tools.utils.ansi_colors import RESET_TO_DEFAULT
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
-from dsp_tools.utils.xml_parsing.get_data_deserialised import get_data_deserialised
+from dsp_tools.utils.xml_parsing.get_data_deserialised_from_xml import get_data_deserialised
 from dsp_tools.utils.xml_parsing.get_xml_project import get_xml_project
 
 LIST_SEPARATOR = "\n    - "
@@ -33,14 +33,13 @@ LIST_SEPARATOR = "\n    - "
 VALIDATION_ERRORS_FOUND_MSG = BACKGROUND_BOLD_MAGENTA + "\n   Validation errors found!   " + RESET_TO_DEFAULT
 
 
-def validate_data(filepath: Path, api_url: str, dev_route: bool, save_graphs: bool) -> bool:  # noqa: ARG001 (unused argument)
+def validate_data(filepath: Path, api_url: str, save_graphs: bool) -> bool:
     """
     Takes a file and project information and validates it against the ontologies on the server.
 
     Args:
         filepath: path to the xml data file
         api_url: url of the api host
-        dev_route: if this flag is set features that are still in development will be used
         save_graphs: if this flag is set, all the graphs will be saved in a folder
 
     Returns:

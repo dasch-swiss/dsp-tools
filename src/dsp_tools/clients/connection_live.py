@@ -26,7 +26,6 @@ from dsp_tools.utils.request_utils import log_response
 from dsp_tools.utils.request_utils import should_retry
 
 HTTP_OK = 200
-HTTP_UNAUTHORIZED = 401
 
 
 @dataclass
@@ -53,12 +52,6 @@ class ConnectionLive(Connection):
             self.server = self.server[:-1]
         if self.authenticationClient and (token := self.authenticationClient.get_token()):
             self.session.headers["Authorization"] = f"Bearer {token}"
-
-    def logout(self) -> None:
-        """
-        Remove the authorization header from the connection's session.
-        """
-        del self.session.headers["Authorization"]
 
     def post(
         self,

@@ -31,7 +31,7 @@ def assert_is_string(value: InputTypes) -> str:
     """Assert a value is a string."""
     match value:
         case str() as s:
-            return s.strip()
+            return s
         case FormattedTextValue() as xml:
             raise InputError(f"Expected string value, but got XML value: {xml.as_xml()}")
         case tuple():
@@ -86,18 +86,6 @@ def transform_integer(value: InputTypes) -> int:
     """Transform a value into an integer"""
     str_val = assert_is_string(value)
     return int(str_val)
-
-
-def transform_interval_from_string(input_value: InputTypes) -> IntervalFloats:
-    """Transform a sting input into an interval object."""
-    val = assert_is_string(input_value)
-    split_val = [res for x in val.split(":", 1) if (res := x.strip())]
-    if not len(split_val) == 2:
-        raise InputError(f"Could not parse interval: {val}")
-    try:
-        return IntervalFloats(float(split_val[0]), float(split_val[1]))
-    except ValueError:
-        raise InputError(f"Could not parse interval: {val}") from None
 
 
 def transform_interval(input_value: InputTypes) -> IntervalFloats:

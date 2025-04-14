@@ -4,7 +4,6 @@ from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 from dsp_tools.utils.rdflib_constants import KNORA_API
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 
-LINKOBJ_RESOURCE = KNORA_API_STR + "LinkObj"
 VIDEO_SEGMENT_RESOURCE = KNORA_API_STR + "VideoSegment"
 AUDIO_SEGMENT_RESOURCE = KNORA_API_STR + "AudioSegment"
 

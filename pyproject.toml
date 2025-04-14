@@ -86,6 +86,7 @@ dev-dependencies = [
     "yamllint",
     "typing-extensions",
     "pytest-xdist>=3.6.1",
+    "vulture"
 ]
 
 
@@ -186,3 +187,13 @@ convention = "google"
 
 [tool.ruff.lint.isort]
 force-single-line = true
+
+
+[tool.vulture]
+paths = ["src/dsp_tools", ".vulture_whitelist.py"]
+exclude = [
+    "src/dsp_tools/xmllib/", 
+    "src/dsp_tools/commands/excel2xml/",
+    "test/",
+]
+sort_by_size = true  # sort unused classes and functions by size 

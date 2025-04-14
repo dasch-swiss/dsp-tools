@@ -185,8 +185,8 @@ class TestSegment:
             (f"{KNORA_API_STR}isAudioSegmentOf", KnoraValueType.LINK_VALUE, "target", None, None),
             (f"{KNORA_API_STR}hasSegmentBounds", KnoraValueType.INTERVAL_VALUE, ("0.1", "0.234"), "open", None),
             (f"{KNORA_API_STR}hasTitle", KnoraValueType.SIMPLETEXT_VALUE, "Title", None, "Cmt"),
-            (f"{KNORA_API_STR}hasComment", KnoraValueType.RICHTEXT_VALUE, "Comment", None, None),
-            (f"{KNORA_API_STR}hasDescription", KnoraValueType.RICHTEXT_VALUE, "Description 1", None, None),
+            (f"{KNORA_API_STR}hasComment", KnoraValueType.RICHTEXT_VALUE, "<p>Comment</p>", None, None),
+            (f"{KNORA_API_STR}hasDescription", KnoraValueType.RICHTEXT_VALUE, "<p>Description 1</p>", None, None),
             (f"{KNORA_API_STR}hasDescription", KnoraValueType.RICHTEXT_VALUE, "Description 2", None, None),
             (f"{KNORA_API_STR}hasKeyword", KnoraValueType.SIMPLETEXT_VALUE, "Keyword", None, None),
             (f"{KNORA_API_STR}relatesTo", KnoraValueType.LINK_VALUE, "relates_to_id", None, None),
@@ -300,7 +300,7 @@ class TestParseValues:
     def test_geoname_value(self):
         xml_val = etree.fromstring("""
         <geoname-prop name=":hasProp">
-            <geoname>1111111</geoname>
+            <geoname>1111111 </geoname>
         </geoname-prop>
         """)
         result = _parse_one_value(xml_val, IRI_LOOKUP)
@@ -330,7 +330,7 @@ class TestParseValues:
     def test_list_value(self):
         xml_val = etree.fromstring("""
         <list-prop list="firstList" name=":hasProp">
-            <list>n1</list>
+            <list>n1 </list>
         </list-prop>
         """)
         result = _parse_one_value(xml_val, IRI_LOOKUP)
@@ -338,6 +338,21 @@ class TestParseValues:
         val = result.pop(0)
         assert val.prop_name == HAS_PROP
         assert val.value == ("firstList", "n1")
+        assert val.value_type == KnoraValueType.LIST_VALUE
+        assert not val.permissions_id
+        assert not val.comment
+
+    def test_list_value_none(self):
+        xml_val = etree.fromstring("""
+        <list-prop list="firstList" name=":hasProp">
+            <list></list>
+        </list-prop>
+        """)
+        result = _parse_one_value(xml_val, IRI_LOOKUP)
+        assert len(result) == 1
+        val = result.pop(0)
+        assert val.prop_name == HAS_PROP
+        assert val.value == ("firstList", None)
         assert val.value_type == KnoraValueType.LIST_VALUE
         assert not val.permissions_id
         assert not val.comment
@@ -379,6 +394,21 @@ class TestParseValues:
         assert not val.permissions_id
         assert not val.comment
 
+    def test_resptr_value_none(self):
+        xml_val = etree.fromstring("""
+        <resptr-prop name=":hasProp">
+            <resptr></resptr>
+        </resptr-prop>
+        """)
+        result = _parse_one_value(xml_val, IRI_LOOKUP)
+        assert len(result) == 1
+        val = result.pop(0)
+        assert val.prop_name == HAS_PROP
+        assert val.value == None  # noqa: E711 Comparison to `None`
+        assert val.value_type == KnoraValueType.LINK_VALUE
+        assert not val.permissions_id
+        assert not val.comment
+
     def test_text_richtext_value(self):
         xml_val = etree.fromstring("""
         <text-prop name=":hasProp">
@@ -390,6 +420,21 @@ class TestParseValues:
         val = result.pop(0)
         assert val.prop_name == HAS_PROP
         assert val.value == "<p>Text</p>"
+        assert val.value_type == KnoraValueType.RICHTEXT_VALUE
+        assert not val.permissions_id
+        assert not val.comment
+
+    def test_text_richtext_value_none(self):
+        xml_val = etree.fromstring("""
+        <text-prop name=":hasProp">
+            <text encoding="xml"></text>
+        </text-prop>
+        """)
+        result = _parse_one_value(xml_val, IRI_LOOKUP)
+        assert len(result) == 1
+        val = result.pop(0)
+        assert val.prop_name == HAS_PROP
+        assert val.value == None  # noqa: E711 Comparison to `None`
         assert val.value_type == KnoraValueType.RICHTEXT_VALUE
         assert not val.permissions_id
         assert not val.comment
@@ -412,7 +457,7 @@ class TestParseValues:
     def test_text_simpletext_value(self):
         xml_val = etree.fromstring("""
         <text-prop name=":hasProp">
-            <text encoding="utf8">Text</text>
+            <text encoding="utf8"> Text</text>
         </text-prop>
         """)
         result = _parse_one_value(xml_val, IRI_LOOKUP)
@@ -420,6 +465,24 @@ class TestParseValues:
         val = result.pop(0)
         assert val.prop_name == HAS_PROP
         assert val.value == "Text"
+        assert val.value_type == KnoraValueType.SIMPLETEXT_VALUE
+        assert not val.permissions_id
+        assert not val.comment
+
+    def test_text_simpletext_not_tags_but_angular_brackets(self):
+        # It is permissible for simpletext to contain angular brackets,
+        # even though they will not be displayed as XML on the app.
+        # lxml will see them as XMl and we must ensure that they are parsed correctly.
+        xml_val = etree.fromstring("""
+        <text-prop name=":hasProp">
+            <text encoding="utf8"><notARecognisedTag>Text</notARecognisedTag></text>
+        </text-prop>
+        """)
+        result = _parse_one_value(xml_val, IRI_LOOKUP)
+        assert len(result) == 1
+        val = result.pop(0)
+        assert val.prop_name == HAS_PROP
+        assert val.value == "<notARecognisedTag>Text</notARecognisedTag>"
         assert val.value_type == KnoraValueType.SIMPLETEXT_VALUE
         assert not val.permissions_id
         assert not val.comment
@@ -473,7 +536,9 @@ class TestParseValues:
 class TestParseFileValues:
     def test_iiif_no_legal_info(self):
         xml_val = etree.fromstring("""
-        <iiif-uri>https://iiif.uri/full.jpg</iiif-uri>
+        <iiif-uri>
+            https://iiif.uri/full.jpg
+        </iiif-uri>
         """)
         val = _parse_iiif_uri(xml_val)
         assert val.value == "https://iiif.uri/full.jpg"
@@ -483,12 +548,14 @@ class TestParseFileValues:
         assert not val.metadata.authorship_id
         assert not val.metadata.permissions_id
 
-    def test_iiif_with_legal_info(self):
+    def test_iiif_with_legal_info_and_whitespaces(self):
         xml_val = etree.fromstring("""
         <iiif-uri license="license_iri"
                   copyright-holder="copy"
                   authorship-id="auth"
-        >https://iiif.uri/full.jpg</iiif-uri>
+        >
+        https://iiif.uri/full.jpg
+        </iiif-uri>
         """)
         val = _parse_iiif_uri(xml_val)
         assert val.value == "https://iiif.uri/full.jpg"
@@ -498,9 +565,11 @@ class TestParseFileValues:
         assert val.metadata.authorship_id == "auth"
         assert not val.metadata.permissions_id
 
-    def test_bitstream_with_permissions(self):
+    def test_bitstream_with_permissions_and_whitespaces(self):
         xml_val = etree.fromstring("""
-        <bitstream permissions="open">this/is/filepath/file.z</bitstream>
+        <bitstream permissions="open">
+            this/is/filepath/file.z
+        </bitstream>
         """)
         val = _parse_file_values(xml_val)
         assert val.value == "this/is/filepath/file.z"
@@ -510,12 +579,14 @@ class TestParseFileValues:
         assert not val.metadata.authorship_id
         assert val.metadata.permissions_id == "open"
 
-    def test_bitstream_with_legal_info(self):
+    def test_bitstream_with_legal_info_and_whitespaces(self):
         xml_val = etree.fromstring("""
         <bitstream license="http://rdfh.ch/licenses/unknown"
                    copyright-holder="DaSCH"
                    authorship-id="authorship_1"
-        >this/is/filepath/file.z</bitstream>
+        >
+            this/is/filepath/file.z
+        </bitstream>
         """)
         val = _parse_file_values(xml_val)
         assert val.value == "this/is/filepath/file.z"

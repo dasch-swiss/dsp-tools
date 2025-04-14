@@ -64,7 +64,7 @@ def lookups() -> IntermediaryLookups:
 @pytest.fixture
 def file_with_permission() -> ParsedFileValue:
     metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", "open")
-    return ParsedFileValue("file.jpg\n", KnoraValueType.STILL_IMAGE_FILE, metadata)
+    return ParsedFileValue("file.jpg", KnoraValueType.STILL_IMAGE_FILE, metadata)
 
 
 @pytest.fixture
@@ -75,7 +75,7 @@ def bool_value() -> ParsedValue:
 @pytest.fixture
 def iiif_file_value():
     metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", None)
-    return ParsedFileValue("  https://this/is/a/uri.jpg\n", KnoraValueType.STILL_IMAGE_IIIF, metadata)
+    return ParsedFileValue("https://this/is/a/uri.jpg", KnoraValueType.STILL_IMAGE_IIIF, metadata)
 
 
 class TestTransformResources:
@@ -289,7 +289,7 @@ class TestTransformOneResource:
 class TestTransformFileValue:
     def test_transform_file_value(self, lookups: IntermediaryLookups):
         metadata = ParsedFileValueMetadata("http://rdfh.ch/licenses/cc-by-nc-4.0", "copy", "auth_id", None)
-        val = ParsedFileValue("\nfile.jpg  ", KnoraValueType.STILL_IMAGE_FILE, metadata)
+        val = ParsedFileValue("file.jpg", KnoraValueType.STILL_IMAGE_FILE, metadata)
         result = _transform_file_value(val, lookups, "id", "lbl")
         assert result.value == "file.jpg"
         assert isinstance(result, IntermediaryFileValue)

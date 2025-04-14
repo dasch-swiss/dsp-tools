@@ -26,13 +26,6 @@ class TestOntology(unittest.TestCase):
         auth = AuthenticationClientLive("http://0.0.0.0:3333", "root@example.com", "test")
         self.con = ConnectionLive("http://0.0.0.0:3333", auth)
 
-    def tearDown(self) -> None:
-        """
-        Logs out from DSP-API.
-        For each test method, a new TestCase instance is created, so tearDown() is executed after each test method.
-        """
-        self.con.logout()
-
     def test_Ontology(self) -> None:
         last_mod_date_str = "2017-12-19T15:23:42.166Z"
         onto = Ontology(

@@ -342,6 +342,7 @@ class TestFileValue:
         metadata = ParsedFileValueMetadata(None, None, None, None)
         val = ParsedFileValue("https://this/is/a/uri.jpg", KnoraValueType.STILL_IMAGE_IIIF, metadata)
         res = _get_file_value(val)
+        assert isinstance(res, ValueInformation)
         assert res.user_facing_prop == f"{KNORA_API_STR}hasStillImageFileValue"
         assert res.user_facing_value == "https://this/is/a/uri.jpg"
         assert res.knora_type == KnoraValueType.STILL_IMAGE_IIIF

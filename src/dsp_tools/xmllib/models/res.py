@@ -33,7 +33,6 @@ from dsp_tools.xmllib.models.values import TimeValue
 from dsp_tools.xmllib.models.values import UriValue
 from dsp_tools.xmllib.models.values import Value
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
-from dsp_tools.xmllib.value_checkers import is_string_like
 
 # ruff: noqa: D101, D102
 
@@ -52,16 +51,16 @@ class Resource:
 
     def __post_init__(self) -> None:
         msg = []
-        if not is_string_like(str(self.label)):
+        if not is_nonempty_value(str(self.label)):
             msg.append(f"Label '{self.label}'")
-        if not is_string_like(str(self.res_id)):
+        if not is_nonempty_value(str(self.res_id)):
             msg.append(f"Resource ID '{self.res_id}'")
-        if not is_string_like(str(self.restype)):
+        if not is_nonempty_value(str(self.restype)):
             msg.append(f"Resource Type '{self.restype}'")
         if msg:
             out_msg = (
-                f"The Resource with the ID '{self.res_id}' should have strings in the following field(s), "
-                f"the input is not a valid string.:{LIST_SEPARATOR}{LIST_SEPARATOR.join(msg)}"
+                f"The Resource with the ID '{self.res_id}' should have strings in the following field(s). "
+                f"The input is not a valid string: {LIST_SEPARATOR}{LIST_SEPARATOR.join(msg)}"
             )
             warnings.warn(DspToolsUserWarning(out_msg))
 

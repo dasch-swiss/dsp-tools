@@ -2,7 +2,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from dsp_tools.xmllib.internal_helpers import is_nonempty_value_internal, unescape_standoff_tags
+from dsp_tools.xmllib.internal_helpers import is_nonempty_value_internal, numeric_entities
+from dsp_tools.xmllib.internal_helpers import unescape_standoff_tags
 
 
 @pytest.mark.parametrize(
@@ -37,4 +38,9 @@ def test_is_nonempty_value_internal(text: str, expected: bool) -> None:
 
 def test_unescape_standoff_tags() -> None:
     unescape_standoff_tags("")
+    pytest.fail("TODO")
+
+
+def test_numeric_entities() -> None:
+    numeric_entities("")
     pytest.fail("TODO")

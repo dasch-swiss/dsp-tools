@@ -181,7 +181,9 @@ def _remove_resources_if_id_in_mapping(
         a modified copy of the XML tree
     """
     modified_tree = copy.deepcopy(tree)
-    resources = modified_tree.xpath("|".join([f"/knora/{x}" for x in ["resource", "link", "region"]]))
+    resources = modified_tree.xpath(
+        "|".join([f"/knora/{x}" for x in ["resource", "link", "region", "video-segment", "audio-segment"]])
+    )
     resources_to_remove = [x for x in resources if x.attrib.get("id") in mapping]
     for resource in resources_to_remove:
         resource.getparent().remove(resource)

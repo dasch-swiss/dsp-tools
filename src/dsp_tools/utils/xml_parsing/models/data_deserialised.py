@@ -6,16 +6,8 @@ from enum import Enum
 from enum import auto
 from uuid import uuid4
 
-from lxml import etree
-
 from dsp_tools.legacy_models.datetimestamp import DateTimeStamp
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
-
-
-@dataclass
-class XMLProject:
-    shortcode: str
-    root: etree._Element
 
 
 @dataclass

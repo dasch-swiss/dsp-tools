@@ -150,13 +150,16 @@ class TestResource:
         )
         result = _get_one_resource(res)
         assert result.res_id == "one"
-        assert len(result.property_objects) == 2
+        assert len(result.property_objects) == 3
         assert not result.asset_value
         lbl, rdf_type, _ = _get_label_and_type(result)
         assert lbl.object_value == "lbl"
         assert lbl.object_type == TripleObjectType.STRING
         assert rdf_type.object_value == RES_TYPE
         assert rdf_type.object_type == TripleObjectType.IRI
+        standoff = next(x for x in result.property_objects if x.property_type == TriplePropertyType.KNORA_STANDOFF_LINK)
+        assert standoff.object_value == "link"
+        assert standoff.object_type == TripleObjectType.IRI
         assert len(result.values) == 1
 
 

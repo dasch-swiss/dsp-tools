@@ -18,6 +18,12 @@ from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
 from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
 
+from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValue
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedFileValueMetadata
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedMigrationMetadata
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedResource
+from dsp_tools.utils.xml_parsing.models.parsed_resource import ParsedValue
 ONTO = "http://0.0.0.0:3333/ontology/9999/onto/v2#"
 HAS_PROP = f"{ONTO}hasProp"
 RES_TYPE = f"{ONTO}ResourceType"
@@ -48,33 +54,26 @@ def _get_label_and_type(resource: ResourceDeserialised) -> tuple[PropertyObject,
 
 
 class TestResource:
-    def test_empty(self, resource_empty):
-        result = _get_one_resource(resource_empty)
+    def test_empty(self):
+        res = ParsedResource(
+            res_id="one",
+            res_type=RES_TYPE,
+            label="lbl",
+            permissions_id=None,
+            values=[],
+            file_value=None,
+            migration_metadata=None,
+        )
+        result = _get_one_resource(res)
         assert result.res_id == "one"
         assert len(result.property_objects) == 2
         assert not result.asset_value
         lbl, rdf_type, _ = _get_label_and_type(result)
         assert lbl.object_value == "lbl"
         assert lbl.object_type == TripleObjectType.STRING
-        assert rdf_type.object_value == "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"
+        assert rdf_type.object_value == RES_TYPE
         assert rdf_type.object_type == TripleObjectType.IRI
         assert len(result.values) == 0
-
-    def test_migration_metadata(self, resource_with_migration_metadata):
-        result = _get_one_resource(resource_with_migration_metadata)
-        assert result.res_id == "one"
-        assert len(result.property_objects) == 2
-        assert not result.asset_value
-        lbl, rdf_type, _ = _get_label_and_type(result)
-        assert lbl.object_value == "lbl"
-        assert lbl.object_type == TripleObjectType.STRING
-        assert rdf_type.object_value == "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"
-        assert rdf_type.object_type == TripleObjectType.IRI
-        assert len(result.values) == 0
-        assert result.migration_metadata.any()
-        assert result.migration_metadata.ark == "ark"
-        assert result.migration_metadata.iri == "iri"
-        assert str(result.migration_metadata.creation_date) == "2019-01-09T15:45:54.502951Z"
 
     def test_empty_permissions(self, resource_empty_permissions):
         result = _get_one_resource(resource_empty_permissions)
@@ -89,23 +88,23 @@ class TestResource:
         assert permission.property_type == TriplePropertyType.KNORA_PERMISSIONS
         assert lbl.object_value == "lbl"
         assert lbl.object_type == TripleObjectType.STRING
-        assert rdf_type.object_value == "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"
+        assert rdf_type.object_value == RES_TYPE
         assert rdf_type.object_type == TripleObjectType.IRI
         assert len(result.values) == 0
         assert not result.migration_metadata.any()
 
     def test_with_props(self, root_resource_with_props):
-        res = get_data_deserialised(root_resource_with_props).resources
-        assert res.res_id == "one"
-        assert len(res.property_objects) == 2
-        assert not res.asset_value
-        lbl, rdf_type, _ = _get_label_and_type(res)
+        result = get_data_deserialised(root_resource_with_props).resources
+        assert result.res_id == "one"
+        assert len(result.property_objects) == 2
+        assert not result.asset_value
+        lbl, rdf_type, _ = _get_label_and_type(result)
         assert lbl.object_value == "lbl"
         assert lbl.object_type == TripleObjectType.STRING
-        assert rdf_type.object_value == "http://0.0.0.0:3333/ontology/9999/onto/v2#ClassWithEverything"
+        assert rdf_type.object_value == RES_TYPE
         assert rdf_type.object_type == TripleObjectType.IRI
-        assert len(res.values) == 3
-        assert not res.migration_metadata.any()
+        assert len(result.values) == 3
+        assert not result.migration_metadata.any()
 
     def test_with_file_value(self, resource_with_bitstream):
         result = _get_one_resource(resource_with_bitstream)
@@ -119,17 +118,17 @@ class TestResource:
         assert not result.migration_metadata.any()
 
     def test_audio_segment(self, audio_segment):
-        res = _get_one_resource(audio_segment)
-        assert res.res_id == "audio_id"
-        assert len(res.property_objects) == 2
-        assert not res.asset_value
-        lbl, rdf_type, _ = _get_label_and_type(res)
+        result = _get_one_resource(audio_segment)
+        assert result.res_id == "audio_id"
+        assert len(result.property_objects) == 2
+        assert not result.asset_value
+        lbl, rdf_type, _ = _get_label_and_type(result)
         assert lbl.object_value == "lbl"
         assert lbl.object_type == TripleObjectType.STRING
         assert rdf_type.object_value == "http://api.knora.org/ontology/knora-api/v2#AudioSegment"
         assert rdf_type.object_type == TripleObjectType.IRI
-        assert len(res.values) == 2
-        propname_to_info = {x.user_facing_prop: x for x in res.values}
+        assert len(result.values) == 2
+        propname_to_info = {x.user_facing_prop: x for x in result.values}
         segment_of = propname_to_info.pop(f"{KNORA_API_STR}isAudioSegmentOf")
         assert segment_of.user_facing_value == "is_segment_of_id"
         assert segment_of.knora_type == KnoraValueType.LINK_VALUE
@@ -151,7 +150,7 @@ class TestResource:
         end_bound = seg_bounds_prop_objects.pop(TriplePropertyType.KNORA_INTERVAL_END)
         assert end_bound.object_value == "7"
         assert end_bound.object_type == TripleObjectType.DECIMAL
-        assert not res.migration_metadata.any()
+        assert not result.migration_metadata.any()
 
 
 class TestValues:

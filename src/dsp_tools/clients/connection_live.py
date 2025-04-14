@@ -53,12 +53,6 @@ class ConnectionLive(Connection):
         if self.authenticationClient and (token := self.authenticationClient.get_token()):
             self.session.headers["Authorization"] = f"Bearer {token}"
 
-    def logout(self) -> None:
-        """
-        Remove the authorization header from the connection's session.
-        """
-        del self.session.headers["Authorization"]
-
     def post(
         self,
         route: str,

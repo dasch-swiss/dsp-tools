@@ -35,6 +35,3 @@ class Connection(Protocol):
         timeout: int | None = None,
     ) -> dict[str, Any]:
         pass
-
-    def logout(self) -> None:
-        pass

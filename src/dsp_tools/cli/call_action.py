@@ -213,9 +213,7 @@ def _call_xmlupload(args: argparse.Namespace) -> bool:
 
 
 def _call_validate_data(args: argparse.Namespace) -> bool:
-    return validate_data(
-        filepath=Path(args.xmlfile), api_url=args.server, dev_route=args.dev, save_graphs=args.save_graphs
-    )
+    return validate_data(filepath=Path(args.xmlfile), api_url=args.server, save_graphs=args.save_graphs)
 
 
 def _call_resume_xmlupload(args: argparse.Namespace) -> bool:

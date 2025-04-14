@@ -12,8 +12,8 @@ PermissionValue.CR
 
 BOLD_GREEN
 
-IriResolver.non_empty
+IriResolver.non_empty()
 
 is_full_date("")
 
-check_notna("") 
+check_notna("")

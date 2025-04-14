@@ -75,8 +75,17 @@ class TestResource:
         assert rdf_type.object_type == TripleObjectType.IRI
         assert len(result.values) == 0
 
-    def test_empty_permissions(self, resource_empty_permissions):
-        result = _get_one_resource(resource_empty_permissions)
+    def test_empty_permissions(self):
+        res = ParsedResource(
+            res_id="one",
+            res_type=RES_TYPE,
+            label="lbl",
+            permissions_id="open",
+            values=[],
+            file_value=None,
+            migration_metadata=None,
+        )
+        result = _get_one_resource(res)
         assert result.res_id == "one"
         assert len(result.property_objects) == 3
         assert not result.asset_value
@@ -91,10 +100,20 @@ class TestResource:
         assert rdf_type.object_value == RES_TYPE
         assert rdf_type.object_type == TripleObjectType.IRI
         assert len(result.values) == 0
-        assert not result.migration_metadata.any()
 
-    def test_with_props(self, root_resource_with_props):
-        result = get_data_deserialised(root_resource_with_props).resources
+    def test_with_props(self):
+        res = ParsedResource(
+            res_id="one",
+            res_type=RES_TYPE,
+            label="lbl",
+            permissions_id=None,
+            values=[],
+            file_value=None,
+            migration_metadata=None,
+        )
+        _, result_list = get_data_deserialised([res])
+        assert len(result_list.resources) == 1
+        result = result_list.resources.pop(0)
         assert result.res_id == "one"
         assert len(result.property_objects) == 2
         assert not result.asset_value
@@ -104,18 +123,25 @@ class TestResource:
         assert rdf_type.object_value == RES_TYPE
         assert rdf_type.object_type == TripleObjectType.IRI
         assert len(result.values) == 3
-        assert not result.migration_metadata.any()
 
-    def test_with_file_value(self, resource_with_bitstream):
-        result = _get_one_resource(resource_with_bitstream)
+    def test_with_file_value(self, file_with_permission):
+        res = ParsedResource(
+            res_id="one",
+            res_type=RES_TYPE,
+            label="lbl",
+            permissions_id=None,
+            values=[],
+            file_value=file_with_permission,
+            migration_metadata=None,
+        )
+        result = _get_one_resource(res)
         assert len(result.values) == 0
         bitstream = result.asset_value
         assert isinstance(bitstream, ValueInformation)
         assert bitstream.user_facing_prop == f"{KNORA_API_STR}hasAudioFileValue"
-        assert bitstream.user_facing_value == "testdata/bitstreams/test.wav"
-        assert bitstream.knora_type == KnoraValueType.AUDIO_FILE
+        assert bitstream.user_facing_value == "file.jpg"
+        assert bitstream.knora_type == KnoraValueType.STILL_IMAGE_FILE
         assert not bitstream.value_metadata
-        assert not result.migration_metadata.any()
 
     def test_audio_segment(self, audio_segment):
         result = _get_one_resource(audio_segment)

@@ -1,3 +1,6 @@
+import json
+from json import JSONDecodeError
+
 import regex
 
 from dsp_tools.utils.xml_parsing.models.data_deserialised import DataDeserialised
@@ -39,14 +42,15 @@ def _get_stand_off_links(text: str | None) -> list[PropertyObject]:
 def _get_one_value(value: ParsedValue) -> ValueInformation:
     user_value: str | None = value.value
     match value.value_type:
-        case KnoraValueType.LIST_VALUE:
-            if user_value:
-                user_value = f"{user_value[0]} / {user_value[1]}" if user_value else None
-            return _get_generic_value(value, user_value)
         case KnoraValueType.INTERVAL_VALUE:
             return _get_interval_value(value)
+        case KnoraValueType.LIST_VALUE:
+            user_value = f"{user_value[0]} / {user_value[1]}" if user_value else None
+        case KnoraValueType.GEOM_VALUE:
+            user_value = _get_geometry_value(user_value) if user_value else None
         case _:
-            return _get_generic_value(value, user_value)
+            pass
+    return _get_generic_value(value, user_value)
 
 
 def _get_generic_value(value: ParsedValue, user_value: str | None) -> ValueInformation:
@@ -60,6 +64,13 @@ def _get_generic_value(value: ParsedValue, user_value: str | None) -> ValueInfor
 
 def _get_interval_value(value: ParsedValue) -> ValueInformation:
     pass
+
+
+def _get_geometry_value(user_value: str) -> str | None:
+    try:
+        return json.dumps(json.loads(user_value))
+    except JSONDecodeError:
+        return None
 
 
 def _get_value_metadata(value: ParsedValue) -> list[PropertyObject]:

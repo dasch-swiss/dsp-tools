@@ -4,8 +4,8 @@ import pytest
 
 from dsp_tools.commands.validate_data.get_data_deserialised import _get_file_metadata
 from dsp_tools.commands.validate_data.get_data_deserialised import _get_file_value
-from dsp_tools.commands.validate_data.get_data_deserialised import _get_generic_value
 from dsp_tools.commands.validate_data.get_data_deserialised import _get_one_resource
+from dsp_tools.commands.validate_data.get_data_deserialised import _get_one_value
 from dsp_tools.commands.validate_data.get_data_deserialised import get_data_deserialised
 from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.models.data_deserialised import PropertyObject
@@ -136,7 +136,7 @@ class TestResource:
 class TestValues:
     def test_boolean_corr(self):
         val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, None, None)
-        res = _get_generic_value(val)
+        res = _get_one_value(val)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "true"
         assert res.knora_type == KnoraValueType.BOOLEAN_VALUE
@@ -144,7 +144,7 @@ class TestValues:
 
     def test_boolean_with_comment_corr(self):
         val = ParsedValue(HAS_PROP, "false", KnoraValueType.BOOLEAN_VALUE, None, "comment")
-        res = _get_generic_value(val)
+        res = _get_one_value(val)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "true"
         assert res.knora_type == KnoraValueType.BOOLEAN_VALUE
@@ -152,7 +152,7 @@ class TestValues:
 
     def test_boolean_with_permissions_corr(self):
         val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, "open", None)
-        res = _get_generic_value(val)
+        res = _get_one_value(val)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "true"
         assert res.knora_type == KnoraValueType.BOOLEAN_VALUE
@@ -160,7 +160,7 @@ class TestValues:
 
     def test_boolean_none(self):
         val = ParsedValue(HAS_PROP, None, KnoraValueType.BOOLEAN_VALUE, None, None)
-        res = _get_generic_value(val)
+        res = _get_one_value(val)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "true"
         assert res.knora_type == KnoraValueType.BOOLEAN_VALUE
@@ -168,7 +168,7 @@ class TestValues:
 
     def test_color_corr(self):
         val = ParsedValue(HAS_PROP, "#5d1f1e", KnoraValueType.COLOR_VALUE, None, None)
-        res = _get_generic_value(val)
+        res = _get_one_value(val)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "#00ff00"
         assert res.knora_type == KnoraValueType.COLOR_VALUE
@@ -176,7 +176,7 @@ class TestValues:
 
     def test_date_corr(self):
         val = ParsedValue(HAS_PROP, "CE:1849:CE:1850", KnoraValueType.DATE_VALUE, None, None)
-        res = _get_generic_value(val)
+        res = _get_one_value(val)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "JULIAN:BCE:0700:BCE:0600"
         assert res.knora_type == KnoraValueType.DATE_VALUE
@@ -184,14 +184,14 @@ class TestValues:
 
     def test_decimal_corr(self):
         val = ParsedValue(HAS_PROP, "1.4", KnoraValueType.DECIMAL_VALUE, None, None)
-        res = _get_generic_value(val)
+        res = _get_one_value(val)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "2.71"
         assert res.knora_type == KnoraValueType.DECIMAL_VALUE
         assert not res.value_metadata
 
     def test_geoname_corr(self, geoname_value_corr):
-        res = _get_generic_value(geoname_value_corr)
+        res = _get_one_value(geoname_value_corr)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "1111111"
         assert res.knora_type == KnoraValueType.GEONAME_VALUE
@@ -208,7 +208,7 @@ class TestValues:
                     {"x": 0.7, "y": 0.6}]
                     }"""
         val = ParsedValue(f"{KNORA_API_STR}hasGeometry", geometry, KnoraValueType.GEOM_VALUE, None, None)
-        res = _get_generic_value(val)
+        res = _get_one_value(val)
         assert res.user_facing_prop == f"{KNORA_API_STR}hasGeometry"
         assert res.user_facing_value is not None
         assert res.knora_type == KnoraValueType.GEOM_VALUE
@@ -216,7 +216,15 @@ class TestValues:
 
     def test_geom_wrong(self):
         val = ParsedValue(f"{KNORA_API_STR}hasGeometry", "invalid", KnoraValueType.GEOM_VALUE, None, None)
-        res = _get_generic_value(val)
+        res = _get_one_value(val)
+        assert res.user_facing_prop == f"{KNORA_API_STR}hasGeometry"
+        assert not res.user_facing_value
+        assert res.knora_type == KnoraValueType.GEOM_VALUE
+        assert not res.value_metadata
+
+    def test_geom_none(self):
+        val = ParsedValue(f"{KNORA_API_STR}hasGeometry", None, KnoraValueType.GEOM_VALUE, None, None)
+        res = _get_one_value(val)
         assert res.user_facing_prop == f"{KNORA_API_STR}hasGeometry"
         assert not res.user_facing_value
         assert res.knora_type == KnoraValueType.GEOM_VALUE
@@ -224,7 +232,7 @@ class TestValues:
 
     def test_int_corr(self):
         val = ParsedValue(HAS_PROP, "1", KnoraValueType.INT_VALUE, None, None)
-        res = _get_generic_value(val)
+        res = _get_one_value(val)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "1"
         assert res.knora_type == KnoraValueType.INT_VALUE
@@ -232,7 +240,7 @@ class TestValues:
 
     def test_interval_corr(self):
         val = ParsedValue(f"{KNORA_API_STR}hasSegmentBounds", ("1", "2"), KnoraValueType.INTERVAL_VALUE, None, None)
-        res = _get_generic_value(val)
+        res = _get_one_value(val)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "1"
         assert res.knora_type == KnoraValueType.INT_VALUE
@@ -240,15 +248,23 @@ class TestValues:
 
     def test_list_corr(self):
         val = ParsedValue(HAS_PROP, ("list", "node"), KnoraValueType.LIST_VALUE, None, None)
-        res = _get_generic_value(val)
+        res = _get_one_value(val)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "firstList / n1"
         assert res.knora_type == KnoraValueType.LIST_VALUE
         assert not res.value_metadata
 
+    def test_list_none(self):
+        val = ParsedValue(HAS_PROP, ("list", None), KnoraValueType.LIST_VALUE, None, None)
+        res = _get_one_value(val)
+        assert res.user_facing_prop == HAS_PROP
+        assert res.user_facing_value == "firstList / None"
+        assert res.knora_type == KnoraValueType.LIST_VALUE
+        assert not res.value_metadata
+
     def test_link_corr(self):
         val = ParsedValue(HAS_PROP, "other_id", KnoraValueType.LINK_VALUE, None, None)
-        res = _get_generic_value(val)
+        res = _get_one_value(val)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "other_id"
         assert res.knora_type == KnoraValueType.LINK_VALUE
@@ -256,7 +272,7 @@ class TestValues:
 
     def test_simple_text_corr(self):
         val = ParsedValue(HAS_PROP, "text", KnoraValueType.SIMPLETEXT_VALUE, None, None)
-        res = _get_generic_value(val)
+        res = _get_one_value(val)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "Text"
         assert res.knora_type == KnoraValueType.SIMPLETEXT_VALUE
@@ -264,7 +280,7 @@ class TestValues:
 
     def test_simple_text_wrong(self):
         val = ParsedValue(HAS_PROP, None, KnoraValueType.SIMPLETEXT_VALUE, None, None)
-        res = _get_generic_value(val)
+        res = _get_one_value(val)
         assert res.user_facing_prop == HAS_PROP
         assert not res.user_facing_value
         assert res.knora_type == KnoraValueType.SIMPLETEXT_VALUE
@@ -272,7 +288,7 @@ class TestValues:
 
     def test_richtext_corr(self):
         val = ParsedValue(HAS_PROP, "<p>Text</p>", KnoraValueType.RICHTEXT_VALUE, None, None)
-        res = _get_generic_value(val)
+        res = _get_one_value(val)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "<p>Text</p>"
         assert res.knora_type == KnoraValueType.RICHTEXT_VALUE
@@ -281,7 +297,7 @@ class TestValues:
     def test_richtext_with_standoff(self):
         text_str = 'Comment with <a class="salsah-link" href="IRI:link:IRI">link text</a>.'
         val = ParsedValue(HAS_PROP, text_str, KnoraValueType.RICHTEXT_VALUE, None, None)
-        res = _get_generic_value(val)
+        res = _get_one_value(val)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "<p>Text</p>"
         assert res.knora_type == KnoraValueType.RICHTEXT_VALUE
@@ -289,7 +305,7 @@ class TestValues:
 
     def test_time_corr(self):
         val = ParsedValue(HAS_PROP, "2019-10-23T13:45:12.01-14:00", KnoraValueType.TIME_VALUE, None, None)
-        res = _get_generic_value(val)
+        res = _get_one_value(val)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "2019-10-23T13:45:12.01-14:00"
         assert res.knora_type == KnoraValueType.TIME_VALUE
@@ -297,7 +313,7 @@ class TestValues:
 
     def test_uri_corr(self):
         val = ParsedValue(HAS_PROP, "https://dasch.swiss", KnoraValueType.URI_VALUE, None, None)
-        res = _get_generic_value(val)
+        res = _get_one_value(val)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "https://dasch.swiss"
         assert res.knora_type == KnoraValueType.URI_VALUE

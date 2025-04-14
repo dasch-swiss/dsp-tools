@@ -143,7 +143,7 @@ class TestValues:
         assert not res.value_metadata
 
     def test_boolean_with_comment_corr(self):
-        val = ParsedValue(HAS_PROP, "false", KnoraValueType.BOOLEAN_VALUE, None, "comment")
+        val = ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, None, "comment")
         res = _get_one_value(val)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "true"
@@ -162,7 +162,7 @@ class TestValues:
         val = ParsedValue(HAS_PROP, None, KnoraValueType.BOOLEAN_VALUE, None, None)
         res = _get_one_value(val)
         assert res.user_facing_prop == HAS_PROP
-        assert res.user_facing_value == "true"
+        assert res.user_facing_value == None  # noqa: E711 Comparison to `None`
         assert res.knora_type == KnoraValueType.BOOLEAN_VALUE
         assert not res.value_metadata
 
@@ -170,7 +170,7 @@ class TestValues:
         val = ParsedValue(HAS_PROP, "#5d1f1e", KnoraValueType.COLOR_VALUE, None, None)
         res = _get_one_value(val)
         assert res.user_facing_prop == HAS_PROP
-        assert res.user_facing_value == "#00ff00"
+        assert res.user_facing_value == "#5d1f1e"
         assert res.knora_type == KnoraValueType.COLOR_VALUE
         assert not res.value_metadata
 
@@ -178,7 +178,7 @@ class TestValues:
         val = ParsedValue(HAS_PROP, "CE:1849:CE:1850", KnoraValueType.DATE_VALUE, None, None)
         res = _get_one_value(val)
         assert res.user_facing_prop == HAS_PROP
-        assert res.user_facing_value == "JULIAN:BCE:0700:BCE:0600"
+        assert res.user_facing_value == "CE:1849:CE:1850"
         assert res.knora_type == KnoraValueType.DATE_VALUE
         assert not res.value_metadata
 
@@ -186,12 +186,13 @@ class TestValues:
         val = ParsedValue(HAS_PROP, "1.4", KnoraValueType.DECIMAL_VALUE, None, None)
         res = _get_one_value(val)
         assert res.user_facing_prop == HAS_PROP
-        assert res.user_facing_value == "2.71"
+        assert res.user_facing_value == "1.4"
         assert res.knora_type == KnoraValueType.DECIMAL_VALUE
         assert not res.value_metadata
 
-    def test_geoname_corr(self, geoname_value_corr):
-        res = _get_one_value(geoname_value_corr)
+    def test_geoname_corr(self):
+        val = ParsedValue(HAS_PROP, "1111111", KnoraValueType.GEONAME_VALUE, None, None)
+        res = _get_one_value(val)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == "1111111"
         assert res.knora_type == KnoraValueType.GEONAME_VALUE
@@ -218,7 +219,7 @@ class TestValues:
         val = ParsedValue(f"{KNORA_API_STR}hasGeometry", "invalid", KnoraValueType.GEOM_VALUE, None, None)
         res = _get_one_value(val)
         assert res.user_facing_prop == f"{KNORA_API_STR}hasGeometry"
-        assert not res.user_facing_value
+        assert res.user_facing_value == None  # noqa: E711 Comparison to `None`
         assert res.knora_type == KnoraValueType.GEOM_VALUE
         assert not res.value_metadata
 
@@ -226,7 +227,7 @@ class TestValues:
         val = ParsedValue(f"{KNORA_API_STR}hasGeometry", None, KnoraValueType.GEOM_VALUE, None, None)
         res = _get_one_value(val)
         assert res.user_facing_prop == f"{KNORA_API_STR}hasGeometry"
-        assert not res.user_facing_value
+        assert res.user_facing_value == None  # noqa: E711 Comparison to `None`
         assert res.knora_type == KnoraValueType.GEOM_VALUE
         assert not res.value_metadata
 
@@ -242,7 +243,7 @@ class TestValues:
         val = ParsedValue(f"{KNORA_API_STR}hasSegmentBounds", ("1", "2"), KnoraValueType.INTERVAL_VALUE, None, None)
         res = _get_one_value(val)
         assert res.user_facing_prop == HAS_PROP
-        assert res.user_facing_value == "1"
+        assert res.user_facing_value == None  # noqa: E711 Comparison to `None`
         assert res.knora_type == KnoraValueType.INT_VALUE
         assert not res.value_metadata
 
@@ -250,7 +251,7 @@ class TestValues:
         val = ParsedValue(HAS_PROP, ("list", "node"), KnoraValueType.LIST_VALUE, None, None)
         res = _get_one_value(val)
         assert res.user_facing_prop == HAS_PROP
-        assert res.user_facing_value == "firstList / n1"
+        assert res.user_facing_value == "list / node"
         assert res.knora_type == KnoraValueType.LIST_VALUE
         assert not res.value_metadata
 
@@ -258,7 +259,7 @@ class TestValues:
         val = ParsedValue(HAS_PROP, ("list", None), KnoraValueType.LIST_VALUE, None, None)
         res = _get_one_value(val)
         assert res.user_facing_prop == HAS_PROP
-        assert res.user_facing_value == "firstList / None"
+        assert res.user_facing_value == "list / None"
         assert res.knora_type == KnoraValueType.LIST_VALUE
         assert not res.value_metadata
 
@@ -274,7 +275,7 @@ class TestValues:
         val = ParsedValue(HAS_PROP, "text", KnoraValueType.SIMPLETEXT_VALUE, None, None)
         res = _get_one_value(val)
         assert res.user_facing_prop == HAS_PROP
-        assert res.user_facing_value == "Text"
+        assert res.user_facing_value == "text"
         assert res.knora_type == KnoraValueType.SIMPLETEXT_VALUE
         assert not res.value_metadata
 
@@ -282,7 +283,7 @@ class TestValues:
         val = ParsedValue(HAS_PROP, None, KnoraValueType.SIMPLETEXT_VALUE, None, None)
         res = _get_one_value(val)
         assert res.user_facing_prop == HAS_PROP
-        assert not res.user_facing_value
+        assert res.user_facing_value == None  # noqa: E711 Comparison to `None`
         assert res.knora_type == KnoraValueType.SIMPLETEXT_VALUE
         assert not res.value_metadata
 
@@ -295,11 +296,11 @@ class TestValues:
         assert not res.value_metadata
 
     def test_richtext_with_standoff(self):
-        text_str = 'Comment with <a class="salsah-link" href="IRI:link:IRI">link text</a>.'
+        text_str = 'With <a class="salsah-link" href="IRI:link:IRI">link text</a>.'
         val = ParsedValue(HAS_PROP, text_str, KnoraValueType.RICHTEXT_VALUE, None, None)
         res = _get_one_value(val)
         assert res.user_facing_prop == HAS_PROP
-        assert res.user_facing_value == "<p>Text</p>"
+        assert res.user_facing_value == 'With <a class="salsah-link" href="IRI:link:IRI">link text</a>.'
         assert res.knora_type == KnoraValueType.RICHTEXT_VALUE
         assert not res.value_metadata
 

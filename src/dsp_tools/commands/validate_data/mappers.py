@@ -24,9 +24,20 @@ from dsp_tools.commands.xmlupload.make_rdf_graph.constants import URI_PROP_TYPE_
 from dsp_tools.commands.xmlupload.models.rdf_models import RDFPropTypeInfo
 from dsp_tools.utils.rdflib_constants import API_SHAPES
 from dsp_tools.utils.rdflib_constants import KNORA_API
+from dsp_tools.utils.rdflib_constants import KNORA_API_STR
 from dsp_tools.utils.xml_parsing.models.data_deserialised import TripleObjectType
 from dsp_tools.utils.xml_parsing.models.data_deserialised import TriplePropertyType
 from dsp_tools.utils.xml_parsing.models.parsed_resource import KnoraValueType
+
+FILE_TYPE_TO_PROP = {
+    KnoraValueType.ARCHIVE_FILE: f"{KNORA_API_STR}hasArchiveFileValue",
+    KnoraValueType.AUDIO_FILE: f"{KNORA_API_STR}hasAudioFileValue",
+    KnoraValueType.DOCUMENT_FILE: f"{KNORA_API_STR}hasDocumentFileValue",
+    KnoraValueType.MOVING_IMAGE_FILE: f"{KNORA_API_STR}hasMovingImageFileValue",
+    KnoraValueType.STILL_IMAGE_FILE: f"{KNORA_API_STR}hasStillImageFileValue",
+    KnoraValueType.STILL_IMAGE_IIIF: f"{KNORA_API_STR}hasStillImageFileValue",
+    KnoraValueType.TEXT_FILE: f"{KNORA_API_STR}hasTextFileValue",
+}
 
 SEGMENT_TAG_TO_PROP_MAPPER = {
     "relatesTo": KnoraValueType.LINK_VALUE,

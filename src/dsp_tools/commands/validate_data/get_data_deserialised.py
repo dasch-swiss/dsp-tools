@@ -2,7 +2,8 @@ import json
 from json import JSONDecodeError
 
 import regex
-from dsp_tools.utils.rdflib_constants import KNORA_API_STR
+
+from dsp_tools.commands.validate_data.mappers import FILE_TYPE_TO_PROP
 from dsp_tools.utils.xml_parsing.models.data_deserialised import DataDeserialised
 from dsp_tools.utils.xml_parsing.models.data_deserialised import PropertyObject
 from dsp_tools.utils.xml_parsing.models.data_deserialised import ResourceDeserialised
@@ -112,9 +113,50 @@ def _get_value_metadata(value: ParsedValue) -> list[PropertyObject]:
     return metadata
 
 
-def _get_file_value(file_value: ParsedFileValue) -> ValueInformation:
-    pass
+def _get_file_value(file_value: ParsedFileValue) -> ValueInformation | None:
+    if not any([file_value.value, file_value.value_type]):
+        return None
+    user_prop = FILE_TYPE_TO_PROP[file_value.value_type]
+    return ValueInformation(
+        user_facing_prop=user_prop,
+        user_facing_value=file_value.value,
+        knora_type=file_value.value_type,
+        value_metadata=_get_file_metadata(file_value.metadata),
+    )
 
 
 def _get_file_metadata(metadata: ParsedFileValueMetadata) -> list[PropertyObject]:
-    pass
+    property_objects = []
+    if metadata.license_iri:
+        property_objects.append(
+            PropertyObject(
+                property_type=TriplePropertyType.KNORA_LICENSE,
+                object_value=metadata.license_iri,
+                object_type=TripleObjectType.IRI,
+            )
+        )
+    if metadata.copyright_holder:
+        property_objects.append(
+            PropertyObject(
+                property_type=TriplePropertyType.KNORA_COPYRIGHT_HOLDER,
+                object_value=metadata.copyright_holder,
+                object_type=TripleObjectType.STRING,
+            )
+        )
+    if metadata.authorship_id:
+        property_objects.append(
+            PropertyObject(
+                property_type=TriplePropertyType.KNORA_AUTHORSHIP,
+                object_value=metadata.authorship_id,
+                object_type=TripleObjectType.STRING,
+            )
+        )
+    if metadata.permissions_id:
+        property_objects.append(
+            PropertyObject(
+                property_type=TriplePropertyType.KNORA_PERMISSIONS,
+                object_value=metadata.permissions_id,
+                object_type=TripleObjectType.STRING,
+            )
+        )
+    return property_objects

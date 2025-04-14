@@ -345,6 +345,16 @@ class TestFileValue:
         assert copyright_res.object_value == "copy"
         assert copyright_res.object_type == TripleObjectType.STRING
 
+    def test_no_file(self):
+        metadata = ParsedFileValueMetadata(None, None, None, None)
+        val = ParsedFileValue(None, None, metadata)
+        assert not _get_file_value(val)
+
+    def test_unknown_extension(self):
+        metadata = ParsedFileValueMetadata(None, None, None, None)
+        val = ParsedFileValue("unknown.extension", None, metadata)
+        assert not _get_file_value(val)
+
 
 if __name__ == "__main__":
     pytest.main([__file__])

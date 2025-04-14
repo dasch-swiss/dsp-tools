@@ -33,6 +33,7 @@ def _get_one_resource(resource: ParsedResource) -> ResourceDeserialised:
         PropertyObject(TriplePropertyType.RDFS_LABEL, resource.label, TripleObjectType.STRING),
         PropertyObject(TriplePropertyType.RDF_TYPE, resource.res_type, TripleObjectType.IRI),
     ]
+    metadata.extend(_get_all_stand_off_links(values))
     if resource.permissions_id:
         metadata.append(
             PropertyObject(TriplePropertyType.KNORA_PERMISSIONS, resource.permissions_id, TripleObjectType.STRING)

@@ -35,6 +35,12 @@ def bool_value() -> ParsedValue:
     return ParsedValue(HAS_PROP, "true", KnoraValueType.BOOLEAN_VALUE, None, None)
 
 
+@pytest.fixture
+def richtext_with_standoff() -> ParsedValue:
+    text_str = 'With <a class="salsah-link" href="IRI:link:IRI">link text</a>.'
+    return ParsedValue(HAS_PROP, text_str, KnoraValueType.RICHTEXT_VALUE, None, None)
+
+
 def _get_label_and_type(resource: ResourceDeserialised) -> tuple[PropertyObject, PropertyObject, list[PropertyObject]]:
     lbl = next(x for x in resource.property_objects if x.property_type == TriplePropertyType.RDFS_LABEL)
     rdf_type = next(x for x in resource.property_objects if x.property_type == TriplePropertyType.RDF_TYPE)
@@ -131,6 +137,27 @@ class TestResource:
         assert file_value.user_facing_value == "file.jpg"
         assert file_value.knora_type == KnoraValueType.STILL_IMAGE_FILE
         assert len(file_value.value_metadata) == 4
+
+    def test_with_standoff(self, richtext_with_standoff):
+        res = ParsedResource(
+            res_id="one",
+            res_type=RES_TYPE,
+            label="lbl",
+            permissions_id=None,
+            values=[richtext_with_standoff],
+            file_value=None,
+            migration_metadata=None,
+        )
+        result = _get_one_resource(res)
+        assert result.res_id == "one"
+        assert len(result.property_objects) == 2
+        assert not result.asset_value
+        lbl, rdf_type, _ = _get_label_and_type(result)
+        assert lbl.object_value == "lbl"
+        assert lbl.object_type == TripleObjectType.STRING
+        assert rdf_type.object_value == RES_TYPE
+        assert rdf_type.object_type == TripleObjectType.IRI
+        assert len(result.values) == 1
 
 
 class TestValues:
@@ -311,10 +338,8 @@ class TestValues:
         assert res.knora_type == KnoraValueType.RICHTEXT_VALUE
         assert not res.value_metadata
 
-    def test_richtext_with_standoff(self):
-        text_str = 'With <a class="salsah-link" href="IRI:link:IRI">link text</a>.'
-        val = ParsedValue(HAS_PROP, text_str, KnoraValueType.RICHTEXT_VALUE, None, None)
-        res = _get_one_value(val)
+    def test_richtext_with_standoff(self, richtext_with_standoff):
+        res = _get_one_value(richtext_with_standoff)
         assert res.user_facing_prop == HAS_PROP
         assert res.user_facing_value == 'With <a class="salsah-link" href="IRI:link:IRI">link text</a>.'
         assert res.knora_type == KnoraValueType.RICHTEXT_VALUE

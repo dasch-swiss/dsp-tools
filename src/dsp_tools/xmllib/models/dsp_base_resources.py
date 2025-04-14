@@ -23,7 +23,6 @@ from dsp_tools.xmllib.models.values import LinkValue
 from dsp_tools.xmllib.models.values import Richtext
 from dsp_tools.xmllib.value_checkers import is_decimal
 from dsp_tools.xmllib.value_checkers import is_nonempty_value
-from dsp_tools.xmllib.value_checkers import is_string_like
 
 # ruff: noqa: D101, D102
 
@@ -1395,7 +1394,7 @@ class AudioSegmentResource:
 
 
 def _check_strings(string_to_check: str, res_id: str, field_name: str) -> None:
-    if not is_string_like(string_to_check):
+    if not is_nonempty_value(string_to_check):
         msg = (
             f"The resource with the ID '{res_id}' has an invalid string at the following location:\n"
             f"Field: {field_name} | Value: {string_to_check}"

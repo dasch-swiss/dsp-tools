@@ -9,7 +9,7 @@ from typing import Protocol
 from dsp_tools.error.custom_warnings import DspToolsUserWarning
 from dsp_tools.utils.data_formats.uri_util import is_iiif_uri
 from dsp_tools.xmllib.models.config_options import Permissions
-from dsp_tools.xmllib.value_checkers import is_string_like
+from dsp_tools.xmllib.value_checkers import is_nonempty_value
 
 
 @dataclass
@@ -32,16 +32,16 @@ class Metadata:
     resource_id: str | None = None
 
     def __post_init__(self) -> None:
-        if not is_string_like(self.license):
+        if not is_nonempty_value(self.license):
             _warn_type_mismatch(expected_type="license", value=self.license, res_id=self.resource_id)
-        if not is_string_like(str(self.copyright_holder)):
+        if not is_nonempty_value(str(self.copyright_holder)):
             _warn_type_mismatch(expected_type="copyright holder", value=self.copyright_holder, res_id=self.resource_id)
         if len(self.authorship) == 0:
             _warn_type_mismatch(
                 expected_type="list of authorship strings", value="empty input", res_id=self.resource_id
             )
         for author in self.authorship:
-            if not is_string_like(author):
+            if not is_nonempty_value(author):
                 _warn_type_mismatch(expected_type="author", value=author, res_id=self.resource_id)
 
 
@@ -59,7 +59,7 @@ class FileValue(AbstractFileValue):
     resource_id: str | None = None
 
     def __post_init__(self) -> None:
-        if not is_string_like(str(self.value)):
+        if not is_nonempty_value(str(self.value)):
             _warn_type_mismatch(expected_type="file name", value=self.value, res_id=self.resource_id)
 
 
